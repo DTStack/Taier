@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { Input, Select, Form, Tooltip, Checkbox } from 'antd';
 
-import { formItemLayout } from '../../../consts'
+import { formItemLayout, COMPONEMT_CONFIG_KEYS } from '../../../consts'
 
 const Option = Select.Option;
 const FormItem = Form.Item;
@@ -16,17 +16,7 @@ export default class FlinkConfig extends React.Component<any, any> {
             securityStatus,
             getFieldDecorator,
             checked,
-            changeCheckbox,
-            gatewayHostValue,
-            gatewayPortValue,
-            gatewayJobNameValue,
-            deleteOnShutdownOption,
-            randomJobNameSuffixOption,
-            getGatewayHostValue,
-            getGatewayPortValue,
-            getGatewayJobNameValue,
-            changeDeleteOnShutdownOption,
-            changeRandomJobNameSuffixOption
+            changeCheckbox
         } = this.props;
         return (
             <React.Fragment>
@@ -35,7 +25,7 @@ export default class FlinkConfig extends React.Component<any, any> {
                         label="flinkZkAddress"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('flinkConf.flinkZkAddress', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkZkAddress`, {
                             rules: [{
                                 required: true,
                                 message: '请输入flinkZkAddress'
@@ -49,7 +39,7 @@ export default class FlinkConfig extends React.Component<any, any> {
                         label={<Tooltip title="flinkHighAvailabilityStorageDir">flinkHighAvailabilityStorageDir</Tooltip>}
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('flinkConf.flinkHighAvailabilityStorageDir', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkHighAvailabilityStorageDir`, {
                             rules: [{
                                 required: true,
                                 message: '请输入flinkHighAvailabilityStorageDir'
@@ -62,7 +52,7 @@ export default class FlinkConfig extends React.Component<any, any> {
                         label="flinkZkNamespace"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('flinkConf.flinkZkNamespace', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkZkNamespace`, {
                             rules: [{
                                 required: true,
                                 message: '请输入flinkZkNamespace'
@@ -75,7 +65,7 @@ export default class FlinkConfig extends React.Component<any, any> {
                         label="flinkClusterId"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('flinkConf.flinkClusterId', {})(
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkClusterId`, {})(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
@@ -95,7 +85,7 @@ export default class FlinkConfig extends React.Component<any, any> {
                             label="reporterClass"
                             {...formItemLayout}
                         >
-                            {getFieldDecorator('flinkConf.reporterClass', {
+                            {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.reporterClass`, {
                                 initialValue: 'org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter'
                             })(
                                 <Input disabled={true} />
@@ -105,56 +95,53 @@ export default class FlinkConfig extends React.Component<any, any> {
                             label="gatewayHost"
                             {...formItemLayout}
                         >
-                            {getFieldDecorator('flinkConf.gatewayHost', {
+                            {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.gatewayHost`, {
                                 rules: [{
                                     required: true,
                                     message: '请输入gatewayHost'
-                                }],
-                                initialValue: gatewayHostValue
+                                }]
                             })(
-                                <Input disabled={isView} onChange={getGatewayHostValue} />
+                                <Input disabled={isView} />
                             )}
                         </FormItem>
                         <FormItem
                             label="gatewayPort"
                             {...formItemLayout}
                         >
-                            {getFieldDecorator('flinkConf.gatewayPort', {
+                            {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.gatewayPort`, {
                                 rules: [{
                                     required: true,
                                     message: '请输入gatewayPort'
-                                }],
-                                initialValue: gatewayPortValue
+                                }]
                             })(
-                                <Input disabled={isView} onChange={getGatewayPortValue} />
+                                <Input disabled={isView} />
                             )}
                         </FormItem>
                         <FormItem
                             label="gatewayJobName"
                             {...formItemLayout}
                         >
-                            {getFieldDecorator('flinkConf.gatewayJobName', {
+                            {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.gatewayJobName`, {
                                 rules: [{
                                     required: true,
                                     message: '请输入gatewayJobName'
-                                }],
-                                initialValue: gatewayJobNameValue
+                                }]
                             })(
-                                <Input disabled={isView} onChange={getGatewayJobNameValue} />
+                                <Input disabled={isView}/>
                             )}
                         </FormItem>
                         <FormItem
                             label="deleteOnShutdown"
                             {...formItemLayout}
                         >
-                            {getFieldDecorator('flinkConf.deleteOnShutdown', {
+                            {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.deleteOnShutdown`, {
                                 rules: [{
                                     required: true,
                                     message: 'deleteOnShutdown'
                                 }],
-                                initialValue: deleteOnShutdownOption
+                                initialValue: 'FALSE'
                             })(
-                                <Select disabled={isView} style={{ width: '100px' }} onChange={changeDeleteOnShutdownOption} >
+                                <Select disabled={isView} style={{ width: '100px' }} >
                                     <Option value="FALSE">FALSE</Option>
                                     <Option value="TRUE">TRUE</Option>
                                 </Select>
@@ -164,14 +151,14 @@ export default class FlinkConfig extends React.Component<any, any> {
                             label="randomJobNameSuffix"
                             {...formItemLayout}
                         >
-                            {getFieldDecorator('flinkConf.randomJobNameSuffix', {
+                            {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.randomJobNameSuffix`, {
                                 rules: [{
                                     required: true,
                                     message: 'randomJobNameSuffix'
                                 }],
-                                initialValue: randomJobNameSuffixOption
+                                initialValue: 'TRUE'
                             })(
-                                <Select disabled={isView} style={{ width: '100px' }} onChange={changeRandomJobNameSuffixOption}>
+                                <Select disabled={isView} style={{ width: '100px' }}>
                                     <Option value="FALSE">FALSE</Option>
                                     <Option value="TRUE">TRUE</Option>
                                 </Select>
@@ -183,7 +170,7 @@ export default class FlinkConfig extends React.Component<any, any> {
                         label="版本选择"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('flinkConf.typeName', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.typeName`, {
                             rules: [{
                                 required: true,
                                 message: '请选择flink版本'
@@ -201,7 +188,7 @@ export default class FlinkConfig extends React.Component<any, any> {
                         label="clusterMode"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('flinkConf.clusterMode', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.clusterMode`, {
                             rules: [{
                                 required: true,
                                 message: '请选择clusterMode'
@@ -218,7 +205,7 @@ export default class FlinkConfig extends React.Component<any, any> {
                         label="jarTmpDir"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('flinkConf.jarTmpDir', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.jarTmpDir`, {
                             initialValue: '../tmp140'
                         })(
                             <Input disabled={isView} />
@@ -228,7 +215,7 @@ export default class FlinkConfig extends React.Component<any, any> {
                         label="flinkPluginRoot"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('flinkConf.flinkPluginRoot', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkPluginRoot`, {
                             initialValue: '/opt/dtstack/flinkplugin'
                         })(
                             <Input disabled={isView} />
@@ -238,7 +225,7 @@ export default class FlinkConfig extends React.Component<any, any> {
                         label="remotePluginRootDir"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('flinkConf.remotePluginRootDir', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.remotePluginRootDir`, {
                             initialValue: '/opt/dtstack/flinkplugin'
                         })(
                             <Input disabled={isView} />
@@ -249,12 +236,11 @@ export default class FlinkConfig extends React.Component<any, any> {
                         label="flinkJarPath"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('flinkConf.flinkJarPath', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkJarPath`, {
                             rules: [{
                                 required: true,
                                 message: '请输入flinkJarPath'
                             }]
-                            // initialValue: "/opt/dtstack/flinkplugin"
                         })(
                             <Input disabled={isView} />
                         )}
@@ -264,12 +250,11 @@ export default class FlinkConfig extends React.Component<any, any> {
                         label="flinkJobHistory"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('flinkConf.flinkJobHistory', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkJobHistory`, {
                             rules: [{
                                 required: true,
                                 message: '请输入flinkJobHistory'
                             }]
-                            // initialValue: "/opt/dtstack/flinkplugin"
                         })(
                             <Input disabled={isView} />
                         )}
@@ -278,7 +263,7 @@ export default class FlinkConfig extends React.Component<any, any> {
                         label="yarn.jobmanager.help.mb"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('flinkConf.yarnJobmanagerHelpMb', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.yarnJobmanagerHelpMb`, {
                             initialValue: 1024
                         })(
                             <Input disabled={isView} />
@@ -288,7 +273,7 @@ export default class FlinkConfig extends React.Component<any, any> {
                         label="yarn.taskmanager.help.mb"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('flinkConf.yarnTaskmanagerHelpMb', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.yarnTaskmanagerHelpMb`, {
                             initialValue: 1024
                         })(
                             <Input disabled={isView} />
@@ -298,7 +283,7 @@ export default class FlinkConfig extends React.Component<any, any> {
                         label={<Tooltip title="yarn.taskmanager.numberOfTaskSlots">yarn.taskmanager.numberOfTaskSlots</Tooltip>}
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('flinkConf.yarnTaskmanagerNumberOfTaskSlots', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.yarnTaskmanagerNumberOfTaskSlots`, {
                             initialValue: 2
                         })(
                             <Input disabled={isView} />
@@ -308,7 +293,7 @@ export default class FlinkConfig extends React.Component<any, any> {
                         label={<Tooltip title="yarn.taskmanager.numberOfTaskManager">yarn.taskmanager.numberOfTaskManager</Tooltip>}
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('flinkConf.yarnTaskmanagerNumberOfTaskManager', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.yarnTaskmanagerNumberOfTaskManager`, {
                             initialValue: 2
                         })(
                             <Input disabled={isView} />
@@ -320,7 +305,7 @@ export default class FlinkConfig extends React.Component<any, any> {
                                 label="flinkPrincipal"
                                 {...formItemLayout}
                             >
-                                {getFieldDecorator('flinkConf.flinkPrincipal', {
+                                {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkPrincipal`, {
                                     rules: [{
                                         required: true,
                                         message: '请输入flinkPrincipal'
@@ -333,7 +318,7 @@ export default class FlinkConfig extends React.Component<any, any> {
                                 label="flinkKeytabPath"
                                 {...formItemLayout}
                             >
-                                {getFieldDecorator('flinkConf.flinkKeytabPath', {
+                                {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkKeytabPath`, {
                                     rules: [{
                                         required: true,
                                         message: '请输入flinkKeytabPath'
@@ -346,7 +331,7 @@ export default class FlinkConfig extends React.Component<any, any> {
                                 label="flinkKrb5ConfPath"
                                 {...formItemLayout}
                             >
-                                {getFieldDecorator('flinkConf.flinkKrb5ConfPath', {
+                                {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkKrb5ConfPath`, {
                                     rules: [{
                                         required: true,
                                         message: '请输入flinkKrb5ConfPath'
@@ -359,7 +344,7 @@ export default class FlinkConfig extends React.Component<any, any> {
                                 label="zkPrincipal"
                                 {...formItemLayout}
                             >
-                                {getFieldDecorator('flinkConf.zkPrincipal', {
+                                {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.zkPrincipal`, {
                                     rules: [{
                                         required: true,
                                         message: '请输入zkPrincipal'
@@ -372,7 +357,7 @@ export default class FlinkConfig extends React.Component<any, any> {
                                 label="zkKeytabPath"
                                 {...formItemLayout}
                             >
-                                {getFieldDecorator('flinkConf.zkKeytabPath', {
+                                {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.zkKeytabPath`, {
                                     rules: [{
                                         required: true,
                                         message: '请输入zkKeytabPath'
@@ -385,7 +370,7 @@ export default class FlinkConfig extends React.Component<any, any> {
                                 label="zkLoginName"
                                 {...formItemLayout}
                             >
-                                {getFieldDecorator('flinkConf.zkLoginName', {
+                                {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.zkLoginName`, {
                                     rules: [{
                                         required: true,
                                         message: '请输入zkLoginName'

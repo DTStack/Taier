@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { Input, Form } from 'antd';
 
-import { formItemLayout } from '../../../consts'
+import { formItemLayout, COMPONEMT_CONFIG_KEYS } from '../../../consts'
 
 const FormItem = Form.Item;
+
 export default class LibraSqlConfig extends React.Component<any, any> {
     render () {
         const { isView, getFieldDecorator, singleButton } = this.props;
@@ -14,7 +15,7 @@ export default class LibraSqlConfig extends React.Component<any, any> {
                         label="JDBC URL"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('libraConf.jdbcUrl', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.LIBRASQL}.jdbcUrl`, {
                             rules: [{
                                 required: true,
                                 message: '请输入jdbcUrl'
@@ -27,7 +28,7 @@ export default class LibraSqlConfig extends React.Component<any, any> {
                         label="用户名"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('libraConf.username')(
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.LIBRASQL}.username`)(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
@@ -35,7 +36,7 @@ export default class LibraSqlConfig extends React.Component<any, any> {
                         label="密码"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('libraConf.password')(
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.LIBRASQL}.password`)(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
@@ -43,7 +44,7 @@ export default class LibraSqlConfig extends React.Component<any, any> {
                         label="driverClassName"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('libraConf.driverClassName', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.LIBRASQL}.driverClassName`, {
                             rules: [{
                                 required: true,
                                 message: '请输入driverClassName'
@@ -56,7 +57,7 @@ export default class LibraSqlConfig extends React.Component<any, any> {
                         label="useConnectionPool"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('libraConf.useConnectionPool')(
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.LIBRASQL}.useConnectionPool`)(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
@@ -64,7 +65,7 @@ export default class LibraSqlConfig extends React.Component<any, any> {
                         label="maxPoolSize"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('libraConf.maxPoolSize')(
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.LIBRASQL}.maxPoolSize`)(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
@@ -72,7 +73,7 @@ export default class LibraSqlConfig extends React.Component<any, any> {
                         label="minPoolSize"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('libraConf.minPoolSize')(
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.LIBRASQL}.minPoolSize`)(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
@@ -80,7 +81,7 @@ export default class LibraSqlConfig extends React.Component<any, any> {
                         label="initialPoolSize"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('libraConf.initialPoolSize')(
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.LIBRASQL}.initialPoolSize`)(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
@@ -88,7 +89,7 @@ export default class LibraSqlConfig extends React.Component<any, any> {
                         label="jdbcIdel"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('libraConf.jdbcIdel')(
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.LIBRASQL}.jdbcIdel`)(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
@@ -96,7 +97,7 @@ export default class LibraSqlConfig extends React.Component<any, any> {
                         label="maxRows"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('libraConf.maxRows')(
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.LIBRASQL}.maxRows`)(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
@@ -104,7 +105,7 @@ export default class LibraSqlConfig extends React.Component<any, any> {
                         label="queryTimeout"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('libraConf.queryTimeout')(
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.LIBRASQL}.queryTimeout`)(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
@@ -112,7 +113,7 @@ export default class LibraSqlConfig extends React.Component<any, any> {
                         label="checkTimeout"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('libraConf.checkTimeout')(
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.LIBRASQL}.checkTimeout`)(
                             <Input disabled={isView} />
                         )}
                     </FormItem>

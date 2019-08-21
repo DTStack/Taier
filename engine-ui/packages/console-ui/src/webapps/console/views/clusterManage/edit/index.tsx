@@ -5,12 +5,12 @@ import { connect } from 'react-redux';
 import { Form, Input, Row, Col, Icon, Button, message, Card, Tabs, Modal } from 'antd';
 import Api from '../../../api/console'
 
-import { getComponentConfKey, exChangeComponentConf,
+import { exChangeComponentConf,
     showTestResult, validateAllRequired,
     myUpperCase, myLowerCase, toChsKeys,
     isHadoopEngine } from '../../../consts/clusterFunc';
 
-import { formItemLayout, ENGINE_TYPE, COMPONENT_TYPE_VALUE, SPARK_KEY_MAP,
+import { formItemLayout, ENGINE_TYPE, COMPONENT_TYPE_VALUE, SPARK_KEY_MAP, COMPONEMT_CONFIG_KEYS, COMPONEMT_CONFIG_KEY_ENUM,
     SPARK_KEY_MAP_DOTS, FLINK_KEY_MAP, FLINK_KEY_MAP_DOTS,
     DEFAULT_COMP_TEST, DEFAULT_COMP_REQUIRED,
     DTYARNSHELL_KEY_MAP, DTYARNSHELL_KEY_MAP_DOTS,
@@ -78,12 +78,6 @@ class EditCluster extends React.Component<any, any> {
         checked: false,
         allComponentConf: {},
         engineTypeKey: ENGINE_TYPE.HADOOP, // 默认hadoop engineType
-        // 以下字段为填补关闭复选框数据无法获取输入数据情况
-        gatewayHostValue: undefined,
-        gatewayPortValue: undefined,
-        gatewayJobNameValue: undefined,
-        deleteOnShutdownOption: 'FALSE',
-        randomJobNameSuffixOption: 'TRUE',
         flinkPrometheus: undefined, // 配置Prometheus参数
         flinkData: undefined, // 获取Prometheus参数
         addEngineVisible: false, // 新增引擎modal
@@ -101,7 +95,7 @@ class EditCluster extends React.Component<any, any> {
     }
 
     /**
-     * set formData
+     * set formData （转化服务端数据）
      * @param engineType 引擎类型
      * @param compConf 组件配置
      */
@@ -110,25 +104,25 @@ class EditCluster extends React.Component<any, any> {
         const { setFieldsValue } = this.props.form;
         let copyComp = cloneDeep(compConf);
         for (let key in copyComp) {
-            if (key == 'sparkConf') {
+            if (key == COMPONEMT_CONFIG_KEYS.SPARK) {
                 copyComp[key] = toChsKeys(copyComp[key] || {}, SPARK_KEY_MAP)
             }
-            if (key == 'flinkConf') {
+            if (key == COMPONEMT_CONFIG_KEYS.FLINK) {
                 copyComp[key] = toChsKeys(copyComp[key] || {}, FLINK_KEY_MAP)
             }
-            if (key == 'learningConf') {
+            if (key == COMPONEMT_CONFIG_KEYS.LEARNING) {
                 copyComp[key] = myUpperCase(copyComp[key])
             }
-            if (key == 'dtyarnshellConf') {
+            if (key == COMPONEMT_CONFIG_KEYS.DTYARNSHELL) {
                 copyComp[key] = toChsKeys(copyComp[key] || {}, DTYARNSHELL_KEY_MAP)
             }
-            if (key == 'hadoopConf') { // 由于上传文件的hdfs yarn不是form数据，不做set
+            if (key == COMPONEMT_CONFIG_KEYS.HDFS) { // 由于上传文件的hdfs yarn不是form数据，不做set
                 delete copyComp[key]
             }
-            if (key == 'yarnConf') {
+            if (key == COMPONEMT_CONFIG_KEYS.YARN) {
                 delete copyComp[key]
             }
-            if (key == 'libraConf') {
+            if (key == COMPONEMT_CONFIG_KEYS.LIBRASQL) {
                 delete copyComp[key]
             }
         }
@@ -173,7 +167,7 @@ class EditCluster extends React.Component<any, any> {
                         const resource = hadoopConf.resource || {}; // 资源信息
                         const hadoopComponentData = this.getComponetData(data, ENGINE_TYPE.HADOOP);
                         const libraComponentData = this.getComponetData(data, ENGINE_TYPE.LIBRA)
-                        let componentConf = exChangeComponentConf(hadoopComponentData, libraComponentData); // 所有引擎数据组合
+                        let componentConf = exChangeComponentConf(hadoopComponentData, libraComponentData) || {}; // 所有引擎数据组合
                         const flinkData = componentConf.flinkConf;
                         const extParams = this.exchangeServerParams(componentConf)
                         const flinkConf = componentConf.flinkConf;
@@ -486,7 +480,7 @@ class EditCluster extends React.Component<any, any> {
         const componentConf = this.getComponentConf(getFieldsValue());
         Api.saveComponent({
             componentId: component.componentId,
-            configString: JSON.stringify(componentConf[getComponentConfKey(component.componentTypeCode)])
+            configString: JSON.stringify(componentConf[COMPONEMT_CONFIG_KEY_ENUM[component.componentTypeCode]])
         }).then((res: any) => {
             if (res.code === 1) {
                 // 避免上传配置文件的组件hdfs、yarn保存之后会导致另一项组件数据清空，这里不请求数据
@@ -594,43 +588,43 @@ class EditCluster extends React.Component<any, any> {
         switch (component.componentTypeCode) {
             case COMPONENT_TYPE_VALUE.FLINK: {
                 form.setFieldsValue({
-                    flinkConf: toChsKeys(allComponentConf.flinkConf || {}, FLINK_KEY_MAP)
+                    [COMPONEMT_CONFIG_KEYS.FLINK]: toChsKeys(allComponentConf.flinkConf || {}, FLINK_KEY_MAP)
                 })
                 break;
             }
             case COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER: { // hive <=> Spark Thrift Server
                 form.setFieldsValue({
-                    hiveConf: allComponentConf.hiveConf
+                    [COMPONEMT_CONFIG_KEYS.SPARKTHRIFTSERVER]: allComponentConf.hiveConf
                 })
                 break;
             }
             case COMPONENT_TYPE_VALUE.CARBONDATA: {
                 form.setFieldsValue({
-                    carbonConf: allComponentConf.carbonConf
+                    [COMPONEMT_CONFIG_KEYS.CARBONDATA]: allComponentConf.carbonConf
                 })
                 break;
             }
             case COMPONENT_TYPE_VALUE.HIVESERVER: {
                 form.setFieldsValue({
-                    hiveServerConf: allComponentConf.hiveServerConf
+                    [COMPONEMT_CONFIG_KEYS.HIVESERVER]: allComponentConf.hiveServerConf
                 })
                 break;
             }
             case COMPONENT_TYPE_VALUE.SPARK: {
                 form.setFieldsValue({
-                    sparkConf: toChsKeys(allComponentConf.sparkConf || {}, SPARK_KEY_MAP)
+                    [COMPONEMT_CONFIG_KEYS.SPARK]: toChsKeys(allComponentConf.sparkConf || {}, SPARK_KEY_MAP)
                 })
                 break;
             }
             case COMPONENT_TYPE_VALUE.DTYARNSHELL: {
                 form.setFieldsValue({
-                    dtyarnshellConf: toChsKeys(allComponentConf.dtyarnshellConf || {}, DTYARNSHELL_KEY_MAP)
+                    [COMPONEMT_CONFIG_KEYS.DTYARNSHELL]: toChsKeys(allComponentConf.dtyarnshellConf || {}, DTYARNSHELL_KEY_MAP)
                 })
                 break;
             }
             case COMPONENT_TYPE_VALUE.LEARNING: {
                 form.setFieldsValue({
-                    learningConf: myUpperCase(allComponentConf.learningConf)
+                    [COMPONEMT_CONFIG_KEYS.LEARNING]: myUpperCase(allComponentConf.learningConf)
                 })
                 break;
             }
@@ -654,7 +648,7 @@ class EditCluster extends React.Component<any, any> {
             }
             case COMPONENT_TYPE_VALUE.LIBRASQL: {
                 form.setFieldsValue({
-                    libraConf: allComponentConf.libraConf
+                    [COMPONEMT_CONFIG_KEYS.LIBRASQL]: allComponentConf.libraConf
                 })
                 break;
             }
@@ -823,32 +817,17 @@ class EditCluster extends React.Component<any, any> {
             addComponentVisible: false
         })
     }
-    // 获取每项Input的值
-    getGatewayHostValue (e: any) {
-        this.setState({
-            gatewayHostValue: e.target.value
-        })
-    }
-    getGatewayPortValue (e: any) {
-        this.setState({
-            gatewayPortValue: e.target.value
-        })
-    }
-    getGatewayJobNameValue (e: any) {
-        this.setState({
-            gatewayJobNameValue: e.target.value
-        })
-    }
-    changeDeleteOnShutdownOption (value: any) {
-        this.setState({
-            deleteOnShutdownOption: value
-        })
-    }
-    changeRandomJobNameSuffixOption (value: any) {
-        this.setState({
-            randomJobNameSuffixOption: value
-        })
-    }
+    // getInputVal (type: string, e: any) {
+    //     let tempState;
+    //     if (type == 'gatewayHostValue') {
+    //         tempState = 'gatewayHostValue'
+    //     } else if (type == 'gatewayPortValue') {
+    //         tempState = 'gatewayPortValue'
+    //     } else if (type == 'gatewayJobNameValue') {
+    //         tempState = 'gatewayJobNameValue'
+    //     }
+    //     this.setState({ [tempState]: e.target.value })
+    // }
     /**
      * LIBA不显示集群信息
      */
@@ -945,9 +924,7 @@ class EditCluster extends React.Component<any, any> {
      * 渲染 Component Config
      */
     renderComponentConf = (component: any) => {
-        const { checked, securityStatus, zipConfig,
-            gatewayHostValue, gatewayPortValue, gatewayJobNameValue,
-            deleteOnShutdownOption, randomJobNameSuffixOption } = this.state;
+        const { checked, securityStatus, zipConfig } = this.state;
         const { getFieldDecorator } = this.props.form;
         const { mode } = this.props.location.state || {} as any;
         const isView = mode == 'view';
@@ -1022,16 +999,6 @@ class EditCluster extends React.Component<any, any> {
                         securityStatus={securityStatus}
                         checked={checked}
                         changeCheckbox={this.changeCheckbox.bind(this)}
-                        gatewayHostValue={gatewayHostValue}
-                        gatewayPortValue={gatewayPortValue}
-                        gatewayJobNameValue={gatewayJobNameValue}
-                        deleteOnShutdownOption={deleteOnShutdownOption}
-                        randomJobNameSuffixOption={randomJobNameSuffixOption}
-                        getGatewayHostValue={this.getGatewayHostValue.bind(this)}
-                        getGatewayPortValue={this.getGatewayPortValue.bind(this)}
-                        getGatewayJobNameValue={this.getGatewayJobNameValue.bind(this)}
-                        changeDeleteOnShutdownOption={this.changeDeleteOnShutdownOption.bind(this)}
-                        changeRandomJobNameSuffixOption={this.changeRandomJobNameSuffixOption.bind(this)}
                         customView={(
                             <div>
                                 {this.renderExtraParam('flink')}

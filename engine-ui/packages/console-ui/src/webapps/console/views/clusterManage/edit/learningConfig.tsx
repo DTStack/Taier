@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Input, Form, Tooltip } from 'antd';
 
-import { formItemLayout } from '../../../consts'
+import { formItemLayout, COMPONEMT_CONFIG_KEYS } from '../../../consts'
 const FormItem = Form.Item;
 
 export default class LearningConfig extends React.Component<any, any> {
@@ -14,7 +14,7 @@ export default class LearningConfig extends React.Component<any, any> {
                         label="learning.python3.path"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('learningConf.learningPython3Path', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.LEARNING}.learningPython3Path`, {
                         })(
                             <Input disabled={isView} placeholder="/root/anaconda3/bin/python3" />
                         )}
@@ -23,7 +23,7 @@ export default class LearningConfig extends React.Component<any, any> {
                         label="learning.python2.path"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('learningConf.learningPython2Path', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.LEARNING}.learningPython2Path`, {
                         })(
                             <Input disabled={isView} placeholder="/root/anaconda2/bin/python2" />
                         )}
@@ -32,7 +32,7 @@ export default class LearningConfig extends React.Component<any, any> {
                         label="learning.history.address"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('learningConf.learningHistoryAddress', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.LEARNING}.learningHistoryAddress`, {
                         })(
                             <Input disabled={isView} placeholder="rdos1:10021" />
                         )}
@@ -41,7 +41,7 @@ export default class LearningConfig extends React.Component<any, any> {
                         label={<Tooltip title="learning.history.webapp.address">learning.history.webapp.address</Tooltip>}
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('learningConf.learningHistoryWebappAddress', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.LEARNING}.learningHistoryWebappAddress`, {
                         })(
                             <Input disabled={isView} placeholder="rdos1:19886" />
                         )}
@@ -50,7 +50,7 @@ export default class LearningConfig extends React.Component<any, any> {
                         label={<Tooltip title="learning.history.webapp.https.address">learning.history.webapp.https.address</Tooltip>}
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('learningConf.learningHistoryWebappHttpsAddress', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.LEARNING}.learningHistoryWebappHttpsAddress`, {
                         })(
                             <Input disabled={isView} placeholder="rdos1:19885" />
                         )}

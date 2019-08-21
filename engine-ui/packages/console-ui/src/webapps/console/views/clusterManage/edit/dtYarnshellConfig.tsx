@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Input, Form, Tooltip } from 'antd';
 
-import { formItemLayout } from '../../../consts'
+import { formItemLayout, COMPONEMT_CONFIG_KEYS } from '../../../consts'
 const FormItem = Form.Item;
 
 export default class DtyarnShellConfig extends React.Component<any, any> {
@@ -14,7 +14,7 @@ export default class DtyarnShellConfig extends React.Component<any, any> {
                         label="jlogstash.root"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('dtyarnshellConf.jlogstashRoot', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.DTYARNSHELL}.jlogstashRoot`, {
                             rules: [{
                                 required: true,
                                 message: '请输入jlogstash.root'
@@ -27,7 +27,7 @@ export default class DtyarnShellConfig extends React.Component<any, any> {
                         label="java.home"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('dtyarnshellConf.javaHome', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.DTYARNSHELL}.javaHome`, {
                             rules: [{
                                 required: false,
                                 message: '请输入java.home'
@@ -40,7 +40,7 @@ export default class DtyarnShellConfig extends React.Component<any, any> {
                         label="hadoop.home.dir"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('dtyarnshellConf.hadoopHomeDir', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.DTYARNSHELL}.hadoopHomeDir`, {
                             rules: [{
                                 required: true,
                                 message: '请输入hadoop.home.dir'
@@ -53,7 +53,7 @@ export default class DtyarnShellConfig extends React.Component<any, any> {
                         label="python2.path"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('dtyarnshellConf.python2Path', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.DTYARNSHELL}.python2Path`, {
                         })(
                             <Input disabled={isView} placeholder="/root/anaconda3/bin/python2" />
                         )}
@@ -62,7 +62,7 @@ export default class DtyarnShellConfig extends React.Component<any, any> {
                         label={<Tooltip title="python3.path">python3.path</Tooltip>}
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('dtyarnshellConf.python3Path', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.DTYARNSHELL}.python3Path`, {
                         })(
                             <Input disabled={isView} placeholder="/root/anaconda3/bin/python3" />
                         )}
@@ -73,7 +73,7 @@ export default class DtyarnShellConfig extends React.Component<any, any> {
                                 label="hdfsPrincipal"
                                 {...formItemLayout}
                             >
-                                {getFieldDecorator('dtyarnshellConf.hdfsPrincipal', {
+                                {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.DTYARNSHELL}.hdfsPrincipal`, {
                                     rules: [{
                                         required: true,
                                         message: '请输入hdfsPrincipal'
@@ -86,7 +86,7 @@ export default class DtyarnShellConfig extends React.Component<any, any> {
                                 label="hdfsKeytabPath"
                                 {...formItemLayout}
                             >
-                                {getFieldDecorator('dtyarnshellConf.hdfsKeytabPath', {
+                                {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.DTYARNSHELL}.hdfsKeytabPath`, {
                                     rules: [{
                                         required: true,
                                         message: '请输入hdfsKeytabPath'
@@ -99,7 +99,7 @@ export default class DtyarnShellConfig extends React.Component<any, any> {
                                 label="hdfsKrb5ConfPath"
                                 {...formItemLayout}
                             >
-                                {getFieldDecorator('dtyarnshellConf.hdfsKrb5ConfPath', {
+                                {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.DTYARNSHELL}.hdfsKrb5ConfPath`, {
                                     rules: [{
                                         required: true,
                                         message: '请输入hdfsKrb5ConfPath'
