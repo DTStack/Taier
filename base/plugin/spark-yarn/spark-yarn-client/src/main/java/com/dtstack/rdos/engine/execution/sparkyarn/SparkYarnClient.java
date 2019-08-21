@@ -25,6 +25,7 @@ import com.dtstack.rdos.engine.execution.sparkyarn.util.KerberosUtils;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -69,6 +70,12 @@ public class SparkYarnClient extends AbsClient {
     private static final String SPARK_YARN_MODE = "SPARK_YARN_MODE";
 
     private static final String IS_CARBON_SPARK_KEY = "isCarbondata";
+
+    private static final String SESSION_CONF_KEY_PREFIX = "session.";
+
+    private static final String KEY_DEFAULT_FILE_FORMAT = "hive.default.fileformat";
+
+    private static final String DEFAULT_FILE_FORMAT = "orc";
 
     private static final String LOG_LEVEL_KEY = "logLevel";
 
@@ -306,6 +313,7 @@ public class SparkYarnClient extends AbsClient {
         String zipSql = DtStringUtil.zip(jobClient.getSql());
         paramsMap.put("sql", zipSql);
         paramsMap.put("appName", jobClient.getJobName());
+        paramsMap.put("sparkSessionConf", getSparkSessionConf(confProp));
 
         String logLevel = MathUtil.getString(confProp.get(LOG_LEVEL_KEY));
         if (StringUtils.isNotEmpty(logLevel)) {
@@ -354,6 +362,26 @@ public class SparkYarnClient extends AbsClient {
             return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(ex));
         }
 
+    }
+
+    private Map<String, String> getSparkSessionConf(Properties confProp){
+        Map<String, String> map = Maps.newHashMap();
+        map.put(KEY_DEFAULT_FILE_FORMAT, DEFAULT_FILE_FORMAT);
+
+        if(confProp == null || confProp.isEmpty()){
+            return map;
+        }
+
+        for(Map.Entry<Object, Object> param : confProp.entrySet()){
+            String key = (String) param.getKey();
+            String val = (String) param.getValue();
+            if(key.startsWith(SESSION_CONF_KEY_PREFIX)){
+                key = key.replaceFirst("session\\.", "");
+                map.put(key, val);
+            }
+        }
+
+        return map;
     }
 
     private SparkConf buildBasicSparkConf(){

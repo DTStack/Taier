@@ -63,6 +63,8 @@ public class TaskStatusListener implements Runnable{
 
     public final static String FLINK_CP_HISTORY_KEY = "history";
 
+    public final static String FLINK_CP_COUNTS_KEY = "counts";
+
     public final static String TRIGGER_TIMESTAMP_KEY = "trigger_timestamp";
 
     public final static String CHECKPOINT_ID_KEY = "id";
@@ -380,10 +382,13 @@ public class TaskStatusListener implements Runnable{
     }
 
 	private void updateJobEngineLog(String jobId, JobIdentifier jobIdentifier, String engineType, int computeType, String pluginInfo){
-
-        //从engine获取log
-        String jobLog = JobClient.getEngineLog(engineType, pluginInfo, jobIdentifier);
-        updateJobEngineLog(jobId, jobLog, computeType);
+        try {
+            //从engine获取log
+            String jobLog = JobClient.getEngineLog(engineType, pluginInfo, jobIdentifier);
+            updateJobEngineLog(jobId, jobLog, computeType);
+        } catch (Throwable e){
+            updateJobEngineLog(jobId, ExceptionUtil.getErrorMessage(e), computeType);
+        }
     }
 
     private void updateJobEngineLog(String jobId, String jobLog, Integer computeType){
@@ -503,9 +508,16 @@ public class TaskStatusListener implements Runnable{
                 return;
             }
 
-            List<Map<String, Object>> cpList = (List<Map<String, Object>>) cpJson.get(FLINK_CP_HISTORY_KEY);
+            List<Map<String, Object>> cpList = cpJson.get(FLINK_CP_HISTORY_KEY) == null ? null : (List<Map<String, Object>>) cpJson.get(FLINK_CP_HISTORY_KEY);
             if(CollectionUtils.isEmpty(cpList)){
                 return;
+            }
+            Map<String, Object> counts = cpJson.get(FLINK_CP_COUNTS_KEY) == null ? null : (Map<String, Object>)cpJson.get(FLINK_CP_COUNTS_KEY);
+
+            String checkpointCounts = "";
+
+            if (null != counts) {
+                checkpointCounts = PublicUtil.objToString(counts);
             }
 
             checkpointIntervalClean(engineTaskId, cpList.get(0), pluginInfo);
@@ -525,13 +537,13 @@ public class TaskStatusListener implements Runnable{
                         StringUtils.isEmpty(checkpointInsertedCache.getIfPresent(checkpointCacheKey))) {
                     Timestamp checkpointTriggerTimestamp = new Timestamp(checkpointTrigger);
 
-                    rdosStreamTaskCheckpointDAO.insert(taskId, engineTaskId, checkpointID, checkpointTriggerTimestamp, checkpointSavepath);
+                    rdosStreamTaskCheckpointDAO.insert(taskId, engineTaskId, checkpointID, checkpointTriggerTimestamp, checkpointSavepath, checkpointCounts);
                     checkpointInsertedCache.put(checkpointCacheKey, "1");  //存在标识
 
                 }
             }
         } catch (IOException e) {
-            logger.error("", e);
+            logger.error("taskID:{} ,engineTaskId:{}, error log:{}\n", taskId, engineTaskId, ExceptionUtil.getErrorMessage(e));
         }
 
 
@@ -621,7 +633,7 @@ public class TaskStatusListener implements Runnable{
         RdosStreamTaskCheckpoint taskCheckpoint = rdosStreamTaskCheckpointDAO.getByTaskId(jobIdentifier.getTaskId());
         if(taskCheckpoint == null){
             Timestamp now = new Timestamp(System.currentTimeMillis());
-            rdosStreamTaskCheckpointDAO.insert(jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(),"", now, lastExternalPath);
+            rdosStreamTaskCheckpointDAO.insert(jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(),"", now, lastExternalPath, "");
         } else {
             rdosStreamTaskCheckpointDAO.update(jobIdentifier.getTaskId(), lastExternalPath);
         }
