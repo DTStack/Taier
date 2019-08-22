@@ -485,7 +485,7 @@ class ManageBasicProperties extends React.Component<any, any> {
                                             { min: 2, message: '最小字符不能小于2' },
                                             {
                                                 pattern: this.props.form.getFieldValue('protocol') === 'HTTP/HTTPS'
-                                                    ? new RegExp(/^\/[\w~!?@#$%^&*-=]+$/) : null,
+                                                    ? new RegExp(/^\/[\w~!?@#$%^&*-=(){}]+$/) : null,
                                                 message: '须以/开头，限制2-100个字符，不支持中文'
                                             }
                                         ],
