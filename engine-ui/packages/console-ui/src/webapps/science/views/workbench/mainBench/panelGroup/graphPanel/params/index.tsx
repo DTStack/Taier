@@ -16,7 +16,10 @@ import RegressionClassification from './regressionClassification';
 import UnionModel from './unionModel';
 import KmeansUnion from './kmeansUnion';
 import Standardization from './standardization';
+import GdbtClass from './gdbtClass';
 import MissValue from './missValue';
+import SvmComponent from './svmComponent';
+import ConfusionMatrix from './confusionMatrix';
 import { isEmpty } from 'lodash';
 import { bindActionCreators } from 'redux';
 import * as experimentActions from '../../../../../../actions/experimentActions';
@@ -98,9 +101,9 @@ class Params extends React.Component<any, any> {
             case COMPONENT_TYPE.MACHINE_LEARNING.KMEANS_UNION:
                 return <KmeansUnion key={componentId} {...componentProps} />
             case COMPONENT_TYPE.MACHINE_LEARNING.GBDT_CLASS:
-                return <Standardization key={componentId} {...componentProps} />
+                return <GdbtClass key={componentId} {...componentProps} />
             case COMPONENT_TYPE.MACHINE_LEARNING.SVM:
-                return <Standardization key={componentId} {...componentProps} />
+                return <SvmComponent key={componentId} {...componentProps} />
             case COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT:
                 return <DataPredict key={componentId} {...componentProps} />
             case COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION:
@@ -110,7 +113,7 @@ class Params extends React.Component<any, any> {
             case COMPONENT_TYPE.DATA_EVALUATE.UNION_CLASSIFICATION:
                 return <UnionModel key={componentId} {...componentProps} />
             case COMPONENT_TYPE.DATA_EVALUATE.CONFUSION_MATRIX:
-                return <Standardization key={componentId} {...componentProps} />
+                return <ConfusionMatrix key={componentId} {...componentProps} />
             case COMPONENT_TYPE.FEATURE_ENGINEER.ONE_HOT:
                 return <Standardization key={componentId} {...componentProps} />
             default:
