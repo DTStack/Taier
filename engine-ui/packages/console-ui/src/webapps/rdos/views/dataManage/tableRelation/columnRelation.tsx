@@ -161,7 +161,6 @@ export default class TableRelation extends React.Component<any, any> {
                 }
             }
         })
-        graph.center();
     }
 
     doInsertVertex = (data: any) => {
@@ -187,6 +186,7 @@ export default class TableRelation extends React.Component<any, any> {
             } finally {
                 if (post != null) { post(); }
                 model.endUpdate();
+                graph.center();
             }
         }
 
