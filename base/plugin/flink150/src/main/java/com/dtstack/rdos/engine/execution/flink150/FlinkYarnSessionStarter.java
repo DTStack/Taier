@@ -53,7 +53,6 @@ public class FlinkYarnSessionStarter {
         this.flinkConfig = flinkConfig;
         lockPath = String.format("%s/client/%s", flinkConfig.getFlinkZkNamespace(), flinkConfig.getCluster() + SPLIT + flinkConfig.getQueue());
 
-        initZk();
 
         Configuration configuration = loadConfiguration(flinkConfig.getFlinkJarPath());
         String clusterId = flinkConfig.getCluster() + SPLIT + flinkConfig.getQueue();
@@ -63,6 +62,8 @@ public class FlinkYarnSessionStarter {
         this.yarnSessionDescriptor = flinkClientBuilder.createClusterDescriptorByMode(configuration, flinkConfig, metricConfig, null, false);
         this.yarnSessionDescriptor.setName(flinkConfig.getFlinkSessionName() + SPLIT + clusterId);
         this.yarnSessionSpecification = FLinkConfUtil.createYarnSessionSpecification(flinkClientBuilder.getFlinkConfiguration());
+
+        initZk();
         this.clusterClientLock = new InterProcessMutex(zkClient, lockPath);
     }
 

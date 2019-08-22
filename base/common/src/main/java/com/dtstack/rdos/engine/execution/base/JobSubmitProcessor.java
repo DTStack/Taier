@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.base;
 
+import com.dtstack.rdos.commom.exception.ClientAccessException;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
@@ -74,7 +75,11 @@ public class JobSubmitProcessor implements Runnable {
         } catch (Throwable e) {
             //捕获未处理异常,防止跳出执行线程
             jobClient.setEngineTaskId(null);
-            jobResult = JobResult.createErrorResult(e);
+            if (e instanceof ClientAccessException) {
+                jobResult = JobResult.createErrorResult(false, e);
+            } else {
+                jobResult = JobResult.createErrorResult(true, e);
+            }
             addToTaskListener(jobClient, jobResult);
             logger.error("get unexpected exception", e);
         }
