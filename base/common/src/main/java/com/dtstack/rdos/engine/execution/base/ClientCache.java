@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.base;
 
+import com.dtstack.rdos.commom.exception.ClientAccessException;
 import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.common.util.MD5Util;
 import com.dtstack.rdos.common.util.MathUtil;
@@ -81,40 +82,43 @@ public class ClientCache {
      * @param pluginInfo
      * @return
      */
-    public IClient getClient(String pluginKey, String pluginInfo) throws Exception {
-
-        if(Strings.isNullOrEmpty(pluginInfo)){
-            return getDefaultPlugin(pluginKey);
-        }
-
-        Map<String, IClient> clientMap = cache.computeIfAbsent(pluginKey, k -> Maps.newConcurrentMap());
-
-        Properties properties = PublicUtil.jsonStrToObject(pluginInfo, Properties.class);
-
-        String md5plugin = MD5Util.getMD5String(pluginInfo);
-        String md5sum = null;
-        if(!properties.containsKey(MD5_SUM_KEY) || (md5sum = MathUtil.getString(properties.get(MD5_SUM_KEY))) == null){
-            String md5zip = MathUtil.getString(properties.get(MD5_ZIP_KEY));
-            if (md5zip == null) {
-                md5zip = "";
+    public IClient getClient(String pluginKey, String pluginInfo) throws ClientAccessException {
+        try {
+            if(Strings.isNullOrEmpty(pluginInfo)){
+                return getDefaultPlugin(pluginKey);
             }
-            md5sum = md5zip + md5plugin;
-            properties.setProperty(MD5_SUM_KEY, md5sum);
-        }
 
-        IClient client = clientMap.get(md5sum);
-        if(client == null){
-            synchronized (clientMap) {
-                client = clientMap.get(md5sum);
-                if (client == null){
-                    client = buildPluginClient(pluginInfo);
-                    client.init(properties);
-                    clientMap.putIfAbsent(md5sum, client);
+            Map<String, IClient> clientMap = cache.computeIfAbsent(pluginKey, k -> Maps.newConcurrentMap());
+
+            Properties properties = PublicUtil.jsonStrToObject(pluginInfo, Properties.class);
+
+            String md5plugin = MD5Util.getMD5String(pluginInfo);
+            String md5sum = null;
+            if(!properties.containsKey(MD5_SUM_KEY) || (md5sum = MathUtil.getString(properties.get(MD5_SUM_KEY))) == null){
+                String md5zip = MathUtil.getString(properties.get(MD5_ZIP_KEY));
+                if (md5zip == null) {
+                    md5zip = "";
+                }
+                md5sum = md5zip + md5plugin;
+                properties.setProperty(MD5_SUM_KEY, md5sum);
+            }
+
+            IClient client = clientMap.get(md5sum);
+            if(client == null){
+                synchronized (clientMap) {
+                    client = clientMap.get(md5sum);
+                    if (client == null){
+                        client = buildPluginClient(pluginInfo);
+                        client.init(properties);
+                        clientMap.putIfAbsent(md5sum, client);
+                    }
                 }
             }
-        }
 
-        return client;
+            return client;
+        } catch (Throwable e) {
+            throw new ClientAccessException(e);
+        }
     }
 
     private IClient getDefaultPlugin(String pluginKey){
