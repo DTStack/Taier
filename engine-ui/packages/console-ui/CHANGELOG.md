@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.8.0-beta.1.3"></a>
+# [3.8.0-beta.1.3](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.8.0-beta.1.2...3.8.0-beta.1.3) (2019-08-22)
+
+
+### Bug Fixes
+
+* **testApi:** support input params contains dots char ([617a25d](http://git.dtstack.cn/dtstack/data-stack-web/commits/617a25d)), closes [#18341](http://redmine.prod.dtstack.cn/issues/18341)
+
+
+### Features
+
+* add expandJSONObj function ([4df7d37](http://git.dtstack.cn/dtstack/data-stack-web/commits/4df7d37))
+
+
+
 <a name="3.8.0-beta.1.2"></a>
 # [3.8.0-beta.1.2](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.8.0-beta.1.1...3.8.0-beta.1.2) (2019-08-21)
 
