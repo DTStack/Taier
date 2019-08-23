@@ -6,6 +6,7 @@ import {
 } from 'antd';
 
 import utils from 'utils';
+import { hidePasswordInDom } from 'funcs';
 
 import CopyIcon from 'main/components/copy-icon';
 import HelpDoc from '../helpDoc';
@@ -54,7 +55,9 @@ class DataSourceModal extends React.Component<any, any> {
     componentDidMount () {
         // this.props.getDataSourcesType();
     }
-
+    componentDidUpdate () {
+        hidePasswordInDom();
+    }
     // eslint-disable-next-line
     UNSAFE_componentWillReceiveProps(nextProps: any) {
         const oldData = this.props.sourceData;
@@ -133,6 +136,13 @@ class DataSourceModal extends React.Component<any, any> {
         this.props.form.resetFields();
     };
 
+    hidePasswordInDom = (e: any) => {
+        // 特殊处理密码在 dom 中的展示
+        setTimeout(() => {
+            document.getElementById('dataJson.password').setAttribute('value', '');
+        }, 200)
+    }
+
     renderDynamic () {
         const { sourceType } = this.state;
         const { form, sourceData } = this.props;
@@ -172,7 +182,7 @@ class DataSourceModal extends React.Component<any, any> {
                             {getFieldDecorator('dataJson.password', {
                                 rules: [],
                                 initialValue: ''
-                            })(<Input type="password" />)}
+                            })(<Input onChange={hidePasswordInDom} type="password" />)}
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
@@ -332,7 +342,7 @@ class DataSourceModal extends React.Component<any, any> {
                                     }
                                 ],
                                 initialValue: ''
-                            })(<Input type="password" />)}
+                            })(<Input type="password" onChange={hidePasswordInDom}/>)}
                         </FormItem>
                     </div>
                 );
