@@ -27,16 +27,24 @@ class MessageList extends React.Component<any, any> {
         selectedAll: false
     }
 
+    componentDidMount () {
+        this.handleStateData();
+    }
+
+    handleStateData = () => {
+        const { apps, licenseApps = [] } = this.props;
+        const initialApp = utils.getParameterByName('app');
+        const defaultApp = licenseApps.find((licapp: any) => licapp.isShow) || [];
+        if (apps && apps.length > 0) {
+            this.setState({
+                selectedApp: initialApp || defaultApp.id
+            }, this.loadMsg);
+        }
+    }
+
     componentDidUpdate (prevProps: any, prevState: any) {
         if (this.props.licenseApps.length > 0 && prevProps.licenseApps !== this.props.licenseApps) {
-            const { apps, licenseApps = [] } = this.props;
-            const initialApp = utils.getParameterByName('app');
-            const defaultApp = licenseApps.find((licapp: any) => licapp.isShow) || [];
-            if (apps && apps.length > 0) {
-                this.setState({
-                    selectedApp: initialApp || defaultApp.id
-                }, this.loadMsg)
-            }
+            this.handleStateData();
         }
     }
 
@@ -49,7 +57,7 @@ class MessageList extends React.Component<any, any> {
             pageSize: 10,
             mode: msgList.msgType
         }, params);
-
+        if (!selectedApp) return;
         Api.getMessage(selectedApp, reqParams).then((res: any) => {
             if (res.code == 1) {
                 this.setState({

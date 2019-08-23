@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.8.0-beta.1.2"></a>
+# [3.8.0-beta.1.2](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.8.0-beta.1.1...3.8.0-beta.1.2) (2019-08-21)
+
+
+### Bug Fixes
+
+* hide welcome page help doc ([46aa156](http://git.dtstack.cn/dtstack/data-stack-web/commits/46aa156))
+
+
+
 <a name="3.8.0-beta.1.1"></a>
 # [3.8.0-beta.1.1](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.8.0-beta.1...3.8.0-beta.1.1) (2019-08-20)
 

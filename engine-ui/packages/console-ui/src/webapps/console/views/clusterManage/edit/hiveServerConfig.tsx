@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Input, Form } from 'antd';
 
-import { formItemLayout } from '../../../consts'
+import { formItemLayout, COMPONEMT_CONFIG_KEYS } from '../../../consts'
 
 const FormItem = Form.Item;
 
@@ -15,7 +15,7 @@ export default class HiveServerConfig extends React.Component<any, any> {
                         label="JDBC URL"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('hiveServerConf.jdbcUrl', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.HIVESERVER}.jdbcUrl`, {
                             rules: [{
                                 required: true,
                                 message: '请输入jdbcUrl'
@@ -28,7 +28,7 @@ export default class HiveServerConfig extends React.Component<any, any> {
                         label="用户名"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('hiveServerConf.username')(
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.HIVESERVER}.username`)(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
@@ -36,7 +36,7 @@ export default class HiveServerConfig extends React.Component<any, any> {
                         label="密码"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('hiveServerConf.password')(
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.HIVESERVER}.password`)(
                             <Input disabled={isView} />
                         )}
                     </FormItem>

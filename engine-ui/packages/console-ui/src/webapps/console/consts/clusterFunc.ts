@@ -1,47 +1,7 @@
 // cluster function
-import { TASK_STATE, COMPONENT_TYPE_VALUE, ENGINE_TYPE, validateFlinkParams, validateHiveParams,
+import { TASK_STATE, COMPONENT_TYPE_VALUE, COMPONEMT_CONFIG_KEY_ENUM, ENGINE_TYPE, validateFlinkParams, validateHiveParams,
     validateCarbonDataParams, validateSparkParams, validateDtYarnShellParams, validateLearningParams, validateHiveServerParams, validateLibraParams } from './index';
 
-/**
- * 返回组件不同key
- */
-export function getComponentConfKey (componentValue: any) {
-    switch (componentValue) {
-        case COMPONENT_TYPE_VALUE.FLINK: {
-            return 'flinkConf'
-        }
-        case COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER: {
-            return 'hiveConf'
-        }
-        case COMPONENT_TYPE_VALUE.CARBONDATA: {
-            return 'carbonConf'
-        }
-        case COMPONENT_TYPE_VALUE.SPARK: {
-            return 'sparkConf'
-        }
-        case COMPONENT_TYPE_VALUE.DTYARNSHELL: {
-            return 'dtyarnshellConf'
-        }
-        case COMPONENT_TYPE_VALUE.LEARNING: {
-            return 'learningConf'
-        }
-        case COMPONENT_TYPE_VALUE.HDFS: {
-            return 'hadoopConf'
-        }
-        case COMPONENT_TYPE_VALUE.YARN: {
-            return 'yarnConf'
-        }
-        case COMPONENT_TYPE_VALUE.HIVESERVER: {
-            return 'hiveServerConf'
-        }
-        case COMPONENT_TYPE_VALUE.LIBRASQL: {
-            return 'libraConf'
-        }
-        default: {
-            return ''
-        }
-    }
-}
 /**
  * 返回不同组件校验参数
  * @param componentValue 组件
@@ -94,68 +54,9 @@ export function exChangeComponentConf (hadoopComp: any = [], libraComp: any = []
     let componentConf: any = {};
     comp.map((item: any) => {
         const componentTypeCode = item && item.componentTypeCode;
-        switch (componentTypeCode) {
-            case COMPONENT_TYPE_VALUE.FLINK: {
-                componentConf = Object.assign(componentConf, {
-                    flinkConf: item.config
-                })
-                break;
-            }
-            case COMPONENT_TYPE_VALUE.SPARK: {
-                componentConf = Object.assign(componentConf, {
-                    sparkConf: item.config
-                })
-                break;
-            }
-            case COMPONENT_TYPE_VALUE.LEARNING: {
-                componentConf = Object.assign(componentConf, {
-                    learningConf: item.config
-                })
-                break;
-            }
-            case COMPONENT_TYPE_VALUE.DTYARNSHELL: {
-                componentConf = Object.assign(componentConf, {
-                    dtyarnshellConf: item.config
-                })
-                break;
-            }
-            case COMPONENT_TYPE_VALUE.HDFS: {
-                componentConf = Object.assign(componentConf, {
-                    hadoopConf: item.config
-                })
-                break;
-            }
-            case COMPONENT_TYPE_VALUE.YARN: {
-                componentConf = Object.assign(componentConf, {
-                    yarnConf: item.config
-                })
-                break;
-            }
-            case COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER: {
-                componentConf = Object.assign(componentConf, {
-                    hiveConf: item.config
-                })
-                break;
-            }
-            case COMPONENT_TYPE_VALUE.CARBONDATA: {
-                componentConf = Object.assign(componentConf, {
-                    carbonConf: item.config
-                })
-                break;
-            }
-            case COMPONENT_TYPE_VALUE.HIVESERVER: {
-                componentConf = Object.assign(componentConf, {
-                    hiveServerConf: item.config
-                })
-                break;
-            }
-            case COMPONENT_TYPE_VALUE.LIBRASQL: {
-                componentConf = Object.assign(componentConf, {
-                    libraConf: item.config
-                })
-                break;
-            }
-        }
+        componentConf = Object.assign(componentConf, {
+            [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: item.config
+        })
     })
     return componentConf
 }

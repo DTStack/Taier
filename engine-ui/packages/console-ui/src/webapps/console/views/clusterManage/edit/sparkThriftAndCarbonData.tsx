@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Input, Form } from 'antd';
 
-import { formItemLayout } from '../../../consts'
+import { formItemLayout, COMPONEMT_CONFIG_KEYS } from '../../../consts'
 
 const FormItem = Form.Item;
 
@@ -15,7 +15,7 @@ export class SparkThriftConfig extends React.Component<any, any> {
                         label="JDBC URL"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('hiveConf.jdbcUrl', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SPARKTHRIFTSERVER}.jdbcUrl`, {
                             rules: [{
                                 required: true,
                                 message: '请输入jdbcUrl'
@@ -28,7 +28,7 @@ export class SparkThriftConfig extends React.Component<any, any> {
                         label="用户名"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('hiveConf.username')(
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SPARKTHRIFTSERVER}.username`)(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
@@ -36,7 +36,7 @@ export class SparkThriftConfig extends React.Component<any, any> {
                         label="密码"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('hiveConf.password')(
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SPARKTHRIFTSERVER}.password`)(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
@@ -44,7 +44,7 @@ export class SparkThriftConfig extends React.Component<any, any> {
                         label="driverClassName"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('hiveConf.driverClassName', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SPARKTHRIFTSERVER}.driverClassName`, {
                             rules: [{
                                 required: true,
                                 message: '请输入driverClassName'
@@ -57,7 +57,7 @@ export class SparkThriftConfig extends React.Component<any, any> {
                         label="useConnectionPool"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('hiveConf.useConnectionPool')(
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SPARKTHRIFTSERVER}.useConnectionPool`)(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
@@ -65,7 +65,7 @@ export class SparkThriftConfig extends React.Component<any, any> {
                         label="maxPoolSize"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('hiveConf.maxPoolSize')(
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SPARKTHRIFTSERVER}.maxPoolSize`)(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
@@ -73,7 +73,7 @@ export class SparkThriftConfig extends React.Component<any, any> {
                         label="minPoolSize"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('hiveConf.minPoolSize')(
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SPARKTHRIFTSERVER}.minPoolSize`)(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
@@ -81,7 +81,7 @@ export class SparkThriftConfig extends React.Component<any, any> {
                         label="initialPoolSize"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('hiveConf.initialPoolSize')(
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SPARKTHRIFTSERVER}.initialPoolSize`)(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
@@ -89,7 +89,7 @@ export class SparkThriftConfig extends React.Component<any, any> {
                         label="jdbcIdel"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('hiveConf.jdbcIdel')(
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SPARKTHRIFTSERVER}.jdbcIdel`)(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
@@ -97,7 +97,7 @@ export class SparkThriftConfig extends React.Component<any, any> {
                         label="maxRows"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('hiveConf.maxRows')(
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SPARKTHRIFTSERVER}.maxRows`)(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
@@ -105,7 +105,7 @@ export class SparkThriftConfig extends React.Component<any, any> {
                         label="queryTimeout"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('hiveConf.queryTimeout')(
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SPARKTHRIFTSERVER}.queryTimeout`)(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
@@ -113,7 +113,7 @@ export class SparkThriftConfig extends React.Component<any, any> {
                         label="checkTimeout"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('hiveConf.checkTimeout')(
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SPARKTHRIFTSERVER}.checkTimeout`)(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
@@ -134,7 +134,7 @@ export class CarbonDataConfig extends React.Component<any, any> {
                         label="JDBC URL"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('carbonConf.jdbcUrl', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.CARBONDATA}.jdbcUrl`, {
                             rules: [{
                                 required: true,
                                 message: '请输入jdbcUrl'
@@ -147,7 +147,7 @@ export class CarbonDataConfig extends React.Component<any, any> {
                         label="用户名"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('carbonConf.username')(
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.CARBONDATA}.username`)(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
@@ -155,7 +155,7 @@ export class CarbonDataConfig extends React.Component<any, any> {
                         label="密码"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('carbonConf.password')(
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.CARBONDATA}.password`)(
                             <Input disabled={isView} />
                         )}
                     </FormItem>

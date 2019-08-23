@@ -37,15 +37,23 @@ class AdminRole extends React.Component<any, any> {
         loading: 'success'
     }
 
+    handleData = () => {
+        const { apps, licenseApps = [] } = this.props
+        if (apps && apps.length > 0) {
+            const initialApp = utils.getParameterByName('app');
+            const defaultApp = licenseApps.find((licapp: any) => licapp.isShow) || [];
+            const appKey = initialApp || defaultApp.id;
+            this.setState({ active: appKey }, this.loadData)
+        }
+    }
+
+    componentDidMount () {
+        this.handleData();
+    }
+
     componentDidUpdate (prevProps: any, prevState: any) {
         if (this.props.licenseApps.length > 0 && prevProps.licenseApps !== this.props.licenseApps) {
-            const { apps, licenseApps = [] } = this.props
-            if (apps && apps.length > 0) {
-                const initialApp = utils.getParameterByName('app');
-                const defaultApp = licenseApps.find((licapp: any) => licapp.isShow) || [];
-                const appKey = initialApp || defaultApp.id;
-                this.setState({ active: appKey }, this.loadData)
-            }
+            this.handleData();
         }
     }
     hasDatabase (app: any) {

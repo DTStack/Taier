@@ -483,7 +483,11 @@ class ManageBasicProperties extends React.Component<any, any> {
                                             { required: true, message: '请输入后端 Path' },
                                             { max: 200, message: '最大字符不能超过200' },
                                             { min: 2, message: '最小字符不能小于2' },
-                                            { pattern: this.props.form.getFieldValue('protocol') === 'HTTP/HTTPS' ? new RegExp(/^(\/(\{[-\w]+\}|[.-\w]+))*(\/)?$/) : null, message: '支持英文，数字，下划线，连字符(-)，限制2—200个字符，只能 / 开头' }
+                                            {
+                                                pattern: this.props.form.getFieldValue('protocol') === 'HTTP/HTTPS'
+                                                    ? new RegExp(/^\/[\w~!?@#$%^&*-=(){}]+$/) : null,
+                                                message: '须以/开头，限制2-100个字符，不支持中文'
+                                            }
                                         ],
                                         initialValue: this.props.originalPath
                                     })(

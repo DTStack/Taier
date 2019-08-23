@@ -239,7 +239,7 @@ export default class TableRelation extends React.Component<any, any> {
             } else if (!treeItem.isRoot) {
                 treeItem.hide = true;
             }
-            const children = treeItem[props] ? treeItem[props].data : [];
+            const children = treeItem[props] ? treeItem[props].data || [] : [];
             if (children.length > 0) {
                 for (let i = 0; i < children.length; i++) {
                     loop(children[i], treeItem);
@@ -366,7 +366,7 @@ export default class TableRelation extends React.Component<any, any> {
 
         graph.getModel().clear();
 
-        // 缓存分页的vertet
+        // 缓存分页的 Vertex
         this._parentPrev = '';
         this._parentNext = '';
         this._childPrev = '';
@@ -383,9 +383,8 @@ export default class TableRelation extends React.Component<any, any> {
         }, () => {
             this.renderPagination();
             graph.scrollCellToVisible(this.rootCell);
+            graph.center();
         });
-
-        graph.center();
     }
 
     insertVertex = (parent: any, data: any) => {
@@ -523,30 +522,24 @@ export default class TableRelation extends React.Component<any, any> {
             const params = getTableReqParams(table);
             const parentParams = getTableReqParams(table.parent);
 
-            if (table.isParent) {
-                if (table.isCurrentParent) {
+            menu.addItem('展开上游（1层）', null, function () {
+                ctx.loadParentTable(params)
+                ctx.loadVertexData(params)
+            })
+            menu.addItem('展开下游（1层）', null, function () {
+                ctx.loadChildrenTable(params)
+                ctx.loadVertexData(params)
+            })
+            if (table.isCurrentParent) {
+                if (table.isParent) {
                     menu.addItem('收起上游', null, function () {
                         ctx.loadParentTable(parentParams)
                         ctx.loadVertexData(parentParams)
                     })
-                } else {
-                    menu.addItem('展开上游（1层）', null, function () {
-                        ctx.loadParentTable(params)
-                        ctx.loadVertexData(params)
-                    })
-                }
-            }
-
-            if (table.isChild) {
-                if (table.isCurrentChild) {
+                } else if (table.isChild) {
                     menu.addItem('收起下游', null, function () {
                         ctx.loadChildrenTable(parentParams)
                         ctx.loadVertexData(parentParams)
-                    })
-                } else {
-                    menu.addItem('展开下游（1层）', null, function () {
-                        ctx.loadChildrenTable(params)
-                        ctx.loadVertexData(params)
                     })
                 }
             }
@@ -784,6 +777,8 @@ export default class TableRelation extends React.Component<any, any> {
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
         style[mxConstants.STYLE_EDGE] = mxEdgeStyle.EntityRelation;
         style[mxConstants.STYLE_ROUNDED] = true;
+        style[mxConstants.STYLE_CURVED] = true;
+
         return style
     }
 }

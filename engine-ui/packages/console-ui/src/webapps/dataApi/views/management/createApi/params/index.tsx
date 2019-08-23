@@ -6,7 +6,7 @@ import utils from 'utils';
 import ColumnsConfig from './container'
 import ColumnsModel from '../../../../model/columnsModel'
 import ApiSqlEditor from './sql'
-import { API_MODE } from '../../../../consts'
+import { API_MODE, API_METHOD } from '../../../../consts'
 
 const Option = Select.Option;
 const FormItem = Form.Item;
@@ -311,15 +311,15 @@ class ManageParamsConfig extends React.Component<any, any> {
         })
     }
     async pass () {
-        const { mode } = this.props;
+        const { mode, basicProperties } = this.props;
         this.setPassLoading(true);
         const { editor } = this.state;
 
         const nextStep = async () => {
             const { InputColumns, OutputColums } = this.state;
 
-            if (!OutputColums || OutputColums.length == 0) {
-                message.warning('输出参数不能为空')
+            if ((!OutputColums || OutputColums.length == 0) && basicProperties.method !== API_METHOD.GET) { // GET 请求方式，输入参数未非必填
+                message.error('输出参数不能为空')
                 this.setPassLoading(false)
                 return;
             }
@@ -329,11 +329,11 @@ class ManageParamsConfig extends React.Component<any, any> {
                 return false;
             }
             if (!this.checkRepeat(InputColumns)) {
-                message.warning('输入参数不能相同')
+                message.error('输入参数不能相同')
                 return;
             }
             if (!this.checkRepeat(OutputColums)) {
-                message.warning('输出参数不能相同')
+                message.error('输出参数不能相同')
                 return;
             }
             this.props.dataChange(this.getSaveData())
@@ -341,7 +341,7 @@ class ManageParamsConfig extends React.Component<any, any> {
 
         if (mode == API_MODE.SQL) {
             if (!utils.trim(editor.sql)) {
-                message.warning('SQL 不能为空')
+                message.error('SQL 不能为空')
                 this.setPassLoading(false)
                 return
             }
