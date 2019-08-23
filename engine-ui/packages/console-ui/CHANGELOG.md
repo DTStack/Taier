@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.8.0-beta.1.4"></a>
+# [3.8.0-beta.1.4](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.8.0-beta.1.3...3.8.0-beta.1.4) (2019-08-23)
+
+
+### Bug Fixes
+
+* **expandJSONObj:** hand null or undefined error ([c0b4d2a](http://git.dtstack.cn/dtstack/data-stack-web/commits/c0b4d2a))
+
+
+
 <a name="3.8.0-beta.1.3"></a>
 # [3.8.0-beta.1.3](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.8.0-beta.1.2...3.8.0-beta.1.3) (2019-08-22)
 
