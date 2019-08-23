@@ -23,7 +23,7 @@ const initState: any = {
         topic: undefined
     },
     setting: { // 通道控制
-        speed: 0,
+        speed: -1,
         channel: 1
     }
 }

@@ -3,16 +3,9 @@ import { connect } from 'react-redux';
 import {
     Form, Input,
     Select, Button, AutoComplete
-    // Checkbox
 } from 'antd';
 
-// import {
-//     settingAction,
-//     workbenchAction
-// } from '../../../../store/modules/offlineTask/actionType';
-
 import HelpDoc from '../../../../../views/helpDoc';
-// import ajax from '../../../../api';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -28,25 +21,20 @@ const formItemLayout: any = {
 
 class ChannelForm extends React.Component<any, any> {
     state: any = {
-        isRecord: false,
-        idFields: [] // 标识字段
     }
-    _form: any;
     constructor (props: any) {
         super(props);
     }
 
     render () {
         const { getFieldDecorator } = this.props.form;
-        const { collectionData } = this.props;
-        const setting = collectionData.setting || {};
         const speedOption: any = [];
         const channelOption: any = [];
         const unLimitedOption: any[] = [
-            <Option value={`0`} key={0}>不限制上传速率</Option>
+            <Option value='-1' key={-1}>不限制上传速率</Option>
         ]
         for (let i = 1; i <= 20; i++) {
-            speedOption.push(<Option value={`${i}`} key={i}>{ i }MB/s</Option>)
+            speedOption.push(<Option value={`${i}`} key={i}>{ i }</Option>)
         }
         for (let i = 1; i <= 5; i++) {
             channelOption.push(<Option value={`${i}`} key={i}>{i}</Option>)
@@ -62,12 +50,11 @@ class ChannelForm extends React.Component<any, any> {
                     {getFieldDecorator('speed', {
                         rules: [{
                             required: true
-                        }],
-                        initialValue: `${setting.speed}`
+                        }]
                     })(
                         <AutoComplete
                             dataSource={unLimitedOption.concat(speedOption)}
-                            optionLabelProp="value"
+                            // optionLabelProp="value"
                         >
                             <Input suffix="MB/s" />
                         </AutoComplete>
@@ -82,8 +69,7 @@ class ChannelForm extends React.Component<any, any> {
                     {getFieldDecorator('channel', {
                         rules: [{
                             required: true
-                        }],
-                        initialValue: `${setting.channel}`
+                        }]
                     })(
                         <AutoComplete
                             dataSource={channelOption}
