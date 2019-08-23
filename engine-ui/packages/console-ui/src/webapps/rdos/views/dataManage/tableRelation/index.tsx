@@ -5,10 +5,10 @@ import ColumnRelation from './columnRelation';
 
 export default class TableRelationContainer extends React.Component<any, any> {
     render () {
-        const { showTableRelation, onShowBloodRelation } = this.props;
+        const { showTableRelation, onShowBloodRelation, tabKey } = this.props;
         return (
             <div className="table-ralation">
-                { showTableRelation
+                { showTableRelation && tabKey === '4'
                     ? <TableRelation
                         onShowColumn={() => onShowBloodRelation(false) }
                         {...this.props}

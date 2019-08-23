@@ -366,7 +366,7 @@ export default class TableRelation extends React.Component<any, any> {
 
         graph.getModel().clear();
 
-        // 缓存分页的vertet
+        // 缓存分页的 Vertex
         this._parentPrev = '';
         this._parentNext = '';
         this._childPrev = '';
@@ -383,9 +383,8 @@ export default class TableRelation extends React.Component<any, any> {
         }, () => {
             this.renderPagination();
             graph.scrollCellToVisible(this.rootCell);
+            graph.center();
         });
-
-        graph.center();
     }
 
     insertVertex = (parent: any, data: any) => {
