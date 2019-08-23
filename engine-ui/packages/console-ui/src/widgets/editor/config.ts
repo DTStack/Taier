@@ -10,5 +10,6 @@ export const defaultOptions: any = {
     suggestFontSize: 13,
     fontSize: 13,
     iconsInSuggestions: false,
-    fixedOverflowWidgets: true
+    fixedOverflowWidgets: true,
+    renderControlCharacters: true
 }
