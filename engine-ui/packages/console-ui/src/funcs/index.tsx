@@ -13,6 +13,20 @@ declare var window: any;
 */
 
 /**
+ * 延时隐藏 password 控件中的 value
+ * 延时处理主要是为了绕过Ant Form 组件的对控件的值设置问题
+ */
+export function hidePasswordInDom () {
+    setTimeout(() => {
+        // 特殊处理密码在 dom 中的展示
+        const pwd1 = document.querySelectorAll('input[type="password"]');
+        pwd1.forEach(ele => {
+            ele.setAttribute('value', '');
+        });
+    }, 100)
+}
+
+/**
  * 更新组件状态
  * @param thisRef 组件this引用
  * @param newState 待更新状态

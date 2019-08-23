@@ -10,6 +10,7 @@ import {
 import { isEmpty } from 'lodash';
 
 import utils from 'utils';
+import { hidePasswordInDom } from 'funcs';
 
 import {
     formItemLayout,
@@ -68,7 +69,9 @@ class BaseForm extends React.Component<any, any> {
             }
         }
     }
-
+    componentDidUpdate () {
+        hidePasswordInDom();
+    }
     submit = (e: any) => {
         e.preventDefault()
         const ctx = this
@@ -270,7 +273,7 @@ class BaseForm extends React.Component<any, any> {
                             rules: [],
                             initialValue: ''
                         })(
-                            <Input type="password" autoComplete="off" />
+                            <Input type="password" onChange={hidePasswordInDom} autoComplete="off" />
                         )}
                     </FormItem>,
                     <FormItem
@@ -426,7 +429,7 @@ class BaseForm extends React.Component<any, any> {
                             }],
                             initialValue: ''
                         })(
-                            <Input type="password" autoComplete="off" />
+                            <Input type="password" onChange={hidePasswordInDom} autoComplete="off" />
                         )}
                     </FormItem>,
                     <FormItem
@@ -687,7 +690,7 @@ class BaseForm extends React.Component<any, any> {
                         {getFieldDecorator('dataJson.password', {
                             initialValue: ''
                         })(
-                            <Input type="password" autoComplete="off" />
+                            <Input type="password" onChange={hidePasswordInDom} autoComplete="off" />
                         )}
                     </FormItem>
                 ]
@@ -734,7 +737,7 @@ class BaseForm extends React.Component<any, any> {
                         {getFieldDecorator('dataJson.password', {
                             initialValue: ''
                         })(
-                            <Input type="password" autoComplete="off" />
+                            <Input type="password" onChange={hidePasswordInDom} autoComplete="off" />
                         )}
                     </FormItem>,
                     <FormItem
@@ -810,7 +813,7 @@ class BaseForm extends React.Component<any, any> {
                             }],
                             initialValue: ''
                         })(
-                            <Input type="password" autoComplete="off" />
+                            <Input type="password" onChange={hidePasswordInDom} autoComplete="off" />
                         )}
                     </FormItem>
                 ]
@@ -869,7 +872,7 @@ class BaseForm extends React.Component<any, any> {
                             }],
                             initialValue: ''
                         })(
-                            <Input type="password" autoComplete="off" />
+                            <Input type="password" onChange={hidePasswordInDom} autoComplete="off" />
                         )}
                     </FormItem>
                 ]
