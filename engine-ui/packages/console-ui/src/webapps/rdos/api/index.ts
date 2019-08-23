@@ -697,6 +697,9 @@ export default {
     addOrUpdateSource (source: any) {
         return http.post(offlineReq.SAVE_DATA_SOURCE, source)
     },
+    addOrUpdateSourceKerberos (source: any) {
+        return http.postAsFormData(offlineReq.SAVE_DATA_SOURCE_KERBEROS, source)
+    },
     deleteDataSource (params: any) {
         return http.post(offlineReq.DELETE_DATA_SOURCE, params)
     },
@@ -708,6 +711,9 @@ export default {
     },
     testDSConnection (params: any) {
         return http.post(offlineReq.TEST_DATA_SOURCE_CONNECTION, params)
+    },
+    testDSConnectionKerberos (params: any) {
+        return http.postAsFormData(offlineReq.TEST_DATA_SOURCE_CONNECTION_KERBEROS, params)
     },
     getDataSourceTypes (params?: any) {
         return http.post(offlineReq.GET_DATA_SOURCE_TYPES, params)
