@@ -227,15 +227,16 @@ class BaseForm extends React.Component<any, any> {
                             <Tooltip title="上传文件前，请在控制台开启SFTP服务。">
                                 <Icon type="question-circle-o" style={{ fontSize: '14px', marginTop: '8px', marginLeft: '10px' }}/>
                             </Tooltip>
-                            <div
-                                style={{ color: '#0099ff', cursor: 'pointer', marginLeft: '10px' }}
-                                onClick={() => {
-                                    console.log(getFieldValue('type'))
-                                    window.open(getFieldValue('type'))
-                                }}
+                            <a
+                                href={`/api/rdos/download/batch/batchDownload/downloadKerberosXML?sourceType=${getFieldValue('type')}`}
+                                download
                             >
-                                下载文件模板
-                            </div>
+                                <div
+                                    style={{ color: '#0099ff', cursor: 'pointer', marginLeft: '10px' }}
+                                >
+                                    下载文件模板
+                                </div>
+                            </a>
                         </div>
                         <div
                             style={{ color: '#999' }}
