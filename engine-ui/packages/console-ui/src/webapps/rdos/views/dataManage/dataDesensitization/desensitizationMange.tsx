@@ -294,7 +294,7 @@ class DesensitizationMange extends React.Component<any, any> {
                         className="m-tabs bd-top bd-right m-slide-pane"
                         onClose={this.closeSlidePane}
                         visible={visibleSlidePane}
-                        style={{ right: '0px', width: '90%', height: '100%', minHeight: '600px' }}
+                        style={{ right: '0px', width: '90%', minHeight: '600px' }}
                     >
                         <Tabs animated={false} onChange={this.onTabChange} activeKey={nowView}>
                             <TabPane tab="表关系" key="tableRelation">
