@@ -958,7 +958,11 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
 
         // Upload the flink configuration
         // write out configuration file
-        File tmpConfigurationFile = File.createTempFile(appId + "-flink-conf.yaml", null);
+        File tmpFileDir =  new File(System.getProperty("user.dir") + File.separator + "tmp150");
+        if (!tmpFileDir.exists()) {
+            tmpFileDir.mkdirs();
+        }
+        File tmpConfigurationFile = File.createTempFile(appId + "-flink-conf.yaml", null, tmpFileDir);
         tmpConfigurationFile.deleteOnExit();
         BootstrapTools.writeConfiguration(configuration, tmpConfigurationFile);
 
@@ -980,7 +984,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         // TODO: server use user main method to generate job graph
         if (jobGraph != null) {
             try {
-                File fp = File.createTempFile(appId.toString(), null);
+                File fp = File.createTempFile(appId.toString(), null, tmpFileDir);
                 fp.deleteOnExit();
                 try (FileOutputStream output = new FileOutputStream(fp);
                      ObjectOutputStream obOutput = new ObjectOutputStream(output);){
