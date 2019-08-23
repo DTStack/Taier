@@ -245,18 +245,33 @@ class EditorContainer extends React.Component<any, any> {
 
     sqlFormat = () => {
         const { currentTabData, updateTaskField } = this.props;
+        const selectRange: any = this._editor.getSelection();
+        const isSelect = selectRange && (selectRange.startColumn != selectRange.endColumn || selectRange.startLineNumber != selectRange.endLineNumber);
+        let oldText = currentTabData.sqlText || currentTabData.scriptText || '';
+        isSelect && (oldText = this._editor.getModel().getValueInRange(selectRange));
         const params: any = {
-            sql: currentTabData.sqlText || currentTabData.scriptText || ''
+            sql: oldText
         };
+
         API.sqlFormat(params).then((res: any) => {
             if (res.data) {
-                const data: any = {
-                    merged: true
-                };
-                if (currentTabData.scriptText) {
-                    data.scriptText = res.data;
+                const data: any = {};
+                let newText = res.data;
+                if (isSelect) {
+                    // 格式化部分
+                    console.log(this._editor);
+                    this._editor && this._editor.executeEdits(this._editor.getModel().getValue(), [{
+                        range: selectRange,
+                        text: res.data
+                    }]);
+                    newText = this._editor.getModel().getValue();
                 } else {
-                    data.sqlText = res.data;
+                    data.merged = true;
+                }
+                if (currentTabData.scriptText) {
+                    data.scriptText = newText;
+                } else {
+                    data.sqlText = newText;
                 }
                 updateTaskField(data)
             }
