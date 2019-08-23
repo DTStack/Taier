@@ -34,15 +34,19 @@ export function debounceEventHander (func: any, wait?: number, options?: any) {
 /**
  * 展开JSON对象
  * 例如一个{a:{b: "c"}}, 转换为：{"a.b": "c"}
- * @param obj 
+ * @param obj
  */
-export function expandJSONObj(obj: any) {
+export function expandJSONObj (obj: any) {
     const res: any = {};
     const expand = (target: any, parentField?: string | number) => {
         for (let key in target) {
             const field = parentField ? `${parentField}.${key}` : `${key}`;
+            if (!target[key]) {
+                res[`${field}`] = target[key];
+                continue;
+            }
             const keys = Object.keys(target[key]);
-            if (keys.length > 0 && typeof(target[key]) === 'object') {
+            if (keys.length > 0 && typeof (target[key]) === 'object') {
                 expand(target[key], field)
             } else {
                 if (!res[field]) res[`${field}`] = target[key];
