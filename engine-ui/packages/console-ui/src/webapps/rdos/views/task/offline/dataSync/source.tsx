@@ -433,10 +433,10 @@ class SourceForm extends React.Component<any, any> {
             }
             // 去空格
             if (values.partition) {
-                values.partition = utils.trim(values.partition);
+                values.partition = utils.removeAllSpaces(values.partition);
             }
             if (values.path && !isArray(values.path)) {
-                values.path = utils.trim(values.path);
+                values.path = utils.removeAllSpaces(values.path);
             }
             const srcmap = assign({}, sourceMap.type, { ...values, ...tempObj }, {
                 src: this.getDataObjById(values.sourceId)
