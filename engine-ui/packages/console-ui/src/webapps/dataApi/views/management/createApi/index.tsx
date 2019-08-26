@@ -187,7 +187,7 @@ class NewApi extends React.Component<any, any> {
     setDefault (data: any) {
         const isRegister = utils.getParameterByName('isRegister');
         const containHeader = `${data ? data.containHeader : ''}`; // 转换数值类型为字符串
-        const containPage = `${data ? data.containPage : ''}`; 
+        const containPage = `${data ? data.containPage : ''}`;
         let newState: any = {
             loading: false,
             mode: data.paramCfgType,
@@ -217,7 +217,7 @@ class NewApi extends React.Component<any, any> {
             },
             registerParams: {
                 containHeader: containHeader,
-                containPage: containPage,
+                containPage: containPage
             },
             testApi: {
                 inFields: data.inFields && data.inFields.inFields,
@@ -305,14 +305,6 @@ class NewApi extends React.Component<any, any> {
             complete: {}
         })
     }
-
-    // next () {
-    //     const { key } = steps[this.state.current];
-    //     if (this.state[key] && this.state[key].pass) {
-    //         const current = this.state.current + 1;
-    //         this.setState({ current });
-    //     }
-    // }
 
     prev () {
         const current = this.state.current - 1;
