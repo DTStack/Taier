@@ -9,6 +9,7 @@ import SplitPane from 'react-split-pane';
 import ToolBar from 'main/components/ide/toolbar';
 import Source from './collectionSource';
 import Target from './collectionTarget';
+import ChannelControl from './channelControl';
 import Complete from './complete';
 import ConvertToScript from '../../convertToScript';
 const Step = Steps.Step;
@@ -48,6 +49,15 @@ class CollectionGuide extends React.Component<any, any> {
                 title: '选择目标',
                 content: <Target
                     updateTargetMap={this.props.updateTargetMap}
+                    navtoStep={this.navtoStep.bind(this)}
+                    collectionData={collectionData}
+                    updateCurrentPage={updateCurrentPage}
+                />
+            },
+            {
+                title: '通道控制',
+                content: <ChannelControl
+                    updateChannelControlMap={this.props.updateChannelControlMap}
                     navtoStep={this.navtoStep.bind(this)}
                     collectionData={collectionData}
                     updateCurrentPage={updateCurrentPage}
@@ -100,7 +110,7 @@ class CollectionGuide extends React.Component<any, any> {
                                     </Steps>
                                     <div className="steps-content" style={{ position: 'relative' }}>
                                         {isLocked ? <div className="steps-mask"></div> : null}
-                                        {steps[currentStep].content}
+                                        {steps[currentStep] && steps[currentStep].content}
                                     </div>
                                 </div> : null
                             }
