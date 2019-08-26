@@ -37,18 +37,33 @@ class CodeEditor extends React.Component<any, any> {
 
     sqlFormat = () => {
         const { currentPage, setCurrentPage } = this.props;
+        const selectRange: any = this._editor.getSelection();
+        const isSelect = selectRange && (selectRange.startColumn != selectRange.endColumn || selectRange.startLineNumber != selectRange.endLineNumber);
+        let oldText = currentPage.sqlText || '';
+        isSelect && (oldText = this._editor.getModel().getValueInRange(selectRange));
         const params: any = {
-            sql: currentPage.sqlText || ''
+            sql: oldText
         };
 
         API.streamSqlFormat(params).then((res: any) => {
             if (res.data) {
                 const data: any = {
-                    merged: true,
                     sqlText: res.data,
                     id: currentPage.id
                 };
-                const updatedData = Object.assign(currentPage, data);
+                let newText = res.data;
+                if (isSelect) {
+                    // 格式化部分
+                    this._editor && this._editor.executeEdits(this._editor.getModel().getValue(), [{
+                        range: selectRange,
+                        text: res.data
+                    }]);
+                    newText = this._editor.getModel().getValue();
+                } else {
+                    data.merged = true;
+                }
+                data.sqlText = newText;
+                const updatedData = Object.assign({}, currentPage, data);
                 setCurrentPage(updatedData);
             }
         });
