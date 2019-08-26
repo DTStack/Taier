@@ -126,7 +126,7 @@ class HiveSync extends React.Component<any, any> {
                     <Row>
                         <Col span={1}/>
                         <Col span={21}>
-                            <Spin spinning={ loading } style={{ width: '500px' }}>
+                            <Spin spinning={ loading || syncLoading } style={{ width: '500px' }}>
                                 <div
                                     style={{
                                         height: '460px',
