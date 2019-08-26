@@ -107,14 +107,14 @@ const ChannelFormWrap = Form.create({
     },
     mapPropsToFields (props: any) {
         const { collectionData } = props;
-        const setting = collectionData.setting;
-        if (!setting) return {};
+        const settingMap = collectionData.settingMap;
+        if (!settingMap) return {};
         return {
             speed: {
-                value: setting.speed
+                value: settingMap.speed
             },
             channel: {
-                value: setting.channel
+                value: settingMap.channel
             }
         }
     }
