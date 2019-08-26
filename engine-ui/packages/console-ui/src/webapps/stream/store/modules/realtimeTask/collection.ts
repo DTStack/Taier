@@ -22,8 +22,8 @@ const initState: any = {
         sourceId: undefined,
         topic: undefined
     },
-    setting: { // 通道控制
-        speed: -1,
+    settingMap: { // 通道控制
+        speed: '-1',
         channel: 1
     }
 }
@@ -173,13 +173,13 @@ export const actions: any = {
     updateChannelControlMap (params = {}, clear: any, notDirty: any) {
         return (dispatch: any) => {
             const page = getCurrentPage();
-            let { setting = {} } = page;
+            let { settingMap = {} } = page;
             if (clear) {
-                setting = initState.setting;
+                settingMap = initState.settingMap;
             }
-            setCurrentPageValue(dispatch, 'setting',
+            setCurrentPageValue(dispatch, 'settingMap',
                 cloneDeep({
-                    ...setting,
+                    ...settingMap,
                     ...params
                 }),
                 !notDirty
