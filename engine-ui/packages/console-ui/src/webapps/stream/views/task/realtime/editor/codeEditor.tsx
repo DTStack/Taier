@@ -6,11 +6,16 @@ import { debounce } from 'lodash';
 import { commonFileEditDelegator } from 'widgets/editor/utils';
 
 import IDEEditor from 'main/components/ide';
+import { language } from 'widgets/editor/languages/dt-flink/dtflink';
 
 import API from '../../../../api';
 import * as editorActions from '../../../../store/modules/editor/editorAction';
 import { setCurrentPage } from '../../../../store/modules/realtimeTask/browser';
 
+interface CodeEditorState {
+    funcList: string[];
+    funcCompleteItems: [string, string, string, string][];
+}
 @(connect((state: any) => {
     return {
         editor: state.editor
@@ -24,8 +29,33 @@ import { setCurrentPage } from '../../../../store/modules/realtimeTask/browser';
     })
     return actions;
 }) as any)
-class CodeEditor extends React.Component<any, any> {
+class CodeEditor extends React.Component<any, CodeEditorState> {
+    state: CodeEditorState = {
+        funcList: [],
+        funcCompleteItems: []
+    }
     _editor: any;
+    componentDidMount () {
+        this.initFuncList();
+    }
+    initFuncList () {
+        API.getAllFunction()
+            .then(
+                (res: any) => {
+                    if (res.code == 1) {
+                        let { data } = res;
+                        this.setState({
+                            funcList: data || [],
+                            funcCompleteItems: data && data.map(
+                                (funcName: any) => {
+                                    return [funcName, '函数', '2000', 'Function']
+                                }
+                            )
+                        })
+                    }
+                }
+            )
+    }
     onContentChange = (value: any, editorInstance: any) => {
         const { editorChange } = this.props;
         editorChange({
@@ -68,7 +98,10 @@ class CodeEditor extends React.Component<any, any> {
             }
         });
     };
-
+    customCompleteProvider = (completeItems: any, resolve: (items: any[]) => void, customCompletionItemsCreater: any, ext: any) => {
+        const { funcCompleteItems } = this.state;
+        resolve([].concat(completeItems).concat(customCompletionItemsCreater(funcCompleteItems)));
+    }
     debounceSelectionChange = debounce(this.props.setSelectionContent, 200, { 'maxWait': 2000 })
 
     render () {
@@ -77,6 +110,8 @@ class CodeEditor extends React.Component<any, any> {
             editor,
             toolBarOptions
         } = this.props;
+
+        const { funcList } = this.state;
 
         const cursorPosition = currentPage.cursorPosition || undefined;
         const isLocked = currentPage.readWriteLockVO && !currentPage.readWriteLockVO.getLock;
@@ -90,7 +125,16 @@ class CodeEditor extends React.Component<any, any> {
             theme: editor.options.theme || 'white',
             onChange: this.onContentChange,
             sync: currentPage.merged || undefined,
-            onCursorSelection: this.debounceSelectionChange
+            onCursorSelection: this.debounceSelectionChange,
+            customCompleteProvider: this.customCompleteProvider,
+            languageConfig: {
+                ...language,
+                builtinFunctions: [],
+                windowsFunctions: [],
+                innerFunctions: [],
+                otherFunctions: [],
+                customFunctions: funcList
+            }
         };
 
         const toolbarOpts: any = {
