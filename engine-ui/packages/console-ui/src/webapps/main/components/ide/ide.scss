@@ -66,6 +66,7 @@
         // margin-top: 2px;
         position: relative;
         z-index: 1;
+        margin-top: -1px;
         .ant-tabs {
             position: absolute;
             width: 100%;
@@ -73,7 +74,7 @@
         }
         .ant-tabs-bar .ant-tabs-tab-active {
             background: #fff;
-            padding-bottom: 5px;
+            padding-bottom: 4px;
             &:after{
                 content:"";
                 position: absolute;
