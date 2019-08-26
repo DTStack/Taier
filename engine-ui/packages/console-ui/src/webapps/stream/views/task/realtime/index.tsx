@@ -67,7 +67,7 @@ class TaskIndex extends React.Component<any, any> {
         }
 
         const preHandData = (data: any) => {
-            if (data.length !== 0) return [];
+            if (data && data.length === 0) return [];
             const result: any = { children: [] };
             const map: any = {};
             for (let i = 0; i < data.length; i++) {
@@ -90,7 +90,7 @@ class TaskIndex extends React.Component<any, any> {
             return result.children || [];
         };
         Api.getTimeZoneList().then((res: any) => {
-            const timeZoneData = preHandData(res.data);
+            const timeZoneData = preHandData(res.data || []);
             this.setState({
                 timeZoneData
             })
