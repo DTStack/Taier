@@ -694,7 +694,7 @@ class BloodRelation extends React.Component<any, any> {
         const { loading } = this.state;
         return (
             <div className="graph-editor"
-                style={{ position: 'relative', background: '#FAFAFA', height: '1000px' }}
+                style={{ position: 'relative', background: '#FAFAFA' }}
             >
                 <Spin
                     tip="Loading..."

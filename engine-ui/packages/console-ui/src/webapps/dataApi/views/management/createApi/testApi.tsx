@@ -8,6 +8,7 @@ import ConstColumnModel, { constColumnsKeys } from '../../../model/constColumnMo
 
 import Editor from 'widgets/editor'
 import utils from 'utils';
+import { expandJSONObj } from 'funcs';
 
 const TextArea = Input.TextArea;
 const FormItem = Form.Item;
@@ -139,9 +140,11 @@ class TestApi extends React.Component<any, any> {
         ]
     }
     testApi () {
-        const { validateFieldsAndScroll } = this.props.form;
+        const { validateFieldsAndScroll, getFieldsValue } = this.props.form;
         const { testBody } = this.state;
-        validateFieldsAndScroll({}, (err: any, values: any) => {
+        const values = expandJSONObj(getFieldsValue());
+        console.log('testApi values:', values);
+        validateFieldsAndScroll({}, (err: any) => {
             if (!err) {
                 this.setState({
                     loading: true

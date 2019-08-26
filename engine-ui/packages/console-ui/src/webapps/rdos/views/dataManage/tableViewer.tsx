@@ -27,6 +27,7 @@ export default class TableViewer extends React.Component<any, any> {
         this.tableId = this.props.routeParams.tableId;
         this.queryParams = { tableId: this.tableId };
         this.state = {
+            tabKey: '1',
             showType: 0, // 0/1 (非)字段
             visible: false,
             code: '',
@@ -95,8 +96,9 @@ export default class TableViewer extends React.Component<any, any> {
         });
     }
 
-    getPreview (key: any) {
+    getPreview = (key: any) => {
         const { previewData } = this.state;
+        this.setState({ showTableRelation: true, tabKey: key });
         if (previewData) return;
         if (+key === 3) {
             ajax.previewTable(this.queryParams).then((res: any) => {
@@ -107,7 +109,6 @@ export default class TableViewer extends React.Component<any, any> {
                 }
             });
         }
-        this.setState({ showTableRelation: true })
     }
 
     formatPreviewData (arr: any) {
@@ -400,6 +401,7 @@ export default class TableViewer extends React.Component<any, any> {
                                 </TabPane>
                                 <TabPane tab="血缘信息" key="4">
                                     <TableRelation
+                                        tabKey={this.state.tabKey}
                                         showTableRelation={this.state.showTableRelation}
                                         onShowBloodRelation={this.onShowBloodRelation}
                                         tableData={tableData && tableData.table}

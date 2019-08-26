@@ -225,6 +225,9 @@ export default {
     getFunc (params: any) {
         return http.post(req.GET_FUNC, params)
     },
+    getAllFunction () {
+        return http.post(req.GET_ALL_FUNC)
+    },
     createFunc (params: any) {
         return http.post(req.CREATE_FUNC, params)
     },

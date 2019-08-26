@@ -5,7 +5,7 @@ import * as monaco from 'monaco-editor';
 // monaco 当前版本并未集成最新basic-languages， 暂时shell单独引入
 import './languages/shell/shell.contribution';
 import * as dtsql from './languages/dtsql/dtsql.contribution'
-import './languages/dt-flink/dtflink.contribution'
+import * as dtflink from './languages/dt-flink/dtflink.contribution'
 import './languages/dtlog/dtlog.contribution'
 
 import './style.scss';
@@ -33,6 +33,16 @@ const provideCompletionItemsMap: any = {
          * value改变事件注册函数
          */
         onChange: dtsql.onChange
+    },
+    dtflink: {
+        /**
+         * 注册自定义补全函数
+         */
+        register: dtflink.registeCompleteItemsProvider,
+        /**
+         * 释放自定义补全函数
+         */
+        dispose: dtflink.disposeProvider
     }
 }
 class Editor extends React.Component<any, any> {

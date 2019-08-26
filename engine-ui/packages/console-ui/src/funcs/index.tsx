@@ -13,6 +13,20 @@ declare var window: any;
 */
 
 /**
+ * 延时隐藏 password 控件中的 value
+ * 延时处理主要是为了绕过Ant Form 组件的对控件的值设置问题
+ */
+export function hidePasswordInDom () {
+    setTimeout(() => {
+        // 特殊处理密码在 dom 中的展示
+        const pwd1 = document.querySelectorAll('input[type="password"]');
+        pwd1.forEach(ele => {
+            ele.setAttribute('value', '');
+        });
+    }, 100)
+}
+
+/**
  * 更新组件状态
  * @param thisRef 组件this引用
  * @param newState 待更新状态
@@ -30,6 +44,31 @@ export function debounceEventHander (func: any, wait?: number, options?: any) {
         e.persist()
         return debounced(e)
     }
+}
+/**
+ * 展开JSON对象
+ * 例如一个{a:{b: "c"}}, 转换为：{"a.b": "c"}
+ * @param obj
+ */
+export function expandJSONObj (obj: any) {
+    const res: any = {};
+    const expand = (target: any, parentField?: string | number) => {
+        for (let key in target) {
+            const field = parentField ? `${parentField}.${key}` : `${key}`;
+            if (!target[key]) {
+                res[`${field}`] = target[key];
+                continue;
+            }
+            const keys = Object.keys(target[key]);
+            if (keys.length > 0 && typeof (target[key]) === 'object') {
+                expand(target[key], field)
+            } else {
+                if (!res[field]) res[`${field}`] = target[key];
+            }
+        }
+    }
+    expand(obj);
+    return res;
 }
 
 /**
@@ -169,61 +208,93 @@ export function replaceStrFormIndexArr (str: any, replaceStr: any, indexArr: any
  * @param {s} app
  */
 export function filterComments (sql: string) {
-    let tmpArr = [];
-    const comments = [];
-    if (!sql) {
-        return '';
+    interface FilterParser {
+        index: number;
+        queue: string;
+        comments: {
+            begin: number;
+            end: number;
+        }[];
     }
-    for (let i = 0; i < sql.length; i++) {
-        let char = sql[i];
-
-        // 读取字符
-        // 推入数组
-        tmpArr.push({
-            index: i,
-            char: char
-        });
-        let firstChar = tmpArr[0];
-        // 校验数组是否有匹配语法
-        if (tmpArr.length < 2) {
-            if (firstChar.char != "'" && firstChar.char != '"' && firstChar.char != '-') {
-                tmpArr = [];
-            }
-            continue;
-        }
-
-        let lastChar = tmpArr[tmpArr.length - 1];
-
-        if (firstChar.char == "'" || firstChar.char == '"') {
-            // 引号匹配，则清空
-            if (lastChar.char == firstChar.char) {
-                tmpArr = [];
-                continue;
-            }
-        } else if (firstChar.char == '-') {
-            // 假如第一个是横线，则开始校验注释规则
-            // 判断是否为两个注释符号，不是，则清空
-            if (tmpArr[1].char != '-') {
-                tmpArr = []; continue;
-            } else if (lastChar.char == '\n') { // 为注释作用域，遇到换行符，则结束注释
-                comments.push({
-                    begin: firstChar.index,
-                    end: lastChar.index
-                })
-                tmpArr = []; continue;
-            } else if (i == sql.length - 1) { // 解析结束
-                comments.push({
-                    begin: firstChar.index,
-                    end: i
-                })
-                continue;
+    // 处理引号
+    function quoteToken (parser: FilterParser, sql: string): string {
+        let queue = parser.queue;
+        let endsWith = queue[queue.length - 1];
+        if (endsWith == '\'' || endsWith == '"') {
+            let nextToken = sql.indexOf(endsWith, parser.index + 1);
+            if (nextToken != -1) {
+                parser.index = nextToken;
+                parser.queue = '';
+            } else {
+                return '引号不匹配';
             }
         } else {
-            tmpArr = [];
+            return null;
         }
     }
-
-    sql = replaceStrFormIndexArr(sql, ' ', comments)
+    // 处理单行注释
+    function singleLineCommentToken (parser: FilterParser, sql: string): string {
+        let queue = parser.queue;
+        if (queue.endsWith('--')) {
+            let nextToken = sql.indexOf('\n', parser.index + 1);
+            if (nextToken != -1) {
+                parser.comments.push({
+                    begin: parser.index - 1,
+                    end: nextToken - 1
+                })
+                parser.index = nextToken;
+                parser.queue = '';
+            } else {
+                parser.comments.push({
+                    begin: parser.index - 1,
+                    end: sql.length - 1
+                })
+                parser.index = sql.length - 1;
+                parser.queue = '';
+            }
+        } else {
+            return null;
+        }
+    }
+    // 处理多行注释
+    function multipleLineCommentToken (parser: FilterParser, sql: string): string {
+        let queue = parser.queue;
+        if (queue.endsWith('/*')) {
+            let nextToken = sql.indexOf('*/', parser.index + 1);
+            if (nextToken != -1) {
+                parser.comments.push({
+                    begin: parser.index - 1,
+                    end: nextToken + 1
+                })
+                parser.index = nextToken;
+                parser.queue = '';
+            } else {
+                parser.index = sql.length - 1;
+                parser.queue = '';
+            }
+        } else {
+            return null;
+        }
+    }
+    let parser: FilterParser = {
+        index: 0,
+        queue: '',
+        comments: []
+    };
+    for (parser.index = 0; parser.index < sql.length; parser.index++) {
+        let char = sql[parser.index];
+        parser.queue += char;
+        let tokenFuncs = [quoteToken, singleLineCommentToken, multipleLineCommentToken];
+        for (let i = 0; i < tokenFuncs.length; i++) {
+            let err = tokenFuncs[i](parser, sql);
+            if (err) {
+                console.log(err);
+                return null;
+            }
+        }
+    }
+    sql = replaceStrFormIndexArr(sql, ' ', parser.comments)
+    console.log(sql);
     return sql;
 }
 

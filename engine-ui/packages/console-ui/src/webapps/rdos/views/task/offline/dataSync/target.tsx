@@ -244,13 +244,13 @@ class TargetForm extends React.Component<any, any> {
             })();
             // 去空格
             if (values.partition) {
-                values.partition = utils.trim(values.partition);
+                values.partition = utils.removeAllSpaces(values.partition);
             }
             if (values.path) {
-                values.path = utils.trim(values.path);
+                values.path = utils.removeAllSpaces(values.path);
             }
             if (values.fileName) {
-                values.fileName = utils.trim(values.fileName);
+                values.fileName = utils.removeAllSpaces(values.fileName);
             }
             const srcmap = assign(values, {
                 src: this.getDataObjById(values.sourceId)

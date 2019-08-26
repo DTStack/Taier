@@ -89,6 +89,8 @@ export var language: any = {
         }, {
             include: '@scopes'
         },
+        // eslint-disable-next-line no-control-regex
+        [/[\x00-\x1F\x7F-\x9F]/, 'invalid'],
         [/[;,.]/, 'delimiter'],
         [/[()]/, '@brackets'],
         [/[\w@#$]+/, {

@@ -108,10 +108,11 @@ class ResourceManage extends React.Component<any, any> {
             const initEngine = engineList[0] || [];
             this.setState({
                 clusterList: data,
-                queryParams: Object.assign(this.state.queryParams, { clusterId: initCluster.clusterId }),
+                queryParams: Object.assign(this.state.queryParams, { clusterId: initCluster.clusterId, engineType: initEngine.engineType }),
                 engineList,
                 loading: true
             })
+
             const queryParams = Object.assign(this.state.queryParams, {
                 clusterId: initCluster.clusterId,
                 engineType: initEngine.engineType
@@ -279,6 +280,7 @@ class ResourceManage extends React.Component<any, any> {
                             tabPosition='left'
                             defaultActiveKey={`${engineList[0] && engineList[0].engineType}`}
                             onChange={this.handleEngineTab}
+                            activeKey={`${queryParams.engineType}`}
                             {...{ forceRender: true }}
                         >
                             {
