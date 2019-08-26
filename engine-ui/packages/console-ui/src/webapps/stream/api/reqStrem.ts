@@ -1,8 +1,10 @@
-import { STREAM_BASE_URL } from 'config/base';
+import { STREAM_BASE_URL, STREAM_BASE_URL_NOT_SERVICE } from 'config/base';
 
 export default {
     STREAM_SAVE_DATA_SOURCE: `${STREAM_BASE_URL}/streamDataSource/addOrUpdateSource`, // 添加或者更新数据源
+    STREAM_SAVE_DATA_SOURCE_KERBEROS: `${STREAM_BASE_URL_NOT_SERVICE}/upload/service/streamDataSource/addOrUpdateSourceWithKerberos`, // 添加或者更新数据源开启kerberos情况
     STREAM_TEST_DATA_SOURCE_CONNECTION: `${STREAM_BASE_URL}/streamDataSource/checkConnection`, // 测试数据源连通性
+    STREAM_TEST_DATA_SOURCE_CONNECTION_KERBEROS: `${STREAM_BASE_URL_NOT_SERVICE}/upload/service/streamDataSource/checkConnectionWithKerberos`, // 测试数据源连通性开启kerberos情况
     STREAM_DELETE_DATA_SOURCE: `${STREAM_BASE_URL}/streamDataSource/deleteSource`, // 删除数据源
     GET_STREAM_TABLELIST: `${STREAM_BASE_URL}/streamDataSource/tablelist`,
     STREAM_QUERY_DATA_SOURCE: `${STREAM_BASE_URL}/streamDataSource/pageQuery`, // 查询数据源接口

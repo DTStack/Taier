@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, pickBy } from 'lodash';
 import {
     Input, Button,
     Table, message, Card, Icon, Tooltip, Popconfirm
@@ -88,17 +88,42 @@ class DataSourceManaStream extends React.Component<any, any> {
         if (status === 'edit') { // 编辑数据
             reqSource = Object.assign(source, sourceFormData)
         }
-        Api.streamSaveDataSource(reqSource).then((res: any) => {
-            if (res.code === 1) {
-                formObj.resetFields()
-                message.success(`${title}成功！`)
-                ctx.setState({
-                    visible: false
-                })
-                ctx.loadDataSources()
-                callBack();
-            }
-        })
+        if (reqSource.dataJson.openKerberos) {
+            reqSource.dataJsonString = JSON.stringify(reqSource.dataJson)
+            console.log(reqSource)
+            delete reqSource.modifyUser;
+            delete reqSource.dataJson;
+            reqSource = pickBy(reqSource, (item, key) => { // 过滤掉空字符串和值为null的属性，并且过滤掉编辑时的kerberos字段
+                if (key === 'kerberosFile' && (!item.type)) {
+                    return false
+                }
+                return item
+            })
+            Api.streamSaveDataSourceWithKerberos(reqSource).then((res: any) => {
+                if (res.code === 1) {
+                    formObj.resetFields()
+                    message.success(`${title}成功！`)
+                    ctx.setState({
+                        visible: false
+                    })
+                    ctx.loadDataSources()
+                    callBack();
+                }
+            })
+        } else {
+            console.log(reqSource)
+            Api.streamSaveDataSource(reqSource).then((res: any) => {
+                if (res.code === 1) {
+                    formObj.resetFields()
+                    message.success(`${title}成功！`)
+                    ctx.setState({
+                        visible: false
+                    })
+                    ctx.loadDataSources()
+                    callBack();
+                }
+            })
+        }
     }
     openDataSourceModal = () => {
         Api.checkDataSourcePermission().then((res: any) => {
@@ -127,13 +152,32 @@ class DataSourceManaStream extends React.Component<any, any> {
     }
 
     testConnection = (source: any) => { // 测试数据源连通性
-        Api.streamTestDataSourceConnection(source).then((res: any) => {
-            if (res.code === 1 && res.data) {
-                message.success('数据源连接正常！')
-            } else if (res.code === 1 && !res.data) {
-                message.error('数据源连接异常')
-            }
-        })
+        console.log(source)
+        if (source.dataJson.openKerberos) {
+            source.dataJsonString = JSON.stringify(source.dataJson)
+            delete source.dataJson;
+            source = pickBy(source, (item, key) => { // 过滤掉空字符串和值为null的属性，并且过滤掉编辑时的kerberos字段
+                if (key === 'kerberosFile' && (!item.type)) {
+                    return false
+                }
+                return item
+            })
+            Api.streamTestDataSourceConnectionWithKerberos(source).then((res: any) => {
+                if (res.code === 1 && res.data) {
+                    message.success('数据源连接正常！')
+                } else if (res.code === 1 && !res.data) {
+                    message.error('数据源连接异常')
+                }
+            })
+        } else {
+            Api.streamTestDataSourceConnection(source).then((res: any) => {
+                if (res.code === 1 && res.data) {
+                    message.success('数据源连接正常！')
+                } else if (res.code === 1 && !res.data) {
+                    message.error('数据源连接异常')
+                }
+            })
+        }
     }
 
     handleTableChange = (pagination: any, filters: any) => {

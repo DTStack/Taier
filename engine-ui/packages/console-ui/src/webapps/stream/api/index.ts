@@ -321,8 +321,14 @@ export default {
     streamSaveDataSource (params: any) {
         return http.post(stremReq.STREAM_SAVE_DATA_SOURCE, params)
     },
+    streamSaveDataSourceWithKerberos (params: any) {
+        return http.postAsFormData(stremReq.STREAM_SAVE_DATA_SOURCE_KERBEROS, params)
+    },
     streamTestDataSourceConnection (params: any) {
         return http.post(stremReq.STREAM_TEST_DATA_SOURCE_CONNECTION, params)
+    },
+    streamTestDataSourceConnectionWithKerberos (params: any) {
+        return http.postAsFormData(stremReq.STREAM_TEST_DATA_SOURCE_CONNECTION_KERBEROS, params)
     },
     streamDeleteDataSource (params: any) {
         return http.post(stremReq.STREAM_DELETE_DATA_SOURCE, params)
