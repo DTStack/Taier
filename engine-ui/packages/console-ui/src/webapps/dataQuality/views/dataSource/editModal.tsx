@@ -211,7 +211,7 @@ class DataSourceModal extends React.Component<any, any> {
                                 <Icon type="question-circle-o" style={{ fontSize: '14px', marginTop: '8px', marginLeft: '10px' }}/>
                             </Tooltip>
                             <a
-                                href={`/api/rdos/download/batch/batchDownload/downloadKerberosXML?sourceType=${getFieldValue('type')}`}
+                                href={`/api/dq/download/service/download/downloadKerberosXML?sourceType=${getFieldValue('type')}`}
                                 download
                             >
                                 <div
