@@ -77,6 +77,7 @@ export default {
 
     CREATE_FUNC: `${STREAM_BASE_URL}/streamFunction/addFunction`, // 添加函数
     GET_FUNC: `${STREAM_BASE_URL}/streamFunction/getFunction`, // 获取函数
+    GET_ALL_FUNC: `${STREAM_BASE_URL}/streamFunction/getAllFunctionName`, // 获取所有函数名
     DELETE_FUNC: `${STREAM_BASE_URL}/streamFunction/deleteFunction`, // 删除加函数
     MOVE_FUNC: `${STREAM_BASE_URL}/streamFunction/moveFunction`, // 移动函数
     GET_SYS_FUNC: `${STREAM_BASE_URL}/streamFunction/getSystemFunctions`, // 获取系统函数
