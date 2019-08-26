@@ -91,7 +91,7 @@ public class RestartDealer {
             return true;
         }
 
-        if(!jobClient.getJobResult().isErr()){
+        if(!jobClient.getJobResult().getCheckRetry()){
             return false;
         }
 
