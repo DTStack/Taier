@@ -134,6 +134,13 @@ class DashboardNew extends React.Component<any, any> {
                                 type="warning"
                                 showIcon
                                 closable
+                                style={{
+                                    top: '50px',
+                                    position: 'absolute',
+                                    left: 0,
+                                    right: 0,
+                                    zIndex: 9999
+                                }}
                             />
                         ) : null }
                         <div
