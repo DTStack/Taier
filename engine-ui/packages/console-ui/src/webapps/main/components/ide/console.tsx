@@ -20,7 +20,11 @@ class Console extends React.Component<any, any> {
     UNSAFE_componentWillReceiveProps (nextProps: any) {
         const newConsole = nextProps.data;
         const oldConsole = this.props.data;
-
+        if (!newConsole.showRes && oldConsole.showRes) {
+            this.setState({
+                activeKey: defaultConsoleTab
+            })
+        }
         if (
             newConsole.showRes &&
             newConsole.results.length > 0 &&
