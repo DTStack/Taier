@@ -139,7 +139,7 @@ export default class FlinkConfig extends React.Component<any, any> {
                                     required: true,
                                     message: 'deleteOnShutdown'
                                 }],
-                                initialValue: 'FALSE'
+                                initialValue: 'TRUE'
                             })(
                                 <Select disabled={isView} style={{ width: '100px' }} >
                                     <Option value="FALSE">FALSE</Option>
