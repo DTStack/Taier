@@ -211,6 +211,9 @@ export default class MainBench extends React.Component<any, any> {
                     return <CommonEditor
                         mode="sql"
                         singleLineMode={true}
+                        toolBarOptions={{
+                            enableFormat: true
+                        }}
                         key={tabData.id}
                         value={tabData.sqlText}
                         currentTab={tabData.id}
