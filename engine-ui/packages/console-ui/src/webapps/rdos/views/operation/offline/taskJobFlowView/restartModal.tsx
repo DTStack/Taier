@@ -8,6 +8,7 @@ import {
 import Api from '../../../../api'
 import { TaskType, TaskStatus } from '../../../../components/status'
 import { TASK_STATUS } from '../../../../comm/const'
+import utils from '../../../../../../utils'
 
 const TreeNode = Tree.TreeNode
 
@@ -103,24 +104,13 @@ class RestartModal extends React.Component<any, any> {
         this.props.onCancel();
     }
 
-    /**
-     * simply judge whether the array is equal
-     * @param arr1
-     * @param arr2
-     * @returns arr1 === arr2
-     */
-    isEqualArr = (arr1: string[], arr2: string[]): boolean => {
-        const toString = JSON.stringify;
-        return toString(arr1.sort()) === toString(arr2.sort());
-    }
-
     onCheck = (checkedKeys: any, info: any) => {
         // const allSelectedData = this.getAllSelectData(this.state.treeData);
         const allSelectedData = this.cacheAllSelected; // 获取全选的缓存
         const hasCheckedVal = checkedKeys.checked;
         this.setState({
             checkedKeys: hasCheckedVal,
-            isAllChecked: this.isEqualArr(allSelectedData, hasCheckedVal)
+            isAllChecked: utils.isEqualArr(allSelectedData, hasCheckedVal)
         })
     }
 

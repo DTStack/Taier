@@ -280,7 +280,7 @@ class OfflineTaskList extends React.Component<any, any> {
                 onOk () {
                     Api.batchRestartAndResume({ jobIdList: selected }).then((res: any) => {
                         if (res.code === 1) {
-                            message.success('重跑当前选中及其全部下游任务')
+                            message.success('已经成功重跑当前选中及其全部下游任务')
                             ctx.setState({ selectedRowKeys: [], checkAll: false })
                             ctx.search()
                         }
