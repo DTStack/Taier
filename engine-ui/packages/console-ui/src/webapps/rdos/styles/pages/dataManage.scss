@@ -436,3 +436,25 @@
         margin-right: 0;
     }
 }
+.d-desen__list {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    min-height: calc(100% - 40px);
+    box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.1);
+    background: #FFFFFF;
+}
+.pane-height100-tab {
+    height: 100%;
+    .ant-tabs-content-no-animated {
+        height: 100%;
+        overflow: auto;
+    }
+    .pane-tabs {
+        height: 100%;
+        .tab_pane {
+            height: 100%;
+        }
+    }
+}
