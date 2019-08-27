@@ -243,7 +243,7 @@ class OfflineTaskList extends React.Component<any, any> {
                 content: '确认需要重跑当前选中的任务？',
                 onOk () {
                     // 接口等待后端
-                    Api.batchRestartAndResume({ jobIdList: selected }).then((res: any) => {
+                    Api.batchRestartAndResume({ jobIdList: selected, runCurrentJob:true }).then((res: any) => {
                         if (res.code === 1) {
                             message.success('已经成功重跑当前选中的任务！')
                             ctx.setState({ selectedRowKeys: [], checkAll: false })
