@@ -173,7 +173,9 @@ class CommonEditorContainer extends React.Component<any, any> {
 
     render () {
         const { editor = {}, currentTabData, value, mode, toolBarOptions = {}, project, user } = this.props;
-
+        if (toolBarOptions.enableFormat) {
+            toolBarOptions.onFormat = toolBarOptions.onFormat || this.sqlFormat;
+        }
         const currentTab = currentTabData.id;
 
         const consoleData = editor.console;
