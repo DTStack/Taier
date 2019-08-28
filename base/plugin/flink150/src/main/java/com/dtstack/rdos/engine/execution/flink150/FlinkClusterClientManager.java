@@ -3,12 +3,17 @@ package com.dtstack.rdos.engine.execution.flink150;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.JobIdentifier;
 import com.dtstack.rdos.engine.execution.flink150.enums.Deploy;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import org.apache.commons.lang.StringUtils;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.configuration.HighAvailabilityOptions;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
+import org.apache.hadoop.yarn.util.ConverterUtils;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -38,7 +43,10 @@ public class FlinkClusterClientManager {
 
     private FlinkYarnSessionStarter flinkYarnSessionStarter;
 
-    private ClusterClientCache perJobClientCache;
+    /**
+     * 用于缓存连接perjob对应application的ClusterClient
+     */
+    private Cache<String, ClusterClient> perJobClientCache = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).build();
 
     private ExecutorService yarnMonitorES;
 
@@ -50,7 +58,6 @@ public class FlinkClusterClientManager {
         manager.flinkClientBuilder = flinkClientBuilder;
         manager.flinkConfig = flinkClientBuilder.getFlinkConfig();
         manager.initYarnSessionClient();
-        manager.initPerJobClusterClient();
         return manager;
     }
 
@@ -75,9 +82,25 @@ public class FlinkClusterClientManager {
         yarnMonitorES.submit(new YarnAppStatusMonitor(this, flinkClientBuilder.getYarnClient(), flinkYarnSessionStarter));
     }
 
-    private void initPerJobClusterClient() throws Exception {
-        AbstractYarnClusterDescriptor perJobYarnClusterDescriptor = flinkClientBuilder.createClusterDescriptorByMode(null, null, true);
-        perJobClientCache = new ClusterClientCache(perJobYarnClusterDescriptor);
+    private ClusterClient getPerJobClient(JobIdentifier jobIdentifier){
+
+        String applicationId = jobIdentifier.getApplicationId();
+        String taskId = jobIdentifier.getTaskId();
+
+        ClusterClient clusterClient;
+        try {
+            clusterClient = perJobClientCache.get(applicationId, () -> {
+                Configuration conf = flinkClientBuilder.getFlinkConfiguration();
+                conf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, taskId);
+                AbstractYarnClusterDescriptor perJobYarnClusterDescriptor = flinkClientBuilder.createClusterDescriptorByMode(conf, null, true);
+                return perJobYarnClusterDescriptor.retrieve(ConverterUtils.toApplicationId(applicationId));
+            });
+
+        } catch (ExecutionException e) {
+            throw new RuntimeException("get yarn cluster client exception:", e);
+        }
+
+        return clusterClient;
     }
 
     /**
@@ -91,7 +114,7 @@ public class FlinkClusterClientManager {
         if (jobIdentifier == null || StringUtils.isBlank(jobIdentifier.getApplicationId())) {
             return flinkYarnSessionClient;
         } else {
-            return perJobClientCache.getClusterClient(jobIdentifier);
+            return getPerJobClient(jobIdentifier);
         }
     }
 
