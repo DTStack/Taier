@@ -93,8 +93,14 @@ export default {
     uploadResource (params: any) {
         return http.postAsFormData(req.UPLOAD_RESOURCE, params);
     },
+    uploadKerberosFile (params: any) {
+        return http.postAsFormData(req.UPLOAD_KERBEROSFILE, params);
+    },
     testComponent (params: any) {
         return http.post(req.TEST_COMPONENT_CONNECT, params);
+    },
+    testComponentKerberos (params: any) {
+        return http.postAsFormData(req.TEST_COMPONENT_CONNECT_KERBEROS, params);
     },
     addCluster (params: any) {
         return http.post(req.ADD_CLUSTER, params); // 新增集群
@@ -104,6 +110,9 @@ export default {
     },
     saveComponent (params: any) {
         return http.post(req.SAVE_COMPONENT, params);
+    },
+    saveComponentWithKerberos (params: any) {
+        return http.postAsFormData(req.SAVE_COMPONENT_KERBEROS, params);
     },
     deleteComponent (params: any) {
         return http.post(req.DELETE_COMPONENT, params); // 删除组件

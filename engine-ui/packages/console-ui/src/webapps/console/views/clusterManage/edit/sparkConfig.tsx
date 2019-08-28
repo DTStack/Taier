@@ -7,7 +7,7 @@ const FormItem = Form.Item;
 
 export default class SparkConfig extends React.Component<any, any> {
     render () {
-        const { singleButton, customView, isView, getFieldDecorator, securityStatus } = this.props;
+        const { singleButton, customView, isView, getFieldDecorator, securityStatus, kerberosView } = this.props;
         return (
             <React.Fragment>
                 <div className="engine-config-content" style={{ width: '680px' }}>
@@ -168,6 +168,7 @@ export default class SparkConfig extends React.Component<any, any> {
                         </div> : null
                     }
                     {customView}
+                    {kerberosView}
                 </div>
                 {singleButton}
             </React.Fragment>

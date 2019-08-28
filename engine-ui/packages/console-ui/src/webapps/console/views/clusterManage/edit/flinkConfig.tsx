@@ -16,7 +16,8 @@ export default class FlinkConfig extends React.Component<any, any> {
             securityStatus,
             getFieldDecorator,
             checked,
-            changeCheckbox
+            changeCheckbox,
+            kerberosView
         } = this.props;
         return (
             <React.Fragment>
@@ -382,6 +383,7 @@ export default class FlinkConfig extends React.Component<any, any> {
                         </div> : null
                     }
                     {customView}
+                    {kerberosView}
                 </div>
                 {singleButton}
             </React.Fragment>

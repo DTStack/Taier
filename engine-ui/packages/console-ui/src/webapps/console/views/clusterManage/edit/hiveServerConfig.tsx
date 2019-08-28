@@ -7,7 +7,7 @@ const FormItem = Form.Item;
 
 export default class HiveServerConfig extends React.Component<any, any> {
     render () {
-        const { isView, getFieldDecorator, customView, singleButton } = this.props;
+        const { isView, getFieldDecorator, customView, singleButton, kerberosView } = this.props;
         return (
             <React.Fragment>
                 <div className="engine-config-content" style={{ width: '680px' }}>
@@ -41,6 +41,7 @@ export default class HiveServerConfig extends React.Component<any, any> {
                         )}
                     </FormItem>
                     { customView }
+                    { kerberosView }
                 </div>
                 {singleButton}
             </React.Fragment>

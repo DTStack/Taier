@@ -39,10 +39,13 @@ export default {
 
     GET_CLUSTER_INFO: `${CONSOLE_BASE_URL}/cluster/getCluster`,
     UPLOAD_RESOURCE: `${CONSOLE_BASE_UPLOAD_URL}/upload/component/config`, // 上传资源配置（hdfs、yarn）
+    UPLOAD_KERBEROSFILE: `${CONSOLE_BASE_UPLOAD_URL}/upload/component/hadoopKerberosConfig`, // 上传kerberos认证文件
     TEST_COMPONENT_CONNECT: `${CONSOLE_BASE_URL}/component/testConnections`,
+    TEST_COMPONENT_CONNECT_KERBEROS: `${CONSOLE_BASE_UPLOAD_URL}/upload/service/component/testConnections`, // 测试连通性只要有组件开启kerberos认证就掉该接口
     ADD_CLUSTER: `${CONSOLE_BASE_URL}/cluster/addCluster`, // 新增集群
     ADD_COMPONENT: `${CONSOLE_BASE_URL}/component/addComponent`,
     SAVE_COMPONENT: `${CONSOLE_BASE_URL}/component/update`,
+    SAVE_COMPONENT_KERBEROS: `${CONSOLE_BASE_UPLOAD_URL}/upload/service/component/updateWithKerberos`, // 开启kerberos认证的保存接口
     DELETE_COMPONENT: `${CONSOLE_BASE_URL}/component/delete`,
     ADD_ENGINE: `${CONSOLE_BASE_URL}/engine/addEngine`,
     // 资源管理
