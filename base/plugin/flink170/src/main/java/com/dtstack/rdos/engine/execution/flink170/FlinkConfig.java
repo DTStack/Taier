@@ -83,6 +83,9 @@ public class FlinkConfig {
 
     private String flinkSessionName = "Flink session";
 
+    private transient FlinkPrometheusGatewayConfig prometheusGatewayConfig;
+
+
     public String getZkLoginName() {
         return zkLoginName;
     }
@@ -349,5 +352,13 @@ public class FlinkConfig {
 
     public void setFlinkSessionName(String flinkSessionName) {
         this.flinkSessionName = flinkSessionName;
+    }
+
+    public FlinkPrometheusGatewayConfig getPrometheusGatewayConfig() {
+        return prometheusGatewayConfig;
+    }
+
+    public void setPrometheusGatewayConfig(FlinkPrometheusGatewayConfig prometheusGatewayConfig) {
+        this.prometheusGatewayConfig = prometheusGatewayConfig;
     }
 }

@@ -59,51 +59,6 @@ public class FlinkRestParseUtil {
 
     public final static String JOB_ACCUMULATOR_INFO = "/jobs/%s/accumulators";
 
-    public final static String NO_RESOURCE_AVAILABLE_EXCEPTION = "org.apache.flink.runtime.jobmanager.scheduler.NoResourceAvailableException: Not enough free slots available to run the job";
-
-    private final static ObjectMapper objMapper = new ObjectMapper();
-
-    private static Logger logger = LoggerFactory.getLogger(FlinkRestParseUtil.class);
-
-
-    /**
-     * TODO 需要EngineResourceInfo转化为 FlinkEngineResourceInfo
-     * @param message
-     * @return
-     */
-    public static FlinkResourceInfo getAvailSlots(String message, YarnClient yarnClient,int flinkSessionSlotCount){
-
-        if(Strings.isNullOrEmpty(message)){
-            return null;
-        }
-
-        FlinkResourceInfo resourceInfo = new FlinkResourceInfo();
-        resourceInfo.setYarnClient(yarnClient);
-
-        try{
-            Map<String, Object> taskManagerInfo = objMapper.readValue(message, Map.class);
-            if(taskManagerInfo.containsKey("taskmanagers")){
-                List<Map<String, Object>> taskManagerList = (List<Map<String, Object>>) taskManagerInfo.get("taskmanagers");
-                if (taskManagerList.size()==0){
-                    //FIXME 外部传入
-                    resourceInfo.addNodeResource(new EngineResourceInfo.NodeResourceDetail("1",flinkSessionSlotCount,flinkSessionSlotCount));
-                }else {
-                    for(Map<String, Object> tmp : taskManagerList){
-                        int freeSlots = MapUtils.getIntValue(tmp,"freeSlots");
-                        int slotsNumber = MapUtils.getIntValue(tmp, "slotsNumber");
-                        resourceInfo.addNodeResource(new EngineResourceInfo.NodeResourceDetail((String)tmp.get("id"),freeSlots,slotsNumber));
-                    }
-                }
-
-            }
-        }catch (Exception e){
-            logger.error("", e);
-            return null;
-        }
-
-        return resourceInfo;
-    }
-
     public static String parseEngineLog(Map<String,String> jsonMap) throws IOException {
 
         String except = jsonMap.get("except");
@@ -256,10 +211,4 @@ public class FlinkRestParseUtil {
         return PublicUtil.objToString(logMap);
     }
 
-    public static boolean checkNoSlots(String msg){
-        if(StringUtils.isNotBlank(msg) && msg.contains(NO_RESOURCE_AVAILABLE_EXCEPTION)){
-            return true;
-        }
-        return false;
-    }
 }
