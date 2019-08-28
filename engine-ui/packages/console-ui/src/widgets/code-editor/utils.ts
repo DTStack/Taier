@@ -70,7 +70,7 @@ export function getLogMark (value: any) {
                 let textItem = textArr[i];
                 let contentItem = contentArr[i];
                 let cloneNode: any = node.cloneNode(false);// 浅拷贝
-                cloneNode.innerHTML = contentItem;
+                cloneNode.innerText = contentItem;
                 result.push({
                     start: indexObj.index + offset,
                     end: indexObj.index + offset + textItem.length,
