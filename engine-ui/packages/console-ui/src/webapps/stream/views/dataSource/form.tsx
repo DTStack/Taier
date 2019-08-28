@@ -230,7 +230,7 @@ class BaseForm extends React.Component<any, any> {
                                 <Icon type="question-circle-o" style={{ fontSize: '14px', marginTop: '8px', marginLeft: '10px' }}/>
                             </Tooltip>
                             <a
-                                href={`/api/streamapp/download/service/streamDownload/downloadKerberosXML?sourceType${getFieldValue('type')}`}
+                                href={`/api/streamapp/download/streamDownload/downloadKerberosXML?sourceType${getFieldValue('type')}`}
                                 download
                             >
                                 <div
