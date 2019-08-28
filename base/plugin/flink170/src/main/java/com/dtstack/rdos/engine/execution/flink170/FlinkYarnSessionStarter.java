@@ -76,9 +76,6 @@ public class FlinkYarnSessionStarter {
                 retrieveClusterClient = flinkClientBuilder.initYarnClusterClient(configuration, flinkConfig);
             } catch (Exception e) {
                 logger.error("{}", e);
-                if (!e.getMessage().startsWith("No flink session")) {
-                    System.exit(-1);
-                }
             }
 
             if (retrieveClusterClient != null) {
@@ -153,7 +150,6 @@ public class FlinkYarnSessionStarter {
             }
         } catch (Exception e) {
             logger.error("{}", e);
-            System.exit(-1);
         }
         return loadYAMLResource(yamlConfigFile);
     }

@@ -56,7 +56,6 @@ public class ClientCache {
             if(clientTypeStr == null){
                 String errorMess = "node.yml of engineTypes setting error, typeName must not be null!!!";
                 LOG.error(errorMess);
-                System.exit(-1);
             }
 
             loadComputerPlugin(clientTypeStr);
@@ -175,7 +174,6 @@ public class ClientCache {
 
         if(defaultClientMap.get(pluginKey) != null){
             LOG.error("------setting error: conflict default plugin key:{}-----", pluginKey);
-            System.exit(-1);
         }
 
         defaultClientMap.putIfAbsent(pluginKey, client);
