@@ -1,17 +1,13 @@
-package com.dtstack.rdos.engine.execution.flink150.util;
+package com.dtstack.rdos.engine.execution.flink150;
 
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.JobIdentifier;
-import com.dtstack.rdos.engine.execution.flink150.ClusterClientCache;
-import com.dtstack.rdos.engine.execution.flink150.FlinkClientBuilder;
-import com.dtstack.rdos.engine.execution.flink150.FlinkConfig;
-import com.dtstack.rdos.engine.execution.flink150.FlinkYarnSessionStarter;
-import com.dtstack.rdos.engine.execution.flink150.YarnAppStatusMonitor;
 import com.dtstack.rdos.engine.execution.flink150.enums.Deploy;
 import org.apache.commons.lang.StringUtils;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
+import org.apache.hadoop.yarn.api.records.ApplicationId;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -47,7 +43,7 @@ public class FlinkClusterClientManager {
     private ExecutorService yarnMonitorES;
 
 
-    public static FlinkClusterClientManager createWhithInit(FlinkClientBuilder flinkClientBuilder) throws Exception {
+    public static FlinkClusterClientManager createWhithInit(FlinkClientBuilder flinkClientBuilder, ) throws Exception {
         FlinkClusterClientManager manager = new FlinkClusterClientManager(flinkClientBuilder);
         manager.initClient();
         return manager;
@@ -58,9 +54,12 @@ public class FlinkClusterClientManager {
         this.flinkConfig = flinkClientBuilder.getFlinkConfig();
 
         if (flinkClientBuilder.getYarnClient() != null) {
-            Configuration flinkConfig = new Configuration(flinkClientBuilder.getFlinkConfiguration());
+            Configuration flinkConfig = new Configuration();
+
+            flinkClientBuilder.createClusterDescriptorByMode(null, )
             AbstractYarnClusterDescriptor perJobYarnClusterDescriptor = flinkClientBuilder.getClusterDescriptor(flinkConfig, yarnConf, ".", true);
             perJobClientCache = new ClusterClientCache(perJobYarnClusterDescriptor);
+
             yarnMonitorES = new ThreadPoolExecutor(1, 1,
                     0L, TimeUnit.MILLISECONDS,
                     new LinkedBlockingQueue<>(), new CustomThreadFactory("flink_yarn_monitor"));
@@ -71,23 +70,40 @@ public class FlinkClusterClientManager {
 
     private void initClient() throws Exception {
         if (flinkConfig.getClusterMode().equals(Deploy.standalone.name())) {
-            flinkYarnSessionClient = flinkClientBuilder.createStandalone(flinkConfig);
+            flinkYarnSessionClient = flinkClientBuilder.createStandalone();
         } else if (flinkConfig.getClusterMode().equals(Deploy.yarn.name())) {
             if (flinkYarnSessionStarter == null) {
-                this.flinkYarnSessionStarter = new FlinkYarnSessionStarter(flinkClientBuilder, flinkConfig, prometheusGatewayConfig);
+                this.flinkYarnSessionStarter = new FlinkYarnSessionStarter(flinkClientBuilder, flinkConfig);
             }
             flinkYarnSessionStarter.startFlinkYarnSession();
             flinkYarnSessionClient = flinkYarnSessionStarter.getClusterClient();
         }
-        setClientOn(true);
+    }
+
+    /**
+     * Get YarnSession ClusterClient
+     */
+    public ClusterClient getClusterClient() {
+        return getClusterClient(null);
     }
 
     public ClusterClient getClusterClient(JobIdentifier jobIdentifier) {
-        if (StringUtils.isBlank(jobIdentifier.getApplicationId())) {
+        if (jobIdentifier == null || StringUtils.isBlank(jobIdentifier.getApplicationId())) {
             return flinkYarnSessionClient;
         } else {
             return perJobClientCache.getClusterClient(jobIdentifier);
         }
     }
 
+    public void addClient(String applicationId, ClusterClient<ApplicationId> clusterClient) {
+        perJobClientCache.put(applicationId, clusterClient);
+    }
+
+    public AtomicBoolean getIsClientOn() {
+        return isClientOn;
+    }
+
+    public void setIsClientOn(AtomicBoolean isClientOn) {
+        this.isClientOn = isClientOn;
+    }
 }

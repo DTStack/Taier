@@ -74,12 +74,15 @@ public class FlinkClientBuilder {
 
     private Configuration flinkConfiguration;
 
+    private FlinkPrometheusGatewayConfig gatewayConfig;
+
     private FlinkClientBuilder() {
     }
 
     public static FlinkClientBuilder create(FlinkConfig flinkConfig, org.apache.hadoop.conf.Configuration hadoopConf, YarnConfiguration yarnConf, YarnClient yarnClient) {
         FlinkClientBuilder builder = new FlinkClientBuilder();
         builder.flinkConfig = flinkConfig;
+        builder.gatewayConfig = flinkConfig.getPrometheusGatewayConfig();
         builder.hadoopConf = hadoopConf;
         builder.yarnConf = yarnConf;
         builder.yarnClient = yarnClient;
@@ -145,7 +148,7 @@ public class FlinkClientBuilder {
         flinkConfiguration = config;
     }
 
-    public ClusterClient createStandalone(FlinkConfig flinkConfig) {
+    public ClusterClient createStandalone() {
         Preconditions.checkState(flinkConfig.getFlinkJobMgrUrl() != null || flinkConfig.getFlinkZkNamespace() != null,
                 "flink client can not init for host and zkNamespace is null at the same time.");
 
@@ -229,11 +232,11 @@ public class FlinkClientBuilder {
      * 根据yarn方式获取ClusterClient
      */
     @Deprecated
-    public ClusterClient<ApplicationId> initYarnClusterClient(Configuration configuration, FlinkConfig flinkConfig) {
+    public ClusterClient<ApplicationId> initYarnClusterClient(Configuration configuration) {
 
         Configuration newConf = new Configuration(configuration);
 
-        ApplicationId applicationId = acquireApplicationId(yarnClient, flinkConfig, newConf);
+        ApplicationId applicationId = acquireApplicationId(newConf);
 
         ClusterClient<ApplicationId> clusterClient = null;
 
@@ -256,8 +259,7 @@ public class FlinkClientBuilder {
         return clusterClient;
     }
 
-    public AbstractYarnClusterDescriptor createClusterDescriptorByMode(Configuration configuration, FlinkConfig flinkConfig, FlinkPrometheusGatewayConfig metricConfig, JobClient jobClient,
-                                                                       boolean isPerjob) throws MalformedURLException {
+    public AbstractYarnClusterDescriptor createClusterDescriptorByMode(Configuration configuration, JobClient jobClient, boolean isPerjob) throws MalformedURLException {
         if (configuration == null){
             configuration = flinkConfiguration;
         }
@@ -265,7 +267,7 @@ public class FlinkClientBuilder {
         if (isPerjob){
             newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, jobClient.getTaskId());
             newConf.setInteger(YarnConfigOptions.APPLICATION_ATTEMPTS.key(), 0);
-            perJobMetricConfigConfig(newConf, metricConfig);
+            perJobMetricConfigConfig(newConf);
         }
 
         AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, yarnConf, ".", isPerjob);
@@ -333,7 +335,7 @@ public class FlinkClientBuilder {
         }
     }
 
-    private ApplicationId acquireApplicationId(YarnClient yarnClient, FlinkConfig flinkConfig, Configuration configuration) {
+    private ApplicationId acquireApplicationId(Configuration configuration) {
         try {
             Set<String> set = new HashSet<>();
             set.add("Apache Flink");
@@ -383,7 +385,7 @@ public class FlinkClientBuilder {
         }
     }
 
-    private void perJobMetricConfigConfig(Configuration configuration, FlinkPrometheusGatewayConfig gatewayConfig){
+    private void perJobMetricConfigConfig(Configuration configuration){
         if(StringUtils.isBlank(gatewayConfig.getReporterClass())){
             return;
         }
