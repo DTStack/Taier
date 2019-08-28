@@ -237,7 +237,7 @@ public class DtYarnShellClient extends AbsClient {
     }
 
     @Override
-    public EngineResourceInfo getAvailSlots() {
+    public EngineResourceInfo getAvailSlots(JobClient jobClient) {
         DtYarnShellResourceInfo resourceInfo = new DtYarnShellResourceInfo();
         try {
             EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);

@@ -59,7 +59,7 @@ public abstract class AbsClient implements IClient{
     }
 
     @Override
-    public EngineResourceInfo getAvailSlots() {
+    public EngineResourceInfo getAvailSlots(JobClient jobClient) {
         return null;
     }
 

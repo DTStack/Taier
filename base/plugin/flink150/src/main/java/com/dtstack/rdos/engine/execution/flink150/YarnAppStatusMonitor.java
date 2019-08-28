@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.flink150;
 
+import com.dtstack.rdos.engine.execution.flink150.util.FlinkClusterClientManager;
 import org.apache.hadoop.service.Service;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
@@ -26,19 +27,17 @@ public class YarnAppStatusMonitor implements Runnable{
 
     private AtomicBoolean run = new AtomicBoolean(true);
 
-    private FlinkClient flinkClient;
+    private FlinkClusterClientManager clusterClientManager;
 
     private YarnClient yarnClient;
 
     private FlinkYarnSessionStarter flinkYarnSessionStarter;
 
-    private ApplicationId applicationId;
-
     private YarnApplicationState lastAppState;
     private long startTime = System.currentTimeMillis();
 
-    public YarnAppStatusMonitor(FlinkClient flinkClient, YarnClient yarnClient, FlinkYarnSessionStarter flinkYarnSessionStarter) {
-        this.flinkClient = flinkClient;
+    public YarnAppStatusMonitor(FlinkClusterClientManager clusterClientManager, YarnClient yarnClient, FlinkYarnSessionStarter flinkYarnSessionStarter) {
+        this.clusterClientManager = clusterClientManager;
         this.yarnClient = yarnClient;
         this.flinkYarnSessionStarter = flinkYarnSessionStarter;
         this.lastAppState = YarnApplicationState.NEW;
@@ -50,7 +49,7 @@ public class YarnAppStatusMonitor implements Runnable{
             if (flinkClient.isClientOn()) {
                 if (yarnClient.isInState(Service.STATE.STARTED)) {
 
-                    applicationId = (ApplicationId) flinkClient.getFlinkClient().getClusterId();
+                    private ApplicationId applicationId = (ApplicationId) flinkClient.getFlinkClient().getClusterId();
 
                     final ApplicationReport applicationReport;
 

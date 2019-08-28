@@ -209,7 +209,7 @@ public class KylinClient extends AbsClient {
     }
 
     @Override
-    public EngineResourceInfo getAvailSlots() {
+    public EngineResourceInfo getAvailSlots(JobClient jobClient) {
         return new EngineResourceInfo() {
             @Override
             public boolean judgeSlots(JobClient jobClient) {

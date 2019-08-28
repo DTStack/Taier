@@ -104,7 +104,7 @@ public abstract class RdbsClient extends AbsClient {
     }
 
     @Override
-    public EngineResourceInfo getAvailSlots() {
+    public EngineResourceInfo getAvailSlots(JobClient jobClient) {
         return resourceInfo;
     }
 

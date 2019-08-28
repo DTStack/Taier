@@ -1,30 +1,31 @@
 package com.dtstack.rdos.engine.execution.mysql;
 
 
-import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.Statement;
 
 public class TestMysql {
-    public static void main(String[] args) throws SQLException, ClassNotFoundException {
+    public static void main(String[] args) throws Exception {
         String driver = "com.mysql.jdbc.Driver";
         Class.forName(driver);
-        String url = "jdbc:mysql://172.16.10.61:3306/hyf";
+        String url = "jdbc:mysql://172.16.10.45:3306/test";
         String user = "dtstack";
         String pass = "abc123";
 
-        StringBuffer sb = new StringBuffer("create procedure hyf_proc() ");
-        sb.append("begin\n");
-        sb.append("\tinsert into my_time values (now());\n");
-        sb.append("end\n");
-        String createProc = sb.toString();
-        String callProc = "call hyf_proc()";
-        String deleteProc = "DROP PROCEDURE IF EXISTS hyf_proc";
+        String xx = "update myresult_copy set channel='%s' where id=%s ";
 
         Connection conn = DriverManager.getConnection(url, user, pass);
-        CallableStatement stmt = conn.prepareCall(deleteProc);
-        stmt.execute();
+
+        Statement statement = conn.createStatement();
+        while (true) {
+            for (int i = 1; i <= 150000; i++) {
+                statement.execute(String.format(xx, i, i));
+                if (i % 100 == 0) {
+                    System.out.println(i);
+                }
+            }
+        }
 //        stmt = conn.prepareCall(callProc);
 //        stmt.execute();
 
