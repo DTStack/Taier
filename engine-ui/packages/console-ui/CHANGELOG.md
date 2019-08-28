@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.8.0-beta.1.5"></a>
+# [3.8.0-beta.1.5](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.8.0-beta.1.4...3.8.0-beta.1.5) (2019-08-28)
+
+
+### Bug Fixes
+
+* code lint error ([c7e3b33](http://git.dtstack.cn/dtstack/data-stack-web/commits/c7e3b33))
+
+
+### Features
+
+* **createApi:** add pagenation optional item for create api ([ca3da46](http://git.dtstack.cn/dtstack/data-stack-web/commits/ca3da46)), closes [#18337](http://redmine.prod.dtstack.cn/issues/18337)
+
+
+
 <a name="3.8.0-beta.1.4"></a>
 # [3.8.0-beta.1.4](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.8.0-beta.1.3...3.8.0-beta.1.4) (2019-08-23)
 
