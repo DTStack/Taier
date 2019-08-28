@@ -59,7 +59,7 @@ public class FlinkYarnSessionStarter {
         configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, clusterId);
 
         this.configuration = configuration;
-        this.yarnSessionDescriptor = flinkClientBuilder.createClusterDescriptorByMode(configuration, flinkConfig, null, false);
+        this.yarnSessionDescriptor = flinkClientBuilder.createClusterDescriptorByMode(configuration, null, false);
         this.yarnSessionDescriptor.setName(flinkConfig.getFlinkSessionName() + SPLIT + clusterId);
         this.yarnSessionSpecification = FLinkConfUtil.createYarnSessionSpecification(flinkClientBuilder.getFlinkConfiguration());
 

@@ -42,42 +42,42 @@ public class FlinkClusterClientManager {
 
     private ExecutorService yarnMonitorES;
 
+    private FlinkClusterClientManager() {
+    }
 
-    public static FlinkClusterClientManager createWhithInit(FlinkClientBuilder flinkClientBuilder, ) throws Exception {
-        FlinkClusterClientManager manager = new FlinkClusterClientManager(flinkClientBuilder);
-        manager.initClient();
+    public static FlinkClusterClientManager createWithInit(FlinkClientBuilder flinkClientBuilder) throws Exception {
+        FlinkClusterClientManager manager = new FlinkClusterClientManager();
+        manager.flinkClientBuilder = flinkClientBuilder;
+        manager.flinkConfig = flinkClientBuilder.getFlinkConfig();
+        manager.initYarnSessionClient();
+        manager.initPerJobClusterClient();
         return manager;
     }
 
-    public FlinkClusterClientManager(FlinkClientBuilder flinkClientBuilder) throws Exception {
-        this.flinkClientBuilder = flinkClientBuilder;
-        this.flinkConfig = flinkClientBuilder.getFlinkConfig();
-
-        if (flinkClientBuilder.getYarnClient() != null) {
-            Configuration flinkConfig = new Configuration();
-
-            flinkClientBuilder.createClusterDescriptorByMode(null, )
-            AbstractYarnClusterDescriptor perJobYarnClusterDescriptor = flinkClientBuilder.getClusterDescriptor(flinkConfig, yarnConf, ".", true);
-            perJobClientCache = new ClusterClientCache(perJobYarnClusterDescriptor);
-
-            yarnMonitorES = new ThreadPoolExecutor(1, 1,
-                    0L, TimeUnit.MILLISECONDS,
-                    new LinkedBlockingQueue<>(), new CustomThreadFactory("flink_yarn_monitor"));
-            //启动守护线程---用于获取当前application状态和更新flink对应的application
-            yarnMonitorES.submit(new YarnAppStatusMonitor(this, flinkClientBuilder.getYarnClient(), flinkYarnSessionStarter));
-        }
-    }
-
-    private void initClient() throws Exception {
+    public void initYarnSessionClient() throws Exception {
         if (flinkConfig.getClusterMode().equals(Deploy.standalone.name())) {
             flinkYarnSessionClient = flinkClientBuilder.createStandalone();
         } else if (flinkConfig.getClusterMode().equals(Deploy.yarn.name())) {
             if (flinkYarnSessionStarter == null) {
                 this.flinkYarnSessionStarter = new FlinkYarnSessionStarter(flinkClientBuilder, flinkConfig);
+                this.startYarnSessionClientMonitor();
             }
             flinkYarnSessionStarter.startFlinkYarnSession();
             flinkYarnSessionClient = flinkYarnSessionStarter.getClusterClient();
+            this.setIsClientOn(true);
         }
+    }
+
+    private void startYarnSessionClientMonitor() throws Exception {
+        yarnMonitorES = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(), new CustomThreadFactory("flink_yarn_monitor"));
+        //启动守护线程---用于获取当前application状态和更新flink对应的application
+        yarnMonitorES.submit(new YarnAppStatusMonitor(this, flinkClientBuilder.getYarnClient(), flinkYarnSessionStarter));
+    }
+
+    private void initPerJobClusterClient() throws Exception {
+        AbstractYarnClusterDescriptor perJobYarnClusterDescriptor = flinkClientBuilder.createClusterDescriptorByMode(null, null, true);
+        perJobClientCache = new ClusterClientCache(perJobYarnClusterDescriptor);
     }
 
     /**
@@ -99,11 +99,11 @@ public class FlinkClusterClientManager {
         perJobClientCache.put(applicationId, clusterClient);
     }
 
-    public AtomicBoolean getIsClientOn() {
-        return isClientOn;
+    public boolean getIsClientOn() {
+        return isClientOn.get();
     }
 
-    public void setIsClientOn(AtomicBoolean isClientOn) {
-        this.isClientOn = isClientOn;
+    public void setIsClientOn(boolean isClientOn) {
+        this.isClientOn.set(isClientOn);
     }
 }

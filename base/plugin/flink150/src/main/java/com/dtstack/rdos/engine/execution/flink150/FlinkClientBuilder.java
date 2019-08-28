@@ -264,7 +264,7 @@ public class FlinkClientBuilder {
             configuration = flinkConfiguration;
         }
         Configuration newConf = new Configuration(configuration);
-        if (isPerjob){
+        if (isPerjob && jobClient != null){
             newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, jobClient.getTaskId());
             newConf.setInteger(YarnConfigOptions.APPLICATION_ATTEMPTS.key(), 0);
             perJobMetricConfigConfig(newConf);
@@ -302,7 +302,7 @@ public class FlinkClientBuilder {
             throw new RdosException("The Flink jar path is null");
         }
 
-        if (isPerjob && CollectionUtils.isNotEmpty(jobClient.getAttachJarInfos())) {
+        if (isPerjob && jobClient != null && CollectionUtils.isNotEmpty(jobClient.getAttachJarInfos())) {
             for (JarFileInfo jarFileInfo : jobClient.getAttachJarInfos()) {
                 classpaths.add(new File(jarFileInfo.getJarPath()).toURI().toURL());
             }
@@ -313,7 +313,7 @@ public class FlinkClientBuilder {
         return clusterDescriptor;
     }
 
-    public AbstractYarnClusterDescriptor getClusterDescriptor(
+    private AbstractYarnClusterDescriptor getClusterDescriptor(
             Configuration configuration,
             YarnConfiguration yarnConfiguration,
             String configurationDirectory,

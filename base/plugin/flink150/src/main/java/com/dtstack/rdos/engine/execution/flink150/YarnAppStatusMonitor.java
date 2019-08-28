@@ -33,6 +33,7 @@ public class YarnAppStatusMonitor implements Runnable{
     private FlinkYarnSessionStarter flinkYarnSessionStarter;
 
     private YarnApplicationState lastAppState;
+
     private long startTime = System.currentTimeMillis();
 
     public YarnAppStatusMonitor(FlinkClusterClientManager clusterClientManager, YarnClient yarnClient, FlinkYarnSessionStarter flinkYarnSessionStarter) {
@@ -45,10 +46,10 @@ public class YarnAppStatusMonitor implements Runnable{
     @Override
     public void run() {
         while (run.get()) {
-            if (flinkClient.isClientOn()) {
+            if (clusterClientManager.getIsClientOn()) {
                 if (yarnClient.isInState(Service.STATE.STARTED)) {
 
-                    private ApplicationId applicationId = (ApplicationId) flinkClient.getFlinkClient().getClusterId();
+                    ApplicationId applicationId = (ApplicationId) clusterClientManager.getClusterClient().getClusterId();
 
                     final ApplicationReport applicationReport;
 
@@ -68,7 +69,7 @@ public class YarnAppStatusMonitor implements Runnable{
                             flinkYarnSessionStarter.stopFlinkYarnSession();
                             LOG.error("-------Flink session is down----");
                             //限制任务提交---直到恢复
-                            flinkClient.setClientOn(false);
+                            clusterClientManager.setIsClientOn(false);
                             break;
                         case RUNNING:
                             if (lastAppState != appState) {
@@ -86,11 +87,11 @@ public class YarnAppStatusMonitor implements Runnable{
                     lastAppState = appState;
                 } else {
                     LOG.error("Yarn client is no longer in state STARTED. Stopping the Yarn application status monitor.");
-                    flinkClient.setClientOn(false);
+                    clusterClientManager.setIsClientOn(false);
                 }
             }
 
-            if (!flinkClient.isClientOn()) {
+            if (!clusterClientManager.getIsClientOn()) {
                 retry();
             }
 
@@ -108,7 +109,7 @@ public class YarnAppStatusMonitor implements Runnable{
             LOG.warn("--retry flink client with yarn session----");
             startTime = System.currentTimeMillis();
             this.lastAppState = YarnApplicationState.NEW;
-            flinkClient.initClient();
+            clusterClientManager.initYarnSessionClient();
         } catch (Exception e) {
             LOG.error("", e);
         }
