@@ -35,7 +35,7 @@ class RestartModal extends React.Component<any, any> {
                     jobKey: node.jobKey,
                     isOnlyNextChild: false
                 })
-                this.cacheAllSelected = this.getAllSelectData(this.state.treeData); // 获取新的全部数据作为全选缓存
+                // this.cacheAllSelected = this.getAllSelectData(this.state.treeData); // 获取新的全部数据作为全选缓存
             })
         }
     }
@@ -102,6 +102,8 @@ class RestartModal extends React.Component<any, any> {
             isAllChecked: false
         })
         this.props.onCancel();
+        this.cacheAllSelected = []
+        console.log('unmount', this.cacheAllSelected)
     }
 
     onCheck = (checkedKeys: any, info: any) => {
@@ -136,15 +138,17 @@ class RestartModal extends React.Component<any, any> {
     // 获取所有项的id值
     getAllSelectData = (data?: any[]) => {
         const tempArr: any[] = [];
+        const _this = this;
         function getId (data: any) {
             if (!data) return;
             if (data.length > 0) {
                 data.map((item: any) => {
+                    console.log(item)
                     const id = `${item.batchTask ? item.id : item.jobId}`;
                     const status = item.jobStatus || item.status; // jobStatus 为从接口获取，status表默认节点
                     // 禁止重跑并恢复调度
                     if (item.childs) {
-                        const canRestart = this.canRestartFunc(status);
+                        const canRestart = _this.canRestartFunc(status);
                         if (canRestart) {
                             tempArr.push(id);
                         }
@@ -156,17 +160,20 @@ class RestartModal extends React.Component<any, any> {
             }
         }
         getId(data);
+        console.log(tempArr)
         return tempArr;
     }
 
     cacheAllSelected: any[] = [];
 
     handleAllSelect = (data: any[]) => {
+        console.log(this.cacheAllSelected)
         if (this.cacheAllSelected.length === 0) {
             this.cacheAllSelected = this.getAllSelectData(data);
         }
         // this.cacheAllSelected.length === 0 && (this.cacheAllSelected = this.getAllSelectData(data));
         // 取消全选置空， 不能使用全选的缓存数据
+        console.log(this.cacheAllSelected, data)
         this.setState({ checkedKeys: data.length === 0 ? [] : this.cacheAllSelected });
     }
 
@@ -236,6 +243,11 @@ class RestartModal extends React.Component<any, any> {
             return nodes;
         }
         return []
+    }
+
+    componentWillUnmount () {
+        this.cacheAllSelected = []
+        console.log('unmount', this.cacheAllSelected)
     }
 
     render () {
