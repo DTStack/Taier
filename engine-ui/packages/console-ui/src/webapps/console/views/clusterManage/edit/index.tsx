@@ -1127,12 +1127,9 @@ class EditCluster extends React.Component<any, any> {
         console.log(formValue, this.props.form.getFieldsValue())
         const upProps = {
             beforeUpload: (file: any) => {
+                file.modifyTime = moment();
                 console.log(file);
                 setFieldsValue({
-                    // [`${key}.kerberosFile`]: {
-                    //     name: file.name,
-                    //     lastModifiedDate: file.lastModifiedDate
-                    // }
                     [`${key}.kerberosFile`]: file
                 })
                 return false;
@@ -1242,7 +1239,7 @@ class EditCluster extends React.Component<any, any> {
                                                     })
                                                 }}
                                             />
-                                            <Input value={formValue.name + '   ' + moment(formValue.lastModifiedDate).format('YYYY-MM-DD HH:mm:ss')}/>
+                                            <Input value={formValue.name + '   ' + moment(formValue.modifyTime).format('YYYY-MM-DD HH:mm:ss')}/>
                                         </div>
                                     )
                                     : null

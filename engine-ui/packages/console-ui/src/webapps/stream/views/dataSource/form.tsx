@@ -188,6 +188,7 @@ class BaseForm extends React.Component<any, any> {
         const nullArr: any[] = [];
         const upProps = {
             beforeUpload: (file: any) => {
+                file.modifyTime = moment();
                 console.log(file);
                 setFieldsValue({
                     [`kerberosFile`]: file
@@ -269,7 +270,7 @@ class BaseForm extends React.Component<any, any> {
                                                 })
                                             }}
                                         />
-                                        <Input value={(getFieldValue(`kerberosFile`)).name + '   ' + moment((getFieldValue(`kerberosFile`)).lastModifiedDate).format('YYYY-MM-DD HH:mm:ss')}/>
+                                        <Input value={(getFieldValue(`kerberosFile`)).name + '   ' + moment((getFieldValue(`kerberosFile`)).modifyTime).format('YYYY-MM-DD HH:mm:ss')}/>
                                     </div>
                                 )
                                 : null
