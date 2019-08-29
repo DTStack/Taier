@@ -57,6 +57,7 @@ function giveMeAKey () {
     }
 }) as any)
 class EditCluster extends React.Component<any, any> {
+    kfile: any;
     state: any = {
         clusterData: {},
         selectUserMap: {},
@@ -97,6 +98,7 @@ class EditCluster extends React.Component<any, any> {
         this.getDataList();
         this.props.updateTestStatus(DEFAULT_COMP_TEST)
         this.props.updateRequiredStatus(DEFAULT_COMP_REQUIRED)
+        this.getKerberosFile();
     }
 
     /**
@@ -167,6 +169,28 @@ class EditCluster extends React.Component<any, any> {
                 return libraConf.components || []
             }
         }
+    }
+    // 获取kerberos文件信息
+    getKerberosFile () {
+        const { location } = this.props;
+        const params = location.state || {};
+        const clusterId = params.cluster.id || params.cluster.clusterId;
+        Api.getKerberosFile({
+            clusterId
+        })
+            .then(
+                (res: any) => {
+                    console.log(res);
+                    const data = res.data;
+                    if (data && data.name) {
+                        this.setState({
+                            kfile: {
+                                files: [res.data]
+                            }
+                        })
+                    }
+                }
+            )
     }
     // 填充表单数据
     getDataList (engineType?: any) {
@@ -324,31 +348,34 @@ class EditCluster extends React.Component<any, any> {
     kfileChange (e: any) {
         const { cluster } = this.props.location.state || {} as any;
         const kfile = e.target;
-        this.props.form.setFieldsValue({
-            kfile: ''
-        })
-        this.setState({ uploadKLoading: true });
-        Api.uploadKerberosFile({
-            kerberosFile: kfile.files[0],
-            clusterId: cluster.id || cluster.clusterId
-        })
-            .then(
-                (res: any) => {
-                    if (res.code == 1) {
-                        this.setState({
-                            uploadKLoading: false,
-                            kfile: kfile
-                        })
-                    } else {
-                        this.props.form.setFieldsValue({
-                            kfile: ''
-                        })
-                        this.setState({
-                            uploadKLoading: false
-                        })
+        console.log(kfile)
+        if (kfile.files.length > 0) {
+            this.setState({ uploadKLoading: true });
+            Api.uploadKerberosFile({
+                kerberosFile: kfile.files[0],
+                clusterId: cluster.id || cluster.clusterId
+            })
+                .then(
+                    (res: any) => {
+                        console.log(res.code)
+                        if (res.code == 1) {
+                            // console.log('1111111')
+                            this.setState({
+                                uploadKLoading: false,
+                                kfile: {
+                                    files: []
+                                }
+                            })
+                        } else {
+                            // console.log('2222222222')
+                            this.setState({
+                                uploadKLoading: false
+                            })
+                        }
+                        this.kfile.value = '';
                     }
-                }
-            )
+                )
+        }
     }
     /* eslint-disable */
     addParam(type: any) {
@@ -1083,10 +1110,11 @@ class EditCluster extends React.Component<any, any> {
                                                             htmlFor="kerberosFiles">选择文件</label>
                                                 }
                                                 {uploadKLoading ? <Icon className="blue-loading" type="loading" /> : null}
-                                                <span> {kfile.files && kfile.files[0].name}</span>
+                                                <span> {kfile.files && kfile.files.length > 0 && kfile.files[0].name}</span>
                                                 <input
                                                     name="file"
                                                     type="file"
+                                                    ref={(e) => { this.kfile = e }}
                                                     id="kerberosFiles"
                                                     onChange={this.kfileChange.bind(this)}
                                                     accept=".zip"
@@ -1124,7 +1152,7 @@ class EditCluster extends React.Component<any, any> {
         const nullArr: any[] = [];
         const formValue = getFieldValue(`${key}.kerberosFile`)
         const keyNum = COMPONENT_TYPE_VALUE[findKey(COMPONEMT_CONFIG_KEYS, (item) => { return item === key })]
-        console.log(formValue, this.props.form.getFieldsValue())
+        // console.log(formValue, this.props.form.getFieldsValue())
         const upProps = {
             beforeUpload: (file: any) => {
                 file.modifyTime = moment();
@@ -1435,7 +1463,7 @@ class EditCluster extends React.Component<any, any> {
         const tabCompData = isHadoopEngine(engineTypeKey) ? hadoopComponentData : libraComponentData; // 不同engine的组件数据
         // const tabCompData = isHadoopEngine(engineTypeKey) ? [...hadoopComponentData, { componentId: 2321, componentName: 'SFTP', componentTypeCode: 10, config: {} }] : libraComponentData; // 不同engine的组件数据
         const engineList = clusterData.engines || [];
-        console.log(this.state, tabCompData)
+        // console.log(this.state, tabCompData)
         return (
             <div className='console-wrapper' ref={(el) => { this.container = el; }}>
                 <div>

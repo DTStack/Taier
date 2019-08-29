@@ -96,6 +96,9 @@ export default {
     uploadKerberosFile (params: any) {
         return http.postAsFormData(req.UPLOAD_KERBEROSFILE, params);
     },
+    getKerberosFile (params: any) {
+        return http.post(req.GET_KERBEROSFILE, params);
+    },
     testComponent (params: any) {
         return http.post(req.TEST_COMPONENT_CONNECT, params);
     },
