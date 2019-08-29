@@ -106,7 +106,7 @@ public abstract class EngineResourceInfo {
         }
     }
 
-    protected boolean judgeCores(int instances, int coresPerInstance) {
+    private boolean judgeCores(int instances, int coresPerInstance) {
         int needCores = instances * coresPerInstance;
         if (needCores > (totalCore * queueCapacity)) {
             throw new RdosException(LIMIT_RESOURCE_ERROR + "The Yarn task is set to a core larger than the maximum allocated core");
@@ -125,7 +125,7 @@ public abstract class EngineResourceInfo {
         return true;
     }
 
-    protected boolean judgeMem(int instances, int memPerInstance) {
+    private boolean judgeMem(int instances, int memPerInstance) {
         int needMems = instances * memPerInstance;
         if (needMems > (totalMem * queueCapacity)) {
             throw new RdosException(LIMIT_RESOURCE_ERROR + "The Yarn task is set to MEM larger than the maximum for the cluster");
