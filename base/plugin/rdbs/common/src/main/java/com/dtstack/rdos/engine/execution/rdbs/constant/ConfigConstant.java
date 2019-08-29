@@ -17,4 +17,8 @@ public class ConfigConstant {
 
     public static final String QUEUE = "queue";
 
+    public static final String JDBC_USER_NAME_KEY = "user";
+
+    public static final String JDBC_PASSWORD_KEY = "password";
+
 }
