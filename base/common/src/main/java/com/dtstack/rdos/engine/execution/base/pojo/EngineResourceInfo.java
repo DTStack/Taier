@@ -177,4 +177,8 @@ public abstract class EngineResourceInfo {
     public void setCapacity(float capacity) {
         this.capacity = capacity;
     }
+
+    public void setQueueCapacity(float queueCapacity) {
+        this.queueCapacity = queueCapacity;
+    }
 }
