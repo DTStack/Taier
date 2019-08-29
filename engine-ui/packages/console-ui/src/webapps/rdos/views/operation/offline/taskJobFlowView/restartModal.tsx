@@ -34,6 +34,7 @@ class RestartModal extends React.Component<any, any> {
                     jobKey: node.jobKey,
                     isOnlyNextChild: false
                 })
+                // this.cacheAllSelected = this.getAllSelectData(this.state.treeData); // 获取新的全部数据作为全选缓存
             })
         }
     }
@@ -99,6 +100,8 @@ class RestartModal extends React.Component<any, any> {
             checkedKeys: []
         })
         this.props.onCancel();
+        this.cacheAllSelected = []
+        console.log('unmount', this.cacheAllSelected)
     }
 
     onCheck = (checkedKeys: any, info: any) => {
@@ -124,7 +127,75 @@ class RestartModal extends React.Component<any, any> {
         })
     }
 
-    getTreeNodes = (data: any, currentNode: any) => {
+    // 获取所有项的id值
+    getAllSelectData = (data?: any[]) => {
+        const tempArr: any[] = [];
+        const _this = this;
+        function getId (data: any) {
+            if (!data) return;
+            if (data.length > 0) {
+                data.map((item: any) => {
+                    console.log(item)
+                    const id = `${item.batchTask ? item.id : item.jobId}`;
+                    const status = item.jobStatus || item.status; // jobStatus 为从接口获取，status表默认节点
+                    // 禁止重跑并恢复调度
+                    if (item.childs) {
+                        const canRestart = _this.canRestartFunc(status);
+                        if (canRestart) {
+                            tempArr.push(id);
+                        }
+                        getId(item.childs);
+                    } else {
+                        tempArr.push(id);
+                    }
+                });
+            }
+        }
+        getId(data);
+        console.log(tempArr)
+        return tempArr;
+    }
+
+    cacheAllSelected: any[] = [];
+
+    handleAllSelect = (data: any[]) => {
+        console.log(this.cacheAllSelected)
+        if (this.cacheAllSelected.length === 0) {
+            this.cacheAllSelected = this.getAllSelectData(data);
+        }
+        // this.cacheAllSelected.length === 0 && (this.cacheAllSelected = this.getAllSelectData(data));
+        // 取消全选置空， 不能使用全选的缓存数据
+        console.log(this.cacheAllSelected, data)
+        this.setState({ checkedKeys: data.length === 0 ? [] : this.cacheAllSelected });
+    }
+
+    handleCheckboxChange = () => {
+        const { treeData, isAllChecked } = this.state;
+        this.setState({
+            isAllChecked: !isAllChecked
+        }, () => {
+            // 根据是否点击全选来决定传递处理参数
+            this.handleAllSelect(this.state.isAllChecked ? treeData : [])
+        });
+    }
+
+    canRestartFunc = (status: any): boolean => {
+        switch (status) {
+            case TASK_STATUS.WAIT_SUBMIT: // 未运行
+            case TASK_STATUS.FINISHED: // 已完成
+            case TASK_STATUS.RUN_FAILED: // 运行失败
+            case TASK_STATUS.SUBMIT_FAILED: // 提交失败
+            case TASK_STATUS.SET_SUCCESS: // 手动设置成功
+            case TASK_STATUS.PARENT_FAILD: // 上游失败
+            case TASK_STATUS.KILLED: // 已停止
+            case TASK_STATUS.STOPED: // 已取消
+                return true
+            default:
+                return false;
+        }
+    }
+
+    getTreeNodes = (data: any[], currentNode: any) => {
         if (data && data.length > 0) {
             const nodes = data.map((item: any) => {
                 const id = `${item.batchTask ? item.id : item.jobId}`;
@@ -171,6 +242,11 @@ class RestartModal extends React.Component<any, any> {
             return nodes;
         }
         return []
+    }
+
+    componentWillUnmount () {
+        this.cacheAllSelected = []
+        console.log('unmount', this.cacheAllSelected)
     }
 
     render () {
