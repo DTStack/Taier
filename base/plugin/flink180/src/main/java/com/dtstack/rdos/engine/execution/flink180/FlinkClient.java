@@ -711,23 +711,6 @@ public class FlinkClient extends AbsClient {
         return resourceInfo;
     }
 
-    private float getQueueRemainCapacity(float coefficient, List<QueueInfo> queueInfos){
-        float capacity = 0;
-        for (QueueInfo queueInfo : queueInfos){
-            if (CollectionUtils.isNotEmpty(queueInfo.getChildQueues())) {
-                float subCoefficient = queueInfo.getCapacity() * coefficient;
-                capacity = getQueueRemainCapacity(subCoefficient, queueInfo.getChildQueues());
-            }
-            if (flinkConfig.getQueue().equals(queueInfo.getQueueName())){
-                capacity = coefficient * queueInfo.getCapacity() * (1 - queueInfo.getCurrentCapacity());
-            }
-            if (capacity>0){
-                return capacity;
-            }
-        }
-        return capacity;
-    }
-
     @Override
     public void beforeSubmitFunc(JobClient jobClient) {
         String sql = jobClient.getSql();

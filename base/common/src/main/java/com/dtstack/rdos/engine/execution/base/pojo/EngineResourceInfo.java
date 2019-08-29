@@ -3,8 +3,20 @@ package com.dtstack.rdos.engine.execution.base.pojo;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.hadoop.yarn.api.records.ApplicationReport;
+import org.apache.hadoop.yarn.api.records.NodeReport;
+import org.apache.hadoop.yarn.api.records.NodeState;
+import org.apache.hadoop.yarn.api.records.QueueInfo;
+import org.apache.hadoop.yarn.api.records.Resource;
+import org.apache.hadoop.yarn.api.records.YarnApplicationState;
+import org.apache.hadoop.yarn.client.api.YarnClient;
+import org.apache.hadoop.yarn.exceptions.YarnException;
 
+import java.io.IOException;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -15,6 +27,11 @@ import java.util.List;
 public abstract class EngineResourceInfo {
 
     public final static String LIMIT_RESOURCE_ERROR = "LIMIT RESOURCE ERROR:";
+
+    /**
+     * 弹性容量, 默认不开启
+     */
+    protected boolean elasticCapacity = false;
     protected float capacity = 1;
     protected float queueCapacity = 1;
     protected int totalFreeCore = 0;
@@ -22,7 +39,7 @@ public abstract class EngineResourceInfo {
     protected int totalCore = 0;
     protected int totalMem = 0;
     protected int[] nmFree = null;
-
+    protected int containerMemoryMax;
 
     protected List<NodeResourceDetail> nodeResources = Lists.newArrayList();
 
@@ -50,7 +67,8 @@ public abstract class EngineResourceInfo {
     }
 
     /**
-     *  离线任务yarnsession模式运行，资源判断
+     * 离线任务yarnsession模式运行，资源判断
+     *
      * @return
      */
     public boolean judgeSessionResource() {
@@ -146,6 +164,55 @@ public abstract class EngineResourceInfo {
         nodeResources.add(nodeResourceDetail);
     }
 
+    public void getYarnSlots(YarnClient yarnClient, String queueName, int yarnAccepterTaskNumber) throws IOException, YarnException {
+        EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
+        enumSet.add(YarnApplicationState.ACCEPTED);
+        List<ApplicationReport> acceptedApps = yarnClient.getApplications(enumSet).stream().
+                filter(report -> report.getQueue().endsWith(queueName)).collect(Collectors.toList());
+        if (acceptedApps.size() > yarnAccepterTaskNumber) {
+            return;
+        }
+
+        List<NodeReport> nodeReports = yarnClient.getNodeReports(NodeState.RUNNING);
+        if (!elasticCapacity) {
+            getQueueRemainCapacity(1, queueName, yarnClient.getRootQueueInfos());
+        }
+        for (NodeReport report : nodeReports) {
+            Resource capability = report.getCapability();
+            Resource used = report.getUsed();
+            int totalMem = capability.getMemory();
+            int totalCores = capability.getVirtualCores();
+
+            int usedMem = used.getMemory();
+            int usedCores = used.getVirtualCores();
+
+            int freeCores = totalCores - usedCores;
+            int freeMem = totalMem - usedMem;
+
+            if (freeMem > containerMemoryMax) {
+                containerMemoryMax = freeMem;
+            }
+            this.addNodeResource(new EngineResourceInfo.NodeResourceDetail(report.getNodeId().toString(), totalCores, usedCores, freeCores, totalMem, usedMem, freeMem));
+        }
+    }
+
+    public float getQueueRemainCapacity(float coefficient, String queueName, List<QueueInfo> queueInfos) {
+        for (QueueInfo queueInfo : queueInfos) {
+            if (CollectionUtils.isNotEmpty(queueInfo.getChildQueues())) {
+                float subCoefficient = queueInfo.getCapacity() * coefficient;
+                capacity = getQueueRemainCapacity(subCoefficient, queueName, queueInfo.getChildQueues());
+            }
+            if (queueInfo.getQueueName().equalsIgnoreCase(queueName)) {
+                queueCapacity = coefficient * queueInfo.getCapacity();
+                capacity = queueCapacity * (1 - queueInfo.getCurrentCapacity());
+            }
+            if (capacity > 0) {
+                return capacity;
+            }
+        }
+        return capacity;
+    }
+
     public static class NodeResourceDetail {
         public String nodeId;
         public int coresTotal;
@@ -174,11 +241,23 @@ public abstract class EngineResourceInfo {
         }
     }
 
-    public void setCapacity(float capacity) {
-        this.capacity = capacity;
+    public void setElasticCapacity(boolean elasticCapacity) {
+        this.elasticCapacity = elasticCapacity;
     }
 
-    public void setQueueCapacity(float queueCapacity) {
-        this.queueCapacity = queueCapacity;
+    public boolean getElasticCapacity() {
+        return elasticCapacity;
+    }
+
+    public float getCapacity() {
+        return capacity;
+    }
+
+    public float getQueueCapacity() {
+        return queueCapacity;
+    }
+
+    public int getContainerMemoryMax() {
+        return containerMemoryMax;
     }
 }

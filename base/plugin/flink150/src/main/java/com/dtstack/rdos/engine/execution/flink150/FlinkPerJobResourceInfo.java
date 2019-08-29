@@ -29,7 +29,6 @@ public class FlinkPerJobResourceInfo extends EngineResourceInfo {
     private int taskmanagerMemoryMb = MIN_JM_MEMORY;
     private int numberTaskManagers = 1;
     private int slotsPerTaskManager = 1;
-    private int containerLimit;
 
     @Override
     public boolean judgeSlots(JobClient jobClient) {
@@ -76,7 +75,7 @@ public class FlinkPerJobResourceInfo extends EngineResourceInfo {
         if ((totalMem * capacity) < totalMemoryRequired) {
             return false;
         }
-        if (taskmanagerMemoryMb > containerLimit || jobmanagerMemoryMb > containerLimit) {
+        if (taskmanagerMemoryMb > containerMemoryMax || jobmanagerMemoryMb > containerMemoryMax) {
             return false;
         }
 
@@ -91,9 +90,5 @@ public class FlinkPerJobResourceInfo extends EngineResourceInfo {
         }
 
         return true;
-    }
-
-    public void setContainerLimit(int containerLimit) {
-        this.containerLimit = containerLimit;
     }
 }
