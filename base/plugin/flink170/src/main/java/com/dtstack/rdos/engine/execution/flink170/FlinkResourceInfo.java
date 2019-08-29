@@ -1,6 +1,5 @@
 package com.dtstack.rdos.engine.execution.flink170;
 
-import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
@@ -83,11 +82,8 @@ public class FlinkResourceInfo extends EngineResourceInfo {
         if (properties != null && properties.containsKey(SLOTS)) {
             slotsPerTaskManager = MathUtil.getIntegerVal(properties.get(SLOTS));
         }
-        if ((totalCore * queueCapacity) < slotsPerTaskManager) {
-            throw new RdosException(LIMIT_RESOURCE_ERROR + "Flink任务设置的core 大于 分配的最大的core");
-        }
-        if ((totalCore * capacity) < slotsPerTaskManager) {
-            return false;
+        if (properties != null && properties.containsKey(CONTAINER)) {
+            numberTaskManagers = MathUtil.getIntegerVal(properties.get(CONTAINER));
         }
 
         if (properties != null && properties.containsKey(JOBMANAGER_MEMORY_MB)) {
@@ -104,29 +100,13 @@ public class FlinkResourceInfo extends EngineResourceInfo {
             taskmanagerMemoryMb = MIN_TM_MEMORY;
         }
 
-        if (properties != null && properties.containsKey(CONTAINER)) {
-            numberTaskManagers = MathUtil.getIntegerVal(properties.get(CONTAINER));
-        }
-
-        int totalMemoryRequired = jobmanagerMemoryMb + taskmanagerMemoryMb * numberTaskManagers;
-        if ((totalMem * queueCapacity) < totalMemoryRequired) {
-            throw new RdosException(LIMIT_RESOURCE_ERROR + "Flink任务设置的MEM 大于 集群最大的MEM");
-        }
-        if ((totalMem * capacity) < totalMemoryRequired) {
-            return false;
-        }
-        if (taskmanagerMemoryMb > containerMemoryMax || jobmanagerMemoryMb > containerMemoryMax) {
+        //作为启动 am 和 jobmanager
+        if (!judgeYarnResource(1, 1, jobmanagerMemoryMb)) {
             return false;
         }
 
-        if (!allocateResource(nmFree, jobmanagerMemoryMb)) {
+        if (!judgeYarnResource(numberTaskManagers, slotsPerTaskManager, taskmanagerMemoryMb)) {
             return false;
-        }
-
-        for (int i = 0; i < numberTaskManagers; i++) {
-            if (!allocateResource(nmFree, taskmanagerMemoryMb)) {
-                return false;
-            }
         }
 
         return true;

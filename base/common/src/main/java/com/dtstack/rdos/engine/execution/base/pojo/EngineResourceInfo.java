@@ -38,7 +38,9 @@ public abstract class EngineResourceInfo {
     protected int totalFreeMem = 0;
     protected int totalCore = 0;
     protected int totalMem = 0;
-    protected int[] nmFree = null;
+    protected int[] nmFreeCore= null;
+    protected int[] nmFreeMem = null;
+    protected int containerCoreMax;
     protected int containerMemoryMax;
 
     protected List<NodeResourceDetail> nodeResources = Lists.newArrayList();
@@ -66,7 +68,7 @@ public abstract class EngineResourceInfo {
         return availableSlots >= maxParallel;
     }
 
-    public boolean judgeYarnResource(int instances, int coresPerInstance, int memPerInstance) {
+    protected boolean judgeYarnResource(int instances, int coresPerInstance, int memPerInstance) {
         if (instances == 0 || coresPerInstance == 0 || memPerInstance == 0) {
             throw new RdosException(LIMIT_RESOURCE_ERROR + "Yarn task resource configuration error，instance：" + instances + ", coresPerInstance：" + coresPerInstance + ", memPerInstance：" + memPerInstance);
         }
@@ -74,17 +76,18 @@ public abstract class EngineResourceInfo {
             return false;
         }
 
-        if (!judgeCores(instances, coresPerInstance, totalFreeCore, totalCore)) {
+        if (!judgeCores(instances, coresPerInstance)) {
             return false;
         }
-        if (!judgeMem(instances, memPerInstance, totalFreeMem, totalMem)) {
+        if (!judgeMem(instances, memPerInstance)) {
             return false;
         }
         return true;
     }
 
     protected void calc() {
-        nmFree = new int[nodeResources.size()];
+        nmFreeCore = new int[nodeResources.size()];
+        nmFreeMem = new int[nodeResources.size()];
         int index = 0;
         //yarn 方式执行时，统一对每个node保留512M和1core
         for (NodeResourceDetail resourceDetail : nodeResources) {
@@ -98,36 +101,50 @@ public abstract class EngineResourceInfo {
             totalCore += nodeCores;
             totalMem += nodeMem;
 
-            nmFree[index++] = nodeFreeMem;
+            nmFreeCore[index++] = nodeFreeCores;
+            nmFreeMem[index++] = nodeFreeMem;
         }
     }
 
-    protected boolean judgeCores(int instances, int coresPerInstance, int freeCore, int totalCore) {
+    protected boolean judgeCores(int instances, int coresPerInstance) {
         int needCores = instances * coresPerInstance;
         if (needCores > (totalCore * queueCapacity)) {
             throw new RdosException(LIMIT_RESOURCE_ERROR + "The Yarn task is set to a core larger than the maximum allocated core");
         }
-        return needCores <= (totalCore * capacity);
-    }
-
-    protected boolean judgeMem(int instances, int memPerInstance, int freeMem, int totalMem) {
-        int needTotal = instances * memPerInstance;
-        if (needTotal > (totalMem * queueCapacity)) {
-            throw new RdosException(LIMIT_RESOURCE_ERROR + "The Yarn task is set to MEM larger than the maximum for the cluster");
-        }
-        if (needTotal > (totalMem * capacity)) {
+        if (needCores > (totalMem * capacity)) {
             return false;
         }
-
+        if (instances * coresPerInstance > containerCoreMax) {
+            return false;
+        }
         for (int i = 1; i <= instances; i++) {
-            if (!allocateResource(nmFree, memPerInstance)) {
+            if (!allocateResource(nmFreeCore, coresPerInstance)) {
                 return false;
             }
         }
         return true;
     }
 
-    protected boolean allocateResource(int[] nodeManagers, int toAllocate) {
+    protected boolean judgeMem(int instances, int memPerInstance) {
+        int needMems = instances * memPerInstance;
+        if (needMems > (totalMem * queueCapacity)) {
+            throw new RdosException(LIMIT_RESOURCE_ERROR + "The Yarn task is set to MEM larger than the maximum for the cluster");
+        }
+        if (needMems > (totalMem * capacity)) {
+            return false;
+        }
+        if (instances * memPerInstance > containerMemoryMax) {
+            return false;
+        }
+        for (int i = 1; i <= instances; i++) {
+            if (!allocateResource(nmFreeMem, memPerInstance)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean allocateResource(int[] nodeManagers, int toAllocate) {
         for (int i = 0; i < nodeManagers.length; i++) {
             if (nodeManagers[i] >= toAllocate) {
                 nodeManagers[i] -= toAllocate;
@@ -170,15 +187,19 @@ public abstract class EngineResourceInfo {
             int freeCores = totalCores - usedCores;
             int freeMem = totalMem - usedMem;
 
+            if (freeCores > containerCoreMax) {
+                containerCoreMax = freeCores;
+            }
             if (freeMem > containerMemoryMax) {
                 containerMemoryMax = freeMem;
             }
             this.addNodeResource(new EngineResourceInfo.NodeResourceDetail(report.getNodeId().toString(), totalCores, usedCores, freeCores, totalMem, usedMem, freeMem));
         }
+
         calc();
     }
 
-    public float getQueueRemainCapacity(float coefficient, String queueName, List<QueueInfo> queueInfos) {
+    private float getQueueRemainCapacity(float coefficient, String queueName, List<QueueInfo> queueInfos) {
         for (QueueInfo queueInfo : queueInfos) {
             if (CollectionUtils.isNotEmpty(queueInfo.getChildQueues())) {
                 float subCoefficient = queueInfo.getCapacity() * coefficient;
@@ -196,15 +217,15 @@ public abstract class EngineResourceInfo {
     }
 
     public static class NodeResourceDetail {
-        public String nodeId;
-        public int coresTotal;
-        public int coresUsed;
-        public int coresFree;
-        public int memoryTotal;
-        public int memoryUsed;
-        public int memoryFree;
-        public int freeSlots;
-        public int slotsNumber;
+        private String nodeId;
+        private int coresTotal;
+        private int coresUsed;
+        private int coresFree;
+        private int memoryTotal;
+        private int memoryUsed;
+        private int memoryFree;
+        private int freeSlots;
+        private int slotsNumber;
 
         public NodeResourceDetail(String nodeId, int coresTotal, int coresUsed, int coresFree, int memoryTotal, int memoryUsed, int memoryFree) {
             this.nodeId = nodeId;
@@ -237,6 +258,10 @@ public abstract class EngineResourceInfo {
 
     public float getQueueCapacity() {
         return queueCapacity;
+    }
+
+    public int getContainerCoreMax() {
+        return containerCoreMax;
     }
 
     public int getContainerMemoryMax() {
