@@ -19,8 +19,7 @@ import static com.dtstack.rdos.engine.execution.flink170.constrant.ConfigConstra
  */
 public class FLinkConfUtil {
 
-    public static ClusterSpecification createClusterSpecification(Configuration configuration, int priority) {
-        Properties confProperties = FlinkClient.jobClientThreadLocal.get().getConfProperties();
+    public static ClusterSpecification createClusterSpecification(Configuration configuration, int priority, Properties confProperties) {
         int jobmanagerMemoryMb = 1024;
         int taskmanagerMemoryMb = 1024;
         int numberTaskManagers = 1;

@@ -123,8 +123,6 @@ public class FlinkClient extends AbsClient {
 
     private FlinkClusterClientManager flinkClusterClientManager;
 
-    public static ThreadLocal<JobClient> jobClientThreadLocal = new ThreadLocal<>();
-
     public FlinkClient(){
         this.restartService = new FlinkRestartStrategy();
     }
@@ -256,11 +254,10 @@ public class FlinkClient extends AbsClient {
         //只有当程序本身没有指定并行度的时候该参数才生效
         Integer runParallelism = FlinkUtil.getJobParallelism(jobClient.getConfProperties());
 
-        jobClientThreadLocal.set(jobClient);
         try {
             Pair<String, String> runResult;
             if(FlinkYarnMode.isPerJob(taskRunMode)){
-                ClusterSpecification clusterSpecification = FLinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration(), jobClient.getJobPriority());
+                ClusterSpecification clusterSpecification = FLinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration(), jobClient.getJobPriority(), jobClient.getConfProperties());
                 clusterSpecification.setConfiguration(flinkClientBuilder.getFlinkConfiguration());
                 clusterSpecification.setParallelism(runParallelism);
                 clusterSpecification.setClasspaths(classPaths);
@@ -271,7 +268,7 @@ public class FlinkClient extends AbsClient {
                 clusterSpecification.setCreateProgramDelay(true);
                 clusterSpecification.setYarnConfiguration(getYarnConf(jobClient.getPluginInfo()));
 
-                runResult = runJobByPerJob(clusterSpecification);
+                runResult = runJobByPerJob(clusterSpecification, jobClient);
 
                 packagedProgram = clusterSpecification.getProgram();
             } else {
@@ -285,16 +282,13 @@ public class FlinkClient extends AbsClient {
             if (packagedProgram!=null){
                 packagedProgram.deleteExtractedLibraries();
             }
-            jobClientThreadLocal.remove();
         }
     }
 
     /**
      * perjob模式提交任务
      */
-    private Pair<String, String> runJobByPerJob(ClusterSpecification clusterSpecification) throws Exception{
-        JobClient jobClient = jobClientThreadLocal.get();
-
+    private Pair<String, String> runJobByPerJob(ClusterSpecification clusterSpecification, JobClient jobClient) throws Exception{
         AbstractYarnClusterDescriptor descriptor = flinkClientBuilder.createClusterDescriptorByMode(null, jobClient, true);
         descriptor.setName(jobClient.getJobName());
         ClusterClient<ApplicationId> clusterClient = descriptor.deployJobCluster(clusterSpecification, new JobGraph(),true);

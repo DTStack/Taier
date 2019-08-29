@@ -1,7 +1,6 @@
 package com.dtstack.rdos.engine.execution.flink180.util;
 
 import com.dtstack.rdos.common.util.MathUtil;
-import com.dtstack.rdos.engine.execution.flink180.FlinkClient;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.configuration.ConfigConstants;
 import org.apache.flink.configuration.Configuration;
@@ -19,8 +18,7 @@ import static com.dtstack.rdos.engine.execution.flink180.constrant.ConfigConstra
  */
 public class FLinkConfUtil {
 
-    public static ClusterSpecification createClusterSpecification(Configuration configuration, int priority) {
-        Properties confProperties = FlinkClient.jobClientThreadLocal.get().getConfProperties();
+    public static ClusterSpecification createClusterSpecification(Configuration configuration, int priority, Properties confProperties) {
         int jobmanagerMemoryMb = 1024;
         int taskmanagerMemoryMb = 1024;
         int numberTaskManagers = 1;
