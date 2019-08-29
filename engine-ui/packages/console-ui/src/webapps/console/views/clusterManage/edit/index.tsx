@@ -363,7 +363,11 @@ class EditCluster extends React.Component<any, any> {
                             this.setState({
                                 uploadKLoading: false,
                                 kfile: {
-                                    files: []
+                                    files: [
+                                        {
+                                            name: kfile.files[0].name
+                                        }
+                                    ]
                                 }
                             })
                         } else {
