@@ -48,7 +48,6 @@ import org.apache.flink.yarn.YarnClusterClient;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
-import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
@@ -712,14 +711,17 @@ public class FlinkClient extends AbsClient {
 
     @Override
     public EngineResourceInfo getAvailSlots(JobClient jobClient) {
-
-        FlinkResourceInfo resourceInfo = new FlinkResourceInfo(jobClient, yarnClient);
-        if (resourceInfo.isPerJob()){
-            return resourceInfo;
+        FlinkResourceInfo resourceInfo = new FlinkResourceInfo(jobClient);
+        try {
+            if (resourceInfo.isPerJob()){
+                resourceInfo.getYarnSlots(yarnClient, flinkConfig.getQueue(), flinkConfig.getYarnAccepterTaskNumber());
+            } else {
+                String slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
+                resourceInfo.getFlinkSessionSlots(slotInfo);
+            }
+        } catch (Exception e) {
+            logger.error("", e);
         }
-
-        String slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
-        resourceInfo.getAvailSlots(slotInfo);
         return resourceInfo;
     }
 

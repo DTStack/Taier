@@ -45,7 +45,7 @@ public abstract class EngineResourceInfo {
 
     public abstract boolean judgeSlots(JobClient jobClient);
 
-    public boolean judgeFlinkResource(int sqlEnvParallel, int mrParallel) {
+    protected boolean judgeFlinkSessionResource(int sqlEnvParallel, int mrParallel) {
         if (sqlEnvParallel == 0 && mrParallel == 0) {
             throw new RdosException(LIMIT_RESOURCE_ERROR + "Flink task resource configuration error，sqlEnvParallel：" + sqlEnvParallel + ", mrParallel：" + mrParallel);
         }
@@ -66,29 +66,10 @@ public abstract class EngineResourceInfo {
         return availableSlots >= maxParallel;
     }
 
-    /**
-     * 离线任务yarnsession模式运行，资源判断
-     *
-     * @return
-     */
-    public boolean judgeSessionResource() {
-        int availableSlots = 0;
-        for (NodeResourceDetail resourceDetail : nodeResources) {
-            availableSlots += resourceDetail.freeSlots;
-        }
-        //没有资源直接返回false
-        if (availableSlots == 0) {
-            return false;
-        }
-
-        return true;
-    }
-
     public boolean judgeYarnResource(int instances, int coresPerInstance, int memPerInstance) {
         if (instances == 0 || coresPerInstance == 0 || memPerInstance == 0) {
             throw new RdosException(LIMIT_RESOURCE_ERROR + "Yarn task resource configuration error，instance：" + instances + ", coresPerInstance：" + coresPerInstance + ", memPerInstance：" + memPerInstance);
         }
-        calc();
         if (totalFreeCore == 0 || totalFreeMem == 0) {
             return false;
         }
@@ -123,18 +104,18 @@ public abstract class EngineResourceInfo {
 
     protected boolean judgeCores(int instances, int coresPerInstance, int freeCore, int totalCore) {
         int needCores = instances * coresPerInstance;
-        if (needCores > (totalCore * capacity)) {
+        if (needCores > (totalCore * queueCapacity)) {
             throw new RdosException(LIMIT_RESOURCE_ERROR + "The Yarn task is set to a core larger than the maximum allocated core");
         }
-        return needCores <= (freeCore * capacity);
+        return needCores <= (totalCore * capacity);
     }
 
     protected boolean judgeMem(int instances, int memPerInstance, int freeMem, int totalMem) {
         int needTotal = instances * memPerInstance;
-        if (needTotal > (totalMem * capacity)) {
+        if (needTotal > (totalMem * queueCapacity)) {
             throw new RdosException(LIMIT_RESOURCE_ERROR + "The Yarn task is set to MEM larger than the maximum for the cluster");
         }
-        if (needTotal > (freeMem * capacity)) {
+        if (needTotal > (totalMem * capacity)) {
             return false;
         }
 
@@ -194,6 +175,7 @@ public abstract class EngineResourceInfo {
             }
             this.addNodeResource(new EngineResourceInfo.NodeResourceDetail(report.getNodeId().toString(), totalCores, usedCores, freeCores, totalMem, usedMem, freeMem));
         }
+        calc();
     }
 
     public float getQueueRemainCapacity(float coefficient, String queueName, List<QueueInfo> queueInfos) {

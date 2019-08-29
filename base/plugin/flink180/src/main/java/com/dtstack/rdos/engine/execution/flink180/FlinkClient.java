@@ -701,13 +701,17 @@ public class FlinkClient extends AbsClient {
     @Override
     public EngineResourceInfo getAvailSlots(JobClient jobClient) {
 
-        FlinkResourceInfo resourceInfo = new FlinkResourceInfo(jobClient, yarnClient);
-        if (resourceInfo.isPerJob()){
-            return resourceInfo;
+        FlinkResourceInfo resourceInfo = new FlinkResourceInfo(jobClient);
+        try {
+            if (resourceInfo.isPerJob()){
+                resourceInfo.getYarnSlots(yarnClient, flinkConfig.getQueue(), flinkConfig.getYarnAccepterTaskNumber());
+            } else {
+                String slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
+                resourceInfo.getFlinkSessionSlots(slotInfo, flinkConfig.getFlinkSessionSlotCount());
+            }
+        } catch (Exception e) {
+            logger.error("", e);
         }
-
-        String slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
-        resourceInfo.getAvailSlots(slotInfo, flinkConfig.getFlinkSessionSlotCount());
         return resourceInfo;
     }
 
