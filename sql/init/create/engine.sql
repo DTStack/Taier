@@ -29,7 +29,7 @@ CREATE TABLE `rdos_engine_batch_job` (
   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
   `version_id` int(11) DEFAULT NULL COMMENT '任务对应版本id',
-  `retry_task_params` varchar(256) DEFAULT NULL,
+  `retry_task_params` text DEFAULT NULL COMMENT '重试任务参数',
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_job_id` (`job_id`(128),`is_deleted`),
   KEY `index_engine_job_id` (`engine_job_id`(128)),
@@ -131,7 +131,7 @@ CREATE TABLE `rdos_engine_batch_job_retry` (
   `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  `retry_task_params` varchar(256) DEFAULT NULL,
+  `retry_task_params` text DEFAULT NULL COMMENT '重试任务参数',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
