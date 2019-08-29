@@ -257,7 +257,7 @@ public class DtContainer {
 
         Utilities.sleep(3000);
 
-        System.exit(-1);
+        System.exit(1);
     }
 
     private void reportSucceededAndExit() {

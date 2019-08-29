@@ -219,7 +219,7 @@ public class HadoopClient extends AbsClient {
     }
 
     @Override
-    public EngineResourceInfo getAvailSlots() {
+    public EngineResourceInfo getAvailSlots(JobClient jobClient) {
         return new HadoopResourceInfo();
     }
 

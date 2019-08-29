@@ -197,7 +197,7 @@ public class OdpsClient extends AbsClient {
     }
 
     @Override
-    public EngineResourceInfo getAvailSlots() {
+    public EngineResourceInfo getAvailSlots(JobClient jobClient) {
         return resourceInfo;
     }
 

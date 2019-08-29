@@ -8,6 +8,8 @@ import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.flink180.enums.FlinkYarnMode;
 import com.dtstack.rdos.engine.execution.flink180.util.FlinkUtil;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.NodeReport;
 import org.apache.hadoop.yarn.api.records.NodeState;
@@ -15,10 +17,14 @@ import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -30,34 +36,66 @@ import java.util.stream.Collectors;
 
 public class FlinkResourceInfo extends EngineResourceInfo {
 
-    public static final String FLINK_SQL_ENV_PARALLELISM = "sql.env.parallelism";
+    private static final Logger logger = LoggerFactory.getLogger(FlinkResourceInfo.class);
 
-    public static final String FLINK_MR_PARALLELISM = "mr.job.parallelism";
+    private final static ObjectMapper objMapper = new ObjectMapper();
 
-    public static final String DEFAULT_QUEUE = "default";
+    private static final String FLINK_SQL_ENV_PARALLELISM = "sql.env.parallelism";
 
-    //允许在yarn上处于accept的任务数量
-    public static int yarnAccepterTaskNumber = 1;
+    private static final String FLINK_MR_PARALLELISM = "mr.job.parallelism";
 
-    public YarnClient yarnClient;
+    private static final String DEFAULT_QUEUE = "default";
 
-    //TODO 是否开启弹性容量-->暂时都是false
-    public  boolean elasticCapacity;
+    /**
+     * 允许在yarn上处于accept的任务数量
+     */
+    private static int yarnAccepterTaskNumber = 1;
 
-    @Override
-    public boolean judgeSlots(JobClient jobClient) {
+    private YarnClient yarnClient;
+
+    /**
+     * 是否开启弹性容量-->暂时都是false
+     *
+     */
+    private boolean elasticCapacity;
+
+    private boolean isPerJob;
+
+    private String queue = DEFAULT_QUEUE;
+
+    public FlinkResourceInfo(JobClient jobClient, YarnClient yarnClient) {
+        this.yarnClient = yarnClient;
+
         FlinkConfig flinkConfig = getJobFlinkConf(jobClient.getPluginInfo());
         FlinkYarnMode taskRunMode = FlinkUtil.getTaskRunMode(jobClient.getConfProperties(),jobClient.getComputeType());
-        String queue = DEFAULT_QUEUE;
+        isPerJob = ComputeType.STREAM == jobClient.getComputeType() || FlinkYarnMode.isPerJob(taskRunMode);
         if(flinkConfig != null){
             queue = flinkConfig.getQueue();
         }
+    }
 
-        if (FlinkYarnMode.isPerJob(taskRunMode)){
+    public boolean isPerJob(){
+        return isPerJob;
+    }
+
+    @Override
+    public boolean judgeSlots(JobClient jobClient) {
+        if (isPerJob){
             return judgePerjobResource(jobClient, queue);
         }
 
-        return true;
+        int sqlEnvParallel = 1;
+        int mrParallel = 1;
+
+        if(jobClient.getConfProperties().containsKey(FLINK_SQL_ENV_PARALLELISM)){
+            sqlEnvParallel = MathUtil.getIntegerVal(jobClient.getConfProperties().get(FLINK_SQL_ENV_PARALLELISM));
+        }
+
+        if(jobClient.getConfProperties().containsKey(FLINK_MR_PARALLELISM)){
+            mrParallel = MathUtil.getIntegerVal(jobClient.getConfProperties().get(FLINK_MR_PARALLELISM));
+        }
+
+        return super.judgeFlinkResource(sqlEnvParallel,mrParallel);
     }
 
     private boolean judgePerjobResource(JobClient jobClient, String queue) {
@@ -98,7 +136,7 @@ public class FlinkResourceInfo extends EngineResourceInfo {
             }
             resourceInfo.setContainerLimit(containerLimit);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Flink judgePerjobResource error: ", e);
         }
         return resourceInfo.judgeSlots(jobClient);
     }
@@ -111,7 +149,8 @@ public class FlinkResourceInfo extends EngineResourceInfo {
                 capacity = getQueueRemainCapacity(subCoefficient, queue, queueInfo.getChildQueues());
             }
             if (queue.equals(queueInfo.getQueueName())){
-                capacity = coefficient * queueInfo.getCapacity() * (1 - queueInfo.getCurrentCapacity());
+                queueCapacity = coefficient * queueInfo.getCapacity();
+                capacity = queueCapacity * (1 - queueInfo.getCurrentCapacity());
             }
             if (capacity>0){
                 return capacity;
@@ -121,18 +160,39 @@ public class FlinkResourceInfo extends EngineResourceInfo {
     }
 
     private FlinkConfig getJobFlinkConf(String pluginInfo) {
+        if (StringUtils.isBlank(pluginInfo)){
+            return null;
+        }
         try {
             return PublicUtil.jsonStrToObject(pluginInfo, FlinkConfig.class);
         } catch (IOException e) {
+            logger.error("Json to object error: ", e);
             return null;
         }
     }
 
-    public YarnClient getYarnClient() {
-        return yarnClient;
+    public FlinkResourceInfo getAvailSlots(String message, int flinkSessionSlotCount){
+        if(StringUtils.isNotBlank(message)){
+            try{
+                Map<String, Object> taskManagerInfo = objMapper.readValue(message, Map.class);
+                if(taskManagerInfo.containsKey("taskmanagers")){
+                    List<Map<String, Object>> taskManagerList = (List<Map<String, Object>>) taskManagerInfo.get("taskmanagers");
+                    if (taskManagerList.size()==0){
+                        //FIXME 外部传入
+                        this.addNodeResource(new EngineResourceInfo.NodeResourceDetail("1", flinkSessionSlotCount, flinkSessionSlotCount));
+                    }else {
+                        for(Map<String, Object> tmp : taskManagerList){
+                            int freeSlots = MapUtils.getIntValue(tmp,"freeSlots");
+                            int slotsNumber = MapUtils.getIntValue(tmp, "slotsNumber");
+                            this.addNodeResource(new EngineResourceInfo.NodeResourceDetail((String)tmp.get("id"),freeSlots,slotsNumber));
+                        }
+                    }
+                }
+            }catch (Exception e){
+                logger.error("", e);
+            }
+        }
+        return this;
     }
 
-    public void setYarnClient(YarnClient yarnClient) {
-        this.yarnClient = yarnClient;
-    }
 }

@@ -610,7 +610,7 @@ public class SparkYarnClient extends AbsClient {
     }
 
     @Override
-    public EngineResourceInfo getAvailSlots() {
+    public EngineResourceInfo getAvailSlots(JobClient jobClient) {
 
         SparkYarnResourceInfo resourceInfo = new SparkYarnResourceInfo();
         if (sparkYarnConfig.isSecurity()){

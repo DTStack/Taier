@@ -371,7 +371,7 @@ public class SparkClient extends AbsClient {
     }
 
     @Override
-    public EngineResourceInfo getAvailSlots() {
+    public EngineResourceInfo getAvailSlots(JobClient jobClient) {
         String rootMsg = getMessageByHttp(SparkStandaloneRestParseUtil.ROOT);
         EngineResourceInfo resourceInfo = SparkStandaloneRestParseUtil.getAvailSlots(rootMsg);
         if(resourceInfo == null){

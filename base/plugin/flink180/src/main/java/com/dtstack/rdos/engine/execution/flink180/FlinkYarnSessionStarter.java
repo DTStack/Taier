@@ -48,7 +48,7 @@ public class FlinkYarnSessionStarter {
     private Configuration configuration;
 
 
-    public FlinkYarnSessionStarter(FlinkClientBuilder flinkClientBuilder, FlinkConfig flinkConfig, FlinkPrometheusGatewayConfig metricConfig) throws MalformedURLException {
+    public FlinkYarnSessionStarter(FlinkClientBuilder flinkClientBuilder, FlinkConfig flinkConfig) throws MalformedURLException {
         this.flinkClientBuilder = flinkClientBuilder;
         this.flinkConfig = flinkConfig;
         lockPath = String.format("%s/client/%s", flinkConfig.getFlinkZkNamespace(), flinkConfig.getCluster() + SPLIT + flinkConfig.getQueue());
@@ -59,7 +59,7 @@ public class FlinkYarnSessionStarter {
         configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, clusterId);
 
         this.configuration = configuration;
-        this.yarnSessionDescriptor = flinkClientBuilder.createClusterDescriptorByMode(configuration, flinkConfig, metricConfig, null, false);
+        this.yarnSessionDescriptor = flinkClientBuilder.createClusterDescriptorByMode(configuration, null, false);
         this.yarnSessionDescriptor.setName(flinkConfig.getFlinkSessionName() + SPLIT + clusterId);
         this.yarnSessionSpecification = FLinkConfUtil.createYarnSessionSpecification(flinkClientBuilder.getFlinkConfiguration());
 
@@ -73,12 +73,9 @@ public class FlinkYarnSessionStarter {
 
             ClusterClient<ApplicationId> retrieveClusterClient = null;
             try {
-                retrieveClusterClient = flinkClientBuilder.initYarnClusterClient(configuration, flinkConfig);
+                retrieveClusterClient = flinkClientBuilder.initYarnClusterClient(configuration);
             } catch (Exception e) {
                 logger.error("{}", e);
-                if (!e.getMessage().startsWith("No flink session")) {
-                    System.exit(-1);
-                }
             }
 
             if (retrieveClusterClient != null) {
@@ -87,12 +84,14 @@ public class FlinkYarnSessionStarter {
                 return;
             }
 
-            try {
-                clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification);
-                clusterClient.setDetached(true);
-            } catch (FlinkException e) {
-                logger.info("Couldn't deploy Yarn session cluster, {}", e);
-                throw e;
+            if (flinkConfig.getYarnSessionStartAuto()) {
+                try {
+                    clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification);
+                    clusterClient.setDetached(true);
+                } catch (FlinkException e) {
+                    logger.info("Couldn't deploy Yarn session cluster, {}", e);
+                    throw e;
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException("Couldn't deploy Yarn session cluster" + e.getMessage());
@@ -153,7 +152,6 @@ public class FlinkYarnSessionStarter {
             }
         } catch (Exception e) {
             logger.error("{}", e);
-            System.exit(-1);
         }
         return loadYAMLResource(yamlConfigFile);
     }

@@ -32,7 +32,7 @@ public interface IClient {
 
 	String getJobLog(JobIdentifier jobIdentifier);
 
-	EngineResourceInfo getAvailSlots();
+	EngineResourceInfo getAvailSlots(JobClient jobClient);
 
 	List<String> getContainerInfos(JobIdentifier jobIdentifier);
 

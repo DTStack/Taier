@@ -43,7 +43,7 @@ public class JobSubmitProcessor implements Runnable {
 
             EngineResourceInfo resourceInfo = null;
             try {
-                resourceInfo = clusterClient.getAvailSlots();
+                resourceInfo = clusterClient.getAvailSlots(jobClient);
             } catch (Exception e){
                 logger.error("Get available slots error:{}", e);
             }

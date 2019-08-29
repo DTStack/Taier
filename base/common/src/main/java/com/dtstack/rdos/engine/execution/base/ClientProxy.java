@@ -133,13 +133,13 @@ public class ClientProxy implements IClient{
     }
 
     @Override
-    public EngineResourceInfo getAvailSlots() {
+    public EngineResourceInfo getAvailSlots(JobClient jobClient) {
         try {
             return ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<EngineResourceInfo>(){
 
                 @Override
                 public EngineResourceInfo execute() throws Exception {
-                    return targetClient.getAvailSlots();
+                    return targetClient.getAvailSlots(jobClient);
                 }
             }, targetClient.getClass().getClassLoader(),true);
         } catch (Exception e) {

@@ -5,12 +5,10 @@ import com.dtstack.rdos.engine.execution.base.JarFileInfo;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
 import com.dtstack.rdos.engine.execution.flink150.enums.Deploy;
-import com.dtstack.rdos.engine.execution.flink150.enums.FlinkYarnMode;
 import com.google.common.base.Strings;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.deployment.ClusterRetrieveException;
-import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.deployment.StandaloneClusterDescriptor;
 import org.apache.flink.client.deployment.StandaloneClusterId;
 import org.apache.flink.client.program.ClusterClient;
@@ -57,34 +55,41 @@ public class FlinkClientBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(FlinkClientBuilder.class);
 
+    private final static String AKKA_ASK_TIMEOUT = "50 s";
+
+    private final static String AKKA_CLIENT_TIMEOUT = "300 s";
+
+    private final static String AKKA_TCP_TIMEOUT = "60 s";
+
     //默认使用异步提交
     private boolean isDetached = true;
+
+    private FlinkConfig flinkConfig;
 
     private org.apache.hadoop.conf.Configuration hadoopConf;
 
     private YarnConfiguration yarnConf;
 
+    private YarnClient yarnClient;
+
     private Configuration flinkConfiguration;
 
-    private static String akka_ask_timeout = "50 s";
-
-    private static String akka_client_timeout="300 s";
-
-    private static String akka_tcp_timeout = "60 s";
-
-    private YarnClient yarnClient;
+    private FlinkPrometheusGatewayConfig gatewayConfig;
 
     private FlinkClientBuilder() {
     }
 
-    public static FlinkClientBuilder create(org.apache.hadoop.conf.Configuration hadoopConf, YarnConfiguration yarnConf) {
+    public static FlinkClientBuilder create(FlinkConfig flinkConfig, org.apache.hadoop.conf.Configuration hadoopConf, YarnConfiguration yarnConf, YarnClient yarnClient) {
         FlinkClientBuilder builder = new FlinkClientBuilder();
-        builder.setHadoopConf(hadoopConf);
-        builder.setYarnConf(yarnConf);
+        builder.flinkConfig = flinkConfig;
+        builder.gatewayConfig = flinkConfig.getPrometheusGatewayConfig();
+        builder.hadoopConf = hadoopConf;
+        builder.yarnConf = yarnConf;
+        builder.yarnClient = yarnClient;
         return builder;
     }
 
-    public void initFLinkConf(FlinkConfig flinkConfig, Properties extProp) {
+    public void initFLinkConfiguration(Properties extProp) {
         String clusterMode = flinkConfig.getClusterMode();
         if(StringUtils.isEmpty(clusterMode)) {
             clusterMode = Deploy.standalone.name();
@@ -104,9 +109,9 @@ public class FlinkClientBuilder {
 
         Configuration config = new Configuration();
         //FIXME 浙大环境测试修改,暂时写在这
-        config.setString("akka.client.timeout", akka_client_timeout);
-        config.setString("akka.ask.timeout", akka_ask_timeout);
-        config.setString("akka.tcp.timeout", akka_tcp_timeout);
+        config.setString("akka.client.timeout", AKKA_CLIENT_TIMEOUT);
+        config.setString("akka.ask.timeout", AKKA_ASK_TIMEOUT);
+        config.setString("akka.tcp.timeout", AKKA_TCP_TIMEOUT);
 
         if(StringUtils.isNotBlank(flinkConfig.getFlinkZkAddress())) {
             config.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
@@ -143,7 +148,7 @@ public class FlinkClientBuilder {
         flinkConfiguration = config;
     }
 
-    public ClusterClient createStandalone(FlinkConfig flinkConfig) {
+    public ClusterClient createStandalone() {
         Preconditions.checkState(flinkConfig.getFlinkJobMgrUrl() != null || flinkConfig.getFlinkZkNamespace() != null,
                 "flink client can not init for host and zkNamespace is null at the same time.");
 
@@ -227,11 +232,11 @@ public class FlinkClientBuilder {
      * 根据yarn方式获取ClusterClient
      */
     @Deprecated
-    public ClusterClient<ApplicationId> initYarnClusterClient(Configuration configuration, FlinkConfig flinkConfig) {
+    public ClusterClient<ApplicationId> initYarnClusterClient(Configuration configuration) {
 
         Configuration newConf = new Configuration(configuration);
 
-        ApplicationId applicationId = acquireApplicationId(yarnClient, flinkConfig, newConf);
+        ApplicationId applicationId = acquireApplicationId(newConf);
 
         ClusterClient<ApplicationId> clusterClient = null;
 
@@ -254,16 +259,15 @@ public class FlinkClientBuilder {
         return clusterClient;
     }
 
-    public AbstractYarnClusterDescriptor createClusterDescriptorByMode(Configuration configuration, FlinkConfig flinkConfig, FlinkPrometheusGatewayConfig metricConfig, JobClient jobClient,
-                                                                       boolean isPerjob) throws MalformedURLException {
+    public AbstractYarnClusterDescriptor createClusterDescriptorByMode(Configuration configuration, JobClient jobClient, boolean isPerjob) throws MalformedURLException {
         if (configuration == null){
             configuration = flinkConfiguration;
         }
         Configuration newConf = new Configuration(configuration);
-        if (isPerjob){
+        if (isPerjob && jobClient != null){
             newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, jobClient.getTaskId());
             newConf.setInteger(YarnConfigOptions.APPLICATION_ATTEMPTS.key(), 0);
-            perJobMetricConfigConfig(newConf, metricConfig);
+            perJobMetricConfigConfig(newConf);
         }
 
         AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, yarnConf, ".", isPerjob);
@@ -298,7 +302,7 @@ public class FlinkClientBuilder {
             throw new RdosException("The Flink jar path is null");
         }
 
-        if (isPerjob && CollectionUtils.isNotEmpty(jobClient.getAttachJarInfos())) {
+        if (isPerjob && jobClient != null && CollectionUtils.isNotEmpty(jobClient.getAttachJarInfos())) {
             for (JarFileInfo jarFileInfo : jobClient.getAttachJarInfos()) {
                 classpaths.add(new File(jarFileInfo.getJarPath()).toURI().toURL());
             }
@@ -309,7 +313,7 @@ public class FlinkClientBuilder {
         return clusterDescriptor;
     }
 
-    public AbstractYarnClusterDescriptor getClusterDescriptor(
+    private AbstractYarnClusterDescriptor getClusterDescriptor(
             Configuration configuration,
             YarnConfiguration yarnConfiguration,
             String configurationDirectory,
@@ -331,7 +335,7 @@ public class FlinkClientBuilder {
         }
     }
 
-    private ApplicationId acquireApplicationId(YarnClient yarnClient, FlinkConfig flinkConfig, Configuration configuration) {
+    private ApplicationId acquireApplicationId(Configuration configuration) {
         try {
             Set<String> set = new HashSet<>();
             set.add("Apache Flink");
@@ -381,7 +385,7 @@ public class FlinkClientBuilder {
         }
     }
 
-    private void perJobMetricConfigConfig(Configuration configuration, FlinkPrometheusGatewayConfig gatewayConfig){
+    private void perJobMetricConfigConfig(Configuration configuration){
         if(StringUtils.isBlank(gatewayConfig.getReporterClass())){
             return;
         }
@@ -394,20 +398,20 @@ public class FlinkClientBuilder {
         configuration.setString(FlinkPrometheusGatewayConfig.PROMGATEWAY_DELETEONSHUTDOWN_KEY, gatewayConfig.getDeleteOnShutdown());
     }
 
-    public org.apache.hadoop.conf.Configuration getHadoopConf() {
-        return hadoopConf;
+    public FlinkConfig getFlinkConfig() {
+        return flinkConfig;
     }
 
-    public void setHadoopConf(org.apache.hadoop.conf.Configuration hadoopConf) {
-        this.hadoopConf = hadoopConf;
+    public org.apache.hadoop.conf.Configuration getHadoopConf() {
+        return hadoopConf;
     }
 
     public YarnConfiguration getYarnConf() {
         return yarnConf;
     }
 
-    public void setYarnConf(YarnConfiguration yarnConf) {
-        this.yarnConf = yarnConf;
+    public YarnClient getYarnClient(){
+        return this.yarnClient;
     }
 
     public Configuration getFlinkConfiguration() {
@@ -415,13 +419,5 @@ public class FlinkClientBuilder {
             throw new RdosException("Configuration directory not set");
         }
         return flinkConfiguration;
-    }
-
-    public void setYarnClient(YarnClient yarnClient) {
-        this.yarnClient = yarnClient;
-    }
-
-    public YarnClient getYarnClient(){
-        return this.yarnClient;
     }
 }
