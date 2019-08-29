@@ -90,7 +90,7 @@ public class FlinkResourceInfo extends EngineResourceInfo {
             if (!elasticCapacity){
                 capacity = getQueueRemainCapacity(1, queue, yarnClient.getRootQueueInfos());
             }
-
+            resourceInfo.setQueueCapacity(queueCapacity);
             resourceInfo.setCapacity(capacity);
             for(NodeReport report : nodeReports){
                 Resource capability = report.getCapability();
