@@ -168,7 +168,7 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
             if (freeMem > containerMemoryMax) {
                 containerMemoryMax = freeMem;
             }
-            this.addNodeResource(new AbstractYarnResourceInfo.NodeResourceDetail(report.getNodeId().toString(), totalCores, usedCores, freeCores, totalMem, usedMem, freeMem));
+            this.addNodeResource(new NodeResourceDetail(report.getNodeId().toString(), totalCores, usedCores, freeCores, totalMem, usedMem, freeMem));
         }
 
         calc();
