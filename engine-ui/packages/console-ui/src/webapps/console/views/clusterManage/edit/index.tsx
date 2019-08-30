@@ -309,6 +309,8 @@ class EditCluster extends React.Component<any, any> {
     fileChange (e: any) {
         const { cluster } = this.props.location.state || {} as any;
         const file = e.target;
+        const ele: any = document.getElementById('myOfflinFile');
+        ele.value = '';
         this.props.form.setFieldsValue({
             file: ''
         })
@@ -1071,7 +1073,7 @@ class EditCluster extends React.Component<any, any> {
                                                             htmlFor="myOfflinFile">选择文件</label>
                                                 }
                                                 {uploadLoading ? <Icon className="blue-loading" type="loading" /> : null}
-                                                <span> {file.files && file.files[0].name}</span>
+                                                <span> {file.files && file.files[0] && file.files[0].name}</span>
                                                 <input
                                                     name="file"
                                                     type="file"
