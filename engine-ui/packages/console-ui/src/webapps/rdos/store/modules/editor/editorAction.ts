@@ -41,7 +41,10 @@ function getDataOver (dispatch: any, currentTab: any, res: any, jobId?: any) {
  * @param {*} currentTab
  * @param {*} taskType 任务类型
  */
-function doSelect (resolve: any, dispatch: any, jobId: any, currentTab: number, task: any, taskType: number) {
+function doSelect (resolve: any, dispatch: any, jobId: any, currentTab: number, task: any, taskType: number, retryTimes: number = 0) {
+    if (retryTimes && retryTimes > 0) {
+        dispatch(output(currentTab, createLog(`正在尝试第${retryTimes}次重试`, 'info')))
+    }
     function outputStatus (status: any, extText?: any) {
         // 当为数据同步日志时，运行日志就不显示了
         if (taskType === TASK_TYPE.SYNC && status === TASK_STATUS.RUNNING) {
@@ -105,8 +108,12 @@ function doSelect (resolve: any, dispatch: any, jobId: any, currentTab: number, 
                     }
                 } else {
                     dispatch(output(currentTab, createLog(`请求异常！`, 'error')))
-                    // 不正常，则直接终止执行
-                    resolve(false)
+                    if (retryTimes < 3) { // 默认出现服务器异常的情况下，发起重试请求，则重试次数不超过3次
+                        doSelect(resolve, dispatch, jobId, currentTab, task, taskType, retryTimes + 1)
+                    } else {
+                        // 则直接终止执行
+                        resolve(false)
+                    }
                 }
             }
         )
