@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Bug Fixes
 
+* **editorAction:** add interval 3 seconds for retry select ([756abd4](http://git.dtstack.cn/dtstack/data-stack-web/commits/756abd4)), closes [#18446](http://redmine.prod.dtstack.cn/issues/18446)
 * **editorAction:** exec 3 times retry when server run time error ([c931c03](http://git.dtstack.cn/dtstack/data-stack-web/commits/c931c03)), closes [#18446](http://redmine.prod.dtstack.cn/issues/18446)
 
 
