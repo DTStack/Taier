@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.8.0-beta.1.7"></a>
+# [3.8.0-beta.1.7](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.8.0-beta.1.6...3.8.0-beta.1.7) (2019-08-30)
+
+
+### Bug Fixes
+
+* **editorAction:** exec 3 times retry when server run time error ([c931c03](http://git.dtstack.cn/dtstack/data-stack-web/commits/c931c03)), closes [#18446](http://redmine.prod.dtstack.cn/issues/18446)
+
+
+
 <a name="3.8.0-beta.1.6"></a>
 # [3.8.0-beta.1.6](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.8.0-beta.1.5...3.8.0-beta.1.6) (2019-08-28)
 
