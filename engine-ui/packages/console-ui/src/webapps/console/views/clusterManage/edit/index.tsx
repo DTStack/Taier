@@ -256,55 +256,60 @@ class EditCluster extends React.Component<any, any> {
         setDefault(libraConfig, notExtKeysLibraSql, 'libra', result.libraSqlKeys)
         return result;
     }
-    validateFileType (rule: any, value: any, callback: any) {
+    validateFileType (val: string) {
+        let flag = false;
         const reg = /\.(zip)$/
-        if (value && !reg.test(value.toLocaleLowerCase())) {
-            const message = '配置文件只能是zip文件!';
-            callback(message);
+        if (val && !reg.test(val.toLocaleLowerCase())) {
+            message.warning('配置文件只能是zip文件!');
+        } else {
+            flag = true;
         }
-        callback();
+        return flag
     }
     fileChange (e: any) {
         const { cluster } = this.props.location.state || {} as any;
         const file = e.target;
-        this.props.form.setFieldsValue({
-            file: ''
-        })
-        this.setState({ uploadLoading: true, zipConfig: '{}', fileHaveChange: true });
-        Api.uploadResource({
-            resources: file.files[0],
-            clusterId: cluster.id || cluster.clusterId,
-            useDefaultConfig: false
-        })
-            .then(
-                (res: any) => {
-                    if (res.code == 1) {
-                        const conf = res.data.componentConfig;
-                        this.setState({
-                            uploadLoading: false,
-                            file: file,
-                            securityStatus: res.data.security,
-                            zipConfig: {
-                                hadoopConf: Object.assign({}, conf.HDFS, {
-                                    md5zip: conf.md5zip
-                                }),
-                                yarnConf: conf.YARN
-                            }
-                        })
-                    } else {
-                        // 清空 value
-                        const ele: any = document.getElementById('myOfflinFile');
-                        ele.value = '';
-                        this.props.form.setFieldsValue({
-                            file: ''
-                        })
-                        this.setState({
-                            uploadLoading: false,
-                            zipConfig: '{}'
-                        })
+        const isCanUpload = this.validateFileType(file.files && file.files[0].name)
+        if (isCanUpload) {
+            this.props.form.setFieldsValue({
+                file: ''
+            })
+            this.setState({ uploadLoading: true, zipConfig: '{}', fileHaveChange: true });
+            Api.uploadResource({
+                resources: file.files[0],
+                clusterId: cluster.id || cluster.clusterId,
+                useDefaultConfig: false
+            })
+                .then(
+                    (res: any) => {
+                        if (res.code == 1) {
+                            const conf = res.data.componentConfig;
+                            this.setState({
+                                uploadLoading: false,
+                                file: file,
+                                securityStatus: res.data.security,
+                                zipConfig: {
+                                    hadoopConf: Object.assign({}, conf.HDFS, {
+                                        md5zip: conf.md5zip
+                                    }),
+                                    yarnConf: conf.YARN
+                                }
+                            })
+                        } else {
+                            // 清空 value
+                            const ele: any = document.getElementById('myOfflinFile');
+                            ele.value = '';
+                            this.props.form.setFieldsValue({
+                                file: ''
+                            })
+                            this.setState({
+                                uploadLoading: false,
+                                zipConfig: '{}'
+                            })
+                        }
                     }
-                }
-            )
+                )
+        }
     }
     /* eslint-disable */
     addParam(type: any) {
@@ -881,12 +886,7 @@ class EditCluster extends React.Component<any, any> {
                                         label="配置文件"
                                         {...formItemLayout}
                                     >
-                                        {getFieldDecorator('file', {
-                                            rules: [{
-                                            }, {
-                                                validator: this.validateFileType
-                                            }]
-                                        })(
+                                        {getFieldDecorator('file', null)(
                                             <div>
                                                 {
                                                     uploadLoading
