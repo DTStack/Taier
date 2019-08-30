@@ -267,8 +267,6 @@ class EditCluster extends React.Component<any, any> {
     fileChange (e: any) {
         const { cluster } = this.props.location.state || {} as any;
         const file = e.target;
-        const ele: any = document.getElementById('myOfflinFile');
-        ele.value = '';
         this.props.form.setFieldsValue({
             file: ''
         })
@@ -294,6 +292,9 @@ class EditCluster extends React.Component<any, any> {
                             }
                         })
                     } else {
+                        // 清空 value
+                        const ele: any = document.getElementById('myOfflinFile');
+                        ele.value = '';
                         this.props.form.setFieldsValue({
                             file: ''
                         })
