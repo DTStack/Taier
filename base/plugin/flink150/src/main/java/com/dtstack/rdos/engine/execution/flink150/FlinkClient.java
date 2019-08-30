@@ -14,7 +14,7 @@ import com.dtstack.rdos.engine.execution.base.JobParam;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
+import com.dtstack.rdos.engine.execution.base.resource.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.flink150.enums.Deploy;
 import com.dtstack.rdos.engine.execution.flink150.enums.FlinkYarnMode;
@@ -705,18 +705,24 @@ public class FlinkClient extends AbsClient {
 
     @Override
     public EngineResourceInfo getAvailSlots(JobClient jobClient) {
-        FlinkResourceInfo resourceInfo = new FlinkResourceInfo(jobClient);
+        FlinkYarnMode taskRunMode = FlinkUtil.getTaskRunMode(jobClient.getConfProperties(), jobClient.getComputeType());
+        boolean isPerJob = ComputeType.STREAM == jobClient.getComputeType() || FlinkYarnMode.isPerJob(taskRunMode);
+
         try {
-            if (resourceInfo.isPerJob()){
-                resourceInfo.getYarnSlots(yarnClient, flinkConfig.getQueue(), flinkConfig.getYarnAccepterTaskNumber());
+            if (isPerJob){
+                FlinkPerJobResourceInfo perJobResourceInfo = new FlinkPerJobResourceInfo();
+                perJobResourceInfo.getYarnSlots(yarnClient, flinkConfig.getQueue(), flinkConfig.getYarnAccepterTaskNumber());
+                return perJobResourceInfo;
             } else {
+                FlinkYarnSeesionResourceInfo yarnSeesionResourceInfo = new FlinkYarnSeesionResourceInfo();
                 String slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
-                resourceInfo.getFlinkSessionSlots(slotInfo);
+                yarnSeesionResourceInfo.getFlinkSessionSlots(slotInfo);
+                return yarnSeesionResourceInfo;
             }
         } catch (Exception e) {
             logger.error("", e);
+            return null;
         }
-        return resourceInfo;
     }
 
     @Override

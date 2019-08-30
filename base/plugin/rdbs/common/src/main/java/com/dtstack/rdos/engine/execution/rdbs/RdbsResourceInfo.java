@@ -1,7 +1,7 @@
 package com.dtstack.rdos.engine.execution.rdbs;
 
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
+import com.dtstack.rdos.engine.execution.base.resource.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.rdbs.executor.RdbsExeQueue;
 
 /**
@@ -11,7 +11,7 @@ import com.dtstack.rdos.engine.execution.rdbs.executor.RdbsExeQueue;
  * @author xuchao
  */
 
-public class RdbsResourceInfo extends EngineResourceInfo {
+public class RdbsResourceInfo implements EngineResourceInfo {
 
     private RdbsExeQueue rdbsExeQueue;
 

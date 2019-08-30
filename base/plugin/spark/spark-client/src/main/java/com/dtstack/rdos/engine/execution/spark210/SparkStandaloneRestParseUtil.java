@@ -2,7 +2,7 @@ package com.dtstack.rdos.engine.execution.spark210;
 
 import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.common.util.MathUtil;
-import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
+import com.dtstack.rdos.engine.execution.base.resource.AbstractYarnResourceInfo;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -109,7 +109,8 @@ public class SparkStandaloneRestParseUtil {
 
             int coresFree = coreInfo.getLeft() - coreInfo.getRight();
             int memoryFree = memInfo.getLeft() - memInfo.getRight();
-            engineResourceInfo.addNodeResource(new EngineResourceInfo.NodeResourceDetail(workId, coreInfo.getLeft(),coreInfo.getRight(),coresFree,memInfo.getLeft(),memInfo.getRight(),memoryFree));
+            engineResourceInfo.addNodeResource(new AbstractYarnResourceInfo.NodeResourceDetail(
+                    workId, coreInfo.getLeft(),coreInfo.getRight(),coresFree,memInfo.getLeft(),memInfo.getRight(),memoryFree));
         }
 
         return engineResourceInfo;

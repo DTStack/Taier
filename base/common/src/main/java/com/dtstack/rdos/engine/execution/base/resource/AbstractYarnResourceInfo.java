@@ -1,7 +1,6 @@
-package com.dtstack.rdos.engine.execution.base.pojo;
+package com.dtstack.rdos.engine.execution.base.resource;
 
 import com.dtstack.rdos.commom.exception.RdosException;
-import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
@@ -24,9 +23,17 @@ import java.util.stream.Collectors;
  * author: toutian
  * create: 2018/11/1
  */
-public abstract class EngineResourceInfo {
+public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
 
-    public final static String LIMIT_RESOURCE_ERROR = "LIMIT RESOURCE ERROR:";
+    protected List<NodeResourceDetail> nodeResources = Lists.newArrayList();
+
+    public List<NodeResourceDetail> getNodeResources() {
+        return nodeResources;
+    }
+
+    public void addNodeResource(NodeResourceDetail nodeResourceDetail) {
+        nodeResources.add(nodeResourceDetail);
+    }
 
     /**
      * 弹性容量, 默认不开启
@@ -43,30 +50,6 @@ public abstract class EngineResourceInfo {
     protected int containerCoreMax;
     protected int containerMemoryMax;
 
-    protected List<NodeResourceDetail> nodeResources = Lists.newArrayList();
-
-    public abstract boolean judgeSlots(JobClient jobClient);
-
-    protected boolean judgeFlinkSessionResource(int sqlEnvParallel, int mrParallel) {
-        if (sqlEnvParallel == 0 && mrParallel == 0) {
-            throw new RdosException(LIMIT_RESOURCE_ERROR + "Flink task resource configuration error，sqlEnvParallel：" + sqlEnvParallel + ", mrParallel：" + mrParallel);
-        }
-        int availableSlots = 0;
-        int totalSlots = 0;
-        for (NodeResourceDetail resourceDetail : nodeResources) {
-            availableSlots += resourceDetail.freeSlots;
-            totalSlots += resourceDetail.slotsNumber;
-        }
-        //没有资源直接返回false
-        if (availableSlots == 0) {
-            return false;
-        }
-        int maxParallel = Math.max(sqlEnvParallel, mrParallel);
-        if (totalSlots < maxParallel) {
-            throw new RdosException(LIMIT_RESOURCE_ERROR + "Flink task allocation resource exceeds the maximum resource of the cluster, totalSlots:" + totalSlots + ",maxParallel:" + maxParallel);
-        }
-        return availableSlots >= maxParallel;
-    }
 
     protected boolean judgeYarnResource(int instances, int coresPerInstance, int memPerInstance) {
         if (instances == 0 || coresPerInstance == 0 || memPerInstance == 0) {
@@ -125,6 +108,16 @@ public abstract class EngineResourceInfo {
         return true;
     }
 
+    private boolean allocateResource(int[] nodeManagers, int toAllocate) {
+        for (int i = 0; i < nodeManagers.length; i++) {
+            if (nodeManagers[i] >= toAllocate) {
+                nodeManagers[i] -= toAllocate;
+                return true;
+            }
+        }
+        return false;
+    }
+
     private boolean judgeMem(int instances, int memPerInstance) {
         int needMems = instances * memPerInstance;
         if (needMems > (totalMem * queueCapacity)) {
@@ -142,24 +135,6 @@ public abstract class EngineResourceInfo {
             }
         }
         return true;
-    }
-
-    private boolean allocateResource(int[] nodeManagers, int toAllocate) {
-        for (int i = 0; i < nodeManagers.length; i++) {
-            if (nodeManagers[i] >= toAllocate) {
-                nodeManagers[i] -= toAllocate;
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public List<NodeResourceDetail> getNodeResources() {
-        return nodeResources;
-    }
-
-    public void addNodeResource(NodeResourceDetail nodeResourceDetail) {
-        nodeResources.add(nodeResourceDetail);
     }
 
     public void getYarnSlots(YarnClient yarnClient, String queueName, int yarnAccepterTaskNumber) throws IOException, YarnException {
@@ -193,7 +168,7 @@ public abstract class EngineResourceInfo {
             if (freeMem > containerMemoryMax) {
                 containerMemoryMax = freeMem;
             }
-            this.addNodeResource(new EngineResourceInfo.NodeResourceDetail(report.getNodeId().toString(), totalCores, usedCores, freeCores, totalMem, usedMem, freeMem));
+            this.addNodeResource(new AbstractYarnResourceInfo.NodeResourceDetail(report.getNodeId().toString(), totalCores, usedCores, freeCores, totalMem, usedMem, freeMem));
         }
 
         calc();
@@ -224,8 +199,6 @@ public abstract class EngineResourceInfo {
         private int memoryTotal;
         private int memoryUsed;
         private int memoryFree;
-        private int freeSlots;
-        private int slotsNumber;
 
         public NodeResourceDetail(String nodeId, int coresTotal, int coresUsed, int coresFree, int memoryTotal, int memoryUsed, int memoryFree) {
             this.nodeId = nodeId;
@@ -235,12 +208,6 @@ public abstract class EngineResourceInfo {
             this.memoryTotal = memoryTotal;
             this.memoryUsed = memoryUsed;
             this.memoryFree = memoryFree;
-        }
-
-        public NodeResourceDetail(String nodeId, int freeSlots, int slotsNumber) {
-            this.nodeId = nodeId;
-            this.freeSlots = freeSlots;
-            this.slotsNumber = slotsNumber;
         }
     }
 

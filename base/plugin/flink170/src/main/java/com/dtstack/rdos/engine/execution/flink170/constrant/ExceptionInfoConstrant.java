@@ -1,6 +1,6 @@
 package com.dtstack.rdos.engine.execution.flink170.constrant;
 
-import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
+import com.dtstack.rdos.engine.execution.base.resource.EngineResourceInfo;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -2,7 +2,7 @@ package com.dtstack.rdos.engine.execution.base;
 
 import com.dtstack.rdos.commom.exception.ClientAccessException;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
+import com.dtstack.rdos.engine.execution.base.resource.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

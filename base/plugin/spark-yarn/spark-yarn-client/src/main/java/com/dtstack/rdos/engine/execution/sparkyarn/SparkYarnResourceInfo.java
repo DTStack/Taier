@@ -3,7 +3,7 @@ package com.dtstack.rdos.engine.execution.sparkyarn;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.UnitConvertUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
+import com.dtstack.rdos.engine.execution.base.resource.AbstractYarnResourceInfo;
 
 import java.util.Properties;
 
@@ -14,7 +14,7 @@ import java.util.Properties;
  * @author xuchao
  */
 
-public class SparkYarnResourceInfo extends EngineResourceInfo {
+public class SparkYarnResourceInfo extends AbstractYarnResourceInfo {
 
     private final static String DRIVER_CORE_KEY = "driver.core";
 

@@ -1,7 +1,7 @@
 package com.dtstack.rdos.engine.execution.odps;
 
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
+import com.dtstack.rdos.engine.execution.base.resource.EngineResourceInfo;
 
 /**
  * Reason:
@@ -10,7 +10,7 @@ import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
  * @author jingzhen
  */
 
-public class OdpsResourceInfo extends EngineResourceInfo {
+public class OdpsResourceInfo implements EngineResourceInfo {
 
     @Override
     public boolean judgeSlots(JobClient jobClient) {

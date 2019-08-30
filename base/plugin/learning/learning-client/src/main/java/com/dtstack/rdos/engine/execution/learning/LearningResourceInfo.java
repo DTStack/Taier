@@ -4,7 +4,7 @@ import com.dtstack.learning.client.ClientArguments;
 import com.dtstack.rdos.commom.exception.ErrorCode;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
+import com.dtstack.rdos.engine.execution.base.resource.AbstractYarnResourceInfo;
 
 /**
  * 用于存储从xlearning上获取的资源信息
@@ -13,7 +13,7 @@ import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
  *
  * @author jingzhen
  */
-public class LearningResourceInfo extends EngineResourceInfo {
+public class LearningResourceInfo extends AbstractYarnResourceInfo {
 
     @Override
     public boolean judgeSlots(JobClient jobClient) {

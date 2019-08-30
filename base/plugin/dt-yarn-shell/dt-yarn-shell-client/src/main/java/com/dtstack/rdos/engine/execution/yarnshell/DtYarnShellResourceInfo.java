@@ -4,7 +4,7 @@ package com.dtstack.rdos.engine.execution.yarnshell;
 import com.dtstack.rdos.commom.exception.ErrorCode;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
+import com.dtstack.rdos.engine.execution.base.resource.AbstractYarnResourceInfo;
 import com.dtstack.yarn.client.ClientArguments;
 
 
@@ -14,7 +14,7 @@ import com.dtstack.yarn.client.ClientArguments;
  * Company: www.dtstack.com
  * @author jingzhen
  */
-public class DtYarnShellResourceInfo extends EngineResourceInfo {
+public class DtYarnShellResourceInfo extends AbstractYarnResourceInfo {
 
 
     @Override
