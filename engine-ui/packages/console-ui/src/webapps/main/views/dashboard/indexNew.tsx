@@ -241,12 +241,20 @@ class DashboardNew extends React.Component<any, any> {
                                 >
                                     {showSummary && (
                                         <section className='c-summary' style={{ marginBottom: 0 }}>
-                                            <div className='c-newsummary__title'>
-                                                {window.APP_CONF.summary.title}
-                                            </div>
-                                            <div className='c-newsummary__content'>
-                                                {window.APP_CONF.summary.content}
-                                            </div>
+                                            {
+                                                window.APP_CONF.summary.title && (
+                                                    <div className='c-newsummary__title'>
+                                                        {window.APP_CONF.summary.title}
+                                                    </div>
+                                                )
+                                            }
+                                            {
+                                                window.APP_CONF.summary.content && (
+                                                    <div className='c-newsummary__content'>
+                                                        {window.APP_CONF.summary.content}
+                                                    </div>
+                                                )
+                                            }
                                         </section>
                                     )}
                                     <Row
