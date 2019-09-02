@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
-import { cloneDeep } from 'lodash';
+import { cloneDeep, chain } from 'lodash';
 import utils from 'utils';
 // import { Link } from 'react-router';
 import { Alert, Row, Col } from 'antd';
@@ -75,14 +75,35 @@ class DashboardNew extends React.Component<any, any> {
     }
     renderApps = () => {
         const { apps, licenseApps, user } = this.props;
-        const sections = compareEnableApp(apps, licenseApps, false).map((app: any, index: any) => {
-            const isShow = app.enable && (!app.needRoot || (app.needRoot && user.isRoot))
+        // const sections = compareEnableApp(apps, licenseApps, false).map((app: any, index: any) => {
+        //     const isShow = app.enable && (!app.needRoot || (app.needRoot && user.isRoot))
 
-            return isShow && app.id !== MY_APPS.MAIN && (
+        //     return isShow && app.id !== MY_APPS.MAIN && (
+        //         <Col
+        //             span={8}
+        //             style={{
+        //                 marginTop: index > 3 ? '64px' : '28px'
+        //             }}
+        //         >
+        //             <a href={app.link} className="app-new-tag" key={app.id}>
+        //                 <img className="app-logo" src={app.newIcon} alt={app.name}/>
+        //                 <div style={{ marginTop: '16px' }} className="app-new-title">{app.name}</div>
+        //                 <p style={{ wordBreak: 'break-all', marginTop: '4px' }}>{app.description}</p>
+        //             </a>
+        //         </Col>
+        //     )
+        // })
+        const sections = chain(compareEnableApp(apps, licenseApps, false))
+        .filter((app: any) => {
+            const isShow = app.enable && (!app.needRoot || (app.needRoot && user.isRoot))
+            return isShow && app.id !== MY_APPS.MAIN;
+        })
+        .map((app: any, index: any) => {
+            return (
                 <Col
                     span={8}
                     style={{
-                        marginTop: index > 3 ? '64px' : '28px'
+                        marginTop: index > 2 ? '64px' : '28px'
                     }}
                 >
                     <a href={app.link} className="app-new-tag" key={app.id}>
@@ -92,8 +113,7 @@ class DashboardNew extends React.Component<any, any> {
                     </a>
                 </Col>
             )
-        })
-
+        }).value()
         return sections
     }
 
@@ -245,7 +265,11 @@ class DashboardNew extends React.Component<any, any> {
                                             </div>
                                         </section>
                                     )}
-                                    <Row>
+                                    <Row
+                                        style={{
+                                            width: '100%'
+                                        }}
+                                    >
                                         {this.renderApps()}
                                     </Row>
                                 </div>
