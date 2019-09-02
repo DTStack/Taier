@@ -76,26 +76,26 @@ class DashboardNew extends React.Component<any, any> {
     renderApps = () => {
         const { apps, licenseApps, user } = this.props;
         const sections = chain(compareEnableApp(apps, licenseApps, false))
-        .filter((app: any) => {
-            const isShow = app.enable && (!app.needRoot || (app.needRoot && user.isRoot))
-            return isShow && app.id !== MY_APPS.MAIN;
-        })
-        .map((app: any, index: any) => {
-            return (
-                <Col
-                    span={8}
-                    style={{
-                        marginTop: index > 2 ? '64px' : '28px'
-                    }}
-                >
-                    <a href={app.link} className="app-new-tag" key={app.id}>
-                        <img className="app-logo" src={app.newIcon} alt={app.name}/>
-                        <div style={{ marginTop: '16px' }} className="app-new-title">{app.name}</div>
-                        <p style={{ wordBreak: 'break-all', marginTop: '4px' }}>{app.description}</p>
-                    </a>
-                </Col>
-            )
-        }).value()
+            .filter((app: any) => {
+                const isShow = app.enable && (!app.needRoot || (app.needRoot && user.isRoot))
+                return isShow && app.id !== MY_APPS.MAIN;
+            })
+            .map((app: any, index: any) => {
+                return (
+                    <Col
+                        span={8}
+                        style={{
+                            marginTop: index > 2 ? '64px' : '28px'
+                        }}
+                    >
+                        <a href={app.link} className="app-new-tag" key={app.id}>
+                            <img className="app-logo" src={app.newIcon} alt={app.name}/>
+                            <div style={{ marginTop: '16px' }} className="app-new-title">{app.name}</div>
+                            <p style={{ wordBreak: 'break-all', marginTop: '4px' }}>{app.description}</p>
+                        </a>
+                    </Col>
+                )
+            }).value()
         return sections
     }
 
