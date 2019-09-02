@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { connect } from 'react-redux';
 import {
     Card, Form,
     Alert, Button, Row, Col, Spin
@@ -35,7 +36,12 @@ class HiveSync extends React.Component<any, any> {
         this.getTableList();
         this.getSyncStutas();
     }
-
+    componentDidUpdate (prevProps: any) {
+        const { projectId } = prevProps;
+        if (projectId != this.props.routeParams.projectId) {
+            hashHistory.replace('/database/offLineData');
+        }
+    }
     getSyncStutas = () => {
         timer = setInterval(async () => {
             finishSync && clearInterval(timer)
@@ -251,4 +257,8 @@ class HiveSync extends React.Component<any, any> {
 }
 const HiveSyncWrapper = Form.create()(HiveSync);
 
-export default HiveSyncWrapper;
+export default connect(state => {
+    return {
+        projectId: _.get(state, 'project.id')
+    }
+})(HiveSyncWrapper);
