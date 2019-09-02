@@ -81,12 +81,14 @@ class DashboardNew extends React.Component<any, any> {
                 return isShow && app.id !== MY_APPS.MAIN;
             })
             .map((app: any, index: any) => {
+                console.log(app)
                 return (
                     <Col
                         span={8}
                         style={{
                             marginTop: index > 2 ? '64px' : '28px'
                         }}
+                        key={app.id}
                     >
                         <a href={app.link} className="app-new-tag" key={app.id}>
                             <img className="app-logo" src={app.newIcon} alt={app.name}/>
