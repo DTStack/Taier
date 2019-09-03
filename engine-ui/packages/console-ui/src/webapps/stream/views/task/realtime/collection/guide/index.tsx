@@ -100,7 +100,7 @@ class CollectionGuide extends React.Component<any, any> {
                                     </Steps>
                                     <div className="steps-content" style={{ position: 'relative' }}>
                                         {isLocked ? <div className="steps-mask"></div> : null}
-                                        {steps[currentStep].content}
+                                        {steps[currentStep] && steps[currentStep].content}
                                     </div>
                                 </div> : null
                             }
