@@ -36,6 +36,10 @@ class TaskJobFlowView extends React.Component<any, any> {
         loading: 'success',
         lastVertex: '',
         taskLog: {},
+        logPage: {
+            current: 0,
+            total: 0
+        },
         logVisible: false,
         visible: false,
         visibleRestart: false,
@@ -375,9 +379,20 @@ class TaskJobFlowView extends React.Component<any, any> {
     }
 
     showJobLog = (jobId: any) => {
-        Api.getOfflineTaskLog({ jobId: jobId }).then((res: any) => {
+        Api.getOfflineTaskLog({
+            jobId: jobId,
+            pageInfo: this.state.logPage.current
+        }).then((res: any) => {
             if (res.code === 1) {
-                this.setState({ taskLog: res.data, logVisible: true, taskLogId: jobId })
+                this.setState({
+                    taskLog: res.data,
+                    logVisible: true,
+                    taskLogId: jobId,
+                    logPage: {
+                        current: res.data.pageIndex,
+                        total: res.data.pageSize
+                    }
+                })
             }
         })
     }
@@ -387,7 +402,7 @@ class TaskJobFlowView extends React.Component<any, any> {
     }
 
     render () {
-        const { selectedJob, taskLog, workflowData, graphData, loading } = this.state;
+        const { selectedJob, taskLog, workflowData, graphData, loading, logPage } = this.state;
         const { taskJob, goToTaskDev, isPro } = this.props;
         const heightFix = {
             height: 600
@@ -469,6 +484,17 @@ class TaskJobFlowView extends React.Component<any, any> {
                         syncJobInfo={taskLog.syncJobInfo}
                         downloadLog={taskLog.downloadLog}
                         subNodeDownloadLog={taskLog.subNodeDownloadLog}
+                        page={logPage}
+                        onChangePage={(page: number, pageSize: number) => {
+                            this.setState({
+                                logPage: {
+                                    ...logPage,
+                                    current: page
+                                }
+                            }, () => {
+                                this.showJobLog(this.state.taskLogId)
+                            })
+                        }}
                         height="520px"
                     />
                 </Modal>
