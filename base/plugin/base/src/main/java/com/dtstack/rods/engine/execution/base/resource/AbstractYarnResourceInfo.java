@@ -176,6 +176,7 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
     }
 
     private float getQueueRemainCapacity(float coefficient, String queueName, List<QueueInfo> queueInfos) {
+        float capacity = 0;
         for (QueueInfo queueInfo : queueInfos) {
             if (CollectionUtils.isNotEmpty(queueInfo.getChildQueues())) {
                 float subCoefficient = queueInfo.getCapacity() * coefficient;
