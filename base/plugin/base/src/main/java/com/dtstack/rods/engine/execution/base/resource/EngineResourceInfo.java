@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.base.resource;
+package com.dtstack.rods.engine.execution.base.resource;
 
 import com.dtstack.rdos.engine.execution.base.JobClient;
 

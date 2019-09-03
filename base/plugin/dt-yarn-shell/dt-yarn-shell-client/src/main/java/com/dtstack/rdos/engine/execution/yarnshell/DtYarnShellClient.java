@@ -8,7 +8,7 @@ import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobIdentifier;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.base.resource.EngineResourceInfo;
+import com.dtstack.rods.engine.execution.base.resource.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.yarn.DtYarnConfiguration;
 import com.dtstack.yarn.client.Client;
@@ -230,15 +230,16 @@ public class DtYarnShellClient extends AbsClient {
     }
 
     @Override
-    public EngineResourceInfo getAvailSlots(JobClient jobClient) {
+    public boolean judgeSlots(JobClient jobClient) {
         DtYarnShellResourceInfo resourceInfo = new DtYarnShellResourceInfo();
         resourceInfo.setElasticCapacity(conf.getBoolean(DtYarnConfiguration.DT_APP_ELASTIC_CAPACITY, false));
         try {
             resourceInfo.getYarnSlots(client.getYarnClient(), conf.get(DtYarnConfiguration.DT_APP_QUEUE), conf.getInt(DtYarnConfiguration.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1));
+            return resourceInfo.judgeSlots(jobClient);
         } catch (Exception e) {
             LOG.error("", e);
+            return false;
         }
-        return resourceInfo;
     }
 
     @Override

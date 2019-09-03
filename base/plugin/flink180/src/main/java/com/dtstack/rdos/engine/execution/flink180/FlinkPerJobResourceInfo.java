@@ -2,7 +2,7 @@ package com.dtstack.rdos.engine.execution.flink180;
 
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.resource.AbstractYarnResourceInfo;
+import com.dtstack.rods.engine.execution.base.resource.AbstractYarnResourceInfo;
 
 import java.util.Properties;
 

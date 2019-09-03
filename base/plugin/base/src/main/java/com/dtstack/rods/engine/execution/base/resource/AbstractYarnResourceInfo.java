@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.base.resource;
+package com.dtstack.rods.engine.execution.base.resource;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.google.common.collect.Lists;
@@ -45,7 +45,7 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
     protected int totalFreeMem = 0;
     protected int totalCore = 0;
     protected int totalMem = 0;
-    protected int[] nmFreeCore= null;
+    protected int[] nmFreeCore = null;
     protected int[] nmFreeMem = null;
     protected int containerCoreMax;
     protected int containerMemoryMax;
@@ -84,8 +84,9 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
             totalCore += nodeCores;
             totalMem += nodeMem;
 
-            nmFreeCore[index++] = nodeFreeCores;
-            nmFreeMem[index++] = nodeFreeMem;
+            nmFreeCore[index] = nodeFreeCores;
+            nmFreeMem[index] = nodeFreeMem;
+            index++;
         }
     }
 

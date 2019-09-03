@@ -1,7 +1,6 @@
 package com.dtstack.rdos.engine.execution.base;
 
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
-import com.dtstack.rdos.engine.execution.base.resource.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.restart.ARestartService;
 import com.dtstack.rdos.engine.execution.base.restart.DefaultRestartService;
@@ -59,8 +58,8 @@ public abstract class AbsClient implements IClient{
     }
 
     @Override
-    public EngineResourceInfo getAvailSlots(JobClient jobClient) {
-        return null;
+    public boolean judgeSlots(JobClient jobClient) {
+        return false;
     }
 
     protected void beforeSubmitFunc(JobClient jobClient){

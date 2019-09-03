@@ -36,6 +36,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.dtstack.rdos</groupId>
+            <artifactId>plugin.base</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.aliyun.odps</groupId>
             <artifactId>odps-sdk-core</artifactId>
             <version>0.28.4-public</version>

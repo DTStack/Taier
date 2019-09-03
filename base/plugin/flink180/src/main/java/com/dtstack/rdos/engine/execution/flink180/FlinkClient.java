@@ -14,7 +14,7 @@ import com.dtstack.rdos.engine.execution.base.JobParam;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.base.resource.EngineResourceInfo;
+import com.dtstack.rods.engine.execution.base.resource.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.flink180.enums.Deploy;
 import com.dtstack.rdos.engine.execution.flink180.enums.FlinkYarnMode;
@@ -635,7 +635,7 @@ public class FlinkClient extends AbsClient {
     }
 
     @Override
-    public EngineResourceInfo getAvailSlots(JobClient jobClient) {
+    public boolean judgeSlots(JobClient jobClient) {
 
         FlinkYarnMode taskRunMode = FlinkUtil.getTaskRunMode(jobClient.getConfProperties(), jobClient.getComputeType());
         boolean isPerJob = ComputeType.STREAM == jobClient.getComputeType() || FlinkYarnMode.isPerJob(taskRunMode);
@@ -644,16 +644,16 @@ public class FlinkClient extends AbsClient {
             if (isPerJob){
                 FlinkPerJobResourceInfo perJobResourceInfo = new FlinkPerJobResourceInfo();
                 perJobResourceInfo.getYarnSlots(yarnClient, flinkConfig.getQueue(), flinkConfig.getYarnAccepterTaskNumber());
-                return perJobResourceInfo;
+                return perJobResourceInfo.judgeSlots(jobClient);
             } else {
                 FlinkYarnSeesionResourceInfo yarnSeesionResourceInfo = new FlinkYarnSeesionResourceInfo();
                 String slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
                 yarnSeesionResourceInfo.getFlinkSessionSlots(slotInfo, flinkConfig.getFlinkSessionSlotCount());
-                return yarnSeesionResourceInfo;
+                return yarnSeesionResourceInfo.judgeSlots(jobClient);
             }
         } catch (Exception e) {
             logger.error("", e);
-            return null;
+            return false;
         }
     }
 

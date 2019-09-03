@@ -11,7 +11,7 @@ import com.dtstack.rdos.engine.execution.base.JobParam;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.base.resource.EngineResourceInfo;
+import com.dtstack.rods.engine.execution.base.resource.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.spark210.enums.Status;
 import com.dtstack.rdos.engine.execution.spark210.parser.AddJarOperator;
@@ -371,14 +371,14 @@ public class SparkClient extends AbsClient {
     }
 
     @Override
-    public EngineResourceInfo getAvailSlots(JobClient jobClient) {
+    public boolean judgeSlots(JobClient jobClient) {
         String rootMsg = getMessageByHttp(SparkStandaloneRestParseUtil.ROOT);
         EngineResourceInfo resourceInfo = SparkStandaloneRestParseUtil.getAvailSlots(rootMsg);
         if(resourceInfo == null){
             resourceInfo = new SparkResourceInfo();
         }
 
-        return resourceInfo;
+        return resourceInfo.judgeSlots(jobClient);
     }
 
     @Override

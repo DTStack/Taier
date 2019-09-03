@@ -14,7 +14,6 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <flink.version>1.5.4</flink.version>
-        <hadoop.version>2.4.1</hadoop.version>
     </properties>
 
     <dependencies>
@@ -23,6 +22,12 @@
             <artifactId>base.common</artifactId>
             <version>1.0.0</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.dtstack.rdos</groupId>
+            <artifactId>plugin.base</artifactId>
+            <version>1.0.0</version>
         </dependency>
 
         <dependency>
@@ -74,19 +79,6 @@
             <version>${flink.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-yarn-api</artifactId>
-            <version>${hadoop.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-yarn-client</artifactId>
-            <version>${hadoop.version}</version>
-            <scope>provided</scope>
-        </dependency>
 
         <dependency>
             <groupId>com.google.code.gson</groupId>

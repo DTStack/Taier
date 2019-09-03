@@ -9,7 +9,7 @@ import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobIdentifier;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.base.resource.EngineResourceInfo;
+import com.dtstack.rods.engine.execution.base.resource.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.learning.client.Client;
 import com.google.gson.Gson;
@@ -185,16 +185,16 @@ public class LearningClient extends AbsClient {
     }
 
     @Override
-    public EngineResourceInfo getAvailSlots(JobClient jobClient) {
+    public boolean judgeSlots(JobClient jobClient) {
         LearningResourceInfo resourceInfo = new LearningResourceInfo();
         resourceInfo.setElasticCapacity(conf.getBoolean(LearningConfiguration.DT_APP_ELASTIC_CAPACITY, false));
         try {
             resourceInfo.getYarnSlots(client.getYarnClient(), conf.get(LearningConfiguration.LEARNING_APP_QUEUE), conf.getInt(LearningConfiguration.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1));
+            return resourceInfo.judgeSlots(jobClient);
         } catch (Exception e) {
             LOG.error("", e);
+            return false;
         }
-
-        return resourceInfo;
     }
 
     @Override

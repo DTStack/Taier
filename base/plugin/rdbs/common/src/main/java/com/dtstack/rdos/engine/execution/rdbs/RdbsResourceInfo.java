@@ -1,7 +1,7 @@
 package com.dtstack.rdos.engine.execution.rdbs;
 
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.resource.EngineResourceInfo;
+import com.dtstack.rods.engine.execution.base.resource.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.rdbs.executor.RdbsExeQueue;
 
 /**

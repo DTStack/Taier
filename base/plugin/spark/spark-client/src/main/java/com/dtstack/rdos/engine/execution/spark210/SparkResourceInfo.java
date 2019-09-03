@@ -4,8 +4,8 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.UnitConvertUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.resource.AbstractYarnResourceInfo;
-import com.dtstack.rdos.engine.execution.base.resource.EngineResourceInfo;
+import com.dtstack.rods.engine.execution.base.resource.AbstractYarnResourceInfo;
+import com.dtstack.rods.engine.execution.base.resource.EngineResourceInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

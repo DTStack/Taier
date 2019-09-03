@@ -1,6 +1,6 @@
 package com.dtstack.rdos.engine.execution.sparkyarn;
 
-import com.dtstack.rdos.engine.execution.base.resource.EngineResourceInfo;
+import com.dtstack.rods.engine.execution.base.resource.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.restart.ARestartService;
 import com.dtstack.rdos.engine.execution.sparkyarn.enums.ExceptionInfoConstrant;
 import com.google.common.collect.Lists;

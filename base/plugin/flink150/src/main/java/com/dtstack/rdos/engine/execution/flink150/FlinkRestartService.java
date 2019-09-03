@@ -2,7 +2,7 @@ package com.dtstack.rdos.engine.execution.flink150;
 
 import com.dtstack.rdos.engine.execution.base.IClient;
 import com.dtstack.rdos.engine.execution.base.JobIdentifier;
-import com.dtstack.rdos.engine.execution.base.resource.EngineResourceInfo;
+import com.dtstack.rods.engine.execution.base.resource.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.restart.ARestartService;
 import com.dtstack.rdos.engine.execution.base.restart.IJobRestartStrategy;
 import com.dtstack.rdos.engine.execution.flink150.constrant.ExceptionInfoConstrant;

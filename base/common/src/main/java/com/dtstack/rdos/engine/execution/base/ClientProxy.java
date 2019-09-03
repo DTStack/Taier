@@ -4,7 +4,6 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBack;
 import com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBackMethod;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.base.resource.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.restart.ARestartService;
 import org.slf4j.Logger;
@@ -133,13 +132,13 @@ public class ClientProxy implements IClient{
     }
 
     @Override
-    public EngineResourceInfo getAvailSlots(JobClient jobClient) {
+    public boolean judgeSlots(JobClient jobClient) {
         try {
-            return ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<EngineResourceInfo>(){
+            return ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<Boolean>(){
 
                 @Override
-                public EngineResourceInfo execute() throws Exception {
-                    return targetClient.getAvailSlots(jobClient);
+                public Boolean execute() throws Exception {
+                    return targetClient.judgeSlots(jobClient);
                 }
             }, targetClient.getClass().getClassLoader(),true);
         } catch (Exception e) {

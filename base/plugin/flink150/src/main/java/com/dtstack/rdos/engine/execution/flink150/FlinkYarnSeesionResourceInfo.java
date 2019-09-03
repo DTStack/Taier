@@ -2,7 +2,7 @@ package com.dtstack.rdos.engine.execution.flink150;
 
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.resource.AbstractFlinkResourceInfo;
+import com.dtstack.rods.engine.execution.base.resource.AbstractFlinkResourceInfo;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;

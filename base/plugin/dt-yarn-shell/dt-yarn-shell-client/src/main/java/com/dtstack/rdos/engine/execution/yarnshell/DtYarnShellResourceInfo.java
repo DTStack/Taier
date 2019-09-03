@@ -4,7 +4,7 @@ package com.dtstack.rdos.engine.execution.yarnshell;
 import com.dtstack.rdos.commom.exception.ErrorCode;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.resource.AbstractYarnResourceInfo;
+import com.dtstack.rods.engine.execution.base.resource.AbstractYarnResourceInfo;
 import com.dtstack.yarn.client.ClientArguments;
 
 

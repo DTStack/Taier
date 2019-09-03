@@ -14,7 +14,7 @@ import com.dtstack.rdos.engine.execution.base.JobParam;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.base.resource.EngineResourceInfo;
+import com.dtstack.rods.engine.execution.base.resource.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
 import com.dtstack.rdos.engine.execution.sparkext.ClientExt;
@@ -603,7 +603,7 @@ public class SparkYarnClient extends AbsClient {
     }
 
     @Override
-    public EngineResourceInfo getAvailSlots(JobClient jobClient) {
+    public boolean judgeSlots(JobClient jobClient) {
 
         if (sparkYarnConfig.isSecurity()){
             initSecurity();
@@ -612,11 +612,12 @@ public class SparkYarnClient extends AbsClient {
         SparkYarnResourceInfo resourceInfo = new SparkYarnResourceInfo();
         try {
             resourceInfo.getYarnSlots(yarnClient, sparkYarnConfig.getQueue(), sparkYarnConfig.getYarnAccepterTaskNumber());
+            return resourceInfo.judgeSlots(jobClient);
         } catch (Exception e) {
             logger.error("", e);
+            return false;
         }
 
-        return resourceInfo;
     }
 
     public void setHadoopUserName(SparkYarnConfig sparkYarnConfig){

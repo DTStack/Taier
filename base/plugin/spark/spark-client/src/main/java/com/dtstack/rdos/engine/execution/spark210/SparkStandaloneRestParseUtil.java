@@ -2,7 +2,7 @@ package com.dtstack.rdos.engine.execution.spark210;
 
 import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.common.util.MathUtil;
-import com.dtstack.rdos.engine.execution.base.resource.AbstractYarnResourceInfo;
+import com.dtstack.rods.engine.execution.base.resource.AbstractYarnResourceInfo;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
