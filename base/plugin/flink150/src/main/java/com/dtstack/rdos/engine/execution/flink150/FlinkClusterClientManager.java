@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.flink150;
 
+import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.JobIdentifier;
 import com.dtstack.rdos.engine.execution.flink150.enums.Deploy;
@@ -112,6 +113,9 @@ public class FlinkClusterClientManager {
 
     public ClusterClient getClusterClient(JobIdentifier jobIdentifier) {
         if (jobIdentifier == null || StringUtils.isBlank(jobIdentifier.getApplicationId())) {
+            if (!isClientOn.get()) {
+                throw new RdosException("No flink session found on yarn cluster. getClusterClient failed...");
+            }
             return flinkYarnSessionClient;
         } else {
             return getPerJobClient(jobIdentifier);
