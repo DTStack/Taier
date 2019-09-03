@@ -183,8 +183,9 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
                 capacity = getQueueRemainCapacity(subCoefficient, queueName, queueInfo.getChildQueues());
             }
             if (queueInfo.getQueueName().equalsIgnoreCase(queueName)) {
-                queueCapacity = coefficient * queueInfo.getCapacity();
+                this.queueCapacity = coefficient * queueInfo.getCapacity();
                 capacity = queueCapacity * (1 - queueInfo.getCurrentCapacity());
+                this.capacity = capacity;
             }
             if (capacity > 0) {
                 return capacity;
