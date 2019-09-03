@@ -36,8 +36,8 @@ class HiveSync extends React.Component<any, any> {
         this.getTableList();
         this.getSyncStutas();
     }
-    componentDidUpdate (prevProps: any) {
-        const { projectId } = prevProps;
+    componentDidUpdate () {
+        const { projectId } = this.props;
         if (projectId != this.props.routeParams.projectId) {
             hashHistory.replace('/database/offLineData');
         }
