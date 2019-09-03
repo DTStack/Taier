@@ -1,6 +1,15 @@
-# Change Log
+# Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+## [3.8.0-beta.1.8](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.8.0-beta.1.7...3.8.0-beta.1.8) (2019-09-03)
+
+
+### Bug Fixes
+
+* **stream:** fix stream columns style ([9f1643e](http://git.dtstack.cn/dtstack/data-stack-web/commit/9f1643e)), closes [#18571](http://redmine.prod.dtstack.cn/issues/18571)
+
+
 
 <a name="3.8.0-beta.1.7"></a>
 # [3.8.0-beta.1.7](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.8.0-beta.1.6...3.8.0-beta.1.7) (2019-08-30)
