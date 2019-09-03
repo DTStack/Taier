@@ -40,6 +40,8 @@ public class RdbsExeQueue {
 
     private static final Logger LOG = LoggerFactory.getLogger(RdbsExeQueue.class);
 
+    private static String ORACLE_STATEMENT_CLASS_NAME = "oracle.jdbc.driver.T4CStatement";
+
     private int minSize = 1;
 
     /**最大允许同时执行的sql任务长度*/
@@ -297,14 +299,18 @@ public class RdbsExeQueue {
                             stmt.close();
                         }
 
-                        if(procCreateStmt != null && !procCreateStmt.isClosed()){
-                            procCreateStmt.close();
+                        if(procCreateStmt != null){
+                            if(ORACLE_STATEMENT_CLASS_NAME.equals(procCreateStmt.getClass().getName())){
+                                procCreateStmt.close();
+                            } else if(!procCreateStmt.isClosed()){
+                                procCreateStmt.close();
+                            }
                         }
 
                         conn.close();
                     }
 
-                } catch (SQLException e) {
+                } catch (Exception e) {
                     LOG.error("", e);
                 }
 
