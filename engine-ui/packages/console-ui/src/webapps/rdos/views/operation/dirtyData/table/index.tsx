@@ -130,7 +130,7 @@ export default class TableDetail extends React.Component<any, any> {
                                                     <td>{tableInfo.project}</td>
                                                 </tr>
                                                 <tr>
-                                                    <th>创建者：</th>
+                                                    <th>创建者</th>
                                                     <td>
                                                         {tableInfo.chargeUser}
                                                     </td>
