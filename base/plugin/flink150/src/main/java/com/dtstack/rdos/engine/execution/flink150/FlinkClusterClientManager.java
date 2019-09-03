@@ -70,9 +70,9 @@ public class FlinkClusterClientManager {
                 this.flinkYarnSessionStarter = new FlinkYarnSessionStarter(flinkClientBuilder, flinkConfig);
                 this.startYarnSessionClientMonitor();
             }
-            flinkYarnSessionStarter.startFlinkYarnSession();
+            boolean clientOn = flinkYarnSessionStarter.startFlinkYarnSession();
+            this.setIsClientOn(clientOn);
             flinkYarnSessionClient = flinkYarnSessionStarter.getClusterClient();
-            this.setIsClientOn(true);
         }
     }
 
