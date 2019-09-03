@@ -646,6 +646,9 @@ public class FlinkClient extends AbsClient {
                 perJobResourceInfo.getYarnSlots(yarnClient, flinkConfig.getQueue(), flinkConfig.getYarnAccepterTaskNumber());
                 return perJobResourceInfo.judgeSlots(jobClient);
             } else {
+                if (!flinkClusterClientManager.getIsClientOn()){
+                    return false;
+                }
                 FlinkYarnSeesionResourceInfo yarnSeesionResourceInfo = new FlinkYarnSeesionResourceInfo();
                 String slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
                 yarnSeesionResourceInfo.getFlinkSessionSlots(slotInfo, flinkConfig.getFlinkSessionSlotCount());
