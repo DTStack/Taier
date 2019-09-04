@@ -276,8 +276,9 @@ public class JobGraphGenerator implements Visitor<PlanNode> {
 
 	public static void addUserArtifactEntries(Collection<Tuple2<String, DistributedCache.DistributedCacheEntry>> userArtifacts, JobGraph jobGraph) {
 		if (!userArtifacts.isEmpty()) {
+			java.nio.file.Path tmpDir = null;
 			try {
-				java.nio.file.Path tmpDir = Files.createTempDirectory("flink-distributed-cache-" + jobGraph.getJobID());
+				tmpDir = Files.createTempDirectory("flink-distributed-cache-" + jobGraph.getJobID());
 				for (Tuple2<String, DistributedCache.DistributedCacheEntry> originalEntry : userArtifacts) {
 					Path filePath = new Path(originalEntry.f1.filePath);
 					boolean isLocalDir = false;
@@ -299,6 +300,12 @@ public class JobGraphGenerator implements Visitor<PlanNode> {
 				}
 			} catch (IOException ioe) {
 				throw new FlinkRuntimeException("Could not compress distributed-cache artifacts.", ioe);
+			} finally {
+				try {
+					Files.deleteIfExists(tmpDir);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
