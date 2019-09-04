@@ -6,12 +6,16 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rods.engine.execution.base.resource.AbstractYarnResourceInfo;
 import com.dtstack.yarn.client.ClientArguments;
+import com.google.common.collect.Lists;
+
+import java.util.List;
 
 
 /**
  * 用于存储从dt-yarn-shell上获取的资源信息
  * Date: 2018/9/14
  * Company: www.dtstack.com
+ *
  * @author jingzhen
  */
 public class DtYarnShellResourceInfo extends AbstractYarnResourceInfo {
@@ -46,15 +50,9 @@ public class DtYarnShellResourceInfo extends AbstractYarnResourceInfo {
             return false;
         }
 
-        //am
-        if (!judgeYarnResource(1, amCores, amMem)) {
-            return false;
-        }
-        //work
-        if (!judgeYarnResource(workerNum, workerCores, workerMem)) {
-            return false;
-        }
-
-        return true;
+        List<InstanceInfo> instanceInfos = Lists.newArrayList(
+                InstanceInfo.newRecord(1, amCores, amMem),
+                InstanceInfo.newRecord(workerNum, workerCores, workerMem));
+        return judgeYarnResource(instanceInfos);
     }
 }

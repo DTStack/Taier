@@ -50,15 +50,51 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
     protected int containerCoreMax;
     protected int containerMemoryMax;
 
-
-    protected boolean judgeYarnResource(int instances, int coresPerInstance, int memPerInstance) {
-        if (instances == 0 || coresPerInstance == 0 || memPerInstance == 0) {
-            throw new RdosException(LIMIT_RESOURCE_ERROR + "Yarn task resource configuration error，instance：" + instances + ", coresPerInstance：" + coresPerInstance + ", memPerInstance：" + memPerInstance);
-        }
+    protected boolean judgeYarnResource(List<InstanceInfo> instanceInfos) {
         if (totalFreeCore == 0 || totalFreeMem == 0) {
             return false;
         }
+        int needTotalCore = 0;
+        int needTotalMem = 0;
+        for (InstanceInfo instanceInfo : instanceInfos) {
+            int instanceCore = instanceInfo.instances * instanceInfo.coresPerInstance;
+            if (instanceCore > containerCoreMax) {
+                return false;
+            }
+            int instanceMem = instanceInfo.instances * instanceInfo.memPerInstance;
+            if (instanceMem > containerMemoryMax) {
+                return false;
+            }
+            needTotalCore += instanceCore;
+            needTotalMem += instanceMem;
+        }
+        if (needTotalCore == 0 || needTotalMem == 0) {
+            throw new RdosException(LIMIT_RESOURCE_ERROR + "Yarn task resource configuration error，needTotalCore：" + 0 + ", needTotalMem：" + needTotalMem);
+        }
+        if (needTotalCore > (totalCore * queueCapacity)) {
+            throw new RdosException(LIMIT_RESOURCE_ERROR + "The Yarn task is set to a core larger than the maximum allocated core");
+        }
+        if (needTotalMem > (totalMem * queueCapacity)) {
+            throw new RdosException(LIMIT_RESOURCE_ERROR + "The Yarn task is set to a core larger than the maximum allocated core");
+        }
+        if (needTotalCore > (totalCore * capacity)) {
+            return false;
+        }
+        if (needTotalMem > (totalMem * capacity)) {
+            return false;
+        }
+        for (InstanceInfo instanceInfo : instanceInfos) {
+            if (!judgeInstanceResource(instanceInfo.instances, instanceInfo.coresPerInstance, instanceInfo.memPerInstance)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
+    private boolean judgeInstanceResource(int instances, int coresPerInstance, int memPerInstance) {
+        if (instances == 0 || coresPerInstance == 0 || memPerInstance == 0) {
+            throw new RdosException(LIMIT_RESOURCE_ERROR + "Yarn task resource configuration error，instance：" + instances + ", coresPerInstance：" + coresPerInstance + ", memPerInstance：" + memPerInstance);
+        }
         if (!judgeCores(instances, coresPerInstance)) {
             return false;
         }
@@ -68,41 +104,18 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
         return true;
     }
 
-    protected void calc() {
-        nmFreeCore = new int[nodeResources.size()];
-        nmFreeMem = new int[nodeResources.size()];
-        int index = 0;
-        //yarn 方式执行时，统一对每个node保留512M和1core
-        for (NodeResourceDetail resourceDetail : nodeResources) {
-            int nodeFreeMem = Math.max(resourceDetail.memoryFree - 512, 0);
-            int nodeFreeCores = Math.max(resourceDetail.coresFree - 1, 0);
-            int nodeCores = resourceDetail.coresTotal - 1;
-            int nodeMem = resourceDetail.memoryTotal - 512;
-
-            totalFreeMem += nodeFreeMem;
-            totalFreeCore += nodeFreeCores;
-            totalCore += nodeCores;
-            totalMem += nodeMem;
-
-            nmFreeCore[index] = nodeFreeCores;
-            nmFreeMem[index] = nodeFreeMem;
-            index++;
-        }
-    }
-
     private boolean judgeCores(int instances, int coresPerInstance) {
-        int needCores = instances * coresPerInstance;
-        if (needCores > (totalCore * queueCapacity)) {
-            throw new RdosException(LIMIT_RESOURCE_ERROR + "The Yarn task is set to a core larger than the maximum allocated core");
-        }
-        if (needCores > (totalMem * capacity)) {
-            return false;
-        }
-        if (instances * coresPerInstance > containerCoreMax) {
-            return false;
-        }
         for (int i = 1; i <= instances; i++) {
             if (!allocateResource(nmFreeCore, coresPerInstance)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean judgeMem(int instances, int memPerInstance) {
+        for (int i = 1; i <= instances; i++) {
+            if (!allocateResource(nmFreeMem, memPerInstance)) {
                 return false;
             }
         }
@@ -117,25 +130,6 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
             }
         }
         return false;
-    }
-
-    private boolean judgeMem(int instances, int memPerInstance) {
-        int needMems = instances * memPerInstance;
-        if (needMems > (totalMem * queueCapacity)) {
-            throw new RdosException(LIMIT_RESOURCE_ERROR + "The Yarn task is set to MEM larger than the maximum for the cluster");
-        }
-        if (needMems > (totalMem * capacity)) {
-            return false;
-        }
-        if (instances * memPerInstance > containerMemoryMax) {
-            return false;
-        }
-        for (int i = 1; i <= instances; i++) {
-            if (!allocateResource(nmFreeMem, memPerInstance)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     public void getYarnSlots(YarnClient yarnClient, String queueName, int yarnAccepterTaskNumber) throws IOException, YarnException {
@@ -192,6 +186,44 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
             }
         }
         return capacity;
+    }
+
+    protected void calc() {
+        nmFreeCore = new int[nodeResources.size()];
+        nmFreeMem = new int[nodeResources.size()];
+        int index = 0;
+        //yarn 方式执行时，统一对每个node保留512M和1core
+        for (NodeResourceDetail resourceDetail : nodeResources) {
+            int nodeFreeMem = Math.max(resourceDetail.memoryFree - 512, 0);
+            int nodeFreeCores = Math.max(resourceDetail.coresFree - 1, 0);
+            int nodeCores = resourceDetail.coresTotal - 1;
+            int nodeMem = resourceDetail.memoryTotal - 512;
+
+            totalFreeMem += nodeFreeMem;
+            totalFreeCore += nodeFreeCores;
+            totalCore += nodeCores;
+            totalMem += nodeMem;
+
+            nmFreeMem[index] = nodeFreeMem;
+            nmFreeCore[index] = nodeFreeCores;
+            index++;
+        }
+    }
+
+    public static class InstanceInfo {
+        int instances;
+        int coresPerInstance;
+        int memPerInstance;
+
+        public InstanceInfo(int instances, int coresPerInstance, int memPerInstance) {
+            this.instances = instances;
+            this.coresPerInstance = coresPerInstance;
+            this.memPerInstance = memPerInstance;
+        }
+
+        public static InstanceInfo newRecord(int instances, int coresPerInstance, int memPerInstance) {
+            return new InstanceInfo(instances, coresPerInstance, memPerInstance);
+        }
     }
 
     public static class NodeResourceDetail {

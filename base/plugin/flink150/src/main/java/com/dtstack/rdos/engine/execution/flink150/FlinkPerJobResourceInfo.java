@@ -3,7 +3,9 @@ package com.dtstack.rdos.engine.execution.flink150;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rods.engine.execution.base.resource.AbstractYarnResourceInfo;
+import com.google.common.collect.Lists;
 
+import java.util.List;
 import java.util.Properties;
 
 import static com.dtstack.rdos.engine.execution.flink150.constrant.ConfigConstrant.*;
@@ -59,16 +61,12 @@ public class FlinkPerJobResourceInfo extends AbstractYarnResourceInfo {
             taskmanagerMemoryMb = MIN_TM_MEMORY;
         }
 
-        //作为启动 am 和 jobmanager
-        if (!judgeYarnResource(1, 1, jobmanagerMemoryMb)) {
-            return false;
-        }
 
-        if (!judgeYarnResource(numberTaskManagers, slotsPerTaskManager, taskmanagerMemoryMb)) {
-            return false;
-        }
-
-        return true;
+        List<InstanceInfo> instanceInfos = Lists.newArrayList(
+                //作为启动 am 和 jobmanager
+                InstanceInfo.newRecord(1, 1, jobmanagerMemoryMb),
+                InstanceInfo.newRecord(numberTaskManagers, slotsPerTaskManager, taskmanagerMemoryMb));
+        return judgeYarnResource(instanceInfos);
     }
 
 }

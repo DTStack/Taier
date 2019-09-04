@@ -4,7 +4,9 @@ import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.UnitConvertUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rods.engine.execution.base.resource.AbstractYarnResourceInfo;
+import com.google.common.collect.Lists;
 
+import java.util.List;
 import java.util.Properties;
 
 public class SparkYarnResourceInfo extends AbstractYarnResourceInfo {
@@ -51,10 +53,6 @@ public class SparkYarnResourceInfo extends AbstractYarnResourceInfo {
         }
         driverMem += driverMemOverhead;
 
-        if (!judgeYarnResource(1, driverCores, driverMem)) {
-            return false;
-        }
-
         int executorNum = DEFAULT_INSTANCES;
         if(properties != null && properties.containsKey(EXECUTOR_INSTANCES_KEY)){
             executorNum = MathUtil.getIntegerVal(properties.get(EXECUTOR_INSTANCES_KEY));
@@ -76,11 +74,10 @@ public class SparkYarnResourceInfo extends AbstractYarnResourceInfo {
         }
         executorMem += executorMemOverhead;
 
-        if (!judgeYarnResource(executorNum, executorCores, executorMem)) {
-            return false;
-        }
-
-        return true;
+        List<InstanceInfo> instanceInfos = Lists.newArrayList(
+                InstanceInfo.newRecord(1, driverCores, driverMem),
+                InstanceInfo.newRecord(executorNum, executorCores, executorMem));
+        return judgeYarnResource(instanceInfos);
     }
 
 }
