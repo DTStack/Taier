@@ -179,7 +179,8 @@ public class JobSubmitExecutor implements Closeable{
 
         private void handlerNoResource(JobClient jobClient, OrderLinkedBlockingQueue<JobClient> priorityQueue){
             try {
-                jobClient.setPriority(jobClient.getPriority() + 100);
+                //因为资源不足提交任务失败，优先级数值增加 WAIT_INTERVAL
+                jobClient.setPriority(jobClient.getPriority() + WAIT_INTERVAL);
                 priorityQueue.put(jobClient);
                 groupPriorityQueueMap.get(jobClient.getEngineType()).incrQueueSize();
             } catch (InterruptedException e){
