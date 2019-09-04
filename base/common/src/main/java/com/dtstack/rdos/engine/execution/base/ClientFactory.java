@@ -21,9 +21,6 @@ public class ClientFactory {
     private static Map<String, String> typeRefClassName = Maps.newHashMap();
 
     static {
-        typeRefClassName.put("flink120", "com.dtstack.rdos.engine.execution.flink120.FlinkClient");
-        typeRefClassName.put("flink130", "com.dtstack.rdos.engine.execution.flink130.FlinkClient");
-        typeRefClassName.put("flink140", "com.dtstack.rdos.engine.execution.flink140.FlinkClient");
         typeRefClassName.put("flink150", "com.dtstack.rdos.engine.execution.flink150.FlinkClient");
         typeRefClassName.put("flink170", "com.dtstack.rdos.engine.execution.flink170.FlinkClient");
         typeRefClassName.put("flink180", "com.dtstack.rdos.engine.execution.flink180.FlinkClient");

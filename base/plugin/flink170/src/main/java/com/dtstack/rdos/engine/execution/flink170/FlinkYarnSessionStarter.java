@@ -41,7 +41,6 @@ public class FlinkYarnSessionStarter {
         this.flinkConfig = flinkConfig;
         lockPath = String.format("%s/client/%s", flinkConfig.getFlinkZkNamespace(), flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue());
 
-
         String clusterId = flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue();
 
         this.yarnSessionDescriptor = flinkClientBuilder.createClusterDescriptorByMode(null, false);

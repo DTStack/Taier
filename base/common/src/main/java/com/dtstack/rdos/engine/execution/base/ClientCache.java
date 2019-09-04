@@ -67,26 +67,26 @@ public class ClientCache {
             clusterProp.put(MD5_SUM_KEY, pluginInfoMd5);
             client.init(clusterProp);
 
-            String key = EngineType.getEngineTypeWithoutVersion(clientTypeStr);
-            addDefaultClient(key, client, pluginInfoMd5);
+            String engineType = EngineType.getEngineTypeWithoutVersion(clientTypeStr);
+            addDefaultClient(engineType, client, pluginInfoMd5);
         }
 
         LOG.warn("init local plugin success,{}", defaultClientMap.toString());
     }
 
     /**
-     * pluginKey是不带版本信息的
-     * @param pluginKey
-     * @param pluginInfo
+     * engineType是不带版本信息的
+     * @param engineType 引擎类型：flink、spark、dtyarnshell
+     * @param pluginInfo 集群配置信息
      * @return
      */
-    public IClient getClient(String pluginKey, String pluginInfo) throws ClientAccessException {
+    public IClient getClient(String engineType, String pluginInfo) throws ClientAccessException {
         try {
             if(Strings.isNullOrEmpty(pluginInfo)){
-                return getDefaultPlugin(pluginKey);
+                return getDefaultPlugin(engineType);
             }
 
-            Map<String, IClient> clientMap = cache.computeIfAbsent(pluginKey, k -> Maps.newConcurrentMap());
+            Map<String, IClient> clientMap = cache.computeIfAbsent(engineType, k -> Maps.newConcurrentMap());
 
             Properties properties = PublicUtil.jsonStrToObject(pluginInfo, Properties.class);
 
@@ -119,10 +119,10 @@ public class ClientCache {
         }
     }
 
-    private IClient getDefaultPlugin(String pluginKey){
-        IClient defaultClient = defaultClientMap.get(pluginKey);
+    private IClient getDefaultPlugin(String engineType){
+        IClient defaultClient = defaultClientMap.get(engineType);
         if(defaultClient == null){
-            LOG.error("-------can't find plugin by key:{}", pluginKey);
+            LOG.error("-------job.pluginInfo is empty, either can't find plugin('In console is the typeName') which engineType:{}", engineType);
             return null;
         }
 
@@ -169,15 +169,15 @@ public class ClientCache {
         return new DtClassLoader(urls, this.getClass().getClassLoader());
     }
 
-    private void addDefaultClient(String pluginKey, IClient client, String pluginInfoMd5){
+    private void addDefaultClient(String engineType, IClient client, String pluginInfoMd5){
 
-        if(defaultClientMap.get(pluginKey) != null){
-            LOG.error("------setting error: conflict default plugin key:{}-----", pluginKey);
+        if(defaultClientMap.get(engineType) != null){
+            LOG.error("------setting error: conflict default plugin key:{}-----", engineType);
         }
 
-        defaultClientMap.putIfAbsent(pluginKey, client);
+        defaultClientMap.putIfAbsent(engineType, client);
 
-        Map<String, IClient> clientMap = cache.computeIfAbsent(pluginKey, key -> Maps.newConcurrentMap());
+        Map<String, IClient> clientMap = cache.computeIfAbsent(engineType, key -> Maps.newConcurrentMap());
         clientMap.put(pluginInfoMd5, client);
     }
 }
