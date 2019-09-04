@@ -18,7 +18,7 @@ import java.util.Properties;
 
 public class SparkYarnResourceInfo extends AbstractYarnResourceInfo {
 
-    private final static String DRIVER_CORE_KEY = "driver.core";
+    private final static String DRIVER_CORE_KEY = "driver.cores";
 
     private final static String DRIVER_MEM_KEY = "driver.memory";
 
