@@ -1,11 +1,11 @@
 package com.dtstack.rdos.engine.execution.sparkyarn;
 
 import com.dtstack.rdos.engine.execution.base.IClient;
-import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.restart.ARestartService;
 import com.dtstack.rdos.engine.execution.base.restart.IJobRestartStrategy;
 import com.dtstack.rdos.engine.execution.sparkyarn.enums.ExceptionInfoConstrant;
 import com.dtstack.rdos.engine.execution.sparkyarn.restart.SparkUndoRestart;
+import com.dtstack.rods.engine.execution.base.resource.EngineResourceInfo;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

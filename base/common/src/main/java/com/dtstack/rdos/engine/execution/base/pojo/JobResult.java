@@ -23,7 +23,7 @@ public class JobResult {
 
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    private boolean isErr;
+    private boolean checkRetry;
 
     public static final String JOB_ID_KEY = "jobid";
 
@@ -33,14 +33,21 @@ public class JobResult {
 
     private JSONObject json = new JSONObject();
 
-    public static JobResult newInstance(boolean isErr){
+    public static JobResult newInstance(boolean checkRetry){
         JobResult result = new JobResult();
-        result.isErr = isErr;
+        result.checkRetry = checkRetry;
         return  result;
     }
 
     public static JobResult createErrorResult(Throwable e){
         JobResult jobResult = JobResult.newInstance(true);
+        String errMsg = ExceptionUtil.getErrorMessage(e);
+        jobResult.setData(MSG_INFO, addTimeForMsg(errMsg));
+        return jobResult;
+    }
+
+    public static JobResult createErrorResult(boolean checkRetry, Throwable e){
+        JobResult jobResult = JobResult.newInstance(checkRetry);
         String errMsg = ExceptionUtil.getErrorMessage(e);
         jobResult.setData(MSG_INFO, addTimeForMsg(errMsg));
         return jobResult;
@@ -112,12 +119,12 @@ public class JobResult {
         return json.toString();
     }
 
-    public boolean isErr() {
-        return isErr;
+    public boolean getCheckRetry() {
+        return checkRetry;
     }
 
-    public void setErr(boolean err) {
-        isErr = err;
+    public void setCheckRetry(boolean checkRetry) {
+        this.checkRetry = checkRetry;
     }
 
     @Override

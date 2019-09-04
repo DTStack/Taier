@@ -13,7 +13,7 @@ import com.dtstack.rdos.engine.execution.base.JobParam;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
+import com.dtstack.rods.engine.execution.base.resource.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
 import com.dtstack.rdos.engine.execution.spark160.sparkyarn.parser.AddJarOperator;
@@ -23,7 +23,6 @@ import com.dtstack.rdos.engine.execution.spark160.sparkyarn.util.KerberosUtils;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
@@ -33,7 +32,6 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.spark.SparkConf;
-import org.apache.spark.deploy.yarn.Client;
 import org.apache.spark.deploy.yarn.ClientArguments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +39,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class SparkYarnClient extends AbsClient {
 
@@ -527,62 +524,20 @@ public class SparkYarnClient extends AbsClient {
     }
 
     @Override
-    public EngineResourceInfo getAvailSlots() {
+    public boolean judgeSlots(JobClient jobClient) {
 
-        SparkYarnResourceInfo resourceInfo = new SparkYarnResourceInfo();
         if (sparkYarnConfig.isSecurity()){
             initSecurity();
         }
+        SparkYarnResourceInfo resourceInfo = new SparkYarnResourceInfo();
         try {
-            EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
-            enumSet.add(YarnApplicationState.ACCEPTED);
-            List<ApplicationReport> acceptedApps = yarnClient.getApplications(enumSet).stream().
-                    filter(report->report.getQueue().endsWith(sparkYarnConfig.getQueue())).collect(Collectors.toList());
-            if (acceptedApps.size() > sparkYarnConfig.getYarnAccepterTaskNumber()){
-                logger.warn("yarn insufficient resources, pending task submission");
-                return resourceInfo;
-            }
-            List<NodeReport> nodeReports = yarnClient.getNodeReports(NodeState.RUNNING);
-            float capacity = 1;
-            if (!sparkYarnConfig.getElasticCapacity()){
-                capacity = getQueueRemainCapacity(1,yarnClient.getRootQueueInfos());
-            }
-            resourceInfo.setCapacity(capacity);
-            for(NodeReport report : nodeReports){
-                Resource capability = report.getCapability();
-                Resource used = report.getUsed();
-                int totalMem = capability.getMemory();
-                int totalCores = capability.getVirtualCores();
-                int usedMem = used.getMemory();
-                int usedCores = used.getVirtualCores();
-                int freeCores = totalCores - usedCores;
-                int freeMem = totalMem - usedMem;
-
-                resourceInfo.addNodeResource(new EngineResourceInfo.NodeResourceDetail(report.getNodeId().toString(), totalCores,usedCores,freeCores, totalMem,usedMem,freeMem));
-
-            }
+            resourceInfo.getYarnSlots(yarnClient, sparkYarnConfig.getQueue(), sparkYarnConfig.getYarnAccepterTaskNumber());
+            return resourceInfo.judgeSlots(jobClient);
         } catch (Exception e) {
             logger.error("", e);
+            return false;
         }
 
-        return resourceInfo;
-    }
-
-    private float getQueueRemainCapacity(float coefficient, List<QueueInfo> queueInfos){
-        float capacity = 0;
-        for (QueueInfo queueInfo : queueInfos){
-            if (CollectionUtils.isNotEmpty(queueInfo.getChildQueues())) {
-                float subCoefficient = queueInfo.getCapacity() * coefficient;
-                capacity = getQueueRemainCapacity(subCoefficient, queueInfo.getChildQueues());
-            }
-            if (sparkYarnConfig.getQueue().equals(queueInfo.getQueueName())){
-                capacity = coefficient * queueInfo.getCapacity() * (1 - queueInfo.getCurrentCapacity());
-            }
-            if (capacity>0){
-                return capacity;
-            }
-        }
-        return 1;
     }
 
     public void setHadoopUserName(SparkYarnConfig sparkYarnConfig){

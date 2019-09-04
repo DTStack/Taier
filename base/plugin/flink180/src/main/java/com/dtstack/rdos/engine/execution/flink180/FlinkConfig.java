@@ -17,11 +17,11 @@ public class FlinkConfig {
 
     private static final String DEFAULT_REMOTE_PLUGIN_ROOT_DIR = "/opt/dtstack/flinkplugin";
 
-    private static final String DEFAULT_FLINK_ZK_NAMESPACE = "/flink180";
+    private static final String DEFAULT_FLINK_ZK_NAMESPACE = "/flink170";
 
-    private static final String DEFAULT_JAR_TMP_DIR = "../tmp180";
+    private static final String DEFAULT_JAR_TMP_DIR = "../tmp170";
 
-    private static final String DEFAULT_FLINK_HIGH_AVAILABILITY_STORAGE_DIR = "%s/flink180/ha";
+    private static final String DEFAULT_FLINK_HIGH_AVAILABILITY_STORAGE_DIR = "%s/flink170/ha";
 
     private static final String HDFS_FLAG = "hdfs";
 
@@ -82,6 +82,11 @@ public class FlinkConfig {
     private int flinkSessionSlotCount;
 
     private String flinkSessionName = "Flink session";
+
+    private boolean yarnSessionStartAuto = true;
+
+    private transient FlinkPrometheusGatewayConfig prometheusGatewayConfig;
+
 
     public String getZkLoginName() {
         return zkLoginName;
@@ -349,5 +354,21 @@ public class FlinkConfig {
 
     public void setFlinkSessionName(String flinkSessionName) {
         this.flinkSessionName = flinkSessionName;
+    }
+
+    public boolean getYarnSessionStartAuto() {
+        return yarnSessionStartAuto;
+    }
+
+    public void setYarnSessionStartAuto(boolean yarnSessionStartAuto) {
+        this.yarnSessionStartAuto = yarnSessionStartAuto;
+    }
+
+    public FlinkPrometheusGatewayConfig getPrometheusGatewayConfig() {
+        return prometheusGatewayConfig;
+    }
+
+    public void setPrometheusGatewayConfig(FlinkPrometheusGatewayConfig prometheusGatewayConfig) {
+        this.prometheusGatewayConfig = prometheusGatewayConfig;
     }
 }

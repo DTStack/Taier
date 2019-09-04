@@ -157,8 +157,15 @@ public class RdbsExeQueue {
 
         private AtomicBoolean isCancel = new AtomicBoolean(false);
 
+        private String taskParams;
+
         public RdbsExe(String jobName, String sql, String jobId){
+             this(jobName, sql, jobId, null);
+        }
+
+        public RdbsExe(String jobName, String sql, String jobId, String taskParams){
             this.jobName = jobName;
+            this.taskParams = taskParams;
             if (connFactory.supportProcedure()) {
                 jobSqlProc =  createSqlProc(sql, jobName, jobId);
             } else {
@@ -172,7 +179,7 @@ public class RdbsExeQueue {
             boolean exeResult = false;
 
             try {
-                conn = connFactory.getConn();
+                conn = StringUtils.isEmpty(taskParams) ? connFactory.getConn() : connFactory.getConnByTaskParams(taskParams);
 
                 if(isCancel.get()){
                     LOG.info("job:{} is canceled", jobName);
@@ -346,7 +353,7 @@ public class RdbsExeQueue {
                     String sql = jobClient.getSql();
                     String jobId = jobClient.getTaskId();
 
-                    RdbsExe rdbsExe = new RdbsExe(taskName, sql, jobId);
+                    RdbsExe rdbsExe = new RdbsExe(taskName, sql, jobId, jobClient.getTaskParams());
                     try{
                         jobExecutor.submit(rdbsExe);
                         threadCache.put(jobId, rdbsExe);

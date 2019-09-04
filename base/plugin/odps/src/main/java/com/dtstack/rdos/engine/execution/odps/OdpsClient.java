@@ -8,7 +8,7 @@ import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobIdentifier;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
+import com.dtstack.rods.engine.execution.base.resource.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.odps.util.OdpsUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -197,8 +197,8 @@ public class OdpsClient extends AbsClient {
     }
 
     @Override
-    public EngineResourceInfo getAvailSlots() {
-        return resourceInfo;
+    public boolean judgeSlots(JobClient jobClient) {
+        return resourceInfo.judgeSlots(jobClient);
     }
 
     private boolean hasLog(String jobId) {

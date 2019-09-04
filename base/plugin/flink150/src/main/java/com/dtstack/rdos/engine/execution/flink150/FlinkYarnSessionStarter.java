@@ -36,47 +36,47 @@ public class FlinkYarnSessionStarter {
     private FlinkConfig flinkConfig;
     private InterProcessMutex clusterClientLock;
 
-    public FlinkYarnSessionStarter(FlinkClientBuilder flinkClientBuilder, FlinkConfig flinkConfig, FlinkPrometheusGatewayConfig metricConfig) throws MalformedURLException {
+    public FlinkYarnSessionStarter(FlinkClientBuilder flinkClientBuilder, FlinkConfig flinkConfig) throws MalformedURLException {
         this.flinkClientBuilder = flinkClientBuilder;
         this.flinkConfig = flinkConfig;
         lockPath = String.format("%s/client/%s", flinkConfig.getFlinkZkNamespace(), flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue());
 
-        initZk();
-
         String clusterId = flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue();
 
-        this.yarnSessionDescriptor = flinkClientBuilder.createClusterDescriptorByMode(flinkConfig, metricConfig, null, false);
+        this.yarnSessionDescriptor = flinkClientBuilder.createClusterDescriptorByMode(null, false);
         this.yarnSessionDescriptor.setName(flinkConfig.getFlinkSessionName() + ConfigConstrant.SPLIT + clusterId);
         this.yarnSessionSpecification = FLinkConfUtil.createYarnSessionSpecification(flinkClientBuilder.getFlinkConfiguration());
+
+        initZk();
         this.clusterClientLock = new InterProcessMutex(zkClient, lockPath);
     }
 
-    public void startFlinkYarnSession() {
+    public boolean startFlinkYarnSession() {
         try {
             this.clusterClientLock.acquire();
 
             ClusterClient<ApplicationId> retrieveClusterClient = null;
             try {
-                retrieveClusterClient = flinkClientBuilder.initYarnClusterClient(flinkConfig);
+                retrieveClusterClient = flinkClientBuilder.initYarnClusterClient();
             } catch (Exception e) {
                 logger.error("{}", e);
-                if (!e.getMessage().startsWith("No flink session")) {
-                    System.exit(-1);
-                }
             }
 
             if (retrieveClusterClient != null) {
                 clusterClient = retrieveClusterClient;
                 logger.info("retrieve flink client with yarn session success");
-                return;
+                return true;
             }
 
-            try {
-                clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification);
-                clusterClient.setDetached(true);
-            } catch (FlinkException e) {
-                logger.info("Couldn't deploy Yarn session cluster, {}", e);
-                throw e;
+            if (flinkConfig.getYarnSessionStartAuto()) {
+                try {
+                    clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification);
+                    clusterClient.setDetached(true);
+                    return true;
+                } catch (FlinkException e) {
+                    logger.info("Couldn't deploy Yarn session cluster, {}", e);
+                    throw e;
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException("Couldn't deploy Yarn session cluster" + e.getMessage());
@@ -89,6 +89,8 @@ public class FlinkYarnSessionStarter {
                 }
             }
         }
+
+        return false;
     }
 
     public void stopFlinkYarnSession() {

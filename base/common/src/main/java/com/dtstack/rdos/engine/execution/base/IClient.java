@@ -1,7 +1,6 @@
 package com.dtstack.rdos.engine.execution.base;
 
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.restart.ARestartService;
 
@@ -32,7 +31,7 @@ public interface IClient {
 
 	String getJobLog(JobIdentifier jobIdentifier);
 
-	EngineResourceInfo getAvailSlots();
+	boolean judgeSlots(JobClient jobClient);
 
 	List<String> getContainerInfos(JobIdentifier jobIdentifier);
 

@@ -9,19 +9,15 @@ import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobIdentifier;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
+import com.dtstack.rods.engine.execution.base.resource.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.learning.client.Client;
 import com.google.gson.Gson;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
-import org.apache.hadoop.yarn.api.records.NodeReport;
-import org.apache.hadoop.yarn.api.records.QueueInfo;
-import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.slf4j.Logger;
@@ -29,13 +25,10 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.stream.Collectors;
 
 /**
  * xlearning客户端
@@ -192,58 +185,16 @@ public class LearningClient extends AbsClient {
     }
 
     @Override
-    public EngineResourceInfo getAvailSlots() {
+    public boolean judgeSlots(JobClient jobClient) {
         LearningResourceInfo resourceInfo = new LearningResourceInfo();
+        resourceInfo.setElasticCapacity(conf.getBoolean(LearningConfiguration.DT_APP_ELASTIC_CAPACITY, false));
         try {
-            EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
-            enumSet.add(YarnApplicationState.ACCEPTED);
-            List<ApplicationReport> acceptedApps = client.getYarnClient().getApplications(enumSet).stream().
-                    filter(report->report.getQueue().endsWith(conf.get(LearningConfiguration.LEARNING_APP_QUEUE))).collect(Collectors.toList());
-            if (acceptedApps.size() > conf.getInt(LearningConfiguration.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1)){
-                LOG.warn("yarn insufficient resources, pending task submission");
-                return resourceInfo;
-            }
-            List<NodeReport> nodeReports = client.getNodeReports();
-            float capacity = 1;
-            if (!conf.getBoolean(LearningConfiguration.DT_APP_ELASTIC_CAPACITY, true)){
-                capacity = getQueueRemainCapacity(1,client.getYarnClient().getRootQueueInfos());
-            }
-            resourceInfo.setCapacity(capacity);
-            for(NodeReport report : nodeReports){
-                Resource capability = report.getCapability();
-                Resource used = report.getUsed();
-                int totalMem = capability.getMemory();
-                int totalCores = capability.getVirtualCores();
-                int usedMem = used.getMemory();
-                int usedCores = used.getVirtualCores();
-
-                int freeCores = totalCores - usedCores;
-                int freeMem = totalMem - usedMem;
-
-                resourceInfo.addNodeResource(new EngineResourceInfo.NodeResourceDetail(report.getNodeId().toString(), totalCores,usedCores,freeCores, totalMem,usedMem,freeMem));
-            }
+            resourceInfo.getYarnSlots(client.getYarnClient(), conf.get(LearningConfiguration.LEARNING_APP_QUEUE), conf.getInt(LearningConfiguration.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1));
+            return resourceInfo.judgeSlots(jobClient);
         } catch (Exception e) {
             LOG.error("", e);
+            return false;
         }
-
-        return resourceInfo;
-    }
-
-    private float getQueueRemainCapacity(float coefficient, List<QueueInfo> queueInfos){
-        float capacity = 0;
-        for (QueueInfo queueInfo : queueInfos){
-            if (CollectionUtils.isNotEmpty(queueInfo.getChildQueues())) {
-                float subCoefficient = queueInfo.getCapacity() * coefficient;
-                capacity = getQueueRemainCapacity(subCoefficient, queueInfo.getChildQueues());
-            }
-            if (queueInfo.getQueueName().equals(conf.get(LearningConfiguration.LEARNING_APP_QUEUE))){
-                capacity = coefficient * queueInfo.getCapacity() * (1 - queueInfo.getCurrentCapacity());
-            }
-            if (capacity>0){
-                return capacity;
-            }
-        }
-        return capacity;
     }
 
     @Override

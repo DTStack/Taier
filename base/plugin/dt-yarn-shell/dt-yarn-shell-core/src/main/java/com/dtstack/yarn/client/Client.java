@@ -369,10 +369,6 @@ public class Client {
         return yarnClient.getApplicationReport(appId);
     }
 
-    public List<NodeReport> getNodeReports() throws IOException, YarnException {
-        return yarnClient.getNodeReports(NodeState.RUNNING);
-    }
-
     public YarnClient getYarnClient() {
         return yarnClient;
     }

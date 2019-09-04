@@ -1,9 +1,7 @@
 package com.dtstack.rdos.engine.execution.flink150.constrant;
 
-import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
-import com.dtstack.rdos.engine.execution.flink150.restart.FlinkAddMemoryRestart;
+import com.dtstack.rods.engine.execution.base.resource.EngineResourceInfo;
 import com.google.common.collect.Lists;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +33,7 @@ public class ExceptionInfoConstrant {
     public final static String  LEASE_EXPIRED_UNDO_RESTART_EXCEPTION = "org.apache.hadoop.ipc.RemoteException(org.apache.hadoop.hdfs.server.namenode.LeaseExpiredException)";
     public final static String  AKKA_ASK_TIMEOUT_UNDO_RESTART_EXCEPTION = "akka.pattern.AskTimeoutException";
     public final static String FLINK_NO_RESOURCE_AVAILABLE_UNDO_RESTART_EXCEPTION = "org.apache.flink.runtime.jobmanager.scheduler.NoResourceAvailableException:";
+    public final static String FLINK_METASPACE_OOM_UNDO_RESTART_EXCEPTION = "java.lang.OutOfMemoryError: Metaspace";
 
 
     private static List<String> needAddMemoryRestartExceptions = Lists.newArrayList();

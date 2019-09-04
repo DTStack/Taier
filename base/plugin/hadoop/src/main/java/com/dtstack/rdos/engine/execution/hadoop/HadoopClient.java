@@ -10,7 +10,7 @@ import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobIdentifier;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
+import com.dtstack.rods.engine.execution.base.resource.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.hadoop.parser.AddJarOperator;
 import com.dtstack.rdos.engine.execution.hadoop.util.HadoopConf;
@@ -219,8 +219,8 @@ public class HadoopClient extends AbsClient {
     }
 
     @Override
-    public EngineResourceInfo getAvailSlots() {
-        return new HadoopResourceInfo();
+    public boolean judgeSlots(JobClient jobClient) {
+        return resourceInfo.judgeSlots(jobClient);
     }
 
     @Override

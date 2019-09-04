@@ -23,6 +23,12 @@
 
         <dependency>
             <groupId>com.dtstack.rdos</groupId>
+            <artifactId>plugin.base</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.dtstack.rdos</groupId>
             <artifactId>dt-yarn-shell-core</artifactId>
             <version>1.0.0</version>
             <exclusions>

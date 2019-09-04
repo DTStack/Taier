@@ -1,8 +1,6 @@
 package com.dtstack.rdos.engine.execution.flink170.util;
 
 import com.dtstack.rdos.common.util.MathUtil;
-import com.dtstack.rdos.engine.execution.flink170.FlinkClient;
-import com.dtstack.rdos.engine.execution.flink170.FlinkPerJobResourceInfo;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.configuration.ConfigConstants;
 import org.apache.flink.configuration.Configuration;
@@ -11,6 +9,8 @@ import org.apache.flink.configuration.TaskManagerOptions;
 
 import java.util.Properties;
 
+import static com.dtstack.rdos.engine.execution.flink170.constrant.ConfigConstrant.*;
+
 /**
  * company: www.dtstack.com
  * author: toutian
@@ -18,36 +18,43 @@ import java.util.Properties;
  */
 public class FLinkConfUtil {
 
-    public static ClusterSpecification createClusterSpecification(Configuration configuration, int priority) {
-        Properties confProperties = FlinkClient.jobClientThreadLocal.get().getConfProperties();
+    public static ClusterSpecification createClusterSpecification(Configuration configuration, int priority, Properties confProperties) {
         int jobmanagerMemoryMb = 1024;
         int taskmanagerMemoryMb = 1024;
         int numberTaskManagers = 1;
         int slotsPerTaskManager = 1;
         if (confProperties != null) {
-            if (confProperties.containsKey(FlinkPerJobResourceInfo.JOBMANAGER_MEMORY_MB)){
-                jobmanagerMemoryMb = MathUtil.getIntegerVal(confProperties.get(FlinkPerJobResourceInfo.JOBMANAGER_MEMORY_MB));
-                if (jobmanagerMemoryMb < FlinkPerJobResourceInfo.MIN_JM_MEMORY) {
-                    jobmanagerMemoryMb = FlinkPerJobResourceInfo.MIN_JM_MEMORY;
+            if (confProperties.containsKey(JOBMANAGER_MEMORY_MB)){
+                jobmanagerMemoryMb = MathUtil.getIntegerVal(confProperties.get(JOBMANAGER_MEMORY_MB));
+                if (jobmanagerMemoryMb < MIN_JM_MEMORY) {
+                    jobmanagerMemoryMb = MIN_JM_MEMORY;
                 }
             }
-            if (confProperties.containsKey(FlinkPerJobResourceInfo.TASKMANAGER_MEMORY_MB)){
-                taskmanagerMemoryMb = MathUtil.getIntegerVal(confProperties.get(FlinkPerJobResourceInfo.TASKMANAGER_MEMORY_MB));
-                if (taskmanagerMemoryMb < FlinkPerJobResourceInfo.MIN_TM_MEMORY) {
-                    taskmanagerMemoryMb = FlinkPerJobResourceInfo.MIN_TM_MEMORY;
+            if (confProperties.containsKey(TASKMANAGER_MEMORY_MB)){
+                taskmanagerMemoryMb = MathUtil.getIntegerVal(confProperties.get(TASKMANAGER_MEMORY_MB));
+                if (taskmanagerMemoryMb < MIN_TM_MEMORY) {
+                    taskmanagerMemoryMb = MIN_TM_MEMORY;
                 }
             }
-            if (confProperties.containsKey(FlinkPerJobResourceInfo.CONTAINER)){
-                numberTaskManagers = MathUtil.getIntegerVal(confProperties.get(FlinkPerJobResourceInfo.CONTAINER));
+            if (confProperties.containsKey(SLOTS)){
+                slotsPerTaskManager = MathUtil.getIntegerVal(confProperties.get(SLOTS));
             }
-            if (confProperties.containsKey(FlinkPerJobResourceInfo.SLOTS)){
-                slotsPerTaskManager = MathUtil.getIntegerVal(confProperties.get(FlinkPerJobResourceInfo.SLOTS));
+
+            Integer sqlParallelism = FlinkUtil.getEnvParallelism(confProperties);
+            Integer jobParallelism = FlinkUtil.getJobParallelism(confProperties);
+            int parallelism = Math.max(sqlParallelism, jobParallelism);
+
+            if (confProperties.containsKey(CONTAINER)){
+                numberTaskManagers = MathUtil.getIntegerVal(confProperties.get(CONTAINER));
             }
+            numberTaskManagers = Math.max(numberTaskManagers, parallelism);
+
             return new ClusterSpecification.ClusterSpecificationBuilder()
                     .setMasterMemoryMB(jobmanagerMemoryMb)
                     .setTaskManagerMemoryMB(taskmanagerMemoryMb)
                     .setNumberTaskManagers(numberTaskManagers)
                     .setSlotsPerTaskManager(slotsPerTaskManager)
+                    .setParallelism(parallelism)
                     .setPriority(priority)
                     .createClusterSpecification();
         }
@@ -65,11 +72,14 @@ public class FLinkConfUtil {
 
         int slotsPerTaskManager = configuration.getInteger(ConfigConstants.TASK_MANAGER_NUM_TASK_SLOTS, 1);
 
+        int defaultParallelism = configuration.getInteger(ConfigConstants.DEFAULT_PARALLELISM_KEY, 1);
+
         return new ClusterSpecification.ClusterSpecificationBuilder()
                 .setMasterMemoryMB(jobManagerMemoryMB)
                 .setTaskManagerMemoryMB(taskManagerMemoryMB)
                 .setNumberTaskManagers(numberTaskManagers)
                 .setSlotsPerTaskManager(slotsPerTaskManager)
+                .setParallelism(defaultParallelism)
                 .createClusterSpecification();
     }
 
