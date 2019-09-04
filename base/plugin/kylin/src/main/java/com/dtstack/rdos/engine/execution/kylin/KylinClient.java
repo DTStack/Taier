@@ -6,7 +6,7 @@ import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobIdentifier;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
+import com.dtstack.rods.engine.execution.base.resource.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.kylin.enums.EKylinJobStatus;
 import com.google.gson.*;
@@ -209,13 +209,8 @@ public class KylinClient extends AbsClient {
     }
 
     @Override
-    public EngineResourceInfo getAvailSlots(JobClient jobClient) {
-        return new EngineResourceInfo() {
-            @Override
-            public boolean judgeSlots(JobClient jobClient) {
-                return hasResource();
-            }
-        };
+    public boolean judgeSlots(JobClient jobClient) {
+        return hasResource();
     }
 
     private boolean hasResource(){

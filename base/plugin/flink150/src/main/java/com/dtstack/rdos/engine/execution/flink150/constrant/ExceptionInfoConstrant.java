@@ -1,9 +1,7 @@
 package com.dtstack.rdos.engine.execution.flink150.constrant;
 
-import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
-import com.dtstack.rdos.engine.execution.flink150.restart.FlinkAddMemoryRestart;
+import com.dtstack.rods.engine.execution.base.resource.EngineResourceInfo;
 import com.google.common.collect.Lists;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

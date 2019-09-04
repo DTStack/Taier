@@ -4,17 +4,21 @@ package com.dtstack.rdos.engine.execution.yarnshell;
 import com.dtstack.rdos.commom.exception.ErrorCode;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
+import com.dtstack.rods.engine.execution.base.resource.AbstractYarnResourceInfo;
 import com.dtstack.yarn.client.ClientArguments;
+import com.google.common.collect.Lists;
+
+import java.util.List;
 
 
 /**
  * 用于存储从dt-yarn-shell上获取的资源信息
  * Date: 2018/9/14
  * Company: www.dtstack.com
+ *
  * @author jingzhen
  */
-public class DtYarnShellResourceInfo extends EngineResourceInfo {
+public class DtYarnShellResourceInfo extends AbstractYarnResourceInfo {
 
 
     @Override
@@ -27,35 +31,28 @@ public class DtYarnShellResourceInfo extends EngineResourceInfo {
             throw new RdosException(ErrorCode.INVALID_PARAMETERS, e);
         }
 
+        int amCores = clientArguments.getAmCores();
+        int amMem = clientArguments.getAmMem();
+
         int workerCores = clientArguments.getWorkerVCores();
         int workerMem = clientArguments.getWorkerMemory();
         int workerNum = clientArguments.getWorkerNum();
 
-        int psCores = clientArguments.getPsVCores();
-        int psMem = clientArguments.getPsMemory();
-        int psNum = clientArguments.getPsNum();
-
-        return this.judgeResource(workerNum, workerCores, workerMem, psNum, psCores, psMem);
+        return this.judgeResource(amCores, amMem, workerNum, workerCores, workerMem);
     }
 
-    private boolean judgeResource(int workerNum, int workerCores, int workerMem, int psNum, int psCores, int psMem) {
+    private boolean judgeResource(int amCores, int amMem, int workerNum, int workerCores, int workerMem) {
         if (workerNum == 0 || workerMem == 0 || workerCores == 0) {
-            throw new RdosException(LIMIT_RESOURCE_ERROR + "Yarn task resource configuration error，instance：" + workerNum + ", coresPerInstance：" + workerCores + ", memPerInstance：" + workerMem);
+            throw new RdosException(LIMIT_RESOURCE_ERROR + "Yarn task resource configuration error，" +
+                    "instance：" + workerNum + ", coresPerInstance：" + workerCores + ", memPerInstance：" + workerMem);
         }
-        calc();
         if (totalFreeCore == 0 || totalFreeMem == 0) {
             return false;
         }
-        int instanceTotalCore = workerNum * workerCores + psNum * psCores;
-        if (!judgeCores(1, instanceTotalCore, totalFreeCore, totalCore)) {
-            return false;
-        }
-        if (!judgeMem(workerNum, workerMem, totalFreeMem, totalMem)) {
-            return false;
-        }
-        if (!judgeMem(psNum, psMem, totalFreeMem, totalMem)) {
-            return false;
-        }
-        return true;
+
+        List<InstanceInfo> instanceInfos = Lists.newArrayList(
+                InstanceInfo.newRecord(1, amCores, amMem),
+                InstanceInfo.newRecord(workerNum, workerCores, workerMem));
+        return judgeYarnResource(instanceInfos);
     }
 }
