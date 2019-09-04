@@ -189,6 +189,7 @@ public class RdbsExeQueue {
                 }
 
                 simpleStmt = conn.createStatement();
+                logStore.updateStatus(engineJobId, RdosTaskStatus.RUNNING.getStatus());
                 for(String sql : sqlList) {
                     LOG.info("job {}, now execte sql... {} ", engineJobId, sql);
                     simpleStmt.execute(sql);
