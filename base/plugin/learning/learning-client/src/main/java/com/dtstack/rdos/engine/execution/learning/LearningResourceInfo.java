@@ -53,8 +53,10 @@ public class LearningResourceInfo extends AbstractYarnResourceInfo {
 
         List<InstanceInfo> instanceInfos = Lists.newArrayList(
                 InstanceInfo.newRecord(1, amCores, amMem),
-                InstanceInfo.newRecord(workerNum, workerCores, workerMem),
-                InstanceInfo.newRecord(psNum, psCores, psMem));
+                InstanceInfo.newRecord(workerNum, workerCores, workerMem));
+        if (psNum > 0) {
+            instanceInfos.add(InstanceInfo.newRecord(psNum, psCores, psMem));
+        }
         return judgeYarnResource(instanceInfos);
     }
 }
