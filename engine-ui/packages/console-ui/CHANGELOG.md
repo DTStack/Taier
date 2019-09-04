@@ -1,13 +1,20 @@
-# Changelog
+# Change Log
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-## [3.8.0-beta.1.8](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.8.0-beta.1.7...3.8.0-beta.1.8) (2019-09-03)
+<a name="3.8.0-beta.1.9"></a>
+# [3.8.0-beta.1.9](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.8.0-beta.1.8...3.8.0-beta.1.9) (2019-09-04)
 
 
 ### Bug Fixes
 
-* **stream:** fix stream columns style ([9f1643e](http://git.dtstack.cn/dtstack/data-stack-web/commit/9f1643e)), closes [#18571](http://redmine.prod.dtstack.cn/issues/18571)
+* **batch workbench:** replace localStorage with indexedDB for workbench ([3441acd](http://git.dtstack.cn/dtstack/data-stack-web/commits/3441acd)), closes [#18578](http://redmine.prod.dtstack.cn/issues/18578)
+* remove delete cmd ([c17b3fd](http://git.dtstack.cn/dtstack/data-stack-web/commits/c17b3fd))
+
+
+### Features
+
+* **indexedDB:** add indexedDB module ([025b2e4](http://git.dtstack.cn/dtstack/data-stack-web/commits/025b2e4))
 
 
 

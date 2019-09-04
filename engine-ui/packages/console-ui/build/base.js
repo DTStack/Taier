@@ -98,6 +98,7 @@ module.exports = function () {
             extensions: [".ts", ".tsx", ".js", ".jsx", ".scss", ".css"], //后缀名自动补全
             alias: {
                 // 全局公共模块目录
+                database: path.resolve(MY_PATH.APP_PATH, "database"), // 数据存储
                 utils: path.resolve(MY_PATH.APP_PATH, "utils"), // 工具文件夹
                 widgets: path.resolve(MY_PATH.APP_PATH, "widgets"), // 工具文件夹
                 consts: path.resolve(MY_PATH.APP_PATH, "consts"), // 工具文件夹
