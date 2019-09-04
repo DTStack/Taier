@@ -2,12 +2,12 @@ package com.dtstack.rdos.engine.execution.flink180;
 
 import com.dtstack.rdos.engine.execution.base.IClient;
 import com.dtstack.rdos.engine.execution.base.JobIdentifier;
-import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.restart.ARestartService;
 import com.dtstack.rdos.engine.execution.base.restart.IJobRestartStrategy;
 import com.dtstack.rdos.engine.execution.flink180.constrant.ExceptionInfoConstrant;
 import com.dtstack.rdos.engine.execution.flink180.restart.FlinkAddMemoryRestart;
 import com.dtstack.rdos.engine.execution.flink180.restart.FlinkUndoRestart;
+import com.dtstack.rods.engine.execution.base.resource.EngineResourceInfo;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
