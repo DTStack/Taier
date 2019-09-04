@@ -103,27 +103,8 @@ public abstract class ConnFactory {
         return conn;
     }
 
-    public Connection getConnByTaskParams(String taskParams) throws ClassNotFoundException, SQLException, IOException {
-        Properties properties =  new Properties();
-        Connection conn;
-
-        if (StringUtils.isNotEmpty(taskParams)) {
-            for (String str : taskParams.split("\n")) {
-                String[] keyAndVal = str.split("=");
-                if (keyAndVal.length > 1) {
-                    properties.setProperty(keyAndVal[0], keyAndVal[1]);
-                }
-            }
-        }
-
-        if (userName == null) {
-            conn = DriverManager.getConnection(dbURL, properties);
-        } else {
-            properties.setProperty(ConfigConstant.JDBC_USER_NAME_KEY, userName);
-            properties.setProperty(ConfigConstant.JDBC_PASSWORD_KEY, pwd);
-            conn = DriverManager.getConnection(dbURL, properties);
-        }
-        return conn;
+    public Connection getConnByTaskParams(String taskParams, String jobName) throws ClassNotFoundException, SQLException, IOException {
+        return getConn();
     }
 
 
@@ -145,5 +126,22 @@ public abstract class ConnFactory {
 
     public String getDropProc(String procName) {
         return String.format("DROP PROCEDURE \"%s\"", procName);
+    }
+
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getPwd() {
+        return pwd;
+    }
+
+    public void setPwd(String pwd) {
+        this.pwd = pwd;
     }
 }
