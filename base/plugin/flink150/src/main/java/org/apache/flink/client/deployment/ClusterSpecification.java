@@ -53,11 +53,12 @@ public final class ClusterSpecification {
     private boolean createProgramDelay = false;
     private PackagedProgram program;
 
-    private ClusterSpecification(int masterMemoryMB, int taskManagerMemoryMB, int numberTaskManagers, int slotsPerTaskManager, int priority) {
+    private ClusterSpecification(int masterMemoryMB, int taskManagerMemoryMB, int numberTaskManagers, int slotsPerTaskManager, int parallelism, int priority) {
         this.masterMemoryMB = masterMemoryMB;
         this.taskManagerMemoryMB = taskManagerMemoryMB;
         this.numberTaskManagers = numberTaskManagers;
         this.slotsPerTaskManager = slotsPerTaskManager;
+        this.parallelism = parallelism;
         this.priority = priority;
     }
 
@@ -202,6 +203,7 @@ public final class ClusterSpecification {
         private int taskManagerMemoryMB = 768;
         private int numberTaskManagers = 1;
         private int slotsPerTaskManager = 1;
+        private int parallelism = 1;
         private int priority = 0;
 
         public ClusterSpecificationBuilder setMasterMemoryMB(int masterMemoryMB) {
@@ -229,12 +231,18 @@ public final class ClusterSpecification {
             return this;
         }
 
+        public ClusterSpecificationBuilder setParallelism(int parallelism) {
+            this.parallelism = parallelism;
+            return this;
+        }
+
         public ClusterSpecification createClusterSpecification() {
             return new ClusterSpecification(
                     masterMemoryMB,
                     taskManagerMemoryMB,
                     numberTaskManagers,
                     slotsPerTaskManager,
+                    parallelism,
                     priority);
         }
     }

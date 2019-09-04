@@ -250,15 +250,11 @@ public class FlinkClient extends AbsClient {
             return JobResult.createErrorResult(e);
         }
 
-        //只有当程序本身没有指定并行度的时候该参数才生效
-        Integer runParallelism = FlinkUtil.getJobParallelism(jobClient.getConfProperties());
-
         try {
             Pair<String, String> runResult;
             if(FlinkYarnMode.isPerJob(taskRunMode)){
                 ClusterSpecification clusterSpecification = FLinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration(), jobClient.getJobPriority(), jobClient.getConfProperties());
                 clusterSpecification.setConfiguration(flinkClientBuilder.getFlinkConfiguration());
-                clusterSpecification.setParallelism(runParallelism);
                 clusterSpecification.setClasspaths(classPaths);
                 clusterSpecification.setEntryPointClass(entryPointClass);
                 clusterSpecification.setJarFile(jarFile);
@@ -271,6 +267,8 @@ public class FlinkClient extends AbsClient {
 
                 packagedProgram = clusterSpecification.getProgram();
             } else {
+                //只有当程序本身没有指定并行度的时候该参数才生效
+                Integer runParallelism = FlinkUtil.getJobParallelism(jobClient.getConfProperties());
                 runResult = runJobByYarnSession(packagedProgram,runParallelism);
             }
 

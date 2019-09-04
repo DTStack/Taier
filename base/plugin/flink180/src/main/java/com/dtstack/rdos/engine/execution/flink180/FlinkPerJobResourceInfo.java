@@ -2,6 +2,7 @@ package com.dtstack.rdos.engine.execution.flink180;
 
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.flink180.util.FlinkUtil;
 import com.dtstack.rods.engine.execution.base.resource.AbstractYarnResourceInfo;
 import com.google.common.collect.Lists;
 
@@ -43,9 +44,14 @@ public class FlinkPerJobResourceInfo extends AbstractYarnResourceInfo {
         if (properties != null && properties.containsKey(SLOTS)) {
             slotsPerTaskManager = MathUtil.getIntegerVal(properties.get(SLOTS));
         }
+
+        Integer sqlParallelism = FlinkUtil.getEnvParallelism(jobClient.getConfProperties());
+        Integer jobParallelism = FlinkUtil.getJobParallelism(jobClient.getConfProperties());
+        int parallelism = Math.max(sqlParallelism, jobParallelism);
         if (properties != null && properties.containsKey(CONTAINER)) {
             numberTaskManagers = MathUtil.getIntegerVal(properties.get(CONTAINER));
         }
+        numberTaskManagers = Math.max(numberTaskManagers, parallelism);
 
         if (properties != null && properties.containsKey(JOBMANAGER_MEMORY_MB)) {
             jobmanagerMemoryMb = MathUtil.getIntegerVal(properties.get(JOBMANAGER_MEMORY_MB));

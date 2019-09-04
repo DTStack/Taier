@@ -1,7 +1,6 @@
 package com.dtstack.rdos.engine.execution.flink150.util;
 
 import com.dtstack.rdos.common.util.MathUtil;
-import com.dtstack.rdos.engine.execution.flink150.FlinkClient;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.configuration.ConfigConstants;
 import org.apache.flink.configuration.Configuration;
@@ -37,17 +36,25 @@ public class FLinkConfUtil {
                     taskmanagerMemoryMb = MIN_TM_MEMORY;
                 }
             }
-            if (confProperties.containsKey(CONTAINER)){
-                numberTaskManagers = MathUtil.getIntegerVal(confProperties.get(CONTAINER));
-            }
             if (confProperties.containsKey(SLOTS)){
                 slotsPerTaskManager = MathUtil.getIntegerVal(confProperties.get(SLOTS));
             }
+
+            Integer sqlParallelism = FlinkUtil.getEnvParallelism(confProperties);
+            Integer jobParallelism = FlinkUtil.getJobParallelism(confProperties);
+            int parallelism = Math.max(sqlParallelism, jobParallelism);
+
+            if (confProperties.containsKey(CONTAINER)){
+                numberTaskManagers = MathUtil.getIntegerVal(confProperties.get(CONTAINER));
+            }
+            numberTaskManagers = Math.max(numberTaskManagers, parallelism);
+
             return new ClusterSpecification.ClusterSpecificationBuilder()
                     .setMasterMemoryMB(jobmanagerMemoryMb)
                     .setTaskManagerMemoryMB(taskmanagerMemoryMb)
                     .setNumberTaskManagers(numberTaskManagers)
                     .setSlotsPerTaskManager(slotsPerTaskManager)
+                    .setParallelism(parallelism)
                     .setPriority(priority)
                     .createClusterSpecification();
         }
@@ -65,11 +72,14 @@ public class FLinkConfUtil {
 
         int slotsPerTaskManager = configuration.getInteger(ConfigConstants.TASK_MANAGER_NUM_TASK_SLOTS, 1);
 
+        int defaultParallelism = configuration.getInteger(ConfigConstants.DEFAULT_PARALLELISM_KEY, 1);
+
         return new ClusterSpecification.ClusterSpecificationBuilder()
                 .setMasterMemoryMB(jobManagerMemoryMB)
                 .setTaskManagerMemoryMB(taskManagerMemoryMB)
                 .setNumberTaskManagers(numberTaskManagers)
                 .setSlotsPerTaskManager(slotsPerTaskManager)
+                .setParallelism(defaultParallelism)
                 .createClusterSpecification();
     }
 
