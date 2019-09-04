@@ -1048,10 +1048,10 @@ class EditCluster extends React.Component<any, any> {
                         <div className="upload-file">
                             <div className='upload-title'>上传配置文件</div>
                             <p style={{ marginBottom: '24px' }}>您需要获取Hadoop、Spark、Flink集群的配置文件，至少包括：<strong>core-site.xml、hdfs-site.xml、hive-site.xml、yarn-site.xml</strong>文件</p>
-                            <Row style={{ marginLeft: '8px' }}>
-                                <Col span={14} pull={2}>
+                            <Row>
+                                <Col span={24}>
                                     <FormItem
-                                        label="配置文件"
+                                        label={null}
                                         {...formItemLayout}
                                     >
                                         {getFieldDecorator('file', {
@@ -1060,7 +1060,19 @@ class EditCluster extends React.Component<any, any> {
                                                 validator: this.validateFileType
                                             }]
                                         })(
-                                            <div>
+                                            <div
+                                                style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center'
+                                                }}
+                                            >
+                                                <div
+                                                    style={{
+                                                        marginRight: '10px'
+                                                    }}
+                                                >
+                                                    配置文件:
+                                                </div>
                                                 {
                                                     uploadLoading
                                                         ? <label
@@ -1089,13 +1101,10 @@ class EditCluster extends React.Component<any, any> {
                                 </Col>
                             </Row>
                             <Row>
-                                <Col span={15}>
+                                <Col span={24}>
                                     <FormItem
-                                        label="Haddoop Kerberos认证文件"
+                                        label={null}
                                         {...formItemLayout}
-                                        style={{
-                                            marginLeft: '-10px'
-                                        }}
                                     >
                                         {getFieldDecorator('kerberosFile', {
                                             rules: [{
@@ -1103,7 +1112,19 @@ class EditCluster extends React.Component<any, any> {
                                                 validator: this.validateFileType
                                             }]
                                         })(
-                                            <div>
+                                            <div
+                                                style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center'
+                                                }}
+                                            >
+                                                <div
+                                                    style={{
+                                                        marginRight: '10px'
+                                                    }}
+                                                >
+                                                    Haddoop Kerberos认证文件:
+                                                </div>
                                                 {
                                                     uploadKLoading
                                                         ? <label
