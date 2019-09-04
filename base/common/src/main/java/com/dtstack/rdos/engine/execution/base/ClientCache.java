@@ -54,8 +54,7 @@ public class ClientCache {
         for(Map<String, Object> params : clientParamsList){
             String clientTypeStr = (String) params.get(ConfigParse.TYPE_NAME_KEY);
             if(clientTypeStr == null){
-                String errorMess = "node.yml of engineTypes setting error, typeName must not be null!!!";
-                LOG.error(errorMess);
+                throw new Exception("node.yml of engineTypes setting error, typeName must not be null!!!");
             }
 
             loadComputerPlugin(clientTypeStr);

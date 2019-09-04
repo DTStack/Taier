@@ -25,6 +25,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.dtstack.rdos</groupId>
+            <artifactId>plugin.base</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-java</artifactId>
             <version>${flink.version}</version>

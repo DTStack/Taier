@@ -3,7 +3,7 @@ package com.dtstack.rdos.engine.execution.sparkyarn;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.UnitConvertUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
+import com.dtstack.rods.engine.execution.base.resource.AbstractYarnResourceInfo;
 
 import java.util.Properties;
 
@@ -14,7 +14,13 @@ import java.util.Properties;
  * @author xuchao
  */
 
-public class SparkYarnResourceInfo extends EngineResourceInfo {
+public class SparkYarnResourceInfo extends AbstractYarnResourceInfo {
+
+    private final static String DRIVER_CORE_KEY = "driver.core";
+
+    private final static String DRIVER_MEM_KEY = "driver.memory";
+
+    private final static String DRIVER_MEM_OVERHEAD_KEY = "yarn.driver.memoryOverhead";
 
     private final static String EXECUTOR_INSTANCES_KEY = "executor.instances";
 
@@ -36,28 +42,51 @@ public class SparkYarnResourceInfo extends EngineResourceInfo {
     public boolean judgeSlots(JobClient jobClient) {
 
         Properties properties = jobClient.getConfProperties();
-        int instances = DEFAULT_INSTANCES;
-        if(properties != null && properties.containsKey(EXECUTOR_INSTANCES_KEY)){
-            instances = MathUtil.getIntegerVal(properties.get(EXECUTOR_INSTANCES_KEY));
+        int driverCores = DEFAULT_CORES;
+        if(properties != null && properties.containsKey(DRIVER_CORE_KEY)){
+            driverCores = MathUtil.getIntegerVal(properties.get(DRIVER_CORE_KEY));
+        }
+        int driverMem = DEFAULT_MEM;
+        if(properties != null && properties.containsKey(DRIVER_MEM_KEY)){
+            String setMemStr = properties.getProperty(DRIVER_MEM_KEY);
+            driverMem = UnitConvertUtil.convert2MB(setMemStr);
+        }
+        int driverMemOverhead = DEFAULT_MEM_OVERHEAD;
+        if(properties != null && properties.containsKey(DRIVER_MEM_OVERHEAD_KEY)){
+            String setMemStr = properties.getProperty(DRIVER_MEM_OVERHEAD_KEY);
+            driverMemOverhead = UnitConvertUtil.convert2MB(setMemStr);
+        }
+        driverMem += driverMemOverhead;
+
+        if (!judgeYarnResource(1, driverCores, driverMem)) {
+            return false;
         }
 
+        int executorNum = DEFAULT_INSTANCES;
+        if(properties != null && properties.containsKey(EXECUTOR_INSTANCES_KEY)){
+            executorNum = MathUtil.getIntegerVal(properties.get(EXECUTOR_INSTANCES_KEY));
+        }
         int executorCores = DEFAULT_CORES;
         if(properties != null && properties.containsKey(EXECUTOR_CORES_KEY)){
             executorCores = MathUtil.getIntegerVal(properties.get(EXECUTOR_CORES_KEY));
         }
 
-        int oneNeedMem = DEFAULT_MEM;
+        int executorMem = DEFAULT_MEM;
         if(properties != null && properties.containsKey(EXECUTOR_MEM_KEY)){
             String setMemStr = properties.getProperty(EXECUTOR_MEM_KEY);
-            oneNeedMem = UnitConvertUtil.convert2MB(setMemStr);
+            executorMem = UnitConvertUtil.convert2MB(setMemStr);
         }
-        int executorJvmMem = DEFAULT_MEM_OVERHEAD;
+        int executorMemOverhead = DEFAULT_MEM_OVERHEAD;
         if(properties != null && properties.containsKey(EXECUTOR_MEM_OVERHEAD_KEY)){
             String setMemStr = properties.getProperty(EXECUTOR_MEM_OVERHEAD_KEY);
-            executorJvmMem = UnitConvertUtil.convert2MB(setMemStr);
+            executorMemOverhead = UnitConvertUtil.convert2MB(setMemStr);
         }
-        oneNeedMem+= executorJvmMem;
+        executorMem += executorMemOverhead;
 
-        return super.judgeYarnResource(instances,executorCores, oneNeedMem);
+        if (!judgeYarnResource(executorNum, executorCores, executorMem)) {
+            return false;
+        }
+
+        return true;
     }
 }

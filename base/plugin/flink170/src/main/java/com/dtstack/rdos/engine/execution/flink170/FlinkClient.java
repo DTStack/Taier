@@ -14,7 +14,7 @@ import com.dtstack.rdos.engine.execution.base.JobParam;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
+import com.dtstack.rods.engine.execution.base.resource.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.flink170.enums.Deploy;
 import com.dtstack.rdos.engine.execution.flink170.enums.FlinkYarnMode;
@@ -48,7 +48,6 @@ import org.apache.flink.yarn.YarnClusterClient;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
-import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
@@ -122,8 +121,6 @@ public class FlinkClient extends AbsClient {
     private YarnClient yarnClient;
 
     private FlinkClusterClientManager flinkClusterClientManager;
-
-    public static ThreadLocal<JobClient> jobClientThreadLocal = new ThreadLocal<>();
 
     public FlinkClient(){
         this.restartService = new FlinkRestartStrategy();
@@ -256,11 +253,10 @@ public class FlinkClient extends AbsClient {
         //只有当程序本身没有指定并行度的时候该参数才生效
         Integer runParallelism = FlinkUtil.getJobParallelism(jobClient.getConfProperties());
 
-        jobClientThreadLocal.set(jobClient);
         try {
             Pair<String, String> runResult;
             if(FlinkYarnMode.isPerJob(taskRunMode)){
-                ClusterSpecification clusterSpecification = FLinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration(), jobClient.getJobPriority());
+                ClusterSpecification clusterSpecification = FLinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration(), jobClient.getJobPriority(), jobClient.getConfProperties());
                 clusterSpecification.setConfiguration(flinkClientBuilder.getFlinkConfiguration());
                 clusterSpecification.setParallelism(runParallelism);
                 clusterSpecification.setClasspaths(classPaths);
@@ -271,7 +267,7 @@ public class FlinkClient extends AbsClient {
                 clusterSpecification.setCreateProgramDelay(true);
                 clusterSpecification.setYarnConfiguration(getYarnConf(jobClient.getPluginInfo()));
 
-                runResult = runJobByPerJob(clusterSpecification);
+                runResult = runJobByPerJob(clusterSpecification, jobClient);
 
                 packagedProgram = clusterSpecification.getProgram();
             } else {
@@ -285,16 +281,13 @@ public class FlinkClient extends AbsClient {
             if (packagedProgram!=null){
                 packagedProgram.deleteExtractedLibraries();
             }
-            jobClientThreadLocal.remove();
         }
     }
 
     /**
      * perjob模式提交任务
      */
-    private Pair<String, String> runJobByPerJob(ClusterSpecification clusterSpecification) throws Exception{
-        JobClient jobClient = jobClientThreadLocal.get();
-
+    private Pair<String, String> runJobByPerJob(ClusterSpecification clusterSpecification, JobClient jobClient) throws Exception{
         AbstractYarnClusterDescriptor descriptor = flinkClientBuilder.createClusterDescriptorByMode(null, jobClient, true);
         descriptor.setName(jobClient.getJobName());
         ClusterClient<ApplicationId> clusterClient = descriptor.deployJobCluster(clusterSpecification, new JobGraph(),true);
@@ -711,33 +704,29 @@ public class FlinkClient extends AbsClient {
     }
 
     @Override
-    public EngineResourceInfo getAvailSlots(JobClient jobClient) {
+    public boolean judgeSlots(JobClient jobClient) {
 
-        FlinkResourceInfo resourceInfo = new FlinkResourceInfo(jobClient, yarnClient);
-        if (resourceInfo.isPerJob()){
-            return resourceInfo;
+        FlinkYarnMode taskRunMode = FlinkUtil.getTaskRunMode(jobClient.getConfProperties(), jobClient.getComputeType());
+        boolean isPerJob = ComputeType.STREAM == jobClient.getComputeType() || FlinkYarnMode.isPerJob(taskRunMode);
+
+        try {
+            if (isPerJob){
+                FlinkPerJobResourceInfo perJobResourceInfo = new FlinkPerJobResourceInfo();
+                perJobResourceInfo.getYarnSlots(yarnClient, flinkConfig.getQueue(), flinkConfig.getYarnAccepterTaskNumber());
+                return perJobResourceInfo.judgeSlots(jobClient);
+            } else {
+                if (!flinkClusterClientManager.getIsClientOn()){
+                    return false;
+                }
+                FlinkYarnSeesionResourceInfo yarnSeesionResourceInfo = new FlinkYarnSeesionResourceInfo();
+                String slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
+                yarnSeesionResourceInfo.getFlinkSessionSlots(slotInfo, flinkConfig.getFlinkSessionSlotCount());
+                return yarnSeesionResourceInfo.judgeSlots(jobClient);
+            }
+        } catch (Exception e) {
+            logger.error("", e);
+            return false;
         }
-
-        String slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
-        resourceInfo.getAvailSlots(slotInfo, flinkConfig.getFlinkSessionSlotCount());
-        return resourceInfo;
-    }
-
-    private float getQueueRemainCapacity(float coefficient, List<QueueInfo> queueInfos){
-        float capacity = 0;
-        for (QueueInfo queueInfo : queueInfos){
-            if (CollectionUtils.isNotEmpty(queueInfo.getChildQueues())) {
-                float subCoefficient = queueInfo.getCapacity() * coefficient;
-                capacity = getQueueRemainCapacity(subCoefficient, queueInfo.getChildQueues());
-            }
-            if (flinkConfig.getQueue().equals(queueInfo.getQueueName())){
-                capacity = coefficient * queueInfo.getCapacity() * (1 - queueInfo.getCurrentCapacity());
-            }
-            if (capacity>0){
-                return capacity;
-            }
-        }
-        return capacity;
     }
 
     @Override

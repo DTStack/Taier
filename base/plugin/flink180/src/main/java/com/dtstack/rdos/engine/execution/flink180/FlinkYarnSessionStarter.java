@@ -67,7 +67,7 @@ public class FlinkYarnSessionStarter {
         this.clusterClientLock = new InterProcessMutex(zkClient, lockPath);
     }
 
-    public void startFlinkYarnSession() {
+    public boolean startFlinkYarnSession() {
         try {
             this.clusterClientLock.acquire();
 
@@ -81,13 +81,14 @@ public class FlinkYarnSessionStarter {
             if (retrieveClusterClient != null) {
                 clusterClient = retrieveClusterClient;
                 logger.info("retrieve flink client with yarn session success");
-                return;
+                return true;
             }
 
             if (flinkConfig.getYarnSessionStartAuto()) {
                 try {
                     clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification);
                     clusterClient.setDetached(true);
+                    return true;
                 } catch (FlinkException e) {
                     logger.info("Couldn't deploy Yarn session cluster, {}", e);
                     throw e;
@@ -104,6 +105,8 @@ public class FlinkYarnSessionStarter {
                 }
             }
         }
+
+        return false;
     }
 
     public void stopFlinkYarnSession() {

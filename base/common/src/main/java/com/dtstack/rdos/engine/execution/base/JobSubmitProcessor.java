@@ -2,7 +2,6 @@ package com.dtstack.rdos.engine.execution.base;
 
 import com.dtstack.rdos.commom.exception.ClientAccessException;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,14 +40,7 @@ public class JobSubmitProcessor implements Runnable {
                 return;
             }
 
-            EngineResourceInfo resourceInfo = null;
-            try {
-                resourceInfo = clusterClient.getAvailSlots(jobClient);
-            } catch (Exception e){
-                logger.error("Get available slots error:{}", e);
-            }
-
-            if (resourceInfo != null && resourceInfo.judgeSlots(jobClient)) {
+            if (clusterClient.judgeSlots(jobClient)) {
                 if (logger.isInfoEnabled()) {
                     logger.info("--------submit job:{} to engine start----.", jobClient.toString());
                 }

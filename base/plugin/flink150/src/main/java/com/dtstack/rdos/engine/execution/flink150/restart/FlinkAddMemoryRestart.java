@@ -3,14 +3,14 @@ package com.dtstack.rdos.engine.execution.flink150.restart;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.restart.IJobRestartStrategy;
-import com.dtstack.rdos.engine.execution.flink150.FlinkPerJobResourceInfo;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Set;
+
+import static com.dtstack.rdos.engine.execution.flink150.constrant.ConfigConstrant.*;
 
 /**
  * @description:
@@ -42,13 +42,13 @@ public class FlinkAddMemoryRestart implements IJobRestartStrategy {
             Map<String, Object> params = splitStr(tps, SEPARATOR);
 
             Map<String, Object> lastRetryparams = splitStr(lastRetryParams, SEPARATOR);
-            Integer curTaskMemory = MathUtil.getIntegerVal(lastRetryparams.getOrDefault(FlinkPerJobResourceInfo.TASKMANAGER_MEMORY_MB, 0)) + DEFAULT_TASKMANAGER_MEMORY;
+            Integer curTaskMemory = MathUtil.getIntegerVal(lastRetryparams.getOrDefault(TASKMANAGER_MEMORY_MB, 0)) + DEFAULT_TASKMANAGER_MEMORY;
 
             curTaskMemory = curTaskMemory > MAX_TASKMANAGER_MEMORY ? MAX_TASKMANAGER_MEMORY : curTaskMemory;
 
             // change run mode
             params.put(RUN_MODE_KEY, PER_JOB_MODE);
-            params.put(FlinkPerJobResourceInfo.TASKMANAGER_MEMORY_MB, curTaskMemory);
+            params.put(TASKMANAGER_MEMORY_MB, curTaskMemory);
 
             pluginInfoMap.put(TASK_PARAMS_KEY, mapToString(params));
 

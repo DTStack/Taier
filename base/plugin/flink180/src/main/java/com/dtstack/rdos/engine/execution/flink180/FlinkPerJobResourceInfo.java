@@ -1,40 +1,37 @@
 package com.dtstack.rdos.engine.execution.flink180;
 
-import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
+import com.dtstack.rods.engine.execution.base.resource.AbstractYarnResourceInfo;
 
 import java.util.Properties;
 
+import static com.dtstack.rdos.engine.execution.flink180.constrant.ConfigConstrant.*;
+
 /**
- * flink yarn 资源相关
- * Date: 2018/07/10
+ * 用于存储从flink上获取的资源信息
+ * Date: 2017/11/24
  * Company: www.dtstack.com
  *
- * @author toutian
+ * @author xuchao
  */
 
-public class FlinkPerJobResourceInfo extends EngineResourceInfo {
+public class FlinkPerJobResourceInfo extends AbstractYarnResourceInfo {
 
-    public final static String JOBMANAGER_MEMORY_MB = "jobmanager.memory.mb";
-    public final static String TASKMANAGER_MEMORY_MB = "taskmanager.memory.mb";
-    public final static String CONTAINER = "container";
-    public final static String SLOTS = "slots";
+    public int jobmanagerMemoryMb = MIN_JM_MEMORY;
+    public int taskmanagerMemoryMb = MIN_JM_MEMORY;
+    public int numberTaskManagers = 1;
+    public int slotsPerTaskManager = 1;
 
-    public final static int MIN_JM_MEMORY = 1024; // the minimum memory should be higher than the min heap cutoff
-    public final static int MIN_TM_MEMORY = 1024;
-
-    private int jobmanagerMemoryMb = MIN_JM_MEMORY;
-    private int taskmanagerMemoryMb = MIN_JM_MEMORY;
-    private int numberTaskManagers = 1;
-    private int slotsPerTaskManager = 1;
-    private int containerLimit;
+    public FlinkPerJobResourceInfo() {
+    }
 
     @Override
     public boolean judgeSlots(JobClient jobClient) {
-        super.calc();
+        return judgePerjobResource(jobClient);
+    }
 
+    private boolean judgePerjobResource(JobClient jobClient) {
         if (totalFreeCore == 0 || totalFreeMem == 0) {
             return false;
         }
@@ -44,11 +41,8 @@ public class FlinkPerJobResourceInfo extends EngineResourceInfo {
         if (properties != null && properties.containsKey(SLOTS)) {
             slotsPerTaskManager = MathUtil.getIntegerVal(properties.get(SLOTS));
         }
-        if ((totalCore * capacity) < slotsPerTaskManager) {
-            throw new RdosException(LIMIT_RESOURCE_ERROR + "Flink任务设置的core 大于 分配的最大的core");
-        }
-        if ((totalFreeCore * capacity) < slotsPerTaskManager) {
-            return false;
+        if (properties != null && properties.containsKey(CONTAINER)) {
+            numberTaskManagers = MathUtil.getIntegerVal(properties.get(CONTAINER));
         }
 
         if (properties != null && properties.containsKey(JOBMANAGER_MEMORY_MB)) {
@@ -65,35 +59,16 @@ public class FlinkPerJobResourceInfo extends EngineResourceInfo {
             taskmanagerMemoryMb = MIN_TM_MEMORY;
         }
 
-        if (properties != null && properties.containsKey(CONTAINER)) {
-            numberTaskManagers = MathUtil.getIntegerVal(properties.get(CONTAINER));
-        }
-
-        int totalMemoryRequired = jobmanagerMemoryMb + taskmanagerMemoryMb * numberTaskManagers;
-        if ((totalMem * capacity) < totalMemoryRequired) {
-            throw new RdosException(LIMIT_RESOURCE_ERROR + "Flink任务设置的MEM 大于 集群最大的MEM");
-        }
-        if ((totalFreeMem * capacity) < totalMemoryRequired) {
-            return false;
-        }
-        if (taskmanagerMemoryMb > containerLimit || jobmanagerMemoryMb > containerLimit) {
+        //作为启动 am 和 jobmanager
+        if (!judgeYarnResource(1, 1, jobmanagerMemoryMb)) {
             return false;
         }
 
-        if (!allocateResource(nmFree, jobmanagerMemoryMb)) {
+        if (!judgeYarnResource(numberTaskManagers, slotsPerTaskManager, taskmanagerMemoryMb)) {
             return false;
-        }
-
-        for (int i = 0; i < numberTaskManagers; i++) {
-            if (!allocateResource(nmFree, taskmanagerMemoryMb)) {
-                return false;
-            }
         }
 
         return true;
     }
 
-    public void setContainerLimit(int containerLimit) {
-        this.containerLimit = containerLimit;
-    }
 }

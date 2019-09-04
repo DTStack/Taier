@@ -33,6 +33,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.dtstack.rdos</groupId>
+            <artifactId>plugin.base</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_2.10</artifactId>
             <version>${spark.version}</version>
