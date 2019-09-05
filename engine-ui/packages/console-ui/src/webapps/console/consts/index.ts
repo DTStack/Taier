@@ -247,12 +247,12 @@ export const validateSparkParams: any = [ // spark
     'sparkConf.sparkYarnArchive',
     'sparkConf.sparkSqlProxyPath',
     'sparkConf.sparkPythonExtLibPath',
-    'sparkConf.sparkPrincipal',
-    'sparkConf.sparkKeytabPath',
-    'sparkConf.sparkKrb5ConfPath',
-    'sparkConf.zkPrincipal',
-    'sparkConf.zkKeytabPath',
-    'sparkConf.zkLoginName',
+    // 'sparkConf.sparkPrincipal',
+    // 'sparkConf.sparkKeytabPath',
+    // 'sparkConf.sparkKrb5ConfPath',
+    // 'sparkConf.zkPrincipal',
+    // 'sparkConf.zkKeytabPath',
+    // 'sparkConf.zkLoginName',
     'sparkConf.kerberosFile'
 ]
 export const validateDtYarnShellParams: any = [
@@ -333,8 +333,9 @@ export const notExtKeysFlink: any = [
 export const notExtKeysSpark: any = [
     'typeName', 'sparkYarnArchive',
     'sparkSqlProxyPath', 'sparkPythonExtLibPath', 'spark.yarn.appMasterEnv.PYSPARK_PYTHON',
-    'spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON', 'sparkPrincipal', 'sparkKeytabPath',
-    'sparkKrb5ConfPath', 'zkPrincipal', 'zkKeytabPath', 'zkLoginName',
+    'spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON',
+    // 'sparkPrincipal', 'sparkKeytabPath',
+    // 'sparkKrb5ConfPath', 'zkPrincipal', 'zkKeytabPath', 'zkLoginName',
     'openKerberos', 'kerberosFile'
 ];
 export const notExtKeysLearning: any = [
