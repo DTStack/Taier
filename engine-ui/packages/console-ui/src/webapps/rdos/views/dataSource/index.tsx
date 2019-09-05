@@ -101,6 +101,7 @@ class DataSourceMana extends React.Component<any, any> {
         if (status === 'edit') { // 编辑数据
             reqSource = Object.assign(source, sourceFormData)
         }
+        console.log(reqSource)
         if (reqSource.dataJson.openKerberos) {
             reqSource.dataJsonString = JSON.stringify(reqSource.dataJson)
             console.log(reqSource, reqSource.kerberosFile)
@@ -110,7 +111,7 @@ class DataSourceMana extends React.Component<any, any> {
                 if (key === 'kerberosFile' && (!item.type)) {
                     return false
                 }
-                return item
+                return true
             })
             Api.addOrUpdateSourceKerberos(reqSource).then((res: any) => {
                 if (res.code === 1) {
@@ -124,7 +125,6 @@ class DataSourceMana extends React.Component<any, any> {
                 }
             })
         } else {
-            console.log(reqSource)
             Api.addOrUpdateSource(reqSource).then((res: any) => {
                 if (res.code === 1) {
                     formObj.resetFields()
@@ -174,7 +174,7 @@ class DataSourceMana extends React.Component<any, any> {
                 if (key === 'kerberosFile' && (!item.type)) {
                     return false
                 }
-                return item
+                return true
             })
             Api.testDSConnectionKerberos(source).then((res: any) => {
                 if (res.code === 1 && res.data) {
