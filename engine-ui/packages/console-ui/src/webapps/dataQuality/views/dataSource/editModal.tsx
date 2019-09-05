@@ -124,7 +124,7 @@ class DataSourceModal extends React.Component<any, any> {
                         if (key === 'kerberosFile' && (!item.type)) {
                             return false
                         }
-                        return item
+                        return item != null
                     })
                     Api.testDSConnectionKerberos(values).then((res: any) => {
                         if (res.data) {

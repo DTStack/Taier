@@ -97,7 +97,7 @@ class DataSourceManaStream extends React.Component<any, any> {
                 if (key === 'kerberosFile' && (!item.type)) {
                     return false
                 }
-                return true
+                return item != null
             })
             Api.streamSaveDataSourceWithKerberos(reqSource).then((res: any) => {
                 if (res.code === 1) {
@@ -160,7 +160,7 @@ class DataSourceManaStream extends React.Component<any, any> {
                 if (key === 'kerberosFile' && (!item.type)) {
                     return false
                 }
-                return true
+                return item != null
             })
             Api.streamTestDataSourceConnectionWithKerberos(source).then((res: any) => {
                 if (res.code === 1 && res.data) {

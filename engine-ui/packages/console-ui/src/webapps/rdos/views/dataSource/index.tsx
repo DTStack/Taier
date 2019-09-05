@@ -111,7 +111,7 @@ class DataSourceMana extends React.Component<any, any> {
                 if (key === 'kerberosFile' && (!item.type)) {
                     return false
                 }
-                return true
+                return item != null
             })
             Api.addOrUpdateSourceKerberos(reqSource).then((res: any) => {
                 if (res.code === 1) {
@@ -174,7 +174,7 @@ class DataSourceMana extends React.Component<any, any> {
                 if (key === 'kerberosFile' && (!item.type)) {
                     return false
                 }
-                return true
+                return item != null
             })
             Api.testDSConnectionKerberos(source).then((res: any) => {
                 if (res.code === 1 && res.data) {

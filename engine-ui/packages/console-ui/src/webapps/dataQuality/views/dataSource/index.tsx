@@ -82,7 +82,7 @@ class DataSource extends React.Component<any, any> {
                     if (key === 'kerberosFile' && (!item.type)) {
                         return false
                     }
-                    return true
+                    return item != null
                 })
                 DSApi.updateDataSourceKerberos(reqSource).then((res: any) => {
                     if (res.code === 1) {
@@ -113,7 +113,7 @@ class DataSource extends React.Component<any, any> {
                     if (key === 'kerberosFile' && (!item.type)) {
                         return false
                     }
-                    return true
+                    return item != null
                 });
                 DSApi.addDataSourceKerberos(sourceFormData).then((res: any) => {
                     if (res.code === 1) {
