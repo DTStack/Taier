@@ -193,10 +193,10 @@ public class LearningClient extends AbsClient {
             resourceInfo.getYarnSlots(client.getYarnClient(), conf.get(LearningConfiguration.LEARNING_APP_QUEUE), conf.getInt(LearningConfiguration.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1));
             return resourceInfo.judgeSlots(jobClient);
         } catch (Exception e) {
+            LOG.error("", e);
             if (e instanceof ClientArgumentException) {
                 throw new ClientArgumentException(e);
             }
-            LOG.error("", e);
             return false;
         }
     }
