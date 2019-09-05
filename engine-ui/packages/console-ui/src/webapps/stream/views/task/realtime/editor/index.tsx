@@ -2,10 +2,13 @@ import * as React from 'react'
 import { connect } from 'react-redux';
 import MrEditor from './mrEditor'
 import CodeEditor from './codeEditor';
+import CommonEditor from './commonEditor';
 import CollectionGuide from '../collection/guide'
 import CollectionScript from '../collection/script'
 import ConvertToScript from '../convertToScript';
 import { TASK_TYPE, DATA_SYNC_TYPE } from '../../../../comm/const';
+
+import utils from 'utils';
 
 @(connect((state: any) => {
     const currentPage = state.realtimeTask.currentPage
@@ -15,6 +18,21 @@ import { TASK_TYPE, DATA_SYNC_TYPE } from '../../../../comm/const';
 }) as any)
 
 export default class RealtimeEditor extends React.Component<any, any> {
+    formatJson (text: any) {
+        if (!text) {
+            return text;
+        }
+        return new Promise(
+            (resolve: any, reject: any) => {
+                const formatText = utils.jsonFormat(text);
+                if (!formatText) {
+                    resolve(text)
+                } else {
+                    resolve(formatText)
+                }
+            }
+        )
+    }
     render () {
         const {
             currentPage
@@ -28,7 +46,11 @@ export default class RealtimeEditor extends React.Component<any, any> {
                         leftCustomButton: <ConvertToScript isLocked={isLocked} />
                     }} />
                 } else if (currentPage.createModel == DATA_SYNC_TYPE.SCRIPT) {
-                    showContent = <CodeEditor {...this.props} />
+                    showContent = <CommonEditor
+                        mode="json"
+                        {...this.props}
+                        onFormat={this.formatJson}
+                    />
                 }
                 break;
             }

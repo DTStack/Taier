@@ -314,7 +314,7 @@ class DetailPermission extends React.Component<any, any> {
                             label={'申请理由'}
                             hasFeedback
                         >
-                            <Input.TextArea rows={4} placeholder="" disabled={true} value={applyReason} style={{ width: '80%' }} />,
+                            <Input.TextArea rows={4} placeholder="" disabled={true} value={applyReason} style={{ width: '80%' }} />
                         </FormItem>
                     }
                     {/* 已处理  权限回收 */}
@@ -324,7 +324,7 @@ class DetailPermission extends React.Component<any, any> {
                             label={'审批意见'}
                             hasFeedback
                         >
-                            <Input.TextArea rows={4} placeholder="" disabled={true} value={reply} style={{ width: '80%' }} />,
+                            <Input.TextArea rows={4} placeholder="" disabled={true} value={reply} style={{ width: '80%' }} />
                         </FormItem> : ''
                     }
 

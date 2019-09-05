@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Row } from 'antd'
+import { Row, Pagination } from 'antd'
 
 import Editor from 'widgets/code-editor'
 import { TASK_STATUS } from '../../../comm/const'
@@ -32,7 +32,7 @@ function getLogsInfo (title: any, data: any, type = 'info') {
     return createLogMark(res, type)
 }
 // eslint-disable-next-line
-function getLogType(status: any) {
+function getLogType (status: any) {
     switch (status) {
         case TASK_STATUS.RUN_FAILED:
         case TASK_STATUS.SUBMIT_FAILED:
@@ -79,6 +79,7 @@ export function LogInfo (props: any) {
     let logText = '';
     let syncJobInfo: any;
     let logStyle: any;
+    const page = props.page || {};
     try {
         const log = props.log ? JSON.parse(props.log.replace(/\n/g, '\\n').replace(/\r/g, '\\r')) : {};
         syncJobInfo = props.syncJobInfo;
@@ -157,6 +158,19 @@ export function LogInfo (props: any) {
                     </Row>
                     : ''
             }
+            {page.total > 0 && (
+                <Row>
+                    <div style={{ float: 'right', display: 'flex', marginBottom: '8px' }}>
+                        <span>历史运行次数：</span>
+                        <Pagination
+                            size="small"
+                            total={page.total}
+                            current={page.current} pageSize={1}
+                            onChange={props.onChangePage}
+                        />
+                    </div>
+                </Row>
+            )}
             <Row style={logStyle}>
                 <Editor style={{ height: '100%' }} sync value={logText} options={editorOptions} />
             </Row>

@@ -130,7 +130,8 @@ export const workbenchAction = mc([
     'MAKE_TAB_DIRTY',
     'MAKE_TAB_CLEAN',
     'LOAD_TASK_CUSTOM_PARAMS',
-    'SAVE_DATASYNC_TO_TAB'
+    'SAVE_DATASYNC_TO_TAB',
+    'INIT_WORKBENCH'
 ], { prefix: 'offline/workbench/' });
 
 export const dataSourceListAction = mc([

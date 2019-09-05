@@ -42,15 +42,19 @@
         background: #DEEFFF;
         padding: 2px 0;
         text-align: center;
-        font-size: 14px;
 
         .preview-title {
-            font-family: PingFang-SC-Medium;
+            text-align: center;
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-family: PingFangSC-Regular;
             font-size: 14px;
             color: #333333;
             letter-spacing: 0;
-            line-height: 20px;
-            display: block;
+            line-height: 18px;
+            font-weight: normal;
+            white-space: nowrap;
         }
 
         .preview-desc {

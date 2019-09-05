@@ -3,6 +3,7 @@ import utils from 'utils'
 import http from './http'
 import localDb from 'utils/localDb'
 import req from '../consts/reqUrls'
+import { offlineWorkbenchDB as idb } from 'database';
 
 import { User } from '../model'
 
@@ -22,6 +23,12 @@ export default {
     },
 
     openLogin () {
+        idb.open().then((db) => {
+            if (db) {
+                console.log('clear indexedDB done.');
+                idb.clearAll()
+            }
+        });
         localDb.clear()
         utils.deleteCookie('dt_user_id', UIC_DOMAIN_URL, '/')
         utils.deleteCookie('dt_token', UIC_DOMAIN_URL, '/')
