@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.execution.learning;
 
 import com.dtstack.learning.conf.LearningConfiguration;
+import com.dtstack.rdos.commom.exception.ClientArgumentException;
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.MathUtil;
@@ -193,6 +194,9 @@ public class LearningClient extends AbsClient {
             return resourceInfo.judgeSlots(jobClient);
         } catch (Exception e) {
             LOG.error("", e);
+            if (e instanceof ClientArgumentException) {
+                throw new ClientArgumentException(e);
+            }
             return false;
         }
     }

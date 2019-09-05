@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.yarnshell;
 
+import com.dtstack.rdos.commom.exception.ClientArgumentException;
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.MathUtil;
@@ -238,6 +239,9 @@ public class DtYarnShellClient extends AbsClient {
             return resourceInfo.judgeSlots(jobClient);
         } catch (Exception e) {
             LOG.error("", e);
+            if (e instanceof ClientArgumentException) {
+                throw new ClientArgumentException(e);
+            }
             return false;
         }
     }
