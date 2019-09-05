@@ -1,7 +1,7 @@
 package com.dtstack.rdos.engine.execution.yarnshell;
 
 
-import com.dtstack.rdos.commom.exception.ErrorCode;
+import com.dtstack.rdos.commom.exception.ClientArgumentException;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rods.engine.execution.base.resource.AbstractYarnResourceInfo;
@@ -28,7 +28,7 @@ public class DtYarnShellResourceInfo extends AbstractYarnResourceInfo {
             String[] args = DtYarnShellUtil.buildPythonArgs(jobClient);
             clientArguments = new ClientArguments(args);
         } catch (Exception e) {
-            throw new RdosException(ErrorCode.INVALID_PARAMETERS, e);
+            throw new ClientArgumentException(e);
         }
 
         int amCores = clientArguments.getAmCores();
