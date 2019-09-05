@@ -66,6 +66,7 @@ public class JobSubmitProcessor implements Runnable {
                 handler.handle();
             }
         } catch (Throwable e) {
+            logger.error("get unexpected exception", e);
             //捕获未处理异常,防止跳出执行线程
             jobClient.setEngineTaskId(null);
             if (e instanceof ClientAccessException || e instanceof ClientArgumentException) {
@@ -74,7 +75,6 @@ public class JobSubmitProcessor implements Runnable {
                 jobResult = JobResult.createErrorResult(true, e);
             }
             addToTaskListener(jobClient, jobResult);
-            logger.error("get unexpected exception", e);
         }
     }
 

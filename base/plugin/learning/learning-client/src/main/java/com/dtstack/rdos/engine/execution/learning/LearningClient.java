@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.execution.learning;
 
 import com.dtstack.learning.conf.LearningConfiguration;
+import com.dtstack.rdos.commom.exception.ClientArgumentException;
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.MathUtil;
@@ -192,6 +193,9 @@ public class LearningClient extends AbsClient {
             resourceInfo.getYarnSlots(client.getYarnClient(), conf.get(LearningConfiguration.LEARNING_APP_QUEUE), conf.getInt(LearningConfiguration.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1));
             return resourceInfo.judgeSlots(jobClient);
         } catch (Exception e) {
+            if (e instanceof ClientArgumentException) {
+                throw new ClientArgumentException(e);
+            }
             LOG.error("", e);
             return false;
         }
