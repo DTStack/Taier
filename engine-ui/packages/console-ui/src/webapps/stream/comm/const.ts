@@ -97,7 +97,7 @@ export const writeTableTypes: any = {
     HAND: '1'
 }
 
-export const writeStrategys: any = {
+export const writeStrategys = {
     TIME: '0',
     FILESIZE: '1'
 }
