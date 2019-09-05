@@ -36,8 +36,8 @@ function getSourceInitialField (sourceType: any, data: any) {
             initialFields.analyticalRules = prefixRule;
             initialFields.partition = isMysqlSource ? 'pt' : undefined; // 后端（nanqi）要求自动建表默认加一个partition = pt。
             initialFields.writeTableType = isMysqlSource ? writeTableTypes.AUTO : writeTableTypes.HAND;
-            initialFields.writeStrategy = writeStrategys.TIME;
-            initialFields.interval = `${10 * 60 * 1000}`;
+            initialFields.writeStrategy = writeStrategys.FILESIZE;
+            initialFields.bufferSize = `${10 * 1024 * 1024}`;
             initialFields.writeMode = 'insert';
             return initialFields;
         }
@@ -501,7 +501,7 @@ class CollectionTargetForm extends React.Component<any, any> {
                             }]
                         })(
                             <Select>
-                                <Option value={writeStrategys.TIME}>按时间</Option>
+                                {/* <Option value={writeStrategys.TIME}>按时间</Option> */}
                                 <Option value={writeStrategys.FILESIZE}>按文件大小</Option>
                             </Select>
                         )}
