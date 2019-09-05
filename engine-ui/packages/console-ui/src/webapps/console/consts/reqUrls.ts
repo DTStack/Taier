@@ -48,6 +48,7 @@ export default {
     SAVE_COMPONENT: `${CONSOLE_BASE_URL}/component/update`,
     SAVE_COMPONENT_KERBEROS: `${CONSOLE_BASE_UPLOAD_URL}/upload/service/component/updateWithKerberos`, // 开启kerberos认证的保存接口
     DELETE_COMPONENT: `${CONSOLE_BASE_URL}/component/delete`,
+    DELETE_KERBEROS: `${CONSOLE_BASE_URL}/component/rmKerberosConfig`, // 删除Haddop Kerberos认证文件
     ADD_ENGINE: `${CONSOLE_BASE_URL}/engine/addEngine`,
     // 资源管理
     GET_ALL_CLUSTER: `${CONSOLE_BASE_URL}/cluster/getAllCluster`,

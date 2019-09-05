@@ -171,6 +171,24 @@ class EditCluster extends React.Component<any, any> {
         }
     }
     // 获取kerberos文件信息
+    deleteKerberosFile () {
+        const { location } = this.props;
+        const params = location.state || {};
+        const clusterId = params.cluster.id || params.cluster.clusterId;
+        Api.deleteKerberos({
+            clusterId
+        })
+            .then(
+                (res: any) => {
+                    console.log(res);
+                    if (res.code === 1) {
+                        message.success(`删除Kerberos认证文件成功`)
+                        this.getKerberosFile();
+                    }
+                }
+            )
+    }
+    // 获取kerberos文件信息
     getKerberosFile () {
         const { location } = this.props;
         const params = location.state || {};
@@ -1137,7 +1155,31 @@ class EditCluster extends React.Component<any, any> {
                                                             htmlFor="kerberosFiles">选择文件</label>
                                                 }
                                                 {uploadKLoading ? <Icon className="blue-loading" type="loading" /> : null}
-                                                <span> {kfile.files && kfile.files.length > 0 && kfile.files[0].name}</span>
+                                                {/* <span> {kfile.files && kfile.files.length > 0 && kfile.files[0].name}</span> */}
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center'
+                                                    }}
+                                                >
+                                                    {kfile.files && kfile.files.length > 0 && kfile.files[0].name}
+                                                    {
+                                                        kfile.files && kfile.files.length > 0
+                                                            ? (
+                                                                <Icon
+                                                                    type="close-circle"
+                                                                    style={{
+                                                                        cursor: 'pointer'
+                                                                    }}
+                                                                    onClick={() => {
+                                                                        console.log('delete')
+                                                                        this.deleteKerberosFile();
+                                                                    }}
+                                                                />
+                                                            )
+                                                            : null
+                                                    }
+                                                </div>
                                                 <input
                                                     name="file"
                                                     type="file"

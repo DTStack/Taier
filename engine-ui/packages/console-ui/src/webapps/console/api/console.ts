@@ -120,6 +120,9 @@ export default {
     deleteComponent (params: any) {
         return http.post(req.DELETE_COMPONENT, params); // 删除组件
     },
+    deleteKerberos (params: any) {
+        return http.post(req.DELETE_KERBEROS, params); // 删除Haddop Kerberos认证文件
+    },
     addEngine (params: any) {
         return http.post(req.ADD_ENGINE, params);
     },
