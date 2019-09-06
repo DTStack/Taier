@@ -122,15 +122,19 @@ class DirtyData extends React.Component<any, any> {
         const project = nextProps.project;
         const oldProj = this.props.project;
         if (oldProj && project && oldProj.id !== project.id) {
-            this.loadProduceTrendData({
-                recent: 3
-            });
-            this.loadProduceTop30({
-                recent: 3,
-                topN: 30
-            });
-            this.loadProduceData();
-            this.loadSyncTasks();
+            this.setState({
+                taskId: null
+            }, () => {
+                this.loadProduceTrendData({
+                    recent: 3
+                });
+                this.loadProduceTop30({
+                    recent: 3,
+                    topN: 30
+                });
+                this.loadProduceData();
+                this.loadSyncTasks();
+            })
         }
     }
 
@@ -367,7 +371,7 @@ class DirtyData extends React.Component<any, any> {
     };
 
     renderProduceList = (taskOptions: any) => {
-        const { produceList, loading, currentPage } = this.state;
+        const { produceList, loading, currentPage, taskId } = this.state;
         const ctx = this;
         const columns: any = [
             {
@@ -467,6 +471,7 @@ class DirtyData extends React.Component<any, any> {
                         placeholder="选择任务"
                         optionFilterProp="name"
                         onChange={this.onTableSelectTask}
+                        value={taskId}
                     >
                         {taskOptions}
                     </Select>
