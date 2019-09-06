@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.spark210;
 
+import com.dtstack.rdos.commom.exception.LimitResourceException;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.UnitConvertUtil;
@@ -75,7 +76,7 @@ public class SparkResourceInfo extends AbstractYarnResourceInfo {
         needMem += executorMem;
 
         if(needMem > totalMem){
-            throw new RdosException(LIMIT_RESOURCE_ERROR + "task's MEM rather then cluster's MEM");
+            throw new LimitResourceException("task's MEM rather then cluster's MEM");
         }
 
         if(needMem > freeMemNum){
@@ -107,7 +108,7 @@ public class SparkResourceInfo extends AbstractYarnResourceInfo {
         needCore += executorCores * executorNum;
 
         if(needCore > totalCore){
-            throw new RdosException(LIMIT_RESOURCE_ERROR + "task's Core rather then cluster's Core");
+            throw new LimitResourceException("task's Core rather then cluster's Core");
         }
 
         if(needCore > freeCoreNum){

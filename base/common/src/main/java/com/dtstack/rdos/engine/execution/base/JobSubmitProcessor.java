@@ -2,6 +2,7 @@ package com.dtstack.rdos.engine.execution.base;
 
 import com.dtstack.rdos.commom.exception.ClientAccessException;
 import com.dtstack.rdos.commom.exception.ClientArgumentException;
+import com.dtstack.rdos.commom.exception.LimitResourceException;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import org.slf4j.Logger;
@@ -65,15 +66,16 @@ public class JobSubmitProcessor implements Runnable {
                 jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
                 handler.handle();
             }
+        } catch (ClientAccessException | ClientArgumentException | LimitResourceException e) {
+            logger.error("get unexpected exception", e);
+            jobClient.setEngineTaskId(null);
+            jobResult = JobResult.createErrorResult(false, e);
+            addToTaskListener(jobClient, jobResult);
         } catch (Throwable e) {
             logger.error("get unexpected exception", e);
             //捕获未处理异常,防止跳出执行线程
             jobClient.setEngineTaskId(null);
-            if (e instanceof ClientAccessException || e instanceof ClientArgumentException) {
-                jobResult = JobResult.createErrorResult(false, e);
-            } else {
-                jobResult = JobResult.createErrorResult(true, e);
-            }
+            jobResult = JobResult.createErrorResult(true, e);
             addToTaskListener(jobClient, jobResult);
         }
     }

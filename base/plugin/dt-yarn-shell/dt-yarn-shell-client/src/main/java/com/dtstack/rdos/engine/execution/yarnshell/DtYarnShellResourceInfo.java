@@ -2,6 +2,7 @@ package com.dtstack.rdos.engine.execution.yarnshell;
 
 
 import com.dtstack.rdos.commom.exception.ClientArgumentException;
+import com.dtstack.rdos.commom.exception.LimitResourceException;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rods.engine.execution.base.resource.AbstractYarnResourceInfo;
@@ -43,7 +44,7 @@ public class DtYarnShellResourceInfo extends AbstractYarnResourceInfo {
 
     private boolean judgeResource(int amCores, int amMem, int workerNum, int workerCores, int workerMem) {
         if (workerNum == 0 || workerMem == 0 || workerCores == 0) {
-            throw new RdosException(LIMIT_RESOURCE_ERROR + "Yarn task resource configuration error，" +
+            throw new LimitResourceException("Yarn task resource configuration error，" +
                     "instance：" + workerNum + ", coresPerInstance：" + workerCores + ", memPerInstance：" + workerMem);
         }
         if (totalFreeCore == 0 || totalFreeMem == 0) {

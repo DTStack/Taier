@@ -1,5 +1,6 @@
 package com.dtstack.rods.engine.execution.base.resource;
 
+import com.dtstack.rdos.commom.exception.LimitResourceException;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -69,13 +70,13 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
             needTotalMem += instanceMem;
         }
         if (needTotalCore == 0 || needTotalMem == 0) {
-            throw new RdosException(LIMIT_RESOURCE_ERROR + "Yarn task resource configuration error，needTotalCore：" + 0 + ", needTotalMem：" + needTotalMem);
+            throw new LimitResourceException("Yarn task resource configuration error，needTotalCore：" + 0 + ", needTotalMem：" + needTotalMem);
         }
         if (needTotalCore > (totalCore * queueCapacity)) {
-            throw new RdosException(LIMIT_RESOURCE_ERROR + "The Yarn task is set to a core larger than the maximum allocated core");
+            throw new LimitResourceException("The Yarn task is set to a core larger than the maximum allocated core");
         }
         if (needTotalMem > (totalMem * queueCapacity)) {
-            throw new RdosException(LIMIT_RESOURCE_ERROR + "The Yarn task is set to a core larger than the maximum allocated core");
+            throw new LimitResourceException("The Yarn task is set to a core larger than the maximum allocated core");
         }
         if (needTotalCore > (totalCore * capacity)) {
             return false;
@@ -93,7 +94,7 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
 
     private boolean judgeInstanceResource(int instances, int coresPerInstance, int memPerInstance) {
         if (instances == 0 || coresPerInstance == 0 || memPerInstance == 0) {
-            throw new RdosException(LIMIT_RESOURCE_ERROR + "Yarn task resource configuration error，instance：" + instances + ", coresPerInstance：" + coresPerInstance + ", memPerInstance：" + memPerInstance);
+            throw new LimitResourceException("Yarn task resource configuration error，instance：" + instances + ", coresPerInstance：" + coresPerInstance + ", memPerInstance：" + memPerInstance);
         }
         if (!judgeCores(instances, coresPerInstance)) {
             return false;
@@ -132,41 +133,45 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
         return false;
     }
 
-    public void getYarnSlots(YarnClient yarnClient, String queueName, int yarnAccepterTaskNumber) throws IOException, YarnException {
-        EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
-        enumSet.add(YarnApplicationState.ACCEPTED);
-        List<ApplicationReport> acceptedApps = yarnClient.getApplications(enumSet).stream().
-                filter(report -> report.getQueue().endsWith(queueName)).collect(Collectors.toList());
-        if (acceptedApps.size() > yarnAccepterTaskNumber) {
-            return;
-        }
-
-        List<NodeReport> nodeReports = yarnClient.getNodeReports(NodeState.RUNNING);
-        if (!elasticCapacity) {
-            getQueueRemainCapacity(1, queueName, yarnClient.getRootQueueInfos());
-        }
-        for (NodeReport report : nodeReports) {
-            Resource capability = report.getCapability();
-            Resource used = report.getUsed();
-            int totalMem = capability.getMemory();
-            int totalCores = capability.getVirtualCores();
-
-            int usedMem = used.getMemory();
-            int usedCores = used.getVirtualCores();
-
-            int freeCores = totalCores - usedCores;
-            int freeMem = totalMem - usedMem;
-
-            if (freeCores > containerCoreMax) {
-                containerCoreMax = freeCores;
+    public void getYarnSlots(YarnClient yarnClient, String queueName, int yarnAccepterTaskNumber) throws YarnException {
+        try {
+            EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
+            enumSet.add(YarnApplicationState.ACCEPTED);
+            List<ApplicationReport> acceptedApps = yarnClient.getApplications(enumSet).stream().
+                    filter(report -> report.getQueue().endsWith(queueName)).collect(Collectors.toList());
+            if (acceptedApps.size() > yarnAccepterTaskNumber) {
+                return;
             }
-            if (freeMem > containerMemoryMax) {
-                containerMemoryMax = freeMem;
-            }
-            this.addNodeResource(new NodeResourceDetail(report.getNodeId().toString(), totalCores, usedCores, freeCores, totalMem, usedMem, freeMem));
-        }
 
-        calc();
+            List<NodeReport> nodeReports = yarnClient.getNodeReports(NodeState.RUNNING);
+            if (!elasticCapacity) {
+                getQueueRemainCapacity(1, queueName, yarnClient.getRootQueueInfos());
+            }
+            for (NodeReport report : nodeReports) {
+                Resource capability = report.getCapability();
+                Resource used = report.getUsed();
+                int totalMem = capability.getMemory();
+                int totalCores = capability.getVirtualCores();
+
+                int usedMem = used.getMemory();
+                int usedCores = used.getVirtualCores();
+
+                int freeCores = totalCores - usedCores;
+                int freeMem = totalMem - usedMem;
+
+                if (freeCores > containerCoreMax) {
+                    containerCoreMax = freeCores;
+                }
+                if (freeMem > containerMemoryMax) {
+                    containerMemoryMax = freeMem;
+                }
+                this.addNodeResource(new NodeResourceDetail(report.getNodeId().toString(), totalCores, usedCores, freeCores, totalMem, usedMem, freeMem));
+            }
+
+            calc();
+        } catch ( IOException | YarnException e) {
+            throw new YarnException(e);
+        }
     }
 
     private float getQueueRemainCapacity(float coefficient, String queueName, List<QueueInfo> queueInfos) {

@@ -237,11 +237,8 @@ public class DtYarnShellClient extends AbsClient {
         try {
             resourceInfo.getYarnSlots(client.getYarnClient(), conf.get(DtYarnConfiguration.DT_APP_QUEUE), conf.getInt(DtYarnConfiguration.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1));
             return resourceInfo.judgeSlots(jobClient);
-        } catch (Exception e) {
+        } catch (YarnException e) {
             LOG.error("", e);
-            if (e instanceof ClientArgumentException) {
-                throw new ClientArgumentException(e);
-            }
             return false;
         }
     }

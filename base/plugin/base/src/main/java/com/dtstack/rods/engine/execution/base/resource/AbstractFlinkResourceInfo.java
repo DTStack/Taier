@@ -1,6 +1,6 @@
 package com.dtstack.rods.engine.execution.base.resource;
 
-import com.dtstack.rdos.commom.exception.RdosException;
+import com.dtstack.rdos.commom.exception.LimitResourceException;
 import com.google.common.collect.Lists;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public abstract class AbstractFlinkResourceInfo implements EngineResourceInfo {
 
     protected boolean judgeFlinkSessionResource(int sqlEnvParallel, int mrParallel) {
         if (sqlEnvParallel == 0 && mrParallel == 0) {
-            throw new RdosException(LIMIT_RESOURCE_ERROR + "Flink task resource configuration error，sqlEnvParallel：" + sqlEnvParallel + ", mrParallel：" + mrParallel);
+            throw new LimitResourceException("Flink task resource configuration error，sqlEnvParallel：" + sqlEnvParallel + ", mrParallel：" + mrParallel);
         }
         int availableSlots = 0;
         int totalSlots = 0;
@@ -38,7 +38,7 @@ public abstract class AbstractFlinkResourceInfo implements EngineResourceInfo {
         }
         int maxParallel = Math.max(sqlEnvParallel, mrParallel);
         if (totalSlots < maxParallel) {
-            throw new RdosException(LIMIT_RESOURCE_ERROR + "Flink task allocation resource exceeds the maximum resource of the cluster, totalSlots:" + totalSlots + ",maxParallel:" + maxParallel);
+            throw new LimitResourceException("Flink task allocation resource exceeds the maximum resource of the cluster, totalSlots:" + totalSlots + ",maxParallel:" + maxParallel);
         }
         return availableSlots >= maxParallel;
     }
