@@ -1574,12 +1574,20 @@ class EditCluster extends React.Component<any, any> {
                                                 {
                                                     tabCompData && tabCompData.map((item: any, index: any) => {
                                                         const { componentTypeCode } = item;
+                                                        const componentName = item.componentName === 'SparkThrift'
+                                                            ? 'Spark ThriftServer'
+                                                            : (
+                                                                item.componentName === 'CarbonData'
+                                                                    ? 'CarbonData ThriftServer'
+                                                                    : item.componentName
+                                                            )
+                                                        console.log(item.componentName, componentName);
                                                         return (
                                                             <TabPane
                                                                 tab={
                                                                     <span>
                                                                         <RequiredIcon componentData={item} showRequireStatus={this.props.showRequireStatus}/>
-                                                                        <span className='tab-title'>{item.componentName}</span>
+                                                                        <span className='tab-title'>{componentName}</span>
                                                                         <TestRestIcon componentData={item} testStatus={this.props.testStatus}/>
                                                                     </span>
                                                                 }

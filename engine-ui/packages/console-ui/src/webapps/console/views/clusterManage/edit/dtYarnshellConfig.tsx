@@ -24,19 +24,6 @@ export default class DtyarnShellConfig extends React.Component<any, any> {
                         )}
                     </FormItem>
                     <FormItem
-                        label="java.home"
-                        {...formItemLayout}
-                    >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.DTYARNSHELL}.javaHome`, {
-                            rules: [{
-                                required: false,
-                                message: '请输入java.home'
-                            }]
-                        })(
-                            <Input disabled={isView} placeholder="/opt/java/bin" />
-                        )}
-                    </FormItem>
-                    <FormItem
                         label="hadoop.home.dir"
                         {...formItemLayout}
                     >
@@ -47,6 +34,19 @@ export default class DtyarnShellConfig extends React.Component<any, any> {
                             }]
                         })(
                             <Input disabled={isView} placeholder="/opt/dtstack/hadoop-2.7.3" />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label="java.home"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.DTYARNSHELL}.javaHome`, {
+                            rules: [{
+                                required: false,
+                                message: '请输入java.home'
+                            }]
+                        })(
+                            <Input disabled={isView} placeholder="/opt/java/bin" />
                         )}
                     </FormItem>
                     <FormItem
