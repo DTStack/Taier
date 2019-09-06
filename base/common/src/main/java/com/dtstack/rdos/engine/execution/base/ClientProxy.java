@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.base;
 
+import com.dtstack.rdos.commom.exception.ClientArgumentException;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBack;
 import com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBackMethod;
@@ -142,6 +143,9 @@ public class ClientProxy implements IClient{
                 }
             }, targetClient.getClass().getClassLoader(),true);
         } catch (Exception e) {
+            if (e instanceof ClientArgumentException) {
+                throw new ClientArgumentException(e);
+            }
             throw new RdosException(e.getMessage());
         }
     }
