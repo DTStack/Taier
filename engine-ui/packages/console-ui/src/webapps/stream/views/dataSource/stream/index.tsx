@@ -86,7 +86,7 @@ class DataSourceManaStream extends React.Component<any, any> {
         const { title, status, source } = this.state
         let reqSource = sourceFormData
         if (status === 'edit') { // 编辑数据
-            reqSource = Object.assign(source, sourceFormData)
+            reqSource = Object.assign(cloneDeep(source), sourceFormData)
         }
         if (reqSource.dataJson.openKerberos) {
             reqSource.dataJsonString = JSON.stringify(reqSource.dataJson)
@@ -101,11 +101,11 @@ class DataSourceManaStream extends React.Component<any, any> {
             })
             Api.streamSaveDataSourceWithKerberos(reqSource).then((res: any) => {
                 if (res.code === 1) {
-                    formObj.resetFields()
                     message.success(`${title}成功！`)
                     ctx.setState({
                         visible: false
                     })
+                    formObj.resetFields()
                     ctx.loadDataSources()
                     callBack();
                 }
@@ -114,11 +114,11 @@ class DataSourceManaStream extends React.Component<any, any> {
             console.log(reqSource)
             Api.streamSaveDataSource(reqSource).then((res: any) => {
                 if (res.code === 1) {
-                    formObj.resetFields()
                     message.success(`${title}成功！`)
                     ctx.setState({
                         visible: false
                     })
+                    formObj.resetFields()
                     ctx.loadDataSources()
                     callBack();
                 }

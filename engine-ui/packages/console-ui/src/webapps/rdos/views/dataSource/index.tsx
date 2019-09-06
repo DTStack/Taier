@@ -98,8 +98,9 @@ class DataSourceMana extends React.Component<any, any> {
         const ctx = this
         const { title, status, source } = this.state
         let reqSource = sourceFormData
+        console.log(source)
         if (status === 'edit') { // 编辑数据
-            reqSource = Object.assign(source, sourceFormData)
+            reqSource = Object.assign(cloneDeep(source), sourceFormData)
         }
         console.log(reqSource)
         if (reqSource.dataJson.openKerberos) {
@@ -115,11 +116,11 @@ class DataSourceMana extends React.Component<any, any> {
             })
             Api.addOrUpdateSourceKerberos(reqSource).then((res: any) => {
                 if (res.code === 1) {
-                    formObj.resetFields()
                     message.success(`${title}成功！`)
                     ctx.setState({
                         visible: false
                     })
+                    formObj.resetFields()
                     ctx.loadDataSources()
                     callBack();
                 }
@@ -127,11 +128,11 @@ class DataSourceMana extends React.Component<any, any> {
         } else {
             Api.addOrUpdateSource(reqSource).then((res: any) => {
                 if (res.code === 1) {
-                    formObj.resetFields()
                     message.success(`${title}成功！`)
                     ctx.setState({
                         visible: false
                     })
+                    formObj.resetFields()
                     ctx.loadDataSources()
                     callBack();
                 }

@@ -86,8 +86,8 @@ class DataSource extends React.Component<any, any> {
                 })
                 DSApi.updateDataSourceKerberos(reqSource).then((res: any) => {
                     if (res.code === 1) {
-                        formObj.resetFields();
                         this.setState({ visible: false });
+                        formObj.resetFields();
                         message.success(`${title}成功！`);
                         this.props.getDataSources(params);
                     }
@@ -95,8 +95,8 @@ class DataSource extends React.Component<any, any> {
             } else {
                 DSApi.updateDataSource(reqSource).then((res: any) => {
                     if (res.code === 1) {
-                        formObj.resetFields();
                         this.setState({ visible: false });
+                        formObj.resetFields();
                         message.success(`${title}成功！`);
                         this.props.getDataSources(params);
                     }
@@ -117,8 +117,8 @@ class DataSource extends React.Component<any, any> {
                 });
                 DSApi.addDataSourceKerberos(sourceFormData).then((res: any) => {
                     if (res.code === 1) {
-                        formObj.resetFields();
                         this.setState({ visible: false });
+                        formObj.resetFields();
                         message.success(`${title}成功！`);
                         this.props.getDataSources(params);
                     }
@@ -126,8 +126,8 @@ class DataSource extends React.Component<any, any> {
             } else {
                 DSApi.addDataSource(sourceFormData).then((res: any) => {
                     if (res.code === 1) {
-                        formObj.resetFields();
                         this.setState({ visible: false });
+                        formObj.resetFields();
                         message.success(`${title}成功！`);
                         this.props.getDataSources(params);
                     }
