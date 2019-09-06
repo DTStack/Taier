@@ -3,7 +3,6 @@ package com.dtstack.rdos.engine.execution.learning;
 import com.dtstack.learning.client.ClientArguments;
 import com.dtstack.rdos.commom.exception.ClientArgumentException;
 import com.dtstack.rdos.commom.exception.LimitResourceException;
-import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rods.engine.execution.base.resource.AbstractYarnResourceInfo;
 import com.google.common.collect.Lists;
