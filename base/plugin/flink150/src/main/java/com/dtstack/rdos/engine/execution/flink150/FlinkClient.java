@@ -607,8 +607,16 @@ public class FlinkClient extends AbsClient {
 
     @Override
     public String getJobMaster(JobIdentifier jobIdentifier){
-    	String url = getReqUrl();
-    	return url.split("//")[1];
+        ApplicationId applicationId = (ApplicationId) flinkClusterClientManager.getClusterClient(jobIdentifier).getClusterId();
+
+        String url = null;
+        try {
+            url = yarnClient.getApplicationReport(applicationId).getTrackingUrl();
+            url = StringUtils.substringBefore(url.split("//")[1], "/");
+        } catch (Exception e){
+            logger.error("Getting URL failed" + e);
+        }
+    	return url;
     }
 
     private JobResult submitSyncJob(JobClient jobClient) {
