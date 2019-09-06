@@ -57,14 +57,6 @@ export default class FlinkConfig extends React.Component<any, any> {
                         )}
                     </FormItem>
                     <FormItem
-                        label="flinkClusterId"
-                        {...formItemLayout}
-                    >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkClusterId`, {})(
-                            <Input disabled={isView} />
-                        )}
-                    </FormItem>
-                    <FormItem
                         label="flinkZkAddress"
                         {...formItemLayout}
                     >
@@ -132,6 +124,14 @@ export default class FlinkConfig extends React.Component<any, any> {
                         )}
                     </FormItem>
                     <FormItem
+                        label="flinkClusterId"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkClusterId`, {})(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
+                    <FormItem
                         label="jarTmpDir"
                         {...formItemLayout}
                     >
@@ -161,6 +161,46 @@ export default class FlinkConfig extends React.Component<any, any> {
                             <Input disabled={isView} />
                         )}
                     </FormItem>
+                    <FormItem
+                        label="yarn.jobmanager.help.mb"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.yarnJobmanagerHelpMb`, {
+                            initialValue: 1024
+                        })(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label="yarn.taskmanager.help.mb"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.yarnTaskmanagerHelpMb`, {
+                            initialValue: 1024
+                        })(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label={<Tooltip title="yarn.taskmanager.numberOfTaskSlots">yarn.taskmanager.numberOfTaskSlots</Tooltip>}
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.yarnTaskmanagerNumberOfTaskSlots`, {
+                            initialValue: 2
+                        })(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label={<Tooltip title="yarn.taskmanager.numberOfTaskManager">yarn.taskmanager.numberOfTaskManager</Tooltip>}
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.yarnTaskmanagerNumberOfTaskManager`, {
+                            initialValue: 2
+                        })(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
                     <div className="checkboxStyle">
                         <Checkbox
                             checked={checked}
@@ -170,7 +210,6 @@ export default class FlinkConfig extends React.Component<any, any> {
                             配置Prometheus Metric地址
                         </Checkbox>
                     </div>
-
                     {checked ? (<div>
                         <FormItem
                             label="reporterClass"
@@ -257,46 +296,6 @@ export default class FlinkConfig extends React.Component<any, any> {
                         </FormItem>
                     </div>) : null
                     }
-                    <FormItem
-                        label="yarn.jobmanager.help.mb"
-                        {...formItemLayout}
-                    >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.yarnJobmanagerHelpMb`, {
-                            initialValue: 1024
-                        })(
-                            <Input disabled={isView} />
-                        )}
-                    </FormItem>
-                    <FormItem
-                        label="yarn.taskmanager.help.mb"
-                        {...formItemLayout}
-                    >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.yarnTaskmanagerHelpMb`, {
-                            initialValue: 1024
-                        })(
-                            <Input disabled={isView} />
-                        )}
-                    </FormItem>
-                    <FormItem
-                        label={<Tooltip title="yarn.taskmanager.numberOfTaskSlots">yarn.taskmanager.numberOfTaskSlots</Tooltip>}
-                        {...formItemLayout}
-                    >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.yarnTaskmanagerNumberOfTaskSlots`, {
-                            initialValue: 2
-                        })(
-                            <Input disabled={isView} />
-                        )}
-                    </FormItem>
-                    <FormItem
-                        label={<Tooltip title="yarn.taskmanager.numberOfTaskManager">yarn.taskmanager.numberOfTaskManager</Tooltip>}
-                        {...formItemLayout}
-                    >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.yarnTaskmanagerNumberOfTaskManager`, {
-                            initialValue: 2
-                        })(
-                            <Input disabled={isView} />
-                        )}
-                    </FormItem>
                     {
                         securityStatus ? <div>
                             <FormItem
