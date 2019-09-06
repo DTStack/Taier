@@ -21,7 +21,7 @@ export default class FlinkConfig extends React.Component<any, any> {
         return (
             <React.Fragment>
                 <div className="engine-config-content" style={{ width: '680px' }}>
-                <FormItem
+                    <FormItem
                         label="版本选择"
                         {...formItemLayout}
                     >
