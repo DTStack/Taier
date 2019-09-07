@@ -24,10 +24,16 @@
             <scope>provided</scope>
         </dependency>
 
+        <!--<dependency>-->
+            <!--<groupId>org.postgresql</groupId>-->
+            <!--<artifactId>postgresql</artifactId>-->
+            <!--<version>42.2.2</version>-->
+        <!--</dependency>-->
+
         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>42.2.2</version>
+            <groupId>com.huawei</groupId>
+            <artifactId>gsjdbc4</artifactId>
+            <version>1</version>
         </dependency>
     </dependencies>
 
