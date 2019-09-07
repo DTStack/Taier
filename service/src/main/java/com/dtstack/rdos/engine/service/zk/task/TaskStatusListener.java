@@ -27,8 +27,6 @@ import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Maps;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -349,9 +347,6 @@ public class TaskStatusListener implements Runnable{
                     rdosTaskStatus = checkNotFoundStatus(rdosTaskStatus, taskId);
 
                     Integer status = rdosTaskStatus.getStatus();
-
-                    String engineLog = JobClient.getEngineLog(engineTypeName, pluginInfoStr, jobIdentifier);
-
                     // 重试状态 先不更新状态
                     boolean isRestart = RestartDealer.getInstance().checkAndRestart(status, taskId, engineTaskId, appId, engineTypeName, computeType, pluginInfoStr);
                     if(isRestart){
