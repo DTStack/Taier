@@ -95,43 +95,15 @@ public class HadoopConf {
         }
 
         configuration = new Configuration();
-        String nameServices = HadoopConfTool.getDfsNameServices(conf);
-        if (StringUtils.isNotBlank(nameServices)){
-            String haNameNodesKey = HadoopConfTool.getDfsHaNameNodesKey(conf);
-            String haNameNodesVal = HadoopConfTool.getDfsHaNameNodes(conf, haNameNodesKey);
-            String proxyProviderKey = HadoopConfTool.getClientFailoverProxyProviderKey(conf);
-            String proxyProvider = HadoopConfTool.getClientFailoverProxyProviderVal(conf, proxyProviderKey);
-            List<String> nnRpcAddressList = HadoopConfTool.getDfsNameNodeRpcAddressKeys(conf);
-
-            configuration.set(HadoopConfTool.DFS_NAME_SERVICES, nameServices);
-            configuration.set(haNameNodesKey, haNameNodesVal);
-            //配置自动故障切换实现方式
-            configuration.set(proxyProviderKey, proxyProvider);
-            nnRpcAddressList.forEach(key -> {
-                String val = HadoopConfTool.getDfsNameNodeRpcAddress(conf, key);
-                configuration.set(key, val);
-            });
-        }
-
-        String defaultFs = HadoopConfTool.getFSDefaults(conf);
-        configuration.set(HadoopConfTool.FS_DEFAULTFS, defaultFs);
-
-        //非必须:针对hdfs的文件系统实现
-        String fsHdfsImpl = HadoopConfTool.getFsHdfsImpl(conf);
-        configuration.set(HadoopConfTool.FS_HDFS_IMPL, fsHdfsImpl);
-        //非必须:如果多个hadoopclient之间不互相影响需要取消cache
-        String disableCache = HadoopConfTool.getFsHdfsImplDisableCache(conf);
-        configuration.set(HadoopConfTool.FS_HDFS_IMPL_DISABLE_CACHE, disableCache);
-
-        if(Strings.isNotEmpty(HadoopConfTool.getAuthType(conf))){
-           configuration.set(HadoopConfTool.HADOOP_AUTH_TYPE, HadoopConfTool.getAuthType(conf));
-        }
-
-        for (Map.Entry<String, Object> keyVal : conf.entrySet()) {
-            if(keyVal.getKey().contains(".principal") && keyVal.getValue() != null){
-                configuration.set(keyVal.getKey(), keyVal.getValue().toString());
+        configuration = new Configuration();
+        conf.keySet().forEach(key ->{
+            Object value = conf.get(key);
+            if (value instanceof String){
+                configuration.set(key, (String) value);
+            } else if (value instanceof Boolean){
+                configuration.setBoolean(key, (boolean) value);
             }
-        }
+        });
     }
 
     public void initYarnConf(Map<String, Object> conf){
@@ -142,28 +114,16 @@ public class HadoopConf {
             return;
         }
 
-        String haRmIds = YarnConfTool.getYarnResourcemanagerHaRmIds(conf);
-        List<String> addressKeys = YarnConfTool.getYarnResourceManagerAddressKeys(conf);
-        List<String> webAppAddrKeys = YarnConfTool.getYarnResourceManagerWebAppAddressKeys(conf);
-        String haEnabled = YarnConfTool.getYarnResourcemanagerHaEnabled(conf);
-
         yarnConfiguration = new YarnConfiguration(configuration);
-        if (StringUtils.isNotBlank(haRmIds)) {
-            yarnConfiguration.set(YarnConfTool.YARN_RESOURCEMANAGER_HA_RM_IDS, haRmIds);
-        }
 
-        addressKeys.forEach(key -> {
-            String rmMgrAddr = YarnConfTool.getYarnResourceManagerAddressVal(conf, key);
-            yarnConfiguration.set(key, rmMgrAddr);
+        conf.keySet().forEach(key ->{
+            Object value = conf.get(key);
+            if (value instanceof String){
+                yarnConfiguration.set(key, (String) value);
+            } else if (value instanceof Boolean){
+                yarnConfiguration.setBoolean(key, (boolean) value);
+            }
         });
-
-        webAppAddrKeys.forEach(key -> {
-            String rmMgrWebAppAddr = YarnConfTool.getYarnResourceManagerWebAppAddressVal(conf, key);
-            yarnConfiguration.set(key, rmMgrWebAppAddr);
-
-        });
-
-        yarnConfiguration.set(YarnConfTool.YARN_RESOURCEMANAGER_HA_ENABLED, haEnabled);//必要
     }
 
     public static Configuration getDefaultConfiguration() {
