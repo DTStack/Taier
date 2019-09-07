@@ -209,7 +209,7 @@ class RealTimeTaskList extends React.Component<any, any> {
                             isRestoration: 0
                         }).then((res: any) => {
                             if (res.code === 1) {
-                                message.success('重跑操作成功！')
+                                message.success('续跑操作成功！')
                                 ctx.loadTaskList({ pageIndex: current })
                                 ctx.loadCount();
                             }
@@ -425,7 +425,7 @@ class RealTimeTaskList extends React.Component<any, any> {
 
         if (record.taskType == TASK_TYPE.DATA_COLLECTION) {
             normal = normal == '重试' ? null : normal;
-            goOn = goOn == '续跑' ? '重跑' : null;
+            // goOn = goOn == '续跑' ? '重跑' : null;
             recover = null;
         }
         if (isPane) {
