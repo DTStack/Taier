@@ -1,6 +1,5 @@
 package com.dtstack.rdos.engine.execution.yarnshell;
 
-import com.dtstack.rdos.commom.exception.ClientArgumentException;
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.MathUtil;
@@ -9,7 +8,6 @@ import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobIdentifier;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
-import com.dtstack.rods.engine.execution.base.resource.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.yarn.DtYarnConfiguration;
 import com.dtstack.yarn.client.Client;
@@ -237,11 +235,8 @@ public class DtYarnShellClient extends AbsClient {
         try {
             resourceInfo.getYarnSlots(client.getYarnClient(), conf.get(DtYarnConfiguration.DT_APP_QUEUE), conf.getInt(DtYarnConfiguration.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1));
             return resourceInfo.judgeSlots(jobClient);
-        } catch (Exception e) {
+        } catch (YarnException e) {
             LOG.error("", e);
-            if (e instanceof ClientArgumentException) {
-                throw new ClientArgumentException(e);
-            }
             return false;
         }
     }

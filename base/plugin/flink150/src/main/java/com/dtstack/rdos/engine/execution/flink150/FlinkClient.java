@@ -607,8 +607,16 @@ public class FlinkClient extends AbsClient {
 
     @Override
     public String getJobMaster(JobIdentifier jobIdentifier){
-    	String url = getReqUrl();
-    	return url.split("//")[1];
+        ApplicationId applicationId = (ApplicationId) flinkClusterClientManager.getClusterClient(jobIdentifier).getClusterId();
+
+        String url = null;
+        try {
+            url = yarnClient.getApplicationReport(applicationId).getTrackingUrl();
+            url = StringUtils.substringBefore(url.split("//")[1], "/");
+        } catch (Exception e){
+            logger.error("Getting URL failed" + e);
+        }
+    	return url;
     }
 
     private JobResult submitSyncJob(JobClient jobClient) {
@@ -705,24 +713,23 @@ public class FlinkClient extends AbsClient {
     public boolean judgeSlots(JobClient jobClient) {
         FlinkYarnMode taskRunMode = FlinkUtil.getTaskRunMode(jobClient.getConfProperties(), jobClient.getComputeType());
         boolean isPerJob = ComputeType.STREAM == jobClient.getComputeType() || FlinkYarnMode.isPerJob(taskRunMode);
-
-        try {
-            if (isPerJob){
+        if (isPerJob){
+            try {
                 FlinkPerJobResourceInfo perJobResourceInfo = new FlinkPerJobResourceInfo();
                 perJobResourceInfo.getYarnSlots(yarnClient, flinkConfig.getQueue(), flinkConfig.getYarnAccepterTaskNumber());
                 return perJobResourceInfo.judgeSlots(jobClient);
-            } else {
-                if (!flinkClusterClientManager.getIsClientOn()){
-                    return false;
-                }
-                FlinkYarnSeesionResourceInfo yarnSeesionResourceInfo = new FlinkYarnSeesionResourceInfo();
-                String slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
-                yarnSeesionResourceInfo.getFlinkSessionSlots(slotInfo);
-                return yarnSeesionResourceInfo.judgeSlots(jobClient);
+            } catch (YarnException e) {
+                logger.error("", e);
+                return false;
             }
-        } catch (Exception e) {
-            logger.error("", e);
-            return false;
+        } else {
+            if (!flinkClusterClientManager.getIsClientOn()){
+                return false;
+            }
+            FlinkYarnSeesionResourceInfo yarnSeesionResourceInfo = new FlinkYarnSeesionResourceInfo();
+            String slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
+            yarnSeesionResourceInfo.getFlinkSessionSlots(slotInfo);
+            return yarnSeesionResourceInfo.judgeSlots(jobClient);
         }
     }
 

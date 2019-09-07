@@ -41,6 +41,10 @@ public class ApplicationWSParser {
         }
 
         Elements afs = el.get(0).select("a[href]");
+        if (afs.isEmpty()) {
+            //任务已经结束，获取不到有效的href
+            return null;
+        }
         String amErrURL = afs.first().attr("href");
         //截取url参数部分
         amErrURL = amErrURL.substring(0, amErrURL.indexOf("?"));

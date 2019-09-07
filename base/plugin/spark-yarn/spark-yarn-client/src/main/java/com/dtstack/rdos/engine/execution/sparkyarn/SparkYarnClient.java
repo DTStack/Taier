@@ -617,7 +617,7 @@ public class SparkYarnClient extends AbsClient {
         try {
             resourceInfo.getYarnSlots(yarnClient, sparkYarnConfig.getQueue(), sparkYarnConfig.getYarnAccepterTaskNumber());
             return resourceInfo.judgeSlots(jobClient);
-        } catch (Exception e) {
+        } catch (YarnException e) {
             logger.error("", e);
             return false;
         }
