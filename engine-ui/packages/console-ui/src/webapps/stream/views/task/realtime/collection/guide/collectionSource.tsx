@@ -44,7 +44,7 @@ class CollectionSource extends React.Component<any, any> {
     }
 
     // eslint-disable-next-line
-    UNSAFE_componentWillReceiveProps(nextProps: any) {
+    UNSAFE_componentWillReceiveProps (nextProps: any) {
         const { collectionData } = nextProps;
         const { sourceMap = {} } = collectionData;
         const { collectionData: oldCol } = this.props;
@@ -599,6 +599,7 @@ class CollectionSourceForm extends React.Component<any, any> {
                             ]
                         })(
                             <Select
+                                disabled={isEdit}
                                 showSearch
                                 placeholder="请选择数据源"
                                 className="right-select"

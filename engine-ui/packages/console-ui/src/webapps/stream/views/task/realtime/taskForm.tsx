@@ -93,11 +93,12 @@ class TaskFormModal extends React.Component<any, any> {
 
         this.props.form.validateFields(fileds, (err: any) => {
             if (!err) {
-                setTimeout(() => {
-                    this.setState({ taskType: 0 })
-                    form.resetFields()
-                }, 200)
-                handOk(task)
+                handOk(task).then((err: boolean) => {
+                    if (!err) {
+                        this.setState({ taskType: 0 })
+                        form.resetFields()
+                    }
+                })
             }
         });
     }
