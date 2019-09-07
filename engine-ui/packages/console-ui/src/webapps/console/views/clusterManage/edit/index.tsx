@@ -1115,8 +1115,6 @@ class EditCluster extends React.Component<any, any> {
                                     >
                                         {getFieldDecorator('kerberosFile', {
                                             rules: [{
-                                            }, {
-                                                validator: this.validateFileType
                                             }]
                                         })(
                                             <div
