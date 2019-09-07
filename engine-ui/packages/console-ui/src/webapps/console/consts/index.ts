@@ -96,7 +96,7 @@ export const HADOOP_GROUP_VALUE: any = [ // hadoop 引擎支持的组件类型(�
     { label: 'DTYarnShell', value: COMPONENT_TYPE_VALUE.DTYARNSHELL },
     { label: 'HDFS', value: COMPONENT_TYPE_VALUE.HDFS, disabled: true },
     { label: 'YARN', value: COMPONENT_TYPE_VALUE.YARN, disabled: true },
-    { label: 'SparkThrift', value: COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER, disabled: true },
+    { label: 'SparkThrift', value: COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER },
     { label: 'CarbonData', value: COMPONENT_TYPE_VALUE.CARBONDATA },
     { label: 'Hive Server', value: COMPONENT_TYPE_VALUE.HIVESERVER },
     { label: 'SFTP', value: COMPONENT_TYPE_VALUE.SFTP }

@@ -208,7 +208,7 @@ class AddCommModal extends React.Component<any, any> {
                                 message: ''
                             }]
                         })(
-                            <span>{'HDFS、YARN、SparkThrift'}</span>
+                            <span>{'HDFS、YARN'}</span>
                         )}
                     </FormItem>
                 }
