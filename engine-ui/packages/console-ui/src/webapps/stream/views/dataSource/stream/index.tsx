@@ -151,18 +151,20 @@ class DataSourceManaStream extends React.Component<any, any> {
         })
     }
 
-    testConnection = (source: any) => { // 测试数据源连通性
-        console.log(source)
-        if (source.dataJson.openKerberos) {
-            source.dataJsonString = JSON.stringify(source.dataJson)
-            delete source.dataJson;
-            source = pickBy(source, (item, key) => { // 过滤掉空字符串和值为null的属性，并且过滤掉编辑时的kerberos字段
+    testConnection = (formSource: any) => { // 测试数据源连通性
+        const { source } = this.state;
+        formSource.id = source.id;
+        console.log(formSource, source)
+        if (formSource.dataJson.openKerberos) {
+            formSource.dataJsonString = JSON.stringify(formSource.dataJson)
+            delete formSource.dataJson;
+            formSource = pickBy(formSource, (item, key) => { // 过滤掉空字符串和值为null的属性，并且过滤掉编辑时的kerberos字段
                 if (key === 'kerberosFile' && (!item.type)) {
                     return false
                 }
                 return item != null
             })
-            Api.streamTestDataSourceConnectionWithKerberos(source).then((res: any) => {
+            Api.streamTestDataSourceConnectionWithKerberos(formSource).then((res: any) => {
                 if (res.code === 1 && res.data) {
                     message.success('数据源连接正常！')
                 } else if (res.code === 1 && !res.data) {
@@ -170,7 +172,7 @@ class DataSourceManaStream extends React.Component<any, any> {
                 }
             })
         } else {
-            Api.streamTestDataSourceConnection(source).then((res: any) => {
+            Api.streamTestDataSourceConnection(formSource).then((res: any) => {
                 if (res.code === 1 && res.data) {
                     message.success('数据源连接正常！')
                 } else if (res.code === 1 && !res.data) {

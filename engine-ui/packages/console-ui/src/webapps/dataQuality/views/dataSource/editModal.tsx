@@ -100,9 +100,10 @@ class DataSourceModal extends React.Component<any, any> {
 
     testConnection = () => {
         const { sourceType } = this.state;
-        const { form } = this.props;
+        const { form, sourceData } = this.props;
 
         let field: any;
+        console.log(sourceData)
 
         if (sourceType === DATA_SOURCE.MAXCOMPUTE) {
             field = [
@@ -117,6 +118,7 @@ class DataSourceModal extends React.Component<any, any> {
 
         form.validateFields(field, (err: any, values: any) => {
             if (!err) {
+                values.id = sourceData.id;
                 if (values.dataJson.openKerberos) {
                     values.dataJsonString = JSON.stringify(values.dataJson)
                     delete values.dataJson;
