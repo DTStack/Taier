@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/camelcase */
 import * as React from 'react';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, mapValues, findKey } from 'lodash';
 import { connect } from 'react-redux';
-import { Form, Input, Row, Col, Icon, Button, message, Card, Tabs, Modal } from 'antd';
+import { Form, Input, Row, Col, Icon, Button, message, Card, Tabs, Modal, Upload, Tooltip, Switch } from 'antd';
 import Api from '../../../api/console'
+import moment from 'moment'
 
 import { exChangeComponentConf,
     showTestResult, validateAllRequired,
@@ -28,6 +29,7 @@ import HiveServerConfig from './hiveServerConfig';
 import LibraSqlConfig from './libraSqlConfig';
 import ZipConfig from './zipConfig';
 import { SparkThriftConfig, CarbonDataConfig } from './sparkThriftAndCarbonData';
+import SftpConfig from './sftpConfig';
 import AddCommModal from '../../../components/addCommModal';
 import RequiredIcon from '../../../components/requiredIcon';
 import TestRestIcon from '../../../components/testResultIcon';
@@ -55,14 +57,17 @@ function giveMeAKey () {
     }
 }) as any)
 class EditCluster extends React.Component<any, any> {
+    kfile: any;
     state: any = {
         clusterData: {},
         selectUserMap: {},
         selectUser: '', // select输入value
         file: '', // 上传的文件
+        kfile: '', // 上传的kerberos文件
         zipConfig: '{}', // 解析的配置文件信息
         securityStatus: false, // 根据配置文件是否显示spark， flink等其他参数
         uploadLoading: false, // 上传loading
+        uploadKLoading: false, // 上传kerberos loading
         flink_params: [],
         spark_params: [],
         sparkThrif_params: [],
@@ -70,6 +75,7 @@ class EditCluster extends React.Component<any, any> {
         learning_params: [],
         dtyarnshell_params: [],
         libraSql_params: [],
+        sftp_params: [],
         core: null,
         nodeNumber: null,
         memory: null,
@@ -92,6 +98,7 @@ class EditCluster extends React.Component<any, any> {
         this.getDataList();
         this.props.updateTestStatus(DEFAULT_COMP_TEST)
         this.props.updateRequiredStatus(DEFAULT_COMP_REQUIRED)
+        this.getKerberosFile();
     }
 
     /**
@@ -126,8 +133,21 @@ class EditCluster extends React.Component<any, any> {
                 delete copyComp[key]
             }
         }
+        console.log(copyComp);
         if (isHadoop) {
-            setFieldsValue(copyComp)
+            setFieldsValue(copyComp);
+            for (let i in copyComp) {
+                console.log(i, !!copyComp[i].kerberosFile)
+                if (copyComp[i].kerberosFile) {
+                    setFieldsValue({
+                        [i]: {
+                            ...copyComp[i]
+                            // openKerberos: copyComp[i].openKerberos,
+                            // kerberosFile: copyComp[i].kerberosFile
+                        }
+                    })
+                }
+            }
         } else {
             setFieldsValue({
                 libraConf: compConf.libraConf
@@ -149,6 +169,46 @@ class EditCluster extends React.Component<any, any> {
                 return libraConf.components || []
             }
         }
+    }
+    // 获取kerberos文件信息
+    deleteKerberosFile () {
+        const { location } = this.props;
+        const params = location.state || {};
+        const clusterId = params.cluster.id || params.cluster.clusterId;
+        Api.deleteKerberos({
+            clusterId
+        })
+            .then(
+                (res: any) => {
+                    console.log(res);
+                    if (res.code === 1) {
+                        message.success(`删除Kerberos认证文件成功`)
+                        this.getKerberosFile();
+                    }
+                }
+            )
+    }
+    // 获取kerberos文件信息
+    getKerberosFile () {
+        const { location } = this.props;
+        const params = location.state || {};
+        const clusterId = params.cluster.id || params.cluster.clusterId;
+        Api.getKerberosFile({
+            clusterId
+        })
+            .then(
+                (res: any) => {
+                    console.log(res);
+                    const data = res.data;
+                    if (data && data.name) {
+                        this.setState({
+                            kfile: {
+                                files: [res.data]
+                            }
+                        })
+                    }
+                }
+            )
     }
     // 填充表单数据
     getDataList (engineType?: any) {
@@ -307,6 +367,42 @@ class EditCluster extends React.Component<any, any> {
                                 zipConfig: '{}'
                             })
                         }
+                    }
+                )
+        }
+    }
+    kfileChange (e: any) {
+        const { cluster } = this.props.location.state || {} as any;
+        const kfile = e.target;
+        console.log(kfile)
+        if (kfile.files.length > 0) {
+            this.setState({ uploadKLoading: true });
+            Api.uploadKerberosFile({
+                kerberosFile: kfile.files[0],
+                clusterId: cluster.id || cluster.clusterId
+            })
+                .then(
+                    (res: any) => {
+                        console.log(res.code)
+                        if (res.code == 1) {
+                            // console.log('1111111')
+                            this.setState({
+                                uploadKLoading: false,
+                                kfile: {
+                                    files: [
+                                        {
+                                            name: kfile.files[0].name
+                                        }
+                                    ]
+                                }
+                            })
+                        } else {
+                            // console.log('2222222222')
+                            this.setState({
+                                uploadKLoading: false
+                            })
+                        }
+                        this.kfile.value = '';
                     }
                 )
         }
@@ -485,17 +581,43 @@ class EditCluster extends React.Component<any, any> {
     }
     saveComponent (component: any) {
         const { getFieldsValue } = this.props.form;
+        const { cluster } = this.props.location.state || {} as any;
         const componentConf = this.getComponentConf(getFieldsValue());
-        Api.saveComponent({
-            componentId: component.componentId,
-            configString: JSON.stringify(componentConf[COMPONEMT_CONFIG_KEY_ENUM[component.componentTypeCode]])
-        }).then((res: any) => {
-            if (res.code === 1) {
-                // 避免上传配置文件的组件hdfs、yarn保存之后会导致另一项组件数据清空，这里不请求数据
-                // this.getDataList(this.state.engineTypeKey);
-                message.success(`${component.componentName}保存成功`)
+        const saveConfig = componentConf[COMPONEMT_CONFIG_KEY_ENUM[component.componentTypeCode]];
+        console.log(component, componentConf, saveConfig)
+        if (saveConfig && saveConfig.openKerberos && saveConfig.kerberosFile) {
+            const kerberosFile = saveConfig.kerberosFile
+            delete saveConfig.kerberosFile;
+            Api.saveComponentWithKerberos({
+                componentId: component.componentId,
+                configString: JSON.stringify(saveConfig),
+                clusterId: cluster.id || cluster.clusterId,
+                kerberosFile
+            }).then((res: any) => {
+                if (res.code === 1) {
+                    // 避免上传配置文件的组件hdfs、yarn保存之后会导致另一项组件数据清空，这里不请求数据
+                    // this.getDataList(this.state.engineTypeKey);
+                    message.success(`${component.componentName}保存成功`)
+                }
+            })
+        } else {
+            if (saveConfig.openKerberos && !saveConfig.kerberosFile) {
+                message.error('开启kerberos认证之后，必须上传文件才能保存');
+            } else {
+                saveConfig && delete saveConfig.kerberosFile;
+                Api.saveComponent({
+                    clusterId: cluster.id || cluster.clusterId,
+                    componentId: component.componentId,
+                    configString: JSON.stringify(saveConfig)
+                }).then((res: any) => {
+                    if (res.code === 1) {
+                        // 避免上传配置文件的组件hdfs、yarn保存之后会导致另一项组件数据清空，这里不请求数据
+                        // this.getDataList(this.state.engineTypeKey);
+                        message.success(`${component.componentName}保存成功`)
+                    }
+                });
             }
-        })
+        }
     }
     addComponent (params: any) {
         const { canSubmit, reqParams } = params;
@@ -539,6 +661,7 @@ class EditCluster extends React.Component<any, any> {
      */
     test () {
         const { updateRequiredStatus, updateTestStatus, form } = this.props;
+        const { cluster } = this.props.location.state || {} as any;
         const { engineTypeKey, clusterData } = this.state;
         // 页面滚动至底部
         const scroll = () => {
@@ -556,29 +679,85 @@ class EditCluster extends React.Component<any, any> {
                 this.setState({
                     allTestLoading: true
                 })
-                const componentConf = this.getComponentConf(values);
-                Api.testComponent({
-                    componentConfigs: JSON.stringify(componentConf)
+                let componentConf = this.getComponentConf(values);
+                let hasFile = false;
+                let fileObj = {}
+                componentConf = mapValues(componentConf, (item, key) => {
+                    console.log(item, item && item.kerberosFile)
+                    let newConfig = item
+                    if (item && item.kerberosFile) {
+                        hasFile = true;
+                        fileObj = {
+                            ...fileObj,
+                            [`${key}KerberosFile`]: item.kerberosFile
+                        };
+                        delete newConfig.kerberosFile;
+                    }
+                    return newConfig;
                 })
-                    .then(
-                        (res: any) => {
-                            if (res.code == 1) {
-                                const { description, testResults } = res.data;
-                                const testCompResult = showTestResult(testResults, engineTypeKey);
-                                this.setState({
-                                    nodeNumber: description ? description.totalNode : 0,
-                                    core: description ? description.totalCores : 0,
-                                    memory: description ? description.totalMemory : 0,
-                                    allTestLoading: false
-                                })
-                                updateTestStatus(testCompResult)
-                            } else {
+                console.log('startapi', componentConf, cluster)
+                if (hasFile) {
+                    Api.testComponentKerberos({
+                        ...fileObj,
+                        clusterId: cluster.id || cluster.clusterId,
+                        componentConfigs: JSON.stringify(componentConf)
+                    })
+                        .then(
+                            (res: any) => {
+                                if (res.code == 1) {
+                                    const { description, testResults } = res.data;
+                                    const testCompResult = showTestResult(testResults, engineTypeKey);
+                                    this.setState({
+                                        nodeNumber: description ? description.totalNode : 0,
+                                        core: description ? description.totalCores : 0,
+                                        memory: description ? description.totalMemory : 0,
+                                        allTestLoading: false
+                                    })
+                                    updateTestStatus(testCompResult)
+                                } else {
+                                    this.setState({
+                                        allTestLoading: false
+                                    })
+                                }
+                            }
+                        ).finally(
+                            () => {
                                 this.setState({
                                     allTestLoading: false
                                 })
                             }
-                        }
-                    )
+                        )
+                } else {
+                    Api.testComponent({
+                        clusterId: cluster.id || cluster.clusterId,
+                        componentConfigs: JSON.stringify(componentConf)
+                    })
+                        .then(
+                            (res: any) => {
+                                if (res.code == 1) {
+                                    const { description, testResults } = res.data;
+                                    const testCompResult = showTestResult(testResults, engineTypeKey);
+                                    this.setState({
+                                        nodeNumber: description ? description.totalNode : 0,
+                                        core: description ? description.totalCores : 0,
+                                        memory: description ? description.totalMemory : 0,
+                                        allTestLoading: false
+                                    })
+                                    updateTestStatus(testCompResult)
+                                } else {
+                                    this.setState({
+                                        allTestLoading: false
+                                    })
+                                }
+                            }
+                        ).finally(
+                            () => {
+                                this.setState({
+                                    allTestLoading: false
+                                })
+                            }
+                        )
+                }
             } else {
                 const hadoopComponentData = this.getComponetData(clusterData, ENGINE_TYPE.HADOOP);
                 const libraComponentData = this.getComponetData(clusterData, ENGINE_TYPE.LIBRA);
@@ -595,8 +774,12 @@ class EditCluster extends React.Component<any, any> {
         const { allComponentConf } = this.state;
         switch (component.componentTypeCode) {
             case COMPONENT_TYPE_VALUE.FLINK: {
+                const flinkObj = toChsKeys(allComponentConf.flinkConf || {}, FLINK_KEY_MAP);
+                console.log(flinkObj)
                 form.setFieldsValue({
-                    [COMPONEMT_CONFIG_KEYS.FLINK]: toChsKeys(allComponentConf.flinkConf || {}, FLINK_KEY_MAP)
+                    [COMPONEMT_CONFIG_KEYS.FLINK]: {
+                        ...flinkObj
+                    }
                 })
                 break;
             }
@@ -657,6 +840,12 @@ class EditCluster extends React.Component<any, any> {
             case COMPONENT_TYPE_VALUE.LIBRASQL: {
                 form.setFieldsValue({
                     [COMPONEMT_CONFIG_KEYS.LIBRASQL]: allComponentConf.libraConf
+                })
+                break;
+            }
+            case COMPONENT_TYPE_VALUE.SFTP: {
+                form.setFieldsValue({
+                    [COMPONEMT_CONFIG_KEYS.SFTP]: allComponentConf.sftpConf
                 })
                 break;
             }
@@ -736,6 +925,7 @@ class EditCluster extends React.Component<any, any> {
         let { zipConfig } = this.state;
         zipConfig = typeof zipConfig == 'string' ? JSON.parse(zipConfig) : zipConfig
         let componentConf: any = {};
+        console.log(formValues)
         const sparkExtParams = this.getCustomParams(formValues, 'spark')
         const flinkExtParams = this.getCustomParams(formValues, 'flink')
         const sparkThriftExtParams = this.getCustomParams(formValues, 'sparkThrift')
@@ -761,6 +951,7 @@ class EditCluster extends React.Component<any, any> {
         componentConf['learningConf'] = { ...learningTypeName, ...myLowerCase(formValues.learningConf), ...learningExtParams };
         componentConf['dtyarnshellConf'] = { ...dtyarnshellTypeName, ...toChsKeys(formValues.dtyarnshellConf || {}, DTYARNSHELL_KEY_MAP_DOTS), ...dtyarnshellExtParams };
         componentConf['libraConf'] = { ...formValues.libraConf, ...libraExtParams };
+        componentConf['sftpConf'] = formValues.sftpConf || {};
         // 服务端兼容，不允许null
         componentConf['hiveConf'].username = componentConf['hiveConf'].username || '';
         componentConf['hiveConf'].password = componentConf['hiveConf'].password || '';
@@ -789,6 +980,7 @@ class EditCluster extends React.Component<any, any> {
             let item = tmpParam[key];
             params[item.name] = item.value;
         }
+        console.log(params)
         return params;
     }
     // 解决切换 配置Prometheus Metric地址 数据消失
@@ -841,7 +1033,7 @@ class EditCluster extends React.Component<any, any> {
      */
     displayResource = (engineType: any) => {
         const { getFieldDecorator } = this.props.form;
-        const { clusterData, file, uploadLoading, core, nodeNumber, memory } = this.state;
+        const { clusterData, file, uploadLoading, core, nodeNumber, memory, uploadKLoading, kfile } = this.state;
         const { mode } = this.props.location.state || {} as any;
         const isView = mode == 'view';
         const markStyle = {
@@ -880,10 +1072,10 @@ class EditCluster extends React.Component<any, any> {
                         <div className="upload-file">
                             <div className='upload-title'>上传配置文件</div>
                             <p style={{ marginBottom: '24px' }}>您需要获取Hadoop、Spark、Flink集群的配置文件，至少包括：<strong>core-site.xml、hdfs-site.xml、hive-site.xml、yarn-site.xml</strong>文件</p>
-                            <Row style={{ marginLeft: '8px' }}>
-                                <Col span={14} pull={2}>
+                            <Row>
+                                <Col span={24}>
                                     <FormItem
-                                        label="配置文件"
+                                        label={null}
                                         {...formItemLayout}
                                     >
                                         {getFieldDecorator('file', null)(
@@ -915,6 +1107,81 @@ class EditCluster extends React.Component<any, any> {
                                     </FormItem>
                                 </Col>
                             </Row>
+                            <Row>
+                                <Col span={24}>
+                                    <FormItem
+                                        label={null}
+                                        {...formItemLayout}
+                                    >
+                                        {getFieldDecorator('kerberosFile', {
+                                            rules: [{
+                                            }]
+                                        })(
+                                            <div
+                                                style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center'
+                                                }}
+                                            >
+                                                <div
+                                                    style={{
+                                                        marginRight: '10px'
+                                                    }}
+                                                >
+                                                    Haddoop Kerberos认证文件:
+                                                </div>
+                                                {
+                                                    uploadKLoading
+                                                        ? <label
+                                                            style={{ lineHeight: '28px' }}
+                                                            className="ant-btn disble"
+                                                        >选择文件</label>
+                                                        : <label
+                                                            style={{ lineHeight: '28px' }}
+                                                            className="ant-btn"
+                                                            htmlFor="kerberosFiles">选择文件</label>
+                                                }
+                                                {uploadKLoading ? <Icon className="blue-loading" type="loading" /> : null}
+                                                {/* <span> {kfile.files && kfile.files.length > 0 && kfile.files[0].name}</span> */}
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center'
+                                                    }}
+                                                >
+                                                    {kfile.files && kfile.files.length > 0 && kfile.files[0].name}
+                                                    {
+                                                        kfile.files && kfile.files.length > 0
+                                                            ? (
+                                                                <Icon
+                                                                    type="close-circle"
+                                                                    style={{
+                                                                        cursor: 'pointer'
+                                                                    }}
+                                                                    onClick={() => {
+                                                                        console.log('delete')
+                                                                        this.deleteKerberosFile();
+                                                                    }}
+                                                                />
+                                                            )
+                                                            : null
+                                                    }
+                                                </div>
+                                                <input
+                                                    name="file"
+                                                    type="file"
+                                                    ref={(e) => { this.kfile = e }}
+                                                    id="kerberosFiles"
+                                                    onChange={this.kfileChange.bind(this)}
+                                                    accept=".zip"
+                                                    style={{ display: 'none' }}
+                                                />
+                                                <span style={{ marginLeft: '10px' }}>支持扩展名：.zip</span>
+                                            </div>
+                                        )}
+                                    </FormItem>
+                                </Col>
+                            </Row>
                             {/* 暂无控制台帮助文档 */}
                             <div className='upload-help'>如何获取这些配置文件？请您参考<span>《帮助文档》</span></div>
                         </div>
@@ -923,6 +1190,151 @@ class EditCluster extends React.Component<any, any> {
             }
         </Card> : null
     }
+
+    // 开启kerberos认证
+    uploadForm = (key: any) => {
+        const { form } = this.props;
+        const formNewLayout = {
+            labelCol: {
+                xs: { span: 24 },
+                sm: { span: 0 }
+            },
+            wrapperCol: {
+                xs: { span: 24 },
+                sm: { span: 24 }
+            }
+        }
+        const { getFieldDecorator, setFieldsValue, getFieldValue } = form;
+        const nullArr: any[] = [];
+        const formValue = getFieldValue(`${key}.kerberosFile`)
+        const keyNum = COMPONENT_TYPE_VALUE[findKey(COMPONEMT_CONFIG_KEYS, (item) => { return item === key })]
+        // console.log(formValue, this.props.form.getFieldsValue())
+        const upProps = {
+            beforeUpload: (file: any) => {
+                file.modifyTime = moment();
+                console.log(file);
+                setFieldsValue({
+                    [`${key}.kerberosFile`]: file
+                })
+                return false;
+            },
+            fileList: nullArr,
+            name: 'file',
+            accept: '.zip'
+        };
+        return (
+            <React.Fragment>
+                <FormItem
+                    {...formItemLayout}
+                    label="开启Kerberos认证"
+                    key={`${key}.openKerberos`}
+                >
+                    {getFieldDecorator(`${key}.openKerberos`, {
+                        valuePropName: 'checked',
+                        initialValue: false
+                    })(
+                        <Switch
+                            onChange={(checked) => {
+                                if (!checked) {
+                                    setFieldsValue({
+                                        [`${key}.kerberosFile`]: ''
+                                    })
+                                }
+                            }}
+                        />
+                    )}
+                </FormItem>
+                <Row
+                    style={{
+                        visibility: getFieldValue(`${key}.openKerberos`) ? null : 'hidden',
+                        height: getFieldValue(`${key}.openKerberos`) ? null : 0,
+                        overflow: 'hidden'
+                    }}
+                >
+                    <Col span={6}/>
+                    <Col span={14}>
+                        <FormItem
+                            {...formNewLayout}
+                            key={`${key}.kerberosFile`}
+                            label=""
+                            // style={{
+                            //     margin: 0
+                            // }}
+                        >
+                            {getFieldDecorator(`${key}.kerberosFile`, {
+                                rules: [{
+                                    required: getFieldValue(`${key}.openKerberos`), message: '文件不可为空！'
+                                }],
+                                initialValue: ''
+                            })(<div/>)}
+                            <div
+                                style={{
+                                    display: 'flex'
+                                }}
+                            >
+                                <Upload {...upProps}>
+                                    <Button style={{ color: '#999' }}>
+                                        <Icon type="upload" /> 上传文件
+                                    </Button>
+                                </Upload>
+                                <Tooltip title="上传文件前，请在控制台开启SFTP服务。">
+                                    <Icon type="question-circle-o" style={{ fontSize: '14px', marginTop: '8px', marginLeft: '10px' }}/>
+                                </Tooltip>
+                                <a
+                                    href={`/api/console/download/component/downloadKerberosXML?componentType=${keyNum}`}
+                                    download
+                                >
+                                    <div
+                                        style={{ color: '#0099ff', cursor: 'pointer', marginLeft: '10px' }}
+                                        onClick={() => {
+                                            console.log(key, keyNum)
+                                        }}
+                                    >
+                                        下载文件模板
+                                    </div>
+                                </a>
+                            </div>
+                            <div
+                                style={{ color: '#999' }}
+                            >
+                                上传单个文件，支持扩展格式：.zip
+                            </div>
+                            {
+                                formValue
+                                    ? (
+                                        <div
+                                            style={{
+                                                width: '120%',
+                                                position: 'relative'
+                                            }}
+                                        >
+                                            <Icon
+                                                type="close"
+                                                style={{
+                                                    cursor: 'pointer',
+                                                    position: 'absolute',
+                                                    right: '5px',
+                                                    top: '11px',
+                                                    zIndex: 99
+                                                }}
+                                                onClick={() => {
+                                                    setFieldsValue({
+                                                        [`${key}.kerberosFile`]: ''
+                                                    })
+                                                }}
+                                            />
+                                            <Input value={formValue.name + '   ' + moment(formValue.modifyTime).format('YYYY-MM-DD HH:mm:ss')}/>
+                                        </div>
+                                    )
+                                    : null
+                            }
+                        </FormItem>
+                    </Col>
+                </Row>
+            </React.Fragment>
+        );
+    }
+
     /**
      * 渲染 Component Config
      */
@@ -944,6 +1356,7 @@ class EditCluster extends React.Component<any, any> {
                             </>
                         )}
                         singleButton={this.renderExtFooter(isView, component)}
+                        kerberosView={this.uploadForm('hiveConf')}
                     />
                 )
             }
@@ -976,6 +1389,7 @@ class EditCluster extends React.Component<any, any> {
                         isView={isView}
                         getFieldDecorator={getFieldDecorator}
                         singleButton={this.renderExtFooter(isView, component)}
+                        kerberosView={this.uploadForm('carbonConf')}
                     />
                 )
             }
@@ -991,6 +1405,7 @@ class EditCluster extends React.Component<any, any> {
                             </>
                         )}
                         singleButton={this.renderExtFooter(isView, component)}
+                        kerberosView={this.uploadForm('hiveServerConf')}
                     />
                 )
             }
@@ -1009,6 +1424,7 @@ class EditCluster extends React.Component<any, any> {
                             </div>
                         )}
                         singleButton={this.renderExtFooter(isView, component)}
+                        kerberosView={this.uploadForm('flinkConf')}
                     />
                 )
             }
@@ -1025,6 +1441,7 @@ class EditCluster extends React.Component<any, any> {
                             </div>
                         )}
                         singleButton={this.renderExtFooter(isView, component)}
+                        kerberosView={this.uploadForm('sparkConf')}
                     />
                 )
             }
@@ -1040,6 +1457,7 @@ class EditCluster extends React.Component<any, any> {
                             </div>
                         )}
                         singleButton={this.renderExtFooter(isView, component)}
+                        kerberosView={this.uploadForm('learningConf')}
                     />
                 )
             }
@@ -1056,6 +1474,7 @@ class EditCluster extends React.Component<any, any> {
                             </div>
                         )}
                         singleButton={this.renderExtFooter(isView, component)}
+                        kerberosView={this.uploadForm('dtyarnshellConf')}
                     />
                 )
             }
@@ -1076,6 +1495,15 @@ class EditCluster extends React.Component<any, any> {
                     />
                 )
             }
+            case COMPONENT_TYPE_VALUE.SFTP: {
+                return (
+                    <SftpConfig
+                        isView={isView}
+                        getFieldDecorator={getFieldDecorator}
+                        singleButton={this.renderExtFooter(isView, component)}
+                    />
+                )
+            }
             default:
                 return <div>目前暂无该组件配置</div>
         }
@@ -1089,7 +1517,9 @@ class EditCluster extends React.Component<any, any> {
         const hadoopComponentData = this.getComponetData(clusterData, ENGINE_TYPE.HADOOP);
         const libraComponentData = this.getComponetData(clusterData, ENGINE_TYPE.LIBRA);
         const tabCompData = isHadoopEngine(engineTypeKey) ? hadoopComponentData : libraComponentData; // 不同engine的组件数据
+        // const tabCompData = isHadoopEngine(engineTypeKey) ? [...hadoopComponentData, { componentId: 2321, componentName: 'SFTP', componentTypeCode: 10, config: {} }] : libraComponentData; // 不同engine的组件数据
         const engineList = clusterData.engines || [];
+        // console.log(this.state, tabCompData)
         return (
             <div className='console-wrapper' ref={(el) => { this.container = el; }}>
                 <div>

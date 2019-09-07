@@ -2,13 +2,12 @@ import moment from 'moment'
 import * as React from 'react'
 
 import {
-    Modal, Row, message, Col, Tree, Checkbox
+    Modal, Row, message, Col, Tree
 } from 'antd'
 
 import Api from '../../../../api'
 import { TaskType, TaskStatus } from '../../../../components/status'
 import { TASK_STATUS } from '../../../../comm/const'
-import utils from '../../../../../../utils'
 
 const TreeNode = Tree.TreeNode
 
@@ -17,13 +16,13 @@ class RestartModal extends React.Component<any, any> {
         treeData: [],
         expandedKeys: [],
         currentNode: '',
-        checkedKeys: [],
-        isAllChecked: false
+        checkedKeys: []
     }
     /* eslint-disable-next-line */
     componentWillReceiveProps(nextProps: any) {
         const node = nextProps.restartNode
         const visible = nextProps.visible
+
         if (visible && node) {
             this.setState({
                 currentNode: node,
@@ -98,8 +97,7 @@ class RestartModal extends React.Component<any, any> {
 
     onCancelModal = () => {
         this.setState({
-            checkedKeys: [],
-            isAllChecked: false
+            checkedKeys: []
         })
         this.props.onCancel();
         this.cacheAllSelected = []
@@ -107,13 +105,7 @@ class RestartModal extends React.Component<any, any> {
     }
 
     onCheck = (checkedKeys: any, info: any) => {
-        // const allSelectedData = this.getAllSelectData(this.state.treeData);
-        const allSelectedData = this.cacheAllSelected; // 获取全选的缓存
-        const hasCheckedVal = checkedKeys.checked;
-        this.setState({
-            checkedKeys: hasCheckedVal,
-            isAllChecked: utils.isEqualArr(allSelectedData, hasCheckedVal)
-        })
+        this.setState({ checkedKeys: checkedKeys.checked })
     }
 
     disabledDate = (current: any) => {
@@ -213,7 +205,14 @@ class RestartModal extends React.Component<any, any> {
                 const taskType = item.taskType || (item.batchTask && item.batchTask.taskType);
                 const titleFix = { title: name };
                 // 禁止重跑并恢复调度
-                const canRestart = this.canRestartFunc(status);
+                const canRestart = status === TASK_STATUS.WAIT_SUBMIT || // 未运行
+                status === TASK_STATUS.FINISHED || // 已完成
+                status === TASK_STATUS.RUN_FAILED || // 运行失败
+                status === TASK_STATUS.SUBMIT_FAILED || // 提交失败
+                status === TASK_STATUS.SET_SUCCESS || // 手动设置成功
+                status === TASK_STATUS.PARENT_FAILD || // 上游失败
+                status === TASK_STATUS.KILLED || // 已停止
+                status === TASK_STATUS.STOPED; // 已取消
 
                 const content = <Row>
                     <Col span={6} className="ellipsis" {...titleFix}>{name}</Col>
@@ -252,7 +251,7 @@ class RestartModal extends React.Component<any, any> {
 
     render () {
         const { visible, restartNode } = this.props
-        const { treeData, isAllChecked, checkedKeys } = this.state
+        const { treeData } = this.state
         const treeNodes = this.getTreeNodes(treeData, restartNode)
 
         return (
@@ -265,8 +264,7 @@ class RestartModal extends React.Component<any, any> {
                 maskClosable={true}
             >
                 <Row>
-                    <Col span={12}>请选择要重跑的任务: &nbsp;&nbsp;
-                        <Checkbox onChange={this.handleCheckboxChange} checked={isAllChecked}>全选</Checkbox></Col>
+                    <Col span={12}>请选择要重跑的任务:</Col>
                     <Col span={12} className="txt-right">业务日期：{restartNode ? restartNode.businessDate : ''}</Col>
                 </Row>
                 <Row className="section patch-data">
@@ -280,7 +278,7 @@ class RestartModal extends React.Component<any, any> {
                         checkable
                         checkStrictly
                         onCheck={this.onCheck}
-                        checkedKeys={checkedKeys}
+                        checkedKeys={this.state.checkedKeys}
                         loadData={this.asyncTree}
                     >
                         {treeNodes}

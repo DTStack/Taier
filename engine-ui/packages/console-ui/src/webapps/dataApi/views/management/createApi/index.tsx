@@ -187,7 +187,6 @@ class NewApi extends React.Component<any, any> {
     setDefault (data: any) {
         const isRegister = utils.getParameterByName('isRegister');
         const containHeader = `${data ? data.containHeader : ''}`; // 转换数值类型为字符串
-        const containPage = `${data ? data.containPage : ''}`;
         let newState: any = {
             loading: false,
             mode: data.paramCfgType,
@@ -212,12 +211,10 @@ class NewApi extends React.Component<any, any> {
                 resultPage: data.respPageSize,
                 resultPageChecked: data.allowPaging,
                 containHeader: containHeader,
-                containPage: containPage,
                 sql: data.sql
             },
             registerParams: {
-                containHeader: containHeader,
-                containPage: containPage
+                containHeader: containHeader
             },
             testApi: {
                 inFields: data.inFields && data.inFields.inFields,
@@ -255,7 +252,6 @@ class NewApi extends React.Component<any, any> {
                 resultPageChecked: data.allowPaging,
                 sql: data.sql,
                 containHeader: containHeader,
-                containPage: containPage,
                 inputParam: ColumnsModel.exchangeServerParams(data.inputParam),
                 outputParam: ColumnsModel.exchangeServerParams(data.outputParam)
             }
@@ -306,6 +302,14 @@ class NewApi extends React.Component<any, any> {
         })
     }
 
+    // next () {
+    //     const { key } = steps[this.state.current];
+    //     if (this.state[key] && this.state[key].pass) {
+    //         const current = this.state.current + 1;
+    //         this.setState({ current });
+    //     }
+    // }
+
     prev () {
         const current = this.state.current - 1;
         this.setState({ current });
@@ -332,7 +336,6 @@ class NewApi extends React.Component<any, any> {
             tableName: paramsConfig.tableName,
             dataSourceType: paramsConfig.dataSourceType,
             containHeader: paramsConfig.containHeader,
-            containPage: paramsConfig.containPage,
             respPageSize: paramsConfig.respPageSize,
             allowPaging: paramsConfig.resultPageChecked ? 1 : 0,
             sql: paramsConfig.sql,
@@ -387,8 +390,6 @@ class NewApi extends React.Component<any, any> {
         result.errorRespJson = registerParams.errorValue;
         result.errorCodeList = registerParams.errorCodeList;
         result.containHeader = registerParams.containHeader;
-        result.containPage = registerParams.containPage;
-
         result.bodyDesc = registerParams.bodyDesc;
         result.inputParam = (registerParams.inputParam || []).concat((registerParams.constParam || []).map((item: any) => {
             return {

@@ -1,5 +1,5 @@
 // 从config文件全局读取
-import { DQ_BASE_URL } from 'config/base';
+import { DQ_BASE_URL, DQ_BASE_URL_NOT_SERVICE } from 'config/base';
 
 export default {
 
@@ -35,8 +35,11 @@ export default {
     // ===== 数据源管理 ===== //
     GET_DATA_SOURCES: `${DQ_BASE_URL}/dataSource/pageQuery`, // 通过查询数据源
     CHECK_CONNECTION: `${DQ_BASE_URL}/dataSource/checkConnection`, // 检查数据库连接
+    CHECK_CONNECTION_KERBEROS: `${DQ_BASE_URL_NOT_SERVICE}/upload/service/dataSource/checkConnectionWithKerberos`, // 检查数据库连接当开启kerberos时
     ADD_DATA_SOURCES: `${DQ_BASE_URL}/dataSource/addSource`, // 新增数据源
+    ADD_DATA_SOURCES_KERBEROS: `${DQ_BASE_URL_NOT_SERVICE}/upload/service/dataSource/addSourceWithKerberos`, // 新增数据源开启kerberos时
     UPDATE_DATA_SOURCES: `${DQ_BASE_URL}/dataSource/updateSource`, // 新增数据源
+    UPDATE_DATA_SOURCES_KERBEROS: `${DQ_BASE_URL_NOT_SERVICE}/upload/service/dataSource/updateSourceWithKerberos`, // 更新新数据源开启kerberos时
     DELETE_DATA_SOURCES: `${DQ_BASE_URL}/dataSource/deleteSource`, // 删除数据源
 
     GET_DATA_SOURCES_LIST: `${DQ_BASE_URL}/dataSource/list`, // 查询已添加的数据源类型

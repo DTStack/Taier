@@ -6,7 +6,7 @@ const FormItem = Form.Item;
 
 export default class LearningConfig extends React.Component<any, any> {
     render () {
-        const { singleButton, customView, isView, getFieldDecorator } = this.props;
+        const { singleButton, customView, isView, getFieldDecorator, kerberosView } = this.props;
         return (
             <React.Fragment>
                 <div className="engine-config-content" style={{ width: '680px' }}>
@@ -56,6 +56,7 @@ export default class LearningConfig extends React.Component<any, any> {
                         )}
                     </FormItem>
                     {customView}
+                    {kerberosView}
                 </div>
                 {/* config底部功能按钮（测试连通性、取消、保存） */}
                 {singleButton}

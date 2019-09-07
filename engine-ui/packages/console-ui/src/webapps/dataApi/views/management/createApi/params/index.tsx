@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Button, Select, Form, Table, message, Checkbox, Tooltip, Icon } from 'antd';
+import { Button, Select, Form, Table, message, Checkbox } from 'antd';
 
 import utils from 'utils';
 
@@ -100,13 +100,6 @@ class ManageParamsConfig extends React.Component<any, any> {
         this.setState({
             resultPageChecked: evt.target.checked
         })
-    }
-    onCheckedContainPage = (evt: any) => {
-        if (evt.target.checked) {
-            this.setState({
-                resultPageChecked: true
-            })
-        }
     }
     resultPageChange (value: any) {
         this.setState({
@@ -295,8 +288,6 @@ class ManageParamsConfig extends React.Component<any, any> {
         const tableSource = form.getFieldValue('tableSource');
         const dataSourceType = form.getFieldValue('dataSourceType');
         const containHeader = form.getFieldValue('containHeader');
-        const containPage = form.getFieldValue('containPage');
-
         const params: any = {
             dataSrcId: dataSource,
             dataSourceType: dataSourceType,
@@ -306,9 +297,7 @@ class ManageParamsConfig extends React.Component<any, any> {
             resultPageChecked: resultPageChecked,
             resultPage: resultPage,
             sql: editor.sql,
-            containHeader: containHeader ? '1' : '0', // 1 表示包含，0 表示不包含
-            containPage: containPage ? '1' : '0' // 1 表示包含，0 表示不包含
-
+            containHeader: containHeader ? '1' : '0' // 1 表示包含，0 表示不包含
         };
         return params;
     }
@@ -485,7 +474,6 @@ class ManageParamsConfig extends React.Component<any, any> {
             apiEdit,
             disAbleTipChange,
             apiManage,
-            containPage,
             containHeader
         } = this.props;
         const {
@@ -637,22 +625,12 @@ class ManageParamsConfig extends React.Component<any, any> {
                                     )}
                             <div style={{ marginTop: 10 }}>
                                 <p className="middle-title">高级配置</p>
-                                <FormItem style={{ marginBottom: 0 }}>
+                                <FormItem>
                                     {getFieldDecorator('containHeader', {
                                         initialValue: containHeader
                                     })(
                                         <Checkbox defaultChecked={containHeader === '1'}>返回结果中携带 Request Header 参数</Checkbox>
                                     )}
-                                </FormItem>
-                                <FormItem>
-                                    {getFieldDecorator('containPage', {
-                                        initialValue: containPage
-                                    })(
-                                        <Checkbox onChange={this.onCheckedContainPage} defaultChecked={containPage === '1'}>返回结果携带分页参数</Checkbox>
-                                    )}
-                                    <Tooltip title={<div><p>分页参数包含：</p><p>currentPage, pageSize, totalCount, totalPage</p></div>}>
-                                        <Icon type="question-circle-o" />
-                                    </Tooltip>
                                 </FormItem>
                             </div>
                         </div>

@@ -81,10 +81,8 @@ export function authAfterFormated (response: any) {
 }
 
 export function isSelectedProject () {
-    const pid = utils.getCookie('project_id');
-    const projectIdFromURL = utils.getParameterByName('pid');
-
-    if ((!pid || pid === 'undefined') && !projectIdFromURL) {
+    const pid = utils.getCookie('project_id')
+    if (!pid || pid === 'undefined') {
         utils.deleteCookie('project_id')
         hashHistory.push('/')
     }

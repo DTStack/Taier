@@ -55,7 +55,8 @@ export default class TestRestIcon extends React.Component<any, any> {
             hdfsTestResult,
             yarnTestResult,
             hiveServerTestResult,
-            libraSqlTestResult } = testStatus;
+            libraSqlTestResult,
+            sftpTestResult } = testStatus;
         let testCompResult: any = {}
         switch (componentTypeCode) {
             case COMPONENT_TYPE_VALUE.FLINK: {
@@ -96,6 +97,10 @@ export default class TestRestIcon extends React.Component<any, any> {
             }
             case COMPONENT_TYPE_VALUE.LIBRASQL: {
                 testCompResult = libraSqlTestResult;
+                break;
+            }
+            case COMPONENT_TYPE_VALUE.SFTP: {
+                testCompResult = sftpTestResult;
                 break;
             }
             default: {

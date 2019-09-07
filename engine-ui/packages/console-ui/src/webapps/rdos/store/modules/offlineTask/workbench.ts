@@ -1,6 +1,6 @@
 import assign from 'object-assign';
 import { cloneDeep, isArray } from 'lodash';
-import { offlineWorkbenchDB as idb } from 'database';
+import { offlineWorkbenchDB as idb } from '../../../../../database';
 import { message } from 'antd';
 
 import { store } from '../../index';
