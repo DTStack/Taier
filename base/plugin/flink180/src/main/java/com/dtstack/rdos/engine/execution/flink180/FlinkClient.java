@@ -14,7 +14,6 @@ import com.dtstack.rdos.engine.execution.base.JobParam;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
-import com.dtstack.rods.engine.execution.base.resource.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.flink180.enums.Deploy;
 import com.dtstack.rdos.engine.execution.flink180.enums.FlinkYarnMode;
@@ -142,7 +141,7 @@ public class FlinkClient extends AbsClient {
     }
 
     private void initYarnClient() {
-        if (flinkConfig.isSecurity()){
+        if (flinkConfig.isOpenKerberos()){
             initSecurity();
         }
         if (Deploy.yarn.name().equalsIgnoreCase(flinkConfig.getClusterMode())){
@@ -153,19 +152,8 @@ public class FlinkClient extends AbsClient {
     }
 
     private void initSecurity() {
-        String userPrincipal = flinkConfig.getFlinkPrincipal();
-        String userKeytabPath = flinkConfig.getFlinkKeytabPath();
-        String krb5ConfPath = flinkConfig.getFlinkKrb5ConfPath();
-        String zkPrincipal = flinkConfig.getZkPrincipal();
-        String zkKeytabPath = flinkConfig.getZkKeytabPath();
-        String zkLoginName = flinkConfig.getZkLoginName();
-        hadoopConf.set("username.client.keytab.file", zkKeytabPath);
-        hadoopConf.set("username.client.kerberos.principal", zkPrincipal);
-
         try {
-            KerberosUtils.setJaasConf(zkLoginName, zkPrincipal, zkKeytabPath);
-            KerberosUtils.setZookeeperServerPrincipal("zookeeper.server.principal", flinkConfig.getZkPrincipal());
-            KerberosUtils.login(userPrincipal, userKeytabPath, krb5ConfPath, hadoopConf);
+            KerberosUtils.login(flinkConfig);
         } catch (IOException e) {
             logger.error("initSecurity happens error", e);
         }

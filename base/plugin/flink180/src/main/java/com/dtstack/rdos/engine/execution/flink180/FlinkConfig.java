@@ -65,19 +65,15 @@ public class FlinkConfig {
 
     private String jobmanagerArchiveFsDir;
 
-    private boolean isSecurity;
+    private boolean openKerberos;
 
-    private String flinkPrincipal;
+    private String localKeytab;
 
-    private String flinkKeytabPath;
+    private String remoteDir;
 
-    private String flinkKrb5ConfPath;
+    private Map<String, String> sftpConf;
 
-    private String zkPrincipal;
-
-    private String zkKeytabPath;
-
-    private String zkLoginName;
+    private Map<String, String> kerberosConfig;
 
     private int flinkSessionSlotCount;
 
@@ -88,52 +84,12 @@ public class FlinkConfig {
     private transient FlinkPrometheusGatewayConfig prometheusGatewayConfig;
 
 
-    public String getZkLoginName() {
-        return zkLoginName;
+    public boolean isOpenKerberos() {
+        return openKerberos;
     }
 
-    public void setZkLoginName(String zkLoginName) {
-        this.zkLoginName = zkLoginName;
-    }
-
-    public String getZkKeytabPath() {
-        return zkKeytabPath;
-    }
-
-    public void setZkKeytabPath(String zkKeytabPath) {
-        this.zkKeytabPath = zkKeytabPath;
-    }
-
-    public String getZkPrincipal() {
-        return zkPrincipal;
-    }
-
-    public void setZkPrincipal(String zkPrincipal) {
-        this.zkPrincipal = zkPrincipal;
-    }
-
-    public boolean isSecurity() {
-        return isSecurity;
-    }
-
-    public void setSecurity(boolean isSecurity) {
-        this.isSecurity = isSecurity;
-    }
-
-    public String getFlinkPrincipal() {
-        return flinkPrincipal;
-    }
-
-    public void setFlinkPrincipal(String flinkPrincipal) {
-        this.flinkPrincipal = flinkPrincipal;
-    }
-
-    public String getFlinkKeytabPath() {
-        return flinkKeytabPath;
-    }
-
-    public void setFlinkKeytabPath(String flinkKeytabPath) {
-        this.flinkKeytabPath = flinkKeytabPath;
+    public void setOpenKerberos(boolean isSecurity) {
+        this.openKerberos = isSecurity;
     }
 
     public String getFlinkZkAddress() {
@@ -332,14 +288,6 @@ public class FlinkConfig {
         this.jobmanagerArchiveFsDir = jobmanagerArchiveFsDir;
     }
 
-    public String getFlinkKrb5ConfPath() {
-        return flinkKrb5ConfPath;
-    }
-
-    public void setFlinkKrb5ConfPath(String flinkKrb5ConfPath) {
-        this.flinkKrb5ConfPath = flinkKrb5ConfPath;
-    }
-
     public int getFlinkSessionSlotCount() {
         return flinkSessionSlotCount;
     }
@@ -370,5 +318,37 @@ public class FlinkConfig {
 
     public void setPrometheusGatewayConfig(FlinkPrometheusGatewayConfig prometheusGatewayConfig) {
         this.prometheusGatewayConfig = prometheusGatewayConfig;
+    }
+
+    public String getLocalKeytab() {
+        return localKeytab;
+    }
+
+    public void setLocalKeytab(String localKeytab) {
+        this.localKeytab = localKeytab;
+    }
+
+    public String getRemoteDir() {
+        return remoteDir;
+    }
+
+    public void setRemoteDir(String remoteDir) {
+        this.remoteDir = remoteDir;
+    }
+
+    public Map<String, String> getSftpConf() {
+        return sftpConf;
+    }
+
+    public void setSftpConf(Map<String, String> sftpConf) {
+        this.sftpConf = sftpConf;
+    }
+
+    public Map<String, String> getKerberosConfig() {
+        return kerberosConfig;
+    }
+
+    public void setKerberosConfig(Map<String, String> kerberosConfig) {
+        this.kerberosConfig = kerberosConfig;
     }
 }

@@ -2,12 +2,17 @@ package com.dtstack.rdos.engine.execution.flink180.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.AppConfigurationEntry.LoginModuleControlFlag;
 
+import com.dtstack.rdos.engine.execution.flink180.FlinkConfig;
+import org.apache.commons.collections.MapUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authentication.util.KerberosUtil;
@@ -35,6 +40,81 @@ public class KerberosUtils {
             "(time out) can not connect to kdc server or there is fire wall in the network";
 
     private static final boolean IS_IBM_JDK = System.getProperty("java.vendor").contains("IBM");
+
+    private static final String KEYWORD_PRINCIPAL = "Principal";
+
+    private static final String KEYWORD_KEYTAB = "Path";
+
+    private static final String DIR = "/keytab/";
+
+    private static final String USER_DIR = System.getProperty("user.dir");
+
+    private static final String FLINK_PRINCIPAL = "flinkPrincipal";
+
+    private static final String FLINK_KEYTABPATH = "flinkKeytabPath";
+
+    private static final String FLINK_KRB5CONFPATH = "flinkKrb5ConfPath";
+
+    private static final String ZK_PRINCIPAL = "zkPrincipal";
+
+    private static final String ZK_KEYTABPATH = "zkKeytabPath";
+
+    private static final String ZK_LOGINNAME = "zkLoginName";
+
+    private static final String localhost = getLocalHostName();
+
+    public static void login(FlinkConfig config) throws IOException {
+        Map<String, String> kerberosConfig = config.getKerberosConfig();
+
+        String localKeytab = config.getLocalKeytab();
+        String remoteDir = config.getRemoteDir();
+
+        for (String key : kerberosConfig.keySet()) {
+            if (key.contains(KEYWORD_PRINCIPAL)){
+                kerberosConfig.put(key, KerberosUtils.getServerPrincipal(MapUtils.getString(kerberosConfig, key), "0.0.0.0"));
+            } else if (key.contains(KEYWORD_KEYTAB)){
+                String keytabPath = "";
+                if (localKeytab != null){
+                    keytabPath = localKeytab + MapUtils.getString(kerberosConfig, key);
+                } else {
+                    String localPath = USER_DIR + DIR + remoteDir + File.separator + localhost;
+                    File dirs = new File(localPath);
+                    if (!dirs.exists()){
+                        dirs.mkdirs();
+                    }
+                    SFTPHandler handler = null;
+                    try {
+                        handler = SFTPHandler.getInstance(config.getSftpConf());
+                        keytabPath = loadFromSftp(MapUtils.getString(kerberosConfig, key), remoteDir, localPath, handler);
+                    } catch (Exception e){
+                        throw new RuntimeException(e);
+                    } finally {
+                        if (handler != null){
+                            handler.close();
+                        }
+                    }
+                }
+                kerberosConfig.put(key, keytabPath);
+            }
+        }
+
+        //获取hadoopconf
+        HadoopConf customerConf = new HadoopConf();
+        customerConf.initHadoopConf(config.getHadoopConf());
+        Configuration hadoopConf = customerConf.getConfiguration();
+
+        String userPrincipal = kerberosConfig.get(FLINK_PRINCIPAL);
+        String userKeytabPath = kerberosConfig.get(FLINK_KEYTABPATH);
+        String krb5ConfPath = kerberosConfig.get(FLINK_KRB5CONFPATH);
+        String zkLoginName = kerberosConfig.get(ZK_LOGINNAME);
+        String zkPrincipal = kerberosConfig.get(ZK_PRINCIPAL);
+        String zkKeytabPath = kerberosConfig.get(ZK_KEYTABPATH);
+
+        //KerberosUtils.setJaasConf(zkLoginName, zkPrincipal, zkKeytabPath);
+        KerberosUtils.setZookeeperServerPrincipal("zookeeper.server.principal", zkPrincipal);
+        KerberosUtils.login(userPrincipal, userKeytabPath, krb5ConfPath, hadoopConf);
+
+    }
 
     public synchronized static void login(String userPrincipal, String userKeytabPath, String krb5ConfPath, Configuration conf)
             throws IOException {
@@ -92,32 +172,6 @@ public class KerberosUtils {
 
     private static void setConfiguration(Configuration conf) throws IOException {
         UserGroupInformation.setConfiguration(conf);
-    }
-
-    private static boolean checkNeedLogin(String principal)
-            throws IOException {
-        if (!UserGroupInformation.isSecurityEnabled()) {
-            LOG.error("UserGroupInformation is not SecurityEnabled, please check if core-site.xml exists in classpath.");
-            throw new IOException(
-                    "UserGroupInformation is not SecurityEnabled, please check if core-site.xml exists in classpath.");
-        }
-        UserGroupInformation currentUser = UserGroupInformation.getCurrentUser();
-
-        if ((currentUser != null) && (currentUser.hasKerberosCredentials())) {
-            if (checkCurrentUserCorrect(principal)) {
-                LOG.info("current user is " + currentUser + "has logined.");
-                if (!currentUser.isFromKeytab()) {
-                    LOG.error("current user is not from keytab.");
-                    throw new IOException("current user is not from keytab.");
-                }
-                return false;
-            } else {
-                LOG.error("current user is " + currentUser + "has logined. please check your enviroment , especially when it used IBM JDK or kerberos for OS count login!!");
-                throw new IOException("current user is " + currentUser + " has logined. And please check your enviroment!!");
-            }
-        }
-
-        return true;
     }
 
     private static void setKrb5Config(String krb5ConfFile)
@@ -241,57 +295,6 @@ public class KerberosUtils {
         }
     }
 
-    private static void checkAuthenticateOverKrb()
-            throws IOException {
-        UserGroupInformation loginUser = UserGroupInformation.getLoginUser();
-        UserGroupInformation currentUser = UserGroupInformation.getCurrentUser();
-        if (loginUser == null) {
-            LOG.error("current user is " + currentUser + ", but loginUser is null.");
-            throw new IOException("current user is " + currentUser + ", but loginUser is null.");
-        }
-        if (!loginUser.equals(currentUser)) {
-            LOG.error("current user is " + currentUser + ", but loginUser is " + loginUser + ".");
-            throw new IOException("current user is " + currentUser + ", but loginUser is " + loginUser + ".");
-        }
-        if (!loginUser.hasKerberosCredentials()) {
-            LOG.error("current user is " + currentUser + " has no Kerberos Credentials.");
-            throw new IOException("current user is " + currentUser + " has no Kerberos Credentials.");
-        }
-        if (!UserGroupInformation.isLoginKeytabBased()) {
-            LOG.error("current user is " + currentUser + " is not Login Keytab Based.");
-            throw new IOException("current user is " + currentUser + " is not Login Keytab Based.");
-        }
-    }
-
-    private static boolean checkCurrentUserCorrect(String principal)
-            throws IOException {
-        UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
-        if (ugi == null) {
-            LOG.error("current user still null.");
-            throw new IOException("current user still null.");
-        }
-
-        String defaultRealm = null;
-        try {
-            defaultRealm = KerberosUtil.getDefaultRealm();
-        } catch (Exception e) {
-            LOG.warn("getDefaultRealm failed.");
-            throw new IOException(e);
-        }
-
-        if ((defaultRealm != null) && (defaultRealm.length() > 0)) {
-            StringBuilder realm = new StringBuilder();
-            StringBuilder principalWithRealm = new StringBuilder();
-            realm.append("@").append(defaultRealm);
-            if (!principal.endsWith(realm.toString())) {
-                principalWithRealm.append(principal).append(realm);
-                principal = principalWithRealm.toString();
-            }
-        }
-
-        return principal.equals(ugi.getUserName());
-    }
-
     /**
      * copy from hbase zkutil 0.94&0.98 A JAAS configuration that defines the login modules that we want to use for
      * login.
@@ -380,5 +383,40 @@ public class KerberosUtils {
                 return baseConfig.getAppConfigurationEntry(appName);
             return (null);
         }
+    }
+
+    public static String getServerPrincipal(String principalConfig, String hostname) throws IOException {
+        String[] components = getComponents(principalConfig);
+        return components != null && components.length == 3 && components[1].equals("_HOST") ? replacePattern(components, hostname) : principalConfig;
+    }
+
+    private static String[] getComponents(String principalConfig) {
+        return principalConfig == null ? null : principalConfig.split("[/@]");
+    }
+
+    private static String replacePattern(String[] components, String hostname) throws IOException {
+        String fqdn = hostname;
+        if (hostname == null || hostname.isEmpty() || hostname.equals("0.0.0.0")) {
+            fqdn = getLocalHostName();
+        }
+
+        return components[0] + "/" + fqdn.toLowerCase(Locale.US) + "@" + components[2];
+    }
+
+    static String getLocalHostName(){
+        String localhost = null;
+        try {
+            localhost = InetAddress.getLocalHost().getCanonicalHostName();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        return localhost;
+    }
+
+    private static String loadFromSftp(String fileName, String remoteDir, String localDir, SFTPHandler handler){
+        String remoteFile = remoteDir + File.separator +  localhost + File.separator + fileName;
+        String localFile = localDir + File.separator + fileName;
+        handler.downloadFile(remoteFile, localFile);
+        return localFile;
     }
 }
