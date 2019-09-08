@@ -16,11 +16,12 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authentication.util.KerberosUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class KerberosUtils {
 
-    private static final Logger LOG = Logger.getLogger(KerberosUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KerberosUtils.class);
 
     private static final String JAVA_SECURITY_KRB5_CONF_KEY = "java.security.krb5.conf";
 
@@ -75,6 +76,7 @@ public class KerberosUtils {
             } else if (key.contains(KEYWORD_KEYTAB)){
                 String keytabPath = "";
                 if (localKeytab != null){
+                    LOG.info("Read localKeytab on: " + localKeytab);
                     keytabPath = localKeytab + MapUtils.getString(kerberosConfig, key);
                 } else {
                     String localPath = USER_DIR + DIR + remoteDir + File.separator + localhost;
@@ -85,6 +87,7 @@ public class KerberosUtils {
                     SFTPHandler handler = null;
                     try {
                         handler = SFTPHandler.getInstance(config.getSftpConf());
+                        LOG.info("load file from sftp: " + remoteDir);
                         keytabPath = loadFromSftp(MapUtils.getString(kerberosConfig, key), remoteDir, localPath, handler);
                     } catch (Exception e){
                         throw new RuntimeException(e);
@@ -98,7 +101,7 @@ public class KerberosUtils {
             }
         }
 
-        //获取hadoopconf
+        LOG.info("Get hadoop configuration.");
         HadoopConf customerConf = new HadoopConf();
         customerConf.initHadoopConf(config.getHadoopConf());
         Configuration hadoopConf = customerConf.getConfiguration();
@@ -160,9 +163,9 @@ public class KerberosUtils {
             throw new IOException("krb5ConfFile(" + krb5ConfFile.getAbsolutePath() + ") is not a file.");
         }
 
-        // 3.set and check krb5config
         setKrb5Config(krb5ConfFile.getAbsolutePath());
         setConfiguration(conf);
+        LOG.info("set conf and check krb5config");
 
         // 4.login and check for hadoop
         loginHadoop(userPrincipal, userKeytabFile.getAbsolutePath());
@@ -407,8 +410,9 @@ public class KerberosUtils {
         String localhost = null;
         try {
             localhost = InetAddress.getLocalHost().getCanonicalHostName();
+            LOG.info("Localhost name is " + localhost);
         } catch (UnknownHostException e) {
-            e.printStackTrace();
+            LOG.error("Get localhostname error: " + e);
         }
         return localhost;
     }
