@@ -370,7 +370,7 @@ public class ClientArguments {
         outputs = "";
         inputs = "";
         cmdOpts = "";
-        jvmOpts = "-server -XX:+UseConcMarkSweepGC -XX:MaxDirectMemorySize=128m -XX:MaxMetaspaceSize=128m -XX:-UseCompressedClassPointers -XX:+DisableExplicitGC -XX:-OmitStackTraceInFastThrow";
+        jvmOpts = "-server -XX:+UseConcMarkSweepGC -XX:MaxDirectMemorySize=128m -XX:MaxMetaspaceSize=128m -XX:-UseCompressedClassPointers -XX:+DisableExplicitGC -XX:-OmitStackTraceInFastThrow -XX:OnOutOfMemoryError='kill %p'";
         appMasterJar = "";
         userPath = "";
         priority = DtYarnConfiguration.DEFAULT_LEARNING_APP_PRIORITY;
