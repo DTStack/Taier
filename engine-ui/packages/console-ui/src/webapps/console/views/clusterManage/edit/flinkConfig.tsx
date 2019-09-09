@@ -19,6 +19,7 @@ export default class FlinkConfig extends React.Component<any, any> {
             changeCheckbox,
             kerberosView
         } = this.props;
+        console.log(securityStatus)
         return (
             <React.Fragment>
                 <div className="engine-config-content" style={{ width: '680px' }}>
