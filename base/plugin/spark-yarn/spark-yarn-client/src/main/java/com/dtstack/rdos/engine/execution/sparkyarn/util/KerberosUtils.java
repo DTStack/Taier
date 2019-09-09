@@ -16,11 +16,12 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authentication.util.KerberosUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class KerberosUtils {
 
-    private static final Logger LOG = Logger.getLogger(KerberosUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KerberosUtils.class);
 
     private static final String JAVA_SECURITY_KRB5_CONF_KEY = "java.security.krb5.conf";
 
