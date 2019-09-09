@@ -6,6 +6,10 @@ import com.dtstack.rdos.engine.execution.rdbs.constant.ConfigConstant;
 import com.dtstack.rdos.engine.execution.rdbs.executor.ConnFactory;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,6 +25,9 @@ public class HiveConnFactory extends ConnFactory {
 
     private static final String PARAMS_BEGIN = "?";
     private static final String PARAMS_AND = "&";
+
+    private static final String HIVE_CONF_PREFIX = "hiveconf:";
+    private static final String HIVE_JOBNAME_PROPERTY = "hiveconf:mapreduce.job.name";
 
     private static final String MAPREDUCE_JOB_QUEUENAME = "mapreduce.job.queuename=";
 
@@ -44,6 +51,33 @@ public class HiveConnFactory extends ConnFactory {
             }
         }
     }
+    @Override
+    public Connection getConnByTaskParams(String taskParams, String jobName) throws ClassNotFoundException, SQLException, IOException {
+        Properties properties =  new Properties();
+        Connection conn;
+
+        properties.setProperty(HIVE_JOBNAME_PROPERTY , jobName);
+
+        if (StringUtils.isNotEmpty(taskParams)) {
+            for (String str : taskParams.split("\n")) {
+                String[] keyAndVal = str.split("=");
+                if (keyAndVal.length > 1) {
+                    properties.setProperty(HIVE_CONF_PREFIX + keyAndVal[0], keyAndVal[1]);
+                }
+            }
+        }
+
+        if (getUserName() == null) {
+            conn = DriverManager.getConnection(dbURL, properties);
+        } else {
+            properties.setProperty(ConfigConstant.JDBC_USER_NAME_KEY, getUserName());
+            properties.setProperty(ConfigConstant.JDBC_PASSWORD_KEY, getPwd());
+            conn = DriverManager.getConnection(dbURL, properties);
+        }
+        return conn;
+    }
+
+
 
 
     @Override
