@@ -125,6 +125,8 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
     private static final int MIN_JM_MEMORY = 768; // the minimum memory should be higher than the min heap cutoff
     private static final int MIN_TM_MEMORY = 768;
 
+    private static final String FLINK_LOG_DIR = "conf";
+
     private final YarnConfiguration yarnConfiguration;
 
     private final YarnClient yarnClient;
@@ -825,13 +827,13 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         }
 
         //check if there is a logback or log4j file
-        File logbackFile = new File(configurationDirectory + File.separator + CONFIG_FILE_LOGBACK_NAME);
+        File logbackFile = new File(configurationDirectory + File.separator + FLINK_LOG_DIR + File.separator + CONFIG_FILE_LOGBACK_NAME);
         final boolean hasLogback = logbackFile.exists();
         if (hasLogback) {
             systemShipFiles.add(logbackFile);
         }
 
-        File log4jFile = new File(configurationDirectory + File.separator + CONFIG_FILE_LOG4J_NAME);
+        File log4jFile = new File(configurationDirectory + File.separator + FLINK_LOG_DIR + File.separator + CONFIG_FILE_LOG4J_NAME);
         final boolean hasLog4j = log4jFile.exists();
         if (hasLog4j) {
             systemShipFiles.add(log4jFile);
