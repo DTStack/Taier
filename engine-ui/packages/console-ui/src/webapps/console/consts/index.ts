@@ -221,12 +221,12 @@ export const validateFlinkParams: any = [ // flink
     'flinkConf.clusterMode',
     'flinkConf.flinkJarPath',
     'flinkConf.flinkJobHistory',
-    'flinkConf.flinkPrincipal',
-    'flinkConf.flinkKeytabPath',
-    'flinkConf.flinkKrb5ConfPath',
-    'flinkConf.zkPrincipal',
-    'flinkConf.zkKeytabPath',
-    'flinkConf.zkLoginName',
+    // 'flinkConf.flinkPrincipal',
+    // 'flinkConf.flinkKeytabPath',
+    // 'flinkConf.flinkKrb5ConfPath',
+    // 'flinkConf.zkPrincipal',
+    // 'flinkConf.zkKeytabPath',
+    // 'flinkConf.zkLoginName',
     'flinkConf.kerberosFile'
 ]
 export const validateHiveParams: any = [ // hive <=> Spark Thrift Server
@@ -259,9 +259,9 @@ export const validateDtYarnShellParams: any = [
     'dtyarnshellConf.jlogstashRoot',
     'dtyarnshellConf.javaHome',
     'dtyarnshellConf.hadoopHomeDir',
-    'dtyarnshellConf.hdfsPrincipal',
-    'dtyarnshellConf.hdfsKeytabPath',
-    'dtyarnshellConf.hdfsKrb5ConfPath',
+    // 'dtyarnshellConf.hdfsPrincipal',
+    // 'dtyarnshellConf.hdfsKeytabPath',
+    // 'dtyarnshellConf.hdfsKrb5ConfPath',
     'dtyarnshellConf.kerberosFile'
 ]
 
@@ -325,8 +325,10 @@ export const notExtKeysFlink: any = [
     'randomJobNameSuffix', 'jarTmpDir',
     'flinkPluginRoot', 'remotePluginRootDir',
     'clusterMode', 'flinkJarPath',
-    'flinkJobHistory', 'flinkPrincipal', 'flinkKeytabPath', 'flinkKrb5ConfPath',
-    'zkPrincipal', 'zkKeytabPath', 'zkLoginName', 'yarn.jobmanager.help.mb',
+    'flinkJobHistory',
+    // 'flinkPrincipal', 'flinkKeytabPath', 'flinkKrb5ConfPath',
+    // 'zkPrincipal', 'zkKeytabPath', 'zkLoginName',
+    'yarn.jobmanager.help.mb',
     'yarn.taskmanager.help.mb', 'yarn.taskmanager.numberOfTaskSlots', 'yarn.taskmanager.numberOfTaskManager',
     'openKerberos', 'kerberosFile'
 ];
@@ -348,7 +350,8 @@ export const notExtKeysLearning: any = [
 export const notExtKeysDtyarnShell: any = [
     'typeName', 'jlogstash.root',
     'java.home', 'hadoop.home.dir', 'python2.path',
-    'python3.path', 'hdfsPrincipal', 'hdfsKeytabPath', 'hdfsKrb5ConfPath',
+    'python3.path',
+    // 'hdfsPrincipal', 'hdfsKeytabPath', 'hdfsKrb5ConfPath',
     'openKerberos', 'kerberosFile'
 ]
 export const notExtKeysSparkThrift: any = [
