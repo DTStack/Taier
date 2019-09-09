@@ -67,7 +67,7 @@ export default class DtyarnShellConfig extends React.Component<any, any> {
                             <Input disabled={isView} placeholder="/root/anaconda3/bin/python3" />
                         )}
                     </FormItem>
-                    {
+                    {/* {
                         securityStatus ? <div>
                             <FormItem
                                 label="hdfsPrincipal"
@@ -109,7 +109,7 @@ export default class DtyarnShellConfig extends React.Component<any, any> {
                                 )}
                             </FormItem>
                         </div> : null
-                    }
+                    } */}
                     {customView}
                     {kerberosView}
                 </div>

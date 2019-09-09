@@ -58,6 +58,14 @@ export default class FlinkConfig extends React.Component<any, any> {
                         )}
                     </FormItem>
                     <FormItem
+                        label="flinkClusterId"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkClusterId`, {})(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
+                    <FormItem
                         label="flinkZkAddress"
                         {...formItemLayout}
                     >
@@ -121,14 +129,6 @@ export default class FlinkConfig extends React.Component<any, any> {
                                 message: '请输入flinkJobHistory'
                             }]
                         })(
-                            <Input disabled={isView} />
-                        )}
-                    </FormItem>
-                    <FormItem
-                        label="flinkClusterId"
-                        {...formItemLayout}
-                    >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkClusterId`, {})(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
@@ -297,7 +297,7 @@ export default class FlinkConfig extends React.Component<any, any> {
                         </FormItem>
                     </div>) : null
                     }
-                    {
+                    {/* {
                         securityStatus ? <div>
                             <FormItem
                                 label="flinkPrincipal"
@@ -378,7 +378,7 @@ export default class FlinkConfig extends React.Component<any, any> {
                                 )}
                             </FormItem>
                         </div> : null
-                    }
+                    } */}
                     {customView}
                     {kerberosView}
                 </div>
