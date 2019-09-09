@@ -27,7 +27,7 @@ function getSourceInitialField (sourceType: any, data: any) {
             initialFields.fileType = 'orc';
             initialFields.fieldDelimiter = ',';
             initialFields.encoding = 'utf-8';
-            initialFields.writeMode = 'insert';
+            initialFields.writeMode = 'APPEND';
             return initialFields;
         }
         case DATA_SOURCE.HIVE: {
