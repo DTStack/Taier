@@ -7,6 +7,7 @@ const FormItem = Form.Item;
 export default class DtyarnShellConfig extends React.Component<any, any> {
     render () {
         const { singleButton, customView, isView, getFieldDecorator, securityStatus, kerberosView } = this.props;
+        console.log(securityStatus)
         return (
             <React.Fragment>
                 <div className="engine-config-content" style={{ width: '680px' }}>
@@ -67,7 +68,7 @@ export default class DtyarnShellConfig extends React.Component<any, any> {
                             <Input disabled={isView} placeholder="/root/anaconda3/bin/python3" />
                         )}
                     </FormItem>
-                    {
+                    {/* {
                         securityStatus ? <div>
                             <FormItem
                                 label="hdfsPrincipal"
@@ -109,7 +110,7 @@ export default class DtyarnShellConfig extends React.Component<any, any> {
                                 )}
                             </FormItem>
                         </div> : null
-                    }
+                    } */}
                     {customView}
                     {kerberosView}
                 </div>
