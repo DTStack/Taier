@@ -237,16 +237,18 @@ export function filterComments (sql: string) {
         let queue = parser.queue;
         if (queue.endsWith('--')) {
             let nextToken = sql.indexOf('\n', parser.index + 1);
+            let begin = parser.index - 1;
             if (nextToken != -1) {
+                let end = nextToken - 1;
                 parser.comments.push({
-                    begin: parser.index - 1,
-                    end: nextToken - 1
+                    begin: begin - 1,
+                    end: end
                 })
-                parser.index = nextToken;
+                parser.index = end;
                 parser.queue = '';
             } else {
                 parser.comments.push({
-                    begin: parser.index - 1,
+                    begin: begin,
                     end: sql.length - 1
                 })
                 parser.index = sql.length - 1;
