@@ -14,6 +14,7 @@ import javax.security.auth.login.AppConfigurationEntry.LoginModuleControlFlag;
 import com.dtstack.rdos.engine.execution.sparkyarn.SparkYarnConfig;
 import org.apache.commons.collections.MapUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authentication.util.KerberosUtil;
 import org.slf4j.Logger;
@@ -46,7 +47,7 @@ public class KerberosUtils {
 
     private static final String KEYWORD_KEYTAB = "Path";
 
-    private static final String DIR = "/keytab/";
+    private static final String DIR = "/keytab";
 
     private static final String USER_DIR = System.getProperty("user.dir");
 
@@ -78,8 +79,9 @@ public class KerberosUtils {
                 kerberosConfig.put(key, KerberosUtils.getServerPrincipal(MapUtils.getString(kerberosConfig, key), "0.0.0.0"));
             } else if (key.contains(KEYWORD_KEYTAB)){
                 String keytabPath = "";
-                if (localKeytab.isEmpty()){
+                if (localKeytab != null){
                     keytabPath = localKeytab + MapUtils.getString(kerberosConfig, key);
+                    LOG.info("Read localKeytab on: " + keytabPath);
                 } else {
                     String localPath = USER_DIR + DIR + remoteDir + File.separator + localhost;
                     File dirs = new File(localPath);
@@ -90,8 +92,9 @@ public class KerberosUtils {
                     try {
                         handler = SFTPHandler.getInstance(config.getSftpConf());
                         keytabPath = loadFromSftp(MapUtils.getString(kerberosConfig, key), remoteDir, localPath, handler);
+                        LOG.info("load file from sftp: " + keytabPath);
                     } catch (Exception e){
-                        throw new RuntimeException(e);
+                        LOG.error("load file error: ", e);
                     } finally {
                         if (handler != null){
                             handler.close();
@@ -499,7 +502,11 @@ public class KerberosUtils {
     private static String loadFromSftp(String fileName, String remoteDir, String localDir, SFTPHandler handler){
         String remoteFile = remoteDir + File.separator +  localhost + File.separator + fileName;
         String localFile = localDir + File.separator + fileName;
-        handler.downloadFile(remoteFile, localFile);
-        return localFile;
+        if (new File(fileName).exists()){
+            return fileName;
+        } else {
+            handler.downloadFile(remoteFile, localFile);
+            return localFile;
+        }
     }
 }

@@ -115,6 +115,7 @@ public class SparkYarnClient extends AbsClient {
         if (sparkYarnConfig.isOpenKerberos()){
             initSecurity();
         }
+        logger.info("UGI info: " + UserGroupInformation.getCurrentUser());
         yarnClient = YarnClient.createYarnClient();
         yarnClient.init(yarnConf);
         yarnClient.start();
@@ -123,7 +124,7 @@ public class SparkYarnClient extends AbsClient {
         try {
             KerberosUtils.login(sparkYarnConfig);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("initSecurity happens error", e);
         }
     }
 

@@ -96,11 +96,12 @@ public class ApplicationContainerListener
 
            LOG.info("hdfs principal:" + conf.get("hdfsPrincipal"));
            final Configuration newConf = new Configuration(conf);
-           if ("true".equals(conf.get("security"))){
+           if ("true".equals(conf.get("openKerberos"))){
                newConf.set(DTYarnShellConstant.RPC_SERVER_PRINCIPAL, conf.get("hdfsPrincipal"));
                newConf.set(DTYarnShellConstant.RPC_SERVER_KEYTAB, conf.get("hdfsKeytabPath"));
            }
 
+           SecurityUtil.setAuthenticationMethod(UserGroupInformation.AuthenticationMethod.KERBEROS, newConf);
            SecurityUtil.login(newConf,DTYarnShellConstant.RPC_SERVER_KEYTAB, DTYarnShellConstant.RPC_SERVER_PRINCIPAL);
 
             RPC.Builder builder = new RPC.Builder(newConf)

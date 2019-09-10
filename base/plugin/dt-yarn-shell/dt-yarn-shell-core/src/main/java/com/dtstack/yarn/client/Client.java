@@ -28,8 +28,6 @@ import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
 import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
 import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.hadoop.yarn.api.records.LocalResourceType;
-import org.apache.hadoop.yarn.api.records.NodeReport;
-import org.apache.hadoop.yarn.api.records.NodeState;
 import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.client.api.YarnClient;
@@ -42,7 +40,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
@@ -59,20 +56,14 @@ public class Client {
     private final FileSystem dfs;
     private YarnClient yarnClient;
     private Path appMasterJar;
-    private String hdfsPrincipal;
-    private String hdfsKeytabPath;
-    private String hdfsKrb5ConfPath;
 
 
     private static FsPermission JOB_FILE_PERMISSION = FsPermission.createImmutable((short) 0644);
 
     public Client(DtYarnConfiguration conf) throws IOException, ParseException, ClassNotFoundException, YarnException {
         this.conf = conf;
-        if ("true".equals(conf.get("security"))){
-            hdfsPrincipal = conf.get("hdfsPrincipal");
-            hdfsKeytabPath = conf.get("hdfsKeytabPath");
-            hdfsKrb5ConfPath = conf.get("hdfsKrb5ConfPath");
-            KerberosUtils.login(hdfsPrincipal, hdfsKeytabPath, hdfsKrb5ConfPath, conf);
+        if ("true".equals(conf.get("openKerberos"))){
+            KerberosUtils.login(conf);
         }
         this.dfs = FileSystem.get(conf);
 

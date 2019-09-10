@@ -107,7 +107,7 @@ public class DtContainer {
             LOG.info("appMasterHost:" + appMasterHost + ", port:" + appMasterPort);
             final Configuration newConf = new Configuration(conf);
 
-            if ("true".equals(conf.get("security"))){
+            if ("true".equals(conf.get("openKerberos"))){
                 UserGroupInformation myGui = UserGroupInformation.loginUserFromKeytabAndReturnUGI(conf.get("hdfsPrincipal"), conf.get("hdfsKeytabPath"));
                 UserGroupInformation.setLoginUser(myGui);
                 UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
