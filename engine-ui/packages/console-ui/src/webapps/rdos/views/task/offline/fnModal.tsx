@@ -255,7 +255,7 @@ class FnModal extends React.Component<any, any> {
                                 const msg = res.data && res.data.list && res.data.list[1];
                                 notification.success({
                                     message: '创建成功',
-                                    description: `测试样例返回结果: ${msg}`
+                                    description: `测试样例返回结果: ${msg || '无'}`
                                   });
                                 this.closeModal();
                                 form.resetFields();
