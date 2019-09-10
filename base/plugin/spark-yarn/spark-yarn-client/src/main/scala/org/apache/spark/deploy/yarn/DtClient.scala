@@ -24,7 +24,6 @@ import java.nio.charset.StandardCharsets
 import java.util.zip.{ZipEntry, ZipOutputStream}
 import java.util.{Properties, UUID}
 
-import com.dtstack.rdos.common.config.ConfigParse
 import com.dtstack.rdos.engine.execution.sparkyarn.util.KerberosUtils
 import com.google.common.base.Objects
 import com.google.common.io.Files
@@ -395,9 +394,9 @@ private[spark] class DtClient(
   }
 
   def initSecurity():Unit = {
-    val userPrincipal = ConfigParse.userPrincipal
-    val userKeytabPath = ConfigParse.userKeytabPath
-    val krb5ConfPath = ConfigParse.krb5ConfPath
+    val userPrincipal = sparkConf.get("spark.yarn.principal")
+    val userKeytabPath = sparkConf.get("spark.yarn.keytab")
+    val krb5ConfPath = sparkConf.get("spark.krb5path")
     try
       KerberosUtils.login(userPrincipal, userKeytabPath, krb5ConfPath, yarnConf)
     catch {

@@ -81,7 +81,7 @@ public class KerberosUtils {
                 String keytabPath = "";
                 if (localKeytab != null){
                     keytabPath = localKeytab + MapUtils.getString(kerberosConfig, key);
-                    LOG.info("Read localKeytab on: " + keytabPath);
+                    LOG.debug("Read localKeytab on: " + keytabPath);
                 } else {
                     String localPath = USER_DIR + DIR + remoteDir + File.separator + localhost;
                     File dirs = new File(localPath);
@@ -92,7 +92,7 @@ public class KerberosUtils {
                     try {
                         handler = SFTPHandler.getInstance(config.getSftpConf());
                         keytabPath = loadFromSftp(MapUtils.getString(kerberosConfig, key), remoteDir, localPath, handler);
-                        LOG.info("load file from sftp: " + keytabPath);
+                        LOG.debug("load file from sftp: " + keytabPath);
                     } catch (Exception e){
                         LOG.error("load file error: ", e);
                     } finally {

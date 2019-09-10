@@ -11,7 +11,6 @@ import java.util.Map;
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.AppConfigurationEntry.LoginModuleControlFlag;
 
-import com.dtstack.yarn.DtYarnConfiguration;
 import org.apache.commons.collections.MapUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
@@ -62,14 +61,13 @@ public class KerberosUtils {
 
     private static final String localhost = getLocalHostName();
 
-    public static void login(DtYarnConfiguration config) throws IOException {
+    public static void login(Configuration config) throws IOException {
         Map<String, String> kerberosConfig = new HashMap<>();
         kerberosConfig.put(HDFS_PRINCIPAL, config.get(HDFS_PRINCIPAL));
         kerberosConfig.put(HDFS_KEYTABPATH, config.get(HDFS_KEYTABPATH));
         kerberosConfig.put(HDFS_KRB5CONFPATH, config.get(HDFS_KRB5CONFPATH));
 
         String localKeytab = config.get(LOACLKEYTAB);
-        String localhost = getLocalHostName();
         String remoteDir = config.get(REMOTEDIR);
 
         for (String key : kerberosConfig.keySet()) {
@@ -496,5 +494,37 @@ public class KerberosUtils {
             handler.downloadFile(remoteFile, localFile);
             return localFile;
         }
+    }
+
+    public static String downloadAndReplace(Configuration config, String key) {
+
+        String localKeytab = config.get(LOACLKEYTAB);
+        String remoteDir = config.get(REMOTEDIR);
+
+        String keytabPath = "";
+        if (localKeytab != null){
+            keytabPath = localKeytab + config.get(key);
+            LOG.info("Read localKeytab on: " + keytabPath);
+        } else {
+            String localPath = USER_DIR + DIR + remoteDir + File.separator + localhost;
+            File dirs = new File(localPath);
+            if (!dirs.exists()){
+                dirs.mkdirs();
+            }
+            SFTPHandler handler = null;
+            try {
+                handler = SFTPHandler.getInstance(config);
+                LOG.error("========" + key + "===" + config.get(key));
+                keytabPath = loadFromSftp(config.get(key), remoteDir, localPath, handler);
+                LOG.info("load file from sftp: " + keytabPath);
+            } catch (Exception e){
+                throw new RuntimeException(e);
+            } finally {
+                if (handler != null){
+                    handler.close();
+                }
+            }
+        }
+        return keytabPath;
     }
 }

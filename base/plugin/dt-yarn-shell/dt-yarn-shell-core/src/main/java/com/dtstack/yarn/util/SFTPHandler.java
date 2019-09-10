@@ -1,11 +1,11 @@
 package com.dtstack.yarn.util;
 
-import com.dtstack.yarn.DtYarnConfiguration;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
 import org.apache.commons.lang.StringUtils;
+import org.apache.hadoop.conf.Configuration;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -16,11 +16,11 @@ import java.util.Properties;
 
 public class SFTPHandler {
 
-    private static final String KEY_USERNAME = "username";
-    private static final String KEY_PASSWORD = "password";
-    private static final String KEY_HOST = "host";
-    private static final String KEY_PORT = "port";
-    private static final String KEY_TIMEOUT = "timeout";
+    private static final String KEY_USERNAME = "sftpConf.username";
+    private static final String KEY_PASSWORD = "sftpConf.password";
+    private static final String KEY_HOST = "sftpConf.host";
+    private static final String KEY_PORT = "sftpConf.port";
+    private static final String KEY_TIMEOUT = "sftpConf.timeout";
 
     private static final String KEYWORD_FILE_NOT_EXISTS = "No such file";
 
@@ -34,7 +34,7 @@ public class SFTPHandler {
         this.channelSftp = channelSftp;
     }
 
-    public static SFTPHandler getInstance(DtYarnConfiguration sftpConfig){
+    public static SFTPHandler getInstance(Configuration sftpConfig){
         checkConfig(sftpConfig);
 
         String host = sftpConfig.get(KEY_HOST);
@@ -52,7 +52,9 @@ public class SFTPHandler {
             Properties config = new Properties();
             config.put("StrictHostKeyChecking", "no");
             session.setConfig(config);
-            session.setTimeout(Integer.parseInt(sftpConfig.get(KEY_TIMEOUT)));
+            if (sftpConfig.get(KEY_TIMEOUT)!=null){
+                session.setTimeout(Integer.parseInt(sftpConfig.get(KEY_TIMEOUT)));
+            }
             session.connect();
 
             ChannelSftp channelSftp = (ChannelSftp) session.openChannel("sftp");
@@ -66,7 +68,7 @@ public class SFTPHandler {
         }
     }
 
-    private static void checkConfig(DtYarnConfiguration sftpConfig){
+    private static void checkConfig(Configuration sftpConfig){
         if(sftpConfig == null){
             throw new IllegalArgumentException("The config of sftp is null");
         }

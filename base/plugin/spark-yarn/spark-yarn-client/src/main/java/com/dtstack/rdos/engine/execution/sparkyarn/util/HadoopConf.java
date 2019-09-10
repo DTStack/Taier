@@ -139,16 +139,7 @@ public class HadoopConf {
             return;
         }
 
-        conf.keySet().forEach(key ->{
-            Object value = conf.get(key);
-            if (value instanceof String){
-                yarnConfiguration.set(key, (String) value);
-            } else if (value instanceof Boolean){
-                yarnConfiguration.setBoolean(key, (boolean) value);
-            } else {
-                throw new RdosException("init hive security conf failed!, type of value is not supported");
-            }
-        });
+        MapToConf(conf, yarnConfiguration);
     }
 
     public static Configuration getDefaultConfiguration() {
@@ -176,4 +167,16 @@ public class HadoopConf {
 	public Configuration getYarnConfiguration() {
 		return yarnConfiguration;
 	}
+
+	private static void MapToConf(Map<String, Object> map, Configuration config){
+        for (Map.Entry<String, Object> entry : map.entrySet()){
+            if (entry.getValue() instanceof String){
+                config.set(entry.getKey(), (String) entry.getValue());
+            } else if (entry.getValue() instanceof Boolean){
+                config.setBoolean(entry.getKey(), (Boolean) entry.getValue());
+            } else if (entry.getValue() instanceof Map){
+                MapToConf((Map<String, Object>) entry.getValue(), config);
+            }
+        }
+    }
 }

@@ -10,6 +10,7 @@ import com.dtstack.yarn.common.ReturnValue;
 import com.dtstack.yarn.common.type.AppType;
 import com.dtstack.yarn.common.type.DummyType;
 import com.dtstack.yarn.util.DebugUtil;
+import com.dtstack.yarn.util.KerberosUtils;
 import com.dtstack.yarn.util.Utilities;
 import com.google.common.base.Strings;
 import org.apache.commons.logging.Log;
@@ -108,14 +109,15 @@ public class DtContainer {
             final Configuration newConf = new Configuration(conf);
 
             if ("true".equals(conf.get("openKerberos"))){
-                UserGroupInformation myGui = UserGroupInformation.loginUserFromKeytabAndReturnUGI(conf.get("hdfsPrincipal"), conf.get("hdfsKeytabPath"));
+                UserGroupInformation myGui = UserGroupInformation.loginUserFromKeytabAndReturnUGI(conf.get("hdfsPrincipal"),
+                        KerberosUtils.downloadAndReplace(newConf,"hdfsKeytabPath"));
                 UserGroupInformation.setLoginUser(myGui);
                 UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
                 LOG.info("-ugi---:" + ugi);
                 LOG.info("isenabled:" + UserGroupInformation.isSecurityEnabled());
                 LOG.info("hdfs principal:" + conf.get("hdfsPrincipal"));
                 newConf.set(DTYarnShellConstant.RPC_SERVER_PRINCIPAL, conf.get("hdfsPrincipal"));
-                newConf.set(DTYarnShellConstant.RPC_SERVER_KEYTAB, conf.get("hdfsKeytabPath"));
+                newConf.set(DTYarnShellConstant.RPC_SERVER_KEYTAB, KerberosUtils.downloadAndReplace(newConf, "hdfsKeytabPath"));
                 UserGroupInformation.setConfiguration(newConf);
                 SecurityUtil.setAuthenticationMethod(UserGroupInformation.AuthenticationMethod.KERBEROS, newConf);
 
