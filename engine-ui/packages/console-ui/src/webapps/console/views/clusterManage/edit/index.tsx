@@ -871,8 +871,7 @@ class EditCluster extends React.Component<any, any> {
         const { engineTypeKey } = this.state;
         const { componentTypeCode, componentName, componentId } = component;
         if (componentTypeCode == COMPONENT_TYPE_VALUE.HDFS ||
-            componentTypeCode == COMPONENT_TYPE_VALUE.YARN ||
-            componentTypeCode == COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER) {
+            componentTypeCode == COMPONENT_TYPE_VALUE.YARN) {
             message.error(`${componentName}不允许删除！`)
         } else {
             Api.deleteComponent({
