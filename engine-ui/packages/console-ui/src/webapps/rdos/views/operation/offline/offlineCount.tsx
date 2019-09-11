@@ -73,15 +73,9 @@ class OfflineCount extends React.Component<any, any> {
                         noHovering
                         bordered={false}
                         loading={false}
-                        title="周期实例执行汇总"
+                        title="今日周期实例执行汇总"
                     >
                         <Row className="m-count" >
-                            {/* <Col style={flex}>
-                                <section className="m-count-section">
-                                    <span className="m-count-title">全部</span>
-                                    <a onClick={this.jumpToOfflineList.bind(this, taskStatus.ALL)} className="m-count-content font-black">{data.ALL || 0}</a>
-                                </section>
-                            </Col> */}
                             <Col span={4}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">失败</span>
@@ -106,36 +100,12 @@ class OfflineCount extends React.Component<any, any> {
                                     <a onClick={this.jumpToOfflineList.bind(this, [taskStatus.FINISHED])} className="m-count-content font-green">{data.FINISHED || 0}</a>
                                 </section>
                             </Col>
-                            {/* <Col style={flex}>
-                                <section className="m-count-section" style={{width:"60px"}}>
-                                    <span className="m-count-title">等待提交</span>
-                                    <a onClick={this.jumpToOfflineList.bind(this, taskStatus.UNSUBMIT)} className="m-count-content font-gray">{data.UNSUBMIT || 0}</a>
-                                </section>
-                            </Col> */}
-                            {/* <Col style={flex}>
-                                <section className="m-count-section">
-                                    <span className="m-count-title">提交中</span>
-                                    <a onClick={this.jumpToOfflineList.bind(this, taskStatus.SUBMITTING)} className="m-count-content font-organge">{data.SUBMITTING || 0}</a>
-                                </section>
-                            </Col> */}
-                            {/* <Col style={flex}>
-                                <section className="m-count-section" style={{width:"60px"}}>
-                                    <span className="m-count-title" >等待运行</span>
-                                    <a onClick={this.jumpToOfflineList.bind(this, taskStatus.WAITING_RUN)} className="m-count-content font-organge">{data.WAITENGINE || 0}</a>
-                                </section>
-                            </Col> */}
                             <Col span={colSpan}>
                                 <section className="m-count-section" style={{ width: 60 }}>
                                     <span className="m-count-title">冻结/取消</span>
                                     <a onClick={this.jumpToOfflineList.bind(this, [taskStatus.FROZEN, taskStatus.CANCELED])} className="m-count-content font-gray">{(data.FROZEN || 0) + (data.CANCELED || 0)}</a>
                                 </section>
                             </Col>
-                            {/* <Col style={flex}>
-                                <section className="m-count-section">
-                                    <span className="m-count-title">取消</span>
-                                    <a onClick={this.jumpToOfflineList.bind(this, taskStatus.CANCELED)} className="m-count-content font-gray">{data.CANCELED || 0}</a>
-                                </section>
-                            </Col> */}
                         </Row>
                     </Card>
                 </div>
