@@ -664,16 +664,17 @@ class EditCluster extends React.Component<any, any> {
         const { cluster } = this.props.location.state || {} as any;
         const { engineTypeKey, clusterData } = this.state;
         // 页面滚动至底部
-        const scroll = () => {
-            const ele = document.querySelector('#JS_console_container');
-            ele.scrollTop = 0;
-            ele.scrollTo({
-                top: ele.scrollHeight,
-                behavior: 'smooth'
-            })
-        }
-        scroll();
+        // const scroll = () => {
+        //     const ele = document.querySelector('#JS_console_container');
+        //     ele.scrollTop = 0;
+        //     ele.scrollTo({
+        //         top: ele.scrollHeight,
+        //         behavior: 'smooth'
+        //     })
+        // }
+        // scroll();
         form.validateFieldsAndScroll(null, {}, (err: any, values: any) => {
+            console.log(values)
             if (!err) {
                 updateRequiredStatus(DEFAULT_COMP_REQUIRED)
                 this.setState({
@@ -1243,93 +1244,99 @@ class EditCluster extends React.Component<any, any> {
                         />
                     )}
                 </FormItem>
-                <Row
-                    style={{
-                        visibility: getFieldValue(`${key}.openKerberos`) ? null : 'hidden',
-                        height: getFieldValue(`${key}.openKerberos`) ? null : 0,
-                        overflow: 'hidden'
-                    }}
-                >
-                    <Col span={6}/>
-                    <Col span={14}>
-                        <FormItem
-                            {...formNewLayout}
-                            key={`${key}.kerberosFile`}
-                            label=""
-                            // style={{
-                            //     margin: 0
-                            // }}
-                        >
-                            {getFieldDecorator(`${key}.kerberosFile`, {
-                                rules: [{
-                                    required: getFieldValue(`${key}.openKerberos`), message: '文件不可为空！'
-                                }],
-                                initialValue: ''
-                            })(<div/>)}
-                            <div
+                {
+                    getFieldValue(`${key}.openKerberos`)
+                        ? (
+                            <Row
                                 style={{
-                                    display: 'flex'
+                                    visibility: getFieldValue(`${key}.openKerberos`) ? null : 'hidden',
+                                    height: getFieldValue(`${key}.openKerberos`) ? null : 0,
+                                    overflow: 'hidden'
                                 }}
                             >
-                                <Upload {...upProps}>
-                                    <Button style={{ color: '#999' }}>
-                                        <Icon type="upload" /> 上传文件
-                                    </Button>
-                                </Upload>
-                                <Tooltip title="上传文件前，请在控制台开启SFTP服务。">
-                                    <Icon type="question-circle-o" style={{ fontSize: '14px', marginTop: '8px', marginLeft: '10px' }}/>
-                                </Tooltip>
-                                <a
-                                    href={`/api/console/download/component/downloadKerberosXML?componentType=${keyNum}`}
-                                    download
-                                >
-                                    <div
-                                        style={{ color: '#0099ff', cursor: 'pointer', marginLeft: '10px' }}
-                                        onClick={() => {
-                                            console.log(key, keyNum)
-                                        }}
+                                <Col span={6}/>
+                                <Col span={14}>
+                                    <FormItem
+                                        {...formNewLayout}
+                                        key={`${key}.kerberosFile`}
+                                        label=""
+                                        // style={{
+                                        //     margin: 0
+                                        // }}
                                     >
-                                        下载文件模板
-                                    </div>
-                                </a>
-                            </div>
-                            <div
-                                style={{ color: '#999' }}
-                            >
-                                上传单个文件，支持扩展格式：.zip
-                            </div>
-                            {
-                                formValue
-                                    ? (
+                                        {getFieldDecorator(`${key}.kerberosFile`, {
+                                            rules: [{
+                                                required: getFieldValue(`${key}.openKerberos`), message: '文件不可为空！'
+                                            }],
+                                            initialValue: ''
+                                        })(<div/>)}
                                         <div
                                             style={{
-                                                width: '120%',
-                                                position: 'relative'
+                                                display: 'flex'
                                             }}
                                         >
-                                            <Icon
-                                                type="close"
-                                                style={{
-                                                    cursor: 'pointer',
-                                                    position: 'absolute',
-                                                    right: '5px',
-                                                    top: '11px',
-                                                    zIndex: 99
-                                                }}
-                                                onClick={() => {
-                                                    setFieldsValue({
-                                                        [`${key}.kerberosFile`]: ''
-                                                    })
-                                                }}
-                                            />
-                                            <Input value={formValue.name + '   ' + moment(formValue.modifyTime).format('YYYY-MM-DD HH:mm:ss')}/>
+                                            <Upload {...upProps}>
+                                                <Button style={{ color: '#999' }}>
+                                                    <Icon type="upload" /> 上传文件
+                                                </Button>
+                                            </Upload>
+                                            <Tooltip title="上传文件前，请在控制台开启SFTP服务。">
+                                                <Icon type="question-circle-o" style={{ fontSize: '14px', marginTop: '8px', marginLeft: '10px' }}/>
+                                            </Tooltip>
+                                            <a
+                                                href={`/api/console/download/component/downloadKerberosXML?componentType=${keyNum}`}
+                                                download
+                                            >
+                                                <div
+                                                    style={{ color: '#0099ff', cursor: 'pointer', marginLeft: '10px' }}
+                                                    onClick={() => {
+                                                        console.log(key, keyNum)
+                                                    }}
+                                                >
+                                                    下载文件模板
+                                                </div>
+                                            </a>
                                         </div>
-                                    )
-                                    : null
-                            }
-                        </FormItem>
-                    </Col>
-                </Row>
+                                        <div
+                                            style={{ color: '#999' }}
+                                        >
+                                            上传单个文件，支持扩展格式：.zip
+                                        </div>
+                                        {
+                                            formValue
+                                                ? (
+                                                    <div
+                                                        style={{
+                                                            width: '120%',
+                                                            position: 'relative'
+                                                        }}
+                                                    >
+                                                        <Icon
+                                                            type="close"
+                                                            style={{
+                                                                cursor: 'pointer',
+                                                                position: 'absolute',
+                                                                right: '5px',
+                                                                top: '11px',
+                                                                zIndex: 99
+                                                            }}
+                                                            onClick={() => {
+                                                                setFieldsValue({
+                                                                    [`${key}.kerberosFile`]: ''
+                                                                })
+                                                            }}
+                                                        />
+                                                        <Input value={formValue.name + '   ' + moment(formValue.modifyTime).format('YYYY-MM-DD HH:mm:ss')}/>
+                                                    </div>
+                                                )
+                                                : null
+                                        }
+                                    </FormItem>
+                                </Col>
+                            </Row>
+                        )
+                        : null
+                }
             </React.Fragment>
         );
     }
