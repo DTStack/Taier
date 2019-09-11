@@ -153,12 +153,13 @@ public class FlinkClient extends AbsClient {
         }
     }
 
-    private void initSecurity() {
+    private void initSecurity() throws IOException {
         try {
             logger.info("start init security!");
             KerberosUtils.login(flinkConfig);
         } catch (IOException e) {
             logger.error("initSecurity happens error", e);
+            throw new IOException("InitSecurity happens error", e);
         }
     }
 

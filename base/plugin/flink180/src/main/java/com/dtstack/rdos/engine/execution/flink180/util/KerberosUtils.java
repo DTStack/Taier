@@ -407,7 +407,7 @@ public class KerberosUtils {
     }
 
     static String getLocalHostName(){
-        String localhost = null;
+        String localhost = "_HOST";
         try {
             localhost = InetAddress.getLocalHost().getCanonicalHostName();
             LOG.info("Localhost name is " + localhost);

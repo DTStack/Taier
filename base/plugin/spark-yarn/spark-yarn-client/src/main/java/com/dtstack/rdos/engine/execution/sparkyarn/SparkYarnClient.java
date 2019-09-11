@@ -120,11 +120,13 @@ public class SparkYarnClient extends AbsClient {
         yarnClient.init(yarnConf);
         yarnClient.start();
     }
-    private void initSecurity() {
+    private void initSecurity() throws IOException {
         try {
+            logger.info("start init security!");
             KerberosUtils.login(sparkYarnConfig);
         } catch (IOException e) {
             logger.error("initSecurity happens error", e);
+            throw new IOException("InitSecurity happens error", e);
         }
     }
 
@@ -606,10 +608,15 @@ public class SparkYarnClient extends AbsClient {
     }
 
     @Override
-    public boolean judgeSlots(JobClient jobClient) {
+    public boolean judgeSlots(JobClient jobClient){
 
         if (sparkYarnConfig.isOpenKerberos()){
-            initSecurity();
+            try {
+                logger.debug("start init security!");
+                initSecurity();
+            } catch (IOException e) {
+                logger.error("InitSecurity happens error", e);
+            }
         }
 
         SparkYarnResourceInfo resourceInfo = new SparkYarnResourceInfo();

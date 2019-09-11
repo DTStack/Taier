@@ -475,7 +475,7 @@ public class KerberosUtils {
     }
 
     static String getLocalHostName(){
-        String localhost = null;
+        String localhost = "_HOST";
         try {
             localhost = InetAddress.getLocalHost().getCanonicalHostName();
             LOG.info("Localhost name is " + localhost);
@@ -514,7 +514,6 @@ public class KerberosUtils {
             SFTPHandler handler = null;
             try {
                 handler = SFTPHandler.getInstance(config);
-                LOG.error("========" + key + "===" + config.get(key));
                 keytabPath = loadFromSftp(config.get(key), remoteDir, localPath, handler);
                 LOG.info("load file from sftp: " + keytabPath);
             } catch (Exception e){
@@ -526,5 +525,9 @@ public class KerberosUtils {
             }
         }
         return keytabPath;
+    }
+
+    public static boolean isOpenKerberos(Configuration config){
+        return "true".equals(config.get("openKerberos"));
     }
 }

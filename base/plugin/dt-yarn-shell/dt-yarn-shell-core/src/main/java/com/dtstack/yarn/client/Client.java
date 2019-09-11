@@ -62,7 +62,8 @@ public class Client {
 
     public Client(DtYarnConfiguration conf) throws IOException, ParseException, ClassNotFoundException, YarnException {
         this.conf = conf;
-        if ("true".equals(conf.get("openKerberos"))){
+        if (KerberosUtils.isOpenKerberos(conf)){
+            LOG.info("start init security!");
             KerberosUtils.login(conf);
         }
         this.dfs = FileSystem.get(conf);
@@ -254,7 +255,7 @@ public class Client {
                 localResources, appMasterEnv, appMasterLaunchcommands, null, null, null);
 
 
-        if ("true".equals(conf.get("security"))){
+        if (KerberosUtils.isOpenKerberos(conf)){
             amContainer.setTokens(setupTokens());
         }
         applicationContext.setAMContainerSpec(amContainer);

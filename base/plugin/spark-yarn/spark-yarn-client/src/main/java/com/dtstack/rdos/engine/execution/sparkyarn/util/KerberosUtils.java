@@ -490,11 +490,12 @@ public class KerberosUtils {
     }
 
     static String getLocalHostName(){
-        String localhost = null;
+        String localhost = "_HOST";
         try {
             localhost = InetAddress.getLocalHost().getCanonicalHostName();
+            LOG.info("Localhost name is " + localhost);
         } catch (UnknownHostException e) {
-            e.printStackTrace();
+            LOG.error("Get localhostname error: " + e);
         }
         return localhost;
     }
