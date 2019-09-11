@@ -5,7 +5,7 @@ import { isEmpty, cloneDeep, get } from 'lodash';
 
 import {
     Table, message, Modal,
-    Card, Button, Select,
+    Card, Select,
     Icon, DatePicker, Tooltip,
     Form, Checkbox, Dropdown,
     Menu
@@ -226,6 +226,43 @@ class OfflineTaskList extends React.Component<any, any> {
             killJobVisible: show
         })
     }
+    reloadCurrentJob = () => { // 重跑当前任务
+        const ctx = this
+        const selected = this.state.selectedRowKeys
+        if (!selected || selected.length <= 0) {
+            warning({
+                title: '提示',
+                content: '您没有选择任何需要重跑的任务！'
+            })
+            return
+        }
+        if (this.canReload(selected)) {
+            console.log(selected);
+            confirm({
+                title: '确认提示',
+                content: '确认需要重跑当前选中的任务？',
+                onOk () {
+                    // 接口等待后端
+                    Api.batchRestartAndResume({ jobIdList: selected, runCurrentJob: true }).then((res: any) => {
+                        if (res.code === 1) {
+                            message.success('已经成功重跑当前选中的任务！')
+                            ctx.setState({ selectedRowKeys: [], checkAll: false })
+                            ctx.search()
+                        }
+                    })
+                }
+            });
+        } else {
+            warning({
+                title: '提示',
+                content: `
+                        只有“未运行、成功、失败、取消”状态下的任务可以进行重跑操作，
+                        请您重新选择!
+                    `
+            })
+        }
+    }
+
     batchReloadJobs = () => { // 批量重跑
         const ctx = this
         const selected = this.state.selectedRowKeys
@@ -239,11 +276,11 @@ class OfflineTaskList extends React.Component<any, any> {
         if (this.canReload(selected)) {
             confirm({
                 title: '确认提示',
-                content: '确认需要重跑选择的任务？',
+                content: '确认需要重跑选择的任务及其全部下游任务？',
                 onOk () {
                     Api.batchRestartAndResume({ jobIdList: selected }).then((res: any) => {
                         if (res.code === 1) {
-                            message.success('已经成功重跑所选任务！')
+                            message.success('已经成功重跑当前选中及其全部下游任务')
                             ctx.setState({ selectedRowKeys: [], checkAll: false })
                             ctx.search()
                         }
@@ -531,6 +568,11 @@ class OfflineTaskList extends React.Component<any, any> {
         const menu = (<Menu onClick={() => this.showKillJobsByDate(true)} style={{ width: 114 }}>
             <Menu.Item key="1">按业务日期杀</Menu.Item>
         </Menu>);
+        const reRunTaskMenu = (<Menu onClick={() => this.batchReloadJobs()}>
+            <Menu.Item key="1">
+                重跑当前及全部下游任务
+            </Menu.Item>
+        </Menu>)
         return (
             <div className="ant-table-row  ant-table-row-level-0">
                 <div style={{ padding: '15px 20px 10px 23px', display: 'inline-block' }}>
@@ -549,7 +591,14 @@ class OfflineTaskList extends React.Component<any, any> {
                     >
                         批量杀任务
                     </Dropdown.Button>&nbsp;
-                    <Button type="primary" onClick={this.batchReloadJobs}>重跑当前及下游任务</Button>&nbsp;
+                    <Dropdown.Button
+                        type="primary"
+                        onClick={this.reloadCurrentJob}
+                        overlay={reRunTaskMenu}
+                        trigger={['click']}
+                    >
+                        &nbsp;&nbsp;重跑当前任务&nbsp;&nbsp;
+                    </Dropdown.Button>&nbsp;
                 </div>
             </div>
         )
