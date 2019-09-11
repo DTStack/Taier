@@ -181,7 +181,7 @@ public class RdbsExeQueue {
             boolean exeResult = false;
 
             try {
-                conn = StringUtils.isEmpty(taskParams) ? connFactory.getConn() : connFactory.getConnByTaskParams(taskParams);
+                conn = connFactory.getConnByTaskParams(taskParams, jobName);
 
                 if(isCancel.get()){
                     LOG.info("job:{} is canceled", jobName);
