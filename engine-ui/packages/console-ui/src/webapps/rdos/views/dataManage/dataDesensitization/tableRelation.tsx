@@ -451,7 +451,6 @@ class TableRelation extends React.Component<any, any> {
                         style={{marginLeft: '20px'}}
                         rowKey="id"
                         loading={loading}
-                        scroll={{ y: 420 }}
                         columns={columns}
                         dataSource={dataSource}
                         rowSelection={rowSelection}
