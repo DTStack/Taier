@@ -377,8 +377,8 @@ const utils = {
      * @returns arr1 === arr2
      */
     isEqualArr (arr1: string[], arr2: string[]): boolean {
-            const toString = JSON.stringify;
-            return toString(arr1.sort()) === toString(arr2.sort());
+        const toString = JSON.stringify;
+        return toString(arr1.sort()) === toString(arr2.sort());
     }
 };
 

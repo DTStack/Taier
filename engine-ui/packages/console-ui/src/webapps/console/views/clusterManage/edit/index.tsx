@@ -206,6 +206,10 @@ class EditCluster extends React.Component<any, any> {
                                 files: [res.data]
                             }
                         })
+                    } else {
+                        this.setState({
+                            kfile: ''
+                        })
                     }
                 }
             )
