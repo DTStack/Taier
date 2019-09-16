@@ -227,7 +227,8 @@ export const validateFlinkParams: any = [ // flink
     // 'flinkConf.zkPrincipal',
     // 'flinkConf.zkKeytabPath',
     // 'flinkConf.zkLoginName',
-    'flinkConf.kerberosFile'
+    'flinkConf.kerberosFile',
+    'flinkConf.flinkSessionSlotCount'
 ]
 export const validateHiveParams: any = [ // hive <=> Spark Thrift Server
     'hiveConf.jdbcUrl',
@@ -330,7 +331,8 @@ export const notExtKeysFlink: any = [
     // 'zkPrincipal', 'zkKeytabPath', 'zkLoginName',
     'yarn.jobmanager.help.mb',
     'yarn.taskmanager.help.mb', 'yarn.taskmanager.numberOfTaskSlots', 'yarn.taskmanager.numberOfTaskManager',
-    'openKerberos', 'kerberosFile'
+    'openKerberos', 'kerberosFile',
+    'flinkSessionSlotCount'
 ];
 export const notExtKeysSpark: any = [
     'typeName', 'sparkYarnArchive',

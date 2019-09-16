@@ -15,9 +15,12 @@ export default class FlinkConfig extends React.Component<any, any> {
             isView,
             securityStatus,
             getFieldDecorator,
+            getFieldValue,
             checked,
             changeCheckbox,
-            kerberosView
+            kerberosView,
+            setFieldsValue,
+            resetFields
         } = this.props;
         console.log(securityStatus)
         return (
@@ -34,13 +37,58 @@ export default class FlinkConfig extends React.Component<any, any> {
                             }],
                             initialValue: 'flink140'
                         })(
-                            <Select disabled={isView} style={{ width: '100px' }}>
+                            <Select
+                                disabled={isView}
+                                style={{ width: '100px' }}
+                                onChange={(value) => {
+                                    let v = getFieldValue(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkSessionSlotCount`)
+                                    resetFields([`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkSessionSlotCount`])
+                                    setFieldsValue({
+                                        [`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkSessionSlotCount`]: v
+                                    })
+                                }}
+                            >
                                 <Option value="flink140">1.4</Option>
                                 <Option value="flink150">1.5</Option>
                                 <Option value="flink180">1.8</Option>
                             </Select>
                         )}
                     </FormItem>
+                    {
+                        getFieldValue(`${COMPONEMT_CONFIG_KEYS.FLINK}.typeName`) === 'flink180'
+                            ? (
+                                <FormItem
+                                    label="flinkSessionSlotCount"
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkSessionSlotCount`, {
+                                        rules: [{
+                                            required: true,
+                                            message: '请填写flinkSessionSlotCount'
+                                        }]
+                                    })(
+                                        <Input
+                                            disabled={isView}
+                                            onChange={(e) => {
+                                                setFieldsValue({
+                                                    [`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkSessionSlotCount`]: e.target.value
+                                                })
+                                            }}
+                                        />
+                                    )}
+                                </FormItem>
+                            )
+                            : (
+                                <FormItem
+                                    label="flinkSessionSlotCount"
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkSessionSlotCount`, {})(
+                                        <Input disabled={isView} />
+                                    )}
+                                </FormItem>
+                            )
+                    }
                     <FormItem
                         label="clusterMode"
                         {...formItemLayout}

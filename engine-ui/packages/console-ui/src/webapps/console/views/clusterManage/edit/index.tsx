@@ -1350,7 +1350,7 @@ class EditCluster extends React.Component<any, any> {
      */
     renderComponentConf = (component: any) => {
         const { checked, securityStatus, zipConfig } = this.state;
-        const { getFieldDecorator } = this.props.form;
+        const { getFieldDecorator, getFieldValue, setFieldsValue, resetFields } = this.props.form;
         const { mode } = this.props.location.state || {} as any;
         const isView = mode == 'view';
         switch (component.componentTypeCode) {
@@ -1424,6 +1424,9 @@ class EditCluster extends React.Component<any, any> {
                     <FlinkConfig
                         isView={isView}
                         getFieldDecorator={getFieldDecorator}
+                        getFieldValue={getFieldValue}
+                        setFieldsValue={setFieldsValue}
+                        resetFields={resetFields}
                         securityStatus={securityStatus}
                         checked={checked}
                         changeCheckbox={this.changeCheckbox.bind(this)}
