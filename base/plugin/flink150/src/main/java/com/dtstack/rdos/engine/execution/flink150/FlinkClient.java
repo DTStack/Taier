@@ -679,7 +679,7 @@ public class FlinkClient extends AbsClient {
             return FlinkRestParseUtil.parseEngineLog(retMap);
         } catch (Exception e) {
             logger.error("", e);
-            return ExceptionUtil.getTaskLogError();
+            return ExceptionUtil.getTaskLogError(e);
         }
     }
 
@@ -703,7 +703,6 @@ public class FlinkClient extends AbsClient {
             }finally {
                 i++;
             }
-
         }
 
         return exceptionInfo;

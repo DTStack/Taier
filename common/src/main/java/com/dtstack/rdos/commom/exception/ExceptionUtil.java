@@ -1,9 +1,13 @@
 package com.dtstack.rdos.commom.exception;
 
+import com.google.gson.Gson;
 import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 /**
  * 
@@ -25,6 +29,21 @@ public class ExceptionUtil {
         return "{\"engineLogErr\":\"Gets the task log exception\"}";
     }
 
+    /**
+     * 获取日志信息异常统一返回信息
+     * @return
+     */
+    public static String getTaskLogError(Throwable e){
+        Map<String, String> map = new HashMap<>(4);
+        map.put("engineLogErr", getErrorMessage(e));
+        return new Gson().toJson(map);
+    }
+
+    /**
+     * 获取错误的堆栈信息
+     * @param e throwable
+     * @return 堆栈信息
+     */
     public static String getErrorMessage(Throwable e) {
         StringWriter stringWriter = null;
         PrintWriter writer = null;
