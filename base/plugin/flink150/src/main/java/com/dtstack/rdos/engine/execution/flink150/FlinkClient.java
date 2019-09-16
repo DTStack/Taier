@@ -26,6 +26,7 @@ import com.dtstack.rdos.engine.execution.flink150.util.KerberosUtils;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -66,11 +67,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import static java.security.AccessController.doPrivileged;
 
@@ -679,7 +676,11 @@ public class FlinkClient extends AbsClient {
             return FlinkRestParseUtil.parseEngineLog(retMap);
         } catch (Exception e) {
             logger.error("", e);
-            return ExceptionUtil.getTaskLogError(e);
+            Map<String, String> map = new LinkedHashMap<>(8);
+            map.put("jobId", jobId);
+            map.put("reqURL", reqURL);
+            map.put("engineLogErr", ExceptionUtil.getErrorMessage(e));
+            return new Gson().toJson(map);
         }
     }
 
