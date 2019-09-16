@@ -389,6 +389,7 @@ export const workbenchReducer = (state = getCachedData(), action: any) => {
             if (action.payload) {
                 return action.payload;
             }
+            nextState = state;
             break;
         }
         default: {
