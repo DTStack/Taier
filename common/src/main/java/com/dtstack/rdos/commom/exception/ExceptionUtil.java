@@ -25,14 +25,6 @@ public class ExceptionUtil {
      * 获取日志信息异常统一返回信息
      * @return
      */
-    public static String getTaskLogError(){
-        return "{\"engineLogErr\":\"Gets the task log exception\"}";
-    }
-
-    /**
-     * 获取日志信息异常统一返回信息
-     * @return
-     */
     public static String getTaskLogError(Throwable e){
         Map<String, String> map = new HashMap<>(4);
         map.put("engineLogErr", getErrorMessage(e));
