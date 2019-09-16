@@ -235,7 +235,7 @@ class DashboardNew extends React.Component<any, any> {
                                 <div
                                     className="applink l-content"
                                     style={{
-                                        paddingTop: '30px',
+                                        paddingTop: showSummary ? '30px' : '4px',
                                         width: '1140px'
                                     }}
                                 >
