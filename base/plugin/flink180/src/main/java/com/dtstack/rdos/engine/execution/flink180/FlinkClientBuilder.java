@@ -275,6 +275,7 @@ public class FlinkClientBuilder {
         } else {
             String clusterId = flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue();
             newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, clusterId);
+            newConf = consoleConfiguration(newConf);
         }
 
         AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, yarnConf, ".");
@@ -422,5 +423,15 @@ public class FlinkClientBuilder {
             throw new RdosException("Configuration directory not set");
         }
         return flinkConfiguration;
+    }
+
+    private Configuration consoleConfiguration(Configuration flinkConfiguration) {
+        Configuration configuration = flinkConfiguration;
+        for (String key : flinkConfiguration.keySet()){
+            if (key.startsWith("flink.")){
+                configuration.setString(key.split("flink.")[1], flinkConfiguration.getString(key, ""));
+            }
+        }
+        return configuration;
     }
 }
