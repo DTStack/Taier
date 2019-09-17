@@ -39,6 +39,8 @@ import org.apache.flink.api.common.JobSubmissionResult;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.PackagedProgram;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.util.Preconditions;
@@ -237,7 +239,8 @@ public class FlinkClient extends AbsClient {
             Pair<String, String> runResult;
             if(FlinkYarnMode.isPerJob(taskRunMode)){
                 ClusterSpecification clusterSpecification = FLinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration(), jobClient.getJobPriority(), jobClient.getConfProperties());
-                clusterSpecification.setConfiguration(flinkClientBuilder.getFlinkConfiguration());
+                Configuration configuration = addConfiguration(jobClient.getConfProperties());
+                clusterSpecification.setConfiguration(configuration);
                 clusterSpecification.setClasspaths(classPaths);
                 clusterSpecification.setEntryPointClass(entryPointClass);
                 clusterSpecification.setJarFile(jarFile);
@@ -761,5 +764,25 @@ public class FlinkClient extends AbsClient {
 
         return false;
     }
+
+    private Configuration addConfiguration(Properties properties){
+        Configuration configuration = flinkClientBuilder.getFlinkConfiguration();
+        if(properties != null){
+            properties.forEach((key, value) -> {
+                if (key.toString().contains(".")) {
+                    configuration.setString(key.toString(), value.toString());
+                }
+            });
+        }
+        try {
+            FileSystem.initialize(configuration);
+        } catch (Exception e) {
+            logger.error("", e);
+            throw new RdosException(e.getMessage());
+        }
+
+        return configuration;
+    }
+
 
 }
