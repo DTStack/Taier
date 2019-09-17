@@ -24,6 +24,8 @@ public enum ErrorCode {
     NAME_FORMAT_ERROR(15, "name format error"),
     NAME_ILLEGAL(16, "name illegal"),
     NO_MASTER_NODE(17, "no master node"),
+    INVALID_TASK_STATUS(18, "invalid task status"),
+    INVALID_TASK_RUN_MODE(19, "invalid task run mod"),
 
     SERVICE_NOT_EXIST(47, "service not exist"),
     SERVICE_FORBIDDEN(48, "service forbidden"),
