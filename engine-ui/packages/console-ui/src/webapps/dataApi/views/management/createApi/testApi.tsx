@@ -248,9 +248,9 @@ class TestApi extends React.Component<any, any> {
         }
         const { requestUrl, headers, body, method } = request;
         return (`Request URL: ${requestUrl}\n\n` +
-        `Request Method: ${method}\n\n` +
-        `Headers:\n${renderHeaders(headers)}\n\n` +
-        `Body:\n\t${renderBody(body)}\n\n`
+            `Request Method: ${method}\n\n` +
+            `Headers:\n${renderHeaders(headers)}\n\n` +
+            `Body:\n\t${renderBody(body)}\n\n`
         );
     }
     render () {
