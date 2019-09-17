@@ -100,7 +100,12 @@ public class StreamTaskServiceImpl {
         Byte status = streamJob.getStatus();
         Preconditions.checkState(RdosTaskStatus.RUNNING.getStatus().equals(status.intValue()), String.format("current task %s is not running now.", taskId));
 
-        String applicationId = streamJob.getApplicationId() == null ? streamJob.getEngineTaskId() : streamJob.getApplicationId();
+        String applicationId = streamJob.getApplicationId();
+
+        if (StringUtils.isEmpty(applicationId)) {
+            throw new RdosException(String.format("job %s not running in perjob", taskId), ErrorCode.INVALID_TASK_RUN_MODE);
+        }
+
         Preconditions.checkState(applicationId.contains("application"), String.format("current task %s don't have application id.", taskId));
 
         JobClient jobClient = null;
