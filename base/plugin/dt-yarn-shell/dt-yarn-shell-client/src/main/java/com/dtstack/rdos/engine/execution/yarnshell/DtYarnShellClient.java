@@ -75,6 +75,12 @@ public class DtYarnShellClient extends AbsClient {
         while(enumeration.hasMoreElements()) {
             String key = (String) enumeration.nextElement();
             Object value = prop.get(key);
+            if (key.contains("sftpConf")){
+                Map<String,Object> map = (Map<String, Object>) value;
+                for(Map.Entry<String,Object> entry : map.entrySet()) {
+                    conf.set("sftpConf."+entry.getKey(), MapUtils.getString(map,entry.getKey()));
+                }
+            }
             if(value instanceof String) {
                 conf.set(key, (String)value);
             } else if(value instanceof  Integer) {

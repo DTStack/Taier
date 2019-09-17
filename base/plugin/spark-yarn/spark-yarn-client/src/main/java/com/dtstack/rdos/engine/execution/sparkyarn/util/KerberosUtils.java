@@ -2,20 +2,27 @@ package com.dtstack.rdos.engine.execution.sparkyarn.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.AppConfigurationEntry.LoginModuleControlFlag;
 
+import com.dtstack.rdos.engine.execution.sparkyarn.SparkYarnConfig;
+import org.apache.commons.collections.MapUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authentication.util.KerberosUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class KerberosUtils {
 
-    private static final Logger LOG = Logger.getLogger(KerberosUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KerberosUtils.class);
 
     private static final String JAVA_SECURITY_KRB5_CONF_KEY = "java.security.krb5.conf";
 
@@ -36,12 +43,94 @@ public class KerberosUtils {
 
     private static final boolean IS_IBM_JDK = System.getProperty("java.vendor").contains("IBM");
 
+    private static final String KEYWORD_PRINCIPAL = "Principal";
+
+    private static final String KEYWORD_KEYTAB = "Path";
+
+    private static final String DIR = "/keytab";
+
+    private static final String USER_DIR = System.getProperty("user.dir");
+
+
+    private static final String SPARK_PRINCIPAL = "sparkPrincipal";
+
+    private static final String SPARK_KEYTABPATH = "sparkKeytabPath";
+
+    private static final String SPARK_KRB5CONFPATH = "sparkKrb5ConfPath";
+
+    private static final String ZK_PRINCIPAL = "zkPrincipal";
+
+    private static final String ZK_KEYTABPATH = "zkKeytabPath";
+
+    private static final String ZK_LOGINNAME = "zkLoginName";
+
+    private static final String localhost = getLocalHostName();
+
+
+    public static void login(SparkYarnConfig config) throws IOException {
+        Map<String, String> kerberosConfig = config.getKerberosConfig();
+
+        String localKeytab = config.getLocalKeytab();
+        String localhost = getLocalHostName();
+        String remoteDir = config.getRemoteDir();
+
+        for (String key : kerberosConfig.keySet()) {
+            if (key.contains(KEYWORD_PRINCIPAL)){
+                kerberosConfig.put(key, KerberosUtils.getServerPrincipal(MapUtils.getString(kerberosConfig, key), "0.0.0.0"));
+            } else if (key.contains(KEYWORD_KEYTAB)){
+                String keytabPath = "";
+                if (localKeytab != null){
+                    keytabPath = localKeytab + MapUtils.getString(kerberosConfig, key);
+                    LOG.debug("Read localKeytab on: " + keytabPath);
+                } else {
+                    String localPath = USER_DIR + DIR + remoteDir + File.separator + localhost;
+                    File dirs = new File(localPath);
+                    if (!dirs.exists()){
+                        dirs.mkdirs();
+                    }
+                    SFTPHandler handler = null;
+                    try {
+                        handler = SFTPHandler.getInstance(config.getSftpConf());
+                        keytabPath = loadFromSftp(MapUtils.getString(kerberosConfig, key), remoteDir, localPath, handler);
+                        LOG.debug("load file from sftp: " + keytabPath);
+                    } catch (Exception e){
+                        LOG.error("load file error: ", e);
+                    } finally {
+                        if (handler != null){
+                            handler.close();
+                        }
+                    }
+                }
+                kerberosConfig.put(key, keytabPath);
+            }
+        }
+
+        //获取hadoopconf
+        HadoopConf customerConf = new HadoopConf();
+        customerConf.initHadoopConf(config.getHadoopConf());
+        Configuration hadoopConf = customerConf.getConfiguration();
+
+        String userPrincipal = kerberosConfig.get(SPARK_PRINCIPAL);
+        String userKeytabPath = kerberosConfig.get(SPARK_KEYTABPATH);
+        String krb5ConfPath = kerberosConfig.get(SPARK_KRB5CONFPATH);
+        String zkLoginName = kerberosConfig.get(ZK_LOGINNAME);
+        String zkPrincipal = kerberosConfig.get(ZK_PRINCIPAL);
+        String zkKeytabPath = kerberosConfig.get(ZK_KEYTABPATH);
+
+        //KerberosUtils.setJaasConf(zkLoginName, zkPrincipal, zkKeytabPath);
+        KerberosUtils.setZookeeperServerPrincipal("zookeeper.server.principal", zkPrincipal);
+        KerberosUtils.login(userPrincipal, userKeytabPath, krb5ConfPath, hadoopConf);
+
+    }
+
     public synchronized static void login(String userPrincipal, String userKeytabPath, String krb5ConfPath, Configuration conf)
             throws IOException {
         // 1.check input parameters
         if ((userPrincipal == null) || (userPrincipal.length() <= 0)) {
             LOG.error("input userPrincipal is invalid.");
             throw new IOException("input userPrincipal is invalid.");
+        } else {
+            userPrincipal = KerberosUtils.getServerPrincipal(userPrincipal, "0.0.0.0");
         }
 
         if ((userKeytabPath == null) || (userKeytabPath.length() <= 0)) {
@@ -379,6 +468,46 @@ public class KerberosUtils {
             if (baseConfig != null)
                 return baseConfig.getAppConfigurationEntry(appName);
             return (null);
+        }
+    }
+
+    public static String getServerPrincipal(String principalConfig, String hostname) throws IOException {
+        String[] components = getComponents(principalConfig);
+        return components != null && components.length == 3 && components[1].equals("_HOST") ? replacePattern(components, hostname) : principalConfig;
+    }
+
+    private static String[] getComponents(String principalConfig) {
+        return principalConfig == null ? null : principalConfig.split("[/@]");
+    }
+
+    private static String replacePattern(String[] components, String hostname) throws IOException {
+        String fqdn = hostname;
+        if (hostname == null || hostname.isEmpty() || hostname.equals("0.0.0.0")) {
+            fqdn = getLocalHostName();
+        }
+
+        return components[0] + "/" + fqdn.toLowerCase(Locale.US) + "@" + components[2];
+    }
+
+    static String getLocalHostName(){
+        String localhost = "_HOST";
+        try {
+            localhost = InetAddress.getLocalHost().getCanonicalHostName();
+            LOG.info("Localhost name is " + localhost);
+        } catch (UnknownHostException e) {
+            LOG.error("Get localhostname error: " + e);
+        }
+        return localhost;
+    }
+
+    private static String loadFromSftp(String fileName, String remoteDir, String localDir, SFTPHandler handler){
+        String remoteFile = remoteDir + File.separator +  localhost + File.separator + fileName;
+        String localFile = localDir + File.separator + fileName;
+        if (new File(fileName).exists()){
+            return fileName;
+        } else {
+            handler.downloadFile(remoteFile, localFile);
+            return localFile;
         }
     }
 }

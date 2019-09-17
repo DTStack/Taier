@@ -95,7 +95,6 @@ public class HadoopConf {
         }
 
         configuration = new Configuration();
-        configuration = new Configuration();
         conf.keySet().forEach(key ->{
             Object value = conf.get(key);
             if (value instanceof String){

@@ -115,12 +115,4 @@ public class DtYarnConfiguration extends YarnConfiguration {
     public static final String APP_NODEMANAGER_EXCLUSIVE = "exclusive";
 
     public static final boolean DEFAULT_APP_NODEMANAGER_EXCLUSIVE = false;
-
-    public static final String SECURITY = "security";
-
-    public static final String HDFS_PRINCIPAL = "hdfsPrincipal";
-
-    public static final String HDFS_KEYTAB_PATH = "hdfsKeytabPath";
-
-    public static final String HDFS_KRBCONF_PATH = "hdfsKrb5ConfPath";
 }

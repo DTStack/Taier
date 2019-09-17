@@ -2,12 +2,16 @@ package com.dtstack.yarn.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.AppConfigurationEntry.LoginModuleControlFlag;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authentication.util.KerberosUtil;
@@ -37,12 +41,80 @@ public class KerberosUtils {
 
     private static final boolean IS_IBM_JDK = System.getProperty("java.vendor").contains("IBM");
 
+    private static final String KEYWORD_PRINCIPAL = "Principal";
+
+    private static final String KEYWORD_KEYTAB = "Path";
+
+    private static final String DIR = "/keytab/";
+
+    private static final String USER_DIR = System.getProperty("user.dir");
+
+    private static final String HDFS_PRINCIPAL = "hdfsPrincipal";
+
+    private static final String HDFS_KEYTABPATH = "hdfsKeytabPath";
+
+    private static final String HDFS_KRB5CONFPATH = "hdfsKrb5ConfPath";
+
+    private static final String LOACLKEYTAB = "localKeytab";
+
+    private static final String REMOTEDIR = "remoteDir";
+
+    private static final String localhost = getLocalHostName();
+
+    public static void login(Configuration config) throws IOException {
+        Map<String, String> kerberosConfig = new HashMap<>();
+        kerberosConfig.put(HDFS_PRINCIPAL, config.get(HDFS_PRINCIPAL));
+        kerberosConfig.put(HDFS_KEYTABPATH, config.get(HDFS_KEYTABPATH));
+        kerberosConfig.put(HDFS_KRB5CONFPATH, config.get(HDFS_KRB5CONFPATH));
+
+        String localKeytab = config.get(LOACLKEYTAB);
+        String remoteDir = config.get(REMOTEDIR);
+
+        for (String key : kerberosConfig.keySet()) {
+            if (key.contains(KEYWORD_PRINCIPAL)){
+                kerberosConfig.put(key, KerberosUtils.getServerPrincipal(MapUtils.getString(kerberosConfig, key), "0.0.0.0"));
+            } else if (key.contains(KEYWORD_KEYTAB)){
+                String keytabPath = "";
+                if (localKeytab != null){
+                    keytabPath = localKeytab + MapUtils.getString(kerberosConfig, key);
+                    LOG.info("Read localKeytab on: " + keytabPath);
+                } else {
+                    String localPath = USER_DIR + DIR + remoteDir + File.separator + localhost;
+                    File dirs = new File(localPath);
+                    if (!dirs.exists()){
+                        dirs.mkdirs();
+                    }
+                    SFTPHandler handler = null;
+                    try {
+                        handler = SFTPHandler.getInstance(config);
+                        keytabPath = loadFromSftp(MapUtils.getString(kerberosConfig, key), remoteDir, localPath, handler);
+                        LOG.info("load file from sftp: " + keytabPath);
+                    } catch (Exception e){
+                        throw new RuntimeException(e);
+                    } finally {
+                        if (handler != null){
+                            handler.close();
+                        }
+                    }
+                }
+                kerberosConfig.put(key, keytabPath);
+            }
+        }
+
+        String userPrincipal = kerberosConfig.get(HDFS_PRINCIPAL);
+        String userKeytabPath = kerberosConfig.get(HDFS_KEYTABPATH);
+        String krb5ConfPath = kerberosConfig.get(HDFS_KRB5CONFPATH);
+        KerberosUtils.login(userPrincipal, userKeytabPath, krb5ConfPath, config);
+    }
+
     public synchronized static void login(String userPrincipal, String userKeytabPath, String krb5ConfPath, Configuration conf)
             throws IOException {
         // 1.check input parameters
         if ((userPrincipal == null) || (userPrincipal.length() <= 0)) {
             LOG.error("input userPrincipal is invalid.");
             throw new IOException("input userPrincipal is invalid.");
+        } else {
+            userPrincipal = KerberosUtils.getServerPrincipal(userPrincipal, "0.0.0.0");
         }
 
         if ((userKeytabPath == null) || (userKeytabPath.length() <= 0)) {
@@ -381,5 +453,81 @@ public class KerberosUtils {
                 return baseConfig.getAppConfigurationEntry(appName);
             return (null);
         }
+    }
+
+
+    public static String getServerPrincipal(String principalConfig, String hostname) throws IOException {
+        String[] components = getComponents(principalConfig);
+        return components != null && components.length == 3 && components[1].equals("_HOST") ? replacePattern(components, hostname) : principalConfig;
+    }
+
+    private static String[] getComponents(String principalConfig) {
+        return principalConfig == null ? null : principalConfig.split("[/@]");
+    }
+
+    private static String replacePattern(String[] components, String hostname) throws IOException {
+        String fqdn = hostname;
+        if (hostname == null || hostname.isEmpty() || hostname.equals("0.0.0.0")) {
+            fqdn = getLocalHostName();
+        }
+
+        return components[0] + "/" + fqdn.toLowerCase(Locale.US) + "@" + components[2];
+    }
+
+    static String getLocalHostName(){
+        String localhost = "_HOST";
+        try {
+            localhost = InetAddress.getLocalHost().getCanonicalHostName();
+            LOG.info("Localhost name is " + localhost);
+        } catch (UnknownHostException e) {
+            LOG.error("Get localhostname error: " + e);
+        }
+        return localhost;
+    }
+
+    private static String loadFromSftp(String fileName, String remoteDir, String localDir, SFTPHandler handler){
+        String remoteFile = remoteDir + File.separator +  localhost + File.separator + fileName;
+        String localFile = localDir + File.separator + fileName;
+        if (new File(fileName).exists()){
+            return fileName;
+        } else {
+            handler.downloadFile(remoteFile, localFile);
+            return localFile;
+        }
+    }
+
+    public static String downloadAndReplace(Configuration config, String key) {
+
+        String localKeytab = config.get(LOACLKEYTAB);
+        String remoteDir = config.get(REMOTEDIR);
+
+        String keytabPath = "";
+        if (localKeytab != null){
+            keytabPath = localKeytab + config.get(key);
+            LOG.info("Read localKeytab on: " + keytabPath);
+        } else {
+            String localPath = USER_DIR + DIR + remoteDir + File.separator + localhost;
+            File dirs = new File(localPath);
+            if (!dirs.exists()){
+                dirs.mkdirs();
+            }
+            SFTPHandler handler = null;
+            try {
+                handler = SFTPHandler.getInstance(config);
+                keytabPath = loadFromSftp(config.get(key), remoteDir, localPath, handler);
+                LOG.info("load file from sftp: " + keytabPath);
+            } catch (Exception e){
+                throw new RuntimeException(e);
+            } finally {
+                if (handler != null){
+                    handler.close();
+                }
+            }
+        }
+        return keytabPath;
+    }
+
+    public static boolean isOpenKerberos(Configuration config){
+        return "true".equals(config.get("openKerberos"));
     }
 }
