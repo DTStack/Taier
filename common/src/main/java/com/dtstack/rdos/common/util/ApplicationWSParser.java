@@ -41,9 +41,8 @@ public class ApplicationWSParser {
         }
 
         Elements afs = el.get(0).select("a[href]");
-        if (afs.isEmpty()) {
-            //任务已经结束，获取不到有效的href
-            return null;
+        if (afs.size()==0) {
+            throw new RdosException("httpText data format not correct, please check task status");
         }
         String amErrURL = afs.first().attr("href");
         //截取url参数部分
