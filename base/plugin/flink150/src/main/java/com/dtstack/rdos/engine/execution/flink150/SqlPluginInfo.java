@@ -105,6 +105,9 @@ public class SqlPluginInfo {
         args.add("-name");
         args.add(jobClient.getJobName());
 
+        args.add("-mode");
+        args.add("yarnPer");
+
         args.add("-localSqlPluginPath");
         args.add(localSqlRootJar);
 
