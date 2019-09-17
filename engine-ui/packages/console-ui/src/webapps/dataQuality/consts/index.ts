@@ -120,6 +120,24 @@ export const periodType: any = [ // 调度类型
 ]
 
 /**
+ * 统计函数
+ */
+export enum STATISTICS_FUNC {
+    /**
+     * 枚举
+     */
+    ENUM = 11,
+    /**
+     * 字符串最大长度
+     */
+    STRING_MAX_LEN = 16,
+    /**
+     * 字符串最小长度
+     */
+    STRING_MIN_LEN = 17
+};
+
+/**
  * operator--有!=
  */
 export const operatorSelect: any = [{
@@ -160,6 +178,17 @@ export const operatorSelect1: any = [{
 }, {
     text: '<=',
     value: '<='
+}]
+
+/**
+ * 所有数据源，字段规则，统计函数为枚举类型时，只有以下2种
+ */
+export const operatorForEnum: any = [{
+    text: '=',
+    value: '='
+}, {
+    text: '!=',
+    value: '!='
 }]
 
 /**

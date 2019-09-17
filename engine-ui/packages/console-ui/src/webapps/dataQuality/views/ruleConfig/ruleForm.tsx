@@ -6,7 +6,9 @@ import { Form, Select, Input, Spin, Popconfirm } from 'antd';
 
 import {
     operatorSelect,
-    operatorSelect1
+    operatorSelect1,
+    operatorForEnum,
+    STATISTICS_FUNC
 } from '../../consts';
 import HelpDoc from '../helpDoc';
 
@@ -95,12 +97,15 @@ class RuleForm extends React.Component<any, any> {
         const { isEdit, data } = this.props;
         const { getFieldDecorator } = this.props.form;
         const isStringLength = (functionId: any) => {
-            return functionId === 16 || functionId === 17;
+            return functionId === STATISTICS_FUNC.STRING_MAX_LEN || functionId === STATISTICS_FUNC.STRING_MIN_LEN;
         };
 
-        let operatorMap = isStringLength(data.functionId)
-            ? operatorSelect1
-            : operatorSelect;
+        let operatorMap = operatorSelect;
+        if (isStringLength(data.functionId)) {
+            operatorMap = operatorSelect1;
+        } else if (data.functionId === STATISTICS_FUNC.ENUM) {
+            operatorMap = operatorForEnum;
+        }
 
         return <React.Fragment>
             {isTypeCheck ? (
