@@ -103,15 +103,17 @@ public class StreamTaskServiceImpl {
         String applicationId = streamJob.getApplicationId() == null ? streamJob.getEngineTaskId() : streamJob.getApplicationId();
         Preconditions.checkState(applicationId.contains("application"), String.format("current task %s don't have application id.", taskId));
 
+        JobClient jobClient = null;
+        JobIdentifier jobIdentifier = null;
+
         //如何获取url前缀
         try{
             RdosEngineJobCache rdosEngineJobCache = rdosEngineJobCacheDAO.getJobById(taskId);
             String jobInfo = rdosEngineJobCache.getJobInfo();
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
 
-            JobIdentifier jobIdentifier = JobIdentifier.createInstance(streamJob.getEngineTaskId(), applicationId, taskId);
-
-            JobClient jobClient = new JobClient(paramAction);
+            jobIdentifier = JobIdentifier.createInstance(streamJob.getEngineTaskId(), applicationId, taskId);
+            jobClient = new JobClient(paramAction);
             String jobMaster = JobClient.getJobMaster(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
             String rootURL = UrlUtil.getHttpRootURL(jobMaster);
             String requestURl = String.format(APPLICATION_REST_API_TMP, rootURL, applicationId);
@@ -124,6 +126,13 @@ public class StreamTaskServiceImpl {
             return ApplicationWSParser.parserAMContainerPreViewHttp(amContainerPreViewHttp, logPreURL);
 
         }catch (Exception e){
+            if (jobClient != null && jobIdentifier != null) {
+                RdosTaskStatus jobStatus = JobClient.getStatus(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
+                Integer statusCode = jobStatus.getStatus();
+                if (RdosTaskStatus.getStoppedStatus().contains(statusCode)) {
+                    throw new RdosException(String.format("job:%s had stop ", taskId), ErrorCode.INVALID_TASK_STATUS, e);
+                }
+            }
             throw new RdosException(String.format("get job:%s ref application url error..", taskId), ErrorCode.UNKNOWN_ERROR, e);
         }
 
