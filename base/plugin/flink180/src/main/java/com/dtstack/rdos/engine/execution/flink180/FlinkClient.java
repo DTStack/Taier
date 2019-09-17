@@ -45,6 +45,7 @@ import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
@@ -142,10 +143,11 @@ public class FlinkClient extends AbsClient {
         flinkClusterClientManager = FlinkClusterClientManager.createWithInit(flinkClientBuilder);
     }
 
-    private void initYarnClient() {
+    private void initYarnClient() throws IOException {
         if (flinkConfig.isOpenKerberos()){
             initSecurity();
         }
+        logger.info("UGI info: " + UserGroupInformation.getCurrentUser());
         if (Deploy.yarn.name().equalsIgnoreCase(flinkConfig.getClusterMode())){
             yarnClient = YarnClient.createYarnClient();
             yarnClient.init(yarnConf);
@@ -153,11 +155,13 @@ public class FlinkClient extends AbsClient {
         }
     }
 
-    private void initSecurity() {
+    private void initSecurity() throws IOException {
         try {
+            logger.info("start init security!");
             KerberosUtils.login(flinkConfig);
         } catch (IOException e) {
             logger.error("initSecurity happens error", e);
+            throw new IOException("InitSecurity happens error", e);
         }
     }
 

@@ -14,7 +14,6 @@ import com.dtstack.rdos.engine.execution.base.JobParam;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
-import com.dtstack.rods.engine.execution.base.resource.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
 import com.dtstack.rdos.engine.execution.sparkext.ClientExt;
@@ -113,22 +112,21 @@ public class SparkYarnClient extends AbsClient {
         sparkYarnConfig.setDefaultFS(yarnConf.get(HadoopConfTool.FS_DEFAULTFS));
         System.setProperty(SPARK_YARN_MODE, "true");
         parseWebAppAddr();
-        if (sparkYarnConfig.isSecurity()){
+        if (sparkYarnConfig.isOpenKerberos()){
             initSecurity();
         }
+        logger.info("UGI info: " + UserGroupInformation.getCurrentUser());
         yarnClient = YarnClient.createYarnClient();
         yarnClient.init(yarnConf);
         yarnClient.start();
     }
-    private void initSecurity() {
-        String userPrincipal = sparkYarnConfig.getSparkPrincipal();
-        String userKeytabPath = sparkYarnConfig.getSparkKeytabPath();
-        String krb5ConfPath = sparkYarnConfig.getSparkKrb5ConfPath();
-
+    private void initSecurity() throws IOException {
         try {
-            KerberosUtils.login(userPrincipal, userKeytabPath, krb5ConfPath, yarnConf);
+            logger.info("start init security!");
+            KerberosUtils.login(sparkYarnConfig);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("initSecurity happens error", e);
+            throw new IOException("InitSecurity happens error", e);
         }
     }
 
@@ -137,7 +135,7 @@ public class SparkYarnClient extends AbsClient {
         customerConf.initHadoopConf(sparkConfig.getHadoopConf());
         customerConf.initYarnConf(sparkConfig.getYarnConf());
 
-        if (sparkYarnConfig.isSecurity()){
+        if (sparkYarnConfig.isOpenKerberos()){
             customerConf.initHiveSecurityConf(sparkConfig.getHiveConf());
         }
 
@@ -387,10 +385,13 @@ public class SparkYarnClient extends AbsClient {
         sparkConf.set(SPARK_JAVA_OPTS_KEY, sparkYarnConfig.getJvmOptions());
         sparkConf.set("security", "false");
 
-        if (sparkYarnConfig.isSecurity()){
-            sparkConf.set("spark.yarn.keytab", sparkYarnConfig.getSparkKeytabPath());
-            sparkConf.set("spark.yarn.principal", sparkYarnConfig.getSparkPrincipal());
-            sparkConf.set("security", String.valueOf(sparkYarnConfig.isSecurity()));
+        if (sparkYarnConfig.isOpenKerberos()){
+            sparkConf.set("spark.yarn.keytab", sparkYarnConfig.getKerberosConfig().get("sparkKeytabPath"));
+            sparkConf.set("spark.yarn.principal", sparkYarnConfig.getKerberosConfig().get("sparkPrincipal"));
+            sparkConf.set("spark.zookeeper.principal", sparkYarnConfig.getKerberosConfig().get("zkPrincipal"));
+            sparkConf.set("spark.zookeeper.keytab", sparkYarnConfig.getKerberosConfig().get("zkKeytabPath"));
+            sparkConf.set("spark.krb5path", sparkYarnConfig.getKerberosConfig().get("sparkKrb5ConfPath"));
+            sparkConf.set("security", String.valueOf(sparkYarnConfig.isOpenKerberos()));
         }
         if(sparkExtProp != null){
             sparkExtProp.forEach((key, value) -> {
@@ -607,10 +608,15 @@ public class SparkYarnClient extends AbsClient {
     }
 
     @Override
-    public boolean judgeSlots(JobClient jobClient) {
+    public boolean judgeSlots(JobClient jobClient){
 
-        if (sparkYarnConfig.isSecurity()){
-            initSecurity();
+        if (sparkYarnConfig.isOpenKerberos()){
+            try {
+                logger.debug("start init security!");
+                initSecurity();
+            } catch (IOException e) {
+                logger.error("InitSecurity happens error", e);
+            }
         }
 
         SparkYarnResourceInfo resourceInfo = new SparkYarnResourceInfo();
