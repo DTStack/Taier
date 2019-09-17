@@ -4,6 +4,13 @@
 ** 自定义antd样式
 */
 
+.ant-tooltip-inner {
+    word-break: break-word;
+}
+.ant-notification-notice-description {
+    word-break: break-word;
+}
+
 .m-tabs {
     .content-border{
         &.ant-tabs{
