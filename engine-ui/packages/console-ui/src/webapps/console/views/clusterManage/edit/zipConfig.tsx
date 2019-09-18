@@ -98,9 +98,9 @@ class ZipConfig extends React.Component<any, any> {
         return keyAndValue.map(
             ([key, value]: any[]) => {
                 return (<Row key={key} className="zipConfig-item">
-                    <Col className="formitem-textname" span={formItemLayout.labelCol.sm.span + 4}>
-                        {key.length > 40
-                            ? <Tooltip title={key}>{key.substr(0, 40) + '...'}</Tooltip>
+                    <Col className="formitem-textname" span={formItemLayout.labelCol.sm.span + 5}>
+                        {key.length > 38
+                            ? <Tooltip title={key}>{key.substr(0, 38) + '...'}</Tooltip>
                             : key}：
                     </Col>
                     <Col className="formitem-textvalue" span={formItemLayout.wrapperCol.sm.span - 1}>
