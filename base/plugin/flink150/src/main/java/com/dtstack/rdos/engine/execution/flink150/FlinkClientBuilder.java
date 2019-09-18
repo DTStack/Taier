@@ -268,6 +268,7 @@ public class FlinkClientBuilder {
         if (isPerjob && jobClient != null){
             newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, jobClient.getTaskId());
             newConf.setInteger(YarnConfigOptions.APPLICATION_ATTEMPTS.key(), 0);
+            newConf = addConfiguration(jobClient.getConfProperties(), newConf);
         } else {
             String clusterId = flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue();
             newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, clusterId);
@@ -441,6 +442,25 @@ public class FlinkClientBuilder {
                 }
             }
         }
+        return configuration;
+    }
+
+
+    private Configuration addConfiguration(Properties properties, Configuration configuration){
+        if(properties != null){
+            properties.forEach((key, value) -> {
+                if (key.toString().contains(".")) {
+                    configuration.setString(key.toString(), value.toString());
+                }
+            });
+        }
+        try {
+            FileSystem.initialize(configuration);
+        } catch (Exception e) {
+            LOG.error("", e);
+            throw new RdosException(e.getMessage());
+        }
+
         return configuration;
     }
 }
