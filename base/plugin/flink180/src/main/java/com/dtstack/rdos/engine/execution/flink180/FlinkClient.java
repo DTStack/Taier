@@ -239,8 +239,7 @@ public class FlinkClient extends AbsClient {
             Pair<String, String> runResult;
             if(FlinkYarnMode.isPerJob(taskRunMode)){
                 ClusterSpecification clusterSpecification = FLinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration(), jobClient.getJobPriority(), jobClient.getConfProperties());
-                Configuration configuration = addConfiguration(jobClient.getConfProperties());
-                clusterSpecification.setConfiguration(configuration);
+                clusterSpecification.setConfiguration(flinkClientBuilder.getFlinkConfiguration());
                 clusterSpecification.setClasspaths(classPaths);
                 clusterSpecification.setEntryPointClass(entryPointClass);
                 clusterSpecification.setJarFile(jarFile);
@@ -763,25 +762,6 @@ public class FlinkClient extends AbsClient {
         }
 
         return false;
-    }
-
-    private Configuration addConfiguration(Properties properties){
-        Configuration configuration = flinkClientBuilder.getFlinkConfiguration();
-        if(properties != null){
-            properties.forEach((key, value) -> {
-                if (key.toString().contains(".")) {
-                    configuration.setString(key.toString(), value.toString());
-                }
-            });
-        }
-        try {
-            FileSystem.initialize(configuration);
-        } catch (Exception e) {
-            logger.error("", e);
-            throw new RdosException(e.getMessage());
-        }
-
-        return configuration;
     }
 
 
