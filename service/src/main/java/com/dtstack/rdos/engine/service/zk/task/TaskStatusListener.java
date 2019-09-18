@@ -78,9 +78,11 @@ public class TaskStatusListener implements Runnable{
 
     private static final String TASK_PARAMS_KEY = "taskParams";
 
-    private static final String CHECKPOINT_INTERVAL_KEY = "sql.checkpoint.interval";
+    private static final String SQL_CHECKPOINT_INTERVAL_KEY = "sql.checkpoint.interval";
+    private static final String FLINK_CHECKPOINT_INTERVAL_KEY = "flink.checkpoint.interval";
 
-    private static final String CHECKPOINT_CLEANUP_MODE_KEY = "sql.checkpoint.cleanup.mode";
+    private static final String SQL_CHECKPOINT_CLEANUP_MODE_KEY = "sql.checkpoint.cleanup.mode";
+    private static final String FLINK_CHECKPOINT_CLEANUP_MODE_KEY = "flink.checkpoint.cleanup.mode";
 
     private static final long LISTENER_INTERVAL = 2000;
 
@@ -192,13 +194,14 @@ public class TaskStatusListener implements Runnable{
             JobIdentifier jobIdentifier = failedTaskInfo.getJobIdentifier();
             if (null != jobIdentifier && StringUtils.isNotBlank(jobIdentifier.getEngineJobId())) {
                 if (checkOpenCheckPoint(failedTaskInfo.getJobId())) {
-                    Boolean cleanMode = MathUtil.getBoolean(getParmaFromJobCache(failedTaskInfo.getJobId(), CHECKPOINT_CLEANUP_MODE_KEY));
-                    if (null == cleanMode || null != cleanMode && !cleanMode ) {
-                        //主动清理超过范围的checkpoint
-                        checkpointListener.SubtractionCheckpointRecord(jobIdentifier.getEngineJobId());
-                    } else {
+                    Boolean sqlCleanMode = MathUtil.getBoolean(getParmaFromJobCache(failedTaskInfo.getJobId(), SQL_CHECKPOINT_CLEANUP_MODE_KEY), false);
+                    Boolean flinkCleanMode = MathUtil.getBoolean(getParmaFromJobCache(failedTaskInfo.getJobId(), FLINK_CHECKPOINT_CLEANUP_MODE_KEY), false);
+                    if (sqlCleanMode || flinkCleanMode ) {
                         // true then remove all
                         checkpointListener.cleanAllCheckpointByTaskEngineId(jobIdentifier.getEngineJobId());
+                    } else {
+                        //主动清理超过范围的checkpoint
+                        checkpointListener.SubtractionCheckpointRecord(jobIdentifier.getEngineJobId());
                     }
                     //集合中移除该任务
                     checkpointListener.removeByTaskEngineId(jobIdentifier.getEngineJobId());
@@ -421,7 +424,8 @@ public class TaskStatusListener implements Runnable{
 
         if(RdosTaskStatus.getStoppedStatus().contains(status)){
 
-            getParmaFromJobCache(jobId, CHECKPOINT_CLEANUP_MODE_KEY);
+            //特殊逻辑@马奇 fixme
+            getParmaFromJobCache(jobId, SQL_CHECKPOINT_CLEANUP_MODE_KEY);
 
             jobStatusFrequency.remove(jobId);
 
@@ -455,8 +459,10 @@ public class TaskStatusListener implements Runnable{
     }
 
     private boolean checkOpenCheckPoint(String jobId) throws ExecutionException {
-        Long checkpointInterval = MathUtil.getLongVal(getParmaFromJobCache(jobId, CHECKPOINT_INTERVAL_KEY));
-        if (null == checkpointInterval || checkpointInterval < 0 ){
+        long sqlCheckpointInterval = MathUtil.getLongVal(getParmaFromJobCache(jobId, SQL_CHECKPOINT_INTERVAL_KEY), 0L);
+        long flinkCheckpointInterval = MathUtil.getLongVal(getParmaFromJobCache(jobId, FLINK_CHECKPOINT_INTERVAL_KEY), 0L);
+        long checkpointInterval = Math.max(sqlCheckpointInterval, flinkCheckpointInterval);
+        if (checkpointInterval <= 0){
             return false;
         }
         return true;
