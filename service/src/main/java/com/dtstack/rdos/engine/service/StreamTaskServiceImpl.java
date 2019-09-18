@@ -98,8 +98,8 @@ public class StreamTaskServiceImpl {
 
         //只获取运行中的任务的log—url
         Byte status = streamJob.getStatus();
-        if (RdosTaskStatus.getStoppedStatus().contains(status)) {
-            throw new RdosException(String.format("job:%s had stop ", taskId), ErrorCode.INVALID_TASK_STATUS);
+        if (!RdosTaskStatus.RUNNING.getStatus().equals(status.intValue())) {
+            throw new RdosException(String.format("job:%s not running status ", taskId), ErrorCode.INVALID_TASK_STATUS);
         }
 
         String applicationId = streamJob.getApplicationId();
