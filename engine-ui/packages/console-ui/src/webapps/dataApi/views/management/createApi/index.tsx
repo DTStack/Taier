@@ -387,7 +387,7 @@ class NewApi extends React.Component<any, any> {
         result.errorRespJson = registerParams.errorValue;
         result.errorCodeList = registerParams.errorCodeList;
         result.containHeader = registerParams.containHeader;
-        result.containPage = registerParams.containPage;
+        result.containPage = registerParams.containPage || undefined;
 
         result.bodyDesc = registerParams.bodyDesc;
         result.inputParam = (registerParams.inputParam || []).concat((registerParams.constParam || []).map((item: any) => {
