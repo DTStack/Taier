@@ -186,7 +186,7 @@ class NewApi extends React.Component<any, any> {
     }
     setDefault (data: any) {
         const isRegister = utils.getParameterByName('isRegister');
-        const containHeader = `${data ? data.containHeader : ''}`; // 转换数值类型为字符串
+        const containHeader = `${data ? (data.containHeader || '') : ''}`; // 转换数值类型为字符串
         const containPage = `${data ? (data.containPage || '') : ''}`;
         let newState: any = {
             loading: false,
