@@ -429,7 +429,9 @@ public class FlinkClientBuilder {
         Configuration configuration = flinkConfiguration;
         for (String key : flinkConfiguration.keySet()){
             if (key.startsWith("flink.")){
-                configuration.setString(key.split("flink.")[1], flinkConfiguration.getString(key, ""));
+                if (key.split("flink.").length == 2){
+                    configuration.setString(key.split("flink.")[1], flinkConfiguration.getString(key, ""));
+                }
             }
         }
         return configuration;
