@@ -133,7 +133,7 @@ class EditCluster extends React.Component<any, any> {
                 delete copyComp[key]
             }
         }
-        console.log(copyComp);
+        console.log(copyComp, compConf);
         if (isHadoop) {
             setFieldsValue(copyComp);
             for (let i in copyComp) {
@@ -857,23 +857,39 @@ class EditCluster extends React.Component<any, any> {
         }
     }
     showDeleteConfirm (component: any) {
+        console.log(this.state.clusterData, component)
         const { componentName } = component
-        confirm({
-            title: `是否确定删除${componentName}组件？`,
-            okText: '是',
-            okType: 'danger',
-            cancelText: '否',
-            onOk: () => {
-                this.deleteComponent(component)
-            },
-            onCancel () {
-                console.log('cancel')
-            }
-        })
+        if (this.state.clusterData.engines.length < 2 && component.componentTypeCode === COMPONENT_TYPE_VALUE.LIBRASQL) {
+            confirm({
+                title: `当前只有一个LibrA引擎无法删除${componentName}组件？`,
+                okText: '确定',
+                // okType: 'danger',
+                cancelText: '取消',
+                onOk: () => {
+                    console.log('cancel')
+                },
+                onCancel () {
+                    console.log('cancel')
+                }
+            })
+        } else {
+            confirm({
+                title: `是否确定删除${componentName}组件？`,
+                okText: '是',
+                okType: 'danger',
+                cancelText: '否',
+                onOk: () => {
+                    this.deleteComponent(component)
+                },
+                onCancel () {
+                    console.log('cancel')
+                }
+            })
+        }
     }
 
     deleteComponent (component: any) {
-        const { engineTypeKey } = this.state;
+        // const { engineTypeKey } = this.state;
         const { componentTypeCode, componentName, componentId } = component;
         if (componentTypeCode == COMPONENT_TYPE_VALUE.HDFS ||
             componentTypeCode == COMPONENT_TYPE_VALUE.YARN) {
@@ -883,7 +899,11 @@ class EditCluster extends React.Component<any, any> {
                 componentId: componentId
             }).then((res: any) => {
                 if (res.code === 1) {
-                    this.getDataList(engineTypeKey)
+                    this.setState({
+                        engineTypeKey: ENGINE_TYPE.HADOOP
+                    }, () => {
+                        this.getDataList(ENGINE_TYPE.HADOOP)
+                    })
                     message.success(`${componentName}删除组件成功！`)
                 }
             })
