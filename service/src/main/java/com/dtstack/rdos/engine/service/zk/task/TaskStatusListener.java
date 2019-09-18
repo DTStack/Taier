@@ -424,6 +424,9 @@ public class TaskStatusListener implements Runnable{
 
         if(RdosTaskStatus.getStoppedStatus().contains(status)){
 
+            //特殊逻辑@马奇 fixme
+            getParmaFromJobCache(jobId, SQL_CHECKPOINT_CLEANUP_MODE_KEY);
+
             jobStatusFrequency.remove(jobId);
 
             rdosEngineJobCacheDao.deleteJob(jobId);
