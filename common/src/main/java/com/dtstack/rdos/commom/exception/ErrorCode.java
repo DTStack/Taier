@@ -26,6 +26,7 @@ public enum ErrorCode {
     NO_MASTER_NODE(17, "no master node"),
     INVALID_TASK_STATUS(18, "invalid task status"),
     INVALID_TASK_RUN_MODE(19, "invalid task run mod"),
+    JOB_CACHE_NOT_EXIST(20, "job cache not exist this job"),
 
     SERVICE_NOT_EXIST(47, "service not exist"),
     SERVICE_FORBIDDEN(48, "service forbidden"),
