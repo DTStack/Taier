@@ -100,10 +100,9 @@ public class ApplicationContainerListener
            if (KerberosUtils.isOpenKerberos(conf)){
                newConf.set(DTYarnShellConstant.RPC_SERVER_PRINCIPAL, conf.get("hdfsPrincipal"));
                newConf.set(DTYarnShellConstant.RPC_SERVER_KEYTAB, KerberosUtils.downloadAndReplace(newConf,"hdfsKeytabPath"));
+               SecurityUtil.setAuthenticationMethod(UserGroupInformation.AuthenticationMethod.KERBEROS, newConf);
+               SecurityUtil.login(newConf,DTYarnShellConstant.RPC_SERVER_KEYTAB, DTYarnShellConstant.RPC_SERVER_PRINCIPAL);
            }
-
-           SecurityUtil.setAuthenticationMethod(UserGroupInformation.AuthenticationMethod.KERBEROS, newConf);
-           SecurityUtil.login(newConf,DTYarnShellConstant.RPC_SERVER_KEYTAB, DTYarnShellConstant.RPC_SERVER_PRINCIPAL);
 
             RPC.Builder builder = new RPC.Builder(newConf)
             .setProtocol(ApplicationContainerProtocol.class)
