@@ -125,7 +125,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
     private static final int MIN_JM_MEMORY = 768; // the minimum memory should be higher than the min heap cutoff
     private static final int MIN_TM_MEMORY = 768;
 
-    private static final String FLINK_LOG_DIR = "conf";
+    private static final String FLINK_LOG_DIR = "flinkconf";
 
     private final YarnConfiguration yarnConfiguration;
 
