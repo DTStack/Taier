@@ -4,7 +4,7 @@ import { hashHistory } from 'react-router'
 
 import {
     Table, Card,
-    DatePicker, Input
+    DatePicker, Input, Select
 } from 'antd'
 
 import utils from 'utils'
@@ -16,49 +16,84 @@ import AppTabs from '../../../components/app-tabs'
 const Search = Input.Search;
 const { RangePicker } = DatePicker;
 
+interface AdminAuditState {
+    active: string,
+    loading: 'success' | 'loading',
+    tableData: {
+        data: any[],
+        totalCount?: number,
+        currentPage?: number
+    },
+    reqParams: {
+        currentPage: number,
+        operator?: string, // 操作人
+        operatorType?: string, // 操作对象
+        action?: string, // 动作
+        startTime: number,
+        endTime: number,
+        pageSize: number
+    }
+}
+
 @(connect((state: any) => {
     return {
-        user: state.user
+        user: state.user,
+        licenseApps: state.licenseApps
     }
 }) as any)
-class AdminAudit extends React.Component<any, any> {
-    state: any = {
+class AdminAudit extends React.Component<any, AdminAuditState> {
+    state: AdminAuditState = {
         active: '',
         loading: 'success',
-
         tableData: {
             data: []
         },
-
         reqParams: {
             currentPage: 1,
-            operator: undefined,
             startTime: null,
             endTime: null,
             pageSize: 10
         }
 
     }
-
+    resetFetchState (state = {}, callback: () => void) {
+        this.setState({
+            tableData: {
+                data: []
+            },
+            reqParams: {
+                currentPage: 1,
+                operator: undefined,
+                operatorType: undefined,
+                action: undefined,
+                startTime: null,
+                endTime: null,
+                pageSize: 10
+            },
+            ...state
+        }, callback)
+    }
     componentDidMount () {
-        const { apps, user } = this.props
+        const { user } = this.props
+        // 非Root 用户重定向到首页
+        if (!user.isRoot) {
+            hashHistory.push('/')
+        }
+    }
+    componentDidUpdate (prevProps: any, prevState: any) {
+        const { licenseApps } = this.props
 
-        if (apps && apps.length > 0) {
+        if (this.props.licenseApps.length > 0 && prevProps.licenseApps !== this.props.licenseApps) {
             const initialApp = utils.getParameterByName('app');
 
-            const defaultApp = apps.find((app: any) => app.default);
+            const defaultApp = licenseApps.find((licapp: any) => licapp.isShow) || [];
             const appKey = initialApp || defaultApp.id;
 
             this.setState({ active: appKey }, () => {
                 this.fetchData();
             })
         }
-        // 非Root 用户重定向到首页
-        if (!user.isRoot) {
-            hashHistory.push('/')
-        }
     }
-
     fetchData = async () => {
         const { active, reqParams } = this.state;
 
@@ -77,35 +112,60 @@ class AdminAudit extends React.Component<any, any> {
     }
 
     onPaneChange = (key: any) => {
-        this.setState({
-            active: key,
-            reqParams: {
-                currentPage: 1,
-                operator: null
-            }
+        this.resetFetchState({
+            active: key
         }, this.fetchData)
     }
 
     initColumns = () => {
-        return [{
-            title: '时间',
-            dataIndex: 'createTime',
-            key: 'createTime',
-            render (time: any, record: any) {
-                return utils.formatDateTime(time);
+        const { active } = this.state;
+        switch (active) {
+            case MY_APPS.RDOS: {
+                return [{
+                    title: '时间',
+                    dataIndex: 'createTime',
+                    key: 'createTime',
+                    render (time: any, record: any) {
+                        return utils.formatDateTime(time);
+                    }
+                }, {
+                    title: '操作人',
+                    dataIndex: 'operator',
+                    key: 'operator'
+                }, {
+                    title: '动作',
+                    dataIndex: 'action',
+                    key: 'action',
+                    render (text: any) {
+                        return text;
+                    }
+                }]
             }
-        }, {
-            title: '操作人',
-            dataIndex: 'operator',
-            key: 'operator'
-        }, {
-            title: '动作',
-            dataIndex: 'action',
-            key: 'action',
-            render (text: any) {
-                return text;
+            case MY_APPS.API: {
+                return [{
+                    title: '时间',
+                    dataIndex: 'createTime',
+                    key: 'createTime',
+                    render (time: any, record: any) {
+                        return utils.formatDateTime(time);
+                    }
+                }, {
+                    title: '操作人',
+                    dataIndex: 'operator',
+                    key: 'operator'
+                }, {
+                    title: '动作',
+                    dataIndex: 'action',
+                    key: 'action',
+                    render (text: any) {
+                        return text;
+                    }
+                }]
             }
-        }]
+            default: {
+                return [];
+            }
+        }
     }
 
     onSearchNameChange = (e: any) => {
@@ -117,12 +177,30 @@ class AdminAudit extends React.Component<any, any> {
         })
     }
 
+    onSearchTypeChange = (e: any) => {
+        this.setState({
+            reqParams: {
+                ...this.state.reqParams,
+                operatorType: e.target.value
+            }
+        })
+    }
+
     onSearch = (value: any) => {
         this.setState({
             reqParams: {
                 ...this.state.reqParams,
+                currentPage: 1
+            }
+        }, this.fetchData)
+    }
+
+    onSelectAction = (value: any) => {
+        this.setState({
+            reqParams: {
+                ...this.state.reqParams,
                 currentPage: 1,
-                operator: value
+                action: value
             }
         }, this.fetchData)
     }
@@ -149,9 +227,51 @@ class AdminAudit extends React.Component<any, any> {
 
     renderTitle = () => {
         const {
-            reqParams
+            reqParams,
+            active
         } = this.state;
+        const timePicker = <RangePicker
+            size="default"
+            format="YYYY-MM-DD"
+            placeholder={['开始时间', '结束时间']}
+            style={{ width: '200px', marginRight: '10px' }}
+            onChange={this.onRangePickerChange} />
+        const nameSearch = <Search
+            placeholder="按操作人搜索"
+            value={reqParams.operator}
+            onChange={this.onSearchNameChange}
+            style={{ width: '220px', marginRight: '10px' }}
+            onSearch={this.onSearch}
+        />
+        switch (active) {
+            case MY_APPS.RDOS: {
+                return <span>
+                    {timePicker}
+                    {nameSearch}
+                </span>
+            }
+            case MY_APPS.API: {
+                return <span>
+                    {timePicker}
+                    {nameSearch}
+                    <Search
+                        placeholder="按操作对象搜索"
+                        value={reqParams.operatorType}
+                        onChange={this.onSearchTypeChange}
+                        style={{ width: '220px', marginRight: '10px' }}
+                        onSearch={this.onSearch}
+                    />
+                    <Select
+                        placeholder='按动作筛选'
+                        onSelect={this.onSelectAction}
+                        value={reqParams.action}
+                        style={{ width: '220px', marginRight: '10px' }}
+                    >
 
+                    </Select>
+                </span>
+            }
+        }
         const title = (
             <span>
                 <RangePicker
@@ -204,22 +324,22 @@ class AdminAudit extends React.Component<any, any> {
     }
 
     render () {
-        const { apps } = this.props
+        const { apps, licenseApps } = this.props
 
         const {
             active
         } = this.state
 
         const content = this.renderPane();
-
-        const finalApps = apps.filter((app: any) => app.id == MY_APPS.RDOS);
+        const finalApps = apps.filter((app: any) => app.operationLog);
 
         return (
             <div className="user-admin">
-                <h1 className="box-title">离线计算</h1>
+                <h1 className="box-title">安全审计</h1>
                 <div className="box-2 m-card" style={{ height: '785px' }}>
                     <AppTabs
                         apps={finalApps}
+                        licenseApps={licenseApps}
                         activeKey={active}
                         content={content}
                         onPaneChange={this.onPaneChange}

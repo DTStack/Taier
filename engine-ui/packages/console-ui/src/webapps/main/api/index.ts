@@ -360,6 +360,9 @@ export default {
             case MY_APPS.RDOS:
                 params.appTag = 'BATCH'; // app类型：BATCH,STREAM,ANALYZE,QUALITY,API,SCIENCE
                 return http.post(req.GET_AUDIT_LIST, params)
+            case MY_APPS.API:
+                params.appTag = 'API'; // app类型：BATCH,STREAM,ANALYZE,QUALITY,API,SCIENCE
+                return http.post(req.GET_AUDIT_LIST, params)
             default:
         }
     }
