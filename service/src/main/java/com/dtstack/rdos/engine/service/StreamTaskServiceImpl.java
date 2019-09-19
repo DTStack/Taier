@@ -116,6 +116,9 @@ public class StreamTaskServiceImpl {
         //如何获取url前缀
         try{
             RdosEngineJobCache rdosEngineJobCache = rdosEngineJobCacheDAO.getJobById(taskId);
+            if (rdosEngineJobCache == null) {
+                throw new RdosException(String.format("job:%s not exist in job cache table ", taskId),ErrorCode.JOB_CACHE_NOT_EXIST);
+            }
             String jobInfo = rdosEngineJobCache.getJobInfo();
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
 
