@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { connect } from 'react-redux';
-import { Card, Input, Cascader, Table, Modal, Tabs, Tooltip } from 'antd'
+import { Card, Input, Cascader, Table, Modal, Tabs, Tooltip, Checkbox } from 'antd'
 import { apiMarketActions } from '../../actions/apiMarket';
 import utils from 'utils';
 
@@ -44,6 +44,8 @@ class APIMarket extends React.Component<any, any> {
             apiName: '',
             desc: ''
         },
+        showCreate: false,
+        showModify: false,
         detailRecord: {},
         type1: undefined,
         type2: undefined,
@@ -73,7 +75,9 @@ class APIMarket extends React.Component<any, any> {
             currentPage: this.state.pageIndex,
             pageSize: this.state.pageSize,
             orderBy: dic[this.state.sorter.columnKey],
-            sort: orderType[this.state.sorter.order]
+            sort: orderType[this.state.sorter.order],
+            showCreate: this.state.showCreate,
+            showModify: this.state.showModify
         }).then((res: any) => {
             console.log('apigetOver');
 
@@ -173,6 +177,13 @@ class APIMarket extends React.Component<any, any> {
             this.getMarketApi();
         }
         )
+    }
+    onCheckBoxChange (type: string, e: React.ChangeEvent<HTMLInputElement>) {
+        this.setState({
+            [type]: e.target.checked
+        }, () => {
+            this.getMarketApi();
+        })
     }
     getDealType (type: any) {
         const dic: any = {
@@ -333,7 +344,7 @@ class APIMarket extends React.Component<any, any> {
 
     getCardTitle () {
         const cascaderData = this.getCascaderData();
-
+        const { showCreate, showModify } = this.state;
         return (
             <div className="flex font-12">
                 <Search
@@ -345,6 +356,20 @@ class APIMarket extends React.Component<any, any> {
                     API分类：
                     <Cascader placeholder="API分类" options={cascaderData} onChange={this.cascaderOnChange.bind(this)} changeOnSelect expandTrigger="hover" />
                 </div>
+                <Checkbox
+                    className="m-l-8"
+                    checked={showCreate}
+                    onChange={this.onCheckBoxChange.bind(this, 'showCreate')}
+                >
+                    我创建的
+                </Checkbox>
+                <Checkbox
+                    checked={showModify}
+                    onChange={this.onCheckBoxChange.bind(this, 'showModify')}
+                >
+                    我修改的
+                </Checkbox>
+
             </div>
         )
     }
