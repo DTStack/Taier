@@ -163,7 +163,7 @@ export const SUPPROT_SUB_LIBRARY_DB_ARRAY: any = [ // 支持分库分表的数�
     // DATA_SOURCE.POSTGRESQL,
 ]
 
-export const TASK_TYPE: any = { // 任务类型
+export const TASK_TYPE = { // 任务类型
     VIRTUAL_NODE: -1,
     SQL: 0,
     MR: 1,
