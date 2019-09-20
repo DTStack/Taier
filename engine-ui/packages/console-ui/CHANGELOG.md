@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.8.0-beta.1.11"></a>
+# [3.8.0-beta.1.11](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.8.0-beta.1.10...3.8.0-beta.1.11) (2019-09-20)
+
+
+### Bug Fixes
+
+* **/offline/siderbench.tsx:** fix add env params tab in script mode ([235df6b](http://git.dtstack.cn/dtstack/data-stack-web/commits/235df6b)), closes [#18175](http://redmine.prod.dtstack.cn/issues/18175)
+
+
+
+<a name="3.8.0-beta.1.10"></a>
+# [3.8.0-beta.1.10](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.8.0-beta.1.9...3.8.0-beta.1.10) (2019-09-18)
+
+
+### Bug Fixes
+
+* **stream:** fix prehandle bug ([4596fd9](http://git.dtstack.cn/dtstack/data-stack-web/commits/4596fd9))
+
+
+
 <a name="3.8.0-beta.1.9"></a>
 # [3.8.0-beta.1.9](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.8.0-beta.1.8...3.8.0-beta.1.9) (2019-09-04)
 
