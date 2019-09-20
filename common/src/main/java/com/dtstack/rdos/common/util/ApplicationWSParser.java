@@ -50,7 +50,7 @@ public class ApplicationWSParser {
         amErrURL = amErrURL.substring(0, amErrURL.indexOf("?"));
         amErrURL = preURL + amErrURL;
 
-        String jobErrByteStr = afs.first().text();
+        String jobErrByteStr = afs.get(1).text();
 
         String infoTotalBytes = "0";
         Matcher matcher = ERR_INFO_BYTE_PATTERN.matcher(jobErrByteStr);
