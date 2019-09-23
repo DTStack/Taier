@@ -8,6 +8,7 @@ import SlidePane from 'widgets/slidePane'
 import { TaskStatus } from '../../../../components/status'
 import AlarmMsg from './tabs/alarmMsg'
 import RunLog from './tabs/runLog'
+import Failover from './tabs/failover';
 import CheckPoint from './tabs/checkPoint'
 import DataDelay from './tabs/dataDelay'
 import RunCode from './tabs/runCode'
@@ -47,6 +48,9 @@ class TaskDetailPane extends React.Component<any, any> {
     showGraph (status: any) {
         return status == TASK_STATUS.RUNNING || status == TASK_STATUS.WAIT_RUN;
     }
+    isFail (status: any) {
+        return status == TASK_STATUS.RUN_FAILED || status == TASK_STATUS.SUBMIT_FAILED;
+    }
     onTabChange (activeKey: any) {
         this.setState({
             tabKey: activeKey
@@ -55,7 +59,8 @@ class TaskDetailPane extends React.Component<any, any> {
     getTabs () {
         const { tabKey } = this.state;
         const { data = {} } = this.props;
-        const { taskType } = data;
+        const { taskType, status } = data;
+        const isFail = this.isFail(status);
         let tabs: any = [];
         const scrollStyle: any = {
             position: 'absolute',
@@ -92,11 +97,17 @@ class TaskDetailPane extends React.Component<any, any> {
                 <TaskGraph isShow={tabKey == 'taskGraph'} data={data} />
             </TabPane>
         )
+        const failover = (
+            isFail && <TabPane style={scrollStyleNoPt} tab="failover" key="failover">
+                <Failover key={data.id} isShow={tabKey == 'failover'} data={data} />
+            </TabPane>
+        )
         switch (taskType) {
             case TASK_TYPE.DATA_COLLECTION: {
                 tabs = [
                     runInfoView,
                     runCodeView,
+                    failover,
                     alarmMsgView
                 ]
                 break;
@@ -120,6 +131,7 @@ class TaskDetailPane extends React.Component<any, any> {
                         key="dataDelay">
                         <DataDelay data={data} />
                     </TabPane>,
+                    failover,
                     <TabPane style={scrollStyleNoPt} tab="checkpoint" key="checkpoint">
                         <CheckPoint data={data} />
                     </TabPane>,
@@ -133,7 +145,7 @@ class TaskDetailPane extends React.Component<any, any> {
             }
         }
         tabs.unshift(taskGraph);
-        return tabs;
+        return tabs.filter(Boolean);
     }
     render () {
         const {
