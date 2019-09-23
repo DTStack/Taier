@@ -1,6 +1,6 @@
 // 常量
 
-export const DATA_SOURCE: any = {
+export const DATA_SOURCE = {
     MYSQL: 1,
     ORACLE: 2,
     SQLSERVER: 3,
