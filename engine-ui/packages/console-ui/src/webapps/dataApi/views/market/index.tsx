@@ -60,6 +60,9 @@ class APIMarket extends React.Component<any, any> {
         this.setState({
             loading: true
         })
+        const { showCreate, showModify } = this.state;
+        const { user } = this.props;
+        const userId = user.id;
         const dic: any = {
             updateTime: 'gmt_modified'
         }
@@ -76,8 +79,8 @@ class APIMarket extends React.Component<any, any> {
             pageSize: this.state.pageSize,
             orderBy: dic[this.state.sorter.columnKey],
             sort: orderType[this.state.sorter.order],
-            showCreate: this.state.showCreate,
-            showModify: this.state.showModify
+            modifyUserId: showModify ? userId : undefined, // 修改人id
+            createUserId: showCreate ? userId : undefined // 创建人人id
         }).then((res: any) => {
             console.log('apigetOver');
 
