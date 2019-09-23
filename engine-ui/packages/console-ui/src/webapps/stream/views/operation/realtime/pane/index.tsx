@@ -27,7 +27,7 @@ class TaskDetailPane extends React.Component<any, any> {
     }
 
     // eslint-disable-next-line
-    UNSAFE_componentWillReceiveProps(nextProps: any) {
+    UNSAFE_componentWillReceiveProps (nextProps: any) {
         const { data = {} } = this.props;
         const { data: nextData = {} } = nextProps;
         if (data.id != nextData.id) {
@@ -92,12 +92,18 @@ class TaskDetailPane extends React.Component<any, any> {
                 <TaskGraph isShow={tabKey == 'taskGraph'} data={data} />
             </TabPane>
         )
+        const checkpointView = (
+            <TabPane style={scrollStyleNoPt} tab="checkpoint" key="checkpoint">
+                <CheckPoint data={data} />
+            </TabPane>
+        )
         switch (taskType) {
             case TASK_TYPE.DATA_COLLECTION: {
                 tabs = [
                     runInfoView,
                     runCodeView,
-                    alarmMsgView
+                    alarmMsgView,
+                    checkpointView
                 ]
                 break;
             }
@@ -120,9 +126,7 @@ class TaskDetailPane extends React.Component<any, any> {
                         key="dataDelay">
                         <DataDelay data={data} />
                     </TabPane>,
-                    <TabPane style={scrollStyleNoPt} tab="checkpoint" key="checkpoint">
-                        <CheckPoint data={data} />
-                    </TabPane>,
+                    checkpointView,
                     runCodeView,
                     alarmMsgView
                 ];
