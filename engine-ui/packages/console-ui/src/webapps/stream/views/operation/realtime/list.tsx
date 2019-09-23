@@ -69,7 +69,7 @@ class RealTimeTaskList extends React.Component<any, any> {
     }
 
     // eslint-disable-next-line
-    UNSAFE_componentWillReceiveProps(nextProps: any) {
+    UNSAFE_componentWillReceiveProps (nextProps: any) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
@@ -448,8 +448,21 @@ class RealTimeTaskList extends React.Component<any, any> {
             let arr: any = [];
 
             arr.push(<a key='change' onClick={() => { this.openTask(record) }}>修改</a>)
-            goOn && arr.push(<a key='goon' onClick={() => { this.updateTaskStatus(record) }}>{goOn}</a>)
-            normal && arr.push(<a key='normal' onClick={() => { this.updateTaskStatus(record, 'normal') }}>{normal}</a>)
+            goOn && arr.push(<a key='goon' onClick={() => { this.updateTaskStatus(record) }}>{goOn}</a>);
+            if (normal) {
+                if (normal == '停止') {
+                    arr.push(
+                        <Popconfirm
+                            title='确定停止任务？'
+                            onConfirm={() => { this.updateTaskStatus(record, 'normal') }}
+                        >
+                            <a key='normal'>{normal}</a>
+                        </Popconfirm>
+                    )
+                } else {
+                    arr.push(<a key='normal' onClick={() => { this.updateTaskStatus(record, 'normal') }}>{normal}</a>)
+                }
+            }
             recover && arr.push(<Popconfirm
                 okText="确定"
                 cancelText="取消"
