@@ -70,7 +70,7 @@ class CollectionTarget extends React.Component<any, any> {
     }
 
     // eslint-disable-next-line
-    UNSAFE_componentWillReceiveProps(nextProps: any) {
+    UNSAFE_componentWillReceiveProps (nextProps: any) {
         const { collectionData } = nextProps;
         const { targetMap = {} } = collectionData;
         const { sourceId, type, table } = targetMap;
@@ -304,10 +304,14 @@ class CollectionTargetForm extends React.Component<any, any> {
                                 required: true
                             }]
                         })(
-                            <Select>
-                                <Option value="orc">orc</Option>
-                                <Option value="text">text</Option>
-                            </Select>
+                            <RadioGroup>
+                                <Radio value="orc">
+                                    orc
+                                </Radio>
+                                <Radio value="text">
+                                    text
+                                </Radio>
+                            </RadioGroup>
                         )}
                     </FormItem>,
                     !isOrc && (<FormItem
@@ -384,7 +388,7 @@ class CollectionTargetForm extends React.Component<any, any> {
                                     </Radio>
                                 ) : null}
                                 <Radio key={writeTableTypes.HAND} value={writeTableTypes.HAND} style={{ float: 'left' }}>
-                                        手动选择分区表
+                                    手动选择分区表
                                 </Radio>
                             </RadioGroup>
                         )}
