@@ -18,7 +18,7 @@ class ApiTypeTree extends React.Component<any, any> {
         slidePaneShow: false
     }
     public editInput: any;
-    constructor(props: any) {
+    constructor (props: any) {
         super(props);
         this.editInput = null;
     }
@@ -306,9 +306,10 @@ class ApiTypeTree extends React.Component<any, any> {
                     </TreeNode>
 
                 </Tree>
-                <div style={{ position: 'fixed', top: 0, bottom: 0, left: 0, right: 20, pointerEvents: 'none' }}>
+                <div style={{ position: 'fixed', top: 50, bottom: 0, left: 0, right: 20, pointerEvents: 'none' }}>
                     <div style={{ pointerEvents: 'auto' }}>
                         <ApiSlidePane
+                            simple={true}
                             showRecord={selectedNode || {}}
                             slidePaneShow={slidePaneShow}
                             closeSlidePane={this.closeSlidePane.bind(this)}

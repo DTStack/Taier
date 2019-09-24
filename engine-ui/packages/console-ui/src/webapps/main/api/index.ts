@@ -365,5 +365,12 @@ export default {
                 return http.post(req.GET_AUDIT_LIST, params)
             default:
         }
+    },
+    getOperationList (app: any, params?: any) {
+        switch (app) {
+            case MY_APPS.API:
+                return http.post(req.GET_OPERATION_LIST, params)
+            default:
+        }
     }
 }

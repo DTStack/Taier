@@ -22,7 +22,6 @@ module.exports = [
         default: true, // 是否为默认应用选项
         apiBase: '/rdos',
         icon: '/public/main/img/icon_1.png',
-        operationLog: true, // 是否有安全审计
         newIcon: '/public/main/img/icon_new1.png', // 新版的图标，因为旧版本的阿里云还要用所以不能删除
         description: '一站式大数据开发平台，帮助企业快速完成数据中台搭建',
         className: 'icon_dropdown_offlin'
@@ -73,7 +72,6 @@ module.exports = [
         target: '_self',
         enable: true,
         apiBase: '/dataApi',
-        operationLog: true,
         icon: '/public/main/img/icon_5.png',
         newIcon: '/public/main/img/icon_new5.png',
         description: '数据API快速生成与注册，帮助企业提高数据开放与共享效率',

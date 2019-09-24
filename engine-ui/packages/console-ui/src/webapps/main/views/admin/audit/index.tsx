@@ -17,22 +17,23 @@ const Search = Input.Search;
 const { RangePicker } = DatePicker;
 
 interface AdminAuditState {
-    active: string,
-    loading: 'success' | 'loading',
+    active: string;
+    loading: 'success' | 'loading';
+    operationList: any[];
     tableData: {
-        data: any[],
-        totalCount?: number,
-        currentPage?: number
-    },
+        data: any[];
+        totalCount?: number;
+        currentPage?: number;
+    };
     reqParams: {
-        currentPage: number,
-        operator?: string, // 操作人
-        operatorType?: string, // 操作对象
-        action?: string, // 动作
-        startTime: number,
-        endTime: number,
-        pageSize: number
-    }
+        currentPage: number;
+        operator?: string; // 操作人
+        operationObject?: string; // 操作对象
+        operation?: string; // 动作
+        startTime: number;
+        endTime: number;
+        pageSize: number;
+    };
 }
 
 @(connect((state: any) => {
@@ -45,6 +46,7 @@ class AdminAudit extends React.Component<any, AdminAuditState> {
     state: AdminAuditState = {
         active: '',
         loading: 'success',
+        operationList: [],
         tableData: {
             data: []
         },
@@ -64,8 +66,8 @@ class AdminAudit extends React.Component<any, AdminAuditState> {
             reqParams: {
                 currentPage: 1,
                 operator: undefined,
-                operatorType: undefined,
-                action: undefined,
+                operationObject: undefined,
+                operation: undefined,
                 startTime: null,
                 endTime: null,
                 pageSize: 10
@@ -91,6 +93,9 @@ class AdminAudit extends React.Component<any, AdminAuditState> {
 
             this.setState({ active: appKey }, () => {
                 this.fetchData();
+                if (appKey == MY_APPS.API) {
+                    this.getOperationList();
+                }
             })
         }
     }
@@ -110,7 +115,15 @@ class AdminAudit extends React.Component<any, AdminAuditState> {
             })
         }
     }
-
+    getOperationList = async () => {
+        const { active } = this.state;
+        const res = await Api.getOperationList(active);
+        if (res.code === 1 && res.data) {
+            this.setState({
+                operationList: res.data
+            })
+        }
+    }
     onPaneChange = (key: any) => {
         this.resetFetchState({
             active: key
@@ -155,6 +168,20 @@ class AdminAudit extends React.Component<any, AdminAuditState> {
                     key: 'operator'
                 }, {
                     title: '动作',
+                    dataIndex: 'operation',
+                    key: 'operation',
+                    render (text: any) {
+                        return text;
+                    }
+                }, {
+                    title: '操作对象',
+                    dataIndex: 'operationObject',
+                    key: 'operationObject',
+                    render (text: any) {
+                        return text;
+                    }
+                }, {
+                    title: '详细内容',
                     dataIndex: 'action',
                     key: 'action',
                     render (text: any) {
@@ -181,7 +208,7 @@ class AdminAudit extends React.Component<any, AdminAuditState> {
         this.setState({
             reqParams: {
                 ...this.state.reqParams,
-                operatorType: e.target.value
+                operationObject: e.target.value
             }
         })
     }
@@ -200,7 +227,7 @@ class AdminAudit extends React.Component<any, AdminAuditState> {
             reqParams: {
                 ...this.state.reqParams,
                 currentPage: 1,
-                action: value
+                operation: value
             }
         }, this.fetchData)
     }
@@ -256,7 +283,7 @@ class AdminAudit extends React.Component<any, AdminAuditState> {
                     {nameSearch}
                     <Search
                         placeholder="按操作对象搜索"
-                        value={reqParams.operatorType}
+                        value={reqParams.operationObject}
                         onChange={this.onSearchTypeChange}
                         style={{ width: '220px', marginRight: '10px' }}
                         onSearch={this.onSearch}
@@ -264,7 +291,7 @@ class AdminAudit extends React.Component<any, AdminAuditState> {
                     <Select
                         placeholder='按动作筛选'
                         onSelect={this.onSelectAction}
-                        value={reqParams.action}
+                        value={reqParams.operation}
                         style={{ width: '220px', marginRight: '10px' }}
                     >
 
@@ -331,7 +358,7 @@ class AdminAudit extends React.Component<any, AdminAuditState> {
         } = this.state
 
         const content = this.renderPane();
-        const finalApps = apps.filter((app: any) => app.operationLog);
+        const finalApps = apps.filter((app: any) => app.id == MY_APPS.RDOS || app.id == MY_APPS.API);
 
         return (
             <div className="user-admin">

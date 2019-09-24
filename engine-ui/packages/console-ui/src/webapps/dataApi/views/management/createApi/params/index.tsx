@@ -525,10 +525,10 @@ class ManageParamsConfig extends React.Component<any, any> {
          */
         const tableOptions = tableList.map(
             (data: any) => {
-                return <Option key={data} value={data}>
+                return <Option key={data.tableName} value={data.tableName}>
                     <div style={{ verticalAlign: 'middle' }}>
-                        <img style={{ width: 18, verticalAlign: 'middle', marginRight: 5 }} src={data.length > 10 ? 'public/dataApi/img/database_view.svg' : 'public/dataApi/img/database_table.svg'} />
-                        <span style={{ verticalAlign: 'middle' }}>{data}</span>
+                        <img style={{ width: 18, verticalAlign: 'middle', marginRight: 5 }} src={data.view ? 'public/dataApi/img/database_view.svg' : 'public/dataApi/img/database_table.svg'} />
+                        <span style={{ verticalAlign: 'middle' }}>{data.tableName}</span>
                     </div>
                 </Option>
             }
