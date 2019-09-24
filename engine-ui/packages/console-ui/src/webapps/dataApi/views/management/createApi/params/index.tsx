@@ -525,7 +525,12 @@ class ManageParamsConfig extends React.Component<any, any> {
          */
         const tableOptions = tableList.map(
             (data: any) => {
-                return <Option key={data} value={data}>{data}</Option>
+                return <Option key={data} value={data}>
+                    <div style={{ verticalAlign: 'middle' }}>
+                        <img style={{ width: 18, verticalAlign: 'middle', marginRight: 5 }} src={data.length > 10 ? 'public/dataApi/img/database_view.svg' : 'public/dataApi/img/database_table.svg'} />
+                        <span style={{ verticalAlign: 'middle' }}>{data}</span>
+                    </div>
+                </Option>
             }
         )
         const isSqlMode = mode == API_MODE.SQL;
