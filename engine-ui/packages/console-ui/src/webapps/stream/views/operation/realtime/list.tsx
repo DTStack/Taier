@@ -336,14 +336,6 @@ class RealTimeTaskList extends React.Component<any, any> {
             filteredValue: filter.status,
             filterMultiple: true
         }, {
-            title: '业务延时',
-            dataIndex: 'bizDelay',
-            key: 'bizDelay',
-            width: 150,
-            render (text: any) {
-                return utils.formatTime(text);
-            }
-        }, {
             title: '任务类型',
             dataIndex: 'taskType',
             key: 'taskType',
@@ -367,14 +359,14 @@ class RealTimeTaskList extends React.Component<any, any> {
             title: '最近操作时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
-            width: 150,
+            width: 200,
             render: (text: any) => utils.formatDateTime(text),
             sorter: true
         }, {
             title: '最近操作人',
             dataIndex: 'modifyUserName',
             key: 'modifyUserName',
-            width: 150
+            width: 200
         }, {
             title: '操作',
             width: 150,
