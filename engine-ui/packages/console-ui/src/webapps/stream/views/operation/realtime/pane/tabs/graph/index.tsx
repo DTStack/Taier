@@ -20,12 +20,12 @@ const metricsType: any = {
     SOURCE_RPS: 'source_input_rps',
     SOURCE_INPUT_BPS: 'source_input_bps',
     SOURCE_DIRTY: 'source_dirty_data',
-    DATA_COLLECTION_RPS: 'jlogstash_rps',
-    DATA_COLLECTION_BPS: 'jlogstash_bps',
+    DATA_COLLECTION_RPS: 'data_acquisition_rps',
+    DATA_COLLECTION_BPS: 'data_acquisition_bps',
     DATA_DISABLE_TPS: 'data_discard_tps',
     DATA_DISABLE_COUNT: 'data_discard_count',
-    DATA_COLLECTION_TOTAL_RPS: 'jlogstash_record_sum',
-    DATA_COLLECTION_TOTAL_BPS: 'jlogstash_byte_sum'
+    DATA_COLLECTION_TOTAL_RPS: 'data_acquisition_record_sum',
+    DATA_COLLECTION_TOTAL_BPS: 'data_acquisition_byte_sum'
 }
 const defaultLineData: any = {
     x: [],
@@ -159,13 +159,13 @@ class StreamDetailGraph extends React.Component<any, any> {
                     break;
                 }
                 case metricsType.DATA_COLLECTION_BPS: {
-                    y[0] = lineData.map((data: any) => { return data.jlogstash_input_bps });
-                    y[1] = lineData.map((data: any) => { return data.jlogstash_output_bps });
+                    y[0] = lineData.map((data: any) => { return data.data_acquisition_input_bps });
+                    y[1] = lineData.map((data: any) => { return data.data_acquisition_output_bps });
                     break;
                 }
                 case metricsType.DATA_COLLECTION_RPS: {
-                    y[0] = lineData.map((data: any) => { return data.jlogstash_input_rps });
-                    y[1] = lineData.map((data: any) => { return data.jlogstash_output_rps });
+                    y[0] = lineData.map((data: any) => { return data.data_acquisition_input_rps });
+                    y[1] = lineData.map((data: any) => { return data.data_acquisition_output_rps });
                     break;
                 }
                 case metricsType.DATA_DISABLE_TPS: {
@@ -177,13 +177,13 @@ class StreamDetailGraph extends React.Component<any, any> {
                     break;
                 }
                 case metricsType.DATA_COLLECTION_TOTAL_BPS: {
-                    y[0] = lineData.map((data: any) => { return data.jlogstash_input_byte_sum });
-                    y[1] = lineData.map((data: any) => { return data.jlogstash_output_byte_sum });
+                    y[0] = lineData.map((data: any) => { return data.data_acquisition_input_byte_sum });
+                    y[1] = lineData.map((data: any) => { return data.data_acquisition_output_byte_sum });
                     break;
                 }
                 case metricsType.DATA_COLLECTION_TOTAL_RPS: {
-                    y[0] = lineData.map((data: any) => { return data.jlogstash_input_record_sum });
-                    y[1] = lineData.map((data: any) => { return data.jlogstash_output_record_sum });
+                    y[0] = lineData.map((data: any) => { return data.data_acquisition_input_record_sum });
+                    y[1] = lineData.map((data: any) => { return data.data_acquisition_output_record_sum });
                     break;
                 }
             }
