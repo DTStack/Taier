@@ -586,6 +586,7 @@ class ManageParamsConfig extends React.Component<any, any> {
                                             placeholder="数据表"
                                             style={{ width: '100%' }}
                                             showSearch
+                                            filterOption={(input: any, option: any) => option.props.value.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                             onSelect={this.tableChange.bind(this)}
                                         >
                                             {tableOptions}

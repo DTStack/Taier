@@ -160,17 +160,20 @@ class AdminAudit extends React.Component<any, AdminAuditState> {
                     title: '时间',
                     dataIndex: 'createTime',
                     key: 'createTime',
+                    width: 200,
                     render (time: any, record: any) {
                         return utils.formatDateTime(time);
                     }
                 }, {
                     title: '操作人',
                     dataIndex: 'operator',
-                    key: 'operator'
+                    key: 'operator',
+                    width: 200
                 }, {
                     title: '动作',
                     dataIndex: 'operation',
                     key: 'operation',
+                    width: 150,
                     render (text: any) {
                         return text;
                     }
@@ -292,7 +295,8 @@ class AdminAudit extends React.Component<any, AdminAuditState> {
                     />
                     <Select
                         placeholder='按动作筛选'
-                        onSelect={this.onSelectAction}
+                        onChange={this.onSelectAction}
+                        allowClear={true}
                         value={reqParams.operation}
                         style={{ width: '220px', marginRight: '10px' }}
                     >
