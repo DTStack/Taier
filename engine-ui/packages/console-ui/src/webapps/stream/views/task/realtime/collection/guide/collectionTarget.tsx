@@ -229,7 +229,7 @@ class CollectionTargetForm extends React.Component<any, any> {
         const { isEdit, targetMap = {}, sourceMap = {} } = collectionData;
         const { getFieldDecorator } = this.props.form;
         if (!targetMap || !sourceMap) return [];
-        const isOrc = targetMap.fileType == 'orc';
+        const isText = targetMap.fileType == 'text';
         const isMysqlSource = sourceMap.type == DATA_SOURCE.MYSQL;
         const { writeTableType, writeStrategy, table, writeMode } = targetMap;
         const isWriteStrategyBeTime = writeStrategy == writeStrategys.TIME;
@@ -311,10 +311,13 @@ class CollectionTargetForm extends React.Component<any, any> {
                                 <Radio value="text">
                                     text
                                 </Radio>
+                                <Radio value="parquet">
+                                    parquet
+                                </Radio>
                             </RadioGroup>
                         )}
                     </FormItem>,
-                    !isOrc && (<FormItem
+                    isText && (<FormItem
                         {...formItemLayout}
                         label="列分隔符"
                         key="fieldDelimiter"
@@ -328,7 +331,7 @@ class CollectionTargetForm extends React.Component<any, any> {
                         )}
                         <HelpDoc doc="splitCharacter" />
                     </FormItem>),
-                    !isOrc && (
+                    isText && (
                         <FormItem
                             {...formItemLayout}
                             label="编码"
@@ -429,6 +432,9 @@ class CollectionTargetForm extends React.Component<any, any> {
                                         </Radio>
                                         <Radio value="text" style={{ float: 'left' }}>
                                             text
+                                        </Radio>
+                                        <Radio value="parquet" style={{ float: 'left' }}>
+                                            parquet
                                         </Radio>
                                     </RadioGroup>
                                 )}
