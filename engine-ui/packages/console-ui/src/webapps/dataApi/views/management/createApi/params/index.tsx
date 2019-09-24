@@ -525,7 +525,12 @@ class ManageParamsConfig extends React.Component<any, any> {
          */
         const tableOptions = tableList.map(
             (data: any) => {
-                return <Option key={data} value={data}>{data}</Option>
+                return <Option key={data.tableName} value={data.tableName}>
+                    <div style={{ verticalAlign: 'middle' }}>
+                        <img style={{ width: 18, verticalAlign: 'middle', marginRight: 5 }} src={data.view ? 'public/dataApi/img/database_view.svg' : 'public/dataApi/img/database_table.svg'} />
+                        <span style={{ verticalAlign: 'middle' }}>{data.tableName}</span>
+                    </div>
+                </Option>
             }
         )
         const isSqlMode = mode == API_MODE.SQL;
@@ -581,6 +586,7 @@ class ManageParamsConfig extends React.Component<any, any> {
                                             placeholder="数据表"
                                             style={{ width: '100%' }}
                                             showSearch
+                                            filterOption={(input: any, option: any) => option.props.value.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                             onSelect={this.tableChange.bind(this)}
                                         >
                                             {tableOptions}
