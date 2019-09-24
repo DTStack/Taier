@@ -14,12 +14,13 @@ import Api from '../../../api'
 import AppTabs from '../../../components/app-tabs'
 
 const Search = Input.Search;
+const Option = Select.Option;
 const { RangePicker } = DatePicker;
 
 interface AdminAuditState {
     active: string;
     loading: 'success' | 'loading';
-    operationList: any[];
+    operationList: { name: string; code: number }[];
     tableData: {
         data: any[];
         totalCount?: number;
@@ -255,7 +256,8 @@ class AdminAudit extends React.Component<any, AdminAuditState> {
     renderTitle = () => {
         const {
             reqParams,
-            active
+            active,
+            operationList
         } = this.state;
         const timePicker = <RangePicker
             size="default"
@@ -294,7 +296,9 @@ class AdminAudit extends React.Component<any, AdminAuditState> {
                         value={reqParams.operation}
                         style={{ width: '220px', marginRight: '10px' }}
                     >
-
+                        {operationList.map((operation) => {
+                            return <Option key={operation.code} value={operation.code}>{operation.name}</Option>
+                        })}
                     </Select>
                 </span>
             }

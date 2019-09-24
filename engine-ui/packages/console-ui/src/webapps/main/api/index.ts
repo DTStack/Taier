@@ -366,9 +366,10 @@ export default {
             default:
         }
     },
-    getOperationList (app: any, params?: any) {
+    getOperationList (app: any, params: any = {}) {
         switch (app) {
             case MY_APPS.API:
+                params.appTag = 'API';
                 return http.post(req.GET_OPERATION_LIST, params)
             default:
         }
