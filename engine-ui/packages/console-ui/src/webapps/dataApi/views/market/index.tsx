@@ -79,8 +79,8 @@ class APIMarket extends React.Component<any, any> {
             pageSize: this.state.pageSize,
             orderBy: dic[this.state.sorter.columnKey],
             sort: orderType[this.state.sorter.order],
-            modifyUserId: showModify ? userId : undefined, // 修改人id
-            createUserId: showCreate ? userId : undefined // 创建人人id
+            modifyUserId: showModify ? userId : null, // 修改人id
+            createUserId: showCreate ? userId : null // 创建人人id
         }).then((res: any) => {
             console.log('apigetOver');
 

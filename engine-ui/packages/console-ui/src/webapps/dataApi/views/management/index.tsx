@@ -129,8 +129,8 @@ class APIMana extends React.Component<any, any> {
         params.apiType = filter.apiType && filter.apiType[0];
         params.dataSourceType = dataSourceType && parseInt(dataSourceType);// 数据源类型
         params.dataSourceId = dataSource && parseInt(dataSource);// 数据源
-        params.modifyUserId = showModify ? userId : undefined;// 修改人id
-        params.createUserId = showCreate ? userId : undefined;// 创建人人id
+        params.modifyUserId = showModify ? userId : null;// 修改人id
+        params.createUserId = showCreate ? userId : null;// 创建人人id
         params.orderBy = sortType[sortedInfo.columnKey];
         params.sort = orderType[sortedInfo.order];
         params.currentPage = pageIndex;
