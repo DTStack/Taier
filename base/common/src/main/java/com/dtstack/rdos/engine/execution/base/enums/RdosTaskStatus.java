@@ -30,7 +30,7 @@ public enum RdosTaskStatus {
             DEPLOYING.getStatus(), RUNNING.getStatus(),
             SUBMITTING.getStatus(), RESTARTING.getStatus(),
             SUBMITTED.getStatus(), WAITENGINE.getStatus(),
-            WAITCOMPUTE.getStatus(), COMPUTING.getStatus()
+            WAITCOMPUTE.getStatus()
     );
 
     private final static List<Integer> STOPPED_STATUS = Lists.newArrayList(
@@ -95,7 +95,7 @@ public enum RdosTaskStatus {
 
     public static boolean canStartAgain(Byte status){
 		int sta = status.intValue();
-        if(sta == RdosTaskStatus.SUBMITTING.getStatus() || sta == RdosTaskStatus.UNSUBMIT.getStatus() || sta == RdosTaskStatus.COMPUTING.getStatus()){
+        if(sta == RdosTaskStatus.SUBMITTING.getStatus() || sta == RdosTaskStatus.UNSUBMIT.getStatus()){
     	    return true;
         }
 
