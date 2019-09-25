@@ -339,9 +339,9 @@ class APIMana extends React.Component<any, any> {
                             this.setState({
                                 loading: false
                             })
-                            message.success('禁用成功')
-                            if (res) {
+                            if (res && res.code == 1) {
                                 this.getAllApi();
+                                message.success('禁用成功')
                             }
                         }
                     )
