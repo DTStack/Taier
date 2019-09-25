@@ -486,7 +486,7 @@ class ManageBasicProperties extends React.Component<any, any> {
                                             {
                                                 pattern: this.props.form.getFieldValue('protocol') === 'HTTP/HTTPS'
                                                     ? new RegExp(/^\/[^\s\u4e00-\u9fa5]+$/) : null,
-                                                message: '须以/开头，限制2-100个字符，不支持中文'
+                                                message: '须以/开头，限制2-100个字符，不支持中文，空格'
                                             }
                                         ],
                                         initialValue: this.props.originalPath
