@@ -16,6 +16,7 @@ export default {
 
     // ===== 用户模块 ===== //
     LOGOUT: `${UIC_BASE_URL}/v2/logout`,
+    API_LOGOUT: `${DATA_API_BASE_URL}/login/out`,
     CHECKISROOT: `${CONSOLE_BASE_URL}/status/status`, // 验证是否为租户root管理员
 
     // ===== 安全审计 ===== //
