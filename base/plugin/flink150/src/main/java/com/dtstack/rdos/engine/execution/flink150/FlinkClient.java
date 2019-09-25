@@ -680,6 +680,7 @@ public class FlinkClient extends AbsClient {
             logger.error("", e);
             Map<String, String> map = new LinkedHashMap<>(8);
             map.put("jobId", jobId);
+            map.put("root-exception", "Failed to get the stopped task log, please check if job history is enabled....");
             map.put("reqURL", reqURL);
             map.put("engineLogErr", ExceptionUtil.getErrorMessage(e));
             return new Gson().toJson(map);

@@ -27,6 +27,7 @@ import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -100,6 +101,9 @@ public class TaskStatusListener implements Runnable{
 
 	/**记录job 连续某个状态的频次*/
 	private Map<String, TaskStatusFrequency> jobStatusFrequency = Maps.newConcurrentMap();
+
+    //  failover log
+    private Set<Long> failoverTimestampCache = new HashSet<>(1);
 
     private RdosEngineStreamJobDAO rdosStreamTaskDAO = new RdosEngineStreamJobDAO();
 
@@ -383,8 +387,22 @@ public class TaskStatusListener implements Runnable{
         try {
             //从engine获取log
             String jobLog = JobClient.getEngineLog(engineType, pluginInfo, jobIdentifier);
+
+            Map<String, Object> logMap = PublicUtil.jsonStrToObject(jobLog, Map.class);
+            Long timestamp = MathUtil.getLongVal(logMap.get("timestamp"));
+
+            if (null == timestamp || failoverTimestampCache.contains(timestamp)) {
+                return;
+            }
+
+            failoverTimestampCache.clear();
+            failoverTimestampCache.add(timestamp);
+
+            jobLog = MathUtil.getString(logMap.get("root-exception"));
+
             updateJobEngineLog(jobId, jobLog, computeType);
         } catch (Throwable e){
+            logger.error("update JobEngine Log error jobid {} ,error info {}..", jobId,ExceptionUtil.getErrorMessage(e));
             updateJobEngineLog(jobId, ExceptionUtil.getErrorMessage(e), computeType);
         }
     }
