@@ -42,7 +42,8 @@ const provideCompletionItemsMap: any = {
         /**
          * 释放自定义补全函数
          */
-        dispose: dtflink.disposeProvider
+        dispose: dtflink.disposeProvider,
+        onChange: dtflink.onChange
     }
 }
 class Editor extends React.Component<any, any> {
@@ -56,7 +57,7 @@ class Editor extends React.Component<any, any> {
     /**
      * monaco实例
      */
-    monacoInstance: any = null;
+    monacoInstance: monaco.editor.IStandaloneCodeEditor = null;
     /**
      * monaco渲染外部链接对象的销毁用ID
      */
@@ -246,7 +247,7 @@ class Editor extends React.Component<any, any> {
             }
         });
 
-        this.monacoInstance.onDidBlurEditor((event: any) => {
+        this.monacoInstance.onDidBlurEditor(() => {
             this.log('编辑器事件 onDidBlur');
             const { onBlur, value } = this.props;
             if (onBlur) {
@@ -255,7 +256,7 @@ class Editor extends React.Component<any, any> {
             }
         });
 
-        this.monacoInstance.onDidFocusEditor((event: any) => {
+        this.monacoInstance.onDidFocusEditor(() => {
             this.log('编辑器事件 onDidFocus');
             const { onFocus, value } = this.props;
             if (onFocus) {
@@ -282,7 +283,7 @@ class Editor extends React.Component<any, any> {
          */
         this.monacoInstance.onContextMenu((e: any) => {
             this.log('编辑器事件 onContextMenu');
-            const contextMenuElement = this.monacoInstance.getDomNode().querySelector('.monaco-menu-container');
+            const contextMenuElement = this.monacoInstance.getDomNode().querySelector<HTMLElement>('.monaco-menu-container');
 
             if (contextMenuElement) {
                 const posY = (e.event.posy + contextMenuElement.clientHeight) > window.innerHeight
