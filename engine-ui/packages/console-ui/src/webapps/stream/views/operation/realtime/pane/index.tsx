@@ -101,9 +101,9 @@ class TaskDetailPane extends React.Component<any, any> {
             case TASK_TYPE.DATA_COLLECTION: {
                 tabs = [
                     runInfoView,
+                    checkpointView,
                     runCodeView,
-                    alarmMsgView,
-                    checkpointView
+                    alarmMsgView
                 ]
                 break;
             }

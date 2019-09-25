@@ -93,7 +93,7 @@ class CheckPoint extends React.Component<any, any> {
         }, this.getList.bind(this))
     }
     disabledDate = (current: any) => {
-        const now = moment()
+        const now = moment('23:59:59', 'HH:mm:ss')
         return current > now && current != now;
     }
     /**
