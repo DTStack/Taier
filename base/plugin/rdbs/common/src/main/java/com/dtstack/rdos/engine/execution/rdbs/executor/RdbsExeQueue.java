@@ -65,8 +65,14 @@ public class RdbsExeQueue {
 
     private ConnFactory connFactory;
 
-    public RdbsExeQueue(ConnFactory connFactory){
+    public RdbsExeQueue(ConnFactory connFactory, Integer maxPoolSize, Integer minPoolSize){
         this.connFactory = connFactory;
+        if (maxPoolSize != null) {
+            this.maxSize = maxPoolSize;
+        }
+        if (minPoolSize != null) {
+            this.minSize = minPoolSize;
+        }
     }
 
     public void init(){

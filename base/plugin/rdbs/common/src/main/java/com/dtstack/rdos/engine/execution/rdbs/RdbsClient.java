@@ -1,11 +1,13 @@
 package com.dtstack.rdos.engine.execution.rdbs;
 
 import com.dtstack.rdos.commom.exception.RdosException;
+import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobIdentifier;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
+import com.dtstack.rdos.engine.execution.rdbs.constant.ConfigConstant;
 import com.dtstack.rods.engine.execution.base.resource.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.rdbs.executor.ConnFactory;
@@ -43,10 +45,11 @@ public abstract class RdbsClient extends AbsClient {
         connFactory = getConnFactory();
         connFactory.init(prop);
 
-        exeQueue = new RdbsExeQueue(connFactory);
+        exeQueue = new RdbsExeQueue(connFactory, MathUtil.getIntegerVal(prop.get(ConfigConstant.MAX_JOB_POOL_KEY)),
+                MathUtil.getIntegerVal(prop.get(ConfigConstant.MIN_JOB_POOL_KEY)));
         exeQueue.init();
         resourceInfo = new RdbsResourceInfo(exeQueue);
-        LOG.warn("-------init {} plugin success-----", dbType);
+        LOG.warn("-------init {} plugin success-----, properties={}", dbType, prop.toString());
     }
 
     @Override
