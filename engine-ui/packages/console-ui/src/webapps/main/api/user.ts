@@ -17,7 +17,7 @@ const UIC_DOMAIN_URL = APP_CONF.UIC_DOMAIN || ''
 
 export default {
     // ========== User ========== //
-    logout (appKey: string) { // 注销退出
+    logout (appKey?: string) { // 注销退出
         let logoutUrl = req.LOGOUT;
         if (appKey == MY_APPS.API) {
             logoutUrl = req.API_LOGOUT;
