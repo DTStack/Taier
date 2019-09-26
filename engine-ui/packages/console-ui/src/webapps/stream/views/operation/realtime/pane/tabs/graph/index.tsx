@@ -12,7 +12,7 @@ const RadioGroup = Radio.Group;
 const Panel = Collapse.Panel;
 
 const defaultTimeValue = '10m';
-const metricsType: any = {
+const metricsType = {
     FAILOVER_RATE: 'fail_over_rate',
     DELAY: 'data_delay',
     SOURCE_TPS: 'source_input_tps',
@@ -20,6 +20,7 @@ const metricsType: any = {
     SOURCE_RPS: 'source_input_rps',
     SOURCE_INPUT_BPS: 'source_input_bps',
     SOURCE_DIRTY: 'source_dirty_data',
+    SOURCE_DIRTY_OUT: 'source_dirty_out',
     DATA_COLLECTION_RPS: 'data_acquisition_rps',
     DATA_COLLECTION_BPS: 'data_acquisition_bps',
     DATA_DISABLE_TPS: 'data_discard_tps',
@@ -40,6 +41,7 @@ const defaultData: any = {
     [metricsType.SOURCE_RPS]: defaultLineData,
     [metricsType.SOURCE_INPUT_BPS]: defaultLineData,
     [metricsType.SOURCE_DIRTY]: defaultLineData,
+    [metricsType.SOURCE_DIRTY_OUT]: defaultLineData,
     [metricsType.DATA_COLLECTION_RPS]: defaultLineData,
     [metricsType.DATA_COLLECTION_BPS]: defaultLineData,
     [metricsType.DATA_DISABLE_TPS]: defaultLineData,
@@ -130,6 +132,7 @@ class StreamDetailGraph extends React.Component<any, any> {
                 case metricsType.SOURCE_TPS:
                 case metricsType.SOURCE_RPS:
                 case metricsType.SOURCE_DIRTY:
+                case metricsType.SOURCE_DIRTY_OUT:
                 case metricsType.DELAY: {
                     let tmpMap: any = {};
                     let legend: any = [];
@@ -221,6 +224,7 @@ class StreamDetailGraph extends React.Component<any, any> {
             metricsList.push(metricsType.SOURCE_RPS)
             metricsList.push(metricsType.SOURCE_INPUT_BPS)
             metricsList.push(metricsType.SOURCE_DIRTY)
+            metricsList.push(metricsType.SOURCE_DIRTY_OUT)
             metricsList.push(metricsType.DATA_DISABLE_COUNT)
             metricsList.push(metricsType.DATA_DISABLE_TPS)
         }
@@ -437,6 +441,16 @@ class StreamDetailGraph extends React.Component<any, any> {
                                         }}
                                         desc="各Source的脏数据，反映实时计算 Flink的Source段是否有脏数据的情况。"
                                         title="各Source的脏数据" />
+                                </section>
+                                <section>
+                                    <AlarmBaseGraph
+                                        time={time}
+                                        lineData={{
+                                            ...lineDatas[metricsType.SOURCE_DIRTY_OUT],
+                                            color: CHARTS_COLOR
+                                        }}
+                                        desc="各Source的脏数据，反映实时计算 Flink的Source段是否有脏数据的情况。"
+                                        title="各sink的脏数据输出" />
                                 </section>
                             </div>
                         </Panel>
