@@ -1,7 +1,7 @@
 import { apiMarketActionType as ACTION_TYPE } from '../../consts/apiMarketActionType';
 import API from '../../api/apiMarket';
 
-export const apiMarketActions: any = {
+export const apiMarketActions = {
 
     // 获取市场分离信息
     getCatalogue (pid: any) {
