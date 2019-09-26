@@ -129,7 +129,12 @@ class AdminAudit extends React.Component<any, AdminAuditState> {
     onPaneChange = (key: any) => {
         this.resetFetchState({
             active: key
-        }, this.fetchData)
+        }, () => {
+            this.fetchData();
+            if (key == MY_APPS.API) {
+                this.getOperationList();
+            }
+        })
     }
 
     initColumns = () => {
