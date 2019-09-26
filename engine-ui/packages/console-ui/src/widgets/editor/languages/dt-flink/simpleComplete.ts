@@ -154,7 +154,7 @@ export async function onChange (value = '', _editor: monaco.editor.IStandaloneCo
         let end = _editor.getModel().getPositionAt(syntax.token.stop);
         monaco.editor.setModelMarkers(model, model.getModeId(), [{
             startLineNumber: begin.lineNumber,
-            startColumn: begin.column + 1,
+            startColumn: begin.column,
             endLineNumber: end.lineNumber,
             endColumn: end.column + 1,
             message: `[语法错误！] \n${message}`,
