@@ -136,7 +136,6 @@ class ChannelForm extends React.Component<any, any> {
     render () {
         const { getFieldDecorator } = this.props.form;
         const { setting, navtoStep } = this.props;
-
         const speedOption: any = [];
         const channelOption: any = [];
         const unLimitedOption: any[] = [
