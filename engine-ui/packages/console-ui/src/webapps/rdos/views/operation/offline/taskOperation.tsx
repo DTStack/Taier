@@ -387,7 +387,6 @@ class OfflineTaskList extends React.Component<any, any> {
                 }
             }
         }
-
         this.setState(params, () => {
             this.search()
         })
