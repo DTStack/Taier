@@ -162,7 +162,9 @@ public class TaskStatusListener implements Runnable{
                 updateJobEngineLog(failedTaskInfo.getJobId(), failedTaskInfo.getJobIdentifier(),
                         failedTaskInfo.getEngineType(), failedTaskInfo.getComputeType() , failedTaskInfo.getPluginInfo());
 
-                if(isFlinkStreamTask(failedTaskInfo) && checkOpenCheckPoint(failedTaskInfo.getJobId())) {
+                boolean streamAndopenCheckpoint = isFlinkStreamTask(failedTaskInfo) && checkOpenCheckPoint(failedTaskInfo.getJobId());
+
+                if(streamAndopenCheckpoint) {
                     //更新checkpoint
                     updateStreamJobCheckpoints(failedTaskInfo.getJobIdentifier(), failedTaskInfo.getEngineType(), failedTaskInfo.getPluginInfo());
                 } else if(isSyncTask(failedTaskInfo)){
@@ -173,7 +175,7 @@ public class TaskStatusListener implements Runnable{
 
                 if(!failedTaskInfo.allowClean()){
                     // filter batch task
-                    if(isFlinkStreamTask(failedTaskInfo) && checkOpenCheckPoint(failedTaskInfo.getJobId())){
+                    if(streamAndopenCheckpoint){
                         dealStreamCheckpoint(failedTaskInfo);
                     }
                     failedJobCache.remove(key);
@@ -422,9 +424,9 @@ public class TaskStatusListener implements Runnable{
 
         String engineTaskId = jobIdentifier.getEngineJobId();
 
-        if(RdosTaskStatus.getStoppedStatus().contains(status)){
+        boolean openCheckPoint = checkOpenCheckPoint(jobId);
 
-            boolean openCheckPoint = checkOpenCheckPoint(jobId);
+        if(RdosTaskStatus.getStoppedStatus().contains(status)){
 
             jobStatusFrequency.remove(jobId);
 
@@ -441,7 +443,7 @@ public class TaskStatusListener implements Runnable{
 
         }
 
-        if (!checkOpenCheckPoint(jobId)) {
+        if (!openCheckPoint) {
             return;
         }
 
