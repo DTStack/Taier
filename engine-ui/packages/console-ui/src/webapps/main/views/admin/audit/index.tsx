@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { hashHistory } from 'react-router'
+import moment from 'moment';
 
 import {
     Table, Card,
@@ -264,9 +265,16 @@ class AdminAudit extends React.Component<any, AdminAuditState> {
         } = this.state;
         const timePicker = <RangePicker
             size="default"
-            format="YYYY-MM-DD"
+            format="YYYY-MM-DD HH:mm"
             placeholder={['开始时间', '结束时间']}
             style={{ width: '200px', marginRight: '10px' }}
+            showTime={{
+                defaultValue: [moment('00:00:00', 'HH:mm:ss'), moment('23:59:59', 'HH:mm:ss')],
+                disabledSeconds: true,
+                hideDisabledOptions: true,
+                disabled: true,
+                format: 'HH:mm'
+            } as any}
             onChange={this.onRangePickerChange} />
         const nameSearch = <Search
             placeholder="按操作人搜索"
