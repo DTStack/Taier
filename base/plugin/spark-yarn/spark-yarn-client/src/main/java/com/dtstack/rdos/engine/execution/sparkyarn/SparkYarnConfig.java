@@ -51,7 +51,7 @@ public class SparkYarnConfig {
     //队列名称
     private String queue;
     //是否支持弹性，true/false
-    private String elasticCapacity;
+    private String elasticCapacity = "true";
     //在yarn队列中允许等待执行的任务数量
     private String yarnAccepterTaskNumber;
 
