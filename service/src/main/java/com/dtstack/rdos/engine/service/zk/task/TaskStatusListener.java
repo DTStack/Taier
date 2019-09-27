@@ -94,6 +94,8 @@ public class TaskStatusListener implements Runnable{
 
     private static final int JOB_CHECKPOINT_CONFIG = 50;
 
+    private static final int JOB_FAILOVER_CONFIG = 50;
+
     //每隔5次状态获取之后更新一次checkpoint 信息 ===>checkpoint信息没必要那么频繁更新
     private int checkpointGetRate = 10;
 
@@ -101,9 +103,6 @@ public class TaskStatusListener implements Runnable{
 
 	/**记录job 连续某个状态的频次*/
 	private Map<String, TaskStatusFrequency> jobStatusFrequency = Maps.newConcurrentMap();
-
-    //  failover log
-    private Set<Long> failoverTimestampCache = new HashSet<>(1);
 
     private RdosEngineStreamJobDAO rdosStreamTaskDAO = new RdosEngineStreamJobDAO();
 
@@ -128,6 +127,9 @@ public class TaskStatusListener implements Runnable{
     private Cache<String, String> checkpointInsertedCache = CacheBuilder.newBuilder().maximumSize(CHECKPOINT_INSERTED_RECORD).build();
 
     private Cache<String, Map<String, Object>> checkpointConfigCache = CacheBuilder.newBuilder().maximumSize(JOB_CHECKPOINT_CONFIG).build();
+
+    //  failover log
+    private Cache<String, Long> failoverTimestampCache = CacheBuilder.newBuilder().maximumSize(JOB_FAILOVER_CONFIG).build();
 
     private CheckpointListener checkpointListener;
 
@@ -391,12 +393,13 @@ public class TaskStatusListener implements Runnable{
             Map<String, Object> logMap = PublicUtil.jsonStrToObject(jobLog, Map.class);
             Long timestamp = MathUtil.getLongVal(logMap.get("timestamp"));
 
-            if (null == timestamp || failoverTimestampCache.contains(timestamp)) {
+            Long exitJobtimestamp = failoverTimestampCache.getIfPresent(jobId);
+
+            if (null == timestamp || timestamp.equals(exitJobtimestamp)) {
                 return;
             }
 
-            failoverTimestampCache.clear();
-            failoverTimestampCache.add(timestamp);
+            failoverTimestampCache.put(jobId, timestamp);
 
             jobLog = MathUtil.getString(logMap.get("root-exception"));
 
