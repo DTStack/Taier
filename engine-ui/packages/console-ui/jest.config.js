@@ -23,7 +23,6 @@ module.exports = {
         '^consts(.*)$': '<rootDir>/src/consts$1',
         '^funcs(.*)$': '<rootDir>/src/funcs$1',
         '^config(.*)$': '<rootDir>/src/config$1',
-        '^database(.*)$': '<rootDir>/src/database$1',
 
         '^main(.*)$': '<rootDir>/src/webapps/main$1',
         '^rdos(.*)$': '<rootDir>/src/webapps/rdos$1',
