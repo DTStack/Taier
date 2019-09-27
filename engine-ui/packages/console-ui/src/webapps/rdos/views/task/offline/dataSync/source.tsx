@@ -1641,7 +1641,7 @@ class SourceForm extends React.Component<any, any> {
                 ];
                 break;
             }
-            case DATA_SOURCE.KUDU: { // TODO 修改变量 以及数据处理
+            case DATA_SOURCE.KUDU: {
                 formItem = [
                     <FormItem {...formItemLayout} label="表名" key="table">
                         {getFieldDecorator('table', {

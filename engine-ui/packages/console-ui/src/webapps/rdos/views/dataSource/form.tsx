@@ -1125,7 +1125,7 @@ class BaseForm extends React.Component<any, any> {
                     </FormItem>
                 ]
             }
-            case DATA_SOURCE.KUDU: { // TODO 变量修改
+            case DATA_SOURCE.KUDU: {
                 return [
                     <FormItem
                         {...formItemLayout}
