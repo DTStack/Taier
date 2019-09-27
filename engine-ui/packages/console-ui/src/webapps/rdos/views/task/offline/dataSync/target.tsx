@@ -290,7 +290,6 @@ class TargetForm extends React.Component<any, any> {
 
     next (cb: any) {
         const { form } = this.props;
-        console.log('values:',form.getFieldsValue())
         form.validateFields((err: any, values: any) => {
             if (!err) {
                 this.validateChineseCharacter(values);
