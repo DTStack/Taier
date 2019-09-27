@@ -23,6 +23,7 @@ class ManageParamsConfig extends React.Component<any, any> {
         resultPage: undefined,
         sqlModeShow: true,
         passLoading: false,
+        saveLoading: false,
         editor: {
             sql: '',
             cursor: undefined,
@@ -314,7 +315,18 @@ class ManageParamsConfig extends React.Component<any, any> {
     }
     cancelAndSave () {
         const { cancelAndSave } = this.props;
-        cancelAndSave(this.getSaveData());
+        this.setState({
+            saveLoading: true
+        })
+        cancelAndSave(this.getSaveData()).then(() => {
+            this.setState({
+                saveLoading: false
+            })
+        }).catch(() => {
+            this.setState({
+                saveLoading: false
+            })
+        });
     }
     setPassLoading (isLoading: any) {
         this.setState({
@@ -500,6 +512,7 @@ class ManageParamsConfig extends React.Component<any, any> {
             sqlModeShow,
             editor,
             loading,
+            saveLoading,
             passLoading
         } = this.state;
         const { getFieldDecorator } = this.props.form;
@@ -668,7 +681,7 @@ class ManageParamsConfig extends React.Component<any, any> {
                     className="steps-action"
                 >
                     {
-                        <Button onClick={this.cancelAndSave.bind(this)}>
+                        <Button loading={saveLoading} onClick={this.cancelAndSave.bind(this)}>
                             保存并退出
                         </Button>
                     }

@@ -25,7 +25,7 @@ class MessageCenter extends React.Component<any, any> {
     componentDidMount () {}
 
     render () {
-        const { apps, children, msgList, updateMsg, licenseApps } = this.props;
+        const { apps, children, msgList, updateMsg, licenseApps, user } = this.props;
         const logo = (<Link to="/message">
             <MyIcon>
                 <Icon type="message" />
@@ -39,13 +39,21 @@ class MessageCenter extends React.Component<any, any> {
             apps,
             licenseApps
         }) : <NotFund />
-
+        const settingMenus = [{
+            id: 'admin/audit',
+            name: '安全审计',
+            link: `/admin/audit`,
+            enable: user.isRoot,
+            enableIcon: true,
+            className: 'safeaudit'
+        }];
         return (
             <div className="message">
                 <Navigator
                     logo={logo}
                     menuItems={[]}
                     licenseApps={licenseApps}
+                    settingMenus={settingMenus}
                     {...this.props}
                 />
                 <div className="container">
