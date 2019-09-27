@@ -11,6 +11,8 @@ import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.exceptions.YarnException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.EnumSet;
@@ -25,6 +27,9 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
 
+    private Logger logger = LoggerFactory.getLogger(getClass());
+
+
     protected List<NodeResourceDetail> nodeResources = Lists.newArrayList();
 
     public List<NodeResourceDetail> getNodeResources() {
@@ -38,7 +43,7 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
     /**
      * 弹性容量, 默认不开启
      */
-    protected boolean elasticCapacity = false;
+    protected boolean elasticCapacity = true;
     protected float capacity = 1;
     protected float queueCapacity = 1;
     protected int totalFreeCore = 0;
@@ -51,6 +56,8 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
     protected int containerMemoryMax;
 
     protected boolean judgeYarnResource(List<InstanceInfo> instanceInfos) {
+        logger.info("judgeYarnResource, totalFreeCore={}, totalFreeMem={}, totalCore={}, totalMem={}, nmFreeCore={}, nmFreeMem={}, capacity={}, queueCapacity={}, instanceInfos={}",
+                totalFreeCore, totalFreeMem, totalCore, totalMem, nmFreeCore, nmFreeMem, capacity, queueCapacity, instanceInfos);
         if (totalFreeCore == 0 || totalFreeMem == 0) {
             return false;
         }
@@ -220,6 +227,12 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
             this.coresPerInstance = coresPerInstance;
             this.memPerInstance = memPerInstance;
         }
+
+        @Override
+        public String toString(){
+            return String.format("InstanceInfo[instances=%s, coresPerInstance=%s, memPerInstance=%s]", instances, coresPerInstance, memPerInstance);
+        }
+
 
         public static InstanceInfo newRecord(int instances, int coresPerInstance, int memPerInstance) {
             return new InstanceInfo(instances, coresPerInstance, memPerInstance);
