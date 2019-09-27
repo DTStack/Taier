@@ -56,7 +56,8 @@ export const DATA_SOURCE: any = {
     CARBONDATA: 20,
     LIBRASQL: 21,
     GBASE: 22,
-    KYLIN: 23
+    KYLIN: 23,
+    KUDU: 24
 }
 
 /**
@@ -86,7 +87,8 @@ export const DATA_SOURCE_TEXT: any = {
     20: 'DTinsightAnalytics',
     21: 'LibrA',
     22: 'GBase',
-    23: 'Kylin'
+    23: 'Kylin',
+    24: 'Kudu'
 }
 
 // 锁类型

@@ -74,6 +74,9 @@ const showMapArr: any = {
     ],
     [DATA_SOURCE.KAFKA]: [
         ['address', '集群地址']
+    ],
+    [DATA_SOURCE.KUDU]: [
+        ['hostPorts', '集群地址']
     ]
 }
 

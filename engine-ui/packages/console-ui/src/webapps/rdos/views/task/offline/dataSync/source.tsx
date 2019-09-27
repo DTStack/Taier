@@ -1641,6 +1641,69 @@ class SourceForm extends React.Component<any, any> {
                 ];
                 break;
             }
+            case DATA_SOURCE.KUDU: { // TODO 修改变量 以及数据处理
+                formItem = [
+                    <FormItem {...formItemLayout} label="表名" key="table">
+                        {getFieldDecorator('table', {
+                            rules: [
+                                {
+                                    required: true,
+                                    message: '数据源表为必选项！'
+                                }
+                            ],
+                            initialValue: isEmpty(sourceMap)
+                                ? ''
+                                : sourceMap.type.table
+                        })(
+                            <Select
+                                getPopupContainer={getPopupContainer}
+                                showSearch
+                                mode="combobox"
+                                onBlur={this.debounceTableSearch.bind(
+                                    this,
+                                    null
+                                )}
+                                optionFilterProp="value"
+                                filterOption={filterValueOption}
+                            >
+                                {(
+                                    this.state.tableListMap[sourceMap.sourceId] || []
+                                ).map((table: any) => {
+                                    return (
+                                        <Option
+                                            key={`rdb-${table}`}
+                                            value={table}
+                                        >
+                                            {table}
+                                        </Option>
+                                    );
+                                })}
+                            </Select>
+                        )}
+                    </FormItem>,
+                    <FormItem {...formItemLayout} label="数据过滤" key="where">
+                        {getFieldDecorator('where', {
+                            rules: [
+                                {
+                                    max: 1000,
+                                    message: '过滤语句不可超过1000个字符!'
+                                }
+                            ],
+                            initialValue: isEmpty(sourceMap)
+                                ? ''
+                                : sourceMap.type.where
+                        })(
+                            <Input
+                                type="textarea"
+                                placeholder="填写where过滤条件（不需要填写where关键字），过滤条件只支持=、>、<、>=、<=、and操作符，该过滤语句常用作增量同步"
+                                onChange={this.submitForm.bind(this)}
+                            />
+                        )}
+                        <HelpDoc doc="dataFilterDoc" />
+                    </FormItem>
+                ];
+                break;
+            }
             default: break;
         }
         return formItem;
