@@ -44,7 +44,7 @@ public class FlinkResourceInfo extends EngineResourceInfo {
     public YarnClient yarnClient;
 
     //TODO 是否开启弹性容量-->暂时都是false
-    public  boolean elasticCapacity;
+    public  boolean elasticCapacity = true;
 
     @Override
     public boolean judgeSlots(JobClient jobClient) {
