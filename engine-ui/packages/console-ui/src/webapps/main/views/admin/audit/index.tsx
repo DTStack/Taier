@@ -111,7 +111,7 @@ class AdminAudit extends React.Component<any, AdminAuditState> {
         })
 
         const res = await Api.getSafeAuditList(active, reqParams);
-        if (res.code === 1 && res.data) {
+        if (res.code === 1 && res.data && active == this.state.active) {
             this.setState({
                 tableData: res.data
             })
