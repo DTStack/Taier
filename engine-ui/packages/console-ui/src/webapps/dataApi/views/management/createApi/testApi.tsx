@@ -276,7 +276,7 @@ class TestApi extends React.Component<any, any> {
         if (isRegister) {
             let data = testResult ? testResult.data : null;
             if (data) {
-                resultText = utils.jsonFormat(data.result) || data.result;
+                resultText = utils.jsonFormat(data.result) || JSON.stringify(data.result, null, 2);
                 requestInfo = this.renderRequest(data.httpInfo);
             }
         } else {
