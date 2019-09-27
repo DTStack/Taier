@@ -37,7 +37,7 @@ public class FlinkResourceInfo extends EngineResourceInfo {
 
     public static String queue;
 
-    public static boolean elasticCapacity;
+    public static boolean elasticCapacity = true;
 
     public static int yarnAccepterTaskNumber;
 

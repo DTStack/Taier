@@ -57,7 +57,7 @@ public class FlinkConfig {
 
     private String flinkJarPath;
 
-    private String elasticCapacity;
+    private String elasticCapacity = "true";
 
     private String yarnAccepterTaskNumber;
 
