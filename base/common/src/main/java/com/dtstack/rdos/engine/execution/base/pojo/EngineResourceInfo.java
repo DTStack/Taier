@@ -3,9 +3,10 @@ package com.dtstack.rdos.engine.execution.base.pojo;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.google.common.collect.Lists;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
-
 
 /**
  * company: www.dtstack.com
@@ -13,6 +14,7 @@ import java.util.List;
  * create: 2018/11/1
  */
 public abstract class EngineResourceInfo {
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     public final static String LIMIT_RESOURCE_ERROR = "LIMIT RESOURCE ERROR:";
     protected float capacity = 1;
@@ -67,6 +69,8 @@ public abstract class EngineResourceInfo {
     }
 
     public boolean judgeYarnResource(int instances, int coresPerInstance, int memPerInstance) {
+        logger.info("judgeYarnResource, totalFreeCore={}, totalFreeMem={}, totalCore={}, totalMem={}, nmFree={} capacity={}, queueCapacity={}, instances={}, coresPerInstance={}, memPerInstance={}",
+                totalFreeCore, totalFreeMem, totalCore, totalMem, nmFree, capacity, queueCapacity, instances, coresPerInstance, memPerInstance);
         if (instances == 0 || coresPerInstance == 0 || memPerInstance == 0) {
             throw new RdosException(LIMIT_RESOURCE_ERROR + "Yarn task resource configuration error，instance：" + instances + ", coresPerInstance：" + coresPerInstance + ", memPerInstance：" + memPerInstance);
         }

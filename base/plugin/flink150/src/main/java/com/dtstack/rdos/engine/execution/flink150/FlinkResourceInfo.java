@@ -9,16 +9,10 @@ import com.dtstack.rdos.engine.execution.flink150.enums.FlinkYarnMode;
 import com.dtstack.rdos.engine.execution.flink150.util.FlinkUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.flink.util.StringUtils;
-import org.apache.hadoop.yarn.api.records.ApplicationReport;
-import org.apache.hadoop.yarn.api.records.NodeReport;
-import org.apache.hadoop.yarn.api.records.NodeState;
-import org.apache.hadoop.yarn.api.records.QueueInfo;
-import org.apache.hadoop.yarn.api.records.Resource;
-import org.apache.hadoop.yarn.api.records.YarnApplicationState;
+import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,7 +38,7 @@ public class FlinkResourceInfo extends EngineResourceInfo {
     public YarnClient yarnClient;
 
     //TODO 是否开启弹性容量-->暂时都是false
-    public  boolean elasticCapacity;
+    public  boolean elasticCapacity = true;
 
     @Override
     public boolean judgeSlots(JobClient jobClient) {
