@@ -27,6 +27,7 @@ import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -93,6 +94,8 @@ public class TaskStatusListener implements Runnable{
 
     private static final int JOB_CHECKPOINT_CONFIG = 50;
 
+    private static final int JOB_FAILOVER_CONFIG = 50;
+
     //每隔5次状态获取之后更新一次checkpoint 信息 ===>checkpoint信息没必要那么频繁更新
     private int checkpointGetRate = 10;
 
@@ -124,6 +127,9 @@ public class TaskStatusListener implements Runnable{
     private Cache<String, String> checkpointInsertedCache = CacheBuilder.newBuilder().maximumSize(CHECKPOINT_INSERTED_RECORD).build();
 
     private Cache<String, Map<String, Object>> checkpointConfigCache = CacheBuilder.newBuilder().maximumSize(JOB_CHECKPOINT_CONFIG).build();
+
+    //  failover log
+    private Cache<String, Long> failoverTimestampCache = CacheBuilder.newBuilder().maximumSize(JOB_FAILOVER_CONFIG).build();
 
     private CheckpointListener checkpointListener;
 
@@ -385,8 +391,23 @@ public class TaskStatusListener implements Runnable{
         try {
             //从engine获取log
             String jobLog = JobClient.getEngineLog(engineType, pluginInfo, jobIdentifier);
+
+            Map<String, Object> logMap = PublicUtil.jsonStrToObject(jobLog, Map.class);
+            Long timestamp = MathUtil.getLongVal(logMap.get("timestamp"));
+
+            Long exitJobtimestamp = failoverTimestampCache.getIfPresent(jobId);
+
+            if (null == timestamp || timestamp.equals(exitJobtimestamp)) {
+                return;
+            }
+
+            failoverTimestampCache.put(jobId, timestamp);
+
+            jobLog = MathUtil.getString(logMap.get("root-exception"));
+
             updateJobEngineLog(jobId, jobLog, computeType);
         } catch (Throwable e){
+            logger.error("update JobEngine Log error jobid {} ,error info {}..", jobId,ExceptionUtil.getErrorMessage(e));
             updateJobEngineLog(jobId, ExceptionUtil.getErrorMessage(e), computeType);
         }
     }

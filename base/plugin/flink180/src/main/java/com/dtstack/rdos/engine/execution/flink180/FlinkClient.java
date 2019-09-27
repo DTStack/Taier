@@ -15,6 +15,7 @@ import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.flink180.constrant.ExceptionInfoConstrant;
 import com.dtstack.rdos.engine.execution.flink180.enums.Deploy;
 import com.dtstack.rdos.engine.execution.flink180.enums.FlinkYarnMode;
 import com.dtstack.rdos.engine.execution.flink180.parser.AddJarOperator;
@@ -604,6 +605,7 @@ public class FlinkClient extends AbsClient {
             logger.error("", e);
             Map<String, String> map = new LinkedHashMap<>(8);
             map.put("jobId", jobId);
+            map.put("root-exception", ExceptionInfoConstrant.FLINK_GET_LOG_ERROR_UNDO_RESTART_EXCEPTION);
             map.put("reqURL", reqURL);
             map.put("engineLogErr", ExceptionUtil.getErrorMessage(e));
             return new Gson().toJson(map);
