@@ -1,7 +1,7 @@
 import { apiManageActionType as ACTION_TYPE } from '../../consts/apiManageActionType';
 import API from '../../api/apiManage';
 
-export const apiManageActions: any = {
+export const apiManageActions = {
 
     // 获取市场api列表
     getAllApiList (params: any) {
@@ -18,7 +18,7 @@ export const apiManageActions: any = {
         }
     },
     // 获取安全组列表
-    getSecuritySimpleList (params: any) {
+    getSecuritySimpleList (params?: any) {
         return (dispatch: any) => {
             return API.getSecuritySimpleList(params).then((res: any) => {
                 if (res.code === 1) {

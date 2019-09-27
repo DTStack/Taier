@@ -118,8 +118,10 @@ class NewApi extends React.Component<any, any> {
                         this.props.getApiInfo(apiId)
                             .then(
                                 (res: any) => {
-                                    if (res) {
+                                    if (res && res.code == 1) {
                                         this.setDefault(res.data);
+                                    } else {
+                                        this.props.router.goBack();
                                     }
                                 }
                             )
@@ -295,7 +297,7 @@ class NewApi extends React.Component<any, any> {
         })
     }
     testApi () {
-        this.save(true);
+        return this.save(true);
     }
     reDo () {
         this.setState({
@@ -313,14 +315,17 @@ class NewApi extends React.Component<any, any> {
     save (back: any) {
         const params = this.createApiServerParams();
 
-        this.props.saveOrUpdateApiInfo(params)
+        return this.props.saveOrUpdateApiInfo(params)
             .then(
                 (res: any) => {
-                    if (res) {
+                    if (res && res.code == 1) {
                         message.success('保存成功！')
                         if (back) {
                             this.props.router.push('/api/manage');
                         }
+                        return true;
+                    } else {
+                        return false;
                     }
                 }
             )
@@ -456,9 +461,11 @@ class NewApi extends React.Component<any, any> {
             )
     }
     cancelAndSave (type: any, data: any) {
-        this.saveData(type, data, () => {
-            this.save(true)
-        });
+        return new Promise((resolve) => {
+            this.saveData(type, data, () => {
+                resolve(this.save(true));
+            });
+        })
         // this.props.router.goBack();
     }
     saveData (type: any, data: any, callback: any) {
