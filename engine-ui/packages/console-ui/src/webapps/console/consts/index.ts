@@ -60,7 +60,8 @@ export const COMPONENT_TYPE_VALUE: any = {
     SPARKTHRIFTSERVER: 6,
     CARBONDATA: 7,
     LIBRASQL: 8,
-    HIVESERVER: 9
+    HIVESERVER: 9,
+    IMPALASQL: 11,
 }
 export const DEFAULT_COMP_TEST: any = { // 测试结果默认数据
     flinkTestResult: {},
@@ -72,7 +73,8 @@ export const DEFAULT_COMP_TEST: any = { // 测试结果默认数据
     sparkThriftTestResult: {},
     carbonTestResult: {},
     hiveServerTestResult: {},
-    libraSqlTestResult: {}
+    libraSqlTestResult: {},
+    impalaSqlTestResult: {}
 }
 export const DEFAULT_COMP_REQUIRED: any = { // 必填默认数据
     flinkShowRequired: false,
@@ -84,7 +86,8 @@ export const DEFAULT_COMP_REQUIRED: any = { // 必填默认数据
     hiveShowRequired: false,
     carbonShowRequired: false,
     hiveServerShowRequired: false,
-    libraShowRequired: false
+    libraShowRequired: false,
+    impalaSqlRequired: false
 }
 export const hadoopEngineOptionsValue: any = [ // 非华为集群支持的引擎类型options, checkbox支持数据格式
     { label: 'Flink', value: 0 },
@@ -95,7 +98,8 @@ export const hadoopEngineOptionsValue: any = [ // 非华为集群支持的引擎
     { label: 'YARN', value: 5, disabled: true },
     { label: 'SparkThrift', value: 6, disabled: true },
     { label: 'CarbonData', value: 7 },
-    { label: 'Hive Server', value: 9 }
+    { label: 'Hive Server', value: 9 },
+    { label: 'Impala SQL', value: 11 }
 ];
 export const noDisablehadoopEngineOptionsValue: any = [ // 非华为集群支持的引擎类型options, checkbox支持数据格式
     { label: 'Flink', value: 0 },
@@ -106,7 +110,8 @@ export const noDisablehadoopEngineOptionsValue: any = [ // 非华为集群支持
     { label: 'YARN', value: 5 },
     { label: 'SparkThrift', value: 6 },
     { label: 'CarbonData', value: 7 },
-    { label: 'Hive Server', value: 9 }
+    { label: 'Hive Server', value: 9 },
+    { label: 'Impala SQL', value: 11 }
 ];
 export const hadoopEngineOptions: any = [ // 华为集群支持的引擎 options
     'Flink',
@@ -226,6 +231,9 @@ export const validateHiveParams: any = [ // hive <=> Spark Thrift Server
 ]
 export const validateCarbonDataParams: any = [ // carbonData
     'carbonConf.jdbcUrl'
+]
+export const validateImpalaSqlParams: any = [ // impalaSql
+    'impalaSqlConf.jdbcUrl'
 ]
 export const validateHiveServerParams: any = [ // carbonData
     'hiveServerConf.jdbcUrl'

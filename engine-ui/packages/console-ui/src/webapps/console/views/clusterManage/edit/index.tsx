@@ -19,6 +19,7 @@ import DtyarnShellConfig from './dtYarnshellConfig';
 import HiveServerConfig from './hiveServerConfig';
 import LibraSqlConfig from './libraSqlConfig';
 import ZipConfig from './zipConfig';
+import ImpalaSQLConfig from './impalaSQLConfig';
 import { SparkThriftConfig, CarbonDataConfig } from './sparkThriftAndCarbonData';
 import AddCommModal from '../../../components/addCommModal';
 import RequiredIcon from '../../../components/requiredIcon';
@@ -566,6 +567,12 @@ class EditCluster extends React.Component<any, any> {
                 })
                 break;
             }
+            case COMPONENT_TYPE_VALUE.IMPALASQL: {
+                form.setFieldsValue({
+                    impalaSqlConfig: allComponentConf.impalaSqlConfig
+                })
+                break;
+            }
             case COMPONENT_TYPE_VALUE.HIVESERVER: {
                 form.setFieldsValue({
                     hiveServerConf: allComponentConf.hiveServerConf
@@ -639,6 +646,7 @@ class EditCluster extends React.Component<any, any> {
             componentTypeCode == COMPONENT_TYPE_VALUE.LEARNING ||
             componentTypeCode == COMPONENT_TYPE_VALUE.DTYARNSHELL ||
             componentTypeCode == COMPONENT_TYPE_VALUE.CARBONDATA ||
+            componentTypeCode == COMPONENT_TYPE_VALUE.IMPALASQL ||
             componentTypeCode == COMPONENT_TYPE_VALUE.HIVESERVER) {
             Api.deleteComponent({
                 componentId: componentId
@@ -709,6 +717,7 @@ class EditCluster extends React.Component<any, any> {
         componentConf['hiveMeta'] = zipConfig.hiveMeta;
         componentConf['hiveConf'] = { ...formValues.hiveConf, ...sparkThriftExtParams } || {};
         componentConf['carbonConf'] = formValues.carbonConf || {};
+        componentConf['impalaSqlConfig'] = formValues.impalaSqlConfig || {};
         componentConf['hiveServerConf'] = { ...formValues.hiveServerConf, ...hiveServerExtParams } || {};
         componentConf['sparkConf'] = { ...toChsKeys(formValues.sparkConf || {}, SPARK_KEY_MAP_DOTS), ...sparkExtParams };
         componentConf['flinkConf'] = { ...toChsKeys(formValues.flinkConf || {}, FLINK_KEY_MAP_DOTS), ...flinkExtParams };
@@ -720,6 +729,8 @@ class EditCluster extends React.Component<any, any> {
         componentConf['hiveConf'].password = componentConf['hiveConf'].password || '';
         componentConf['carbonConf'].username = componentConf['carbonConf'].username || '';
         componentConf['carbonConf'].password = componentConf['carbonConf'].password || '';
+        componentConf['impalaSqlConfig'].username = componentConf['impalaSqlConfig'].username || '';
+        componentConf['impalaSqlConfig'].password = componentConf['impalaSqlConfig'].password || '';
         componentConf['hiveServerConf'].username = componentConf['hiveServerConf'].username || '';
         componentConf['hiveServerConf'].password = componentConf['hiveServerConf'].password || '';
         return componentConf;
@@ -942,6 +953,15 @@ class EditCluster extends React.Component<any, any> {
             case COMPONENT_TYPE_VALUE.CARBONDATA: {
                 return (
                     <CarbonDataConfig
+                        isView={isView}
+                        getFieldDecorator={getFieldDecorator}
+                        singleButton={this.renderExtFooter(isView, component)}
+                    />
+                )
+            }
+            case COMPONENT_TYPE_VALUE.IMPALASQL: {
+                return (
+                    <ImpalaSQLConfig
                         isView={isView}
                         getFieldDecorator={getFieldDecorator}
                         singleButton={this.renderExtFooter(isView, component)}

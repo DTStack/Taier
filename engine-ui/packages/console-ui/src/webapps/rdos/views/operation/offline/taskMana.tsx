@@ -297,7 +297,7 @@ class OfflineTaskMana extends React.Component<any, any> {
         const isPro = this.props.project.projectType == PROJECT_TYPE.PRO;
         const pre = isPro ? '发布' : '提交'
         const { taskTypeFilter } = this.props;
-
+        console.log('-------:',taskTypeFilter);
         return [{
             title: '任务名称',
             dataIndex: 'name',

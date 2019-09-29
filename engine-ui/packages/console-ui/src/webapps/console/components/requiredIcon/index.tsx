@@ -17,7 +17,8 @@ export default class RequiredIcon extends React.Component<any, any> {
             hiveServerShowRequired,
             hdfsShowRequired,
             yarnShowRequired,
-            libraShowRequired } = showRequireStatus;
+            libraShowRequired,
+            impalaSqlRequired } = showRequireStatus;
         let isShowIcon = false;
         switch (componentTypeCode) {
             case COMPONENT_TYPE_VALUE.FLINK: {
@@ -58,6 +59,10 @@ export default class RequiredIcon extends React.Component<any, any> {
             }
             case COMPONENT_TYPE_VALUE.LIBRASQL: {
                 isShowIcon = libraShowRequired;
+                break;
+            }
+            case COMPONENT_TYPE_VALUE.IMPALASQL: {
+                isShowIcon = impalaSqlRequired;
                 break;
             }
             default: {
