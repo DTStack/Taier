@@ -15,6 +15,7 @@ import FolderPicker from './folderTree';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
+const resourceType: any = RESOURCE_TYPE;
 
 class ResForm extends React.Component<any, any> {
     constructor (props: any) {
@@ -44,7 +45,7 @@ class ResForm extends React.Component<any, any> {
             return;
         }
         const { fileType } = this.state;
-        const fileSuffix = RESOURCE_TYPE[fileType];
+        const fileSuffix = resourceType[fileType];
         const suffix = value.split('.').slice(1).pop();
         if (fileType == RESOURCE_TYPE.OTHER) {
             callback();
@@ -77,7 +78,7 @@ class ResForm extends React.Component<any, any> {
         } = this.props;
         let accept: any;
         if (fileType != RESOURCE_TYPE.OTHER) {
-            accept = `.${RESOURCE_TYPE[fileType]}`;
+            accept = `.${resourceType[fileType]}`;
         }
 
         if (!isCoverUpload) {
@@ -120,10 +121,10 @@ class ResForm extends React.Component<any, any> {
                             })
                             this.resetFile();
                         }}>
-                            <Option value={RESOURCE_TYPE.JAR} key={RESOURCE_TYPE.JAR}>{RESOURCE_TYPE[RESOURCE_TYPE.JAR]}</Option>
-                            <Option value={RESOURCE_TYPE.PY} key={RESOURCE_TYPE.PY}>{RESOURCE_TYPE[RESOURCE_TYPE.PY]}</Option>
-                            <Option value={RESOURCE_TYPE.EGG} key={RESOURCE_TYPE.EGG}>{RESOURCE_TYPE[RESOURCE_TYPE.EGG]}</Option>
-                            <Option value={RESOURCE_TYPE.ZIP} key={RESOURCE_TYPE.ZIP}>{RESOURCE_TYPE[RESOURCE_TYPE.ZIP]}</Option>
+                            <Option value={RESOURCE_TYPE.JAR} key={RESOURCE_TYPE.JAR}>{resourceType[RESOURCE_TYPE.JAR]}</Option>
+                            <Option value={RESOURCE_TYPE.PY} key={RESOURCE_TYPE.PY}>{resourceType[RESOURCE_TYPE.PY]}</Option>
+                            <Option value={RESOURCE_TYPE.EGG} key={RESOURCE_TYPE.EGG}>{resourceType[RESOURCE_TYPE.EGG]}</Option>
+                            <Option value={RESOURCE_TYPE.ZIP} key={RESOURCE_TYPE.ZIP}>{resourceType[RESOURCE_TYPE.ZIP]}</Option>
                             <Option value={RESOURCE_TYPE.OTHER} key={RESOURCE_TYPE.OTHER}>其它</Option>
                         </Select>
                     )}
@@ -258,10 +259,10 @@ class ResForm extends React.Component<any, any> {
                             })
                             this.resetFile();
                         }}>
-                            <Option value={RESOURCE_TYPE.JAR} key={RESOURCE_TYPE.JAR}>{RESOURCE_TYPE[RESOURCE_TYPE.JAR]}</Option>
-                            <Option value={RESOURCE_TYPE.PY} key={RESOURCE_TYPE.PY}>{RESOURCE_TYPE[RESOURCE_TYPE.PY]}</Option>
-                            <Option value={RESOURCE_TYPE.EGG} key={RESOURCE_TYPE.EGG}>{RESOURCE_TYPE[RESOURCE_TYPE.EGG]}</Option>
-                            <Option value={RESOURCE_TYPE.ZIP} key={RESOURCE_TYPE.ZIP}>{RESOURCE_TYPE[RESOURCE_TYPE.ZIP]}</Option>
+                            <Option value={RESOURCE_TYPE.JAR} key={RESOURCE_TYPE.JAR}>{resourceType[RESOURCE_TYPE.JAR]}</Option>
+                            <Option value={RESOURCE_TYPE.PY} key={RESOURCE_TYPE.PY}>{resourceType[RESOURCE_TYPE.PY]}</Option>
+                            <Option value={RESOURCE_TYPE.EGG} key={RESOURCE_TYPE.EGG}>{resourceType[RESOURCE_TYPE.EGG]}</Option>
+                            <Option value={RESOURCE_TYPE.ZIP} key={RESOURCE_TYPE.ZIP}>{resourceType[RESOURCE_TYPE.ZIP]}</Option>
                             <Option value={RESOURCE_TYPE.OTHER} key={RESOURCE_TYPE.OTHER}>其它</Option>
                         </Select>
                     )}

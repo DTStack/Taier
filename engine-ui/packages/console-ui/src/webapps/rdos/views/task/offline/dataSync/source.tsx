@@ -518,7 +518,7 @@ class SourceForm extends React.Component<any, any> {
                                 optionFilterProp="name"
                             >
                                 {dataSourceListFltKylin.map((src: any) => {
-                                    let title = `${src.dataName}（${DATA_SOURCE_TEXT[src.type]}）`;
+                                    let title = `${src.dataName}（${(DATA_SOURCE_TEXT as any)[src.type]}）`;
                                     const disableSelect =
                                         src.type === DATA_SOURCE.ES ||
                                         src.type === DATA_SOURCE.REDIS ||
@@ -718,7 +718,7 @@ class SourceForm extends React.Component<any, any> {
                                             );
                                         })
                                         .map((src: any) => {
-                                            let title = `${src.dataName}（${DATA_SOURCE_TEXT[src.type]}）`;
+                                            let title = `${src.dataName}（${(DATA_SOURCE_TEXT as any)[src.type]}）`;
 
                                             const disableSelect =
                                                 src.type === DATA_SOURCE.ES ||

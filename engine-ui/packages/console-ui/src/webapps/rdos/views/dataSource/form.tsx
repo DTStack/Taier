@@ -175,7 +175,7 @@ class BaseForm extends React.Component<any, any> {
             case DATA_SOURCE.KYLIN:
                 return /http:\/\/([\w, .])+:(\w)+/;
             case DATA_SOURCE.HIVE:
-            case DATA_SOURCE.ANALYSIS:
+            case DATA_SOURCE.CARBONDATA:
                 return /jdbc:(\w)+:\/\/(\w)+/;
             case DATA_SOURCE.MYSQL:
                 return /jdbc:mysql:\/\/(\w)+/;

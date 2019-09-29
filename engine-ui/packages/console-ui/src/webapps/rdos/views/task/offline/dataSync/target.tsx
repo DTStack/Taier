@@ -399,7 +399,7 @@ class TargetForm extends React.Component<any, any> {
                             optionFilterProp="name"
                         >
                             {dataSourceListFltKylin.map((src: any) => {
-                                let title = `${src.dataName}（${DATA_SOURCE_TEXT[src.type]}）`;
+                                let title = `${src.dataName}（${(DATA_SOURCE_TEXT as any)[src.type]}）`;
 
                                 /**
                                  * 禁用ES, REDIS, MONGODB,
