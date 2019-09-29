@@ -569,7 +569,7 @@ class EditCluster extends React.Component<any, any> {
             }
             case COMPONENT_TYPE_VALUE.IMPALASQL: {
                 form.setFieldsValue({
-                    impalaSqlConfig: allComponentConf.impalaSqlConfig
+                    impalaSqlConf: allComponentConf.impalaSqlConf
                 })
                 break;
             }
@@ -717,7 +717,7 @@ class EditCluster extends React.Component<any, any> {
         componentConf['hiveMeta'] = zipConfig.hiveMeta;
         componentConf['hiveConf'] = { ...formValues.hiveConf, ...sparkThriftExtParams } || {};
         componentConf['carbonConf'] = formValues.carbonConf || {};
-        componentConf['impalaSqlConfig'] = formValues.impalaSqlConfig || {};
+        componentConf['impalaSqlConf'] = formValues.impalaSqlConf || {};
         componentConf['hiveServerConf'] = { ...formValues.hiveServerConf, ...hiveServerExtParams } || {};
         componentConf['sparkConf'] = { ...toChsKeys(formValues.sparkConf || {}, SPARK_KEY_MAP_DOTS), ...sparkExtParams };
         componentConf['flinkConf'] = { ...toChsKeys(formValues.flinkConf || {}, FLINK_KEY_MAP_DOTS), ...flinkExtParams };
@@ -729,8 +729,8 @@ class EditCluster extends React.Component<any, any> {
         componentConf['hiveConf'].password = componentConf['hiveConf'].password || '';
         componentConf['carbonConf'].username = componentConf['carbonConf'].username || '';
         componentConf['carbonConf'].password = componentConf['carbonConf'].password || '';
-        componentConf['impalaSqlConfig'].username = componentConf['impalaSqlConfig'].username || '';
-        componentConf['impalaSqlConfig'].password = componentConf['impalaSqlConfig'].password || '';
+        componentConf['impalaSqlConf'].username = componentConf['impalaSqlConf'].username || '';
+        componentConf['impalaSqlConf'].password = componentConf['impalaSqlConf'].password || '';
         componentConf['hiveServerConf'].username = componentConf['hiveServerConf'].username || '';
         componentConf['hiveServerConf'].password = componentConf['hiveServerConf'].password || '';
         return componentConf;

@@ -15,7 +15,7 @@ export default class ImpalaSQLConfig extends React.Component<any, any> {
                         label="JDBC URL"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('impalaSqlConfig.jdbcUrl', {
+                        {getFieldDecorator('impalaSqlConf.jdbcUrl', {
                             rules: [{
                                 required: true,
                                 message: '请输入jdbcUrl'
@@ -28,7 +28,7 @@ export default class ImpalaSQLConfig extends React.Component<any, any> {
                         label="用户名"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('impalaSqlConfig.username')(
+                        {getFieldDecorator('impalaSqlConf.username')(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
@@ -36,7 +36,7 @@ export default class ImpalaSQLConfig extends React.Component<any, any> {
                         label="密码"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('impalaSqlConfig.password')(
+                        {getFieldDecorator('impalaSqlConf.password')(
                             <Input disabled={isView} />
                         )}
                     </FormItem>

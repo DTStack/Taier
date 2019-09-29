@@ -38,7 +38,7 @@ export function getComponentConfKey (componentValue: any) {
             return 'libraConf'
         }
         case COMPONENT_TYPE_VALUE.IMPALASQL: {
-            return 'impalaSqlConfig'
+            return 'impalaSqlConf'
         }
         default: {
             return ''
