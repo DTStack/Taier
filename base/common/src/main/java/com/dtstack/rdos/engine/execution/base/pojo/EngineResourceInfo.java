@@ -69,20 +69,21 @@ public abstract class EngineResourceInfo {
     }
 
     public boolean judgeYarnResource(int instances, int coresPerInstance, int memPerInstance) {
-        logger.info("judgeYarnResource, totalFreeCore={}, totalFreeMem={}, totalCore={}, totalMem={}, nmFree={} capacity={}, queueCapacity={}, instances={}, coresPerInstance={}, memPerInstance={}",
-                totalFreeCore, totalFreeMem, totalCore, totalMem, nmFree, capacity, queueCapacity, instances, coresPerInstance, memPerInstance);
         if (instances == 0 || coresPerInstance == 0 || memPerInstance == 0) {
             throw new RdosException(LIMIT_RESOURCE_ERROR + "Yarn task resource configuration error，instance：" + instances + ", coresPerInstance：" + coresPerInstance + ", memPerInstance：" + memPerInstance);
         }
         calc();
         if (totalFreeCore == 0 || totalFreeMem == 0) {
+            logger.info("judgeYarnResource totalFreeCore={}, totalFreeMem={}", totalFreeCore, totalFreeMem);
             return false;
         }
 
         if (!judgeCores(instances, coresPerInstance, totalFreeCore, totalCore)) {
+            logger.info("judgeYarnResource totalCore={}, totalFreeCore={}, totalFreeMem={}, coresPerInstance={}, instances={}, capacity={}", totalCore, totalFreeCore, totalFreeMem, coresPerInstance, instances, capacity);
             return false;
         }
         if (!judgeMem(instances, memPerInstance, totalFreeMem, totalMem)) {
+            logger.info("judgeYarnResource totalMem={}, totalFreeCore={}, totalFreeMem={}, nmFree={}, coresPerInstance={}, instances={}, capacity={}", totalMem, totalFreeCore, totalFreeMem, nmFree, coresPerInstance, instances, capacity);
             return false;
         }
         return true;
