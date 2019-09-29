@@ -62,7 +62,7 @@ export const COMPONENT_TYPE_VALUE: any = {
     LIBRASQL: 8,
     HIVESERVER: 9,
     SFTP: 10,
-    IMPALASQL: 11,
+    IMPALASQL: 11
 }
 export const DEFAULT_COMP_TEST: any = { // 测试结果默认数据
     flinkTestResult: {},
