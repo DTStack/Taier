@@ -56,24 +56,23 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
     protected int containerMemoryMax;
 
     protected boolean judgeYarnResource(List<InstanceInfo> instanceInfos) {
-        logger.info("judgeYarnResource, totalFreeCore={}, totalFreeMem={}, totalCore={}, totalMem={}, nmFreeCore={}, nmFreeMem={}, capacity={}, queueCapacity={}, instanceInfos={}",
-                totalFreeCore, totalFreeMem, totalCore, totalMem, nmFreeCore, nmFreeMem, capacity, queueCapacity, instanceInfos);
         if (totalFreeCore == 0 || totalFreeMem == 0) {
+            logger.info("judgeYarnResource, totalFreeCore={}, totalFreeMem={}", totalFreeCore, totalFreeMem);
             return false;
         }
         int needTotalCore = 0;
         int needTotalMem = 0;
         for (InstanceInfo instanceInfo : instanceInfos) {
-            int instanceCore = instanceInfo.instances * instanceInfo.coresPerInstance;
-            if (instanceCore > containerCoreMax) {
+            if (instanceInfo.coresPerInstance > containerCoreMax) {
+                logger.info("judgeYarnResource, containerCoreMax={}, coresPerInstance={}", containerCoreMax, instanceInfo.coresPerInstance);
                 return false;
             }
-            int instanceMem = instanceInfo.instances * instanceInfo.memPerInstance;
-            if (instanceMem > containerMemoryMax) {
+            if (instanceInfo.memPerInstance > containerMemoryMax) {
+                logger.info("judgeYarnResource, containerMemoryMax={}, memPerInstance={}", containerMemoryMax, instanceInfo.memPerInstance);
                 return false;
             }
-            needTotalCore += instanceCore;
-            needTotalMem += instanceMem;
+            needTotalCore += instanceInfo.instances * instanceInfo.coresPerInstance;
+            needTotalMem += instanceInfo.instances * instanceInfo.memPerInstance;
         }
         if (needTotalCore == 0 || needTotalMem == 0) {
             throw new RdosException(LIMIT_RESOURCE_ERROR + "Yarn task resource configuration error，needTotalCore：" + 0 + ", needTotalMem：" + needTotalMem);
@@ -82,16 +81,19 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
             throw new RdosException(LIMIT_RESOURCE_ERROR + "The Yarn task is set to a core larger than the maximum allocated core");
         }
         if (needTotalMem > (totalMem * queueCapacity)) {
-            throw new RdosException(LIMIT_RESOURCE_ERROR + "The Yarn task is set to a core larger than the maximum allocated core");
+            throw new RdosException(LIMIT_RESOURCE_ERROR + "The Yarn task is set to a core larger than the maximum allocated mem");
         }
         if (needTotalCore > (totalCore * capacity)) {
+            logger.info("judgeYarnResource, needTotalCore={}, totalCore={}, capacity={}", needTotalCore, totalCore, capacity);
             return false;
         }
         if (needTotalMem > (totalMem * capacity)) {
+            logger.info("judgeYarnResource, needTotalMem={}, totalMem={}, capacity={}", needTotalMem, totalMem, capacity);
             return false;
         }
         for (InstanceInfo instanceInfo : instanceInfos) {
             if (!judgeInstanceResource(instanceInfo.instances, instanceInfo.coresPerInstance, instanceInfo.memPerInstance)) {
+                logger.info("judgeYarnResource, nmFreeCore={}, nmFreeMem={} instanceInfo={}", nmFreeCore, nmFreeMem, instanceInfo);
                 return false;
             }
         }
