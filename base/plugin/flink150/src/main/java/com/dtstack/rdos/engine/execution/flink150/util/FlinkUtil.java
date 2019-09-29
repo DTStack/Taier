@@ -2,11 +2,13 @@ package com.dtstack.rdos.engine.execution.flink150.util;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
-import com.dtstack.rdos.engine.execution.base.enums.EJobType;
+import com.dtstack.rdos.engine.execution.flink150.FlinkClientBuilder;
+import com.dtstack.rdos.engine.execution.flink150.FlinkClusterClientManager;
 import com.dtstack.rdos.engine.execution.flink150.constrant.ConfigConstrant;
 import com.dtstack.rdos.engine.execution.flink150.enums.FlinkYarnMode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.ProgramInvocationException;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
@@ -20,13 +22,19 @@ import org.apache.flink.table.api.java.BatchTableEnvironment;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.table.functions.ScalarFunction;
 import org.apache.flink.table.functions.TableFunction;
+import org.apache.flink.yarn.YarnClusterClient;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.yarn.api.records.ApplicationId;
+import org.apache.hadoop.yarn.api.records.YarnApplicationState;
+import org.apache.hadoop.yarn.client.api.YarnClient;
+import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
@@ -46,6 +54,11 @@ public class FlinkUtil {
     private static final String URL_SPLITE = "/";
 
     private static String fileSP = File.separator;
+
+    //http://${addr}/proxy/${applicationId}/
+    private static final String FLINK_URL_FORMAT = "http://%s/proxy/%s/";
+
+    private static final String YARN_RM_WEB_KEY_PREFIX = "yarn.resourcemanager.webapp.address.";
 
     /**
      * 开启checkpoint
@@ -341,6 +354,68 @@ public class FlinkUtil {
         }
 
         return types;
+    }
+
+
+    public static String getReqUrl(FlinkClusterClientManager flinkClusterClientManager){
+        ClusterClient<ApplicationId> clusterClient = flinkClusterClientManager.getClusterClient();
+        boolean isYarnClusterClient = clusterClient instanceof YarnClusterClient;
+        if(!isYarnClusterClient){
+            return clusterClient.getWebInterfaceURL();
+        }
+
+        try{
+            return getLegacyReqUrl(flinkClusterClientManager);
+        }catch (Exception e){
+            logger.error("", e);
+            return clusterClient.getWebInterfaceURL();
+        }
+    }
+
+    public static String getLegacyReqUrl(FlinkClusterClientManager flinkClusterClientManager){
+        String url = "";
+        try{
+            FlinkClientBuilder flinkClientBuilder = flinkClusterClientManager.getFlinkClientBuilder();
+            YarnClient yarnClient = flinkClientBuilder.getYarnClient();
+            YarnConfiguration yarnConf = flinkClientBuilder.getYarnConf();
+            Field rmClientField = yarnClient.getClass().getDeclaredField("rmClient");
+            rmClientField.setAccessible(true);
+            Object rmClient = rmClientField.get(yarnClient);
+
+            Field hField = rmClient.getClass().getSuperclass().getDeclaredField("h");
+            hField.setAccessible(true);
+            //获取指定对象中此字段的值
+            Object h = hField.get(rmClient);
+
+            Field currentProxyField = h.getClass().getDeclaredField("currentProxy");
+            currentProxyField.setAccessible(true);
+            Object currentProxy = currentProxyField.get(h);
+
+            Field proxyInfoField = currentProxy.getClass().getDeclaredField("proxyInfo");
+            proxyInfoField.setAccessible(true);
+            String proxyInfoKey = (String) proxyInfoField.get(currentProxy);
+
+            String key = YARN_RM_WEB_KEY_PREFIX + proxyInfoKey;
+            String addr = yarnConf.get(key);
+
+            if(addr == null) {
+                addr = yarnConf.get("yarn.resourcemanager.webapp.address");
+            }
+
+
+            ApplicationId appId = (ApplicationId) flinkClusterClientManager.getClusterClient().getClusterId();
+            YarnApplicationState yarnApplicationState = yarnClient.getApplicationReport(appId).getYarnApplicationState();
+            if (YarnApplicationState.RUNNING != yarnApplicationState){
+                logger.error("curr flink application {} state is not running!", appId);
+            }
+
+            url = String.format(FLINK_URL_FORMAT, addr, appId);
+        }catch (Exception e){
+            logger.error("Getting URL failed" + e);
+        }
+
+        logger.info("get req url=" + url);
+        return url;
     }
 
 }

@@ -16,7 +16,7 @@ import static com.dtstack.rdos.engine.execution.flink150.constrant.ConfigConstra
  * author: toutian
  * create: 2018/7/5
  */
-public class FLinkConfUtil {
+public class FlinkConfUtil {
 
     public static ClusterSpecification createClusterSpecification(Configuration configuration, int priority, Properties confProperties) {
         int jobmanagerMemoryMb = 1024;

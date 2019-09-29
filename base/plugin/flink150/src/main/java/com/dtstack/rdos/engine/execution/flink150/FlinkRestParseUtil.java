@@ -38,6 +38,8 @@ public class FlinkRestParseUtil {
      */
     public final static String SLOTS_INFO = "/taskmanagers";
 
+    public final static String OVERVIEW_INFO = "/overview";
+
     /**
      * 数据样例
      {
