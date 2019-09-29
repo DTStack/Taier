@@ -400,8 +400,14 @@ class ResModal extends React.Component<any, any> {
                 this.setState({
                     loading: true
                 })
-                values.isCoverUpload = this.props.isCoverUpload;
-                this.props.addResource(values)
+                if (this.props.isCoverUpload) {
+                    let params = {
+                        resourceType: values.resourceType,
+                        file: values.file,
+                        resourceDesc: values.resourceDesc,
+                        resourceId: values.id
+                    };
+                    this.props.replaceResource(params)
                     .then((success: any) => {
                         this.setState({
                             loading: false
@@ -412,6 +418,20 @@ class ResModal extends React.Component<any, any> {
                             form.resetFields();
                         }
                     });
+                } else {
+                    this.props.addResource(values)
+                    .then((success: any) => {
+                        this.setState({
+                            loading: false
+                        })
+                        if (success) {
+                            this.closeModal();
+                            this.setState({ file: '' });
+                            form.resetFields();
+                        }
+                    });
+                }
+                
             }
         });
     }
@@ -491,12 +511,21 @@ export default connect((state: any) => {
 
                     if (res.code === 1) {
                         message.success('资源上传成功！');
-                        if (!params.isCoverUpload) {
-                            dispatch({
-                                type: resTreeAction.ADD_FOLDER_CHILD,
-                                payload: data
-                            });
-                        }
+                        dispatch({
+                            type: resTreeAction.ADD_FOLDER_CHILD,
+                            payload: data
+                        });
+                        return true;
+                    }
+                })
+        },
+        replaceResource: function (params: any) {
+            return ajax.replaceOfflineResource(params)
+                .then((res: any) => {
+                    let { code } = res;
+
+                    if (code === 1) {
+                        message.success('资源替换成功！');
                         return true;
                     }
                 })
