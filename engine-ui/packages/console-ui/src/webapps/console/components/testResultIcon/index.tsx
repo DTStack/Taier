@@ -56,6 +56,7 @@ export default class TestRestIcon extends React.Component<any, any> {
             yarnTestResult,
             hiveServerTestResult,
             libraSqlTestResult,
+            impalaSqlTestResult,
             sftpTestResult } = testStatus;
         let testCompResult: any = {}
         switch (componentTypeCode) {
@@ -69,6 +70,10 @@ export default class TestRestIcon extends React.Component<any, any> {
             }
             case COMPONENT_TYPE_VALUE.CARBONDATA: {
                 testCompResult = carbonTestResult;
+                break;
+            }
+            case COMPONENT_TYPE_VALUE.IMPALASQL: {
+                testCompResult = impalaSqlTestResult;
                 break;
             }
             case COMPONENT_TYPE_VALUE.SPARK: {

@@ -208,6 +208,7 @@ export default class MainBench extends React.Component<any, any> {
                         currentTabData={tabData}
                     />
                 case TASK_TYPE.LIBRASQL:
+                case TASK_TYPE.IMPALA_SQL:
                     return <CommonEditor
                         mode="sql"
                         singleLineMode={true}
