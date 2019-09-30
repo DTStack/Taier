@@ -10,18 +10,28 @@ import Api from '../../../../api'
 import { TASK_TYPE } from '../../../../comm/const'
 import TaskGraphView, { mergeTreeNodes } from '../../../operation/offline/taskFlowView/taskGraphView'
 import MxFactory from 'widgets/mxGraph';
-
+import { workbenchActions } from '../../../../store/modules/offlineTask/offlineAction';
 const Mx = MxFactory.create();
 const {
     mxEvent,
     mxCellHighlight
 } = Mx
 
-@(connect((state: any) => {
-    return {
-        project: state.project
+@(connect(
+    (state: any) => {
+        return {
+            project: state.project
+        }
+    },
+    (dispatch: any) => {
+        const actions = workbenchActions(dispatch);
+        return {
+            goToTaskDev: (id: any) => {
+                actions.openTaskInDev(id);
+            }
+        };
     }
-}) as any)
+) as any)
 class TaskView extends React.Component<any, any> {
     state: any = {
         loading: 'success',
@@ -102,8 +112,19 @@ class TaskView extends React.Component<any, any> {
         const ctx = this;
         let highlightEdges: any = [];
         let selectedCell: any = null;
+        const { goToTaskDev } = this.props;
 
         if (graph) {
+            // 双击查看代码
+            graph.addListener(mxEvent.DOUBLE_CLICK, function (sender: any, evt: any) {
+                const cell = evt.getProperty('cell')
+                if (cell && cell.vertex) {
+                    const currentNode = cell.value;
+                    // TODO 存在跨项目跳转问题 添加节点所属项目是否当前项目的判断
+                    goToTaskDev(currentNode.id);
+                }
+            })
+
             graph.addListener(mxEvent.CELLS_FOLDED, function (sender: any, evt: any) {
                 const cells = evt.getProperty('cells');
                 const cell = cells && cells[0];

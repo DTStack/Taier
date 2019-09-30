@@ -259,11 +259,22 @@ class TaskJobFlowView extends React.Component<any, any> {
                     limit: 6
                 }
                 ctx.loadPeriodsData(menu, nextParams, nextPeriods)
-                if (isCurrentProjectTask) {
-                    menu.addItem(`${isPro ? '查看' : '修改'}任务`, null, function () {
-                        ctx.props.goToTaskDev(taskId)
-                    })
-                }
+                menu.addItem(`${isPro ? '查看' : '修改'}任务`, null, function () {
+                    // TODO 获取当前节点的projectId 与当前项目的projectId 进行比较 如果是同一个则直接goToTaskDev 否则先调用getProject 再goToTaskDev（存在跨项目跳转问题）
+                    // TODO 当前后端传的projectId 为null 所以无法进行下一步判断
+                    if (isCurrentProjectTask) {
+                        // ctx.props.goToTaskDev(taskId);
+                    } else {
+                        console.log(currentNode);
+                        // ctx.props.getProject(currentNode.projectId);
+                    }
+                    ctx.props.goToTaskDev(taskId);
+                })
+                // if (isCurrentProjectTask) {
+                //     menu.addItem(`${isPro ? '查看' : '修改'}任务`, null, function () {
+                //         ctx.props.goToTaskDev(taskId)
+                //     })
+                // }
                 menu.addItem('终止', null, function () {
                     ctx.stopTask({
                         jobId: currentNode.id
