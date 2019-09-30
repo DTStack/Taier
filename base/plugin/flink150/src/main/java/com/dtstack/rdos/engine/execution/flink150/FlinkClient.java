@@ -6,20 +6,15 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.common.util.DtStringUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
-import com.dtstack.rdos.engine.execution.base.AbsClient;
-import com.dtstack.rdos.engine.execution.base.JarFileInfo;
-import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.JobIdentifier;
-import com.dtstack.rdos.engine.execution.base.JobParam;
+import com.dtstack.rdos.engine.execution.base.*;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
-import com.dtstack.rods.engine.execution.base.resource.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.flink150.enums.Deploy;
 import com.dtstack.rdos.engine.execution.flink150.enums.FlinkYarnMode;
 import com.dtstack.rdos.engine.execution.flink150.parser.AddJarOperator;
-import com.dtstack.rdos.engine.execution.flink150.util.FLinkConfUtil;
+import com.dtstack.rdos.engine.execution.flink150.util.FlinkConfUtil;
 import com.dtstack.rdos.engine.execution.flink150.util.FlinkUtil;
 import com.dtstack.rdos.engine.execution.flink150.util.HadoopConf;
 import com.dtstack.rdos.engine.execution.flink150.util.KerberosUtils;
@@ -44,7 +39,6 @@ import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
-import org.apache.flink.yarn.YarnClusterClient;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
@@ -61,16 +55,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import static java.security.AccessController.doPrivileged;
 
@@ -92,11 +81,6 @@ public class FlinkClient extends AbsClient {
     public final static String FLINK_CP_URL_FORMAT = "/jobs/%s/checkpoints";
 
     private String tmpFileDirPath = "./tmp";
-
-    //http://${addr}/proxy/${applicationId}/
-    private static final String FLINK_URL_FORMAT = "http://%s/proxy/%s/";
-
-    private static final String YARN_RM_WEB_KEY_PREFIX = "yarn.resourcemanager.webapp.address.";
 
     private static final Path tmpdir = Paths.get(doPrivileged(new GetPropertyAction("java.io.tmpdir")));
 
@@ -253,7 +237,7 @@ public class FlinkClient extends AbsClient {
         try {
             Pair<String, String> runResult;
             if(FlinkYarnMode.isPerJob(taskRunMode)){
-                ClusterSpecification clusterSpecification = FLinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration(), jobClient.getJobPriority(), jobClient.getConfProperties());
+                ClusterSpecification clusterSpecification = FlinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration(), jobClient.getJobPriority(), jobClient.getConfProperties());
                 clusterSpecification.setConfiguration(flinkClientBuilder.getFlinkConfiguration());
                 clusterSpecification.setClasspaths(classPaths);
                 clusterSpecification.setEntryPointClass(entryPointClass);
@@ -454,7 +438,7 @@ public class FlinkClient extends AbsClient {
             return null;
         }
 
-        String reqUrl = getReqUrl() + "/jobs/" + jobId;
+        String reqUrl = FlinkUtil.getReqUrl(flinkClusterClientManager) + "/jobs/" + jobId;
         String response = null;
         try{
             response = PoolHttpClient.get(reqUrl);
@@ -536,78 +520,16 @@ public class FlinkClient extends AbsClient {
         if (FlinkYarnMode.PER_JOB == flinkYarnMode){
             return "${monitor}";
         }else if (FlinkYarnMode.NEW == flinkYarnMode) {
-            return getReqUrl();
+            return FlinkUtil.getReqUrl(flinkClusterClientManager);
         } else {
-            return getLegacyReqUrl();
+            return FlinkUtil.getLegacyReqUrl(flinkClusterClientManager);
         }
     }
 
-    public String getReqUrl(){
-        ClusterClient<ApplicationId> clusterClient = flinkClusterClientManager.getClusterClient();
-        boolean isYarnClusterClient = clusterClient instanceof YarnClusterClient;
-        if(!isYarnClusterClient){
-            return clusterClient.getWebInterfaceURL();
-        }
-
-        try{
-            return getLegacyReqUrl();
-        }catch (Exception e){
-            logger.error("", e);
-            return clusterClient.getWebInterfaceURL();
-        }
-    }
-
-
-    /**
-     * 获取jobMgr-web地址
-     * @return
-     */
-    private String getLegacyReqUrl() {
-        String url = "";
-        try{
-            Field rmClientField = yarnClient.getClass().getDeclaredField("rmClient");
-            rmClientField.setAccessible(true);
-            Object rmClient = rmClientField.get(yarnClient);
-
-            Field hField = rmClient.getClass().getSuperclass().getDeclaredField("h");
-            hField.setAccessible(true);
-            //获取指定对象中此字段的值
-            Object h = hField.get(rmClient);
-
-            Field currentProxyField = h.getClass().getDeclaredField("currentProxy");
-            currentProxyField.setAccessible(true);
-            Object currentProxy = currentProxyField.get(h);
-
-            Field proxyInfoField = currentProxy.getClass().getDeclaredField("proxyInfo");
-            proxyInfoField.setAccessible(true);
-            String proxyInfoKey = (String) proxyInfoField.get(currentProxy);
-
-            String key = YARN_RM_WEB_KEY_PREFIX + proxyInfoKey;
-            String addr = yarnConf.get(key);
-
-            if(addr == null) {
-                addr = yarnConf.get("yarn.resourcemanager.webapp.address");
-            }
-
-
-            ApplicationId appId = (ApplicationId) flinkClusterClientManager.getClusterClient().getClusterId();
-            YarnApplicationState yarnApplicationState = yarnClient.getApplicationReport(appId).getYarnApplicationState();
-            if (YarnApplicationState.RUNNING != yarnApplicationState){
-                logger.error("curr flink application {} state is not running!", appId);
-            }
-
-            url = String.format(FLINK_URL_FORMAT, addr, appId);
-        }catch (Exception e){
-            logger.error("Getting URL failed" + e);
-        }
-
-        logger.info("get req url=" + url);
-        return url;
-    }
 
     @Override
     public String getJobMaster(){
-    	String url = getReqUrl();
+    	String url = FlinkUtil.getReqUrl(flinkClusterClientManager);
     	return url.split("//")[1];
     }
 
@@ -626,7 +548,7 @@ public class FlinkClient extends AbsClient {
 	@Override
 	public String getMessageByHttp(String path) {
         try {
-            String reqUrl = String.format("%s%s", getReqUrl(), path);
+            String reqUrl = String.format("%s%s", FlinkUtil.getReqUrl(flinkClusterClientManager), path);
             return PoolHttpClient.get(reqUrl);
         } catch (Exception e) {
             throw new RdosException(ErrorCode.HTTP_CALL_ERROR, e);
