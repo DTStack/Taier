@@ -63,7 +63,8 @@ public class YarnAppStatusMonitor implements Runnable{
                     judgeYarnAppStatus();
                     if(clusterClientManager.getIsClientOn()){
                         if(checkTaskManagerClose()){
-                            LOG.error("TaskManager has no slots.");
+                            LOG.error("TaskManager has no slots, prepare to stopFlinkYarnSession");
+                            flinkYarnSessionStarter.stopFlinkYarnSession();
                             clusterClientManager.setIsClientOn(false);
                         }
                     }
