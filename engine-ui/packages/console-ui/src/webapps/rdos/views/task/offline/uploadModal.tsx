@@ -408,30 +408,29 @@ class ResModal extends React.Component<any, any> {
                         resourceId: values.id
                     };
                     this.props.replaceResource(params)
-                    .then((success: any) => {
-                        this.setState({
-                            loading: false
-                        })
-                        if (success) {
-                            this.closeModal();
-                            this.setState({ file: '' });
-                            form.resetFields();
-                        }
-                    });
+                        .then((success: any) => {
+                            this.setState({
+                                loading: false
+                            })
+                            if (success) {
+                                this.closeModal();
+                                this.setState({ file: '' });
+                                form.resetFields();
+                            }
+                        });
                 } else {
                     this.props.addResource(values)
-                    .then((success: any) => {
-                        this.setState({
-                            loading: false
-                        })
-                        if (success) {
-                            this.closeModal();
-                            this.setState({ file: '' });
-                            form.resetFields();
-                        }
-                    });
+                        .then((success: any) => {
+                            this.setState({
+                                loading: false
+                            })
+                            if (success) {
+                                this.closeModal();
+                                this.setState({ file: '' });
+                                form.resetFields();
+                            }
+                        });
                 }
-                
             }
         });
     }
