@@ -67,7 +67,7 @@
 		<dependency>
 			<artifactId>zookeeper</artifactId>
 			<groupId>org.apache.zookeeper</groupId>
-			<version>3.4.6</version>
+			<version>${zookeeper.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>log4j</groupId>
@@ -84,6 +84,12 @@
 			<groupId>com.dtstack.rdos</groupId>
 			<artifactId>base.common</artifactId>
 			<version>1.0.0</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>zookeeper</artifactId>
+					<groupId>org.apache.zookeeper</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
   </dependencies>
 </project>
