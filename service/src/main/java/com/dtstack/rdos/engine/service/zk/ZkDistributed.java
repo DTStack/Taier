@@ -127,7 +127,7 @@ public class ZkDistributed implements Closeable{
 	}
 
 	private void initZk() throws IOException {
-		if (ConfigParse.getSecurity()){
+		if (ConfigParse.getSecurity() != null){
 			initSecurity();
 		}
 		this.zkClient = CuratorFrameworkFactory.builder()
@@ -140,8 +140,19 @@ public class ZkDistributed implements Closeable{
 
 	private static void initSecurity() {
 		try {
-			KerberosUtils.setJaasConf(ConfigParse.loginContextName(), ConfigParse.userPrincipal(), ConfigParse.userKeytabPath());
-			KerberosUtils.setZookeeperServerPrincipal("zookeeper.server.principal", ConfigParse.zkPrincipal());
+			Map<String, String> securityKvs = (Map<String, String>) ConfigParse.getSecurity();
+			String userPrincipal = securityKvs.get("userPrincipal");
+			String userKeytabPath = securityKvs.get("userKeytabPath");
+			String krb5ConfPath = securityKvs.get("krb5ConfPath");
+			String zkPrincipal = securityKvs.get("zkPrincipal");
+			String loginContextName = securityKvs.get("loginContextName");
+
+			KerberosUtils.setJaasConf(loginContextName, userPrincipal, userKeytabPath);
+			KerberosUtils.setZookeeperServerPrincipal("zookeeper.server.principal", zkPrincipal);
+			Configuration hadoopConf = new Configuration();
+			hadoopConf.set("hadoop.security.authentication", "kerberos");
+			hadoopConf.setBoolean("hadoop.security.authorization", true);
+			KerberosUtils.login(userPrincipal, userKeytabPath, krb5ConfPath, hadoopConf);
 		} catch (IOException e) {
 			logger.error("",e);
 		}
