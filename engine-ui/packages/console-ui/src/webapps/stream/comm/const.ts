@@ -21,6 +21,12 @@ export const DATA_SOURCE = {
     DB2: 19
 }
 
+export const FUNC_TYPE_TEXT = {
+    0: 'UDF',
+    1: 'UDTF',
+    2: 'UDAF'
+}
+
 export const DATA_SOURCE_TEXT: any = {
     1: 'MySQL',
     2: 'Oracle',
