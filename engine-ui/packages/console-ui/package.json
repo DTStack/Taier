@@ -26,7 +26,7 @@
     "codemirror": "5.25.0",
     "d3-selection": "1.1.0",
     "diff-match-patch": "1.0.0",
-    "dt-sql-parser": "~2.0.3",
+    "dt-sql-parser": "^2.0.4",
     "echarts": "3.8.5",
     "handsontable": "^6.2.2",
     "highlight.js": "9.14.2",
