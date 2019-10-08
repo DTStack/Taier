@@ -1,7 +1,17 @@
 import * as React from 'react'
 
-import LogInfo from '../../logInfo'
+import Editor from 'widgets/code-editor'
+
 import Api from '../../../../../api'
+
+const editorOptions: any = {
+    mode: 'text',
+    lineNumbers: true,
+    readOnly: true,
+    autofocus: false,
+    indentWithTabs: true,
+    smartIndent: true
+}
 
 class Failover extends React.Component<any, any> {
     state: any = {
@@ -17,7 +27,7 @@ class Failover extends React.Component<any, any> {
             return;
         }
         let res: any;
-        res = await Api.getTaskLogs({ taskId: data.id });
+        res = await Api.getFailoverLogsByTaskId({ taskId: data.id });
         if (res && res.code == 1) {
             this.setState({
                 logInfo: res.data
@@ -25,8 +35,7 @@ class Failover extends React.Component<any, any> {
         }
     }
     getBaseInfo () {
-        const { data = {}, isShow } = this.props;
-        const { status } = data;
+        const { isShow } = this.props;
         const { logInfo } = this.state;
         /**
          * 不显示的时候这里不能渲染，
@@ -37,7 +46,9 @@ class Failover extends React.Component<any, any> {
             return null;
         }
         return <div style={{ paddingLeft: '8px', height: '100%', background: '#f7f7f7' }}>
-            <LogInfo status={status} log={logInfo} />
+            <div style={{ height: '100%' }}>
+                <Editor style={{ height: '100%' }} sync value={logInfo || ''} options={editorOptions} />
+            </div>
         </div>
     }
     render () {
