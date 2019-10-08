@@ -711,7 +711,7 @@ const WrapCollectionTargetForm = Form.create({
                 value: targetMap.writeStrategy
             },
             bufferSize: {
-                value: targetMap.bufferSize / (1024 * 1024)
+                value: Number.isNaN(parseInt(targetMap.bufferSize)) ? undefined : targetMap.bufferSize / (1024 * 1024)
             },
             interval: {
                 value: targetMap.interval / 60000
