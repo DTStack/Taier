@@ -433,7 +433,13 @@ class RealTimeTaskList extends React.Component<any, any> {
                 <span className="buttonMargin">
                     <Button type="primary" onClick={() => { this.openTask(record) }}>修改</Button>
                     {goOn ? <Button type="primary" onClick={() => { this.updateTaskStatus(record) }}>{goOn}</Button> : null}
-                    {normal ? <Button type="primary" onClick={() => { this.updateTaskStatus(record, 'normal') }}>{normal}</Button> : null}
+                    {normal ? (normal == '停止' ? <Popconfirm
+                        title='确定停止任务？'
+                        onConfirm={() => { this.updateTaskStatus(record, 'normal') }}
+                    >
+                        <Button type="primary">{normal}</Button>
+                    </Popconfirm> : <Button type="primary" onClick={() => { this.updateTaskStatus(record, 'normal') }}>{normal}</Button>)
+                        : null}
                     {recover ? <Popconfirm
                         okText="确定"
                         cancelText="取消"
