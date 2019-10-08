@@ -397,17 +397,12 @@ class ResModal extends React.Component<any, any> {
         form.validateFields((err: any, values: any) => {
             if (!err) {
                 values.file = this.state.file.files[0];
+                values.resourceDesc = values.resourceDesc || '';
                 this.setState({
                     loading: true
                 })
                 if (this.props.isCoverUpload) {
-                    let params = {
-                        resourceType: values.resourceType,
-                        file: values.file,
-                        resourceDesc: values.resourceDesc,
-                        resourceId: values.id
-                    };
-                    this.props.replaceResource(params)
+                    this.props.replaceResource(values)
                         .then((success: any) => {
                             this.setState({
                                 loading: false
