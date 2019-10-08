@@ -1,7 +1,6 @@
 package com.dtstack.rods.engine.execution.base.resource;
 
 import com.dtstack.rdos.commom.exception.LimitResourceException;
-import com.dtstack.rdos.commom.exception.RdosException;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
@@ -12,6 +11,8 @@ import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.exceptions.YarnException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.EnumSet;
@@ -26,6 +27,8 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
 
+    private Logger logger = LoggerFactory.getLogger(getClass());
+
     protected List<NodeResourceDetail> nodeResources = Lists.newArrayList();
 
     public List<NodeResourceDetail> getNodeResources() {
@@ -39,7 +42,7 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
     /**
      * 弹性容量, 默认不开启
      */
-    protected boolean elasticCapacity = false;
+    protected boolean elasticCapacity = true;
     protected float capacity = 1;
     protected float queueCapacity = 1;
     protected int totalFreeCore = 0;
@@ -53,21 +56,22 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
 
     protected boolean judgeYarnResource(List<InstanceInfo> instanceInfos) {
         if (totalFreeCore == 0 || totalFreeMem == 0) {
+            logger.info("judgeYarnResource, totalFreeCore={}, totalFreeMem={}", totalFreeCore, totalFreeMem);
             return false;
         }
         int needTotalCore = 0;
         int needTotalMem = 0;
         for (InstanceInfo instanceInfo : instanceInfos) {
-            int instanceCore = instanceInfo.instances * instanceInfo.coresPerInstance;
-            if (instanceCore > containerCoreMax) {
+            if (instanceInfo.coresPerInstance > containerCoreMax) {
+                logger.info("judgeYarnResource, containerCoreMax={}, coresPerInstance={}", containerCoreMax, instanceInfo.coresPerInstance);
                 return false;
             }
-            int instanceMem = instanceInfo.instances * instanceInfo.memPerInstance;
-            if (instanceMem > containerMemoryMax) {
+            if (instanceInfo.memPerInstance > containerMemoryMax) {
+                logger.info("judgeYarnResource, containerMemoryMax={}, memPerInstance={}", containerMemoryMax, instanceInfo.memPerInstance);
                 return false;
             }
-            needTotalCore += instanceCore;
-            needTotalMem += instanceMem;
+            needTotalCore += instanceInfo.instances * instanceInfo.coresPerInstance;
+            needTotalMem += instanceInfo.instances * instanceInfo.memPerInstance;
         }
         if (needTotalCore == 0 || needTotalMem == 0) {
             throw new LimitResourceException("Yarn task resource configuration error，needTotalCore：" + 0 + ", needTotalMem：" + needTotalMem);
@@ -76,16 +80,19 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
             throw new LimitResourceException("The Yarn task is set to a core larger than the maximum allocated core");
         }
         if (needTotalMem > (totalMem * queueCapacity)) {
-            throw new LimitResourceException("The Yarn task is set to a core larger than the maximum allocated core");
+            throw new LimitResourceException("The Yarn task is set to a mem larger than the maximum allocated mem");
         }
         if (needTotalCore > (totalCore * capacity)) {
+            logger.info("judgeYarnResource, needTotalCore={}, totalCore={}, capacity={}", needTotalCore, totalCore, capacity);
             return false;
         }
         if (needTotalMem > (totalMem * capacity)) {
+            logger.info("judgeYarnResource, needTotalMem={}, totalMem={}, capacity={}", needTotalMem, totalMem, capacity);
             return false;
         }
         for (InstanceInfo instanceInfo : instanceInfos) {
             if (!judgeInstanceResource(instanceInfo.instances, instanceInfo.coresPerInstance, instanceInfo.memPerInstance)) {
+                logger.info("judgeYarnResource, nmFreeCore={}, nmFreeMem={} instanceInfo={}", nmFreeCore, nmFreeMem, instanceInfo);
                 return false;
             }
         }
@@ -224,6 +231,11 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
             this.instances = instances;
             this.coresPerInstance = coresPerInstance;
             this.memPerInstance = memPerInstance;
+        }
+
+        @Override
+        public String toString(){
+            return String.format("InstanceInfo[instances=%s, coresPerInstance=%s, memPerInstance=%s]", instances, coresPerInstance, memPerInstance);
         }
 
         public static InstanceInfo newRecord(int instances, int coresPerInstance, int memPerInstance) {

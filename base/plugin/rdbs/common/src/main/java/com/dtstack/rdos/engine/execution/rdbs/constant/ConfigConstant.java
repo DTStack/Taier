@@ -21,4 +21,8 @@ public class ConfigConstant {
 
     public static final String JDBC_PASSWORD_KEY = "password";
 
+    public static final String MAX_JOB_POOL_KEY = "maxJobPoolSize";
+
+    public static final String MIN_JOB_POOL_KEY = "minJobPoolSize";
+
 }
