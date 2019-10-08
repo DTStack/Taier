@@ -398,21 +398,35 @@ class ResModal extends React.Component<any, any> {
         form.validateFields((err: any, values: any) => {
             if (!err) {
                 values.file = this.state.file.files[0];
+                values.resourceDesc = values.resourceDesc || '';
                 this.setState({
                     loading: true
                 })
-                values.isCoverUpload = this.props.isCoverUpload;
-                this.props.addResource(values)
-                    .then((success: any) => {
-                        this.setState({
-                            loading: false
-                        })
-                        if (success) {
-                            this.closeModal();
-                            this.setState({ file: '' });
-                            form.resetFields();
-                        }
-                    });
+                if (this.props.isCoverUpload) {
+                    this.props.replaceResource(values)
+                        .then((success: any) => {
+                            this.setState({
+                                loading: false
+                            })
+                            if (success) {
+                                this.closeModal();
+                                this.setState({ file: '' });
+                                form.resetFields();
+                            }
+                        });
+                } else {
+                    this.props.addResource(values)
+                        .then((success: any) => {
+                            this.setState({
+                                loading: false
+                            })
+                            if (success) {
+                                this.closeModal();
+                                this.setState({ file: '' });
+                                form.resetFields();
+                            }
+                        });
+                }
             }
         });
     }
@@ -492,12 +506,21 @@ export default connect((state: any) => {
 
                     if (res.code === 1) {
                         message.success('资源上传成功！');
-                        if (!params.isCoverUpload) {
-                            dispatch({
-                                type: resTreeAction.ADD_FOLDER_CHILD,
-                                payload: data
-                            });
-                        }
+                        dispatch({
+                            type: resTreeAction.ADD_FOLDER_CHILD,
+                            payload: data
+                        });
+                        return true;
+                    }
+                })
+        },
+        replaceResource: function (params: any) {
+            return ajax.replaceOfflineResource(params)
+                .then((res: any) => {
+                    let { code } = res;
+
+                    if (code === 1) {
+                        message.success('资源替换成功！');
                         return true;
                     }
                 })
