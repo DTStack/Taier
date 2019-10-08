@@ -449,7 +449,7 @@ class StreamDetailGraph extends React.Component<any, any> {
                                             ...lineDatas[metricsType.SOURCE_DIRTY_OUT],
                                             color: CHARTS_COLOR
                                         }}
-                                        desc="各Source的脏数据，反映实时计算 Flink的Source段是否有脏数据的情况。"
+                                        desc=""
                                         title="各sink的脏数据输出" />
                                 </section>
                             </div>
