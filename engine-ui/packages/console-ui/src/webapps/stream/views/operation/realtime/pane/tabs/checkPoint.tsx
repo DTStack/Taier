@@ -88,8 +88,14 @@ class CheckPoint extends React.Component<any, any> {
         }]
     }
     changeDate (dates: any) {
+        let newDates = dates;
+        if (dates && dates.length) {
+            if(dates[1]<dates[0]) {
+                newDates = [dates[0], dates[0].clone()];
+            }
+        }
         this.setState({
-            dates: dates
+            dates: newDates
         }, this.getList.bind(this))
     }
     disabledDate = (current: any) => {
