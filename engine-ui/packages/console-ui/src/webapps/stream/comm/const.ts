@@ -22,9 +22,9 @@ export const DATA_SOURCE = {
 }
 
 export const FUNC_TYPE_TEXT = {
-    0: 'UDF',
-    1: 'UDTF',
-    2: 'UDAF'
+    0: 'Scala',
+    1: 'Table',
+    2: 'Aggregate'
 }
 
 export const DATA_SOURCE_TEXT: any = {
