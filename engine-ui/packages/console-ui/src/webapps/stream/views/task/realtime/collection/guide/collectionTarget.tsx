@@ -531,6 +531,8 @@ class CollectionTargetForm extends React.Component<any, any> {
                                         value = parseFloat(value);
                                         if (value <= 0) {
                                             errorMsg = '数字必须大于0'
+                                        } else if (value != parseInt(value, 10)) {
+                                            errorMsg = '必须为整数'
                                         }
                                     } catch (e) {
                                         errorMsg = '请填写大于0的有效数字'
