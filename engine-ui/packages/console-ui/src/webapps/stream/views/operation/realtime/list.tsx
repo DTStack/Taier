@@ -10,7 +10,7 @@ import {
 import utils from 'utils'
 
 import Api from '../../../api'
-import { taskStatusFilter, TASK_STATUS, TASK_TYPE } from '../../../comm/const'
+import { taskStatusFilter, TASK_STATUS } from '../../../comm/const'
 import { TaskStatus, TaskStatusOverview } from '../../../components/status'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
 
@@ -203,20 +203,7 @@ class RealTimeTaskList extends React.Component<any, any> {
             case TASK_STATUS.KILLED:
             case TASK_STATUS.SUBMIT_FAILED: {
                 if (mode !== 'normal' && (status === TASK_STATUS.STOPED || status === TASK_STATUS.RUN_FAILED)) { // 续跑
-                    if (task.taskType == TASK_TYPE.DATA_COLLECTION) {
-                        Api.startTask({
-                            id: task.id,
-                            isRestoration: 0
-                        }).then((res: any) => {
-                            if (res.code === 1) {
-                                message.success('续跑操作成功！')
-                                ctx.loadTaskList({ pageIndex: current })
-                                ctx.loadCount();
-                            }
-                        })
-                    } else {
-                        this.setState({ goOnTask: task.id })
-                    }
+                    this.setState({ goOnTask: task.id })
                 } else {
                     Api.startTask({
                         id: task.id,
@@ -413,12 +400,6 @@ class RealTimeTaskList extends React.Component<any, any> {
                 break;
             default:
                 break;
-        }
-
-        if (record.taskType == TASK_TYPE.DATA_COLLECTION) {
-            normal = normal == '重试' ? null : normal;
-            // goOn = goOn == '续跑' ? '重跑' : null;
-            recover = null;
         }
         if (isPane) {
             return (
