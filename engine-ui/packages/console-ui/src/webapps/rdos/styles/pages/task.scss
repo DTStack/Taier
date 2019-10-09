@@ -619,13 +619,14 @@
         .normal-tab,
         .workflow-name {
             display: inline-block;
-            // overflow: hidden;
+            overflow: hidden;
             text-overflow: ellipsis;
         }
 
         .tab-ellipsis {
             width: 120px;
             line-height: 19px;
+            height: 19px;
             white-space: nowrap;
             overflow: hidden;
         }
