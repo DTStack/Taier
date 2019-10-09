@@ -20,7 +20,7 @@ import TaskGraph from './tabs/taskGraph';
 const TabPane = Tabs.TabPane;
 
 class TaskDetailPane extends React.Component<any, any> {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props);
         this.state = {
             tabKey: this.getInitTabKey(props.data)

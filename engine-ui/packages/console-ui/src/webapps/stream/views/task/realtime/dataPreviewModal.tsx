@@ -10,7 +10,7 @@ const Panel = Collapse.Panel;
 const TextArea = Input.TextArea;
 
 class DataPreviewModal extends React.Component<any, any> {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props)
         this.state = {
             loading: false,
@@ -106,13 +106,16 @@ class DataPreviewModal extends React.Component<any, any> {
                                 })
                             }
                         </Collapse>
-                    ) : (
-                            <div style={{ textAlign: 'center' }}>{loading ? <React.Fragment>
+                    ) : (<div style={{ textAlign: 'center' }}>
+                        {
+                            loading ? <React.Fragment>
                                 <Spin size="small" tip="加载中..." />
-                        </React.Fragment> : <React.Fragment>
-                                <Icon type="frown-o" /> 暂无数据
-                        </React.Fragment>} </div>
-                        )
+                            </React.Fragment>
+                                : <React.Fragment>
+                                    <Icon type="frown-o" /> 暂无数据
+                                </React.Fragment>
+                        }
+                    </div>)
                 }
             </Modal>
         )
