@@ -46,7 +46,7 @@ public class JobStopAction {
         JobClient jobClient = new JobClient(paramAction);
         //在work节点等待队列中查找，状态流转时engineaccept和enginedistribute无法停止
         if(workNode.stopTaskIfExists(paramAction.getEngineType(), jobClient.getGroupName(), paramAction.getTaskId(), paramAction.getComputeType())){
-            LOG.info("jobId:{} stopped success.", paramAction.getTaskId());
+            LOG.info("jobId:{} stopped success, because of [stopTaskIfExists].", paramAction.getTaskId());
             return StoppedStatus.STOPPED;
         }
 
@@ -60,6 +60,7 @@ public class JobStopAction {
             if (status !=null && RdosTaskStatus.WAITENGINE.getStatus() == status.intValue()){
                 //删除
                 removeJob(jobClient);
+                LOG.info("jobId:{} stopped success, because of [IN_PRIORITY_QUEUE & WAITENGINE].", paramAction.getTaskId());
                 return StoppedStatus.STOPPED;
             }
         } else if (EJobCacheStage.IN_SUBMIT_QUEUE.getStage() == jobCache.getStage()) {
@@ -69,6 +70,7 @@ public class JobStopAction {
              */
             String engineTaskId = getEngineTaskId(jobClient);
             if (StringUtils.isNotBlank(jobClient.getEngineTaskId()) && !jobClient.getEngineTaskId().equals(engineTaskId)) {
+                LOG.info("jobId:{} stopped success, because of [difference engineTaskId].", paramAction.getTaskId());
                 return StoppedStatus.STOPPED;
             }
         }
@@ -86,7 +88,7 @@ public class JobStopAction {
     private StoppedStatus jobStopStatus(JobClient jobClient){
         Byte status = getJobStatus(jobClient);
         if (status != null && RdosTaskStatus.isStopped(status)){
-            LOG.info("jobId:{} stopped success.", jobClient.getTaskId());
+            LOG.info("jobId:{} stopped success, task status is STOPPED.", jobClient.getTaskId());
             return StoppedStatus.STOPPED;
         }
         LOG.info("jobId:{} cache is missed, stop interrupt.", jobClient.getTaskId());
