@@ -10,7 +10,7 @@ import {
 import utils from 'utils'
 
 import Api from '../../../api'
-import { taskStatusFilter, TASK_STATUS, TASK_TYPE } from '../../../comm/const'
+import { taskStatusFilter, TASK_STATUS } from '../../../comm/const'
 import { TaskStatus, TaskStatusOverview } from '../../../components/status'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
 
@@ -400,12 +400,6 @@ class RealTimeTaskList extends React.Component<any, any> {
                 break;
             default:
                 break;
-        }
-
-        if (record.taskType == TASK_TYPE.DATA_COLLECTION) {
-            normal = normal == '重试' ? null : normal;
-            // goOn = goOn == '续跑' ? '重跑' : null;
-            recover = null;
         }
         if (isPane) {
             return (
