@@ -12,6 +12,7 @@ import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
 import com.dtstack.rdos.engine.service.enums.StoppedStatus;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,12 +81,24 @@ public class JobStopAction {
         if(ComputeType.BATCH == jobClient.getComputeType()){
             RdosEngineBatchJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
             if (batchJob != null) {
-                return batchJob.getStatus();
+                if (StringUtils.isNotBlank(jobClient.getEngineTaskId()) && !jobClient.getEngineTaskId().equals(batchJob.getEngineJobId())) {
+                    return RdosTaskStatus.CANCELED.getStatus().byteValue();
+                } else {
+                    return batchJob.getStatus();
+                }
             }
         } else if (ComputeType.STREAM == jobClient.getComputeType()) {
             RdosEngineStreamJob streamJob = streamTaskDAO.getRdosTaskByTaskId(jobClient.getTaskId());
-            if (streamJob != null){
-                return streamJob.getStatus();
+            if (streamJob != null) {
+                /**
+                 * 停止过程中存在超时情况（就flink perjob而言，cancel job 是一个阻塞调用），
+                 * 一旦"取消任务超时"与"任务停止后立即重启"并发时会出现取消上一次任务的情况，并可能出现异常（就flink perjob而言，会出现Job colud not be found 异常）
+                 */
+                if (StringUtils.isNotBlank(jobClient.getEngineTaskId()) && !jobClient.getEngineTaskId().equals(streamJob.getEngineTaskId())) {
+                    return RdosTaskStatus.CANCELED.getStatus().byteValue();
+                } else {
+                    return streamJob.getStatus();
+                }
             }
         }
         return null;
