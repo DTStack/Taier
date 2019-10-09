@@ -73,11 +73,15 @@ export function TaskStatus (props: any) {
                         重试中
             </span>
         case TASK_STATUS.WAIT_SUBMIT:
-        default:
             return <span>
                 <Circle className="status_wait_submit" />&nbsp;
                     等待提交
             </span>
+        default:
+            return <span>
+            <Circle className="status_run_fail" />&nbsp;
+                未知状态({value})
+        </span>
     }
 }
 export function TaskStatusOverview (props: any) {
