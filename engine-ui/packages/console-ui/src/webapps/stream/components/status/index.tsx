@@ -79,9 +79,9 @@ export function TaskStatus (props: any) {
             </span>
         default:
             return <span>
-            <Circle className="status_run_fail" />&nbsp;
+                <Circle className="status_run_fail" />&nbsp;
                 未知状态({value})
-        </span>
+            </span>
     }
 }
 export function TaskStatusOverview (props: any) {
