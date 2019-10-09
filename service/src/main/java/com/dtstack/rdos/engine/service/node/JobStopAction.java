@@ -46,7 +46,7 @@ public class JobStopAction {
         JobClient jobClient = new JobClient(paramAction);
         //在work节点等待队列中查找，状态流转时engineaccept和enginedistribute无法停止
         if(workNode.stopTaskIfExists(paramAction.getEngineType(), jobClient.getGroupName(), paramAction.getTaskId(), paramAction.getComputeType())){
-            LOG.info("job:{} stopped success.", paramAction.getTaskId());
+            LOG.info("jobId:{} stopped success.", paramAction.getTaskId());
             return StoppedStatus.STOPPED;
         }
 
@@ -75,10 +75,10 @@ public class JobStopAction {
 
         JobResult jobResult = jobClient.stopJob();
         if (jobResult.getCheckRetry()){
-            LOG.info("job:{} is retry.", paramAction.getTaskId());
+            LOG.info("jobId:{} is retry.", paramAction.getTaskId());
             return StoppedStatus.RETRY;
         } else {
-            LOG.info("job:{} is stopping.", paramAction.getTaskId());
+            LOG.info("jobId:{} is stopping.", paramAction.getTaskId());
             return StoppedStatus.STOPPING;
         }
     }
@@ -86,10 +86,10 @@ public class JobStopAction {
     private StoppedStatus jobStopStatus(JobClient jobClient){
         Byte status = getJobStatus(jobClient);
         if (status != null && RdosTaskStatus.isStopped(status)){
-            LOG.info("job:{} stopped success.", jobClient.getTaskId());
+            LOG.info("jobId:{} stopped success.", jobClient.getTaskId());
             return StoppedStatus.STOPPED;
         }
-        LOG.info("job:{} cache is missed, stop interrupt.", jobClient.getTaskId());
+        LOG.info("jobId:{} cache is missed, stop interrupt.", jobClient.getTaskId());
         return StoppedStatus.MISSED;
     }
 

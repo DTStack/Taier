@@ -212,7 +212,7 @@ public class JobStopQueue {
 
             if (!address.equals(zkDistributed.getLocalAddress())) {
                 paramAction.setRequestStart(RequestStart.NODE.getStart());
-                LOG.info("action stop job:{} to worker node addr:{}." + paramAction.getTaskId(), address);
+                LOG.info("action stop jobId:{} to worker node addr:{}." + paramAction.getTaskId(), address);
                 Boolean res = HttpSendClient.actionStopJobToWorker(address, paramAction);
                 if (res != null) {
                     return res;
@@ -271,7 +271,7 @@ public class JobStopQueue {
                         case STOPPING:
                         case RETRY:
                             if (!stoppedJob.isRetry()) {
-                                LOG.warn("job:{} retry limited!", stoppedJob.job.getTaskId());
+                                LOG.warn("jobId:{} retry limited!", stoppedJob.job.getTaskId());
                                 break;
                             }
                             stoppedJob.incrCount();
