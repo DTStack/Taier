@@ -12,8 +12,7 @@ const { RangePicker } = DatePicker;
 class CheckPoint extends React.Component<any, any> {
     state: any = {
         dates: [],
-        list: [],
-        overview: {}
+        list: []
     }
 
     componentDidMount () {
@@ -21,8 +20,7 @@ class CheckPoint extends React.Component<any, any> {
     }
     initPage () {
         this.setState({
-            dates: [],
-            overview: {}
+            dates: []
         })
     }
     // eslint-disable-next-line
@@ -62,8 +60,7 @@ class CheckPoint extends React.Component<any, any> {
             (res: any) => {
                 if (res.code == 1) {
                     this.setState({
-                        list: res.data.checkpointList,
-                        overview: { ...res.data, checkpointList: undefined }
+                        list: res.data.checkpointList
                     })
                 }
                 this.setState({
@@ -139,7 +136,7 @@ class CheckPoint extends React.Component<any, any> {
         }
     }
     getTableTitle = () => {
-        const { overview, dates } = this.state;
+        const { dates } = this.state;
         return (
             <div style={{ padding: '10px 10px 11px 0px' }}>
                 <RangePicker
@@ -156,11 +153,6 @@ class CheckPoint extends React.Component<any, any> {
                     disabledDate={this.disabledDate}
                 // disabledTime={this.disabledTime}
                 />
-                <span className="checkpoint-overview">
-                    <span>checkpoint总数：{overview.totalCount}个</span>
-                    <span>成功：{overview.successCount}个</span>
-                    <span>失败：{overview.failCount}个</span>
-                </span>
             </div>
         )
     }
