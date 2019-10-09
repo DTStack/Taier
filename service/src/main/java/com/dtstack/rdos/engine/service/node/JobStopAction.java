@@ -60,6 +60,15 @@ public class JobStopAction {
                 //删除
                 removeJob(jobClient);
             }
+        } else if (EJobCacheStage.IN_SUBMIT_QUEUE.getStage() == jobCache.getStage()) {
+            /**
+             * 停止过程中存在超时情况（就flink perjob而言，cancel job 是一个阻塞调用），
+             * 一旦"取消任务超时"与"任务停止后立即重启"并发时会出现取消上一次任务的情况，并可能出现异常（就flink perjob而言，会出现Job colud not be found 异常）
+             */
+            String engineTaskId = getEngineTaskId(jobClient);
+            if (StringUtils.isNotBlank(jobClient.getEngineTaskId()) && !jobClient.getEngineTaskId().equals(engineTaskId)) {
+                return StoppedStatus.STOPPED;
+            }
         }
 
         jobClient.stopJob();
@@ -81,24 +90,27 @@ public class JobStopAction {
         if(ComputeType.BATCH == jobClient.getComputeType()){
             RdosEngineBatchJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
             if (batchJob != null) {
-                if (StringUtils.isNotBlank(jobClient.getEngineTaskId()) && !jobClient.getEngineTaskId().equals(batchJob.getEngineJobId())) {
-                    return RdosTaskStatus.CANCELED.getStatus().byteValue();
-                } else {
-                    return batchJob.getStatus();
-                }
+                return batchJob.getStatus();
             }
         } else if (ComputeType.STREAM == jobClient.getComputeType()) {
             RdosEngineStreamJob streamJob = streamTaskDAO.getRdosTaskByTaskId(jobClient.getTaskId());
-            if (streamJob != null) {
-                /**
-                 * 停止过程中存在超时情况（就flink perjob而言，cancel job 是一个阻塞调用），
-                 * 一旦"取消任务超时"与"任务停止后立即重启"并发时会出现取消上一次任务的情况，并可能出现异常（就flink perjob而言，会出现Job colud not be found 异常）
-                 */
-                if (StringUtils.isNotBlank(jobClient.getEngineTaskId()) && !jobClient.getEngineTaskId().equals(streamJob.getEngineTaskId())) {
-                    return RdosTaskStatus.CANCELED.getStatus().byteValue();
-                } else {
-                    return streamJob.getStatus();
-                }
+            if (streamJob != null){
+                return streamJob.getStatus();
+            }
+        }
+        return null;
+    }
+
+    private String getEngineTaskId(JobClient jobClient) {
+        if(ComputeType.BATCH == jobClient.getComputeType()){
+            RdosEngineBatchJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
+            if (batchJob != null) {
+                return batchJob.getEngineJobId();
+            }
+        } else if (ComputeType.STREAM == jobClient.getComputeType()) {
+            RdosEngineStreamJob streamJob = streamTaskDAO.getRdosTaskByTaskId(jobClient.getTaskId());
+            if (streamJob != null){
+                return streamJob.getEngineTaskId();
             }
         }
         return null;
