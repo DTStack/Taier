@@ -2,6 +2,7 @@ package com.dtstack.rdos.engine.service.node;
 
 import com.dtstack.rdos.engine.execution.base.enums.EJobCacheStage;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
+import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
@@ -49,8 +50,8 @@ public class JobStopAction {
             return StoppedStatus.STOPPED;
         }
 
-        //job如果少会缓存在内存，如果超过 GroupPriorityQueue.QUEUE_SIZE_LIMITED 大小则会存在数据库中
-        //如果存在数据库中必须判断jobcache表不为空并stage=1 并且 jobstatus=WAITENGINE
+        //job数量小会全都缓存在内存，如果超过 GroupPriorityQueue.QUEUE_SIZE_LIMITED 大小则会存在数据库中
+        //如果存储在数据库中的job，必须判断jobcache表不为空并stage=1 并且 jobstatus=WAITENGINE
         RdosEngineJobCache jobCache = engineJobCacheDao.getJobById(paramAction.getTaskId());
         if(jobCache == null){
             return jobStopStatus(jobClient);
@@ -59,11 +60,12 @@ public class JobStopAction {
             if (status !=null && RdosTaskStatus.WAITENGINE.getStatus() == status.intValue()){
                 //删除
                 removeJob(jobClient);
+                return StoppedStatus.STOPPED;
             }
         } else if (EJobCacheStage.IN_SUBMIT_QUEUE.getStage() == jobCache.getStage()) {
             /**
              * 停止过程中存在超时情况（就flink perjob而言，cancel job 是一个阻塞调用），
-             * 一旦"取消任务超时"与"任务停止后立即重启"并发时会出现取消上一次任务的情况，并可能出现异常（就flink perjob而言，会出现Job colud not be found 异常）
+             * 一旦"取消任务超时并再次触发取消"与"任务停止后立即重启"并发，可能会出现取消上一次任务的情况，并出现异常（就flink perjob而言，会出现Job colud not be found 异常）
              */
             String engineTaskId = getEngineTaskId(jobClient);
             if (StringUtils.isNotBlank(jobClient.getEngineTaskId()) && !jobClient.getEngineTaskId().equals(engineTaskId)) {
@@ -71,9 +73,14 @@ public class JobStopAction {
             }
         }
 
-        jobClient.stopJob();
-        LOG.info("job:{} is stopping.", paramAction.getTaskId());
-        return StoppedStatus.STOPPING;
+        JobResult jobResult = jobClient.stopJob();
+        if (jobResult.getCheckRetry()){
+            LOG.info("job:{} is retry.", paramAction.getTaskId());
+            return StoppedStatus.RETRY;
+        } else {
+            LOG.info("job:{} is stopping.", paramAction.getTaskId());
+            return StoppedStatus.STOPPING;
+        }
     }
 
     private StoppedStatus jobStopStatus(JobClient jobClient){

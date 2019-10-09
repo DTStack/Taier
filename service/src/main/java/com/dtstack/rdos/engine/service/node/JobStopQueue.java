@@ -269,13 +269,19 @@ public class JobStopQueue {
                         case MISSED:
                             break;
                         case STOPPING:
+                        case RETRY:
                             if (!stoppedJob.isRetry()) {
                                 LOG.warn("job:{} retry limited!", stoppedJob.job.getTaskId());
                                 break;
                             }
                             stoppedJob.incrCount();
-                            stoppedJob.reset();
+                            if (StoppedStatus.STOPPING == stoppedStatus) {
+                                stoppedJob.reset(jobStoppedDelay * 20);
+                            } else if (StoppedStatus.RETRY == stoppedStatus) {
+                                stoppedJob.reset(jobStoppedDelay);
+                            }
                             stopJobQueue.put(stoppedJob);
+                            continue;
                         default:
                     }
                     jobStopRecordDAO.delete(stoppedJob.job.getStopJobId());
@@ -319,9 +325,9 @@ public class JobStopQueue {
             return retry == 0 || count <= retry;
         }
 
-        private void reset() {
+        private void reset(long delay) {
             this.now = System.currentTimeMillis();
-            this.expired = now + jobStoppedDelay;
+            this.expired = now + delay;
         }
 
         @Override
