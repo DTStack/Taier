@@ -31,6 +31,7 @@ import {
 import {
     workbenchActions
 } from '../../../store/modules/offlineTask/offlineAction'
+import { getProject } from '../../../store/modules/project';
 
 import TaskJobFlowView from './taskJobFlowView'
 import KillJobForm from './killJobForm';
@@ -848,6 +849,7 @@ class OfflineTaskList extends React.Component<any, any> {
                                 isPro={isPro}
                                 visibleSlidePane={visibleSlidePane}
                                 goToTaskDev={this.props.goToTaskDev}
+                                getProject={this.props.getProject}
                                 reload={this.search}
                                 taskJob={selectedTask}
                                 project={project}
@@ -872,6 +874,9 @@ export default connect((state: any) => {
     return {
         goToTaskDev: (id: any) => {
             actions.openTaskInDev(id)
+        },
+        getProject: (projectId: any) => {
+            dispatch(getProject(projectId))
         }
     }
 })(OfflineTaskList)

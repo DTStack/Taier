@@ -26,9 +26,9 @@ import {
 
 import {
     workbenchActions
-} from '../../../store/modules/offlineTask/offlineAction'
+} from '../../../store/modules/offlineTask/offlineAction';
 
-import TaskJobFlowView from './taskJobFlowView'
+import TaskJobFlowView from './taskJobFlowView';
 // import utils from 'utils';
 import MultiSearchInput from 'widgets/multiSearchInput';
 
