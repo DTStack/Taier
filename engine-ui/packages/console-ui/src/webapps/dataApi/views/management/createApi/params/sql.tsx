@@ -107,7 +107,7 @@ class ApiSqlEditor extends React.Component<any, any> {
                                 <div className="content text margin_small">
                                     <p>1.只支持输入一条完整的SQL语句；</p>
                                     <p>2.不支持子语句查询；</p>
-                                    <p>3.支持同一数据源下的两张表关联查询；</p>
+                                    <p>3.Oracle数据源查询时，自定义SQL中的表名大小写需与源表保持一致。且查询其他用户下的表时，需要按照user.”table“格式填写，表名需带双引号。</p>
                                     <p>4.SQL编写完成后，可对参数信息进行设置，填写参数说明、打开分页查询按钮等，参数设置完毕后可进入测试环节。</p>
                                 </div>
                             </div>
