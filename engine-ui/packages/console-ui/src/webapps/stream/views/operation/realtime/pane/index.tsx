@@ -59,8 +59,7 @@ class TaskDetailPane extends React.Component<any, any> {
     getTabs () {
         const { tabKey } = this.state;
         const { data = {} } = this.props;
-        const { taskType, status } = data;
-        const isFail = this.isFail(status);
+        const { taskType } = data;
         let tabs: any = [];
         const scrollStyle: any = {
             position: 'absolute',
@@ -102,7 +101,7 @@ class TaskDetailPane extends React.Component<any, any> {
                 <CheckPoint data={data} />
             </TabPane>)
         const failover = (
-            isFail && <TabPane style={scrollStyleNoPt} tab="failover" key="failover">
+            <TabPane style={scrollStyleNoPt} tab="failover" key="failover">
                 <Failover key={data.id} isShow={tabKey == 'failover'} data={data} />
             </TabPane>
         )
