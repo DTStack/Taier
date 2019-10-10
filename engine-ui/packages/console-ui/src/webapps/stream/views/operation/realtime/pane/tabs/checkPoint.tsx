@@ -3,15 +3,16 @@ import utils from 'utils'
 import moment from 'moment'
 import { range } from 'lodash'
 
-import { Table, DatePicker } from 'antd'
+import { Table, DatePicker, TimePicker } from 'antd'
 
 import Api from '../../../../../api'
-
-const { RangePicker } = DatePicker;
+import { disableRangeCreater } from 'funcs';
 
 class CheckPoint extends React.Component<any, any> {
     state: any = {
-        dates: [],
+        day: moment(),
+        beginTime: moment('00:00:00', 'HH:mm:ss'),
+        endTime: moment('23:59:59', 'HH:mm:ss'),
         list: []
     }
 
@@ -20,11 +21,13 @@ class CheckPoint extends React.Component<any, any> {
     }
     initPage () {
         this.setState({
-            dates: []
+            day: moment(),
+            beginTime: moment('00:00:00', 'HH:mm:ss'),
+            endTime: moment('23:59:59', 'HH:mm:ss')
         })
     }
     // eslint-disable-next-line
-    UNSAFE_componentWillReceiveProps(nextProps: any) {
+    UNSAFE_componentWillReceiveProps (nextProps: any) {
         const { data = {} } = this.props;
         const { data: nextData = {} } = nextProps;
         if (data.id != nextData.id
@@ -34,7 +37,7 @@ class CheckPoint extends React.Component<any, any> {
         }
     }
     getList (data?: any) {
-        const { dates } = this.state;
+        let { day, beginTime, endTime } = this.state;
         data = data || this.props.data;
 
         this.setState({
@@ -45,8 +48,8 @@ class CheckPoint extends React.Component<any, any> {
             return;
         }
 
-        let startTime = dates.length && dates[0] ? dates[0].valueOf() : undefined;
-        let endTime = dates.length > 1 && dates[1] ? dates[1].valueOf() : undefined;
+        beginTime = moment(day.format('YYYY MM DD') + ' ' + beginTime.format('HH:mm:ss'), 'YYYY MM DD HH:mm:ss').valueOf();
+        endTime = moment(day.format('YYYY MM DD') + ' ' + endTime.format('HH:mm:ss'), 'YYYY MM DD HH:mm:ss').valueOf();
 
         this.setState({
             loading: true
@@ -54,7 +57,7 @@ class CheckPoint extends React.Component<any, any> {
 
         Api.getCheckPointList({
             taskId: data.id,
-            startTime,
+            startTime: beginTime,
             endTime
         }).then(
             (res: any) => {
@@ -84,15 +87,14 @@ class CheckPoint extends React.Component<any, any> {
             }
         }]
     }
-    changeDate (dates: any) {
-        let newDates = dates;
-        if (dates && dates.length) {
-            if (dates[1] < dates[0]) {
-                newDates = [dates[0], dates[0].clone()];
-            }
-        }
+    changeDate (date: moment.Moment) {
         this.setState({
-            dates: newDates
+            day: date
+        }, this.getList.bind(this))
+    }
+    changeTime (type: string, date: moment.Moment) {
+        this.setState({
+            [type]: date
         }, this.getList.bind(this))
     }
     disabledDate = (current: any) => {
@@ -136,22 +138,47 @@ class CheckPoint extends React.Component<any, any> {
         }
     }
     getTableTitle = () => {
-        const { dates } = this.state;
+        const { day, beginTime, endTime } = this.state;
         return (
             <div style={{ padding: '10px 10px 11px 0px' }}>
-                <RangePicker
+                <DatePicker
                     onChange={this.changeDate.bind(this)}
-                    showTime={{
-                        disabledSeconds: true,
-                        format: 'HH:mm',
-                        defaultValue: [moment('00:00:00', 'HH:mm:ss'), moment()],
-                        hideDisabledOptions: true
-                    } as any}
-                    style={{ width: '250px' }}
-                    format="YYYY-MM-DD HH:mm"
-                    value={dates}
+                    style={{ width: '150px', marginRight: 10 }}
+                    value={day}
                     disabledDate={this.disabledDate}
-                // disabledTime={this.disabledTime}
+                    allowClear={false}
+                    placeholder='请选择日期'
+                />
+                开始时间：<TimePicker
+                    style={{ marginRight: 10 }}
+                    allowEmpty={false}
+                    onChange={this.changeTime.bind(this, 'beginTime')}
+                    value={beginTime}
+                    placeholder='开始时间'
+                    disabledHours={() => {
+                        return disableRangeCreater(beginTime, endTime, 'hour')
+                    }}
+                    disabledMinutes={() => {
+                        return disableRangeCreater(beginTime, endTime, 'minute')
+                    }}
+                    disabledSeconds={() => {
+                        return disableRangeCreater(beginTime, endTime, 'second')
+                    }}
+                />
+                截止时间：<TimePicker
+                    allowEmpty={false}
+                    onChange={this.changeTime.bind(this, 'endTime')}
+                    value={endTime}
+                    placeholder='结束时间'
+                    disabledHours={() => {
+                        return disableRangeCreater(beginTime, endTime, 'hour', true)
+                    }}
+                    disabledMinutes={() => {
+                        return disableRangeCreater(beginTime, endTime, 'minute', true)
+                    }}
+                    disabledSeconds={() => {
+                        return disableRangeCreater(beginTime, endTime, 'second', true)
+                    }}
                 />
             </div>
         )
