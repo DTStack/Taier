@@ -65,7 +65,7 @@ class TestApi extends React.Component<any, any> {
                         message: '请输入数字'
                     }],
                     initialValue: initialValue
-                })(<InputNumber min={1} max={record.paramsName == 'pageSize' ? 1000 : null} style={{ width: '100%' }} />)}
+                })(<InputNumber min={1} max={record.paramsName == 'pageSize' ? 1000 : Infinity} style={{ width: '100%' }} />)}
             </FormItem>
         } else {
             initialValue = data && data[record.paramsName];
