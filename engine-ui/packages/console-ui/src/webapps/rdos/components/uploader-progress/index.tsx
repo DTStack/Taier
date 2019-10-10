@@ -11,8 +11,7 @@ const defaultStyle: any = {
     lineHeight: '28px',
     position: 'absolute',
     zIndex: '999',
-    right: 80,
-    top: 40
+    right: 210
 }
 class UploaderProgressBar extends React.Component<any, any> {
     constructor (props: any) {
