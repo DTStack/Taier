@@ -77,7 +77,7 @@ class CheckPoint extends React.Component<any, any> {
             title: 'StartTime',
             dataIndex: 'time',
             render (time: any) {
-                return utils.formatDateHours(time);
+                return utils.formatDateTime(time);
             }
         }, {
             title: '持续时间',
