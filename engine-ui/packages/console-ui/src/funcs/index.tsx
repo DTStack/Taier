@@ -242,7 +242,7 @@ export function filterComments (sql: string) {
             if (nextToken != -1) {
                 let end = nextToken - 1;
                 parser.comments.push({
-                    begin: begin - 1,
+                    begin: begin,
                     end: end
                 })
                 parser.index = end;
