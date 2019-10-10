@@ -112,7 +112,7 @@ class ColumnsConfig extends React.Component<any, any> {
                     render: (text: any, record: any) => {
                         return this.renderEdit('required', record.id, type, text)
                     },
-                    width: '40px'
+                    width: '60px'
                 },
                 {
                     title: '说明',
