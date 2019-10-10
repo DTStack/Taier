@@ -14,6 +14,7 @@ import { workbenchActions } from '../../../../store/modules/offlineTask/offlineA
 const Mx = MxFactory.create();
 const {
     mxEvent,
+    mxPopupMenu,
     mxCellHighlight
 } = Mx
 
@@ -89,6 +90,12 @@ class TaskView extends React.Component<any, any> {
         })
     }
 
+    isCurrentProjectTask = (node: any) => {
+        const { project } = this.props;
+        const projectId = project.id;
+        return node.projectId == projectId;
+    }
+
     loadWorkflowNodes = async (workflow: any) => {
         const ctx = this;
         this.setState({ loading: 'loading' });
@@ -120,8 +127,9 @@ class TaskView extends React.Component<any, any> {
                 const cell = evt.getProperty('cell')
                 if (cell && cell.vertex) {
                     const currentNode = cell.value;
-                    // TODO 存在跨项目跳转问题 添加节点所属项目是否当前项目的判断
-                    goToTaskDev(currentNode.id);
+                    if (ctx.isCurrentProjectTask(currentNode)) {
+                        goToTaskDev(currentNode.id);
+                    }
                 }
             })
 
@@ -177,13 +185,30 @@ class TaskView extends React.Component<any, any> {
         }
     }
 
+    initContextMenu = (graph: any) => {
+        const ctx = this
+        const { goToTaskDev } = this.props;
+        var mxPopupMenuShowMenu = mxPopupMenu.prototype.showMenu;
+        mxPopupMenu.prototype.showMenu = function () {
+            var cells = this.graph.getSelectionCells()
+            if (cells.length > 0 && cells[0].vertex) {
+                mxPopupMenuShowMenu.apply(this, arguments);
+            } else return false
+        };
+        graph.popupMenuHandler.autoExpand = true
+        graph.popupMenuHandler.factoryMethod = function (menu: any, cell: any, evt: any) {
+            if (!cell || !cell.vertex) return;
+
+            const currentNode = cell.value || {};
+            if (ctx.isCurrentProjectTask(currentNode)) {
+                menu.addItem('查看代码', null, function () {
+                    goToTaskDev(currentNode.id)
+                })
+            }
+        }
+    }
     onCloseWorkflow = () => {
         this.setState({ visibleWorkflow: false, workflowData: null, selectedTask: this.props.tabData });
-    }
-    isCurrentProjectTask = (node: any) => {
-        const { project } = this.props;
-        const projectId = project.id;
-        return node.projectId == projectId;
     }
     render () {
         const {
@@ -207,7 +232,7 @@ class TaskView extends React.Component<any, any> {
                     refresh={this.refresh}
                     registerEvent={this.initGraphEvent}
                     key={`task-graph-view-${graphData && graphData.id}`}
-                    // registerContextMenu={this.initContextMenu}
+                    registerContextMenu={this.initContextMenu}
                 />
                 <Modal
                     zIndex={999}
@@ -226,7 +251,7 @@ class TaskView extends React.Component<any, any> {
                         data={selectedWorkflowNode}
                         hideFooter={true}
                         registerEvent={this.initGraphEvent}
-                        // registerContextMenu={this.initContextMenu}
+                        registerContextMenu={this.initContextMenu}
                         graphData={workflowData && workflowData.subTaskVOS[0]}
                         key={`task-graph-workflow-${workflowData && workflowData.id}`}
                         refresh={this.loadWorkflowNodes.bind(this, workflowData)}

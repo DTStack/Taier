@@ -221,7 +221,7 @@ class TaskJobFlowView extends React.Component<any, any> {
                 if (!cell || !cell.vertex) return;
 
                 const currentNode = cell.data;
-                const isCurrentProjectTask = ctx.isCurrentProjectTask(currentNode);
+                const isCurrentProjectTask = ctx.isCurrentProjectTask(currentNode.batchTask);
                 const isWorkflowNode = currentNode.batchTask && currentNode.batchTask.flowId !== 0;
                 const taskId = currentNode.batchTask && currentNode.batchTask.id;
                 const isDelete = currentNode.batchTask && currentNode.batchTask.isDeleted === 1; // 已删除
@@ -258,23 +258,12 @@ class TaskJobFlowView extends React.Component<any, any> {
                     isAfter: true,
                     limit: 6
                 }
-                ctx.loadPeriodsData(menu, nextParams, nextPeriods)
-                menu.addItem(`${isPro ? '查看' : '修改'}任务`, null, function () {
-                    // TODO 获取当前节点的projectId 与当前项目的projectId 进行比较 如果是同一个则直接goToTaskDev 否则先调用getProject 再goToTaskDev（存在跨项目跳转问题）
-                    // TODO 当前后端传的projectId 为null 所以无法进行下一步判断
-                    if (isCurrentProjectTask) {
-                        // ctx.props.goToTaskDev(taskId);
-                    } else {
-                        console.log(currentNode);
-                        // ctx.props.getProject(currentNode.projectId);
-                    }
-                    ctx.props.goToTaskDev(taskId);
-                })
-                // if (isCurrentProjectTask) {
-                //     menu.addItem(`${isPro ? '查看' : '修改'}任务`, null, function () {
-                //         ctx.props.goToTaskDev(taskId)
-                //     })
-                // }
+                ctx.loadPeriodsData(menu, nextParams, nextPeriods);
+                if (isCurrentProjectTask) {
+                    menu.addItem(`${isPro ? '查看' : '修改'}任务`, null, function () {
+                        ctx.props.goToTaskDev(taskId)
+                    })
+                }
                 menu.addItem('终止', null, function () {
                     ctx.stopTask({
                         jobId: currentNode.id

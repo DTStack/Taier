@@ -26,10 +26,9 @@ import {
 
 import {
     workbenchActions
-} from '../../../store/modules/offlineTask/offlineAction'
-import { getProject } from '../../../store/modules/project';
+} from '../../../store/modules/offlineTask/offlineAction';
 
-import TaskJobFlowView from './taskJobFlowView'
+import TaskJobFlowView from './taskJobFlowView';
 // import utils from 'utils';
 import MultiSearchInput from 'widgets/multiSearchInput';
 
@@ -607,7 +606,7 @@ class PatchDataDetail extends React.Component<any, any> {
         } = this.state
 
         const {
-            projectUsers, project, goToTaskDev, getProject
+            projectUsers, project, goToTaskDev
         } = this.props
         const columns: any = this.initTaskColumns();
         const userItems = projectUsers && projectUsers.length > 0
@@ -809,7 +808,6 @@ class PatchDataDetail extends React.Component<any, any> {
                             <TaskJobFlowView
                                 visibleSlidePane={visibleSlidePane}
                                 goToTaskDev={goToTaskDev}
-                                getProject={getProject}
                                 taskJob={selectedTask}
                                 project={project}
                                 realod={this.search}
@@ -833,9 +831,6 @@ export default connect((state: any) => {
     return {
         goToTaskDev: (id: any) => {
             actions.openTaskInDev(id)
-        },
-        getProject: (projectId: any) => {
-            dispatch(getProject(projectId))
         }
     }
 })(PatchDataDetail)
