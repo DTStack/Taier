@@ -501,6 +501,8 @@ public class FlinkClient extends AbsClient {
                         return RdosTaskStatus.FINISHED;
                     }else if(finalApplicationStatus == FinalApplicationStatus.KILLED){
                         return RdosTaskStatus.KILLED;
+                    }else if(finalApplicationStatus == FinalApplicationStatus.UNDEFINED){
+                        return RdosTaskStatus.FAILED;
                     }else{
                         return RdosTaskStatus.RUNNING;
                     }
