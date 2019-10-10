@@ -10,23 +10,10 @@ class ApiSqlEditor extends React.Component<any, any> {
         visible: false
     }
     // eslint-disable-next-line
-    componentWillMount () {
-        if (this.props.disAbleTip) {
-            this.setState({
-                visible: false
-            })
-        }
-    }
     componentDidMount () {
-        if (this.props.isClickCode) {
-            this.setState({
-                visible: false
-            })
-        } else {
-            this.setState({
-                visible: true
-            })
-        }
+        this.setState({
+            visible: !this.props.disAbleTip
+        })
     }
     // select LOCK_NAME from QRTZ_LOCKS
     showModal () {
