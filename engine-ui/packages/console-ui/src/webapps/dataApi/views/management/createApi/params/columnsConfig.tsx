@@ -168,7 +168,7 @@ class ColumnsConfig extends React.Component<any, any> {
         const inputRemove = classnames('params_exchange_button', {
             'params_exchange_button_disable': !InputSelectedRows || InputSelectedRows.length == 0
         })
-        return <div className="required-tip middle-title middle-header">
+        return <div className="middle-title middle-header">
             输入参数：
             {mode == API_MODE.GUIDE && (
                 <div className="params_exchange_box">
