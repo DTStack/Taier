@@ -13,7 +13,7 @@ import { TASK_STATUS, TASK_TYPE } from '../../../../comm/const'
 import { taskStatusText } from '../../../../components/display'
 
 import JobGraphView, {
-    mergeTreeNodes, replacTreeNodeField
+    mergeTreeNodes, replaceTreeNodeField
 } from './jobGraphView';
 import MxFactory from 'widgets/mxGraph';
 
@@ -120,7 +120,7 @@ class TaskJobFlowView extends React.Component<any, any> {
                 const data = res.data
                 ctx.setState({ data, selectedJob: data })
                 // 替换 jobVos 字段为 parentNodes
-                replacTreeNodeField(res.data, 'jobVOS', 'parentNodes', 'parentNodes')
+                replaceTreeNodeField(res.data, 'jobVOS', 'parentNodes', 'parentNodes')
                 ctx.renderGraph(res.data);
             }
             ctx.setState({ loading: 'success' })
