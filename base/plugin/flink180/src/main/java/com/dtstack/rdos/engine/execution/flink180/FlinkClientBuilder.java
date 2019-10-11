@@ -242,6 +242,10 @@ public class FlinkClientBuilder {
 
         ApplicationId applicationId = acquireApplicationId(newConf);
 
+        if (!flinkConfig.getFlinkHighAvailabilityForBatch()) {
+            newConf.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.NONE.toString());
+        }
+
         AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, yarnConf, ".");
 
         ClusterClient<ApplicationId> clusterClient = null;
