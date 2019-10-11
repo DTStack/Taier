@@ -274,7 +274,7 @@ public class FlinkClientBuilder {
 
         } else if (!isPerjob) {
            //由engine管控的yarnsession clusterId不进行设置，默认使用appId作为clusterId
-            newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, null);
+            newConf.removeConfig(HighAvailabilityOptions.HA_CLUSTER_ID);
             if (!flinkConfig.getFlinkHighAvailabilityForBatch()) {
                 newConf.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.NONE.toString());
             }
