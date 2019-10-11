@@ -54,8 +54,8 @@ class FnForm extends React.Component<any, any> {
                         rules: [{
                             required: true, message: '函数名称不可为空！'
                         }, {
-                            pattern: /^[A-Za-z0-9]+$/,
-                            message: '函数名称只能由字母、数字组成!'
+                            pattern: /^[-a-z0-9_]+$/,
+                            message: '函数名称只能由小写字母、数字、下划线、短横线组成!'
                         }, {
                             max: 20,
                             message: '函数名称不得超过20个字符！'
