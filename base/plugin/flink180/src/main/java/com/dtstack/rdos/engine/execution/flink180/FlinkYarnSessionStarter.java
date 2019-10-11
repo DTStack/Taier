@@ -4,7 +4,6 @@ import com.dtstack.rdos.engine.execution.flink180.util.FLinkConfUtil;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.configuration.HighAvailabilityOptions;
 import org.apache.flink.configuration.IllegalConfigurationException;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFramework;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFrameworkFactory;
@@ -53,13 +52,11 @@ public class FlinkYarnSessionStarter {
         this.flinkConfig = flinkConfig;
         lockPath = String.format("%s/client/%s", flinkConfig.getFlinkZkNamespace(), flinkConfig.getCluster() + SPLIT + flinkConfig.getQueue());
 
-
         Configuration configuration = loadConfiguration(flinkConfig.getFlinkJarPath());
-        String clusterId = flinkConfig.getCluster() + SPLIT + flinkConfig.getQueue();
-        configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, clusterId);
+        this.configuration = configuration.clone();
 
-        this.configuration = configuration;
         this.yarnSessionDescriptor = flinkClientBuilder.createClusterDescriptorByMode(configuration, null, false);
+        String clusterId = flinkConfig.getCluster() + SPLIT + flinkConfig.getQueue();
         this.yarnSessionDescriptor.setName(flinkConfig.getFlinkSessionName() + SPLIT + clusterId);
         this.yarnSessionSpecification = FLinkConfUtil.createYarnSessionSpecification(flinkClientBuilder.getFlinkConfiguration());
 

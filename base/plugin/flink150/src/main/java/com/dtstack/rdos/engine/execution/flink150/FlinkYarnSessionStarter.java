@@ -4,7 +4,6 @@ import com.dtstack.rdos.engine.execution.flink150.util.FlinkConfUtil;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.configuration.HighAvailabilityOptions;
 import org.apache.flink.configuration.IllegalConfigurationException;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFramework;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFrameworkFactory;
@@ -35,7 +34,6 @@ public class FlinkYarnSessionStarter {
 
     public static final String FLINK_CONF_FILENAME = "flink-conf.yaml";
     private static final String SPLIT = "_";
-    private static final String FILESPLIT = "/";
 
     private String lockPath = null;
     private CuratorFramework zkClient;
