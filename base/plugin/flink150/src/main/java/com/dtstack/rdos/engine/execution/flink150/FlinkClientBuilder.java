@@ -238,14 +238,13 @@ public class FlinkClientBuilder {
 
         ApplicationId applicationId = acquireApplicationId(newConf);
 
-        ClusterClient<ApplicationId> clusterClient = null;
-
-        if(!newConf.containsKey(HighAvailabilityOptions.HA_CLUSTER_ID.key())){
-            newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, applicationId.toString());
+        if (!flinkConfig.getFlinkHighAvailabilityForBatch()) {
+            newConf.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.NONE.toString());
         }
 
         AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, yarnConf, ".", false);
 
+        ClusterClient<ApplicationId> clusterClient = null;
         try {
             clusterClient = clusterDescriptor.retrieve(applicationId);
         } catch (Exception e) {
@@ -268,6 +267,12 @@ public class FlinkClientBuilder {
             newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, jobClient.getTaskId());
             newConf.setInteger(YarnConfigOptions.APPLICATION_ATTEMPTS.key(), 0);
             perJobMetricConfigConfig(newConf);
+        } else if (!isPerjob) {
+            //由engine管控的yarnsession clusterId不进行设置，默认使用appId作为clusterId
+            newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, null);
+            if (!flinkConfig.getFlinkHighAvailabilityForBatch()) {
+                newConf.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.NONE.toString());
+            }
         }
 
         AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, yarnConf, ".", isPerjob);
@@ -368,8 +373,11 @@ public class FlinkClientBuilder {
                     maxMemory = thisMemory;
                     maxCores = thisCores;
                     applicationId = report.getApplicationId();
-                    if (!report.getName().endsWith(flinkConfig.getCluster() + "_" + flinkConfig.getQueue())){
+                    //clusterId不为空 且 yarnsession不是由engine来管控时，需要设置clusterId（兼容手动启动yarnsession的情况）
+                    if (StringUtils.isNotBlank(flinkConfig.getFlinkClusterId()) && !report.getName().endsWith(flinkConfig.getCluster() + "_" + flinkConfig.getQueue())){
                         configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, flinkConfig.getFlinkClusterId());
+                    } else {
+                        configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, applicationId.toString());
                     }
                 }
 

@@ -35,6 +35,7 @@ public class FlinkYarnSessionStarter {
 
     public static final String FLINK_CONF_FILENAME = "flink-conf.yaml";
     private static final String SPLIT = "_";
+    private static final String FILESPLIT = "/";
 
     private String lockPath = null;
     private CuratorFramework zkClient;
@@ -53,13 +54,11 @@ public class FlinkYarnSessionStarter {
         this.flinkConfig = flinkConfig;
         lockPath = String.format("%s/client/%s", flinkConfig.getFlinkZkNamespace(), flinkConfig.getCluster() + SPLIT + flinkConfig.getQueue());
 
-
         Configuration configuration = loadConfiguration(flinkConfig.getFlinkJarPath());
-        String clusterId = flinkConfig.getCluster() + SPLIT + flinkConfig.getQueue();
-        configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, clusterId);
+        this.configuration = configuration.clone();
 
-        this.configuration = configuration;
         this.yarnSessionDescriptor = flinkClientBuilder.createClusterDescriptorByMode(configuration, null, false);
+        String clusterId = flinkConfig.getCluster() + SPLIT + flinkConfig.getQueue();
         this.yarnSessionDescriptor.setName(flinkConfig.getFlinkSessionName() + SPLIT + clusterId);
         this.yarnSessionSpecification = FlinkConfUtil.createYarnSessionSpecification(flinkClientBuilder.getFlinkConfiguration());
 
