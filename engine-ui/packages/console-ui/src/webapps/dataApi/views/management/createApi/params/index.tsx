@@ -339,7 +339,6 @@ class ManageParamsConfig extends React.Component<any, any> {
         const { editor, isCheckParams } = this.state;
         if (!apiEdit && !isCheckParams) {
             this.sqlModeShowChange(false);
-            message.warning('请检查编辑参数！');
             return false;
         }
         this.setPassLoading(true);
