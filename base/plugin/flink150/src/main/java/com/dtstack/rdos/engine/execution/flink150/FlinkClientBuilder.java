@@ -272,7 +272,7 @@ public class FlinkClientBuilder {
             newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, jobClient.getTaskId());
             newConf.setInteger(YarnConfigOptions.APPLICATION_ATTEMPTS.key(), 0);
         } else if (!isPerjob) {
-            newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, null);
+            newConf.removeConfig(HighAvailabilityOptions.HA_CLUSTER_ID);
             if (!flinkConfig.getFlinkHighAvailabilityForBatch()) {
                 newConf.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.NONE.toString());
             }
