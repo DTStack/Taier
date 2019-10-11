@@ -143,9 +143,9 @@ class StreamDetailGraph extends React.Component<any, any> {
                                 continue;
                             }
                             if (tmpMap[key]) {
-                                tmpMap[key].push(chartData[key])
+                                tmpMap[key].push([i, chartData[key]])
                             } else {
-                                tmpMap[key] = [chartData[key]];
+                                tmpMap[key] = [[i, chartData[key]]];
                             }
                         }
                     }
