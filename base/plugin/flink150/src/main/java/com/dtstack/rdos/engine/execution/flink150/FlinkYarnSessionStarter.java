@@ -1,7 +1,7 @@
 package com.dtstack.rdos.engine.execution.flink150;
 
 import com.dtstack.rdos.engine.execution.flink150.constrant.ConfigConstrant;
-import com.dtstack.rdos.engine.execution.flink150.util.FLinkConfUtil;
+import com.dtstack.rdos.engine.execution.flink150.util.FlinkConfUtil;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFramework;
@@ -45,7 +45,7 @@ public class FlinkYarnSessionStarter {
 
         this.yarnSessionDescriptor = flinkClientBuilder.createClusterDescriptorByMode(null, false);
         this.yarnSessionDescriptor.setName(flinkConfig.getFlinkSessionName() + ConfigConstrant.SPLIT + clusterId);
-        this.yarnSessionSpecification = FLinkConfUtil.createYarnSessionSpecification(flinkClientBuilder.getFlinkConfiguration());
+        this.yarnSessionSpecification = FlinkConfUtil.createYarnSessionSpecification(flinkClientBuilder.getFlinkConfiguration());
 
         initZk();
         this.clusterClientLock = new InterProcessMutex(zkClient, lockPath);
