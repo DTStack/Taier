@@ -1,7 +1,7 @@
 import * as React from 'react'
 import {
     Row, Col, Icon, Tooltip, Table, Input,
-    Select, Collapse, Button, Popover, Popconfirm,
+    Select, Collapse, Button, Popover,
     Form, InputNumber
 } from 'antd'
 import { debounce, isEmpty } from 'lodash';
@@ -315,49 +315,41 @@ class OutputOrigin extends React.Component<any, any> {
                     </div>
                     {
                         haveTableColumn(panelColumn[index].type)
-                            ? <Col span={18} style={{ marginBottom: 20 }}>
-                                <div style={{ textAlign: 'right', padding: '8px 5px 5px 0px' }}>
-                                    <a onClick={() => { handleInputChange('addAllColumn', index) }} style={{ marginRight: 5 }}>导入全部字段</a>
-                                    <Popconfirm title="确认清空所有字段？" onConfirm={() => { handleInputChange('deleteAllColumn', index) }} okText="确认" cancelText="取消">
-                                        <a>清空</a>
-                                    </Popconfirm>
-                                </div>
-                                <div className="bd">
-                                    <Table scroll={{ y: 310 }} dataSource={panelColumn[index].columns} className="table-small" pagination={false} size="small" >
-                                        <Column
-                                            title="字段"
-                                            dataIndex="column"
-                                            key="字段"
-                                            width='50%'
-                                            render={(text: any, record: any, subIndex: any) => {
-                                                return <Select className="sub-right-select" value={text} onChange={(v: any) => { handleInputChange('subColumn', index, subIndex, v) }}
-                                                    showSearch filterOption={(input: any, option: any) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                                                >
-                                                    {
-                                                        tableColumnOptionTypes
-                                                    }
-                                                </Select>
-                                            }}
-                                        />
-                                        <Column
-                                            title="类型"
-                                            dataIndex="type"
-                                            key="类型"
-                                            width='40%'
-                                            render={(text: any, record: any, subIndex: any) => {
-                                                return <Input value={text} disabled />
-                                            }}
-                                        />
-                                        <Column
-                                            key="delete"
-                                            render={(text: any, record: any, subIndex: any) => { return <Icon type="close" style={{ fontSize: 16, color: '#888' }} onClick={() => { handleInputChange('deleteColumn', index, subIndex) }} /> }}
-                                        />
-                                    </Table>
-                                    <div style={{ padding: '0 20 20' }}>
-                                        <Button className="stream-btn" type="dashed" style={{ borderRadius: 5 }} onClick={() => { handleInputChange('columns', index, {}) }}>
-                                            <Icon type="plus" /><span> 添加输入</span>
-                                        </Button>
-                                    </div>
+                            ? <Col span={18} className="bd" style={{ marginBottom: 20 }}>
+                                <Table dataSource={panelColumn[index].columns} className="table-small" pagination={false} size="small" >
+                                    <Column
+                                        title="字段"
+                                        dataIndex="column"
+                                        key="字段"
+                                        width='50%'
+                                        render={(text: any, record: any, subIndex: any) => {
+                                            return <Select className="sub-right-select" value={text} onChange={(v: any) => { handleInputChange('subColumn', index, subIndex, v) }}
+                                                showSearch filterOption={(input: any, option: any) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                            >
+                                                {
+                                                    tableColumnOptionTypes
+                                                }
+                                            </Select>
+                                        }}
+                                    />
+                                    <Column
+                                        title="类型"
+                                        dataIndex="type"
+                                        key="类型"
+                                        width='40%'
+                                        render={(text: any, record: any, subIndex: any) => {
+                                            return <Input value={text} disabled />
+                                        }}
+                                    />
+                                    <Column
+                                        key="delete"
+                                        render={(text: any, record: any, subIndex: any) => { return <Icon type="close" style={{ fontSize: 16, color: '#888' }} onClick={() => { handleInputChange('deleteColumn', index, subIndex) }} /> }}
+                                    />
+                                </Table>
+                                <div style={{ padding: '0 20 20' }}>
+                                    <Button className="stream-btn" type="dashed" style={{ borderRadius: 5 }} onClick={() => { handleInputChange('columns', index, {}) }}>
+                                        <Icon type="plus" /><span> 添加输入</span>
+                                    </Button>
                                 </div>
                             </Col>
                             : <Col span={18} style={{ marginBottom: 20, height: 200 }}>
@@ -536,8 +528,7 @@ export default class OutputPanel extends React.Component<any, any> {
             tabTemplate.push('OutputForm');
             panelColumn.push(v);
         })
-        dispatch(BrowserAction.setOutputData({
-            taskId,
+        dispatch(BrowserAction.setOutputData({ taskId,
             sink: {
                 tabTemplate,
                 panelColumn,
@@ -548,8 +539,7 @@ export default class OutputPanel extends React.Component<any, any> {
                 tableOptionType,
                 tableColumnOptionType,
                 topicOptionType
-            }
-        }));
+            } }));
         this.setState({
             tabTemplate,
             panelColumn,
@@ -697,7 +687,7 @@ export default class OutputPanel extends React.Component<any, any> {
     }
 
     // eslint-disable-next-line
-    UNSAFE_componentWillReceiveProps (nextProps: any) {
+    UNSAFE_componentWillReceiveProps(nextProps: any) {
         const currentPage = nextProps.currentPage
         const oldPage = this.props.currentPage
         if (currentPage.id !== oldPage.id) {
@@ -818,16 +808,7 @@ export default class OutputPanel extends React.Component<any, any> {
             return flag;
         })
     }
-    getAllColumn (index: number) {
-        const { tableColumnOptionType } = this.state;
-        const columns = tableColumnOptionType[index] || [];
-        return columns.map((column: { key: string; type: string }) => {
-            return {
-                column: column.key,
-                type: column.type
-            }
-        })
-    }
+
     /**
      * 监听数据改变
      * @param {String} type 改变的属性
@@ -849,10 +830,6 @@ export default class OutputPanel extends React.Component<any, any> {
             panelColumn[index]['columns'][value].column = subValue;
             const subType = this.tableColumnType(index, subValue);
             panelColumn[index]['columns'][value].type = subType;
-        } else if (type == 'addAllColumn') {
-            panelColumn[index]['columns'] = this.getAllColumn(index);
-        } else if (type == 'deleteAllColumn') {
-            panelColumn[index]['columns'] = [];
         } else if (type == 'customParams') {
             changeCustomParams(panelColumn[index], value, subValue);
         } else {

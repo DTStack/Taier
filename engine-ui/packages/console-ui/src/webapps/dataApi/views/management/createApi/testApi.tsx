@@ -65,7 +65,7 @@ class TestApi extends React.Component<any, any> {
                         message: '请输入数字'
                     }],
                     initialValue: initialValue
-                })(<InputNumber min={1} max={record.paramsName == 'pageSize' ? 1000 : Infinity} style={{ width: '100%' }} />)}
+                })(<InputNumber min={1} style={{ width: '100%' }} />)}
             </FormItem>
         } else {
             initialValue = data && data[record.paramsName];
@@ -228,18 +228,7 @@ class TestApi extends React.Component<any, any> {
         })
     }
     pass () {
-        this.setState({
-            saveLoading: true
-        })
-        this.props.dataChange().then(() => {
-            this.setState({
-                saveLoading: false
-            })
-        }).catch(() => {
-            this.setState({
-                saveLoading: false
-            })
-        });
+        this.props.dataChange();
     }
     renderRequest (request: any) {
         if (!request) {
@@ -265,7 +254,7 @@ class TestApi extends React.Component<any, any> {
         );
     }
     render () {
-        const { loading, sync, testBody, saveLoading } = this.state;
+        const { loading, sync, testBody } = this.state;
         const { basicProperties, registerParams, respJson: testResult = {}, isRegister } = this.props;
         const wrapInputParams = this.wrapInputParams();
         const inputTableColumns = this.initColumns();
@@ -276,7 +265,7 @@ class TestApi extends React.Component<any, any> {
         if (isRegister) {
             let data = testResult ? testResult.data : null;
             if (data) {
-                resultText = utils.jsonFormat(data.result) || JSON.stringify(data.result, null, 2);
+                resultText = utils.jsonFormat(data.result) || data.result;
                 requestInfo = this.renderRequest(data.httpInfo);
             }
         } else {
@@ -378,7 +367,7 @@ class TestApi extends React.Component<any, any> {
                         <Button style={{ marginLeft: 8 }} onClick={() => this.prev()}>上一步</Button>
                     }
                     {
-                        <Button loading={saveLoading} type="primary" style={{ marginLeft: 8 }} onClick={() => this.pass()}>完成</Button>
+                        <Button type="primary" style={{ marginLeft: 8 }} onClick={() => this.pass()}>完成</Button>
                     }
 
                 </div>

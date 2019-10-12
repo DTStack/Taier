@@ -1,11 +1,10 @@
-import { debounce, endsWith, cloneDeep, range } from 'lodash';
+import { debounce, endsWith, cloneDeep } from 'lodash';
 import { notification, Modal } from 'antd';
 import { NotificationApi } from 'antd/lib/notification';
 import React from 'react';
 import { MY_APPS } from 'main/consts';
 import { rdosApp, streamApp, scienceApp } from 'config/base';
 import { mergeDeep } from 'utils/merge';
-import moment from 'moment';
 
 declare var window: any;
 
@@ -242,7 +241,7 @@ export function filterComments (sql: string) {
             if (nextToken != -1) {
                 let end = nextToken - 1;
                 parser.comments.push({
-                    begin: begin,
+                    begin: begin - 1,
                     end: end
                 })
                 parser.index = end;
@@ -623,50 +622,4 @@ export function filterPythonComment (codeText: string): string {
         }
         return line;
     }).join('\n');
-}
-
-/**
- * 创建timepicker disable区间
- * @param beginDate moment.Moment
- * @param endDate moment.Moment
- * @param type string
- * @param isEnd boolean
- */
-export function disableRangeCreater (beginDate: moment.Moment, endDate: moment.Moment, type: 'hour' | 'minute' | 'second', isEnd?: boolean): number[] {
-    beginDate = beginDate.clone();
-    endDate = endDate.clone();
-    let compareDate = isEnd ? endDate : beginDate;
-    let otherDate = isEnd ? beginDate : endDate;
-    let max;
-    let rangeValue;
-    switch (type) {
-        case 'hour': {
-            max = 24;
-            compareDate.hours(otherDate.hours());
-            rangeValue = otherDate.hours();
-            break;
-        }
-        case 'minute': {
-            if (otherDate.hours() != compareDate.hours()) {
-                return [];
-            }
-            max = 60;
-            compareDate.minutes(otherDate.minutes());
-            rangeValue = otherDate.minutes();
-            break;
-        }
-        case 'second': {
-            if (otherDate.hours() != compareDate.hours() || otherDate.minutes() != compareDate.minutes()) {
-                return [];
-            }
-            max = 60;
-            compareDate.seconds(otherDate.seconds());
-            rangeValue = otherDate.seconds();
-            break;
-        }
-    }
-    if (isEnd) {
-        return range(compareDate < otherDate ? (rangeValue - 1) : rangeValue);
-    }
-    return range(compareDate > otherDate ? rangeValue : (rangeValue + 1), max)
 }

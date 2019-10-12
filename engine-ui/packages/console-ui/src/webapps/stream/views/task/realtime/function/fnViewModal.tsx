@@ -3,7 +3,6 @@ import { Modal, Button, Spin } from 'antd';
 import moment from 'moment';
 
 import { getContainer } from 'funcs';
-import { FUNC_TYPE_TEXT } from '../../../../comm/const'
 
 import ajax from '../../../../api';
 
@@ -71,7 +70,7 @@ class FnViewModal extends React.Component<any, any> {
                                 </tr>
                                 <tr>
                                     <td>类型</td>
-                                    <td>{ FUNC_TYPE_TEXT[data.udfType as keyof typeof FUNC_TYPE_TEXT]}</td>
+                                    <td>{ data.udfType === 1 ? 'Table' : 'Scala' }</td>
                                 </tr>
                                 <tr>
                                     <td>用途</td>

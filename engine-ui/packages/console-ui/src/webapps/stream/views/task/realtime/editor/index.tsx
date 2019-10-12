@@ -2,6 +2,7 @@ import * as React from 'react'
 import { connect } from 'react-redux';
 import MrEditor from './mrEditor'
 import CodeEditor from './codeEditor';
+import CommonEditor from './commonEditor';
 import CollectionGuide from '../collection/guide'
 import CollectionScript from '../collection/script'
 import ConvertToScript from '../convertToScript';
@@ -41,11 +42,15 @@ export default class RealtimeEditor extends React.Component<any, any> {
         switch (currentPage.taskType) {
             case TASK_TYPE.SQL: {
                 if (currentPage.createModel == DATA_SYNC_TYPE.GUIDE || currentPage.createModel == null) {
-                    showContent = <CodeEditor {...this.props} key={currentPage.id + 'guide'} toolBarOptions={{
+                    showContent = <CodeEditor {...this.props} key={currentPage.id} toolBarOptions={{
                         leftCustomButton: <ConvertToScript isLocked={isLocked} />
                     }} />
                 } else if (currentPage.createModel == DATA_SYNC_TYPE.SCRIPT) {
-                    showContent = <CodeEditor {...this.props} key={currentPage.id + 'script'} />
+                    showContent = <CommonEditor
+                        mode="json"
+                        {...this.props}
+                        onFormat={this.formatJson}
+                    />
                 }
                 break;
             }

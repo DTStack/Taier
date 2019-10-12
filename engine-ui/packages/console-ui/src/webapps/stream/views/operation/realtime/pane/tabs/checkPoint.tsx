@@ -3,17 +3,17 @@ import utils from 'utils'
 import moment from 'moment'
 import { range } from 'lodash'
 
-import { Table, DatePicker, TimePicker } from 'antd'
+import { Table, DatePicker } from 'antd'
 
 import Api from '../../../../../api'
-import { disableRangeCreater } from 'funcs';
+
+const { RangePicker } = DatePicker;
 
 class CheckPoint extends React.Component<any, any> {
     state: any = {
-        day: moment(),
-        beginTime: moment('00:00:00', 'HH:mm:ss'),
-        endTime: moment('23:59:59', 'HH:mm:ss'),
-        list: []
+        dates: [],
+        list: [],
+        overview: {}
     }
 
     componentDidMount () {
@@ -21,13 +21,12 @@ class CheckPoint extends React.Component<any, any> {
     }
     initPage () {
         this.setState({
-            day: moment(),
-            beginTime: moment('00:00:00', 'HH:mm:ss'),
-            endTime: moment('23:59:59', 'HH:mm:ss')
+            dates: [],
+            overview: {}
         })
     }
     // eslint-disable-next-line
-    UNSAFE_componentWillReceiveProps (nextProps: any) {
+    UNSAFE_componentWillReceiveProps(nextProps: any) {
         const { data = {} } = this.props;
         const { data: nextData = {} } = nextProps;
         if (data.id != nextData.id
@@ -37,7 +36,7 @@ class CheckPoint extends React.Component<any, any> {
         }
     }
     getList (data?: any) {
-        let { day, beginTime, endTime } = this.state;
+        const { dates } = this.state;
         data = data || this.props.data;
 
         this.setState({
@@ -48,8 +47,8 @@ class CheckPoint extends React.Component<any, any> {
             return;
         }
 
-        beginTime = moment(day.format('YYYY MM DD') + ' ' + beginTime.format('HH:mm:ss'), 'YYYY MM DD HH:mm:ss').valueOf();
-        endTime = moment(day.format('YYYY MM DD') + ' ' + endTime.format('HH:mm:ss'), 'YYYY MM DD HH:mm:ss').valueOf();
+        let startTime = dates.length && dates[0] ? dates[0].valueOf() : undefined;
+        let endTime = dates.length > 1 && dates[1] ? dates[1].valueOf() : undefined;
 
         this.setState({
             loading: true
@@ -57,13 +56,14 @@ class CheckPoint extends React.Component<any, any> {
 
         Api.getCheckPointList({
             taskId: data.id,
-            startTime: beginTime,
+            startTime,
             endTime
         }).then(
             (res: any) => {
                 if (res.code == 1) {
                     this.setState({
-                        list: res.data.checkpointList
+                        list: res.data.checkpointList,
+                        overview: { ...res.data, checkpointList: undefined }
                     })
                 }
                 this.setState({
@@ -77,7 +77,7 @@ class CheckPoint extends React.Component<any, any> {
             title: 'StartTime',
             dataIndex: 'time',
             render (time: any) {
-                return utils.formatDateTime(time);
+                return utils.formatDateHours(time);
             }
         }, {
             title: '持续时间',
@@ -87,18 +87,13 @@ class CheckPoint extends React.Component<any, any> {
             }
         }]
     }
-    changeDate (date: moment.Moment) {
+    changeDate (dates: any) {
         this.setState({
-            day: date
-        }, this.getList.bind(this))
-    }
-    changeTime (type: string, date: moment.Moment) {
-        this.setState({
-            [type]: date
+            dates: dates
         }, this.getList.bind(this))
     }
     disabledDate = (current: any) => {
-        const now = moment('23:59:59', 'HH:mm:ss')
+        const now = moment()
         return current > now && current != now;
     }
     /**
@@ -138,48 +133,28 @@ class CheckPoint extends React.Component<any, any> {
         }
     }
     getTableTitle = () => {
-        const { day, beginTime, endTime } = this.state;
+        const { overview, dates } = this.state;
         return (
             <div style={{ padding: '10px 10px 11px 0px' }}>
-                <DatePicker
+                <RangePicker
                     onChange={this.changeDate.bind(this)}
-                    style={{ width: '150px', marginRight: 10 }}
-                    value={day}
+                    showTime={{
+                        disabledSeconds: true,
+                        format: 'HH:mm',
+                        defaultValue: [moment('00:00:00', 'HH:mm:ss'), moment()],
+                        hideDisabledOptions: true
+                    } as any}
+                    style={{ width: '250px' }}
+                    format="YYYY-MM-DD HH:mm"
+                    value={dates}
                     disabledDate={this.disabledDate}
-                    allowClear={false}
-                    placeholder='请选择日期'
+                // disabledTime={this.disabledTime}
                 />
-                开始时间：<TimePicker
-                    style={{ marginRight: 10 }}
-                    allowEmpty={false}
-                    onChange={this.changeTime.bind(this, 'beginTime')}
-                    value={beginTime}
-                    placeholder='开始时间'
-                    disabledHours={() => {
-                        return disableRangeCreater(beginTime, endTime, 'hour')
-                    }}
-                    disabledMinutes={() => {
-                        return disableRangeCreater(beginTime, endTime, 'minute')
-                    }}
-                    disabledSeconds={() => {
-                        return disableRangeCreater(beginTime, endTime, 'second')
-                    }}
-                />
-                截止时间：<TimePicker
-                    allowEmpty={false}
-                    onChange={this.changeTime.bind(this, 'endTime')}
-                    value={endTime}
-                    placeholder='结束时间'
-                    disabledHours={() => {
-                        return disableRangeCreater(beginTime, endTime, 'hour', true)
-                    }}
-                    disabledMinutes={() => {
-                        return disableRangeCreater(beginTime, endTime, 'minute', true)
-                    }}
-                    disabledSeconds={() => {
-                        return disableRangeCreater(beginTime, endTime, 'second', true)
-                    }}
-                />
+                <span className="checkpoint-overview">
+                    <span>checkpoint总数：{overview.totalCount}个</span>
+                    <span>成功：{overview.successCount}个</span>
+                    <span>失败：{overview.failCount}个</span>
+                </span>
             </div>
         )
     }

@@ -21,7 +21,7 @@ class Header extends React.Component<any, any> {
     }
 
     render () {
-        const { licenseApps, user } = this.props;
+        const { licenseApps } = this.props;
         const logo =
 
             <React.Fragment>
@@ -37,19 +37,11 @@ class Header extends React.Component<any, any> {
                     {window.APP_CONF.prefix}
                 </span>
             </React.Fragment>
-        const settingMenus = [{
-            id: 'admin/audit',
-            name: '安全审计',
-            link: `/admin/audit`,
-            enable: user.isRoot,
-            enableIcon: true,
-            className: 'safeaudit'
-        }];
+
         return <Navigator
             logo={logo}
             menuItems={[]}
             licenseApps={licenseApps}
-            settingMenus={settingMenus}
             {...this.props}
         />
     }

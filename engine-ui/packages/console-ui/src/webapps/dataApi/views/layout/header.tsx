@@ -82,7 +82,7 @@ class Header extends React.Component<any, any> {
 
     render () {
         const baseUrl = '/dataApi.html#/api'
-        const { app, licenseApps, user } = this.props;
+        const { app, licenseApps } = this.props;
         const fixArrChildrenApps = this.fixArrayIndex(licenseApps[4] && licenseApps[4].children);
         const overviewNav = fixArrChildrenApps[0];
         const marketNav = fixArrChildrenApps[1];
@@ -121,14 +121,7 @@ class Header extends React.Component<any, any> {
             link: `${baseUrl}/dataSource`,
             enable: dataSourceNav && dataSourceNav.isShow
         }];
-        const settingMenus: any = [{
-            id: 'admin/audit',
-            name: '安全审计',
-            link: `/admin/audit?app=dataApi`,
-            enable: user.isRoot,
-            enableIcon: true,
-            className: 'safeaudit'
-        }];
+
         const logo = <React.Fragment>
             <img
                 className='c-header__logo c-header__logo--api'
@@ -143,7 +136,6 @@ class Header extends React.Component<any, any> {
             logo={logo}
             menuItems={menuItems}
             licenseApps={licenseApps}
-            settingMenus={settingMenus}
             {...this.props}
             showHelpSite={true}
             helpUrl={docPath.INDEX}

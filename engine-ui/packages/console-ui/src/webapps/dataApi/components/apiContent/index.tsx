@@ -60,6 +60,7 @@ class Content extends React.Component<any, any> {
             mode, // 管理模式/用户模式
             isRegister,
             apiVersionCode, // 是否使用TOKEN
+            showRecord,
             token, // token
             showMarketInfo, // 是否显示订购情况
             showUserInfo, // 是否显示用户个人的调用信息
@@ -130,8 +131,8 @@ class Content extends React.Component<any, any> {
                         <p data-title="创建人：" className="pseudo-title p-line">{this.getValue('createUser')}</p>
                         {showExt && (
                             <div>
-                                <p data-title="最近修改人：" className="pseudo-title p-line">{this.getValue('modifyUser')}</p>
-                                <p data-title="最近修改时间：" className="pseudo-title p-line">{moment(this.getValue('gmtModified')).format('YYYY-MM-DD HH:mm:ss')}</p>
+                                <p data-title="最近修改人：" className="pseudo-title p-line">{showRecord.modifyUser}</p>
+                                <p data-title="最近修改时间：" className="pseudo-title p-line">{moment(showRecord.gmtModified).format('YYYY-MM-DD HH:mm:ss')}</p>
                             </div>
                         )}
                         <p data-title="备注：" className="pseudo-title p-line">

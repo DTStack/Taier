@@ -129,6 +129,7 @@ class TaskDetail extends React.Component<any, any> {
         const { visible } = this.state;
         const { tabData, projectUsers, isWorkflowNode, project, tabs, couldEdit, editor, updateTaskField } = this.props;
         const isPro = project.projectType == PROJECT_TYPE.PRO;
+
         const labelPrefix = isWorkflowNode ? '节点' : '任务';
         return <div className="m-taksdetail">
             <Collapse bordered={false} defaultActiveKey={['1', '2', '3']}>
@@ -145,7 +146,6 @@ class TaskDetail extends React.Component<any, any> {
                         projectUsers={projectUsers}
                         onSelect={this.onSelectUser}
                         onOk={this.modifyTaskOwner}
-                        currentOwner={tabData.ownerUser}
                         defaultValue={`${tabData.ownerUserId || ''}`}
                         onCancel={() => { this.setState({ visible: false }) }}
                     />

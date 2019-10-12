@@ -26,9 +26,9 @@ import {
 
 import {
     workbenchActions
-} from '../../../store/modules/offlineTask/offlineAction';
+} from '../../../store/modules/offlineTask/offlineAction'
 
-import TaskJobFlowView from './taskJobFlowView';
+import TaskJobFlowView from './taskJobFlowView'
 // import utils from 'utils';
 import MultiSearchInput from 'widgets/multiSearchInput';
 
@@ -98,7 +98,7 @@ class PatchDataDetail extends React.Component<any, any> {
         const {
             fillJobName, dutyUserId, jobStatuses,
             bizDay, current, taskName, taskType,
-            execTimeSort, execStartSort, cycSort, retryNumSort,
+            execTimeSort, execStartSort, cycSort,
             businessDateSort, expandedRowKeys, table, searchType
         } = this.state;
         const reqParams: any = {
@@ -140,7 +140,6 @@ class PatchDataDetail extends React.Component<any, any> {
         reqParams.execStartSort = execStartSort || undefined;
         reqParams.cycSort = cycSort || undefined;
         reqParams.businessDateSort = businessDateSort || undefined;
-        reqParams.retryNumSort = retryNumSort || undefined;
         reqParams.searchType = searchType;
 
         return reqParams;
@@ -323,8 +322,7 @@ class PatchDataDetail extends React.Component<any, any> {
             execTimeSort: '', // 运行时长
             execStartSort: '', // 执行开始
             cycSort: '', // 计划时间
-            businessDateSort: '',
-            retryNumSort: ''
+            businessDateSort: ''
 
         }
         if (sorter) {
@@ -345,10 +343,6 @@ class PatchDataDetail extends React.Component<any, any> {
                 }
                 case 'bizDay': {
                     params.businessDateSort = order === 'descend' ? 'desc' : 'asc';
-                    break;
-                }
-                case 'retryNum': {
-                    params.retryNumSort = order === 'descend' ? 'desc' : 'asc';
                     break;
                 }
             }
@@ -492,8 +486,7 @@ class PatchDataDetail extends React.Component<any, any> {
         }, {
             title: '重试次数',
             dataIndex: 'retryNum',
-            key: 'retryNum',
-            sorter: true
+            key: 'retryNum'
         }, {
             title: '责任人',
             dataIndex: 'dutyUserName',

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Modal, Button, Collapse, Input, Icon, Spin } from 'antd';
+import { Modal, Button, Collapse, Input, Icon } from 'antd';
 import { assign } from 'lodash';
 
 import utils from 'utils';
@@ -13,62 +13,31 @@ class DataPreviewModal extends React.Component<any, any> {
     constructor (props: any) {
         super(props)
         this.state = {
-            loading: false,
             previewData: [] // panel数据，若props传入dataSource，数据则为dataSource
         };
-        this.retryCount = 0;
     }
-    retryCount: number;
-    MAX_RETRY_COUNT: number = 3;
-    _clock: any;
-    componentDidUpdate (prevProps: any) {
-        const params = this.props.params
-        if (prevProps.visible != this.props.visible && this.props.visible && params) {
+    /* eslint-disable-next-line */
+    UNSAFE_componentWillReceiveProps(nextProps: any) {
+        const params = nextProps.params
+        if (this.props.visible != nextProps.visible && nextProps.visible && params) {
             this.setState({
                 previewData: []
             })
-            clearTimeout(this._clock);
-            this.retryCount = 0;
             this.getDataPreviewList(params);
         }
     }
-    componentWillUnmount () {
-        clearTimeout(this._clock);
-    }
     getDataPreviewList = (params: any) => {
-        this.setState({
-            loading: true
-        })
         Api.getDataPreview(params).then((res: any) => {
-            if (params != this.props.params) {
-                return;
-            }
             if (res.code === 1) {
-                if (res.data) {
-                    this.setState({
-                        previewData: res.data,
-                        loading: false
-                    })
-                } else if (this.retryCount < this.MAX_RETRY_COUNT) {
-                    this._clock = setTimeout(() => {
-                        this.getDataPreviewList(params)
-                    }, 1000)
-                    this.retryCount++;
-                } else {
-                    this.setState({
-                        loading: false
-                    })
-                }
-            } else {
                 this.setState({
-                    loading: false
+                    previewData: res.data || []
                 })
             }
         })
     }
     render () {
         const { visible, onCancel, className, style, dataSource } = this.props;
-        const { previewData, loading } = this.state;
+        const { previewData } = this.state;
         let defaultStyle: any = {
             maxHeight: '300px',
             minHeight: '200px'
@@ -106,16 +75,9 @@ class DataPreviewModal extends React.Component<any, any> {
                                 })
                             }
                         </Collapse>
-                    ) : (<div style={{ textAlign: 'center' }}>
-                        {
-                            loading ? <React.Fragment>
-                                <Spin size="small" tip="加载中..." />
-                            </React.Fragment>
-                                : <React.Fragment>
-                                    <Icon type="frown-o" /> 暂无数据
-                                </React.Fragment>
-                        }
-                    </div>)
+                    ) : (
+                        <div style={{ textAlign: 'center' }}><Icon type="frown-o" />  暂无数据</div>
+                    )
                 }
             </Modal>
         )

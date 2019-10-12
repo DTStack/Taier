@@ -61,8 +61,7 @@ export const COMPONENT_TYPE_VALUE: any = {
     CARBONDATA: 7,
     LIBRASQL: 8,
     HIVESERVER: 9,
-    SFTP: 10,
-    IMPALASQL: 11
+    SFTP: 10
 }
 export const DEFAULT_COMP_TEST: any = { // 测试结果默认数据
     flinkTestResult: {},
@@ -75,7 +74,6 @@ export const DEFAULT_COMP_TEST: any = { // 测试结果默认数据
     carbonTestResult: {},
     hiveServerTestResult: {},
     libraSqlTestResult: {},
-    impalaSqlTestResult: {},
     sftpTestResult: {}
 }
 export const DEFAULT_COMP_REQUIRED: any = { // 必填默认数据
@@ -89,7 +87,6 @@ export const DEFAULT_COMP_REQUIRED: any = { // 必填默认数据
     carbonShowRequired: false,
     hiveServerShowRequired: false,
     libraShowRequired: false,
-    impalaSqlRequired: false,
     sftpShowRequired: false
 }
 export const HADOOP_GROUP_VALUE: any = [ // hadoop 引擎支持的组件类型(复选框)
@@ -102,8 +99,7 @@ export const HADOOP_GROUP_VALUE: any = [ // hadoop 引擎支持的组件类型(�
     { label: 'SparkThrift', value: COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER },
     { label: 'CarbonData', value: COMPONENT_TYPE_VALUE.CARBONDATA },
     { label: 'Hive Server', value: COMPONENT_TYPE_VALUE.HIVESERVER },
-    { label: 'SFTP', value: COMPONENT_TYPE_VALUE.SFTP },
-    { label: 'Impala SQL', value: COMPONENT_TYPE_VALUE.IMPALASQL }
+    { label: 'SFTP', value: COMPONENT_TYPE_VALUE.SFTP }
 ];
 export const COMPONEMT_CONFIG_KEYS: any = {
     FLINK: 'flinkConf',
@@ -116,8 +112,7 @@ export const COMPONEMT_CONFIG_KEYS: any = {
     CARBONDATA: 'carbonConf',
     LIBRASQL: 'libraConf',
     HIVESERVER: 'hiveServerConf',
-    SFTP: 'sftpConf',
-    IMPALASQL: 'impalaSqlConf'
+    SFTP: 'sftpConf'
 }
 // 组件对应的key值
 export const COMPONEMT_CONFIG_KEY_ENUM: any = {
@@ -131,8 +126,7 @@ export const COMPONEMT_CONFIG_KEY_ENUM: any = {
     [COMPONENT_TYPE_VALUE.CARBONDATA]: COMPONEMT_CONFIG_KEYS.CARBONDATA,
     [COMPONENT_TYPE_VALUE.HIVESERVER]: COMPONEMT_CONFIG_KEYS.HIVESERVER,
     [COMPONENT_TYPE_VALUE.LIBRASQL]: COMPONEMT_CONFIG_KEYS.LIBRASQL,
-    [COMPONENT_TYPE_VALUE.SFTP]: COMPONEMT_CONFIG_KEYS.SFTP,
-    [COMPONENT_TYPE_VALUE.IMPALASQL]: COMPONEMT_CONFIG_KEYS.IMPALASQL
+    [COMPONENT_TYPE_VALUE.SFTP]: COMPONEMT_CONFIG_KEYS.SFTP
 };
 
 export const API_MODE: any = {
@@ -244,9 +238,6 @@ export const validateHiveParams: any = [ // hive <=> Spark Thrift Server
 export const validateCarbonDataParams: any = [ // carbonData
     'carbonConf.jdbcUrl',
     'carbonConf.kerberosFile'
-]
-export const validateImpalaSqlParams: any = [ // impalaSql
-    'impalaSqlConf.jdbcUrl'
 ]
 export const validateHiveServerParams: any = [ // carbonData
     'hiveServerConf.jdbcUrl',

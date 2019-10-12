@@ -225,9 +225,6 @@ class FolderTree extends React.Component<any, any> {
                         txt: '上传资源',
                         cb: this.createResource.bind(this, data)
                     }, {
-                        txt: '替换资源',
-                        cb: this.coverResFile.bind(this, data)
-                    }, {
                         txt: '新建文件夹',
                         cb: this.createFolder.bind(this, data, treeType)
                     }])

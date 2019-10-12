@@ -1,7 +1,7 @@
 // 常量
 
 // Engine source 类型
-export const ENGINE_SOURCE_TYPE = {
+export const ENGINE_SOURCE_TYPE: any = {
     HADOOP: 1,
     LIBRA: 2
 }
@@ -16,29 +16,29 @@ export const ENGINE_SOURCE_TYPE_OPTIONS: any = [
         value: ENGINE_SOURCE_TYPE.LIBRA
     }
 ]
-export const ENGINE_TYPE_NAME = {
+export const ENGINE_TYPE_NAME: any = {
     HADOOP: 'Hadoop',
     LIBRA: 'LibrA'
 }
-export const TABLE_TYPE = {
+export const TABLE_TYPE: any = {
     HIVE: 1,
     LIBRA: 2
 }
-export const TABLE_NAME_BY_TABLE_TYPE = {
+export const TABLE_NAME_BY_TABLE_TYPE: any = {
     1: 'Hive',
     2: 'librA'
 }
-export const INTERNAL_OR_EXTERNAL_TABLE = {
+export const INTERNAL_OR_EXTERNAL_TABLE: any = {
     EXTERNAL: 'EXTERNAL',
     MANAGED: 'MANAGED'
 }
-export const KYLIN_ACTION = {
+export const KYLIN_ACTION: any = {
     BUILD: 'Build',
     MERGE: 'Merge',
     REFRESH: 'Refresh'
 }
 
-export const DATA_SOURCE = {
+export const DATA_SOURCE: any = {
     MYSQL: 1,
     ORACLE: 2,
     SQLSERVER: 3,
@@ -56,21 +56,20 @@ export const DATA_SOURCE = {
     CARBONDATA: 20,
     LIBRASQL: 21,
     GBASE: 22,
-    KYLIN: 23,
-    KUDU: 24
+    KYLIN: 23
 }
 
 /**
  * 引擎类型
  */
-export const ENGINE_TYPE = {
+export const ENGINE_TYPE: any = {
     SPARK: 0,
     LIBRA: 1,
     KYLIN: 2,
     HAWQ: 3
 }
 
-export const DATA_SOURCE_TEXT = {
+export const DATA_SOURCE_TEXT: any = {
     1: 'MySQL',
     2: 'Oracle',
     3: 'SQLServer',
@@ -87,19 +86,18 @@ export const DATA_SOURCE_TEXT = {
     20: 'DTinsightAnalytics',
     21: 'LibrA',
     22: 'GBase',
-    23: 'Kylin',
-    24: 'Kudu'
+    23: 'Kylin'
 }
 
 // 锁类型
-export const LOCK_TYPE = {
+export const LOCK_TYPE: any = {
     OFFLINE_TASK: 'BATCH_TASK',
     OFFLINE_SCRIPT: 'BATCH_SCRIPT',
     STREAM_TASK: 'STREAM_TASK'
 }
 
 // 资源类型
-export const RESOURCE_TYPE = {
+export const RESOURCE_TYPE: any = {
     0: 'other',
     OTHER: 0,
     1: 'jar',
@@ -111,7 +109,7 @@ export const RESOURCE_TYPE = {
     4: 'egg',
     EGG: 4
 }
-export const RESOURCE_TYPE_MAP = {
+export const RESOURCE_TYPE_MAP: any = {
     0: 'other',
     1: 'jar',
     2: 'py',
@@ -120,25 +118,25 @@ export const RESOURCE_TYPE_MAP = {
 }
 
 // 调度状态
-export const SCHEDULE_STATUS = {
+export const SCHEDULE_STATUS: any = {
     NORMAL: 1,
     STOPPED: 2
 }
 
 //
-export const APPLY_RESOURCE_TYPE = {
+export const APPLY_RESOURCE_TYPE: any = {
     TABLE: 0,
     FUNCTION: 1,
     SOURCE: 2
 }
 
 // 数据操作类型
-export const CAT_TYPE = {
+export const CAT_TYPE: any = {
     INSERT: 1,
     UPDATE: 2,
     DELETE: 3
 }
-export const COLLECT_TYPE = {
+export const COLLECT_TYPE: any = {
     ALL: 0,
     TIME: 1,
     FILE: 2
@@ -146,11 +144,11 @@ export const COLLECT_TYPE = {
 /**
  * 项目创建方式 (引擎 创建 or 对接)
  */
-export const PROJECT_CREATE_MODEL = {
+export const PROJECT_CREATE_MODEL: any = {
     NORMAL: 0,
     IMPORT: 1
 }
-export const MENU_TYPE = {
+export const MENU_TYPE: any = {
     TASK: 'TaskManager',
     TASK_DEV: 'TaskDevelop',
     SCRIPT: 'ScriptManager',
@@ -164,14 +162,14 @@ export const MENU_TYPE = {
     TABLE: 'TableQuery'
 }
 
-export const PROJECT_TYPE = {
+export const PROJECT_TYPE: any = {
     COMMON: 0, // 普通
     TEST: 1, // 测试
     PRO: 2// 生产
 }
 
 // 发布的item类别
-export const publishType = {
+export const publishType: any = {
     TASK: 0,
     TABLE: 1,
     RESOURCE: 2,
@@ -179,13 +177,13 @@ export const publishType = {
 }
 
 // 发布状态
-export const publishStatus = {
+export const publishStatus: any = {
     UNSUBMIT: 0,
     SUCCESS: 1,
     FAIL: 2
 }
 
-export const PROJECT_ROLE = { // 项目角色
+export const PROJECT_ROLE: any = { // 项目角色
     PROJECT_OWNER: 2, // 项目所有者
     TENANT_OWVER: 1, // 租户所有者
     VISITOR: 4 // 访客
@@ -207,7 +205,7 @@ export const SUPPROT_SUB_LIBRARY_DB_ARRAY: any = [ // 支持分库分表的数�
     // DATA_SOURCE.POSTGRESQL,
 ]
 
-export const TASK_TYPE = { // 任务类型
+export const TASK_TYPE: any = { // 任务类型
     VIRTUAL_NODE: -1,
     SQL: 0,
     MR: 1,
@@ -226,41 +224,39 @@ export const TASK_TYPE = { // 任务类型
     EXPERIMENT: 14,
     LIBRASQL: 15,
     CUBE_KYLIN: 16,
-    HIVESQL: 17,
-    IMPALA_SQL: 18// ImpalaSQL
+    HIVESQL: 17
 }
 
-export const LEARNING_TYPE = {// 深度学习框架
+export const LEARNING_TYPE: any = {// 深度学习框架
     TENSORFLOW: 0,
     MXNET: 1
 }
-export const PYTON_VERSION = {
+export const PYTON_VERSION: any = {
     PYTHON2: 2,
     PYTHON3: 3
 }
 
-export const DATA_SYNC_TYPE = { // 数据同步配置模式
+export const DATA_SYNC_TYPE: any = { // 数据同步配置模式
     GUIDE: 0,
     SCRIPT: 1
 }
 
-export const DATA_SYNC_MODE = { // 数据同步模式-正常/增量
+export const DATA_SYNC_MODE: any = { // 数据同步模式-正常/增量
     NORMAL: 0, // 正常
     INCREMENT: 1 // 增量
 }
 
-export const DEAL_MODEL_TYPE = {// python和深度学习操作类型
+export const DEAL_MODEL_TYPE: any = {// python和深度学习操作类型
     EDIT: 1,
     RESOURCE: 0
 }
 
-export const SCRIPT_TYPE = { // 脚本类型
+export const SCRIPT_TYPE: any = { // 脚本类型
     SQL: 0,
     PYTHON2: 1,
     PYTHON3: 2,
     SHELL: 3,
-    LIBRASQL: 4,
-    IMPALA_SQL: 5
+    LIBRASQL: 4
 }
 
 export const TASK_TYPE_ARRAY: any = [ //
@@ -271,20 +267,20 @@ export const TASK_TYPE_ARRAY: any = [ //
     TASK_TYPE.VIRTUAL_NODE
 ]
 
-export const HELP_DOC_URL = {
+export const HELP_DOC_URL: any = {
     INDEX: '/public/helpSite/batch/v3.0/Summary.html',
     DATA_SOURCE: '/public/helpSite/batch/v3.0/DataIntegration/Overview.html',
     DATA_SYNC: '/public/helpSite/batch/v3.0/DataIntegration/JobConfig.html',
     TASKPARAMS: '/public/helpSite/batch/v3.0/DataDevelop/ScheduleConfig.html#ParamConfig'
 }
-export const HADOOPMR_INITIAL_VALUE = {
+export const HADOOPMR_INITIAL_VALUE: any = {
     'mapper': 'org.apache.hadoop.examples.WordCount$TokenizerMapper',
     'reducer': 'org.apache.hadoop.examples.WordCount$IntSumReducer',
     'inputPath': 'input.txt',
     'outputPath': 'output3.txt'
 }
-export const TASK_STATUS = { // 任务状态
-    ALL: null as any,
+export const TASK_STATUS: any = { // 任务状态
+    ALL: null,
     WAIT_SUBMIT: 0,
     CREATED: 1,
     INVOKED: 2,
@@ -313,7 +309,7 @@ export const TASK_STATUS = { // 任务状态
 // "3":"刷新频率",
 // "4":"增量",
 // "5":"自定义"
-export const TABLE_MODEL_RULE = {
+export const TABLE_MODEL_RULE: any = {
     LEVEL: 1,
     SUBJECT: 2,
     FREQUENCY: 3,
@@ -413,8 +409,8 @@ export const taskStatusFilter: any = [{
     value: TASK_STATUS.RUN_FAILED
 }]
 
-export const taskStatus = {
-    'ALL': null as any,
+export const taskStatus: any = {
+    'ALL': null,
     'UNSUBMIT': 0,
     'WAITING_RUN': 16,
     'FINISHED': 5,
@@ -539,10 +535,6 @@ export const offlineTaskTypeFilter: any = [
         id: 15,
         text: 'LibraSQL',
         value: TASK_TYPE.LIBRASQL
-    }, {
-        id: 16,
-        text: 'ImpalaSQL',
-        value: TASK_TYPE.IMPALA_SQL
     }]
 
 export const offlineTaskPeriodFilter: any = [{
@@ -630,9 +622,24 @@ export const DataSourceTypeFilter: any = [{ // 离线数据源类型过滤选项
 }, {
     text: 'MongoDB',
     value: DATA_SOURCE.MONGODB
-}];
+}]
 
-export const propEditorOptions = { // 编辑器选项
+export const StreamDataSourceTypeFilter: any = [{ // 实时数据源类型过滤选项
+    text: 'MySQL',
+    value: DATA_SOURCE.MYSQL
+}, {
+    text: 'HBase',
+    value: DATA_SOURCE.HBASE
+}, {
+    text: 'ElasticSearch',
+    value: DATA_SOURCE.ES
+}, {
+    text: 'Kafka',
+    value: DATA_SOURCE.KAFKA
+}
+]
+
+export const propEditorOptions: any = { // 编辑器选项
     mode: 'text/x-properties',
     lint: true,
     indentWithTabs: true,
@@ -641,7 +648,7 @@ export const propEditorOptions = { // 编辑器选项
     autofocus: false
 }
 
-export const jsonEditorOptions = { // json编辑器选项
+export const jsonEditorOptions: any = { // json编辑器选项
     mode: 'application/json',
     lint: true,
     indentWithTabs: true,
@@ -651,7 +658,7 @@ export const jsonEditorOptions = { // json编辑器选项
     matchBrackets: true
 }
 
-export const transformRuleType = { // 整库迁移高级设置转换类型
+export const transformRuleType: any = { // 整库迁移高级设置转换类型
     1: 'nameRule',
     2: 'columnRule',
     3: 'typeRule'

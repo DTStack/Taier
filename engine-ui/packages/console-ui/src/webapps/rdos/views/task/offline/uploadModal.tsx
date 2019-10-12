@@ -15,7 +15,6 @@ import FolderPicker from './folderTree';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
-const resourceType: any = RESOURCE_TYPE;
 
 class ResForm extends React.Component<any, any> {
     constructor (props: any) {
@@ -45,7 +44,7 @@ class ResForm extends React.Component<any, any> {
             return;
         }
         const { fileType } = this.state;
-        const fileSuffix = resourceType[fileType];
+        const fileSuffix = RESOURCE_TYPE[fileType];
         const suffix = value.split('.').slice(1).pop();
         if (fileType == RESOURCE_TYPE.OTHER) {
             callback();
@@ -78,7 +77,7 @@ class ResForm extends React.Component<any, any> {
         } = this.props;
         let accept: any;
         if (fileType != RESOURCE_TYPE.OTHER) {
-            accept = `.${resourceType[fileType]}`;
+            accept = `.${RESOURCE_TYPE[fileType]}`;
         }
 
         if (!isCoverUpload) {
@@ -121,10 +120,10 @@ class ResForm extends React.Component<any, any> {
                             })
                             this.resetFile();
                         }}>
-                            <Option value={RESOURCE_TYPE.JAR} key={RESOURCE_TYPE.JAR}>{resourceType[RESOURCE_TYPE.JAR]}</Option>
-                            <Option value={RESOURCE_TYPE.PY} key={RESOURCE_TYPE.PY}>{resourceType[RESOURCE_TYPE.PY]}</Option>
-                            <Option value={RESOURCE_TYPE.EGG} key={RESOURCE_TYPE.EGG}>{resourceType[RESOURCE_TYPE.EGG]}</Option>
-                            <Option value={RESOURCE_TYPE.ZIP} key={RESOURCE_TYPE.ZIP}>{resourceType[RESOURCE_TYPE.ZIP]}</Option>
+                            <Option value={RESOURCE_TYPE.JAR} key={RESOURCE_TYPE.JAR}>{RESOURCE_TYPE[RESOURCE_TYPE.JAR]}</Option>
+                            <Option value={RESOURCE_TYPE.PY} key={RESOURCE_TYPE.PY}>{RESOURCE_TYPE[RESOURCE_TYPE.PY]}</Option>
+                            <Option value={RESOURCE_TYPE.EGG} key={RESOURCE_TYPE.EGG}>{RESOURCE_TYPE[RESOURCE_TYPE.EGG]}</Option>
+                            <Option value={RESOURCE_TYPE.ZIP} key={RESOURCE_TYPE.ZIP}>{RESOURCE_TYPE[RESOURCE_TYPE.ZIP]}</Option>
                             <Option value={RESOURCE_TYPE.OTHER} key={RESOURCE_TYPE.OTHER}>其它</Option>
                         </Select>
                     )}
@@ -259,10 +258,10 @@ class ResForm extends React.Component<any, any> {
                             })
                             this.resetFile();
                         }}>
-                            <Option value={RESOURCE_TYPE.JAR} key={RESOURCE_TYPE.JAR}>{resourceType[RESOURCE_TYPE.JAR]}</Option>
-                            <Option value={RESOURCE_TYPE.PY} key={RESOURCE_TYPE.PY}>{resourceType[RESOURCE_TYPE.PY]}</Option>
-                            <Option value={RESOURCE_TYPE.EGG} key={RESOURCE_TYPE.EGG}>{resourceType[RESOURCE_TYPE.EGG]}</Option>
-                            <Option value={RESOURCE_TYPE.ZIP} key={RESOURCE_TYPE.ZIP}>{resourceType[RESOURCE_TYPE.ZIP]}</Option>
+                            <Option value={RESOURCE_TYPE.JAR} key={RESOURCE_TYPE.JAR}>{RESOURCE_TYPE[RESOURCE_TYPE.JAR]}</Option>
+                            <Option value={RESOURCE_TYPE.PY} key={RESOURCE_TYPE.PY}>{RESOURCE_TYPE[RESOURCE_TYPE.PY]}</Option>
+                            <Option value={RESOURCE_TYPE.EGG} key={RESOURCE_TYPE.EGG}>{RESOURCE_TYPE[RESOURCE_TYPE.EGG]}</Option>
+                            <Option value={RESOURCE_TYPE.ZIP} key={RESOURCE_TYPE.ZIP}>{RESOURCE_TYPE[RESOURCE_TYPE.ZIP]}</Option>
                             <Option value={RESOURCE_TYPE.OTHER} key={RESOURCE_TYPE.OTHER}>其它</Option>
                         </Select>
                     )}
@@ -398,35 +397,21 @@ class ResModal extends React.Component<any, any> {
         form.validateFields((err: any, values: any) => {
             if (!err) {
                 values.file = this.state.file.files[0];
-                values.resourceDesc = values.resourceDesc || '';
                 this.setState({
                     loading: true
                 })
-                if (this.props.isCoverUpload) {
-                    this.props.replaceResource(values)
-                        .then((success: any) => {
-                            this.setState({
-                                loading: false
-                            })
-                            if (success) {
-                                this.closeModal();
-                                this.setState({ file: '' });
-                                form.resetFields();
-                            }
-                        });
-                } else {
-                    this.props.addResource(values)
-                        .then((success: any) => {
-                            this.setState({
-                                loading: false
-                            })
-                            if (success) {
-                                this.closeModal();
-                                this.setState({ file: '' });
-                                form.resetFields();
-                            }
-                        });
-                }
+                values.isCoverUpload = this.props.isCoverUpload;
+                this.props.addResource(values)
+                    .then((success: any) => {
+                        this.setState({
+                            loading: false
+                        })
+                        if (success) {
+                            this.closeModal();
+                            this.setState({ file: '' });
+                            form.resetFields();
+                        }
+                    });
             }
         });
     }
@@ -506,21 +491,12 @@ export default connect((state: any) => {
 
                     if (res.code === 1) {
                         message.success('资源上传成功！');
-                        dispatch({
-                            type: resTreeAction.ADD_FOLDER_CHILD,
-                            payload: data
-                        });
-                        return true;
-                    }
-                })
-        },
-        replaceResource: function (params: any) {
-            return ajax.replaceOfflineResource(params)
-                .then((res: any) => {
-                    let { code } = res;
-
-                    if (code === 1) {
-                        message.success('资源替换成功！');
+                        if (!params.isCoverUpload) {
+                            dispatch({
+                                type: resTreeAction.ADD_FOLDER_CHILD,
+                                payload: data
+                            });
+                        }
                         return true;
                     }
                 })

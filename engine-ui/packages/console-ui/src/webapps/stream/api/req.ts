@@ -57,7 +57,6 @@ export default {
     CLONE_TASK: `${STREAM_BASE_URL}/streamTask/cloneTask`, // 克隆任务
     TASK_STATISTICS: `${STREAM_BASE_URL}/streamTask/getStatusCount`, // 实时任务个状态数量统计
     GET_TASK_LOG: `${STREAM_BASE_URL}/streamServerLog/getLogsByTaskId`, // 获取任务告警日志
-    GET_TASK_FAILOVER_LOG: `${STREAM_BASE_URL}/streamServerLog/getFailoverLogsByTaskId`, // 获取任务告警日志
     GET_RUNNING_TASK_LOG: `${STREAM_BASE_URL}/streamServerLog/getRuntimeLogsByTaskIdAndStart`,
     GLOBAL_SEARCH_TASK: `${STREAM_BASE_URL}/streamTask/globalSearch`, // 全局搜索任务
     GET_TASK_TYPES: `${STREAM_BASE_URL}/streamTask/getSupportJobTypes`, // 获取任务类型

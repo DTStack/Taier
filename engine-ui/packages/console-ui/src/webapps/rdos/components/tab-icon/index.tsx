@@ -95,10 +95,6 @@ export default class TabIcon extends React.Component<any, any> {
                     iconName = 'librasql.svg';
                     break;
                 }
-                case TASK_TYPE.IMPALA_SQL: {
-                    iconName = 'impalasql.svg';
-                    break;
-                }
                 default:
                     return '';
             }
@@ -122,10 +118,6 @@ export default class TabIcon extends React.Component<any, any> {
                 }
                 case SCRIPT_TYPE.LIBRASQL: {
                     iconName = 'librasql.svg';
-                    break;
-                }
-                case SCRIPT_TYPE.IMPALA_SQL: {
-                    iconName = 'impalasql.svg';
                     break;
                 }
                 default:
