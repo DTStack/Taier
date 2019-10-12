@@ -31,7 +31,6 @@ import {
 import {
     workbenchActions
 } from '../../../store/modules/offlineTask/offlineAction'
-import { getProject } from '../../../store/modules/project';
 
 import TaskJobFlowView from './taskJobFlowView'
 import KillJobForm from './killJobForm';
@@ -68,7 +67,6 @@ class OfflineTaskList extends React.Component<any, any> {
         execEndSort: '',
         bussinessDateSort: '',
         cycSort: '',
-        retryNumSort: '',
         visibleSlidePane: false,
         selectedTask: '',
         selectedRowKeys: [],
@@ -96,7 +94,7 @@ class OfflineTaskList extends React.Component<any, any> {
             jobName, person, taskStatus,
             bussinessDate, businessDateSort, jobType, current,
             taskType, taskPeriodId, execTimeSort,
-            execStartSort, execEndSort, retryNumSort,
+            execStartSort, execEndSort,
             cycSort, cycDate, searchType
         } = this.state
         const reqParams: any = {
@@ -135,7 +133,6 @@ class OfflineTaskList extends React.Component<any, any> {
         reqParams.execEndSort = execEndSort || undefined;
         reqParams.cycSort = cycSort || undefined;
         reqParams.businessDateSort = businessDateSort || undefined;
-        reqParams.retryNumSort = retryNumSort || undefined;
         reqParams.searchType = searchType;
 
         return reqParams;
@@ -354,8 +351,7 @@ class OfflineTaskList extends React.Component<any, any> {
             execStartSort: '',
             execEndSort: '',
             businessDateSort: '',
-            cycSort: '',
-            retryNumSort: ''
+            cycSort: ''
         }
 
         if (sorter) {
@@ -380,10 +376,6 @@ class OfflineTaskList extends React.Component<any, any> {
                 }
                 case 'businessDate': {
                     params.businessDateSort = order === 'descend' ? 'desc' : 'asc';
-                    break;
-                }
-                case 'batchEngineJob.retryNum': {
-                    params.retryNumSort = order === 'descend' ? 'desc' : 'asc';
                     break;
                 }
             }
@@ -550,8 +542,8 @@ class OfflineTaskList extends React.Component<any, any> {
         }, {
             title: '重试次数',
             dataIndex: 'batchEngineJob.retryNum',
-            key: 'retryNum',
-            sorter: true
+            key: 'retryNum'
+            // sorter: true
         }, {
             title: '责任人',
             dataIndex: 'createUser',
@@ -849,7 +841,6 @@ class OfflineTaskList extends React.Component<any, any> {
                                 isPro={isPro}
                                 visibleSlidePane={visibleSlidePane}
                                 goToTaskDev={this.props.goToTaskDev}
-                                getProject={this.props.getProject}
                                 reload={this.search}
                                 taskJob={selectedTask}
                                 project={project}
@@ -874,9 +865,6 @@ export default connect((state: any) => {
     return {
         goToTaskDev: (id: any) => {
             actions.openTaskInDev(id)
-        },
-        getProject: (projectId: any) => {
-            dispatch(getProject(projectId))
         }
     }
 })(OfflineTaskList)

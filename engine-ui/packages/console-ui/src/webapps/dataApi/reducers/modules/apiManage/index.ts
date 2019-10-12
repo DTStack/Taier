@@ -1,10 +1,9 @@
 import { apiManageActionType } from '../../../consts/apiManageActionType';
 import { cloneDeep } from 'lodash';
 
-let disAbleTip = window.localStorage.getItem('disAbleTip');
 const initialState: any = {
     apiList: [],
-    disAbleTip: disAbleTip == 'true',
+    disAbleTip: window.localStorage.getItem('disAbleTip'),
     isClickCode: false,
     securityList: []
 }

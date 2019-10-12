@@ -1,6 +1,6 @@
 // 常量
 
-export const DATA_SOURCE = {
+export const DATA_SOURCE: any = {
     MYSQL: 1,
     ORACLE: 2,
     SQLSERVER: 3,
@@ -19,12 +19,6 @@ export const DATA_SOURCE = {
     KAFKA_10: 17,
     KAFKA_09: 18,
     DB2: 19
-}
-
-export const FUNC_TYPE_TEXT = {
-    0: 'Scala',
-    1: 'Table',
-    2: 'Aggregate'
 }
 
 export const DATA_SOURCE_TEXT: any = {

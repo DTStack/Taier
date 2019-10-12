@@ -110,6 +110,7 @@ export function MenuRight (props: any) {
                         <a href={helpUrl} target="blank" style={{ color: '#ffffff' }} >
                             <img src="/public/main/img/icon_help.svg" alt="帮助图标" style={{ height: '16px' }}/>
                         </a>
+
                     </span>
                 ) : null}
                 {isShowExt && isLeastOneLicAppShow && <a href={`/message${extraParms}`} target="blank" style={{ color: '#ffffff' }}>

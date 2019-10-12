@@ -1,56 +1,8 @@
 // import * as monaco from 'monaco-editor/esm/vs/editor/edcore.main.js';
 import * as monaco from 'monaco-editor';
-import FlinkWorker from './dtflink.worker';
 
 let cacheKeyWords: any = [];
 let _completeProvideFunc: any = {};
-let _tmpDecorations: any = [];
-let _DtParserInstance: any;
-
-class FlinkParser {
-    _parser: any;
-    _eventMap: any;
-
-    constructor () {
-        this._parser = new FlinkWorker();
-        this._eventMap = {};
-        this._parser.onmessage = (e: any) => {
-            const data = e.data;
-            const eventId = data.eventId;
-            if (this._eventMap[eventId]) {
-                this._eventMap[eventId].resolve(data.result)
-                this._eventMap[eventId] = null;
-            }
-        }
-    }
-    parseSyntax () {
-        const arg = arguments;
-        const eventId = this._createId();
-        return new Promise((resolve: any, reject: any) => {
-            this._parser.postMessage({
-                eventId: eventId,
-                type: 'parseSyntax',
-                data: Array.from(arg)
-            });
-            this._eventMap[eventId] = {
-                resolve,
-                reject,
-                arg,
-                type: 'parseSyntax'
-            }
-        })
-    }
-    _createId () {
-        return new Date().getTime() + '' + ~~(Math.random() * 100000)
-    }
-}
-
-function loadDtParser () {
-    if (!_DtParserInstance) {
-        _DtParserInstance = new FlinkParser();
-    }
-    return _DtParserInstance;
-}
 
 function dtsqlWords (): {
     builtinFunctions?: string[];
@@ -143,44 +95,6 @@ monaco.languages.registerCompletionItemProvider('dtflink', {
         });
     }
 });
-export async function onChange (value = '', _editor: monaco.editor.IStandaloneCodeEditor, callback: any) {
-    const dtParser = loadDtParser();
-    const model = _editor.getModel();
-    // const cursorIndex = model.getOffsetAt(_editor.getPosition());
-    let syntax = await dtParser.parseSyntax(value.replace(/\r\n/g, '\n'));
-    if (syntax) {
-        const message = syntax.errorMsg;
-        let begin = _editor.getModel().getPositionAt(syntax.token.start);
-        let end = _editor.getModel().getPositionAt(syntax.token.stop);
-        monaco.editor.setModelMarkers(model, model.getModeId(), [{
-            startLineNumber: begin.lineNumber,
-            startColumn: begin.column,
-            endLineNumber: end.lineNumber,
-            endColumn: end.column + 1,
-            message: `[语法错误！] \n${message}`,
-            severity: 8
-        }])
-        _tmpDecorations = _editor.deltaDecorations(_tmpDecorations, createLineMarker(begin, end))
-    } else {
-        _editor.deltaDecorations(_tmpDecorations, [])
-        monaco.editor.setModelMarkers(model, model.getModeId(), [])
-    }
-    if (callback) {
-        callback(syntax);
-    }
-    console.log(syntax)
-}
-
-function createLineMarker (begin: monaco.Position, end: monaco.Position) {
-    return [{
-        range: new monaco.Range(begin.lineNumber, 1, end.lineNumber, 1),
-        options: {
-            isWholeLine: true,
-            // linesDecorationsClassName: 'dt-monaco-line-error' ,
-            className: 'dt-monaco-whole-line-error'
-        }
-    }]
-}
 export function registeCompleteItemsProvider (completeProvideFunc: any, _editor: any) {
     const id = _editor.getModel().id;
     _completeProvideFunc[id] = completeProvideFunc;

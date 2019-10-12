@@ -181,6 +181,8 @@ export function DatabaseType (props: any) {
             return <span>Redis</span>
         case DATA_SOURCE.MONGODB:
             return <span>MongoDB</span>
+        case DATA_SOURCE.KAFKA:
+            return <span>Kafka</span>
         case DATA_SOURCE.DB2:
             return <span>DB2</span>
         case DATA_SOURCE.CARBONDATA:
@@ -231,8 +233,6 @@ export function TaskType (props: any) {
             return <span>算法实验</span>
         case TASK_TYPE.LIBRASQL:
             return <span>LibraSQL</span>
-        case TASK_TYPE.IMPALA_SQL:
-            return <span>ImpalaSQL</span>
         default:
             return <span>SparkSQL</span>
     }

@@ -42,27 +42,6 @@ const kylinConf = `{
     "connectTimeout":10000
 }`;
 
-const kuduConf = `{
-    "openKerberos":false,
-    "user":"",
-    "keytabPath":"",
-    "workerCount":4,
-    "bossCount":1,
-    "operationTimeout":30000,
-    "adminOperationTimeout":30000
-}`;
-
-const kuduOthersPh = `输入JSON格式的参数，示例及默认参数如下：
-{
-    "openKerberos":false,
-    "user":"",
-    "keytabPath":"",
-    "workerCount":4,
-    "bossCount":1,
-    "operationTimeout":30000,
-    "adminOperationTimeout":30000
-}`;
-
 class BaseForm extends React.Component<any, any> {
     state: any = {
         sourceType: 1,
@@ -175,7 +154,7 @@ class BaseForm extends React.Component<any, any> {
             case DATA_SOURCE.KYLIN:
                 return /http:\/\/([\w, .])+:(\w)+/;
             case DATA_SOURCE.HIVE:
-            case DATA_SOURCE.CARBONDATA:
+            case DATA_SOURCE.ANALYSIS:
                 return /jdbc:(\w)+:\/\/(\w)+/;
             case DATA_SOURCE.MYSQL:
                 return /jdbc:mysql:\/\/(\w)+/;
@@ -1124,49 +1103,6 @@ class BaseForm extends React.Component<any, any> {
                         )}
                     </FormItem>
                 ]
-            }
-            case DATA_SOURCE.KUDU: {
-                return [
-                    <FormItem
-                        {...formItemLayout}
-                        label="集群地址"
-                        key="hostPorts"
-                        hasFeedback
-                    >
-                        {getFieldDecorator('dataJson.hostPorts', {
-                            rules: [{
-                                required: true, message: '集群地址不可为空！'
-                            }],
-                            initialValue: config.hostPorts || ''
-                        })(
-                            <Input.TextArea
-                                rows={5}
-                                placeholder="集群地址，例如：IP1:Port,IP2:Port,IP3:Port3，多个IP地址用英文逗号隔开"
-                            />
-                        )}
-                    </FormItem>,
-                    <FormItem
-                        {...formItemLayout}
-                        label="其他参数"
-                        key="others"
-                        hasFeedback
-                    >
-                        {getFieldDecorator('dataJson.others', {
-                            initialValue: config.others ? typeof config.others == 'string'
-                                ? JSON.stringify(JSON.parse(config.others), null, 4) : JSON.stringify(config.others, null, 4) : ''
-                        })(
-                            <Input.TextArea
-                                className="no-scroll-bar"
-                                rows={5}
-                                placeholder={kuduOthersPh}
-                            />
-                        )}
-                        <CopyIcon
-                            style={{ position: 'absolute', right: '-20px', bottom: '0px' }}
-                            copyText={kuduConf}
-                        />
-                    </FormItem>
-                ];
             }
             case DATA_SOURCE.GBASE:
             case DATA_SOURCE.MYSQL:

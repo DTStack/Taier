@@ -189,8 +189,8 @@ class Workbench extends React.Component<any, any> {
     }
 
     renderGlobalMessage = () => {
-        const { uploader } = this.props;
-        return <UploaderProgressBar key={uploader.status} uploader={uploader} />
+        const { uploader, dispatch } = this.props;
+        return <UploaderProgressBar key={uploader.status} uploader={uploader} dispatch={dispatch} />
     }
 
     render () {

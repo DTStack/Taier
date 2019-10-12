@@ -61,7 +61,6 @@ class FnForm extends React.Component<any, any> {
                         <RadioGroup>
                             <Radio key={0} value={0}>UDF</Radio>
                             <Radio key={1} value={1}>UDTF</Radio>
-                            <Radio key={2} value={2}>UDAF</Radio>
                         </RadioGroup>
                     )}
                 </FormItem>
