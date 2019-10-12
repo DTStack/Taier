@@ -391,6 +391,9 @@ public class TaskStatusListener implements Runnable{
         try {
             //从engine获取log
             String jobLog = JobClient.getEngineLog(engineType, pluginInfo, jobIdentifier);
+            if (StringUtils.isEmpty(jobLog)) {
+                return;
+            }
 
             Map<String, Object> logMap = PublicUtil.jsonStrToObject(jobLog, Map.class);
             Long timestamp = MathUtil.getLongVal(logMap.get("timestamp"));
@@ -502,7 +505,7 @@ public class TaskStatusListener implements Runnable{
                 for (String str : tps.split("\n")) {
                     String[] keyAndVal = str.split("=");
                     if (keyAndVal.length > 1) {
-                        result.put(keyAndVal[0], keyAndVal[1]);
+                        result.put(keyAndVal[0].trim(), keyAndVal[1].trim());
                     }
                 }
             }

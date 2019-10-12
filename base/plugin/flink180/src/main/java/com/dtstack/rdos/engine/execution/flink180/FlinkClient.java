@@ -590,19 +590,10 @@ public class FlinkClient extends AbsClient {
             reqURL = currClient.getWebInterfaceURL();
         }
 
-        Map<String,String> retMap = Maps.newHashMap();
-
         try {
             String exceptPath = String.format(FlinkRestParseUtil.EXCEPTION_INFO, jobId);
             String except = getExceptionInfo(exceptPath, reqURL);
-            String jobPath = String.format(FlinkRestParseUtil.JOB_INFO, jobId);
-            String jobInfo = getMessageByHttp(jobPath, reqURL);
-            String accuPath = String.format(FlinkRestParseUtil.JOB_ACCUMULATOR_INFO, jobId);
-            String accuInfo = getMessageByHttp(accuPath, reqURL);
-            retMap.put("except", except);
-            retMap.put("jobInfo", jobInfo);
-            retMap.put("accuInfo", accuInfo);
-            return FlinkRestParseUtil.parseEngineLog(retMap);
+            return except;
         } catch (Exception e) {
             logger.error("", e);
             Map<String, String> map = new LinkedHashMap<>(8);
