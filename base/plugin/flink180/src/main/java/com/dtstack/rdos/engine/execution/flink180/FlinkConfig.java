@@ -79,7 +79,7 @@ public class FlinkConfig {
 
     private String flinkSessionName = "Flink session";
 
-    private boolean yarnSessionStartAuto = true;
+    private boolean yarnSessionStartAuto = false;
 
     private transient FlinkPrometheusGatewayConfig prometheusGatewayConfig;
 

@@ -134,4 +134,8 @@ public class FlinkClusterClientManager {
     public void setIsClientOn(boolean isClientOn) {
         this.isClientOn.set(isClientOn);
     }
+
+    public FlinkClientBuilder getFlinkClientBuilder(){
+        return flinkClientBuilder;
+    }
 }
