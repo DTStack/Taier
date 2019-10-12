@@ -177,7 +177,7 @@ class SearchTable extends React.Component<any, any> {
                 key: 'tableType',
                 dataIndex: 'tableType',
                 render (text: any, record: any) {
-                    return (TABLE_NAME_BY_TABLE_TYPE as any)[text]
+                    return TABLE_NAME_BY_TABLE_TYPE[text]
                 }
             },
             {

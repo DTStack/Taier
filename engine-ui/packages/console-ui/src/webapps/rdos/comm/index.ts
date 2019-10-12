@@ -110,9 +110,6 @@ export function taskTypeIcon (type: any, task = {}) {
             case TASK_TYPE.LIBRASQL: {
                 return 's-librasql';
             }
-            case TASK_TYPE.IMPALA_SQL: {
-                return 's-impalasql';
-            }
             default:
                 return '';
         }
@@ -132,9 +129,6 @@ export function taskTypeIcon (type: any, task = {}) {
             }
             case SCRIPT_TYPE.LIBRASQL: {
                 return 's-librasql';
-            }
-            case SCRIPT_TYPE.IMPALA_SQL: {
-                return 's-impalasql';
             }
             default:
                 return '';

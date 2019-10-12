@@ -39,18 +39,7 @@ class RegisterParams extends React.Component<any, any> {
     }
     cancelAndSave () {
         const { cancelAndSave, registerParams } = this.props;
-        this.setState({
-            saveLoading: true
-        })
-        cancelAndSave(registerParams).then(() => {
-            this.setState({
-                saveLoading: false
-            })
-        }).catch(() => {
-            this.setState({
-                saveLoading: false
-            })
-        });
+        cancelAndSave(registerParams);
     }
     /**
      * tab更新数据
@@ -75,7 +64,7 @@ class RegisterParams extends React.Component<any, any> {
         }
     }
     render () {
-        const { menuSelect, saveLoading } = this.state;
+        const { menuSelect } = this.state;
         const { registerParams, basicProperties } = this.props;
         const { method, protocol } = basicProperties;
         const Content = ContentMap[menuSelect];
@@ -131,7 +120,7 @@ class RegisterParams extends React.Component<any, any> {
                                 className="steps-action"
                             >
                                 {
-                                    <Button loading={saveLoading} onClick={this.cancelAndSave.bind(this)}>
+                                    <Button onClick={this.cancelAndSave.bind(this)}>
                                         保存并退出
                                     </Button>
                                 }

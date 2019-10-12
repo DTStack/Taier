@@ -10,29 +10,18 @@ import Api from '../../../../api'
 import { TASK_TYPE } from '../../../../comm/const'
 import TaskGraphView, { mergeTreeNodes } from '../../../operation/offline/taskFlowView/taskGraphView'
 import MxFactory from 'widgets/mxGraph';
-import { workbenchActions } from '../../../../store/modules/offlineTask/offlineAction';
+
 const Mx = MxFactory.create();
 const {
     mxEvent,
-    mxPopupMenu,
     mxCellHighlight
 } = Mx
 
-@(connect(
-    (state: any) => {
-        return {
-            project: state.project
-        }
-    },
-    (dispatch: any) => {
-        const actions = workbenchActions(dispatch);
-        return {
-            goToTaskDev: (id: any) => {
-                actions.openTaskInDev(id);
-            }
-        };
+@(connect((state: any) => {
+    return {
+        project: state.project
     }
-) as any)
+}) as any)
 class TaskView extends React.Component<any, any> {
     state: any = {
         loading: 'success',
@@ -90,12 +79,6 @@ class TaskView extends React.Component<any, any> {
         })
     }
 
-    isCurrentProjectTask = (node: any) => {
-        const { project } = this.props;
-        const projectId = project.id;
-        return node.projectId == projectId;
-    }
-
     loadWorkflowNodes = async (workflow: any) => {
         const ctx = this;
         this.setState({ loading: 'loading' });
@@ -119,20 +102,8 @@ class TaskView extends React.Component<any, any> {
         const ctx = this;
         let highlightEdges: any = [];
         let selectedCell: any = null;
-        const { goToTaskDev } = this.props;
 
         if (graph) {
-            // 双击查看代码
-            graph.addListener(mxEvent.DOUBLE_CLICK, function (sender: any, evt: any) {
-                const cell = evt.getProperty('cell')
-                if (cell && cell.vertex) {
-                    const currentNode = cell.value;
-                    if (ctx.isCurrentProjectTask(currentNode)) {
-                        goToTaskDev(currentNode.id);
-                    }
-                }
-            })
-
             graph.addListener(mxEvent.CELLS_FOLDED, function (sender: any, evt: any) {
                 const cells = evt.getProperty('cells');
                 const cell = cells && cells[0];
@@ -185,30 +156,13 @@ class TaskView extends React.Component<any, any> {
         }
     }
 
-    initContextMenu = (graph: any) => {
-        const ctx = this
-        const { goToTaskDev } = this.props;
-        var mxPopupMenuShowMenu = mxPopupMenu.prototype.showMenu;
-        mxPopupMenu.prototype.showMenu = function () {
-            var cells = this.graph.getSelectionCells()
-            if (cells.length > 0 && cells[0].vertex) {
-                mxPopupMenuShowMenu.apply(this, arguments);
-            } else return false
-        };
-        graph.popupMenuHandler.autoExpand = true
-        graph.popupMenuHandler.factoryMethod = function (menu: any, cell: any, evt: any) {
-            if (!cell || !cell.vertex) return;
-
-            const currentNode = cell.value || {};
-            if (ctx.isCurrentProjectTask(currentNode)) {
-                menu.addItem('查看代码', null, function () {
-                    goToTaskDev(currentNode.id)
-                })
-            }
-        }
-    }
     onCloseWorkflow = () => {
         this.setState({ visibleWorkflow: false, workflowData: null, selectedTask: this.props.tabData });
+    }
+    isCurrentProjectTask = (node: any) => {
+        const { project } = this.props;
+        const projectId = project.id;
+        return node.projectId == projectId;
     }
     render () {
         const {
@@ -232,7 +186,7 @@ class TaskView extends React.Component<any, any> {
                     refresh={this.refresh}
                     registerEvent={this.initGraphEvent}
                     key={`task-graph-view-${graphData && graphData.id}`}
-                    registerContextMenu={this.initContextMenu}
+                    // registerContextMenu={this.initContextMenu}
                 />
                 <Modal
                     zIndex={999}
@@ -251,7 +205,7 @@ class TaskView extends React.Component<any, any> {
                         data={selectedWorkflowNode}
                         hideFooter={true}
                         registerEvent={this.initGraphEvent}
-                        registerContextMenu={this.initContextMenu}
+                        // registerContextMenu={this.initContextMenu}
                         graphData={workflowData && workflowData.subTaskVOS[0]}
                         key={`task-graph-workflow-${workflowData && workflowData.id}`}
                         refresh={this.loadWorkflowNodes.bind(this, workflowData)}

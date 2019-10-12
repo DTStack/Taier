@@ -589,9 +589,6 @@ export default {
     addOfflineResource (params: any) {
         return http.postAsFormData(offlineReq.ADD_OFFLINE_RESOURCE, params)
     },
-    replaceOfflineResource (params: any) {
-        return http.postAsFormData(offlineReq.REPLACE_OFFLINE_RESOURCE, params)
-    },
     addOfflineTask (params: any) {
         return http.post(offlineReq.ADD_OFFLINE_TASK, params)
     },

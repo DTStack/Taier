@@ -597,10 +597,10 @@ export const keymap = (state: any = { source: [], target: [] }, action: any) => 
     }
 };
 
-const setting = (state: any = { speed: -1, channel: 1, record: 100, isSaveDirty: false }, action: any) => {
+const setting = (state: any = { speed: 5, channel: 1, record: 100, isSaveDirty: false }, action: any) => {
     switch (action.type) {
         case dataSyncAction.INIT_JOBDATA: {
-            if (action.payload === null) return { speed: -1, channel: 1, record: 100 };
+            if (action.payload === null) return { speed: 5, channel: 1, record: 100 };
             const { setting } = action.payload;
             return setting;
         }

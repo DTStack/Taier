@@ -13,7 +13,7 @@ import { TASK_STATUS, TASK_TYPE } from '../../../../comm/const'
 import { taskStatusText } from '../../../../components/display'
 
 import JobGraphView, {
-    mergeTreeNodes, replaceTreeNodeField
+    mergeTreeNodes, replacTreeNodeField
 } from './jobGraphView';
 import MxFactory from 'widgets/mxGraph';
 
@@ -120,7 +120,7 @@ class TaskJobFlowView extends React.Component<any, any> {
                 const data = res.data
                 ctx.setState({ data, selectedJob: data })
                 // 替换 jobVos 字段为 parentNodes
-                replaceTreeNodeField(res.data, 'jobVOS', 'parentNodes', 'parentNodes')
+                replacTreeNodeField(res.data, 'jobVOS', 'parentNodes', 'parentNodes')
                 ctx.renderGraph(res.data);
             }
             ctx.setState({ loading: 'success' })
@@ -221,7 +221,7 @@ class TaskJobFlowView extends React.Component<any, any> {
                 if (!cell || !cell.vertex) return;
 
                 const currentNode = cell.data;
-                const isCurrentProjectTask = ctx.isCurrentProjectTask(currentNode.batchTask);
+                const isCurrentProjectTask = ctx.isCurrentProjectTask(currentNode);
                 const isWorkflowNode = currentNode.batchTask && currentNode.batchTask.flowId !== 0;
                 const taskId = currentNode.batchTask && currentNode.batchTask.id;
                 const isDelete = currentNode.batchTask && currentNode.batchTask.isDeleted === 1; // 已删除
@@ -258,7 +258,7 @@ class TaskJobFlowView extends React.Component<any, any> {
                     isAfter: true,
                     limit: 6
                 }
-                ctx.loadPeriodsData(menu, nextParams, nextPeriods);
+                ctx.loadPeriodsData(menu, nextParams, nextPeriods)
                 if (isCurrentProjectTask) {
                     menu.addItem(`${isPro ? '查看' : '修改'}任务`, null, function () {
                         ctx.props.goToTaskDev(taskId)

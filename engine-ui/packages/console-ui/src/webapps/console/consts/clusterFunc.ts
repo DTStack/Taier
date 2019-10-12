@@ -1,6 +1,6 @@
 // cluster function
 import { TASK_STATE, COMPONENT_TYPE_VALUE, COMPONEMT_CONFIG_KEY_ENUM, ENGINE_TYPE, validateFlinkParams, validateHiveParams,
-    validateCarbonDataParams, validateSparkParams, validateDtYarnShellParams, validateLearningParams, validateHiveServerParams, validateLibraParams, validateSftpDataParams, validateImpalaSqlParams } from './index';
+    validateCarbonDataParams, validateSparkParams, validateDtYarnShellParams, validateLearningParams, validateHiveServerParams, validateLibraParams, validateSftpDataParams } from './index';
 
 /**
  * 返回不同组件校验参数
@@ -17,9 +17,6 @@ export function validateCompParams (componentValue: any) {
         }
         case COMPONENT_TYPE_VALUE.CARBONDATA: {
             return validateCarbonDataParams
-        }
-        case COMPONENT_TYPE_VALUE.IMPALASQL: {
-            return validateImpalaSqlParams
         }
         case COMPONENT_TYPE_VALUE.SPARK: {
             return validateSparkParams
@@ -92,12 +89,6 @@ export function showTestResult (testResults: any, engineType: any) {
             case COMPONENT_TYPE_VALUE.CARBONDATA: {
                 testStatus = Object.assign(testStatus, {
                     carbonTestResult: isHadoop ? comp : {}
-                })
-                break;
-            }
-            case COMPONENT_TYPE_VALUE.IMPALASQL: {
-                testStatus = Object.assign(testStatus, {
-                    impalaSqlTestResult: isHadoop ? comp : {}
                 })
                 break;
             }
@@ -198,16 +189,6 @@ export function validateAllRequired (validateFieldsAndScroll: any, tabCompData: 
                 } else {
                     obj = Object.assign(obj, {
                         carbonShowRequired: true
-                    })
-                }
-            } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.IMPALASQL) {
-                if (!err) {
-                    obj = Object.assign(obj, {
-                        impalaSqlRequired: false
-                    })
-                } else {
-                    obj = Object.assign(obj, {
-                        impalaSqlRequired: true
                     })
                 }
             } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.HIVESERVER) {

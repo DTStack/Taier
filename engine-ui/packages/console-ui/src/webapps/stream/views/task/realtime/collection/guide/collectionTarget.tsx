@@ -70,7 +70,7 @@ class CollectionTarget extends React.Component<any, any> {
     }
 
     // eslint-disable-next-line
-    UNSAFE_componentWillReceiveProps (nextProps: any) {
+    UNSAFE_componentWillReceiveProps(nextProps: any) {
         const { collectionData } = nextProps;
         const { targetMap = {} } = collectionData;
         const { sourceId, type, table } = targetMap;
@@ -229,7 +229,7 @@ class CollectionTargetForm extends React.Component<any, any> {
         const { isEdit, targetMap = {}, sourceMap = {} } = collectionData;
         const { getFieldDecorator } = this.props.form;
         if (!targetMap || !sourceMap) return [];
-        const isText = targetMap.fileType == 'text';
+        const isOrc = targetMap.fileType == 'orc';
         const isMysqlSource = sourceMap.type == DATA_SOURCE.MYSQL;
         const { writeTableType, writeStrategy, table, writeMode } = targetMap;
         const isWriteStrategyBeTime = writeStrategy == writeStrategys.TIME;
@@ -304,20 +304,13 @@ class CollectionTargetForm extends React.Component<any, any> {
                                 required: true
                             }]
                         })(
-                            <RadioGroup>
-                                <Radio value="orc">
-                                    orc
-                                </Radio>
-                                <Radio value="text">
-                                    text
-                                </Radio>
-                                <Radio value="parquet">
-                                    parquet
-                                </Radio>
-                            </RadioGroup>
+                            <Select>
+                                <Option value="orc">orc</Option>
+                                <Option value="text">text</Option>
+                            </Select>
                         )}
                     </FormItem>,
-                    isText && (<FormItem
+                    !isOrc && (<FormItem
                         {...formItemLayout}
                         label="列分隔符"
                         key="fieldDelimiter"
@@ -331,7 +324,7 @@ class CollectionTargetForm extends React.Component<any, any> {
                         )}
                         <HelpDoc doc="splitCharacter" />
                     </FormItem>),
-                    isText && (
+                    !isOrc && (
                         <FormItem
                             {...formItemLayout}
                             label="编码"
@@ -391,7 +384,7 @@ class CollectionTargetForm extends React.Component<any, any> {
                                     </Radio>
                                 ) : null}
                                 <Radio key={writeTableTypes.HAND} value={writeTableTypes.HAND} style={{ float: 'left' }}>
-                                    手动选择分区表
+                                        手动选择分区表
                                 </Radio>
                             </RadioGroup>
                         )}
@@ -432,9 +425,6 @@ class CollectionTargetForm extends React.Component<any, any> {
                                         </Radio>
                                         <Radio value="text" style={{ float: 'left' }}>
                                             text
-                                        </Radio>
-                                        <Radio value="parquet" style={{ float: 'left' }}>
-                                            parquet
                                         </Radio>
                                     </RadioGroup>
                                 )}
@@ -531,8 +521,6 @@ class CollectionTargetForm extends React.Component<any, any> {
                                         value = parseFloat(value);
                                         if (value <= 0) {
                                             errorMsg = '数字必须大于0'
-                                        } else if (value != parseInt(value, 10)) {
-                                            errorMsg = '必须为整数'
                                         }
                                     } catch (e) {
                                         errorMsg = '请填写大于0的有效数字'
@@ -711,7 +699,7 @@ const WrapCollectionTargetForm = Form.create({
                 value: targetMap.writeStrategy
             },
             bufferSize: {
-                value: Number.isNaN(parseInt(targetMap.bufferSize)) ? undefined : targetMap.bufferSize / (1024 * 1024)
+                value: targetMap.bufferSize / (1024 * 1024)
             },
             interval: {
                 value: targetMap.interval / 60000

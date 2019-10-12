@@ -89,7 +89,6 @@ export default {
     ADD_OFFLINE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchCatalogue/addCatalogue`,
     EDIT_OFFLINE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchCatalogue/updateCatalogue`,
     ADD_OFFLINE_RESOURCE: `${RDOS_BASE_URL}/upload/batch/batchResource/addResource`,
-    REPLACE_OFFLINE_RESOURCE: `${RDOS_BASE_URL}/upload/batch/batchResource/replaceResource`,
     ADD_OFFLINE_TASK: `${RDOS_BASE_URL}/batch/batchTask/addOrUpdateTask`,
     GET_OFFLINE_TASK: `${RDOS_BASE_URL}/batch/batchTask/getTaskById`,
     GET_OFFLINE_TASK_BY_NAME: `${RDOS_BASE_URL}/batch/batchTask/getDependencyTask`,

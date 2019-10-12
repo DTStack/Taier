@@ -23,8 +23,6 @@ class ManageParamsConfig extends React.Component<any, any> {
         resultPage: undefined,
         sqlModeShow: true,
         passLoading: false,
-        saveLoading: false,
-        isCheckParams: false, // 是否检查了参数
         editor: {
             sql: '',
             cursor: undefined,
@@ -316,18 +314,7 @@ class ManageParamsConfig extends React.Component<any, any> {
     }
     cancelAndSave () {
         const { cancelAndSave } = this.props;
-        this.setState({
-            saveLoading: true
-        })
-        cancelAndSave(this.getSaveData()).then(() => {
-            this.setState({
-                saveLoading: false
-            })
-        }).catch(() => {
-            this.setState({
-                saveLoading: false
-            })
-        });
+        cancelAndSave(this.getSaveData());
     }
     setPassLoading (isLoading: any) {
         this.setState({
@@ -335,14 +322,10 @@ class ManageParamsConfig extends React.Component<any, any> {
         })
     }
     async pass () {
-        const { mode, basicProperties, apiEdit } = this.props;
-        const { editor, isCheckParams } = this.state;
-        if (!apiEdit && !isCheckParams) {
-            this.sqlModeShowChange(false);
-            message.warning('请检查编辑参数！');
-            return false;
-        }
+        const { mode, basicProperties } = this.props;
         this.setPassLoading(true);
+        const { editor } = this.state;
+
         const nextStep = async () => {
             const { InputColumns, OutputColums } = this.state;
 
@@ -429,8 +412,7 @@ class ManageParamsConfig extends React.Component<any, any> {
             return;
         }
         this.setState({
-            loading: true,
-            isCheckParams: true
+            loading: true
         })
         let res = await this.props.sqlParser(sql, dataSource);
         this.setState({
@@ -518,7 +500,6 @@ class ManageParamsConfig extends React.Component<any, any> {
             sqlModeShow,
             editor,
             loading,
-            saveLoading,
             passLoading
         } = this.state;
         const { getFieldDecorator } = this.props.form;
@@ -544,12 +525,7 @@ class ManageParamsConfig extends React.Component<any, any> {
          */
         const tableOptions = tableList.map(
             (data: any) => {
-                return <Option key={data.tableName} value={data.tableName}>
-                    <div style={{ verticalAlign: 'middle' }}>
-                        <img style={{ width: 18, verticalAlign: 'middle', marginRight: 5 }} src={data.view ? 'public/dataApi/img/database_view.svg' : 'public/dataApi/img/database_table.svg'} />
-                        <span style={{ verticalAlign: 'middle' }}>{data.tableName}</span>
-                    </div>
-                </Option>
+                return <Option key={data} value={data}>{data}</Option>
             }
         )
         const isSqlMode = mode == API_MODE.SQL;
@@ -605,7 +581,6 @@ class ManageParamsConfig extends React.Component<any, any> {
                                             placeholder="数据表"
                                             style={{ width: '100%' }}
                                             showSearch
-                                            filterOption={(input: any, option: any) => option.props.value.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                             onSelect={this.tableChange.bind(this)}
                                         >
                                             {tableOptions}
@@ -687,7 +662,7 @@ class ManageParamsConfig extends React.Component<any, any> {
                     className="steps-action"
                 >
                     {
-                        <Button loading={saveLoading} onClick={this.cancelAndSave.bind(this)}>
+                        <Button onClick={this.cancelAndSave.bind(this)}>
                             保存并退出
                         </Button>
                     }
