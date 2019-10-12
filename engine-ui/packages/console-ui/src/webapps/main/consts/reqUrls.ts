@@ -16,10 +16,12 @@ export default {
 
     // ===== 用户模块 ===== //
     LOGOUT: `${UIC_BASE_URL}/v2/logout`,
+    API_LOGOUT: `${DATA_API_BASE_URL}/login/out`,
     CHECKISROOT: `${CONSOLE_BASE_URL}/status/status`, // 验证是否为租户root管理员
 
     // ===== 安全审计 ===== //
     GET_AUDIT_LIST: `${CONSOLE_BASE_URL}/securityAudit/pageQuery`, // 获取审计列表
+    GET_OPERATION_LIST: `${CONSOLE_BASE_URL}/securityAudit/getOperationList`, // 获取动作
 
     //= ==== 开发套件 ====//
     RDOS_SEARCH_UIC_USERS: `${RDOS_BASE_URL}/common/project/getUicUsersNotInProject`,

@@ -125,7 +125,7 @@ class ImportTemplateForm extends React.Component<any, any> {
         const { execConfirmVisible } = this.props;
         const sourceTypeOptions = Object.keys(DATA_SOURCE).filter((key: any) => key !== 'KYLIN').map(
             (key: any) => {
-                const val = DATA_SOURCE[key];
+                const val = (DATA_SOURCE as any)[key];
                 return <Option key={val} value={val.toString()}><DatabaseType value={val} /></Option>
             }
         )
