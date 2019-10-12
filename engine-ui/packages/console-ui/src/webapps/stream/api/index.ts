@@ -148,6 +148,9 @@ export default {
     getTaskLogs (params: any) {
         return http.post(req.GET_TASK_LOG, params)
     },
+    getFailoverLogsByTaskId (params: any) {
+        return http.post(req.GET_TASK_FAILOVER_LOG, params)
+    },
     getTaskRunningLogs (params: any) {
         return http.post(req.GET_RUNNING_TASK_LOG, params)
     },

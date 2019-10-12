@@ -136,12 +136,14 @@ class ChannelForm extends React.Component<any, any> {
     render () {
         const { getFieldDecorator } = this.props.form;
         const { setting, navtoStep } = this.props;
-
         const speedOption: any = [];
         const channelOption: any = [];
+        const unLimitedOption: any[] = [
+            <Option value='-1' key={-1}>不限制上传速率</Option>
+        ]
 
         for (let i = 1; i <= 20; i++) {
-            speedOption.push(<Option value={`${i}`} key={i}>{ i }MB/s</Option>)
+            speedOption.push(<Option value={`${i}`} key={i}>{ i }</Option>)
         }
         for (let i = 1; i <= 5; i++) {
             channelOption.push(<Option value={`${i}`} key={i}>{i}</Option>)
@@ -161,8 +163,8 @@ class ChannelForm extends React.Component<any, any> {
                         initialValue: `${setting.speed}`
                     })(
                         <AutoComplete
-                            dataSource={speedOption}
-                            optionLabelProp="value"
+                            dataSource={unLimitedOption.concat(speedOption)}
+                            // optionLabelProp="value"
                         >
                             <Input suffix="MB/s" />
                         </AutoComplete>
