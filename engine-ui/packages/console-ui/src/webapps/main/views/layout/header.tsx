@@ -21,7 +21,7 @@ class Header extends React.Component<any, any> {
     }
 
     render () {
-        const { apps, licenseApps } = this.props;
+        const { apps, licenseApps, user } = this.props;
         const logo =
             <React.Fragment>
                 <img
@@ -32,11 +32,19 @@ class Header extends React.Component<any, any> {
                     {window.APP_CONF.prefix}
                 </span>
             </React.Fragment>;
-
+        const settingMenus = [{
+            id: 'admin/audit',
+            name: '安全审计',
+            link: `/admin/audit`,
+            enable: user.isRoot,
+            enableIcon: true,
+            className: 'safeaudit'
+        }];
         return <Navigator
             logo={logo}
             menuItems={compareEnableApp(apps, licenseApps, true)}
             licenseApps={licenseApps}
+            settingMenus={settingMenus}
             {...this.props}
         />
     }

@@ -18,7 +18,8 @@ class ManageBasicProperties extends React.Component<any, any> {
     state: any = {
         dataSource: [],
         tableList: [],
-        tableDetailList: {}
+        tableDetailList: {},
+        loading: false
     }
     componentDidMount () {
         this.getDataSource();
@@ -132,6 +133,9 @@ class ManageBasicProperties extends React.Component<any, any> {
         const { isRegister } = this.props;
         const { validateFields, getFieldsValue } = this.props.form;
         const params = getFieldsValue();
+        this.setState({
+            loading: true
+        })
         validateFields(['APIName'], {}, (error: any, values: any) => {
             if (!error) {
                 if (isRegister) {
@@ -139,7 +143,19 @@ class ManageBasicProperties extends React.Component<any, any> {
                         this.updateRegisterColumns(params.originalPath)
                     }
                 }
-                this.props.cancelAndSave({ ...params });
+                this.props.cancelAndSave({ ...params }).then(() => {
+                    this.setState({
+                        loading: false
+                    })
+                }).catch(() => {
+                    this.setState({
+                        loading: false
+                    })
+                });
+            } else {
+                this.setState({
+                    loading: false
+                })
             }
         })
     }
@@ -355,7 +371,11 @@ class ManageBasicProperties extends React.Component<any, any> {
                                 callback(error);
                             }
                         }
-                    )
+                    ).catch(() => {
+                        this.setState({
+                            loading: false
+                        })
+                    })
             }, 500)
         } else {
             callback()
@@ -397,7 +417,7 @@ class ManageBasicProperties extends React.Component<any, any> {
         const { isRegister } = this.props;
         const { getFieldDecorator } = this.props.form
         const options = this.getCatagoryOption();
-        const { newGroupModalShow } = this.state;
+        const { newGroupModalShow, loading } = this.state;
 
         return (
             <div>
@@ -485,8 +505,8 @@ class ManageBasicProperties extends React.Component<any, any> {
                                             { min: 2, message: '最小字符不能小于2' },
                                             {
                                                 pattern: this.props.form.getFieldValue('protocol') === 'HTTP/HTTPS'
-                                                    ? new RegExp(/^\/[\w~!?@#$%^&*-=(){}]+$/) : null,
-                                                message: '须以/开头，限制2-100个字符，不支持中文'
+                                                    ? new RegExp(/^\/[^\s\u4e00-\u9fa5]+$/) : null,
+                                                message: '须以/开头，限制2-100个字符，不支持中文，空格'
                                             }
                                         ],
                                         initialValue: this.props.originalPath
@@ -630,7 +650,7 @@ class ManageBasicProperties extends React.Component<any, any> {
                 <div
                     className="steps-action"
                 >
-                    <Button onClick={() => this.cancelAndSave()}>
+                    <Button loading={loading} onClick={() => this.cancelAndSave()}>
                         保存并退出
                     </Button>
                     <Button type="primary" style={{ marginLeft: 8 }} onClick={() => this.pass()}>下一步</Button>

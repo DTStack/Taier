@@ -13,7 +13,7 @@ const UploadAction = mc([
 
 const TIME_INTERVAL = 3600; // 1秒
 
-export const UPLOAD_STATUS: any = {
+export const UPLOAD_STATUS = {
     SUCCES: 'success',
     PROGRESSING: 'progressing',
     READY: 'ready',

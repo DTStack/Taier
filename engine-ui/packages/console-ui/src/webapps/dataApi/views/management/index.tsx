@@ -58,6 +58,8 @@ class APIMana extends React.Component<any, any> {
         sortedInfo: {},
         showRecord: {},
         changeMan: null,
+        showModify: false,
+        showCreate: false,
         loading: false,
         cascaderData: []// 存储级联选择框数据
     }
@@ -97,6 +99,8 @@ class APIMana extends React.Component<any, any> {
         return { typeList: arr, typeDic: dic };
     }
     getAllApi () {
+        const { user } = this.props;
+        const userId = user.id;
         const sortType: any = {
             'gmtModified': 'gmt_modified'
         }
@@ -111,7 +115,8 @@ class APIMana extends React.Component<any, any> {
             filter,
             dataSource,
             dataSourceType,
-            changeMan,
+            showModify,
+            showCreate,
             sortedInfo,
             pageIndex,
             pageSize
@@ -124,7 +129,8 @@ class APIMana extends React.Component<any, any> {
         params.apiType = filter.apiType && filter.apiType[0];
         params.dataSourceType = dataSourceType && parseInt(dataSourceType);// 数据源类型
         params.dataSourceId = dataSource && parseInt(dataSource);// 数据源
-        params.modifyUserId = changeMan;// 修改人id
+        params.modifyUserId = showModify ? userId : null;// 修改人id
+        params.createUserId = showCreate ? userId : null;// 创建人人id
         params.orderBy = sortType[sortedInfo.columnKey];
         params.sort = orderType[sortedInfo.order];
         params.currentPage = pageIndex;
@@ -333,9 +339,9 @@ class APIMana extends React.Component<any, any> {
                             this.setState({
                                 loading: false
                             })
-                            message.success('禁用成功')
-                            if (res) {
+                            if (res && res.code == 1) {
                                 this.getAllApi();
+                                message.success('禁用成功')
                             }
                         }
                     )
@@ -425,17 +431,6 @@ class APIMana extends React.Component<any, any> {
             this.getAllApi();
         })
     }
-    changeManCheck (e: any) {
-        let changeMan = null;
-        if (e.target.checked) {
-            changeMan = this.props.user.id;
-        }
-        this.setState({
-            changeMan: changeMan
-        }, () => {
-            this.getAllApi();
-        })
-    }
     getCascaderData () { // 处理级联选择数据
         const cascaderData: any = [];
         const { apiCatalogue } = this.props.apiMarket;
@@ -507,11 +502,24 @@ class APIMana extends React.Component<any, any> {
                         }
                     </Select>
                 </div>
+                <Checkbox
+                    className="m-l-8"
+                    onChange={this.onCheckBoxChange.bind(this, 'showCreate')}
+                >
+                    我创建的
+                </Checkbox>
                 <div className="m-l-8">
-                    <Checkbox onChange={this.changeManCheck.bind(this)}>我修改的</Checkbox>
+                    <Checkbox onChange={this.onCheckBoxChange.bind(this, 'showModify')}>我修改的</Checkbox>
                 </div>
             </div>
         )
+    }
+    onCheckBoxChange (type: string, e: React.ChangeEvent<HTMLInputElement>) {
+        this.setState({
+            [type]: e.target.checked
+        }, () => {
+            this.getAllApi();
+        })
     }
     openApiType () {
         this.props.router.push('/api/manage/apiType');

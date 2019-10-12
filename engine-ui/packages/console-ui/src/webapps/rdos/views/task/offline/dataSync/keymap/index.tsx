@@ -524,13 +524,13 @@ class Keymap extends React.Component<any, any> {
                 }
                 case DATA_SOURCE.MAXCOMPUTE:
                 case DATA_SOURCE.HIVE: {
-                    const name = col ? scrollText(col.value ? `'${col.key}'` : col.key) : '字段名称';
+                    const name: any = col ? scrollText(col.value ? `'${col.key}'` : col.key) : '字段名称';
                     // 仅允许常量删除操作
                     const opt = col && col.value ? cellOperation(removeOption, editOption)
                         : cellOperation(null, editOption);
 
                     return <div>
-                        <div className="cell">{name}</div>
+                        <div className="cell" title={name}>{name}</div>
                         <div className="cell" title={typeValue}>{ type }</div>
                         <div className="cell">
                             {col ? opt : '操作'}
@@ -550,11 +550,10 @@ class Keymap extends React.Component<any, any> {
                 default: {
                     const canFormat = isValidFormatType(col && col.type);
                     const opt = <div>{col && col.value ? removeOption : '' }{canFormat ? editOption : ''}</div>;
+                    const name: any = col ? scrollText(col.value ? `'${col.key}'` : col.key) : '字段名称';
                     return <div>
                         <div className="cell" title={name}>
-                            {
-                                col ? scrollText(col.value ? `'${col.key}'` : col.key) : '字段名称'
-                            }
+                            { name }
                         </div>
                         <div className="cell" title={typeValue}>{ type }</div>
                         <div className="cell">
