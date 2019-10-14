@@ -110,7 +110,7 @@ public class FlinkYarnSessionStarter {
         try {
             clusterClient.shutdown();
         } catch (Exception ex) {
-            logger.info("Could not properly shutdown cluster client.", ex);
+            logger.info("[FlinkYarnSessionStarter] Could not properly shutdown cluster client.", ex);
         }
     }
 

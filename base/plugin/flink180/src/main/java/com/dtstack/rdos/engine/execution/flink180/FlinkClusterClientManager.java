@@ -6,6 +6,8 @@ import com.dtstack.rdos.engine.execution.base.JobIdentifier;
 import com.dtstack.rdos.engine.execution.flink180.enums.Deploy;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
 import org.apache.commons.lang.StringUtils;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.configuration.Configuration;
@@ -13,6 +15,8 @@ import org.apache.flink.configuration.HighAvailabilityOptions;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.util.ConverterUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -27,6 +31,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * create: 2019/8/27
  */
 public class FlinkClusterClientManager {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FlinkClusterClientManager.class);
 
     private FlinkClientBuilder flinkClientBuilder;
 
@@ -47,7 +53,7 @@ public class FlinkClusterClientManager {
     /**
      * 用于缓存连接perjob对应application的ClusterClient
      */
-    private Cache<String, ClusterClient> perJobClientCache = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).build();
+    private Cache<String, ClusterClient> perJobClientCache = CacheBuilder.newBuilder().removalListener(new ClusterClientRemovalListener()).expireAfterAccess(10, TimeUnit.MINUTES).build();
 
     private ExecutorService yarnMonitorES;
 
@@ -132,5 +138,23 @@ public class FlinkClusterClientManager {
 
     public void setIsClientOn(boolean isClientOn) {
         this.isClientOn.set(isClientOn);
+    }
+
+    /**
+     * 创建一个监听器，在缓存被移除的时候，得到这个通知
+     */
+    private static class ClusterClientRemovalListener implements RemovalListener<String, ClusterClient> {
+
+        @Override
+        public void onRemoval(RemovalNotification<String, ClusterClient> notification) {
+            LOG.info("key={},value={},reason={}", notification.getKey(), notification.getValue(), notification.getCause());
+            if (notification.getValue() != null) {
+                try {
+                    notification.getValue().shutdown();
+                } catch (Exception ex) {
+                    LOG.info("[ClusterClientCache] Could not properly shutdown cluster client.", ex);
+                }
+            }
+        }
     }
 }
