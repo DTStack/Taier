@@ -333,21 +333,27 @@ public class RestartDealer {
 
         //重试的任务不置为失败，waitengine
         if(ComputeType.STREAM.getType().equals(computeType)){
+
+            jobRetryRecord(jobClient);
+
             if (submitFailed){
                 engineStreamJobDAO.updateTaskSubmitFailed(jobId, null, null, RdosTaskStatus.RESTARTING.getStatus());
             } else {
                 engineStreamJobDAO.updateTaskEngineIdAndStatus(jobId, null, null, RdosTaskStatus.RESTARTING.getStatus());
             }
-            jobRetryRecord(jobClient);
+
             engineStreamJobDAO.updateSubmitLog(jobId, null);
             engineStreamJobDAO.updateEngineLog(jobId, null);
         }else if(ComputeType.BATCH.getType().equals(computeType)){
+            // move to retry log
+            jobRetryRecord(jobClient);
+
             if (submitFailed){
                 engineBatchJobDAO.updateJobSubmitFailed(jobId, null, RdosTaskStatus.RESTARTING.getStatus(),null);
             } else {
                 engineBatchJobDAO.updateJobEngineIdAndStatus(jobId, null, RdosTaskStatus.RESTARTING.getStatus(),null);
             }
-            jobRetryRecord(jobClient);
+
             engineBatchJobDAO.updateSubmitLog(jobId, null);
             engineBatchJobDAO.updateEngineLog(jobId, null);
             engineBatchJobDAO.updateRetryTaskParams(jobId, null);
