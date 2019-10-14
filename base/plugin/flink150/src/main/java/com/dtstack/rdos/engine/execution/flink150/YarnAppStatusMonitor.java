@@ -63,13 +63,12 @@ public class YarnAppStatusMonitor implements Runnable{
                     judgeYarnAppStatus();
                     if(clusterClientManager.getIsClientOn()){
                         if(checkTaskManagerClose()){
-                            LOG.error("TaskManager has no slots, prepare to stopFlinkYarnSession");
-                            flinkYarnSessionStarter.stopFlinkYarnSession();
+                            LOG.error("TaskManager has no slots, prepare to stop Flink yarn-session client.");
                             clusterClientManager.setIsClientOn(false);
                         }
                     }
                 } else {
-                    LOG.error("Yarn client is no longer in state STARTED. Stopping the Yarn application status monitor.");
+                    LOG.error("Yarn client is no longer in state STARTED, prepare to stop Flink yarn-session client.");
                     clusterClientManager.setIsClientOn(false);
                 }
             }
@@ -89,7 +88,11 @@ public class YarnAppStatusMonitor implements Runnable{
     private void retry() {
         //重试
         try {
-            LOG.warn("--retry flink client with yarn session----");
+            if (flinkYarnSessionStarter.getClusterClient() != null) {
+                LOG.error("------- Flink yarn-session client shutdown ----");
+                flinkYarnSessionStarter.stopFlinkYarnSession();
+            }
+            LOG.warn("-- retry Flink yarn-session client ----");
             startTime = System.currentTimeMillis();
             this.lastAppState = YarnApplicationState.NEW;
             clusterClientManager.initYarnSessionClient();
@@ -120,8 +123,7 @@ public class YarnAppStatusMonitor implements Runnable{
             case FAILED:
             case KILLED:
             case FINISHED:
-                flinkYarnSessionStarter.stopFlinkYarnSession();
-                LOG.error("-------Flink session is down----");
+                LOG.error("-------Flink yarn-session appState:{}, prepare to stop Flink yarn-session client ----", appState.toString());
                 //限制任务提交---直到恢复
                 clusterClientManager.setIsClientOn(false);
                 break;
