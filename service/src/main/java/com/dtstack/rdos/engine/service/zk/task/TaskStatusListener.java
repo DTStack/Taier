@@ -644,7 +644,7 @@ public class TaskStatusListener implements Runnable{
             rdosStreamTaskCheckpointDAO.deleteByTaskId(jobIdentifier.getTaskId());
         }
 
-        if(RdosTaskStatus.getStoppedStatus().contains(status)){
+        if(RdosTaskStatus.FAILED.getStatus().equals(status)){
             updateBatchTaskCheckpoint(pluginInfo, jobIdentifier);
         }
     }
