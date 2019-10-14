@@ -85,7 +85,7 @@ public class FlinkConfig {
 
     private boolean yarnSessionStartAuto = false;
 
-    private boolean flinkHighAvailability = false;
+    private boolean flinkHighAvailability = true;
 
     private transient FlinkPrometheusGatewayConfig prometheusGatewayConfig;
 
