@@ -1,7 +1,6 @@
 package com.dtstack.rods.engine.execution.base.resource;
 
 import com.dtstack.rdos.commom.exception.LimitResourceException;
-import com.dtstack.rdos.commom.exception.RdosException;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
@@ -81,7 +80,7 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
             throw new LimitResourceException("The Yarn task is set to a core larger than the maximum allocated core");
         }
         if (needTotalMem > (totalMem * queueCapacity)) {
-            throw new LimitResourceException("The Yarn task is set to a core larger than the maximum allocated mem");
+            throw new LimitResourceException("The Yarn task is set to a mem larger than the maximum allocated mem");
         }
         if (needTotalCore > (totalCore * capacity)) {
             logger.info("judgeYarnResource, needTotalCore={}, totalCore={}, capacity={}", needTotalCore, totalCore, capacity);

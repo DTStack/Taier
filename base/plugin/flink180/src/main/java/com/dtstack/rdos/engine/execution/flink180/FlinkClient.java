@@ -15,6 +15,7 @@ import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.flink180.constrant.ExceptionInfoConstrant;
 import com.dtstack.rdos.engine.execution.flink180.enums.Deploy;
 import com.dtstack.rdos.engine.execution.flink180.enums.FlinkYarnMode;
 import com.dtstack.rdos.engine.execution.flink180.parser.AddJarOperator;
@@ -499,6 +500,8 @@ public class FlinkClient extends AbsClient {
                         return RdosTaskStatus.FINISHED;
                     }else if(finalApplicationStatus == FinalApplicationStatus.KILLED){
                         return RdosTaskStatus.KILLED;
+                    }else if(finalApplicationStatus == FinalApplicationStatus.UNDEFINED){
+                        return RdosTaskStatus.FAILED;
                     }else{
                         return RdosTaskStatus.RUNNING;
                     }
@@ -587,23 +590,15 @@ public class FlinkClient extends AbsClient {
             reqURL = currClient.getWebInterfaceURL();
         }
 
-        Map<String,String> retMap = Maps.newHashMap();
-
         try {
             String exceptPath = String.format(FlinkRestParseUtil.EXCEPTION_INFO, jobId);
             String except = getExceptionInfo(exceptPath, reqURL);
-            String jobPath = String.format(FlinkRestParseUtil.JOB_INFO, jobId);
-            String jobInfo = getMessageByHttp(jobPath, reqURL);
-            String accuPath = String.format(FlinkRestParseUtil.JOB_ACCUMULATOR_INFO, jobId);
-            String accuInfo = getMessageByHttp(accuPath, reqURL);
-            retMap.put("except", except);
-            retMap.put("jobInfo", jobInfo);
-            retMap.put("accuInfo", accuInfo);
-            return FlinkRestParseUtil.parseEngineLog(retMap);
+            return except;
         } catch (Exception e) {
             logger.error("", e);
             Map<String, String> map = new LinkedHashMap<>(8);
             map.put("jobId", jobId);
+            map.put("root-exception", ExceptionInfoConstrant.FLINK_GET_LOG_ERROR_UNDO_RESTART_EXCEPTION);
             map.put("reqURL", reqURL);
             map.put("engineLogErr", ExceptionUtil.getErrorMessage(e));
             return new Gson().toJson(map);

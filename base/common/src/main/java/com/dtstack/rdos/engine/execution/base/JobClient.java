@@ -291,8 +291,8 @@ public class JobClient extends OrderObject{
         this.classArgs = classArgs;
     }
 
-    public void stopJob() throws Exception {
-        JobSubmitExecutor.getInstance().stopJob(this);
+    public JobResult stopJob() throws Exception {
+        return JobSubmitExecutor.getInstance().stopJob(this);
     }
 
     public int getAgain() {
