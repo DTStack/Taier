@@ -3,6 +3,7 @@ package com.dtstack.rdos.engine.execution.flink150;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.JarFileInfo;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
 import com.dtstack.rdos.engine.execution.flink150.constrant.ConfigConstrant;
 import com.dtstack.rdos.engine.execution.flink150.enums.Deploy;
@@ -245,7 +246,7 @@ public class FlinkClientBuilder {
 
         ApplicationId applicationId = acquireAppIdAndSetClusterId(newConf);
 
-        if (!flinkConfig.getFlinkHighAvailabilityForBatch()) {
+        if (!flinkConfig.getFlinkHighAvailability()) {
             newConf.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.NONE.toString());
         }
 
@@ -269,11 +270,16 @@ public class FlinkClientBuilder {
         Configuration newConf = new Configuration(flinkConfiguration);
         setMetricConfigConfig(newConf, gatewayConfig);
         if (isPerjob && jobClient != null){
+            if (!flinkConfig.getFlinkHighAvailability() && ComputeType.BATCH == jobClient.getComputeType()) {
+                newConf.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.NONE.toString());
+            } else {
+                newConf.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
+            }
             newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, jobClient.getTaskId());
             newConf.setInteger(YarnConfigOptions.APPLICATION_ATTEMPTS.key(), 0);
         } else if (!isPerjob) {
             newConf.removeConfig(HighAvailabilityOptions.HA_CLUSTER_ID);
-            if (!flinkConfig.getFlinkHighAvailabilityForBatch()) {
+            if (!flinkConfig.getFlinkHighAvailability()) {
                 newConf.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.NONE.toString());
             }
         }

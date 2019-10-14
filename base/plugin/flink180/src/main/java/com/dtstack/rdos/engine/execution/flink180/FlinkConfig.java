@@ -85,7 +85,7 @@ public class FlinkConfig {
 
     private boolean yarnSessionStartAuto = false;
 
-    private boolean flinkHighAvailabilityForBatch = false;
+    private boolean flinkHighAvailability = true;
 
     private transient FlinkPrometheusGatewayConfig prometheusGatewayConfig;
 
@@ -373,11 +373,11 @@ public class FlinkConfig {
         this.prometheusGatewayConfig = prometheusGatewayConfig;
     }
 
-    public boolean getFlinkHighAvailabilityForBatch() {
-        return flinkHighAvailabilityForBatch;
+    public boolean getFlinkHighAvailability() {
+        return flinkHighAvailability;
     }
 
-    public void setFlinkHighAvailabilityForBatch(boolean flinkHighAvailabilityForBatch) {
-        this.flinkHighAvailabilityForBatch = flinkHighAvailabilityForBatch;
+    public void setFlinkHighAvailability(boolean flinkHighAvailability) {
+        this.flinkHighAvailability = flinkHighAvailability;
     }
 }
