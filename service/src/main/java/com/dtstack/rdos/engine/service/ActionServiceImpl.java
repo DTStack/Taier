@@ -56,6 +56,7 @@ public class ActionServiceImpl {
 
     private RdosEngineJobStopRecordDAO jobStopRecordDAO = new RdosEngineJobStopRecordDAO();
 
+    private RdosStreamTaskCheckpointDAO rdosStreamTaskCheckpointDAO = new RdosStreamTaskCheckpointDAO();
 
     private WorkNode workNode = WorkNode.getInstance();
 
@@ -269,6 +270,9 @@ public class ActionServiceImpl {
                             result = false;
                         }
                     }
+                }
+                if (result){
+                    rdosStreamTaskCheckpointDAO.deleteByTaskId(jobId);
                 }
             }
         } catch (Exception e){
