@@ -344,7 +344,6 @@ class ManageParamsConfig extends React.Component<any, any> {
         this.setPassLoading(true);
         const nextStep = async () => {
             const { InputColumns, OutputColums } = this.state;
-
             if ((!OutputColums || OutputColums.length == 0) && basicProperties.method !== API_METHOD.GET) { // GET 请求方式，输入参数未非必填
                 message.error('输出参数不能为空')
                 this.setPassLoading(false)
@@ -357,6 +356,10 @@ class ManageParamsConfig extends React.Component<any, any> {
             }
             if (!this.checkRepeat(InputColumns)) {
                 message.error('输入参数不能相同')
+                return;
+            }
+            if (!this.checkSameName(InputColumns)) {
+                message.error('同一参数名称的必填项选择必须是一致!')
                 return;
             }
             if (!this.checkRepeat(OutputColums)) {
@@ -385,6 +388,20 @@ class ManageParamsConfig extends React.Component<any, any> {
     prev () {
         this.props.saveData(this.getSaveData());
         this.props.prev();
+    }
+    checkSameName (columns: any) { // 校验同一参数名称的必填项选择必须是一致的。
+        const map: any = {};
+        for (let i = 0; i < columns.length; i++) {
+            const column = columns[i];
+            if (!map[column.paramsName]) {
+                map[column.paramsName] = column.required;
+            } else {
+                if (column.required != map[column.paramsName]) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
     checkRepeat (columns: any) {
         const map: any = {};

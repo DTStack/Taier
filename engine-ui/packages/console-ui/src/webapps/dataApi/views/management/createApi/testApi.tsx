@@ -9,6 +9,7 @@ import ConstColumnModel, { constColumnsKeys } from '../../../model/constColumnMo
 import Editor from 'widgets/editor'
 import utils from 'utils';
 import { expandJSONObj } from 'funcs';
+import { cloneDeep } from 'lodash';
 
 const TextArea = Input.TextArea;
 const FormItem = Form.Item;
@@ -88,7 +89,14 @@ class TestApi extends React.Component<any, any> {
             {
                 title: '参数名称',
                 dataIndex: isRegister ? inputColumnsKeys.NAME : 'paramsName',
-                width: '150px'
+                width: '150px',
+                render: (value: any, record: any) => {
+                    if (!isRegister && record.isChildren) {
+                        return null
+                    } else {
+                        return value
+                    }
+                }
             },
             {
                 title: '字段类型',
@@ -99,14 +107,20 @@ class TestApi extends React.Component<any, any> {
                 title: '必填',
                 dataIndex: isRegister ? inputColumnsKeys.ISREQUIRED : 'required',
                 render: (text: any, record: any) => {
+                    if (!isRegister && record.isChildren) {
+                        return null
+                    }
                     return text ? '是' : '否'
                 },
-                width: '40px'
+                width: '60px'
             },
             {
                 title: '值',
                 dataIndex: 'value',
                 render: (text: any, record: any) => {
+                    if (!isRegister && record.isChildren) {
+                        return null
+                    }
                     return this.getValueCell(record);
                 }
             }
@@ -143,7 +157,6 @@ class TestApi extends React.Component<any, any> {
         const { validateFieldsAndScroll, getFieldsValue } = this.props.form;
         const { testBody } = this.state;
         const values = expandJSONObj(getFieldsValue());
-        console.log('testApi values:', values);
         validateFieldsAndScroll({}, (err: any) => {
             if (!err) {
                 this.setState({
@@ -264,10 +277,30 @@ class TestApi extends React.Component<any, any> {
             `Body:\n\t${renderBody(body)}\n\n`
         );
     }
+    transformData = (data: any) => { // 生成api,转换数据
+        let mapData: any = {};
+        let newData = cloneDeep(data);
+        newData.forEach((item: any) => {
+            if (mapData[item.paramsName]) {
+                let mapItem = mapData[item.paramsName];
+                let children = mapItem['children'];
+                let childrenItem = Object.assign({}, item, { isChildren: true })
+                if (children) {
+                    mapData[item.paramsName]['children'] = [...children, childrenItem];
+                } else {
+                    mapData[item.paramsName]['children'] = [childrenItem];
+                }
+            } else {
+                mapData[item.paramsName] = item
+            }
+        });
+        return Object.values(mapData);
+    }
     render () {
         const { loading, sync, testBody, saveLoading } = this.state;
         const { basicProperties, registerParams, respJson: testResult = {}, isRegister } = this.props;
         const wrapInputParams = this.wrapInputParams();
+        const inputData = isRegister ? wrapInputParams : this.transformData(wrapInputParams);
         const inputTableColumns = this.initColumns();
         const { outputResultColumns, x } = this.initOutColumns();
         const { bodyDesc } = registerParams;
@@ -301,7 +334,7 @@ class TestApi extends React.Component<any, any> {
                                     style={{ background: '#fff' }}
                                     rowKey="id"
                                     columns={inputTableColumns}
-                                    dataSource={wrapInputParams}
+                                    dataSource={inputData}
                                     pagination={false}
                                     scroll={{ y: 286 }}
                                 />
