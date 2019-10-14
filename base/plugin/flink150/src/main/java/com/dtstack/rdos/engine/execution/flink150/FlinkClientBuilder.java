@@ -3,6 +3,7 @@ package com.dtstack.rdos.engine.execution.flink150;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.JarFileInfo;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
 import com.dtstack.rdos.engine.execution.flink150.enums.Deploy;
 import com.google.common.base.Strings;
@@ -238,7 +239,7 @@ public class FlinkClientBuilder {
 
         ApplicationId applicationId = acquireApplicationId(newConf);
 
-        if (!flinkConfig.getFlinkHighAvailabilityForBatch()) {
+        if (!flinkConfig.getFlinkHighAvailability()) {
             newConf.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.NONE.toString());
         }
 
@@ -264,13 +265,18 @@ public class FlinkClientBuilder {
         }
         Configuration newConf = new Configuration(configuration);
         if (isPerjob && jobClient != null){
+            if (!flinkConfig.getFlinkHighAvailability() && ComputeType.BATCH == jobClient.getComputeType()) {
+                newConf.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.NONE.toString());
+            } else {
+                newConf.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
+            }
             newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, jobClient.getTaskId());
             newConf.setInteger(YarnConfigOptions.APPLICATION_ATTEMPTS.key(), 0);
             perJobMetricConfigConfig(newConf);
         } else if (!isPerjob) {
             //由engine管控的yarnsession clusterId不进行设置，默认使用appId作为clusterId
             newConf.removeConfig(HighAvailabilityOptions.HA_CLUSTER_ID);
-            if (!flinkConfig.getFlinkHighAvailabilityForBatch()) {
+            if (!flinkConfig.getFlinkHighAvailability()) {
                 newConf.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.NONE.toString());
             }
         }
@@ -373,7 +379,7 @@ public class FlinkClientBuilder {
                     maxMemory = thisMemory;
                     maxCores = thisCores;
                     applicationId = report.getApplicationId();
-                    //clusterId不为空 且 yarnsession不是由engine来管控时，需要设置clusterId（兼容手动启动yarnsession的情况）
+                    //flinkClusterId不为空 且 yarnsession不是由engine来管控时，需要设置clusterId（兼容手动启动yarnsession的情况）
                     if (StringUtils.isNotBlank(flinkConfig.getFlinkClusterId()) && !report.getName().endsWith(flinkConfig.getCluster() + "_" + flinkConfig.getQueue())){
                         configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, flinkConfig.getFlinkClusterId());
                     } else {
