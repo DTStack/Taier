@@ -274,10 +274,11 @@ public class FlinkClientBuilder {
             newConf.setInteger(YarnConfigOptions.APPLICATION_ATTEMPTS.key(), 0);
             perJobMetricConfigConfig(newConf);
         } else if (!isPerjob) {
-            //由engine管控的yarnsession clusterId不进行设置，默认使用appId作为clusterId
-            newConf.removeConfig(HighAvailabilityOptions.HA_CLUSTER_ID);
             if (!flinkConfig.getFlinkHighAvailability()) {
-                newConf.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.NONE.toString());
+                setNoneHaModeConfig(newConf);
+            } else {
+                //由engine管控的yarnsession clusterId不进行设置，默认使用appId作为clusterId
+                newConf.removeConfig(HighAvailabilityOptions.HA_CLUSTER_ID);
             }
         }
 
