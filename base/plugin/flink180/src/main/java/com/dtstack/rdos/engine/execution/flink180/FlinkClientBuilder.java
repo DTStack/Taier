@@ -276,10 +276,11 @@ public class FlinkClientBuilder {
         if (isPerjob && jobClient != null){
             if (!flinkConfig.getFlinkHighAvailability() && ComputeType.BATCH == jobClient.getComputeType()) {
                 newConf.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.NONE.toString());
+                newConf.removeConfig(HighAvailabilityOptions.HA_CLUSTER_ID);
             } else {
                 newConf.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
+                newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, jobClient.getTaskId());
             }
-            newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, jobClient.getTaskId());
             newConf.setInteger(YarnConfigOptions.APPLICATION_ATTEMPTS.key(), 0);
         } else if (!isPerjob) {
             newConf.removeConfig(HighAvailabilityOptions.HA_CLUSTER_ID);
