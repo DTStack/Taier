@@ -3,6 +3,7 @@ package com.dtstack.rdos.engine.execution.flink180;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.JarFileInfo;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
 import com.dtstack.rdos.engine.execution.flink180.constrant.ConfigConstrant;
 import com.dtstack.rdos.engine.execution.flink180.enums.Deploy;
@@ -249,10 +250,13 @@ public class FlinkClientBuilder {
 
         ApplicationId applicationId = acquireAppIdAndSetClusterId(newConf);
 
-        ClusterClient<ApplicationId> clusterClient = null;
+        if (!flinkConfig.getFlinkHighAvailability()) {
+            setNoneHaModeConfig(newConf);
+        }
 
         AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, yarnConf, ".");
 
+        ClusterClient<ApplicationId> clusterClient = null;
         try {
             clusterClient = clusterDescriptor.retrieve(applicationId);
         } catch (Exception e) {
@@ -270,13 +274,22 @@ public class FlinkClientBuilder {
         Configuration newConf = new Configuration(flinkConfiguration);
         setMetricConfigConfig(newConf, gatewayConfig);
         if (isPerjob && jobClient != null){
-            newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, jobClient.getTaskId());
-            newConf.setInteger(YarnConfigOptions.APPLICATION_ATTEMPTS.key(), 0);
             newConf = addConfiguration(jobClient.getConfProperties(), newConf);
-        } else {
-            String clusterId = flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue();
-            newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, clusterId);
+            if (!flinkConfig.getFlinkHighAvailability() && ComputeType.BATCH == jobClient.getComputeType()) {
+                setNoneHaModeConfig(newConf);
+            } else {
+                newConf.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
+                newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, jobClient.getTaskId());
+            }
+            newConf.setInteger(YarnConfigOptions.APPLICATION_ATTEMPTS.key(), 0);
+        } else if (!isPerjob) {
             newConf = consoleConfiguration(newConf);
+            if (!flinkConfig.getFlinkHighAvailability()) {
+                setNoneHaModeConfig(newConf);
+            } else {
+                //由engine管控的yarnsession clusterId不进行设置，默认使用appId作为clusterId
+                newConf.removeConfig(HighAvailabilityOptions.HA_CLUSTER_ID);
+            }
         }
 
         AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, yarnConf, ".");
@@ -368,14 +381,12 @@ public class FlinkClientBuilder {
                     maxCores = thisCores;
                     applicationId = report.getApplicationId();
                     String clusterId = flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue();
-                    if (!report.getName().endsWith(clusterId)) {
-                        if (StringUtils.isBlank(flinkConfig.getFlinkClusterId())) {
-                            clusterId = applicationId.toString();
-                        } else {
-                            clusterId = flinkConfig.getFlinkClusterId();
-                        }
+                    //flinkClusterId不为空 且 yarnsession不是由engine来管控时，需要设置clusterId（兼容手动启动yarnsession的情况）
+                    if (StringUtils.isNotBlank(flinkConfig.getFlinkClusterId()) && !report.getName().endsWith(clusterId)){
+                        configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, flinkConfig.getFlinkClusterId());
+                    } else {
+                        configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, applicationId.toString());
                     }
-                    configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, clusterId);
                 }
 
             }
@@ -388,6 +399,16 @@ public class FlinkClientBuilder {
             LOG.error("", e);
             throw new RdosException(e.getMessage());
         }
+    }
+
+    /**
+     * set the copy of configuration
+     */
+    private void setNoneHaModeConfig(Configuration configuration) {
+        configuration.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.NONE.toString());
+        configuration.removeConfig(HighAvailabilityOptions.HA_CLUSTER_ID);
+        configuration.removeConfig(HighAvailabilityOptions.HA_ZOOKEEPER_ROOT);
+        configuration.removeConfig(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM);
     }
 
     private void setMetricConfigConfig(Configuration configuration, FlinkPrometheusGatewayConfig gatewayConfig){

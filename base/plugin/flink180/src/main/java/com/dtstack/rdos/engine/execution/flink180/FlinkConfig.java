@@ -81,6 +81,8 @@ public class FlinkConfig {
 
     private boolean yarnSessionStartAuto = false;
 
+    private boolean flinkHighAvailability = true;
+
     private transient FlinkPrometheusGatewayConfig prometheusGatewayConfig;
 
 
@@ -350,5 +352,13 @@ public class FlinkConfig {
 
     public void setKerberosConfig(Map<String, String> kerberosConfig) {
         this.kerberosConfig = kerberosConfig;
+    }
+
+    public boolean getFlinkHighAvailability() {
+        return flinkHighAvailability;
+    }
+
+    public void setFlinkHighAvailability(boolean flinkHighAvailability) {
+        this.flinkHighAvailability = flinkHighAvailability;
     }
 }
