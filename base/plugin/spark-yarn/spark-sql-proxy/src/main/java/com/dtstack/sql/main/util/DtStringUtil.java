@@ -43,7 +43,7 @@ public class DtStringUtil {
             }else if(c == '\"' && '\\'!=flag){
                 inQuotes = !inQuotes;
                 b.append(c);
-            }else if(c == '\'' && '\\'!=flag){
+            }else if(c == '\'' && '\\'!=flag && !inQuotes){
                 inSingleQuotes = !inSingleQuotes;
                 b.append(c);
             }else{
