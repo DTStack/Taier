@@ -15,4 +15,6 @@ public interface RdosEngineBatchJobRetryMapper {
 	List<RdosEngineBatchJobRetry> getJobRetryByJobId(@Param("jobId") String jobId);
 
     String getRetryTaskParams(@Param("jobId")String jobId, @Param("retryNum") int retrynum);
+
+	void removeByJobId(@Param("jobId")String jobId);
 }
