@@ -363,6 +363,12 @@ export default {
     getHivePartitions (params: any) {
         return http.post(stremReq.GET_HIVE_PARTITIONS, params)
     },
+    getHiveSourceList (params?: any) {
+        return http.post(stremReq.GET_HIVE_SOURCE_LIST, params)
+    },
+    getDirtyDataTableOverview (params: any) {
+        return http.post(req.GET_DIRTY_TABLE_OVERVIEW, params)
+    },
     //= =============== 实时离线合并接口 ===============/
     // linkSource (params: any, type = 'offline') {
     //     if (type == 'offline') {

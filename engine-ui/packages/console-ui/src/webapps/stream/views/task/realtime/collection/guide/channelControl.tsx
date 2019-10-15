@@ -1,11 +1,16 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { get } from 'lodash';
 import {
     Form, Input,
-    Select, Button, AutoComplete
+    Select, Button, AutoComplete, Checkbox
 } from 'antd';
 
 import HelpDoc from '../../../../../views/helpDoc';
+import LifeCycle from '../../../../../components/lifeCycleSelect';
+
+import { SettingMap } from '../../../../../store/modules/realtimeTask/collection';
+import Api from '../../../../../api';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -21,12 +26,32 @@ const formItemLayout: any = {
 
 class ChannelForm extends React.Component<any, any> {
     state: any = {
+        dirtySourceList: []
     }
     constructor (props: any) {
         super(props);
     }
 
+    recordDirtyChange (e: React.ChangeEvent<HTMLInputElement>) {
+        if (e.target.checked) {
+            this.loadSource();
+        }
+    }
+    async loadSource () {
+        this.setState({
+            dirtySourceList: []
+        })
+        let res = await Api.getHiveSourceList();
+        if (res && res.code == 1) {
+            this.setState({
+                dirtySourceList: res.data
+            })
+        }
+    }
     render () {
+        const { collectionData } = this.props;
+        const settingMap: SettingMap = get(collectionData, 'settingMap', {});
+        const { recordDirty } = settingMap;
         const { getFieldDecorator } = this.props.form;
         const speedOption: any = [];
         const channelOption: any = [];
@@ -34,7 +59,7 @@ class ChannelForm extends React.Component<any, any> {
             <Option value='-1' key={-1}>不限制上传速率</Option>
         ]
         for (let i = 1; i <= 20; i++) {
-            speedOption.push(<Option value={`${i}`} key={i}>{ i }</Option>)
+            speedOption.push(<Option value={`${i}`} key={i}>{i}</Option>)
         }
         for (let i = 1; i <= 5; i++) {
             channelOption.push(<Option value={`${i}`} key={i}>{i}</Option>)
@@ -45,7 +70,6 @@ class ChannelForm extends React.Component<any, any> {
                 <FormItem
                     {...formItemLayout}
                     label="作业速率上限"
-                    style={{ height: '32px' }}
                 >
                     {getFieldDecorator('speed', {
                         rules: [{
@@ -54,17 +78,16 @@ class ChannelForm extends React.Component<any, any> {
                     })(
                         <AutoComplete
                             dataSource={unLimitedOption.concat(speedOption)}
-                            // optionLabelProp="value"
+                        // optionLabelProp="value"
                         >
                             <Input suffix="MB/s" />
                         </AutoComplete>
                     )}
-                    <HelpDoc doc="jobSpeedLimit"/>
+                    <HelpDoc doc="jobSpeedLimit" />
                 </FormItem>
                 <FormItem
                     {...formItemLayout}
                     label="作业并发数"
-                    style={{ height: '32px' }}
                 >
                     {getFieldDecorator('channel', {
                         rules: [{
@@ -78,6 +101,67 @@ class ChannelForm extends React.Component<any, any> {
                     )}
                     <HelpDoc doc="jobConcurrence" />
                 </FormItem>
+                <FormItem
+                    {...formItemLayout}
+                    label="错误记录数"
+                >
+                    {getFieldDecorator('recordDirty', {
+                        rules: [{
+                            required: false
+                        }],
+                        valuePropName: 'checked'
+                    })(
+                        <Checkbox onChange={this.recordDirtyChange.bind(this)}>记录保存</Checkbox>
+                    )}
+                    <HelpDoc doc="recordDirty" />
+                </FormItem>
+                {recordDirty ? (
+                    <React.Fragment>
+                        <FormItem
+                            {...formItemLayout}
+                            label="脏数据写入hive库"
+                        >
+                            {getFieldDecorator('dirtySource', {
+                                rules: [{
+                                    required: true,
+                                    message: '请选择脏数据写入的hive库'
+                                }]
+                            })(
+                                <Select placeholder='请选择脏数据写入的hive库'>
+
+                                </Select>
+                            )}
+                            {/* <HelpDoc doc="dirtySource" /> */}
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="脏数据写入hive表"
+                        >
+                            {getFieldDecorator('dirtyTable', {
+                                rules: [{
+                                    required: false,
+                                    message: '请填写脏数据写入的hive表'
+                                }]
+                            })(
+                                <Input placeholder='系统默认分配' />
+                            )}
+                            <HelpDoc doc="dirtySource" />
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="脏数据存储天数"
+                        >
+                            {getFieldDecorator('lifeDay', {
+                                rules: [{
+                                    required: true,
+                                    message: '请选择存储天数'
+                                }]
+                            })(
+                                <LifeCycle width={120}/>
+                            )}
+                        </FormItem>
+                    </React.Fragment>
+                ) : null}
             </Form>
             {!this.props.readonly && (
                 <div className="steps-action">
@@ -107,7 +191,7 @@ const ChannelFormWrap = Form.create({
     },
     mapPropsToFields (props: any) {
         const { collectionData } = props;
-        const settingMap = collectionData.settingMap;
+        const settingMap: SettingMap = collectionData.settingMap;
         if (!settingMap) return {};
         return {
             speed: {
@@ -115,6 +199,18 @@ const ChannelFormWrap = Form.create({
             },
             channel: {
                 value: settingMap.channel
+            },
+            recordDirty: {
+                value: settingMap.recordDirty
+            },
+            dirtySource: {
+                value: settingMap.dirtySource
+            },
+            dirtyTable: {
+                value: settingMap.dirtyTable
+            },
+            lifeDay: {
+                value: settingMap.lifeDay
             }
         }
     }

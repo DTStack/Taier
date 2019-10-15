@@ -110,5 +110,6 @@ export default {
     GET_CHECKPOINT_LIST: `${STREAM_BASE_URL}/streamTaskCheckpoint/pageQuery`, // 获取checkpoint列表
     GET_CHECKPOINT_OVERVIEW: `${STREAM_BASE_URL}/streamTaskCheckpoint/getDataCount`, // 获取checkpoint统计信息
     GET_TOPIC_DETAIL: `${STREAM_BASE_URL}/streamJobMetric/getTopicDetail`, // 获取topic详情
+    GET_DIRTY_TABLE_OVERVIEW: `${STREAM_BASE_URL}/streamDataSource/streamDirtyData/dataOverview`, // 脏数据概览
     CHECK_SOURCE_STATUS: `${STREAM_BASE_URL}/streamDataSource/getDataSourceLinkStatus` // 获取任务的异常数据源
 }

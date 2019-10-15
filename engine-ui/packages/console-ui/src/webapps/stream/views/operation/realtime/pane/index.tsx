@@ -12,6 +12,7 @@ import Failover from './tabs/failover';
 import CheckPoint from './tabs/checkPoint'
 import DataDelay from './tabs/dataDelay'
 import RunCode from './tabs/runCode'
+import DirtyView from './tabs/dirty';
 import HelpDoc from '../../../helpDoc'
 
 import { TASK_TYPE, TASK_STATUS } from '../../../../../stream/comm/const';
@@ -112,7 +113,10 @@ class TaskDetailPane extends React.Component<any, any> {
                     checkpointView,
                     runCodeView,
                     failover,
-                    alarmMsgView
+                    alarmMsgView,
+                    <TabPane style={scrollStyleNoPt} tab="脏数据" key="dirty">
+                        <DirtyView key={data.id} data={data} />
+                    </TabPane>
                 ]
                 break;
             }
