@@ -3,6 +3,7 @@ package com.dtstack.rdos.engine.execution.flink180;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.JarFileInfo;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
 import com.dtstack.rdos.engine.execution.flink180.enums.Deploy;
 import com.google.common.base.Strings;
@@ -242,14 +243,13 @@ public class FlinkClientBuilder {
 
         ApplicationId applicationId = acquireApplicationId(newConf);
 
-        ClusterClient<ApplicationId> clusterClient = null;
-
-        if(!newConf.containsKey(HighAvailabilityOptions.HA_CLUSTER_ID.key())){
-            newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, applicationId.toString());
+        if (!flinkConfig.getFlinkHighAvailability()) {
+            setNoneHaModeConfig(newConf);
         }
 
         AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, yarnConf, ".");
 
+        ClusterClient<ApplicationId> clusterClient = null;
         try {
             clusterClient = clusterDescriptor.retrieve(applicationId);
         } catch (Exception e) {
@@ -269,9 +269,22 @@ public class FlinkClientBuilder {
         }
         Configuration newConf = new Configuration(configuration);
         if (isPerjob && jobClient != null){
-            newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, jobClient.getTaskId());
+            if (!flinkConfig.getFlinkHighAvailability() && ComputeType.BATCH == jobClient.getComputeType()) {
+                setNoneHaModeConfig(newConf);
+            } else {
+                newConf.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
+                newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, jobClient.getTaskId());
+            }
             newConf.setInteger(YarnConfigOptions.APPLICATION_ATTEMPTS.key(), 0);
             perJobMetricConfigConfig(newConf);
+
+        } else if (!isPerjob) {
+            if (!flinkConfig.getFlinkHighAvailability()) {
+                setNoneHaModeConfig(newConf);
+            } else {
+                //由engine管控的yarnsession clusterId不进行设置，默认使用appId作为clusterId
+                newConf.removeConfig(HighAvailabilityOptions.HA_CLUSTER_ID);
+            }
         }
 
         AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, yarnConf, ".");
@@ -362,8 +375,11 @@ public class FlinkClientBuilder {
                     maxMemory = thisMemory;
                     maxCores = thisCores;
                     applicationId = report.getApplicationId();
-                    if (!report.getName().endsWith(flinkConfig.getCluster() + "_" + flinkConfig.getQueue())){
+                    //flinkClusterId不为空 且 yarnsession不是由engine来管控时，需要设置clusterId（兼容手动启动yarnsession的情况）
+                    if (StringUtils.isNotBlank(flinkConfig.getFlinkClusterId()) && !report.getName().endsWith(flinkConfig.getCluster() + "_" + flinkConfig.getQueue())){
                         configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, flinkConfig.getFlinkClusterId());
+                    } else {
+                        configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, applicationId.toString());
                     }
                 }
 
@@ -377,6 +393,16 @@ public class FlinkClientBuilder {
             LOG.error("", e);
             throw new RdosException(e.getMessage());
         }
+    }
+
+    /**
+     * set the copy of configuration
+     */
+    private void setNoneHaModeConfig(Configuration configuration) {
+        configuration.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.NONE.toString());
+        configuration.removeConfig(HighAvailabilityOptions.HA_CLUSTER_ID);
+        configuration.removeConfig(HighAvailabilityOptions.HA_ZOOKEEPER_ROOT);
+        configuration.removeConfig(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM);
     }
 
     private void perJobMetricConfigConfig(Configuration configuration){

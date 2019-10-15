@@ -1,10 +1,11 @@
 package com.dtstack.rdos.engine.execution.flink180;
 
+import com.dtstack.rdos.commom.exception.RdosException;
+import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.engine.execution.flink180.util.FLinkConfUtil;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.configuration.HighAvailabilityOptions;
 import org.apache.flink.configuration.IllegalConfigurationException;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFramework;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFrameworkFactory;
@@ -51,15 +52,12 @@ public class FlinkYarnSessionStarter {
     public FlinkYarnSessionStarter(FlinkClientBuilder flinkClientBuilder, FlinkConfig flinkConfig) throws MalformedURLException {
         this.flinkClientBuilder = flinkClientBuilder;
         this.flinkConfig = flinkConfig;
-        lockPath = String.format("%s/client/%s", flinkConfig.getFlinkZkNamespace(), flinkConfig.getCluster() + SPLIT + flinkConfig.getQueue());
-
 
         Configuration configuration = loadConfiguration(flinkConfig.getFlinkJarPath());
-        String clusterId = flinkConfig.getCluster() + SPLIT + flinkConfig.getQueue();
-        configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, clusterId);
+        this.configuration = configuration.clone();
 
-        this.configuration = configuration;
         this.yarnSessionDescriptor = flinkClientBuilder.createClusterDescriptorByMode(configuration, null, false);
+        String clusterId = flinkConfig.getCluster() + SPLIT + flinkConfig.getQueue();
         this.yarnSessionDescriptor.setName(flinkConfig.getFlinkSessionName() + SPLIT + clusterId);
         this.yarnSessionSpecification = FLinkConfUtil.createYarnSessionSpecification(flinkClientBuilder.getFlinkConfiguration());
 
@@ -113,7 +111,7 @@ public class FlinkYarnSessionStarter {
         try {
             clusterClient.shutdown();
         } catch (Exception ex) {
-            logger.info("Could not properly shutdown cluster client.", ex);
+            logger.info("[FlinkYarnSessionStarter] Could not properly shutdown cluster client.", ex);
         }
     }
 
@@ -122,8 +120,18 @@ public class FlinkYarnSessionStarter {
     }
 
     private void initZk() {
+        String zkAddress = ConfigParse.getNodeZkAddress();
+        if (StringUtils.isNullOrWhitespaceOnly(zkAddress)
+                || zkAddress.split("/").length < 2) {
+            throw new RdosException("zkAddress is error");
+        }
+        String[] zks = zkAddress.split("/");
+        zkAddress = zks[0].trim();
+        String distributeRootNode = String.format("/%s", zks[1].trim());
+        lockPath = String.format("%s/yarn_session/%s", distributeRootNode, flinkConfig.getCluster() + SPLIT + flinkConfig.getQueue());
+
         this.zkClient = CuratorFrameworkFactory.builder()
-                .connectString(flinkConfig.getFlinkZkAddress()).retryPolicy(new ExponentialBackoffRetry(1000, 3))
+                .connectString(zkAddress).retryPolicy(new ExponentialBackoffRetry(1000, 3))
                 .connectionTimeoutMs(1000)
                 .sessionTimeoutMs(1000).build();
         this.zkClient.start();

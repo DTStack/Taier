@@ -85,8 +85,9 @@ public class FlinkConfig {
 
     private boolean yarnSessionStartAuto = false;
 
-    private transient FlinkPrometheusGatewayConfig prometheusGatewayConfig;
+    private boolean flinkHighAvailability = true;
 
+    private transient FlinkPrometheusGatewayConfig prometheusGatewayConfig;
 
     public String getZkLoginName() {
         return zkLoginName;
@@ -370,5 +371,13 @@ public class FlinkConfig {
 
     public void setPrometheusGatewayConfig(FlinkPrometheusGatewayConfig prometheusGatewayConfig) {
         this.prometheusGatewayConfig = prometheusGatewayConfig;
+    }
+
+    public boolean getFlinkHighAvailability() {
+        return flinkHighAvailability;
+    }
+
+    public void setFlinkHighAvailability(boolean flinkHighAvailability) {
+        this.flinkHighAvailability = flinkHighAvailability;
     }
 }
