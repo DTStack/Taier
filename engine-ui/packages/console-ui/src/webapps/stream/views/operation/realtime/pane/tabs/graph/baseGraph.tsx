@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Spin, Icon, Tooltip } from 'antd';
 import utils from 'utils';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isArray } from 'lodash';
 
 import Resize from 'widgets/resize';
 import FullScreen from 'widgets/fullscreen'
@@ -38,19 +38,19 @@ function isExchangeData (data: any = [], unitType: any) {
             break;
         }
         case SOURCE_INPUT_BPS_UNIT_TYPE.KBPS: {
-            exChangeArr = data.map((item: any) => Number((item / 1024).toFixed(6)));
+            exChangeArr = data.map((item: any) => isArray(data) ? [data[0], Number((item / 1024).toFixed(6))] : Number((item / 1024).toFixed(6)));
             break;
         }
         case SOURCE_INPUT_BPS_UNIT_TYPE.MBPS: {
-            exChangeArr = data.map((item: any) => Number((item / Math.pow(1024, 2)).toFixed(6)));
+            exChangeArr = data.map((item: any) => isArray(data) ? [data[0], Number((item / Math.pow(1024, 2)).toFixed(6))] : Number((item / Math.pow(1024, 2)).toFixed(6)));
             break;
         }
         case SOURCE_INPUT_BPS_UNIT_TYPE.GBPS: {
-            exChangeArr = data.map((item: any) => Number((item / Math.pow(1024, 3)).toFixed(6)));
+            exChangeArr = data.map((item: any) => isArray(data) ? [data[0], Number((item / Math.pow(1024, 3)).toFixed(6))] : Number((item / Math.pow(1024, 3)).toFixed(6)));
             break;
         }
         case SOURCE_INPUT_BPS_UNIT_TYPE.TBPS: {
-            exChangeArr = data.map((item: any) => Number((item / Math.pow(1024, 4)).toFixed(6)));
+            exChangeArr = data.map((item: any) => isArray(data) ? [data[0], Number((item / Math.pow(1024, 4)).toFixed(6))] : Number((item / Math.pow(1024, 4)).toFixed(6)));
             break;
         }
         default: {
@@ -231,6 +231,14 @@ class AlarmBaseGraph extends React.Component<any, any> {
         options.grid.right = '40px';
         options.grid.top = '50px';
         options.grid.containLabel = true
+        /**
+         * tooltip
+         */
+        options.tooltip.formatter = (params: any[]) => {
+            return `${params[0].axisValueLabel}</br>` + params.map((param) => {
+                return `${param.marker} ${param.seriesName}: ${isArray(param.data) ? param.data[1] : param.data}`
+            }).join('</br>');
+        }
         /**
          * 设置具体的数据
          */
