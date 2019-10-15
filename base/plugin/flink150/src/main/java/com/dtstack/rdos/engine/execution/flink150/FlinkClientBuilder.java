@@ -247,7 +247,7 @@ public class FlinkClientBuilder {
         ApplicationId applicationId = acquireAppIdAndSetClusterId(newConf);
 
         if (!flinkConfig.getFlinkHighAvailability()) {
-            newConf.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.NONE.toString());
+            setNoneHaModeConfig(newConf);
         }
 
         AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, yarnConf, ".", false);
@@ -271,8 +271,7 @@ public class FlinkClientBuilder {
         setMetricConfigConfig(newConf, gatewayConfig);
         if (isPerjob && jobClient != null){
             if (!flinkConfig.getFlinkHighAvailability() && ComputeType.BATCH == jobClient.getComputeType()) {
-                newConf.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.NONE.toString());
-                newConf.removeConfig(HighAvailabilityOptions.HA_CLUSTER_ID);
+                setNoneHaModeConfig(newConf);
             } else {
                 newConf.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
                 newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, jobClient.getTaskId());
@@ -402,6 +401,16 @@ public class FlinkClientBuilder {
             LOG.error("", e);
             throw new RdosException(e.getMessage());
         }
+    }
+
+    /**
+     * set the copy of configuration
+     */
+    private void setNoneHaModeConfig(Configuration configuration) {
+        configuration.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.NONE.toString());
+        configuration.removeConfig(HighAvailabilityOptions.HA_CLUSTER_ID);
+        configuration.removeConfig(HighAvailabilityOptions.HA_ZOOKEEPER_ROOT);
+        configuration.removeConfig(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM);
     }
 
     private void setMetricConfigConfig(Configuration configuration, FlinkPrometheusGatewayConfig gatewayConfig){
