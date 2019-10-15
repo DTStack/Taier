@@ -1,5 +1,7 @@
 package com.dtstack.rdos.engine.execution.flink180;
 
+import com.dtstack.rdos.commom.exception.RdosException;
+import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.engine.execution.flink180.util.FLinkConfUtil;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
@@ -50,7 +52,6 @@ public class FlinkYarnSessionStarter {
     public FlinkYarnSessionStarter(FlinkClientBuilder flinkClientBuilder, FlinkConfig flinkConfig) throws MalformedURLException {
         this.flinkClientBuilder = flinkClientBuilder;
         this.flinkConfig = flinkConfig;
-        lockPath = String.format("%s/client/%s", flinkConfig.getFlinkZkNamespace(), flinkConfig.getCluster() + SPLIT + flinkConfig.getQueue());
 
         Configuration configuration = loadConfiguration(flinkConfig.getFlinkJarPath());
         this.configuration = configuration.clone();
@@ -119,8 +120,18 @@ public class FlinkYarnSessionStarter {
     }
 
     private void initZk() {
+        String zkAddress = ConfigParse.getNodeZkAddress();
+        if (StringUtils.isNullOrWhitespaceOnly(zkAddress)
+                || zkAddress.split("/").length < 2) {
+            throw new RdosException("zkAddress is error");
+        }
+        String[] zks = zkAddress.split("/");
+        zkAddress = zks[0].trim();
+        String distributeRootNode = String.format("/%s", zks[1].trim());
+        lockPath = String.format("%s/yarn_session/%s", distributeRootNode, flinkConfig.getCluster() + SPLIT + flinkConfig.getQueue());
+
         this.zkClient = CuratorFrameworkFactory.builder()
-                .connectString(flinkConfig.getFlinkZkAddress()).retryPolicy(new ExponentialBackoffRetry(1000, 3))
+                .connectString(zkAddress).retryPolicy(new ExponentialBackoffRetry(1000, 3))
                 .connectionTimeoutMs(1000)
                 .sessionTimeoutMs(1000).build();
         this.zkClient.start();
