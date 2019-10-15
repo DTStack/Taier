@@ -22,12 +22,11 @@ public class ClientFactory {
 
     static {
         typeRefClassName.put("flink150", "com.dtstack.rdos.engine.execution.flink150.FlinkClient");
-        typeRefClassName.put("flink170", "com.dtstack.rdos.engine.execution.flink170.FlinkClient");
         typeRefClassName.put("flink180", "com.dtstack.rdos.engine.execution.flink180.FlinkClient");
-        typeRefClassName.put("spark", "com.dtstack.rdos.engine.execution.spark210.SparkClient");
-        typeRefClassName.put("datax", "com.dtstack.rdos.engine.execution.datax.DataxClient");
+//        typeRefClassName.put("flink180_huawei", "com.dtstack.rdos.engine.execution.flink180huawei.FlinkClient");
+//        typeRefClassName.put("spark", "com.dtstack.rdos.engine.execution.spark210.SparkClient");
         typeRefClassName.put("spark_yarn", "com.dtstack.rdos.engine.execution.sparkyarn.SparkYarnClient");
-        typeRefClassName.put("spark_yarn_cdh", "com.dtstack.rdos.engine.execution.spark160.sparkyarn.SparkYarnClient");
+//        typeRefClassName.put("spark_yarn_cdh", "com.dtstack.rdos.engine.execution.spark160.sparkyarn.SparkYarnClient");
         typeRefClassName.put("mysql", "com.dtstack.rdos.engine.execution.mysql.MysqlClient");
         typeRefClassName.put("postgresql", "com.dtstack.rdos.engine.execution.postgresql.PostgreSQLClient");
         typeRefClassName.put("oracle", "com.dtstack.rdos.engine.execution.oracle.OracleClient");

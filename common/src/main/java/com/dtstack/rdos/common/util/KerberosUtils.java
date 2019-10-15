@@ -11,11 +11,12 @@ import javax.security.auth.login.AppConfigurationEntry.LoginModuleControlFlag;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authentication.util.KerberosUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class KerberosUtils {
 
-    private static final Logger LOG = Logger.getLogger(KerberosUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KerberosUtils.class);
 
     private static final String JAVA_SECURITY_KRB5_CONF_KEY = "java.security.krb5.conf";
 
@@ -23,51 +24,15 @@ public class KerberosUtils {
 
     public synchronized static void login(String userPrincipal, String userKeytabPath, String krb5ConfPath, Configuration conf)
             throws IOException {
-        // 1.check input parameters
-        if ((userPrincipal == null) || (userPrincipal.length() <= 0)) {
-            LOG.error("input userPrincipal is invalid.");
-            throw new IOException("input userPrincipal is invalid.");
-        }
-
-        if ((userKeytabPath == null) || (userKeytabPath.length() <= 0)) {
-            LOG.error("input userKeytabPath is invalid.");
-            throw new IOException("input userKeytabPath is invalid.");
-        }
-
-        if ((krb5ConfPath == null) || (krb5ConfPath.length() <= 0)) {
-            LOG.error("input krb5ConfPath is invalid.");
-            throw new IOException("input krb5ConfPath is invalid.");
-        }
-
-        if ((conf == null)) {
-            LOG.error("input conf is invalid.");
-            throw new IOException("input conf is invalid.");
-        }
-
         // 2.check file exsits
         File userKeytabFile = new File(userKeytabPath);
-        if (!userKeytabFile.exists()) {
-            LOG.error("userKeytabFile(" + userKeytabFile.getAbsolutePath() + ") does not exsit.");
-            throw new IOException("userKeytabFile(" + userKeytabFile.getAbsolutePath() + ") does not exsit.");
-        }
-        if (!userKeytabFile.isFile()) {
-            LOG.error("userKeytabFile(" + userKeytabFile.getAbsolutePath() + ") is not a file.");
-            throw new IOException("userKeytabFile(" + userKeytabFile.getAbsolutePath() + ") is not a file.");
-        }
-
         File krb5ConfFile = new File(krb5ConfPath);
-        if (!krb5ConfFile.exists()) {
-            LOG.error("krb5ConfFile(" + krb5ConfFile.getAbsolutePath() + ") does not exsit.");
-            throw new IOException("krb5ConfFile(" + krb5ConfFile.getAbsolutePath() + ") does not exsit.");
-        }
-        if (!krb5ConfFile.isFile()) {
-            LOG.error("krb5ConfFile(" + krb5ConfFile.getAbsolutePath() + ") is not a file.");
-            throw new IOException("krb5ConfFile(" + krb5ConfFile.getAbsolutePath() + ") is not a file.");
-        }
 
         // 3.set and check krb5config
         setKrb5Config(krb5ConfFile.getAbsolutePath());
 
+        UserGroupInformation.setConfiguration(conf);
+        UserGroupInformation.loginUserFromKeytab(userPrincipal, userKeytabFile.getAbsolutePath());
         LOG.info("Login success!!!!!!!!!!!!!!");
     }
 
@@ -88,8 +53,7 @@ public class KerberosUtils {
     public static void setJaasConf(String loginContextName, String principal, String keytabFile)
             throws IOException {
         if ((loginContextName == null) || (loginContextName.length() <= 0)) {
-            LOG.error("input loginContextName is invalid.");
-            throw new IOException("input loginContextName is invalid.");
+            loginContextName = "Client";
         }
 
         if ((principal == null) || (principal.length() <= 0)) {

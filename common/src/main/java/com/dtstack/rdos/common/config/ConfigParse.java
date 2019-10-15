@@ -58,37 +58,9 @@ public class ConfigParse {
         return workerPoolSize == null?1000:Integer.parseInt(workerPoolSize.toString());
     }
 
-    public static boolean getSecurity(){
+    public static Object getSecurity(){
         Object isSecurity = configs.get("security");
-        return isSecurity == null ? false : Boolean.parseBoolean(isSecurity.toString());
-    }
-
-    public static String userPrincipal(){
-        Object userPrincipal = configs.get("userPrincipal");
-        Preconditions.checkNotNull(userPrincipal,"userPrincipal is not null");
-        return userPrincipal.toString();
-    }
-
-    public static String zkPrincipal(){
-        Object zkPrincipal = configs.get("zkPrincipal");
-        return zkPrincipal == null ? "zookeeper/hadoop" : zkPrincipal.toString();
-    }
-
-    public static String userKeytabPath(){
-        Object userKeytabPath = configs.get("userKeytabPath");
-        Preconditions.checkNotNull(userKeytabPath,"userKeytabPath is not null");
-        return userKeytabPath.toString();
-    }
-
-    public static String krb5ConfPath(){
-        Object krb5ConfPath = configs.get("krb5ConfPath");
-        Preconditions.checkNotNull(krb5ConfPath,"krb5ConfPath is not null");
-        return krb5ConfPath.toString();
-    }
-
-    public static String loginContextName(){
-        Object loginContextName = configs.get("loginContextName");
-        return loginContextName ==null?"Client":loginContextName.toString();
+        return isSecurity;
     }
 
     public static List<Map<String,Object>> getEngineTypeList(){

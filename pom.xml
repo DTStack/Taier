@@ -9,6 +9,7 @@
 	<name>engine</name>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<zookeeper.version>3.4.6</zookeeper.version>
 		<revision>3.6.6</revision>
 	</properties>
 
@@ -28,6 +29,7 @@
 		<module>base/plugin/flink150</module>
 		<!--<module>base/plugin/flink170</module>-->
 		<module>base/plugin/flink180</module>
+		<module>base/plugin/flink180huawei</module>
 		<!--<module>base/plugin/spark160-yarn</module>-->
 		<module>base/plugin/dt-yarn-shell</module>
         <module>base/plugin/kylin</module>
