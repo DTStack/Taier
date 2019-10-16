@@ -10,6 +10,7 @@ import com.dtstack.rdos.engine.execution.base.*;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
+import com.dtstack.rdos.engine.execution.flink150.classloader.ClassLoaderManager;
 import com.dtstack.rdos.engine.execution.flink150.constrant.ExceptionInfoConstrant;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.flink150.enums.Deploy;
@@ -231,8 +232,7 @@ public class FlinkClient extends AbsClient {
                 // perjob模式延后创建PackagedProgram
                 jarFile = FlinkUtil.downloadJar(jarPath, tmpFileDirPath,hadoopConf);
             } else {
-                packagedProgram = FlinkUtil.buildProgram(jarPath, tmpFileDirPath, classPaths, entryPointClass,
-                        programArgs, spSettings, hadoopConf);
+                packagedProgram = ClassLoaderManager.newInstance(jarPath, (cl) -> FlinkUtil.buildProgram(jarPath, tmpFileDirPath, classPaths, entryPointClass, programArgs, spSettings, hadoopConf));
             }
         }catch (Throwable e){
             return JobResult.createErrorResult(e);
