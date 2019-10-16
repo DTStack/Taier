@@ -495,9 +495,8 @@ class Keymap extends React.Component<any, any> {
             switch (sourceType) {
                 case DATA_SOURCE.HDFS: {
                     const name: any = col ? scrollText(col.index !== undefined ? col.index : col.value ? `'${col.key}'` : col.key) : '索引位';
-
                     return <div>
-                        <div className="cell" title={name}>{name}</div>
+                        <div className="cell" >{name}</div>
                         <div className="cell" title={typeValue}>{type}</div>
                         {
                             sourceFileType !== 'orc' ? <div className="cell">
@@ -515,7 +514,7 @@ class Keymap extends React.Component<any, any> {
                         : cellOperation(removeOption, editOption);
                     return <div className="four-cells">
                         <div className="cell" title={cf}>{ cf || '-' }</div>
-                        <div className="cell" title={name}>{ name }</div>
+                        <div className="cell" >{ name }</div>
                         <div className="cell" title={typeValue}>{ type }</div>
                         <div className="cell">
                             { col ? opt : '操作' }
@@ -528,9 +527,8 @@ class Keymap extends React.Component<any, any> {
                     // 仅允许常量删除操作
                     const opt = col && col.value ? cellOperation(removeOption, editOption)
                         : cellOperation(null, editOption);
-
                     return <div>
-                        <div className="cell" title={name}>{name}</div>
+                        <div className="cell" >{name}</div>
                         <div className="cell" title={typeValue}>{ type }</div>
                         <div className="cell">
                             {col ? opt : '操作'}
@@ -540,7 +538,7 @@ class Keymap extends React.Component<any, any> {
                 case DATA_SOURCE.FTP: {
                     const name: any = col ? scrollText(col.index !== undefined ? col.index : col.value ? `'${col.key}'` : col.key) : '字段序号';
                     return <div>
-                        <div className="cell" title={name}>{name}</div>
+                        <div className="cell" >{name}</div>
                         <div className="cell" title={typeValue}>{ type }</div>
                         <div className="cell">
                             {col ? cellOperation(removeOption, editOption) : '操作'}
@@ -552,7 +550,7 @@ class Keymap extends React.Component<any, any> {
                     const opt = <div>{col && col.value ? removeOption : '' }{canFormat ? editOption : ''}</div>;
                     const name: any = col ? scrollText(col.value ? `'${col.key}'` : col.key) : '字段名称';
                     return <div>
-                        <div className="cell" title={name}>
+                        <div className="cell">
                             { name }
                         </div>
                         <div className="cell" title={typeValue}>{ type }</div>
@@ -690,7 +688,7 @@ class Keymap extends React.Component<any, any> {
                     const name: any = col ? scrollText(col.key) : '字段名称';
                     const type = col ? col.type.toUpperCase() : '类型';
                     return <div>
-                        <div className="cell" title={name}>{name}</div>
+                        <div className="cell">{name}</div>
                         <div className="cell" title={type}>{type}</div>
                         <div className="cell">
                             { col ? operations : '操作' }
@@ -702,7 +700,7 @@ class Keymap extends React.Component<any, any> {
                     const column: any = col ? scrollText(col.key) : '列名';
                     const type: any = col ? scrollText(col.type.toUpperCase()) : '类型';
                     return <div className="four-cells">
-                        <div className="cell" title={name}>{name}</div>
+                        <div className="cell" >{name}</div>
                         <div className="cell" title={column}>{column}</div>
                         <div className="cell" title={type}>{type}</div>
                         <div className="cell">{ col ? operations : '操作' }</div>
