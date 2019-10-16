@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.9.0-beta.2.2"></a>
+# [3.9.0-beta.2.2](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.2.1...3.9.0-beta.2.2) (2019-10-16)
+
+
+### Bug Fixes
+
+* **filter:** fix comment filter ([bf4f3b8](http://git.dtstack.cn/dtstack/data-stack-web/commits/bf4f3b8))
+
+
+
 <a name="3.9.0-beta.2.1"></a>
 # [3.9.0-beta.2.1](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.2...3.9.0-beta.2.1) (2019-10-16)
 
