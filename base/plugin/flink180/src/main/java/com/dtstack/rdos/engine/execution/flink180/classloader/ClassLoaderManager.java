@@ -19,14 +19,13 @@
 package com.dtstack.rdos.engine.execution.flink180.classloader;
 
 import com.dtstack.rdos.engine.execution.base.loader.DtClassLoader;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -49,6 +48,12 @@ public class ClassLoaderManager {
     }
 
     private static DtClassLoader retrieveClassLoad(String pluginJarPath) {
+        if (StringUtils.isBlank(pluginJarPath)) {
+            throw new RuntimeException("The plugin Jar Path is null");
+        }
+        if (!pluginJarPath.endsWith(JAR_SUFFIX)) {
+            throw new RuntimeException("The plugin Jar Path is not a Jar file");
+        }
         return pluginClassLoader.computeIfAbsent(pluginJarPath, k -> {
             try {
                 URL[] urls = getPluginJarUrls(pluginJarPath);
@@ -63,22 +68,11 @@ public class ClassLoaderManager {
         });
     }
 
-    private static URL[] getPluginJarUrls(String pluginDir) throws MalformedURLException {
-        List<URL> urlList = new ArrayList<>();
-        File dirFile = new File(pluginDir);
-        if(!dirFile.exists() || !dirFile.isDirectory()){
-            throw new RuntimeException("plugin path:" + pluginDir + "is not exist.");
+    private static URL[] getPluginJarUrls(String pluginJarPath) throws MalformedURLException {
+        File pluginJarFile = new File(pluginJarPath);
+        if(!pluginJarFile.exists()){
+            throw new RuntimeException("plugin Jar path:" + pluginJarPath + "is not exist.");
         }
-
-        File[] files = dirFile.listFiles(tmpFile -> tmpFile.isFile() && tmpFile.getName().endsWith(JAR_SUFFIX));
-        if(files == null || files.length == 0){
-            throw new RuntimeException("plugin path:" + pluginDir + " is null.");
-        }
-
-        for(File file : files){
-            URL pluginJarURL = file.toURI().toURL();
-            urlList.add(pluginJarURL);
-        }
-        return urlList.toArray(new URL[urlList.size()]);
+        return new URL[] {pluginJarFile.toURI().toURL()};
     }
 }
