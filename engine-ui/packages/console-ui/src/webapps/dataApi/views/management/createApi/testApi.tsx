@@ -107,9 +107,6 @@ class TestApi extends React.Component<any, any> {
                 title: '必填',
                 dataIndex: isRegister ? inputColumnsKeys.ISREQUIRED : 'required',
                 render: (text: any, record: any) => {
-                    if (!isRegister && record.isChildren) {
-                        return null
-                    }
                     return text ? '是' : '否'
                 },
                 width: '60px'
@@ -118,9 +115,6 @@ class TestApi extends React.Component<any, any> {
                 title: '值',
                 dataIndex: 'value',
                 render: (text: any, record: any) => {
-                    if (!isRegister && record.isChildren) {
-                        return null
-                    }
                     return this.getValueCell(record);
                 }
             }
