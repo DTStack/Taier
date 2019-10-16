@@ -38,6 +38,7 @@ public class ClientFactory {
         typeRefClassName.put("learning", "com.dtstack.rdos.engine.execution.learning.LearningClient");
         typeRefClassName.put("dtyarnshell", "com.dtstack.rdos.engine.execution.yarnshell.DtYarnShellClient");
         typeRefClassName.put("kylin", "com.dtstack.rdos.engine.execution.kylin.KylinClient");
+        typeRefClassName.put("impala", "com.dtstack.rdos.engine.execution.impala.ImpalaClient");
     }
 
     public static ClassLoader getClassLoader(String pluginType){
