@@ -226,7 +226,8 @@ export function filterComments (sql: string) {
                 parser.index = nextToken;
                 parser.queue = '';
             } else {
-                return '引号不匹配';
+                parser.index = sql.length - 1;
+                parser.queue = '';
             }
         } else {
             return null;
