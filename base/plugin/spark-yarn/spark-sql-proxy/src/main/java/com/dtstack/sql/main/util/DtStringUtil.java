@@ -40,10 +40,10 @@ public class DtStringUtil {
                     tokensList.add(b.toString());
                     b = new StringBuilder();
                 }
-            }else if(c == '\"' && '\\'!=flag){
+            }else if(c == '\"' && '\\'!=flag && !inSingleQuotes){
                 inQuotes = !inQuotes;
                 b.append(c);
-            }else if(c == '\'' && '\\'!=flag){
+            }else if(c == '\'' && '\\'!=flag && !inQuotes){
                 inSingleQuotes = !inSingleQuotes;
                 b.append(c);
             }else{
