@@ -316,6 +316,11 @@ class ManageParamsConfig extends React.Component<any, any> {
     }
     cancelAndSave () {
         const { cancelAndSave } = this.props;
+        const { InputColumns } = this.state;
+        if (!this.checkSameName(InputColumns)) {
+            message.error('同一参数名称的必填项选择必须一致!')
+            return;
+        }
         this.setState({
             saveLoading: true
         })
@@ -359,7 +364,7 @@ class ManageParamsConfig extends React.Component<any, any> {
                 return;
             }
             if (!this.checkSameName(InputColumns)) {
-                message.error('同一参数名称的必填项选择必须是一致!')
+                message.error('同一参数名称的必填项选择必须一致!')
                 return;
             }
             if (!this.checkRepeat(OutputColums)) {
@@ -393,10 +398,10 @@ class ManageParamsConfig extends React.Component<any, any> {
         const map: any = {};
         for (let i = 0; i < columns.length; i++) {
             const column = columns[i];
-            if (!map[column.paramsName]) {
+            if (map[column.paramsName] == undefined) {
                 map[column.paramsName] = column.required;
             } else {
-                if (column.required != map[column.paramsName]) {
+                if (column.required !== map[column.paramsName]) {
                     return false;
                 }
             }
