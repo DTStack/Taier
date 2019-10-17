@@ -19,7 +19,6 @@
 package org.apache.flink.yarn;
 
 import avro.shaded.com.google.common.collect.Sets;
-import com.dtstack.rdos.engine.execution.flink150.classloader.ClassLoaderManager;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -593,9 +592,9 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
             }
         }
 
-        PackagedProgram program = ClassLoaderManager.newInstance(clusterSpecification.getJarFile().getPath(), (cl) -> {
-            return new PackagedProgram(clusterSpecification.getJarFile(), clusterSpecification.getClasspaths(),clusterSpecification.getEntryPointClass(),args);
-        });
+        PackagedProgram program = new PackagedProgram(clusterSpecification.getJarFile(),
+                clusterSpecification.getClasspaths(),clusterSpecification.getEntryPointClass(),args);
+
         program.setSavepointRestoreSettings(clusterSpecification.getSpSetting());
         return program;
     }
