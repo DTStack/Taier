@@ -10,8 +10,9 @@ const TextArea = Input.TextArea;
 const Option = Select.Option;
 
 class ColumnsConfig extends React.Component<any, any> {
-    renderEdit (dataIndex: any, id: any, type: any, initialValue: any) {
-        const { getFieldDecorator } = this.props.form;
+    renderEdit (dataIndex: any, id: any, type: any, initialValue: any, disabled?: boolean) {
+        const { charOption, form } = this.props;
+        const { getFieldDecorator } = form;
         const key = generateFormItemKey(dataIndex, id, type);
         switch (dataIndex) {
             case 'paramsName': {
@@ -25,6 +26,21 @@ class ColumnsConfig extends React.Component<any, any> {
                         }]
                     })(
                         <Input />
+                    )}
+                </FormItem>);
+            }
+            case 'type': {
+                return (<FormItem
+                    style={{ marginBottom: '0px' }}
+                >
+                    {getFieldDecorator(key, {
+                        initialValue: initialValue
+                    })(
+                        <Select style={{ width: '100%' }}>
+                            {
+                                charOption.map((item: any) => <Option key={item} value={item}>{item}</Option>)
+                            }
+                        </Select>
                     )}
                 </FormItem>);
             }
@@ -58,7 +74,7 @@ class ColumnsConfig extends React.Component<any, any> {
                         initialValue: initialValue,
                         valuePropName: 'checked'
                     })(
-                        <Checkbox></Checkbox>
+                        <Checkbox disabled={disabled}></Checkbox>
                     )}
                 </FormItem>);
             }
@@ -77,7 +93,7 @@ class ColumnsConfig extends React.Component<any, any> {
     }
     initColumns (type: any) {
         const { mode } = this.props;
-        const isGuideMode = mode == API_MODE.GUIDE;
+        const isGuideMode = mode == API_MODE.GUIDE; // 模板向导模式
         if (type == 'in') {
             return [
                 {
@@ -91,12 +107,15 @@ class ColumnsConfig extends React.Component<any, any> {
                 {
                     title: '绑定字段',
                     dataIndex: 'columnName',
-                    width: '150px'
+                    width: '130px'
                 },
                 {
                     title: '字段类型',
                     dataIndex: 'type',
-                    width: '120px'
+                    width: '120px',
+                    render: (text: any, record: any) => {
+                        return isGuideMode && text != 'OBJECT' ? text : this.renderEdit('type', record.id, type, 'CHAR');
+                    }
                 },
                 {
                     title: '操作符',
@@ -110,7 +129,12 @@ class ColumnsConfig extends React.Component<any, any> {
                     title: '必填',
                     dataIndex: 'required',
                     render: (text: any, record: any) => {
-                        return this.renderEdit('required', record.id, type, text)
+                        let disabled = false;
+                        if (!isGuideMode) {
+                            const { groupId } = record;
+                            disabled = groupId == -1
+                        }
+                        return this.renderEdit('required', record.id, type, text, disabled)
                     },
                     width: '60px'
                 },
@@ -135,7 +159,7 @@ class ColumnsConfig extends React.Component<any, any> {
                 {
                     title: '绑定字段',
                     dataIndex: 'columnName',
-                    width: '150px'
+                    width: '130px'
                 },
                 {
                     title: '字段类型',
