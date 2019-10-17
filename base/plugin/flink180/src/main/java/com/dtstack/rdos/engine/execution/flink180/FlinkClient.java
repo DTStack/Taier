@@ -41,8 +41,6 @@ import org.apache.flink.api.common.JobSubmissionResult;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.PackagedProgram;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.util.Preconditions;
@@ -551,9 +549,8 @@ public class FlinkClient extends AbsClient {
         jobClient.setCoreJarInfo(coreJar);
 
         List<String> programArgList = syncPluginInfo.createSyncPluginArgs(jobClient, this);
-        List<URL> classPaths = syncPluginInfo.getClassPaths(programArgList);
 
-        return submitJobWithJar(jobClient, classPaths, programArgList);
+        return submitJobWithJar(jobClient, Lists.newArrayList(), programArgList);
     }
 
 

@@ -545,9 +545,8 @@ public class FlinkClient extends AbsClient {
         jobClient.setCoreJarInfo(coreJar);
 
         List<String> programArgList = syncPluginInfo.createSyncPluginArgs(jobClient, this);
-        List<URL> classPaths = syncPluginInfo.getClassPaths(programArgList);
 
-        return submitJobWithJar(jobClient, classPaths, programArgList);
+        return submitJobWithJar(jobClient, Lists.newArrayList(), programArgList);
     }
 
 
