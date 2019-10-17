@@ -411,7 +411,17 @@ public class TaskStatusListener implements Runnable{
             updateJobEngineLog(jobId, jobLog, computeType);
         } catch (Throwable e){
             logger.error("update JobEngine Log error jobid {} ,error info {}..", jobId,ExceptionUtil.getErrorMessage(e));
-            updateJobEngineLog(jobId, ExceptionUtil.getErrorMessage(e), computeType);
+            String errorMessage = ExceptionUtil.getErrorMessage(e);
+
+            try {
+                if (StringUtils.isNotEmpty(errorMessage)) {
+                    Map<String, Object> logMap = PublicUtil.jsonStrToObject(errorMessage, Map.class);
+                    String rootException = MathUtil.getString(logMap.get("root-exception"), "");
+                    updateJobEngineLog(jobId, rootException, computeType);
+                }
+            } catch (Exception parseException) {
+                updateJobEngineLog(jobId, errorMessage, computeType);
+            }
         }
     }
 
