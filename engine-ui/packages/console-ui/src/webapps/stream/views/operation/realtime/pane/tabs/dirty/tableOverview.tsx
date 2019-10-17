@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, get } from 'lodash';
 import {
     Card, Select, Tooltip, Icon
 } from 'antd'
@@ -7,8 +7,8 @@ import {
 import utils from 'utils';
 import Resize from 'widgets/resize';
 
-import ajax from '../../../../../../api';
-import { lineAreaChartOptions } from '../../../../../../comm/const'
+import Api from '../../../../../../api';
+import { lineAreaChartOptions, TIME_TYPE } from '../../../../../../comm/const'
 
 // 引入 ECharts 主模块
 const echarts = require('echarts/lib/echarts');
@@ -22,7 +22,9 @@ const Option = Select.Option
 
 export default class TableOverview extends React.Component<any, any> {
     state: any = {
-        recentTime: '10m'
+        recentTime: TIME_TYPE.M10,
+        x: [],
+        y: []
     }
     _lineChart: any;
     componentDidMount () {
@@ -41,53 +43,37 @@ export default class TableOverview extends React.Component<any, any> {
         }
     }
 
-    getTableOverview () {
+    async getTableOverview () {
+        let chartName = 'test';
         const params = {
-            tableId: this.props.tableId,
-            recentTime: this.state.recentTime
+            taskId: this.props.taskId,
+            timeStr: this.state.recentTime,
+            chartNames: [chartName]
         }
-        ajax.getDirtyDataTableOverview(params).then((res: any) => {
-            if (res.code === 1) {
-                this.renderLineChart(res.data)
+        let res = await Api.getTaskMetrics(params);
+        if (res && res.code == 1) {
+            let data = get(res, 'data[0].data', []);
+            let x = [];
+            let y = [];
+            for (let i = 0; i < data.length; i++) {
+                x.push(data[i].time);
+                y.push(data[i][chartName]);
             }
-        });
+            this.setState({
+                x,
+                y
+            })
+        }
     }
 
-    getSeries = (data: any) => {
-        const arr: any = []
-        if (data && data.y) {
-            const legendData = data && data.type ? data.type.data : [];
-            const legend = this.coverToCN(legendData);
-            for (let i = 0; i < legend.length; i++) {
-                arr.push({
-                    name: legend[i],
-                    type: 'line',
-                    data: data.y[i].data
-                })
-            }
+    componentDidUpdate (prevProps: any, prevState: any) {
+        if (prevState.x != this.state.x || prevState.y != this.state.y) {
+            this.paint();
         }
-        return arr
     }
 
-    coverToCN (arr: any) {
-        for (let i = 0; i < arr.length; i++) {
-            switch (arr[i]) {
-                case 'total':
-                    arr[i] = '错误总数'; continue;
-                case 'npe':
-                    arr[i] = '空指针错误'; continue;
-                case 'duplicate':
-                    arr[i] = '主键冲突'; continue;
-                case 'conversion':
-                    arr[i] = '字段类型转换错误'; continue;
-                case 'other':
-                    arr[i] = '其他'; continue;
-            }
-        }
-        return arr;
-    }
-
-    renderLineChart = (chartData: any) => {
+    paint () {
+        const { x, y } = this.state;
         let myChart = echarts.init(document.getElementById('Table_Overview'));
         const option = cloneDeep(lineAreaChartOptions);
         option.title.text = '脏数据概览图'
@@ -101,10 +87,11 @@ export default class TableOverview extends React.Component<any, any> {
 
         option.yAxis[0].minInterval = 1
         option.yAxis[0].axisLabel.formatter = '{value} 条'
-        const legendData = chartData && chartData.type ? chartData.type.data : []
-        option.legend.data = this.coverToCN(legendData);
-        option.xAxis[0].data = chartData && chartData.x ? chartData.x.data : []
-        option.series = this.getSeries(chartData)
+        option.xAxis[0].data = x;
+        option.series = [{
+            type: 'line',
+            data: y
+        }]
         // 绘制图表
         myChart.setOption(option);
         this._lineChart = myChart
@@ -134,11 +121,11 @@ export default class TableOverview extends React.Component<any, any> {
                             placeholder="请选择时间"
                             onChange={this.onExecCountChange}
                         >
-                            <Option value="10m">最近10分钟</Option>
-                            <Option value="1h">最近1小时</Option>
-                            <Option value="6h">最近6小时</Option>
-                            <Option value="1d">最近1天</Option>
-                            <Option value="1w">最近1周</Option>
+                            <Option value={TIME_TYPE.M10}>最近10分钟</Option>
+                            <Option value={TIME_TYPE.H1}>最近1小时</Option>
+                            <Option value={TIME_TYPE.H6}>最近6小时</Option>
+                            <Option value={TIME_TYPE.D1}>最近1天</Option>
+                            <Option value={TIME_TYPE.W1 }>最近1周</Option>
                         </Select>
                     </React.Fragment>
                 }>

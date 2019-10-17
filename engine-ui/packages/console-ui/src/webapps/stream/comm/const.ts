@@ -550,7 +550,7 @@ export const targetTypeTransformRule: any = [ // 整库迁移高级设置字段�
     'BOOLEAN'
 ]
 
-export const TIME_TYPE: any = {
+export const TIME_TYPE = {
     M10: '10m',
     H1: '1h',
     H6: '6h',

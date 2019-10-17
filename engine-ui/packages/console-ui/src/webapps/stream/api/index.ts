@@ -366,8 +366,15 @@ export default {
     getHiveSourceList (params?: any) {
         return http.post(stremReq.GET_HIVE_SOURCE_LIST, params)
     },
-    getDirtyDataTableOverview (params: any) {
+    getDirtyDataTableOverview (params: {
+        tableId: number;
+        pageNo?: number;
+        pageSize?: number;
+    }) {
         return http.post(req.GET_DIRTY_TABLE_OVERVIEW, params)
+    },
+    getDitryTableInfo (params: { taskId: number }) {
+        return http.post(req.GET_DIRTY_TABLE_INFO, params)
     },
     //= =============== 实时离线合并接口 ===============/
     // linkSource (params: any, type = 'offline') {
