@@ -125,7 +125,7 @@ class FnForm extends React.Component<any, any> {
                         <Input.TextArea rows={4} placeholder="请输入函数的参数说明"/>
                     )}
                 </FormItem>
-                <FormItem
+                {/* <FormItem
                     {...formItemLayout}
                     label="调用测试"
                     hasFeedback
@@ -140,7 +140,7 @@ class FnForm extends React.Component<any, any> {
                     })(
                         <Input.TextArea rows={4} placeholder="请输入调用函数的命令，例如：dateFormat('20190101', 'yyyyMMdd', 'yyyy-MM-dd')，将返回2019-01-01"/>
                     )}
-                </FormItem>
+                </FormItem> */}
                 <FormItem
                     {...formItemLayout}
                     label="选择存储位置"
