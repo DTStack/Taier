@@ -2,10 +2,13 @@ import moment from 'moment'
 import * as React from 'react'
 import { connect } from 'react-redux';
 import { hashHistory } from 'react-router'
+import { range } from 'lodash';
 
 import {
     Input, Modal, Row, Form, DatePicker, TimePicker, Col, Tree, Checkbox, message
 } from 'antd'
+
+import { visitTree } from 'funcs';
 
 import Api from '../../../api'
 import { formItemLayout } from '../../../comm/const'
@@ -38,7 +41,7 @@ class PatchData extends React.Component<any, any> {
         treeData: [],
         selected: [],
         expandedKeys: [],
-        checkedKeys: ['0'],
+        checkedKeys: [],
         confirmLoading: false,
         loading: false, // 初始化
         startTime: '00:00', // 限制时间范围
@@ -50,7 +53,7 @@ class PatchData extends React.Component<any, any> {
         const task = nextProps.task
         if (this.props.visible != nextProps.visible && nextProps.visible && task) {
             this.setState({
-                checkedKeys: ['0'],
+                checkedKeys: [],
                 expandedKeys: [],
                 treeData: [],
                 selected: []
@@ -71,8 +74,12 @@ class PatchData extends React.Component<any, any> {
         }
         const { form } = this.props
         const taskJson = this.getSelectedTasks()
+        if (taskJson.length == 0) {
+            message.warn('未选择任务');
+            return;
+        }
         const reqParams = form.getFieldsValue()
-        reqParams.taskJson = taskJson.length > 0 ? JSON.stringify(taskJson[0]) : ''
+        reqParams.taskJson = JSON.stringify(taskJson);
         this.props.form.validateFields((err: any) => {
             if (!err) {
                 this.setState({
@@ -166,8 +173,7 @@ class PatchData extends React.Component<any, any> {
                     tree.push(node)
                 }
                 if (data[i].subTaskVOS) {
-                    node.children = []
-                    loop(data[i].subTaskVOS, node.children)
+                    loop(data[i].subTaskVOS, result ? (node.children = []) : tree)
                 }
             }
         }
@@ -187,48 +193,103 @@ class PatchData extends React.Component<any, any> {
     }
 
     onCheck = (checkedKeys: any, checkedNodes: any) => {
-        const checked = checkedKeys.checked;
-        let checkedSet: any = new Set(checked);
+        const checked: string[] = checkedKeys.checked;
+        let checkedSet: Set<string> = new Set(checked);
         const node = checkedNodes.node;
         const treeData = this.state.treeData;
-
-        function addParents (key: any, tree: any, result: any) {
+        interface Child {
+            level: number;
+            key: string;
+        }
+        /**
+         * 获取所有经过改节点的路径
+         */
+        function getPath (tree: any[], key: string): {
+            children: string[][];
+            parents: string[];
+        } {
+            let children: Child[][] = [];
+            let parents: string[] = [];
+            visitTree(tree, (node, level) => {
+                let nodeKey = node.key;
+                if (nodeKey == key) {
+                    return;
+                }
+                if (node.key.indexOf(key) == 0) {
+                    let lastPath = children[children.length - 1];
+                    const lastLevel = (lastPath && lastPath.length) ? lastPath[lastPath.length - 1].level : null;
+                    if (lastLevel == null || lastLevel >= level) {
+                        const newRootPath = (lastPath || []).map((item) => { return item.level < level ? item : null; }).filter(Boolean);
+                        let newPath = newRootPath.concat({
+                            level: level,
+                            key: nodeKey
+                        });
+                        children.push(newPath)
+                    } else {
+                        lastPath.push({
+                            level: level,
+                            key: nodeKey
+                        });
+                    }
+                }
+                if (key.indexOf(node.key) == 0) {
+                    parents.push(nodeKey);
+                }
+            });
+            return {
+                children: children.map((childArr) => {
+                    return childArr.map((child) => {
+                        return child.key;
+                    })
+                }),
+                parents
+            }
+        }
+        function add (key: any, tree: any, result: any) {
             if (!tree) {
                 return;
             }
-            for (let i = 0; i < tree.length; i++) {
-                let node = tree[i];
-                let nodeKey = node.key;
-                if (key.indexOf(nodeKey) == 0) {
-                    result.add(nodeKey);
+            let { children, parents } = getPath(tree, key);
+            for (let i = 0; i < children.length; i++) {
+                let childArr = children[i];
+                for (let j = childArr.length - 1; j >= 0; j--) {
+                    let child = childArr[j];
+                    if (checked.includes(child)) {
+                        let pushFunc = result.add.bind(checkedSet);
+                        childArr.slice(0, j).map(pushFunc)
+                    }
                 }
-                addParents(key, node.subTaskVOS, result);
+            }
+            for (let i = 0; i < parents.length; i++) {
+                let parent = parents[i];
+                if (checked.includes(parent)) {
+                    let pushFunc = result.add.bind(checkedSet);
+                    parents.slice(i + 1, parents.length).map(pushFunc)
+                }
             }
         }
 
-        function removeChildren (key: any, tree: any, result: any) {
+        function remove (key: any, tree: any, result: any) {
             if (!tree) {
                 return;
             }
-            for (let i = 0; i < tree.length; i++) {
-                let node = tree[i];
-                let nodeKey = node.key;
-                if (nodeKey.indexOf(key) == 0) {
-                    result.delete(nodeKey);
+            let { children, parents } = getPath(tree, key);
+            let haveParent = new Set(parents.concat(checked)).size !== parents.length + checked.length;
+            if (haveParent) {
+                let deleteFunc = result.delete.bind(checkedSet);
+                for (let i = 0; i < children.length; i++) {
+                    let childArr = children[i];
+                    childArr.map(deleteFunc);
                 }
-                removeChildren(key, node.subTaskVOS, result);
             }
         }
 
         if (checkedNodes.checked) {
-            addParents(node.props.eventKey, treeData, checkedSet);
+            add(node.props.eventKey, treeData, checkedSet);
         } else {
-            removeChildren(node.props.eventKey, treeData, checkedSet)
+            remove(node.props.eventKey, treeData, checkedSet)
         }
-
-        if (checkedSet && checkedSet.size > 0) {
-            this.setState({ checkedKeys: [...checkedSet] })
-        }
+        this.setState({ checkedKeys: [...Array.from(checkedSet)] })
     }
 
     disabledDate = (current: any) => {
@@ -277,7 +338,6 @@ class PatchData extends React.Component<any, any> {
                 if (item.subTaskVOS) {
                     return (<TreeNode
                         data={item}
-                        disableCheckbox={item.key === '0'}
                         value={`${item.id}`}
                         title={content}
                         key={item.key}>{this.getTreeNodes(item.subTaskVOS)}
@@ -285,7 +345,6 @@ class PatchData extends React.Component<any, any> {
                 }
                 return (<TreeNode
                     data={item}
-                    disableCheckbox={item.key === '0'}
                     name={name}
                     value={`${item.id}`}
                     title={content}
@@ -310,13 +369,6 @@ class PatchData extends React.Component<any, any> {
             expandedKeys: expandedKeys
         })
     }
-    range = (start: any, end: any) => {
-        const result: any = [];
-        for (let i = start; i < end; i++) {
-            result.push(i);
-        }
-        return result;
-    }
     splitTime = (time: any) => {
         return time.split(':');
     }
@@ -326,7 +378,7 @@ class PatchData extends React.Component<any, any> {
         const startTimeHour = Number(this.splitTime(startTime)[0]);
         // 结束时间
         const endTimeHour = Number(this.splitTime(endTime)[0]);
-        const hours = this.range(0, 60)
+        const hours = range(0, 60)
         // console.log(startTimeHour, endTimeHour)
         if (timeType == 'start') {
             hours.splice(0, endTimeHour + 1); // 不禁用的小时
@@ -345,9 +397,9 @@ class PatchData extends React.Component<any, any> {
         const endTimeHour = Number(this.splitTime(endTime)[0]);
         const endTimeMinute = Number(this.splitTime(endTime)[1]);
         if (timeType == 'start' && startTimeHour == endTimeHour) {
-            return this.range(endTimeMinute + 1, 60)
+            return range(endTimeMinute + 1, 60)
         } else if (timeType == 'end' && startTimeHour == endTimeHour) {
-            return this.range(0, startTimeMinute)
+            return range(0, startTimeMinute)
         } else {
             return [];
         }

@@ -154,7 +154,19 @@ export function mergeTreeNodes (origin: any, target: any) {
         }
     }
 }
-
+/**
+ * 先序遍历树
+ */
+export function visitTree (tree: any[], callback: (node: any, level: number) => void, subKey: string = 'subTaskVOS', level: number = 0) {
+    if (!tree) {
+        return;
+    }
+    for (let i = 0; i < tree.length; i++) {
+        let node = tree[i];
+        callback(node, level);
+        visitTree(node[subKey], callback, subKey, level + 1);
+    }
+}
 /**
  * 打开新窗口
  * @param {*} url
