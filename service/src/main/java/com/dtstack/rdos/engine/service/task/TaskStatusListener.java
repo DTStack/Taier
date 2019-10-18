@@ -77,14 +77,10 @@ public class TaskStatusListener implements Runnable{
 
     private CheckpointListener checkpointListener;
 
-    public TaskStatusListener() {
-        init();
+    public TaskStatusListener(CheckpointListener checkpointListener) {
+        this.checkpointListener = checkpointListener;
     }
 
-    public void init() {
-        checkpointListener = new CheckpointListener();
-        checkpointListener.startCheckpointScheduled();
-    }
 
     @Override
 	public void run() {

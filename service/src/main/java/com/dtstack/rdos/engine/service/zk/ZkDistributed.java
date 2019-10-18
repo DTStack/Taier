@@ -18,7 +18,6 @@ import com.dtstack.rdos.engine.service.zk.cache.ZkSyncLocalCacheListener;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataShard;
 import com.dtstack.rdos.engine.service.zk.data.BrokerHeartNode;
 import com.dtstack.rdos.engine.service.zk.data.BrokersNode;
-import com.dtstack.rdos.engine.service.zk.task.*;
 import com.dtstack.rdos.engine.service.zk.data.BrokerQueueNode;
 import com.dtstack.rdos.engine.execution.base.EngineDeployInfo;
 import org.apache.commons.collections.CollectionUtils;
@@ -172,7 +171,7 @@ public class ZkDistributed implements Closeable{
 		masterListener = new MasterListener();
 		HeartBeatCheckListener heartBeatCheckListener = new HeartBeatCheckListener(masterListener);
 		executors.execute(new TaskListener());
-		executors.execute(new TaskStatusListener());
+		executors.execute(new TaskStatusListener(new CheckpointListener(masterListener)));
 		executors.execute(new QueueListener());
 		LocalCacheSyncZkListener localCacheSyncZKListener = new LocalCacheSyncZkListener();
 		ZkSyncLocalCacheListener zkSyncLocalCacheListener = new ZkSyncLocalCacheListener();
@@ -180,10 +179,6 @@ public class ZkDistributed implements Closeable{
 			executors.execute(new LogStoreListener(masterListener));
 		}
 	}
-
-	public boolean localIsMaster(){
-        return masterListener.isMaster();
-    }
 
 	private void registrationDB() throws IOException {
 
@@ -355,12 +350,6 @@ public class ZkDistributed implements Closeable{
 		}
 		return objectMapper.readValue(data, BrokersNode.class).getMaster();
 	}
-
-//	public BrokerDataNode initMemTaskStatus(){
-//		Map<String,BrokerDataShard> brokerDataShardMap = this.getBrokerDataNode(localAddress);
-//		BrokerDataNode brokerDataNode = new BrokerDataNode(brokerDataShardMap);
-//		return brokerDataNode;
-//	}
 
 	public void createNodeIfNotExists(String node, Object obj) throws Exception{
 		if (zkClient.checkExists().forPath(node) == null) {

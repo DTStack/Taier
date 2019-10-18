@@ -97,8 +97,12 @@ public class CheckpointListener implements Runnable {
 
     private Cache<String, Map<String, Object>> checkpointConfigCache = CacheBuilder.newBuilder().maximumSize(JOB_CHECKPOINT_CONFIG).build();
 
-    public void startCheckpointScheduled() {
-        ScheduledExecutorService checkpointCleanPoll = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("checkpointCleaner"));
+    private ScheduledExecutorService checkpointCleanPoll = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("checkpointCleaner"));
+
+    private MasterListener masterListener;
+
+    public CheckpointListener(MasterListener masterListener){
+        this.masterListener = masterListener;
         checkpointCleanPoll.scheduleWithFixedDelay(
                 this,
                 0,
@@ -108,10 +112,12 @@ public class CheckpointListener implements Runnable {
 
     @Override
     public void run() {
-        if (taskEngineIdAndRetainedNum.isEmpty()) {
-            return;
+        if(masterListener.isMaster()){
+            if (taskEngineIdAndRetainedNum.isEmpty()) {
+                return;
+            }
+            SubtractionCheckpointRecord();
         }
-        SubtractionCheckpointRecord();
     }
 
     public void SubtractionCheckpointRecord() {
