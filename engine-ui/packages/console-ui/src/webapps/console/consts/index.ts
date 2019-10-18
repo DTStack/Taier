@@ -323,7 +323,9 @@ export const FLINK_KEY_MAP_DOTS: any = {
     'yarnJobmanagerHelpMb': 'yarn.jobmanager.help.mb',
     'yarnTaskmanagerHelpMb': 'yarn.taskmanager.help.mb',
     'yarnTaskmanagerNumberOfTaskSlots': 'yarn.taskmanager.numberOfTaskSlots',
-    'yarnTaskmanagerNumberOfTaskManager': 'yarn.taskmanager.numberOfTaskManager'
+    'yarnTaskmanagerNumberOfTaskManager': 'yarn.taskmanager.numberOfTaskManager',
+    'stateCheckpointsDir': 'state.checkpoints.dir',
+    'stateCheckpointsNum-retained': 'state.checkpoints.num-retained'
 }
 // 非用户自定义参数
 export const notExtKeysFlink: any = [
