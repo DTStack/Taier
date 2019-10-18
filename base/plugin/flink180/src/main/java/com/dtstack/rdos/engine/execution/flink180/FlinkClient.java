@@ -245,6 +245,7 @@ public class FlinkClient extends AbsClient {
                 clusterSpecification.setProgramArgs(programArgs);
                 clusterSpecification.setCreateProgramDelay(true);
                 clusterSpecification.setYarnConfiguration(getYarnConf(jobClient.getPluginInfo()));
+                clusterSpecification.setJobType(jobClient.getJobType());
 
                 runResult = runJobByPerJob(clusterSpecification, jobClient);
 
