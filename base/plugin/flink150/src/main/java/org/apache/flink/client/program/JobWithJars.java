@@ -18,6 +18,7 @@
 
 package org.apache.flink.client.program;
 
+import com.dtstack.rdos.engine.execution.base.enums.ClassLoaderType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.Plan;
 import org.apache.flink.runtime.execution.librarycache.FlinkUserCodeClassLoaders;
@@ -113,7 +114,7 @@ public class JobWithJars {
 	 */
 	public ClassLoader getUserCodeClassLoader() {
 		if (this.userCodeClassLoader == null) {
-			this.userCodeClassLoader = buildUserCodeClassLoader(jarFiles, classpaths, getClass().getClassLoader());
+			this.userCodeClassLoader = buildUserCodeClassLoader(jarFiles, classpaths, getClass().getClassLoader(), ClassLoaderType.PARENT_FIRST);
 		}
 		return this.userCodeClassLoader;
 	}
@@ -134,16 +135,32 @@ public class JobWithJars {
 		// TODO: Check if proper JAR file
 	}
 
-	public static ClassLoader buildUserCodeClassLoader(List<URL> jars, List<URL> classpaths, ClassLoader parent) {
-		URL[] urls = new URL[jars.size() + classpaths.size()];
-		for (int i = 0; i < jars.size(); i++) {
-			urls[i] = jars.get(i);
-		}
-		for (int i = 0; i < classpaths.size(); i++) {
-			urls[i + jars.size()] = classpaths.get(i);
-		}
-		Arrays.sort(urls, Comparator.comparing(URL::toString));
-		String jarsKey = StringUtils.join(urls, "_");
-		return cacheClassLoader.computeIfAbsent(jarsKey, k -> FlinkUserCodeClassLoaders.parentFirst(urls, parent));
-	}
+    public static ClassLoader buildUserCodeClassLoader(List<URL> jars, List<URL> classpaths, ClassLoader parent, ClassLoaderType classLoaderType) {
+        if (ClassLoaderType.NONE == classLoaderType) {
+            return parent;
+        }
+        URL[] urls = new URL[jars.size() + classpaths.size()];
+        for (int i = 0; i < jars.size(); i++) {
+            urls[i] = jars.get(i);
+        }
+        for (int i = 0; i < classpaths.size(); i++) {
+            urls[i + jars.size()] = classpaths.get(i);
+        }
+		switch (classLoaderType) {
+            case CHILD_FIRST_CACHE:
+				Arrays.sort(urls, Comparator.comparing(URL::toString));
+				String jarsKeyChild = StringUtils.join(urls, "_");
+                return cacheClassLoader.computeIfAbsent(jarsKeyChild, k -> FlinkUserCodeClassLoaders.childFirst(urls, parent, new String[]{}));
+            case PARENT_FIRST_CACHE:
+				Arrays.sort(urls, Comparator.comparing(URL::toString));
+				String jarsKeyParent = StringUtils.join(urls, "_");
+                return cacheClassLoader.computeIfAbsent(jarsKeyParent, k -> FlinkUserCodeClassLoaders.parentFirst(urls, parent));
+            case CHILD_FIRST:
+                return FlinkUserCodeClassLoaders.childFirst(urls, parent, new String[]{});
+            case PARENT_FIRST:
+                return FlinkUserCodeClassLoaders.parentFirst(urls, parent);
+            default:
+                return FlinkUserCodeClassLoaders.parentFirst(urls, parent);
+        }
+    }
 }
