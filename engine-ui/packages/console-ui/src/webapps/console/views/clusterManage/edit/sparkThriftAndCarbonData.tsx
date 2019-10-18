@@ -117,8 +117,8 @@ export class SparkThriftConfig extends React.Component<any, any> {
                             <Input disabled={isView} />
                         )}
                     </FormItem>
-                    { customView }
-                    { kerberosView }
+                    {customView}
+                    {kerberosView}
                 </div>
                 {singleButton}
             </React.Fragment>
@@ -131,6 +131,20 @@ export class CarbonDataConfig extends React.Component<any, any> {
         return (
             <React.Fragment>
                 <div className="engine-config-content" style={{ width: '680px' }}>
+                    <FormItem
+                        label="driverClassName"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.CARBONDATA}.driverClassName`, {
+                            rules: [{
+                                required: true,
+                                message: '请输入driverClassName'
+                            }],
+                            initialValue: 'org.apache.hive.jdbc.HiveDriver'
+                        })(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
                     <FormItem
                         label="JDBC URL"
                         {...formItemLayout}

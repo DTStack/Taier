@@ -105,7 +105,7 @@ export const HADOOP_GROUP_VALUE = [ // hadoop 引擎支持的组件类型(复选
     { label: 'SFTP', value: COMPONENT_TYPE_VALUE.SFTP },
     { label: 'Impala SQL', value: COMPONENT_TYPE_VALUE.IMPALASQL }
 ];
-export const COMPONEMT_CONFIG_KEYS: any = {
+export const COMPONEMT_CONFIG_KEYS = {
     FLINK: 'flinkConf',
     SPARK: 'sparkConf',
     LEARNING: 'learningConf',
@@ -373,7 +373,7 @@ export const notExtKeysSparkThrift: any = [
     'openKerberos', 'kerberosFile'
 ]
 export const notExtKeysHiveServer: any = [
-    'jdbcUrl', 'username', 'password',
+    'driverClassName', 'jdbcUrl', 'username', 'password',
     'openKerberos', 'kerberosFile'
 ]
 export const notExtKeysLibraSql: any = [
