@@ -92,7 +92,7 @@ export const DEFAULT_COMP_REQUIRED: any = { // 必填默认数据
     impalaSqlRequired: false,
     sftpShowRequired: false
 }
-export const HADOOP_GROUP_VALUE: any = [ // hadoop 引擎支持的组件类型(复选框)
+export const HADOOP_GROUP_VALUE = [ // hadoop 引擎支持的组件类型(复选框)
     { label: 'Flink', value: COMPONENT_TYPE_VALUE.FLINK },
     { label: 'Spark', value: COMPONENT_TYPE_VALUE.SPARK },
     { label: 'Learning', value: COMPONENT_TYPE_VALUE.LEARNING },
@@ -100,7 +100,7 @@ export const HADOOP_GROUP_VALUE: any = [ // hadoop 引擎支持的组件类型(�
     { label: 'HDFS', value: COMPONENT_TYPE_VALUE.HDFS, disabled: true },
     { label: 'YARN', value: COMPONENT_TYPE_VALUE.YARN, disabled: true },
     { label: 'SparkThrift', value: COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER },
-    { label: 'CarbonData', value: COMPONENT_TYPE_VALUE.CARBONDATA },
+    { label: 'CarbonData ThriftServer', value: COMPONENT_TYPE_VALUE.CARBONDATA },
     { label: 'Hive Server', value: COMPONENT_TYPE_VALUE.HIVESERVER },
     { label: 'SFTP', value: COMPONENT_TYPE_VALUE.SFTP },
     { label: 'Impala SQL', value: COMPONENT_TYPE_VALUE.IMPALASQL }
