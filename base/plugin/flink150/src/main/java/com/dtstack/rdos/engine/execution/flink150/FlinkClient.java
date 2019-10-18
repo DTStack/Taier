@@ -232,8 +232,7 @@ public class FlinkClient extends AbsClient {
                 // perjob模式延后创建PackagedProgram
                 jarFile = FlinkUtil.downloadJar(jarPath, tmpFileDirPath,hadoopConf);
             } else {
-                packagedProgram = FlinkUtil.buildProgram(jarPath, tmpFileDirPath, classPaths, jobClient.getJobType(), entryPointClass,
-                        programArgs, spSettings, hadoopConf);
+                packagedProgram = FlinkUtil.buildProgram(jarPath, tmpFileDirPath, classPaths, jobClient.getJobType(), entryPointClass, programArgs, spSettings, hadoopConf);
             }
         }catch (Throwable e){
             return JobResult.createErrorResult(e);
@@ -251,7 +250,7 @@ public class FlinkClient extends AbsClient {
                 clusterSpecification.setProgramArgs(programArgs);
                 clusterSpecification.setCreateProgramDelay(true);
                 clusterSpecification.setYarnConfiguration(getYarnConf(jobClient.getPluginInfo()));
-                clusterSpecification.setJobType(jobClient.getJobType());
+                clusterSpecification.setClassLoaderType(ClassLoaderType.getClassLoaderType(jobClient.getJobType()));
 
                 runResult = runJobByPerJob(clusterSpecification, jobClient);
 

@@ -593,8 +593,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
             }
         }
 
-        ClassLoaderType classLoaderType = ClassLoaderType.getClassLoaderType(clusterSpecification.getJobType());
-        PackagedProgram program = new PackagedProgram(clusterSpecification.getJarFile(), clusterSpecification.getClasspaths(), classLoaderType, clusterSpecification.getEntryPointClass(), args);
+        PackagedProgram program = new PackagedProgram(clusterSpecification.getJarFile(), clusterSpecification.getClasspaths(), clusterSpecification.getClassLoaderType(), clusterSpecification.getEntryPointClass(), args);
 
         program.setSavepointRestoreSettings(clusterSpecification.getSpSetting());
         return program;

@@ -18,7 +18,7 @@
 
 package org.apache.flink.client.deployment;
 
-import com.dtstack.rdos.engine.execution.base.enums.EJobType;
+import com.dtstack.rdos.engine.execution.base.enums.ClassLoaderType;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.configuration.ConfigConstants;
 import org.apache.flink.configuration.Configuration;
@@ -53,7 +53,7 @@ public final class ClusterSpecification {
     private File jarFile;
     private boolean createProgramDelay = false;
     private PackagedProgram program;
-    private EJobType jobType;
+    private ClassLoaderType classLoaderType = ClassLoaderType.PARENT_FIRST;
 
     private ClusterSpecification(int masterMemoryMB, int taskManagerMemoryMB, int numberTaskManagers, int slotsPerTaskManager, int parallelism, int priority) {
         this.masterMemoryMB = masterMemoryMB;
@@ -172,12 +172,12 @@ public final class ClusterSpecification {
         this.createProgramDelay = createProgramDelay;
     }
 
-    public EJobType getJobType() {
-        return jobType;
+    public ClassLoaderType getClassLoaderType() {
+        return classLoaderType;
     }
 
-    public void setJobType(EJobType jobType) {
-        this.jobType = jobType;
+    public void setClassLoaderType(ClassLoaderType classLoaderType) {
+        this.classLoaderType = classLoaderType;
     }
 
     @Override
