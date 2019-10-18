@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.service.zk.task;
+package com.dtstack.rdos.engine.service.task;
 
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.common.util.MathUtil;
@@ -15,7 +15,6 @@ import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosPluginInfoDAO;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
-import com.dtstack.rdos.engine.service.task.RestartDealer;
 import com.dtstack.rdos.engine.service.util.TaskIdUtil;
 import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataShard;
@@ -49,8 +48,6 @@ public class TaskStatusListener implements Runnable{
 
     /**最大允许查询不到的任务信息最久时间*/
     public final static int NOT_FOUND_LIMIT_INTERVAL = 3 * 60 * 1000;
-
-    public final static String SYS_CANCLED_LOG = "{\"root-exception\":\"The system could not query the task state, so it is set to cancel state actively\"}";
 
     private static final long LISTENER_INTERVAL = 2000;
 
@@ -400,7 +397,7 @@ public class TaskStatusListener implements Runnable{
         if(RdosTaskStatus.RUNNING.getStatus().equals(status)){
             //运行中的stream任务需要更新checkpoint 并且 控制频率
             Integer checkpointCallNum = checkpointListener.getCheckpointCallNum(engineTaskId);
-            if(checkpointCallNum % checkpointListener.CHECKPOINT_GET_RATE == 0){
+            if(checkpointCallNum % CheckpointListener.CHECKPOINT_GET_RATE == 0){
                 checkpointListener.updateStreamJobCheckpoints(jobIdentifier, engineTypeName, pluginInfo);
             }
             checkpointListener.addCheckpointCallNum(engineTaskId, checkpointCallNum + 1);
@@ -435,11 +432,4 @@ public class TaskStatusListener implements Runnable{
         return statusFrequency;
     }
 
-    public void updateJobStatus(String jobId, Integer computeType, Integer status) {
-        if (ComputeType.STREAM.getType().equals(computeType)) {
-            rdosStreamTaskDAO.updateTaskStatus(jobId, status);
-        } else {
-            rdosBatchEngineJobDAO.updateJobStatus(jobId, status);
-        }
-    }
 }

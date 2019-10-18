@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.service.zk.task;
+package com.dtstack.rdos.engine.service.task;
 
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.engine.execution.base.enums.EJobCacheStage;
@@ -11,7 +11,6 @@ import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.service.node.WorkNode;
-import com.dtstack.rdos.engine.service.task.RestartDealer;
 import com.dtstack.rdos.engine.service.util.TaskIdUtil;
 import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import org.apache.commons.lang3.StringUtils;
