@@ -341,7 +341,10 @@ export const notExtKeysFlink: any = [
     'yarn.jobmanager.help.mb',
     'yarn.taskmanager.help.mb', 'yarn.taskmanager.numberOfTaskSlots', 'yarn.taskmanager.numberOfTaskManager',
     'openKerberos', 'kerberosFile',
-    'flinkSessionSlotCount'
+    'flinkSessionSlotCount',
+    'state.checkpoints.dir',
+    'jobmanagerArchiveFsDir',
+    'state.checkpoints.num-retained'
 ];
 export const notExtKeysSpark: any = [
     'typeName', 'sparkYarnArchive',
