@@ -32,6 +32,13 @@ export const dataSourceActions: any = {
             });
         }
     },
+    getDataSourcesCharType (params: any) {
+        return (dispatch: any) => {
+            return API.getDataSourcesCharType(params).then((res: any) => {
+                return res;
+            });
+        }
+    },
     getDataSourcesList (params: any) {
         return (dispatch: any) => {
             API.getDataSourcesList(params).then((res: any) => {

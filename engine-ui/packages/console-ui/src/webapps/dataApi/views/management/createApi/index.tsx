@@ -69,6 +69,9 @@ const mapDispatchToProps = (dispatch: any) => ({
     getDataSourcesType () {
         return dispatch(dataSourceActions.getDataSourcesType());
     },
+    getDataSourcesCharType (type: any) { // 获取数据库字段类型
+        return dispatch(dataSourceActions.getDataSourcesCharType({ type }));
+    },
     /**
      * 关闭api编辑的提示
      */
@@ -181,7 +184,8 @@ class NewApi extends React.Component<any, any> {
                     paramsName: column.paramName,
                     operator: column.operator,
                     desc: column.desc,
-                    required: column.required
+                    required: column.required,
+                    groupId: column.groupId
                 })
             }
         );
@@ -352,6 +356,7 @@ class NewApi extends React.Component<any, any> {
                 paramType: item.type,
                 operator: item.operator,
                 required: item.required,
+                groupId: item.groupId,
                 desc: item.desc
             })
         }
@@ -502,7 +507,6 @@ class NewApi extends React.Component<any, any> {
             loading,
             isSaveResult
         } = this.state;
-
         const steps: any = [
             {
                 key: 'basicProperties',

@@ -95,7 +95,9 @@ export default {
     GET_DATA_SOURCES_TABLE: `${DATA_API_BASE_URL}/dataSource/tablelist`, // 查询数据源下的表
     GET_DATA_SOURCES_COLUMN: `${DATA_API_BASE_URL}/dataSource/tablecolumn`, // 查询数据源下的列
     GET_DATA_SOURCES_PART: `${DATA_API_BASE_URL}/dataSource/getPartValue`, // 查询数据源下的分区
-    GET_DATA_SOURCES_PREVIEW: `${DATA_API_BASE_URL}/dataSource/preview`, // 预览数据源下的数据
+    GET_DATA_SOURCES_PREVIEW: `${DATA_API_BASE_URL}/dataSource/preview`, // 预览数据源下的数据,
+    GET_DATA_SOURCES_CHAR_TYPE: `${DATA_API_BASE_URL}/apis/getSourceColumnType`, // 获取数据库字段类型
+
     // ===== webservice获取 ===== //
     GET_WSD_XML: `${DATA_API_BASE_URL}/dataSource/apis/getWsdlXml` // 注册API中webservice中的接口详情获取
 }
