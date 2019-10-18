@@ -765,16 +765,18 @@ class ManageParamsConfig extends React.Component<any, any> {
                                 <p className="middle-title">高级配置</p>
                                 <FormItem style={{ marginBottom: 0 }}>
                                     {getFieldDecorator('containHeader', {
-                                        initialValue: containHeader
+                                        valuePropName: 'checked',
+                                        initialValue: containHeader && containHeader != '0'
                                     })(
-                                        <Checkbox defaultChecked={containHeader === '1'}>返回结果中携带 Request Header 参数</Checkbox>
+                                        <Checkbox>返回结果中携带 Request Header 参数</Checkbox>
                                     )}
                                 </FormItem>
                                 <FormItem>
                                     {getFieldDecorator('containPage', {
-                                        initialValue: containPage
+                                        valuePropName: 'checked',
+                                        initialValue: containPage && containPage != '0'
                                     })(
-                                        <Checkbox onChange={this.onCheckedContainPage} defaultChecked={containPage === '1'}>返回结果携带分页参数</Checkbox>
+                                        <Checkbox onChange={this.onCheckedContainPage}>返回结果携带分页参数</Checkbox>
                                     )}
                                     <Tooltip title={<div><p>分页参数包含：</p><p>currentPage, pageSize, totalCount, totalPage</p></div>}>
                                         <Icon type="question-circle-o" />
