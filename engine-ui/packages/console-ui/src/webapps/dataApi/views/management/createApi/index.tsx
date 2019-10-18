@@ -336,13 +336,15 @@ class NewApi extends React.Component<any, any> {
     }
     createParamsConfig () {
         const { paramsConfig } = this.state;
+        console.log(paramsConfig);
+        // resultPage
         let result: any = {
             dataSrcId: paramsConfig.dataSrcId,
             tableName: paramsConfig.tableName,
             dataSourceType: paramsConfig.dataSourceType,
             containHeader: paramsConfig.containHeader,
             containPage: paramsConfig.containPage,
-            respPageSize: paramsConfig.respPageSize,
+            respPageSize: paramsConfig.resultPage,
             allowPaging: paramsConfig.resultPageChecked ? 1 : 0,
             sql: paramsConfig.sql,
             inputParam: [],
