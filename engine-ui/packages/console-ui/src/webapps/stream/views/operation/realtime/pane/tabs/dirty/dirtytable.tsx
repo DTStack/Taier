@@ -18,7 +18,7 @@ class DirtyTable extends React.PureComponent<{ tableInfo: TableInfo }, DirtyTabl
         data: [],
         pagination: {
             total: 0,
-            current: 0,
+            current: 1,
             pageSize: 10
         },
         loading: false
@@ -64,23 +64,24 @@ class DirtyTable extends React.PureComponent<{ tableInfo: TableInfo }, DirtyTabl
         let width = 0;
         const tableColumns = [{
             title: '序号',
-            key: 'index'
+            key: 'index',
+            width: 100
         }].concat(columns.map((item) => {
-            width += item.length * 8 + 20;
+            width += item.length * 4 + 20;
             return {
                 title: item,
                 key: item,
-                width: item.length * 8 + 20
+                width: item.length * 4 + 20
             }
         }));
         return {
-            width: Math.max(800, width),
+            width: Math.max(800, width + 100),
             tableColumns
         }
     }
     render () {
         const { data, pagination } = this.state;
-        const { width, tableColumns } = this.initColumn(data[0])
+        const { tableColumns } = this.initColumn(data[0])
         return (
             <Table
                 className='dt-ant-table'
@@ -88,7 +89,7 @@ class DirtyTable extends React.PureComponent<{ tableInfo: TableInfo }, DirtyTabl
                 pagination={pagination}
                 onChange={this.onTableChange.bind(this)}
                 dataSource={data.slice(1)}
-                scroll={{ x: width }}
+                scroll={{ x: true }}
             />
         )
     }

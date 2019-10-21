@@ -24,19 +24,19 @@ class FieldsTable extends React.PureComponent<{ tableInfo: TableInfo }, FieldsTa
         return [
             {
                 title: '序号',
-                key: 'columnIndex'
+                dataIndex: 'columnIndex'
             },
             {
                 title: '字段名称',
-                key: 'columnName'
+                dataIndex: 'columnName'
             },
             {
                 title: '类型',
-                key: 'columnType'
+                dataIndex: 'columnType'
             },
             {
                 title: '注释',
-                key: 'comment'
+                dataIndex: 'comment'
             }
         ]
     }

@@ -47,7 +47,7 @@ export interface TableInfo {
         columnType: string;
         comment: string;
         columnIndex: number;
-    }[]
+    }[];
 }
 interface DirtyViewState {
     tableInfo: TableInfo;
@@ -81,7 +81,7 @@ class DirtyView extends React.Component<any, DirtyViewState> {
         return <div style={{ padding: '0px 21px 20px' }}>
             <p className='c-dirtyView__p'>
                 <span className='c-dirtyView__title'>脏数据表：</span>
-                test_dirty
+                {table.tableName}
             </p>
             <p className='c-dirtyView__section__header'>
                 <span className='c-dirtyView__title'>基本信息</span>

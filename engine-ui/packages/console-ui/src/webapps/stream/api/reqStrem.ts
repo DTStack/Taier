@@ -20,5 +20,5 @@ export default {
     GET_SYNC_SCRIPT_TEMPLATE: `${STREAM_BASE_URL}/streamTask/getJsonTemplate`, // 获取数据采集脚本的模版
     CHECK_IS_PERMISSION: `${STREAM_BASE_URL}/streamDataSource/checkPermission`, // 检查是否有权限
     GET_HIVE_PARTITIONS: `${STREAM_BASE_URL}/streamDataSource/getHivePartitions`, // 获取hive表分区
-    GET_HIVE_SOURCE_LIST: `${STREAM_BASE_URL}/streamDataSource/getHiveSourceList` // 获取hive数据源列表
+    GET_SOURCE_LIST: `${STREAM_BASE_URL}/streamDataSource/getSourceList` // 获取hive数据源列表
 }

@@ -363,8 +363,8 @@ export default {
     getHivePartitions (params: any) {
         return http.post(stremReq.GET_HIVE_PARTITIONS, params)
     },
-    getHiveSourceList (params?: any) {
-        return http.post(stremReq.GET_HIVE_SOURCE_LIST, params)
+    getSourceList (params?: any) {
+        return http.post(stremReq.GET_SOURCE_LIST, params)
     },
     getDirtyDataTableOverview (params: {
         tableId: number;

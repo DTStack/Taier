@@ -11,6 +11,7 @@ import LifeCycle from '../../../../../components/lifeCycleSelect';
 
 import { SettingMap } from '../../../../../store/modules/realtimeTask/collection';
 import Api from '../../../../../api';
+import { DATA_SOURCE } from '../../../../../comm/const';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -30,6 +31,10 @@ class ChannelForm extends React.Component<any, any> {
     }
     constructor (props: any) {
         super(props);
+        const settingMap: SettingMap = get(props, 'collectionData.settingMap.isSaveDirty');
+        if (settingMap) {
+            this.loadSource();
+        }
     }
 
     recordDirtyChange (e: React.ChangeEvent<HTMLInputElement>) {
@@ -41,7 +46,9 @@ class ChannelForm extends React.Component<any, any> {
         this.setState({
             dirtySourceList: []
         })
-        let res = await Api.getHiveSourceList();
+        let res = await Api.getSourceList({
+            sourceType: DATA_SOURCE.HIVE
+        });
         if (res && res.code == 1) {
             this.setState({
                 dirtySourceList: res.data
@@ -50,8 +57,9 @@ class ChannelForm extends React.Component<any, any> {
     }
     render () {
         const { collectionData } = this.props;
+        const { dirtySourceList } = this.state;
         const settingMap: SettingMap = get(collectionData, 'settingMap', {});
-        const { recordDirty } = settingMap;
+        const { isSaveDirty } = settingMap;
         const { getFieldDecorator } = this.props.form;
         const speedOption: any = [];
         const channelOption: any = [];
@@ -105,7 +113,7 @@ class ChannelForm extends React.Component<any, any> {
                     {...formItemLayout}
                     label="错误记录数"
                 >
-                    {getFieldDecorator('recordDirty', {
+                    {getFieldDecorator('isSaveDirty', {
                         rules: [{
                             required: false
                         }],
@@ -115,20 +123,22 @@ class ChannelForm extends React.Component<any, any> {
                     )}
                     <HelpDoc doc="recordDirty" />
                 </FormItem>
-                {recordDirty ? (
+                {isSaveDirty ? (
                     <React.Fragment>
                         <FormItem
                             {...formItemLayout}
                             label="脏数据写入hive库"
                         >
-                            {getFieldDecorator('dirtySource', {
+                            {getFieldDecorator('sourceId', {
                                 rules: [{
                                     required: true,
                                     message: '请选择脏数据写入的hive库'
                                 }]
                             })(
                                 <Select placeholder='请选择脏数据写入的hive库'>
-
+                                    {dirtySourceList.map((source: any) => {
+                                        return <Option key={source.id} value={source.id}>{source.dataName}</Option>
+                                    })}
                                 </Select>
                             )}
                             {/* <HelpDoc doc="dirtySource" /> */}
@@ -137,7 +147,7 @@ class ChannelForm extends React.Component<any, any> {
                             {...formItemLayout}
                             label="脏数据写入hive表"
                         >
-                            {getFieldDecorator('dirtyTable', {
+                            {getFieldDecorator('tableName', {
                                 rules: [{
                                     required: false,
                                     message: '请填写脏数据写入的hive表'
@@ -201,13 +211,13 @@ const ChannelFormWrap = Form.create({
                 value: settingMap.channel
             },
             recordDirty: {
-                value: settingMap.recordDirty
+                value: settingMap.isSaveDirty
             },
             dirtySource: {
-                value: settingMap.dirtySource
+                value: settingMap.sourceId
             },
             dirtyTable: {
-                value: settingMap.dirtyTable
+                value: settingMap.tableName
             },
             lifeDay: {
                 value: settingMap.lifeDay

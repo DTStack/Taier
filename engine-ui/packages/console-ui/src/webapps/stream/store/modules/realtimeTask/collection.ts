@@ -10,9 +10,9 @@ export const dataKey = 'ide_collection'
 export interface SettingMap {
     speed?: number;
     channel?: number;
-    recordDirty?: boolean;
-    dirtySource?: number;
-    dirtyTable?: string;
+    isSaveDirty?: boolean;
+    sourceId?: number;
+    tableName?: string;
     lifeDay?: number;
 }
 
@@ -186,9 +186,9 @@ export const actions: any = {
             if (clear) {
                 settingMap = initState.settingMap;
             }
-            if (params.recordDirty == false) {
-                params.dirtySource = undefined;
-                params.dirtyTable = undefined;
+            if (params.isSaveDirty == false) {
+                params.sourceId = undefined;
+                params.tableName = undefined;
                 params.lifeDay = undefined;
             } else if (params.recordDirty) {
                 params.lifeDay = 90;

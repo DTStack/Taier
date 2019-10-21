@@ -44,7 +44,7 @@ export default class TableOverview extends React.Component<any, any> {
     }
 
     async getTableOverview () {
-        let chartName = 'test';
+        let chartName = 'nErrors';
         const params = {
             taskId: this.props.taskId,
             timeStr: this.state.recentTime,
