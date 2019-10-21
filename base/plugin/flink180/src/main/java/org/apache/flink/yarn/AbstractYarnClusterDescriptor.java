@@ -560,9 +560,24 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         jobGraph.setAllowQueuedScheduling(true);
         fillJobGraphClassPath(jobGraph);
         fillStreamJobGraphClassPath(jobGraph);
+        fillPluginPathToShipFiles(jobGraph);
         clusterSpecification.setJobGraph(jobGraph);
         return jobGraph;
     }
+
+    private void fillPluginPathToShipFiles(JobGraph jobGraph) {
+        Map<String, String> jobCacheFileConfig = jobGraph.getJobConfiguration().toMap();
+        Set<String> classPathKeySet = Sets.newHashSet();
+        fillClassPathKeySet(jobCacheFileConfig, classPathKeySet);
+        List<File> shipFiles = new ArrayList<>();
+        for(String key : classPathKeySet){
+            String pathStr = jobCacheFileConfig.get(key);
+            shipFiles.add(new File(pathStr));
+        }
+        addShipFiles(shipFiles);
+
+    }
+
     private  JobGraph fillStreamJobGraphClassPath(JobGraph jobGraph) throws MalformedURLException {
         Map<String, DistributedCache.DistributedCacheEntry> jobCacheFileConfig = jobGraph.getUserArtifacts();
         for(Map.Entry<String,  DistributedCache.DistributedCacheEntry> tmp : jobCacheFileConfig.entrySet()){
@@ -625,7 +640,14 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
     private void fillJobGraphClassPath(JobGraph jobGraph) throws MalformedURLException {
         Map<String, String> jobCacheFileConfig = jobGraph.getJobConfiguration().toMap();
         Set<String> classPathKeySet = Sets.newHashSet();
+        fillClassPathKeySet(jobCacheFileConfig, classPathKeySet);
+        for(String key : classPathKeySet){
+            String pathStr = jobCacheFileConfig.get(key);
+            jobGraph.getClasspaths().add(new URL("file:" + pathStr));
+        }
+    }
 
+    private void fillClassPathKeySet(Map<String, String> jobCacheFileConfig, Set<String> classPathKeySet) {
         for(Map.Entry<String, String> tmp : jobCacheFileConfig.entrySet()){
             if(Strings.isNullOrEmpty(tmp.getValue())){
                 continue;
@@ -643,11 +665,6 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
                 array[3] = "PATH";
                 classPathKeySet.add(StringUtils.join(array, "_"));
             }
-        }
-
-        for(String key : classPathKeySet){
-            String pathStr = jobCacheFileConfig.get(key);
-            jobGraph.getClasspaths().add(new URL("file:" + pathStr));
         }
     }
 
