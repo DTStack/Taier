@@ -12,6 +12,7 @@ import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.flink150.constrant.ExceptionInfoConstrant;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.flink150.constrant.ExceptionInfoConstrant;
 import com.dtstack.rdos.engine.execution.flink150.enums.Deploy;
 import com.dtstack.rdos.engine.execution.flink150.enums.FlinkYarnMode;
 import com.dtstack.rdos.engine.execution.flink150.parser.AddJarOperator;
@@ -292,7 +293,15 @@ public class FlinkClient extends AbsClient {
      * yarnSession模式运行任务
      */
     private Pair<String, String> runJobByYarnSession(PackagedProgram program, int parallelism) throws Exception {
-        JobSubmissionResult result = flinkClusterClientManager.getClusterClient().run(program, parallelism);
+        JobSubmissionResult result = null;
+        try {
+            result = flinkClusterClientManager.getClusterClient().run(program, parallelism);
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains(ExceptionInfoConstrant.FLINK_UNALE_TO_GET_CLUSTERCLIENT_STATUS_EXCEPTION)) {
+                flinkClusterClientManager.setIsClientOn(false);
+            }
+            throw e;
+        }
         if (result.isJobExecutionResult()) {
             logger.info("Program execution finished");
             JobExecutionResult execResult = result.getJobExecutionResult();
