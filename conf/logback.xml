@@ -56,11 +56,11 @@
         <appender-ref ref="request" />
     </logger>
 
-    <logger name="com.dtstack.rdos.engine.service.zk.task.TaskStatusListener" level="info" additivity="false">
+    <logger name="com.dtstack.rdos.engine.service.task.TaskStatusListener" level="info" additivity="false">
         <appender-ref ref="allAppender" />
     </logger>
 
-    <logger name="com.dtstack.rdos.engine.service.zk.task.TaskListener" level="info" additivity="false">
+    <logger name="com.dtstack.rdos.engine.service.task.TaskListener" level="info" additivity="false">
         <appender-ref ref="allAppender" />
     </logger>
 

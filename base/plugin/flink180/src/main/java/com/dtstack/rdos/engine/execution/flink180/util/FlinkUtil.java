@@ -1,7 +1,9 @@
 package com.dtstack.rdos.engine.execution.flink180.util;
 
 import com.dtstack.rdos.commom.exception.RdosException;
+import com.dtstack.rdos.engine.execution.base.enums.ClassLoaderType;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
+import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.flink180.constrant.ConfigConstrant;
 import com.dtstack.rdos.engine.execution.flink180.enums.FlinkYarnMode;
 import org.apache.commons.lang3.StringUtils;
@@ -138,7 +140,7 @@ public class FlinkUtil {
     }
 
 
-    public static PackagedProgram buildProgram(String fromPath, String toPath, List<URL> classpaths,
+    public static PackagedProgram buildProgram(String fromPath, String toPath, List<URL> classpaths, EJobType jobType,
                                                String entryPointClass, String[] programArgs,
                                                SavepointRestoreSettings spSetting, Configuration hadoopConf)
             throws FileNotFoundException, ProgramInvocationException {
@@ -148,10 +150,12 @@ public class FlinkUtil {
 
         File jarFile = downloadJar(fromPath, toPath, hadoopConf);
 
+        ClassLoaderType classLoaderType = ClassLoaderType.getClassLoaderType(jobType);
+
         // Get assembler class
         PackagedProgram program = entryPointClass == null ?
-                new PackagedProgram(jarFile, classpaths, programArgs) :
-                new PackagedProgram(jarFile, classpaths, entryPointClass, programArgs);
+                new PackagedProgram(jarFile, classpaths, classLoaderType, programArgs) :
+                new PackagedProgram(jarFile, classpaths, classLoaderType, entryPointClass, programArgs);
 
         program.setSavepointRestoreSettings(spSetting);
 
