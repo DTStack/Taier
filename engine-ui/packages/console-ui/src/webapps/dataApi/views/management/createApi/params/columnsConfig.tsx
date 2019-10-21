@@ -114,7 +114,7 @@ class ColumnsConfig extends React.Component<any, any> {
                     dataIndex: 'type',
                     width: '120px',
                     render: (text: any, record: any) => {
-                        return isGuideMode && text != 'OBJECT' ? text : this.renderEdit('type', record.id, type, 'CHAR');
+                        return (isGuideMode || text != 'OBJECT') ? text : this.renderEdit('type', record.id, type, 'VARCHAR');
                     }
                 },
                 {

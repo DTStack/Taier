@@ -326,7 +326,7 @@ class ManageParamsConfig extends React.Component<any, any> {
         if (mode == API_MODE.SQL) {
             newInputColumns = InputColumns.map((item: any) => {
                 if (item.type == 'OBJECT') {
-                    item.type = 'CHAR'
+                    item.type = 'VARCHAR'
                 }
                 return item;
             })
