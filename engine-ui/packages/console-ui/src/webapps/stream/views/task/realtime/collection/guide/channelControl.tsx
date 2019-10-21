@@ -210,13 +210,13 @@ const ChannelFormWrap = Form.create({
             channel: {
                 value: settingMap.channel
             },
-            recordDirty: {
+            isSaveDirty: {
                 value: settingMap.isSaveDirty
             },
-            dirtySource: {
+            sourceId: {
                 value: settingMap.sourceId
             },
-            dirtyTable: {
+            tableName: {
                 value: settingMap.tableName
             },
             lifeDay: {
