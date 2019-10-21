@@ -24,7 +24,13 @@ public class DtStringUtil {
         boolean inQuotes = false;
         boolean inSingleQuotes = false;
         StringBuilder b = new StringBuilder();
-        for (char c : str.toCharArray()) {
+        char[] chars = str.toCharArray();
+        int idx = 0;
+        for (char c : chars) {
+            char flag = 0;
+            if (idx>0){
+                flag = chars[idx-1];
+            }
             if(c == delimiter){
                 if (inQuotes) {
                     b.append(c);
@@ -34,15 +40,16 @@ public class DtStringUtil {
                     tokensList.add(b.toString());
                     b = new StringBuilder();
                 }
-            }else if(c == '\"'){
+            }else if(c == '\"' && '\\'!=flag && !inSingleQuotes){
                 inQuotes = !inQuotes;
                 b.append(c);
-            }else if(c == '\''){
+            }else if(c == '\'' && '\\'!=flag && !inQuotes){
                 inSingleQuotes = !inSingleQuotes;
                 b.append(c);
             }else{
                 b.append(c);
             }
+            idx++;
         }
 
         tokensList.add(b.toString());
