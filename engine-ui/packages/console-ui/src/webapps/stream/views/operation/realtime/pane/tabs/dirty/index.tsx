@@ -104,7 +104,7 @@ class DirtyView extends React.Component<any, DirtyViewState> {
                         <FieldsTable tableInfo={tableInfo} />
                     </TabPane>
                     <TabPane tab="脏数据查看" key="3">
-                        <DirtyTable tableInfo={tableInfo} />
+                        <DirtyTable key={table.id} tableInfo={tableInfo} />
                     </TabPane>
                 </Tabs>
             </div>
