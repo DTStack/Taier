@@ -88,7 +88,7 @@ class CallApi extends React.Component<any, any> {
                             {haveKey ? (
                                 <React.Fragment>
                                     <div className='c-shadow-text'>
-                                        <span className='c-shadow-text__prefix'>APP key：</span>
+                                        <span className='c-shadow-text__prefix'>APP Key：</span>
                                         <span className='c-shadow-text__content'>{appKey}</span>
                                     </div>
                                     <div className='c-shadow-text'>
@@ -117,7 +117,7 @@ class CallApi extends React.Component<any, any> {
                     </section>
                     <section className='c-call-api__content__section'>
                         <div className='c-call-api__section__title'>
-                            <h1 className="title-border-l-blue">APP secret签名生成</h1>
+                            <h1 className="title-border-l-blue">APP Secret签名生成</h1>
                         </div>
                         <div className='c-call-api__section__content'>
                             <a target='blank' href={docPath.API_KEY}>查看签名生成示例</a>
