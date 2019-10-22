@@ -76,8 +76,7 @@ class LifeCycle extends React.Component<any, any> {
         }
     }
 
-    customChange = (e: any) => {
-        const value = e.target.value
+    customChange = (value: any) => {
         this.props.onChange(value < 0 ? 1 : value)
     }
 

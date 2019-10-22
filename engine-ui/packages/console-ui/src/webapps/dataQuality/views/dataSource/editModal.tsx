@@ -2,10 +2,13 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import {
     Modal, Input, Button, Select, Icon,
-    Form, message, Tooltip
+    Form, message, Tooltip,
+    Switch, Row, Col, Upload
 } from 'antd';
+import { pickBy } from 'lodash'
 
 import utils from 'utils';
+import { hidePasswordInDom } from 'funcs';
 
 import CopyIcon from 'main/components/copy-icon';
 import HelpDoc from '../helpDoc';
@@ -16,6 +19,7 @@ import Api from '../../api/dataSource';
 import {
     jdbcUrlExample
 } from '../../consts/jdbcExample';
+import moment from 'moment';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -54,7 +58,9 @@ class DataSourceModal extends React.Component<any, any> {
     componentDidMount () {
         // this.props.getDataSourcesType();
     }
-
+    componentDidUpdate () {
+        hidePasswordInDom();
+    }
     // eslint-disable-next-line
     UNSAFE_componentWillReceiveProps(nextProps: any) {
         const oldData = this.props.sourceData;
@@ -94,9 +100,10 @@ class DataSourceModal extends React.Component<any, any> {
 
     testConnection = () => {
         const { sourceType } = this.state;
-        const { form } = this.props;
+        const { form, sourceData } = this.props;
 
         let field: any;
+        console.log(sourceData)
 
         if (sourceType === DATA_SOURCE.MAXCOMPUTE) {
             field = [
@@ -111,13 +118,32 @@ class DataSourceModal extends React.Component<any, any> {
 
         form.validateFields(field, (err: any, values: any) => {
             if (!err) {
-                Api.testDSConnection(values).then((res: any) => {
-                    if (res.data) {
-                        message.success('数据源连接正常！');
-                    } else {
-                        message.error('数据库连接失败！');
-                    }
-                });
+                values.id = sourceData.id;
+                if (values.dataJson.openKerberos) {
+                    values.dataJsonString = JSON.stringify(values.dataJson)
+                    delete values.dataJson;
+                    values = pickBy(values, (item, key) => { // 过滤掉空字符串和值为null的属性，并且过滤掉编辑时的kerberos字段
+                        if (key === 'kerberosFile' && (!item.type)) {
+                            return false
+                        }
+                        return item != null
+                    })
+                    Api.testDSConnectionKerberos(values).then((res: any) => {
+                        if (res.data) {
+                            message.success('数据源连接正常！');
+                        } else {
+                            message.error('数据库连接失败！');
+                        }
+                    });
+                } else {
+                    Api.testDSConnection(values).then((res: any) => {
+                        if (res.data) {
+                            message.success('数据源连接正常！');
+                        } else {
+                            message.error('数据库连接失败！');
+                        }
+                    });
+                }
             }
         });
     };
@@ -132,11 +158,126 @@ class DataSourceModal extends React.Component<any, any> {
         this.setState({ sourceType: parseInt(value) });
         this.props.form.resetFields();
     };
+    uploadForm = () => {
+        const { form, sourceData } = this.props;
+        const formNewLayout = {
+            labelCol: {
+                xs: { span: 24 },
+                sm: { span: 0 }
+            },
+            wrapperCol: {
+                xs: { span: 24 },
+                sm: { span: 24 }
+            }
+        }
+        const { getFieldDecorator, setFieldsValue, getFieldValue } = form;
+        const nullArr: any[] = [];
+        const upProps = {
+            beforeUpload: (file: any) => {
+                file.modifyTime = moment();
+                console.log(file);
+                setFieldsValue({
+                    [`kerberosFile`]: file
+                })
+                return false;
+            },
+            fileList: nullArr,
+            name: 'file',
+            accept: '.zip'
+        };
+        return (
+            <Row>
+                <Col span={6}/>
+                <Col span={14}>
+                    <FormItem
+                        {...formNewLayout}
+                        key={`kerberosFile`}
+                        label=""
+                        // style={{
+                        //     margin: 0
+                        // }}
+                    >
+                        {getFieldDecorator(`kerberosFile`, {
+                            rules: [{
+                                required: true, message: '文件不可为空！'
+                            }],
+                            initialValue: (sourceData.dataJson && sourceData.dataJson.kerberosFile) || ''
+                        })(<div/>)}
+                        <div
+                            style={{
+                                display: 'flex'
+                            }}
+                        >
+                            <Upload {...upProps}>
+                                <Button style={{ color: '#999' }}>
+                                    <Icon type="upload" /> 上传文件
+                                </Button>
+                            </Upload>
+                            <Tooltip title="上传文件前，请在控制台开启SFTP服务。">
+                                <Icon type="question-circle-o" style={{ fontSize: '14px', marginTop: '8px', marginLeft: '10px' }}/>
+                            </Tooltip>
+                            <a
+                                href={`/api/dq/download/service/download/downloadKerberosXML?sourceType=${getFieldValue('type')}`}
+                                download
+                            >
+                                <div
+                                    style={{ color: '#0099ff', cursor: 'pointer', marginLeft: '10px' }}
+                                >
+                                    下载文件模板
+                                </div>
+                            </a>
+                        </div>
+                        <div
+                            style={{ color: '#999' }}
+                        >
+                            上传单个文件，支持扩展格式：.zip
+                        </div>
+                        {
+                            getFieldValue(`kerberosFile`)
+                                ? (
+                                    <div
+                                        style={{
+                                            width: '120%',
+                                            position: 'relative'
+                                        }}
+                                    >
+                                        <Icon
+                                            type="close"
+                                            style={{
+                                                cursor: 'pointer',
+                                                position: 'absolute',
+                                                right: '5px',
+                                                top: '11px',
+                                                zIndex: 99
+                                            }}
+                                            onClick={() => {
+                                                setFieldsValue({
+                                                    [`kerberosFile`]: ''
+                                                })
+                                            }}
+                                        />
+                                        <Input value={(getFieldValue(`kerberosFile`)).name + '   ' + moment((getFieldValue(`kerberosFile`)).modifyTime).format('YYYY-MM-DD HH:mm:ss')}/>
+                                    </div>
+                                )
+                                : null
+                        }
+                    </FormItem>
+                </Col>
+            </Row>
+        );
+    }
+
+    hidePasswordInDom = (e: any) => {
+        // 特殊处理密码在 dom 中的展示
+        setTimeout(() => {
+            document.getElementById('dataJson.password').setAttribute('value', '');
+        }, 200)
+    }
 
     renderDynamic () {
         const { sourceType } = this.state;
         const { form, sourceData } = this.props;
-        const { getFieldDecorator } = form;
+        const { getFieldDecorator, getFieldValue } = form;
         const config = sourceData.dataJson || {};
 
         switch (sourceType) {
@@ -172,7 +313,7 @@ class DataSourceModal extends React.Component<any, any> {
                             {getFieldDecorator('dataJson.password', {
                                 rules: [],
                                 initialValue: ''
-                            })(<Input type="password" />)}
+                            })(<Input onChange={hidePasswordInDom} type="password" />)}
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
@@ -213,6 +354,21 @@ class DataSourceModal extends React.Component<any, any> {
                                 copyText={hdfsConf}
                             />
                         </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="开启Kerberos认证"
+                            key="openKerberos"
+                        >
+                            {getFieldDecorator('dataJson.openKerberos', {
+                                valuePropName: 'checked',
+                                initialValue: config.openKerberos || false
+                            })(
+                                <Switch />
+                            )}
+                        </FormItem>
+                        {
+                            getFieldValue('dataJson.openKerberos') ? this.uploadForm() : null
+                        }
                     </div>
                 );
             }
@@ -332,7 +488,7 @@ class DataSourceModal extends React.Component<any, any> {
                                     }
                                 ],
                                 initialValue: ''
-                            })(<Input type="password" />)}
+                            })(<Input type="password" onChange={hidePasswordInDom}/>)}
                         </FormItem>
                     </div>
                 );

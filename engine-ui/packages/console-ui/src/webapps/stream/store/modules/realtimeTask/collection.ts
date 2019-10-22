@@ -21,6 +21,10 @@ const initState: any = {
     targetMap: {
         sourceId: undefined,
         topic: undefined
+    },
+    settingMap: { // 通道控制
+        speed: '-1',
+        channel: 1
     }
 }
 
@@ -113,7 +117,8 @@ export const actions: any = {
                     }
                     dispatch(actions.updateSourceMap(res.data.sourceMap, false, true));
                     dispatch(actions.updateTargetMap(res.data.targetMap, false, true));
-                    setCurrentPageValue(dispatch, 'currentStep', 2);
+                    dispatch(actions.updateChannelControlMap(res.data.setting, false, true));
+                    setCurrentPageValue(dispatch, 'currentStep', 3);
                 } else {
                     setCurrentPageValue(dispatch, 'currentStep', 0);
                 }
@@ -158,6 +163,23 @@ export const actions: any = {
             setCurrentPageValue(dispatch, 'targetMap',
                 cloneDeep({
                     ...targetMap,
+                    ...params
+                }),
+                !notDirty
+            )
+        }
+    },
+
+    updateChannelControlMap (params = {}, clear: any, notDirty: any) {
+        return (dispatch: any) => {
+            const page = getCurrentPage();
+            let { settingMap = {} } = page;
+            if (clear) {
+                settingMap = initState.settingMap;
+            }
+            setCurrentPageValue(dispatch, 'settingMap',
+                cloneDeep({
+                    ...settingMap,
                     ...params
                 }),
                 !notDirty

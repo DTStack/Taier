@@ -5,6 +5,8 @@ import {
     Form
 } from 'antd';
 
+import { hidePasswordInDom } from 'funcs';
+
 import { formItemLayout } from '../../../../consts';
 
 const FormItem = Form.Item;
@@ -13,6 +15,10 @@ class DatabaseForm extends React.Component<any, any> {
     state: any = {
         confirmDirty: false
     };
+
+    componentDidUpdate () {
+        hidePasswordInDom();
+    }
 
     handleConfirmBlur = (e: any) => {
         const value = e.target.value;
@@ -123,7 +129,7 @@ class DatabaseForm extends React.Component<any, any> {
                             }
                         ],
                         initialValue: ''
-                    })(<Input placeholder="请输入密码（JDBC访问数据库的密码）" type="password" />)}
+                    })(<Input placeholder="请输入密码（JDBC访问数据库的密码）" type="password" onChange={hidePasswordInDom}/>)}
                 </FormItem>
                 <FormItem {...formItemLayout} label="确认密码" hasFeedback>
                     {getFieldDecorator('confirmPassword', {
@@ -141,13 +147,13 @@ class DatabaseForm extends React.Component<any, any> {
                             }
                         ],
                         initialValue: ''
-                    })(<Input placeholder="请确认密码" type="password" onBlur={this.handleConfirmBlur}/>)}
+                    })(<Input placeholder="请确认密码" type="password" onBlur={this.handleConfirmBlur} onChange={hidePasswordInDom}/>)}
                 </FormItem>
             </Form>
         );
     }
 }
 
-const FormWrapper = Form.create<any>()(DatabaseForm);
+const FormWrapper = Form.create<any>({})(DatabaseForm);
 
 export default FormWrapper;

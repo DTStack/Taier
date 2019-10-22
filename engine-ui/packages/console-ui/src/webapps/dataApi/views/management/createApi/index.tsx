@@ -69,6 +69,9 @@ const mapDispatchToProps = (dispatch: any) => ({
     getDataSourcesType () {
         return dispatch(dataSourceActions.getDataSourcesType());
     },
+    getDataSourcesCharType (type: any) { // 获取数据库字段类型
+        return dispatch(dataSourceActions.getDataSourcesCharType({ type }));
+    },
     /**
      * 关闭api编辑的提示
      */
@@ -118,8 +121,10 @@ class NewApi extends React.Component<any, any> {
                         this.props.getApiInfo(apiId)
                             .then(
                                 (res: any) => {
-                                    if (res) {
+                                    if (res && res.code == 1) {
                                         this.setDefault(res.data);
+                                    } else {
+                                        this.props.router.goBack();
                                     }
                                 }
                             )
@@ -179,14 +184,16 @@ class NewApi extends React.Component<any, any> {
                     paramsName: column.paramName,
                     operator: column.operator,
                     desc: column.desc,
-                    required: column.required
+                    required: column.required,
+                    groupId: column.groupId
                 })
             }
         );
     }
     setDefault (data: any) {
         const isRegister = utils.getParameterByName('isRegister');
-        const containHeader = `${data ? data.containHeader : ''}`; // 转换数值类型为字符串
+        const containHeader = `${data ? (data.containHeader || '') : ''}`; // 转换数值类型为字符串
+        const containPage = `${data ? (data.containPage || '') : ''}`;
         let newState: any = {
             loading: false,
             mode: data.paramCfgType,
@@ -211,10 +218,12 @@ class NewApi extends React.Component<any, any> {
                 resultPage: data.respPageSize,
                 resultPageChecked: data.allowPaging,
                 containHeader: containHeader,
+                containPage: containPage,
                 sql: data.sql
             },
             registerParams: {
-                containHeader: containHeader
+                containHeader: containHeader,
+                containPage: containPage
             },
             testApi: {
                 inFields: data.inFields && data.inFields.inFields,
@@ -252,6 +261,7 @@ class NewApi extends React.Component<any, any> {
                 resultPageChecked: data.allowPaging,
                 sql: data.sql,
                 containHeader: containHeader,
+                containPage: containPage,
                 inputParam: ColumnsModel.exchangeServerParams(data.inputParam),
                 outputParam: ColumnsModel.exchangeServerParams(data.outputParam)
             }
@@ -291,7 +301,7 @@ class NewApi extends React.Component<any, any> {
         })
     }
     testApi () {
-        this.save(true);
+        return this.save(true);
     }
     reDo () {
         this.setState({
@@ -302,14 +312,6 @@ class NewApi extends React.Component<any, any> {
         })
     }
 
-    // next () {
-    //     const { key } = steps[this.state.current];
-    //     if (this.state[key] && this.state[key].pass) {
-    //         const current = this.state.current + 1;
-    //         this.setState({ current });
-    //     }
-    // }
-
     prev () {
         const current = this.state.current - 1;
         this.setState({ current });
@@ -317,26 +319,32 @@ class NewApi extends React.Component<any, any> {
     save (back: any) {
         const params = this.createApiServerParams();
 
-        this.props.saveOrUpdateApiInfo(params)
+        return this.props.saveOrUpdateApiInfo(params)
             .then(
                 (res: any) => {
-                    if (res) {
+                    if (res && res.code == 1) {
                         message.success('保存成功！')
                         if (back) {
                             this.props.router.push('/api/manage');
                         }
+                        return true;
+                    } else {
+                        return false;
                     }
                 }
             )
     }
     createParamsConfig () {
         const { paramsConfig } = this.state;
+        console.log(paramsConfig);
+        // resultPage
         let result: any = {
             dataSrcId: paramsConfig.dataSrcId,
             tableName: paramsConfig.tableName,
             dataSourceType: paramsConfig.dataSourceType,
             containHeader: paramsConfig.containHeader,
-            respPageSize: paramsConfig.respPageSize,
+            containPage: paramsConfig.containPage,
+            respPageSize: paramsConfig.resultPage,
             allowPaging: paramsConfig.resultPageChecked ? 1 : 0,
             sql: paramsConfig.sql,
             inputParam: [],
@@ -350,6 +358,7 @@ class NewApi extends React.Component<any, any> {
                 paramType: item.type,
                 operator: item.operator,
                 required: item.required,
+                groupId: item.groupId,
                 desc: item.desc
             })
         }
@@ -390,6 +399,8 @@ class NewApi extends React.Component<any, any> {
         result.errorRespJson = registerParams.errorValue;
         result.errorCodeList = registerParams.errorCodeList;
         result.containHeader = registerParams.containHeader;
+        result.containPage = registerParams.containPage || undefined;
+
         result.bodyDesc = registerParams.bodyDesc;
         result.inputParam = (registerParams.inputParam || []).concat((registerParams.constParam || []).map((item: any) => {
             return {
@@ -457,9 +468,11 @@ class NewApi extends React.Component<any, any> {
             )
     }
     cancelAndSave (type: any, data: any) {
-        this.saveData(type, data, () => {
-            this.save(true)
-        });
+        return new Promise((resolve) => {
+            this.saveData(type, data, () => {
+                resolve(this.save(true));
+            });
+        })
         // this.props.router.goBack();
     }
     saveData (type: any, data: any, callback: any) {
@@ -496,7 +509,6 @@ class NewApi extends React.Component<any, any> {
             loading,
             isSaveResult
         } = this.state;
-
         const steps: any = [
             {
                 key: 'basicProperties',

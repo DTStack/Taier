@@ -50,7 +50,7 @@ table{
         @include setCenter(right);
     }
     .ant-tabs-vertical.ant-tabs-left > .ant-tabs-bar {
-        @include setTabBarWidth(180px)
+        @include setTabBarWidth(210px)
     }
 }
 .resource-tab-width {
@@ -88,7 +88,7 @@ table{
         margin-right: 0;
         margin-bottom: 16px;
         display: block;
-        padding: 8px 10px 8px 24px;
+        padding: 8px 10px 8px 10px;
     }
     .ant-tabs-nav .ant-tabs-tab .tab-title:hover {
         color: #58abf9;

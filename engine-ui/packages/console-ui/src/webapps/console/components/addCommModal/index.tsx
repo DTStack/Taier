@@ -6,7 +6,7 @@ import { formItemLayout, ENGINE_TYPE_ARRAY, ENGINE_TYPE_NAME,
     COMPONENT_TYPE_VALUE, HADOOP_GROUP_VALUE } from '../../consts';
 const FormItem = Form.Item;
 const CheckboxGroup = Checkbox.Group;
-const defaultCheckedValue: any = [COMPONENT_TYPE_VALUE.HDFS, COMPONENT_TYPE_VALUE.YARN, COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER]; // 必选引擎值
+const defaultCheckedValue: any = [COMPONENT_TYPE_VALUE.HDFS, COMPONENT_TYPE_VALUE.YARN]; // 必选引擎值
 const defaultEngine = ENGINE_TYPE_NAME.HADOOP // hadoop
 
 // 新增集群、增加组件、增加引擎共用组件
@@ -208,7 +208,7 @@ class AddCommModal extends React.Component<any, any> {
                                 message: ''
                             }]
                         })(
-                            <span>{'HDFS、YARN、SparkThrift'}</span>
+                            <span>{'HDFS、YARN'}</span>
                         )}
                     </FormItem>
                 }

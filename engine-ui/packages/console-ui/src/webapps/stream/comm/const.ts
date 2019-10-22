@@ -1,6 +1,6 @@
 // 常量
 
-export const DATA_SOURCE: any = {
+export const DATA_SOURCE = {
     MYSQL: 1,
     ORACLE: 2,
     SQLSERVER: 3,
@@ -19,6 +19,12 @@ export const DATA_SOURCE: any = {
     KAFKA_10: 17,
     KAFKA_09: 18,
     DB2: 19
+}
+
+export const FUNC_TYPE_TEXT = {
+    0: 'Scala',
+    1: 'Table',
+    2: 'Aggregate'
 }
 
 export const DATA_SOURCE_TEXT: any = {
@@ -97,7 +103,7 @@ export const writeTableTypes: any = {
     HAND: '1'
 }
 
-export const writeStrategys: any = {
+export const writeStrategys = {
     TIME: '0',
     FILESIZE: '1'
 }
@@ -163,7 +169,7 @@ export const SUPPROT_SUB_LIBRARY_DB_ARRAY: any = [ // 支持分库分表的数�
     // DATA_SOURCE.POSTGRESQL,
 ]
 
-export const TASK_TYPE: any = { // 任务类型
+export const TASK_TYPE = { // 任务类型
     VIRTUAL_NODE: -1,
     SQL: 0,
     MR: 1,

@@ -297,6 +297,7 @@ class OfflineTaskMana extends React.Component<any, any> {
         const isPro = this.props.project.projectType == PROJECT_TYPE.PRO;
         const pre = isPro ? '发布' : '提交'
         const { taskTypeFilter } = this.props;
+        const { taskPeriodId, taskType } = this.state;
 
         return [{
             title: '任务名称',
@@ -323,7 +324,8 @@ class OfflineTaskMana extends React.Component<any, any> {
             render: (text: any) => {
                 return <TaskType value={text} />
             },
-            filters: taskTypeFilter
+            filters: taskTypeFilter,
+            filteredValue: taskType
         }, {
             title: '调度周期',
             dataIndex: 'taskPeriodId',
@@ -331,7 +333,8 @@ class OfflineTaskMana extends React.Component<any, any> {
             render: (text: any) => {
                 return <TaskTimeType value={text} />
             },
-            filters: offlineTaskPeriodFilter
+            filters: offlineTaskPeriodFilter,
+            filteredValue: taskPeriodId
         }, {
             title: '责任人',
             dataIndex: 'userName',

@@ -4,12 +4,13 @@ import {
     Input, Button,
     Select, Form, Checkbox,
     Radio, Modal, Tooltip,
-    Icon
+    Icon, Switch, Upload, Row, Col
 } from 'antd'
 
 import { isEmpty } from 'lodash';
 
 import utils from 'utils';
+import { hidePasswordInDom } from 'funcs';
 
 import {
     formItemLayout,
@@ -23,6 +24,7 @@ import {
 
 import HelpDoc from '../helpDoc';
 import CopyIcon from 'main/components/copy-icon';
+import moment from 'moment';
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -68,7 +70,9 @@ class BaseForm extends React.Component<any, any> {
             }
         }
     }
-
+    componentDidUpdate () {
+        hidePasswordInDom();
+    }
     submit = (e: any) => {
         e.preventDefault()
         const ctx = this
@@ -168,11 +172,120 @@ class BaseForm extends React.Component<any, any> {
         }
     }
 
+    uploadForm = () => {
+        const { form, sourceData } = this.props;
+        const formNewLayout = {
+            labelCol: {
+                xs: { span: 24 },
+                sm: { span: 0 }
+            },
+            wrapperCol: {
+                xs: { span: 24 },
+                sm: { span: 24 }
+            }
+        }
+        const { getFieldDecorator, setFieldsValue, getFieldValue } = form;
+        const nullArr: any[] = [];
+        const upProps = {
+            beforeUpload: (file: any) => {
+                file.modifyTime = moment();
+                console.log(file);
+                setFieldsValue({
+                    [`kerberosFile`]: file
+                })
+                return false;
+            },
+            fileList: nullArr,
+            name: 'file',
+            accept: '.zip'
+        };
+        return (
+            <Row>
+                <Col span={6}/>
+                <Col span={14}>
+                    <FormItem
+                        {...formNewLayout}
+                        key={`kerberosFile`}
+                        label=""
+                        // style={{
+                        //     margin: 0
+                        // }}
+                    >
+                        {getFieldDecorator(`kerberosFile`, {
+                            rules: [{
+                                required: true, message: '文件不可为空！'
+                            }],
+                            initialValue: (sourceData.dataJson && sourceData.dataJson.kerberosFile) || ''
+                        })(<div/>)}
+                        <div
+                            style={{
+                                display: 'flex'
+                            }}
+                        >
+                            <Upload {...upProps}>
+                                <Button style={{ color: '#999' }}>
+                                    <Icon type="upload" /> 上传文件
+                                </Button>
+                            </Upload>
+                            <Tooltip title="上传文件前，请在控制台开启SFTP服务。">
+                                <Icon type="question-circle-o" style={{ fontSize: '14px', marginTop: '8px', marginLeft: '10px' }}/>
+                            </Tooltip>
+                            <a
+                                href={`/api/streamapp/download/streamDownload/downloadKerberosXML?sourceType=${getFieldValue('type')}`}
+                                download
+                            >
+                                <div
+                                    style={{ color: '#0099ff', cursor: 'pointer', marginLeft: '10px' }}
+                                >
+                                    下载文件模板
+                                </div>
+                            </a>
+                        </div>
+                        <div
+                            style={{ color: '#999' }}
+                        >
+                            上传单个文件，支持扩展格式：.zip
+                        </div>
+                        {
+                            getFieldValue(`kerberosFile`)
+                                ? (
+                                    <div
+                                        style={{
+                                            width: '120%',
+                                            position: 'relative'
+                                        }}
+                                    >
+                                        <Icon
+                                            type="close"
+                                            style={{
+                                                cursor: 'pointer',
+                                                position: 'absolute',
+                                                right: '5px',
+                                                top: '11px',
+                                                zIndex: 99
+                                            }}
+                                            onClick={() => {
+                                                setFieldsValue({
+                                                    [`kerberosFile`]: ''
+                                                })
+                                            }}
+                                        />
+                                        <Input value={(getFieldValue(`kerberosFile`)).name + '   ' + moment((getFieldValue(`kerberosFile`)).modifyTime).format('YYYY-MM-DD HH:mm:ss')}/>
+                                    </div>
+                                )
+                                : null
+                        }
+                    </FormItem>
+                </Col>
+            </Row>
+        );
+    }
+
     renderDynamic () {
         const { form, sourceData, showUserNameWarning } = this.props;
         const { sourceType, ftpProtocal, redisType } = this.state;
 
-        const { getFieldDecorator } = form;
+        const { getFieldDecorator, getFieldValue } = form;
         const config = sourceData.dataJson || {};
         console.log('renderDynamic', config);
 
@@ -224,8 +337,22 @@ class BaseForm extends React.Component<any, any> {
                             style={{ position: 'absolute', right: '-20px', bottom: '0px' }}
                             copyText={hdfsConf}
                         />
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="开启Kerberos认证"
+                        key="openKerberos"
+                    >
+                        {getFieldDecorator('dataJson.openKerberos', {
+                            valuePropName: 'checked',
+                            initialValue: config.openKerberos || false
+                        })(
+                            <Switch/>
+                        )}
                     </FormItem>
                 )
+                const uploadForm: any = getFieldValue('dataJson.openKerberos') ? this.uploadForm() : [];
+                formItems.push(uploadForm)
                 return formItems;
             }
             case DATA_SOURCE.HIVE: {
@@ -270,7 +397,7 @@ class BaseForm extends React.Component<any, any> {
                             rules: [],
                             initialValue: ''
                         })(
-                            <Input type="password" autoComplete="off" />
+                            <Input type="password" onChange={hidePasswordInDom} autoComplete="off" />
                         )}
                     </FormItem>,
                     <FormItem
@@ -310,12 +437,26 @@ class BaseForm extends React.Component<any, any> {
                             style={{ position: 'absolute', right: '-20px', bottom: '0px' }}
                             copyText={hdfsConf}
                         />
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="开启Kerberos认证"
+                        key="openKerberos"
+                    >
+                        {getFieldDecorator('dataJson.openKerberos', {
+                            valuePropName: 'checked',
+                            initialValue: config.openKerberos || false
+                        })(
+                            <Switch />
+                        )}
                     </FormItem>
                 ]
+                const uploadForm: any = getFieldValue('dataJson.openKerberos') ? this.uploadForm() : [];
+                formItems.push(uploadForm)
                 return formItems
             }
             case DATA_SOURCE.HBASE: {
-                return [
+                const formItems = [
                     <FormItem
                         {...formItemLayout}
                         label="集群地址"
@@ -364,8 +505,23 @@ class BaseForm extends React.Component<any, any> {
                         })(
                             <Input type="textarea" {...rowFix5} placeholder={`hbase.rootdir": "hdfs: //ip:9000/hbase`} />
                         )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="开启Kerberos认证"
+                        key="openKerberos"
+                    >
+                        {getFieldDecorator('dataJson.openKerberos', {
+                            valuePropName: 'checked',
+                            initialValue: config.openKerberos || false
+                        })(
+                            <Switch />
+                        )}
                     </FormItem>
                 ]
+                const uploadForm: any = getFieldValue('dataJson.openKerberos') ? this.uploadForm() : [];
+                formItems.push(uploadForm)
+                return formItems
             }
             case DATA_SOURCE.FTP: {
                 const ftpFormItems: any = [
@@ -426,7 +582,7 @@ class BaseForm extends React.Component<any, any> {
                             }],
                             initialValue: ''
                         })(
-                            <Input type="password" autoComplete="off" />
+                            <Input type="password" onChange={hidePasswordInDom} autoComplete="off" />
                         )}
                     </FormItem>,
                     <FormItem
@@ -687,7 +843,7 @@ class BaseForm extends React.Component<any, any> {
                         {getFieldDecorator('dataJson.password', {
                             initialValue: ''
                         })(
-                            <Input type="password" autoComplete="off" />
+                            <Input type="password" onChange={hidePasswordInDom} autoComplete="off" />
                         )}
                     </FormItem>
                 ]
@@ -734,7 +890,7 @@ class BaseForm extends React.Component<any, any> {
                         {getFieldDecorator('dataJson.password', {
                             initialValue: ''
                         })(
-                            <Input type="password" autoComplete="off" />
+                            <Input type="password" onChange={hidePasswordInDom} autoComplete="off" />
                         )}
                     </FormItem>,
                     <FormItem
@@ -810,7 +966,7 @@ class BaseForm extends React.Component<any, any> {
                             }],
                             initialValue: ''
                         })(
-                            <Input type="password" autoComplete="off" />
+                            <Input type="password" onChange={hidePasswordInDom} autoComplete="off" />
                         )}
                     </FormItem>
                 ]
@@ -869,7 +1025,7 @@ class BaseForm extends React.Component<any, any> {
                             }],
                             initialValue: ''
                         })(
-                            <Input type="password" autoComplete="off" />
+                            <Input type="password" onChange={hidePasswordInDom} autoComplete="off" />
                         )}
                     </FormItem>
                 ]

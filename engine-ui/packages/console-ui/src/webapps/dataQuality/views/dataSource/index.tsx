@@ -17,6 +17,7 @@ import DataSourceForm from './editModal';
 import { dataSourceFilter } from '../../consts';
 import { dataSourceActions } from '../../actions/dataSource';
 import DSApi from '../../api/dataSource';
+import { pickBy } from 'lodash';
 
 const Search = Input.Search;
 
@@ -67,28 +68,71 @@ class DataSource extends React.Component<any, any> {
 
     editDataSource = (sourceFormData: any, formObj: any) => {
         const { title, status, source, params } = this.state;
-
         if (status === 'edit') {
-            DSApi.updateDataSource({
+            let reqSource = {
                 ...source,
                 ...sourceFormData
-            }).then((res: any) => {
-                if (res.code === 1) {
-                    formObj.resetFields();
-                    this.setState({ visible: false });
-                    message.success(`${title}成功！`);
-                    this.props.getDataSources(params);
-                }
-            });
+            }
+            if (reqSource.dataJson.openKerberos) {
+                reqSource.dataJsonString = JSON.stringify(reqSource.dataJson)
+                console.log(reqSource)
+                delete reqSource.modifyUser;
+                delete reqSource.dataJson;
+                reqSource = pickBy(reqSource, (item, key) => { // 过滤掉空字符串和值为null的属性，并且过滤掉编辑时的kerberos字段
+                    if (key === 'kerberosFile' && (!item.type)) {
+                        return false
+                    }
+                    return item != null
+                })
+                DSApi.updateDataSourceKerberos(reqSource).then((res: any) => {
+                    if (res.code === 1) {
+                        this.setState({ visible: false });
+                        formObj.resetFields();
+                        message.success(`${title}成功！`);
+                        this.props.getDataSources(params);
+                    }
+                });
+            } else {
+                DSApi.updateDataSource(reqSource).then((res: any) => {
+                    if (res.code === 1) {
+                        this.setState({ visible: false });
+                        formObj.resetFields();
+                        message.success(`${title}成功！`);
+                        this.props.getDataSources(params);
+                    }
+                });
+            }
         } else {
-            DSApi.addDataSource(sourceFormData).then((res: any) => {
-                if (res.code === 1) {
-                    formObj.resetFields();
-                    this.setState({ visible: false });
-                    message.success(`${title}成功！`);
-                    this.props.getDataSources(params);
-                }
-            });
+            let reqSource = sourceFormData;
+            if (reqSource.dataJson.openKerberos) {
+                reqSource.dataJsonString = JSON.stringify(reqSource.dataJson)
+                console.log(reqSource)
+                delete reqSource.modifyUser;
+                delete reqSource.dataJson;
+                reqSource = pickBy(reqSource, (item, key) => { // 过滤掉空字符串和值为null的属性，并且过滤掉编辑时的kerberos字段
+                    if (key === 'kerberosFile' && (!item.type)) {
+                        return false
+                    }
+                    return item != null
+                });
+                DSApi.addDataSourceKerberos(sourceFormData).then((res: any) => {
+                    if (res.code === 1) {
+                        this.setState({ visible: false });
+                        formObj.resetFields();
+                        message.success(`${title}成功！`);
+                        this.props.getDataSources(params);
+                    }
+                });
+            } else {
+                DSApi.addDataSource(sourceFormData).then((res: any) => {
+                    if (res.code === 1) {
+                        this.setState({ visible: false });
+                        formObj.resetFields();
+                        message.success(`${title}成功！`);
+                        this.props.getDataSources(params);
+                    }
+                });
+            }
         }
     };
 

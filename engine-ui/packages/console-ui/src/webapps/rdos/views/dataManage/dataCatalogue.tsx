@@ -1,11 +1,12 @@
 import * as React from 'react';
+import { connect } from 'react-redux'
 import { cloneDeep } from 'lodash';
 import { message } from 'antd';
 import { hashHistory } from 'react-router'
 
 import API from '../../api/dataManage';
 import CatalogueTree from './catalogTree';
-
+import DataManageAction from '../../store/modules/dataManage/actionCreator';
 function appendTreeNode (treeNode: any, append: any, target: any) {
     const targetId = target.nodeId
 
@@ -71,7 +72,7 @@ class DataCatalogue extends React.Component<any, any> {
     onTreeNodeEdit = (node: any, type: any, callback: any) => {
         const self = this
         const treeData = cloneDeep(self.state.treeData)
-
+        const { dispatch } = self.props
         switch (type) {
             case 'initAdd': {
                 const tmpId = Date.now()
@@ -102,6 +103,7 @@ class DataCatalogue extends React.Component<any, any> {
                     if (res.code === 1) {
                         message.success('数据类目增加成功！')
                         replaceTreeNode(treeData, source, res.data)
+                        dispatch(DataManageAction.getCatalogues({ isGetFile: false }))
                     } else {
                         removeTreeNode(treeData, source)
                     }
@@ -117,6 +119,7 @@ class DataCatalogue extends React.Component<any, any> {
                     if (res.code === 1) {
                         message.success('数据类目删除成功！')
                         removeTreeNode(treeData, node)
+                        dispatch(DataManageAction.getCatalogues({ isGetFile: false }))
                         self.setState({
                             treeData
                         })
@@ -137,6 +140,7 @@ class DataCatalogue extends React.Component<any, any> {
                         const source: any = { nodeId: node.id }
 
                         replaceTreeNode(treeData, source, res.data)
+                        dispatch(DataManageAction.getCatalogues({ isGetFile: false }))
                         message.success('数据类目更新成功！')
                     }
                     self.setState({
@@ -181,4 +185,4 @@ class DataCatalogue extends React.Component<any, any> {
     }
 }
 
-export default DataCatalogue
+export default connect()(DataCatalogue)

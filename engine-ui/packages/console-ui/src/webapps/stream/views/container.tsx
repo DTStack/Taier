@@ -36,9 +36,16 @@ class Container extends React.Component<any, any> {
         const { dispatch, router } = this.props
         const pathname = router.location.pathname
         if (pathname !== '/') {
-            const pid = parseInt(utils.getCookie('stream_project_id'), 10)
+            let pid = '';
+            const projectIdFromURL = utils.getParameterByName('pid');
+            const projectIdFromCookie = utils.getCookie('stream_project_id');
+            if (projectIdFromURL) { // 优先从URL截取项目ID, 后从 Cookie 获取
+                pid = projectIdFromURL;
+            } else if (projectIdFromCookie) {
+                pid = projectIdFromCookie;
+            }
             if (pid) {
-                dispatch(ProjectAction.getProject(pid))
+                dispatch(ProjectAction.getProject(parseInt(pid, 10)))
             }
         }
     }

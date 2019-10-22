@@ -2,12 +2,13 @@ import moment from 'moment'
 import * as React from 'react'
 
 import {
-    Modal, Row, message, Col, Tree
+    Modal, Row, message, Col, Tree, Checkbox
 } from 'antd'
 
 import Api from '../../../../api'
 import { TaskType, TaskStatus } from '../../../../components/status'
 import { TASK_STATUS } from '../../../../comm/const'
+import utils from '../../../../../../utils'
 
 const TreeNode = Tree.TreeNode
 
@@ -16,13 +17,13 @@ class RestartModal extends React.Component<any, any> {
         treeData: [],
         expandedKeys: [],
         currentNode: '',
-        checkedKeys: []
+        checkedKeys: [],
+        isAllChecked: false
     }
     /* eslint-disable-next-line */
     componentWillReceiveProps(nextProps: any) {
         const node = nextProps.restartNode
         const visible = nextProps.visible
-
         if (visible && node) {
             this.setState({
                 currentNode: node,
@@ -34,6 +35,7 @@ class RestartModal extends React.Component<any, any> {
                     jobKey: node.jobKey,
                     isOnlyNextChild: false
                 })
+                // this.cacheAllSelected = this.getAllSelectData(this.state.treeData); // 获取新的全部数据作为全选缓存
             })
         }
     }
@@ -96,13 +98,22 @@ class RestartModal extends React.Component<any, any> {
 
     onCancelModal = () => {
         this.setState({
-            checkedKeys: []
+            checkedKeys: [],
+            isAllChecked: false
         })
         this.props.onCancel();
+        this.cacheAllSelected = []
+        console.log('unmount', this.cacheAllSelected)
     }
 
     onCheck = (checkedKeys: any, info: any) => {
-        this.setState({ checkedKeys: checkedKeys.checked })
+        // const allSelectedData = this.getAllSelectData(this.state.treeData);
+        const allSelectedData = this.cacheAllSelected; // 获取全选的缓存
+        const hasCheckedVal = checkedKeys.checked;
+        this.setState({
+            checkedKeys: hasCheckedVal,
+            isAllChecked: utils.isEqualArr(allSelectedData, hasCheckedVal)
+        })
     }
 
     disabledDate = (current: any) => {
@@ -124,7 +135,75 @@ class RestartModal extends React.Component<any, any> {
         })
     }
 
-    getTreeNodes = (data: any, currentNode: any) => {
+    // 获取所有项的id值
+    getAllSelectData = (data?: any[]) => {
+        const tempArr: any[] = [];
+        const _this = this;
+        function getId (data: any) {
+            if (!data) return;
+            if (data.length > 0) {
+                data.map((item: any) => {
+                    console.log(item)
+                    const id = `${item.batchTask ? item.id : item.jobId}`;
+                    const status = item.jobStatus || item.status; // jobStatus 为从接口获取，status表默认节点
+                    // 禁止重跑并恢复调度
+                    if (item.childs) {
+                        const canRestart = _this.canRestartFunc(status);
+                        if (canRestart) {
+                            tempArr.push(id);
+                        }
+                        getId(item.childs);
+                    } else {
+                        tempArr.push(id);
+                    }
+                });
+            }
+        }
+        getId(data);
+        console.log(tempArr)
+        return tempArr;
+    }
+
+    cacheAllSelected: any[] = [];
+
+    handleAllSelect = (data: any[]) => {
+        console.log(this.cacheAllSelected)
+        if (this.cacheAllSelected.length === 0) {
+            this.cacheAllSelected = this.getAllSelectData(data);
+        }
+        // this.cacheAllSelected.length === 0 && (this.cacheAllSelected = this.getAllSelectData(data));
+        // 取消全选置空， 不能使用全选的缓存数据
+        console.log(this.cacheAllSelected, data)
+        this.setState({ checkedKeys: data.length === 0 ? [] : this.cacheAllSelected });
+    }
+
+    handleCheckboxChange = () => {
+        const { treeData, isAllChecked } = this.state;
+        this.setState({
+            isAllChecked: !isAllChecked
+        }, () => {
+            // 根据是否点击全选来决定传递处理参数
+            this.handleAllSelect(this.state.isAllChecked ? treeData : [])
+        });
+    }
+
+    canRestartFunc = (status: any): boolean => {
+        switch (status) {
+            case TASK_STATUS.WAIT_SUBMIT: // 未运行
+            case TASK_STATUS.FINISHED: // 已完成
+            case TASK_STATUS.RUN_FAILED: // 运行失败
+            case TASK_STATUS.SUBMIT_FAILED: // 提交失败
+            case TASK_STATUS.SET_SUCCESS: // 手动设置成功
+            case TASK_STATUS.PARENT_FAILD: // 上游失败
+            case TASK_STATUS.KILLED: // 已停止
+            case TASK_STATUS.STOPED: // 已取消
+                return true
+            default:
+                return false;
+        }
+    }
+
+    getTreeNodes = (data: any[], currentNode: any) => {
         if (data && data.length > 0) {
             const nodes = data.map((item: any) => {
                 const id = `${item.batchTask ? item.id : item.jobId}`;
@@ -134,14 +213,7 @@ class RestartModal extends React.Component<any, any> {
                 const taskType = item.taskType || (item.batchTask && item.batchTask.taskType);
                 const titleFix = { title: name };
                 // 禁止重跑并恢复调度
-                const canRestart = status === TASK_STATUS.WAIT_SUBMIT || // 未运行
-                status === TASK_STATUS.FINISHED || // 已完成
-                status === TASK_STATUS.RUN_FAILED || // 运行失败
-                status === TASK_STATUS.SUBMIT_FAILED || // 提交失败
-                status === TASK_STATUS.SET_SUCCESS || // 手动设置成功
-                status === TASK_STATUS.PARENT_FAILD || // 上游失败
-                status === TASK_STATUS.KILLED || // 已停止
-                status === TASK_STATUS.STOPED; // 已取消
+                const canRestart = this.canRestartFunc(status);
 
                 const content = <Row>
                     <Col span={6} className="ellipsis" {...titleFix}>{name}</Col>
@@ -173,9 +245,14 @@ class RestartModal extends React.Component<any, any> {
         return []
     }
 
+    componentWillUnmount () {
+        this.cacheAllSelected = []
+        console.log('unmount', this.cacheAllSelected)
+    }
+
     render () {
         const { visible, restartNode } = this.props
-        const { treeData } = this.state
+        const { treeData, isAllChecked, checkedKeys } = this.state
         const treeNodes = this.getTreeNodes(treeData, restartNode)
 
         return (
@@ -188,7 +265,9 @@ class RestartModal extends React.Component<any, any> {
                 maskClosable={true}
             >
                 <Row>
-                    <Col span={12}>请选择要重跑的任务:</Col>
+                    <Col span={12}>请选择要重跑的任务: &nbsp;&nbsp;
+                        <Checkbox onChange={this.handleCheckboxChange} checked={isAllChecked}>全选</Checkbox>
+                    </Col>
                     <Col span={12} className="txt-right">业务日期：{restartNode ? restartNode.businessDate : ''}</Col>
                 </Row>
                 <Row className="section patch-data">
@@ -202,7 +281,7 @@ class RestartModal extends React.Component<any, any> {
                         checkable
                         checkStrictly
                         onCheck={this.onCheck}
-                        checkedKeys={this.state.checkedKeys}
+                        checkedKeys={checkedKeys}
                         loadData={this.asyncTree}
                     >
                         {treeNodes}

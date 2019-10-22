@@ -28,6 +28,7 @@
             "dataLabel/*": ["./src/webapps/dataLabel/*"],
             "console/*": ["./src/webapps/console/*"],
             "analyticsEngine/*": ["./src/webapps/analyticsEngine/*"],
+            "database": ["./src/database"] // 数据库
         }
     },
     "exclude": [

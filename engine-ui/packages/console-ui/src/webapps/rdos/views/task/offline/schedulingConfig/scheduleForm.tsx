@@ -17,11 +17,11 @@ const FormItem = Form.Item;
 const formItemLayout: any = { // 表单正常布局
     labelCol: {
         xs: { span: 24 },
-        sm: { span: 4 }
+        sm: { span: 5 }
     },
     wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 18 }
+        sm: { span: 17 }
     }
 }
 

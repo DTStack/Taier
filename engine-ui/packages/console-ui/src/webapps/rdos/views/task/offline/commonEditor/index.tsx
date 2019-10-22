@@ -173,7 +173,9 @@ class CommonEditorContainer extends React.Component<any, any> {
 
     render () {
         const { editor = {}, currentTabData, value, mode, toolBarOptions = {}, project, user } = this.props;
-
+        if (toolBarOptions.enableFormat) {
+            toolBarOptions.onFormat = toolBarOptions.onFormat || this.sqlFormat;
+        }
         const currentTab = currentTabData.id;
 
         const consoleData = editor.console;
@@ -185,6 +187,7 @@ class CommonEditorContainer extends React.Component<any, any> {
         const isLocked = currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock;
         const isScienceTask = currentTabData.taskType == TASK_TYPE.NOTEBOOK;
         const couldEdit = isProjectCouldEdit(project, user) && !isScienceTask;
+        toolBarOptions.enableFormat = couldEdit && toolBarOptions.enableFormat;
         const editorOpts: any = {
             value: value,
             language: mode,

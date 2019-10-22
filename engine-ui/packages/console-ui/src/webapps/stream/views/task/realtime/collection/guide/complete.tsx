@@ -4,7 +4,7 @@ import { Card, Button } from 'antd';
 
 import Source from './collectionSource'
 import Target from './collectionTarget'
-
+import ChannelControl from './channelControl';
 function Mask () {
     return <div className="mask-lock-layer" />
 }
@@ -14,7 +14,7 @@ class CollectionComplete extends React.Component<any, any> {
         this.props.navtoStep(step)
     }
     prev () {
-        this.props.navtoStep(1)
+        this.props.navtoStep(2)
     }
     save () {
         this.props.saveJob();
@@ -44,6 +44,16 @@ class CollectionComplete extends React.Component<any, any> {
                         }
                     >
                         <Target collectionData={collectionData} updateTargetMap={this.props.updateTargetMap} readonly />
+                        <Mask />
+                    </Card>
+                    <Card bordered={false}
+                        style={{ marginBottom: 10 }}
+                        title={<div style={{ textAlign: 'center' }}>通道控制</div>}
+                        extra={<a href="javascript:void(0)"
+                            onClick={() => this.navtoStep(2)}>修改</a>
+                        }
+                    >
+                        <ChannelControl collectionData={collectionData} updateChannelControlMap={this.props.updateChannelControlMap} readonly />
                         <Mask />
                     </Card>
                 </div>

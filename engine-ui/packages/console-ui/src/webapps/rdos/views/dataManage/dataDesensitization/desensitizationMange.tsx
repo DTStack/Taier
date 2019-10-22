@@ -233,7 +233,7 @@ class DesensitizationMange extends React.Component<any, any> {
             </Option>
         })
         return (
-            <div className='box-1 m-card'>
+            <div className='m-card d-desen__list'>
                 <Card
                     noHovering
                     bordered={false}
@@ -290,14 +290,16 @@ class DesensitizationMange extends React.Component<any, any> {
                             onChange={this.handleTableChange.bind(this)}
                         />
                     </Spin>
-                    <SlidePane
-                        className="m-tabs bd-top bd-right m-slide-pane"
-                        onClose={this.closeSlidePane}
-                        visible={visibleSlidePane}
-                        style={{ right: '0px', width: '90%', height: '100%', minHeight: '600px' }}
-                    >
-                        <Tabs animated={false} onChange={this.onTabChange} activeKey={nowView}>
-                            <TabPane tab="表关系" key="tableRelation">
+                </Card>
+                <SlidePane
+                    className="m-tabs bd-top bd-right m-slide-pane"
+                    onClose={this.closeSlidePane}
+                    visible={visibleSlidePane}
+                    style={{ right: '0px', width: '90%', height: '100%', minHeight: '600px' }}
+                >
+                    <div className='pane-height100-tab'>
+                        <Tabs animated={false} onChange={this.onTabChange} activeKey={nowView} className='pane-tabs'>
+                            <TabPane tab="表关系" key="tableRelation" className='tab_pane'>
                                 <TableRelation
                                     tabKey={nowView}
                                     visibleSlidePane={visibleSlidePane}
@@ -306,7 +308,7 @@ class DesensitizationMange extends React.Component<any, any> {
                                     tableData={selectedId}
                                 />
                             </TabPane>
-                            <TabPane tab="血缘关系" key="bloodRelation">
+                            <TabPane tab="血缘关系" key="bloodRelation" className='tab_pane'>
                                 <BloodRelation
                                     tabKey={nowView}
                                     // onTabChange={this.onTabChange}
@@ -315,8 +317,8 @@ class DesensitizationMange extends React.Component<any, any> {
                                 />
                             </TabPane>
                         </Tabs>
-                    </SlidePane>
-                </Card>
+                    </div>
+                </SlidePane>
                 <AddDesensitization
                     key={editModalKey}
                     visible={addVisible}

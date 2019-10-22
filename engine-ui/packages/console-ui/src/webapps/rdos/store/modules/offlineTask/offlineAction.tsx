@@ -4,6 +4,8 @@ import { hashHistory } from 'react-router'
 import { uniqBy, cloneDeep, isArray, get, assign } from 'lodash'
 
 import utils from 'utils';
+import { offlineWorkbenchDB as idb } from '../../../../../database';
+
 import ajax from '../../../api'
 import { MENU_TYPE, DATA_SYNC_MODE, ENGINE_SOURCE_TYPE } from '../../../comm/const'
 
@@ -304,6 +306,25 @@ export const workbenchActions = (dispatch?: any) => {
         })
     }
 
+    /**
+     * 从IndexDB读取 workbench 缓存数据，
+     * 并初始化
+     */
+    const initWorkbenchCacheData = async (projectId: string | number) => {
+        if (projectId && projectId > 0) {
+            let pid = projectId && projectId !== 0 ? projectId : '';
+
+            const db = await idb.open();
+            if (db) {
+                const result = await idb.get(`${pid ? pid + '_' : ''}offline_workbench`);
+                dispatch({
+                    type: workbenchAction.INIT_WORKBENCH,
+                    payload: result
+                });
+            }
+        }
+    }
+
     return {
         dispatch,
 
@@ -321,6 +342,7 @@ export const workbenchActions = (dispatch?: any) => {
         toggleConfirmModal,
         togglePublishModal,
         isSaveFInish,
+        initWorkbenchCacheData,
         /**
          * 更新目录
          */

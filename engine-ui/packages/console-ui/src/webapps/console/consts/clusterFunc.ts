@@ -1,6 +1,6 @@
 // cluster function
 import { TASK_STATE, COMPONENT_TYPE_VALUE, COMPONEMT_CONFIG_KEY_ENUM, ENGINE_TYPE, validateFlinkParams, validateHiveParams,
-    validateCarbonDataParams, validateSparkParams, validateDtYarnShellParams, validateLearningParams, validateHiveServerParams, validateLibraParams } from './index';
+    validateCarbonDataParams, validateSparkParams, validateDtYarnShellParams, validateLearningParams, validateHiveServerParams, validateLibraParams, validateSftpDataParams, validateImpalaSqlParams } from './index';
 
 /**
  * 返回不同组件校验参数
@@ -12,10 +12,14 @@ export function validateCompParams (componentValue: any) {
             return validateFlinkParams
         }
         case COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER: { // hive <=> Spark Thrift Server
+            console.log(validateHiveParams)
             return validateHiveParams
         }
         case COMPONENT_TYPE_VALUE.CARBONDATA: {
             return validateCarbonDataParams
+        }
+        case COMPONENT_TYPE_VALUE.IMPALASQL: {
+            return validateImpalaSqlParams
         }
         case COMPONENT_TYPE_VALUE.SPARK: {
             return validateSparkParams
@@ -37,6 +41,9 @@ export function validateCompParams (componentValue: any) {
         }
         case COMPONENT_TYPE_VALUE.LIBRASQL: {
             return validateLibraParams
+        }
+        case COMPONENT_TYPE_VALUE.SFTP: {
+            return validateSftpDataParams
         }
         default: {
             return null
@@ -88,6 +95,12 @@ export function showTestResult (testResults: any, engineType: any) {
                 })
                 break;
             }
+            case COMPONENT_TYPE_VALUE.IMPALASQL: {
+                testStatus = Object.assign(testStatus, {
+                    impalaSqlTestResult: isHadoop ? comp : {}
+                })
+                break;
+            }
             case COMPONENT_TYPE_VALUE.SPARK: {
                 testStatus = Object.assign(testStatus, {
                     sparkTestResult: isHadoop ? comp : {}
@@ -130,6 +143,12 @@ export function showTestResult (testResults: any, engineType: any) {
                 })
                 break;
             }
+            case COMPONENT_TYPE_VALUE.SFTP: {
+                testStatus = Object.assign(testStatus, {
+                    sftpTestResult: isHadoop ? comp : {}
+                })
+                break;
+            }
             default: {
                 testStatus = Object.assign(testStatus, {})
             }
@@ -150,6 +169,7 @@ export function validateAllRequired (validateFieldsAndScroll: any, tabCompData: 
                 offsetBottom: 150
             }
         }, (err: any, values: any) => {
+            console.log(err, item)
             if (item.componentTypeCode == COMPONENT_TYPE_VALUE.FLINK) {
                 if (!err) {
                     obj = Object.assign(obj, {
@@ -178,6 +198,16 @@ export function validateAllRequired (validateFieldsAndScroll: any, tabCompData: 
                 } else {
                     obj = Object.assign(obj, {
                         carbonShowRequired: true
+                    })
+                }
+            } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.IMPALASQL) {
+                if (!err) {
+                    obj = Object.assign(obj, {
+                        impalaSqlRequired: false
+                    })
+                } else {
+                    obj = Object.assign(obj, {
+                        impalaSqlRequired: true
                     })
                 }
             } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.HIVESERVER) {
@@ -248,6 +278,16 @@ export function validateAllRequired (validateFieldsAndScroll: any, tabCompData: 
                 } else {
                     obj = Object.assign(obj, {
                         libraShowRequired: true
+                    })
+                }
+            } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.SFTP) {
+                if (!err) {
+                    obj = Object.assign(obj, {
+                        sftpShowRequired: false
+                    })
+                } else {
+                    obj = Object.assign(obj, {
+                        sftpShowRequired: true
                     })
                 }
             } else {
@@ -347,7 +387,9 @@ export function myLowerCase (obj: any) {
 
     let alphabet = 'QWERTYUIOPLKJHGFDSAZXCVBNM';
     for (let i in obj) {
-        if (obj.hasOwnProperty(i)) {
+        const isKerberos = (i === 'openKerberos') || (i === 'kerberosFile')
+        console.log(i)
+        if (obj.hasOwnProperty(i) && !isKerberos) {
             let keySplit: any[];
             keySplit = i.split('');
             for (let j = 0; j < keySplit.length; j++) {
@@ -363,6 +405,8 @@ export function myLowerCase (obj: any) {
             const keySplitStr: string = keySplit.join('');
             // keySplit = keySplit.join('');
             after[keySplitStr] = obj[i];
+        } else {
+            after[i] = obj[i];
         }
     }
     return after;

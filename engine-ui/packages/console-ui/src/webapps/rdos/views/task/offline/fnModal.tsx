@@ -54,8 +54,8 @@ class FnForm extends React.Component<any, any> {
                         rules: [{
                             required: true, message: '函数名称不可为空！'
                         }, {
-                            pattern: /^[A-Za-z0-9_-]+$/,
-                            message: '函数名称只能由字母、数字、下划线组成!'
+                            pattern: /^[-a-z0-9_]+$/,
+                            message: '函数名称只能由小写字母、数字、下划线、短横线组成!'
                         }, {
                             max: 20,
                             message: '函数名称不得超过20个字符！'
@@ -125,22 +125,22 @@ class FnForm extends React.Component<any, any> {
                         <Input.TextArea rows={4} placeholder="请输入函数的参数说明"/>
                     )}
                 </FormItem>
-                <FormItem
+                {/* <FormItem
                     {...formItemLayout}
                     label="调用测试"
                     hasFeedback
                 >
                     {getFieldDecorator('commandFormate', {
                         rules: [{
-                            required: true, message: '调用测试不能为空'
+                            required: false, message: '调用测试不能为空'
                         }, {
                             max: 200,
                             message: '描述请控制在200个字符以内！'
                         }]
                     })(
-                        <Input.TextArea rows={4} placeholder="请输入函数的调用测试，例如：datetime dateadd(datetime date, bigint delta, string datepart)"/>
+                        <Input.TextArea rows={4} placeholder="请输入调用函数的命令，例如：dateFormat('20190101', 'yyyyMMdd', 'yyyy-MM-dd')，将返回2019-01-01"/>
                     )}
-                </FormItem>
+                </FormItem> */}
                 <FormItem
                     {...formItemLayout}
                     label="选择存储位置"
@@ -255,7 +255,7 @@ class FnModal extends React.Component<any, any> {
                                 const msg = res.data && res.data.list && res.data.list[1];
                                 notification.success({
                                     message: '创建成功',
-                                    description: `测试样例返回结果: ${msg}`
+                                    description: `测试样例返回结果: ${msg || '无'}`
                                   });
                                 this.closeModal();
                                 form.resetFields();

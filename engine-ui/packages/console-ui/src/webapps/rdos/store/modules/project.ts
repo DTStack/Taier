@@ -7,6 +7,10 @@ import {
     workbenchAction
 } from '../../store/modules/offlineTask/actionType';
 
+import {
+    workbenchActions
+} from '../../store/modules/offlineTask/offlineAction';
+
 const projectAction = mc([
     'GET_PROJECT',
     'GET_PROJECTS',
@@ -26,7 +30,7 @@ export function getProject (id: any) {
     return (dispatch: any) => {
         const projectKey = 'project_id';
         const oldProjectID = utils.getCookie(projectKey);
-
+        const wkActions = workbenchActions(dispatch);
         // 如果为不同的项目
         if (id && id != oldProjectID) {
             utils.setCookie(projectKey, id)
@@ -42,6 +46,7 @@ export function getProject (id: any) {
                     type: projectAction.GET_PROJECT,
                     data: res.data || {}
                 })
+                wkActions.initWorkbenchCacheData(id);
                 return res.data
             }
         })

@@ -57,6 +57,7 @@ export default {
     CLONE_TASK: `${STREAM_BASE_URL}/streamTask/cloneTask`, // 克隆任务
     TASK_STATISTICS: `${STREAM_BASE_URL}/streamTask/getStatusCount`, // 实时任务个状态数量统计
     GET_TASK_LOG: `${STREAM_BASE_URL}/streamServerLog/getLogsByTaskId`, // 获取任务告警日志
+    GET_TASK_FAILOVER_LOG: `${STREAM_BASE_URL}/streamServerLog/getFailoverLogsByTaskId`, // 获取任务告警日志
     GET_RUNNING_TASK_LOG: `${STREAM_BASE_URL}/streamServerLog/getRuntimeLogsByTaskIdAndStart`,
     GLOBAL_SEARCH_TASK: `${STREAM_BASE_URL}/streamTask/globalSearch`, // 全局搜索任务
     GET_TASK_TYPES: `${STREAM_BASE_URL}/streamTask/getSupportJobTypes`, // 获取任务类型
@@ -77,6 +78,7 @@ export default {
 
     CREATE_FUNC: `${STREAM_BASE_URL}/streamFunction/addFunction`, // 添加函数
     GET_FUNC: `${STREAM_BASE_URL}/streamFunction/getFunction`, // 获取函数
+    GET_ALL_FUNC: `${STREAM_BASE_URL}/streamFunction/getAllFunctionName`, // 获取所有函数名
     DELETE_FUNC: `${STREAM_BASE_URL}/streamFunction/deleteFunction`, // 删除加函数
     MOVE_FUNC: `${STREAM_BASE_URL}/streamFunction/moveFunction`, // 移动函数
     GET_SYS_FUNC: `${STREAM_BASE_URL}/streamFunction/getSystemFunctions`, // 获取系统函数

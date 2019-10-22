@@ -7,6 +7,8 @@ import CollectionScript from '../collection/script'
 import ConvertToScript from '../convertToScript';
 import { TASK_TYPE, DATA_SYNC_TYPE } from '../../../../comm/const';
 
+import utils from 'utils';
+
 @(connect((state: any) => {
     const currentPage = state.realtimeTask.currentPage
     return {
@@ -15,6 +17,21 @@ import { TASK_TYPE, DATA_SYNC_TYPE } from '../../../../comm/const';
 }) as any)
 
 export default class RealtimeEditor extends React.Component<any, any> {
+    formatJson (text: any) {
+        if (!text) {
+            return text;
+        }
+        return new Promise(
+            (resolve: any, reject: any) => {
+                const formatText = utils.jsonFormat(text);
+                if (!formatText) {
+                    resolve(text)
+                } else {
+                    resolve(formatText)
+                }
+            }
+        )
+    }
     render () {
         const {
             currentPage
@@ -24,11 +41,11 @@ export default class RealtimeEditor extends React.Component<any, any> {
         switch (currentPage.taskType) {
             case TASK_TYPE.SQL: {
                 if (currentPage.createModel == DATA_SYNC_TYPE.GUIDE || currentPage.createModel == null) {
-                    showContent = <CodeEditor {...this.props} key={currentPage.id} toolBarOptions={{
+                    showContent = <CodeEditor {...this.props} key={currentPage.id + 'guide'} toolBarOptions={{
                         leftCustomButton: <ConvertToScript isLocked={isLocked} />
                     }} />
                 } else if (currentPage.createModel == DATA_SYNC_TYPE.SCRIPT) {
-                    showContent = <CodeEditor {...this.props} />
+                    showContent = <CodeEditor {...this.props} key={currentPage.id + 'script'} />
                 }
                 break;
             }

@@ -130,7 +130,7 @@ class GoOnTask extends React.Component<any, any> {
             const nameFix = {
                 name: item
             }
-            return <Option key={item.id} value={item.externalPath} {...nameFix}>
+            return <Option title={time} key={item.id} value={item.externalPath} {...nameFix}>
                 {time}
             </Option>
         })
@@ -167,7 +167,7 @@ class GoOnTask extends React.Component<any, any> {
                         <Select
                             showSearch
                             size="default"
-                            style={{ width: '126px' }}
+                            style={{ width: '160px' }}
                             placeholder="时间点"
                             optionFilterProp="name"
                             onChange={this.taskReadTimeChange}

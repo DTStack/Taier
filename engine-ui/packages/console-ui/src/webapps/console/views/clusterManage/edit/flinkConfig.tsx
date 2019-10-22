@@ -15,12 +15,105 @@ export default class FlinkConfig extends React.Component<any, any> {
             isView,
             securityStatus,
             getFieldDecorator,
+            getFieldValue,
             checked,
-            changeCheckbox
+            changeCheckbox,
+            kerberosView,
+            setFieldsValue,
+            resetFields
         } = this.props;
+        console.log(securityStatus)
         return (
             <React.Fragment>
                 <div className="engine-config-content" style={{ width: '680px' }}>
+                    <FormItem
+                        label="版本选择"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.typeName`, {
+                            rules: [{
+                                required: true,
+                                message: '请选择flink版本'
+                            }],
+                            initialValue: 'flink140'
+                        })(
+                            <Select
+                                disabled={isView}
+                                style={{ width: '100px' }}
+                                onChange={(value) => {
+                                    let v = getFieldValue(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkSessionSlotCount`)
+                                    resetFields([`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkSessionSlotCount`])
+                                    setFieldsValue({
+                                        [`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkSessionSlotCount`]: v
+                                    })
+                                }}
+                            >
+                                <Option value="flink140">1.4</Option>
+                                <Option value="flink150">1.5</Option>
+                                <Option value="flink180">1.8</Option>
+                            </Select>
+                        )}
+                    </FormItem>
+                    {
+                        getFieldValue(`${COMPONEMT_CONFIG_KEYS.FLINK}.typeName`) === 'flink180'
+                            ? (
+                                <FormItem
+                                    label="flinkSessionSlotCount"
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkSessionSlotCount`, {
+                                        rules: [{
+                                            required: true,
+                                            message: '请填写flinkSessionSlotCount'
+                                        }]
+                                    })(
+                                        <Input
+                                            disabled={isView}
+                                            onChange={(e) => {
+                                                setFieldsValue({
+                                                    [`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkSessionSlotCount`]: e.target.value
+                                                })
+                                            }}
+                                        />
+                                    )}
+                                </FormItem>
+                            )
+                            : (
+                                <FormItem
+                                    label="flinkSessionSlotCount"
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkSessionSlotCount`, {})(
+                                        <Input disabled={isView} />
+                                    )}
+                                </FormItem>
+                            )
+                    }
+                    <FormItem
+                        label="clusterMode"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.clusterMode`, {
+                            rules: [{
+                                required: true,
+                                message: '请选择clusterMode'
+                            }],
+                            initialValue: 'yarn'
+                        })(
+                            <Select disabled={isView} style={{ width: '100px' }}>
+                                <Option value="standalone">standalone</Option>
+                                <Option value="yarn">yarn</Option>
+                            </Select>
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label="flinkClusterId"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkClusterId`, {})(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
                     <FormItem
                         label="flinkZkAddress"
                         {...formItemLayout}
@@ -62,14 +155,142 @@ export default class FlinkConfig extends React.Component<any, any> {
                         )}
                     </FormItem>
                     <FormItem
-                        label="flinkClusterId"
+                        label="flinkJarPath"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkClusterId`, {})(
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkJarPath`, {
+                            rules: [{
+                                required: true,
+                                message: '请输入flinkJarPath'
+                            }]
+                        })(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
 
+                    <FormItem
+                        label="flinkJobHistory"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkJobHistory`, {
+                            rules: [{
+                                required: true,
+                                message: '请输入flinkJobHistory'
+                            }]
+                        })(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label="jarTmpDir"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.jarTmpDir`, {
+                            initialValue: '../tmp140'
+                        })(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label="flinkPluginRoot"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkPluginRoot`, {
+                            initialValue: '/opt/dtstack/flinkplugin'
+                        })(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label="remotePluginRootDir"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.remotePluginRootDir`, {
+                            initialValue: '/opt/dtstack/flinkplugin'
+                        })(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label="yarn.jobmanager.help.mb"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.yarnJobmanagerHelpMb`, {
+                            initialValue: 1024
+                        })(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label="yarn.taskmanager.help.mb"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.yarnTaskmanagerHelpMb`, {
+                            initialValue: 1024
+                        })(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label={<Tooltip title="yarn.taskmanager.numberOfTaskSlots">yarn.taskmanager.numberOfTaskSlots</Tooltip>}
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.yarnTaskmanagerNumberOfTaskSlots`, {
+                            initialValue: 2
+                        })(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label={<Tooltip title="yarn.taskmanager.numberOfTaskManager">yarn.taskmanager.numberOfTaskManager</Tooltip>}
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.yarnTaskmanagerNumberOfTaskManager`, {
+                            initialValue: 2
+                        })(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
+
+                    <FormItem
+                        label={<Tooltip title="state.checkpoints.dir">state.checkpoints.dir</Tooltip>}
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.stateCheckpointsDir`, {
+                            rules: [{
+                                required: true,
+                                message: '请输入state.checkpoints.dir'
+                            }]
+                        })(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label={<Tooltip title="state.checkpoints.num-retained">state.checkpoints.num-retained</Tooltip>}
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.stateCheckpointsNum-retained`, {
+                            rules: [{
+                                required: true,
+                                message: 'state.checkpoints.num-retained'
+                            }]
+                        })(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label={<Tooltip title="jobmanagerArchiveFsDir">jobmanagerArchiveFsDir</Tooltip>}
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.jobmanagerArchiveFsDir`, {
+                            rules: [{
+                                required: true,
+                                message: '请输入jobmanagerArchiveFsDir'
+                            }]
+                        })(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
                     <div className="checkboxStyle">
                         <Checkbox
                             checked={checked}
@@ -79,7 +300,6 @@ export default class FlinkConfig extends React.Component<any, any> {
                             配置Prometheus Metric地址
                         </Checkbox>
                     </div>
-
                     {checked ? (<div>
                         <FormItem
                             label="reporterClass"
@@ -127,7 +347,7 @@ export default class FlinkConfig extends React.Component<any, any> {
                                     message: '请输入gatewayJobName'
                                 }]
                             })(
-                                <Input disabled={isView}/>
+                                <Input disabled={isView} />
                             )}
                         </FormItem>
                         <FormItem
@@ -139,7 +359,7 @@ export default class FlinkConfig extends React.Component<any, any> {
                                     required: true,
                                     message: 'deleteOnShutdown'
                                 }],
-                                initialValue: 'FALSE'
+                                initialValue: 'TRUE'
                             })(
                                 <Select disabled={isView} style={{ width: '100px' }} >
                                     <Option value="FALSE">FALSE</Option>
@@ -166,140 +386,7 @@ export default class FlinkConfig extends React.Component<any, any> {
                         </FormItem>
                     </div>) : null
                     }
-                    <FormItem
-                        label="版本选择"
-                        {...formItemLayout}
-                    >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.typeName`, {
-                            rules: [{
-                                required: true,
-                                message: '请选择flink版本'
-                            }],
-                            initialValue: 'flink140'
-                        })(
-                            <Select disabled={isView} style={{ width: '100px' }}>
-                                <Option value="flink140">1.4</Option>
-                                <Option value="flink150">1.5</Option>
-                                <Option value="flink180">1.8</Option>
-                            </Select>
-                        )}
-                    </FormItem>
-                    <FormItem
-                        label="clusterMode"
-                        {...formItemLayout}
-                    >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.clusterMode`, {
-                            rules: [{
-                                required: true,
-                                message: '请选择clusterMode'
-                            }],
-                            initialValue: 'yarn'
-                        })(
-                            <Select disabled={isView} style={{ width: '100px' }}>
-                                <Option value="standalone">standalone</Option>
-                                <Option value="yarn">yarn</Option>
-                            </Select>
-                        )}
-                    </FormItem>
-                    <FormItem
-                        label="jarTmpDir"
-                        {...formItemLayout}
-                    >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.jarTmpDir`, {
-                            initialValue: '../tmp140'
-                        })(
-                            <Input disabled={isView} />
-                        )}
-                    </FormItem>
-                    <FormItem
-                        label="flinkPluginRoot"
-                        {...formItemLayout}
-                    >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkPluginRoot`, {
-                            initialValue: '/opt/dtstack/flinkplugin'
-                        })(
-                            <Input disabled={isView} />
-                        )}
-                    </FormItem>
-                    <FormItem
-                        label="remotePluginRootDir"
-                        {...formItemLayout}
-                    >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.remotePluginRootDir`, {
-                            initialValue: '/opt/dtstack/flinkplugin'
-                        })(
-                            <Input disabled={isView} />
-                        )}
-                    </FormItem>
-
-                    <FormItem
-                        label="flinkJarPath"
-                        {...formItemLayout}
-                    >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkJarPath`, {
-                            rules: [{
-                                required: true,
-                                message: '请输入flinkJarPath'
-                            }]
-                        })(
-                            <Input disabled={isView} />
-                        )}
-                    </FormItem>
-
-                    <FormItem
-                        label="flinkJobHistory"
-                        {...formItemLayout}
-                    >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkJobHistory`, {
-                            rules: [{
-                                required: true,
-                                message: '请输入flinkJobHistory'
-                            }]
-                        })(
-                            <Input disabled={isView} />
-                        )}
-                    </FormItem>
-                    <FormItem
-                        label="yarn.jobmanager.help.mb"
-                        {...formItemLayout}
-                    >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.yarnJobmanagerHelpMb`, {
-                            initialValue: 1024
-                        })(
-                            <Input disabled={isView} />
-                        )}
-                    </FormItem>
-                    <FormItem
-                        label="yarn.taskmanager.help.mb"
-                        {...formItemLayout}
-                    >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.yarnTaskmanagerHelpMb`, {
-                            initialValue: 1024
-                        })(
-                            <Input disabled={isView} />
-                        )}
-                    </FormItem>
-                    <FormItem
-                        label={<Tooltip title="yarn.taskmanager.numberOfTaskSlots">yarn.taskmanager.numberOfTaskSlots</Tooltip>}
-                        {...formItemLayout}
-                    >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.yarnTaskmanagerNumberOfTaskSlots`, {
-                            initialValue: 2
-                        })(
-                            <Input disabled={isView} />
-                        )}
-                    </FormItem>
-                    <FormItem
-                        label={<Tooltip title="yarn.taskmanager.numberOfTaskManager">yarn.taskmanager.numberOfTaskManager</Tooltip>}
-                        {...formItemLayout}
-                    >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.yarnTaskmanagerNumberOfTaskManager`, {
-                            initialValue: 2
-                        })(
-                            <Input disabled={isView} />
-                        )}
-                    </FormItem>
-                    {
+                    {/* {
                         securityStatus ? <div>
                             <FormItem
                                 label="flinkPrincipal"
@@ -380,8 +467,9 @@ export default class FlinkConfig extends React.Component<any, any> {
                                 )}
                             </FormItem>
                         </div> : null
-                    }
+                    } */}
                     {customView}
+                    {kerberosView}
                 </div>
                 {singleButton}
             </React.Fragment>

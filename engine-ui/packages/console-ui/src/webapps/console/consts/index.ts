@@ -60,7 +60,9 @@ export const COMPONENT_TYPE_VALUE: any = {
     SPARKTHRIFTSERVER: 6,
     CARBONDATA: 7,
     LIBRASQL: 8,
-    HIVESERVER: 9
+    HIVESERVER: 9,
+    SFTP: 10,
+    IMPALASQL: 11
 }
 export const DEFAULT_COMP_TEST: any = { // 测试结果默认数据
     flinkTestResult: {},
@@ -72,7 +74,9 @@ export const DEFAULT_COMP_TEST: any = { // 测试结果默认数据
     sparkThriftTestResult: {},
     carbonTestResult: {},
     hiveServerTestResult: {},
-    libraSqlTestResult: {}
+    libraSqlTestResult: {},
+    impalaSqlTestResult: {},
+    sftpTestResult: {}
 }
 export const DEFAULT_COMP_REQUIRED: any = { // 必填默认数据
     flinkShowRequired: false,
@@ -84,20 +88,24 @@ export const DEFAULT_COMP_REQUIRED: any = { // 必填默认数据
     hiveShowRequired: false,
     carbonShowRequired: false,
     hiveServerShowRequired: false,
-    libraShowRequired: false
+    libraShowRequired: false,
+    impalaSqlRequired: false,
+    sftpShowRequired: false
 }
-export const HADOOP_GROUP_VALUE: any = [ // hadoop 引擎支持的组件类型(复选框)
+export const HADOOP_GROUP_VALUE = [ // hadoop 引擎支持的组件类型(复选框)
     { label: 'Flink', value: COMPONENT_TYPE_VALUE.FLINK },
     { label: 'Spark', value: COMPONENT_TYPE_VALUE.SPARK },
     { label: 'Learning', value: COMPONENT_TYPE_VALUE.LEARNING },
     { label: 'DTYarnShell', value: COMPONENT_TYPE_VALUE.DTYARNSHELL },
     { label: 'HDFS', value: COMPONENT_TYPE_VALUE.HDFS, disabled: true },
     { label: 'YARN', value: COMPONENT_TYPE_VALUE.YARN, disabled: true },
-    { label: 'SparkThrift', value: COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER, disabled: true },
-    { label: 'CarbonData', value: COMPONENT_TYPE_VALUE.CARBONDATA },
-    { label: 'Hive Server', value: COMPONENT_TYPE_VALUE.HIVESERVER }
+    { label: 'SparkThrift', value: COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER },
+    { label: 'CarbonData ThriftServer', value: COMPONENT_TYPE_VALUE.CARBONDATA },
+    { label: 'Hive Server', value: COMPONENT_TYPE_VALUE.HIVESERVER },
+    { label: 'SFTP', value: COMPONENT_TYPE_VALUE.SFTP },
+    { label: 'Impala SQL', value: COMPONENT_TYPE_VALUE.IMPALASQL }
 ];
-export const COMPONEMT_CONFIG_KEYS: any = {
+export const COMPONEMT_CONFIG_KEYS = {
     FLINK: 'flinkConf',
     SPARK: 'sparkConf',
     LEARNING: 'learningConf',
@@ -107,7 +115,9 @@ export const COMPONEMT_CONFIG_KEYS: any = {
     SPARKTHRIFTSERVER: 'hiveConf',
     CARBONDATA: 'carbonConf',
     LIBRASQL: 'libraConf',
-    HIVESERVER: 'hiveServerConf'
+    HIVESERVER: 'hiveServerConf',
+    SFTP: 'sftpConf',
+    IMPALASQL: 'impalaSqlConf'
 }
 // 组件对应的key值
 export const COMPONEMT_CONFIG_KEY_ENUM: any = {
@@ -120,7 +130,9 @@ export const COMPONEMT_CONFIG_KEY_ENUM: any = {
     [COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER]: COMPONEMT_CONFIG_KEYS.SPARKTHRIFTSERVER,
     [COMPONENT_TYPE_VALUE.CARBONDATA]: COMPONEMT_CONFIG_KEYS.CARBONDATA,
     [COMPONENT_TYPE_VALUE.HIVESERVER]: COMPONEMT_CONFIG_KEYS.HIVESERVER,
-    [COMPONENT_TYPE_VALUE.LIBRASQL]: COMPONEMT_CONFIG_KEYS.LIBRASQL
+    [COMPONENT_TYPE_VALUE.LIBRASQL]: COMPONEMT_CONFIG_KEYS.LIBRASQL,
+    [COMPONENT_TYPE_VALUE.SFTP]: COMPONEMT_CONFIG_KEYS.SFTP,
+    [COMPONENT_TYPE_VALUE.IMPALASQL]: COMPONEMT_CONFIG_KEYS.IMPALASQL
 };
 
 export const API_MODE: any = {
@@ -215,50 +227,68 @@ export const validateFlinkParams: any = [ // flink
     'flinkConf.clusterMode',
     'flinkConf.flinkJarPath',
     'flinkConf.flinkJobHistory',
-    'flinkConf.flinkPrincipal',
-    'flinkConf.flinkKeytabPath',
-    'flinkConf.flinkKrb5ConfPath',
-    'flinkConf.zkPrincipal',
-    'flinkConf.zkKeytabPath',
-    'flinkConf.zkLoginName'
+    // 'flinkConf.flinkPrincipal',
+    // 'flinkConf.flinkKeytabPath',
+    // 'flinkConf.flinkKrb5ConfPath',
+    // 'flinkConf.zkPrincipal',
+    // 'flinkConf.zkKeytabPath',
+    // 'flinkConf.zkLoginName',
+    'flinkConf.kerberosFile',
+    'flinkConf.flinkSessionSlotCount'
 ]
 export const validateHiveParams: any = [ // hive <=> Spark Thrift Server
     'hiveConf.jdbcUrl',
-    'hiveConf.driverClassName'
+    'hiveConf.driverClassName',
+    'hiveConf.kerberosFile'
 ]
 export const validateCarbonDataParams: any = [ // carbonData
-    'carbonConf.jdbcUrl'
+    'carbonConf.jdbcUrl',
+    'carbonConf.kerberosFile'
+]
+export const validateImpalaSqlParams: any = [ // impalaSql
+    'impalaSqlConf.jdbcUrl'
 ]
 export const validateHiveServerParams: any = [ // carbonData
-    'hiveServerConf.jdbcUrl'
+    'hiveServerConf.jdbcUrl',
+    'hiveServerConf.kerberosFile'
 ]
 export const validateSparkParams: any = [ // spark
     'sparkConf.typeName',
     'sparkConf.sparkYarnArchive',
     'sparkConf.sparkSqlProxyPath',
     'sparkConf.sparkPythonExtLibPath',
-    'sparkConf.sparkPrincipal',
-    'sparkConf.sparkKeytabPath',
-    'sparkConf.sparkKrb5ConfPath',
-    'sparkConf.zkPrincipal',
-    'sparkConf.zkKeytabPath',
-    'sparkConf.zkLoginName'
+    // 'sparkConf.sparkPrincipal',
+    // 'sparkConf.sparkKeytabPath',
+    // 'sparkConf.sparkKrb5ConfPath',
+    // 'sparkConf.zkPrincipal',
+    // 'sparkConf.zkKeytabPath',
+    // 'sparkConf.zkLoginName',
+    'sparkConf.kerberosFile'
 ]
 export const validateDtYarnShellParams: any = [
     'dtyarnshellConf.jlogstashRoot',
     'dtyarnshellConf.javaHome',
     'dtyarnshellConf.hadoopHomeDir',
-    'dtyarnshellConf.hdfsPrincipal',
-    'dtyarnshellConf.hdfsKeytabPath',
-    'dtyarnshellConf.hdfsKrb5ConfPath'
+    // 'dtyarnshellConf.hdfsPrincipal',
+    // 'dtyarnshellConf.hdfsKeytabPath',
+    // 'dtyarnshellConf.hdfsKrb5ConfPath',
+    'dtyarnshellConf.kerberosFile'
 ]
 
 export const validateLearningParams: any = [
-    'learningConf.learningPython3Path'
+    'learningConf.learningPython3Path',
+    'learningConf.kerberosFile'
 ]
 export const validateLibraParams: any = [
     'libraConf.jdbcUrl',
     'libraConf.driverClassName'
+]
+export const validateSftpDataParams: any = [ // carbonData
+    'sftpConf.host',
+    'sftpConf.port',
+    'sftpConf.path',
+    'sftpConf.username',
+    'sftpConf.password'
 ]
 // 服务器传参与界面渲染 key_map
 export const SPARK_KEY_MAP: any = {
@@ -293,7 +323,9 @@ export const FLINK_KEY_MAP_DOTS: any = {
     'yarnJobmanagerHelpMb': 'yarn.jobmanager.help.mb',
     'yarnTaskmanagerHelpMb': 'yarn.taskmanager.help.mb',
     'yarnTaskmanagerNumberOfTaskSlots': 'yarn.taskmanager.numberOfTaskSlots',
-    'yarnTaskmanagerNumberOfTaskManager': 'yarn.taskmanager.numberOfTaskManager'
+    'yarnTaskmanagerNumberOfTaskManager': 'yarn.taskmanager.numberOfTaskManager',
+    'stateCheckpointsDir': 'state.checkpoints.dir',
+    'stateCheckpointsNum-retained': 'state.checkpoints.num-retained'
 }
 // 非用户自定义参数
 export const notExtKeysFlink: any = [
@@ -305,35 +337,49 @@ export const notExtKeysFlink: any = [
     'randomJobNameSuffix', 'jarTmpDir',
     'flinkPluginRoot', 'remotePluginRootDir',
     'clusterMode', 'flinkJarPath',
-    'flinkJobHistory', 'flinkPrincipal', 'flinkKeytabPath', 'flinkKrb5ConfPath',
-    'zkPrincipal', 'zkKeytabPath', 'zkLoginName', 'yarn.jobmanager.help.mb',
-    'yarn.taskmanager.help.mb', 'yarn.taskmanager.numberOfTaskSlots', 'yarn.taskmanager.numberOfTaskManager'
+    'flinkJobHistory',
+    // 'flinkPrincipal', 'flinkKeytabPath', 'flinkKrb5ConfPath',
+    // 'zkPrincipal', 'zkKeytabPath', 'zkLoginName',
+    'yarn.jobmanager.help.mb',
+    'yarn.taskmanager.help.mb', 'yarn.taskmanager.numberOfTaskSlots', 'yarn.taskmanager.numberOfTaskManager',
+    'openKerberos', 'kerberosFile',
+    'flinkSessionSlotCount',
+    'state.checkpoints.dir',
+    'jobmanagerArchiveFsDir',
+    'state.checkpoints.num-retained'
 ];
 export const notExtKeysSpark: any = [
     'typeName', 'sparkYarnArchive',
     'sparkSqlProxyPath', 'sparkPythonExtLibPath', 'spark.yarn.appMasterEnv.PYSPARK_PYTHON',
-    'spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON', 'sparkPrincipal', 'sparkKeytabPath',
-    'sparkKrb5ConfPath', 'zkPrincipal', 'zkKeytabPath', 'zkLoginName'
+    'spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON',
+    // 'sparkPrincipal', 'sparkKeytabPath',
+    // 'sparkKrb5ConfPath', 'zkPrincipal', 'zkKeytabPath', 'zkLoginName',
+    'openKerberos', 'kerberosFile'
 ];
 export const notExtKeysLearning: any = [
     'typeName', 'learning.python3.path',
     'learning.python2.path',
     'learning.history.address', 'learning.history.webapp.address',
-    'learning.history.webapp.https.address'
+    'learning.history.webapp.https.address',
+    'openKerberos', 'kerberosFile'
 ];
 export const notExtKeysDtyarnShell: any = [
     'typeName', 'jlogstash.root',
     'java.home', 'hadoop.home.dir', 'python2.path',
-    'python3.path', 'hdfsPrincipal', 'hdfsKeytabPath', 'hdfsKrb5ConfPath'
+    'python3.path',
+    // 'hdfsPrincipal', 'hdfsKeytabPath', 'hdfsKrb5ConfPath',
+    'openKerberos', 'kerberosFile'
 ]
 export const notExtKeysSparkThrift: any = [
     'jdbcUrl', 'username', 'password',
     'driverClassName', 'useConnectionPool', 'maxPoolSize',
     'minPoolSize', 'initialPoolSize', 'jdbcIdel', 'maxRows',
-    'queryTimeout', 'checkTimeout'
+    'queryTimeout', 'checkTimeout',
+    'openKerberos', 'kerberosFile'
 ]
 export const notExtKeysHiveServer: any = [
-    'jdbcUrl', 'username', 'password'
+    'driverClassName', 'jdbcUrl', 'username', 'password',
+    'openKerberos', 'kerberosFile'
 ]
 export const notExtKeysLibraSql: any = [
     'jdbcUrl', 'username', 'password',

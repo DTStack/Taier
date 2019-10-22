@@ -39,7 +39,7 @@ class AdminRole extends React.Component<any, any> {
 
     handleData = () => {
         const { apps, licenseApps = [] } = this.props
-        if (apps && apps.length > 0) {
+        if (apps && apps.length > 0 && licenseApps.length > 0) {
             const initialApp = utils.getParameterByName('app');
             const defaultApp = licenseApps.find((licapp: any) => licapp.isShow) || [];
             const appKey = initialApp || defaultApp.id;

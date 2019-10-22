@@ -28,8 +28,8 @@ module.exports = function () {
         },
         output: {
             path: MY_PATH.BUILD_PATH,
-            chunkFilename: "[name].[chunkhash].js",
-            filename: "[name].[chunkhash].js",
+            chunkFilename: "[name].[chunkhash:8].js",
+            filename: "[name].[chunkhash:8].js",
             sourceMapFilename: "[name].map",
             publicPath: "/",
             globalObject: 'self',
@@ -98,6 +98,7 @@ module.exports = function () {
             extensions: [".ts", ".tsx", ".js", ".jsx", ".scss", ".css"], //后缀名自动补全
             alias: {
                 // 全局公共模块目录
+                database: path.resolve(MY_PATH.APP_PATH, "database"), // 数据存储
                 utils: path.resolve(MY_PATH.APP_PATH, "utils"), // 工具文件夹
                 widgets: path.resolve(MY_PATH.APP_PATH, "widgets"), // 工具文件夹
                 consts: path.resolve(MY_PATH.APP_PATH, "consts"), // 工具文件夹
@@ -134,7 +135,7 @@ module.exports = function () {
             }),
             new MiniCssExtractPlugin({
                 // 提取为外部css代码
-                filename: '[name].css?v=[contenthash]'
+                filename: '[name].css?v=[contenthash:8]'
             }),
             new CopyWebpackPlugin([
                 {

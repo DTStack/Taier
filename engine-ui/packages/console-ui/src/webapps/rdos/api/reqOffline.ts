@@ -89,6 +89,7 @@ export default {
     ADD_OFFLINE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchCatalogue/addCatalogue`,
     EDIT_OFFLINE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchCatalogue/updateCatalogue`,
     ADD_OFFLINE_RESOURCE: `${RDOS_BASE_URL}/upload/batch/batchResource/addResource`,
+    REPLACE_OFFLINE_RESOURCE: `${RDOS_BASE_URL}/upload/batch/batchResource/replaceResource`,
     ADD_OFFLINE_TASK: `${RDOS_BASE_URL}/batch/batchTask/addOrUpdateTask`,
     GET_OFFLINE_TASK: `${RDOS_BASE_URL}/batch/batchTask/getTaskById`,
     GET_OFFLINE_TASK_BY_NAME: `${RDOS_BASE_URL}/batch/batchTask/getDependencyTask`,
@@ -128,10 +129,12 @@ export default {
 
     // ===== 数据源管理 ===== //
     SAVE_DATA_SOURCE: `${RDOS_BASE_URL}/batch/batchDataSource/addOrUpdateSource`, // 添加或者更新数据源
+    SAVE_DATA_SOURCE_KERBEROS: `${RDOS_BASE_URL}/upload/batch/batchDataSource/addOrUpdateSourceWithKerberos`, // 添加或者更新数据源当开启kerberos时启用该接口
     DELETE_DATA_SOURCE: `${RDOS_BASE_URL}/batch/batchDataSource/deleteSource`, // 删除数据源
     QUERY_DATA_SOURCE: `${RDOS_BASE_URL}/batch/batchDataSource/pageQuery`, // 查询数据源接口
     GET_DATA_SOURCE_BY_ID: `${RDOS_BASE_URL}/batch/batchDataSource/getBySourceId`, // 根据ID查询数据源接口
     TEST_DATA_SOURCE_CONNECTION: `${RDOS_BASE_URL}/batch/batchDataSource/checkConnection`, // 测试数据源连通性
+    TEST_DATA_SOURCE_CONNECTION_KERBEROS: `${RDOS_BASE_URL}/upload/batch/batchDataSource/checkConnectionWithKerberos`, // 测试数据源连通性当开启kerberos时启用该接口
     GET_DATA_SOURCE_TYPES: `${RDOS_BASE_URL}/batch/batchDataSource/getTypes`, // 获取数据源类型列表
     GET_HBASE_COLUMN_FAMILY: `${RDOS_BASE_URL}/batch/batchDataSource/columnfamily`, // 获取Hbase数据表列族
     GET_TASK_LIST_OF_OFFLINE_SOURCE: `${RDOS_BASE_URL}/batch/batchDataSource/getSourceTaskRef`, // 获取离线数据源的任务

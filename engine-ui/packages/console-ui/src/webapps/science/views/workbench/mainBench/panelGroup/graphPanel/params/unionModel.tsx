@@ -3,7 +3,7 @@ import { Tabs, Form, Button, message } from 'antd';
 import { MemorySetting as BaseMemorySetting, ChooseModal as BaseChooseModal } from './typeChange';
 import { formItemLayout } from './index';
 import { isEmpty, cloneDeep, debounce } from 'lodash';
-import { TASK_ENUM, COMPONENT_TYPE } from '../../../../../../consts';
+import { TASK_ENUM, COMPONENT_TYPE, INPUT_TYPE } from '../../../../../../consts';
 import api from '../../../../../../api/experiment';
 const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
@@ -78,7 +78,7 @@ class FieldSetting extends React.PureComponent<any, any> {
         }
         const { currentTab, componentId } = this.props;
         const targetEdge = currentTab.graphData.find((o: any) => {
-            return o.edge && o.target.data.id == componentId
+            return o.edge && o.target.data.id == componentId && o.outputType == INPUT_TYPE.UNION_INPUT_DATA;
         })
         if (targetEdge) {
             this.setState({

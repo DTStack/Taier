@@ -30,7 +30,7 @@ class RegisterParams extends React.Component<any, any> {
     }
     onReqHeaderChange = (checkedValue: any) => {
         this.props.updateData({
-            containHeader: checkedValue ? '1' : '0' // containHeader 0或空表示不包含、1 表示包含
+            containHeader: checkedValue.target.checked ? '1' : '0' // containHeader 0或空表示不包含、1 表示包含
         });
     }
     newColumn (type: any) {
@@ -199,7 +199,6 @@ class RegisterParams extends React.Component<any, any> {
                     <div>
                         <Checkbox
                             checked={data.containHeader === '1'}
-                            value={data.containHeader}
                             onChange={this.onReqHeaderChange}
                         >
                             返回结果中携带 Request Header 参数

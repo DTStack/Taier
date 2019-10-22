@@ -244,13 +244,13 @@ class TargetForm extends React.Component<any, any> {
             })();
             // 去空格
             if (values.partition) {
-                values.partition = utils.trim(values.partition);
+                values.partition = utils.removeAllSpaces(values.partition);
             }
             if (values.path) {
-                values.path = utils.trim(values.path);
+                values.path = utils.removeAllSpaces(values.path);
             }
             if (values.fileName) {
-                values.fileName = utils.trim(values.fileName);
+                values.fileName = utils.removeAllSpaces(values.fileName);
             }
             const srcmap = assign(values, {
                 src: this.getDataObjById(values.sourceId)
@@ -290,7 +290,6 @@ class TargetForm extends React.Component<any, any> {
 
     next (cb: any) {
         const { form } = this.props;
-
         form.validateFields((err: any, values: any) => {
             if (!err) {
                 this.validateChineseCharacter(values);
@@ -400,7 +399,7 @@ class TargetForm extends React.Component<any, any> {
                             optionFilterProp="name"
                         >
                             {dataSourceListFltKylin.map((src: any) => {
-                                let title = `${src.dataName}（${DATA_SOURCE_TEXT[src.type]}）`;
+                                let title = `${src.dataName}（${(DATA_SOURCE_TEXT as any)[src.type]}）`;
 
                                 /**
                                  * 禁用ES, REDIS, MONGODB,
@@ -661,6 +660,66 @@ class TargetForm extends React.Component<any, any> {
                                 </Radio>
                                 <Radio value="insert" style={{ float: 'left' }}>
                                     追加（Insert Into）
+                                </Radio>
+                            </RadioGroup>
+                        )}
+                    </FormItem>
+                ];
+                break;
+            }
+            case DATA_SOURCE.KUDU: {
+                formItem = [
+                    !selectHack && <FormItem
+                        {...formItemLayout}
+                        label="表名"
+                        key="table"
+                    >
+                        {getFieldDecorator('table', {
+                            rules: [{
+                                required: true,
+                                message: '请选择表'
+                            }],
+                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.table
+                        })(
+                            <Select
+                                getPopupContainer={getPopupContainer}
+                                showSearch
+                                mode="combobox"
+                                optionFilterProp="value"
+                                filterOption={filterValueOption}
+                                onChange={this.debounceTableSearch.bind(this)}
+                            >
+                                {this.state.tableList.map((table: any) => {
+                                    return <Option
+                                        key={`rdb-target-${table}`}
+                                        value={table}>
+                                        {table}
+                                    </Option>
+                                })}
+                            </Select>
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="写入模式"
+                        key="writeMode-kudu"
+                        className="txt-left"
+                    >
+                        {getFieldDecorator('writeMode@kudu', {
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: targetMap.type && targetMap.type.writeMode ? targetMap.type.writeMode : 'replace'
+                        })(
+                            <RadioGroup onChange={this.submitForm.bind(this)}>
+                                <Radio value="insert" style={{ float: 'left' }}>
+                                    insert
+                                </Radio>
+                                <Radio value="update" style={{ float: 'left' }}>
+                                    update
+                                </Radio>
+                                <Radio value="upsert" style={{ float: 'left' }}>
+                                    upsert
                                 </Radio>
                             </RadioGroup>
                         )}

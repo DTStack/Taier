@@ -1,14 +1,17 @@
 import assign from 'object-assign';
 import { cloneDeep, isArray } from 'lodash';
-import localDb from 'utils/localDb';
+import { offlineWorkbenchDB as idb } from '../../../../../database';
 import { message } from 'antd';
+
+import { store } from '../../index';
 
 import {
     workbenchAction
 } from './actionType';
 
 const getCachedData = () => {
-    let initialState = localDb.get('offline_workbench');
+    let initialState: any; // localDb.get('offline_workbench');
+
     if (!initialState) {
         initialState = {
             tabs: [],
@@ -22,6 +25,14 @@ const getCachedData = () => {
 
 export const workbenchReducer = (state = getCachedData(), action: any) => {
     let nextState: any;
+
+    // 按原有逻辑读取项目信息，最好还是通过Action传递，由于对老代码业务逻辑有影响，
+    // 先按这种测试
+    let projectID = '';
+    if (store) {
+        const globalState = store.getState();
+        projectID = globalState.project && globalState.project.id && globalState.project.id !== 0 ? globalState.project.id : ''
+    }
 
     switch (action.type) {
         case workbenchAction.LOAD_TASK_DETAIL: {
@@ -374,11 +385,26 @@ export const workbenchReducer = (state = getCachedData(), action: any) => {
             break;
         }
 
-        default:
+        case workbenchAction.INIT_WORKBENCH: {
+            if (action.payload) {
+                return action.payload;
+            }
             nextState = state;
             break;
+        }
+        default: {
+            nextState = state;
+            break;
+        }
     }
 
-    localDb.set('offline_workbench', nextState);
+    // localDb.set(`${projectID}_offline_workbench`, nextState);
+    if (projectID && nextState && nextState.tabs.length > 0) {
+        idb.open().then((db) => {
+            if (db) {
+                idb.set(`${projectID}_offline_workbench`, nextState);
+            }
+        });
+    }
     return nextState;
 };

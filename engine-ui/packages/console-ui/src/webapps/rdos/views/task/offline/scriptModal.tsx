@@ -53,9 +53,10 @@ class ScriptForm extends React.Component<any, any> {
 
         this.isEditExist = !isCreateNormal && !isCreateFromMenu;
 
+        const defaultScriptType = scriptTypes && scriptTypes.length > 0 ? scriptTypes[0].value : undefined;
         const value = isCreateNormal
-            ? this.state.value
-            : (!isCreateFromMenu ? defaultData.type : this.state.value);
+            ? defaultScriptType
+            : (!isCreateFromMenu ? defaultData.type : defaultScriptType);
 
         const scriptRadios = scriptTypes.map((item: any) => <Radio key={item.value} value={item.value}>{item.name}</Radio>)
         return (

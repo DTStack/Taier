@@ -4,6 +4,7 @@
 *-------------------------------------------------------------------------------------------- */
 'use strict';
 import { registerLanguage } from 'monaco-editor/esm/vs/basic-languages/_.contribution';
+import { registeCompleteItemsProvider, disposeProvider, onChange } from './simpleComplete';
 
 declare var monaco: any;
 declare var self: any;
@@ -16,4 +17,4 @@ registerLanguage({
     aliases: ['Dtflink', 'dtflink'],
     loader: function () { return _monaco.Promise.wrap(import('./dtflink')); }
 });
-// export { registeCompleteItemsProvider, disposeProvider, onChange };
+export { registeCompleteItemsProvider, disposeProvider, onChange };

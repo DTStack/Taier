@@ -60,7 +60,7 @@ class ApiSlidePane extends React.Component<any, any> {
     }
 
     render () {
-        const { showRecord = {} } = this.props;
+        const { showRecord = {}, simple } = this.props;
         const { status } = showRecord;
         const isDisAble = status == API_SYSTEM_STATUS.STOP;
 
@@ -80,24 +80,26 @@ class ApiSlidePane extends React.Component<any, any> {
                     <Tabs.TabPane tab="API详情" key="callMethod">
                         <ApiCallMethod mode="manage" {...this.props} ></ApiCallMethod>
                     </Tabs.TabPane>
-                    <Tabs.TabPane tab="安全与限制" key="security">
-                        <Security apiId={showRecord.id} key={showRecord.id} />
-                    </Tabs.TabPane>
-                    <Tabs.TabPane tab="调用情况" key="callState">
-                        <h1 className="title-border-l-blue slide-title">调用统计</h1>
-                        <ApiCallState apiId={showRecord.id} dateType={this.state.date}></ApiCallState>
-                        <h1 className="title-border-l-blue slide-title">错误日志</h1>
-                        <div style={{ paddingLeft: '20px', paddingRight: '20px', paddingBottom: '20px' }}>
-                            <Row>
-                                <ErrorLog apiId={showRecord.id} dateType={this.state.date}></ErrorLog>
-                            </Row>
-                        </div>
-                    </Tabs.TabPane>
-                    <Tabs.TabPane tab="订购情况" key="buyState">
-                        <div style={{ padding: '10px 15px' }}>
-                            <BuyManageState statusDisAble={isDisAble} apiId={showRecord.id}></BuyManageState>
-                        </div>
-                    </Tabs.TabPane>
+                    {!simple && [
+                        <Tabs.TabPane tab="安全与限制" key="security">
+                            <Security apiId={showRecord.id} key={showRecord.id} />
+                        </Tabs.TabPane>,
+                        <Tabs.TabPane tab="调用情况" key="callState">
+                            <h1 className="title-border-l-blue slide-title">调用统计</h1>
+                            <ApiCallState apiId={showRecord.id} dateType={this.state.date}></ApiCallState>
+                            <h1 className="title-border-l-blue slide-title">错误日志</h1>
+                            <div style={{ paddingLeft: '20px', paddingRight: '20px', paddingBottom: '20px' }}>
+                                <Row>
+                                    <ErrorLog apiId={showRecord.id} dateType={this.state.date}></ErrorLog>
+                                </Row>
+                            </div>
+                        </Tabs.TabPane>,
+                        <Tabs.TabPane tab="订购情况" key="buyState">
+                            <div style={{ padding: '10px 15px' }}>
+                                <BuyManageState statusDisAble={isDisAble} apiId={showRecord.id}></BuyManageState>
+                            </div>
+                        </Tabs.TabPane>
+                    ]}
                 </Tabs>
             </SlidePane>
         )

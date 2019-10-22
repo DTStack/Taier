@@ -148,6 +148,9 @@ export default {
     getTaskLogs (params: any) {
         return http.post(req.GET_TASK_LOG, params)
     },
+    getFailoverLogsByTaskId (params: any) {
+        return http.post(req.GET_TASK_FAILOVER_LOG, params)
+    },
     getTaskRunningLogs (params: any) {
         return http.post(req.GET_RUNNING_TASK_LOG, params)
     },
@@ -224,6 +227,9 @@ export default {
 
     getFunc (params: any) {
         return http.post(req.GET_FUNC, params)
+    },
+    getAllFunction () {
+        return http.post(req.GET_ALL_FUNC)
     },
     createFunc (params: any) {
         return http.post(req.CREATE_FUNC, params)
@@ -321,8 +327,14 @@ export default {
     streamSaveDataSource (params: any) {
         return http.post(stremReq.STREAM_SAVE_DATA_SOURCE, params)
     },
+    streamSaveDataSourceWithKerberos (params: any) {
+        return http.postAsFormData(stremReq.STREAM_SAVE_DATA_SOURCE_KERBEROS, params)
+    },
     streamTestDataSourceConnection (params: any) {
         return http.post(stremReq.STREAM_TEST_DATA_SOURCE_CONNECTION, params)
+    },
+    streamTestDataSourceConnectionWithKerberos (params: any) {
+        return http.postAsFormData(stremReq.STREAM_TEST_DATA_SOURCE_CONNECTION_KERBEROS, params)
     },
     streamDeleteDataSource (params: any) {
         return http.post(stremReq.STREAM_DELETE_DATA_SOURCE, params)

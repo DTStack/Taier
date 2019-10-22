@@ -1,16 +1,31 @@
-import { debounce, endsWith, cloneDeep } from 'lodash';
+import { debounce, endsWith, cloneDeep, range } from 'lodash';
 import { notification, Modal } from 'antd';
 import { NotificationApi } from 'antd/lib/notification';
 import React from 'react';
 import { MY_APPS } from 'main/consts';
 import { rdosApp, streamApp, scienceApp } from 'config/base';
 import { mergeDeep } from 'utils/merge';
+import moment from 'moment';
 
 declare var window: any;
 
 /**
  * 存放一些零碎的公共方法
 */
+
+/**
+ * 延时隐藏 password 控件中的 value
+ * 延时处理主要是为了绕过Ant Form 组件的对控件的值设置问题
+ */
+export function hidePasswordInDom () {
+    setTimeout(() => {
+        // 特殊处理密码在 dom 中的展示
+        const pwd1 = document.querySelectorAll('input[type="password"]');
+        pwd1.forEach(ele => {
+            ele.setAttribute('value', '');
+        });
+    }, 100)
+}
 
 /**
  * 更新组件状态
@@ -30,6 +45,31 @@ export function debounceEventHander (func: any, wait?: number, options?: any) {
         e.persist()
         return debounced(e)
     }
+}
+/**
+ * 展开JSON对象
+ * 例如一个{a:{b: "c"}}, 转换为：{"a.b": "c"}
+ * @param obj
+ */
+export function expandJSONObj (obj: any) {
+    const res: any = {};
+    const expand = (target: any, parentField?: string | number) => {
+        for (let key in target) {
+            const field = parentField ? `${parentField}.${key}` : `${key}`;
+            if (!target[key]) {
+                res[`${field}`] = target[key];
+                continue;
+            }
+            const keys = Object.keys(target[key]);
+            if (keys.length > 0 && typeof (target[key]) === 'object') {
+                expand(target[key], field)
+            } else {
+                if (!res[field]) res[`${field}`] = target[key];
+            }
+        }
+    }
+    expand(obj);
+    return res;
 }
 
 /**
@@ -114,7 +154,19 @@ export function mergeTreeNodes (origin: any, target: any) {
         }
     }
 }
-
+/**
+ * 先序遍历树
+ */
+export function visitTree (tree: any[], callback: (node: any, level: number) => void, subKey: string = 'subTaskVOS', level: number = 0) {
+    if (!tree) {
+        return;
+    }
+    for (let i = 0; i < tree.length; i++) {
+        let node = tree[i];
+        callback(node, level);
+        visitTree(node[subKey], callback, subKey, level + 1);
+    }
+}
 /**
  * 打开新窗口
  * @param {*} url
@@ -187,7 +239,8 @@ export function filterComments (sql: string) {
                 parser.index = nextToken;
                 parser.queue = '';
             } else {
-                return '引号不匹配';
+                parser.index = sql.length - 1;
+                parser.queue = '';
             }
         } else {
             return null;
@@ -198,16 +251,18 @@ export function filterComments (sql: string) {
         let queue = parser.queue;
         if (queue.endsWith('--')) {
             let nextToken = sql.indexOf('\n', parser.index + 1);
+            let begin = parser.index - 1;
             if (nextToken != -1) {
+                let end = nextToken - 1;
                 parser.comments.push({
-                    begin: parser.index - 1,
-                    end: nextToken - 1
+                    begin: begin,
+                    end: end
                 })
-                parser.index = nextToken;
+                parser.index = end;
                 parser.queue = '';
             } else {
                 parser.comments.push({
-                    begin: parser.index - 1,
+                    begin: begin,
                     end: sql.length - 1
                 })
                 parser.index = sql.length - 1;
@@ -581,4 +636,50 @@ export function filterPythonComment (codeText: string): string {
         }
         return line;
     }).join('\n');
+}
+
+/**
+ * 创建timepicker disable区间
+ * @param beginDate moment.Moment
+ * @param endDate moment.Moment
+ * @param type string
+ * @param isEnd boolean
+ */
+export function disableRangeCreater (beginDate: moment.Moment, endDate: moment.Moment, type: 'hour' | 'minute' | 'second', isEnd?: boolean): number[] {
+    beginDate = beginDate.clone();
+    endDate = endDate.clone();
+    let compareDate = isEnd ? endDate : beginDate;
+    let otherDate = isEnd ? beginDate : endDate;
+    let max;
+    let rangeValue;
+    switch (type) {
+        case 'hour': {
+            max = 24;
+            compareDate.hours(otherDate.hours());
+            rangeValue = otherDate.hours();
+            break;
+        }
+        case 'minute': {
+            if (otherDate.hours() != compareDate.hours()) {
+                return [];
+            }
+            max = 60;
+            compareDate.minutes(otherDate.minutes());
+            rangeValue = otherDate.minutes();
+            break;
+        }
+        case 'second': {
+            if (otherDate.hours() != compareDate.hours() || otherDate.minutes() != compareDate.minutes()) {
+                return [];
+            }
+            max = 60;
+            compareDate.seconds(otherDate.seconds());
+            rangeValue = otherDate.seconds();
+            break;
+        }
+    }
+    if (isEnd) {
+        return range(compareDate < otherDate ? (rangeValue - 1) : rangeValue);
+    }
+    return range(compareDate > otherDate ? rangeValue : (rangeValue + 1), max)
 }

@@ -21,6 +21,9 @@ export default {
     getDataSourcesType (params: any) {
         return http.post(req.GET_DATA_SOURCES_TYPE, params);
     },
+    getDataSourcesCharType (params: any) {
+        return http.post(req.GET_DATA_SOURCES_CHAR_TYPE, params);
+    },
     getDataSourcesList (params: any) {
         return http.post(req.GET_DATA_SOURCES_LIST, params);
     },

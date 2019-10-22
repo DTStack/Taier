@@ -10,7 +10,7 @@ import {
 import utils from 'utils'
 
 import Api from '../../../api'
-import { taskStatusFilter, TASK_STATUS, TASK_TYPE } from '../../../comm/const'
+import { taskStatusFilter, TASK_STATUS } from '../../../comm/const'
 import { TaskStatus, TaskStatusOverview } from '../../../components/status'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
 
@@ -69,7 +69,7 @@ class RealTimeTaskList extends React.Component<any, any> {
     }
 
     // eslint-disable-next-line
-    UNSAFE_componentWillReceiveProps(nextProps: any) {
+    UNSAFE_componentWillReceiveProps (nextProps: any) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
@@ -203,20 +203,7 @@ class RealTimeTaskList extends React.Component<any, any> {
             case TASK_STATUS.KILLED:
             case TASK_STATUS.SUBMIT_FAILED: {
                 if (mode !== 'normal' && (status === TASK_STATUS.STOPED || status === TASK_STATUS.RUN_FAILED)) { // 续跑
-                    if (task.taskType == TASK_TYPE.DATA_COLLECTION) {
-                        Api.startTask({
-                            id: task.id,
-                            isRestoration: 0
-                        }).then((res: any) => {
-                            if (res.code === 1) {
-                                message.success('续跑操作成功！')
-                                ctx.loadTaskList({ pageIndex: current })
-                                ctx.loadCount();
-                            }
-                        })
-                    } else {
-                        this.setState({ goOnTask: task.id })
-                    }
+                    this.setState({ goOnTask: task.id })
                 } else {
                     Api.startTask({
                         id: task.id,
@@ -336,14 +323,6 @@ class RealTimeTaskList extends React.Component<any, any> {
             filteredValue: filter.status,
             filterMultiple: true
         }, {
-            title: '业务延时',
-            dataIndex: 'bizDelay',
-            key: 'bizDelay',
-            width: 150,
-            render (text: any) {
-                return utils.formatTime(text);
-            }
-        }, {
             title: '任务类型',
             dataIndex: 'taskType',
             key: 'taskType',
@@ -367,14 +346,14 @@ class RealTimeTaskList extends React.Component<any, any> {
             title: '最近操作时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
-            width: 150,
+            width: 200,
             render: (text: any) => utils.formatDateTime(text),
             sorter: true
         }, {
             title: '最近操作人',
             dataIndex: 'modifyUserName',
             key: 'modifyUserName',
-            width: 150
+            width: 200
         }, {
             title: '操作',
             width: 150,
@@ -422,17 +401,18 @@ class RealTimeTaskList extends React.Component<any, any> {
             default:
                 break;
         }
-
-        if (record.taskType == TASK_TYPE.DATA_COLLECTION) {
-            normal = normal == '重试' ? null : normal;
-            recover = null;
-        }
         if (isPane) {
             return (
                 <span className="buttonMargin">
                     <Button type="primary" onClick={() => { this.openTask(record) }}>修改</Button>
                     {goOn ? <Button type="primary" onClick={() => { this.updateTaskStatus(record) }}>{goOn}</Button> : null}
-                    {normal ? <Button type="primary" onClick={() => { this.updateTaskStatus(record, 'normal') }}>{normal}</Button> : null}
+                    {normal ? (normal == '停止' ? <Popconfirm
+                        title='确定停止任务？'
+                        onConfirm={() => { this.updateTaskStatus(record, 'normal') }}
+                    >
+                        <Button type="primary">{normal}</Button>
+                    </Popconfirm> : <Button type="primary" onClick={() => { this.updateTaskStatus(record, 'normal') }}>{normal}</Button>)
+                        : null}
                     {recover ? <Popconfirm
                         okText="确定"
                         cancelText="取消"
@@ -447,8 +427,21 @@ class RealTimeTaskList extends React.Component<any, any> {
             let arr: any = [];
 
             arr.push(<a key='change' onClick={() => { this.openTask(record) }}>修改</a>)
-            goOn && arr.push(<a key='goon' onClick={() => { this.updateTaskStatus(record) }}>{goOn}</a>)
-            normal && arr.push(<a key='normal' onClick={() => { this.updateTaskStatus(record, 'normal') }}>{normal}</a>)
+            goOn && arr.push(<a key='goon' onClick={() => { this.updateTaskStatus(record) }}>{goOn}</a>);
+            if (normal) {
+                if (normal == '停止') {
+                    arr.push(
+                        <Popconfirm
+                            title='确定停止任务？'
+                            onConfirm={() => { this.updateTaskStatus(record, 'normal') }}
+                        >
+                            <a key='normal'>{normal}</a>
+                        </Popconfirm>
+                    )
+                } else {
+                    arr.push(<a key='normal' onClick={() => { this.updateTaskStatus(record, 'normal') }}>{normal}</a>)
+                }
+            }
             recover && arr.push(<Popconfirm
                 okText="确定"
                 cancelText="取消"

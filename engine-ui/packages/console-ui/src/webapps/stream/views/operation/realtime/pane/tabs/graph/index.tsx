@@ -12,7 +12,7 @@ const RadioGroup = Radio.Group;
 const Panel = Collapse.Panel;
 
 const defaultTimeValue = '10m';
-const metricsType: any = {
+const metricsType = {
     FAILOVER_RATE: 'fail_over_rate',
     DELAY: 'data_delay',
     SOURCE_TPS: 'source_input_tps',
@@ -20,12 +20,13 @@ const metricsType: any = {
     SOURCE_RPS: 'source_input_rps',
     SOURCE_INPUT_BPS: 'source_input_bps',
     SOURCE_DIRTY: 'source_dirty_data',
-    DATA_COLLECTION_RPS: 'jlogstash_rps',
-    DATA_COLLECTION_BPS: 'jlogstash_bps',
+    SOURCE_DIRTY_OUT: 'source_dirty_out',
+    DATA_COLLECTION_RPS: 'data_acquisition_rps',
+    DATA_COLLECTION_BPS: 'data_acquisition_bps',
     DATA_DISABLE_TPS: 'data_discard_tps',
     DATA_DISABLE_COUNT: 'data_discard_count',
-    DATA_COLLECTION_TOTAL_RPS: 'jlogstash_record_sum',
-    DATA_COLLECTION_TOTAL_BPS: 'jlogstash_byte_sum'
+    DATA_COLLECTION_TOTAL_RPS: 'data_acquisition_record_sum',
+    DATA_COLLECTION_TOTAL_BPS: 'data_acquisition_byte_sum'
 }
 const defaultLineData: any = {
     x: [],
@@ -40,6 +41,7 @@ const defaultData: any = {
     [metricsType.SOURCE_RPS]: defaultLineData,
     [metricsType.SOURCE_INPUT_BPS]: defaultLineData,
     [metricsType.SOURCE_DIRTY]: defaultLineData,
+    [metricsType.SOURCE_DIRTY_OUT]: defaultLineData,
     [metricsType.DATA_COLLECTION_RPS]: defaultLineData,
     [metricsType.DATA_COLLECTION_BPS]: defaultLineData,
     [metricsType.DATA_DISABLE_TPS]: defaultLineData,
@@ -130,6 +132,7 @@ class StreamDetailGraph extends React.Component<any, any> {
                 case metricsType.SOURCE_TPS:
                 case metricsType.SOURCE_RPS:
                 case metricsType.SOURCE_DIRTY:
+                case metricsType.SOURCE_DIRTY_OUT:
                 case metricsType.DELAY: {
                     let tmpMap: any = {};
                     let legend: any = [];
@@ -140,9 +143,9 @@ class StreamDetailGraph extends React.Component<any, any> {
                                 continue;
                             }
                             if (tmpMap[key]) {
-                                tmpMap[key].push(chartData[key])
+                                tmpMap[key].push([i, chartData[key]])
                             } else {
-                                tmpMap[key] = [chartData[key]];
+                                tmpMap[key] = [[i, chartData[key]]];
                             }
                         }
                     }
@@ -159,13 +162,13 @@ class StreamDetailGraph extends React.Component<any, any> {
                     break;
                 }
                 case metricsType.DATA_COLLECTION_BPS: {
-                    y[0] = lineData.map((data: any) => { return data.jlogstash_input_bps });
-                    y[1] = lineData.map((data: any) => { return data.jlogstash_output_bps });
+                    y[0] = lineData.map((data: any) => { return data.data_acquisition_input_bps });
+                    y[1] = lineData.map((data: any) => { return data.data_acquisition_output_bps });
                     break;
                 }
                 case metricsType.DATA_COLLECTION_RPS: {
-                    y[0] = lineData.map((data: any) => { return data.jlogstash_input_rps });
-                    y[1] = lineData.map((data: any) => { return data.jlogstash_output_rps });
+                    y[0] = lineData.map((data: any) => { return data.data_acquisition_input_rps });
+                    y[1] = lineData.map((data: any) => { return data.data_acquisition_output_rps });
                     break;
                 }
                 case metricsType.DATA_DISABLE_TPS: {
@@ -177,13 +180,13 @@ class StreamDetailGraph extends React.Component<any, any> {
                     break;
                 }
                 case metricsType.DATA_COLLECTION_TOTAL_BPS: {
-                    y[0] = lineData.map((data: any) => { return data.jlogstash_input_byte_sum });
-                    y[1] = lineData.map((data: any) => { return data.jlogstash_output_byte_sum });
+                    y[0] = lineData.map((data: any) => { return data.data_acquisition_input_byte_sum });
+                    y[1] = lineData.map((data: any) => { return data.data_acquisition_output_byte_sum });
                     break;
                 }
                 case metricsType.DATA_COLLECTION_TOTAL_RPS: {
-                    y[0] = lineData.map((data: any) => { return data.jlogstash_input_record_sum });
-                    y[1] = lineData.map((data: any) => { return data.jlogstash_output_record_sum });
+                    y[0] = lineData.map((data: any) => { return data.data_acquisition_input_record_sum });
+                    y[1] = lineData.map((data: any) => { return data.data_acquisition_output_record_sum });
                     break;
                 }
             }
@@ -221,6 +224,7 @@ class StreamDetailGraph extends React.Component<any, any> {
             metricsList.push(metricsType.SOURCE_RPS)
             metricsList.push(metricsType.SOURCE_INPUT_BPS)
             metricsList.push(metricsType.SOURCE_DIRTY)
+            metricsList.push(metricsType.SOURCE_DIRTY_OUT)
             metricsList.push(metricsType.DATA_DISABLE_COUNT)
             metricsList.push(metricsType.DATA_DISABLE_TPS)
         }
@@ -437,6 +441,16 @@ class StreamDetailGraph extends React.Component<any, any> {
                                         }}
                                         desc="各Source的脏数据，反映实时计算 Flink的Source段是否有脏数据的情况。"
                                         title="各Source的脏数据" />
+                                </section>
+                                <section>
+                                    <AlarmBaseGraph
+                                        time={time}
+                                        lineData={{
+                                            ...lineDatas[metricsType.SOURCE_DIRTY_OUT],
+                                            color: CHARTS_COLOR
+                                        }}
+                                        desc="各Sink的脏数据，反映实时计算 Flink的Sink段脏数据产生情况"
+                                        title="各Sink的脏数据输出" />
                                 </section>
                             </div>
                         </Panel>

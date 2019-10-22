@@ -27,7 +27,7 @@ function getSourceInitialField (sourceType: any, data: any) {
             initialFields.fileType = 'orc';
             initialFields.fieldDelimiter = ',';
             initialFields.encoding = 'utf-8';
-            initialFields.writeMode = 'insert';
+            initialFields.writeMode = 'APPEND';
             return initialFields;
         }
         case DATA_SOURCE.HIVE: {
@@ -36,8 +36,8 @@ function getSourceInitialField (sourceType: any, data: any) {
             initialFields.analyticalRules = prefixRule;
             initialFields.partition = isMysqlSource ? 'pt' : undefined; // 后端（nanqi）要求自动建表默认加一个partition = pt。
             initialFields.writeTableType = isMysqlSource ? writeTableTypes.AUTO : writeTableTypes.HAND;
-            initialFields.writeStrategy = writeStrategys.TIME;
-            initialFields.interval = `${10 * 60 * 1000}`;
+            initialFields.writeStrategy = writeStrategys.FILESIZE;
+            initialFields.bufferSize = `${10 * 1024 * 1024}`;
             initialFields.writeMode = 'insert';
             return initialFields;
         }
@@ -70,7 +70,7 @@ class CollectionTarget extends React.Component<any, any> {
     }
 
     // eslint-disable-next-line
-    UNSAFE_componentWillReceiveProps(nextProps: any) {
+    UNSAFE_componentWillReceiveProps (nextProps: any) {
         const { collectionData } = nextProps;
         const { targetMap = {} } = collectionData;
         const { sourceId, type, table } = targetMap;
@@ -229,7 +229,7 @@ class CollectionTargetForm extends React.Component<any, any> {
         const { isEdit, targetMap = {}, sourceMap = {} } = collectionData;
         const { getFieldDecorator } = this.props.form;
         if (!targetMap || !sourceMap) return [];
-        const isOrc = targetMap.fileType == 'orc';
+        const isText = targetMap.fileType == 'text';
         const isMysqlSource = sourceMap.type == DATA_SOURCE.MYSQL;
         const { writeTableType, writeStrategy, table, writeMode } = targetMap;
         const isWriteStrategyBeTime = writeStrategy == writeStrategys.TIME;
@@ -304,13 +304,20 @@ class CollectionTargetForm extends React.Component<any, any> {
                                 required: true
                             }]
                         })(
-                            <Select>
-                                <Option value="orc">orc</Option>
-                                <Option value="text">text</Option>
-                            </Select>
+                            <RadioGroup>
+                                <Radio value="orc">
+                                    orc
+                                </Radio>
+                                <Radio value="text">
+                                    text
+                                </Radio>
+                                <Radio value="parquet">
+                                    parquet
+                                </Radio>
+                            </RadioGroup>
                         )}
                     </FormItem>,
-                    !isOrc && (<FormItem
+                    isText && (<FormItem
                         {...formItemLayout}
                         label="列分隔符"
                         key="fieldDelimiter"
@@ -324,7 +331,7 @@ class CollectionTargetForm extends React.Component<any, any> {
                         )}
                         <HelpDoc doc="splitCharacter" />
                     </FormItem>),
-                    !isOrc && (
+                    isText && (
                         <FormItem
                             {...formItemLayout}
                             label="编码"
@@ -384,7 +391,7 @@ class CollectionTargetForm extends React.Component<any, any> {
                                     </Radio>
                                 ) : null}
                                 <Radio key={writeTableTypes.HAND} value={writeTableTypes.HAND} style={{ float: 'left' }}>
-                                        手动选择分区表
+                                    手动选择分区表
                                 </Radio>
                             </RadioGroup>
                         )}
@@ -425,6 +432,9 @@ class CollectionTargetForm extends React.Component<any, any> {
                                         </Radio>
                                         <Radio value="text" style={{ float: 'left' }}>
                                             text
+                                        </Radio>
+                                        <Radio value="parquet" style={{ float: 'left' }}>
+                                            parquet
                                         </Radio>
                                     </RadioGroup>
                                 )}
@@ -501,7 +511,7 @@ class CollectionTargetForm extends React.Component<any, any> {
                             }]
                         })(
                             <Select>
-                                <Option value={writeStrategys.TIME}>按时间</Option>
+                                {/* <Option value={writeStrategys.TIME}>按时间</Option> */}
                                 <Option value={writeStrategys.FILESIZE}>按文件大小</Option>
                             </Select>
                         )}
@@ -521,6 +531,8 @@ class CollectionTargetForm extends React.Component<any, any> {
                                         value = parseFloat(value);
                                         if (value <= 0) {
                                             errorMsg = '数字必须大于0'
+                                        } else if (value != parseInt(value, 10)) {
+                                            errorMsg = '必须为整数'
                                         }
                                     } catch (e) {
                                         errorMsg = '请填写大于0的有效数字'
@@ -699,7 +711,7 @@ const WrapCollectionTargetForm = Form.create({
                 value: targetMap.writeStrategy
             },
             bufferSize: {
-                value: targetMap.bufferSize / (1024 * 1024)
+                value: Number.isNaN(parseInt(targetMap.bufferSize)) ? undefined : targetMap.bufferSize / (1024 * 1024)
             },
             interval: {
                 value: targetMap.interval / 60000

@@ -9,11 +9,20 @@ export default {
     testDSConnection (params: any) {
         return http.post(req.CHECK_CONNECTION, params);
     },
+    testDSConnectionKerberos (params: any) {
+        return http.postAsFormData(req.CHECK_CONNECTION_KERBEROS, params);
+    },
     addDataSource (params: any) {
         return http.post(req.ADD_DATA_SOURCES, params);
     },
+    addDataSourceKerberos (params: any) {
+        return http.postAsFormData(req.ADD_DATA_SOURCES_KERBEROS, params);
+    },
     updateDataSource (params: any) {
         return http.post(req.UPDATE_DATA_SOURCES, params);
+    },
+    updateDataSourceKerberos (params: any) {
+        return http.postAsFormData(req.UPDATE_DATA_SOURCES_KERBEROS, params);
     },
     deleteDataSource (params: any) {
         return http.post(req.DELETE_DATA_SOURCES, params);

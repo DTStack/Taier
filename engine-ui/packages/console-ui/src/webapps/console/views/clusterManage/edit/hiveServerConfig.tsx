@@ -7,10 +7,24 @@ const FormItem = Form.Item;
 
 export default class HiveServerConfig extends React.Component<any, any> {
     render () {
-        const { isView, getFieldDecorator, customView, singleButton } = this.props;
+        const { isView, getFieldDecorator, customView, singleButton, kerberosView } = this.props;
         return (
             <React.Fragment>
                 <div className="engine-config-content" style={{ width: '680px' }}>
+                    <FormItem
+                        label="driverClassName"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.HIVESERVER}.driverClassName`, {
+                            rules: [{
+                                required: true,
+                                message: '请输入driverClassName'
+                            }],
+                            initialValue: 'org.apache.hive.jdbc.HiveDriver'
+                        })(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
                     <FormItem
                         label="JDBC URL"
                         {...formItemLayout}
@@ -40,7 +54,8 @@ export default class HiveServerConfig extends React.Component<any, any> {
                             <Input disabled={isView} />
                         )}
                     </FormItem>
-                    { customView }
+                    {customView}
+                    {kerberosView}
                 </div>
                 {singleButton}
             </React.Fragment>

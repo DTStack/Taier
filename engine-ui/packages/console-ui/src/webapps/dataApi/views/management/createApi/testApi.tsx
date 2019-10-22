@@ -8,6 +8,8 @@ import ConstColumnModel, { constColumnsKeys } from '../../../model/constColumnMo
 
 import Editor from 'widgets/editor'
 import utils from 'utils';
+import { expandJSONObj } from 'funcs';
+import { cloneDeep } from 'lodash';
 
 const TextArea = Input.TextArea;
 const FormItem = Form.Item;
@@ -64,7 +66,7 @@ class TestApi extends React.Component<any, any> {
                         message: '请输入数字'
                     }],
                     initialValue: initialValue
-                })(<InputNumber min={1} style={{ width: '100%' }} />)}
+                })(<InputNumber min={1} max={record.paramsName == 'pageSize' ? 1000 : Infinity} style={{ width: '100%' }} />)}
             </FormItem>
         } else {
             initialValue = data && data[record.paramsName];
@@ -87,7 +89,14 @@ class TestApi extends React.Component<any, any> {
             {
                 title: '参数名称',
                 dataIndex: isRegister ? inputColumnsKeys.NAME : 'paramsName',
-                width: '150px'
+                width: '150px',
+                render: (value: any, record: any) => {
+                    if (!isRegister && record.isChildren) {
+                        return null
+                    } else {
+                        return value
+                    }
+                }
             },
             {
                 title: '字段类型',
@@ -100,7 +109,7 @@ class TestApi extends React.Component<any, any> {
                 render: (text: any, record: any) => {
                     return text ? '是' : '否'
                 },
-                width: '40px'
+                width: '60px'
             },
             {
                 title: '值',
@@ -139,9 +148,10 @@ class TestApi extends React.Component<any, any> {
         ]
     }
     testApi () {
-        const { validateFieldsAndScroll } = this.props.form;
+        const { validateFieldsAndScroll, getFieldsValue } = this.props.form;
         const { testBody } = this.state;
-        validateFieldsAndScroll({}, (err: any, values: any) => {
+        const values = expandJSONObj(getFieldsValue());
+        validateFieldsAndScroll({}, (err: any) => {
             if (!err) {
                 this.setState({
                     loading: true
@@ -225,7 +235,18 @@ class TestApi extends React.Component<any, any> {
         })
     }
     pass () {
-        this.props.dataChange();
+        this.setState({
+            saveLoading: true
+        })
+        this.props.dataChange().then(() => {
+            this.setState({
+                saveLoading: false
+            })
+        }).catch(() => {
+            this.setState({
+                saveLoading: false
+            })
+        });
     }
     renderRequest (request: any) {
         if (!request) {
@@ -245,15 +266,35 @@ class TestApi extends React.Component<any, any> {
         }
         const { requestUrl, headers, body, method } = request;
         return (`Request URL: ${requestUrl}\n\n` +
-        `Request Method: ${method}\n\n` +
-        `Headers:\n${renderHeaders(headers)}\n\n` +
-        `Body:\n\t${renderBody(body)}\n\n`
+            `Request Method: ${method}\n\n` +
+            `Headers:\n${renderHeaders(headers)}\n\n` +
+            `Body:\n\t${renderBody(body)}\n\n`
         );
     }
+    transformData = (data: any) => { // 生成api,转换数据
+        let mapData: any = {};
+        let newData = cloneDeep(data);
+        newData.forEach((item: any) => {
+            if (mapData[item.paramsName]) {
+                let mapItem = mapData[item.paramsName];
+                let children = mapItem['children'];
+                let childrenItem = Object.assign({}, item, { isChildren: true })
+                if (children) {
+                    mapData[item.paramsName]['children'] = [...children, childrenItem];
+                } else {
+                    mapData[item.paramsName]['children'] = [childrenItem];
+                }
+            } else {
+                mapData[item.paramsName] = item
+            }
+        });
+        return Object.values(mapData);
+    }
     render () {
-        const { loading, sync, testBody } = this.state;
+        const { loading, sync, testBody, saveLoading } = this.state;
         const { basicProperties, registerParams, respJson: testResult = {}, isRegister } = this.props;
         const wrapInputParams = this.wrapInputParams();
+        const inputData = isRegister ? wrapInputParams : this.transformData(wrapInputParams);
         const inputTableColumns = this.initColumns();
         const { outputResultColumns, x } = this.initOutColumns();
         const { bodyDesc } = registerParams;
@@ -262,7 +303,7 @@ class TestApi extends React.Component<any, any> {
         if (isRegister) {
             let data = testResult ? testResult.data : null;
             if (data) {
-                resultText = utils.jsonFormat(data.result) || data.result;
+                resultText = utils.jsonFormat(data.result) || JSON.stringify(data.result, null, 2);
                 requestInfo = this.renderRequest(data.httpInfo);
             }
         } else {
@@ -287,7 +328,7 @@ class TestApi extends React.Component<any, any> {
                                     style={{ background: '#fff' }}
                                     rowKey="id"
                                     columns={inputTableColumns}
-                                    dataSource={wrapInputParams}
+                                    dataSource={inputData}
                                     pagination={false}
                                     scroll={{ y: 286 }}
                                 />
@@ -364,7 +405,7 @@ class TestApi extends React.Component<any, any> {
                         <Button style={{ marginLeft: 8 }} onClick={() => this.prev()}>上一步</Button>
                     }
                     {
-                        <Button type="primary" style={{ marginLeft: 8 }} onClick={() => this.pass()}>完成</Button>
+                        <Button loading={saveLoading} type="primary" style={{ marginLeft: 8 }} onClick={() => this.pass()}>完成</Button>
                     }
 
                 </div>

@@ -263,7 +263,7 @@ class RealTimeTabPane extends React.Component<any, any> {
         const { activeNode, taskInfo } = this.state
 
         if (isCreate(modal)) {
-            Api.saveTask(task).then((res: any) => {
+            return Api.saveTask(task).then((res: any) => {
                 if (res.code === 1) {
                     message.success('创建任务成功')
                     this.closeModal()
@@ -273,6 +273,8 @@ class RealTimeTabPane extends React.Component<any, any> {
                         catalogueType: MENU_TYPE.TASK_DEV
                     }))
                     hashHistory.push('/realtime/task')
+                } else {
+                    return true;
                 }
             })
         } else if (isUpdate(modal)) {
@@ -280,7 +282,7 @@ class RealTimeTabPane extends React.Component<any, any> {
             task.version = taskInfo.version
             task.readWriteLockVO = Object.assign({}, taskInfo.readWriteLockVO);
 
-            Api.saveTask(task).then((res: any) => {
+            return Api.saveTask(task).then((res: any) => {
                 if (res.code === 1) {
                     message.success('任务更新成功！')
                     this.closeModal()
@@ -303,6 +305,8 @@ class RealTimeTabPane extends React.Component<any, any> {
                         id: task.nodePid,
                         catalogueType: MENU_TYPE.TASK_DEV
                     }))
+                } else {
+                    return true;
                 }
             })
         }

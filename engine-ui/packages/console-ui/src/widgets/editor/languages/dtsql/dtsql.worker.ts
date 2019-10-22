@@ -11,12 +11,12 @@ ctx.onmessage = (e: any) => {
         ctx.postMessage({
             eventId: eventId,
             result: dtsql.parser.parserSql(...data)
-        }, null)
+        })
     } else if (type == 'parseSyntax') {
         ctx.postMessage({
             eventId: eventId,
             result: dtsql.parser.parseSyntax(...data)
-        }, null)
+        })
     }
 }
 

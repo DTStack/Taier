@@ -215,7 +215,7 @@ class PackagePublish extends React.Component<any, any> {
                 }
             },
             width: '180px'
-        }]
+        }] as any
     }
     viewPackage(record: any) {
         this.setState({

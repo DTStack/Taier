@@ -13,7 +13,7 @@ import { TASK_STATUS, TASK_TYPE } from '../../../../comm/const'
 import { taskStatusText } from '../../../../components/display'
 
 import JobGraphView, {
-    mergeTreeNodes, replacTreeNodeField
+    mergeTreeNodes, replaceTreeNodeField
 } from './jobGraphView';
 import MxFactory from 'widgets/mxGraph';
 
@@ -36,6 +36,10 @@ class TaskJobFlowView extends React.Component<any, any> {
         loading: 'success',
         lastVertex: '',
         taskLog: {},
+        logPage: {
+            current: 0,
+            total: 0
+        },
         logVisible: false,
         visible: false,
         visibleRestart: false,
@@ -116,7 +120,7 @@ class TaskJobFlowView extends React.Component<any, any> {
                 const data = res.data
                 ctx.setState({ data, selectedJob: data })
                 // 替换 jobVos 字段为 parentNodes
-                replacTreeNodeField(res.data, 'jobVOS', 'parentNodes', 'parentNodes')
+                replaceTreeNodeField(res.data, 'jobVOS', 'parentNodes', 'parentNodes')
                 ctx.renderGraph(res.data);
             }
             ctx.setState({ loading: 'success' })
@@ -217,7 +221,7 @@ class TaskJobFlowView extends React.Component<any, any> {
                 if (!cell || !cell.vertex) return;
 
                 const currentNode = cell.data;
-                const isCurrentProjectTask = ctx.isCurrentProjectTask(currentNode);
+                const isCurrentProjectTask = ctx.isCurrentProjectTask(currentNode.batchTask);
                 const isWorkflowNode = currentNode.batchTask && currentNode.batchTask.flowId !== 0;
                 const taskId = currentNode.batchTask && currentNode.batchTask.id;
                 const isDelete = currentNode.batchTask && currentNode.batchTask.isDeleted === 1; // 已删除
@@ -254,7 +258,7 @@ class TaskJobFlowView extends React.Component<any, any> {
                     isAfter: true,
                     limit: 6
                 }
-                ctx.loadPeriodsData(menu, nextParams, nextPeriods)
+                ctx.loadPeriodsData(menu, nextParams, nextPeriods);
                 if (isCurrentProjectTask) {
                     menu.addItem(`${isPro ? '查看' : '修改'}任务`, null, function () {
                         ctx.props.goToTaskDev(taskId)
@@ -375,9 +379,20 @@ class TaskJobFlowView extends React.Component<any, any> {
     }
 
     showJobLog = (jobId: any) => {
-        Api.getOfflineTaskLog({ jobId: jobId }).then((res: any) => {
+        Api.getOfflineTaskLog({
+            jobId: jobId,
+            pageInfo: this.state.logPage.current
+        }).then((res: any) => {
             if (res.code === 1) {
-                this.setState({ taskLog: res.data, logVisible: true, taskLogId: jobId })
+                this.setState({
+                    taskLog: res.data,
+                    logVisible: true,
+                    taskLogId: jobId,
+                    logPage: {
+                        current: res.data.pageIndex,
+                        total: res.data.pageSize
+                    }
+                })
             }
         })
     }
@@ -387,7 +402,7 @@ class TaskJobFlowView extends React.Component<any, any> {
     }
 
     render () {
-        const { selectedJob, taskLog, workflowData, graphData, loading } = this.state;
+        const { selectedJob, taskLog, workflowData, graphData, loading, logPage } = this.state;
         const { taskJob, goToTaskDev, isPro } = this.props;
         const heightFix = {
             height: 600
@@ -469,6 +484,17 @@ class TaskJobFlowView extends React.Component<any, any> {
                         syncJobInfo={taskLog.syncJobInfo}
                         downloadLog={taskLog.downloadLog}
                         subNodeDownloadLog={taskLog.subNodeDownloadLog}
+                        page={logPage}
+                        onChangePage={(page: number, pageSize: number) => {
+                            this.setState({
+                                logPage: {
+                                    ...logPage,
+                                    current: page
+                                }
+                            }, () => {
+                                this.showJobLog(this.state.taskLogId)
+                            })
+                        }}
                         height="520px"
                     />
                 </Modal>

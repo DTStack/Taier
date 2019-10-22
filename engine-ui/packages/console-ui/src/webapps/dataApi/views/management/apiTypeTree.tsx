@@ -1,16 +1,21 @@
 import * as React from 'react';
 import { Tree, Tooltip, Icon, Popconfirm, message, Spin } from 'antd';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, get } from 'lodash';
 import { API_TYPE } from '../../consts';
+import ApiSlidePane from './apiDetail/apiSlide';
+import { AntTreeNodeEvent } from 'antd/lib/tree';
+
 const TreeNode = Tree.TreeNode;
 class ApiTypeTree extends React.Component<any, any> {
     state: any = {
         maxDeepLength: 2,
         expandedKeys: [],
+        selectedNode: null,
         editNode: null,
         mode: '',
         addPid: '',
-        autoExpandParent: true
+        autoExpandParent: true,
+        slidePaneShow: false
     }
     public editInput: any;
     constructor (props: any) {
@@ -26,7 +31,7 @@ class ApiTypeTree extends React.Component<any, any> {
     }
     // eslint-disable-next-line
     // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps(nextProps: any) {
+    UNSAFE_componentWillReceiveProps (nextProps: any) {
         if (nextProps.maxDeepLength && this.props.maxDeepLength != nextProps.maxDeepLength) {
             this.setState({
                 maxDeepLength: nextProps.maxDeepLength
@@ -45,7 +50,7 @@ class ApiTypeTree extends React.Component<any, any> {
                     let iconClassName = item.apiType == API_TYPE.NORMAL ? 'u-tree__node--normal' : 'u-tree__node--register'
                     arr.push(
                         (
-                            <TreeNode className={iconClassName} title={item.catalogueName} key={item.id}>
+                            <TreeNode data={item} className={iconClassName} title={item.catalogueName} key={item.id + '_api'}>
 
                             </TreeNode>
                         )
@@ -73,8 +78,14 @@ class ApiTypeTree extends React.Component<any, any> {
 
         return { view, expandedKeys }
     }
-    onSelect = (selectedKeys: any, info: any) => {
-        console.log('selected', selectedKeys, info);
+    onSelect = (selectedKeys: any, e: AntTreeNodeEvent) => {
+        const data = get(e, 'node.props.data');
+        if (data) {
+            this.setState({
+                selectedNode: data,
+                slidePaneShow: true
+            })
+        }
     }
     onCheck = (checkedKeys: any, info: any) => {
         console.log('onCheck', checkedKeys, info);
@@ -268,27 +279,44 @@ class ApiTypeTree extends React.Component<any, any> {
     onExpands = (onExpands: any, info?: any) => {
         this.setState({ expandedKeys: onExpands, autoExpandParent: false });
     }
+    closeSlidePane () {
+        this.setState({
+            slidePaneShow: false,
+            selectedNode: null
+        })
+    }
     render () {
         const { view, expandedKeys: TreeExpandedKeys } = this.getTreeView();
+        const { selectedNode, slidePaneShow } = this.state;
         const expandedKeys = this.state.expandedKeys.length > 0 ? this.state.expandedKeys : TreeExpandedKeys;
 
         return (
+            <React.Fragment>
+                <Tree
+                    showIcon
+                    expandedKeys={expandedKeys}
+                    selectedKeys={selectedNode ? [selectedNode.id + '_api'] : []}
+                    onSelect={this.onSelect}
+                    onCheck={this.onCheck}
+                    onExpand={this.onExpands}
+                    autoExpandParent={this.state.autoExpandParent}
+                >
+                    <TreeNode title={this.getTreeNodeTitle(0, 'API管理', true, false, 0)} key={0}>
+                        {view}
+                    </TreeNode>
 
-            <Tree
-
-                showIcon
-                expandedKeys={expandedKeys}
-                onSelect={this.onSelect}
-                onCheck={this.onCheck}
-                onExpand={this.onExpands}
-                autoExpandParent={this.state.autoExpandParent}
-            >
-                <TreeNode title={this.getTreeNodeTitle(0, 'API管理', true, false, 0)} key={0}>
-                    {view}
-                </TreeNode>
-
-            </Tree>
-
+                </Tree>
+                <div style={{ position: 'fixed', top: 50, bottom: 0, left: 0, right: 20, pointerEvents: 'none' }}>
+                    <div style={{ pointerEvents: 'auto' }}>
+                        <ApiSlidePane
+                            simple={true}
+                            showRecord={selectedNode || {}}
+                            slidePaneShow={slidePaneShow}
+                            closeSlidePane={this.closeSlidePane.bind(this)}
+                        />
+                    </div>
+                </div>
+            </React.Fragment>
         )
     }
 }

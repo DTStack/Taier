@@ -744,7 +744,7 @@ class StepThree extends React.Component<any, any> {
                 });
 
                 sourceCheck.forEach((s: any, index: any) => {
-                    if (source.includes(s) && target.includes(s)) {
+                    if (source.includes(s)) {
                         mapPk[s] = targetCheck[index];
                     }
                 });
@@ -781,7 +781,7 @@ class StepThree extends React.Component<any, any> {
                 });
 
                 sourceCheck.forEach((s: any, index: any) => {
-                    if (source.includes(s) && target.includes(s)) {
+                    if (source.includes(s)) {
                         mapPk[s] = targetCheck[index];
                     }
                 });

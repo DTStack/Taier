@@ -631,7 +631,7 @@ const MyEdgeStyle = function (Mx: any) {
             if (resultLen > 2) {
                 let firstPoint = result[1].y;
                 let lastSecondPointY = result[resultLen - 2].y;
-                const differenceValue = target.y - source.y;
+                const differenceValue = (target ? target.y : NaN) - source.y;
                 // console.log('differenceValue:', target.y, source.y, differenceValue)
                 if (differenceValue < 60) {
                     result[1].y = firstPoint + 20;

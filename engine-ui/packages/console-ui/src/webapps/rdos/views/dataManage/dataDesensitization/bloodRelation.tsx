@@ -694,15 +694,21 @@ class BloodRelation extends React.Component<any, any> {
         const { loading } = this.state;
         return (
             <div className="graph-editor"
-                style={{ position: 'relative', background: '#FAFAFA', height: '1000px' }}
+                style={{ position: 'relative', background: '#FAFAFA', height: '100%' }}
             >
                 <Spin
                     tip="Loading..."
                     size="large"
                     spinning={loading === 'loading'}
+                    wrapperClassName='c-task__content__spin-box'
                 >
                     <div className="absolute-middle txt-bg">血缘关系</div>
-                    <div className="editor pointer" style={{ height: '600px' }} ref={(e: any) => { this.Container = e }} />
+                    <div className="editor pointer" style={{
+                        position: 'relative',
+                        height: '100%',
+                        width: '100%',
+                        overflow: 'auto'
+                    }} ref={(e: any) => { this.Container = e }} />
                 </Spin>
                 <div className="graph-toolbar">
                     <Tooltip placement="bottom" title="刷新">
@@ -735,29 +741,6 @@ class BloodRelation extends React.Component<any, any> {
                         </span>
                         未脱敏
                     </div>
-                    {/* <div>
-                        <span
-                            className="legend-item"
-                            style={{ background: '#E6F7FF', border: '1px solid #90D5FF' }}>
-                        </span>
-                        上游
-                    </div>
-                    <div>
-                        <span
-                            className="legend-item current"
-                            style={{ background: '#F6FFED', border: '1px solid #B7EB8F' }}
-                        >
-                        </span>
-                        当前
-                    </div>
-                    <div>
-                        <span
-                            className="legend-item child"
-                            style={{ background: '#FFFBE6', border: '1px solid #FFE58F' }}
-                        >
-                        </span>
-                        下游
-                    </div> */}
                 </div>
             </div>
         )

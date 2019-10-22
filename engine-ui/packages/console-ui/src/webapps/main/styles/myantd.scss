@@ -4,6 +4,13 @@
 ** 自定义antd样式
 */
 
+.ant-tooltip-inner {
+    word-break: break-word;
+}
+.ant-notification-notice-description {
+    word-break: break-word;
+}
+
 .m-tabs {
     .content-border{
         &.ant-tabs{
@@ -172,9 +179,11 @@
         padding: 6px 8px;
     }
     &.m-table-showselect{
-        .ant-table-thead{
-            .ant-table-selection-column>span{
-                visibility:unset;
+        .ant-table {
+            .ant-table-thead{
+                .ant-table-selection-column>span{
+                    visibility:unset;
+                }
             }
         }
     }

@@ -15,7 +15,7 @@ const RadioGroup = Radio.Group
 
 class TaskFormModal extends React.Component<any, any> {
     state: any = {
-        taskType: 0,
+        taskType: TASK_TYPE.SQL,
         selectedRes: [],
         createModel: DATA_SYNC_TYPE.GUIDE
     }
@@ -75,7 +75,7 @@ class TaskFormModal extends React.Component<any, any> {
         const fileds: any = ['name', 'nodePid']
         task.computeType = 0 // 实时任务
 
-        if (task.taskType === 1) { // 如果是MR任务，资源为必填项
+        if (task.taskType === TASK_TYPE.MR) { // 如果是MR任务，资源为必填项
             fileds.push('resourceIdList')
         }
 
@@ -93,18 +93,19 @@ class TaskFormModal extends React.Component<any, any> {
 
         this.props.form.validateFields(fileds, (err: any) => {
             if (!err) {
-                setTimeout(() => {
-                    this.setState({ taskType: 0 })
-                    form.resetFields()
-                }, 200)
-                handOk(task)
+                handOk(task).then((err: boolean) => {
+                    if (!err) {
+                        this.setState({ taskType: TASK_TYPE.SQL })
+                        form.resetFields()
+                    }
+                })
             }
         });
     }
 
     cancle = () => {
         const { handCancel, form } = this.props
-        this.setState({ taskType: 0 }, () => {
+        this.setState({ taskType: TASK_TYPE.SQL }, () => {
             handCancel()
             form.resetFields()
         })
@@ -160,8 +161,7 @@ class TaskFormModal extends React.Component<any, any> {
             resRoot[0].children.lenght > 0 ? resourceIds : resouceNames;
 
         const isDataCollection = taskType == TASK_TYPE.DATA_COLLECTION;
-        const isFlinkSql = taskType == TASK_TYPE.SQL;
-        const isShowResource = !isDataCollection && !isFlinkSql;
+        const isShowResource = TASK_TYPE.MR === taskType;
         const rowFix = {
             rows: 4
         }
@@ -201,7 +201,7 @@ class TaskFormModal extends React.Component<any, any> {
                         >
                             {getFieldDecorator('taskType', {
                                 rules: [],
-                                initialValue: taskInfo.taskType || 0
+                                initialValue: taskInfo.taskType || TASK_TYPE.SQL
                             })(
                                 <RadioGroup onChange={this.taskTypeChange} disabled={isEdit}>
                                     {taskRadios}
@@ -236,7 +236,7 @@ class TaskFormModal extends React.Component<any, any> {
                             >
                                 {getFieldDecorator('resourceIdList', {
                                     rules: [{
-                                        required: taskType === 1,
+                                        required: taskType === TASK_TYPE.MR,
                                         message: '请选择资源！'
                                     },
                                     {
@@ -249,7 +249,7 @@ class TaskFormModal extends React.Component<any, any> {
                                         id="resourceIdList"
                                         placeholder="请选择资源"
                                         onChange={this.onChangeResList}
-                                        multiple={taskType !== 1}
+                                        multiple={taskType !== TASK_TYPE.MR}
                                         treeData={resRoot}
                                         loadData={ayncTree}
                                     />
@@ -259,11 +259,11 @@ class TaskFormModal extends React.Component<any, any> {
                         <FormItem
                             {...formItemLayout}
                             label="mainClass"
-                            style={{ display: taskType === 1 ? 'block' : 'none' }}
+                            style={{ display: taskType === TASK_TYPE.MR ? 'block' : 'none' }}
                         >
                             {getFieldDecorator('mainClass', {
                                 rules: [{
-                                    required: taskType === 1,
+                                    required: taskType === TASK_TYPE.MR,
                                     message: '请输入mainClass'
                                 }],
                                 initialValue: taskInfo && taskInfo.mainClass
@@ -274,7 +274,7 @@ class TaskFormModal extends React.Component<any, any> {
                         <FormItem
                             {...formItemLayout}
                             label="参数"
-                            style={{ display: taskType === 1 ? 'block' : 'none' }}
+                            style={{ display: taskType === TASK_TYPE.MR ? 'block' : 'none' }}
                         >
                             {getFieldDecorator('exeArgs', {
                                 rules: [{}],

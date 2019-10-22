@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, pickBy } from 'lodash';
 import {
     Input, Button,
     Table, message, Card, Icon, Tooltip, Popconfirm
@@ -86,19 +86,44 @@ class DataSourceManaStream extends React.Component<any, any> {
         const { title, status, source } = this.state
         let reqSource = sourceFormData
         if (status === 'edit') { // 编辑数据
-            reqSource = Object.assign(source, sourceFormData)
+            reqSource = Object.assign(cloneDeep(source), sourceFormData)
         }
-        Api.streamSaveDataSource(reqSource).then((res: any) => {
-            if (res.code === 1) {
-                formObj.resetFields()
-                message.success(`${title}成功！`)
-                ctx.setState({
-                    visible: false
-                })
-                ctx.loadDataSources()
-                callBack();
-            }
-        })
+        if (reqSource.dataJson.openKerberos) {
+            reqSource.dataJsonString = JSON.stringify(reqSource.dataJson)
+            console.log(reqSource)
+            delete reqSource.modifyUser;
+            delete reqSource.dataJson;
+            reqSource = pickBy(reqSource, (item, key) => { // 过滤掉空字符串和值为null的属性，并且过滤掉编辑时的kerberos字段
+                if (key === 'kerberosFile' && (!item.type)) {
+                    return false
+                }
+                return item != null
+            })
+            Api.streamSaveDataSourceWithKerberos(reqSource).then((res: any) => {
+                if (res.code === 1) {
+                    message.success(`${title}成功！`)
+                    ctx.setState({
+                        visible: false
+                    })
+                    formObj.resetFields()
+                    ctx.loadDataSources()
+                    callBack();
+                }
+            })
+        } else {
+            console.log(reqSource)
+            Api.streamSaveDataSource(reqSource).then((res: any) => {
+                if (res.code === 1) {
+                    message.success(`${title}成功！`)
+                    ctx.setState({
+                        visible: false
+                    })
+                    formObj.resetFields()
+                    ctx.loadDataSources()
+                    callBack();
+                }
+            })
+        }
     }
     openDataSourceModal = () => {
         Api.checkDataSourcePermission().then((res: any) => {
@@ -126,14 +151,35 @@ class DataSourceManaStream extends React.Component<any, any> {
         })
     }
 
-    testConnection = (source: any) => { // 测试数据源连通性
-        Api.streamTestDataSourceConnection(source).then((res: any) => {
-            if (res.code === 1 && res.data) {
-                message.success('数据源连接正常！')
-            } else if (res.code === 1 && !res.data) {
-                message.error('数据源连接异常')
-            }
-        })
+    testConnection = (formSource: any) => { // 测试数据源连通性
+        const { source } = this.state;
+        formSource.id = source.id;
+        console.log(formSource, source)
+        if (formSource.dataJson.openKerberos) {
+            formSource.dataJsonString = JSON.stringify(formSource.dataJson)
+            delete formSource.dataJson;
+            formSource = pickBy(formSource, (item, key) => { // 过滤掉空字符串和值为null的属性，并且过滤掉编辑时的kerberos字段
+                if (key === 'kerberosFile' && (!item.type)) {
+                    return false
+                }
+                return item != null
+            })
+            Api.streamTestDataSourceConnectionWithKerberos(formSource).then((res: any) => {
+                if (res.code === 1 && res.data) {
+                    message.success('数据源连接正常！')
+                } else if (res.code === 1 && !res.data) {
+                    message.error('数据源连接异常')
+                }
+            })
+        } else {
+            Api.streamTestDataSourceConnection(formSource).then((res: any) => {
+                if (res.code === 1 && res.data) {
+                    message.success('数据源连接正常！')
+                } else if (res.code === 1 && !res.data) {
+                    message.error('数据源连接异常')
+                }
+            })
+        }
     }
 
     handleTableChange = (pagination: any, filters: any) => {

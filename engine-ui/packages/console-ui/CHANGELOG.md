@@ -2,6 +2,359 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.9.0-beta.2.2"></a>
+# [3.9.0-beta.2.2](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.2.1...3.9.0-beta.2.2) (2019-10-16)
+
+
+### Bug Fixes
+
+* **filter:** fix comment filter ([bf4f3b8](http://git.dtstack.cn/dtstack/data-stack-web/commits/bf4f3b8))
+
+
+
+<a name="3.9.0-beta.2.1"></a>
+# [3.9.0-beta.2.1](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.2...3.9.0-beta.2.1) (2019-10-16)
+
+
+### Bug Fixes
+
+* **api:** add icon to view ([9c0e364](http://git.dtstack.cn/dtstack/data-stack-web/commits/9c0e364))
+* **api:** change txt ([60670e2](http://git.dtstack.cn/dtstack/data-stack-web/commits/60670e2))
+* **api:** fix ([efedd2f](http://git.dtstack.cn/dtstack/data-stack-web/commits/efedd2f))
+* **api:** fix bug ([1194ba6](http://git.dtstack.cn/dtstack/data-stack-web/commits/1194ba6))
+* **api:** fix bugs ([aef24df](http://git.dtstack.cn/dtstack/data-stack-web/commits/aef24df))
+* **api:** fix bugs ([1af948a](http://git.dtstack.cn/dtstack/data-stack-web/commits/1af948a))
+* **api:** fix bugs ([4a30e24](http://git.dtstack.cn/dtstack/data-stack-web/commits/4a30e24))
+* **api:** fix checkbox style ([043e84a](http://git.dtstack.cn/dtstack/data-stack-web/commits/043e84a))
+* **api:** fix error data back ([5e3d12b](http://git.dtstack.cn/dtstack/data-stack-web/commits/5e3d12b))
+* **api:** fix operation list bug ([5a7ec85](http://git.dtstack.cn/dtstack/data-stack-web/commits/5a7ec85))
+* **api:** 生成API，参数配置时选择了返回结果携带分页参数，进入下一步输入pageNo点击开始测试，pageNo字段会被清空 ([8e86de6](http://git.dtstack.cn/dtstack/data-stack-web/commits/8e86de6)), closes [#19230](http://redmine.prod.dtstack.cn/issues/19230)
+* add speed option ([667530a](http://git.dtstack.cn/dtstack/data-stack-web/commits/667530a))
+* **babel:** add core js ([29d4cca](http://git.dtstack.cn/dtstack/data-stack-web/commits/29d4cca)), closes [#19390](http://redmine.prod.dtstack.cn/issues/19390)
+* 🐛 add title attribute to relation data source ([5d863ab](http://git.dtstack.cn/dtstack/data-stack-web/commits/5d863ab)), closes [#19003](http://redmine.prod.dtstack.cn/issues/19003)
+* add goToView (doing) ([3aec9b5](http://git.dtstack.cn/dtstack/data-stack-web/commits/3aec9b5))
+* add kudu ([71a7368](http://git.dtstack.cn/dtstack/data-stack-web/commits/71a7368))
+* add speed option ([6907983](http://git.dtstack.cn/dtstack/data-stack-web/commits/6907983))
+* lint problem ([aa8e953](http://git.dtstack.cn/dtstack/data-stack-web/commits/aa8e953))
+* lint problem ([456c6fd](http://git.dtstack.cn/dtstack/data-stack-web/commits/456c6fd))
+* lint problem ([cc36ae0](http://git.dtstack.cn/dtstack/data-stack-web/commits/cc36ae0))
+* lint problem ([f3d3614](http://git.dtstack.cn/dtstack/data-stack-web/commits/f3d3614))
+* lint problems ([573c84f](http://git.dtstack.cn/dtstack/data-stack-web/commits/573c84f))
+* owner options's problem ([53fd36b](http://git.dtstack.cn/dtstack/data-stack-web/commits/53fd36b))
+* **filtercomments:** alter comments begin position ([396a7dd](http://git.dtstack.cn/dtstack/data-stack-web/commits/396a7dd)), closes [#19022](http://redmine.prod.dtstack.cn/issues/19022)
+* remove datasource type kafka ([34d7f7c](http://git.dtstack.cn/dtstack/data-stack-web/commits/34d7f7c))
+* **jest:** remove database ([21fde6f](http://git.dtstack.cn/dtstack/data-stack-web/commits/21fde6f))
+* **keymap:** add title attribute to Hive, MAXCOMPUTE ([d8f4d3e](http://git.dtstack.cn/dtstack/data-stack-web/commits/d8f4d3e)), closes [#19003](http://redmine.prod.dtstack.cn/issues/19003)
+* **scriptModal:** get the default type of script from scriptTypes ([4e63930](http://git.dtstack.cn/dtstack/data-stack-web/commits/4e63930)), closes [#18989](http://redmine.prod.dtstack.cn/issues/18989)
+* **task.scss:** hide workflow task name when overflow ([bc89657](http://git.dtstack.cn/dtstack/data-stack-web/commits/bc89657)), closes [#19144](http://redmine.prod.dtstack.cn/issues/19144)
+* **taskjobflowview:** fix incorrect function name ([0117f75](http://git.dtstack.cn/dtstack/data-stack-web/commits/0117f75))
+* **uploader:** optimized the position of uploader ([6c4ac55](http://git.dtstack.cn/dtstack/data-stack-web/commits/6c4ac55)), closes [#18895](http://redmine.prod.dtstack.cn/issues/18895)
+
+
+### Features
+
+* add impalaSQL ([de8008d](http://git.dtstack.cn/dtstack/data-stack-web/commits/de8008d))
+* add impalaSQL ([5f6d6e5](http://git.dtstack.cn/dtstack/data-stack-web/commits/5f6d6e5))
+* add impalaSQL task ([0611cee](http://git.dtstack.cn/dtstack/data-stack-web/commits/0611cee))
+* add impalaSQL task ([414232d](http://git.dtstack.cn/dtstack/data-stack-web/commits/414232d))
+* add impalaSQL task ([3b37365](http://git.dtstack.cn/dtstack/data-stack-web/commits/3b37365))
+* add kudu dataSource ([5097737](http://git.dtstack.cn/dtstack/data-stack-web/commits/5097737))
+* add repalceResource ([408d27c](http://git.dtstack.cn/dtstack/data-stack-web/commits/408d27c))
+* impalaSQL Component's value reset ([4f6e0ae](http://git.dtstack.cn/dtstack/data-stack-web/commits/4f6e0ae))
+* recovery params ([ed48eae](http://git.dtstack.cn/dtstack/data-stack-web/commits/ed48eae))
+* repalce resource ([ef18bb3](http://git.dtstack.cn/dtstack/data-stack-web/commits/ef18bb3))
+* retryNum order ([b3fac9e](http://git.dtstack.cn/dtstack/data-stack-web/commits/b3fac9e))
+* **api:** add api logout api ([155f612](http://git.dtstack.cn/dtstack/data-stack-web/commits/155f612))
+* **api:** add create user id filter ([c5b0e32](http://git.dtstack.cn/dtstack/data-stack-web/commits/c5b0e32))
+* **api:** add detail of category manager ([e98d8af](http://git.dtstack.cn/dtstack/data-stack-web/commits/e98d8af)), closes [#18751](http://redmine.prod.dtstack.cn/issues/18751)
+* **api:** add method ([9c4415c](http://git.dtstack.cn/dtstack/data-stack-web/commits/9c4415c))
+* **api:** add new filter for market ([0cac2b0](http://git.dtstack.cn/dtstack/data-stack-web/commits/0cac2b0)), closes [#18750](http://redmine.prod.dtstack.cn/issues/18750)
+* **api:** add operation api ([eac3194](http://git.dtstack.cn/dtstack/data-stack-web/commits/eac3194))
+* **api:** add special char support to path ([cea6301](http://git.dtstack.cn/dtstack/data-stack-web/commits/cea6301)), closes [#18745](http://redmine.prod.dtstack.cn/issues/18745)
+* **api:** api参数检查toast ([c2d2d7f](http://git.dtstack.cn/dtstack/data-stack-web/commits/c2d2d7f))
+* **api:** set table filter case insensitive ([fb7cd22](http://git.dtstack.cn/dtstack/data-stack-web/commits/fb7cd22))
+* **api:** set userid to null when empty ([6131079](http://git.dtstack.cn/dtstack/data-stack-web/commits/6131079))
+* **api:** the generated API, let go of the input parameter limit ([39c01f1](http://git.dtstack.cn/dtstack/data-stack-web/commits/39c01f1))
+* **api:** the new API, parameter configuration ([6dda29c](http://git.dtstack.cn/dtstack/data-stack-web/commits/6dda29c))
+* **api:** the UI API parameters optimized configuration ([c7be92f](http://git.dtstack.cn/dtstack/data-stack-web/commits/c7be92f))
+* **audit:** add api ([4634784](http://git.dtstack.cn/dtstack/data-stack-web/commits/4634784))
+* **rdos:** add unique key ([dddf5ce](http://git.dtstack.cn/dtstack/data-stack-web/commits/dddf5ce))
+* **taskview:** support double click or context menu to open task ([8bb2928](http://git.dtstack.cn/dtstack/data-stack-web/commits/8bb2928)), closes [#18895](http://redmine.prod.dtstack.cn/issues/18895)
+
+
+### Performance Improvements
+
+* **api:** automatic SQl model update message ([0807311](http://git.dtstack.cn/dtstack/data-stack-web/commits/0807311))
+* **api:** 自动化SQL模式 ([0c5090d](http://git.dtstack.cn/dtstack/data-stack-web/commits/0c5090d))
+
+
+
+<a name="3.9.0-beta.2"></a>
+# [3.9.0-beta.2](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.8.0-beta.1.11...3.9.0-beta.2) (2019-10-12)
+
+
+### Bug Fixes
+
+* **/admin/role/index.tsx:** fix the role no data ([b076895](http://git.dtstack.cn/dtstack/data-stack-web/commits/b076895)), closes [#18318](http://redmine.prod.dtstack.cn/issues/18318)
+* **/main/styles/myantd.scss:** fix the pagination shows garbled bug ([99dfbfd](http://git.dtstack.cn/dtstack/data-stack-web/commits/99dfbfd)), closes [#18305](http://redmine.prod.dtstack.cn/issues/18305)
+* **/main/styles/myantd.scss:** fix the pagination shows garbled bug ([d1aa676](http://git.dtstack.cn/dtstack/data-stack-web/commits/d1aa676)), closes [#18305](http://redmine.prod.dtstack.cn/issues/18305)
+* **/offline/:** fix the add re-run btn & allselect feature ([e7ad22d](http://git.dtstack.cn/dtstack/data-stack-web/commits/e7ad22d)), closes [#17978](http://redmine.prod.dtstack.cn/issues/17978)
+* **/offline/siderbench.tsx:** fix add env params tab in script mode ([1066540](http://git.dtstack.cn/dtstack/data-stack-web/commits/1066540)), closes [#18175](http://redmine.prod.dtstack.cn/issues/18175)
+* **api:** fix header bug ([deae3c5](http://git.dtstack.cn/dtstack/data-stack-web/commits/deae3c5))
+* **api:** fix header checkbox event handle ([f8c4003](http://git.dtstack.cn/dtstack/data-stack-web/commits/f8c4003))
+* **api:** fix page bug ([456b1ea](http://git.dtstack.cn/dtstack/data-stack-web/commits/456b1ea))
+* **api:** set undefined if containpage is null ([f19c9e7](http://git.dtstack.cn/dtstack/data-stack-web/commits/f19c9e7)), closes [#18848](http://redmine.prod.dtstack.cn/issues/18848)
+* **console:** clear value when upload file failed ([b9e8ffb](http://git.dtstack.cn/dtstack/data-stack-web/commits/b9e8ffb)), closes [#18482](http://redmine.prod.dtstack.cn/issues/18482)
+* **console:** fix only can upload zip file type ([a6d520f](http://git.dtstack.cn/dtstack/data-stack-web/commits/a6d520f)), closes [#18482](http://redmine.prod.dtstack.cn/issues/18482)
+* **console:** fix upload file ([a6ea555](http://git.dtstack.cn/dtstack/data-stack-web/commits/a6ea555)), closes [#18482](http://redmine.prod.dtstack.cn/issues/18482)
+* **createApi:** api path supports special characters ([9f3e979](http://git.dtstack.cn/dtstack/data-stack-web/commits/9f3e979)), closes [#18131](http://redmine.prod.dtstack.cn/issues/18131)
+* **createApi:** read table column comment ([92a42f0](http://git.dtstack.cn/dtstack/data-stack-web/commits/92a42f0))
+* **createApi:** request get method not require input params ([9b980a6](http://git.dtstack.cn/dtstack/data-stack-web/commits/9b980a6)), closes [#18129](http://redmine.prod.dtstack.cn/issues/18129)
+* **dataDesensitization:** fix style bug ([521460e](http://git.dtstack.cn/dtstack/data-stack-web/commits/521460e)), closes [#18313](http://redmine.prod.dtstack.cn/issues/18313)
+* **datamap:** fix refresh datacatalogues when add edit del ([ed1348f](http://git.dtstack.cn/dtstack/data-stack-web/commits/ed1348f))
+* **dataSource:** hide password value in Console Elements ([a2686a2](http://git.dtstack.cn/dtstack/data-stack-web/commits/a2686a2)), closes [#18344](http://redmine.prod.dtstack.cn/issues/18344)
+* **dq:** remove target map check ([27244e4](http://git.dtstack.cn/dtstack/data-stack-web/commits/27244e4))
+* **editor:** add control characters style ([23a75de](http://git.dtstack.cn/dtstack/data-stack-web/commits/23a75de)), closes [#17656](http://redmine.prod.dtstack.cn/issues/17656)
+* **filter:** remove sql filter whitespace ([1fedcf1](http://git.dtstack.cn/dtstack/data-stack-web/commits/1fedcf1))
+* **flink:** fix error marker ([cf4923c](http://git.dtstack.cn/dtstack/data-stack-web/commits/cf4923c))
+* **funcs:** add  multiple line comment filter to sql ([1c32562](http://git.dtstack.cn/dtstack/data-stack-web/commits/1c32562)), closes [#18253](http://redmine.prod.dtstack.cn/issues/18253)
+* **lifeCycle:** change event object to value ([f3d8322](http://git.dtstack.cn/dtstack/data-stack-web/commits/f3d8322)), closes [#18396](http://redmine.prod.dtstack.cn/issues/18396)
+* **mainBench:** shell editor ([e90eaa0](http://git.dtstack.cn/dtstack/data-stack-web/commits/e90eaa0))
+* **offlineCount:** alter 周期实例 to 今日周期实例 [#18736](http://redmine.prod.dtstack.cn/issues/18736) ([54857da](http://git.dtstack.cn/dtstack/data-stack-web/commits/54857da))
+* **rdos:** add default text of fn create ([c0b537f](http://git.dtstack.cn/dtstack/data-stack-web/commits/c0b537f))
+* **rdos:** delete comma ([d7ab418](http://git.dtstack.cn/dtstack/data-stack-web/commits/d7ab418))
+* **rdos:** fix datasensitization style ([bb28b73](http://git.dtstack.cn/dtstack/data-stack-web/commits/bb28b73))
+* **rdos:** fix style ([d953c3c](http://git.dtstack.cn/dtstack/data-stack-web/commits/d953c3c))
+* **rdos:** go to list when change project id ([ac41680](http://git.dtstack.cn/dtstack/data-stack-web/commits/ac41680)), closes [#18534](http://redmine.prod.dtstack.cn/issues/18534)
+* **rdos:** set commandFormate required to false ([dfb8674](http://git.dtstack.cn/dtstack/data-stack-web/commits/dfb8674))
+* **resourceManage:** control engineType ([bfe8d09](http://git.dtstack.cn/dtstack/data-stack-web/commits/bfe8d09))
+* **role:** fix bug ([67fab9a](http://git.dtstack.cn/dtstack/data-stack-web/commits/67fab9a))
+* **ruleConfig:** show = or != operator when the func type is enum ([e845b8a](http://git.dtstack.cn/dtstack/data-stack-web/commits/e845b8a)), closes [#18222](http://redmine.prod.dtstack.cn/issues/18222)
+* **science:** fix style ([fffabfc](http://git.dtstack.cn/dtstack/data-stack-web/commits/fffabfc))
+* **science:** send correct input type of union model ([94ae5b0](http://git.dtstack.cn/dtstack/data-stack-web/commits/94ae5b0)), closes [#18254](http://redmine.prod.dtstack.cn/issues/18254)
+* **source.tsx:** fix the trim method & removeAllSpaces ([7fe7fd0](http://git.dtstack.cn/dtstack/data-stack-web/commits/7fe7fd0)), closes [#18284](http://redmine.prod.dtstack.cn/issues/18284)
+* **stream:** add confirm for stop button ([cc817eb](http://git.dtstack.cn/dtstack/data-stack-web/commits/cc817eb))
+* **stream:** add datasource kafka11 ([1c4cbfe](http://git.dtstack.cn/dtstack/data-stack-web/commits/1c4cbfe))
+* **stream:** add failover to all state ([db3d521](http://git.dtstack.cn/dtstack/data-stack-web/commits/db3d521)), closes [#19252](http://redmine.prod.dtstack.cn/issues/19252)
+* **stream:** add func text ([207cb84](http://git.dtstack.cn/dtstack/data-stack-web/commits/207cb84))
+* **stream:** add other status ([edb5442](http://git.dtstack.cn/dtstack/data-stack-web/commits/edb5442))
+* **stream:** change component of file type ([1c42500](http://git.dtstack.cn/dtstack/data-stack-web/commits/1c42500)), closes [#18925](http://redmine.prod.dtstack.cn/issues/18925)
+* **stream:** change jlog to data acquisition ([bf73587](http://git.dtstack.cn/dtstack/data-stack-web/commits/bf73587)), closes [#19006](http://redmine.prod.dtstack.cn/issues/19006)
+* **stream:** change sql script mode to sql ([494729a](http://git.dtstack.cn/dtstack/data-stack-web/commits/494729a)), closes [#18932](http://redmine.prod.dtstack.cn/issues/18932)
+* **stream:** change tasktype ([2d497a9](http://git.dtstack.cn/dtstack/data-stack-web/commits/2d497a9))
+* **stream:** change text ([c3b0485](http://git.dtstack.cn/dtstack/data-stack-web/commits/c3b0485))
+* **stream:** change ts type ([2830624](http://git.dtstack.cn/dtstack/data-stack-web/commits/2830624))
+* **stream:** fix buffer size input ([5bab132](http://git.dtstack.cn/dtstack/data-stack-web/commits/5bab132))
+* **stream:** fix bugs ([c652672](http://git.dtstack.cn/dtstack/data-stack-web/commits/c652672))
+* **stream:** fix conflict ([135892b](http://git.dtstack.cn/dtstack/data-stack-web/commits/135892b))
+* **stream:** fix create task bug ([d439203](http://git.dtstack.cn/dtstack/data-stack-web/commits/d439203)), closes [#18678](http://redmine.prod.dtstack.cn/issues/18678)
+* change validate ,fix loading bug ([dac4078](http://git.dtstack.cn/dtstack/data-stack-web/commits/dac4078))
+* **stream:** fix date bug ([e882c46](http://git.dtstack.cn/dtstack/data-stack-web/commits/e882c46))
+* **stream:** fix multiple line  graph ([c49044f](http://git.dtstack.cn/dtstack/data-stack-web/commits/c49044f))
+* **stream:** fix rangepicker disable bug ([99a87d5](http://git.dtstack.cn/dtstack/data-stack-web/commits/99a87d5)), closes [#19024](http://redmine.prod.dtstack.cn/issues/19024)
+* **stream:** fix step ([4f1c3c3](http://git.dtstack.cn/dtstack/data-stack-web/commits/4f1c3c3))
+* **stream:** merge old commit ([b647731](http://git.dtstack.cn/dtstack/data-stack-web/commits/b647731))
+* **stream:** modify setting to settingmap ([17d7a72](http://git.dtstack.cn/dtstack/data-stack-web/commits/17d7a72))
+* **stream:** remove desc of sink graph ([82a24a8](http://git.dtstack.cn/dtstack/data-stack-web/commits/82a24a8))
+* fix test validate ([284a7dd](http://git.dtstack.cn/dtstack/data-stack-web/commits/284a7dd))
+* **stream:** show checkpoint second ([d06d04b](http://git.dtstack.cn/dtstack/data-stack-web/commits/d06d04b)), closes [#19278](http://redmine.prod.dtstack.cn/issues/19278)
+* **stream console:** fix time_zone and modify console initval ([d5bf282](http://git.dtstack.cn/dtstack/data-stack-web/commits/d5bf282)), closes [#18012](http://redmine.prod.dtstack.cn/issues/18012) [#18372](http://redmine.prod.dtstack.cn/issues/18372)
+* **style:** add charset ([53c465f](http://git.dtstack.cn/dtstack/data-stack-web/commits/53c465f))
+* **style:** fix work break style ([64fb83a](http://git.dtstack.cn/dtstack/data-stack-web/commits/64fb83a))
+* **tableRelation:** default add expand parant or children menu ([5e79782](http://git.dtstack.cn/dtstack/data-stack-web/commits/5e79782)), closes [#18030](http://redmine.prod.dtstack.cn/issues/18030)
+* **tableRelation:** fix graph position problem ([7ea03c3](http://git.dtstack.cn/dtstack/data-stack-web/commits/7ea03c3)), closes [#18314](http://redmine.prod.dtstack.cn/issues/18314)
+* **target.tsx:** fix the trim method & removeAllSpaces ([4ee280d](http://git.dtstack.cn/dtstack/data-stack-web/commits/4ee280d)), closes [#18284](http://redmine.prod.dtstack.cn/issues/18284)
+* unneed to user scroll validate ([99692ba](http://git.dtstack.cn/dtstack/data-stack-web/commits/99692ba))
+* **views/message/list:** fix the message list no data bug ([6f6ddad](http://git.dtstack.cn/dtstack/data-stack-web/commits/6f6ddad)), closes [#18242](http://redmine.prod.dtstack.cn/issues/18242)
+* 18525 fix the marginTop and index problem ([f126c3e](http://git.dtstack.cn/dtstack/data-stack-web/commits/f126c3e))
+* action INIT_WORKBENCH return undefined ([484fa9f](http://git.dtstack.cn/dtstack/data-stack-web/commits/484fa9f))
+* add a space ([dbea794](http://git.dtstack.cn/dtstack/data-stack-web/commits/dbea794))
+* add code in api ([d23e0d2](http://git.dtstack.cn/dtstack/data-stack-web/commits/d23e0d2))
+* add id in testconnection ([3bc6073](http://git.dtstack.cn/dtstack/data-stack-web/commits/3bc6073))
+* after delete, kerberos file need not display ([3d00650](http://git.dtstack.cn/dtstack/data-stack-web/commits/3d00650))
+* backend path support bracket character ([7ab6db4](http://git.dtstack.cn/dtstack/data-stack-web/commits/7ab6db4))
+* change download path ([626b7b3](http://git.dtstack.cn/dtstack/data-stack-web/commits/626b7b3))
+* change element position ([44feb54](http://git.dtstack.cn/dtstack/data-stack-web/commits/44feb54))
+* change flink and dtyarnshell param ([8ed81c2](http://git.dtstack.cn/dtstack/data-stack-web/commits/8ed81c2))
+* change kerberosfile modifyTime code ([98f0cec](http://git.dtstack.cn/dtstack/data-stack-web/commits/98f0cec))
+* change nav width ([890862b](http://git.dtstack.cn/dtstack/data-stack-web/commits/890862b))
+* change the alter warning position ([3070cf7](http://git.dtstack.cn/dtstack/data-stack-web/commits/3070cf7))
+* change this point, delte unneedcode when unmount or cancel ([33b7c8f](http://git.dtstack.cn/dtstack/data-stack-web/commits/33b7c8f))
+* change validator only need number and code ([e7bc53d](http://git.dtstack.cn/dtstack/data-stack-web/commits/e7bc53d))
+* code lint error ([4ec094e](http://git.dtstack.cn/dtstack/data-stack-web/commits/4ec094e))
+* deal bug when delete liobrasql component ([5887d75](http://git.dtstack.cn/dtstack/data-stack-web/commits/5887d75))
+* deal the conflict ([cca18fc](http://git.dtstack.cn/dtstack/data-stack-web/commits/cca18fc))
+* delete param's value is null ([f241291](http://git.dtstack.cn/dtstack/data-stack-web/commits/f241291))
+* delete spark Thrift default value when change component ([f448902](http://git.dtstack.cn/dtstack/data-stack-web/commits/f448902))
+* delete summary word and change the marginTop style ([44246fd](http://git.dtstack.cn/dtstack/data-stack-web/commits/44246fd))
+* delete the : ([7c8c0b8](http://git.dtstack.cn/dtstack/data-stack-web/commits/7c8c0b8))
+* delete the spark param ([c9e30ec](http://git.dtstack.cn/dtstack/data-stack-web/commits/c9e30ec))
+* fix lint ([11e3eec](http://git.dtstack.cn/dtstack/data-stack-web/commits/11e3eec))
+* fix onclick sure button kerberos swtich ([1e4154e](http://git.dtstack.cn/dtstack/data-stack-web/commits/1e4154e))
+* fix path ([d7d7e1e](http://git.dtstack.cn/dtstack/data-stack-web/commits/d7d7e1e))
+* fix the file and kerberosFile position bug ([60a7434](http://git.dtstack.cn/dtstack/data-stack-web/commits/60a7434))
+* fix the flink param in control ([a897186](http://git.dtstack.cn/dtstack/data-stack-web/commits/a897186))
+* fix the param in post request ([ee695f0](http://git.dtstack.cn/dtstack/data-stack-web/commits/ee695f0))
+* fix the space lint ([e6b9ea5](http://git.dtstack.cn/dtstack/data-stack-web/commits/e6b9ea5))
+* fix the upload kerberosFile name ([e81cbee](http://git.dtstack.cn/dtstack/data-stack-web/commits/e81cbee))
+* gix add component ([a371ad2](http://git.dtstack.cn/dtstack/data-stack-web/commits/a371ad2))
+* librasql component can't be delete ([7222596](http://git.dtstack.cn/dtstack/data-stack-web/commits/7222596))
+* lint fix ([9e63ed6](http://git.dtstack.cn/dtstack/data-stack-web/commits/9e63ed6))
+* make table loading use buttonloading with tableloading ([85715da](http://git.dtstack.cn/dtstack/data-stack-web/commits/85715da))
+* name fix ([6aa354f](http://git.dtstack.cn/dtstack/data-stack-web/commits/6aa354f))
+* pull code, deal the uploadfile problem ([6c2cbc1](http://git.dtstack.cn/dtstack/data-stack-web/commits/6c2cbc1))
+* remove sparkthrift when establish component ([8077fd6](http://git.dtstack.cn/dtstack/data-stack-web/commits/8077fd6))
+* string too long, can't line feed ([6eff18f](http://git.dtstack.cn/dtstack/data-stack-web/commits/6eff18f))
+* 把重跑和续跑改回去 ([d454209](http://git.dtstack.cn/dtstack/data-stack-web/commits/d454209))
+* 还原之前被覆盖掉的文件代码 ([73e770b](http://git.dtstack.cn/dtstack/data-stack-web/commits/73e770b))
+
+
+### Features
+
+* **createApi:** add pagenation optional item for create api ([a450b34](http://git.dtstack.cn/dtstack/data-stack-web/commits/a450b34)), closes [#18337](http://redmine.prod.dtstack.cn/issues/18337)
+* **editor:** auto reset when  begin new job runner ([6816296](http://git.dtstack.cn/dtstack/data-stack-web/commits/6816296)), closes [#18031](http://redmine.prod.dtstack.cn/issues/18031)
+* **pkg:** update dt sql parser ([553a336](http://git.dtstack.cn/dtstack/data-stack-web/commits/553a336))
+* **rdos:** add libra sql format ([a961f32](http://git.dtstack.cn/dtstack/data-stack-web/commits/a961f32))
+* **rdos:** add page of log ([0713eda](http://git.dtstack.cn/dtstack/data-stack-web/commits/0713eda))
+* **rdos:** disable common editor format when could edit is false ([72f5b69](http://git.dtstack.cn/dtstack/data-stack-web/commits/72f5b69))
+* **rdos:** fix project ([0d60386](http://git.dtstack.cn/dtstack/data-stack-web/commits/0d60386))
+* **rdos:** format selected sql ([3011bf0](http://git.dtstack.cn/dtstack/data-stack-web/commits/3011bf0)), closes [#17706](http://redmine.prod.dtstack.cn/issues/17706)
+* **rdos & stream:** support set cookie project_id by URL pid parameter ([58006ff](http://git.dtstack.cn/dtstack/data-stack-web/commits/58006ff)), closes [#18292](http://redmine.prod.dtstack.cn/issues/18292)
+* **rdos & stream:** support set cookie project_id by URL pid parameter ([b01c67c](http://git.dtstack.cn/dtstack/data-stack-web/commits/b01c67c)), closes [#18292](http://redmine.prod.dtstack.cn/issues/18292)
+* **stream:** add  udaf type of func ([ec446c1](http://git.dtstack.cn/dtstack/data-stack-web/commits/ec446c1))
+* **stream:** add checkpoint to datasync ([c1aea7d](http://git.dtstack.cn/dtstack/data-stack-web/commits/c1aea7d)), closes [#18573](http://redmine.prod.dtstack.cn/issues/18573)
+* **stream:** add confirm to stop task ([8a18637](http://git.dtstack.cn/dtstack/data-stack-web/commits/8a18637)), closes [#18721](http://redmine.prod.dtstack.cn/issues/18721)
+* **stream:** add failover ([6dcf116](http://git.dtstack.cn/dtstack/data-stack-web/commits/6dcf116))
+* **stream:** add failover log ([1b6ff67](http://git.dtstack.cn/dtstack/data-stack-web/commits/1b6ff67)), closes [#17903](http://redmine.prod.dtstack.cn/issues/17903)
+* **stream:** add failover log ([7c9f2d0](http://git.dtstack.cn/dtstack/data-stack-web/commits/7c9f2d0))
+* **stream:** add flink sql part format ([092220e](http://git.dtstack.cn/dtstack/data-stack-web/commits/092220e))
+* **stream:** add flink syntax check ([4dc71a9](http://git.dtstack.cn/dtstack/data-stack-web/commits/4dc71a9)), closes [#18863](http://redmine.prod.dtstack.cn/issues/18863)
+* **stream:** add function name to auto complete ([6497bad](http://git.dtstack.cn/dtstack/data-stack-web/commits/6497bad)), closes [#15227](http://redmine.prod.dtstack.cn/issues/15227)
+* **stream:** add graph of dirty out ([6241a80](http://git.dtstack.cn/dtstack/data-stack-web/commits/6241a80)), closes [#17874](http://redmine.prod.dtstack.cn/issues/17874)
+* **stream:** add o button to add all the fields ([c1081b7](http://git.dtstack.cn/dtstack/data-stack-web/commits/c1081b7)), closes [#18929](http://redmine.prod.dtstack.cn/issues/18929)
+* **stream:** add parquet to filetype ([c318aa5](http://git.dtstack.cn/dtstack/data-stack-web/commits/c318aa5)), closes [#18909](http://redmine.prod.dtstack.cn/issues/18909)
+* **stream:** add real_time task channel control ([fdc3278](http://git.dtstack.cn/dtstack/data-stack-web/commits/fdc3278))
+* **stream:** add sync task checkpoint ([b4556c5](http://git.dtstack.cn/dtstack/data-stack-web/commits/b4556c5)), closes [#19227](http://redmine.prod.dtstack.cn/issues/19227)
+* **stream:** add sync task retry button ([65f22ac](http://git.dtstack.cn/dtstack/data-stack-web/commits/65f22ac))
+* **stream:** auto retry three times if load kafka data is empty ([5000a98](http://git.dtstack.cn/dtstack/data-stack-web/commits/5000a98))
+* **stream:** buffer size should be int ([1bac863](http://git.dtstack.cn/dtstack/data-stack-web/commits/1bac863)), closes [#19165](http://redmine.prod.dtstack.cn/issues/19165)
+* **stream:** change rangepicker to timepicker ([52f9117](http://git.dtstack.cn/dtstack/data-stack-web/commits/52f9117)), closes [#19198](http://redmine.prod.dtstack.cn/issues/19198)
+* **stream:** change sql script mode editor ([98e20a5](http://git.dtstack.cn/dtstack/data-stack-web/commits/98e20a5))
+* **stream:** fix bugs ([9713738](http://git.dtstack.cn/dtstack/data-stack-web/commits/9713738))
+* **stream:** merge ([2171d1b](http://git.dtstack.cn/dtstack/data-stack-web/commits/2171d1b))
+* **stream:** merge ([dfd6551](http://git.dtstack.cn/dtstack/data-stack-web/commits/dfd6551))
+* **stream:** modify speed ([debdec0](http://git.dtstack.cn/dtstack/data-stack-web/commits/debdec0))
+* **stream:** remove checkpoint count msg ([d7e20d9](http://git.dtstack.cn/dtstack/data-stack-web/commits/d7e20d9)), closes [#19043](http://redmine.prod.dtstack.cn/issues/19043)
+* 18133 in stream, add kerberos feature ([784dcf1](http://git.dtstack.cn/dtstack/data-stack-web/commits/784dcf1))
+* **stream:** remove time option ([c180cb0](http://git.dtstack.cn/dtstack/data-stack-web/commits/c180cb0)), closes [#18651](http://redmine.prod.dtstack.cn/issues/18651)
+* [#18133](http://redmine.prod.dtstack.cn/issues/18133) part1(Batch): add kerberos in datasource ([74820ed](http://git.dtstack.cn/dtstack/data-stack-web/commits/74820ed))
+* 18133 in batch add download file url ([0dbb395](http://git.dtstack.cn/dtstack/data-stack-web/commits/0dbb395))
+* 18133 in dataquality, add kerberos feature ([3aab9ed](http://git.dtstack.cn/dtstack/data-stack-web/commits/3aab9ed))
+* add a new request to delete kerberos file ([dba21ef](http://git.dtstack.cn/dtstack/data-stack-web/commits/dba21ef))
+* add a new request to get kerberosfile when componentdidmount ([cf9a438](http://git.dtstack.cn/dtstack/data-stack-web/commits/cf9a438))
+* add new in flink ([5178ae4](http://git.dtstack.cn/dtstack/data-stack-web/commits/5178ae4))
+* in control, every component add openkerberos ([2b4422d](http://git.dtstack.cn/dtstack/data-stack-web/commits/2b4422d))
+* optimize the code in control ([32be836](http://git.dtstack.cn/dtstack/data-stack-web/commits/32be836))
+
+
+
+<a name="3.8.0-beta.1.11"></a>
+# [3.8.0-beta.1.11](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.8.0-beta.1.10...3.8.0-beta.1.11) (2019-09-20)
+
+
+### Bug Fixes
+
+* **/offline/siderbench.tsx:** fix add env params tab in script mode ([235df6b](http://git.dtstack.cn/dtstack/data-stack-web/commits/235df6b)), closes [#18175](http://redmine.prod.dtstack.cn/issues/18175)
+
+
+
+<a name="3.8.0-beta.1.10"></a>
+# [3.8.0-beta.1.10](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.8.0-beta.1.9...3.8.0-beta.1.10) (2019-09-18)
+
+
+### Bug Fixes
+
+* **stream:** fix prehandle bug ([4596fd9](http://git.dtstack.cn/dtstack/data-stack-web/commits/4596fd9))
+
+
+
+<a name="3.8.0-beta.1.9"></a>
+# [3.8.0-beta.1.9](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.8.0-beta.1.8...3.8.0-beta.1.9) (2019-09-04)
+
+
+### Bug Fixes
+
+* **batch workbench:** replace localStorage with indexedDB for workbench ([3441acd](http://git.dtstack.cn/dtstack/data-stack-web/commits/3441acd)), closes [#18578](http://redmine.prod.dtstack.cn/issues/18578)
+* remove delete cmd ([c17b3fd](http://git.dtstack.cn/dtstack/data-stack-web/commits/c17b3fd))
+
+
+### Features
+
+* **indexedDB:** add indexedDB module ([025b2e4](http://git.dtstack.cn/dtstack/data-stack-web/commits/025b2e4))
+
+
+
+<a name="3.8.0-beta.1.7"></a>
+# [3.8.0-beta.1.7](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.8.0-beta.1.6...3.8.0-beta.1.7) (2019-08-30)
+
+
+### Bug Fixes
+
+* **editorAction:** add interval 3 seconds for retry select ([756abd4](http://git.dtstack.cn/dtstack/data-stack-web/commits/756abd4)), closes [#18446](http://redmine.prod.dtstack.cn/issues/18446)
+* **editorAction:** exec 3 times retry when server run time error ([c931c03](http://git.dtstack.cn/dtstack/data-stack-web/commits/c931c03)), closes [#18446](http://redmine.prod.dtstack.cn/issues/18446)
+
+
+
+<a name="3.8.0-beta.1.6"></a>
+# [3.8.0-beta.1.6](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.8.0-beta.1.5...3.8.0-beta.1.6) (2019-08-28)
+
+
+### Bug Fixes
+
+* **editor:** change innerHTML to innerText ([cadec90](http://git.dtstack.cn/dtstack/data-stack-web/commits/cadec90)), closes [#18452](http://redmine.prod.dtstack.cn/issues/18452)
+
+
+
+<a name="3.8.0-beta.1.5"></a>
+# [3.8.0-beta.1.5](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.8.0-beta.1.4...3.8.0-beta.1.5) (2019-08-28)
+
+
+### Bug Fixes
+
+* code lint error ([c7e3b33](http://git.dtstack.cn/dtstack/data-stack-web/commits/c7e3b33))
+
+
+### Features
+
+* **createApi:** add pagenation optional item for create api ([ca3da46](http://git.dtstack.cn/dtstack/data-stack-web/commits/ca3da46)), closes [#18337](http://redmine.prod.dtstack.cn/issues/18337)
+
+
+
+<a name="3.8.0-beta.1.4"></a>
+# [3.8.0-beta.1.4](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.8.0-beta.1.3...3.8.0-beta.1.4) (2019-08-23)
+
+
+### Bug Fixes
+
+* **expandJSONObj:** hand null or undefined error ([c0b4d2a](http://git.dtstack.cn/dtstack/data-stack-web/commits/c0b4d2a))
+
+
+
+<a name="3.8.0-beta.1.3"></a>
+# [3.8.0-beta.1.3](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.8.0-beta.1.2...3.8.0-beta.1.3) (2019-08-22)
+
+
+### Bug Fixes
+
+* **testApi:** support input params contains dots char ([617a25d](http://git.dtstack.cn/dtstack/data-stack-web/commits/617a25d)), closes [#18341](http://redmine.prod.dtstack.cn/issues/18341)
+
+
+### Features
+
+* add expandJSONObj function ([4df7d37](http://git.dtstack.cn/dtstack/data-stack-web/commits/4df7d37))
+
+
+
 <a name="3.8.0-beta.1.2"></a>
 # [3.8.0-beta.1.2](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.8.0-beta.1.1...3.8.0-beta.1.2) (2019-08-21)
 

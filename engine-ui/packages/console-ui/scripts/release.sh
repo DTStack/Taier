@@ -22,8 +22,6 @@ echo "Release as $release"
 
 # Tag prefix
 prefix="DTinsight_v"
-git tag -d "$prefix$release"
-git pull origin :"$prefix$release"
 git pull origin $branch
 echo "Current pull origin $branch."
 

@@ -216,8 +216,9 @@ class Navigator extends React.Component<any, any> {
     }
 
     clickUserMenu = (obj: any) => {
+        const { app } = this.props;
         if (obj.key === 'logout') {
-            UserApi.logout();
+            UserApi.logout(app && app.id);
         }
     }
 

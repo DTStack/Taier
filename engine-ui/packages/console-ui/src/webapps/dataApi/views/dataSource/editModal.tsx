@@ -2,6 +2,8 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Modal, Input, Button, Select, Form, message, Tooltip, Icon } from 'antd';
 
+import { hidePasswordInDom } from 'funcs';
+
 import HelpDoc from '../helpDoc';
 import { formItemLayout, tailFormItemLayout, DATA_SOURCE } from '../../consts';
 import { dataSourceActions } from '../../actions/dataSource';
@@ -44,7 +46,9 @@ class DataSourceModal extends React.Component<any, any> {
     componentDidMount () {
         this.props.getDataSourcesType();
     }
-
+    componentDidUpdate () {
+        hidePasswordInDom();
+    }
     // eslint-disable-next-line
     UNSAFE_componentWillReceiveProps(nextProps: any) {
         const oldData = this.props.sourceData;
@@ -119,7 +123,12 @@ class DataSourceModal extends React.Component<any, any> {
             detailConfig: !e.target.value
         });
     }
-
+    hidePasswordInDom = (e: any) => {
+        // 特殊处理密码在 dom 中的展示
+        setTimeout(() => {
+            document.getElementById('dataJson.password').setAttribute('value', '');
+        }, 200)
+    }
     renderDynamic () {
         const { sourceType } = this.state
         const { form, sourceData } = this.props;
@@ -162,7 +171,7 @@ class DataSourceModal extends React.Component<any, any> {
                                 rules: [],
                                 initialValue: ''
                             })(
-                                <Input type="password" />
+                                <Input type="password" onChange={hidePasswordInDom} />
                             )
                         }
                     </FormItem>,
@@ -290,7 +299,7 @@ class DataSourceModal extends React.Component<any, any> {
                                 }],
                                 initialValue: ''
                             })(
-                                <Input type="password" />
+                                <Input type="password" onChange={hidePasswordInDom} />
                             )
                         }
                     </FormItem>
@@ -340,7 +349,7 @@ class DataSourceModal extends React.Component<any, any> {
                                 }],
                                 initialValue: ''
                             })(
-                                <Input type="password" />
+                                <Input type="password" onChange={hidePasswordInDom} />
                             )
                         }
                     </FormItem>
