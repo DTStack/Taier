@@ -566,16 +566,15 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
     }
 
     private void fillPluginPathToShipFiles(JobGraph jobGraph) {
-        Map<String, String> jobCacheFileConfig = jobGraph.getJobConfiguration().toMap();
-        Set<String> classPathKeySet = Sets.newHashSet();
-        fillClassPathKeySet(jobCacheFileConfig, classPathKeySet);
         List<File> shipFiles = new ArrayList<>();
-        for(String key : classPathKeySet){
-            String pathStr = jobCacheFileConfig.get(key);
-            shipFiles.add(new File(pathStr));
-        }
+        jobGraph.getClasspaths().forEach(flinkJarPath -> {
+            try {
+                shipFiles.add(new File(flinkJarPath.toURI()));
+            } catch (URISyntaxException e) {
+                LOG.error("{} file not found",flinkJarPath);
+            }
+        });
         addShipFiles(shipFiles);
-
     }
 
     private  JobGraph fillStreamJobGraphClassPath(JobGraph jobGraph) throws MalformedURLException {
