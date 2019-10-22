@@ -125,24 +125,6 @@ class FnForm extends React.Component<any, any> {
                         <Input.TextArea rows={4} placeholder="请输入函数的参数说明"/>
                     )}
                 </FormItem>
-                {
-                //     <FormItem
-                //     {...formItemLayout}
-                //     label="调用测试"
-                //     hasFeedback
-                // >
-                //     {getFieldDecorator('commandFormate', {
-                //         rules: [{
-                //             required: false, message: '调用测试不能为空'
-                //         }, {
-                //             max: 200,
-                //             message: '描述请控制在200个字符以内！'
-                //         }]
-                //     })(
-                //         <Input.TextArea rows={4} placeholder="请输入调用函数的命令，例如：dateFormat('20190101', 'yyyyMMdd', 'yyyy-MM-dd')，将返回2019-01-01"/>
-                //     )}
-                // </FormItem>
-                }
                 <FormItem
                     {...formItemLayout}
                     label="选择存储位置"
