@@ -598,14 +598,14 @@ public class FlinkClient extends AbsClient {
             String except = getExceptionInfo(exceptPath, reqURL);
             String accuPath = String.format(FlinkRestParseUtil.JOB_ACCUMULATOR_INFO, jobId);
             String accuInfo = getMessageByHttp(accuPath, reqURL);
-            retMap.put("except", except);
+            retMap.put("exception", except);
             retMap.put("accuInfo", accuInfo);
             return FlinkRestParseUtil.parseEngineLog(retMap);
         } catch (Exception e) {
             logger.error("", e);
             Map<String, String> map = new LinkedHashMap<>(8);
             map.put("jobId", jobId);
-            map.put("root-exception", ExceptionInfoConstrant.FLINK_GET_LOG_ERROR_UNDO_RESTART_EXCEPTION);
+            map.put("exception", ExceptionInfoConstrant.FLINK_GET_LOG_ERROR_UNDO_RESTART_EXCEPTION);
             map.put("reqURL", reqURL);
             map.put("engineLogErr", ExceptionUtil.getErrorMessage(e));
             return new Gson().toJson(map);
