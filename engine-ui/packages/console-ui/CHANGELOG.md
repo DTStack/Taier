@@ -2,90 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-<a name="3.9.0-beta.2.2"></a>
-# [3.9.0-beta.2.2](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.2.1...3.9.0-beta.2.2) (2019-10-16)
+<a name="3.9.0-beta.2.4"></a>
+# [3.9.0-beta.2.4](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.2.2...3.9.0-beta.2.4) (2019-10-22)
+
+
+
+<a name="3.9.0-beta.2.3"></a>
+# [3.9.0-beta.2.3](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.2...3.9.0-beta.2.3) (2019-10-22)
 
 
 ### Bug Fixes
 
-* **filter:** fix comment filter ([bf4f3b8](http://git.dtstack.cn/dtstack/data-stack-web/commits/bf4f3b8))
-
-
-
-<a name="3.9.0-beta.2.1"></a>
-# [3.9.0-beta.2.1](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.2...3.9.0-beta.2.1) (2019-10-16)
-
-
-### Bug Fixes
-
-* **api:** add icon to view ([9c0e364](http://git.dtstack.cn/dtstack/data-stack-web/commits/9c0e364))
-* **api:** change txt ([60670e2](http://git.dtstack.cn/dtstack/data-stack-web/commits/60670e2))
-* **api:** fix ([efedd2f](http://git.dtstack.cn/dtstack/data-stack-web/commits/efedd2f))
-* **api:** fix bug ([1194ba6](http://git.dtstack.cn/dtstack/data-stack-web/commits/1194ba6))
-* **api:** fix bugs ([aef24df](http://git.dtstack.cn/dtstack/data-stack-web/commits/aef24df))
-* **api:** fix bugs ([1af948a](http://git.dtstack.cn/dtstack/data-stack-web/commits/1af948a))
-* **api:** fix bugs ([4a30e24](http://git.dtstack.cn/dtstack/data-stack-web/commits/4a30e24))
-* **api:** fix checkbox style ([043e84a](http://git.dtstack.cn/dtstack/data-stack-web/commits/043e84a))
-* **api:** fix error data back ([5e3d12b](http://git.dtstack.cn/dtstack/data-stack-web/commits/5e3d12b))
-* **api:** fix operation list bug ([5a7ec85](http://git.dtstack.cn/dtstack/data-stack-web/commits/5a7ec85))
-* **api:** 生成API，参数配置时选择了返回结果携带分页参数，进入下一步输入pageNo点击开始测试，pageNo字段会被清空 ([8e86de6](http://git.dtstack.cn/dtstack/data-stack-web/commits/8e86de6)), closes [#19230](http://redmine.prod.dtstack.cn/issues/19230)
-* add speed option ([667530a](http://git.dtstack.cn/dtstack/data-stack-web/commits/667530a))
-* **babel:** add core js ([29d4cca](http://git.dtstack.cn/dtstack/data-stack-web/commits/29d4cca)), closes [#19390](http://redmine.prod.dtstack.cn/issues/19390)
-* 🐛 add title attribute to relation data source ([5d863ab](http://git.dtstack.cn/dtstack/data-stack-web/commits/5d863ab)), closes [#19003](http://redmine.prod.dtstack.cn/issues/19003)
-* add goToView (doing) ([3aec9b5](http://git.dtstack.cn/dtstack/data-stack-web/commits/3aec9b5))
-* add kudu ([71a7368](http://git.dtstack.cn/dtstack/data-stack-web/commits/71a7368))
-* add speed option ([6907983](http://git.dtstack.cn/dtstack/data-stack-web/commits/6907983))
-* lint problem ([aa8e953](http://git.dtstack.cn/dtstack/data-stack-web/commits/aa8e953))
-* lint problem ([456c6fd](http://git.dtstack.cn/dtstack/data-stack-web/commits/456c6fd))
-* lint problem ([cc36ae0](http://git.dtstack.cn/dtstack/data-stack-web/commits/cc36ae0))
-* lint problem ([f3d3614](http://git.dtstack.cn/dtstack/data-stack-web/commits/f3d3614))
-* lint problems ([573c84f](http://git.dtstack.cn/dtstack/data-stack-web/commits/573c84f))
-* owner options's problem ([53fd36b](http://git.dtstack.cn/dtstack/data-stack-web/commits/53fd36b))
-* **filtercomments:** alter comments begin position ([396a7dd](http://git.dtstack.cn/dtstack/data-stack-web/commits/396a7dd)), closes [#19022](http://redmine.prod.dtstack.cn/issues/19022)
-* remove datasource type kafka ([34d7f7c](http://git.dtstack.cn/dtstack/data-stack-web/commits/34d7f7c))
-* **jest:** remove database ([21fde6f](http://git.dtstack.cn/dtstack/data-stack-web/commits/21fde6f))
-* **keymap:** add title attribute to Hive, MAXCOMPUTE ([d8f4d3e](http://git.dtstack.cn/dtstack/data-stack-web/commits/d8f4d3e)), closes [#19003](http://redmine.prod.dtstack.cn/issues/19003)
-* **scriptModal:** get the default type of script from scriptTypes ([4e63930](http://git.dtstack.cn/dtstack/data-stack-web/commits/4e63930)), closes [#18989](http://redmine.prod.dtstack.cn/issues/18989)
-* **task.scss:** hide workflow task name when overflow ([bc89657](http://git.dtstack.cn/dtstack/data-stack-web/commits/bc89657)), closes [#19144](http://redmine.prod.dtstack.cn/issues/19144)
-* **taskjobflowview:** fix incorrect function name ([0117f75](http://git.dtstack.cn/dtstack/data-stack-web/commits/0117f75))
-* **uploader:** optimized the position of uploader ([6c4ac55](http://git.dtstack.cn/dtstack/data-stack-web/commits/6c4ac55)), closes [#18895](http://redmine.prod.dtstack.cn/issues/18895)
-
-
-### Features
-
-* add impalaSQL ([de8008d](http://git.dtstack.cn/dtstack/data-stack-web/commits/de8008d))
-* add impalaSQL ([5f6d6e5](http://git.dtstack.cn/dtstack/data-stack-web/commits/5f6d6e5))
-* add impalaSQL task ([0611cee](http://git.dtstack.cn/dtstack/data-stack-web/commits/0611cee))
-* add impalaSQL task ([414232d](http://git.dtstack.cn/dtstack/data-stack-web/commits/414232d))
-* add impalaSQL task ([3b37365](http://git.dtstack.cn/dtstack/data-stack-web/commits/3b37365))
-* add kudu dataSource ([5097737](http://git.dtstack.cn/dtstack/data-stack-web/commits/5097737))
-* add repalceResource ([408d27c](http://git.dtstack.cn/dtstack/data-stack-web/commits/408d27c))
-* impalaSQL Component's value reset ([4f6e0ae](http://git.dtstack.cn/dtstack/data-stack-web/commits/4f6e0ae))
-* recovery params ([ed48eae](http://git.dtstack.cn/dtstack/data-stack-web/commits/ed48eae))
-* repalce resource ([ef18bb3](http://git.dtstack.cn/dtstack/data-stack-web/commits/ef18bb3))
-* retryNum order ([b3fac9e](http://git.dtstack.cn/dtstack/data-stack-web/commits/b3fac9e))
-* **api:** add api logout api ([155f612](http://git.dtstack.cn/dtstack/data-stack-web/commits/155f612))
-* **api:** add create user id filter ([c5b0e32](http://git.dtstack.cn/dtstack/data-stack-web/commits/c5b0e32))
-* **api:** add detail of category manager ([e98d8af](http://git.dtstack.cn/dtstack/data-stack-web/commits/e98d8af)), closes [#18751](http://redmine.prod.dtstack.cn/issues/18751)
-* **api:** add method ([9c4415c](http://git.dtstack.cn/dtstack/data-stack-web/commits/9c4415c))
-* **api:** add new filter for market ([0cac2b0](http://git.dtstack.cn/dtstack/data-stack-web/commits/0cac2b0)), closes [#18750](http://redmine.prod.dtstack.cn/issues/18750)
-* **api:** add operation api ([eac3194](http://git.dtstack.cn/dtstack/data-stack-web/commits/eac3194))
-* **api:** add special char support to path ([cea6301](http://git.dtstack.cn/dtstack/data-stack-web/commits/cea6301)), closes [#18745](http://redmine.prod.dtstack.cn/issues/18745)
-* **api:** api参数检查toast ([c2d2d7f](http://git.dtstack.cn/dtstack/data-stack-web/commits/c2d2d7f))
-* **api:** set table filter case insensitive ([fb7cd22](http://git.dtstack.cn/dtstack/data-stack-web/commits/fb7cd22))
-* **api:** set userid to null when empty ([6131079](http://git.dtstack.cn/dtstack/data-stack-web/commits/6131079))
-* **api:** the generated API, let go of the input parameter limit ([39c01f1](http://git.dtstack.cn/dtstack/data-stack-web/commits/39c01f1))
-* **api:** the new API, parameter configuration ([6dda29c](http://git.dtstack.cn/dtstack/data-stack-web/commits/6dda29c))
-* **api:** the UI API parameters optimized configuration ([c7be92f](http://git.dtstack.cn/dtstack/data-stack-web/commits/c7be92f))
-* **audit:** add api ([4634784](http://git.dtstack.cn/dtstack/data-stack-web/commits/4634784))
-* **rdos:** add unique key ([dddf5ce](http://git.dtstack.cn/dtstack/data-stack-web/commits/dddf5ce))
-* **taskview:** support double click or context menu to open task ([8bb2928](http://git.dtstack.cn/dtstack/data-stack-web/commits/8bb2928)), closes [#18895](http://redmine.prod.dtstack.cn/issues/18895)
-
-
-### Performance Improvements
-
-* **api:** automatic SQl model update message ([0807311](http://git.dtstack.cn/dtstack/data-stack-web/commits/0807311))
-* **api:** 自动化SQL模式 ([0c5090d](http://git.dtstack.cn/dtstack/data-stack-web/commits/0c5090d))
+* **babel:** add core js ([686af14](http://git.dtstack.cn/dtstack/data-stack-web/commits/686af14)), closes [#19390](http://redmine.prod.dtstack.cn/issues/19390)
+* **filter:** fix comment filter ([7266982](http://git.dtstack.cn/dtstack/data-stack-web/commits/7266982))
 
 
 
