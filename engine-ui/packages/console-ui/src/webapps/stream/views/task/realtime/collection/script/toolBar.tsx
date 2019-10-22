@@ -131,7 +131,7 @@ class ImportTemplateForm extends React.Component<any, any> {
         const isBeats = sourceType == DATA_SOURCE.BEATS;
 
         const sourceTypeOptions = Object.keys(DATA_SOURCE)
-            .filter((key: any) => {
+            .filter((key: keyof typeof DATA_SOURCE) => {
                 const val = DATA_SOURCE[key];
                 if (sourceTypes.indexOf(val) === -1 && !isKafka(val)) {
                     return false
@@ -139,13 +139,13 @@ class ImportTemplateForm extends React.Component<any, any> {
                 return true
             })
             .map(
-                (key: any) => {
+                (key: keyof typeof DATA_SOURCE) => {
                     const val = DATA_SOURCE[key];
                     return <Option key={val} value={val.toString()}>{DATA_SOURCE_TEXT[val]}</Option>
                 }
             )
         const targetTypeOptions = Object.keys(DATA_SOURCE)
-            .filter((key: any) => {
+            .filter((key: keyof typeof DATA_SOURCE) => {
                 const val = DATA_SOURCE[key];
                 if (!isKafka(val) && val != DATA_SOURCE.HIVE) {
                     return false
@@ -153,7 +153,7 @@ class ImportTemplateForm extends React.Component<any, any> {
                 return true
             })
             .map(
-                (key: any) => {
+                (key: keyof typeof DATA_SOURCE) => {
                     const val = DATA_SOURCE[key];
                     return <Option key={val} value={val.toString()}>{DATA_SOURCE_TEXT[val]}</Option>
                 }
