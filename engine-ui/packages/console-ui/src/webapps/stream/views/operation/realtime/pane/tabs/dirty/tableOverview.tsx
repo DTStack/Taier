@@ -29,7 +29,7 @@ interface TableOverviewState {
         nErrors: string[];
         nullErrors: string[];
         otherErrors: string[];
-    }
+    };
 }
 
 export default class TableOverview extends React.Component<any, TableOverviewState> {
