@@ -190,7 +190,7 @@ export const actions: any = {
                 params.sourceId = undefined;
                 params.tableName = undefined;
                 params.lifeDay = undefined;
-            } else if (params.recordDirty) {
+            } else if (params.isSaveDirty) {
                 params.lifeDay = 90;
             }
             setCurrentPageValue(dispatch, 'settingMap',
