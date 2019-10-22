@@ -208,6 +208,7 @@ export default class MainBench extends React.Component<any, any> {
                         currentTabData={tabData}
                     />
                 case TASK_TYPE.LIBRASQL:
+                case TASK_TYPE.IMPALA_SQL:
                     return <CommonEditor
                         mode="sql"
                         singleLineMode={true}
@@ -267,6 +268,7 @@ export default class MainBench extends React.Component<any, any> {
         } else if (utils.checkExist(tabData && tabData.type)) {
             switch (tabData.type) {
                 case SCRIPT_TYPE.SQL:
+                case SCRIPT_TYPE.IMPALA_SQL:
                 case SCRIPT_TYPE.LIBRASQL: {
                     return <EditorContainer
                         taskCustomParams={taskCustomParams}

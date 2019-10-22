@@ -90,13 +90,13 @@ class DataSync extends React.Component<any, any> {
         const oldTargetFileName = get(oldTarget, 'type.fileName');
         const newTargetFileName = get(targetMap, 'type.fileName');
 
-        const isWhereChange = (oldSourceTable === newSourceTable) && oldWhere !== undefined && newWhere !== undefined && oldWhere !== newWhere;
+        const isWhereChange = (oldSourceTable === newSourceTable) && oldWhere !== newWhere;
         const isSourcePartitionChange = oldSourceTable === newSourceTable && (oldSourcePartition !== undefined || newSourcePartition) && oldSourcePartition !== newSourcePartition;
         const isTargetPartitionChange = oldTargetTable === newTargetTable && (oldTargetPartition !== undefined || newTargetPartition !== undefined) && oldTargetPartition !== newTargetPartition;
-        const isSQLChange = oldSQL !== undefined && newSQL !== undefined && oldSQL !== newSQL;
-        const isPostSQLChange = oldPostSQL !== undefined && newPostSQL !== undefined && oldPostSQL !== newPostSQL;
+        const isSQLChange = oldSQL !== newSQL;
+        const isPostSQLChange = oldPostSQL !== newPostSQL;
         const isSourceColumnChange = sourceMap && !isEqual(oldSource.column, sourceMap.column) && this.state.currentStep === 2;
-        const isSourcePathChange = oldSourcePath !== undefined && newSourcePath !== undefined && oldSourcePath !== newSourcePath;
+        const isSourcePathChange = oldSourcePath !== newSourcePath;
         const isTargetPathChange = (oldTargetPath !== undefined || newTargetPath !== undefined) && oldTargetPath !== newTargetPath;
         const isTargetFileNameChange = (oldTargetFileName !== undefined || newTargetFileName !== undefined) && oldTargetFileName !== newTargetFileName;
 

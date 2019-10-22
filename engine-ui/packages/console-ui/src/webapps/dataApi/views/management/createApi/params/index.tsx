@@ -23,11 +23,14 @@ class ManageParamsConfig extends React.Component<any, any> {
         resultPage: undefined,
         sqlModeShow: true,
         passLoading: false,
+        saveLoading: false,
+        isCheckParams: false, // 是否检查了参数
         editor: {
             sql: '',
             cursor: undefined,
             sync: true
-        }
+        },
+        charOption: []
 
     }
     columnsRef = React.createRef();
@@ -49,7 +52,14 @@ class ManageParamsConfig extends React.Component<any, any> {
         /**
          * 获取数据源类型
          */
+
         this.props.getDataSourcesType();
+        /**
+         * 获取数据源字段类型
+         */
+
+        this.getDataSourcesCharType(dataSourceType);
+
         /**
          * 获取数据源列表
          */
@@ -85,6 +95,21 @@ class ManageParamsConfig extends React.Component<any, any> {
                         }
                     }
                 )
+        }
+    }
+    getDataSourcesCharType = (type: any) => {
+        const { mode } = this.props;
+        if (mode == API_MODE.SQL) {
+            this.props.getDataSourcesCharType(type).then((res: any) => {
+                const { code, data } = res;
+                if (code == 1) {
+                    this.setState({
+                        charOption: data
+                    })
+                } else {
+                    message.error(res.message);
+                }
+            })
         }
     }
     sqlOnChange (value: any, doc: any) {
@@ -246,8 +271,9 @@ class ManageParamsConfig extends React.Component<any, any> {
             'tableSource': undefined,
             'dataSource': undefined
 
-        })
+        });
         this.getDataSource(key);
+        this.getDataSourcesCharType(key);
     }
     tableChange (key: any) {
         const dataSource = this.props.form.getFieldValue('dataSource');
@@ -276,7 +302,6 @@ class ManageParamsConfig extends React.Component<any, any> {
         }
         return {
             onChange: (selectedRowKeys: any, selectedRows: any) => {
-                console.log(selectedRowKeys);
                 this.setState({
                     selectedRows: selectedRows
                 })
@@ -290,18 +315,27 @@ class ManageParamsConfig extends React.Component<any, any> {
     }
     getSaveData () {
         const { InputColumns, OutputColums, resultPageChecked, resultPage, editor } = this.state;
+        const { mode } = this.props;
         const form = this.props.form;
         const dataSource = form.getFieldValue('dataSource');
         const tableSource = form.getFieldValue('tableSource');
         const dataSourceType = form.getFieldValue('dataSourceType');
         const containHeader = form.getFieldValue('containHeader');
         const containPage = form.getFieldValue('containPage');
-
+        let newInputColumns = InputColumns;
+        if (mode == API_MODE.SQL) {
+            newInputColumns = InputColumns.map((item: any) => {
+                if (item.type == 'OBJECT') {
+                    item.type = 'VARCHAR'
+                }
+                return item;
+            })
+        }
         const params: any = {
             dataSrcId: dataSource,
             dataSourceType: dataSourceType,
             tableName: tableSource,
-            inputParam: InputColumns,
+            inputParam: newInputColumns,
             outputParam: OutputColums,
             resultPageChecked: resultPageChecked,
             resultPage: resultPage,
@@ -313,8 +347,32 @@ class ManageParamsConfig extends React.Component<any, any> {
         return params;
     }
     cancelAndSave () {
-        const { cancelAndSave } = this.props;
-        cancelAndSave(this.getSaveData());
+        const { cancelAndSave, mode } = this.props;
+        const { InputColumns } = this.state;
+        if (!this.checkSameName(InputColumns)) {
+            message.error('同一参数名称的必填项选择必须一致!')
+            return;
+        }
+        if (mode == API_MODE.SQL) {
+            const { checked, errMessage } = this.checkGroupById(InputColumns)
+            if (!checked) {
+                message.error(errMessage)
+                return;
+            }
+        }
+
+        this.setState({
+            saveLoading: true
+        })
+        cancelAndSave(this.getSaveData()).then(() => {
+            this.setState({
+                saveLoading: false
+            })
+        }).catch(() => {
+            this.setState({
+                saveLoading: false
+            })
+        });
     }
     setPassLoading (isLoading: any) {
         this.setState({
@@ -322,53 +380,109 @@ class ManageParamsConfig extends React.Component<any, any> {
         })
     }
     async pass () {
-        const { mode, basicProperties } = this.props;
-        this.setPassLoading(true);
-        const { editor } = this.state;
-
+        const { mode, basicProperties, apiEdit } = this.props;
+        const { editor, isCheckParams, InputColumns, OutputColums } = this.state;
         const nextStep = async () => {
-            const { InputColumns, OutputColums } = this.state;
-
-            if ((!OutputColums || OutputColums.length == 0) && basicProperties.method !== API_METHOD.GET) { // GET 请求方式，输入参数未非必填
-                message.error('输出参数不能为空')
-                this.setPassLoading(false)
-                return;
-            }
             let isPass = await (this.columnsRef.current as any).getWrappedInstance().validateFields();
             this.setPassLoading(false)
             if (!isPass) {
                 return false;
             }
-            if (!this.checkRepeat(InputColumns)) {
-                message.error('输入参数不能相同')
-                return;
-            }
-            if (!this.checkRepeat(OutputColums)) {
-                message.error('输出参数不能相同')
-                return;
-            }
             this.props.dataChange(this.getSaveData())
         }
-
+        if (!this.checkRepeat(InputColumns)) {
+            message.error('输入参数不能相同');
+            return;
+        }
+        if (!this.checkSameName(InputColumns)) {
+            message.error('同一参数名称的必填项选择必须一致!');
+            return;
+        }
         if (mode == API_MODE.SQL) {
+            if (!apiEdit && !isCheckParams) {
+                this.sqlModeShowChange(false);
+                return false;
+            }
             if (!utils.trim(editor.sql)) {
                 message.error('SQL 不能为空')
                 this.setPassLoading(false)
-                return
+                return false;
+            }
+            const { checked, errMessage } = this.checkGroupById(InputColumns)
+            if (!checked) {
+                message.error(errMessage)
+                return false;
             }
             let checkSql = await this.sqlModeShowChange(true);
             if (!checkSql) {
                 this.setPassLoading(false)
                 return;
             }
+            this.setPassLoading(true);
             nextStep();
         } else {
+            if ((!OutputColums || OutputColums.length == 0) && basicProperties.method !== API_METHOD.GET) { // GET 请求方式，输入参数未非必填
+                message.error('输出参数不能为空')
+                return;
+            }
+            if (!this.checkRepeat(OutputColums)) {
+                message.error('输出参数不能相同');
+                return;
+            }
+            this.setPassLoading(true);
             nextStep();
         }
     }
     prev () {
         this.props.saveData(this.getSaveData());
         this.props.prev();
+    }
+    checkSameName (columns: any) { // 校验同一参数名称的必填项选择必须是一致的。
+        const map: any = {};
+        for (let i = 0; i < columns.length; i++) {
+            const column = columns[i];
+            if (map[column.paramsName] == undefined) {
+                map[column.paramsName] = column.required;
+            } else {
+                if (column.required !== map[column.paramsName]) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    checkGroupById (columns: any) { // 校验同一组的必填项选择必须是一致的。
+        const map: any = {};
+        for (let i = 0; i < columns.length; i++) {
+            const column = columns[i];
+            if (column.groupId == null) {
+
+            } else if (column.groupId == -1 && !column.required) {
+                return {
+                    checked: false,
+                    errMessage: column.paramsName + '为必填项！'
+                };
+            } else if (map[column.groupId] == undefined) {
+                map[column.groupId] = column.required;
+            } else {
+                if (column.required !== map[column.groupId]) {
+                    let name: any[] = [];
+                    columns.forEach((element: any) => {
+                        if (element.groupId == column.groupId) {
+                            name.push(element.paramsName)
+                        }
+                    })
+                    return {
+                        checked: false,
+                        errMessage: name.join(',') + '的必填项需保持一致!'
+                    };
+                }
+            }
+        }
+        return {
+            checked: true,
+            errMessage: null
+        };
     }
     checkRepeat (columns: any) {
         const map: any = {};
@@ -408,11 +522,13 @@ class ManageParamsConfig extends React.Component<any, any> {
             return;
         }
         if (!sql) {
+            console.log(!sql)
             message.warning('SQL 不能为空');
             return;
         }
         this.setState({
-            loading: true
+            loading: true,
+            isCheckParams: true
         })
         let res = await this.props.sqlParser(sql, dataSource);
         this.setState({
@@ -457,7 +573,8 @@ class ManageParamsConfig extends React.Component<any, any> {
                     operator: column.operator,
                     id: id,
                     desc: desc,
-                    required: required
+                    required: required,
+                    groupId: column.groupId
                 })
             }
         ) : [];
@@ -500,7 +617,9 @@ class ManageParamsConfig extends React.Component<any, any> {
             sqlModeShow,
             editor,
             loading,
-            passLoading
+            saveLoading,
+            passLoading,
+            charOption
         } = this.state;
         const { getFieldDecorator } = this.props.form;
         const dataSourceType = dataSource.sourceType || [];
@@ -525,7 +644,12 @@ class ManageParamsConfig extends React.Component<any, any> {
          */
         const tableOptions = tableList.map(
             (data: any) => {
-                return <Option key={data} value={data}>{data}</Option>
+                return <Option key={data.tableName} value={data.tableName}>
+                    <div style={{ verticalAlign: 'middle' }}>
+                        <img style={{ width: 18, verticalAlign: 'middle', marginRight: 5 }} src={data.view ? 'public/dataApi/img/database_view.svg' : 'public/dataApi/img/database_table.svg'} />
+                        <span style={{ verticalAlign: 'middle' }}>{data.tableName}</span>
+                    </div>
+                </Option>
             }
         )
         const isSqlMode = mode == API_MODE.SQL;
@@ -581,6 +705,7 @@ class ManageParamsConfig extends React.Component<any, any> {
                                             placeholder="数据表"
                                             style={{ width: '100%' }}
                                             showSearch
+                                            filterOption={(input: any, option: any) => option.props.value.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                             onSelect={this.tableChange.bind(this)}
                                         >
                                             {tableOptions}
@@ -633,22 +758,25 @@ class ManageParamsConfig extends React.Component<any, any> {
                                             resultPageChecked={resultPageChecked}
                                             resultPage={resultPage}
                                             mode={mode}
+                                            charOption={charOption}
                                         />
                                     )}
                             <div style={{ marginTop: 10 }}>
                                 <p className="middle-title">高级配置</p>
                                 <FormItem style={{ marginBottom: 0 }}>
                                     {getFieldDecorator('containHeader', {
-                                        initialValue: containHeader
+                                        valuePropName: 'checked',
+                                        initialValue: containHeader && containHeader != '0'
                                     })(
-                                        <Checkbox defaultChecked={containHeader === '1'}>返回结果中携带 Request Header 参数</Checkbox>
+                                        <Checkbox>返回结果中携带 Request Header 参数</Checkbox>
                                     )}
                                 </FormItem>
                                 <FormItem>
                                     {getFieldDecorator('containPage', {
-                                        initialValue: containPage
+                                        valuePropName: 'checked',
+                                        initialValue: containPage && containPage != '0'
                                     })(
-                                        <Checkbox onChange={this.onCheckedContainPage} defaultChecked={containPage === '1'}>返回结果携带分页参数</Checkbox>
+                                        <Checkbox onChange={this.onCheckedContainPage}>返回结果携带分页参数</Checkbox>
                                     )}
                                     <Tooltip title={<div><p>分页参数包含：</p><p>currentPage, pageSize, totalCount, totalPage</p></div>}>
                                         <Icon type="question-circle-o" />
@@ -662,7 +790,7 @@ class ManageParamsConfig extends React.Component<any, any> {
                     className="steps-action"
                 >
                     {
-                        <Button onClick={this.cancelAndSave.bind(this)}>
+                        <Button loading={saveLoading} onClick={this.cancelAndSave.bind(this)}>
                             保存并退出
                         </Button>
                     }

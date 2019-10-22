@@ -18,6 +18,7 @@ export default class RequiredIcon extends React.Component<any, any> {
             hdfsShowRequired,
             yarnShowRequired,
             libraShowRequired,
+            impalaSqlRequired,
             sftpShowRequired
         } = showRequireStatus;
         let isShowIcon = false;
@@ -60,6 +61,10 @@ export default class RequiredIcon extends React.Component<any, any> {
             }
             case COMPONENT_TYPE_VALUE.LIBRASQL: {
                 isShowIcon = libraShowRequired;
+                break;
+            }
+            case COMPONENT_TYPE_VALUE.IMPALASQL: {
+                isShowIcon = impalaSqlRequired;
                 break;
             }
             case COMPONENT_TYPE_VALUE.SFTP: {

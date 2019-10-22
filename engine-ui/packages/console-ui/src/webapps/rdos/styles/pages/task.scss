@@ -261,6 +261,11 @@
                 background-image: url(/public/rdos/img/librasql.svg)
             }
         }
+        .s-impalasql {
+            .ant-tree-icon__docu {
+                background-image: url(/public/rdos/img/impalasql.svg)
+            }
+        }
         .s-table {
             .ant-tree-icon__docu {
                 background-image: url(/public/rdos/img/table.svg)
@@ -614,13 +619,14 @@
         .normal-tab,
         .workflow-name {
             display: inline-block;
-            // overflow: hidden;
+            overflow: hidden;
             text-overflow: ellipsis;
         }
 
         .tab-ellipsis {
             width: 120px;
             line-height: 19px;
+            height: 19px;
             white-space: nowrap;
             overflow: hidden;
         }

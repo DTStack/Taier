@@ -141,10 +141,8 @@ function selectData (dispatch: any, jobId: any, currentTab: number, task: any, t
  * @param {function} reject promise reject
  */
 function exec (dispatch: any, currentTab: number, task: any, params: any, sqls: any, index: any, resolve: any, reject: any) {
-    const key = getUniqueKey(task.id)
-
     params.sql = `${sqls[index]}`
-    params.uniqueKey = key
+    params.isEnd = sqls.length == index + 1;
     dispatch(output(currentTab, createLog(`第${index + 1}条任务开始执行`, 'info')))
     // 判断是否要继续执行SQL
     function judgeIfContinueExec () {
@@ -187,7 +185,7 @@ function exec (dispatch: any, currentTab: number, task: any, params: any, sqls: 
             if (res.data && res.data.sqlText) dispatch(output(currentTab, `${createTitle('任务信息')}\n${res.data.sqlText}\n${createTitle('')}`))
             if (res.data.jobId) {
                 runningSql[currentTab] = res.data.jobId;
-                if (res.data.engineType == ENGINE_SOURCE_TYPE.LIBRA) {
+                if (res.data.engineType == ENGINE_SOURCE_TYPE.LIBRA || task.taskType == TASK_TYPE.IMPALA_SQL) {
                     getDataOver(dispatch, currentTab, res, res.data.jobId) // libra不去轮训selectData接口，直接返回数据
                     judgeIfContinueExec();
                 } else {
@@ -226,6 +224,11 @@ export function execSql (currentTab: any, task: any, params: any, sqls: any) {
         stopSign[currentTab] = false;
         return new Promise((resolve: any, reject: any) => {
             dispatch(addLoadingTab(currentTab));
+            const key = getUniqueKey(task.id)
+            params = {
+                ...params,
+                uniqueKey: key
+            }
             exec(dispatch, currentTab, task, params, sqls, 0, resolve, reject);
         })
     }

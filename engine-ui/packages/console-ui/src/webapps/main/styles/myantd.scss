@@ -179,9 +179,11 @@
         padding: 6px 8px;
     }
     &.m-table-showselect{
-        .ant-table-thead{
-            .ant-table-selection-column>span{
-                visibility:unset;
+        .ant-table {
+            .ant-table-thead{
+                .ant-table-selection-column>span{
+                    visibility:unset;
+                }
             }
         }
     }

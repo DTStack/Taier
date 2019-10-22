@@ -48,7 +48,7 @@ export const defaultGeo: any = { // 默认几何对象;
     margin: 50
 }
 
-export const replacTreeNodeField = (treeNode: any, sourceField: any, targetField: any, arrField: any) => {
+export const replaceTreeNodeField = (treeNode: any, sourceField: any, targetField: any, arrField: any) => {
     if (treeNode) {
         treeNode[targetField] = cloneDeep(treeNode[sourceField]);
         treeNode[sourceField] = undefined;
@@ -56,7 +56,7 @@ export const replacTreeNodeField = (treeNode: any, sourceField: any, targetField
     const children = treeNode[arrField];
     if (children) {
         for (let i = 0; i < children.length; i++) {
-            replacTreeNodeField(children[i], sourceField, targetField, arrField);
+            replaceTreeNodeField(children[i], sourceField, targetField, arrField);
         }
     }
 }

@@ -28,8 +28,8 @@ module.exports = function () {
         },
         output: {
             path: MY_PATH.BUILD_PATH,
-            chunkFilename: "[name].[chunkhash].js",
-            filename: "[name].[chunkhash].js",
+            chunkFilename: "[name].[chunkhash:8].js",
+            filename: "[name].[chunkhash:8].js",
             sourceMapFilename: "[name].map",
             publicPath: "/",
             globalObject: 'self',
@@ -135,7 +135,7 @@ module.exports = function () {
             }),
             new MiniCssExtractPlugin({
                 // 提取为外部css代码
-                filename: '[name].css?v=[contenthash]'
+                filename: '[name].css?v=[contenthash:8]'
             }),
             new CopyWebpackPlugin([
                 {
