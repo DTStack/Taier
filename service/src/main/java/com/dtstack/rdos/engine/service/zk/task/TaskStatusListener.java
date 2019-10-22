@@ -391,23 +391,6 @@ public class TaskStatusListener implements Runnable{
         try {
             //从engine获取log
             String jobLog = JobClient.getEngineLog(engineType, pluginInfo, jobIdentifier);
-            if (StringUtils.isEmpty(jobLog)) {
-                return;
-            }
-
-            Map<String, Object> logMap = PublicUtil.jsonStrToObject(jobLog, Map.class);
-            Long timestamp = MathUtil.getLongVal(logMap.get("timestamp"));
-
-            Long exitJobtimestamp = failoverTimestampCache.getIfPresent(jobId);
-
-            if (null == timestamp || timestamp.equals(exitJobtimestamp)) {
-                return;
-            }
-
-            failoverTimestampCache.put(jobId, timestamp);
-
-            jobLog = MathUtil.getString(logMap.get("root-exception"));
-
             updateJobEngineLog(jobId, jobLog, computeType);
         } catch (Throwable e){
             logger.error("update JobEngine Log error jobid {} ,error info {}..", jobId,ExceptionUtil.getErrorMessage(e));
