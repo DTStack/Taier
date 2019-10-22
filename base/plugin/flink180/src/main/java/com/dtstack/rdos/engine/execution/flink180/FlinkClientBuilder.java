@@ -119,6 +119,10 @@ public class FlinkClientBuilder {
         config.setString("akka.ask.timeout", AKKA_ASK_TIMEOUT);
         config.setString("akka.tcp.timeout", AKKA_TCP_TIMEOUT);
 
+        // 默认使用parent-first
+        config.setString("classloader.resolve-order", "parent-first");
+
+
         // JVM Param
         config.setString(CoreOptions.FLINK_JVM_OPTIONS, jvm_options);
 

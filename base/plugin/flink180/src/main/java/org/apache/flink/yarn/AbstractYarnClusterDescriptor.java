@@ -558,7 +558,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         clusterSpecification.setProgram(program);
         JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, clusterSpecification.getConfiguration(), clusterSpecification.getParallelism());
         jobGraph.setAllowQueuedScheduling(true);
-        fillJobGraphClassPath(jobGraph);
+        //fillJobGraphClassPath(jobGraph);
         fillStreamJobGraphClassPath(jobGraph);
         fillPluginPathToShipFiles(jobGraph);
         clusterSpecification.setJobGraph(jobGraph);
@@ -567,13 +567,12 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
 
     private void fillPluginPathToShipFiles(JobGraph jobGraph) {
         List<File> shipFiles = new ArrayList<>();
-        jobGraph.getClasspaths().forEach(flinkJarPath -> {
-            try {
-                shipFiles.add(new File(flinkJarPath.toURI()));
-            } catch (URISyntaxException e) {
-                LOG.error("{} file not found",flinkJarPath);
+        Map<String, DistributedCache.DistributedCacheEntry> jobCacheFileConfig = jobGraph.getUserArtifacts();
+        for(Map.Entry<String,  DistributedCache.DistributedCacheEntry> tmp : jobCacheFileConfig.entrySet()){
+            if(tmp.getKey().startsWith("class_path")){
+                shipFiles.add(new File(tmp.getValue().filePath));
             }
-        });
+        }
         addShipFiles(shipFiles);
     }
 
