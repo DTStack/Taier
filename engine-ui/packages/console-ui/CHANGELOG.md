@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.9.0-beta.2.4"></a>
+# [3.9.0-beta.2.4](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.2.2...3.9.0-beta.2.4) (2019-10-22)
+
+
+
 <a name="3.9.0-beta.2.3"></a>
 # [3.9.0-beta.2.3](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.2...3.9.0-beta.2.3) (2019-10-22)
 
