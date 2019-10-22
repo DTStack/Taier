@@ -7,12 +7,10 @@ import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EngineType;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.base.queue.OrderLinkedBlockingQueue;
-import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
+import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
-import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
 import com.dtstack.rdos.engine.execution.base.queue.GroupPriorityQueue;
 import com.dtstack.rdos.engine.service.node.WorkNode;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
@@ -40,9 +38,7 @@ public class ConsoleServiceImpl {
 
     private static final Logger logger = LoggerFactory.getLogger(ConsoleServiceImpl.class);
 
-    private RdosEngineStreamJobDAO engineStreamTaskDAO = new RdosEngineStreamJobDAO();
-
-    private RdosEngineBatchJobDAO engineBatchJobDAO = new RdosEngineBatchJobDAO();
+    private RdosEngineJobDAO engineBatchJobDAO = new RdosEngineJobDAO();
 
     private RdosEngineJobCacheDAO engineJobCacheDao = new RdosEngineJobCacheDAO();
 
@@ -64,16 +60,9 @@ public class ConsoleServiceImpl {
         ComputeType type = ComputeType.valueOf(computeType.toUpperCase());
         Preconditions.checkNotNull(type, "parameters of computeType is STREAM/BATCH");
         String jobId = null;
-        if (ComputeType.STREAM == type) {
-            RdosEngineStreamJob streamJob = engineStreamTaskDAO.getByName(jobName);
-            if (streamJob != null) {
-                jobId = streamJob.getTaskId();
-            }
-        } else {
-            RdosEngineBatchJob batchJob = engineBatchJobDAO.getByName(jobName);
-            if (batchJob != null) {
-                jobId = batchJob.getJobId();
-            }
+        RdosEngineJob batchJob = engineBatchJobDAO.getByName(jobName);
+        if (batchJob != null) {
+        	jobId = batchJob.getJobId();
         }
         if (jobId == null) {
             return null;
@@ -91,16 +80,9 @@ public class ConsoleServiceImpl {
         ComputeType type = ComputeType.valueOf(computeType.toUpperCase());
         Preconditions.checkNotNull(type, "parameters of computeType is STREAM/BATCH");
         String jobId = null;
-        if (ComputeType.STREAM == type) {
-            RdosEngineStreamJob streamJob = engineStreamTaskDAO.getByName(jobName);
-            if (streamJob != null) {
-                jobId = streamJob.getTaskId();
-            }
-        } else {
-            RdosEngineBatchJob batchJob = engineBatchJobDAO.getByName(jobName);
-            if (batchJob != null) {
-                jobId = batchJob.getJobId();
-            }
+        RdosEngineJob batchJob = engineBatchJobDAO.getByName(jobName);
+        if (batchJob != null) {
+        	jobId = batchJob.getJobId();
         }
         if (jobId == null) {
             return null;
@@ -273,20 +255,11 @@ public class ConsoleServiceImpl {
     }
 
     private void setJobFromDB(ComputeType computeType, String jobId, Map<String, Object> jobMap) {
-        if (ComputeType.STREAM == computeType) {
-            RdosEngineStreamJob engineStreamJob = engineStreamTaskDAO.getRdosTaskByTaskId(jobId);
-            if (engineStreamJob != null) {
-                Integer status = engineStreamJob.getStatus().intValue();
-                jobMap.put("status", status);
-                jobMap.put("execStartTime", engineStreamJob.getExecStartTime());
-            }
-        } else {
-            RdosEngineBatchJob engineBatchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobId);
-            if (engineBatchJob != null) {
-                Integer status = engineBatchJob.getStatus().intValue();
-                jobMap.put("status", status);
-                jobMap.put("execStartTime", engineBatchJob.getExecStartTime());
-            }
+        RdosEngineJob engineBatchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobId);
+        if (engineBatchJob != null) {
+        	Integer status = engineBatchJob.getStatus().intValue();
+        	jobMap.put("status", status);
+        	jobMap.put("execStartTime", engineBatchJob.getExecStartTime());
         }
     }
 }

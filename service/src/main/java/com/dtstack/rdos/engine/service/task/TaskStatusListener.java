@@ -9,12 +9,10 @@ import com.dtstack.rdos.engine.execution.base.JobIdentifier;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EngineType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
-import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
+import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
-import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosPluginInfoDAO;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJob;
 import com.dtstack.rdos.engine.service.util.TaskIdUtil;
 import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataShard;
@@ -58,9 +56,7 @@ public class TaskStatusListener implements Runnable{
 	/**记录job 连续某个状态的频次*/
 	private Map<String, TaskStatusFrequency> jobStatusFrequency = Maps.newConcurrentMap();
 
-    private RdosEngineStreamJobDAO rdosStreamTaskDAO = new RdosEngineStreamJobDAO();
-
-	private RdosEngineBatchJobDAO rdosBatchEngineJobDAO = new RdosEngineBatchJobDAO();
+	private RdosEngineJobDAO rdosBatchEngineJobDAO = new RdosEngineJobDAO();
 
 	private RdosEngineJobCacheDAO rdosEngineJobCacheDao = new RdosEngineJobCacheDAO();
 
@@ -164,12 +160,7 @@ public class TaskStatusListener implements Runnable{
                                     //todo : 测试日志，便于排查问题
                                     logger.info("jobId:{} status:{}", taskId, entry.getValue().intValue());
 
-                                    if (computeType == ComputeType.STREAM.getType()) {
-                                        dealStreamJob(taskId, engineTypeName, zkTaskId, computeType);
-                                        //将流任务ID放入缓存中，定时触发checkpoint清理
-                                    } else if (computeType == ComputeType.BATCH.getType()) {
-                                        dealBatchJob(taskId, engineTypeName, zkTaskId, computeType);
-                                    }
+                                    dealBatchJob(taskId, engineTypeName, zkTaskId, computeType);
                                 }
                             } catch (Throwable e) {
                                 logger.error("", e);
@@ -188,68 +179,8 @@ public class TaskStatusListener implements Runnable{
         }
 	}
 
-	private void dealStreamJob(String taskId, String engineTypeName, String zkTaskId, int computeType) throws Exception {
-        RdosEngineStreamJob rdosTask = rdosStreamTaskDAO.getRdosTaskByTaskId(taskId);
-
-        if(rdosTask != null){
-            String engineTaskId = rdosTask.getEngineTaskId();
-            String appId = rdosTask.getApplicationId();
-            JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineTaskId, appId, taskId);
-
-            if(StringUtils.isNotBlank(engineTaskId)){
-                String pluginInfoStr = "";
-                if(rdosTask.getPluginInfoId() > 0 ){
-                    pluginInfoStr = pluginInfoDao.getPluginInfo(rdosTask.getPluginInfoId());
-                }
-
-                RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineTypeName, pluginInfoStr, jobIdentifier);
-
-                if(rdosTaskStatus != null){
-
-                    updateJobEngineLog(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
-
-                    rdosTaskStatus = checkNotFoundStatus(rdosTaskStatus, taskId);
-
-                    Integer status = rdosTaskStatus.getStatus();
-                    boolean isRestart = RestartDealer.getInstance().checkAndRestart(status, taskId, engineTaskId, appId ,engineTypeName, computeType, pluginInfoStr);
-                    if(isRestart){
-                        return;
-                    }
-
-                    zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
-                    //数据的更新顺序，先更新job_cache，再更新engine_stream_job
-                    dealStreamAfterGetStatus(status, taskId, engineTypeName, jobIdentifier, pluginInfoStr);
-
-                    rdosStreamTaskDAO.updateTaskStatus(taskId, status);
-                }
-
-                if(RdosTaskStatus.FAILED.equals(rdosTaskStatus)
-                        || RdosTaskStatus.CANCELED.equals(rdosTaskStatus)
-                        || RdosTaskStatus.KILLED.equals(rdosTaskStatus)){
-                    FailedTaskInfo failedTaskInfo = new FailedTaskInfo(taskId, jobIdentifier,
-                            engineTypeName, computeType, pluginInfoStr);
-                    addFailedJob(failedTaskInfo);
-
-                    updateStreamTaskEndTime(taskId);
-                }
-            }
-        } else {
-            zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.FAILED.getStatus());
-            rdosEngineJobCacheDao.deleteJob(taskId);
-        }
-    }
-
-    private void updateStreamTaskEndTime(String taskId) {
-        try {
-            rdosStreamTaskDAO.updateStreamTaskEndTime(taskId);
-        } catch (Exception e) {
-            logger.error("update stream task endtime error", e);
-        }
-
-    }
-
     private void dealBatchJob(String taskId, String engineTypeName, String zkTaskId, int computeType) throws Exception {
-        RdosEngineBatchJob rdosBatchJob  = rdosBatchEngineJobDAO.getRdosTaskByTaskId(taskId);
+        RdosEngineJob rdosBatchJob  = rdosBatchEngineJobDAO.getRdosTaskByTaskId(taskId);
 
         if(rdosBatchJob != null){
             String engineTaskId = rdosBatchJob.getEngineJobId();
@@ -341,13 +272,7 @@ public class TaskStatusListener implements Runnable{
     private void updateJobEngineLog(String jobId, String jobLog, Integer computeType){
 
         //写入db
-        if(ComputeType.STREAM.getType().equals(computeType)){
-            rdosStreamTaskDAO.updateEngineLog(jobId, jobLog);
-        }else if(ComputeType.BATCH.getType().equals(computeType)){
-            rdosBatchEngineJobDAO.updateEngineLog(jobId, jobLog);
-        }else{
-            logger.info("----- not support compute type {}.", computeType);
-        }
+        rdosBatchEngineJobDAO.updateEngineLog(jobId, jobLog);
     }
 
     private RdosTaskStatus checkNotFoundStatus(RdosTaskStatus taskStatus, String jobId){

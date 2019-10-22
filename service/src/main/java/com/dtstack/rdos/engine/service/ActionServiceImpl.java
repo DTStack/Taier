@@ -6,12 +6,10 @@ import com.dtstack.rdos.common.annotation.Param;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import com.dtstack.rdos.engine.service.db.dao.*;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJobRetry;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobRetry;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobStopRecord;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJobRetry;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineUniqueSign;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJob;
 import com.dtstack.rdos.engine.service.node.WorkNode;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
@@ -42,17 +40,13 @@ public class ActionServiceImpl {
 
     private static final Logger logger = LoggerFactory.getLogger(ActionServiceImpl.class);
 
-    private RdosEngineStreamJobDAO streamJobDAO = new RdosEngineStreamJobDAO();
-
-    private RdosEngineBatchJobDAO batchJobDAO = new RdosEngineBatchJobDAO();
+    private RdosEngineJobDAO batchJobDAO = new RdosEngineJobDAO();
 
     private RdosEngineJobCacheDAO jobCacheDAO = new RdosEngineJobCacheDAO();
 
     private RdosEngineUniqueSignDAO uniqueSignDAO = new RdosEngineUniqueSignDAO();
 
-    private RdosEngineStreamJobRetryDAO streamJobRetryDAO = new RdosEngineStreamJobRetryDAO();
-
-    private RdosEngineBatchJobRetryDAO batchJobRetryDAO = new RdosEngineBatchJobRetryDAO();
+    private RdosEngineJobRetryDAO batchJobRetryDAO = new RdosEngineJobRetryDAO();
 
     private RdosEngineJobStopRecordDAO jobStopRecordDAO = new RdosEngineJobStopRecordDAO();
 
@@ -194,21 +188,11 @@ public class ActionServiceImpl {
     }
 
     private boolean checkSubmitted(ParamAction paramAction){
-        String jobId = paramAction.getTaskId();
-        Integer computerType = paramAction.getComputeType();
-        if (ComputeType.STREAM.getType().equals(computerType)) {
-            RdosEngineStreamJob rdosEngineStreamJob = streamJobDAO.getRdosTaskByTaskId(jobId);
-            if(rdosEngineStreamJob != null){
-                return true;
-            }
-            logger.error("can't find job from engineStreamJob:" + paramAction);
-        }else{
-            RdosEngineBatchJob rdosEngineBatchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
-            if(rdosEngineBatchJob != null) {
-                return true;
-            }
-            logger.error("can't find job from engineBatchJob:" + paramAction);
+        RdosEngineJob rdosEngineBatchJob = batchJobDAO.getRdosTaskByTaskId(paramAction.getTaskId());
+        if(rdosEngineBatchJob != null) {
+        	return true;
         }
+        logger.error("can't find job from engineBatchJob:" + paramAction);
         return false;
     }
 
@@ -230,53 +214,32 @@ public class ActionServiceImpl {
             return result;
         }
         try {
-            if (ComputeType.STREAM.getType().equals(computerType)) {
-                RdosEngineStreamJob rdosEngineStreamJob = streamJobDAO.getRdosTaskByTaskId(jobId);
-                if(rdosEngineStreamJob == null){
-                    rdosEngineStreamJob = new RdosEngineStreamJob();
-                    rdosEngineStreamJob.setTaskId(jobId);
-                    rdosEngineStreamJob.setTaskName(paramAction.getName());
-                    rdosEngineStreamJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
-                    streamJobDAO.insert(rdosEngineStreamJob);
-                    result =  true;
-                }else{
-
-                    result = RdosTaskStatus.canStartAgain(rdosEngineStreamJob.getStatus());
-                    if(result && rdosEngineStreamJob.getStatus().intValue() != RdosTaskStatus.ENGINEACCEPTED.getStatus()){
-                        int oldStatus = rdosEngineStreamJob.getStatus().intValue();
-                        Integer update = streamJobDAO.updateTaskStatusCompareOld(rdosEngineStreamJob.getTaskId(), RdosTaskStatus.ENGINEACCEPTED.getStatus(), oldStatus, paramAction.getName());
-                        if (update==null||update!=1){
-                            result = false;
-                        }
-                    }
-                }
+            RdosEngineJob rdosEngineBatchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
+            if(rdosEngineBatchJob == null){
+                rdosEngineBatchJob = new RdosEngineJob();
+                rdosEngineBatchJob.setJobId(jobId);
+                rdosEngineBatchJob.setJobName(paramAction.getName());
+                rdosEngineBatchJob.setSourceType(paramAction.getSourceType());
+                rdosEngineBatchJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
+                rdosEngineBatchJob.setComputeType(computerType);
+                batchJobDAO.insert(rdosEngineBatchJob);
+                result =  true;
             }else{
-                RdosEngineBatchJob rdosEngineBatchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
-                if(rdosEngineBatchJob == null){
-                    rdosEngineBatchJob = new RdosEngineBatchJob();
-                    rdosEngineBatchJob.setJobId(jobId);
-                    rdosEngineBatchJob.setJobName(paramAction.getName());
-                    rdosEngineBatchJob.setSourceType(paramAction.getSourceType());
-                    rdosEngineBatchJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
-                    batchJobDAO.insert(rdosEngineBatchJob);
-                    result =  true;
-                }else{
-                    result = RdosTaskStatus.canStartAgain(rdosEngineBatchJob.getStatus());
-                    if (result) {
-                        batchJobRetryDAO.removeByJobId(jobId);
-                    }
+                result = RdosTaskStatus.canStartAgain(rdosEngineBatchJob.getStatus());
+                if (result && ComputeType.BATCH.getType().equals(computerType)) {
+                    batchJobRetryDAO.removeByJobId(jobId);
+                }
 
-                    if(result && rdosEngineBatchJob.getStatus().intValue() != RdosTaskStatus.ENGINEACCEPTED.getStatus() ){
-                        int oldStatus = rdosEngineBatchJob.getStatus().intValue();
-                        Integer update = batchJobDAO.updateTaskStatusCompareOld(rdosEngineBatchJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus(),oldStatus, paramAction.getName());
-                        if (update==null||update!=1){
-                            result = false;
-                        }
+                if(result && rdosEngineBatchJob.getStatus().intValue() != RdosTaskStatus.ENGINEACCEPTED.getStatus() ){
+                    int oldStatus = rdosEngineBatchJob.getStatus().intValue();
+                    Integer update = batchJobDAO.updateTaskStatusCompareOld(rdosEngineBatchJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus(),oldStatus, paramAction.getName());
+                    if (update==null||update!=1){
+                        result = false;
                     }
                 }
-                if (result){
-                    rdosStreamTaskCheckpointDAO.deleteByTaskId(jobId);
-                }
+            }
+            if (result && ComputeType.BATCH.getType().equals(computerType)){
+                rdosStreamTaskCheckpointDAO.deleteByTaskId(jobId);
             }
         } catch (Exception e){
             logger.error("{}",e);
@@ -293,19 +256,11 @@ public class ActionServiceImpl {
             throw new RdosException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
-        Integer status = null;
-        if (ComputeType.STREAM.getType().equals(computeType)) {
-            RdosEngineStreamJob streamJob = streamJobDAO.getRdosTaskByTaskId(jobId);
-            if (streamJob != null) {
-                status = streamJob.getStatus().intValue();
-            }
-        } else if (ComputeType.BATCH.getType().equals(computeType)) {
-            RdosEngineBatchJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
-            if (batchJob != null) {
-                status = batchJob.getStatus().intValue();
-            }
+        RdosEngineJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
+        if (batchJob != null) {
+        	return batchJob.getStatus().intValue();
         }
-        return status;
+        return null;
     }
 
     /**
@@ -318,22 +273,12 @@ public class ActionServiceImpl {
         }
 
         Map<String,Integer> result = null;
-        if (ComputeType.STREAM.getType().equals(computeType)) {
-            List<RdosEngineStreamJob> streamJobs = streamJobDAO.getRdosTaskByTaskIds(jobIds);
-            if (CollectionUtils.isNotEmpty(streamJobs)) {
-                result = new HashMap<>(streamJobs.size());
-                for (RdosEngineStreamJob streamJob:streamJobs){
-                    result.put(streamJob.getTaskId(),streamJob.getStatus().intValue());
-                }
-            }
-        } else if (ComputeType.BATCH.getType().equals(computeType)) {
-            List<RdosEngineBatchJob> batchJobs = batchJobDAO.getRdosTaskByTaskIds(jobIds);
-            if (CollectionUtils.isNotEmpty(batchJobs)) {
-                result = new HashMap<>(batchJobs.size());
-                for (RdosEngineBatchJob batchJob:batchJobs){
-                    result.put(batchJob.getJobId(),batchJob.getStatus().intValue());
-                }
-            }
+        List<RdosEngineJob> batchJobs = batchJobDAO.getRdosTaskByTaskIds(jobIds);
+        if (CollectionUtils.isNotEmpty(batchJobs)) {
+        	result = new HashMap<>(batchJobs.size());
+        	for (RdosEngineJob batchJob:batchJobs){
+        		result.put(batchJob.getJobId(),batchJob.getStatus().intValue());
+        	}
         }
         return result;
     }
@@ -349,16 +294,9 @@ public class ActionServiceImpl {
         }
 
         Date startTime = null;
-        if (ComputeType.STREAM.getType().equals(computeType)) {
-            RdosEngineStreamJob streamJob = streamJobDAO.getRdosTaskByTaskId(jobId);
-            if (streamJob != null) {
-                startTime = streamJob.getExecStartTime();
-            }
-        } else if (ComputeType.BATCH.getType().equals(computeType)) {
-            RdosEngineBatchJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
-            if (batchJob != null) {
-                startTime = batchJob.getExecStartTime();
-            }
+        RdosEngineJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
+        if (batchJob != null) {
+        	startTime = batchJob.getExecStartTime();
         }
         if (startTime!=null){
             return startTime.getTime();
@@ -376,18 +314,10 @@ public class ActionServiceImpl {
         }
 
         Map<String,String> log = new HashMap<>(2);
-        if (ComputeType.STREAM.getType().equals(computeType)) {
-            RdosEngineStreamJob streamJob = streamJobDAO.getRdosTaskByTaskId(jobId);
-            if (streamJob != null) {
-                log.put("logInfo",streamJob.getLogInfo());
-                log.put("engineLog",streamJob.getEngineLog());
-            }
-        } else if (ComputeType.BATCH.getType().equals(computeType)) {
-            RdosEngineBatchJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
-            if (batchJob != null) {
-                log.put("logInfo",batchJob.getLogInfo());
-                log.put("engineLog",batchJob.getEngineLog());
-            }
+        RdosEngineJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
+        if (batchJob != null) {
+        	log.put("logInfo",batchJob.getLogInfo());
+        	log.put("engineLog",batchJob.getEngineLog());
         }
         return PublicUtil.objToString(log);
     }
@@ -402,30 +332,16 @@ public class ActionServiceImpl {
         }
 
         List<Map<String,String>> logs = new ArrayList<>(5);
-        if (ComputeType.STREAM.getType().equals(computeType)) {
-            List<RdosEngineStreamJobRetry> streamJobRetrys = streamJobRetryDAO.getJobRetryByTaskId(jobId);
-            if (CollectionUtils.isNotEmpty(streamJobRetrys)) {
-                streamJobRetrys.forEach(jobRetry->{
-                    Map<String,String> log = new HashMap<String,String>(3);
-                    log.put("retryNum",jobRetry.getRetryNum().toString());
-                    log.put("logInfo",jobRetry.getLogInfo());
-                    log.put("engineLog",jobRetry.getEngineLog());
-                    logs.add(log);
-                });
-
-            }
-        } else if (ComputeType.BATCH.getType().equals(computeType)) {
-            List<RdosEngineBatchJobRetry> batchJobRetrys = batchJobRetryDAO.getJobRetryByJobId(jobId);
-            if (CollectionUtils.isNotEmpty(batchJobRetrys)) {
-                batchJobRetrys.forEach(jobRetry->{
-                    Map<String,String> log = new HashMap<String,String>(4);
-                    log.put("retryNum",jobRetry.getRetryNum().toString());
-                    log.put("logInfo",jobRetry.getLogInfo());
-                    log.put("engineLog",jobRetry.getEngineLog());
-                    log.put("retryTaskParams",jobRetry.getRetryTaskParams());
-                    logs.add(log);
-                });
-            }
+        List<RdosEngineJobRetry> batchJobRetrys = batchJobRetryDAO.getJobRetryByJobId(jobId);
+        if (CollectionUtils.isNotEmpty(batchJobRetrys)) {
+        	batchJobRetrys.forEach(jobRetry->{
+        		Map<String,String> log = new HashMap<String,String>(4);
+        		log.put("retryNum",jobRetry.getRetryNum().toString());
+        		log.put("logInfo",jobRetry.getLogInfo());
+        		log.put("engineLog",jobRetry.getEngineLog());
+        		log.put("retryTaskParams",jobRetry.getRetryTaskParams());
+        		logs.add(log);
+        	});
         }
         return PublicUtil.objToString(logs);
     }
@@ -440,34 +356,18 @@ public class ActionServiceImpl {
         }
 
         List<Map<String,Object>> result = null;
-        if (ComputeType.STREAM.getType().equals(computeType)) {
-            List<RdosEngineStreamJob> streamJobs = streamJobDAO.getRdosTaskByTaskIds(jobIds);
-            if (CollectionUtils.isNotEmpty(streamJobs)) {
-                result = new ArrayList<>(streamJobs.size());
-                for (RdosEngineStreamJob streamJob:streamJobs){
-                    Map<String,Object> data = new HashMap<>(4);
-                    data.put("jobId", streamJob.getTaskId());
-                    data.put("status", streamJob.getStatus());
-                    data.put("execStartTime", streamJob.getExecStartTime());
-                    data.put("logInfo", streamJob.getLogInfo());
-                    data.put("engineLog", streamJob.getEngineLog());
-                    result.add(data);
-                }
-            }
-        } else if (ComputeType.BATCH.getType().equals(computeType)) {
-            List<RdosEngineBatchJob> batchJobs = batchJobDAO.getRdosTaskByTaskIds(jobIds);
-            if (CollectionUtils.isNotEmpty(batchJobs)) {
-                result = new ArrayList<>(batchJobs.size());
-                for (RdosEngineBatchJob batchJob:batchJobs){
-                    Map<String,Object> data = new HashMap<>(4);
-                    data.put("jobId", batchJob.getJobId());
-                    data.put("status", batchJob.getStatus());
-                    data.put("execStartTime", batchJob.getExecStartTime());
-                    data.put("logInfo", batchJob.getLogInfo());
-                    data.put("engineLog", batchJob.getEngineLog());
-                    result.add(data);
-                }
-            }
+        List<RdosEngineJob> batchJobs = batchJobDAO.getRdosTaskByTaskIds(jobIds);
+        if (CollectionUtils.isNotEmpty(batchJobs)) {
+        	result = new ArrayList<>(batchJobs.size());
+        	for (RdosEngineJob batchJob:batchJobs){
+        		Map<String,Object> data = new HashMap<>(4);
+        		data.put("jobId", batchJob.getJobId());
+        		data.put("status", batchJob.getStatus());
+        		data.put("execStartTime", batchJob.getExecStartTime());
+        		data.put("logInfo", batchJob.getLogInfo());
+        		data.put("engineLog", batchJob.getEngineLog());
+        		result.add(data);
+        	}
         }
         return result;
     }
@@ -520,37 +420,19 @@ public class ActionServiceImpl {
      */
     public String resetTaskStatus(@Param("jobId") String jobId, @Param("computeType") Integer computeType){
         //check jobstatus can reset
-        Byte currStatus;
-
-        if(ComputeType.STREAM.getType().equals(computeType)){
-            RdosEngineStreamJob rdosEngineStreamJob = streamJobDAO.getRdosTaskByTaskId(jobId);
-            Preconditions.checkNotNull(rdosEngineStreamJob, "not exists job with id " + jobId);
-            currStatus = rdosEngineStreamJob.getStatus();
-        }else if(ComputeType.BATCH.getType().equals(computeType)){
-            RdosEngineBatchJob rdosEngineBatchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
-            Preconditions.checkNotNull(rdosEngineBatchJob, "not exists job with id " + jobId);
-            currStatus = rdosEngineBatchJob.getStatus();
-        }else{
-            throw new RdosException("not support computeType:" + computeType);
-        }
+        RdosEngineJob rdosEngineBatchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
+        Preconditions.checkNotNull(rdosEngineBatchJob, "not exists job with id " + jobId);
+        Byte currStatus = rdosEngineBatchJob.getStatus();
 
         if(!RdosTaskStatus.canReset(currStatus)){
             throw new RdosException(String.format("computeType(%d) taskId(%s) can't reset status, current status(%d)", computeType, jobId, currStatus.intValue()));
         }
 
         //do reset status
-
-        if(ComputeType.STREAM.getType().equals(computeType)){
-            streamJobDAO.updateTaskEngineIdAndStatus(jobId, null, null, RdosTaskStatus.UNSUBMIT.getStatus());
-            streamJobDAO.updateSubmitLog(jobId, "");
-            streamJobDAO.updateEngineLog(jobId, "");
-        }else if(ComputeType.BATCH.getType().equals(computeType)){
-            // TODO
-            batchJobDAO.updateJobEngineIdAndStatus(jobId, null, RdosTaskStatus.UNSUBMIT.getStatus(),null);
-            batchJobDAO.updateSubmitLog(jobId, "");
-            batchJobDAO.updateEngineLog(jobId, "");
-            batchJobDAO.resetExecTime(jobId);
-        }
+        batchJobDAO.updateJobEngineIdAndStatus(jobId, null, RdosTaskStatus.UNSUBMIT.getStatus(),null);
+        batchJobDAO.updateSubmitLog(jobId, "");
+        batchJobDAO.updateEngineLog(jobId, "");
+        batchJobDAO.resetExecTime(jobId);
 
         return jobId;
     }

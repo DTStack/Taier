@@ -8,7 +8,7 @@ import java.util.Date;
  * @author sishu.yss
  *
  */
-public class RdosEngineBatchJob extends DataObject{
+public class RdosEngineJob extends DataObject{
 
     /**
      * 工作任务id
@@ -45,6 +45,8 @@ public class RdosEngineBatchJob extends DataObject{
     private Integer sourceType;
 
     private String applicationId;
+    
+    private Integer computeType;
 
     public String getApplicationId() {
         return applicationId;
@@ -159,4 +161,12 @@ public class RdosEngineBatchJob extends DataObject{
     public void setRetryTaskParams(String retryTaskParams) {
         this.retryTaskParams = retryTaskParams;
     }
+
+	public Integer getComputeType() {
+		return computeType;
+	}
+
+	public void setComputeType(Integer computeType) {
+		this.computeType = computeType;
+	}
 }

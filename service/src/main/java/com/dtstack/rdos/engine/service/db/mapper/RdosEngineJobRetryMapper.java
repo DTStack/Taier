@@ -1,6 +1,6 @@
 package com.dtstack.rdos.engine.service.db.mapper;
 
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJobRetry;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobRetry;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -8,11 +8,11 @@ import java.util.List;
 /**
  * @author toutian
  */
-public interface RdosEngineBatchJobRetryMapper {
+public interface RdosEngineJobRetryMapper {
 
-	void insert(RdosEngineBatchJobRetry rdosEngineBatchJobRetry);
+	void insert(RdosEngineJobRetry rdosEngineJobRetry);
 
-	List<RdosEngineBatchJobRetry> getJobRetryByJobId(@Param("jobId") String jobId);
+	List<RdosEngineJobRetry> getJobRetryByJobId(@Param("jobId") String jobId);
 
     String getRetryTaskParams(@Param("jobId")String jobId, @Param("retryNum") int retrynum);
 

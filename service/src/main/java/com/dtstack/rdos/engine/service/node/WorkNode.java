@@ -4,20 +4,17 @@ import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
-import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EJobCacheStage;
 import com.dtstack.rdos.engine.execution.base.enums.EPluginType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.base.queue.GroupInfo;
 import com.dtstack.rdos.engine.execution.base.queue.GroupPriorityQueue;
-import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
+import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
-import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosPluginInfoDAO;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosPluginInfo;
 import com.dtstack.rdos.engine.service.enums.RequestStart;
 import com.dtstack.rdos.engine.service.send.HttpSendClient;
@@ -63,9 +60,7 @@ public class WorkNode {
 
     private RdosEngineJobCacheDAO rdosEngineJobCacheDAO = new RdosEngineJobCacheDAO();
 
-    private RdosEngineBatchJobDAO rdosEngineBatchJobDao = new RdosEngineBatchJobDAO();
-
-    private RdosEngineStreamJobDAO rdosEngineStreamJobDao = new RdosEngineStreamJobDAO();
+    private RdosEngineJobDAO rdosEngineBatchJobDao = new RdosEngineJobDAO();
 
     private RdosPluginInfoDAO pluginInfoDao = new RdosPluginInfoDAO();
 
@@ -221,11 +216,7 @@ public class WorkNode {
 
 
     private void updateJobStatus(String jobId, Integer computeType, Integer status) {
-        if (ComputeType.STREAM.getType().equals(computeType)) {
-            rdosEngineStreamJobDao.updateTaskStatus(jobId, status);
-        } else {
-            rdosEngineBatchJobDao.updateJobStatus(jobId, status);
-        }
+        rdosEngineBatchJobDao.updateJobStatus(jobId, status);
     }
 
     public void saveCache(JobClient jobClient, int stage, boolean insert){
@@ -255,11 +246,7 @@ public class WorkNode {
             }
         }
         //更新任务ref的pluginInfo
-        if(ComputeType.STREAM.getType().equals(computeType)){
-            rdosEngineStreamJobDao.updateTaskPluginId(jobId, refPluginInfoId);
-        } else{
-            rdosEngineBatchJobDao.updateJobPluginId(jobId, refPluginInfoId);
-        }
+        rdosEngineBatchJobDao.updateJobPluginId(jobId, refPluginInfoId);
 
     }
 
@@ -275,11 +262,7 @@ public class WorkNode {
             zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.CANCELED.getStatus());
             rdosEngineJobCacheDAO.deleteJob(jobId);
             //修改任务状态
-            if(ComputeType.BATCH.getType().equals(computeType)){
-                rdosEngineBatchJobDao.updateJobStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
-            }else if(ComputeType.STREAM.getType().equals(computeType)){
-                rdosEngineStreamJobDao.updateTaskStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
-            }
+            rdosEngineBatchJobDao.updateJobStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
         }
 
         return result;
@@ -290,25 +273,13 @@ public class WorkNode {
      * @param paramAction
      */
     public void fillJobClientEngineId(ParamAction paramAction){
-        Integer computeType = paramAction.getComputeType();
-        String jobId = paramAction.getTaskId();
 
         if(paramAction.getEngineTaskId() == null){
             //从数据库补齐数据
-            if(ComputeType.STREAM.getType().equals(computeType)){
-                RdosEngineStreamJob streamJob = rdosEngineStreamJobDao.getRdosTaskByTaskId(jobId);
-                if(streamJob != null){
-                    paramAction.setEngineTaskId(streamJob.getEngineTaskId());
-                    paramAction.setApplicationId(streamJob.getApplicationId());
-                }
-            }
-
-            if(ComputeType.BATCH.getType().equals(computeType)){
-                RdosEngineBatchJob batchJob = rdosEngineBatchJobDao.getRdosTaskByTaskId(jobId);
-                if(batchJob != null){
-                    paramAction.setEngineTaskId(batchJob.getEngineJobId());
-                    paramAction.setApplicationId(batchJob.getApplicationId());
-                }
+            RdosEngineJob batchJob = rdosEngineBatchJobDao.getRdosTaskByTaskId(paramAction.getTaskId());
+            if(batchJob != null){
+            	paramAction.setEngineTaskId(batchJob.getEngineJobId());
+            	paramAction.setApplicationId(batchJob.getApplicationId());
             }
         }
 
@@ -364,13 +335,7 @@ public class WorkNode {
      */
     public void dealSubmitFailJob(String taskId, Integer computeType, String errorMsg){
         rdosEngineJobCacheDAO.deleteJob(taskId);
-        if(ComputeType.BATCH.typeEqual(computeType)){
-            rdosEngineBatchJobDao.submitFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), generateErrorMsg(errorMsg));
-        }else if(ComputeType.STREAM.typeEqual(computeType)){
-            rdosEngineStreamJobDao.submitFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), generateErrorMsg(errorMsg));
-        }else{
-            LOG.error("not support compute type:" + computeType);
-        }
+        rdosEngineBatchJobDao.submitFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), generateErrorMsg(errorMsg));
     }
 
     private String generateErrorMsg(String msgInfo){

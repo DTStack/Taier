@@ -9,7 +9,7 @@ import java.util.Date;
 /**
  * @author toutian
  */
-public class RdosEngineBatchJobRetry extends DataObject {
+public class RdosEngineJobRetry extends DataObject {
 
     /**
      * 工作任务id
@@ -35,6 +35,8 @@ public class RdosEngineBatchJobRetry extends DataObject {
 
     private String engineLog;
 
+    private Integer retryNum;
+
     private String retryTaskParams;
 
     private String applicationId;
@@ -47,7 +49,6 @@ public class RdosEngineBatchJobRetry extends DataObject {
         this.applicationId = applicationId;
     }
 
-    private Integer retryNum;
 
     public String getJobId() {
         return jobId;
@@ -114,8 +115,8 @@ public class RdosEngineBatchJobRetry extends DataObject {
         this.retryNum = retryNum;
     }
 
-    public static RdosEngineBatchJobRetry toEntity(RdosEngineBatchJob batchJob, JobClient jobClient) {
-        RdosEngineBatchJobRetry batchJobRetry = new RdosEngineBatchJobRetry();
+    public static RdosEngineJobRetry toEntity(RdosEngineJob batchJob, JobClient jobClient) {
+        RdosEngineJobRetry batchJobRetry = new RdosEngineJobRetry();
         batchJobRetry.setJobId(batchJob.getJobId());
         batchJobRetry.setExecStartTime(batchJob.getExecStartTime());
         batchJobRetry.setExecEndTime(batchJob.getExecEndTime());

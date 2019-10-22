@@ -2,8 +2,8 @@ package com.dtstack.rdos.engine.service.db.dao;
 
 import com.dtstack.rdos.engine.service.db.callback.MybatisSessionCallback;
 import com.dtstack.rdos.engine.service.db.callback.MybatisSessionCallbackMethod;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJobRetry;
-import com.dtstack.rdos.engine.service.db.mapper.RdosEngineBatchJobRetryMapper;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobRetry;
+import com.dtstack.rdos.engine.service.db.mapper.RdosEngineJobRetryMapper;
 import org.apache.ibatis.session.SqlSession;
 
 import java.util.List;
@@ -11,26 +11,26 @@ import java.util.List;
 /**
  * @author toutian
  */
-public class RdosEngineBatchJobRetryDAO {
+public class RdosEngineJobRetryDAO {
 
-	public void insert(RdosEngineBatchJobRetry rdosEngineBatchJobRetry) {
+	public void insert(RdosEngineJobRetry rdosEngineBatchJobRetry) {
         MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 
             @Override
             public Object execute(SqlSession sqlSession) throws Exception {
-            	RdosEngineBatchJobRetryMapper mapper = sqlSession.getMapper(RdosEngineBatchJobRetryMapper.class);
+            	RdosEngineJobRetryMapper mapper = sqlSession.getMapper(RdosEngineJobRetryMapper.class);
                 mapper.insert(rdosEngineBatchJobRetry);
                 return null;
             }
         });
 	}
 
-    public List<RdosEngineBatchJobRetry> getJobRetryByJobId(String jobId) {
-        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<RdosEngineBatchJobRetry>>(){
+    public List<RdosEngineJobRetry> getJobRetryByJobId(String jobId) {
+        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<RdosEngineJobRetry>>(){
 
             @Override
-            public List<RdosEngineBatchJobRetry> execute(SqlSession sqlSession) throws Exception {
-                RdosEngineBatchJobRetryMapper mapper = sqlSession.getMapper(RdosEngineBatchJobRetryMapper.class);
+            public List<RdosEngineJobRetry> execute(SqlSession sqlSession) throws Exception {
+                RdosEngineJobRetryMapper mapper = sqlSession.getMapper(RdosEngineJobRetryMapper.class);
                 return mapper.getJobRetryByJobId(jobId);
             }
         });
@@ -40,7 +40,7 @@ public class RdosEngineBatchJobRetryDAO {
         return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<String>(){
             @Override
             public String execute(SqlSession sqlSession) throws Exception {
-                RdosEngineBatchJobRetryMapper mapper = sqlSession.getMapper(RdosEngineBatchJobRetryMapper.class);
+                RdosEngineJobRetryMapper mapper = sqlSession.getMapper(RdosEngineJobRetryMapper.class);
                 return mapper.getRetryTaskParams(jobId, retrynum);
             }
         });
@@ -51,7 +51,7 @@ public class RdosEngineBatchJobRetryDAO {
 
             @Override
             public Object execute(SqlSession sqlSession) throws Exception {
-                RdosEngineBatchJobRetryMapper mapper = sqlSession.getMapper(RdosEngineBatchJobRetryMapper.class);
+                RdosEngineJobRetryMapper mapper = sqlSession.getMapper(RdosEngineJobRetryMapper.class);
                 mapper.removeByJobId(jobId);
                 return null;
             }

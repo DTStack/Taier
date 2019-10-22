@@ -1,7 +1,7 @@
 package com.dtstack.rdos.engine.service.db.mapper;
 
 import org.apache.ibatis.annotations.Param;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJob;
 
 import java.util.List;
 
@@ -13,9 +13,9 @@ import java.util.List;
  * @author sishu.yss
  *
  */
-public interface RdosEngineBatchJobMapper {
+public interface RdosEngineJobMapper {
 	
-	void insert(RdosEngineBatchJob rdosEngineBatchJob);
+	void insert(RdosEngineJob rdosEngineBatchJob);
 
 	void jobFail(@Param("jobId") String jobId, @Param("status") int status, @Param("logInfo") String logInfo);
 	
@@ -33,9 +33,9 @@ public interface RdosEngineBatchJobMapper {
 
 	void updateJobSubmitFailed(@Param("jobId") String jobId, @Param("engineId") String engineId, @Param("status") int status,@Param("appId") String appId);
 
-	RdosEngineBatchJob getRdosJobByJobId(@Param("jobId") String jobId);
+	RdosEngineJob getRdosJobByJobId(@Param("jobId") String jobId);
 
-	List<RdosEngineBatchJob> getRdosJobByJobIds(@Param("jobIds")List<String> jobIds);
+	List<RdosEngineJob> getRdosJobByJobIds(@Param("jobIds")List<String> jobIds);
 
 	void updateEngineLog(@Param("jobId")String jobId, @Param("engineLog")String engineLog);
 
@@ -45,12 +45,14 @@ public interface RdosEngineBatchJobMapper {
 
     Integer updateTaskStatusCompareOld(@Param("jobId") String jobId, @Param("status")Integer status,@Param("oldStatus") Integer oldStatus, @Param("jobName")String jobName);
 
-	RdosEngineBatchJob getByName(@Param("jobName") String jobName);
+	RdosEngineJob getByName(@Param("jobName") String jobName);
 
     List<String> listNames(@Param("jobName") String jobName);
 
 	void updateRetryNum(@Param("jobId")String jobId, @Param("retryNum")Integer retryNum);
 
 	Integer resetExecTime(@Param("jobId")String jobId);
+	
+	List<String> getTaskIdsByStatus(@Param("status")Integer status, @Param("computeType")Integer computeType);
 
 }

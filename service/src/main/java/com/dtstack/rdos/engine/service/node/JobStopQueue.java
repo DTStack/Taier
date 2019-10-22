@@ -3,18 +3,15 @@ package com.dtstack.rdos.engine.service.node;
 import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
-import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.base.queue.DelayBlockingQueue;
-import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
+import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobStopRecordDAO;
-import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobStopRecord;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
 import com.dtstack.rdos.engine.service.enums.RequestStart;
 import com.dtstack.rdos.engine.service.enums.StoppedStatus;
 import com.dtstack.rdos.engine.service.send.HttpSendClient;
@@ -61,9 +58,7 @@ public class JobStopQueue {
 
     private RdosEngineJobStopRecordDAO jobStopRecordDAO = new RdosEngineJobStopRecordDAO();
 
-    private RdosEngineBatchJobDAO batchJobDAO = new RdosEngineBatchJobDAO();
-
-    private RdosEngineStreamJobDAO streamJobDAO = new RdosEngineStreamJobDAO();
+    private RdosEngineJobDAO batchJobDAO = new RdosEngineJobDAO();
 
     private WorkNode workNode;
 
@@ -176,11 +171,7 @@ public class JobStopQueue {
                         } else {
                             LOG.warn("[Unnormal Job] jobId:{}", jobStopRecord.getTaskId());
                             //jobcache表没有记录，可能任务已经停止。在update表时增加where条件不等于stopped
-                            if (ComputeType.STREAM.getType().equals(jobStopRecord.getComputeType())) {
-                                streamJobDAO.updateTaskStatusNotStopped(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus(), RdosTaskStatus.getStoppedStatus());
-                            } else {
-                                batchJobDAO.updateTaskStatusNotStopped(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus(), RdosTaskStatus.getStoppedStatus());
-                            }
+                            batchJobDAO.updateTaskStatusNotStopped(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus(), RdosTaskStatus.getStoppedStatus());
                             zkLocalCache.updateLocalMemTaskStatus(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
                             jobStopRecordDAO.delete(jobStopRecord.getId());
                         }
@@ -235,19 +226,8 @@ public class JobStopQueue {
      * @return
      */
     private boolean checkCanStop(String taskId, Integer computeType) {
-
-        Integer sta;
-        if (ComputeType.BATCH.getType().equals(computeType)) {
-            RdosEngineBatchJob rdosEngineBatchJob = batchJobDAO.getRdosTaskByTaskId(taskId);
-            sta = rdosEngineBatchJob.getStatus().intValue();
-        } else if (ComputeType.STREAM.getType().equals(computeType)) {
-            RdosEngineStreamJob rdosEngineStreamJob = streamJobDAO.getRdosTaskByTaskId(taskId);
-            sta = rdosEngineStreamJob.getStatus().intValue();
-        } else {
-            LOG.error("invalid compute type:{}", computeType);
-            return false;
-        }
-
+    	RdosEngineJob rdosEngineBatchJob = batchJobDAO.getRdosTaskByTaskId(taskId);
+        Integer sta = rdosEngineBatchJob.getStatus().intValue();
         return RdosTaskStatus.getCanStopStatus().contains(sta);
     }
 

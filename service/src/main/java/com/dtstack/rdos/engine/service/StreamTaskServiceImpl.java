@@ -9,13 +9,14 @@ import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.common.util.UrlUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobIdentifier;
+import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
+import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
-import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosStreamTaskCheckpointDAO;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosStreamTaskCheckpoint;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
@@ -37,7 +38,7 @@ public class StreamTaskServiceImpl {
 
     private RdosStreamTaskCheckpointDAO rdosStreamTaskCheckpointDAO = new RdosStreamTaskCheckpointDAO();
 
-    private RdosEngineStreamJobDAO rdosEngineStreamJobDAO = new RdosEngineStreamJobDAO();
+    private RdosEngineJobDAO rdosEngineJobDAO = new RdosEngineJobDAO();
 
     private RdosEngineJobCacheDAO rdosEngineJobCacheDAO = new RdosEngineJobCacheDAO();
 
@@ -58,15 +59,15 @@ public class StreamTaskServiceImpl {
     /**
      * 查询stream job
      */
-    public List<RdosEngineStreamJob> getEngineStreamJob(@Param("taskIds") List<String> taskIds){
-        return rdosEngineStreamJobDAO.getRdosTaskByTaskIds(taskIds);
+    public List<RdosEngineJob> getEngineStreamJob(@Param("taskIds") List<String> taskIds){
+        return rdosEngineJobDAO.getRdosTaskByTaskIds(taskIds);
     }
 
     /**
      * 获取某个状态的任务task_id
      */
     public List<String> getTaskIdsByStatus(@Param("status") Integer status){
-        return rdosEngineStreamJobDAO.getTaskIdsByStatus(status);
+        return rdosEngineJobDAO.getTaskIdsByStatus(status, ComputeType.STREAM.getType());
     }
 
     /**
@@ -75,9 +76,9 @@ public class StreamTaskServiceImpl {
     public Byte getTaskStatus(@Param("taskId") String taskId){
         Byte status = null;
         if (StringUtils.isNotEmpty(taskId)){
-            RdosEngineStreamJob streamJob = rdosEngineStreamJobDAO.getRdosTaskByTaskId(taskId);
-            if (streamJob != null){
-                status = streamJob.getStatus();
+        	RdosEngineJob engineJob = rdosEngineJobDAO.getRdosTaskByTaskId(taskId);
+            if (engineJob != null){
+                status = engineJob.getStatus();
             }
         }
 
@@ -93,16 +94,16 @@ public class StreamTaskServiceImpl {
 
         Preconditions.checkState(StringUtils.isNotEmpty(taskId), "taskId can't be empty");
 
-        RdosEngineStreamJob streamJob = rdosEngineStreamJobDAO.getRdosTaskByTaskId(taskId);
-        Preconditions.checkNotNull(streamJob, "can't find record by taskId" + taskId);
+        RdosEngineJob engineJob = rdosEngineJobDAO.getRdosTaskByTaskId(taskId);
+        Preconditions.checkNotNull(engineJob, "can't find record by taskId" + taskId);
 
         //只获取运行中的任务的log—url
-        Byte status = streamJob.getStatus();
+        Byte status = engineJob.getStatus();
         if (!RdosTaskStatus.RUNNING.getStatus().equals(status.intValue())) {
             throw new RdosException(String.format("job:%s not running status ", taskId), ErrorCode.INVALID_TASK_STATUS);
         }
 
-        String applicationId = streamJob.getApplicationId();
+        String applicationId = engineJob.getApplicationId();
 
         if (StringUtils.isEmpty(applicationId)) {
             throw new RdosException(String.format("job %s not running in perjob", taskId), ErrorCode.INVALID_TASK_RUN_MODE);
@@ -122,7 +123,7 @@ public class StreamTaskServiceImpl {
             String jobInfo = rdosEngineJobCache.getJobInfo();
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
 
-            jobIdentifier = JobIdentifier.createInstance(streamJob.getEngineTaskId(), applicationId, taskId);
+            jobIdentifier = JobIdentifier.createInstance(engineJob.getEngineJobId(), applicationId, taskId);
             jobClient = new JobClient(paramAction);
             String jobMaster = JobClient.getJobMaster(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
             String rootURL = UrlUtil.getHttpRootURL(jobMaster);

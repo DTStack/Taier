@@ -98,7 +98,7 @@
 
     <select id="getTaskIdsByStatus" resultType="java.lang.String">
         select task_id from rdos_engine_stream_job
-        where status = #{status} and is_deleted=0
+        where status = #{status} and compute_type = #{computeType} and is_deleted = 0
     </select>
 
     <update id="updateRetryNum">

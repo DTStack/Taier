@@ -3,15 +3,12 @@ package com.dtstack.rdos.engine.service.node;
 import com.dtstack.rdos.engine.execution.base.enums.EJobCacheStage;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
-import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
+import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
-import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
 import com.dtstack.rdos.engine.service.enums.StoppedStatus;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -28,10 +25,7 @@ public class JobStopAction {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobStopAction.class);
 
-
-    private RdosEngineStreamJobDAO streamTaskDAO = new RdosEngineStreamJobDAO();
-
-    private RdosEngineBatchJobDAO batchJobDAO = new RdosEngineBatchJobDAO();
+    private RdosEngineJobDAO batchJobDAO = new RdosEngineJobDAO();
 
     private RdosEngineJobCacheDAO engineJobCacheDao = new RdosEngineJobCacheDAO();
 
@@ -96,43 +90,24 @@ public class JobStopAction {
     }
 
     private Byte getJobStatus(JobClient jobClient) {
-        if(ComputeType.BATCH == jobClient.getComputeType()){
-            RdosEngineBatchJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
-            if (batchJob != null) {
-                return batchJob.getStatus();
-            }
-        } else if (ComputeType.STREAM == jobClient.getComputeType()) {
-            RdosEngineStreamJob streamJob = streamTaskDAO.getRdosTaskByTaskId(jobClient.getTaskId());
-            if (streamJob != null){
-                return streamJob.getStatus();
-            }
-        }
+    	RdosEngineJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
+    	if (batchJob != null) {
+    		return batchJob.getStatus();
+    	}
         return null;
     }
 
     private String getEngineTaskId(JobClient jobClient) {
-        if(ComputeType.BATCH == jobClient.getComputeType()){
-            RdosEngineBatchJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
-            if (batchJob != null) {
-                return batchJob.getEngineJobId();
-            }
-        } else if (ComputeType.STREAM == jobClient.getComputeType()) {
-            RdosEngineStreamJob streamJob = streamTaskDAO.getRdosTaskByTaskId(jobClient.getTaskId());
-            if (streamJob != null){
-                return streamJob.getEngineTaskId();
-            }
-        }
+    	RdosEngineJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
+    	if (batchJob != null) {
+    		return batchJob.getEngineJobId();
+    	}
         return null;
     }
 
     private void removeJob(JobClient jobClient) {
         engineJobCacheDao.deleteJob(jobClient.getTaskId());
-        //修改任务状态
-        if(ComputeType.BATCH == jobClient.getComputeType()){
-            batchJobDAO.updateJobStatus(jobClient.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
-        }else if(ComputeType.STREAM == jobClient.getComputeType()){
-            streamTaskDAO.updateTaskStatus(jobClient.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
-        }
+        batchJobDAO.updateJobStatus(jobClient.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
     }
 
 }
