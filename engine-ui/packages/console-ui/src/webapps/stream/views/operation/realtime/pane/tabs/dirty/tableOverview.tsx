@@ -21,14 +21,14 @@ require('echarts/lib/component/title');
 const Option = Select.Option
 
 interface TableOverviewState {
-    recentTime: string,
-    x: any[],
+    recentTime: string;
+    x: any[];
     y: {
-        conversionErrors: string[],
-        duplicateErrors: string[],
-        nErrors: string[],
-        nullErrors: string[],
-        otherErrors: string[]
+        conversionErrors: string[];
+        duplicateErrors: string[];
+        nErrors: string[];
+        nullErrors: string[];
+        otherErrors: string[];
     }
 }
 
