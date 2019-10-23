@@ -251,3 +251,13 @@ export const writeTableType = (
         <p>自动建表的表名，将按照固定前缀（stream）、源表所属的schema、表名拼接，若数据源选择了分表模式，则每个表分组会自动创建一张Hive表</p>
     </div>
 )
+export const recordDirty = (
+    <div>
+        <p>开启后，系统将进行脏数据管理，您可以在“运维中心-脏数据管理”中查看。</p>
+    </div>
+)
+export const dirtySource = (
+    <div>
+        脏数据表会写入选择的hive库中，表名默认系统分配"dirty_任务名称"（存储时间默认为90天）同时，支持写入自定义表，用户自定义表名，数据写入时进行新建。
+    </div>
+)
