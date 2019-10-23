@@ -272,7 +272,7 @@ export default class FlinkConfig extends React.Component<any, any> {
                         {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.stateCheckpointsNum-retained`, {
                             rules: [{
                                 required: true,
-                                message: 'state.checkpoints.num-retained'
+                                message: '请输入state.checkpoints.num-retained'
                             }]
                         })(
                             <Input disabled={isView} />
