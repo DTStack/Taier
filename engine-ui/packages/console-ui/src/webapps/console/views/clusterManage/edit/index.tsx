@@ -235,8 +235,7 @@ class EditCluster extends React.Component<any, any> {
                         let componentConf = exChangeComponentConf(hadoopComponentData, libraComponentData) || {}; // 所有引擎数据组合
                         const flinkData = componentConf.flinkConf;
                         const extParams = this.exchangeServerParams(componentConf)
-                        const flinkConf = componentConf.flinkConf;
-                        myUpperCase(flinkConf);
+                        componentConf.flinkConf = myUpperCase(flinkData);
                         this.setState({
                             clusterData: data,
                             allComponentConf: componentConf,
