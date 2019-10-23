@@ -3,7 +3,7 @@ import { Form, Tabs, Button, Checkbox, message } from 'antd';
 import { formItemLayout } from './index';
 import { MemorySetting as BaseMemorySetting, ChooseModal as BaseChooseModal } from './typeChange';
 import { isEmpty, cloneDeep, debounce } from 'lodash';
-import { INPUT_TYPE } from '../../../../../../consts';
+import { INPUT_TYPE, TASK_ENUM, COMPONENT_TYPE } from '../../../../../../consts';
 import api from '../../../../../../api/experiment';
 const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
@@ -34,10 +34,10 @@ class ChooseModal extends BaseChooseModal {
     }
     getSourceData = () => {
         const { currentTab, componentId } = this.props;
-        const targetEdges = currentTab.graphData && currentTab.graphData.filter((o: any) => {
+        const targetEdges = currentTab.graphData && currentTab.graphData.find((o: any) => {
             return o.edge && o.target.data.id == componentId
         })
-        if (targetEdges.length) {
+        if (targetEdges) {
             const targetEdge = targetEdges.find((o: any) => o.outputType === INPUT_TYPE.NORMALIZATION_INPUT_DATA);
             if (!targetEdge) return;
             this.setState({
@@ -153,15 +153,16 @@ class Standardization extends React.PureComponent<any, any> {
     }
     handleSaveComponent = (field: any, filedValue: any) => {
         const { currentTab, componentId, data, changeContent } = this.props;
+        const fieldName = TASK_ENUM[COMPONENT_TYPE.DATA_EVALUATE.UNION_CLASSIFICATION];
         const currentComponentData = currentTab.graphData.find((o: any) => o.vertex && o.data.id === componentId);
         const params: any = {
             ...currentComponentData.data,
-            normalizationComponent: {
+            [fieldName]: {
                 ...data
             }
         }
         if (field) {
-            params.normalizationComponent[field] = filedValue
+            params[fieldName][field] = filedValue
         }
         api.addOrUpdateTask(params).then((res: any) => {
             if (res.code == 1) {

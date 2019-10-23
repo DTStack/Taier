@@ -12,7 +12,7 @@ const inputStyle: any = {
 }
 
 export function renderNumberFormItem (options: {
-    label: string;
+    label: React.ReactNode;
     key: string;
     initialValue?: number;
     min?: number;
