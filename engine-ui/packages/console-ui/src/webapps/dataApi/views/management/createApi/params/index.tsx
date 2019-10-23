@@ -534,7 +534,6 @@ class ManageParamsConfig extends React.Component<any, any> {
             loading: false
         })
         if (res && res.code == 1) {
-            console.log(this.exchangeServerParams(res.data.inputParam, 'in'))
             this.setState({
                 InputColumns: this.exchangeServerParams(res.data.inputParam, 'in'),
                 OutputColums: this.exchangeServerParams(res.data.outputParam, 'out'),
