@@ -522,7 +522,6 @@ class ManageParamsConfig extends React.Component<any, any> {
             return;
         }
         if (!sql) {
-            console.log(!sql)
             message.warning('SQL 不能为空');
             return;
         }
@@ -535,6 +534,7 @@ class ManageParamsConfig extends React.Component<any, any> {
             loading: false
         })
         if (res && res.code == 1) {
+            console.log(this.exchangeServerParams(res.data.inputParam, 'in'))
             this.setState({
                 InputColumns: this.exchangeServerParams(res.data.inputParam, 'in'),
                 OutputColums: this.exchangeServerParams(res.data.outputParam, 'out'),
@@ -561,8 +561,7 @@ class ManageParamsConfig extends React.Component<any, any> {
             (column: any) => {
                 let key = column.paramName + column.fieldName;
                 const cacheColumn = tmpCache[key];
-                let id, desc, required;
-
+                let { id, desc, required, groupId } = column;
                 if (cacheColumn) {
                     id = cacheColumn.id;
                     desc = cacheColumn.desc;
@@ -576,7 +575,7 @@ class ManageParamsConfig extends React.Component<any, any> {
                     id: id,
                     desc: desc,
                     required: required,
-                    groupId: column.groupId
+                    groupId: groupId
                 })
             }
         ) : [];
