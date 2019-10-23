@@ -399,7 +399,7 @@ export const workbenchReducer = (state = getCachedData(), action: any) => {
     }
 
     // localDb.set(`${projectID}_offline_workbench`, nextState);
-    if (projectID && nextState && nextState.tabs.length > 0) {
+    if (projectID && nextState) {
         idb.open().then((db) => {
             if (db) {
                 idb.set(`${projectID}_offline_workbench`, nextState);

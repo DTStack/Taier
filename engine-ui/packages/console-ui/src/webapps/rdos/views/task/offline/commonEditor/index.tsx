@@ -10,6 +10,7 @@ import { commonFileEditDelegator } from 'widgets/editor/utils';
 
 import API from '../../../../api';
 import IDEEditor from 'main/components/ide';
+import reqOfflineUrl from '../../../../api/reqOffline';
 
 import { matchTaskParams, isProjectCouldEdit } from '../../../../comm';
 import { TASK_TYPE } from '../../../../comm/const';
@@ -219,7 +220,8 @@ class CommonEditorContainer extends React.Component<any, any> {
             data: data,
             onConsoleClose: this.closeConsole,
             onRemoveTab: this.removeConsoleTab,
-            isDisEabledDownload: project.isAllowDownload == 0
+            isDisEabledDownload: project.isAllowDownload == 0,
+            downloadUri: reqOfflineUrl.DOWNLOAD_SQL_RESULT
         }
 
         return (

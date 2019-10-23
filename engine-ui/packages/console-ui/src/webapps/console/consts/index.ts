@@ -338,6 +338,7 @@ export const notExtKeysFlink: any = [
     'flinkPluginRoot', 'remotePluginRootDir',
     'clusterMode', 'flinkJarPath',
     'flinkJobHistory',
+    'flinkClusterId',
     // 'flinkPrincipal', 'flinkKeytabPath', 'flinkKrb5ConfPath',
     // 'zkPrincipal', 'zkKeytabPath', 'zkLoginName',
     'yarn.jobmanager.help.mb',

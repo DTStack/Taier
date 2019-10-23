@@ -554,14 +554,16 @@ class ManageParamsConfig extends React.Component<any, any> {
         const tmpCache: any = {};
         for (let i = 0; i < nowColumns.length; i++) {
             let column = nowColumns[i];
-            tmpCache[column.paramsName] = column;
+            let key = column.paramsName + column.columnName;
+            tmpCache[key] = column;
         }
         return columns ? columns.map(
             (column: any) => {
-                const cacheColumn = tmpCache[column.paramName];
+                let key = column.paramName + column.fieldName;
+                const cacheColumn = tmpCache[key];
                 let id, desc, required;
 
-                if (cacheColumn && cacheColumn.columnName == column.fieldName) {
+                if (cacheColumn) {
                     id = cacheColumn.id;
                     desc = cacheColumn.desc;
                     required = cacheColumn.required;

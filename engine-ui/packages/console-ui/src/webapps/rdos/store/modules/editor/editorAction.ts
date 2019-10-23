@@ -2,7 +2,7 @@ import moment from 'moment'
 import utils from 'utils'
 
 import API from '../../../api';
-import { taskStatus, offlineTaskStatusFilter, TASK_TYPE, TASK_STATUS, ENGINE_SOURCE_TYPE } from '../../../comm/const'
+import { taskStatus, offlineTaskStatusFilter, TASK_TYPE, TASK_STATUS, ENGINE_SOURCE_TYPE, SCRIPT_TYPE } from '../../../comm/const'
 import { editorAction } from './actionTypes';
 import { createLinkMark, createLog, createTitle } from 'widgets/code-editor/utils'
 
@@ -185,7 +185,7 @@ function exec (dispatch: any, currentTab: number, task: any, params: any, sqls: 
             if (res.data && res.data.sqlText) dispatch(output(currentTab, `${createTitle('任务信息')}\n${res.data.sqlText}\n${createTitle('')}`))
             if (res.data.jobId) {
                 runningSql[currentTab] = res.data.jobId;
-                if (res.data.engineType == ENGINE_SOURCE_TYPE.LIBRA || task.taskType == TASK_TYPE.IMPALA_SQL) {
+                if (res.data.engineType == ENGINE_SOURCE_TYPE.LIBRA || task.taskType == TASK_TYPE.IMPALA_SQL || task.type == SCRIPT_TYPE.IMPALA_SQL) {
                     getDataOver(dispatch, currentTab, res, res.data.jobId) // libra不去轮训selectData接口，直接返回数据
                     judgeIfContinueExec();
                 } else {
