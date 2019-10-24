@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.9.0-beta.2.5"></a>
+# [3.9.0-beta.2.5](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.2.4...3.9.0-beta.2.5) (2019-10-24)
+
+
+### Features
+
+* **rdos:** add unique key ([8c2696d](http://git.dtstack.cn/dtstack/data-stack-web/commits/8c2696d))
+
+
+
 <a name="3.9.0-beta.2.4"></a>
 # [3.9.0-beta.2.4](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.2.2...3.9.0-beta.2.4) (2019-10-22)
 
