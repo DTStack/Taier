@@ -7,7 +7,7 @@ import {
 } from 'antd';
 
 import HelpDoc from '../../../../../views/helpDoc';
-import LifeCycle from '../../../../../components/lifeCycleSelect';
+// import LifeCycle from '../../../../../components/lifeCycleSelect';
 
 import { SettingMap } from '../../../../../store/modules/realtimeTask/collection';
 import Api from '../../../../../api';
@@ -157,7 +157,7 @@ class ChannelForm extends React.Component<any, any> {
                             )}
                             <HelpDoc doc="dirtySource" />
                         </FormItem>
-                        <FormItem
+                        {/* <FormItem
                             {...formItemLayout}
                             label="脏数据存储天数"
                         >
@@ -169,7 +169,7 @@ class ChannelForm extends React.Component<any, any> {
                             })(
                                 <LifeCycle width={120}/>
                             )}
-                        </FormItem>
+                        </FormItem> */}
                     </React.Fragment>
                 ) : null}
             </Form>

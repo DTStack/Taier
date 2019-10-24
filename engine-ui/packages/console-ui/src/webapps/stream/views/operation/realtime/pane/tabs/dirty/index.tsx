@@ -88,10 +88,8 @@ class DirtyView extends React.Component<any, DirtyViewState> {
             </p>
             <div className='c-dirtyView__table'>
                 <TableItem label='存储数据库'>{table.dbName}</TableItem>
-                <TableItem label='数据存储天数'>{table.lifeDay}</TableItem>
                 <TableItem label='创建者'>{table.chargeUser}</TableItem>
                 <TableItem label='创建时间'>{utils.formatDateTime(table.gmtCreate)}</TableItem>
-                <TableItem label='数据最后变更时间'>{utils.formatDateTime(table.gmtModified)}</TableItem>
             </div>
             <div className="m-tabs c-dirtyView__tabs">
                 <Tabs
