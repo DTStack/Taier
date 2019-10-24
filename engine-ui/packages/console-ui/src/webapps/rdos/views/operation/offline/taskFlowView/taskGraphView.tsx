@@ -104,7 +104,7 @@ class TaskGraphView extends React.Component<any, any> {
     componentDidMount () {
         const graphData = this.props.graphData;
         this.initGraph(graphData);
-        document.addEventListener('click', this.hideMenu, false)
+        document.addEventListener('click', this.hideMenu)
     }
 
     componentDidUpdate (prevProps: any) {
@@ -115,7 +115,8 @@ class TaskGraphView extends React.Component<any, any> {
         }
     }
     componentWillUnmount () {
-        document.removeEventListener('click', this.hideMenu, false);
+        this.hideMenu();
+        document.removeEventListener('click', this.hideMenu);
     }
     initGraph = (graphData: any) => {
         this.Container.innerHTML = ''; // 清理容器内的Dom元素
