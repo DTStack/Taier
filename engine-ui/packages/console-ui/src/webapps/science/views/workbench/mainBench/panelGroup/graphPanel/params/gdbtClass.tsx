@@ -132,7 +132,7 @@ class ParamSetting extends React.PureComponent<any, any> {
                 {renderNumberFormItem({
                     handleSubmit: this.handleSubmit.bind(this),
                     label: '样本采样比例',
-                    key: 'subsample',
+                    key: 'subSample',
                     max: 1,
                     excludeMin: true,
                     excludeMax: true,
@@ -249,7 +249,7 @@ class FieldSetting extends React.PureComponent<any, any> {
         return (
             <Form className="params-form">
                 <FormItem
-                    label={<div style={{ display: 'inline-block' }}>输入列<span className="supplementary">支持double、int类型字段</span></div>}
+                    label={<div style={{ display: 'inline-block' }}>特征列<span className="supplementary">支持double、int类型字段</span></div>}
                     colon={false}
                     required
                     {...formItemLayout}
@@ -359,7 +359,7 @@ class GdbtClass extends React.PureComponent<any, any> {
                     learningRate: { value: data.learningRate },
                     maxDepth: { value: data.maxDepth },
                     minSamplesLeaf: { value: data.minSamplesLeaf },
-                    subsample: { value: data.subsample },
+                    subSample: { value: data.subSample },
                     maxFeatures: { value: data.maxFeatures },
                     validationFraction: { value: data.validationFraction },
                     randomState: { value: data.randomState }

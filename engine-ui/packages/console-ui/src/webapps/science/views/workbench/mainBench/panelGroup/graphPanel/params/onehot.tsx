@@ -85,28 +85,28 @@ class ParamSetting extends React.PureComponent<any, any> {
                     colon={false}
                     {...formItemLayout}
                 >
-                    {getFieldDecorator('deleteEmnu', {
+                    {getFieldDecorator('drop', {
                         valuePropName: 'checked'
                     })(
                         <Checkbox onChange={(e) => {
-                            this.handleSubmit('deleteEmnu', e.target.checked);
+                            this.handleSubmit('drop', e.target.checked);
                         }} style={{ width: '165px' }}>删除第一个枚举量的编码</Checkbox>
                     )}
-                    <HelpDoc style={{ top: 2 }} doc='deleteEmnu' />
+                    <HelpDoc style={{ top: 2 }} doc='drop' />
                 </FormItem>
                 <FormItem
                     label=''
                     colon={false}
                     {...formItemLayout}
                 >
-                    {getFieldDecorator('ignoreEmpty', {
+                    {getFieldDecorator('ignore', {
                         valuePropName: 'checked'
                     })(
                         <Checkbox onChange={(e) => {
-                            this.handleSubmit('ignoreEmpty', e.target.checked);
+                            this.handleSubmit('ignore', e.target.checked);
                         }} style={{ width: '165px' }}>忽略特征中的空元素</Checkbox>
                     )}
-                    <HelpDoc style={{ top: 2 }} doc='ignoreEmpty' />
+                    <HelpDoc style={{ top: 2 }} doc='ignore' />
                 </FormItem>
             </Form>
         )
@@ -268,32 +268,14 @@ class OneHot extends React.PureComponent<any, any> {
     }
     render () {
         const { data, currentTab, componentId } = this.props;
-        const WrapFieldSetting = Form.create({
-            mapPropsToFields: (props: any) => {
-                const { data } = props;
-                const values: any = {
-                    append: { value: (!data.append || isEmpty(data.append)) ? '' : data.append.key }
-                }
-                return values;
-            },
-            onFieldsChange: (props: any, changedFields: any) => {
-                for (const key in changedFields) {
-                    if (changedFields.hasOwnProperty(key)) {
-                        const element = changedFields[key];
-                        if (!element.validating && !element.dirty) {
-                            props.handleSaveComponent(key, element.value)
-                        }
-                    }
-                }
-            }
-        })(FieldSetting);
+        const WrapFieldSetting = Form.create<any>()(FieldSetting);
         const WrapParamSetting = Form.create({
             mapPropsToFields: (props: any) => {
                 const { data } = props;
                 const values: any = {
                     missRate: { value: data.missRate },
-                    deleteEmnu: { value: data.deleteEmnu },
-                    ignoreEmpty: { value: data.ignoreEmpty }
+                    drop: { value: data.drop },
+                    ignore: { value: data.ignore }
                 }
                 return values;
             }

@@ -98,11 +98,11 @@ class ParamSetting extends React.PureComponent<any, any> {
                     colon={false}
                     {...formItemLayout}
                 >
-                    {getFieldDecorator('svm', {
+                    {getFieldDecorator('kernel', {
                         initialValue: 'deviance',
                         rules: [{ required: false }]
                     })(
-                        <Select placeholder="请选择SVM的核函数" onChange={this.handleSubmit.bind(this, 'svm')}>
+                        <Select placeholder="请选择SVM的核函数" onChange={this.handleSubmit.bind(this, 'kernel')}>
                             {regexDatas.map((item: any, index: any) => {
                                 return <Option key={index} value={item.value}>{item.name}</Option>
                             })}
@@ -112,7 +112,7 @@ class ParamSetting extends React.PureComponent<any, any> {
                 {renderNumberFormItem({
                     handleSubmit: this.handleSubmit.bind(this),
                     label: '多项式核的阶',
-                    key: 'nEstimators',
+                    key: 'degree',
                     max: 10000,
                     min: 1,
                     step: 1,
@@ -126,11 +126,11 @@ class ParamSetting extends React.PureComponent<any, any> {
                             colon={false}
                             {...formItemLayout}
                         >
-                            {getFieldDecorator('nuclearCoefficient', {
+                            {getFieldDecorator('gamma', {
                                 initialValue: 'auto',
                                 rules: [{ required: false }]
                             })(
-                                <Select placeholder="请选择核系数" onChange={this.handleSubmit.bind(this, 'nuclearCoefficient')}>
+                                <Select placeholder="请选择核系数" onChange={this.handleSubmit.bind(this, 'gamma')}>
                                     {nuclearDatas.map((item: any, index: any) => {
                                         return <Option key={index} value={item.value}>{item.name}</Option>
                                     })}
@@ -151,7 +151,7 @@ class ParamSetting extends React.PureComponent<any, any> {
                 {renderNumberFormItem({
                     handleSubmit: this.handleSubmit.bind(this),
                     label: '惩罚项系数',
-                    key: 'punishment',
+                    key: 'c',
                     excludeMin: true,
                     excludeMax: true,
                     step: 0.1,
@@ -254,7 +254,7 @@ class FieldSetting extends React.PureComponent<any, any> {
         return (
             <Form className="params-form">
                 <FormItem
-                    label={<div style={{ display: 'inline-block' }}>输入列<span className="supplementary">支持double、int类型字段</span></div>}
+                    label={<div style={{ display: 'inline-block' }}>特征列<span className="supplementary">支持double、int类型字段</span></div>}
                     colon={false}
                     required
                     {...formItemLayout}
@@ -359,11 +359,11 @@ class SvmComponent extends React.PureComponent<any, any> {
             mapPropsToFields: (props: any) => {
                 const { data } = props;
                 const values: any = {
-                    svm: { value: data.svm },
-                    nEstimators: { value: data.nEstimators },
-                    nuclearCoefficient: { value: data.nuclearCoefficient },
+                    kernel: { value: data.kernel },
+                    degree: { value: data.degree },
+                    gamma: { value: data.gamma },
                     tol: { value: data.tol },
-                    punishment: { value: data.punishment },
+                    c: { value: data.c },
                     maxIter: { value: data.maxIter },
                     randomState: { value: data.randomState }
                 }

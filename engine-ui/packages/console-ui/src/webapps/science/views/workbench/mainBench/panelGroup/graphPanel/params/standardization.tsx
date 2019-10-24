@@ -110,7 +110,7 @@ class FieldSetting extends React.PureComponent<any, any> {
                 >
                     <Button style={btnStyle} onClick={this.handleChoose}>{btnContent}</Button>
                     <div style={{ display: 'grid', gridTemplateColumns: '82px auto' }}>
-                        {getFieldDecorator('is_save_old', {
+                        {getFieldDecorator('keepOriginal', {
                             valuePropName: 'checked',
                             getValueFromEvent: (e: any) => {
                                 if (!e || !e.target) {
@@ -190,7 +190,7 @@ class Standardization extends React.PureComponent<any, any> {
                 const { data } = props;
                 const values: any = {
                     // eslint-disable-next-line @typescript-eslint/camelcase
-                    is_save_old: { value: data.is_save_old === 1 }
+                    keepOriginal: { value: data.keepOriginal === 1 }
                 }
                 return values;
             }

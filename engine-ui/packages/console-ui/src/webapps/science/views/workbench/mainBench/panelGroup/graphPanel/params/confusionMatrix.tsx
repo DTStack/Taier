@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Form, Tabs, Spin, Select, InputNumber, message } from 'antd';
 import { formItemLayout } from './index';
 import { MemorySetting as BaseMemorySetting } from './typeChange';
-import { debounce, isEmpty } from 'lodash';
+import { debounce, isEmpty, get } from 'lodash';
 import api from '../../../../../../api/experiment';
 const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
@@ -35,7 +35,7 @@ class FieldSetting extends React.PureComponent<any, any> {
                     label='原数据的标签列列名'
                     {...formItemLayout}
                 >
-                    {getFieldDecorator('originalLabel', {
+                    {getFieldDecorator('label', {
                         rules: [{ required: isRequired, message: '请选择原数据的标签列列名！' }]
                     })(
                         <Select
@@ -57,7 +57,7 @@ class FieldSetting extends React.PureComponent<any, any> {
                     label={<div style={{ display: 'inline-block' }}>预测结果的标签列列名<span className="supplementary">若无阈值，必选项</span></div>}
                     {...formItemLayout}
                 >
-                    {getFieldDecorator('preLabel', {
+                    {getFieldDecorator('pre', {
                         rules: [{ required: true, message: '请选择预测结果的标签列列名！' }]
                     })(
                         <Select
@@ -128,16 +128,13 @@ class ConfusionMatrix extends React.PureComponent<any, any> {
             mapPropsToFields: (props: any) => {
                 const { data } = props;
                 const values: any = {
-                    label: { value: (!data.label || isEmpty(data.label)) ? '' : data.label.key }
+                    label: { value: get(data, 'label.key') },
+                    pre: { value: get(data, 'pre.key', '') }
                 }
                 return values;
             },
             onFieldsChange: (props: any, changedFields: any) => {
                 for (const key in changedFields) {
-                    if (key === 'label') {
-                        // label是下拉菜单，在组件里自己触发onChange函数,对数据封装过后再请求
-                        continue;
-                    }
                     if (changedFields.hasOwnProperty(key)) {
                         const element = changedFields[key];
                         if (!element.validating && !element.dirty && element.name !== 'transferField') {
