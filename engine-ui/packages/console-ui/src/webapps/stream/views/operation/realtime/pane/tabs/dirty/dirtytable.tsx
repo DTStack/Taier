@@ -36,13 +36,15 @@ class DirtyTable extends React.PureComponent<{ tableInfo: TableInfo }, DirtyTabl
             loading: true
         })
         let res = await Api.getDirtyDataTableOverview({
-            tableId: get(tableInfo, 'table.id'),
-            pageNo: pagination.current,
-            pageSize: pagination.pageSize
+            tableId: get(tableInfo, 'table.id')
         });
         if (res && res.code == 1) {
             this.setState({
-                data: res.data
+                data: res.data,
+                pagination: {
+                    ...pagination,
+                    total: res.data && res.data.length
+                }
             })
         }
         this.setState({
@@ -52,7 +54,7 @@ class DirtyTable extends React.PureComponent<{ tableInfo: TableInfo }, DirtyTabl
     onTableChange (pagination: PaginationProps) {
         this.setState({
             pagination: pagination
-        }, this.getData.bind(this))
+        })
     }
     initColumn (columns: string[]): { width: number; tableColumns: any[]} {
         if (!columns) {
@@ -86,7 +88,7 @@ class DirtyTable extends React.PureComponent<{ tableInfo: TableInfo }, DirtyTabl
             <Table
                 className='dt-ant-table'
                 columns={tableColumns}
-                pagination={pagination}
+                pagination={true}
                 onChange={this.onTableChange.bind(this)}
                 dataSource={data.slice(1)}
                 scroll={{ x: true }}
