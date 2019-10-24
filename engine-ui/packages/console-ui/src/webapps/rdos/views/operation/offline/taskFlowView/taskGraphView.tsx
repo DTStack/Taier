@@ -104,6 +104,7 @@ class TaskGraphView extends React.Component<any, any> {
     componentDidMount () {
         const graphData = this.props.graphData;
         this.initGraph(graphData);
+        document.addEventListener('click', this.hideMenu, false)
     }
 
     componentDidUpdate (prevProps: any) {
@@ -113,14 +114,15 @@ class TaskGraphView extends React.Component<any, any> {
             this.initGraph(nextGraphData);
         }
     }
-
+    componentWillUnmount () {
+        document.removeEventListener('click', this.hideMenu, false);
+    }
     initGraph = (graphData: any) => {
         this.Container.innerHTML = ''; // 清理容器内的Dom元素
         this.graph = '';
         const editor = this.Container;
         this.loadEditor(editor);
         this.initRender(graphData);
-        this.hideMenu();
     }
 
     loadEditor = (container: any) => {
@@ -482,12 +484,10 @@ class TaskGraphView extends React.Component<any, any> {
     }
 
     hideMenu = () => {
-        document.addEventListener('click', (e: any) => {
-            const popMenus = document.querySelector('.mxPopupMenu')
-            if (popMenus) {
-                document.body.removeChild(popMenus)
-            }
-        })
+        const popMenus = document.querySelector('.mxPopupMenu')
+        if (popMenus) {
+            document.body.removeChild(popMenus)
+        }
     }
 
     render () {

@@ -149,6 +149,7 @@ class JobGraphView extends React.Component<any, any> {
 
     componentDidMount() {
         this.initGraph(this.props.graphData);
+        document.addEventListener('click', this.hideMenu, false)
     }
 
     componentDidUpdate(prevProps: any) {
@@ -158,7 +159,9 @@ class JobGraphView extends React.Component<any, any> {
             this.initGraph(nextGraphData);
         }
     }
-
+    componentWillUnmount () {
+        document.removeEventListener('click', this.hideMenu, false);
+    }
     initGraph = (graphData: any) => {
         this.Container.innerHTML = ''; // 清理容器内的Dom元素
         this.graph = '';
@@ -166,7 +169,7 @@ class JobGraphView extends React.Component<any, any> {
         this.loadEditor(editor)
         this.initRender(graphData);
         console.log('initGraph:', graphData);
-        // this.hideMenu();
+     
     }
 
     loadEditor = (container: any) => {
@@ -532,12 +535,10 @@ class JobGraphView extends React.Component<any, any> {
     }
 
     hideMenu = () => {
-        document.addEventListener('click', (e: any) => {
-            const popMenus = document.querySelector('.mxPopupMenu')
+        const popMenus = document.querySelector('.mxPopupMenu')
             if (popMenus) {
                 document.body.removeChild(popMenus)
-            }
-        })
+        }
     }
 
     render () {
