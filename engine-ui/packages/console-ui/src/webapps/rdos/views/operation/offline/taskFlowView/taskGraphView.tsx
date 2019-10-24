@@ -1,3 +1,4 @@
+/* eslint-disable new-cap */
 import * as React from 'react'
 import { get, cloneDeep } from 'lodash'
 
@@ -11,9 +12,7 @@ import { removeToolTips } from 'funcs';
 import MyIcon from '../../../../components/icon'
 import { TASK_TYPE, SCHEDULE_STATUS } from '../../../../comm/const'
 import { taskTypeText } from '../../../../components/display'
-import {
-    getGeoByStartPoint
-} from 'utils/layout';
+
 import MxFactory from 'widgets/mxGraph';
 
 const Mx = MxFactory.create();
@@ -28,7 +27,8 @@ const {
     mxRectangle,
     mxPoint,
     mxUtils,
-    mxText
+    mxText,
+    mxHierarchicalLayout
 } = Mx
 
 export const VertexSize: any = { // vertex大小
@@ -95,6 +95,8 @@ class TaskGraphView extends React.Component<any, any> {
     Container: any;
     graph: any;
     _cacheLevel: any;
+    executeLayout: Function;
+
     static getDerivedStateFromProps (props: any, state: any) {
         return {
             loading: props.loading
@@ -130,9 +132,11 @@ class TaskGraphView extends React.Component<any, any> {
         mxGraphView.prototype.optimizeVmlReflows = false;
         mxText.prototype.ignoreStringSize = true; // to avoid calling getBBox
         // Disable context menu
-        mxEvent.disableContextMenu(container)
+        mxEvent.disableContextMenu(container);
         /* eslint-disable-next-line */
-        const graph = new mxGraph(container)
+        const graph = new mxGraph(container);
+        this.graph = graph;
+
         // 启用绘制
         graph.setPanning(true);
         // 允许鼠标移动画布
@@ -180,7 +184,25 @@ class TaskGraphView extends React.Component<any, any> {
 
         /* eslint-disable-next-line */
         new mxRubberband(graph); // enables rubberband
-        this.graph = graph;
+
+        this.executeLayout = function (layoutTarget: any, change: any, post: any) {
+            const parent = layoutTarget || graph.getDefaultParent();
+            graph.getModel().beginUpdate();
+            try {
+                const layout2 = new mxHierarchicalLayout(graph, 'north');
+                layout2.disableEdgeStyle = false;
+                layout2.interRankCellSpacing = 40;
+                layout2.intraCellSpacing = 20;
+                layout2.edgeStyle = mxEdgeStyle.TopToBottom;
+                if (change != null) { change(); }
+                layout2.execute(parent);
+            } catch (e) {
+                throw e;
+            } finally {
+                graph.getModel().endUpdate();
+                if (post != null) { post(); }
+            }
+        }
     }
 
     formatTooltip = (cell: any) => {
@@ -219,33 +241,19 @@ class TaskGraphView extends React.Component<any, any> {
 
     preHandGraphTree = (data: any) => {
         const relationTree: any = [];
-        const cachedNodes: any = []; // 缓存节点
 
-        let level = 0; // default level
-
-        // 计算节点的 Level
-        const caculateNodeLevel = (source: any, target: any, parent: any, level: any) => {
+        const loop = (source: any, target: any, parent: any) => {
             let node: any = null;
-            if (source && !source._geometry) {
+            if (source && !source.isPushed) {
                 node = source;
-            } else if (target && !target._geometry) {
+            } else if (target && !target.isPushed) {
                 node = target;
             } else return;
 
             const childNodes = node.subTaskVOS; // 子节点
             const parentNodes = node.taskVOS; // 父节点
-            const currentNodeGeo = Object.assign({}, defaultGeo, { level });
-
             // Assign geo
-            node._geometry = currentNodeGeo;
-
-            // 缓存节点，更新已存在节点的 Level 信息
-            const exsitNode = cachedNodes.find((item: any) => item.id === node.id);
-            if (!exsitNode) {
-                cachedNodes.push(node);
-            } else {
-                exsitNode._geometry.level = currentNodeGeo.level;
-            }
+            node.isPushed = true;
 
             relationTree.push({
                 parent: parent,
@@ -256,44 +264,23 @@ class TaskGraphView extends React.Component<any, any> {
             // 处理父亲依赖节点
             if (parentNodes) {
                 for (let i = 0; i < parentNodes.length; i++) {
-                    const nodeData = parentNodes[i];
-                    if (!nodeData) continue;
-                    const l = level - 1;
-                    caculateNodeLevel(nodeData, node, parent, l)
+                    const sourceData = parentNodes[i];
+                    if (!sourceData) continue;
+                    loop(sourceData, node, parent)
                 }
             }
 
             if (childNodes) {
                 // 处理被依赖节点
                 for (let i = 0; i < childNodes.length; i++) {
-                    const nodeData = childNodes[i];
-                    if (!nodeData) continue;
-                    const l = level + 1;
-                    caculateNodeLevel(node, nodeData, parent, l)
+                    const targetData = childNodes[i];
+                    if (!targetData) continue;
+                    loop(node, targetData, parent)
                 }
             }
         }
 
-        const caculateTheIndexOfSameLevel = (arr: any) => {
-            const IndexMap = this._cacheLevel; // 缓存 Level 信息  key(flowId-level): value( index )
-            for (let i = 0; i < arr.length; i++) {
-                const node = arr[i];
-                const levelKey = getLevelKey(node);
-                if (IndexMap[levelKey] !== undefined) {
-                    const index = IndexMap[levelKey] + 1;
-                    node._geometry.index = index;
-                    IndexMap[levelKey] = index;
-                } else {
-                    IndexMap[levelKey] = 1;
-                }
-            }
-        }
-
-        // 计算 Level
-        caculateNodeLevel(null, data, null, level);
-
-        // 计算 index
-        caculateTheIndexOfSameLevel(cachedNodes);
+        loop(null, data, null);
 
         console.log('cacheLevel:', this._cacheLevel);
         return relationTree;
@@ -326,7 +313,6 @@ class TaskGraphView extends React.Component<any, any> {
         const cellCache: any = {};
         const graph = this.graph;
         const defaultParent = graph.getDefaultParent();
-        const cacheLevel = this._cacheLevel; // 缓存 Level 信息
         const dataArr = this.preHandGraphTree(originData);
 
         const getVertex = (parentCell: any, data: any) => {
@@ -337,29 +323,17 @@ class TaskGraphView extends React.Component<any, any> {
             const isWorkflow = data.taskType === TASK_TYPE.WORKFLOW;
             const isWorkflowNode = data.flowId && data.flowId !== 0;
 
-            let nodeGeo = data._geometry;
-            const startPoint = Object.assign({}, defaultGeo);
-
-            // 缓存的Index值为最大Count值
-            const levelKey = cacheLevel[getLevelKey(data)];
-            if (levelKey !== undefined) {
-                nodeGeo.count = levelKey;
-            }
-
             if (isWorkflowNode) {
                 style += 'rounded=1;arcSize=60;';
                 data.workflow = parentCell.value;
             }
 
-            nodeGeo = getGeoByStartPoint(startPoint, nodeGeo);
-            console.log('nodeGeo:', data.name, startPoint, nodeGeo);
-
             const cell = graph.insertVertex(
                 isWorkflow ? null : parentCell,
                 data.id,
                 data,
-                nodeGeo.x, nodeGeo.y,
-                nodeGeo.width, nodeGeo.height,
+                0, 0,
+                VertexSize.width, VertexSize.height,
                 style
             )
 
@@ -421,6 +395,7 @@ class TaskGraphView extends React.Component<any, any> {
                 }
             }
         }
+        this.executeLayout();
         this.layoutView();
         removeToolTips();
     }
