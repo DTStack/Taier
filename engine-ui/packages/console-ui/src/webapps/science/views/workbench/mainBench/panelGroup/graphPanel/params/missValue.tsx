@@ -10,7 +10,7 @@ const FormItem = Form.Item;
 /* 选择字段弹出框 */
 class ChooseModal extends BaseChooseModal {
     disabledType: string;
-    constructor (props: any) {
+    constructor(props: any) {
         super(props);
         this.disabledType = 'string';
     }
@@ -95,19 +95,25 @@ class FieldSetting extends React.PureComponent<any, any> {
             chooseModalVisible: false
         });
     }
-    render () {
-        const { chooseModalVisible } = this.state;
+    renderBtnContent (data: any) {
+        return (isEmpty(data) || data.col.length == 0) ? '选择字段' : `已选择${data.col.length}个字段`;
+    }
+    renderGroup () {
         const { data, componentId, currentTab } = this.props;
+        const { chooseModalVisible } = this.state;
+        let { params } = data;
+        if (!params) {
+            return null;
+        }
         const btnStyle: any = { display: 'block', width: '100%', fontSize: 13, color: '#2491F7', fontWeight: 'normal', marginTop: 4 };
-        const btnContent = (isEmpty(data) || data.col.length == 0) ? '选择字段' : `已选择${data.col.length}个字段`
-        return (
-            <Form className="params-form">
+        return params.map((param: any, index: number) => {
+            return <React.Fragment>
                 <FormItem
                     label="填充字段"
                     colon={false}
                     {...formItemLayout}
                 >
-                    <Button style={btnStyle} onClick={this.handleChoose}>{btnContent}</Button>
+                    <Button style={btnStyle} onClick={this.handleChoose}>{this.renderBtnContent(param)}</Button>
                 </FormItem>
                 <div className="chooseWrap">
                     <ChooseModal
@@ -116,22 +122,32 @@ class FieldSetting extends React.PureComponent<any, any> {
                         data={data}
                         transferField='double'
                         visible={chooseModalVisible}
-                        onOK={this.handelOk}
+                        onOK={this.handelOk.bind(this, index)}
                         onCancel={this.handleCancel} />
                 </div>
+            </React.Fragment>
+        })
+    }
+    render () {
+        const { chooseModalVisible } = this.state;
+        const { data, componentId, currentTab } = this.props;
+        const btnContent = (isEmpty(data) || data.col.length == 0) ? '选择字段' : `已选择${data.col.length}个字段`
+        return (
+            <Form className="params-form">
+                {this.renderGroup()}
             </Form>
         )
     }
 }
 /* 内存设置 */
 class MemorySetting extends BaseMemorySetting {
-    constructor (props: any) {
+    constructor(props: any) {
         super(props)
     }
 }
 /* main页面 */
 class MissValue extends React.PureComponent<any, any> {
-    constructor (props: any) {
+    constructor(props: any) {
         super(props);
         this.handleSaveComponent = debounce(this.handleSaveComponent, 800);
     }
@@ -158,26 +174,7 @@ class MissValue extends React.PureComponent<any, any> {
     }
     render () {
         const { data, componentId, currentTab } = this.props;
-        const WrapFieldSetting = Form.create({
-            onFieldsChange: (props: any, changedFields: any) => {
-                for (const key in changedFields) {
-                    if (changedFields.hasOwnProperty(key)) {
-                        const element = changedFields[key];
-                        if (!element.validating && !element.dirty) {
-                            props.handleSaveComponent(key, element.value)
-                        }
-                    }
-                }
-            },
-            mapPropsToFields: (props: any) => {
-                const { data } = props;
-                const values: any = {
-                    // eslint-disable-next-line @typescript-eslint/camelcase
-                    is_save_old: { value: data.is_save_old === 1 }
-                }
-                return values;
-            }
-        })(FieldSetting)
+        const WrapFieldSetting = Form.create<any>()(FieldSetting)
         const WrapMemorySetting = Form.create({
             onFieldsChange: (props: any, changedFields: any) => {
                 for (const key in changedFields) {
