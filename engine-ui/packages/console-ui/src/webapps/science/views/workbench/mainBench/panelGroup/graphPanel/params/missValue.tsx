@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Form, Tabs, Button, message, Radio, Input, Select } from 'antd';
 import { formItemLayout } from './index';
 import { MemorySetting as BaseMemorySetting, ChooseModal as BaseChooseModal } from './typeChange';
-import { isEmpty, cloneDeep, debounce } from 'lodash';
+import { isEmpty, cloneDeep, debounce, set } from 'lodash';
 import { INPUT_TYPE, TASK_ENUM, COMPONENT_TYPE } from '../../../../../../consts';
 import api from '../../../../../../api/experiment';
 const TabPane = Tabs.TabPane;
@@ -12,7 +12,7 @@ const Option = Select.Option;
 /* 选择字段弹出框 */
 class ChooseModal extends BaseChooseModal {
     disabledType: string;
-    constructor(props: any) {
+    constructor (props: any) {
         super(props);
         this.disabledType = 'string';
     }
@@ -104,9 +104,17 @@ class FieldSetting extends React.PureComponent<any, any> {
         let { params } = data;
         params = params || [];
         const newParams = [...params, {
-            col: null,
+            col: [],
             method: 'default'
         }];
+        this.props.handleSaveComponent('params', newParams);
+    }
+    deleteParam (index: number) {
+        const { data } = this.props;
+        let { params } = data;
+        params = params || [];
+        const newParams = [...params];
+        newParams.splice(index, 1)
         this.props.handleSaveComponent('params', newParams);
     }
     handleCancel = () => {
@@ -119,7 +127,7 @@ class FieldSetting extends React.PureComponent<any, any> {
     }
     renderGroup () {
         const { data, componentId, currentTab, form } = this.props;
-        const { getFieldDecorator } = form;
+        const { getFieldDecorator, getFieldValue } = form;
         const { chooseModalVisible } = this.state;
         let { params } = data;
         if (!params) {
@@ -127,8 +135,9 @@ class FieldSetting extends React.PureComponent<any, any> {
         }
         const btnStyle: any = { display: 'block', width: '100%', fontSize: 13, color: '#2491F7', fontWeight: 'normal', marginTop: 4 };
         return params.map((param: any, index: number) => {
-            const { method, specifyOrigin } = param;
-            return <React.Fragment>
+            const { method } = param;
+            const specifyOrigin = getFieldValue(`params[${index}].specifyOrigin`);
+            return <React.Fragment key={index}>
                 <FormItem
                     label={'填充字段'}
                     colon={false}
@@ -151,7 +160,7 @@ class FieldSetting extends React.PureComponent<any, any> {
                     colon={false}
                     {...formItemLayout}
                 >
-                    {getFieldDecorator(index + '.method', {
+                    {getFieldDecorator(`params[${index}].method`, {
                         rules: [{ required: false }]
                     })(
                         <RadioGroup>
@@ -188,7 +197,7 @@ class FieldSetting extends React.PureComponent<any, any> {
                                     colon={false}
                                     {...formItemLayout}
                                 >
-                                    {getFieldDecorator(index + '.specifyOrigin', {
+                                    {getFieldDecorator(`params[${index}].specifyOrigin`, {
                                         rules: [{ required: false }]
                                     })(
                                         <Select>
@@ -202,7 +211,7 @@ class FieldSetting extends React.PureComponent<any, any> {
                                     colon={false}
                                     {...formItemLayout}
                                 >
-                                    {getFieldDecorator(index + '.' +specifyOrigin, {
+                                    {getFieldDecorator(`params[${index}].${specifyOrigin}`, {
                                         rules: [{ required: false }]
                                     })(
                                         <Input />
@@ -212,29 +221,30 @@ class FieldSetting extends React.PureComponent<any, any> {
                         }
                         case 'repalce': {
                             return <React.Fragment>
-                            <FormItem
-                                label='原值'
-                                colon={false}
-                                {...formItemLayout}
-                            >
-                                {getFieldDecorator(index + '.rawValue', {
-                                    rules: [{ required: false }]
-                                })(
-                                    <Input />
-                                )}
-                            </FormItem>
-                            <FormItem
-                                label='替换为'
-                                colon={false}
-                                {...formItemLayout}
-                            >
-                                {getFieldDecorator(index + '.newValue', {
-                                    rules: [{ required: false }]
-                                })(
-                                    <Input />
-                                )}
-                            </FormItem>
-                        </React.Fragment>
+                                <FormItem
+                                    label='原值'
+                                    colon={false}
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator(`params[${index}].rawValue`, {
+                                        rules: [{ required: false }]
+                                    })(
+                                        <Input />
+                                    )}
+                                </FormItem>
+                                <FormItem
+                                    label='替换为'
+                                    colon={false}
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator(`params[${index}].newValue`, {
+                                        rules: [{ required: false }]
+                                    })(
+                                        <Input />
+                                    )}
+                                </FormItem>
+                                <Button style={{ width: '100%' }} type='danger' onClick={this.deleteParam.bind(this, index)}>删除</Button>
+                            </React.Fragment>
                         }
                     }
                 })()}
@@ -242,24 +252,23 @@ class FieldSetting extends React.PureComponent<any, any> {
         })
     }
     render () {
-        const { data } = this.props;
         return (
             <Form className="params-form">
                 {this.renderGroup()}
-                <Button onClick={this.addNewParam.bind(this)}>增加</Button>
+                <Button style={{ width: '100%' }} onClick={this.addNewParam.bind(this)}>增加转换</Button>
             </Form>
         )
     }
 }
 /* 内存设置 */
 class MemorySetting extends BaseMemorySetting {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props)
     }
 }
 /* main页面 */
 class MissValue extends React.PureComponent<any, any> {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props);
         this.handleSaveComponent = debounce(this.handleSaveComponent, 800);
     }
@@ -286,7 +295,7 @@ class MissValue extends React.PureComponent<any, any> {
         })
     }
     render () {
-        const { data, componentId, currentTab } = this.props;
+        let { data, componentId, currentTab } = this.props;
         const WrapFieldSetting = Form.create<any>({
             mapPropsToFields: (props: any) => {
                 const { data } = props;
@@ -294,16 +303,32 @@ class MissValue extends React.PureComponent<any, any> {
                 if (!params) {
                     return null;
                 }
-                return params.map((param: any) => {
-                    return {
-                        method: param.method,
-                        specifyOrigin: param.string || param.string == '' ? 'string' : 'number',
-                        number: param.number,
-                        string: param.string,
-                        rawValue: param.rawValue,
-                        newValue: param.newValue
+                let values: any = {};
+                params.map((param: any, index: number) => {
+                    values[`params[${index}].method`] = { value: param.method };
+                    values[`params[${index}].specifyOrigin`] = { value: param.string || param.string == '' ? 'string' : 'number' };
+                    values[`params[${index}].number`] = { value: param.number };
+                    values[`params[${index}].string`] = { value: param.string };
+                    values[`params[${index}].rawValue`] = { value: param.rawValue };
+                    values[`params[${index}].newValue`] = { value: param.newValue };
+                })
+                return values;
+            },
+            onFieldsChange: (props: any, changedFields: any) => {
+                console.log(changedFields);
+                const { params } = props.data;
+                for (const key in changedFields) {
+                    if (changedFields.hasOwnProperty(key)) {
+                        const element = changedFields[key];
+                        if (!element.validating && !element.dirty) {
+                            const tmpData = {
+                                params: cloneDeep(params)
+                            }
+                            set(tmpData, key, element.value)
+                            props.handleSaveComponent('params', tmpData.params);
+                        }
                     }
-                });
+                }
             }
         })(FieldSetting)
         const WrapMemorySetting = Form.create({
