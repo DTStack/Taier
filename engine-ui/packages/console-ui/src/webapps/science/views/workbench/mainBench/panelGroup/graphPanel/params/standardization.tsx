@@ -12,7 +12,7 @@ class ChooseModal extends BaseChooseModal {
     disabledType: string;
     constructor (props: any) {
         super(props);
-        this.disabledType = 'string';
+        this.disabledType = '';
     }
     initTargetKeys = () => {
         const { data, transferField } = this.props;
@@ -34,11 +34,11 @@ class ChooseModal extends BaseChooseModal {
     }
     getSourceData = () => {
         const { currentTab, componentId } = this.props;
-        const targetEdges = currentTab.graphData && currentTab.graphData.find((o: any) => {
+        const targetEdges = currentTab.graphData && currentTab.graphData.filter((o: any) => {
             return o.edge && o.target.data.id == componentId
         })
         if (targetEdges) {
-            const targetEdge = targetEdges.find((o: any) => o.outputType === INPUT_TYPE.NORMALIZATION_INPUT_DATA);
+            const targetEdge = targetEdges.find((o: any) => o.outputType === INPUT_TYPE.NORMAL);
             if (!targetEdge) return;
             this.setState({
                 loading: true
