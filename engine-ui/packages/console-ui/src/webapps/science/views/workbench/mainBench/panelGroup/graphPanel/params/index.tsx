@@ -84,7 +84,7 @@ class Params extends React.Component<any, any> {
                     <WriteDatabase key={componentId} {...componentProps} />
                 )
             case COMPONENT_TYPE.DATA_TOOLS.SQL_SCRIPT:
-                return <OneHot key={componentId} {...componentProps} />
+                return <SqlScript key={componentId} {...componentProps} />
             case COMPONENT_TYPE.DATA_MERGE.TYPE_CHANGE:
                 return <TypeChange key={componentId} {...componentProps} />
             case COMPONENT_TYPE.DATA_MERGE.NORMALIZE:

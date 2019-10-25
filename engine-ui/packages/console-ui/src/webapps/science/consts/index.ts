@@ -199,8 +199,8 @@ export const COMPONENT_TYPE = {
     DATA_MERGE: {
         TYPE_CHANGE: 4, // 类型转换
         NORMALIZE: 5, // 归一化
-        STANDARD: 15, // 标准化
-        MISS_VALUE: 16 // 缺失值填充
+        STANDARD: 19, // 标准化
+        MISS_VALUE: 18 // 缺失值填充
     },
     DATA_PRE_HAND: {
         DATA_SPLIT: 6 // 拆分
@@ -209,8 +209,8 @@ export const COMPONENT_TYPE = {
         LOGISTIC_REGRESSION: 7, // 逻辑二分类
         GBDT_REGRESSION: 11, // GBDT回归
         KMEANS_UNION: 12, // kmeans聚类
-        GBDT_CLASS: 17, // GBDT二分类
-        SVM: 18 // SVM
+        GBDT_CLASS: 16, // GBDT二分类
+        SVM: 20 // SVM
     },
     DATA_PREDICT: {
         DATA_PREDICT: 8 // 数据预测
@@ -219,10 +219,10 @@ export const COMPONENT_TYPE = {
         BINARY_CLASSIFICATION: 9, // 二分类评估
         REGRESSION_CLASSIFICATION: 13, // 回归模型评估
         UNION_CLASSIFICATION: 14, // 聚类模型评估
-        CONFUSION_MATRIX: 19 // 混淆矩阵
+        CONFUSION_MATRIX: 15 // 混淆矩阵
     },
     FEATURE_ENGINEER: { // 特征工程
-        ONE_HOT: 20 // 特征生成
+        ONE_HOT: 17 // 特征生成
     }
 }
 
