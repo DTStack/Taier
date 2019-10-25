@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Form, Tabs, Button, message } from 'antd';
+import { Form, Tabs, Button, message, Radio, Input, Select } from 'antd';
 import { formItemLayout } from './index';
 import { MemorySetting as BaseMemorySetting, ChooseModal as BaseChooseModal } from './typeChange';
 import { isEmpty, cloneDeep, debounce } from 'lodash';
@@ -7,6 +7,8 @@ import { INPUT_TYPE, TASK_ENUM, COMPONENT_TYPE } from '../../../../../../consts'
 import api from '../../../../../../api/experiment';
 const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
+const RadioGroup = Radio.Group;
+const Option = Select.Option;
 /* 选择字段弹出框 */
 class ChooseModal extends BaseChooseModal {
     disabledType: string;
@@ -87,8 +89,25 @@ class FieldSetting extends React.PureComponent<any, any> {
             chooseModalVisible: true
         });
     }
-    handelOk = (targetObjects: any) => {
-        this.props.handleSaveComponent('col', targetObjects);
+    handelOk = (index: number, targetObjects: any) => {
+        const { data } = this.props;
+        let { params } = data;
+        const newParams = [...params];
+        newParams[index] = {
+            ...newParams[index],
+            col: targetObjects
+        }
+        this.props.handleSaveComponent('params', newParams);
+    }
+    addNewParam () {
+        const { data } = this.props;
+        let { params } = data;
+        params = params || [];
+        const newParams = [...params, {
+            col: null,
+            method: 'default'
+        }];
+        this.props.handleSaveComponent('params', newParams);
     }
     handleCancel = () => {
         this.setState({
@@ -99,7 +118,8 @@ class FieldSetting extends React.PureComponent<any, any> {
         return (isEmpty(data) || data.col.length == 0) ? '选择字段' : `已选择${data.col.length}个字段`;
     }
     renderGroup () {
-        const { data, componentId, currentTab } = this.props;
+        const { data, componentId, currentTab, form } = this.props;
+        const { getFieldDecorator } = form;
         const { chooseModalVisible } = this.state;
         let { params } = data;
         if (!params) {
@@ -107,9 +127,10 @@ class FieldSetting extends React.PureComponent<any, any> {
         }
         const btnStyle: any = { display: 'block', width: '100%', fontSize: 13, color: '#2491F7', fontWeight: 'normal', marginTop: 4 };
         return params.map((param: any, index: number) => {
+            const { method, specifyOrigin } = param;
             return <React.Fragment>
                 <FormItem
-                    label="填充字段"
+                    label={'填充字段'}
                     colon={false}
                     {...formItemLayout}
                 >
@@ -125,16 +146,107 @@ class FieldSetting extends React.PureComponent<any, any> {
                         onOK={this.handelOk.bind(this, index)}
                         onCancel={this.handleCancel} />
                 </div>
+                <FormItem
+                    label=''
+                    colon={false}
+                    {...formItemLayout}
+                >
+                    {getFieldDecorator(index + '.method', {
+                        rules: [{ required: false }]
+                    })(
+                        <RadioGroup>
+                            <Radio value={'default'}>default模式</Radio>
+                            <Radio value={'specify'}>specify模式</Radio>
+                            <Radio value={'repalce'}>repalce模式</Radio>
+                        </RadioGroup>
+                    )}
+                </FormItem>
+                {(() => {
+                    switch (method) {
+                        case 'default': {
+                            return <React.Fragment>
+                                <FormItem
+                                    label='原值'
+                                    colon={false}
+                                    {...formItemLayout}
+                                >
+                                    <Input disabled value='null' />
+                                </FormItem>
+                                <FormItem
+                                    label='替换为'
+                                    colon={false}
+                                    {...formItemLayout}
+                                >
+                                    <Input disabled value='0或者字符串' />
+                                </FormItem>
+                            </React.Fragment>
+                        }
+                        case 'specify': {
+                            return <React.Fragment>
+                                <FormItem
+                                    label='原值'
+                                    colon={false}
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator(index + '.specifyOrigin', {
+                                        rules: [{ required: false }]
+                                    })(
+                                        <Select>
+                                            <Option value='number'>Null（数值型）</Option>
+                                            <Option value='string'>Null（String型）</Option>
+                                        </Select>
+                                    )}
+                                </FormItem>
+                                <FormItem
+                                    label='替换为'
+                                    colon={false}
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator(index + '.' +specifyOrigin, {
+                                        rules: [{ required: false }]
+                                    })(
+                                        <Input />
+                                    )}
+                                </FormItem>
+                            </React.Fragment>
+                        }
+                        case 'repalce': {
+                            return <React.Fragment>
+                            <FormItem
+                                label='原值'
+                                colon={false}
+                                {...formItemLayout}
+                            >
+                                {getFieldDecorator(index + '.rawValue', {
+                                    rules: [{ required: false }]
+                                })(
+                                    <Input />
+                                )}
+                            </FormItem>
+                            <FormItem
+                                label='替换为'
+                                colon={false}
+                                {...formItemLayout}
+                            >
+                                {getFieldDecorator(index + '.newValue', {
+                                    rules: [{ required: false }]
+                                })(
+                                    <Input />
+                                )}
+                            </FormItem>
+                        </React.Fragment>
+                        }
+                    }
+                })()}
             </React.Fragment>
         })
     }
     render () {
-        const { chooseModalVisible } = this.state;
-        const { data, componentId, currentTab } = this.props;
-        const btnContent = (isEmpty(data) || data.col.length == 0) ? '选择字段' : `已选择${data.col.length}个字段`
+        const { data } = this.props;
         return (
             <Form className="params-form">
                 {this.renderGroup()}
+                <Button onClick={this.addNewParam.bind(this)}>增加</Button>
             </Form>
         )
     }
@@ -175,7 +287,25 @@ class MissValue extends React.PureComponent<any, any> {
     }
     render () {
         const { data, componentId, currentTab } = this.props;
-        const WrapFieldSetting = Form.create<any>()(FieldSetting)
+        const WrapFieldSetting = Form.create<any>({
+            mapPropsToFields: (props: any) => {
+                const { data } = props;
+                const { params } = data;
+                if (!params) {
+                    return null;
+                }
+                return params.map((param: any) => {
+                    return {
+                        method: param.method,
+                        specifyOrigin: param.string || param.string == '' ? 'string' : 'number',
+                        number: param.number,
+                        string: param.string,
+                        rawValue: param.rawValue,
+                        newValue: param.newValue
+                    }
+                });
+            }
+        })(FieldSetting)
         const WrapMemorySetting = Form.create({
             onFieldsChange: (props: any, changedFields: any) => {
                 for (const key in changedFields) {
