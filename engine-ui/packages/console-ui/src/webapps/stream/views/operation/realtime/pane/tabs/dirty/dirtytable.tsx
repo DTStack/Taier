@@ -85,7 +85,7 @@ class DirtyTable extends React.PureComponent<{ tableInfo: TableInfo }, DirtyTabl
         const column = data[0];
         return data.slice(1).map((item, dataIndex: number) => {
             let newData: any = {
-                index: dataIndex
+                index: dataIndex + 1
             }
             item.map((value: any, itemIndex: number) => {
                 newData[column[itemIndex]] = value;
@@ -94,7 +94,7 @@ class DirtyTable extends React.PureComponent<{ tableInfo: TableInfo }, DirtyTabl
         })
     }
     render () {
-        const { data, pagination } = this.state;
+        const { data, loading } = this.state;
         const { tableColumns } = this.initColumn(data[0])
         return (
             <Table
@@ -102,8 +102,9 @@ class DirtyTable extends React.PureComponent<{ tableInfo: TableInfo }, DirtyTabl
                 columns={tableColumns}
                 pagination={true}
                 onChange={this.onTableChange.bind(this)}
+                loading={loading}
                 dataSource={this.initData(data)}
-                scroll={{ x: true }}
+                scroll={{ x: true, y: 500 }}
             />
         )
     }
