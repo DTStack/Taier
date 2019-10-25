@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable new-cap */
 import * as React from 'react'
 import { get, cloneDeep } from 'lodash'
 
@@ -12,9 +14,7 @@ import MyIcon from '../../../../components/icon'
 import { getVertxtStyle } from '../../../../comm'
 import { TASK_TYPE } from '../../../../comm/const'
 import { taskTypeText, taskStatusText } from '../../../../components/display'
-import {
-    getGeoByStartPoint
-} from 'utils/layout';
+
 import MxFactory from 'widgets/mxGraph';
 
 const Mx = MxFactory.create();
@@ -29,7 +29,8 @@ const {
     mxRectangle,
     mxPoint,
     mxUtils,
-    mxText
+    mxText,
+    mxHierarchicalLayout
 } = Mx
 
 export const VertexSize: any = { // vertex大小
@@ -130,35 +131,38 @@ export const getLevelKey = function (node: any) {
     return `${node.batchTask.flowId || ''}-${node._geometry.level}`;
 }
 
-/* eslint-disable */
 class JobGraphView extends React.Component<any, any> {
-
     state: any = {
-        loading: 'success',
+        loading: 'success'
     }
 
     _view: any = null; // 存储view信息
     Container: any;
     graph: any;
     _cacheLevel: any;
+    executeLayout: Function;
+
     static getDerivedStateFromProps (props: any, state: any) {
         return {
             loading: props.loading
         }
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.initGraph(this.props.graphData);
+        document.addEventListener('click', this.hideMenu, false)
     }
 
-    componentDidUpdate(prevProps: any) {
+    componentDidUpdate (prevProps: any) {
         const nextGraphData = this.props.graphData
         const { graphData } = prevProps
         if (nextGraphData && nextGraphData !== graphData) {
             this.initGraph(nextGraphData);
         }
     }
-
+    componentWillUnmount () {
+        document.removeEventListener('click', this.hideMenu, false);
+    }
     initGraph = (graphData: any) => {
         this.Container.innerHTML = ''; // 清理容器内的Dom元素
         this.graph = '';
@@ -166,15 +170,16 @@ class JobGraphView extends React.Component<any, any> {
         this.loadEditor(editor)
         this.initRender(graphData);
         console.log('initGraph:', graphData);
-        // this.hideMenu();
     }
 
     loadEditor = (container: any) => {
         mxGraphView.prototype.optimizeVmlReflows = false;
         mxText.prototype.ignoreStringSize = true; // to avoid calling getBBox
         // Disable context menu
-        mxEvent.disableContextMenu(container)
-        const graph = new mxGraph(container)
+        mxEvent.disableContextMenu(container);
+        const graph = new mxGraph(container);
+        this.graph = graph;
+
         // 启用绘制
         graph.setPanning(true);
         // 允许鼠标移动画布
@@ -189,7 +194,7 @@ class JobGraphView extends React.Component<any, any> {
         // 禁止连接
         graph.setConnectable(false);
         // 禁止Edge对象移动
-        graph.isCellsMovable = function(cell: any) {
+        graph.isCellsMovable = function () {
             var cell = graph.getSelectionCell()
             return !(cell && cell.edge);
         }
@@ -197,7 +202,7 @@ class JobGraphView extends React.Component<any, any> {
         graph.isCellEditable = function () {
             return false;
         }
-        graph.isCellResizable = function(cell: any) {
+        graph.isCellResizable = function (cell: any) {
             return false;
         }
         // 设置Vertex样式
@@ -219,8 +224,27 @@ class JobGraphView extends React.Component<any, any> {
         mxConstants.STYLE_OVERFLOW = 'hidden';
 
         // enables rubberband
+        // eslint-disable-next-line no-new
         new mxRubberband(graph);
-        this.graph = graph;
+
+        this.executeLayout = function (layoutTarget: any, change: any, post: any) {
+            const parent = layoutTarget || graph.getDefaultParent();
+            graph.getModel().beginUpdate();
+            try {
+                const layout2 = new mxHierarchicalLayout(graph, 'north');
+                layout2.disableEdgeStyle = false;
+                layout2.interRankCellSpacing = 40;
+                layout2.intraCellSpacing = 20;
+                layout2.edgeStyle = mxEdgeStyle.TopToBottom;
+                if (change != null) { change(); }
+                layout2.execute(parent);
+            } catch (e) {
+                throw e;
+            } finally {
+                graph.getModel().endUpdate();
+                if (post != null) { post(); }
+            }
+        }
     }
 
     corvertValueToString = (cell: any) => {
@@ -272,36 +296,20 @@ class JobGraphView extends React.Component<any, any> {
 
     preHandGraphTree = (data: any) => {
         const relationTree: any = [];
-        const cachedNodes: any = [];  // 缓存节点
 
-        let level = 0; // default level
-
-        // 计算节点的 Level
-        const caculateNodeLevel = (source: any, target: any, parent: any, level: any) => {
-
+        const loop = (source: any, target: any, parent: any) => {
             let node: any = null;
-            if (source && !source._geometry) {
+            if (source && !source.isPushed) {
                 node = source;
-            } else if (target && !target._geometry) {
+            } else if (target && !target.isPushed) {
                 node = target;
             } else return;
 
             const childNodes = node.jobVOS; // 子节点
             const parentNodes = node.parentNodes; // 父节点
-      
-            const currentNodeGeo = Object.assign({}, defaultGeo, { level });
-
             // Assign geo
-            node._geometry = currentNodeGeo;
+            node.isPushed = true;
 
-            // 缓存节点，更新已存在节点的 Level 信息
-            const exsitNode = cachedNodes.find((item: any) => item.id === node.id);
-            if (!exsitNode) {
-                cachedNodes.push(node);
-            } else {
-                exsitNode._geometry.level = currentNodeGeo.level;
-            }
-       
             relationTree.push({
                 parent: parent,
                 source: source,
@@ -311,44 +319,23 @@ class JobGraphView extends React.Component<any, any> {
             // 处理父亲依赖节点
             if (parentNodes) {
                 for (let i = 0; i < parentNodes.length; i++) {
-                    const nodeData = parentNodes[i];
-                    if (!nodeData) continue;
-                    const l = level - 1;
-                    caculateNodeLevel(nodeData, node, parent, l)
+                    const sourceData = parentNodes[i];
+                    if (!sourceData) continue;
+                    loop(sourceData, node, parent)
                 }
             }
 
             if (childNodes) {
                 // 处理被依赖节点
                 for (let i = 0; i < childNodes.length; i++) {
-                    const nodeData = childNodes[i];
-                    if (!nodeData) continue;
-                    const l = level + 1;
-                    caculateNodeLevel(node, nodeData, parent, l)
+                    const targetData = childNodes[i];
+                    if (!targetData) continue;
+                    loop(node, targetData, parent)
                 }
             }
         }
 
-        const caculateTheIndexOfSameLevel = (arr: any) => {
-            const IndexMap = this._cacheLevel; // 缓存 Level 信息  key(flowId-level): value( index )
-            for (let i = 0; i < arr.length ; i++ ) {
-                const node = arr[i];
-                const levelKey = getLevelKey(node);
-                if (IndexMap[levelKey] !== undefined) {
-                    const index = IndexMap[levelKey] + 1;
-                    node._geometry.index = index;
-                    IndexMap[levelKey] = index;
-                } else {
-                    IndexMap[levelKey] = 1;
-                }
-            }
-        }
-
-        // 计算 Level
-        caculateNodeLevel(null, data, null, level);
-
-        // 计算 index
-        caculateTheIndexOfSameLevel(cachedNodes);
+        loop(null, data, null);
 
         console.log('cacheLevel:', this._cacheLevel);
         return relationTree;
@@ -372,7 +359,6 @@ class JobGraphView extends React.Component<any, any> {
         const cellCache: any = {};
         const graph = this.graph;
         const defaultParent = graph.getDefaultParent();
-        const cacheLevel = this._cacheLevel; // 缓存 Level 信息
         const dataArr = this.preHandGraphTree(originData);
         console.log('renderData:', dataArr);
 
@@ -384,29 +370,16 @@ class JobGraphView extends React.Component<any, any> {
 
             const isWorkflow = data.batchTask.taskType === TASK_TYPE.WORKFLOW;
             const isWorkflowNode = data.batchTask.flowId && data.batchTask.flowId !== 0;
-            let nodeGeo = data._geometry;
-            const startPoint = Object.assign({}, defaultGeo);
-            startPoint.x = 0;
-            startPoint.y = 0;
-
-            // 缓存的Index值为最大Count值
-            const levelKey = cacheLevel[getLevelKey(data)];
-            if (levelKey !== undefined) {
-                nodeGeo.count = levelKey;
-            }
 
             if (isWorkflowNode) {
                 style += 'rounded=1;arcSize=60;';
             }
-            nodeGeo = getGeoByStartPoint(startPoint, nodeGeo);
-            console.log('nodeGeo:', data.batchTask.name, startPoint, nodeGeo);
-
             const cell = graph.insertVertex(
                 isWorkflow ? null : parentCell,
                 data.id,
                 data,
-                nodeGeo.x, nodeGeo.y,
-                nodeGeo.width, nodeGeo.height,
+                0, 0,
+                VertexSize.width, VertexSize.height,
                 style
             )
             if (isWorkflow) {
@@ -417,7 +390,7 @@ class JobGraphView extends React.Component<any, any> {
                     null,
                     '',
                     0, 50,
-                    VertexSize.width, VertexSize.height, // geo.width, geo.height,
+                    VertexSize.width, VertexSize.height,
                     style
                 )
                 cell.geometry.alternateBounds = new mxRectangle(10, 10, VertexSize.width, VertexSize.height);
@@ -461,13 +434,14 @@ class JobGraphView extends React.Component<any, any> {
                 if (sourceCell && targetCell) {
                     const edges = graph.getEdgesBetween(sourceCell, targetCell);
                     const edgeStyle = !isWorkflowNode ? null : 'strokeColor=#B7B7B7;';
-    
+
                     if (edges.length === 0) {
                         graph.insertEdge(defaultParent, null, '', sourceCell, targetCell, edgeStyle)
                     }
                 }
             }
         }
+        this.executeLayout();
         this.layoutView();
         removeToolTips();
     }
@@ -504,7 +478,7 @@ class JobGraphView extends React.Component<any, any> {
             graph.view.setTranslate(dx, dy);
         }
         // Sets initial scrollbar positions
-        window.setTimeout(function() {
+        window.setTimeout(function () {
             var bounds = graph.getGraphBounds();
             var width = Math.max(bounds.width, graph.scrollTileSize.width * graph.view.scale);
             var height = Math.max(bounds.height, graph.scrollTileSize.height * graph.view.scale);
@@ -532,12 +506,10 @@ class JobGraphView extends React.Component<any, any> {
     }
 
     hideMenu = () => {
-        document.addEventListener('click', (e: any) => {
-            const popMenus = document.querySelector('.mxPopupMenu')
-            if (popMenus) {
-                document.body.removeChild(popMenus)
-            }
-        })
+        const popMenus = document.querySelector('.mxPopupMenu')
+        if (popMenus) {
+            document.body.removeChild(popMenus)
+        }
     }
 
     render () {
@@ -590,14 +562,14 @@ class JobGraphView extends React.Component<any, any> {
                     <span style={{ marginLeft: '15px' }}>{get(data, 'batchTask.createUser.userName', '-')}</span>&nbsp;
                     { isPro ? '发布' : '提交' }于&nbsp;
                     <span>{ utils.formatDateTime(get(data, 'batchTask.gmtModified')) }</span>&nbsp;
-                    <a title="双击任务可快速查看日志" onClick={() => { showJobLog(get(data, 'jobId' )) }} style={{ marginRight: '8' }}>查看日志</a>&nbsp;
+                    <a title="双击任务可快速查看日志" onClick={() => { showJobLog(get(data, 'jobId')) }} style={{ marginRight: '8' }}>查看日志</a>&nbsp;
                     {isCurrentProjectTask(data.batchTask) && (<a onClick={() => { goToTaskDev(get(data, 'batchTask.id')) }}>查看代码</a>)}
                 </div>
             </div>
         )
     }
 
-    initContainerScroll(graph: any) {
+    initContainerScroll (graph: any) {
         /**
          * Specifies the size of the size for "tiles" to be used for a graph with
          * scrollbars but no visible background page. A good value is large

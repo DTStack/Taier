@@ -36,13 +36,15 @@ class DirtyTable extends React.PureComponent<{ tableInfo: TableInfo }, DirtyTabl
             loading: true
         })
         let res = await Api.getDirtyDataTableOverview({
-            tableId: get(tableInfo, 'table.id'),
-            pageNo: pagination.current,
-            pageSize: pagination.pageSize
+            tableId: get(tableInfo, 'table.id')
         });
         if (res && res.code == 1) {
             this.setState({
-                data: res.data
+                data: res.data,
+                pagination: {
+                    ...pagination,
+                    total: res.data && res.data.length
+                }
             })
         }
         this.setState({
@@ -52,9 +54,9 @@ class DirtyTable extends React.PureComponent<{ tableInfo: TableInfo }, DirtyTabl
     onTableChange (pagination: PaginationProps) {
         this.setState({
             pagination: pagination
-        }, this.getData.bind(this))
+        })
     }
-    initColumn (columns: string[]): { width: number; tableColumns: any[]} {
+    initColumn (columns: string[]): { width: number; tableColumns: any[] } {
         if (!columns) {
             return {
                 width: 800,
@@ -64,13 +66,13 @@ class DirtyTable extends React.PureComponent<{ tableInfo: TableInfo }, DirtyTabl
         let width = 0;
         const tableColumns = [{
             title: '序号',
-            key: 'index',
+            dataIndex: 'index',
             width: 100
         }].concat(columns.map((item) => {
             width += item.length * 4 + 20;
             return {
                 title: item,
-                key: item,
+                dataIndex: item,
                 width: item.length * 4 + 20
             }
         }));
@@ -79,17 +81,30 @@ class DirtyTable extends React.PureComponent<{ tableInfo: TableInfo }, DirtyTabl
             tableColumns
         }
     }
+    initData (data: any[]) {
+        const column = data[0];
+        return data.slice(1).map((item, dataIndex: number) => {
+            let newData: any = {
+                index: dataIndex + 1
+            }
+            item.map((value: any, itemIndex: number) => {
+                newData[column[itemIndex]] = value;
+            })
+            return newData;
+        })
+    }
     render () {
-        const { data, pagination } = this.state;
+        const { data, loading } = this.state;
         const { tableColumns } = this.initColumn(data[0])
         return (
             <Table
                 className='dt-ant-table'
                 columns={tableColumns}
-                pagination={pagination}
+                pagination={true}
                 onChange={this.onTableChange.bind(this)}
-                dataSource={data.slice(1)}
-                scroll={{ x: true }}
+                loading={loading}
+                dataSource={this.initData(data)}
+                scroll={{ x: true, y: 500 }}
             />
         )
     }
