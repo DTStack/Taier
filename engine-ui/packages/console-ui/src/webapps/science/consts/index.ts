@@ -303,15 +303,15 @@ export const INPUT_TYPE = {
     ONE_HOT_OUTPUT_DATA: 36,
     ONE_HOT_OUTPUT_MODAL: 35,
     // 缺失值填充
-    MISS_VALUE_INPUT_PARAM: 35,
-    MISS_VALUE_OUTPUT_DATA: 36,
-    MISS_VALUE_OUTPUT_PARAM: 37,
+    MISS_VALUE_INPUT_NORMAL: 38,
+    MISS_VALUE_INPUT_PARAM: 39,
+    MISS_VALUE_OUTPUT_DATA: 40,
+    MISS_VALUE_OUTPUT_PARAM: 41,
     // GDBT二分类
     GBDT_CLASS_IMPORTANT: 33,
     // SVM
     // 混淆矩阵
-    CONFUSION_MATRIX_INPUT_DATA: 39,
-    CONFUSION_MATRIX_OUTPUT_DATA: 40
+    CONFUSION_MATRIX_OUTPUT_DATA: 29
 }
 export const CONSTRAINT_TEXT: any = {
     [COMPONENT_TYPE.DATA_SOURCE.READ_DATABASE]: {
@@ -363,7 +363,7 @@ export const CONSTRAINT_TEXT: any = {
     },
     [COMPONENT_TYPE.DATA_MERGE.MISS_VALUE]: { // 缺失值
         input: [
-            { key: INPUT_TYPE.NORMAL, value: '输入数据' },
+            { key: INPUT_TYPE.MISS_VALUE_INPUT_NORMAL, value: '输入数据' },
             { key: INPUT_TYPE.MISS_VALUE_INPUT_PARAM, value: '输入参数' }
         ],
         output: [
@@ -465,7 +465,7 @@ export const CONSTRAINT_TEXT: any = {
     },
     [COMPONENT_TYPE.DATA_EVALUATE.CONFUSION_MATRIX]: { // 混淆矩阵
         input: [
-            { key: INPUT_TYPE.CONFUSION_MATRIX_INPUT_DATA, value: '输入预测结果' }
+            { key: INPUT_TYPE.NORMAL, value: '输入预测结果' }
         ],
         output: [
             { key: INPUT_TYPE.CONFUSION_MATRIX_OUTPUT_DATA, value: '输出结果' }

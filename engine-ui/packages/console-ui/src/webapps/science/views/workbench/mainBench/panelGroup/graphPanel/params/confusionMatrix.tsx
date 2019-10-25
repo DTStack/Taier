@@ -3,6 +3,7 @@ import { Form, Tabs, Spin, Select, InputNumber, message } from 'antd';
 import { formItemLayout } from './index';
 import { MemorySetting as BaseMemorySetting } from './typeChange';
 import { debounce, isEmpty, get } from 'lodash';
+import { TASK_ENUM, COMPONENT_TYPE } from '../../../../../../consts';
 import api from '../../../../../../api/experiment';
 const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
@@ -23,11 +24,58 @@ class FieldSetting extends React.PureComponent<any, any> {
             }
         });
     }
+    getColumns = () => {
+        if (this.state.columns.length > 0) {
+            /**
+             * 此处是为了减少请求次数
+             */
+            return;
+        }
+        const { currentTab, componentId, data } = this.props;
+        const targetEdge = currentTab.graphData.find((o: any) => {
+            return o.edge && o.target.data.id == componentId
+        })
+        if (targetEdge) {
+            this.setState({
+                fetching: true
+            })
+            api.getInputTableColumns({ taskId: componentId, inputType: targetEdge.inputType }).then((res: any) => {
+                if (res.code === 1) {
+                    let columns: any = [];
+                    for (const key in res.data) {
+                        if (res.data.hasOwnProperty(key)) {
+                            const element = res.data[key];
+                            columns.push({
+                                key,
+                                type: element
+                            })
+                        }
+                    }
+                    this.setState({
+                        columns
+                    })
+                }
+                this.setState({
+                    fetching: false
+                })
+            })
+        }
+    }
+    handleChange = (key: string, value: any) => {
+        const { columns } = this.state;
+        const object = columns.find((o: any) => o.key === value);
+        if (object) {
+            this.props.handleSaveComponent(key, object);
+        }
+    }
     render () {
         const { getFieldDecorator, getFieldValue } = this.props.form;
         const { fetching, columns } = this.state;
         const { data } = this.props;
-        const isRequired = isEmpty(getFieldValue('threshold'));
+        console.log(getFieldValue('threshold'))
+
+        const isRequired = !getFieldValue('threshold');
+        console.log(isRequired)
         return (
             <Form className="params-form">
                 <FormItem
@@ -36,14 +84,15 @@ class FieldSetting extends React.PureComponent<any, any> {
                     {...formItemLayout}
                 >
                     {getFieldDecorator('label', {
-                        rules: [{ required: isRequired, message: '请选择原数据的标签列列名！' }]
+                        rules: [{ required: true, message: '请选择原数据的标签列列名！' }]
                     })(
                         <Select
                             showSearch
                             notFoundContent={fetching ? <Spin size="small" /> : '未找到数据表'}
+                            onFocus={this.getColumns}
                             placeholder="请选择原数据的标签列列名"
                             // onFocus={this.getColumns}
-                            // onChange={this.handleChange}
+                            onChange={this.handleChange.bind(this, 'label')}
                         >
                             {columns.map((item: any, index: any) => {
                                 const disabled = !!(data.col || []).find((o: any) => o.key === item.key);
@@ -58,14 +107,15 @@ class FieldSetting extends React.PureComponent<any, any> {
                     {...formItemLayout}
                 >
                     {getFieldDecorator('pre', {
-                        rules: [{ required: true, message: '请选择预测结果的标签列列名！' }]
+                        rules: [{ required: isRequired, message: '请选择预测结果的标签列列名！' }]
                     })(
                         <Select
                             showSearch
                             notFoundContent={fetching ? <Spin size="small" /> : '未找到数据表'}
                             placeholder="请选择预测结果的标签列列名"
+                            onFocus={this.getColumns}
                             // onFocus={this.getColumns}
-                            // onChange={this.handleChange}
+                            onChange={this.handleChange.bind(this, 'pre')}
                         >
                             {columns.map((item: any, index: any) => {
                                 const disabled = !!(data.col || []).find((o: any) => o.key === item.key);
@@ -76,11 +126,22 @@ class FieldSetting extends React.PureComponent<any, any> {
                 </FormItem>
                 <FormItem
                     colon={false}
+                    label={<div style={{ display: 'inline-block' }}>类别个数</div>}
+                    {...formItemLayout}
+                >
+                    {getFieldDecorator('classes', {
+                        rules: [{ required: true, message: '请填写类别个数！' }]
+                    })(
+                        <InputNumber style={inputStyle} />
+                    )}
+                </FormItem>
+                <FormItem
+                    colon={false}
                     label={<div style={{ display: 'inline-block' }}>阈值<span className="supplementary">可选项，大于该阈值的样本为正样本</span></div>}
                     {...formItemLayout}
                 >
                     {getFieldDecorator('threshold', {
-                        rules: [{ required: false, message: '请选择阈值！' }]
+                        rules: [{ required: false, message: '请填写阈值！' }]
                     })(
                         <InputNumber style={inputStyle} />
                     )}
@@ -91,27 +152,28 @@ class FieldSetting extends React.PureComponent<any, any> {
 }
 /* 内存设置 */
 class MemorySetting extends BaseMemorySetting {
-    constructor (props: any) {
+    constructor(props: any) {
         super(props)
     }
 }
 /* main页面 */
 class ConfusionMatrix extends React.PureComponent<any, any> {
-    constructor (props: any) {
+    constructor(props: any) {
         super(props);
         this.handleSaveComponent = debounce(this.handleSaveComponent, 800);
     }
     handleSaveComponent = (field: any, filedValue: any) => {
         const { currentTab, componentId, data, changeContent } = this.props;
+        const fieldName = TASK_ENUM[COMPONENT_TYPE.DATA_EVALUATE.CONFUSION_MATRIX];
         const currentComponentData = currentTab.graphData.find((o: any) => o.vertex && o.data.id === componentId);
         const params: any = {
             ...currentComponentData.data,
-            normalizationComponent: {
+            [fieldName]: {
                 ...data
             }
         }
         if (field) {
-            params.normalizationComponent[field] = filedValue
+            params[fieldName][field] = filedValue
         }
         api.addOrUpdateTask(params).then((res: any) => {
             if (res.code == 1) {
@@ -129,12 +191,18 @@ class ConfusionMatrix extends React.PureComponent<any, any> {
                 const { data } = props;
                 const values: any = {
                     label: { value: get(data, 'label.key') },
-                    pre: { value: get(data, 'pre.key', '') }
+                    pre: { value: get(data, 'pre.key', '') },
+                    classes: { value: data.classes },
+                    threshold: { value: data.threshold }
                 }
                 return values;
             },
             onFieldsChange: (props: any, changedFields: any) => {
                 for (const key in changedFields) {
+                    if (key === 'label' || key == 'pre') {
+                        // label是下拉菜单，在组件里自己触发onChange函数,对数据封装过后再请求
+                        continue;
+                    }
                     if (changedFields.hasOwnProperty(key)) {
                         const element = changedFields[key];
                         if (!element.validating && !element.dirty && element.name !== 'transferField') {

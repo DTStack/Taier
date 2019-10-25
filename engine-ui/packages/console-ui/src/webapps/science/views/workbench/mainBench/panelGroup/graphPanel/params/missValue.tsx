@@ -3,7 +3,7 @@ import { Form, Tabs, Button, message } from 'antd';
 import { formItemLayout } from './index';
 import { MemorySetting as BaseMemorySetting, ChooseModal as BaseChooseModal } from './typeChange';
 import { isEmpty, cloneDeep, debounce } from 'lodash';
-import { INPUT_TYPE } from '../../../../../../consts';
+import { INPUT_TYPE, TASK_ENUM, COMPONENT_TYPE } from '../../../../../../consts';
 import api from '../../../../../../api/experiment';
 const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
@@ -153,15 +153,16 @@ class MissValue extends React.PureComponent<any, any> {
     }
     handleSaveComponent = (field: any, filedValue: any) => {
         const { currentTab, componentId, data, changeContent } = this.props;
+        const fieldName = TASK_ENUM[COMPONENT_TYPE.DATA_MERGE.MISS_VALUE];
         const currentComponentData = currentTab.graphData.find((o: any) => o.vertex && o.data.id === componentId);
         const params: any = {
             ...currentComponentData.data,
-            normalizationComponent: {
+            [fieldName]: {
                 ...data
             }
         }
         if (field) {
-            params.normalizationComponent[field] = filedValue
+            params[fieldName][field] = filedValue
         }
         api.addOrUpdateTask(params).then((res: any) => {
             if (res.code == 1) {
