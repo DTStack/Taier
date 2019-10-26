@@ -310,7 +310,7 @@ class SvmComponent extends React.PureComponent<any, any> {
     }
     handleSaveComponent = (field: any, filedValue: any) => {
         const { data, currentTab, componentId, changeContent } = this.props;
-        const fieldName = TASK_ENUM[COMPONENT_TYPE.MACHINE_LEARNING.GBDT_REGRESSION];
+        const fieldName = TASK_ENUM[COMPONENT_TYPE.MACHINE_LEARNING.SVM];
         const currentComponentData = currentTab.graphData.find((o: any) => o.vertex && o.data.id === componentId);
         const params: any = {
             ...currentComponentData.data,

@@ -153,7 +153,7 @@ class Standardization extends React.PureComponent<any, any> {
     }
     handleSaveComponent = (field: any, filedValue: any) => {
         const { currentTab, componentId, data, changeContent } = this.props;
-        const fieldName = TASK_ENUM[COMPONENT_TYPE.DATA_EVALUATE.UNION_CLASSIFICATION];
+        const fieldName = TASK_ENUM[COMPONENT_TYPE.DATA_MERGE.STANDARD];
         const currentComponentData = currentTab.graphData.find((o: any) => o.vertex && o.data.id === componentId);
         const params: any = {
             ...currentComponentData.data,
