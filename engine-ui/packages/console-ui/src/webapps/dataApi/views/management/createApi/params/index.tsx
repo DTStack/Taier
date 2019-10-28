@@ -6,7 +6,8 @@ import utils from 'utils';
 import ColumnsConfig from './container'
 import ColumnsModel from '../../../../model/columnsModel'
 import ApiSqlEditor from './sql'
-import { API_MODE, API_METHOD } from '../../../../consts'
+import { API_MODE, API_METHOD } from '../../../../consts';
+
 
 const Option = Select.Option;
 const FormItem = Form.Item;
@@ -603,7 +604,8 @@ class ManageParamsConfig extends React.Component<any, any> {
             disAbleTipChange,
             apiManage,
             containPage,
-            containHeader
+            containHeader,
+            maxPageSize
         } = this.props;
         const {
             tableData,
@@ -758,6 +760,7 @@ class ManageParamsConfig extends React.Component<any, any> {
                                             resultPageChecked={resultPageChecked}
                                             resultPage={resultPage}
                                             mode={mode}
+                                            maxPageSize={maxPageSize}
                                             charOption={charOption}
                                         />
                                     )}
