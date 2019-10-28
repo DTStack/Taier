@@ -42,7 +42,7 @@ class TestApi extends React.Component<any, any> {
         this.props.prev();
     }
     getValueCell (record: any) {
-        const { inFields, isRegister } = this.props;
+        const { inFields, isRegister, maxPageSize } = this.props;
         const { getFieldDecorator } = this.props.form;
         /**
          * 假如是常量类型，直接显示值
@@ -66,7 +66,7 @@ class TestApi extends React.Component<any, any> {
                         message: '请输入数字'
                     }],
                     initialValue: initialValue
-                })(<InputNumber min={1} max={record.paramsName == 'pageSize' ? 1000 : Infinity} style={{ width: '100%' }} />)}
+                })(<InputNumber min={1} max={record.paramsName == 'pageSize' ? maxPageSize : Infinity} style={{ width: '100%' }} />)}
             </FormItem>
         } else {
             initialValue = data && data[record.paramsName];

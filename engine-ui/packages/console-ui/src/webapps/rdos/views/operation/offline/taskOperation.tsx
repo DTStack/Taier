@@ -36,7 +36,6 @@ import { getProject } from '../../../store/modules/project';
 import TaskJobFlowView from './taskJobFlowView'
 import KillJobForm from './killJobForm';
 import MultiSearchInput from 'widgets/multiSearchInput';
-import any from '../../task/offline/taskModal';
 
 const Option: any = Select.Option
 const confirm = Modal.confirm

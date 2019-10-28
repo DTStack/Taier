@@ -19,8 +19,9 @@ import ColumnsModel from '../../../model/columnsModel';
 import InputColumnModel from '../../../model/inputColumnModel';
 import ErrorColumnModel from '../../../model/errroColumnModel';
 import ConstColumnModel from '../../../model/constColumnModel';
-
 import { API_TYPE } from '../../../consts';
+import API from '../../../api/apiManage';
+import { isNumber } from 'lodash';
 
 const Step = Steps.Step;
 
@@ -94,7 +95,8 @@ class NewApi extends React.Component<any, any> {
         mode: undefined,
         loading: false,
         apiEdit: false, // 编辑还是新建
-        isSaveResult: false
+        isSaveResult: false,
+        maxPageSize: 1000
 
     }
     // eslint-disable-next-line
@@ -106,6 +108,7 @@ class NewApi extends React.Component<any, any> {
                 apiEdit: true
             })
         }
+        this.getPageInfo();
         this.props.getSecurityList();
         this.props.getCatalogue(0)
             .then(
@@ -189,6 +192,19 @@ class NewApi extends React.Component<any, any> {
                 })
             }
         );
+    }
+    getPageInfo = () => { // 获取分页最大值信息
+        API.getPageInfo({}).then((res: any) => {
+            const { code, data } = res;
+            if (code == 1) {
+                this.setState({
+                    maxPageSize: isNumber(data.maxPageSize) && data.maxPageSize > 0 ? data.maxPageSize : 1000,
+                    pageSize: isNumber(data.pageSize) && data.pageSize > 0 ? data.pageSize : 20
+                });
+            } else {
+                message.warning(data.message)
+            }
+        })
     }
     setDefault (data: any) {
         const isRegister = utils.getParameterByName('isRegister');
@@ -336,7 +352,6 @@ class NewApi extends React.Component<any, any> {
     }
     createParamsConfig () {
         const { paramsConfig } = this.state;
-        console.log(paramsConfig);
         // resultPage
         let result: any = {
             dataSrcId: paramsConfig.dataSrcId,
@@ -562,6 +577,7 @@ class NewApi extends React.Component<any, any> {
                                         reDo={this.reDo.bind(this)}
                                         prev={this.prev.bind(this)}
                                         mode={mode}
+                                        maxPageSize={this.state.maxPageSize}
                                         isSaveResult={isSaveResult}
                                         saveData={this.saveData.bind(this, key)}
                                         cancelAndSave={this.cancelAndSave.bind(this, key)}
