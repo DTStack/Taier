@@ -166,7 +166,7 @@ class FieldSetting extends React.PureComponent<any, any> {
                         <RadioGroup>
                             <Radio value={'default'}>default模式</Radio>
                             <Radio value={'specify'}>specify模式</Radio>
-                            <Radio value={'repalce'}>repalce模式</Radio>
+                            <Radio value={'replace'}>replace模式</Radio>
                         </RadioGroup>
                     )}
                 </FormItem>
