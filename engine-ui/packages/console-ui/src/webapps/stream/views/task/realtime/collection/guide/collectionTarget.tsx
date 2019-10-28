@@ -112,7 +112,7 @@ class CollectionTarget extends React.Component<any, any> {
                     });
                     this.props.updateTargetMap({
                         partition: 'pt'
-                    });
+                    }, true);
                     return;
                 }
             }
@@ -123,7 +123,7 @@ class CollectionTarget extends React.Component<any, any> {
             });
             this.props.updateTargetMap({
                 table: null
-            });
+            }, true);
         }
     }
     getTableList (sourceId: any) {
