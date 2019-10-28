@@ -42,7 +42,7 @@ class TestApi extends React.Component<any, any> {
         this.props.prev();
     }
     getValueCell (record: any) {
-        const { inFields, isRegister,maxPageSize } = this.props;
+        const { inFields, isRegister, maxPageSize } = this.props;
         const { getFieldDecorator } = this.props.form;
         /**
          * 假如是常量类型，直接显示值

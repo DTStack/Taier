@@ -8,7 +8,6 @@ import ColumnsModel from '../../../../model/columnsModel'
 import ApiSqlEditor from './sql'
 import { API_MODE, API_METHOD } from '../../../../consts';
 
-
 const Option = Select.Option;
 const FormItem = Form.Item;
 
