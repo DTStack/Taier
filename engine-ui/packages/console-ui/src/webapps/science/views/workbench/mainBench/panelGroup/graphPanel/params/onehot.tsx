@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Tabs, Form, Button, Select, message, Checkbox } from 'antd';
+import { Tabs, Form, Button, message, Checkbox } from 'antd';
 import { MemorySetting as BaseMemorySetting, ChooseModal as BaseChooseModal } from './typeChange';
 import { formItemLayout } from './index';
 import { isEmpty, cloneDeep, debounce, get } from 'lodash';
@@ -9,7 +9,6 @@ import HelpDoc from '../../../../../../components/helpDoc';
 import { renderNumberFormItem } from './helper';
 
 const TabPane = Tabs.TabPane;
-const Option = Select.Option;
 const FormItem = Form.Item;
 /* 选择字段弹出框 */
 class ChooseModal extends BaseChooseModal {
@@ -78,7 +77,7 @@ class ParamSetting extends React.PureComponent<any, any> {
                     handleSubmit: this.handleSubmit.bind(this),
                     label: <span>缺失率阈值<HelpDoc style={{ top: 2 }} doc='missRate' /></span>,
                     key: 'missRate',
-                    max: 1,
+                    max: 1
                 }, getFieldDecorator)}
                 <FormItem
                     label=''

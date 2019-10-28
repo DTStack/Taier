@@ -14,7 +14,7 @@ class ChooseModal extends BaseChooseModal {
     disabledType: string;
     constructor (props: any) {
         super(props);
-        this.disabledType = 'string';
+        this.disabledType = '';
     }
     initTargetKeys = () => {
         const { data, transferField } = this.props;
@@ -247,7 +247,7 @@ class FieldSetting extends React.PureComponent<any, any> {
                         }
                     }
                 })()}
-                <Button style={{ width: '100%' }} type='danger' onClick={this.deleteParam.bind(this, index)}>删除</Button>
+                <Button style={{ width: '100%', marginBottom: '10px', background: '#fff' }} type='danger' onClick={this.deleteParam.bind(this, index)}>删除</Button>
             </React.Fragment>
         })
     }

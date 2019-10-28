@@ -12,6 +12,7 @@ import { regressionClassificationOptions, unionClassificationOptions } from './h
 import ChartDetail from './chart';
 import TableDetail from './table';
 import SingleChart from './singleChart';
+import MatrixGraph from './matrix';
 
 const TabPane = Tabs.TabPane;
 export interface EvaluateReportModalProp {
@@ -66,29 +67,23 @@ class EvaluateReportModal extends React.Component<EvaluateReportModalProp, any> 
             }
             case COMPONENT_TYPE.DATA_EVALUATE.CONFUSION_MATRIX: {
                 return [<TabPane tab="混淆矩阵" key="pane-2">
-                    <SingleChart
+                    <MatrixGraph
                         key={data.id}
                         data={data}
                         visible={visible}
-                        getData={() => { return api.getRegressionEvaluationGraph({ taskId: data.id }); }}
-                        getOptions={regressionClassificationOptions}
+                        dataKey='confusionMatrix'
+                        getData={() => { return api.getMissValueGraph({ taskId: data.id }) }}
                     />
                 </TabPane>,
                 <TabPane tab="比例矩阵" key="pane-3">
-                    <div style={{ padding: 16 }}>
-                        <SingleChart
-                            key={data.id}
-                            data={data}
-                            visible={visible}
-                            getData={() => { return api.getRegressionEvaluationGraph({ taskId: data.id }); }}
-                            getOptions={regressionClassificationOptions}
-                        />
-                    </div>
-                </TabPane>,
-                <TabPane tab="统计信息" key="pane-4">
-                    <div style={{ padding: 16 }}>
-                        <TableDetail indexType={EVALUATION_INDEX_TYPE.FREQUENCY} data={data} visible={visible} />
-                    </div>
+                    <MatrixGraph
+                        key={data.id}
+                        data={data}
+                        visible={visible}
+                        showColor={true}
+                        dataKey='proportionMatrix'
+                        getData={() => { return api.getMissValueGraph({ taskId: data.id }) }}
+                    />
                 </TabPane>]
             }
             default: {
@@ -103,6 +98,9 @@ class EvaluateReportModal extends React.Component<EvaluateReportModalProp, any> 
             }
             case COMPONENT_TYPE.DATA_EVALUATE.UNION_CLASSIFICATION: {
                 return INPUT_TYPE.NORMAL;
+            }
+            case COMPONENT_TYPE.DATA_EVALUATE.CONFUSION_MATRIX: {
+                return INPUT_TYPE.CONFUSION_MATRIX_OUTPUT_DATA;
             }
             case COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION:
             default: {
