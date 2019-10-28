@@ -50,6 +50,9 @@ export default {
     getApiInfo (params: any) {
         return http.post(req.GET_API_DETAIL_INFO, params);
     },
+    getPageInfo (params: any) {
+        return http.post(req.GET_PAGE_INFO, params);
+    },
     getApiCallErrorInfoForManager (params: any) {
         return http.post(req.GET_API_CALL_ERROR_INFO_ADMIN, params);
     },
