@@ -207,7 +207,8 @@ class TaskJobFlowView extends React.Component<any, any> {
 
     initContextMenu = (graph: any) => {
         const ctx = this;
-        const { isPro } = this.props;
+        const { isPro, taskJob } = this.props;
+        const { isGroupTask } = taskJob;
         if (graph) {
             var mxPopupMenuShowMenu = mxPopupMenu.prototype.showMenu;
             mxPopupMenu.prototype.showMenu = function () {
@@ -238,67 +239,68 @@ class TaskJobFlowView extends React.Component<any, any> {
                         level: 6
                     })
                 })
-
-                menu.addItem('查看任务日志', null, function () {
-                    ctx.showJobLog(currentNode.jobId)
-                })
-                menu.addItem('查看任务属性', null, function () {
-                    ctx.setState({ visible: true })
-                })
-                const frontPeriods = menu.addItem('转到前一周期实例', null, null);
-                const frontParams: any = {
-                    jobId: currentNode.id,
-                    isAfter: false,
-                    limit: 6
-                }
-                ctx.loadPeriodsData(menu, frontParams, frontPeriods)
-                const nextPeriods = menu.addItem('转到下一周期实例', null, null);
-                const nextParams: any = {
-                    jobId: currentNode.id,
-                    isAfter: true,
-                    limit: 6
-                }
-                ctx.loadPeriodsData(menu, nextParams, nextPeriods);
-                if (isCurrentProjectTask) {
-                    menu.addItem(`${isPro ? '查看' : '修改'}任务`, null, function () {
-                        ctx.props.goToTaskDev(taskId)
+                if (!isGroupTask) {
+                    menu.addItem('查看任务日志', null, function () {
+                        ctx.showJobLog(currentNode.jobId)
                     })
-                }
-                menu.addItem('终止', null, function () {
-                    ctx.stopTask({
-                        jobId: currentNode.id
+                    menu.addItem('查看任务属性', null, function () {
+                        ctx.setState({ visible: true })
                     })
-                }, null, null,
-                // 显示终止操作
-                currentNode.status === TASK_STATUS.WAIT_SUBMIT || // 等待提交
-                    currentNode.status === TASK_STATUS.SUBMITTING || // 提交中
-                    currentNode.status === TASK_STATUS.WAIT_RUN || // 等待运行
-                    currentNode.status === TASK_STATUS.RUNNING // 运行中
-                )
-
-                menu.addItem('刷新任务实例', null, function () {
-                    if (isWorkflowNode) {
-                        ctx.loadWorkflowNodes(ctx.state.workflowData)
-                    } else {
-                        ctx.resetGraph(cell)
-                    }
-                })
-
-                menu.addItem('置成功并恢复调度', null, function () {
-                    ctx.restartAndResume({
+                    const frontPeriods = menu.addItem('转到前一周期实例', null, null);
+                    const frontParams: any = {
                         jobId: currentNode.id,
-                        justRunChild: true, // 只跑子节点
-                        setSuccess: true
-                    }, '置成功并恢复调度')
-                }, null, null,
-                // （运行失败、提交失败）重跑并恢复调度
-                currentNode.status === TASK_STATUS.RUN_FAILED ||
-                    currentNode.status === TASK_STATUS.STOPED ||
-                    currentNode.status === TASK_STATUS.SUBMIT_FAILED)
+                        isAfter: false,
+                        limit: 6
+                    }
+                    ctx.loadPeriodsData(menu, frontParams, frontPeriods)
+                    const nextPeriods = menu.addItem('转到下一周期实例', null, null);
+                    const nextParams: any = {
+                        jobId: currentNode.id,
+                        isAfter: true,
+                        limit: 6
+                    }
+                    ctx.loadPeriodsData(menu, nextParams, nextPeriods);
+                    if (isCurrentProjectTask) {
+                        menu.addItem(`${isPro ? '查看' : '修改'}任务`, null, function () {
+                            ctx.props.goToTaskDev(taskId)
+                        })
+                    }
+                    menu.addItem('终止', null, function () {
+                        ctx.stopTask({
+                            jobId: currentNode.id
+                        })
+                    }, null, null,
+                    // 显示终止操作
+                    currentNode.status === TASK_STATUS.WAIT_SUBMIT || // 等待提交
+                        currentNode.status === TASK_STATUS.SUBMITTING || // 提交中
+                        currentNode.status === TASK_STATUS.WAIT_RUN || // 等待运行
+                        currentNode.status === TASK_STATUS.RUNNING // 运行中
+                    )
 
-                menu.addItem('重跑并恢复调度', null, function () {
-                    ctx.setState({ visibleRestart: true })
-                })
+                    menu.addItem('刷新任务实例', null, function () {
+                        if (isWorkflowNode) {
+                            ctx.loadWorkflowNodes(ctx.state.workflowData)
+                        } else {
+                            ctx.resetGraph(cell)
+                        }
+                    })
+
+                    menu.addItem('置成功并恢复调度', null, function () {
+                        ctx.restartAndResume({
+                            jobId: currentNode.id,
+                            justRunChild: true, // 只跑子节点
+                            setSuccess: true
+                        }, '置成功并恢复调度')
+                    }, null, null,
+                    // （运行失败、提交失败）重跑并恢复调度
+                    currentNode.status === TASK_STATUS.RUN_FAILED ||
+                        currentNode.status === TASK_STATUS.STOPED ||
+                        currentNode.status === TASK_STATUS.SUBMIT_FAILED)
+
+                    menu.addItem('重跑并恢复调度', null, function () {
+                        ctx.setState({ visibleRestart: true })
+                    })
+                }
             }
         }
     }
