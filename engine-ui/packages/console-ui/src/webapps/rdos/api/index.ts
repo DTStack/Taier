@@ -434,6 +434,9 @@ export default {
     queryJobs (params: any) {
         return http.post(offlineReq.QUERY_JOBS, params)
     },
+    queryMinOrHourJob (params: any) {
+        return http.post(offlineReq.QUERY_MINOR_HOUR_JOB, params);
+    },
     publishOfflineTask (params: any) {
         return http.post(offlineReq.PUBLISH_TASK, params)
     },

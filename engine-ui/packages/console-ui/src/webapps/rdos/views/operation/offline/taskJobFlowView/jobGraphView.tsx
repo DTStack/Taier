@@ -514,6 +514,7 @@ class JobGraphView extends React.Component<any, any> {
 
     render () {
         const { goToTaskDev, data, isPro, showJobLog, isCurrentProjectTask } = this.props;
+        const { isGroupTask } = data
         return (
             <div className="graph-editor"
                 style={{
@@ -562,8 +563,13 @@ class JobGraphView extends React.Component<any, any> {
                     <span style={{ marginLeft: '15px' }}>{get(data, 'batchTask.createUser.userName', '-')}</span>&nbsp;
                     { isPro ? '发布' : '提交' }于&nbsp;
                     <span>{ utils.formatDateTime(get(data, 'batchTask.gmtModified')) }</span>&nbsp;
-                    <a title="双击任务可快速查看日志" onClick={() => { showJobLog(get(data, 'jobId')) }} style={{ marginRight: '8' }}>查看日志</a>&nbsp;
+                    {
+                        !isGroupTask && <React.Fragment>
+                            <a title="双击任务可快速查看日志" onClick={() => { showJobLog(get(data, 'jobId')) }} style={{ marginRight: '8' }}>查看日志</a>&nbsp;
+                        </React.Fragment>
+                    }
                     {isCurrentProjectTask(data.batchTask) && (<a onClick={() => { goToTaskDev(get(data, 'batchTask.id')) }}>查看代码</a>)}
+
                 </div>
             </div>
         )

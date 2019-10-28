@@ -41,6 +41,7 @@ export default {
 
     // ===== Job调度模块 ===== //
     QUERY_JOBS: `${RDOS_BASE_URL}/batch/batchJob/queryJobs`, // 任务运维 - 补数据搜索
+    QUERY_MINOR_HOUR_JOB: `${RDOS_BASE_URL}/batch/batchJob/queryMinOrHourJob`, // 周期实例 - 分钟任务汇总
     GET_JOB_BY_ID: `${RDOS_BASE_URL}/batch/batchJob/getJobById`, // 任务运维 - 调度任务详情
     GET_JOB_GRAPH: `${RDOS_BASE_URL}/batch/batchJob/getJobGraph`, // 今天、昨天、月平均折线图数据
     GET_JOB_STATISTICS: `${RDOS_BASE_URL}/batch/batchJob/getStatusCount`, // 实时任务个状态数量统计
