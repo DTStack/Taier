@@ -357,8 +357,8 @@ export const CONSTRAINT_TEXT: any = {
             { key: INPUT_TYPE.STANDARD_INPUT_PARAM, value: '输入参数' }
         ],
         output: [
-            { key: INPUT_TYPE.STANDARD_OUTPUT_PARAM, value: '输出参数' },
-            { key: INPUT_TYPE.STANDARD_OUTPUT_DATA, value: '输出结果' }
+            { key: INPUT_TYPE.STANDARD_OUTPUT_DATA, value: '输出结果' },
+            { key: INPUT_TYPE.STANDARD_OUTPUT_PARAM, value: '输出参数' }
         ]
     },
     [COMPONENT_TYPE.DATA_MERGE.MISS_VALUE]: { // 缺失值

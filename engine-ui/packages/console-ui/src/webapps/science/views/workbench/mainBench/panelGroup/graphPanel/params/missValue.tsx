@@ -49,16 +49,16 @@ class ChooseModal extends BaseChooseModal {
             this.setState({
                 loading: true
             });
-            api.getInputTableColumns({ taskId: componentId, inputType: targetEdge.inputType }).then((res: any) => {
-                if (res.code === 1) {
+            this.props.getColumns().then((resData: any) => {
+                if (resData) {
                     let sourceData: any = [];
-                    for (const key in res.data) {
-                        if (res.data.hasOwnProperty(key)) {
-                            const element = res.data[key];
+                    for (const key in resData) {
+                        if (resData.hasOwnProperty(key)) {
+                            const element = resData[key];
                             sourceData.push({
                                 key,
                                 type: element,
-                                disabled: !targetKeys.indexOf(key) && (disableKeys.indexOf(key) > -1 || element == this.disabledType)
+                                disabled: targetKeys.indexOf(key) == -1 && (disableKeys.indexOf(key) > -1 || element == this.disabledType)
                             })
                         }
                     }
@@ -79,12 +79,33 @@ class ChooseModal extends BaseChooseModal {
 /* 字段设置 */
 class FieldSetting extends React.PureComponent<any, any> {
     state: any = {
-        chooseModalVisibleIndex: null
+        chooseModalVisibleIndex: null,
+        columns: null
     }
     handleChoose = (index: number) => {
         this.setState({
             chooseModalVisibleIndex: index
         });
+    }
+    async getColumns () {
+        const { currentTab, componentId } = this.props;
+        const targetEdges = currentTab.graphData && currentTab.graphData.filter((o: any) => {
+            return o.edge && o.target.data.id == componentId
+        })
+        if (this.state.columns) {
+            return this.state.columns;
+        }
+        if (targetEdges.length) {
+            const targetEdge = targetEdges.find((o: any) => o.outputType === INPUT_TYPE.MISS_VALUE_INPUT_NORMAL);
+            if (targetEdge) {
+                let res = await api.getInputTableColumns({ taskId: componentId, inputType: targetEdge.inputType });
+                if (res && res.code == 1) {
+                    this.setState({ columns: res.data });
+                    return res.data;
+                }
+            }
+        }
+        return null;
     }
     handelOk = (index: number, targetObjects: any) => {
         const { data } = this.props;
@@ -136,123 +157,126 @@ class FieldSetting extends React.PureComponent<any, any> {
                 return c.key
             })
         }).flat();
-        return params.map((param: any, index: number) => {
-            const { method } = param;
-            const specifyOrigin = getFieldValue(`params[${index}].specifyOrigin`);
-            return <React.Fragment key={index}>
-                <FormItem
-                    label={'填充字段'}
-                    colon={false}
-                    {...formItemLayout}
-                >
-                    <Button style={btnStyle} onClick={this.handleChoose.bind(this, index)}>{this.renderBtnContent(param)}</Button>
-                </FormItem>
-                <div className="chooseWrap">
-                    <ChooseModal
-                        currentTab={currentTab}
-                        componentId={componentId}
-                        data={param}
-                        targetKeys={param}
-                        disableKeys={allKeys}
-                        visible={chooseModalVisibleIndex === index}
-                        onOK={this.handelOk.bind(this, index)}
-                        onCancel={this.handleCancel} />
-                </div>
-                <FormItem
-                    label=''
-                    colon={false}
-                    {...formItemLayout}
-                >
-                    {getFieldDecorator(`params[${index}].method`, {
-                        rules: [{ required: false }]
-                    })(
-                        <RadioGroup>
-                            <Radio value={'default'}>default模式</Radio>
-                            <Radio value={'specify'}>specify模式</Radio>
-                            <Radio value={'replace'}>replace模式</Radio>
-                        </RadioGroup>
-                    )}
-                </FormItem>
-                {(() => {
-                    switch (method) {
-                        case 'default': {
-                            return <React.Fragment>
-                                <FormItem
-                                    label='原值'
-                                    colon={false}
-                                    {...formItemLayout}
-                                >
-                                    <Input disabled value='null' />
-                                </FormItem>
-                                <FormItem
-                                    label='替换为'
-                                    colon={false}
-                                    {...formItemLayout}
-                                >
-                                    <Input disabled value='0或者字符串' />
-                                </FormItem>
-                            </React.Fragment>
+        return <React.Fragment>
+            <div className="chooseWrap">
+                <ChooseModal
+                    getColumns={this.getColumns.bind(this)}
+                    currentTab={currentTab}
+                    componentId={componentId}
+                    data={params[chooseModalVisibleIndex]}
+                    targetKeys={params[chooseModalVisibleIndex]}
+                    disableKeys={allKeys}
+                    visible={chooseModalVisibleIndex != null}
+                    onOK={this.handelOk.bind(this, chooseModalVisibleIndex)}
+                    onCancel={this.handleCancel} />
+            </div>
+            {params.map((param: any, index: number) => {
+                const { method } = param;
+                const specifyOrigin = getFieldValue(`params[${index}].specifyOrigin`);
+                return <React.Fragment key={index}>
+                    <FormItem
+                        label={'填充字段'}
+                        colon={false}
+                        {...formItemLayout}
+                    >
+                        <Button style={btnStyle} onClick={this.handleChoose.bind(this, index)}>{this.renderBtnContent(param)}</Button>
+                    </FormItem>
+                    <FormItem
+                        label=''
+                        colon={false}
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`params[${index}].method`, {
+                            rules: [{ required: false }]
+                        })(
+                            <RadioGroup>
+                                <Radio value={'default'}>default模式</Radio>
+                                <Radio value={'specify'}>specify模式</Radio>
+                                <Radio value={'replace'}>replace模式</Radio>
+                            </RadioGroup>
+                        )}
+                    </FormItem>
+                    {(() => {
+                        switch (method) {
+                            case 'default': {
+                                return <React.Fragment>
+                                    <FormItem
+                                        label='原值'
+                                        colon={false}
+                                        {...formItemLayout}
+                                    >
+                                        <Input disabled value='null' />
+                                    </FormItem>
+                                    <FormItem
+                                        label='替换为'
+                                        colon={false}
+                                        {...formItemLayout}
+                                    >
+                                        <Input disabled value='0或者字符串' />
+                                    </FormItem>
+                                </React.Fragment>
+                            }
+                            case 'specify': {
+                                return <React.Fragment>
+                                    <FormItem
+                                        label='原值'
+                                        colon={false}
+                                        {...formItemLayout}
+                                    >
+                                        {getFieldDecorator(`params[${index}].specifyOrigin`, {
+                                            rules: [{ required: false }]
+                                        })(
+                                            <Select>
+                                                <Option value='number'>Null（数值型）</Option>
+                                                <Option value='string'>Null（String型）</Option>
+                                            </Select>
+                                        )}
+                                    </FormItem>
+                                    <FormItem
+                                        label='替换为'
+                                        colon={false}
+                                        {...formItemLayout}
+                                    >
+                                        {getFieldDecorator(`params[${index}].${specifyOrigin}`, {
+                                            rules: [{ required: false }]
+                                        })(
+                                            <Input />
+                                        )}
+                                    </FormItem>
+                                </React.Fragment>
+                            }
+                            case 'replace': {
+                                return <React.Fragment>
+                                    <FormItem
+                                        label='原值'
+                                        colon={false}
+                                        {...formItemLayout}
+                                    >
+                                        {getFieldDecorator(`params[${index}].rawValue`, {
+                                            rules: [{ required: false }]
+                                        })(
+                                            <Input />
+                                        )}
+                                    </FormItem>
+                                    <FormItem
+                                        label='替换为'
+                                        colon={false}
+                                        {...formItemLayout}
+                                    >
+                                        {getFieldDecorator(`params[${index}].newValue`, {
+                                            rules: [{ required: false }]
+                                        })(
+                                            <Input />
+                                        )}
+                                    </FormItem>
+                                </React.Fragment>
+                            }
                         }
-                        case 'specify': {
-                            return <React.Fragment>
-                                <FormItem
-                                    label='原值'
-                                    colon={false}
-                                    {...formItemLayout}
-                                >
-                                    {getFieldDecorator(`params[${index}].specifyOrigin`, {
-                                        rules: [{ required: false }]
-                                    })(
-                                        <Select>
-                                            <Option value='number'>Null（数值型）</Option>
-                                            <Option value='string'>Null（String型）</Option>
-                                        </Select>
-                                    )}
-                                </FormItem>
-                                <FormItem
-                                    label='替换为'
-                                    colon={false}
-                                    {...formItemLayout}
-                                >
-                                    {getFieldDecorator(`params[${index}].${specifyOrigin}`, {
-                                        rules: [{ required: false }]
-                                    })(
-                                        <Input />
-                                    )}
-                                </FormItem>
-                            </React.Fragment>
-                        }
-                        case 'replace': {
-                            return <React.Fragment>
-                                <FormItem
-                                    label='原值'
-                                    colon={false}
-                                    {...formItemLayout}
-                                >
-                                    {getFieldDecorator(`params[${index}].rawValue`, {
-                                        rules: [{ required: false }]
-                                    })(
-                                        <Input />
-                                    )}
-                                </FormItem>
-                                <FormItem
-                                    label='替换为'
-                                    colon={false}
-                                    {...formItemLayout}
-                                >
-                                    {getFieldDecorator(`params[${index}].newValue`, {
-                                        rules: [{ required: false }]
-                                    })(
-                                        <Input />
-                                    )}
-                                </FormItem>
-                            </React.Fragment>
-                        }
-                    }
-                })()}
-                <Button style={{ width: '100%', marginBottom: '10px', background: '#fff' }} type='danger' onClick={this.deleteParam.bind(this, index)}>删除</Button>
-            </React.Fragment>
-        })
+                    })()}
+                    <Button style={{ width: '100%', marginBottom: '10px', background: '#fff' }} type='danger' onClick={this.deleteParam.bind(this, index)}>删除</Button>
+                </React.Fragment>
+            })}
+        </React.Fragment>
     }
     render () {
         return (

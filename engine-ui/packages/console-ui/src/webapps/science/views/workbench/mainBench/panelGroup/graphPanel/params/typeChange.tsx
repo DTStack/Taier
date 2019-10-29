@@ -106,6 +106,9 @@ export class ChooseModal extends React.PureComponent<any, any> {
     }
     handleCancel = () => {
         this.initTargetKeys();
+        this.setState({
+            sourceData: []
+        })
         this.props.onCancel();
     }
     handleOk = () => {
