@@ -35,10 +35,14 @@ class ChooseModal extends BaseChooseModal {
         });
     }
     getSourceData = () => {
-        const { currentTab, componentId } = this.props;
+        const { currentTab, componentId, disableKeys, data } = this.props;
         const targetEdges = currentTab.graphData && currentTab.graphData.filter((o: any) => {
             return o.edge && o.target.data.id == componentId
         })
+        const chooseData = data.col || [];
+        const targetKeys = chooseData.map((item: any) => {
+            return item.key;
+        });
         if (targetEdges.length) {
             const targetEdge = targetEdges.find((o: any) => o.outputType === INPUT_TYPE.MISS_VALUE_INPUT_NORMAL);
             if (!targetEdge) return;
@@ -51,18 +55,11 @@ class ChooseModal extends BaseChooseModal {
                     for (const key in res.data) {
                         if (res.data.hasOwnProperty(key)) {
                             const element = res.data[key];
-                            if (this.disabledType) {
-                                sourceData.push({
-                                    key,
-                                    type: element,
-                                    disabled: element === this.disabledType
-                                })
-                            } else {
-                                sourceData.push({
-                                    key,
-                                    type: element
-                                })
-                            }
+                            sourceData.push({
+                                key,
+                                type: element,
+                                disabled: !targetKeys.indexOf(key) && (disableKeys.indexOf(key) > -1 || element == this.disabledType)
+                            })
                         }
                     }
                     this.setState({
@@ -82,11 +79,11 @@ class ChooseModal extends BaseChooseModal {
 /* 字段设置 */
 class FieldSetting extends React.PureComponent<any, any> {
     state: any = {
-        chooseModalVisible: false
+        chooseModalVisibleIndex: null
     }
-    handleChoose = () => {
+    handleChoose = (index: number) => {
         this.setState({
-            chooseModalVisible: true
+            chooseModalVisibleIndex: index
         });
     }
     handelOk = (index: number, targetObjects: any) => {
@@ -119,7 +116,7 @@ class FieldSetting extends React.PureComponent<any, any> {
     }
     handleCancel = () => {
         this.setState({
-            chooseModalVisible: false
+            chooseModalVisibleIndex: null
         });
     }
     renderBtnContent (data: any) {
@@ -128,12 +125,17 @@ class FieldSetting extends React.PureComponent<any, any> {
     renderGroup () {
         const { data, componentId, currentTab, form } = this.props;
         const { getFieldDecorator, getFieldValue } = form;
-        const { chooseModalVisible } = this.state;
+        const { chooseModalVisibleIndex } = this.state;
         let { params } = data;
         if (!params) {
             return null;
         }
         const btnStyle: any = { display: 'block', width: '100%', fontSize: 13, color: '#2491F7', fontWeight: 'normal', marginTop: 4 };
+        const allKeys = params.map((param: any) => {
+            return param.col.map((c: any) => {
+                return c.key
+            })
+        }).flat();
         return params.map((param: any, index: number) => {
             const { method } = param;
             const specifyOrigin = getFieldValue(`params[${index}].specifyOrigin`);
@@ -143,15 +145,16 @@ class FieldSetting extends React.PureComponent<any, any> {
                     colon={false}
                     {...formItemLayout}
                 >
-                    <Button style={btnStyle} onClick={this.handleChoose}>{this.renderBtnContent(param)}</Button>
+                    <Button style={btnStyle} onClick={this.handleChoose.bind(this, index)}>{this.renderBtnContent(param)}</Button>
                 </FormItem>
                 <div className="chooseWrap">
                     <ChooseModal
                         currentTab={currentTab}
                         componentId={componentId}
-                        data={data}
-                        transferField='double'
-                        visible={chooseModalVisible}
+                        data={param}
+                        targetKeys={param}
+                        disableKeys={allKeys}
+                        visible={chooseModalVisibleIndex === index}
                         onOK={this.handelOk.bind(this, index)}
                         onCancel={this.handleCancel} />
                 </div>
