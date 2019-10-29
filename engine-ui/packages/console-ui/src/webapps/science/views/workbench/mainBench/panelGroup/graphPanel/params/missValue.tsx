@@ -219,7 +219,7 @@ class FieldSetting extends React.PureComponent<any, any> {
                                 </FormItem>
                             </React.Fragment>
                         }
-                        case 'repalce': {
+                        case 'replace': {
                             return <React.Fragment>
                                 <FormItem
                                     label='原值'
