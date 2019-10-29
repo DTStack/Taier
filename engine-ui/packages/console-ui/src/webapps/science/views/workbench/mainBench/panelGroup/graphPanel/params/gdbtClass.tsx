@@ -94,7 +94,7 @@ class ParamSetting extends React.PureComponent<any, any> {
                 {renderNumberFormItem({
                     handleSubmit: this.handleSubmit.bind(this),
                     label: '树数量',
-                    key: 'nEstimators',
+                    key: 'nestimators',
                     max: 10000,
                     step: 5,
                     initialValue: 500,
@@ -355,7 +355,7 @@ class GdbtClass extends React.PureComponent<any, any> {
                 const { data } = props;
                 const values: any = {
                     loss: { value: data.loss },
-                    nEstimators: { value: data.nEstimators },
+                    nestimators: { value: data.nestimators },
                     learningRate: { value: data.learningRate },
                     maxDepth: { value: data.maxDepth },
                     minSamplesLeaf: { value: data.minSamplesLeaf },
