@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Form, Tabs, Spin, Select, InputNumber, message } from 'antd';
 import { formItemLayout } from './index';
 import { MemorySetting as BaseMemorySetting } from './typeChange';
-import { debounce, isEmpty, get } from 'lodash';
+import { debounce, get } from 'lodash';
 import { TASK_ENUM, COMPONENT_TYPE } from '../../../../../../consts';
 import api from '../../../../../../api/experiment';
 const TabPane = Tabs.TabPane;
@@ -31,7 +31,7 @@ class FieldSetting extends React.PureComponent<any, any> {
              */
             return;
         }
-        const { currentTab, componentId, data } = this.props;
+        const { currentTab, componentId } = this.props;
         const targetEdge = currentTab.graphData.find((o: any) => {
             return o.edge && o.target.data.id == componentId
         })
@@ -152,13 +152,13 @@ class FieldSetting extends React.PureComponent<any, any> {
 }
 /* 内存设置 */
 class MemorySetting extends BaseMemorySetting {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props)
     }
 }
 /* main页面 */
 class ConfusionMatrix extends React.PureComponent<any, any> {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props);
         this.handleSaveComponent = debounce(this.handleSaveComponent, 800);
     }

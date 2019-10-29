@@ -13,6 +13,7 @@ import ChartDetail from './chart';
 import TableDetail from './table';
 import SingleChart from './singleChart';
 import MatrixGraph from './matrix';
+import ConfusionTable from './confusionTable';
 
 const TabPane = Tabs.TabPane;
 export interface EvaluateReportModalProp {
@@ -84,7 +85,14 @@ class EvaluateReportModal extends React.Component<EvaluateReportModalProp, any> 
                         dataKey='proportionMatrix'
                         getData={() => { return api.getMissValueGraph({ taskId: data.id }) }}
                     />
-                </TabPane>]
+                </TabPane>,
+                <TabPane tab="统计信息" key="pane-tj">
+                    <ConfusionTable
+                        visible={visible}
+                        data={data}
+                    />
+                </TabPane>
+                ]
             }
             default: {
                 return null
@@ -128,11 +136,13 @@ class EvaluateReportModal extends React.Component<EvaluateReportModalProp, any> 
             >
                 <div className="m-tabs">
                     <Tabs>
-                        <TabPane tab="综合指标数据" key="pane-1">
-                            <div style={{ padding: 16 }}>
-                                <TableDetail indexType={this.getIndexType(componentType)} data={data} visible={visible} />
-                            </div>
-                        </TabPane>
+                        {componentType != COMPONENT_TYPE.DATA_EVALUATE.CONFUSION_MATRIX && (
+                            <TabPane tab="综合指标数据" key="pane-1">
+                                <div style={{ padding: 16 }}>
+                                    <TableDetail indexType={this.getIndexType(componentType)} data={data} visible={visible} />
+                                </div>
+                            </TabPane>
+                        )}
                         {this.renderPane(componentType)}
                     </Tabs>
                 </div>
