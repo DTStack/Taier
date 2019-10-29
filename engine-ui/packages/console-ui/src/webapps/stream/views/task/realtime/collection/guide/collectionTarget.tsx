@@ -222,7 +222,7 @@ class CollectionTargetForm extends React.Component<any, any> {
         /**
          * sourceId 改变,则清空表
          */
-        this.props.updateTargetMap(initialFields, false, true);
+        this.props.updateTargetMap(initialFields, true);
     }
     dynamicRender () {
         const { collectionData, topicList, tableList, partitions } = this.props;

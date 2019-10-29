@@ -162,7 +162,7 @@ export const actions: any = {
         }
     },
 
-    updateTargetMap (params = {}, clear: any, notDirty: any) {
+    updateTargetMap (params = {}, clear: any, notDirty: boolean) {
         return (dispatch: any) => {
             const page = getCurrentPage();
             let { targetMap = {} } = page;
@@ -174,7 +174,7 @@ export const actions: any = {
                     ...targetMap,
                     ...params
                 }),
-                !notDirty
+                notDirty ? undefined : true
             )
         }
     },
