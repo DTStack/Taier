@@ -60,7 +60,7 @@ class TaskDetailPane extends React.Component<any, any> {
     getTabs () {
         const { tabKey } = this.state;
         const { data = {} } = this.props;
-        const { taskType } = data;
+        const { taskType, isDirty } = data;
         let tabs: any = [];
         const scrollStyle: any = {
             position: 'absolute',
@@ -114,9 +114,9 @@ class TaskDetailPane extends React.Component<any, any> {
                     runCodeView,
                     failover,
                     alarmMsgView,
-                    <TabPane style={scrollStyleNoPt} tab="脏数据" key="dirty">
+                    isDirty ? <TabPane style={scrollStyleNoPt} tab="脏数据" key="dirty">
                         <DirtyView key={data.id} data={data} />
-                    </TabPane>
+                    </TabPane> : null
                 ]
                 break;
             }

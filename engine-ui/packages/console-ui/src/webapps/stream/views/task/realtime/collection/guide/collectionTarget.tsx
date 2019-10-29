@@ -112,7 +112,7 @@ class CollectionTarget extends React.Component<any, any> {
                     });
                     this.props.updateTargetMap({
                         partition: 'pt'
-                    });
+                    }, false, true);
                     return;
                 }
             }
@@ -123,7 +123,7 @@ class CollectionTarget extends React.Component<any, any> {
             });
             this.props.updateTargetMap({
                 table: null
-            });
+            }, false, true);
         }
     }
     getTableList (sourceId: any) {
@@ -222,7 +222,7 @@ class CollectionTargetForm extends React.Component<any, any> {
         /**
          * sourceId 改变,则清空表
          */
-        this.props.updateTargetMap(initialFields, true);
+        this.props.updateTargetMap(initialFields, false, true);
     }
     dynamicRender () {
         const { collectionData, topicList, tableList, partitions } = this.props;

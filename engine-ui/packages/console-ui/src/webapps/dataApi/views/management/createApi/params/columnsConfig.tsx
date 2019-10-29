@@ -225,7 +225,8 @@ class ColumnsConfig extends React.Component<any, any> {
             resultPageChange,
             mode,
             filterSelectRow,
-            OutSelectedRows
+            OutSelectedRows,
+            maxPageSize
         } = this.props;
         const outAdd = classnames('params_exchange_button', {
             'params_exchange_button_disable': !selectedRows || selectedRows.length == 0
@@ -237,10 +238,10 @@ class ColumnsConfig extends React.Component<any, any> {
             输出参数：
             <span className="params_result_check">
                 <Checkbox checked={resultPageChecked} onChange={resultPageCheckedChange} >返回结果分页</Checkbox>
-                <Tooltip title="当查询结果大于1000条时，请选择分页查询，每页最大返回1000条结果。若没有选择，默认分页查询。">
+                <Tooltip title={`当查询结果大于${maxPageSize}条时，请选择分页查询，每页最大返回${maxPageSize}条结果。若没有选择，默认分页查询。`}>
                     <Icon type="question-circle-o" />
                 </Tooltip>
-                {resultPageChecked ? <InputNumber placeholder="请输入分页大小" style={{ marginLeft: '8px', width: '115px' }} min={1} max={1000} value={resultPage} onChange={resultPageChange} /> : null}
+                {resultPageChecked ? <InputNumber placeholder="请输入分页大小" style={{ marginLeft: '8px', width: '115px' }} min={1} max={maxPageSize} value={resultPage} onChange={resultPageChange} /> : null}
             </span>
             {mode == API_MODE.GUIDE && (
                 <div className="params_exchange_box">

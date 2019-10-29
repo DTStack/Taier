@@ -44,6 +44,8 @@ const FormItem = Form.Item
 const RangePicker = DatePicker.RangePicker
 const yesterDay = moment().subtract(1, 'days');
 
+let clientHeight = document.documentElement.clientHeight - 300;
+let defaultPageSize = Math.floor(clientHeight / 42);
 class OfflineTaskList extends React.Component<any, any> {
     state: any = {
         tasks: {
@@ -78,7 +80,7 @@ class OfflineTaskList extends React.Component<any, any> {
     }
 
     componentDidMount () {
-        this.search()
+        this.search();
     }
     /* eslint-disable-next-line */
     componentWillReceiveProps(nextProps: any) {
@@ -151,7 +153,7 @@ class OfflineTaskList extends React.Component<any, any> {
         this.setState({ loading: true })
         const reqParams = Object.assign({
             currentPage: 1,
-            pageSize: 20,
+            pageSize: defaultPageSize,
             type: 0
         }, params)
         Api.queryJobs(reqParams).then((res: any) => {
@@ -161,7 +163,7 @@ class OfflineTaskList extends React.Component<any, any> {
                 replaceObjectArrayFiledName(res.data.data, 'relatedJobs', 'children');
                 for (let i = 0; i < res.data.data.length; i++) {
                     let job = res.data.data[i];
-                    if (job.batchTask && job.batchTask.taskType == TASK_TYPE.WORKFLOW) {
+                    if ((job.batchTask && job.batchTask.taskType == TASK_TYPE.WORKFLOW) || job.isGroupTask) {
                         if (!job.children) {
                             job.children = [];
                         } else {
@@ -240,7 +242,6 @@ class OfflineTaskList extends React.Component<any, any> {
             return
         }
         if (this.canReload(selected)) {
-            console.log(selected);
             confirm({
                 title: '确认提示',
                 content: '确认需要重跑当前选中的任务？',
@@ -489,6 +490,9 @@ class OfflineTaskList extends React.Component<any, any> {
             key: 'status',
             width: '100px',
             render: (text: any, record: any) => {
+                if (record.isGroupTask) {
+                    return null;
+                }
                 return <span>
                     <TaskStatus value={text} />
                     {record.isDirty && text == TASK_STATUS.FINISHED
@@ -511,7 +515,7 @@ class OfflineTaskList extends React.Component<any, any> {
             render: (text: any, record: any) => {
                 return <TaskType value={record.batchTask && record.batchTask.taskType} />
             },
-            width: '90px',
+            width: 100,
             filters: taskTypeFilter
         }, {
             title: '调度周期',
@@ -526,37 +530,81 @@ class OfflineTaskList extends React.Component<any, any> {
             title: '业务日期',
             dataIndex: 'businessDate',
             key: 'businessDate',
+            width: 100,
             sorter: true
         }, {
             title: '计划时间',
             dataIndex: 'cycTime',
             key: 'cycTime',
+            render: (text: any, record: any) => {
+                if (record.isGroupTask) {
+                    return null;
+                } else {
+                    return text;
+                }
+            },
+            width: 160,
             sorter: true
         }, {
             title: '开始时间',
             dataIndex: 'execStartDate',
             key: 'execStartDate',
+            render: (text: any, record: any) => {
+                if (record.isGroupTask) {
+                    return null;
+                } else {
+                    return text;
+                }
+            },
+            width: 160,
             sorter: true
         }, {
             title: '结束时间',
             dataIndex: 'execEndDate',
             key: 'execEndDate',
+            render: (text: any, record: any) => {
+                if (record.isGroupTask) {
+                    return null;
+                } else {
+                    return text;
+                }
+            },
+            width: 160,
             sorter: true
         }, {
             title: '运行时长',
             dataIndex: 'execTime',
             key: 'execTime',
+            render: (text: any, record: any) => {
+                if (record.isGroupTask) {
+                    return null;
+                } else {
+                    return text;
+                }
+            },
+            width: 160,
             sorter: true
         }, {
             title: '重试次数',
             dataIndex: 'batchEngineJob.retryNum',
             key: 'retryNum',
+            render: (text: any, record: any) => {
+                if (record.isGroupTask) {
+                    return null;
+                } else {
+                    return text;
+                }
+            },
+            width: 120,
             sorter: true
         }, {
             title: '责任人',
             dataIndex: 'createUser',
             key: 'createUser',
             render: (text: any, record: any) => {
+                if (record.isGroupTask) {
+                    return null;
+                }
                 return record.batchTask && record.batchTask.ownerUser &&
                     record.batchTask.ownerUser.userName
             }
@@ -620,31 +668,106 @@ class OfflineTaskList extends React.Component<any, any> {
         if (expanded) {
             const { tasks } = this.state;
             let newTasks = cloneDeep(tasks);
-            const { jobId } = record;
-            const reqParams = this.getReqParams();
-            reqParams.jobId = jobId;
-            Api.getRelatedJobs(reqParams).then((res: any) => {
-                if (res.code == 1) {
-                    const index = newTasks.data.findIndex((task: any) => {
-                        return task.jobId == jobId
-                    });
-                    if (index || index == 0) {
-                        newTasks.data[index] = {
-                            ...res.data,
-                            children: res.data.relatedJobs,
-                            relatedJobs: undefined
-                        };
+            const { jobId, isGroupTask } = record;
+            if (isGroupTask) {
+                this.getRelatedGroups(record);
+            } else {
+                const reqParams = this.getReqParams();
+                reqParams.jobId = jobId;
+                Api.getRelatedJobs(reqParams).then((res: any) => {
+                    if (res.code == 1) {
+                        let newData = newTasks.data.map((task: any) => {
+                            if (task.jobId == jobId) {
+                                task = {
+                                    ...res.data,
+                                    children: res.data.relatedJobs,
+                                    relatedJobs: undefined
+                                };
+                            } else if (task.children && task.children.length && task.children.some((item: any) => item.jobId == jobId)) {
+                                task.children = task.children.map((element: any) => {
+                                    if (element.jobId == jobId) {
+                                        element = {
+                                            ...res.data,
+                                            children: res.data.relatedJobs,
+                                            relatedJobs: undefined
+                                        };
+                                    }
+                                    return element;
+                                })
+                            }
+                            return task;
+                        });
+                        newTasks.data = newData;
+                        this.setState({
+                            tasks: newTasks
+                        })
                     }
-                    this.setState({
-                        tasks: newTasks
-                    })
-                }
-            })
+                })
+            }
         } else {
             console.log('record')
         }
     }
+    getRelatedGroups =(record: any) => {
+        const { tasks } = this.state;
+        let newTasks = cloneDeep(tasks);
+        const { jobId, businessDate, type, taskId } = record;
+        const { bizEndDay, bizStartDay, searchType } = this.getReqParams();
+        const params = {
+            taskId, bizEndDay, bizStartDay, searchType, businessDate: businessDate.trim(), type
 
+        };
+        Api.queryMinOrHourJob(params).then((res: any) => {
+            if (res.code == 1) {
+                if (res.code == 1) {
+                    let newData = newTasks.data.map((task: any) => {
+                        if (task.jobId == jobId) {
+                            if ((task.batchTask && task.batchTask.taskType == TASK_TYPE.WORKFLOW)) {
+                                replaceObjectArrayFiledName(res.data, 'relatedJobs', 'children');
+                                for (let i = 0; i < res.data.length; i++) {
+                                    let job = res.data[i];
+                                    if (!job.children) {
+                                        job.children = [];
+                                    }
+                                }
+                            }
+                            task = {
+                                ...task,
+                                children: res.data,
+                                relatedJobs: undefined
+                            };
+                        } else if (task.children && task.children.length && task.children.some((item: any) => item.jobId == jobId)) {
+                            task.children = task.children.map((element: any) => {
+                                if (element.jobId == jobId) {
+                                    if ((element.batchTask && element.batchTask.taskType == TASK_TYPE.WORKFLOW)) {
+                                        replaceObjectArrayFiledName(res.data, 'relatedJobs', 'children');
+                                        for (let i = 0; i < res.data.length; i++) {
+                                            let job = res.data[i];
+                                            if (!job.children) {
+                                                job.children = [];
+                                            }
+                                        }
+                                    }
+                                    element = {
+                                        ...task,
+                                        children: res.data,
+                                        relatedJobs: undefined
+                                    };
+                                }
+                                return element;
+                            })
+                        }
+                        return task;
+                    });
+                    newTasks.data = newData;
+
+                    this.setState({
+                        tasks: newTasks
+                    })
+                }
+            }
+        })
+    }
     render () {
         const {
             tasks, selectedRowKeys, jobName,
@@ -664,7 +787,7 @@ class OfflineTaskList extends React.Component<any, any> {
         const isPro = project.projectType == PROJECT_TYPE.PRO;
         const pagination: any = {
             total: tasks.totalCount,
-            defaultPageSize: 20,
+            defaultPageSize: defaultPageSize,
             current
         };
 
@@ -673,7 +796,7 @@ class OfflineTaskList extends React.Component<any, any> {
             selectedRowKeys,
             onChange: this.onSelectChange,
             getCheckboxProps: (record: any) => ({
-                disabled: record.batchTask && record.batchTask.isDeleted === 1
+                disabled: (record.batchTask && record.batchTask.isDeleted === 1) || record.isGroupTask
             })
         };
         const columns: any = this.initTaskColumns()
@@ -826,7 +949,7 @@ class OfflineTaskList extends React.Component<any, any> {
                                 }
                             }
                             style={{ marginTop: '1px' }}
-                            className="dt-ant-table rdos-ant-table-placeholder dt-ant-table--border full-screen-table-120"
+                            className="dt-ant-table rdos-ant-table-placeholder dt-ant-table--border full-screen-table-140"
                             expandedRowKeys={this.state.expandedRowKeys}
                             rowSelection={rowSelection}
                             pagination={pagination}
@@ -837,7 +960,7 @@ class OfflineTaskList extends React.Component<any, any> {
                             footer={this.tableFooter}
                             onExpand={this.onExpand}
                             onExpandedRowsChange={this.onExpandRows}
-                            scroll={{ x: '2050px' }}
+                            scroll={{ x: '2000px', y: clientHeight }}
                         />
                         <SlidePane
                             className="m-tabs bd-top bd-right m-slide-pane"
