@@ -33,7 +33,7 @@ function getSourceInitialField (sourceType: any, data: any) {
         case DATA_SOURCE.HIVE: {
             // eslint-disable-next-line
             initialFields.partitionType = partitionTypes.DAY;
-            initialFields.analyticalRules = prefixRule;
+            initialFields.analyticalRules = isMysqlSource ? prefixRule : undefined;
             initialFields.partition = isMysqlSource ? 'pt' : undefined; // 后端（nanqi）要求自动建表默认加一个partition = pt。
             initialFields.writeTableType = isMysqlSource ? writeTableTypes.AUTO : writeTableTypes.HAND;
             initialFields.writeStrategy = writeStrategys.FILESIZE;
