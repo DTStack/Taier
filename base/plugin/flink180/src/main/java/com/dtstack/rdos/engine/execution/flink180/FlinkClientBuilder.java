@@ -120,7 +120,7 @@ public class FlinkClientBuilder {
         config.setString("akka.tcp.timeout", AKKA_TCP_TIMEOUT);
 
         // 默认使用parent-first
-        config.setString("classloader.resolve-order", "parent-first");
+//        config.setString("classloader.resolve-order", "parent-first");
 
 
         // JVM Param
@@ -310,6 +310,11 @@ public class FlinkClientBuilder {
 
         if(StringUtils.isNotBlank(flinkConfig.getJobmanagerArchiveFsDir())){
             newConf.setString(JobManagerOptions.ARCHIVE_DIR, flinkConfig.getJobmanagerArchiveFsDir());
+        }
+
+        if (StringUtils.isNotBlank(flinkConfig.getPluginLoadMode())) {
+            newConf.setString(ConfigConstrant.FLINK_PLUGIN_LOAD_MODE, flinkConfig.getPluginLoadMode());
+            newConf.setString("classloader.resolve-order", "parent-first");
         }
 
         List<URL> classpaths = new ArrayList<>();

@@ -83,6 +83,8 @@ public class FlinkConfig {
 
     private boolean flinkHighAvailability = true;
 
+    private String pluginLoadMode = "classpath";
+
     private transient FlinkPrometheusGatewayConfig prometheusGatewayConfig;
 
 
@@ -360,5 +362,13 @@ public class FlinkConfig {
 
     public void setFlinkHighAvailability(boolean flinkHighAvailability) {
         this.flinkHighAvailability = flinkHighAvailability;
+    }
+
+    public String getPluginLoadMode() {
+        return pluginLoadMode;
+    }
+
+    public void setPluginLoadMode(String pluginLoadMode) {
+        this.pluginLoadMode = pluginLoadMode;
     }
 }
