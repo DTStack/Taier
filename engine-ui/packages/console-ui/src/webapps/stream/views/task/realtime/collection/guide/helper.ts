@@ -4,11 +4,11 @@ import { DATA_SOURCE, writeStrategys, TASK_TYPE } from '../../../../../comm/cons
 export function cleanCollectionParams (data: any) {
     let newData = cloneDeep(data);
     if (newData.taskType != TASK_TYPE.DATA_COLLECTION) {
-        return;
+        return data;
     }
     const { sourceMap = {}, targetMap = {} } = newData;
     if (!sourceMap || !targetMap) {
-        return;
+        return data;
     }
     const isMysqlSource = sourceMap.type == DATA_SOURCE.MYSQL;
     if (!isMysqlSource) {
