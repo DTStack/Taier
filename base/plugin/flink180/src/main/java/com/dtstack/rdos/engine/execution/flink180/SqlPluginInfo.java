@@ -38,6 +38,7 @@ public class SqlPluginInfo {
     private String localSqlRootJar;
 
     private String remoteSqlRootDir;
+    private String pluginLoadMode;
 
     private SqlPluginInfo(){
 
@@ -49,17 +50,19 @@ public class SqlPluginInfo {
         return pluginInfo;
     }
 
-    private void init(FlinkConfig flinkConfig){
+    private void init(FlinkConfig flinkConfig) {
         String remoteSqlPluginDir = getSqlPluginDir(flinkConfig.getRemotePluginRootDir());
         String localSqlPluginDir = getSqlPluginDir(flinkConfig.getFlinkPluginRoot());
+        String pluginLoadMode = flinkConfig.getPluginLoadMode();
 
         File sqlPluginDirFile = new File(localSqlPluginDir);
-        if(!sqlPluginDirFile.exists() || !sqlPluginDirFile.isDirectory()){
+        if (!sqlPluginDirFile.exists() || !sqlPluginDirFile.isDirectory()) {
             throw new RdosException("not exists flink sql plugin dir:" + localSqlPluginDir + ", please check it!!!");
         }
 
         setLocalJarRootDir(localSqlPluginDir);
         setRemoteSourceJarRootDir(remoteSqlPluginDir);
+        setPluginLoadMode(pluginLoadMode);
     }
 
     public String getJarFileDirPath(String type){
@@ -114,6 +117,9 @@ public class SqlPluginInfo {
         args.add("-remoteSqlPluginPath");
         args.add(remoteSqlRootDir);
 
+        args.add("-pluginLoadMode");
+        args.add(pluginLoadMode);
+
         args.add("-confProp");
         String confPropStr = PublicUtil.objToString(jobClient.getConfProperties());
         confPropStr = URLEncoder.encode(confPropStr, Charsets.UTF_8.name());
@@ -152,4 +158,7 @@ public class SqlPluginInfo {
         return coreJarFileName;
     }
 
+    public void setPluginLoadMode(String pluginLoadMode) {
+        this.pluginLoadMode = pluginLoadMode;
+    }
 }
