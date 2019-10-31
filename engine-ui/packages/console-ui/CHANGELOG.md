@@ -2,6 +2,80 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.9.0-beta.3"></a>
+# [3.9.0-beta.3](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.2.4...3.9.0-beta.3) (2019-10-31)
+
+
+### Bug Fixes
+
+* **api:** create api error ([985a6b1](http://git.dtstack.cn/dtstack/data-stack-web/commits/985a6b1))
+* **api:** custom SQL parsing ([5d05682](http://git.dtstack.cn/dtstack/data-stack-web/commits/5d05682)), closes [#19561](http://redmine.prod.dtstack.cn/issues/19561) [#19556](http://redmine.prod.dtstack.cn/issues/19556) [#19554](http://redmine.prod.dtstack.cn/issues/19554)
+* **api:** custom SQL parsing list error ([87c458b](http://git.dtstack.cn/dtstack/data-stack-web/commits/87c458b))
+* **api:** input parameters are selected by default ([26fa4ec](http://git.dtstack.cn/dtstack/data-stack-web/commits/26fa4ec))
+* **api:** the input parameters prompt ([e65ed22](http://git.dtstack.cn/dtstack/data-stack-web/commits/e65ed22))
+* **api:** the SQL list abnormal echo ([861cea4](http://git.dtstack.cn/dtstack/data-stack-web/commits/861cea4))
+* **console:** add ext key ([339627c](http://git.dtstack.cn/dtstack/data-stack-web/commits/339627c))
+* **console:** change carbondata name ([64ffb41](http://git.dtstack.cn/dtstack/data-stack-web/commits/64ffb41)), closes [#18582](http://redmine.prod.dtstack.cn/issues/18582)
+* **console:** fix uppercase bug ([d52a8e9](http://git.dtstack.cn/dtstack/data-stack-web/commits/d52a8e9))
+* **fnmodal:** name regx only lowercase, digital, underline, short line ([64ea2b8](http://git.dtstack.cn/dtstack/data-stack-web/commits/64ea2b8)), closes [#19022](http://redmine.prod.dtstack.cn/issues/19022)
+* **graphview:** change custom layout to mxHierarchicalLayout ([e5072ec](http://git.dtstack.cn/dtstack/data-stack-web/commits/e5072ec)), closes [#19461](http://redmine.prod.dtstack.cn/issues/19461)
+* **rdos:** bind table filter value ([26d4823](http://git.dtstack.cn/dtstack/data-stack-web/commits/26d4823)), closes [#19330](http://redmine.prod.dtstack.cn/issues/19330)
+* **rdos:** custom function ([4785c7b](http://git.dtstack.cn/dtstack/data-stack-web/commits/4785c7b))
+* **rdos:** data synchronization ([a40f104](http://git.dtstack.cn/dtstack/data-stack-web/commits/a40f104))
+* **rdos:** delete the useless reference ([659736f](http://git.dtstack.cn/dtstack/data-stack-web/commits/659736f))
+* **rdos:** disable impala running poll ([04f9ddb](http://git.dtstack.cn/dtstack/data-stack-web/commits/04f9ddb))
+* **rdos:** fix ([d7a194d](http://git.dtstack.cn/dtstack/data-stack-web/commits/d7a194d))
+* **rdos:** fix datasync  bug ([8b0bf1a](http://git.dtstack.cn/dtstack/data-stack-web/commits/8b0bf1a)), closes [#19448](http://redmine.prod.dtstack.cn/issues/19448)
+* **rdos:** fix save bug ([b37b6f8](http://git.dtstack.cn/dtstack/data-stack-web/commits/b37b6f8))
+* **rdos:** fix script bug ([8715e5c](http://git.dtstack.cn/dtstack/data-stack-web/commits/8715e5c))
+* **rdos:** hide fn test ([654202d](http://git.dtstack.cn/dtstack/data-stack-web/commits/654202d)), closes [#19388](http://redmine.prod.dtstack.cn/issues/19388)
+* **rdos:** popup window hidden anomalies ([247a357](http://git.dtstack.cn/dtstack/data-stack-web/commits/247a357))
+* **rdos:** task management popup window hidden anomalies ([133cff1](http://git.dtstack.cn/dtstack/data-stack-web/commits/133cff1))
+* **science:** set NaN if target is null ([a7b0fa3](http://git.dtstack.cn/dtstack/data-stack-web/commits/a7b0fa3)), closes [#19492](http://redmine.prod.dtstack.cn/issues/19492)
+* **stream:** config ([ec74357](http://git.dtstack.cn/dtstack/data-stack-web/commits/ec74357))
+* **stream:** fix ([fc21f27](http://git.dtstack.cn/dtstack/data-stack-web/commits/fc21f27))
+* **stream:** fix ([8157b2f](http://git.dtstack.cn/dtstack/data-stack-web/commits/8157b2f))
+* **stream:** fix ([ed8421d](http://git.dtstack.cn/dtstack/data-stack-web/commits/ed8421d))
+* **stream:** fix ([40926cf](http://git.dtstack.cn/dtstack/data-stack-web/commits/40926cf))
+* **stream:** fix bug ([777dd52](http://git.dtstack.cn/dtstack/data-stack-web/commits/777dd52))
+* **stream:** fix bug ([e7c9125](http://git.dtstack.cn/dtstack/data-stack-web/commits/e7c9125))
+* **stream:** fix dirty column bug ([62b435a](http://git.dtstack.cn/dtstack/data-stack-web/commits/62b435a))
+* **stream:** fix dirty index bug ([28f4528](http://git.dtstack.cn/dtstack/data-stack-web/commits/28f4528))
+* **stream:** fix style ([f467024](http://git.dtstack.cn/dtstack/data-stack-web/commits/f467024))
+* **stream:** fix target update error ([3a44a39](http://git.dtstack.cn/dtstack/data-stack-web/commits/3a44a39))
+* **stream:** fix type ([ab04ca4](http://git.dtstack.cn/dtstack/data-stack-web/commits/ab04ca4))
+* **stream:** fix update sync target bug ([7cd6ca2](http://git.dtstack.cn/dtstack/data-stack-web/commits/7cd6ca2))
+* **stream:** remove error dirty ([b2d2a8a](http://git.dtstack.cn/dtstack/data-stack-web/commits/b2d2a8a))
+* **stream:** remove unused fields of target map ([5307ed1](http://git.dtstack.cn/dtstack/data-stack-web/commits/5307ed1))
+
+
+### Features
+
+* **api:** change text ([8eb7bd8](http://git.dtstack.cn/dtstack/data-stack-web/commits/8eb7bd8))
+* **api:** create api called only one parameter ([5341277](http://git.dtstack.cn/dtstack/data-stack-web/commits/5341277))
+* **api:** delete console ([d8905f2](http://git.dtstack.cn/dtstack/data-stack-web/commits/d8905f2))
+* **api:** front end need to configure the maximum number of pages ([904ddf8](http://git.dtstack.cn/dtstack/data-stack-web/commits/904ddf8))
+* **api:** front end need to configure the maximum number of pages ([5a62810](http://git.dtstack.cn/dtstack/data-stack-web/commits/5a62810))
+* **api:** optimize the types of monitoring ([e39b215](http://git.dtstack.cn/dtstack/data-stack-web/commits/e39b215))
+* **api:** parse SQL optimization ([d5af1cb](http://git.dtstack.cn/dtstack/data-stack-web/commits/d5af1cb)), closes [#19435](http://redmine.prod.dtstack.cn/issues/19435) [#19437](http://redmine.prod.dtstack.cn/issues/19437)
+* **api:** support a into and bind multiple database field ([5025b38](http://git.dtstack.cn/dtstack/data-stack-web/commits/5025b38))
+* **console:** add driverclassname to hive and carbondata ([cb5591a](http://git.dtstack.cn/dtstack/data-stack-web/commits/cb5591a))
+* **console:** add new fields to flink ([c5ef11e](http://git.dtstack.cn/dtstack/data-stack-web/commits/c5ef11e)), closes [#19397](http://redmine.prod.dtstack.cn/issues/19397)
+* **console:** add param valid ([ffd101e](http://git.dtstack.cn/dtstack/data-stack-web/commits/ffd101e))
+* **console:** exchange key ([11f72ef](http://git.dtstack.cn/dtstack/data-stack-web/commits/11f72ef))
+* **rdos:** allow patch  multiple task tree ([842df32](http://git.dtstack.cn/dtstack/data-stack-web/commits/842df32)), closes [#18569](http://redmine.prod.dtstack.cn/issues/18569)
+* **rdos:** delete the function call test ([bb88147](http://git.dtstack.cn/dtstack/data-stack-web/commits/bb88147))
+* **rdos:** hours and minutes scheduling tasks ([2b793ad](http://git.dtstack.cn/dtstack/data-stack-web/commits/2b793ad))
+* **rdos:** hours and minutes scheduling tasks ([0c5001b](http://git.dtstack.cn/dtstack/data-stack-web/commits/0c5001b))
+* **stream:** add dirty pane ([13c8cbd](http://git.dtstack.cn/dtstack/data-stack-web/commits/13c8cbd))
+* **stream:** add line ([0b17188](http://git.dtstack.cn/dtstack/data-stack-web/commits/0b17188))
+* **stream:** add sink graph desc ([4a8f3c4](http://git.dtstack.cn/dtstack/data-stack-web/commits/4a8f3c4))
+* **stream:** chnage dirty api msg ([d33a0cf](http://git.dtstack.cn/dtstack/data-stack-web/commits/d33a0cf))
+* **stream:** remove dirty lifeday and update ([56c4ffb](http://git.dtstack.cn/dtstack/data-stack-web/commits/56c4ffb))
+* **stream:** remove dirty pane if task have no dirty config ([18e2a15](http://git.dtstack.cn/dtstack/data-stack-web/commits/18e2a15))
+
+
+
 <a name="3.9.0-beta.2.4"></a>
 # [3.9.0-beta.2.4](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.2.2...3.9.0-beta.2.4) (2019-10-22)
 
