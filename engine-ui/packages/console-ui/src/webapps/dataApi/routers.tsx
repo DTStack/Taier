@@ -16,7 +16,7 @@ import RoleAdd from 'main/views/admin/role/add'
 import RoleEdit from 'main/views/admin/role/edit'
 
 // 数据API
-import Container from './views'
+import Container from './views/container'
 import Dashboard from './views/dashboard'
 
 import Approval from './views/approval'
@@ -40,8 +40,7 @@ import NewApi from './views/management/createApi'
 
 export default (
     <Route path="/" component={Main}>
-        <IndexRedirect to="/api" />
-        {/* <IndexRoute component={ Container } /> */}
+        <IndexRoute component={ Container } />
         <Route path="/message" component={MsgCenter}>
             <IndexRoute component={MsgList} />
             <Route path="list" component={MsgList} />
