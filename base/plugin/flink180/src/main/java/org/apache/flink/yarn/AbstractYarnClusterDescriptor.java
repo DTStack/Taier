@@ -19,7 +19,6 @@
 package org.apache.flink.yarn;
 
 import avro.shaded.com.google.common.collect.Sets;
-import com.dtstack.rdos.engine.execution.base.enums.ClassLoaderType;
 import com.dtstack.rdos.engine.execution.flink180.constrant.ConfigConstrant;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
@@ -127,9 +126,6 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
      */
     private static final int MIN_JM_MEMORY = 768; // the minimum memory should be higher than the min heap cutoff
     private static final int MIN_TM_MEMORY = 768;
-
-    private static final String FLINK_PLUGIN_CLASSPATH_LOAD = "classpath";
-    private static final String FLINK_PLUGIN_SHIP_LOAD = "ship";
 
     private static final String FLINK_LOG_DIR = "flinkconf";
 
@@ -569,8 +565,8 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
 
     private void dealPluginByLoadMode(JobGraph jobGraph) throws Exception {
 
-        String pluginLoadMode = flinkConfiguration.getString(ConfigConstrant.FLINK_PLUGIN_LOAD_MODE, FLINK_PLUGIN_CLASSPATH_LOAD);
-        if (StringUtils.equalsIgnoreCase(pluginLoadMode, FLINK_PLUGIN_CLASSPATH_LOAD)) {
+        String pluginLoadMode = flinkConfiguration.getString(ConfigConstrant.FLINK_PLUGIN_LOAD_MODE, ConfigConstrant.FLINK_PLUGIN_CLASSPATH_LOAD);
+        if (StringUtils.equalsIgnoreCase(pluginLoadMode, ConfigConstrant.FLINK_PLUGIN_CLASSPATH_LOAD)) {
             fillJobGraphClassPath(jobGraph);
             fillStreamJobGraphClassPath(jobGraph);
         } else {
@@ -599,6 +595,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         }
         return jobGraph;
     }
+
     private PackagedProgram buildProgram(String monitorUrl,ClusterSpecification clusterSpecification) throws Exception{
         String[] args = clusterSpecification.getProgramArgs();
         for (int i = 0; i < args.length; i++) {

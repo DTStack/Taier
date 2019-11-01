@@ -49,4 +49,6 @@ public class ConfigConstrant {
      * plugin load by classpath or ship mode
      */
     public final static String FLINK_PLUGIN_LOAD_MODE = "pluginLoadMode";
+    public static final String FLINK_PLUGIN_CLASSPATH_LOAD = "classpath";
+    public static final String FLINK_PLUGIN_SHIP_LOAD = "ship";
 }

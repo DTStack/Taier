@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.flink180;
 
+import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.JarFileInfo;
 import com.dtstack.rdos.engine.execution.base.JobClient;
@@ -315,6 +316,23 @@ public class FlinkClientBuilder {
         if (StringUtils.isNotBlank(flinkConfig.getPluginLoadMode())) {
             newConf.setString(ConfigConstrant.FLINK_PLUGIN_LOAD_MODE, flinkConfig.getPluginLoadMode());
             newConf.setString("classloader.resolve-order", "parent-first");
+
+            if(!isPerjob && ConfigConstrant.FLINK_PLUGIN_SHIP_LOAD.equalsIgnoreCase(flinkConfig.getPluginLoadMode())){
+                //预加载同步插件jar包
+                String flinkPluginRoot = flinkConfig.getFlinkPluginRoot();
+                if(StringUtils.isNotBlank(flinkPluginRoot)){
+                    try {
+                        File[] jars = new File(flinkPluginRoot).listFiles();
+                        if(jars != null){
+                            clusterDescriptor.addShipFiles(Arrays.asList(jars));
+                        }else {
+                            LOG.warn("jars in flinkPluginRoot is null, flinkPluginRoot = {}", flinkPluginRoot);
+                        }
+                    }catch (Exception e){
+                        LOG.error("error to load jars in flinkPluginRoot, flinkPluginRoot = {}, e = {}", flinkPluginRoot, ExceptionUtil.getErrorMessage(e));
+                    }
+                }
+            }
         }
 
         List<URL> classpaths = new ArrayList<>();
