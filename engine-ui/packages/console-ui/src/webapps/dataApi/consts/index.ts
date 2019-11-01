@@ -14,6 +14,12 @@ export const DATA_SOURCE: any = {
     RDS: 16,
     DB2: 17
 }
+export const PROJECT_STATUS: any = {
+    INITIALIZE: 0, // 创建中
+    NORMAL: 1, // 正常
+    DISABLE: 2, // 禁用
+    FAIL: 3// 创建失败
+}
 
 export const SECURITY_TYPE: any = {
     WHITE: 0,

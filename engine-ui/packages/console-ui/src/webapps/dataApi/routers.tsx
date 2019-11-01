@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Route, IndexRoute, IndexRedirect } from 'react-router'
+import { Route, IndexRoute } from 'react-router'
 
 import NotFund from 'widgets/notFund'
 

@@ -36,7 +36,7 @@ export default {
     getProjectInfo (params: any) {
         return http.post(req.GET_PROJECT_INFO, params)
     },
-    getProjectListInfo (params: any) {
+    getProjectListInfo (params?: any) {
         return http.post(req.GET_PROJECT_LIST_INFO, params)
     }
 }

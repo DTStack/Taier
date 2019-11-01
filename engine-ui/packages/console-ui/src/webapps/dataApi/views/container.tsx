@@ -22,6 +22,7 @@ const defaultPro: any = {
 class Container extends React.Component<any, any> {
     static propTypes: any;
     static defaultProps: any;
+    /* eslint-disable-next-line */
     componentWillMount () {
         const { dispatch } = this.props;
         dispatch(commonActions.getMenuList())
