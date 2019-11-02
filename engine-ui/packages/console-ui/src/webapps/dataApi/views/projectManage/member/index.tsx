@@ -52,7 +52,7 @@ class ProjectMember extends React.Component<any, any> {
 
     removeUserFromProject = (member: any) => {
         const ctx = this
-        const { project, dispatch } = this.props
+        const { project = {}, dispatch } = this.props
         Api.removeProjectUser({
             targetUserId: member.userId,
             projectId: project.id
@@ -67,7 +67,7 @@ class ProjectMember extends React.Component<any, any> {
 
     search = (projectId?: any) => {
         const { name, current } = this.state;
-        const { project } = this.props;
+        const { project = {} } = this.props;
         const params: any = {
             projectId: projectId || project.id,
             pageSize: 10,
@@ -102,7 +102,7 @@ class ProjectMember extends React.Component<any, any> {
     addMember = () => {
         const ctx = this
         const { notProjectUsers } = this.state;
-        const { project, dispatch } = this.props
+        const { project = {}, dispatch } = this.props
         const form = this.memberForm.props.form
         const projectRole = form.getFieldsValue()
 
@@ -137,7 +137,7 @@ class ProjectMember extends React.Component<any, any> {
     updateMemberRole = (item: any) => {
         const ctx = this
         const { editTarget } = this.state
-        const { project } = this.props
+        const { project = {} } = this.props
 
         const memberRole = ctx.eidtRoleForm.props.form.getFieldsValue()
         Api.updateUserRole({
@@ -267,7 +267,7 @@ class ProjectMember extends React.Component<any, any> {
             notProjectUsers, visibleEditRole, editTarget
         } = this.state;
 
-        const { project } = this.props
+        const { project = {} } = this.props
 
         const pagination: any = {
             total: users.totalCount,

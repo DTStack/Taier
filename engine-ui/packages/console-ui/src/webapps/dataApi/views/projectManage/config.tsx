@@ -129,7 +129,7 @@ class ProjectConfig extends React.Component<any, any> {
                                 <td className="t-title">普通成员</td>
                                 <td>
                                     {members}
-                                    <Link to={`/project/${params.pid}/member`}> 成员管理</Link>
+                                    <Link to={`/api/project/${params.pid}/member`}> 成员管理</Link>
                                 </td>
                             </tr>
                         </tbody>
