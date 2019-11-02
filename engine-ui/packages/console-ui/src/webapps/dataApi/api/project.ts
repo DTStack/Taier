@@ -3,6 +3,21 @@ import http from './http'
 import req from '../consts/reqUrls'
 
 export default {
+
+    addRoleUser (user: any) {
+        return http.post(req.ADD_ROLE_USRE, user)
+    },
+    updateUserRole (user: any) {
+        return http.post(req.UPDATE_USER_ROLE, user)
+    },
+    getNotProjectUsers (params: any) {
+        return http.post(req.GET_NOT_PROJECT_USERS, params)
+    },
+
+    searchUICUsers (params: any) {
+        return http.post(req.SEARCH_UIC_USERS, params)
+    },
+
     queryProjects (params: any) {
         return http.post(req.QUERY_PROJECT_LIST, params)
     },
@@ -38,5 +53,22 @@ export default {
     },
     getProjectListInfo (params?: any) {
         return http.post(req.GET_PROJECT_LIST_INFO, params)
+    },
+
+    // ========== Role ========== //
+    getRoleList (params: any) {
+        return http.post(req.GET_ROLE_LIST, params)
+    },
+    updateRole (params: any) {
+        return http.post(req.UPDATE_ROLE, params)
+    },
+    deleteRole (params: any) {
+        return http.post(req.DELETE_ROLE, params)
+    },
+    getRoleTree (params?: any) {
+        return http.post(req.GET_ROLE_TREE, params)
+    },
+    getRoleInfo (params: any) {
+        return http.post(req.GET_ROLE_INFO, params)
     }
 }

@@ -28,6 +28,12 @@ export const HELP_DOC_URL = {
     CALL_API: '/public/helpSite/api/v3.0/Apply_call.html#Call'
 }
 
+export const PROJECT_ROLE: any = { // 项目角色
+    PROJECT_OWNER: 2, // 项目所有者
+    TENANT_OWVER: 1, // 租户所有者
+    VISITOR: 4 // 访客
+}
+
 export const SECURITY_TYPE: any = {
     WHITE: 0,
     BLACK: 1

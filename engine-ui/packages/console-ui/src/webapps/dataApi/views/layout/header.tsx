@@ -66,8 +66,8 @@ class Header extends React.Component<any, any> {
             mine: false,
             manage: false,
             approval: false,
-            dataSource: false
-
+            dataSource: false,
+            projectManage: false
         }
         const menuList = this.props.common.menuList;
         if (menuList) {
@@ -85,6 +85,8 @@ class Header extends React.Component<any, any> {
                     showList.approval = true
                 } else if (item.indexOf('datasource') > -1) {
                     showList.dataSource = true
+                } else if (item.indexOf('project') > -1) {
+                    showList.projectManage = true
                 }
             }
         }
@@ -108,6 +110,9 @@ class Header extends React.Component<any, any> {
                         break;
                     case '数据源管理':
                         fixArrChildrenApps[5] = showList.dataSource ? item : null;
+                        break;
+                    case '项目管理':
+                        fixArrChildrenApps[6] = showList.projectManage ? item : null;
                         break;
                 }
             })
@@ -217,7 +222,7 @@ class Header extends React.Component<any, any> {
     render () {
         const baseUrl = '/dataApi.html#/api'
         const { current } = this.state;
-        const { app, licenseApps, user } = this.props;
+        const { app, licenseApps, user, project } = this.props;
         const fixArrChildrenApps = this.fixArrayIndex(licenseApps[4] && licenseApps[4].children);
         const overviewNav = fixArrChildrenApps[0];
         const marketNav = fixArrChildrenApps[1];
@@ -225,7 +230,9 @@ class Header extends React.Component<any, any> {
         const manaNav = fixArrChildrenApps[3];
         const approvalNav = fixArrChildrenApps[4];
         const dataSourceNav = fixArrChildrenApps[5];
+        const projectManaNav = fixArrChildrenApps[6];
         const display: boolean = current !== NOT_SHOW_KEY;
+        const pid = project && project.id ? project.id : '';
         const menuItems: any = display && [{
             id: 'overview',
             name: '概览',
@@ -256,6 +263,11 @@ class Header extends React.Component<any, any> {
             name: '数据源管理',
             link: `${baseUrl}/dataSource`,
             enable: dataSourceNav && dataSourceNav.isShow
+        }, {
+            id: 'project',
+            name: '项目管理',
+            link: `${baseUrl}/project/32/config`,
+            enable: true
         }];
         const settingMenus: any = [{
             id: 'admin/audit',
