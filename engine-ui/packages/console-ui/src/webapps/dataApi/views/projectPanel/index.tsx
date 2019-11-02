@@ -1,39 +1,41 @@
 import * as React from 'react';
-import { Link, hashHistory } from 'react-router';
+import { Link, hashHistory, withRouter } from 'react-router';
 import { connect } from 'react-redux';
-import { Input, Card, Row, Col, Tooltip, Icon, Button, Pagination, message, Spin } from 'antd';
+import { Card, Row, Col, Icon, Spin, Button } from 'antd';
 import moment from 'moment';
 import SummaryPanel from './summaryPanel';
 import NoData from '../../components/no-data';
+import NewProjectModal from '../../components/newProject';
 import Api from '../../api/project';
 import * as projectActions from '../../actions/project';
 import { PROJECT_STATUS } from '../../consts';
 
 interface ProjectState {
     loading: boolean;
-    projectListInfo: any[]
+    projectListInfo: any[];
+    visible: boolean;
 }
-
 
 class ProjectPanel extends React.Component<any, ProjectState> {
     constructor (props: any) {
         super(props);
         this.state = {
             loading: false,
+            visible: false,
             projectListInfo: [
                 {
                     createUserId: 29,
                     gmtCreate: 1556158149000,
                     gmtModified: 1556158153000,
-                    id: 33,
+                    id: 32,
                     isAllowDownload: 0,
                     isDeleted: 0,
                     jobSum: 0,
                     produceProjectId: 287,
-                    projectAlias: "mq_test",
+                    projectAlias: 'mq_test',
                     projectDesc: null,
-                    projectIdentifier: "mq_test",
-                    projectName: "mq_test",
+                    projectIdentifier: 'mq_test',
+                    projectName: 'mq_test',
                     projectType: 1,
                     scheduleStatus: 1,
                     status: 1,
@@ -41,23 +43,23 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                     stickStatus: 1,
                     supportEngineType: [1, 2],
                     tableCount: 114,
-                    taskCountMap: {submitCount: 72, allCount: 146},
+                    taskCountMap: { submitCount: 72, allCount: 146 },
                     tenantId: 27,
-                    totalSize: "438.77KB",
+                    totalSize: '438.77KB'
                 },
                 {
                     createUserId: 29,
                     gmtCreate: 1556158149000,
                     gmtModified: 1556158153000,
-                    id: 33,
+                    id: 34,
                     isAllowDownload: 0,
                     isDeleted: 0,
                     jobSum: 0,
                     produceProjectId: 287,
-                    projectAlias: "mq_test",
+                    projectAlias: 'mq_test',
                     projectDesc: null,
-                    projectIdentifier: "mq_test",
-                    projectName: "mq_test",
+                    projectIdentifier: 'mq_test',
+                    projectName: 'mq_test',
                     projectType: 1,
                     scheduleStatus: 1,
                     status: 1,
@@ -65,23 +67,23 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                     stickStatus: 1,
                     supportEngineType: [1, 2],
                     tableCount: 114,
-                    taskCountMap: {submitCount: 72, allCount: 146},
+                    taskCountMap: { submitCount: 72, allCount: 146 },
                     tenantId: 27,
-                    totalSize: "438.77KB",
+                    totalSize: '438.77KB'
                 },
                 {
                     createUserId: 29,
                     gmtCreate: 1556158149000,
                     gmtModified: 1556158153000,
-                    id: 33,
+                    id: 35,
                     isAllowDownload: 0,
                     isDeleted: 0,
                     jobSum: 0,
                     produceProjectId: 287,
-                    projectAlias: "mq_test",
+                    projectAlias: 'mq_test',
                     projectDesc: null,
-                    projectIdentifier: "mq_test",
-                    projectName: "mq_test",
+                    projectIdentifier: 'mq_test',
+                    projectName: 'mq_test',
                     projectType: 1,
                     scheduleStatus: 1,
                     status: 1,
@@ -89,9 +91,9 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                     stickStatus: 1,
                     supportEngineType: [1, 2],
                     tableCount: 114,
-                    taskCountMap: {submitCount: 72, allCount: 146},
+                    taskCountMap: { submitCount: 72, allCount: 146 },
                     tenantId: 27,
-                    totalSize: "438.77KB",
+                    totalSize: '438.77KB'
                 }
             ]
         }
@@ -116,8 +118,15 @@ class ProjectPanel extends React.Component<any, ProjectState> {
             }
         })
     }
-     // Api
-     fixApiChildrenApps = (arr: any) => {
+
+    handleNewProject = () => {
+        this.setState({
+            visible: true
+        });
+    }
+
+    // Api
+    fixApiChildrenApps = (arr: any) => {
         let fixApiChildrenApps: any = [];
         if (arr && arr.length > 1) {
             arr.map((item: any) => {
@@ -222,16 +231,25 @@ class ProjectPanel extends React.Component<any, ProjectState> {
         dispatch(projectActions.getProject(v.id));
         hashHistory.push(src)
     }
+    gotoProjectList = () => {
+        this.props.router.push('/api/projectList')
+    }
     render () {
-        const { loading, projectListInfo } = this.state;
+        const { loading, projectListInfo, visible } = this.state;
         const { licenseApps } = this.props;
         const fixArrChildrenApps = this.fixApiChildrenApps(licenseApps[4] && licenseApps[4].children) || [];
         const apiMarket = fixArrChildrenApps[1];
         const apiManage = fixArrChildrenApps[3];
-        return(
+        return (
             <Spin tip="Loading..." spinning={loading} delay={500} >
                 <div className="project-dashboard develop-kit" style={{ padding: '20px 35px', overflow: 'hidden' }}>
                     <div className="project-left">
+                        <Row>
+                            <div style={{ float: 'right', marginRight: '10px' }}>
+                                <Button type="primary" style={{ marginRight: '5px' }} onClick={this.handleNewProject}>创建项目</Button>
+                                <Button type="primary" onClick={this.gotoProjectList}>项目列表</Button>
+                            </div>
+                        </Row>
                         <Row style={{ marginTop: '10px' }} gutter={10}>
                             <Col span={24} >
                                 <Row gutter={10} style={{ margin: 0 }}>
@@ -294,6 +312,10 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                     <div className="project-right">
                         <SummaryPanel />
                     </div>
+                    <NewProjectModal
+                        visible={visible}
+                        onCancel={() => { this.setState({ visible: false }) }}
+                    />
                 </div>
             </Spin>
         )
@@ -305,4 +327,4 @@ export default connect((state: any) => {
         projects: state.projects,
         licenseApps: state.licenseApps
     }
-})(ProjectPanel)
+})(withRouter(ProjectPanel))

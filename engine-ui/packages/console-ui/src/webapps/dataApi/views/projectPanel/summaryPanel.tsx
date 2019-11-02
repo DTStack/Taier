@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { HELP_DOC_URL } from '../../consts';
 
 class SummaryPanel extends React.Component<any, any> {
     render () {
@@ -25,11 +26,11 @@ class SummaryPanel extends React.Component<any, any> {
                 </section>
                 <section>
                     <h3>常用操作</h3>
-                    <p><a>API生成</a></p>
-                    <p><a>API发布</a></p>
-                    <p><a>API申请</a></p>
-                    <p><a>API测试</a></p>
-                    <p><a>API调用</a></p>
+                    <p><a target="blank" href={HELP_DOC_URL.MAKE_API}>API生成</a></p>
+                    <p><a target="blank" href={HELP_DOC_URL.RELEASE_API}>API发布</a></p>
+                    <p><a target="blank" href={HELP_DOC_URL.APPLY_API}>API申请</a></p>
+                    <p><a target="blank" href={HELP_DOC_URL.TEST_API}>API测试</a></p>
+                    <p><a target="blank" href={HELP_DOC_URL.CALL_API}>API调用</a></p>
                 </section>
                 <section>
                     <h3>快速入门</h3>
@@ -39,4 +40,3 @@ class SummaryPanel extends React.Component<any, any> {
     }
 }
 export default SummaryPanel;
-

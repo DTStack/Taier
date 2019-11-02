@@ -33,7 +33,7 @@ import CallApi from './views/myApi/callApi'
 
 import ApiType from './views/management/apiType'
 import NewApi from './views/management/createApi'
-
+import ProjectList from './views/projectPanel/projectList';
 // ======= 测试 =======
 // const Test = asyncComponent(() => import('./views/test')
 // .then((module: any) => module.default), { name: 'testPage' })
@@ -61,6 +61,7 @@ export default (
                 <Route path="approval" component={Approval}></Route>
                 <Route path="security" component={Security}></Route>
             </Route>
+            <Route path='projectList' component={ProjectList} />
             <Route path="manage" component={APIManage}></Route>
             <Route path="manage/apiType" component={ApiType}></Route>
             <Route path="manage/newApi" component={NewApi}></Route>

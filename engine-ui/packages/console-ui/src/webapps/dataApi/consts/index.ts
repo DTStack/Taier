@@ -20,6 +20,13 @@ export const PROJECT_STATUS: any = {
     DISABLE: 2, // 禁用
     FAIL: 3// 创建失败
 }
+export const HELP_DOC_URL = {
+    MAKE_API: '/public/helpSite/api/v3.0/Makeup_Register.html#makeAPI',
+    RELEASE_API: '/public/helpSite/api/v3.0/Release_Management.html#releaseAPI',
+    APPLY_API: '/public/helpSite/api/v3.0/Apply_call.html#APIApply',
+    TEST_API: '/public/helpSite/api/v3.0/Apply_call.html#Test',
+    CALL_API: '/public/helpSite/api/v3.0/Apply_call.html#Call'
+}
 
 export const SECURITY_TYPE: any = {
     WHITE: 0,

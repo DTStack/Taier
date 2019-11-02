@@ -67,6 +67,18 @@ export function getAllProjects (params?: any) {
     }
 }
 
+export function createProject (params: any) {
+    return (dispatch: any) => {
+        return (async () => {
+            let res = await Api.createProject(params);
+            if (res && res.code == 1) {
+                dispatch(getAllProjects());
+            }
+            return res;
+        })()
+    }
+}
+
 // Reducer
 // 获取系统下登录用户有权限的项目
 export function projects (state: any = [], action: any) {

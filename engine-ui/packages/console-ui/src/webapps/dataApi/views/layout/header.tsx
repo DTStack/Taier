@@ -6,7 +6,7 @@ import { getHeaderLogo } from 'main/consts';
 
 import docPath from '../../consts/docPath';
 
-const NOT_SHOW_KEY = 'project_panel'; // project_panel不显示导航
+const NOT_SHOW_KEY = 'projectList'; // projectList不显示导航
 const SubMenu = Menu.SubMenu;
 const Search = Input.Search;
 declare var window: any;
@@ -40,7 +40,6 @@ class Header extends React.Component<any, any> {
     updateSelected () {
         let pathname = this.props.router.location.pathname;
         const routes = pathname ? pathname.split('/') : [];
-        console.log('------', pathname, routes)
         let path =
             routes.length > 0 && routes[1] !== '' ? routes[2] : NOT_SHOW_KEY;
         // if (
@@ -117,7 +116,7 @@ class Header extends React.Component<any, any> {
     }
 
     selectedProject = (evt: any) => {
-        const { router, dispatch } = this.props;
+        // const { router, dispatch } = this.props;
         const projectId = evt.key;
         if (projectId) {
         }
@@ -226,7 +225,7 @@ class Header extends React.Component<any, any> {
         const manaNav = fixArrChildrenApps[3];
         const approvalNav = fixArrChildrenApps[4];
         const dataSourceNav = fixArrChildrenApps[5];
-        const display: boolean = current !== NOT_SHOW_KEY ? true : false;
+        const display: boolean = current !== NOT_SHOW_KEY;
         const menuItems: any = display && [{
             id: 'overview',
             name: '概览',
@@ -276,17 +275,17 @@ class Header extends React.Component<any, any> {
                 {window.APP_CONF.prefix ? `${window.APP_CONF.prefix}.` : ''}{window.APP_CONF.name}
             </span>
         </div>;
-        return(
-                <Navigator
-                    selectProjectsubMenu={display && this.renderProjectSelect()}
-                    logo={logo}
-                    menuItems={menuItems}
-                    licenseApps={licenseApps}
-                    settingMenus={settingMenus}
-                    {...this.props}
-                    showHelpSite={true}
-                    helpUrl={docPath.INDEX}
-                />
+        return (
+            <Navigator
+                selectProjectsubMenu={display && this.renderProjectSelect()}
+                logo={logo}
+                menuItems={menuItems}
+                licenseApps={licenseApps}
+                settingMenus={settingMenus}
+                {...this.props}
+                showHelpSite={true}
+                helpUrl={docPath.INDEX}
+            />
         )
     }
 }

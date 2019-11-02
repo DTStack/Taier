@@ -1,11 +1,11 @@
 .project-dashboard {
     padding-bottom: 20px;
     .project-left {
-        width: 75%;
+        width: 85%;
         float: left;
     }
     .project-right {
-        width: 25%;
+        width: 15%;
         float: right;
         .summary-pannel {
             background-color: #ffffff;
@@ -233,5 +233,53 @@
     .ant-card-head{
         height:40px;
         line-height: 40px;
+    }
+}
+
+.projects-list {
+    padding: 20px;
+    background: #fff;
+    height: 100%;
+
+    .projects-header {
+        font-size: 16px;
+        color: #333333;
+        margin-bottom: 16px;
+
+        i {
+            margin-right: 6px;
+            cursor: pointer;
+        }
+    }
+
+    .ant-card-head {
+        padding: 0;
+        height: 30px;
+        line-height: 1;
+        border-bottom: 0;
+        font-size: 13px;
+        margin-bottom: 10px;
+
+        .ant-input-search {
+            margin: 0;
+            height: 30px;
+
+            input {
+                @extend .ant-input-search
+            }
+        }
+
+        button {
+            margin: 0;
+            background: #0099FF;
+            width: 104;
+            height: 30px;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+    }
+
+    .ant-card-body {
+        padding: 7px 0;
     }
 }
