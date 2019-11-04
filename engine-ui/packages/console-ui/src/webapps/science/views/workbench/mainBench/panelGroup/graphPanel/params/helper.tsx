@@ -12,12 +12,12 @@ const inputStyle: any = {
 }
 
 export function renderNumberFormItem (options: {
-    label: string;
+    label: React.ReactNode;
     key: string;
     initialValue?: number;
     min?: number;
     excludeMin?: boolean;
-    max: number;
+    max?: number;
     excludeMax?: boolean;
     step?: number;
     isInt?: boolean;
@@ -26,14 +26,14 @@ export function renderNumberFormItem (options: {
 }, getFieldDecorator: any) {
     return <FormItem
         colon={false}
-        label={<div style={{ display: 'inline-block' }}>{options.label}{options.max != null && (<span className="supplementary">{options.excludeMin ? '(' : '['}{options.min || 0},{options.max}{options.excludeMax ? ')' : ']'}, {options.isInt ? '正整数' : 'float型'}</span>)}</div>}
+        label={<div style={{ display: 'inline-block' }}>{options.label}{(<span className="supplementary">{options.excludeMin ? '(' : '['}{options.min || 0},{options.max ? options.max : options.isInt ? '+n' : '+inf'}{options.excludeMax ? ')' : ']'}, {options.isInt ? '正整数' : 'float型'}</span>)}</div>}
         {...formItemLayout}
     >
         {getFieldDecorator(options.key, {
             initialValue: options.initialValue,
             rules: [
                 { required: !!options.isRequired },
-                options.max != null && { min: options.min || 0, max: options.max, message: `${options.label}的取值范围为${options.excludeMin ? '(' : '['}${options.min || 0},${options.max}${options.excludeMax ? ')' : ']'}`, type: 'number' }
+                { min: options.min || 0, max: options.max, message: `${options.label}的取值范围为${options.excludeMin ? '(' : '['}${options.min || 0},${options.max ? options.max : options.isInt ? '+n' : '+inf'}${options.excludeMax ? ')' : ']'}`, type: 'number' }
             ].filter(Boolean)
         })(
             <InputNumber

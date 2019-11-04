@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Form, Select, Input, InputNumber, message, Spin } from 'antd';
 import { debounce, isNumber } from 'lodash';
 import api from '../../../../../../api/experiment';
+import { TASK_ENUM, COMPONENT_TYPE } from '../../../../../../consts';
 import { formItemLayout } from './index';
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -127,15 +128,16 @@ class BinaryClassfication extends React.PureComponent<any, any> {
     }
     handleSaveComponent = (field: any, filedValue: any) => {
         const { data, currentTab, componentId, changeContent } = this.props;
+        const fieldName = TASK_ENUM[COMPONENT_TYPE.DATA_EVALUATE.CONFUSION_MATRIX];
         const currentComponentData = currentTab.graphData.find((o: any) => o.vertex && o.data.id === componentId);
         const params: any = {
             ...currentComponentData.data,
-            eveluationComponent: {
+            [fieldName]: {
                 ...data
             }
         }
         if (field) {
-            params.eveluationComponent[field] = filedValue
+            params[fieldName][field] = filedValue
         }
         api.addOrUpdateTask(params).then((res: any) => {
             if (res.code == 1) {

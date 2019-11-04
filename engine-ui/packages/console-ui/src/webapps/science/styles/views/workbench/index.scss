@@ -229,6 +229,36 @@
         width: 14px;
         height: 14px;
     }
+    // 标准化
+    &.o-tree-icon--data-merge-standard .ant-tree-iconEle {
+        background-image: url(/public/science/img/icon/standard.svg);
+        width: 14px;
+        height: 14px;
+    }
+    // 缺失值填充
+    &.o-tree-icon--data-merge-missval .ant-tree-iconEle {
+        background-image: url(/public/science/img/icon/miss-val.svg);
+        width: 14px;
+        height: 14px;
+    }
+    // svm
+    &.o-tree-icon--machine-svm .ant-tree-iconEle {
+        background-image: url(/public/science/img/icon/svm.svg);
+        width: 14px;
+        height: 14px;
+    }
+    // 混淆矩阵
+    &.o-tree-icon--confusion-matrix .ant-tree-iconEle {
+        background-image: url(/public/science/img/icon/confusion-matrix.svg);
+        width: 14px;
+        height: 14px;
+    }
+    // one-hot
+    &.o-tree-icon--one-hot .ant-tree-iconEle {
+        background-image: url(/public/science/img/icon/one-hot.svg);
+        width: 14px;
+        height: 14px;
+    }
 }
 .s-tree-folder {
     &>.ant-tree-iconEle {
