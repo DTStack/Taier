@@ -602,9 +602,6 @@ class OfflineTaskList extends React.Component<any, any> {
             dataIndex: 'createUser',
             key: 'createUser',
             render: (text: any, record: any) => {
-                if (record.isGroupTask) {
-                    return null;
-                }
                 return record.batchTask && record.batchTask.ownerUser &&
                     record.batchTask.ownerUser.userName
             }
@@ -712,9 +709,9 @@ class OfflineTaskList extends React.Component<any, any> {
         const { tasks } = this.state;
         let newTasks = cloneDeep(tasks);
         const { jobId, businessDate, type, taskId } = record;
-        const { bizEndDay, bizStartDay, searchType } = this.getReqParams();
+        const { bizEndDay, bizStartDay, searchType, jobStatuses } = this.getReqParams();
         const params = {
-            taskId, bizEndDay, bizStartDay, searchType, businessDate: businessDate.trim(), type
+            taskId, bizEndDay, bizStartDay, searchType, jobStatuses, businessDate: businessDate.trim(), type
 
         };
         Api.queryMinOrHourJob(params).then((res: any) => {
