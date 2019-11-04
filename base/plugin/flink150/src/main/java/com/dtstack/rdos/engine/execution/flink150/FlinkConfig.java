@@ -57,7 +57,7 @@ public class FlinkConfig {
 
     private String flinkJarPath;
 
-    private String elasticCapacity;
+    private String elasticCapacity = "true";
 
     private String yarnAccepterTaskNumber;
 
@@ -82,6 +82,8 @@ public class FlinkConfig {
     private String flinkSessionName = "Flink session";
 
     private boolean yarnSessionStartAuto = false;
+
+    private boolean flinkHighAvailability = true;
 
     private transient FlinkPrometheusGatewayConfig prometheusGatewayConfig;
 
@@ -359,5 +361,13 @@ public class FlinkConfig {
 
     public void setPrometheusGatewayConfig(FlinkPrometheusGatewayConfig prometheusGatewayConfig) {
         this.prometheusGatewayConfig = prometheusGatewayConfig;
+    }
+
+    public boolean getFlinkHighAvailability() {
+        return flinkHighAvailability;
+    }
+
+    public void setFlinkHighAvailability(boolean flinkHighAvailability) {
+        this.flinkHighAvailability = flinkHighAvailability;
     }
 }

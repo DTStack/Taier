@@ -50,7 +50,7 @@ public class FlinkRestParseUtil {
 
     public static String parseEngineLog(Map<String,String> jsonMap) throws IOException {
 
-        String except = jsonMap.get("except");
+        String except = jsonMap.get("exception");
         String accuInfo = jsonMap.get("accuInfo");
 
         Map<String,Object> logMap = new HashMap<>();

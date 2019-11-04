@@ -7,11 +7,13 @@ import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.common.util.DtStringUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.*;
+import com.dtstack.rdos.engine.execution.base.enums.ClassLoaderType;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.flink150.constrant.ExceptionInfoConstrant;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.flink150.constrant.ExceptionInfoConstrant;
 import com.dtstack.rdos.engine.execution.flink150.enums.Deploy;
 import com.dtstack.rdos.engine.execution.flink150.enums.FlinkYarnMode;
 import com.dtstack.rdos.engine.execution.flink150.parser.AddJarOperator;
@@ -231,8 +233,7 @@ public class FlinkClient extends AbsClient {
                 // perjob模式延后创建PackagedProgram
                 jarFile = FlinkUtil.downloadJar(jarPath, tmpFileDirPath,hadoopConf);
             } else {
-                packagedProgram = FlinkUtil.buildProgram(jarPath, tmpFileDirPath, classPaths, entryPointClass,
-                        programArgs, spSettings, hadoopConf);
+                packagedProgram = FlinkUtil.buildProgram(jarPath, tmpFileDirPath, classPaths, jobClient.getJobType(), entryPointClass, programArgs, spSettings, hadoopConf);
             }
         }catch (Throwable e){
             return JobResult.createErrorResult(e);
@@ -250,6 +251,7 @@ public class FlinkClient extends AbsClient {
                 clusterSpecification.setProgramArgs(programArgs);
                 clusterSpecification.setCreateProgramDelay(true);
                 clusterSpecification.setYarnConfiguration(getYarnConf(jobClient.getPluginInfo()));
+                clusterSpecification.setClassLoaderType(ClassLoaderType.getClassLoaderType(jobClient.getJobType()));
 
                 runResult = runJobByPerJob(clusterSpecification, jobClient);
 
@@ -292,7 +294,15 @@ public class FlinkClient extends AbsClient {
      * yarnSession模式运行任务
      */
     private Pair<String, String> runJobByYarnSession(PackagedProgram program, int parallelism) throws Exception {
-        JobSubmissionResult result = flinkClusterClientManager.getClusterClient().run(program, parallelism);
+        JobSubmissionResult result = null;
+        try {
+            result = flinkClusterClientManager.getClusterClient().run(program, parallelism);
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains(ExceptionInfoConstrant.FLINK_UNALE_TO_GET_CLUSTERCLIENT_STATUS_EXCEPTION)) {
+                flinkClusterClientManager.setIsClientOn(false);
+            }
+            throw e;
+        }
         if (result.isJobExecutionResult()) {
             logger.info("Program execution finished");
             JobExecutionResult execResult = result.getJobExecutionResult();
@@ -589,19 +599,16 @@ public class FlinkClient extends AbsClient {
         try {
             String exceptPath = String.format(FlinkRestParseUtil.EXCEPTION_INFO, jobId);
             String except = getExceptionInfo(exceptPath, reqURL);
-            String jobPath = String.format(FlinkRestParseUtil.JOB_INFO, jobId);
-            String jobInfo = getMessageByHttp(jobPath, reqURL);
             String accuPath = String.format(FlinkRestParseUtil.JOB_ACCUMULATOR_INFO, jobId);
             String accuInfo = getMessageByHttp(accuPath, reqURL);
-            retMap.put("except", except);
-            retMap.put("jobInfo", jobInfo);
+            retMap.put("exception", except);
             retMap.put("accuInfo", accuInfo);
             return FlinkRestParseUtil.parseEngineLog(retMap);
         } catch (Exception e) {
             logger.error("", e);
             Map<String, String> map = new LinkedHashMap<>(8);
             map.put("jobId", jobId);
-            map.put("root-exception", ExceptionInfoConstrant.FLINK_GET_LOG_ERROR_UNDO_RESTART_EXCEPTION);
+            map.put("exception", ExceptionInfoConstrant.FLINK_GET_LOG_ERROR_UNDO_RESTART_EXCEPTION);
             map.put("reqURL", reqURL);
             map.put("engineLogErr", ExceptionUtil.getErrorMessage(e));
             return new Gson().toJson(map);

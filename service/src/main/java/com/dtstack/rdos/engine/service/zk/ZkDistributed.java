@@ -1,10 +1,7 @@
 package com.dtstack.rdos.engine.service.zk;
 
 import java.io.Closeable;
-import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,23 +10,19 @@ import java.util.Map;
 import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.common.util.KerberosUtils;
 import com.dtstack.rdos.common.util.PublicUtil;
-import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
 import com.dtstack.rdos.engine.service.db.dao.RdosNodeMachineDAO;
+import com.dtstack.rdos.engine.service.task.*;
 import com.dtstack.rdos.engine.service.zk.cache.LocalCacheSyncZkListener;
 import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import com.dtstack.rdos.engine.service.zk.cache.ZkSyncLocalCacheListener;
-import com.dtstack.rdos.engine.service.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataShard;
 import com.dtstack.rdos.engine.service.zk.data.BrokerHeartNode;
 import com.dtstack.rdos.engine.service.zk.data.BrokersNode;
-import com.dtstack.rdos.engine.service.zk.task.*;
 import com.dtstack.rdos.engine.service.zk.data.BrokerQueueNode;
 import com.dtstack.rdos.engine.execution.base.EngineDeployInfo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +37,6 @@ import com.netflix.curator.framework.CuratorFrameworkFactory;
 import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
 import com.netflix.curator.retry.ExponentialBackoffRetry;
 
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -127,7 +119,7 @@ public class ZkDistributed implements Closeable{
 	}
 
 	private void initZk() throws IOException {
-		if (ConfigParse.getSecurity()){
+		if (ConfigParse.getSecurity() != null){
 			initSecurity();
 		}
 		this.zkClient = CuratorFrameworkFactory.builder()
@@ -140,8 +132,19 @@ public class ZkDistributed implements Closeable{
 
 	private static void initSecurity() {
 		try {
-			KerberosUtils.setJaasConf(ConfigParse.loginContextName(), ConfigParse.userPrincipal(), ConfigParse.userKeytabPath());
-			KerberosUtils.setZookeeperServerPrincipal("zookeeper.server.principal", ConfigParse.zkPrincipal());
+			Map<String, String> securityKvs = (Map<String, String>) ConfigParse.getSecurity();
+			String userPrincipal = securityKvs.get("userPrincipal");
+			String userKeytabPath = securityKvs.get("userKeytabPath");
+			String krb5ConfPath = securityKvs.get("krb5ConfPath");
+			String zkPrincipal = securityKvs.get("zkPrincipal");
+			String loginContextName = securityKvs.get("loginContextName");
+
+			KerberosUtils.setJaasConf(loginContextName, userPrincipal, userKeytabPath);
+			KerberosUtils.setZookeeperServerPrincipal("zookeeper.server.principal", zkPrincipal);
+			Configuration hadoopConf = new Configuration();
+			hadoopConf.set("hadoop.security.authentication", "kerberos");
+			hadoopConf.setBoolean("hadoop.security.authorization", true);
+			KerberosUtils.login(userPrincipal, userKeytabPath, krb5ConfPath, hadoopConf);
 		} catch (IOException e) {
 			logger.error("",e);
 		}
@@ -168,7 +171,7 @@ public class ZkDistributed implements Closeable{
 		masterListener = new MasterListener();
 		HeartBeatCheckListener heartBeatCheckListener = new HeartBeatCheckListener(masterListener);
 		executors.execute(new TaskListener());
-		executors.execute(new TaskStatusListener());
+		executors.execute(new TaskStatusListener(new CheckpointListener(masterListener)));
 		executors.execute(new QueueListener());
 		LocalCacheSyncZkListener localCacheSyncZKListener = new LocalCacheSyncZkListener();
 		ZkSyncLocalCacheListener zkSyncLocalCacheListener = new ZkSyncLocalCacheListener();
@@ -176,10 +179,6 @@ public class ZkDistributed implements Closeable{
 			executors.execute(new LogStoreListener(masterListener));
 		}
 	}
-
-	public boolean localIsMaster(){
-        return masterListener.isMaster();
-    }
 
 	private void registrationDB() throws IOException {
 
@@ -351,12 +350,6 @@ public class ZkDistributed implements Closeable{
 		}
 		return objectMapper.readValue(data, BrokersNode.class).getMaster();
 	}
-
-//	public BrokerDataNode initMemTaskStatus(){
-//		Map<String,BrokerDataShard> brokerDataShardMap = this.getBrokerDataNode(localAddress);
-//		BrokerDataNode brokerDataNode = new BrokerDataNode(brokerDataShardMap);
-//		return brokerDataNode;
-//	}
 
 	public void createNodeIfNotExists(String node, Object obj) throws Exception{
 		if (zkClient.checkExists().forPath(node) == null) {
