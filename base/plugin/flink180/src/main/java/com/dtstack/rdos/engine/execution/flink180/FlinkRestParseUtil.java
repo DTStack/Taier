@@ -1,11 +1,9 @@
 package com.dtstack.rdos.engine.execution.flink180;
 
-import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,5 +45,49 @@ public class FlinkRestParseUtil {
      }
      */
     public final static String EXCEPTION_INFO = "/jobs/%s/exceptions";
+
+    public final static String JOB_ACCUMULATOR_INFO = "/jobs/%s/accumulators";
+
+    public static String parseEngineLog(Map<String,String> jsonMap) throws IOException {
+
+        String except = jsonMap.get("exception");
+        String accuInfo = jsonMap.get("accuInfo");
+
+        Map<String,Object> logMap = new HashMap<>();
+        Map<String,Object> increConfMap = new HashMap<>();
+
+        if(StringUtils.isNotEmpty(except)) {
+            Map<String,Object> exceptMap = PublicUtil.jsonStrToObject(except, Map.class);
+            logMap.putAll(exceptMap);
+        }
+
+        if(StringUtils.isNotEmpty(accuInfo)) {
+            Map<String,Object> accuInfoMap = PublicUtil.jsonStrToObject(accuInfo, Map.class);
+            if(accuInfoMap != null) {
+                List<Map<String,Object>> accuList = (List)accuInfoMap.get("user-task-accumulators");
+                if(accuList != null) {
+                    for(Map<String,Object> accu : accuList) {
+                        String name = (String) accu.get("name");
+                        String value = (String) accu.get("value");
+                        if (name == null) {
+                            continue;
+                        }
+                        if(name.equals("tableCol")){
+                            String[] tableCol = value.split("-");
+                            increConfMap.put("table",tableCol[0]);
+                            increConfMap.put("increColumn",tableCol[1]);
+                        } else if(name.equals("endLocation")){
+                            increConfMap.put("endLocation",value);
+                        } else if(name.equals("startLocation")){
+                            increConfMap.put("startLocation",value);
+                        }
+                    }
+                }
+            }
+        }
+
+        logMap.put("increConf",increConfMap);
+        return PublicUtil.objToString(logMap);
+    }
 
 }

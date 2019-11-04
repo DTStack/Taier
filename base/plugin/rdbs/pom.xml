@@ -19,6 +19,7 @@
         <module>sqlserver</module>
         <module>hive</module>
         <module>postgresql</module>
+        <module>impala</module>
     </modules>
 
 
