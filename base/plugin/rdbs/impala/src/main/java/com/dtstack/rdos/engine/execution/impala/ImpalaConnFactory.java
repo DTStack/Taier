@@ -21,9 +21,9 @@ public class ImpalaConnFactory extends ConnFactory {
     @Override
     public void init(Properties props) throws ClassNotFoundException {
         super.init(props);
-        if (StringUtils.isNotBlank(getUserName()) && !dbURL.contains(AUTHMECH) && StringUtils.isNotBlank(getPwd())){
+        if (getUserName()!= null && !dbURL.contains(AUTHMECH) && getPwd() != null){
             dbURL = dbURL + ";AuthMech=3";
-        } else if (StringUtils.isNotBlank(getUserName()) && !dbURL.contains(AUTHMECH) && StringUtils.isBlank(getPwd())){
+        } else if (getUserName()!= null && !dbURL.contains(AUTHMECH) && getPwd() == null){
             dbURL = dbURL + ";AuthMech=2";
         }
     }
