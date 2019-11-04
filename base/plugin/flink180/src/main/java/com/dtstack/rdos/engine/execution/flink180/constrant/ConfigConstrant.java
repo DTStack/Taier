@@ -50,5 +50,5 @@ public class ConfigConstrant {
      */
     public final static String FLINK_PLUGIN_LOAD_MODE = "pluginLoadMode";
     public static final String FLINK_PLUGIN_CLASSPATH_LOAD = "classpath";
-    public static final String FLINK_PLUGIN_SHIP_LOAD = "ship";
+    public static final String FLINK_PLUGIN_SHIPFILE_LOAD = "shipfile";
 }

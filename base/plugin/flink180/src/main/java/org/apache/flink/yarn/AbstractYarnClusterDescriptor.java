@@ -577,12 +577,23 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
 
     private void fillPluginPathToShipFiles(JobGraph jobGraph) {
         List<File> shipFiles = new ArrayList<>();
+        // flinksql get classpath
         Map<String, DistributedCache.DistributedCacheEntry> jobCacheFileConfig = jobGraph.getUserArtifacts();
         for(Map.Entry<String,  DistributedCache.DistributedCacheEntry> tmp : jobCacheFileConfig.entrySet()){
             if(tmp.getKey().startsWith("class_path")){
                 shipFiles.add(new File(tmp.getValue().filePath));
             }
         }
+        // flinkx get classpath
+        jobGraph.getClasspaths().forEach(jarFile -> {
+            try {
+                shipFiles.add(new File(jarFile.toURI()));
+            } catch (URISyntaxException e) {
+                throw new IllegalArgumentException("Couldn't add local user jar: " + jarFile
+                        + " Currently only file:/// URLs are supported.");
+            }
+        });
+        jobGraph.getClasspaths().clear();
         addShipFiles(shipFiles);
     }
 
