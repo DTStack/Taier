@@ -18,5 +18,9 @@
         }
     ],
     "eslint.alwaysShowStatus": true,
-    "eslint.autoFixOnSave": true
+    "eslint.autoFixOnSave": true,
+    "javascript.format.insertSpaceBeforeFunctionParenthesis": true,
+    "typescript.format.insertSpaceBeforeFunctionParenthesis": true,
+    "javascript.format.insertSpaceAfterConstructor": true,
+    "typescript.format.insertSpaceAfterConstructor": true
 }
