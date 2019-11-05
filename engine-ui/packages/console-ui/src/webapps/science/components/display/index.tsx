@@ -15,9 +15,18 @@ export function nodeTypeIcon (type: any) {
         case COMPONENT_TYPE.DATA_TOOLS.SQL_SCRIPT: {
             return `<i class="anticon anticon-tool"></i>`
         }
-        case COMPONENT_TYPE.DATA_MERGE.TYPE_CHANGE:
-        case COMPONENT_TYPE.DATA_MERGE.NORMALIZE: {
+        case COMPONENT_TYPE.DATA_MERGE.TYPE_CHANGE: // 类型转换|归一化
+        case COMPONENT_TYPE.DATA_MERGE.NORMALIZE:
+        {
             imageName = 'data_merge'; break;
+        }
+        case COMPONENT_TYPE.DATA_MERGE.STANDARD: // 标准化
+        {
+            imageName = 'standard'; break;
+        }
+        case COMPONENT_TYPE.DATA_MERGE.MISS_VALUE:// 缺失值填充
+        {
+            imageName = 'miss-val'; break;
         }
         case COMPONENT_TYPE.DATA_PRE_HAND.DATA_SPLIT: {
             imageName = 'data_prehand'; break;
