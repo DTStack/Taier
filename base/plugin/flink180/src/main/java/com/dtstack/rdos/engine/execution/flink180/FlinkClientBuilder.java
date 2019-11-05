@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.flink180;
 
+import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.JarFileInfo;
 import com.dtstack.rdos.engine.execution.base.JobClient;
@@ -8,6 +9,7 @@ import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
 import com.dtstack.rdos.engine.execution.flink180.constrant.ConfigConstrant;
 import com.dtstack.rdos.engine.execution.flink180.enums.Deploy;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.deployment.ClusterRetrieveException;
@@ -118,6 +120,10 @@ public class FlinkClientBuilder {
         config.setString("akka.client.timeout", AKKA_CLIENT_TIMEOUT);
         config.setString("akka.ask.timeout", AKKA_ASK_TIMEOUT);
         config.setString("akka.tcp.timeout", AKKA_TCP_TIMEOUT);
+
+        // 默认使用parent-first
+//        config.setString("classloader.resolve-order", "parent-first");
+
 
         // JVM Param
         config.setString(CoreOptions.FLINK_JVM_OPTIONS, jvm_options);
@@ -307,6 +313,17 @@ public class FlinkClientBuilder {
         if(StringUtils.isNotBlank(flinkConfig.getJobmanagerArchiveFsDir())){
             newConf.setString(JobManagerOptions.ARCHIVE_DIR, flinkConfig.getJobmanagerArchiveFsDir());
         }
+        // plugin dependent on shipfile
+        if (StringUtils.isNotBlank(flinkConfig.getPluginLoadMode()) && ConfigConstrant.FLINK_PLUGIN_SHIPFILE_LOAD.equalsIgnoreCase(flinkConfig.getPluginLoadMode())) {
+            newConf.setString(ConfigConstrant.FLINK_PLUGIN_LOAD_MODE, flinkConfig.getPluginLoadMode());
+            newConf.setString("classloader.resolve-order", "parent-first");
+
+            String flinkPluginRoot = flinkConfig.getFlinkPluginRoot();
+            List<File> pluginPaths = fillAllPluginPathForYarnSession(isPerjob, flinkPluginRoot);
+            if (!pluginPaths.isEmpty()) {
+                clusterDescriptor.addShipFiles(pluginPaths);
+            }
+        }
 
         List<URL> classpaths = new ArrayList<>();
         if (flinkJarPath != null) {
@@ -334,6 +351,7 @@ public class FlinkClientBuilder {
         clusterDescriptor.setQueue(flinkConfig.getQueue());
         return clusterDescriptor;
     }
+
 
     private AbstractYarnClusterDescriptor getClusterDescriptor(
             Configuration configuration,
@@ -477,4 +495,36 @@ public class FlinkClientBuilder {
 
         return configuration;
     }
+
+    /**
+     *  yarnsession 模式获取flinkx的所有插件包
+     * @param isPerjob
+     * @param flinkPluginRoot
+     * @return
+     */
+    private List<File> fillAllPluginPathForYarnSession(boolean isPerjob, String flinkPluginRoot) {
+        List<File> pluginPaths = Lists.newArrayList();
+        if (!isPerjob) {
+            //预加载同步插件jar包
+            if(StringUtils.isNotBlank(flinkPluginRoot)){
+                String syncPluginDir = buildSyncPluginDir(flinkPluginRoot);
+                try {
+                    File[] jars = new File(syncPluginDir).listFiles();
+                    if(jars != null){
+                        pluginPaths.addAll(Arrays.asList(jars));
+                    }else {
+                        LOG.warn("jars in flinkPluginRoot is null, flinkPluginRoot = {}", flinkPluginRoot);
+                    }
+                }catch (Exception e){
+                    LOG.error("error to load jars in flinkPluginRoot, flinkPluginRoot = {}, e = {}", flinkPluginRoot, ExceptionUtil.getErrorMessage(e));
+                }
+            }
+        }
+        return pluginPaths;
+    }
+
+    public String buildSyncPluginDir(String pluginRoot){
+        return pluginRoot +  SyncPluginInfo.fileSP + SyncPluginInfo.syncPluginDirName;
+    }
+
 }

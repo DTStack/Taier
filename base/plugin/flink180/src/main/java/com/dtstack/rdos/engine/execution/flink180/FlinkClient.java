@@ -16,6 +16,7 @@ import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.flink180.constrant.ConfigConstrant;
 import com.dtstack.rdos.engine.execution.flink180.constrant.ExceptionInfoConstrant;
 import com.dtstack.rdos.engine.execution.flink180.enums.Deploy;
 import com.dtstack.rdos.engine.execution.flink180.enums.FlinkYarnMode;
@@ -251,6 +252,7 @@ public class FlinkClient extends AbsClient {
             } else {
                 //只有当程序本身没有指定并行度的时候该参数才生效
                 Integer runParallelism = FlinkUtil.getJobParallelism(jobClient.getConfProperties());
+                clearClassPathShipfileLoadMode(packagedProgram);
                 runResult = runJobByYarnSession(packagedProgram,runParallelism);
             }
 
@@ -765,5 +767,13 @@ public class FlinkClient extends AbsClient {
         return false;
     }
 
-
+    /**
+     *  shipfile模式下，插件包在flinksession启动时,已经全部上传
+     * @param packagedProgram
+     */
+    private void clearClassPathShipfileLoadMode(PackagedProgram packagedProgram) {
+        if (ConfigConstrant.FLINK_PLUGIN_SHIPFILE_LOAD.equalsIgnoreCase(flinkConfig.getPluginLoadMode())) {
+            packagedProgram.getClasspaths().clear();
+        }
+    }
 }

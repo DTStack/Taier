@@ -45,4 +45,10 @@ public class ConfigConstrant {
      */
     public final static int MIN_JM_MEMORY = 1024;
     public final static int MIN_TM_MEMORY = 1024;
+    /**
+     * plugin load by classpath or ship mode
+     */
+    public final static String FLINK_PLUGIN_LOAD_MODE = "pluginLoadMode";
+    public static final String FLINK_PLUGIN_CLASSPATH_LOAD = "classpath";
+    public static final String FLINK_PLUGIN_SHIPFILE_LOAD = "shipfile";
 }
