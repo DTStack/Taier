@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.9.0-beta.3.1](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.3...3.9.0-beta.3.1) (2019-11-05)
+
+
+### Features
+
+* **rdos:** cycle task to increase the uid ([b2d1696](http://git.dtstack.cn/dtstack/data-stack-web/commit/b2d16963ee1cd1560de6f795c8b0370e56d990aa))
+* **rods:** cycleList add into the refs ([bb02e63](http://git.dtstack.cn/dtstack/data-stack-web/commit/bb02e6394d73d407e23dc5c1391be7579b08c35f))
+
+
+### Bug Fixes
+
+* **rdos:** cycle optimization summary list ([d6913af](http://git.dtstack.cn/dtstack/data-stack-web/commit/d6913af2a7dd94b32625da2f8c7a329d4c8f44ed))
+* **rdos:** cycle time sorting list summary ([bdfdf3f](http://git.dtstack.cn/dtstack/data-stack-web/commit/bdfdf3f425696a8b735bb7f6e10d4eef360f380b))
+
 ## [3.9.0-beta.3](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.2.4...3.9.0-beta.3) (2019-10-31)
 
 
