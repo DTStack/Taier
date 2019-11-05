@@ -691,7 +691,7 @@ class OfflineTaskList extends React.Component<any, any> {
                             if (task.jobId == jobId) {
                                 task = {
                                     ...res.data,
-                                    children: res.data.relatedJobs,
+                                    children: res.data.relatedJobs && res.data.relatedJobs.map((ele: any) => Object.assign({}, ele, { uid: createId(ele.id) })),
                                     relatedJobs: undefined
                                 };
                             } else if (task.children && task.children.length && task.children.some((item: any) => item.jobId == jobId)) {
@@ -699,7 +699,7 @@ class OfflineTaskList extends React.Component<any, any> {
                                     if (element.jobId == jobId) {
                                         element = {
                                             ...res.data,
-                                            children: res.data.relatedJobs,
+                                            children: res.data.relatedJobs && res.data.relatedJobs.map((ele: any) => Object.assign({}, ele, { uid: createId(ele.id) })),
                                             relatedJobs: undefined
                                         };
                                     }
