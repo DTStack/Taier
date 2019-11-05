@@ -40,6 +40,12 @@ export function nodeTypeIcon (type: any) {
         case COMPONENT_TYPE.MACHINE_LEARNING.GBDT_REGRESSION: {
             imageName = 'gbdt'; break;
         }
+        case COMPONENT_TYPE.MACHINE_LEARNING.GBDT_CLASS: {
+            imageName = 'gbdt'; break;
+        }
+        case COMPONENT_TYPE.MACHINE_LEARNING.SVM: {
+            imageName = 'svm'; break;
+        }
         case COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT: {
             imageName = 'data_predict'; break;
         }
@@ -51,6 +57,12 @@ export function nodeTypeIcon (type: any) {
         }
         case COMPONENT_TYPE.DATA_EVALUATE.REGRESSION_CLASSIFICATION: {
             imageName = 'regressionClassificcation'; break;
+        }
+        case COMPONENT_TYPE.DATA_EVALUATE.CONFUSION_MATRIX: {
+            imageName = 'confusion-matrix'; break;
+        }
+        case COMPONENT_TYPE.FEATURE_ENGINEER.ONE_HOT: {
+            imageName = 'one-hot'; break;
         }
         default: return '';
     }
