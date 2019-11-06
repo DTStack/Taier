@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 
 import Navigator from 'main/components/nav';
 import { getHeaderLogo } from 'main/consts';
+import { setProject } from '../../actions/project';
 
 @(connect((state: any) => {
     return {
@@ -10,8 +11,16 @@ import { getHeaderLogo } from 'main/consts';
         apps: state.apps,
         routing: state.routing,
         app: state.app,
-        licenseApps: state.licenseApps
+        licenseApps: state.licenseApps,
+        projects: state.project.projectList,
+        project: state.project.currentProject
     };
+}, (dispatch: any) => {
+    return {
+        setProject (project: any) {
+            return dispatch(setProject(project))
+        }
+    }
 }) as any)
 class Header extends React.Component<any, any> {
     constructor (props: any) {
@@ -38,6 +47,9 @@ class Header extends React.Component<any, any> {
                     case '数据源管理':
                         fixArrChildrenApps[4] = item;
                         break;
+                    case '项目管理':
+                        fixArrChildrenApps[5] = item;
+                        break;
                 }
             })
             return fixArrChildrenApps
@@ -54,6 +66,7 @@ class Header extends React.Component<any, any> {
         const ruleNav = fixArrChildrenApps[2];
         const dataCheckNav = fixArrChildrenApps[3];
         const dataSourceNav = fixArrChildrenApps[4];
+        const projectNav = fixArrChildrenApps[5];
         const menuItems: any = [
             {
                 id: 'dq/overview',
@@ -84,6 +97,12 @@ class Header extends React.Component<any, any> {
                 name: '数据源管理',
                 link: `${baseUrl}/dq/dataSource`,
                 enable: dataSourceNav && dataSourceNav.isShow
+            },
+            {
+                id: 'dq/project',
+                name: '项目管理',
+                link: `${baseUrl}/dq/project`,
+                enable: projectNav && projectNav.isShow
             }
         ];
 

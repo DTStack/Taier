@@ -31,7 +31,7 @@ module.exports = [
         filename: 'stream.html',
         link: '/stream.html#',
         target: '_self',
-        enable: true,
+        enable: false,
         hasProject: true, // 是否拥有项目选择
         default: true, // 是否为默认应用选项
         apiBase: '/streamapp',
@@ -45,7 +45,7 @@ module.exports = [
         link: 'analytics.html#/',
         filename: 'analytics.html',
         target: '_self',
-        enable: true,
+        enable: false,
         disableMessage: true, // 禁用消息
         apiBase: '/analytics',
         icon: '/public/main/img/icon_3.png',
@@ -70,7 +70,7 @@ module.exports = [
         link: 'dataApi.html#/',
         filename: 'dataApi.html',
         target: '_self',
-        enable: true,
+        enable: false,
         apiBase: '/dataApi',
         icon: '/public/main/img/icon_5.png',
         newIcon: '/public/main/img/icon_new5.png',

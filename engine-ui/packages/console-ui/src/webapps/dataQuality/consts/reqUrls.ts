@@ -19,6 +19,16 @@ export default {
     DQ_USER_ROLE_UPDATE: `${DQ_BASE_URL}/roleUser/updateUserRole`,
     DQ_GET_USER_NOT_IN_PROJECT: `${DQ_BASE_URL}/user/listNotIn`,
 
+    // ===== 项目相关 ===== //
+
+    GET_ALL_PROJECTS: `${DQ_BASE_URL}/service/project/getProjects`, // 获取所有的项目列表
+    GET_PROJECT_LIST: `${DQ_BASE_URL}/common/project/listProject`, // 获取项目列表
+    GET_PROJECT_DETAIL: `${DQ_BASE_URL}/common/project/getProject`, // 项目详情
+    CREATE_PROJECT: `${DQ_BASE_URL}/common/project/createProject`, // 创建项目
+    GET_TOP_PROJECT: `${DQ_BASE_URL}/common/projectHit/listProjectTop5`, // 项目TOP5列表
+    UPDATE_PROJECT: `${DQ_BASE_URL}/common/project/updateProject`, // 更新项目
+    GET_ALL_JOB_STATUS: `${DQ_BASE_URL}/service/maintain/queryAllJobStatusStatistics`, // 所有项目指标统计
+
     // ===== 消息管理 ===== //
     MASSAGE_QUERY: `${DQ_BASE_URL}/notify/pageQuery`,
     GET_MASSAGE_BY_ID: `${DQ_BASE_URL}/notify/getOne`,

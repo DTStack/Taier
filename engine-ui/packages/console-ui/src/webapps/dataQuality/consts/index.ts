@@ -7,6 +7,13 @@ export const TASK_STATUS: any = {
     UNPASS: 4
 }
 
+// 项目状态
+export const PROJECT_STATUS: any = {
+    CREATING: 0,
+    SUCCESS: 1,
+    FAILED: 2,
+    CANCEL: 3
+}
 // 告警类型
 export const ALARM_TYPE: any = {
     EMAIL: '1',

@@ -10,12 +10,14 @@ import dataCheck from './modules/dataCheck';
 import dataSource from './modules/dataSource';
 import ruleConfig from './modules/ruleConfig';
 import keymap from './modules/dataCheck/keymap';
+import project from './modules/project';
 import common from './modules/common';
 
 // 全局State
 const rootReducer = combineReducers({
     routing,
     user,
+    project,
     app,
     apps,
     licenseApps,
