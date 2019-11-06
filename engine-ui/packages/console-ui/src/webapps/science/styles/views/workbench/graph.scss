@@ -392,8 +392,82 @@ td.mxPopupMenuIcon {
         height: 100%;
     }
 }
-
-
+$martrix-item-size: 60px;
+$martrix-item-border-width: 2px;
+.c-martrixGraph {
+    padding: 40px;
+    width: 100%;
+    max-height: 500px;
+    overflow: auto;
+    text-align: center;
+}
+.c-matrixGraph__content {
+    display: inline-block;
+    position: relative;
+}
+.c-matrixGraph__left-title {
+    color: #f04134;
+    font-size: 16px;
+    position: absolute;
+    left: -30px;
+    width: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    word-break: break-all;
+}
+.c-matrixGraph__top-title {
+    color: #f04134;
+    font-size: 16px;
+    position: absolute;
+    top: -30px;
+    text-align: center;
+    left: 0px;
+    right: 0px;
+}
+.c-matrixLine {
+    display: flex;
+    justify-content: center;
+    &:last-of-type {
+        .c-matrixLine__item {
+            border-bottom-width: $martrix-item-border-width;
+            position: relative;
+            margin-bottom: 10px;
+            &:before {
+                content: attr(data-index);
+                position: absolute;
+                bottom: -$martrix-item-size/2 - 12;
+                left: 50%;
+                font-size: 12px;
+                transform: translateX(-50%);
+                color: rgba(0, 0, 0, 0.65);
+            }
+        }
+    }
+    &:before {
+        content: attr(data-index);
+        line-height: $martrix-item-size;
+        padding-right: 5px;
+        font-size: 12px;
+        color: rgba(0, 0, 0, 0.65);
+    }
+}
+.c-matrixLine__item {
+    flex-shrink: 0;
+    flex-grow: 0;
+    height: $martrix-item-size;
+    width: $martrix-item-size;
+    max-height: $martrix-item-size;
+    line-height: $martrix-item-size;
+    text-align: center;
+    border-style: solid;
+    border-color: #999999;
+    font-size: 14px;
+    font-weight: bold;
+    border-width: $martrix-item-border-width 0px 0px $martrix-item-border-width;
+    &:last-of-type {
+        border-right-width: $martrix-item-border-width;
+    }
+}
 
 
 

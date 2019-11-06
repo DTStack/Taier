@@ -33,3 +33,8 @@ export const additionalColumn = (
         <p>可选项。附加列指可将输入表的哪些列输出至输出聚类结果表，列名以逗号分隔。</p>
     </div>
 )
+export const missRate = (
+    <div>
+        <p>若选择删除，编码后的数据将线性无关。</p>
+    </div>
+)

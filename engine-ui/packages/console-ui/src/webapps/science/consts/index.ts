@@ -198,7 +198,9 @@ export const COMPONENT_TYPE = {
     },
     DATA_MERGE: {
         TYPE_CHANGE: 4, // 类型转换
-        NORMALIZE: 5 // 归一化
+        NORMALIZE: 5, // 归一化
+        STANDARD: 19, // 标准化
+        MISS_VALUE: 18 // 缺失值填充
     },
     DATA_PRE_HAND: {
         DATA_SPLIT: 6 // 拆分
@@ -206,7 +208,9 @@ export const COMPONENT_TYPE = {
     MACHINE_LEARNING: {
         LOGISTIC_REGRESSION: 7, // 逻辑二分类
         GBDT_REGRESSION: 11, // GBDT回归
-        KMEANS_UNION: 12 // kmeans聚类
+        KMEANS_UNION: 12, // kmeans聚类
+        GBDT_CLASS: 16, // GBDT二分类
+        SVM: 20 // SVM
     },
     DATA_PREDICT: {
         DATA_PREDICT: 8 // 数据预测
@@ -214,7 +218,11 @@ export const COMPONENT_TYPE = {
     DATA_EVALUATE: {
         BINARY_CLASSIFICATION: 9, // 二分类评估
         REGRESSION_CLASSIFICATION: 13, // 回归模型评估
-        UNION_CLASSIFICATION: 14 // 聚类模型评估
+        UNION_CLASSIFICATION: 14, // 聚类模型评估
+        CONFUSION_MATRIX: 15 // 混淆矩阵
+    },
+    FEATURE_ENGINEER: { // 特征工程
+        ONE_HOT: 17 // 特征生成
     }
 }
 
@@ -225,14 +233,20 @@ export const TASK_ENUM = {
     [COMPONENT_TYPE.DATA_TOOLS.SQL_SCRIPT]: 'sqlComponent',
     [COMPONENT_TYPE.DATA_MERGE.TYPE_CHANGE]: 'transTypeComponent',
     [COMPONENT_TYPE.DATA_MERGE.NORMALIZE]: 'normalizationComponent',
+    [COMPONENT_TYPE.DATA_MERGE.STANDARD]: 'standardizationComponent',
+    [COMPONENT_TYPE.DATA_MERGE.MISS_VALUE]: 'fillMissingValueComponent',
     [COMPONENT_TYPE.DATA_PRE_HAND.DATA_SPLIT]: 'dataSplitComponent',
     [COMPONENT_TYPE.MACHINE_LEARNING.LOGISTIC_REGRESSION]: 'logisticComponent',
     [COMPONENT_TYPE.MACHINE_LEARNING.GBDT_REGRESSION]: 'gbdtRegressionComponent',
     [COMPONENT_TYPE.MACHINE_LEARNING.KMEANS_UNION]: 'kmeansComponent',
+    [COMPONENT_TYPE.MACHINE_LEARNING.GBDT_CLASS]: 'gbdtClassifierComponent',
+    [COMPONENT_TYPE.MACHINE_LEARNING.SVM]: 'svmComponent',
     [COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT]: 'predictComponent',
     [COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION]: 'eveluationComponent',
     [COMPONENT_TYPE.DATA_EVALUATE.REGRESSION_CLASSIFICATION]: 'regressionEvaluateComponent',
-    [COMPONENT_TYPE.DATA_EVALUATE.UNION_CLASSIFICATION]: 'clusterEvaluateComponent'
+    [COMPONENT_TYPE.DATA_EVALUATE.UNION_CLASSIFICATION]: 'clusterEvaluateComponent',
+    [COMPONENT_TYPE.DATA_EVALUATE.CONFUSION_MATRIX]: 'confusionMatrixComponent',
+    [COMPONENT_TYPE.FEATURE_ENGINEER.ONE_HOT]: 'oneHotEncoderComponent'
 }
 /* 输入输出的类型 */
 
@@ -279,7 +293,25 @@ export const INPUT_TYPE = {
     REGRESSION_OUTPUT_2: 26,
     // 聚类
     UNION_INPUT_MODEL: 27,
-    UNION_INPUT_DATA: 28
+    UNION_INPUT_DATA: 28,
+    // 标准化
+    STANDARD_INPUT_PARAM: 42,
+    STANDARD_OUTPUT_DATA: 43,
+    STANDARD_OUTPUT_PARAM: 44,
+    // one-hot
+    ONE_HOT_INPUT_MODAL: 34,
+    ONE_HOT_OUTPUT_DATA: 36,
+    ONE_HOT_OUTPUT_MODAL: 35,
+    // 缺失值填充
+    MISS_VALUE_INPUT_NORMAL: 38,
+    MISS_VALUE_INPUT_PARAM: 39,
+    MISS_VALUE_OUTPUT_DATA: 40,
+    MISS_VALUE_OUTPUT_PARAM: 41,
+    // GDBT二分类
+    GBDT_CLASS_IMPORTANT: 33,
+    // SVM
+    // 混淆矩阵
+    CONFUSION_MATRIX_OUTPUT_DATA: 29
 }
 export const CONSTRAINT_TEXT: any = {
     [COMPONENT_TYPE.DATA_SOURCE.READ_DATABASE]: {
@@ -317,6 +349,26 @@ export const CONSTRAINT_TEXT: any = {
         output: [
             { key: INPUT_TYPE.NORMALIZATION_OUTPUT_PARAM, value: '输出参数表' },
             { key: INPUT_TYPE.NORMALIZATION_OUTPUT_DATA, value: '输出结果表' }
+        ]
+    },
+    [COMPONENT_TYPE.DATA_MERGE.STANDARD]: { // 标准化
+        input: [
+            { key: INPUT_TYPE.NORMAL, value: '输入数据' },
+            { key: INPUT_TYPE.STANDARD_INPUT_PARAM, value: '输入参数' }
+        ],
+        output: [
+            { key: INPUT_TYPE.STANDARD_OUTPUT_DATA, value: '输出结果' },
+            { key: INPUT_TYPE.STANDARD_OUTPUT_PARAM, value: '输出参数' }
+        ]
+    },
+    [COMPONENT_TYPE.DATA_MERGE.MISS_VALUE]: { // 缺失值
+        input: [
+            { key: INPUT_TYPE.MISS_VALUE_INPUT_NORMAL, value: '输入数据' },
+            { key: INPUT_TYPE.MISS_VALUE_INPUT_PARAM, value: '输入参数' }
+        ],
+        output: [
+            { key: INPUT_TYPE.MISS_VALUE_OUTPUT_PARAM, value: '输出参数' },
+            { key: INPUT_TYPE.MISS_VALUE_OUTPUT_DATA, value: '输出结果' }
         ]
     },
     [COMPONENT_TYPE.DATA_PRE_HAND.DATA_SPLIT]: {
@@ -357,6 +409,23 @@ export const CONSTRAINT_TEXT: any = {
             { key: INPUT_TYPE.KMEANS_CENTER_CLUSTER, value: '输出聚类中心表' }
         ]
     },
+    [COMPONENT_TYPE.MACHINE_LEARNING.GBDT_CLASS]: { // GDBT二分类
+        input: [
+            { key: INPUT_TYPE.NORMAL, value: '输入' }
+        ],
+        output: [
+            { key: INPUT_TYPE.MODEL, value: '模型输出' },
+            { key: INPUT_TYPE.GBDT_CLASS_IMPORTANT, value: '输出模型特征重要性' }
+        ]
+    },
+    [COMPONENT_TYPE.MACHINE_LEARNING.SVM]: { // SVM
+        input: [
+            { key: INPUT_TYPE.NORMAL, value: '输入' }
+        ],
+        output: [
+            { key: INPUT_TYPE.MODEL, value: '模型输出' }
+        ]
+    },
     [COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT]: {
         input: [
             { key: INPUT_TYPE.PREDICT_INPUT_MODAL, value: '模型数据输入' },
@@ -392,6 +461,24 @@ export const CONSTRAINT_TEXT: any = {
         ],
         output: [
             { key: INPUT_TYPE.NORMAL, value: '输出' }
+        ]
+    },
+    [COMPONENT_TYPE.DATA_EVALUATE.CONFUSION_MATRIX]: { // 混淆矩阵
+        input: [
+            { key: INPUT_TYPE.NORMAL, value: '输入预测结果' }
+        ],
+        output: [
+            { key: INPUT_TYPE.CONFUSION_MATRIX_OUTPUT_DATA, value: '输出结果' }
+        ]
+    },
+    [COMPONENT_TYPE.FEATURE_ENGINEER.ONE_HOT]: { // one-hot
+        input: [
+            { key: INPUT_TYPE.NORMAL, value: '输入数据' },
+            { key: INPUT_TYPE.ONE_HOT_INPUT_MODAL, value: '输入模型' }
+        ],
+        output: [
+            { key: INPUT_TYPE.ONE_HOT_OUTPUT_DATA, value: '输出结果' },
+            { key: INPUT_TYPE.ONE_HOT_OUTPUT_MODAL, value: '输出模型' }
         ]
     }
 }

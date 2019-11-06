@@ -15,9 +15,15 @@ import GbdtRegression from './gbdtRegression';
 import RegressionClassification from './regressionClassification';
 import UnionModel from './unionModel';
 import KmeansUnion from './kmeansUnion';
+import Standardization from './standardization';
+import GdbtClass from './gdbtClass';
+import MissValue from './missValue';
+import SvmComponent from './svmComponent';
+import ConfusionMatrix from './confusionMatrix';
 import { isEmpty } from 'lodash';
 import { bindActionCreators } from 'redux';
 import * as experimentActions from '../../../../../../actions/experimentActions';
+import OneHot from './onehot';
 export const formItemLayout: any = {
     labelCol: {
         span: 24
@@ -83,6 +89,10 @@ class Params extends React.Component<any, any> {
                 return <TypeChange key={componentId} {...componentProps} />
             case COMPONENT_TYPE.DATA_MERGE.NORMALIZE:
                 return <Normalise key={componentId} {...componentProps} />
+            case COMPONENT_TYPE.DATA_MERGE.STANDARD:
+                return <Standardization key={componentId} {...componentProps} />
+            case COMPONENT_TYPE.DATA_MERGE.MISS_VALUE:
+                return <MissValue key={componentId} {...componentProps} />
             case COMPONENT_TYPE.DATA_PRE_HAND.DATA_SPLIT:
                 return <DataSplit key={componentId} {...componentProps} />
             case COMPONENT_TYPE.MACHINE_LEARNING.LOGISTIC_REGRESSION:
@@ -91,6 +101,10 @@ class Params extends React.Component<any, any> {
                 return <GbdtRegression key={componentId} {...componentProps} />
             case COMPONENT_TYPE.MACHINE_LEARNING.KMEANS_UNION:
                 return <KmeansUnion key={componentId} {...componentProps} />
+            case COMPONENT_TYPE.MACHINE_LEARNING.GBDT_CLASS:
+                return <GdbtClass key={componentId} {...componentProps} />
+            case COMPONENT_TYPE.MACHINE_LEARNING.SVM:
+                return <SvmComponent key={componentId} {...componentProps} />
             case COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT:
                 return <DataPredict key={componentId} {...componentProps} />
             case COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION:
@@ -99,6 +113,10 @@ class Params extends React.Component<any, any> {
                 return <RegressionClassification key={componentId} {...componentProps} />
             case COMPONENT_TYPE.DATA_EVALUATE.UNION_CLASSIFICATION:
                 return <UnionModel key={componentId} {...componentProps} />
+            case COMPONENT_TYPE.DATA_EVALUATE.CONFUSION_MATRIX:
+                return <ConfusionMatrix key={componentId} {...componentProps} />
+            case COMPONENT_TYPE.FEATURE_ENGINEER.ONE_HOT:
+                return <OneHot key={componentId} {...componentProps} />
             default:
                 return ''
         }
