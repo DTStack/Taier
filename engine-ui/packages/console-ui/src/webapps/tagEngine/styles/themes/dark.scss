@@ -1,0 +1,645 @@
+$color1: #252525;
+$color2: #2D2D2D;
+$color3: #333333;
+$fontColor: #ADADAD;
+$borderColor: #1E1E1E;
+$borderColor1: #5A5A5A;
+$fontColor1: #2491F7;
+
+.theme-dark {
+    .dt-ant-table--border {
+        .ant-table-body, .ant-table-body-outer {
+            border-width: 1px 1px 0px 1px;
+            border-color: #5A5A5A;
+            border-style: solid;
+        }
+        .ant-table-body-outer {
+            border-width: 1px 0 0;
+        }
+        .ant-table-placeholder{
+            border-width: 0px 1px 1px 1px;
+            border-style: solid;
+            border-color: #5A5A5A;
+        }
+    }
+    background: $color1 !important;
+    color: $fontColor;
+
+    .container .ant-layout {
+        background: $color1 !important;
+    }
+
+    .ant-btn.ant-btn-loading:before,
+    .mask-lock-layer {
+        opacity: 0;
+    }
+
+    .btn-upload {
+        border: 1px solid $borderColor1 !important;
+    }
+
+    .bd,
+    table,
+    .ant-table-fixed,
+    .diff-params .box-padding,
+    .diff-params .box-padding .line,
+    .ant-table-placeholder {
+        border-color: $borderColor1 !important;
+    }
+
+    .diff-params-modal {
+        .ant-tabs-bar {
+            border-color: $borderColor1 !important;
+        }
+
+        .ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab-active {
+            background: #2D2D2D;
+            border-color: #2D2D2D;
+            color: #ffffff;
+        }
+    
+        .ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab {
+            background: #252525;
+            border-color: #252525;
+            height: 31px;
+        }
+    }
+
+    .ant-dropdown-menu-item-divider {
+        background-color: $borderColor1;
+    }
+    
+    .ant-input-number-input,
+    .graph-editor {
+        border: none;
+    }
+
+    * {
+        &::-webkit-scrollbar-track {
+            border: none;
+            background-color: transparent;
+        }
+    
+        &::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+            background-color: transparent;
+        }
+    
+        &::-webkit-scrollbar-thumb {
+            background-color: #4d4d4d;
+        }
+    }
+
+    .graph-editor,
+    .diff-params,
+    .ant-input-suffix,
+    .ant-card-head-title,
+    .ant-tabs-tab-arrow-show,
+    .ant-tree .ant-tree-switcher,
+    .ant-pagination-item a,
+    .ant-pagination-jump-prev:after, 
+    .ant-pagination-jump-next:after,
+    .CodeMirror-scroll,
+    .ant-confirm-title,
+    .task-browser .normal-tab,
+    .ant-confirm-content,
+    .ant-dropdown-menu-item,
+    .ant-dropdown-menu-item a,
+    .ant-radio-disabled + span,
+    .header .my-menu .ant-menu-sub .ant-menu-item,
+    .browser-content .ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab .anticon-close,
+    .ant-select-dropdown-menu-item,
+    .ant-select-tree li .ant-select-tree-node-content-wrapper,
+    .ant-select-arrow {
+        color: $fontColor;
+    }
+
+    .task-dev-switcher > .ant-tabs-bar .ant-tabs-tab {
+        background: rgba(255,255,255,0.30);
+    }
+
+    .CodeMirror-scroll {
+        background: $color3;
+    }
+
+    .ant-pagination-prev .ant-pagination-item-link, 
+    .ant-pagination-simple-pager,
+    .ant-pagination-item,
+    .stream-btn,
+    .btn-download,
+    .task-editor .CodeMirror-gutters,
+    .ant-pagination-next .ant-pagination-item-link {
+        background: $color3 !important;
+        color: $fontColor;
+        border-color: #5A5A5A;
+    }
+
+    .task-sidebar .menu-content .tb-info {
+        border-color: #2D2D2D;
+
+        .ant-tabs-bar {
+            background: #2D2D2D;
+            border-color: #2D2D2D;
+            .ant-tabs-tab {
+                background: #252525;
+                color: #ADADAD;
+                border-top: 0;
+                border-color: #3C3C3C;
+            }
+        }
+    }
+
+    .ant-table-thead > tr > th {
+        background: #666666 !important;
+        color: $fontColor !important;
+        border-color: #5A5A5A !important;
+    }
+
+    .m-datasync {
+
+        .m-keymapbox .m-col,
+        .m-keymapbox .m-col.title {
+            color: $fontColor;
+            background: #2D2D2D;
+        }
+        .m-keymapbox .m-col {
+            border-bottom: 1px dotted #5A5A5A;
+        }
+
+        .steps-content {
+            background: #333333;
+            color: $fontColor;
+            border: 1px solid #4A4A4A;
+
+            .ant-card-head,
+            .ant-card {
+                background: #333333;
+                border-color: #333333;
+                color: $fontColor;
+            }
+
+            .ant-card { 
+                border-bottom: 1px solid #5A5A5A;
+            }
+    
+            .m-datapreview, a[disabled] {
+                color: $fontColor1;
+            }
+
+            .steps-action {
+        
+                .ant-btn {
+                    background: $color3;
+                    color: $fontColor;
+                    border: none;
+                    border: 1px solid #5A5A5A;
+                }
+    
+                .ant-btn-primary {
+                    color: #fff;
+                    background-color: #2491F7;
+                    border-color: #2491F7;
+                }
+            }
+        }
+    }
+
+    .ant-steps {
+
+        .ant-steps-head,
+        .ant-steps-title,
+        .ant-steps-item.ant-steps-status-finish .ant-steps-title,
+        .ant-steps-item.ant-steps-status-wait .ant-steps-title {
+            background: $color1;
+            color: $fontColor;
+        }
+
+        .ant-steps-item.ant-steps-status-finish .ant-steps-head-inner {
+            background: transparent;
+        }
+
+        .ant-steps-item.ant-steps-status-process .ant-steps-title {
+            color: $fontColor1;
+        }
+
+        .ant-steps-item.ant-steps-status-wait .ant-steps-head-inner {
+            background: transparent;
+            border-color: #5A5A5A;
+
+            .ant-steps-icon {
+                color: $fontColor;
+            }
+        }
+    }
+
+    .ant-table-placeholder,
+    .ide-console .console-table table .ant-table-tbody > tr > td,
+    .no-table-padding table .ant-table-tbody > tr > td,
+    .ant-table, .ant-table-tbody > tr > td {
+        border-color: #5A5A5A;
+        color: $fontColor;
+        background: #2D2D2D;
+    }
+    .ant-table-header,
+    .ant-table-fixed-header > .ant-table-content > .ant-table-scroll > .ant-table-body {
+        background: #2D2D2D;
+    }
+
+    .ant-modal-mask {
+        background: transparent;
+    }
+
+    .ant-modal {
+        color: $fontColor;
+        
+        .ant-modal-header {
+            border-bottom: 1px solid #252525;
+        }
+        
+        .ant-modal-title, .ant-modal-close {
+            color: $fontColor;
+        }
+
+        .ant-modal-header, .ant-modal-content {
+            background: $color3;
+        }
+
+        .ant-modal-content {
+            box-shadow: 0 2px 4px 0 rgba(0,0,0,0.50);
+            background: $color3;
+        }
+
+        .ant-modal-footer {
+            border: none;
+        }
+
+        .ant-btn {
+            background: $color3;
+            color: $fontColor;
+            border: none;
+        }
+
+        .ant-btn-primary {
+            color: #fff;
+            background-color: #2491F7;
+            border-color: #2491F7;
+        }
+    }
+
+    .operation-card {
+
+        .operation-content {
+
+            background: #292929;
+            box-shadow: 0 2px 6px 0 rgba(0,0,0,0.08);
+            border-radius: 2px;
+            border: none;
+
+            .operation-title {
+                color: #DDDDDD;
+            }
+        }
+    }
+
+    .ant-modal
+    .ant-tabs-content,
+    .ant-select-dropdown,
+    .ant-select-search__field,
+    .ant-layout-sider {
+        background: $color2;
+        border-color: $borderColor1 !important;
+    }
+    .ant-select-selection--multiple {
+        .ant-select-search--inline {
+            .ant-select-search__field{
+                background: transparent;
+            }
+        }
+    }
+    
+    .task-sidebar .menu-content {
+        .tab-search {
+            background: #2D2D2D;
+        }
+        header{
+            background: #2D2D2D;
+            border-color: #252525;
+        }
+    }
+
+    .ant-input, 
+    .ant-input-number,
+    .ant-calendar-picker-icon:after,
+    .task-browser .panel-content .title-content .right-select .ant-select-selection,
+    .ant-pagination-simple .ant-pagination-simple-pager input,
+    .ant-select-selection {
+        border-color: #5A5A5A;
+        background: #2D2D2D;
+        color: $fontColor;
+    }
+
+    .ant-input-number-input {
+        background: #2D2D2D;
+        color: $fontColor;
+    }
+
+    .ant-dropdown-menu,
+    .ant-menu-sub,
+    .ant-select-dropdown-menu {
+        background: #333333;
+        box-shadow: 0 2px 4px 0 rgba(0,0,0,0.50);
+        border-radius: 2px;
+    }
+
+    .ant-menu-item:hover,
+    .ant-menu-item-active,
+    .ant-menu-item-selected,
+    .ant-select-dropdown-menu-item-active,
+    .ant-select-dropdown-menu-item:hover,
+    .ant-select-dropdown-menu-item-selected,
+    .ant-dropdown-menu-item:hover, 
+    .ant-dropdown-menu-item-selected,
+    .ant-dropdown-menu-item-selected a,
+    .ant-dropdown-menu-submenu-title:hover,
+    .ant-select-tree li .ant-select-tree-node-content-wrapper:hover {
+        background: rgba(255,255,255,0.10);
+        border-radius: 2px 2px 0 0;
+        color: #2491F7;
+    }
+
+    .ant-input:focus,
+    .ant-select-selection:focus {
+        border-color: #58abf9;
+    }
+
+    .ant-form {
+        .ant-form-item {
+            color: $fontColor;
+
+            label {
+                color: $fontColor;
+            }
+        }
+    }
+
+    .ant-tree li .ant-tree-node-content-wrapper {
+        color: $fontColor;
+
+        &:hover,
+        &.ant-tree-node-selected {
+            // background-color: #9c27b0;
+            background-color: #4e4e4e;
+            color: #ffffff;
+        }
+    }
+
+    // ================ Custom page styles ================ //
+    .toolbar .ant-btn, 
+    .workbench-toolbar .ant-btn,
+    .ant-tabs-bar .ant-tabs-tab, {
+        background: $color2;
+        color: $fontColor;
+        border-color: $color2;
+    }
+
+    .task-tab-menu > .ant-tabs-bar {
+        background: #252525;
+        border: 1px solid #1E1E1E;
+
+        .ant-tabs-tab {
+            background: #252525;
+        }
+
+        .ant-tabs-tab:hover,
+        .ant-tabs-tab-active {
+            background: $color2;
+            border-color: $color2;
+            color: #ffffff;
+        }
+    }
+
+    .ide-editor .Pane2 {
+        background: transparent;
+    }
+
+    .SplitPane {
+        .horizontal,
+        .horizontal:hover,
+        .vertical,
+        .vertical:hover {
+            border-color: transparent;
+        }
+    }
+
+    .ide-editor .ide-console {
+
+        background: $color3;
+        border-color: $color3;
+        color: $fontColor;
+
+        .ant-tabs-content {
+            background: $color2;
+            border-color: $color2;
+        }
+
+        .ant-tabs.ant-tabs-card > .ant-tabs-bar {
+            border-bottom: 0;
+            box-shadow: 0 2px 4px 0 rgba(0,0,0,0.50);
+
+            .ant-tabs-tab {
+                background: $color2;
+                color: $fontColor;
+                border-color: #3C3C3C;
+                border-right: 1px solid #3C3C3C;
+                border-left: 1px solid #3C3C3C;
+                border-bottom: 0;
+            }
+            .ant-tabs-tab-active {
+                color: #ffffff;
+            }
+        }
+
+        .CodeMirror
+        .CodeMirror-scroll {
+            background: $color1;
+            color: $fontColor;
+        }
+    }
+
+    .ide-editor {
+        border-color: $borderColor;
+    }
+
+    .ide-editor .ide-header {
+        background: $color2;
+        border-bottom: 0;
+    }
+
+    .task-editor {
+        border-left: 1px solid #1E1E1E;
+
+        .browser-content,
+        .task-browser .editor-container {
+            background: $color1;
+            border-color: $color1;
+        }
+
+        .ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab .anticon-close .task-browser .ant-tabs-bar {
+            border-bottom: 1px solid #0f0f0f;
+        }
+
+        .task-browser .task-params .ant-tabs-content {
+            background: $color2; 
+            border-color: #2d2d2d;
+        }
+
+        .browser-content .browser-tabs.ant-tabs.ant-tabs-card>.ant-tabs-bar .ant-tabs-tab:hover {
+            background: #3d3d3d;
+            border-color: #1E1E1E;
+        }
+
+        .browser-content {
+
+            .browser-tabs {
+
+                .ant-tabs-bar {
+                    box-shadow: 0 2px 4px 0 rgba(0,0,0,0.50);
+                    border-bottom: 1px solid #1E1E1E;
+                    // box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.5);
+                    // border-bottom: 1px solid #1E1E1E;
+                }
+
+                .ant-tabs-extra-content {
+                    color: #ADADAD;
+                    background: #252525;
+                }
+
+                .ant-tabs-tab-arrow-show,
+                .ant-tabs-bar .ant-tabs-tab {
+                    background: #252525;
+                    color: #ADADAD;
+                    border-top: 0;
+                    border-color: #3C3C3C;
+
+                    .anticon-close {
+                        color: #ADADAD;
+                    }
+                }
+
+                .ant-tabs-bar .ant-tabs-tab-active {
+                    background: #2d2d2d;
+                    border-color: #2d2d2d;
+                    color: #ffffff;
+
+                    &:before {
+                        content: "";
+                        position: absolute;
+                        background: #2d2d2d;
+                        z-index: 3;
+                        left: -1px;
+                        height: 100%;
+                        width: 1px;
+                        top: 0;
+                    }
+                }
+            }
+        }
+
+        .toolbar, .workbench-toolbar {
+            background: $color2;
+        }
+
+        .task-browser .m-siderbench {
+            box-shadow: -2px 2px 4px 0 rgba(0,0,0,0.60);
+            background: $color2;
+
+            .ant-tabs-vertical.ant-tabs-card > .ant-tabs-bar {
+
+                .ant-tabs-tab {
+                    background: $color1;
+                    border-color: $color1;
+                }
+
+                .ant-tabs-tab-active {
+                    background: $color2;
+                    border-color: $color2;
+                    color: #ffffff;
+                }
+            }
+
+        }
+    }
+
+    .ide-header
+    .task-dev-switcher > .ant-tabs-bar .ant-tabs-tab {
+        background: rgba(255,255,255,0.30);
+    }
+
+    // Redifine Scrollbar styles
+    .sidebar {
+        border: 0;
+        .ant-tabs-content {
+             border: none;
+         }
+    }
+
+    .m-siderbench {
+
+        .ant-form-item-label label, .ant-form-item-control {
+            color: $fontColor;
+        }
+
+        .ant-collapse {
+            background-color: $color2;
+            
+            .ant-collapse-content {
+                color: $fontColor;
+                border: 0;
+                background-color: $color2  !important;
+            }
+
+            .ant-collapse-item {
+                border-color: #5A5A5A;
+                border-bottom: 1px solid #5A5A5A;
+            }
+
+            .ant-collapse-header:hover,
+            .ant-collapse-header {
+                color: $fontColor;
+                background-color: $color2;
+
+                .arrow {
+                    color: inherit;
+                }
+            }
+        }
+
+        .ant-tabs-bar {
+            background-color: $color1;
+            border-color: $color1;
+        }
+    }
+
+    .graph-widgets {
+        background: $color3;
+        color: $fontColor;
+        border: none;
+        box-shadow: 0 0 4px 0 rgba(0,0,0,0.50);
+
+        .widgets-header {
+            color: inherit;
+            background: inherit;
+            border-color: #4A4A4A;
+        }
+
+        .widgets-content {
+            .widgets-items {
+                background: inherit;
+                color: inherit;
+                border: 1px solid #4A4A4A;
+            }
+        }
+
+    }
+}

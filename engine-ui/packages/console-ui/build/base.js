@@ -24,7 +24,7 @@ const entryMap = {
     stream: MY_PATH.STREAM_APP_FILE,
     dataQuality: MY_PATH.DATA_QUALITY_APP_FILE,
     dataApi: MY_PATH.DATA_API_APP_FILE,
-    dataLabel: MY_PATH.DATA_LABEL_APP_FILE,
+    tagEngine: MY_PATH.DATA_TAG_APP_FILE,
     console: MY_PATH.CONSOLE_APP_FILE,
     analyticsEngine: MY_PATH.ANALYTICS_ENGINE_APP_FILE,
     science: MY_PATH.SCIENCE_APP_FILE
@@ -132,7 +132,7 @@ module.exports = function () {
                 stream: MY_PATH.STREAM_PATH, // 流计算
                 dataQuality: MY_PATH.DATA_QUALITY_PATH, // 数据质量
                 dataApi: MY_PATH.DATA_API_PATH, // 数据API
-                dataLabel: MY_PATH.DATA_LABEL_PATH, // 标签工厂
+                dataLabel: MY_PATH.DATA_TAG_PATH, // 标签工厂
                 console: MY_PATH.CONSOLE_PATH, // 控制台
                 dataMap: MY_PATH.DATA_MAP_PATH, // 数据地图
                 metaData: MY_PATH.META_DATA_PATH, // 元数据
