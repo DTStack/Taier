@@ -453,13 +453,14 @@ class OfflineTaskList extends React.Component<any, any> {
 
     onCheckAllChange = (e: any) => {
         let selectedRowKeys: any = []
+        const { expandedRowKeys } = this.state;
 
         const tasksRowKeys = (data: any) => {
             data.forEach((item: any) => {
                 if (!((item.batchTask && item.batchTask.isDeleted === 1) || item.isGroupTask)) {
                     selectedRowKeys.push(item.uid);
                 }
-                if (item.children && item.children.length) {
+                if (expandedRowKeys.includes(item.uid) && item.children && item.children.length) {
                     tasksRowKeys(item.children);
                 }
             })
@@ -690,7 +691,7 @@ class OfflineTaskList extends React.Component<any, any> {
                             if (task.jobId == jobId) {
                                 task = {
                                     ...res.data,
-                                    children: res.data.relatedJobs,
+                                    children: res.data.relatedJobs && res.data.relatedJobs.map((ele: any) => Object.assign({}, ele, { uid: createId(ele.id) })),
                                     relatedJobs: undefined
                                 };
                             } else if (task.children && task.children.length && task.children.some((item: any) => item.jobId == jobId)) {
@@ -698,7 +699,7 @@ class OfflineTaskList extends React.Component<any, any> {
                                     if (element.jobId == jobId) {
                                         element = {
                                             ...res.data,
-                                            children: res.data.relatedJobs,
+                                            children: res.data.relatedJobs && res.data.relatedJobs.map((ele: any) => Object.assign({}, ele, { uid: createId(ele.id) })),
                                             relatedJobs: undefined
                                         };
                                     }
@@ -724,8 +725,14 @@ class OfflineTaskList extends React.Component<any, any> {
         const { jobId, businessDate, type, taskId } = record;
         const { bizEndDay, bizStartDay, searchType, jobStatuses } = this.getReqParams();
         const params = {
-            taskId, bizEndDay, bizStartDay, searchType, jobStatuses, businessDate: businessDate.trim(), type
-
+            cycSort: 'desc',
+            taskId,
+            bizEndDay,
+            bizStartDay,
+            searchType,
+            jobStatuses,
+            businessDate: businessDate.trim(),
+            type
         };
         Api.queryMinOrHourJob(params).then((res: any) => {
             if (res.code == 1) {
