@@ -7,7 +7,6 @@ const commAction = mc([
     'REQ_ERROR'
 ], { prefix: 'comm/' })
 
-
 // 请状态
 export function req (state = 'success', action: any) {
     switch (action.type) {

@@ -94,5 +94,5 @@ export default {
     },
     getRoleInfo (params: any) {
         return http.post(req.GET_ROLE_INFO, params)
-    },
+    }
 }
