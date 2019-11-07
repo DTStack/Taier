@@ -107,6 +107,7 @@ class Content extends React.Component<any, any> {
                         )}
                         {showUserInfo && <div>
                             <p data-title="调用URL：" className="pseudo-title p-line">{callUrl}</p>
+                            <p data-title="API-TOKEN：" className="pseudo-title p-line">{callUrl}</p>
                             <p data-title="支持调用次数：" className="pseudo-title p-line">
                                 {callLimit == -1 ? '无限制' : callLimit}
                                 <a style={{ marginLeft: '5px' }} onClick={() => {
