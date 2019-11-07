@@ -10,7 +10,6 @@ import FolderPicker from './folderTree';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
-const TextArea = Input.TextArea;
 
 /**
  * TODO 当前的表单逻辑需要重构，目前代码的维护性比较差
@@ -63,6 +62,7 @@ class NormalTaskForm extends React.Component<any, any> {
         const { taskTypeFilter, isWorkflowNode, user, project } = this.props;
 
         const isPyTask = taskType === TASK_TYPE.PYTHON;
+        const isMR = taskType === TASK_TYPE.MR;
         const isVirtual = taskType == TASK_TYPE.VIRTUAL_NODE;
         const isDeepLearning = taskType == TASK_TYPE.DEEP_LEARNING;
         const isPython23 = taskType == TASK_TYPE.PYTHON_23;
@@ -71,8 +71,8 @@ class NormalTaskForm extends React.Component<any, any> {
         const isExperimentTask = TASK_TYPE.EXPERIMENT == taskType;
         const isNoteBookTask = TASK_TYPE.NOTEBOOK == taskType;
         const mainClassShow = !isPyTask && !isPython23 && !isVirtual && !isDeepLearning && !isHadoopMR && !isScienceTask;
-        const exeArgsShow = !isPyTask && !isVirtual && !isPython23 && !isDeepLearning && !isScienceTask;
-        const optionsShow = isDeepLearning || isPython23 || isPyTask || isNoteBookTask;
+
+        const optionsShow = isHadoopMR || isMR || isDeepLearning || isPython23 || isPyTask || isNoteBookTask || isDeepLearning || isScienceTask;
         const couldEdit = isProjectCouldEdit(project, user) && !isScienceTask;
 
         const resourceLable = !isPyTask ? '资源' : '入口资源';
@@ -179,22 +179,6 @@ class NormalTaskForm extends React.Component<any, any> {
                 </FormItem>
             }
             {
-                exeArgsShow && <FormItem
-                    {...formItemLayout}
-                    label="任务参数"
-                >
-                    {getFieldDecorator('exeArgs', {
-                        initialValue: taskData.exeArgs,
-                        rules: [{
-                            required: !!isHadoopMR,
-                            message: '请输入任务参数'
-                        }]
-                    })(
-                        <Input disabled={!couldEdit} placeholder="请输入任务参数" />
-                    )}
-                </FormItem>
-            }
-            {
                 isDeepLearning && <span>
                     <FormItem
                         {...formItemLayout}
@@ -221,12 +205,13 @@ class NormalTaskForm extends React.Component<any, any> {
             {
                 optionsShow && <FormItem
                     {...formItemLayout}
-                    label="参数"
+                    label="任务参数"
                 >
                     {getFieldDecorator('options', {
-                        initialValue: taskData.options
+                        initialValue: taskData.options,
+                        rules: []
                     })(
-                        <TextArea disabled={!couldEdit} placeholder="请输入命令行参数" />
+                        <Input disabled={!couldEdit} placeholder="请输入任务参数" />
                     )}
                 </FormItem>
             }
