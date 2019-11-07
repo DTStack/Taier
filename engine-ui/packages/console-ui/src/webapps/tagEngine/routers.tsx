@@ -29,6 +29,7 @@ import RoleAdd from './views/project/role/add'
 import RoleEdit from './views/project/role/edit'
 
 import DataSourceStream from './views/dataSource/stream';
+import EntityManage from './views/entityManagement';
 
 // The below is async load components
 // ======= 项目 =======
@@ -62,7 +63,7 @@ export default (
             <Route path="role/edit/:roleId" component={ GRoleEdit } />
         </Route>
         <Route path="/tagEngine" component={Container}>
-            <IndexRoute component={Dashboard} />
+            <IndexRoute component={EntityManage} />
             <Route path="/project/:pid" component={ProjectContainer} onEnter={isSelectedProject}>
                 <IndexRoute component={ProjectConfig} />
                 <Route path="config" component={ProjectConfig} />
