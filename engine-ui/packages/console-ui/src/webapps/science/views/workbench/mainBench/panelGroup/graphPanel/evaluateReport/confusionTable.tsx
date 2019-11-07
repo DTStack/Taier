@@ -72,7 +72,7 @@ class ConfusionTable extends React.Component<any, any> {
                     },
                     render: (text: any, record: any) => {
                         if (['accuracy', 'precision', 'recall', 'f1'].indexOf(field) > -1) {
-                            return `${record[i] * 100}%`
+                            return `${(record[i] * 100).toFixed(2)}%`
                         }
                         return record[i];
                     }
