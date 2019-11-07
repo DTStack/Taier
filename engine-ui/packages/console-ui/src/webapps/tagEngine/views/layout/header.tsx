@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Menu, Icon, Dropdown, Modal, Input } from 'antd';
+import { Menu, Icon, Dropdown, Input } from 'antd';
 
 import { MenuRight } from 'main/components/nav';
 import { getHeaderLogo } from 'main/consts';
@@ -15,7 +15,6 @@ declare var APP_CONF: any;
 const UIC_URL_TARGET = APP_CONF.UIC_URL || "";
 
 const SubMenu = Menu.SubMenu;
-const confirm = Modal.confirm;
 const Search = Input.Search;
 
 @(connect((state: any) => {

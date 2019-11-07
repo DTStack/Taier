@@ -36,7 +36,6 @@ export default class Sidebar extends React.Component<any, any> {
     render () {
         const props = this.props
         const base = `/project/${props.params.pid}`
-        console.log(this.props.mode);
         return (
             <div className="sidebar m-ant-menu">
                 <Menu

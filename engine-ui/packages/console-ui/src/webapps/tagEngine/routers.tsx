@@ -61,7 +61,7 @@ export default (
             <Route path="role/add" component={ GRoleAdd } />
             <Route path="role/edit/:roleId" component={ GRoleEdit } />
         </Route>
-        <Route path="/rdos" component={Container}>
+        <Route path="/tagEngine" component={Container}>
             <IndexRoute component={Dashboard} />
             <Route path="/project/:pid" component={ProjectContainer} onEnter={isSelectedProject}>
                 <IndexRoute component={ProjectConfig} />
