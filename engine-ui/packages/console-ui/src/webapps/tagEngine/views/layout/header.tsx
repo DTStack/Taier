@@ -7,7 +7,7 @@ import { getHeaderLogo } from 'main/consts';
 
 import Api from '../../api';
 import { PROJECT_TYPE } from '../../comm/const';
-import * as ProjectAction from '../../store/modules/project';
+import * as ProjectAction from '../../reducers/modules/project';
 
 declare var window: any;
 declare var APP_CONF: any;
@@ -19,10 +19,8 @@ const confirm = Modal.confirm;
 const Search = Input.Search;
 
 @(connect((state: any) => {
-    const { pages } = state.realtimeTask;
 
     return {
-        realTimeTabs: pages,
         licenseApps: state.licenseApps
     }
 })as any)
@@ -54,46 +52,18 @@ class Header extends React.Component<any, any> {
         const { router, dispatch } = this.props;
         const projectId = evt.key;
         if (projectId) {
-            const switchProject = () => {
-                dispatch(ProjectAction.getProject(projectId));
-                // 清理tab数据
-                if (this.state.current === 'overview') {
-                    router.push('/realtime/task');
-                }
-                this.searchProject('');
+            dispatch(ProjectAction.getProject(projectId));
+            // 清理tab数据
+            if (this.state.current === 'overview') {
+                router.push('/tag/overview');
             }
-            this.checkUnSaveTask(switchProject);
+            this.searchProject('');
         }
     }
     searchProject = (value: any) => {
         this.setState({
             filter: value || ''
         })
-    }
-
-    checkUnSaveTask = (onOk: any) => {
-        const { realTimeTabs } = this.props;
-        const tabsData = realTimeTabs;
-
-        const hasUnSave = (tabs: any) => {
-            for (let tab of tabs) {
-                if (tab.notSynced) {
-                    return true;
-                }
-            }
-            return false;
-        }
-        if (hasUnSave(tabsData)) {
-            confirm({
-                title: '部分任务修后未同步到服务器，是否强制关闭?',
-                content: '在未保存任务前，切换项目将会丢弃这些任务的修改数据，建议您确认后再行操作！',
-                onOk () {
-                    if (onOk) onOk();
-                }
-            });
-        } else {
-            onOk();
-        }
     }
 
     clickUserMenu = (obj: any) => {

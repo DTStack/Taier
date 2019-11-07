@@ -11,7 +11,7 @@ import utils from 'utils'
 
 import { formItemLayout } from '../../comm/const'
 import Api from '../../api'
-import * as ProjectAction from '../../store/modules/project'
+import * as ProjectAction from '../../reducers/modules/project'
 
 const FormItem = Form.Item
 

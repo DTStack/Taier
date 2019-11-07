@@ -10,7 +10,7 @@ import Api from '../../../api'
 import MemberForm from './form'
 import EditMemberRoleForm from './editRole'
 
-import * as ProjectAction from '../../../store/modules/project'
+import * as ProjectAction from '../../../reducers/modules/project'
 
 const Search = Input.Search
 

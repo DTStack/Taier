@@ -3,9 +3,6 @@ import mc from 'mirror-creator';
 import utils from 'utils'
 import Api from '../../api'
 
-import { clearPages } from './realtimeTask/browser';
-import { treeAction } from './realtimeTask/actionTypes';
-
 const projectAction = mc([
     'GET_PROJECT',
     'GET_PROJECTS',
@@ -27,11 +24,6 @@ export function getProject (id: any) {
         // 如果为不同的项目
         if (id && id != oldProjectID) {
             utils.setCookie(projectKey, id)
-            // 当切换项目时，应当清理任务开发导航中的缓存数据
-            dispatch(clearPages());
-            dispatch({
-                type: treeAction.RESET_TREE
-            })
         }
         Api.getProjectByID({
             projectId: id

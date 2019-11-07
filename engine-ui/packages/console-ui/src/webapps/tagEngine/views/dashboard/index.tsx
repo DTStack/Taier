@@ -9,7 +9,7 @@ import { Input, Card, Row, Col, Tooltip, Icon, Button, Pagination, message, Spin
 import ProjectForm from '../project/form'
 import { Circle } from 'widgets/circle'
 import Api from '../../api'
-import * as ProjectAction from '../../store/modules/project';
+import * as ProjectAction from '../../reducers/modules/project';
 import NoData from '../../components/no-data';
 import { PROJECT_STATUS, TASK_STATUS } from '../../comm/const';
 

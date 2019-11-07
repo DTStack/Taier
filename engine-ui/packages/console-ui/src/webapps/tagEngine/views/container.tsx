@@ -9,8 +9,8 @@ import { updateApp } from 'main/actions/app'
 
 import Header from './layout/header'
 import Dashboard from './dashboard'
-import * as ProjectAction from '../store/modules/project'
-import * as UserAction from '../store/modules/user'
+import * as ProjectAction from '../reducers/modules/project'
+import * as UserAction from '../reducers/modules/user'
 
 const propType: any = {
     children: PropTypes.node
