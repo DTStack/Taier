@@ -28,6 +28,7 @@ import DtyarnShellConfig from './dtYarnshellConfig';
 import HiveServerConfig from './hiveServerConfig';
 import LibraSqlConfig from './libraSqlConfig';
 import ZipConfig from './zipConfig';
+import ImpalaSQLConfig from './impalaSQLConfig';
 import { SparkThriftConfig, CarbonDataConfig } from './sparkThriftAndCarbonData';
 import SftpConfig from './sftpConfig';
 import AddCommModal from '../../../components/addCommModal';
@@ -234,8 +235,7 @@ class EditCluster extends React.Component<any, any> {
                         let componentConf = exChangeComponentConf(hadoopComponentData, libraComponentData) || {}; // 所有引擎数据组合
                         const flinkData = componentConf.flinkConf;
                         const extParams = this.exchangeServerParams(componentConf)
-                        const flinkConf = componentConf.flinkConf;
-                        myUpperCase(flinkConf);
+                        componentConf.flinkConf = myUpperCase(flinkData);
                         this.setState({
                             clusterData: data,
                             allComponentConf: componentConf,
@@ -584,44 +584,53 @@ class EditCluster extends React.Component<any, any> {
         return `${haveDot ? memory.toFixed(2) : memory}GB`
     }
     saveComponent (component: any) {
-        const { getFieldsValue } = this.props.form;
+        const { validateFieldsAndScroll } = this.props.form;
         const { cluster } = this.props.location.state || {} as any;
-        const componentConf = this.getComponentConf(getFieldsValue());
-        const saveConfig = componentConf[COMPONEMT_CONFIG_KEY_ENUM[component.componentTypeCode]];
-        console.log(component, componentConf, saveConfig)
-        if (saveConfig && saveConfig.openKerberos && saveConfig.kerberosFile) {
-            const kerberosFile = saveConfig.kerberosFile
-            delete saveConfig.kerberosFile;
-            Api.saveComponentWithKerberos({
-                componentId: component.componentId,
-                configString: JSON.stringify(saveConfig),
-                clusterId: cluster.id || cluster.clusterId,
-                kerberosFile
-            }).then((res: any) => {
-                if (res.code === 1) {
-                    // 避免上传配置文件的组件hdfs、yarn保存之后会导致另一项组件数据清空，这里不请求数据
-                    // this.getDataList(this.state.engineTypeKey);
-                    message.success(`${component.componentName}保存成功`)
+        validateFieldsAndScroll((err: any, values: any) => {
+            if (err) {
+                let paramName = COMPONEMT_CONFIG_KEY_ENUM[component.componentTypeCode];
+                if (Object.keys(err).includes(paramName)) {
+                    message.error('请检查配置')
+                    return;
                 }
-            })
-        } else {
-            if (saveConfig.openKerberos && !saveConfig.kerberosFile) {
-                message.error('开启kerberos认证之后，必须上传文件才能保存');
-            } else {
-                saveConfig && delete saveConfig.kerberosFile;
-                Api.saveComponent({
-                    clusterId: cluster.id || cluster.clusterId,
+            }
+            const componentConf = this.getComponentConf(values);
+            const saveConfig = componentConf[COMPONEMT_CONFIG_KEY_ENUM[component.componentTypeCode]];
+            console.log(component, componentConf, saveConfig)
+            if (saveConfig && saveConfig.openKerberos && saveConfig.kerberosFile) {
+                const kerberosFile = saveConfig.kerberosFile
+                delete saveConfig.kerberosFile;
+                Api.saveComponentWithKerberos({
                     componentId: component.componentId,
-                    configString: JSON.stringify(saveConfig)
+                    configString: JSON.stringify(saveConfig),
+                    clusterId: cluster.id || cluster.clusterId,
+                    kerberosFile
                 }).then((res: any) => {
                     if (res.code === 1) {
                         // 避免上传配置文件的组件hdfs、yarn保存之后会导致另一项组件数据清空，这里不请求数据
                         // this.getDataList(this.state.engineTypeKey);
                         message.success(`${component.componentName}保存成功`)
                     }
-                });
+                })
+            } else {
+                if (saveConfig.openKerberos && !saveConfig.kerberosFile) {
+                    message.error('开启kerberos认证之后，必须上传文件才能保存');
+                } else {
+                    saveConfig && delete saveConfig.kerberosFile;
+                    Api.saveComponent({
+                        clusterId: cluster.id || cluster.clusterId,
+                        componentId: component.componentId,
+                        configString: JSON.stringify(saveConfig)
+                    }).then((res: any) => {
+                        if (res.code === 1) {
+                            // 避免上传配置文件的组件hdfs、yarn保存之后会导致另一项组件数据清空，这里不请求数据
+                            // this.getDataList(this.state.engineTypeKey);
+                            message.success(`${component.componentName}保存成功`)
+                        }
+                    });
+                }
             }
-        }
+        })
     }
     addComponent (params: any) {
         const { canSubmit, reqParams } = params;
@@ -800,6 +809,12 @@ class EditCluster extends React.Component<any, any> {
                 })
                 break;
             }
+            case COMPONENT_TYPE_VALUE.IMPALASQL: {
+                form.setFieldsValue({
+                    impalaSqlConf: allComponentConf.impalaSqlConf
+                })
+                break;
+            }
             case COMPONENT_TYPE_VALUE.HIVESERVER: {
                 form.setFieldsValue({
                     [COMPONEMT_CONFIG_KEYS.HIVESERVER]: allComponentConf.hiveServerConf
@@ -955,6 +970,7 @@ class EditCluster extends React.Component<any, any> {
         componentConf['hiveMeta'] = zipConfig.hiveMeta;
         componentConf['hiveConf'] = { ...formValues.hiveConf, ...sparkThriftExtParams } || {};
         componentConf['carbonConf'] = formValues.carbonConf || {};
+        componentConf['impalaSqlConf'] = formValues.impalaSqlConf || {};
         componentConf['hiveServerConf'] = { ...formValues.hiveServerConf, ...hiveServerExtParams } || {};
         componentConf['sparkConf'] = { ...toChsKeys(formValues.sparkConf || {}, SPARK_KEY_MAP_DOTS), ...sparkExtParams };
         componentConf['flinkConf'] = { ...toChsKeys(formValues.flinkConf || {}, FLINK_KEY_MAP_DOTS), ...flinkExtParams };
@@ -967,6 +983,8 @@ class EditCluster extends React.Component<any, any> {
         componentConf['hiveConf'].password = componentConf['hiveConf'].password || '';
         componentConf['carbonConf'].username = componentConf['carbonConf'].username || '';
         componentConf['carbonConf'].password = componentConf['carbonConf'].password || '';
+        componentConf['impalaSqlConf'].username = componentConf['impalaSqlConf'].username || '';
+        componentConf['impalaSqlConf'].password = componentConf['impalaSqlConf'].password || '';
         componentConf['hiveServerConf'].username = componentConf['hiveServerConf'].username || '';
         componentConf['hiveServerConf'].password = componentConf['hiveServerConf'].password || '';
         return componentConf;
@@ -1406,6 +1424,15 @@ class EditCluster extends React.Component<any, any> {
                         getFieldDecorator={getFieldDecorator}
                         singleButton={this.renderExtFooter(isView, component)}
                         kerberosView={this.uploadForm('carbonConf')}
+                    />
+                )
+            }
+            case COMPONENT_TYPE_VALUE.IMPALASQL: {
+                return (
+                    <ImpalaSQLConfig
+                        isView={isView}
+                        getFieldDecorator={getFieldDecorator}
+                        singleButton={this.renderExtFooter(isView, component)}
                     />
                 )
             }

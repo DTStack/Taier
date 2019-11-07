@@ -7,6 +7,15 @@ import ajax from '../../../api'
 
 export const dataKey = 'ide_collection'
 
+export interface SettingMap {
+    speed?: number;
+    channel?: number;
+    isSaveDirty?: boolean;
+    sourceId?: number;
+    tableName?: string;
+    lifeDay?: number;
+}
+
 const initState: any = {
     currentStep: null,
     sourceMap: {
@@ -153,7 +162,7 @@ export const actions: any = {
         }
     },
 
-    updateTargetMap (params = {}, clear: any, notDirty: any) {
+    updateTargetMap (params = {}, clear: any, notDirty: boolean) {
         return (dispatch: any) => {
             const page = getCurrentPage();
             let { targetMap = {} } = page;
@@ -165,17 +174,24 @@ export const actions: any = {
                     ...targetMap,
                     ...params
                 }),
-                !notDirty
+                notDirty ? undefined : true
             )
         }
     },
 
-    updateChannelControlMap (params = {}, clear: any, notDirty: any) {
+    updateChannelControlMap (params: SettingMap = {}, clear: any, notDirty: any) {
         return (dispatch: any) => {
             const page = getCurrentPage();
             let { settingMap = {} } = page;
             if (clear) {
                 settingMap = initState.settingMap;
+            }
+            if (params.isSaveDirty == false) {
+                params.sourceId = undefined;
+                params.tableName = undefined;
+                params.lifeDay = undefined;
+            } else if (params.isSaveDirty) {
+                params.lifeDay = 90;
             }
             setCurrentPageValue(dispatch, 'settingMap',
                 cloneDeep({

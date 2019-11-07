@@ -6,6 +6,7 @@ import req from '../consts/reqUrls'
 import { offlineWorkbenchDB as idb } from '../../../database';
 
 import { User } from '../model'
+import { MY_APPS } from 'main/consts';
 
 declare var APP_CONF: any;
 
@@ -16,8 +17,12 @@ const UIC_DOMAIN_URL = APP_CONF.UIC_DOMAIN || ''
 
 export default {
     // ========== User ========== //
-    logout () { // 注销退出
-        http.post(req.LOGOUT).then(res => {
+    logout (appKey?: string) { // 注销退出
+        let logoutUrl = req.LOGOUT;
+        if (appKey == MY_APPS.API) {
+            logoutUrl = req.API_LOGOUT;
+        }
+        http.post(logoutUrl).then(res => {
             this.openLogin();
         })
     },

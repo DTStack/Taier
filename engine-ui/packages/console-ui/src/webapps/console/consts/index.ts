@@ -61,7 +61,8 @@ export const COMPONENT_TYPE_VALUE: any = {
     CARBONDATA: 7,
     LIBRASQL: 8,
     HIVESERVER: 9,
-    SFTP: 10
+    SFTP: 10,
+    IMPALASQL: 11
 }
 export const DEFAULT_COMP_TEST: any = { // 测试结果默认数据
     flinkTestResult: {},
@@ -74,6 +75,7 @@ export const DEFAULT_COMP_TEST: any = { // 测试结果默认数据
     carbonTestResult: {},
     hiveServerTestResult: {},
     libraSqlTestResult: {},
+    impalaSqlTestResult: {},
     sftpTestResult: {}
 }
 export const DEFAULT_COMP_REQUIRED: any = { // 必填默认数据
@@ -87,9 +89,10 @@ export const DEFAULT_COMP_REQUIRED: any = { // 必填默认数据
     carbonShowRequired: false,
     hiveServerShowRequired: false,
     libraShowRequired: false,
+    impalaSqlRequired: false,
     sftpShowRequired: false
 }
-export const HADOOP_GROUP_VALUE: any = [ // hadoop 引擎支持的组件类型(复选框)
+export const HADOOP_GROUP_VALUE = [ // hadoop 引擎支持的组件类型(复选框)
     { label: 'Flink', value: COMPONENT_TYPE_VALUE.FLINK },
     { label: 'Spark', value: COMPONENT_TYPE_VALUE.SPARK },
     { label: 'Learning', value: COMPONENT_TYPE_VALUE.LEARNING },
@@ -97,11 +100,12 @@ export const HADOOP_GROUP_VALUE: any = [ // hadoop 引擎支持的组件类型(�
     { label: 'HDFS', value: COMPONENT_TYPE_VALUE.HDFS, disabled: true },
     { label: 'YARN', value: COMPONENT_TYPE_VALUE.YARN, disabled: true },
     { label: 'SparkThrift', value: COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER },
-    { label: 'CarbonData', value: COMPONENT_TYPE_VALUE.CARBONDATA },
+    { label: 'CarbonData ThriftServer', value: COMPONENT_TYPE_VALUE.CARBONDATA },
     { label: 'Hive Server', value: COMPONENT_TYPE_VALUE.HIVESERVER },
-    { label: 'SFTP', value: COMPONENT_TYPE_VALUE.SFTP }
+    { label: 'SFTP', value: COMPONENT_TYPE_VALUE.SFTP },
+    { label: 'Impala SQL', value: COMPONENT_TYPE_VALUE.IMPALASQL }
 ];
-export const COMPONEMT_CONFIG_KEYS: any = {
+export const COMPONEMT_CONFIG_KEYS = {
     FLINK: 'flinkConf',
     SPARK: 'sparkConf',
     LEARNING: 'learningConf',
@@ -112,7 +116,8 @@ export const COMPONEMT_CONFIG_KEYS: any = {
     CARBONDATA: 'carbonConf',
     LIBRASQL: 'libraConf',
     HIVESERVER: 'hiveServerConf',
-    SFTP: 'sftpConf'
+    SFTP: 'sftpConf',
+    IMPALASQL: 'impalaSqlConf'
 }
 // 组件对应的key值
 export const COMPONEMT_CONFIG_KEY_ENUM: any = {
@@ -126,7 +131,8 @@ export const COMPONEMT_CONFIG_KEY_ENUM: any = {
     [COMPONENT_TYPE_VALUE.CARBONDATA]: COMPONEMT_CONFIG_KEYS.CARBONDATA,
     [COMPONENT_TYPE_VALUE.HIVESERVER]: COMPONEMT_CONFIG_KEYS.HIVESERVER,
     [COMPONENT_TYPE_VALUE.LIBRASQL]: COMPONEMT_CONFIG_KEYS.LIBRASQL,
-    [COMPONENT_TYPE_VALUE.SFTP]: COMPONEMT_CONFIG_KEYS.SFTP
+    [COMPONENT_TYPE_VALUE.SFTP]: COMPONEMT_CONFIG_KEYS.SFTP,
+    [COMPONENT_TYPE_VALUE.IMPALASQL]: COMPONEMT_CONFIG_KEYS.IMPALASQL
 };
 
 export const API_MODE: any = {
@@ -239,6 +245,9 @@ export const validateCarbonDataParams: any = [ // carbonData
     'carbonConf.jdbcUrl',
     'carbonConf.kerberosFile'
 ]
+export const validateImpalaSqlParams: any = [ // impalaSql
+    'impalaSqlConf.jdbcUrl'
+]
 export const validateHiveServerParams: any = [ // carbonData
     'hiveServerConf.jdbcUrl',
     'hiveServerConf.kerberosFile'
@@ -314,7 +323,9 @@ export const FLINK_KEY_MAP_DOTS: any = {
     'yarnJobmanagerHelpMb': 'yarn.jobmanager.help.mb',
     'yarnTaskmanagerHelpMb': 'yarn.taskmanager.help.mb',
     'yarnTaskmanagerNumberOfTaskSlots': 'yarn.taskmanager.numberOfTaskSlots',
-    'yarnTaskmanagerNumberOfTaskManager': 'yarn.taskmanager.numberOfTaskManager'
+    'yarnTaskmanagerNumberOfTaskManager': 'yarn.taskmanager.numberOfTaskManager',
+    'stateCheckpointsDir': 'state.checkpoints.dir',
+    'stateCheckpointsNum-retained': 'state.checkpoints.num-retained'
 }
 // 非用户自定义参数
 export const notExtKeysFlink: any = [
@@ -327,12 +338,16 @@ export const notExtKeysFlink: any = [
     'flinkPluginRoot', 'remotePluginRootDir',
     'clusterMode', 'flinkJarPath',
     'flinkJobHistory',
+    'flinkClusterId',
     // 'flinkPrincipal', 'flinkKeytabPath', 'flinkKrb5ConfPath',
     // 'zkPrincipal', 'zkKeytabPath', 'zkLoginName',
     'yarn.jobmanager.help.mb',
     'yarn.taskmanager.help.mb', 'yarn.taskmanager.numberOfTaskSlots', 'yarn.taskmanager.numberOfTaskManager',
     'openKerberos', 'kerberosFile',
-    'flinkSessionSlotCount'
+    'flinkSessionSlotCount',
+    'state.checkpoints.dir',
+    'jobmanagerArchiveFsDir',
+    'state.checkpoints.num-retained'
 ];
 export const notExtKeysSpark: any = [
     'typeName', 'sparkYarnArchive',
@@ -364,7 +379,7 @@ export const notExtKeysSparkThrift: any = [
     'openKerberos', 'kerberosFile'
 ]
 export const notExtKeysHiveServer: any = [
-    'jdbcUrl', 'username', 'password',
+    'driverClassName', 'jdbcUrl', 'username', 'password',
     'openKerberos', 'kerberosFile'
 ]
 export const notExtKeysLibraSql: any = [

@@ -19,8 +19,9 @@ import ColumnsModel from '../../../model/columnsModel';
 import InputColumnModel from '../../../model/inputColumnModel';
 import ErrorColumnModel from '../../../model/errroColumnModel';
 import ConstColumnModel from '../../../model/constColumnModel';
-
 import { API_TYPE } from '../../../consts';
+import API from '../../../api/apiManage';
+import { isNumber } from 'lodash';
 
 const Step = Steps.Step;
 
@@ -69,6 +70,9 @@ const mapDispatchToProps = (dispatch: any) => ({
     getDataSourcesType () {
         return dispatch(dataSourceActions.getDataSourcesType());
     },
+    getDataSourcesCharType (type: any) { // 获取数据库字段类型
+        return dispatch(dataSourceActions.getDataSourcesCharType({ type }));
+    },
     /**
      * 关闭api编辑的提示
      */
@@ -91,7 +95,8 @@ class NewApi extends React.Component<any, any> {
         mode: undefined,
         loading: false,
         apiEdit: false, // 编辑还是新建
-        isSaveResult: false
+        isSaveResult: false,
+        maxPageSize: 1000
 
     }
     // eslint-disable-next-line
@@ -103,6 +108,7 @@ class NewApi extends React.Component<any, any> {
                 apiEdit: true
             })
         }
+        this.getPageInfo();
         this.props.getSecurityList();
         this.props.getCatalogue(0)
             .then(
@@ -118,8 +124,10 @@ class NewApi extends React.Component<any, any> {
                         this.props.getApiInfo(apiId)
                             .then(
                                 (res: any) => {
-                                    if (res) {
+                                    if (res && res.code == 1) {
                                         this.setDefault(res.data);
+                                    } else {
+                                        this.props.router.goBack();
                                     }
                                 }
                             )
@@ -179,10 +187,24 @@ class NewApi extends React.Component<any, any> {
                     paramsName: column.paramName,
                     operator: column.operator,
                     desc: column.desc,
-                    required: column.required
+                    required: column.required,
+                    groupId: column.groupId
                 })
             }
         );
+    }
+    getPageInfo = () => { // 获取分页最大值信息
+        API.getPageInfo({}).then((res: any) => {
+            const { code, data } = res;
+            if (code == 1) {
+                this.setState({
+                    maxPageSize: isNumber(data.maxPageSize) && data.maxPageSize > 0 ? data.maxPageSize : 1000,
+                    pageSize: isNumber(data.pageSize) && data.pageSize > 0 ? data.pageSize : 20
+                });
+            } else {
+                message.warning(data.message)
+            }
+        })
     }
     setDefault (data: any) {
         const isRegister = utils.getParameterByName('isRegister');
@@ -295,7 +317,7 @@ class NewApi extends React.Component<any, any> {
         })
     }
     testApi () {
-        this.save(true);
+        return this.save(true);
     }
     reDo () {
         this.setState({
@@ -313,27 +335,31 @@ class NewApi extends React.Component<any, any> {
     save (back: any) {
         const params = this.createApiServerParams();
 
-        this.props.saveOrUpdateApiInfo(params)
+        return this.props.saveOrUpdateApiInfo(params)
             .then(
                 (res: any) => {
-                    if (res) {
+                    if (res && res.code == 1) {
                         message.success('保存成功！')
                         if (back) {
                             this.props.router.push('/api/manage');
                         }
+                        return true;
+                    } else {
+                        return false;
                     }
                 }
             )
     }
     createParamsConfig () {
         const { paramsConfig } = this.state;
+        // resultPage
         let result: any = {
             dataSrcId: paramsConfig.dataSrcId,
             tableName: paramsConfig.tableName,
             dataSourceType: paramsConfig.dataSourceType,
             containHeader: paramsConfig.containHeader,
             containPage: paramsConfig.containPage,
-            respPageSize: paramsConfig.respPageSize,
+            respPageSize: paramsConfig.resultPage,
             allowPaging: paramsConfig.resultPageChecked ? 1 : 0,
             sql: paramsConfig.sql,
             inputParam: [],
@@ -347,6 +373,7 @@ class NewApi extends React.Component<any, any> {
                 paramType: item.type,
                 operator: item.operator,
                 required: item.required,
+                groupId: item.groupId,
                 desc: item.desc
             })
         }
@@ -456,9 +483,11 @@ class NewApi extends React.Component<any, any> {
             )
     }
     cancelAndSave (type: any, data: any) {
-        this.saveData(type, data, () => {
-            this.save(true)
-        });
+        return new Promise((resolve) => {
+            this.saveData(type, data, () => {
+                resolve(this.save(true));
+            });
+        })
         // this.props.router.goBack();
     }
     saveData (type: any, data: any, callback: any) {
@@ -495,7 +524,6 @@ class NewApi extends React.Component<any, any> {
             loading,
             isSaveResult
         } = this.state;
-
         const steps: any = [
             {
                 key: 'basicProperties',
@@ -549,6 +577,7 @@ class NewApi extends React.Component<any, any> {
                                         reDo={this.reDo.bind(this)}
                                         prev={this.prev.bind(this)}
                                         mode={mode}
+                                        maxPageSize={this.state.maxPageSize}
                                         isSaveResult={isSaveResult}
                                         saveData={this.saveData.bind(this, key)}
                                         cancelAndSave={this.cancelAndSave.bind(this, key)}

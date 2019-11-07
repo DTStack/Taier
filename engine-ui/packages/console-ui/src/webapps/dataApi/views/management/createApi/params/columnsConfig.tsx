@@ -10,8 +10,9 @@ const TextArea = Input.TextArea;
 const Option = Select.Option;
 
 class ColumnsConfig extends React.Component<any, any> {
-    renderEdit (dataIndex: any, id: any, type: any, initialValue: any) {
-        const { getFieldDecorator } = this.props.form;
+    renderEdit (dataIndex: any, id: any, type: any, initialValue: any, disabled?: boolean) {
+        const { charOption, form } = this.props;
+        const { getFieldDecorator } = form;
         const key = generateFormItemKey(dataIndex, id, type);
         switch (dataIndex) {
             case 'paramsName': {
@@ -25,6 +26,21 @@ class ColumnsConfig extends React.Component<any, any> {
                         }]
                     })(
                         <Input />
+                    )}
+                </FormItem>);
+            }
+            case 'type': {
+                return (<FormItem
+                    style={{ marginBottom: '0px' }}
+                >
+                    {getFieldDecorator(key, {
+                        initialValue: initialValue
+                    })(
+                        <Select style={{ width: '100%' }}>
+                            {
+                                charOption.map((item: any) => <Option key={item} value={item}>{item}</Option>)
+                            }
+                        </Select>
                     )}
                 </FormItem>);
             }
@@ -58,7 +74,7 @@ class ColumnsConfig extends React.Component<any, any> {
                         initialValue: initialValue,
                         valuePropName: 'checked'
                     })(
-                        <Checkbox></Checkbox>
+                        <Checkbox disabled={disabled}></Checkbox>
                     )}
                 </FormItem>);
             }
@@ -77,7 +93,7 @@ class ColumnsConfig extends React.Component<any, any> {
     }
     initColumns (type: any) {
         const { mode } = this.props;
-        const isGuideMode = mode == API_MODE.GUIDE;
+        const isGuideMode = mode == API_MODE.GUIDE; // 模板向导模式
         if (type == 'in') {
             return [
                 {
@@ -91,12 +107,15 @@ class ColumnsConfig extends React.Component<any, any> {
                 {
                     title: '绑定字段',
                     dataIndex: 'columnName',
-                    width: '150px'
+                    width: '130px'
                 },
                 {
                     title: '字段类型',
                     dataIndex: 'type',
-                    width: '120px'
+                    width: '120px',
+                    render: (text: any, record: any) => {
+                        return (isGuideMode || text != 'OBJECT') ? text : this.renderEdit('type', record.id, type, 'VARCHAR');
+                    }
                 },
                 {
                     title: '操作符',
@@ -110,9 +129,14 @@ class ColumnsConfig extends React.Component<any, any> {
                     title: '必填',
                     dataIndex: 'required',
                     render: (text: any, record: any) => {
-                        return this.renderEdit('required', record.id, type, text)
+                        let disabled = false;
+                        if (!isGuideMode) {
+                            const { groupId } = record;
+                            disabled = groupId == -1
+                        }
+                        return this.renderEdit('required', record.id, type, text, disabled)
                     },
-                    width: '40px'
+                    width: '60px'
                 },
                 {
                     title: '说明',
@@ -135,7 +159,7 @@ class ColumnsConfig extends React.Component<any, any> {
                 {
                     title: '绑定字段',
                     dataIndex: 'columnName',
-                    width: '150px'
+                    width: '130px'
                 },
                 {
                     title: '字段类型',
@@ -168,7 +192,7 @@ class ColumnsConfig extends React.Component<any, any> {
         const inputRemove = classnames('params_exchange_button', {
             'params_exchange_button_disable': !InputSelectedRows || InputSelectedRows.length == 0
         })
-        return <div className="required-tip middle-title middle-header">
+        return <div className="middle-title middle-header">
             输入参数：
             {mode == API_MODE.GUIDE && (
                 <div className="params_exchange_box">
@@ -201,7 +225,8 @@ class ColumnsConfig extends React.Component<any, any> {
             resultPageChange,
             mode,
             filterSelectRow,
-            OutSelectedRows
+            OutSelectedRows,
+            maxPageSize
         } = this.props;
         const outAdd = classnames('params_exchange_button', {
             'params_exchange_button_disable': !selectedRows || selectedRows.length == 0
@@ -213,10 +238,10 @@ class ColumnsConfig extends React.Component<any, any> {
             输出参数：
             <span className="params_result_check">
                 <Checkbox checked={resultPageChecked} onChange={resultPageCheckedChange} >返回结果分页</Checkbox>
-                <Tooltip title="当查询结果大于1000条时，请选择分页查询，每页最大返回1000条结果。若没有选择，默认分页查询。">
+                <Tooltip title={`当查询结果大于${maxPageSize}条时，请选择分页查询，每页最大返回${maxPageSize}条结果。若没有选择，默认分页查询。`}>
                     <Icon type="question-circle-o" />
                 </Tooltip>
-                {resultPageChecked ? <InputNumber placeholder="请输入分页大小" style={{ marginLeft: '8px', width: '115px' }} min={1} max={1000} value={resultPage} onChange={resultPageChange} /> : null}
+                {resultPageChecked ? <InputNumber placeholder="请输入分页大小" style={{ marginLeft: '8px', width: '115px' }} min={1} max={maxPageSize} value={resultPage} onChange={resultPageChange} /> : null}
             </span>
             {mode == API_MODE.GUIDE && (
                 <div className="params_exchange_box">

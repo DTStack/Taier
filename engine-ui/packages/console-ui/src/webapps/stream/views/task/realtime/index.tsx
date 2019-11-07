@@ -27,6 +27,7 @@ import { updateEditorOptions } from '../../../store/modules/editor/editorAction'
 
 import TaskBrowser from './taskBrowser'
 import { MENU_TYPE, TASK_TYPE, formItemLayout, DATA_SYNC_TYPE, DATA_SOURCE } from '../../../comm/const';
+import { cleanCollectionParams } from './collection/guide/helper';
 
 const confirm = Modal.confirm;
 const FormItem = Form.Item;
@@ -174,6 +175,7 @@ class TaskIndex extends React.Component<any, any> {
         this.setState({
             confirmSaveVisible: false
         })
+        currentPage = cleanCollectionParams(currentPage);
         return new Promise((resolve: any, reject: any) => {
             currentPage = this.preparePage(currentPage);
             Api.saveTask(currentPage).then((res: any) => {

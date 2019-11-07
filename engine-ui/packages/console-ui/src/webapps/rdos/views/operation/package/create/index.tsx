@@ -23,6 +23,8 @@ const RadioGroup = Radio.Group;
 const Option = Select.Option;
 const Search = Input.Search;
 
+const resourceTypeMap: any = RESOURCE_TYPE_MAP;
+
 @(connect((state: any) => {
     return {
         project: state.project,
@@ -315,7 +317,7 @@ class PackageCreate extends React.Component<any, any> {
                     title: '名称',
                     dataIndex: 'resourceName',
                     render (text: any, record: any) {
-                        return `${text}(${RESOURCE_TYPE_MAP[record.resourceType]})`
+                        return `${text}(${resourceTypeMap[record.resourceType]})`
                     }
                 }, {
                     title: '创建人',
@@ -627,7 +629,7 @@ class PackageCreate extends React.Component<any, any> {
                     }
                     case publishType.RESOURCE: {
                         nameText = '资源'
-                        extMsg = `(${RESOURCE_TYPE_MAP[row.data.resourceType]})`
+                        extMsg = `(${resourceTypeMap[row.data.resourceType]})`
                         break;
                     }
                     case publishType.TABLE: {

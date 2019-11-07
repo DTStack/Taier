@@ -251,6 +251,46 @@ export default class FlinkConfig extends React.Component<any, any> {
                             <Input disabled={isView} />
                         )}
                     </FormItem>
+
+                    <FormItem
+                        label={<Tooltip title="state.checkpoints.dir">state.checkpoints.dir</Tooltip>}
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.stateCheckpointsDir`, {
+                            rules: [{
+                                required: true,
+                                message: '请输入state.checkpoints.dir'
+                            }]
+                        })(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label={<Tooltip title="state.checkpoints.num-retained">state.checkpoints.num-retained</Tooltip>}
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.stateCheckpointsNum-retained`, {
+                            rules: [{
+                                required: true,
+                                message: '请输入state.checkpoints.num-retained'
+                            }]
+                        })(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label={<Tooltip title="jobmanagerArchiveFsDir">jobmanagerArchiveFsDir</Tooltip>}
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.jobmanagerArchiveFsDir`, {
+                            rules: [{
+                                required: true,
+                                message: '请输入jobmanagerArchiveFsDir'
+                            }]
+                        })(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
                     <div className="checkboxStyle">
                         <Checkbox
                             checked={checked}
@@ -307,7 +347,7 @@ export default class FlinkConfig extends React.Component<any, any> {
                                     message: '请输入gatewayJobName'
                                 }]
                             })(
-                                <Input disabled={isView}/>
+                                <Input disabled={isView} />
                             )}
                         </FormItem>
                         <FormItem

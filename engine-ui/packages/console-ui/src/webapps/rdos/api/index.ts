@@ -434,6 +434,9 @@ export default {
     queryJobs (params: any) {
         return http.post(offlineReq.QUERY_JOBS, params)
     },
+    queryMinOrHourJob (params: any) {
+        return http.post(offlineReq.QUERY_MINOR_HOUR_JOB, params);
+    },
     publishOfflineTask (params: any) {
         return http.post(offlineReq.PUBLISH_TASK, params)
     },
@@ -588,6 +591,9 @@ export default {
 
     addOfflineResource (params: any) {
         return http.postAsFormData(offlineReq.ADD_OFFLINE_RESOURCE, params)
+    },
+    replaceOfflineResource (params: any) {
+        return http.postAsFormData(offlineReq.REPLACE_OFFLINE_RESOURCE, params)
     },
     addOfflineTask (params: any) {
         return http.post(offlineReq.ADD_OFFLINE_TASK, params)
