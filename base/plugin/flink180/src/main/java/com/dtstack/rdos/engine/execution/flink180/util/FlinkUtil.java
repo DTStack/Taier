@@ -123,7 +123,7 @@ public class FlinkUtil {
                 return FlinkYarnMode.NEW;
             }
         }
-        return FlinkYarngit Mode.mode(modeStr);
+        return FlinkYarnMode.mode(modeStr);
     }
 
 }
