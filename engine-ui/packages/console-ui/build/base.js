@@ -13,19 +13,38 @@ const monacoConfig = require('./monacoConfig');
 const splitChunksConfig = require('./splitChunksConfig');
 const VERSION = JSON.stringify(require('../package.json').version); // app version.
 
+const appConfs = require(path.resolve(
+    MY_PATH.APP_PATH,
+    "config/defaultApps"
+));
+
+const entryMap = {
+    main: MY_PATH.MAIN_APP_FILE,
+    rdos: MY_PATH.RDOS_APP_FILE,
+    stream: MY_PATH.STREAM_APP_FILE,
+    dataQuality: MY_PATH.DATA_QUALITY_APP_FILE,
+    dataApi: MY_PATH.DATA_API_APP_FILE,
+    dataLabel: MY_PATH.DATA_LABEL_APP_FILE,
+    console: MY_PATH.CONSOLE_APP_FILE,
+    analyticsEngine: MY_PATH.ANALYTICS_ENGINE_APP_FILE,
+    science: MY_PATH.SCIENCE_APP_FILE
+};
+
+
+const getEntries = function() {
+    const entry = {};
+    for (var i = 0; i < appConfs.length; i++) {
+        const app = appConfs[i];
+        if (app.enable) {
+            entry[app.id] = entryMap[app.id];
+        }
+    }
+    return entry;
+}
 module.exports = function () {
+    
     return {
-        entry: {
-            main: MY_PATH.MAIN_APP_FILE,
-            rdos: MY_PATH.RDOS_APP_FILE,
-            stream: MY_PATH.STREAM_APP_FILE,
-            dataQuality: MY_PATH.DATA_QUALITY_APP_FILE,
-            dataApi: MY_PATH.DATA_API_APP_FILE,
-            dataLabel: MY_PATH.DATA_LABEL_APP_FILE,
-            console: MY_PATH.CONSOLE_APP_FILE,
-            analyticsEngine: MY_PATH.ANALYTICS_ENGINE_APP_FILE,
-            science: MY_PATH.SCIENCE_APP_FILE
-        },
+        entry: getEntries(),
         output: {
             path: MY_PATH.BUILD_PATH,
             chunkFilename: "[name].[chunkhash:8].js",
