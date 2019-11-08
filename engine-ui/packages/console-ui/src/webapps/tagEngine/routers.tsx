@@ -62,7 +62,7 @@ export default (
         </Route>
         <Route path="/tag" component={Container}>
             <IndexRoute component={EntityManage} />
-            <Route path="/entityManage" component={EntityManage} onEnter={isSelectedProject}>
+            <Route path="entityManage" component={EntityManage} onEnter={isSelectedProject}>
                 <IndexRoute component={EntityManage} />
                 <Route path="streamData" component={DataSourceStream} />
             </Route>
@@ -70,7 +70,6 @@ export default (
                 <IndexRoute component={LabelCenter} />
                 <Route path="streamData" component={DataSourceStream} />
             </Route>
-            
             <Route path="/project/:pid" component={ProjectContainer} onEnter={isSelectedProject}>
                 <IndexRoute component={ProjectConfig} />
                 <Route path="config" component={ProjectConfig} />
@@ -79,7 +78,7 @@ export default (
                 <Route path="role/add" component={RoleAdd} />
                 <Route path="role/edit/:roleId" component={RoleEdit} />
             </Route>
-            <Route path="/database" component={DataSourceContainer} onEnter={isSelectedProject}>
+            <Route path="/database" component={DataSourceContainer}>
                 <IndexRoute component={DataSourceStream} />
                 <Route path="streamData" component={DataSourceStream} />
             </Route>
