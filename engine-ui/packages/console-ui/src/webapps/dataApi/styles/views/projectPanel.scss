@@ -285,8 +285,18 @@
 }
 
 // 酷炫项目样式
+@font-face
+{
+ font-family: 'myFont';
+ src: url('/public/dataApi/font/font.ttf') format('truetype');
+}
+// @font-face
+// {
+//  font-family: 'myFont_pf';
+//  src: url('/public/dataApi/font/PingFang-SC-Regular.ttf') format('truetype');
+// }
+
 .c_project_wrapper {
-    height: 100%;
     background: #0C0F26;
     a {
         font-family: PingFangSC-Regular;
@@ -299,11 +309,9 @@
         justify-content: row;
         color: #fff;
         padding: 32px 20px 20px 20px;
-        height: 100%;
         .c_left_section_wrapper {
             min-width: 950px;
             width: 70%;
-            height: 100%;
             padding: 0 20px 0 0;
             .c_offten_project_list {
                 margin-bottom: 20px;
@@ -320,6 +328,21 @@
                         width: 800px;
                         height: 30px;
                     }
+                }
+                .c_no_project { // 无项目
+                    opacity: 0.6;
+                    background: #0D1652;
+                    border: 1px solid #292E4F;
+                    box-shadow: 0 6px 13px 0 rgba(0,0,0,0.20);
+                    border-radius: 2px;
+                    width: 100%;
+                    height: 212px;
+                    margin-top: 20px;
+                    text-align: center;
+                    line-height: 212px;
+                    font-family: PingFangSC-Regular;
+                    font-size: 16px;
+                    color: #BFD1F2;
                 }
                 .c_offten_project_col {
                     min-width: 308px;
@@ -403,8 +426,8 @@
             .c_api_process_pic {
                 width: 100%;
                 min-height: 538px;
-                // margin-left: -13px;
-                height: calc(100% - 260px);
+                // border: 1px solid blue;
+                border: 1px solid #292E4F;
                 img {
                     width: 100%;
                     height: 100%;
@@ -413,8 +436,8 @@
         }
         .c_right_section_wrapper {
             width: 30%;
-            height: 100%;
-            overflow: hidden;
+            min-width: 416px;
+            position: relative;
             .c_summary_project {
                 height: 30px;
                 width: 416px;
@@ -459,7 +482,7 @@
                             position: absolute;
                             left: 45px;
                             bottom: -6px;
-                            font-family: AgencyFB-Reg;
+                            font-family: myFont;
                             font-size: 30px;
                             color: #30BBFF;
                         }
@@ -479,7 +502,8 @@
                                 line-height: 24px;
                             }
                             .c_latest_day_num {
-                                font-family: AgencyFB-Reg;
+                                // font-family: AgencyFB-Reg;
+                                font-family: myFont;
                                 font-size: 30px;
                                 color: #FAFAFA;
                             }
@@ -516,8 +540,7 @@
             }
             .c_video_width {
                 width: 100%;
-                height: 217px;
-                height: 140%;
+                min-height: 228px;
             }
         }
     }

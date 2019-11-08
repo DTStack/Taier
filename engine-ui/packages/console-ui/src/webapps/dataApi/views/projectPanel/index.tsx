@@ -231,10 +231,10 @@ class ProjectPanel extends React.Component<any, ProjectState> {
     gotoProjectList = () => {
         this.props.router.push('/api/projectList')
     }
-    renderProjectCard = () => {
+    renderProjectCard = (project: any) => {
         return (
             <Col span={8} className="c_offten_project_col">
-                <Card className="c_offten_project_card" noHovering bordered={false} title={this.getCardTitle()}>
+                <Card className="c_offten_project_card" noHovering bordered={false} title={this.getCardTitle(project)}>
                     <Row className='c_offten_project_card_content'>
                         <Col span={13}>
                             API创建数： <span className='c_project_num'>12312</span>
@@ -284,13 +284,21 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                     </span>
                                 </Col>
                             </Row>
-                            <Row gutter={16}>
-                                {
-                                    projectListInfo.map(project => {
-                                        return this.renderProjectCard()
-                                    })
-                                }
-                            </Row>
+                            {
+                                projectListInfo && projectListInfo.length > 0 ? (
+                                    <Row gutter={16}>
+                                        {
+                                            projectListInfo.map(project => {
+                                                return this.renderProjectCard(project)
+                                            })
+                                        }
+                                    </Row>
+                                ) : (
+                                    <Row className='c_no_project'>
+                                        <Col span={24}>暂无常用项目</Col>
+                                    </Row>
+                                )
+                            }
                         </div>
                         <div className='c_api_process_pic'>
                             <img src='public/dataApi/img/process_api.png' />
@@ -299,65 +307,65 @@ class ProjectPanel extends React.Component<any, ProjectState> {
 
                     <section className='c_right_section_wrapper'>
                         {/* 常用项目 */}
-                        {/* <div style={{ border: '1px solid red', height: '40%' }}> */}
-                        <Row className='c_summary_project'>
-                            <img src='public/dataApi/img/summary_project.png' />
-                        </Row>
-                        <Row className='summary_row'>
-                            <Card className='c_summary_project_card'>
-                                <Row gutter={16}>
-                                    <Col span={8}>
-                                        <div className='c_summary_sub'>
-                                            <img src ='public/dataApi/img/all_project.png' className='c_summary_sub_pic' />
-                                            <span className='c_summary_sub_name'>总项目数</span>
-                                            <span className='c_summary_sub_num'>152</span>
-                                        </div>
-                                    </Col>
-                                    <Col span={8}>
-                                        <div className='c_summary_sub'>
-                                            <img src ='public/dataApi/img/api_create.png' className='c_summary_sub_pic' />
-                                            <span className='c_summary_sub_name'>API创建数</span>
-                                            <span className='c_summary_sub_num'>12</span>
-                                        </div>
-                                    </Col>
-                                    <Col span={8}>
-                                        <div className='c_summary_sub'>
-                                            <img src ='public/dataApi/img/api_publish.png' className='c_summary_sub_pic' />
-                                            <span className='c_summary_sub_name'>API发布数</span>
-                                            <span className='c_summary_sub_num'>2</span>
-                                        </div>
-                                    </Col>
-                                </Row>
-                                <Row gutter={16}>
-                                    <Col span={12}>
-                                        <Card className='c_latest_day_card' noHovering bordered={false}>
-                                            <Row>
-                                                <div className='c_latest_day_title'>最近24h累计调用次数</div>
-                                                <div className='c_latest_day_num'>3560</div>
-                                                <div className='c_latest_day_img'><img src='public/dataApi/img/call_number.png' /></div>
-                                            </Row>
-                                        </Card>
-                                    </Col>
-                                    <Col span={12}>
-                                        <Card className='c_latest_day_card' noHovering bordered={false}>
-                                            <Row>
-                                                <div className='c_latest_day_title'>最近24h调用失败率</div>
-                                                <div className='c_latest_day_num'>22%</div>
-                                                <div className='c_latest_day_img'><img src='public/dataApi/img/fail.png' /></div>
-                                            </Row>
-                                        </Card>
-                                    </Col>
-                                </Row>
-                            </Card>
-                        </Row>
-                        {/* </div> */}
+                        <div style={{ position: 'absolute', right: 0, top: 0, width: '-webkit-fill-available' }}>
+                            <Row className='c_summary_project'>
+                                <img src='public/dataApi/img/summary_project.png' />
+                            </Row>
+                            <Row>
+                                <Card className='c_summary_project_card'>
+                                    <Row gutter={16}>
+                                        <Col span={8}>
+                                            <div className='c_summary_sub'>
+                                                <img src ='public/dataApi/img/all_project.png' className='c_summary_sub_pic' />
+                                                <span className='c_summary_sub_name'>总项目数</span>
+                                                <span className='c_summary_sub_num'>152</span>
+                                            </div>
+                                        </Col>
+                                        <Col span={8}>
+                                            <div className='c_summary_sub'>
+                                                <img src ='public/dataApi/img/api_create.png' className='c_summary_sub_pic' />
+                                                <span className='c_summary_sub_name'>API创建数</span>
+                                                <span className='c_summary_sub_num'>12</span>
+                                            </div>
+                                        </Col>
+                                        <Col span={8}>
+                                            <div className='c_summary_sub'>
+                                                <img src ='public/dataApi/img/api_publish.png' className='c_summary_sub_pic' />
+                                                <span className='c_summary_sub_name'>API发布数</span>
+                                                <span className='c_summary_sub_num'>2</span>
+                                            </div>
+                                        </Col>
+                                    </Row>
+                                    <Row gutter={16}>
+                                        <Col span={12}>
+                                            <Card className='c_latest_day_card' noHovering bordered={false}>
+                                                <Row>
+                                                    <div className='c_latest_day_title'>最近24h累计调用次数</div>
+                                                    <div className='c_latest_day_num'>3560</div>
+                                                    <div className='c_latest_day_img'><img src='public/dataApi/img/call_number.png' /></div>
+                                                </Row>
+                                            </Card>
+                                        </Col>
+                                        <Col span={12}>
+                                            <Card className='c_latest_day_card' noHovering bordered={false}>
+                                                <Row>
+                                                    <div className='c_latest_day_title'>最近24h调用失败率</div>
+                                                    <div className='c_latest_day_num'>22%</div>
+                                                    <div className='c_latest_day_img'><img src='public/dataApi/img/fail.png' /></div>
+                                                </Row>
+                                            </Card>
+                                        </Col>
+                                    </Row>
+                                </Card>
+                            </Row>
+                        </div>
                         {/* 快速入门 */}
-                        <div style={{ border: '1px solid blue', height: 'calc(100% - 250px)' }}>
-                            {/* <Row className='c_summary_project'>
+                        <div style={{ position: 'absolute', right: 0, top: 370, bottom: 0, width: '-webkit-fill-available' }}>
+                            <Row className='c_summary_project'>
                                 <img src='public/dataApi/img/quick_start.png' />
                             </Row>
-                            <div style={{ minHeight: '238px' }}>
-                                <Row className='api_opera_row'>
+                            <div>
+                                <Row>
                                     <Card className='c_use_tutorial_card'>
                                         <Row gutter={16}>
                                             <Col span={8}>
@@ -380,9 +388,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                         </Row>
                                     </Card>
                                 </Row>
-                            </div>
-                            <div style={{ minHeight: '238px' }}>
-                                <Row className='guide_row'>
+                                <Row>
                                     <Card className='c_use_tutorial_card c_video_width'>
                                         <Row>
                                             <Col span={14}>1</Col>
@@ -390,7 +396,11 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                         </Row>
                                     </Card>
                                 </Row>
-                            </div> */}
+                                {/* <div>
+                                    <Card className='c_use_tutorial_card c_video_width'>
+                                    </Card>
+                                </div> */}
+                            </div>
                         </div>
                     </section>
                 </main>
