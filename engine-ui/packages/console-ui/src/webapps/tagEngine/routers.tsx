@@ -27,7 +27,7 @@ import RoleManagement from './views/project/role'
 import RoleAdd from './views/project/role/add'
 import RoleEdit from './views/project/role/edit'
 
-import DataSourceStream from './views/dataSource/stream';
+import DataSourceStream from './views/dataSource';
 import EntityManage from './views/entityManagement';
 import LabelCenter from './views/labelCenter';
 
