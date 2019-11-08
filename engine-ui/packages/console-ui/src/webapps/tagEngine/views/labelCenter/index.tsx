@@ -1,13 +1,13 @@
-import * as React from "react";
+import * as React from 'react';
 
 interface IProps {}
 
 interface IState {}
 
-export default class componentName extends React.PureComponent<IProps, IState> {
+export default class ComponentName extends React.PureComponent<IProps, IState> {
     state: IState = {};
-    componentDidMount() {}
-    render() {
+    componentDidMount () {}
+    render () {
         return <div className="componentName">标签中心</div>;
     }
 }
