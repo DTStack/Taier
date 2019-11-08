@@ -65,7 +65,8 @@ public class SyncPluginInfo {
     }
 
     public List<URL> getClassPaths(List<String> programArgList){
-        return new ArrayList<>();
+        return flinkRemoteSyncPluginRoot != null ?
+                getUserClassPath(programArgList, flinkRemoteSyncPluginRoot) : new ArrayList<>();
     }
 
     public List<String> createSyncPluginArgs(JobClient jobClient, FlinkClient flinkClient){
@@ -125,6 +126,35 @@ public class SyncPluginInfo {
 
     public String getSyncPluginDir(String pluginRoot){
         return pluginRoot + fileSP + syncPluginDirName;
+    }
+
+    // 数据同步专用: 获取flink端插件classpath, 在programArgsList中添加engine端plugin根目录
+    private List<URL> getUserClassPath(List<String> programArgList, String flinkSyncPluginRoot) {
+        List<URL> urlList = new ArrayList<>();
+        if(programArgList == null || flinkSyncPluginRoot == null)
+            return urlList;
+
+        int i = 0;
+        for(; i < programArgList.size() - 1; ++i)
+            if(programArgList.get(i).equals("-job") || programArgList.get(i).equals("--job"))
+                break;
+
+        if(i == programArgList.size() - 1)
+            return urlList;
+
+        programArgList.add("-pluginRoot");
+        programArgList.add(localSyncFileDir);
+
+        String job = programArgList.get(i + 1);
+
+        try {
+            job = java.net.URLDecoder.decode(job, "UTF-8");
+            programArgList.set(i + 1, job);
+        } catch (Exception e) {
+            LOG.error("", e);
+        } finally {
+            return urlList;
+        }
     }
 
     private List<URL> findJarsInDir(File dir, String prefix)  throws MalformedURLException {
