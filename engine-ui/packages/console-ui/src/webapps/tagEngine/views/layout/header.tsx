@@ -10,7 +10,6 @@ import Api from '../../api';
 import { PROJECT_TYPE } from '../../comm/const';
 import * as ProjectAction from '../../reducers/modules/project';
 
-
 declare var window: any;
 declare var APP_CONF: any;
 /* eslint-disable-next-line */
@@ -115,7 +114,6 @@ class Header extends React.Component<any, any> {
                     case '群组分析':
                     default :
                         fixArrChildrenApps[2] = item;
-
                 }
             })
             return fixArrChildrenApps
@@ -256,8 +254,7 @@ class Header extends React.Component<any, any> {
         // const pid = project && project.id ? project.id : '';
 
         // const basePath = app.link;
-        const basePath = 'tagEngine.html#/';
-
+        
         // const fixArrChildrenApps = this.fixArrayIndex(licenseApps[1] && licenseApps[1].children);
         // const dataSourceNav = fixArrChildrenApps[0];
         // const taskNav = fixArrChildrenApps[1];
@@ -287,35 +284,35 @@ class Header extends React.Component<any, any> {
                     >
                         {showProjectSelect && this.renderProjectSelect()}
                         <Menu.Item
-                                className="my-menu-item"
-                                key="entityManage"
-                                style={{ display }}
-                            >
-                                <Link to={`/tag/entityManage`}>实体管理</Link>
-                            </Menu.Item>
-                            <Menu.Item
-                                className="my-menu-item"
-                                key="realtime"
-                                style={{ display }}
-                            >
-                                <Link to={`/tag/labelCenter`}>标签中心</Link>
-                            </Menu.Item>
-                            <Menu.Item
-                                className="my-menu-item"
-                                key="operation"
-                                style={{ display }}
-                            >
-                                <Link to={`/groupAnalyse`}>群组分析</Link>
-                            </Menu.Item>
-                            <Menu.Item
-                                className="my-menu-item"
-                                key="project"
-                                style={{ display }}
-                            >
-                                <Link to={`/apiMarket`}>
+                            className="my-menu-item"
+                            key="entityManage"
+                            style={{ display }}
+                        >
+                            <Link to={`/entityManage`}>实体管理</Link>
+                        </Menu.Item>
+                        <Menu.Item
+                            className="my-menu-item"
+                            key="realtime"
+                            style={{ display }}
+                        >
+                            <Link to={`/labelCenter`}>标签中心</Link>
+                        </Menu.Item>
+                        <Menu.Item
+                            className="my-menu-item"
+                            key="operation"
+                            style={{ display }}
+                        >
+                            <Link to={`/groupAnalyse`}>群组分析</Link>
+                        </Menu.Item>
+                        <Menu.Item
+                            className="my-menu-item"
+                            key="project"
+                            style={{ display }}
+                        >
+                            <Link to={`/apiMarket`}>
                                     API市场
-                                </Link>
-                            </Menu.Item>
+                            </Link>
+                        </Menu.Item>
                     </Menu>
                 </div>
 

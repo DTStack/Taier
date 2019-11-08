@@ -1,8 +1,9 @@
 import * as React from 'react';
+
 interface IProps {}
 interface IState {}
 
-export default class GroupAnalyse extends React.PureComponent<IProps, IState> {
+export default class RelationManage extends React.PureComponent<IProps, IState> {
     constructor (props: IProps) {
         super(props);
     }
@@ -15,8 +16,8 @@ export default class GroupAnalyse extends React.PureComponent<IProps, IState> {
     }
     render () {
         return (
-            <div className="componentName">
-            群组分析
+            <div className="relationManage">
+              关系管理
             </div>
         )
     }
