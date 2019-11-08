@@ -2,7 +2,9 @@ import * as React from 'react';
 import { Table, Modal, Button } from 'antd';
 import { connect } from 'react-redux';
 
-import Api from '../../api'
+// import Api from '../../api'
+
+var location: any;
 
 @(connect((state: any) => {
     return {
@@ -29,37 +31,37 @@ class DataSourceTaskListModal extends React.Component<any, any> {
         this.setState({
             visible: true
         })
-        this.getTaskList();
+        // this.getTaskList();
     }
-    getTaskList () {
-        const { pagination } = this.state;
-        const { dataSource } = this.props;
-        this.setState({
-            loading: true
-        })
-        const params: any = {
-            sourceId: dataSource.id,
-            pageSize: pagination.pageSize,
-            currentPage: pagination.current
-        }
-        Api.getTaskOfStreamSource(params)
-            .then(
-                (res: any) => {
-                    this.setState({
-                        loading: false
-                    })
-                    if (res.code == 1) {
-                        this.setState({
-                            taskList: res.data.data || [],
-                            pagination: {
-                                ...pagination,
-                                total: res.data.totalCount
-                            }
-                        })
-                    }
-                }
-            )
-    }
+    // getTaskList () {
+    //     const { pagination } = this.state;
+    //     const { dataSource } = this.props;
+    //     this.setState({
+    //         loading: true
+    //     })
+    //     const params: any = {
+    //         sourceId: dataSource.id,
+    //         pageSize: pagination.pageSize,
+    //         currentPage: pagination.current
+    //     }
+    //     Api.getTaskOfStreamSource(params)
+    //         .then(
+    //             (res: any) => {
+    //                 this.setState({
+    //                     loading: false
+    //                 })
+    //                 if (res.code == 1) {
+    //                     this.setState({
+    //                         taskList: res.data.data || [],
+    //                         pagination: {
+    //                             ...pagination,
+    //                             total: res.data.totalCount
+    //                         }
+    //                     })
+    //                 }
+    //             }
+    //         )
+    // }
     initColumns () {
         return [{
             title: '任务名称',
@@ -77,7 +79,7 @@ class DataSourceTaskListModal extends React.Component<any, any> {
     }
     handleTableChange (pagination: any) {
         this.setState({ pagination: pagination }, () => {
-            this.getTaskList();
+            // this.getTaskList();
         })
     }
     render () {
