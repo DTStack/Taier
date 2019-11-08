@@ -11,6 +11,7 @@ import Api from '../../api/dataSource';
 import DataSourceForm from './form';
 import DataSourceTaskListModal from './dataSourceTaskListModal'
 import { ExtTableCell } from './extDataSourceMsg'
+import '../../styles/pages/dataSource.scss';
 
 const Search = Input.Search
 

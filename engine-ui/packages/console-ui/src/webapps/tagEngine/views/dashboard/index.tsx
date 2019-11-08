@@ -188,7 +188,7 @@ class Index extends React.Component<any, any> {
             <Row>
                 <Col span={20} >
                     {data.status == PROJECT_STATUS.NORMAL ? (
-                        <Link to={`/tag?projectId=${data.id}`}>
+                        <Link to={`/entityManage?projectId=${data.id}`}>
                             <span className="company-name" onClick={() => { this.setRouter('operation', data) }}>
                                 {data.projectAlias}&nbsp;&nbsp;
                             </span>
