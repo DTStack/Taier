@@ -10,7 +10,6 @@ import Api from '../../api';
 import { PROJECT_TYPE } from '../../comm/const';
 import * as ProjectAction from '../../reducers/modules/project';
 
-
 declare var window: any;
 declare var APP_CONF: any;
 /* eslint-disable-next-line */
@@ -115,7 +114,6 @@ class Header extends React.Component<any, any> {
                     case '群组分析':
                     default :
                         fixArrChildrenApps[2] = item;
-
                 }
             })
             return fixArrChildrenApps
