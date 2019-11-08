@@ -7,7 +7,7 @@ import {
 } from 'antd';
 
 import { Circle } from 'widgets/circle';
-import Api from '../../../api';
+import Api from '../../../api/dataSource';
 import DataSourceForm from '../form';
 import DataSourceTaskListModal from '../dataSourceTaskListModal'
 import { ExtTableCell } from '../extDataSourceMsg'

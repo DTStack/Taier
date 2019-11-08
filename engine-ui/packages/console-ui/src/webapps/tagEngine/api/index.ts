@@ -1,6 +1,6 @@
 import UserAPI from 'main/api/user';
 
-import req from './req';
+import req from '../consts/req';
 import http from './http';
 
 export default {
