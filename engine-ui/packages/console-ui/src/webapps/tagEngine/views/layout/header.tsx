@@ -4,10 +4,12 @@ import { Menu, Icon, Dropdown, Input } from 'antd';
 
 import { MenuRight } from 'main/components/nav';
 import { getHeaderLogo } from 'main/consts';
+import { Link } from 'react-router';
 
 import Api from '../../api';
 import { PROJECT_TYPE } from '../../comm/const';
 import * as ProjectAction from '../../reducers/modules/project';
+
 
 declare var window: any;
 declare var APP_CONF: any;
@@ -18,7 +20,6 @@ const SubMenu = Menu.SubMenu;
 const Search = Input.Search;
 
 @(connect((state: any) => {
-
     return {
         licenseApps: state.licenseApps
     }
@@ -105,19 +106,16 @@ class Header extends React.Component<any, any> {
         if (arr && arr.length > 1) {
             arr.map((item: any) => {
                 switch (item.name) {
-                    case '数据源':
+                    case '实体管理':
                         fixArrChildrenApps[0] = item;
                         break;
-                    case '数据开发':
+                    case '标签中心':
                         fixArrChildrenApps[1] = item;
                         break;
-                    case '任务运维':
-                    case '运维中心':
+                    case '群组分析':
+                    default :
                         fixArrChildrenApps[2] = item;
-                        break;
-                    case '项目管理':
-                        fixArrChildrenApps[3] = item;
-                        break;
+
                 }
             })
             return fixArrChildrenApps
@@ -153,7 +151,7 @@ class Header extends React.Component<any, any> {
             <Menu onClick={this.clickUserMenu}>
                 {!window.APP_CONF.hideUserCenter && (
                     <Menu.Item key="ucenter">
-                        <a href={UIC_URL_TARGET}>用户中心</a>
+                        <Link to={UIC_URL_TARGET}>用户中心</Link>
                     </Menu.Item>
                 )}
                 <Menu.Item key="logout">退出登录</Menu.Item>
@@ -250,19 +248,21 @@ class Header extends React.Component<any, any> {
     }
     render () {
         const { user, project, apps, app, licenseApps, router } = this.props;
-        const { current, devPath } = this.state;
+        const { current } = this.state;
         let pathname = router.location.pathname;
 
         const display = current !== 'overview' ? 'inline-block' : 'none';
 
-        const pid = project && project.id ? project.id : '';
+        // const pid = project && project.id ? project.id : '';
 
-        const basePath = app.link;
-        const fixArrChildrenApps = this.fixArrayIndex(licenseApps[1] && licenseApps[1].children);
-        const dataSourceNav = fixArrChildrenApps[0];
-        const taskNav = fixArrChildrenApps[1];
-        const operaNav = fixArrChildrenApps[2];
-        const projectNav = fixArrChildrenApps[3];
+        // const basePath = app.link;
+        const basePath = 'tagEngine.html#/';
+
+        // const fixArrChildrenApps = this.fixArrayIndex(licenseApps[1] && licenseApps[1].children);
+        // const dataSourceNav = fixArrChildrenApps[0];
+        // const taskNav = fixArrChildrenApps[1];
+        // const operaNav = fixArrChildrenApps[2];
+        // const projectNav = fixArrChildrenApps[3];
         // 如果是数据地图模块，隐藏项目下拉选择菜单
         const showProjectSelect =
             !(pathname.indexOf('/data-manage') > -1 || pathname === '/');
@@ -286,45 +286,36 @@ class Header extends React.Component<any, any> {
                         mode="horizontal"
                     >
                         {showProjectSelect && this.renderProjectSelect()}
-                        {dataSourceNav && dataSourceNav.isShow ? (
-                            <Menu.Item
+                        <Menu.Item
                                 className="my-menu-item"
-                                key="database"
+                                key="entityManage"
                                 style={{ display }}
-
                             >
-                                <a href={`${basePath}/database`}>数据源</a>
+                                <Link to={`/tag/entityManage`}>实体管理</Link>
                             </Menu.Item>
-                        ) : null }
-                        {taskNav && taskNav.isShow ? (
                             <Menu.Item
                                 className="my-menu-item"
                                 key="realtime"
                                 style={{ display }}
                             >
-                                <a href={`${basePath}${devPath}`}>数据开发</a>
+                                <Link to={`/tag/labelCenter`}>标签中心</Link>
                             </Menu.Item>
-                        ) : null }
-                        {operaNav && operaNav.isShow ? (
                             <Menu.Item
                                 className="my-menu-item"
                                 key="operation"
                                 style={{ display }}
                             >
-                                <a href={`${basePath}/operation`}>任务运维</a>
+                                <Link to={`/groupAnalyse`}>群组分析</Link>
                             </Menu.Item>
-                        ) : null }
-                        {projectNav && projectNav.isShow ? (
                             <Menu.Item
                                 className="my-menu-item"
                                 key="project"
                                 style={{ display }}
                             >
-                                <a href={`${basePath}/project/${pid}/config`}>
-                                    项目管理
-                                </a>
+                                <Link to={`/apiMarket`}>
+                                    API市场
+                                </Link>
                             </Menu.Item>
-                        ) : null }
                     </Menu>
                 </div>
 

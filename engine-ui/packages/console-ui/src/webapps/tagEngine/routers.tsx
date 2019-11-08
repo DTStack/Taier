@@ -19,7 +19,6 @@ import GRoleAdd from 'main/views/admin/role/add'
 import GRoleEdit from 'main/views/admin/role/edit'
 
 import Container from './views/container'
-import Dashboard from './views/dashboard'
 
 // ======= 项目 =======
 import ProjectConfig from './views/project/config'
@@ -30,11 +29,10 @@ import RoleEdit from './views/project/role/edit'
 
 import DataSourceStream from './views/dataSource/stream';
 import EntityManage from './views/entityManagement';
+import LabelCenter from './views/labelCenter';
 
 // The below is async load components
 // ======= 项目 =======
-// const Dashboard = asyncComponent(() => import('././views/dashboard')
-// .then((module: any) => module.default), { name: 'dashboard' })
 
 const ProjectContainer = asyncComponent(() => import('./views/project/container')
     .then((module: any) => module.default), { name: 'projectContainer' })
@@ -62,8 +60,17 @@ export default (
             <Route path="role/add" component={ GRoleAdd } />
             <Route path="role/edit/:roleId" component={ GRoleEdit } />
         </Route>
-        <Route path="/tagEngine" component={Container}>
+        <Route path="/tag" component={Container}>
             <IndexRoute component={EntityManage} />
+            <Route path="/entityManage" component={EntityManage} onEnter={isSelectedProject}>
+                <IndexRoute component={EntityManage} />
+                <Route path="streamData" component={DataSourceStream} />
+            </Route>
+            <Route path="/labelCenter" component={null} onEnter={isSelectedProject}>
+                <IndexRoute component={LabelCenter} />
+                <Route path="streamData" component={DataSourceStream} />
+            </Route>
+            
             <Route path="/project/:pid" component={ProjectContainer} onEnter={isSelectedProject}>
                 <IndexRoute component={ProjectConfig} />
                 <Route path="config" component={ProjectConfig} />

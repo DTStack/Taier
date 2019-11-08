@@ -9,6 +9,7 @@
         "allowJs": true,
         "module": "commonjs",
         "target": "es5",
+        "lib": [ "ES2015" ],
         "jsx": "react",
         "allowSyntheticDefaultImports": true,
         "paths": {
