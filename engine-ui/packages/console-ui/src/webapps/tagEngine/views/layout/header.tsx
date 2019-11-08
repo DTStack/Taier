@@ -304,18 +304,8 @@ class Header extends React.Component<any, any> {
                         >
                             <Link to={`/groupAnalyse`}>群组分析</Link>
                         </Menu.Item>
-                        <Menu.Item
-                            className="my-menu-item"
-                            key="project"
-                            style={{ display }}
-                        >
-                            <Link to={`/apiMarket`}>
-                                    API市场
-                            </Link>
-                        </Menu.Item>
                     </Menu>
                 </div>
-
                 <MenuRight
                     user={user}
                     app={app}
