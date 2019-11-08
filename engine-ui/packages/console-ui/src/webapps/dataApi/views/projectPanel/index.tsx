@@ -157,20 +157,17 @@ class ProjectPanel extends React.Component<any, ProjectState> {
         }
     }
 
-    generalTitle = (data: any) => {
+    getCardTitle = (data: any) => {
         const title = <div>
             <Row>
-                <Col span={20} >
-                    {data.status == PROJECT_STATUS.NORMAL ? (
-                        <Link to={`/realtime/task?projectId=${data.id}`}>
-                            <span className="company-name" onClick={() => { this.setRouter('operation', data) }}>
-                                {data.projectAlias}&nbsp;&nbsp;
-                            </span>
-                        </Link>
-                    ) : (<span className="company-name no-hover">
-                        {data.projectAlias}&nbsp;&nbsp;
-                    </span>)}
-                    {this.renderTitleText(data)}
+                <Col span={18} className='c_offten_project_card_title_info' >
+                    <p className='c_offten_project_card_title_name'>公司内部测试</p>
+                    <span className='c_offten_project_card_title_name_alias'>1231</span>
+                </Col>
+                <Col span={6} >
+                    <div className='c_offten_project_card_title_icon'>
+                        <img src='public/dataApi/img/project1.png' />
+                    </div>
                 </Col>
             </Row>
         </div>
@@ -234,90 +231,170 @@ class ProjectPanel extends React.Component<any, ProjectState> {
     gotoProjectList = () => {
         this.props.router.push('/api/projectList')
     }
+    renderProjectCard = () => {
+        return (
+            <Col span={8} className="c_offten_project_col">
+                <Card className="c_offten_project_card" noHovering bordered={false} title={this.getCardTitle()}>
+                    <Row className='c_offten_project_card_content'>
+                        <Col span={13}>
+                            API创建数： <span className='c_project_num'>12312</span>
+                        </Col>
+                        <Col span={11}>
+                            API发布数： <span className='c_project_num'>2132</span>
+                        </Col>
+                        <Col span={24}>
+                            <Row>
+                                <Col>创建时间： <span className='c_project_num'>2019-10-22 12:00:09</span></Col>
+                            </Row>
+                        </Col>
+                        <Col span={24} className="c_opera">
+                            <Row gutter={16}>
+                                <Col span={12}>
+                                    <div className="c_api_opera" >API申请</div>
+                                </Col>
+                                <Col span={12}>
+                                    <div className="c_api_opera" >API管理</div>
+                                </Col>
+                            </Row>
+                        </Col>
+                    </Row>
+                </Card>
+            </Col>
+        )
+    }
     render () {
-        const { loading, projectListInfo, visible } = this.state;
+        const { loading, projectListInfo = [], visible } = this.state;
         const { licenseApps } = this.props;
         const fixArrChildrenApps = this.fixApiChildrenApps(licenseApps[4] && licenseApps[4].children) || [];
         const apiMarket = fixArrChildrenApps[1];
         const apiManage = fixArrChildrenApps[3];
         return (
-            <Spin tip="Loading..." spinning={loading} delay={500} >
-                <div className="project-dashboard develop-kit" style={{ padding: '20px 35px', overflow: 'hidden' }}>
-                    <div className="project-left">
-                        <Row>
-                            <div style={{ float: 'right', marginRight: '10px' }}>
-                                <Button type="primary" style={{ marginRight: '5px' }} onClick={this.handleNewProject}>创建项目</Button>
-                                <Button type="primary" onClick={this.gotoProjectList}>项目列表</Button>
-                            </div>
+            <div className='c_project_wrapper'>
+                <main>
+                    <section className='c_left_section_wrapper'>
+                        <div className='c_offten_project_list'>
+                            <Row className='c_offten_project_title'>
+                                <Col span={20}>
+                                    <img className='c_offten_project_title_img' src='public/dataApi/img/often_project.png' />
+                                </Col>
+                                <Col span={4}>
+                                    <span className='c_offten_project_title_opera'>
+                                        <a>创建项目</a>
+                                        <a>项目列表</a>
+                                    </span>
+                                </Col>
+                            </Row>
+                            <Row gutter={16}>
+                                {
+                                    projectListInfo.map(project => {
+                                        return this.renderProjectCard()
+                                    })
+                                }
+                            </Row>
+                        </div>
+                        <div className='c_api_process_pic'>
+                            <img src='public/dataApi/img/process_api.png' />
+                        </div>
+                    </section>
+
+                    <section className='c_right_section_wrapper'>
+                        {/* 常用项目 */}
+                        {/* <div style={{ border: '1px solid red', height: '40%' }}> */}
+                        <Row className='c_summary_project'>
+                            <img src='public/dataApi/img/summary_project.png' />
                         </Row>
-                        <Row style={{ marginTop: '10px' }} gutter={10}>
-                            <Col span={24} >
-                                <Row gutter={10} style={{ margin: 0 }}>
-                                    {
-                                        projectListInfo && projectListInfo.length === 0 && !loading ? <NoData/> : ''
-                                    }
-                                    {
-                                        projectListInfo && projectListInfo.map((v: any) => {
-                                            return <Col span={8} className="card-width" key={v.id} style={{ padding: 0 }}>
-                                                <Card className="general-card" title={this.generalTitle(v)} noHovering bordered={false}>
-                                                    <Row className="card-content" >
-                                                        <Col span={16}>
-                                                            <div className="statistics" >API创建数： <span className="statistics-info">{`${v.taskCountMap.submitCount}/${v.taskCountMap.allCount}`}</span></div>
-                                                            <div className="statistics" >API发布数： <span className="statistics-info">{v.tableCount}</span></div>
-                                                            <div className="statistics" >创建时间： <span className="statistics-info">{moment(v.gmtCreate).format('YYYY-MM-DD HH:mm:ss')}</span></div>
-                                                        </Col>
-                                                        <Col span={24} className="card-task-padding">
-                                                            <Row>
-                                                                {
-                                                                    v.status != 1 || (apiMarket && !apiMarket.isShow) ? '' : (
-                                                                        <Col span={12}>
-                                                                            <Card className="card-task"
-                                                                                {...{ onClick: () => { this.setRouter('apiMarket', v) } }}
-                                                                                noHovering
-                                                                            >
-                                                                                {/* <span className="img-container">
-                                                                                    <img className="task-img" src="/public/rdos/img/icon/offline2.svg" />
-                                                                                </span> */}
-                                                                                API市场
-                                                                            </Card>
-                                                                        </Col>
-                                                                    )
-                                                                }
-                                                                {
-                                                                    v.status != 1 || (apiManage && !apiManage.isShow) ? '' : (
-                                                                        <Col span={12}>
-                                                                            <Card className="card-task" style={{ padding: '1.5 0', marginLeft: '6px' }}
-                                                                                {...{ onClick: () => { this.setRouter('apiManage', v) } }}
-                                                                                noHovering
-                                                                            >
-                                                                                {/* <span className="img-container">
-                                                                                    <img className="task-img" src="/public/rdos/img/icon/offline2.svg" />
-                                                                                </span> */}
-                                                                                API管理
-                                                                            </Card>
-                                                                        </Col>
-                                                                    )
-                                                                }
-                                                            </Row>
-                                                        </Col>
-                                                    </Row>
-                                                </Card>
-                                            </Col>
-                                        })
-                                    }
+                        <Row className='summary_row'>
+                            <Card className='c_summary_project_card'>
+                                <Row gutter={16}>
+                                    <Col span={8}>
+                                        <div className='c_summary_sub'>
+                                            <img src ='public/dataApi/img/all_project.png' className='c_summary_sub_pic' />
+                                            <span className='c_summary_sub_name'>总项目数</span>
+                                            <span className='c_summary_sub_num'>152</span>
+                                        </div>
+                                    </Col>
+                                    <Col span={8}>
+                                        <div className='c_summary_sub'>
+                                            <img src ='public/dataApi/img/api_create.png' className='c_summary_sub_pic' />
+                                            <span className='c_summary_sub_name'>API创建数</span>
+                                            <span className='c_summary_sub_num'>12</span>
+                                        </div>
+                                    </Col>
+                                    <Col span={8}>
+                                        <div className='c_summary_sub'>
+                                            <img src ='public/dataApi/img/api_publish.png' className='c_summary_sub_pic' />
+                                            <span className='c_summary_sub_name'>API发布数</span>
+                                            <span className='c_summary_sub_num'>2</span>
+                                        </div>
+                                    </Col>
                                 </Row>
-                            </Col>
+                                <Row gutter={16}>
+                                    <Col span={12}>
+                                        <Card className='c_latest_day_card' noHovering bordered={false}>
+                                            <Row>
+                                                <div className='c_latest_day_title'>最近24h累计调用次数</div>
+                                                <div className='c_latest_day_num'>3560</div>
+                                                <div className='c_latest_day_img'><img src='public/dataApi/img/call_number.png' /></div>
+                                            </Row>
+                                        </Card>
+                                    </Col>
+                                    <Col span={12}>
+                                        <Card className='c_latest_day_card' noHovering bordered={false}>
+                                            <Row>
+                                                <div className='c_latest_day_title'>最近24h调用失败率</div>
+                                                <div className='c_latest_day_num'>22%</div>
+                                                <div className='c_latest_day_img'><img src='public/dataApi/img/fail.png' /></div>
+                                            </Row>
+                                        </Card>
+                                    </Col>
+                                </Row>
+                            </Card>
                         </Row>
-                    </div>
-                    <div className="project-right">
-                        <SummaryPanel />
-                    </div>
-                    <NewProjectModal
-                        visible={visible}
-                        onCancel={() => { this.setState({ visible: false }) }}
-                    />
-                </div>
-            </Spin>
+                        {/* </div> */}
+                        {/* 快速入门 */}
+                        <div style={{ border: '1px solid blue', height: 'calc(100% - 250px)' }}>
+                            {/* <Row className='c_summary_project'>
+                                <img src='public/dataApi/img/quick_start.png' />
+                            </Row>
+                            <div style={{ minHeight: '238px' }}>
+                                <Row className='api_opera_row'>
+                                    <Card className='c_use_tutorial_card'>
+                                        <Row gutter={16}>
+                                            <Col span={8}>
+                                                <div className='c_help_target'>API生成</div>
+                                            </Col>
+                                            <Col span={8}>
+                                                <div className='c_help_target'>API发布</div>
+                                            </Col>
+                                            <Col span={8}>
+                                                <div className='c_help_target'>API申请</div>
+                                            </Col>
+                                        </Row>
+                                        <Row gutter={16}>
+                                            <Col span={8}>
+                                                <div className='c_help_target'>API测试</div>
+                                            </Col>
+                                            <Col span={8}>
+                                                <div className='c_help_target'>API调用</div>
+                                            </Col>
+                                        </Row>
+                                    </Card>
+                                </Row>
+                            </div>
+                            <div style={{ minHeight: '238px' }}>
+                                <Row className='guide_row'>
+                                    <Card className='c_use_tutorial_card c_video_width'>
+                                        <Row>
+                                            <Col span={14}>1</Col>
+                                            <Col span={10}>2</Col>
+                                        </Row>
+                                    </Card>
+                                </Row>
+                            </div> */}
+                        </div>
+                    </section>
+                </main>
+            </div>
         )
     }
 }
