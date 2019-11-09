@@ -32,7 +32,7 @@ export default class FullScreenButton extends React.Component<any, any> {
             } else if (domEle.webkitRequestFullscreen) { // Webkit
                 node = document.webkitFullscreenElement;
             }
-            onFullscreen&&onFullscreen(!!node);
+            onFullscreen && onFullscreen(!!node);
             this.setState({
                 isFullScreen: !!node
             }, this.dispatchResizeEvent)
@@ -60,9 +60,9 @@ export default class FullScreenButton extends React.Component<any, any> {
         } else if (domEle.webkitRequestFullscreen) { // Webkit
             document.onwebkitfullscreenchange = null;
         }
-       if (this.state.isFullScreen) {
-            this.exitFullscreen();
-        }
+        if (this.state.isFullScreen) {
+                this.exitFullscreen();
+            }
     }
     keyPressFullScreen = (evt: any) => {
         evt.preventDefault();
