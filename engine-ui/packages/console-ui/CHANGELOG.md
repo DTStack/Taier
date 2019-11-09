@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.9.0-beta.3.2](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.3.1...3.9.0-beta.3.2) (2019-11-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* **taskmodal, normaltask:** 所有 Spark, Python, 深度学习, MR 任务统一成 exeArgs 字段
+
+### Features
+
+* **rdos:** add unique key ([8c2696d](http://git.dtstack.cn/dtstack/data-stack-web/commit/8c2696d0c6a40044b614db0dbfb611b054f31669))
+
+
+### Bug Fixes
+
+* merge DTinsight_v3.9.0-beta.3.1 ([9f3249d](http://git.dtstack.cn/dtstack/data-stack-web/commit/9f3249d6146f55d5150537b14a34257b7700ed84))
+* **datasource:** remove mongoDB database field ([c968995](http://git.dtstack.cn/dtstack/data-stack-web/commit/c96899561f5c3583f3c68dfb732ebafd806fd991)), closes [#19638](http://redmine.prod.dtstack.cn/issues/19638)
+* **resourcemanage:** limit the request of bindTenant method ([a146f99](http://git.dtstack.cn/dtstack/data-stack-web/commit/a146f99534aa4cc260929c9e9107a682504e1546)), closes [#19733](http://redmine.prod.dtstack.cn/issues/19733)
+* **taskmodal, normaltask:** alter task params from exeArgs to options ([d54f84b](http://git.dtstack.cn/dtstack/data-stack-web/commit/d54f84bbef83c60cf3cc90b23c1c694ad7c5fdba)), closes [#19868](http://redmine.prod.dtstack.cn/issues/19868)
+
 ## [3.9.0-beta.3.1](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.3...3.9.0-beta.3.1) (2019-11-05)
 
 
