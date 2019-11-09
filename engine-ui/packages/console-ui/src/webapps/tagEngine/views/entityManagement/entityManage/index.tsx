@@ -1,157 +1,178 @@
 import * as React from 'react';
-import { Button, Table, Modal, message as Message } from 'antd';
+import { Link, hashHistory } from 'react-router';
+import { Card, Table, Input, Button, Popconfirm } from 'antd';
 
-const confirm = Modal.confirm;
-interface IProps {
-    history: any;
-    changeEntity?: (params: any) => void;
-    getEntityList?: (parmas: any) => void;
-}
-interface IState {
-    entityId: string;
-    loading: boolean;
-    pageNo: number;
-    pageSize: number;
-    total: number;
-    dataSource: any;
-    visible: boolean;
-}
-class EntityManage extends React.PureComponent<IProps, IState> {
-    state: IState = {
-        entityId: '',
-        loading: true,
+const Search = Input.Search
+
+export default class EntityList extends React.Component<any, any> {
+    state: any = {
         pageNo: 1,
-        pageSize: 10,
-        total: 0,
-        visible: false,
-        dataSource: []
-    };
-    componentDidMount () {
-        this.loadMainData(false);
+        pageSize: 20,
+        total: 2,
+        dataSource: [{
+            id: 1, name: '实体名称1', desc: '描述', key: '主键', keyName: '主键名', updateTime: '2019-12-10 12:33', creator: '创建者一号', dataCount: '200', relateCount: '4000'
+        }, {
+            id: 2, name: '实体名称1', desc: '描述', key: '主键', keyName: '主键名', updateTime: '2019-12-10 12:33', creator: '创建者一号', dataCount: '200', relateCount: '4000'
+        }],
+        searchVal: undefined,
+        loading: false,
+        desc: true,
+        sorterField: ''
     }
-    loadMainData (isClear: any) {
-        if (isClear) {
-        // 清除一些过滤条件
+
+    componentDidMount () {
+
+    }
+
+    loadData = () => {
+
+    }
+
+    handleSearch = (query: any) => {
+        this.setState({
+            searchVal: query,
+            pageNo: 1
+        }, this.loadData)
+    }
+
+    handleTableChange = (pagination: any, filters: any, sorter: any) => {
+        this.setState({
+            pageNo: pagination.current,
+            sorterField: sorter.field || '',
+            desc: sorter.order == 'descend' || false
+        }, this.loadData);
+    }
+
+    handleOperateData = (type: string, record: any) => {
+        switch (type) {
+            case 'add': {
+                hashHistory.push('/entityManage/edit')
+                break;
+            }
+            case 'edit': {
+                hashHistory.push({ pathname: '/entityManage/edit', state: { ...record } })
+                break;
+            }
+            case 'delete': {
+                // 请求删除
+                break;
+            }
+            default:;
         }
     }
-    onTableChange = (pagination: any, filters: any, sorter: any) => {
-        const { current, pageSize } = pagination;
-        this.setState(
-            {
-                pageNo: current,
-                pageSize: pageSize,
-                loading: true
-            },
-            () => {
-                this.loadMainData(false);
+
+    initColumns = () => {
+        return [{
+            title: '实体名称',
+            dataIndex: 'name',
+            key: 'name',
+            render: (text: any, record: any) => {
+                return <Link to={{ pathname: '/entityManage/detail', state: record }}>{text}</Link>
             }
-        );
-    };
-    createEntity = () => {
-
-    };
-    onHandleSet = (id: any) => {
-
-    }
-    onHandleView = (id: any, type: any) => {
-
-    };
-    onDelete = (id: any) => {
-        confirm({
-            title: '删除操作',
-            content: '删除功能将删除实体关联的其他信息，需谨慎提示，是否删除该实体？',
-            okText: '确定',
-            cancelText: '取消',
-            onOk () {
-                Message.success('成功')
-            },
-            onCancel () {
-                console.log('Cancel');
+        }, {
+            title: '实体主键',
+            dataIndex: 'key',
+            key: 'key',
+            render: (text: any, record: any) => {
+                return (<span>
+                    {text}
+                    <span style={{ color: '#bfbfbf' }}>({record.keyName})</span>
+                </span>)
             }
-        });
-    };
-    onClose = () => {
-        this.setState({
-            visible: false,
-            entityId: ''
-        })
+        }, {
+            title: '描述',
+            dataIndex: 'desc',
+            key: 'desc'
+        }, {
+            title: '更新时间',
+            dataIndex: 'updateTime',
+            key: 'updateTime',
+            sorter: true
+        }, {
+            title: '创建者',
+            dataIndex: 'creator',
+            key: 'creator'
+        }, {
+            title: '数据量',
+            dataIndex: 'dataCount',
+            key: 'dataCount',
+            sorter: true
+        }, {
+            title: '关联标签数量',
+            dataIndex: 'relateCount',
+            key: 'relateCount',
+            sorter: true
+        }, {
+            title: '操作',
+            dataIndex: 'operation',
+            key: 'operation',
+            width: '150px',
+            render: (text: any, record: any) => {
+                return (
+                    <span key={record.id}>
+                        <a onClick={this.handleOperateData.bind(this, 'edit', record)}>
+                            编辑
+                        </a>
+                        <span className="ant-divider" />
+                        <Popconfirm
+                            title={<span>实体下标签及目录将同步删除<br />无法恢复，请谨慎操作！</span>}
+                            okText="删除" cancelText="取消"
+                            onConfirm={this.handleOperateData.bind(this, 'delete', record)}
+                        >
+                            <a>删除</a>
+                        </Popconfirm>
+                    </span>
+                )
+            }
+        }]
     }
+
     render () {
-        const {
-            loading,
-            dataSource
-        } = this.state;
-        const columns = [
-            {
-                title: '实体名称',
-                dataIndex: 'entityName',
-                key: 'entityName',
-                width: 110
-            },
-            {
-                title: '实体编码',
-                dataIndex: 'entityCode',
-                key: 'entityCode',
-                width: 110
-            },
-            {
-                title: '来源索引',
-                dataIndex: 'entityIndex',
-                key: 'entityIndex',
-                width: 110
-            },
-            {
-                title: '实体描述',
-                dataIndex: 'description',
-                key: 'description',
-                width: 200
-            },
-            {
-                title: '创建时间',
-                dataIndex: 'createAt',
-                key: 'createAt',
-                width: 200
-            },
-            {
-                title: '创建人',
-                dataIndex: 'creator',
-                width: 100,
-                key: 'creator'
-            },
-            {
-                title: '操作',
-                dataIndex: 'id',
-                key: 'id',
-                width: 200,
-                render: (id: any) => {
-                    return (
-                        <div className="operate_btn_wrap">
-                            <a onClick={() => this.onHandleView(id, 'edit')}>编辑</a>
-                        </div>
-                    );
-                }
-            }
-        ];
+        const { total, pageSize, pageNo, dataSource, loading } = this.state;
+        const pagination: any = {
+            total: total,
+            pageSize: pageSize,
+            current: pageNo
+        };
+        const title = (
+            <div>
+                <Search
+                    placeholder="搜索实体、创建者名称"
+                    style={{ width: 200, padding: 0 }}
+                    onSearch={this.handleSearch}
+                />&nbsp;&nbsp;
+            </div>
+        )
+        const extra = (
+            <Button
+                type="primary"
+                style={{ marginTop: 10 }}
+                className="right"
+                onClick={this.handleOperateData.bind(this, 'add', {})}
+            >新增实体</Button>
+        )
         return (
-            <div className="entity-manage">
-                <div className="title">
-                    <Button type="primary" onClick={this.createEntity}>
-                           新增实体
-                    </Button>
-
-                </div>
-                <div className="entity_manage_content">
-                    <Table
-                        dataSource={dataSource}
-                        columns={columns}
-                        loading={loading}
-                        rowKey="id"
-                        onChange={this.onTableChange}
-                        pagination={false}
-                    />
+            <div className="entity-list inner-container">
+                <div className="shadow tage-entity-manage">
+                    <Card
+                        title={title}
+                        extra={extra}
+                        noHovering
+                        bordered={false}
+                        className="noBorderBottom"
+                    >
+                        <Table
+                            rowKey="id"
+                            className="dt-ant-table dt-ant-table--border full-screen-table-47"
+                            pagination={pagination}
+                            onChange={this.handleTableChange}
+                            loading={loading}
+                            columns={this.initColumns()}
+                            dataSource={dataSource}
+                        />
+                    </Card>
                 </div>
             </div>
-        );
+        )
     }
 }
-export default EntityManage;

@@ -24,6 +24,10 @@ import RoleAdd from './views/project/role/add';
 import RoleEdit from './views/project/role/edit';
 
 // ======= 实体管理 =======
+import EMEntityEdit from './views/entityManagement/entityManage/entityEdit'
+import EMEntityDetail from './views/entityManagement/entityManage/entityDetail'
+
+// ======= 实体管理 =======
 const EntityManage = asyncComponent(
     () =>
         import('./views/entityManagement/entityManage').then(
@@ -129,6 +133,14 @@ const routeConfig = [
             {
                 path: '/entityManage',
                 component: EntityManage
+            },
+            {
+                path: '/entityManage/detail',
+                component: EMEntityDetail
+            },
+            {
+                path: '/entityManage/edit',
+                component: EMEntityEdit
             },
             {
                 path: '/relationManage',
