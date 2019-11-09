@@ -14,6 +14,9 @@ class ChooseModal extends BaseChooseModal {
     disabledType: any;
     constructor (props: any) {
         super(props);
+        this.state = {
+            sourceData: []
+        }
         this.warpClassName = props.wrapContanier || '.chooseWrap';
     }
     initTargetKeys = () => {
@@ -41,7 +44,7 @@ class ChooseModal extends BaseChooseModal {
         })
         if (targetEdges.length) {
             const targetEdge = targetEdges.find((o: any) => o.outputType === INPUT_TYPE.PREDICT_INPUT_DATA);
-            if (!targetEdge) return;
+            if (!(targetEdge && (this.state.sourceData.length > 0))) return;
             this.setState({
                 loading: true
             });
@@ -261,7 +264,7 @@ class DataPredict extends React.PureComponent<any, any> {
                 for (const key in changedFields) {
                     if (changedFields.hasOwnProperty(key)) {
                         const element = changedFields[key];
-                        if (!element.validating && !element.dirty) {
+                        if (!element.errors && !element.validating && !element.dirty) {
                             props.handleSaveComponent(key, element.value)
                         }
                     }
@@ -273,7 +276,7 @@ class DataPredict extends React.PureComponent<any, any> {
                 for (const key in changedFields) {
                     if (changedFields.hasOwnProperty(key)) {
                         const element = changedFields[key];
-                        if (!element.validating && !element.dirty) {
+                        if (!element.errors && !element.validating && !element.dirty) {
                             props.handleSaveComponent(key, element.value)
                         }
                     }
