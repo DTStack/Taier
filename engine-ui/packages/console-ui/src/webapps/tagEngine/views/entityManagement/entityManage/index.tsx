@@ -1,11 +1,23 @@
 import * as React from 'react';
 import { Link, hashHistory } from 'react-router';
 import { Card, Table, Input, Button, Popconfirm } from 'antd';
+import '../../../styles/pages/entityManage.scss';
 
 const Search = Input.Search
 
-export default class EntityList extends React.Component<any, any> {
-    state: any = {
+interface IState {
+    pageNo: number;
+    pageSize: number;
+    total: number;
+    dataSource: any[];
+    searchVal: string;
+    loading: boolean;
+    desc: boolean;
+    sorterField: string;
+}
+
+export default class EntityList extends React.Component<any, IState> {
+    state: IState = {
         pageNo: 1,
         pageSize: 20,
         total: 2,
@@ -128,7 +140,7 @@ export default class EntityList extends React.Component<any, any> {
     }
 
     render () {
-        const { total, pageSize, pageNo, dataSource, loading } = this.state;
+        const { total, pageSize, pageNo, dataSource, loading, searchVal } = this.state;
         const pagination: any = {
             total: total,
             pageSize: pageSize,
@@ -137,6 +149,7 @@ export default class EntityList extends React.Component<any, any> {
         const title = (
             <div>
                 <Search
+                    value={searchVal}
                     placeholder="搜索实体、创建者名称"
                     style={{ width: 200, padding: 0 }}
                     onSearch={this.handleSearch}

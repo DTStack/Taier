@@ -27,6 +27,10 @@ import RoleEdit from './views/project/role/edit';
 import EMEntityEdit from './views/entityManagement/entityManage/entityEdit'
 import EMEntityDetail from './views/entityManagement/entityManage/entityDetail'
 
+// ======= 字典管理 =======
+import EMDictonaryEdit from './views/entityManagement/dictionaryManage/edit'
+import EMDictonaryDetail from './views/entityManagement/dictionaryManage/detail'
+
 // ======= 实体管理 =======
 const EntityManage = asyncComponent(
     () =>
@@ -149,6 +153,14 @@ const routeConfig = [
             {
                 path: '/dictionaryManage',
                 component: DictionaryManage
+            },
+            {
+                path: '/dictionaryManage/detail',
+                component: EMDictonaryDetail
+            },
+            {
+                path: '/dictionaryManage/edit',
+                component: EMDictonaryEdit
             },
             {
                 path: '/labelCenter',

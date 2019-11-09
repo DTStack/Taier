@@ -8,8 +8,16 @@ import AtomicLabel from './atomicLabel';
 
 const Step = Steps.Step;
 
-export default class EntityEdit extends React.Component<any, any> {
-    state: any = {
+interface IProps {
+    location: any;
+}
+
+interface IState {
+    current: number;
+}
+
+export default class EntityEdit extends React.Component<IProps, IState> {
+    state: IState = {
         current: 0
     }
 
