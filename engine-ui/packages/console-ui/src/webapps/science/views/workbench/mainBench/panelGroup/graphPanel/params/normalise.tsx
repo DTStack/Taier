@@ -12,6 +12,9 @@ class ChooseModal extends BaseChooseModal {
     disabledType: string;
     constructor (props: any) {
         super(props);
+        this.state = {
+            sourceData: []
+        }
         this.disabledType = 'string';
     }
     initTargetKeys = () => {
@@ -39,7 +42,7 @@ class ChooseModal extends BaseChooseModal {
         })
         if (targetEdges.length) {
             const targetEdge = targetEdges.find((o: any) => o.outputType === INPUT_TYPE.NORMALIZATION_INPUT_DATA);
-            if (!targetEdge) return;
+            if (!(targetEdge && (this.state.sourceData.length > 0))) return;
             this.setState({
                 loading: true
             });
@@ -179,7 +182,7 @@ class Normalise extends React.PureComponent<any, any> {
                 for (const key in changedFields) {
                     if (changedFields.hasOwnProperty(key)) {
                         const element = changedFields[key];
-                        if (!element.validating && !element.dirty) {
+                        if (!element.errors && !element.validating && !element.dirty) {
                             props.handleSaveComponent(key, element.value)
                         }
                     }
@@ -199,7 +202,7 @@ class Normalise extends React.PureComponent<any, any> {
                 for (const key in changedFields) {
                     if (changedFields.hasOwnProperty(key)) {
                         const element = changedFields[key];
-                        if (!element.validating && !element.dirty) {
+                        if (!element.errors && !element.validating && !element.dirty) {
                             props.handleSaveComponent(key, element.value)
                         }
                     }
