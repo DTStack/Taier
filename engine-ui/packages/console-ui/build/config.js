@@ -58,7 +58,8 @@ module.exports = {
             },
             '/api/da': { // da地址
                 // target: 'http://172.16.10.45:8087',
-                target: "http://172.16.10.251:8087",//开发环境
+                // target: "http://172.16.10.251:8087",//开发环境
+                target: "http://172.16.0.131:8087",// liantiao
 
                 // pathRewrite:{"^/api/da/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/da"},
                 changeOrigin: true,
