@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Link, hashHistory } from 'react-router';
 import { Card, Table, Input, Button, Popconfirm } from 'antd';
-import '../../../styles/pages/entityManage.scss';
+import './style.scss';
 
 const Search = Input.Search
 
