@@ -5,7 +5,7 @@ import com.dtstack.engine.common.JobClient;
 import java.util.Arrays;
 
 
-public class DtYarnShellUtilTest {
+public class DtScriptUtilTest {
     public static void main(String[] args) throws Exception {
 
 
@@ -30,6 +30,6 @@ public class DtYarnShellUtilTest {
                 "sasasd=\"asdasd\""
         );
 
-        System.out.println(Arrays.asList(DtYarnShellUtil.buildPythonArgs(jobClient)));
+        System.out.println(Arrays.asList(DtScriptUtil.buildPythonArgs(jobClient)));
     }
 }

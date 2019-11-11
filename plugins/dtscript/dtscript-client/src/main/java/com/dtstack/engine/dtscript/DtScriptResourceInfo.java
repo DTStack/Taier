@@ -18,14 +18,14 @@ import java.util.List;
  *
  * @author jingzhen
  */
-public class DtYarnShellResourceInfo extends AbstractYarnResourceInfo {
+public class DtScriptResourceInfo extends AbstractYarnResourceInfo {
 
 
     @Override
     public boolean judgeSlots(JobClient jobClient) {
         ClientArguments clientArguments;
         try {
-            String[] args = DtYarnShellUtil.buildPythonArgs(jobClient);
+            String[] args = DtScriptUtil.buildPythonArgs(jobClient);
             clientArguments = new ClientArguments(args);
         } catch (Exception e) {
             throw new ClientArgumentException(e);

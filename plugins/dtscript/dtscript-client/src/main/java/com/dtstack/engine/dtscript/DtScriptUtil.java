@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.List;
 
 
-public class DtYarnShellUtil {
+public class DtScriptUtil {
     private static final BASE64Decoder decoder = new BASE64Decoder();
 
     public static String[] buildPythonArgs(JobClient jobClient) throws IOException {

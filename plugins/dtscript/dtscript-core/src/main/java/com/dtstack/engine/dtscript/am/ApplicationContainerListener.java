@@ -1,7 +1,7 @@
 package com.dtstack.engine.dtscript.am;
 
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
-import com.dtstack.engine.dtscript.common.DTYarnShellConstant;
+import com.dtstack.engine.dtscript.common.DTScriptConstant;
 import com.dtstack.engine.dtscript.container.ContainerEntity;
 import com.dtstack.engine.dtscript.container.DtContainerId;
 import com.dtstack.engine.dtscript.api.ApplicationContainerProtocol;
@@ -84,10 +84,10 @@ public class ApplicationContainerListener
            LOG.info("hdfs principal:" + conf.get("hdfsKeytabPath"));
            final Configuration newConf = new Configuration(conf);
            if (KerberosUtils.isOpenKerberos(conf)){
-               newConf.set(DTYarnShellConstant.RPC_SERVER_PRINCIPAL, conf.get("hdfsPrincipal"));
-               newConf.set(DTYarnShellConstant.RPC_SERVER_KEYTAB, KerberosUtils.downloadAndReplace(newConf,"hdfsKeytabPath"));
+               newConf.set(DTScriptConstant.RPC_SERVER_PRINCIPAL, conf.get("hdfsPrincipal"));
+               newConf.set(DTScriptConstant.RPC_SERVER_KEYTAB, KerberosUtils.downloadAndReplace(newConf,"hdfsKeytabPath"));
                SecurityUtil.setAuthenticationMethod(UserGroupInformation.AuthenticationMethod.KERBEROS, newConf);
-               SecurityUtil.login(newConf,DTYarnShellConstant.RPC_SERVER_KEYTAB, DTYarnShellConstant.RPC_SERVER_PRINCIPAL);
+               SecurityUtil.login(newConf, DTScriptConstant.RPC_SERVER_KEYTAB, DTScriptConstant.RPC_SERVER_PRINCIPAL);
            }
 
             RPC.Builder builder = new RPC.Builder(newConf)

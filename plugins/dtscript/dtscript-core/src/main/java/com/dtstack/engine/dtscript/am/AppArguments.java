@@ -103,7 +103,7 @@ public class AppArguments {
 
 //        assert (envs.containsKey(DtYarnConstants.Environment.APP_JAR_LOCATION.toString()));
 //        appJarRemoteLocation = new Path(envs.get(DtYarnConstants.Environment.APP_JAR_LOCATION.toString()));
-        String appMasterJarPath = conf.get(DtYarnConfiguration.DTYARNSHELL_APPMASTERJAR_PATH, DtYarnConfiguration.DEFAULT_DTYARNSHELL_APPMASTERJAR_PATH);
+        String appMasterJarPath = conf.get(DtYarnConfiguration.DTSCRIPT_APPMASTERJAR_PATH, DtYarnConfiguration.DEFAULT_DTSCRIPT_APPMASTERJAR_PATH);
         appJarRemoteLocation =  new Path(conf.get("fs.defaultFS"), appMasterJarPath);
 
         LOG.info("Application jar location: " + appJarRemoteLocation);

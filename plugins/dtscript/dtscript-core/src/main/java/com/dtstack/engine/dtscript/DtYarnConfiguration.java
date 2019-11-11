@@ -86,8 +86,8 @@ public class DtYarnConfiguration extends YarnConfiguration {
 
     public static final String PYTHON3_PATH = "python3.path";
 
-    public static final String DTYARNSHELL_APPMASTERJAR_PATH = "appMasterJar";
-    public static final String DEFAULT_DTYARNSHELL_APPMASTERJAR_PATH = "/user/dtyarnshell/dt-yarn-shell-core-1.0.0.jar";
+    public static final String DTSCRIPT_APPMASTERJAR_PATH = "appMasterJar";
+    public static final String DEFAULT_DTSCRIPT_APPMASTERJAR_PATH = "/user/dtscript/dtscript-core-1.0.0.jar";
 
     /** heart beat */
 

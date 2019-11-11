@@ -39,9 +39,9 @@ import java.util.Properties;
  *
  * @author jingzhen
  */
-public class DtYarnShellClient extends AbsClient {
+public class DtScriptClient extends AbsClient {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DtYarnShellClient.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DtScriptClient.class);
 
     private static final String YARN_RM_WEB_KEY_PREFIX = "yarn.resourcemanager.webapp.address.";
 
@@ -56,7 +56,7 @@ public class DtYarnShellClient extends AbsClient {
     @Override
     public void init(Properties prop) throws Exception {
 
-        LOG.info("DtYarnShellClient init ...");
+        LOG.info("DtScriptClient init ...");
 
         conf.set("fs.hdfs.impl.disable.cache", "true");
         conf.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
@@ -223,7 +223,7 @@ public class DtYarnShellClient extends AbsClient {
 
     private JobResult submitPythonJob(JobClient jobClient){
         try {
-            String[] args = DtYarnShellUtil.buildPythonArgs(jobClient);
+            String[] args = DtScriptUtil.buildPythonArgs(jobClient);
             System.out.println(Arrays.asList(args));
             String jobId = client.submit(args);
             return JobResult.createSuccessResult(jobId);
@@ -235,7 +235,7 @@ public class DtYarnShellClient extends AbsClient {
 
     @Override
     public boolean judgeSlots(JobClient jobClient) {
-        DtYarnShellResourceInfo resourceInfo = new DtYarnShellResourceInfo();
+        DtScriptResourceInfo resourceInfo = new DtScriptResourceInfo();
         resourceInfo.setElasticCapacity(conf.getBoolean(DtYarnConfiguration.DT_APP_ELASTIC_CAPACITY, false));
         try {
             resourceInfo.getYarnSlots(client.getYarnClient(), conf.get(DtYarnConfiguration.DT_APP_QUEUE), conf.getInt(DtYarnConfiguration.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1));

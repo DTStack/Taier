@@ -7,7 +7,7 @@ package com.dtstack.engine.dtscript.common;
  * @author xuchao
  */
 
-public class DTYarnShellConstant {
+public class DTScriptConstant {
 
     public static final String RPC_SERVER_PRINCIPAL = "dt.ipc.server.principal";
     public static final String RPC_SERVER_KEYTAB = "dt.ipc.server.keytab";

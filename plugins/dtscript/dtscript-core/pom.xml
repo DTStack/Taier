@@ -14,6 +14,7 @@
     <name>plugins.dtscript.dtscript-core</name>
 
     <properties>
+        <jar.name>dtscript-core</jar.name>
         <hadoop2.version>2.7.3</hadoop2.version>
         <junit.version>4.11</junit.version>
         <jdk.version>1.8</jdk.version>
@@ -93,13 +94,13 @@
                         <configuration>
                             <tasks>
                                 <copy file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/target/${project.name}-${git.branch}.jar" />
-                                <copy todir="${basedir}/../../../../plugin/dtyarnshell/"
-                                      file="${basedir}/target/${project.name}-${git.branch}.jar"/>
+                                      tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
+                                <copy todir="${basedir}/../../../../plugin/dtscript/"
+                                      file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/../../../../plugin/dtyarnshell/"
-                                             includes="${project.name}-*.jar"
-                                             excludes="${project.name}-${git.branch}.jar"/>
+                                    <fileset dir="${basedir}/../../../../plugin/dtscript/"
+                                             includes="${jar.name}-*.jar"
+                                             excludes="${jar.name}-${git.branch}.jar"/>
                                 </delete>
                             </tasks>
                         </configuration>

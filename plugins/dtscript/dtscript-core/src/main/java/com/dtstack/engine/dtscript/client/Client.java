@@ -72,7 +72,7 @@ public class Client {
         yarnClient.init(conf);
         yarnClient.start();
 
-        String appMasterJarPath = conf.get(DtYarnConfiguration.DTYARNSHELL_APPMASTERJAR_PATH, DtYarnConfiguration.DEFAULT_DTYARNSHELL_APPMASTERJAR_PATH);
+        String appMasterJarPath = conf.get(DtYarnConfiguration.DTSCRIPT_APPMASTERJAR_PATH, DtYarnConfiguration.DEFAULT_DTSCRIPT_APPMASTERJAR_PATH);
         appMasterJar = Utilities.getRemotePath(conf, appMasterJarPath);
         if (REFRESH_APP_MASTER_JAR.get()) {
             synchronized (REFRESH_APP_MASTER_JAR) {
@@ -165,7 +165,7 @@ public class Client {
         if (Boolean.FALSE.equals(clientArguments.localFile) && clientArguments.files != null) {
             StringBuffer appFilesRemotePath = new StringBuffer(1000);
             Path[] xlearningFilesDst = new Path[clientArguments.files.length];
-            LOG.info("Copy dtyarnshell files from local filesystem to remote.");
+            LOG.info("Copy dtscript files from local filesystem to remote.");
             for (int i = 0; i < clientArguments.files.length; i++) {
                 assert (!clientArguments.files[i].isEmpty());
 

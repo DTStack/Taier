@@ -1,7 +1,7 @@
 package com.dtstack.engine.dtscript.container;
 
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
-import com.dtstack.engine.dtscript.common.DTYarnShellConstant;
+import com.dtstack.engine.dtscript.common.DTScriptConstant;
 import com.dtstack.engine.dtscript.common.type.AppType;
 import com.dtstack.engine.dtscript.api.ApplicationContainerProtocol;
 import com.dtstack.engine.dtscript.api.DtYarnConstants;
@@ -116,12 +116,12 @@ public class DtContainer {
                 LOG.info("-ugi---:" + ugi);
                 LOG.info("isenabled:" + UserGroupInformation.isSecurityEnabled());
                 LOG.info("hdfs principal:" + conf.get("hdfsPrincipal"));
-                newConf.set(DTYarnShellConstant.RPC_SERVER_PRINCIPAL, conf.get("hdfsPrincipal"));
-                newConf.set(DTYarnShellConstant.RPC_SERVER_KEYTAB, KerberosUtils.downloadAndReplace(newConf, "hdfsKeytabPath"));
+                newConf.set(DTScriptConstant.RPC_SERVER_PRINCIPAL, conf.get("hdfsPrincipal"));
+                newConf.set(DTScriptConstant.RPC_SERVER_KEYTAB, KerberosUtils.downloadAndReplace(newConf, "hdfsKeytabPath"));
                 UserGroupInformation.setConfiguration(newConf);
                 SecurityUtil.setAuthenticationMethod(UserGroupInformation.AuthenticationMethod.KERBEROS, newConf);
 
-                SecurityUtil.login(newConf,DTYarnShellConstant.RPC_SERVER_KEYTAB, DTYarnShellConstant.RPC_SERVER_PRINCIPAL);
+                SecurityUtil.login(newConf, DTScriptConstant.RPC_SERVER_KEYTAB, DTScriptConstant.RPC_SERVER_PRINCIPAL);
             }
 
             amClient = RPC.getProxy(ApplicationContainerProtocol.class, ApplicationContainerProtocol.versionID, addr, newConf);
