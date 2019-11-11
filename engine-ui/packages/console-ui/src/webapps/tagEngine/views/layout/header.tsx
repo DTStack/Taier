@@ -254,7 +254,7 @@ class Header extends React.Component<any, any> {
         // const pid = project && project.id ? project.id : '';
 
         // const basePath = app.link;
-        
+
         // const fixArrChildrenApps = this.fixArrayIndex(licenseApps[1] && licenseApps[1].children);
         // const dataSourceNav = fixArrChildrenApps[0];
         // const taskNav = fixArrChildrenApps[1];
