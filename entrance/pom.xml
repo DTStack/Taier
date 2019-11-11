@@ -38,14 +38,6 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
-							<artifactSet>
-								<excludes>
-									<exclude>org.slf4j:slf4j-log4j12</exclude>
-									<exclude>log4j:log4j</exclude>
-									<exclude>org.slf4j:slf4j-api</exclude>
-									<exclude>netty-all:io.netty</exclude>
-								</excludes>
-							</artifactSet>
 							<filters>
 								<filter>
 									<artifact>*:*</artifact>
