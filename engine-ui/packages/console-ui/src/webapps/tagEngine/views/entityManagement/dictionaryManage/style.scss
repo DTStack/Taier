@@ -1,0 +1,20 @@
+.tage-dictionary-manage {
+
+	.ant-card-wider-padding .ant-card-head{
+		padding: 0 20px;
+	}
+	.ant-card-wider-padding .ant-card-body{
+		padding: 0;
+	}
+	.m-table tr>td:first-child, .m-table tr>th:first-child{
+		padding-left: 20px;
+	}
+	.m-table tr>td:last-child, .m-table tr>th:last-child{
+		padding-right: 15px;
+	}
+	.noBorderBottom {
+		.ant-card-head {
+			border-bottom: none
+		}
+	}
+}

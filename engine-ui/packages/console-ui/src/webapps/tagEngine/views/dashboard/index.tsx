@@ -12,6 +12,7 @@ import Api from '../../api'
 import * as ProjectAction from '../../reducers/modules/project';
 import NoData from '../../components/no-data';
 import { PROJECT_STATUS, TASK_STATUS } from '../../comm/const';
+import './style.scss';
 
 const Search = Input.Search;
 

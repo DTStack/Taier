@@ -6,20 +6,12 @@ import { Provider } from 'react-redux'
 import 'main/styles/comm.css'
 import 'main/styles/layout.scss'
 import 'main/styles/myantd.scss'
-
 // Codemirror
-import 'codemirror/lib/codemirror.css'
-import 'codemirror/addon/lint/lint.css'
-// import 'codemirror/addon/fold/foldgutter.css'
-
+import './styles/codemirror';
 // Common styles
 import './styles/main.scss'
-import './styles/pages/layout.scss'
+
 import './styles/pages/project.scss'
-import './styles/pages/dashboard.scss'
-import './styles/pages/iconfont.scss'
-import './styles/themes/default.scss'
-import './styles/themes/dark.scss'
 
 import routers from './routers'
 

@@ -8,6 +8,6 @@ export default class ComponentName extends React.PureComponent<IProps, IState> {
     state: IState = {};
     componentDidMount () {}
     render () {
-        return <div className="componentName">标签中心</div>;
+        return <div className="componentName">标签类目</div>;
     }
 }

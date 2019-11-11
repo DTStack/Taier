@@ -24,6 +24,14 @@ import RoleAdd from './views/project/role/add';
 import RoleEdit from './views/project/role/edit';
 
 // ======= 实体管理 =======
+import EMEntityEdit from './views/entityManagement/entityManage/entityEdit'
+import EMEntityDetail from './views/entityManagement/entityManage/entityDetail'
+
+// ======= 字典管理 =======
+import EMDictonaryEdit from './views/entityManagement/dictionaryManage/edit'
+import EMDictonaryDetail from './views/entityManagement/dictionaryManage/detail'
+
+// ======= 实体管理 =======
 const EntityManage = asyncComponent(
     () =>
         import('./views/entityManagement/entityManage').then(
@@ -48,13 +56,21 @@ const DictionaryManage = asyncComponent(
     { name: 'dictionaryManage' }
 );
 // ======= 标签中心 =======
-const LabelCenter = asyncComponent(
+const LabelManage = asyncComponent(
     () =>
-        import('./views/labelCenter').then(
+        import('./views/labelCenter/labelManage').then(
             (module: any) => module.default
         ),
-    { name: 'labelCenter' }
+    { name: 'labelManage' }
 );
+const LabelDirectory = asyncComponent(
+    () =>
+        import('./views/labelCenter/labelDirectory').then(
+            (module: any) => module.default
+        ),
+    { name: 'labelDirectory' }
+);
+
 // ======= 群组分析 =======
 const GroupAnalyse = asyncComponent(
     () =>
@@ -131,6 +147,14 @@ const routeConfig = [
                 component: EntityManage
             },
             {
+                path: '/entityManage/detail',
+                component: EMEntityDetail
+            },
+            {
+                path: '/entityManage/edit',
+                component: EMEntityEdit
+            },
+            {
                 path: '/relationManage',
                 component: RelationManage
             },
@@ -139,8 +163,20 @@ const routeConfig = [
                 component: DictionaryManage
             },
             {
+                path: '/dictionaryManage/detail',
+                component: EMDictonaryDetail
+            },
+            {
+                path: '/dictionaryManage/edit',
+                component: EMDictonaryEdit
+            },
+            {
                 path: '/labelCenter',
-                component: LabelCenter
+                component: LabelManage
+            },
+            {
+                path: '/labelDirectory',
+                component: LabelDirectory
             },
             {
                 path: '/groupAnalyse',
