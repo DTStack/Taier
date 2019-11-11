@@ -30,11 +30,11 @@ class Container extends React.Component<any, any> {
     componentDidMount () {
         const { dispatch } = this.props
         dispatch(UserAction.getUser())
-        // dispatch(projectActions.getProjects())
-        // dispatch(projectActions.getAllProjects())
+        dispatch(projectActions.getProjects())
+        dispatch(projectActions.getAllProjects())
 
         dispatch(updateApp(daApp))
-        // this.initProject()
+        this.initProject()
     }
 
     initProject () {

@@ -54,6 +54,12 @@ export default {
     getProjectListInfo (params?: any) {
         return http.post(req.GET_PROJECT_LIST_INFO, params)
     },
+    setStickProject (params: any) {
+        return http.post(req.SET_STICKY, params)
+    },
+    getProjectSummary (params?: any) {
+        return http.post(req.GET_PROJECT_SUMMARY, params)
+    },
 
     // ========== Role ========== //
     getRoleList (params: any) {

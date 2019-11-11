@@ -14,6 +14,11 @@ export const DATA_SOURCE: any = {
     RDS: 16,
     DB2: 17
 }
+export const STICK_STATUS: any = {
+    NO_TOP: 0,
+    TOP: 1
+}
+
 export const PROJECT_STATUS: any = {
     INITIALIZE: 0, // 创建中
     NORMAL: 1, // 正常

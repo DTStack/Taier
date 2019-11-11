@@ -303,6 +303,9 @@
         font-size: 14px;
         color: #42C1FF;
         line-height: 24px;
+        &:link {
+            text-decoration: none;
+        }
     }
     & > main {
         display: flex;
@@ -330,14 +333,15 @@
                     }
                 }
                 .c_no_project { // 无项目
-                    opacity: 0.6;
-                    background: #0D1652;
+                    // opacity: 0.6;
+                    // background: #0D1652;
+                    background: rgba(13,22,82,.6);
                     border: 1px solid #292E4F;
                     box-shadow: 0 6px 13px 0 rgba(0,0,0,0.20);
                     border-radius: 2px;
                     width: 100%;
                     height: 212px;
-                    margin-top: 20px;
+                    margin-top: 27px;
                     text-align: center;
                     line-height: 212px;
                     font-family: PingFangSC-Regular;
@@ -350,8 +354,9 @@
                     padding: 0;
                     .c_offten_project_card {
                         height: 212px;
-                        opacity: 0.7;
-                        background: #141B4A;
+                        // opacity: 0.7;
+                        // background: #141B4A;
+                        background: rgba(20,27,74,.7);
                         border: 1px solid #292E4F;
                         box-shadow: 0 6px 13px 0 rgba(0,0,0,0.20);
                         border-radius: 2px;
@@ -360,7 +365,8 @@
                             height: 85px;
                             position: relative;
                             line-height: unset;
-                            background: #141B4A;
+                            // background: #141B4A;
+                            background: unset;
                             .ant-card-head-title {
                                 overflow: unset;
                                 .c_offten_project_card_title_info {
@@ -448,8 +454,9 @@
             .c_summary_project_card {
                 width: 100%;
                 min-height: 276px;
-                opacity: 0.7;
-                background: #141B4A;
+                // opacity: 0.7;
+                // background: #141B4A;
+                background: rgba(20,27,74,.7);
                 border: 1px solid #292E4F;
                 box-shadow: 0 6px 13px 0 rgba(0,0,0,0.20);
                 border-radius: 2px;
@@ -490,7 +497,7 @@
                     .c_latest_day_card {
                         min-width: 185px;
                         height: 125px;
-                        opacity: 0.6;
+                        // opacity: 0.6;
                         background: #102759;
                         margin-top: 25px;
                         .ant-card-body {
@@ -521,8 +528,9 @@
             }
             .c_use_tutorial_card {
                 margin-top: 20px;
-                opacity: 0.7;
-                background: #141B4A;
+                // opacity: 0.7;
+                // background: #141B4A;
+                background: rgba(20,27,74,.7);
                 border: 1px solid #292E4F;
                 box-shadow: 0 6px 13px 0 rgba(0,0,0,0.20);
                 border-radius: 2px;
@@ -536,6 +544,10 @@
                     font-family: PingFangSC-Regular;
                     font-size: 14px;
                     color: #BFD1F2;
+                    & > a {
+                        font-size: 14px;
+                        color: #BFD1F2;
+                    }
                 }
             }
             .c_video_width {

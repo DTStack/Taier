@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { Menu, Icon, Dropdown, Input } from 'antd';
 import Navigator from 'main/components/nav';
 import { getHeaderLogo } from 'main/consts';
-
+import * as ProjectAction from '../../actions/project';
 import docPath from '../../consts/docPath';
 
 const NOT_SHOW_KEY = 'projectList'; // projectList不显示导航
@@ -121,13 +121,18 @@ class Header extends React.Component<any, any> {
     }
 
     selectedProject = (evt: any) => {
-        // const { router, dispatch } = this.props;
+        const { dispatch } = this.props;
         const projectId = evt.key;
         if (projectId) {
+            const switchProject = () => {
+                dispatch(ProjectAction.getProject(projectId));
+                this.searchProject();
+            }
+            switchProject();
         }
     }
 
-    searchProject = (value: any) => {
+    searchProject = (value?: any) => {
         this.setState({
             filter: value || ''
         })

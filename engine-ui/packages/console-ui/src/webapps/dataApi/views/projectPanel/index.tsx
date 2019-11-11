@@ -1,18 +1,24 @@
 import * as React from 'react';
 import { Link, hashHistory, withRouter } from 'react-router';
 import { connect } from 'react-redux';
-import { Card, Row, Col, Icon, Spin } from 'antd';
+import { Card, Row, Col, Icon } from 'antd';
 import moment from 'moment';
-// import SummaryPanel from './summaryPanel';
 import NewProjectModal from '../../components/newProject';
 import Api from '../../api/project';
 import * as projectActions from '../../actions/project';
-import { PROJECT_STATUS } from '../../consts';
+import { PROJECT_STATUS, HELP_DOC_URL, STICK_STATUS } from '../../consts';
 
 interface ProjectState {
     loading: boolean;
     projectListInfo: any[];
     visible: boolean;
+    projectSummary: {
+        apiCount: number;
+        projectCount: number;
+        apiIssueCount: number;
+        total24InvokeCount: number;
+        total24FailProbability: number;
+    };
 }
 
 class ProjectPanel extends React.Component<any, ProjectState> {
@@ -21,30 +27,30 @@ class ProjectPanel extends React.Component<any, ProjectState> {
         this.state = {
             loading: false,
             visible: false,
-            projectListInfo: []
+            projectListInfo: [],
+            projectSummary: {
+                apiCount: undefined,
+                projectCount: undefined,
+                apiIssueCount: undefined,
+                total24InvokeCount: undefined,
+                total24FailProbability: undefined
+            }
         }
     }
     componentDidMount () {
-        // this.getProjectListInfo();
+        const { dispatch } = this.props;
+        dispatch(projectActions.getProjectList());
+        this.getProjectSummary();
     }
-    getProjectListInfo = () => {
-        this.setState({
-            loading: true
-        })
-        Api.getProjectListInfo().then((res: any) => {
+    getProjectSummary = () => {
+        Api.getProjectSummary().then(res => {
             if (res.code === 1) {
                 this.setState({
-                    projectListInfo: (res.data && res.data.data) || [],
-                    loading: false
-                })
-            } else {
-                this.setState({
-                    loading: false
+                    projectSummary: res.data || {}
                 })
             }
         })
     }
-
     handleNewProject = () => {
         this.setState({
             visible: true
@@ -83,14 +89,17 @@ class ProjectPanel extends React.Component<any, ProjectState> {
         }
     }
 
-    getCardTitle = (project: any) => {
+    getCardTitle = (project: any, index: number) => {
         const title = <div>
             <Row>
                 <Col span={18} className='c_offten_project_card_title_info' >
                     {
                         project.status == PROJECT_STATUS.NORMAL ? (
                             <Link to={`/api/overview?projectId=${project.id}`}>
-                                <span className='c_offten_project_card_title_name'>{project.projectAlias}</span><br />
+                                <span className='c_offten_project_card_title_name' onClick={
+                                    () => {
+                                        this.props.dispatch(projectActions.getProject(project.id))
+                                    }}>{project.projectAlias}</span><br />
                             </Link>
                         ) : <span className='c_offten_project_card_title_name'>{project.projectAlias}</span>
                     }
@@ -100,7 +109,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                 </Col>
                 <Col span={6} >
                     <div className='c_offten_project_card_title_icon'>
-                        <img src='public/dataApi/img/project1.png' />
+                        <img src={`public/dataApi/img/project${index + 1}.png`} />
                     </div>
                 </Col>
             </Row>
@@ -135,21 +144,6 @@ class ProjectPanel extends React.Component<any, ProjectState> {
             }
         }
     }
-    handleMouseOver = (type?: any, e?: any) => {
-        if (type == 'apiMarket') {
-            e.currentTarget.getElementsByTagName('img')[0].src = '/public/stream/img/icon/operation2.svg'
-        } else {
-            e.currentTarget.getElementsByTagName('img')[0].src = '/public/stream/img/icon/realtime2.svg'
-        }
-    }
-
-    handleMouseOut = (type?: any, e?: any) => {
-        if (type == 'apiMarket') {
-            e.currentTarget.getElementsByTagName('img')[0].src = '/public/stream/img/icon/operation.svg'
-        } else {
-            e.currentTarget.getElementsByTagName('img')[0].src = '/public/stream/img/icon/realtime.svg'
-        }
-    }
     setRouter = (type: any, project: any) => {
         let src: any;
         const { dispatch } = this.props;
@@ -158,59 +152,62 @@ class ProjectPanel extends React.Component<any, ProjectState> {
         } else {
             src = '/api/manage'
         }
-        dispatch(projectActions.getProjects());
+        // dispatch(projectActions.getProjects());
         dispatch(projectActions.getProject(project.id));
         hashHistory.push(src)
     }
     gotoProjectList = () => {
         this.props.router.push('/api/projectList')
     }
-    renderProjectCard = (project: any) => {
-        const { loading } = this.state;
+    renderProjectCard = (project: any, index: number) => {
+        // const { loading } = this.state;
         const { licenseApps } = this.props;
         const fixArrChildrenApps = this.fixApiChildrenApps(licenseApps[4] && licenseApps[4].children) || [];
         const apiMarket = fixArrChildrenApps[1];
         const apiManage = fixArrChildrenApps[3];
         return (
-            <Spin spinning={loading} delay={500}>
-                <Col span={8} className="c_offten_project_col">
-                    <Card className="c_offten_project_card" noHovering bordered={false} title={this.getCardTitle(project)}>
-                        <Row className='c_offten_project_card_content'>
-                            <Col span={13}>
-                            API创建数： <span className='c_project_num'>12312</span>
-                            </Col>
-                            <Col span={11}>
-                            API发布数： <span className='c_project_num'>2132</span>
-                            </Col>
-                            <Col span={24}>
-                                <Row>
-                                    <Col>创建时间： <span className='c_project_num'>{moment(project.gmtCreate).format('YYYY-MM-DD HH:mm:ss')}</span></Col>
-                                </Row>
-                            </Col>
-                            <Col span={24} className="c_opera">
-                                <Row gutter={16}>
-                                    {project.status != 1 || (apiMarket && !apiMarket.isShow) ? null : (
+            <Col span={8} className="c_offten_project_col">
+                <Card className="c_offten_project_card" noHovering bordered={false} title={this.getCardTitle(project, index)}>
+                    <Row className='c_offten_project_card_content'>
+                        <Col span={13}>
+                            API创建数： <span className='c_project_num'>{project.apiCreateCount}</span>
+                        </Col>
+                        <Col span={11}>
+                            API发布数： <span className='c_project_num'>{project.apiIssueCount}</span>
+                        </Col>
+                        <Col span={24}>
+                            <Row>
+                                <Col>创建时间： <span className='c_project_num'>{moment(project.gmtCreate).format('YYYY-MM-DD HH:mm:ss')}</span></Col>
+                            </Row>
+                        </Col>
+                        <Col span={24} className="c_opera">
+                            <Row gutter={16}>
+                                {project.status != 1 || (apiMarket && !apiMarket.isShow) ? null : (
+                                    <Col span={12}>
+                                        <div className="c_api_opera" {...{ onClick: () => { this.setRouter('apiMarket', project) } }} >API市场</div>
+                                    </Col>
+                                )}
+                                {
+                                    project.status != 1 || (apiManage && !apiManage.isShow) ? null : (
                                         <Col span={12}>
-                                            <div className="c_api_opera" {...{ onClick: () => { this.setRouter('apiMarket', project) } }} >API市场</div>
+                                            <div className="c_api_opera" {...{ onClick: () => { this.setRouter('apiManage', project) } }}>API管理</div>
                                         </Col>
-                                    )}
-                                    {
-                                        project.status != 1 || (apiManage && !apiManage.isShow) ? null : (
-                                            <Col span={12}>
-                                                <div className="c_api_opera" {...{ onClick: () => { this.setRouter('apiManage', project) } }}>API管理</div>
-                                            </Col>
-                                        )
-                                    }
-                                </Row>
-                            </Col>
-                        </Row>
-                    </Card>
-                </Col>
-            </Spin>
+                                    )
+                                }
+                            </Row>
+                        </Col>
+                    </Row>
+                </Card>
+            </Col>
         )
     }
     render () {
-        const { projectListInfo = [], visible } = this.state;
+        const { visible, projectSummary } = this.state;
+        const { apiCount, projectCount, apiIssueCount, total24InvokeCount, total24FailProbability } = projectSummary;
+        const { projectListInfo = [] } = this.props;
+        const stickProjects = projectListInfo.filter((item: any) => {
+            return item.stickStatus == STICK_STATUS.TOP
+        }).slice(0, 3)
         return (
             <div className='c_project_wrapper'>
                 <main>
@@ -229,17 +226,17 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                 </Col>
                             </Row>
                             {
-                                projectListInfo && projectListInfo.length > 0 ? (
+                                stickProjects && stickProjects.length > 0 ? (
                                     <Row gutter={16}>
                                         {
-                                            projectListInfo.map(project => {
-                                                return this.renderProjectCard(project)
+                                            stickProjects.map((project: any, index: any) => {
+                                                return this.renderProjectCard(project, index)
                                             })
                                         }
                                     </Row>
                                 ) : (
                                     <Row className='c_no_project'>
-                                        <Col span={24}>暂无常用项目, 请点击<a onClick={this.gotoProjectList}>项目列表</a>置顶项目</Col>
+                                        <Col span={24}>暂无常用项目, 请前往 <a onClick={this.gotoProjectList}>项目列表</a> 置顶项目</Col>
                                     </Row>
                                 )
                             }
@@ -262,21 +259,21 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                             <div className='c_summary_sub'>
                                                 <img src ='public/dataApi/img/all_project.png' className='c_summary_sub_pic' />
                                                 <span className='c_summary_sub_name'>总项目数</span>
-                                                <span className='c_summary_sub_num'>152</span>
+                                                <span className='c_summary_sub_num'>{projectCount}</span>
                                             </div>
                                         </Col>
                                         <Col span={8}>
                                             <div className='c_summary_sub'>
                                                 <img src ='public/dataApi/img/api_create.png' className='c_summary_sub_pic' />
                                                 <span className='c_summary_sub_name'>API创建数</span>
-                                                <span className='c_summary_sub_num'>12</span>
+                                                <span className='c_summary_sub_num'>{apiCount}</span>
                                             </div>
                                         </Col>
                                         <Col span={8}>
                                             <div className='c_summary_sub'>
                                                 <img src ='public/dataApi/img/api_publish.png' className='c_summary_sub_pic' />
                                                 <span className='c_summary_sub_name'>API发布数</span>
-                                                <span className='c_summary_sub_num'>2</span>
+                                                <span className='c_summary_sub_num'>{apiIssueCount}</span>
                                             </div>
                                         </Col>
                                     </Row>
@@ -285,7 +282,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                             <Card className='c_latest_day_card' noHovering bordered={false}>
                                                 <Row>
                                                     <div className='c_latest_day_title'>最近24h累计调用次数</div>
-                                                    <div className='c_latest_day_num'>3560</div>
+                                                    <div className='c_latest_day_num'>{total24InvokeCount}</div>
                                                     <div className='c_latest_day_img'><img src='public/dataApi/img/call_number.png' /></div>
                                                 </Row>
                                             </Card>
@@ -294,7 +291,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                             <Card className='c_latest_day_card' noHovering bordered={false}>
                                                 <Row>
                                                     <div className='c_latest_day_title'>最近24h调用失败率</div>
-                                                    <div className='c_latest_day_num'>22%</div>
+                                                    <div className='c_latest_day_num'>{total24FailProbability}</div>
                                                     <div className='c_latest_day_img'><img src='public/dataApi/img/fail.png' /></div>
                                                 </Row>
                                             </Card>
@@ -313,21 +310,31 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                     <Card className='c_use_tutorial_card'>
                                         <Row gutter={16}>
                                             <Col span={8}>
-                                                <div className='c_help_target'>API生成</div>
+                                                <div className='c_help_target'>
+                                                    <a target="blank" href={HELP_DOC_URL.MAKE_API}>API生成</a>
+                                                </div>
                                             </Col>
                                             <Col span={8}>
-                                                <div className='c_help_target'>API发布</div>
+                                                <div className='c_help_target'>
+                                                    <a target="blank" href={HELP_DOC_URL.RELEASE_API}>API发布</a>
+                                                </div>
                                             </Col>
                                             <Col span={8}>
-                                                <div className='c_help_target'>API申请</div>
+                                                <div className='c_help_target'>
+                                                    <a target="blank" href={HELP_DOC_URL.APPLY_API}>API申请</a>
+                                                </div>
                                             </Col>
                                         </Row>
                                         <Row gutter={16}>
                                             <Col span={8}>
-                                                <div className='c_help_target'>API测试</div>
+                                                <div className='c_help_target'>
+                                                    <a target="blank" href={HELP_DOC_URL.TEST_API}>API测试</a>
+                                                </div>
                                             </Col>
                                             <Col span={8}>
-                                                <div className='c_help_target'>API调用</div>
+                                                <div className='c_help_target'>
+                                                    <a target="blank" href={HELP_DOC_URL.CALL_API}>API调用</a>
+                                                </div>
                                             </Col>
                                         </Row>
                                     </Card>
@@ -356,6 +363,7 @@ export default connect((state: any) => {
     return {
         user: state.user,
         projects: state.projects,
+        projectListInfo: state.projectList,
         licenseApps: state.licenseApps
     }
 })(withRouter(ProjectPanel))

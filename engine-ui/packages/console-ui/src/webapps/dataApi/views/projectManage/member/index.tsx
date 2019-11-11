@@ -37,14 +37,14 @@ class ProjectMember extends React.Component<any, any> {
     }
 
     // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps(nextProps: any) {
-        const project = nextProps.project
-        const oldProj = this.props.project
-        if (oldProj && project && oldProj.id !== project.id) {
-            this.search(project.id)
-            this.loadRoles()
-        }
-    }
+	// UNSAFE_componentWillReceiveProps(nextProps: any) {
+    //     const project = nextProps.project
+    //     const oldProj = this.props.project
+    //     if (oldProj && project && oldProj.id !== project.id) {
+    //         this.search(project.id)
+    //         this.loadRoles()
+    //     }
+    // }
 
     initAddMember = () => {
         this.setState({ visible: true })
@@ -108,7 +108,7 @@ class ProjectMember extends React.Component<any, any> {
 
         // 塞入要添加的用户列表
         const targetUsers: any = [];
-        const uids = projectRole.targetUserIds;
+        const uids = projectRole.targetUserIds || [];
         for (let i = 0; i < uids.length; i++) {
             const user = notProjectUsers.find((u: any) => `${u.userId}` === uids[i])
             if (user) {
@@ -221,7 +221,7 @@ class ProjectMember extends React.Component<any, any> {
             key: 'role',
             render: (text: any, record: any) => {
                 const roles = record.roles ? record.roles.map(
-                    (role: any) => role.roleName
+                    (role: any) => role && role.roleName
                 ) : []
                 return roles.join(',')
             }
@@ -236,7 +236,7 @@ class ProjectMember extends React.Component<any, any> {
             key: 'operation',
             render: (text: any, record: any) => {
                 const setRemove = record.roles &&
-                record.roles.find((role: any) => role.id !== 2) ? (
+                record.roles.find((role: any) => role && role.id !== 2) ? (
                         <Popconfirm
                             title="确认将该成员从项目中移除？"
                             okText="确定" cancelText="取消"

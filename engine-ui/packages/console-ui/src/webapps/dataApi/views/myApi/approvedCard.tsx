@@ -63,6 +63,14 @@ class ApprovedCard extends React.Component<any, any> {
                 }
             );
     }
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps: any) {
+        const project = nextProps.project
+        const oldProj = this.props.project
+        if (oldProj && project && oldProj.id !== project.id) {
+            this.getAppliedList()
+        }
+    }
     componentDidMount () {
         this.getAppliedList()
             .then(

@@ -1,4 +1,5 @@
 import mc from 'mirror-creator';
+import { message } from 'antd';
 import utils from 'utils'
 import Api from '../api/project';
 
@@ -6,7 +7,9 @@ const projectAction = mc([
     'GET_PROJECT',
     'GET_PROJECTS',
     'GET_ALL_PROJECTS',
-    'SET_PROJECT'
+    'SET_PROJECT',
+    'GET_PROJECT_LIST',
+    'STICK_PROJECT'
 ], { prefix: 'project/' })
 
 const defaultProject: any = {
@@ -44,7 +47,7 @@ export function setProject (data: any) {
         data
     }
 }
-
+// 项目下拉列表
 export function getProjects (params?: any) {
     return function fn (dispatch: any) {
         Api.getProjects(params).then((res: any) => {
@@ -67,12 +70,35 @@ export function getAllProjects (params?: any) {
     }
 }
 
+export function getProjectList (params?: any) {
+    return function fn (dispatch: any) {
+        Api.getProjectListInfo(params).then((res: any) => {
+            return dispatch({
+                type: projectAction.GET_PROJECT_LIST,
+                data: res.data.data
+            })
+        })
+    }
+}
+
 export function createProject (params: any) {
     return (dispatch: any) => {
         return (async () => {
             let res = await Api.createProject(params);
             if (res && res.code == 1) {
-                dispatch(getAllProjects());
+                dispatch(getProjectList());
+            }
+            return res;
+        })()
+    }
+}
+export function setStickProject (params: any, callback: () => void) {
+    return (dispatch: any) => {
+        return (async () => {
+            let res = await Api.setStickProject(params);
+            if (res && res.code == 1) {
+                callback();
+                message.success('操作成功！')
             }
             return res;
         })()
@@ -80,7 +106,7 @@ export function createProject (params: any) {
 }
 
 // Reducer
-// 获取系统下登录用户有权限的项目
+// 获取系统下登录用户有权限的项目(项目下拉列表)
 export function projects (state: any = [], action: any) {
     switch (action.type) {
         case projectAction.GET_PROJECTS:
@@ -89,8 +115,16 @@ export function projects (state: any = [], action: any) {
             return state
     }
 }
+// 获取系统所以项目（首页以及项目列表）
+export function projectList (state: any = [], action: any) {
+    switch (action.type) {
+        case projectAction.GET_PROJECT_LIST:
+            return action.data || state
+        default:
+            return state
+    }
+}
 
-// 获取系统所以项目
 export function allProjects (state: any = [], action: any) {
     switch (action.type) {
         case projectAction.GET_ALL_PROJECTS:
@@ -99,7 +133,6 @@ export function allProjects (state: any = [], action: any) {
             return state
     }
 }
-
 export function project (state = defaultProject, action: any) {
     switch (action.type) {
         case projectAction.GET_PROJECT:

@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
-// import { hashHistory } from 'react-router';
+import { hashHistory } from 'react-router';
 import PropTypes from 'prop-types'
 import { Layout, Icon } from 'antd'
 
@@ -32,12 +32,12 @@ class Container extends React.Component<any, InitState> {
     static propTypes: any;
     static defaultProps: any;
     // eslint-disable-next-line
-	// UNSAFE_componentWillReceiveProps(nextProps: any) {
-    //     const { params = {}, project = {} } = nextProps;
-    //     if (params.pid != project.id) {
-    //         hashHistory.push(location.hash.replace(/.*?(\/project\/)[^/]+(.*)/i, `$1${project.id}$2`))
-    //     }
-    // }
+	UNSAFE_componentWillReceiveProps(nextProps: any) {
+        const { params = {}, project = {} } = nextProps;
+        if (params.pid != project.id) {
+            hashHistory.push(location.hash.replace(/.*?(\/project\/)[^/]+(.*)/i, `$1${project.id}$2`))
+        }
+    }
 
     toggleCollapsed = () => {
         this.setState({

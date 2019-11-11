@@ -1,14 +1,13 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router';
 
-import { Icon, Card, Input, Table, Button } from 'antd';
+import { Icon, Card, Input, Table, Button, Tooltip } from 'antd';
 import NewProject from '../../components/newProject';
 
 import utils from 'utils';
 import * as projectActions from '../../actions/project'
-import { PROJECT_STATUS } from '../../consts'
+import { PROJECT_STATUS, STICK_STATUS } from '../../consts'
 import Api from '../../api/project';
 
 const Search = Input.Search;
@@ -31,10 +30,16 @@ interface ProjectState {
 
 @(connect((state: any) => {
     return {
+        projectList: state.projectList
     }
 }, (dispatch: any) => {
     return {
-        ...bindActionCreators(projectActions, dispatch)
+        setStickProject: (params: any, callback: () => void) => {
+            dispatch(projectActions.setStickProject(params, callback))
+        },
+        getProject: (id: number) => {
+            dispatch(projectActions.getProject(id))
+        }
     }
 }) as any)
 class ProjectsList extends React.Component<any, ProjectState> {
@@ -94,10 +99,10 @@ class ProjectsList extends React.Component<any, ProjectState> {
             loading: true
         })
         const { pagination, params } = this.state;
-        let res = await Api.getAllProjects({
+        let res = await Api.getProjectListInfo({
             currentPage: pagination.current,
             pageSize: pagination.pageSize,
-            searchName: params.search || undefined,
+            fuzzyName: params.search || undefined,
             orderBy: params.filed ? params.filed.replace(/([A-Z])/g, '_$1').toLowerCase() : undefined,
             sort: params.sort || undefined
         });
@@ -114,6 +119,16 @@ class ProjectsList extends React.Component<any, ProjectState> {
             })
         }
     }
+    handleEnterProject = (record: any) => {
+        this.props.router.push('/api/overview');
+        this.props.getProject(record.id);
+    }
+    setStickProject = (record: any) => {
+        this.props.setStickProject({
+            appointProjectId: record.id,
+            stickStatus: record.stickStatus == STICK_STATUS.TOP ? STICK_STATUS.NO_TOP : STICK_STATUS.TOP
+        }, this.getTableData)
+    }
     initCol = () => {
         return [{
             title: '项目显示名',
@@ -121,8 +136,8 @@ class ProjectsList extends React.Component<any, ProjectState> {
             key: 'projectAlias',
             width: '180px',
             render: (text: any, record: any) => {
-                if (record.status == PROJECT_STATUS.SUCCESS) {
-                    // return <a onClick={() => this.handleCheckProject(record)}>{text}</a>
+                if (record.status == PROJECT_STATUS.NORMAL) {
+                    return <a onClick={() => this.handleEnterProject(record)}>{text}</a>
                 }
                 return text;
             }
@@ -133,16 +148,16 @@ class ProjectsList extends React.Component<any, ProjectState> {
             width: '180px'
         }, {
             title: 'API创建数',
-            dataIndex: 'totalSize',
-            key: 'totalSize',
+            dataIndex: 'apiCreateCount',
+            key: 'apiCreateCount',
             render (t: any) {
                 return t
             },
             sorter: true
         }, {
             title: 'API发布数',
-            dataIndex: 'totalApiSize',
-            key: 'totalApiSize',
+            dataIndex: 'apiIssueCount',
+            key: 'apiIssueCount',
             render (t: any) {
                 return t
             },
@@ -165,35 +180,40 @@ class ProjectsList extends React.Component<any, ProjectState> {
             key: 'o',
             render: (text: any, record: any) => {
                 switch (record.status) {
-                    case PROJECT_STATUS.CREATING: {
+                    case PROJECT_STATUS.INITIALIZE: {
                         return '项目创建中...'
                     }
-                    case PROJECT_STATUS.CANCEL:
-                    case PROJECT_STATUS.FAILED: {
+                    case PROJECT_STATUS.DISABLE:
+                    case PROJECT_STATUS.FAIL: {
                         return <a style={{ color: 'red' }}>项目创建失败</a>
                     }
                     default: {
-                        return <a onClick={ () => {
-                            this.props.setProject(record);
-                            setTimeout(() => {
-                                this.props.router.push('/science/workbench');
-                            })
-                        }}>
-                            开始数据探索
+                        return <a onClick={() => { this.setStickProject(record) }}>
+                            {record.stickStatus === STICK_STATUS.TOP ? (
+                                <Tooltip title='取消置顶' mouseEnterDelay={0.5}>
+                                    {/* <Icon type="arrow-down" /> */}
+                                    取消置顶
+                                </Tooltip>
+                            ) : (
+                                <Tooltip title='置顶' mouseEnterDelay={0.5}>
+                                    <Icon type="arrow-up" />
+                                </Tooltip>
+                            )}
+
                         </a>
                     }
                 }
             }
         }]
     }
-    gotoWelcome = () => {
+    goToProjectPanel = () => {
         this.props.router.push('/')
     }
     render () {
         const { loading, data, pagination, visible } = this.state;
         return (
             <div className="projects-list">
-                <header className="projects-header"><Icon type="rollback" onClick={this.gotoWelcome} />项目列表</header>
+                <header className="projects-header"><Icon type="rollback" onClick={this.goToProjectPanel} />项目列表</header>
                 <Card
                     noHovering
                     bordered={false}
