@@ -1,5 +1,10 @@
 package com.dtstack.engine.dtscript.service.task;
 
+import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.common.enums.EJobCacheStage;
+import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.enums.EngineType;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.ClientCache;
 import com.dtstack.engine.common.IClient;

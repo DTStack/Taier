@@ -24,7 +24,7 @@ import java.nio.charset.StandardCharsets
 import java.util.zip.{ZipEntry, ZipOutputStream}
 import java.util.{Properties, UUID}
 
-import com.dtstack.engine.dtscript.execution.sparkyarn.util.KerberosUtils
+import com.dtstack.engine.sparkyarn.sparkyarn.util.KerberosUtils
 import com.google.common.base.Objects
 import com.google.common.io.Files
 import org.apache.hadoop.conf.Configuration

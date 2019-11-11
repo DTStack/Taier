@@ -1,7 +1,7 @@
 package com.dtstack.engine.dtscript;
 
-import com.dtstack.engine.common.DtStringUtil;
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.dtscript.common.type.AppTypeEnum;
 import org.apache.commons.lang.StringUtils;
 import sun.misc.BASE64Decoder;
@@ -14,7 +14,8 @@ public class DtYarnShellUtil {
 
     public static String[] buildPythonArgs(JobClient jobClient) throws IOException {
         String exeArgs = jobClient.getClassArgs();
-        List<String> args = DtStringUtil.splitIngoreBlank(exeArgs);
+        List<String> args = DtStringUtil
+                .splitIngoreBlank(exeArgs);
 
         String appType = null;
         for (int i = 0; i < args.size() - 1; ++i) {

@@ -10,7 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>base.hadoop</artifactId>
+    <artifactId>plugins.hadoop</artifactId>
     <packaging>jar</packaging>
 
     <properties>
@@ -27,7 +27,7 @@
 
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>plugin.base</artifactId>
+            <artifactId>plugins.base</artifactId>
             <version>1.0.0</version>
         </dependency>
 

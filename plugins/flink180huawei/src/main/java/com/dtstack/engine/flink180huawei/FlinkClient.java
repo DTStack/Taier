@@ -4,7 +4,7 @@ import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosException;
 import com.dtstack.engine.common.http.PoolHttpClient;
-import com.dtstack.engine.common.DtStringUtil;
+import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.AbsClient;
 import com.dtstack.engine.common.JarFileInfo;

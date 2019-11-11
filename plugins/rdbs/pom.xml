@@ -10,8 +10,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>base.rdbs</artifactId>
+    <artifactId>plugins.rdbs</artifactId>
     <packaging>pom</packaging>
+
     <modules>
         <module>common</module>
         <module>mysql</module>

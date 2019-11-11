@@ -9,10 +9,11 @@
         <version>1.0.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-
-    <artifactId>plugin.base</artifactId>
     <modelVersion>4.0.0</modelVersion>
-    <name>plugin.base</name>
+
+    <artifactId>plugins.base</artifactId>
+    <name>plugins.base</name>
+
     <url>http://maven.apache.org</url>
 
     <properties>

@@ -10,8 +10,9 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <artifactId>base.flink180</artifactId>
-    <name>base.flink180</name>
+    <artifactId>plugins.flink180</artifactId>
+    <name>plugins.flink180</name>
+
     <url>http://maven.apache.org</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -30,7 +31,7 @@
 
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>plugin.base</artifactId>
+            <artifactId>plugins.base</artifactId>
             <version>1.0.0</version>
         </dependency>
 

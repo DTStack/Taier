@@ -3,15 +3,15 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>engine</artifactId>
         <groupId>com.dtstack.engine</groupId>
+        <artifactId>engine-all</artifactId>
         <version>1.0.0</version>
-        <relativePath>../../../pom.xml</relativePath>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>base.spark160-yarn</artifactId>
     <packaging>pom</packaging>
-    <name>base.spark160-yarn</name>
+    <name>plugins.spark160-yarn</name>
+    <artifactId>plugins.spark160-yarn</artifactId>
 
     <modules>
         <module>spark160-sql-proxy</module>
@@ -27,14 +27,14 @@
     <dependencies>
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>base.common</artifactId>
+            <artifactId>common</artifactId>
             <version>1.0.0</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>plugin.base</artifactId>
+            <artifactId>plugins.base</artifactId>
             <version>1.0.0</version>
         </dependency>
 

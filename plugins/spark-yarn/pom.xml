@@ -9,9 +9,10 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>base.spark-yarn</artifactId>
+    
+    <artifactId>plugins.spark-yarn</artifactId>
+    <name>plugins.spark-yarn</name>
     <packaging>pom</packaging>
-    <name>base.spark-yarn</name>
 
     <modules>
         <module>spark-sql-proxy</module>
@@ -27,14 +28,14 @@
     <dependencies>
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>base.common</artifactId>
+            <artifactId>common</artifactId>
             <version>1.0.0</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>plugin.base</artifactId>
+            <artifactId>plugins.base</artifactId>
             <version>1.0.0</version>
         </dependency>
 

@@ -10,10 +10,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>base.dtscript</artifactId>
-    <packaging>pom</packaging>
-    <name>base.dtscript</name>
+    <artifactId>plugins.dtscript</artifactId>
+    <name>plugins.dtscript</name>
 
+    <packaging>pom</packaging>
 
     <properties>
         <hadoop2.version>2.7.3</hadoop2.version>

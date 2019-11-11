@@ -24,7 +24,7 @@ import java.util.{Properties, UUID}
 import java.util.zip.{ZipEntry, ZipOutputStream}
 
 import com.dtstack.engine.common.config.ConfigParse
-import com.dtstack.engine.dtscript.execution.spark160.sparkyarn.util.KerberosUtils
+import com.dtstack.engine.spark160.sparkyarn.util.KerberosUtils
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.{ArrayBuffer, HashMap, HashSet, ListBuffer, Map}

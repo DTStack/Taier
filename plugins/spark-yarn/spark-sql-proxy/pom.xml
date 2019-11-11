@@ -3,13 +3,15 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>base.spark-yarn</artifactId>
+        <artifactId>plugins.spark-yarn</artifactId>
         <groupId>com.dtstack.engine</groupId>
         <version>1.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>spark-sql-proxy</artifactId>
+    <artifactId>plugins.spark-yarn.spark-sql-proxy</artifactId>
+    <name>plugins.spark-yarn.spark-sql-proxy</name>
+
     <properties>
         <carbondata.version>1.5.0-SNAPSHOT</carbondata.version>
     </properties>
@@ -61,7 +63,7 @@
                         <configuration>
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/target/${project.name}-${git.branch}.jar" />
+                                      tofile="${basedir}/target/${project.name}-${git.branch}.jar"/>
                                 <copy todir="${basedir}/../../../../plugin/spark_yarn/"
                                       file="${basedir}/target/${project.name}-${git.branch}.jar"/>
                                 <delete>

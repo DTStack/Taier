@@ -4,13 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>com.dtstack.engine</groupId>
-        <artifactId>base.dtscript</artifactId>
+        <artifactId>plugins.dtscript</artifactId>
         <version>1.0.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>dtscript-client</artifactId>
+    <artifactId>plugins.dtscript.dtscript-client</artifactId>
+    <name>plugins.dtscript.dtscript-client</name>
 
     <dependencies>
 
@@ -23,13 +24,13 @@
 
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>plugin.base</artifactId>
+            <artifactId>plugins.base</artifactId>
             <version>1.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>dtscript-core</artifactId>
+            <artifactId>plugins.dtscript.dtscript-core</artifactId>
             <version>1.0.0</version>
             <exclusions>
                 <exclusion>
