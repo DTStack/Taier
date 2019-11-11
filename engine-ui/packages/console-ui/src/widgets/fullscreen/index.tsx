@@ -61,8 +61,8 @@ export default class FullScreenButton extends React.Component<any, any> {
             document.onwebkitfullscreenchange = null;
         }
         if (this.state.isFullScreen) {
-                this.exitFullscreen();
-            }
+            this.exitFullscreen();
+        }
     }
     keyPressFullScreen = (evt: any) => {
         evt.preventDefault();
