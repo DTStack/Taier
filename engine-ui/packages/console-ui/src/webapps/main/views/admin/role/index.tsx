@@ -82,9 +82,10 @@ class AdminRole extends React.Component<any, RoleState> {
     loadData = () => {
         this.setState({ loading: 'loading' })
 
-        const { active, selectedProject, streamSelectedProject, scienceSelectedProject, selecteDatabase, currentPage } = this.state
+        const { active, selectedProject, streamSelectedProject, scienceSelectedProject, apiSelectedProject, selecteDatabase, currentPage } = this.state
         const app = active;
-        const haveSelected = (MY_APPS.RDOS == active && selectedProject) || (MY_APPS.STREAM == active && streamSelectedProject) || (MY_APPS.SCIENCE == active && scienceSelectedProject)
+        const haveSelected = (MY_APPS.RDOS == active && selectedProject) || (MY_APPS.STREAM == active && streamSelectedProject) ||
+        (MY_APPS.SCIENCE == active && scienceSelectedProject) || (MY_APPS.API == active && apiSelectedProject)
         const databaseExsit = (MY_APPS.ANALYTICS_ENGINE == active && selecteDatabase);
         const params: any = {
             pageSize: 10,
@@ -107,6 +108,8 @@ class AdminRole extends React.Component<any, RoleState> {
                 params.projectId = streamSelectedProject;
             } else if (MY_APPS.SCIENCE == active) {
                 params.projectId = scienceSelectedProject;
+            } else if (MY_APPS.API == active) {
+                params.projectId = apiSelectedProject;
             }
             this.loadRoles(app, params)
         }

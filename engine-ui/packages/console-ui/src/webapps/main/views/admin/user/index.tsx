@@ -185,7 +185,8 @@ class AdminUser extends React.Component<any, UserManaState> {
                 switch (app) {
                     case MY_APPS.RDOS:
                     case MY_APPS.STREAM:
-                    case MY_APPS.SCIENCE: {
+                    case MY_APPS.SCIENCE:
+                    case MY_APPS.API: {
                         if (roleValue == RDOS_ROLE.VISITOR) {
                             isVisitor = true
                         } else if (roleValue == RDOS_ROLE.PROJECT_ADMIN) {
@@ -195,7 +196,6 @@ class AdminUser extends React.Component<any, UserManaState> {
                         }
                         break;
                     }
-                    case MY_APPS.API:
                     case MY_APPS.LABEL:
                     case MY_APPS.ANALYTICS_ENGINE:
                     case MY_APPS.DATA_QUALITY: {
@@ -309,6 +309,12 @@ class AdminUser extends React.Component<any, UserManaState> {
                         scienceProjects: res.data,
                         scienceSelectedProject: cookiesProject || projectId
                     }, this.loadData.bind(this, true))
+                } else if (app == MY_APPS.API) {
+                    cookiesProject = getNotNullProject(utils.getCookie('api_project_id'), res.data)
+                    ctx.setState({
+                        apiProjects: res.data,
+                        apiSelectedProject: cookiesProject || projectId
+                    }, this.loadData.bind(this, true))
                 }
             }
         })
@@ -380,11 +386,12 @@ class AdminUser extends React.Component<any, UserManaState> {
         });
     }
     getProjectId (active: any) {
-        const { selectedProject, streamSelectedProject, scienceSelectedProject } = this.state;
+        const { selectedProject, streamSelectedProject, scienceSelectedProject, apiSelectedProject } = this.state;
         let map = {
             [MY_APPS.RDOS]: selectedProject,
             [MY_APPS.STREAM]: streamSelectedProject,
-            [MY_APPS.SCIENCE]: scienceSelectedProject
+            [MY_APPS.SCIENCE]: scienceSelectedProject,
+            [MY_APPS.API]: apiSelectedProject
         }
         return map[active];
     }
