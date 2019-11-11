@@ -11,6 +11,10 @@
 
     <artifactId>plugins.rdbs.impala</artifactId>
 
+    <properties>
+        <jar.name>impala</jar.name>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.dtstack.engine</groupId>
@@ -86,13 +90,13 @@
                         <configuration>
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/target/${project.name}-${git.branch}.jar" />
-                                <copy todir="${basedir}/../../../../plugin/impala/"
-                                      file="${basedir}/target/${project.name}-${git.branch}.jar"/>
+                                      tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
+                                <copy todir="${basedir}/target/../../../../plugin/impala/"
+                                      file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/../../../../plugin/impala/"
-                                             includes="${project.name}-*.jar"
-                                             excludes="${project.name}-${git.branch}.jar"/>
+                                    <fileset dir="${basedir}/target/../../../../plugin/impala/"
+                                             includes="${jar.name}-*.jar"
+                                             excludes="${jar.name}-${git.branch}.jar"/>
                                 </delete>
                             </tasks>
                         </configuration>

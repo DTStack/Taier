@@ -12,6 +12,10 @@
     <artifactId>plugins.learning.learning-core</artifactId>
     <name>plugins.learning.learning-core</name>
 
+    <properties>
+        <jar.name>learning-core</jar.name>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.dtstack</groupId>
@@ -82,13 +86,13 @@
                         <configuration>
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/target/${project.name}-${git.branch}.jar" />
-                                <copy todir="${basedir}/../../../../plugin/learning/"
-                                      file="${basedir}/target/${project.name}-${git.branch}.jar"/>
+                                      tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
+                                <copy todir="${basedir}/target/../../../../plugin/learning/"
+                                      file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/../../../../plugin/learning/"
-                                             includes="${project.name}-*.jar"
-                                             excludes="${project.name}-${git.branch}.jar"/>
+                                    <fileset dir="${basedir}/target/../../../../plugin/learning/"
+                                             includes="${jar.name}-*.jar"
+                                             excludes="${jar.name}-${git.branch}.jar"/>
                                 </delete>
                             </tasks>
                         </configuration>

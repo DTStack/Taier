@@ -11,6 +11,10 @@
 
     <artifactId>plugins.rdbs.sqlserver</artifactId>
 
+    <properties>
+        <jar.name>sqlserver</jar.name>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.dtstack.engine</groupId>
@@ -85,13 +89,13 @@
                         <configuration>
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/target/${project.name}-${git.branch}.jar" />
-                                <copy todir="${basedir}/../../../../plugin/sqlserver/"
-                                      file="${basedir}/target/${project.name}-${git.branch}.jar"/>
+                                      tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
+                                <copy todir="${basedir}/target/../../../../plugin/sqlserver/"
+                                      file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/../../../../plugin/sqlserver/"
-                                             includes="${project.name}-*.jar"
-                                             excludes="${project.name}-${git.branch}.jar"/>
+                                    <fileset dir="${basedir}/target/../../../../plugin/sqlserver/"
+                                             includes="${jar.name}-*.jar"
+                                             excludes="${jar.name}-${git.branch}.jar"/>
                                 </delete>
                             </tasks>
                         </configuration>

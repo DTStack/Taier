@@ -17,6 +17,7 @@
     <url>http://maven.apache.org</url>
 
     <properties>
+        <jar.name>odps</jar.name>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -109,13 +110,13 @@
                         <configuration>
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/target/${project.name}-${git.branch}.jar" />
-                                <copy todir="${basedir}/../../../plugin/maxcompute/"
-                                      file="${basedir}/target/${project.name}-${git.branch}.jar"/>
+                                      tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
+                                <copy todir="${basedir}/target/../../../plugin/maxcompute/"
+                                      file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/../../../plugin/maxcompute/"
-                                             includes="${project.name}-*.jar"
-                                             excludes="${project.name}-${git.branch}.jar"/>
+                                    <fileset dir="${basedir}/target/../../../plugin/maxcompute/"
+                                             includes="${jar.name}-*.jar"
+                                             excludes="${jar.name}-${git.branch}.jar"/>
                                 </delete>
                             </tasks>
                         </configuration>

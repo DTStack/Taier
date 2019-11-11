@@ -13,6 +13,7 @@
     <name>plugins.spark-yarn-hadoop2.spark-yarn-client</name>
 
     <properties>
+        <jar.name>spark-yarn-hadoop2-client</jar.name>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spark.version>2.1.0</spark.version>
         <hadoop.version>2.7.3</hadoop.version>
@@ -159,13 +160,13 @@
                         <configuration>
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/target/${project.name}-${git.branch}.jar" />
-                                <copy todir="${basedir}/../../../../plugin/spark_yarn/"
-                                      file="${basedir}/target/${project.name}-${git.branch}.jar"/>
+                                      tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
+                                <copy todir="${basedir}/target/../../../../../plugin/spark-yarn-hadoop2/"
+                                      file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/../../../../plugin/spark_yarn/"
-                                             includes="${project.name}-*.jar"
-                                             excludes="${project.name}-${git.branch}.jar"/>
+                                    <fileset dir="${basedir}/target/../../../../../plugin/spark-yarn-hadoop2/"
+                                             includes="${jar.name}-*.jar"
+                                             excludes="${jar.name}-${git.branch}.jar"/>
                                 </delete>
                             </tasks>
                         </configuration>

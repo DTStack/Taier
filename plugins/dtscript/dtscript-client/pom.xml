@@ -156,10 +156,10 @@
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
                                       tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
-                                <copy todir="${basedir}/../../../plugin/dtscript/"
+                                <copy todir="${basedir}/target/../../../../plugin/dtscript/"
                                       file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/../../../../plugin/dtscript/"
+                                    <fileset dir="${basedir}/target/../../../../plugin/dtscript/"
                                              includes="${jar.name}-*.jar"
                                              excludes="${jar.name}-${git.branch}.jar"/>
                                 </delete>

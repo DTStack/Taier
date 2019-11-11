@@ -13,6 +13,7 @@
     <name>plugins.spark-yarn-hadoop2.spark-sql-proxy</name>
 
     <properties>
+        <jar.name>spark-yarn-hadoop2-sql-proxy</jar.name>
         <carbondata.version>1.5.0-SNAPSHOT</carbondata.version>
     </properties>
 
@@ -63,13 +64,13 @@
                         <configuration>
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/target/${project.name}-${git.branch}.jar"/>
-                                <copy todir="${basedir}/../../../../plugin/spark_yarn/"
-                                      file="${basedir}/target/${project.name}-${git.branch}.jar"/>
+                                      tofile="${basedir}/target/${jar.name}-${git.branch}.jar"/>
+                                <copy todir="${basedir}/target/../../../../../plugin/spark-yarn-hadoop2/"
+                                      file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/../../../../plugin/spark_yarn/"
-                                             includes="${project.name}-*.jar"
-                                             excludes="${project.name}-${git.branch}.jar"/>
+                                    <fileset dir="${basedir}/target/../../../../../plugin/spark-yarn-hadoop2/"
+                                             includes="${jar.name}-*.jar"
+                                             excludes="${jar.name}-${git.branch}.jar"/>
                                 </delete>
                             </tasks>
                         </configuration>

@@ -211,10 +211,10 @@
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
                                       tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
-                                <copy todir="${basedir}/../../../plugin/flink180-hadopp2/"
+                                <copy todir="${basedir}/target/../../../../plugin/flink180-hadopp2/"
                                       file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/../../../plugin/flink180-hadopp2/"
+                                    <fileset dir="${basedir}/target/../../../../plugin/flink180-hadopp2/"
                                              includes="${jar.name}-*.jar"
                                              excludes="${jar.name}-${git.branch}.jar"/>
                                 </delete>
