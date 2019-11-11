@@ -5,7 +5,7 @@ import com.dtstack.engine.common.exception.ClientArgumentException;
 import com.dtstack.engine.common.exception.LimitResourceException;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.base.resource.AbstractYarnResourceInfo;
-import com.dtstack.yarn.client.ClientArguments;
+import com.dtstack.engine.dtscript.client.ClientArguments;
 import com.google.common.collect.Lists;
 
 import java.util.List;

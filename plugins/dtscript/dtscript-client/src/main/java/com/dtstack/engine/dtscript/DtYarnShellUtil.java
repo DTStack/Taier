@@ -2,7 +2,7 @@ package com.dtstack.engine.dtscript;
 
 import com.dtstack.engine.common.DtStringUtil;
 import com.dtstack.engine.common.JobClient;
-import com.dtstack.yarn.common.type.AppTypeEnum;
+import com.dtstack.engine.dtscript.common.type.AppTypeEnum;
 import org.apache.commons.lang.StringUtils;
 import sun.misc.BASE64Decoder;
 import java.io.IOException;

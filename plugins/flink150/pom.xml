@@ -17,9 +17,10 @@
     </properties>
 
     <dependencies>
+
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>base.common</artifactId>
+            <artifactId>common</artifactId>
             <version>1.0.0</version>
             <scope>provided</scope>
         </dependency>

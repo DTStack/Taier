@@ -17,8 +17,6 @@
         <junit.version>4.11</junit.version>
         <jdk.version>1.8</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <yarnshell.jar.basename>dt-script-${project.version}-hadoop${hadoop2.version}</yarnshell.jar.basename>
-        <yarnshell.jar>${yarnshell.jar.basename}.jar</yarnshell.jar>
     </properties>
 
     <dependencies>
