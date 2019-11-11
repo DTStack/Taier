@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.rdos.engine.service.db.mapper.RdosEngineStreamJobMapper">
-	<resultMap id="rdosTaskResult" type="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob">
+<mapper namespace="com.dtstack.engine.dtscript.service.db.mapper.RdosEngineStreamJobMapper">
+	<resultMap id="rdosTaskResult" type="com.dtstack.engine.dtscript.service.db.dataobject.RdosEngineStreamJob">
         <id column="id" property="id" jdbcType="BIGINT" />
         <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
         <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
@@ -20,7 +20,7 @@
         <result column="retry_num" property="retryNum" jdbcType="INTEGER" />
     </resultMap>
 
-    <insert id="insert" parameterType="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob">
+    <insert id="insert" parameterType="com.dtstack.engine.dtscript.service.db.dataobject.RdosEngineBatchJob">
 	    insert into rdos_engine_stream_job(gmt_create,gmt_modified,exec_start_time,task_id,status, plugin_info_id, task_name)
 	    values(now(),now(),now(),#{taskId},#{status}, #{pluginInfoId}, #{taskName})
 	    <selectKey resultType="long" keyProperty="id" order="AFTER">

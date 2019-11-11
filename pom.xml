@@ -2,8 +2,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.dtstack.rdos</groupId>
-	<artifactId>engine</artifactId>
+	<groupId>com.dtstack.engine</groupId>
+	<artifactId>engine-all</artifactId>
 	<version>1.0.0</version>
 	<packaging>pom</packaging>
 	<name>engine</name>
@@ -14,26 +14,26 @@
 	</properties>
 
 	<modules>
-		<module>entrance</module>
 		<module>common</module>
-		<module>base/common</module>
+		<!--<module>base/common</module>-->
 		<!--<module>base/plugin/spark</module>-->
-		<module>web</module>
+		<module>plugins/base</module>
+		<module>plugins/spark-yarn</module>
+		<module>plugins/odps</module>
+		<module>plugins/rdbs</module>
+		<module>plugins/hadoop</module>
+		<module>plugins/learning</module>
+		<module>plugins/flink150</module>
+		<!--<module>plugins/flink170</module>-->
+		<module>plugins/flink180</module>
+		<module>plugins/flink180huawei</module>
+		<!--<module>plugins/spark160-yarn</module>-->
+		<module>plugins/dtscript</module>
+		<module>plugins/kylin</module>
 		<module>service</module>
-		<module>base/plugin/base</module>
-		<module>base/plugin/spark-yarn</module>
-		<module>base/plugin/odps</module>
-		<module>base/plugin/rdbs</module>
-		<module>base/plugin/hadoop</module>
-		<module>base/plugin/learning</module>
-		<module>base/plugin/flink150</module>
-		<!--<module>base/plugin/flink170</module>-->
-		<module>base/plugin/flink180</module>
-		<module>base/plugin/flink180huawei</module>
-		<!--<module>base/plugin/spark160-yarn</module>-->
-		<module>base/plugin/dt-yarn-shell</module>
-        <module>base/plugin/kylin</module>
-    </modules>
+		<module>web</module>
+		<module>entrance</module>
+	</modules>
 
 	<dependencies>
 	

@@ -4,11 +4,12 @@
 		xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>com.dtstack.rdos</groupId>
-		<artifactId>engine</artifactId>
+		<groupId>com.dtstack.engine</groupId>
+		<artifactId>engine-all</artifactId>
 		<version>1.0.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
+
 	<artifactId>common</artifactId>
 	<name>common</name>
 	<properties>
@@ -104,5 +105,18 @@
             <artifactId>httpmime</artifactId>
             <version>4.3.1</version>
         </dependency>
+
+		<dependency>
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+			<version>1.8.3</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>druid</artifactId>
+			<version>1.0.23</version>
+		</dependency>
 	</dependencies>
 </project>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>com.dtstack.engine</groupId>
+        <artifactId>engine-all</artifactId>
+        <version>1.0.0</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>base.rdbs</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>common</module>
+        <module>mysql</module>
+        <module>oracle</module>
+        <module>sqlserver</module>
+        <module>hive</module>
+        <module>postgresql</module>
+        <module>impala</module>
+    </modules>
+
+
+</project>
