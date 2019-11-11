@@ -17,14 +17,14 @@
     <modules>
         <module>common</module>
         <module>plugins/base</module>
+        <module>plugins/spark/spark-hadoop2</module>
+        <module>plugins/spark/spark-yarn-hadoop2</module>
+        <!--<module>plugins/spark/spark160-yarn-hadoop2</module>-->
+        <module>plugins/flink/flink150-hadoop2</module>
+        <module>plugins/flink/flink180-hadoop2</module>
+        <module>plugins/flink/flink180-HW</module>
         <module>plugins/dtscript</module>
         <module>plugins/learning</module>
-        <module>plugins/spark</module>
-        <module>plugins/spark-yarn</module>
-        <!--<module>plugins/spark160-yarn</module>-->
-        <module>plugins/flink150</module>
-        <module>plugins/flink180</module>
-        <module>plugins/flink180huawei</module>
         <module>plugins/odps</module>
         <module>plugins/kylin</module>
         <module>plugins/rdbs</module>
