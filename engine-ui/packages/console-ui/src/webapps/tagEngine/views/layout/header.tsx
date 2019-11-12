@@ -20,7 +20,7 @@ const Search = Input.Search;
 
 @(connect((state: any) => {
     return {
-        licenseApps: state.licenseApps
+        licenseApps: state.licenseApps,
     }
 })as any)
 class Header extends React.Component<any, any> {
