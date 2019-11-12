@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Route, IndexRoute, IndexRedirect } from 'react-router'
+import { Route, IndexRoute } from 'react-router'
 
 import asyncComponent from 'utils/asyncLoad'
 // import { openNewWindow } from 'funcs'

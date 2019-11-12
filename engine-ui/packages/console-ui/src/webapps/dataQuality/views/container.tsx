@@ -21,7 +21,6 @@ const defaultPro: any = {
     children: []
 }
 
-@(connect() as any)
 class Main extends React.Component<any, any> {
     static propTypes = propType
     static defaultProps = defaultPro
@@ -38,7 +37,7 @@ class Main extends React.Component<any, any> {
         const { children } = this.props
         return (
             <div className="main header-fixed">
-                <Header/>
+                <Header {...this.props}/>
                 <div className="container">
                     { children || <ProjectPanel /> }
                 </div>
@@ -47,4 +46,14 @@ class Main extends React.Component<any, any> {
     }
 }
 
-export default Main
+function mapStateToProps (state: any) {
+    return {
+        user: state.user,
+        projects: state.projects,
+        project: state.project,
+        apps: state.apps,
+        app: state.app,
+        common: state.common
+    }
+}
+export default connect(mapStateToProps)(Main)

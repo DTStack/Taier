@@ -59,31 +59,31 @@ class ProjectPanel extends React.Component<any, ProjectState> {
 
     // Api
     fixApiChildrenApps = (arr: any) => {
-        let fixApiChildrenApps: any = [];
+        let fixDqChildrenApps: any = [];
         if (arr && arr.length > 1) {
             arr.map((item: any) => {
                 switch (item.name) {
                     case '概览':
-                        fixApiChildrenApps[0] = item;
+                        fixDqChildrenApps[0] = item;
                         break;
-                    case 'API市场':
-                        fixApiChildrenApps[1] = item;
+                    case '任务查询':
+                        fixDqChildrenApps[1] = item;
                         break;
-                    case '我的API':
-                        fixApiChildrenApps[2] = item;
+                    case '规则配置':
+                        fixDqChildrenApps[2] = item;
                         break;
-                    case 'API管理':
-                        fixApiChildrenApps[3] = item;
-                        break;
-                    case '授权与安全':
-                        fixApiChildrenApps[4] = item;
+                    case '逐行校验':
+                        fixDqChildrenApps[3] = item;
                         break;
                     case '数据源管理':
-                        fixApiChildrenApps[5] = item;
+                        fixDqChildrenApps[4] = item;
+                        break;
+                    case '项目管理':
+                        fixDqChildrenApps[5] = item;
                         break;
                 }
             })
-            return fixApiChildrenApps
+            return fixDqChildrenApps
         } else {
             return arr;
         }
@@ -95,7 +95,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                 <Col span={18} className='c_offten_project_card_title_info' >
                     {
                         project.status == PROJECT_STATUS.NORMAL ? (
-                            <Link to={`/api/overview?projectId=${project.id}`}>
+                            <Link to={`/dq/overview?projectId=${project.id}`}>
                                 <span className='c_offten_project_card_title_name' onClick={
                                     () => {
                                         this.props.dispatch(projectActions.getProject(project.id))
@@ -109,7 +109,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                 </Col>
                 <Col span={6} >
                     <div className='c_offten_project_card_title_icon'>
-                        <img src={`public/dataApi/img/project${index + 1}.png`} />
+                        <img src={`public/dataQuality/img/project${index + 1}.png`} />
                     </div>
                 </Col>
             </Row>
@@ -147,33 +147,32 @@ class ProjectPanel extends React.Component<any, ProjectState> {
     setRouter = (type: any, project: any) => {
         let src: any;
         const { dispatch } = this.props;
-        if (type === 'apiMarket') {
-            src = '/api/market'
+        if (type === 'ruleConf') {
+            src = '/dq/rule'
         } else {
-            src = '/api/manage'
+            src = '/dq/taskQuery'
         }
         // dispatch(projectActions.getProjects());
         dispatch(projectActions.getProject(project.id));
         hashHistory.push(src)
     }
     gotoProjectList = () => {
-        this.props.router.push('/api/projectList')
+        this.props.router.push('/dq/projectList')
     }
     renderProjectCard = (project: any, index: number) => {
-        // const { loading } = this.state;
         const { licenseApps } = this.props;
-        const fixArrChildrenApps = this.fixApiChildrenApps(licenseApps[4] && licenseApps[4].children) || [];
-        const apiMarket = fixArrChildrenApps[1];
-        const apiManage = fixArrChildrenApps[3];
+        const fixDqChildrenApps = this.fixApiChildrenApps(licenseApps[3] && licenseApps[3].children) || [];
+        const ruleConf = fixDqChildrenApps[2];
+        const taskSearch = fixDqChildrenApps[1];
         return (
             <Col span={8} className="c_offten_project_col">
                 <Card className="c_offten_project_card" noHovering bordered={false} title={this.getCardTitle(project, index)}>
                     <Row className='c_offten_project_card_content'>
                         <Col span={13}>
-                            API创建数： <span className='c_project_num'>{project.apiCreateCount}</span>
+                            已配置表数： <span className='c_project_num'>{project.apiCreateCount}</span>
                         </Col>
                         <Col span={11}>
-                            API发布数： <span className='c_project_num'>{project.apiIssueCount}</span>
+                            今日告警数： <span className='c_project_num'>{project.apiIssueCount}</span>
                         </Col>
                         <Col span={24}>
                             <Row>
@@ -182,15 +181,15 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                         </Col>
                         <Col span={24} className="c_opera">
                             <Row gutter={16}>
-                                {project.status != 1 || (apiMarket && !apiMarket.isShow) ? null : (
+                                {project.status != 1 || (ruleConf && !ruleConf.isShow) ? null : (
                                     <Col span={12}>
-                                        <div className="c_api_opera" {...{ onClick: () => { this.setRouter('apiMarket', project) } }} >API市场</div>
+                                        <div className="c_api_opera" {...{ onClick: () => { this.setRouter('ruleConf', project) } }} >规则配置</div>
                                     </Col>
                                 )}
                                 {
-                                    project.status != 1 || (apiManage && !apiManage.isShow) ? null : (
+                                    project.status != 1 || (taskSearch && !taskSearch.isShow) ? null : (
                                         <Col span={12}>
-                                            <div className="c_api_opera" {...{ onClick: () => { this.setRouter('apiManage', project) } }}>API管理</div>
+                                            <div className="c_api_opera" {...{ onClick: () => { this.setRouter('taskSearch', project) } }}>任务查询</div>
                                         </Col>
                                     )
                                 }
@@ -216,7 +215,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                         <div className='c_offten_project_list'>
                             <Row className='c_offten_project_title'>
                                 <Col span={20}>
-                                    <img className='c_offten_project_title_img' src='public/dataApi/img/often_project.png' />
+                                    <img className='c_offten_project_title_img' src='public/dataQuality/img/often_project.png' />
                                 </Col>
                                 <Col span={4}>
                                     <span className='c_offten_project_title_opera'>
@@ -246,7 +245,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                             </div>
                         </div>
                         <div className='c_api_process_pic'>
-                            <img src='public/dataApi/img/process_api.png' />
+                            <img src='public/dataQuality/img/process_api.png' />
                         </div>
                     </section>
                     {/* 右侧项目总信息 */}
@@ -254,28 +253,28 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                         {/* 常用项目 */}
                         <div style={{ position: 'absolute', right: 0, top: 0, width: '-webkit-fill-available' }}>
                             <Row className='c_summary_project'>
-                                <img src='public/dataApi/img/summary_project.png' />
+                                <img src='public/dataQuality/img/summary_project.png' />
                             </Row>
                             <Row>
                                 <Card className='c_summary_project_card'>
                                     <Row gutter={16}>
                                         <Col span={8}>
                                             <div className='c_summary_sub'>
-                                                <img src ='public/dataApi/img/all_project.png' className='c_summary_sub_pic' />
+                                                <img src ='public/dataQuality/img/all_project.png' className='c_summary_sub_pic' />
                                                 <span className='c_summary_sub_name'>总项目数</span>
                                                 <span className='c_summary_sub_num'>{projectCount}</span>
                                             </div>
                                         </Col>
                                         <Col span={8}>
                                             <div className='c_summary_sub'>
-                                                <img src ='public/dataApi/img/api_create.png' className='c_summary_sub_pic' />
+                                                <img src ='public/dataQuality/img/api_create.png' className='c_summary_sub_pic' />
                                                 <span className='c_summary_sub_name'>API创建数</span>
                                                 <span className='c_summary_sub_num'>{apiCount}</span>
                                             </div>
                                         </Col>
                                         <Col span={8}>
                                             <div className='c_summary_sub'>
-                                                <img src ='public/dataApi/img/api_publish.png' className='c_summary_sub_pic' />
+                                                <img src ='public/dataQuality/img/api_publish.png' className='c_summary_sub_pic' />
                                                 <span className='c_summary_sub_name'>API发布数</span>
                                                 <span className='c_summary_sub_num'>{apiIssueCount}</span>
                                             </div>
@@ -287,7 +286,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                                 <Row>
                                                     <div className='c_latest_day_title'>最近24h累计调用次数</div>
                                                     <div className='c_latest_day_num'>{total24InvokeCount}</div>
-                                                    <div className='c_latest_day_img'><img src='public/dataApi/img/call_number.png' /></div>
+                                                    <div className='c_latest_day_img'><img src='public/dataQuality/img/call_number.png' /></div>
                                                 </Row>
                                             </Card>
                                         </Col>
@@ -296,7 +295,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                                 <Row>
                                                     <div className='c_latest_day_title'>最近24h调用失败率</div>
                                                     <div className='c_latest_day_num'>{total24FailProbability}</div>
-                                                    <div className='c_latest_day_img'><img src='public/dataApi/img/fail.png' /></div>
+                                                    <div className='c_latest_day_img'><img src='public/dataQuality/img/fail.png' /></div>
                                                 </Row>
                                             </Card>
                                         </Col>
@@ -307,7 +306,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                         {/* 快速入门 */}
                         <div style={{ position: 'absolute', right: 0, top: 370, bottom: 0, width: '-webkit-fill-available' }}>
                             <Row className='c_summary_project'>
-                                <img src='public/dataApi/img/quick_start.png' />
+                                <img src='public/dataQuality/img/quick_start.png' />
                             </Row>
                             <div>
                                 <Row>
@@ -315,29 +314,29 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                         <Row gutter={16}>
                                             <Col span={8}>
                                                 <div className='c_help_target'>
-                                                    <a target="blank" href={HELP_DOC_URL.MAKE_API}>API生成</a>
+                                                    <a target="blank" href={HELP_DOC_URL.CREATE_RULE}>新建规则</a>
                                                 </div>
                                             </Col>
                                             <Col span={8}>
                                                 <div className='c_help_target'>
-                                                    <a target="blank" href={HELP_DOC_URL.RELEASE_API}>API发布</a>
+                                                    <a target="blank" href={HELP_DOC_URL.RULE_DETAIL}>查看计算规则</a>
                                                 </div>
                                             </Col>
                                             <Col span={8}>
                                                 <div className='c_help_target'>
-                                                    <a target="blank" href={HELP_DOC_URL.APPLY_API}>API申请</a>
+                                                    <a target="blank" href={HELP_DOC_URL.REPORT_DETAIL}>查询详细报告</a>
                                                 </div>
                                             </Col>
                                         </Row>
                                         <Row gutter={16}>
                                             <Col span={8}>
                                                 <div className='c_help_target'>
-                                                    <a target="blank" href={HELP_DOC_URL.TEST_API}>API测试</a>
+                                                    <a target="blank" href={HELP_DOC_URL.REPORT_TABLE}>查看表级报告</a>
                                                 </div>
                                             </Col>
                                             <Col span={8}>
                                                 <div className='c_help_target'>
-                                                    <a target="blank" href={HELP_DOC_URL.CALL_API}>API调用</a>
+                                                    <a target="blank" href={HELP_DOC_URL.CREATE_VALI}>新建逐行校验</a>
                                                 </div>
                                             </Col>
                                         </Row>

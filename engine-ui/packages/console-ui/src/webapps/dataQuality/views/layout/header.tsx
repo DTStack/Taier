@@ -48,15 +48,6 @@ class Header extends React.Component<any, any> {
         const routes = pathname ? pathname.split('/') : [];
         let path =
             routes.length > 0 && routes[1] !== '' ? routes[2] : NOT_SHOW_KEY;
-        // if (
-        //     path &&
-        //     (path.indexOf('task') > -1 || path.indexOf('offline') > -1 || path.indexOf('realtime') > -1)
-        // ) {
-        //     this.setState({
-        //         devPath: pathname
-        //     });
-        //     path = 'realtime'
-        // }
         if (path !== this.state.current) {
             this.setState({
                 current: path
@@ -193,7 +184,6 @@ class Header extends React.Component<any, any> {
         );
     };
 
-
     goIndex = () => {
         const { router } = this.props;
         this.setState({ current: NOT_SHOW_KEY });
@@ -212,7 +202,7 @@ class Header extends React.Component<any, any> {
         const projectNav = fixArrChildrenApps[5];
         const display: boolean = current !== NOT_SHOW_KEY;
         const pid = project && project.id ? project.id : '';
-        const menuItems: any = [
+        const menuItems: any = display && [
             {
                 id: 'dq/overview',
                 name: '概览',
