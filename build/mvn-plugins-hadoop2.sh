@@ -12,4 +12,4 @@ plugins/kylin,\
 plugins/rdbs,\
 plugins/odps,\
 entrance \
--am
+-am -amd
