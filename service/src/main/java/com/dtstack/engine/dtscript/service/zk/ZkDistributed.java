@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.dtstack.engine.common.config.ConfigParse;
-//import com.dtstack.engine.common.util.KerberosUtils;
+import com.dtstack.engine.common.util.KerberosUtils;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dtscript.service.db.dao.RdosNodeMachineDAO;
 import com.dtstack.engine.dtscript.service.task.*;
@@ -22,7 +22,7 @@ import com.dtstack.engine.dtscript.service.zk.data.BrokerQueueNode;
 import com.dtstack.engine.common.EngineDeployInfo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-//import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configuration;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -131,23 +131,23 @@ public class ZkDistributed implements Closeable{
 	}
 
 	private static void initSecurity() {
-//		try {
-//			Map<String, String> securityKvs = (Map<String, String>) ConfigParse.getSecurity();
-//			String userPrincipal = securityKvs.get("userPrincipal");
-//			String userKeytabPath = securityKvs.get("userKeytabPath");
-//			String krb5ConfPath = securityKvs.get("krb5ConfPath");
-//			String zkPrincipal = securityKvs.get("zkPrincipal");
-//			String loginContextName = securityKvs.get("loginContextName");
-//
-//			KerberosUtils.setJaasConf(loginContextName, userPrincipal, userKeytabPath);
-//			KerberosUtils.setZookeeperServerPrincipal("zookeeper.server.principal", zkPrincipal);
-//			Configuration hadoopConf = new Configuration();
-//			hadoopConf.set("hadoop.security.authentication", "kerberos");
-//			hadoopConf.setBoolean("hadoop.security.authorization", true);
-//			KerberosUtils.login(userPrincipal, userKeytabPath, krb5ConfPath, hadoopConf);
-//		} catch (IOException e) {
-//			logger.error("",e);
-//		}
+		try {
+			Map<String, String> securityKvs = (Map<String, String>) ConfigParse.getSecurity();
+			String userPrincipal = securityKvs.get("userPrincipal");
+			String userKeytabPath = securityKvs.get("userKeytabPath");
+			String krb5ConfPath = securityKvs.get("krb5ConfPath");
+			String zkPrincipal = securityKvs.get("zkPrincipal");
+			String loginContextName = securityKvs.get("loginContextName");
+
+			KerberosUtils.setJaasConf(loginContextName, userPrincipal, userKeytabPath);
+			KerberosUtils.setZookeeperServerPrincipal("zookeeper.server.principal", zkPrincipal);
+			Configuration hadoopConf = new Configuration();
+			hadoopConf.set("hadoop.security.authentication", "kerberos");
+			hadoopConf.setBoolean("hadoop.security.authorization", true);
+			KerberosUtils.login(userPrincipal, userKeytabPath, krb5ConfPath, hadoopConf);
+		} catch (IOException e) {
+			logger.error("",e);
+		}
 	}
 
 	public ZkDistributed zkRegistration() throws Exception {
