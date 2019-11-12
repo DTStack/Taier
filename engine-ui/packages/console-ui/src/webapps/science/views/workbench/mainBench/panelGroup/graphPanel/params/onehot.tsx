@@ -91,7 +91,7 @@ class ParamSetting extends React.PureComponent<any, any> {
                             this.handleSubmit('drop', e.target.checked);
                         }} style={{ width: '165px' }}>删除第一个枚举量的编码</Checkbox>
                     )}
-                    <HelpDoc style={{ top: 2 }} doc='drop' />
+                    <HelpDoc style={{ position:'static' }} doc='drop' />
                 </FormItem>
                 <FormItem
                     label=''
@@ -105,7 +105,7 @@ class ParamSetting extends React.PureComponent<any, any> {
                             this.handleSubmit('ignore', e.target.checked);
                         }} style={{ width: '165px' }}>忽略特征中的空元素</Checkbox>
                     )}
-                    <HelpDoc style={{ top: 2 }} doc='ignore' />
+                    <HelpDoc style={{ position:'static' }} doc='ignore' />
                 </FormItem>
             </Form>
         )
