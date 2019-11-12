@@ -346,8 +346,10 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                 <Row>
                                     <Card className='c_use_tutorial_card c_video_width'>
                                         <Row>
-                                            <Col span={14}>1</Col>
-                                            <Col span={10}>2</Col>
+                                            <Col span={24}>
+                                                {/* 暂时无视频，先用图片替代 */}
+                                                <img src='public/dataApi/img/opera_guide.png' style={{ width: '338px', height: '128px' }} />
+                                            </Col>
                                         </Row>
                                     </Card>
                                 </Row>
