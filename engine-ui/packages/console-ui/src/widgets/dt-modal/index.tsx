@@ -13,7 +13,7 @@ export default class DTModal extends React.Component<any, any> {
 
     onFullscreen = (isFullscreen: any) => {
         const { style, width } = this.props;
-        if (isFullscreen) {
+        if (!isFullscreen) {
             this.setState({
                 modalStyle: {
                     ...defaultModalStyle,
@@ -63,7 +63,7 @@ export default class DTModal extends React.Component<any, any> {
     }
 
     render () {
-        const { children, style } = this.props;
+        const { children, style, visible } = this.props;
         const { modalStyle } = this.state;
         const applyStyle: any = { ...style, ...modalStyle };
         return <Modal
@@ -71,8 +71,8 @@ export default class DTModal extends React.Component<any, any> {
             width={modalStyle.width}
             style={applyStyle}
         >
-            {this.renderToolbox()}
-            { children }
+            { visible && this.renderToolbox()}
+            { visible && children }
         </Modal>
     }
 }
