@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { Dropdown, Input, Button, Menu, Icon, Table } from 'antd';
+import { Dropdown, Input, Button, Menu, Icon, Table, Modal } from 'antd';
 import AddDirectory from './components/addDirectory';
 import './style.scss';
+import MoveTreeNode from './components/moveTreeNode';
 
 const Search = Input.Search;
 interface IProps {
@@ -9,12 +10,16 @@ interface IProps {
 }
 interface IState {
     data: any[];
+    type: string;
     visible: boolean;
+    moveVisible: boolean;
 }
 
 export default class LabelManage extends React.PureComponent<IProps, IState> {
     state: IState = {
         visible: false,
+        moveVisible: false,
+        type: '0',
         data: [
             {
                 key: 1,
@@ -80,8 +85,9 @@ export default class LabelManage extends React.PureComponent<IProps, IState> {
             }
         ]
     };
-    onHandleClickOperation = (type: '0'|'1'|'2'|'3') => {
+    onHandleClickOperation = (type: '0'|'1'|'2') => { // 0 新建目录 | 1 新建子目录 | 2 重命名
         this.setState({
+            type,
             visible: true
         })
     }
@@ -95,8 +101,26 @@ export default class LabelManage extends React.PureComponent<IProps, IState> {
             visible: false
         })
     };
+    onHandleMove = () => {
+        this.setState({
+            moveVisible: true
+        })
+    }
+    onHandleCancelMove = (type: 'ok'|'cancel') => {
+        this.setState({
+            moveVisible: false
+        })
+    }
+    onHandleDelete = () => {
+        Modal.confirm({
+            title: '',
+            content: '确定删除此目录？',
+            okText: '删除',
+            cancelText: '取消'
+        });
+    }
     render () {
-        const { data, visible } = this.state;
+        const { data, visible, type, moveVisible } = this.state;
         const menu = (
             <Menu>
                 <Menu.Item key="0">
@@ -129,13 +153,13 @@ export default class LabelManage extends React.PureComponent<IProps, IState> {
                 render: () => {
                     return (
                         <div>
-                            <a onClick={() => this.onHandleClickOperation('0')}>新建子目录</a>
+                            <a onClick={() => this.onHandleClickOperation('1')}>新建子目录</a>
                             <span className="ant-divider" />
-                            <a onClick={() => this.onHandleClickOperation('0')}>重命名</a>
+                            <a onClick={() => this.onHandleClickOperation('2')}>重命名</a>
                             <span className="ant-divider" />
-                            <a onClick={() => this.onHandleClickOperation('0')}>移动</a>
+                            <a onClick={() => this.onHandleMove()}>移动</a>
                             <span className="ant-divider" />
-                            <a onClick={() => this.onHandleClickOperation('0')}>删除</a>
+                            <a onClick={() => this.onHandleDelete()}>删除</a>
                         </div>
                     );
                 }
@@ -159,17 +183,18 @@ export default class LabelManage extends React.PureComponent<IProps, IState> {
                     </div>
                     <div className="right_wp">
                         <Search
-                            placeholder="搜索目录名称"
+                            placeholder="搜索标签名称"
                             className="search"
                             onSearch={value => console.log(value)}
                         />
-                        <Button type="primary">新建目录</Button>
+                        <Button type="primary" onClick={() => this.onHandleClickOperation('0')}>新建标签</Button>
                     </div>
                 </div>
                 <div className="draggable-wrap-table">
-                    <Table columns={columns} dataSource={data} />
+                    <Table columns={columns} dataSource={data} pagination={ false }/>
                 </div>
-                <AddDirectory visible={visible} handleOk={this.handleOk} handleCancel={this.handleCancel}/>
+                <AddDirectory visible={visible} type={type} handleOk={this.handleOk} handleCancel={this.handleCancel}/>
+                <MoveTreeNode visible={moveVisible} handleOk={() => this.onHandleCancelMove('ok')} handleCancel={() => this.onHandleCancelMove('cancel')}/>
             </div>
         );
     }

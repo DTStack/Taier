@@ -1,0 +1,22 @@
+.labelManage{
+    .title_wrap{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .search{
+        width:260px;
+        margin-right: 20px;
+    }
+    .draggable-wrap-table{
+        background: #fff;
+        .draggable-tree{
+            width: 100%;
+            .ant-tree-node-content-wrapper {
+                width: calc(100% - 18px);
+            }
+        }
+    }
+    
+}
