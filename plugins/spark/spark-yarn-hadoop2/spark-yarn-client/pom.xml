@@ -16,7 +16,6 @@
         <jar.name>spark-yarn-hadoop2-client</jar.name>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spark.version>2.1.0</spark.version>
-        <hadoop.version>2.7.3</hadoop.version>
         <scala.version>2.11.8</scala.version>
         <scala-maven-plugin.version>3.2.2</scala-maven-plugin.version>
     </properties>

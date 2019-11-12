@@ -1,5 +1,6 @@
 package com.dtstack.engine.common.exception;
 
+import com.alibaba.fastjson.JSONObject;
 import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
@@ -19,6 +20,16 @@ import org.slf4j.Logger;
 public class ExceptionUtil {
 
     private static Logger logger = LoggerFactory.getLogger(ExceptionUtil.class);
+
+    /**
+     * 获取日志信息异常统一返回信息
+     * @return
+     */
+    public static String getTaskLogError(Throwable e){
+        Map<String, String> map = new HashMap<>(4);
+        map.put("engineLogErr", getErrorMessage(e));
+        return JSONObject.toJSONString(map);
+    }
 
     /**
      * 获取错误的堆栈信息

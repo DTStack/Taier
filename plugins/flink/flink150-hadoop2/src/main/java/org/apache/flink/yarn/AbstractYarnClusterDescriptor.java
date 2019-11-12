@@ -579,9 +579,45 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, clusterSpecification.getConfiguration(), clusterSpecification.getParallelism());
         jobGraph.setAllowQueuedScheduling(true);
         fillJobGraphClassPath(jobGraph);
+        fillPluginPathToShipFiles(jobGraph);
         clusterSpecification.setJobGraph(jobGraph);
         return jobGraph;
     }
+
+    private void fillPluginPathToShipFiles(JobGraph jobGraph) {
+        Map<String, String> jobCacheFileConfig = jobGraph.getJobConfiguration().toMap();
+        Set<String> classPathKeySet = Sets.newHashSet();
+        fillClassPathKeySet(jobCacheFileConfig, classPathKeySet);
+
+        List<File> shipFiles = new ArrayList<>();
+        for(String key : classPathKeySet){
+            String pathStr = jobCacheFileConfig.get(key);
+            shipFiles.add(new File(pathStr));
+        }
+        addShipFiles(shipFiles);
+    }
+
+    private void fillClassPathKeySet(Map<String, String> jobCacheFileConfig, Set<String> classPathKeySet) {
+        for(Map.Entry<String, String> tmp : jobCacheFileConfig.entrySet()){
+            if(Strings.isNullOrEmpty(tmp.getValue())){
+                continue;
+            }
+
+            if(tmp.getValue().startsWith("class_path")){
+                //DISTRIBUTED_CACHE_FILE_NAME_1
+                //DISTRIBUTED_CACHE_FILE_PATH_1
+                String key = tmp.getKey();
+                String[] array = key.split("_");
+                if(array.length < 5){
+                    continue;
+                }
+
+                array[3] = "PATH";
+                classPathKeySet.add(StringUtils.join(array, "_"));
+            }
+        }
+    }
+
 
     private PackagedProgram buildProgram(String monitorUrl,ClusterSpecification clusterSpecification) throws Exception{
         String[] args = clusterSpecification.getProgramArgs();
@@ -637,24 +673,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         Map<String, String> jobCacheFileConfig = jobGraph.getJobConfiguration().toMap();
         Set<String> classPathKeySet = Sets.newHashSet();
 
-        for(Map.Entry<String, String> tmp : jobCacheFileConfig.entrySet()){
-            if(Strings.isNullOrEmpty(tmp.getValue())){
-                continue;
-            }
-
-            if(tmp.getValue().startsWith("class_path")){
-                //DISTRIBUTED_CACHE_FILE_NAME_1
-                //DISTRIBUTED_CACHE_FILE_PATH_1
-                String key = tmp.getKey();
-                String[] array = key.split("_");
-                if(array.length < 5){
-                    continue;
-                }
-
-                array[3] = "PATH";
-                classPathKeySet.add(StringUtils.join(array, "_"));
-            }
-        }
+        fillClassPathKeySet(jobCacheFileConfig, classPathKeySet);
 
         for(String key : classPathKeySet){
             String pathStr = jobCacheFileConfig.get(key);

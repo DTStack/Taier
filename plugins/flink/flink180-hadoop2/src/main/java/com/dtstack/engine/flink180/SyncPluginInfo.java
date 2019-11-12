@@ -33,9 +33,9 @@ public class SyncPluginInfo {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncPluginInfo.class);
 
-    private static final String fileSP = File.separator;
+    public static final String fileSP = File.separator;
 
-    private static final String syncPluginDirName = "syncplugin";
+    public static final String syncPluginDirName = "syncplugin";
 
     private static final String coreJarNamePrefix = "flinkx";
 
@@ -150,27 +150,6 @@ public class SyncPluginInfo {
         try {
             job = java.net.URLDecoder.decode(job, "UTF-8");
             programArgList.set(i + 1, job);
-            Gson gson = new Gson();
-            Map<String, Object> map = gson.fromJson(job, Map.class);
-            LinkedTreeMap jobMap = (LinkedTreeMap) map.get("job");
-
-            List<LinkedTreeMap> contentList = (List<LinkedTreeMap>) jobMap.get("content");
-            LinkedTreeMap content = contentList.get(0);
-            LinkedTreeMap reader = (LinkedTreeMap) content.get("reader");
-            String readerName = (String) reader.get("name");
-            LinkedTreeMap writer = (LinkedTreeMap) content.get("writer");
-            String writerName = (String) writer.get("name");
-
-            Preconditions.checkArgument(StringUtils.isNotEmpty(readerName), "reader name should not be empty");
-            Preconditions.checkArgument(StringUtils.isNotEmpty(writerName), "writer ame should not be empty");
-
-            File commonDir = new File(localSyncFileDir + fileSP + "common");
-            File readerDir = new File(localSyncFileDir + fileSP + readerName);
-            File writerDir = new File(localSyncFileDir + fileSP + writerName);
-            urlList.addAll(findJarsInDir(commonDir, FILE_PROTOCOL + flinkSyncPluginRoot + fileSP + "common"));
-            urlList.addAll(findJarsInDir(readerDir, FILE_PROTOCOL + flinkSyncPluginRoot + fileSP + readerName));
-            urlList.addAll(findJarsInDir(writerDir, FILE_PROTOCOL + flinkSyncPluginRoot + fileSP + writerName));
-
         } catch (Exception e) {
             LOG.error("", e);
         } finally {

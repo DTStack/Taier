@@ -15,7 +15,6 @@
 
     <properties>
         <jar.name>dtscript-core</jar.name>
-        <hadoop2.version>2.7.3</hadoop2.version>
         <junit.version>4.11</junit.version>
         <jdk.version>1.8</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -26,42 +25,42 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
-            <version>${hadoop2.version}</version>
+            <version>${hadoop.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-yarn-api</artifactId>
-            <version>${hadoop2.version}</version>
+            <version>${hadoop.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-yarn-common</artifactId>
-            <version>${hadoop2.version}</version>
+            <version>${hadoop.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-core</artifactId>
-            <version>${hadoop2.version}</version>
+            <version>${hadoop.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-app</artifactId>
-            <version>${hadoop2.version}</version>
+            <version>${hadoop.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-common</artifactId>
-            <version>${hadoop2.version}</version>
+            <version>${hadoop.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-hs</artifactId>
-            <version>${hadoop2.version}</version>
+            <version>${hadoop.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-yarn-client</artifactId>
-            <version>${hadoop2.version}</version>
+            <version>${hadoop.version}</version>
         </dependency>
 
         <dependency>

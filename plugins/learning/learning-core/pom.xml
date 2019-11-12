@@ -26,21 +26,6 @@
 
     <build>
         <plugins>
-            <!--<plugin>-->
-                <!--<artifactId>maven-clean-plugin</artifactId>-->
-                <!--<version>2.5</version>-->
-                <!--<configuration>-->
-                    <!--<filesets>-->
-                        <!--<fileset>-->
-                            <!--<directory>${basedir}/../target</directory>-->
-                            <!--<includes>-->
-                                <!--<include>${project.name}-${project.version}.jar</include>-->
-                            <!--</includes>-->
-                        <!--</fileset>-->
-                    <!--</filesets>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>

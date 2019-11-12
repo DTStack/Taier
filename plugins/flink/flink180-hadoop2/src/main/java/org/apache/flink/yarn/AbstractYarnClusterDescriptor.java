@@ -19,6 +19,8 @@
 package org.apache.flink.yarn;
 
 import avro.shaded.com.google.common.collect.Sets;
+import com.dtstack.engine.common.exception.ExceptionUtil;
+import com.dtstack.engine.flink180.constrant.ConfigConstrant;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.cache.DistributedCache;
@@ -557,11 +559,45 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         clusterSpecification.setProgram(program);
         JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, clusterSpecification.getConfiguration(), clusterSpecification.getParallelism());
         jobGraph.setAllowQueuedScheduling(true);
-        fillJobGraphClassPath(jobGraph);
-        fillStreamJobGraphClassPath(jobGraph);
+        dealPluginByLoadMode(jobGraph);
         clusterSpecification.setJobGraph(jobGraph);
         return jobGraph;
     }
+
+    private void dealPluginByLoadMode(JobGraph jobGraph) throws Exception {
+
+        String pluginLoadMode = flinkConfiguration.getString(ConfigConstrant.FLINK_PLUGIN_LOAD_MODE, ConfigConstrant.FLINK_PLUGIN_CLASSPATH_LOAD);
+        if (StringUtils.equalsIgnoreCase(pluginLoadMode, ConfigConstrant.FLINK_PLUGIN_CLASSPATH_LOAD)) {
+            fillJobGraphClassPath(jobGraph);
+            fillStreamJobGraphClassPath(jobGraph);
+        } else {
+            fillPluginPathToShipFiles(jobGraph);
+        }
+    }
+
+
+    private void fillPluginPathToShipFiles(JobGraph jobGraph) {
+        List<File> shipFiles = new ArrayList<>();
+        // flinksql get classpath
+        Map<String, DistributedCache.DistributedCacheEntry> jobCacheFileConfig = jobGraph.getUserArtifacts();
+        for(Map.Entry<String,  DistributedCache.DistributedCacheEntry> tmp : jobCacheFileConfig.entrySet()){
+            if(tmp.getKey().startsWith("class_path")){
+                shipFiles.add(new File(tmp.getValue().filePath));
+            }
+        }
+        // flinkx get classpath
+        jobGraph.getClasspaths().forEach(jarFile -> {
+            try {
+                shipFiles.add(new File(jarFile.toURI()));
+            } catch (URISyntaxException e) {
+                throw new IllegalArgumentException("Couldn't add local user jar: " + jarFile
+                        + " Currently only file:/// URLs are supported.");
+            }
+        });
+        jobGraph.getClasspaths().clear();
+        addShipFiles(shipFiles);
+    }
+
     private  JobGraph fillStreamJobGraphClassPath(JobGraph jobGraph) throws MalformedURLException {
         Map<String, DistributedCache.DistributedCacheEntry> jobCacheFileConfig = jobGraph.getUserArtifacts();
         for(Map.Entry<String,  DistributedCache.DistributedCacheEntry> tmp : jobCacheFileConfig.entrySet()){
@@ -571,6 +607,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         }
         return jobGraph;
     }
+
     private PackagedProgram buildProgram(String monitorUrl,ClusterSpecification clusterSpecification) throws Exception{
         String[] args = clusterSpecification.getProgramArgs();
         for (int i = 0; i < args.length; i++) {
@@ -597,10 +634,22 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
             hField.setAccessible(true);
             //获取指定对象中此字段的值
             Object h = hField.get(rmClient);
+            Object currentProxy = null;
 
-            Field currentProxyField = h.getClass().getDeclaredField("currentProxy");
-            currentProxyField.setAccessible(true);
-            Object currentProxy = currentProxyField.get(h);
+            try {
+                Field currentProxyField = h.getClass().getDeclaredField("currentProxy");
+                currentProxyField.setAccessible(true);
+                currentProxy = currentProxyField.get(h);
+            }catch (Exception e){
+                //兼容Hadoop 2.7.3.2.6.4.91-3
+                LOG.warn("get currentProxy error:{}", ExceptionUtil.getErrorMessage(e));
+                Field proxyDescriptorField = h.getClass().getDeclaredField("proxyDescriptor");
+                proxyDescriptorField.setAccessible(true);
+                Object proxyDescriptor = proxyDescriptorField.get(h);
+                Field currentProxyField = proxyDescriptor.getClass().getDeclaredField("proxyInfo");
+                currentProxyField.setAccessible(true);
+                currentProxy = currentProxyField.get(proxyDescriptor);
+            }
 
             Field proxyInfoField = currentProxy.getClass().getDeclaredField("proxyInfo");
             proxyInfoField.setAccessible(true);
@@ -615,7 +664,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
 
             return String.format("http://%s/proxy",addr);
         }catch (Exception e){
-            LOG.warn("get monitor error:{}",e);
+            LOG.warn("get monitor error:{}", ExceptionUtil.getTaskLogError(e));
         }
 
         return url;
@@ -624,7 +673,14 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
     private void fillJobGraphClassPath(JobGraph jobGraph) throws MalformedURLException {
         Map<String, String> jobCacheFileConfig = jobGraph.getJobConfiguration().toMap();
         Set<String> classPathKeySet = Sets.newHashSet();
+        fillClassPathKeySet(jobCacheFileConfig, classPathKeySet);
+        for(String key : classPathKeySet){
+            String pathStr = jobCacheFileConfig.get(key);
+            jobGraph.getClasspaths().add(new URL("file:" + pathStr));
+        }
+    }
 
+    private void fillClassPathKeySet(Map<String, String> jobCacheFileConfig, Set<String> classPathKeySet) {
         for(Map.Entry<String, String> tmp : jobCacheFileConfig.entrySet()){
             if(Strings.isNullOrEmpty(tmp.getValue())){
                 continue;
@@ -642,11 +698,6 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
                 array[3] = "PATH";
                 classPathKeySet.add(StringUtils.join(array, "_"));
             }
-        }
-
-        for(String key : classPathKeySet){
-            String pathStr = jobCacheFileConfig.get(key);
-            jobGraph.getClasspaths().add(new URL("file:" + pathStr));
         }
     }
 
