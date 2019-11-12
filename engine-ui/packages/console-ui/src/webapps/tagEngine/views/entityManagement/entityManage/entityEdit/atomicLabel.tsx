@@ -2,22 +2,46 @@ import * as React from 'react';
 import { Input, Table } from 'antd';
 import ConfigDictModal from './configDictModal';
 import PreviewModal from './previewModal';
-import EditCell from '../../../../components/editCell';
+import { isEqual } from 'lodash';
+// import EditCell from '../../../../components/editCell';
+import './style.scss';
 
-export default class AtomicLabel extends React.Component<any, any> {
-    state: any = {
-        dataSource: [
-            { labelName: 'xxxxxxx', dimensionName: 'xxx1', type: 'char', labelNum: 200, desc: 'xxxxxxxxxxxxxx' },
-            { labelName: 'xxxxx', dimensionName: 'xxx2', type: 'number', labelNum: 100, desc: 'xxxxxxxxxxxxxx' },
-            { labelName: 'xxxxx', dimensionName: 'xxx3', type: 'number', labelNum: 30, desc: 'xxxxxxxxxxxxxx' }
-        ],
+interface Iprops {
+    infor: any[];
+    handleChange: any;
+}
+
+interface IState {
+    dataSource: any[];
+    configModalVisble: boolean;
+    previewModalVisible: boolean;
+    total: number;
+}
+
+export default class AtomicLabel extends React.Component<Iprops, IState> {
+    state: IState = {
+        dataSource: [],
         configModalVisble: false,
-        previewModalVisible: false
-
+        previewModalVisible: false,
+        total: 0
     }
 
     componentDidMount () {
+        const { infor } = this.props;
+        this.setState({
+            dataSource: infor,
+            total: infor.length
+        })
+    }
 
+    componentDidUpdate (preProps: any) {
+        const { infor } = this.props;
+        if (!isEqual(infor, preProps.infor)) {
+            this.setState({
+                dataSource: infor,
+                total: infor.length
+            })
+        }
     }
 
     handleConfig = () => {
@@ -56,12 +80,13 @@ export default class AtomicLabel extends React.Component<any, any> {
         })
     }
 
-    handleDescChange = (record: any, e: any) => {
-        // TODO 需要限制字数不超过20
-    }
-
-    handleLabelNameEdit = (key: any, value: any) => {
-
+    handleTableChange = (type: string, record: any, index: number, e: any) => {
+        const data = [...this.props.infor];
+        data[index] = {
+            ...record,
+            [type]: e.target.value
+        }
+        this.props.handleChange([...data]);
     }
 
     initColumns = () => {
@@ -70,13 +95,14 @@ export default class AtomicLabel extends React.Component<any, any> {
             dataIndex: 'labelName',
             key: 'labelName',
             width: 250,
-            render: (text: any, record: any) => {
-                return <EditCell
-                    keyField="labelName"
-                    isView={false}
-                    onHandleEdit={this.handleLabelNameEdit}
-                    value={text || ''}
-                />
+            render: (text: any, record: any, index: number) => {
+                // return <EditCell
+                //     keyField="labelName"
+                //     isView={false}
+                //     onHandleEdit={this.handleLabelNameEdit}
+                //     value={text || ''}
+                // />
+                return (<Input style={{ width: 150 }} value={text} onChange={this.handleTableChange.bind(this, 'labelName', record, index)} />)
             }
         }, {
             title: '对应维度',
@@ -114,24 +140,24 @@ export default class AtomicLabel extends React.Component<any, any> {
             dataIndex: 'desc',
             key: 'desc',
             // width: 200,
-            render: (text: any, record: any) => {
-                return (<Input style={{ width: 150 }} value={text} onChange={this.handleDescChange.bind(this, record)} />)
+            render: (text: any, record: any, index: number) => {
+                return (<Input style={{ width: 150 }} value={text} onChange={this.handleTableChange.bind(this, 'desc', record, index)} />)
             }
         }];
     }
 
     render () {
-        const { dataSource, configModalVisble, previewModalVisible } = this.state;
+        const { dataSource, configModalVisble, previewModalVisible, total } = this.state;
         return (
             <div className="atomic-label">
-                <div>
+                <div className="top-box">
                     <div>
-                        <span>共计7个原子标签</span>
+                        <span>共计{total}个原子标签</span>
                     </div>
                 </div>
                 <Table
                     rowKey="id"
-                    className="dt-ant-table dt-ant-table--border full-screen-table-47"
+                    className="dt-ant-table dt-ant-table--border"
                     pagination={false}
                     loading={false}
                     columns={this.initColumns()}

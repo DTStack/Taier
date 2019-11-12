@@ -22,13 +22,16 @@ class BaseForm extends React.Component<any, any> {
     }
 
     componentDidMount () {
-
+        const { infor = {}, form } = this.props;
+        form.setFieldsValue({
+            ...infor
+        })
     }
 
     render () {
         const { tableOption, primaryKeyOption } = this.state;
         const { getFieldDecorator } = this.props.form;
-        return (<Form>
+        return (<Form style={{ padding: '40px 0px 20px' }}>
             <FormItem {...formItemLayout} label="实体名称" >
                 {getFieldDecorator('name', {
                     rules: [{

@@ -1,10 +1,22 @@
 import * as React from 'react';
-import { Modal, Form, Select, Radio } from 'antd';
-import { formItemLayout } from '../../../../comm/const';
+import { Modal, Form, Select, Radio, Input } from 'antd';
+// import { formItemLayout } from '../../../../comm/const';
+import SetDictionary from '../../../../components/setDictionary';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
+
+const formItemLayout = {
+    labelCol: {
+        xs: { span: 24 },
+        sm: { span: 5 }
+    },
+    wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 18 }
+    }
+};
 
 class ConfigDictModal extends React.Component<any, any> {
     state: any = {
@@ -66,7 +78,7 @@ class ConfigDictModal extends React.Component<any, any> {
                         })(
                             <Select
                                 style={{ width: '100%' }}
-                                placeholder={ isLabel ? '请选择标签字典' : '请选择维度字典' }
+                                placeholder={isLabel ? '请选择标签字典' : '请选择维度字典'}
                             >
                                 {dictionaryOption.map((item: any) => (
                                     <Option key={item.value} value={item.value}>{item.label}</Option>
@@ -74,6 +86,25 @@ class ConfigDictModal extends React.Component<any, any> {
                             </Select>
                         )}
                     </FormItem>}
+                    {getFieldValue('way') == 'auto' && <FormItem {...formItemLayout} label="字典设置" >
+                        {getFieldDecorator('dictSetName', {
+                            rules: [{
+                                required: true, message: '字典名称不可为空！'
+                            }]
+                        })(
+                            <Input placeholder="请输入字典名称" />
+                        )}
+                    </FormItem>}
+                    {getFieldValue('way') == 'auto' && <Form.Item style={{ marginTop: -14 }} {...formItemLayout} label=" " required={false} colon={false}>
+                        {getFieldDecorator('dictSetRule', {
+                            rules: [
+                                {
+                                    required: true,
+                                    message: '字典设置不可为空！'
+                                }
+                            ]
+                        })(<SetDictionary isEdit={true} />)}
+                    </Form.Item>}
                 </Form>
             </Modal>
         )

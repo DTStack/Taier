@@ -1,0 +1,42 @@
+.entity-edit{
+    margin: 20px;
+    .entity_edit_content{
+        background: #FFFFFF;
+        box-shadow: 0 2px 6px 0 rgba(0,0,0,0.10);
+        padding: 20px; 
+        .step_wrap{
+            padding: 20px 200px 30px;
+        } 
+        .step_content{
+            background: #FAFAFA;
+            border: 1px dashed #E9E9E9;
+			min-height: 500px;
+		}
+		.ant-steps .ant-steps-head-inner > .ant-steps-icon {
+			line-height: unset;
+		}
+		.steps-action {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+    }
+}
+
+.dimension-infor {
+	padding: 20px 20px;
+	.top-box {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+}
+
+.atomic-label {
+	padding: 20px 20px;
+	.top-box {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+}
