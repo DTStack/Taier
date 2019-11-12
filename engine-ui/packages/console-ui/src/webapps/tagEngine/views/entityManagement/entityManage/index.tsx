@@ -165,7 +165,7 @@ export default class EntityList extends React.Component<any, IState> {
             >新增实体</Button>
         )
         return (
-            <div className="entity-list inner-container">
+            <div className="entity-list">
                 <div className="shadow tage-entity-manage">
                     <Card
                         title={title}

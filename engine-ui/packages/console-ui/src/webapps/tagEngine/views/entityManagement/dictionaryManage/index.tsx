@@ -152,7 +152,7 @@ export default class DictionaryManage extends React.PureComponent<any, IState> {
             >新增字典</Button>
         )
         return (
-            <div className="dictionary-manage inner-container">
+            <div className="dictionary-manage">
                 <div className="shadow tage-dictionary-manage">
                     <Card
                         title={title}
