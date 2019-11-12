@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Link, hashHistory, withRouter } from 'react-router';
 import { connect } from 'react-redux';
-import { Card, Row, Col, Icon } from 'antd';
+import { Card, Row, Col, Icon, Spin } from 'antd';
 import moment from 'moment';
 import NewProjectModal from '../../components/newProject';
 import Api from '../../api/project';
@@ -204,7 +204,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
     render () {
         const { visible, projectSummary } = this.state;
         const { apiCount, projectCount, apiIssueCount, total24InvokeCount, total24FailProbability } = projectSummary;
-        const { projectListInfo = [] } = this.props;
+        const { projectListInfo = [], panelLoading } = this.props;
         const stickProjects = projectListInfo.filter((item: any) => {
             return item.stickStatus == STICK_STATUS.TOP
         }).slice(0, 3)
@@ -225,21 +225,25 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                     </span>
                                 </Col>
                             </Row>
-                            {
-                                stickProjects && stickProjects.length > 0 ? (
-                                    <Row gutter={16}>
-                                        {
-                                            stickProjects.map((project: any, index: any) => {
-                                                return this.renderProjectCard(project, index)
-                                            })
-                                        }
-                                    </Row>
-                                ) : (
-                                    <Row className='c_no_project'>
-                                        <Col span={24}>暂无常用项目, 请前往 <a onClick={this.gotoProjectList}>项目列表</a> 置顶项目</Col>
-                                    </Row>
-                                )
-                            }
+                            <div className='c_spin_loading'>
+                                <Spin spinning={panelLoading} delay={500}>
+                                    {
+                                        stickProjects && stickProjects.length > 0 ? (
+                                            <Row gutter={16}>
+                                                {
+                                                    stickProjects.map((project: any, index: any) => {
+                                                        return this.renderProjectCard(project, index)
+                                                    })
+                                                }
+                                            </Row>
+                                        ) : (
+                                            <Row className='c_no_project'>
+                                                <Col span={24}>暂无常用项目, 请前往 <a onClick={this.gotoProjectList}>项目列表</a> 置顶项目</Col>
+                                            </Row>
+                                        )
+                                    }
+                                </Spin>
+                            </div>
                         </div>
                         <div className='c_api_process_pic'>
                             <img src='public/dataApi/img/process_api.png' />
@@ -364,6 +368,7 @@ export default connect((state: any) => {
         user: state.user,
         projects: state.projects,
         projectListInfo: state.projectList,
+        panelLoading: state.panelLoading,
         licenseApps: state.licenseApps
     }
 })(withRouter(ProjectPanel))

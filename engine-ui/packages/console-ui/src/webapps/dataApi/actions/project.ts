@@ -9,7 +9,8 @@ const projectAction = mc([
     'GET_ALL_PROJECTS',
     'SET_PROJECT',
     'GET_PROJECT_LIST',
-    'STICK_PROJECT'
+    'STICK_PROJECT',
+    'SET_PANEL_LOADING'
 ], { prefix: 'project/' })
 
 const defaultProject: any = {
@@ -72,10 +73,20 @@ export function getAllProjects (params?: any) {
 
 export function getProjectList (params?: any) {
     return function fn (dispatch: any) {
+        dispatch({
+            type: projectAction.SET_PANEL_LOADING,
+            data: true
+        })
         Api.getProjectListInfo(params).then((res: any) => {
-            return dispatch({
-                type: projectAction.GET_PROJECT_LIST,
-                data: res.data.data
+            if (res.code === 1) {
+                dispatch({
+                    type: projectAction.GET_PROJECT_LIST,
+                    data: res.data.data
+                })
+            }
+            dispatch({
+                type: projectAction.SET_PANEL_LOADING,
+                data: false
             })
         })
     }
@@ -139,6 +150,16 @@ export function project (state = defaultProject, action: any) {
             return action.data
         case projectAction.SET_PROJECT: {
             return action.data || state
+        }
+        default:
+            return state
+    }
+}
+
+export function panelLoading (state: boolean = false, action: any) {
+    switch (action.type) {
+        case projectAction.SET_PANEL_LOADING: {
+            return action.data
         }
         default:
             return state

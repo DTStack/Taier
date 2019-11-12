@@ -290,11 +290,6 @@
  font-family: 'myFont';
  src: url('/public/dataApi/font/font.ttf') format('truetype');
 }
-// @font-face
-// {
-//  font-family: 'myFont_pf';
-//  src: url('/public/dataApi/font/PingFang-SC-Regular.ttf') format('truetype');
-// }
 
 .c_project_wrapper {
     background: #0C0F26;
@@ -330,6 +325,17 @@
                     .c_offten_project_title_img {
                         width: 800px;
                         height: 30px;
+                    }
+                }
+                .c_spin_loading {
+                    .ant-spin-nested-loading {
+                        div > .ant-spin {
+                            position: unset;
+                            height: 100%;
+                            max-height: 320px;
+                            width: 100%;
+                            z-index: 4;
+                        }
                     }
                 }
                 .c_no_project { // 无项目
@@ -557,3 +563,4 @@
         }
     }
 }
+
