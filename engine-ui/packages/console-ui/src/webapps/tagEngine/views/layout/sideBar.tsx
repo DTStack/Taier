@@ -1,31 +1,39 @@
 import * as React from 'react'
 import { Menu } from 'antd'
 import { Link } from 'react-router'
+import SideBarData from '../../consts/sideBarData';
 require('public/iconfont/iconfont.js');
+
 const { SubMenu } = Menu;
 export default class Sidebar extends React.Component<any, any> {
     constructor (props: any) {
         super(props)
         this.state = {
-            current: 'config'
+            current: '',
+            menuData: []
         }
     }
 
     componentDidMount () {
-        this.updateSelected()
-    }
-
-    // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps () {
-        this.updateSelected()
-    }
-
-    updateSelected = () => {
-        const routes = this.props.router.routes
-        if (routes.length > 3) {
-            const current = routes[3].path || 'config'
-            this.setState({ current })
+        const { location } = this.props;
+        const pathName = location.pathname;
+        if (SideBarData.hasOwnProperty(pathName)) {
+            this.updateSelected(pathName)
         }
+    }
+    componentDidUpdate (preProps: any) {
+        const { location } = this.props;
+        const pathName = location.pathname;
+        const prePathName = preProps.location.pathname;
+        if ((pathName != prePathName) && SideBarData.hasOwnProperty(pathName)) {
+            this.updateSelected(pathName)
+        }
+    }
+    updateSelected = (pathName: any) => {
+        this.setState({
+            menuData: SideBarData[pathName],
+            current: SideBarData[pathName] && SideBarData[pathName].length ? SideBarData[pathName][0]['url'] : ''
+        })
     }
 
     handleClick = (e: any) => {
@@ -60,23 +68,7 @@ export default class Sidebar extends React.Component<any, any> {
         })
     }
     render () {
-        const menuData = [{
-            icon: '#icon-project_set',
-            name: '数据源管理',
-            url: '/database'
-        }, {
-            icon: '#icon-project_set',
-            name: '实体管理',
-            url: '/entityManage'
-        }, {
-            icon: '#icon-project_set',
-            name: '关系管理',
-            url: '/relationManage'
-        }, {
-            icon: '#icon-project_set',
-            name: '字典管理',
-            url: '/dictionaryManage'
-        }]
+        const { menuData } = this.state;
         return (
             <div className="sidebar m-ant-menu">
                 <Menu

@@ -56,13 +56,21 @@ const DictionaryManage = asyncComponent(
     { name: 'dictionaryManage' }
 );
 // ======= 标签中心 =======
-const LabelCenter = asyncComponent(
+const LabelManage = asyncComponent(
     () =>
-        import('./views/labelCenter').then(
+        import('./views/labelCenter/labelManage').then(
             (module: any) => module.default
         ),
-    { name: 'labelCenter' }
+    { name: 'labelManage' }
 );
+const LabelDirectory = asyncComponent(
+    () =>
+        import('./views/labelCenter/labelDirectory').then(
+            (module: any) => module.default
+        ),
+    { name: 'labelDirectory' }
+);
+
 // ======= 群组分析 =======
 const GroupAnalyse = asyncComponent(
     () =>
@@ -164,7 +172,11 @@ const routeConfig = [
             },
             {
                 path: '/labelCenter',
-                component: LabelCenter
+                component: LabelManage
+            },
+            {
+                path: '/labelDirectory',
+                component: LabelDirectory
             },
             {
                 path: '/groupAnalyse',

@@ -21,7 +21,9 @@ $activeColor: #262e36; // 主色
         padding-top:50px; 
         min-width: $minWidth;
     }
-
+    .tag-content{
+        padding: 20px;
+    }
     .header {
         min-width: $minWidth;
         .logo {

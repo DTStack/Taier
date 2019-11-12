@@ -8,8 +8,9 @@ import * as UserAction from '../../../reducers/modules/user'
 import utils from 'utils'
 import Heade from '../header';
 import SideBar from '../sideBar';
+import DashBoard from '../../dashboard/index';
 
-const { Sider, Content, Header } = Layout;
+const { Sider, Content } = Layout;
 
 interface IProps {
     children: any;
@@ -75,25 +76,30 @@ class SideLayout extends React.Component<IProps, IState> {
             <Layout className="dt-tag-layout">
                 <Heade {...this.props} showMenu/>
                 <Layout className="tag-container">
-                    <Sider
-                        className="bg-w ant-slider-pos"
-                        collapsed={this.state.collapsed}
-                    >
-                        <div
-                            className="ant-slider-pos--collapsed"
-                            onClick={this.toggleCollapsed}
-                        >
-                            <Icon
-                                type={
-                                    this.state.collapsed
-                                        ? 'menu-unfold'
-                                        : 'menu-fold'
-                                }
-                            />
-                        </div>
-                        <SideBar {...this.props} mode={this.state.mode} />
-                    </Sider>
-                    <Content>{children}</Content>
+                    {
+                        children ? <React.Fragment>
+                            <Sider
+                                className="bg-w ant-slider-pos"
+                                collapsed={this.state.collapsed}
+                            >
+                                <div
+                                    className="ant-slider-pos--collapsed"
+                                    onClick={this.toggleCollapsed}
+                                >
+                                    <Icon
+                                        type={
+                                            this.state.collapsed
+                                                ? 'menu-unfold'
+                                                : 'menu-fold'
+                                        }
+                                    />
+                                </div>
+                                <SideBar {...this.props} mode={this.state.mode} />
+                            </Sider>
+                            <Content className="tag-content">{children}</Content>
+                        </React.Fragment> : (<DashBoard/>)
+                    }
+
                 </Layout>
 
             </Layout>

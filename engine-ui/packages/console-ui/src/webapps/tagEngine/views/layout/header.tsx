@@ -20,7 +20,7 @@ const Search = Input.Search;
 
 @(connect((state: any) => {
     return {
-        licenseApps: state.licenseApps
+        licenseApps: state.licenseApps,
     }
 })as any)
 class Header extends React.Component<any, any> {
@@ -254,7 +254,7 @@ class Header extends React.Component<any, any> {
         // const pid = project && project.id ? project.id : '';
 
         // const basePath = app.link;
-        
+
         // const fixArrChildrenApps = this.fixArrayIndex(licenseApps[1] && licenseApps[1].children);
         // const dataSourceNav = fixArrChildrenApps[0];
         // const taskNav = fixArrChildrenApps[1];
