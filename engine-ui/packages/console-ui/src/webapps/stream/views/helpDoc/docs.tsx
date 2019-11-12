@@ -187,6 +187,18 @@ export const switchPartition = (
     </span>
 );
 
+export const primaryKeyFilter = (
+    <span>
+        维表缓存模式为ALL时，可配置按主键过滤进行缓存，可配置主键最大值、最小值，系统将过滤主键在此范围内的数据进行缓存
+    </span>
+);
+
+export const queryFault = (
+    <span>
+        维表查询失败是否扫描第二个副本，默认false
+    </span>
+);
+
 export const alarmWarning = (
     <div>
         <p>延迟消费数：Kafka延迟消费的消息条数，多个分区时，任一分区超过阈值时都会触发告警；</p>
