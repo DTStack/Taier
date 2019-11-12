@@ -3,17 +3,18 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>plugins.learning</artifactId>
         <groupId>com.dtstack.engine</groupId>
+        <artifactId>plugins.learning-hadoop2</artifactId>
         <version>1.0.0</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>plugins.learning.learning-client</artifactId>
-    <name>plugins.learning.learning-client</name>
+    <artifactId>plugins.learning.learning-hadoop2-client</artifactId>
+    <name>plugins.learning.learning-hadoop2-client</name>
 
     <properties>
-        <jar.name>learning-client</jar.name>
+        <jar.name>learning-hadoop2-client</jar.name>
     </properties>
 
     <dependencies>
@@ -154,10 +155,10 @@
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
                                       tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
-                                <copy todir="${basedir}/target/../../../../plugin/learning/"
+                                <copy todir="${basedir}/target/../../../../../plugin/learning-hadoop2/"
                                       file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/target/../../../../plugin/learning/"
+                                    <fileset dir="${basedir}/target/../../../../../plugin/learning-hadoop2/"
                                              includes="${jar.name}-*.jar"
                                              excludes="${jar.name}-${git.branch}.jar"/>
                                 </delete>

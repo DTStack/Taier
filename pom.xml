@@ -25,7 +25,7 @@
         <module>plugins/flink/flink180-hadoop2</module>
         <module>plugins/flink/flink180-HW</module>
         <module>plugins/dtscript/dtscript-hadoop2</module>
-        <module>plugins/learning</module>
+        <module>plugins/learning/learning-hadoop2</module>
         <module>plugins/odps</module>
         <module>plugins/kylin</module>
         <module>plugins/rdbs</module>

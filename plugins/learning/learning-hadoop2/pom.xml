@@ -6,12 +6,12 @@
         <groupId>com.dtstack.engine</groupId>
         <artifactId>engine-all</artifactId>
         <version>1.0.0</version>
-        <relativePath>../../pom.xml</relativePath>
+        <relativePath>../../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>plugins.learning</artifactId>
-    <name>plugins.learning</name>
+    <artifactId>plugins.learning-hadoop2</artifactId>
+    <name>plugins.learning-hadoop2</name>
     <packaging>pom</packaging>
 
     <properties>
