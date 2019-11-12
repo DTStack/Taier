@@ -5,9 +5,9 @@ import {
     message, Spin
 } from 'antd'
 
-import Api from '../../../api'
+import Api from '../../../api/project'
 import GoBack from 'main/components/go-back'
-import { formItemLayout } from '../../../comm/const'
+import { formItemLayout } from '../../../consts'
 
 import RoleForm from './form'
 

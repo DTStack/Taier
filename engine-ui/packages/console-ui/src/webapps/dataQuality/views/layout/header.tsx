@@ -1,9 +1,13 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
-
+import { Menu, Icon, Dropdown, Input } from 'antd';
 import Navigator from 'main/components/nav';
 import { getHeaderLogo } from 'main/consts';
-import { setProject } from '../../actions/project';
+import * as ProjectAction from '../../actions/project';
+const NOT_SHOW_KEY = 'projectList'; // projectList不显示导航
+const SubMenu = Menu.SubMenu;
+const Search = Input.Search;
+declare var window: any;
 
 @(connect((state: any) => {
     return {
@@ -18,14 +22,47 @@ import { setProject } from '../../actions/project';
 }, (dispatch: any) => {
     return {
         setProject (project: any) {
-            return dispatch(setProject(project))
+            return dispatch(ProjectAction.setProject(project))
         }
     }
 }) as any)
 class Header extends React.Component<any, any> {
     constructor (props: any) {
         super(props);
-        this.state = {};
+        this.state = {
+            current: 'overview',
+            filter: ''
+        };
+    }
+    componentDidMount () {
+        this.updateSelected();
+    }
+
+    // 控制项目下拉菜单的显示
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps () {
+        this.updateSelected();
+    }
+    updateSelected () {
+        let pathname = this.props.router.location.pathname;
+        const routes = pathname ? pathname.split('/') : [];
+        let path =
+            routes.length > 0 && routes[1] !== '' ? routes[2] : NOT_SHOW_KEY;
+        // if (
+        //     path &&
+        //     (path.indexOf('task') > -1 || path.indexOf('offline') > -1 || path.indexOf('realtime') > -1)
+        // ) {
+        //     this.setState({
+        //         devPath: pathname
+        //     });
+        //     path = 'realtime'
+        // }
+        if (path !== this.state.current) {
+            this.setState({
+                current: path
+            });
+        }
+        return path;
     }
     fixArrayIndex = (arr: any) => {
         let fixArrChildrenApps: any = [];
@@ -57,8 +94,114 @@ class Header extends React.Component<any, any> {
             return []
         }
     }
+    selectedProject = (evt: any) => {
+        const { dispatch } = this.props;
+        const projectId = evt.key;
+        if (projectId) {
+            const switchProject = () => {
+                dispatch(ProjectAction.getProject(projectId));
+                this.searchProject();
+            }
+            switchProject();
+        }
+    }
+
+    searchProject = (value?: any) => {
+        this.setState({
+            filter: value || ''
+        })
+    }
+    getProjectItems () {
+        const { projects = [] } = this.props;
+        const { filter } = this.state;
+        if (projects && projects.length > 0) {
+            return projects
+                .filter((o: any) => o.projectIdentifier.indexOf(filter) > -1 || o.projectName.indexOf(filter) > -1 || o.projectAlias.indexOf(filter) > -1)
+                .map((project: any) => {
+                    const name = project.projectAlias || project.projectName;
+                    return (
+                        <Menu.Item
+                            data={project}
+                            title={name}
+                            value={name}
+                            key={project.id}
+                        >
+                            {project.projectAlias || project.projectName}
+                        </Menu.Item>
+                    );
+                });
+        }
+        return [];
+    }
+
+    renderProjectSelect = () => {
+        const { project } = this.props;
+        const { filter } = this.state;
+        const projectName =
+            project && project.projectName
+                ? project.projectAlias || project.projectName
+                : '项目选择';
+        const menu = (
+            <Menu
+                onClick={this.selectedProject}
+                selectedKeys={
+                    project ? [`${project.id}`] : []
+                }
+                style={{
+                    maxHeight: '400px',
+                    overflowY: 'auto',
+                    width: '170px'
+                }}
+            >
+                <Menu.Item disabled>
+                    <Search placeholder="请输入项目名称" value={filter} onChange={(e: any) => this.searchProject(e.target.value)} />
+                </Menu.Item>
+                {this.getProjectItems()}
+            </Menu>
+        )
+
+        return (
+            <SubMenu
+                style={{ border: '1px solid red', width: '200px', height: '200px' }}
+                className="my-menu-item"
+                title={
+                    <Dropdown
+                        overlay={menu}
+                        trigger={['click']}
+                        placement="bottomCenter"
+                    >
+                        <span
+                            style={{
+                                display: 'inline-block',
+                                height: '47px'
+                            }}
+                            className="my-menu-item"
+                        >
+                            <span
+                                className="menu-text-ellipsis"
+                                title={projectName}
+                            >
+                                {projectName}
+                            </span>
+                            &nbsp;
+                            <Icon style={{ fontSize: '12px' }} type="caret-down" />
+                        </span>
+                    </Dropdown>
+                }
+            >
+            </SubMenu>
+        );
+    };
+
+
+    goIndex = () => {
+        const { router } = this.props;
+        this.setState({ current: NOT_SHOW_KEY });
+        router.push('/');
+    };
     render () {
-        const { app, licenseApps } = this.props;
+        const { app, licenseApps, project } = this.props;
+        const { current } = this.state;
         const baseUrl = '/dataQuality.html#';
         const fixArrChildrenApps = this.fixArrayIndex(licenseApps[3] && licenseApps[3].children);
         const overviewNav = fixArrChildrenApps[0];
@@ -67,6 +210,8 @@ class Header extends React.Component<any, any> {
         const dataCheckNav = fixArrChildrenApps[3];
         const dataSourceNav = fixArrChildrenApps[4];
         const projectNav = fixArrChildrenApps[5];
+        const display: boolean = current !== NOT_SHOW_KEY;
+        const pid = project && project.id ? project.id : '';
         const menuItems: any = [
             {
                 id: 'dq/overview',
@@ -101,13 +246,13 @@ class Header extends React.Component<any, any> {
             {
                 id: 'dq/project',
                 name: '项目管理',
-                link: `${baseUrl}/dq/project`,
+                link: `${baseUrl}/project/${pid}/config`,
                 enable: projectNav && projectNav.isShow
             }
         ];
 
         const logo = (
-            <React.Fragment>
+            <div onClick={this.goIndex} style={{ cursor: 'pointer' }}>
                 <img
                     className='c-header__logo c-header__logo--dq'
                     alt="logo"
@@ -116,9 +261,10 @@ class Header extends React.Component<any, any> {
                 <span className='c-header__title c-header__title--dq'>
                     {window.APP_CONF.prefix ? `${window.APP_CONF.prefix}.` : ''}{window.APP_CONF.name}
                 </span>
-            </React.Fragment>
+            </div>
         );
         return <Navigator
+            selectProjectsubMenu={display && this.renderProjectSelect()}
             logo={logo}
             menuItems={menuItems}
             licenseApps={licenseApps}

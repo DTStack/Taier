@@ -6,7 +6,7 @@ import { connect } from 'react-redux'
 import { dqApp } from 'config/base'
 
 import Header from './layout/header'
-import Dashboard from '../views/dashboard'
+import ProjectPanel from './projectPanel'
 
 // import { currentApp } from '../consts'
 import * as UserAction from '../actions/user'
@@ -40,7 +40,7 @@ class Main extends React.Component<any, any> {
             <div className="main header-fixed">
                 <Header/>
                 <div className="container">
-                    { children || <Dashboard /> }
+                    { children || <ProjectPanel /> }
                 </div>
             </div>
         )

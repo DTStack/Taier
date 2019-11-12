@@ -6,8 +6,8 @@ import {
     Tree
 } from 'antd'
 
-import Api from '../../../api'
-import { formItemLayout } from '../../../comm/const'
+import Api from '../../../api/project'
+import { formItemLayout } from '../../../consts'
 
 const FormItem = Form.Item
 const TreeNode = Tree.TreeNode

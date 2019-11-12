@@ -7,6 +7,17 @@ export const TASK_STATUS: any = {
     UNPASS: 4
 }
 
+export const PROJECT_ROLE = { // 项目角色
+    PROJECT_OWNER: 2, // 项目所有者
+    TENANT_OWVER: 1, // 租户所有者
+    VISITOR: 4 // 访客
+}
+
+export const STICK_STATUS: any = {
+    NO_TOP: 0,
+    TOP: 1
+}
+
 // 项目状态
 export const PROJECT_STATUS: any = {
     CREATING: 0,

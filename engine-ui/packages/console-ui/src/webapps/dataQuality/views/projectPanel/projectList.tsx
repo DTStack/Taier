@@ -1,30 +1,48 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { withRouter } from 'react-router'
-import { get } from 'lodash';
+import { withRouter } from 'react-router';
 
-import { Icon, Card, Input, Table, Button, message } from 'antd';
+import { Icon, Card, Input, Table, Button, Tooltip } from 'antd';
 import NewProject from '../../components/newProject';
-import TaskParamsModal from '../../components/taskParamsModal';
 
 import utils from 'utils';
-import * as baseActions from '../../actions/project'
-import { PROJECT_STATUS } from '../../consts'
+import * as projectActions from '../../actions/project'
+import { PROJECT_STATUS, STICK_STATUS } from '../../consts'
 import Api from '../../api/project';
 
 const Search = Input.Search;
 
+interface ProjectState {
+    loading: boolean;
+    visible: boolean;
+    data: any[];
+    params: {
+        search: string;
+        sort: string;
+        filed: string;
+    };
+    pagination: {
+        current?: number;
+        total: number;
+        pageSize?: number;
+    };
+}
+
 @(connect((state: any) => {
     return {
-        currentProject: state.project.currentProject
+        projectList: state.projectList
     }
 }, (dispatch: any) => {
     return {
-        ...bindActionCreators(baseActions, dispatch)
+        setStickProject: (params: any, callback: () => void) => {
+            dispatch(projectActions.setStickProject(params, callback))
+        },
+        getProject: (id: number) => {
+            dispatch(projectActions.getProject(id))
+        }
     }
 }) as any)
-class ProjectsList extends React.Component<any, any> {
+class ProjectsList extends React.Component<any, ProjectState> {
     state: any = {
         loading: false,
         data: [],
@@ -38,18 +56,10 @@ class ProjectsList extends React.Component<any, any> {
             total: 0,
             pageSize: 15
         },
-        checkProject: undefined,
-        visible: false,
-        visibleSlidePane: false
+        visible: false
     }
     componentDidMount () {
         this.getTableData();
-    }
-    handleCheckProject = (record: any) => {
-        this.setState({
-            visibleSlidePane: true,
-            checkProject: record
-        });
     }
     handleNewProject = () => {
         this.setState({
@@ -59,11 +69,6 @@ class ProjectsList extends React.Component<any, any> {
     handleCancel = () => {
         this.setState({
             visible: false
-        });
-    }
-    closeSlidePane = () => {
-        this.setState({
-            visibleSlidePane: false
         });
     }
     handleSearch = (value: any) => {
@@ -94,10 +99,10 @@ class ProjectsList extends React.Component<any, any> {
             loading: true
         })
         const { pagination, params } = this.state;
-        let res = await Api.getProjectList({
+        let res = await Api.getProjectListInfo({
             currentPage: pagination.current,
             pageSize: pagination.pageSize,
-            searchName: params.search || undefined,
+            fuzzyName: params.search || undefined,
             orderBy: params.filed ? params.filed.replace(/([A-Z])/g, '_$1').toLowerCase() : undefined,
             sort: params.sort || undefined
         });
@@ -114,6 +119,16 @@ class ProjectsList extends React.Component<any, any> {
             })
         }
     }
+    handleEnterProject = (record: any) => {
+        this.props.router.push('/api/overview');
+        this.props.getProject(record.id);
+    }
+    setStickProject = (record: any) => {
+        this.props.setStickProject({
+            appointProjectId: record.id,
+            stickStatus: record.stickStatus == STICK_STATUS.TOP ? STICK_STATUS.NO_TOP : STICK_STATUS.TOP
+        }, this.getTableData)
+    }
     initCol = () => {
         return [{
             title: '项目显示名',
@@ -121,8 +136,8 @@ class ProjectsList extends React.Component<any, any> {
             key: 'projectAlias',
             width: '180px',
             render: (text: any, record: any) => {
-                if (record.status == PROJECT_STATUS.SUCCESS) {
-                    return <a onClick={() => this.handleCheckProject(record)}>{text}</a>
+                if (record.status == PROJECT_STATUS.NORMAL) {
+                    return <a onClick={() => this.handleEnterProject(record)}>{text}</a>
                 }
                 return text;
             }
@@ -132,11 +147,19 @@ class ProjectsList extends React.Component<any, any> {
             key: 'projectName',
             width: '180px'
         }, {
-            title: '项目占用存储',
-            dataIndex: 'totalSize',
-            key: 'totalSize',
+            title: 'API创建数',
+            dataIndex: 'apiCreateCount',
+            key: 'apiCreateCount',
             render (t: any) {
-                return utils.convertBytes(t)
+                return t
+            },
+            sorter: true
+        }, {
+            title: 'API发布数',
+            dataIndex: 'apiIssueCount',
+            key: 'apiIssueCount',
+            render (t: any) {
+                return t
             },
             sorter: true
         }, {
@@ -157,57 +180,40 @@ class ProjectsList extends React.Component<any, any> {
             key: 'o',
             render: (text: any, record: any) => {
                 switch (record.status) {
-                    case PROJECT_STATUS.CREATING: {
+                    case PROJECT_STATUS.INITIALIZE: {
                         return '项目创建中...'
                     }
-                    case PROJECT_STATUS.CANCEL:
-                    case PROJECT_STATUS.FAILED: {
+                    case PROJECT_STATUS.DISABLE:
+                    case PROJECT_STATUS.FAIL: {
                         return <a style={{ color: 'red' }}>项目创建失败</a>
                     }
                     default: {
-                        return <a onClick={ () => {
-                            this.props.setProject(record);
-                            setTimeout(() => {
-                                this.props.router.push('/dq/workbench');
-                            })
-                        }}>
-                            开始数据探索
+                        return <a onClick={() => { this.setStickProject(record) }}>
+                            {record.stickStatus === STICK_STATUS.TOP ? (
+                                <Tooltip title='取消置顶' mouseEnterDelay={0.5}>
+                                    {/* <Icon type="arrow-down" /> */}
+                                    取消置顶
+                                </Tooltip>
+                            ) : (
+                                <Tooltip title='置顶' mouseEnterDelay={0.5}>
+                                    <Icon type="arrow-up" />
+                                </Tooltip>
+                            )}
+
                         </a>
                     }
                 }
             }
         }]
     }
-    gotoWelcome = () => {
-        this.props.router.push('/dq/index')
-    }
-    changeProject = async (key: any, value: any, reset: any) => {
-        const { checkProject } = this.state;
-        const { currentProject } = this.props;
-        let res = await Api.updateProject({
-            projectId: checkProject.id,
-            [key]: value
-        })
-        if (res && res.code == 1) {
-            this.setState({
-                checkProject: {
-                    ...checkProject,
-                    [key]: value
-                }
-            })
-            if (currentProject && currentProject.id == checkProject.id) {
-                this.props.initCurrentProject();
-            }
-            this.getTableData();
-            message.success('修改成功')
-            reset();
-        }
+    goToProjectPanel = () => {
+        this.props.router.push('/')
     }
     render () {
-        const { loading, data, pagination, visible, visibleSlidePane, checkProject } = this.state;
+        const { loading, data, pagination, visible } = this.state;
         return (
             <div className="projects-list">
-                <header className="projects-header"><Icon type="rollback" onClick={this.gotoWelcome} />项目列表</header>
+                <header className="projects-header"><Icon type="rollback" onClick={this.goToProjectPanel} />项目列表</header>
                 <Card
                     noHovering
                     bordered={false}
@@ -232,41 +238,6 @@ class ProjectsList extends React.Component<any, any> {
                     onCancel={this.handleCancel}
                     visible={visible}
                     onOk={this.getTableData}
-                />
-                <TaskParamsModal
-                    title='项目属性'
-                    onCancel={this.closeSlidePane}
-                    visible={visibleSlidePane}
-                    onEdit={this.changeProject}
-                    data={checkProject && [{
-                        label: '项目名称',
-                        value: checkProject.projectName
-                    }, {
-                        label: '项目显示名',
-                        value: checkProject.projectAlias,
-                        key: 'projectAlias',
-                        edit: true
-                    }, {
-                        label: '项目描述',
-                        value: checkProject.projectDesc,
-                        key: 'projectDesc',
-                        editType: 'textarea',
-                        edit: true
-                    }, {
-                        label: '关联离线计算中的项目',
-                        value: checkProject.refProjectName
-                    }, {
-                        label: '创建时间',
-                        value: utils.formatDateTime(checkProject.gmtCreate)
-                    }, {
-                        label: '创建人',
-                        value: get(checkProject, 'createUser.userName')
-                    }, {
-                        label: '管理员',
-                        value: get(checkProject, 'adminUsers', []).map((user: any) => {
-                            return user.userName
-                        }).join(', ')
-                    }]}
                 />
             </div>
         );

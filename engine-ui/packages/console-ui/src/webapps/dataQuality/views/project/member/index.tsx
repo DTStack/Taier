@@ -6,11 +6,11 @@ import {
 } from 'antd'
 
 import utils from 'utils'
-import Api from '../../../api'
+import Api from '../../../api/project'
 import MemberForm from './form'
 import EditMemberRoleForm from './editRole'
 
-import * as ProjectAction from '../../../store/modules/project'
+import * as ProjectAction from '../../../actions/project'
 
 const Search = Input.Search
 

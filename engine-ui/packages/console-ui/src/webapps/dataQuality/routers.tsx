@@ -19,10 +19,7 @@ import GRoleAdd from 'main/views/admin/role/add'
 import GRoleEdit from 'main/views/admin/role/edit'
 
 // 数据质量
-import Container from './views'
-import Index from './views/index/'
-import Welcome from './views/index/welcome'
-import ProjectList from './views/index/projectsList'
+import Container from './views/container'
 import Dashboard from './views/dashboard'
 import TaskQuery from './views/taskQuery'
 import RuleConfigIndex from './views/ruleConfig/dashboard'
@@ -31,6 +28,8 @@ import DataCheckIndex from './views/dataCheck/dashboard'
 import DataCheckEdit from './views/dataCheck/edit'
 import DataCheckReport from './views/dataCheck/report'
 import DataSourceIndex from './views/dataSource'
+
+import ProjectList from './views/projectPanel/projectList';
 
 // ======= 项目 =======
 import ProjectConfig from './views/project/config'
@@ -50,7 +49,8 @@ const ProjectContainer = asyncComponent(() => import('./views/project/container'
 
 export default (
     <Route path="/" component={ Main }>
-        <IndexRedirect to="/dq" />
+        {/* <IndexRedirect to="/dq" /> */}
+        <IndexRoute component={ Container } />
         <Route path="/message" component={ MsgCenter }>
             <IndexRoute component={ MsgList } />
             <Route path="list" component={ MsgList } />
@@ -64,13 +64,7 @@ export default (
             <Route path="role/edit/:roleId" component={ GRoleEdit } />
         </Route>
         <Route path="/dq" component={ Container }>
-            <IndexRedirect to='index' />
-            <Route path='index' component={Index}>
-                <IndexRoute component={Welcome} />
-                <Route path='welcome' component={Welcome} />
-                <Route path='projectList' component={ProjectList} />
-            </Route>
-            {/* <IndexRoute component={ Dashboard } /> */}
+            <IndexRoute component={Dashboard} />
             <Route path="overview" component={ Dashboard }></Route>
             <Route path="taskQuery" component={ TaskQuery }></Route>
             <Route path="rule" component={ RuleConfigIndex }></Route>
@@ -89,6 +83,7 @@ export default (
                 <Route path="role/add" component={RoleAdd} />
                 <Route path="role/edit/:roleId" component={RoleEdit} />
             </Route>
+            <Route path='projectList' component={ProjectList} />
         </Route>
         <Route path="/*" component={NotFund} />
     </Route>

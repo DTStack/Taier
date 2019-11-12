@@ -4,7 +4,7 @@ import {
     Form, Checkbox
 } from 'antd'
 
-import { formItemLayout, PROJECT_ROLE } from '../../../comm/const'
+import { formItemLayout, PROJECT_ROLE } from '../../../consts'
 
 const FormItem = Form.Item
 const CheckboxGroup = Checkbox.Group;

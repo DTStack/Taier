@@ -9,9 +9,9 @@ import {
 
 import utils from 'utils'
 
-import { formItemLayout } from '../../comm/const'
-import Api from '../../api'
-import * as ProjectAction from '../../store/modules/project'
+import { formItemLayout } from '../../consts'
+import Api from '../../api/project'
+import * as ProjectAction from '../../actions/project'
 
 const FormItem = Form.Item
 

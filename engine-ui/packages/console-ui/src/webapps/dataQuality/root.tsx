@@ -11,7 +11,7 @@ import 'main/styles/myantd.scss'
 
 // Styles
 import './styles/main.scss'
-
+import './styles/views/projectPanel.scss'
 import routers from './routers'
 
 export default class Root extends React.Component<any, any> {

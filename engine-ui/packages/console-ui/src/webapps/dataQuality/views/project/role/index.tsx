@@ -8,7 +8,7 @@ import {
 
 import utils from 'utils'
 
-import Api from '../../../api'
+import Api from '../../../api/project'
 
 class RoleManagement extends React.Component<any, any> {
     initAddMember: any;
