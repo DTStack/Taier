@@ -5,7 +5,6 @@ import com.dtstack.engine.common.util.HadoopConfTool;
 import com.dtstack.engine.common.util.YarnConfTool;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.directory.api.util.Strings;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
@@ -143,7 +142,7 @@ public class HadoopConf {
         Boolean isAuth = MapUtils.getBoolean(conf, HadoopConfTool.IS_HADOOP_AUTHORIZATION, false);
         configuration.set(HadoopConfTool.IS_HADOOP_AUTHORIZATION, isAuth.toString());
 
-        if(Strings.isNotEmpty(HadoopConfTool.getAuthType(conf))){
+        if(StringUtils.isNotEmpty(HadoopConfTool.getAuthType(conf))){
             configuration.set(HadoopConfTool.HADOOP_AUTH_TYPE, HadoopConfTool.getAuthType(conf));
         }
 
