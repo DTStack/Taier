@@ -250,8 +250,8 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                     </section>
                     {/* 右侧项目总信息 */}
                     <section className='c_right_section_wrapper'>
-                        {/* 常用项目 */}
-                        <div style={{ position: 'absolute', right: 0, top: 0, width: '-webkit-fill-available' }}>
+                        {/* 项目汇总 */}
+                        <div className='c_top'>
                             <Row className='c_summary_project'>
                                 <img src='public/dataQuality/img/summary_project.png' />
                             </Row>
@@ -268,14 +268,14 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                         <Col span={8}>
                                             <div className='c_summary_sub'>
                                                 <img src ='public/dataQuality/img/api_create.png' className='c_summary_sub_pic' />
-                                                <span className='c_summary_sub_name'>API创建数</span>
+                                                <span className='c_summary_sub_name'>已配置表数</span>
                                                 <span className='c_summary_sub_num'>{apiCount}</span>
                                             </div>
                                         </Col>
                                         <Col span={8}>
                                             <div className='c_summary_sub'>
                                                 <img src ='public/dataQuality/img/api_publish.png' className='c_summary_sub_pic' />
-                                                <span className='c_summary_sub_name'>API发布数</span>
+                                                <span className='c_summary_sub_name'>已配置规则数</span>
                                                 <span className='c_summary_sub_num'>{apiIssueCount}</span>
                                             </div>
                                         </Col>
@@ -284,7 +284,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                         <Col span={12}>
                                             <Card className='c_latest_day_card' noHovering bordered={false}>
                                                 <Row>
-                                                    <div className='c_latest_day_title'>最近24h累计调用次数</div>
+                                                    <div className='c_latest_day_title'>今日告警数</div>
                                                     <div className='c_latest_day_num'>{total24InvokeCount}</div>
                                                     <div className='c_latest_day_img'><img src='public/dataQuality/img/call_number.png' /></div>
                                                 </Row>
@@ -293,7 +293,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                         <Col span={12}>
                                             <Card className='c_latest_day_card' noHovering bordered={false}>
                                                 <Row>
-                                                    <div className='c_latest_day_title'>最近24h调用失败率</div>
+                                                    <div className='c_latest_day_title'>昨日新增表数</div>
                                                     <div className='c_latest_day_num'>{total24FailProbability}</div>
                                                     <div className='c_latest_day_img'><img src='public/dataQuality/img/fail.png' /></div>
                                                 </Row>
@@ -304,7 +304,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                             </Row>
                         </div>
                         {/* 快速入门 */}
-                        <div style={{ position: 'absolute', right: 0, top: 370, bottom: 0, width: '-webkit-fill-available' }}>
+                        <div className='c_bottom'>
                             <Row className='c_summary_project'>
                                 <img src='public/dataQuality/img/quick_start.png' />
                             </Row>
@@ -345,8 +345,10 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                 <Row>
                                     <Card className='c_use_tutorial_card c_video_width'>
                                         <Row>
-                                            <Col span={14}>1</Col>
-                                            <Col span={10}>2</Col>
+                                            <Col span={24}>
+                                                {/* 暂时无视频，先用图片替代 */}
+                                                <img src='public/dataQuality/img/opera_guide.png' style={{ width: '338px', height: '128px' }} />
+                                            </Col>
                                         </Row>
                                     </Card>
                                 </Row>
