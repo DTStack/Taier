@@ -4,17 +4,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>com.dtstack.engine</groupId>
-        <artifactId>plugins.dtscript</artifactId>
+        <artifactId>plugins.dtscript-hadoop2</artifactId>
         <version>1.0.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>plugins.dtscript.dtscript-core</artifactId>
-    <name>plugins.dtscript.dtscript-core</name>
+    <artifactId>plugins.dtscript.dtscript-hadoop2-core</artifactId>
+    <name>plugins.dtscript.dtscript-hadoop2-core</name>
 
     <properties>
-        <jar.name>dtscript-core</jar.name>
+        <jar.name>dtscript-hadoop2-core</jar.name>
         <junit.version>4.11</junit.version>
         <jdk.version>1.8</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -94,10 +94,10 @@
                             <tasks>
                                 <copy file="${basedir}/target/${project.name}-${project.version}.jar"
                                       tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
-                                <copy todir="${basedir}/target/../../../../plugin/dtscript/"
+                                <copy todir="${basedir}/target/../../../../../plugin/dtscript-hadoop2/"
                                       file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/target/../../../../plugin/dtscript/"
+                                    <fileset dir="${basedir}/target/../../../../../plugin/dtscript-hadoop2/"
                                              includes="${jar.name}-*.jar"
                                              excludes="${jar.name}-${git.branch}.jar"/>
                                 </delete>

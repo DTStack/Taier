@@ -4,17 +4,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>com.dtstack.engine</groupId>
-        <artifactId>plugins.dtscript</artifactId>
+        <artifactId>plugins.dtscript-hadoop2</artifactId>
         <version>1.0.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>plugins.dtscript.dtscript-client</artifactId>
-    <name>plugins.dtscript.dtscript-client</name>
+    <artifactId>plugins.dtscript.dtscript-hadoop2-client</artifactId>
+    <name>plugins.dtscript.dtscript-hadoop2-client</name>
 
     <properties>
-        <jar.name>dtscript-client</jar.name>
+        <jar.name>dtscript-hadoop2-client</jar.name>
     </properties>
 
     <dependencies>
@@ -34,7 +34,7 @@
 
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>plugins.dtscript.dtscript-core</artifactId>
+            <artifactId>plugins.dtscript.dtscript-hadoop2-core</artifactId>
             <version>1.0.0</version>
             <exclusions>
                 <exclusion>
@@ -156,10 +156,10 @@
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
                                       tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
-                                <copy todir="${basedir}/target/../../../../plugin/dtscript/"
+                                <copy todir="${basedir}/target/../../../../../plugin/dtscript-hadoop2/"
                                       file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/target/../../../../plugin/dtscript/"
+                                    <fileset dir="${basedir}/target/../../../../../plugin/dtscript-hadoop2/"
                                              includes="${jar.name}-*.jar"
                                              excludes="${jar.name}-${git.branch}.jar"/>
                                 </delete>

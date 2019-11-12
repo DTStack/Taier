@@ -3,5 +3,5 @@ target/
 .project
 .classpath
 .idea/
-*.iml
+dtscript-core/dtscript-core.iml
 lib/

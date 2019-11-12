@@ -1,5 +1,5 @@
 .idea/
-/plugin/
+plugin/
 logs/
 target/
 *.iml

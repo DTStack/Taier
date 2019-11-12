@@ -6,12 +6,12 @@
         <groupId>com.dtstack.engine</groupId>
         <artifactId>engine-all</artifactId>
         <version>1.0.0</version>
-        <relativePath>../../pom.xml</relativePath>
+        <relativePath>../../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>plugins.dtscript</artifactId>
-    <name>plugins.dtscript</name>
+    <artifactId>plugins.dtscript-hadoop2</artifactId>
+    <name>plugins.dtscript-hadoop2</name>
 
     <packaging>pom</packaging>
 
