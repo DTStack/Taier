@@ -336,6 +336,14 @@
                             width: 100%;
                             z-index: 4;
                         }
+                        .ant-spin-blur {
+                            overflow: hidden;
+                            opacity: 0;
+                            -webkit-filter: blur(0.5px);
+                            filter: blur(0.5px);
+                            filter: progid\:DXImageTransform\.Microsoft\.Blur(PixelRadius\=1, MakeShadow\=false);
+                        }
+                        
                     }
                 }
                 .c_no_project { // 无项目
@@ -450,6 +458,19 @@
             width: 30%;
             min-width: 416px;
             position: relative;
+            .c_top {
+                position: absolute;
+                right: 0;
+                top: 0;
+                width: -webkit-fill-available;
+            }
+            .c_bottom {
+                position: absolute;
+                right: 0;
+                top: 370px;
+                bottom: 0;
+                width: -webkit-fill-available;
+            }
             .c_summary_project {
                 height: 30px;
                 width: 416px;

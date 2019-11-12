@@ -22,6 +22,7 @@ const defaultPro: any = {
 class Container extends React.Component<any, any> {
     static propTypes: any;
     static defaultProps: any;
+    coverConatinerBg: boolean = false;
     /* eslint-disable-next-line */
     componentWillMount () {
         const { dispatch } = this.props;
@@ -35,6 +36,7 @@ class Container extends React.Component<any, any> {
 
         dispatch(updateApp(daApp))
         this.initProject()
+        console.log('componentDidMount', this.props.location.pathname)
     }
 
     initProject () {
@@ -61,6 +63,11 @@ class Container extends React.Component<any, any> {
         if (nowId && nowId !== this.props.params.pid) {
             this.props.dispatch(projectActions.getProject(nowId))
         }
+        if (nextProps.location.pathname == '/') { // 首页背景填充
+            this.coverConatinerBg = true;
+        } else {
+            this.coverConatinerBg = false;
+        }
     }
 
     render () {
@@ -70,10 +77,13 @@ class Container extends React.Component<any, any> {
             children = <GlobalLoading />;
             header = null;
         }
+        const style: any = {
+            background: this.coverConatinerBg ? '#0C0F26' : '#f2f7fa'
+        }
         return (
             <div className="dt-dev-tools" id="JS_APP">
                 {header}
-                <div className="container">
+                <div className="container" style={style}>
                     { children || <ProjectPanel /> }
                 </div>
             </div>

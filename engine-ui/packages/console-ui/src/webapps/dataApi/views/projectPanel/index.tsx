@@ -251,8 +251,8 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                     </section>
                     {/* 右侧项目总信息 */}
                     <section className='c_right_section_wrapper'>
-                        {/* 常用项目 */}
-                        <div style={{ position: 'absolute', right: 0, top: 0, width: '-webkit-fill-available' }}>
+                        {/* 项目汇总 */}
+                        <div className='c_top'>
                             <Row className='c_summary_project'>
                                 <img src='public/dataApi/img/summary_project.png' />
                             </Row>
@@ -305,7 +305,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                             </Row>
                         </div>
                         {/* 快速入门 */}
-                        <div style={{ position: 'absolute', right: 0, top: 370, bottom: 0, width: '-webkit-fill-available' }}>
+                        <div className='c_bottom'>
                             <Row className='c_summary_project'>
                                 <img src='public/dataApi/img/quick_start.png' />
                             </Row>
