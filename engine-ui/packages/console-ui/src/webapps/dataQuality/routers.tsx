@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { Route, IndexRoute } from 'react-router'
-
 import asyncComponent from 'utils/asyncLoad'
 // import { openNewWindow } from 'funcs'
 
@@ -63,7 +62,7 @@ export default (
             <Route path="role/add" component={ GRoleAdd } />
             <Route path="role/edit/:roleId" component={ GRoleEdit } />
         </Route>
-        <Route path="/dq" component={ Container }>
+        <Route path="/dq" component={ Container } onEnter={isSelectedProject}>
             <IndexRoute component={Dashboard} />
             <Route path="overview" component={ Dashboard }></Route>
             <Route path="taskQuery" component={ TaskQuery }></Route>

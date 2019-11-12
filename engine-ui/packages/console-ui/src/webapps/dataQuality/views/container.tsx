@@ -2,7 +2,7 @@ import * as React from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 
-// import utils from 'utils'
+import utils from 'utils'
 import { dqApp } from 'config/base'
 
 import Header from './layout/header'
@@ -35,6 +35,9 @@ class Main extends React.Component<any, any> {
         dispatch(commonActions.getUserList());
         dispatch(commonActions.getAllDict());
         dispatch(dataSourceActions.getDataSourcesType());
+        dispatch(projectActions.getProjects())
+        dispatch(projectActions.getAllProjects())
+        this.initProject();
     }
 
     // eslint-disable-next-line
@@ -47,6 +50,24 @@ class Main extends React.Component<any, any> {
             this.coverConatinerBg = true;
         } else {
             this.coverConatinerBg = false;
+        }
+    }
+
+    initProject () {
+        const { dispatch, router } = this.props
+        const pathname = router.location.pathname
+        if (pathname !== '/') {
+            let pid = '';
+            const projectIdFromURL = utils.getParameterByName('pid');
+            const projectIdFromCookie = utils.getCookie('dq_project_id');
+            if (projectIdFromURL) { // 优先从URL截取项目ID, 后从 Cookie 获取
+                pid = projectIdFromURL;
+            } else if (projectIdFromCookie) {
+                pid = projectIdFromCookie;
+            }
+            if (pid) {
+                dispatch(projectActions.getProject(parseInt(pid, 10)))
+            }
         }
     }
 

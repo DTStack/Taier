@@ -147,7 +147,7 @@ class ProjectsList extends React.Component<any, ProjectState> {
             key: 'projectName',
             width: '180px'
         }, {
-            title: 'API创建数',
+            title: '已配置表数',
             dataIndex: 'apiCreateCount',
             key: 'apiCreateCount',
             render (t: any) {
@@ -155,7 +155,7 @@ class ProjectsList extends React.Component<any, ProjectState> {
             },
             sorter: true
         }, {
-            title: 'API发布数',
+            title: '已配置规则数',
             dataIndex: 'apiIssueCount',
             key: 'apiIssueCount',
             render (t: any) {
