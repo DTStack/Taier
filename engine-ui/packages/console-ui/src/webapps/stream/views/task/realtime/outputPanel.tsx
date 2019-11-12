@@ -2,7 +2,7 @@ import * as React from 'react'
 import {
     Row, Col, Icon, Tooltip, Table, Input,
     Select, Collapse, Button, Popover, Popconfirm,
-    Form, InputNumber
+    Form, InputNumber, Checkbox
 } from 'antd'
 import { debounce, isEmpty } from 'lodash';
 
@@ -122,6 +122,7 @@ class OutputOrigin extends React.Component<any, any> {
                         >
                             <Option value={DATA_SOURCE.MYSQL}>MySQL</Option>
                             <Option value={DATA_SOURCE.ORACLE}>Oracle</Option>
+                            <Option value={DATA_SOURCE.POSTGRESQL}>PostgreSQL</Option>
                             <Option value={DATA_SOURCE.HBASE}>HBase</Option>
                             <Option value={DATA_SOURCE.ES}>ElasticSearch</Option>
                             <Option value={DATA_SOURCE.REDIS}>Redis</Option>
@@ -382,7 +383,9 @@ class OutputOrigin extends React.Component<any, any> {
                             {...formItemLayout}
                             label="主键"
                         >
-                            {getFieldDecorator('primaryKey')(
+                            {getFieldDecorator('primaryKey', {
+                                // rules: [{ required: true, message: '请输入主键' }]
+                            })(
                                 <Select className="right-select" onChange={(v: any) => { handleInputChange('primaryKey', index, v) }} mode="multiple"
                                     showSearch filterOption={(input: any, option: any) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
@@ -390,6 +393,19 @@ class OutputOrigin extends React.Component<any, any> {
                                         primaryKeyOptionTypes
                                     }
                                 </Select>
+                            )}
+                        </FormItem> : ''
+                }
+                {
+                    panelColumn[index].type == DATA_SOURCE.POSTGRESQL
+                        ? <FormItem
+                            {...formItemLayout}
+                            label="写入模式"
+                        >
+                            {getFieldDecorator('isUpsert', {
+                                initialValue: false
+                            })(
+                                <Checkbox onChange={(e: any) => handleInputChange('isUpsert', index, e.target.checked)}>开启upsert</Checkbox>
                             )}
                         </FormItem> : ''
                 }
@@ -420,7 +436,7 @@ const OutputForm = Form.create({
             columnsText, id,
             index, writePolicy,
             esId, esType,
-            parallelism, tableName,
+            parallelism, isUpsert, tableName,
             primaryKey, rowKey, topic,
             customParams
         } = props.panelColumn[props.index];
@@ -437,6 +453,7 @@ const OutputForm = Form.create({
             esId: { value: esId },
             esType: { value: esType },
             topic: { value: topic },
+            isUpsert: { value: isUpsert },
             parallelism: { value: parallelism },
             tableName: { value: tableName },
             primaryKey: { value: primaryKey },
@@ -867,7 +884,7 @@ export default class OutputPanel extends React.Component<any, any> {
             'columnsText', 'id',
             'index', 'writePolicy',
             'esId', 'esType', 'topic',
-            'parallelism', 'tableName',
+            'parallelism', 'isUpsert', 'tableName',
             'primaryKey', 'rowKey', 'customParams'
         ];
         const sourceType = panelColumn[index].type;
@@ -882,6 +899,9 @@ export default class OutputPanel extends React.Component<any, any> {
             allParamsType.map((v: any) => {
                 if (v === 'type') {
                     panelColumn[index][v] = value;
+                    if (value == DATA_SOURCE.POSTGRESQL) {
+                        panelColumn[index]['isUpsert'] = false;
+                    }
                 } else if (v == 'parallelism') {
                     panelColumn[index][v] = 1
                 } else if (v == 'columns') {
