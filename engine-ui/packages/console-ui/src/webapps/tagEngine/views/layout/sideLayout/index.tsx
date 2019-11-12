@@ -96,7 +96,7 @@ class SideLayout extends React.Component<IProps, IState> {
                                 </div>
                                 <SideBar {...this.props} mode={this.state.mode} />
                             </Sider>
-                            <Content className="tag-content">{children}</Content>
+                            <Content className="inner-container">{children}</Content>
                         </React.Fragment> : (<DashBoard/>)
                     }
 
