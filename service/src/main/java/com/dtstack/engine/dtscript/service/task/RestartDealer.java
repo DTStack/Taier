@@ -21,7 +21,7 @@ import com.dtstack.engine.dtscript.service.node.WorkNode;
 import com.dtstack.engine.dtscript.service.util.TaskIdUtil;
 import com.dtstack.engine.dtscript.service.zk.cache.ZkLocalCache;
 import com.google.common.base.Strings;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -19,8 +19,8 @@ import com.dtstack.engine.dtscript.service.db.dataobject.RdosEngineJob;
 import com.dtstack.engine.dtscript.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.engine.dtscript.service.db.dataobject.RdosStreamTaskCheckpoint;
 import com.google.common.base.Preconditions;
+import javafx.util.Pair;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.math3.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

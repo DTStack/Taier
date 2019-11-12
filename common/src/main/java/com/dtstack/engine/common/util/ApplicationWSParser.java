@@ -1,10 +1,8 @@
 package com.dtstack.engine.common.util;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.exception.RdosException;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import org.apache.commons.math3.util.Pair;
+import javafx.util.Pair;
 import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 
@@ -27,10 +25,10 @@ public class ApplicationWSParser {
     private static final Pattern ERR_INFO_BYTE_PATTERN = Pattern.compile("(\\d+)\\s*bytes");
 
     public static String getAMContainerLogsURL(String jsonStr) {
-        JsonObject jsonObject = (JsonObject) new JsonParser().parse(jsonStr);
-        JsonObject roogEle = jsonObject.getAsJsonObject(AM_ROOT_TAG);
-        JsonElement amContainerLogsEle = roogEle.get(AM_CONTAINER_LOGS_TAG);
-        return amContainerLogsEle.getAsString();
+        JSONObject jsonObject = JSONObject.parseObject(jsonStr);
+        JSONObject roogEle = jsonObject.getJSONObject(AM_ROOT_TAG);
+        String amContainerLogsEle = roogEle.getString(AM_CONTAINER_LOGS_TAG);
+        return amContainerLogsEle;
     }
 
     public static Pair<String, String> parserAMContainerPreViewHttp(String httpText, String preURL){

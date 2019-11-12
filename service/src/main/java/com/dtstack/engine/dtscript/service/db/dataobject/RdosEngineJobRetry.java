@@ -2,7 +2,7 @@ package com.dtstack.engine.dtscript.service.db.dataobject;
 
 
 import com.dtstack.engine.common.JobClient;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
 
