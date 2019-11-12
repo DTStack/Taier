@@ -314,29 +314,29 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                         <Row gutter={16}>
                                             <Col span={8}>
                                                 <div className='c_help_target'>
-                                                    <a target="blank" href={HELP_DOC_URL.CREATE_RULE}>新建规则</a>
+                                                    <a rel="noopener noreferrer" target="_blank" href={HELP_DOC_URL.CREATE_RULE}>新建规则</a>
                                                 </div>
                                             </Col>
                                             <Col span={8}>
                                                 <div className='c_help_target'>
-                                                    <a target="blank" href={HELP_DOC_URL.RULE_DETAIL}>查看计算规则</a>
+                                                    <a rel="noopener noreferrer" target="_blank" href={HELP_DOC_URL.RULE_DETAIL}>查看计算规则</a>
                                                 </div>
                                             </Col>
                                             <Col span={8}>
                                                 <div className='c_help_target'>
-                                                    <a target="blank" href={HELP_DOC_URL.REPORT_DETAIL}>查询详细报告</a>
+                                                    <a rel="noopener noreferrer" target="_blank" href={HELP_DOC_URL.REPORT_DETAIL}>查询详细报告</a>
                                                 </div>
                                             </Col>
                                         </Row>
                                         <Row gutter={16}>
                                             <Col span={8}>
                                                 <div className='c_help_target'>
-                                                    <a target="blank" href={HELP_DOC_URL.REPORT_TABLE}>查看表级报告</a>
+                                                    <a rel="noopener noreferrer" target="_blank" href={HELP_DOC_URL.REPORT_TABLE}>查看表级报告</a>
                                                 </div>
                                             </Col>
                                             <Col span={8}>
                                                 <div className='c_help_target'>
-                                                    <a target="blank" href={HELP_DOC_URL.CREATE_VALI}>新建逐行校验</a>
+                                                    <a rel="noopener noreferrer" target="_blank" href={HELP_DOC_URL.CREATE_VALI}>新建逐行校验</a>
                                                 </div>
                                             </Col>
                                         </Row>

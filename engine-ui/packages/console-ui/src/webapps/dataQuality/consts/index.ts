@@ -71,9 +71,9 @@ export const HELP_DOC_URL: any = {
     REMOTE: '/public/helpSite/valid/v3.0/RuleManage/Remote.html',
     CREATE_RULE: '/public/helpSite/valid/v3.0/RuleManage/CreateRule.html',
     RULE_DETAIL: '/public/helpSite/valid/v3.0/RuleManage/RuleDetail.html',
-    REPORT_DETAIL: '/public/helpSite/valid/v3.0/RuleManage/DetailReport.html',
-    REPORT_TABLE: '/public/helpSite/valid/v3.0/RuleManage/TableReport.html',
-    CREATE_VALI: '/public/helpSite/valid/v3.0/RuleManage/Create.html'
+    REPORT_DETAIL: '/public/helpSite/valid/v3.0/CheckResult/DetailReport.html',
+    REPORT_TABLE: '/public/helpSite/valid/v3.0/CheckResult/TableReport.html',
+    CREATE_VALI: '/public/helpSite/valid/v3.0/RowsComp/Create.html'
 }
 
 /**
