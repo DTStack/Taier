@@ -15,8 +15,8 @@ import '../../styles/views/dataSource.scss';
 const Search = Input.Search
 
 const mapStateToProps = (state: any) => {
-    const { dataSource } = state;
-    return { dataSource }
+    const { dataSource, project } = state;
+    return { dataSource, project }
 }
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -38,6 +38,15 @@ class DataSource extends React.Component<any, any> {
             name: undefined,
             type: undefined,
             active: undefined
+        }
+    }
+
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps: any) {
+        const project = nextProps.project
+        const oldProj = this.props.project
+        if (oldProj && project && oldProj.id !== project.id) {
+            this.props.getDataSources(this.state.params);
         }
     }
 

@@ -1,0 +1,566 @@
+.project-dashboard {
+    padding-bottom: 20px;
+    .project-left {
+        width: 85%;
+        float: left;
+    }
+    .project-right {
+        width: 15%;
+        float: right;
+        .summary-pannel {
+            background-color: #ffffff;
+            padding: 20px;
+            height: 100%;
+            h3 {
+                margin-bottom: 10px;
+            }
+            section {
+                margin-bottom: 20px;
+                p {
+                    margin-bottom: 5px;
+                }
+            }
+            .project-summary_flex {
+                display: flex;
+                margin: 10px 0 10px 0;
+                div {
+                    flex: 1;
+                }
+            }
+        }
+    }
+    .project-header{
+        display: flex;
+        justify-content:space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        margin-top: 10px;
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+    .indicator-col {
+
+        height: 65px;
+        background: #fff;
+        border-color: transparent;
+
+        .indicator-icon {
+            padding: 20.5px 33px;
+            height: 65px;
+            width: 90px;
+            border-radius: 3px 0 0 3px;
+            background: #8e9aa6;
+            color: #ffffff;
+            img {
+                width: 24px;
+                height: 24px;
+            }
+        }
+
+        .indicator-detail {
+            padding: 10px;
+            height: 65px;
+            text-align: left;
+            .indicator-title {
+                font-size: 12px;
+                color: #999999;
+            }
+
+            .indicator-content {
+                font-size: 24px;
+                color: #2491F7;
+            }
+        }
+    }
+
+    .chart-tip {
+        font-size: 12px;
+        color: #c2c8d3;
+    }
+
+    .chart-board {
+        padding: 10px;
+        background: #ffffff;
+        height: 300px;
+        position: relative;
+
+        .filter {
+            position: absolute;
+            top: 30px;
+            left: 85px;
+        }
+    }
+    .project-search-box{
+        display: flex;
+        align-items: center;
+        .project-search {
+            width: 220px;
+            margin-right: 30px;
+        }
+    }  
+    .card-width{
+        min-width: 375px;
+        .tooltip-img{
+            width: 14px;
+            float: right;
+            margin-top: 17px;
+        }
+        .cancel-top{
+            color: #94A8C6;
+            font-size: 12px;
+            float: right;
+        }
+        .tooltip-img,.cancel-top:hover{
+            cursor: pointer;
+        }
+        .setTopImg{
+            transform: rotate(180deg);
+        }
+        .company-name{
+            font-size: 14px ;
+            color: #333;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .company-name:hover{
+            color: #2491F7;
+        }
+        .company-name.no-hover{
+            cursor:unset;
+        }
+        .company-name.no-hover:hover{
+            color:#333;
+        }
+        .general-card{
+            margin: 0 10px 20px;
+            height: 220px;
+            .card-content{
+                position: relative;
+                .statistics{
+                    color: #333333;
+                    line-height: 26px;
+                    min-width: 190px;
+                }
+                .statistics-info{
+                    color: #333333;
+                }
+                .ant-card-body{
+                    padding: 4px;
+                }
+                .card-task-padding{
+                    padding: 0;
+                }
+                .number{
+                    font-size: 36px;
+                    line-height: 50px;
+                    color: #EF5350;
+                    cursor: pointer;
+                }
+                .no-hover{
+                    cursor: unset;
+                }
+                .card-task{
+                    min-width: 115px;
+                    text-align: center;
+                    margin-top: 10px;
+                    border-color: #dddddd;
+                }
+                .img-container{
+                    padding-right: 5px;
+                    .task-img{
+                        display: inline-block;
+                        height:16px;
+                        width: 20px;
+                        position: relative;
+                        top: 3px;
+                    }
+                }
+                .card-task:hover{
+                    cursor: pointer;
+                    border: 1px solid #2491F7;
+                    color: #2491F7;
+                }
+                
+            }
+            .triangle_border_right{
+                border-width: 12px;
+                border-style: solid;
+                border-color: transparent transparent transparent #94A8C6;/*透明 透明 透明 灰*/
+                //margin:40px auto;
+                position: absolute;
+                bottom: -12px;
+                right: -12px;
+                transform: rotate(45deg);
+            }
+        }
+        .general-card:hover{
+            box-shadow: 0 6px 12px 0 rgba(148,168,198,0.42);
+        }
+    }
+    .sortTitle{
+        .sort-item{
+            font-size: 12px;
+            cursor: pointer;
+            padding: 0px 5px;
+        }
+    }
+    .title-help{
+        padding-bottom: 10px;
+        cursor: pointer;
+    }
+    .help-doc-rdos{
+        font-size: 14px;
+        line-height: 40px;
+    }
+    .ant-card-head{
+        padding: 0 15;
+    }
+    .ant-card-body{
+        padding: 16 10;
+    }
+    
+
+}
+
+// .tooltip-tittle-text:hover{
+//     color: #2491F7;
+// }
+.project-dashboard  {
+    .ant-card-body{
+        padding: 20px 20px  20px 20px;
+    }
+    .ant-card-head{
+        height:40px;
+        line-height: 40px;
+    }
+}
+
+.projects-list {
+    padding: 20px;
+    background: #fff;
+    height: 100%;
+
+    .projects-header {
+        font-size: 16px;
+        color: #333333;
+        margin-bottom: 16px;
+
+        i {
+            margin-right: 6px;
+            cursor: pointer;
+        }
+    }
+
+    .ant-card-head {
+        padding: 0;
+        height: 30px;
+        line-height: 1;
+        border-bottom: 0;
+        font-size: 13px;
+        margin-bottom: 10px;
+
+        .ant-input-search {
+            margin: 0;
+            height: 30px;
+
+            input {
+                @extend .ant-input-search
+            }
+        }
+
+        button {
+            margin: 0;
+            background: #0099FF;
+            width: 104;
+            height: 30px;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+    }
+
+    .ant-card-body {
+        padding: 7px 0;
+    }
+}
+
+// 酷炫项目样式
+@font-face
+{
+ font-family: 'myFont';
+ src: url('/public/dataApi/font/font.ttf') format('truetype');
+}
+
+.c_project_wrapper {
+    background: #0C0F26;
+    a {
+        font-family: PingFangSC-Regular;
+        font-size: 14px;
+        color: #42C1FF;
+        line-height: 24px;
+        &:link {
+            text-decoration: none;
+        }
+    }
+    & > main {
+        display: flex;
+        justify-content: row;
+        color: #fff;
+        padding: 32px 20px 20px 20px;
+        .c_left_section_wrapper {
+            min-width: 950px;
+            width: 70%;
+            padding: 0 20px 0 0;
+            .c_offten_project_list {
+                margin-bottom: 20px;
+                .c_offten_project_title {
+                    height: 30px;
+                    line-height: 30px;
+                    .c_offten_project_title_opera {
+                        float: right;
+                        a:nth-child(1) {
+                            margin-right: 8px;
+                        }
+                    }
+                    .c_offten_project_title_img {
+                        width: 800px;
+                        height: 30px;
+                    }
+                }
+                .c_spin_loading {
+                    .ant-spin-nested-loading {
+                        div > .ant-spin {
+                            position: unset;
+                            height: 100%;
+                            max-height: 320px;
+                            width: 100%;
+                            z-index: 4;
+                        }
+                    }
+                }
+                .c_no_project { // 无项目
+                    // opacity: 0.6;
+                    // background: #0D1652;
+                    background: rgba(13,22,82,.6);
+                    border: 1px solid #292E4F;
+                    box-shadow: 0 6px 13px 0 rgba(0,0,0,0.20);
+                    border-radius: 2px;
+                    width: 100%;
+                    height: 212px;
+                    margin-top: 27px;
+                    text-align: center;
+                    line-height: 212px;
+                    font-family: PingFangSC-Regular;
+                    font-size: 16px;
+                    color: #BFD1F2;
+                }
+                .c_offten_project_col {
+                    min-width: 308px;
+                    margin-top: 17px;
+                    padding: 0;
+                    .c_offten_project_card {
+                        height: 212px;
+                        // opacity: 0.7;
+                        // background: #141B4A;
+                        background: rgba(20,27,74,.7);
+                        border: 1px solid #292E4F;
+                        box-shadow: 0 6px 13px 0 rgba(0,0,0,0.20);
+                        border-radius: 2px;
+                        .ant-card-head {
+                            border: none;
+                            height: 85px;
+                            position: relative;
+                            line-height: unset;
+                            // background: #141B4A;
+                            background: unset;
+                            .ant-card-head-title {
+                                overflow: unset;
+                                .c_offten_project_card_title_info {
+                                    padding-top: 24px;
+                                    .c_offten_project_card_title_name {
+                                        font-family: PingFangSC-Medium;
+                                        font-size: 17px;
+                                        color: #DDDDDD;
+                                        line-height: 24px;
+                                    }
+                                    .c_offten_project_card_title_name_alias {
+                                        font-family: PingFangSC-Regular;
+                                        font-size: 14px;
+                                        color: #8A8DA6;
+                                        line-height: 24px;
+                                    }
+                                }
+                                .c_offten_project_card_title_icon {
+                                    position: absolute;
+                                    width: 70px;
+                                    height: 108px;
+                                    top: -26px;
+                                    img {
+                                        width: 70px;
+                                        height: 108px;
+                                    }
+                                }
+                            }
+                        }
+                        .ant-card-body {
+                            padding: 19px 24px 24px 24px;
+                            zoom: 1;
+                            .c_offten_project_card_content {
+                                font-family: PingFangSC-Regular;
+                                font-size: 14px;
+                                color: #8A8DA6;
+                                line-height: 24px;
+                                .c_project_num {
+                                    color: #16ABF5;
+                                }
+                                .c_opera {
+                                    margin-top: 10px;
+                                    .c_api_opera {
+                                        cursor: pointer;
+                                        font-family: PingFangSC-Regular;
+                                        font-size: 14px;
+                                        color: #42C1FF;
+                                        line-height: 24px;
+                                        min-width: 126px;
+                                        height: 36px;
+                                        line-height: 36px;
+                                        text-align: center;
+                                        background: rgba(22,171,245,0.12);
+                                        border: 1px solid rgba(22,171,245,0.37);
+                                        border-radius: 2px;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .c_api_process_pic {
+                width: 100%;
+                min-height: 538px;
+                // border: 1px solid blue;
+                border: 1px solid #292E4F;
+                img {
+                    width: 100%;
+                    height: 100%;
+                }
+            }
+        }
+        .c_right_section_wrapper {
+            width: 30%;
+            min-width: 416px;
+            position: relative;
+            .c_summary_project {
+                height: 30px;
+                width: 416px;
+                img {
+                    height: 30px;
+                }
+            }
+            .c_summary_project_card {
+                width: 100%;
+                min-height: 276px;
+                // opacity: 0.7;
+                // background: #141B4A;
+                background: rgba(20,27,74,.7);
+                border: 1px solid #292E4F;
+                box-shadow: 0 6px 13px 0 rgba(0,0,0,0.20);
+                border-radius: 2px;
+                margin: 26px 0 39px 0;
+                .ant-card-body {
+                    padding: 34px 22px 32px 16px;
+                    zoom: 1;
+                    .c_summary_sub {
+                        position: relative;
+                        min-width: 130px;
+                        width: 130px;
+                        height: 50px;
+                        .c_summary_sub_pic {
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            width: 40px;
+                            height: 40px;
+                        }
+                        .c_summary_sub_name {
+                            position: absolute;
+                            left: 45px;
+                            top: -8px;
+                            font-family: PingFangSC-Regular;
+                            font-size: 14px;
+                            color: #BFD1F2;
+                            line-height: 24px;
+                        }
+                        .c_summary_sub_num {
+                            position: absolute;
+                            left: 45px;
+                            bottom: -6px;
+                            font-family: myFont;
+                            font-size: 30px;
+                            color: #30BBFF;
+                        }
+                    }
+                    .c_latest_day_card {
+                        min-width: 185px;
+                        height: 125px;
+                        // opacity: 0.6;
+                        background: #102759;
+                        margin-top: 25px;
+                        .ant-card-body {
+                            padding: 10px 10px 20px 12px;
+                            .c_latest_day_title {
+                                font-family: PingFangSC-Regular;
+                                font-size: 14px;
+                                color: #BFD1F2;
+                                line-height: 24px;
+                            }
+                            .c_latest_day_num {
+                                // font-family: AgencyFB-Reg;
+                                font-family: myFont;
+                                font-size: 30px;
+                                color: #FAFAFA;
+                            }
+                            .c_latest_day_img {
+                                width: 142px;
+                                height: 24px;
+                                img {
+                                    width: 100%;
+                                    height: 100%;
+                                }
+                            }
+                        }
+                    }
+                } 
+            }
+            .c_use_tutorial_card {
+                margin-top: 20px;
+                // opacity: 0.7;
+                // background: #141B4A;
+                background: rgba(20,27,74,.7);
+                border: 1px solid #292E4F;
+                box-shadow: 0 6px 13px 0 rgba(0,0,0,0.20);
+                border-radius: 2px;
+                .c_help_target {
+                    width: 101px;
+                    height: 36px;
+                    line-height: 36px;
+                    text-align: center;
+                    margin-top: 15px;
+                    background-image: url(/public/dataApi/img/help.png);
+                    font-family: PingFangSC-Regular;
+                    font-size: 14px;
+                    color: #BFD1F2;
+                    & > a {
+                        font-size: 14px;
+                        color: #BFD1F2;
+                    }
+                }
+            }
+            .c_video_width {
+                width: 100%;
+                min-height: 228px;
+            }
+        }
+    }
+}
+

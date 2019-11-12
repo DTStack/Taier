@@ -7,8 +7,8 @@ import NoApprovedCard from './noApprovedCard'
 import ApprovedCard from './approvedCard'
 
 const mapStateToProps = (state: any) => {
-    const { user, mine } = state;
-    return { mine, user }
+    const { user, mine, project } = state;
+    return { mine, user, project }
 };
 
 const mapDispatchToProps = (dispatch: any) => ({
