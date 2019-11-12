@@ -3,13 +3,14 @@
         "noEmit": true,  // Don't emit; allow Babel to transform files.
         "outDir":"./dist/",
         "baseUrl": ".",
+        "moduleResolution": "node",
         "experimentalDecorators": true,
         "noImplicitAny": true,
         "esModuleInterop": true,
         "allowJs": true,
         "module": "commonjs",
         "target": "es5",
-        "lib": [ "es7","es2016","dom" ],
+        "lib": [ "es6","es2016","dom" ],
         "jsx": "react",
         "allowSyntheticDefaultImports": true,
         "paths": {
@@ -30,7 +31,13 @@
             "console/*": ["./src/webapps/console/*"],
             "analyticsEngine/*": ["./src/webapps/analyticsEngine/*"],
             "database": ["./src/database"] // 数据库
-        }
+        },
+        "skipLibCheck": true,
+        "typeRoots": [
+            "node",
+            "node_modules/@types",
+            "./typings"
+        ],
     },
     "exclude": [
         "node_modules",
@@ -38,6 +45,8 @@
         "src/public/**/*"
     ],
     "include": [
+        "./**/*.ts",
+        "./**/*.tsx",
         "src/**/*"
     ]
 }
