@@ -1,6 +1,5 @@
 package com.dtstack.engine.flink150.util;
 
-import com.dtstack.engine.common.exception.RdosException;
 import com.dtstack.engine.common.enums.ClassLoaderType;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
