@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -83,6 +84,39 @@ public class FlinkUtil {
         }
 
         return jarFile;
+    }
+
+    public static File downloadJar(String fromPath, String toPath, Configuration hadoopConf, Map<String, String> sftpConf) throws FileNotFoundException {
+        boolean downloadJarFlag = false;
+        if (sftpConf != null && !sftpConf.isEmpty()){
+            downloadJarFlag = downloadFileFromSftp(fromPath, toPath, sftpConf);
+        }
+        if (!downloadJarFlag) {
+            return downloadJar(fromPath, toPath, hadoopConf);
+        } else {
+            String localJarPath = FlinkUtil.getTmpFileName(fromPath, toPath);
+            return new File(localJarPath);
+        }
+    }
+
+    private static boolean downloadFileFromSftp(String fromPath, String toPath, Map<String, String> sftpConf) {
+        //从Sftp下载文件到目录下
+        SFTPHandler handler = null;
+        try {
+            handler = SFTPHandler.getInstance(sftpConf);
+            int files = handler.downloadDir(fromPath, toPath);
+            logger.info("download file from SFTP, fileSize: " + files);
+            if (files > 0) {
+                return true;
+            }
+        } catch (Exception e) {
+            logger.error("", e);
+        } finally {
+            if (handler != null) {
+                handler.close();
+            }
+        }
+        return false;
     }
 
 

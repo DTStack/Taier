@@ -683,7 +683,7 @@ public class FlinkClient extends AbsClient {
                 String addFilePath = jarFileInfo.getJarPath();
                 File tmpFile = null;
                 try {
-                    tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath, hadoopConf);
+                    tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath, hadoopConf, flinkConfig.getSftpConf());
                 } catch (FileNotFoundException e) {
                     throw new RuntimeException(e);
                 }

@@ -6,7 +6,6 @@ import com.dtstack.engine.sparkyarn.sparkyarn.util.FileUtil;
 import com.dtstack.engine.sparkyarn.sparkyarn.util.SFTPHandler;
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
-import org.apache.commons.collections.MapUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.SparkConf;
 import org.apache.spark.deploy.yarn.ClientArguments;
@@ -68,10 +67,15 @@ public class ClientExt extends DtClient {
             loadConfFromLocal(hadoopConfFiles);
         } else {
             String confDirName = this.creatDirIfPresent();
+            boolean downloadFlag = false;
             if (sparkYarnConfig.getSftpConf() != null && !sparkYarnConfig.getSftpConf().isEmpty()) {
-                this.downloadFileFromSftp(confDirName);
-            } else {
-                this.downloadFileFromHdfs(confDirName);
+                downloadFlag = this.downloadFileFromSftp(confDirName);
+            }
+            if (!downloadFlag){
+                downloadFlag = this.downloadFileFromHdfs(confDirName);
+            }
+            if (!downloadFlag){
+                throw new RuntimeException("----download file exception---");
             }
             this.loadConfFromDir(hadoopConfFiles, confDirName);
         }
@@ -111,10 +115,14 @@ public class ClientExt extends DtClient {
         }
     }
 
-    private void downloadFileFromHdfs(String confFileDirName) {
+    private boolean downloadFileFromHdfs(String confFileDirName) {
         String hdfsPath = sparkYarnConfig.getConfHdfsPath();
         try {
-            FileUtil.downLoadDirFromHdfs(hdfsPath, confFileDirName, hadoopConf);
+            Map<String, String> files = FileUtil.downLoadDirFromHdfs(hdfsPath, confFileDirName, hadoopConf);
+            LOG.info("download file from Hdfs, fileSize: " + files.size());
+            if (!files.isEmpty()) {
+                return true;
+            }
         } catch (Exception e) {
             LOG.error("", e);
             try {
@@ -123,11 +131,11 @@ public class ClientExt extends DtClient {
             } catch (Exception e1) {
                 LOG.error("", e1);
             }
-            throw new RuntimeException("----download file from hdfs exception---");
         }
+        return false;
     }
 
-    private void downloadFileFromSftp(String confFileDirName) {
+    private boolean downloadFileFromSftp(String confFileDirName) {
         //从Sftp下载文件到目录下
         Map<String, String> sftpConf = sparkYarnConfig.getSftpConf();
         String sftpPath = sparkYarnConfig.getConfHdfsPath();
@@ -137,6 +145,9 @@ public class ClientExt extends DtClient {
             handler = SFTPHandler.getInstance(sftpConf);
             int files = handler.downloadDir(sftpPath, confFileDirName);
             LOG.info("download file from SFTP, fileSize: " + files);
+            if (files > 0) {
+                return true;
+            }
         } catch (Exception e) {
             LOG.error("", e);
             try {
@@ -145,12 +156,12 @@ public class ClientExt extends DtClient {
             } catch (Exception e1) {
                 LOG.error("", e1);
             }
-            throw new RuntimeException("----download file from hdfs exception---");
         } finally {
             if (handler != null) {
                 handler.close();
             }
         }
+        return false;
     }
 
 }
