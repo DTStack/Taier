@@ -78,9 +78,6 @@ public class FlinkClientBuilder {
 
     private Configuration flinkConfiguration;
 
-    private FlinkClientBuilder() {
-    }
-
     public static FlinkClientBuilder create(FlinkConfig flinkConfig, org.apache.hadoop.conf.Configuration hadoopConf, YarnConfiguration yarnConf, YarnClient yarnClient) {
         FlinkClientBuilder builder = new FlinkClientBuilder();
         builder.flinkConfig = flinkConfig;

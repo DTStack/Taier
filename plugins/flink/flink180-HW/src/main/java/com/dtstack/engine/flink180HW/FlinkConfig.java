@@ -4,6 +4,9 @@ import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -15,27 +18,17 @@ public class FlinkConfig {
 
     private static final String DEFAULT_FLINK_PLUGIN_ROOT = "/opt/dtstack/flinkplugin";
 
-    private static final String DEFAULT_REMOTE_PLUGIN_ROOT_DIR = "/opt/dtstack/flinkplugin";
-
-    private static final String DEFAULT_FLINK_ZK_NAMESPACE = "/flink170";
-
     private static final String DEFAULT_JAR_TMP_DIR = "../tmp170";
 
-    private static final String DEFAULT_FLINK_HIGH_AVAILABILITY_STORAGE_DIR = "%s/flink170/ha";
+    private static List<String> ENGINE_FLINK_CONFIGS = null;
 
-    private static final String HDFS_FLAG = "hdfs";
+    static {
+        ENGINE_FLINK_CONFIGS = initEngineFlinkConfigFields();
+    }
 
     private String typeName;
 
-    private String flinkZkAddress;
-
-    private String flinkZkNamespace;
-
-    private String flinkClusterId;
-
     private String flinkJobMgrUrl;
-
-    private String flinkHighAvailabilityStorageDir;
 
     private String jarTmpDir;
 
@@ -61,10 +54,6 @@ public class FlinkConfig {
 
     private String yarnAccepterTaskNumber;
 
-    private String flinkJobHistory;
-
-    private String jobmanagerArchiveFsDir;
-
     private boolean openKerberos;
 
     private String localKeytab;
@@ -81,55 +70,13 @@ public class FlinkConfig {
 
     private boolean yarnSessionStartAuto = true;
 
-    private transient FlinkPrometheusGatewayConfig prometheusGatewayConfig;
 
-
-    public boolean isOpenKerberos() {
-        return openKerberos;
+    public String getTypeName() {
+        return typeName;
     }
 
-    public void setOpenKerberos(boolean isSecurity) {
-        this.openKerberos = isSecurity;
-    }
-
-    public String getFlinkZkAddress() {
-        return flinkZkAddress;
-    }
-
-    public void setFlinkZkAddress(String flinkZkAddress) {
-        this.flinkZkAddress = flinkZkAddress;
-    }
-
-    public String getFlinkZkNamespace() {
-        if (Strings.isNullOrEmpty(flinkZkNamespace)) {
-            return DEFAULT_FLINK_ZK_NAMESPACE;
-        }
-
-        return flinkZkNamespace;
-    }
-
-    public void setFlinkZkNamespace(String flinkZkNamespace) {
-        this.flinkZkNamespace = flinkZkNamespace;
-    }
-
-    public String getFlinkClusterId() {
-        return flinkClusterId;
-    }
-
-    public void setFlinkClusterId(String flinkClusterId) {
-        this.flinkClusterId = flinkClusterId;
-    }
-
-    public String getJarTmpDir() {
-        if (Strings.isNullOrEmpty(jarTmpDir)) {
-            return DEFAULT_JAR_TMP_DIR;
-        }
-
-        return jarTmpDir;
-    }
-
-    public void setJarTmpDir(String jarTmpDir) {
-        this.jarTmpDir = jarTmpDir;
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
     }
 
     public String getFlinkJobMgrUrl() {
@@ -140,47 +87,8 @@ public class FlinkConfig {
         this.flinkJobMgrUrl = flinkJobMgrUrl;
     }
 
-    public String getFlinkHighAvailabilityStorageDir() {
-        return flinkHighAvailabilityStorageDir;
-    }
-
-    public void setFlinkHighAvailabilityStorageDir(
-            String flinkHighAvailabilityStorageDir) {
-        this.flinkHighAvailabilityStorageDir = flinkHighAvailabilityStorageDir;
-    }
-
-    public void setDefaultFlinkHighAvailabilityStorageDir(String defaultFS) {
-        String defaultVal = String.format(DEFAULT_FLINK_HIGH_AVAILABILITY_STORAGE_DIR, defaultFS);
-        this.flinkHighAvailabilityStorageDir = defaultVal;
-    }
-
-    public void updateFlinkHighAvailabilityStorageDir(String defaultFS){
-        if(Strings.isNullOrEmpty(flinkHighAvailabilityStorageDir)){
-            return;
-        }
-
-        if(flinkHighAvailabilityStorageDir.trim().startsWith(HDFS_FLAG)){
-            return;
-        }
-
-        flinkHighAvailabilityStorageDir = flinkHighAvailabilityStorageDir.trim();
-        flinkHighAvailabilityStorageDir = defaultFS + flinkHighAvailabilityStorageDir;
-    }
-
-    public String getTypeName() {
-        return typeName;
-    }
-
-    public void setTypeName(String typeName) {
-        this.typeName = typeName;
-    }
-
-    public String getFlinkPluginRoot() {
-        if(Strings.isNullOrEmpty(flinkPluginRoot)){
-            return DEFAULT_FLINK_PLUGIN_ROOT;
-        }
-
-        return flinkPluginRoot;
+    public void setJarTmpDir(String jarTmpDir) {
+        this.jarTmpDir = jarTmpDir;
     }
 
     public void setFlinkPluginRoot(String flinkPluginRoot) {
@@ -196,11 +104,6 @@ public class FlinkConfig {
     }
 
     public String getRemotePluginRootDir() {
-
-        if(Strings.isNullOrEmpty(remotePluginRootDir)){
-            return DEFAULT_REMOTE_PLUGIN_ROOT_DIR;
-        }
-
         return remotePluginRootDir;
     }
 
@@ -232,22 +135,6 @@ public class FlinkConfig {
         this.yarnConf = yarnConf;
     }
 
-    public String getCluster() {
-        return StringUtils.isBlank(cluster) ? "default" : cluster;
-    }
-
-    public void setCluster(String cluster) {
-        this.cluster = cluster;
-    }
-
-    public String getQueue() {
-        return StringUtils.isBlank(queue) ? "default" : queue;
-    }
-
-    public void setQueue(String queue) {
-        this.queue = queue;
-    }
-
     public String getFlinkJarPath() {
         return flinkJarPath;
     }
@@ -256,68 +143,20 @@ public class FlinkConfig {
         this.flinkJarPath = flinkJarPath;
     }
 
-    public boolean getElasticCapacity() {
-        return StringUtils.isBlank(elasticCapacity) ? true: Boolean.valueOf(elasticCapacity);
-    }
-
     public void setElasticCapacity(String elasticCapacity) {
         this.elasticCapacity = elasticCapacity;
-    }
-
-    public int getYarnAccepterTaskNumber() {
-        return StringUtils.isBlank(yarnAccepterTaskNumber) ? 1: NumberUtils.toInt(yarnAccepterTaskNumber,2);
     }
 
     public void setYarnAccepterTaskNumber(String yarnAccepterTaskNumber) {
         this.yarnAccepterTaskNumber = yarnAccepterTaskNumber;
     }
 
-    public String getFlinkJobHistory() {
-        return flinkJobHistory;
+    public boolean isOpenKerberos() {
+        return openKerberos;
     }
 
-    public void setFlinkJobHistory(String flinkJobHistory) {
-        this.flinkJobHistory = flinkJobHistory;
-    }
-
-    public String getJobmanagerArchiveFsDir() {
-        return jobmanagerArchiveFsDir;
-    }
-
-    public void setJobmanagerArchiveFsDir(String jobmanagerArchiveFsDir) {
-        this.jobmanagerArchiveFsDir = jobmanagerArchiveFsDir;
-    }
-
-    public int getFlinkSessionSlotCount() {
-        return flinkSessionSlotCount;
-    }
-
-    public void setFlinkSessionSlotCount(int flinkSessionSlotCount) {
-        this.flinkSessionSlotCount = flinkSessionSlotCount;
-    }
-
-    public String getFlinkSessionName() {
-        return flinkSessionName;
-    }
-
-    public void setFlinkSessionName(String flinkSessionName) {
-        this.flinkSessionName = flinkSessionName;
-    }
-
-    public boolean getYarnSessionStartAuto() {
-        return yarnSessionStartAuto;
-    }
-
-    public void setYarnSessionStartAuto(boolean yarnSessionStartAuto) {
-        this.yarnSessionStartAuto = yarnSessionStartAuto;
-    }
-
-    public FlinkPrometheusGatewayConfig getPrometheusGatewayConfig() {
-        return prometheusGatewayConfig;
-    }
-
-    public void setPrometheusGatewayConfig(FlinkPrometheusGatewayConfig prometheusGatewayConfig) {
-        this.prometheusGatewayConfig = prometheusGatewayConfig;
+    public void setOpenKerberos(boolean openKerberos) {
+        this.openKerberos = openKerberos;
     }
 
     public String getLocalKeytab() {
@@ -350,5 +189,90 @@ public class FlinkConfig {
 
     public void setKerberosConfig(Map<String, String> kerberosConfig) {
         this.kerberosConfig = kerberosConfig;
+    }
+
+    public int getFlinkSessionSlotCount() {
+        return flinkSessionSlotCount;
+    }
+
+    public void setFlinkSessionSlotCount(int flinkSessionSlotCount) {
+        this.flinkSessionSlotCount = flinkSessionSlotCount;
+    }
+
+    public String getFlinkSessionName() {
+        return flinkSessionName;
+    }
+
+    public void setFlinkSessionName(String flinkSessionName) {
+        this.flinkSessionName = flinkSessionName;
+    }
+
+    public boolean getYarnSessionStartAuto() {
+        return yarnSessionStartAuto;
+    }
+
+    public void setYarnSessionStartAuto(boolean yarnSessionStartAuto) {
+        this.yarnSessionStartAuto = yarnSessionStartAuto;
+    }
+
+    public String getJarTmpDir() {
+        if (Strings.isNullOrEmpty(jarTmpDir)) {
+            return DEFAULT_JAR_TMP_DIR;
+        }
+
+        return jarTmpDir;
+    }
+
+    public String getFlinkPluginRoot() {
+        if(Strings.isNullOrEmpty(flinkPluginRoot)){
+            return DEFAULT_FLINK_PLUGIN_ROOT;
+        }
+
+        return flinkPluginRoot;
+    }
+
+    public String getCluster() {
+        return StringUtils.isBlank(cluster) ? "default" : cluster;
+    }
+
+    public void setCluster(String cluster) {
+        this.cluster = cluster;
+    }
+
+    public String getQueue() {
+        return StringUtils.isBlank(queue) ? "default" : queue;
+    }
+
+    public void setQueue(String queue) {
+        this.queue = queue;
+    }
+
+    public boolean getElasticCapacity() {
+        return StringUtils.isBlank(elasticCapacity) ? true: Boolean.valueOf(elasticCapacity);
+    }
+
+    public int getYarnAccepterTaskNumber() {
+        return StringUtils.isBlank(yarnAccepterTaskNumber) ? 1: NumberUtils.toInt(yarnAccepterTaskNumber,2);
+    }
+
+    public static List<String> getEngineFlinkConfigs() {
+        return ENGINE_FLINK_CONFIGS;
+    }
+
+    public static void setEngineFlinkConfigs(List<String> engineFlinkConfigs) {
+        ENGINE_FLINK_CONFIGS = engineFlinkConfigs;
+    }
+
+    private static List<String> initEngineFlinkConfigFields() {
+        Class clazz = FlinkConfig.class;
+        Field[] fields = clazz.getDeclaredFields();
+        List<String> engineFlinkConfigs = new ArrayList<>(fields.length);
+        for (Field field : fields) {
+            if ((field.getModifiers() & java.lang.reflect.Modifier.STATIC) != java.lang.reflect.Modifier.STATIC) {
+                String name = field.getName();
+                engineFlinkConfigs.add(name);
+            }
+        }
+        return engineFlinkConfigs;
     }
 }

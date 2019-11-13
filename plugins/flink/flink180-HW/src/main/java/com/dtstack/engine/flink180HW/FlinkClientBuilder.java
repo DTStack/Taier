@@ -3,10 +3,7 @@ package com.dtstack.engine.flink180HW;
 import com.dtstack.engine.common.exception.RdosException;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.util.HadoopConfTool;
 import com.dtstack.engine.flink180HW.constrant.ConfigConstrant;
-import com.dtstack.engine.flink180HW.enums.Deploy;
-import com.google.common.base.Strings;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.deployment.ClusterRetrieveException;
@@ -27,7 +24,6 @@ import org.apache.flink.runtime.minicluster.MiniCluster;
 import org.apache.flink.runtime.minicluster.MiniClusterConfiguration;
 import org.apache.flink.runtime.util.HadoopUtils;
 import org.apache.flink.runtime.util.LeaderConnectionInfo;
-import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.flink.yarn.YarnClusterDescriptor;
 import org.apache.flink.yarn.configuration.YarnConfigOptions;
@@ -79,15 +75,9 @@ public class FlinkClientBuilder {
 
     private Configuration flinkConfiguration;
 
-    private FlinkPrometheusGatewayConfig gatewayConfig;
-
-    private FlinkClientBuilder() {
-    }
-
     public static FlinkClientBuilder create(FlinkConfig flinkConfig, org.apache.hadoop.conf.Configuration hadoopConf, YarnConfiguration yarnConf, YarnClient yarnClient) {
         FlinkClientBuilder builder = new FlinkClientBuilder();
         builder.flinkConfig = flinkConfig;
-        builder.gatewayConfig = flinkConfig.getPrometheusGatewayConfig();
         builder.hadoopConf = hadoopConf;
         builder.yarnConf = yarnConf;
         builder.yarnClient = yarnClient;
@@ -95,52 +85,17 @@ public class FlinkClientBuilder {
     }
 
     public void initFLinkConfiguration(Properties extProp) {
-        String clusterMode = flinkConfig.getClusterMode();
-        if(StringUtils.isEmpty(clusterMode)) {
-            clusterMode = Deploy.standalone.name();
-        }
-
-        String defaultFS = hadoopConf.get(HadoopConfTool.FS_DEFAULTFS);
-        if(Strings.isNullOrEmpty(flinkConfig.getFlinkHighAvailabilityStorageDir())){
-            //设置默认值
-            flinkConfig.setDefaultFlinkHighAvailabilityStorageDir(defaultFS);
-        }
-
-        flinkConfig.updateFlinkHighAvailabilityStorageDir(defaultFS);
-
-        if (!clusterMode.equals(Deploy.yarn.name())){
-            return;
-        }
-
         Configuration config = new Configuration();
-        //FIXME 浙大环境测试修改,暂时写在这
         config.setString("akka.client.timeout", AKKA_CLIENT_TIMEOUT);
         config.setString("akka.ask.timeout", AKKA_ASK_TIMEOUT);
         config.setString("akka.tcp.timeout", AKKA_TCP_TIMEOUT);
-
         // JVM Param
         config.setString(CoreOptions.FLINK_JVM_OPTIONS, jvm_options);
-
-        if(StringUtils.isNotBlank(flinkConfig.getFlinkZkAddress())) {
-            config.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
-            config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM, flinkConfig.getFlinkZkAddress());
-            config.setString(HighAvailabilityOptions.HA_STORAGE_PATH, flinkConfig.getFlinkHighAvailabilityStorageDir());
-        }
-
-        if(flinkConfig.getFlinkZkNamespace() != null){//不设置默认值"/flink"
-            config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_ROOT, flinkConfig.getFlinkZkNamespace());
-        }
-
-        if(flinkConfig.getFlinkClusterId() != null){//standalone必须设置
-            config.setString(HighAvailabilityOptions.HA_CLUSTER_ID, flinkConfig.getFlinkClusterId());
-        }
-
         config.setBytes(HadoopUtils.HADOOP_CONF_BYTES, HadoopUtils.serializeHadoopConf(hadoopConf));
 
-        //FIXME 临时处理填写的flink配置,在console上区分开之后区分出配置信息是engine-flink-plugin,还是flink本身
-        if(extProp != null){
+        if (extProp != null) {
             extProp.forEach((key, value) -> {
-                if (key.toString().contains(".")) {
+                if (!FlinkConfig.getEngineFlinkConfigs().contains(key.toString())) {
                     config.setString(key.toString(), value.toString());
                 }
             });
@@ -157,36 +112,19 @@ public class FlinkClientBuilder {
     }
 
     public ClusterClient createStandalone() {
-        Preconditions.checkState(flinkConfig.getFlinkJobMgrUrl() != null || flinkConfig.getFlinkZkNamespace() != null,
-                "flink client can not init for host and zkNamespace is null at the same time.");
-
-        if (flinkConfig.getFlinkZkNamespace() != null) {//优先使用zk
-            Preconditions.checkNotNull(flinkConfig.getFlinkHighAvailabilityStorageDir(), "you need to set high availability storage dir...");
-            return initClusterClientByZK(flinkConfig.getFlinkZkNamespace(), flinkConfig.getFlinkZkAddress(), flinkConfig.getFlinkClusterId(),
-                    flinkConfig.getFlinkHighAvailabilityStorageDir());
+        if (HighAvailabilityMode.ZOOKEEPER == HighAvailabilityMode.valueOf(flinkConfiguration.getValue(HighAvailabilityOptions.HA_MODE))) {
+            return initClusterClientByZK();
         } else {
-            return initClusterClientByURL(flinkConfig.getFlinkJobMgrUrl());
+            return initClusterClientByURL();
         }
     }
 
     /**
      * 根据zk获取clusterclient
-     *
-     * @param zkNamespace
      */
-    private ClusterClient initClusterClientByZK(String zkNamespace, String zkAddress, String clusterId, String flinkHighAvailabilityStorageDir) {
+    private ClusterClient initClusterClientByZK() {
 
-        Configuration config = new Configuration();
-        config.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
-        config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM, zkAddress);
-        config.setString(HighAvailabilityOptions.HA_STORAGE_PATH, flinkHighAvailabilityStorageDir);
-        if (zkNamespace != null) {//不设置默认值"/flink"
-            config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_ROOT, zkNamespace);
-        }
-
-        if (clusterId != null) {//不设置默认值"/default"
-            config.setString(HighAvailabilityOptions.HA_CLUSTER_ID, clusterId);
-        }
+        Configuration config = new Configuration(flinkConfiguration);
         MiniClusterConfiguration.Builder configBuilder = new MiniClusterConfiguration.Builder();
         configBuilder.setConfiguration(config);
         //初始化的时候需要设置,否则提交job会出错,update config of jobMgrhost, jobMgrprt
@@ -209,16 +147,13 @@ public class FlinkClientBuilder {
 
     /**
      * 直接指定jobmanager host:port方式
-     *
-     * @return
-     * @throws Exception
      */
-    private ClusterClient initClusterClientByURL(String jobMgrURL) {
+    private ClusterClient initClusterClientByURL() {
 
-        String[] splitInfo = jobMgrURL.split(":");
+        String[] splitInfo = flinkConfig.getFlinkJobMgrUrl().split(":");
         if (splitInfo.length < 2) {
             throw new RdosException("the config of engineUrl is wrong. " +
-                    "setting value is :" + jobMgrURL + ", please check it!");
+                    "setting value is :" + flinkConfig.getFlinkJobMgrUrl() + ", please check it!");
         }
 
         String jobMgrHost = splitInfo[0].trim();
@@ -268,15 +203,13 @@ public class FlinkClientBuilder {
 
     public AbstractYarnClusterDescriptor createClusterDescriptorByMode(JobClient jobClient, boolean isPerjob) throws MalformedURLException {
         Configuration newConf = new Configuration(flinkConfiguration);
-        setMetricConfigConfig(newConf, gatewayConfig);
-        if (isPerjob && jobClient != null){
+        if (isPerjob && jobClient != null) {
             newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, jobClient.getTaskId());
             newConf.setInteger(YarnConfigOptions.APPLICATION_ATTEMPTS.key(), 0);
             newConf = addConfiguration(jobClient.getConfProperties(), newConf);
         } else {
             String clusterId = flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue();
             newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, clusterId);
-            newConf = consoleConfiguration(newConf);
         }
 
         AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, yarnConf, ".");
@@ -291,16 +224,12 @@ public class FlinkClientBuilder {
             flinkJarPath = flinkConfig.getFlinkJarPath();
         }
 
-        if(StringUtils.isNotBlank(flinkConfig.getJobmanagerArchiveFsDir())){
-            newConf.setString(JobManagerOptions.ARCHIVE_DIR, flinkConfig.getJobmanagerArchiveFsDir());
-        }
-
         List<URL> classpaths = new ArrayList<>();
         if (flinkJarPath != null) {
             File[] jars = new File(flinkJarPath).listFiles();
 
-            for (File file : jars){
-                if (file.toURI().toURL().toString().contains("flink-dist")){
+            for (File file : jars) {
+                if (file.toURI().toURL().toString().contains("flink-dist")) {
                     clusterDescriptor.setLocalJarPath(new Path(file.toURI().toURL().toString()));
                 } else {
                     classpaths.add(file.toURI().toURL());
@@ -326,12 +255,12 @@ public class FlinkClientBuilder {
             Configuration configuration,
             YarnConfiguration yarnConfiguration,
             String configurationDirectory) {
-            return new YarnClusterDescriptor(
-                    configuration,
-                    yarnConfiguration,
-                    configurationDirectory,
-                    yarnClient,
-                    true);
+        return new YarnClusterDescriptor(
+                configuration,
+                yarnConfiguration,
+                configurationDirectory,
+                yarnClient,
+                true);
     }
 
     private ApplicationId acquireAppIdAndSetClusterId(Configuration configuration) {
@@ -357,7 +286,7 @@ public class FlinkClientBuilder {
                     continue;
                 }
 
-                if (!report.getQueue().endsWith(flinkConfig.getQueue())){
+                if (!report.getQueue().endsWith(flinkConfig.getQueue())) {
                     continue;
                 }
 
@@ -368,14 +297,10 @@ public class FlinkClientBuilder {
                     maxCores = thisCores;
                     applicationId = report.getApplicationId();
                     String clusterId = flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue();
-                    if (!report.getName().endsWith(clusterId)) {
-                        if (StringUtils.isBlank(flinkConfig.getFlinkClusterId())) {
-                            clusterId = applicationId.toString();
-                        } else {
-                            clusterId = flinkConfig.getFlinkClusterId();
-                        }
+                    //flinkClusterId不为空 且 yarnsession不是由engine来管控时，需要设置clusterId（兼容手动启动yarnsession的情况）
+                    if (StringUtils.isBlank(configuration.getValue(HighAvailabilityOptions.HA_CLUSTER_ID)) || report.getName().endsWith(clusterId)) {
+                        configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, applicationId.toString());
                     }
-                    configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, clusterId);
                 }
 
             }
@@ -390,19 +315,6 @@ public class FlinkClientBuilder {
         }
     }
 
-    private void setMetricConfigConfig(Configuration configuration, FlinkPrometheusGatewayConfig gatewayConfig){
-        if(StringUtils.isBlank(gatewayConfig.getReporterClass())){
-            return;
-        }
-
-        configuration.setString(FlinkPrometheusGatewayConfig.PROMGATEWAY_CLASS_KEY, gatewayConfig.getReporterClass());
-        configuration.setString(FlinkPrometheusGatewayConfig.PROMGATEWAY_HOST_KEY, gatewayConfig.getGatewayHost());
-        configuration.setString(FlinkPrometheusGatewayConfig.PROMGATEWAY_PORT_KEY, gatewayConfig.getGatewayPort());
-        configuration.setString(FlinkPrometheusGatewayConfig.PROMGATEWAY_JOBNAME_KEY, gatewayConfig.getGatewayJobName());
-        configuration.setString(FlinkPrometheusGatewayConfig.PROMGATEWAY_RANDOMJOBNAMESUFFIX_KEY, gatewayConfig.getRandomJobNameSuffix());
-        configuration.setString(FlinkPrometheusGatewayConfig.PROMGATEWAY_DELETEONSHUTDOWN_KEY, gatewayConfig.getDeleteOnShutdown());
-    }
-
     public FlinkConfig getFlinkConfig() {
         return flinkConfig;
     }
@@ -415,7 +327,7 @@ public class FlinkClientBuilder {
         return yarnConf;
     }
 
-    public YarnClient getYarnClient(){
+    public YarnClient getYarnClient() {
         return this.yarnClient;
     }
 
@@ -428,10 +340,10 @@ public class FlinkClientBuilder {
 
     private Configuration consoleConfiguration(Configuration flinkConfiguration) {
         Configuration configuration = flinkConfiguration;
-        for (String key : flinkConfiguration.keySet()){
-            if (key.startsWith("flink.")){
+        for (String key : flinkConfiguration.keySet()) {
+            if (key.startsWith("flink.")) {
                 String[] configs = key.split("flink.");
-                if (configs.length == 2){
+                if (configs.length == 2) {
                     configuration.setString(configs[1], flinkConfiguration.getString(key, ""));
                 }
             }
@@ -439,8 +351,8 @@ public class FlinkClientBuilder {
         return configuration;
     }
 
-    private Configuration addConfiguration(Properties properties, Configuration configuration){
-        if(properties != null){
+    private Configuration addConfiguration(Properties properties, Configuration configuration) {
+        if (properties != null) {
             properties.forEach((key, value) -> {
                 if (key.toString().contains(".")) {
                     configuration.setString(key.toString(), value.toString());
