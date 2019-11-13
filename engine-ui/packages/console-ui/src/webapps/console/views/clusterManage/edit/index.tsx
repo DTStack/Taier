@@ -2,7 +2,8 @@
 import * as React from 'react';
 import { cloneDeep, mapValues, findKey } from 'lodash';
 import { connect } from 'react-redux';
-import { Form, Input, Row, Col, Icon, Button, message, Card, Tabs, Modal, Upload, Tooltip, Switch } from 'antd';
+import { Form, Input, Row, Col, Icon, Button, message, Card, Tabs,
+    Modal, Upload, Tooltip, Switch, Select } from 'antd';
 import Api from '../../../api/console'
 import moment from 'moment'
 
@@ -35,6 +36,7 @@ import AddCommModal from '../../../components/addCommModal';
 import RequiredIcon from '../../../components/requiredIcon';
 import TestRestIcon from '../../../components/testResultIcon';
 
+const Option = Select.Option;
 const FormItem = Form.Item;
 const TabPane = Tabs.TabPane;
 const confirm = Modal.confirm;
@@ -893,7 +895,7 @@ class EditCluster extends React.Component<any, any> {
         const { componentTypeCode, componentName, componentId } = component;
         if (componentTypeCode == COMPONENT_TYPE_VALUE.HDFS ||
             componentTypeCode == COMPONENT_TYPE_VALUE.YARN ||
-            componentTypeCode == COMPONENT_TYPE_VALUE.LIBRASQL) {
+            componentTypeCode == COMPONENT_TYPE_VALUE.LIBRASQL || COMPONENT_TYPE_VALUE.SFTP) {
             message.error(`${componentName}不允许删除！`)
         } else {
             Api.deleteComponent({
@@ -1093,6 +1095,27 @@ class EditCluster extends React.Component<any, any> {
                         </FormItem>
                     </Col>
                 </Row>
+                <Row>
+                    <Col span={14} pull={2}>
+                        <FormItem
+                            label="集群版本"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('clusterVersion', {
+                                rules: [{
+                                    required: true,
+                                    message: '请选择集群版本'
+                                }],
+                                initialValue: clusterData.clusterVersion || '2.x'
+                            })(
+                                <Select style={{ width: '200px' }}>
+                                    <Option value='2.x'>2.x</Option>
+                                    <Option value='3.x'>3.x</Option>
+                                </Select>
+                            )}
+                        </FormItem>
+                    </Col>
+                </Row>
             </div>
             {
                 isView ? null : (
@@ -1113,11 +1136,13 @@ class EditCluster extends React.Component<any, any> {
                                                         ? <label
                                                             style={{ lineHeight: '28px' }}
                                                             className="ant-btn disble"
-                                                        >选择文件</label>
+                                                        >上传文件</label>
                                                         : <label
-                                                            style={{ lineHeight: '28px' }}
+                                                            style={{ lineHeight: '28px', textIndent: 'initial' }}
                                                             className="ant-btn"
-                                                            htmlFor="myOfflinFile">选择文件</label>
+                                                            htmlFor="myOfflinFile">
+                                                            <span><Icon type="upload" />上传文件</span>
+                                                        </label>
                                                 }
                                                 {uploadLoading ? <Icon className="blue-loading" type="loading" /> : null}
                                                 <span> {file.files && file.files[0] && file.files[0].name}</span>
@@ -1163,11 +1188,13 @@ class EditCluster extends React.Component<any, any> {
                                                         ? <label
                                                             style={{ lineHeight: '28px' }}
                                                             className="ant-btn disble"
-                                                        >选择文件</label>
+                                                        >上传文件</label>
                                                         : <label
-                                                            style={{ lineHeight: '28px' }}
+                                                            style={{ lineHeight: '28px', textIndent: 'initial' }}
                                                             className="ant-btn"
-                                                            htmlFor="kerberosFiles">选择文件</label>
+                                                            htmlFor="kerberosFiles">
+                                                            <span><Icon type="upload" />上传文件</span>
+                                                        </label>
                                                 }
                                                 {uploadKLoading ? <Icon className="blue-loading" type="loading" /> : null}
                                                 {/* <span> {kfile.files && kfile.files.length > 0 && kfile.files[0].name}</span> */}
