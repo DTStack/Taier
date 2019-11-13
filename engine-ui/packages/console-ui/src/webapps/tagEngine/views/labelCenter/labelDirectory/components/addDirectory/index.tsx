@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Modal, Button, Form, Input } from 'antd';
-import { FormComponentProps } from 'antd/lib/form';
+import { FormComponentProps } from 'antd/lib/form/Form';
 
 import './style.scss';
 export interface IProps extends FormComponentProps {
@@ -9,7 +9,6 @@ export interface IProps extends FormComponentProps {
     handleCancel: () => void;
     id?: string | number;
     type: string;
-    form?: any;
 }
 
 interface IState {

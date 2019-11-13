@@ -70,6 +70,13 @@ const LabelDirectory = asyncComponent(
         ),
     { name: 'labelDirectory' }
 );
+const CreateLabel = asyncComponent(
+    () =>
+        import('./views/labelCenter/createLabel').then(
+            (module: any) => module.default
+        ),
+    { name: 'createLabel' }
+);
 
 // ======= 群组分析 =======
 const GroupAnalyse = asyncComponent(
@@ -177,6 +184,10 @@ const routeConfig = [
             {
                 path: '/labelDirectory',
                 component: LabelDirectory
+            },
+            {
+                path: '/createLabel',
+                component: CreateLabel
             },
             {
                 path: '/groupAnalyse',

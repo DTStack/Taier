@@ -8,17 +8,14 @@ interface IProps {
         value: string|number;
     }[];
     value: string|number;
-    onChange: () => void;
+    onChange: (value: any) => void;
 }
-interface IState {}
-export class TagSelect extends React.Component<IProps, IState> {
-    state: IState = {
 
-    }
-    onHandleClick = (e:any) => {
+export class TagSelect extends React.Component<IProps, {}> {
+    onHandleClick = (e: any) => {
         const target = e.target;
-        if(target.getAttribute('class')=='normal'){
-            const data = target.getAttribute('data');
+        if (target.getAttribute('class') == 'normal') {
+            const data = target.getAttribute('ref');
             const value = JSON.parse(data);
             this.props.onChange(value)
         }
@@ -27,7 +24,7 @@ export class TagSelect extends React.Component<IProps, IState> {
         const { option = [], value } = this.props;
         return (<div className="tagSelect" onClick={this.onHandleClick}>
             {
-                option.map((item: any) => <span key={item.value} data={JSON.stringify(item)} className={classnames('normal', {
+                option.map((item: any) => <span key={item.value} ref={ JSON.stringify(item) } className={classnames('normal', {
                     active: value == item.value
                 })}>{item.label}</span>)
             }
