@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Route, IndexRoute } from 'react-router'
 import asyncComponent from 'utils/asyncLoad'
-// import { isSelectedProject } from './interceptor'
+import { isSelectedProject } from './interceptor'
 import NotFund from 'widgets/notFund'
 
 // 继承主应用的的公共View组件
@@ -71,13 +71,13 @@ export default (
         </Route>
         <Route path="/api" component={Container}>
             <IndexRoute component={Dashboard} />
-            <Route path="overview" component={Dashboard}></Route>
-            <Route path="approvalAndsecurity" component={SecurityContainer}>
+            <Route path="overview" component={Dashboard} onEnter={isSelectedProject}></Route>
+            <Route path="approvalAndsecurity" component={SecurityContainer} onEnter={isSelectedProject}>
                 <IndexRoute component={Approval} />
                 <Route path="approval" component={Approval}></Route>
                 <Route path="security" component={Security}></Route>
             </Route>
-            <Route path="project/:pid" component={ProjectContainer}>
+            <Route path="project/:pid" component={ProjectContainer} onEnter={isSelectedProject}>
                 <IndexRoute component={ProjectConfig} />
                 <Route path="config" component={ProjectConfig} />
                 <Route path="member" component={ProjectMember} />
@@ -85,18 +85,18 @@ export default (
                 <Route path="role/add" component={RoleAdd} />
                 <Route path="role/edit/:roleId" component={RoleEdit} />
             </Route>
-            <Route path="manage" component={APIManage}></Route>
-            <Route path="manage/apiType" component={ApiType}></Route>
-            <Route path="manage/newApi" component={NewApi}></Route>
-            <Route path="market" component={APIMarket}></Route>
-            <Route path="mine" component={MyApiContainer}>
+            <Route path="manage" component={APIManage} onEnter={isSelectedProject}></Route>
+            <Route path="manage/apiType" component={ApiType} onEnter={isSelectedProject}></Route>
+            <Route path="manage/newApi" component={NewApi} onEnter={isSelectedProject}></Route>
+            <Route path="market" component={APIMarket} onEnter={isSelectedProject}></Route>
+            <Route path="mine" component={MyApiContainer} onEnter={isSelectedProject}>
                 <IndexRoute component={MyAPI} />
                 <Route path="myApi" component={MyAPI}>
                     <Route path=":view" component={MyAPI}></Route>
                 </Route>
                 <Route path="callApi" component={CallApi}></Route>
             </Route>
-            <Route path="dataSource" component={DataSource}></Route>
+            <Route path="dataSource" component={DataSource} onEnter={isSelectedProject}></Route>
             {/* 项目列表 */}
             <Route path='projectList' component={ProjectList} />
         </Route>

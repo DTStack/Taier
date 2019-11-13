@@ -6,11 +6,9 @@ import moment from 'moment';
 import NewProjectModal from '../../components/newProject';
 import Api from '../../api/project';
 import * as projectActions from '../../actions/project';
-import { PROJECT_STATUS, HELP_DOC_URL, STICK_STATUS } from '../../consts';
+import { PROJECT_STATUS, STICK_STATUS, OPERA_ROW_ONE_DATA, OPERA_ROW_TWO_DATA } from '../../consts';
 
 interface ProjectState {
-    loading: boolean;
-    projectListInfo: any[];
     visible: boolean;
     projectSummary: {
         apiCount: number;
@@ -25,9 +23,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
     constructor (props: any) {
         super(props);
         this.state = {
-            loading: false,
             visible: false,
-            projectListInfo: [],
             projectSummary: {
                 apiCount: undefined,
                 projectCount: undefined,
@@ -152,7 +148,6 @@ class ProjectPanel extends React.Component<any, ProjectState> {
         } else {
             src = '/api/manage'
         }
-        // dispatch(projectActions.getProjects());
         dispatch(projectActions.getProject(project.id));
         hashHistory.push(src)
     }
@@ -160,7 +155,6 @@ class ProjectPanel extends React.Component<any, ProjectState> {
         this.props.router.push('/api/projectList')
     }
     renderProjectCard = (project: any, index: number) => {
-        // const { loading } = this.state;
         const { licenseApps } = this.props;
         const fixArrChildrenApps = this.fixApiChildrenApps(licenseApps[4] && licenseApps[4].children) || [];
         const apiMarket = fixArrChildrenApps[1];
@@ -201,13 +195,78 @@ class ProjectPanel extends React.Component<any, ProjectState> {
             </Col>
         )
     }
+    renderTotalData = (data: any[] = [], type: string) => {
+        const colSpan = 24 / data.length;
+        return data.map((item, index) => {
+            const { imgSrc, dataName, data } = item;
+            if (type == 'all') {
+                return (
+                    <Col span={colSpan} key={index}>
+                        <div className='c_summary_sub'>
+                            <img src ={imgSrc} className='c_summary_sub_pic' />
+                            <span className='c_summary_sub_name'>{dataName}</span>
+                            <span className='c_summary_sub_num'>{data}</span>
+                        </div>
+                    </Col>
+                )
+            } else {
+                return (
+                    <Col span={colSpan} key={index}>
+                        <Card className='c_latest_day_card' noHovering bordered={false}>
+                            <Row>
+                                <div className='c_latest_day_title'>{dataName}</div>
+                                <div className='c_latest_day_num'>{data}</div>
+                                <div className='c_latest_day_img'><img src={imgSrc} /></div>
+                            </Row>
+                        </Card>
+                    </Col>
+                )
+            }
+        })
+    }
+
+    loopOperaLink = (data: any[] = []) => {
+        return data.map((item, index) => {
+            const { title, link } = item;
+            return (
+                <Col span={8} key={index}>
+                    <div className='c_help_target'>
+                        <a rel="noopener noreferrer" target="_blank" href={link}>{title}</a>
+                    </div>
+                </Col>
+            )
+        })
+    }
+
     render () {
         const { visible, projectSummary } = this.state;
         const { apiCount, projectCount, apiIssueCount, total24InvokeCount, total24FailProbability } = projectSummary;
         const { projectListInfo = [], panelLoading } = this.props;
         const stickProjects = projectListInfo.filter((item: any) => {
             return item.stickStatus == STICK_STATUS.TOP
-        }).slice(0, 3)
+        }).slice(0, 3);
+        const totalData = [{
+            dataName: '总项目数',
+            data: projectCount,
+            imgSrc: 'public/dataApi/img/all_project.png'
+        }, {
+            dataName: 'API创建数',
+            data: apiCount,
+            imgSrc: 'public/dataApi/img/api_create.png'
+        }, {
+            dataName: 'API发布数',
+            data: apiIssueCount,
+            imgSrc: 'public/dataApi/img/api_publish.png'
+        }];
+        const recentData = [{
+            dataName: '最近24h累计调用次数',
+            data: total24InvokeCount,
+            imgSrc: 'public/dataApi/img/call_number.png'
+        }, {
+            dataName: '最近24h调用失败率',
+            data: total24FailProbability,
+            imgSrc: 'public/dataApi/img/fail.png'
+        }];
         return (
             <div className='c_project_wrapper'>
                 <main>
@@ -259,47 +318,10 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                             <Row>
                                 <Card className='c_summary_project_card'>
                                     <Row gutter={16}>
-                                        <Col span={8}>
-                                            <div className='c_summary_sub'>
-                                                <img src ='public/dataApi/img/all_project.png' className='c_summary_sub_pic' />
-                                                <span className='c_summary_sub_name'>总项目数</span>
-                                                <span className='c_summary_sub_num'>{projectCount}</span>
-                                            </div>
-                                        </Col>
-                                        <Col span={8}>
-                                            <div className='c_summary_sub'>
-                                                <img src ='public/dataApi/img/api_create.png' className='c_summary_sub_pic' />
-                                                <span className='c_summary_sub_name'>API创建数</span>
-                                                <span className='c_summary_sub_num'>{apiCount}</span>
-                                            </div>
-                                        </Col>
-                                        <Col span={8}>
-                                            <div className='c_summary_sub'>
-                                                <img src ='public/dataApi/img/api_publish.png' className='c_summary_sub_pic' />
-                                                <span className='c_summary_sub_name'>API发布数</span>
-                                                <span className='c_summary_sub_num'>{apiIssueCount}</span>
-                                            </div>
-                                        </Col>
+                                        {this.renderTotalData(totalData, 'all')}
                                     </Row>
                                     <Row gutter={16}>
-                                        <Col span={12}>
-                                            <Card className='c_latest_day_card' noHovering bordered={false}>
-                                                <Row>
-                                                    <div className='c_latest_day_title'>最近24h累计调用次数</div>
-                                                    <div className='c_latest_day_num'>{total24InvokeCount}</div>
-                                                    <div className='c_latest_day_img'><img src='public/dataApi/img/call_number.png' /></div>
-                                                </Row>
-                                            </Card>
-                                        </Col>
-                                        <Col span={12}>
-                                            <Card className='c_latest_day_card' noHovering bordered={false}>
-                                                <Row>
-                                                    <div className='c_latest_day_title'>最近24h调用失败率</div>
-                                                    <div className='c_latest_day_num'>{total24FailProbability}</div>
-                                                    <div className='c_latest_day_img'><img src='public/dataApi/img/fail.png' /></div>
-                                                </Row>
-                                            </Card>
-                                        </Col>
+                                        {this.renderTotalData(recentData, 'recent')}
                                     </Row>
                                 </Card>
                             </Row>
@@ -313,33 +335,10 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                 <Row>
                                     <Card className='c_use_tutorial_card'>
                                         <Row gutter={16}>
-                                            <Col span={8}>
-                                                <div className='c_help_target'>
-                                                    <a target="blank" href={HELP_DOC_URL.MAKE_API}>API生成</a>
-                                                </div>
-                                            </Col>
-                                            <Col span={8}>
-                                                <div className='c_help_target'>
-                                                    <a target="blank" href={HELP_DOC_URL.RELEASE_API}>API发布</a>
-                                                </div>
-                                            </Col>
-                                            <Col span={8}>
-                                                <div className='c_help_target'>
-                                                    <a target="blank" href={HELP_DOC_URL.APPLY_API}>API申请</a>
-                                                </div>
-                                            </Col>
+                                            {this.loopOperaLink(OPERA_ROW_ONE_DATA)}
                                         </Row>
                                         <Row gutter={16}>
-                                            <Col span={8}>
-                                                <div className='c_help_target'>
-                                                    <a target="blank" href={HELP_DOC_URL.TEST_API}>API测试</a>
-                                                </div>
-                                            </Col>
-                                            <Col span={8}>
-                                                <div className='c_help_target'>
-                                                    <a target="blank" href={HELP_DOC_URL.CALL_API}>API调用</a>
-                                                </div>
-                                            </Col>
+                                            {this.loopOperaLink(OPERA_ROW_TWO_DATA)}
                                         </Row>
                                     </Card>
                                 </Row>
