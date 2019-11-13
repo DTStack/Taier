@@ -1,0 +1,24 @@
+.conditions{
+    padding:0 12px;
+    border: 1px solid #DDDDDD;
+    margin-bottom: 20px;
+    .condition-item{
+        display: flex;
+        align-items: center;
+        .row-label{
+            flex-basis: 66px;
+            line-height: 60px;
+            font-size: 12px;
+            color: #666666;
+        }
+        .row-content{
+            flex: 1;
+            border-bottom: 1px dashed #DDDDDD;
+        }
+        &:last-child{
+            .row-content{
+                border-bottom: none;
+            }  
+        }
+    }
+}
