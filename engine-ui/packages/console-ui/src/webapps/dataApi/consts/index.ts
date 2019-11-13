@@ -33,6 +33,24 @@ export const HELP_DOC_URL = {
     CALL_API: '/public/helpSite/api/v3.0/Apply_call.html#Call'
 }
 
+export const OPERA_ROW_ONE_DATA = [{
+    title: 'API生成',
+    link: HELP_DOC_URL.MAKE_API
+}, {
+    title: 'API发布',
+    link: HELP_DOC_URL.RELEASE_API
+}, {
+    title: 'API申请',
+    link: HELP_DOC_URL.APPLY_API
+}];
+export const OPERA_ROW_TWO_DATA = [{
+    title: 'API测试',
+    link: HELP_DOC_URL.TEST_API
+}, {
+    title: 'API调用',
+    link: HELP_DOC_URL.CALL_API
+}]
+
 export const PROJECT_ROLE: any = { // 项目角色
     PROJECT_OWNER: 2, // 项目所有者
     TENANT_OWVER: 1, // 租户所有者
