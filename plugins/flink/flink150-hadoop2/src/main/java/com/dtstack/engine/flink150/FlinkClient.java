@@ -42,6 +42,7 @@ import org.apache.flink.api.common.JobSubmissionResult;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.PackagedProgram;
+import org.apache.flink.configuration.HistoryServerOptions;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.util.Preconditions;
@@ -95,8 +96,6 @@ public class FlinkClient extends AbsClient {
 
     private FlinkConfig flinkConfig;
 
-    private FlinkPrometheusGatewayConfig prometheusGatewayConfig;
-
     private org.apache.hadoop.conf.Configuration hadoopConf;
 
     private YarnConfiguration yarnConf;
@@ -113,6 +112,8 @@ public class FlinkClient extends AbsClient {
 
     private FlinkClusterClientManager flinkClusterClientManager;
 
+    private String jobHistory;
+
     public FlinkClient(){
         this.restartService = new FlinkRestartService();
     }
@@ -122,9 +123,7 @@ public class FlinkClient extends AbsClient {
         this.flinkExtProp = prop;
 
         String propStr = PublicUtil.objToString(prop);
-        prometheusGatewayConfig = PublicUtil.jsonStrToObject(propStr, FlinkPrometheusGatewayConfig.class);
         flinkConfig = PublicUtil.jsonStrToObject(propStr, FlinkConfig.class);
-        flinkConfig.setPrometheusGatewayConfig(prometheusGatewayConfig);
 
         tmpFileDirPath = flinkConfig.getJarTmpDir();
         Preconditions.checkNotNull(tmpFileDirPath, "you need to set tmp file path for jar download.");
@@ -589,7 +588,7 @@ public class FlinkClient extends AbsClient {
         //从jobhistory读取
         if(StringUtils.isNotBlank(applicationId) && (rdosTaskStatus.equals(RdosTaskStatus.FINISHED) || rdosTaskStatus.equals(RdosTaskStatus.CANCELED)
                 || rdosTaskStatus.equals(RdosTaskStatus.FAILED) || rdosTaskStatus.equals(RdosTaskStatus.KILLED))){
-            reqURL = flinkConfig.getFlinkJobHistory();
+            reqURL = getJobHistoryURL();
         }else{
             ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
             reqURL = currClient.getWebInterfaceURL();
@@ -742,7 +741,7 @@ public class FlinkClient extends AbsClient {
         String reqURL;
         if(rdosTaskStatus.equals(RdosTaskStatus.FINISHED) || rdosTaskStatus.equals(RdosTaskStatus.CANCELED)
                 || rdosTaskStatus.equals(RdosTaskStatus.FAILED) || rdosTaskStatus.equals(RdosTaskStatus.KILLED)){
-            reqURL = flinkConfig.getFlinkJobHistory();
+            reqURL = getJobHistoryURL();
         }else{
             ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
             reqURL = currClient.getWebInterfaceURL();
@@ -767,6 +766,19 @@ public class FlinkClient extends AbsClient {
         }
 
         return false;
+    }
+
+    private String getJobHistoryURL() {
+        if (StringUtils.isNotBlank(jobHistory)) {
+            return jobHistory;
+        }
+        String webAddress = flinkClientBuilder.getFlinkConfiguration().getValue(HistoryServerOptions.HISTORY_SERVER_WEB_ADDRESS);
+        String port = flinkClientBuilder.getFlinkConfiguration().getValue(HistoryServerOptions.HISTORY_SERVER_WEB_PORT);
+        if (StringUtils.isBlank(webAddress) || StringUtils.isBlank(port)) {
+            throw new RdosException("History Server webAddress:" + webAddress + " port:" + port);
+        }
+        jobHistory = String.format("http://%s:%s", webAddress, port);
+        return jobHistory;
     }
 
 }
