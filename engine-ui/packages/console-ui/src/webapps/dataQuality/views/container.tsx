@@ -35,8 +35,8 @@ class Main extends React.Component<any, any> {
         dispatch(commonActions.getUserList());
         dispatch(commonActions.getAllDict());
         dispatch(dataSourceActions.getDataSourcesType());
-        dispatch(projectActions.getProjects())
-        dispatch(projectActions.getAllProjects())
+        // dispatch(projectActions.getProjects())
+        // dispatch(projectActions.getAllProjects())
         this.initProject();
     }
 

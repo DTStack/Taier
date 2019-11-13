@@ -20,10 +20,10 @@ export const STICK_STATUS: any = {
 
 // 项目状态
 export const PROJECT_STATUS: any = {
-    CREATING: 0,
-    SUCCESS: 1,
-    FAILED: 2,
-    CANCEL: 3
+    INITIALIZE: 0, // 创建中
+    NORMAL: 1, // 正常
+    DISABLE: 2, // 禁用
+    FAIL: 3// 创建失败
 }
 // 告警类型
 export const ALARM_TYPE: any = {

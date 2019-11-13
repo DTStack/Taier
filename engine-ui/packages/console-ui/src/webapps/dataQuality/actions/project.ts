@@ -21,7 +21,7 @@ const defaultProject: any = {
 // Action
 export function getProject (id: any) {
     return (dispatch: any) => {
-        const projectKey = 'api_project_id';
+        const projectKey = 'dq_project_id';
         const oldProjectID = utils.getCookie(projectKey);
 
         // 如果为不同的项目
@@ -31,17 +31,19 @@ export function getProject (id: any) {
         Api.getProjectByID({
             projectId: id
         }).then((res: any) => {
-            return dispatch({
-                type: projectAction.GET_PROJECT,
-                data: res.data
-            })
+            if (res.code === 1) {
+                return dispatch({
+                    type: projectAction.GET_PROJECT,
+                    data: res.data
+                })
+            }
         })
     }
 }
 
 export function setProject (data: any) {
     if (data && data.id) {
-        utils.setCookie('api_project_id', data.id);
+        utils.setCookie('dq_project_id', data.id);
     }
     return {
         type: projectAction.SET_PROJECT,

@@ -120,13 +120,13 @@ class ProjectsList extends React.Component<any, ProjectState> {
         }
     }
     handleEnterProject = (record: any) => {
-        this.props.router.push('/api/overview');
+        this.props.router.push('/dq/overview');
         this.props.getProject(record.id);
     }
     setStickProject = (record: any) => {
         this.props.setStickProject({
             appointProjectId: record.id,
-            stickStatus: record.stickStatus == STICK_STATUS.TOP ? STICK_STATUS.NO_TOP : STICK_STATUS.TOP
+            stick: record.stickStatus == STICK_STATUS.TOP ? STICK_STATUS.NO_TOP : STICK_STATUS.TOP
         }, this.getTableData)
     }
     initCol = () => {
@@ -148,16 +148,16 @@ class ProjectsList extends React.Component<any, ProjectState> {
             width: '180px'
         }, {
             title: '已配置表数',
-            dataIndex: 'apiCreateCount',
-            key: 'apiCreateCount',
+            dataIndex: 'tableCount',
+            key: 'tableCount',
             render (t: any) {
                 return t
             },
             sorter: true
         }, {
             title: '已配置规则数',
-            dataIndex: 'apiIssueCount',
-            key: 'apiIssueCount',
+            dataIndex: 'ruleCount',
+            key: 'ruleCount',
             render (t: any) {
                 return t
             },
