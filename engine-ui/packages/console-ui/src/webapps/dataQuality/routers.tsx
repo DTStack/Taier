@@ -62,18 +62,18 @@ export default (
             <Route path="role/add" component={ GRoleAdd } />
             <Route path="role/edit/:roleId" component={ GRoleEdit } />
         </Route>
-        <Route path="/dq" component={ Container } onEnter={isSelectedProject}>
+        <Route path="/dq" component={ Container }>
             <IndexRoute component={Dashboard} />
-            <Route path="overview" component={ Dashboard }></Route>
-            <Route path="taskQuery" component={ TaskQuery }></Route>
-            <Route path="rule" component={ RuleConfigIndex }></Route>
-            <Route path="rule/add" component={ RuleConfigEdit }></Route>
-            <Route path="rule/edit/:id" component={ RuleConfigEdit }></Route>
-            <Route path="dataCheck" component={ DataCheckIndex }></Route>
-            <Route path="dataCheck/add" component={ DataCheckEdit }></Route>
-            <Route path="dataCheck/edit/:verifyId" component={ DataCheckEdit }></Route>
-            <Route path="dataCheck/report/:verifyRecordId" component={ DataCheckReport }></Route>
-            <Route path="dataSource" component={ DataSourceIndex }></Route>
+            <Route path="overview" component={ Dashboard } onEnter={isSelectedProject}></Route>
+            <Route path="taskQuery" component={ TaskQuery } onEnter={isSelectedProject}></Route>
+            <Route path="rule" component={ RuleConfigIndex } onEnter={isSelectedProject}></Route>
+            <Route path="rule/add" component={ RuleConfigEdit } onEnter={isSelectedProject}></Route>
+            <Route path="rule/edit/:id" component={ RuleConfigEdit } onEnter={isSelectedProject}></Route>
+            <Route path="dataCheck" component={ DataCheckIndex } onEnter={isSelectedProject}></Route>
+            <Route path="dataCheck/add" component={ DataCheckEdit } onEnter={isSelectedProject}></Route>
+            <Route path="dataCheck/edit/:verifyId" component={ DataCheckEdit } onEnter={isSelectedProject}></Route>
+            <Route path="dataCheck/report/:verifyRecordId" component={ DataCheckReport } onEnter={isSelectedProject}></Route>
+            <Route path="dataSource" component={ DataSourceIndex } onEnter={isSelectedProject}></Route>
             <Route path="/project/:pid" component={ProjectContainer} onEnter={isSelectedProject}>
                 <IndexRoute component={ProjectConfig} />
                 <Route path="config" component={ProjectConfig} />

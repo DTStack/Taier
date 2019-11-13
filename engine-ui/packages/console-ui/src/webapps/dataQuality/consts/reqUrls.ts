@@ -41,7 +41,7 @@ export default {
     GET_PROJECT_INFO: `${DQ_BASE_URL}/project/getProjectInfo`, // 获取项目信息包括告警
     GET_PROJECT_LIST_INFO: `${DQ_BASE_URL}/project/getProjectList`, // 首页project查询
     SET_STICKY: `${DQ_BASE_URL}/project/setSticky`, // 置顶
-    GET_PROJECT_SUMMARY: `${DQ_BASE_URL}/project/getProjectSummaryVO`, // 获取项目总信息
+    GET_PROJECT_SUMMARY: `${DQ_BASE_URL}/project/queryProjectSum`, // 获取项目总信息
     DELETE_PROJECT: `${DQ_BASE_URL}/project/deleteProject`, // 删除项目接口
     UPDATE_PROJECT_SCHEDULE: `${DQ_BASE_URL}/project/closeOrOpenSchedule`, // 开启或关闭项目调度
     BIND_PRODUCTION_PROJECT: `${DQ_BASE_URL}/project/bindingProject`, // 绑定生产项目

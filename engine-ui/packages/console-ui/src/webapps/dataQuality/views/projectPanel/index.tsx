@@ -13,11 +13,11 @@ interface ProjectState {
     projectListInfo: any[];
     visible: boolean;
     projectSummary: {
-        apiCount: number;
-        projectCount: number;
-        apiIssueCount: number;
-        total24InvokeCount: number;
-        total24FailProbability: number;
+        projectSum: number;
+        tableSum: number;
+        ruleSum: number;
+        todayAlaim: number;
+        yesterDayTable: number;
     };
 }
 
@@ -29,11 +29,11 @@ class ProjectPanel extends React.Component<any, ProjectState> {
             visible: false,
             projectListInfo: [],
             projectSummary: {
-                apiCount: undefined,
-                projectCount: undefined,
-                apiIssueCount: undefined,
-                total24InvokeCount: undefined,
-                total24FailProbability: undefined
+                projectSum: undefined,
+                tableSum: undefined,
+                ruleSum: undefined,
+                todayAlaim: undefined,
+                yesterDayTable: undefined
             }
         }
     }
@@ -202,7 +202,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
     }
     render () {
         const { visible, projectSummary } = this.state;
-        const { apiCount, projectCount, apiIssueCount, total24InvokeCount, total24FailProbability } = projectSummary;
+        const { projectSum, tableSum, ruleSum, todayAlaim, yesterDayTable } = projectSummary;
         const { projectListInfo = [], panelLoading } = this.props;
         const stickProjects = projectListInfo.filter((item: any) => {
             return item.stickStatus == STICK_STATUS.TOP
@@ -262,21 +262,21 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                             <div className='c_summary_sub'>
                                                 <img src ='public/dataQuality/img/all_project.png' className='c_summary_sub_pic' />
                                                 <span className='c_summary_sub_name'>总项目数</span>
-                                                <span className='c_summary_sub_num'>{projectCount}</span>
+                                                <span className='c_summary_sub_num'>{projectSum}</span>
                                             </div>
                                         </Col>
                                         <Col span={8}>
                                             <div className='c_summary_sub'>
                                                 <img src ='public/dataQuality/img/api_create.png' className='c_summary_sub_pic' />
                                                 <span className='c_summary_sub_name'>已配置表数</span>
-                                                <span className='c_summary_sub_num'>{apiCount}</span>
+                                                <span className='c_summary_sub_num'>{tableSum}</span>
                                             </div>
                                         </Col>
                                         <Col span={8}>
                                             <div className='c_summary_sub'>
                                                 <img src ='public/dataQuality/img/api_publish.png' className='c_summary_sub_pic' />
                                                 <span className='c_summary_sub_name'>已配置规则数</span>
-                                                <span className='c_summary_sub_num'>{apiIssueCount}</span>
+                                                <span className='c_summary_sub_num'>{ruleSum}</span>
                                             </div>
                                         </Col>
                                     </Row>
@@ -285,7 +285,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                             <Card className='c_latest_day_card' noHovering bordered={false}>
                                                 <Row>
                                                     <div className='c_latest_day_title'>今日告警数</div>
-                                                    <div className='c_latest_day_num'>{total24InvokeCount}</div>
+                                                    <div className='c_latest_day_num'>{todayAlaim}</div>
                                                     <div className='c_latest_day_img'><img src='public/dataQuality/img/call_number.png' /></div>
                                                 </Row>
                                             </Card>
@@ -294,7 +294,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                             <Card className='c_latest_day_card' noHovering bordered={false}>
                                                 <Row>
                                                     <div className='c_latest_day_title'>昨日新增表数</div>
-                                                    <div className='c_latest_day_num'>{total24FailProbability}</div>
+                                                    <div className='c_latest_day_num'>{yesterDayTable}</div>
                                                     <div className='c_latest_day_img'><img src='public/dataQuality/img/fail.png' /></div>
                                                 </Row>
                                             </Card>
