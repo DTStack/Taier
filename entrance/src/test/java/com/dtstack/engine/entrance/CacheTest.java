@@ -1,8 +1,8 @@
 package com.dtstack.engine.entrance;
 
 import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.dtscript.service.zk.data.BrokerDataNode;
-import com.dtstack.engine.dtscript.service.zk.data.BrokerDataShard;
+import com.dtstack.engine.service.zk.data.BrokerDataNode;
+import com.dtstack.engine.service.zk.data.BrokerDataShard;
 import com.google.common.collect.Maps;
 
 import java.util.HashMap;

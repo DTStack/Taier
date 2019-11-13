@@ -1,7 +1,7 @@
 package com.dtstack.engine.entrance;
 
 
-import com.dtstack.engine.dtscript.service.zk.ShardConsistentHash;
+import com.dtstack.engine.service.zk.ShardConsistentHash;
 import com.google.common.collect.Lists;
 
 import java.util.HashMap;

@@ -4,8 +4,8 @@ import com.dtstack.engine.common.config.ConfigParse;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
 import com.dtstack.engine.entrance.configs.YamlConfig;
 import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.dtscript.service.zk.ZkDistributed;
-import com.dtstack.engine.dtscript.service.zk.data.BrokerDataTreeMap;
+import com.dtstack.engine.service.zk.ZkDistributed;
+import com.dtstack.engine.service.zk.data.BrokerDataTreeMap;
 import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
 
 import java.util.ArrayList;

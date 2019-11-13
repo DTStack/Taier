@@ -1,7 +1,7 @@
 package com.dtstack.engine.entrance.test;
 
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.dtscript.service.db.dataobject.RdosEngineJobStopRecord;
+import com.dtstack.engine.service.db.dataobject.RdosEngineJobStopRecord;
 
 import java.io.IOException;
 import java.util.Map;

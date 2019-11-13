@@ -2,9 +2,9 @@ package com.dtstack.engine.entrance;
 
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.dtscript.service.zk.data.BrokerDataNode;
-import com.dtstack.engine.dtscript.service.zk.data.BrokerDataShard;
-import com.dtstack.engine.dtscript.service.zk.data.BrokerDataTreeMap;
+import com.dtstack.engine.service.zk.data.BrokerDataNode;
+import com.dtstack.engine.service.zk.data.BrokerDataShard;
+import com.dtstack.engine.service.zk.data.BrokerDataTreeMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
