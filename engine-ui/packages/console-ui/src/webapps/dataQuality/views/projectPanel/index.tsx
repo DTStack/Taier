@@ -6,11 +6,9 @@ import moment from 'moment';
 import NewProjectModal from '../../components/newProject';
 import Api from '../../api/project';
 import * as projectActions from '../../actions/project';
-import { PROJECT_STATUS, HELP_DOC_URL, STICK_STATUS } from '../../consts';
+import { PROJECT_STATUS, OPERA_ROW_ONE_DATA, OPERA_ROW_TWO_DATA, STICK_STATUS } from '../../consts';
 
 interface ProjectState {
-    loading: boolean;
-    projectListInfo: any[];
     visible: boolean;
     projectSummary: {
         projectSum: number;
@@ -25,9 +23,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
     constructor (props: any) {
         super(props);
         this.state = {
-            loading: false,
             visible: false,
-            projectListInfo: [],
             projectSummary: {
                 projectSum: undefined,
                 tableSum: undefined,
@@ -152,7 +148,6 @@ class ProjectPanel extends React.Component<any, ProjectState> {
         } else {
             src = '/dq/taskQuery'
         }
-        // dispatch(projectActions.getProjects());
         dispatch(projectActions.getProject(project.id));
         hashHistory.push(src)
     }
@@ -200,13 +195,78 @@ class ProjectPanel extends React.Component<any, ProjectState> {
             </Col>
         )
     }
+    renderTotalData = (data: any[] = [], type: string) => {
+        const colSpan = 24 / data.length;
+        return data.map((item, index) => {
+            const { imgSrc, dataName, data } = item;
+            if (type == 'all') {
+                return (
+                    <Col span={colSpan} key={index}>
+                        <div className='c_summary_sub'>
+                            <img src ={imgSrc} className='c_summary_sub_pic' />
+                            <span className='c_summary_sub_name'>{dataName}</span>
+                            <span className='c_summary_sub_num'>{data}</span>
+                        </div>
+                    </Col>
+                )
+            } else {
+                return (
+                    <Col span={colSpan} key={index}>
+                        <Card className='c_latest_day_card' noHovering bordered={false}>
+                            <Row>
+                                <div className='c_latest_day_title'>{dataName}</div>
+                                <div className='c_latest_day_num'>{data}</div>
+                                <div className='c_latest_day_img'><img src={imgSrc} /></div>
+                            </Row>
+                        </Card>
+                    </Col>
+                )
+            }
+        })
+    }
+
+    loopOperaLink = (data: any[] = []) => {
+        return data.map((item, index) => {
+            const { title, link } = item;
+            return (
+                <Col span={8} key={index}>
+                    <div className='c_help_target'>
+                        <a rel="noopener noreferrer" target="_blank" href={link}>{title}</a>
+                    </div>
+                </Col>
+            )
+        })
+    }
     render () {
         const { visible, projectSummary } = this.state;
         const { projectSum, tableSum, ruleSum, todayAlaim, yesterDayTable } = projectSummary;
         const { projectListInfo = [], panelLoading } = this.props;
         const stickProjects = projectListInfo.filter((item: any) => {
             return item.stickStatus == STICK_STATUS.TOP
-        }).slice(0, 3)
+        }).slice(0, 3);
+
+        const totalData = [{
+            dataName: '总项目数',
+            data: projectSum,
+            imgSrc: 'public/dataQuality/img/all_project.png'
+        }, {
+            dataName: '已配置表数',
+            data: tableSum,
+            imgSrc: 'public/dataQuality/img/api_create.png'
+        }, {
+            dataName: '已配置规则数',
+            data: ruleSum,
+            imgSrc: 'public/dataQuality/img/api_publish.png'
+        }];
+        const recentData = [{
+            dataName: '今日告警数',
+            data: todayAlaim,
+            imgSrc: 'public/dataQuality/img/call_number.png'
+        }, {
+            dataName: '昨日新增表数',
+            data: yesterDayTable,
+            imgSrc: 'public/dataQuality/img/fail.png'
+        }];
         return (
             <div className='c_project_wrapper'>
                 <main>
@@ -258,47 +318,10 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                             <Row>
                                 <Card className='c_summary_project_card'>
                                     <Row gutter={16}>
-                                        <Col span={8}>
-                                            <div className='c_summary_sub'>
-                                                <img src ='public/dataQuality/img/all_project.png' className='c_summary_sub_pic' />
-                                                <span className='c_summary_sub_name'>总项目数</span>
-                                                <span className='c_summary_sub_num'>{projectSum}</span>
-                                            </div>
-                                        </Col>
-                                        <Col span={8}>
-                                            <div className='c_summary_sub'>
-                                                <img src ='public/dataQuality/img/api_create.png' className='c_summary_sub_pic' />
-                                                <span className='c_summary_sub_name'>已配置表数</span>
-                                                <span className='c_summary_sub_num'>{tableSum}</span>
-                                            </div>
-                                        </Col>
-                                        <Col span={8}>
-                                            <div className='c_summary_sub'>
-                                                <img src ='public/dataQuality/img/api_publish.png' className='c_summary_sub_pic' />
-                                                <span className='c_summary_sub_name'>已配置规则数</span>
-                                                <span className='c_summary_sub_num'>{ruleSum}</span>
-                                            </div>
-                                        </Col>
+                                        {this.renderTotalData(totalData, 'all')}
                                     </Row>
                                     <Row gutter={16}>
-                                        <Col span={12}>
-                                            <Card className='c_latest_day_card' noHovering bordered={false}>
-                                                <Row>
-                                                    <div className='c_latest_day_title'>今日告警数</div>
-                                                    <div className='c_latest_day_num'>{todayAlaim}</div>
-                                                    <div className='c_latest_day_img'><img src='public/dataQuality/img/call_number.png' /></div>
-                                                </Row>
-                                            </Card>
-                                        </Col>
-                                        <Col span={12}>
-                                            <Card className='c_latest_day_card' noHovering bordered={false}>
-                                                <Row>
-                                                    <div className='c_latest_day_title'>昨日新增表数</div>
-                                                    <div className='c_latest_day_num'>{yesterDayTable}</div>
-                                                    <div className='c_latest_day_img'><img src='public/dataQuality/img/fail.png' /></div>
-                                                </Row>
-                                            </Card>
-                                        </Col>
+                                        {this.renderTotalData(recentData, 'recent')}
                                     </Row>
                                 </Card>
                             </Row>
@@ -312,33 +335,10 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                 <Row>
                                     <Card className='c_use_tutorial_card'>
                                         <Row gutter={16}>
-                                            <Col span={8}>
-                                                <div className='c_help_target'>
-                                                    <a rel="noopener noreferrer" target="_blank" href={HELP_DOC_URL.CREATE_RULE}>新建规则</a>
-                                                </div>
-                                            </Col>
-                                            <Col span={8}>
-                                                <div className='c_help_target'>
-                                                    <a rel="noopener noreferrer" target="_blank" href={HELP_DOC_URL.RULE_DETAIL}>查看计算规则</a>
-                                                </div>
-                                            </Col>
-                                            <Col span={8}>
-                                                <div className='c_help_target'>
-                                                    <a rel="noopener noreferrer" target="_blank" href={HELP_DOC_URL.REPORT_DETAIL}>查询详细报告</a>
-                                                </div>
-                                            </Col>
+                                            {this.loopOperaLink(OPERA_ROW_ONE_DATA)}
                                         </Row>
                                         <Row gutter={16}>
-                                            <Col span={8}>
-                                                <div className='c_help_target'>
-                                                    <a rel="noopener noreferrer" target="_blank" href={HELP_DOC_URL.REPORT_TABLE}>查看表级报告</a>
-                                                </div>
-                                            </Col>
-                                            <Col span={8}>
-                                                <div className='c_help_target'>
-                                                    <a rel="noopener noreferrer" target="_blank" href={HELP_DOC_URL.CREATE_VALI}>新建逐行校验</a>
-                                                </div>
-                                            </Col>
+                                            {this.loopOperaLink(OPERA_ROW_TWO_DATA)}
                                         </Row>
                                     </Card>
                                 </Row>

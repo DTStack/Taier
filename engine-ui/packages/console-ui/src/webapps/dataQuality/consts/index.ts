@@ -76,6 +76,25 @@ export const HELP_DOC_URL: any = {
     CREATE_VALI: '/public/helpSite/valid/v3.0/RowsComp/Create.html'
 }
 
+export const OPERA_ROW_ONE_DATA = [{
+    title: '新建规则',
+    link: HELP_DOC_URL.CREATE_RULE
+}, {
+    title: '查看计算规则',
+    link: HELP_DOC_URL.RULE_DETAIL
+}, {
+    title: '查询详细报告',
+    link: HELP_DOC_URL.REPORT_DETAIL
+}];
+
+export const OPERA_ROW_TWO_DATA = [{
+    title: '查看表级报告',
+    link: HELP_DOC_URL.REPORT_TABLE
+}, {
+    title: '新建逐行校验',
+    link: HELP_DOC_URL.CREATE_VALI
+}]
+
 /**
  * 校验状态--中文
  */
