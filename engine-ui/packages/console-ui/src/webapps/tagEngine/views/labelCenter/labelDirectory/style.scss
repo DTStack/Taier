@@ -1,16 +1,24 @@
 .labelManage{
+    background: #FFFFFF;
+    box-shadow: 0 2px 6px 0 rgba(0,0,0,0.10);
     .title_wrap{
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 20px;
     }
+    .left_w{
+        display:flex;
+        align-items: center;
+    }
     .search{
-        width:260px;
-        margin-right: 20px;
+        width:226px;
+        margin-left: 20px;
     }
     .draggable-wrap-table{
         background: #fff;
+        border: 1px solid #DDDDDD;
+        border-bottom:none;
         .draggable-tree{
             width: 100%;
             .ant-tree-node-content-wrapper {

@@ -1,10 +1,11 @@
 import * as React from 'react';
-import { Dropdown, Input, Button, Menu, Icon, Table, Modal } from 'antd';
+import { Input, Button, Select, Icon, Table, Modal } from 'antd';
 import AddDirectory from './components/addDirectory';
 import './style.scss';
 import MoveTreeNode from './components/moveTreeNode';
 
 const Search = Input.Search;
+const Option = Select.Option;
 interface IProps {
     history: any;
 }
@@ -121,18 +122,6 @@ export default class LabelDirectory extends React.PureComponent<IProps, IState> 
     }
     render () {
         const { data, visible, type, moveVisible } = this.state;
-        const menu = (
-            <Menu>
-                <Menu.Item key="0">
-                    <a href="http://www.alipay.com/">1st menu item</a>
-                </Menu.Item>
-                <Menu.Item key="1">
-                    <a href="http://www.taobao.com/">2nd menu item</a>
-                </Menu.Item>
-                <Menu.Divider />
-                <Menu.Item key="3">3rd menu item</Menu.Item>
-            </Menu>
-        );
         const columns = [
             {
                 title: '一级',
@@ -170,23 +159,22 @@ export default class LabelDirectory extends React.PureComponent<IProps, IState> 
             <div className="labelManage">
                 <div className="title_wrap">
                     <div className="left_wp">
-                        <span>实体-</span>
-                        <Dropdown overlay={menu}>
-                            <a
-                                className="ant-dropdown-link"
-                                href="javasript:viod();"
-                            >
-                                用户信息
-                                <Icon type="down" />
-                            </a>
-                        </Dropdown>
-                    </div>
-                    <div className="right_wp">
+                        <div>
+                            <span>选择实体：</span>
+                            <Select defaultValue="用户信息" style={{ width: 120 }} onChange={this.handleChange}>
+                                <Option value="jack">用户信息</Option>
+                                <Option value="lucy">Lucy</Option>
+                                <Option value="disabled" disabled>Disabled</Option>
+                                <Option value="Yiminghe">yiminghe</Option>
+                            </Select>
+                        </div>
                         <Search
                             placeholder="搜索目录名称"
                             className="search"
                             onSearch={value => console.log(value)}
                         />
+                    </div>
+                    <div className="right_wp">
                         <Button type="primary" onClick={() => this.onHandleClickOperation('0')}>新建目录</Button>
                     </div>
                 </div>

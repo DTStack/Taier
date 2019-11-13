@@ -3,7 +3,6 @@
         "noEmit": true,  // Don't emit; allow Babel to transform files.
         "outDir":"./dist/",
         "baseUrl": ".",
-        "moduleResolution": "node",
         "experimentalDecorators": true,
         "noImplicitAny": true,
         "esModuleInterop": true,
