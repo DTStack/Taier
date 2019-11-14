@@ -110,8 +110,6 @@
                     }
                 }
                 .c_no_project { // 无项目
-                    // opacity: 0.6;
-                    // background: #0D1652;
                     background: rgba(13,22,82,.6);
                     border: 1px solid #292E4F;
                     box-shadow: 0 6px 13px 0 rgba(0,0,0,0.20);
@@ -127,12 +125,10 @@
                 }
                 .c_offten_project_col {
                     min-width: 308px;
-                    margin-top: 17px;
+                    margin-top: 2px;
                     padding: 0;
                     .c_offten_project_card {
                         height: 212px;
-                        // opacity: 0.7;
-                        // background: #141B4A;
                         background: rgba(20,27,74,.7);
                         border: 1px solid #292E4F;
                         box-shadow: 0 6px 13px 0 rgba(0,0,0,0.20);
@@ -142,7 +138,6 @@
                             height: 85px;
                             position: relative;
                             line-height: unset;
-                            // background: #141B4A;
                             background: unset;
                             .ant-card-head-title {
                                 overflow: unset;
@@ -209,7 +204,7 @@
             .c_api_process_pic {
                 width: 100%;
                 min-height: 538px;
-                // border: 1px solid blue;
+                background: rgba(13, 22, 82, .6);
                 border: 1px solid #292E4F;
                 img {
                     width: 100%;
@@ -244,13 +239,11 @@
             .c_summary_project_card {
                 width: 100%;
                 min-height: 276px;
-                // opacity: 0.7;
-                // background: #141B4A;
                 background: rgba(20,27,74,.7);
                 border: 1px solid #292E4F;
                 box-shadow: 0 6px 13px 0 rgba(0,0,0,0.20);
                 border-radius: 2px;
-                margin: 26px 0 39px 0;
+                margin: 14px 0 39px 0;
                 .ant-card-body {
                     padding: 34px 22px 32px 16px;
                     zoom: 1;
@@ -271,7 +264,7 @@
                             left: 45px;
                             top: -8px;
                             font-family: PingFangSC-Regular;
-                            font-size: 14px;
+                            font-size: 12px;
                             color: #BFD1F2;
                             line-height: 24px;
                         }
@@ -300,7 +293,6 @@
                                 line-height: 24px;
                             }
                             .c_latest_day_num {
-                                // font-family: AgencyFB-Reg;
                                 font-family: myFont;
                                 font-size: 30px;
                                 color: #FAFAFA;
@@ -320,8 +312,6 @@
             }
             .c_use_tutorial_card {
                 margin-top: 20px;
-                // opacity: 0.7;
-                // background: #141B4A;
                 background: rgba(20,27,74,.7);
                 border: 1px solid #292E4F;
                 box-shadow: 0 6px 13px 0 rgba(0,0,0,0.20);

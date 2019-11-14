@@ -167,7 +167,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                             已配置表数： <span className='c_project_num'>{project.tableCount}</span>
                         </Col>
                         <Col span={11}>
-                            今日告警数： <span className='c_project_num'>{project.ruleCount}</span>
+                            今日告警数： <span className='c_project_num'>{project.todayAlaim}</span>
                         </Col>
                         <Col span={24}>
                             <Row>
@@ -305,7 +305,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                             </div>
                         </div>
                         <div className='c_api_process_pic'>
-                            <img src='public/dataQuality/img/process_api.png' />
+                            <img src='public/dataQuality/img/process.png' />
                         </div>
                     </section>
                     {/* 右侧项目总信息 */}

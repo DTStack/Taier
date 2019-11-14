@@ -15,9 +15,7 @@ declare var window: any;
         apps: state.apps,
         routing: state.routing,
         app: state.app,
-        licenseApps: state.licenseApps,
-        projects: state.project.projectList,
-        project: state.project.currentProject
+        licenseApps: state.licenseApps
     };
 }, (dispatch: any) => {
     return {
@@ -107,7 +105,7 @@ class Header extends React.Component<any, any> {
         const { filter } = this.state;
         if (projects && projects.length > 0) {
             return projects
-                .filter((o: any) => o.projectIdentifier.indexOf(filter) > -1 || o.projectName.indexOf(filter) > -1 || o.projectAlias.indexOf(filter) > -1)
+                .filter((o: any) => o.projectName.indexOf(filter) > -1 || o.projectAlias.indexOf(filter) > -1)
                 .map((project: any) => {
                     const name = project.projectAlias || project.projectName;
                     return (
@@ -237,7 +235,7 @@ class Header extends React.Component<any, any> {
                 id: 'dq/project',
                 name: '项目管理',
                 link: `${baseUrl}/project/${pid}/config`,
-                enable: projectNav && projectNav.isShow
+                enable: true
             }
         ];
 
