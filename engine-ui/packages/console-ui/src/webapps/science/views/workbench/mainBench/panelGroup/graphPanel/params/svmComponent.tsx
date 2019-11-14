@@ -89,7 +89,7 @@ class ParamSetting extends React.PureComponent<any, any> {
     render () {
         const { regexDatas, nuclearDatas } = this.state;
         const { getFieldDecorator, getFieldValue } = this.props.form;
-        const svmVal = getFieldValue('svm');
+        const svmVal = getFieldValue('kernel');
         const showNuclear: boolean = svmVal == 'rbf' || svmVal == 'poly' || svmVal == 'sigmoid';
         return (
             <Form className="params-form">
