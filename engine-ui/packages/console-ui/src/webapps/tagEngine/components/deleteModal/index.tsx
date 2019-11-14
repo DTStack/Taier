@@ -13,13 +13,8 @@ interface IProps {
     onOk: any;
 }
 
-interface IState {
-
-}
-
-export default class DeleteModal extends React.Component<IProps, IState> {
-
-    state: IState = {
+export default class DeleteModal extends React.Component<IProps, any> {
+    state: any = {
 
     }
 
