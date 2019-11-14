@@ -18,3 +18,42 @@
 		}
 	}
 }
+.self-define-empty {
+	.ant-table-placeholder {
+		display: none;
+	}
+	.ant-spin-nested-loading > .ant-spin-container > .ant-table table .ant-table-thead tr th {
+		border-bottom: 0px solid #fff !important;
+	}
+}
+
+.entity-empty-comp {
+	height: 267px;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	.one-item {
+		width: 150px;
+		height: 150px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding-top: 22px;
+		img {
+			width: 65px;
+			height: 65px;
+		}
+		span {
+			font-size: 14px;
+			margin-top: 10px;
+			color: #666666;
+		}
+	}
+	.str-line {
+		width: 135px;
+		height: 1px;
+		background: #2491F7;
+	}
+}
