@@ -112,6 +112,7 @@ export default class LabelDirectory extends React.PureComponent<IProps, IState> 
             moveVisible: false
         })
     }
+    handleChange = () => {}
     onHandleDelete = () => {
         Modal.confirm({
             title: '',
@@ -156,7 +157,7 @@ export default class LabelDirectory extends React.PureComponent<IProps, IState> 
         ];
 
         return (
-            <div className="labelManage">
+            <div className="labelDirectory">
                 <div className="title_wrap">
                     <div className="left_wp">
                         <div>

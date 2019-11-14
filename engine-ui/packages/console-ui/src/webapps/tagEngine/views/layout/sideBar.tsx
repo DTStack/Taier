@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { Menu } from 'antd'
 import { Link } from 'react-router'
-import SideBarData from '../../consts/sideBarData';
 require('public/iconfont/iconfont.js');
 
 const { SubMenu } = Menu;
@@ -9,30 +8,21 @@ export default class Sidebar extends React.Component<any, any> {
     constructor (props: any) {
         super(props)
         this.state = {
-            current: '',
-            menuData: []
+            current: ''
         }
     }
-
     componentDidMount () {
-        const { location } = this.props;
+        const { location, menuData } = this.props;
         const pathName = location.pathname;
-        if (SideBarData.hasOwnProperty(pathName)) {
+        if (menuData.some(item => item.permissionUrl == pathName)) {
             this.updateSelected(pathName)
-        }
-    }
-    componentDidUpdate (preProps: any) {
-        const { location } = this.props;
-        const pathName = location.pathname;
-        const prePathName = preProps.location.pathname;
-        if ((pathName != prePathName) && SideBarData.hasOwnProperty(pathName)) {
-            this.updateSelected(pathName)
+        } else {
+            this.updateSelected(menuData[0] ? menuData[0].permissionUrl : '')
         }
     }
     updateSelected = (pathName: any) => {
         this.setState({
-            menuData: SideBarData[pathName],
-            current: SideBarData[pathName] && SideBarData[pathName].length ? SideBarData[pathName][0]['url'] : ''
+            current: pathName
         })
     }
 
@@ -44,31 +34,31 @@ export default class Sidebar extends React.Component<any, any> {
     renderMenu = (data: any) => {
         return data.map((item: any) => {
             return item.children && item.children.length > 0 ? (
-                <SubMenu key={item.url} title={
+                <SubMenu key={item.permissionUrl} title={
                     <span>
                         <svg className="icon-svg" aria-hidden="true">
-                            <use xlinkHref={item.icon}></use>
+                            <use xlinkHref={item.permissionIcon}></use>
                         </svg>
-                        <span>{item.name}</span>
+                        <span>{item.permissionName}</span>
                     </span>
                 }
                 >
                     {this.renderMenu(item.children)}
                 </SubMenu>
             ) : (
-                <Menu.Item key={item.url}>
-                    <Link to={item.url}>
+                <Menu.Item key={item.permissionUrl}>
+                    <Link to={item.permissionUrl}>
                         <svg className="icon-svg" aria-hidden="true">
-                            <use xlinkHref={item.icon}></use>
+                            <use xlinkHref={item.permissionIcon}></use>
                         </svg>
-                        <span className="hide-text">{item.name}</span>
+                        <span className="hide-text">{item.permissionName}</span>
                     </Link>
                 </Menu.Item>
             )
         })
     }
     render () {
-        const { menuData } = this.state;
+        const { menuData } = this.props;
         return (
             <div className="sidebar m-ant-menu">
                 <Menu

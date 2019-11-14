@@ -9,12 +9,14 @@ import utils from 'utils'
 import Heade from '../header';
 import SideBar from '../sideBar';
 import DashBoard from '../../dashboard/index';
+import NavData from '../../../consts/navData';
 
 const { Sider, Content } = Layout;
 
 interface IProps {
     children: any;
     dispatch: any;
+    location?: any;
     params: any;
     router: any;
 }
@@ -71,10 +73,12 @@ class SideLayout extends React.Component<IProps, IState> {
         });
     }
     render () {
-        const { children } = this.props;
+        const { children, location } = this.props;
+        const pathName = location.pathname;
+        const menuData = NavData.filter(item => item.routers.includes(pathName));
         return (
             <Layout className="dt-tag-layout">
-                <Heade {...this.props} showMenu/>
+                <Heade {...this.props} showMenu navData={NavData}/>
                 <Layout className="tag-container">
                     {
                         children ? <React.Fragment>
@@ -94,7 +98,7 @@ class SideLayout extends React.Component<IProps, IState> {
                                         }
                                     />
                                 </div>
-                                <SideBar {...this.props} mode={this.state.mode} />
+                                <SideBar menuData={menuData[0] ? menuData[0].children : [] } {...this.props} mode={this.state.mode} />
                             </Sider>
                             <Content className="inner-container">{children}</Content>
                         </React.Fragment> : (<DashBoard/>)

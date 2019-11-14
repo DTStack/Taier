@@ -20,7 +20,7 @@ const Search = Input.Search;
 
 @(connect((state: any) => {
     return {
-        licenseApps: state.licenseApps,
+        licenseApps: state.licenseApps
     }
 })as any)
 class Header extends React.Component<any, any> {
@@ -33,16 +33,16 @@ class Header extends React.Component<any, any> {
         };
     }
 
-    componentDidMount () {
-        this.updateSelected();
-    }
-
     // 控制项目下拉菜单的显示
     // eslint-disable-next-line
-    UNSAFE_componentWillReceiveProps () {
-        this.updateSelected();
+    componentDidMount () {
+        const { location, navData } = this.props;
+        const pathName = location.pathname;
+        const data = navData.filter(item => item.routers.includes(pathName))
+        if (data.length) {
+            this.updateSelected(data[0].permissionUrl)
+        }
     }
-
     handleClick = (e: any) => {
         this.setState({ current: e.key });
     };
@@ -99,49 +99,10 @@ class Header extends React.Component<any, any> {
         }
         return [];
     }
-
-    fixArrayIndex = (arr: any) => {
-        let fixArrChildrenApps: any = [];
-        if (arr && arr.length > 1) {
-            arr.map((item: any) => {
-                switch (item.name) {
-                    case '实体管理':
-                        fixArrChildrenApps[0] = item;
-                        break;
-                    case '标签中心':
-                        fixArrChildrenApps[1] = item;
-                        break;
-                    case '群组分析':
-                    default :
-                        fixArrChildrenApps[2] = item;
-                }
-            })
-            return fixArrChildrenApps
-        } else {
-            return []
-        }
-    }
-
-    updateSelected () {
-        let pathname = this.props.router.location.pathname;
-        const routes = pathname ? pathname.split('/') : [];
-        let path =
-            routes.length > 0 && routes[1] !== '' ? routes[1] : 'overview';
-        if (
-            path &&
-            (path.indexOf('task') > -1 || path.indexOf('offline') > -1 || path.indexOf('realtime') > -1)
-        ) {
-            this.setState({
-                devPath: pathname
-            });
-            path = 'realtime'
-        }
-        if (path !== this.state.current) {
-            this.setState({
-                current: path
-            });
-        }
-        return path;
+    updateSelected (pathname) {
+        this.setState({
+            current: pathname
+        });
     }
 
     initUserDropMenu = () => {
@@ -245,21 +206,12 @@ class Header extends React.Component<any, any> {
         }
     }
     render () {
-        const { user, project, apps, app, licenseApps, router } = this.props;
+        const { user, apps, app, licenseApps, router, navData } = this.props;
         const { current } = this.state;
         let pathname = router.location.pathname;
 
         const display = current !== 'overview' ? 'inline-block' : 'none';
 
-        // const pid = project && project.id ? project.id : '';
-
-        // const basePath = app.link;
-
-        // const fixArrChildrenApps = this.fixArrayIndex(licenseApps[1] && licenseApps[1].children);
-        // const dataSourceNav = fixArrChildrenApps[0];
-        // const taskNav = fixArrChildrenApps[1];
-        // const operaNav = fixArrChildrenApps[2];
-        // const projectNav = fixArrChildrenApps[3];
         // 如果是数据地图模块，隐藏项目下拉选择菜单
         const showProjectSelect =
             !(pathname.indexOf('/data-manage') > -1 || pathname === '/');
@@ -283,27 +235,17 @@ class Header extends React.Component<any, any> {
                         mode="horizontal"
                     >
                         {showProjectSelect && this.renderProjectSelect()}
-                        <Menu.Item
-                            className="my-menu-item"
-                            key="entityManage"
-                            style={{ display }}
-                        >
-                            <Link to={`/entityManage`}>实体管理</Link>
-                        </Menu.Item>
-                        <Menu.Item
-                            className="my-menu-item"
-                            key="realtime"
-                            style={{ display }}
-                        >
-                            <Link to={`/labelCenter`}>标签中心</Link>
-                        </Menu.Item>
-                        <Menu.Item
-                            className="my-menu-item"
-                            key="operation"
-                            style={{ display }}
-                        >
-                            <Link to={`/groupAnalyse`}>群组分析</Link>
-                        </Menu.Item>
+                        {
+                            navData.map(item => (
+                                <Menu.Item
+                                    className="my-menu-item"
+                                    key={item.permissionUrl}
+                                    style={{ display }}
+                                >
+                                    <Link to={item.permissionUrl}>{item.permissionName}</Link>
+                                </Menu.Item>
+                            ))
+                        }
                     </Menu>
                 </div>
                 <MenuRight

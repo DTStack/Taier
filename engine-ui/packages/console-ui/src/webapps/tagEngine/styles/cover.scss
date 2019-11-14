@@ -219,3 +219,22 @@ body:-webkit-full-screen {
     line-height: 32px;
     right: -18px;
 }
+.ant-table-thead > tr > th{
+    padding: 10px 24px !important;
+}
+.ant-table-tbody > tr > td{
+    padding: 16px 24px !important;
+}
+.ant-table-fixed-header .ant-table-scroll .ant-table-header{
+    margin-bottom: -20px;
+    padding-bottom: 0;
+}
+.ant-table-pagination.ant-pagination{
+    width: 100%;
+    text-align: right;
+    overflow: hidden;
+    padding: 0 24px;
+    .ant-pagination-total-text{
+        float: left;
+    }
+}
