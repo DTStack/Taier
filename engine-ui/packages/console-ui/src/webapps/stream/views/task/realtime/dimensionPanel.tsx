@@ -173,7 +173,7 @@ class OutputOrigin extends React.Component<any, any> {
                         >
                             <Option value={DATA_SOURCE.MYSQL}>MySQL</Option>
                             <Option value={DATA_SOURCE.ORACLE}>Oracle</Option>
-                            <Option value={DATA_SOURCE.POSTGRESQL}>PostgreSQL</Option>
+                            {/* <Option value={DATA_SOURCE.POSTGRESQL}>PostgreSQL</Option> */}
                             <Option value={DATA_SOURCE.KUDU}>Kudu</Option>
                             <Option value={DATA_SOURCE.HBASE}>HBase</Option>
                             <Option value={DATA_SOURCE.REDIS}>Redis</Option>
@@ -598,7 +598,7 @@ class OutputOrigin extends React.Component<any, any> {
                     >
                         {getFieldDecorator('partitionedJoin', {})(
                             <Switch
-                                defaultChecked={false}
+                                defaultChecked={panelColumn[index].partitionedJoin}
                                 onChange={(checked: any) =>
                                     handleInputChange('partitionedJoin', index, checked)
                                 }
@@ -624,7 +624,7 @@ class OutputOrigin extends React.Component<any, any> {
                             >
                                 {getFieldDecorator('keyFilter', {})(
                                     <Switch
-                                        defaultChecked={false}
+                                        defaultChecked={panelColumn[index].keyFilter}
                                         onChange={(checked: any) =>
                                             handleInputChange('keyFilter', index, checked)
                                         }
@@ -719,7 +719,7 @@ class OutputOrigin extends React.Component<any, any> {
                             >
                                 {getFieldDecorator('isFaultTolerant', {})(
                                     <Switch
-                                        defaultChecked={false}
+                                        defaultChecked={panelColumn[index].isFaultTolerant}
                                         onChange={(checked: any) =>
                                             handleInputChange('isFaultTolerant', index, checked)
                                         }
@@ -760,9 +760,14 @@ const OutputForm = Form.create({
             columns,
             parallelism,
             columnsText,
+            partitionedJoin,
             cache,
             cacheSize,
             hbasePrimaryKey,
+            lowerBoundPrimaryKey,
+            upperBoundPrimaryKey,
+            keyFilter,
+            isFaultTolerant,
             cacheTTLMs,
             tableName,
             primaryKey,
@@ -777,6 +782,11 @@ const OutputForm = Form.create({
             columns: { value: columns },
             parallelism: { value: parallelism },
             columnsText: { value: columnsText },
+            partitionedJoin: { value: partitionedJoin },
+            lowerBoundPrimaryKey: { value: lowerBoundPrimaryKey },
+            upperBoundPrimaryKey: { value: upperBoundPrimaryKey },
+            keyFilter: { value: keyFilter },
+            isFaultTolerant: { value: isFaultTolerant },
             cache: { value: cache },
             cacheSize: { value: cacheSize },
             cacheTTLMs: { value: cacheTTLMs },

@@ -19,7 +19,7 @@ export const DATA_SOURCE = {
     KAFKA_10: 17,
     KAFKA_09: 18,
     DB2: 19,
-    KUDU: 20
+    KUDU: 24
 }
 
 export const FUNC_TYPE_TEXT = {

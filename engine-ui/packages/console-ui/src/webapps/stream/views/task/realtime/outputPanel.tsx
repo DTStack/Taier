@@ -123,7 +123,7 @@ class OutputOrigin extends React.Component<any, any> {
                         >
                             <Option value={DATA_SOURCE.MYSQL}>MySQL</Option>
                             <Option value={DATA_SOURCE.ORACLE}>Oracle</Option>
-                            <Option value={DATA_SOURCE.POSTGRESQL}>PostgreSQL</Option>
+                            {/* <Option value={DATA_SOURCE.POSTGRESQL}>PostgreSQL</Option> */}
                             <Option value={DATA_SOURCE.KUDU}>Kudu</Option>
                             <Option value={DATA_SOURCE.HBASE}>HBase</Option>
                             <Option value={DATA_SOURCE.ES}>ElasticSearch</Option>
@@ -950,11 +950,11 @@ export default class OutputPanel extends React.Component<any, any> {
             allParamsType.map((v: any) => {
                 if (v === 'type') {
                     panelColumn[index][v] = value;
-                    if (value == DATA_SOURCE.POSTGRESQL) {
-                        panelColumn[index]['isUpsert'] = false;
-                    } else {
-                        panelColumn[index]['isUpsert'] = undefined;
-                    }
+                    // if (value == DATA_SOURCE.POSTGRESQL) {
+                    //     panelColumn[index]['isUpsert'] = false;
+                    // } else {
+                    //     panelColumn[index]['isUpsert'] = undefined;
+                    // }
                 } else if (v == 'parallelism') {
                     panelColumn[index][v] = 1
                 } else if (v == 'columns') {
