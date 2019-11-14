@@ -272,7 +272,7 @@ class Header extends React.Component<any, any> {
             id: 'project',
             name: '项目管理',
             link: `${baseUrl}/project/${pid}/config`,
-            enable: true
+            enable: projectManaNav && projectManaNav.isShow
         }];
         const settingMenus: any = [{
             id: 'admin/audit',
