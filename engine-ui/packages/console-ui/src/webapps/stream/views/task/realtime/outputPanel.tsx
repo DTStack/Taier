@@ -2,19 +2,20 @@ import * as React from 'react'
 import {
     Row, Col, Icon, Tooltip, Table, Input,
     Select, Collapse, Button, Popover, Popconfirm,
-    Form, InputNumber
+    Form, InputNumber, Checkbox
 } from 'antd'
 import { debounce, isEmpty } from 'lodash';
 
 import Api from '../../../api'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
-import { DATA_SOURCE } from '../../../comm/const';
+import { DATA_SOURCE, HELP_TEXT } from '../../../comm/const';
 import { haveTableList, haveCustomParams, haveTableColumn, havePrimaryKey, haveTopic } from './sidePanel/panelCommonUtil';
 
 import Editor from 'widgets/code-editor'
 import { CustomParams, generateMapValues, changeCustomParams, initCustomParam } from './sidePanel/customParams';
 import LockPanel from '../../../components/lockPanel';
 
+const { TextArea } = Input;
 const Option = Select.Option;
 const Panel = Collapse.Panel;
 const { Column } = Table;
@@ -122,6 +123,8 @@ class OutputOrigin extends React.Component<any, any> {
                         >
                             <Option value={DATA_SOURCE.MYSQL}>MySQL</Option>
                             <Option value={DATA_SOURCE.ORACLE}>Oracle</Option>
+                            {/* <Option value={DATA_SOURCE.POSTGRESQL}>PostgreSQL</Option> */}
+                            <Option value={DATA_SOURCE.KUDU}>Kudu</Option>
                             <Option value={DATA_SOURCE.HBASE}>HBase</Option>
                             <Option value={DATA_SOURCE.ES}>ElasticSearch</Option>
                             <Option value={DATA_SOURCE.REDIS}>Redis</Option>
@@ -382,13 +385,60 @@ class OutputOrigin extends React.Component<any, any> {
                             {...formItemLayout}
                             label="主键"
                         >
-                            {getFieldDecorator('primaryKey')(
+                            {getFieldDecorator('primaryKey', {
+                                rules: [{ required: panelColumn[index].isUpsert, message: '请输入主键' }]
+                            })(
                                 <Select className="right-select" onChange={(v: any) => { handleInputChange('primaryKey', index, v) }} mode="multiple"
                                     showSearch filterOption={(input: any, option: any) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
                                     {
                                         primaryKeyOptionTypes
                                     }
+                                </Select>
+                            )}
+                        </FormItem> : ''
+                }
+                {
+                    panelColumn[index].type == DATA_SOURCE.POSTGRESQL
+                        ? <FormItem
+                            {...formItemLayout}
+                            label="写入模式"
+                        >
+                            {getFieldDecorator('isUpsert')(
+                                <Checkbox defaultChecked={false} onChange={(e: any) => handleInputChange('isUpsert', index, e.target.checked)}>
+                                    开启upsert&nbsp;&nbsp;
+                                    <Tooltip placement="top" title={HELP_TEXT.WRITE_MODE} arrowPointAtCenter>
+                                        <Icon type="question-circle-o" />
+                                    </Tooltip>
+                                </Checkbox>
+                            )}
+                        </FormItem> : ''
+                }
+                {
+                    panelColumn[index].type == DATA_SOURCE.KUDU
+                        ? <FormItem
+                            {...formItemLayout}
+                            label={(
+                                <span >
+                                    写入模式&nbsp;
+                                    <Tooltip title="insert: 插入数据，当主键重复时报错。update: 更新数据，当主键不存在时报错。upsert: 插入或更新数据，主键已存在时执行更新，不存在时执行插入">
+                                        <Icon type="question-circle-o" />
+                                    </Tooltip>
+                                    &nbsp;
+                                </span>
+                            )}
+                        >
+                            {getFieldDecorator('writeMode', {
+                                rules: [
+                                    { required: true, message: '请选择写入模式' }
+                                ]
+                            })(
+                                <Select className="right-select" onChange={(v: any) => { handleInputChange('writeMode', index, v) }}
+                                    showSearch filterOption={(input: any, option: any) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                >
+                                    <Option value='insert'>insert</Option>
+                                    <Option value='update'>update</Option>
+                                    <Option value='upset'>upset</Option>
                                 </Select>
                             )}
                         </FormItem> : ''
@@ -401,6 +451,20 @@ class OutputOrigin extends React.Component<any, any> {
                         <InputNumber className="number-input" min={1} onChange={(value: any) => handleInputChange('parallelism', index, value)} />
                     )}
                 </FormItem>
+                {
+                    panelColumn[index].type == DATA_SOURCE.KUDU
+                        ? <FormItem
+                            {...formItemLayout}
+                            label="高级配置"
+                        >
+                            {getFieldDecorator('advanConf')(
+                                <TextArea placeholder="以JSON格式添加高级参数"
+                                    style={{ minHeight: '100px' }}
+                                    onChange={(e: any) => { handleInputChange('advanConf', index, e.target.value) }}
+                                />
+                            )}
+                        </FormItem> : ''
+                }
                 {haveCustomParams(panelColumn[index].type) && <CustomParams
                     getFieldDecorator={getFieldDecorator}
                     formItemLayout={formItemLayout}
@@ -420,7 +484,8 @@ const OutputForm = Form.create({
             columnsText, id,
             index, writePolicy,
             esId, esType,
-            parallelism, tableName,
+            parallelism, isUpsert, tableName,
+            writeMode, advanConf,
             primaryKey, rowKey, topic,
             customParams
         } = props.panelColumn[props.index];
@@ -437,6 +502,9 @@ const OutputForm = Form.create({
             esId: { value: esId },
             esType: { value: esType },
             topic: { value: topic },
+            isUpsert: { value: isUpsert },
+            writeMode: { value: writeMode },
+            advanConf: { value: advanConf },
             parallelism: { value: parallelism },
             tableName: { value: tableName },
             primaryKey: { value: primaryKey },
@@ -867,7 +935,7 @@ export default class OutputPanel extends React.Component<any, any> {
             'columnsText', 'id',
             'index', 'writePolicy',
             'esId', 'esType', 'topic',
-            'parallelism', 'tableName',
+            'parallelism', 'tableName', 'writeMode', 'advanConf',
             'primaryKey', 'rowKey', 'customParams'
         ];
         const sourceType = panelColumn[index].type;
@@ -882,6 +950,11 @@ export default class OutputPanel extends React.Component<any, any> {
             allParamsType.map((v: any) => {
                 if (v === 'type') {
                     panelColumn[index][v] = value;
+                    // if (value == DATA_SOURCE.POSTGRESQL) {
+                    //     panelColumn[index]['isUpsert'] = false;
+                    // } else {
+                    //     panelColumn[index]['isUpsert'] = undefined;
+                    // }
                 } else if (v == 'parallelism') {
                     panelColumn[index][v] = 1
                 } else if (v == 'columns') {
