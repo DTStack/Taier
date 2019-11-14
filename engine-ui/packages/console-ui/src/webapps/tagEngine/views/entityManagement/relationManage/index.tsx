@@ -55,17 +55,27 @@ export default class RelationManage extends React.Component<any, IState> {
         }, this.loadData);
     }
 
+    handDeleteRelation = () => {
+        // TODO delete a relation entity.
+    }
+
     handleOperateData = (type: string, record: any) => {
+        const basePath = '/relationManage';
         switch (type) {
             case 'add': {
-                hashHistory.push('/')
+                hashHistory.push(`${basePath}/create`)
+                break;
+            }
+            case 'detail': {
+                hashHistory.push(`${basePath}/detail`)
                 break;
             }
             case 'edit': {
-                hashHistory.push({ pathname: '/', state: { ...record } })
+                hashHistory.push({ pathname: `${basePath}/detail`, state: { ...record } })
                 break;
             }
             case 'delete': {
+                this.handDeleteRelation();
                 // 请求删除
                 break;
             }
@@ -111,8 +121,8 @@ export default class RelationManage extends React.Component<any, IState> {
             render: (text: any, record: any) => {
                 return (
                     <span key={record.id}>
-                        <a onClick={this.handleOperateData.bind(this, 'edit', record)}>
-                            编辑
+                        <a onClick={this.handleOperateData.bind(this, 'detail', record)}>
+                            查看
                         </a>
                         <span className="ant-divider" />
                         <Popconfirm

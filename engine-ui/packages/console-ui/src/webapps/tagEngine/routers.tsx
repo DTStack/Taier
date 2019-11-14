@@ -27,6 +27,10 @@ import RoleEdit from './views/project/role/edit';
 import EMEntityEdit from './views/entityManagement/entityManage/entityEdit'
 import EMEntityDetail from './views/entityManagement/entityManage/entityDetail'
 
+// ======= 关系管理 =======
+import CreateRelation from './views/entityManagement/relationManage/createRelation'
+import RelationDetail from './views/entityManagement/relationManage/relationDetail'
+
 // ======= 字典管理 =======
 import EMDictonaryEdit from './views/entityManagement/dictionaryManage/edit'
 import EMDictonaryDetail from './views/entityManagement/dictionaryManage/detail'
@@ -157,6 +161,14 @@ const routeConfig = [
             {
                 path: '/relationManage',
                 component: RelationManage
+            },
+            {
+                path: '/relationManage/create',
+                component: CreateRelation
+            },
+            {
+                path: '/relationManage/detail',
+                component: RelationDetail
             },
             {
                 path: '/dictionaryManage',
