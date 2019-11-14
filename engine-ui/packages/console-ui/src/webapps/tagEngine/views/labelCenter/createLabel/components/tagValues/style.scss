@@ -10,14 +10,21 @@
         padding: 0 12px;
         height: 32px;
         line-height: 32px;
-        margin-right:12px;
         margin-bottom: 12px;
         .iconfont{
             cursor: pointer;
             margin-left: 12px;
             color:#999999;
         }
+
         &.active{
+            border: 1px solid #2491F7;
+            color:#2491F7;
+            .iconfont{
+                color:#2491F7;
+            }
+        }
+        &:hover{
             border: 1px solid #2491F7;
             color:#2491F7;
             .iconfont{
@@ -32,4 +39,17 @@
         font-size: 18px;
         color:#999999;
     }
+    .card{
+        cursor: move;
+        margin-right:12px;
+    }
+}
+.tagValues_copy{
+    font-size: 12px;
+    margin-right: 8px;
+}
+.tagValues_delete{
+    font-size: 12px;
+    margin-right: 8px;
+    color:red;
 }

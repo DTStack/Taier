@@ -1,0 +1,26 @@
+.collapse{
+    transition: all 3s ease;
+    background: #FAFAFA;
+    border: 1px solid #DDDDDD;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    .collapse_header{
+        display: flex;
+        justify-content: space-between;
+        height: 40px;
+        line-height: 40px;
+        align-items: center;
+        font-size: 12px;
+        color: #333333;
+        padding: 0 20px 0 14px;
+        .icon_c{
+            cursor: pointer;
+            font-size: 14px;
+            color: #999999;
+            margin-right: 16px;
+        }
+    }
+    .collapse_content{
+        padding:10px 20px;
+    }
+}

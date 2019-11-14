@@ -156,4 +156,4 @@ class StepOne extends React.PureComponent<IProps, IState> {
     }
 }
 
-export default Form.create<IProps>()(StepOne);
+export default Form.create()(StepOne);

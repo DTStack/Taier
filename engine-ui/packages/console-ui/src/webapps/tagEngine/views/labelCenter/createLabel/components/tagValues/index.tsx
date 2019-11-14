@@ -4,6 +4,7 @@ import classnames from 'classnames';
 import shortid from 'shortid';
 import { DragDropContext, DropTarget } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
+import update from 'immutability-helper'
 import Card from './card';
 import './style.scss';
 
@@ -26,7 +27,6 @@ const cardTarget = {
     connectDropTarget: connect.dropTarget()
 }))
 class TagValues extends React.Component<IProps, {}> {
-
     onHandleClick = (item: any) => {
         this.props.onSelect(item.value)
     }
@@ -61,8 +61,10 @@ class TagValues extends React.Component<IProps, {}> {
     }
     moveCard = (id: string, atIndex: number) => {
         const { value } = this.props;
-        const { card, index } = this.findCard(id)
-        console.log(card, index)
+        const { card, index } = this.findCard(id);
+        this.props.onChange(update(value, {
+            $splice: [[index, 1], [atIndex, 0, card]]
+        }))
     }
     findCard = (id: string) => {
         const { value } = this.props;
@@ -76,10 +78,10 @@ class TagValues extends React.Component<IProps, {}> {
         return (
             <Menu onClick={({ item, key, keyPath }) => this.onHandleMenu({ item, key, keyPath }, data, index)}>
                 <Menu.Item key="0">
-                    复制
+                    <Icon type="copy" className="tagValues_copy"/>复制
                 </Menu.Item>
                 <Menu.Item key="1">
-                    删除
+                    <Icon type="delete" className="tagValues_delete"/>删除
                 </Menu.Item>
             </Menu>
         )
@@ -98,7 +100,7 @@ class TagValues extends React.Component<IProps, {}> {
                                      id={`${item.value}`}
                                      moveCard={this.moveCard}
                                      findCard={this.findCard}>
-                                     <div key={item.value} onClick={ () => this.onHandleClick(item) } className={classnames('tag-item', { active: item.value == select })}>
+                                     <div key={item.value} className={classnames('tag-item', { active: item.value == select })} onClick={ () => this.onHandleClick(item) }>
                                          <span>{item.label}</span>
                                          <Dropdown overlay={this.renderMenu(item, index)} placement="bottomLeft">
                                              <i className='iconfont iconmenu-pl'></i>

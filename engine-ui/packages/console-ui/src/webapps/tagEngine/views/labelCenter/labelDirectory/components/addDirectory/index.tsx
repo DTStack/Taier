@@ -3,7 +3,7 @@ import { Modal, Button, Form, Input } from 'antd';
 import { FormComponentProps } from 'antd/lib/form/Form';
 
 import './style.scss';
-export interface IProps extends FormComponentProps {
+interface IProps extends FormComponentProps {
     visible: boolean;
     handleOk: () => void;
     handleCancel: () => void;
@@ -87,4 +87,4 @@ class AddDirectpry extends React.PureComponent<IProps, IState> {
         );
     }
 }
-export default Form.create<IProps>()(AddDirectpry);
+export default Form.create()(AddDirectpry);

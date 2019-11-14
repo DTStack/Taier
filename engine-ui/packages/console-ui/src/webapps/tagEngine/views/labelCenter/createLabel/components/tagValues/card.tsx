@@ -1,10 +1,10 @@
 import * as React from 'react'
 import { DragSource, DropTarget } from 'react-dnd';
-import classnames from 'classnames';
-
+import './style.scss';
 export interface CardProps {
     id: string;
     children: any;
+    className?: string;
     moveCard: (id: string, to: number) => void;
     findCard: (id: string) => { index: number };
     connectDragSource?: any;
@@ -32,7 +32,13 @@ const cardSource = {
 const cardTarget = {
 
     hover (props, monitor) {
+        const { id: draggedId } = monitor.getItem()
+        const { id: overId } = props
 
+        if (draggedId !== overId) {
+            const { index: overIndex } = props.findCard(overId)
+            props.moveCard(draggedId, overIndex)
+        }
     },
     drop (props, monitor) {
         const { id: draggedId } = monitor.getItem()
@@ -56,11 +62,11 @@ class Card extends React.Component<CardProps, {}> {
         const {
             children,
             connectDragSource,
-            connectDropTarget
+            connectDropTarget,
+            isDragging
         } = this.props;
-        return (<div className={classnames({
-            draggItem: false
-        })}>
+        const opacity = isDragging ? 0 : 1
+        return (<div className="card" style={{ opacity }}>
             {
                 connectDragSource && connectDropTarget &&
                 connectDragSource(

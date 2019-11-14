@@ -51,7 +51,7 @@ export default class CreateLabel extends React.PureComponent<IProps, IState> {
         this.setState({ current: 2 });
     }
     render () {
-        const { current, stepsValues } = this.state;
+        const { current } = this.state;
         const breadcrumbNameMap = [
             {
                 path: '/labelCenter',
@@ -75,7 +75,7 @@ export default class CreateLabel extends React.PureComponent<IProps, IState> {
 
                         <StepOne onPrev={this.onPrev} isShow={current == 0} onNext={this.onNext} />
                         {
-                            current == 1 && <StepTwo onPrev={this.onPrev} onNext={this.onNext} />
+                            current == 1 && <StepTwo isShow={current == 1} onPrev={this.onPrev} onNext={this.onNext} />
                         }
                         {
                             current == 2 && <StepTree onPrev={this.onPrev} onNext={this.onNext} />

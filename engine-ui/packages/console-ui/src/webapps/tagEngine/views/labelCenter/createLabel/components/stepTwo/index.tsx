@@ -1,10 +1,12 @@
 import * as React from 'react';
-import { Form, Select, Button } from 'antd';
+import { Form, Select, Button, Input, Icon } from 'antd';
 import { FormComponentProps } from 'antd/lib/form/Form';
 import { debounce } from 'lodash';
-
+import classnames from 'classnames';
+import SelectLabelRow from '../selectLabelRow';
 import './style.scss';
 import TagValues from '../tagValues';
+import Collapse from '../collapse/index';
 const { Option } = Select;
 
 interface IProps extends FormComponentProps {
@@ -15,8 +17,9 @@ interface IProps extends FormComponentProps {
 interface IState {
     indexList: any[];
     keyList: any[];
-    index: string|number;
+    index: string | number;
     select: '';
+    treeData: any;
     tags: any[];
 }
 const formItemLayout = {
@@ -39,7 +42,101 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         keyList: [],
         index: '',
         select: '',
-        tags: []
+        tags: [],
+        treeData: {
+            key: '1',
+            type: '且', //  且|或
+            children: [
+                {
+                    key: '1-1',
+                    type: '或',
+                    name: '实体-用户信息',
+                    children: [
+                        {
+                            key: '1-1-1',
+                            type: '或',
+                            children: [
+                                {
+                                    key: '1-1-1-1',
+                                    selectName: '活跃度',
+                                    selectvalue: '活跃度id',
+                                    filterType: '字符串', // 字符串|数值|日期|字典
+                                    conditionName: '等于',
+                                    conditionId: '等于',
+                                    filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值或者区间值，延续数值结构，name为空
+                                },
+                                {
+                                    key: '1-1-1-2',
+                                    selectName: '活跃度',
+                                    selectvalue: '活跃度id',
+                                    filterType: '字符串', // 字符串|数值|日期|字典
+                                    conditionName: '等于',
+                                    conditionId: '等于',
+                                    filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值或者区间值，延续数值结构，name为空
+                                }
+                            ]
+                        },
+                        {
+                            key: '1-1-2',
+                            selectName: '活跃度',
+                            selectvalue: '活跃度id',
+                            filterType: '字符串', // 字符串|数值|日期|字典
+                            conditionName: '等于',
+                            conditionId: '等于',
+                            filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值或者区间值，延续数值结构，name为空
+                        }
+                    ]
+                },
+                {
+                    key: '1-2',
+                    type: '或',
+                    name: '实体-活动',
+                    children: [
+                        {
+                            key: '1-2-1',
+                            type: '或',
+                            children: [
+                                {
+                                    key: '1-2-1-1',
+                                    selectName: '活跃度',
+                                    selectvalue: '活跃度id',
+                                    filterType: '字符串', // 字符串|数值|日期|字典
+                                    conditionName: '等于',
+                                    conditionId: '等于',
+                                    filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值或者区间值，延续数值结构，name为空
+                                }
+                            ]
+                        },
+                        {
+                            key: '1-2-2',
+                            selectName: '活跃度',
+                            selectvalue: '活跃度id',
+                            filterType: '字符串', // 字符串|数值|日期|字典
+                            conditionName: '等于',
+                            conditionId: '等于',
+                            filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值或者区间值，延续数值结构，name为空
+                        }
+                    ]
+                },
+                {
+                    key: '1-3',
+                    type: '或',
+                    name: '实体-产品',
+                    children: [
+                        {
+                            key: '1-3-2',
+                            selectName: '活跃度',
+                            selectvalue: '活跃度id',
+                            filterType: '字符串', // 字符串|数值|日期|字典
+                            conditionName: '等于',
+                            conditionId: '等于',
+                            filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值或者区间值，延续数值结构，name为空
+                        }
+                    ]
+                }
+            ]
+        }
+
     };
     componentDidMount () {
         this.loadMainData(false);
@@ -59,7 +156,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         //     }
         // })
     }
-    getKeyList =(index: number) => {
+    getKeyList = (index: number) => {
         // API.keyListUsingGet({
         //     index
         // }).then(res => { // 获取主键列表
@@ -112,12 +209,50 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         // }
         callback()
     }, 800)
+    onHandleCondition = (key, item, type) => { }
+    renderConditionChildren = (data) => {
+        return data.map(item => {
+            if (item.children && item.children.length) {
+                return (
+                    <div key={item.key} className={classnames('select_wrap', {
+                        active: item.children.length > 1
+                    })}>
+                        {
+                            this.renderConditionChildren(item.children)
+                        }
+                        <span className="condition" onClick={(e) => this.onHandleCondition(item.key, item, item.type)}>{item.type}</span>
+                    </div>
+                );
+            }
+            return <SelectLabelRow data={data} key={data.key} extra={<div>
+                <Icon type="plus-circle" className="icon"/>
+                <Icon type="minus-circle-o" className="icon"/>
+            </div>}/>
+        });
+    }
+    renderCondition = data => {
+        if (data.children && data.children.length) {
+            return <div className={classnames('select_wrap', {
+                active: data.children.length > 1
+            })}>
+                {
+                    this.renderConditionChildren(data.children)
+                }
+                <span className="condition">{data.type}</span>
+            </div>
+        }
+        return <SelectLabelRow data={data} key={data.key} extra={<div>
+            <Icon type="plus-circle" className="icon"/>
+            <Icon type="minus-circle-o" className="icon"/>
+        </div>}/>
+    }
+
     render () {
-        const { form } = this.props;
-        const { indexList, select } = this.state;
+        const { form, isShow } = this.props;
+        const { indexList, select, treeData } = this.state;
         const { getFieldDecorator } = form;
         return (
-            <div className="stepTwo">
+            <div className="stepTwo" style={{ display: isShow ? 'block' : 'none' }}>
                 <Form.Item {...formItemLayout} label="选择实体">
                     {getFieldDecorator('entityIndex', {
                         rules: [
@@ -157,12 +292,29 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                                 message: '请选择标签值'
                             }
                         ]
-                    })(<TagValues select={select} onSelect={(value) => this.onChangeSelect(value, 'tags')}/>)}
+                    })(<TagValues select={select} onSelect={(value) => this.onChangeSelect(value, 'tags')} />)}
                 </Form.Item>
+                <div className="panel_select">
+                    <div className="edit_Wrap"><Input className="edit_value" /><i className="iconfont iconbtn_edit"></i></div>
+                    <div className="panel_wrap">
+                        <div className="select_wrap active">
+                            {
+                                treeData.children && treeData.children.map(item => {
+                                    return (<Collapse title={item.name} key={item.key} extra={<Icon className="add_icon" type="plus-circle" />}>
+                                        {
+                                            this.renderCondition(item)
+                                        }
+                                    </Collapse>)
+                                })
+                            }
+                            <span className="condition">{treeData.type}</span>
+                        </div>
+                    </div>
+                </div>
                 <div className="wrap_btn_content"><Button onClick={this.onHandlePrev}>退出</Button><Button type="primary" onClick={this.onHandleNext}>下一步</Button></div>
             </div>
         );
     }
 }
 
-export default Form.create<IProps>()(StepTwo);
+export default Form.create()(StepTwo);
