@@ -79,7 +79,7 @@ export function Logo (props: any) {
 }
 
 export function MenuLeft (props: any) {
-    const { activeKey, onClick, menuItems, user, customItems = [] } = props;
+    const { activeKey, onClick, menuItems, user, customItems = [], selectProjectsubMenu } = props;
     return (
         <div className="menu left">
             <Menu
@@ -88,6 +88,7 @@ export function MenuLeft (props: any) {
                 selectedKeys={[activeKey]}
                 mode="horizontal"
             >
+                {selectProjectsubMenu}
                 {customItems.concat(renderATagMenuItems(menuItems, user.isRoot))}
             </Menu>
         </div>
@@ -257,6 +258,7 @@ class Navigator extends React.Component<any, any> {
                 </div>
                 {
                     menuLeft || <MenuLeft
+                        selectProjectsubMenu={this.props.selectProjectsubMenu}
                         user={user}
                         activeKey={current}
                         customItems={customItems}

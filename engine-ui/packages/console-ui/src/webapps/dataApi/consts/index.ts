@@ -14,6 +14,48 @@ export const DATA_SOURCE: any = {
     RDS: 16,
     DB2: 17
 }
+export const STICK_STATUS: any = {
+    NO_TOP: 0,
+    TOP: 1
+}
+
+export const PROJECT_STATUS: any = {
+    INITIALIZE: 0, // 创建中
+    NORMAL: 1, // 正常
+    DISABLE: 2, // 禁用
+    FAIL: 3// 创建失败
+}
+export const HELP_DOC_URL = {
+    MAKE_API: '/public/helpSite/api/v3.0/Makeup_Register.html#makeAPI',
+    RELEASE_API: '/public/helpSite/api/v3.0/Release_Management.html#releaseAPI',
+    APPLY_API: '/public/helpSite/api/v3.0/Apply_call.html#APIApply',
+    TEST_API: '/public/helpSite/api/v3.0/Apply_call.html#Test',
+    CALL_API: '/public/helpSite/api/v3.0/Apply_call.html#Call'
+}
+
+export const OPERA_ROW_ONE_DATA = [{
+    title: 'API生成',
+    link: HELP_DOC_URL.MAKE_API
+}, {
+    title: 'API发布',
+    link: HELP_DOC_URL.RELEASE_API
+}, {
+    title: 'API申请',
+    link: HELP_DOC_URL.APPLY_API
+}];
+export const OPERA_ROW_TWO_DATA = [{
+    title: 'API测试',
+    link: HELP_DOC_URL.TEST_API
+}, {
+    title: 'API调用',
+    link: HELP_DOC_URL.CALL_API
+}]
+
+export const PROJECT_ROLE: any = { // 项目角色
+    PROJECT_OWNER: 2, // 项目所有者
+    TENANT_OWVER: 1, // 租户所有者
+    VISITOR: 4 // 访客
+}
 
 export const SECURITY_TYPE: any = {
     WHITE: 0,

@@ -19,14 +19,39 @@ import EditMemberRoleForm from './editRole'
 
 const Option = Select.Option
 const Search = Input.Search;
-
+interface UserManaState {
+    active: string;
+    loading: string | boolean;
+    users: {
+        data: any[];
+    };
+    projects: any[];
+    streamProjects: any[];
+    scienceProjects: any[];
+    apiProjects: any[];
+    selectedProject: number;
+    streamSelectedProject: number;
+    scienceSelectedProject: number;
+    apiSelectedProject: number;
+    dataBase: any[];
+    selecteDatabase: number;
+    notProjectUsers: any[];
+    roles: any[];
+    editTarget: any;
+    currentPage: number;
+    visible: boolean;
+    visibleEditRole: boolean;
+    searchName: string | undefined;
+    myRoles?: any;
+    roleIds?: number | any[];
+}
 @(connect((state: any) => {
     return {
         user: state.user,
         licenseApps: state.licenseApps
     }
 }) as any)
-class AdminUser extends React.Component<any, any> {
+class AdminUser extends React.Component<any, UserManaState> {
     memberForm: any;
     eidtRoleForm: any;
 
@@ -41,9 +66,11 @@ class AdminUser extends React.Component<any, any> {
         projects: [],
         streamProjects: [],
         scienceProjects: [],
+        apiProjects: [],
         selectedProject: undefined,
         streamSelectedProject: undefined,
         scienceSelectedProject: undefined,
+        apiSelectedProject: undefined,
         dataBase: [],
         selecteDatabase: undefined,
         notProjectUsers: [],
@@ -53,10 +80,8 @@ class AdminUser extends React.Component<any, any> {
         currentPage: 1,
         visible: false,
         visibleEditRole: false,
-
         searchName: undefined
     }
-
     componentDidUpdate (prevProps: any, prevState: any) {
         if (this.props.licenseApps.length > 0 && prevProps.licenseApps !== this.props.licenseApps) {
             const { apps, licenseApps = [] } = this.props
@@ -74,11 +99,12 @@ class AdminUser extends React.Component<any, any> {
         return app === 'analyticsEngine';
     }
     isProjectExsit () {
-        const { active, projects, streamProjects, scienceProjects } = this.state;
+        const { active, projects, streamProjects, scienceProjects, apiProjects } = this.state;
         let appMap = {
             [MY_APPS.RDOS]: projects,
             [MY_APPS.STREAM]: streamProjects,
-            [MY_APPS.SCIENCE]: scienceProjects
+            [MY_APPS.SCIENCE]: scienceProjects,
+            [MY_APPS.API]: apiProjects
         }
         return appMap[active] && appMap[active].length
     }
@@ -86,7 +112,9 @@ class AdminUser extends React.Component<any, any> {
      * 这边加一个isGetProjectsBack，当是getProjects调用的时候，防止服务器返回一个空数组，而不断的重复调用
      */
     loadData = (isGetProjectsBack?: any, isGetDatabaseBack?: any) => {
-        const { active, selectedProject, streamSelectedProject, scienceSelectedProject, currentPage, dataBase, selecteDatabase } = this.state;
+        const { active, selectedProject, streamSelectedProject, scienceSelectedProject,
+            apiSelectedProject,
+            currentPage, dataBase, selecteDatabase } = this.state;
         const params: any = {
             pageSize: 10,
             currentPage
@@ -117,6 +145,8 @@ class AdminUser extends React.Component<any, any> {
                 params.projectId = streamSelectedProject;
             } else if (MY_APPS.SCIENCE == active) {
                 params.projectId = scienceSelectedProject;
+            } else if (MY_APPS.API == active) {
+                params.projectId = apiSelectedProject;
             }
 
             this.loadUsers(active, params);
@@ -155,7 +185,8 @@ class AdminUser extends React.Component<any, any> {
                 switch (app) {
                     case MY_APPS.RDOS:
                     case MY_APPS.STREAM:
-                    case MY_APPS.SCIENCE: {
+                    case MY_APPS.SCIENCE:
+                    case MY_APPS.API: {
                         if (roleValue == RDOS_ROLE.VISITOR) {
                             isVisitor = true
                         } else if (roleValue == RDOS_ROLE.PROJECT_ADMIN) {
@@ -165,7 +196,6 @@ class AdminUser extends React.Component<any, any> {
                         }
                         break;
                     }
-                    case MY_APPS.API:
                     case MY_APPS.LABEL:
                     case MY_APPS.ANALYTICS_ENGINE:
                     case MY_APPS.DATA_QUALITY: {
@@ -279,6 +309,12 @@ class AdminUser extends React.Component<any, any> {
                         scienceProjects: res.data,
                         scienceSelectedProject: cookiesProject || projectId
                     }, this.loadData.bind(this, true))
+                } else if (app == MY_APPS.API) {
+                    cookiesProject = getNotNullProject(utils.getCookie('api_project_id'), res.data)
+                    ctx.setState({
+                        apiProjects: res.data,
+                        apiSelectedProject: cookiesProject || projectId
+                    }, this.loadData.bind(this, true))
                 }
             }
         })
@@ -350,11 +386,12 @@ class AdminUser extends React.Component<any, any> {
         });
     }
     getProjectId (active: any) {
-        const { selectedProject, streamSelectedProject, scienceSelectedProject } = this.state;
+        const { selectedProject, streamSelectedProject, scienceSelectedProject, apiSelectedProject } = this.state;
         let map = {
             [MY_APPS.RDOS]: selectedProject,
             [MY_APPS.STREAM]: streamSelectedProject,
-            [MY_APPS.SCIENCE]: scienceSelectedProject
+            [MY_APPS.SCIENCE]: scienceSelectedProject,
+            [MY_APPS.API]: apiSelectedProject
         }
         return map[active];
     }
@@ -457,6 +494,7 @@ class AdminUser extends React.Component<any, any> {
             projects: [],
             streamProjects: [],
             scienceProjects: [],
+            apiProjects: [],
             searchName: undefined
         }, () => {
             this.props.router.replace('/admin/user?app=' + key)
@@ -490,6 +528,12 @@ class AdminUser extends React.Component<any, any> {
             currentPage: 1
         }, this.loadData)
     }
+    onApiProjectSelect = (value: any) => {
+        this.setState({
+            apiSelectedProject: value,
+            currentPage: 1
+        }, this.loadData)
+    }
     initAddMember = () => {
         this.loadUsersNotInProject();
         this.setState({ visible: true })
@@ -498,8 +542,8 @@ class AdminUser extends React.Component<any, any> {
     initColums = () => {
         const ctx = this;
         const { active } = this.state;
-        const hideDel = (active == MY_APPS.RDOS || active == MY_APPS.STREAM || active == MY_APPS.ANALYTICS_ENGINE || active == MY_APPS.SCIENCE);
-        const isProject = (active == MY_APPS.RDOS || active == MY_APPS.STREAM || active == MY_APPS.SCIENCE);
+        const hideDel = (active == MY_APPS.RDOS || active == MY_APPS.STREAM || active == MY_APPS.ANALYTICS_ENGINE || active == MY_APPS.SCIENCE || active == MY_APPS.API);
+        const isProject = (active == MY_APPS.RDOS || active == MY_APPS.STREAM || active == MY_APPS.SCIENCE || active == MY_APPS.API);
 
         return [{
             title: '账号',
@@ -591,7 +635,9 @@ class AdminUser extends React.Component<any, any> {
             dataBase,
             selecteDatabase,
             scienceSelectedProject,
-            scienceProjects
+            scienceProjects,
+            apiSelectedProject,
+            apiProjects
         } = this.state;
 
         let selectValue;
@@ -615,6 +661,10 @@ class AdminUser extends React.Component<any, any> {
             selectValue = scienceSelectedProject;
             projectsOptions = scienceProjects;
             onSelectChange = this.onScienceProjectSelect
+        } else if (active == MY_APPS.API) {
+            selectValue = apiSelectedProject;
+            projectsOptions = apiProjects;
+            onSelectChange = this.onApiProjectSelect
         }
 
         const projectOpts = projectsOptions && projectsOptions.map((project: any) =>

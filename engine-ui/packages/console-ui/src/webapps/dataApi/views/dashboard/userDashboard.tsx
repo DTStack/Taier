@@ -13,6 +13,18 @@ class UserDashboard extends React.Component<any, any> {
     state={
         nowView: 'callTop'
     }
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps: any) {
+        const project = nextProps.project
+        const oldProj = this.props.project
+        if (oldProj && project && oldProj.id !== project.id) {
+            this.props.chooseUserDate(10, {
+                target: {
+                    value: this.props.dashBoard.userDate
+                }
+            })
+        }
+    }
     componentDidMount () {
         this.props.chooseUserDate(10, {
             target: {
