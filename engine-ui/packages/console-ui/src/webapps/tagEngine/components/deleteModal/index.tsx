@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Modal, Icon, Button } from 'antd';
+import { Modal, Button } from 'antd';
 import './style.scss';
 
 interface IProps {
@@ -38,7 +38,7 @@ export default class DeleteModal extends React.Component<IProps, IState> {
             >
                 <div className="delete-modal">
                     <div className="content">
-                        <Icon style={{ fontSize: 20, color: 'orange' }} type="exclamation-circle" />
+                        <i style={{ fontSize: 20, color: 'orange' }} className='iconfont iconwarning'></i>
                         <div className="notice">
                             <div style={{ fontSize: 16, color: '#333333', marginBottom: 10 }}>{notice}</div>
                             <div>{content}</div>
