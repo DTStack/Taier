@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Link, hashHistory } from 'react-router';
-import { Card, Table, Input, Button, Popconfirm } from 'antd';
+import { Card, Table, Input, Button } from 'antd';
+import DeleteModal from '../../../components/deleteModal';
 import './style.scss';
 
 const Search = Input.Search;
@@ -14,6 +15,8 @@ interface IState {
     loading: boolean;
     desc: boolean;
     sorterField: string;
+    deleteVisible: boolean;
+    deleteItem: any;
 }
 
 export default class DictionaryManage extends React.PureComponent<any, IState> {
@@ -33,7 +36,9 @@ export default class DictionaryManage extends React.PureComponent<any, IState> {
         searchVal: undefined,
         loading: false,
         desc: true,
-        sorterField: ''
+        sorterField: '',
+        deleteVisible: false,
+        deleteItem: {}
     }
     componentDidMount () {
 
@@ -69,11 +74,24 @@ export default class DictionaryManage extends React.PureComponent<any, IState> {
                 break;
             }
             case 'delete': {
-                // 请求删除
+                this.setState({
+                    deleteVisible: true,
+                    deleteItem: record
+                })
                 break;
             }
             default:;
         }
+    }
+
+    handleDeleteModel = (type: string) => {
+        if (type == 'ok') {
+            // TODO 请求处理删除
+        }
+        this.setState({
+            deleteVisible: false,
+            deleteItem: {}
+        })
     }
 
     initColumns = () => {
@@ -113,13 +131,9 @@ export default class DictionaryManage extends React.PureComponent<any, IState> {
                             编辑
                         </a>
                         <span className="ant-divider" />
-                        <Popconfirm
-                            title={<span>删除字典后无法恢复<br />请谨慎操作！</span>}
-                            okText="删除" cancelText="取消"
-                            onConfirm={this.handleOperateData.bind(this, 'delete', record)}
-                        >
-                            <a>删除</a>
-                        </Popconfirm>
+                        <a onClick={this.handleOperateData.bind(this, 'delete', record)}>
+                            删除
+                        </a>
                     </span>
                 )
             }
@@ -127,7 +141,7 @@ export default class DictionaryManage extends React.PureComponent<any, IState> {
     }
 
     render () {
-        const { total, pageSize, pageNo, dataSource, loading, searchVal } = this.state;
+        const { total, pageSize, pageNo, dataSource, loading, searchVal, deleteVisible } = this.state;
         const pagination: any = {
             total: total,
             pageSize: pageSize,
@@ -172,6 +186,13 @@ export default class DictionaryManage extends React.PureComponent<any, IState> {
                         />
                     </Card>
                 </div>
+                <DeleteModal
+                    title={'删除字典'}
+                    content={'删除字典后无法恢复，请谨慎操作！'}
+                    visible={deleteVisible}
+                    onCancel={this.handleDeleteModel.bind(this, 'cancel')}
+                    onOk={this.handleDeleteModel.bind(this, 'ok')}
+                />
             </div>
         )
     }

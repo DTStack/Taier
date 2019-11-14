@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { Link, hashHistory } from 'react-router';
-import { Card, Table, Input, Button, Popconfirm } from 'antd';
+import { Card, Table, Input, Button } from 'antd';
+import EmptyComp from './emptyComp';
+import DeleteModal from '../../../components/deleteModal';
 import './style.scss';
 
 const Search = Input.Search
@@ -14,6 +16,8 @@ interface IState {
     loading: boolean;
     desc: boolean;
     sorterField: string;
+    deleteVisible: boolean;
+    deleteItem: any;
 }
 
 export default class EntityList extends React.Component<any, IState> {
@@ -21,15 +25,19 @@ export default class EntityList extends React.Component<any, IState> {
         pageNo: 1,
         pageSize: 20,
         total: 2,
-        dataSource: [{
-            id: 1, name: '实体名称1', desc: '描述', key: '主键', keyName: '主键名', updateTime: '2019-12-10 12:33', creator: '创建者一号', dataCount: '200', relateCount: '4000'
-        }, {
-            id: 2, name: '实体名称1', desc: '描述', key: '主键', keyName: '主键名', updateTime: '2019-12-10 12:33', creator: '创建者一号', dataCount: '200', relateCount: '4000'
-        }],
+        dataSource: [
+            {
+                id: 1, name: '实体名称1', desc: '描述', key: '主键', keyName: '主键名', updateTime: '2019-12-10 12:33', creator: '创建者一号', dataCount: '200', relateCount: '4000'
+            }, {
+                id: 2, name: '实体名称1', desc: '描述', key: '主键', keyName: '主键名', updateTime: '2019-12-10 12:33', creator: '创建者一号', dataCount: '200', relateCount: '4000'
+            }
+        ],
         searchVal: undefined,
         loading: false,
         desc: true,
-        sorterField: ''
+        sorterField: '',
+        deleteVisible: false,
+        deleteItem: {}
     }
 
     componentDidMount () {
@@ -66,11 +74,24 @@ export default class EntityList extends React.Component<any, IState> {
                 break;
             }
             case 'delete': {
-                // 请求删除
+                this.setState({
+                    deleteVisible: true,
+                    deleteItem: record
+                })
                 break;
             }
-            default:;
+            default: ;
         }
+    }
+
+    handleDeleteModel = (type: string) => {
+        if (type == 'ok') {
+            // TODO 请求处理删除
+        }
+        this.setState({
+            deleteVisible: false,
+            deleteItem: {}
+        })
     }
 
     initColumns = () => {
@@ -126,13 +147,9 @@ export default class EntityList extends React.Component<any, IState> {
                             编辑
                         </a>
                         <span className="ant-divider" />
-                        <Popconfirm
-                            title={<span>实体下标签及目录将同步删除<br />无法恢复，请谨慎操作！</span>}
-                            okText="删除" cancelText="取消"
-                            onConfirm={this.handleOperateData.bind(this, 'delete', record)}
-                        >
-                            <a>删除</a>
-                        </Popconfirm>
+                        <a onClick={this.handleOperateData.bind(this, 'delete', record)}>
+                            删除
+                        </a>
                     </span>
                 )
             }
@@ -140,20 +157,26 @@ export default class EntityList extends React.Component<any, IState> {
     }
 
     render () {
-        const { total, pageSize, pageNo, dataSource, loading, searchVal } = this.state;
+        const { total, pageSize, pageNo, dataSource, loading, searchVal, deleteVisible } = this.state;
         const pagination: any = {
             total: total,
             pageSize: pageSize,
-            current: pageNo
+            current: pageNo,
+            showTotal: () => (
+                <div>
+                    总共 <a>{total}</a> 条数据,每页显示{pageSize}条
+                </div>
+            )
         };
         const title = (
             <div>
-                <Search
+                {dataSource.length ? <Search
                     value={searchVal}
                     placeholder="搜索实体、创建者名称"
                     style={{ width: 200, padding: 0 }}
                     onSearch={this.handleSearch}
-                />&nbsp;&nbsp;
+                /> : null}
+                &nbsp;&nbsp;
             </div>
         )
         const extra = (
@@ -176,15 +199,23 @@ export default class EntityList extends React.Component<any, IState> {
                     >
                         <Table
                             rowKey="id"
-                            className="dt-ant-table dt-ant-table--border full-screen-table-47"
+                            className="dt-ant-table dt-ant-table--border self-define-empty"
                             pagination={pagination}
                             onChange={this.handleTableChange}
                             loading={loading}
                             columns={this.initColumns()}
                             dataSource={dataSource}
                         />
+                        {!dataSource.length ? <EmptyComp /> : null}
                     </Card>
                 </div>
+                <DeleteModal
+                    title={'删除实体'}
+                    content={'实体下标签及目录将同步删除，无法恢复，请谨慎操作！'}
+                    visible={deleteVisible}
+                    onCancel={this.handleDeleteModel.bind(this, 'cancel')}
+                    onOk={this.handleDeleteModel.bind(this, 'ok')}
+                />
             </div>
         )
     }
