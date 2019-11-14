@@ -7,7 +7,7 @@ import { Conditions } from './components/conditions';
 const Search = Input.Search;
 const Option = Select.Option;
 interface IProps {
-    history: any;
+    router?: any;
 }
 interface IState {
     type: string;
@@ -22,10 +22,11 @@ export default class LabelManage extends React.PureComponent<IProps, IState> {
         type: '0'
     };
     onHandleClick = () => {
-        this.setState({
-            visible: false
-        })
+        this.props.router.push('/createLabel')
     };
+    componentDidMount () {
+        console.log(this.props);
+    }
     handleOk = () => {
         this.setState({
             visible: false
@@ -57,7 +58,7 @@ export default class LabelManage extends React.PureComponent<IProps, IState> {
             <div className="labelManage">
                 <div className="title_wrap">
                     <div className="left_wp">
-                        <span>实体-</span>
+                        <span>选择实体：</span>
                         <Select defaultValue="用户信息" style={{ width: 120 }} onChange={this.handleChange}>
                             <Option value="jack">用户信息</Option>
                             <Option value="lucy">Lucy</Option>
@@ -71,7 +72,7 @@ export default class LabelManage extends React.PureComponent<IProps, IState> {
                             className="search"
                             onSearch={value => console.log(value)}
                         />
-                        <Button type="primary" onClick={() => this.onHandleClick}>新建标签</Button>
+                        <Button type="primary" onClick={this.onHandleClick}>新建标签</Button>
                     </div>
                 </div>
                 <Conditions/>
