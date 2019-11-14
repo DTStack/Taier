@@ -21,7 +21,7 @@
         <result column="source_type" property="sourceType" jdbcType="INTEGER" />
         <result column="application_id" property="applicationId" jdbcType="VARCHAR"/>
         <result column="retry_num" property="retryNum" jdbcType="INTEGER" />
-         <result column="compute_type" property="ComputeType" jdbcType="INTEGER" />
+         <result column="compute_type" property="computeType" jdbcType="INTEGER" />
     </resultMap>
 	
    <insert id="insert" parameterType="com.dtstack.engine.service.db.dataobject.RdosEngineJob">
