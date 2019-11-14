@@ -106,7 +106,7 @@ public class ClientExt extends DtClient {
         return confFileDirName;
     }
 
-    private void loadConfFromDir(scala.collection.mutable.HashMap hadoopConfFiles, String confDirName) {
+    public void loadConfFromDir(scala.collection.mutable.HashMap hadoopConfFiles, String confDirName) {
         File confDir = new File(confDirName);
         File[] files = confDir.listFiles((dir, name) -> name.endsWith(XML_SUFFIX) || name.endsWith(CONF_SUFFIX));
         for (File file : files) {
