@@ -46,6 +46,7 @@ class Container extends React.Component<any, any> {
         return (
             <Layout className="dt-dev-project">
                 <Sider className="bg-w ant-slider-pos"
+                    style={{ background: '#262E36' }}
                     collapsed={this.state.collapsed}
                 >
                     <div className="ant-slider-pos--collapsed" onClick={ this.toggleCollapsed }>

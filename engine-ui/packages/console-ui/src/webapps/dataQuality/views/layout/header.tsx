@@ -234,7 +234,8 @@ class Header extends React.Component<any, any> {
             {
                 id: 'dq/project',
                 name: '项目管理',
-                link: `${baseUrl}/project/${pid}/config`,
+                link: `${baseUrl}/dq/project/${pid}/config`,
+                // enable: projectNav && projectNav.isShow,
                 enable: true
             }
         ];

@@ -74,7 +74,7 @@ export default (
             <Route path="dataCheck/edit/:verifyId" component={ DataCheckEdit } onEnter={isSelectedProject}></Route>
             <Route path="dataCheck/report/:verifyRecordId" component={ DataCheckReport } onEnter={isSelectedProject}></Route>
             <Route path="dataSource" component={ DataSourceIndex } onEnter={isSelectedProject}></Route>
-            <Route path="/project/:pid" component={ProjectContainer} onEnter={isSelectedProject}>
+            <Route path="project/:pid" component={ProjectContainer} onEnter={isSelectedProject}>
                 <IndexRoute component={ProjectConfig} />
                 <Route path="config" component={ProjectConfig} />
                 <Route path="member" component={ProjectMember} />
