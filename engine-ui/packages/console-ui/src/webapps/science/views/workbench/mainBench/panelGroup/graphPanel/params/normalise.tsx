@@ -42,7 +42,7 @@ class ChooseModal extends BaseChooseModal {
         })
         if (targetEdges.length) {
             const targetEdge = targetEdges.find((o: any) => o.outputType === INPUT_TYPE.NORMALIZATION_INPUT_DATA);
-            if (!(targetEdge && (this.state.sourceData.length > 0))) return;
+            if (!targetEdge) return;
             this.setState({
                 loading: true
             });
