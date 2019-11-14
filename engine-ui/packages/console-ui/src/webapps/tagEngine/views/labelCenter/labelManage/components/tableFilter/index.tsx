@@ -1,8 +1,7 @@
-import * as React from "react";
-import { Table, message as Message, Select } from "antd";
-import { Link } from "react-router";
-import "./style.scss";
-
+import * as React from 'react';
+import { Table, Select } from 'antd';
+import { Link } from 'react-router';
+import './style.scss';
 
 interface IProps {
     history?: any;
@@ -18,9 +17,9 @@ interface IState {
 }
 const Option = Select.Option;
 export default class TableFilter extends React.PureComponent<
-    IProps,
-    IState
-    > {
+IProps,
+IState
+> {
     state: IState = {
         loading: false,
         pageNo: 1,
@@ -48,7 +47,6 @@ export default class TableFilter extends React.PureComponent<
                 num: 100
             }]
         })
-
     }
     handleChange = () => {
         this.setState({
@@ -75,23 +73,40 @@ export default class TableFilter extends React.PureComponent<
         const { pageNo, pageSize, loading, total, dataSource } = this.state;
         const columns = [
             {
-                title: "标签名",
-                dataIndex: "tagName",
-                key: "tagName",
+                title: '标签名',
+                dataIndex: 'tagName',
+                key: 'tagName',
                 render: (text: any) => {
                     return <Link to='#'>{text}</Link>
                 }
             },
             {
-                title: "状态",
-                dataIndex: "status",
-                key: "status"
+                title: '状态',
+                dataIndex: 'status',
+                key: 'status'
             },
             {
-                title: "样本数量",
-                dataIndex: "num",
-                key: "num",
-                sorter:true
+                title: '样本数量',
+                dataIndex: 'num',
+                key: 'num',
+                sorter: true
+            },
+            {
+                title: '操作',
+                dataIndex: 'num',
+                key: 'num',
+                width: 220,
+                render: () => {
+                    return (
+                        <div>
+                            <a>编辑</a>
+                            <span className="ant-divider" />
+                            <a>移动</a>
+                            <span className="ant-divider" />
+                            <a>删除</a>
+                        </div>
+                    );
+                }
             }
         ];
         return (
@@ -131,7 +146,7 @@ export default class TableFilter extends React.PureComponent<
                             showTotal: () => (
                                 <div>
                                     总共 <a>{total}</a> 条数据,每页显示{pageSize}条
-                </div>
+                                </div>
                             )
                         }}
                     />

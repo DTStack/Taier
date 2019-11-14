@@ -1,25 +1,29 @@
 .labelManage{
     background: #FFFFFF;
     box-shadow: 0 2px 6px 0 rgba(0,0,0,0.10);
+    padding-bottom: 20px;
     .title_wrap{
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
+        padding: 16px 20px 12px;
+        .left_wp{
+            display:flex;
+            align-items: center;
+        }
     }
-    .left_w{
-        display:flex;
-        align-items: center;
-    }
+   
     .search{
         width:226px;
         margin-left: 20px;
     }
     .draggable-wrap-table{
         background: #fff;
-        border: 1px solid #DDDDDD;
+        padding:0 20px;
         border-bottom:none;
-        .draggable-tree{
+        .table_wrap{
+            border: 1px solid #DDDDDD;
+            border-bottom: none;
             width: 100%;
             .ant-tree-node-content-wrapper {
                 width: calc(100% - 18px);

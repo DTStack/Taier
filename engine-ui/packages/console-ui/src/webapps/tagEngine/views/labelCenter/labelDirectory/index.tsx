@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { Input, Button, Select, Icon, Table, Modal } from 'antd';
+import { Input, Button, Select, Table, Modal } from 'antd';
 import AddDirectory from './components/addDirectory';
-import './style.scss';
 import MoveTreeNode from './components/moveTreeNode';
+import './style.scss';
 
 const Search = Input.Search;
 const Option = Select.Option;
@@ -179,7 +179,7 @@ export default class LabelDirectory extends React.PureComponent<IProps, IState> 
                     </div>
                 </div>
                 <div className="draggable-wrap-table">
-                    <Table columns={columns} dataSource={data} pagination={ false }/>
+                    <Table indentSize={100} columns={columns} className="table_wrap" dataSource={data} pagination={ false }/>
                 </div>
                 <AddDirectory visible={visible} type={type} handleOk={this.handleOk} handleCancel={this.handleCancel}/>
                 <MoveTreeNode visible={moveVisible} handleOk={() => this.onHandleCancelMove('ok')} handleCancel={() => this.onHandleCancelMove('cancel')}/>

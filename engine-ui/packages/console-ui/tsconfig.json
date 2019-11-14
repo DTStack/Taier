@@ -4,7 +4,7 @@
         "outDir":"./dist/",
         "baseUrl": ".",
         "experimentalDecorators": true,
-        "noImplicitAny": true,
+        "noImplicitAny": false,
         "esModuleInterop": true,
         "allowJs": true,
         "module": "commonjs",
@@ -12,6 +12,8 @@
         "lib": [ "es6","es2016","dom" ],
         "jsx": "react",
         "allowSyntheticDefaultImports": true,
+        "noUnusedLocals": true,
+        "importHelpers": true,
         "paths": {
             "utils/*": ["./src/utils/*"], // 工具文件夹
             "utils": ["./src/utils"], // 工具文件夹

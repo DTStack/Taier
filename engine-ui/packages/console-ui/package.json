@@ -42,6 +42,8 @@
     "qs": "^6.7.0",
     "react": "16.6.3",
     "react-copy-to-clipboard": "5.0.0",
+    "react-dnd": "^5.0.0",
+    "react-dnd-html5-backend": "^5.0.1",
     "react-dom": "16.6.3",
     "react-hot-loader": "3.1.1",
     "react-redux": "5.0.4",
@@ -53,6 +55,7 @@
     "redux-mock-store": "1.5.3",
     "redux-thunk": "2.2.0",
     "regenerator-runtime": "^0.13.1",
+    "shortid": "^2.2.15",
     "showdown": "1.9.0",
     "styled-components": "3.1.6",
     "whatwg-fetch": "2.0.3"
