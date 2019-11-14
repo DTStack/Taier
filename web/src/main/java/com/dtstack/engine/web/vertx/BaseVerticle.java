@@ -31,7 +31,7 @@ public class BaseVerticle {
 	
 	private static Logger logger = LoggerFactory.getLogger(BaseVerticle.class);
 
-	private static String classNameTemplate = "com.dtstack.rdos.engine.service.%sServiceImpl";
+	private static String classNameTemplate = "com.dtstack.engine.service.%sServiceImpl";
 
 	private static Map<String,Object> objects = Maps.newConcurrentMap();
 	

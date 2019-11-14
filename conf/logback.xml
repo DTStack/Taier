@@ -44,7 +44,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.dtstack.engine.dtscript.service.zk" level="info" additivity="false">
+    <logger name="com.dtstack.engine.service.zk" level="info" additivity="false">
         <appender-ref ref="zkAppender" />
     </logger>
 
@@ -52,15 +52,15 @@
         <appender-ref ref="flinkAppender" />
     </logger>
 
-    <logger name="com.dtstack.engine.dtscript.web.vertx.BaseVerticle" level="info" additivity="false">
+    <logger name="com.dtstack.engine.web.vertx.BaseVerticle" level="info" additivity="false">
         <appender-ref ref="request" />
     </logger>
 
-    <logger name="com.dtstack.engine.dtscript.service.task.TaskStatusListener" level="info" additivity="false">
+    <logger name="com.dtstack.engine.service.task.TaskStatusListener" level="info" additivity="false">
         <appender-ref ref="allAppender" />
     </logger>
 
-    <logger name="com.dtstack.engine.dtscript.service.task.TaskListener" level="info" additivity="false">
+    <logger name="com.dtstack.engine.service.task.TaskListener" level="info" additivity="false">
         <appender-ref ref="allAppender" />
     </logger>
 
