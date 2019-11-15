@@ -58,7 +58,8 @@ export const DATA_SOURCE = {
     LIBRASQL: 21,
     GBASE: 22,
     KYLIN: 23,
-    KUDU: 24
+    KUDU: 24,
+    CLICK_HOUSE: 25
 }
 
 /**
@@ -198,7 +199,8 @@ export const RDB_TYPE_ARRAY: any = [ // sql/oracle/sqlserver/postgresql/db2
     DATA_SOURCE.SQLSERVER,
     DATA_SOURCE.POSTGRESQL,
     DATA_SOURCE.DB2,
-    DATA_SOURCE.GBASE
+    DATA_SOURCE.GBASE,
+    DATA_SOURCE.CLICK_HOUSE
 ]
 
 export const SUPPROT_SUB_LIBRARY_DB_ARRAY: any = [ // 支持分库分表的数据库类型r
@@ -634,6 +636,9 @@ export const DataSourceTypeFilter: any = [{ // 离线数据源类型过滤选项
 }, {
     text: 'MongoDB',
     value: DATA_SOURCE.MONGODB
+}, {
+    text: 'ClickHouse',
+    value: DATA_SOURCE.CLICK_HOUSE
 }];
 
 export const propEditorOptions = { // 编辑器选项

@@ -906,6 +906,7 @@ class SourceForm extends React.Component<any, any> {
             case DATA_SOURCE.DB2:
             case DATA_SOURCE.MYSQL:
             case DATA_SOURCE.ORACLE:
+            case DATA_SOURCE.CLICK_HOUSE:
             case DATA_SOURCE.SQLSERVER:
             case DATA_SOURCE.LIBRASQL:
             case DATA_SOURCE.POSTGRESQL: {

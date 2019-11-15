@@ -180,6 +180,8 @@ class BaseForm extends React.Component<any, any> {
                 return /jdbc:(\w)+:\/\/(\w)+/;
             case DATA_SOURCE.MYSQL:
                 return /jdbc:mysql:\/\/(\w)+/;
+            case DATA_SOURCE.CLICK_HOUSE:
+                return /jdbc:clickhouse:\/\/(\w)+/;
             case DATA_SOURCE.DB2:
                 return /jdbc:db2:\/\/(\w)+/;
             case DATA_SOURCE.ORACLE:
@@ -1174,6 +1176,7 @@ class BaseForm extends React.Component<any, any> {
             case DATA_SOURCE.DB2:
             case DATA_SOURCE.SQLSERVER:
             case DATA_SOURCE.LIBRASQL:
+            case DATA_SOURCE.CLICK_HOUSE:
             case DATA_SOURCE.POSTGRESQL: {
                 return [
                     <FormItem
@@ -1267,6 +1270,7 @@ class BaseForm extends React.Component<any, any> {
                         initialValue: sourceData.type ? sourceData.type.toString() : sourceType.toString()
                     })(
                         <Select
+                            showSearch
                             onChange={this.sourceChange}
                             disabled={status === 'edit'}>
                             {sourceTypeList}

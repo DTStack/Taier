@@ -136,7 +136,10 @@ class ChannelForm extends React.Component<any, any> {
 
     render () {
         const { getFieldDecorator } = this.props.form;
-        const { setting, navtoStep } = this.props;
+        const { setting, navtoStep, targetMap } = this.props;
+        const targetType = targetMap.type.type;
+        const isClickHouse = targetType === DATA_SOURCE.CLICK_HOUSE;
+
         const speedOption: any = [];
         const channelOption: any = [];
         const unLimitedOption: any[] = [
@@ -181,9 +184,10 @@ class ChannelForm extends React.Component<any, any> {
                         rules: [{
                             required: true
                         }],
-                        initialValue: `${setting.channel}`
+                        initialValue: `${!isClickHouse ? setting.channel : 1}`
                     })(
                         <AutoComplete
+                            disabled={isClickHouse}
                             dataSource={channelOption}
                             optionLabelProp="value"
                         />

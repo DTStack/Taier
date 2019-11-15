@@ -472,13 +472,17 @@ class TargetForm extends React.Component<any, any> {
         const { isNativeHive } = targetMap;
         // 是否拥有分区
         const havePartition = targetMap.type && (!!targetMap.type.partition || targetMap.type.havePartition);
+        const isClickHouse = sourceType === DATA_SOURCE.CLICK_HOUSE;
         let formItem: any;
         const getPopupContainer = this.props.getPopupContainer;
         const showCreateTable = (
-            sourceType == DATA_SOURCE.MYSQL || sourceType == DATA_SOURCE.ORACLE ||
-            sourceType == DATA_SOURCE.SQLSERVER || sourceType == DATA_SOURCE.POSTGRESQL ||
+            sourceType == DATA_SOURCE.MYSQL ||
+            sourceType == DATA_SOURCE.ORACLE ||
+            sourceType == DATA_SOURCE.SQLSERVER ||
+            sourceType == DATA_SOURCE.POSTGRESQL ||
             sourceType == DATA_SOURCE.LIBRASQL ||
             sourceType == DATA_SOURCE.DB2 ||
+            sourceType == DATA_SOURCE.CLICK_HOUSE ||
             sourceType == DATA_SOURCE.HIVE_2 ||
             sourceType == DATA_SOURCE.HIVE_1 ||
             sourceType == DATA_SOURCE.MAXCOMPUTE
@@ -490,8 +494,18 @@ class TargetForm extends React.Component<any, any> {
             case DATA_SOURCE.DB2:
             case DATA_SOURCE.MYSQL:
             case DATA_SOURCE.ORACLE:
+            case DATA_SOURCE.CLICK_HOUSE:
             case DATA_SOURCE.SQLSERVER:
             case DATA_SOURCE.POSTGRESQL: {
+                let writeModeOptions = [
+                    <Option key="writeModeInsert" value="insert">insert into（当主键/约束冲突，报脏数据）</Option>
+                ];
+                if (!isClickHouse) {
+                    writeModeOptions = writeModeOptions.concat([
+                        <Option key="writeModeReplace" value="replace">replace into（当主键/约束冲突，先delete再insert，未映射的字段会被映射为NULL）</Option>,
+                        <Option key="writeModeUpdate" value="update">on duplicate key update（当主键/约束冲突，update数据，未映射的字段值不变）</Option>
+                    ])
+                }
                 formItem = [
                     !selectHack && <FormItem
                         {...formItemLayout}
@@ -509,7 +523,6 @@ class TargetForm extends React.Component<any, any> {
                                 getPopupContainer={getPopupContainer}
                                 showSearch
                                 mode="combobox"
-                                // disabled={ !isCurrentTabNew }
                                 optionFilterProp="value"
                                 filterOption={filterValueOption}
                                 onChange={this.debounceTableSearch.bind(this)}
@@ -569,9 +582,7 @@ class TargetForm extends React.Component<any, any> {
                             initialValue: targetMap.type && targetMap.type.writeMode ? targetMap.type.writeMode : 'insert'
                         })(
                             <Select onChange={this.submitForm.bind(this)}>
-                                <Option value="insert">insert into（当主键/约束冲突，报脏数据）</Option>
-                                <Option value="replace">replace into（当主键/约束冲突，先delete再insert，未映射的字段会被映射为NULL）</Option>
-                                <Option value="update">on duplicate key update（当主键/约束冲突，update数据，未映射的字段值不变）</Option>
+                                { writeModeOptions }
                             </Select>
                         )}
                     </FormItem>
