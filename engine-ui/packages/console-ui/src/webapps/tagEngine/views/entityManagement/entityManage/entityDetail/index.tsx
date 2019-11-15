@@ -3,6 +3,7 @@ import Breadcrumb from '../../../../components/breadcrumb';
 import ModuleTitle from '../../../../components/moduleTitle';
 import BaseInfor from './baseInfor';
 import DimensionData from './dimensionData';
+import { hashHistory } from 'react-router';
 import { Button } from 'antd';
 
 interface IProps {
@@ -43,6 +44,11 @@ export default class EntityDetail extends React.Component<IProps, IState> {
         })
     }
 
+    handleGotoEdit = () => {
+        const { entityInfor } = this.state;
+        hashHistory.push({ pathname: '/entityManage/edit', state: { ...entityInfor } })
+    }
+
     render () {
         const { entityInfor } = this.state;
         const breadcrumbNameMap = [
@@ -61,7 +67,7 @@ export default class EntityDetail extends React.Component<IProps, IState> {
                 <ModuleTitle
                     title={'基本信息'}
                     extra={
-                        <Button type='primary'>编辑</Button>
+                        <Button type='primary' onClick={this.handleGotoEdit}>编辑</Button>
                     }
                 />
                 <BaseInfor infor={entityInfor} />

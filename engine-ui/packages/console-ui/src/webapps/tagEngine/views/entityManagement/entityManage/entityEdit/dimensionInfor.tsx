@@ -155,7 +155,7 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
                 </span>)
             }
         }, {
-            title: <span>中文名<Icon style={{ marginLeft: '5px' }} type="setting" onClick={this.handleConfig} /></span>,
+            title: <span>中文名<i className="iconfont iconicon_import" style={{ marginLeft: '10px', color: '#999999', cursor: 'pointer' }} onClick={this.handleConfig}></i></span>,
             dataIndex: 'chName',
             key: 'chName',
             width: 200,
@@ -187,7 +187,7 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
         }, {
             title: <span>多值列
                 <Tooltip title="勾选多值将标识此属性可有多个值同时存在，默认分隔符为“，”">
-                    <Icon style={{ marginLeft: '5px' }} type="question-circle-o" />
+                    <Icon style={{ marginLeft: '10px', color: '#999999', cursor: 'pointer' }} type="question-circle-o" />
                 </Tooltip>
             </span>,
             dataIndex: 'isMultiply',
@@ -204,8 +204,8 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
             <div className="dimension-infor">
                 <div className="top-box">
                     <div>
-                        <span>共计{total}个数据维度</span>
-                        <span style={{ color: '#2491F7' }}>已选择{selectNum}个</span>
+                        <span>共计&nbsp;{total}个&nbsp;数据维度</span>
+                        <span style={{ marginLeft: 12 }}>已选择&nbsp;<a>{selectNum}</a>个</span>
                     </div>
                     <Search
                         placeholder="搜索维度名称、中文名称"
@@ -215,7 +215,7 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
                 </div>
                 <Table
                     rowKey="id"
-                    className="dt-ant-table dt-ant-table--border dt-ant-table--border-lr border-table"
+                    className="di-table-border"
                     pagination={false}
                     loading={false}
                     columns={this.initColumns()}

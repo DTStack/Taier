@@ -199,7 +199,7 @@ export default class EntityList extends React.Component<any, IState> {
                     >
                         <Table
                             rowKey="id"
-                            className="dt-ant-table dt-ant-table--border self-define-empty"
+                            className="dt-ant-table--border self-define-empty"
                             pagination={pagination}
                             onChange={this.handleTableChange}
                             loading={loading}

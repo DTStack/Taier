@@ -87,7 +87,7 @@ export default class DimensionData extends React.Component<IProps, any> {
                 >
                     <Table
                         rowKey="id"
-                        className="dt-ant-table dt-ant-table--border"
+                        className="dt-ant-table--border"
                         pagination={false}
                         scroll={{ y: 400 }}
                         columns={this.initColumns()}

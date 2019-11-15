@@ -1,10 +1,19 @@
 import * as React from 'react';
 import { Form, Input, Select } from 'antd';
 
-import { formItemLayout } from '../../../../comm/const';
-
 const FormItem = Form.Item;
 const { Option } = Select;
+
+const formItemLayout = {
+    labelCol: {
+        xs: { span: 24 },
+        sm: { span: 8 }
+    },
+    wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 10 }
+    }
+};
 
 class BaseForm extends React.Component<any, any> {
     state: any = {

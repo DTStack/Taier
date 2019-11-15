@@ -57,7 +57,7 @@ export default class SetDictionary extends React.PureComponent<IProps, any> {
         ];
         return (
             <div className="set-dictionary">
-                <Table size="middle" dataSource={value || []} ref={(node) => this.tableNode = node} className="set-dictionary-table" bordered rowKey="name" scroll={{ y: 300 }} columns={columns} locale={{ 'emptyText': '数据为空' }} pagination={false} />
+                <Table size="middle" scroll={{ y: 200 }} dataSource={value || []} ref={(node) => this.tableNode = node} className="set-dictionary-table" bordered rowKey="name" columns={columns} locale={{ 'emptyText': '数据为空' }} pagination={false} />
                 {
                     isEdit && <div className="add_dictionary"><Icon className="plus" onClick={this.onAdd} type="plus" /></div>
                 }

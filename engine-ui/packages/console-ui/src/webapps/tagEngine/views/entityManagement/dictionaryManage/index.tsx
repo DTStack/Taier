@@ -145,7 +145,12 @@ export default class DictionaryManage extends React.PureComponent<any, IState> {
         const pagination: any = {
             total: total,
             pageSize: pageSize,
-            current: pageNo
+            current: pageNo,
+            showTotal: () => (
+                <div>
+                    总共 <a>{total}</a> 条数据,每页显示{pageSize}条
+                </div>
+            )
         };
         const title = (
             <div>
@@ -177,7 +182,7 @@ export default class DictionaryManage extends React.PureComponent<any, IState> {
                     >
                         <Table
                             rowKey="id"
-                            className="dt-ant-table dt-ant-table--border full-screen-table-47"
+                            className="dt-ant-table--border"
                             pagination={pagination}
                             onChange={this.handleTableChange}
                             loading={loading}

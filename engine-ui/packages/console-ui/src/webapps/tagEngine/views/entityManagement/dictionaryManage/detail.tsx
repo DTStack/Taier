@@ -1,5 +1,6 @@
 import * as React from 'react';
 import './style.scss';
+import { hashHistory } from 'react-router';
 import Breadcrumb from '../../../components/breadcrumb';
 import ModuleTitle from '../../../components/moduleTitle';
 import { Button, Card, Table } from 'antd';
@@ -33,6 +34,11 @@ export default class DictionaryDetail extends React.Component<IProps, IState> {
 
     componentDidMount () {
 
+    }
+
+    handleGotoEdit = () => {
+        const { dictionaryInfor } = this.state;
+        hashHistory.push({ pathname: '/dictionaryManage/edit', state: { ...dictionaryInfor } })
     }
 
     renderBaseInfor = () => {
@@ -92,7 +98,6 @@ export default class DictionaryDetail extends React.Component<IProps, IState> {
                 >
                     <Table
                         rowKey="value"
-                        className="dt-ant-table dt-ant-table--border"
                         pagination={false}
                         scroll={{ y: 400 }}
                         columns={columns}
@@ -120,7 +125,7 @@ export default class DictionaryDetail extends React.Component<IProps, IState> {
                 <ModuleTitle
                     title={'基本信息'}
                     extra={
-                        <Button type='primary'>编辑</Button>
+                        <Button type='primary' onClick={this.handleGotoEdit}>编辑</Button>
                     }
                 />
                 {this.renderBaseInfor()}

@@ -225,9 +225,9 @@ body:-webkit-full-screen {
 .ant-table-tbody > tr > td{
     padding: 16px 24px !important;
 }
-.ant-table-fixed-header .ant-table-scroll .ant-table-header{
+.ant-table-fixed-header .ant-table-header{
     margin-bottom: -20px;
-    padding-bottom: 0;
+    // padding-bottom: 0;
 }
 .ant-table-pagination.ant-pagination{
     width: 100%;

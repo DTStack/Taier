@@ -6,7 +6,7 @@ import { isEqual } from 'lodash';
 // import EditCell from '../../../../components/editCell';
 import './style.scss';
 
-interface Iprops {
+interface IProps {
     infor: any[];
     handleChange: any;
 }
@@ -18,7 +18,7 @@ interface IState {
     total: number;
 }
 
-export default class AtomicLabel extends React.Component<Iprops, IState> {
+export default class AtomicLabel extends React.Component<IProps, IState> {
     state: IState = {
         dataSource: [],
         configModalVisble: false,
@@ -94,7 +94,7 @@ export default class AtomicLabel extends React.Component<Iprops, IState> {
             title: '标签名称',
             dataIndex: 'labelName',
             key: 'labelName',
-            width: 250,
+            width: 200,
             render: (text: any, record: any, index: number) => {
                 // return <EditCell
                 //     keyField="labelName"
@@ -108,7 +108,7 @@ export default class AtomicLabel extends React.Component<Iprops, IState> {
             title: '对应维度',
             dataIndex: 'dimensionName',
             key: 'dimensionName',
-            width: 200
+            width: 150
         }, {
             title: '数据类型',
             dataIndex: 'type',
@@ -123,7 +123,6 @@ export default class AtomicLabel extends React.Component<Iprops, IState> {
             title: '标签值详情',
             dataIndex: 'labelDetail',
             key: 'labelDetail',
-            width: 120,
             render: (text: any, record: any) => {
                 return <a onClick={this.handlePreview}>预览</a>
             }
@@ -139,7 +138,7 @@ export default class AtomicLabel extends React.Component<Iprops, IState> {
             title: '标签描述',
             dataIndex: 'desc',
             key: 'desc',
-            // width: 200,
+            width: 200,
             render: (text: any, record: any, index: number) => {
                 return (<Input style={{ width: 150 }} value={text} onChange={this.handleTableChange.bind(this, 'desc', record, index)} />)
             }
@@ -157,7 +156,7 @@ export default class AtomicLabel extends React.Component<Iprops, IState> {
                 </div>
                 <Table
                     rowKey="id"
-                    className="dt-ant-table dt-ant-table--border"
+                    className="al-table-border"
                     pagination={false}
                     loading={false}
                     columns={this.initColumns()}

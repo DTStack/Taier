@@ -5,6 +5,7 @@ import { Steps, Button, message as Message } from 'antd';
 import BaseForm from './baseForm';
 import DimensionInfor from './dimensionInfor';
 import AtomicLabel from './atomicLabel';
+import FinishPart from './finishPart';
 import Breadcrumb from '../../../../components/breadcrumb';
 import './style.scss';
 import { isEmpty } from 'lodash';
@@ -105,16 +106,20 @@ export default class EntityEdit extends React.Component<IProps, IState> {
     }
 
     handleSave = () => {
-        const { baseFormVal, dimensionInfor, atomicLabelData } = this.state;
+        const { baseFormVal, dimensionInfor, atomicLabelData, current } = this.state;
         console.log(baseFormVal, dimensionInfor, atomicLabelData);
         let labelNameHasEmpty = atomicLabelData.findIndex((item: any) => { return isEmpty(item.labelName) });
         if (labelNameHasEmpty != -1) {
             Message.warning('标签名称不可空！');
+        } else {
+            this.setState({
+                current: current + 1
+            })
         }
     }
 
     handleBack = () => {
-        hashHistory.push('/entityManage')
+        hashHistory.goBack();
     }
 
     render () {
@@ -128,6 +133,9 @@ export default class EntityEdit extends React.Component<IProps, IState> {
         }, {
             title: '生成原子标签',
             content: <AtomicLabel infor={atomicLabelData} handleChange={this.handleAtomicLabelDataChange} />
+        }, {
+            title: '完成',
+            content: <FinishPart goBack={this.handleBack} />
         }];
         const breadcrumbNameMap = [
             {
@@ -153,20 +161,20 @@ export default class EntityEdit extends React.Component<IProps, IState> {
                         <div className="steps-action">
                             {current == 0 && <Button style={{ marginRight: 8 }}
                                 onClick={() => this.handleBack()}
-                            > 取消 </Button>}
-                            {current > 0 &&
+                            > 退出 </Button>}
+                            {current > 0 && current < 3 &&
                                 <Button style={{ marginRight: 8 }}
                                     onClick={() => this.prev()}
                                 > 上一步 </Button>
                             }
-                            {current < steps.length - 1 &&
+                            {current < steps.length - 2 &&
                                 <Button type="primary"
                                     onClick={() => this.next()}
-                                >下一步</Button>
+                                > 下一步 </Button>
                             }
-                            {current === steps.length - 1 && <Button type="primary"
+                            {current === steps.length - 2 && <Button type="primary"
                                 onClick={this.handleSave}
-                            >保存</Button>
+                            > 保存 </Button>
                             }
                         </div>
                     </div>
