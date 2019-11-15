@@ -13,11 +13,12 @@ export const DATA_SOURCE = {
     ES: 11,
     REDIS: 12,
     MONGODB: 13,
-    KAFKA: 14, // KAFKA_11
     ADS: 15,
     BEATS: 16,
-    KAFKA_10: 17,
+    KAFKA: 26,
     KAFKA_09: 18,
+    KAFKA_10: 17,
+    KAFKA_11: 14, // KAFKA_11
     DB2: 19,
     KUDU: 24
 }
@@ -41,11 +42,12 @@ export const DATA_SOURCE_TEXT: any = {
     11: 'ElasticSearch',
     12: 'Redis',
     13: 'MongoDB',
-    14: 'KAFKA_11',
     15: 'ADS',
     16: 'BEATS',
+    26: 'KAFKA',
+    18: 'KAFKA_09',
     17: 'KAFKA_10',
-    18: 'KAFKA_09'
+    14: 'KAFKA_11',
 }
 
 export const REDIS_TYPE: any = {
@@ -494,7 +496,7 @@ export const StreamDataSourceTypeFilter: any = [{ // 实时数据源类型过滤
     value: DATA_SOURCE.ES
 }, {
     text: 'Kafka',
-    value: DATA_SOURCE.KAFKA
+    value: DATA_SOURCE.KAFKA_11
 }
 ]
 

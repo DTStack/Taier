@@ -581,6 +581,7 @@ class CollectionSourceForm extends React.Component<any, any> {
                 ]
             }
             case DATA_SOURCE.KAFKA:
+            case DATA_SOURCE.KAFKA_11:
             case DATA_SOURCE.KAFKA_09:
             case DATA_SOURCE.KAFKA_10: {
                 const { topicList, sourceList } = this.state;
