@@ -164,7 +164,7 @@ export default class RelationManage extends React.Component<any, IState> {
             >新增关系</Button>
         )
         return (
-            <div className="relation-manage inner-container">
+            <div className="relation-manage">
                 <div className="shadow tage-relation-manage">
                     <Card
                         title={title}

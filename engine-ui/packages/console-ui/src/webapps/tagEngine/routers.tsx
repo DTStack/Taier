@@ -35,6 +35,11 @@ import RelationDetail from './views/entityManagement/relationManage/relationDeta
 import EMDictonaryEdit from './views/entityManagement/dictionaryManage/edit'
 import EMDictonaryDetail from './views/entityManagement/dictionaryManage/detail'
 
+// ======= 群组管理 =======
+import GroupManagement from './views/groupAnalyse/management';
+import GroupUpload from './views/groupAnalyse/management/create/upload';
+import GroupDetail from './views/groupAnalyse/management/detail';
+
 // ======= 实体管理 =======
 const EntityManage = asyncComponent(
     () =>
@@ -82,14 +87,6 @@ const CreateLabel = asyncComponent(
     { name: 'createLabel' }
 );
 
-// ======= 群组分析 =======
-const GroupAnalyse = asyncComponent(
-    () =>
-        import('./views/groupAnalyse').then(
-            (module: any) => module.default
-        ),
-    { name: 'groupAnalyse' }
-);
 // ======= 项目 =======
 
 const ProjectContainer = asyncComponent(
@@ -200,10 +197,17 @@ const routeConfig = [
             {
                 path: '/createLabel',
                 component: CreateLabel
+            }, {
+                path: '/groupAnalyse',
+                component: GroupManagement
             },
             {
-                path: '/groupAnalyse',
-                component: GroupAnalyse
+                path: '/groupAnalyse/upload',
+                component: GroupUpload
+            },
+            {
+                path: '/groupAnalyse/detail',
+                component: GroupDetail
             },
             {
                 path: '/project/:pid',
