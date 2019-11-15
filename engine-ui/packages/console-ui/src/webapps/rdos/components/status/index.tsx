@@ -167,8 +167,10 @@ export function DatabaseType (props: any) {
             return <span>RDBMS</span>
         case DATA_SOURCE.HDFS:
             return <span>HDFS</span>
-        case DATA_SOURCE.HIVE:
-            return <span>Hive</span>
+        case DATA_SOURCE.HIVE_2:
+            return <span>Hive2.x</span>
+        case DATA_SOURCE.HIVE_1:
+            return <span>Hive1.x</span>
         case DATA_SOURCE.HBASE:
             return <span>HBase</span>
         case DATA_SOURCE.FTP:

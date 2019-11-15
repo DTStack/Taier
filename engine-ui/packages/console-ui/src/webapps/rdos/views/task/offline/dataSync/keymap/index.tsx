@@ -522,7 +522,8 @@ class Keymap extends React.Component<any, any> {
                     </div>
                 }
                 case DATA_SOURCE.MAXCOMPUTE:
-                case DATA_SOURCE.HIVE: {
+                case DATA_SOURCE.HIVE_1:
+                case DATA_SOURCE.HIVE_2: {
                     const name: any = col ? scrollText(col.value ? `'${col.key}'` : col.key) : '字段名称';
                     // 仅允许常量删除操作
                     const opt = col && col.value ? cellOperation(removeOption, editOption)
