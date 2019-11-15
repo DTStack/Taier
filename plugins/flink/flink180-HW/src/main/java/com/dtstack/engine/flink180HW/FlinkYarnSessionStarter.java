@@ -1,7 +1,10 @@
 package com.dtstack.engine.flink180HW;
 
+import com.dtstack.engine.common.config.ConfigParse;
+import com.dtstack.engine.common.exception.RdosException;
 import com.dtstack.engine.flink180HW.constrant.ConfigConstrant;
 import com.dtstack.engine.flink180HW.util.FLinkConfUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import com.netflix.curator.framework.CuratorFramework;
@@ -39,14 +42,11 @@ public class FlinkYarnSessionStarter {
     public FlinkYarnSessionStarter(FlinkClientBuilder flinkClientBuilder, FlinkConfig flinkConfig) throws MalformedURLException {
         this.flinkClientBuilder = flinkClientBuilder;
         this.flinkConfig = flinkConfig;
-        lockPath = String.format("%s/client/%s", flinkConfig.getFlinkZkNamespace(), flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue());
-
         String clusterId = flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue();
 
         this.yarnSessionDescriptor = flinkClientBuilder.createClusterDescriptorByMode(null, false);
         this.yarnSessionDescriptor.setName(flinkConfig.getFlinkSessionName() + ConfigConstrant.SPLIT + clusterId);
         this.yarnSessionSpecification = FLinkConfUtil.createYarnSessionSpecification(flinkClientBuilder.getFlinkConfiguration());
-
         initZk();
         this.clusterClientLock = new InterProcessMutex(zkClient, lockPath);
     }
@@ -106,8 +106,17 @@ public class FlinkYarnSessionStarter {
     }
 
     private void initZk() {
+        String zkAddress = ConfigParse.getNodeZkAddress();
+        if (StringUtils.isBlank(zkAddress)
+                    || zkAddress.split("/").length < 2) {
+                throw new RdosException("zkAddress is error");
+        }
+        String[] zks = zkAddress.split("/");
+        zkAddress = zks[0].trim();
+        String distributeRootNode = String.format("/%s", zks[1].trim());
+        lockPath = String.format("%s/yarn_session/%s", distributeRootNode, flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue());
         this.zkClient = CuratorFrameworkFactory.builder()
-                .connectString(flinkConfig.getFlinkZkAddress()).retryPolicy(new ExponentialBackoffRetry(1000, 3))
+                .connectString(zkAddress).retryPolicy(new ExponentialBackoffRetry(1000, 3))
                 .connectionTimeoutMs(1000)
                 .sessionTimeoutMs(1000).build();
         this.zkClient.start();
