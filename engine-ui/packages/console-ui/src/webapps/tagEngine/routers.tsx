@@ -86,6 +86,20 @@ const CreateLabel = asyncComponent(
         ),
     { name: 'createLabel' }
 );
+const AtomicLabelDetails = asyncComponent(
+    () =>
+        import('./views/labelCenter/atomicLabelDetails').then(
+            (module: any) => module.default
+        ),
+    { name: 'atomicLabelDetails' }
+);
+const DerivativeLabelDetails = asyncComponent(
+    () =>
+        import('./views/labelCenter/derivativeLabelDetails').then(
+            (module: any) => module.default
+        ),
+    { name: 'derivativeLabelDetails' }
+);
 
 // ======= 项目 =======
 
@@ -193,6 +207,14 @@ const routeConfig = [
             {
                 path: '/labelDirectory',
                 component: LabelDirectory
+            },
+            {
+                path: '/atomicLabelDetails',
+                component: AtomicLabelDetails
+            },
+            {
+                path: '/derivativeLabelDetails',
+                component: DerivativeLabelDetails
             },
             {
                 path: '/createLabel',

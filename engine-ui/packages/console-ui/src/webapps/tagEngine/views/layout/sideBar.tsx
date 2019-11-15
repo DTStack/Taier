@@ -14,10 +14,24 @@ export default class Sidebar extends React.Component<any, any> {
     componentDidMount () {
         const { location, menuData } = this.props;
         const pathName = location.pathname;
-        if (menuData.some(item => item.permissionUrl == pathName)) {
-            this.updateSelected(pathName)
+        const currentRouter = menuData.filter(item => item.routers.includes(pathName));
+        if (currentRouter[0]) {
+            this.updateSelected(currentRouter[0].permissionUrl)
         } else {
             this.updateSelected(menuData[0] ? menuData[0].permissionUrl : '')
+        }
+    }
+    componentDidUpdate (preProps) {
+        const { location, menuData } = this.props;
+        const pathName = location.pathname;
+        const prePathName = preProps.location.pathname;
+        if (prePathName != pathName) {
+            const currentRouter = menuData.filter(item => item.routers.includes(pathName));
+            if (currentRouter[0]) {
+                this.updateSelected(currentRouter[0].permissionUrl)
+            } else {
+                this.updateSelected(menuData[0] ? menuData[0].permissionUrl : '')
+            }
         }
     }
     updateSelected = (pathName: any) => {

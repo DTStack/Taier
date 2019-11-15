@@ -77,7 +77,7 @@ IState
                 dataIndex: 'tagName',
                 key: 'tagName',
                 render: (text: any) => {
-                    return <Link to='#'>{text}</Link>
+                    return <Link to='/atomicLabelDetails'>{text}</Link>
                 }
             },
             {

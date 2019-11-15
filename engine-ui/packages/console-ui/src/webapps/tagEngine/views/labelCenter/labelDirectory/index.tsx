@@ -139,7 +139,7 @@ export default class LabelDirectory extends React.PureComponent<IProps, IState> 
                 title: '操作',
                 dataIndex: 'address',
                 key: 'address',
-                width: 220,
+                width: 260,
                 render: () => {
                     return (
                         <div>

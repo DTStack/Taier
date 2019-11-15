@@ -12,7 +12,7 @@ export class Conditions extends React.Component<IProps, IState> {
     state: IState = {
 
     }
-    onChange = (value:{label:string,value:string|number}) => {
+    onChange = (value: {label: string; value: string|number}) => {
         console.log(value);
     }
     render () {
