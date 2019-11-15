@@ -88,7 +88,8 @@ class ChannelForm extends React.Component<any, any> {
             isRDB(sourceType) &&
             (
                 isRDB(targetType) ||
-                targetType === DATA_SOURCE.HIVE ||
+                targetType === DATA_SOURCE.HIVE_1 ||
+                targetType === DATA_SOURCE.HIVE_2 ||
                 targetType === DATA_SOURCE.MAXCOMPUTE
             )
         )

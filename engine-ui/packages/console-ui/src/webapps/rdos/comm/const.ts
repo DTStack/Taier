@@ -45,7 +45,8 @@ export const DATA_SOURCE = {
     POSTGRESQL: 4,
     RDBMS: 5,
     HDFS: 6,
-    HIVE: 7,
+    HIVE_1: 26,
+    HIVE_2: 7,
     HBASE: 8,
     FTP: 9,
     MAXCOMPUTE: 10,
@@ -610,8 +611,11 @@ export const DataSourceTypeFilter: any = [{ // 离线数据源类型过滤选项
     text: 'HDFS',
     value: DATA_SOURCE.HDFS
 }, {
-    text: 'Hive',
-    value: DATA_SOURCE.HIVE
+    text: 'Hive2.x',
+    value: DATA_SOURCE.HIVE_2
+}, {
+    text: 'Hive1.x',
+    value: DATA_SOURCE.HIVE_1
 }, {
     text: 'HBase',
     value: DATA_SOURCE.HBASE
