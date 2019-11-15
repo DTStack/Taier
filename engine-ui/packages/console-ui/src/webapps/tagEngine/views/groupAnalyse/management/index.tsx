@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Link, hashHistory } from 'react-router';
 import { Card, Table, Input, Button, Popconfirm } from 'antd';
-import './style.scss';
 
 const Search = Input.Search
 
@@ -16,7 +15,9 @@ interface IState {
     sorterField: string;
 }
 
-export default class RelationManage extends React.Component<any, IState> {
+const basePath = '/groupAnalyse';
+
+export default class GroupManage extends React.Component<any, IState> {
     state: IState = {
         pageNo: 1,
         pageSize: 20,
@@ -60,10 +61,9 @@ export default class RelationManage extends React.Component<any, IState> {
     }
 
     handleOperateData = (type: string, record: any) => {
-        const basePath = '/relationManage';
         switch (type) {
             case 'add': {
-                hashHistory.push(`${basePath}/create`)
+                hashHistory.push(`${basePath}/upload`)
                 break;
             }
             case 'detail': {
@@ -85,31 +85,26 @@ export default class RelationManage extends React.Component<any, IState> {
 
     initColumns = () => {
         return [{
-            title: '关系名称',
+            title: '群组名称',
             dataIndex: 'name',
             key: 'name',
             render: (text: any, record: any) => {
-                return <Link to={{ pathname: '/', state: record }}>{text}</Link>
+                return <Link to={{ pathname: `${basePath}/detail`, state: record }}>{text}</Link>
             }
         }, {
-            title: '关系实体',
+            title: '群组数据量',
             dataIndex: 'entiry',
             key: 'entiry'
         }, {
-            title: '描述',
+            title: '群组类型',
             dataIndex: 'desc',
             key: 'desc'
-        }, {
-            title: '更新时间',
-            dataIndex: 'updateTime',
-            key: 'updateTime',
-            sorter: true
         }, {
             title: '创建者',
             dataIndex: 'creator',
             key: 'creator'
         }, {
-            title: '被使用情况',
+            title: '创建时间',
             dataIndex: 'useNum',
             key: 'useNum',
             sorter: true
@@ -121,12 +116,12 @@ export default class RelationManage extends React.Component<any, IState> {
             render: (text: any, record: any) => {
                 return (
                     <span key={record.id}>
-                        <a onClick={this.handleOperateData.bind(this, 'detail', record)}>
-                            查看
+                        <a onClick={this.handleOperateData.bind(this, 'edit', record)}>
+                            编辑
                         </a>
                         <span className="ant-divider" />
                         <Popconfirm
-                            title={<span>删除关系后，关联的标签将失效<br />请谨慎操作！</span>}
+                            title={<span>群组删除后无法恢复<br />请谨慎操作！</span>}
                             okText="删除" cancelText="取消"
                             onConfirm={this.handleOperateData.bind(this, 'delete', record)}
                         >
@@ -149,7 +144,7 @@ export default class RelationManage extends React.Component<any, IState> {
             <div>
                 <Search
                     value={searchVal}
-                    placeholder="搜索关系、创建者名称"
+                    placeholder="搜索群组名称"
                     style={{ width: 200, padding: 0 }}
                     onSearch={this.handleSearch}
                 />&nbsp;&nbsp;
@@ -161,11 +156,11 @@ export default class RelationManage extends React.Component<any, IState> {
                 style={{ marginTop: 10 }}
                 className="right"
                 onClick={this.handleOperateData.bind(this, 'add', {})}
-            >新增关系</Button>
+            >新增群组</Button>
         )
         return (
-            <div className="relation-manage">
-                <div className="shadow tage-relation-manage">
+            <div className="group-manage">
+                <div className="shadow m-card">
                     <Card
                         title={title}
                         extra={extra}
