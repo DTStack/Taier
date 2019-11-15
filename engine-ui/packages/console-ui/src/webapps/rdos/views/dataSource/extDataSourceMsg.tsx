@@ -38,7 +38,11 @@ const showMapArr: any = {
     [DATA_SOURCE.HDFS]: [
         ['defaultFS', 'defaultFS']
     ],
-    [DATA_SOURCE.HIVE]: [
+    [DATA_SOURCE.HIVE_2]: [
+        ['jdbcUrl', 'jdbcUrl'],
+        ['defaultFS', 'defaultFS']
+    ],
+    [DATA_SOURCE.HIVE_1]: [
         ['jdbcUrl', 'jdbcUrl'],
         ['defaultFS', 'defaultFS']
     ],

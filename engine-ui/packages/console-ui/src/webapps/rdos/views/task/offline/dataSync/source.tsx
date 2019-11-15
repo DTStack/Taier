@@ -300,7 +300,7 @@ class SourceForm extends React.Component<any, any> {
             form
         } = this.props;
 
-        if (sourceMap.type && sourceMap.type.type !== DATA_SOURCE.HIVE) {
+        if (sourceMap.type && sourceMap.type.type !== DATA_SOURCE.HIVE_2 && sourceMap.type.type !== DATA_SOURCE.HIVE_1) {
             return;
         }
         // Reset partition
@@ -1167,7 +1167,8 @@ class SourceForm extends React.Component<any, any> {
                 break;
             }
             case DATA_SOURCE.MAXCOMPUTE:
-            case DATA_SOURCE.HIVE: {
+            case DATA_SOURCE.HIVE_1:
+            case DATA_SOURCE.HIVE_2: {
                 // Hive
                 formItem = [
                     !selectHack && (

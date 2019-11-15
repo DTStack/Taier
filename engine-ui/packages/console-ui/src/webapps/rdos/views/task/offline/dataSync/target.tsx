@@ -131,7 +131,8 @@ class TargetForm extends React.Component<any, any> {
         const { sourceId, type } = targetMap;
         // TODO 这里获取 Hive 分区的条件有点模糊
         if (type && (
-            type.type === DATA_SOURCE.HIVE ||
+            type.type === DATA_SOURCE.HIVE_1 ||
+            type.type === DATA_SOURCE.HIVE_2 ||
             type.type === DATA_SOURCE.CARBONDATA
         )) {
             ajax.getHivePartitions({
@@ -409,7 +410,8 @@ class TargetForm extends React.Component<any, any> {
                                     src.type === DATA_SOURCE.REDIS ||
                                     src.type === DATA_SOURCE.MONGODB ||
                                     (isIncrementMode && (
-                                        src.type !== DATA_SOURCE.HIVE &&
+                                        src.type !== DATA_SOURCE.HIVE_1 &&
+                                        src.type !== DATA_SOURCE.HIVE_2 &&
                                         src.type !== DATA_SOURCE.HDFS
                                     ))
 
@@ -476,7 +478,9 @@ class TargetForm extends React.Component<any, any> {
             sourceType == DATA_SOURCE.MYSQL || sourceType == DATA_SOURCE.ORACLE ||
             sourceType == DATA_SOURCE.SQLSERVER || sourceType == DATA_SOURCE.POSTGRESQL ||
             sourceType == DATA_SOURCE.LIBRASQL ||
-            sourceType == DATA_SOURCE.DB2 || sourceType == DATA_SOURCE.HIVE ||
+            sourceType == DATA_SOURCE.DB2 || 
+            sourceType == DATA_SOURCE.HIVE_2 ||
+            sourceType == DATA_SOURCE.HIVE_1 ||
             sourceType == DATA_SOURCE.MAXCOMPUTE
         );
 
@@ -727,7 +731,8 @@ class TargetForm extends React.Component<any, any> {
                 ];
                 break;
             }
-            case DATA_SOURCE.HIVE:
+            case DATA_SOURCE.HIVE_1:
+            case DATA_SOURCE.HIVE_2:
             case DATA_SOURCE.LIBRASQL:
             case DATA_SOURCE.MAXCOMPUTE: {
                 formItem = [
