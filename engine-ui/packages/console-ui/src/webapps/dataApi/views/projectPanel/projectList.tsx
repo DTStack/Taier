@@ -120,8 +120,8 @@ class ProjectsList extends React.Component<any, ProjectState> {
         }
     }
     handleEnterProject = (record: any) => {
-        this.props.router.push('/api/overview');
         this.props.getProject(record.id);
+        this.props.router.push('/api/overview');
     }
     setStickProject = (record: any) => {
         this.props.setStickProject({
