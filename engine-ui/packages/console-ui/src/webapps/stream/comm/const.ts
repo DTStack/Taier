@@ -47,7 +47,7 @@ export const DATA_SOURCE_TEXT: any = {
     26: 'KAFKA',
     18: 'KAFKA_09',
     17: 'KAFKA_10',
-    14: 'KAFKA_11',
+    14: 'KAFKA_11'
 }
 
 export const REDIS_TYPE: any = {
