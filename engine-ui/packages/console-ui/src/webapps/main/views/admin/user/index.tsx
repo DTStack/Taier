@@ -349,7 +349,7 @@ class AdminUser extends React.Component<any, UserManaState> {
 
         // 塞入要添加的用户列表
         const targetUsers = [];
-        const uids = projectRole.targetUserIds;
+        const uids = projectRole.targetUserIds || [];
 
         for (let i = 0; i < uids.length; i++) {
             const user = notProjectUsers.find((u: any) => `${u.userId}` === uids[i])
