@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Input, Button, Modal, Select } from 'antd';
 import TableFilter from './components/tableFilter/index';
-import './style.scss';
 import { Conditions } from './components/conditions';
+import './style.scss';
 
 const Search = Input.Search;
 const Option = Select.Option;

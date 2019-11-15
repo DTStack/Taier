@@ -19,13 +19,13 @@
     }
     .draggable-wrap-table{
         background: #fff;
-        border-bottom:none;
         .table_wrap{
-            border: 1px solid #DDDDDD;
-            border-bottom: none;
+          
             width: 100%;
-            .ant-tree-node-content-wrapper {
-                width: calc(100% - 18px);
+            padding: 0 20px;
+            .ant-table-body{
+                border: 1px solid #DDDDDD;
+                border-bottom: none;
             }
         }
     }
