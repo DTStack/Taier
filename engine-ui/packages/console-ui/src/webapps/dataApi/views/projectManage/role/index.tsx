@@ -44,7 +44,7 @@ class RoleManagement extends React.Component<any, any> {
     }
 
     removeRole = (role: any) => {
-        Api.deleteRole({ roleId: role.id }).then((res: any) => {
+        Api.deleteRole({ roleId: role && role.id }).then((res: any) => {
             if (res.code === 1) {
                 message.success('移除角色成功！')
                 this.loadRoles()

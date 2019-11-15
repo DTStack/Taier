@@ -103,7 +103,7 @@
         .tooltip-img{
             width: 14px;
             float: right;
-            margin-top: 17px;
+            margin-top: 2px;
         }
         .cancel-top{
             color: #94A8C6;
@@ -347,15 +347,13 @@
                     }
                 }
                 .c_no_project { // 无项目
-                    // opacity: 0.6;
-                    // background: #0D1652;
                     background: rgba(13,22,82,.6);
                     border: 1px solid #292E4F;
                     box-shadow: 0 6px 13px 0 rgba(0,0,0,0.20);
                     border-radius: 2px;
                     width: 100%;
                     height: 212px;
-                    margin-top: 27px;
+                    margin-top: 15px;
                     text-align: center;
                     line-height: 212px;
                     font-family: PingFangSC-Regular;
@@ -364,12 +362,10 @@
                 }
                 .c_offten_project_col {
                     min-width: 308px;
-                    margin-top: 17px;
+                    margin-top: 2px;
                     padding: 0;
                     .c_offten_project_card {
                         height: 212px;
-                        // opacity: 0.7;
-                        // background: #141B4A;
                         background: rgba(20,27,74,.7);
                         border: 1px solid #292E4F;
                         box-shadow: 0 6px 13px 0 rgba(0,0,0,0.20);
@@ -379,7 +375,6 @@
                             height: 85px;
                             position: relative;
                             line-height: unset;
-                            // background: #141B4A;
                             background: unset;
                             .ant-card-head-title {
                                 overflow: unset;
@@ -443,10 +438,10 @@
                     }
                 }
             }
-            .c_api_process_pic {
+            .c_process_pic {
                 width: 100%;
                 min-height: 538px;
-                // border: 1px solid blue;
+                background: rgba(13, 22, 82, .6);
                 border: 1px solid #292E4F;
                 img {
                     width: 100%;
@@ -467,7 +462,7 @@
             .c_bottom {
                 position: absolute;
                 right: 0;
-                top: 370px;
+                top: 358px;
                 bottom: 0;
                 width: -webkit-fill-available;
             }
@@ -481,13 +476,11 @@
             .c_summary_project_card {
                 width: 100%;
                 min-height: 276px;
-                // opacity: 0.7;
-                // background: #141B4A;
                 background: rgba(20,27,74,.7);
                 border: 1px solid #292E4F;
                 box-shadow: 0 6px 13px 0 rgba(0,0,0,0.20);
                 border-radius: 2px;
-                margin: 26px 0 39px 0;
+                margin: 14px 0 39px 0;
                 .ant-card-body {
                     padding: 34px 22px 32px 16px;
                     zoom: 1;
@@ -525,7 +518,6 @@
                     .c_latest_day_card {
                         min-width: 185px;
                         height: 125px;
-                        // opacity: 0.6;
                         background: #102759;
                         margin-top: 25px;
                         .ant-card-body {
@@ -537,7 +529,6 @@
                                 line-height: 24px;
                             }
                             .c_latest_day_num {
-                                // font-family: AgencyFB-Reg;
                                 font-family: myFont;
                                 font-size: 30px;
                                 color: #FAFAFA;
@@ -557,23 +548,27 @@
             }
             .c_use_tutorial_card {
                 margin-top: 20px;
-                // opacity: 0.7;
-                // background: #141B4A;
                 background: rgba(20,27,74,.7);
                 border: 1px solid #292E4F;
                 box-shadow: 0 6px 13px 0 rgba(0,0,0,0.20);
                 border-radius: 2px;
                 .c_help_target {
+                    position: relative;
                     width: 101px;
                     height: 36px;
                     line-height: 36px;
                     text-align: center;
                     margin-top: 15px;
-                    background-image: url(/public/dataApi/img/help.png);
                     font-family: PingFangSC-Regular;
                     font-size: 14px;
                     color: #BFD1F2;
-                    & > a {
+                    img {
+                        transform: scale(0.5);
+                        position: absolute;
+                        left: -53px;
+                        top: -19px;
+                    }
+                    a {
                         font-size: 14px;
                         color: #BFD1F2;
                     }

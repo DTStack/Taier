@@ -75,9 +75,9 @@ class NewProject extends React.Component<any, any> {
                                 rules: [{
                                     required: true, message: '请填写项目名称'
                                 }, {
-                                    max: 32, message: '不超过32个字符，只支持字母、数字、下划线'
+                                    max: 64, message: '不超过64个字符，只支持字母、数字、下划线'
                                 }, {
-                                    pattern: /^\w+$/, message: '不超过32个字符，只支持字母、数字、下划线'
+                                    pattern: /^\w+$/, message: '不超过64个字符，只支持字母、数字、下划线'
                                 }]
                             })(
                                 <Input placeholder='请输入项目名称' />
@@ -91,7 +91,7 @@ class NewProject extends React.Component<any, any> {
                                 rules: [{
                                     required: true, message: '请填写项目显示名'
                                 }, {
-                                    max: 32, message: '不超过32个字符'
+                                    max: 64, message: '不超过64个字符'
                                 }]
                             })(
                                 <Input placeholder='请输入项目显示名' />
@@ -103,8 +103,8 @@ class NewProject extends React.Component<any, any> {
                         >
                             {getFieldDecorator('projectDesc', {
                                 rules: [{
-                                    max: 64,
-                                    message: '不超过64个字符'
+                                    max: 128,
+                                    message: '不超过128个字符'
                                 }]
                             })(
                                 <Input placeholder='请输入项目描述' type="textarea" {...{ row: 4 }} />
