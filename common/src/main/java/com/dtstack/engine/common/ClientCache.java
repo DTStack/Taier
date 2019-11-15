@@ -143,7 +143,7 @@ public class ClientCache {
             return;
         }
 
-        String plugin = String.format("%s/plugin/%s", userDir, pluginType);
+        String plugin = String.format("%s/pluginLibs/%s", userDir, pluginType);
         File finput = new File(plugin);
         if(!finput.exists()){
             throw new Exception(String.format("%s directory not found",plugin));

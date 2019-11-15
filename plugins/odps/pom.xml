@@ -111,10 +111,10 @@
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
                                       tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
-                                <copy todir="${basedir}/target/../../../plugin/maxcompute/"
+                                <copy todir="${basedir}/target/../../../pluginLibs/maxcompute/"
                                       file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/target/../../../plugin/maxcompute/"
+                                    <fileset dir="${basedir}/target/../../../pluginLibs/maxcompute/"
                                              includes="${jar.name}-*.jar"
                                              excludes="${jar.name}-${git.branch}.jar"/>
                                 </delete>
