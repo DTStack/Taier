@@ -6,7 +6,7 @@ import moment from 'moment';
 import NewProjectModal from '../../components/newProject';
 import Api from '../../api/project';
 import * as projectActions from '../../actions/project';
-import { PROJECT_STATUS, STICK_STATUS, OPERA_ROW_ONE_DATA, OPERA_ROW_TWO_DATA } from '../../consts';
+import { PROJECT_STATUS, OPERA_ROW_ONE_DATA, OPERA_ROW_TWO_DATA } from '../../consts';
 
 interface ProjectState {
     visible: boolean;
@@ -238,25 +238,11 @@ class ProjectPanel extends React.Component<any, ProjectState> {
             )
         })
     }
-    getStickOrOftenUseProjects = () => {
-        const { projectListInfo = [] } = this.props;
-        const stickProjects = projectListInfo.filter((item: any) => {
-            return item.stickStatus == STICK_STATUS.TOP
-        }).slice(0, 3);
-        if (stickProjects && stickProjects.length > 0) {
-            return stickProjects
-        } else {
-            const commProjects = projectListInfo
-                .sort((a: any, b: any) => a && a.gmtCreate - b.gmtCreate)
-                .slice(0, 3);
-            return commProjects
-        }
-    }
     render () {
         const { visible, projectSummary } = this.state;
         const { apiCount, projectCount, apiIssueCount, total24InvokeCount, total24FailProbability } = projectSummary;
-        const { panelLoading } = this.props;
-        const showProjects = this.getStickOrOftenUseProjects();
+        const { projectListInfo = [], panelLoading } = this.props;
+        const showProjects = projectListInfo.slice(0, 3);
         const totalData = [{
             dataName: '总项目数',
             data: projectCount,
