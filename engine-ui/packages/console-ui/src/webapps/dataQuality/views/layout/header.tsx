@@ -151,7 +151,7 @@ class Header extends React.Component<any, any> {
 
         return (
             <SubMenu
-                style={{ border: '1px solid red', width: '200px', height: '200px' }}
+                style={{ width: '200px', height: '200px' }}
                 className="my-menu-item"
                 title={
                     <Dropdown
@@ -235,8 +235,7 @@ class Header extends React.Component<any, any> {
                 id: 'dq/project',
                 name: '项目管理',
                 link: `${baseUrl}/dq/project/${pid}/config`,
-                // enable: projectNav && projectNav.isShow,
-                enable: true
+                enable: projectNav && projectNav.isShow
             }
         ];
 

@@ -116,7 +116,7 @@
                     border-radius: 2px;
                     width: 100%;
                     height: 212px;
-                    margin-top: 27px;
+                    margin-top: 15px;
                     text-align: center;
                     line-height: 212px;
                     font-family: PingFangSC-Regular;
@@ -225,7 +225,7 @@
             .c_bottom {
                 position: absolute;
                 right: 0;
-                top: 370px;
+                top: 358px;
                 bottom: 0;
                 width: -webkit-fill-available;
             }
@@ -281,7 +281,6 @@
                     .c_latest_day_card {
                         min-width: 185px;
                         height: 125px;
-                        // opacity: 0.6;
                         background: #102759;
                         margin-top: 25px;
                         .ant-card-body {
@@ -317,16 +316,22 @@
                 box-shadow: 0 6px 13px 0 rgba(0,0,0,0.20);
                 border-radius: 2px;
                 .c_help_target {
+                    position: relative;
                     width: 101px;
                     height: 36px;
                     line-height: 36px;
                     text-align: center;
                     margin-top: 15px;
-                    background-image: url(/public/dataApi/img/help.png);
                     font-family: PingFangSC-Regular;
                     font-size: 14px;
                     color: #BFD1F2;
-                    & > a {
+                    img {
+                        transform: scale(0.5);
+                        position: absolute;
+                        left: -53px;
+                        top: -19px;
+                    }
+                    a {
                         font-size: 14px;
                         color: #BFD1F2;
                     }
