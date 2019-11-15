@@ -278,7 +278,7 @@ class DataSplit extends React.PureComponent<any, any> {
                 for (const key in changedFields) {
                     if (changedFields.hasOwnProperty(key)) {
                         const element = changedFields[key];
-                        if (!element.validating && !element.dirty) {
+                        if (!element.errors && !element.validating && !element.dirty) {
                             const { data } = props;
                             data[key] = element.value
                             props.handleSaveComponent(data)

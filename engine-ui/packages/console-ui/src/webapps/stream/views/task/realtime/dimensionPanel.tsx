@@ -12,7 +12,8 @@ import {
     Form,
     Switch,
     Tooltip,
-    InputNumber
+    InputNumber,
+    Popconfirm
 } from 'antd';
 import { debounce, isEmpty } from 'lodash';
 import utils from 'utils';
@@ -23,9 +24,10 @@ import { haveTableList, haveCustomParams, haveTableColumn } from './sidePanel/pa
 
 import Editor from 'widgets/code-editor';
 import { CustomParams, generateMapValues, changeCustomParams, initCustomParam } from './sidePanel/customParams';
-import { switchPartition } from '../../../views/helpDoc/docs';
+import { switchPartition, primaryKeyFilter, queryFault } from '../../../views/helpDoc/docs';
 import LockPanel from '../../../components/lockPanel';
 
+const { TextArea } = Input;
 const Option = Select.Option;
 const Panel = Collapse.Panel;
 const { Column } = Table;
@@ -171,6 +173,8 @@ class OutputOrigin extends React.Component<any, any> {
                         >
                             <Option value={DATA_SOURCE.MYSQL}>MySQL</Option>
                             <Option value={DATA_SOURCE.ORACLE}>Oracle</Option>
+                            {/* <Option value={DATA_SOURCE.POSTGRESQL}>PostgreSQL</Option> */}
+                            <Option value={DATA_SOURCE.KUDU}>Kudu</Option>
                             <Option value={DATA_SOURCE.HBASE}>HBase</Option>
                             <Option value={DATA_SOURCE.REDIS}>Redis</Option>
                             <Option value={DATA_SOURCE.MONGODB}>MongoDB</Option>
@@ -266,150 +270,151 @@ class OutputOrigin extends React.Component<any, any> {
                     <div className="ant-form-item-label ant-col-xs-24 ant-col-sm-6 required-tip">
                         <label className='required-tip'>字段</label>
                     </div>
-                    {haveTableColumn(panelColumn[index].type) ? (
-                        <Col
-                            span={18}
-                            className="bd"
-                            style={{
-                                marginBottom: 20
-                            }}
-                        >
-                            <Table
-                                dataSource={panelColumn[index].columns}
-                                className="table-small"
-                                pagination={false}
-                                size="small"
-                            >
-                                <Column
-                                    title="字段"
-                                    dataIndex="column"
-                                    key="字段"
-                                    width="40%"
-                                    render={(text: any, record: any, subIndex: any) => {
-                                        return (
-                                            <Select
-                                                className="sub-right-select"
+                    {haveTableColumn(panelColumn[index].type)
+                        ? <Col span={18} style={{ marginBottom: 20 }}>
+                            <div style={{ textAlign: 'right', padding: '8px 5px 5px 0px' }}>
+                                <a onClick={() => { handleInputChange('addAllColumn', index) }} style={{ marginRight: 5 }}>导入全部字段</a>
+                                <Popconfirm title="确认清空所有字段？" onConfirm={() => { handleInputChange('deleteAllColumn', index) }} okText="确认" cancelText="取消">
+                                    <a>清空</a>
+                                </Popconfirm>
+                            </div>
+                            <div className="bd">
+                                <Table
+                                    dataSource={panelColumn[index].columns}
+                                    className="table-small"
+                                    pagination={false}
+                                    size="small"
+                                >
+                                    <Column
+                                        title="字段"
+                                        dataIndex="column"
+                                        key="字段"
+                                        width="40%"
+                                        render={(text: any, record: any, subIndex: any) => {
+                                            return (
+                                                <Select
+                                                    className="sub-right-select"
+                                                    value={text}
+                                                    onChange={(v: any) => {
+                                                        handleInputChange(
+                                                            'subColumn',
+                                                            index,
+                                                            subIndex,
+                                                            v
+                                                        );
+                                                    }}
+                                                    showSearch
+                                                    filterOption={(input: any, option: any) =>
+                                                        option.props.children
+                                                            .toLowerCase()
+                                                            .indexOf(
+                                                                input.toLowerCase()
+                                                            ) >= 0
+                                                    }
+                                                >
+                                                    {tableColumnOptionTypes}
+                                                </Select>
+                                            );
+                                        }}
+                                    />
+                                    <Column
+                                        title="类型"
+                                        dataIndex="type"
+                                        key="类型"
+                                        width="30%"
+                                        render={(text: any, record: any, subIndex: any) => {
+                                            return <Input value={text} disabled />;
+                                        }}
+                                    />
+                                    <Column
+                                        title={
+                                            <div>
+                                                <Tooltip placement="top" title={targetColText} arrowPointAtCenter>
+                                                    <span>别名 &nbsp;
+                                                        <Icon type="question-circle-o" />
+                                                    </span>
+                                                </Tooltip>
+                                            </div>
+                                        }
+                                        dataIndex="targetCol"
+                                        key="别名"
+                                        width="30%"
+                                        render={(text: any, record: any, subIndex: any) => {
+                                            return <Input
                                                 value={text}
-                                                onChange={(v: any) => {
+                                                onChange={(e: any) =>
                                                     handleInputChange(
-                                                        'subColumn',
+                                                        'targetCol',
                                                         index,
                                                         subIndex,
-                                                        v
-                                                    );
-                                                }}
-                                                showSearch
-                                                filterOption={(input: any, option: any) =>
-                                                    option.props.children
-                                                        .toLowerCase()
-                                                        .indexOf(
-                                                            input.toLowerCase()
-                                                        ) >= 0
+                                                        e.target.value
+                                                    )
                                                 }
-                                            >
-                                                {tableColumnOptionTypes}
-                                            </Select>
-                                        );
-                                    }}
-                                />
-                                <Column
-                                    title="类型"
-                                    dataIndex="type"
-                                    key="类型"
-                                    width="30%"
-                                    render={(text: any, record: any, subIndex: any) => {
-                                        return <Input value={text} disabled />;
-                                    }}
-                                />
-                                <Column
-                                    title={
-                                        <div>
-                                            <Tooltip placement="top" title={targetColText} arrowPointAtCenter>
-                                                <span>别名 &nbsp;
-                                                    <Icon type="question-circle-o" />
-                                                </span>
-                                            </Tooltip>
-                                        </div>
-                                    }
-                                    dataIndex="targetCol"
-                                    key="别名"
-                                    width="30%"
-                                    render={(text: any, record: any, subIndex: any) => {
-                                        return <Input
-                                            value={text}
-                                            onChange={(e: any) =>
-                                                handleInputChange(
-                                                    'targetCol',
-                                                    index,
-                                                    subIndex,
-                                                    e.target.value
-                                                )
-                                            }
-                                        />;
-                                    }}
-                                />
-                                <Column
-                                    key="delete"
-                                    render={(text: any, record: any, subIndex: any) => {
-                                        return (
-                                            <Icon
-                                                type="close"
-                                                style={{
-                                                    fontSize: 16,
-                                                    color: '#888'
-                                                }}
-                                                onClick={() => {
-                                                    handleInputChange(
-                                                        'deleteColumn',
-                                                        index,
-                                                        subIndex
-                                                    );
-                                                }}
-                                            />
-                                        );
-                                    }}
-                                />
-                            </Table>
-                            <div style={{ padding: '0 20 20' }}>
-                                <Button
-                                    className="stream-btn"
-                                    type="dashed"
-                                    style={{ borderRadius: 5 }}
-                                    onClick={() => {
-                                        handleInputChange('columns', index, {});
-                                    }}
-                                >
-                                    <Icon type="plus" />
-                                    <span> 添加输入</span>
-                                </Button>
+                                            />;
+                                        }}
+                                    />
+                                    <Column
+                                        key="delete"
+                                        render={(text: any, record: any, subIndex: any) => {
+                                            return (
+                                                <Icon
+                                                    type="close"
+                                                    style={{
+                                                        fontSize: 16,
+                                                        color: '#888'
+                                                    }}
+                                                    onClick={() => {
+                                                        handleInputChange(
+                                                            'deleteColumn',
+                                                            index,
+                                                            subIndex
+                                                        );
+                                                    }}
+                                                />
+                                            );
+                                        }}
+                                    />
+                                </Table>
+                                <div style={{ padding: '0 20 20' }}>
+                                    <Button
+                                        className="stream-btn"
+                                        type="dashed"
+                                        style={{ borderRadius: 5 }}
+                                        onClick={() => {
+                                            handleInputChange('columns', index, {});
+                                        }}
+                                    >
+                                        <Icon type="plus" />
+                                        <span> 添加输入</span>
+                                    </Button>
+                                </div>
                             </div>
-                        </Col>
-                    ) : (<Col
-                        span={18}
-                        style={{ marginBottom: 20, height: 200 }}
-                    >
-                        {isShow && (
-                            <Editor
-                                style={{
-                                    minHeight: 202,
-                                    border: '1px solid #ddd',
-                                    height: '100%'
-                                }}
-                                key="params-editor"
-                                sync={sync}
-                                placeholder={'字段 类型, 比如 id int 一行一个字段'}
-                                // options={jsonEditorOptions}
-                                value={panelColumn[index].columnsText}
-                                onChange={this.debounceEditorChange.bind(this)}
-                                editorRef={(ref: any) => {
-                                    this._editorRef = ref;
-                                }}
-                            />
-                        )}
-                    </Col>)}
+                        </Col> : (
+                            <Col span={18} style={{ marginBottom: 20, height: 200 }}>
+                                {isShow && (
+                                    <Editor
+                                        style={{
+                                            minHeight: 202,
+                                            border: '1px solid #ddd',
+                                            height: '100%'
+                                        }}
+                                        key="params-editor"
+                                        sync={sync}
+                                        placeholder={'字段 类型, 比如 id int 一行一个字段'}
+                                        // options={jsonEditorOptions}
+                                        value={panelColumn[index].columnsText}
+                                        onChange={this.debounceEditorChange.bind(this)}
+                                        editorRef={(ref: any) => {
+                                            this._editorRef = ref;
+                                        }}
+                                    />
+                                )}
+                            </Col>)}
                 </Row>
                 {(() => {
                     switch (panelColumn[index].type) {
+                        case DATA_SOURCE.KUDU:
+                        case DATA_SOURCE.POSTGRESQL:
                         case DATA_SOURCE.ORACLE:
                         case DATA_SOURCE.MYSQL: {
                             return (
@@ -593,7 +598,7 @@ class OutputOrigin extends React.Component<any, any> {
                     >
                         {getFieldDecorator('partitionedJoin', {})(
                             <Switch
-                                defaultChecked={false}
+                                defaultChecked={panelColumn[index].partitionedJoin}
                                 onChange={(checked: any) =>
                                     handleInputChange('partitionedJoin', index, checked)
                                 }
@@ -607,30 +612,134 @@ class OutputOrigin extends React.Component<any, any> {
                 {/* eslint-enable */}
                 {panelColumn[index].cache === 'ALL'
                     ? (
-                        <FormItem {...formItemLayout} label="缓存超时时间(ms)">
-                            {getFieldDecorator('cacheTTLMs', {
-                                rules: [
-                                    {
-                                        required: true,
-                                        message: '请输入缓存超时时间'
-                                    }
-                                    // { validator: this.checkConfirm }
-                                ]
-                            })(
-                                <InputNumber
-                                    className="number-input"
-                                    min={0}
-                                    onChange={(value: any) =>
-                                        handleInputChange(
-                                            'cacheTTLMs',
-                                            index,
-                                            value
-                                        )
-                                    }
-                                />
-                            )}
-                        </FormItem>
+                        <>
+                            <FormItem {...formItemLayout}
+                                label={(
+                                    <span >
+                                        按主键过滤&nbsp;
+                                        <Tooltip title={primaryKeyFilter}>
+                                            <Icon type="question-circle-o" />
+                                        </Tooltip>
+                                    </span>)}
+                            >
+                                {getFieldDecorator('keyFilter', {})(
+                                    <Switch
+                                        defaultChecked={panelColumn[index].keyFilter}
+                                        onChange={(checked: any) =>
+                                            handleInputChange('keyFilter', index, checked)
+                                        }
+                                    />
+                                )}
+                            </FormItem>
+                            {
+                                panelColumn[index].keyFilter ? (
+                                    <React.Fragment>
+                                        <FormItem {...formItemLayout} label="主键最小值">
+                                            {getFieldDecorator('lowerBoundPrimaryKey', {
+                                                rules: [
+                                                    {
+                                                        required: true,
+                                                        message: '请输入主键最小值'
+                                                    }
+                                                ]
+                                            })(
+                                                <InputNumber
+                                                    className="number-input"
+                                                    min={0}
+                                                    onChange={(value: any) =>
+                                                        handleInputChange(
+                                                            'lowerBoundPrimaryKey',
+                                                            index,
+                                                            value
+                                                        )
+                                                    }
+                                                />
+                                            )}
+                                        </FormItem>
+                                        <FormItem {...formItemLayout} label="主键最大值">
+                                            {getFieldDecorator('upperBoundPrimaryKey', {
+                                                rules: [
+                                                    {
+                                                        required: true,
+                                                        message: '请输入主键最大值'
+                                                    }
+                                                ]
+                                            })(
+                                                <InputNumber
+                                                    className="number-input"
+                                                    min={0}
+                                                    onChange={(value: any) =>
+                                                        handleInputChange(
+                                                            'upperBoundPrimaryKey',
+                                                            index,
+                                                            value
+                                                        )
+                                                    }
+                                                />
+                                            )}
+                                        </FormItem>
+                                    </React.Fragment>
+                                ) : null
+                            }
+                            <FormItem {...formItemLayout} label="缓存超时时间(ms)">
+                                {getFieldDecorator('cacheTTLMs', {
+                                    rules: [
+                                        {
+                                            required: true,
+                                            message: '请输入缓存超时时间'
+                                        }
+                                    ]
+                                })(
+                                    <InputNumber
+                                        className="number-input"
+                                        min={0}
+                                        onChange={(value: any) =>
+                                            handleInputChange(
+                                                'cacheTTLMs',
+                                                index,
+                                                value
+                                            )
+                                        }
+                                    />
+                                )}
+                            </FormItem>
+                        </>
                     ) : undefined}
+                {
+                    panelColumn[index].type == DATA_SOURCE.KUDU ? (
+                        <>
+                            <FormItem {...formItemLayout}
+                                label={(
+                                    <span >
+                                        查询容错&nbsp;
+                                        <Tooltip title={queryFault}>
+                                            <Icon type="question-circle-o" />
+                                        </Tooltip>
+                                    </span>)}
+                            >
+                                {getFieldDecorator('isFaultTolerant', {})(
+                                    <Switch
+                                        defaultChecked={panelColumn[index].isFaultTolerant}
+                                        onChange={(checked: any) =>
+                                            handleInputChange('isFaultTolerant', index, checked)
+                                        }
+                                    />
+                                )}
+                            </FormItem>
+                            <FormItem
+                                {...formItemLayout}
+                                label="高级配置"
+                            >
+                                {getFieldDecorator('advanConf')(
+                                    <TextArea placeholder="以JSON格式添加高级参数"
+                                        style={{ minHeight: '100px' }}
+                                        onChange={(e: any) => { handleInputChange('advanConf', index, e.target.value) }}
+                                    />
+                                )}
+                            </FormItem>
+                        </>
+                    ) : null
+                }
                 {haveCustomParams(panelColumn[index].type) && <CustomParams
                     getFieldDecorator={getFieldDecorator}
                     formItemLayout={formItemLayout}
@@ -651,9 +760,14 @@ const OutputForm = Form.create({
             columns,
             parallelism,
             columnsText,
+            partitionedJoin,
             cache,
             cacheSize,
             hbasePrimaryKey,
+            lowerBoundPrimaryKey,
+            upperBoundPrimaryKey,
+            keyFilter,
+            isFaultTolerant,
             cacheTTLMs,
             tableName,
             primaryKey,
@@ -668,6 +782,11 @@ const OutputForm = Form.create({
             columns: { value: columns },
             parallelism: { value: parallelism },
             columnsText: { value: columnsText },
+            partitionedJoin: { value: partitionedJoin },
+            lowerBoundPrimaryKey: { value: lowerBoundPrimaryKey },
+            upperBoundPrimaryKey: { value: upperBoundPrimaryKey },
+            keyFilter: { value: keyFilter },
+            isFaultTolerant: { value: isFaultTolerant },
             cache: { value: cache },
             cacheSize: { value: cacheSize },
             cacheTTLMs: { value: cacheTTLMs },
@@ -1009,6 +1128,17 @@ export default class OutputPanel extends React.Component<any, any> {
         });
     };
 
+    getAllColumn (index: number) {
+        const { tableColumnOptionType } = this.state;
+        const columns = tableColumnOptionType[index] || [];
+        return columns.map((column: { key: string; type: string }) => {
+            return {
+                column: column.key,
+                type: column.type
+            }
+        })
+    }
+
     handleInputChange = (type: any, index: any, value: any, subValue: any) => {
         // 监听数据改变
         let shouldUpdateEditor = true;
@@ -1044,6 +1174,10 @@ export default class OutputPanel extends React.Component<any, any> {
                 val = undefined
             }
             panelColumn[index]['columns'][value].targetCol = val;
+        } else if (type == 'addAllColumn') {
+            panelColumn[index]['columns'] = this.getAllColumn(index);
+        } else if (type == 'deleteAllColumn') {
+            panelColumn[index]['columns'] = [];
         } else if (type == 'customParams') {
             changeCustomParams(panelColumn[index], value, subValue);
         } else {

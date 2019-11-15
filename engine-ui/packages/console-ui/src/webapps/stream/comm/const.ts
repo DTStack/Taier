@@ -18,7 +18,8 @@ export const DATA_SOURCE = {
     BEATS: 16,
     KAFKA_10: 17,
     KAFKA_09: 18,
-    DB2: 19
+    DB2: 19,
+    KUDU: 24
 }
 
 export const FUNC_TYPE_TEXT = {
@@ -223,6 +224,10 @@ export const HELP_DOC_URL: any = {
     DATA_SOURCE: '/public/helpSite/stream/v3.0/DataCollection.html#collection_jobConfig_demo',
     DATA_SYNC: '/public/helpSite/stream/v3.0/DataCollection.html#collection_jobConfig',
     TASKPARAMS: '/public/helpSite/stream/v3.0/DataCollection.html#collection_jobConfig'
+}
+
+export const HELP_TEXT: any = {
+    WRITE_MODE: `开启upsert模式后，必须选择主键，写入时，若主键重复，则执行update，若主键不存在，则执行insert，仅支持PostgreSQL 9.5以上版本`
 }
 
 export const TASK_STATUS: any = { // 任务状态

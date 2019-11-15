@@ -523,6 +523,47 @@ class BaseForm extends React.Component<any, any> {
                 formItems.push(uploadForm)
                 return formItems
             }
+            case DATA_SOURCE.KUDU: {
+                const formItems = [
+                    <FormItem
+                        {...formItemLayout}
+                        label="集群地址"
+                        key="hostPorts"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('dataJson.hostPorts', {
+                            rules: [{
+                                required: true, message: '配置不可为空！'
+                            }],
+                            initialValue: config.hostPorts || ''
+                        })(
+                            <Input
+                                type="textarea"
+                                // rows={5}
+                                {...rowFix5}
+                                placeholder="集群地址，例如：IP1:Port,IP2:Port,IP3:Port"
+                            />
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="其他参数"
+                        key="others"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('dataJson.others', {
+                            rules: [],
+                            initialValue: config.others ? typeof config.others == 'string'
+                                ? JSON.stringify(JSON.parse(config.others), null, 4) : JSON.stringify(config.others, null, 4) : ''
+                        })(
+                            <Input type="textarea" {...rowFix5} placeholder={`输入JSON格式的参数`} />
+                        )}
+                    </FormItem>
+                ]
+                const uploadForm: any = getFieldValue('dataJson.openKerberos') ? this.uploadForm() : [];
+                formItems.push(uploadForm)
+                return formItems
+            }
             case DATA_SOURCE.FTP: {
                 const ftpFormItems: any = [
                     <FormItem

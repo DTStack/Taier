@@ -46,6 +46,9 @@ const yesterDay = moment().subtract(1, 'days');
 
 let clientHeight = document.documentElement.clientHeight - 300;
 let defaultPageSize = Math.floor(clientHeight / 42);
+const createId = function (id: any) {
+    return Number(Math.random().toString().substr(3, 3) + Date.now()).toString(36) + '_' + id;
+}
 class OfflineTaskList extends React.Component<any, any> {
     state: any = {
         tasks: {
@@ -163,11 +166,12 @@ class OfflineTaskList extends React.Component<any, any> {
                 replaceObjectArrayFiledName(res.data.data, 'relatedJobs', 'children');
                 for (let i = 0; i < res.data.data.length; i++) {
                     let job = res.data.data[i];
+                    job.uid = createId(job.id);
                     if ((job.batchTask && job.batchTask.taskType == TASK_TYPE.WORKFLOW) || job.isGroupTask) {
                         if (!job.children) {
                             job.children = [];
                         } else {
-                            expandedRowKeys.push(job.id);
+                            expandedRowKeys.push(job.uid);
                         }
                     }
                 }
@@ -207,7 +211,7 @@ class OfflineTaskList extends React.Component<any, any> {
                 title: '确认提示',
                 content: '确定要杀死选择的任务？',
                 onOk () {
-                    Api.batchStopJob({ jobIdList: selected }).then((res: any) => {
+                    Api.batchStopJob({ jobIdList: selected.map((item: any) => item.split('_')[1]) }).then((res: any) => {
                         if (res.code === 1) {
                             ctx.setState({ selectedRowKeys: [], checkAll: false })
                             message.success('已经成功杀死所选任务！')
@@ -247,7 +251,7 @@ class OfflineTaskList extends React.Component<any, any> {
                 content: '确认需要重跑当前选中的任务？',
                 onOk () {
                     // 接口等待后端
-                    Api.batchRestartAndResume({ jobIdList: selected, runCurrentJob: true }).then((res: any) => {
+                    Api.batchRestartAndResume({ jobIdList: selected.map((item: any) => item.split('_')[1]), runCurrentJob: true }).then((res: any) => {
                         if (res.code === 1) {
                             message.success('已经成功重跑当前选中的任务！')
                             ctx.setState({ selectedRowKeys: [], checkAll: false })
@@ -449,11 +453,21 @@ class OfflineTaskList extends React.Component<any, any> {
 
     onCheckAllChange = (e: any) => {
         let selectedRowKeys: any = []
+        const { expandedRowKeys } = this.state;
 
-        if (e.target.checked) {
-            selectedRowKeys = this.state.tasks.data.map((item: any) => { if (item.batchTask.isDeleted !== 1) { return item.id } })
+        const tasksRowKeys = (data: any) => {
+            data.forEach((item: any) => {
+                if (!((item.batchTask && item.batchTask.isDeleted === 1) || item.isGroupTask)) {
+                    selectedRowKeys.push(item.uid);
+                }
+                if (expandedRowKeys.includes(item.uid) && item.children && item.children.length) {
+                    tasksRowKeys(item.children);
+                }
+            })
         }
-
+        if (e.target.checked) {
+            tasksRowKeys(this.state.tasks.data)
+        }
         this.setState({
             checkAll: e.target.checked,
             selectedRowKeys
@@ -602,9 +616,6 @@ class OfflineTaskList extends React.Component<any, any> {
             dataIndex: 'createUser',
             key: 'createUser',
             render: (text: any, record: any) => {
-                if (record.isGroupTask) {
-                    return null;
-                }
                 return record.batchTask && record.batchTask.ownerUser &&
                     record.batchTask.ownerUser.userName
             }
@@ -680,7 +691,7 @@ class OfflineTaskList extends React.Component<any, any> {
                             if (task.jobId == jobId) {
                                 task = {
                                     ...res.data,
-                                    children: res.data.relatedJobs,
+                                    children: res.data.relatedJobs && res.data.relatedJobs.map((ele: any) => Object.assign({}, ele, { uid: createId(ele.id) })),
                                     relatedJobs: undefined
                                 };
                             } else if (task.children && task.children.length && task.children.some((item: any) => item.jobId == jobId)) {
@@ -688,7 +699,7 @@ class OfflineTaskList extends React.Component<any, any> {
                                     if (element.jobId == jobId) {
                                         element = {
                                             ...res.data,
-                                            children: res.data.relatedJobs,
+                                            children: res.data.relatedJobs && res.data.relatedJobs.map((ele: any) => Object.assign({}, ele, { uid: createId(ele.id) })),
                                             relatedJobs: undefined
                                         };
                                     }
@@ -712,20 +723,28 @@ class OfflineTaskList extends React.Component<any, any> {
         const { tasks } = this.state;
         let newTasks = cloneDeep(tasks);
         const { jobId, businessDate, type, taskId } = record;
-        const { bizEndDay, bizStartDay, searchType } = this.getReqParams();
+        const { bizEndDay, bizStartDay, searchType, jobStatuses } = this.getReqParams();
         const params = {
-            taskId, bizEndDay, bizStartDay, searchType, businessDate: businessDate.trim(), type
-
+            cycSort: 'desc',
+            taskId,
+            bizEndDay,
+            bizStartDay,
+            searchType,
+            jobStatuses,
+            businessDate: businessDate.trim(),
+            type
         };
         Api.queryMinOrHourJob(params).then((res: any) => {
             if (res.code == 1) {
                 if (res.code == 1) {
                     let newData = newTasks.data.map((task: any) => {
                         if (task.jobId == jobId) {
-                            if ((task.batchTask && task.batchTask.taskType == TASK_TYPE.WORKFLOW)) {
-                                replaceObjectArrayFiledName(res.data, 'relatedJobs', 'children');
-                                for (let i = 0; i < res.data.length; i++) {
-                                    let job = res.data[i];
+                            replaceObjectArrayFiledName(res.data, 'relatedJobs', 'children');
+
+                            for (let i = 0; i < res.data.length; i++) {
+                                let job = res.data[i];
+                                job.uid = createId(job.id);
+                                if ((task.batchTask && task.batchTask.taskType == TASK_TYPE.WORKFLOW)) {
                                     if (!job.children) {
                                         job.children = [];
                                     }
@@ -739,10 +758,12 @@ class OfflineTaskList extends React.Component<any, any> {
                         } else if (task.children && task.children.length && task.children.some((item: any) => item.jobId == jobId)) {
                             task.children = task.children.map((element: any) => {
                                 if (element.jobId == jobId) {
-                                    if ((element.batchTask && element.batchTask.taskType == TASK_TYPE.WORKFLOW)) {
-                                        replaceObjectArrayFiledName(res.data, 'relatedJobs', 'children');
-                                        for (let i = 0; i < res.data.length; i++) {
-                                            let job = res.data[i];
+                                    replaceObjectArrayFiledName(res.data, 'relatedJobs', 'children');
+
+                                    for (let i = 0; i < res.data.length; i++) {
+                                        let job = res.data[i];
+                                        job.uid = createId(job.id);
+                                        if ((element.batchTask && element.batchTask.taskType == TASK_TYPE.WORKFLOW)) {
                                             if (!job.children) {
                                                 job.children = [];
                                             }
@@ -760,7 +781,6 @@ class OfflineTaskList extends React.Component<any, any> {
                         return task;
                     });
                     newTasks.data = newData;
-
                     this.setState({
                         tasks: newTasks
                     })
@@ -938,7 +958,7 @@ class OfflineTaskList extends React.Component<any, any> {
                         }
                     >
                         <Table
-                            rowKey="id"
+                            rowKey="uid"
                             rowClassName={
                                 (record: any, index: any) => {
                                     if (this.state.selectedTask && this.state.selectedTask.id == record.id) {

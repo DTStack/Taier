@@ -17,18 +17,13 @@ class ChooseModal extends BaseChooseModal {
         this.disabledType = '';
     }
     initTargetKeys = () => {
-        const { data, transferField } = this.props;
+        const { data } = this.props;
         const { backupSource } = this.state;
         const chooseData = data.col || [];
         const targetKeys = chooseData.map((item: any) => {
             return item.key;
         });
         const sourceData = cloneDeep(backupSource);
-        sourceData.forEach((item: any) => {
-            if (targetKeys.findIndex((o: any) => o === item.key) > -1) {
-                item.type = transferField;
-            }
-        });
         this.setState({
             targetKeys,
             sourceData
@@ -347,7 +342,7 @@ class MissValue extends React.PureComponent<any, any> {
                 for (const key in changedFields) {
                     if (changedFields.hasOwnProperty(key)) {
                         const element = changedFields[key];
-                        if (!element.validating && !element.dirty) {
+                        if (!element.errors && !element.validating && !element.dirty) {
                             const tmpData = {
                                 params: cloneDeep(params)
                             }
@@ -363,7 +358,7 @@ class MissValue extends React.PureComponent<any, any> {
                 for (const key in changedFields) {
                     if (changedFields.hasOwnProperty(key)) {
                         const element = changedFields[key];
-                        if (!element.validating && !element.dirty) {
+                        if (!element.errors && !element.validating && !element.dirty) {
                             props.handleSaveComponent(key, element.value)
                         }
                     }

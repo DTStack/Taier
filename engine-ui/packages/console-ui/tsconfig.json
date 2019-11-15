@@ -10,6 +10,10 @@
         "module": "commonjs",
         "target": "es5",
         "jsx": "react",
+        "lib": [
+            "es7",
+            "dom"
+        ],
         "allowSyntheticDefaultImports": true,
         "paths": {
             "utils/*": ["./src/utils/*"], // 工具文件夹

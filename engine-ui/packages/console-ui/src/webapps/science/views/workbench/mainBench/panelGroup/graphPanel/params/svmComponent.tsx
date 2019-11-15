@@ -89,7 +89,7 @@ class ParamSetting extends React.PureComponent<any, any> {
     render () {
         const { regexDatas, nuclearDatas } = this.state;
         const { getFieldDecorator, getFieldValue } = this.props.form;
-        const svmVal = getFieldValue('svm');
+        const svmVal = getFieldValue('kernel');
         const showNuclear: boolean = svmVal == 'rbf' || svmVal == 'poly' || svmVal == 'sigmoid';
         return (
             <Form className="params-form">
@@ -99,12 +99,12 @@ class ParamSetting extends React.PureComponent<any, any> {
                     {...formItemLayout}
                 >
                     {getFieldDecorator('kernel', {
-                        initialValue: 'deviance',
+                        initialValue: 'rbf',
                         rules: [{ required: false }]
                     })(
                         <Select placeholder="请选择SVM的核函数" onChange={this.handleSubmit.bind(this, 'kernel')}>
                             {regexDatas.map((item: any, index: any) => {
-                                return <Option key={index} value={item.value}>{item.name}</Option>
+                                return <Option key={item.value} value={item.value}>{item.name}</Option>
                             })}
                         </Select>
                     )}
@@ -132,7 +132,7 @@ class ParamSetting extends React.PureComponent<any, any> {
                             })(
                                 <Select placeholder="请选择核系数" onChange={this.handleSubmit.bind(this, 'gamma')}>
                                     {nuclearDatas.map((item: any, index: any) => {
-                                        return <Option key={index} value={item.value}>{item.name}</Option>
+                                        return <Option key={item.value} value={item.value}>{item.name}</Option>
                                     })}
                                 </Select>
                             )}
@@ -145,7 +145,8 @@ class ParamSetting extends React.PureComponent<any, any> {
                     key: 'tol',
                     excludeMin: true,
                     excludeMax: true,
-                    step: 0.1,
+                    step: 0.0001,
+                    initialValue: 0.0001,
                     isInt: false
                 }, getFieldDecorator)}
                 {renderNumberFormItem({
@@ -155,6 +156,7 @@ class ParamSetting extends React.PureComponent<any, any> {
                     excludeMin: true,
                     excludeMax: true,
                     step: 0.1,
+                    initialValue: 1,
                     isInt: false
                 }, getFieldDecorator)}
                 {renderNumberFormItem({
@@ -163,7 +165,7 @@ class ParamSetting extends React.PureComponent<any, any> {
                     key: 'maxIter',
                     max: 1000,
                     step: 1,
-                    initialValue: 100,
+                    initialValue: 1000,
                     isInt: true
                 }, getFieldDecorator)}
                 {renderNumberFormItem({
@@ -172,7 +174,7 @@ class ParamSetting extends React.PureComponent<any, any> {
                     key: 'randomState',
                     max: 10,
                     step: 1,
-                    initialValue: 0,
+                    initialValue: null,
                     isInt: true
                 }, getFieldDecorator)}
             </Form>
@@ -348,7 +350,7 @@ class SvmComponent extends React.PureComponent<any, any> {
                     }
                     if (changedFields.hasOwnProperty(key)) {
                         const element = changedFields[key];
-                        if (!element.validating && !element.dirty && element.name !== 'transferField') {
+                        if (!element.errors && !element.validating && !element.dirty && element.name !== 'transferField') {
                             props.handleSaveComponent(key, element.value)
                         }
                     }
@@ -375,7 +377,7 @@ class SvmComponent extends React.PureComponent<any, any> {
                 for (const key in changedFields) {
                     if (changedFields.hasOwnProperty(key)) {
                         const element = changedFields[key];
-                        if (!element.validating && !element.dirty) {
+                        if (!element.errors && !element.validating && !element.dirty) {
                             props.handleSaveComponent(key, element.value)
                         }
                     }
