@@ -187,7 +187,7 @@ class Header extends React.Component<any, any> {
 
         return (
             <SubMenu
-                style={{ border: '1px solid red', width: '200px', height: '200px' }}
+                style={{ width: '200px', height: '200px' }}
                 className="my-menu-item"
                 title={
                     <Dropdown
