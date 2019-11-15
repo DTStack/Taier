@@ -478,7 +478,7 @@ class TargetForm extends React.Component<any, any> {
             sourceType == DATA_SOURCE.MYSQL || sourceType == DATA_SOURCE.ORACLE ||
             sourceType == DATA_SOURCE.SQLSERVER || sourceType == DATA_SOURCE.POSTGRESQL ||
             sourceType == DATA_SOURCE.LIBRASQL ||
-            sourceType == DATA_SOURCE.DB2 || 
+            sourceType == DATA_SOURCE.DB2 ||
             sourceType == DATA_SOURCE.HIVE_2 ||
             sourceType == DATA_SOURCE.HIVE_1 ||
             sourceType == DATA_SOURCE.MAXCOMPUTE
