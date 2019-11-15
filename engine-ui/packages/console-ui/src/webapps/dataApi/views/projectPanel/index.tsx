@@ -124,7 +124,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
             }
             case PROJECT_STATUS.NORMAL: {
                 return (
-                    <span style={{ color: '#999' }}>
+                    <span>
                         {`(${data.projectName})`}
                     </span>
                 )
@@ -231,20 +231,32 @@ class ProjectPanel extends React.Component<any, ProjectState> {
             return (
                 <Col span={8} key={index}>
                     <div className='c_help_target'>
+                        <img src='public/dataApi/img/help.png' />
                         <a rel="noopener noreferrer" target="_blank" href={link}>{title}</a>
                     </div>
                 </Col>
             )
         })
     }
-
-    render () {
-        const { visible, projectSummary } = this.state;
-        const { apiCount, projectCount, apiIssueCount, total24InvokeCount, total24FailProbability } = projectSummary;
-        const { projectListInfo = [], panelLoading } = this.props;
+    getStickOrOftenUseProjects = () => {
+        const { projectListInfo = [] } = this.props;
         const stickProjects = projectListInfo.filter((item: any) => {
             return item.stickStatus == STICK_STATUS.TOP
         }).slice(0, 3);
+        if (stickProjects && stickProjects.length > 0) {
+            return stickProjects
+        } else {
+            const commProjects = projectListInfo
+                .sort((a: any, b: any) => a && a.gmtCreate - b.gmtCreate)
+                .slice(0, 3);
+            return commProjects
+        }
+    }
+    render () {
+        const { visible, projectSummary } = this.state;
+        const { apiCount, projectCount, apiIssueCount, total24InvokeCount, total24FailProbability } = projectSummary;
+        const { panelLoading } = this.props;
+        const showProjects = this.getStickOrOftenUseProjects();
         const totalData = [{
             dataName: '总项目数',
             data: projectCount,
@@ -287,24 +299,24 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                             <div className='c_spin_loading'>
                                 <Spin spinning={panelLoading} delay={500}>
                                     {
-                                        stickProjects && stickProjects.length > 0 ? (
+                                        showProjects && showProjects.length > 0 ? (
                                             <Row gutter={16}>
                                                 {
-                                                    stickProjects.map((project: any, index: any) => {
+                                                    showProjects.map((project: any, index: any) => {
                                                         return this.renderProjectCard(project, index)
                                                     })
                                                 }
                                             </Row>
                                         ) : (
                                             <Row className='c_no_project'>
-                                                <Col span={24}>暂无常用项目, 请前往 <a onClick={this.gotoProjectList}>项目列表</a> 置顶项目</Col>
+                                                <Col span={24}>暂无项目，来创建您的第一个项目吧！</Col>
                                             </Row>
                                         )
                                     }
                                 </Spin>
                             </div>
                         </div>
-                        <div className='c_api_process_pic'>
+                        <div className='c_process_pic'>
                             <img src='public/dataApi/img/process_api.png' />
                         </div>
                     </section>

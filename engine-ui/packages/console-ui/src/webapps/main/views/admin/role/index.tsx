@@ -252,6 +252,19 @@ class AdminRole extends React.Component<any, RoleState> {
             currentPage: 1
         }, this.loadData)
     }
+    onApiProjectSelect = (value: any) => {
+        this.setState({
+            apiSelectedProject: value,
+            currentPage: 1
+        }, this.loadData)
+    }
+
+    onDqProjectSelect = (value: any) => {
+        this.setState({
+            apiSelectedProject: value,
+            currentPage: 1
+        }, this.loadData)
+    }
     initColums = () => {
         const { active } = this.state;
 
@@ -330,11 +343,11 @@ class AdminRole extends React.Component<any, RoleState> {
         } else if (active == MY_APPS.API) {
             selectValue = apiSelectedProject;
             projectsOptions = apiProjects;
-            onSelectChange = this.onScienceProjectSelect
+            onSelectChange = this.onApiProjectSelect
         } else if (active == MY_APPS.DATA_QUALITY) {
             selectValue = dqSelectedProject;
             projectsOptions = dqProjects;
-            onSelectChange = this.onScienceProjectSelect
+            onSelectChange = this.onDqProjectSelect
         } else if (active == MY_APPS.ANALYTICS_ENGINE) {
             databaseOptions = dataBase;
             onSelectChange = this.onDatabaseSelect;
