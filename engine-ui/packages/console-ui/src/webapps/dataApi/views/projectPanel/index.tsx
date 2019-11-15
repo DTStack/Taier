@@ -178,13 +178,13 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                             <Row gutter={16}>
                                 {project.status != 1 || (apiMarket && !apiMarket.isShow) ? null : (
                                     <Col span={12}>
-                                        <div className="c_api_opera" {...{ onClick: () => { this.setRouter('apiMarket', project) } }} >API市场</div>
+                                        <div className="c_opera_link" {...{ onClick: () => { this.setRouter('apiMarket', project) } }} >API市场</div>
                                     </Col>
                                 )}
                                 {
                                     project.status != 1 || (apiManage && !apiManage.isShow) ? null : (
                                         <Col span={12}>
-                                            <div className="c_api_opera" {...{ onClick: () => { this.setRouter('apiManage', project) } }}>API管理</div>
+                                            <div className="c_opera_link" {...{ onClick: () => { this.setRouter('apiManage', project) } }}>API管理</div>
                                         </Col>
                                     )
                                 }
