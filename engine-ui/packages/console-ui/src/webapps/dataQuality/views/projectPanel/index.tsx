@@ -2,11 +2,13 @@ import * as React from 'react';
 import { Link, hashHistory, withRouter } from 'react-router';
 import { connect } from 'react-redux';
 import { Card, Row, Col, Icon, Spin } from 'antd';
+import { cloneDeep } from 'lodash';
 import moment from 'moment';
+import utils from 'utils';
 import NewProjectModal from '../../components/newProject';
 import Api from '../../api/project';
 import * as projectActions from '../../actions/project';
-import { PROJECT_STATUS, OPERA_ROW_ONE_DATA, OPERA_ROW_TWO_DATA, STICK_STATUS } from '../../consts';
+import { PROJECT_STATUS, OPERA_ROW_ONE_DATA, OPERA_ROW_TWO_DATA } from '../../consts';
 
 interface ProjectState {
     visible: boolean;
@@ -86,6 +88,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
     }
 
     getCardTitle = (project: any, index: number) => {
+        if (!project) return;
         const title = <div>
             <Row>
                 <Col span={18} className='c_offten_project_card_title_info' >
@@ -95,9 +98,14 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                 <span className='c_offten_project_card_title_name' onClick={
                                     () => {
                                         this.props.dispatch(projectActions.getProject(project.id))
-                                    }}>{project.projectAlias}</span><br />
+                                    }}
+                                title={project.projectAlias}>
+                                    {utils.textOverflowExchange(project.projectAlias, 19)}
+                                </span><br />
                             </Link>
-                        ) : <span className='c_offten_project_card_title_name'>{project.projectAlias}</span>
+                        ) : <span className='c_offten_project_card_title_name'>
+                            {utils.textOverflowExchange(project.projectAlias, 19)}
+                        </span>
                     }
                     <span className='c_offten_project_card_title_name_alias'>
                         {this.renderTitleText(project)}
@@ -124,8 +132,8 @@ class ProjectPanel extends React.Component<any, ProjectState> {
             }
             case PROJECT_STATUS.NORMAL: {
                 return (
-                    <span>
-                        {`(${data.projectName})`}
+                    <span title={data.projectName}>
+                        {utils.textOverflowExchange(data.projectName, 19)}
                     </span>
                 )
             }
@@ -159,39 +167,63 @@ class ProjectPanel extends React.Component<any, ProjectState> {
         const fixDqChildrenApps = this.fixApiChildrenApps(licenseApps[3] && licenseApps[3].children) || [];
         const ruleConf = fixDqChildrenApps[2];
         const taskSearch = fixDqChildrenApps[1];
+
+        const getCardContent = () => {
+            if (project) {
+                return (
+                    <Card className="c_offten_project_card" noHovering bordered={false} title={this.getCardTitle(project, index)}>
+                        <Row className='c_offten_project_card_content'>
+                            <Col span={13}>
+                                已配置表数： <span className='c_project_num'>{project.tableCount}</span>
+                            </Col>
+                            <Col span={11}>
+                                今日告警数： <span className='c_project_num'>{project.todayAlaim}</span>
+                            </Col>
+                            <Col span={24}>
+                                <Row>
+                                    <Col>创建时间： <span className='c_project_num'>{moment(project.gmtCreate).format('YYYY-MM-DD HH:mm:ss')}</span></Col>
+                                </Row>
+                            </Col>
+                            <Col span={24} className="c_opera">
+                                <Row gutter={16}>
+                                    {project.status != 1 || (ruleConf && !ruleConf.isShow) ? null : (
+                                        <Col span={12}>
+                                            <div className="c_api_opera" {...{ onClick: () => { this.setRouter('ruleConf', project) } }} >规则配置</div>
+                                        </Col>
+                                    )}
+                                    {
+                                        project.status != 1 || (taskSearch && !taskSearch.isShow) ? null : (
+                                            <Col span={12}>
+                                                <div className="c_api_opera" {...{ onClick: () => { this.setRouter('taskSearch', project) } }}>任务查询</div>
+                                            </Col>
+                                        )
+                                    }
+                                </Row>
+                            </Col>
+                        </Row>
+                    </Card>
+                )
+            } else {
+                return (
+                    <Card className="c_no_project_card" noHovering bordered={false}>
+                        <Row className='c_no_project_row'>
+                            <Col className='c_no_project_content' span={24}>
+                                <p>暂无项目</p>
+                            </Col>
+                            <Col span={24}>
+                                <div className="c_opera_link" {...{ onClick: () => { this.handleNewProject() } }}>
+                                    <img src='public/dataQuality/img/plus.svg' />
+                                    创建项目
+                                </div>
+                            </Col>
+                        </Row>
+                    </Card>
+                )
+            }
+        }
         return (
             <Col span={8} className="c_offten_project_col">
-                <Card className="c_offten_project_card" noHovering bordered={false} title={this.getCardTitle(project, index)}>
-                    <Row className='c_offten_project_card_content'>
-                        <Col span={13}>
-                            已配置表数： <span className='c_project_num'>{project.tableCount}</span>
-                        </Col>
-                        <Col span={11}>
-                            今日告警数： <span className='c_project_num'>{project.todayAlaim}</span>
-                        </Col>
-                        <Col span={24}>
-                            <Row>
-                                <Col>创建时间： <span className='c_project_num'>{moment(project.gmtCreate).format('YYYY-MM-DD HH:mm:ss')}</span></Col>
-                            </Row>
-                        </Col>
-                        <Col span={24} className="c_opera">
-                            <Row gutter={16}>
-                                {project.status != 1 || (ruleConf && !ruleConf.isShow) ? null : (
-                                    <Col span={12}>
-                                        <div className="c_api_opera" {...{ onClick: () => { this.setRouter('ruleConf', project) } }} >规则配置</div>
-                                    </Col>
-                                )}
-                                {
-                                    project.status != 1 || (taskSearch && !taskSearch.isShow) ? null : (
-                                        <Col span={12}>
-                                            <div className="c_api_opera" {...{ onClick: () => { this.setRouter('taskSearch', project) } }}>任务查询</div>
-                                        </Col>
-                                    )
-                                }
-                            </Row>
-                        </Col>
-                    </Row>
-                </Card>
+                {getCardContent()}
             </Col>
         )
     }
@@ -211,7 +243,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                 )
             } else {
                 return (
-                    <Col span={colSpan} key={index}>
+                    <Col span={colSpan} key={index} style={{ marginTop: '16px' }}>
                         <Card className='c_latest_day_card' noHovering bordered={false}>
                             <Row>
                                 <div className='c_latest_day_title'>{dataName}</div>
@@ -231,7 +263,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
             return (
                 <Col span={8} key={index}>
                     <div className='c_help_target'>
-                        <img src='public/dataApi/img/help.png' />
+                        <img src='public/dataQuality/img/help.png' />
                         <a rel="noopener noreferrer" target="_blank" href={link}>{title}</a>
                     </div>
                 </Col>
@@ -239,25 +271,22 @@ class ProjectPanel extends React.Component<any, ProjectState> {
         })
     }
 
-    getStickOrOftenUseProjects = () => {
-        const { projectListInfo = [] } = this.props;
-        const stickProjects = projectListInfo.filter((item: any) => {
-            return item.stickStatus == STICK_STATUS.TOP
-        }).slice(0, 3);
-        if (stickProjects && stickProjects.length > 0) {
-            return stickProjects
-        } else {
-            const commProjects = projectListInfo
-                .sort((a: any, b: any) => a && a.gmtCreate - b.gmtCreate)
-                .slice(0, 3);
-            return commProjects
-        }
+    exChangeShowProject = (projects: any[] = []) => {
+        // 填充数组, 渲染无项目 card
+        const projectMap = cloneDeep(projects);
+        if (projects.length === 0 || projects.length === 3) {
+            return projectMap
+        } else if (projects.length === 1) {
+            return projectMap.concat([null, null])
+        } else if (projects.length === 2) {
+            return projectMap.concat(null)
+        };
     }
     render () {
         const { visible, projectSummary } = this.state;
         const { projectSum, tableSum, ruleSum, todayAlaim, yesterDayTable } = projectSummary;
-        const { panelLoading } = this.props;
-        const showProjects = this.getStickOrOftenUseProjects();
+        const { projectListInfo = [], panelLoading } = this.props;
+        const showProjects = this.exChangeShowProject(projectListInfo.slice(0, 3));
 
         const totalData = [{
             dataName: '总项目数',
@@ -318,7 +347,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                 </Spin>
                             </div>
                         </div>
-                        <div className='c_api_process_pic'>
+                        <div className='c_process_pic'>
                             <img src='public/dataQuality/img/process.png' />
                         </div>
                     </section>
@@ -361,7 +390,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                         <Row>
                                             <Col span={24}>
                                                 {/* 暂时无视频，先用图片替代 */}
-                                                <img src='public/dataQuality/img/opera_guide.png' style={{ width: '338px', height: '128px' }} />
+                                                <img src='public/dataQuality/img/opera_guide.png' style={{ width: '380px', height: '180px' }} />
                                             </Col>
                                         </Row>
                                     </Card>

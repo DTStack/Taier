@@ -164,8 +164,8 @@ class ProjectsList extends React.Component<any, ProjectState> {
             sorter: true
         }, {
             title: '创建人',
-            dataIndex: 'createUser.userName',
-            key: 'createUser.userName'
+            dataIndex: 'createUserName',
+            key: 'createUserName'
         }, {
             title: '创建时间',
             dataIndex: 'gmtCreate',

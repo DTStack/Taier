@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
 import { Menu, Icon, Dropdown, Input } from 'antd';
+import utils from 'utils';
 import Navigator from 'main/components/nav';
 import { getHeaderLogo } from 'main/consts';
 import * as ProjectAction from '../../actions/project';
@@ -105,7 +106,7 @@ class Header extends React.Component<any, any> {
         const { filter } = this.state;
         if (projects && projects.length > 0) {
             return projects
-                .filter((o: any) => o.projectName.indexOf(filter) > -1 || o.projectAlias.indexOf(filter) > -1)
+                .filter((o: any) => o.projectIdentifier.indexOf(filter) > -1 || o.projectName.indexOf(filter) > -1 || o.projectAlias.indexOf(filter) > -1)
                 .map((project: any) => {
                     const name = project.projectAlias || project.projectName;
                     return (
@@ -115,7 +116,7 @@ class Header extends React.Component<any, any> {
                             value={name}
                             key={project.id}
                         >
-                            {project.projectAlias || project.projectName}
+                            {utils.textOverflowExchange(project.projectAlias || project.projectName, 24)}
                         </Menu.Item>
                     );
                 });
