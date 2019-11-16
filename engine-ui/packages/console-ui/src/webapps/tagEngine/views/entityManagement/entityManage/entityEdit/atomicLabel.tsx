@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { Input, Table } from 'antd';
+import { Input, Table, Popover } from 'antd';
 import ConfigDictModal from './configDictModal';
-import PreviewModal from './previewModal';
+// import PreviewModal from './previewModal';
 import { isEqual } from 'lodash';
 // import EditCell from '../../../../components/editCell';
 import './style.scss';
@@ -89,6 +89,32 @@ export default class AtomicLabel extends React.Component<IProps, IState> {
         this.props.handleChange([...data]);
     }
 
+    renderPopoverContent = (infor) => {
+        let dataSource = infor.map((item, index) => {
+            return {
+                value: item,
+                index
+            }
+        })
+        let columns = [
+            {
+                title: '部分标签值',
+                dataIndex: 'value',
+                key: 'value'
+            }
+        ];
+        return (
+            <Table
+                rowKey="index"
+                pagination={false}
+                loading={false}
+                columns={columns}
+                scroll={{ y: 250, x: 120 }}
+                dataSource={dataSource}
+            />
+        )
+    }
+
     initColumns = () => {
         return [{
             title: '标签名称',
@@ -124,7 +150,13 @@ export default class AtomicLabel extends React.Component<IProps, IState> {
             dataIndex: 'labelDetail',
             key: 'labelDetail',
             render: (text: any, record: any) => {
-                return <a onClick={this.handlePreview}>预览</a>
+                let labelVal = [111, 222, 333, 444, 666, 777, 888, 99999];
+                let realContent = this.renderPopoverContent(labelVal);
+                return (
+                    <Popover overlayClassName="label-detail-content" placement="rightTop" title={null} content={realContent} trigger="click">
+                        <a>预览</a>
+                    </Popover>
+                );
             }
         }, {
             title: '配置字典',
@@ -146,7 +178,7 @@ export default class AtomicLabel extends React.Component<IProps, IState> {
     }
 
     render () {
-        const { dataSource, configModalVisble, previewModalVisible, total } = this.state;
+        const { dataSource, configModalVisble, total } = this.state;
         return (
             <div className="atomic-label">
                 <div className="top-box">
@@ -169,12 +201,12 @@ export default class AtomicLabel extends React.Component<IProps, IState> {
                     onOk={this.handleConfModelOk}
                     onCancel={this.handleConfModelCancel}
                 />
-                <PreviewModal
+                {/* <PreviewModal
                     infor={'1,3,4,5,6,...'}
                     visible={previewModalVisible}
                     onOk={this.handlePrevModelOk}
                     onCancel={this.handlePrevModelCancel}
-                />
+                /> */}
             </div>
         )
     }
