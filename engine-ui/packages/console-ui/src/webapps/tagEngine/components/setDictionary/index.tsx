@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Table, Icon } from 'antd';
+import { Table, Icon, message } from 'antd';
 import EditInput from '../editInput/index';
 import shortid from 'shortid';
 import './style.scss';
