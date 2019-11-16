@@ -1,0 +1,20 @@
+.editAtomicLabel{
+    margin: 20px;
+    .create_label_content{
+        background: #FFFFFF;
+        box-shadow: 0 2px 6px 0 rgba(0,0,0,0.10);
+        padding: 20px; 
+        .ant-steps{
+            padding: 20px 200px 30px;
+            .ant-steps-head-inner > .ant-steps-icon{
+                line-height: 23px;
+            }
+        } 
+        .step_content{
+            background: #FAFAFA;
+            position: relative;
+            border: 1px dashed #E9E9E9;
+            min-height: 642px;
+        }
+    }
+}

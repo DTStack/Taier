@@ -27,7 +27,7 @@ export default class AtomicLabelDetails extends React.PureComponent<IProps, ISta
 
     }
     onHandleEdit = () => {
-        this.props.router.push('/createLabel')
+        this.props.router.push('/editAtomicLabel')
     }
     onHandleMove = () => {
         this.setState({

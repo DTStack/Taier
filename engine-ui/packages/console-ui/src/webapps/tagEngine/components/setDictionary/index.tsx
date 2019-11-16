@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Table, Icon } from 'antd';
 import EditInput from '../editInput/index';
+import shortid from 'shortid';
 import './style.scss';
 interface IProps {
     isEdit: boolean;
@@ -20,7 +21,18 @@ export default class SetDictionary extends React.PureComponent<IProps, any> {
 
     onAdd = () => {
         const { value = [] } = this.props;
-        this.props.onChange([...value, { name: '', value: '' }])
+        this.props.onChange([...value, { name: '', value: '', key: shortid() }]);
+    }
+    setBottom = () => {
+        const tableScroll = document.querySelector('.set-dictionary-table .ant-table-body');
+        if (tableScroll) {
+            tableScroll.scrollTop = tableScroll.scrollHeight
+        }
+    }
+    componentDidUpdate (prePorps, preState) {
+        if (prePorps.value != this.props.value) {
+            this.setBottom();
+        }
     }
     onClose = (index: number) => {
         const { value = [] } = this.props;
@@ -57,7 +69,7 @@ export default class SetDictionary extends React.PureComponent<IProps, any> {
         ];
         return (
             <div className="set-dictionary">
-                <Table size="middle" scroll={{ y: 200 }} dataSource={value || []} ref={(node) => this.tableNode = node} className="set-dictionary-table" bordered rowKey="name" columns={columns} locale={{ 'emptyText': '数据为空' }} pagination={false} />
+                <Table size="middle" scroll={{ y: 200 }} dataSource={value || []} ref={(node) => this.tableNode = node} className="set-dictionary-table" bordered columns={columns} locale={{ 'emptyText': '数据为空' }} pagination={false} />
                 {
                     isEdit && <div className="add_dictionary"><Icon className="plus" onClick={this.onAdd} type="plus" /></div>
                 }
