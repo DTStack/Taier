@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Link, hashHistory, withRouter } from 'react-router';
 import { connect } from 'react-redux';
 import { Card, Row, Col, Icon, Spin } from 'antd';
+import { cloneDeep } from 'lodash';
 import moment from 'moment';
 import NewProjectModal from '../../components/newProject';
 import Api from '../../api/project';
@@ -86,6 +87,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
     }
 
     getCardTitle = (project: any, index: number) => {
+        if (!project) return;
         const title = <div>
             <Row>
                 <Col span={18} className='c_offten_project_card_title_info' >
@@ -159,39 +161,62 @@ class ProjectPanel extends React.Component<any, ProjectState> {
         const fixArrChildrenApps = this.fixApiChildrenApps(licenseApps[4] && licenseApps[4].children) || [];
         const apiMarket = fixArrChildrenApps[1];
         const apiManage = fixArrChildrenApps[3];
+        const getCardContent = () => {
+            if (project) {
+                return (
+                    <Card className="c_offten_project_card" noHovering bordered={false} title={this.getCardTitle(project, index)}>
+                        <Row className='c_offten_project_card_content'>
+                            <Col span={13}>
+                                API创建数： <span className='c_project_num'>{project.apiCreateCount}</span>
+                            </Col>
+                            <Col span={11}>
+                                API发布数： <span className='c_project_num'>{project.apiIssueCount}</span>
+                            </Col>
+                            <Col span={24}>
+                                <Row>
+                                    <Col>创建时间： <span className='c_project_num'>{moment(project.gmtCreate).format('YYYY-MM-DD HH:mm:ss')}</span></Col>
+                                </Row>
+                            </Col>
+                            <Col span={24} className="c_opera">
+                                <Row gutter={16}>
+                                    {project.status != 1 || (apiMarket && !apiMarket.isShow) ? null : (
+                                        <Col span={12}>
+                                            <div className="c_opera_link" {...{ onClick: () => { this.setRouter('apiMarket', project) } }} >API市场</div>
+                                        </Col>
+                                    )}
+                                    {
+                                        project.status != 1 || (apiManage && !apiManage.isShow) ? null : (
+                                            <Col span={12}>
+                                                <div className="c_opera_link" {...{ onClick: () => { this.setRouter('apiManage', project) } }}>API管理</div>
+                                            </Col>
+                                        )
+                                    }
+                                </Row>
+                            </Col>
+                        </Row>
+                    </Card>
+                )
+            } else {
+                return (
+                    <Card className="c_no_project_card" noHovering bordered={false}>
+                        <Row className='c_no_project_row'>
+                            <Col className='c_no_project_content' span={24}>
+                                <p>暂无项目</p>
+                            </Col>
+                            <Col span={24}>
+                                <div className="c_opera_link" {...{ onClick: () => { this.handleNewProject() } }}>
+                                    <img src='public/dataApi/img/plus.svg' />
+                                    创建项目
+                                </div>
+                            </Col>
+                        </Row>
+                    </Card>
+                )
+            }
+        }
         return (
             <Col span={8} className="c_offten_project_col">
-                <Card className="c_offten_project_card" noHovering bordered={false} title={this.getCardTitle(project, index)}>
-                    <Row className='c_offten_project_card_content'>
-                        <Col span={13}>
-                            API创建数： <span className='c_project_num'>{project.apiCreateCount}</span>
-                        </Col>
-                        <Col span={11}>
-                            API发布数： <span className='c_project_num'>{project.apiIssueCount}</span>
-                        </Col>
-                        <Col span={24}>
-                            <Row>
-                                <Col>创建时间： <span className='c_project_num'>{moment(project.gmtCreate).format('YYYY-MM-DD HH:mm:ss')}</span></Col>
-                            </Row>
-                        </Col>
-                        <Col span={24} className="c_opera">
-                            <Row gutter={16}>
-                                {project.status != 1 || (apiMarket && !apiMarket.isShow) ? null : (
-                                    <Col span={12}>
-                                        <div className="c_opera_link" {...{ onClick: () => { this.setRouter('apiMarket', project) } }} >API市场</div>
-                                    </Col>
-                                )}
-                                {
-                                    project.status != 1 || (apiManage && !apiManage.isShow) ? null : (
-                                        <Col span={12}>
-                                            <div className="c_opera_link" {...{ onClick: () => { this.setRouter('apiManage', project) } }}>API管理</div>
-                                        </Col>
-                                    )
-                                }
-                            </Row>
-                        </Col>
-                    </Row>
-                </Card>
+                {getCardContent()}
             </Col>
         )
     }
@@ -211,7 +236,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                 )
             } else {
                 return (
-                    <Col span={colSpan} key={index}>
+                    <Col span={colSpan} key={index} style={{ marginTop: '16px' }}>
                         <Card className='c_latest_day_card' noHovering bordered={false}>
                             <Row>
                                 <div className='c_latest_day_title'>{dataName}</div>
@@ -238,11 +263,22 @@ class ProjectPanel extends React.Component<any, ProjectState> {
             )
         })
     }
+    exChangeShowProject = (projects: any[] = []) => {
+        // 填充数组, 渲染无项目 card
+        const projectMap = cloneDeep(projects);
+        if (projects.length === 0 || projects.length === 3) {
+            return projectMap
+        } else if (projects.length === 1) {
+            return projectMap.concat([null, null])
+        } else if (projects.length === 2) {
+            return projectMap.concat(null)
+        };
+    }
     render () {
         const { visible, projectSummary } = this.state;
         const { apiCount, projectCount, apiIssueCount, total24InvokeCount, total24FailProbability } = projectSummary;
         const { projectListInfo = [], panelLoading } = this.props;
-        const showProjects = projectListInfo.slice(0, 3);
+        const showProjects = this.exChangeShowProject(projectListInfo.slice(0, 3));
         const totalData = [{
             dataName: '总项目数',
             data: projectCount,
@@ -303,7 +339,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                             </div>
                         </div>
                         <div className='c_process_pic'>
-                            <img src='public/dataApi/img/process_api.png' />
+                            <img src='public/dataApi/img/process.png' />
                         </div>
                     </section>
                     {/* 右侧项目总信息 */}
@@ -345,7 +381,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                         <Row>
                                             <Col span={24}>
                                                 {/* 暂时无视频，先用图片替代 */}
-                                                <img src='public/dataApi/img/opera_guide.png' style={{ width: '338px', height: '128px' }} />
+                                                <img src='public/dataApi/img/opera_guide.png' style={{ width: '380px', height: '180px' }} />
                                             </Col>
                                         </Row>
                                     </Card>
