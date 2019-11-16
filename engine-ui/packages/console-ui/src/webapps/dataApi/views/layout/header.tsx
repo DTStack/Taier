@@ -55,36 +55,22 @@ class Header extends React.Component<any, any> {
         let showList: any = {
             overview: false,
             market: false,
-            mine: false,
-            manage: false,
-            approval: false,
-            dataSource: false,
-            projectManage: false
+            myapi: false,
+            manager: false,
+            authorized: false,
+            datasource: false,
+            project: false
         }
         const menuList = this.props.common.menuList;
         if (menuList) {
+            const permissionMap = ['overview', 'market', 'myapi',
+                'manager', 'authorized', 'datasource', 'project'
+            ]
             for (let i in menuList) {
                 let item = menuList[i];
-                if (item.indexOf('overview') > -1) {
-                    showList.overview = true;
-                }
-                if (item.indexOf('market') > -1) {
-                    showList.market = true
-                }
-                if (item.indexOf('myapi') > -1) {
-                    showList.mine = true
-                }
-                if (item.indexOf('manager') > -1) {
-                    showList.manage = true
-                }
-                if (item.indexOf('authorized') > -1) {
-                    showList.approval = true
-                }
-                if (item.indexOf('datasource') > -1) {
-                    showList.dataSource = true
-                }
-                if (item.indexOf('project') > -1) {
-                    showList.projectManage = true
+                for (let j = 0; j <= permissionMap.length; j++) {
+                    const navName = permissionMap[j];
+                    if (item.indexOf(navName) > -1) showList[navName] = true
                 }
             }
         }
@@ -98,19 +84,19 @@ class Header extends React.Component<any, any> {
                         fixArrChildrenApps[1] = showList.market ? item : null;
                         break;
                     case '我的API':
-                        fixArrChildrenApps[2] = showList.mine ? item : null;
+                        fixArrChildrenApps[2] = showList.myapi ? item : null;
                         break;
                     case 'API管理':
-                        fixArrChildrenApps[3] = showList.manage ? item : null;
+                        fixArrChildrenApps[3] = showList.manager ? item : null;
                         break;
                     case '授权与安全':
-                        fixArrChildrenApps[4] = showList.approval ? item : null;
+                        fixArrChildrenApps[4] = showList.authorized ? item : null;
                         break;
                     case '数据源管理':
-                        fixArrChildrenApps[5] = showList.dataSource ? item : null;
+                        fixArrChildrenApps[5] = showList.datasource ? item : null;
                         break;
                     case '项目管理':
-                        fixArrChildrenApps[6] = showList.projectManage ? item : null;
+                        fixArrChildrenApps[6] = showList.project ? item : null;
                         break;
                 }
             })
