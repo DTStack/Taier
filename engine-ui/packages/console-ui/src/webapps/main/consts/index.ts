@@ -67,7 +67,8 @@ export const APP_ROLE = { // 项目角色
     ADMIN: 2, // 应用管理者
     VISITOR: 3, // 访客
     DEVELOPER: 4, // 开发者
-    CUSTOM: 5 // 自定义
+    CUSTOM: 5, // 自定义
+    PROOWNER: 6 // 项目所有者
 }
 
 export const formItemLayout = { // 表单正常布局

@@ -41,7 +41,7 @@ export default {
 
     //* * 用户角色 *//
     DATAAPI_QUERY_USER: `${DATA_API_BASE_URL}/user/pageQuery`, // 查询系统用户信息
-    DATAAPI_REMOVE_USER: `${DATA_API_BASE_URL}/roleUser/remove`, // 删除用户
+    DATAAPI_REMOVE_USER: `${DATA_API_BASE_URL}/roleUser/removeRoleUserFromProject`, // 删除用户
     DATAAPI_UPDATE_USER_ROLE: `${DATA_API_BASE_URL}/roleUser/updateUserRole`, // 更改用户角色
     DATAAPI_ADD_USER: `${DATA_API_BASE_URL}/roleUser/addRoleUserNew`, // 添加用户
     DATAAPI_ROLE_QUERY: `${DATA_API_BASE_URL}/role/pageQuery`, // 角色列表

@@ -5,6 +5,7 @@ import Navigator from 'main/components/nav';
 import { getHeaderLogo } from 'main/consts';
 import * as ProjectAction from '../../actions/project';
 import docPath from '../../consts/docPath';
+import utils from 'utils';
 
 const NOT_SHOW_KEY = 'projectList'; // projectList不显示导航
 const SubMenu = Menu.SubMenu;
@@ -42,15 +43,6 @@ class Header extends React.Component<any, any> {
         const routes = pathname ? pathname.split('/') : [];
         let path =
             routes.length > 0 && routes[1] !== '' ? routes[2] : NOT_SHOW_KEY;
-        // if (
-        //     path &&
-        //     (path.indexOf('task') > -1 || path.indexOf('offline') > -1 || path.indexOf('realtime') > -1)
-        // ) {
-        //     this.setState({
-        //         devPath: pathname
-        //     });
-        //     path = 'realtime'
-        // }
         if (path !== this.state.current) {
             this.setState({
                 current: path
@@ -75,17 +67,23 @@ class Header extends React.Component<any, any> {
                 let item = menuList[i];
                 if (item.indexOf('overview') > -1) {
                     showList.overview = true;
-                } else if (item.indexOf('market') > -1) {
+                }
+                if (item.indexOf('market') > -1) {
                     showList.market = true
-                } else if (item.indexOf('myapi') > -1) {
+                }
+                if (item.indexOf('myapi') > -1) {
                     showList.mine = true
-                } else if (item.indexOf('manager') > -1) {
+                }
+                if (item.indexOf('manager') > -1) {
                     showList.manage = true
-                } else if (item.indexOf('authorized') > -1) {
+                }
+                if (item.indexOf('authorized') > -1) {
                     showList.approval = true
-                } else if (item.indexOf('datasource') > -1) {
+                }
+                if (item.indexOf('datasource') > -1) {
                     showList.dataSource = true
-                } else if (item.indexOf('project') > -1) {
+                }
+                if (item.indexOf('project') > -1) {
                     showList.projectManage = true
                 }
             }
@@ -152,7 +150,7 @@ class Header extends React.Component<any, any> {
                             value={name}
                             key={project.id}
                         >
-                            {project.projectAlias || project.projectName}
+                            {utils.textOverflowExchange(project.projectAlias || project.projectName, 24)}
                         </Menu.Item>
                     );
                 });
