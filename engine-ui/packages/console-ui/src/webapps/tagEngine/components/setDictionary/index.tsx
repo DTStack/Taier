@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Table, Icon } from 'antd';
+import { Table, Icon, message } from 'antd';
 import EditInput from '../editInput/index';
 import './style.scss';
 interface IProps {
@@ -20,7 +20,25 @@ export default class SetDictionary extends React.PureComponent<IProps, any> {
 
     onAdd = () => {
         const { value = [] } = this.props;
-        this.props.onChange([...value, { name: '', value: '' }])
+        let hasEmpty = false;
+        console.log(value)
+        // 判断是否还有空的未填写
+        for (let i = 0, len = value.length; i < len; i++) {
+            for (let key in value[i]) {
+                if (value[i][key] == '') {
+                    hasEmpty = true;
+                    break;
+                }
+            }
+            if (hasEmpty) {
+                break;
+            }
+        }
+        if (hasEmpty) {
+            message.warning('请将已有表单填写完整，才可继续新增！');
+        } else {
+            this.props.onChange([...value, { name: '', value: '' }])
+        }
     }
     onClose = (index: number) => {
         const { value = [] } = this.props;
