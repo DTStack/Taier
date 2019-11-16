@@ -3,6 +3,7 @@ import { Link, hashHistory } from 'react-router';
 import { Card, Table, Input, Button } from 'antd';
 import DeleteModal from '../../../components/deleteModal';
 import './style.scss';
+// import API from '../../../../api'
 
 const Search = Input.Search;
 
@@ -41,17 +42,36 @@ export default class DictionaryManage extends React.PureComponent<any, IState> {
         deleteItem: {}
     }
     componentDidMount () {
-
+        this.loadData();
     }
 
     loadData = () => {
-
+        const { pageSize, pageNo, desc, sorterField, searchVal } = this.state;
+        let params = {
+            pageSize,
+            pageNo,
+            searchVal,
+            desc,
+            sorterField
+        }
+        console.log(params);
+        // API.xxxxx(params).then((res: any) => {
+        //     const { data = [], code } = res;
+        //     if (code === 1) {
+        //         this.setState({
+        //             dataSource: data.data,
+        //             total: data.total,
+        //             loading: false
+        //         })
+        //     }
+        // })
     }
 
     handleSearch = (query: any) => {
         this.setState({
             searchVal: query,
-            pageNo: 1
+            pageNo: 1,
+            loading: true
         }, this.loadData)
     }
 
@@ -59,7 +79,8 @@ export default class DictionaryManage extends React.PureComponent<any, IState> {
         this.setState({
             pageNo: pagination.current,
             sorterField: sorter.field || '',
-            desc: sorter.order == 'descend' || false
+            desc: sorter.order == 'descend' || false,
+            loading: true
         }, this.loadData);
     }
 
@@ -86,12 +107,27 @@ export default class DictionaryManage extends React.PureComponent<any, IState> {
 
     handleDeleteModel = (type: string) => {
         if (type == 'ok') {
-            // TODO 请求处理删除
+            // API.xxxxx({
+            //     id: this.state.deleteItem.id
+            // }).then((res: any) => {
+            //     const { data = [], code } = res;
+            //     if (code === 1) {
+            //         this.setState({
+            //             pageNo: 1,
+            //             loading: true,
+            //             deleteVisible: false,
+            //             deleteItem: {}
+            //         }, () => {
+            //             this.loadData();
+            //         })
+            //     }
+            // })
+        } else {
+            this.setState({
+                deleteVisible: false,
+                deleteItem: {}
+            })
         }
-        this.setState({
-            deleteVisible: false,
-            deleteItem: {}
-        })
     }
 
     initColumns = () => {
