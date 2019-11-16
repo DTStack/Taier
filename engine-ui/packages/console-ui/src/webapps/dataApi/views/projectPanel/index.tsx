@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { Card, Row, Col, Icon, Spin } from 'antd';
 import { cloneDeep } from 'lodash';
 import moment from 'moment';
+import utils from 'utils'
 import NewProjectModal from '../../components/newProject';
 import Api from '../../api/project';
 import * as projectActions from '../../actions/project';
@@ -97,9 +98,14 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                 <span className='c_offten_project_card_title_name' onClick={
                                     () => {
                                         this.props.dispatch(projectActions.getProject(project.id))
-                                    }}>{project.projectAlias}</span><br />
+                                    }}
+                                title={project.projectAlias}>
+                                    {utils.textOverflowExchange(project.projectAlias, 19)}
+                                </span><br />
                             </Link>
-                        ) : <span className='c_offten_project_card_title_name'>{project.projectAlias}</span>
+                        ) : <span className='c_offten_project_card_title_name' title={project.projectAlias}>
+                            {utils.textOverflowExchange(project.projectAlias, 19)}
+                        </span>
                     }
                     <span className='c_offten_project_card_title_name_alias'>
                         {this.renderTitleText(project)}
@@ -126,8 +132,8 @@ class ProjectPanel extends React.Component<any, ProjectState> {
             }
             case PROJECT_STATUS.NORMAL: {
                 return (
-                    <span>
-                        {`(${data.projectName})`}
+                    <span title={data.projectName}>
+                        {utils.textOverflowExchange(data.projectName, 19)}
                     </span>
                 )
             }
