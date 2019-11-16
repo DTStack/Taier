@@ -100,7 +100,13 @@ const DerivativeLabelDetails = asyncComponent(
         ),
     { name: 'derivativeLabelDetails' }
 );
-
+const EditAtomicLabel = asyncComponent(
+    () =>
+        import('./views/labelCenter/editAtomicLabel').then(
+            (module: any) => module.default
+        ),
+    { name: 'editAtomicLabel' }
+);
 // ======= 项目 =======
 
 const ProjectContainer = asyncComponent(
@@ -215,6 +221,10 @@ const routeConfig = [
             {
                 path: '/derivativeLabelDetails',
                 component: DerivativeLabelDetails
+            },
+            {
+                path: '/editAtomicLabel',
+                component: EditAtomicLabel
             },
             {
                 path: '/createLabel',

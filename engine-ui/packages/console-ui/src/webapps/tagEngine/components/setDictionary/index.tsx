@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Table, Icon, message } from 'antd';
 import EditInput from '../editInput/index';
+import shortid from 'shortid';
 import './style.scss';
 interface IProps {
     isEdit: boolean;
@@ -20,24 +21,17 @@ export default class SetDictionary extends React.PureComponent<IProps, any> {
 
     onAdd = () => {
         const { value = [] } = this.props;
-        let hasEmpty = false;
-        console.log(value)
-        // 判断是否还有空的未填写
-        for (let i = 0, len = value.length; i < len; i++) {
-            for (let key in value[i]) {
-                if (value[i][key] == '') {
-                    hasEmpty = true;
-                    break;
-                }
-            }
-            if (hasEmpty) {
-                break;
-            }
+        this.props.onChange([...value, { name: '', value: '', key: shortid() }]);
+    }
+    setBottom = () => {
+        const tableScroll = document.querySelector('.set-dictionary-table .ant-table-body');
+        if (tableScroll) {
+            tableScroll.scrollTop = tableScroll.scrollHeight
         }
-        if (hasEmpty) {
-            message.warning('请将已有表单填写完整，才可继续新增！');
-        } else {
-            this.props.onChange([...value, { name: '', value: '' }])
+    }
+    componentDidUpdate (prePorps, preState) {
+        if (prePorps.value != this.props.value) {
+            this.setBottom();
         }
     }
     onClose = (index: number) => {
@@ -75,7 +69,7 @@ export default class SetDictionary extends React.PureComponent<IProps, any> {
         ];
         return (
             <div className="set-dictionary">
-                <Table size="middle" scroll={{ y: 200 }} dataSource={value || []} ref={(node) => this.tableNode = node} className="set-dictionary-table" bordered rowKey="name" columns={columns} locale={{ 'emptyText': '数据为空' }} pagination={false} />
+                <Table size="middle" scroll={{ y: 200 }} dataSource={value || []} ref={(node) => this.tableNode = node} className="set-dictionary-table" bordered columns={columns} locale={{ 'emptyText': '数据为空' }} pagination={false} />
                 {
                     isEdit && <div className="add_dictionary"><Icon className="plus" onClick={this.onAdd} type="plus" /></div>
                 }

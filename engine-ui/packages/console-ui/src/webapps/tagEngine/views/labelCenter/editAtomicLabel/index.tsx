@@ -15,7 +15,7 @@ interface IState {
     current: number;
     stepsValues: any[];
 }
-export default class CreateLabel extends React.PureComponent<IProps, IState> {
+export default class EditAtomicLabel extends React.PureComponent<IProps, IState> {
     constructor (props: any) {
         super(props);
     }
@@ -58,12 +58,12 @@ export default class CreateLabel extends React.PureComponent<IProps, IState> {
                 name: '标签管理'
             },
             {
-                path: '/createLabel',
-                name: '新建标签'
+                path: '/editAtomicLabel',
+                name: '编辑原子标签'
             }
         ];
         return (
-            <div className="create-label">
+            <div className="editAtomicLabel">
                 <Breadcrumb breadcrumbNameMap={breadcrumbNameMap} />
                 <div className="create_label_content">
                     <Steps current={current}>

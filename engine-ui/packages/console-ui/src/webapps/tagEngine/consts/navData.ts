@@ -37,13 +37,13 @@ const navData: any = [
         'permissionIcon': '',
         'authCode': '',
         'permissionUrl': '/labelCenter',
-        'routers': ['/labelCenter', '/labelDirectory', '/createLabel', '/atomicLabelDetails', '/derivativeLabelDetails'],
+        'routers': ['/labelCenter', '/labelDirectory', '/createLabel', '/atomicLabelDetails', '/derivativeLabelDetails', '/editAtomicLabel'],
         'children': [
             {
                 'permissionIcon': '#icon-project_set',
                 'permissionName': '标签管理',
                 'permissionUrl': '/labelCenter',
-                'routers': ['/labelCenter', '/createLabel', '/atomicLabelDetails', '/derivativeLabelDetails']
+                'routers': ['/labelCenter', '/createLabel', '/atomicLabelDetails', '/derivativeLabelDetails', '/editAtomicLabel']
             },
             {
                 'permissionIcon': '#icon-project_set',
