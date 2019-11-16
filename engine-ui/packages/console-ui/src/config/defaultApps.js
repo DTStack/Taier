@@ -17,7 +17,7 @@ module.exports = [
         filename: 'batch.html',
         link: '/batch.html#',
         target: '_self',
-        enable: false,
+        enable: true,
         hasProject: true, // 是否拥有项目选择
         default: true, // 是否为默认应用选项
         apiBase: '/rdos',
@@ -45,7 +45,7 @@ module.exports = [
         link: 'analytics.html#/',
         filename: 'analytics.html',
         target: '_self',
-        enable: false,
+        enable: true,
         disableMessage: true, // 禁用消息
         apiBase: '/analytics',
         icon: '/public/main/img/icon_3.png',
@@ -58,7 +58,7 @@ module.exports = [
         link: 'dataQuality.html#/',
         filename: 'dataQuality.html',
         target: '_self',
-        enable: false,
+        enable: true,
         apiBase: '/dq',
         icon: '/public/main/img/icon_4.png',
         newIcon: '/public/main/img/icon_new4.png',
@@ -94,7 +94,7 @@ module.exports = [
         link: 'science.html#/',
         filename: 'science.html',
         target: '_self',
-        enable: false,
+        enable: true,
         apiBase: '/science',
         icon: '/public/main/img/icon_suanfa.png',
         newIcon: '/public/main/img/icon_newsuanfa.png',
