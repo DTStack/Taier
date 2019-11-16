@@ -5,6 +5,7 @@ import Navigator from 'main/components/nav';
 import { getHeaderLogo } from 'main/consts';
 import * as ProjectAction from '../../actions/project';
 import docPath from '../../consts/docPath';
+import utils from 'utils';
 
 const NOT_SHOW_KEY = 'projectList'; // projectList不显示导航
 const SubMenu = Menu.SubMenu;
@@ -152,7 +153,7 @@ class Header extends React.Component<any, any> {
                             value={name}
                             key={project.id}
                         >
-                            {project.projectAlias || project.projectName}
+                            {utils.textOverflowExchange(project.projectAlias || project.projectName, 24)}
                         </Menu.Item>
                     );
                 });
