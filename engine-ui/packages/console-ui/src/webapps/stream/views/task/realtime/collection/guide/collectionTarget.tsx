@@ -145,6 +145,7 @@ class CollectionTarget extends React.Component<any, any> {
             tableList: [],
             partitions: []
         })
+        console.log('isKafka:', type, isKafka(type));
         if (isKafka(type)) {
             this.getTopicType(sourceId)
         } else if (isHive(type)) {
