@@ -15,6 +15,10 @@ const showMapArr: any = {
         ['jdbcUrl', 'jdbcUrl'],
         ['username', '用户名']
     ],
+    [DATA_SOURCE.CLICK_HOUSE]: [
+        ['jdbcUrl', 'jdbcUrl'],
+        ['username', '用户名']
+    ],
     [DATA_SOURCE.ORACLE]: [
         ['jdbcUrl', 'jdbcUrl'],
         ['username', '用户名']

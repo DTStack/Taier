@@ -157,6 +157,8 @@ export function DatabaseType (props: any) {
             return <span>KYLIN</span>
         case DATA_SOURCE.MYSQL:
             return <span>MySQL</span>
+        case DATA_SOURCE.CLICK_HOUSE:
+            return <span>ClickHouse</span>
         case DATA_SOURCE.ORACLE:
             return <span>Oracle</span>
         case DATA_SOURCE.SQLSERVER:
