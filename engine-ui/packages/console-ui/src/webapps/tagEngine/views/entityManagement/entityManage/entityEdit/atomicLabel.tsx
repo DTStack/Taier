@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Input, Table, Popover } from 'antd';
 import ConfigDictModal from './configDictModal';
-// import PreviewModal from './previewModal';
 import { isEqual } from 'lodash';
 // import EditCell from '../../../../components/editCell';
 import './style.scss';
@@ -14,7 +13,6 @@ interface IProps {
 interface IState {
     dataSource: any[];
     configModalVisble: boolean;
-    previewModalVisible: boolean;
     total: number;
 }
 
@@ -22,7 +20,6 @@ export default class AtomicLabel extends React.Component<IProps, IState> {
     state: IState = {
         dataSource: [],
         configModalVisble: false,
-        previewModalVisible: false,
         total: 0
     }
 
@@ -59,24 +56,6 @@ export default class AtomicLabel extends React.Component<IProps, IState> {
     handleConfModelCancel = () => {
         this.setState({
             configModalVisble: false
-        })
-    }
-
-    handlePreview = () => {
-        this.setState({
-            previewModalVisible: true
-        })
-    }
-
-    handlePrevModelOk = () => {
-        this.setState({
-            previewModalVisible: false
-        })
-    }
-
-    handlePrevModelCancel = () => {
-        this.setState({
-            previewModalVisible: false
         })
     }
 
@@ -201,12 +180,6 @@ export default class AtomicLabel extends React.Component<IProps, IState> {
                     onOk={this.handleConfModelOk}
                     onCancel={this.handleConfModelCancel}
                 />
-                {/* <PreviewModal
-                    infor={'1,3,4,5,6,...'}
-                    visible={previewModalVisible}
-                    onOk={this.handlePrevModelOk}
-                    onCancel={this.handlePrevModelCancel}
-                /> */}
             </div>
         )
     }

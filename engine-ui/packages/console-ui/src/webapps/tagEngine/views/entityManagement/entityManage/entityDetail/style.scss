@@ -55,4 +55,20 @@
     // .ant-table-fixed-header .ant-table-scroll .ant-table-header {
     //     padding-bottom: 20px;
     // }
+    .dd-edit-cell{
+        display: flex;
+        .edit_input_row{
+            display: flex;
+            align-items: center;
+            width: 100%;
+            // .input{
+            //   width: 200px;
+            //   line-height: 24px;
+            //   height: 24px;
+            // } 
+        }
+        a{
+            margin-left: 10px;
+        }
+    }
 }

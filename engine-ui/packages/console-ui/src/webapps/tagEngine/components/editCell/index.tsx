@@ -8,6 +8,7 @@ interface PropsInterface {
     keyField: string;
     isView?: boolean;
     onHandleEdit: Function;
+    isCurrentEdit?: boolean;
 }
 interface StateInterface {
     isEdit: boolean;
@@ -29,7 +30,7 @@ export default class EditCell extends React.PureComponent<PropsInterface, StateI
     onChangeEdit = (e: any) => {
         const value = e.target.value;
         this.setState({
-            editValue: value ? value.splice(0, 20) : ''
+            editValue: value ? value.slice(0, 20) : ''
         });
     };
     onOkEdit = () => {
