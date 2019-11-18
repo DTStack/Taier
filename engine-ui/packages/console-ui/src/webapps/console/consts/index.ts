@@ -226,7 +226,9 @@ export const validateFlinkParams: any = [ // flink
     'flinkConf.typeName',
     'flinkConf.clusterMode',
     'flinkConf.flinkJarPath',
-    'flinkConf.flinkJobHistory',
+    // 'flinkConf.flinkJobHistory',
+    // 'flinkConf.flinkJobHistory',
+    // 'flinkConf.flinkJobHistory',
     // 'flinkConf.flinkPrincipal',
     // 'flinkConf.flinkKeytabPath',
     // 'flinkConf.flinkKrb5ConfPath',
@@ -317,7 +319,23 @@ export const FLINK_KEY_MAP: any = {
     'yarn.jobmanager.help.mb': 'yarnJobmanagerHelpMb',
     'yarn.taskmanager.help.mb': 'yarnTaskmanagerHelpMb',
     'yarn.taskmanager.numberOfTaskSlots': 'yarnTaskmanagerNumberOfTaskSlots',
-    'yarn.taskmanager.numberOfTaskManager': 'yarnTaskmanagerNumberOfTaskManager'
+    'yarn.taskmanager.numberOfTaskManager': 'yarnTaskmanagerNumberOfTaskManager',
+    // prometheus相关
+    'metrics.reporter.promgateway.class': 'metricsReporterPromgatewayClass',
+    'metrics.reporter.promgateway.host': 'metricsReporterPromgatewayHost',
+    'metrics.reporter.promgateway.port': 'metricsReporterPromgatewayPort',
+    'metrics.reporter.promgateway.jobName': 'metricsReporterPromgatewayJobName',
+    'metrics.reporter.promgateway.randomJobNameSuffix': 'metricsReporterPromgatewayRandomJobNameSuffix',
+    'metrics.reporter.promgateway.deleteOnShutdown': 'metricsReporterPromgatewayDeleteOnShutdown',
+    // flinkJobHistory =>
+    'historyserver.web.address': 'historyserverWebAddress',
+    'historyserver.web.port': 'historyserverWebPort',
+
+    'high-availability.cluster-id': 'high-availabilityCluster-id',
+    'high-availability.zookeeper.path.root': 'high-availabilityZookeeperPathRoot',
+    'high-availability.zookeeper.quorum': 'high-availabilityZookeeperQuorum',
+    'jobmanager.archive.fs.dir': 'jobmanagerArchiveFsDir',
+    'high-availability.storageDir': 'high-availabilityStorageDir'
 }
 export const FLINK_KEY_MAP_DOTS: any = {
     'yarnJobmanagerHelpMb': 'yarn.jobmanager.help.mb',
@@ -325,20 +343,47 @@ export const FLINK_KEY_MAP_DOTS: any = {
     'yarnTaskmanagerNumberOfTaskSlots': 'yarn.taskmanager.numberOfTaskSlots',
     'yarnTaskmanagerNumberOfTaskManager': 'yarn.taskmanager.numberOfTaskManager',
     'stateCheckpointsDir': 'state.checkpoints.dir',
-    'stateCheckpointsNum-retained': 'state.checkpoints.num-retained'
+    'stateCheckpointsNum-retained': 'state.checkpoints.num-retained',
+    // prometheus相关
+    'metricsReporterPromgatewayClass': 'metrics.reporter.promgateway.class',
+    'metricsReporterPromgatewayHost': 'metrics.reporter.promgateway.host',
+    'metricsReporterPromgatewayPort': 'metrics.reporter.promgateway.port',
+    'metricsReporterPromgatewayJobName': 'metrics.reporter.promgateway.jobName',
+    'metricsReporterPromgatewayRandomJobNameSuffix': 'metrics.reporter.promgateway.randomJobNameSuffix',
+    'metricsReporterPromgatewayDeleteOnShutdown': 'metrics.reporter.promgateway.deleteOnShutdown',
+    // flinkJobHistory =>
+    'historyserverWebAddress': 'historyserver.web.address',
+    'historyserverWebPort': 'historyserver.web.port',
+
+    'high-availabilityCluster-id': 'high-availability.cluster-id',
+    'high-availabilityZookeeperPathRoot': 'high-availability.zookeeper.path.root',
+    'high-availabilityZookeeperQuorum': 'high-availability.zookeeper.quorum',
+    'jobmanagerArchiveFsDir': 'jobmanager.archive.fs.dir',
+    'high-availabilityStorageDir': 'high-availability.storageDir'
 }
 // 非用户自定义参数
 export const notExtKeysFlink: any = [
-    'typeName', 'flinkZkAddress',
-    'flinkHighAvailabilityStorageDir',
-    'flinkZkNamespace', 'reporterClass',
-    'gatewayHost', 'gatewayPort',
-    'gatewayJobName', 'deleteOnShutdown',
-    'randomJobNameSuffix', 'jarTmpDir',
+    'typeName',
+    // 'flinkZkAddress',
+    'high-availability.zookeeper.quorum',
+    // 'flinkHighAvailabilityStorageDir',
+    'high-availability.storageDir',
+    // 'flinkZkNamespace',
+    'high-availability.zookeeper.path.root',
+    'metrics.reporter.promgateway.class',
+    'metrics.reporter.promgateway.host',
+    'metrics.reporter.promgateway.port',
+    'metrics.reporter.promgateway.jobName',
+    'metrics.reporter.promgateway.randomJobNameSuffix',
+    'metrics.reporter.promgateway.deleteOnShutdown',
+    'jarTmpDir',
     'flinkPluginRoot', 'remotePluginRootDir',
     'clusterMode', 'flinkJarPath',
-    'flinkJobHistory',
-    'flinkClusterId',
+    // 'flinkJobHistory',
+    'historyserver.web.address',
+    'historyserver.web.port',
+    // 'flinkClusterId',
+    'high-availability.cluster-id',
     // 'flinkPrincipal', 'flinkKeytabPath', 'flinkKrb5ConfPath',
     // 'zkPrincipal', 'zkKeytabPath', 'zkLoginName',
     'yarn.jobmanager.help.mb',
@@ -346,7 +391,8 @@ export const notExtKeysFlink: any = [
     'openKerberos', 'kerberosFile',
     'flinkSessionSlotCount',
     'state.checkpoints.dir',
-    'jobmanagerArchiveFsDir',
+    // 'jobmanagerArchiveFsDir',
+    'jobmanager.archive.fs.dir',
     'state.checkpoints.num-retained'
 ];
 export const notExtKeysSpark: any = [
