@@ -600,7 +600,7 @@ class CollectionSourceForm extends React.Component<any, any> {
                             ]
                         })(
                             <Select
-                                disabled={isEdit}
+                                disabled={isEdit && type === DATA_SOURCE.KAFKA}
                                 showSearch
                                 placeholder="请选择数据源"
                                 className="right-select"

@@ -250,7 +250,7 @@ class CollectionTargetForm extends React.Component<any, any> {
                             }]
                         })(
                             <Select
-                                disabled={isEdit}
+                                disabled={isEdit && targetMap.type === DATA_SOURCE.KAFKA}
                                 style={{ width: '100%' }}
                                 placeholder="请选择topic"
 
