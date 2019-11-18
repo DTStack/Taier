@@ -14,6 +14,12 @@ import * as ProjectAction from '../../../actions/project'
 
 const Search = Input.Search
 
+interface PrevProps {
+    project: {
+        id: number;
+    };
+}
+
 class ProjectMember extends React.Component<any, any> {
     memberForm: any;
     eidtRoleForm: any;
@@ -36,15 +42,15 @@ class ProjectMember extends React.Component<any, any> {
         this.loadUsersNotInProject()
     }
 
-    // eslint-disable-next-line
-	// UNSAFE_componentWillReceiveProps(nextProps: any) {
-    //     const project = nextProps.project
-    //     const oldProj = this.props.project
-    //     if (oldProj && project && oldProj.id !== project.id) {
-    //         this.search(project.id)
-    //         this.loadRoles()
-    //     }
-    // }
+    componentDidUpdate (prevProps: PrevProps, prevState: any) {
+        const { project } = this.props;
+        const oldProj = prevProps.project;
+        if (oldProj && project && oldProj.id !== project.id) {
+            this.search(project.id)
+            this.loadRoles()
+            this.loadUsersNotInProject()
+        }
+    }
 
     initAddMember = () => {
         this.setState({ visible: true })

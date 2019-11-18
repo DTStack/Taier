@@ -66,7 +66,10 @@ class ProjectConfig extends React.Component<any, any> {
         bindProject: {},
         projectBindList: []
     }
-
+    componentDidMount () {
+        const { project, dispatch } = this.props
+        dispatch(ProjectAction.getProject(project.id));
+    }
     updateProjectDesc = () => {
         const { params, project, dispatch } = this.props
         const ctx = this
