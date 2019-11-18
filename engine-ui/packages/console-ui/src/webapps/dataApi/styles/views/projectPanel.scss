@@ -358,10 +358,32 @@
                     height: 212px;
                     margin-top: 15px;
                     text-align: center;
-                    line-height: 212px;
+                    padding-top: 68px;
                     font-family: PingFangSC-Regular;
                     font-size: 16px;
                     color: #BFD1F2;
+                    .c_opera_link {
+                        margin: 10px auto;
+                        cursor: pointer;
+                        font-family: PingFangSC-Regular;
+                        font-size: 14px;
+                        color: #42C1FF;
+                        line-height: 24px;
+                        min-width: 100px;
+                        width: 140px;
+                        height: 36px;
+                        line-height: 36px;
+                        text-align: center;
+                        background: rgba(22,171,245,0.12);
+                        border: 1px solid rgba(22,171,245,0.37);
+                        border-radius: 2px;
+                        &:hover {
+                            background: rgba(22,171,245,0.25);
+                        }
+                        img {
+                            margin-right: 4px;
+                        }
+                    }
                 }
                 .c_offten_project_col {
                     min-width: 280px;
@@ -626,6 +648,23 @@
             .c_video_width {
                 width: 100%;
                 min-height: 235px;
+                cursor: pointer;
+                .ant-card-body {
+                    padding: 0;
+                }
+                .c_developing {
+                    position: absolute;
+                    left: 100px;
+                    top: 84px;
+                    z-index: 100;
+                    font-size: 14px;
+                    width: 176px;
+                    height: 64px;
+                    text-align: center;
+                    line-height: 64px;
+                    color: #FAFAFA;
+                    background: rgba(0, 0, 0, .8);
+                }
             }
         }
     }
