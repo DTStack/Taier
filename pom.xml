@@ -30,7 +30,8 @@
         <module>plugins/odps</module>
         <module>plugins/kylin</module>
         <module>plugins/rdbs</module>
-        <module>plugins/hadoop</module>
+        <module>plugins/hadoop/hadoop2</module>
+        <module>plugins/hadoop/hadoop3</module>
         <module>service</module>
         <module>web</module>
         <module>entrance</module>

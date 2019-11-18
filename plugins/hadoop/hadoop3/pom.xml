@@ -6,16 +6,16 @@
         <groupId>com.dtstack.engine</groupId>
         <artifactId>engine-all</artifactId>
         <version>1.0.0</version>
-        <relativePath>../../pom.xml</relativePath>
+        <relativePath>../../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>plugins.hadoop</artifactId>
+    <artifactId>plugins.hadoop3</artifactId>
     <packaging>jar</packaging>
 
     <properties>
-        <jar.name>hadoop</jar.name>
-        <hadoop.version>2.7.3</hadoop.version>
+        <jar.name>hadoop3</jar.name>
+        <hadoop.version>3.0.0</hadoop.version>
     </properties>
 
     <dependencies>
@@ -162,10 +162,10 @@
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
                                       tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
-                                <copy todir="${basedir}/target/../../../pluginLibs/hadoop/"
+                                <copy todir="${basedir}/target/../../../../pluginLibs/hadoop2/"
                                       file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/target/../../../pluginLibs/hadoop/"
+                                    <fileset dir="${basedir}/target/../../../../pluginLibs/hadoop2/"
                                              includes="${jar.name}-*.jar"
                                              excludes="${jar.name}-${git.branch}.jar"/>
                                 </delete>
