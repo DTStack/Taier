@@ -37,14 +37,15 @@ class ProjectMember extends React.Component<any, any> {
     }
 
     // eslint-disable-next-line
-	// UNSAFE_componentWillReceiveProps(nextProps: any) {
-    //     const project = nextProps.project
-    //     const oldProj = this.props.project
-    //     if (oldProj && project && oldProj.id !== project.id) {
-    //         this.search(project.id)
-    //         this.loadRoles()
-    //     }
-    // }
+	UNSAFE_componentWillReceiveProps(nextProps: any) {
+        const project = nextProps.project
+        const oldProj = this.props.project
+        if (oldProj && project && oldProj.id !== project.id) {
+            this.search(project.id)
+            this.loadRoles()
+            this.loadUsersNotInProject()
+        }
+    }
 
     initAddMember = () => {
         this.setState({ visible: true })

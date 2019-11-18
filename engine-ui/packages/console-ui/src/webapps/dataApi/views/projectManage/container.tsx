@@ -35,7 +35,7 @@ class Container extends React.Component<any, InitState> {
 	UNSAFE_componentWillReceiveProps(nextProps: any) {
         const { params = {}, project = {} } = nextProps;
         if (params.pid != project.id) {
-            hashHistory.push(location.hash.replace(/.*?(\/project\/)[^/]+(.*)/i, `$1${project.id}$2`))
+            hashHistory.push(location.hash.replace(/.*?(\/api\/project\/)[^/]+(.*)/i, `$1${project.id}$2`))
         }
     }
 
