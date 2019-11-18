@@ -262,7 +262,7 @@ class DataSourceManaStream extends React.Component<any, any> {
             title: '应用状态',
             dataIndex: 'active',
             key: 'active',
-            width: '70px',
+            width: '120px',
             render: (active: any, record: any) => {
                 return active === 1 ? <DataSourceTaskListModal type="stream" dataSource={record}>使用中</DataSourceTaskListModal> : '未使用'
             }
@@ -275,7 +275,7 @@ class DataSourceManaStream extends React.Component<any, any> {
             </Tooltip>,
             dataIndex: 'linkState',
             key: 'linkState',
-            width: '100px',
+            width: '120px',
             render: (text: any, record: any) => {
                 return record.linkState === 1
                     ? <span><Circle style={{ background: '#00A755' }} /> 正常</span>

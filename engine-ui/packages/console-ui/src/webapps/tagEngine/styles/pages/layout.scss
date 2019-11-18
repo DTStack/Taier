@@ -20,6 +20,7 @@ $activeColor: #262e36; // 主色
     .tag-container {
         padding-top:50px; 
         min-width: $minWidth;
+        overflow-y: auto;
         min-height: calc(100vh - 50px);
     }
     .tag-content{
@@ -69,7 +70,13 @@ $activeColor: #262e36; // 主色
             }
         }
     }
-    
+    .ant-slider-pos{
+        position: fixed;
+        top: 50px;
+        bottom:0;
+        left: 0;
+        z-index: 1000;
+    }
     .sidebar {
         height: 100%;
         border-right: 1px solid #e9e9e9;

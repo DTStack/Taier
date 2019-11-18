@@ -100,7 +100,7 @@ class SideLayout extends React.Component<IProps, IState> {
                                 </div>
                                 <SideBar menuData={menuData[0] ? menuData[0].children : [] } {...this.props} mode={this.state.mode} />
                             </Sider>
-                            <Content className="inner-container">{children}</Content>
+                            <Content className="inner-container" style={{ paddingLeft: this.state.collapsed ? 84 : 220 }}>{children}</Content>
                         </React.Fragment> : (<DashBoard/>)
                     }
 
