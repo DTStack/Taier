@@ -261,6 +261,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
     loopOperaLink = (data: any[] = []) => {
         return data.map((item, index) => {
             const { title, link } = item;
+            // const push = index == 1 ? 1 : 2;
             return (
                 <Col span={8} key={index}>
                     <div className='c_help_target'>
@@ -339,7 +340,15 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                             </Row>
                                         ) : (
                                             <Row className='c_no_project'>
-                                                <Col span={24}>暂无项目，来创建您的第一个项目吧！</Col>
+                                                <Col span={24}>
+                                                    暂无项目，来创建您的第一个项目吧！
+                                                </Col>
+                                                <Col span={24}>
+                                                    <div className="c_opera_link" {...{ onClick: () => { this.handleNewProject() } }}>
+                                                        <img src='public/dataApi/img/plus.svg' />
+                                                        创建项目
+                                                    </div>
+                                                </Col>
                                             </Row>
                                         )
                                     }
@@ -376,21 +385,30 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                             <div>
                                 <Row>
                                     <Card className='c_use_tutorial_card'>
-                                        <Row gutter={16}>
+                                        <Row gutter={64}>
                                             {this.loopOperaLink(OPERA_ROW_ONE_DATA)}
                                         </Row>
-                                        <Row gutter={16}>
+                                        <Row gutter={64}>
                                             {this.loopOperaLink(OPERA_ROW_TWO_DATA)}
                                         </Row>
                                     </Card>
                                 </Row>
                                 <Row>
-                                    <Card className='c_use_tutorial_card c_video_width'>
+                                    <Card className='c_use_tutorial_card c_video_width' style={{ position: 'relative' }} {...{ onClick: () => {
+                                        const devEle = document.getElementById('c_developing');
+                                        devEle.style.display = 'block';
+                                        setTimeout(() => {
+                                            devEle.style.display = 'none';
+                                        }, 2000)
+                                    } }}>
                                         <Row>
-                                            <Col span={24}>
+                                            <Col span={24} style={{ padding: 0 }}>
                                                 {/* 暂时无视频，先用图片替代 */}
-                                                <img src='public/dataApi/img/opera_guide.png' style={{ width: '380px', height: '180px' }} />
+                                                <img src='public/dataApi/img/opera_guide.png' style={{ width: '415px', height: '228px' }} />
                                             </Col>
+                                            <div className='c_developing' id='c_developing' style={{ display: 'none' }}>
+                                                开发中～敬请期待！
+                                            </div>
                                         </Row>
                                     </Card>
                                 </Row>
