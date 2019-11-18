@@ -20,9 +20,10 @@ export default class Sidebar extends React.Component<any, any> {
     }
 
     updateSelected = () => {
-        const routes = this.props.router.routes
+        const routes = this.props.router.routes;
         if (routes.length > 3) {
-            const current = routes[3].path || 'config'
+            const isRoleDynaRouter: boolean = routes[3].path == 'role/edit/:roleId';
+            const current = isRoleDynaRouter ? 'role' : routes[3].path || 'config';
             this.setState({ current })
         }
     }
@@ -34,9 +35,8 @@ export default class Sidebar extends React.Component<any, any> {
     }
 
     render () {
-        const props = this.props
-        const base = `/api/project/${props.params.pid}`
-        console.log(this.props.mode);
+        const props = this.props;
+        const base = `/api/project/${props.params.pid}`;
         return (
             <div className="sidebar m-ant-menu">
                 <Menu

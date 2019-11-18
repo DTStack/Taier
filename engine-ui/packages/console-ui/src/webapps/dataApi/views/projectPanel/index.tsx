@@ -40,6 +40,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
         dispatch(projectActions.getProjectList());
         this.getProjectSummary();
     }
+
     getProjectSummary = () => {
         Api.getProjectSummary().then(res => {
             if (res.code === 1) {
@@ -49,6 +50,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
             }
         })
     }
+
     handleNewProject = () => {
         this.setState({
             visible: true
@@ -185,13 +187,13 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                             </Col>
                             <Col span={24} className="c_opera">
                                 <Row gutter={16}>
-                                    {project.status != 1 || (apiMarket && !apiMarket.isShow) ? null : (
+                                    {project.status != PROJECT_STATUS.NORMAL || (apiMarket && !apiMarket.isShow) ? null : (
                                         <Col span={12}>
                                             <div className="c_opera_link" {...{ onClick: () => { this.setRouter('apiMarket', project) } }} >API市场</div>
                                         </Col>
                                     )}
                                     {
-                                        project.status != 1 || (apiManage && !apiManage.isShow) ? null : (
+                                        project.status != PROJECT_STATUS.NORMAL || (apiManage && !apiManage.isShow) ? null : (
                                             <Col span={12}>
                                                 <div className="c_opera_link" {...{ onClick: () => { this.setRouter('apiManage', project) } }}>API管理</div>
                                             </Col>
