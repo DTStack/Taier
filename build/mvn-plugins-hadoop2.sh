@@ -8,7 +8,7 @@ plugins/spark/spark-hadoop2,\
 plugins/spark/spark-yarn-hadoop2,\
 plugins/dtscript/dtscript-hadoop2/dtscript-client,\
 plugins/learning/learning-hadoop2/learning-client,\
-plugins/hadoop,\
+plugins/hadoop/hadoop2,\
 plugins/kylin,\
 plugins/rdbs,\
 plugins/odps,\
