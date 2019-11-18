@@ -104,7 +104,7 @@ public class DtScriptClient extends AbsClient {
         }
 
         client = new Client(conf);
-    }/Users/zhaozhangwan/localgit/rdos-execution-engine/plugins/dtscript/dtscript-hadoop3/dtscript-core/src/main/java/com/dtstack/engine/dtscript/am/ApplicationWebService.java:
+    }
 
     @Override
     protected JobResult processSubmitJobWithType(JobClient jobClient) {
