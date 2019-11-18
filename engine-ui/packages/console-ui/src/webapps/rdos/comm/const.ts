@@ -90,7 +90,8 @@ export const DATA_SOURCE_TEXT = {
     21: 'LibrA',
     22: 'GBase',
     23: 'Kylin',
-    24: 'Kudu'
+    24: 'Kudu',
+    25: 'ClickHouse'
 }
 
 // 锁类型
