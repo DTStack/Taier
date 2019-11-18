@@ -16,7 +16,13 @@
             margin-left: 12px;
             color:#999999;
         }
-
+        &.error{
+            border: 1px solid red;
+            color:red;
+            .iconfont{
+                color:red;
+            }
+        }
         &.active{
             border: 1px solid #2491F7;
             color:#2491F7;

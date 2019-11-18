@@ -35,7 +35,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
     }
 
     state: IState = {
-        indexList: [],
+        indexList: ['name'],
         keyList: [],
         index: '',
         select: '',
@@ -117,7 +117,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         const { indexList } = this.state;
         const { getFieldDecorator, getFieldValue } = form;
         return (
-            <div className="stepTwo" style={{ display: isShow ? 'block' : 'none' }}>
+            <div className="atom_stepTwo" style={{ display: isShow ? 'block' : 'none' }}>
                 <Form.Item {...formItemLayout} label="选择实体">
                     {getFieldDecorator('entityIndex', {
                         rules: [

@@ -1,12 +1,13 @@
 import * as React from 'react';
 import { Form, Select, Button, Input, Icon } from 'antd';
 import { FormComponentProps } from 'antd/lib/form/Form';
-import { debounce } from 'lodash';
 import classnames from 'classnames';
+import shortid from 'shortid';
 import SelectLabelRow from '../selectLabelRow';
-import './style.scss';
 import TagValues from '../tagValues';
 import Collapse from '../collapse/index';
+import './style.scss';
+
 const { Option } = Select;
 
 interface IProps extends FormComponentProps {
@@ -18,8 +19,7 @@ interface IState {
     indexList: any[];
     keyList: any[];
     index: string | number;
-    select: '';
-    treeData: any;
+    activeTag: '';
     tags: any[];
 }
 const formItemLayout = {
@@ -32,111 +32,115 @@ const formItemLayout = {
         sm: { span: 12 }
     }
 };
+const currentId = shortid();
 class StepTwo extends React.PureComponent<IProps, IState> {
     constructor (props: IProps) {
         super(props);
     }
 
     state: IState = {
-        indexList: [],
+        indexList: ['name'],
         keyList: [],
         index: '',
-        select: '',
-        tags: [],
-        treeData: {
-            key: '1',
-            type: '且', //  且|或
-            children: [
-                {
-                    key: '1-1',
-                    type: '或',
-                    name: '实体-用户信息',
-                    children: [
-                        {
-                            key: '1-1-1',
-                            type: '或',
-                            children: [
-                                {
-                                    key: '1-1-1-1',
-                                    selectName: '活跃度',
-                                    selectvalue: '活跃度id',
-                                    filterType: '字符串', // 字符串|数值|日期|字典
-                                    conditionName: '等于',
-                                    conditionId: '等于',
-                                    filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值或者区间值，延续数值结构，name为空
-                                },
-                                {
-                                    key: '1-1-1-2',
-                                    selectName: '活跃度',
-                                    selectvalue: '活跃度id',
-                                    filterType: '字符串', // 字符串|数值|日期|字典
-                                    conditionName: '等于',
-                                    conditionId: '等于',
-                                    filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值或者区间值，延续数值结构，name为空
-                                }
-                            ]
-                        },
-                        {
-                            key: '1-1-2',
-                            selectName: '活跃度',
-                            selectvalue: '活跃度id',
-                            filterType: '字符串', // 字符串|数值|日期|字典
-                            conditionName: '等于',
-                            conditionId: '等于',
-                            filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值或者区间值，延续数值结构，name为空
-                        }
-                    ]
-                },
-                {
-                    key: '1-2',
-                    type: '或',
-                    name: '实体-活动',
-                    children: [
-                        {
-                            key: '1-2-1',
-                            type: '或',
-                            children: [
-                                {
-                                    key: '1-2-1-1',
-                                    selectName: '活跃度',
-                                    selectvalue: '活跃度id',
-                                    filterType: '字符串', // 字符串|数值|日期|字典
-                                    conditionName: '等于',
-                                    conditionId: '等于',
-                                    filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值或者区间值，延续数值结构，name为空
-                                }
-                            ]
-                        },
-                        {
-                            key: '1-2-2',
-                            selectName: '活跃度',
-                            selectvalue: '活跃度id',
-                            filterType: '字符串', // 字符串|数值|日期|字典
-                            conditionName: '等于',
-                            conditionId: '等于',
-                            filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值或者区间值，延续数值结构，name为空
-                        }
-                    ]
-                },
-                {
-                    key: '1-3',
-                    type: '或',
-                    name: '实体-产品',
-                    children: [
-                        {
-                            key: '1-3-2',
-                            selectName: '活跃度',
-                            selectvalue: '活跃度id',
-                            filterType: '字符串', // 字符串|数值|日期|字典
-                            conditionName: '等于',
-                            conditionId: '等于',
-                            filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值或者区间值，延续数值结构，name为空
-                        }
-                    ]
-                }
-            ]
-        }
-
+        activeTag: currentId,
+        tags: [{
+            label: '标签值1',
+            value: currentId,
+            valid: false,
+            config: {
+                key: '1',
+                type: '且', //  且|或
+                children: [
+                    {
+                        key: '1-1',
+                        type: '或',
+                        name: '实体-用户信息',
+                        children: [
+                            {
+                                key: '1-1-1',
+                                type: '或',
+                                children: [
+                                    {
+                                        key: '1-1-1-1',
+                                        selectName: '活跃度',
+                                        selectvalue: '活跃度id',
+                                        filterType: '字符串', // 字符串|数值|日期|字典
+                                        conditionName: '等于',
+                                        conditionId: '等于',
+                                        filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值或者区间值，延续数值结构，name为空
+                                    },
+                                    {
+                                        key: '1-1-1-2',
+                                        selectName: '活跃度',
+                                        selectvalue: '活跃度id',
+                                        filterType: '字符串', // 字符串|数值|日期|字典
+                                        conditionName: '等于',
+                                        conditionId: '等于',
+                                        filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值或者区间值，延续数值结构，name为空
+                                    }
+                                ]
+                            },
+                            {
+                                key: '1-1-2',
+                                selectName: '活跃度',
+                                selectvalue: '活跃度id',
+                                filterType: '字符串', // 字符串|数值|日期|字典
+                                conditionName: '等于',
+                                conditionId: '等于',
+                                filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值或者区间值，延续数值结构，name为空
+                            }
+                        ]
+                    },
+                    {
+                        key: '1-2',
+                        type: '或',
+                        name: '实体-活动',
+                        children: [
+                            {
+                                key: '1-2-1',
+                                type: '或',
+                                children: [
+                                    {
+                                        key: '1-2-1-1',
+                                        selectName: '活跃度',
+                                        selectvalue: '活跃度id',
+                                        filterType: '字符串', // 字符串|数值|日期|字典
+                                        conditionName: '等于',
+                                        conditionId: '等于',
+                                        filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值或者区间值，延续数值结构，name为空
+                                    }
+                                ]
+                            },
+                            {
+                                key: '1-2-2',
+                                selectName: '活跃度',
+                                selectvalue: '活跃度id',
+                                filterType: '字符串', // 字符串|数值|日期|字典
+                                conditionName: '等于',
+                                conditionId: '等于',
+                                filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值或者区间值，延续数值结构，name为空
+                            }
+                        ]
+                    },
+                    {
+                        key: '1-3',
+                        type: '或',
+                        name: '实体-产品',
+                        children: [
+                            {
+                                key: '1-3-2',
+                                selectName: '活跃度',
+                                selectvalue: '活跃度id',
+                                filterType: '字符串', // 字符串|数值|日期|字典
+                                conditionName: '等于',
+                                conditionId: '等于',
+                                filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值或者区间值，延续数值结构，name为空
+                            }
+                        ]
+                    }
+                ]
+            }
+        }]
     };
     componentDidMount () {
         this.loadMainData(false);
@@ -145,16 +149,6 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         if (isClear) {
             // 清除一些过滤条件
         }
-        // API.indexListUsingGet({}).then(res => { // 获取索引列表
-        //     const { success, data, message } = res;
-        //     if (success) {
-        //         this.setState({
-        //             indexList: data
-        //         })
-        //     } else {
-        //         Message.error(message)
-        //     }
-        // })
     }
     getKeyList = (index: number) => {
         // API.keyListUsingGet({
@@ -170,12 +164,75 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         //     }
         // })
     }
+    onChangeLabel = (e) => {
+        const value = e.target.value;
+        const { activeTag, tags } = this.state;
+        const newTags = tags.map(item => {
+            if (activeTag == item.value) {
+                return Object.assign(item, { label: value })
+            }
+            return item;
+        });
+        this.setState({
+            tags: newTags
+        })
+    }
     onChangeSelect = (value, type) => {
         if (type == 'tags') {
             this.setState({
-                select: value
+                activeTag: value
             })
         }
+    }
+    onChangeTags = (value) => {
+        this.setState({
+            tags: value
+        })
+    }
+    onHandleChangeType = (key, type) => {
+        console.log(key, type)
+    }
+    onHandleDeleteCondition = (key, type) => {
+        console.log(key, type)
+    }
+    onHandleAddCondition = (key, type) => {
+        console.log(key, type)
+    }
+    renderConditionChildren = (data) => {
+        return data.map(item => {
+            if (item.children && item.children.length) {
+                return (
+                    <div key={item.key} className={classnames('select_wrap', {
+                        active: item.children.length > 1
+                    })}>
+                        {
+                            this.renderConditionChildren(item.children)
+                        }
+                        <span className="condition" onClick={(e) => this.onHandleChangeType(item.key, item.type)}>{item.type}</span>
+                    </div>
+                );
+            }
+            return <SelectLabelRow data={item} key={item.key} extra={<div>
+                <Icon type="plus-circle" className="icon" onClick={(e) => this.onHandleDeleteCondition(item.key, item.type)}/>
+                <Icon type="minus-circle-o" className="icon" onClick={(e) => this.onHandleAddCondition(item.key, item.type)}/>
+            </div>}/>
+        });
+    }
+    renderCondition = data => {
+        if (data.children && data.children.length) {
+            return <div className={classnames('select_wrap', {
+                active: data.children.length > 1
+            })}>
+                {
+                    this.renderConditionChildren(data.children)
+                }
+                <span className="condition" onClick={(e) => this.onHandleChangeType(data.key, data.type)}>{data.type}</span>
+            </div>
+        }
+        return <SelectLabelRow data={data} key={data.key} extra={<div>
+            <Icon type="plus-circle" onClick={(e) => this.onHandleDeleteCondition(data.key, data.type)} className="icon"/>
+            <Icon type="minus-circle-o" onClick={(e) => this.onHandleAddCondition(data.key, data.type)} className="icon"/>
+        </div>}/>
     }
     onHandleNext = (e: any) => {
         this.props.form.validateFields((err, values) => {
@@ -188,73 +245,16 @@ class StepTwo extends React.PureComponent<IProps, IState> {
     onHandlePrev = () => {
         this.props.onPrev();
     }
-    validateName = debounce((rule, value, callback) => {
-        // if (value) {
-        //     let text = '标签名称不可以重复'
-        //     API.entityDistinctUsingPost({
-        //         entityCode: '',
-        //         entityName: value
-        //     }).then(res => {
-        //         const { success, data } = res;
-        //         if (success) {
-        //             if (!data) {
-        //                 callback(text)
-        //             } else {
-        //                 callback()
-        //             }
-        //         } else {
-        //             callback(text)
-        //         }
-        //     })
-        // }
-        callback()
-    }, 800)
-    onHandleCondition = (key, item, type) => { }
-    renderConditionChildren = (data) => {
-        return data.map(item => {
-            if (item.children && item.children.length) {
-                return (
-                    <div key={item.key} className={classnames('select_wrap', {
-                        active: item.children.length > 1
-                    })}>
-                        {
-                            this.renderConditionChildren(item.children)
-                        }
-                        <span className="condition" onClick={(e) => this.onHandleCondition(item.key, item, item.type)}>{item.type}</span>
-                    </div>
-                );
-            }
-            return <SelectLabelRow data={data} key={data.key} extra={<div>
-                <Icon type="plus-circle" className="icon"/>
-                <Icon type="minus-circle-o" className="icon"/>
-            </div>}/>
-        });
-    }
-    renderCondition = data => {
-        if (data.children && data.children.length) {
-            return <div className={classnames('select_wrap', {
-                active: data.children.length > 1
-            })}>
-                {
-                    this.renderConditionChildren(data.children)
-                }
-                <span className="condition">{data.type}</span>
-            </div>
-        }
-        return <SelectLabelRow data={data} key={data.key} extra={<div>
-            <Icon type="plus-circle" className="icon"/>
-            <Icon type="minus-circle-o" className="icon"/>
-        </div>}/>
-    }
-
     render () {
         const { form, isShow } = this.props;
-        const { indexList, select, treeData } = this.state;
+        const { indexList, activeTag, tags } = this.state;
         const { getFieldDecorator } = form;
+        const currentTag = activeTag ? tags.find(item => item.value == activeTag) : '';
+        const treeData = currentTag ? currentTag.config : '';
         return (
             <div className="stepTwo" style={{ display: isShow ? 'block' : 'none' }}>
                 <Form.Item {...formItemLayout} label="选择实体">
-                    {getFieldDecorator('entityIndex', {
+                    {getFieldDecorator('entityName', {
                         rules: [
                             {
                                 required: true,
@@ -284,34 +284,31 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                         </Select>
                     )}
                 </Form.Item>
-                <Form.Item {...formItemLayout} label="已选标签">
-                    {getFieldDecorator('tags', {
-                        rules: [
-                            {
-                                required: true,
-                                message: '请选择标签值'
-                            }
-                        ]
-                    })(<TagValues select={select} onSelect={(value) => this.onChangeSelect(value, 'tags')} />)}
+                <Form.Item {...formItemLayout} label="已选标签" required>
+                    <TagValues select={activeTag} value={tags} onChange={(value) => this.onChangeTags(value)} onSelect={(value) => this.onChangeSelect(value, 'tags')} />
                 </Form.Item>
-                <div className="panel_select">
-                    <div className="edit_Wrap"><Input className="edit_value" /><i className="iconfont iconbtn_edit"></i></div>
-                    <div className="panel_wrap">
-                        <div className="select_wrap active">
-                            {
-                                treeData.children && treeData.children.map(item => {
-                                    return (<Collapse title={item.name} key={item.key} extra={<Icon className="add_icon" type="plus-circle" />}>
-                                        {
-                                            this.renderCondition(item)
-                                        }
-                                    </Collapse>)
-                                })
-                            }
-                            <span className="condition">{treeData.type}</span>
+                {
+                    currentTag && (<div className="panel_select">
+                        <div className="edit_Wrap"><Input className="edit_value" value={currentTag.label} onChange={this.onChangeLabel}/><i className="iconfont iconbtn_edit"></i></div>
+                        <div className="panel_wrap">
+                            <div className={classnames('select_wrap', {
+                                active: treeData.children && treeData.children.length > 1
+                            })}>
+                                {
+                                    treeData && treeData.children && treeData.children.map(item => {
+                                        return (<Collapse title={item.name} key={item.key} active extra={<Icon className="add_icon" onClick={(e) => this.onHandleAddCondition(item.key, item.type)} type="plus-circle" />}>
+                                            {
+                                                this.renderCondition(item)
+                                            }
+                                        </Collapse>)
+                                    })
+                                }
+                                <span className="condition" onClick={(e) => this.onHandleChangeType(treeData.key, treeData.type)}>{treeData.type}</span>
+                            </div>
                         </div>
-                    </div>
-                </div>
-                <div className="wrap_btn_content"><Button onClick={this.onHandlePrev}>退出</Button><Button type="primary" onClick={this.onHandleNext}>下一步</Button></div>
+                    </div>)
+                }
+                <div className="wrap_btn_content"><Button onClick={this.onHandlePrev}>上一步</Button><Button type="primary" onClick={this.onHandleNext}>下一步</Button></div>
             </div>
         );
     }

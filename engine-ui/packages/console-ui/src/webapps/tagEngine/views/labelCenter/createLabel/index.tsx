@@ -74,9 +74,7 @@ export default class CreateLabel extends React.PureComponent<IProps, IState> {
                     <div className="step_content">
 
                         <StepOne onPrev={this.onPrev} isShow={current == 0} onNext={this.onNext} />
-                        {
-                            current == 1 && <StepTwo isShow={current == 1} onPrev={this.onPrev} onNext={this.onNext} />
-                        }
+                        <StepTwo isShow={current == 1} onPrev={this.onPrev} onNext={this.onNext} />
                         {
                             current == 2 && <StepTree onPrev={this.onPrev} onNext={this.onNext} />
                         }

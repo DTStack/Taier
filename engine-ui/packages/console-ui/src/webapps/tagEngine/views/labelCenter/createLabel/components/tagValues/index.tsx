@@ -12,7 +12,8 @@ interface IProps{
     value?: {
         label: string;
         value: string;
-        config: any[];
+        config: any; // 规则配置
+        valid: boolean; // 校验状态
     }[];
     onChange?: Function;
     select?: string;
@@ -32,20 +33,25 @@ class TagValues extends React.Component<IProps, {}> {
     }
     onHandleAdd = () => {
         const { value = [] } = this.props;
+        let id = shortid();
         this.props.onChange([...value, {
             label: '标签值' + (value.length + 1),
-            value: shortid(),
-            config: []
-        }])
+            value: id,
+            valid: false,
+            config: {}
+        }]);
+        this.props.onSelect(id);
     }
     onHandleMenu = ({ item, key, keyPath }, data, index) => {
-        const { value = [] } = this.props;
+        const { value = [], select } = this.props;
         if (key == '0') {
+            let id = shortid()
             this.props.onChange([...value, {
                 label: '标签值' + (value.length + 1),
-                value: shortid(),
+                value: id,
                 config: data.config
             }]);
+            this.props.onSelect(id);
             notification.success({
                 message: '复制标签成功!',
                 description: ''
@@ -53,6 +59,9 @@ class TagValues extends React.Component<IProps, {}> {
         } else {
             value.splice(index, 1);
             this.props.onChange(value);
+            if (data.value == select) {
+                this.props.onSelect('');
+            }
             notification.success({
                 message: '删除标签成功!',
                 description: ''
@@ -100,7 +109,7 @@ class TagValues extends React.Component<IProps, {}> {
                                      id={`${item.value}`}
                                      moveCard={this.moveCard}
                                      findCard={this.findCard}>
-                                     <div key={item.value} className={classnames('tag-item', { active: item.value == select })} onClick={ () => this.onHandleClick(item) }>
+                                     <div key={item.value} className={classnames('tag-item', { error: !item.valid, active: item.value == select })} onClick={ () => this.onHandleClick(item) }>
                                          <span>{item.label}</span>
                                          <Dropdown overlay={this.renderMenu(item, index)} placement="bottomLeft">
                                              <i className='iconfont iconmenu-pl'></i>
