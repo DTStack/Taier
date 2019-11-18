@@ -97,7 +97,9 @@ export function createProject (params: any) {
         return (async () => {
             let res = await Api.createProject(params);
             if (res && res.code == 1) {
-                dispatch(getProjectList());
+                setTimeout(() => {
+                    dispatch(getProjectList());
+                }, 500)
             }
             return res;
         })()

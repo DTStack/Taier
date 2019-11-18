@@ -4,7 +4,7 @@ import {
     Form, Checkbox
 } from 'antd'
 
-import { formItemLayout, PROJECT_ROLE } from '../../../consts'
+import { formItemLayout, API_PRO_ROLES } from '../../../consts'
 
 const FormItem = Form.Item
 const CheckboxGroup = Checkbox.Group;
@@ -20,10 +20,8 @@ class EditRoleForm extends React.Component<any, any> {
         let roleOptions: any = [];
         if (roles) {
             roles.forEach((role: any) => {
-                // 过滤项目所有者，租户所有者，访客三种无效的授权对象
-                const disabled = role.roleValue === PROJECT_ROLE.PROJECT_OWNER ||
-                    role.roleValue === PROJECT_ROLE.TENANT_OWVER ||
-                    role.roleValue === PROJECT_ROLE.VISITOR
+                const disabled = role.roleValue === API_PRO_ROLES.TENANT_OWVER ||
+                    role.roleValue === API_PRO_ROLES.PRO_OWNER
                 roleOptions.push({ label: role.roleName, value: role.id, disabled })
             })
         }
