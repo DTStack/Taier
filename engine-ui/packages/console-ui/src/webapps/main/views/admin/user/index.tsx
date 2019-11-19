@@ -10,7 +10,7 @@ import {
 import utils from 'utils'
 import { hasProject } from 'funcs'
 
-import { MY_APPS, RDOS_ROLE, APP_ROLE } from '../../../consts'
+import { MY_APPS, RDOS_ROLE, APP_ROLE, API_PRO_ROLES } from '../../../consts'
 import Api from '../../../api'
 import AppTabs from '../../../components/app-tabs'
 
@@ -185,13 +185,22 @@ class AdminUser extends React.Component<any, UserManaState> {
                 switch (app) {
                     case MY_APPS.RDOS:
                     case MY_APPS.STREAM:
-                    case MY_APPS.SCIENCE:
-                    case MY_APPS.API: {
+                    case MY_APPS.SCIENCE: {
                         if (roleValue == RDOS_ROLE.VISITOR) {
                             isVisitor = true
                         } else if (roleValue == RDOS_ROLE.PROJECT_ADMIN) {
                             isProjectAdmin = true;
                         } else if (roleValue == RDOS_ROLE.PROJECT_OWNER) {
+                            isProjectOwner = true;
+                        }
+                        break;
+                    }
+                    case MY_APPS.API: {
+                        if (roleValue == API_PRO_ROLES.VISITOR) {
+                            isVisitor = true
+                        } else if (roleValue == API_PRO_ROLES.PRO_MANAGER) {
+                            isProjectAdmin = true;
+                        } else if (roleValue == API_PRO_ROLES.PRO_OWNER) {
                             isProjectOwner = true;
                         }
                         break;
