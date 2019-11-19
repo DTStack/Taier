@@ -3,6 +3,8 @@ import { Link } from 'react-router';
 import { Card, Table, Dropdown, Checkbox, Icon, Col, Button } from 'antd';
 import styled from 'styled-components'
 
+import GroupAPI from '../../../../api/group';
+
 interface IState {
     pageNo: number;
     pageSize: number;
@@ -16,11 +18,26 @@ interface IState {
 
 const basePath = '/groupAnalyse';
 
-const Title = styled.span`
+const Title = styled.div`
     font-size: 12px;
     color: #999999;
-    letter-spacing: 0
+    letter-spacing: 0;
+    text-indent: 5px;
+    float: left;
 `;
+
+const Header = styled.div`
+    margin-top: 14px;
+    margin-bottom: 10px;
+    height: 17px;
+    position: relative;
+`
+
+const Extra = styled.div`
+    position: absolute;
+    right: 0;
+    top: -10px;
+`
 
 export default class GroupSpecimenList extends React.Component<any, IState> {
     state: IState = {
@@ -39,11 +56,14 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
     }
 
     componentDidMount () {
-
+        this.loadData();
     }
 
-    loadData = () => {
-
+    loadData = async () => {
+        const res = await GroupAPI.getGroupSpecimens();
+        this.setState({
+            dataSource: res.data
+        })
     }
 
     handleSearch = (query: any) => {
@@ -75,8 +95,8 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
             }
         }, {
             title: '群组数据量',
-            dataIndex: 'entiry',
-            key: 'entiry'
+            dataIndex: 'count',
+            key: 'count'
         }, {
             title: '群组类型',
             dataIndex: 'desc',
@@ -116,25 +136,31 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
             </div>
         );
 
-        const extra = (
-            <Dropdown
-                overlay={overlay}
-            >
-                <Button className="right" type="primary">新增群组<Icon type="down" /></Button>
-            </Dropdown>
-        )
         return (
             <Card
-                title={<Title>样本列表抽样展示部分样本用于进一步细查单样本信息，最多1000条</Title>}
-                extra={extra}
+                title={null}
                 noHovering
                 bordered={false}
-                bodyStyle={{ padding: '20px 0px' }}
                 className="noBorderBottom"
             >
+                <Header style={{ marginTop: '14px' }}>
+                    <Title>样本列表抽样展示部分样本用于进一步细查单样本信息，最多1000条</Title>
+                    <Extra>
+                        <Dropdown
+                            overlay={overlay}
+                        >
+                            <Button className="right" type="primary">新增群组<Icon type="down" /></Button>
+                        </Dropdown>
+                    </Extra>
+                </Header>
                 <Table
+                    style={{
+                        maxHeight: '500px',
+                        border: '1px solid #e9e9e9',
+                        borderTop: 0
+                    }}
                     rowKey="id"
-                    className="dt-ant-table dt-ant-table--border full-screen-table-47"
+                    className="dt-ant-table dt-ant-table--border full-screen-table-47 bd"
                     pagination={pagination}
                     onChange={this.handleTableChange}
                     loading={loading}

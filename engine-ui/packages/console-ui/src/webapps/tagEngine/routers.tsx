@@ -37,7 +37,8 @@ import EMDictonaryDetail from './views/entityManagement/dictionaryManage/detail'
 
 // ======= 群组管理 =======
 import GroupManagement from './views/groupAnalyse/management';
-import GroupUpload from './views/groupAnalyse/management/create/upload';
+import GroupUpload from './views/groupAnalyse/management/upload/create';
+import GroupUploadEdit from './views/groupAnalyse/management/upload/edit';
 import GroupDetail from './views/groupAnalyse/management/detail';
 
 // ======= 实体管理 =======
@@ -236,6 +237,10 @@ const routeConfig = [
             {
                 path: '/groupAnalyse/upload',
                 component: GroupUpload
+            },
+            {
+                path: '/groupAnalyse/upload/edit',
+                component: GroupUploadEdit
             },
             {
                 path: '/groupAnalyse/detail',
