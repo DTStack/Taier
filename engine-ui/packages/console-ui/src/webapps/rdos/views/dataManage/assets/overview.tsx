@@ -15,7 +15,6 @@ import Api from '../../../api'
 import TableDataApi from '../../../api/dataManage'
 import MyIcon from '../../../components/icon'
 import { lineAreaChartOptions, defaultBarOption } from '../../../comm/const'
-import { wrap } from 'module';
 
 // 引入 ECharts 主模块
 const echarts = require('echarts/lib/echarts');
