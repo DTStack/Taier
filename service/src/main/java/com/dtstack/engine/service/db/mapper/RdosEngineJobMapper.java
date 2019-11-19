@@ -3,6 +3,7 @@ package com.dtstack.engine.service.db.mapper;
 import com.dtstack.engine.service.db.dataobject.RdosEngineJob;
 import org.apache.ibatis.annotations.Param;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 /**
@@ -55,4 +56,5 @@ public interface RdosEngineJobMapper {
 	
 	List<String> getTaskIdsByStatus(@Param("status")Integer status, @Param("computeType")Integer computeType);
 
+	List<RdosEngineJob> listJobStatus(@Param("time") Timestamp timeStamp, @Param("computeType")Integer computeType);
 }

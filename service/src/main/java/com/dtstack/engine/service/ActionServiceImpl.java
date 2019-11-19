@@ -28,7 +28,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -366,12 +368,14 @@ public class ActionServiceImpl {
         if (CollectionUtils.isNotEmpty(batchJobs)) {
         	result = new ArrayList<>(batchJobs.size());
         	for (RdosEngineJob batchJob:batchJobs){
-        		Map<String,Object> data = new HashMap<>(4);
+        		Map<String,Object> data = new HashMap<>();
         		data.put("jobId", batchJob.getJobId());
         		data.put("status", batchJob.getStatus());
         		data.put("execStartTime", batchJob.getExecStartTime());
         		data.put("logInfo", batchJob.getLogInfo());
         		data.put("engineLog", batchJob.getEngineLog());
+                data.put("engineJobId", batchJob.getEngineJobId());
+                data.put("applicationId", batchJob.getApplicationId());
         		result.add(data);
         	}
         }
@@ -441,5 +445,52 @@ public class ActionServiceImpl {
         batchJobDAO.resetExecTime(jobId);
 
         return jobId;
+    }
+
+    /**
+     * task 工程使用
+     */
+    public List<Map<String, Object>> listJobStatus(@Param("time") Long time) {
+        if (time == null || time == 0L) {
+            throw new RuntimeException("time is null");
+        }
+
+        List<RdosEngineJob> batchJobs = batchJobDAO.listJobStatus(new Timestamp(time), ComputeType.BATCH.getType());
+        if (CollectionUtils.isNotEmpty(batchJobs)) {
+            List<Map<String, Object>> result = new ArrayList<>(batchJobs.size());
+            for (RdosEngineJob batchJob : batchJobs) {
+                Map<String, Object> data = batJobConvertMap(batchJob);
+                result.add(data);
+            }
+            return result;
+        }
+        return Collections.EMPTY_LIST;
+    }
+
+
+    public List<Map<String, Object>> listJobStatusByJobIds(@Param("jobIds") List<String> jobIds) throws Exception {
+        if (CollectionUtils.isNotEmpty(jobIds)) {
+            List<RdosEngineJob> batchJobs = batchJobDAO.getRdosTaskByTaskIds(jobIds);
+            if (CollectionUtils.isNotEmpty(batchJobs)) {
+                List<Map<String, Object>> result = new ArrayList<>(batchJobs.size());
+                for (RdosEngineJob batchJob : batchJobs) {
+                    Map<String, Object> data = batJobConvertMap(batchJob);
+                    result.add(data);
+                }
+                return result;
+            }
+        }
+        return Collections.EMPTY_LIST;
+    }
+
+    private Map<String, Object> batJobConvertMap(RdosEngineJob batchJob){
+        Map<String, Object> data = new HashMap<>(6);
+        data.put("jobId", batchJob.getJobId());
+        data.put("status", batchJob.getStatus());
+        data.put("execStartTime", batchJob.getExecStartTime() == null ? 0 : batchJob.getExecStartTime());
+        data.put("execEndTime", batchJob.getExecEndTime() == null ? 0 : batchJob.getExecEndTime());
+        data.put("execTime", batchJob.getExecTime());
+        data.put("retryNum", batchJob.getRetryNum());
+        return data;
     }
 }

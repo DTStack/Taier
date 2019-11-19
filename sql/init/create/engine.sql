@@ -34,7 +34,8 @@ CREATE TABLE `rdos_engine_job` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_job_id` (`job_id`(128),`is_deleted`),
   KEY `index_engine_job_id` (`engine_job_id`(128)),
-  KEY `index_status` (`status`)
+  KEY `index_status` (`status`),
+  KEY `index_gmt_modified` (`gmt_modified`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 # CREATE TABLE `rdos_engine_batch_job` (

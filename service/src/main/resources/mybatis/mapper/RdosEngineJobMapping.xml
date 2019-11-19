@@ -80,7 +80,7 @@
    </select>
 
     <select id="getRdosJobByJobIds" parameterType="java.util.HashMap" resultMap="rdosEngineTaskResult">
-        select job_id, engine_job_id,plugin_info_id,status,engine_log,log_info,exec_start_time,exec_end_time,exec_time,retry_num,retry_task_params,gmt_create,gmt_modified,is_deleted,source_type,compute_type from rdos_engine_job
+        select job_id, engine_job_id,application_id,plugin_info_id,status,engine_log,log_info,exec_start_time,exec_end_time,exec_time,retry_num,retry_task_params,gmt_create,gmt_modified,is_deleted,source_type,compute_type from rdos_engine_job
         where job_id IN
         <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
             #{jobId}
@@ -120,6 +120,17 @@
     
     <select id="getTaskIdsByStatus" resultType="java.lang.String">
         select task_id from rdos_engine_stream_job
-        where status = #{status} and is_deleted=0
+        where status = #{status}
+        <if test="computeType != null">
+            and compute_type = #{computeType}
+        </if>
+        and is_deleted=0
+    </select>
+
+    <select id="listJobStatus" parameterType="java.util.HashMap" resultMap="rdosEngineTaskResult">
+        select job_id as jobId,status,exec_start_time as execStartTime,exec_end_time as execEndTime,exec_time as execTime,retry_num as retryNum
+        from rdos_engine_batch_job
+        where gmt_modified &gt;= #{time} and compute_type = #{computeType}
+        and is_deleted=0;
     </select>
 </mapper>
