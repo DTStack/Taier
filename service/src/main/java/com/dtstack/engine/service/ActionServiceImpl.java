@@ -455,7 +455,7 @@ public class ActionServiceImpl {
             throw new RuntimeException("time is null");
         }
 
-        List<RdosEngineJob> batchJobs = batchJobDAO.listJobStatus(new Timestamp(time));
+        List<RdosEngineJob> batchJobs = batchJobDAO.listJobStatus(new Timestamp(time), ComputeType.BATCH.getType());
         if (CollectionUtils.isNotEmpty(batchJobs)) {
             List<Map<String, Object>> result = new ArrayList<>(batchJobs.size());
             for (RdosEngineJob batchJob : batchJobs) {

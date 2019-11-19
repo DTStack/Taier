@@ -56,5 +56,5 @@ public interface RdosEngineJobMapper {
 	
 	List<String> getTaskIdsByStatus(@Param("status")Integer status, @Param("computeType")Integer computeType);
 
-	List<RdosEngineJob> listJobStatus(@Param("time") Timestamp timeStamp);
+	List<RdosEngineJob> listJobStatus(@Param("time") Timestamp timeStamp, @Param("computeType")Integer computeType);
 }

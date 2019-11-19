@@ -273,12 +273,12 @@ public class RdosEngineJobDAO {
 		});
 	}
 
-	public List<RdosEngineJob> listJobStatus(Timestamp timeStamp) {
+	public List<RdosEngineJob> listJobStatus(Timestamp timeStamp, Integer computeType) {
 		return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<RdosEngineJob>>() {
 			@Override
 			public List<RdosEngineJob> execute(SqlSession sqlSession) throws Exception {
 				RdosEngineJobMapper mapper = sqlSession.getMapper(RdosEngineJobMapper.class);
-				return mapper.listJobStatus(timeStamp);
+				return mapper.listJobStatus(timeStamp, computeType);
 			}
 		});
 	}
