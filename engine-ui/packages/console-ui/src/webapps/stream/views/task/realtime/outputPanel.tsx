@@ -439,7 +439,7 @@ class OutputOrigin extends React.Component<any, any> {
                                 >
                                     <Option value='insert'>insert</Option>
                                     <Option value='update'>update</Option>
-                                    <Option value='upset'>upset</Option>
+                                    <Option value='upsert'>upsert</Option>
                                 </Select>
                             )}
                         </FormItem> : ''
