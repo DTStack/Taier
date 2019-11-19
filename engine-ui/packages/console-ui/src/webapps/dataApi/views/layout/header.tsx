@@ -56,7 +56,7 @@ class Header extends React.Component<any, any> {
             overview: false,
             market: false,
             myapi: false,
-            manager: false,
+            api_manager: false,
             authorized: false,
             datasource: false,
             project: false
@@ -64,7 +64,7 @@ class Header extends React.Component<any, any> {
         const menuList = this.props.common.menuList;
         if (menuList) {
             const permissionMap = ['overview', 'market', 'myapi',
-                'manager', 'authorized', 'datasource', 'project'
+                'api_manager', 'authorized', 'datasource', 'project'
             ]
             for (let i in menuList) {
                 let item = menuList[i];
@@ -87,7 +87,7 @@ class Header extends React.Component<any, any> {
                         fixArrChildrenApps[2] = showList.myapi ? item : null;
                         break;
                     case 'API管理':
-                        fixArrChildrenApps[3] = showList.manager ? item : null;
+                        fixArrChildrenApps[3] = showList.api_manager ? item : null;
                         break;
                     case '授权与安全':
                         fixArrChildrenApps[4] = showList.authorized ? item : null;
