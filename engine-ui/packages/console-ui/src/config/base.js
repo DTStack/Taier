@@ -32,7 +32,7 @@ export const streamApp = {
     filename: 'stream.html',
     link: '/stream.html#',
     target: '_blank',
-    enable: true,
+    enable: false,
     hasProject: true, // 是否拥有项目选择
     default: true, // 是否为默认应用选项
     apiBase: '/streamapp'
@@ -44,7 +44,7 @@ export const dqApp = {
     link: 'dataQuality.html#/',
     filename: 'dataQuality.html',
     target: '_blank',
-    enable: true,
+    enable: false,
     apiBase: '/dq'
 }
 
@@ -54,7 +54,7 @@ export const daApp = {
     link: 'dataApi.html#/',
     filename: 'dataApi.html',
     target: '_blank',
-    enable: true,
+    enable: false,
     apiBase: '/dataApi'
 }
 
@@ -64,7 +64,7 @@ export const dlApp = {
     link: 'dataLabel.html#/',
     filename: 'dataLabel.html',
     target: '_blank',
-    enable: true,
+    enable: false,
     apiBase: '/tag'
 }
 

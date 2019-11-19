@@ -15,6 +15,7 @@ import Api from '../../../api'
 import TableDataApi from '../../../api/dataManage'
 import MyIcon from '../../../components/icon'
 import { lineAreaChartOptions, defaultBarOption } from '../../../comm/const'
+import { wrap } from 'module';
 
 // 引入 ECharts 主模块
 const echarts = require('echarts/lib/echarts');
@@ -371,7 +372,7 @@ export default class ProjectList extends React.Component<any, any> {
         const { project, selectedProject, projectTable, projectStore, topStyle, total, chartSpan } = this.state
         const { projects } = this.props
         const projectOptions = projects ? projects.map((item: any) => {
-            return <Option key={item.id} value={item.id} title={item.projectAlias || item.projectName} ><Tooltip placement="top" mouseEnterDelay={1} title={item.projectAlias || item.projectName}><div>{item.projectAlias || item.projectName}</div></Tooltip></Option>
+            return <Option key={item.id} value={item.id} title={item.projectAlias || item.projectName} ><Tooltip placement="top" mouseEnterDelay={1} title={item.projectAlias || item.projectName}>{item.projectAlias || item.projectName}</Tooltip></Option>
         }) : []
 
         return (
@@ -390,11 +391,10 @@ export default class ProjectList extends React.Component<any, any> {
                                 <div className="filter">
                                     <span className="chart-tip"> &nbsp;&nbsp;&nbsp;项目：</span>
                                     <Select
+                                        style={{ width: 126 }}
                                         showSearch
                                         value={selectedProject}
                                         onChange={this.projectOnChange}
-                                        style={{ width: '100px' }}
-                                        // title=""
                                         filterOption={(input: any, option: any) => option.props.children.props.children.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                     >
                                         {projectOptions}
