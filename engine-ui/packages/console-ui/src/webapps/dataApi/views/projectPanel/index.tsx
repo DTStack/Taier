@@ -385,10 +385,10 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                             <div>
                                 <Row>
                                     <Card className='c_use_tutorial_card'>
-                                        <Row gutter={64}>
+                                        <Row gutter={24}>
                                             {this.loopOperaLink(OPERA_ROW_ONE_DATA)}
                                         </Row>
-                                        <Row gutter={64}>
+                                        <Row gutter={24}>
                                             {this.loopOperaLink(OPERA_ROW_TWO_DATA)}
                                         </Row>
                                     </Card>
@@ -404,7 +404,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                         <Row>
                                             <Col span={24} style={{ padding: 0 }}>
                                                 {/* 暂时无视频，先用图片替代 */}
-                                                <img src='public/dataApi/img/opera_guide.png' style={{ width: '415px', height: '228px' }} />
+                                                <img src='public/dataApi/img/opera_guide.png' style={{ width: '380px', height: '240px' }} />
                                             </Col>
                                             <div className='c_developing' id='c_developing' style={{ display: 'none' }}>
                                                 开发中～敬请期待！
