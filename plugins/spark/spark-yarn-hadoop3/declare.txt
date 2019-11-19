@@ -1,0 +1,3 @@
+版本兼容说明 yarn 模式:
+1.apache hadoop-2.7.3 版本
+2.cloudera 产品 2.6.0-cdh5.14.0

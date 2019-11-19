@@ -20,9 +20,11 @@
         <module>plugins/base</module>
         <module>plugins/spark/spark-hadoop2</module>
         <module>plugins/spark/spark-yarn-hadoop2</module>
+        <module>plugins/spark/spark-yarn-hadoop3</module>
         <!--<module>plugins/spark/spark160-yarn-hadoop2</module>-->
         <module>plugins/flink/flink150-hadoop2</module>
         <module>plugins/flink/flink180-hadoop2</module>
+        <module>plugins/flink/flink180-hadoop3</module>
         <module>plugins/flink/flink180-HW</module>
         <module>plugins/dtscript/dtscript-hadoop2</module>
         <module>plugins/dtscript/dtscript-hadoop3</module>
