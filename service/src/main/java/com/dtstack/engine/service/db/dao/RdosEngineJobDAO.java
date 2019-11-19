@@ -6,6 +6,7 @@ import org.apache.ibatis.session.SqlSession;
 import com.dtstack.engine.service.db.callback.MybatisSessionCallback;
 import com.dtstack.engine.service.db.mapper.RdosEngineJobMapper;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 /**
@@ -269,6 +270,16 @@ public class RdosEngineJobDAO {
 				return mapper.getTaskIdsByStatus(status, computeType);
 			}
 
+		});
+	}
+
+	public List<RdosEngineJob> listJobStatus(Timestamp timeStamp) {
+		return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<RdosEngineJob>>() {
+			@Override
+			public List<RdosEngineJob> execute(SqlSession sqlSession) throws Exception {
+				RdosEngineJobMapper mapper = sqlSession.getMapper(RdosEngineJobMapper.class);
+				return mapper.listJobStatus(timeStamp);
+			}
 		});
 	}
 }
