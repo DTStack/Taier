@@ -10,7 +10,6 @@ const MY_PATH = require("./consts");
 
 const baseConf = require("./base.js")();
 var config = require("./config");
-
 /**
  * Sets process.env.NODE_ENV on DefinePlugin to value development. Enables NamedChunksPlugin and NamedModulesPlugin.
  *  **/
@@ -96,6 +95,11 @@ const devServer = Object.assign(
             "errors-only": false,
             cached: true
         },
+        watchOptions: {
+            aggregateTimeout: 300,
+            poll: false,
+            ignored: /node_modules/
+        },
         contentBase: baseConf.output.path,
         publicPath: baseConf.output.publicPath
     },
@@ -107,6 +111,7 @@ const merged = function(env) {
         devtool: "cheap-module-eval-source-map", //
         devServer: devServer,
         plugins: htmlPlugs,
+
         module: {
             rules: [...cssLoader]
         }
