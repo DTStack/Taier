@@ -83,7 +83,10 @@ class ApprovedCard extends React.Component<any, any> {
     }
     // eslint-disable-next-line
     UNSAFE_componentWillReceiveProps(nextProps: any) {
-        if (this.props.nowView != nextProps.nowView && nextProps.nowView == 'approved') {
+        const project = nextProps.project;
+        const oldProj = this.props.project;
+        const isDiffPro = oldProj && project && oldProj.id !== project.id;
+        if ((this.props.nowView != nextProps.nowView && nextProps.nowView == 'approved') || isDiffPro) {
             this.getAppliedList();
         }
         if (this.props.apiId != nextProps.apiId && nextProps.apiId) {

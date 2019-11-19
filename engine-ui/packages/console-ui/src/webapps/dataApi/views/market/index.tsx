@@ -13,8 +13,8 @@ const Search = Input.Search;
 let modal: any;
 
 const mapStateToProps = (state: any) => {
-    const { user, apiMarket } = state;
-    return { apiMarket, user }
+    const { user, project, apiMarket } = state;
+    return { apiMarket, user, project }
 };
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -153,6 +153,16 @@ class APIMarket extends React.Component<any, any> {
         }
         return cascaderData;
     }
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps: any) {
+        const project = nextProps.project
+        const oldProj = this.props.project
+        if (oldProj && project && oldProj.id !== project.id) {
+            this.props.getCatalogue(0);
+            this.getMarketApi();
+        }
+    }
+
     componentDidMount () {
         this.props.getCatalogue(0);
         this.getMarketApi();

@@ -3,6 +3,7 @@ import http from './http'
 import RdosApi from 'rdos/api'
 import StreamApi from 'stream/api'
 import ScienceApi from 'science/api'
+import dataApi from '../../dataApi/api/project'
 import DqSysApi from 'dataQuality/api/sysAdmin'
 import DqApi from 'dataQuality/api'
 
@@ -36,6 +37,8 @@ export default {
                 return StreamApi.getProjects(params);
             case MY_APPS.SCIENCE:
                 return ScienceApi.comm.getAllProject(params);
+            case MY_APPS.API:
+                return dataApi.getProjects(params);
             default:
         }
     },
