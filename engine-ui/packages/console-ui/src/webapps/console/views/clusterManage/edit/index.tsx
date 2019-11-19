@@ -115,10 +115,15 @@ class EditCluster extends React.Component<any, any> {
         let copyComp = cloneDeep(compConf);
         for (let key in copyComp) {
             if (key == COMPONEMT_CONFIG_KEYS.SPARK) {
-                copyComp[key] = toChsKeys(copyComp[key] || {}, SPARK_KEY_MAP)
+                const typeArr = copyComp[key].typeName.split('-');
+                copyComp[key] = Object.assign({}, toChsKeys(copyComp[key] || {}, SPARK_KEY_MAP), {
+                    typeName: `${typeArr[0]}-${typeArr[1]}`
+                })
             }
             if (key == COMPONEMT_CONFIG_KEYS.FLINK) {
-                copyComp[key] = toChsKeys(copyComp[key] || {}, FLINK_KEY_MAP)
+                copyComp[key] = Object.assign({}, toChsKeys(copyComp[key] || {}, FLINK_KEY_MAP), {
+                    typeName: copyComp[key].typeName.split('-')[0]
+                })
             }
             if (key == COMPONEMT_CONFIG_KEYS.LEARNING) {
                 copyComp[key] = myUpperCase(copyComp[key])
@@ -228,7 +233,7 @@ class EditCluster extends React.Component<any, any> {
             hadoopVersion: hadoopVersion
         }).then(res => {
             if (res.code === 1) {
-
+                message.success('集群版本保存成功！')
             }
         })
     }
@@ -906,7 +911,6 @@ class EditCluster extends React.Component<any, any> {
     }
 
     deleteComponent (component: any) {
-        // const { engineTypeKey } = this.state;
         const { componentTypeCode, componentName, componentId } = component;
         if (componentTypeCode == COMPONENT_TYPE_VALUE.HDFS ||
             componentTypeCode == COMPONENT_TYPE_VALUE.YARN ||
@@ -1123,7 +1127,7 @@ class EditCluster extends React.Component<any, any> {
                                 }],
                                 initialValue: clusterData.hadoopVersion || 'hadoop2'
                             })(
-                                <Select style={{ width: '200px', marginRight: '10px' }}>
+                                <Select style={{ width: '200px', marginRight: '10px' }} disabled={isView}>
                                     <Option value='hadoop2' key='hadoop2'>hadoop2</Option>
                                     <Option value='hadoop3' key='hadoop3'>hadoop3</Option>
                                     <Option value='HW' key='HW'>HW</Option>
@@ -1132,7 +1136,7 @@ class EditCluster extends React.Component<any, any> {
                             )}
                             <a onClick={() => {
                                 this.updateHadoopVersion();
-                            }}>{'保存'}</a>
+                            }} {...{disabled: isView}}>保存</a>
                         </FormItem>
                     </Col>
                 </Row>
