@@ -15,6 +15,10 @@ const showMapArr: any = {
         ['jdbcUrl', 'jdbcUrl'],
         ['username', '用户名']
     ],
+    [DATA_SOURCE.POLAR_DB]: [
+        ['jdbcUrl', 'jdbcUrl'],
+        ['username', '用户名']
+    ],
     [DATA_SOURCE.CLICK_HOUSE]: [
         ['jdbcUrl', 'jdbcUrl'],
         ['username', '用户名']

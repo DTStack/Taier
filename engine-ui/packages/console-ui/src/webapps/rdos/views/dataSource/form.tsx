@@ -176,6 +176,7 @@ class BaseForm extends React.Component<any, any> {
                 return /http:\/\/([\w, .])+:(\w)+/;
             case DATA_SOURCE.HIVE_1:
             case DATA_SOURCE.HIVE_2:
+            case DATA_SOURCE.POLAR_DB:
             case DATA_SOURCE.CARBONDATA:
                 return /jdbc:(\w)+:\/\/(\w)+/;
             case DATA_SOURCE.MYSQL:
@@ -1173,6 +1174,7 @@ class BaseForm extends React.Component<any, any> {
             }
             case DATA_SOURCE.GBASE:
             case DATA_SOURCE.MYSQL:
+            case DATA_SOURCE.POLAR_DB:
             case DATA_SOURCE.DB2:
             case DATA_SOURCE.SQLSERVER:
             case DATA_SOURCE.LIBRASQL:
