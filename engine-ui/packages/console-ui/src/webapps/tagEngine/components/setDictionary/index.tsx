@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { Table, Icon } from 'antd';
+import { Table, Icon, message } from 'antd';
 import EditInput from '../editInput/index';
 import shortid from 'shortid';
+import { get } from 'lodash';
 import './style.scss';
 interface IProps {
     isEdit: boolean;
@@ -21,7 +22,12 @@ export default class SetDictionary extends React.PureComponent<IProps, any> {
 
     onAdd = () => {
         const { value = [] } = this.props;
-        this.props.onChange([...value, { name: '', value: '', key: shortid() }]);
+        let len = get(value, 'length');
+        if (len && len > 500) {
+            message.warning('字典数量最大不超过500！');
+        } else {
+            this.props.onChange([...value, { name: '', value: '', key: shortid() }]);
+        }
     }
     setBottom = () => {
         const tableScroll = document.querySelector('.set-dictionary-table .ant-table-body');
