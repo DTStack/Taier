@@ -90,15 +90,24 @@ const devServer = Object.assign(
         historyApiFallback: true,
         disableHostCheck: true,
         quiet: true,
+        compress: true,
+        inline:true,
+        clientLogLevel: 'none',
         stats: {
             colors: true,
             "errors-only": false,
             cached: true
         },
+        useLocalIp: true,
         watchOptions: {
-            aggregateTimeout: 300,
-            poll: false,
-            ignored: /node_modules/
+          ignored: /node_modules/,
+          aggregateTimeout: 600,
+        },
+        before(app) {
+          app.use((req, res, next) => {
+            res.set('Access-Control-Allow-Origin', '*');
+            next();
+          });
         },
         contentBase: baseConf.output.path,
         publicPath: baseConf.output.publicPath
