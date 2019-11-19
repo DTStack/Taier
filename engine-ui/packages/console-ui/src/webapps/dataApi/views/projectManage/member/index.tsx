@@ -66,6 +66,7 @@ class ProjectMember extends React.Component<any, any> {
             if (res.code === 1) {
                 ctx.search();
                 dispatch(ProjectAction.getProject(project.id))
+                this.loadUsersNotInProject();
                 message.success('移出成员成功!')
             }
         })
@@ -133,6 +134,7 @@ class ProjectMember extends React.Component<any, any> {
                         })
                         ctx.search();
                         dispatch(ProjectAction.getProject(project.id))
+                        this.loadUsersNotInProject();
                         message.success('添加成员成功!')
                     }
                 })
