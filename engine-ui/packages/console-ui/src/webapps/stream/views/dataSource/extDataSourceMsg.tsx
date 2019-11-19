@@ -15,6 +15,10 @@ const showMapArr: any = {
         ['jdbcUrl', 'jdbcUrl'],
         ['username', '用户名']
     ],
+    [DATA_SOURCE.KUDU]: [
+        ['hostPorts', '集群地址'],
+        ['others', '其他参数']
+    ],
     [DATA_SOURCE.POSTGRESQL]: [
         ['jdbcUrl', 'jdbcUrl'],
         ['username', '用户名']
