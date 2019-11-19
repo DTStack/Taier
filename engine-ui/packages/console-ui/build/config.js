@@ -72,7 +72,8 @@ module.exports = {
                 secure: false
             },
             '/api/console': { // 控制台
-                target: 'http://172.16.10.168:8084', // 开发环境
+                // target: 'http://172.16.10.168:8084', // 开发环境
+                target: 'http://172.16.2.150:8084', // 开发环境
                 // target: "http://172.16.10.65", // test server
                 // target: "http://172.16.10.34:8084",   // test
                 // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},

@@ -118,9 +118,7 @@ class EditCluster extends React.Component<any, any> {
                 copyComp[key] = toChsKeys(copyComp[key] || {}, SPARK_KEY_MAP)
             }
             if (key == COMPONEMT_CONFIG_KEYS.FLINK) {
-                copyComp[key] = Object.assign({}, toChsKeys(copyComp[key] || {}, FLINK_KEY_MAP), {
-                    typeName: copyComp[key].typeName.split('-')[0]
-                })
+                copyComp[key] = toChsKeys(copyComp[key] || {}, FLINK_KEY_MAP)
             }
             if (key == COMPONEMT_CONFIG_KEYS.LEARNING) {
                 copyComp[key] = myUpperCase(copyComp[key])
@@ -218,6 +216,21 @@ class EditCluster extends React.Component<any, any> {
                     }
                 }
             )
+    }
+
+    // 更新hadoop版本
+    updateHadoopVersion = () => {
+        const { location } = this.props;
+        const params = location.state || {};
+        const hadoopVersion = this.props.form.getFieldValue('hadoopVersion');
+        Api.updateHadoopVersion({
+            clusterId: params.cluster.id || params.cluster.clusterId,
+            hadoopVersion: hadoopVersion
+        }).then(res => {
+            if (res.code === 1) {
+
+            }
+        })
     }
     // 填充表单数据
     getDataList (engineType?: any) {
@@ -952,7 +965,6 @@ class EditCluster extends React.Component<any, any> {
      */
     getComponentConf (formValues: any) {
         let { zipConfig } = this.state;
-        const clusterVersion = this.props.form.getFieldValue('clusterVersion');
         zipConfig = typeof zipConfig == 'string' ? JSON.parse(zipConfig) : zipConfig
         let componentConf: any = {};
         console.log(formValues)
@@ -963,12 +975,11 @@ class EditCluster extends React.Component<any, any> {
         const hiveServerExtParams = this.getCustomParams(formValues, 'hiveServer');
         const dtyarnshellExtParams = this.getCustomParams(formValues, 'dtyarnshell');
         const libraExtParams = this.getCustomParams(formValues, 'libra');
-        const flinkTypeName: any = { typeName: `${formValues.flinkConf && formValues.flinkConf.typeName}-${clusterVersion}` };
         const learningTypeName: any = {
-            typeName: `learning-${clusterVersion}`
+            typeName: `learning`
         }
         const dtyarnshellTypeName: any = {
-            typeName: `dtyarnshell-${clusterVersion}`
+            typeName: `dtscript`
         }
         // md5zip 随hdfs组件一起保存
         componentConf['hadoopConf'] = zipConfig.hadoopConf;
@@ -979,7 +990,7 @@ class EditCluster extends React.Component<any, any> {
         componentConf['impalaSqlConf'] = formValues.impalaSqlConf || {};
         componentConf['hiveServerConf'] = { ...formValues.hiveServerConf, ...hiveServerExtParams } || {};
         componentConf['sparkConf'] = { ...toChsKeys(formValues.sparkConf || {}, SPARK_KEY_MAP_DOTS), ...sparkExtParams };
-        componentConf['flinkConf'] = { ...toChsKeys({ ...formValues.flinkConf, ...flinkTypeName } || {}, FLINK_KEY_MAP_DOTS), ...flinkExtParams };
+        componentConf['flinkConf'] = { ...toChsKeys({ ...formValues.flinkConf } || {}, FLINK_KEY_MAP_DOTS), ...flinkExtParams };
         componentConf['learningConf'] = { ...learningTypeName, ...myLowerCase(formValues.learningConf), ...learningExtParams };
         componentConf['dtyarnshellConf'] = { ...dtyarnshellTypeName, ...toChsKeys(formValues.dtyarnshellConf || {}, DTYARNSHELL_KEY_MAP_DOTS), ...dtyarnshellExtParams };
         componentConf['libraConf'] = { ...formValues.libraConf, ...libraExtParams };
@@ -1105,19 +1116,23 @@ class EditCluster extends React.Component<any, any> {
                             label="集群版本"
                             {...formItemLayout}
                         >
-                            {getFieldDecorator('clusterVersion', {
+                            {getFieldDecorator('hadoopVersion', {
                                 rules: [{
                                     required: true,
                                     message: '请选择集群版本'
                                 }],
-                                initialValue: clusterData.clusterVersion || 'hadoop2'
+                                initialValue: clusterData.hadoopVersion || 'hadoop2'
                             })(
-                                <Select style={{ width: '200px' }}>
+                                <Select style={{ width: '200px', marginRight: '10px' }}>
                                     <Option value='hadoop2' key='hadoop2'>hadoop2</Option>
                                     <Option value='hadoop3' key='hadoop3'>hadoop3</Option>
                                     <Option value='HW' key='HW'>HW</Option>
                                 </Select>
+
                             )}
+                            <a onClick={() => {
+                                this.updateHadoopVersion();
+                            }}>{'保存'}</a>
                         </FormItem>
                     </Col>
                 </Row>

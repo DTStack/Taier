@@ -96,7 +96,7 @@ export const HADOOP_GROUP_VALUE = [ // hadoop 引擎支持的组件类型(复选
     { label: 'Flink', value: COMPONENT_TYPE_VALUE.FLINK },
     { label: 'Spark', value: COMPONENT_TYPE_VALUE.SPARK },
     { label: 'Learning', value: COMPONENT_TYPE_VALUE.LEARNING },
-    { label: 'DTYarnShell', value: COMPONENT_TYPE_VALUE.DTYARNSHELL },
+    { label: 'DTScript', value: COMPONENT_TYPE_VALUE.DTYARNSHELL }, // DTYarnShell => DTScript
     { label: 'HDFS', value: COMPONENT_TYPE_VALUE.HDFS, disabled: true },
     { label: 'YARN', value: COMPONENT_TYPE_VALUE.YARN, disabled: true },
     { label: 'SparkThrift', value: COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER },

@@ -129,6 +129,9 @@ export default {
     getClusterInfo (params: any) {
         return http.post(req.GET_CLUSTER_INFO, params);
     },
+    updateHadoopVersion (params: { clusterId: number; hadoopVersion: string }) {
+        return http.post(req.UPDATE_HADOOP_VERSION, params);
+    },
     // 资源管理
     getAllCluster (params?: any) {
         return http.post(req.GET_ALL_CLUSTER, params); // 返回数据包含集群下的engine，以及队列
