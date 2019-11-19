@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { Menu } from 'antd'
 import { Link } from 'react-router'
-require('public/iconfont/iconfont.js');
 
 const { SubMenu } = Menu;
 export default class Sidebar extends React.Component<any, any> {
@@ -50,9 +49,7 @@ export default class Sidebar extends React.Component<any, any> {
             return item.children && item.children.length > 0 ? (
                 <SubMenu key={item.permissionUrl} title={
                     <span>
-                        <svg className="icon-svg" aria-hidden="true">
-                            <use xlinkHref={item.permissionIcon}></use>
-                        </svg>
+                        <i className={`iconfont icon-svg ${item.permissionIcon}`} />
                         <span>{item.permissionName}</span>
                     </span>
                 }
@@ -62,9 +59,7 @@ export default class Sidebar extends React.Component<any, any> {
             ) : (
                 <Menu.Item key={item.permissionUrl}>
                     <Link to={item.permissionUrl}>
-                        <svg className="icon-svg" aria-hidden="true">
-                            <use xlinkHref={item.permissionIcon}></use>
-                        </svg>
+                        <i className={`iconfont icon-svg ${item.permissionIcon}`} />
                         <span className="hide-text">{item.permissionName}</span>
                     </Link>
                 </Menu.Item>

@@ -189,17 +189,102 @@ class StepTwo extends React.PureComponent<IProps, IState> {
             tags: value
         })
     }
-    onHandleChangeType = (key, type) => {
-        console.log(key, type)
+    onHandleChangeType = (key, type) => { // 改变节点状态
+        const { activeTag, tags } = this.state;
+        const newTags = tags.map(item => {
+            if (activeTag == item.value) {
+                const currentConf = item.config;
+                this.transformNodeType(currentConf, key, type)
+            }
+            return item;
+        });
+        this.setState({
+            tags: newTags
+        })
+    }
+    transformNodeType = (treeNode, key, type) => { // 改变节点类型
+        if (treeNode.key === key) {
+            treeNode = Object.assign(treeNode, { type: type == '且' ? '或' : '且' });
+            return;
+        }
+        if (treeNode.children) {
+            const children = treeNode.children
+            for (let i = 0; i < children.length; i += 1) {
+                this.transformNodeType(children[i], key, type)
+            }
+        }
+    }
+    appendTreeNode = (treeNode: any, key: any, type: any) => { // 添加节点
+        if (treeNode.key == key) {
+            treeNode.children.push({});
+            return
+        }
+        if (treeNode.children) {
+            const children = treeNode.children
+            for (let i = 0; i < children.length; i += 1) {
+                if (children[i].key === key) {
+                    if (type == 'top') {
+                        children[i].children.push({})
+                    }else {
+                        treeNode.children.push({})
+                    }
+                    break;
+                }
+                if (children[i].children) {
+                    this.appendTreeNode(children[i], key, type)
+                }
+            }
+        }
+    }
+    removeTreeNode = (treeNode: any, key: any) => { // 移除节点
+        if (treeNode.children) {
+            const children = treeNode.children
+            for (let i = 0; i < children.length; i += 1) {
+                if (children[i].key === key) {
+                    treeNode.children.splice(i, 1)
+
+                    if (treeNode.children.length == 1) {
+                        let newChild = treeNode.children[0];
+                        delete treeNode.children;
+                        delete treeNode.type;
+                        treeNode = Object.assign(treeNode, newChild);
+                    }
+                    break;
+                }
+                if (children[i].children) {
+                    this.removeTreeNode(children[i], key)
+                }
+            }
+        }
     }
     onHandleDeleteCondition = (key, type) => {
-        console.log(key, type)
+        const { activeTag, tags } = this.state;
+        const newTags = tags.map(item => {
+            if (activeTag == item.value) {
+                const currentConf = item.config;
+                this.removeTreeNode(currentConf, key);
+            }
+            return item;
+        });
+        this.setState({
+            tags: newTags
+        })
     }
     onHandleAddCondition = (key, type) => {
-        console.log(key, type)
+        const { activeTag, tags } = this.state;
+        const newTags = tags.map(item => {
+            if (activeTag == item.value) {
+                const currentConf = item.config;
+                this.appendTreeNode(currentConf, key, type);
+            }
+            return item;
+        });
+        this.setState({
+            tags: newTags
+        })
     }
     renderConditionChildren = (data) => {
-        return data.map(item => {
+        return data.map((item, index) => {
             if (item.children && item.children.length) {
                 return (
                     <div key={item.key} className={classnames('select_wrap', {
@@ -213,8 +298,11 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                 );
             }
             return <SelectLabelRow data={item} key={item.key} extra={<div>
-                <Icon type="plus-circle" className="icon" onClick={(e) => this.onHandleDeleteCondition(item.key, item.type)}/>
-                <Icon type="minus-circle-o" className="icon" onClick={(e) => this.onHandleAddCondition(item.key, item.type)}/>
+                <Icon type="minus-circle-o" className="icon" onClick={(e) => this.onHandleDeleteCondition(item.key, item.type)}/>
+                {
+                    (data.length - 1) == index && (<Icon type="plus-circle" className="icon" onClick={(e) => this.onHandleAddCondition(item.key, item.type)}/>)
+                }
+
             </div>}/>
         });
     }
@@ -230,8 +318,8 @@ class StepTwo extends React.PureComponent<IProps, IState> {
             </div>
         }
         return <SelectLabelRow data={data} key={data.key} extra={<div>
-            <Icon type="plus-circle" onClick={(e) => this.onHandleDeleteCondition(data.key, data.type)} className="icon"/>
-            <Icon type="minus-circle-o" onClick={(e) => this.onHandleAddCondition(data.key, data.type)} className="icon"/>
+            <Icon type="minus-circle-o" onClick={(e) => this.onHandleDeleteCondition(data.key, data.type)} className="icon"/>
+            <Icon type="plus-circle" onClick={(e) => this.onHandleAddCondition(data.key, data.type)} className="icon"/>
         </div>}/>
     }
     onHandleNext = (e: any) => {
@@ -296,7 +384,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                             })}>
                                 {
                                     treeData && treeData.children && treeData.children.map(item => {
-                                        return (<Collapse title={item.name} key={item.key} active extra={<Icon className="add_icon" onClick={(e) => this.onHandleAddCondition(item.key, item.type)} type="plus-circle" />}>
+                                        return (<Collapse title={item.name} key={item.key} active extra={<Icon className="add_icon" onClick={(e) => this.onHandleAddCondition(item.key, 'top')} type="plus-circle" />}>
                                             {
                                                 this.renderCondition(item)
                                             }

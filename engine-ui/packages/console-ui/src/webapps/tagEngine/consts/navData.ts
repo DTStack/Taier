@@ -7,25 +7,25 @@ const navData: any = [
         'routers': ['/database', '/entityManage', '/relationManage', '/dictionaryManage', '/entityManage/detail', '/entityManage/edit', '/relationManage', '/dictionaryManage', '/dictionaryManage/detail', '/dictionaryManage/edit'], // 相关路由
         'children': [
             {
-                'permissionIcon': '#icon-project_set',
+                'permissionIcon': 'iconicon_factory_menu2',
                 'permissionName': '实体管理',
                 'permissionUrl': '/entityManage',
                 'routers': ['/entityManage', '/entityManage/detail', '/entityManage/edit']
             },
             {
-                'permissionIcon': '#icon-project_set',
+                'permissionIcon': 'iconpingtai_shujuyuan',
                 'permissionName': '数据源管理',
                 'permissionUrl': '/database',
                 'routers': ['/database']
             },
             {
-                'permissionIcon': '#icon-project_set',
+                'permissionIcon': 'iconicon_factory_menu3',
                 'permissionName': '关系管理',
                 'permissionUrl': '/relationManage',
                 'routers': ['/relationManage']
             },
             {
-                'permissionIcon': '#icon-project_set',
+                'permissionIcon': 'iconicon_factory_menu',
                 'permissionName': '字典管理',
                 'permissionUrl': '/dictionaryManage',
                 'routers': ['/dictionaryManage', '/dictionaryManage/detail', '/dictionaryManage/edit']
@@ -40,13 +40,13 @@ const navData: any = [
         'routers': ['/labelCenter', '/labelDirectory', '/createLabel', '/atomicLabelDetails', '/derivativeLabelDetails', '/editAtomicLabel'],
         'children': [
             {
-                'permissionIcon': '#icon-project_set',
+                'permissionIcon': 'iconicon_factory_menu1',
                 'permissionName': '标签管理',
                 'permissionUrl': '/labelCenter',
                 'routers': ['/labelCenter', '/createLabel', '/atomicLabelDetails', '/derivativeLabelDetails', '/editAtomicLabel']
             },
             {
-                'permissionIcon': '#icon-project_set',
+                'permissionIcon': 'iconicon_factory_menu2',
                 'permissionName': '标签目录',
                 'permissionUrl': '/labelDirectory',
                 'routers': ['/labelDirectory']
@@ -61,7 +61,7 @@ const navData: any = [
         'routers': ['/groupAnalyse', '/groupAnalyse/upload', '/groupAnalyse/detail'],
         'children': [
             {
-                'permissionIcon': '#icon-project_set',
+                'permissionIcon': 'iconicon_customer_menu1',
                 'permissionName': '群组管理',
                 'permissionUrl': '/groupAnalyse',
                 'routers': ['/groupAnalyse', '/groupAnalyse/upload', '/groupAnalyse/detail']
