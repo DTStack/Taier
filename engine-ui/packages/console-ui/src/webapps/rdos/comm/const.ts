@@ -93,7 +93,8 @@ export const DATA_SOURCE_TEXT = {
     22: 'GBase',
     23: 'Kylin',
     24: 'Kudu',
-    25: 'ClickHouse'
+    25: 'ClickHouse',
+    28: 'PolarDB'
 }
 
 // 锁类型
