@@ -59,7 +59,8 @@ export const DATA_SOURCE = {
     GBASE: 22,
     KYLIN: 23,
     KUDU: 24,
-    CLICK_HOUSE: 25
+    CLICK_HOUSE: 25,
+    POLAR_DB: 28
 }
 
 /**
@@ -202,6 +203,7 @@ export const RDB_TYPE_ARRAY: any = [ // sql/oracle/sqlserver/postgresql/db2
     DATA_SOURCE.POSTGRESQL,
     DATA_SOURCE.DB2,
     DATA_SOURCE.GBASE,
+    DATA_SOURCE.POLAR_DB,
     DATA_SOURCE.CLICK_HOUSE
 ]
 
@@ -641,6 +643,9 @@ export const DataSourceTypeFilter: any = [{ // 离线数据源类型过滤选项
 }, {
     text: 'ClickHouse',
     value: DATA_SOURCE.CLICK_HOUSE
+}, {
+    text: 'PolarDB',
+    value: DATA_SOURCE.POLAR_DB
 }];
 
 export const propEditorOptions = { // 编辑器选项
