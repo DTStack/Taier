@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.MalformedURLException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * company: www.dtstack.com
@@ -66,7 +67,7 @@ public class FlinkYarnSessionStarter {
                 logger.info("retrieve flink client with yarn session success");
                 return true;
             }
-            this.clusterClientLock.acquire();
+            this.clusterClientLock.acquire(5, TimeUnit.MINUTES);
             if (flinkConfig.getYarnSessionStartAuto()) {
                 try {
                     clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification);
