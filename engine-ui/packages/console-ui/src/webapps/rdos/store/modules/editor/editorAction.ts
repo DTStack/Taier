@@ -8,6 +8,11 @@ import { createLinkMark, createLog, createTitle } from 'widgets/code-editor/util
 
 const INTERVALS = 1500;
 
+const SELECT_TYPE = {
+    SCRIPT: 0, // 脚本
+    TASK: 1 // 任务
+}
+
 // 储存各个tab的定时器id，用来stop任务时候清楚定时任务
 const intervalsStore: any = {}
 // 停止信号量，stop执行成功之后，设置信号量，来让所有正在执行中的网络请求知道任务已经无需再继续
@@ -54,9 +59,11 @@ function doSelect (resolve: any, dispatch: any, jobId: any, currentTab: number, 
             }
         }
     }
+    const isTask = utils.checkExist(task && task.taskType);
     API.selectExecResultData({
         jobId: jobId,
-        taskId: task.id
+        taskId: task.id,
+        type: isTask ? SELECT_TYPE.TASK : SELECT_TYPE.SCRIPT
     }, taskType)
         .then(
             (res: any) => {
