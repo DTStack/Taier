@@ -87,7 +87,7 @@ class BaseForm extends React.Component<any, any> {
                         placeholder="请选择数据源"
                         filterOption={(input, option) => {
                             let temStr = option.props.children + '';
-                            return temStr.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+                            return temStr.indexOf(input) >= 0;
                         }}
                     >
                         {sourceOption.map((item: any) => (
@@ -107,7 +107,7 @@ class BaseForm extends React.Component<any, any> {
                         showSearch
                         filterOption={(input, option) => {
                             let temStr = option.props.children + '';
-                            return temStr.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+                            return temStr.indexOf(input) >= 0;
                         }}
                         onChange={this.handleSelectChange.bind(this, 'table')}
                         disabled={false}
@@ -130,7 +130,7 @@ class BaseForm extends React.Component<any, any> {
                         showSearch
                         filterOption={(input, option) => {
                             let temStr = option.props.children + '';
-                            return temStr.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+                            return temStr.indexOf(input) >= 0;
                         }}
                         disabled={false}
                         placeholder="请选择维度作为实体主键"
