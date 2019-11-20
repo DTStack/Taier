@@ -56,6 +56,7 @@ class Header extends React.Component<any, any> {
             overview: false,
             market: false,
             myapi: false,
+            /* eslint-disable-next-line */
             api_manager: false,
             authorized: false,
             datasource: false,
