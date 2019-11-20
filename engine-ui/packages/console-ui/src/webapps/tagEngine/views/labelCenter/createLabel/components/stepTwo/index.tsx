@@ -1,12 +1,11 @@
 import * as React from 'react';
-import { Form, Select, Button, Input, Icon } from 'antd';
+import { Form, Select, Button } from 'antd';
 import { FormComponentProps } from 'antd/lib/form/Form';
-import classnames from 'classnames';
 import shortid from 'shortid';
-import SelectLabelRow from '../selectLabelRow';
 import TagValues from '../tagValues';
-import Collapse from '../collapse/index';
+import { cloneDeep } from 'lodash';
 import './style.scss';
+import PanelSelect from '../panelSelect';
 
 const { Option } = Select;
 
@@ -37,7 +36,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
     constructor (props: IProps) {
         super(props);
     }
-
+    panelForm: any;
     state: IState = {
         indexList: ['name'],
         keyList: [],
@@ -45,23 +44,24 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         activeTag: currentId,
         tags: [{
             label: '标签值1',
+            id: '',
             value: currentId,
             valid: false,
             config: {
-                key: '1',
+                key: '0',
                 type: '且', //  且|或
                 children: [
                     {
-                        key: '1-1',
+                        key: '0-0',
                         type: '或',
                         name: '实体-用户信息',
                         children: [
                             {
-                                key: '1-1-1',
+                                key: '0-0-0',
                                 type: '或',
                                 children: [
                                     {
-                                        key: '1-1-1-1',
+                                        key: '0-0-0-0',
                                         selectName: '活跃度',
                                         selectvalue: '活跃度id',
                                         filterType: '字符串', // 字符串|数值|日期|字典
@@ -70,7 +70,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                                         filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值或者区间值，延续数值结构，name为空
                                     },
                                     {
-                                        key: '1-1-1-2',
+                                        key: '0-0-0-1',
                                         selectName: '活跃度',
                                         selectvalue: '活跃度id',
                                         filterType: '字符串', // 字符串|数值|日期|字典
@@ -81,7 +81,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                                 ]
                             },
                             {
-                                key: '1-1-2',
+                                key: '0-0-1',
                                 selectName: '活跃度',
                                 selectvalue: '活跃度id',
                                 filterType: '字符串', // 字符串|数值|日期|字典
@@ -92,51 +92,16 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                         ]
                     },
                     {
-                        key: '1-2',
+                        key: '0-1',
                         type: '或',
                         name: '实体-活动',
-                        children: [
-                            {
-                                key: '1-2-1',
-                                type: '或',
-                                children: [
-                                    {
-                                        key: '1-2-1-1',
-                                        selectName: '活跃度',
-                                        selectvalue: '活跃度id',
-                                        filterType: '字符串', // 字符串|数值|日期|字典
-                                        conditionName: '等于',
-                                        conditionId: '等于',
-                                        filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值或者区间值，延续数值结构，name为空
-                                    }
-                                ]
-                            },
-                            {
-                                key: '1-2-2',
-                                selectName: '活跃度',
-                                selectvalue: '活跃度id',
-                                filterType: '字符串', // 字符串|数值|日期|字典
-                                conditionName: '等于',
-                                conditionId: '等于',
-                                filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值或者区间值，延续数值结构，name为空
-                            }
-                        ]
+                        children: []
                     },
                     {
-                        key: '1-3',
+                        key: '0-2',
                         type: '或',
                         name: '实体-产品',
-                        children: [
-                            {
-                                key: '1-3-2',
-                                selectName: '活跃度',
-                                selectvalue: '活跃度id',
-                                filterType: '字符串', // 字符串|数值|日期|字典
-                                conditionName: '等于',
-                                conditionId: '等于',
-                                filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值或者区间值，延续数值结构，name为空
-                            }
-                        ]
+                        children: []
                     }
                 ]
             }
@@ -190,19 +155,34 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         })
     }
     onHandleChangeType = (key, type) => { // 改变节点状态
+        this.onHandleTreeNode(key, 'changeType', type)
+    }
+    onHandleDeleteCondition = (key) => {
+        this.onHandleTreeNode(key, 'remove')
+    }
+    onHandleAddCondition = (key) => {
+        this.onHandleTreeNode(key, 'append');
+    }
+    onHandleTreeNode =(key: string, op: string, type?: string) => {
         const { activeTag, tags } = this.state;
         const newTags = tags.map(item => {
             if (activeTag == item.value) {
                 const currentConf = item.config;
-                this.transformNodeType(currentConf, key, type)
+                if (op == 'append') {
+                    this.appendTreeNode(currentConf, key);
+                } else if (op === 'remove') {
+                    this.removeTreeNode(currentConf, key);
+                } else if (op == 'changeType') {
+                    this.changeNodeType(currentConf, key, type)
+                }
             }
             return item;
         });
         this.setState({
-            tags: newTags
+            tags: cloneDeep(newTags)
         })
     }
-    transformNodeType = (treeNode, key, type) => { // 改变节点类型
+    changeNodeType = (treeNode, key, type) => { // 改变节点类型
         if (treeNode.key === key) {
             treeNode = Object.assign(treeNode, { type: type == '且' ? '或' : '且' });
             return;
@@ -210,44 +190,51 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         if (treeNode.children) {
             const children = treeNode.children
             for (let i = 0; i < children.length; i += 1) {
-                this.transformNodeType(children[i], key, type)
+                this.changeNodeType(children[i], key, type)
             }
         }
     }
-    appendTreeNode = (treeNode: any, key: any, type: any) => { // 添加节点
+    appendTreeNode = (treeNode: any, key: any) => { // 添加节点
+        let level = key.split('-');
         if (treeNode.key == key) {
-            treeNode.children.push({});
+            let newKey = key + '-' + shortid();
+            treeNode.children.push({ key: newKey });
             return
         }
         if (treeNode.children) {
             const children = treeNode.children
             for (let i = 0; i < children.length; i += 1) {
                 if (children[i].key === key) {
-                    if (type == 'top') {
-                        children[i].children.push({})
-                    }else {
-                        treeNode.children.push({})
+                    if (level.length == 2) { // 二级目录
+                        let newKey = key + '-' + shortid();
+                        children[i].children.push({ key: newKey })
+                    } else if (level.length == 3) { // 三级目录
+                        let current = children[i]; // 转换节点数据结构，如果为三级目录则，改变数据结构，变为children数组关系
+                        children[i] = { key: current.key, type: '或', children: [Object.assign({}, current, { key: current.key + '-' + shortid() }), Object.assign({}, current, { key: current.key + '-1' })] };
+                    } else { // 四级目录
+                        let newKey = key + '-' + shortid();
+                        treeNode.children.push({ key: newKey })
                     }
                     break;
                 }
                 if (children[i].children) {
-                    this.appendTreeNode(children[i], key, type)
+                    this.appendTreeNode(children[i], key)
                 }
             }
         }
     }
     removeTreeNode = (treeNode: any, key: any) => { // 移除节点
+        let level = key.split('-');
         if (treeNode.children) {
             const children = treeNode.children
             for (let i = 0; i < children.length; i += 1) {
                 if (children[i].key === key) {
                     treeNode.children.splice(i, 1)
-
-                    if (treeNode.children.length == 1) {
+                    if (level.length > 3 && treeNode.children.length == 1) {
                         let newChild = treeNode.children[0];
                         delete treeNode.children;
                         delete treeNode.type;
-                        treeNode = Object.assign(treeNode, newChild);
+                        treeNode = Object.assign(treeNode, newChild, { key: treeNode.key });
                     }
                     break;
                 }
@@ -257,74 +244,13 @@ class StepTwo extends React.PureComponent<IProps, IState> {
             }
         }
     }
-    onHandleDeleteCondition = (key, type) => {
-        const { activeTag, tags } = this.state;
-        const newTags = tags.map(item => {
-            if (activeTag == item.value) {
-                const currentConf = item.config;
-                this.removeTreeNode(currentConf, key);
-            }
-            return item;
-        });
-        this.setState({
-            tags: newTags
-        })
-    }
-    onHandleAddCondition = (key, type) => {
-        const { activeTag, tags } = this.state;
-        const newTags = tags.map(item => {
-            if (activeTag == item.value) {
-                const currentConf = item.config;
-                this.appendTreeNode(currentConf, key, type);
-            }
-            return item;
-        });
-        this.setState({
-            tags: newTags
-        })
-    }
-    renderConditionChildren = (data) => {
-        return data.map((item, index) => {
-            if (item.children && item.children.length) {
-                return (
-                    <div key={item.key} className={classnames('select_wrap', {
-                        active: item.children.length > 1
-                    })}>
-                        {
-                            this.renderConditionChildren(item.children)
-                        }
-                        <span className="condition" onClick={(e) => this.onHandleChangeType(item.key, item.type)}>{item.type}</span>
-                    </div>
-                );
-            }
-            return <SelectLabelRow data={item} key={item.key} extra={<div>
-                <Icon type="minus-circle-o" className="icon" onClick={(e) => this.onHandleDeleteCondition(item.key, item.type)}/>
-                {
-                    (data.length - 1) == index && (<Icon type="plus-circle" className="icon" onClick={(e) => this.onHandleAddCondition(item.key, item.type)}/>)
-                }
-
-            </div>}/>
-        });
-    }
-    renderCondition = data => {
-        if (data.children && data.children.length) {
-            return <div className={classnames('select_wrap', {
-                active: data.children.length > 1
-            })}>
-                {
-                    this.renderConditionChildren(data.children)
-                }
-                <span className="condition" onClick={(e) => this.onHandleChangeType(data.key, data.type)}>{data.type}</span>
-            </div>
-        }
-        return <SelectLabelRow data={data} key={data.key} extra={<div>
-            <Icon type="minus-circle-o" onClick={(e) => this.onHandleDeleteCondition(data.key, data.type)} className="icon"/>
-            <Icon type="plus-circle" onClick={(e) => this.onHandleAddCondition(data.key, data.type)} className="icon"/>
-        </div>}/>
-    }
     onHandleNext = (e: any) => {
+        this.panelForm.validateFields((err, values) => {
+            if (!err) {
+                this.props.onNext(values);
+            }
+        });
         this.props.form.validateFields((err, values) => {
-            console.log(err, values)
             if (!err) {
                 this.props.onNext(values);
             }
@@ -376,25 +302,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                     <TagValues select={activeTag} value={tags} onChange={(value) => this.onChangeTags(value)} onSelect={(value) => this.onChangeSelect(value, 'tags')} />
                 </Form.Item>
                 {
-                    currentTag && (<div className="panel_select">
-                        <div className="edit_Wrap"><Input className="edit_value" value={currentTag.label} onChange={this.onChangeLabel}/><i className="iconfont iconbtn_edit"></i></div>
-                        <div className="panel_wrap">
-                            <div className={classnames('select_wrap', {
-                                active: treeData.children && treeData.children.length > 1
-                            })}>
-                                {
-                                    treeData && treeData.children && treeData.children.map(item => {
-                                        return (<Collapse title={item.name} key={item.key} active extra={<Icon className="add_icon" onClick={(e) => this.onHandleAddCondition(item.key, 'top')} type="plus-circle" />}>
-                                            {
-                                                this.renderCondition(item)
-                                            }
-                                        </Collapse>)
-                                    })
-                                }
-                                <span className="condition" onClick={(e) => this.onHandleChangeType(treeData.key, treeData.type)}>{treeData.type}</span>
-                            </div>
-                        </div>
-                    </div>)
+                    currentTag && (<PanelSelect ref={(node) => this.panelForm = node} treeData={treeData} currentTag={currentTag} onChangeLabel={this.onChangeLabel} onHandleAddCondition={this.onHandleAddCondition} onHandleChangeType={this.onHandleChangeType} onHandleDeleteCondition={this.onHandleDeleteCondition}/>)
                 }
                 <div className="wrap_btn_content"><Button onClick={this.onHandlePrev}>上一步</Button><Button type="primary" onClick={this.onHandleNext}>下一步</Button></div>
             </div>

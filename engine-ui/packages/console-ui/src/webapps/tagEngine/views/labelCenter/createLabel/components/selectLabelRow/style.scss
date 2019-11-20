@@ -1,11 +1,11 @@
 .select-label-Row {
     margin-bottom: 20px;
-    align-items: center;
-
     .icon {
         cursor: pointer;
         color: #2491F7;
         font-size: 18px;
         margin-right: 12px;
+        position: relative;
+        top:4px;
     }
 }

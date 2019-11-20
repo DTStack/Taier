@@ -23,6 +23,14 @@ export default class Collapse extends React.Component<Props, State> {
             active: this.props.active
         })
     }
+    componentDidUpdate (preProps) {
+        const { active } = this.props;
+        if (active != preProps.active) {
+            this.setState({
+                active
+            })
+        }
+    }
     onHandleActive = () => {
         this.setState({
             active: !this.state.active
