@@ -29,7 +29,7 @@ public class RdosEngineJobStopRecordCompare {
                 "    \"groupName\": \"default_c\",\n" +
                 "    \"computeType\": 0,\n" +
                 "    \"tenantId\": 1,\n" +
-                "    \"engineType\": \"dtyarnshell\",\n" +
+                "    \"engineType\": \"dtscript\",\n" +
                 "    \"taskId\": \"b894c990\"\n" +
                 "}";
         Map param = PublicUtil.jsonStrToObject(job, Map.class);

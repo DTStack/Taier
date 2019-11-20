@@ -76,7 +76,7 @@ public class ClientCache {
 
     /**
      * engineType是不带版本信息的
-     * @param engineType 引擎类型：flink、spark、dtyarnshell
+     * @param engineType 引擎类型：flink、spark、dtscript
      * @param pluginInfo 集群配置信息
      * @return
      */

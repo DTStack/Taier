@@ -17,7 +17,7 @@ public enum EngineType {
     Spark('1'),
 //    Datax('2'),
     Learning('3'),
-    DtYarnShell('4'),
+    DtScript('4'),
     Mysql('5'),
     Oracle('6'),
     Sqlserver('7'),
@@ -49,8 +49,8 @@ public enum EngineType {
 //                return EngineType.Datax;
             case "learning":
                 return EngineType.Learning;
-            case "dtyarnshell":
-                return EngineType.DtYarnShell;
+            case "dtscript":
+                return EngineType.DtScript;
             case "mysql":
                 return EngineType.Mysql;
             case "oracle":
@@ -137,9 +137,9 @@ public enum EngineType {
         return false;
     }
 
-    public static boolean isDtYarnShell(String engineType) {
+    public static boolean isDtScript(String engineType) {
         engineType = engineType.toLowerCase();
-        if (engineType.startsWith("dtyarnshell")) {
+        if (engineType.startsWith("dtscript")) {
             return true;
         }
 
