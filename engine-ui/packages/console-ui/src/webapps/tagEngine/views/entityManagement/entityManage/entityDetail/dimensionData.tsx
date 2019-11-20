@@ -65,10 +65,15 @@ export default class DimensionData extends React.Component<IProps, IState> {
             key: 'name',
             width: 200,
             render: (text: any, record: any) => {
-                return (<span>
-                    {text}
-                    {record.isKey ? '(主键)' : ''}
-                </span>)
+                return (
+                    <div className="di-table-name-col">
+                        <div className="tag-box">
+                            {record.isKey ? <a style={{ cursor: 'default' }}><i className='iconfont iconicon_key'></i></a> : null}
+                        </div>
+                        <span>{text}</span>
+                        {record.isKey ? '(主键)' : ''}
+                    </div>
+                )
             }
         }, {
             title: '中文名',
@@ -127,7 +132,7 @@ export default class DimensionData extends React.Component<IProps, IState> {
     }
 
     render () {
-        const { dataSource } = this.props;
+        const { dataSource = [] } = this.props;
 
         return (
             <div className="ed-dimension-data shadow">
@@ -136,6 +141,9 @@ export default class DimensionData extends React.Component<IProps, IState> {
                     bordered={false}
                     className="noBorderBottom"
                 >
+                    <div className="total-count-box">
+                        <span>共计&nbsp;{dataSource.length}个&nbsp;数据维度</span>
+                    </div>
                     <Table
                         rowKey="id"
                         className="dt-ant-table--border"

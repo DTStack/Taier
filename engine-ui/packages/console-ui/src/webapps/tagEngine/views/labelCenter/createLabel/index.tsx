@@ -20,7 +20,7 @@ export default class CreateLabel extends React.PureComponent<IProps, IState> {
         super(props);
     }
     state: IState = {
-        current: 0,
+        current: 1,
         stepsValues: []
     };
     componentDidMount () { }

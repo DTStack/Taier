@@ -41,6 +41,17 @@
 			padding: 11px 24px !important;
 		}
 	}
+	.di-table-name-col {
+		display: flex;
+		width: 100%;
+		align-items: center;
+		margin-left: -54px;
+		.tag-box {
+			width: 42px;
+			text-align: right;
+			margin-right: 12px;
+		}
+	}
 }
 
 .atomic-label {

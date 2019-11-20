@@ -40,9 +40,9 @@ export default class EntityEdit extends React.Component<IProps, IState> {
         // TODO 根据上一表单信息请求 维度信息
         this.setState({
             dimensionInfor: [
-                { id: '1', select: true, isKey: true, isMultiply: false, name: 'xxxxxxx', chName: 'xxx1', type: 'char', propertyNum: 200 },
-                { id: '2', select: false, isKey: false, isMultiply: false, name: 'xxxxx', chName: 'xxx2', type: 'number', propertyNum: 100 },
-                { id: '3', select: false, isKey: false, isMultiply: false, name: 'xxxxx', chName: 'xxx3', type: 'number', propertyNum: 30 }
+                { id: '1', new: false, select: true, isKey: true, isMultiply: false, name: 'xxxxxxx', chName: 'xxx1', type: 'char', propertyNum: 200 },
+                { id: '2', new: true, select: false, isKey: false, isMultiply: false, name: 'xxxxx', chName: 'xxx2', type: 'number', propertyNum: 100 },
+                { id: '3', new: false, select: false, isKey: false, isMultiply: false, name: 'xxxxx', chName: 'xxx3', type: 'time', propertyNum: 30 }
             ]
         })
     }

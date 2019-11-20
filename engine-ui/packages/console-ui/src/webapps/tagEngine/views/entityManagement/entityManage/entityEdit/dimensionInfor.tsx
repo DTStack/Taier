@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Input, Table, Checkbox, Icon, Select, Tooltip, message as Message } from 'antd';
+import { Input, Table, Checkbox, Icon, Select, Tooltip, message as Message, Tag } from 'antd';
 import ConfigDictModal from './configDictModal';
 import './style.scss';
 import { isEqual, isEmpty } from 'lodash';
@@ -121,13 +121,6 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
                 }
                 break;
             }
-            case 'isMultiply': {
-                infor[editIndex] = {
-                    ...record,
-                    isMultiply: e.target.checked
-                }
-                break;
-            }
             default: ;
         }
         this.props.handleChange([...infor]);
@@ -149,13 +142,19 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
             key: 'name',
             width: 200,
             render: (text: any, record: any) => {
-                return (<span>
-                    {text}
-                    {record.isKey ? '(主键)' : ''}
-                </span>)
+                return (
+                    <div className="di-table-name-col">
+                        <div className="tag-box">
+                            {record.new ? <Tag color="green">新增</Tag> : null}
+                            {record.isKey ? <a><i className='iconfont iconicon_key'></i></a> : null}
+                        </div>
+                        <span>{text}</span>
+                        {record.isKey ? '(主键)' : ''}
+                    </div>
+                )
             }
         }, {
-            title: <span>中文名<i className="iconfont iconicon_import" style={{ marginLeft: '10px', color: '#999999', cursor: 'pointer' }} onClick={this.handleConfig}></i></span>,
+            title: <span>中文名<i className="iconfont iconicon_import" style={{ marginLeft: '10px', color: '#999999', cursor: 'pointer', fontSize: 13 }} onClick={this.handleConfig}></i></span>,
             dataIndex: 'chName',
             key: 'chName',
             width: 200,
@@ -193,7 +192,7 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
             dataIndex: 'isMultiply',
             key: 'isMultiply',
             render: (text: boolean, record: any) => {
-                return record.isKey ? '' : <Checkbox onChange={this.handleTableChange.bind(this, 'isMultiply', record)} checked={text} />
+                return text ? '是' : '';
             }
         }];
     }

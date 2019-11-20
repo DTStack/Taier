@@ -45,11 +45,9 @@ class ConfigDictModal extends React.Component<any, any> {
         const { getFieldDecorator, getFieldValue } = this.props.form;
 
         let wayOption: any[] = [
+            { label: '自定义', value: 'auto' },
             { label: '引用', value: 'refer' }
         ];
-        if (isLabel) { // isLabel 判断是否是 原子标签处的配置字典
-            wayOption.unshift({ label: '自定义', value: 'auto' })
-        }
         return (
             <Modal
                 title="配置字典"
@@ -60,16 +58,32 @@ class ConfigDictModal extends React.Component<any, any> {
                 maskClosable={false}
             >
                 <Form>
-                    <FormItem {...formItemLayout} label="选择方式" >
+                    {!isLabel && <FormItem {...formItemLayout} label="选择维度字典" >
+                        {getFieldDecorator('dictRef', {
+                            rules: [{
+                                required: true, message: '维度字典不可为空！'
+                            }]
+                        })(
+                            <Select
+                                style={{ width: '100%' }}
+                                placeholder={'请选择维度字典'}
+                            >
+                                {dictionaryOption.map((item: any) => (
+                                    <Option key={item.value} value={item.value}>{item.label}</Option>
+                                ))}
+                            </Select>
+                        )}
+                    </FormItem>}
+                    {isLabel && <FormItem {...formItemLayout} label="选择方式" >
                         {getFieldDecorator('way', {
                             rules: [{
                                 required: true, message: '选择方式不可为空！'
                             }],
-                            initialValue: isLabel ? 'auto' : 'refer'
+                            initialValue: 'auto'
                         })(
                             <RadioGroup options={wayOption} />
                         )}
-                    </FormItem>
+                    </FormItem>}
                     {getFieldValue('way') == 'refer' && <FormItem {...formItemLayout} label="字典引用" >
                         {getFieldDecorator('dictRef', {
                             rules: [{
@@ -78,7 +92,7 @@ class ConfigDictModal extends React.Component<any, any> {
                         })(
                             <Select
                                 style={{ width: '100%' }}
-                                placeholder={isLabel ? '请选择标签字典' : '请选择维度字典'}
+                                placeholder={'请选择标签字典'}
                             >
                                 {dictionaryOption.map((item: any) => (
                                     <Option key={item.value} value={item.value}>{item.label}</Option>
@@ -90,6 +104,9 @@ class ConfigDictModal extends React.Component<any, any> {
                         {getFieldDecorator('dictSetName', {
                             rules: [{
                                 required: true, message: '字典名称不可为空！'
+                            }, {
+                                max: 20,
+                                message: '字典名称不可超过20个字符！'
                             }]
                         })(
                             <Input placeholder="请输入字典名称" />

@@ -75,9 +75,12 @@ class DictionaryEdit extends React.Component<any, IState> {
                                 rules: [{
                                     required: true,
                                     message: '字典名称不可为空！'
+                                }, {
+                                    max: 20,
+                                    message: '字典名称不得超过20个字符！'
                                 }]
                             })(
-                                <Input placeholder="请输入字典中文名称，20字以内的中文字符" />
+                                <Input placeholder="请输入字典中文名称，20字以内" />
                             )}
                         </FormItem>
                         <FormItem {...formItemLayout} label="字典类型" >
@@ -98,11 +101,11 @@ class DictionaryEdit extends React.Component<any, IState> {
                         <FormItem {...formItemLayout} label="字典描述" >
                             {getFieldDecorator('desc', {
                                 rules: [{
-                                    max: 20,
-                                    message: '描述不得超过20个字符！'
+                                    max: 255,
+                                    message: '描述不得超过255个字符！'
                                 }]
                             })(
-                                <Input type="textarea" placeholder="请输入字典描述信息，长度限制在20个字符以内" />
+                                <Input type="textarea" placeholder="请输入字典描述信息，长度限制在255个字符以内" />
                             )}
                         </FormItem>
                         <Form.Item style={{ marginBottom: 40 }} {...formItemLayout} label="设置字典规则">
@@ -129,7 +132,7 @@ class DictionaryEdit extends React.Component<any, IState> {
                                 rules: [
                                     {
                                         required: true,
-                                        message: '字典规则不可为空！'
+                                        message: '字典值必须大于一项！'
                                     }
                                 ]
                             })(<SetDictionary isEdit={true} />)}

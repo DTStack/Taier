@@ -143,7 +143,7 @@ export default class AtomicLabel extends React.Component<IProps, IState> {
             key: 'config',
             width: 120,
             render: (text: any, record: any) => {
-                return <a onClick={this.handleConfig}>配置字典</a>
+                return record.type == 'time' ? '' : <a onClick={this.handleConfig}>配置字典</a>
             }
         }, {
             title: '标签描述',
