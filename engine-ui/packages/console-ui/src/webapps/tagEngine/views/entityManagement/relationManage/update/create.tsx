@@ -19,7 +19,7 @@ const breadcrumbNameMap = [{
     name: '关系管理'
 }, {
     path: '/relationManage/create',
-    name: '新增实体'
+    name: '新增关系'
 }];
 
 const initialEntityNode: IEntityNode = {
@@ -96,27 +96,46 @@ const mockData: IEntityNode[] = [{
         name: 'column-10'
     }]
 }, {
-    id: 3,
-    name: 'edge',
-    vertex: false,
-    edge: true,
+    id: 3, // - 必要
+    name: 'edge', 
+    vertex: true, // name - 必要
+    edge: false, // 线 - 必要
     position: {
         x: 0,
         y: 0
     },
-    source: {
+    source: { // - 必要
         id: 1,
         name: 'entity-1',
-        rowIndex: 1
+        rowIndex: 1 // - 必要
     },
-    target: {
+    target: {// - 必要
         id: 2,
         name: 'entity-2',
-        rowIndex: 2
+        rowIndex: 2 // - 必要
+    }
+}, {
+    id: 3, // - 必要
+    name: 'edge', 
+    vertex: false, // name - 必要
+    edge: true, // 线 - 必要
+    position: {
+        x: 0,
+        y: 0
+    },
+    source: { // - 必要
+        id: 1,
+        name: 'entity-1',
+        rowIndex: 1 // - 必要
+    },
+    target: {// - 必要
+        id: 2,
+        name: 'entity-2',
+        rowIndex: 2 // - 必要
     }
 }];
 
-class CreateRelationEntity extends React.Component<any, IState> {
+class CreateRelation extends React.Component<any, IState> {
     state: IState = {
         dataSourceList: [],
         entities: [{
@@ -155,6 +174,7 @@ class CreateRelationEntity extends React.Component<any, IState> {
                 <div className="inner-container bg-w">
                     <div className="c-createRelation__form">
                         <CreateRelationEntityForm
+                            mode="create"
                             onCreateRelationEntity={this.onAddEntityNodeData}
                             dataSourceList={dataSourceList}
                         />
@@ -177,4 +197,4 @@ class CreateRelationEntity extends React.Component<any, IState> {
     }
 }
 
-export default CreateRelationEntity;
+export default CreateRelation;

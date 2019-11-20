@@ -8,6 +8,8 @@ import { formItemLayout } from '../../../../comm/const';
 interface IProps extends FormComponentProps {
     dataSourceList: IDataSource[];
     onCreateRelationEntity: (e: React.FormEvent) => void;
+    mode: 'edit' | 'create';
+    formData?: any;
 };
 
 const FormItem = Form.Item;
@@ -45,22 +47,36 @@ class CreateRelationEntityForm extends React.Component<IProps, any> {
                 </FormItem>
                 <FormItem
                     {...formItemLayout}
-                    label="请选择数据源"
+                    label="请选择数据类型"
                     hasFeedback
                 >
                     {getFieldDecorator('dataSource', {
                         rules: [{
-                            required: true, message: '请选择数据源!'
+                            required: true, message: '请选择数据类型!'
                         }]
                     })(
                         <Select
-                            placeholder="请选择数据源"
+                            placeholder="请选择数据类型"
                             style={{ width: 200 }}
                         >
                             { dataSourceList && dataSourceList.map((o: IDataSource) => {
                                 return <Option key={o.name} value={o.value}>{o.name}</Option>
                             })}
                         </Select>
+                    )}
+                </FormItem>
+                <FormItem
+                    {...formItemLayout}
+                    label="关系描述"
+                    hasFeedback
+                >
+                    {getFieldDecorator('description', {
+                        rules: []
+                    })(
+                        <Input.TextArea
+                            placeholder="请输入描述信息，长度限制在255个字符以内"
+                            rows={4}
+                        />
                     )}
                 </FormItem>
                 <FormItem

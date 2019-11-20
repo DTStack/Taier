@@ -28,7 +28,8 @@ import EMEntityEdit from './views/entityManagement/entityManage/entityEdit'
 import EMEntityDetail from './views/entityManagement/entityManage/entityDetail'
 
 // ======= 关系管理 =======
-import CreateRelation from './views/entityManagement/relationManage/createRelation'
+import CreateRelation from './views/entityManagement/relationManage/update/create'
+import EditRelation from './views/entityManagement/relationManage/update/edit'
 import RelationDetail from './views/entityManagement/relationManage/relationDetail'
 
 // ======= 字典管理 =======
@@ -189,6 +190,10 @@ const routeConfig = [
             },
             {
                 path: '/relationManage/create',
+                component: CreateRelation
+            },
+            {
+                path: '/relationManage/edit',
                 component: CreateRelation
             },
             {
