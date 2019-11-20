@@ -364,11 +364,9 @@ export const FLINK_KEY_MAP_DOTS: any = {
 // 非用户自定义参数
 export const notExtKeysFlink: any = [
     'typeName',
-    // 'flinkZkAddress',
+    'high-availability',
     'high-availability.zookeeper.quorum',
-    // 'flinkHighAvailabilityStorageDir',
     'high-availability.storageDir',
-    // 'flinkZkNamespace',
     'high-availability.zookeeper.path.root',
     'metrics.reporter.promgateway.class',
     'metrics.reporter.promgateway.host',
@@ -379,10 +377,8 @@ export const notExtKeysFlink: any = [
     'jarTmpDir',
     'flinkPluginRoot', 'remotePluginRootDir',
     'clusterMode', 'flinkJarPath',
-    // 'flinkJobHistory',
     'historyserver.web.address',
     'historyserver.web.port',
-    // 'flinkClusterId',
     'high-availability.cluster-id',
     // 'flinkPrincipal', 'flinkKeytabPath', 'flinkKrb5ConfPath',
     // 'zkPrincipal', 'zkKeytabPath', 'zkLoginName',
