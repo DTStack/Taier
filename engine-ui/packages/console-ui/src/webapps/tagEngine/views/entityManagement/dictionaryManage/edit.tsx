@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { Form, Input, Select, Card, Button } from 'antd';
+import { Form, Input, Select, Card, Button, Tooltip, Icon, message as Message } from 'antd';
 import Breadcrumb from '../../../components/breadcrumb';
 import SetDictionary from '../../../components/setDictionary';
+import shortid from 'shortid';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -9,6 +10,10 @@ const { Option } = Select;
 interface IState {
     typeOption: any[];
     ruleFile: any;
+    ruleFileSource: any;
+    charset: string;
+    fileData: any[];
+    splitSymbol: string;
 }
 
 const formItemLayout = {
@@ -28,7 +33,11 @@ class DictionaryEdit extends React.Component<any, IState> {
             { label: '标签字典', value: 'label' },
             { label: '维度字典', value: 'dimension' }
         ],
-        ruleFile: {}
+        ruleFile: undefined,
+        ruleFileSource: undefined,
+        fileData: [],
+        splitSymbol: ',',
+        charset: 'UTF-8'
     }
 
     componentDidMount () {
@@ -36,8 +45,81 @@ class DictionaryEdit extends React.Component<any, IState> {
     }
 
     handleFileChange = (e: any) => {
-        const ruleFile = e.target
-        this.setState({ ruleFile })
+        const ruleFile = e.target.files[0];
+        const sizeLimit = 5 * 1024 * 1024 // 5MB
+        if (ruleFile.size > sizeLimit) {
+            Message.warning('本地上传文件不可超过5MB!')
+        } else {
+            this.setState({ ruleFile }, () => {
+                this.readFile(ruleFile)
+            })
+        }
+    }
+
+    readFile = (file: any) => {
+        const { charset } = this.state
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = ((data: any) => {
+                return (e: any) => {
+                    this.setState({
+                        ruleFileSource: e.target.result
+                    })
+                    this.parseFile(e.target.result)
+                }
+            })(file)
+            reader.readAsText(file, charset)
+        }
+    }
+
+    parseFile (data: any) {
+        const { splitSymbol } = this.state
+        const arr: any = []
+        const splitVal = this.parseSplitSymbol(splitSymbol)
+
+        data = data.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+
+        // 防卡死
+        if (data && data[0].length > 5000) {
+            Message.error('文件内容不正确！');
+            return;
+        }
+
+        for (let i = 0; i < data.length; i++) {
+            const str = data[i].replace(/\r/, '') // 清除无用\r字符
+            if (str) {
+                arr.push(str.split(splitVal))
+            }
+        }
+
+        const subArr = arr.slice(1);
+
+        this.setState({
+            fileData: subArr || []
+        })
+
+        let ruleData = [];
+        subArr.forEach((item: any, index: number) => {
+            if (index < 500) {
+                ruleData.push({
+                    name: item[0], value: item[1], key: shortid()
+                })
+            }
+        })
+        this.props.form.setFieldsValue({
+            rule: ruleData
+        });
+    }
+
+    parseSplitSymbol (value: any) {
+        switch (value) {
+            case 'blank':
+                value = ' '
+                break;
+            case 'tab':
+                value = '\t'
+        }
+        return value
     }
 
     handleSava = () => {
@@ -116,18 +198,22 @@ class DictionaryEdit extends React.Component<any, IState> {
                                     htmlFor="myFile"
                                 >
                                     <img src="public/tagEngine/img/icon_upload.png" />
-                                    <span className="text">{ruleFile.files && ruleFile.files[0] ? ruleFile.files[0].name : '单击上传文件'}</span>
+                                    <span className="text">{ruleFile ? ruleFile.name : '单击上传文件'}</span>
                                 </label>
                                 <input
                                     name="file"
                                     type="file"
                                     id="myFile"
-                                    accept=".txt"
+                                    accept=".csv"
                                     onChange={this.handleFileChange}
                                     style={{ display: 'none' }}
                                 />
                                 <a className="download-btn">下载模版</a>
+                                <Tooltip title={(<div>文件要求：<br />&nbsp;&nbsp;1. 仅支持标准的.csv格式文件；<br />&nbsp;&nbsp;2. 文件编码方式仅支持UTF-8；<br />&nbsp;&nbsp;3. 文件大小不超过5M；</div>)}>
+                                    <Icon className="notice-icon" type="question-circle" />
+                                </Tooltip>
                             </div>
+                            <div className="dic-rule-limit-note">字典值数量最大限制为500</div>
                             {getFieldDecorator('rule', {
                                 rules: [
                                     {
