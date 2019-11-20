@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import { Menu, Icon, Dropdown, Input } from 'antd';
 import Navigator from 'main/components/nav';
 import { getHeaderLogo } from 'main/consts';
+import { API_ROUTER } from '../../consts';
 import * as ProjectAction from '../../actions/project';
 import docPath from '../../consts/docPath';
 import utils from 'utils';
@@ -226,37 +227,37 @@ class Header extends React.Component<any, any> {
         const menuItems: any = display && [{
             id: 'overview',
             name: '概览',
-            link: `${baseUrl}/overview`,
+            link: `${baseUrl}/${API_ROUTER.OVERVIEW}`,
             enable: overviewNav && overviewNav.isShow
         }, {
             id: 'market',
             name: 'API市场',
-            link: `${baseUrl}/market`,
+            link: `${baseUrl}/${API_ROUTER.MARKET}`,
             enable: marketNav && marketNav.isShow
         }, {
             id: 'mine',
             name: '我的API',
-            link: `${baseUrl}/mine`,
+            link: `${baseUrl}/${API_ROUTER.MINE}`,
             enable: mineNav && mineNav.isShow
         }, {
             id: 'manage',
             name: 'API管理',
-            link: `${baseUrl}/manage`,
+            link: `${baseUrl}/${API_ROUTER.MANAGE}`,
             enable: manaNav && manaNav.isShow
         }, {
             id: 'approvalAndsecurity',
             name: '授权与安全',
-            link: `${baseUrl}/approvalAndsecurity`,
+            link: `${baseUrl}/${API_ROUTER.APPROVAL}`,
             enable: approvalNav && approvalNav.isShow
         }, {
             id: 'dataSource',
             name: '数据源管理',
-            link: `${baseUrl}/dataSource`,
+            link: `${baseUrl}/${API_ROUTER.DATASOURCE}`,
             enable: dataSourceNav && dataSourceNav.isShow
         }, {
             id: 'project',
             name: '项目管理',
-            link: `${baseUrl}/project/${pid}/config`,
+            link: `${baseUrl}/${API_ROUTER.PROJECT}/${pid}/config`,
             enable: projectManaNav && projectManaNav.isShow
         }];
         const settingMenus: any = [{

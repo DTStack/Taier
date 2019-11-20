@@ -51,6 +51,16 @@ export const OPERA_ROW_TWO_DATA = [{
     link: HELP_DOC_URL.CALL_API
 }]
 
+export const API_ROUTER = {
+    OVERVIEW: 'overview',
+    MARKET: 'market',
+    MINE: 'mine',
+    MANAGE: 'manage',
+    DATASOURCE: 'dataSource',
+    APPROVAL: 'approvalAndsecurity',
+    PROJECT: 'project'
+}
+
 export const PROJECT_ROLE: any = { // 项目角色
     PROJECT_OWNER: 2, // 项目所有者
     TENANT_OWVER: 1, // 租户所有者

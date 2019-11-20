@@ -7,6 +7,7 @@ import Header from './layout/header'
 import GlobalLoading from './layout/loading'
 import { daApp } from 'config/base'
 import { updateApp } from 'main/actions/app'
+import { API_ROUTER } from '../consts';
 import ProjectPanel from './projectPanel'
 import { commonActions } from '../actions/common'
 import * as projectActions from '../actions/project'
@@ -85,31 +86,31 @@ class Container extends React.Component<any, any> {
         for (let item of menuList) {
             switch (item) {
                 case 'overview_market_menu': {
-                    routerArr.push('overview');
+                    routerArr.push(API_ROUTER.OVERVIEW);
                     break;
                 }
                 case 'api_market_menu': {
-                    routerArr.push('market');
+                    routerArr.push(API_ROUTER.MARKET);
                     break;
                 }
                 case 'api_myapi_menu': {
-                    routerArr.push('mine');
+                    routerArr.push(API_ROUTER.MINE);
                     break;
                 }
                 case 'api_manager_menu': {
-                    routerArr.push('manage');
+                    routerArr.push(API_ROUTER.MANAGE);
                     break;
                 }
                 case 'api_datasource_menu': {
-                    routerArr.push('dataSource');
+                    routerArr.push(API_ROUTER.DATASOURCE);
                     break;
                 }
                 case 'api_authorized_menu': {
-                    routerArr.push('approvalAndsecurity');
+                    routerArr.push(API_ROUTER.APPROVAL);
                     break;
                 }
                 case 'project_manager_menu': {
-                    routerArr.push('project');
+                    routerArr.push(API_ROUTER.PROJECT);
                     break;
                 }
             }
