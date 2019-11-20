@@ -2,11 +2,10 @@ import * as React from 'react';
 import { Form, Row, Col, Select, Button } from 'antd';
 import styled from 'styled-components'
 
-import { formItemLayout } from '../../../../comm/const';
+import GroupAPI from '../../../../api/group';
 
 interface IState {
-    groupA: any[];
-    groupB: any[];
+    groups: any[];
     tags: any[];
     result: any;
 }
@@ -19,7 +18,23 @@ const IndexContainer = styled.div`
     border-radius: 0.75px;
     border-radius: 0.75px;
     padding: 0 10px;
+    text-align: center;
+    min-width: 200px;
+    display: inline-block;
+    height: 32px;
+    margin-left: 8px;
 `
+
+const formItemLayout = { // 表单正常布局
+    labelCol: {
+        xs: { span: 24 },
+        sm: { span: 3 }
+    },
+    wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 20 }
+    }
+}
 
 export default class GroupPortrait extends React.PureComponent<any, IState> {
     constructor (props: any) {
@@ -27,71 +42,92 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
     }
 
     state: IState = {
-        groupA: [],
-        groupB: [],
+        groups: [],
         tags: [],
         result: {}
     }
 
     componentDidMount () {
-
+        this.getGroups();
     }
 
-    startAnalyse = () => {
+    getGroups = async () => {
+        const res = await GroupAPI.getGroups();
+        if (res.code === 1) {
+            this.setState({
+                groups: res.data
+            })
+        }
+    }
 
+    getTags = async () => {
+        // TODO 获取标签列表
+        const res = await GroupAPI.getGroups();
+        if (res.code === 1) {
+            this.setState({
+                tags: res.data
+            })
+        }
+    }
+
+    startAnalyse = async () => {
+        const res = await GroupAPI.getGroups();
+        if (res.code === 1) {
+            this.setState({
+                groups: res.data
+            })
+        }
     }
 
     render () {
-        const { groupA, groupB, tags, result } = this.state;
-        const indexStyle = { width: '200px', textAlign: 'center' };
+        const { groups, tags, result } = this.state;
         const filterContent = (
-            <Form>
+            <Form className="c-groupPortrait__form">
                 <FormItem
-                    {...formItemLayout}
                     label="选择群体A"
                     hasFeedback
+                    required
+                    {...formItemLayout}
                 >
                     <Select
                         placeholder="请选择群体"
                         style={{ width: 200 }}
                     >
-                        { groupA && groupA.map((o: any) => {
+                        { groups && groups.map((o: any) => {
                             return <Option key={o.name} value={o.value}>{o.name}</Option>
                         })}
                     </Select>
-                    <Col style={indexStyle}>
-                        <IndexContainer>
-                            <span>{result.groupB}个样本在当前时间内被标记</span>
-                        </IndexContainer>
-                    </Col>
+                    <IndexContainer>
+                        <span>{result.groupB}个样本在当前时间内被标记</span>
+                    </IndexContainer>
                 </FormItem>
                 <FormItem
-                    {...formItemLayout}
                     label="选择群体B"
                     hasFeedback
+                    {...formItemLayout}
+                    required
                 >
                     <Select
                         placeholder="请选择群体"
                         style={{ width: 200 }}
                     >
-                        { groupB && groupB.map((o: any) => {
+                        { groups && groups.map((o: any) => {
                             return <Option key={o.name} value={o.value}>{o.name}</Option>
                         })}
                     </Select>
-                    <Col style={indexStyle}>
-                        <IndexContainer>
-                            <span>{result.groupA}个样本在当前时间内被标记</span>
-                        </IndexContainer>
-                    </Col>
+                    <IndexContainer>
+                        <span>{result.groupA}个样本在当前时间内被标记</span>
+                    </IndexContainer>
                 </FormItem>
                 <FormItem
-                    {...formItemLayout}
-                    label="选择群体"
+                    label="对比分析标签"
                     hasFeedback
+                    required
+                    {...formItemLayout}
                 >
                     <Select
                         mode={'multiple'}
-                        placeholder="请选择群体"
+                        placeholder="对比分析标签"
                         style={{ width: 200 }}
                     >
                         { tags && tags.map((o: any) => {
@@ -100,12 +136,14 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
                     </Select>
                 </FormItem>
                 <FormItem
-                    {...formItemLayout}
-                    label="配置关联实体"
-                    required
+                    wrapperCol={{
+                        span: 3,
+                        offset: 3
+                    }}
+                    label=""
                     hasFeedback
                 >
-                    <Button type="primary" icon="plus" onClick={this.startAnalyse}>开始分析</Button>
+                    <Button type="primary" onClick={this.startAnalyse}>开始分析</Button>
                 </FormItem>
             </Form>
         );
@@ -113,17 +151,19 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
         return (
             <div className="c-groupPortrait">
                 <Row>
-                    <Col>
+                    <Col span={22}>
                         { filterContent }
                     </Col>
-                    <Col>
+                    <Col span={2}>
                         <IndexContainer>
                             <span>重叠样本量{result.repeat}</span>
                         </IndexContainer>
                     </Col>
                 </Row>
-                <Row>
-                    <Col></Col>
+                <Row gutter={20} className="c-groupPortrait__chart" type="flex" justify="space-between">
+                    <Col><div className="c-groupPortrait__chart-item"></div></Col>
+                    <Col><div className="c-groupPortrait__chart-item"></div></Col>
+                    <Col><div className="c-groupPortrait__chart-item"></div></Col>
                 </Row>
             </div>
         )

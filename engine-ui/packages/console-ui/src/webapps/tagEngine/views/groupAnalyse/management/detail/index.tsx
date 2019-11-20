@@ -9,7 +9,6 @@ import SpecimenList from './specimen';
 import Portrait from './portrait';
 
 import GroupAPI from '../../../../api/group';
-
 interface IState {
     loading: boolean;
     queryParams: {
@@ -48,9 +47,9 @@ class GroupDetail extends React.Component<any, IState> {
     }
 
     loadDetail = async () => {
-        const res = await GroupAPI.getGroups();
+        const res = await GroupAPI.getGroup();
         this.setState({
-            groupDetail: res
+            groupDetail: res.data
         })
     }
 
@@ -68,22 +67,22 @@ class GroupDetail extends React.Component<any, IState> {
                     <Row>
                         <Col className="left">
                             <h1>5大城市20岁以上购买产品的人群</h1>
-                            <p><span>最近更新时间：2019-10-10 00:00</span> <GroupStatus value={0}/></p>
+                            <p className="description"><span style={{ marginRight: 10 }}>最近更新时间：2019-10-10 00:00</span> <GroupStatus value={0}/></p>
                         </Col>
                         <Col className="right">
                             <Button type="primary" style={{ marginRight: 20 }}>生成 API</Button>
                             <Button type="primary">编辑</Button>
                         </Col>
                     </Row>
-                    <Row style={{ minHeight: 600 }}>
+                    <Row className="c-groupDetail__tabs">
                         <Tabs
                             defaultActiveKey="1"
                             animated={false}
                             tabBarStyle={{ height: 40 }}
                         >
-                            <TabPane tab="Tab 1" key="1"><BasicInfo data={groupDetail}/></TabPane>
-                            <TabPane tab="Tab 2" key="2"><SpecimenList /></TabPane>
-                            <TabPane tab="Tab 3" key="3"><Portrait /></TabPane>
+                            <TabPane tab="基本信息" key="basicInfo"><BasicInfo data={groupDetail}/></TabPane>
+                            <TabPane tab="样本列表" key="specimenList"><SpecimenList /></TabPane>
+                            <TabPane tab="群组画像" key="portrait"><Portrait /></TabPane>
                         </Tabs>
                     </Row>
                 </Card>

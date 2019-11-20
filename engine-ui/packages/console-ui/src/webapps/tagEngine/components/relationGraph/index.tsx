@@ -13,29 +13,26 @@ import { numOrStr } from 'typing';
 import MyIcon from '../icon';
 import './graph.scss';
 
-export interface IEntity {
-    id: number;
-    name: string;
+export enum GRAPH_MODE {
+    EDIT = 1,
+    READ = 2,
 }
 
-export interface IEntityNode<T = {}> extends IEntity {
-    columns?: IEntity[];
+export interface INode<T = {}> {
+    id: number;
+    name?: string;
+    columns?: INode[];
     vertex?: boolean;
     edge?: boolean;
-    source?: IEntityNode;
-    target?: IEntityNode;
+    source?: INode;
+    target?: INode;
     data?: T;
     rowIndex?: number;
     position?: {
         x: number;
         y: number;
     };
-    columnOptions?: IEntity[];
-}
-
-export enum GRAPH_MODE {
-    EDIT = 1,
-    READ = 2,
+    columnOptions?: INode[];
 }
 
 interface IProps<T = any> {
@@ -47,7 +44,7 @@ interface IProps<T = any> {
     /**
      * 数据
      */
-    data?: IEntityNode[];
+    data?: INode[];
 
     /**
      * 图表模式
@@ -57,7 +54,7 @@ interface IProps<T = any> {
     /**
      * 实体列表
      */
-    entities: IEntity[];
+    entities: T[];
 
     /**
      * 附加 class
@@ -85,7 +82,6 @@ const {
     mxDivResizer,
     mxEdgeStyle,
     mxTooltipHandler,
-    // mxStyleRegistry,
     mxConnectionHandler,
     mxConstraintHandler,
     mxHierarchicalLayout
@@ -131,7 +127,7 @@ const getRowY = function (state: any, tr: any) {
     return y;
 };
 
-class RelationGraph extends React.Component<IProps, any> {
+class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
     private Container: HTMLDivElement;
     private graph: any;
     private _cacheCells: Map<number | string, any> = new Map();
@@ -147,7 +143,7 @@ class RelationGraph extends React.Component<IProps, any> {
         this.renderData(this.props.data);
     }
 
-    renderData = (data: IEntityNode[]) => {
+    renderData = (data: INode[]) => {
         const graph = this.graph;
         const rootCell = this.graph.getDefaultParent();
         const doc = mxUtils.createXmlDocument();
@@ -193,17 +189,17 @@ class RelationGraph extends React.Component<IProps, any> {
     convertValueToString = (cell: any) => {
         const { mode, entities } = this.props;
         if (cell && cell.vertex) {
-            const data: IEntityNode = cell.value;
+            const data: INode = cell.value;
             if (data) {
                 let content = '';
                 if (mode && mode === GRAPH_MODE.READ) {
                     let columns = '';
-                    data.columns.forEach((o: IEntity) => columns += `<tr class="erd"><td title="${o.name}">${o.name}</td></tr>`)
+                    data.columns.forEach((o: INode) => columns += `<tr class="erd"><td title="${o.name}">${o.name}</td></tr>`)
                     content = componentVertex(data.name, columns, false);
                 } else {
                     const entitiesSelect = componentSelect(entities, data.id, data.id, 'entitiesSelect');
                     let columns = '';
-                    data.columns.forEach((o: IEntity) => columns += `<tr class="erd"><td>${componentSelect(data.columnOptions, o.id, '', 'entitiesColumn')}</td></tr>`)
+                    data.columns.forEach((o: INode) => columns += `<tr class="erd"><td>${componentSelect(data.columnOptions, o.id, '', 'entitiesColumn')}</td></tr>`)
                     content = componentVertex(entitiesSelect, columns);
                 }
                 return content.replace(/[\n]/g, '');
@@ -353,8 +349,8 @@ class RelationGraph extends React.Component<IProps, any> {
                 var tmp = [];
 
                 // Filters the edges with the same source row
-                var row = edge.cell.value.getAttribute('targetRow');
-
+                var row: number = edge.cell.value.getAttribute('targetRow');
+                console.log('row:', row);
                 for (var i = 0; i < edges.length; i++) {
                     if (mxUtils.isNode(edges[i].value) &&
                         edges[i].value.getAttribute('targetRow') == row) {
@@ -367,8 +363,8 @@ class RelationGraph extends React.Component<IProps, any> {
                 if (edges.length > 1 && edge.cell == edges[edges.length - 1]) {
                     // Finds the vertical center
                     var states = [];
-                    var y = 0;
-
+                    var y: any = 0;
+                    console.log('y:', y);
                     for (var i = 0; i < edges.length; i++) {
                         states[i] = this.getState(edges[i]);
                         y += states[i].absolutePoints[0].y;

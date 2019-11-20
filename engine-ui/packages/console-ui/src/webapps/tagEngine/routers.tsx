@@ -28,7 +28,8 @@ import EMEntityEdit from './views/entityManagement/entityManage/entityEdit'
 import EMEntityDetail from './views/entityManagement/entityManage/entityDetail'
 
 // ======= 关系管理 =======
-import CreateRelation from './views/entityManagement/relationManage/createRelation'
+import CreateRelation from './views/entityManagement/relationManage/update/create'
+import EditRelation from './views/entityManagement/relationManage/update/edit'
 import RelationDetail from './views/entityManagement/relationManage/relationDetail'
 
 // ======= 字典管理 =======
@@ -37,7 +38,8 @@ import EMDictonaryDetail from './views/entityManagement/dictionaryManage/detail'
 
 // ======= 群组管理 =======
 import GroupManagement from './views/groupAnalyse/management';
-import GroupUpload from './views/groupAnalyse/management/create/upload';
+import GroupUpload from './views/groupAnalyse/management/upload/create';
+import GroupUploadEdit from './views/groupAnalyse/management/upload/edit';
 import GroupDetail from './views/groupAnalyse/management/detail';
 
 // ======= 实体管理 =======
@@ -191,6 +193,10 @@ const routeConfig = [
                 component: CreateRelation
             },
             {
+                path: '/relationManage/edit/:relationId',
+                component: CreateRelation
+            },
+            {
                 path: '/relationManage/detail',
                 component: RelationDetail
             },
@@ -236,6 +242,10 @@ const routeConfig = [
             {
                 path: '/groupAnalyse/upload',
                 component: GroupUpload
+            },
+            {
+                path: '/groupAnalyse/upload/edit',
+                component: GroupUploadEdit
             },
             {
                 path: '/groupAnalyse/detail',

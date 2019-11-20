@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Row, Button } from 'antd';
 
 import utils from 'utils';
+import { Link } from 'react-router';
 
 interface IProps {
     data: any;
@@ -16,7 +17,7 @@ class BasicRelationInfo extends React.Component<IProps, any> {
                 <h1 className="row-title">
                     数据库信息
                     <span className="right">
-                        <Button>编辑</Button>
+                        <Link to={`/relationManage/edit/${data.id}`}><Button>编辑</Button></Link>
                     </span>
                 </h1>
                 <table style={{ marginTop: 5 }} className="table-info" width="100%" {...{ width: '100%' }} cellPadding="0" cellSpacing="0">

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Form, Input, Tooltip, Icon, Select, Button } from 'antd';
 import { FormComponentProps } from 'antd/lib/form/Form';
+import { get } from 'lodash';
 
 import { IDataSource } from '../../../../model/dataSource';
 import { formItemLayout } from '../../../../comm/const';
@@ -8,6 +9,8 @@ import { formItemLayout } from '../../../../comm/const';
 interface IProps extends FormComponentProps {
     dataSourceList: IDataSource[];
     onCreateRelationEntity: (e: React.FormEvent) => void;
+    mode: 'edit' | 'create';
+    formData?: any;
 };
 
 const FormItem = Form.Item;
@@ -15,7 +18,7 @@ const Option = Select.Option;
 
 class CreateRelationEntityForm extends React.Component<IProps, any> {
     render () {
-        const { form, dataSourceList, onCreateRelationEntity } = this.props;
+        const { form, dataSourceList, onCreateRelationEntity, formData } = this.props;
         const { getFieldDecorator } = form;
         return (
             <Form>
@@ -38,29 +41,46 @@ class CreateRelationEntityForm extends React.Component<IProps, any> {
                         }, {
                             max: 20,
                             message: '实体名称20字以内的中文字符!'
-                        }]
+                        }],
+                        initialValue: get(formData, 'name', '')
                     })(
                         <Input placeholder="请输入实体中文名称，20字以内的中文字符"/>
                     )}
                 </FormItem>
                 <FormItem
                     {...formItemLayout}
-                    label="请选择数据源"
+                    label="请选择数据类型"
                     hasFeedback
                 >
                     {getFieldDecorator('dataSource', {
                         rules: [{
-                            required: true, message: '请选择数据源!'
-                        }]
+                            required: true, message: '请选择数据类型!'
+                        }],
+                        initialValue: get(formData, 'dataSource', '')
                     })(
                         <Select
-                            placeholder="请选择数据源"
+                            placeholder="请选择数据类型"
                             style={{ width: 200 }}
                         >
                             { dataSourceList && dataSourceList.map((o: IDataSource) => {
                                 return <Option key={o.name} value={o.value}>{o.name}</Option>
                             })}
                         </Select>
+                    )}
+                </FormItem>
+                <FormItem
+                    {...formItemLayout}
+                    label="关系描述"
+                    hasFeedback
+                >
+                    {getFieldDecorator('description', {
+                        rules: [],
+                        initialValue: get(formData, 'description', '')
+                    })(
+                        <Input.TextArea
+                            placeholder="请输入描述信息，长度限制在255个字符以内"
+                            rows={4}
+                        />
                     )}
                 </FormItem>
                 <FormItem

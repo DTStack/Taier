@@ -1,6 +1,9 @@
 import * as React from 'react';
 import { Link, hashHistory } from 'react-router';
-import { Card, Table, Input, Button, Popconfirm } from 'antd';
+import { Card, Table, Input, Button, Popconfirm, message } from 'antd';
+
+import './index.scss';
+import GroupAPI from '../../../api/group';
 
 const Search = Input.Search
 
@@ -34,11 +37,23 @@ export default class GroupManage extends React.Component<any, IState> {
     }
 
     componentDidMount () {
-
+        this.loadData();
     }
 
-    loadData = () => {
+    loadData = async () => {
+        const res = await GroupAPI.getGroups();
+        if (res.code === 1) {
+            this.setState({
+                dataSource: res.data
+            })
+        }
+    }
 
+    delete = async (id: number) => {
+        const res = await GroupAPI.deleteGroup(id);
+        if (res.code === 1) {
+            message.success('删除群组成功！');
+        }
     }
 
     handleSearch = (query: any) => {
@@ -56,10 +71,6 @@ export default class GroupManage extends React.Component<any, IState> {
         }, this.loadData);
     }
 
-    handDeleteRelation = () => {
-        // TODO delete a relation entity.
-    }
-
     handleOperateData = (type: string, record: any) => {
         switch (type) {
             case 'add': {
@@ -71,15 +82,15 @@ export default class GroupManage extends React.Component<any, IState> {
                 break;
             }
             case 'edit': {
-                hashHistory.push({ pathname: `${basePath}/detail`, state: { ...record } })
+                hashHistory.push({ pathname: `${basePath}/upload/detail`, state: { ...record } })
                 break;
             }
             case 'delete': {
-                this.handDeleteRelation();
                 // 请求删除
+                this.delete(record.id);
                 break;
             }
-            default:;
+            default: ;
         }
     }
 
