@@ -200,35 +200,24 @@ const utils = {
         document.cookie = name + '=' + value + expires + '; path=/';
     },
 
-    // TODO, 可以修改为递归算法
-    convertBytes (value: number) {
-        if (value >= 1024) {
-            const val0 = Number((value / 1024).toFixed(2));
+    /**
+     * 转换 Byte 为指定单位的值
+     * @param value 'B' | 'KB' | 'MB' | 'GB' | 'TB' | 'PB' 转换原始值 
+     * @param targetUnit 转换目标单位，默认转换为小于1024值最大单位
+     */
+    convertBytes (value: number, targetUnit?: 'B' | 'KB' | 'MB' | 'GB' | 'TB' | 'PB') {
+        if (targetUnit && targetUnit === 'B') return `${value} ${targetUnit}`;
 
-            if (val0 >= 1024) {
-                // to KB
-
-                const val1 = Number((val0 / 1024).toFixed(2));
-
-                if (val1 >= 1024) {
-                    // MB
-
-                    const val2 = Number((val1 / 1024).toFixed(2));
-
-                    if (val2 >= 1024) {
-                        const val3 = Number((val2 / 1024).toFixed(2));
-                        return `${val3} PB`;
-                    } else {
-                        return `${val2} GB`;
-                    }
-                } else {
-                    return `${val1} MB`;
+        const units = ['KB', 'MB', 'GB', 'TB', 'PB'];
+        for (let i = 0; i < units.length; ++i) {
+            if (value >= 1024) {
+                value = Number((value / 1024).toFixed(2));
+                if (targetUnit && (units[i] === targetUnit || value < 1024)) {
+                    return `${value} ${targetUnit}`;
                 }
             } else {
-                return `${val0} KB`;
+                return `${value} ${units[i]}`;
             }
-        } else {
-            return `${value} B`;
         }
     },
 
