@@ -202,7 +202,7 @@ const utils = {
 
     /**
      * 转换 Byte 为指定单位的值
-     * @param value 'B' | 'KB' | 'MB' | 'GB' | 'TB' | 'PB' 转换原始值 
+     * @param value 'B' | 'KB' | 'MB' | 'GB' | 'TB' | 'PB' 转换原始值
      * @param targetUnit 转换目标单位，默认转换为小于1024值最大单位
      */
     convertBytes (value: number, targetUnit?: 'B' | 'KB' | 'MB' | 'GB' | 'TB' | 'PB') {
