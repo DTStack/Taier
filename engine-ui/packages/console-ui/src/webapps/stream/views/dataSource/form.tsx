@@ -45,6 +45,12 @@ const hdfsConf =
 "dfs.client.failover.proxy.provider.defaultDfs": "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider" 
 }`
 
+const kuduConf = `{
+"openKerberos": 'false',
+"user": "",
+"keytabPath": "",
+}`
+
 class BaseForm extends React.Component<any, any> {
     state: any = {
         sourceType: 1,
@@ -558,6 +564,10 @@ class BaseForm extends React.Component<any, any> {
                         })(
                             <Input type="textarea" {...rowFix5} placeholder={`输入JSON格式的参数`} />
                         )}
+                        <CopyIcon
+                            style={{ position: 'absolute', right: '-20px', bottom: '0px' }}
+                            copyText={kuduConf}
+                        />
                     </FormItem>
                 ]
                 const uploadForm: any = getFieldValue('dataJson.openKerberos') ? this.uploadForm() : [];
