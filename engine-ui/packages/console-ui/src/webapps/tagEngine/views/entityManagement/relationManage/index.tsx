@@ -71,7 +71,7 @@ export default class RelationManage extends React.Component<any, IState> {
                 break;
             }
             case 'edit': {
-                hashHistory.push({ pathname: `${basePath}/detail`, state: { ...record } })
+                hashHistory.push({ pathname: `${basePath}/edit/${record.id}`, state: { ...record } })
                 break;
             }
             case 'delete': {

@@ -1,17 +1,14 @@
 import * as React from 'react';
-import { Row, Button, Col } from 'antd';
+import { message } from 'antd';
 
 import Breadcrumb from '../../../../components/breadcrumb';
-import { tailFormItemLayout } from '../../../../comm/const';
-import { IDataSource } from '../../../../model/dataSource';
+import { IRelation, IRelationEntity } from '../../../../model/relation';
 
-import CreateRelationEntityForm from './form';
-import RelationGraph, { IEntity, IEntityNode } from '../../../../components/relationGraph';
+import Base from './base';
+import RelationAPI from '../../../../api/relation';
 
 interface IState {
-    dataSourceList: IDataSource[];
-    entities: IEntity[];
-    relationEntityData: IEntityNode[];
+    dataSource: IRelation;
 }
 
 const breadcrumbNameMap = [{
@@ -22,22 +19,7 @@ const breadcrumbNameMap = [{
     name: '编辑关系'
 }];
 
-const initialEntityNode: IEntityNode = {
-    id: -1,
-    name: '',
-    columns: [{
-        id: -2,
-        name: ''
-    }],
-    vertex: true,
-    edge: false,
-    position: {
-        x: 0,
-        y: 0
-    }
-}
-
-const mockData: IEntityNode[] = [{
+const mockData: IRelationEntity[] = [{
     id: 1,
     name: 'entity1',
     columns: [{
@@ -116,63 +98,47 @@ const mockData: IEntityNode[] = [{
     }
 }];
 
+const relationMockData: IRelation = {
+    id: 1,
+    name: 'relation1',
+    description: 'This is a relation description.',
+    relationEntities: mockData,
+}
+
 class EditRelation extends React.Component<any, IState> {
     state: IState = {
-        dataSourceList: [],
-        entities: [{
-            id: 1,
-            name: 'entity-1'
-        }, {
-            id: 2,
-            name: 'entity-2'
-        }, {
-            id: 3,
-            name: 'entity-3'
-        }],
-        relationEntityData: mockData// [initialEntityNode]
+        dataSource: relationMockData // [initialEntityNode]
     }
 
-    loadDataSource = () => {
+    componentDidMount() {
+        const { router } = this.props;
+        const { relationId } = router.params;
+        this.loadRelation(relationId);
     }
 
-    save = () => {
+    loadRelation = async (relationId: number) => {
+       const res = await RelationAPI.getRelation({ relationId });
+       if (res.code === 1) {
+           this.setState({
+                dataSource: res.data
+           })
+       }
     }
 
-    onAddEntityNodeData = () => {
-        const { relationEntityData } = this.state;
-        const newState = relationEntityData.slice();
-        newState.push(initialEntityNode);
-        this.setState({
-            relationEntityData: newState
-        })
-    }
+    onEdit = async (dataSource: IRelation) => {
+        const res = await RelationAPI.createRelation(dataSource);
+        if (res.code === 1) {
+            message.success('添加关系成功！');
+        }
+     }
 
     render () {
-        const { dataSourceList, relationEntityData, entities } = this.state;
+        const { dataSource } = this.state;
+        console.log('dataSource', JSON.stringify(dataSource));
         return (
             <div className="c-createRelation">
                 <Breadcrumb breadcrumbNameMap={breadcrumbNameMap} />
-                <div className="inner-container bg-w">
-                    <div className="c-createRelation__form">
-                        <CreateRelationEntityForm
-                            mode="edit"
-                            onCreateRelationEntity={this.onAddEntityNodeData}
-                            dataSourceList={dataSourceList}
-                        />
-                    </div>
-                    <div className="c-createRelation__graph" style={{ height: 600 }}>
-                        <RelationGraph
-                            attachClass="graph-bg"
-                            data={relationEntityData}
-                            entities={entities}
-                        />
-                    </div>
-                    <Row style={{ marginTop: 20 }}>
-                        <Col {...tailFormItemLayout.wrapperCol} className="txt-center">
-                            <Button size="large" style={{ width: 200 }} type="primary">保存</Button>
-                        </Col>
-                    </Row>
-                </div>
+                <Base onOk={this.onEdit} mode="create" relationData={dataSource}/>
             </div>
         )
     }

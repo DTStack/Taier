@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Form, Input, Tooltip, Icon, Select, Button } from 'antd';
 import { FormComponentProps } from 'antd/lib/form/Form';
+import { get } from 'lodash';
 
 import { IDataSource } from '../../../../model/dataSource';
 import { formItemLayout } from '../../../../comm/const';
@@ -17,7 +18,7 @@ const Option = Select.Option;
 
 class CreateRelationEntityForm extends React.Component<IProps, any> {
     render () {
-        const { form, dataSourceList, onCreateRelationEntity } = this.props;
+        const { form, dataSourceList, onCreateRelationEntity, formData } = this.props;
         const { getFieldDecorator } = form;
         return (
             <Form>
@@ -40,7 +41,8 @@ class CreateRelationEntityForm extends React.Component<IProps, any> {
                         }, {
                             max: 20,
                             message: '实体名称20字以内的中文字符!'
-                        }]
+                        }],
+                        initialValue: get(formData, 'name', '')
                     })(
                         <Input placeholder="请输入实体中文名称，20字以内的中文字符"/>
                     )}
@@ -53,7 +55,8 @@ class CreateRelationEntityForm extends React.Component<IProps, any> {
                     {getFieldDecorator('dataSource', {
                         rules: [{
                             required: true, message: '请选择数据类型!'
-                        }]
+                        }],
+                        initialValue: get(formData, 'dataSource', '')
                     })(
                         <Select
                             placeholder="请选择数据类型"
@@ -71,7 +74,8 @@ class CreateRelationEntityForm extends React.Component<IProps, any> {
                     hasFeedback
                 >
                     {getFieldDecorator('description', {
-                        rules: []
+                        rules: [],
+                        initialValue: get(formData, 'description', '')
                     })(
                         <Input.TextArea
                             placeholder="请输入描述信息，长度限制在255个字符以内"
