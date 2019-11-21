@@ -2,9 +2,10 @@ import * as React from 'react';
 import { Form, Tabs, Button, message, Radio, Input, Select } from 'antd';
 import { formItemLayout } from './index';
 import { MemorySetting as BaseMemorySetting, ChooseModal as BaseChooseModal } from './typeChange';
-import { isEmpty, cloneDeep, debounce, set } from 'lodash';
+import { isEmpty, cloneDeep, debounce, set, get } from 'lodash';
 import { INPUT_TYPE, TASK_ENUM, COMPONENT_TYPE } from '../../../../../../consts';
 import api from '../../../../../../api/experiment';
+
 const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
@@ -233,7 +234,15 @@ class FieldSetting extends React.PureComponent<any, any> {
                                         {...formItemLayout}
                                     >
                                         {getFieldDecorator(`params[${index}].${specifyOrigin}`, {
-                                            rules: [{ required: false }]
+                                            rules: [
+                                                { required: false },
+                                                { validator: (rule: any, value: any, callback: any) => {
+                                                    if (specifyOrigin === 'number' && !/^\d+$/.test(value)) {
+                                                        callback(new Error('Null（数值型）只能替换成数值型'));
+                                                    }
+                                                    callback();
+                                                } }
+                                            ]
                                         })(
                                             <Input />
                                         )}
@@ -310,6 +319,7 @@ class MissValue extends React.PureComponent<any, any> {
         api.addOrUpdateTask(params).then((res: any) => {
             if (res.code == 1) {
                 currentComponentData.data = { ...params, ...res.data };
+                console.log(currentTab)
                 changeContent({}, currentTab);
             } else {
                 message.warning('保存失败');
@@ -346,7 +356,15 @@ class MissValue extends React.PureComponent<any, any> {
                             const tmpData = {
                                 params: cloneDeep(params)
                             }
+                            const isSpecifyOrigin = /\.specifyOrigin$/.test(key);
                             set(tmpData, key, element.value)
+                            if (isSpecifyOrigin) {
+                                let splitKeyArr = key.split('.');
+                                let paramKey = splitKeyArr.slice(0, splitKeyArr.length - 1).join();
+                                let tmpParam = get(tmpData, paramKey);
+                                tmpParam.string = element.value == 'string' ? '' : null;
+                                tmpParam.number = element.value == 'string' ? null : 0;
+                            }
                             props.handleSaveComponent('params', tmpData.params);
                         }
                     }

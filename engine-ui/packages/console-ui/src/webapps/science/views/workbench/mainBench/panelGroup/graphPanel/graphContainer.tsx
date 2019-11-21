@@ -730,6 +730,9 @@ class GraphContainer extends React.Component<any, GraphContainerState> {
                         if (res[0].code === 1 && res[1].code === 1) {
                             // 如果两次保存都成功，则更新cellData
                             ctx.updateCellData(cell, taskData, res);
+                        } else {
+                            // 重命名输入框恢复到之前
+                            editTarget.value = originName
                         }
                     })
                 }
