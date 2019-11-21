@@ -85,7 +85,7 @@ class TableDetail extends React.Component<any, any> {
                     const rowKey = `${indexType}-${record[index]}-${index}`
                     return rowKey;
                 }}
-                style={{ height: '100%' }}
+                style={{ height: '100%', whiteSpace: 'pre-wrap' }}
                 dataSource={dataSource}
                 pagination={this.state.pagination}
                 loading={this.state.loading}
