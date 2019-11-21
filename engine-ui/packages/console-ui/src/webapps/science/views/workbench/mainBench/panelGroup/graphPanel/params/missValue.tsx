@@ -5,7 +5,6 @@ import { MemorySetting as BaseMemorySetting, ChooseModal as BaseChooseModal } fr
 import { isEmpty, cloneDeep, debounce, set, get } from 'lodash';
 import { INPUT_TYPE, TASK_ENUM, COMPONENT_TYPE } from '../../../../../../consts';
 import api from '../../../../../../api/experiment';
-import { callbackify } from 'util';
 
 const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
