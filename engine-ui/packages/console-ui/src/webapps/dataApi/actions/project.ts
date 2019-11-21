@@ -33,6 +33,7 @@ export function getProject (id: any) {
             projectId: id
         }).then((res: any) => {
             dispatch(commonActions.getMenuList())
+            dispatch(getProjects())
             return dispatch({
                 type: projectAction.GET_PROJECT,
                 data: res.data
