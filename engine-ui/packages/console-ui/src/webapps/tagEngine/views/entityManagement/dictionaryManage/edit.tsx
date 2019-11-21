@@ -3,6 +3,7 @@ import { Form, Input, Select, Card, Button, Tooltip, Icon, message as Message } 
 import Breadcrumb from '../../../components/breadcrumb';
 import SetDictionary from '../../../components/setDictionary';
 import shortid from 'shortid';
+import { uniq } from 'lodash';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -107,7 +108,7 @@ class DictionaryEdit extends React.Component<any, IState> {
             }
         })
         this.props.form.setFieldsValue({
-            rule: ruleData
+            rule: [...this.props.form.getFieldValue('rule'), ...ruleData]
         });
     }
 
@@ -128,6 +129,15 @@ class DictionaryEdit extends React.Component<any, IState> {
                 console.log(values);
             }
         })
+    }
+
+    ruleValRepeatVerify = (role, value = [], callback) => {
+        let uniqArr = uniq(value.map(item => item.value));
+        if (value.length > 0 && value.length > uniqArr.length) {
+            let str = '存在重复字典值！';
+            callback(str);
+        }
+        callback();
     }
 
     render () {
@@ -219,6 +229,8 @@ class DictionaryEdit extends React.Component<any, IState> {
                                     {
                                         required: true,
                                         message: '字典值必须大于一项！'
+                                    }, {
+                                        validator: this.ruleValRepeatVerify
                                     }
                                 ]
                             })(<SetDictionary isEdit={true} />)}
