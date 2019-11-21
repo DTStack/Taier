@@ -28,6 +28,20 @@ export function generateHeader (params: any) {
     base = base + headers.join('\n');
     return <pre>{base}</pre>;
 }
+export function generateTokenHeader (params: any) {
+    let base: any = [
+        'API-TOKEN： {API-TOKEN}'
+    ].join('\n')
+    let headers = params.map((param: any) => {
+        if (param[inputColumnsKeys.POSITION] != PARAMS_POSITION.HEAD) {
+            return null;
+        }
+        let name = param[inputColumnsKeys.NAME];
+        return name + `: {${name}}`;
+    }).filter(Boolean);
+    base = base + headers.join('\n');
+    return <pre>{base}</pre>;
+}
 export function generateBody (params: any, method: any) {
     if (method == API_METHOD.GET || method == API_METHOD.DELETE) {
         return '无'
