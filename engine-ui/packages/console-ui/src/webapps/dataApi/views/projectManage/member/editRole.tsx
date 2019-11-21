@@ -13,10 +13,8 @@ class EditRoleForm extends React.Component<any, any> {
     render () {
         const { roles, form, user } = this.props;
         const getFieldDecorator = form.getFieldDecorator;
-
         const selectedRoles = user && user.roles
             ? user.roles.map((role: any) => role && role.id) : [];
-
         let roleOptions: any = [];
         if (roles) {
             roles.forEach((role: any) => {

@@ -41,6 +41,14 @@ class ProjectPanel extends React.Component<any, ProjectState> {
         this.getProjectSummary();
     }
 
+    componentDidUpdate (prevProps: any, prevState: any) {
+        const { projectListInfo } = this.props;
+        const oldProjectListInfo = prevProps.projectListInfo;
+        if (projectListInfo && projectListInfo != oldProjectListInfo) {
+            this.getProjectSummary();
+        }
+    }
+
     getProjectSummary = () => {
         Api.getProjectSummary().then(res => {
             if (res.code === 1) {

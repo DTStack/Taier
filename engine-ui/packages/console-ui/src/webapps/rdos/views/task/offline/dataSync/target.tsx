@@ -477,6 +477,7 @@ class TargetForm extends React.Component<any, any> {
         const getPopupContainer = this.props.getPopupContainer;
         const showCreateTable = (
             sourceType == DATA_SOURCE.MYSQL ||
+            sourceType == DATA_SOURCE.POLAR_DB ||
             sourceType == DATA_SOURCE.ORACLE ||
             sourceType == DATA_SOURCE.SQLSERVER ||
             sourceType == DATA_SOURCE.POSTGRESQL ||
@@ -493,6 +494,7 @@ class TargetForm extends React.Component<any, any> {
             case DATA_SOURCE.GBASE:
             case DATA_SOURCE.DB2:
             case DATA_SOURCE.MYSQL:
+            case DATA_SOURCE.POLAR_DB:
             case DATA_SOURCE.ORACLE:
             case DATA_SOURCE.CLICK_HOUSE:
             case DATA_SOURCE.SQLSERVER:
