@@ -413,6 +413,7 @@ class OutputOrigin extends React.Component<any, any> {
                 </Row>
                 {(() => {
                     switch (panelColumn[index].type) {
+                        case DATA_SOURCE.KUDU:
                         case DATA_SOURCE.POSTGRESQL:
                         case DATA_SOURCE.ORACLE:
                         case DATA_SOURCE.MYSQL: {
@@ -425,31 +426,6 @@ class OutputOrigin extends React.Component<any, any> {
                                             className="right-select"
                                             onChange={(v: any) => {
                                                 handleInputChange('primaryKey', index, v);
-                                            }}
-                                            mode="multiple"
-                                            showSearch
-                                            filterOption={(input: any, option: any) =>
-                                                option.props.children
-                                                    .toLowerCase()
-                                                    .indexOf(input.toLowerCase()) >= 0
-                                            }
-                                        >
-                                            {primaryKeyOptionTypes}
-                                        </Select>
-                                    )}
-                                </FormItem>
-                            )
-                        }
-                        case DATA_SOURCE.KUDU: {
-                            return (
-                                <FormItem {...formItemLayout} label="主键">
-                                    {getFieldDecorator('keyField', {
-                                        rules: [{ required: true, message: '请选择主键' }]
-                                    })(
-                                        <Select
-                                            className="right-select"
-                                            onChange={(v: any) => {
-                                                handleInputChange('keyField', index, v);
                                             }}
                                             mode="multiple"
                                             showSearch
@@ -793,7 +769,6 @@ const OutputForm = Form.create({
             cacheTTLMs,
             tableName,
             primaryKey,
-            keyField,
             customParams
         } = props.panelColumn[props.index];
         return {
@@ -814,7 +789,6 @@ const OutputForm = Form.create({
             cacheSize: { value: cacheSize },
             cacheTTLMs: { value: cacheTTLMs },
             primaryKey: { value: primaryKey },
-            keyField: { value: keyField },
             'primaryKey-input': { value: primaryKey },
             hbasePrimaryKey: { value: hbasePrimaryKey },
             ...generateMapValues(customParams)
@@ -1038,7 +1012,6 @@ export default class OutputPanel extends React.Component<any, any> {
             columnsText: undefined,
             tableName: undefined,
             primaryKey: undefined,
-            keyField: undefined,
             hbasePrimaryKey: undefined,
             parallelism: 1,
             cache: 'LRU',
@@ -1173,6 +1146,16 @@ export default class OutputPanel extends React.Component<any, any> {
             tableOptionType,
             tableColumnOptionType
         } = this.state;
+        if (type == 'keyFilter') {
+            if (!value) {
+                panelColumn[index]['keyField'] = undefined;
+            } else {
+                panelColumn[index]['keyField'] = panelColumn[index]['primaryKey'];
+            }
+        }
+        if (type == 'primaryKey') {
+            panelColumn[index]['keyField'] = value;
+        }
         if (type === 'columns') {
             panelColumn[index][type].push(value);
         } else if (type === 'deleteColumn') {
