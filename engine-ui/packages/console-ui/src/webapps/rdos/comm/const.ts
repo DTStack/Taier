@@ -466,8 +466,12 @@ export const offlineTaskStatusFilter: any = [{
     value: 5
 }, {
     id: 6,
-    text: '取消',
+    text: '手动取消',
     value: 7
+}, {
+    id: 11,
+    text: '自动取消',
+    value: 24
 }, {
     id: 7,
     text: '提交失败',
