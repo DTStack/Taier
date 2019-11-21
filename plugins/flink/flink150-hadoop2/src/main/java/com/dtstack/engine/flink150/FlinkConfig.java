@@ -70,7 +70,7 @@ public class FlinkConfig {
 
     private boolean yarnSessionStartAuto = false;
 
-    private boolean flinkHighAvailability = true;
+    private boolean flinkHighAvailability = false;
 
 
     public String getTypeName() {

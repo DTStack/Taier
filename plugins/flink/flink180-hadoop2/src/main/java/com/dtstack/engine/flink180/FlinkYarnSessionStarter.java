@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.MalformedURLException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * company: www.dtstack.com
@@ -54,8 +55,6 @@ public class FlinkYarnSessionStarter {
 
     public boolean startFlinkYarnSession() {
         try {
-            this.clusterClientLock.acquire();
-
             ClusterClient<ApplicationId> retrieveClusterClient = null;
             try {
                 retrieveClusterClient = flinkClientBuilder.initYarnClusterClient();
@@ -68,7 +67,7 @@ public class FlinkYarnSessionStarter {
                 logger.info("retrieve flink client with yarn session success");
                 return true;
             }
-
+            this.clusterClientLock.acquire(5, TimeUnit.MINUTES);
             if (flinkConfig.getYarnSessionStartAuto()) {
                 try {
                     clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification);
@@ -80,7 +79,7 @@ public class FlinkYarnSessionStarter {
                 }
             }
         } catch (Exception e) {
-            throw new RuntimeException("Couldn't deploy Yarn session cluster" + e.getMessage());
+            logger.error("Couldn't deploy Yarn session cluster:{}",e);
         } finally {
             if (this.clusterClientLock.isAcquiredInThisProcess()) {
                 try {

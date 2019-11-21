@@ -18,7 +18,7 @@ public class FlinkConfig {
 
     private static final String DEFAULT_FLINK_PLUGIN_ROOT = "/opt/dtstack/flinkplugin";
 
-    private static final String DEFAULT_JAR_TMP_DIR = "../tmp170";
+    private static final String DEFAULT_JAR_TMP_DIR = "../tmp180";
 
     private static List<String> ENGINE_FLINK_CONFIGS = null;
 
