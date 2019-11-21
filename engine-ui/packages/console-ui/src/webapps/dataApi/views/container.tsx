@@ -7,6 +7,7 @@ import Header from './layout/header'
 import GlobalLoading from './layout/loading'
 import { daApp } from 'config/base'
 import { updateApp } from 'main/actions/app'
+import { API_ROUTER } from '../consts';
 import ProjectPanel from './projectPanel'
 import { commonActions } from '../actions/common'
 import * as projectActions from '../actions/project'
@@ -36,7 +37,6 @@ class Container extends React.Component<any, any> {
 
         dispatch(updateApp(daApp))
         this.initProject()
-        console.log('componentDidMount', this.props.location.pathname)
     }
 
     initProject () {
@@ -59,15 +59,63 @@ class Container extends React.Component<any, any> {
 
     // eslint-disable-next-line
 	UNSAFE_componentWillReceiveProps(nextProps: any) {
-        const nowId = nextProps.params.pid
+        const nowId = nextProps.params.pid;
+        const menuList = nextProps.common.menuList;
+        const pathname = nextProps.router.location.pathname;
         if (nowId && nowId !== this.props.params.pid) {
-            this.props.dispatch(projectActions.getProject(nowId))
+            this.props.dispatch(projectActions.getProject(nowId));
+            if (this.props.common.menuList != menuList && menuList) {
+                const routerArr = this.getPermissionRouter(menuList);
+                // 切换项目无权限，则跳转
+                if (routerArr.indexOf(pathname.split('/')[2]) == -1 && pathname != '/') {
+                    nextProps.router.push('/');
+                }
+            }
         }
-        if (nextProps.location.pathname == '/') { // 首页背景填充
+        if (pathname == '/') { // 首页背景填充
             this.coverConatinerBg = true;
         } else {
             this.coverConatinerBg = false;
         }
+    }
+    /**
+     * 获取有权限的路由
+     */
+    getPermissionRouter = (menuList: string[] = []) => {
+        const routerArr: string[] = [];
+        for (let item of menuList) {
+            switch (item) {
+                case 'overview_market_menu': {
+                    routerArr.push(API_ROUTER.OVERVIEW);
+                    break;
+                }
+                case 'api_market_menu': {
+                    routerArr.push(API_ROUTER.MARKET);
+                    break;
+                }
+                case 'api_myapi_menu': {
+                    routerArr.push(API_ROUTER.MINE);
+                    break;
+                }
+                case 'api_manager_menu': {
+                    routerArr.push(API_ROUTER.MANAGE);
+                    break;
+                }
+                case 'api_datasource_menu': {
+                    routerArr.push(API_ROUTER.DATASOURCE);
+                    break;
+                }
+                case 'api_authorized_menu': {
+                    routerArr.push(API_ROUTER.APPROVAL);
+                    break;
+                }
+                case 'project_manager_menu': {
+                    routerArr.push(API_ROUTER.PROJECT);
+                    break;
+                }
+            }
+        }
+        return routerArr;
     }
 
     render () {
