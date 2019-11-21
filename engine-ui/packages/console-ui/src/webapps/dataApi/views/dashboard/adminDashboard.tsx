@@ -15,6 +15,18 @@ class AdminDashboard extends React.Component<any, any> {
     state: any = {
         nowView: 'callTop'
     }
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps: any) {
+        const project = nextProps.project
+        const oldProj = this.props.project
+        if (oldProj && project && oldProj.id !== project.id) {
+            this.props.chooseAdminDate(10, {
+                target: {
+                    value: this.props.dashBoard.adminDate
+                }
+            })
+        }
+    }
 
     componentDidMount () {
         this.props.chooseAdminDate(10, {

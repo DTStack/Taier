@@ -12,8 +12,8 @@ const Search = Input.Search;
 const Option = Select.Option;
 const confirm = Modal.confirm;
 const mapStateToProps = (state: any) => {
-    const { user, apiMarket, apiManage, dataSource } = state;
-    return { apiMarket, apiManage, user, dataSource }
+    const { user, apiMarket, apiManage, dataSource, project } = state;
+    return { apiMarket, apiManage, user, dataSource, project }
 };
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -64,6 +64,19 @@ class APIMana extends React.Component<any, any> {
         cascaderData: []// 存储级联选择框数据
     }
     componentDidMount () {
+        this.initList();
+    }
+
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps: any) {
+        const project = nextProps.project
+        const oldProj = this.props.project
+        if (oldProj && project && oldProj.id !== project.id) {
+            this.initList();
+        }
+    }
+
+    initList = () => {
         this.props.getCatalogue(0);
         this.props.getSecurityList();
         this.getAllApi()
@@ -82,6 +95,7 @@ class APIMana extends React.Component<any, any> {
         this.getDataSource();
         this.props.getDataSourcesType();
     }
+
     exchangeSourceType () {
         let arr: any = [];
         let dic: any = {};

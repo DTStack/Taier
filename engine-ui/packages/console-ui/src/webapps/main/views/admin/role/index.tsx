@@ -15,22 +15,41 @@ import { MY_APPS } from '../../../consts'
 
 const Option = Select.Option
 
+interface RoleState {
+    active: string;
+    data: any[];
+    projects: any[];
+    streamProjects: any[];
+    scienceProjects: any[];
+    apiProjects: any[];
+    selectedProject: number;
+    streamSelectedProject: number;
+    scienceSelectedProject: number;
+    apiSelectedProject: number;
+    dataBase: any[];
+    selecteDatabase: number;
+    currentPage: number;
+    loading: 'success' | 'loading';
+}
+
 @(connect((state: any) => {
     return {
         user: state.user,
         licenseApps: state.licenseApps
     }
 }) as any)
-class AdminRole extends React.Component<any, any> {
+class AdminRole extends React.Component<any, RoleState> {
     state: any = {
         active: '',
         data: '',
         projects: [],
         streamProjects: [],
         scienceProjects: [],
+        apiProjects: [],
         selectedProject: '',
         streamSelectedProject: '',
         scienceSelectedProject: '',
+        apiSelectedProject: '',
         dataBase: [],
         selecteDatabase: undefined,
         currentPage: 1,
@@ -63,9 +82,10 @@ class AdminRole extends React.Component<any, any> {
     loadData = () => {
         this.setState({ loading: 'loading' })
 
-        const { active, selectedProject, streamSelectedProject, scienceSelectedProject, selecteDatabase, currentPage } = this.state
+        const { active, selectedProject, streamSelectedProject, scienceSelectedProject, apiSelectedProject, selecteDatabase, currentPage } = this.state
         const app = active;
-        const haveSelected = (MY_APPS.RDOS == active && selectedProject) || (MY_APPS.STREAM == active && streamSelectedProject) || (MY_APPS.SCIENCE == active && scienceSelectedProject)
+        const haveSelected = (MY_APPS.RDOS == active && selectedProject) || (MY_APPS.STREAM == active && streamSelectedProject) ||
+        (MY_APPS.SCIENCE == active && scienceSelectedProject) || (MY_APPS.API == active && apiSelectedProject)
         const databaseExsit = (MY_APPS.ANALYTICS_ENGINE == active && selecteDatabase);
         const params: any = {
             pageSize: 10,
@@ -88,6 +108,8 @@ class AdminRole extends React.Component<any, any> {
                 params.projectId = streamSelectedProject;
             } else if (MY_APPS.SCIENCE == active) {
                 params.projectId = scienceSelectedProject;
+            } else if (MY_APPS.API == active) {
+                params.projectId = apiSelectedProject;
             }
             this.loadRoles(app, params)
         }
@@ -155,6 +177,11 @@ class AdminRole extends React.Component<any, any> {
                         scienceProjects: res.data,
                         scienceSelectedProject: selectedProject
                     }, this.loadData)
+                } else if (MY_APPS.API == app) {
+                    ctx.setState({
+                        apiProjects: res.data,
+                        apiSelectedProject: selectedProject
+                    }, this.loadData)
                 }
             }
         })
@@ -214,6 +241,12 @@ class AdminRole extends React.Component<any, any> {
             currentPage: 1
         }, this.loadData)
     }
+    onApiProjectSelect = (value: any) => {
+        this.setState({
+            apiSelectedProject: value,
+            currentPage: 1
+        }, this.loadData)
+    }
     initColums = () => {
         const { active } = this.state;
 
@@ -269,7 +302,7 @@ class AdminRole extends React.Component<any, any> {
         const {
             data, loading, projects, streamProjects,
             active, selectedProject, streamSelectedProject, dataBase, selecteDatabase,
-            scienceSelectedProject, scienceProjects
+            scienceSelectedProject, scienceProjects, apiProjects, apiSelectedProject
         } = this.state;
         let projectsOptions = [];
 
@@ -289,6 +322,10 @@ class AdminRole extends React.Component<any, any> {
             selectValue = scienceSelectedProject;
             projectsOptions = scienceProjects;
             onSelectChange = this.onScienceProjectSelect
+        } else if (active == MY_APPS.API) {
+            selectValue = apiSelectedProject;
+            projectsOptions = apiProjects;
+            onSelectChange = this.onApiProjectSelect
         } else if (active == MY_APPS.ANALYTICS_ENGINE) {
             databaseOptions = dataBase;
             onSelectChange = this.onDatabaseSelect;

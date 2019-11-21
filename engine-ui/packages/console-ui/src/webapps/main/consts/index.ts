@@ -67,9 +67,19 @@ export const APP_ROLE = { // 项目角色
     ADMIN: 2, // 应用管理者
     VISITOR: 3, // 访客
     DEVELOPER: 4, // 开发者
-    CUSTOM: 5 // 自定义
+    CUSTOM: 5, // 自定义
+    PROOWNER: 6 // 项目所有者
 }
 
+export const API_PRO_ROLES: any = {
+    TENANT_OWVER: 1, // 租户所有者
+    API_MANAGER: 2, // API管理员
+    VISITOR: 3, // 访客
+    APP_DEVE: 4, // 应用开发
+    DATA_DEVE: 5, // 数据开发
+    PRO_OWNER: 6, // 项目所有者
+    PRO_MANAGER: 7 // 项目管理员
+}
 export const formItemLayout = { // 表单正常布局
     labelCol: {
         xs: { span: 24 },
