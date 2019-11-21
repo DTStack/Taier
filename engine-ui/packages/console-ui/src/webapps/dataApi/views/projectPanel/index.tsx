@@ -296,6 +296,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
         const { apiCount, projectCount, apiIssueCount, total24InvokeCount, total24FailProbability } = projectSummary;
         const { projectListInfo = [], panelLoading } = this.props;
         const showProjects = this.exChangeShowProject(projectListInfo.slice(0, 3));
+        const percent = total24FailProbability == 0 ? '' : '%';
         const totalData = [{
             dataName: '总项目数',
             data: projectCount,
@@ -315,7 +316,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
             imgSrc: 'public/dataApi/img/call_number.png'
         }, {
             dataName: '最近24h调用失败率',
-            data: total24FailProbability,
+            data: `${total24FailProbability}${percent}`,
             imgSrc: 'public/dataApi/img/fail.png'
         }];
         return (
