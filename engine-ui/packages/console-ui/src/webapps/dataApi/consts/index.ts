@@ -51,10 +51,30 @@ export const OPERA_ROW_TWO_DATA = [{
     link: HELP_DOC_URL.CALL_API
 }]
 
+export const API_ROUTER = {
+    OVERVIEW: 'overview',
+    MARKET: 'market',
+    MINE: 'mine',
+    MANAGE: 'manage',
+    DATASOURCE: 'dataSource',
+    APPROVAL: 'approvalAndsecurity',
+    PROJECT: 'project'
+}
+
 export const PROJECT_ROLE: any = { // 项目角色
     PROJECT_OWNER: 2, // 项目所有者
     TENANT_OWVER: 1, // 租户所有者
     VISITOR: 4 // 访客
+}
+
+export const API_PRO_ROLES: any = {
+    TENANT_OWVER: 1, // 租户所有者
+    API_MANAGER: 2, // API管理员
+    VISITOR: 3, // 访客
+    APP_DEVE: 4, // 应用开发
+    DATA_DEVE: 5, // 数据开发
+    PRO_OWNER: 6, // 项目所有者
+    PRO_MANAGER: 7 // 项目管理员
 }
 
 export const SECURITY_TYPE: any = {

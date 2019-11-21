@@ -11,6 +11,7 @@ import {
     MY_APPS,
     RDOS_ROLE,
     APP_ROLE,
+    API_PRO_ROLES,
     formItemLayout
 } from '../../../consts';
 
@@ -35,7 +36,16 @@ export const isDisabledRole = (app: any, value: any, loginUser: any, myRoles: an
                 return true;
             }
         }
-        case MY_APPS.API:
+        case MY_APPS.API: {
+            if (loginUser.isTenantAdmin || myRoles.isProjectOwner) { // 租户管理员和项目拥有者
+                return value === API_PRO_ROLES.TENANT_OWVER || value === API_PRO_ROLES.PRO_OWNER
+            } else if (myRoles.isProjectAdmin) { // 项目管理员
+                return (value === API_PRO_ROLES.TENANT_OWVER || value === API_PRO_ROLES.PRO_OWNER ||
+                    value === API_PRO_ROLES.PRO_MANAGER)
+            } else {
+                return true;
+            }
+        }
         case MY_APPS.LABEL:
         case MY_APPS.ANALYTICS_ENGINE:
         case MY_APPS.DATA_QUALITY: {

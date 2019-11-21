@@ -1,7 +1,8 @@
 import mc from 'mirror-creator';
 import { message } from 'antd';
-import utils from 'utils'
+import utils from 'utils';
 import Api from '../api/project';
+import { commonActions } from '../actions/common'
 
 const projectAction = mc([
     'GET_PROJECT',
@@ -31,6 +32,8 @@ export function getProject (id: any) {
         Api.getProjectByID({
             projectId: id
         }).then((res: any) => {
+            dispatch(commonActions.getMenuList())
+            dispatch(getProjects())
             return dispatch({
                 type: projectAction.GET_PROJECT,
                 data: res.data
@@ -97,7 +100,9 @@ export function createProject (params: any) {
         return (async () => {
             let res = await Api.createProject(params);
             if (res && res.code == 1) {
-                dispatch(getProjectList());
+                setTimeout(() => {
+                    dispatch(getProjectList());
+                }, 500)
             }
             return res;
         })()

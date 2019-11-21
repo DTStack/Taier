@@ -44,7 +44,7 @@ class RoleManagement extends React.Component<any, any> {
     }
 
     removeRole = (role: any) => {
-        Api.deleteRole({ roleId: role.id }).then((res: any) => {
+        Api.deleteRole({ roleId: role && role.id }).then((res: any) => {
             if (res.code === 1) {
                 message.success('移除角色成功！')
                 this.loadRoles()
@@ -82,14 +82,6 @@ class RoleManagement extends React.Component<any, any> {
                 return (
                     <span key={record.id}>
                         <Link to={`${location.pathname}/edit/${record.id}`}>查看</Link>
-                        {/* <span className="ant-divider" />
-                        <Popconfirm
-                            title="确认将该角色移除？"
-                            okText="确定" cancelText="取消"
-                            onConfirm={() => { this.removeRole(record) }}
-                        >
-                            <a>删除</a>
-                        </Popconfirm> */}
                     </span>
                 )
             }

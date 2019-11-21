@@ -103,7 +103,7 @@ class ProjectsList extends React.Component<any, ProjectState> {
             currentPage: pagination.current,
             pageSize: pagination.pageSize,
             fuzzyName: params.search || undefined,
-            orderBy: params.filed ? params.filed.replace(/([A-Z])/g, '_$1').toLowerCase() : undefined,
+            orderBy: params.filed ? (params.filed == 'projectAlias' ? 'api_project_name' : params.filed.replace(/([A-Z])/g, '_$1').toLowerCase()) : undefined,
             sort: params.sort || undefined
         });
         this.setState({
@@ -120,8 +120,8 @@ class ProjectsList extends React.Component<any, ProjectState> {
         }
     }
     handleEnterProject = (record: any) => {
-        this.props.router.push('/api/overview');
         this.props.getProject(record.id);
+        this.props.router.push('/api/overview');
     }
     setStickProject = (record: any) => {
         this.props.setStickProject({
@@ -135,6 +135,7 @@ class ProjectsList extends React.Component<any, ProjectState> {
             dataIndex: 'projectAlias',
             key: 'projectAlias',
             width: '180px',
+            sorter: true,
             render: (text: any, record: any) => {
                 if (record.status == PROJECT_STATUS.NORMAL) {
                     return <a onClick={() => this.handleEnterProject(record)}>{text}</a>
@@ -164,8 +165,8 @@ class ProjectsList extends React.Component<any, ProjectState> {
             sorter: true
         }, {
             title: '创建人',
-            dataIndex: 'createUser.userName',
-            key: 'createUser.userName'
+            dataIndex: 'createUserName',
+            key: 'createUserName'
         }, {
             title: '创建时间',
             dataIndex: 'gmtCreate',

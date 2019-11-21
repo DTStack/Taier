@@ -103,7 +103,6 @@ class RoleForm extends React.Component<any, any> {
         const { roleTree, checkedKeys } = this.state
         const { roleInfo, form } = this.props;
         const { getFieldDecorator } = form;
-        console.log('checkedKeys', roleInfo.permissionIds)
         return (
             <Form>
                 <FormItem
