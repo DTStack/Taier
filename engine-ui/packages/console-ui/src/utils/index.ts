@@ -205,7 +205,7 @@ const utils = {
      * @param value 'B' | 'KB' | 'MB' | 'GB' | 'TB' | 'PB' 转换原始值
      */
     convertBytes (value: number) {
-        const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+        const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
         let i = 0;
         while (value >= 1024) {
             value = Number((value / 1024).toFixed(2));
