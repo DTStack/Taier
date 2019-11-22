@@ -29,10 +29,10 @@ export function getProject (id: any) {
         if (id && id != oldProjectID) {
             utils.setCookie(projectKey, id)
         }
+        dispatch(commonActions.getMenuList())
         Api.getProjectByID({
             projectId: id
         }).then((res: any) => {
-            dispatch(commonActions.getMenuList())
             dispatch(getProjects())
             return dispatch({
                 type: projectAction.GET_PROJECT,
