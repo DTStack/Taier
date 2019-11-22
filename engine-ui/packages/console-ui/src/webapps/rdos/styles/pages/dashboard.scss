@@ -106,6 +106,10 @@
         .company-name{
             font-size: 14px ;
             color: #333;
+            width: 60%;
+            float: left;
+            overflow: hidden;
+            text-overflow: ellipsis;
             font-weight: 600;
             cursor: pointer;
         }
