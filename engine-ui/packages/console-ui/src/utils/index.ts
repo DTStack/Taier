@@ -201,24 +201,17 @@ const utils = {
     },
 
     /**
-     * 转换 Byte 为指定单位的值
+     * 转换 Byte 转换为小于1024值最大单位
      * @param value 'B' | 'KB' | 'MB' | 'GB' | 'TB' | 'PB' 转换原始值
-     * @param targetUnit 转换目标单位，默认转换为小于1024值最大单位
      */
-    convertBytes (value: number, targetUnit?: 'B' | 'KB' | 'MB' | 'GB' | 'TB' | 'PB') {
-        if (targetUnit && targetUnit === 'B') return `${value} ${targetUnit}`;
-
-        const units = ['KB', 'MB', 'GB', 'TB', 'PB'];
-        for (let i = 0; i < units.length; ++i) {
-            if (value >= 1024) {
-                value = Number((value / 1024).toFixed(2));
-                if (targetUnit && (units[i] === targetUnit || value < 1024)) {
-                    return `${value} ${targetUnit}`;
-                }
-            } else {
-                return `${value} ${units[i]}`;
-            }
+    convertBytes (value: number) {
+        const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+        let i = 0;
+        while (value >= 1024) {
+            value = Number((value / 1024).toFixed(2));
+            i++;
         }
+        return `${value} ${units[i]}`;
     },
 
     /**
