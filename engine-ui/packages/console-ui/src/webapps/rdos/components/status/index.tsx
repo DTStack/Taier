@@ -35,7 +35,12 @@ export function TaskStatus (props: any) {
         case TASK_STATUS.STOPED:
             return <span>
                 <Circle className="status_stoped" />&nbsp;
-                    取消
+                手动取消
+            </span>
+        case TASK_STATUS.AUTO_CANCEL:
+            return <span>
+                <Circle className="status_stoped" />&nbsp;
+                自动取消
             </span>
         case TASK_STATUS.RUN_FAILED:
             return <span>
