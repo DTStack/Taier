@@ -48,6 +48,10 @@
         <appender-ref ref="zkAppender" />
     </logger>
 
+    <logger name="com.dtstack.engine.service.task" level="info" additivity="false">
+        <appender-ref ref="zkAppender" />
+    </logger>
+
     <logger name="org.apache.flink.runtime" level="warn" additivity="false">
         <appender-ref ref="flinkAppender" />
     </logger>
