@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Form, Input, Modal } from 'antd'
 
-import { formItemLayout } from '../../comm/const'
+import { formItemLayout } from '../../consts'
 
 const FormItem = Form.Item
 
