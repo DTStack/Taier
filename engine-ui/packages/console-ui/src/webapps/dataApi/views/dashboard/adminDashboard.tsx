@@ -19,7 +19,7 @@ class AdminDashboard extends React.Component<any, any> {
     UNSAFE_componentWillReceiveProps (nextProps: any) {
         const project = nextProps.project
         const oldProj = this.props.project
-        if (oldProj && project && oldProj.id !== project.id) {
+        if (oldProj && oldProj.id && project && oldProj.id !== project.id) {
             this.props.chooseAdminDate(10, {
                 target: {
                     value: this.props.dashBoard.adminDate
