@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Modal, Form, Select, Radio, Input } from 'antd';
 // import { formItemLayout } from '../../../../comm/const';
 import SetDictionary from '../../../../components/setDictionary';
+import { uniq } from 'lodash';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -36,7 +37,21 @@ class ConfigDictModal extends React.Component<any, any> {
     }
 
     onOK = () => {
-        this.props.onOk();
+        this.props.form.validateFields(async (err: any, values: any) => {
+            if (!err) {
+                console.log(values);
+                this.props.onOk();
+            }
+        })
+    }
+
+    ruleValRepeatVerify = (role, value = [], callback) => {
+        let uniqArr = uniq(value.map(item => item.value));
+        if (value.length > 0 && value.length > uniqArr.length) {
+            let str = '存在重复字典值！';
+            callback(str);
+        }
+        callback();
     }
 
     render () {
@@ -118,6 +133,8 @@ class ConfigDictModal extends React.Component<any, any> {
                                 {
                                     required: true,
                                     message: '字典设置不可为空！'
+                                }, {
+                                    validator: this.ruleValRepeatVerify
                                 }
                             ]
                         })(<SetDictionary isEdit={true} />)}

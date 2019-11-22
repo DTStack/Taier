@@ -42,7 +42,7 @@ export default class EntityEdit extends React.Component<IProps, IState> {
             dimensionInfor: [
                 { id: '1', new: false, select: true, isKey: true, isMultiply: false, name: 'xxxxxxx', chName: 'xxx1', type: 'char', propertyNum: 200 },
                 { id: '2', new: true, select: false, isKey: false, isMultiply: false, name: 'xxxxx', chName: 'xxx2', type: 'number', propertyNum: 100 },
-                { id: '3', new: false, select: false, isKey: false, isMultiply: false, name: 'xxxxx', chName: 'xxx3', type: 'time', propertyNum: 30 }
+                { id: '3', new: false, select: false, isKey: false, isMultiply: true, name: 'xxxxx', chName: 'xxx3', type: 'time', propertyNum: 30 }
             ]
         })
     }
