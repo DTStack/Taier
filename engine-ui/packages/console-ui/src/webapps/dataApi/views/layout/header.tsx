@@ -268,16 +268,17 @@ class Header extends React.Component<any, any> {
             enableIcon: true,
             className: 'safeaudit'
         }];
-        const logo = <div onClick={this.goIndex} style={{ cursor: 'pointer' }}>
+        const logo = <React.Fragment>
             <img
                 className='c-header__logo c-header__logo--api'
                 alt="logo"
+                onClick={this.goIndex}
                 src={getHeaderLogo(app.id)}
             />
-            <span className='c-header__title c-header__title--api'>
+            <span className='c-header__title c-header__title--api' onClick={this.goIndex}>
                 {window.APP_CONF.prefix ? `${window.APP_CONF.prefix}.` : ''}{window.APP_CONF.name}
             </span>
-        </div>;
+        </React.Fragment>;
         return (
             <Navigator
                 selectProjectsubMenu={display && this.renderProjectSelect()}
