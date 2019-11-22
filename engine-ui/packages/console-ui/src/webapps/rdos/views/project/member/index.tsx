@@ -236,7 +236,7 @@ class ProjectMember extends React.Component<any, any> {
             key: 'operation',
             render: (text: any, record: any) => {
                 const setRemove = record.roles &&
-                record.roles.find((role: any) => role.id !== 2 && !role.isSelf) ? (
+                record.roles.find((role: any) => role.id !== 2 && !record.isSelf) ? (
                         <Popconfirm
                             title="确认将该成员从项目中移除？"
                             okText="确定" cancelText="取消"
