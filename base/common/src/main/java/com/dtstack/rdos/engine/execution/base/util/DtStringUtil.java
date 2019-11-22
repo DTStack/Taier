@@ -1,6 +1,8 @@
 package com.dtstack.rdos.engine.execution.base.util;
 
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,8 +26,10 @@ public class DtStringUtil {
                 } else if(inSingleQuotes){
                     b.append(c);
                 }else {
-                    tokensList.add(b.toString());
-                    b = new StringBuilder();
+                    if (StringUtils.isNotBlank(b)){
+                        tokensList.add(b.toString());
+                        b = new StringBuilder();
+                    }
                 }
             }else if(c == '\"' && '\\'!=flag){
                 inQuotes = !inQuotes;
@@ -39,7 +43,9 @@ public class DtStringUtil {
             idx++;
         }
 
-        tokensList.add(b.toString());
+        if (StringUtils.isNotBlank(b)){
+            tokensList.add(b.toString());
+        }
 
         return tokensList;
     }
