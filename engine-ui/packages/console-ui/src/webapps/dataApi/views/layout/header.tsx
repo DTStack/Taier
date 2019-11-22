@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import { Menu, Icon, Dropdown, Input } from 'antd';
 import Navigator from 'main/components/nav';
 import { getHeaderLogo } from 'main/consts';
+import { API_ROUTER } from '../../consts';
 import * as ProjectAction from '../../actions/project';
 import docPath from '../../consts/docPath';
 import utils from 'utils';
@@ -55,36 +56,23 @@ class Header extends React.Component<any, any> {
         let showList: any = {
             overview: false,
             market: false,
-            mine: false,
-            manage: false,
-            approval: false,
-            dataSource: false,
-            projectManage: false
+            myapi: false,
+            /* eslint-disable-next-line */
+            api_manager: false,
+            authorized: false,
+            datasource: false,
+            project: false
         }
         const menuList = this.props.common.menuList;
         if (menuList) {
+            const permissionMap = ['overview', 'market', 'myapi',
+                'api_manager', 'authorized', 'datasource', 'project'
+            ]
             for (let i in menuList) {
                 let item = menuList[i];
-                if (item.indexOf('overview') > -1) {
-                    showList.overview = true;
-                }
-                if (item.indexOf('market') > -1) {
-                    showList.market = true
-                }
-                if (item.indexOf('myapi') > -1) {
-                    showList.mine = true
-                }
-                if (item.indexOf('manager') > -1) {
-                    showList.manage = true
-                }
-                if (item.indexOf('authorized') > -1) {
-                    showList.approval = true
-                }
-                if (item.indexOf('datasource') > -1) {
-                    showList.dataSource = true
-                }
-                if (item.indexOf('project') > -1) {
-                    showList.projectManage = true
+                for (let j = 0; j <= permissionMap.length; j++) {
+                    const navName = permissionMap[j];
+                    if (item.indexOf(navName) > -1) showList[navName] = true
                 }
             }
         }
@@ -98,19 +86,19 @@ class Header extends React.Component<any, any> {
                         fixArrChildrenApps[1] = showList.market ? item : null;
                         break;
                     case '我的API':
-                        fixArrChildrenApps[2] = showList.mine ? item : null;
+                        fixArrChildrenApps[2] = showList.myapi ? item : null;
                         break;
                     case 'API管理':
-                        fixArrChildrenApps[3] = showList.manage ? item : null;
+                        fixArrChildrenApps[3] = showList.api_manager ? item : null;
                         break;
                     case '授权与安全':
-                        fixArrChildrenApps[4] = showList.approval ? item : null;
+                        fixArrChildrenApps[4] = showList.authorized ? item : null;
                         break;
                     case '数据源管理':
-                        fixArrChildrenApps[5] = showList.dataSource ? item : null;
+                        fixArrChildrenApps[5] = showList.datasource ? item : null;
                         break;
                     case '项目管理':
-                        fixArrChildrenApps[6] = showList.projectManage ? item : null;
+                        fixArrChildrenApps[6] = showList.project ? item : null;
                         break;
                 }
             })
@@ -239,37 +227,37 @@ class Header extends React.Component<any, any> {
         const menuItems: any = display && [{
             id: 'overview',
             name: '概览',
-            link: `${baseUrl}/overview`,
+            link: `${baseUrl}/${API_ROUTER.OVERVIEW}`,
             enable: overviewNav && overviewNav.isShow
         }, {
             id: 'market',
             name: 'API市场',
-            link: `${baseUrl}/market`,
+            link: `${baseUrl}/${API_ROUTER.MARKET}`,
             enable: marketNav && marketNav.isShow
         }, {
             id: 'mine',
             name: '我的API',
-            link: `${baseUrl}/mine`,
+            link: `${baseUrl}/${API_ROUTER.MINE}`,
             enable: mineNav && mineNav.isShow
         }, {
             id: 'manage',
             name: 'API管理',
-            link: `${baseUrl}/manage`,
+            link: `${baseUrl}/${API_ROUTER.MANAGE}`,
             enable: manaNav && manaNav.isShow
         }, {
             id: 'approvalAndsecurity',
             name: '授权与安全',
-            link: `${baseUrl}/approvalAndsecurity`,
+            link: `${baseUrl}/${API_ROUTER.APPROVAL}`,
             enable: approvalNav && approvalNav.isShow
         }, {
             id: 'dataSource',
             name: '数据源管理',
-            link: `${baseUrl}/dataSource`,
+            link: `${baseUrl}/${API_ROUTER.DATASOURCE}`,
             enable: dataSourceNav && dataSourceNav.isShow
         }, {
             id: 'project',
             name: '项目管理',
-            link: `${baseUrl}/project/${pid}/config`,
+            link: `${baseUrl}/${API_ROUTER.PROJECT}/${pid}/config`,
             enable: projectManaNav && projectManaNav.isShow
         }];
         const settingMenus: any = [{

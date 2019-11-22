@@ -28,8 +28,8 @@ function myFrom (props: any) {
             >
                 {getFieldDecorator('projectAlias', {
                     rules: [{
-                        max: 20,
-                        message: '项目显示名称不得超过20个字符！'
+                        max: 64,
+                        message: '项目显示名称不得超过64个字符！'
                     }],
                     initialValue: props.project ? props.project.projectAlias : ''
                 })(
@@ -42,8 +42,8 @@ function myFrom (props: any) {
             >
                 {getFieldDecorator('projectDesc', {
                     rules: [{
-                        max: 200,
-                        message: '项目描述请控制在200个字符以内！'
+                        max: 128,
+                        message: '项目描述请控制在128个字符以内！'
                     }],
                     initialValue: props.project ? props.project.projectDesc : ''
                 })(
@@ -66,7 +66,10 @@ class ProjectConfig extends React.Component<any, any> {
         bindProject: {},
         projectBindList: []
     }
-
+    componentDidMount () {
+        const { project, dispatch } = this.props
+        dispatch(ProjectAction.getProject(project.id));
+    }
     updateProjectDesc = () => {
         const { params, project, dispatch } = this.props
         const ctx = this

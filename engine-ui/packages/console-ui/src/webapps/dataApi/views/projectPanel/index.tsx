@@ -40,6 +40,15 @@ class ProjectPanel extends React.Component<any, ProjectState> {
         dispatch(projectActions.getProjectList());
         this.getProjectSummary();
     }
+
+    componentDidUpdate (prevProps: any, prevState: any) {
+        const { projectListInfo } = this.props;
+        const oldProjectListInfo = prevProps.projectListInfo;
+        if (projectListInfo && projectListInfo != oldProjectListInfo) {
+            this.getProjectSummary();
+        }
+    }
+
     getProjectSummary = () => {
         Api.getProjectSummary().then(res => {
             if (res.code === 1) {
@@ -49,6 +58,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
             }
         })
     }
+
     handleNewProject = () => {
         this.setState({
             visible: true
@@ -185,13 +195,13 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                             </Col>
                             <Col span={24} className="c_opera">
                                 <Row gutter={16}>
-                                    {project.status != 1 || (apiMarket && !apiMarket.isShow) ? null : (
+                                    {project.status != PROJECT_STATUS.NORMAL || (apiMarket && !apiMarket.isShow) ? null : (
                                         <Col span={12}>
                                             <div className="c_opera_link" {...{ onClick: () => { this.setRouter('apiMarket', project) } }} >API市场</div>
                                         </Col>
                                     )}
                                     {
-                                        project.status != 1 || (apiManage && !apiManage.isShow) ? null : (
+                                        project.status != PROJECT_STATUS.NORMAL || (apiManage && !apiManage.isShow) ? null : (
                                             <Col span={12}>
                                                 <div className="c_opera_link" {...{ onClick: () => { this.setRouter('apiManage', project) } }}>API管理</div>
                                             </Col>
@@ -259,6 +269,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
     loopOperaLink = (data: any[] = []) => {
         return data.map((item, index) => {
             const { title, link } = item;
+            // const push = index == 1 ? 1 : 2;
             return (
                 <Col span={8} key={index}>
                     <div className='c_help_target'>
@@ -285,6 +296,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
         const { apiCount, projectCount, apiIssueCount, total24InvokeCount, total24FailProbability } = projectSummary;
         const { projectListInfo = [], panelLoading } = this.props;
         const showProjects = this.exChangeShowProject(projectListInfo.slice(0, 3));
+        const percent = total24FailProbability == 0 ? '' : '%';
         const totalData = [{
             dataName: '总项目数',
             data: projectCount,
@@ -304,7 +316,7 @@ class ProjectPanel extends React.Component<any, ProjectState> {
             imgSrc: 'public/dataApi/img/call_number.png'
         }, {
             dataName: '最近24h调用失败率',
-            data: total24FailProbability,
+            data: `${total24FailProbability}${percent}`,
             imgSrc: 'public/dataApi/img/fail.png'
         }];
         return (
@@ -337,7 +349,15 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                                             </Row>
                                         ) : (
                                             <Row className='c_no_project'>
-                                                <Col span={24}>暂无项目，来创建您的第一个项目吧！</Col>
+                                                <Col span={24}>
+                                                    暂无项目，来创建您的第一个项目吧！
+                                                </Col>
+                                                <Col span={24}>
+                                                    <div className="c_opera_link" {...{ onClick: () => { this.handleNewProject() } }}>
+                                                        <img src='public/dataApi/img/plus.svg' />
+                                                        创建项目
+                                                    </div>
+                                                </Col>
                                             </Row>
                                         )
                                     }
@@ -374,21 +394,30 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                             <div>
                                 <Row>
                                     <Card className='c_use_tutorial_card'>
-                                        <Row gutter={16}>
+                                        <Row gutter={24}>
                                             {this.loopOperaLink(OPERA_ROW_ONE_DATA)}
                                         </Row>
-                                        <Row gutter={16}>
+                                        <Row gutter={24}>
                                             {this.loopOperaLink(OPERA_ROW_TWO_DATA)}
                                         </Row>
                                     </Card>
                                 </Row>
                                 <Row>
-                                    <Card className='c_use_tutorial_card c_video_width'>
+                                    <Card className='c_use_tutorial_card c_video_width' style={{ position: 'relative' }} {...{ onClick: () => {
+                                        const devEle = document.getElementById('c_developing');
+                                        devEle.style.display = 'block';
+                                        setTimeout(() => {
+                                            devEle.style.display = 'none';
+                                        }, 2000)
+                                    } }}>
                                         <Row>
-                                            <Col span={24}>
+                                            <Col span={24} style={{ padding: 0 }}>
                                                 {/* 暂时无视频，先用图片替代 */}
-                                                <img src='public/dataApi/img/opera_guide.png' style={{ width: '380px', height: '180px' }} />
+                                                <img src='public/dataApi/img/opera_guide.png' style={{ width: '380px', height: '240px' }} />
                                             </Col>
+                                            <div className='c_developing' id='c_developing' style={{ display: 'none' }}>
+                                                开发中～敬请期待！
+                                            </div>
                                         </Row>
                                     </Card>
                                 </Row>

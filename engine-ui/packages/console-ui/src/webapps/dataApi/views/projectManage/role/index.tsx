@@ -82,14 +82,6 @@ class RoleManagement extends React.Component<any, any> {
                 return (
                     <span key={record.id}>
                         <Link to={`${location.pathname}/edit/${record.id}`}>查看</Link>
-                        {/* <span className="ant-divider" />
-                        <Popconfirm
-                            title="确认将该角色移除？"
-                            okText="确定" cancelText="取消"
-                            onConfirm={() => { this.removeRole(record) }}
-                        >
-                            <a>删除</a>
-                        </Popconfirm> */}
                     </span>
                 )
             }
