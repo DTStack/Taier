@@ -13,6 +13,7 @@ export default class DTModal extends React.Component<any, any> {
 
     onFullscreen = (isFullscreen: any) => {
         const { style, width } = this.props;
+        let modalContent = document.querySelector<HTMLElement>('.ant-modal-content')
         if (!isFullscreen) {
             this.setState({
                 modalStyle: {
@@ -21,6 +22,8 @@ export default class DTModal extends React.Component<any, any> {
                     width
                 }
             })
+            // 重置弹窗高度信息为原状态
+            modalContent.style.height = ''
         } else {
             this.setState({
                 modalStyle: {
@@ -34,6 +37,8 @@ export default class DTModal extends React.Component<any, any> {
                     bottom: 0
                 }
             })
+            // 重置弹窗内容高度信息为100%
+            modalContent.style.height = '100%'
         }
     }
 
