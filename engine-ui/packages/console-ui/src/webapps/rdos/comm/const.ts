@@ -312,7 +312,8 @@ export const TASK_STATUS = { // 任务状态
     WAIT_RUN: 16,
     WAIT_COMPUTE: 17,
     FROZEN: 18,
-    DO_FAIL: 22
+    DO_FAIL: 22,
+    AUTO_CANCEL: 24 // 自动取消
 }
 
 // 表模型规则
