@@ -107,6 +107,7 @@ class TagValues extends React.Component<IProps, {}> {
                                  value.map((item, index) => (<Card
                                      key={item.value}
                                      id={`${item.value}`}
+                                     canDrag={true}
                                      moveCard={this.moveCard}
                                      findCard={this.findCard}>
                                      <div key={item.value} className={classnames('tag-item', { error: !item.valid, active: item.value == select })} onClick={ () => this.onHandleClick(item) }>

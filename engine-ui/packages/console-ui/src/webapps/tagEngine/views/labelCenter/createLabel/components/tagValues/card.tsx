@@ -5,6 +5,7 @@ export interface CardProps {
     id: string;
     children: any;
     className?: string;
+    canDrag: boolean;
     moveCard: (id: string, to: number) => void;
     findCard: (id: string) => { index: number };
     connectDragSource?: any;
@@ -18,7 +19,9 @@ const cardSource = {
             originalIndex: props.findCard(props.id).index
         }
     },
-
+    canDrag (props) {
+        return props.canDrag;
+    },
     endDrag (props, monitor) {
         const { id: droppedId, originalIndex } = monitor.getItem()
         const didDrop = monitor.didDrop()
