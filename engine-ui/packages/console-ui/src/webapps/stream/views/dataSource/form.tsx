@@ -45,6 +45,27 @@ const hdfsConf =
 "dfs.client.failover.proxy.provider.defaultDfs": "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider" 
 }`
 
+const kuduConf = `{
+    "openKerberos":false,
+    "user":"",
+    "keytabPath":"",
+    "workerCount":4,
+    "bossCount":1,
+    "operationTimeout":30000,
+    "adminOperationTimeout":30000
+}`;
+
+const kuduOthersPh = `输入JSON格式的参数，示例及默认参数如下：
+{
+    "openKerberos":false,
+    "user":"",
+    "keytabPath":"",
+    "workerCount":4,
+    "bossCount":1,
+    "operationTimeout":30000,
+    "adminOperationTimeout":30000
+}`;
+
 class BaseForm extends React.Component<any, any> {
     state: any = {
         sourceType: 1,
@@ -556,8 +577,12 @@ class BaseForm extends React.Component<any, any> {
                             initialValue: config.others ? typeof config.others == 'string'
                                 ? JSON.stringify(JSON.parse(config.others), null, 4) : JSON.stringify(config.others, null, 4) : ''
                         })(
-                            <Input type="textarea" {...rowFix5} placeholder={`输入JSON格式的参数`} />
+                            <Input type="textarea" {...rowFix5} placeholder={kuduOthersPh} />
                         )}
+                        <CopyIcon
+                            style={{ position: 'absolute', right: '-20px', bottom: '0px' }}
+                            copyText={kuduConf}
+                        />
                     </FormItem>
                 ]
                 const uploadForm: any = getFieldValue('dataJson.openKerberos') ? this.uploadForm() : [];
@@ -762,6 +787,7 @@ class BaseForm extends React.Component<any, any> {
                 ]
             }
             case DATA_SOURCE.KAFKA:
+            case DATA_SOURCE.KAFKA_11:
             case DATA_SOURCE.KAFKA_09:
             case DATA_SOURCE.KAFKA_10: {
                 return [

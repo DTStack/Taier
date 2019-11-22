@@ -15,6 +15,14 @@ const showMapArr: any = {
         ['jdbcUrl', 'jdbcUrl'],
         ['username', '用户名']
     ],
+    [DATA_SOURCE.POLAR_DB]: [
+        ['jdbcUrl', 'jdbcUrl'],
+        ['username', '用户名']
+    ],
+    [DATA_SOURCE.CLICK_HOUSE]: [
+        ['jdbcUrl', 'jdbcUrl'],
+        ['username', '用户名']
+    ],
     [DATA_SOURCE.ORACLE]: [
         ['jdbcUrl', 'jdbcUrl'],
         ['username', '用户名']
@@ -38,7 +46,11 @@ const showMapArr: any = {
     [DATA_SOURCE.HDFS]: [
         ['defaultFS', 'defaultFS']
     ],
-    [DATA_SOURCE.HIVE]: [
+    [DATA_SOURCE.HIVE_2]: [
+        ['jdbcUrl', 'jdbcUrl'],
+        ['defaultFS', 'defaultFS']
+    ],
+    [DATA_SOURCE.HIVE_1]: [
         ['jdbcUrl', 'jdbcUrl'],
         ['defaultFS', 'defaultFS']
     ],

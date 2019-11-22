@@ -45,7 +45,8 @@ export const DATA_SOURCE = {
     POSTGRESQL: 4,
     RDBMS: 5,
     HDFS: 6,
-    HIVE: 7,
+    HIVE_1: 27,
+    HIVE_2: 7,
     HBASE: 8,
     FTP: 9,
     MAXCOMPUTE: 10,
@@ -57,7 +58,9 @@ export const DATA_SOURCE = {
     LIBRASQL: 21,
     GBASE: 22,
     KYLIN: 23,
-    KUDU: 24
+    KUDU: 24,
+    CLICK_HOUSE: 25,
+    POLAR_DB: 28
 }
 
 /**
@@ -76,7 +79,8 @@ export const DATA_SOURCE_TEXT = {
     3: 'SQLServer',
     4: 'PostgreSQL',
     6: 'HDFS',
-    7: 'Hive',
+    7: 'Hive2',
+    27: 'Hive1',
     8: 'HBase',
     9: 'FTP',
     10: 'MaxCompute',
@@ -88,7 +92,9 @@ export const DATA_SOURCE_TEXT = {
     21: 'LibrA',
     22: 'GBase',
     23: 'Kylin',
-    24: 'Kudu'
+    24: 'Kudu',
+    25: 'ClickHouse',
+    28: 'PolarDB'
 }
 
 // 锁类型
@@ -197,7 +203,9 @@ export const RDB_TYPE_ARRAY: any = [ // sql/oracle/sqlserver/postgresql/db2
     DATA_SOURCE.SQLSERVER,
     DATA_SOURCE.POSTGRESQL,
     DATA_SOURCE.DB2,
-    DATA_SOURCE.GBASE
+    DATA_SOURCE.GBASE,
+    DATA_SOURCE.POLAR_DB,
+    DATA_SOURCE.CLICK_HOUSE
 ]
 
 export const SUPPROT_SUB_LIBRARY_DB_ARRAY: any = [ // 支持分库分表的数据库类型r
@@ -304,7 +312,8 @@ export const TASK_STATUS = { // 任务状态
     WAIT_RUN: 16,
     WAIT_COMPUTE: 17,
     FROZEN: 18,
-    DO_FAIL: 22
+    DO_FAIL: 22,
+    AUTO_CANCEL: 24 // 自动取消
 }
 
 // 表模型规则
@@ -458,8 +467,12 @@ export const offlineTaskStatusFilter: any = [{
     value: 5
 }, {
     id: 6,
-    text: '取消',
+    text: '手动取消',
     value: 7
+}, {
+    id: 11,
+    text: '自动取消',
+    value: 24
 }, {
     id: 7,
     text: '提交失败',
@@ -610,8 +623,11 @@ export const DataSourceTypeFilter: any = [{ // 离线数据源类型过滤选项
     text: 'HDFS',
     value: DATA_SOURCE.HDFS
 }, {
-    text: 'Hive',
-    value: DATA_SOURCE.HIVE
+    text: 'Hive2.x',
+    value: DATA_SOURCE.HIVE_2
+}, {
+    text: 'Hive1.x',
+    value: DATA_SOURCE.HIVE_1
 }, {
     text: 'HBase',
     value: DATA_SOURCE.HBASE
@@ -630,6 +646,12 @@ export const DataSourceTypeFilter: any = [{ // 离线数据源类型过滤选项
 }, {
     text: 'MongoDB',
     value: DATA_SOURCE.MONGODB
+}, {
+    text: 'ClickHouse',
+    value: DATA_SOURCE.CLICK_HOUSE
+}, {
+    text: 'PolarDB',
+    value: DATA_SOURCE.POLAR_DB
 }];
 
 export const propEditorOptions = { // 编辑器选项

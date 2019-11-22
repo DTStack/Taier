@@ -643,14 +643,13 @@ class OutputOrigin extends React.Component<any, any> {
                                                     }
                                                 ]
                                             })(
-                                                <InputNumber
+                                                <Input
                                                     className="number-input"
-                                                    min={0}
-                                                    onChange={(value: any) =>
+                                                    onChange={(e: any) =>
                                                         handleInputChange(
                                                             'lowerBoundPrimaryKey',
                                                             index,
-                                                            value
+                                                            e.target.value
                                                         )
                                                     }
                                                 />
@@ -665,14 +664,13 @@ class OutputOrigin extends React.Component<any, any> {
                                                     }
                                                 ]
                                             })(
-                                                <InputNumber
+                                                <Input
                                                     className="number-input"
-                                                    min={0}
-                                                    onChange={(value: any) =>
+                                                    onChange={(e: any) =>
                                                         handleInputChange(
                                                             'upperBoundPrimaryKey',
                                                             index,
-                                                            value
+                                                            e.target.value
                                                         )
                                                     }
                                                 />
@@ -1148,6 +1146,16 @@ export default class OutputPanel extends React.Component<any, any> {
             tableOptionType,
             tableColumnOptionType
         } = this.state;
+        if (type == 'keyFilter') {
+            if (!value) {
+                panelColumn[index]['keyField'] = undefined;
+            } else {
+                panelColumn[index]['keyField'] = panelColumn[index]['primaryKey'];
+            }
+        }
+        if (type == 'primaryKey') {
+            panelColumn[index]['keyField'] = value;
+        }
         if (type === 'columns') {
             panelColumn[index][type].push(value);
         } else if (type === 'deleteColumn') {

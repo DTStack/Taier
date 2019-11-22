@@ -23,6 +23,6 @@ export function havePrimaryKey (type: any) {
 
 // 是否拥有Topic
 export function haveTopic (type: any) {
-    const list: any = [DATA_SOURCE.KAFKA, DATA_SOURCE.KAFKA_09, DATA_SOURCE.KAFKA_10]
+    const list: any = [DATA_SOURCE.KAFKA, DATA_SOURCE.KAFKA_11, DATA_SOURCE.KAFKA_09, DATA_SOURCE.KAFKA_10]
     return list.indexOf(type) > -1;
 }

@@ -160,6 +160,10 @@ export const TASK_STATUS: any = {
     FROZEN: {
         value: 18,
         text: '冻结'
+    },
+    COMPUTE_WAIT_RUN: {
+        value: 23,
+        text: '等待运行'
     }
 }
 export const taskStatus: any = {

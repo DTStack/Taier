@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Modal, Icon } from 'antd';
 import FullScreen from 'widgets/fullscreen';
+import './style.scss'
 
 const defaultModalStyle: any = {
     width: 800,
@@ -8,9 +9,9 @@ const defaultModalStyle: any = {
 };
 export default class DTModal extends React.Component<any, any> {
     state: any = {
-        modalStyle: defaultModalStyle
+        modalStyle: defaultModalStyle,
+        className: ''
     }
-
     onFullscreen = (isFullscreen: any) => {
         const { style, width } = this.props;
         if (!isFullscreen) {
@@ -19,7 +20,8 @@ export default class DTModal extends React.Component<any, any> {
                     ...defaultModalStyle,
                     ...style,
                     width
-                }
+                },
+                className: ''
             })
         } else {
             this.setState({
@@ -32,7 +34,8 @@ export default class DTModal extends React.Component<any, any> {
                     left: 0,
                     right: 0,
                     bottom: 0
-                }
+                },
+                className: 'ant-modal-control'
             })
         }
     }
@@ -64,10 +67,11 @@ export default class DTModal extends React.Component<any, any> {
 
     render () {
         const { children, style, visible } = this.props;
-        const { modalStyle } = this.state;
+        const { modalStyle, className } = this.state;
         const applyStyle: any = { ...style, ...modalStyle };
         return <Modal
             {...this.props}
+            className={className}
             width={modalStyle.width}
             style={applyStyle}
         >

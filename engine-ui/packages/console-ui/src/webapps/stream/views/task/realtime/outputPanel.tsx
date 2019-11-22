@@ -129,9 +129,10 @@ class OutputOrigin extends React.Component<any, any> {
                             <Option value={DATA_SOURCE.ES}>ElasticSearch</Option>
                             <Option value={DATA_SOURCE.REDIS}>Redis</Option>
                             <Option value={DATA_SOURCE.MONGODB}>MongoDB</Option>
+                            <Option value={DATA_SOURCE.KAFKA}>Kafka</Option>
                             <Option value={DATA_SOURCE.KAFKA_09}>Kafka09</Option>
                             <Option value={DATA_SOURCE.KAFKA_10}>Kafka10</Option>
-                            <Option value={DATA_SOURCE.KAFKA}>Kafka11</Option>
+                            <Option value={DATA_SOURCE.KAFKA_11}>Kafka11</Option>
                         </Select>
                     )}
                 </FormItem>
@@ -438,7 +439,7 @@ class OutputOrigin extends React.Component<any, any> {
                                 >
                                     <Option value='insert'>insert</Option>
                                     <Option value='update'>update</Option>
-                                    <Option value='upset'>upset</Option>
+                                    <Option value='upsert'>upsert</Option>
                                 </Select>
                             )}
                         </FormItem> : ''

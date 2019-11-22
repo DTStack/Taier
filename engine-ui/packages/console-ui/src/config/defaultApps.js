@@ -13,7 +13,7 @@ module.exports = [
         className: 'icon_dropdown_homepa'
     }, {
         id: 'rdos',
-        name: '离线计算',
+        name: '离线开发',
         filename: 'batch.html',
         link: '/batch.html#',
         target: '_self',
@@ -27,7 +27,7 @@ module.exports = [
         className: 'icon_dropdown_offlin'
     }, {
         id: 'stream',
-        name: '流计算',
+        name: '实时开发',
         filename: 'stream.html',
         link: '/stream.html#',
         target: '_self',
