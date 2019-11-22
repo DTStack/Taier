@@ -140,13 +140,13 @@ class GraphContainer extends React.Component<any, GraphContainerState> {
             if (cell.vertex) {
                 menu.addItem('重命名', null, function () {
                     ctx.initEditTaskCell(cell, currentNode);
-                }, null, null, true);
+                }, null, null, !ctx.props.isRunning);
                 menu.addItem('删除', null, function () {
                     ctx.removeCell(cell);
-                }, null, null, true);
+                }, null, null, !ctx.props.isRunning);
                 menu.addItem('复制', null, function () {
                     ctx.copyCell(cell);
-                }, null, null, true);
+                }, null, null, !ctx.props.isRunning);
                 menu.addSeparator();
                 menu.addItem('从此处开始执行', null, function () {
                     ctx.startHandlerFromHere(cell);
