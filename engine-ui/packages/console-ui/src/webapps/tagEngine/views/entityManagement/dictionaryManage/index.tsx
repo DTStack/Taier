@@ -21,6 +21,7 @@ interface IState {
     deleteItem: any;
 }
 
+let timer: any = null;
 export default class DictionaryManage extends React.PureComponent<any, IState> {
     constructor (props: any) {
         super(props);
@@ -42,6 +43,13 @@ export default class DictionaryManage extends React.PureComponent<any, IState> {
         this.getDictList();
     }
 
+    componentWillUnmount () {
+        if (timer) {
+            clearTimeout(timer);
+            timer = null;
+        }
+    }
+
     getDictList = () => {
         const { pageSize, pageNo, desc, sorterField, searchVal } = this.state;
         let params: any = {
@@ -55,7 +63,6 @@ export default class DictionaryManage extends React.PureComponent<any, IState> {
                 asc: !desc
             }]
         }
-        console.log(params);
         API.getDictList(params).then((res: any) => {
             const { data = {}, code } = res;
             if (code === 1) {
@@ -142,9 +149,15 @@ export default class DictionaryManage extends React.PureComponent<any, IState> {
             })
         } else {
             this.setState({
-                deleteVisible: false,
-                deleteItem: {}
+                deleteVisible: false
             })
+            timer = setTimeout(() => {
+                this.setState({
+                    deleteItem: {}
+                })
+                clearTimeout(timer);
+                timer = null;
+            }, 100);
         }
     }
 
