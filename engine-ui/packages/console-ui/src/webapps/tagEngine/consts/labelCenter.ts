@@ -36,6 +36,14 @@ export default {
     getRelationList: {
         method: 'post',
         url: `/api/v1/tag/getRelationList`
+    },
+    /* ----------------------标签管理-----------------------------------  */
+    getTagList: { // 标签引擎-标签查询接口
+        method: 'post',
+        url: `/api/v1/tag/getTagList`
+    },
+    getTagDetail: { // 标签-标签详情查询接口
+        method: 'post',
+        url: `/api/v1/tag/getTagDetail`
     }
-
 };
