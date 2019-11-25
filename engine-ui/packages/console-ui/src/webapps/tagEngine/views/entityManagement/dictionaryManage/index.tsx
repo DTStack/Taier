@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { Link, hashHistory } from 'react-router';
-import { Card, Table, Input, Button } from 'antd';
+import { Card, Table, Input, Button, message as Message } from 'antd';
 import DeleteModal from '../../../components/deleteModal';
 import './style.scss';
-// import API from '../../../../api'
+import { get } from 'lodash';
+import API from '../../../api/entity';
 
 const Search = Input.Search;
 
@@ -25,15 +26,11 @@ export default class DictionaryManage extends React.PureComponent<any, IState> {
         super(props);
     }
 
-    state: IState={
+    state: IState = {
         pageNo: 1,
         pageSize: 20,
         total: 2,
-        dataSource: [{
-            id: 1, name: '字典名称1', desc: '描述', type: '标签字典', createTime: '2019-12-10 12:33', creator: '创建者一号'
-        }, {
-            id: 2, name: '字典名称1', desc: '描述', type: '标签字典', createTime: '2019-12-10 12:33', creator: '创建者一号'
-        }],
+        dataSource: [],
         searchVal: undefined,
         loading: false,
         desc: true,
@@ -42,29 +39,33 @@ export default class DictionaryManage extends React.PureComponent<any, IState> {
         deleteItem: {}
     }
     componentDidMount () {
-        this.loadData();
+        this.getDictList();
     }
 
-    loadData = () => {
+    getDictList = () => {
         const { pageSize, pageNo, desc, sorterField, searchVal } = this.state;
-        let params = {
-            pageSize,
-            pageNo,
-            searchVal,
-            desc,
-            sorterField
+        let params: any = {
+            size: pageSize,
+            current: pageNo,
+            search: searchVal
+        }
+        if (sorterField != '') {
+            params.orders = [{
+                filed: sorterField,
+                asc: !desc
+            }]
         }
         console.log(params);
-        // API.xxxxx(params).then((res: any) => {
-        //     const { data = [], code } = res;
-        //     if (code === 1) {
-        //         this.setState({
-        //             dataSource: data.data,
-        //             total: data.total,
-        //             loading: false
-        //         })
-        //     }
-        // })
+        API.getDictList(params).then((res: any) => {
+            const { data = {}, code } = res;
+            if (code === 1) {
+                this.setState({
+                    dataSource: data.contentList || [],
+                    total: +data.total || 0,
+                    loading: false
+                })
+            }
+        })
     }
 
     handleSearch = (query: any) => {
@@ -72,7 +73,13 @@ export default class DictionaryManage extends React.PureComponent<any, IState> {
             searchVal: query,
             pageNo: 1,
             loading: true
-        }, this.loadData)
+        }, this.getDictList)
+    }
+
+    handleSearchChange = (e) => {
+        this.setState({
+            searchVal: e.target.value == '' ? undefined : e.target.value
+        })
     }
 
     handleTableChange = (pagination: any, filters: any, sorter: any) => {
@@ -81,7 +88,7 @@ export default class DictionaryManage extends React.PureComponent<any, IState> {
             sorterField: sorter.field || '',
             desc: sorter.order == 'descend' || false,
             loading: true
-        }, this.loadData);
+        }, this.getDictList);
     }
 
     handleOperateData = (type: string, record: any) => {
@@ -101,27 +108,28 @@ export default class DictionaryManage extends React.PureComponent<any, IState> {
                 })
                 break;
             }
-            default:;
+            default: ;
         }
     }
 
     handleDeleteModel = (type: string) => {
         if (type == 'ok') {
-            // API.xxxxx({
-            //     id: this.state.deleteItem.id
-            // }).then((res: any) => {
-            //     const { data = [], code } = res;
-            //     if (code === 1) {
-            //         this.setState({
-            //             pageNo: 1,
-            //             loading: true,
-            //             deleteVisible: false,
-            //             deleteItem: {}
-            //         }, () => {
-            //             this.loadData();
-            //         })
-            //     }
-            // })
+            API.deleteDict({
+                dictId: this.state.deleteItem.id
+            }).then((res: any) => {
+                const { code } = res;
+                if (code === 1) {
+                    Message.success('删除成功！')
+                    this.setState({
+                        pageNo: 1,
+                        loading: true,
+                        deleteVisible: false,
+                        deleteItem: {}
+                    }, () => {
+                        this.getDictList();
+                    })
+                }
+            })
         } else {
             this.setState({
                 deleteVisible: false,
@@ -148,13 +156,13 @@ export default class DictionaryManage extends React.PureComponent<any, IState> {
             key: 'desc'
         }, {
             title: '创建时间',
-            dataIndex: 'createTime',
-            key: 'createTime',
+            dataIndex: 'createAt',
+            key: 'createAt',
             sorter: true
         }, {
             title: '创建者',
-            dataIndex: 'creator',
-            key: 'creator'
+            dataIndex: 'createBy',
+            key: 'createBy'
         }, {
             title: '操作',
             dataIndex: 'operation',
@@ -177,7 +185,7 @@ export default class DictionaryManage extends React.PureComponent<any, IState> {
     }
 
     render () {
-        const { total, pageSize, pageNo, dataSource, loading, searchVal, deleteVisible } = this.state;
+        const { total, pageSize, pageNo, dataSource, loading, searchVal, deleteVisible, deleteItem } = this.state;
         const pagination: any = {
             total: total,
             pageSize: pageSize,
@@ -195,6 +203,7 @@ export default class DictionaryManage extends React.PureComponent<any, IState> {
                     placeholder="搜索字典名称"
                     style={{ width: 200, padding: 0 }}
                     onSearch={this.handleSearch}
+                    onChange={this.handleSearchChange}
                 />&nbsp;&nbsp;
             </div>
         )
@@ -229,10 +238,13 @@ export default class DictionaryManage extends React.PureComponent<any, IState> {
                 </div>
                 <DeleteModal
                     title={'删除字典'}
-                    content={'删除字典后无法恢复，请谨慎操作！'}
+                    content={get(deleteItem, 'hasRefered') ? '解除字典的引用关系后，可删除' : '删除字典后无法恢复，请谨慎操作！'}
                     visible={deleteVisible}
                     onCancel={this.handleDeleteModel.bind(this, 'cancel')}
                     onOk={this.handleDeleteModel.bind(this, 'ok')}
+                    footer={
+                        get(deleteItem, 'hasRefered') ? <Button type="primary" onClick={this.handleDeleteModel.bind(this, 'cancel')}>我知道了</Button> : undefined
+                    }
                 />
             </div>
         )
