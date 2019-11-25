@@ -34,8 +34,8 @@ const formItemLayout = {
 class DictionaryEdit extends React.Component<any, IState> {
     state: IState = {
         typeOption: [
-            { label: '标签字典', value: 0 },
-            { label: '维度字典', value: 1 }
+            { label: '标签字典', value: '0' },
+            { label: '维度字典', value: '1' }
         ],
         ruleFile: undefined,
         ruleFileSource: undefined,
@@ -67,7 +67,7 @@ class DictionaryEdit extends React.Component<any, IState> {
                 this.props.form.setFieldsValue({
                     name,
                     desc,
-                    type: type == '标签字典' ? 0 : 1,
+                    type: type == '标签字典' ? '0' : '1',
                     rule: dictValueVoList.map(item => {
                         return { name: item.valueName, value: item.value, key: item.id };
                     })
@@ -141,7 +141,7 @@ class DictionaryEdit extends React.Component<any, IState> {
             }
         })
         this.props.form.setFieldsValue({
-            rule: [...this.props.form.getFieldValue('rule'), ...ruleData]
+            rule: this.props.form.getFieldValue('rule') ? [...this.props.form.getFieldValue('rule'), ...ruleData] : ruleData
         });
     }
 
