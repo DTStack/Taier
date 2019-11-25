@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Input, Button, Select, Table, Modal, message as Message } from 'antd';
+import { Input, Button, Select, Table, Popconfirm, message as Message } from 'antd';
 import AddDirectory from './components/addDirectory';
 import MoveTreeNode from './components/moveTreeNode';
 import { API } from '../../../api/labelCenter';
@@ -15,96 +15,190 @@ interface IState {
     type: string;
     visible: boolean;
     moveVisible: boolean;
+    expandedKeys: any[];
+    searchValue: string;
+    dataList: any[];
+    entityId: string;
+    currentData: any;
 }
 
 export default class LabelDirectory extends React.PureComponent<IProps, IState> {
     state: IState = {
         visible: false,
         moveVisible: false,
+        expandedKeys: [],
+        dataList: [],
+        searchValue: '',
         type: '0',
-        data: []
+        data: [],
+        entityId: '24',
+        currentData: {}
     };
     componentDidMount () {
-        this.getTagCate(24)
+        this.getTagCate()
     }
-    getTagCate = (entityId: number) => { // 查询标签层级目录
+    getTagCate = () => { // 查询标签层级目录
+        const { entityId } = this.state;
         API.getTagCate({
-            entityId: '24'
+            entityId
         }).then(res => { // 获取主键列表
             const { code, data, message } = res;
             if (code) {
+                let dataList = [];
+                const generateList = data => {
+                    for (let i = 0; i < data.length; i++) {
+                        const node = data[i];
+                        const { tagCateId, cateName } = node;
+                        dataList.push({ tagCateId, cateName });
+                        if (node.children) {
+                            generateList(node.children);
+                        }
+                    }
+                };
+                generateList(data);
                 this.setState({
-                    data
+                    data,
+                    dataList
                 });
             } else {
                 Message.error(message)
             }
         })
     }
-    onHandleClickOperation = (type: '0'|'1'|'2') => { // 0 新建目录 | 1 新建子目录 | 2 重命名
+    getParentKey = (key, tree) => {
+        let parentKey;
+        for (let i = 0; i < tree.length; i++) {
+            const node = tree[i];
+            if (node.children) {
+                if (node.children.some(item => item.tagCateId === key)) {
+                    parentKey = node.tagCateId;
+                } else if (this.getParentKey(key, node.children)) {
+                    parentKey = this.getParentKey(key, node.children);
+                }
+            }
+        }
+        return parentKey;
+    };
+    onExpand = (expandedKeys: any) => {
+        this.setState({
+            expandedKeys
+        });
+    };
+    onChangeSearch = (e: any) => {
+        const { value } = e.target;
+        const { dataList, data } = this.state;
+        const expandedKeys = dataList
+            .map(item => {
+                if (item.cateName.indexOf(value) > -1) {
+                    return this.getParentKey(item.tagCateId, data);
+                }
+                return null;
+            })
+            .filter((item, i, self) => item && self.indexOf(item) === i);
+        this.setState({
+            expandedKeys,
+            searchValue: value
+
+        });
+    };
+    onHandleClickOperation = (type: '0'|'1'|'2', record) => { // 0 新建目录 | 1 新建子目录 | 2 重命名
         this.setState({
             type,
-            visible: true
+            visible: true,
+            currentData: record
         })
     }
     handleCancel = () => {
         this.setState({
-            visible: false
+            visible: false,
+            currentData: {}
         })
     };
     handleOk = () => {
         this.setState({
-            visible: false
-        })
+            visible: false,
+            currentData: {}
+        });
+        this.getTagCate();
     };
-    onHandleMove = () => {
+    onHandleMove = (record) => {
         this.setState({
-            moveVisible: true
-        })
+            moveVisible: true,
+            currentData: record
+        });
+        this.getTagCate();
     }
     onHandleCancelMove = (type: 'ok'|'cancel') => {
         this.setState({
-            moveVisible: false
+            moveVisible: false,
+            currentData: {}
         })
     }
     handleChange = () => {}
-    onHandleDelete = () => {
-        Modal.confirm({
-            title: '',
-            content: '确定删除此目录？',
-            okText: '删除',
-            cancelText: '取消'
-        });
+    deleteTagCate = (id) => {
+        const { entityId } = this.state;
+        API.deleteTagCate({
+            entityId,
+            tagCateId: id
+        }).then(res => { // 获取主键列表
+            const { code, message } = res;
+            if (code) {
+                Message.success('删除成功！');
+                this.getTagCate();
+            } else {
+                Message.error(message)
+            }
+        })
     }
     render () {
-        const { data, visible, type, moveVisible } = this.state;
+        const { data, visible, type, moveVisible, expandedKeys, searchValue, entityId, currentData } = this.state;
         const columns = [
             {
                 title: '目录结构',
                 dataIndex: 'cateName',
-                key: 'cateName'
+                key: 'cateName',
+                render: (cateName, record) => {
+                    const index = cateName.indexOf(searchValue);
+                    const beforeStr = cateName.substr(0, index);
+                    const afterStr = cateName.substr(index + searchValue.length);
+                    const title =
+                        index > -1 ? (
+                            <span>
+                                {beforeStr}
+                                <span style={{ color: '#f50' }}>{searchValue}</span>
+                                {afterStr}
+                                {` (${record.tagNum})`}
+                            </span>
+                        ) : (
+                            <span>{`${cateName} (${record.tagNum})`}</span>
+                        );
+                    return title
+                }
             },
             {
                 title: '创建者',
-                dataIndex: 'age',
-                key: 'age',
+                dataIndex: 'createBy',
+                key: 'createBy',
                 width: 200
             },
             {
                 title: '操作',
-                dataIndex: 'address',
-                key: 'address',
+                dataIndex: 'tagCateId',
+                key: 'tagCateId',
                 width: 260,
-                render: () => {
-                    return (
+                render: (id, record) => {
+                    return record.cateName == '默认分组' ? null : (
                         <div>
-                            <a onClick={() => this.onHandleClickOperation('1')}>新建子目录</a>
+                            <a onClick={() => this.onHandleClickOperation('1', record)}>新建子目录</a>
                             <span className="ant-divider" />
-                            <a onClick={() => this.onHandleClickOperation('2')}>重命名</a>
+                            <a onClick={() => this.onHandleClickOperation('2', record)}>重命名</a>
                             <span className="ant-divider" />
-                            <a onClick={() => this.onHandleMove()}>移动</a>
+                            <a onClick={() => this.onHandleMove(record)}>移动</a>
                             <span className="ant-divider" />
-                            <a onClick={() => this.onHandleDelete()}>删除</a>
+                            <Popconfirm placement="top" title="确定删除此目录？" onConfirm={() => this.deleteTagCate(id)}>
+                                <a >删除</a>
+                            </Popconfirm>
+
                         </div>
                     );
                 }
@@ -124,21 +218,17 @@ export default class LabelDirectory extends React.PureComponent<IProps, IState> 
                                 <Option value="Yiminghe">yiminghe</Option>
                             </Select>
                         </div>
-                        <Search
-                            placeholder="搜索目录名称"
-                            className="search"
-                            onSearch={value => console.log(value)}
-                        />
+                        <Search value={searchValue} className="search" placeholder="搜索目录名称" onChange={this.onChangeSearch} />
                     </div>
                     <div className="right_wp">
-                        <Button type="primary" onClick={() => this.onHandleClickOperation('0')}>新建目录</Button>
+                        <Button type="primary" onClick={() => this.onHandleClickOperation('0', {})}>新建目录</Button>
                     </div>
                 </div>
                 <div className="draggable-wrap-table">
-                    <Table indentSize={100} columns={columns} rowKey="tagCateId" className="table_wrap" dataSource={data} pagination={ false }/>
+                    <Table indentSize={100} expandedRowKeys={expandedKeys } onExpandedRowsChange={this.onExpand} columns={columns} rowKey="tagCateId" className="table_wrap" dataSource={data} pagination={ false }/>
                 </div>
-                <AddDirectory visible={visible} type={type} handleOk={this.handleOk} handleCancel={this.handleCancel}/>
-                <MoveTreeNode visible={moveVisible} handleOk={() => this.onHandleCancelMove('ok')} handleCancel={() => this.onHandleCancelMove('cancel')}/>
+                <AddDirectory entityId={entityId} data={currentData} visible={visible} type={type} handleOk={this.handleOk} handleCancel={this.handleCancel}/>
+                <MoveTreeNode data={data} id={currentData.tagCateId} visible={moveVisible} handleOk={() => this.onHandleCancelMove('ok')} handleCancel={() => this.onHandleCancelMove('cancel')}/>
             </div>
         );
     }

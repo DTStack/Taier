@@ -1,18 +1,20 @@
 import * as React from 'react';
-import { Modal, Button, Form, Input } from 'antd';
+import { Modal, Button, Form, Input, message as Message } from 'antd';
 import { FormComponentProps } from 'antd/lib/form/Form';
+import { API } from '../../../../../api/labelCenter';
 
 import './style.scss';
 interface IProps extends FormComponentProps {
     visible: boolean;
     handleOk: () => void;
     handleCancel: () => void;
-    id?: string | number;
+    data?: any;
+    entityId: string;
     type: string;
 }
 
 interface IState {
-    name: string;
+
 }
 
 const formItemLayout = {
@@ -27,15 +29,54 @@ const formItemLayout = {
 };
 class AddDirectpry extends React.PureComponent<IProps, IState> {
     state: IState = {
-        name: ''
+        entityId: ''
     };
-    componentDidMount () {}
+    componentDidUpdate (preProps) {
+        const { data, type } = this.props;
+        if (data != preProps.data && type == '2') {
+            this.props.form.setFieldsValue({ cateName: data.cateName })
+        }
+    }
     handleCancel = () => {
         this.props.handleCancel();
+        this.props.form.resetFields();
     };
     handleOk = () => {
-        this.props.handleOk();
+        const that = this;
+        this.props.form.validateFields((err, values) => {
+            if (!err) {
+                that.addOrUpdateTagCate(values)
+            }
+        });
     };
+    addOrUpdateTagCate = (params) => { // 标签引擎-新增/重命名标签层级
+        const { entityId, data, type } = this.props;
+        const { cateName } = params;
+        let { tagCateId, pid } = data;
+        let id = '';
+        if (type == '1') { // 新增子目录
+            pid = tagCateId;
+        } else if (type == '0') { // 新增目录
+            pid = '-1'
+        } else {
+            id = tagCateId;
+        }
+        API.addOrUpdateTagCate({
+            id,
+            entityId,
+            cateName,
+            pid
+        }).then(res => {
+            const { code, message } = res;
+            if (code == 1) {
+                this.props.handleOk();
+                Message.success('操作成功！');
+                this.props.form.resetFields();
+            } else {
+                Message.error(message)
+            }
+        })
+    }
     render () {
         const { visible, form, type } = this.props;
         let title = '新建目录';
@@ -66,11 +107,11 @@ class AddDirectpry extends React.PureComponent<IProps, IState> {
                 ]}
             >
                 <Form.Item {...formItemLayout}>
-                    {getFieldDecorator('username', {
+                    {getFieldDecorator('cateName', {
                         rules: [
                             {
                                 required: true,
-                                message: '请输入姓名'
+                                message: '请输入目录名称'
                             },
                             {
                                 max: 20,
@@ -81,7 +122,7 @@ class AddDirectpry extends React.PureComponent<IProps, IState> {
                                 message: '姓名只能包括汉字，字母、下划线、数字'
                             }
                         ]
-                    })(<Input placeholder="请输入姓名、允许汉字" />)}
+                    })(<Input placeholder="请输入目录名称" />)}
                 </Form.Item>
             </Modal>
         );

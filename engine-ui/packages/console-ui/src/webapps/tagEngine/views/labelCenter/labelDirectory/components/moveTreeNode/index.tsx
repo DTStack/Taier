@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Modal, Tree, Input } from 'antd';
+import { Modal, Tree, Input, message as Message } from 'antd';
+import { API } from '../../../../../api/labelCenter';
 import './style.scss';
 
 const { TreeNode } = Tree;
@@ -7,81 +8,68 @@ const { Search } = Input;
 export interface IProps {
     title?: string;
     visible: boolean;
+    data: any[];
     handleOk: () => void;
     handleCancel: () => void;
-    id?: string | number;
+    id: string;
+    entityId?: string | number;
 }
 
 interface IState {
     searchValue: string;
     expandedKeys: any[];
     autoExpandParent: boolean;
+    dataList: any[];
+    data: any[];
 }
-const x = 3;
-const y = 2;
-const z = 1;
-const gData: any[] = [];
-
-const generateData = (_level, _preKey?, _tns?) => {
-    const preKey = _preKey || '0';
-    const tns = _tns || gData;
-
-    const children = [];
-    for (let i = 0; i < x; i++) {
-        const key = `${preKey}-${i}`;
-        tns.push({ title: key, key });
-        if (i < y) {
-            children.push(key);
-        }
-    }
-    if (_level < 0) {
-        return tns;
-    }
-    const level = _level - 1;
-    children.forEach((key, index) => {
-        tns[index].children = [];
-        return generateData(level, key, tns[index].children);
-    });
-};
-generateData(z);
-
-const dataList = [];
-const generateList = data => {
-    for (let i = 0; i < data.length; i++) {
-        const node = data[i];
-        const { key } = node;
-        dataList.push({ key, title: key });
-        if (node.children) {
-            generateList(node.children);
-        }
-    }
-};
-generateList(gData);
-
-const getParentKey = (key, tree) => {
-    let parentKey;
-    for (let i = 0; i < tree.length; i++) {
-        const node = tree[i];
-        if (node.children) {
-            if (node.children.some(item => item.key === key)) {
-                parentKey = node.key;
-            } else if (getParentKey(key, node.children)) {
-                parentKey = getParentKey(key, node.children);
-            }
-        }
-    }
-    return parentKey;
-};
-
 class MoveTreeNode extends React.PureComponent<IProps, IState> {
     state: IState = {
         searchValue: '',
         expandedKeys: [],
-        autoExpandParent: true
+        autoExpandParent: true,
+        dataList: [],
+        data: []
     };
     static defaultProps = {
         title: '选择目录'
     }
+    static getDerivedStateFromProps (nextProps, prevState) {
+        const { data, visible } = nextProps;
+        if (visible && data != prevState.data) {
+            let dataList = [];
+            const generateList = data => {
+                for (let i = 0; i < data.length; i++) {
+                    const node = data[i];
+                    const { tagCateId, cateName } = node;
+                    dataList.push({ tagCateId, cateName });
+                    if (node.children) {
+                        generateList(node.children);
+                    }
+                }
+            };
+            generateList(data);
+            return {
+                dataList,
+                data
+            }
+        } else {
+            return null
+        }
+    }
+    getParentKey = (key, tree) => {
+        let parentKey;
+        for (let i = 0; i < tree.length; i++) {
+            const node = tree[i];
+            if (node.children) {
+                if (node.children.some(item => item.tagCateId === key)) {
+                    parentKey = node.tagCateId;
+                } else if (this.getParentKey(key, node.children)) {
+                    parentKey = this.getParentKey(key, node.children);
+                }
+            }
+        }
+        return parentKey;
+    };
     onExpand = (expandedKeys: any) => {
         this.setState({
             expandedKeys,
@@ -90,10 +78,12 @@ class MoveTreeNode extends React.PureComponent<IProps, IState> {
     };
     onChange = (e: any) => {
         const { value } = e.target;
+        const { data } = this.props;
+        const { dataList } = this.state;
         const expandedKeys = dataList
             .map(item => {
-                if (item.title.indexOf(value) > -1) {
-                    return getParentKey(item.key, gData);
+                if (item.cateName.indexOf(value) > -1) {
+                    return this.getParentKey(item.tagCateId, data);
                 }
                 return null;
             })
@@ -104,18 +94,49 @@ class MoveTreeNode extends React.PureComponent<IProps, IState> {
             autoExpandParent: true
         });
     };
+    onSelect = (selectedKeys) => {
+        this.moveTagCate(selectedKeys[0])
+    }
+    moveTagCate = (targetTagCateId) => { // 标签引擎-新增/重命名标签层级
+        const { entityId, id } = this.props;
+        API.moveTagCate({
+            entityId,
+            targetTagCateId: targetTagCateId,
+            tagCateId: id
+        }).then(res => {
+            const { code, message } = res;
+            if (code) {
+                Message.success('移动成功！');
+                this.props.handleOk();
+                this.resetData();
+            } else {
+                Message.error(message)
+            }
+        })
+    }
     handleCancel = () => {
         this.props.handleCancel();
+        this.resetData();
     };
     handleOk = () => {
         this.props.handleOk();
     };
+    resetData = () => {
+        this.setState({
+            searchValue: '',
+            expandedKeys: [],
+            autoExpandParent: true,
+            dataList: [],
+            data: []
+        })
+    }
     renderNode = (data: any[]) => {
         const { searchValue } = this.state;
+        const { id } = this.props;
         return data.map((item: any) => {
-            const index = item.title.indexOf(searchValue);
-            const beforeStr = item.title.substr(0, index);
-            const afterStr = item.title.substr(index + searchValue.length);
+            const index = item.cateName.indexOf(searchValue);
+            const beforeStr = item.cateName.substr(0, index);
+            const afterStr = item.cateName.substr(index + searchValue.length);
             const title =
                 index > -1 ? (
                     <span>
@@ -124,23 +145,23 @@ class MoveTreeNode extends React.PureComponent<IProps, IState> {
                         {afterStr}
                     </span>
                 ) : (
-                    <span>{item.title}</span>
+                    <span>{item.cateName}</span>
                 );
             if (item.children && item.children.length) {
                 return (
-                    <TreeNode key={item.key} title={title}>
+                    <TreeNode disabled={item.canMove || id == item.tagCateId} key={!item.tagCateId} title={title}>
                         {
                             this.renderNode(item.children)
                         }
                     </TreeNode>
                 );
             }
-            return <TreeNode key={item.key} title={title} />;
+            return <TreeNode key={item.tagCateId} disabled={!item.canMove || id == item.tagCateId} title={title} />;
         });
     }
     render () {
         const { searchValue, expandedKeys, autoExpandParent } = this.state;
-        const { visible, title } = this.props;
+        const { visible, title, data } = this.props;
         return (
             <Modal
                 visible={visible}
@@ -154,10 +175,11 @@ class MoveTreeNode extends React.PureComponent<IProps, IState> {
                         className="draggable-tree"
                         onExpand={this.onExpand}
                         expandedKeys={expandedKeys}
+                        onSelect={this.onSelect}
                         autoExpandParent={autoExpandParent}
                     >
                         {
-                            this.renderNode(gData)
+                            this.renderNode(data)
                         }
                     </Tree>
                 </div>
