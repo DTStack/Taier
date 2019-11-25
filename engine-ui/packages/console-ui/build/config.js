@@ -66,7 +66,7 @@ module.exports = {
             },
             '/api/v1': { // 标签引擎
                 target: 'http://172.16.8.194:8084', // 开发环境
-                // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
+                pathRewrite:{"^/api/tag":"/"},
                 changeOrigin: true,
                 secure: false
             },

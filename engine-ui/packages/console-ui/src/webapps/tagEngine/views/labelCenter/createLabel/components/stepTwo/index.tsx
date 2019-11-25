@@ -1,11 +1,12 @@
 import * as React from 'react';
-import { Form, Select, Button } from 'antd';
+import { Form, Select, Button, message as Message } from 'antd';
 import { FormComponentProps } from 'antd/lib/form/Form';
 import shortid from 'shortid';
 import TagValues from '../tagValues';
 import { cloneDeep } from 'lodash';
 import './style.scss';
 import PanelSelect from '../panelSelect';
+import { API } from '../../../../../api/labelCenter';
 
 const { Option } = Select;
 
@@ -16,7 +17,7 @@ interface IProps extends FormComponentProps {
 }
 interface IState {
     indexList: any[];
-    keyList: any[];
+    relationList: any[];
     index: string | number;
     activeTag: '';
     tags: any[];
@@ -39,7 +40,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
     panelForm: any;
     state: IState = {
         indexList: ['name'],
-        keyList: [],
+        relationList: [],
         index: '',
         activeTag: currentId,
         tags: [{
@@ -47,18 +48,22 @@ class StepTwo extends React.PureComponent<IProps, IState> {
             id: '',
             value: currentId,
             valid: false,
-            config: {
+            params: {
                 key: '0',
-                type: '且', //  且|或
+                type: 'or', //  or|and
+                name: '或',
                 children: [
                     {
                         key: '0-0',
-                        type: '或',
-                        name: '实体-用户信息',
+                        type: 'and',
+                        name: '且',
+                        entityId: 1,
+                        entityName: '实体-用户信息',
                         children: [
                             {
                                 key: '0-0-0',
-                                type: '或',
+                                type: 'and',
+                                name: '且',
                                 children: [
                                     {
                                         key: '0-0-0-0',
@@ -67,7 +72,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                                         filterType: '字符串', // 字符串|数值|日期|字典
                                         conditionName: '等于',
                                         conditionId: '等于',
-                                        filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值或者区间值，延续数值结构，name为空
+                                        filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值and者区间值，延续数值结构，name为空
                                     },
                                     {
                                         key: '0-0-0-1',
@@ -76,7 +81,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                                         filterType: '字符串', // 字符串|数值|日期|字典
                                         conditionName: '等于',
                                         conditionId: '等于',
-                                        filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值或者区间值，延续数值结构，name为空
+                                        filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值and者区间值，延续数值结构，name为空
                                     }
                                 ]
                             },
@@ -87,20 +92,24 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                                 filterType: '字符串', // 字符串|数值|日期|字典
                                 conditionName: '等于',
                                 conditionId: '等于',
-                                filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值或者区间值，延续数值结构，name为空
+                                filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值and者区间值，延续数值结构，name为空
                             }
                         ]
                     },
                     {
                         key: '0-1',
-                        type: '或',
-                        name: '实体-活动',
+                        type: 'and',
+                        name: '且',
+                        entityId: 1,
+                        entityName: '实体-活动',
                         children: []
                     },
                     {
                         key: '0-2',
-                        type: '或',
-                        name: '实体-产品',
+                        type: 'and',
+                        name: '且',
+                        entityId: 1,
+                        entityName: '实体-产品',
                         children: []
                     }
                 ]
@@ -115,19 +124,25 @@ class StepTwo extends React.PureComponent<IProps, IState> {
             // 清除一些过滤条件
         }
     }
-    getKeyList = (index: number) => {
-        // API.keyListUsingGet({
-        //     index
-        // }).then(res => { // 获取主键列表
-        //     const { success, data, message } = res;
-        //     if (success) {
-        //         this.setState({
-        //             keyList: data
-        //         })
-        //     } else {
-        //         Message.error(message)
-        //     }
-        // })
+    getRelationList = (index: number) => { // 获取关系列表
+        API.getRelationList({
+            index
+        }).then(res => { // 获取主键列表
+            const { success, data, message } = res;
+            if (success) {
+                this.setState({
+                    relationList: data
+                })
+            } else {
+                Message.error(message)
+            }
+        })
+    }
+    getEntityAtomTagList = () => { // 衍生标签用来获取实体列表与其对应的原子标签列表
+
+    }
+    getAtomTagValueList = () => { // 获取原子标签列表
+
     }
     onChangeLabel = (e) => {
         const value = e.target.value;
@@ -167,7 +182,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         const { activeTag, tags } = this.state;
         const newTags = tags.map(item => {
             if (activeTag == item.value) {
-                const currentConf = item.config;
+                const currentConf = item.params;
                 if (op == 'append') {
                     this.appendTreeNode(currentConf, key);
                 } else if (op === 'remove') {
@@ -184,7 +199,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
     }
     changeNodeType = (treeNode, key, type) => { // 改变节点类型
         if (treeNode.key === key) {
-            treeNode = Object.assign(treeNode, { type: type == '且' ? '或' : '且' });
+            treeNode = Object.assign(treeNode, { type: type == 'or' ? 'and' : 'or', name: type == 'or' ? '且' : '或' });
             return;
         }
         if (treeNode.children) {
@@ -210,7 +225,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                         children[i].children.push({ key: newKey })
                     } else if (level.length == 3) { // 三级目录
                         let current = children[i]; // 转换节点数据结构，如果为三级目录则，改变数据结构，变为children数组关系
-                        children[i] = { key: current.key, type: '或', children: [Object.assign({}, current, { key: current.key + '-' + shortid() }), Object.assign({}, current, { key: current.key + '-1' })] };
+                        children[i] = { key: current.key, type: 'and', name: '且', children: [Object.assign({}, current, { key: current.key + '-' + shortid() }), Object.assign({}, current, { key: current.key + '-1' })] };
                     } else { // 四级目录
                         let newKey = key + '-' + shortid();
                         treeNode.children.push({ key: newKey })
@@ -264,7 +279,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         const { indexList, activeTag, tags } = this.state;
         const { getFieldDecorator } = form;
         const currentTag = activeTag ? tags.find(item => item.value == activeTag) : '';
-        const treeData = currentTag ? currentTag.config : '';
+        const treeData = currentTag ? currentTag.params : '';
         return (
             <div className="stepTwo" style={{ display: isShow ? 'block' : 'none' }}>
                 <Form.Item {...formItemLayout} label="选择实体">
@@ -276,7 +291,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                             }
                         ]
                     })(
-                        <Select placeholder="请选择实体" showSearch onChange={(value) => this.onChangeSelect(value, 'index')} style={{ width: '100%' }}>
+                        <Select placeholder="请选择实体" disabled showSearch onChange={(value) => this.onChangeSelect(value, 'index')} style={{ width: '100%' }}>
                             {
                                 indexList.map(item => <Option value={item} key={item}>{item}</Option>)
                             }

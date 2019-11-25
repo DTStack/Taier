@@ -12,7 +12,7 @@ interface IProps{
     value?: {
         label: string;
         value: string;
-        config: any; // 规则配置
+        params: any; // 规则配置
         valid: boolean; // 校验状态
     }[];
     onChange?: Function;
@@ -38,7 +38,7 @@ class TagValues extends React.Component<IProps, {}> {
             label: '标签值' + (value.length + 1),
             value: id,
             valid: false,
-            config: {}
+            params: {}
         }]);
         this.props.onSelect(id);
     }
@@ -49,7 +49,7 @@ class TagValues extends React.Component<IProps, {}> {
             this.props.onChange([...value, {
                 label: '标签值' + (value.length + 1),
                 value: id,
-                config: data.config
+                params: data.params
             }]);
             this.props.onSelect(id);
             notification.success({
@@ -107,6 +107,7 @@ class TagValues extends React.Component<IProps, {}> {
                                  value.map((item, index) => (<Card
                                      key={item.value}
                                      id={`${item.value}`}
+                                     canDrag={true}
                                      moveCard={this.moveCard}
                                      findCard={this.findCard}>
                                      <div key={item.value} className={classnames('tag-item', { error: !item.valid, active: item.value == select })} onClick={ () => this.onHandleClick(item) }>
