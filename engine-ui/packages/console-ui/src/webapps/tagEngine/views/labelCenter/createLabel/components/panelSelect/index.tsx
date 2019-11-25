@@ -40,7 +40,7 @@ IState
                         {
                             this.renderConditionChildren(item.children)
                         }
-                        <span className="condition" onClick={(e) => this.props.onHandleChangeType(item.key, item.type)}>{item.type}</span>
+                        <span className="condition" onClick={(e) => this.props.onHandleChangeType(item.key, item.type)}>{item.name}</span>
                     </div>
                 );
             }
@@ -61,7 +61,7 @@ IState
                 {
                     this.renderConditionChildren(data.children)
                 }
-                <span className="condition" onClick={(e) => this.props.onHandleChangeType(data.key, data.type)}>{data.type}</span>
+                <span className="condition" onClick={(e) => this.props.onHandleChangeType(data.key, data.type)}>{data.name}</span>
             </div>
         }
     }
@@ -76,14 +76,14 @@ IState
                     })}>
                         {
                             treeData && treeData.children && treeData.children.map(item => {
-                                return (<Collapse title={item.name} key={item.key} active={item.children.length} extra={<Icon className="add_icon" onClick={(e) => this.props.onHandleAddCondition(item.key)} type="plus-circle" />}>
+                                return (<Collapse title={item.entityName} key={item.key} active={item.children.length} extra={<Icon className="add_icon" onClick={(e) => this.props.onHandleAddCondition(item.key)} type="plus-circle" />}>
                                     {
                                         this.renderCondition(item)
                                     }
                                 </Collapse>)
                             })
                         }
-                        <span className="condition" onClick={(e) => this.props.onHandleChangeType(treeData.key, treeData.type)}>{treeData.type}</span>
+                        <span className="condition" onClick={(e) => this.props.onHandleChangeType(treeData.key, treeData.type)}>{treeData.name}</span>
                     </div>
                 </div>
             </div>

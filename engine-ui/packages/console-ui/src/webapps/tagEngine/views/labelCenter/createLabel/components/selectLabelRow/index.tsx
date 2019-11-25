@@ -14,7 +14,14 @@ interface IProps {
 interface IState {
     name: string;
 }
+const dataType = {
+    CHARACTER: [{ label: '等于', value: 'OP_EQUAL' }, { label: '不等于', value: 'OP_NOT_EQUAL' }, { label: '包含', value: 'OP_CONTAIN' }, { label: '不包含', value: 'OP_NOT_CONTAIN' }, { label: '有值', value: 'OP_HAVE' }, { label: '无值', value: 'OP_NOT' }, { label: '存在', value: 'OP_EXIST' }, { label: '不存在', value: 'OP_NOT_ESIXT' }],
+    TIME: [{ label: '绝对时间', value: 'OP_BETWEEN' }, { label: '相对当前时间点', value: 'OP_WITH_IN' }, { label: '相对当前时间区间', value: 'OP_WITH_IN_BETWEEN' }, { label: '有值', value: 'OP_HAVE' }, { label: '无值', value: 'OP_NOT' }],
+    TIME_ABS: [{ label: '等于', value: 'OP_EQUAL' }, { label: '不等于', value: 'OP_NOT_EQUAL' }, { label: '小于', value: 'OP_LESS_THAN' }, { label: '小于等于', value: 'OP_LESS_THAN_EQUAL' }, { label: '大于', value: 'OP_GREATER_THAN' }, { label: '大于等于', value: 'OP_GREATER_THAN_EQUAL' }, { label: '区间', value: 'OP_BETWEEN' }],
+    NUMBER: [{ label: '等于', value: 'OP_EQUAL' }, { label: '不等于', value: 'OP_NOT_EQUAL' }, { label: '小于', value: 'OP_LESS_THAN' }, { label: '小于等于', value: 'OP_LESS_THAN_EQUAL' }, { label: '大于', value: 'OP_GREATER_THAN' }, { label: '大于等于', value: 'OP_GREATER_THAN_EQUAL' }, { label: '区间', value: 'OP_BETWEEN' }, { label: '有值', value: 'OP_HAVE' }, { label: '无值', value: 'OP_NOT' }]
 
+}
+console.log(dataType);
 export default class SelectLabelRow extends React.PureComponent<
 IProps,
 IState
@@ -64,12 +71,15 @@ IState
         return (
             <Row className="select-label-Row" type='flex' gutter={16}>
                 <Col>
-                    <Select defaultValue="lucy" style={{ width: 100 }}>
+                    <Select style={{ width: 100 }}>
                         <Option value="lucy">Lucy</Option>
                     </Select>
                 </Col>
                 <Col>
-                    <Select defaultValue="lucy" style={{ width: 100 }}>
+                    <Select style={{ width: 100 }}>
+                        {
+                            dataType.CHARACTER.map(item => <Option key={item.value} value={item.value}>{item.label}</Option>)
+                        }
                         <Option value="lucy">Lucy</Option>
                     </Select>
                 </Col>
