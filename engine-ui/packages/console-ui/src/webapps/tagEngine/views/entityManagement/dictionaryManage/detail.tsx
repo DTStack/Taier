@@ -4,6 +4,8 @@ import { hashHistory } from 'react-router';
 import Breadcrumb from '../../../components/breadcrumb';
 import ModuleTitle from '../../../components/moduleTitle';
 import { Button, Card, Table } from 'antd';
+import { get } from 'lodash';
+import API from '../../../api/entity';
 
 interface IProps {
     location: any;
@@ -15,25 +17,27 @@ interface IState {
 
 export default class DictionaryDetail extends React.Component<IProps, IState> {
     state: IState = {
-        dictionaryInfor: {
-            name: '字典名称',
-            type: '标签字典',
-            creator: '创建人',
-            createTime: '2019-12-03 12:23:44',
-            des: '描述描述描述',
-            refered: '标签名称1；标签名称2；',
-            updateTime: '2019-12-03 12:23:44',
-            rule: [
-                { name: '高中', value: '1' },
-                { name: '高中', value: '2' },
-                { name: '高中', value: '3' },
-                { name: '高中', value: '4' }
-            ]
-        }
+        dictionaryInfor: undefined
     }
 
     componentDidMount () {
+        let id = get(this.props.location, 'state.id');
+        if (id) {
+            this.getDictDetail(id);
+        }
+    }
 
+    getDictDetail = (id) => {
+        API.getDictDetail({
+            dictId: id
+        }).then((res: any) => {
+            const { data = {}, code } = res;
+            if (code === 1) {
+                this.setState({
+                    dictionaryInfor: data
+                });
+            }
+        })
     }
 
     handleGotoEdit = () => {
@@ -43,6 +47,9 @@ export default class DictionaryDetail extends React.Component<IProps, IState> {
 
     renderBaseInfor = () => {
         const { dictionaryInfor } = this.state;
+        let references = dictionaryInfor.references ? dictionaryInfor.references.reduce((pre, curr, index) => {
+            return index ? pre + ', ' + curr.refName : curr.refName;
+        }, '') : '';
         return (
             <div className="dd-base-infor">
                 <table className="review_info">
@@ -54,19 +61,19 @@ export default class DictionaryDetail extends React.Component<IProps, IState> {
                     </tr>
                     <tr>
                         <td>创建人</td>
-                        <td>{dictionaryInfor.creator}</td>
+                        <td>{dictionaryInfor.createBy}</td>
                         <td>创建时间</td>
-                        <td>{dictionaryInfor.createTime}</td>
+                        <td>{dictionaryInfor.createAt}</td>
                     </tr>
                     <tr>
                         <td>字典描述</td>
-                        <td>{dictionaryInfor.des}</td>
+                        <td>{dictionaryInfor.desc}</td>
                         <td>被引用情况</td>
-                        <td>{dictionaryInfor.refered}</td>
+                        <td>{references}</td>
                     </tr>
                     <tr>
                         <td>最近更新时间</td>
-                        <td>{dictionaryInfor.updateTime}</td>
+                        <td>{dictionaryInfor.updateAt}</td>
                         <td></td>
                         <td></td>
                     </tr>
@@ -76,7 +83,7 @@ export default class DictionaryDetail extends React.Component<IProps, IState> {
     }
 
     renderRuleData = () => {
-        const { dictionaryInfor: { rule = [] } } = this.state;
+        const { dictionaryInfor: { dictValueVoList = [] } } = this.state;
         const columns = [
             {
                 title: '字典值',
@@ -85,8 +92,8 @@ export default class DictionaryDetail extends React.Component<IProps, IState> {
                 width: 600
             }, {
                 title: '字典名称',
-                dataIndex: 'name',
-                key: 'name'
+                dataIndex: 'valueName',
+                key: 'valueName'
             }
         ]
         return (
@@ -97,11 +104,11 @@ export default class DictionaryDetail extends React.Component<IProps, IState> {
                     className="noBorderBottom"
                 >
                     <Table
-                        rowKey="value"
+                        rowKey="id"
                         pagination={false}
                         scroll={{ y: 400 }}
                         columns={columns}
-                        dataSource={rule}
+                        dataSource={dictValueVoList}
                     />
                 </Card>
             </div>
@@ -109,6 +116,7 @@ export default class DictionaryDetail extends React.Component<IProps, IState> {
     }
 
     render () {
+        const { dictionaryInfor } = this.state;
         const breadcrumbNameMap = [
             {
                 path: '/dictionaryManage',
@@ -128,9 +136,9 @@ export default class DictionaryDetail extends React.Component<IProps, IState> {
                         <Button type='primary' onClick={this.handleGotoEdit}>编辑</Button>
                     }
                 />
-                {this.renderBaseInfor()}
+                {dictionaryInfor && this.renderBaseInfor()}
                 <ModuleTitle title={'字典规则详情'} />
-                {this.renderRuleData()}
+                {dictionaryInfor && this.renderRuleData()}
             </div>
         )
     }

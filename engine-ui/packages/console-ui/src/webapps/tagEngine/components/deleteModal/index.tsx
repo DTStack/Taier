@@ -11,6 +11,7 @@ interface IProps {
     visible: boolean;
     onCancel: any;
     onOk: any;
+    footer?: any;
 }
 
 export default class DeleteModal extends React.Component<IProps, any> {
@@ -23,7 +24,7 @@ export default class DeleteModal extends React.Component<IProps, any> {
     }
 
     render () {
-        const { visible, title, content, notice = '提示', cancelText = '取消', okText = '删除' } = this.props;
+        const { visible, title, content, notice = '提示', cancelText = '取消', okText = '删除', footer } = this.props;
         return (
             < Modal
                 title={title}
@@ -39,10 +40,10 @@ export default class DeleteModal extends React.Component<IProps, any> {
                             <div>{content}</div>
                         </div>
                     </div>
-                    <div className="footer">
+                    {footer ? <div className="footer">{footer}</div> : <div className="footer">
                         <Button size="large" style={{ marginLeft: 8 }} onClick={this.props.onOk} type="primary">{okText}</Button>
                         <Button size="large" onClick={this.props.onCancel}>{cancelText}</Button>
-                    </div>
+                    </div>}
                 </div>
             </Modal >
         )

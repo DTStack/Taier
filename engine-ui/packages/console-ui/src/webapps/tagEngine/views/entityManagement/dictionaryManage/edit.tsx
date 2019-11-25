@@ -3,7 +3,9 @@ import { Form, Input, Select, Card, Button, Tooltip, Icon, message as Message } 
 import Breadcrumb from '../../../components/breadcrumb';
 import SetDictionary from '../../../components/setDictionary';
 import shortid from 'shortid';
-import { uniq } from 'lodash';
+import { uniq, get } from 'lodash';
+import { hashHistory } from 'react-router';
+import API from '../../../api/entity';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -15,6 +17,7 @@ interface IState {
     charset: string;
     fileData: any[];
     splitSymbol: string;
+    editItem: any;
 }
 
 const formItemLayout = {
@@ -31,18 +34,49 @@ const formItemLayout = {
 class DictionaryEdit extends React.Component<any, IState> {
     state: IState = {
         typeOption: [
-            { label: '标签字典', value: 'label' },
-            { label: '维度字典', value: 'dimension' }
+            { label: '标签字典', value: 0 },
+            { label: '维度字典', value: 1 }
         ],
         ruleFile: undefined,
         ruleFileSource: undefined,
         fileData: [],
         splitSymbol: ',',
-        charset: 'UTF-8'
+        charset: 'UTF-8',
+        editItem: undefined
     }
 
     componentDidMount () {
-        console.log('location:', this.props.location);
+        let id = get(this.props.location, 'state.id');
+        if (id) {
+            this.setState({
+                editItem: { id }
+            }, () => {
+                this.getDictDetail();
+            })
+        }
+    }
+
+    getDictDetail = () => {
+        const { editItem } = this.state;
+        API.getDictDetail({
+            dictId: editItem.id
+        }).then((res: any) => {
+            const { data = {}, code } = res;
+            if (code === 1) {
+                const { name, desc, type, dictValueVoList = [] } = data;
+                this.props.form.setFieldsValue({
+                    name,
+                    desc,
+                    type: type == '标签字典' ? 0 : 1,
+                    rule: dictValueVoList.map(item => {
+                        return { name: item.valueName, value: item.value, key: item.id };
+                    })
+                });
+                this.setState({
+                    editItem: data
+                });
+            }
+        })
     }
 
     handleFileChange = (e: any) => {
@@ -98,12 +132,11 @@ class DictionaryEdit extends React.Component<any, IState> {
         this.setState({
             fileData: subArr || []
         })
-
         let ruleData = [];
         subArr.forEach((item: any, index: number) => {
             if (index < 500) {
                 ruleData.push({
-                    name: item[0], value: item[1], key: shortid()
+                    value: item[0], name: item[1], key: shortid()
                 })
             }
         })
@@ -124,9 +157,25 @@ class DictionaryEdit extends React.Component<any, IState> {
     }
 
     handleSava = () => {
+        const { editItem } = this.state;
         this.props.form.validateFields(async (err: any, values: any) => {
             if (!err) {
-                console.log(values);
+                let params = {
+                    id: get(editItem, 'id'),
+                    name: values.name,
+                    desc: values.desc,
+                    type: values.type,
+                    dictValueParamList: values.rule.map(item => {
+                        return { value: item.value, valueName: item.name };
+                    })
+                }
+                API.addOrUpdateDict(params).then((res: any) => {
+                    const { code } = res;
+                    if (code === 1) {
+                        Message.success(get(editItem, 'id') ? '修改成功！' : '新增成功！')
+                        hashHistory.goBack();
+                    }
+                })
             }
         })
     }
@@ -141,7 +190,7 @@ class DictionaryEdit extends React.Component<any, IState> {
     }
 
     render () {
-        const { typeOption, ruleFile } = this.state;
+        const { typeOption, ruleFile, editItem } = this.state;
         const { getFieldDecorator } = this.props.form;
         const breadcrumbNameMap = [
             {
@@ -150,7 +199,7 @@ class DictionaryEdit extends React.Component<any, IState> {
             },
             {
                 path: '',
-                name: '新增字典'
+                name: get(editItem, 'id') ? '编辑字典' : '新增字典'
             }
         ];
         return (
@@ -218,7 +267,7 @@ class DictionaryEdit extends React.Component<any, IState> {
                                     onChange={this.handleFileChange}
                                     style={{ display: 'none' }}
                                 />
-                                <a className="download-btn">下载模版</a>
+                                <a className="download-btn" href={`/api/v1/dict/downModule`}>下载模版</a>
                                 <Tooltip title={(<div>文件要求：<br />&nbsp;&nbsp;1. 仅支持标准的.csv格式文件；<br />&nbsp;&nbsp;2. 文件编码方式仅支持UTF-8；<br />&nbsp;&nbsp;3. 文件大小不超过5M；</div>)}>
                                     <Icon className="notice-icon" type="question-circle" />
                                 </Tooltip>
