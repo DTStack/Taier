@@ -132,12 +132,11 @@ class DictionaryEdit extends React.Component<any, IState> {
         this.setState({
             fileData: subArr || []
         })
-
         let ruleData = [];
         subArr.forEach((item: any, index: number) => {
             if (index < 500) {
                 ruleData.push({
-                    name: item[0], value: item[1], key: shortid()
+                    value: item[0], name: item[1], key: shortid()
                 })
             }
         })
@@ -161,7 +160,6 @@ class DictionaryEdit extends React.Component<any, IState> {
         const { editItem } = this.state;
         this.props.form.validateFields(async (err: any, values: any) => {
             if (!err) {
-                console.log('values', values);
                 let params = {
                     id: get(editItem, 'id'),
                     name: values.name,
@@ -171,7 +169,6 @@ class DictionaryEdit extends React.Component<any, IState> {
                         return { value: item.value, valueName: item.name };
                     })
                 }
-                console.log('params', params);
                 API.addOrUpdateDict(params).then((res: any) => {
                     const { code } = res;
                     if (code === 1) {
@@ -193,7 +190,7 @@ class DictionaryEdit extends React.Component<any, IState> {
     }
 
     render () {
-        const { typeOption, ruleFile } = this.state;
+        const { typeOption, ruleFile, editItem } = this.state;
         const { getFieldDecorator } = this.props.form;
         const breadcrumbNameMap = [
             {
@@ -202,7 +199,7 @@ class DictionaryEdit extends React.Component<any, IState> {
             },
             {
                 path: '',
-                name: '新增字典'
+                name: get(editItem, 'id') ? '编辑字典' : '新增字典'
             }
         ];
         return (

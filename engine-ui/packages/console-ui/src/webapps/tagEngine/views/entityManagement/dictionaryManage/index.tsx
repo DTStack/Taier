@@ -102,9 +102,19 @@ export default class DictionaryManage extends React.PureComponent<any, IState> {
                 break;
             }
             case 'delete': {
-                this.setState({
-                    deleteVisible: true,
-                    deleteItem: record
+                API.dictCanDelete({
+                    dictId: record.id
+                }).then((res: any) => {
+                    const { data, code } = res;
+                    if (code === 1) {
+                        this.setState({
+                            deleteVisible: true,
+                            deleteItem: {
+                                ...record,
+                                hasRefered: !data
+                            }
+                        })
+                    }
                 })
                 break;
             }
