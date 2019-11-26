@@ -45,5 +45,18 @@ export default {
     getTagDetail: { // 标签-标签详情查询接口
         method: 'post',
         url: `/api/v1/tag/getTagDetail`
+    },
+    deleteTag: { // 删除标签
+        method: 'post',
+        url: '/api/v1/tag/deleteTag'
+    },
+    moveTag: { // 移动标签
+        method: 'post',
+        url: '/api/v1/tag/moveTag'
+    },
+    getTagRule: { // 获取原子标签规则
+        method: 'post',
+        url: '/api/v1/tag/getTagRule'
     }
+
 };

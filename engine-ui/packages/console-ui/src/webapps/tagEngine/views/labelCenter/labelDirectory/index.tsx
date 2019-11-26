@@ -42,7 +42,7 @@ export default class LabelDirectory extends React.PureComponent<IProps, IState> 
         API.getTagCate({
             entityId
         }).then(res => { // 获取主键列表
-            const { code, data, message } = res;
+            const { code, data } = res;
             if (code) {
                 let dataList = [];
                 const generateList = data => {
@@ -60,8 +60,6 @@ export default class LabelDirectory extends React.PureComponent<IProps, IState> 
                     data,
                     dataList
                 });
-            } else {
-                Message.error(message)
             }
         })
     }
@@ -141,12 +139,10 @@ export default class LabelDirectory extends React.PureComponent<IProps, IState> 
             entityId,
             tagCateId: id
         }).then(res => { // 获取主键列表
-            const { code, message } = res;
-            if (code) {
+            const { code } = res;
+            if (code === 1) {
                 Message.success('删除成功！');
                 this.getTagCate();
-            } else {
-                Message.error(message)
             }
         })
     }

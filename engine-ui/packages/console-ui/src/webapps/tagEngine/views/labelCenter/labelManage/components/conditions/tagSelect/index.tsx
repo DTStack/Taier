@@ -12,19 +12,15 @@ interface IProps {
 }
 
 export class TagSelect extends React.Component<IProps, {}> {
-    onHandleClick = (e: any) => {
-        const target = e.target;
-        if (target.getAttribute('class') == 'normal') {
-            const data = target.getAttribute('ref');
-            const value = JSON.parse(data);
-            this.props.onChange(value)
-        }
+    onHandleClick = (value) => {
+        this.props.onChange(value == this.props.value ? '' : value)
     }
     render () {
         const { option = [], value } = this.props;
-        return (<div className="tagSelect" onClick={this.onHandleClick}>
+        console.log(option)
+        return (<div className="tagSelect">
             {
-                option.map((item: any) => <span key={item.value} ref={ JSON.stringify(item) } className={classnames('normal', {
+                option.map((item: any) => <span key={item.value} onClick={() => this.onHandleClick(item.value)} className={classnames('normal', {
                     active: value == item.value
                 })}>{item.label}</span>)
             }

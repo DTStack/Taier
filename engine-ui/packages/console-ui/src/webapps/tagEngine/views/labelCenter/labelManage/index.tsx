@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Input, Button, Modal, Select } from 'antd';
+import { Input, Button, Select } from 'antd';
 import TableFilter from './components/tableFilter/index';
 import { Conditions } from './components/conditions';
 import './style.scss';
@@ -10,50 +10,53 @@ interface IProps {
     router?: any;
 }
 interface IState {
-    type: string;
-    visible: boolean;
-    moveVisible: boolean;
+    searchValue: string;
+    tagSelect: any[];
+    entityId: number;
+    serachParams: {
+        searchValue: string;
+        tagSelect: any[];
+    };
 }
 
 export default class LabelManage extends React.PureComponent<IProps, IState> {
     state: IState = {
-        visible: false,
-        moveVisible: false,
-        type: '0'
+        searchValue: '',
+        tagSelect: [],
+        serachParams: {
+            searchValue: '',
+            tagSelect: []
+        },
+        entityId: 24
     };
     onHandleClick = () => {
         this.props.router.push('/createLabel')
     };
-    componentDidMount () {
-        console.log(this.props);
-    }
-    handleOk = () => {
-        this.setState({
-            visible: false
-        })
-    };
-    onHandleMove = () => {
-        this.setState({
-            moveVisible: true
-        })
-    }
-    onHandleCancelMove = (type: 'ok'|'cancel') => {
-        this.setState({
-            moveVisible: false
-        })
-    }
-    onHandleDelete = () => {
-        Modal.confirm({
-            title: '',
-            content: '确定删除此目录？',
-            okText: '删除',
-            cancelText: '取消'
-        });
-    }
     handleChange = () => {
 
     }
+    onChangeSearch = (e) => {
+        const value = e.target.value;
+        this.setState({
+            searchValue: value
+        })
+    }
+    onSearch = (value) => {
+        const { serachParams } = this.state;
+        this.setState({
+            searchValue: value,
+            serachParams: Object.assign({}, serachParams, { searchValue: value })
+        })
+    }
+    onChangeTagSelect = (value) => {
+        const { serachParams } = this.state;
+        this.setState({
+            tagSelect: value,
+            serachParams: Object.assign({}, serachParams, { tagSelect: value })
+        })
+    }
     render () {
+        const { searchValue, tagSelect, serachParams, entityId } = this.state;
         return (
             <div className="labelManage">
                 <div className="title_wrap">
@@ -70,14 +73,16 @@ export default class LabelManage extends React.PureComponent<IProps, IState> {
                         <Search
                             placeholder="搜索标签名称"
                             className="search"
-                            onSearch={value => console.log(value)}
+                            value={searchValue}
+                            onChange={this.onChangeSearch}
+                            onSearch={this.onSearch}
                         />
                         <Button type="primary" onClick={this.onHandleClick}>新建标签</Button>
                     </div>
                 </div>
-                <Conditions/>
+                <Conditions tagSelect={tagSelect} onChange={this.onChangeTagSelect}/>
                 <div className="draggable-wrap-table">
-                    <TableFilter/>
+                    <TableFilter entityId={entityId} params={serachParams}/>
                 </div>
             </div>
         );

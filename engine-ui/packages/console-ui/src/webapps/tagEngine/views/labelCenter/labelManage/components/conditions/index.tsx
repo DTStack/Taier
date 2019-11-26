@@ -1,40 +1,103 @@
 import * as React from 'react';
+import { message as Message } from 'antd';
 import { TagSelect } from './tagSelect';
+import { API } from '../../../../../api/apiMap';
 import './style.scss';
 
 interface IProps {
-
+    tagSelect: any[];
+    onChange: (value: any[]) => void;
 }
 interface IState {
-
+    entityId: string;
+    oneOption: any[];
+    twoOption: any[];
+    threeOption: any[];
 }
 export class Conditions extends React.Component<IProps, IState> {
     state: IState = {
-
+        entityId: '24',
+        oneOption: [],
+        twoOption: [],
+        threeOption: []
     }
-    onChange = (value: {label: string; value: string|number}) => {
-        console.log(value);
+    onChange = (value: string, level: number) => {
+        const { tagSelect } = this.props;
+        let newTag = [];
+        if (level == 1) {
+            newTag = value ? [value] : []
+        } else if (level == 2) {
+            newTag = value ? [tagSelect[0], value] : tagSelect
+        } else {
+            newTag = value ? [tagSelect[0], tagSelect[1], value] : tagSelect
+        }
+        value && level != 3 && this.getSubTagCate(value, level);
+        this.props.onChange(newTag)
+    }
+    componentDidMount () {
+        this.getSubTagCate('-1', 0);
+    }
+    getSubTagCate = (tagCateId, level: number) => {
+        const { entityId } = this.state;
+        API.getSubTagCate({
+            tagCateId: tagCateId,
+            entityId
+        }).then((res) => {
+            const { data, code, message } = res;
+            if (code == 1) {
+                let options = data.map(item => Object.assign({}, { label: item.cateName, value: item.tagCateId }));
+                if (level == 0) {
+                    this.setState({
+                        oneOption: options,
+                        twoOption: [],
+                        threeOption: []
+                    });
+                } else if (level == 1) {
+                    this.setState({
+                        twoOption: options,
+                        threeOption: []
+                    });
+                } else {
+                    this.setState({
+                        threeOption: options
+                    });
+                }
+            } else {
+                Message.error(message)
+            }
+        })
     }
     render () {
+        const { oneOption, twoOption, threeOption } = this.state;
+        const { tagSelect } = this.props;
         return (<div className="conditions">
             <div className="condition-item">
                 <div className="row-label">一级分类</div>
                 <div className="row-content">
-                    <TagSelect option={[{ label: '默认分组', value: '0' }, { label: '人群属性', value: '1' }, { label: '行为属性', value: '1' }]} value='0' onChange={this.onChange}/>
+                    <TagSelect option={oneOption} value={tagSelect[0]} onChange={(value) => this.onChange(value, 1)}/>
                 </div>
             </div>
-            <div className="condition-item">
-                <div className="row-label">二级分类</div>
-                <div className="row-content">
-                    <TagSelect option={[{ label: '年龄属性', value: '0' }]} value='0' onChange={this.onChange}/>
-                </div>
-            </div>
-            <div className="condition-item">
-                <div className="row-label">三级分类</div>
-                <div className="row-content">
-                    <TagSelect option={[{ label: '年龄标签', value: '0' }, { label: '节段性运营标签', value: '1' }]} value='0' onChange={this.onChange}/>
-                </div>
-            </div>
+            {
+                twoOption.length > 0 && tagSelect[0] && (
+                    <div className="condition-item">
+                        <div className="row-label">二级分类</div>
+                        <div className="row-content">
+                            <TagSelect option={twoOption} value={tagSelect[1]} onChange={(value) => this.onChange(value, 2)}/>
+                        </div>
+                    </div>
+                )
+            }
+            {
+                threeOption.length > 0 && tagSelect[1] && (
+                    <div className="condition-item">
+                        <div className="row-label">三级分类</div>
+                        <div className="row-content">
+                            <TagSelect option={threeOption} value={tagSelect[2]} onChange={(value) => this.onChange(value, 3)}/>
+                        </div>
+                    </div>
+                )
+            }
+
         </div>)
     }
 }

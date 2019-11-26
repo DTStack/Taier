@@ -1,10 +1,18 @@
 import * as React from 'react';
-import { Table, Select } from 'antd';
+import { Table, Select, message as Message, Popconfirm } from 'antd';
 import { Link } from 'react-router';
+import { API } from '../../../../../api/apiMap';
+import MoveTreeNode from '../moveTreeNode';
+
 import './style.scss';
 
 interface IProps {
     history?: any;
+    params: {
+        searchValue: string;
+        tagSelect: any[];
+    };
+    entityId: number;
 }
 interface IState {
     loading: boolean;
@@ -13,7 +21,11 @@ interface IState {
     total: number;
     dataSource: any;
     visible: boolean;
-
+    tagStatus: string;
+    tagType: string;
+    order: string;
+    field: string;
+    tagId: number;
 }
 const Option = Select.Option;
 export default class TableFilter extends React.PureComponent<
@@ -26,84 +38,165 @@ IState
         pageSize: 10,
         total: 100,
         visible: false,
-        dataSource: []
+        tagStatus: '-1',
+        tagType: '-1',
+        dataSource: [],
+        order: '',
+        field: '',
+        tagId: null
     };
     componentDidMount () {
         this.loadMainData();
     }
+    componentDidUpdate (preProps) {
+        const { params } = this.props;
+        if (params != preProps.params) {
+            this.setState({
+                pageNo: 1,
+                pageSize: 10,
+                total: 100,
+                visible: false,
+                tagStatus: '-1',
+                tagType: '-1',
+                dataSource: []
+            })
+            this.loadMainData();
+        }
+    }
     loadMainData () {
-        // const {pageNo,pageSize} = this.state;
-        this.setState({
-            dataSource: [{
-                id: 1,
-                tagName: '年龄',
-                status: '正常运行',
-                num: 100
-            },
-            {
-                id: 2,
-                tagName: '年龄',
-                status: '正常运行',
-                num: 100
+        const { pageNo, pageSize, tagType, tagStatus, order, field } = this.state;
+        const { params, entityId } = this.props;
+        const { searchValue, tagSelect } = params;
+        API.getTagList({
+            entityId,
+            tagStatus: tagType,
+            tagType: tagStatus,
+            search: searchValue,
+            current: pageNo,
+            size: pageSize,
+            tagCateId: tagSelect.length ? tagSelect[0] : null,
+            orders: [{
+                field: field,
+                asc: order != 'descend'
             }]
+        }).then(res => {
+            const { data, code } = res;
+            if (code === 1) {
+                this.setState({
+                    dataSource: data.contentList,
+                    total: data.total,
+                    loading: false
+                })
+            }
         })
     }
-    handleChange = () => {
+    handleChange = (value, type) => {
+        let { tagType, tagStatus } = this.state;
+        if (type == 'tagType') {
+            tagType = value;
+        } else {
+            tagStatus = value
+        }
         this.setState({
             pageNo: 1,
             pageSize: 10,
-            loading: true
+            loading: true,
+            tagType,
+            tagStatus
         })
         this.loadMainData();
     }
     onTableChange = (pagination: any, filters: any, sorter: any) => {
         const { current, pageSize } = pagination;
+        const { order = '', field = '' } = sorter;
         this.setState(
             {
                 pageNo: current,
                 pageSize: pageSize,
-                loading: true
+                loading: true,
+                order,
+                field
             },
             () => {
                 this.loadMainData();
             }
         );
     };
+    deleteTag = (id) => { // 删除标签
+        API.deleteTag({
+            tagId: id
+        }).then(res => {
+            const { code } = res;
+            if (code === 1) {
+                Message.success('删除成功！');
+                this.loadMainData();
+            }
+        })
+    }
+    onHandleMove = (id) => {
+        this.setState({
+            visible: true,
+            tagId: id
+        })
+    }
+    onHandleCancelMove = (type) => {
+        if (type == 'ok') {
+            this.loadMainData()
+        }
+        this.setState({
+            visible: false,
+            tagId: null
+        })
+    }
     render () {
-        const { pageNo, pageSize, loading, total, dataSource } = this.state;
+        const { pageNo, pageSize, loading, total, dataSource, tagStatus, tagType, visible, tagId } = this.state;
+        const { entityId } = this.props;
         const columns = [
             {
                 title: '标签名',
                 dataIndex: 'tagName',
                 key: 'tagName',
-                render: (text: any) => {
-                    return <Link to='/atomicLabelDetails'>{text}</Link>
+                render: (text: any, record) => {
+                    const { tagId, entityId } = record
+                    return <Link to={
+                        {
+                            pathname: '/labelDetails',
+                            state: { tagId, entityId }
+                        }
+                    }>{text}</Link>
                 }
             },
             {
                 title: '状态',
-                dataIndex: 'status',
-                key: 'status'
+                dataIndex: 'tagStatus',
+                key: 'tagStatus'
+            },
+            {
+                title: '标签类型',
+                dataIndex: 'tagType',
+                key: 'tagType'
             },
             {
                 title: '样本数量',
-                dataIndex: 'num',
-                key: 'num',
+                dataIndex: 'sampleNum',
+                key: 'sampleNum',
                 sorter: true
             },
             {
                 title: '操作',
-                dataIndex: 'num',
-                key: 'num',
+                dataIndex: 'tagId',
+                key: 'tagId',
                 width: 220,
-                render: () => {
+                render: (id) => {
                     return (
                         <div>
                             <a>编辑</a>
                             <span className="ant-divider" />
-                            <a>移动</a>
+                            <a onClick={() => this.onHandleMove(id)}>移动</a>
                             <span className="ant-divider" />
-                            <a>删除</a>
+                            <Popconfirm placement="top" title="确定删除此标签？" onConfirm={() => this.deleteTag(id)}>
+                                <a >删除</a>
+                            </Popconfirm>
                         </div>
                     );
                 }
@@ -111,23 +204,24 @@ IState
         ];
         return (
             <div className="table-filter">
-                <div className="title">已选择200个标签</div>
+                <div className="title">已选择{`${total}`}个标签</div>
                 <div className="table_filter_content">
                     <div className="select_wrap">
                         <div className="select_item">
                             <span className="label">标签状态：</span>
-                            <Select defaultValue="全部" style={{ width: 120 }} onChange={this.handleChange}>
-                                <Option value="jack">全部</Option>
-                                <Option value="lucy">Lucy</Option>
-                                <Option value="Yiminghe">yiminghe</Option>
+                            <Select value={tagStatus} style={{ width: 120 }} onChange={(value) => this.handleChange(value, 'tagStatus')}>
+                                <Option value="-1">全部</Option>
+                                <Option value="0">正常</Option>
+                                <Option value="1">异常</Option>
                             </Select>
                         </div>
                         <div className="select_item">
                             <span className="label">标签类型：</span>
-                            <Select defaultValue="全部" style={{ width: 120 }} onChange={this.handleChange}>
-                                <Option value="jack">全部</Option>
-                                <Option value="lucy">Lucy</Option>
-                                <Option value="Yiminghe">yiminghe</Option>
+                            <Select value={tagType} style={{ width: 120 }} onChange={(value) => this.handleChange(value, 'tagType')}>
+                                <Option value="-1">全部</Option>
+                                <Option value="0">原子标签</Option>
+                                <Option value="1">衍生标签</Option>
+                                <Option value="2">自定义标签</Option>
                             </Select>
                         </div>
                     </div>
@@ -135,7 +229,7 @@ IState
                         dataSource={dataSource}
                         columns={columns}
                         loading={loading}
-                        rowKey="id"
+                        rowKey="tagId"
                         onChange={this.onTableChange}
                         pagination={{
                             current: pageNo,
@@ -151,6 +245,8 @@ IState
                         }}
                     />
                 </div>
+                <MoveTreeNode id={tagId} entityId={entityId} visible={visible} handleOk={() => this.onHandleCancelMove('ok')} handleCancel={() => this.onHandleCancelMove('cancel')}/>
+
             </div>
         );
     }

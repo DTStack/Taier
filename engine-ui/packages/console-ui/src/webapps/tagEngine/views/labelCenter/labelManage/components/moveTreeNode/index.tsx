@@ -8,10 +8,9 @@ const { Search } = Input;
 export interface IProps {
     title?: string;
     visible: boolean;
-    data: any[];
     handleOk: () => void;
     handleCancel: () => void;
-    id: string;
+    id: string|number;
     entityId?: string | number;
 }
 
@@ -31,30 +30,36 @@ class MoveTreeNode extends React.PureComponent<IProps, IState> {
         data: []
     };
     static defaultProps = {
-        title: '选择目录'
+        title: '移动标签'
     }
-    static getDerivedStateFromProps (nextProps, prevState) {
-        const { data, visible } = nextProps;
-        if (visible && data != prevState.data) {
-            let dataList = [];
-            const generateList = data => {
-                for (let i = 0; i < data.length; i++) {
-                    const node = data[i];
-                    const { tagCateId, cateName } = node;
-                    dataList.push({ tagCateId, cateName });
-                    if (node.children) {
-                        generateList(node.children);
+    componentDidMount () {
+        this.getTagCate();
+    }
+    getTagCate = () => { // 查询标签层级目录
+        const { entityId } = this.props;
+        API.getTagCate({
+            entityId
+        }).then(res => { // 获取主键列表
+            const { code, data } = res;
+            if (code == 1) {
+                let dataList = [];
+                const generateList = data => {
+                    for (let i = 0; i < data.length; i++) {
+                        const node = data[i];
+                        const { tagCateId, cateName } = node;
+                        dataList.push({ tagCateId, cateName });
+                        if (node.children) {
+                            generateList(node.children);
+                        }
                     }
-                }
-            };
-            generateList(data);
-            return {
-                dataList,
-                data
+                };
+                generateList(data);
+                this.setState({
+                    data,
+                    dataList
+                });
             }
-        } else {
-            return null
-        }
+        })
     }
     getParentKey = (key, tree) => {
         let parentKey;
@@ -78,8 +83,7 @@ class MoveTreeNode extends React.PureComponent<IProps, IState> {
     };
     onChange = (e: any) => {
         const { value } = e.target;
-        const { data } = this.props;
-        const { dataList } = this.state;
+        const { dataList, data } = this.state;
         const expandedKeys = dataList
             .map(item => {
                 if (item.cateName.indexOf(value) > -1) {
@@ -95,11 +99,11 @@ class MoveTreeNode extends React.PureComponent<IProps, IState> {
         });
     };
     onSelect = (selectedKeys) => {
-        this.moveTagCate(selectedKeys[0])
+        this.moveTag(selectedKeys[0])
     }
-    moveTagCate = (targetTagCateId) => { // 标签引擎-新增/重命名标签层级
+    moveTag = (targetTagCateId) => { // 标签引擎-新增/重命名标签层级
         const { entityId, id } = this.props;
-        API.moveTagCate({
+        API.moveTag({
             entityId,
             targetTagCateId: targetTagCateId,
             tagCateId: id
@@ -158,8 +162,8 @@ class MoveTreeNode extends React.PureComponent<IProps, IState> {
         });
     }
     render () {
-        const { searchValue, expandedKeys, autoExpandParent } = this.state;
-        const { visible, title, data } = this.props;
+        const { searchValue, expandedKeys, autoExpandParent, data } = this.state;
+        const { visible, title } = this.props;
         return (
             <Modal
                 visible={visible}
