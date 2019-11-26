@@ -2,7 +2,8 @@
 import * as React from 'react';
 import { cloneDeep, mapValues, findKey } from 'lodash';
 import { connect } from 'react-redux';
-import { Form, Input, Row, Col, Icon, Button, message, Card, Tabs, Modal, Upload, Tooltip, Switch } from 'antd';
+import { Form, Input, Row, Col, Icon, Button, message, Card, Tabs,
+    Modal, Upload, Tooltip, Switch, Select } from 'antd';
 import Api from '../../../api/console'
 import moment from 'moment'
 
@@ -35,6 +36,7 @@ import AddCommModal from '../../../components/addCommModal';
 import RequiredIcon from '../../../components/requiredIcon';
 import TestRestIcon from '../../../components/testResultIcon';
 
+const Option = Select.Option;
 const FormItem = Form.Item;
 const TabPane = Tabs.TabPane;
 const confirm = Modal.confirm;
@@ -83,6 +85,7 @@ class EditCluster extends React.Component<any, any> {
         extDefaultValue: {},
         fileHaveChange: false,
         checked: false,
+        isZookeeper: false,
         allComponentConf: {},
         engineTypeKey: ENGINE_TYPE.HADOOP, // 默认hadoop engineType
         flinkPrometheus: undefined, // 配置Prometheus参数
@@ -113,10 +116,15 @@ class EditCluster extends React.Component<any, any> {
         let copyComp = cloneDeep(compConf);
         for (let key in copyComp) {
             if (key == COMPONEMT_CONFIG_KEYS.SPARK) {
-                copyComp[key] = toChsKeys(copyComp[key] || {}, SPARK_KEY_MAP)
+                const typeArr = copyComp[key].typeName.split('-');
+                copyComp[key] = Object.assign({}, toChsKeys(copyComp[key] || {}, SPARK_KEY_MAP), {
+                    typeName: `${typeArr[0]}-${typeArr[1]}`
+                })
             }
             if (key == COMPONEMT_CONFIG_KEYS.FLINK) {
-                copyComp[key] = toChsKeys(copyComp[key] || {}, FLINK_KEY_MAP)
+                copyComp[key] = Object.assign({}, toChsKeys(copyComp[key] || {}, FLINK_KEY_MAP), {
+                    typeName: copyComp[key].typeName.split('-')[0]
+                })
             }
             if (key == COMPONEMT_CONFIG_KEYS.LEARNING) {
                 copyComp[key] = myUpperCase(copyComp[key])
@@ -215,6 +223,21 @@ class EditCluster extends React.Component<any, any> {
                 }
             )
     }
+
+    // 更新hadoop版本
+    updateHadoopVersion = () => {
+        const { location } = this.props;
+        const params = location.state || {};
+        const hadoopVersion = this.props.form.getFieldValue('hadoopVersion');
+        Api.updateHadoopVersion({
+            clusterId: params.cluster.id || params.cluster.clusterId,
+            hadoopVersion: hadoopVersion
+        }).then(res => {
+            if (res.code === 1) {
+                message.success('集群版本保存成功！')
+            }
+        })
+    }
     // 填充表单数据
     getDataList (engineType?: any) {
         const { location } = this.props;
@@ -261,9 +284,14 @@ class EditCluster extends React.Component<any, any> {
                             flinkData: flinkData
                         })
                         // 判断是有Prometheus参数
-                        if (flinkData && flinkData.hasOwnProperty('gatewayHost')) {
+                        if (flinkData && flinkData.hasOwnProperty('metrics.reporter.promgateway.class')) {
                             this.setState({
                                 checked: true
+                            })
+                        }
+                        if (flinkData && flinkData.hasOwnProperty('high-availability.zookeeper.quorum')) {
+                            this.setState({
+                                isZookeeper: true
                             })
                         }
                         this.setFormDataConf(activeKey, componentConf);
@@ -889,11 +917,10 @@ class EditCluster extends React.Component<any, any> {
     }
 
     deleteComponent (component: any) {
-        // const { engineTypeKey } = this.state;
         const { componentTypeCode, componentName, componentId } = component;
         if (componentTypeCode == COMPONENT_TYPE_VALUE.HDFS ||
             componentTypeCode == COMPONENT_TYPE_VALUE.YARN ||
-            componentTypeCode == COMPONENT_TYPE_VALUE.LIBRASQL) {
+            componentTypeCode == COMPONENT_TYPE_VALUE.LIBRASQL || COMPONENT_TYPE_VALUE.SFTP) {
             message.error(`${componentName}不允许删除！`)
         } else {
             Api.deleteComponent({
@@ -957,12 +984,12 @@ class EditCluster extends React.Component<any, any> {
         const learningExtParams = this.getCustomParams(formValues, 'learning');
         const hiveServerExtParams = this.getCustomParams(formValues, 'hiveServer');
         const dtyarnshellExtParams = this.getCustomParams(formValues, 'dtyarnshell');
-        const libraExtParams = this.getCustomParams(formValues, 'libra')
+        const libraExtParams = this.getCustomParams(formValues, 'libra');
         const learningTypeName: any = {
-            typeName: 'learning'
+            typeName: `learning`
         }
         const dtyarnshellTypeName: any = {
-            typeName: 'dtyarnshell'
+            typeName: `dtscript`
         }
         // md5zip 随hdfs组件一起保存
         componentConf['hadoopConf'] = zipConfig.hadoopConf;
@@ -973,7 +1000,7 @@ class EditCluster extends React.Component<any, any> {
         componentConf['impalaSqlConf'] = formValues.impalaSqlConf || {};
         componentConf['hiveServerConf'] = { ...formValues.hiveServerConf, ...hiveServerExtParams } || {};
         componentConf['sparkConf'] = { ...toChsKeys(formValues.sparkConf || {}, SPARK_KEY_MAP_DOTS), ...sparkExtParams };
-        componentConf['flinkConf'] = { ...toChsKeys(formValues.flinkConf || {}, FLINK_KEY_MAP_DOTS), ...flinkExtParams };
+        componentConf['flinkConf'] = { ...toChsKeys({ ...formValues.flinkConf } || {}, FLINK_KEY_MAP_DOTS), ...flinkExtParams };
         componentConf['learningConf'] = { ...learningTypeName, ...myLowerCase(formValues.learningConf), ...learningExtParams };
         componentConf['dtyarnshellConf'] = { ...dtyarnshellTypeName, ...toChsKeys(formValues.dtyarnshellConf || {}, DTYARNSHELL_KEY_MAP_DOTS), ...dtyarnshellExtParams };
         componentConf['libraConf'] = { ...formValues.libraConf, ...libraExtParams };
@@ -1035,6 +1062,10 @@ class EditCluster extends React.Component<any, any> {
             }
         })
     }
+    onChangeZookeeper (value: string) {
+        /* eslint-disable-next-line */
+        this.setState({ isZookeeper: value == 'NONE' ? false : true })
+    }
     onCancel () {
         this.setState({
             addEngineVisible: false
@@ -1045,17 +1076,6 @@ class EditCluster extends React.Component<any, any> {
             addComponentVisible: false
         })
     }
-    // getInputVal (type: string, e: any) {
-    //     let tempState;
-    //     if (type == 'gatewayHostValue') {
-    //         tempState = 'gatewayHostValue'
-    //     } else if (type == 'gatewayPortValue') {
-    //         tempState = 'gatewayPortValue'
-    //     } else if (type == 'gatewayJobNameValue') {
-    //         tempState = 'gatewayJobNameValue'
-    //     }
-    //     this.setState({ [tempState]: e.target.value })
-    // }
     /**
      * LIBA不显示集群信息
      */
@@ -1093,6 +1113,32 @@ class EditCluster extends React.Component<any, any> {
                         </FormItem>
                     </Col>
                 </Row>
+                <Row>
+                    <Col span={14} pull={2}>
+                        <FormItem
+                            label="集群版本"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('hadoopVersion', {
+                                rules: [{
+                                    required: true,
+                                    message: '请选择集群版本'
+                                }],
+                                initialValue: clusterData.hadoopVersion || 'hadoop2'
+                            })(
+                                <Select style={{ width: '200px', marginRight: '10px' }} disabled={isView}>
+                                    <Option value='hadoop2' key='hadoop2'>hadoop2</Option>
+                                    <Option value='hadoop3' key='hadoop3'>hadoop3</Option>
+                                    <Option value='HW' key='HW'>HW</Option>
+                                </Select>
+
+                            )}
+                            <a onClick={() => {
+                                this.updateHadoopVersion();
+                            }} {...{ disabled: isView }}>保存</a>
+                        </FormItem>
+                    </Col>
+                </Row>
             </div>
             {
                 isView ? null : (
@@ -1113,11 +1159,13 @@ class EditCluster extends React.Component<any, any> {
                                                         ? <label
                                                             style={{ lineHeight: '28px' }}
                                                             className="ant-btn disble"
-                                                        >选择文件</label>
+                                                        >上传文件</label>
                                                         : <label
-                                                            style={{ lineHeight: '28px' }}
+                                                            style={{ lineHeight: '28px', textIndent: 'initial' }}
                                                             className="ant-btn"
-                                                            htmlFor="myOfflinFile">选择文件</label>
+                                                            htmlFor="myOfflinFile">
+                                                            <span><Icon type="upload" />上传文件</span>
+                                                        </label>
                                                 }
                                                 {uploadLoading ? <Icon className="blue-loading" type="loading" /> : null}
                                                 <span> {file.files && file.files[0] && file.files[0].name}</span>
@@ -1163,11 +1211,13 @@ class EditCluster extends React.Component<any, any> {
                                                         ? <label
                                                             style={{ lineHeight: '28px' }}
                                                             className="ant-btn disble"
-                                                        >选择文件</label>
+                                                        >上传文件</label>
                                                         : <label
-                                                            style={{ lineHeight: '28px' }}
+                                                            style={{ lineHeight: '28px', textIndent: 'initial' }}
                                                             className="ant-btn"
-                                                            htmlFor="kerberosFiles">选择文件</label>
+                                                            htmlFor="kerberosFiles">
+                                                            <span><Icon type="upload" />上传文件</span>
+                                                        </label>
                                                 }
                                                 {uploadKLoading ? <Icon className="blue-loading" type="loading" /> : null}
                                                 {/* <span> {kfile.files && kfile.files.length > 0 && kfile.files[0].name}</span> */}
@@ -1373,7 +1423,7 @@ class EditCluster extends React.Component<any, any> {
      * 渲染 Component Config
      */
     renderComponentConf = (component: any) => {
-        const { checked, securityStatus, zipConfig } = this.state;
+        const { checked, securityStatus, zipConfig, isZookeeper } = this.state;
         const { getFieldDecorator, getFieldValue, setFieldsValue, resetFields } = this.props.form;
         const { mode } = this.props.location.state || {} as any;
         const isView = mode == 'view';
@@ -1462,6 +1512,8 @@ class EditCluster extends React.Component<any, any> {
                         resetFields={resetFields}
                         securityStatus={securityStatus}
                         checked={checked}
+                        isZookeeper={isZookeeper}
+                        onChangeZookeeper={this.onChangeZookeeper.bind(this)}
                         changeCheckbox={this.changeCheckbox.bind(this)}
                         customView={(
                             <div>

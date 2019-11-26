@@ -21,10 +21,10 @@ export default class SparkConfig extends React.Component<any, any> {
                                 required: true,
                                 message: '请选择Spark版本'
                             }],
-                            initialValue: 'spark_yarn'
+                            initialValue: 'spark-yarn'
                         })(
                             <Select disabled={isView} style={{ width: '100px' }}>
-                                <Option value="spark_yarn">2.X</Option>
+                                <Option value="spark-yarn">2.X</Option>
                             </Select>
                         )}
                     </FormItem>
