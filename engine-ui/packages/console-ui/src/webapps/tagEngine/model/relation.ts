@@ -6,9 +6,9 @@ export interface IRelationEntity<T = any> extends INode {
 }
 
 export interface IRelation {
-    id: number;
-    name: string;
-    description: string;
+    id?: number;
+    name?: string;
+    description?: string;
     /**
      * 关联实体
      */

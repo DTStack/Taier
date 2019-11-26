@@ -7,7 +7,6 @@ import {
 } from 'antd';
 
 import MxFactory from 'widgets/mxGraph';
-// import MyEdgeStyle from 'widgets/mxGraph/mxEdgeStyle';
 import { numOrStr } from 'typing';
 
 import MyIcon from '../icon';
@@ -28,7 +27,7 @@ export interface INode<T = {}> {
     target?: INode;
     data?: T;
     rowIndex?: number;
-    position?: {
+    geometry?: {
         x: number;
         y: number;
     };
@@ -60,10 +59,18 @@ interface IProps<T = any> {
      * 附加 class
      */
     attachClass?: string;
+
+    /**
+     * 事件注册
+     */
+    registerEvent?: (graph: any) => void;
+    /**
+     * 事件上下文菜单
+     */
+    registerContextMenu?: (graph: any) => void;
 }
 
 const Mx = MxFactory.create();
-// const myEdgeStyle = MyEdgeStyle(Mx);
 
 const {
     mxGraph,
@@ -94,10 +101,11 @@ const VertexSize = {
     height: 0
 }
 
-function componentSelect (data: any, value: numOrStr, id?: numOrStr, className?: numOrStr) {
+function componentSelect (data: any, value: numOrStr, id?: numOrStr, className?: numOrStr, placeholder?: string, index?: number | string) {
     return `
-        <select id="${id}" class="${className}" value="${value}" title="${value}">
-            ${data && data.map((o: any) => `<option title="${o.id}" value="${o.id}">${o.name}</option>`)}
+        <select id="${id}" value="${value}" placeholder="${placeholder}" class="${className}" data-index=${index}>
+            ${placeholder ? `<option selected value="" data-default>${placeholder}</option>` : ''}
+            ${data && data.map((o: any) => `<option title="${o.id}" value="${o.id}" selected=${o.id == value}>${o.name}</option>`)}
         </select>
     `;
 }
@@ -108,11 +116,13 @@ function componentSelect (data: any, value: numOrStr, id?: numOrStr, className?:
  */
 function componentVertex (header: string, body: string, footer: boolean = true) {
     return `<div class="vertex">
-        <table class="erd">
-            <tr class="title"><th colspan="2">${header}</th></tr>
-            ${body}
-        </table>
-        ${footer ? '<div class="footer"><button class="btn"><i class="anticon anticon-plus"></i> 添加维度</button></div>' : ''}
+        <header class="title">${header}</header>
+        <div class="vertex-content">
+            <table class="erd">
+                ${body}
+            </table>
+        </div>
+        ${footer ? '<div class="footer"><button class="btn btn-add-col"><i class="anticon anticon-plus"></i> 添加维度</button></div>' : ''}
     </div>`
 }
 
@@ -120,10 +130,10 @@ function componentVertex (header: string, body: string, footer: boolean = true) 
 const getRowY = function (state: any, tr: any) {
     var s = state.view.scale;
     var div = tr.parentNode.parentNode.parentNode;
-    var offsetTop = parseInt(div.style.top || div.offsetTop);
+    var offsetTop = parseInt(div.style.top);
     var y = state.y + (tr.offsetTop + tr.offsetHeight / 2 - div.scrollTop + offsetTop) * s;
     y = Math.min(state.y + state.height, Math.max(state.y + offsetTop * s, y));
-
+    console.log('getRow', tr, div, offsetTop, y);
     return y;
 };
 
@@ -141,52 +151,69 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
         this.graph = '';
         this.initGraphEditor(this.Container);
         this.renderData(this.props.data);
+        this.layout();
     }
 
-    renderData = (data: INode[]) => {
-        const graph = this.graph;
-        const rootCell = this.graph.getDefaultParent();
-        const doc = mxUtils.createXmlDocument();
-        const model = graph.getModel();
-        const cellMap = this._cacheCells;
-        if (data) {
-            model.beginUpdate();
-            for (let i = 0; i < data.length; i++) {
-                const item = data[i];
-                if (item.vertex) {
-                    const cell = graph.insertVertex(
-                        rootCell,
-                        null,
-                        item,
-                        item.position.x,
-                        item.position.y,
-                        VertexSize.width,
-                        VertexSize.height,
-                        ''
-                    )
-                    // Updates the height of the cell (override width
-                    // for table width is set to 100%)
-                    graph.updateCellSize(cell);
-                    cell.geometry.width = VertexSize.width;
-                    cell.geometry.alternateBounds = new mxRectangle(0, 0, VertexSize.width, 27);
-
-                    // cell.data = item.data;
-                    cellMap.set(item.id, cell);
-                } else if (item.edge) {
-                    const source = cellMap.get(item.source.id);
-                    const target = cellMap.get(item.target.id);
-                    const relation = doc.createElement('Relation');
-                    relation.setAttribute('sourceRow', item.source.rowIndex);
-                    relation.setAttribute('targetRow', item.target.rowIndex);
-                    graph.insertEdge(rootCell, null, relation, source, target, '');
-                }
-            }
-            model.endUpdate();
-            this.layout();
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.data !== prevProps.data) {
+            this.renderData(this.props.data);
         }
     }
 
-    convertValueToString = (cell: any) => {
+    renderData = (data: INode[]) => {
+        if (!data || data.length === 0) return;
+        try {
+            const graph = this.graph;
+            const rootCell = this.graph.getDefaultParent();
+            console.log('data:', data, this.props.entities);
+            graph.removeCells(graph.selectAll(rootCell));
+            graph.view.clear();
+            graph.view.refresh();
+            const doc = mxUtils.createXmlDocument();
+            const model = graph.getModel();
+            const cellMap = this._cacheCells;
+            if (data) {
+                model.beginUpdate();
+                for (let i = 0; i < data.length; i++) {
+                    const item = data[i];
+                    if (item.vertex) {
+                        const cell = graph.insertVertex(
+                            rootCell,
+                            null,
+                            item,
+                            item.geometry.x,
+                            item.geometry.y,
+                            VertexSize.width,
+                            VertexSize.height,
+                            ''
+                        );
+                        cell.index = i;
+                        // Updates the height of the cell (override width
+                        // for table width is set to 100%)
+                        graph.updateCellSize(cell);
+                        cell.geometry.width = VertexSize.width;
+                        cell.geometry.alternateBounds = new mxRectangle(0, 0, VertexSize.width, 27);
+
+                        cellMap.set(item.id, cell);
+                    } else if (item.edge) {
+                        const source = cellMap.get(item.source.id);
+                        const target = cellMap.get(item.target.id);
+                        const relation = doc.createElement('Relation');
+                        relation.setAttribute('sourceRow', item.source.rowIndex);
+                        relation.setAttribute('data', item);
+                        relation.setAttribute('targetRow', item.target.rowIndex);
+                        graph.insertEdge(rootCell, null, relation, source, target, '');
+                        // edge.data = item;
+                    }
+                }
+                model.endUpdate();
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    customLabelContent = (cell: any) => {
         const { mode, entities } = this.props;
         if (cell && cell.vertex) {
             const data: INode = cell.value;
@@ -194,12 +221,12 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
                 let content = '';
                 if (mode && mode === GRAPH_MODE.READ) {
                     let columns = '';
-                    data.columns.forEach((o: INode) => columns += `<tr class="erd"><td title="${o.name}">${o.name}</td></tr>`)
+                    data.columns.forEach((o: INode) => columns += `<tr><td title="${o.name}">${o.name}</td></tr>`)
                     content = componentVertex(data.name, columns, false);
                 } else {
-                    const entitiesSelect = componentSelect(entities, data.id, data.id, 'entitiesSelect');
+                    const entitiesSelect = componentSelect(entities, data.id, '', 'relationEntity__select', '请选择实体', cell.index);
                     let columns = '';
-                    data.columns.forEach((o: INode) => columns += `<tr class="erd"><td>${componentSelect(data.columnOptions, o.id, '', 'entitiesColumn')}</td></tr>`)
+                    data.columns.forEach((o: INode, i: number) => columns += `<tr><td>${componentSelect(data.columnOptions, o.id, '', 'relationEntityColumn__tr', '请选择维度', cell.index + '-' + i)}</td></tr>`)
                     content = componentVertex(entitiesSelect, columns);
                 }
                 return content.replace(/[\n]/g, '');
@@ -219,7 +246,7 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
                     overflow: 'hidden'
                 }}
             >
-                <div className={`editor pointer ${attachClass}`}
+                <div id="JS_GRAPH" className={`editor pointer ${attachClass}`}
                     style={{
                         width: '100%',
                         height: '100%'
@@ -300,7 +327,7 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
         // Implements a special perimeter for table rows inside the table markup
         mxGraphView.prototype.updateFloatingTerminalPoint = function (edge: any, start: any, end: any, source: any) {
             var next = this.getNextPoint(edge, end, source);
-            var div = start.text.node.getElementsByTagName('div')[0];
+            var div = start.text.node.getElementsByClassName('vertex-content')[0]; // start.text.node.getElementsByTagName('div')[0];
 
             var x = start.x;
             var y = start.getCenterY();
@@ -377,8 +404,7 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
 
                         if (states[i].absolutePoints.length < 5) {
                             states[i].absolutePoints.splice(2, 0, new mxPoint(x, y));
-                        }
-                        else {
+                        } else {
                             states[i].absolutePoints[2] = new mxPoint(x, y);
                         }
 
@@ -476,7 +502,7 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
         const vertexStyle = this.getDefaultVertexStyle();
         graph.getStylesheet().putDefaultVertexStyle(vertexStyle);
         // 转换value显示的内容
-        graph.convertValueToString = this.convertValueToString;
+        graph.getLabel = this.customLabelContent;
 
         // Redefine tooltip
         graph.getTooltip = function (state: any, node: any, x: any, y: any) {
@@ -484,19 +510,6 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
                 return `${node.textContent}`
             }
         }
-
-        // Overrides connectable state
-        // graph.isCellConnectable = function (cell: any) {
-        //     return !this.isCellCollapsed(cell);
-        // };
-
-        // Scroll events should not start moving the vertex
-        graph.cellRenderer.isLabelEvent = function (state: any, evt: any) {
-            var source = mxEvent.getSource(evt);
-
-            return state.text != null && source != state.text.node &&
-                source != state.text.node.getElementsByTagName('div')[0];
-        };
 
         // Implements the connect preview style by default edgeStyle
         graph.connectionHandler.createEdgeState = function (me: any) {
@@ -516,15 +529,16 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
                 // Scrollbars are on the div
                 var s = graph.view.scale;
                 state.text.node.style.overflow = 'hidden';
-                var div = state.text.node.getElementsByTagName('div')[0];
+                var div = state.text.node.getElementsByClassName('vertex-content')[0]; // state.text.node.getElementsByTagName('div')[0];
 
                 if (div != null) {
                     // Adds height of the title table cell
-                    var oh = 1;
+                    var oh = 32;
+                    var footer = 48;
                     div.style.display = 'block';
                     div.style.top = oh + 'px';
                     div.style.width = Math.max(1, Math.round(state.width / s)) + 'px';
-                    div.style.height = Math.max(1, Math.round((state.height / s) + oh)) + 'px';
+                    div.style.height = Math.max(1, Math.round((state.height / s) - (oh + footer))) + 'px';
                 }
             }
         };
@@ -551,8 +565,7 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
                 }
 
                 this.currentRow = rowNumber + 1;
-            }
-            else {
+            } else {
                 target = null;
             }
 
@@ -569,15 +582,12 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
                 var s = state.view.scale;
 
                 icons[0].node.style.visibility = 'visible';
-                icons[0].bounds.x = state.x + target.offsetLeft + Math.min(state.width,
-                    target.offsetWidth * s) - this.icons[0].bounds.width - 2;
-                icons[0].bounds.y = state.y - this.icons[0].bounds.height / 2 + (target.offsetTop +
-                    target.offsetHeight / 2 - div.scrollTop + div.offsetTop) * s;
+                icons[0].bounds.x = state.x + target.offsetLeft + Math.min(state.width, target.offsetWidth * s) - this.icons[0].bounds.width - 2;
+                icons[0].bounds.y = state.y - this.icons[0].bounds.height / 2 + (target.offsetTop + target.offsetHeight / 2 - div.scrollTop + div.offsetTop) * s;
                 icons[0].redraw();
 
                 this.currentRowNode = target;
-            }
-            else {
+            } else {
                 icons[0].node.style.visibility = 'hidden';
             }
         };
@@ -590,8 +600,7 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
 
                 if (this.currentRow != null) {
                     this.edgeState.cell.value.setAttribute('targetRow', this.currentRow);
-                }
-                else {
+                } else {
                     this.edgeState.cell.value.setAttribute('targetRow', '0');
                 }
 
@@ -617,6 +626,15 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
 
             return state;
         };
+
+        // 事件注册
+        const { registerEvent, registerContextMenu } = this.props;
+        if (registerEvent) {
+            registerEvent(graph);
+        }
+        if (registerContextMenu) {
+            registerContextMenu(graph);
+        }
     }
 
     // 注册执行布局
@@ -626,12 +644,12 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
         const parent = layoutTarget || graph.getDefaultParent();
         try {
             if (change != null) { change(); }
-            const layout = new mxHierarchicalLayout(graph, 'west');
+            const layout = new mxHierarchicalLayout(graph);
             layout.disableEdgeStyle = false;
             layout.edgeStyle = edgeStyle;
-            layout.interRankCellSpacing = 200;
-            layout.intraCellSpacing = 200;
-            layout.interHierarchySpacing = 200;
+            layout.interRankCellSpacing = 80;
+            layout.intraCellSpacing = 80;
+            layout.interHierarchySpacing = 100;
             layout.execute(parent);
         } catch (e) {
             throw e;
@@ -641,7 +659,7 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
     }
 
     layoutCenter () {
-        this.graph.center(true, true);
+        this.graph.center(true, true, 0.4, 0.4);
     }
 
     layout () {
@@ -662,7 +680,7 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
         let style: any = [];
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         style[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
-        style[mxConstants.STYLE_STROKECOLOR] = 'none';//'#D1E9FF';
+        style[mxConstants.STYLE_STROKECOLOR] = 'none'; // '#D1E9FF';
         style[mxConstants.STYLE_FILLCOLOR] = 'none';
         style[mxConstants.STYLE_FONTCOLOR] = '#333333';
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;

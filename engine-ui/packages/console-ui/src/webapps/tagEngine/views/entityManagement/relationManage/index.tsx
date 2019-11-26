@@ -121,8 +121,8 @@ export default class RelationManage extends React.Component<any, IState> {
             render: (text: any, record: any) => {
                 return (
                     <span key={record.id}>
-                        <a onClick={this.handleOperateData.bind(this, 'detail', record)}>
-                            查看
+                        <a onClick={this.handleOperateData.bind(this, 'edit', record)}>
+                            编辑
                         </a>
                         <span className="ant-divider" />
                         <Popconfirm

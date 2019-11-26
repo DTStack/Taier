@@ -10,7 +10,8 @@
         left: 0px;
         bottom: 0px;
         right: 0px;
-        background: url(/public/tagEngine/img/grid.gif) #f2f7fa;
+        // background: url(/public/tagEngine/img/grid.gif) #f2f7fa;
+        background: url(/public/tagEngine/img/grid.gif) #ffffff;
     }
 
     .editor {
@@ -105,52 +106,58 @@
 .vertex {
 
     width: 100%;
-    height: 100%;
-    background: #f1f1f1;
+    height: 99%;
+    background: #e9f4fe;
     border: 1px solid #D1E9FF;
+    font-size: 12px;
 
-    table {
-        width: inherit;
-        border-collapse: separate;
-        border-spacing: 0;
-        background: #fff;
-    }
-
-    .title {
-        background: #dddddd;
-    }
-
-    table td, table th {
-        letter-spacing: 0;
-        padding-right: 10px;
-        text-align: center;
-    }
-
-    table th {
-        height: 42px;
-        background: #f1f1f1;
-        line-height: 42px;
-        border-bottom: 1px solid #DDDDDD;
-    }
-
-    table td {
-        height: 32px;
-        line-height: 32px;
-        border-bottom: 1px solid #DDDDDD;
-    }
-
-    table select {
+    select {
         background: transparent;
         width: 100%;
-        height: 100%;
-        margin: 0;
-        padding: 0 5px;
         border-radius: 0px;
         border: 0;
     }
 
-    table select option {
-        border-radius: 0;
+    select:active, select:focus {
+        border: 0;
+        outline: 0;
+    }
+
+    table {
+        height: 100%;
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background: #fff;
+
+        select {
+            margin: 5px 0;
+        }
+
+        select option[data-default] {
+            color: #888;
+        }
+
+        td, th {
+            letter-spacing: 0;
+            // padding-right: 10px;
+            text-align: center;
+        }
+
+        td {
+            height: 32px;
+            line-height: 32px;
+            border-bottom: 1px solid #DDDDDD;
+        }
+    }
+
+    .title {
+        background: #dddddd;
+        height: 32px;
+
+        select {
+            margin: 6px 0;
+        }
     }
 
     .footer {
@@ -168,6 +175,7 @@
         font-size: 12px;
         color: #2491F7;
         letter-spacing: 0;
+        cursor: pointer;
     }
 }
 
@@ -224,4 +232,48 @@ td.mxPopupMenuIcon {
 .mxDisabled {
 	opacity: 0.2 !important;
 	cursor:default !important;
+}
+
+
+body div.mxPopupMenu {
+    -webkit-box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.15);
+    -moz-box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.15);
+    position: absolute;
+    background: #FFFFFF;
+    border-radius: 2px;
+    border: 0;
+}
+body table.mxPopupMenu {
+    border-collapse: collapse;
+    margin: 0px;
+}
+body tr.mxPopupMenuItem {
+    color: #666666;
+    cursor: default;
+}
+body td.mxPopupMenuItem {
+    padding: 6px 60px 6px 30px;
+    font-size: 10pt;
+    font-family: PingFangSC-Regular;
+    font-size: 12px;
+    color: #666666;
+    letter-spacing: 0;
+}
+body td.mxPopupMenuIcon {
+    background-color: white;
+    padding: 0px;
+}
+body tr.mxPopupMenuItemHover {
+    background-color: #E6F7FF;;
+    
+    .mxPopupMenuItem {
+        color: #2491F7;
+    }
+}
+table.mxPopupMenu hr {
+    border-top: solid 1px #cccccc;
+}
+table.mxPopupMenu tr {
+    font-size: 4pt;
 }

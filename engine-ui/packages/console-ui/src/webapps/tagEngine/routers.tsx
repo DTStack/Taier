@@ -187,7 +187,7 @@ const routeConfig = [
             },
             {
                 path: '/relationManage/edit/:relationId',
-                component: CreateRelation
+                component: EditRelation
             },
             {
                 path: '/relationManage/detail',

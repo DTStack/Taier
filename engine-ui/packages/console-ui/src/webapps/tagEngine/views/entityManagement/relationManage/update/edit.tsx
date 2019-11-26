@@ -34,7 +34,7 @@ const mockData: IRelationEntity[] = [{
     }],
     vertex: true,
     edge: false,
-    position: {
+    geometry: {
         x: 0,
         y: 0
     },
@@ -63,7 +63,7 @@ const mockData: IRelationEntity[] = [{
     }],
     vertex: true,
     edge: false,
-    position: {
+    geometry: {
         x: 0,
         y: 0
     },
@@ -82,7 +82,7 @@ const mockData: IRelationEntity[] = [{
     name: 'edge',
     vertex: false,
     edge: true,
-    position: {
+    geometry: {
         x: 0,
         y: 0
     },
@@ -102,7 +102,7 @@ const relationMockData: IRelation = {
     id: 1,
     name: 'relation1',
     description: 'This is a relation description.',
-    relationEntities: mockData,
+    relationEntities: mockData
 }
 
 class EditRelation extends React.Component<any, IState> {
@@ -110,19 +110,19 @@ class EditRelation extends React.Component<any, IState> {
         dataSource: relationMockData // [initialEntityNode]
     }
 
-    componentDidMount() {
+    componentDidMount () {
         const { router } = this.props;
         const { relationId } = router.params;
         this.loadRelation(relationId);
     }
 
     loadRelation = async (relationId: number) => {
-       const res = await RelationAPI.getRelation({ relationId });
-       if (res.code === 1) {
-           this.setState({
+        const res = await RelationAPI.getRelation({ relationId });
+        if (res.code === 1) {
+            this.setState({
                 dataSource: res.data
-           })
-       }
+            })
+        }
     }
 
     onEdit = async (dataSource: IRelation) => {
@@ -130,7 +130,7 @@ class EditRelation extends React.Component<any, IState> {
         if (res.code === 1) {
             message.success('添加关系成功！');
         }
-     }
+    }
 
     render () {
         const { dataSource } = this.state;
