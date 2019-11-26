@@ -1,4 +1,8 @@
 export default {
+    selectEntity: { // 实体筛选列表
+        method: 'post',
+        url: `/api/v1/entity/selectEntity`
+    },
     /* ----------------------标签类目-----------------------------------  */
     addOrUpdateTagCate: { // 标签引擎-新增/重命名标签层级
         method: 'post',

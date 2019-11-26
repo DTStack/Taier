@@ -36,13 +36,13 @@ class LabelRules extends React.PureComponent<IProps, IState> {
         const { data } = this.state;
         return (
             <div className="labelRules">
-                <div className="info_item"><span>所属实体： </span><span>{wrapVal(data.id)}</span></div>
-                <div className="info_item"><span>所属维度： </span><span>{wrapVal(data.storeSize)}</span></div>
+                <div className="info_item"><span>所属实体： </span><span>{wrapVal(data.entityName)}</span></div>
+                <div className="info_item"><span>所属维度： </span><span>{wrapVal(data.dimensionality)}</span></div>
                 <div className="info_item"><span>属性值类型： </span><span>{wrapVal(data.description)}</span></div>
                 <div className="info_item"><span>标签值： </span><span>{wrapVal(data.creator)}</span></div>
                 <div className="info_item">
                     <span>标签字典： </span>
-                    <Link to="#">年龄信息</Link>
+                    <Link to={data.tagDictId}>{data.tagDictName}</Link>
                 </div>
             </div>
         )

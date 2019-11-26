@@ -5,18 +5,17 @@ import { API } from '../../../../../api/apiMap';
 import './style.scss';
 
 interface IProps {
+    entityId: number;
     tagSelect: any[];
     onChange: (value: any[]) => void;
 }
 interface IState {
-    entityId: string;
     oneOption: any[];
     twoOption: any[];
     threeOption: any[];
 }
 export class Conditions extends React.Component<IProps, IState> {
     state: IState = {
-        entityId: '24',
         oneOption: [],
         twoOption: [],
         threeOption: []
@@ -35,10 +34,11 @@ export class Conditions extends React.Component<IProps, IState> {
         this.props.onChange(newTag)
     }
     componentDidMount () {
-        this.getSubTagCate('-1', 0);
+        const { entityId } = this.props;
+        entityId && this.getSubTagCate('-1', 0);
     }
     getSubTagCate = (tagCateId, level: number) => {
-        const { entityId } = this.state;
+        const { entityId } = this.props;
         API.getSubTagCate({
             tagCateId: tagCateId,
             entityId

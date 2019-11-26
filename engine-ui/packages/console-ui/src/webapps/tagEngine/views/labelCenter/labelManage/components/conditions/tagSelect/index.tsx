@@ -17,7 +17,6 @@ export class TagSelect extends React.Component<IProps, {}> {
     }
     render () {
         const { option = [], value } = this.props;
-        console.log(option)
         return (<div className="tagSelect">
             {
                 option.map((item: any) => <span key={item.value} onClick={() => this.onHandleClick(item.value)} className={classnames('normal', {

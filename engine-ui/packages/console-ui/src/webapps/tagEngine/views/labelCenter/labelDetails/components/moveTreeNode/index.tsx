@@ -20,6 +20,7 @@ interface IState {
     autoExpandParent: boolean;
     dataList: any[];
     data: any[];
+    selectedKeys: any[];
 }
 class MoveTreeNode extends React.PureComponent<IProps, IState> {
     state: IState = {
@@ -27,7 +28,8 @@ class MoveTreeNode extends React.PureComponent<IProps, IState> {
         expandedKeys: [],
         autoExpandParent: true,
         dataList: [],
-        data: []
+        data: [],
+        selectedKeys: []
     };
     static defaultProps = {
         title: '移动标签'
@@ -99,14 +101,16 @@ class MoveTreeNode extends React.PureComponent<IProps, IState> {
         });
     };
     onSelect = (selectedKeys) => {
-        this.moveTag(selectedKeys[0])
+        this.setState({
+            selectedKeys
+        })
     }
     moveTag = (targetTagCateId) => { // 标签引擎-新增/重命名标签层级
         const { entityId, id } = this.props;
         API.moveTag({
             entityId,
             targetTagCateId: targetTagCateId,
-            tagCateId: id
+            tagId: id
         }).then(res => {
             const { code } = res;
             if (code == 1) {
@@ -121,6 +125,8 @@ class MoveTreeNode extends React.PureComponent<IProps, IState> {
         this.resetData();
     };
     handleOk = () => {
+        const { selectedKeys } = this.state;
+        this.moveTag(selectedKeys[0]);
         this.props.handleOk();
     };
     resetData = () => {
@@ -162,7 +168,7 @@ class MoveTreeNode extends React.PureComponent<IProps, IState> {
         });
     }
     render () {
-        const { searchValue, expandedKeys, autoExpandParent, data } = this.state;
+        const { searchValue, expandedKeys, autoExpandParent, data, selectedKeys} = this.state;
         const { visible, title } = this.props;
         return (
             <Modal
@@ -176,6 +182,7 @@ class MoveTreeNode extends React.PureComponent<IProps, IState> {
                     <Tree
                         className="draggable-tree"
                         onExpand={this.onExpand}
+                        selectedKeys={selectedKeys}
                         expandedKeys={expandedKeys}
                         onSelect={this.onSelect}
                         autoExpandParent={autoExpandParent}

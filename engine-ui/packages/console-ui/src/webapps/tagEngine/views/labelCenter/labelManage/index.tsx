@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { Input, Button, Select } from 'antd';
+import { Input, Button } from 'antd';
 import TableFilter from './components/tableFilter/index';
 import { Conditions } from './components/conditions';
+import SelectEntity from '../../../components/selectEntity';
 import './style.scss';
 
 const Search = Input.Search;
-const Option = Select.Option;
 interface IProps {
     router?: any;
 }
@@ -27,13 +27,15 @@ export default class LabelManage extends React.PureComponent<IProps, IState> {
             searchValue: '',
             tagSelect: []
         },
-        entityId: 24
+        entityId: null
     };
     onHandleClick = () => {
         this.props.router.push('/createLabel')
     };
-    handleChange = () => {
-
+    handleChange = (value) => {
+        this.setState({
+            entityId: value
+        })
     }
     onChangeSearch = (e) => {
         const value = e.target.value;
@@ -62,12 +64,7 @@ export default class LabelManage extends React.PureComponent<IProps, IState> {
                 <div className="title_wrap">
                     <div className="left_wp">
                         <span>选择实体：</span>
-                        <Select defaultValue="用户信息" style={{ width: 120 }} onChange={this.handleChange}>
-                            <Option value="jack">用户信息</Option>
-                            <Option value="lucy">Lucy</Option>
-                            <Option value="disabled" disabled>Disabled</Option>
-                            <Option value="Yiminghe">yiminghe</Option>
-                        </Select>
+                        <SelectEntity value={entityId} onChange={this.handleChange}/>
                     </div>
                     <div className="right_wp">
                         <Search
@@ -80,9 +77,9 @@ export default class LabelManage extends React.PureComponent<IProps, IState> {
                         <Button type="primary" onClick={this.onHandleClick}>新建标签</Button>
                     </div>
                 </div>
-                <Conditions tagSelect={tagSelect} onChange={this.onChangeTagSelect}/>
+                <Conditions key={entityId} entityId={entityId} tagSelect={tagSelect} onChange={this.onChangeTagSelect}/>
                 <div className="draggable-wrap-table">
-                    <TableFilter entityId={entityId} params={serachParams}/>
+                    <TableFilter key={entityId} entityId={entityId} params={serachParams}/>
                 </div>
             </div>
         );

@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { Input, Button, Select, Table, Popconfirm, message as Message } from 'antd';
+import { Input, Button, Table, Popconfirm, message as Message } from 'antd';
 import AddDirectory from './components/addDirectory';
 import MoveTreeNode from './components/moveTreeNode';
 import { API } from '../../../api/apiMap';
+import SelectEntity from '../../../components/selectEntity';
 import './style.scss';
 
 const Search = Input.Search;
-const Option = Select.Option;
 interface IProps {
     history: any;
 }
@@ -31,11 +31,23 @@ export default class LabelDirectory extends React.PureComponent<IProps, IState> 
         searchValue: '',
         type: '0',
         data: [],
-        entityId: '24',
+        entityId: '',
         currentData: {}
     };
-    componentDidMount () {
-        this.getTagCate()
+    handleChange = (value) => { // 改变实体
+        this.setState({
+            entityId: value,
+            visible: false,
+            moveVisible: false,
+            expandedKeys: [],
+            dataList: [],
+            searchValue: '',
+            type: '0',
+            data: [],
+            currentData: {}
+        }, () => {
+            this.getTagCate()
+        })
     }
     getTagCate = () => { // 查询标签层级目录
         const { entityId } = this.state;
@@ -132,7 +144,6 @@ export default class LabelDirectory extends React.PureComponent<IProps, IState> 
             currentData: {}
         })
     }
-    handleChange = () => {}
     deleteTagCate = (id) => {
         const { entityId } = this.state;
         API.deleteTagCate({
@@ -207,12 +218,7 @@ export default class LabelDirectory extends React.PureComponent<IProps, IState> 
                     <div className="left_wp">
                         <div>
                             <span>选择实体：</span>
-                            <Select defaultValue="用户信息" style={{ width: 120 }} onChange={this.handleChange}>
-                                <Option value="jack">用户信息</Option>
-                                <Option value="lucy">Lucy</Option>
-                                <Option value="disabled" disabled>Disabled</Option>
-                                <Option value="Yiminghe">yiminghe</Option>
-                            </Select>
+                            <SelectEntity value={entityId} onChange={this.handleChange}/>
                         </div>
                         <Search value={searchValue} className="search" placeholder="搜索目录名称" onChange={this.onChangeSearch} />
                     </div>
@@ -224,7 +230,7 @@ export default class LabelDirectory extends React.PureComponent<IProps, IState> 
                     <Table indentSize={100} expandedRowKeys={expandedKeys } onExpandedRowsChange={this.onExpand} columns={columns} rowKey="tagCateId" className="table_wrap" dataSource={data} pagination={ false }/>
                 </div>
                 <AddDirectory entityId={entityId} data={currentData} visible={visible} type={type} handleOk={this.handleOk} handleCancel={this.handleCancel}/>
-                <MoveTreeNode data={data} id={currentData.tagCateId} visible={moveVisible} handleOk={() => this.onHandleCancelMove('ok')} handleCancel={() => this.onHandleCancelMove('cancel')}/>
+                <MoveTreeNode data={data} entityId={entityId} id={currentData.tagCateId} visible={moveVisible} handleOk={() => this.onHandleCancelMove('ok')} handleCancel={() => this.onHandleCancelMove('cancel')}/>
             </div>
         );
     }

@@ -75,7 +75,9 @@ export default class LabelDetails extends React.PureComponent<IProps, IState> {
         })
     }
     render () {
-        const { moveVisible, tagId, data, entityId } = this.state;
+        const { moveVisible, data } = this.state;
+        const { location } = this.props;
+        const { tagId, entityId } = location.state;
         const breadcrumbNameMap = [
             {
                 path: '/labelCenter',

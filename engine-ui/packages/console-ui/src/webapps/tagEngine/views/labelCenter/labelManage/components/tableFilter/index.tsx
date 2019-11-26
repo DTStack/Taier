@@ -46,7 +46,8 @@ IState
         tagId: null
     };
     componentDidMount () {
-        this.loadMainData();
+        const { entityId } = this.props;
+        entityId && this.loadMainData();
     }
     componentDidUpdate (preProps) {
         const { params } = this.props;
@@ -108,14 +109,14 @@ IState
     }
     onTableChange = (pagination: any, filters: any, sorter: any) => {
         const { current, pageSize } = pagination;
-        const { order = '', field = '' } = sorter;
+        const { order = '' } = sorter;
         this.setState(
             {
                 pageNo: current,
                 pageSize: pageSize,
                 loading: true,
                 order,
-                field
+                field: 'tag_data_count'
             },
             () => {
                 this.loadMainData();
@@ -157,7 +158,8 @@ IState
                 dataIndex: 'tagName',
                 key: 'tagName',
                 render: (text: any, record) => {
-                    const { tagId, entityId } = record
+                    const { tagId } = record;
+                    const { entityId } = this.props;
                     return <Link to={
                         {
                             pathname: '/labelDetails',
@@ -190,7 +192,12 @@ IState
                 render: (id) => {
                     return (
                         <div>
-                            <a>编辑</a>
+                            <Link to={
+                                {
+                                    pathname: '/editAtomicLabel',
+                                    state: { tagId }
+                                }
+                            }>编辑</Link>
                             <span className="ant-divider" />
                             <a onClick={() => this.onHandleMove(id)}>移动</a>
                             <span className="ant-divider" />

@@ -20,6 +20,7 @@ interface IState {
     autoExpandParent: boolean;
     dataList: any[];
     data: any[];
+    selectedKeys: any[];
 }
 class MoveTreeNode extends React.PureComponent<IProps, IState> {
     state: IState = {
@@ -27,13 +28,15 @@ class MoveTreeNode extends React.PureComponent<IProps, IState> {
         expandedKeys: [],
         autoExpandParent: true,
         dataList: [],
-        data: []
+        data: [],
+        selectedKeys: []
     };
     static defaultProps = {
         title: '移动标签'
     }
     componentDidMount () {
-        this.getTagCate();
+        const { entityId } = this.props;
+        entityId && this.getTagCate();
     }
     getTagCate = () => { // 查询标签层级目录
         const { entityId } = this.props;
@@ -99,14 +102,16 @@ class MoveTreeNode extends React.PureComponent<IProps, IState> {
         });
     };
     onSelect = (selectedKeys) => {
-        this.moveTag(selectedKeys[0])
+        this.setState({
+            selectedKeys
+        })
     }
     moveTag = (targetTagCateId) => { // 标签引擎-新增/重命名标签层级
         const { entityId, id } = this.props;
         API.moveTag({
             entityId,
             targetTagCateId: targetTagCateId,
-            tagCateId: id
+            tagId: id
         }).then(res => {
             const { code } = res;
             if (code === 1) {
@@ -121,7 +126,8 @@ class MoveTreeNode extends React.PureComponent<IProps, IState> {
         this.resetData();
     };
     handleOk = () => {
-        this.props.handleOk();
+        const { selectedKeys } = this.state;
+        this.moveTag(selectedKeys[0])
     };
     resetData = () => {
         this.setState({
@@ -162,7 +168,7 @@ class MoveTreeNode extends React.PureComponent<IProps, IState> {
         });
     }
     render () {
-        const { searchValue, expandedKeys, autoExpandParent, data } = this.state;
+        const { searchValue, expandedKeys, autoExpandParent, data, selectedKeys } = this.state;
         const { visible, title } = this.props;
         return (
             <Modal
@@ -177,6 +183,7 @@ class MoveTreeNode extends React.PureComponent<IProps, IState> {
                         className="draggable-tree"
                         onExpand={this.onExpand}
                         expandedKeys={expandedKeys}
+                        selectedKeys={selectedKeys}
                         onSelect={this.onSelect}
                         autoExpandParent={autoExpandParent}
                     >

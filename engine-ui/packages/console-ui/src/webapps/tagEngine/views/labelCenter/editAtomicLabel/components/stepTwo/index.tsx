@@ -2,7 +2,6 @@ import * as React from 'react';
 import { Form, Select, Button, Radio, Input } from 'antd';
 import { FormComponentProps } from 'antd/lib/form/Form';
 import SetDictionary from '../../../../../components/setDictionary';
-import { debounce } from 'lodash';
 import './style.scss';
 import { Link } from 'react-router';
 const { Option } = Select;
@@ -91,27 +90,6 @@ class StepTwo extends React.PureComponent<IProps, IState> {
     onHandlePrev = () => {
         this.props.onPrev();
     }
-    validateName = debounce((rule, value, callback) => {
-        // if (value) {
-        //     let text = '标签名称不可以重复'
-        //     API.entityDistinctUsingPost({
-        //         entityCode: '',
-        //         entityName: value
-        //     }).then(res => {
-        //         const { success, data } = res;
-        //         if (success) {
-        //             if (!data) {
-        //                 callback(text)
-        //             } else {
-        //                 callback()
-        //             }
-        //         } else {
-        //             callback(text)
-        //         }
-        //     })
-        // }
-        callback()
-    }, 800)
     render () {
         const { form, isShow } = this.props;
         const { indexList } = this.state;
@@ -127,7 +105,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                             }
                         ]
                     })(
-                        <Select placeholder="请选择实体" showSearch onChange={(value) => this.onChangeSelect(value, 'index')} style={{ width: '100%' }}>
+                        <Select placeholder="请选择实体" disabled showSearch onChange={(value) => this.onChangeSelect(value, 'index')} style={{ width: '100%' }}>
                             {
                                 indexList.map(item => <Option value={item} key={item}>{item}</Option>)
                             }
@@ -142,7 +120,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                             }
                         ]
                     })(
-                        <Select placeholder="请选择维度" showSearch onChange={(value) => this.onChangeSelect(value, 'index')} style={{ width: '100%' }}>
+                        <Select placeholder="请选择维度" disabled showSearch onChange={(value) => this.onChangeSelect(value, 'index')} style={{ width: '100%' }}>
                             {
                                 indexList.map(item => <Option value={item} key={item}>{item}</Option>)
                             }
@@ -158,7 +136,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                             }
                         ]
                     })(
-                        <Select placeholder="请选择维度" showSearch onChange={(value) => this.onChangeSelect(value, 'index')} style={{ width: '100%' }}>
+                        <Select placeholder="请选择维度" disabled showSearch onChange={(value) => this.onChangeSelect(value, 'index')} style={{ width: '100%' }}>
                             {
                                 indexList.map(item => <Option value={item} key={item}>{item}</Option>)
                             }
@@ -228,7 +206,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                         )}
                     </Form.Item>
                 )}
-                <div className="wrap_btn_content"><Button onClick={this.onHandlePrev}>退出</Button><Button type="primary" onClick={this.onHandleNext}>下一步</Button></div>
+                <div className="wrap_btn_content"><Button onClick={this.onHandlePrev}>上一步</Button><Button type="primary" onClick={this.onHandleNext}>下一步</Button></div>
             </div>
         );
     }
