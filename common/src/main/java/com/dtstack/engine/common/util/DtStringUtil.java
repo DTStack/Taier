@@ -1,6 +1,8 @@
 package com.dtstack.engine.common.util;
 
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -58,8 +60,10 @@ public class DtStringUtil {
                 } else if(inSingleQuotes){
                     b.append(c);
                 }else {
-                    tokensList.add(b.toString());
-                    b = new StringBuilder();
+                    if (StringUtils.isNotBlank(b)){
+                        tokensList.add(b.toString());
+                        b = new StringBuilder();
+                    }
                 }
             }else if(c == '\"' && '\\'!=flag){
                 inQuotes = !inQuotes;
@@ -73,7 +77,9 @@ public class DtStringUtil {
             idx++;
         }
 
-        tokensList.add(b.toString());
+        if (StringUtils.isNotBlank(b)){
+            tokensList.add(b.toString());
+        }
 
         return tokensList;
     }
