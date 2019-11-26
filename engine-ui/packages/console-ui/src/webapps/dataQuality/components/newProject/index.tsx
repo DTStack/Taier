@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 
-import { Modal, Form, Input, Icon, message, Alert } from 'antd';
+import { Modal, Form, Input, Icon, message } from 'antd';
 import './index.scss';
 
 import * as baseActions from '../../actions/project'
@@ -67,12 +67,9 @@ class NewProject extends React.Component<any, any> {
                     visible={visible}
                     onOk={this.handleOk}
                     confirmLoading={loading}
-                    wrapClassName='projects-modal'
                     okText="创建"
                     onCancel={this.handleCancel}
                 >
-                    <Alert style={{ margin: '16px 16px 20px 16px' }} showIcon message=" 数据科学平台创建的项目，同时会同步至离线计算中，可在离线计算中进行数据同步、任务运维。" type="info" />
-                    {this.alert()}
                     <Form>
                         <FormItem
                             {...formItemLayout}

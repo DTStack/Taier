@@ -32,6 +32,7 @@ export function getProject (id: any) {
             projectId: id
         }).then((res: any) => {
             if (res.code === 1) {
+                dispatch(getProjects())
                 return dispatch({
                     type: projectAction.GET_PROJECT,
                     data: res.data
