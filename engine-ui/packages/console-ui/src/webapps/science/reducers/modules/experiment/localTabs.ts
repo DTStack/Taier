@@ -6,14 +6,14 @@ function localTabs (state: any[] = [], action: any) {
     const { type, payload } = action;
     switch (type) {
         case experimentTabType.ADD_TAB: {
-            const tab = state.filter((tab: any) => {
+            let index = state.findIndex((tab: any) => {
                 return tab.id == payload.id
-            });
-            if (tab.length) {
-                return state;
-            } else {
-                return [...state, payload];
+            })
+            if (index >= 0) {
+                let currentStateList = [...state].splice(index, 1, payload)
+                return currentStateList
             }
+            return [...state, payload]
         }
         case experimentTabType.DELETE_TAB: {
             return state.filter((tab: any) => {

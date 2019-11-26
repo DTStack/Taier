@@ -82,6 +82,7 @@ class Header extends React.Component<any, any> {
         });
         return result;
     }
+
     render () {
         const { app, licenseApps } = this.props;
         const { project } = this.props;
