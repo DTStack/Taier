@@ -64,17 +64,19 @@ public class FlinkClusterClientManager {
         manager.flinkClientBuilder = flinkClientBuilder;
         manager.flinkConfig = flinkClientBuilder.getFlinkConfig();
         manager.initYarnSessionClient();
+        if (manager.flinkYarnSessionStarter == null) {
+            manager.flinkYarnSessionStarter = new FlinkYarnSessionStarter(flinkClientBuilder, manager.flinkConfig);
+            manager.startYarnSessionClientMonitor();
+        }
         return manager;
     }
+
+
 
     public void initYarnSessionClient() throws Exception {
         if (flinkConfig.getClusterMode().equals(Deploy.standalone.name())) {
             flinkYarnSessionClient = flinkClientBuilder.createStandalone();
         } else if (flinkConfig.getClusterMode().equals(Deploy.yarn.name())) {
-            if (flinkYarnSessionStarter == null) {
-                this.flinkYarnSessionStarter = new FlinkYarnSessionStarter(flinkClientBuilder, flinkConfig);
-                this.startYarnSessionClientMonitor();
-            }
             boolean clientOn = flinkYarnSessionStarter.startFlinkYarnSession();
             this.setIsClientOn(clientOn);
             flinkYarnSessionClient = flinkYarnSessionStarter.getClusterClient();
