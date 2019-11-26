@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.rdos.engine.service.db.mapper.RdosEngineJobStopRecordMapper">
+<mapper namespace="com.dtstack.engine.service.db.mapper.RdosEngineJobStopRecordMapper">
 
     <resultMap id="rdosEngineJobStopRecord"
-               type="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobStopRecord">
+               type="com.dtstack.engine.service.db.dataobject.RdosEngineJobStopRecord">
         <id column="id" property="id" jdbcType="BIGINT"/>
         <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP"/>
         <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP"/>
@@ -16,7 +16,7 @@
         <result column="version" property="version" jdbcType="VARCHAR"/>
     </resultMap>
 
-    <insert id="insert" parameterType="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobStopRecord">
+    <insert id="insert" parameterType="com.dtstack.engine.service.db.dataobject.RdosEngineJobStopRecord">
         insert into rdos_engine_job_stop_record(task_id, task_type, engine_type, compute_type, group_name)
         values(#{taskId}, #{taskType}, #{engineType}, #{computeType}, #{groupName})
         <selectKey resultType="long" keyProperty="id" order="AFTER">

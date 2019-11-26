@@ -1,5 +1,6 @@
 .idea/
-/plugin/
+pluginLibs/
+plugin/
 logs/
 target/
 *.iml

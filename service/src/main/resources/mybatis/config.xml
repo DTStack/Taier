@@ -5,16 +5,14 @@
 
 <configuration>
     <typeAliases>
-        <typeAlias alias="RdosEngineStreamJob" type="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob"/>
-        <typeAlias alias="RdosEngineStreamJobRetry" type="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJobRetry"/>
-        <typeAlias alias="RdosNodeMachine" type="com.dtstack.rdos.engine.service.db.dataobject.RdosNodeMachine"/>
-        <typeAlias alias="RdosEngineBatchJob" type="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob"/>
-        <typeAlias alias="RdosEngineBatchJobRetry" type="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJobRetry"/>
-        <typeAlias alias="RdosEngineJobCache" type="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache" />
-        <typeAlias alias="RdosStreamTaskCheckpoint" type="com.dtstack.rdos.engine.service.db.dataobject.RdosStreamTaskCheckpoint" />
-        <typeAlias alias="RdosPluginInfo" type="com.dtstack.rdos.engine.service.db.dataobject.RdosPluginInfo"/>
-        <typeAlias alias="RdosEngineUniqueSign" type="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineUniqueSign"/>
-        <typeAlias alias="RdosEngineJobStopRecord" type="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobStopRecord"/>
+        <typeAlias alias="RdosEngineJob" type="com.dtstack.engine.service.db.dataobject.RdosEngineJob"/>
+        <typeAlias alias="RdosEngineJobCache" type="com.dtstack.engine.service.db.dataobject.RdosEngineJobCache" />
+        <typeAlias alias="RdosEngineJobRetry" type="com.dtstack.engine.service.db.dataobject.RdosEngineJobRetry"/>
+        <typeAlias alias="RdosEngineJobStopRecord" type="com.dtstack.engine.service.db.dataobject.RdosEngineJobStopRecord"/>
+        <typeAlias alias="RdosEngineUniqueSign" type="com.dtstack.engine.service.db.dataobject.RdosEngineUniqueSign"/>
+        <typeAlias alias="RdosNodeMachine" type="com.dtstack.engine.service.db.dataobject.RdosNodeMachine"/>
+        <typeAlias alias="RdosPluginInfo" type="com.dtstack.engine.service.db.dataobject.RdosPluginInfo"/>
+        <typeAlias alias="RdosStreamTaskCheckpoint" type="com.dtstack.engine.service.db.dataobject.RdosStreamTaskCheckpoint" />
     </typeAliases>
     <environments default="production">
         <environment id="production">
@@ -31,15 +29,13 @@
         </environment>
     </environments>
     <mappers>
-        <mapper resource="mybatis/mapper/RdosNodeMachineMapping.xml"/>
-        <mapper resource="mybatis/mapper/RdosEngineStreamJobMapping.xml"/>
-        <mapper resource="mybatis/mapper/RdosEngineStreamJobRetryMapping.xml"/>
-        <mapper resource="mybatis/mapper/RdosEngineBatchJobMapping.xml"/>
-        <mapper resource="mybatis/mapper/RdosEngineBatchJobRetryMapping.xml"/>
+        <mapper resource="mybatis/mapper/RdosEngineJobMapping.xml"/>
         <mapper resource="mybatis/mapper/RdosEngineJobCacheMapping.xml" />
-        <mapper resource="mybatis/mapper/RdosStreamTaskCheckpointMapping.xml" />
-        <mapper resource="mybatis/mapper/RdosPluginInfoMapping.xml" />
-        <mapper resource="mybatis/mapper/RdosEngineUniqueSignMapping.xml" />
+        <mapper resource="mybatis/mapper/RdosEngineJobRetryMapping.xml"/>
         <mapper resource="mybatis/mapper/RdosEngineJobStopRecordMapping.xml" />
+        <mapper resource="mybatis/mapper/RdosEngineUniqueSignMapping.xml" />
+        <mapper resource="mybatis/mapper/RdosNodeMachineMapping.xml"/>
+        <mapper resource="mybatis/mapper/RdosPluginInfoMapping.xml" />
+        <mapper resource="mybatis/mapper/RdosStreamTaskCheckpointMapping.xml" />
     </mappers>
 </configuration>

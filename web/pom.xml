@@ -3,9 +3,10 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-	  <groupId>com.dtstack.rdos</groupId>
-	  <artifactId>engine</artifactId>
+	  <groupId>com.dtstack.engine</groupId>
+	  <artifactId>engine-all</artifactId>
 	  <version>1.0.0</version>
+	  <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>web</artifactId>
   <name>web</name>
@@ -46,7 +47,7 @@
 		</dependency>
 		
 		<dependency>
-		    <groupId>com.dtstack.rdos</groupId>
+		    <groupId>com.dtstack.engine</groupId>
 		    <artifactId>service</artifactId>
 			<version>1.0.0</version>
 		</dependency>
