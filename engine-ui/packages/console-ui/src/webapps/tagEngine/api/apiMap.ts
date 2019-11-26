@@ -1,5 +1,5 @@
 import http from './http';
-import LabelCenter from '../consts/labelCenter';
+import LabelCenter from './labelCenter';
 
 let combineApi = Object.assign({}, LabelCenter);
 

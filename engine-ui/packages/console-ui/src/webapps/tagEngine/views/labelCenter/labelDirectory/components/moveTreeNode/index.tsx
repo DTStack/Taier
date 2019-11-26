@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Modal, Tree, Input, message as Message } from 'antd';
-import { API } from '../../../../../api/api';
+import { API } from '../../../../../api/apiMap';
 import './style.scss';
 
 const { TreeNode } = Tree;

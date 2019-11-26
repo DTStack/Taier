@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Modal, Button, Form, Input, message as Message } from 'antd';
 import { FormComponentProps } from 'antd/lib/form/Form';
-import { API } from '../../../../../api/api';
+import { API } from '../../../../../api/apiMap';
 
 import './style.scss';
 interface IProps extends FormComponentProps {
