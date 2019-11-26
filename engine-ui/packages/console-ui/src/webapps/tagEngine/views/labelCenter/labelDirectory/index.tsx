@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Input, Button, Select, Table, Popconfirm, message as Message } from 'antd';
 import AddDirectory from './components/addDirectory';
 import MoveTreeNode from './components/moveTreeNode';
-import { API } from '../../../api/labelCenter';
+import { API } from '../../../api/api';
 import './style.scss';
 
 const Search = Input.Search;

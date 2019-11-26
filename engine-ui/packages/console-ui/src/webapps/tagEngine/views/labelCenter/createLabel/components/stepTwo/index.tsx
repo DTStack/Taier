@@ -6,7 +6,7 @@ import TagValues from '../tagValues';
 import { cloneDeep } from 'lodash';
 import './style.scss';
 import PanelSelect from '../panelSelect';
-import { API } from '../../../../../api/labelCenter';
+import { API } from '../../../../../api/api';
 
 const { Option } = Select;
 
