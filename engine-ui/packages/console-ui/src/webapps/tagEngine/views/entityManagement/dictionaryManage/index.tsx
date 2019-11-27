@@ -4,7 +4,7 @@ import { Card, Table, Input, Button, message as Message } from 'antd';
 import DeleteModal from '../../../components/deleteModal';
 import './style.scss';
 import { get } from 'lodash';
-import API from '../../../api/entity';
+import { API } from '../../../api/apiMap';
 
 const Search = Input.Search;
 
@@ -30,7 +30,7 @@ export default class DictionaryManage extends React.PureComponent<any, IState> {
     state: IState = {
         pageNo: 1,
         pageSize: 20,
-        total: 2,
+        total: 0,
         dataSource: [],
         searchVal: undefined,
         loading: false,
@@ -59,7 +59,7 @@ export default class DictionaryManage extends React.PureComponent<any, IState> {
         }
         if (sorterField != '') {
             params.orders = [{
-                filed: sorterField,
+                field: sorterField,
                 asc: !desc
             }]
         }

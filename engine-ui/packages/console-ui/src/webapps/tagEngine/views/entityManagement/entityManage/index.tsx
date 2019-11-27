@@ -1,10 +1,11 @@
 import * as React from 'react';
 import { Link, hashHistory } from 'react-router';
-import { Card, Table, Input, Button } from 'antd';
+import { Card, Table, Input, Button, message as Message } from 'antd';
 import EmptyComp from './emptyComp';
 import DeleteModal from '../../../components/deleteModal';
 import './style.scss';
-// import API from '../../../../api'
+import { API } from '../../../api/apiMap'
+import { get } from 'lodash';
 
 const Search = Input.Search
 
@@ -21,18 +22,13 @@ interface IState {
     deleteItem: any;
 }
 
+let timer: any = null;
 export default class EntityList extends React.Component<any, IState> {
     state: IState = {
         pageNo: 1,
         pageSize: 20,
-        total: 2,
-        dataSource: [
-            {
-                id: 1, name: '实体名称1', desc: '描述', key: '主键', keyName: '主键名', updateTime: '2019-12-10 12:33', creator: '创建者一号', dataCount: '200', relateCount: '4000'
-            }, {
-                id: 2, name: '实体名称1', desc: '描述', key: '主键', keyName: '主键名', updateTime: '2019-12-10 12:33', creator: '创建者一号', dataCount: '200', relateCount: '4000'
-            }
-        ],
+        total: 0,
+        dataSource: [],
         searchVal: undefined,
         loading: false,
         desc: true,
@@ -42,29 +38,32 @@ export default class EntityList extends React.Component<any, IState> {
     }
 
     componentDidMount () {
-        this.loadData();
+        this.getEntities();
     }
 
-    loadData = () => {
+    getEntities = () => {
         const { pageSize, pageNo, desc, sorterField, searchVal } = this.state;
-        let params = {
-            pageSize,
-            pageNo,
-            searchVal,
-            desc,
-            sorterField
+        let params: any = {
+            size: pageSize,
+            current: pageNo,
+            search: searchVal
         }
-        console.log(params);
-        // API.xxxxx(params).then((res: any) => {
-        //     const { data = [], code } = res;
-        //     if (code === 1) {
-        //         this.setState({
-        //             dataSource: data.data,
-        //             total: data.total,
-        //             loading: false
-        //         })
-        //     }
-        // })
+        if (sorterField != '') {
+            params.orders = [{
+                field: sorterField,
+                asc: !desc
+            }]
+        }
+        API.getEntities(params).then((res: any) => {
+            const { data = [], code } = res;
+            if (code === 1) {
+                this.setState({
+                    dataSource: data.contentList || [],
+                    total: data.total || 0,
+                    loading: false
+                })
+            }
+        })
     }
 
     handleSearch = (query: any) => {
@@ -72,7 +71,13 @@ export default class EntityList extends React.Component<any, IState> {
             searchVal: query,
             pageNo: 1,
             loading: true
-        }, this.loadData)
+        }, this.getEntities)
+    }
+
+    handleSearchChange = (e) => {
+        this.setState({
+            searchVal: e.target.value == '' ? undefined : e.target.value
+        })
     }
 
     handleTableChange = (pagination: any, filters: any, sorter: any) => {
@@ -81,7 +86,7 @@ export default class EntityList extends React.Component<any, IState> {
             sorterField: sorter.field || '',
             desc: sorter.order == 'descend' || false,
             loading: true
-        }, this.loadData);
+        }, this.getEntities);
     }
 
     handleOperateData = (type: string, record: any) => {
@@ -95,9 +100,19 @@ export default class EntityList extends React.Component<any, IState> {
                 break;
             }
             case 'delete': {
-                this.setState({
-                    deleteVisible: true,
-                    deleteItem: record
+                API.checkEntityUserd({
+                    entityId: record.id
+                }).then((res: any) => {
+                    const { data, code } = res;
+                    if (code === 1) {
+                        this.setState({
+                            deleteVisible: true,
+                            deleteItem: {
+                                ...record,
+                                hasRefered: data
+                            }
+                        })
+                    }
                 })
                 break;
             }
@@ -107,60 +122,67 @@ export default class EntityList extends React.Component<any, IState> {
 
     handleDeleteModel = (type: string) => {
         if (type == 'ok') {
-            // API.xxxxx({
-            //     id: this.state.deleteItem.id
-            // }).then((res: any) => {
-            //     const { data = [], code } = res;
-            //     if (code === 1) {
-            //         this.setState({
-            //             pageNo: 1,
-            //             loading: true,
-            //             deleteVisible: false,
-            //             deleteItem: {}
-            //         }, () => {
-            //             this.loadData();
-            //         })
-            //     }
-            // })
+            API.deleteEntity({
+                entityId: this.state.deleteItem.id
+            }).then((res: any) => {
+                const { code } = res;
+                if (code === 1) {
+                    Message.success('删除成功！');
+                    this.setState({
+                        pageNo: 1,
+                        loading: true,
+                        deleteVisible: false,
+                        deleteItem: {}
+                    }, () => {
+                        this.getEntities();
+                    })
+                }
+            })
         } else {
             this.setState({
-                deleteVisible: false,
-                deleteItem: {}
+                deleteVisible: false
             })
+            timer = setTimeout(() => {
+                this.setState({
+                    deleteItem: {}
+                })
+                clearTimeout(timer);
+                timer = null;
+            }, 100);
         }
     }
 
     initColumns = () => {
         return [{
             title: '实体名称',
-            dataIndex: 'name',
-            key: 'name',
+            dataIndex: 'entityName',
+            key: 'entityName',
             render: (text: any, record: any) => {
                 return <Link to={{ pathname: '/entityManage/detail', state: record }}>{text}</Link>
             }
         }, {
             title: '实体主键',
-            dataIndex: 'key',
-            key: 'key',
+            dataIndex: 'entityPrimaryKey',
+            entityPrimaryKey: 'key',
             render: (text: any, record: any) => {
                 return (<span>
                     {text}
-                    <span style={{ color: '#bfbfbf' }}>({record.keyName})</span>
+                    {record.entityPrimaryKeyCn && <span style={{ color: '#bfbfbf' }}>({record.entityPrimaryKeyCn})</span>}
                 </span>)
             }
         }, {
             title: '描述',
-            dataIndex: 'desc',
-            key: 'desc'
+            dataIndex: 'entityDesc',
+            key: 'entityDesc'
         }, {
             title: '更新时间',
-            dataIndex: 'updateTime',
-            key: 'updateTime',
+            dataIndex: 'updateAt',
+            key: 'updateAt',
             sorter: true
         }, {
             title: '创建者',
-            dataIndex: 'creator',
-            key: 'creator'
+            dataIndex: 'createBy',
+            key: 'createBy'
         }, {
             title: '数据量',
             dataIndex: 'dataCount',
@@ -168,8 +190,8 @@ export default class EntityList extends React.Component<any, IState> {
             sorter: true
         }, {
             title: '关联标签数量',
-            dataIndex: 'relateCount',
-            key: 'relateCount',
+            dataIndex: 'tagCount',
+            key: 'tagCount',
             sorter: true
         }, {
             title: '操作',
@@ -193,7 +215,7 @@ export default class EntityList extends React.Component<any, IState> {
     }
 
     render () {
-        const { total, pageSize, pageNo, dataSource, loading, searchVal, deleteVisible } = this.state;
+        const { total, pageSize, pageNo, dataSource, loading, searchVal, deleteVisible, deleteItem } = this.state;
         const pagination: any = {
             total: total,
             pageSize: pageSize,
@@ -211,6 +233,7 @@ export default class EntityList extends React.Component<any, IState> {
                     placeholder="搜索实体、创建者名称"
                     style={{ width: 200, padding: 0 }}
                     onSearch={this.handleSearch}
+                    onChange={this.handleSearchChange}
                 /> : null}
                 &nbsp;&nbsp;
             </div>
@@ -247,10 +270,13 @@ export default class EntityList extends React.Component<any, IState> {
                 </div>
                 <DeleteModal
                     title={'删除实体'}
-                    content={'实体下标签及目录将同步删除，无法恢复，请谨慎操作！'}
+                    content={get(deleteItem, 'hasRefered') ? '解除字典的引用关系后，可删除' : '实体下标签及目录将同步删除，无法恢复，请谨慎操作'}
                     visible={deleteVisible}
                     onCancel={this.handleDeleteModel.bind(this, 'cancel')}
                     onOk={this.handleDeleteModel.bind(this, 'ok')}
+                    footer={
+                        get(deleteItem, 'hasRefered') ? <Button type="primary" onClick={this.handleDeleteModel.bind(this, 'cancel')}>我知道了</Button> : undefined
+                    }
                 />
             </div>
         )

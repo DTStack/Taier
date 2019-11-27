@@ -1,7 +1,9 @@
 import * as React from 'react';
 import { Input, Table, Checkbox, Icon, Select, Tooltip, message as Message, Tag } from 'antd';
 import ConfigDictModal from './configDictModal';
+import EditInput from '../../../../components/editInput';
 import './style.scss';
+import { API } from '../../../../api/apiMap';
 import { isEqual, isEmpty } from 'lodash';
 
 const { Search } = Input;
@@ -10,12 +12,13 @@ const { Option } = Select;
 interface Iprops {
     infor: any[];
     handleChange: any;
+    attrTypeOptions: any[];
+    baseInfor: any;
 }
 
 interface IState {
     dataSource: any[];
     searchVal: any;
-    dataTypeOption: any[];
     configModalVisble: boolean;
     total: number;
     selectNum: number;
@@ -25,15 +28,9 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
     state: IState = {
         dataSource: [],
         searchVal: undefined,
-        dataTypeOption: [
-            { label: '字符型', value: 'char' },
-            { label: '数值型', value: 'number' },
-            { label: '时间型', value: 'time' }
-        ],
         configModalVisble: false,
         total: 0,
         selectNum: 0
-
     }
 
     componentDidMount () {
@@ -52,7 +49,7 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
         if (!isEqual(infor, preProps.infor)) {
             let selectNum = infor.filter((item: any) => { return item.select; }).length;
             let newDataSource = infor.filter((item: any) => {
-                return isEmpty(searchVal) || (item.name && item.name.indexOf(searchVal) != -1) || (item.chName && item.chName.indexOf(searchVal) != -1)
+                return isEmpty(searchVal) || (item.entityAttr && item.entityAttr.indexOf(searchVal) != -1) || (item.entityAttrCn && item.entityAttrCn.indexOf(searchVal) != -1)
             });
             this.setState({
                 dataSource: newDataSource,
@@ -65,7 +62,7 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
     handleSearch = (val: string) => {
         const { infor } = this.props;
         let newDataSource = infor.filter((item: any) => {
-            return isEmpty(val) || (item.name && item.name.indexOf(val) != -1) || (item.chName && item.chName.indexOf(val) != -1)
+            return isEmpty(val) || (item.entityAttr && item.entityAttr.indexOf(val) != -1) || (item.entityAttrCn && item.entityAttrCn.indexOf(val) != -1)
         });
         this.setState({
             searchVal: val,
@@ -79,9 +76,26 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
         })
     }
 
-    handleModelOk = () => {
-        this.setState({
-            configModalVisble: false
+    handleModelOk = (value) => {
+        const { infor } = this.props;
+        API.getDictDetail({
+            dictId: value.dictRef
+        }).then((res: any) => {
+            const { data = {}, code } = res;
+            if (code === 1) {
+                const { dictValueVoList = [] } = data;
+                let newInfor = infor.map(item => {
+                    let relaItem = dictValueVoList.find(ele => ele.value == item.entityAttr);
+                    return {
+                        ...item,
+                        entityAttrCn: relaItem ? relaItem.valueName : item.entityAttrCn
+                    }
+                })
+                this.props.handleChange(newInfor);
+                this.setState({
+                    configModalVisble: false
+                })
+            }
         })
     }
 
@@ -93,16 +107,16 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
 
     handleTableChange = (type: string, record: any, e: any) => {
         const infor = [...this.props.infor];
-        let editIndex = infor.findIndex((item: any) => { return item.id == record.id; });
+        let editIndex = infor.findIndex((item: any) => { return item.entityAttr == record.entityAttr; });
         switch (type) {
-            case 'select': {
+            case 'isAtomTag': {
                 infor[editIndex] = {
                     ...record,
-                    select: e.target.checked
+                    isAtomTag: e.target.checked
                 }
                 break;
             }
-            case 'chName': {
+            case 'entityAttrCn': {
                 let inputVal = e.target.value;
                 if (inputVal && inputVal.length > 20) {
                     Message.warning('字符长度不可超过20！');
@@ -110,14 +124,14 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
                 }
                 infor[editIndex] = {
                     ...record,
-                    chName: inputVal
+                    entityAttrCn: inputVal
                 }
                 break;
             }
             case 'dataType': {
                 infor[editIndex] = {
                     ...record,
-                    type: e
+                    dataType: e
                 }
                 break;
             }
@@ -127,61 +141,69 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
     }
 
     initColumns = () => {
-        const { dataTypeOption } = this.state;
+        const { attrTypeOptions, baseInfor } = this.props;
+        let isEdit = false;
+        if (baseInfor.id) {
+            isEdit = true;
+        }
         return [{
             title: '操作',
-            dataIndex: 'select',
-            key: 'select',
+            dataIndex: 'isAtomTag',
+            key: 'isAtomTag',
             width: 150,
             render: (text: boolean, record: any) => {
-                return <Checkbox disabled={record.isKey} onChange={this.handleTableChange.bind(this, 'select', record)} checked={text} />
+                return <Checkbox disabled={isEdit || record.entityAttr == baseInfor.entityPrimaryKey} onChange={this.handleTableChange.bind(this, 'isAtomTag', record)} checked={text} />
             }
         }, {
             title: '维度名称',
-            dataIndex: 'name',
-            key: 'name',
+            dataIndex: 'entityAttr',
+            key: 'entityAttr',
             width: 200,
             render: (text: any, record: any) => {
                 return (
                     <div className="di-table-name-col">
                         <div className="tag-box">
-                            {record.new ? <Tag color="green">新增</Tag> : null}
-                            {record.isKey ? <a><i className='iconfont iconicon_key'></i></a> : null}
+                            {record.id ? <Tag color="green">新增</Tag> : null}
+                            {text == baseInfor.entityPrimaryKey ? <a><i className='iconfont iconicon_key'></i></a> : null}
                         </div>
                         <span>{text}</span>
-                        {record.isKey ? '(主键)' : ''}
+                        {text == baseInfor.entityPrimaryKey ? '(主键)' : ''}
                     </div>
                 )
             }
         }, {
             title: <span>中文名<i className="iconfont iconicon_import" style={{ marginLeft: '10px', color: '#999999', cursor: 'pointer', fontSize: 13 }} onClick={this.handleConfig}></i></span>,
-            dataIndex: 'chName',
-            key: 'chName',
+            dataIndex: 'entityAttrCn',
+            key: 'entityAttrCn',
             width: 200,
             render: (text: any, record: any) => {
-                return (<Input style={{ width: 150 }} value={text} onChange={this.handleTableChange.bind(this, 'chName', record)} />)
+                return <EditInput
+                    onChange={this.handleTableChange.bind(this, 'entityAttrCn', record)}
+                    value={text}
+                    style={{ width: 150 }}
+                />
             }
         }, {
             title: '数据类型',
-            dataIndex: 'type',
-            key: 'type',
+            dataIndex: 'dataType',
+            key: 'dataType',
             width: 200,
             render: (text: any, record: any) => {
                 return (<Select
                     style={{ width: 150 }}
-                    value={text || 'char'}
+                    value={text}
                     placeholder="请选择属性分组"
                     onChange={this.handleTableChange.bind(this, 'dataType', record)}
                 >
-                    {dataTypeOption.map((item: any) => (
+                    {attrTypeOptions.map((item: any) => (
                         <Option key={item.value} value={item.value}>{item.label}</Option>
                     ))}
                 </Select>)
             }
         }, {
             title: '属性值数量',
-            dataIndex: 'propertyNum',
-            key: 'propertyNum',
+            dataIndex: 'tagValueCount',
+            key: 'tagValueCount',
             width: 150
         }, {
             title: <span>多值列
@@ -189,8 +211,8 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
                     <Icon style={{ marginLeft: '10px', color: '#999999', cursor: 'pointer' }} type="question-circle-o" />
                 </Tooltip>
             </span>,
-            dataIndex: 'isMultiply',
-            key: 'isMultiply',
+            dataIndex: 'isMultipleValue',
+            key: 'isMultipleValue',
             render: (text: boolean, record: any) => {
                 return text ? '是' : '';
             }
@@ -213,7 +235,7 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
                     />
                 </div>
                 <Table
-                    rowKey="id"
+                    rowKey="entityAttr"
                     className="di-table-border"
                     pagination={false}
                     loading={false}

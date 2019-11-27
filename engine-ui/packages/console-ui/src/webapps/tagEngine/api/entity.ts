@@ -1,33 +1,77 @@
-import req from '../consts/reqEntity';
-import http from './http';
+import { TAG_ENGINE_URL } from 'config/base';
 
 export default {
-    getEntities (params?: any) {
-        return http.post(req.GET_ENTITIES, params);
-    },
-    createEntity (params?: any) {
-        return http.post(req.CREATE_ENTITY, params);
-    },
-    getEntityAttrs (params?: any) {
-        return http.post(req.GET_ENTITY_ATTRS, params);
-    },
-    deleteEntity (params?: any) {
-        return http.post(req.DELETE_ENTITY, params);
+    // ================== 公用 ================== //
+    getLabelType: {
+        method: 'post',
+        url: `${TAG_ENGINE_URL}/common/dataType`
     },
 
-    getDictList (params?: any) {
-        return http.post(req.GET_DICTIONARIES, params);
+    // ================== 实体 ================== //
+    getEntities: {
+        method: 'post',
+        url: `${TAG_ENGINE_URL}/entity/entityPage`
     },
-    addOrUpdateDict (params?: any) {
-        return http.post(req.ADD_OR_UPDATE_DICT, params);
+    deleteEntity: {
+        method: 'post',
+        url: `${TAG_ENGINE_URL}/entity/deleteEntity`
     },
-    getDictDetail (params?: any) {
-        return http.post(req.GET_DICT_DETAIL, params);
+    saveEntity: {
+        method: 'post',
+        url: `${TAG_ENGINE_URL}/entity/saveEntity`
     },
-    deleteDict (params?: any) {
-        return http.post(req.DELETE_DICT, params);
+    selectDataSource: { // 获取数据源下拉
+        method: 'post',
+        url: `${TAG_ENGINE_URL}/dataSource/selectDataSource`
     },
-    dictCanDelete (params?: any) {
-        return http.post(req.DICT_CAN_DELETE, params);
+    getDataTableList: { // 获取数据表下拉
+        method: 'post',
+        url: `${TAG_ENGINE_URL}/entity/dataTableList`
+    },
+    getColumnList: { // 获取数据表属性列表
+        method: 'post',
+        url: `${TAG_ENGINE_URL}/entity/columnList`
+    },
+    getColumnVals: { // 获取维度值详情
+        method: 'post',
+        url: `${TAG_ENGINE_URL}/entity/columnValues`
+    },
+    getEntityAttrs: {
+        method: 'post',
+        url: `${TAG_ENGINE_URL}/entity/entityAttrs`
+    },
+    checkEntityUserd: {
+        method: 'post',
+        url: `${TAG_ENGINE_URL}/entity/checkEntityUserd`
+    },
+    entityAttrsEdit: { // 实体详情 编辑维度名称
+        method: 'post',
+        url: `${TAG_ENGINE_URL}/entity/entityAttrsEdit`
+    },
+
+    // ================== 字典 ================== //
+    getDictList: {
+        method: 'post',
+        url: `${TAG_ENGINE_URL}/dict/getDictList`
+    },
+    addOrUpdateDict: {
+        method: 'post',
+        url: `${TAG_ENGINE_URL}/dict/addOrUpdateDict`
+    },
+    getDictDetail: {
+        method: 'post',
+        url: `${TAG_ENGINE_URL}/dict/getDictDetail`
+    },
+    deleteDict: {
+        method: 'post',
+        url: `${TAG_ENGINE_URL}/dict/deleteDict`
+    },
+    dictCanDelete: {
+        method: 'post',
+        url: `${TAG_ENGINE_URL}/dict/canDelete`
+    },
+    getDictListByType: { // 通过类型 获取字典下拉列表
+        method: 'post',
+        url: `${TAG_ENGINE_URL}/dict/getDictListByType`
     }
-}
+};

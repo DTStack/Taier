@@ -5,7 +5,7 @@ import SetDictionary from '../../../components/setDictionary';
 import shortid from 'shortid';
 import { uniq, get } from 'lodash';
 import { hashHistory } from 'react-router';
-import API from '../../../api/entity';
+import { API } from '../../../api/apiMap';
 
 const FormItem = Form.Item;
 const { Option } = Select;
