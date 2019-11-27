@@ -2,7 +2,7 @@ package com.dtstack.engine.common.util;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.exception.RdosException;
-import javafx.util.Pair;
+import org.apache.commons.math3.util.Pair;
 import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 
