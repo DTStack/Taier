@@ -1,83 +1,86 @@
 import * as React from 'react';
-import { Input, Button, Modal, Select } from 'antd';
+import { Input, Button } from 'antd';
 import TableFilter from './components/tableFilter/index';
 import { Conditions } from './components/conditions';
+import SelectEntity from '../../../components/selectEntity';
 import './style.scss';
 
 const Search = Input.Search;
-const Option = Select.Option;
 interface IProps {
     router?: any;
 }
 interface IState {
-    type: string;
-    visible: boolean;
-    moveVisible: boolean;
+    searchValue: string;
+    tagSelect: any[];
+    entityId: number;
+    serachParams: {
+        searchValue: string;
+        tagSelect: any[];
+    };
 }
 
 export default class LabelManage extends React.PureComponent<IProps, IState> {
     state: IState = {
-        visible: false,
-        moveVisible: false,
-        type: '0'
+        searchValue: '',
+        tagSelect: [],
+        serachParams: {
+            searchValue: '',
+            tagSelect: []
+        },
+        entityId: null
     };
     onHandleClick = () => {
-        this.props.router.push('/createLabel')
+        const { entityId } = this.state;
+        this.props.router.push('/createLabel?entityId=' + entityId)
     };
-    componentDidMount () {
-        console.log(this.props);
-    }
-    handleOk = () => {
+    handleChange = (value) => {
         this.setState({
-            visible: false
-        })
-    };
-    onHandleMove = () => {
-        this.setState({
-            moveVisible: true
+            entityId: value
         })
     }
-    onHandleCancelMove = (type: 'ok'|'cancel') => {
+    onChangeSearch = (e) => {
+        const value = e.target.value;
         this.setState({
-            moveVisible: false
+            searchValue: value
         })
     }
-    onHandleDelete = () => {
-        Modal.confirm({
-            title: '',
-            content: '确定删除此目录？',
-            okText: '删除',
-            cancelText: '取消'
-        });
+    onSearch = (value) => {
+        const { serachParams } = this.state;
+        this.setState({
+            searchValue: value,
+            serachParams: Object.assign({}, serachParams, { searchValue: value })
+        })
     }
-    handleChange = () => {
-
+    onChangeTagSelect = (value) => {
+        const { serachParams } = this.state;
+        this.setState({
+            tagSelect: value,
+            serachParams: Object.assign({}, serachParams, { tagSelect: value })
+        })
     }
     render () {
+        const { searchValue, tagSelect, serachParams, entityId } = this.state;
         return (
             <div className="labelManage">
                 <div className="title_wrap">
                     <div className="left_wp">
                         <span>选择实体：</span>
-                        <Select defaultValue="用户信息" style={{ width: 120 }} onChange={this.handleChange}>
-                            <Option value="jack">用户信息</Option>
-                            <Option value="lucy">Lucy</Option>
-                            <Option value="disabled" disabled>Disabled</Option>
-                            <Option value="Yiminghe">yiminghe</Option>
-                        </Select>
+                        <SelectEntity value={entityId} onChange={this.handleChange}/>
                     </div>
                     <div className="right_wp">
                         <Search
                             placeholder="搜索标签名称"
                             className="search"
-                            onSearch={value => console.log(value)}
+                            value={searchValue}
+                            onChange={this.onChangeSearch}
+                            onSearch={this.onSearch}
                         />
                         <Button type="primary" onClick={this.onHandleClick}>新建标签</Button>
                     </div>
                 </div>
-                <Conditions/>
+                <Conditions key={entityId} entityId={entityId} tagSelect={tagSelect} onChange={this.onChangeTagSelect}/>
                 <div className="draggable-wrap-table">
-                    <TableFilter/>
+                    <TableFilter key={entityId} entityId={entityId} params={serachParams}/>
                 </div>
             </div>
         );

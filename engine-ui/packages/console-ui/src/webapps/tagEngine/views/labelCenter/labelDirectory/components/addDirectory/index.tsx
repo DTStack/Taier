@@ -67,13 +67,11 @@ class AddDirectpry extends React.PureComponent<IProps, IState> {
             cateName,
             pid
         }).then(res => {
-            const { code, message } = res;
+            const { code } = res;
             if (code == 1) {
                 this.props.handleOk();
                 Message.success('操作成功！');
                 this.props.form.resetFields();
-            } else {
-                Message.error(message)
             }
         })
     }

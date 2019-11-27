@@ -1,4 +1,8 @@
 export default {
+    selectEntity: { // 实体筛选列表
+        method: 'post',
+        url: `/api/v1/entity/selectEntity`
+    },
     /* ----------------------标签类目-----------------------------------  */
     addOrUpdateTagCate: { // 标签引擎-新增/重命名标签层级
         method: 'post',
@@ -45,5 +49,38 @@ export default {
     getTagDetail: { // 标签-标签详情查询接口
         method: 'post',
         url: `/api/v1/tag/getTagDetail`
+    },
+    deleteTag: { // 删除标签
+        method: 'post',
+        url: '/api/v1/tag/deleteTag'
+    },
+    moveTag: { // 移动标签
+        method: 'post',
+        url: '/api/v1/tag/moveTag'
+    },
+    getTagRule: { // 获取原子标签规则
+        method: 'post',
+        url: '/api/v1/tag/getTagRule'
+    },
+    getEditorDetailVo: { // 编辑详情接口
+        method: 'post',
+        url: '/api/v1/tag/getEditorDetailVo'
+    },
+    selectEntityAttrs: { // 数据维度-筛选列表
+        method: 'post',
+        url: '/api/v1/entity/selectEntityAttrs '
+    },
+    getDataType: { // 标签数据类型
+        method: 'post',
+        url: '/api/v1/common/dataType'
+    },
+    getDictListByType: { // 获取字典引用
+        method: 'post',
+        url: '/api/v1/dict/getDictListByType'
+    },
+    editorAtomTagRule: { // 编辑原子标签规则
+        method: 'post',
+        url: '/api/v1/tag/editorAtomTagRule'
     }
+
 };
