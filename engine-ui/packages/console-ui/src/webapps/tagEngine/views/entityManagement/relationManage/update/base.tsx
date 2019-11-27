@@ -5,7 +5,7 @@ import { tailFormItemLayout } from '../../../../comm/const';
 import { IDataSource } from '../../../../model/dataSource';
 
 import CreateRelationEntityForm from './form';
-import EntityAPI from '../../../../api/entity';
+import { API } from '../../../../api/apiMap';
 import DataSourceAPI from '../../../../api/dataSource';
 import RelationGraph from '../../../../components/relationGraph';
 import { IRelation, IRelationEntity } from '../../../../model/relation';
@@ -37,8 +37,6 @@ const initialEntityNode: IRelationEntity = {
         y: 0
     }
 }
-
-
 class RelationUpdateBase extends React.Component<IProps, IState> {
     state: IState = {
         dataSourceList: [],
@@ -66,17 +64,19 @@ class RelationUpdateBase extends React.Component<IProps, IState> {
         }
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.loadDataSource();
         this.loadEntities();
     }
 
     loadDataSource = async () => {
         const res = await DataSourceAPI.getStreamDataSourceList();
+        console.log(res)
     }
 
     loadEntities = async () => {
-        const res = await EntityAPI.getEntities();
+        const res = await API.getEntities();
+        console.log(res)
     }
 
     onAddEntityNodeData = () => {
@@ -91,13 +91,14 @@ class RelationUpdateBase extends React.Component<IProps, IState> {
 
     onRelationEntitiesChange = () => {
         const { relationEntities } = this.state;
+        console.log(relationEntities)
     }
 
     onOk = () => {
         const { form } = this._formElem.props;
         const { relationEntities } = this.state;
-        
-        form.validateFields(function(err: any, values: IRelation) {
+
+        form.validateFields(function (err: any, values: IRelation) {
             if (!err) {
                 const relation: IRelation = form.getFieldsValue();
                 relation.relationEntities = relationEntities;
@@ -109,7 +110,6 @@ class RelationUpdateBase extends React.Component<IProps, IState> {
     render () {
         const { mode, relationData } = this.props;
         const { dataSourceList, entities } = this.state;
-        const { } = this.state;
         return (
             <div className="inner-container bg-w">
                 <div className="c-createRelation__form">

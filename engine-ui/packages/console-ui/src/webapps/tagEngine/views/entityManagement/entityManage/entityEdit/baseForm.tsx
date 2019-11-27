@@ -17,51 +17,49 @@ const formItemLayout = {
 
 class BaseForm extends React.Component<any, any> {
     state: any = {
-        sourceOption: [
-            { label: 'source1', value: '1' },
-            { label: 'source2', value: '2' },
-            { label: 'source3', value: '3' }
-        ],
-        tableOption: [
-            { label: 'table1', value: '1' },
-            { label: 'table2', value: '2' },
-            { label: 'table3', value: '3' }
-        ],
-        primaryKeyOption: [
-            { label: 'pk1', value: '1' },
-            { label: 'pk2', value: '2' },
-            { label: 'pk3', value: '3' }
-        ]
 
     }
 
     componentDidMount () {
         const { infor = {}, form } = this.props;
-        form.setFieldsValue({
-            ...infor
-        })
+        if (infor.id) {
+            form.setFieldsValue({
+                entityName: infor.entityName,
+                dataSourceId: infor.dataSourceId,
+                dataSourceTable: infor.dataSourceTable,
+                entityPrimaryKey: infor.entityPrimaryKey,
+                entityDesc: infor.entityDesc
+            })
+        }
     }
 
-    handleSelectChange = (type: string) => {
-        const { form } = this.props;
-        if (type == 'source') {
+    handleSelectChange = (type: string, value) => {
+        const { form, getDataTableList, getColumnList } = this.props;
+        if (type == 'dataSourceId') {
+            getDataTableList(false, value)
+            getColumnList(true);
             form.setFieldsValue({
-                table: undefined,
-                primaryKey: undefined
+                dataSourceTable: undefined,
+                entityPrimaryKey: undefined
             })
         } else {
+            getColumnList(false, form.getFieldValue('dataSourceId'), value);
             form.setFieldsValue({
-                primaryKey: undefined
+                entityPrimaryKey: undefined
             })
         }
     }
 
     render () {
-        const { tableOption, primaryKeyOption, sourceOption } = this.state;
+        const { tableOptions, tableColOptions, dsOptions, infor = {} } = this.props;
         const { getFieldDecorator } = this.props.form;
+        let isEdit = false;
+        if (infor.id) {
+            isEdit = true;
+        }
         return (<Form style={{ padding: '40px 0px 20px' }}>
             <FormItem {...formItemLayout} label="实体名称" >
-                {getFieldDecorator('name', {
+                {getFieldDecorator('entityName', {
                     rules: [{
                         required: true,
                         message: '实体名称不可为空！'
@@ -74,7 +72,7 @@ class BaseForm extends React.Component<any, any> {
                 )}
             </FormItem>
             <FormItem {...formItemLayout} label="选择数据源" >
-                {getFieldDecorator('source', {
+                {getFieldDecorator('dataSourceId', {
                     rules: [{
                         required: true,
                         message: '数据源不可为空！'
@@ -82,22 +80,22 @@ class BaseForm extends React.Component<any, any> {
                 })(
                     <Select
                         showSearch
-                        onChange={this.handleSelectChange.bind(this, 'source')}
-                        disabled={false}
+                        onChange={this.handleSelectChange.bind(this, 'dataSourceId')}
+                        disabled={isEdit}
                         placeholder="请选择数据源"
                         filterOption={(input, option) => {
                             let temStr = option.props.children + '';
                             return temStr.indexOf(input) >= 0;
                         }}
                     >
-                        {sourceOption.map((item: any) => (
+                        {dsOptions.map((item: any) => (
                             <Option value={item.value} key={item.value}>{item.label}</Option>
                         ))}
                     </Select>
                 )}
             </FormItem>
             <FormItem {...formItemLayout} label="选择数据表" >
-                {getFieldDecorator('table', {
+                {getFieldDecorator('dataSourceTable', {
                     rules: [{
                         required: true,
                         message: '数据表不可为空！'
@@ -109,18 +107,18 @@ class BaseForm extends React.Component<any, any> {
                             let temStr = option.props.children + '';
                             return temStr.indexOf(input) >= 0;
                         }}
-                        onChange={this.handleSelectChange.bind(this, 'table')}
-                        disabled={false}
+                        onChange={this.handleSelectChange.bind(this, 'dataSourceTable')}
+                        disabled={isEdit}
                         placeholder="请选择数据表"
                     >
-                        {tableOption.map((item: any) => (
+                        {tableOptions.map((item: any) => (
                             <Option value={item.value} key={item.value}>{item.label}</Option>
                         ))}
                     </Select>
                 )}
             </FormItem>
             <FormItem {...formItemLayout} label="选择主键" >
-                {getFieldDecorator('primaryKey', {
+                {getFieldDecorator('entityPrimaryKey', {
                     rules: [{
                         required: true,
                         message: '主键不可为空！'
@@ -132,17 +130,17 @@ class BaseForm extends React.Component<any, any> {
                             let temStr = option.props.children + '';
                             return temStr.indexOf(input) >= 0;
                         }}
-                        disabled={false}
+                        disabled={isEdit}
                         placeholder="请选择维度作为实体主键"
                     >
-                        {primaryKeyOption.map((item: any) => (
+                        {tableColOptions.map((item: any) => (
                             <Option value={item.value} key={item.value}>{item.label}</Option>
                         ))}
                     </Select>
                 )}
             </FormItem>
             <FormItem {...formItemLayout} label="实体描述" >
-                {getFieldDecorator('desc', {
+                {getFieldDecorator('entityDesc', {
                     rules: [{
                         max: 255,
                         message: '描述不得超过255个字符！'

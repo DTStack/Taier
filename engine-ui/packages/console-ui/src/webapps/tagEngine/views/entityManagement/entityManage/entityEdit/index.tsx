@@ -8,7 +8,8 @@ import AtomicLabel from './atomicLabel';
 import FinishPart from './finishPart';
 import Breadcrumb from '../../../../components/breadcrumb';
 import './style.scss';
-import { isEmpty } from 'lodash';
+import { isEmpty, get } from 'lodash';
+import { API } from '../../../../api/apiMap';
 const Step = Steps.Step;
 
 interface IProps {
@@ -20,6 +21,11 @@ interface IState {
     baseFormVal: any;
     dimensionInfor: any[];
     atomicLabelData: any[];
+
+    dsOptions: any[];
+    tableOptions: any[];
+    tableColOptions: any[];
+    attrTypeOptions: any[];
 }
 
 export default class EntityEdit extends React.Component<IProps, IState> {
@@ -27,23 +33,99 @@ export default class EntityEdit extends React.Component<IProps, IState> {
         current: 0,
         baseFormVal: {},
         dimensionInfor: [],
-        atomicLabelData: []
+        atomicLabelData: [],
+
+        dsOptions: [],
+        tableOptions: [],
+        tableColOptions: [],
+        attrTypeOptions: []
     }
 
     baseFormRef: any = null;
 
     componentDidMount () {
-        console.log('location:', this.props.location)
+        let id = get(this.props.location, 'state.id');
+        this.selectDataSource();
+        this.getLabelType();
+        if (id) {
+            let values = get(this.props.location, 'state');
+            this.setState({
+                baseFormVal: values || {}
+            })
+            this.getDataTableList(false, values.dataSourceId);
+            this.getColumnList(false, values.dataSourceId, values.dataSourceTable, id);
+        }
     }
 
-    getDimensionData = (params: any) => {
-        // TODO 根据上一表单信息请求 维度信息
-        this.setState({
-            dimensionInfor: [
-                { id: '1', new: false, select: true, isKey: true, isMultiply: false, name: 'xxxxxxx', chName: 'xxx1', type: 'char', propertyNum: 200 },
-                { id: '2', new: true, select: false, isKey: false, isMultiply: false, name: 'xxxxx', chName: 'xxx2', type: 'number', propertyNum: 100 },
-                { id: '3', new: false, select: false, isKey: false, isMultiply: true, name: 'xxxxx', chName: 'xxx3', type: 'time', propertyNum: 30 }
-            ]
+    selectDataSource = () => {
+        API.selectDataSource().then((res: any) => {
+            const { data = [], code } = res;
+            if (code === 1) {
+                this.setState({
+                    dsOptions: data.map(item => {
+                        return { label: item.dataName, value: item.id };
+                    })
+                });
+            }
+        })
+    }
+
+    getLabelType = () => {
+        API.getLabelType().then((res: any) => {
+            const { data = [], code } = res;
+            if (code === 1) {
+                this.setState({
+                    attrTypeOptions: data.map(item => {
+                        return { label: item.desc, value: item.val };
+                    })
+                });
+            }
+        })
+    }
+
+    getDataTableList = (setEmpty, id) => {
+        if (setEmpty) {
+            this.setState({
+                tableOptions: []
+            })
+            return;
+        }
+        API.getDataTableList({
+            dataSourceId: id
+        }).then((res: any) => {
+            const { data = [], code } = res;
+            if (code === 1) {
+                let tableOptions = data.map(item => {
+                    return { label: item, value: item }
+                })
+                this.setState({
+                    tableOptions
+                });
+            }
+        })
+    }
+
+    getColumnList = (setEmpty, dataSourceId, index, entityId?: any) => {
+        if (setEmpty) {
+            this.setState({
+                tableColOptions: []
+            })
+            return;
+        }
+        API.getColumnList({
+            dataSourceId,
+            index,
+            entityId: entityId || undefined
+        }).then((res: any) => {
+            const { data = [], code } = res;
+            if (code === 1) {
+                this.setState({
+                    tableColOptions: data.map(item => {
+                        return { label: item.entityAttr, value: item.entityAttr };
+                    }),
+                    dimensionInfor: data
+                });
+            }
         })
     }
 
@@ -55,13 +137,16 @@ export default class EntityEdit extends React.Component<IProps, IState> {
     }
 
     next = () => {
-        const { current, dimensionInfor } = this.state;
+        const { current, dimensionInfor, baseFormVal } = this.state;
         if (current == 0) {
             this.baseFormRef.props.form.validateFields((err: any, values: any) => {
                 if (!err) {
-                    this.getDimensionData(values);
+                    let resultBV = { ...values };
+                    if (baseFormVal.id) {
+                        resultBV.id = baseFormVal.id;
+                    }
                     this.setState({
-                        baseFormVal: values,
+                        baseFormVal: resultBV,
                         current: current + 1
                     })
                 }
@@ -123,16 +208,34 @@ export default class EntityEdit extends React.Component<IProps, IState> {
     }
 
     render () {
-        const { current, baseFormVal, dimensionInfor, atomicLabelData } = this.state;
+        const { current, baseFormVal, dimensionInfor, atomicLabelData, dsOptions, tableOptions, tableColOptions, attrTypeOptions } = this.state;
         const steps = [{
             title: '编辑基础信息',
-            content: <BaseForm key={current} infor={baseFormVal} wrappedComponentRef={(ref: any) => { this.baseFormRef = ref; }} />
+            content: <BaseForm
+                key={current}
+                infor={baseFormVal}
+                dsOptions={dsOptions}
+                tableOptions={tableOptions}
+                tableColOptions={tableColOptions}
+                getDataTableList={this.getDataTableList}
+                getColumnList={this.getColumnList}
+                wrappedComponentRef={(ref: any) => { this.baseFormRef = ref; }}
+            />
         }, {
             title: '设置维度信息',
-            content: <DimensionInfor handleChange={this.handleDimensionDataChange} infor={dimensionInfor} />
+            content: <DimensionInfor
+                handleChange={this.handleDimensionDataChange}
+                infor={dimensionInfor}
+                baseInfor={baseFormVal}
+                attrTypeOptions={attrTypeOptions}
+            />
         }, {
             title: '生成原子标签',
-            content: <AtomicLabel infor={atomicLabelData} handleChange={this.handleAtomicLabelDataChange} />
+            content: <AtomicLabel
+                infor={atomicLabelData}
+                baseInfor={baseFormVal}
+                handleChange={this.handleAtomicLabelDataChange}
+            />
         }, {
             title: '完成',
             content: <FinishPart goBack={this.handleBack} />

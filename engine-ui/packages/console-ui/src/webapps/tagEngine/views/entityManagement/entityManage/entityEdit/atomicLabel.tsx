@@ -3,24 +3,28 @@ import { Input, Table, Popover } from 'antd';
 import ConfigDictModal from './configDictModal';
 import { isEqual } from 'lodash';
 // import EditCell from '../../../../components/editCell';
+import { API } from '../../../../api/apiMap';
 import './style.scss';
 
 interface IProps {
     infor: any[];
     handleChange: any;
+    baseInfor: any;
 }
 
 interface IState {
     dataSource: any[];
     configModalVisble: boolean;
     total: number;
+    tagVals: any[];
 }
 
 export default class AtomicLabel extends React.Component<IProps, IState> {
     state: IState = {
         dataSource: [],
         configModalVisble: false,
-        total: 0
+        total: 0,
+        tagVals: []
     }
 
     componentDidMount () {
@@ -68,8 +72,31 @@ export default class AtomicLabel extends React.Component<IProps, IState> {
         this.props.handleChange([...data]);
     }
 
-    renderPopoverContent = (infor) => {
-        let dataSource = infor.map((item, index) => {
+    handleViewTagVals = (column, visible) => {
+        if (visible) {
+            this.getColumnVals(column);
+        }
+    }
+
+    getColumnVals = (column) => {
+        const { baseInfor } = this.props;
+        API.getColumnVals({
+            dataSourceId: baseInfor.dataSourceId,
+            index: baseInfor.dataSourceTable,
+            column
+        }).then((res: any) => {
+            const { data = [], code } = res;
+            if (code === 1) {
+                this.setState({
+                    tagVals: data
+                });
+            }
+        })
+    }
+
+    renderPopoverContent = () => {
+        const { tagVals } = this.state;
+        let dataSource = tagVals.map((item, index) => {
             return {
                 value: item,
                 index
@@ -97,17 +124,17 @@ export default class AtomicLabel extends React.Component<IProps, IState> {
     initColumns = () => {
         return [{
             title: '标签名称',
-            dataIndex: 'labelName',
-            key: 'labelName',
+            dataIndex: 'tagName',
+            key: 'tagName',
             width: 200,
             render: (text: any, record: any, index: number) => {
                 // return <EditCell
-                //     keyField="labelName"
+                //     keyField="tagName"
                 //     isView={false}
-                //     onHandleEdit={this.handleLabelNameEdit}
+                //     onHandleEdit={this.handletagNameEdit}
                 //     value={text || ''}
                 // />
-                return (<Input style={{ width: 150 }} value={text} onChange={this.handleTableChange.bind(this, 'labelName', record, index)} />)
+                return (<Input style={{ width: 150 }} value={text} onChange={this.handleTableChange.bind(this, 'tagName', record, index)} />)
             }
         }, {
             title: '对应维度',
@@ -129,10 +156,9 @@ export default class AtomicLabel extends React.Component<IProps, IState> {
             dataIndex: 'labelDetail',
             key: 'labelDetail',
             render: (text: any, record: any) => {
-                let labelVal = [111, 222, 333, 444, 666, 777, 888, 99999];
-                let realContent = this.renderPopoverContent(labelVal);
+                let realContent = this.renderPopoverContent();
                 return (
-                    <Popover overlayClassName="label-detail-content" placement="rightTop" title={null} content={realContent} trigger="click">
+                    <Popover overlayClassName="label-detail-content" onVisibleChange={this.handleViewTagVals.bind(this, record.dimensionName)} placement="rightTop" title={null} content={realContent} trigger="click">
                         <a>预览</a>
                     </Popover>
                 );
@@ -147,8 +173,8 @@ export default class AtomicLabel extends React.Component<IProps, IState> {
             }
         }, {
             title: '标签描述',
-            dataIndex: 'desc',
-            key: 'desc',
+            dataIndex: 'tagDesc',
+            key: 'tagDesc',
             width: 200,
             render: (text: any, record: any, index: number) => {
                 return (<Input style={{ width: 150 }} value={text} onChange={this.handleTableChange.bind(this, 'desc', record, index)} />)

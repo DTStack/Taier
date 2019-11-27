@@ -1,7 +1,8 @@
 import http from './http';
 import LabelCenter from './labelCenter';
+import Entity from './entity';
 
-let combineApi = Object.assign({}, LabelCenter);
+let combineApi = Object.assign({}, LabelCenter, Entity);
 
 const { keys } = Object;
 function mapUrlObjToFuncObj (urlObj) {
