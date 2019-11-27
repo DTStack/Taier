@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Modal, Form, Select, Radio, Input } from 'antd';
 // import { formItemLayout } from '../../../../comm/const';
 import SetDictionary from '../../../../components/setDictionary';
-import { uniq } from 'lodash';
+import { uniq, get } from 'lodash';
 import { API } from '../../../../api/apiMap';
 
 const FormItem = Form.Item;
@@ -53,7 +53,7 @@ class ConfigDictModal extends React.Component<any, any> {
         this.props.form.validateFields(async (err: any, values: any) => {
             if (!err) {
                 console.log(values);
-                this.props.onOk();
+                this.props.onOk(values);
             }
         })
     }
@@ -69,7 +69,7 @@ class ConfigDictModal extends React.Component<any, any> {
 
     render () {
         const { dictionaryOption } = this.state;
-        const { visible, isLabel } = this.props;
+        const { visible, isLabel, configItem } = this.props;
         const { getFieldDecorator, getFieldValue } = this.props.form;
 
         let wayOption: any[] = [
@@ -107,7 +107,7 @@ class ConfigDictModal extends React.Component<any, any> {
                             rules: [{
                                 required: true, message: '选择方式不可为空！'
                             }],
-                            initialValue: 'auto'
+                            initialValue: get(configItem, 'way') || 'auto'
                         })(
                             <RadioGroup options={wayOption} />
                         )}
@@ -116,7 +116,8 @@ class ConfigDictModal extends React.Component<any, any> {
                         {getFieldDecorator('dictRef', {
                             rules: [{
                                 required: true, message: '字典引用不可为空！'
-                            }]
+                            }],
+                            initialValue: get(configItem, 'dictRef') || undefined
                         })(
                             <Select
                                 style={{ width: '100%' }}
@@ -135,7 +136,8 @@ class ConfigDictModal extends React.Component<any, any> {
                             }, {
                                 max: 20,
                                 message: '字典名称不可超过20个字符！'
-                            }]
+                            }],
+                            initialValue: get(configItem, 'dictSetName') || undefined
                         })(
                             <Input placeholder="请输入字典名称" />
                         )}
@@ -149,7 +151,8 @@ class ConfigDictModal extends React.Component<any, any> {
                                 }, {
                                     validator: this.ruleValRepeatVerify
                                 }
-                            ]
+                            ],
+                            initialValue: get(configItem, 'dictSetRule') || undefined
                         })(<SetDictionary isEdit={true} />)}
                     </Form.Item>}
                 </Form>

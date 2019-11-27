@@ -3,6 +3,7 @@ import { Input, message } from 'antd';
 interface IProps {
     value?: string | number;
     onChange?: Function;
+    max?: number;
     [propName: string]: any;
 }
 
@@ -35,8 +36,9 @@ export default class EditInput extends React.PureComponent<IProps, IState> {
     }
     onChangeValue = (e: any) => {
         let value = e.target.value;
-        if (value && value.length > 20) {
-            message.warning('字符长度不可超过20!');
+        const { max } = this.props;
+        if (value && max && value.length > max) {
+            message.warning(`字符长度不可超过${max}!`);
         } else {
             this.setState({
                 value

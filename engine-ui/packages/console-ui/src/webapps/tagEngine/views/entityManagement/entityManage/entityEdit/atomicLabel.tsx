@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { Input, Table, Popover } from 'antd';
+import { Table, Popover } from 'antd';
 import ConfigDictModal from './configDictModal';
 import { isEqual } from 'lodash';
-// import EditCell from '../../../../components/editCell';
+import EditInput from '../../../../components/editInput';
 import { API } from '../../../../api/apiMap';
 import './style.scss';
 
@@ -10,6 +10,7 @@ interface IProps {
     infor: any[];
     handleChange: any;
     baseInfor: any;
+    attrTypeMap: any;
 }
 
 interface IState {
@@ -17,14 +18,18 @@ interface IState {
     configModalVisble: boolean;
     total: number;
     tagVals: any[];
+    configItem: any;
 }
+
+let timer: any = null;
 
 export default class AtomicLabel extends React.Component<IProps, IState> {
     state: IState = {
         dataSource: [],
         configModalVisble: false,
         total: 0,
-        tagVals: []
+        tagVals: [],
+        configItem: {}
     }
 
     componentDidMount () {
@@ -45,22 +50,40 @@ export default class AtomicLabel extends React.Component<IProps, IState> {
         }
     }
 
-    handleConfig = () => {
+    componentWillUnmount () {
+        if (timer) {
+            clearTimeout(timer);
+            timer = null;
+        }
+    }
+
+    handleConfig = (item, index) => {
         this.setState({
-            configModalVisble: true
+            configModalVisble: true,
+            configItem: {
+                ...item,
+                labelIndex: index
+            }
         })
     }
 
-    handleConfModelOk = () => {
-        this.setState({
-            configModalVisble: false
-        })
+    handleConfModelOk = (value) => {
+        console.log('To Deal: ', value);
+        // TODO 处理配置弹框中的数据
+        this.handleConfModelCancel();
     }
 
     handleConfModelCancel = () => {
         this.setState({
             configModalVisble: false
         })
+        timer = setTimeout(() => {
+            this.setState({
+                configItem: {}
+            })
+            clearTimeout(timer);
+            timer = null;
+        }, 100)
     }
 
     handleTableChange = (type: string, record: any, index: number, e: any) => {
@@ -122,19 +145,18 @@ export default class AtomicLabel extends React.Component<IProps, IState> {
     }
 
     initColumns = () => {
+        const { attrTypeMap = {} } = this.props;
         return [{
             title: '标签名称',
             dataIndex: 'tagName',
             key: 'tagName',
             width: 200,
             render: (text: any, record: any, index: number) => {
-                // return <EditCell
-                //     keyField="tagName"
-                //     isView={false}
-                //     onHandleEdit={this.handletagNameEdit}
-                //     value={text || ''}
-                // />
-                return (<Input style={{ width: 150 }} value={text} onChange={this.handleTableChange.bind(this, 'tagName', record, index)} />)
+                return <EditInput
+                    onChange={this.handleTableChange.bind(this, 'tagName', record, index)}
+                    value={text}
+                    style={{ width: 150 }}
+                />
             }
         }, {
             title: '对应维度',
@@ -145,7 +167,10 @@ export default class AtomicLabel extends React.Component<IProps, IState> {
             title: '数据类型',
             dataIndex: 'type',
             key: 'type',
-            width: 120
+            width: 120,
+            render: (text: any) => {
+                return attrTypeMap[text];
+            }
         }, {
             title: '标签值数量',
             dataIndex: 'labelNum',
@@ -158,7 +183,7 @@ export default class AtomicLabel extends React.Component<IProps, IState> {
             render: (text: any, record: any) => {
                 let realContent = this.renderPopoverContent();
                 return (
-                    <Popover overlayClassName="label-detail-content" onVisibleChange={this.handleViewTagVals.bind(this, record.dimensionName)} placement="rightTop" title={null} content={realContent} trigger="click">
+                    <Popover overlayClassName="label-detail-content" onVisibleChange={this.handleViewTagVals.bind(this, record.entityAttr)} placement="rightTop" title={null} content={realContent} trigger="click">
                         <a>预览</a>
                     </Popover>
                 );
@@ -168,8 +193,8 @@ export default class AtomicLabel extends React.Component<IProps, IState> {
             dataIndex: 'config',
             key: 'config',
             width: 120,
-            render: (text: any, record: any) => {
-                return record.type == 'time' ? '' : <a onClick={this.handleConfig}>配置字典</a>
+            render: (text: any, record: any, index: number) => {
+                return record.type == 'time' ? '' : <a onClick={this.handleConfig.bind(this, record, index)}>配置字典</a>
             }
         }, {
             title: '标签描述',
@@ -177,13 +202,17 @@ export default class AtomicLabel extends React.Component<IProps, IState> {
             key: 'tagDesc',
             width: 200,
             render: (text: any, record: any, index: number) => {
-                return (<Input style={{ width: 150 }} value={text} onChange={this.handleTableChange.bind(this, 'desc', record, index)} />)
+                return <EditInput
+                    onChange={this.handleTableChange.bind(this, 'tagDesc', record, index)}
+                    value={text}
+                    style={{ width: 150 }}
+                />
             }
         }];
     }
 
     render () {
-        const { dataSource, configModalVisble, total } = this.state;
+        const { dataSource, configModalVisble, total, configItem } = this.state;
         return (
             <div className="atomic-label">
                 <div className="top-box">
@@ -203,6 +232,7 @@ export default class AtomicLabel extends React.Component<IProps, IState> {
                 <ConfigDictModal
                     visible={configModalVisble}
                     isLabel={true}
+                    infor={configItem}
                     onOk={this.handleConfModelOk}
                     onCancel={this.handleConfModelCancel}
                 />
