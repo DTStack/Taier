@@ -133,9 +133,7 @@ class MoveTreeNode extends React.PureComponent<IProps, IState> {
         this.setState({
             searchValue: '',
             expandedKeys: [],
-            autoExpandParent: true,
-            dataList: [],
-            data: []
+            autoExpandParent: true
         })
     }
     renderNode = (data: any[]) => {

@@ -65,9 +65,9 @@ module.exports = {
                 secure: false
             },
             '/api/v1': { // 标签引擎
-                // target: 'http://172.16.8.194:8084', // 开发环境
-                target: 'http://172.16.3.30:8084', // 开发环境
-                pathRewrite:{"^/api/tag":"/"},
+                target: 'http://172.16.8.194:8084', // 开发环境
+                // target: 'http://172.16.3.30:8084', // 开发环境
+                // pathRewrite:{"^/api/tag":"/"},
                 changeOrigin: true,
                 secure: false
             },

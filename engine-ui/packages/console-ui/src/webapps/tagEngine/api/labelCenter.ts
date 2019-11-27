@@ -61,6 +61,26 @@ export default {
     getTagRule: { // 获取原子标签规则
         method: 'post',
         url: '/api/v1/tag/getTagRule'
+    },
+    getEditorDetailVo: { // 编辑详情接口
+        method: 'post',
+        url: '/api/v1/tag/getEditorDetailVo'
+    },
+    selectEntityAttrs: { // 数据维度-筛选列表
+        method: 'post',
+        url: '/api/v1/entity/selectEntityAttrs '
+    },
+    getDataType: { // 标签数据类型
+        method: 'post',
+        url: '/api/v1/common/dataType'
+    },
+    getDictListByType: { // 获取字典引用
+        method: 'post',
+        url: '/api/v1/dict/getDictListByType'
+    },
+    editorAtomTagRule: { // 编辑原子标签规则
+        method: 'post',
+        url: '/api/v1/tag/editorAtomTagRule'
     }
 
 };

@@ -5,7 +5,7 @@ import Breadcrumb from '../../../components/breadcrumb';
 import ModuleTitle from '../../../components/moduleTitle';
 import { Button, Card, Table } from 'antd';
 import { get } from 'lodash';
-import API from '../../../api/entity';
+import { API } from '../../../api/apiMap';
 
 interface IProps {
     location: any;

@@ -1,28 +1,48 @@
 import * as React from 'react';
 // import EditCell from '../../../../components/editCell';
 import EllipsisText from '../../../../components/ellipsisText';
+import { API } from '../../../../api/apiMap';
 
-import { Card, Table, Input } from 'antd';
+import { Card, Table, Input, message as Message } from 'antd';
 import './style.scss';
 import { isEmpty } from 'lodash';
 
 interface IProps {
-    dataSource: any;
+    infor: any;
+    regetData: any;
 }
 
 interface IState {
     currentItem: any;
     editInputVal: string;
+    attrTypeMap: any;
 }
 
 export default class DimensionData extends React.Component<IProps, IState> {
     state: IState = {
         currentItem: {},
-        editInputVal: ''
+        editInputVal: '',
+        attrTypeMap: {}
     }
 
     componentDidMount () {
+        this.getLabelType();
+    }
 
+    getLabelType = () => {
+        API.getLabelType().then((res: any) => {
+            const { data = [], code } = res;
+            if (code === 1) {
+                this.setState({
+                    attrTypeMap: data.reduce((pre, curr) => {
+                        return {
+                            ...pre,
+                            [curr.val]: curr.desc
+                        }
+                    }, {})
+                });
+            }
+        })
     }
 
     handleCNChange = () => {
@@ -32,7 +52,7 @@ export default class DimensionData extends React.Component<IProps, IState> {
     setEditItem = (item) => {
         this.setState({
             currentItem: item,
-            editInputVal: item.chName
+            editInputVal: item.entityAttrCn
         })
     }
 
@@ -44,10 +64,19 @@ export default class DimensionData extends React.Component<IProps, IState> {
     };
 
     onOkEdit = () => {
+        const { infor } = this.props;
         const { editInputVal } = this.state;
-        console.log('editInputVal', editInputVal);
-        // TODO 更新数据维度中文名
-        this.onCancelEdit();
+        API.entityAttrsEdit({
+            attrId: infor.id,
+            entityAttrCn: editInputVal
+        }).then((res: any) => {
+            const { code } = res;
+            if (code === 1) {
+                Message.success('修改成功！');
+                this.onCancelEdit();
+                this.props.regetData();
+            }
+        })
     };
 
     onCancelEdit = () => {
@@ -58,27 +87,27 @@ export default class DimensionData extends React.Component<IProps, IState> {
     };
 
     initColumns = () => {
-        const { currentItem, editInputVal } = this.state;
+        const { currentItem, editInputVal, attrTypeMap } = this.state;
         return [{
             title: '维度名称',
-            dataIndex: 'name',
-            key: 'name',
+            dataIndex: 'entityAttr',
+            key: 'entityAttr',
             width: 200,
             render: (text: any, record: any) => {
                 return (
                     <div className="di-table-name-col">
                         <div className="tag-box">
-                            {record.isKey ? <a style={{ cursor: 'default' }}><i className='iconfont iconicon_key'></i></a> : null}
+                            {record.isPrimaryKey ? <a style={{ cursor: 'default' }}><i className='iconfont iconicon_key'></i></a> : null}
                         </div>
                         <span>{text}</span>
-                        {record.isKey ? '(主键)' : ''}
+                        {record.isPrimaryKey ? '(主键)' : ''}
                     </div>
                 )
             }
         }, {
             title: '中文名',
-            dataIndex: 'chName',
-            key: 'chName',
+            dataIndex: 'entityAttrCn',
+            key: 'entityAttrCn',
             width: 300,
             render: (text: any, record: any) => {
                 return <div className="dd-edit-cell">
@@ -103,36 +132,45 @@ export default class DimensionData extends React.Component<IProps, IState> {
             }
         }, {
             title: '数据类型',
-            dataIndex: 'type',
-            key: 'type',
-            width: 200
+            dataIndex: 'dataType',
+            key: 'dataType',
+            width: 200,
+            render: (text: any) => {
+                return attrTypeMap[text];
+            }
         }, {
             title: '属性值数量',
-            dataIndex: 'propertyNum',
-            key: 'propertyNum',
+            dataIndex: 'tagValueCount',
+            key: 'tagValueCount',
             width: 150
         }, {
             title: '多值列',
-            dataIndex: 'isMultiply',
-            key: 'isMultiply',
-            width: 150
+            dataIndex: 'isMultipleValue',
+            key: 'isMultipleValue',
+            width: 150,
+            render: (text: any) => {
+                return text ? '是' : '否'
+            }
         }, {
             title: '关联原子标签',
-            dataIndex: 'isRelateLabel',
-            key: 'isRelateLabel',
+            dataIndex: 'isAtomTag',
+            key: 'isAtomTag',
             filters: [
-                { text: '否', value: '否' },
-                { text: '是', value: '是' }
+                { text: '否', value: '0' },
+                { text: '是', value: '1' }
             ],
             filterMultiple: false,
             onFilter: (value: string, record: any) => {
-                return record.isRelateLabel == value;
+                return record.isAtomTag == value;
+            },
+            render: (text: any) => {
+                return text ? '是' : '否'
             }
         }];
     }
 
     render () {
-        const { dataSource = [] } = this.props;
+        const { infor: { propertyData = [] } } = this.props;
 
         return (
             <div className="ed-dimension-data shadow">
@@ -142,7 +180,7 @@ export default class DimensionData extends React.Component<IProps, IState> {
                     className="noBorderBottom"
                 >
                     <div className="total-count-box">
-                        <span>共计&nbsp;{dataSource.length}个&nbsp;数据维度</span>
+                        <span>共计&nbsp;{propertyData.length}个&nbsp;数据维度</span>
                     </div>
                     <Table
                         rowKey="id"
@@ -150,7 +188,7 @@ export default class DimensionData extends React.Component<IProps, IState> {
                         pagination={false}
                         scroll={{ y: 400 }}
                         columns={this.initColumns()}
-                        dataSource={dataSource}
+                        dataSource={propertyData}
                     />
                 </Card>
             </div>

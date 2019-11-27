@@ -3,6 +3,7 @@ import { Modal, Form, Select, Radio, Input } from 'antd';
 // import { formItemLayout } from '../../../../comm/const';
 import SetDictionary from '../../../../components/setDictionary';
 import { uniq } from 'lodash';
+import { API } from '../../../../api/apiMap';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -21,15 +22,27 @@ const formItemLayout = {
 
 class ConfigDictModal extends React.Component<any, any> {
     state: any = {
-        dictionaryOption: [
-            { label: 'xxx1', value: 'xxx1' },
-            { label: 'xxx2', value: 'xxx2' },
-            { label: 'xxx3', value: 'xxx3' }
-        ]
+        dictionaryOption: []
     }
 
     componentDidMount () {
-        // TODO isLabel ? 请求标签字典下拉 : 请求维度字典下拉
+        this.getDictListByType();
+    }
+
+    getDictListByType = () => {
+        const { isLabel } = this.props;
+        API.getDictListByType({
+            dictType: isLabel ? 0 : 1
+        }).then((res: any) => {
+            const { data = [], code } = res;
+            if (code === 1) {
+                this.setState({
+                    dictionaryOption: data.map(item => {
+                        return { label: item.name, value: item.id };
+                    })
+                });
+            }
+        })
     }
 
     onCancel = () => {

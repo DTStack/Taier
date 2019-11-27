@@ -2,6 +2,8 @@ import * as React from 'react';
 import { Form, Select, Button, Radio, Input } from 'antd';
 import { FormComponentProps } from 'antd/lib/form/Form';
 import SetDictionary from '../../../../../components/setDictionary';
+import { API } from '../../../../../api/apiMap';
+
 import './style.scss';
 import { Link } from 'react-router';
 const { Option } = Select;
@@ -10,13 +12,17 @@ interface IProps extends FormComponentProps {
     onNext: Function;
     onPrev: Function;
     isShow: boolean;
+    entityId: string|number;
+    data: any;
 }
 interface IState {
-    indexList: any[];
-    keyList: any[];
-    index: string | number;
+    entityList: any[];
+    dimensionList: any[];
+    dataTypeList: any[];
+    dictList: any[];
     select: '';
     tags: any[];
+    radio: any;
 }
 const formItemLayout = {
     labelCol: {
@@ -34,70 +40,125 @@ class StepTwo extends React.PureComponent<IProps, IState> {
     }
 
     state: IState = {
-        indexList: ['name'],
-        keyList: [],
-        index: '',
+        entityList: [],
+        dimensionList: [],
+        dataTypeList: [],
+        dictList: [],
         select: '',
-        tags: []
+        tags: [],
+        radio: 0
     };
     componentDidMount () {
         this.loadMainData(false);
     }
+    componentDidUpdate (preProps) {
+        const { data } = this.props;
+        if (data != preProps.data) {
+            const { entityId, dimensionalityId, dateType, tagDictId, tagDictName, dictValueVoList } = data;
+            if (tagDictId) {
+                this.setState({
+                    radio: 0
+                });
+                this.props.form.setFieldsValue({ entityId, dimensionalityId, dateType, tagDictId })
+            } else {
+                this.props.form.setFieldsValue({
+                    entityId,
+                    dimensionalityId,
+                    dateType,
+                    tagDictId,
+                    tagDictName,
+                    dictValueVoList: dictValueVoList.map(item => {
+                        return {
+                            key: item.id,
+                            id: item.id,
+                            name: item.valueName,
+                            value: item.value
+                        }
+                    }) })
+            }
+        }
+    }
     loadMainData (isClear: boolean) {
-        if (isClear) {
-            // 清除一些过滤条件
-        }
-        // API.indexListUsingGet({}).then(res => { // 获取索引列表
-        //     const { success, data, message } = res;
-        //     if (success) {
-        //         this.setState({
-        //             indexList: data
-        //         })
-        //     } else {
-        //         Message.error(message)
-        //     }
-        // })
+        this.getEntityList();
+        this.selectEntityAttrs();
+        this.getDataType();
+        this.getDictListByType()
     }
-    getKeyList = (index: number) => {
-        // API.keyListUsingGet({
-        //     index
-        // }).then(res => { // 获取主键列表
-        //     const { success, data, message } = res;
-        //     if (success) {
-        //         this.setState({
-        //             keyList: data
-        //         })
-        //     } else {
-        //         Message.error(message)
-        //     }
-        // })
+    getEntityList = () => { // 获取实体
+        API.selectEntity().then(res => {
+            const { code, data } = res;
+            if (code === 1) {
+                this.setState({
+                    entityList: data
+                });
+            }
+        })
     }
-    onChangeSelect = (value, type) => {
-        if (type == 'tags') {
-            this.setState({
-                select: value
-            })
-        }
+    selectEntityAttrs = () => { // 获取所属维度
+        const { entityId } = this.props;
+        API.selectEntityAttrs({ entityId }).then(res => {
+            const { code, data } = res;
+            if (code === 1) {
+                this.setState({
+                    dimensionList: data
+                });
+            }
+        })
+    }
+    getDataType = () => { // 获取数据类型
+        API.getDataType().then(res => {
+            const { code, data } = res;
+            if (code === 1) {
+                this.setState({
+                    dataTypeList: data
+                });
+            }
+        })
+    }
+    getDictListByType = () => { // 获取字典引用
+        API.getDictListByType({ dictType: 0 }).then(res => {
+            const { code, data } = res;
+            if (code === 1) {
+                this.setState({
+                    dictList: data
+                });
+            }
+        })
     }
     onHandleNext = (e: any) => {
         this.props.form.validateFields((err, values) => {
-            console.log(err, values)
             if (!err) {
-                this.props.onNext(values);
+                let dictValueVoList = []
+                if (values.dictValueVoList && values.dictValueVoList.length) {
+                    dictValueVoList = values.dictValueVoList.map(item => {
+                        return {
+                            id: item.id,
+                            value: item.value,
+                            valueName: item.name
+                        }
+                    })
+                }
+                this.props.onNext(Object.assign({}, values, { dictValueVoList }));
             }
         });
     }
     onHandlePrev = () => {
         this.props.onPrev();
     }
+    onSelectRadio = (e) => {
+        const value = e.target.value
+        this.setState({
+            radio: value
+        })
+    }
     render () {
         const { form, isShow } = this.props;
-        const { indexList } = this.state;
-        const { getFieldDecorator, getFieldValue } = form;
+        const { entityList, dimensionList, dataTypeList, dictList, radio } = this.state;
+        const { getFieldDecorator } = form;
         return (
             <div className="atom_stepTwo" style={{ display: isShow ? 'block' : 'none' }}>
                 <Form.Item {...formItemLayout} label="选择实体">
-                    {getFieldDecorator('entityIndex', {
+                    {getFieldDecorator('entityId', {
                         rules: [
                             {
                                 required: true,
@@ -105,30 +166,32 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                             }
                         ]
                     })(
-                        <Select placeholder="请选择实体" disabled showSearch onChange={(value) => this.onChangeSelect(value, 'index')} style={{ width: '100%' }}>
+                        <Select placeholder="请选择实体" disabled showSearch style={{ width: '100%' }}>
                             {
-                                indexList.map(item => <Option value={item} key={item}>{item}</Option>)
+                                entityList.map(item => <Option value={item.id} key={item.id}>{item.entityName}</Option>)
+
                             }
                         </Select>
                     )}
                 </Form.Item>
                 <Form.Item {...formItemLayout} label="选择维度">
-                    {getFieldDecorator('entityIndex', {
+                    {getFieldDecorator('dimensionalityId', {
                         rules: [
                             {
                                 message: '请选择维度'
                             }
                         ]
                     })(
-                        <Select placeholder="请选择维度" disabled showSearch onChange={(value) => this.onChangeSelect(value, 'index')} style={{ width: '100%' }}>
+                        <Select placeholder="请选择维度" disabled showSearch style={{ width: '100%' }}>
                             {
-                                indexList.map(item => <Option value={item} key={item}>{item}</Option>)
+                                dimensionList.map(item => <Option value={item.id} key={item.id}>{item.entityAttrCn}</Option>)
+
                             }
                         </Select>
                     )}
                 </Form.Item>
                 <Form.Item {...formItemLayout} label="数据类型">
-                    {getFieldDecorator('tags', {
+                    {getFieldDecorator('dateType', {
                         rules: [
                             {
                                 required: true,
@@ -136,9 +199,9 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                             }
                         ]
                     })(
-                        <Select placeholder="请选择维度" disabled showSearch onChange={(value) => this.onChangeSelect(value, 'index')} style={{ width: '100%' }}>
+                        <Select placeholder="请选择数据类型" disabled showSearch style={{ width: '100%' }}>
                             {
-                                indexList.map(item => <Option value={item} key={item}>{item}</Option>)
+                                dataTypeList.map(item => <Option value={item.val} key={item.val}>{item.desc}</Option>)
                             }
                         </Select>
                     )}
@@ -147,25 +210,15 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                     <Link to="#">标签值详情</Link>
                 </Form.Item>
                 <Form.Item {...formItemLayout} label="字典类型">
-                    {getFieldDecorator('dictType', {
-                        initialValue: 1,
-                        rules: [
-                            {
-                                required: true,
-                                message: '请选择字典类型'
-                            }
-                        ]
-                    })(
-                        <Radio.Group>
-                            <Radio value={1}>自定义</Radio>
-                            <Radio value={0}>引用</Radio>
-                        </Radio.Group>
-                    )}
+                    <Radio.Group value={radio} onChange={this.onSelectRadio}>
+                        <Radio value={1}>自定义</Radio>
+                        <Radio value={0}>引用</Radio>
+                    </Radio.Group>
                 </Form.Item>
-                {getFieldValue('dictType') ? (
+                { radio ? (
                     <React.Fragment>
                         <Form.Item {...formItemLayout} label="字典名称">
-                            {getFieldDecorator('dictName', {
+                            {getFieldDecorator('tagDictName', {
                                 initialValue: [],
                                 rules: [
                                     {
@@ -176,7 +229,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                             })(<Input placeholder="请设置字典名称"/>)}
                         </Form.Item>
                         <Form.Item {...formItemLayout} label="字典值设置">
-                            {getFieldDecorator('dictDataList', {
+                            {getFieldDecorator('dictValueVoList', {
                                 initialValue: [],
                                 rules: [
                                     {
@@ -189,8 +242,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                     </React.Fragment>
                 ) : (
                     <Form.Item {...formItemLayout} label="字典引用">
-                        {getFieldDecorator('dictId', {
-                            initialValue: undefined,
+                        {getFieldDecorator('tagDictId', {
                             rules: [
                                 {
                                     required: true,
@@ -198,9 +250,9 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                                 }
                             ]
                         })(
-                            <Select placeholder="请选择引用字典" showSearch onChange={(value) => this.onChangeSelect(value, 'index')} style={{ width: '100%' }}>
+                            <Select placeholder="请选择引用字典" showSearch style={{ width: '100%' }}>
                                 {
-                                    indexList.map(item => <Option value={item} key={item}>{item}</Option>)
+                                    dictList.map(item => <Option value={item.id} key={item.id}>{item.name}</Option>)
                                 }
                             </Select>
                         )}

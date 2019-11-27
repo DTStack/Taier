@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Form, Select, Button, message as Message } from 'antd';
+import { Form, Select, Button } from 'antd';
 import { FormComponentProps } from 'antd/lib/form/Form';
 import shortid from 'shortid';
 import TagValues from '../tagValues';
@@ -14,11 +14,11 @@ interface IProps extends FormComponentProps {
     onNext: Function;
     onPrev: Function;
     isShow: boolean;
+    entityId: string|number;
 }
 interface IState {
-    indexList: any[];
+    entityList: any[];
     relationList: any[];
-    index: string | number;
     activeTag: '';
     tags: any[];
 }
@@ -39,13 +39,12 @@ class StepTwo extends React.PureComponent<IProps, IState> {
     }
     panelForm: any;
     state: IState = {
-        indexList: ['name'],
+        entityList: [],
         relationList: [],
-        index: '',
         activeTag: currentId,
         tags: [{
-            label: '标签值1',
             id: '',
+            label: '标签值1',
             value: currentId,
             valid: false,
             params: {
@@ -117,29 +116,47 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         }]
     };
     componentDidMount () {
-        this.loadMainData(false);
+        this.loadMainData();
     }
-    loadMainData (isClear: boolean) {
-        if (isClear) {
-            // 清除一些过滤条件
-        }
+    loadMainData () {
+        this.getEntityList();
+        this.getRelationList();
+        this.getEntityAtomTagList(null);
     }
-    getRelationList = (index: number) => { // 获取关系列表
-        API.getRelationList({
-            index
-        }).then(res => { // 获取主键列表
-            const { success, data, message } = res;
-            if (success) {
+    getEntityList = () => {
+        API.selectEntity().then(res => {
+            const { code, data } = res;
+            if (code === 1) {
                 this.setState({
-                    relationList: data
-                })
-            } else {
-                Message.error(message)
+                    entityList: data
+                });
             }
         })
     }
-    getEntityAtomTagList = () => { // 衍生标签用来获取实体列表与其对应的原子标签列表
-
+    getRelationList = () => { // 获取关系列表
+        const { entityId } = this.props;
+        API.getRelationList({
+            entityId
+        }).then(res => { // 获取主键列表
+            const { code, data } = res;
+            if (code === 1) {
+                this.setState({
+                    relationList: data
+                })
+            }
+        })
+    }
+    getEntityAtomTagList = (relationId) => { // 衍生标签用来获取实体列表与其对应的原子标签列表
+        const { entityId } = this.props;
+        API.getEntityAtomTagList({
+            entityId,
+            relationId
+        }).then(res => { // 获取主键列表
+            const { code, data } = res;
+            if (code === 1) {
+                console.log(data);
+            }
+        })
     }
     getAtomTagValueList = () => { // 获取原子标签列表
 
@@ -157,12 +174,17 @@ class StepTwo extends React.PureComponent<IProps, IState> {
             tags: newTags
         })
     }
-    onChangeSelect = (value, type) => {
-        if (type == 'tags') {
-            this.setState({
-                activeTag: value
-            })
-        }
+    onChangeSelect = (value) => {
+        this.setState({
+            tags: [],
+            activeTag: ''
+        })
+        this.getEntityAtomTagList(value);
+    }
+    onChangeSelectTag=(value) => {
+        this.setState({
+            activeTag: value
+        })
     }
     onChangeTags = (value) => {
         this.setState({
@@ -260,30 +282,32 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         }
     }
     onHandleNext = (e: any) => {
+        // const { tags } = this.state;
         this.panelForm.validateFields((err, values) => {
             if (!err) {
-                this.props.onNext(values);
+                console.log(values);
             }
         });
-        this.props.form.validateFields((err, values) => {
-            if (!err) {
-                this.props.onNext(values);
-            }
-        });
+        // this.props.form.validateFields((err, values) => {
+        //     if (!err) {
+        //         this.props.onNext(Object.assign({}, values, { tags }));
+        //     }
+        // });
     }
     onHandlePrev = () => {
         this.props.onPrev();
     }
     render () {
-        const { form, isShow } = this.props;
-        const { indexList, activeTag, tags } = this.state;
+        const { form, isShow, entityId } = this.props;
+        const { entityList, activeTag, tags, relationList } = this.state;
         const { getFieldDecorator } = form;
         const currentTag = activeTag ? tags.find(item => item.value == activeTag) : '';
         const treeData = currentTag ? currentTag.params : '';
         return (
             <div className="stepTwo" style={{ display: isShow ? 'block' : 'none' }}>
                 <Form.Item {...formItemLayout} label="选择实体">
-                    {getFieldDecorator('entityName', {
+                    {getFieldDecorator('entityId', {
+                        initialValue: entityId,
                         rules: [
                             {
                                 required: true,
@@ -291,30 +315,30 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                             }
                         ]
                     })(
-                        <Select placeholder="请选择实体" disabled showSearch onChange={(value) => this.onChangeSelect(value, 'index')} style={{ width: '100%' }}>
+                        <Select placeholder="请选择实体" disabled showSearch style={{ width: '100%' }}>
                             {
-                                indexList.map(item => <Option value={item} key={item}>{item}</Option>)
+                                entityList.map(item => <Option value={item.id} key={item.id}>{item.entityName}</Option>)
                             }
                         </Select>
                     )}
                 </Form.Item>
                 <Form.Item {...formItemLayout} label="选择关系">
-                    {getFieldDecorator('entityIndex', {
+                    {getFieldDecorator('relationId', {
                         rules: [
                             {
                                 message: '请选择关系'
                             }
                         ]
                     })(
-                        <Select placeholder="请选择关系" showSearch onChange={(value) => this.onChangeSelect(value, 'index')} style={{ width: '100%' }}>
+                        <Select placeholder="请选择关系" allowClear showSearch onChange={this.onChangeSelect} style={{ width: '100%' }}>
                             {
-                                indexList.map(item => <Option value={item} key={item}>{item}</Option>)
+                                relationList.map(item => <Option value={item.relId} key={item.relId}>{item.relName}</Option>)
                             }
                         </Select>
                     )}
                 </Form.Item>
                 <Form.Item {...formItemLayout} label="已选标签" required>
-                    <TagValues select={activeTag} value={tags} onChange={(value) => this.onChangeTags(value)} onSelect={(value) => this.onChangeSelect(value, 'tags')} />
+                    <TagValues select={activeTag} value={tags} onChange={(value) => this.onChangeTags(value)} onSelect={this.onChangeSelectTag} />
                 </Form.Item>
                 {
                     currentTag && (<PanelSelect ref={(node) => this.panelForm = node} treeData={treeData} currentTag={currentTag} onChangeLabel={this.onChangeLabel} onHandleAddCondition={this.onHandleAddCondition} onHandleChangeType={this.onHandleChangeType} onHandleDeleteCondition={this.onHandleDeleteCondition}/>)

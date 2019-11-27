@@ -1,21 +1,22 @@
 import * as React from 'react';
-import { Input, Form, Select, Button } from 'antd';
+import { Input, Form, Button, TreeSelect } from 'antd';
 import { FormComponentProps } from 'antd/lib/form/Form';
-import { debounce } from 'lodash';
+import { API } from '../../../../../api/apiMap';
 
 import './style.scss';
 
 const { TextArea } = Input;
-const { Option } = Select;
-
+const TreeNode: any = TreeSelect;
 interface IProps extends FormComponentProps {
     onNext: Function;
     onPrev: Function;
     isShow: boolean;
+    entityId: string|number;
+    tagId: string|number;
+    data: any;
 }
 interface IState {
-    indexList: any[];
-    keyList: any[];
+    cateOption: any[];
     index: string|number;
 }
 const formItemLayout = {
@@ -34,48 +35,34 @@ class StepOne extends React.PureComponent<IProps, IState> {
     }
 
     state: IState = {
-        indexList: [],
-        keyList: [],
+        cateOption: [],
         index: ''
     };
     componentDidMount () {
-        this.loadMainData(false);
+        this.loadMainData();
     }
-    loadMainData (isClear: boolean) {
-        if (isClear) {
-            // 清除一些过滤条件
+    componentDidUpdate (preProps) {
+        const { data } = this.props;
+        if (data != preProps.data) {
+            const { tagName, tagCateId, tagDesc } = data;
+            this.props.form.setFieldsValue({ tagName, tagCateId, tagDesc })
         }
-        // API.indexListUsingGet({}).then(res => { // 获取索引列表
-        //     const { success, data, message } = res;
-        //     if (success) {
-        //         this.setState({
-        //             indexList: data
-        //         })
-        //     } else {
-        //         Message.error(message)
-        //     }
-        // })
     }
-    getKeyList =(index: number) => {
-        // API.keyListUsingGet({
-        //     index
-        // }).then(res => { // 获取主键列表
-        //     const { success, data, message } = res;
-        //     if (success) {
-        //         this.setState({
-        //             keyList: data
-        //         })
-        //     } else {
-        //         Message.error(message)
-        //     }
-        // })
-    }
-    onChangeSelect = (value, type) => {
-
+    loadMainData () {
+        const { entityId } = this.props;
+        API.getTagCate({
+            entityId
+        }).then(res => { // 获取目录列表
+            const { code, data } = res;
+            if (code) {
+                this.setState({
+                    cateOption: data
+                });
+            }
+        })
     }
     onHandleNext = (e: any) => {
         this.props.form.validateFields((err, values) => {
-            console.log(err, values)
             if (!err) {
                 this.props.onNext(values);
             }
@@ -84,64 +71,64 @@ class StepOne extends React.PureComponent<IProps, IState> {
     onHandlePrev = () => {
         this.props.onPrev();
     }
-    validateName = debounce((rule, value, callback) => {
-        // if (value) {
-        //     let text = '标签名称不可以重复'
-        //     API.entityDistinctUsingPost({
-        //         entityCode: '',
-        //         entityName: value
-        //     }).then(res => {
-        //         const { success, data } = res;
-        //         if (success) {
-        //             if (!data) {
-        //                 callback(text)
-        //             } else {
-        //                 callback()
-        //             }
-        //         } else {
-        //             callback(text)
-        //         }
-        //     })
-        // }
-        callback()
-    }, 800)
+    renderTreeNode = (data) => {
+        return data.map((item: any) => {
+            if (item.children && item.children.length) {
+                return (
+                    <TreeNode value={item.tagCateId} title={item.cateName} key={item.tagCateId}>
+
+                        {
+                            this.renderTreeNode(item.children)
+                        }
+                    </TreeNode>
+                )
+            }
+            return <TreeNode value={item.tagCateId} title={item.cateName} key={item.tagCateId} />
+        })
+    }
+
     render () {
         const { form, isShow } = this.props;
-        const { indexList } = this.state;
+        const { cateOption } = this.state;
         const { getFieldDecorator } = form;
         return (
             <div className="stepOne" style={{ display: isShow ? 'block' : 'none' }}>
                 <Form.Item {...formItemLayout} label="标签名称">
-                    {getFieldDecorator('entityName', {
+                    {getFieldDecorator('tagName', {
                         rules: [
                             {
                                 required: true,
                                 max: 20,
-                                pattern: /^[\u4e00-\u9fa5]{0,}$/,
-                                message: '请输入实体中文名称，20字以内的中文字符'
-                            }, {
-                                validator: this.validateName
+                                pattern: /^[\u4E00-\u9FA5A-Za-z0-9_]+$/,
+                                message: '姓名只能包括汉字，字母、下划线、数字'
                             }
                         ]
-                    })(<Input placeholder="请输入实体中文名称，20字以内的中文字符" />)}
+                    })(<Input placeholder="请输入标签名称" />)}
                 </Form.Item>
                 <Form.Item {...formItemLayout} label="选择目录">
-                    {getFieldDecorator('entityIndex', {
+                    {getFieldDecorator('tagCateId', {
+                        initialValue: '7',
                         rules: [
                             {
                                 message: '请选择目录'
                             }
                         ]
                     })(
-                        <Select placeholder="请选择目录" showSearch onChange={(value) => this.onChangeSelect(value, 'index')} style={{ width: '100%' }}>
+                        <TreeSelect
+                            showSearch
+                            style={{ width: '100%' }}
+                            dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+                            placeholder="请选择目录"
+                            treeDefaultExpandAll
+                        >
                             {
-                                indexList.map(item => <Option value={item} key={item}>{item}</Option>)
+                                this.renderTreeNode(cateOption)
                             }
-                        </Select>
+                        </TreeSelect>
                     )}
                 </Form.Item>
                 <Form.Item {...formItemLayout} label="标签描述">
-                    {getFieldDecorator('description', {
+                    {getFieldDecorator('tagDesc', {
                         rules: [
                             {
                                 required: false,

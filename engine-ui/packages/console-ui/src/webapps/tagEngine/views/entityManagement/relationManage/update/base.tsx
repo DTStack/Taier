@@ -8,7 +8,7 @@ import { tailFormItemLayout } from '../../../../comm/const';
 import { IDataSource } from '../../../../model/dataSource';
 
 import CreateRelationEntityForm from './form';
-import EntityAPI from '../../../../api/entity';
+import { API } from '../../../../api/apiMap';
 import DataSourceAPI from '../../../../api/dataSource';
 import RelationGraph from '../../../../components/relationGraph';
 import { IRelation, IRelationEntity } from '../../../../model/relation';
