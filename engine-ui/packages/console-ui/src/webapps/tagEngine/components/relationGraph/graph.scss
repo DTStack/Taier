@@ -145,8 +145,8 @@
         }
 
         td {
-            height: 32px;
-            line-height: 32px;
+            // height: 32px;
+            // line-height: 32px;
             border-bottom: 1px solid #DDDDDD;
         }
     }
@@ -154,7 +154,7 @@
     .title {
         background: #dddddd;
         height: 32px;
-
+        line-height: 28px;
         select {
             margin: 6px 0;
         }

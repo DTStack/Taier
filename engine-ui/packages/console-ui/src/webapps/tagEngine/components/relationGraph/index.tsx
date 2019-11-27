@@ -105,7 +105,7 @@ function componentSelect (data: any, value: numOrStr, id?: numOrStr, className?:
     return `
         <select id="${id}" value="${value}" placeholder="${placeholder}" class="${className}" data-index=${index}>
             ${placeholder ? `<option selected value="" data-default>${placeholder}</option>` : ''}
-            ${data && data.map((o: any) => `<option title="${o.id}" value="${o.id}" selected=${o.id == value}>${o.name}</option>`)}
+            ${data && data.map((o: any) => `<option title="${o.id}" value="${o.id}" ${o.id == value ? 'selected' : ''}>${o.name}</option>`)}
         </select>
     `;
 }
@@ -273,7 +273,9 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
     }
 
     /*  初始化graph的editor */
-    initGraphEditor (container: any) {
+    initGraphEditor = (container: any) => {
+        const { mode } = this.props;
+
         mxConstants.DEFAULT_VALID_COLOR = 'none';
         mxConstants.HANDLE_STROKECOLOR = '#C5C5C5';
         mxConstants.CONSTRAINT_HIGHLIGHT_SIZE = 4;
@@ -377,7 +379,6 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
 
                 // Filters the edges with the same source row
                 var row: number = edge.cell.value.getAttribute('targetRow');
-                console.log('row:', row);
                 for (var i = 0; i < edges.length; i++) {
                     if (mxUtils.isNode(edges[i].value) &&
                         edges[i].value.getAttribute('targetRow') == row) {
@@ -473,7 +474,7 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
         graph.cellsResizable = false;
         // 启用绘制
         graph.setPanning(true);
-        graph.setConnectable(true);
+        graph.setConnectable(mode === GRAPH_MODE.EDIT);
         graph.setCellsDisconnectable(false);
         graph.setTooltips(true);
         graph.setCellsEditable(false);
@@ -534,7 +535,7 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
                 if (div != null) {
                     // Adds height of the title table cell
                     var oh = 32;
-                    var footer = 48;
+                    var footer = mode === GRAPH_MODE.EDIT ? 48 : 0;
                     div.style.display = 'block';
                     div.style.top = oh + 'px';
                     div.style.width = Math.max(1, Math.round(state.width / s)) + 'px';
@@ -627,13 +628,15 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
             return state;
         };
 
-        // 事件注册
         const { registerEvent, registerContextMenu } = this.props;
-        if (registerEvent) {
-            registerEvent(graph);
-        }
-        if (registerContextMenu) {
-            registerContextMenu(graph);
+        if (mode === GRAPH_MODE.EDIT) {
+            // 事件注册
+            if (registerEvent) {
+                registerEvent(graph);
+            }
+            if (registerContextMenu && mode) {
+                registerContextMenu(graph);
+            }
         }
     }
 
@@ -644,12 +647,11 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
         const parent = layoutTarget || graph.getDefaultParent();
         try {
             if (change != null) { change(); }
-            const layout = new mxHierarchicalLayout(graph);
+            const layout = new mxHierarchicalLayout(graph, 'west');
             layout.disableEdgeStyle = false;
             layout.edgeStyle = edgeStyle;
             layout.interRankCellSpacing = 80;
             layout.intraCellSpacing = 80;
-            layout.interHierarchySpacing = 100;
             layout.execute(parent);
         } catch (e) {
             throw e;

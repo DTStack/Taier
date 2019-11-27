@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Link, hashHistory } from 'react-router';
+import { hashHistory } from 'react-router';
 import { Card, Table, Input, Button, Popconfirm } from 'antd';
 import './style.scss';
 
@@ -89,7 +89,7 @@ export default class RelationManage extends React.Component<any, IState> {
             dataIndex: 'name',
             key: 'name',
             render: (text: any, record: any) => {
-                return <Link to={{ pathname: '/', state: record }}>{text}</Link>
+                return <a onClick={this.handleOperateData.bind(this, 'detail', record)}>{text}</a>
             }
         }, {
             title: '关系实体',

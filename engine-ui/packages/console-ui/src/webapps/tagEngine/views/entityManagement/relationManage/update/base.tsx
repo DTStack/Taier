@@ -183,9 +183,10 @@ class RelationUpdateBase extends React.Component<IProps, IState> {
             newState.relationEntities[relationEntityIndex].columns[relationEntityColumnIndex] = Object.assign({}, oldRelationEntityCol, relationEntityCol);
             // eslint-disable-next-line no-undef
             console.log('onRelationEntityColumnChange:', relationEntityIndex, relationEntityColumnIndex, newState);
-            this.setState({
-                data: newState
-            })
+            // this.setState({
+            //     data: newState
+            // })
+            this.state.data = newState;
         }
     }
 
@@ -289,7 +290,6 @@ class RelationUpdateBase extends React.Component<IProps, IState> {
         const rootCell = graph.getDefaultParent();
         const cells = graph.getChildCells(rootCell);
         const getCellData = (cell: any): IRelationEntity => {
-            // const updatedCell: IRelationEntity = cell.vertex ? cell.value : cell.value.getAttribute('data');
             const cellData: IRelationEntity = cell.vertex ? cell.value : { geometry: {} };
             cellData.id = cell.id;
             cellData.geometry.x = cell.geometry.x;

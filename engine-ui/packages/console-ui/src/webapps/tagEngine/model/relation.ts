@@ -7,10 +7,11 @@ export interface IRelationEntity<T = any> extends INode {
 
 export interface IRelation {
     id?: number;
-    name?: string;
-    description?: string;
+    relationName?: string;
+    relationDesc?: string;
+    dataSourceId?: number;
     /**
      * 关联实体
      */
-    relationEntities: IRelationEntity[];
+    relationCollection: IRelationEntity[];
 }
