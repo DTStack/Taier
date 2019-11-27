@@ -139,6 +139,9 @@ export default class LabelDirectory extends React.PureComponent<IProps, IState> 
         this.getTagCate();
     }
     onHandleCancelMove = (type: 'ok'|'cancel') => {
+        if (type == 'ok') {
+            this.getTagCate();
+        }
         this.setState({
             moveVisible: false,
             currentData: {}

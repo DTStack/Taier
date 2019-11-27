@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Table, Select, message as Message, Popconfirm } from 'antd';
 import { Link } from 'react-router';
-import { API } from '../../../../../api/apiMap';
 import MoveTreeNode from '../moveTreeNode';
+import { API } from '../../../../../api/apiMap';
 
 import './style.scss';
 
@@ -36,7 +36,7 @@ IState
         loading: false,
         pageNo: 1,
         pageSize: 10,
-        total: 100,
+        total: 0,
         visible: false,
         tagStatus: '-1',
         tagType: '-1',
@@ -85,7 +85,7 @@ IState
             if (code === 1) {
                 this.setState({
                     dataSource: data.contentList,
-                    total: data.total,
+                    total: data.total ? parseInt(data.total) : 0,
                     loading: false
                 })
             }
@@ -189,13 +189,13 @@ IState
                 dataIndex: 'tagId',
                 key: 'tagId',
                 width: 220,
-                render: (id) => {
+                render: (id, record) => {
                     return (
                         <div>
                             <Link to={
                                 {
                                     pathname: '/editAtomicLabel',
-                                    state: { tagId }
+                                    query: { tagId: id, entityId }
                                 }
                             }>编辑</Link>
                             <span className="ant-divider" />

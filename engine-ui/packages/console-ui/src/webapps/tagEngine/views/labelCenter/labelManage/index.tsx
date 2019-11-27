@@ -30,7 +30,8 @@ export default class LabelManage extends React.PureComponent<IProps, IState> {
         entityId: null
     };
     onHandleClick = () => {
-        this.props.router.push('/createLabel')
+        const { entityId } = this.state;
+        this.props.router.push('/createLabel?entityId=' + entityId)
     };
     handleChange = (value) => {
         this.setState({

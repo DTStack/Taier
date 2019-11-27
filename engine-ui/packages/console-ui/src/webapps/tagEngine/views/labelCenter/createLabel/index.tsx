@@ -4,12 +4,14 @@ import Breadcrumb from '../../../components/breadcrumb';
 import StepOne from './components/stepOne';
 import StepTwo from './components/stepTwo';
 import StepTree from './components/stepThree';
+import { API } from '../../../api/apiMap';
 import './style.scss';
 
 const { Step } = Steps;
 
 interface IProps {
-    router: any;
+    router?: any;
+    location?: any;
 }
 interface IState {
     current: number;
@@ -40,7 +42,7 @@ export default class CreateLabel extends React.PureComponent<IProps, IState> {
         } else {
             stepsValues[current] = values;
             if (newCurrent == 2) {
-                let params = Object.assign({ id: 0 }, stepsValues[0], values);
+                let params = Object.assign({ id: null }, stepsValues[0], values);
                 this.saveEntityConfig(params);
             } else {
                 this.setState({ current: newCurrent, stepsValues });
@@ -48,10 +50,21 @@ export default class CreateLabel extends React.PureComponent<IProps, IState> {
         }
     }
     saveEntityConfig = (params: any) => {
+        console.log(params);
         this.setState({ current: 2 });
+    }
+    addOrUpdateDeriveTag = (params) => {
+        API.addOrUpdateDeriveTag(params).then(res => {
+            const { code, data } = res;
+            if (code == 1) {
+                console.log(data)
+            }
+        })
     }
     render () {
         const { current } = this.state;
+        const { location } = this.props;
+        const { entityId } = location.query;
         const breadcrumbNameMap = [
             {
                 path: '/labelCenter',
@@ -73,8 +86,8 @@ export default class CreateLabel extends React.PureComponent<IProps, IState> {
                     </Steps>
                     <div className="step_content">
 
-                        <StepOne onPrev={this.onPrev} isShow={current == 0} onNext={this.onNext} />
-                        <StepTwo isShow={current == 1} onPrev={this.onPrev} onNext={this.onNext} />
+                        <StepOne onPrev={this.onPrev} entityId={entityId} isShow={current == 0} onNext={this.onNext} />
+                        <StepTwo isShow={current == 1} entityId={entityId} onPrev={this.onPrev} onNext={this.onNext} />
                         {
                             current == 2 && <StepTree onPrev={this.onPrev} onNext={this.onNext} />
                         }
