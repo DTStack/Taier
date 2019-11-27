@@ -63,13 +63,13 @@ public class FlinkClusterClientManager {
         FlinkClusterClientManager manager = new FlinkClusterClientManager();
         manager.flinkClientBuilder = flinkClientBuilder;
         manager.flinkConfig = flinkClientBuilder.getFlinkConfig();
-        manager.initYarnSessionClient();
+        manager.initClusterClient();
         return manager;
     }
 
 
 
-    public void initYarnSessionClient() throws Exception {
+    public void initClusterClient() throws Exception {
         if (flinkConfig.getClusterMode().equals(Deploy.standalone.name())) {
             clusterClient = flinkClientBuilder.createStandalone();
         } else if (flinkConfig.getClusterMode().equals(Deploy.yarn.name())) {

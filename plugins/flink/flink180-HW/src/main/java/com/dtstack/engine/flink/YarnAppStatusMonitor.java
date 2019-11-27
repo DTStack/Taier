@@ -109,7 +109,7 @@ public class YarnAppStatusMonitor implements Runnable{
             LOG.warn("--retry flink client with yarn session----");
             startTime = System.currentTimeMillis();
             this.lastAppState = YarnApplicationState.NEW;
-            clusterClientManager.initYarnSessionClient();
+            clusterClientManager.initClusterClient();
         } catch (Exception e) {
             LOG.error("", e);
         }
