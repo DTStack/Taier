@@ -9,12 +9,12 @@ export const MY_APPS = {
     STREAM: 'stream',
     DATA_QUALITY: 'dataQuality',
     API: 'dataApi',
-    LABEL: 'dataLabel',
     DATA_MAP: 'map',
     META_DATA: 'metaData',
     ANALYTICS_ENGINE: 'analyticsEngine',
     CONSOLE: 'console',
-    SCIENCE: 'science'
+    SCIENCE: 'science',
+    TAG: 'tagEngine'
 }
 
 export const mainApp = {

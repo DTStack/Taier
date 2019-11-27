@@ -1,8 +1,6 @@
 import * as React from 'react';
 import { Layout, Icon } from 'antd';
 import { connect } from 'react-redux'
-import { streamApp } from 'config/base'
-import { updateApp } from 'main/actions/app'
 import * as ProjectAction from '../../../reducers/modules/project'
 import * as UserAction from '../../../reducers/modules/user'
 import utils from 'utils'
@@ -37,8 +35,6 @@ class SideLayout extends React.Component<IProps, IState> {
         dispatch(UserAction.getUser())
         dispatch(ProjectAction.getProjects())
         dispatch(ProjectAction.getAllProjects())
-
-        dispatch(updateApp(streamApp))
         this.initProject()
     }
     initProject () {
@@ -47,7 +43,7 @@ class SideLayout extends React.Component<IProps, IState> {
         if (pathname !== '/') {
             let pid = '';
             const projectIdFromURL = utils.getParameterByName('pid');
-            const projectIdFromCookie = utils.getCookie('stream_project_id');
+            const projectIdFromCookie = utils.getCookie('tag_project_id');
             if (projectIdFromURL) { // 优先从URL截取项目ID, 后从 Cookie 获取
                 pid = projectIdFromURL;
             } else if (projectIdFromCookie) {

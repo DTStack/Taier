@@ -31,7 +31,8 @@
             "dataLabel/*": ["./src/webapps/dataLabel/*"],
             "console/*": ["./src/webapps/console/*"],
             "analyticsEngine/*": ["./src/webapps/analyticsEngine/*"],
-            "database": ["./src/database"] // 数据库
+            "database": ["./src/database"], // 数据库
+            "tagEngine/*":["./src/webapps/tagEngine/*"]
         },
         "skipLibCheck": true,
         "typeRoots": [
