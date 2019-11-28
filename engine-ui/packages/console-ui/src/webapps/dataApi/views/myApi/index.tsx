@@ -55,6 +55,11 @@ const mapDispatchToProps = (dispatch: any) => ({
             apiId: id
         }));
     },
+    resetToken (id: any) {
+        return dispatch(mineActions.resetToken({
+            applyId: id
+        }));
+    },
     queryApiCallLog (id: any, currentPage: any, bizType: any, time: any) {
         return dispatch(mineActions.queryApiCallLog({
             apiId: id,
