@@ -19,6 +19,41 @@ export default {
     DQ_USER_ROLE_UPDATE: `${DQ_BASE_URL}/roleUser/updateUserRole`,
     DQ_GET_USER_NOT_IN_PROJECT: `${DQ_BASE_URL}/user/listNotIn`,
 
+    ADD_ROLE_USRE: `${DQ_BASE_URL}/roleUser/addRoleUser`, // 项目用户
+    GET_NOT_PROJECT_USERS: `${DQ_BASE_URL}/project/getUsersNotInProject`, // 获取所以用户
+    LOGOUT: `/uic/api/v2/logout`,
+    APP_LOGOUT: `${DQ_BASE_URL}/login/out`,
+    UPDATE_USER_ROLE: `${DQ_BASE_URL}/roleUser/updateUserRole`, // 更新用户角色
+    GET_USER_BY_ID: `${DQ_BASE_URL}/user/getUserById`, // 根据用户ID获取用户
+    SEARCH_UIC_USERS: `${DQ_BASE_URL}/project/getUicUsersNotInProject`,
+
+    // ===== 项目模块 ===== //
+    CREATE_PROJECT: `${DQ_BASE_URL}/project/createProject`, // 创建项目
+    REMOVE_USER_FROM_PROJECT: `${DQ_BASE_URL}/roleUser/removeRoleUserFromProject`, // 删除项目用户接口
+    ADD_PROJECT_USER: `${DQ_BASE_URL}/roleUser/addRoleUserNew`, // 添加项目用户接口
+    QUERY_PROJECT_LIST: `${DQ_BASE_URL}/project/queryProjects`, // 查询项目列表
+    GET_PROJECT_LIST: `${DQ_BASE_URL}/project/getProjects`, // 获取当前用户有权限的项目列表
+    GET_ALL_PROJECTS: `${DQ_BASE_URL}/project/getAllProjects`, // 获取所以项目列表
+    GET_USRE_PROJECTS: `${DQ_BASE_URL}/project/getProjectUserIn`, // 获取用户所在的所有项目
+    GET_PROJECT_USERS: `${DQ_BASE_URL}/project/getProjectUsers`, // 获取所在的项目所有用户
+    GET_PROJECT_BY_ID: `${DQ_BASE_URL}/project/getProjectByProjectId`, // 获取项目详情
+    UPDATE_PROJECT_INFO: `${DQ_BASE_URL}/project/updateProjectInfo`, // 修改项目描述
+    GET_PROJECT_INFO: `${DQ_BASE_URL}/project/getProjectInfo`, // 获取项目信息包括告警
+    GET_PROJECT_LIST_INFO: `${DQ_BASE_URL}/project/getProjectList`, // 首页project查询
+    SET_STICKY: `${DQ_BASE_URL}/project/setProjectStick`, // 置顶
+    GET_PROJECT_SUMMARY: `${DQ_BASE_URL}/project/queryProjectSum`, // 获取项目总信息
+    DELETE_PROJECT: `${DQ_BASE_URL}/project/deleteProject`, // 删除项目接口
+    UPDATE_PROJECT_SCHEDULE: `${DQ_BASE_URL}/project/closeOrOpenSchedule`, // 开启或关闭项目调度
+    BIND_PRODUCTION_PROJECT: `${DQ_BASE_URL}/project/bindingProject`, // 绑定生产项目
+    GET_COULD_BINDING_PROJECT_LIST: `${DQ_BASE_URL}/project/getBindingProjects`, // 获取可以绑定的项目
+
+    // ===== 角色管理 ===== //
+    GET_ROLE_LIST: `${DQ_BASE_URL}/role/pageQuery`, // 获取角色列表
+    UPDATE_ROLE: `${DQ_BASE_URL}/role/addOrUpdateRole`, // 新建/更新角色
+    DELETE_ROLE: `${DQ_BASE_URL}/role/deleteRole`, // 删除角色
+    GET_ROLE_TREE: `${DQ_BASE_URL}/permission/tree`, // 编辑角色
+    GET_ROLE_INFO: `${DQ_BASE_URL}/permission/getPermissionIdsByRoleId`, // 获取角色信息
+
     // ===== 消息管理 ===== //
     MASSAGE_QUERY: `${DQ_BASE_URL}/notify/pageQuery`,
     GET_MASSAGE_BY_ID: `${DQ_BASE_URL}/notify/getOne`,

@@ -311,7 +311,7 @@ class DataSourceMana extends React.Component<any, any> {
                  */
                 const isCommon = project.projectType == PROJECT_TYPE.COMMON;
                 const isRDBType = isRDB(record.type);
-                const isHive = record.type === DATA_SOURCE.HIVE && record.isDefault === 1;
+                const isHive = (record.type === DATA_SOURCE.HIVE_2 || record.type === DATA_SOURCE.HIVE_1) && record.isDefault === 1;
 
                 const isActive = record.active === 1;
                 let menuItem: any = [];

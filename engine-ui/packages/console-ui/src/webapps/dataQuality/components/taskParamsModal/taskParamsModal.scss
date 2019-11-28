@@ -1,0 +1,31 @@
+.c-taskParams {
+    border: 1px solid #dddddd;
+    .c-taskParams__row {
+        &:last-child{
+            border: 0px;
+        }
+        font-size: 13px;
+        color: #333333;
+        line-height: 18px;
+        border-bottom: 1px solid #dddddd;
+        min-height: 40px;
+        display: flex;
+        align-self: stretch;
+        .c-taskParams__row__label{
+            flex-grow: 0;
+            flex-shrink: 0;
+            width: 130px;
+            display: flex;
+            background: #f5f5f5;
+            align-items: center;
+            padding: 0px 20px;
+            border-right: 1px solid #dddddd;
+        }
+        .c-taskParams__row__value{
+            display: flex;
+            align-items: center;
+            word-break: break-all;
+            padding: 0px 20px;
+        }
+    }
+}

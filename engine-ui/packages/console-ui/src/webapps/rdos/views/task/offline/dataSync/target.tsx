@@ -131,7 +131,8 @@ class TargetForm extends React.Component<any, any> {
         const { sourceId, type } = targetMap;
         // TODO 这里获取 Hive 分区的条件有点模糊
         if (type && (
-            type.type === DATA_SOURCE.HIVE ||
+            type.type === DATA_SOURCE.HIVE_1 ||
+            type.type === DATA_SOURCE.HIVE_2 ||
             type.type === DATA_SOURCE.CARBONDATA
         )) {
             ajax.getHivePartitions({
@@ -409,7 +410,8 @@ class TargetForm extends React.Component<any, any> {
                                     src.type === DATA_SOURCE.REDIS ||
                                     src.type === DATA_SOURCE.MONGODB ||
                                     (isIncrementMode && (
-                                        src.type !== DATA_SOURCE.HIVE &&
+                                        src.type !== DATA_SOURCE.HIVE_1 &&
+                                        src.type !== DATA_SOURCE.HIVE_2 &&
                                         src.type !== DATA_SOURCE.HDFS
                                     ))
 
@@ -473,10 +475,16 @@ class TargetForm extends React.Component<any, any> {
         let formItem: any;
         const getPopupContainer = this.props.getPopupContainer;
         const showCreateTable = (
-            sourceType == DATA_SOURCE.MYSQL || sourceType == DATA_SOURCE.ORACLE ||
-            sourceType == DATA_SOURCE.SQLSERVER || sourceType == DATA_SOURCE.POSTGRESQL ||
+            sourceType == DATA_SOURCE.MYSQL ||
+            sourceType == DATA_SOURCE.POLAR_DB ||
+            sourceType == DATA_SOURCE.ORACLE ||
+            sourceType == DATA_SOURCE.SQLSERVER ||
+            sourceType == DATA_SOURCE.POSTGRESQL ||
             sourceType == DATA_SOURCE.LIBRASQL ||
-            sourceType == DATA_SOURCE.DB2 || sourceType == DATA_SOURCE.HIVE ||
+            sourceType == DATA_SOURCE.DB2 ||
+            sourceType == DATA_SOURCE.CLICK_HOUSE ||
+            sourceType == DATA_SOURCE.HIVE_2 ||
+            sourceType == DATA_SOURCE.HIVE_1 ||
             sourceType == DATA_SOURCE.MAXCOMPUTE
         );
 
@@ -485,6 +493,7 @@ class TargetForm extends React.Component<any, any> {
             case DATA_SOURCE.GBASE:
             case DATA_SOURCE.DB2:
             case DATA_SOURCE.MYSQL:
+            case DATA_SOURCE.POLAR_DB:
             case DATA_SOURCE.ORACLE:
             case DATA_SOURCE.SQLSERVER:
             case DATA_SOURCE.POSTGRESQL: {
@@ -505,7 +514,6 @@ class TargetForm extends React.Component<any, any> {
                                 getPopupContainer={getPopupContainer}
                                 showSearch
                                 mode="combobox"
-                                // disabled={ !isCurrentTabNew }
                                 optionFilterProp="value"
                                 filterOption={filterValueOption}
                                 onChange={this.debounceTableSearch.bind(this)}
@@ -554,7 +562,7 @@ class TargetForm extends React.Component<any, any> {
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}
-                        label="主键冲突"
+                        label={'主键冲突'}
                         key="writeMode-mysql"
                         className="txt-left"
                     >
@@ -565,9 +573,93 @@ class TargetForm extends React.Component<any, any> {
                             initialValue: targetMap.type && targetMap.type.writeMode ? targetMap.type.writeMode : 'insert'
                         })(
                             <Select onChange={this.submitForm.bind(this)}>
-                                <Option value="insert">insert into（当主键/约束冲突，报脏数据）</Option>
-                                <Option value="replace">replace into（当主键/约束冲突，先delete再insert，未映射的字段会被映射为NULL）</Option>
-                                <Option value="update">on duplicate key update（当主键/约束冲突，update数据，未映射的字段值不变）</Option>
+                                <Option key="writeModeInsert" value="insert">insert into（当主键/约束冲突，报脏数据）</Option>
+                                <Option key="writeModeReplace" value="replace">replace into（当主键/约束冲突，先delete再insert，未映射的字段会被映射为NULL）</Option>
+                                <Option key="writeModeUpdate" value="update">on duplicate key update（当主键/约束冲突，update数据，未映射的字段值不变）</Option>
+                            </Select>
+                        )}
+                    </FormItem>
+                ];
+                break;
+            }
+            case DATA_SOURCE.CLICK_HOUSE: {
+                formItem = [
+                    !selectHack && <FormItem
+                        {...formItemLayout}
+                        label="表名"
+                        key="table"
+                    >
+                        {getFieldDecorator('table', {
+                            rules: [{
+                                required: true,
+                                message: '请选择表'
+                            }],
+                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.table
+                        })(
+                            <Select
+                                getPopupContainer={getPopupContainer}
+                                showSearch
+                                mode="combobox"
+                                optionFilterProp="value"
+                                filterOption={filterValueOption}
+                                onChange={this.debounceTableSearch.bind(this)}
+                            >
+                                {this.state.tableList.map((table: any) => {
+                                    return <Option
+                                        key={`rdb-target-${table}`}
+                                        value={table}>
+                                        {table}
+                                    </Option>
+                                })}
+                            </Select>
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="导入前准备语句"
+                        key="preSql"
+                    >
+                        {getFieldDecorator('preSql', {
+                            rules: [],
+                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.preSql
+                        })(
+                            <Input
+                                onChange={this.submitForm.bind(this)}
+                                placeholder="请输入导入数据前执行的SQL脚本"
+                                type="textarea"
+                            ></Input>
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="导入后准备语句"
+                        key="postSql"
+                    >
+                        {getFieldDecorator('postSql', {
+                            rules: [],
+                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.postSql
+                        })(
+                            <Input
+                                onChange={this.submitForm.bind(this)}
+                                placeholder="请输入导入数据后执行的SQL脚本"
+                                type="textarea"
+                            ></Input>
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label={'写入模式'}
+                        key="writeMode-mysql"
+                        className="txt-left"
+                    >
+                        {getFieldDecorator('writeMode@clickHouse', {
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: targetMap.type && targetMap.type.writeMode ? targetMap.type.writeMode : 'insert'
+                        })(
+                            <Select onChange={this.submitForm.bind(this)}>
+                                <Option key="writeModeInsert" value="insert">insert into</Option>
                             </Select>
                         )}
                     </FormItem>
@@ -727,7 +819,8 @@ class TargetForm extends React.Component<any, any> {
                 ];
                 break;
             }
-            case DATA_SOURCE.HIVE:
+            case DATA_SOURCE.HIVE_1:
+            case DATA_SOURCE.HIVE_2:
             case DATA_SOURCE.LIBRASQL:
             case DATA_SOURCE.MAXCOMPUTE: {
                 formItem = [

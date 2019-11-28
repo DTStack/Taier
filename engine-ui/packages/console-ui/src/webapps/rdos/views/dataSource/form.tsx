@@ -174,11 +174,15 @@ class BaseForm extends React.Component<any, any> {
         switch (type) {
             case DATA_SOURCE.KYLIN:
                 return /http:\/\/([\w, .])+:(\w)+/;
-            case DATA_SOURCE.HIVE:
+            case DATA_SOURCE.HIVE_1:
+            case DATA_SOURCE.HIVE_2:
+            case DATA_SOURCE.POLAR_DB:
             case DATA_SOURCE.CARBONDATA:
                 return /jdbc:(\w)+:\/\/(\w)+/;
             case DATA_SOURCE.MYSQL:
                 return /jdbc:mysql:\/\/(\w)+/;
+            case DATA_SOURCE.CLICK_HOUSE:
+                return /jdbc:clickhouse:\/\/(\w)+/;
             case DATA_SOURCE.DB2:
                 return /jdbc:db2:\/\/(\w)+/;
             case DATA_SOURCE.ORACLE:
@@ -230,9 +234,6 @@ class BaseForm extends React.Component<any, any> {
                         {...formNewLayout}
                         key={`kerberosFile`}
                         label=""
-                        // style={{
-                        //     margin: 0
-                        // }}
                     >
                         {getFieldDecorator(`kerberosFile`, {
                             rules: [{
@@ -575,7 +576,8 @@ class BaseForm extends React.Component<any, any> {
                 }
                 return formItems
             }
-            case DATA_SOURCE.HIVE: {
+            case DATA_SOURCE.HIVE_1:
+            case DATA_SOURCE.HIVE_2: {
                 const formItems: any = [
                     <FormItem
                         {...formItemLayout}
@@ -660,25 +662,27 @@ class BaseForm extends React.Component<any, any> {
                             style={{ position: 'absolute', right: '-20px', bottom: '0px' }}
                             copyText={hdfsConf}
                         />
-                    </FormItem>,
-                    <FormItem
-                        {...formItemLayout}
-                        label="开启Kerberos认证"
-                        key="dataJson.openKerberos"
-                    >
-                        {getFieldDecorator('dataJson.openKerberos', {
-                            valuePropName: 'checked',
-                            initialValue: config.openKerberos || false
-                        })(
-                            <Switch />
-                        )}
                     </FormItem>
                 ]
+                if (sourceType === DATA_SOURCE.HIVE_2) {
+                    formItems.push(
+                        <FormItem
+                            {...formItemLayout}
+                            label="开启Kerberos认证"
+                            key="dataJson.openKerberos"
+                        >
+                            {getFieldDecorator('dataJson.openKerberos', {
+                                valuePropName: 'checked',
+                                initialValue: config.openKerberos || false
+                            })(
+                                <Switch />
+                            )}
+                        </FormItem>
+                    )
+                }
                 const uploadForm: any = getFieldValue('dataJson.openKerberos') ? this.uploadForm() : [];
-                // const uploadForm = this.uploadForm()
                 formItems.push(uploadForm)
-
-                return formItems
+                return formItems;
             }
             case DATA_SOURCE.HBASE: {
                 const formItems = [
@@ -1170,9 +1174,11 @@ class BaseForm extends React.Component<any, any> {
             }
             case DATA_SOURCE.GBASE:
             case DATA_SOURCE.MYSQL:
+            case DATA_SOURCE.POLAR_DB:
             case DATA_SOURCE.DB2:
             case DATA_SOURCE.SQLSERVER:
             case DATA_SOURCE.LIBRASQL:
+            case DATA_SOURCE.CLICK_HOUSE:
             case DATA_SOURCE.POSTGRESQL: {
                 return [
                     <FormItem
@@ -1266,6 +1272,7 @@ class BaseForm extends React.Component<any, any> {
                         initialValue: sourceData.type ? sourceData.type.toString() : sourceType.toString()
                     })(
                         <Select
+                            showSearch
                             onChange={this.sourceChange}
                             disabled={status === 'edit'}>
                             {sourceTypeList}

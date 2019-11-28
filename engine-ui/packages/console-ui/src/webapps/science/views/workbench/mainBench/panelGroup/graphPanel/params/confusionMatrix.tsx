@@ -130,7 +130,7 @@ class FieldSetting extends React.PureComponent<any, any> {
                     {...formItemLayout}
                 >
                     {getFieldDecorator('classes', {
-                        rules: [{ required: true, message: '请填写类别个数！' }]
+                        rules: [{ required: true, message: '请填写类别个数！', type: 'number' }]
                     })(
                         <InputNumber style={inputStyle} />
                     )}
@@ -141,7 +141,7 @@ class FieldSetting extends React.PureComponent<any, any> {
                     {...formItemLayout}
                 >
                     {getFieldDecorator('threshold', {
-                        rules: [{ required: false, message: '请填写阈值！' }]
+                        rules: [{ required: false, message: '请填写阈值！', type: 'number' }]
                     })(
                         <InputNumber style={inputStyle} />
                     )}
@@ -205,7 +205,7 @@ class ConfusionMatrix extends React.PureComponent<any, any> {
                     }
                     if (changedFields.hasOwnProperty(key)) {
                         const element = changedFields[key];
-                        if (!element.validating && !element.dirty && element.name !== 'transferField') {
+                        if (!element.errors && !element.validating && !element.dirty && element.name !== 'transferField') {
                             props.handleSaveComponent(key, element.value)
                         }
                     }
@@ -217,7 +217,7 @@ class ConfusionMatrix extends React.PureComponent<any, any> {
                 for (const key in changedFields) {
                     if (changedFields.hasOwnProperty(key)) {
                         const element = changedFields[key];
-                        if (!element.validating && !element.dirty) {
+                        if (!element.errors && !element.validating && !element.dirty) {
                             props.handleSaveComponent(key, element.value)
                         }
                     }

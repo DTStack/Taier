@@ -128,7 +128,7 @@ export function getTaskDetailData (data: any, taskId: any) {
                     const graphData = data.graphData;
                     const object = graphData.find((o: any) => o.vertex && o.data.id === taskId);
                     object.data = { ...object.data, ...res.data };
-                    dispatch(changeContent(data, {}, data.dirty, false));
+                    dispatch(changeContent(data, {}, Boolean(data.isDirty), false));
                     resolve(res.data);
                 }
             })

@@ -181,7 +181,8 @@ export function openNewWindow (url: any, target: any) {
  * @param {s} app
  */
 export function hasProject (app: any) {
-    return app === MY_APPS.RDOS || app === MY_APPS.STREAM || app === MY_APPS.SCIENCE || app === MY_APPS.API
+    return app === MY_APPS.RDOS || app === MY_APPS.STREAM ||
+    app === MY_APPS.SCIENCE || app === MY_APPS.API || app === MY_APPS.DATA_QUALITY
 }
 
 /**
