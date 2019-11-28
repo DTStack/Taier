@@ -60,16 +60,17 @@ export default {
     DL_MASSAGE_DELETE: `${TAG_ENGINE_URL}/notify/delete`,
 
     //* * 用户角色 *//
-    DL_QUERY_USER: `${TAG_ENGINE_URL}/user/pageQuery`, // 查询系统用户信息
-    DL_REMOVE_USER: `${TAG_ENGINE_URL}/roleUser/remove`, // 删除用户
-    DL_ADD_USER: `${TAG_ENGINE_URL}/roleUser/addRoleUserNew`, // 添加用户
+    DL_QUERY_USER: `${TAG_ENGINE_URL}/project/getProjectUsers`, // 查询系统用户信息
+    DL_REMOVE_USER: `${TAG_ENGINE_URL}/roleUser/removeRoleUserFromProject`, // 删除用户
     DL_UPDATE_USER_ROLE: `${TAG_ENGINE_URL}/roleUser/updateUserRole`, // 更改用户角色
+    DL_ADD_USER: `${TAG_ENGINE_URL}/roleUser/addRoleUserNew`, // 添加用户
+
     DL_ROLE_QUERY: `${TAG_ENGINE_URL}/role/pageQuery`, // 角色列表
     DL_GET_ROLE_TREE: `${TAG_ENGINE_URL}/permission/tree`, // 获取权限树
     DL_ROLE_PERMISSION: `${TAG_ENGINE_URL}/permission/getPermissionIdsByRoleId`, // 获取角色的权限
     DL_ROLE_PERMISSION_ADD_OR_EDIT: `${TAG_ENGINE_URL}/role/addOrUpdateRole`, // 更新或添加角色权限
     DL_REMOVE_ROLE: `${TAG_ENGINE_URL}/role/deleteRole`, // 删除角色
-    DL_SEARCH_UIC_USERS: `${TAG_ENGINE_URL}/user/getUicUsersNotInProject`, // 获取UIC
+    DL_SEARCH_UIC_USERS: `${TAG_ENGINE_URL}/project/getUicUsersNotInProject`,
 
     //= ==== stream ====//
     //* *消息**//

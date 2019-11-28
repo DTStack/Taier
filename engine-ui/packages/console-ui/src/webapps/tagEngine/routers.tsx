@@ -1,6 +1,4 @@
 import asyncComponent from 'utils/asyncLoad';
-import { isSelectedProject } from './interceptor';
-
 import NotFund from 'widgets/notFund';
 
 // 继承主应用的的公共View组件
@@ -15,21 +13,13 @@ import AdminRole from 'main/views/admin/role';
 import GRoleAdd from 'main/views/admin/role/add';
 import GRoleEdit from 'main/views/admin/role/edit';
 import SideLayout from './views/layout/sideLayout';
-
-// ======= 项目 =======
-import ProjectConfig from './views/project/config';
-import ProjectMember from './views/project/member';
-import RoleManagement from './views/project/role';
-import RoleAdd from './views/project/role/add';
-import RoleEdit from './views/project/role/edit';
-
 // ======= 实体管理 =======
 import EMEntityEdit from './views/entityManagement/entityManage/entityEdit'
 import EMEntityDetail from './views/entityManagement/entityManage/entityDetail'
 
 // ======= 关系管理 =======
 import CreateRelation from './views/entityManagement/relationManage/update/create'
-import EditRelation from './views/entityManagement/relationManage/update/edit'
+// import EditRelation from './views/entityManagement/relationManage/update/edit'
 import RelationDetail from './views/entityManagement/relationManage/relationDetail'
 
 // ======= 字典管理 =======
@@ -102,16 +92,6 @@ const EditAtomicLabel = asyncComponent(
         ),
     { name: 'editAtomicLabel' }
 );
-// ======= 项目 =======
-
-const ProjectContainer = asyncComponent(
-    () =>
-        import('./views/project/container').then(
-            (module: any) => module.default
-        ),
-    { name: 'projectContainer' }
-);
-
 // ======= 数据源管理 =======
 const DataSourceStream = asyncComponent(
     () =>
@@ -239,34 +219,6 @@ const routeConfig = [
             {
                 path: '/groupAnalyse/detail',
                 component: GroupDetail
-            },
-            {
-                path: '/project/:pid',
-                component: ProjectContainer,
-                indexRoute: ProjectConfig,
-                onEnter: isSelectedProject,
-                childRoutes: [
-                    {
-                        path: 'config',
-                        component: ProjectConfig
-                    },
-                    {
-                        path: 'member',
-                        component: ProjectMember
-                    },
-                    {
-                        path: 'role',
-                        component: RoleManagement
-                    },
-                    {
-                        path: 'role/add',
-                        component: RoleAdd
-                    },
-                    {
-                        path: 'role/edit/:roleId',
-                        component: RoleEdit
-                    }
-                ]
             },
             {
                 path: '/database',

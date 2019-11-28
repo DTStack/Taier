@@ -5,7 +5,7 @@ import StreamApi from 'stream/api'
 import ScienceApi from 'science/api'
 import DqSysApi from 'dataQuality/api/sysAdmin'
 import DqApi from 'dataQuality/api'
-
+import TagApi from 'tagEngine/api'
 import { MY_APPS } from '../consts';
 import req from '../consts/reqUrls';
 import rdosUrls from '../consts/rdosUrls';
@@ -36,6 +36,8 @@ export default {
                 return StreamApi.getProjects(params);
             case MY_APPS.SCIENCE:
                 return ScienceApi.comm.getAllProject(params);
+            case MY_APPS.TAG:
+                return TagApi.getAllProjects(params);
             default:
         }
     },
@@ -60,7 +62,7 @@ export default {
                 return http.post(analyEngineUrls.ANALYENGINE_ROLE_QUERY, params);
             case MY_APPS.API:
                 return http.post(req.DATAAPI_ROLE_QUERY, params);
-            case MY_APPS.LABEL:
+            case MY_APPS.TAG:
                 return http.post(req.DL_ROLE_QUERY, params);
             case MY_APPS.SCIENCE:
                 return http.post(req.SCIENCE_ROLE_QUERY, params);
@@ -82,7 +84,7 @@ export default {
                 return DqSysApi.updateRole(params);
             case MY_APPS.API:
                 return http.post(req.DATAAPI_ROLE_PERMISSION_ADD_OR_EDIT, params)
-            case MY_APPS.LABEL:
+            case MY_APPS.TAG:
                 return http.post(req.DL_ROLE_PERMISSION_ADD_OR_EDIT, params);
             case MY_APPS.SCIENCE:
                 return http.post(req.SCIENCE_ROLE_PERMISSION_ADD_OR_EDIT, params);
@@ -102,7 +104,7 @@ export default {
                 return DqSysApi.deleteRole(params);
             case MY_APPS.API:
                 return http.post(req.DATAAPI_REMOVE_ROLE, params);
-            case MY_APPS.LABEL:
+            case MY_APPS.TAG:
                 return http.post(req.DL_REMOVE_ROLE, params)
             case MY_APPS.SCIENCE:
                 return http.post(req.SCIENCE_REMOVE_ROLE, params)
@@ -122,7 +124,7 @@ export default {
                 return DqSysApi.getRolePerission(params);
             case MY_APPS.API:
                 return http.post(req.DATAAPI_ROLE_PERMISSION, params);
-            case MY_APPS.LABEL:
+            case MY_APPS.TAG:
                 return http.post(req.DL_ROLE_PERMISSION, params);
             case MY_APPS.SCIENCE:
                 return http.post(req.SCIENCE_ROLE_PERMISSION, params)
@@ -142,7 +144,7 @@ export default {
                 return DqSysApi.getRolePerissions(params);
             case MY_APPS.API:
                 return http.post(req.DATAAPI_GET_ROLE_TREE, params);
-            case MY_APPS.LABEL:
+            case MY_APPS.TAG:
                 return http.post(req.DL_GET_ROLE_TREE, params);
             case MY_APPS.SCIENCE:
                 return http.post(req.SCIENCE_GET_ROLE_TREE, params)
@@ -163,7 +165,7 @@ export default {
                 return DqApi.getMessage(params);
             case MY_APPS.API:
                 return http.post(req.DATAAPI_MASSAGE_QUERY, params)
-            case MY_APPS.LABEL:
+            case MY_APPS.TAG:
                 return http.post(req.DL_MASSAGE_QUERY, params)
             case MY_APPS.SCIENCE:
                 return http.post(req.SCIENCE_MASSAGE_QUERY, params)
@@ -183,7 +185,7 @@ export default {
                 return DqApi.getMsgById(params);
             case MY_APPS.API:
                 return http.post(req.DATAAPI_GET_MASSAGE_BY_ID, params)
-            case MY_APPS.LABEL:
+            case MY_APPS.TAG:
                 return http.post(req.DL_GET_MASSAGE_BY_ID, params);
             case MY_APPS.SCIENCE:
                 return http.post(req.SCIENCE_GET_MASSAGE_BY_ID, params)
@@ -203,7 +205,7 @@ export default {
                 return DqApi.markAsRead(params);
             case MY_APPS.API:
                 return http.post(req.DATAAPI_MASSAGE_MARK_AS_READ, params)
-            case MY_APPS.LABEL:
+            case MY_APPS.TAG:
                 return http.post(req.DL_MASSAGE_MARK_AS_READ, params)
             case MY_APPS.SCIENCE:
                 return http.post(req.SCIENCE_MASSAGE_MARK_AS_READ, params)
@@ -223,7 +225,7 @@ export default {
                 return DqApi.markAsAllRead(params);
             case MY_APPS.API:
                 return http.post(req.DATAAPI_MASSAGE_MARK_AS_ALL_READ, params);
-            case MY_APPS.LABEL:
+            case MY_APPS.TAG:
                 return http.post(req.DL_MASSAGE_MARK_AS_ALL_READ, params);
             case MY_APPS.SCIENCE:
                 return http.post(req.SCIENCE_MASSAGE_MARK_AS_ALL_READ, params)
@@ -243,7 +245,7 @@ export default {
                 return DqApi.deleteMsgs(params);
             case MY_APPS.API:
                 return http.post(req.DATAAPI_MASSAGE_DELETE, params)
-            case MY_APPS.LABEL:
+            case MY_APPS.TAG:
                 return http.post(req.DL_MASSAGE_DELETE, params)
             case MY_APPS.SCIENCE:
                 return http.post(req.SCIENCE_MASSAGE_DELETE, params)
@@ -264,7 +266,7 @@ export default {
                 return DqSysApi.getUserPages(params);
             case MY_APPS.API:
                 return http.post(req.DATAAPI_QUERY_USER, params)
-            case MY_APPS.LABEL:
+            case MY_APPS.TAG:
                 return http.post(req.DL_QUERY_USER, params)
             case MY_APPS.SCIENCE:
                 return http.post(req.SCIENCE_QUERY_USER, params)
@@ -285,7 +287,7 @@ export default {
                 return http.post(analyEngineUrls.ANALYENGINE_SEARCH_UIC_USERS, params);
             case MY_APPS.DATA_QUALITY:
                 return http.post(req.DQ_SEARCH_UIC_USERS, params)
-            case MY_APPS.LABEL:
+            case MY_APPS.TAG:
                 return http.post(req.DL_SEARCH_UIC_USERS, params)
             case MY_APPS.API:
                 return http.post(req.DATAAPI_SEARCH_UIC_USERS, params)
@@ -305,7 +307,7 @@ export default {
                 return http.post(analyEngineUrls.ANALYENGINE_ADD_USER, params);
             case MY_APPS.DATA_QUALITY:
                 return http.post(req.DQ_ADD_USER, params)
-            case MY_APPS.LABEL:
+            case MY_APPS.TAG:
                 return http.post(req.DL_ADD_USER, params)
             case MY_APPS.API:
                 return http.post(req.DATAAPI_ADD_USER, params)
@@ -327,7 +329,7 @@ export default {
                 return DqSysApi.delUser(params);
             case MY_APPS.API:
                 return http.post(req.DATAAPI_REMOVE_USER, params);
-            case MY_APPS.LABEL:
+            case MY_APPS.TAG:
                 return http.post(req.DL_REMOVE_USER, params);
             case MY_APPS.SCIENCE:
                 return http.post(req.SCIENCE_REMOVE_USER, params)
@@ -347,7 +349,7 @@ export default {
                 return DqSysApi.updateUser(params);
             case MY_APPS.API:
                 return http.post(req.DATAAPI_UPDATE_USER_ROLE, params);
-            case MY_APPS.LABEL:
+            case MY_APPS.TAG:
                 return http.post(req.DL_UPDATE_USER_ROLE, params);
             case MY_APPS.SCIENCE:
                 return http.post(req.SCIENCE_UPDATE_USER_ROLE, params)

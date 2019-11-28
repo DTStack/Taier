@@ -56,7 +56,6 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                         key: '0-0',
                         type: 'and',
                         name: '且',
-                        entityId: 1,
                         entityName: '实体-用户信息',
                         children: [
                             {
@@ -99,7 +98,6 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                         key: '0-1',
                         type: 'and',
                         name: '且',
-                        entityId: 1,
                         entityName: '实体-活动',
                         children: []
                     },
@@ -107,7 +105,6 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                         key: '0-2',
                         type: 'and',
                         name: '且',
-                        entityId: 1,
                         entityName: '实体-产品',
                         children: []
                     }
@@ -122,6 +119,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         this.getEntityList();
         this.getRelationList();
         this.getEntityAtomTagList(null);
+        this.getAtomTagList();
     }
     getEntityList = () => {
         API.selectEntity().then(res => {
@@ -137,7 +135,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         const { entityId } = this.props;
         API.getRelationList({
             entityId
-        }).then(res => { // 获取主键列表
+        }).then(res => {
             const { code, data } = res;
             if (code === 1) {
                 this.setState({
@@ -151,7 +149,18 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         API.getEntityAtomTagList({
             entityId,
             relationId
-        }).then(res => { // 获取主键列表
+        }).then(res => {
+            const { code, data } = res;
+            if (code === 1) {
+                console.log(data);
+            }
+        })
+    }
+    getAtomTagList = () => { // 获取原子标签列表
+        const { entityId } = this.props;
+        API.getAtomTagList({
+            entityId
+        }).then(res => {
             const { code, data } = res;
             if (code === 1) {
                 console.log(data);
