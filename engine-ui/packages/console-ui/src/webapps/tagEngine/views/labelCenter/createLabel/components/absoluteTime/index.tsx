@@ -5,13 +5,16 @@ const { Option } = Select;
 const { RangePicker } = DatePicker;
 interface IProps {
     tip?: string;
+    value?: any;
+    data?: any;
+    onChange?: any;
 }
 
 interface IState {
     visible: boolean;
 }
 
-export default class AreaDate extends React.PureComponent<
+export default class AbsoluteTime extends React.PureComponent<
 IProps,
 IState
 > {
@@ -28,7 +31,7 @@ IState
         return (
             <Row className="area-date-Row" type='flex' gutter={8}>
                 <Col>
-                    <Select defaultValue="大于等于" style={{ width: 80, marginRight: 20 }}>
+                    <Select style={{ width: 80, marginRight: 20 }}>
                         <Option value="lucy">Lucy</Option>
                     </Select>
                 </Col>
@@ -37,6 +40,7 @@ IState
                         showTime
                         format="YYYY-MM-DD HH:mm:ss"
                     />
+                    <DatePicker showTime format="YYYY-MM-DD HH:mm:ss" placeholder="Select Time" />
                 </Col>
                 <Col>
                     <Tooltip placement="top" title={tip}>
