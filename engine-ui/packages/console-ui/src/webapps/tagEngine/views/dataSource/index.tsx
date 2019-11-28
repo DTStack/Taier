@@ -47,17 +47,12 @@ class DataSourceManaStream extends React.Component<any, any> {
     }
 
     getSourceTypes () {
-        // Api.getDataSourceTypes().then((res: any) => {
-        //     if (res.code == 1) {
-        //         this.setState({
-        //             sourceTypes: res.data
-        //         })
-        //     }
-        // })
-        this.setState({
-            sourceTypes: [
-                { value: 'ES', name: 'ES' }
-            ]
+        Api.getDataSourceTypes().then((res: any) => {
+            if (res.code == 1) {
+                this.setState({
+                    sourceTypes: res.data
+                })
+            }
         })
     }
 

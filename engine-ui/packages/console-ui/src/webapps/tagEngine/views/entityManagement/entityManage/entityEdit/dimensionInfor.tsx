@@ -14,6 +14,7 @@ interface Iprops {
     handleChange: any;
     attrTypeOptions: any[];
     baseInfor: any;
+    alreadyAtomTagAtrrs: any[];
 }
 
 interface IState {
@@ -144,7 +145,7 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
     }
 
     initColumns = () => {
-        const { attrTypeOptions, baseInfor } = this.props;
+        const { attrTypeOptions, baseInfor, alreadyAtomTagAtrrs } = this.props;
         let isEdit = false;
         if (baseInfor.id) {
             isEdit = true;
@@ -155,7 +156,7 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
             key: 'isAtomTag',
             width: 150,
             render: (text: boolean, record: any) => {
-                return <Checkbox disabled={(isEdit && record.id) || record.isPrimaryKey} onChange={this.handleTableChange.bind(this, 'isAtomTag', record)} checked={text} />
+                return <Checkbox disabled={(isEdit && alreadyAtomTagAtrrs.includes(record.entityAttr)) || record.isPrimaryKey} onChange={this.handleTableChange.bind(this, 'isAtomTag', record)} checked={text} />
             }
         }, {
             title: '维度名称',
@@ -166,7 +167,7 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
                 return (
                     <div className="di-table-name-col">
                         <div className="tag-box">
-                            {record.id ? <Tag color="green">新增</Tag> : null}
+                            {record.id ? null : <Tag color="green">新增</Tag>}
                             {record.isPrimaryKey ? <a><i className='iconfont iconicon_key'></i></a> : null}
                         </div>
                         <span>{text}</span>

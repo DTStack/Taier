@@ -21,6 +21,7 @@ interface IState {
     baseFormVal: any;
     dimensionInfor: any[];
     atomicLabelData: any[];
+    alreadyAtomTagAtrrs: any[];
 
     dsOptions: any[];
     tableOptions: any[];
@@ -35,6 +36,7 @@ export default class EntityEdit extends React.Component<IProps, IState> {
         baseFormVal: {},
         dimensionInfor: [],
         atomicLabelData: [],
+        alreadyAtomTagAtrrs: [],
 
         dsOptions: [],
         tableOptions: [],
@@ -127,11 +129,18 @@ export default class EntityEdit extends React.Component<IProps, IState> {
         }).then((res: any) => {
             const { data = [], code } = res;
             if (code === 1) {
+                let tableColOptions = [];
+                let alreadyAtomTagAtrrs = [];
+                data.forEach(item => {
+                    tableColOptions.push({ label: item.entityAttr, value: item.entityAttr });
+                    if (item.isAtomTag) {
+                        alreadyAtomTagAtrrs.push(item.entityAttr);
+                    }
+                })
                 this.setState({
-                    tableColOptions: data.map(item => {
-                        return { label: item.entityAttr, value: item.entityAttr };
-                    }),
-                    dimensionInfor: data
+                    tableColOptions,
+                    dimensionInfor: data,
+                    alreadyAtomTagAtrrs
                 });
             }
         })
@@ -176,11 +185,13 @@ export default class EntityEdit extends React.Component<IProps, IState> {
                 if (item.isAtomTag) {
                     atomicLabelData.push({
                         entityAttr: item.entityAttr,
-                        tagName: entityAttrCn,
+                        tagName: item.tagName || entityAttrCn,
                         dimensionName: entityAttrCn,
                         type: item.dataType,
                         labelNum: item.tagValueCount,
-                        tagDesc: ''
+                        tagDesc: item.tagDesc || '',
+                        tagId: item.tagId || undefined,
+                        tagDictId: item.tagDictId || undefined
                     })
                 }
                 newDimensionInfor.push({
@@ -257,7 +268,7 @@ export default class EntityEdit extends React.Component<IProps, IState> {
     }
 
     render () {
-        const { current, baseFormVal, dimensionInfor, atomicLabelData, dsOptions, tableOptions, tableColOptions, attrTypeOptions, attrTypeMap } = this.state;
+        const { current, baseFormVal, dimensionInfor, atomicLabelData, dsOptions, tableOptions, tableColOptions, attrTypeOptions, attrTypeMap, alreadyAtomTagAtrrs } = this.state;
         const steps = [{
             title: '编辑基础信息',
             content: <BaseForm
@@ -276,6 +287,7 @@ export default class EntityEdit extends React.Component<IProps, IState> {
                 handleChange={this.handleDimensionDataChange}
                 infor={dimensionInfor}
                 baseInfor={baseFormVal}
+                alreadyAtomTagAtrrs={alreadyAtomTagAtrrs}
                 attrTypeOptions={attrTypeOptions}
             />
         }, {
