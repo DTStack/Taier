@@ -190,11 +190,12 @@ IState
                 key: 'tagId',
                 width: 220,
                 render: (id, record) => {
+                    const { tagType } = record;
                     return (
                         <div>
                             <Link to={
                                 {
-                                    pathname: '/editAtomicLabel',
+                                    pathname: tagType == '原子标签' ? '/editAtomicLabel' : '/createLabel',
                                     query: { tagId: id, entityId }
                                 }
                             }>编辑</Link>
