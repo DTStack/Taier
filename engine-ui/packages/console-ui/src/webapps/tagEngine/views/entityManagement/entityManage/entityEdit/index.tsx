@@ -21,6 +21,7 @@ interface IState {
     baseFormVal: any;
     dimensionInfor: any[];
     atomicLabelData: any[];
+    alreadyAtomTagAtrrs: any[];
 
     dsOptions: any[];
     tableOptions: any[];
@@ -35,6 +36,7 @@ export default class EntityEdit extends React.Component<IProps, IState> {
         baseFormVal: {},
         dimensionInfor: [],
         atomicLabelData: [],
+        alreadyAtomTagAtrrs: [],
 
         dsOptions: [],
         tableOptions: [],
@@ -127,11 +129,18 @@ export default class EntityEdit extends React.Component<IProps, IState> {
         }).then((res: any) => {
             const { data = [], code } = res;
             if (code === 1) {
+                let tableColOptions = [];
+                let alreadyAtomTagAtrrs = [];
+                data.forEach(item => {
+                    tableColOptions.push({ label: item.entityAttr, value: item.entityAttr });
+                    if (item.isAtomTag) {
+                        alreadyAtomTagAtrrs.push(item.entityAttr);
+                    }
+                })
                 this.setState({
-                    tableColOptions: data.map(item => {
-                        return { label: item.entityAttr, value: item.entityAttr };
-                    }),
-                    dimensionInfor: data
+                    tableColOptions,
+                    dimensionInfor: data,
+                    alreadyAtomTagAtrrs
                 });
             }
         })
@@ -157,7 +166,8 @@ export default class EntityEdit extends React.Component<IProps, IState> {
                         return {
                             ...item,
                             dataType: item.dataType || (attrTypeOptions[0] && attrTypeOptions[0].value),
-                            isAtomTag: item.entityAttr == resultBV.entityPrimaryKey
+                            isAtomTag: item.isAtomTag || item.entityAttr == resultBV.entityPrimaryKey,
+                            isPrimaryKey: item.entityAttr == resultBV.entityPrimaryKey
                         }
                     });
                     this.setState({
@@ -175,11 +185,13 @@ export default class EntityEdit extends React.Component<IProps, IState> {
                 if (item.isAtomTag) {
                     atomicLabelData.push({
                         entityAttr: item.entityAttr,
-                        tagName: entityAttrCn,
+                        tagName: item.tagName || entityAttrCn,
                         dimensionName: entityAttrCn,
                         type: item.dataType,
                         labelNum: item.tagValueCount,
-                        tagDesc: ''
+                        tagDesc: item.tagDesc || '',
+                        tagId: item.tagId || undefined,
+                        tagDictId: item.tagDictId || undefined
                     })
                 }
                 newDimensionInfor.push({
@@ -203,20 +215,51 @@ export default class EntityEdit extends React.Component<IProps, IState> {
 
     handleAtomicLabelDataChange = (data: any) => {
         this.setState({
-            atomicLabelData: data
+            atomicLabelData: [...data]
         })
     }
 
     handleSave = () => {
-        const { baseFormVal, dimensionInfor, atomicLabelData } = this.state;
-        console.log(baseFormVal, dimensionInfor, atomicLabelData);
+        const { baseFormVal, dimensionInfor, atomicLabelData, current } = this.state;
         let labelNameHasEmpty = atomicLabelData.findIndex((item: any) => { return isEmpty(item.tagName) });
         if (labelNameHasEmpty != -1) {
             Message.warning('标签名称不可空！');
         } else {
-            // this.setState({
-            //     current: current + 1
-            // })
+            let params: any = {
+                ...baseFormVal,
+                tagParamList: dimensionInfor.map(item => {
+                    let tagInfor = {};
+                    let tagItem = atomicLabelData.find((ele: any) => { return ele.entityAttr == item.entityAttr });
+                    if (tagItem) {
+                        tagInfor = {
+                            tagName: tagItem.tagName,
+                            tagDictId: tagItem.tagDictId || undefined,
+                            tagDictParam: tagItem.tagDictParam || undefined,
+                            tagDesc: tagItem.tagDesc || '',
+                            tagId: tagItem.tagId || undefined
+                        }
+                    }
+                    return {
+                        ...tagInfor,
+                        entityAttrId: item.id || undefined,
+                        entityAttr: item.entityAttr,
+                        entityAttrCn: item.entityAttrCn,
+                        attrValueCount: item.tagValueCount,
+                        isPrimaryKey: item.isPrimaryKey,
+                        isMultipleValue: item.isMultipleValue,
+                        dataType: item.dataType
+                    }
+                })
+            }
+            API.saveEntity(params).then((res: any) => {
+                const { code } = res;
+                if (code === 1) {
+                    Message.success(get(baseFormVal, 'id') ? '修改成功！' : '新增成功！');
+                    this.setState({
+                        current: current + 1
+                    });
+                }
+            })
         }
     }
 
@@ -225,7 +268,7 @@ export default class EntityEdit extends React.Component<IProps, IState> {
     }
 
     render () {
-        const { current, baseFormVal, dimensionInfor, atomicLabelData, dsOptions, tableOptions, tableColOptions, attrTypeOptions, attrTypeMap } = this.state;
+        const { current, baseFormVal, dimensionInfor, atomicLabelData, dsOptions, tableOptions, tableColOptions, attrTypeOptions, attrTypeMap, alreadyAtomTagAtrrs } = this.state;
         const steps = [{
             title: '编辑基础信息',
             content: <BaseForm
@@ -244,6 +287,7 @@ export default class EntityEdit extends React.Component<IProps, IState> {
                 handleChange={this.handleDimensionDataChange}
                 infor={dimensionInfor}
                 baseInfor={baseFormVal}
+                alreadyAtomTagAtrrs={alreadyAtomTagAtrrs}
                 attrTypeOptions={attrTypeOptions}
             />
         }, {
@@ -265,7 +309,7 @@ export default class EntityEdit extends React.Component<IProps, IState> {
             },
             {
                 path: '',
-                name: '新增实体'
+                name: get(baseFormVal, 'id') ? '编辑实体' : '新增实体'
             }
         ];
         return (

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Table, Popover } from 'antd';
 import ConfigDictModal from './configDictModal';
-import { isEqual } from 'lodash';
+import { get } from 'lodash';
 import EditInput from '../../../../components/editInput';
 import { API } from '../../../../api/apiMap';
 import './style.scss';
@@ -14,40 +14,28 @@ interface IProps {
 }
 
 interface IState {
-    dataSource: any[];
     configModalVisble: boolean;
-    total: number;
     tagVals: any[];
     configItem: any;
+    configModalKey: number;
 }
 
 let timer: any = null;
 
 export default class AtomicLabel extends React.Component<IProps, IState> {
     state: IState = {
-        dataSource: [],
         configModalVisble: false,
-        total: 0,
         tagVals: [],
-        configItem: {}
+        configItem: {},
+        configModalKey: +new Date()
     }
 
     componentDidMount () {
-        const { infor } = this.props;
-        this.setState({
-            dataSource: infor,
-            total: infor.length
-        })
+
     }
 
     componentDidUpdate (preProps: any) {
-        const { infor } = this.props;
-        if (!isEqual(infor, preProps.infor)) {
-            this.setState({
-                dataSource: infor,
-                total: infor.length
-            })
-        }
+
     }
 
     componentWillUnmount () {
@@ -63,13 +51,29 @@ export default class AtomicLabel extends React.Component<IProps, IState> {
             configItem: {
                 ...item,
                 labelIndex: index
-            }
+            },
+            configModalKey: +new Date()
         })
     }
 
     handleConfModelOk = (value) => {
-        console.log('To Deal: ', value);
-        // TODO 处理配置弹框中的数据
+        const { configItem } = this.state;
+        const { infor } = this.props;
+        let newItem = { ...infor[configItem.labelIndex] };
+        if (value.way == 'auto') {
+            newItem.tagDictParam = {
+                name: value.dictSetName,
+                dictValueParamList: value.dictSetRule ? value.dictSetRule.map(item => {
+                    return { value: item.value, valueName: item.name };
+                }) : []
+            }
+        } else {
+            newItem.tagDictId = value.dictRef;
+        }
+        infor[configItem.labelIndex] = {
+            ...newItem
+        }
+        this.props.handleChange([...infor]);
         this.handleConfModelCancel();
     }
 
@@ -212,27 +216,29 @@ export default class AtomicLabel extends React.Component<IProps, IState> {
     }
 
     render () {
-        const { dataSource, configModalVisble, total, configItem } = this.state;
+        const { configModalVisble, configItem, configModalKey } = this.state;
+        const { infor } = this.props;
         return (
             <div className="atomic-label">
                 <div className="top-box">
                     <div>
-                        <span>共计{total}个原子标签</span>
+                        <span>共计{get(infor, 'length') || 0}个原子标签</span>
                     </div>
                 </div>
                 <Table
-                    rowKey="id"
+                    rowKey="entityAttr"
                     className="al-table-border"
                     pagination={false}
                     loading={false}
                     columns={this.initColumns()}
                     scroll={{ y: 400 }}
-                    dataSource={dataSource}
+                    dataSource={infor || []}
                 />
                 <ConfigDictModal
                     visible={configModalVisble}
                     isLabel={true}
-                    infor={configItem}
+                    key={configModalKey}
+                    configItem={configItem}
                     onOk={this.handleConfModelOk}
                     onCancel={this.handleConfModelCancel}
                 />

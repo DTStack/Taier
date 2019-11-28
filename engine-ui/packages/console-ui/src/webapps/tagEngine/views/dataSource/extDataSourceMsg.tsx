@@ -41,7 +41,8 @@ const showMapArr: any = {
         ['accessId', 'Access Id']
     ],
     [DATA_SOURCE.ES]: [
-        ['address', '集群地址']
+        ['url', 'url'],
+        ['username', '用户名']
     ],
     [DATA_SOURCE.REDIS]: [
         ['hostPort', '地址'],

@@ -217,7 +217,7 @@ export default class EntityList extends React.Component<any, IState> {
     render () {
         const { total, pageSize, pageNo, dataSource, loading, searchVal, deleteVisible, deleteItem } = this.state;
         const pagination: any = {
-            total: total,
+            total: +total || 0,
             pageSize: pageSize,
             current: pageNo,
             showTotal: () => (

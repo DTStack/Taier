@@ -47,11 +47,12 @@ const hdfsConf =
 
 class BaseForm extends React.Component<any, any> {
     state: any = {
-        sourceType: 1,
+        sourceType: 11,
         hadoopConfig: 'defaultDfs',
         hadoopConfigStr: hdfsConf,
         ftpProtocal: 'ftp',
-        redisType: REDIS_TYPE.SINGLE
+        redisType: REDIS_TYPE.SINGLE,
+        isTestConnect: false
     }
 
     componentDidMount () {
@@ -97,7 +98,11 @@ class BaseForm extends React.Component<any, any> {
         form.validateFields((err: any, source: any) => {
             if (!err) {
                 this.preHandFormValues(source);
-                testConnection(source)
+                testConnection(source, () => {
+                    this.setState({
+                        isTestConnect: true
+                    })
+                })
             }
         });
     }
@@ -287,7 +292,6 @@ class BaseForm extends React.Component<any, any> {
 
         const { getFieldDecorator, getFieldValue } = form;
         const config = sourceData.dataJson || {};
-        console.log('renderDynamic', config);
 
         const jdbcRulePattern: any = {
             pattern: this.getJDBCRule(sourceType),
@@ -686,19 +690,19 @@ class BaseForm extends React.Component<any, any> {
                         {...formItemLayout}
                         label="URL"
                         hasFeedback
-                        key="jdbcUrl"
+                        key="url"
 
                     >
-                        {getFieldDecorator('dataJson.jdbcUrl', {
+                        {getFieldDecorator('dataJson.url', {
                             rules: [{
-                                required: true, message: 'jdbcUrl不可为空！'
+                                required: true, message: 'url不可为空！'
                             }, jdbcRulePattern
                             ],
-                            initialValue: config.jdbcUrl || ''
+                            initialValue: config.url || ''
                         })(
                             <Input autoComplete="off" />
                         )}
-                        <Tooltip overlayClassName="big-tooltip" title={'示例：' + jdbcUrlExample[sourceType]}>
+                        <Tooltip overlayClassName="big-tooltip" title={'示例：172.16.8.177:9200'}>
                             <Icon className="help-doc" type="question-circle-o" />
                         </Tooltip>
                     </FormItem>,
@@ -716,9 +720,9 @@ class BaseForm extends React.Component<any, any> {
                         })(
                             <Input autoComplete="off" />
                         )}
-                        {showUserNameWarning && <Tooltip overlayClassName="big-tooltip" title={'若需要实时采集MySQL的数据，这里的用户需具有REPLICATION SLAVE权限，否则无法读取底层日志采集数据'}>
+                        {/* {showUserNameWarning && <Tooltip overlayClassName="big-tooltip" title={'若需要实时采集MySQL的数据，这里的用户需具有REPLICATION SLAVE权限，否则无法读取底层日志采集数据'}>
                             <Icon className="help-doc" type="question-circle-o" />
-                        </Tooltip>}
+                        </Tooltip>} */}
                     </FormItem>,
                     <FormItem
                         key="password"
@@ -1053,8 +1057,8 @@ class BaseForm extends React.Component<any, any> {
 
     render () {
         const { form, sourceData, status, types, isTest, showSync } = this.props;
+        const { isTestConnect } = this.state;
         const { getFieldDecorator } = form;
-
         const sourceTypeList = types.map(
             (item: any) => (
                 <Option
@@ -1151,6 +1155,7 @@ class BaseForm extends React.Component<any, any> {
                     </Button>
                     <Button
                         type="primary"
+                        disabled={!isTestConnect}
                         style={{ marginRight: '10px' }}
                         onClick={this.submit}>确定
                     </Button>

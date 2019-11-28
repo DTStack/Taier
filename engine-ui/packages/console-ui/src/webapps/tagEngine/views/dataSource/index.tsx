@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { cloneDeep, pickBy } from 'lodash';
+import { cloneDeep } from 'lodash';
 import {
     Input, Button,
-    Table, message, Card, Icon, Tooltip, Popconfirm
+    Table, message, Card, Icon, Tooltip
 } from 'antd';
 
+import DeleteModal from '../../components/deleteModal';
 import { Circle } from 'widgets/circle';
 import Api from '../../api/dataSource';
 import DataSourceForm from './form';
@@ -28,7 +29,9 @@ class DataSourceManaStream extends React.Component<any, any> {
         pageSize: 10,
         source: {},
         name: '',
-        type: undefined
+        type: undefined,
+        deleteVisible: false,
+        deleteItem: {}
     }
 
     componentDidMount () {
@@ -37,7 +40,7 @@ class DataSourceManaStream extends React.Component<any, any> {
     }
 
     // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps(nextProps: any) {
+    UNSAFE_componentWillReceiveProps (nextProps: any) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj.id !== 0 && project && oldProj.id !== project.id) {
@@ -57,15 +60,14 @@ class DataSourceManaStream extends React.Component<any, any> {
     }
 
     loadDataSources = () => {
-        const { pageSize, currentPage, name, type } = this.state;
+        const { pageSize, currentPage, name } = this.state;
         this.setState({ loading: true })
         const reqParams: any = {
-            pageSize,
-            currentPage,
-            name,
-            type
+            size: pageSize,
+            current: currentPage,
+            search: name
         }
-        Api.streamQueryDataSource(reqParams).then((res: any) => {
+        Api.getTagDataSourceList(reqParams).then((res: any) => {
             this.setState({
                 loading: false
             })
@@ -88,19 +90,7 @@ class DataSourceManaStream extends React.Component<any, any> {
         let reqSource = sourceFormData
         if (status === 'edit') { // 编辑数据
             reqSource = Object.assign(cloneDeep(source), sourceFormData)
-        }
-        if (reqSource.dataJson.openKerberos) {
-            reqSource.dataJsonString = JSON.stringify(reqSource.dataJson)
-            console.log(reqSource)
-            delete reqSource.modifyUser;
-            delete reqSource.dataJson;
-            reqSource = pickBy(reqSource, (item, key) => { // 过滤掉空字符串和值为null的属性，并且过滤掉编辑时的kerberos字段
-                if (key === 'kerberosFile' && (!item.type)) {
-                    return false
-                }
-                return item != null
-            })
-            Api.streamSaveDataSourceWithKerberos(reqSource).then((res: any) => {
+            Api.tagUpdateeDataSource(reqSource).then((res: any) => {
                 if (res.code === 1) {
                     message.success(`${title}成功！`)
                     ctx.setState({
@@ -112,8 +102,10 @@ class DataSourceManaStream extends React.Component<any, any> {
                 }
             })
         } else {
-            console.log(reqSource)
-            Api.streamSaveDataSource(reqSource).then((res: any) => {
+            Api.tagCreateDataSource({
+                ...reqSource,
+                linkState: 1 // 连通性测试过后才可新增 故链接状态始终为1
+            }).then((res: any) => {
                 if (res.code === 1) {
                     message.success(`${title}成功！`)
                     ctx.setState({
@@ -127,60 +119,25 @@ class DataSourceManaStream extends React.Component<any, any> {
         }
     }
     openDataSourceModal = () => {
-        Api.checkDataSourcePermission().then((res: any) => {
-            if (res.code === 1) {
-                this.setState({
-                    visible: true,
-                    source: {},
-                    status: 'add',
-                    title: '添加数据源'
-                })
-            }
-        })
-    }
-    remove = (source: any) => {
-        const ctx = this
-        if (source.active === 1) {
-            message.info('此数据源已在任务中被引用，无法删除!')
-            return;
-        }
-        Api.streamDeleteDataSource({ sourceId: source.id }).then((res: any) => {
-            if (res.code === 1) {
-                message.success('移除数据源成功！')
-                ctx.loadDataSources()
-            }
+        this.setState({
+            visible: true,
+            source: {},
+            status: 'add',
+            title: '添加数据源'
         })
     }
 
-    testConnection = (formSource: any) => { // 测试数据源连通性
-        const { source } = this.state;
-        formSource.id = source.id;
-        console.log(formSource, source)
-        if (formSource.dataJson.openKerberos) {
-            formSource.dataJsonString = JSON.stringify(formSource.dataJson)
-            delete formSource.dataJson;
-            formSource = pickBy(formSource, (item, key) => { // 过滤掉空字符串和值为null的属性，并且过滤掉编辑时的kerberos字段
-                if (key === 'kerberosFile' && (!item.type)) {
-                    return false
-                }
-                return item != null
-            })
-            Api.streamTestDataSourceConnectionWithKerberos(formSource).then((res: any) => {
-                if (res.code === 1 && res.data) {
-                    message.success('数据源连接正常！')
-                } else if (res.code === 1 && !res.data) {
-                    message.error('数据源连接异常')
-                }
-            })
-        } else {
-            Api.streamTestDataSourceConnection(formSource).then((res: any) => {
-                if (res.code === 1 && res.data) {
-                    message.success('数据源连接正常！')
-                } else if (res.code === 1 && !res.data) {
-                    message.error('数据源连接异常')
-                }
-            })
-        }
+    testConnection = (formSource: any, callBack) => { // 测试数据源连通性
+        Api.tagTestDSConnect({
+            ...formSource.dataJson
+        }).then((res: any) => {
+            if (res.code === 1 && res.data) {
+                message.success('数据源连接正常！')
+                callBack();
+            } else if (res.code === 1 && !res.data) {
+                message.error('数据源连接异常')
+            }
+        })
     }
 
     handleTableChange = (pagination: any, filters: any) => {
@@ -191,15 +148,11 @@ class DataSourceManaStream extends React.Component<any, any> {
     }
 
     initEdit = (source: any) => {
-        Api.checkDataSourcePermission().then((res: any) => {
-            if (res.code === 1) {
-                this.setState({
-                    visible: true,
-                    title: '编辑数据源',
-                    status: 'edit',
-                    source: cloneDeep(source)
-                })
-            }
+        this.setState({
+            visible: true,
+            title: '编辑数据源',
+            status: 'edit',
+            source: cloneDeep(source)
         })
     }
     getSourceType (type: any) {
@@ -211,7 +164,7 @@ class DataSourceManaStream extends React.Component<any, any> {
     }
     initColumns = () => {
         const text = '系统每隔10分钟会尝试连接一次数据源，如果无法连通，则会显示连接失败的状态。数据源连接失败会导致同步任务执行失败。';
-        const { sourceTypes } = this.state;
+        // const { sourceTypes } = this.state;
 
         return [{
             title: '数据源名称',
@@ -224,11 +177,11 @@ class DataSourceManaStream extends React.Component<any, any> {
             width: '100px',
             render: (text: any, record: any) => {
                 return this.getSourceType(text)
-            },
-            filters: sourceTypes.map((source: any) => {
-                return { ...source, text: source.name }
-            }),
-            filterMultiple: false
+            }
+            // filters: sourceTypes.map((source: any) => {
+            //     return { ...source, text: source.name }
+            // }),
+            // filterMultiple: false
         },
         {
             title: '描述',
@@ -243,21 +196,6 @@ class DataSourceManaStream extends React.Component<any, any> {
                 return <ExtTableCell sourceData={record} />
             }
         },
-        // {
-        //     title: '最近修改人',
-        //     dataIndex: 'modifyUserId',
-        //     key: 'modifyUserId',
-        //     width: '120px',
-        //     render: (text: any, record: any) => {
-        //         return record.modifyUser ? record.modifyUser.userName : ''
-        //     }
-        // }, {
-        //     title: '最近修改时间',
-        //     dataIndex: 'gmtModified',
-        //     key: 'gmtModified',
-        //     width: '120px',
-        //     render: (text: any) => utils.formatDateTime(text),
-        // },
         {
             title: '应用状态',
             dataIndex: 'active',
@@ -290,20 +228,6 @@ class DataSourceManaStream extends React.Component<any, any> {
                 // active  '0：未启用，1：使用中'。  只有为0时，可以修改
                 return (
                     <span key={record.id}>
-                        {/* {
-                            record.type === DATA_SOURCE.MYSQL
-                            &&
-                            <span>
-                                <a onClick={this.openSyncModal.bind(this, record)}>
-                                    同步历史
-                                </a>
-                                <span className="ant-divider" />
-                                <Link to={`database/stream/db-sync/${record.id}/${record.dataName}`}>
-                                    整库同步
-                                </Link>
-                                <span className="ant-divider" />
-                            </span>
-                        } */}
                         <a onClick={() => { this.initEdit(record) }}>
                             编辑
                         </a>
@@ -312,19 +236,20 @@ class DataSourceManaStream extends React.Component<any, any> {
                             record.active === 1
                                 ? <span style={{ color: '#ccc' }}>删除</span>
                                 : (
-                                    <Popconfirm
-                                        title="确定删除此数据源？"
-                                        okText="确定" cancelText="取消"
-                                        onConfirm={() => { this.remove(record) }}
-                                    >
-                                        <a>删除</a>
-                                    </Popconfirm>
+                                    <a onClick={this.openDeleteModal.bind(this, record)}>删除</a>
                                 )
                         }
                     </span>
                 )
             }
         }]
+    }
+
+    openDeleteModal = (deleteItem) => {
+        this.setState({
+            deleteVisible: true,
+            deleteItem
+        })
     }
 
     openSyncModal = (record: any) => {
@@ -341,12 +266,38 @@ class DataSourceManaStream extends React.Component<any, any> {
         });
     }
 
+    handleDeleteModel = (type: string) => {
+        const { deleteItem } = this.state;
+        if (type == 'ok') {
+            Api.tagDeleteDataSource({
+                id: deleteItem.id
+            }).then((res: any) => {
+                if (res.code === 1) {
+                    message.success('移除数据源成功！')
+                    this.loadDataSources();
+                    this.setState({
+                        deleteVisible: false
+                    })
+                }
+            })
+        } else {
+            this.setState({
+                deleteVisible: false
+            })
+        }
+    }
+
     render () {
-        const { source, dataSource, sourceTypes, currentPage, pageSize } = this.state
+        const { source, dataSource, sourceTypes, currentPage, pageSize, deleteVisible } = this.state
         const pagination: any = {
             total: dataSource.totalCount,
             pageSize: pageSize,
-            current: currentPage
+            current: currentPage,
+            showTotal: () => (
+                <div>
+                    总共 <a>{dataSource.total}</a> 条数据,每页显示{pageSize}条
+                </div>
+            )
         };
         const title = (
             <div>
@@ -377,12 +328,12 @@ class DataSourceManaStream extends React.Component<any, any> {
                     >
                         <Table
                             rowKey="id"
-                            className="dt-ant-table dt-ant-table--border full-screen-table-47"
+                            className="dt-ant-table--border"
                             pagination={pagination}
                             onChange={this.handleTableChange}
                             loading={this.state.loading}
                             columns={this.initColumns()}
-                            dataSource={dataSource.data}
+                            dataSource={dataSource.contentList}
                         />
                     </Card>
                 </div>
@@ -397,6 +348,14 @@ class DataSourceManaStream extends React.Component<any, any> {
                     sourceTypes={sourceTypes}
                     showUserNameWarning={true}
                     handCancel={() => { this.setState({ visible: false }) }}
+                />
+                <DeleteModal
+                    title={'删除数据源'}
+                    content={'确定删除此数据源？'}
+                    okText={'确定'}
+                    visible={deleteVisible}
+                    onCancel={this.handleDeleteModel.bind(this, 'cancel')}
+                    onOk={this.handleDeleteModel.bind(this, 'ok')}
                 />
             </div>
         )

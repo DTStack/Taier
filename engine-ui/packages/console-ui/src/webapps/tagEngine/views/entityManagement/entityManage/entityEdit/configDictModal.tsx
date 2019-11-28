@@ -4,6 +4,7 @@ import { Modal, Form, Select, Radio, Input } from 'antd';
 import SetDictionary from '../../../../components/setDictionary';
 import { uniq, get } from 'lodash';
 import { API } from '../../../../api/apiMap';
+import shortid from 'shortid';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -52,7 +53,6 @@ class ConfigDictModal extends React.Component<any, any> {
     onOK = () => {
         this.props.form.validateFields(async (err: any, values: any) => {
             if (!err) {
-                console.log(values);
                 this.props.onOk(values);
             }
         })
@@ -76,6 +76,7 @@ class ConfigDictModal extends React.Component<any, any> {
             { label: '自定义', value: 'auto' },
             { label: '引用', value: 'refer' }
         ];
+        let tagDictParam = get(configItem, 'tagDictParam') || {};
         return (
             <Modal
                 title="配置字典"
@@ -107,7 +108,7 @@ class ConfigDictModal extends React.Component<any, any> {
                             rules: [{
                                 required: true, message: '选择方式不可为空！'
                             }],
-                            initialValue: get(configItem, 'way') || 'auto'
+                            initialValue: get(configItem, 'tagDictId') ? 'refer' : 'auto'
                         })(
                             <RadioGroup options={wayOption} />
                         )}
@@ -117,7 +118,7 @@ class ConfigDictModal extends React.Component<any, any> {
                             rules: [{
                                 required: true, message: '字典引用不可为空！'
                             }],
-                            initialValue: get(configItem, 'dictRef') || undefined
+                            initialValue: get(configItem, 'tagDictId') || undefined
                         })(
                             <Select
                                 style={{ width: '100%' }}
@@ -137,7 +138,7 @@ class ConfigDictModal extends React.Component<any, any> {
                                 max: 20,
                                 message: '字典名称不可超过20个字符！'
                             }],
-                            initialValue: get(configItem, 'dictSetName') || undefined
+                            initialValue: get(tagDictParam, 'name') || undefined
                         })(
                             <Input placeholder="请输入字典名称" />
                         )}
@@ -152,7 +153,9 @@ class ConfigDictModal extends React.Component<any, any> {
                                     validator: this.ruleValRepeatVerify
                                 }
                             ],
-                            initialValue: get(configItem, 'dictSetRule') || undefined
+                            initialValue: get(tagDictParam, 'dictValueParamList') ? get(tagDictParam, 'dictValueParamList').map(item => {
+                                return { value: item.value, name: item.valueName, key: shortid() };
+                            }) : undefined
                         })(<SetDictionary isEdit={true} />)}
                     </Form.Item>}
                 </Form>
