@@ -6,12 +6,13 @@ function localTabs (state: any[] = [], action: any) {
     const { type, payload } = action;
     switch (type) {
         case experimentTabType.ADD_TAB: {
+            let newState = [...state]
             let index = state.findIndex((tab: any) => {
                 return tab.id == payload.id
             })
             if (index >= 0) {
-                let currentStateList = [...state].splice(index, 1, payload)
-                return currentStateList
+                newState.splice(index, 1, payload)
+                return newState
             }
             return [...state, payload]
         }
