@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { cloneDeep, pickBy } from 'lodash';
+import { cloneDeep } from 'lodash';
 import {
     Input, Button,
     Table, message, Card, Icon, Tooltip, Popconfirm
@@ -37,7 +37,7 @@ class DataSourceManaStream extends React.Component<any, any> {
     }
 
     // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps(nextProps: any) {
+    UNSAFE_componentWillReceiveProps (nextProps: any) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj.id !== 0 && project && oldProj.id !== project.id) {
@@ -47,25 +47,29 @@ class DataSourceManaStream extends React.Component<any, any> {
     }
 
     getSourceTypes () {
-        Api.getDataSourceTypes().then((res: any) => {
-            if (res.code == 1) {
-                this.setState({
-                    sourceTypes: res.data
-                })
-            }
+        // Api.getDataSourceTypes().then((res: any) => {
+        //     if (res.code == 1) {
+        //         this.setState({
+        //             sourceTypes: res.data
+        //         })
+        //     }
+        // })
+        this.setState({
+            sourceTypes: [
+                { value: 'ES', name: 'ES' }
+            ]
         })
     }
 
     loadDataSources = () => {
-        const { pageSize, currentPage, name, type } = this.state;
+        const { pageSize, currentPage, name } = this.state;
         this.setState({ loading: true })
         const reqParams: any = {
-            pageSize,
-            currentPage,
-            name,
-            type
+            size: pageSize,
+            current: currentPage,
+            search: name
         }
-        Api.streamQueryDataSource(reqParams).then((res: any) => {
+        Api.getTagDataSourceList(reqParams).then((res: any) => {
             this.setState({
                 loading: false
             })
@@ -86,56 +90,76 @@ class DataSourceManaStream extends React.Component<any, any> {
         const ctx = this
         const { title, status, source } = this.state
         let reqSource = sourceFormData
+        console.log(ctx, title, reqSource);
         if (status === 'edit') { // 编辑数据
             reqSource = Object.assign(cloneDeep(source), sourceFormData)
-        }
-        if (reqSource.dataJson.openKerberos) {
-            reqSource.dataJsonString = JSON.stringify(reqSource.dataJson)
-            console.log(reqSource)
-            delete reqSource.modifyUser;
-            delete reqSource.dataJson;
-            reqSource = pickBy(reqSource, (item, key) => { // 过滤掉空字符串和值为null的属性，并且过滤掉编辑时的kerberos字段
-                if (key === 'kerberosFile' && (!item.type)) {
-                    return false
-                }
-                return item != null
-            })
-            Api.streamSaveDataSourceWithKerberos(reqSource).then((res: any) => {
-                if (res.code === 1) {
-                    message.success(`${title}成功！`)
-                    ctx.setState({
-                        visible: false
-                    })
-                    formObj.resetFields()
-                    ctx.loadDataSources()
-                    callBack();
-                }
-            })
+            // Api.tagUpdateeDataSource(reqSource).then((res: any) => {
+            //     if (res.code === 1) {
+            //         message.success(`${title}成功！`)
+            //         ctx.setState({
+            //             visible: false
+            //         })
+            //         formObj.resetFields()
+            //         ctx.loadDataSources()
+            //         callBack();
+            //     }
+            // })
         } else {
-            console.log(reqSource)
-            Api.streamSaveDataSource(reqSource).then((res: any) => {
-                if (res.code === 1) {
-                    message.success(`${title}成功！`)
-                    ctx.setState({
-                        visible: false
-                    })
-                    formObj.resetFields()
-                    ctx.loadDataSources()
-                    callBack();
-                }
-            })
+            // Api.tagCreateDataSource(reqSource).then((res: any) => {
+            //     if (res.code === 1) {
+            //         message.success(`${title}成功！`)
+            //         ctx.setState({
+            //             visible: false
+            //         })
+            //         formObj.resetFields()
+            //         ctx.loadDataSources()
+            //         callBack();
+            //     }
+            // })
         }
+        // if (reqSource.dataJson.openKerberos) {
+        //     reqSource.dataJsonString = JSON.stringify(reqSource.dataJson)
+        //     console.log(reqSource)
+        //     delete reqSource.modifyUser;
+        //     delete reqSource.dataJson;
+        //     reqSource = pickBy(reqSource, (item, key) => { // 过滤掉空字符串和值为null的属性，并且过滤掉编辑时的kerberos字段
+        //         if (key === 'kerberosFile' && (!item.type)) {
+        //             return false
+        //         }
+        //         return item != null
+        //     })
+        //     Api.streamSaveDataSourceWithKerberos(reqSource).then((res: any) => {
+        //         if (res.code === 1) {
+        //             message.success(`${title}成功！`)
+        //             ctx.setState({
+        //                 visible: false
+        //             })
+        //             formObj.resetFields()
+        //             ctx.loadDataSources()
+        //             callBack();
+        //         }
+        //     })
+        // } else {
+        //     console.log(reqSource)
+        //     Api.streamSaveDataSource(reqSource).then((res: any) => {
+        //         if (res.code === 1) {
+        //             message.success(`${title}成功！`)
+        //             ctx.setState({
+        //                 visible: false
+        //             })
+        //             formObj.resetFields()
+        //             ctx.loadDataSources()
+        //             callBack();
+        //         }
+        //     })
+        // }
     }
     openDataSourceModal = () => {
-        Api.checkDataSourcePermission().then((res: any) => {
-            if (res.code === 1) {
-                this.setState({
-                    visible: true,
-                    source: {},
-                    status: 'add',
-                    title: '添加数据源'
-                })
-            }
+        this.setState({
+            visible: true,
+            source: {},
+            status: 'add',
+            title: '添加数据源'
         })
     }
     remove = (source: any) => {
@@ -144,7 +168,7 @@ class DataSourceManaStream extends React.Component<any, any> {
             message.info('此数据源已在任务中被引用，无法删除!')
             return;
         }
-        Api.streamDeleteDataSource({ sourceId: source.id }).then((res: any) => {
+        Api.tagDeleteDataSource({ sourceId: source.id }).then((res: any) => {
             if (res.code === 1) {
                 message.success('移除数据源成功！')
                 ctx.loadDataSources()
@@ -156,31 +180,38 @@ class DataSourceManaStream extends React.Component<any, any> {
         const { source } = this.state;
         formSource.id = source.id;
         console.log(formSource, source)
-        if (formSource.dataJson.openKerberos) {
-            formSource.dataJsonString = JSON.stringify(formSource.dataJson)
-            delete formSource.dataJson;
-            formSource = pickBy(formSource, (item, key) => { // 过滤掉空字符串和值为null的属性，并且过滤掉编辑时的kerberos字段
-                if (key === 'kerberosFile' && (!item.type)) {
-                    return false
-                }
-                return item != null
-            })
-            Api.streamTestDataSourceConnectionWithKerberos(formSource).then((res: any) => {
-                if (res.code === 1 && res.data) {
-                    message.success('数据源连接正常！')
-                } else if (res.code === 1 && !res.data) {
-                    message.error('数据源连接异常')
-                }
-            })
-        } else {
-            Api.streamTestDataSourceConnection(formSource).then((res: any) => {
-                if (res.code === 1 && res.data) {
-                    message.success('数据源连接正常！')
-                } else if (res.code === 1 && !res.data) {
-                    message.error('数据源连接异常')
-                }
-            })
-        }
+        // Api.tagTestDSConnect(formSource).then((res: any) => {
+        //     if (res.code === 1 && res.data) {
+        //         message.success('数据源连接正常！')
+        //     } else if (res.code === 1 && !res.data) {
+        //         message.error('数据源连接异常')
+        //     }
+        // })
+        // if (formSource.dataJson.openKerberos) {
+        //     formSource.dataJsonString = JSON.stringify(formSource.dataJson)
+        //     delete formSource.dataJson;
+        //     formSource = pickBy(formSource, (item, key) => { // 过滤掉空字符串和值为null的属性，并且过滤掉编辑时的kerberos字段
+        //         if (key === 'kerberosFile' && (!item.type)) {
+        //             return false
+        //         }
+        //         return item != null
+        //     })
+        //     Api.streamTestDataSourceConnectionWithKerberos(formSource).then((res: any) => {
+        //         if (res.code === 1 && res.data) {
+        //             message.success('数据源连接正常！')
+        //         } else if (res.code === 1 && !res.data) {
+        //             message.error('数据源连接异常')
+        //         }
+        //     })
+        // } else {
+        //     Api.streamTestDataSourceConnection(formSource).then((res: any) => {
+        //         if (res.code === 1 && res.data) {
+        //             message.success('数据源连接正常！')
+        //         } else if (res.code === 1 && !res.data) {
+        //             message.error('数据源连接异常')
+        //         }
+        //     })
+        // }
     }
 
     handleTableChange = (pagination: any, filters: any) => {
@@ -191,15 +222,11 @@ class DataSourceManaStream extends React.Component<any, any> {
     }
 
     initEdit = (source: any) => {
-        Api.checkDataSourcePermission().then((res: any) => {
-            if (res.code === 1) {
-                this.setState({
-                    visible: true,
-                    title: '编辑数据源',
-                    status: 'edit',
-                    source: cloneDeep(source)
-                })
-            }
+        this.setState({
+            visible: true,
+            title: '编辑数据源',
+            status: 'edit',
+            source: cloneDeep(source)
         })
     }
     getSourceType (type: any) {
@@ -211,7 +238,7 @@ class DataSourceManaStream extends React.Component<any, any> {
     }
     initColumns = () => {
         const text = '系统每隔10分钟会尝试连接一次数据源，如果无法连通，则会显示连接失败的状态。数据源连接失败会导致同步任务执行失败。';
-        const { sourceTypes } = this.state;
+        // const { sourceTypes } = this.state;
 
         return [{
             title: '数据源名称',
@@ -224,11 +251,11 @@ class DataSourceManaStream extends React.Component<any, any> {
             width: '100px',
             render: (text: any, record: any) => {
                 return this.getSourceType(text)
-            },
-            filters: sourceTypes.map((source: any) => {
-                return { ...source, text: source.name }
-            }),
-            filterMultiple: false
+            }
+            // filters: sourceTypes.map((source: any) => {
+            //     return { ...source, text: source.name }
+            // }),
+            // filterMultiple: false
         },
         {
             title: '描述',
@@ -243,21 +270,6 @@ class DataSourceManaStream extends React.Component<any, any> {
                 return <ExtTableCell sourceData={record} />
             }
         },
-        // {
-        //     title: '最近修改人',
-        //     dataIndex: 'modifyUserId',
-        //     key: 'modifyUserId',
-        //     width: '120px',
-        //     render: (text: any, record: any) => {
-        //         return record.modifyUser ? record.modifyUser.userName : ''
-        //     }
-        // }, {
-        //     title: '最近修改时间',
-        //     dataIndex: 'gmtModified',
-        //     key: 'gmtModified',
-        //     width: '120px',
-        //     render: (text: any) => utils.formatDateTime(text),
-        // },
         {
             title: '应用状态',
             dataIndex: 'active',
@@ -290,20 +302,6 @@ class DataSourceManaStream extends React.Component<any, any> {
                 // active  '0：未启用，1：使用中'。  只有为0时，可以修改
                 return (
                     <span key={record.id}>
-                        {/* {
-                            record.type === DATA_SOURCE.MYSQL
-                            &&
-                            <span>
-                                <a onClick={this.openSyncModal.bind(this, record)}>
-                                    同步历史
-                                </a>
-                                <span className="ant-divider" />
-                                <Link to={`database/stream/db-sync/${record.id}/${record.dataName}`}>
-                                    整库同步
-                                </Link>
-                                <span className="ant-divider" />
-                            </span>
-                        } */}
                         <a onClick={() => { this.initEdit(record) }}>
                             编辑
                         </a>
@@ -346,7 +344,12 @@ class DataSourceManaStream extends React.Component<any, any> {
         const pagination: any = {
             total: dataSource.totalCount,
             pageSize: pageSize,
-            current: currentPage
+            current: currentPage,
+            showTotal: () => (
+                <div>
+                    总共 <a>{dataSource.total}</a> 条数据,每页显示{pageSize}条
+                </div>
+            )
         };
         const title = (
             <div>
@@ -377,12 +380,12 @@ class DataSourceManaStream extends React.Component<any, any> {
                     >
                         <Table
                             rowKey="id"
-                            className="dt-ant-table dt-ant-table--border full-screen-table-47"
+                            className="dt-ant-table--border"
                             pagination={pagination}
                             onChange={this.handleTableChange}
                             loading={this.state.loading}
                             columns={this.initColumns()}
-                            dataSource={dataSource.data}
+                            dataSource={dataSource.contentList}
                         />
                     </Card>
                 </div>

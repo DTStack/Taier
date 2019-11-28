@@ -157,7 +157,8 @@ export default class EntityEdit extends React.Component<IProps, IState> {
                         return {
                             ...item,
                             dataType: item.dataType || (attrTypeOptions[0] && attrTypeOptions[0].value),
-                            isAtomTag: item.entityAttr == resultBV.entityPrimaryKey
+                            isAtomTag: item.isAtomTag || item.entityAttr == resultBV.entityPrimaryKey,
+                            isPrimaryKey: item.entityAttr == resultBV.entityPrimaryKey
                         }
                     });
                     this.setState({
@@ -203,20 +204,51 @@ export default class EntityEdit extends React.Component<IProps, IState> {
 
     handleAtomicLabelDataChange = (data: any) => {
         this.setState({
-            atomicLabelData: data
+            atomicLabelData: [...data]
         })
     }
 
     handleSave = () => {
-        const { baseFormVal, dimensionInfor, atomicLabelData } = this.state;
-        console.log(baseFormVal, dimensionInfor, atomicLabelData);
+        const { baseFormVal, dimensionInfor, atomicLabelData, current } = this.state;
         let labelNameHasEmpty = atomicLabelData.findIndex((item: any) => { return isEmpty(item.tagName) });
         if (labelNameHasEmpty != -1) {
             Message.warning('标签名称不可空！');
         } else {
-            // this.setState({
-            //     current: current + 1
-            // })
+            let params: any = {
+                ...baseFormVal,
+                tagParamList: dimensionInfor.map(item => {
+                    let tagInfor = {};
+                    let tagItem = atomicLabelData.find((ele: any) => { return ele.entityAttr == item.entityAttr });
+                    if (tagItem) {
+                        tagInfor = {
+                            tagName: tagItem.tagName,
+                            tagDictId: tagItem.tagDictId || undefined,
+                            tagDictParam: tagItem.tagDictParam || undefined,
+                            tagDesc: tagItem.tagDesc || '',
+                            tagId: tagItem.tagId || undefined
+                        }
+                    }
+                    return {
+                        ...tagInfor,
+                        entityAttrId: item.id || undefined,
+                        entityAttr: item.entityAttr,
+                        entityAttrCn: item.entityAttrCn,
+                        attrValueCount: item.tagValueCount,
+                        isPrimaryKey: item.isPrimaryKey,
+                        isMultipleValue: item.isMultipleValue,
+                        dataType: item.dataType
+                    }
+                })
+            }
+            API.saveEntity(params).then((res: any) => {
+                const { code } = res;
+                if (code === 1) {
+                    Message.success(get(baseFormVal, 'id') ? '修改成功！' : '新增成功！');
+                    this.setState({
+                        current: current + 1
+                    });
+                }
+            })
         }
     }
 
@@ -265,7 +297,7 @@ export default class EntityEdit extends React.Component<IProps, IState> {
             },
             {
                 path: '',
-                name: '新增实体'
+                name: get(baseFormVal, 'id') ? '编辑实体' : '新增实体'
             }
         ];
         return (
