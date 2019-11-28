@@ -3,9 +3,10 @@ import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import {
     Input, Button,
-    Table, message, Card, Icon, Tooltip, Popconfirm
+    Table, message, Card, Icon, Tooltip
 } from 'antd';
 
+import DeleteModal from '../../components/deleteModal';
 import { Circle } from 'widgets/circle';
 import Api from '../../api/dataSource';
 import DataSourceForm from './form';
@@ -28,7 +29,9 @@ class DataSourceManaStream extends React.Component<any, any> {
         pageSize: 10,
         source: {},
         name: '',
-        type: undefined
+        type: undefined,
+        deleteVisible: false,
+        deleteItem: {}
     }
 
     componentDidMount () {
@@ -85,69 +88,35 @@ class DataSourceManaStream extends React.Component<any, any> {
         const ctx = this
         const { title, status, source } = this.state
         let reqSource = sourceFormData
-        console.log(ctx, title, reqSource);
         if (status === 'edit') { // 编辑数据
             reqSource = Object.assign(cloneDeep(source), sourceFormData)
-            // Api.tagUpdateeDataSource(reqSource).then((res: any) => {
-            //     if (res.code === 1) {
-            //         message.success(`${title}成功！`)
-            //         ctx.setState({
-            //             visible: false
-            //         })
-            //         formObj.resetFields()
-            //         ctx.loadDataSources()
-            //         callBack();
-            //     }
-            // })
+            Api.tagUpdateeDataSource(reqSource).then((res: any) => {
+                if (res.code === 1) {
+                    message.success(`${title}成功！`)
+                    ctx.setState({
+                        visible: false
+                    })
+                    formObj.resetFields()
+                    ctx.loadDataSources()
+                    callBack();
+                }
+            })
         } else {
-            // Api.tagCreateDataSource(reqSource).then((res: any) => {
-            //     if (res.code === 1) {
-            //         message.success(`${title}成功！`)
-            //         ctx.setState({
-            //             visible: false
-            //         })
-            //         formObj.resetFields()
-            //         ctx.loadDataSources()
-            //         callBack();
-            //     }
-            // })
+            Api.tagCreateDataSource({
+                ...reqSource,
+                linkState: 1 // 连通性测试过后才可新增 故链接状态始终为1
+            }).then((res: any) => {
+                if (res.code === 1) {
+                    message.success(`${title}成功！`)
+                    ctx.setState({
+                        visible: false
+                    })
+                    formObj.resetFields()
+                    ctx.loadDataSources()
+                    callBack();
+                }
+            })
         }
-        // if (reqSource.dataJson.openKerberos) {
-        //     reqSource.dataJsonString = JSON.stringify(reqSource.dataJson)
-        //     console.log(reqSource)
-        //     delete reqSource.modifyUser;
-        //     delete reqSource.dataJson;
-        //     reqSource = pickBy(reqSource, (item, key) => { // 过滤掉空字符串和值为null的属性，并且过滤掉编辑时的kerberos字段
-        //         if (key === 'kerberosFile' && (!item.type)) {
-        //             return false
-        //         }
-        //         return item != null
-        //     })
-        //     Api.streamSaveDataSourceWithKerberos(reqSource).then((res: any) => {
-        //         if (res.code === 1) {
-        //             message.success(`${title}成功！`)
-        //             ctx.setState({
-        //                 visible: false
-        //             })
-        //             formObj.resetFields()
-        //             ctx.loadDataSources()
-        //             callBack();
-        //         }
-        //     })
-        // } else {
-        //     console.log(reqSource)
-        //     Api.streamSaveDataSource(reqSource).then((res: any) => {
-        //         if (res.code === 1) {
-        //             message.success(`${title}成功！`)
-        //             ctx.setState({
-        //                 visible: false
-        //             })
-        //             formObj.resetFields()
-        //             ctx.loadDataSources()
-        //             callBack();
-        //         }
-        //     })
-        // }
     }
     openDataSourceModal = () => {
         this.setState({
@@ -157,56 +126,18 @@ class DataSourceManaStream extends React.Component<any, any> {
             title: '添加数据源'
         })
     }
-    remove = (source: any) => {
-        const ctx = this
-        if (source.active === 1) {
-            message.info('此数据源已在任务中被引用，无法删除!')
-            return;
-        }
-        Api.tagDeleteDataSource({ sourceId: source.id }).then((res: any) => {
-            if (res.code === 1) {
-                message.success('移除数据源成功！')
-                ctx.loadDataSources()
+
+    testConnection = (formSource: any, callBack) => { // 测试数据源连通性
+        Api.tagTestDSConnect({
+            ...formSource.dataJson
+        }).then((res: any) => {
+            if (res.code === 1 && res.data) {
+                message.success('数据源连接正常！')
+                callBack();
+            } else if (res.code === 1 && !res.data) {
+                message.error('数据源连接异常')
             }
         })
-    }
-
-    testConnection = (formSource: any) => { // 测试数据源连通性
-        const { source } = this.state;
-        formSource.id = source.id;
-        console.log(formSource, source)
-        // Api.tagTestDSConnect(formSource).then((res: any) => {
-        //     if (res.code === 1 && res.data) {
-        //         message.success('数据源连接正常！')
-        //     } else if (res.code === 1 && !res.data) {
-        //         message.error('数据源连接异常')
-        //     }
-        // })
-        // if (formSource.dataJson.openKerberos) {
-        //     formSource.dataJsonString = JSON.stringify(formSource.dataJson)
-        //     delete formSource.dataJson;
-        //     formSource = pickBy(formSource, (item, key) => { // 过滤掉空字符串和值为null的属性，并且过滤掉编辑时的kerberos字段
-        //         if (key === 'kerberosFile' && (!item.type)) {
-        //             return false
-        //         }
-        //         return item != null
-        //     })
-        //     Api.streamTestDataSourceConnectionWithKerberos(formSource).then((res: any) => {
-        //         if (res.code === 1 && res.data) {
-        //             message.success('数据源连接正常！')
-        //         } else if (res.code === 1 && !res.data) {
-        //             message.error('数据源连接异常')
-        //         }
-        //     })
-        // } else {
-        //     Api.streamTestDataSourceConnection(formSource).then((res: any) => {
-        //         if (res.code === 1 && res.data) {
-        //             message.success('数据源连接正常！')
-        //         } else if (res.code === 1 && !res.data) {
-        //             message.error('数据源连接异常')
-        //         }
-        //     })
-        // }
     }
 
     handleTableChange = (pagination: any, filters: any) => {
@@ -305,19 +236,20 @@ class DataSourceManaStream extends React.Component<any, any> {
                             record.active === 1
                                 ? <span style={{ color: '#ccc' }}>删除</span>
                                 : (
-                                    <Popconfirm
-                                        title="确定删除此数据源？"
-                                        okText="确定" cancelText="取消"
-                                        onConfirm={() => { this.remove(record) }}
-                                    >
-                                        <a>删除</a>
-                                    </Popconfirm>
+                                    <a onClick={this.openDeleteModal.bind(this, record)}>删除</a>
                                 )
                         }
                     </span>
                 )
             }
         }]
+    }
+
+    openDeleteModal = (deleteItem) => {
+        this.setState({
+            deleteVisible: true,
+            deleteItem
+        })
     }
 
     openSyncModal = (record: any) => {
@@ -334,8 +266,29 @@ class DataSourceManaStream extends React.Component<any, any> {
         });
     }
 
+    handleDeleteModel = (type: string) => {
+        const { deleteItem } = this.state;
+        if (type == 'ok') {
+            Api.tagDeleteDataSource({
+                id: deleteItem.id
+            }).then((res: any) => {
+                if (res.code === 1) {
+                    message.success('移除数据源成功！')
+                    this.loadDataSources();
+                    this.setState({
+                        deleteVisible: false
+                    })
+                }
+            })
+        } else {
+            this.setState({
+                deleteVisible: false
+            })
+        }
+    }
+
     render () {
-        const { source, dataSource, sourceTypes, currentPage, pageSize } = this.state
+        const { source, dataSource, sourceTypes, currentPage, pageSize, deleteVisible } = this.state
         const pagination: any = {
             total: dataSource.totalCount,
             pageSize: pageSize,
@@ -395,6 +348,14 @@ class DataSourceManaStream extends React.Component<any, any> {
                     sourceTypes={sourceTypes}
                     showUserNameWarning={true}
                     handCancel={() => { this.setState({ visible: false }) }}
+                />
+                <DeleteModal
+                    title={'删除数据源'}
+                    content={'确定删除此数据源？'}
+                    okText={'确定'}
+                    visible={deleteVisible}
+                    onCancel={this.handleDeleteModel.bind(this, 'cancel')}
+                    onOk={this.handleDeleteModel.bind(this, 'ok')}
                 />
             </div>
         )

@@ -41,7 +41,7 @@ const showMapArr: any = {
         ['accessId', 'Access Id']
     ],
     [DATA_SOURCE.ES]: [
-        ['jdbcUrl', 'jdbcUrl'],
+        ['url', 'url'],
         ['username', '用户名']
     ],
     [DATA_SOURCE.REDIS]: [
