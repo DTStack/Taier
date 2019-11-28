@@ -52,8 +52,8 @@ class Content extends React.Component<any, any> {
     }
 
     resetKey = () => {
-        const { resetToken, apiId } = this.props;
-        resetToken(apiId)
+        const { resetToken, showRecord = {} } = this.props;
+        resetToken(showRecord.id)
     }
 
     render () {
