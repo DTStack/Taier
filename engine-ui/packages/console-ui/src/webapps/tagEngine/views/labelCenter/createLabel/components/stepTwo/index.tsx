@@ -1,12 +1,13 @@
 import * as React from 'react';
-import { Form, Select, Button } from 'antd';
+import { Form, Select, Button, notification } from 'antd';
 import { FormComponentProps } from 'antd/lib/form/Form';
 import shortid from 'shortid';
 import TagValues from '../tagValues';
 import { cloneDeep } from 'lodash';
-import './style.scss';
 import PanelSelect from '../panelSelect';
+import TagTypeOption from '../../../../../consts/tagTypeOption';
 import { API } from '../../../../../api/apiMap';
+import './style.scss';
 
 const { Option } = Select;
 
@@ -19,8 +20,11 @@ interface IProps extends FormComponentProps {
 interface IState {
     entityList: any[];
     relationList: any[];
+    atomTagList: any[];
     activeTag: '';
     tags: any[];
+    initConfig: any;
+    initRowValue: any;
 }
 const formItemLayout = {
     labelCol: {
@@ -41,78 +45,26 @@ class StepTwo extends React.PureComponent<IProps, IState> {
     state: IState = {
         entityList: [],
         relationList: [],
+        atomTagList: [],
         activeTag: currentId,
+        initConfig: {},
+        initRowValue: {
+            'dataType': '',
+            'entityAttr': '',
+            'lValue': '',
+            'rValue': '',
+            'tagId': '',
+            'timeType': '',
+            'type': '',
+            'value': '',
+            'values': []
+        },
         tags: [{
-            id: '',
+            tagValueId: null,
             label: '标签值1',
             value: currentId,
-            valid: false,
-            params: {
-                key: '0',
-                type: 'or', //  or|and
-                name: '或',
-                children: [
-                    {
-                        key: '0-0',
-                        type: 'and',
-                        name: '且',
-                        entityId: 1,
-                        entityName: '实体-用户信息',
-                        children: [
-                            {
-                                key: '0-0-0',
-                                type: 'and',
-                                name: '且',
-                                children: [
-                                    {
-                                        key: '0-0-0-0',
-                                        selectName: '活跃度',
-                                        selectvalue: '活跃度id',
-                                        filterType: '字符串', // 字符串|数值|日期|字典
-                                        conditionName: '等于',
-                                        conditionId: '等于',
-                                        filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值and者区间值，延续数值结构，name为空
-                                    },
-                                    {
-                                        key: '0-0-0-1',
-                                        selectName: '活跃度',
-                                        selectvalue: '活跃度id',
-                                        filterType: '字符串', // 字符串|数值|日期|字典
-                                        conditionName: '等于',
-                                        conditionId: '等于',
-                                        filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值and者区间值，延续数值结构，name为空
-                                    }
-                                ]
-                            },
-                            {
-                                key: '0-0-1',
-                                selectName: '活跃度',
-                                selectvalue: '活跃度id',
-                                filterType: '字符串', // 字符串|数值|日期|字典
-                                conditionName: '等于',
-                                conditionId: '等于',
-                                filterValue: [{ name: '休眠用户', value: '休眠用户id' }] // 若为数值and者区间值，延续数值结构，name为空
-                            }
-                        ]
-                    },
-                    {
-                        key: '0-1',
-                        type: 'and',
-                        name: '且',
-                        entityId: 1,
-                        entityName: '实体-活动',
-                        children: []
-                    },
-                    {
-                        key: '0-2',
-                        type: 'and',
-                        name: '且',
-                        entityId: 1,
-                        entityName: '实体-产品',
-                        children: []
-                    }
-                ]
-            }
+            valid: true,
+            params: {}
         }]
     };
     componentDidMount () {
@@ -122,6 +74,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         this.getEntityList();
         this.getRelationList();
         this.getEntityAtomTagList(null);
+        this.getAtomTagList();
     }
     getEntityList = () => {
         API.selectEntity().then(res => {
@@ -137,7 +90,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         const { entityId } = this.props;
         API.getRelationList({
             entityId
-        }).then(res => { // 获取主键列表
+        }).then(res => {
             const { code, data } = res;
             if (code === 1) {
                 this.setState({
@@ -148,18 +101,50 @@ class StepTwo extends React.PureComponent<IProps, IState> {
     }
     getEntityAtomTagList = (relationId) => { // 衍生标签用来获取实体列表与其对应的原子标签列表
         const { entityId } = this.props;
+        const { tags } = this.state;
         API.getEntityAtomTagList({
             entityId,
             relationId
-        }).then(res => { // 获取主键列表
+        }).then(res => {
             const { code, data } = res;
             if (code === 1) {
-                console.log(data);
+                let params = {
+                    key: '0',
+                    type: 'and', //  or|and
+                    name: '且',
+                    children: data.map((item) => Object.assign({}, item, {
+                        key: '0-0',
+                        type: 'and',
+                        name: '且',
+                        children: []
+                    }))
+                }
+                this.setState({
+                    initConfig: params,
+                    tags: tags.map(item => {
+                        return Object.assign(item, { params })
+                    })
+                })
             }
         })
     }
-    getAtomTagValueList = () => { // 获取原子标签列表
-
+    getAtomTagList = () => { // 获取原子标签列表
+        const { entityId } = this.props;
+        const { initRowValue } = this.state;
+        API.getAtomTagList({
+            entityId
+        }).then(res => {
+            const { code, data } = res;
+            if (code === 1) {
+                if (data && data.length) {
+                    let { dataType, entityAttr, tagId } = data[0];
+                    this.setState({
+                        atomTagList: data,
+                        initRowValue: Object.assign({}, initRowValue, { dataType, entityAttr, tagId, type: TagTypeOption[dataType][0].value })
+                    })
+                }
+            }
+        })
     }
     onChangeLabel = (e) => {
         const value = e.target.value;
@@ -178,10 +163,11 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         this.setState({
             tags: [],
             activeTag: ''
-        })
+        });
+        this.onValidateLabelRule();
         this.getEntityAtomTagList(value);
     }
-    onChangeSelectTag=(value) => {
+    onChangeSelectTag=(value) => { // 选择标签节点
         this.setState({
             activeTag: value
         })
@@ -191,8 +177,11 @@ class StepTwo extends React.PureComponent<IProps, IState> {
             tags: value
         })
     }
+    onHandleChangeNode = (key, node) => { // 改变节点值
+        this.onHandleTreeNode(key, 'changeNode', node)
+    }
     onHandleChangeType = (key, type) => { // 改变节点状态
-        this.onHandleTreeNode(key, 'changeType', type)
+        this.onHandleTreeNode(key, 'changeNode', { type: type == 'or' ? 'and' : 'or', name: type == 'or' ? '且' : '或' })
     }
     onHandleDeleteCondition = (key) => {
         this.onHandleTreeNode(key, 'remove')
@@ -200,7 +189,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
     onHandleAddCondition = (key) => {
         this.onHandleTreeNode(key, 'append');
     }
-    onHandleTreeNode =(key: string, op: string, type?: string) => {
+    onHandleTreeNode =(key: string, op: string, node?: any) => {
         const { activeTag, tags } = this.state;
         const newTags = tags.map(item => {
             if (activeTag == item.value) {
@@ -209,8 +198,8 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                     this.appendTreeNode(currentConf, key);
                 } else if (op === 'remove') {
                     this.removeTreeNode(currentConf, key);
-                } else if (op == 'changeType') {
-                    this.changeNodeType(currentConf, key, type)
+                } else if (op == 'changeNode') {
+                    this.changeNode(currentConf, key, node)
                 }
             }
             return item;
@@ -219,23 +208,24 @@ class StepTwo extends React.PureComponent<IProps, IState> {
             tags: cloneDeep(newTags)
         })
     }
-    changeNodeType = (treeNode, key, type) => { // 改变节点类型
+    changeNode = (treeNode, key, node) => { // 改变节点
         if (treeNode.key === key) {
-            treeNode = Object.assign(treeNode, { type: type == 'or' ? 'and' : 'or', name: type == 'or' ? '且' : '或' });
+            treeNode = Object.assign(treeNode, node);
             return;
         }
         if (treeNode.children) {
             const children = treeNode.children
             for (let i = 0; i < children.length; i += 1) {
-                this.changeNodeType(children[i], key, type)
+                this.changeNode(children[i], key, node)
             }
         }
     }
     appendTreeNode = (treeNode: any, key: any) => { // 添加节点
+        const { initRowValue } = this.state;
         let level = key.split('-');
         if (treeNode.key == key) {
             let newKey = key + '-' + shortid();
-            treeNode.children.push({ key: newKey });
+            treeNode.children.push(Object.assign({}, initRowValue, { key: newKey }));
             return
         }
         if (treeNode.children) {
@@ -244,13 +234,13 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                 if (children[i].key === key) {
                     if (level.length == 2) { // 二级目录
                         let newKey = key + '-' + shortid();
-                        children[i].children.push({ key: newKey })
+                        children[i].children.push(Object.assign({}, initRowValue, { key: newKey }))
                     } else if (level.length == 3) { // 三级目录
                         let current = children[i]; // 转换节点数据结构，如果为三级目录则，改变数据结构，变为children数组关系
-                        children[i] = { key: current.key, type: 'and', name: '且', children: [Object.assign({}, current, { key: current.key + '-' + shortid() }), Object.assign({}, current, { key: current.key + '-1' })] };
+                        children[i] = { key: current.key, type: 'and', name: '且', children: [Object.assign({}, current, { key: current.key + '-' + shortid() }), Object.assign({}, current, initRowValue, { key: current.key + '-1' })] };
                     } else { // 四级目录
                         let newKey = key + '-' + shortid();
-                        treeNode.children.push({ key: newKey })
+                        treeNode.children.push(Object.assign({}, initRowValue, { key: newKey }))
                     }
                     break;
                 }
@@ -281,25 +271,84 @@ class StepTwo extends React.PureComponent<IProps, IState> {
             }
         }
     }
-    onHandleNext = (e: any) => {
-        // const { tags } = this.state;
+    onValidateLabelRule = () => {
+        const { tags, activeTag } = this.state;
+        const that = this;
         this.panelForm.validateFields((err, values) => {
-            if (!err) {
-                console.log(values);
+            if (err) {
+                let current = tags.find(item => item.value == activeTag);
+                notification.warning({
+                    message: current.label,
+                    description: '请填写有效标签规则'
+                });
+            }
+            let isRepeat = [];
+            for (let i = 0; i < tags.length; i++) {
+                if (isRepeat.includes(tags[i].label)) {
+                    notification.error({
+                        message: tags[i].label,
+                        description: '标签名称重复，请检查！'
+                    });
+                    return false;
+                }
+                if (tags[i].params == this.state.initConfig) {
+                    notification.error({
+                        message: tags[i].label,
+                        description: '请填写标签！'
+                    });
+                    return false;
+                }
+                isRepeat.push(tags[i].label);
+            }
+            let newTag = tags.map(item => Object.assign(item, { valid: !err }));
+            that.setState({
+                tags: newTag
+            })
+        });
+    }
+    onHandleNext = (e: any) => {
+        const { tags, activeTag } = this.state;
+        const that = this;
+        this.panelForm.validateFields((err, values) => {
+            if (err) {
+                let current = tags.find(item => item.value == activeTag);
+                notification.error({
+                    message: current.label,
+                    description: '请填写有效标签规则'
+                });
+            } else {
+                let isRepeat = [];
+                for (let i = 0; i < tags.length; i++) {
+                    if (isRepeat.includes(tags[i].label)) {
+                        notification.error({
+                            message: tags[i].label,
+                            description: '标签名称重复，请检查！'
+                        });
+                        return false;
+                    }
+                    if (tags[i].params == this.state.initConfig) {
+                        notification.error({
+                            message: tags[i].label,
+                            description: '请填写标签！'
+                        });
+                        return false;
+                    }
+                    isRepeat.push(tags[i].label);
+                }
+                that.props.form.validateFields((err, values) => {
+                    if (!err) {
+                        that.props.onNext(Object.assign({}, values, { tags }));
+                    }
+                });
             }
         });
-        // this.props.form.validateFields((err, values) => {
-        //     if (!err) {
-        //         this.props.onNext(Object.assign({}, values, { tags }));
-        //     }
-        // });
     }
     onHandlePrev = () => {
         this.props.onPrev();
     }
     render () {
         const { form, isShow, entityId } = this.props;
-        const { entityList, activeTag, tags, relationList } = this.state;
+        const { entityList, activeTag, tags, relationList, atomTagList, initConfig } = this.state;
         const { getFieldDecorator } = form;
         const currentTag = activeTag ? tags.find(item => item.value == activeTag) : '';
         const treeData = currentTag ? currentTag.params : '';
@@ -338,10 +387,10 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                     )}
                 </Form.Item>
                 <Form.Item {...formItemLayout} label="已选标签" required>
-                    <TagValues select={activeTag} value={tags} onChange={(value) => this.onChangeTags(value)} onSelect={this.onChangeSelectTag} />
+                    <TagValues config={initConfig} select={activeTag} value={tags} onChange={(value) => this.onChangeTags(value)} onSelect={this.onChangeSelectTag} />
                 </Form.Item>
                 {
-                    currentTag && (<PanelSelect ref={(node) => this.panelForm = node} treeData={treeData} currentTag={currentTag} onChangeLabel={this.onChangeLabel} onHandleAddCondition={this.onHandleAddCondition} onHandleChangeType={this.onHandleChangeType} onHandleDeleteCondition={this.onHandleDeleteCondition}/>)
+                    currentTag && (<PanelSelect atomTagList={atomTagList} ref={(node) => this.panelForm = node} treeData={treeData} currentTag={currentTag} onChangeLabel={this.onChangeLabel} onChangeNode={this.onHandleChangeNode} onHandleAddCondition={this.onHandleAddCondition} onHandleChangeType={this.onHandleChangeType} onHandleDeleteCondition={this.onHandleDeleteCondition}/>)
                 }
                 <div className="wrap_btn_content"><Button onClick={this.onHandlePrev}>上一步</Button><Button type="primary" onClick={this.onHandleNext}>下一步</Button></div>
             </div>

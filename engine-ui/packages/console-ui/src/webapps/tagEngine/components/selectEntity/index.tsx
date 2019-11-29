@@ -42,8 +42,7 @@ export default class SelectEntity extends React.Component<Iprops, Istate> {
         const { user, project } = this.props;
         let userId = user.id;
         let projectId = project.id;
-        let hash = window.location.hash;
-        const record = `entity-${userId}-${projectId}-${hash}`
+        const record = `entity-${userId}-${projectId}`
         API.selectEntity().then(res => {
             const { code, data } = res;
             if (code === 1) {
@@ -51,7 +50,7 @@ export default class SelectEntity extends React.Component<Iprops, Istate> {
                     data
                 });
                 let recordValue = LocalDb.get(record);
-                if (recordValue) {
+                if (recordValue && data.some(item => recordValue == item.id)) {
                     this.props.onChange(recordValue)
                 } else {
                     data[0] && this.props.onChange(data[0].id)
@@ -63,8 +62,7 @@ export default class SelectEntity extends React.Component<Iprops, Istate> {
         const { user, project } = this.props;
         let userId = user.id;
         let projectId = project.id;
-        let hash = window.location.hash;
-        const record = `entity-${userId}-${projectId}-${hash}`
+        const record = `entity-${userId}-${projectId}`
         LocalDb.set(record, value);
         this.props.onChange(value)
     }

@@ -3,7 +3,7 @@ import { TAG_ENGINE_URL } from 'config/base';
 export default {
     // ================== 实体 ================== //
     GET_ENTITIES: `${TAG_ENGINE_URL}/entity/entityPage`,
-    CREATE_ENTITY: `${TAG_ENGINE_URL}/entity/createEntity`,
+    CREATE_ENTITY: `${TAG_ENGINE_URL}/entity/saveEntity`,
     GET_ENTITY_ATTRS: `${TAG_ENGINE_URL}/entity/entityAttrs`,
     DELETE_ENTITY: `${TAG_ENGINE_URL}/entity/deleteEntity`,
 

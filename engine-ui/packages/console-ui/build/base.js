@@ -132,7 +132,7 @@ module.exports = function () {
                 stream: MY_PATH.STREAM_PATH, // 流计算
                 dataQuality: MY_PATH.DATA_QUALITY_PATH, // 数据质量
                 dataApi: MY_PATH.DATA_API_PATH, // 数据API
-                dataLabel: MY_PATH.DATA_TAG_PATH, // 标签工厂
+                tagEngine: MY_PATH.DATA_TAG_PATH, // 标签引擎
                 console: MY_PATH.CONSOLE_PATH, // 控制台
                 dataMap: MY_PATH.DATA_MAP_PATH, // 数据地图
                 metaData: MY_PATH.META_DATA_PATH, // 元数据

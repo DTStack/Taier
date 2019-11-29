@@ -1,7 +1,9 @@
 import * as React from 'react';
 import { Input, Table, Checkbox, Icon, Select, Tooltip, message as Message, Tag } from 'antd';
 import ConfigDictModal from './configDictModal';
+import EditInput from '../../../../components/editInput';
 import './style.scss';
+import { API } from '../../../../api/apiMap';
 import { isEqual, isEmpty } from 'lodash';
 
 const { Search } = Input;
@@ -12,6 +14,7 @@ interface Iprops {
     handleChange: any;
     attrTypeOptions: any[];
     baseInfor: any;
+    alreadyAtomTagAtrrs: any[];
 }
 
 interface IState {
@@ -20,6 +23,7 @@ interface IState {
     configModalVisble: boolean;
     total: number;
     selectNum: number;
+    configModalKey: number;
 }
 
 export default class DimensionInfor extends React.Component<Iprops, IState> {
@@ -28,7 +32,8 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
         searchVal: undefined,
         configModalVisble: false,
         total: 0,
-        selectNum: 0
+        selectNum: 0,
+        configModalKey: +new Date()
     }
 
     componentDidMount () {
@@ -70,13 +75,31 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
 
     handleConfig = () => {
         this.setState({
-            configModalVisble: true
+            configModalVisble: true,
+            configModalKey: +new Date()
         })
     }
 
-    handleModelOk = () => {
-        this.setState({
-            configModalVisble: false
+    handleModelOk = (value) => {
+        const { infor } = this.props;
+        API.getDictDetail({
+            dictId: value.dictRef
+        }).then((res: any) => {
+            const { data = {}, code } = res;
+            if (code === 1) {
+                const { dictValueVoList = [] } = data;
+                let newInfor = infor.map(item => {
+                    let relaItem = dictValueVoList.find(ele => ele.value == item.entityAttr);
+                    return {
+                        ...item,
+                        entityAttrCn: relaItem ? relaItem.valueName : item.entityAttrCn
+                    }
+                })
+                this.props.handleChange(newInfor);
+                this.setState({
+                    configModalVisble: false
+                })
+            }
         })
     }
 
@@ -88,7 +111,7 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
 
     handleTableChange = (type: string, record: any, e: any) => {
         const infor = [...this.props.infor];
-        let editIndex = infor.findIndex((item: any) => { return item.id == record.id; });
+        let editIndex = infor.findIndex((item: any) => { return item.entityAttr == record.entityAttr; });
         switch (type) {
             case 'isAtomTag': {
                 infor[editIndex] = {
@@ -122,7 +145,7 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
     }
 
     initColumns = () => {
-        const { attrTypeOptions, baseInfor } = this.props;
+        const { attrTypeOptions, baseInfor, alreadyAtomTagAtrrs } = this.props;
         let isEdit = false;
         if (baseInfor.id) {
             isEdit = true;
@@ -133,7 +156,7 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
             key: 'isAtomTag',
             width: 150,
             render: (text: boolean, record: any) => {
-                return <Checkbox disabled={isEdit || record.entityAttr == baseInfor.entityPrimaryKey} onChange={this.handleTableChange.bind(this, 'isAtomTag', record)} checked={text} />
+                return <Checkbox disabled={(isEdit && alreadyAtomTagAtrrs.includes(record.entityAttr)) || record.isPrimaryKey} onChange={this.handleTableChange.bind(this, 'isAtomTag', record)} checked={text} />
             }
         }, {
             title: '维度名称',
@@ -144,11 +167,11 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
                 return (
                     <div className="di-table-name-col">
                         <div className="tag-box">
-                            {record.id ? <Tag color="green">新增</Tag> : null}
-                            {text == baseInfor.entityPrimaryKey ? <a><i className='iconfont iconicon_key'></i></a> : null}
+                            {record.id ? null : <Tag color="green">新增</Tag>}
+                            {record.isPrimaryKey ? <a><i className='iconfont iconicon_key'></i></a> : null}
                         </div>
                         <span>{text}</span>
-                        {text == baseInfor.entityPrimaryKey ? '(主键)' : ''}
+                        {record.isPrimaryKey ? '(主键)' : ''}
                     </div>
                 )
             }
@@ -158,7 +181,11 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
             key: 'entityAttrCn',
             width: 200,
             render: (text: any, record: any) => {
-                return (<Input style={{ width: 150 }} value={text} onChange={this.handleTableChange.bind(this, 'entityAttrCn', record)} />)
+                return <EditInput
+                    onChange={this.handleTableChange.bind(this, 'entityAttrCn', record)}
+                    value={text}
+                    style={{ width: 150 }}
+                />
             }
         }, {
             title: '数据类型',
@@ -168,7 +195,7 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
             render: (text: any, record: any) => {
                 return (<Select
                     style={{ width: 150 }}
-                    value={text || 'char'}
+                    value={text}
                     placeholder="请选择属性分组"
                     onChange={this.handleTableChange.bind(this, 'dataType', record)}
                 >
@@ -197,7 +224,7 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
     }
 
     render () {
-        const { dataSource, configModalVisble, total, selectNum } = this.state;
+        const { dataSource, configModalVisble, total, selectNum, configModalKey } = this.state;
         return (
             <div className="dimension-infor">
                 <div className="top-box">
@@ -223,6 +250,7 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
                 <ConfigDictModal
                     visible={configModalVisble}
                     isLabel={false}
+                    key={configModalKey}
                     onOk={this.handleModelOk}
                     onCancel={this.handleModelCancel}
                 />

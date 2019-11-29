@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Form, Input, Select } from 'antd';
+import { isEqual } from 'lodash';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -23,6 +24,19 @@ class BaseForm extends React.Component<any, any> {
     componentDidMount () {
         const { infor = {}, form } = this.props;
         if (infor.id) {
+            form.setFieldsValue({
+                entityName: infor.entityName,
+                dataSourceId: infor.dataSourceId,
+                dataSourceTable: infor.dataSourceTable,
+                entityPrimaryKey: infor.entityPrimaryKey,
+                entityDesc: infor.entityDesc
+            })
+        }
+    }
+
+    componentDidUpdate (preProps: any) {
+        const { infor = {}, form } = this.props;
+        if (!isEqual(infor, preProps.infor)) {
             form.setFieldsValue({
                 entityName: infor.entityName,
                 dataSourceId: infor.dataSourceId,

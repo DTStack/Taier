@@ -5,6 +5,7 @@ import { GroupStatus } from '../../../components/status';
 import MoveTreeNode from './components/moveTreeNode';
 import BasicInfo from './components/basicInfo';
 import LableRules from './components/labelRules';
+import DerivativeRules from './components/derivativeRules';
 import { API } from '../../../api/apiMap';
 import './style.scss';
 
@@ -122,7 +123,13 @@ export default class LabelDetails extends React.PureComponent<IProps, IState> {
                                 <BasicInfo data={data}/>
                             </TabPane>
                             <TabPane tab="标签规则" key="2">
-                                <LableRules entityId={entityId} tagId={tagId}/>
+                                {
+                                    data.tagType == '原子标签' ? (
+                                        <LableRules entityId={entityId} tagId={tagId}/>
+                                    ) : (
+                                        <DerivativeRules entityId={entityId} tagId={tagId}/>
+                                    )
+                                }
                             </TabPane>
                         </Tabs>
                     </Row>

@@ -7,6 +7,12 @@ interface IProps {
     leftText?: string;
     centerText?: string;
     rightText?: string;
+    value?: any;
+    data?: {
+        rValue: number;
+        lValue: number;
+    };
+    onChange?: any;
 }
 
 interface IState {
@@ -25,8 +31,16 @@ IState
         visible: false
     };
     componentDidMount () { }
+    onChangeLvalue = (value) => {
+        const { data } = this.props;
+        this.props.onChange(Object.assign({}, data, { lValue: value }))
+    }
+    onChangeRvalue = (value) => {
+        const { data } = this.props;
+        this.props.onChange(Object.assign({}, data, { rValue: value }))
+    }
     render () {
-        const { tip, leftText, centerText, rightText } = this.props
+        const { tip, leftText, centerText, rightText, data } = this.props;
         return (
             <Row className="area-input-Row" type='flex' gutter={8}>
                 <Col>
@@ -35,7 +49,7 @@ IState
                     }
                 </Col>
                 <Col>
-                    <InputNumber min={1} defaultValue={3} />
+                    <InputNumber min={1} value={data ? data.lValue : null} onChange={this.onChangeLvalue}/>
                 </Col>
                 <Col>
                     {
@@ -43,7 +57,7 @@ IState
                     }
                 </Col>
                 <Col>
-                    <InputNumber min={1} defaultValue={3} />
+                    <InputNumber min={1} value={data ? data.rValue : null} onChange={this.onChangeRvalue}/>
                 </Col>
                 <Col>
                     {

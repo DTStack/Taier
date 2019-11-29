@@ -3,7 +3,7 @@ import { notification, Modal } from 'antd';
 import { NotificationApi } from 'antd/lib/notification';
 import React from 'react';
 import { MY_APPS } from 'main/consts';
-import { rdosApp, streamApp, scienceApp } from 'config/base';
+import { rdosApp, streamApp, scienceApp, tagApp } from 'config/base';
 import { mergeDeep } from 'utils/merge';
 import moment from 'moment';
 
@@ -181,7 +181,7 @@ export function openNewWindow (url: any, target: any) {
  * @param {s} app
  */
 export function hasProject (app: any) {
-    return app === MY_APPS.RDOS || app === MY_APPS.STREAM || app === MY_APPS.SCIENCE
+    return app === MY_APPS.RDOS || app === MY_APPS.STREAM || app === MY_APPS.SCIENCE || app === MY_APPS.TAG
 }
 
 /**
@@ -310,7 +310,6 @@ export function filterComments (sql: string) {
         }
     }
     sql = replaceStrFormIndexArr(sql, ' ', parser.comments)
-    console.log(sql);
     return sql;
 }
 
@@ -570,14 +569,15 @@ export function toRdosGateway (uri: any, params: any = {}) {
 }
 
 export function isCookieBeProjectType (key: any) {
-    return ['project_id', 'science_project_id', 'stream_project_id'].includes(key);
+    return ['project_id', 'science_project_id', 'tag_project_id', 'stream_project_id'].includes(key);
 }
 
 export function isCurrentProjectChanged (key: any) {
     const projectIdCheckMap: any = {
         'project_id': rdosApp.filename,
         'science_project_id': scienceApp.filename,
-        'stream_project_id': streamApp.filename
+        'stream_project_id': streamApp.filename,
+        'tag_project_id': tagApp.filename
     }
     const pathname = location.pathname;
     const projectPathname = projectIdCheckMap[key];

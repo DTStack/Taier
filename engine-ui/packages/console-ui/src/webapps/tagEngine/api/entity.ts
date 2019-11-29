@@ -16,9 +16,9 @@ export default {
         method: 'post',
         url: `${TAG_ENGINE_URL}/entity/deleteEntity`
     },
-    createEntity: {
+    saveEntity: {
         method: 'post',
-        url: `${TAG_ENGINE_URL}/entity/createEntity`
+        url: `${TAG_ENGINE_URL}/entity/saveEntity`
     },
     selectDataSource: { // 获取数据源下拉
         method: 'post',

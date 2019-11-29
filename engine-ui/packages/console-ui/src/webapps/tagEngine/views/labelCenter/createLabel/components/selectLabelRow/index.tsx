@@ -1,27 +1,27 @@
 import * as React from 'react';
-import { Input, Col, Row, Select, InputNumber, DatePicker, Form } from 'antd';
-import './style.scss';
+import { Input, Col, Row, Select, InputNumber, Form } from 'antd';
 import MultiSelect from '../multiSelect';
 import AreaInput from '../areaInput';
-import AreaDate from '../areaDate';
+import AbsoluteTime from '../absoluteTime';
+import RelativeTime from '../relativeTime';
+import TagTypeOption from '../../../../../consts/tagTypeOption';
+import './style.scss';
+
 const { Option } = Select;
 interface IProps {
     extra?: any;
     data: any;
+    form?: any;
     getFieldDecorator: any;
+    atomTagList: any[];
+    onChangeNode: any;
+
 }
 
 interface IState {
     name: string;
 }
-const dataType = {
-    CHARACTER: [{ label: '等于', value: 'OP_EQUAL' }, { label: '不等于', value: 'OP_NOT_EQUAL' }, { label: '包含', value: 'OP_CONTAIN' }, { label: '不包含', value: 'OP_NOT_CONTAIN' }, { label: '有值', value: 'OP_HAVE' }, { label: '无值', value: 'OP_NOT' }, { label: '存在', value: 'OP_EXIST' }, { label: '不存在', value: 'OP_NOT_ESIXT' }],
-    TIME: [{ label: '绝对时间', value: 'OP_BETWEEN' }, { label: '相对当前时间点', value: 'OP_WITH_IN' }, { label: '相对当前时间区间', value: 'OP_WITH_IN_BETWEEN' }, { label: '有值', value: 'OP_HAVE' }, { label: '无值', value: 'OP_NOT' }],
-    TIME_ABS: [{ label: '等于', value: 'OP_EQUAL' }, { label: '不等于', value: 'OP_NOT_EQUAL' }, { label: '小于', value: 'OP_LESS_THAN' }, { label: '小于等于', value: 'OP_LESS_THAN_EQUAL' }, { label: '大于', value: 'OP_GREATER_THAN' }, { label: '大于等于', value: 'OP_GREATER_THAN_EQUAL' }, { label: '区间', value: 'OP_BETWEEN' }],
-    NUMBER: [{ label: '等于', value: 'OP_EQUAL' }, { label: '不等于', value: 'OP_NOT_EQUAL' }, { label: '小于', value: 'OP_LESS_THAN' }, { label: '小于等于', value: 'OP_LESS_THAN_EQUAL' }, { label: '大于', value: 'OP_GREATER_THAN' }, { label: '大于等于', value: 'OP_GREATER_THAN_EQUAL' }, { label: '区间', value: 'OP_BETWEEN' }, { label: '有值', value: 'OP_HAVE' }, { label: '无值', value: 'OP_NOT' }]
 
-}
-console.log(dataType);
 export default class SelectLabelRow extends React.PureComponent<
 IProps,
 IState
@@ -33,59 +33,93 @@ IState
     state: IState = {
         name: ''
     };
-    componentDidMount () { }
-    renderTypeFilter = (type) => {
+    renderTypeFilter = () => {
         const { getFieldDecorator, data } = this.props;
-        if (type == 'select') {
-            return (
-                <Select defaultValue="lucy" style={{ width: 120 }}>
-                    <Option value="lucy">Lucy</Option>
-                </Select>
-            )
-        } else if (type == 'area-input') {
-            return <AreaInput leftText="在 过去" centerText="天 到 过去" rightText="天 之内" tip="起始数值应大于终止数值。"/>
-        } else if (type === 'inputNumber') {
-            return <InputNumber />
-        } else if (type === 'input') {
-            return (<Form.Item>
-                {
-                    getFieldDecorator(data.key, {
-                        rules: [{ required: true, message: '请输入值!' }]
-                    })(
-                        <Input />
-                    )
-                }
-            </Form.Item>)
-        } else if (type === 'date') {
-            return <DatePicker showTime format="YYYY-MM-DD HH:mm:ss" placeholder="Select Time" />
-        } else if (type === 'area-date') {
-            return <AreaDate/>
-        } else if (type === 'input') {
-            return <Input />
-        } else if (type == 'multi-select') {
-            return (<MultiSelect tip="提示选项为最近7天的属性关键词（最多展示 20 条），非所有关键词。可直接输入关键词，回车完成。"/>)
+        const { tagId, dataType, type, timeType, lValue, rValue, value, values } = data;
+        if (type == 'OP_HAVE' || type == 'OP_NOT') {
+            return null
         }
+        let Component;
+        if (dataType == 'CHARACTER') { // 字符型
+            if (type == 'OP_EQUAL' || type == 'OP_NOT_EQUAL') { // 如果是等于和不等于，属于区间范围
+                Component = (<MultiSelect data={values} onChange={this.onChangeValue} tagId={tagId} tip="提示选项为最近7天的属性关键词（最多展示 20 条），非所有关键词。可直接输入关键词，回车完成。"/>)
+            } else {
+                Component = (<Input value={value} onChange={(e) => { let value = e.target.value; this.onChangeValue({ value }) }}/>)
+            }
+        } else if (dataType == 'TIME') { // 时间类型
+            if (type == 'OP_ABSOLUTE_TIME') { // 绝对时间
+                Component = <AbsoluteTime onChange={this.onChangeValue} data={{ timeType, value, lValue, rValue }}/>
+            } else if (type == 'OP_RELATIVE_TIME') { // 相对时间点
+                Component = (<RelativeTime onChange={this.onChangeValue} data={{ timeType, value }} tip=""/>)
+            } else { // 相对时间区间
+                Component = (<AreaInput onChange={this.onChangeValue} data={{ lValue, rValue }} leftText="在 过去" centerText="天 到 过去" rightText="天 之内" tip="起始数值应大于终止数值。"/>)
+            }
+        } else if (dataType == 'NUMBER') { // 数值型
+            if (type == 'OP_EQUAL' || type == 'OP_NOT_EQUAL') { // 如果是等于和不等于，属于区间范围
+                Component = (<MultiSelect onChange={this.onChangeValue} data={values} type="number" tagId={tagId} tip="可直接输入，回车完成"/>)
+            } else if (type == 'OP_BETWEEN') {
+                Component = (<AreaInput onChange={this.onChangeValue} data={{ lValue, rValue }} leftText="在 " centerText=" 于 " rightText="之间" tip="包含起始和结束值，起始数值应小于终止数值。"/>)
+            } else {
+                Component = (<InputNumber value={value} onChange={(value) => this.onChangeValue({ value })}/>)
+            }
+        }
+        return (<Form.Item>
+            {
+                getFieldDecorator(data.key, {
+                    rules: [{ required: true, message: '请输入有效值!' }]
+                })(Component)
+            }
+        </Form.Item>)
+    }
+    onChangeValue = (value) => {
+        const { data } = this.props;
+        this.props.onChangeNode(data.key, value)
+    }
+    onChangeAutoLabel = (value) => {
+        const { atomTagList, data } = this.props;
+        const current = atomTagList.find((item) => item.tagId == value)
+        let { dataType, entityAttr, tagId } = current;
+        this.props.onChangeNode(data.key, { dataType, entityAttr, tagId, type: TagTypeOption[dataType][0].value })
+    }
+    onChangeType = (value) => { // 改变操作符
+        const { data } = this.props;
+        let timeType = '';
+        if (value === 'OP_ABSOLUTE_TIME') { // 绝对时间
+            timeType = 'OP_BETWEEN'
+        } else if (value === 'OP_RELATIVE_TIME') { // 相对时间
+            timeType = 'OP_WITH_IN'
+        }
+        this.props.onChangeNode(data.key, {
+            type: value,
+            timeType,
+            lValue: '',
+            rValue: '',
+            value: '',
+            values: []
+        })
     }
     render () {
-        const { extra } = this.props;
+        const { extra, atomTagList, data } = this.props;
+        const { tagId, dataType, type } = data;
         return (
             <Row className="select-label-Row" type='flex' gutter={16}>
                 <Col>
-                    <Select style={{ width: 100 }}>
-                        <Option value="lucy">Lucy</Option>
+                    <Select showSearch value={tagId} style={{ width: 100 }} onChange={this.onChangeAutoLabel}>
+                        {
+                            atomTagList.map((item: any) => <Option key={item.tagId} value={item.tagId}>{item.tagName}</Option>)
+                        }
                     </Select>
                 </Col>
                 <Col>
-                    <Select style={{ width: 100 }}>
+                    <Select style={{ width: 100 }} value={type} onChange={this.onChangeType}>
                         {
-                            dataType.CHARACTER.map(item => <Option key={item.value} value={item.value}>{item.label}</Option>)
+                            TagTypeOption[dataType].map(item => <Option key={item.value} value={item.value}>{item.label}</Option>)
                         }
-                        <Option value="lucy">Lucy</Option>
                     </Select>
                 </Col>
                 <Col>
                     {
-                        this.renderTypeFilter('input')
+                        this.renderTypeFilter()
                     }
                 </Col>
                 <Col>

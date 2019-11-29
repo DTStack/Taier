@@ -64,10 +64,9 @@ export default class DimensionData extends React.Component<IProps, IState> {
     };
 
     onOkEdit = () => {
-        const { infor } = this.props;
-        const { editInputVal } = this.state;
+        const { editInputVal, currentItem } = this.state;
         API.entityAttrsEdit({
-            attrId: infor.id,
+            attrId: currentItem.id,
             entityAttrCn: editInputVal
         }).then((res: any) => {
             const { code } = res;

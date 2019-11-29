@@ -18,7 +18,7 @@ const defaultProject: any = {
 // Action
 export function getProject (id: any) {
     return (dispatch: any) => {
-        const projectKey = 'stream_project_id';
+        const projectKey = 'tag_project_id';
         const oldProjectID = utils.getCookie(projectKey);
 
         // 如果为不同的项目
@@ -38,7 +38,7 @@ export function getProject (id: any) {
 
 export function setProject (data: any) {
     if (data && data.id) {
-        utils.setCookie('stream_project_id', data.id);
+        utils.setCookie('tag_project_id', data.id);
     }
     return {
         type: projectAction.SET_PROJECT,

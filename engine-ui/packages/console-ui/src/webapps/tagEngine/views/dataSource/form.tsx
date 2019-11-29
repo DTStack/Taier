@@ -47,11 +47,12 @@ const hdfsConf =
 
 class BaseForm extends React.Component<any, any> {
     state: any = {
-        sourceType: 1,
+        sourceType: 11,
         hadoopConfig: 'defaultDfs',
         hadoopConfigStr: hdfsConf,
         ftpProtocal: 'ftp',
-        redisType: REDIS_TYPE.SINGLE
+        redisType: REDIS_TYPE.SINGLE,
+        isTestConnect: false
     }
 
     componentDidMount () {
@@ -97,7 +98,11 @@ class BaseForm extends React.Component<any, any> {
         form.validateFields((err: any, source: any) => {
             if (!err) {
                 this.preHandFormValues(source);
-                testConnection(source)
+                testConnection(source, () => {
+                    this.setState({
+                        isTestConnect: true
+                    })
+                })
             }
         });
     }
@@ -287,7 +292,6 @@ class BaseForm extends React.Component<any, any> {
 
         const { getFieldDecorator, getFieldValue } = form;
         const config = sourceData.dataJson || {};
-        console.log('renderDynamic', config);
 
         const jdbcRulePattern: any = {
             pattern: this.getJDBCRule(sourceType),
@@ -684,38 +688,55 @@ class BaseForm extends React.Component<any, any> {
                 return [
                     <FormItem
                         {...formItemLayout}
-                        label="集群地址"
-                        key="Address"
+                        label="URL"
                         hasFeedback
+                        key="url"
+
                     >
-                        {getFieldDecorator('dataJson.address', {
+                        {getFieldDecorator('dataJson.url', {
                             rules: [{
-                                required: true, message: '集群地址不可为空！'
-                            }],
-                            initialValue: config.address || ''
+                                required: true, message: 'url不可为空！'
+                            }, jdbcRulePattern
+                            ],
+                            initialValue: config.url || ''
                         })(
-                            <Input
-                                type="textarea"
-                                placeholder="集群地址，单个节点地址采用host:port形式，多个节点的地址用逗号连接"
-                                {...rowFix}
-                            />
+                            <Input autoComplete="off" />
                         )}
+                        <Tooltip overlayClassName="big-tooltip" title={'示例：172.16.8.177:9200'}>
+                            <Icon className="help-doc" type="question-circle-o" />
+                        </Tooltip>
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}
-                        label="集群名称"
-                        key="clusterName"
+                        label="用户名"
+                        hasFeedback
+                        key="username"
+                    >
+                        {getFieldDecorator('dataJson.username', {
+                            rules: [{
+                                required: false, message: '用户名不可为空！'
+                            }],
+                            initialValue: config.username || ''
+                        })(
+                            <Input autoComplete="off" />
+                        )}
+                        {/* {showUserNameWarning && <Tooltip overlayClassName="big-tooltip" title={'若需要实时采集MySQL的数据，这里的用户需具有REPLICATION SLAVE权限，否则无法读取底层日志采集数据'}>
+                            <Icon className="help-doc" type="question-circle-o" />
+                        </Tooltip>} */}
+                    </FormItem>,
+                    <FormItem
+                        key="password"
+                        {...formItemLayout}
+                        label="密码"
                         hasFeedback
                     >
-                        {getFieldDecorator('dataJson.clusterName', {
+                        {getFieldDecorator('dataJson.password', {
                             rules: [{
-                                required: true, message: '集群名称不可为空！'
+                                required: false, message: '密码不可为空！'
                             }],
-                            initialValue: config.clusterName || ''
+                            initialValue: ''
                         })(
-                            <Input
-                                placeholder="请输入集群名称"
-                            />
+                            <Input type="password" onChange={hidePasswordInDom} autoComplete="off" />
                         )}
                     </FormItem>
                 ]
@@ -1036,8 +1057,8 @@ class BaseForm extends React.Component<any, any> {
 
     render () {
         const { form, sourceData, status, types, isTest, showSync } = this.props;
+        const { isTestConnect } = this.state;
         const { getFieldDecorator } = form;
-
         const sourceTypeList = types.map(
             (item: any) => (
                 <Option
@@ -1134,6 +1155,7 @@ class BaseForm extends React.Component<any, any> {
                     </Button>
                     <Button
                         type="primary"
+                        disabled={!isTestConnect}
                         style={{ marginRight: '10px' }}
                         onClick={this.submit}>确定
                     </Button>

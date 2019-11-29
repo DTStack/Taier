@@ -14,7 +14,7 @@ interface IState {
 function wrapVal (value: string | number) {
     return value || '-';
 }
-class LabelRules extends React.PureComponent<IProps, IState> {
+class DerivativeRules extends React.PureComponent<IProps, IState> {
     state: IState = {
         data: {}
     }
@@ -37,9 +37,7 @@ class LabelRules extends React.PureComponent<IProps, IState> {
         return (
             <div className="labelRules">
                 <div className="info_item"><span>所属实体： </span><span>{wrapVal(data.entityName)}</span></div>
-                <div className="info_item"><span>所属维度： </span><span>{wrapVal(data.dimensionality)}</span></div>
-                <div className="info_item"><span>属性值类型： </span><span>{wrapVal(data.dataTypeName)}</span></div>
-                <div className="info_item"><span>标签值： </span><span>{data.columnValues && data.columnValues.join(';')}</span></div>
+                <div className="info_item"><span>标签值： </span><span>{wrapVal(data.creator)}</span></div>
                 <div className="info_item">
                     <span>标签字典： </span>
                     <Link to={{ pathname: '/dictionaryManage/detail', state: { id: data.tagDictId } }}>{data.tagDictName}</Link>
@@ -49,4 +47,4 @@ class LabelRules extends React.PureComponent<IProps, IState> {
     }
 }
 
-export default LabelRules;
+export default DerivativeRules;

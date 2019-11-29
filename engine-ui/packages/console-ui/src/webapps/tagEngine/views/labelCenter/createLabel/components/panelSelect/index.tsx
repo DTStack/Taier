@@ -10,7 +10,9 @@ interface IProps extends FormComponentProps{
     onHandleDeleteCondition: any;
     onHandleAddCondition: any;
     onHandleChangeType: any;
+    onChangeNode: any;
     onChangeLabel: any;
+    atomTagList: any[];
 }
 
 interface IState {
@@ -30,7 +32,8 @@ IState
     };
     componentDidMount () { }
     renderConditionChildren = (data) => {
-        const { getFieldDecorator } = this.props.form;
+        const { atomTagList, form, onChangeNode } = this.props;
+        const { getFieldDecorator } = form;
         return data.map((item, index) => {
             if (item.children && item.children.length) {
                 return (
@@ -44,7 +47,7 @@ IState
                     </div>
                 );
             }
-            return <SelectLabelRow getFieldDecorator={getFieldDecorator} data={item} key={item.key} extra={<div>
+            return <SelectLabelRow onChangeNode={onChangeNode} form={form} atomTagList={atomTagList} getFieldDecorator={getFieldDecorator} data={item} key={item.key} extra={<div>
                 <Icon type="minus-circle-o" className="icon" onClick={(e) => this.props.onHandleDeleteCondition(item.key)}/>
                 {
                     (((data.length - 1) == index) || (item.key.split('-').length < 4)) && (<Icon type="plus-circle" className="icon" onClick={(e) => this.props.onHandleAddCondition(item.key)}/>)

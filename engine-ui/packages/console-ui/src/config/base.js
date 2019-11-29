@@ -100,3 +100,12 @@ export const scienceApp = {
     enable: true,
     apiBase: '/science'
 }
+export const tagApp = {
+    id: 'tagEngine',
+    name: '标签引擎',
+    link: 'tagEngine.html#/',
+    filename: 'tagEngine.html',
+    target: '_self',
+    enable: true,
+    apiBase: '/tag'
+}

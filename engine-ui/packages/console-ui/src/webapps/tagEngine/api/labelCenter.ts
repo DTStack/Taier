@@ -29,13 +29,17 @@ export default {
         method: 'post',
         url: `/api/v1/tag/addOrUpdateDeriveTag`
     },
-    getAtomTagValueList: {
-        method: 'get',
+    getAtomTagValueList: { // 获取原子标签值列表
+        method: 'post',
         url: `/api/v1/tag/getAtomTagValueList`
     },
-    getEntityAtomTagList: {
-        method: 'get',
-        url: `/api/v1/tag/getEntityAtomTagList`
+    getEntityAtomTagList: { // 获取实体列表
+        method: 'post',
+        url: `/api/v1/tag/getEntityList`
+    },
+    getAtomTagList: { // 获取原子标签列表
+        method: 'post',
+        url: ` /api/v1/tag/getAtomTagList`
     },
     getRelationList: {
         method: 'post',

@@ -12,9 +12,11 @@ interface IProps{
     value?: {
         label: string;
         value: string;
+        tagValueId: null;
         params: any; // 规则配置
         valid: boolean; // 校验状态
     }[];
+    config: any;
     onChange?: Function;
     select?: string;
     connectDropTarget?: any;
@@ -32,13 +34,14 @@ class TagValues extends React.Component<IProps, {}> {
         this.props.onSelect(item.value)
     }
     onHandleAdd = () => {
-        const { value = [] } = this.props;
+        const { value = [], config } = this.props;
         let id = shortid();
         this.props.onChange([...value, {
             label: '标签值' + (value.length + 1),
             value: id,
             valid: false,
-            params: {}
+            tagValueId: null,
+            params: config
         }]);
         this.props.onSelect(id);
     }
@@ -49,6 +52,7 @@ class TagValues extends React.Component<IProps, {}> {
             this.props.onChange([...value, {
                 label: '标签值' + (value.length + 1),
                 value: id,
+                tagValueId: null,
                 params: data.params
             }]);
             this.props.onSelect(id);
