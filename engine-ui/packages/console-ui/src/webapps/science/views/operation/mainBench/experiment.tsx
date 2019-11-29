@@ -5,7 +5,7 @@ import { Card, Input, Table, Row, Col, Button, Pagination, message } from 'antd'
 
 import * as experimentActions from '../../../actions/experimentActions'
 import Api from '../../../api'
-import { offlineTaskPeriodFilter, SCHEDULE_STATUS } from '../../../comm/const'
+import { offlineTaskPeriodFilter, ScheduleStatus } from '../../../comm/const'
 import { taskType } from '../../../consts';
 import { appUriDict } from 'main/consts';
 import { toRdosGateway } from 'funcs';
@@ -70,7 +70,7 @@ class Experiment extends React.PureComponent<any, any> {
             }
         }, this.getTableData)
     }
-    handleForzenTasks = async (flag: any, taskList: any []) => {
+    handleForzenTasks = async (flag: ScheduleStatus, taskList: any []) => {
         // flag  2 冻结实验  flag 1解冻实验
         const { selectedRowKeys } = this.state;
         let res = await Api.comm.frozenTask({
@@ -90,8 +90,8 @@ class Experiment extends React.PureComponent<any, any> {
      * @param experimentTabs 冻结/未冻结的实验列表
      * @param flag 2 冻结实验 1 解冻实验
      */
-    updateLocalTabs (experimentTabs: any[], flag: any) {
-        let scheduleStatus = flag === 2 ? SCHEDULE_STATUS['FREZED'] : SCHEDULE_STATUS['UNFREZED']
+    updateLocalTabs (experimentTabs: any[], flag: ScheduleStatus) {
+        let scheduleStatus = flag === ScheduleStatus.FREZED ? ScheduleStatus.FREZED : ScheduleStatus.UNFREZED
         let { tabs } = this.props;
         tabs.forEach((tab: any) => {
             let experimentTab = experimentTabs.find((ele: any) => tab.name === ele.name)
@@ -176,7 +176,8 @@ class Experiment extends React.PureComponent<any, any> {
                 <Col span={12}>
                     <Button
                         style={{ marginRight: 10 }}
-                        onClick={this.handleForzenTasks.bind(this, 2, item)}
+                        onClick={this.handleForzenTasks.bind(this, ScheduleStatus.FREZED, item)}
+                        // onClick={this.handleForzenTasks.bind(this, 2, item)}
                         size="small"
                         type="primary"
                     >
@@ -184,7 +185,7 @@ class Experiment extends React.PureComponent<any, any> {
                     </Button>
                     <Button
                         size="small"
-                        onClick={this.handleForzenTasks.bind(this, 1, item)}
+                        onClick={this.handleForzenTasks.bind(this, ScheduleStatus.UNFREZED, item)}
                     >
                         解冻实验
                     </Button>

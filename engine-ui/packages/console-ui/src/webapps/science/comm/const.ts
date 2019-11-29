@@ -127,7 +127,7 @@ export const UPLOAD_STATUS: any = {
     FAIL: 'fail'
 }
 
-export const SCHEDULE_STATUS: any = {
-    FREZED: 2,
-    UNFREZED: 1
+export enum ScheduleStatus {
+    FREZED = 2,
+    UNFREZED= 1
 }
