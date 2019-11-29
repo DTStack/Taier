@@ -1,10 +1,10 @@
 import req from '../consts/reqRelation';
 import http from './http';
-import { IReqParams } from '../model/comm';
+import { IQueryParams } from '../model/comm';
 import { IRelation } from '../model/relation';
 
 export default {
-    getRelations (params?: IReqParams) {
+    getRelations (params?: IQueryParams) {
         return http.post(req.GET_RELATIONS, params);
     },
     getRelation (relation?: { relationId: number }) {

@@ -100,14 +100,14 @@ const mockData: IRelationEntity[] = [{
 
 const relationMockData: IRelation = {
     id: 1,
-    name: 'relation1',
-    description: 'This is a relation description.',
-    relationEntities: mockData
+    relationName: 'relation1',
+    relationDesc: 'This is a relation description.',
+    relationCollection: mockData
 }
 
 class EditRelation extends React.Component<any, IState> {
     state: IState = {
-        dataSource: relationMockData // [initialEntityNode]
+        dataSource: relationMockData
     }
 
     componentDidMount () {
@@ -126,9 +126,9 @@ class EditRelation extends React.Component<any, IState> {
     }
 
     onEdit = async (dataSource: IRelation) => {
-        const res = await RelationAPI.createRelation(dataSource);
+        const res = await RelationAPI.updateRelation(dataSource);
         if (res.code === 1) {
-            message.success('添加关系成功！');
+            message.success('编辑关系成功！');
         }
     }
 

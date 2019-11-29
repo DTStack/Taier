@@ -1,62 +1,98 @@
 import * as React from 'react';
 import { hashHistory } from 'react-router';
-import { Card, Table, Input, Button, Popconfirm } from 'antd';
+import { Card, Table, Input, Button, Popconfirm, message } from 'antd';
+import { TableColumnConfig } from 'antd/lib/table/Table';
+
+import { updateComponentState } from 'funcs';
+
 import './style.scss';
+import API from '../../../api/relation';
+import { IQueryParams } from '../../../model/comm';
+import { IRelation } from '../../../model/relation';
+import { REQ_STATUS } from '../../../consts';
 
 const Search = Input.Search
 
 interface IState {
-    pageNo: number;
-    pageSize: number;
-    total: number;
-    dataSource: any[];
-    searchVal: string;
+    dataSource: IRelation[];
     loading: boolean;
-    desc: boolean;
-    sorterField: string;
+    queryParams: IQueryParams;
 }
 
 export default class RelationManage extends React.Component<any, IState> {
     state: IState = {
-        pageNo: 1,
-        pageSize: 20,
-        total: 2,
         dataSource: [{
-            id: 1, name: '关系名称1', desc: '描述', entiry: '关联实体', updateTime: '2019-12-10 12:33', creator: '创建者一号', useNum: '4000'
+            id: 1, relationName: '关系名称1', relationDesc: '描述', entityNames: '关联实体', updateAt: '2019-12-10 12:33', createBy: '创建者一号', usedCount: 4000
         }, {
-            id: 2, name: '关系名称2', desc: '描述', entiry: '关联实体', updateTime: '2019-12-10 12:33', creator: '创建者一号', useNum: '4000'
+            id: 2, relationName: '关系名称2', relationDesc: '描述', entityNames: '关联实体', updateAt: '2019-12-10 12:33', createBy: '创建者一号', usedCount: 4000
         }],
-        searchVal: undefined,
         loading: false,
-        desc: true,
-        sorterField: ''
+        queryParams: {
+            total: 0,
+            search: undefined,
+            current: 1,
+            size: 20,
+            orders: [{
+                asc: null,
+                field: ''
+            }]
+        }
     }
 
     componentDidMount () {
-
+        this.loadData();
     }
 
-    loadData = () => {
+    loadData = async () => {
+        const { queryParams } = this.state;
+        const res = await API.getRelations(queryParams);
+        if (res.code === REQ_STATUS.SUCCESS) {
+            const data = res.data;
+            updateComponentState(this, {
+                dataSource: data.contentList || [],
+                queryParams: {
+                    total: data.total, current: data.current, size: data.size
+                }
+            });
+        }
+    }
 
+    handDeleteRelation = async (id: number) => {
+        const res = await API.deleteRelation({ relationId: id });
+        if (res.code === REQ_STATUS.SUCCESS) {
+            message.success('删除关系成功！');
+            this.loadData();
+        } else {
+            message.error('删除关系失败！');
+        }
     }
 
     handleSearch = (query: any) => {
-        this.setState({
-            searchVal: query,
-            pageNo: 1
+        updateComponentState(this, {
+            queryParams: {
+                current: 1,
+                search: query
+            }
         }, this.loadData)
     }
 
-    handleTableChange = (pagination: any, filters: any, sorter: any) => {
-        this.setState({
-            pageNo: pagination.current,
-            sorterField: sorter.field || '',
-            desc: sorter.order == 'descend' || false
-        }, this.loadData);
+    onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        updateComponentState(this, {
+            queryParams: { search: e.target.value }
+        })
     }
 
-    handDeleteRelation = () => {
-        // TODO delete a relation entity.
+    handleTableChange = (pagination: any, filters: any, sorter: any) => {
+        const params: IQueryParams = {
+            current: pagination.current
+        };
+        if (sorter) {
+            params.orders = [{
+                asc: sorter.order !== 'descend',
+                field: sorter.field
+            }]
+        }
+        updateComponentState(this, { queryParams: params }, this.loadData)
     }
 
     handleOperateData = (type: string, record: any) => {
@@ -67,7 +103,7 @@ export default class RelationManage extends React.Component<any, IState> {
                 break;
             }
             case 'detail': {
-                hashHistory.push(`${basePath}/detail`)
+                hashHistory.push(`${basePath}/detail/${record.id}`)
                 break;
             }
             case 'edit': {
@@ -75,50 +111,49 @@ export default class RelationManage extends React.Component<any, IState> {
                 break;
             }
             case 'delete': {
-                this.handDeleteRelation();
-                // 请求删除
+                this.handDeleteRelation(record.id);
                 break;
             }
             default:;
         }
     }
 
-    initColumns = () => {
-        return [{
+    initColumns = (): TableColumnConfig<IRelation>[] => {
+        const columns: TableColumnConfig<IRelation>[] = [{
             title: '关系名称',
-            dataIndex: 'name',
-            key: 'name',
-            render: (text: any, record: any) => {
+            dataIndex: 'relationName',
+            key: 'relationName',
+            render: (text: any, record: IRelation) => {
                 return <a onClick={this.handleOperateData.bind(this, 'detail', record)}>{text}</a>
             }
         }, {
             title: '关系实体',
-            dataIndex: 'entiry',
-            key: 'entiry'
+            dataIndex: 'entityNames',
+            key: 'entityNames'
         }, {
             title: '描述',
-            dataIndex: 'desc',
-            key: 'desc'
+            dataIndex: 'relationDesc',
+            key: 'relationDesc'
         }, {
             title: '更新时间',
-            dataIndex: 'updateTime',
-            key: 'updateTime',
+            dataIndex: 'updateAt',
+            key: 'updateAt',
             sorter: true
         }, {
             title: '创建者',
-            dataIndex: 'creator',
-            key: 'creator'
+            dataIndex: 'createBy',
+            key: 'createBy'
         }, {
             title: '被使用情况',
-            dataIndex: 'useNum',
-            key: 'useNum',
+            dataIndex: 'usedCount',
+            key: 'usedCount',
             sorter: true
         }, {
             title: '操作',
             dataIndex: 'operation',
             key: 'operation',
             width: '150px',
-            render: (text: any, record: any) => {
+            render: (text: any, record: IRelation) => {
                 return (
                     <span key={record.id}>
                         <a onClick={this.handleOperateData.bind(this, 'edit', record)}>
@@ -135,23 +170,25 @@ export default class RelationManage extends React.Component<any, IState> {
                     </span>
                 )
             }
-        }]
+        }];
+        return columns;
     }
 
     render () {
-        const { total, pageSize, pageNo, dataSource, loading, searchVal } = this.state;
+        const { dataSource, loading, queryParams } = this.state;
         const pagination: any = {
-            total: total,
-            pageSize: pageSize,
-            current: pageNo
+            total: queryParams.total,
+            pageSize: queryParams.size,
+            current: queryParams.current
         };
         const title = (
             <div>
                 <Search
-                    value={searchVal}
+                    value={queryParams.search}
+                    onChange={this.onSearchChange}
+                    onSearch={this.handleSearch}
                     placeholder="搜索关系、创建者名称"
                     style={{ width: 200, padding: 0 }}
-                    onSearch={this.handleSearch}
                 />&nbsp;&nbsp;
             </div>
         )

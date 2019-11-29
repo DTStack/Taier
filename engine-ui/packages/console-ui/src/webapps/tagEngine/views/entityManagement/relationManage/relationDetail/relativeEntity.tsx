@@ -90,9 +90,9 @@ const mockData: IRelationEntity[] = [{
 
 const relationMockData: IRelation = {
     id: 1,
-    name: 'relation1',
-    description: 'This is a relation description.',
-    relationEntities: mockData
+    relationName: 'relation1',
+    relationDesc: 'This is a relation description.',
+    relationCollection: mockData
 }
 
 class BasicRelationInfo extends React.Component<IProps, any> {
@@ -119,7 +119,7 @@ class BasicRelationInfo extends React.Component<IProps, any> {
                     <Card bordered={false}>
                         <RelationGraph
                             mode={GRAPH_MODE.READ}
-                            data={relationMockData.relationEntities}
+                            data={relationMockData.relationCollection}
                             entities={entities}
                         />
                     </Card>

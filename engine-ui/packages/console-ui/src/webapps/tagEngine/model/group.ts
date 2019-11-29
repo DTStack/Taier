@@ -9,10 +9,20 @@ export enum IGroupType {
     UPLOAD = 1
 }
 
-export default interface IGroup {
+export interface IGroup {
     groupId?: number;
     entityId?: number;
     groupType?: IGroupType;
     groupName?: string;
     groupDesc?: string;
+    /**
+     * 创建者
+     */
+    createBy?: string;
+    /**
+     * 组群数据量
+     */
+    groupDataCount?: number;
+    createAt?: Date | string | number;
+    updateAt?: Date | string | number;
 }

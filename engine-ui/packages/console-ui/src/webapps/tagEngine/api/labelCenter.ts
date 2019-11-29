@@ -81,6 +81,9 @@ export default {
     editorAtomTagRule: { // 编辑原子标签规则
         method: 'post',
         url: '/api/v1/tag/editorAtomTagRule'
+    },
+    getGroupTag: { // 获取群组对比标签
+        method: 'post',
+        url: '/api/v1/tag/getGroupTag'
     }
-
 };

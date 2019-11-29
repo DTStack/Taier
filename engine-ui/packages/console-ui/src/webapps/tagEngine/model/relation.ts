@@ -10,8 +10,19 @@ export interface IRelation {
     relationName?: string;
     relationDesc?: string;
     dataSourceId?: number;
+    createAt?: Date | number | string;
+    updateAt?: Date | number | string;
+    createBy?: string;
+    /**
+     * 实体名称
+     */
+    entityNames?: string;
+    /**
+     * 使用状况
+     */
+    usedCount?: number;
     /**
      * 关联实体
      */
-    relationCollection: IRelationEntity[];
+    relationCollection?: IRelationEntity[];
 }

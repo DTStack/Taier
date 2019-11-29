@@ -474,7 +474,7 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
         graph.cellsResizable = false;
         // 启用绘制
         graph.setPanning(true);
-        graph.setConnectable(mode === GRAPH_MODE.EDIT);
+        graph.setConnectable(mode !== GRAPH_MODE.READ);
         graph.setCellsDisconnectable(false);
         graph.setTooltips(true);
         graph.setCellsEditable(false);
@@ -535,7 +535,7 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
                 if (div != null) {
                     // Adds height of the title table cell
                     var oh = 32;
-                    var footer = mode === GRAPH_MODE.EDIT ? 48 : 0;
+                    var footer = mode !== GRAPH_MODE.READ ? 48 : 0;
                     div.style.display = 'block';
                     div.style.top = oh + 'px';
                     div.style.width = Math.max(1, Math.round(state.width / s)) + 'px';
@@ -629,7 +629,7 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
         };
 
         const { registerEvent, registerContextMenu } = this.props;
-        if (mode === GRAPH_MODE.EDIT) {
+        if (mode !== GRAPH_MODE.READ) {
             // 事件注册
             if (registerEvent) {
                 registerEvent(graph);

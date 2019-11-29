@@ -1,51 +1,55 @@
 import req from '../consts/reqGroup';
 import http from './http';
-import { IReqParams } from '../model/comm';
-import IGroup from '../model/group';
+import { IQueryParams } from '../model/comm';
+import { IGroup } from '../model/group';
 
-interface IGroupAnalysis {
-    entityId?: number;
-    groupPojoIdList?: { groupId?: number; groupName?: string }[];
+export interface IGroupsAnalysis {
+    entityId: number | string;
+    groupPojoIdList: { groupId?: number; groupName?: string }[];
     tagGroupList: { tagId?: number; tagName?: string }[];
 }
 
-interface IAnalysisGroups {
+export interface IGroupAnalysis {
+    groupId?: number;
     taskId?: number;
     entityId?: number;
     uploadFileName?: string;
-    uploadFileType?: string;
     entityAttrList?: { entityAttr?: string; entityAttrCn?: string }[];
 }
 
 export default {
-    getGroups (params?: IReqParams) {
+    getGroups (params: IQueryParams) {
         return http.post(req.GET_GROUPS, params);
     },
-    getGroup (group?: { groupId: number }) {
+    getGroup (group: { groupId: number }) {
         return http.post(req.GET_GROUP, group);
     },
-    uploadGroup (params?: any) {
+    uploadGroup (params: any) {
         return http.post(req.UPLOAD_GROUP, params);
     },
-    deleteGroup (params?: any) {
+    deleteGroup (params: { groupId: number }) {
         return http.post(req.DELETE_GROUP, params);
     },
-    createOrUpdateGroup (group?: IGroup) {
+    createOrUpdateGroup (group: IGroup) {
         return http.post(req.CREATE_OR_UPDATE_GROUP, group);
     },
-    getGroupSpecimens (params?: any) {
+    getGroupSpecimens (params: { groupId } & IQueryParams) {
         return http.post(req.GET_GROUP_SPECIMENS, params);
     },
-    analysisGroup (params?: IGroupAnalysis) {
+    analysisGroup (params: IGroupAnalysis) {
         return http.post(req.ANALYSE_GROUP, params);
     },
-    analysisGroups (params?: IAnalysisGroups) {
+    analysisGroups (params: IGroupsAnalysis) {
         return http.post(req.ANALYSE_GROUPS, params);
     },
-    getGroupContactCount (params?: { entityId?: number; groupIdList: number[] }) {
-        return http.post(req.ANALYSE_GROUP, params);
+    getGroupContactCount (params: { entityId?: number; groupIdList: number[] }) {
+        return http.post(req.GET_GROUP_CONTACT_COUNT, params);
     },
-    downloadGroupTemplate (params?: { fileName: string }) {
-        return http.post(req.GET_GROUP_SPECIMENS, params);
+    downloadGroupTemplate (params: {
+        fileName: string; entityAttrList: { entityAttr?: string; entityAttrCn?: string }[];
+    }) {
+        // 此处需要把entityAttrList 转换成类似 ?fileName=&entityAttrList=attr1-attrCn,attr2-attrCn
+        const entityAttrList = params.entityAttrList.map(o => `${o.entityAttr}-${o.entityAttrCn}`);
+        return http.build(req.DOWNLOAD_GROUP_TEMPLATE, { fileName: params.fileName, entityAttrList: entityAttrList.join(',') });
     }
 }

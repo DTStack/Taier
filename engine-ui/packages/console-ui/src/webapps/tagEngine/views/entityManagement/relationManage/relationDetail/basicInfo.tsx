@@ -4,9 +4,10 @@ import { Row, Button } from 'antd';
 
 import utils from 'utils';
 import { Link } from 'react-router';
+import { IRelation } from '../../../../model/relation';
 
 interface IProps {
-    data: any;
+    data: IRelation;
 };
 
 class BasicRelationInfo extends React.Component<IProps, any> {
@@ -25,22 +26,22 @@ class BasicRelationInfo extends React.Component<IProps, any> {
                         <tr>
                             <td>关系名称</td>
                             <td>
-                                {data.name || '关系名称'}
+                                {data.relationName || '关系名称'}
                             </td>
                             <td>关系ID</td>
                             <td>{data.id}</td>
                         </tr>
                         <tr>
                             <td>创建人</td>
-                            <td>{data.createUserName}</td>
+                            <td>{data.createBy}</td>
                             <td>创建时间</td>
-                            <td>{utils.formatDateTime(data.gmtCreate)}</td>
+                            <td>{utils.formatDateTime(data.createAt)}</td>
                         </tr>
                         <tr>
                             <td>数据量</td>
-                            <td>{data.count}</td>
+                            <td>{data.usedCount}</td>
                             <td>关系描述</td>
-                            <td>{data.desc}</td>
+                            <td>{data.relationDesc}</td>
                         </tr>
                     </tbody>
                 </table>

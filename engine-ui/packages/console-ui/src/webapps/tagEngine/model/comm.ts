@@ -2,14 +2,14 @@ export interface ISorter {
     /**
      * 排序字段
      */
-    fields?: string;
+    field?: string;
     /**
      * 是否升序
      */
     asc?: boolean;
 }
 
-export interface IReqParams {
+export interface IQueryParams {
     /**
      * 搜索字符串
      */
@@ -25,7 +25,11 @@ export interface IReqParams {
     /**
      * 排序，默认降序
      */
-    orders?: ISorter;
+    orders?: ISorter[];
+    /**
+     *
+     */
+    total?: number;
 };
 
 /**
