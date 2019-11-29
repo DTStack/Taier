@@ -34,7 +34,7 @@ const mockData: IRelationEntity[] = [{
     }],
     vertex: true,
     edge: false,
-    position: {
+    geometry: {
         x: 0,
         y: 0
     },
@@ -63,7 +63,7 @@ const mockData: IRelationEntity[] = [{
     }],
     vertex: true,
     edge: false,
-    position: {
+    geometry: {
         x: 0,
         y: 0
     },
@@ -82,7 +82,7 @@ const mockData: IRelationEntity[] = [{
     name: 'edge',
     vertex: false,
     edge: true,
-    position: {
+    geometry: {
         x: 0,
         y: 0
     },
@@ -100,37 +100,37 @@ const mockData: IRelationEntity[] = [{
 
 const relationMockData: IRelation = {
     id: 1,
-    name: 'relation1',
-    description: 'This is a relation description.',
-    relationEntities: mockData,
+    relationName: 'relation1',
+    relationDesc: 'This is a relation description.',
+    relationCollection: mockData
 }
 
 class EditRelation extends React.Component<any, IState> {
     state: IState = {
-        dataSource: relationMockData // [initialEntityNode]
+        dataSource: relationMockData
     }
 
-    componentDidMount() {
+    componentDidMount () {
         const { router } = this.props;
         const { relationId } = router.params;
         this.loadRelation(relationId);
     }
 
     loadRelation = async (relationId: number) => {
-       const res = await RelationAPI.getRelation({ relationId });
-       if (res.code === 1) {
-           this.setState({
+        const res = await RelationAPI.getRelation({ relationId });
+        if (res.code === 1) {
+            this.setState({
                 dataSource: res.data
-           })
-       }
+            })
+        }
     }
 
     onEdit = async (dataSource: IRelation) => {
-        const res = await RelationAPI.createRelation(dataSource);
+        const res = await RelationAPI.updateRelation(dataSource);
         if (res.code === 1) {
-            message.success('添加关系成功！');
+            message.success('编辑关系成功！');
         }
-     }
+    }
 
     render () {
         const { dataSource } = this.state;

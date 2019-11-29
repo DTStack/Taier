@@ -2,13 +2,14 @@ import * as React from 'react';
 
 import { Row, Card } from 'antd';
 
-import RelationGraph, { IEntityNode, GRAPH_MODE } from '../../../../components/relationGraph';
+import RelationGraph, { GRAPH_MODE } from '../../../../components/relationGraph';
+import { IRelation, IRelationEntity } from '../../../../model/relation';
 
 interface IProps {
     data: any;
 };
 
-const mockData: IEntityNode[] = [{
+const mockData: IRelationEntity[] = [{
     id: 1,
     name: 'entity1',
     columns: [{
@@ -23,7 +24,7 @@ const mockData: IEntityNode[] = [{
     }],
     vertex: true,
     edge: false,
-    position: {
+    geometry: {
         x: 0,
         y: 0
     },
@@ -52,7 +53,7 @@ const mockData: IEntityNode[] = [{
     }],
     vertex: true,
     edge: false,
-    position: {
+    geometry: {
         x: 0,
         y: 0
     },
@@ -71,7 +72,7 @@ const mockData: IEntityNode[] = [{
     name: 'edge',
     vertex: false,
     edge: true,
-    position: {
+    geometry: {
         x: 0,
         y: 0
     },
@@ -86,6 +87,13 @@ const mockData: IEntityNode[] = [{
         rowIndex: 2
     }
 }];
+
+const relationMockData: IRelation = {
+    id: 1,
+    relationName: 'relation1',
+    relationDesc: 'This is a relation description.',
+    relationCollection: mockData
+}
 
 class BasicRelationInfo extends React.Component<IProps, any> {
     state = {
@@ -111,7 +119,7 @@ class BasicRelationInfo extends React.Component<IProps, any> {
                     <Card bordered={false}>
                         <RelationGraph
                             mode={GRAPH_MODE.READ}
-                            data={mockData}
+                            data={relationMockData.relationCollection}
                             entities={entities}
                         />
                     </Card>

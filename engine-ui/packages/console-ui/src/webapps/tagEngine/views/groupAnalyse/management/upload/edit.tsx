@@ -1,13 +1,15 @@
 import * as React from 'react';
-import { Card } from 'antd';
+import { Card, message } from 'antd';
 
 import { IDataSource } from '../../../../model/dataSource';
 
-import Breadcrumb from '../../../../components/breadcrumb';
 import UploadForm from './form';
+import API from '../../../../api/group';
+import Breadcrumb from '../../../../components/breadcrumb';
 
 interface IProps {
     dataSourceList: IDataSource[];
+    router: any;
 };
 
 interface IState {
@@ -32,14 +34,28 @@ class GroupUploadEdit extends React.Component<IProps, any> {
     }
 
     componentDidMount () {
-
+        this.getGroupData();
     }
 
-    getEditSource = () => {
+    getGroupData = async () => {
+        const { params } = this.props.router;
+        const res = await API.getGroup({ groupId: params.groupId });
+        if (res.code === 1) {
+            this.setState({
+                formData: res.data
+            })
+        }
     }
 
-    update = (formData: any) => {
+    update = async (values: any) => {
+        const { formData } = this.state;
         console.log('update values of form: ', formData);
+        const res = await API.createOrUpdateGroup(Object.assign(formData, values));
+        if (res.code === 1) {
+            message.success('修改群组成功！');
+        } else {
+            message.error('修改群组失败！');
+        }
     }
 
     render () {
@@ -52,7 +68,7 @@ class GroupUploadEdit extends React.Component<IProps, any> {
                     bordered={false}
                     className="noBorderBottom"
                 >
-                    <UploadForm formData={formData} handSubmit={this.update} mode="edit"/>
+                    <UploadForm formData={formData} router={this.props.router} handSubmit={this.update} mode="edit"/>
                 </Card>
             </div>
         )

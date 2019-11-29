@@ -1,93 +1,138 @@
 import * as React from 'react';
-import { Link, hashHistory } from 'react-router';
+import { hashHistory } from 'react-router';
 import { Card, Table, Input, Button, Popconfirm, message } from 'antd';
+
+import { updateComponentState } from 'funcs';
 
 import './index.scss';
 import GroupAPI from '../../../api/group';
+import { IGroup } from '../../../model/group';
+import { IQueryParams } from '../../../model/comm';
+import { displayGroupType } from '../../../components/display';
+import SelectEntity from '../../../components/selectEntity';
 
 const Search = Input.Search
 
 interface IState {
-    pageNo: number;
-    pageSize: number;
-    total: number;
-    dataSource: any[];
-    searchVal: string;
+    dataSource: IGroup[];
     loading: boolean;
-    desc: boolean;
-    sorterField: string;
+    queryParams: { entityId: string } & IQueryParams ;
 }
 
 const basePath = '/groupAnalyse';
 
 export default class GroupManage extends React.Component<any, IState> {
     state: IState = {
-        pageNo: 1,
-        pageSize: 20,
-        total: 2,
-        dataSource: [{
-            id: 1, name: '关系名称1', desc: '描述', entiry: '关联实体', updateTime: '2019-12-10 12:33', creator: '创建者一号', useNum: '4000'
-        }, {
-            id: 2, name: '关系名称2', desc: '描述', entiry: '关联实体', updateTime: '2019-12-10 12:33', creator: '创建者一号', useNum: '4000'
-        }],
-        searchVal: undefined,
+        dataSource: [],
         loading: false,
-        desc: true,
-        sorterField: ''
+        queryParams: {
+            entityId: null,
+            total: 0,
+            search: null,
+            current: 1,
+            size: 20,
+            orders: [{
+                asc: false,
+                field: 'updateAt'
+            }]
+        }
     }
 
     componentDidMount () {
-        this.loadData();
+        // TODO
     }
 
     loadData = async () => {
-        const res = await GroupAPI.getGroups();
+        const ctx = this;
+        ctx.setState({
+            loading: true
+        })
+        const { queryParams } = this.state;
+        const res = await GroupAPI.getGroups(queryParams);
         if (res.code === 1) {
-            this.setState({
-                dataSource: res.data
-            })
+            const data = res.data;
+            updateComponentState(ctx, {
+                dataSource: data.contentList || [],
+                queryParams: {
+                    total: Number(data.total),
+                    current: Number(data.current),
+                    size: Number(data.size)
+                }
+            });
         }
+        ctx.setState({
+            loading: false
+        })
     }
 
     delete = async (id: number) => {
-        const res = await GroupAPI.deleteGroup(id);
+        const res = await GroupAPI.deleteGroup({ groupId: id });
         if (res.code === 1) {
             message.success('删除群组成功！');
+            this.loadData();
+        } else {
+            message.error('删除群组失败！');
         }
     }
 
-    handleSearch = (query: any) => {
-        this.setState({
-            searchVal: query,
-            pageNo: 1
+    handleSearch = (query: string) => {
+        updateComponentState(this, {
+            queryParams: {
+                current: 1,
+                search: query
+            }
         }, this.loadData)
     }
 
-    handleTableChange = (pagination: any, filters: any, sorter: any) => {
-        this.setState({
-            pageNo: pagination.current,
-            sorterField: sorter.field || '',
-            desc: sorter.order == 'descend' || false
-        }, this.loadData);
+    onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        updateComponentState(this, {
+            queryParams: { search: e.target.value }
+        })
     }
 
-    handleOperateData = (type: string, record: any) => {
+    handleTableChange = (pagination: any, filters: any, sorter: any) => {
+        const params: IQueryParams = {
+            current: pagination.current
+        };
+        if (sorter) {
+            params.orders = [{
+                asc: sorter.order !== 'descend',
+                field: sorter.field
+            }]
+        }
+        updateComponentState(this, { queryParams: params }, this.loadData)
+    }
+
+    handleEntityChange = (value) => {
+        if (value) {
+            updateComponentState(this, {
+                queryParams: {
+                    entityId: value,
+                    current: 1,
+                    search: ''
+                }
+            }, this.loadData)
+        }
+    }
+
+    handleOperateData = (type: string, record: IGroup) => {
+        const { queryParams } = this.state;
         switch (type) {
             case 'add': {
-                hashHistory.push(`${basePath}/upload`)
+                hashHistory.push(`${basePath}/upload/${queryParams.entityId}`)
                 break;
             }
             case 'detail': {
-                hashHistory.push(`${basePath}/detail`)
+                hashHistory.push(`${basePath}/detail/${record.groupId}/${queryParams.entityId}`)
                 break;
             }
             case 'edit': {
-                hashHistory.push({ pathname: `${basePath}/upload/detail`, state: { ...record } })
+                hashHistory.push(`${basePath}/upload/edit/${record.groupId}/${queryParams.entityId}`);
                 break;
             }
             case 'delete': {
                 // 请求删除
-                this.delete(record.id);
+                this.delete(record.groupId);
                 break;
             }
             default: ;
@@ -97,27 +142,33 @@ export default class GroupManage extends React.Component<any, IState> {
     initColumns = () => {
         return [{
             title: '群组名称',
-            dataIndex: 'name',
-            key: 'name',
+            dataIndex: 'groupName',
+            key: 'groupName',
             render: (text: any, record: any) => {
-                return <Link to={{ pathname: `${basePath}/detail`, state: record }}>{text}</Link>
+                return <a onClick={this.handleOperateData.bind(this, 'detail', record)}>
+                    {text}
+                </a>
             }
         }, {
             title: '群组数据量',
-            dataIndex: 'entiry',
-            key: 'entiry'
+            dataIndex: 'groupDataCount',
+            key: 'groupDataCount',
+            sorter: true
         }, {
             title: '群组类型',
-            dataIndex: 'desc',
-            key: 'desc'
+            dataIndex: 'groupType',
+            key: 'groupType',
+            render: (groupType: number, record: any) => {
+                return displayGroupType(groupType)
+            }
         }, {
             title: '创建者',
-            dataIndex: 'creator',
-            key: 'creator'
+            dataIndex: 'createBy',
+            key: 'createBy'
         }, {
-            title: '创建时间',
-            dataIndex: 'useNum',
-            key: 'useNum',
+            title: '更新时间',
+            dataIndex: 'updateAt',
+            key: 'updateAt',
             sorter: true
         }, {
             title: '操作',
@@ -145,29 +196,35 @@ export default class GroupManage extends React.Component<any, IState> {
     }
 
     render () {
-        const { total, pageSize, pageNo, dataSource, loading, searchVal } = this.state;
+        const { dataSource, loading, queryParams } = this.state;
         const pagination: any = {
-            total: total,
-            pageSize: pageSize,
-            current: pageNo
+            total: queryParams.total,
+            pageSize: queryParams.size,
+            current: queryParams.current
         };
         const title = (
             <div>
-                <Search
-                    value={searchVal}
-                    placeholder="搜索群组名称"
-                    style={{ width: 200, padding: 0 }}
-                    onSearch={this.handleSearch}
-                />&nbsp;&nbsp;
+                <div className="left_wp">
+                    <span>选择实体：</span>
+                    <SelectEntity value={queryParams.entityId} onChange={this.handleEntityChange}/>
+                </div>
             </div>
         )
-        const extra = (
+        const extra = (<div>
+            <Search
+                value={queryParams.search}
+                placeholder="搜索群组名称"
+                style={{ width: 200, padding: 0 }}
+                onChange={this.onSearchChange}
+                onSearch={this.handleSearch}
+            />&nbsp;&nbsp;
             <Button
                 type="primary"
                 style={{ marginTop: 10 }}
                 className="right"
                 onClick={this.handleOperateData.bind(this, 'add', {})}
             >新增群组</Button>
+        </div>
         )
         return (
             <div className="group-manage">
@@ -180,7 +237,10 @@ export default class GroupManage extends React.Component<any, IState> {
                         className="noBorderBottom"
                     >
                         <Table
-                            rowKey="id"
+                            locale={{
+                                emptyText: '暂无数据, 请确认是否已勾选实体！'
+                            }}
+                            rowKey="groupId"
                             className="dt-ant-table dt-ant-table--border full-screen-table-47"
                             pagination={pagination}
                             onChange={this.handleTableChange}
