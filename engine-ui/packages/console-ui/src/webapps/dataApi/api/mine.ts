@@ -46,5 +46,8 @@ export default {
     },
     generateSkInfo (params?: any) {
         return http.post(req.GENERATE_SECRET, params)
+    },
+    resetToken (params: number) {
+        return http.post(req.RESET_TOKEN, params)
     }
 }
