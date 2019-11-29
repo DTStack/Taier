@@ -12,6 +12,7 @@ interface IProps extends FormComponentProps {
     onPrev: Function;
     isShow: boolean;
     entityId: string|number;
+    data: any;
 }
 interface IState {
     cateOption: any[];
@@ -38,6 +39,13 @@ class StepOne extends React.PureComponent<IProps, IState> {
     };
     componentDidMount () {
         this.loadMainData();
+    }
+    componentDidUpdate (preProps) {
+        const { data } = this.props;
+        if (data != preProps.data) {
+            const { tagName, cateId, tagDesc } = data;
+            this.props.form.setFieldsValue({ tagName, cateId, tagDesc })
+        }
     }
     loadMainData () {
         const { entityId } = this.props;
@@ -100,6 +108,7 @@ class StepOne extends React.PureComponent<IProps, IState> {
                     {getFieldDecorator('cateId', {
                         rules: [
                             {
+                                required: true,
                                 message: '请选择目录'
                             }
                         ]

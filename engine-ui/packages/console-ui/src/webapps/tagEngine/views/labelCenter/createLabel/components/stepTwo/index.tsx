@@ -16,6 +16,7 @@ interface IProps extends FormComponentProps {
     onPrev: Function;
     isShow: boolean;
     entityId: string|number;
+    data: any;
 }
 interface IState {
     entityList: any[];
@@ -75,6 +76,26 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         this.getRelationList();
         this.getEntityAtomTagList(null);
         this.getAtomTagList();
+    }
+    componentDidUpdate (preProps) {
+        const { data } = this.props;
+        if (data != preProps.data) {
+            const { relationId, tags } = data;
+            this.props.form.setFieldsValue({ relationId });
+            let newtags = tags.map(item => {
+                return {
+                    tagValueId: item.tagValueId,
+                    label: item.tagValue,
+                    value: shortid(),
+                    valid: true,
+                    params: JSON.parse(item.param)
+                }
+            })
+            this.setState({
+                tags: newtags,
+                activeTag: newtags.length ? newtags[0].value : ''
+            })
+        }
     }
     getEntityList = () => {
         API.selectEntity().then(res => {
@@ -309,6 +330,31 @@ class StepTwo extends React.PureComponent<IProps, IState> {
     onHandleNext = (e: any) => {
         const { tags, activeTag } = this.state;
         const that = this;
+        if (!tags || tags.length < 1) {
+            notification.error({
+                message: '标签值',
+                description: '请添加标签值'
+            });
+            return false;
+        }
+        let isRepeat = [];
+        for (let i = 0; i < tags.length; i++) {
+            if (isRepeat.includes(tags[i].label)) {
+                notification.error({
+                    message: tags[i].label,
+                    description: '标签名称重复，请检查！'
+                });
+                return false;
+            }
+            if (tags[i].params == this.state.initConfig) {
+                notification.error({
+                    message: tags[i].label,
+                    description: '请添加标签规则！'
+                });
+                return false;
+            }
+            isRepeat.push(tags[i].label);
+        }
         this.panelForm.validateFields((err, values) => {
             if (err) {
                 let current = tags.find(item => item.value == activeTag);
@@ -317,24 +363,6 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                     description: '请填写有效标签规则'
                 });
             } else {
-                let isRepeat = [];
-                for (let i = 0; i < tags.length; i++) {
-                    if (isRepeat.includes(tags[i].label)) {
-                        notification.error({
-                            message: tags[i].label,
-                            description: '标签名称重复，请检查！'
-                        });
-                        return false;
-                    }
-                    if (tags[i].params == this.state.initConfig) {
-                        notification.error({
-                            message: tags[i].label,
-                            description: '请填写标签！'
-                        });
-                        return false;
-                    }
-                    isRepeat.push(tags[i].label);
-                }
                 that.props.form.validateFields((err, values) => {
                     if (!err) {
                         that.props.onNext(Object.assign({}, values, { tags }));

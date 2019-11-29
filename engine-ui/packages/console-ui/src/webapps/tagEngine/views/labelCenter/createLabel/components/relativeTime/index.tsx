@@ -20,9 +20,9 @@ interface IState {
 }
 
 export default class RelativeTime extends React.PureComponent<
-    IProps,
-    IState
-    > {
+IProps,
+IState
+> {
     constructor (props: IProps) {
         super(props);
     }

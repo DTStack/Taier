@@ -210,9 +210,7 @@ class Header extends React.Component<any, any> {
         const { current } = this.state;
         let pathname = router.location.pathname;
         const display = current !== 'overview' ? 'inline-block' : 'none';
-        console.log(pathname);
-        // 如果是数据地图模块，隐藏项目下拉选择菜单
-        const isProject = pathname == '/'
+        const isProject = pathname == '/';
         return (
             <div className={`header ${window.APP_CONF.theme || 'default'}`}>
                 <div onClick={this.goIndex} className="logo left txt-left">

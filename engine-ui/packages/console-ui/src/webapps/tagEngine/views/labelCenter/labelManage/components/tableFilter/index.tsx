@@ -70,8 +70,8 @@ IState
         const { searchValue, tagSelect } = params;
         API.getTagList({
             entityId,
-            tagStatus: tagType,
-            tagType: tagStatus,
+            tagStatus: tagStatus,
+            tagType: tagType,
             search: searchValue,
             current: pageNo,
             size: pageSize,
@@ -104,8 +104,9 @@ IState
             loading: true,
             tagType,
             tagStatus
+        }, () => {
+            this.loadMainData();
         })
-        this.loadMainData();
     }
     onTableChange = (pagination: any, filters: any, sorter: any) => {
         const { current, pageSize } = pagination;
@@ -229,7 +230,6 @@ IState
                                 <Option value="-1">全部</Option>
                                 <Option value="0">原子标签</Option>
                                 <Option value="1">衍生标签</Option>
-                                <Option value="2">自定义标签</Option>
                             </Select>
                         </div>
                     </div>

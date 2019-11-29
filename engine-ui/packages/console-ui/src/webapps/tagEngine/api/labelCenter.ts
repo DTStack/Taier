@@ -85,6 +85,10 @@ export default {
     editorAtomTagRule: { // 编辑原子标签规则
         method: 'post',
         url: '/api/v1/tag/editorAtomTagRule'
+    },
+    getDeriveTagVO: { // 获取衍生标签详情
+        method: 'post',
+        url: '/api/v1/tag/getDeriveTagVO'
     }
 
 };

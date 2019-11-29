@@ -371,7 +371,6 @@ class WrapDataSourceMana extends React.Component<any, any> {
 }
 export default connect((state: any) => {
     return {
-        project: state.project,
-        sourceTypes: state.dataSource.sourceTypes
+        project: state.project
     }
 })(WrapDataSourceMana)
