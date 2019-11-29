@@ -1,7 +1,7 @@
 import http from './http';
 import LabelCenter from './labelCenter';
 import Project from './project';
-import User from './User';
+import User from './user';
 import Entity from './entity';
 let combineApi = Object.assign({}, User, Project, LabelCenter, Entity);
 
