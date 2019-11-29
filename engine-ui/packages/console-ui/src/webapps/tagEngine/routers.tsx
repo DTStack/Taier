@@ -19,7 +19,7 @@ import EMEntityDetail from './views/entityManagement/entityManage/entityDetail'
 
 // ======= 关系管理 =======
 import CreateRelation from './views/entityManagement/relationManage/update/create'
-// import EditRelation from './views/entityManagement/relationManage/update/edit'
+import EditRelation from './views/entityManagement/relationManage/update/edit'
 import RelationDetail from './views/entityManagement/relationManage/relationDetail'
 
 // ======= 字典管理 =======

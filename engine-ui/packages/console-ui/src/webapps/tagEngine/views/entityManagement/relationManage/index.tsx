@@ -21,20 +21,16 @@ interface IState {
 
 export default class RelationManage extends React.Component<any, IState> {
     state: IState = {
-        dataSource: [{
-            id: 1, relationName: '关系名称1', relationDesc: '描述', entityNames: '关联实体', updateAt: '2019-12-10 12:33', createBy: '创建者一号', usedCount: 4000
-        }, {
-            id: 2, relationName: '关系名称2', relationDesc: '描述', entityNames: '关联实体', updateAt: '2019-12-10 12:33', createBy: '创建者一号', usedCount: 4000
-        }],
+        dataSource: [],
         loading: false,
         queryParams: {
             total: 0,
-            search: undefined,
+            search: '',
             current: 1,
             size: 20,
             orders: [{
-                asc: null,
-                field: ''
+                asc: false,
+                field: 'updateAt'
             }]
         }
     }
@@ -46,7 +42,7 @@ export default class RelationManage extends React.Component<any, IState> {
     loadData = async () => {
         const { queryParams } = this.state;
         const res = await API.getRelations(queryParams);
-        if (res.code === REQ_STATUS.SUCCESS) {
+        if (res.code === 1) {
             const data = res.data;
             updateComponentState(this, {
                 dataSource: data.contentList || [],
@@ -59,7 +55,7 @@ export default class RelationManage extends React.Component<any, IState> {
 
     handDeleteRelation = async (id: number) => {
         const res = await API.deleteRelation({ relationId: id });
-        if (res.code === REQ_STATUS.SUCCESS) {
+        if (res.code === 1) {
             message.success('删除关系成功！');
             this.loadData();
         } else {

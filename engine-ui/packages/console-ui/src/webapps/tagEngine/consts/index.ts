@@ -12,9 +12,9 @@ export enum REQ_STATUS {
     /**
      * 请求返回正常
      */
-    SUCCESS = 0,
+    SUCCESS = 1,
     /**
      * 请求失败
      */
-    FAIL = -1
+    FAIL = 0
 };
