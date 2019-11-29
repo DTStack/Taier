@@ -34,10 +34,12 @@ export default class EditAtomicLabel extends React.PureComponent<IProps, IState>
     componentDidMount () {
         const { location } = this.props;
         const { tagId } = location.query;
-        this.setState({
-            tagId
-        })
-        this.getEditorDetailVo(tagId)
+        if (tagId) {
+            this.setState({
+                tagId
+            })
+            this.getEditorDetailVo(tagId)
+        }
     }
     getEditorDetailVo = (tagId) => {
         API.getEditorDetailVo({

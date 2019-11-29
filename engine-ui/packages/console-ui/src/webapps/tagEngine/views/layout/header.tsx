@@ -209,12 +209,10 @@ class Header extends React.Component<any, any> {
         const { user, apps, app, licenseApps, router, navData } = this.props;
         const { current } = this.state;
         let pathname = router.location.pathname;
-
         const display = current !== 'overview' ? 'inline-block' : 'none';
-
+        console.log(pathname);
         // 如果是数据地图模块，隐藏项目下拉选择菜单
-        const showProjectSelect =
-            !(pathname.indexOf('/data-manage') > -1 || pathname === '/');
+        const isProject = pathname == '/'
         return (
             <div className={`header ${window.APP_CONF.theme || 'default'}`}>
                 <div onClick={this.goIndex} className="logo left txt-left">
@@ -234,9 +232,9 @@ class Header extends React.Component<any, any> {
                         selectedKeys={[this.state.current]}
                         mode="horizontal"
                     >
-                        {showProjectSelect && this.renderProjectSelect()}
+                        { !isProject && this.renderProjectSelect()}
                         {
-                            navData.map(item => (
+                            !isProject && navData.map(item => (
                                 <Menu.Item
                                     className="my-menu-item"
                                     key={item.permissionUrl}

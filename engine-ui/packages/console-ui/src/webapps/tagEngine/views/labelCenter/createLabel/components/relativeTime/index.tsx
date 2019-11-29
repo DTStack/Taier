@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Col, Row, Select, Icon, Tooltip, InputNumber } from 'antd';
 import TagTypeOption from '../../../../../consts/tagTypeOption';
 import './style.scss';
+
 const { Option } = Select;
 
 interface IProps {
@@ -19,9 +20,9 @@ interface IState {
 }
 
 export default class RelativeTime extends React.PureComponent<
-IProps,
-IState
-> {
+    IProps,
+    IState
+    > {
     constructor (props: IProps) {
         super(props);
     }
@@ -29,26 +30,28 @@ IState
         visible: false
     };
     onChangeInputNumber = (value) => {
-        this.props.onChange({ value })
+        const { data } = this.props;
+        this.props.onChange(Object.assign({}, data, { value }))
     }
     onChangeSelect = (value) => {
-        this.props.onChange({ timeType: value })
+        const { data } = this.props;
+        this.props.onChange(Object.assign({}, data, { timeType: value }))
     }
     render () {
-        const { tip, value } = this.props;
+        const { tip, data } = this.props;
         return (
             <Row className="area-date-Row" type='flex' gutter={8}>
                 <Col>
                     在
                 </Col>
                 <Col>
-                    <InputNumber onChange={this.onChangeInputNumber} min={1} value={value.value} />
+                    <InputNumber onChange={this.onChangeInputNumber} min={1} value={data.value} />
                 </Col>
                 <Col>
                     天
                 </Col>
                 <Col>
-                    <Select value={value.timeType} onChange={this.onChangeSelect} style={{ width: 80, marginRight: 20 }}>
+                    <Select value={data.timeType} onChange={this.onChangeSelect} style={{ width: 80, marginRight: 20 }}>
                         {
                             TagTypeOption['OP_RELATIVE_TIME'].map(item => <Option key={item.value} value={item.value}>{item.label}</Option>)
                         }
@@ -56,7 +59,7 @@ IState
                 </Col>
                 <Col>
                     <Tooltip placement="top" title={tip}>
-                        <Icon type="question-circle-o" className="tip"/>
+                        <Icon type="question-circle-o" className="tip" />
                     </Tooltip>
                 </Col>
             </Row>

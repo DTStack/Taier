@@ -98,7 +98,6 @@ class StepOne extends React.PureComponent<IProps, IState> {
                 </Form.Item>
                 <Form.Item {...formItemLayout} label="选择目录">
                     {getFieldDecorator('cateId', {
-                        initialValue: '7',
                         rules: [
                             {
                                 message: '请选择目录'

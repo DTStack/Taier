@@ -81,9 +81,22 @@ IState
         let { dataType, entityAttr, tagId } = current;
         this.props.onChangeNode(data.key, { dataType, entityAttr, tagId, type: TagTypeOption[dataType][0].value })
     }
-    onChangeType = (value) => {
+    onChangeType = (value) => { // 改变操作符
         const { data } = this.props;
-        this.props.onChangeNode(data.key, { type: value })
+        let timeType = '';
+        if (value === 'OP_ABSOLUTE_TIME') { // 绝对时间
+            timeType = 'OP_BETWEEN'
+        } else if (value === 'OP_RELATIVE_TIME') { // 相对时间
+            timeType = 'OP_WITH_IN'
+        }
+        this.props.onChangeNode(data.key, {
+            type: value,
+            timeType,
+            lValue: '',
+            rValue: '',
+            value: '',
+            values: []
+        })
     }
     render () {
         const { extra, atomTagList, data } = this.props;

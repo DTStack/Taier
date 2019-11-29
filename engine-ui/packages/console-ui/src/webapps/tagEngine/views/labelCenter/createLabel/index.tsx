@@ -22,7 +22,7 @@ export default class CreateLabel extends React.PureComponent<IProps, IState> {
         super(props);
     }
     state: IState = {
-        current: 1,
+        current: 0,
         stepsValues: []
     };
     componentDidMount () { }
@@ -49,15 +49,23 @@ export default class CreateLabel extends React.PureComponent<IProps, IState> {
             }
         }
     }
-    saveEntityConfig = (params: any) => {
-        console.log(params);
-        this.setState({ current: 2 });
+    saveEntityConfig = (data: any) => {
+        let params = Object.assign({}, data, {
+            tags: data.tags.map(item => {
+                return {
+                    tagValueId: item.tagValueId,
+                    tagValue: item.label,
+                    param: JSON.stringify(item.params)
+                }
+            })
+        })
+        this.addOrUpdateDeriveTag(params);
     }
     addOrUpdateDeriveTag = (params) => {
         API.addOrUpdateDeriveTag(params).then(res => {
-            const { code, data } = res;
+            const { code } = res;
             if (code == 1) {
-                console.log(data)
+                this.setState({ current: 2 });
             }
         })
     }
