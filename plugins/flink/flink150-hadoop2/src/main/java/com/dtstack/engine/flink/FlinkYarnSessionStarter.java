@@ -56,27 +56,28 @@ public class FlinkYarnSessionStarter {
 
     public boolean startFlinkYarnSession() {
         try {
-            ClusterClient<ApplicationId> retrieveClusterClient = null;
-            try {
-                retrieveClusterClient = flinkClientBuilder.initYarnClusterClient();
-            } catch (Exception e) {
-                logger.error("{}", e);
-            }
-
-            if (retrieveClusterClient != null) {
-                clusterClient = retrieveClusterClient;
-                logger.info("retrieve flink client with yarn session success");
-                return true;
-            }
-            this.clusterClientLock.acquire(5, TimeUnit.MINUTES);
-            if (flinkConfig.getYarnSessionStartAuto()) {
+            if (this.clusterClientLock.acquire(5, TimeUnit.MINUTES)){
+                ClusterClient<ApplicationId> retrieveClusterClient = null;
                 try {
-                    clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification);
-                    clusterClient.setDetached(true);
+                    retrieveClusterClient = flinkClientBuilder.initYarnClusterClient();
+                } catch (Exception e) {
+                    logger.error("{}", e);
+                }
+
+                if (retrieveClusterClient != null) {
+                    clusterClient = retrieveClusterClient;
+                    logger.info("retrieve flink client with yarn session success");
                     return true;
-                } catch (FlinkException e) {
-                    logger.info("Couldn't deploy Yarn session cluster, {}", e);
-                    throw e;
+                }
+                if (flinkConfig.getYarnSessionStartAuto()) {
+                    try {
+                        clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification);
+                        clusterClient.setDetached(true);
+                        return true;
+                    } catch (FlinkException e) {
+                        logger.info("Couldn't deploy Yarn session cluster, {}", e);
+                        throw e;
+                    }
                 }
             }
         } catch (Exception e) {
