@@ -4,7 +4,7 @@ import { Table } from 'antd';
 import JsonContent from './jsonContent';
 
 import { API_MODE, dataSourceTypes } from '../../consts';
-import { generateHeader } from './helper';
+import { generateHeader, generateTokenHeader } from './helper';
 
 class CreateContentSection extends React.Component<any, any> {
     getRequestColumns () {
@@ -136,32 +136,62 @@ class CreateContentSection extends React.Component<any, any> {
                         </div>
                     </div>
                 </section>
-                <section className='c-content-register__section'>
-                    <h1 className="title-border-l-blue">请求示例</h1>
-                    <div style={{ marginTop: '12px' }} className='c-content-register__section__card'>
-                        <div className='c-content-register__section__card__title c__section__card__title--bold'>Request URL</div>
-                        <div className='c-content-register__section__card__content'>
-                            <pre>{isGET ? reqJson : 'http(s)://调用URL'}</pre>
-                        </div>
-                    </div>
-                    <div className='c-content-register__section__card'>
-                        <div className='c-content-register__section__card__title c__section__card__title--bold'>Headers</div>
-                        <div className='c-content-register__section__card__content'>
-                            {generateHeader([])}
-                        </div>
-                    </div>
-                    {!isGET && (
-                        <div className='c-content-register__section__card'>
-                            <div className='c-content-register__section__card__title c__section__card__title--bold'>Body</div>
+                <div style={{ overflow: 'hidden' }}>
+                    <section className='c-content-register__section c_left__section'>
+                        <h1 className="title-border-l-blue">请求示例</h1>
+                        <p className='c_title_method'>方式一：AK/SK签名加密方式</p>
+                        <div style={{ marginTop: '12px' }} className='c-content-register__section__card'>
+                            <div className='c-content-register__section__card__title c__section__card__title--bold'>Request URL</div>
                             <div className='c-content-register__section__card__content'>
-                                <JsonContent
-                                    style={{ width: '470px' }}
-                                    json={reqJson}
-                                />
+                                <pre>{isGET ? reqJson : 'http(s)://调用URL'}</pre>
                             </div>
                         </div>
-                    )}
-                </section>
+                        <div className='c-content-register__section__card'>
+                            <div className='c-content-register__section__card__title c__section__card__title--bold'>Headers</div>
+                            <div className='c-content-register__section__card__content'>
+                                {generateHeader([])}
+                            </div>
+                        </div>
+                        {!isGET && (
+                            <div className='c-content-register__section__card'>
+                                <div className='c-content-register__section__card__title c__section__card__title--bold'>Body</div>
+                                <div className='c-content-register__section__card__content'>
+                                    <JsonContent
+                                        style={{ width: '410px' }}
+                                        json={reqJson}
+                                    />
+                                </div>
+                            </div>
+                        )}
+                    </section>
+                    <section className='c-content-register__section c_left__section' style={{ margin: '45px 0 0 20px' }}>
+                        <p className='c_title_method'>方式二：TOKEN加密方式</p>
+                        <div style={{ marginTop: '12px' }} className='c-content-register__section__card'>
+                            <div className='c-content-register__section__card__title c__section__card__title--bold'>Request URL</div>
+                            <div className='c-content-register__section__card__content'>
+                                <pre>{isGET ? reqJson : 'http(s)://调用URL'}</pre>
+                            </div>
+                        </div>
+                        <div className='c-content-register__section__card'>
+                            <div className='c-content-register__section__card__title c__section__card__title--bold'>Headers</div>
+                            <div className='c-content-register__section__card__content'>
+                                {generateTokenHeader([])}
+                            </div>
+                        </div>
+                        {!isGET && (
+                            <div className='c-content-register__section__card' style={{ marginTop: '80px' }}>
+                                <div className='c-content-register__section__card__title c__section__card__title--bold'>Body</div>
+                                <div className='c-content-register__section__card__content'>
+                                    <JsonContent
+                                        style={{ width: '410px' }}
+                                        json={reqJson}
+                                    />
+                                </div>
+                            </div>
+                        )}
+                    </section>
+                </div>
+
                 <section className='c-content-register__section'>
                     <h1 className="title-border-l-blue">返回结果</h1>
                     <div style={{ marginTop: '12px' }} className='c-content-register__section__card'>

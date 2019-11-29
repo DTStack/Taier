@@ -97,6 +97,7 @@ export default {
     GET_USER_SK_INFO: `${DATA_API_BASE_URL}/skAuth/getUserSkInfo`, // 获取用户appKey，appSecret信息
     RESET_APP_SECRET: `${DATA_API_BASE_URL}/skAuth/resetAppSecret`, // 重置app secret
     GENERATE_SECRET: `${DATA_API_BASE_URL}/skAuth/generateSkInfo`, // 生成app secret
+    RESET_TOKEN: `${DATA_API_BASE_URL}/apply/resetApplyTokenForNormal`, // 重置token
 
     // ===== 市场信息 =====//
     GET_CATALOGUE: `${DATA_API_BASE_URL}/catalogue/getCatalogue`, // 获取市场分类信息
