@@ -78,11 +78,14 @@ class BaseForm extends React.Component<any, any> {
                         required: true,
                         message: '实体名称不可为空！'
                     }, {
-                        max: 20,
-                        message: '实体名称不得超过20个字符！'
+                        pattern: /^[A-Za-z0-9_\u4e00-\u9fa5]+$/,
+                        message: '实体名称由中文、英文、数字和下划线组成!'
+                    }, {
+                        max: 80,
+                        message: '实体名称不得超过80个字符！'
                     }]
                 })(
-                    <Input placeholder="请输入实体中文名称，20字以内" />
+                    <Input placeholder="请输入实体名称，80字以内" />
                 )}
             </FormItem>
             <FormItem {...formItemLayout} label="选择数据源" >
@@ -156,11 +159,11 @@ class BaseForm extends React.Component<any, any> {
             <FormItem {...formItemLayout} label="实体描述" >
                 {getFieldDecorator('entityDesc', {
                     rules: [{
-                        max: 255,
-                        message: '描述不得超过255个字符！'
+                        max: 500,
+                        message: '描述不得超过500个字符！'
                     }]
                 })(
-                    <Input type="textarea" placeholder="请输入实体描述信息，长度限制在255个字符以内" />
+                    <Input type="textarea" placeholder="请输入实体描述信息，长度限制在500个字符以内" />
                 )}
             </FormItem>
         </Form>)

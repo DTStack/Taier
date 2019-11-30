@@ -217,11 +217,14 @@ class DictionaryEdit extends React.Component<any, IState> {
                                     required: true,
                                     message: '字典名称不可为空！'
                                 }, {
-                                    max: 20,
-                                    message: '字典名称不得超过20个字符！'
+                                    pattern: /^[A-Za-z0-9_\u4e00-\u9fa5]+$/,
+                                    message: '字典名称由中文、英文、数字和下划线组成!'
+                                }, {
+                                    max: 80,
+                                    message: '字典名称不得超过80个字符！'
                                 }]
                             })(
-                                <Input placeholder="请输入字典中文名称，20字以内" />
+                                <Input placeholder="请输入字典名称，80字以内" />
                             )}
                         </FormItem>
                         <FormItem {...formItemLayout} label="字典类型" >
@@ -242,11 +245,11 @@ class DictionaryEdit extends React.Component<any, IState> {
                         <FormItem {...formItemLayout} label="字典描述" >
                             {getFieldDecorator('desc', {
                                 rules: [{
-                                    max: 255,
-                                    message: '描述不得超过255个字符！'
+                                    max: 500,
+                                    message: '描述不得超过500个字符！'
                                 }]
                             })(
-                                <Input type="textarea" placeholder="请输入字典描述信息，长度限制在255个字符以内" />
+                                <Input type="textarea" placeholder="请输入字典描述信息，长度限制在500个字符以内" />
                             )}
                         </FormItem>
                         <Form.Item style={{ marginBottom: 40 }} {...formItemLayout} label="设置字典规则">

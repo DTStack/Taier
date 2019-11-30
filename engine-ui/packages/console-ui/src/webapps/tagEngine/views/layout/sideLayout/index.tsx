@@ -72,6 +72,7 @@ class SideLayout extends React.Component<IProps, IState> {
         const { children, location } = this.props;
         const pathName = location.pathname;
         const menuData = NavData.filter(item => item.routers.includes(pathName));
+        const projectIdFromCookie = utils.getCookie('tag_project_id');
         return (
             <Layout className="dt-tag-layout">
                 <Heade {...this.props} showMenu navData={NavData}/>
@@ -96,7 +97,7 @@ class SideLayout extends React.Component<IProps, IState> {
                                 </div>
                                 <SideBar menuData={menuData[0] ? menuData[0].children : [] } {...this.props} mode={this.state.mode} />
                             </Sider>
-                            <Content className="inner-container" style={{ paddingLeft: this.state.collapsed ? 84 : 220 }}>{children}</Content>
+                            <Content className="inner-container" key={projectIdFromCookie} style={{ paddingLeft: this.state.collapsed ? 84 : 220 }}>{children}</Content>
                         </React.Fragment> : (<DashBoard/>)
                     }
 
