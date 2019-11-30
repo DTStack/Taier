@@ -375,4 +375,5 @@ export default connect((state: any) => {
     return {
         project: state.project
     }
-})(WrapDataSourceMana)
+}
+)(WrapDataSourceMana)

@@ -1104,8 +1104,8 @@ class BaseForm extends React.Component<any, any> {
                         rules: [{
                             required: true, message: '数据源名称不可为空！'
                         }, {
-                            max: 128,
-                            message: '数据源名称不得超过128个字符！'
+                            max: 80,
+                            message: '数据源名称不得超过80个字符！'
                         }, {
                             pattern: /^[A-Za-z0-9_\u4e00-\u9fa5]+$/,
                             message: '名称只能由中文、字母、数字和下划线组成'
@@ -1122,8 +1122,8 @@ class BaseForm extends React.Component<any, any> {
                 >
                     {getFieldDecorator('dataDesc', {
                         rules: [{
-                            max: 200,
-                            message: '描述请控制在200个字符以内！'
+                            max: 500,
+                            message: '描述请控制在500个字符以内！'
                         }],
                         initialValue: sourceData.dataDesc || ''
                     })(
