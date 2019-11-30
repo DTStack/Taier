@@ -274,9 +274,11 @@ class DataSourceManaStream extends React.Component<any, any> {
             }).then((res: any) => {
                 if (res.code === 1) {
                     message.success('移除数据源成功！')
-                    this.loadDataSources();
                     this.setState({
+                        currentPage: 1,
                         deleteVisible: false
+                    }, () => {
+                        this.loadDataSources();
                     })
                 }
             })

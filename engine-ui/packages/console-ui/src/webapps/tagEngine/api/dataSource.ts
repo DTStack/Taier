@@ -19,5 +19,8 @@ export default {
     },
     getDataSourceTypes (params?: any) {
         return http.post(req.GET_DATASOURCE_TYPES, params)
+    },
+    selectDataSource (params?: any) { // 获取数据源下拉
+        return http.post(req.SELECT_DATASOURCE, params)
     }
 }
