@@ -50,7 +50,7 @@ IState
             }
         } else if (dataType == 'TIME') { // 时间类型
             if (type == 'OP_ABSOLUTE_TIME') { // 绝对时间
-                Component = <AbsoluteTime onChangeData={this.onChangeValue} data={{ timeType, value, values }}/>
+                Component = <AbsoluteTime onChangeData={this.onChangeValue} data={{ timeType, value, lValue, rValue }}/>
             } else if (type == 'OP_RELATIVE_TIME') { // 相对时间点
                 Component = (<RelativeTime onChangeData={this.onChangeValue} data={{ timeType, value }} tip=""/>)
             } else { // 相对时间区间

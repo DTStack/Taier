@@ -34,16 +34,17 @@ IState
     }
     onChangeRangePicker = (value, dateStrings) => {
         const { data, onChangeData } = this.props;
-        onChangeData(Object.assign({}, data, { value: '', values: dateStrings }))
+        console.log(dateStrings);
+        onChangeData(Object.assign({}, data, { value: '', lValue:dateStrings[0], rValue: dateStrings[1] }))
     }
     onChangeDatePicker = (value) => {
         const { data, onChangeData } = this.props;
-        onChangeData(Object.assign({}, data, { value, values: [] }))
+        onChangeData(Object.assign({}, data, { value, lValue:'', rValue:'' }))
     }
     render () {
         const { data } = this.props;
-        const { values,value } = data;
-        let rangDate = values.map(item => moment(item))
+        const { lValue, rValue,value } = data;
+        let rangDate:any =lValue && rValue ? [moment(lValue),moment(rValue)] : [];
         return (
             <Row className="absoluteTime" type='flex' gutter={8}>
                 <Col>
