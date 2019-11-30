@@ -32,13 +32,15 @@ IState
     };
     componentDidMount () { }
     onChangeLvalue = (value) => {
-        this.props.onChange({ lValue: value });
+        const { data } = this.props;
+        this.props.onChange(Object.assign({}, data, { lValue: value }))
     }
     onChangeRvalue = (value) => {
-        this.props.onChange({ rValue: value });
+        const { data } = this.props;
+        this.props.onChange(Object.assign({}, data, { rValue: value }))
     }
     render () {
-        const { tip, leftText, centerText, rightText, value } = this.props;
+        const { tip, leftText, centerText, rightText, data } = this.props;
         return (
             <Row className="area-input-Row" type='flex' gutter={8}>
                 <Col>
@@ -47,7 +49,7 @@ IState
                     }
                 </Col>
                 <Col>
-                    <InputNumber min={1} value={value ? value.lValue : null} onChange={this.onChangeLvalue}/>
+                    <InputNumber min={1} value={data ? data.lValue : null} onChange={this.onChangeLvalue}/>
                 </Col>
                 <Col>
                     {
@@ -55,7 +57,7 @@ IState
                     }
                 </Col>
                 <Col>
-                    <InputNumber min={1} value={value ? value.rValue : null} onChange={this.onChangeRvalue}/>
+                    <InputNumber min={1} value={data ? data.rValue : null} onChange={this.onChangeRvalue}/>
                 </Col>
                 <Col>
                     {

@@ -17,18 +17,17 @@ const breadcrumbNameMap = [{
 
 class CreateRelation extends React.Component<any, any> {
     onCreate = async (dataSource: IRelation) => {
-       const res = await RelationAPI.createRelation(dataSource);
-       if (res.code === 1) {
-           message.success('添加关系成功！');
-       }
+        const res = await RelationAPI.createRelation(dataSource);
+        if (res.code === 1) {
+            message.success('添加关系成功！');
+        }
     }
 
     render () {
-        const { dataSource } = this.state;
         return (
             <div className="c-createRelation">
                 <Breadcrumb breadcrumbNameMap={breadcrumbNameMap} />
-                <Base onOk={this.onCreate} mode="create" relationData={dataSource}/>
+                <Base onOk={this.onCreate} mode="create"/>
             </div>
         )
     }

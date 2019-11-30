@@ -5,12 +5,13 @@ import { get } from 'lodash';
 
 import { IDataSource } from '../../../../model/dataSource';
 import { formItemLayout } from '../../../../comm/const';
+import { IRelation } from '../../../../model/relation';
 
 interface IProps extends FormComponentProps {
     dataSourceList: IDataSource[];
     onCreateRelationEntity: (e: React.FormEvent) => void;
     mode: 'edit' | 'create';
-    formData?: any;
+    formData?: IRelation;
 };
 
 const FormItem = Form.Item;
@@ -89,7 +90,12 @@ class CreateRelationEntityForm extends React.Component<IProps, any> {
                     required
                     hasFeedback
                 >
-                    <Button type="primary" icon="plus" onClick={onCreateRelationEntity}>新增实体</Button>
+                    {getFieldDecorator('relationEntities', {
+                        rules: [],
+                        initialValue: get(formData, 'relationEntities', '')
+                    })(
+                        <Button type="primary" icon="plus" onClick={onCreateRelationEntity}>新增实体</Button>
+                    )}
                 </FormItem>
             </Form>
         )

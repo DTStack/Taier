@@ -3,16 +3,12 @@ import * as React from 'react'
 import Breadcrumb from '../../../../components/breadcrumb';
 import BasicInfo from './basicInfo';
 import RelativeEntity from './relativeEntity';
+import { IRelation } from '../../../../model/relation';
+
+import API from '../../../../api/relation';
 
 interface IState {
-    pageNo: number;
-    pageSize: number;
-    total: number;
-    dataSource: any[];
-    searchVal: string;
-    loading: boolean;
-    desc: boolean;
-    sorterField: string;
+    data: IRelation;
 }
 
 const breadcrumbNameMap = [{
@@ -24,12 +20,30 @@ const breadcrumbNameMap = [{
 }];
 
 class RelationDetail extends React.Component<any, IState> {
+    state: IState = {
+        data: {}
+    }
+    componentDidMount() {
+        this.fetchData();
+    }
+
+    fetchData = async () => {
+        const { params } = this.props.router;
+        const res = await API.getRelation({ relationId: params.relationId });
+        if (res.code === 0) {
+            this.setState({
+                data: res.data
+            })
+        }
+    }
+    
     render () {
+        const { data } = this.state;
         return (
             <div className="c-relationDetail">
                 <Breadcrumb breadcrumbNameMap={breadcrumbNameMap} />
-                <BasicInfo data={{ name: 'test' }}/>
-                <RelativeEntity data={[]}/>
+                <BasicInfo data={data}/>
+                <RelativeEntity data={data.relationCollection}/>
             </div>
         )
     }

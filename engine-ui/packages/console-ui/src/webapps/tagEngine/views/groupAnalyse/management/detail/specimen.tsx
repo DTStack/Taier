@@ -1,22 +1,18 @@
 import * as React from 'react';
-import { Link } from 'react-router';
-import { Card, Table, Dropdown, Checkbox, Icon, Col, Button } from 'antd';
-import styled from 'styled-components'
+import { Card, Table, Dropdown, Checkbox, Icon, Button } from 'antd';
+import styled from 'styled-components';
+
+import { updateComponentState } from 'funcs';
 
 import GroupAPI from '../../../../api/group';
+import { IQueryParams } from '../../../../model/comm';
 
 interface IState {
-    pageNo: number;
-    pageSize: number;
-    total: number;
     dataSource: any[];
-    searchVal: string;
     loading: boolean;
-    desc: boolean;
-    sorterField: string;
+    visibleDropdown: boolean;
+    queryParams: { groupId: string; columns?: any[] } & IQueryParams ;
 }
-
-const basePath = '/groupAnalyse';
 
 const Title = styled.div`
     font-size: 12px;
@@ -39,20 +35,34 @@ const Extra = styled.div`
     top: -10px;
 `
 
+const Overlay = styled.div`
+    background: #FFFFFF;
+    box-shadow: 0 2px 6px 0 rgba(0,0,0,0.10);
+    border-radius: 2px;
+    border-radius: 2px;
+    width: 180px;
+    height: auto;
+`
+
+const OverlayRow = styled.div`
+    padding: 5px;
+`
+
 export default class GroupSpecimenList extends React.Component<any, IState> {
     state: IState = {
-        pageNo: 1,
-        pageSize: 20,
-        total: 2,
-        dataSource: [{
-            id: 1, name: '关系名称1', desc: '描述', entiry: '关联实体', updateTime: '2019-12-10 12:33', creator: '创建者一号', useNum: '4000'
-        }, {
-            id: 2, name: '关系名称2', desc: '描述', entiry: '关联实体', updateTime: '2019-12-10 12:33', creator: '创建者一号', useNum: '4000'
-        }],
-        searchVal: undefined,
+        dataSource: [],
         loading: false,
-        desc: true,
-        sorterField: ''
+        visibleDropdown: false,
+        queryParams: {
+            columns: [],
+            groupId: null,
+            current: 1,
+            size: 20,
+            orders: [{
+                asc: false,
+                field: 'updateAt'
+            }]
+        }
     }
 
     componentDidMount () {
@@ -60,80 +70,75 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
     }
 
     loadData = async () => {
-        const res = await GroupAPI.getGroupSpecimens();
-        this.setState({
-            dataSource: res.data
-        })
-    }
-
-    handleSearch = (query: any) => {
-        this.setState({
-            searchVal: query,
-            pageNo: 1
-        }, this.loadData)
+        const { params } = this.props.router;
+        const { queryParams } = this.state;
+        queryParams.groupId = params.groupId;
+        const res = await GroupAPI.getGroupSpecimens(queryParams);
+        if (res.code === 1) {
+            const data = res.data;
+            updateComponentState(this, {
+                dataSource: data.contentList,
+                queryParams: {
+                    current: data.current,
+                    size: data.size,
+                    total: data.total
+                }
+            })
+            this.setState({
+                dataSource: data.contentList
+            })
+        }
     }
 
     handleTableChange = (pagination: any, filters: any, sorter: any) => {
-        this.setState({
-            pageNo: pagination.current,
-            sorterField: sorter.field || '',
-            desc: sorter.order == 'descend' || false
-        }, this.loadData);
+        const params: IQueryParams = {
+            current: pagination.current
+        };
+        if (sorter) {
+            params.orders = [{
+                asc: sorter.order !== 'descend',
+                field: sorter.field
+            }]
+        }
+        updateComponentState(this, { queryParams: params }, this.loadData)
     }
 
-    onFilterChange = () => {
+    onFilterChange = async (checkedValue: any) => {
         // TODO delete a relation entity.
+        console.log('checkedValue:', checkedValue);
+        updateComponentState(this, { queryParams: {
+            columns: checkedValue
+        } }, this.loadData)
     }
 
     initColumns = () => {
-        return [{
-            title: '群组名称',
-            dataIndex: 'name',
-            key: 'name',
-            render: (text: any, record: any) => {
-                return <Link to={{ pathname: `${basePath}/detail`, state: record }}>{text}</Link>
-            }
-        }, {
-            title: '群组数据量',
-            dataIndex: 'count',
-            key: 'count'
-        }, {
-            title: '群组类型',
-            dataIndex: 'desc',
-            key: 'desc'
-        }, {
-            title: '创建者',
-            dataIndex: 'creator',
-            key: 'creator'
-        }, {
-            title: '创建时间',
-            dataIndex: 'useNum',
-            key: 'useNum',
-            sorter: true
-        }, {
-            title: '操作',
-            dataIndex: 'operation',
-            key: 'operation',
-            width: '150px'
-        }]
+        return []
+    }
+
+    onDropDownChange = () => {
+        this.setState({
+            visibleDropdown: !this.state.visibleDropdown
+        })
     }
 
     render () {
-        const { total, pageSize, pageNo, dataSource, loading } = this.state;
+        const { dataSource, loading, queryParams } = this.state;
         const pagination: any = {
-            total: total,
-            pageSize: pageSize,
-            current: pageNo
+            total: queryParams.total,
+            pageSize: queryParams.size,
+            current: queryParams.current
         };
 
         const overlay = (
-            <div>
+            <Overlay>
                 <Checkbox.Group onChange={this.onFilterChange}>
-                    <Col span={8}><Checkbox value="A">A</Checkbox></Col>
-                    <span className="ant-divider" />
-                    <Col span={8}><Checkbox value="ALL">全选</Checkbox></Col>
+                    <OverlayRow><Checkbox value="A">A</Checkbox></OverlayRow>
+                    <OverlayRow><Checkbox value="B">B</Checkbox></OverlayRow>
+                    <OverlayRow><Checkbox value="C">C</Checkbox></OverlayRow>
+                    <div style={{ height: '1px', width: '100%' }} className="ant-divider" />
+                    <OverlayRow><Checkbox value="ALL">全选</Checkbox></OverlayRow>
                 </Checkbox.Group>
-            </div>
+            </Overlay>
         );
 
         return (
@@ -147,9 +152,13 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
                     <Title>样本列表抽样展示部分样本用于进一步细查单样本信息，最多1000条</Title>
                     <Extra>
                         <Dropdown
+                            visible={this.state.visibleDropdown}
+                            trigger={['click']}
                             overlay={overlay}
                         >
-                            <Button className="right" type="primary">新增群组<Icon type="down" /></Button>
+                            <Button onClick={this.onDropDownChange} className="right" type="primary">
+                                设置显示维度<Icon type="down" />
+                            </Button>
                         </Dropdown>
                     </Extra>
                 </Header>

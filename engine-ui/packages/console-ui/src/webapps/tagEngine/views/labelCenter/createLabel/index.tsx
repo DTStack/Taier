@@ -16,16 +16,39 @@ interface IProps {
 interface IState {
     current: number;
     stepsValues: any[];
+    data: any;
+    tagId: number;
 }
 export default class CreateLabel extends React.PureComponent<IProps, IState> {
     constructor (props: any) {
         super(props);
     }
     state: IState = {
-        current: 1,
-        stepsValues: []
+        current: 0,
+        stepsValues: [],
+        data: {},
+        tagId: null
     };
-    componentDidMount () { }
+    componentDidMount () {
+        const { location } = this.props;
+        const { tagId } = location.query;
+        if (tagId) {
+            this.setState({
+                tagId
+            })
+            this.getDeriveTagVO(tagId)
+        }
+    }
+    getDeriveTagVO = (tagId) => {
+        API.getDeriveTagVO({ tagId }).then(res => {
+            const { code, data } = res;
+            if (code === 1) {
+                this.setState({
+                    data: data
+                })
+            }
+        })
+    }
     onPrev = () => {
         let current = this.state.current - 1;
         if (current < 0) {
@@ -35,34 +58,42 @@ export default class CreateLabel extends React.PureComponent<IProps, IState> {
         this.setState({ current });
     }
     onNext = (values: any) => {
-        const { stepsValues, current } = this.state;
+        const { stepsValues, current, tagId } = this.state;
         const newCurrent = current + 1;
         if (newCurrent > 2) {
             this.props.router.goBack();
         } else {
             stepsValues[current] = values;
             if (newCurrent == 2) {
-                let params = Object.assign({ id: null }, stepsValues[0], values);
+                let params = Object.assign({ id: tagId }, stepsValues[0], values);
                 this.saveEntityConfig(params);
             } else {
                 this.setState({ current: newCurrent, stepsValues });
             }
         }
     }
-    saveEntityConfig = (params: any) => {
-        console.log(params);
-        this.setState({ current: 2 });
+    saveEntityConfig = (data: any) => {
+        let params = Object.assign({}, data, {
+            tags: data.tags.map(item => {
+                return {
+                    tagValueId: item.tagValueId,
+                    tagValue: item.label,
+                    param: JSON.stringify(item.params)
+                }
+            })
+        })
+        this.addOrUpdateDeriveTag(params);
     }
     addOrUpdateDeriveTag = (params) => {
         API.addOrUpdateDeriveTag(params).then(res => {
-            const { code, data } = res;
+            const { code } = res;
             if (code == 1) {
-                console.log(data)
+                this.setState({ current: 2 });
             }
         })
     }
     render () {
-        const { current } = this.state;
+        const { current, data, tagId } = this.state;
         const { location } = this.props;
         const { entityId } = location.query;
         const breadcrumbNameMap = [
@@ -72,7 +103,7 @@ export default class CreateLabel extends React.PureComponent<IProps, IState> {
             },
             {
                 path: '/createLabel',
-                name: '新建标签'
+                name: tagId ? '编辑衍生标签' : '新建衍生标签'
             }
         ];
         return (
@@ -86,8 +117,8 @@ export default class CreateLabel extends React.PureComponent<IProps, IState> {
                     </Steps>
                     <div className="step_content">
 
-                        <StepOne onPrev={this.onPrev} entityId={entityId} isShow={current == 0} onNext={this.onNext} />
-                        <StepTwo isShow={current == 1} entityId={entityId} onPrev={this.onPrev} onNext={this.onNext} />
+                        <StepOne onPrev={this.onPrev} data={data} entityId={entityId} isShow={current == 0} onNext={this.onNext} />
+                        <StepTwo isShow={current == 1} data={data} entityId={entityId} onPrev={this.onPrev} onNext={this.onNext} />
                         {
                             current == 2 && <StepTree onPrev={this.onPrev} onNext={this.onNext} />
                         }

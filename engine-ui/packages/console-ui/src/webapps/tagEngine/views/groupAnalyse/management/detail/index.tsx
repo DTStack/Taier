@@ -9,6 +9,9 @@ import SpecimenList from './specimen';
 import Portrait from './portrait';
 
 import GroupAPI from '../../../../api/group';
+import { IGroup } from '../../../../model/group';
+import { Link } from 'react-router';
+
 interface IState {
     loading: boolean;
     queryParams: {
@@ -17,7 +20,7 @@ interface IState {
         sorterField: string;
         searchVal: string;
     };
-    groupDetail: any;
+    groupDetail: IGroup;
 };
 
 const breadcrumbNameMap = [{
@@ -47,13 +50,16 @@ class GroupDetail extends React.Component<any, IState> {
     }
 
     loadDetail = async () => {
-        const res = await GroupAPI.getGroup();
+        const { params } = this.props.router;
+        const res = await GroupAPI.getGroup({ groupId: params.groupId });
         this.setState({
             groupDetail: res.data
         })
     }
 
     render () {
+        const { router } = this.props;
+        const { params } = router;
         const { groupDetail } = this.state;
         return (
             <div className="c-groupDetail m-card">
@@ -66,12 +72,12 @@ class GroupDetail extends React.Component<any, IState> {
                 >
                     <Row>
                         <Col className="left">
-                            <h1>5大城市20岁以上购买产品的人群</h1>
-                            <p className="description"><span style={{ marginRight: 10 }}>最近更新时间：2019-10-10 00:00</span> <GroupStatus value={0}/></p>
+                            <h1>{groupDetail.groupName || '-'}</h1>
+                            <p className="description"><span style={{ marginRight: 10 }}>最近更新时间：{groupDetail.updateAt}</span> <GroupStatus value={0}/></p>
                         </Col>
                         <Col className="right">
                             <Button type="primary" style={{ marginRight: 20 }}>生成 API</Button>
-                            <Button type="primary">编辑</Button>
+                            <Button type="primary"><Link to={`/groupAnalyse/upload/edit/${params.groupId}/${params.entityId}`}>编辑</Link></Button>
                         </Col>
                     </Row>
                     <Row className="c-groupDetail__tabs">
@@ -81,8 +87,8 @@ class GroupDetail extends React.Component<any, IState> {
                             tabBarStyle={{ height: 40 }}
                         >
                             <TabPane tab="基本信息" key="basicInfo"><BasicInfo data={groupDetail}/></TabPane>
-                            <TabPane tab="样本列表" key="specimenList"><SpecimenList /></TabPane>
-                            <TabPane tab="群组画像" key="portrait"><Portrait /></TabPane>
+                            <TabPane tab="样本列表" key="specimenList"><SpecimenList router={router} /></TabPane>
+                            <TabPane tab="群组画像" key="portrait"><Portrait router={router} /></TabPane>
                         </Tabs>
                     </Row>
                 </Card>

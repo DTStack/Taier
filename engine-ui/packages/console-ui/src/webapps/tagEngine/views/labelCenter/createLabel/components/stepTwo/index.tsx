@@ -16,6 +16,7 @@ interface IProps extends FormComponentProps {
     onPrev: Function;
     isShow: boolean;
     entityId: string|number;
+    data: any;
 }
 interface IState {
     entityList: any[];
@@ -64,34 +65,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
             label: '标签值1',
             value: currentId,
             valid: true,
-            params: {
-                key: '0',
-                type: 'and', //  or|and
-                name: '且',
-                children: [
-                    {
-                        key: '0-0',
-                        type: 'and',
-                        name: '且',
-                        entityName: '实体-用户信息',
-                        children: []
-                    },
-                    {
-                        key: '0-1',
-                        type: 'and',
-                        name: '且',
-                        entityName: '实体-活动',
-                        children: []
-                    },
-                    {
-                        key: '0-2',
-                        type: 'and',
-                        name: '且',
-                        entityName: '实体-产品',
-                        children: []
-                    }
-                ]
-            }
+            params: {}
         }]
     };
     componentDidMount () {
@@ -102,6 +76,26 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         this.getRelationList();
         this.getEntityAtomTagList(null);
         this.getAtomTagList();
+    }
+    componentDidUpdate (preProps) {
+        const { data } = this.props;
+        if (data != preProps.data) {
+            const { relationId, tags } = data;
+            this.props.form.setFieldsValue({ relationId });
+            let newtags = tags.map(item => {
+                return {
+                    tagValueId: item.tagValueId,
+                    label: item.tagValue,
+                    value: shortid(),
+                    valid: true,
+                    params: JSON.parse(item.param)
+                }
+            })
+            this.setState({
+                tags: newtags,
+                activeTag: newtags.length ? newtags[0].value : ''
+            })
+        }
     }
     getEntityList = () => {
         API.selectEntity().then(res => {
@@ -128,6 +122,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
     }
     getEntityAtomTagList = (relationId) => { // 衍生标签用来获取实体列表与其对应的原子标签列表
         const { entityId } = this.props;
+        const { tags } = this.state;
         API.getEntityAtomTagList({
             entityId,
             relationId
@@ -146,7 +141,10 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                     }))
                 }
                 this.setState({
-                    initConfig: params
+                    initConfig: params,
+                    tags: tags.map(item => {
+                        return Object.assign(item, { params })
+                    })
                 })
             }
         })
@@ -305,6 +303,24 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                     description: '请填写有效标签规则'
                 });
             }
+            let isRepeat = [];
+            for (let i = 0; i < tags.length; i++) {
+                if (isRepeat.includes(tags[i].label)) {
+                    notification.error({
+                        message: tags[i].label,
+                        description: '标签名称重复，请检查！'
+                    });
+                    return false;
+                }
+                if (tags[i].params == this.state.initConfig) {
+                    notification.error({
+                        message: tags[i].label,
+                        description: '请填写标签！'
+                    });
+                    return false;
+                }
+                isRepeat.push(tags[i].label);
+            }
             let newTag = tags.map(item => Object.assign(item, { valid: !err }));
             that.setState({
                 tags: newTag
@@ -312,29 +328,46 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         });
     }
     onHandleNext = (e: any) => {
-        const { tags } = this.state;
-        this.onValidateLabelRule();
+        const { tags, activeTag } = this.state;
+        const that = this;
+        if (!tags || tags.length < 1) {
+            notification.error({
+                message: '标签值',
+                description: '请添加标签值'
+            });
+            return false;
+        }
         let isRepeat = [];
         for (let i = 0; i < tags.length; i++) {
-            if (!tags[i].valid) {
-                notification.error({
-                    message: '标签规则填写错误',
-                    description: '请填写有效标签规则！'
-                });
-                return;
-            }
             if (isRepeat.includes(tags[i].label)) {
                 notification.error({
                     message: tags[i].label,
                     description: '标签名称重复，请检查！'
                 });
-                return;
+                return false;
+            }
+            if (tags[i].params == this.state.initConfig) {
+                notification.error({
+                    message: tags[i].label,
+                    description: '请添加标签规则！'
+                });
+                return false;
             }
             isRepeat.push(tags[i].label);
         }
-        this.props.form.validateFields((err, values) => {
-            if (!err) {
-                this.props.onNext(Object.assign({}, values, { tags }));
+        this.panelForm.validateFields((err, values) => {
+            if (err) {
+                let current = tags.find(item => item.value == activeTag);
+                notification.error({
+                    message: current.label,
+                    description: '请填写有效标签规则'
+                });
+            } else {
+                that.props.form.validateFields((err, values) => {
+                    if (!err) {
+                        that.props.onNext(Object.assign({}, values, { tags }));
+                    }
+                });
             }
         });
     }

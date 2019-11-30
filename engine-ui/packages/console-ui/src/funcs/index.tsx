@@ -32,9 +32,9 @@ export function hidePasswordInDom () {
  * @param thisRef 组件this引用
  * @param newState 待更新状态
  */
-export function updateComponentState (thisRef: { state: object; setState: Function }, newState: object): void {
+export function updateComponentState (thisRef: { state: object; setState: Function }, newState: object, callback?: Function): void {
     if (thisRef && thisRef.setState) {
-        thisRef.setState(mergeDeep(thisRef.state, newState));
+        thisRef.setState(mergeDeep(thisRef.state, newState), callback);
     }
 }
 

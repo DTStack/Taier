@@ -48,7 +48,7 @@ IState
             }
         } else if (dataType == 'TIME') { // 时间类型
             if (type == 'OP_ABSOLUTE_TIME') { // 绝对时间
-                Component = <AbsoluteTime onChange={this.onChangeValue} data={{ timeType, value, lValue, rValue }}/>
+                Component = <AbsoluteTime onChange={this.onChangeValue} data={{ timeType, value, values }}/>
             } else if (type == 'OP_RELATIVE_TIME') { // 相对时间点
                 Component = (<RelativeTime onChange={this.onChangeValue} data={{ timeType, value }} tip=""/>)
             } else { // 相对时间区间
@@ -66,10 +66,24 @@ IState
         return (<Form.Item>
             {
                 getFieldDecorator(data.key, {
-                    rules: [{ required: true, message: '请输入有效值!' }]
+                    rules: [{
+                        required: false, message: '请输入有效值!' },
+                    {
+                        validator: this.validateValue
+                    }]
                 })(Component)
             }
         </Form.Item>)
+    }
+    validateValue = (rule, rvalue, callback) => {
+        const { data } = this.props;
+        const { lValue, rValue, value, values } = data;
+        if (lValue || rValue || value || values.length) {
+            callback()
+        } else {
+            // eslint-disable-next-line standard/no-callback-literal
+            callback('请输入有效值!')
+        }
     }
     onChangeValue = (value) => {
         const { data } = this.props;
@@ -79,11 +93,41 @@ IState
         const { atomTagList, data } = this.props;
         const current = atomTagList.find((item) => item.tagId == value)
         let { dataType, entityAttr, tagId } = current;
-        this.props.onChangeNode(data.key, { dataType, entityAttr, tagId, type: TagTypeOption[dataType][0].value })
+        let type = TagTypeOption[dataType][0].value;
+        let timeType = '';
+        if (type === 'OP_ABSOLUTE_TIME') { // 绝对时间
+            timeType = 'OP_BETWEEN'
+        } else if (type === 'OP_RELATIVE_TIME') { // 相对时间
+            timeType = 'OP_WITH_IN'
+        }
+        this.props.onChangeNode(data.key, {
+            dataType,
+            entityAttr,
+            tagId,
+            type,
+            timeType,
+            lValue: '',
+            rValue: '',
+            value: '',
+            values: []
+        })
     }
-    onChangeType = (value) => {
+    onChangeType = (value) => { // 改变操作符
         const { data } = this.props;
-        this.props.onChangeNode(data.key, { type: value })
+        let timeType = '';
+        if (value === 'OP_ABSOLUTE_TIME') { // 绝对时间
+            timeType = 'OP_BETWEEN'
+        } else if (value === 'OP_RELATIVE_TIME') { // 相对时间
+            timeType = 'OP_WITH_IN'
+        }
+        this.props.onChangeNode(data.key, {
+            type: value,
+            timeType,
+            lValue: '',
+            rValue: '',
+            value: '',
+            values: []
+        })
     }
     render () {
         const { extra, atomTagList, data } = this.props;

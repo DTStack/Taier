@@ -15,9 +15,10 @@ export interface IDimension {
  */
 export interface IEntity {
     id: number;
-    name: string;
-    dataSource?: number;
-    table?: number;
-    description?: string;
-    primaryKey?: string;
+    entityName: string;
+    dataSourceId?: number;
+    dataSourceTable?: string;
+    entityPrimaryKey?: string;
+    entityDesc?: string;
+    tagParamList?: any[];
 }

@@ -40,6 +40,10 @@ export default {
         method: 'post',
         url: `${TAG_ENGINE_URL}/entity/entityAttrs`
     },
+    selectEntityAttrs: {
+        method: 'post',
+        url: `${TAG_ENGINE_URL}/entity/selectEntityAttrs`
+    },
     checkEntityUserd: {
         method: 'post',
         url: `${TAG_ENGINE_URL}/entity/checkEntityUserd`

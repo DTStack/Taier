@@ -1,5 +1,7 @@
 import * as React from 'react';
 import { Col, Row, Select, Icon, Tooltip, DatePicker } from 'antd';
+import TagTypeOption from '../../../../../consts/tagTypeOption';
+import moment from 'moment';
 import './style.scss';
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -26,21 +28,42 @@ IState
         visible: false
     };
     componentDidMount () { }
+    onChangeSelect = (value) => {
+        const { data, onChange } = this.props;
+        onChange(Object.assign({}, data, { timeType: value, value: '', values: [] }))
+    }
+    onChangeRangePicker = (value, dateStrings) => {
+        const { data, onChange } = this.props;
+        onChange(Object.assign({}, data, { value: '', values: dateStrings }))
+    }
+    onChangeDatePicker = (value) => {
+        const { data, onChange } = this.props;
+        onChange(Object.assign({}, data, { value, values: [] }))
+    }
     render () {
-        const { tip } = this.props
+        const { tip, data } = this.props;
+        const { values } = data;
+        let rangDate = values.map(item => moment(item))
         return (
-            <Row className="area-date-Row" type='flex' gutter={8}>
+            <Row className="absoluteTime" type='flex' gutter={8}>
                 <Col>
-                    <Select style={{ width: 80, marginRight: 20 }}>
-                        <Option value="lucy">Lucy</Option>
+                    <Select value={data.timeType} onChange={this.onChangeSelect} style={{ width: 80, marginRight: 20 }}>
+                        {
+                            TagTypeOption['OP_ABSOLUTE_TIME'].map(item => <Option key={item.value} value={item.value}>{item.label}</Option>)
+                        }
                     </Select>
                 </Col>
                 <Col>
-                    <RangePicker
-                        showTime
-                        format="YYYY-MM-DD HH:mm:ss"
-                    />
-                    <DatePicker showTime format="YYYY-MM-DD HH:mm:ss" placeholder="Select Time" />
+                    {
+                        data.timeType == 'OP_BETWEEN' ? (
+                            <RangePicker
+                                showTime
+                                value={rangDate}
+                                onChange={this.onChangeRangePicker}
+                                format="YYYY-MM-DD HH:mm:ss"
+                            />
+                        ) : (<DatePicker onChange={this.onChangeDatePicker} value={data.value} showTime format="YYYY-MM-DD HH:mm:ss" placeholder="Select Time" />)
+                    }
                 </Col>
                 <Col>
                     <Tooltip placement="top" title={tip}>
