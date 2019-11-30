@@ -55,19 +55,20 @@ public class FlinkYarnSessionStarter {
 
     public boolean startFlinkYarnSession() {
         try {
-            if (this.clusterClientLock.acquire(5, TimeUnit.MINUTES)){
-                ClusterClient<ApplicationId> retrieveClusterClient = null;
-                try {
-                    retrieveClusterClient = flinkClientBuilder.initYarnClusterClient();
-                } catch (Exception e) {
-                    logger.error("{}", e);
-                }
+            ClusterClient<ApplicationId> retrieveClusterClient = null;
+            try {
+                retrieveClusterClient = flinkClientBuilder.initYarnClusterClient();
+            } catch (Exception e) {
+                logger.error("{}", e);
+            }
 
-                if (retrieveClusterClient != null) {
-                    clusterClient = retrieveClusterClient;
-                    logger.info("retrieve flink client with yarn session success");
-                    return true;
-                }
+            if (retrieveClusterClient != null) {
+                clusterClient = retrieveClusterClient;
+                logger.info("retrieve flink client with yarn session success");
+                return true;
+            }
+
+            if (this.clusterClientLock.acquire(5, TimeUnit.MINUTES)){
                 if (flinkConfig.getYarnSessionStartAuto()) {
                     try {
                         clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification);
