@@ -45,7 +45,7 @@ class GroupUploadEdit extends React.Component<IProps, any> {
                     bordered={false}
                     className="noBorderBottom"
                 >
-                    <UploadForm router={this.props.router} handSubmit={this.create} mode="edit"/>
+                    <UploadForm router={this.props.router} handSubmit={this.create} mode="create"/>
                 </Card>
             </div>
         )

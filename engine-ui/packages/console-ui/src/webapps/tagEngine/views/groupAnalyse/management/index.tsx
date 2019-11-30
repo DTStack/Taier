@@ -94,7 +94,7 @@ export default class GroupManage extends React.Component<any, IState> {
         const params: IQueryParams = {
             current: pagination.current
         };
-        if (sorter) {
+        if (sorter.order) {
             params.orders = [{
                 asc: sorter.order !== 'descend',
                 field: sorter.field

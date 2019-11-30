@@ -9,7 +9,6 @@ import './style.scss';
 import API from '../../../api/relation';
 import { IQueryParams } from '../../../model/comm';
 import { IRelation } from '../../../model/relation';
-import { REQ_STATUS } from '../../../consts';
 
 const Search = Input.Search
 
@@ -47,7 +46,9 @@ export default class RelationManage extends React.Component<any, IState> {
             updateComponentState(this, {
                 dataSource: data.contentList || [],
                 queryParams: {
-                    total: data.total, current: data.current, size: data.size
+                    total: Number(data.total),
+                    current: Number(data.current),
+                    size: Number(data.size)
                 }
             });
         }
@@ -82,7 +83,7 @@ export default class RelationManage extends React.Component<any, IState> {
         const params: IQueryParams = {
             current: pagination.current
         };
-        if (sorter) {
+        if (sorter.order) {
             params.orders = [{
                 asc: sorter.order !== 'descend',
                 field: sorter.field

@@ -4,6 +4,7 @@ import { message } from 'antd';
 import Base from './base';
 import { IRelation } from '../../../../model/relation';
 import Breadcrumb from '../../../../components/breadcrumb';
+import { GRAPH_MODE } from '../../../../components/relationGraph';
 
 import RelationAPI from '../../../../api/relation';
 
@@ -27,7 +28,7 @@ class CreateRelation extends React.Component<any, any> {
         return (
             <div className="c-createRelation">
                 <Breadcrumb breadcrumbNameMap={breadcrumbNameMap} />
-                <Base onOk={this.onCreate} mode="create"/>
+                <Base onOk={this.onCreate} mode={GRAPH_MODE.EDIT}/>
             </div>
         )
     }

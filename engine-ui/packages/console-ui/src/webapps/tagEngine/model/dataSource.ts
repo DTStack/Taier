@@ -1,10 +1,30 @@
 export interface IDataSource {
     /**
+     * 数据源 ID
+     */
+    id: number;
+    /**
+     * 数据源类型
+     */
+    type: number;
+    /**
+     * 数据JSON
+     */
+    dataJSON: object;
+    /**
      * 数据源名称
      */
-    name: string;
+    dataName: string;
     /**
-     * 数据源值
+     * 数据描述
      */
-    value: number;
+    dataDesc: string;
+    /**
+     * 应用状态
+     */
+    active: number;
+    /**
+     * 链接状态
+     */
+    linkState: number;
 };
