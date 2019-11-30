@@ -8,6 +8,9 @@ import TaskParamsModal from '../../components/taskParamsModal';
 import DeleteModal from '../../components/deleteModal';
 import { API } from '../../api/apiMap'
 import utils from 'utils'
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import * as projectAction from '../../reducers/modules/project'
 const Search = Input.Search;
 
 interface IState {
@@ -25,6 +28,16 @@ interface IState {
     deleteVisible: boolean;
     deleteItem: any;
 }
+
+@(connect((state: any) => {
+    return {
+        project: state.project
+    }
+}, (dispatch: any) => {
+    return {
+        ...bindActionCreators(projectAction, dispatch)
+    }
+}) as any)
 
 export default class Index extends React.Component<any, IState> {
     state: IState = {
@@ -157,7 +170,13 @@ export default class Index extends React.Component<any, IState> {
     }
 
     handleViewDetail = (record) => {
-        hashHistory.push({ pathname: '/entityManage', state: { ...record } })
+        this.props.setProject({
+            id: record.id,
+            projectName: record.projectName
+        })
+        setTimeout(() => {
+            hashHistory.push({ pathname: '/entityManage' })
+        })
     }
 
     openDeleteModal = (record) => {

@@ -12,7 +12,7 @@ class ProjectForm extends React.Component<any, any> {
         const project = form.getFieldsValue()
         form.validateFields((err: any) => {
             if (!err) {
-                setTimeout(() => { form.resetFields() }, 200)
+                setTimeout(() => { form.resetFields() }, 1000)
                 onOk(project)
             }
         });
