@@ -41,8 +41,8 @@ IState
         onChange(Object.assign({}, data, { value, values: [] }))
     }
     render () {
-        const { tip, data } = this.props;
-        const { values } = data;
+        const { data } = this.props;
+        const { values ,value} = data;
         let rangDate = values.map(item => moment(item))
         return (
             <Row className="absoluteTime" type='flex' gutter={8}>
@@ -63,7 +63,7 @@ IState
                                 onChange={this.onChangeRangePicker}
                                 format="YYYY-MM-DD HH:mm:ss"
                             />
-                        ) : (<DatePicker disabled onChange={this.onChangeDatePicker} value={data.value} showTime format="YYYY-MM-DD HH:mm:ss" placeholder="Select Time" />)
+                        ) : (<DatePicker disabled onChange={this.onChangeDatePicker} value={moment(value)} showTime format="YYYY-MM-DD HH:mm:ss" placeholder="Select Time" />)
                     }
                 </Col>
             </Row>

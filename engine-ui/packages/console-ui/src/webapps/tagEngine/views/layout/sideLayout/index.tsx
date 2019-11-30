@@ -1,8 +1,11 @@
 import * as React from 'react';
 import { Layout, Icon } from 'antd';
 import { connect } from 'react-redux'
-import * as ProjectAction from '../../../reducers/modules/project'
-import * as UserAction from '../../../reducers/modules/user'
+import * as ProjectAction from '../../../reducers/modules/project';
+import * as UserAction from '../../../reducers/modules/user';
+import { tagApp } from 'config/base';
+import { updateApp } from 'main/actions/app'
+
 import utils from 'utils'
 import Heade from '../header';
 import SideBar from '../sideBar';
@@ -31,8 +34,10 @@ class SideLayout extends React.Component<IProps, IState> {
     static propTypes: any;
     static defaultProps: any;
     componentDidMount () {
-        const { dispatch } = this.props
+        const { dispatch } = this.props;
+        
         dispatch(UserAction.getUser())
+        dispatch(updateApp(tagApp))
         dispatch(ProjectAction.getProjects())
         this.initProject()
     }

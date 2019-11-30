@@ -48,7 +48,7 @@ export function setProject (data: any) {
 
 export function getProjects (params?: any) {
     return function fn (dispatch: any) {
-        Api.getProjects(params).then((res: any) => {
+        Api.getAllProjects(params).then((res: any) => {
             return dispatch({
                 type: projectAction.GET_PROJECTS,
                 data: res.data

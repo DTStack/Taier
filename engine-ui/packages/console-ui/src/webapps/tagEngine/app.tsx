@@ -8,9 +8,7 @@ const render = (Component: any) => {
     const rootReducer = require('./reducers').default;
     const { store, history } = getStore(rootReducer, 'hash');
     ReactDOM.render(
-        <AppContainer>
-            <Component store={store} history={history} />
-        </AppContainer>
+        <Component store={store} history={history} />
         , document.getElementById('app')
     )
 }
