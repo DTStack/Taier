@@ -1,12 +1,11 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Menu, Icon, Dropdown, Input } from 'antd';
-
 import { MenuRight } from 'main/components/nav';
 import { getHeaderLogo } from 'main/consts';
 import { Link } from 'react-router';
-
 import Api from '../../api';
+import UserAPI from 'main/api/user';
 import { PROJECT_TYPE } from '../../comm/const';
 import * as ProjectAction from '../../reducers/modules/project';
 
@@ -67,7 +66,11 @@ class Header extends React.Component<any, any> {
 
     clickUserMenu = (obj: any) => {
         if (obj.key === 'logout') {
-            Api.logout();
+            Api.logout({}).then((res: any) => {
+                if (res.code === 1) {
+                    UserAPI.openLogin();
+                }
+            });;
         }
     };
 

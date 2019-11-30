@@ -1,10 +1,12 @@
 import * as React from 'react';
-import { Input, Col, Row, Select, InputNumber, Form } from 'antd';
+import { Col, Row, Select, Form } from 'antd';
 import MultiSelect from '../multiSelect';
 import AreaInput from '../areaInput';
 import AbsoluteTime from '../absoluteTime';
 import RelativeTime from '../relativeTime';
 import TagTypeOption from '../../../../../consts/tagTypeOption';
+import InputValue from '../inputValue';
+
 import './style.scss';
 
 const { Option } = Select;
@@ -42,25 +44,25 @@ IState
         let Component;
         if (dataType == 'CHARACTER') { // 字符型
             if (type == 'OP_EQUAL' || type == 'OP_NOT_EQUAL') { // 如果是等于和不等于，属于区间范围
-                Component = (<MultiSelect data={values} onChange={this.onChangeValue} tagId={tagId} tip="提示选项为最近7天的属性关键词（最多展示 20 条），非所有关键词。可直接输入关键词，回车完成。"/>)
+                Component = (<MultiSelect data={values} onChangeData={this.onChangeValue} tagId={tagId} tip="提示选项为最近7天的属性关键词（最多展示 20 条），非所有关键词。可直接输入关键词，回车完成。"/>)
             } else {
-                Component = (<Input value={value} onChange={(e) => { let value = e.target.value; this.onChangeValue({ value }) }}/>)
+                Component = (<InputValue data={value} onChangeData={this.onChangeValue}/>)
             }
         } else if (dataType == 'TIME') { // 时间类型
             if (type == 'OP_ABSOLUTE_TIME') { // 绝对时间
-                Component = <AbsoluteTime onChange={this.onChangeValue} data={{ timeType, value, values }}/>
+                Component = <AbsoluteTime onChangeData={this.onChangeValue} data={{ timeType, value, values }}/>
             } else if (type == 'OP_RELATIVE_TIME') { // 相对时间点
-                Component = (<RelativeTime onChange={this.onChangeValue} data={{ timeType, value }} tip=""/>)
+                Component = (<RelativeTime onChangeData={this.onChangeValue} data={{ timeType, value }} tip=""/>)
             } else { // 相对时间区间
-                Component = (<AreaInput onChange={this.onChangeValue} data={{ lValue, rValue }} leftText="在 过去" centerText="天 到 过去" rightText="天 之内" tip="起始数值应大于终止数值。"/>)
+                Component = (<AreaInput onChangeData={this.onChangeValue} data={{ lValue, rValue }} leftText="在 过去" centerText="天 到 过去" rightText="天 之内" tip="起始数值应大于终止数值。"/>)
             }
         } else if (dataType == 'NUMBER') { // 数值型
             if (type == 'OP_EQUAL' || type == 'OP_NOT_EQUAL') { // 如果是等于和不等于，属于区间范围
-                Component = (<MultiSelect onChange={this.onChangeValue} data={values} type="number" tagId={tagId} tip="可直接输入，回车完成"/>)
+                Component = (<MultiSelect onChangeData={this.onChangeValue} data={values} type="number" tagId={tagId} tip="可直接输入，回车完成"/>)
             } else if (type == 'OP_BETWEEN') {
-                Component = (<AreaInput onChange={this.onChangeValue} data={{ lValue, rValue }} leftText="在 " centerText=" 于 " rightText="之间" tip="包含起始和结束值，起始数值应小于终止数值。"/>)
+                Component = (<AreaInput onChangeData={this.onChangeValue} data={{ lValue, rValue }} leftText="在 " centerText=" 于 " rightText="之间" tip="包含起始和结束值，起始数值应小于终止数值。"/>)
             } else {
-                Component = (<InputNumber value={value} onChange={(value) => this.onChangeValue({ value })}/>)
+                Component = (<InputValue data={value} type="number" onChangeData={this.onChangeValue}/>)
             }
         }
         return (<Form.Item>

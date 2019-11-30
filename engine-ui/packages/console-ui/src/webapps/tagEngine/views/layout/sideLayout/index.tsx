@@ -34,7 +34,6 @@ class SideLayout extends React.Component<IProps, IState> {
         const { dispatch } = this.props
         dispatch(UserAction.getUser())
         dispatch(ProjectAction.getProjects())
-        dispatch(ProjectAction.getAllProjects())
         this.initProject()
     }
     initProject () {

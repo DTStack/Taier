@@ -12,7 +12,7 @@ interface IProps {
         timeType: string;
         value: number;
     };
-    onChange?: any;
+    onChangeData?: any;
 }
 
 interface IState {
@@ -31,11 +31,11 @@ IState
     };
     onChangeInputNumber = (value) => {
         const { data } = this.props;
-        this.props.onChange(Object.assign({}, data, { value }))
+        this.props.onChangeData(Object.assign({}, data, { value }))
     }
     onChangeSelect = (value) => {
         const { data } = this.props;
-        this.props.onChange(Object.assign({}, data, { timeType: value }))
+        this.props.onChangeData(Object.assign({}, data, { timeType: value }))
     }
     render () {
         const { tip, data } = this.props;

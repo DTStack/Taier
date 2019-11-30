@@ -6,7 +6,7 @@ import { apps, app, licenseApps } from 'main/reducers/modules/apps'
 
 // 全局State
 import { user } from './modules/user'
-import { project, projects, allProjects } from './modules/project'
+import { project, projects } from './modules/project'
 
 const rootReducer = combineReducers({
     routing,
@@ -15,8 +15,7 @@ const rootReducer = combineReducers({
     apps,
     licenseApps, // licenseApps权限
     project,
-    projects, // 用户有权限的项目
-    allProjects // 全局所有项目
+    projects, // 获取所有的项目
 })
 
 export default rootReducer

@@ -9,7 +9,7 @@ interface IProps {
     tip?: string;
     value?: any;
     data?: any;
-    onChange?: any;
+    onChangeData?: any;
 }
 
 interface IState {
@@ -29,19 +29,19 @@ IState
     };
     componentDidMount () { }
     onChangeSelect = (value) => {
-        const { data, onChange } = this.props;
-        onChange(Object.assign({}, data, { timeType: value, value: '', values: [] }))
+        const { data, onChangeData } = this.props;
+        onChangeData(Object.assign({}, data, { timeType: value, value: '', values: [] }))
     }
     onChangeRangePicker = (value, dateStrings) => {
-        const { data, onChange } = this.props;
-        onChange(Object.assign({}, data, { value: '', values: dateStrings }))
+        const { data, onChangeData } = this.props;
+        onChangeData(Object.assign({}, data, { value: '', values: dateStrings }))
     }
     onChangeDatePicker = (value) => {
-        const { data, onChange } = this.props;
-        onChange(Object.assign({}, data, { value, values: [] }))
+        const { data, onChangeData } = this.props;
+        onChangeData(Object.assign({}, data, { value, values: [] }))
     }
     render () {
-        const { tip, data } = this.props;
+        const { data } = this.props;
         const { values } = data;
         let rangDate = values.map(item => moment(item))
         return (
