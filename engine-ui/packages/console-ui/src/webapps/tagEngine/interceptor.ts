@@ -2,8 +2,8 @@ import { hashHistory } from 'react-router'
 import { message, notification } from 'antd'
 import localDb from 'utils/localDb'
 import utils from 'utils'
-import UserApi from 'main/api/user'
-
+import UserAPI from 'main/api/user'
+import API from './api';
 import { singletonNotification } from 'funcs';
 
 const maxHeightStyle: any = {
@@ -49,7 +49,11 @@ export function authAfterFormated (response: any) {
         case 1:
             return response;
         case 0: // 需要登录
-            UserApi.logout()
+            API.logout().then(res=>{
+                if (res.code === 1) {
+                    UserAPI.openLogin();
+                }
+            })
             return response;
         case 3: { // 功能无权限
             // 通过判断dom数量，限制通知数量

@@ -100,11 +100,6 @@ const DataSourceStream = asyncComponent(
         ),
     { name: 'dataSourceStream' }
 );
-// ======= 测试 =======
-const Test = asyncComponent(
-    () => import('./views/test').then((module: any) => module.default),
-    { name: 'testPage' }
-);
 
 const routeConfig = [
     {
@@ -225,10 +220,6 @@ const routeConfig = [
                 component: DataSourceStream
             }
         ]
-    },
-    {
-        path: '/test',
-        component: Test
     },
     {
         path: '/*',
