@@ -9,9 +9,7 @@ import 'main/styles/myantd.scss'
 // Codemirror
 import './styles/codemirror';
 // Common styles
-import './styles/main.scss'
-
-import './styles/pages/project.scss'
+import './styles/main.scss';
 
 import routers from './routers'
 

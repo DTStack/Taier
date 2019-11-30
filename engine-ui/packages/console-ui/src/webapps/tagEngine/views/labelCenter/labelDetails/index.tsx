@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Tabs, Card, Button, Row, Col, message as Message, Popconfirm } from 'antd';
+import { hashHistory } from 'react-router';
 import Breadcrumb from '../../../components/breadcrumb';
 import { GroupStatus } from '../../../components/status';
 import MoveTreeNode from './components/moveTreeNode';
@@ -50,8 +51,8 @@ export default class LabelDetails extends React.PureComponent<IProps, IState> {
         })
     }
     onHandleEdit = () => {
-        const { tagId } = this.state;
-        this.props.router.push('/editAtomicLabel', { tagId })
+        const { tagId,entityId,data } = this.state;
+        hashHistory.push({ pathname: data.tagType == '原子标签' ? '/editAtomicLabel' : '/createLabel', query: { tagId,entityId } })
     }
     onHandleMove = () => {
         this.setState({
