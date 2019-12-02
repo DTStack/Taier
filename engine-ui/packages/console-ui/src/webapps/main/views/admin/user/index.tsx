@@ -76,11 +76,12 @@ class AdminUser extends React.Component<any, any> {
         return app === 'analyticsEngine';
     }
     isProjectExsit () {
-        const { active, projects, streamProjects, scienceProjects } = this.state;
+        const { active, projects, streamProjects, scienceProjects , tagProjects } = this.state;
         let appMap = {
             [MY_APPS.RDOS]: projects,
             [MY_APPS.STREAM]: streamProjects,
-            [MY_APPS.SCIENCE]: scienceProjects
+            [MY_APPS.SCIENCE]: scienceProjects,
+            [MY_APPS.TAG]: tagProjects
         }
         return appMap[active] && appMap[active].length
     }
@@ -122,7 +123,6 @@ class AdminUser extends React.Component<any, any> {
             } else if (MY_APPS.TAG == active) {
                 params.projectId = tagSelectedProject;
             }
-
             this.loadUsers(active, params);
             this.loadRoles(active, assign(params, {
                 currentPage: 1
