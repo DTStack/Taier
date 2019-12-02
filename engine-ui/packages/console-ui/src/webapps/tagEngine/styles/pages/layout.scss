@@ -32,6 +32,12 @@ $activeColor: #262e36; // 主色
             padding: 5px;
             cursor: pointer;
         }
+        .c-header__logo{
+            height: 40px;
+        }
+        .c-header__title{
+            padding-left: 0;
+        }
 
         .my-menu {
             line-height: 47px;

@@ -75,7 +75,7 @@ class SideLayout extends React.Component<IProps, IState> {
     render () {
         const { children, location } = this.props;
         const pathName = location.pathname;
-        const menuData = NavData.filter(item => item.routers.includes(pathName));
+        const menuData = NavData.filter(item => item.routers.some(ele=>new RegExp(ele,"g").test(pathName)) );
         const projectIdFromCookie = utils.getCookie('tag_project_id');
         return (
             <Layout className="dt-tag-layout">

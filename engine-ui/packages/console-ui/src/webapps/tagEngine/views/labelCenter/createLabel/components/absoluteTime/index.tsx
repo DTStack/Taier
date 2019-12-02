@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Col, Row, Select, Icon, Tooltip, DatePicker } from 'antd';
+import { Col, Row, Select, DatePicker } from 'antd';
 import TagTypeOption from '../../../../../consts/tagTypeOption';
 import moment from 'moment';
 import './style.scss';
@@ -35,16 +35,16 @@ IState
     onChangeRangePicker = (value, dateStrings) => {
         const { data, onChangeData } = this.props;
         console.log(dateStrings);
-        onChangeData(Object.assign({}, data, { value: '', lValue:dateStrings[0], rValue: dateStrings[1] }))
+        onChangeData(Object.assign({}, data, { value: '', lValue: dateStrings[0], rValue: dateStrings[1] }))
     }
     onChangeDatePicker = (value) => {
         const { data, onChangeData } = this.props;
-        onChangeData(Object.assign({}, data, { value, lValue:'', rValue:'' }))
+        onChangeData(Object.assign({}, data, { value, lValue: '', rValue: '' }))
     }
     render () {
         const { data } = this.props;
-        const { lValue, rValue,value } = data;
-        let rangDate:any =lValue && rValue ? [moment(lValue),moment(rValue)] : [];
+        const { lValue, rValue, value } = data;
+        let rangDate: any = lValue && rValue ? [moment(lValue), moment(rValue)] : [];
         return (
             <Row className="absoluteTime" type='flex' gutter={8}>
                 <Col>

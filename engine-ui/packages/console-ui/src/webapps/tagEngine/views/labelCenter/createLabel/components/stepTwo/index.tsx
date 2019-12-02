@@ -133,8 +133,8 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                     key: '0',
                     type: 'OP_AND', //  OP_OR|OP_AND
                     name: '且',
-                    children: data.map((item) => Object.assign({}, item, {
-                        key: '0-0',
+                    children: data.map((item, index) => Object.assign({}, item, {
+                        key: '0-' + index,
                         type: 'OP_AND',
                         name: '且',
                         children: []
