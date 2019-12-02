@@ -13,7 +13,8 @@ class ScriptPanel extends React.Component<any, any> {
         this.handleScriptChange = this.handleScriptChange.bind(this)
     }
     handleSaveScript () {
-        this.props.handleSaveScript()
+        debugger
+        this.props.handleSave()
     }
     handleFormat () {
         this.props.handleFormat()

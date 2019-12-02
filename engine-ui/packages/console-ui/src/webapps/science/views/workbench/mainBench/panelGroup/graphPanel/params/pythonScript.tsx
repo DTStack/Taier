@@ -31,8 +31,7 @@ class PythonScript extends React.Component<any, any> {
     static getDerivedStateFromProps (nextProps: any, prevState: any) {
         if (!prevState.dirty) {
             return {
-                code: nextProps.data ? nextProps.data.python : ''
-                // code: nextProps.data ? window.atob((decodeURIComponent((nextProps.data.python)))) : ''
+                code: nextProps.data ? decodeURIComponent((window.atob(nextProps.data.python))) : ''
             }
         }
         return null
@@ -48,7 +47,7 @@ class PythonScript extends React.Component<any, any> {
                 [field]: field && fieldValue
             }
         }
-        const res = await api.addOrUpdateTask({ params });
+        const res = await api.addOrUpdateTask(params);
         if (+res.code !== 1) return message.warning('保存失败');
         currentComponentData.data = { ...params, ...res.data };
         changeContent({}, currentTab);
@@ -68,7 +67,7 @@ class PythonScript extends React.Component<any, any> {
                 fieldKeys.forEach(key => {
                     const ele = changedFields[key];
                     if (!ele.errors && !ele.validating && !ele.dirty) {
-                        props.handleSaveScript(key, ele)
+                        props.handleSave(key, ele)
                     }
                 })
             },
@@ -105,7 +104,7 @@ class PythonScript extends React.Component<any, any> {
                                     style={{ height: 400, background: '#f5f5f5', paddingTop: 10 }}
                                 >
                                     <ScriptPanel
-                                        handleSaveScript={this.handleSaveComponent('python', window.btoa(encodeURIComponent(code)))}
+                                        handleSave={() => this.handleSaveComponent('python', window.btoa(encodeURIComponent(code)))}
                                         handleChange={this.handlePythonChange}
                                         dirty={dirty}
                                         language="python"
@@ -120,9 +119,10 @@ class PythonScript extends React.Component<any, any> {
                     </div>
                 </TabPane>
                 <TabPane tab="内存设置" key="2">
-                    <WrapMemorySetting 
+                    <WrapMemorySetting
                         data={data}
-                        handleSaveScript={this.handleSaveComponent} />
+                        handleSave={this.handleSaveComponent} 
+                    />
                 </TabPane>
             </Tabs>
         )
