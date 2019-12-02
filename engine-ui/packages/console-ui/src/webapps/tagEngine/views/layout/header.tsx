@@ -1,12 +1,11 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Menu, Icon, Dropdown, Input } from 'antd';
-
 import { MenuRight } from 'main/components/nav';
 import { getHeaderLogo } from 'main/consts';
 import { Link } from 'react-router';
-
 import Api from '../../api';
+import UserAPI from 'main/api/user';
 import { PROJECT_TYPE } from '../../comm/const';
 import * as ProjectAction from '../../reducers/modules/project';
 
@@ -28,19 +27,28 @@ class Header extends React.Component<any, any> {
         super(props);
         this.state = {
             current: 'project',
-            devPath: '/realtime/task',
             filter: ''
         };
     }
 
     // 控制项目下拉菜单的显示
     // eslint-disable-next-line
-    componentDidMount () {
-        const { location, navData } = this.props;
-        const pathName = location.pathname;
-        const data = navData.filter(item => item.routers.includes(pathName))
-        if (data.length) {
-            this.updateSelected(data[0].permissionUrl)
+    componentDidUpdate (preProps) {
+        const { navData, licenseApps } = this.props;
+        if (licenseApps != preProps.licenseApps) {
+            const currentlicenseApps = licenseApps.find(item => item.id == 'tagEngine');
+            if (currentlicenseApps) {
+                const { children } = currentlicenseApps;
+                let navItem = navData.filter(item => children.some(ele => (ele.name == item.permissionName) && ele.isShow));
+                if (navItem.length) {
+                    this.setState({
+                        navItem
+                    })
+                    this.updateSelected(navItem[0].permissionUrl)
+                }
+            } else {
+                this.goIndex();
+            }
         }
     }
     handleClick = (e: any) => {
@@ -48,14 +56,10 @@ class Header extends React.Component<any, any> {
     };
 
     selectedProject = (evt: any) => {
-        const { router, dispatch } = this.props;
+        const { dispatch } = this.props;
         const projectId = evt.key;
         if (projectId) {
             dispatch(ProjectAction.getProject(projectId));
-            // 清理tab数据
-            if (this.state.current === 'overview') {
-                router.push('/tag/overview');
-            }
             this.searchProject('');
         }
     }
@@ -67,7 +71,11 @@ class Header extends React.Component<any, any> {
 
     clickUserMenu = (obj: any) => {
         if (obj.key === 'logout') {
-            Api.logout();
+            Api.logout({}).then((res: any) => {
+                if (res.code === 1) {
+                    UserAPI.openLogin();
+                }
+            }); ;
         }
     };
 

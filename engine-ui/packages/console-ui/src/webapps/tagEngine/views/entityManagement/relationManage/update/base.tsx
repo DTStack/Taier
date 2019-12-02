@@ -11,7 +11,7 @@ import { IDataSource } from '../../../../model/dataSource';
 import CreateRelationEntityForm from './form';
 import { API } from '../../../../api/apiMap';
 import DataSourceAPI from '../../../../api/dataSource';
-import RelationGraph from '../../../../components/relationGraph';
+import RelationGraph, { GRAPH_MODE } from '../../../../components/relationGraph';
 import { IRelation, IRelationEntity } from '../../../../model/relation';
 import { IEntity } from '../../../../model/entity';
 
@@ -23,7 +23,7 @@ interface IState {
 
 interface IProps {
     relationData?: IRelation;
-    mode?: 'create' | 'edit';
+    mode?: GRAPH_MODE;
     onOk?: (data?: any) => void;
 }
 
@@ -46,37 +46,27 @@ const Mx = MxFactory.create();
 const {
     mxEvent,
     mxPopupMenu
-    // mxConstants,
-    // mxEventObject,
-    // mxCell,
-    // mxGeometry,
-    // mxUtils
 } = Mx;
 
-const mockColumns = [{
-    id: 2,
-    name: 'column-1'
-}, {
-    id: 3,
-    name: 'column-2'
-}, {
-    id: 4,
-    name: 'column-3'
-}];
+
+// const mockColumns = [{
+//     id: 1,
+//     entityAttr: 'col1',
+//     entityAttrCn: '维度1'
+// }, {
+//     id: 2,
+//     entityAttr: 'col2',
+//     entityAttrCn: '维度2'
+// }, {
+//     id: 3,
+//     entityAttr: 'col3',
+//     entityAttrCn: '维度3'
+// }];
 
 class RelationUpdateBase extends React.Component<IProps, IState> {
     state: IState = {
         dataSourceList: [],
-        entities: [{
-            id: 1,
-            name: 'entity-1'
-        }, {
-            id: 2,
-            name: 'entity-2'
-        }, {
-            id: 3,
-            name: 'entity-3'
-        }],
+        entities: [],
         data: {
             relationCollection: []
         }
@@ -95,28 +85,44 @@ class RelationUpdateBase extends React.Component<IProps, IState> {
     }
 
     componentDidMount () {
+        const { relationData } = this.props;
         this.loadDataSource();
-        this.loadEntities();
+        if (relationData && relationData.dataSourceId) {
+            this.loadEntities(relationData.dataSourceId);
+        }
     }
 
     componentWillUnmount () {
         document.removeEventListener('change', this.onSelectChange);
     }
 
-    loadDataSource = async () => {
-        const res = await DataSourceAPI.getStreamDataSourceList();
+    loadDataSource = async (query?: string) => {
+        const res = await DataSourceAPI.getTagDataSourceList({
+            current: 1,
+            search: query
+        });
         if (res.code === 1) {
             this.setState({
-                dataSourceList: res.data
+                dataSourceList: get(res, 'data.contentList', [])
             })
         }
     }
 
-    loadEntities = async () => {
-        const res = await API.getEntities();
+    loadEntities = async (dataSourceId: string | number) => {
+        const res = await API.getEntities({ dataSourceId });
         if (res.code === 1) {
             this.setState({
-                entities: res.data
+                entities: get(res, 'data.contentList', [])
+            })
+        }
+    }
+
+    onFormValuesChange = (values: IRelation) => {
+        if (values.dataSourceId) {
+            this.loadEntities(values.dataSourceId);
+            // 数据源改变时，需要清理画布上的数据
+            updateComponentState(this, {
+                relationCollection: []
             })
         }
     }
@@ -143,20 +149,20 @@ class RelationUpdateBase extends React.Component<IProps, IState> {
         let oldRelationEntity: IRelationEntity = newState.relationCollection[relationEntityIndex];
         if (relationEntity.id !== oldRelationEntity.id || !oldRelationEntity) {
             oldRelationEntity = Object.assign(oldRelationEntity, relationEntity);
-            // 关系实体变更时，需要重新加载该实体的维度列表信息
-            // const res = await EntityAPI.getEntities({ id: relationEntity.id });
-            // if (res.code === 0) {
-            // }
-            // 初始化维度选项
-            oldRelationEntity.columns = [{
-                id: -1,
-                name: null
-            }];
-            oldRelationEntity.columnOptions = mockColumns;// res.data || [];
-            newState.relationCollection[relationEntityIndex] = oldRelationEntity;
-            this.setState({
-                data: newState
-            })
+            const res = await API.selectEntityAttrs({ entityId: relationEntity.id });
+            if (res.code === 1) {
+                // 关系实体变更时，需要重新加载该实体的维度列表信息
+                // 初始化维度选项
+                oldRelationEntity.columns = [{
+                    id: -1,
+                    name: null
+                }];
+                oldRelationEntity.columnOptions = get(res, 'data', []); // mockColumns;
+                newState.relationCollection[relationEntityIndex] = oldRelationEntity;
+                this.setState({
+                    data: newState
+                })
+            }
         }
     }
 
@@ -209,14 +215,17 @@ class RelationUpdateBase extends React.Component<IProps, IState> {
             const id = parseInt(e.target.value, 10);
 
             if (isRelationEntitySelected) {
+                const sourceTable = selectedOption.getAttribute('data-dataSourceTable');
+                const entityName = selectedOption.getAttribute('data-entityName');
                 const index = parseInt(e.target.getAttribute('data-index'), 10);
-                ctx.onRelationEntityChange(index, { id: id, name: selectedOption.textContent });
+                ctx.onRelationEntityChange(index, { id: id, name: entityName, dataSourceTable: sourceTable });
             } else if (isRelationEntityColumnSelected) {
                 const indexArr = e.target.getAttribute('data-index').split('-');
+                const attrNameCN = selectedOption.getAttribute('data-entityAttrCn');
+                const entityAttr = selectedOption.getAttribute('data-entityAttr');
                 const entityIndex = parseInt(indexArr[0], 10);
                 const columnIndex = parseInt(indexArr[1], 10);
-
-                ctx.onRelationEntityColumnChange(entityIndex, columnIndex, { id: id, name: selectedOption.textContent });
+                ctx.onRelationEntityColumnChange(entityIndex, columnIndex, { id: id, attrId: id, attrName: entityAttr, attrNameCN: attrNameCN });
             }
         }
     }
@@ -290,13 +299,11 @@ class RelationUpdateBase extends React.Component<IProps, IState> {
         const rootCell = graph.getDefaultParent();
         const cells = graph.getChildCells(rootCell);
         const getCellData = (cell: any): IRelationEntity => {
-            const cellData: IRelationEntity = cell.vertex ? cell.value : { geometry: {} };
-            cellData.id = cell.id;
+            const cellData: IRelationEntity = cell.vertex ? Object.assign({}, cell.value) : { id: cell.id, geometry: {} };
             cellData.geometry.x = cell.geometry.x;
             cellData.geometry.y = cell.geometry.y;
             cellData.vertex = cell.vertex;
             cellData.edge = cell.edge;
-
             return cellData;
         }
 
@@ -305,10 +312,16 @@ class RelationUpdateBase extends React.Component<IProps, IState> {
             if (cell.edge) {
                 cellItem = getCellData(cell)
                 cellItem.source = getCellData(cell.source);
-                cellItem.source.rowIndex = cell.value.getAttribute('sourceRow');
+                cellItem.source.rowIndex = Number(cell.value.getAttribute('sourceRow'));
+                const sourceRow = cellItem.source.columnOptions[cellItem.source.rowIndex - 1];
+                cellItem.source.attrId = sourceRow.id;
+                cellItem.source.attrName = sourceRow.entityAttr;
+
                 cellItem.target = getCellData(cell.target);
-                cellItem.target.rowIndex = cell.value.getAttribute('targetRow');
-            } else {
+                cellItem.target.rowIndex = Number(cell.value.getAttribute('targetRow'));
+                const targetRow = cellItem.target.columnOptions[cellItem.target.rowIndex - 1];
+                cellItem.target.attrId = targetRow.id;
+                cellItem.target.attrName = targetRow.entityAttr;
             }
             return cellItem;
         });
@@ -318,25 +331,20 @@ class RelationUpdateBase extends React.Component<IProps, IState> {
     updateRelationEntities = () => {
         const relationCollection = this.getGraphData();
         console.log('updateRelationEntities', relationCollection);
-        // 此处故意不使用setState 去更新 relationEntities，暂时保存relation数据，避免触发重新渲染
-        // eslint-disable-next-line react/no-direct-mutation-state
-        // this.state.data.relationCollection = relationCollection;
-        updateComponentState(this, {
-            relationCollection: relationCollection
-        })
     }
 
     onOk = () => {
+        const ctx = this;
         const form = this._formElem;
-        const { data } = this.state;
         const relationCollection = this.getGraphData();
         console.log('graphData:', this, relationCollection);
 
         form.validateFields(function (err: any, values: IRelation) {
             if (!err) {
                 const relation: IRelation = form.getFieldsValue();
-                relation.relationCollection = data.relationCollection;
-                this.props.onOk(relation);
+                relation.relationCollection = relationCollection;
+                console.log('submit GraphData:', JSON.stringify(relation));
+                ctx.props.onOk(relation);
             }
         });
     }
@@ -350,17 +358,20 @@ class RelationUpdateBase extends React.Component<IProps, IState> {
                 <div className="c-createRelation__form">
                     <CreateRelationEntityForm
                         mode={mode}
-                        ref={(e: any) => this._formElem = e}
+                        ref={(inst: any) => this._formElem = inst}
                         onCreateRelationEntity={this.onPushEntityNodeData}
                         dataSourceList={dataSourceList}
+                        loadDataSource={this.loadDataSource}
                         formData={data}
+                        onFormValuesChange={this.onFormValuesChange}
                     />
                 </div>
                 <div className="c-createRelation__graph" style={{ height: 600 }}>
                     <RelationGraph<IRelationEntity>
                         entities={entities}
+                        mode={mode}
                         attachClass="graph-bg"
-                        data={data.relationCollection}
+                        data={data.relationCollection || data.relationJson}
                         registerEvent={this.onGraphEvent}
                         registerContextMenu={this.onGraphMenu}
                     />

@@ -131,11 +131,11 @@ class StepTwo extends React.PureComponent<IProps, IState> {
             if (code === 1) {
                 let params = {
                     key: '0',
-                    type: 'and', //  or|and
+                    type: 'OP_AND', //  OP_OR|OP_AND
                     name: '且',
-                    children: data.map((item) => Object.assign({}, item, {
-                        key: '0-0',
-                        type: 'and',
+                    children: data.map((item, index) => Object.assign({}, item, {
+                        key: '0-' + index,
+                        type: 'OP_AND',
                         name: '且',
                         children: []
                     }))
@@ -202,7 +202,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         this.onHandleTreeNode(key, 'changeNode', node)
     }
     onHandleChangeType = (key, type) => { // 改变节点状态
-        this.onHandleTreeNode(key, 'changeNode', { type: type == 'or' ? 'and' : 'or', name: type == 'or' ? '且' : '或' })
+        this.onHandleTreeNode(key, 'changeNode', { type: type == 'OP_OR' ? 'OP_AND' : 'OP_OR', name: type == 'OP_OR' ? '且' : '或' })
     }
     onHandleDeleteCondition = (key) => {
         this.onHandleTreeNode(key, 'remove')
@@ -258,7 +258,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                         children[i].children.push(Object.assign({}, initRowValue, { key: newKey }))
                     } else if (level.length == 3) { // 三级目录
                         let current = children[i]; // 转换节点数据结构，如果为三级目录则，改变数据结构，变为children数组关系
-                        children[i] = { key: current.key, type: 'and', name: '且', children: [Object.assign({}, current, { key: current.key + '-' + shortid() }), Object.assign({}, current, initRowValue, { key: current.key + '-1' })] };
+                        children[i] = { key: current.key, type: 'OP_AND', name: '且', children: [Object.assign({}, current, { key: current.key + '-' + shortid() }), Object.assign({}, current, initRowValue, { key: current.key + '-1' })] };
                     } else { // 四级目录
                         let newKey = key + '-' + shortid();
                         treeNode.children.push(Object.assign({}, initRowValue, { key: newKey }))

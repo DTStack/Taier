@@ -48,7 +48,7 @@ export function setProject (data: any) {
 
 export function getProjects (params?: any) {
     return function fn (dispatch: any) {
-        Api.getProjects(params).then((res: any) => {
+        Api.getAllProjects(params).then((res: any) => {
             return dispatch({
                 type: projectAction.GET_PROJECTS,
                 data: res.data
@@ -57,16 +57,6 @@ export function getProjects (params?: any) {
     }
 }
 
-export function getAllProjects (params?: any) {
-    return function fn (dispatch: any) {
-        Api.getAllProjects(params).then((res: any) => {
-            return dispatch({
-                type: projectAction.GET_ALL_PROJECTS,
-                data: res.data
-            })
-        })
-    }
-}
 
 // Reducer
 // 获取系统下登录用户有权限的项目
@@ -79,15 +69,6 @@ export function projects (state: any = [], action: any) {
     }
 }
 
-// 获取系统所以项目
-export function allProjects (state: any = [], action: any) {
-    switch (action.type) {
-        case projectAction.GET_ALL_PROJECTS:
-            return action.data || state
-        default:
-            return state
-    }
-}
 
 export function project (state = defaultProject, action: any) {
     switch (action.type) {

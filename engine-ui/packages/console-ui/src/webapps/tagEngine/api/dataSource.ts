@@ -1,5 +1,6 @@
 import req from '../consts/reqDataSource';
 import http from './http';
+import { IQueryParams } from '../model/comm';
 
 export default {
     tagCreateDataSource (params?: any) {
@@ -14,7 +15,7 @@ export default {
     tagDeleteDataSource (params: any) {
         return http.post(req.TAG_DELETE_DATA_SOURCE, params)
     },
-    getTagDataSourceList (params?: any) {
+    getTagDataSourceList (params: IQueryParams) {
         return http.post(req.GET_TAG_DATASOURCE_LIST, params)
     },
     getDataSourceTypes (params?: any) {

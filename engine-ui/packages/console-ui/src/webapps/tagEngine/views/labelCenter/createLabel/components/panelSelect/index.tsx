@@ -19,7 +19,7 @@ interface IState {
     visible: boolean;
 }
 
-class AreaDate extends React.PureComponent<
+class PanelSelect extends React.PureComponent<
 IProps,
 IState
 > {
@@ -93,4 +93,4 @@ IState
         );
     }
 }
-export default Form.create()(AreaDate)
+export default Form.create()(PanelSelect)

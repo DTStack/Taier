@@ -2,7 +2,6 @@ import asyncComponent from 'utils/asyncLoad';
 import NotFund from 'widgets/notFund';
 
 // 继承主应用的的公共View组件
-import Main from 'main/views';
 import MsgCenter from 'main/views/message';
 import MsgList from 'main/views/message/list';
 import MsgDetail from 'main/views/message/detail';
@@ -100,16 +99,11 @@ const DataSourceStream = asyncComponent(
         ),
     { name: 'dataSourceStream' }
 );
-// ======= 测试 =======
-const Test = asyncComponent(
-    () => import('./views/test').then((module: any) => module.default),
-    { name: 'testPage' }
-);
 
 const routeConfig = [
     {
         path: '/',
-        component: Main,
+        component: null,
         indexRoute: { component: SideLayout },
         childRoutes: [
             {
@@ -225,10 +219,6 @@ const routeConfig = [
                 component: DataSourceStream
             }
         ]
-    },
-    {
-        path: '/test',
-        component: Test
     },
     {
         path: '/*',

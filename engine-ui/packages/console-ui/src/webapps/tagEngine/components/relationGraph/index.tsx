@@ -13,8 +13,8 @@ import MyIcon from '../icon';
 import './graph.scss';
 
 export enum GRAPH_MODE {
-    EDIT = 1,
-    READ = 2,
+    EDIT = 'edit',
+    READ = 'read',
 }
 
 export interface INode<T = {}> {
@@ -32,6 +32,7 @@ export interface INode<T = {}> {
         y: number;
     };
     columnOptions?: INode[];
+    [index: string]: any;
 }
 
 interface IProps<T = any> {
@@ -101,11 +102,37 @@ const VertexSize = {
     height: 0
 }
 
-function componentSelect (data: any, value: numOrStr, id?: numOrStr, className?: numOrStr, placeholder?: string, index?: number | string) {
+interface ISelect {
+    options: any[];
+    id?: numOrStr;
+    value?: numOrStr;
+    className?: string;
+    placeholder?: string;
+    /**
+     * 选项索引
+     */
+    optionIndex: string;
+    bind?: { attr: string; value?: any }[];
+    bindOption?: { attr: string; value?: any }[];
+}
+
+function componentSelect (data: ISelect) {
+    const { id, options = [], value, className, placeholder, bind = [], optionIndex, bindOption = [] } = data;
+    const getDataAttr = (arr: any, columnData?: any) => {
+        let bindAttr = '';
+        if (arr.length > 0) {
+            arr.forEach(o => {
+                bindAttr += `data-${o.attr}="${columnData ? columnData[o.attr] : o.value}" `;
+            })
+        }
+        return bindAttr;
+    }
     return `
-        <select id="${id}" value="${value}" placeholder="${placeholder}" class="${className}" data-index=${index}>
+        <select id="${id}" value="${value}" placeholder="${placeholder}" class="${className}" ${getDataAttr(bind)}>
             ${placeholder ? `<option selected value="" data-default>${placeholder}</option>` : ''}
-            ${data && data.map((o: any) => `<option title="${o.id}" value="${o.id}" ${o.id == value ? 'selected' : ''}>${o.name}</option>`)}
+            ${options && options.map((o: any) => {
+                return `<option title="${o.id}" value="${o.id}" ${o.id == value ? 'selected' : ''} ${getDataAttr(bindOption, o)}>${o[optionIndex]}</option>`;
+            })}
         </select>
     `;
 }
@@ -151,11 +178,13 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
         this.graph = '';
         this.initGraphEditor(this.Container);
         this.renderData(this.props.data);
-        this.layout();
+        setTimeout(() => {
+            this.layout();
+        },0)
     }
 
     componentDidUpdate (prevProps, prevState) {
-        if (this.props.data !== prevProps.data) {
+        if (this.props.data !== prevProps.data || this.props.entities !== prevProps.entities) {
             this.renderData(this.props.data);
         }
     }
@@ -165,7 +194,6 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
         try {
             const graph = this.graph;
             const rootCell = this.graph.getDefaultParent();
-            console.log('data:', data, this.props.entities);
             graph.removeCells(graph.selectAll(rootCell));
             graph.view.clear();
             graph.view.refresh();
@@ -179,7 +207,7 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
                     if (item.vertex) {
                         const cell = graph.insertVertex(
                             rootCell,
-                            null,
+                            item.id,
                             item,
                             item.geometry.x,
                             item.geometry.y,
@@ -200,10 +228,8 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
                         const target = cellMap.get(item.target.id);
                         const relation = doc.createElement('Relation');
                         relation.setAttribute('sourceRow', item.source.rowIndex);
-                        relation.setAttribute('data', item);
                         relation.setAttribute('targetRow', item.target.rowIndex);
                         graph.insertEdge(rootCell, null, relation, source, target, '');
-                        // edge.data = item;
                     }
                 }
                 model.endUpdate();
@@ -224,9 +250,27 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
                     data.columns.forEach((o: INode) => columns += `<tr><td title="${o.name}">${o.name}</td></tr>`)
                     content = componentVertex(data.name, columns, false);
                 } else {
-                    const entitiesSelect = componentSelect(entities, data.id, '', 'relationEntity__select', '请选择实体', cell.index);
+                    const entitiesSelect = componentSelect({
+                        options: entities,
+                        id: data.id,
+                        value: data.id,
+                        className: 'relationEntity__select',
+                        placeholder: '请选择实体',
+                        bind: [ { attr: 'index', value: cell.index } ],
+                        optionIndex: 'entityName',
+                        bindOption: [ { attr: 'entityName' }, { attr: 'dataSourceTable' }]
+                    });
                     let columns = '';
-                    data.columns.forEach((o: INode, i: number) => columns += `<tr><td>${componentSelect(data.columnOptions, o.id, '', 'relationEntityColumn__tr', '请选择维度', cell.index + '-' + i)}</td></tr>`)
+                    data.columns.forEach((o: INode, i: number) => columns += `<tr><td>${componentSelect({
+                        options: data.columnOptions,
+                        id: '',
+                        value: o.id,
+                        className: 'relationEntityColumn__tr',
+                        placeholder: '请选择维度',
+                        bind: [ { attr: 'index', value: cell.index + '-' + i } ],
+                        optionIndex: 'entityAttr',
+                        bindOption: [ { attr: 'entityAttr' }, { attr: 'entityAttrCn' } ]
+                    })}</td></tr>`)
                     content = componentVertex(entitiesSelect, columns);
                 }
                 return content.replace(/[\n]/g, '');

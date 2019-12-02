@@ -6,21 +6,26 @@ import { get } from 'lodash';
 import { IDataSource } from '../../../../model/dataSource';
 import { formItemLayout } from '../../../../comm/const';
 import { IRelation } from '../../../../model/relation';
+import { GRAPH_MODE } from '../../../../components/relationGraph';
 
-interface IProps extends FormComponentProps {
+interface IProps {
     dataSourceList: IDataSource[];
     onCreateRelationEntity: (e: React.FormEvent) => void;
-    mode: 'edit' | 'create';
+    mode: GRAPH_MODE;
     formData?: IRelation;
+    loadDataSource: (query?: string) => void;
+    wrappedComponentRef?: (inst?: any) => void;
+    onFormValuesChange?: (values: IRelation) => void;
 };
 
 const FormItem = Form.Item;
 const Option = Select.Option;
 
-class CreateRelationEntityForm extends React.Component<IProps, any> {
+class CreateRelationEntityForm extends React.Component<IProps & FormComponentProps, any> {
     render () {
-        const { form, dataSourceList, onCreateRelationEntity, formData } = this.props;
+        const { form, dataSourceList = [], onCreateRelationEntity, formData = {} } = this.props;
         const { getFieldDecorator } = form;
+        const selectedSource = form.getFieldValue('dataSourceId');
         return (
             <Form>
                 <FormItem
@@ -37,34 +42,36 @@ class CreateRelationEntityForm extends React.Component<IProps, any> {
                         rules: [{
                             required: true, message: '请输入关系名称!'
                         }, {
-                            pattern: /^[\u4e00-\u9fa5]+$/,
+                            pattern: /^[\w\u4e00-\u9fa5]+$/,
                             message: '实体名称仅支持中文字符!'
                         }, {
                             max: 20,
                             message: '实体名称20字以内的中文字符!'
                         }],
-                        initialValue: get(formData, 'name', '')
+                        initialValue: get(formData, 'relationName', '')
                     })(
                         <Input placeholder="请输入实体中文名称，20字以内的中文字符"/>
                     )}
                 </FormItem>
                 <FormItem
                     {...formItemLayout}
-                    label="请选择数据类型"
+                    label="请先选择数据源"
                     hasFeedback
                 >
-                    {getFieldDecorator('dataSource', {
+                    {getFieldDecorator('dataSourceId', {
                         rules: [{
-                            required: true, message: '请选择数据类型!'
+                            required: true, message: '请先选择数据源!'
                         }],
-                        initialValue: get(formData, 'dataSource', '')
+                        initialValue: get(formData, 'dataSourceId')
                     })(
                         <Select
+                            showSearch
+                            optionFilterProp="title"
                             placeholder="请选择数据类型"
                             style={{ width: 200 }}
                         >
                             { dataSourceList && dataSourceList.map((o: IDataSource) => {
-                                return <Option key={o.name} value={o.value}>{o.name}</Option>
+                                return <Option key={o.id} value={o.id} title={o.dataName}>{o.dataName}</Option>
                             })}
                         </Select>
                     )}
@@ -74,9 +81,9 @@ class CreateRelationEntityForm extends React.Component<IProps, any> {
                     label="关系描述"
                     hasFeedback
                 >
-                    {getFieldDecorator('description', {
+                    {getFieldDecorator('relationDesc', {
                         rules: [],
-                        initialValue: get(formData, 'description', '')
+                        initialValue: get(formData, 'relationDesc', '')
                     })(
                         <Input.TextArea
                             placeholder="请输入描述信息，长度限制在255个字符以内"
@@ -90,18 +97,22 @@ class CreateRelationEntityForm extends React.Component<IProps, any> {
                     required
                     hasFeedback
                 >
-                    {getFieldDecorator('relationEntities', {
-                        rules: [],
-                        initialValue: get(formData, 'relationEntities', '')
-                    })(
-                        <Button type="primary" icon="plus" onClick={onCreateRelationEntity}>新增实体</Button>
-                    )}
+                    <Button type="primary" icon="plus" 
+                        disabled={!selectedSource} 
+                        onClick={onCreateRelationEntity}
+                    >
+                        {selectedSource ? '新增实体' : '请先选择数据源' }
+                    </Button>
                 </FormItem>
             </Form>
         )
     }
 }
 
-const WrappedCreateRelationEntityForm = Form.create()(CreateRelationEntityForm);
+const WrappedCreateRelationEntityForm = Form.create<IProps>({
+    onValuesChange: (props: IProps, values) => {
+        props.onFormValuesChange(values);
+    }
+})(CreateRelationEntityForm);
 
 export default WrappedCreateRelationEntityForm

@@ -254,7 +254,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                     )}
                 </FormItem>
                 {
-                    mode === 'edit' ? <React.Fragment>
+                    mode && mode === 'edit' ? <React.Fragment>
                         <FormItem
                             {...formItemLayout}
                             label={(<span>

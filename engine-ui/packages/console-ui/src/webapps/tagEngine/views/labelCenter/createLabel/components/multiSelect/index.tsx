@@ -10,7 +10,7 @@ interface IProps {
     type?: string;
     value?: any;
     data?: any[];
-    onChange?: any;
+    onChangeData?: any;
 }
 
 interface IState {
@@ -39,6 +39,12 @@ IState
     }
     componentDidUpdate (preProps) {
         const { tagId, type } = this.props;
+        if(tagId!=preProps.tagId){
+            this.setState({
+                atomTagValueList: [],
+                textArea: ''
+            })
+        }
         if (tagId && type != 'number' && tagId != preProps.tagId) {
             this.getAtomTagValueList(tagId)
         }
@@ -56,7 +62,7 @@ IState
         })
     }
     onChangeTags = (value) => {
-        this.props.onChange({ values: value })
+        this.props.onChangeData({ values: value })
     }
     onHandleEdit = () => {
         const { data } = this.props
@@ -68,7 +74,8 @@ IState
     }
     handleOk = () => {
         const { textArea } = this.state;
-        this.props.onChange({ values: textArea.split('\n') })
+        let arr = new Set(textArea.split('\n'));
+        this.props.onChangeData({ values: Array.from(arr)})
         this.setState({
             visible: false,
             textArea: ''

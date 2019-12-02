@@ -12,7 +12,7 @@ interface IProps {
         rValue: number;
         lValue: number;
     };
-    onChange?: any;
+    onChangeData?: any;
 }
 
 interface IState {
@@ -33,11 +33,11 @@ IState
     componentDidMount () { }
     onChangeLvalue = (value) => {
         const { data } = this.props;
-        this.props.onChange(Object.assign({}, data, { lValue: value }))
+        this.props.onChangeData(Object.assign({}, data, { lValue: value }))
     }
     onChangeRvalue = (value) => {
         const { data } = this.props;
-        this.props.onChange(Object.assign({}, data, { rValue: value }))
+        this.props.onChangeData(Object.assign({}, data, { rValue: value }))
     }
     render () {
         const { tip, leftText, centerText, rightText, data } = this.props;
