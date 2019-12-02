@@ -22,6 +22,13 @@ export function authBeforeFormate (response: any) {
                 'error'
             );
             return Promise.reject(response);
+        case 401:
+                API.logout().then(res=>{
+                    if (res.code === 1) {
+                        UserAPI.openLogin();
+                    }
+                });
+                return Promise.reject(response);
         case 402:
         case 200:
             return response;
