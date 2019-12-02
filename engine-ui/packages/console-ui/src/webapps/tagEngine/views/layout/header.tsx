@@ -21,7 +21,7 @@ const Search = Input.Search;
     return {
         licenseApps: state.licenseApps
     }
-})as any)
+}) as any)
 class Header extends React.Component<any, any> {
     constructor (props: any) {
         super(props);
@@ -34,18 +34,18 @@ class Header extends React.Component<any, any> {
     // 控制项目下拉菜单的显示
     // eslint-disable-next-line
     componentDidMount () {
-        const { navData,licenseApps } = this.props;
-        const currentlicenseApps =licenseApps.find(item=>item.id=='tagEngine');
-        if(currentlicenseApps){
+        const { navData, licenseApps } = this.props;
+        const currentlicenseApps = licenseApps.find(item => item.id == 'tagEngine');
+        if (currentlicenseApps) {
             const { children } = currentlicenseApps;
-            let navItem = navData.filter(item => children.some(ele =>(ele.name==item.permissionName)&&ele.isShow));
+            let navItem = navData.filter(item => children.some(ele => (ele.name == item.permissionName) && ele.isShow));
             if (navItem.length) {
                 this.setState({
                     navItem
                 })
                 this.updateSelected(navItem[0].permissionUrl)
             }
-        }else {
+        } else {
             this.goIndex();
         }
     }
@@ -73,7 +73,7 @@ class Header extends React.Component<any, any> {
                 if (res.code === 1) {
                     UserAPI.openLogin();
                 }
-            });;
+            });
         }
     };
 
@@ -236,7 +236,7 @@ class Header extends React.Component<any, any> {
                         selectedKeys={[this.state.current]}
                         mode="horizontal"
                     >
-                        { !isProject && this.renderProjectSelect()}
+                        {!isProject && this.renderProjectSelect()}
                         {
                             !isProject && navData.map(item => (
                                 <Menu.Item

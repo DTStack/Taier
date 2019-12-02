@@ -11,4 +11,5 @@ export default {
     ANALYSE_GROUP: `${TAG_ENGINE_URL}/group/groupUpdateAnalysis`, // 组群分析
     ANALYSE_GROUPS: `${TAG_ENGINE_URL}/group/groupsAnalysis`, // 群组分析
     DOWNLOAD_GROUP_TEMPLATE: `${TAG_ENGINE_URL}/group/downloadModule`, // 下载模板
+    OPEN_API: `${TAG_ENGINE_URL}/group/isOpenApi` // 是否开启api
 };

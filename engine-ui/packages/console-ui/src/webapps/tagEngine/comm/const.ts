@@ -233,7 +233,7 @@ export const defaultBarOption: any = {
     title: {
         text: '世界人口总量',
         textStyle: {
-            fontSize: 12,
+            fontSize: 14,
             fontWeight: 'bold'
         }
     },
@@ -246,7 +246,8 @@ export const defaultBarOption: any = {
     color: ['#2491F7', '#1BD7F7', '#9a64fb', '#5df2c3', '#eeeeee'],
     legend: {
         data: ['2011年', '2012年'],
-        show: true
+        show: true,
+        right: 10
     },
     grid: {
         left: '3%',
@@ -259,14 +260,19 @@ export const defaultBarOption: any = {
     xAxis: {
         type: 'category',
         data: ['巴西', '美国', '印度', '中国', '世界人口(万)'],
-        boundaryGap: [0, 0.01]
+        boundaryGap: [0, 0.01],
+        axisLine: {
+            lineStyle: {
+                color: '#E9E9E9'
+            }
+        }
     },
     yAxis: {
         type: 'value',
         axisLine: {
             lineStyle: {
-                color: '#dddddd',
-                width: 2
+                color: '#E9E9E9',
+                width: 1
             }
         },
         position: 'top',

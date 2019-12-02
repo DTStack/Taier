@@ -131,8 +131,8 @@ function componentSelect (data: ISelect) {
         <select id="${id}" value="${value}" placeholder="${placeholder}" class="${className}" ${getDataAttr(bind)}>
             ${placeholder ? `<option selected value="" data-default>${placeholder}</option>` : ''}
             ${options && options.map((o: any) => {
-                return `<option title="${o.id}" value="${o.id}" ${o.id == value ? 'selected' : ''} ${getDataAttr(bindOption, o)}>${o[optionIndex]}</option>`;
-            })}
+        return `<option title="${o.id}" value="${o.id}" ${o.id == value ? 'selected' : ''} ${getDataAttr(bindOption, o)}>${o[optionIndex]}</option>`;
+    })}
         </select>
     `;
 }
@@ -180,7 +180,7 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
         this.renderData(this.props.data);
         setTimeout(() => {
             this.layout();
-        },0)
+        }, 0)
     }
 
     componentDidUpdate (prevProps, prevState) {
@@ -190,6 +190,7 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
     }
 
     renderData = (data: INode[]) => {
+        console.log('renderData:', data);
         if (!data || data.length === 0) return;
         try {
             const graph = this.graph;
@@ -247,7 +248,7 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
                 let content = '';
                 if (mode && mode === GRAPH_MODE.READ) {
                     let columns = '';
-                    data.columns.forEach((o: INode) => columns += `<tr><td title="${o.name}">${o.name}</td></tr>`)
+                    data.columns.forEach((o: INode) => columns += `<tr><td title="${o.attrName}">${o.attrName}</td></tr>`)
                     content = componentVertex(data.name, columns, false);
                 } else {
                     const entitiesSelect = componentSelect({
@@ -256,9 +257,9 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
                         value: data.id,
                         className: 'relationEntity__select',
                         placeholder: '请选择实体',
-                        bind: [ { attr: 'index', value: cell.index } ],
+                        bind: [{ attr: 'index', value: cell.index }],
                         optionIndex: 'entityName',
-                        bindOption: [ { attr: 'entityName' }, { attr: 'dataSourceTable' }]
+                        bindOption: [{ attr: 'entityName' }, { attr: 'dataSourceTable' }]
                     });
                     let columns = '';
                     data.columns.forEach((o: INode, i: number) => columns += `<tr><td>${componentSelect({
@@ -267,9 +268,9 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
                         value: o.id,
                         className: 'relationEntityColumn__tr',
                         placeholder: '请选择维度',
-                        bind: [ { attr: 'index', value: cell.index + '-' + i } ],
+                        bind: [{ attr: 'index', value: cell.index + '-' + i }],
                         optionIndex: 'entityAttr',
-                        bindOption: [ { attr: 'entityAttr' }, { attr: 'entityAttrCn' } ]
+                        bindOption: [{ attr: 'entityAttr' }, { attr: 'entityAttrCn' }]
                     })}</td></tr>`)
                     content = componentVertex(entitiesSelect, columns);
                 }

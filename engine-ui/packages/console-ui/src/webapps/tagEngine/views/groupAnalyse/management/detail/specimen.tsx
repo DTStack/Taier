@@ -9,6 +9,7 @@ import GroupAPI from '../../../../api/group';
 import { IQueryParams } from '../../../../model/comm';
 
 interface IState {
+    dataColumns: any[];
     dataSource: any[];
     loading: boolean;
     visibleDropdown: boolean;
@@ -54,6 +55,7 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
         dataSource: [],
         loading: false,
         visibleDropdown: false,
+        dataColumns: [],
         queryParams: {
             columns: [],
             groupId: null,
@@ -73,22 +75,26 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
     loadData = async () => {
         const { router } = this.props;
         const { queryParams } = this.state;
+        this.setState({
+            loading: true
+        });
         queryParams.groupId = get(router, 'location.query.groupId');
         const res = await GroupAPI.getGroupSpecimens(queryParams);
         if (res.code === 1) {
             const data = res.data;
             updateComponentState(this, {
-                dataSource: data.contentList,
+                dataColumns: data.thead,
+                dataSource: data.tbody,
                 queryParams: {
-                    current: data.current,
-                    size: data.size,
-                    total: data.total
+                    current: Number(data.current),
+                    size: Number(data.size),
+                    total: Number(data.total)
                 }
             })
-            this.setState({
-                dataSource: data.contentList
-            })
         }
+        this.setState({
+            loading: false
+        });
     }
 
     handleTableChange = (pagination: any, filters: any, sorter: any) => {
@@ -113,7 +119,15 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
     }
 
     initColumns = () => {
-        return []
+        const { dataColumns = [] } = this.state;
+        return dataColumns && dataColumns.map(col => {
+            return {
+                title: col.entityAttrCn,
+                dataIndex: col.entityAttr,
+                key: col.entityAttr,
+                sorter: true
+            }
+        });
     }
 
     onDropDownChange = () => {
@@ -123,7 +137,7 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
     }
 
     render () {
-        const { dataSource, loading, queryParams } = this.state;
+        const { dataSource, loading, queryParams, dataColumns } = this.state;
         const pagination: any = {
             total: queryParams.total,
             pageSize: queryParams.size,
@@ -136,6 +150,9 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
                     <OverlayRow><Checkbox value="A">A</Checkbox></OverlayRow>
                     <OverlayRow><Checkbox value="B">B</Checkbox></OverlayRow>
                     <OverlayRow><Checkbox value="C">C</Checkbox></OverlayRow>
+                    { dataColumns && dataColumns.map(item => <OverlayRow key={item.entityAttr}>
+                        <Checkbox value={item.entityAttr}>{item.entityAttrCn}</Checkbox>
+                    </OverlayRow>)}
                     <div style={{ height: '1px', width: '100%' }} className="ant-divider" />
                     <OverlayRow><Checkbox value="ALL">全选</Checkbox></OverlayRow>
                 </Checkbox.Group>

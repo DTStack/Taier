@@ -107,11 +107,15 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
         });
         const { code, data = {} } = res;
         if (code === 1) {
-            ctx._validResult = data;
-            ctx.setState({
-                groupStatus: GROUP_STATUS.SAVE
-            })
-            message.success('校验成功！')
+            if (data.failNum > 0) {
+                message.error(data.failMsg)
+            } else {
+                ctx._validResult = data;
+                ctx.setState({
+                    groupStatus: GROUP_STATUS.SAVE
+                })
+                message.success('校验成功！')
+            }
         } else {
             message.error(data.failMsg)
         }

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { get } from 'lodash'
 
-import { Tabs, Card, Button, Row, Col } from 'antd';
+import { Tabs, Card, Button, Row, Col, message } from 'antd';
 
 import Breadcrumb from '../../../../components/breadcrumb';
 import { GroupStatus } from '../../../../components/status';
@@ -58,9 +58,19 @@ class GroupDetail extends React.Component<any, IState> {
         })
     }
 
-    render () {
+    onEnableAPI = async () => {
         const { router } = this.props;
         const { groupDetail } = this.state;
+        const res = await GroupAPI.openAPI({ groupId: get(router, 'location.query.groupId'), enable: !groupDetail.apiEnable });
+        if (res.code === 1) {
+            message.success('API 开启成功！')
+            this.loadDetail();
+        }
+    }
+
+    render () {
+        const { router } = this.props;
+        const { groupDetail = {} } = this.state;
         return (
             <div className="c-groupDetail m-card">
                 <Breadcrumb breadcrumbNameMap={breadcrumbNameMap} />
@@ -76,7 +86,6 @@ class GroupDetail extends React.Component<any, IState> {
                             <p className="description"><span style={{ marginRight: 10 }}>最近更新时间：{groupDetail.updateAt}</span> <GroupStatus value={0}/></p>
                         </Col>
                         <Col className="right">
-                            <Button type="primary" style={{ marginRight: 20 }}>生成 API</Button>
                             <Button type="primary"><Link to={`/groupAnalyse/upload/edit?groupId=${get(router, 'location.query.groupId')}&entityId=${get(router, 'location.query.entityId')}`}>编辑</Link></Button>
                         </Col>
                     </Row>
@@ -86,7 +95,7 @@ class GroupDetail extends React.Component<any, IState> {
                             animated={false}
                             tabBarStyle={{ height: 40 }}
                         >
-                            <TabPane tab="基本信息" key="basicInfo"><BasicInfo data={groupDetail}/></TabPane>
+                            <TabPane tab="基本信息" key="basicInfo"><BasicInfo onEnableAPI={this.onEnableAPI} data={groupDetail}/></TabPane>
                             <TabPane tab="样本列表" key="specimenList"><SpecimenList router={router} /></TabPane>
                             <TabPane tab="群组画像" key="portrait"><Portrait router={router} /></TabPane>
                         </Tabs>

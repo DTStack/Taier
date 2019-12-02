@@ -47,6 +47,7 @@ $groupPortraitPrefix: 'c-groupPortrait';
         padding: 0 20px;
         display: flex;
         flex-wrap: wrap;
+        min-height: 250px;
     }
 
     .#{$groupPortraitPrefix}__chart-item {

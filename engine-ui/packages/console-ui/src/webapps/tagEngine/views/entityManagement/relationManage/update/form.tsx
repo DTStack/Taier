@@ -25,7 +25,7 @@ class CreateRelationEntityForm extends React.Component<IProps & FormComponentPro
     render () {
         const { form, dataSourceList = [], onCreateRelationEntity, formData = {} } = this.props;
         const { getFieldDecorator } = form;
-        const selectedSource = form.getFieldValue('dataSourceId');
+        const selectedSource = get(formData, 'dataSourceId') || form.getFieldValue('dataSourceId');
         return (
             <Form>
                 <FormItem
@@ -97,8 +97,8 @@ class CreateRelationEntityForm extends React.Component<IProps & FormComponentPro
                     required
                     hasFeedback
                 >
-                    <Button type="primary" icon="plus" 
-                        disabled={!selectedSource} 
+                    <Button type="primary" icon="plus"
+                        disabled={!selectedSource}
                         onClick={onCreateRelationEntity}
                     >
                         {selectedSource ? '新增实体' : '请先选择数据源' }

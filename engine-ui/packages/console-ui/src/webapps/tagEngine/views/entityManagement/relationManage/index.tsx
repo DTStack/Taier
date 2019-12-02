@@ -40,6 +40,9 @@ export default class RelationManage extends React.Component<any, IState> {
 
     loadData = async () => {
         const { queryParams } = this.state;
+        this.setState(({
+            loading: true
+        }))
         const res = await API.getRelations(queryParams);
         if (res.code === 1) {
             const data = res.data;
@@ -52,6 +55,9 @@ export default class RelationManage extends React.Component<any, IState> {
                 }
             });
         }
+        this.setState(({
+            loading: false
+        }))
     }
 
     handDeleteRelation = async (id: number) => {

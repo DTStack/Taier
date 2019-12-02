@@ -38,10 +38,6 @@ export default class GroupManage extends React.Component<any, IState> {
         }
     }
 
-    componentDidMount () {
-        // TODO
-    }
-
     loadData = async () => {
         const ctx = this;
         ctx.setState({
