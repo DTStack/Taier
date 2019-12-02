@@ -243,9 +243,10 @@ export const defaultBarOption: any = {
             type: 'shadow'
         }
     },
-    color: ['#5dd1f2', '#5d99f2', '#9a64fb', '#5df2c3', '#eeeeee'],
+    color: ['#2491F7', '#1BD7F7', '#9a64fb', '#5df2c3', '#eeeeee'],
     legend: {
-        data: ['2011年', '2012年']
+        data: ['2011年', '2012年'],
+        show: true
     },
     grid: {
         left: '3%',
@@ -256,13 +257,12 @@ export const defaultBarOption: any = {
         containLabel: true
     },
     xAxis: {
-        type: 'value',
-        show: false,
+        type: 'category',
+        data: ['巴西', '美国', '印度', '中国', '世界人口(万)'],
         boundaryGap: [0, 0.01]
     },
     yAxis: {
-        type: 'category',
-        data: ['巴西', '美国', '印度', '中国', '世界人口(万)'],
+        type: 'value',
         axisLine: {
             lineStyle: {
                 color: '#dddddd',

@@ -1,16 +1,16 @@
 import * as React from 'react';
-import { get, cloneDeep } from 'lodash';
+import { get, cloneDeep, isEmpty } from 'lodash';
 import { Form, Row, Col, Select, Button } from 'antd';
 import styled from 'styled-components'
 
 import { updateComponentState } from 'funcs';
 import * as EChart from 'widgets/echart';
 
-import GroupAPI, { IGroupsAnalysis } from '../../../../api/group';
 import { API } from '../../../../api/apiMap';
-import { IQueryParams } from '../../../../model/comm';
 import { IGroup } from '../../../../model/group';
+import { IQueryParams } from '../../../../model/comm';
 // import { defaultBarOption } from '../../../../comm/const';
+import GroupAPI, { IGroupsAnalysis } from '../../../../api/group';
 
 interface IState {
     groups: any[];
@@ -18,6 +18,9 @@ interface IState {
     result: any;
     queryParams: { entityId: string } & IQueryParams ;
     formData: IGroupsAnalysis;
+    groupA: IGroup;
+    groupB: IGroup;
+    groupOverlapData: IGroup;
 }
 
 const FormItem = Form.Item;
@@ -54,27 +57,25 @@ const formItemLayout = { // 表单正常布局
     }
 }
 
-const mockData = {
-    legend: {},
-    tooltip: {},
-    dataset: {
-        source: [
-            ['product', '2015', '2016', '2017'],
-            ['Matcha Latte', 43.3, 85.8, 93.7],
-            ['Milk Tea', 83.1, 73.4, 55.1],
-            ['Cheese Cocoa', 86.4, 65.2, 82.5],
-            ['Walnut Brownie', 72.4, 53.9, 39.1]
-        ]
+const defaultBarOption = {
+    legend: {
+        data: []
     },
-    xAxis: {type: 'category'},
-    yAxis: {},
-    // Declare several bar series, each will be mapped
-    // to a column of dataset.source by default.
-    series: [
-        {type: 'bar'},
-        {type: 'bar'},
-        {type: 'bar'}
-    ]
+    title: {
+        text: ''
+    },
+    color: ['#2491F7', '#1BD7F7'],
+    xAxis: {
+        type: 'category',
+        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    },
+    yAxis: {
+        type: 'value'
+    },
+    series: [{
+        data: [120, 200, 150, 80, 70, 110, 130],
+        type: 'bar'
+    }]
 };
 
 export default class GroupPortrait extends React.PureComponent<any, IState> {
@@ -85,7 +86,7 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
     state: IState = {
         groups: [],
         tags: [],
-        result: {},
+        result: [ defaultBarOption, defaultBarOption, defaultBarOption, defaultBarOption ],
         queryParams: {
             entityId: null,
             total: 0,
@@ -101,7 +102,10 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
             entityId: '',
             groupPojoIdList: [],
             tagGroupList: []
-        }
+        },
+        groupA: {},
+        groupB: {},
+        groupOverlapData: {}
     }
 
     static getDerivedStateFromProps (props, state: IState) {
@@ -143,20 +147,58 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
         }
     }
 
-    onGroupSelect = (value, option) => {
+    onGroupASelect = (value, option) => {
         const { formData = { groupPojoIdList: [] } } = this.state;
         const { groupPojoIdList = [] } = formData;
+        const group: IGroup = option.props['data-item'];
         const newArr = groupPojoIdList.slice();
-        if (newArr.findIndex((group: IGroup) => group.groupId === value) < 0) {
-            newArr.push({
-                groupId: value,
-                groupName: option.props['data-name']
-            });
-            updateComponentState(this, {
-                formData: {
-                    groupPojoIdList: newArr
-                }
+
+        newArr[0] = {
+            groupId: value,
+            groupName: group.groupName
+        }
+        updateComponentState(this, {
+            groupA: group,
+            formData: {
+                groupPojoIdList: newArr
+            }
+        }, () => {
+            this.onGroupOverlapExtent();
+        });
+    }
+
+    onGroupBSelect = (value, option) => {
+        const { formData = { groupPojoIdList: [] } } = this.state;
+        const { groupPojoIdList = [] } = formData;
+        const group: IGroup = option.props['data-item'];
+        const newArr = groupPojoIdList.slice();
+
+        newArr[1] = {
+            groupId: value,
+            groupName: group.groupName
+        }
+        updateComponentState(this, {
+            groupB: group,
+            formData: {
+                groupPojoIdList: newArr
+            }
+        }, () => {
+            this.onGroupOverlapExtent();
+        });
+    }
+
+    onGroupOverlapExtent = async () => {
+        const { groupA, groupB, formData } = this.state;
+        if (!isEmpty(groupA) && !isEmpty(groupB)) {
+            const res = await GroupAPI.getGroupContactCount({
+                entityId: formData.entityId,
+                groupIdList: [groupA.groupId, groupB.groupId]
             })
+            if (res.code === 1) {
+                this.setState({
+                    groupOverlapData: res.data
+                })
+            }
         }
     }
 
@@ -187,14 +229,31 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
         }
     }
 
-    render () {
-        const { groups = [], tags, result, formData = { groupPojoIdList: [], tagGroupList: [] } } = this.state;
-        const { groupPojoIdList = [] } = formData;
-        const groupOptions = groups && groups.map((o: IGroup) => {
-            const disabled = groupPojoIdList.findIndex((group: IGroup) => group.groupId === o.groupId) > -1;
-            return <Option key={o.groupId} value={o.groupId} title={o.groupName} disabled={disabled} data-name={o.groupName}>{o.groupName}</Option>
+    renderAnalyseResult = () => {
+        const { result } = this.state;
+        const charts = result && result.map((chart, index) => {
+            const options = cloneDeep(defaultBarOption);
+            options.title.text = chart.title;
+            options.xAxis.data = chart.xAxis;
+            options.legend.data = chart.legend;
+            options.series = chart.series;
+            return (
+                <div key={`chart-${index}`} className="c-groupPortrait__chart-item">
+                    <EChart.Bar options={options}/>
+                </div>
+            )
         });
-        const options = cloneDeep(mockData);
+        return charts;
+    }
+
+    render () {
+        const {
+            groups = [], tags, groupA, groupB, groupOverlapData
+        } = this.state;
+        const groupOptions = groups && groups.map((o: IGroup) => {
+            const disabled = o.groupId === groupA.groupId || o.groupId === groupB.groupId;
+            return <Option key={o.groupId} value={o.groupId} title={o.groupName} disabled={disabled} data-item={o}>{o.groupName}</Option>
+        });
 
         const filterContent = (
             <Form className="c-groupPortrait__form">
@@ -207,16 +266,16 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
                     <Select
                         placeholder="请选择群体"
                         style={{ width: 120 }}
-                        onSelect={this.onGroupSelect}
+                        onSelect={this.onGroupASelect}
                     >
                         { groupOptions }
                     </Select>
                     <IndexContainer>
-                        <span>{result.groupB || 0}个样本在当前时间内被标记</span>
+                        <span>{groupA.groupDataCount || 0}个样本在当前时间内被标记</span>
                     </IndexContainer>
                     <IndexContainer style={{ position: 'absolute', height: '88px', padding: '10px 0' }}>
                         <p>重叠样本量</p>
-                        <IndexTitle>{result.repeat || 0}</IndexTitle>
+                        <IndexTitle>{groupOverlapData.groupDataCount || 0}</IndexTitle>
                     </IndexContainer>
                 </FormItem>
                 <FormItem
@@ -228,12 +287,12 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
                     <Select
                         placeholder="请选择群体"
                         style={{ width: 120 }}
-                        onSelect={this.onGroupSelect}
+                        onSelect={this.onGroupBSelect}
                     >
                         { groupOptions }
                     </Select>
                     <IndexContainer>
-                        <span>{result.groupA || 0}个样本在当前时间内被标记</span>
+                        <span>{groupB.groupDataCount || 0}个样本在当前时间内被标记</span>
                     </IndexContainer>
                 </FormItem>
                 <FormItem
@@ -274,11 +333,11 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
                         { filterContent }
                     </Col>
                 </Row>
-                <Row gutter={20} className="c-groupPortrait__chart" type="flex" justify="space-between">
-                    <Col><div id="JS_Chart_1" className="c-groupPortrait__chart-item"><EChart.Bar options={options}/></div></Col>
-                    <Col><div id="JS_Chart_2" className="c-groupPortrait__chart-item"><EChart.Bar options={options}/></div></Col>
-                    <Col><div id="JS_Chart_3" className="c-groupPortrait__chart-item"><EChart.Bar options={options}/></div></Col>
+                <Row className="c-groupPortrait__chart">
+                    {this.renderAnalyseResult()}
                 </Row>
+                {/* <Row gutter={20} className="c-groupPortrait__chart" type="flex" justify="space-between">
+                </Row> */}
             </div>
         )
     }

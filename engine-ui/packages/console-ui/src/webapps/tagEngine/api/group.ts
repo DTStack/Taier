@@ -42,7 +42,7 @@ export default {
     analysisGroups (params: IGroupsAnalysis) {
         return http.post(req.ANALYSE_GROUPS, params);
     },
-    getGroupContactCount (params: { entityId?: number; groupIdList: number[] }) {
+    getGroupContactCount (params: { entityId?: number | string; groupIdList: number[] }) {
         return http.post(req.GET_GROUP_CONTACT_COUNT, params);
     },
     downloadGroupTemplate (params: {
