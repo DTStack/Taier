@@ -126,3 +126,8 @@ export const UPLOAD_STATUS: any = {
     READY: 'ready',
     FAIL: 'fail'
 }
+
+export enum ScheduleStatus {
+    FREZED = 2,
+    UNFREZED= 1
+}
