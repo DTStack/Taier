@@ -700,7 +700,7 @@ class BaseForm extends React.Component<any, any> {
                             ],
                             initialValue: config.url || ''
                         })(
-                            <Input autoComplete="off" />
+                            <Input onChange={() => { this.setState({ isTestConnect: false }) }} autoComplete="off" />
                         )}
                         <Tooltip overlayClassName="big-tooltip" title={'示例：172.16.8.177:9200'}>
                             <Icon className="help-doc" type="question-circle-o" />

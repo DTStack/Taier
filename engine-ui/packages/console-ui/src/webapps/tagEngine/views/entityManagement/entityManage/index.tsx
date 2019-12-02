@@ -228,13 +228,13 @@ export default class EntityList extends React.Component<any, IState> {
         };
         const title = (
             <div>
-                {dataSource.length ? <Search
+                <Search
                     value={searchVal}
                     placeholder="搜索实体、创建者名称"
                     style={{ width: 200, padding: 0 }}
                     onSearch={this.handleSearch}
                     onChange={this.handleSearchChange}
-                /> : null}
+                />
                 &nbsp;&nbsp;
             </div>
         )

@@ -48,11 +48,13 @@ class ProjectForm extends React.Component<any, any> {
                             rules: [{
                                 required: true, message: '项目名称不可为空！'
                             }, {
-                                pattern: /^[A-Za-z0-9_]*([A-Za-z])[A-Za-z0-9_]*$/,
-                                message: '项目名称由字母、数字、下划线组成!'
+                                // pattern: /^[A-Za-z0-9_]*([A-Za-z])[A-Za-z0-9_]*$/,
+                                // message: '项目名称由字母、数字、下划线组成!'
+                                pattern: /^[A-Za-z0-9_\u4e00-\u9fa5]+$/,
+                                message: '项目名称只能由中文、字母、数字和下划线组成'
                             }, {
-                                max: 20,
-                                message: '项目名称不得超过20个字符！'
+                                max: 80,
+                                message: '项目名称不得超过80个字符！'
                             }]
                         })(
                             <Input placeholder="请输入项目名称" />
@@ -65,8 +67,11 @@ class ProjectForm extends React.Component<any, any> {
                     >
                         {getFieldDecorator('projectAlias', {
                             rules: [{
-                                max: 20,
-                                message: '项目别名不得超过20个字符！'
+                                max: 80,
+                                message: '项目别名不得超过80个字符！'
+                            }, {
+                                pattern: /^[A-Za-z0-9_\u4e00-\u9fa5]+$/,
+                                message: '项目别名只能由中文、字母、数字和下划线组成'
                             }]
                         })(
                             <Input placeholder="请输入项目别名" />
@@ -79,11 +84,11 @@ class ProjectForm extends React.Component<any, any> {
                     >
                         {getFieldDecorator('projectDesc', {
                             rules: [{
-                                max: 200,
-                                message: '项目描述请控制在200个字符以内！'
+                                max: 500,
+                                message: '项目描述不得超过500个字符！'
                             }]
                         })(
-                            <Input type="textarea" placeholder="项目描述请控制在200个字符以内" {...rowFix}/>
+                            <Input type="textarea" placeholder="请输入描述信息，限制在500个字符以内" {...rowFix}/>
                         )}
                     </FormItem>
                 </Form>
