@@ -4,6 +4,6 @@
 window.APP_CONF = {
     name: 'TagEngine', // 应用名字
     loadingTitle: '标签引擎', // loading的应用名字
-    logo: 'public/dataLabel/img/logo.svg', // header图标
+    logo: 'public/tagEngine/img/logo.svg', // header图标
     titleName: '标签引擎' // 网页title
 }
