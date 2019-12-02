@@ -6,6 +6,7 @@
   "license": "MIT",
   "dependencies": {
     "@handsontable/react": "^2.1.0",
+    "@types/base-64": "^0.1.3",
     "@types/classnames": "^2.2.9",
     "@types/codemirror": "0.0.76",
     "@types/d3-selection": "^1.4.1",
@@ -23,6 +24,7 @@
     "@types/redux-logger": "3.0.7",
     "@types/showdown": "1.9.3",
     "antd": "2.13.14",
+    "base-64": "^0.1.0",
     "codemirror": "5.25.0",
     "core-js": "^3.3.2",
     "d3-selection": "1.1.0",

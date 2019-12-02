@@ -8,6 +8,9 @@ import Icon from 'science/components/icon';
 class ScriptPanel extends React.Component<any, any> {
     constructor (props: any) {
         super(props);
+        this.handleSaveScript = this.handleSaveScript.bind(this);
+        this.handleFormat = this.handleFormat.bind(this);
+        this.handleScriptChange = this.handleScriptChange.bind(this)
     }
     handleSaveScript () {
         this.props.handleSaveScript()
