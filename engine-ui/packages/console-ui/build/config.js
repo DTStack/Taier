@@ -50,6 +50,7 @@ module.exports = {
                 secure: false
             },
             '/api/dataScience': { // 算法平台
+                // target: 'http://172.16.3.196:9029', // 联调环境
                 target: 'http://172.16.10.251:9029', // 开发环境
                 // target: 'http://127.0.0.1:3000', // 测试环境
                 // target: 'http://172.16.3.30:9029', // 联调环境

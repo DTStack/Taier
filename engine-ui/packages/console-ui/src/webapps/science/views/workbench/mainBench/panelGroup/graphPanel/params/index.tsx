@@ -5,6 +5,7 @@ import { COMPONENT_TYPE, TASK_ENUM } from '../../../../../../consts'
 import ReadDatabase from './readDatabase';
 import WriteDatabase from './writeDatabase';
 import SqlScript from './sqlScript';
+import PythonScript from './pythonScript';
 import TypeChange from './typeChange';
 import Normalise from './normalise';
 import DataSplit from './dataSplit';
@@ -117,6 +118,8 @@ class Params extends React.Component<any, any> {
                 return <ConfusionMatrix key={componentId} {...componentProps} />
             case COMPONENT_TYPE.FEATURE_ENGINEER.ONE_HOT:
                 return <OneHot key={componentId} {...componentProps} />
+            case COMPONENT_TYPE.DATA_TOOLS.PYTHON_SCRIPT:
+                return <PythonScript key={componentId} {...componentProps} />
             default:
                 return ''
         }

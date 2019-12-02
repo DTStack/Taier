@@ -116,6 +116,7 @@ class ComponentSidebar extends React.Component<any, any> {
                 // 如果正在运行，无法拖进组件
                 return;
             }
+
             const params: any = {
                 taskType: data.taskType,
                 componentType: data.componentType,
@@ -270,6 +271,9 @@ class ComponentSidebar extends React.Component<any, any> {
                                 }
                                 case COMPONENT_TYPE.FEATURE_ENGINEER.ONE_HOT: {
                                     return 'anchor-component-file o-tree-icon--one-hot'
+                                }
+                                case COMPONENT_TYPE.DATA_TOOLS.PYTHON_SCRIPT: {
+                                    return 'anchor-component-file o-tree-icon--python'
                                 }
                                 default: return 'anchor-folder';
                             }
