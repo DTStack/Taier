@@ -55,7 +55,7 @@ IState
             this.setState({
                 pageNo: 1,
                 pageSize: 10,
-                total: 100,
+                total: 0,
                 visible: false,
                 tagStatus: '-1',
                 tagType: '-1',
