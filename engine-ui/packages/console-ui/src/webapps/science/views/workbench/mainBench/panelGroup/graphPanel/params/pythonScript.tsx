@@ -52,7 +52,7 @@ class PythonScript extends React.Component<any, any> {
         currentComponentData.data = { ...params, ...res.data };
         changeContent({}, currentTab);
     }
-    handlePythonChange = (value: any)=> {
+    handlePythonChange = (value: any) => {
         this.setState({
             code: value,
             dirty: true
@@ -121,7 +121,7 @@ class PythonScript extends React.Component<any, any> {
                 <TabPane tab="内存设置" key="2">
                     <WrapMemorySetting
                         data={data}
-                        handleSave={this.handleSaveComponent} 
+                        handleSave={this.handleSaveComponent}
                     />
                 </TabPane>
             </Tabs>
