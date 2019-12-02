@@ -28,8 +28,8 @@ class RelationDetail extends React.Component<any, IState> {
     }
 
     fetchData = async () => {
-        const { params } = this.props.router;
-        const res = await API.getRelation({ relationId: params.relationId });
+        const { location } = this.props.router;
+        const res = await API.getRelation({ relationId: location.query.relationId });
         if (res.code === 0) {
             this.setState({
                 data: res.data

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Card, Table, Dropdown, Checkbox, Icon, Button } from 'antd';
 import styled from 'styled-components';
+import { get } from 'lodash';
 
 import { updateComponentState } from 'funcs';
 
@@ -70,9 +71,9 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
     }
 
     loadData = async () => {
-        const { params } = this.props.router;
+        const { router } = this.props;
         const { queryParams } = this.state;
-        queryParams.groupId = params.groupId;
+        queryParams.groupId = get(router, 'location.query.groupId');
         const res = await GroupAPI.getGroupSpecimens(queryParams);
         if (res.code === 1) {
             const data = res.data;

@@ -4,13 +4,13 @@ import { Form, Row, Col, Select, Button } from 'antd';
 import styled from 'styled-components'
 
 import { updateComponentState } from 'funcs';
-import { EChartBar } from 'widgets/echart';
+import * as EChart from 'widgets/echart';
 
 import GroupAPI, { IGroupsAnalysis } from '../../../../api/group';
 import { API } from '../../../../api/apiMap';
 import { IQueryParams } from '../../../../model/comm';
 import { IGroup } from '../../../../model/group';
-import { defaultBarOption } from '../../../../comm/const';
+// import { defaultBarOption } from '../../../../comm/const';
 
 interface IState {
     groups: any[];
@@ -46,13 +46,36 @@ const IndexTitle = styled.span`
 const formItemLayout = { // 表单正常布局
     labelCol: {
         xs: { span: 24 },
-        sm: { span: 6 }
+        sm: { span: 5 }
     },
     wrapperCol: {
         xs: { span: 24 },
         sm: { span: 14 }
     }
 }
+
+const mockData = {
+    legend: {},
+    tooltip: {},
+    dataset: {
+        source: [
+            ['product', '2015', '2016', '2017'],
+            ['Matcha Latte', 43.3, 85.8, 93.7],
+            ['Milk Tea', 83.1, 73.4, 55.1],
+            ['Cheese Cocoa', 86.4, 65.2, 82.5],
+            ['Walnut Brownie', 72.4, 53.9, 39.1]
+        ]
+    },
+    xAxis: {type: 'category'},
+    yAxis: {},
+    // Declare several bar series, each will be mapped
+    // to a column of dataset.source by default.
+    series: [
+        {type: 'bar'},
+        {type: 'bar'},
+        {type: 'bar'}
+    ]
+};
 
 export default class GroupPortrait extends React.PureComponent<any, IState> {
     constructor (props: any) {
@@ -82,7 +105,7 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
     }
 
     static getDerivedStateFromProps (props, state: IState) {
-        const entityId = get(props, 'router.params.entityId')
+        const entityId = get(props, 'router.location.query.entityId')
         if (entityId !== get(state, 'queryParams.entityId')) {
             const newState: IState = Object.assign({}, state);
             newState.formData.entityId = entityId;
@@ -109,7 +132,7 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
 
     getTags = async (query: string) => {
         const res = await API.getGroupTag({
-            entityId: get(this.props, 'router.params.entityId', ''),
+            entityId: get(this.props, 'router.location.query.entityId', ''),
             current: 1,
             search: query
         });
@@ -171,7 +194,7 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
             const disabled = groupPojoIdList.findIndex((group: IGroup) => group.groupId === o.groupId) > -1;
             return <Option key={o.groupId} value={o.groupId} title={o.groupName} disabled={disabled} data-name={o.groupName}>{o.groupName}</Option>
         });
-        const options = cloneDeep(defaultBarOption);
+        const options = cloneDeep(mockData);
 
         const filterContent = (
             <Form className="c-groupPortrait__form">
@@ -189,9 +212,9 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
                         { groupOptions }
                     </Select>
                     <IndexContainer>
-                        <span>{result.groupB}个样本在当前时间内被标记</span>
+                        <span>{result.groupB || 0}个样本在当前时间内被标记</span>
                     </IndexContainer>
-                    <IndexContainer style={{ position: 'absolute', height: '88px' }}>
+                    <IndexContainer style={{ position: 'absolute', height: '88px', padding: '10px 0' }}>
                         <p>重叠样本量</p>
                         <IndexTitle>{result.repeat || 0}</IndexTitle>
                     </IndexContainer>
@@ -210,7 +233,7 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
                         { groupOptions }
                     </Select>
                     <IndexContainer>
-                        <span>{result.groupA}个样本在当前时间内被标记</span>
+                        <span>{result.groupA || 0}个样本在当前时间内被标记</span>
                     </IndexContainer>
                 </FormItem>
                 <FormItem
@@ -252,9 +275,9 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
                     </Col>
                 </Row>
                 <Row gutter={20} className="c-groupPortrait__chart" type="flex" justify="space-between">
-                    <Col><div id="JS_Chart_1" className="c-groupPortrait__chart-item"><EChartBar options={options}/></div></Col>
-                    <Col><div id="JS_Chart_2" className="c-groupPortrait__chart-item"><EChartBar options={options}/></div></Col>
-                    <Col><div id="JS_Chart_3" className="c-groupPortrait__chart-item"><EChartBar options={options}/></div></Col>
+                    <Col><div id="JS_Chart_1" className="c-groupPortrait__chart-item"><EChart.Bar options={options}/></div></Col>
+                    <Col><div id="JS_Chart_2" className="c-groupPortrait__chart-item"><EChart.Bar options={options}/></div></Col>
+                    <Col><div id="JS_Chart_3" className="c-groupPortrait__chart-item"><EChart.Bar options={options}/></div></Col>
                 </Row>
             </div>
         )

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Card, message } from 'antd';
+import { get } from 'lodash';
 
 import { IDataSource } from '../../../../model/dataSource';
 
@@ -38,8 +39,8 @@ class GroupUploadEdit extends React.Component<IProps, any> {
     }
 
     getGroupData = async () => {
-        const { params } = this.props.router;
-        const res = await API.getGroup({ groupId: params.groupId });
+        const { router } = this.props;
+        const res = await API.getGroup({ groupId: get(router, 'location.query.groupId', '') });
         if (res.code === 1) {
             this.setState({
                 formData: res.data

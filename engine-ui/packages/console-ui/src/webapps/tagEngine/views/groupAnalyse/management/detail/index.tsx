@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { get } from 'lodash'
 
 import { Tabs, Card, Button, Row, Col } from 'antd';
 
@@ -50,8 +51,8 @@ class GroupDetail extends React.Component<any, IState> {
     }
 
     loadDetail = async () => {
-        const { params } = this.props.router;
-        const res = await GroupAPI.getGroup({ groupId: params.groupId });
+        const { router } = this.props;
+        const res = await GroupAPI.getGroup({ groupId: get(router, 'location.query.groupId') });
         this.setState({
             groupDetail: res.data
         })
@@ -59,7 +60,6 @@ class GroupDetail extends React.Component<any, IState> {
 
     render () {
         const { router } = this.props;
-        const { params } = router;
         const { groupDetail } = this.state;
         return (
             <div className="c-groupDetail m-card">
@@ -77,7 +77,7 @@ class GroupDetail extends React.Component<any, IState> {
                         </Col>
                         <Col className="right">
                             <Button type="primary" style={{ marginRight: 20 }}>生成 API</Button>
-                            <Button type="primary"><Link to={`/groupAnalyse/upload/edit/${params.groupId}/${params.entityId}`}>编辑</Link></Button>
+                            <Button type="primary"><Link to={`/groupAnalyse/upload/edit?groupId=${get(router, 'location.query.groupId')}&entityId=${get(router, 'location.query.entityId')}`}>编辑</Link></Button>
                         </Col>
                     </Row>
                     <Row className="c-groupDetail__tabs">

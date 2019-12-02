@@ -16,7 +16,7 @@ interface IProps {
     className?: any;
 }
 
-class EChartBar extends React.Component<IProps, any> {
+class Bar extends React.Component<IProps, any> {
     private _chartEle: any;
     private _chartInst: any;
 
@@ -56,4 +56,4 @@ class EChartBar extends React.Component<IProps, any> {
     }
 }
 
-export default EChartBar;
+export default Bar;
