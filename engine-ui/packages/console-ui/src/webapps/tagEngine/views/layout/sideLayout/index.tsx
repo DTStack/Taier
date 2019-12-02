@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import * as ProjectAction from '../../../reducers/modules/project';
 import * as UserAction from '../../../reducers/modules/user';
 import { tagApp } from 'config/base';
-import { updateApp } from 'main/actions/app'
+import { updateApp, getLicenseApp } from 'main/actions/app'
 
 import utils from 'utils'
 import Heade from '../header';
@@ -35,9 +35,9 @@ class SideLayout extends React.Component<IProps, IState> {
     static defaultProps: any;
     componentDidMount () {
         const { dispatch } = this.props;
-        
         dispatch(UserAction.getUser())
         dispatch(updateApp(tagApp))
+        dispatch(getLicenseApp())
         dispatch(ProjectAction.getProjects())
         this.initProject()
     }
@@ -75,7 +75,7 @@ class SideLayout extends React.Component<IProps, IState> {
     render () {
         const { children, location } = this.props;
         const pathName = location.pathname;
-        const menuData = NavData.filter(item => item.routers.some(ele=>new RegExp(ele,"g").test(pathName)) );
+        const menuData = NavData.filter(item => item.routers.some(ele => new RegExp(ele, 'g').test(pathName)));
         const projectIdFromCookie = utils.getCookie('tag_project_id');
         return (
             <Layout className="dt-tag-layout">

@@ -33,20 +33,22 @@ class Header extends React.Component<any, any> {
 
     // 控制项目下拉菜单的显示
     // eslint-disable-next-line
-    componentDidMount () {
+    componentDidUpdate (preProps) {
         const { navData, licenseApps } = this.props;
-        const currentlicenseApps = licenseApps.find(item => item.id == 'tagEngine');
-        if (currentlicenseApps) {
-            const { children } = currentlicenseApps;
-            let navItem = navData.filter(item => children.some(ele => (ele.name == item.permissionName) && ele.isShow));
-            if (navItem.length) {
-                this.setState({
-                    navItem
-                })
-                this.updateSelected(navItem[0].permissionUrl)
+        if (licenseApps != preProps.licenseApps) {
+            const currentlicenseApps = licenseApps.find(item => item.id == 'tagEngine');
+            if (currentlicenseApps) {
+                const { children } = currentlicenseApps;
+                let navItem = navData.filter(item => children.some(ele => (ele.name == item.permissionName) && ele.isShow));
+                if (navItem.length) {
+                    this.setState({
+                        navItem
+                    })
+                    this.updateSelected(navItem[0].permissionUrl)
+                }
+            } else {
+                this.goIndex();
             }
-        } else {
-            this.goIndex();
         }
     }
     handleClick = (e: any) => {
