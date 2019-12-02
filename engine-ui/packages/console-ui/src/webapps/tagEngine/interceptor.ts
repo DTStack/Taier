@@ -23,12 +23,8 @@ export function authBeforeFormate (response: any) {
             );
             return Promise.reject(response);
         case 401:
-                API.logout().then(res=>{
-                    if (res.code === 1) {
-                        UserAPI.openLogin();
-                    }
-                });
-                return Promise.reject(response);
+            UserAPI.openLogin();
+            return Promise.reject(response);
         case 402:
         case 200:
             return response;
@@ -56,7 +52,7 @@ export function authAfterFormated (response: any) {
         case 1:
             return response;
         case 0: // 需要登录
-            API.logout().then(res=>{
+            API.logout().then(res => {
                 if (res.code === 1) {
                     UserAPI.openLogin();
                 }
