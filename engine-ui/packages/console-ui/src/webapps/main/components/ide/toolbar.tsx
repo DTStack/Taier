@@ -17,22 +17,22 @@ export default class Toolbar extends React.Component<any, any> {
 
     renderRun = () => {
         const {
-            isRunning, onRun, onStop, enableRun, disableRun
+            isRunning, onRun, onStop, enableRun, disableRun, runningMenu
         } = this.props;
 
-        return enableRun ? [
-            <Button
-                key="btnRun"
-                onClick={onRun}
-                loading={isRunning}
-                disabled={disableRun || isRunning}
-                {...{ title: '立即运行' }}
-                icon="play-circle-o"
-                style={{ marginLeft: '0px' }}
-            >
-                {' '}
-                运行
-            </Button>,
+        return enableRun ? <span>
+            <Dropdown overlay={runningMenu} trigger={['hover']}>
+                <Button
+                    onClick={onRun}
+                    loading={isRunning}
+                    disabled={disableRun || isRunning}
+                    {...{ title: '立即运行' }}
+                    icon="play-circle-o"
+                    style={{ marginLeft: '0px' }}
+                >
+                    运行 <Icon type="down" />
+                </Button>
+            </Dropdown>
             <Button
                 key="btnStop"
                 onClick={onStop}
@@ -42,7 +42,7 @@ export default class Toolbar extends React.Component<any, any> {
             >
                 停止
             </Button>
-        ] : '';
+        </span> : '';
     }
 
     render () {
