@@ -151,9 +151,9 @@ class EditorContainer extends React.Component<any, any> {
         const arr: any = [];
         let sqls: any = filterComments(sql);
 
-         // 为 batchSession 时，SQL 无需切割
+        // 为 batchSession 时，SQL 无需切割
         if (batchSession) return [utils.trim(sqls)];
-    
+
         // 如果有有效内容
         if (sqls) {
             sqls = splitSql(sqls);
