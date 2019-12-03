@@ -259,6 +259,12 @@
         width: 14px;
         height: 14px;
     }
+    // python
+    &.o-tree-icon--python .ant-tree-iconEle {
+        background-image: url(/public/science/img/icon/python.svg);
+        width: 14px;
+        height: 14px;
+    }    
 }
 .s-tree-folder {
     &>.ant-tree-iconEle {

@@ -223,6 +223,7 @@ class GraphContainer extends React.Component<any, GraphContainerState> {
             case COMPONENT_TYPE.DATA_SOURCE.READ_DATABASE: return '读数据表';
             case COMPONENT_TYPE.DATA_SOURCE.WRITE_DATABASE: return '写数据表';
             case COMPONENT_TYPE.DATA_TOOLS.SQL_SCRIPT: return 'sql脚本';
+            case COMPONENT_TYPE.DATA_TOOLS.PYTHON_SCRIPT: return 'python脚本';
             case COMPONENT_TYPE.DATA_MERGE.TYPE_CHANGE: return '类型转换';
             case COMPONENT_TYPE.DATA_MERGE.NORMALIZE: return '归一化';
             case COMPONENT_TYPE.DATA_PRE_HAND.DATA_SPLIT: return '拆分';
