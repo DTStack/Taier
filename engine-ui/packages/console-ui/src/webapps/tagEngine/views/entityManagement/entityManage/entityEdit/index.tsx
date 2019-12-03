@@ -166,7 +166,7 @@ export default class EntityEdit extends React.Component<IProps, IState> {
                         return {
                             ...item,
                             dataType: item.dataType || (attrTypeOptions[0] && attrTypeOptions[0].value),
-                            isAtomTag: item.isAtomTag || item.entityAttr == resultBV.entityPrimaryKey,
+                            isAtomTag: true,
                             isPrimaryKey: item.entityAttr == resultBV.entityPrimaryKey
                         }
                     });

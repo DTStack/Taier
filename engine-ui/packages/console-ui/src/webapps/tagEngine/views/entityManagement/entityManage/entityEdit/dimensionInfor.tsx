@@ -167,7 +167,7 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
                 return (
                     <div className="di-table-name-col">
                         <div className="tag-box">
-                            {record.id ? null : <Tag color="green">新增</Tag>}
+                            {!isEdit || record.id ? null : <Tag color="green">新增</Tag>}
                             {record.isPrimaryKey ? <a><i className='iconfont iconicon_key'></i></a> : null}
                         </div>
                         <span>{text}</span>

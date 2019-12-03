@@ -65,6 +65,10 @@ export default class DimensionData extends React.Component<IProps, IState> {
 
     onOkEdit = () => {
         const { editInputVal, currentItem } = this.state;
+        if (editInputVal === '') {
+            Message.warning('中文名称不可为空！');
+            return false;
+        }
         API.entityAttrsEdit({
             attrId: currentItem.id,
             entityAttrCn: editInputVal
