@@ -21,12 +21,10 @@ class EditRoleForm extends React.Component<any, any> {
         if (roles) {
             roles.forEach((role: any) => {
                 // 置灰项目所有者，租户所有者两种授权对象
-                const option: any = { label: role.roleName, value: role.id }
-                if (role.roleValue === PROJECT_ROLE.PROJECT_OWNER ||
-                    role.roleValue === PROJECT_ROLE.TENANT_OWVER) {
-                    option.disabled = true;
-                }
-                roleOptions.push(option)
+                const disabled = role.roleValue === PROJECT_ROLE.PROJECT_OWNER ||
+                    role.roleValue === PROJECT_ROLE.TENANT_OWVER ||
+                    role.roleValue === PROJECT_ROLE.VISITOR
+                roleOptions.push({ label: role.roleName, value: role.id, disabled })
             })
         }
 
