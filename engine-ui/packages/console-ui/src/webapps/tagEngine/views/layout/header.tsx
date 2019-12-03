@@ -34,7 +34,8 @@ class Header extends React.Component<any, any> {
     // 控制项目下拉菜单的显示
     // eslint-disable-next-line
     componentDidUpdate (preProps) {
-        const { navData, licenseApps } = this.props;
+        const { navData, licenseApps, location } = this.props;
+        const pathName = location.pathname;
         if (licenseApps != preProps.licenseApps) {
             const currentlicenseApps = licenseApps.find(item => item.id == 'tagEngine');
             if (currentlicenseApps) {
@@ -43,8 +44,13 @@ class Header extends React.Component<any, any> {
                 if (navItem.length) {
                     this.setState({
                         navItem
-                    })
-                    this.updateSelected(navItem[0].permissionUrl)
+                    });
+                    const currentRouter = navItem.filter(item => item.routers.includes(pathName));
+                    if (currentRouter[0]) {
+                        this.updateSelected(currentRouter[0].permissionUrl)
+                    } else {
+                        this.updateSelected(navItem[0] ? navItem[0].permissionUrl : '')
+                    }
                 }
             } else {
                 this.goIndex();

@@ -75,7 +75,7 @@ IState
             search: searchValue,
             current: pageNo,
             size: pageSize,
-            tagCateId: tagSelect.length ? tagSelect[0] : null,
+            tagCateId: tagSelect.length ? tagSelect[(tagSelect.length - 1)] : null,
             orders: [{
                 field: field,
                 asc: order != 'descend'
