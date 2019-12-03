@@ -57,7 +57,10 @@ export const workbenchReducer = (state = getCachedData(), action: any) => {
 
         case workbenchAction.LOAD_TASK_CUSTOM_PARAMS: {
             const data = action.payload;
-            nextState = assign({}, state, { taskCustomParams: data }, { showPanel: true });
+            nextState = assign({}, state, {
+                taskCustomParams: data,
+                showPanel: true
+            })
             break;
         }
 
