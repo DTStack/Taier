@@ -45,13 +45,17 @@ $groupPortraitPrefix: 'c-groupPortrait';
     .#{$groupPortraitPrefix}__chart {
         margin-top: 20px;
         padding: 0 20px;
-
-        & > div {
-            flex: 1;
-        }
+        display: flex;
+        flex-wrap: wrap;
+        min-height: 250px;
     }
+
     .#{$groupPortraitPrefix}__chart-item {
+        display: inline-block;
         border: 1px solid #E8E8E8;
+        margin: 20px 0 0 20px;
         height: 250px;
+        flex-grow: 1;
+        width: calc(100% * (1/3) - 20px - 1px)
     }
 }

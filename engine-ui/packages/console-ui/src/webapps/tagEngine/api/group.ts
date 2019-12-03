@@ -42,7 +42,7 @@ export default {
     analysisGroups (params: IGroupsAnalysis) {
         return http.post(req.ANALYSE_GROUPS, params);
     },
-    getGroupContactCount (params: { entityId?: number; groupIdList: number[] }) {
+    getGroupContactCount (params: { entityId?: number | string; groupIdList: number[] }) {
         return http.post(req.GET_GROUP_CONTACT_COUNT, params);
     },
     downloadGroupTemplate (params: {
@@ -51,5 +51,8 @@ export default {
         // 此处需要把entityAttrList 转换成类似 ?fileName=&entityAttrList=attr1-attrCn,attr2-attrCn
         const entityAttrList = params.entityAttrList.map(o => `${o.entityAttr}-${o.entityAttrCn}`);
         return http.build(req.DOWNLOAD_GROUP_TEMPLATE, { fileName: params.fileName, entityAttrList: entityAttrList.join(',') });
+    },
+    openAPI (params: { groupId: string | number, enable: boolean }) {
+        return http.post(req.OPEN_API, params);
     }
 }

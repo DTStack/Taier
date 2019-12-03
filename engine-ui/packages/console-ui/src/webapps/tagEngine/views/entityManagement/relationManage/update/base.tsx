@@ -28,10 +28,10 @@ interface IProps {
 }
 
 const initialEntityNode: IRelationEntity = {
-    id: -1,
+    id: null,
     name: '',
     columns: [{
-        id: -2,
+        id: null,
         name: ''
     }],
     vertex: true,
@@ -47,21 +47,6 @@ const {
     mxEvent,
     mxPopupMenu
 } = Mx;
-
-
-// const mockColumns = [{
-//     id: 1,
-//     entityAttr: 'col1',
-//     entityAttrCn: '维度1'
-// }, {
-//     id: 2,
-//     entityAttr: 'col2',
-//     entityAttrCn: '维度2'
-// }, {
-//     id: 3,
-//     entityAttr: 'col3',
-//     entityAttrCn: '维度3'
-// }];
 
 class RelationUpdateBase extends React.Component<IProps, IState> {
     state: IState = {
@@ -132,7 +117,11 @@ class RelationUpdateBase extends React.Component<IProps, IState> {
         const newState = cloneDeep(data);
         if (!newState.relationCollection) {
             newState.relationCollection = [];
-        };
+        }
+        //  else {
+        //     newState.relationCollection = [...data.relationCollection];
+        // }
+
         // 通过数组长度，计算新节点默认位置
         const defaultPosition = newState.relationCollection.length * 80;
         initialEntityNode.geometry.x = defaultPosition;
@@ -371,7 +360,7 @@ class RelationUpdateBase extends React.Component<IProps, IState> {
                         entities={entities}
                         mode={mode}
                         attachClass="graph-bg"
-                        data={data.relationCollection || data.relationJson}
+                        data={data.relationCollection}
                         registerEvent={this.onGraphEvent}
                         registerContextMenu={this.onGraphMenu}
                     />

@@ -1,1 +1,1 @@
-export { default as EChartBar } from './bar';
+export { default as Bar } from './bar';

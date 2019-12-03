@@ -38,10 +38,6 @@ export default class GroupManage extends React.Component<any, IState> {
         }
     }
 
-    componentDidMount () {
-        // TODO
-    }
-
     loadData = async () => {
         const ctx = this;
         ctx.setState({
@@ -117,17 +113,30 @@ export default class GroupManage extends React.Component<any, IState> {
 
     handleOperateData = (type: string, record: IGroup) => {
         const { queryParams } = this.state;
+        const query = {
+            entityId: queryParams.entityId,
+            groupId: record.groupId
+        }
         switch (type) {
             case 'add': {
-                hashHistory.push(`${basePath}/upload/${queryParams.entityId}`)
+                hashHistory.push({
+                    pathname: `${basePath}/upload`,
+                    query: query
+                })
                 break;
             }
             case 'detail': {
-                hashHistory.push(`${basePath}/detail/${record.groupId}/${queryParams.entityId}`)
+                hashHistory.push({
+                    pathname: `${basePath}/detail`,
+                    query: query
+                })
                 break;
             }
             case 'edit': {
-                hashHistory.push(`${basePath}/upload/edit/${record.groupId}/${queryParams.entityId}`);
+                hashHistory.push({
+                    pathname: `${basePath}/upload/edit`,
+                    query: query
+                })
                 break;
             }
             case 'delete': {

@@ -58,7 +58,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
     loadEntityAttr = async () => {
         const { router } = this.props;
         const res = await API.selectEntityAttrs({
-            entityId: get(router, 'params.entityId', '')
+            entityId: get(router, 'location.query.entityId', '')
         });
         if (res.code === 1) {
             this.setState({
@@ -99,7 +99,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
             return;
         }
         const res = await GroupAPI.analysisGroup({
-            entityId: get(router, 'params.entityId', ''),
+            entityId: get(router, 'location.query.entityId', ''),
             groupId: formData.groupId,
             taskId: -1,
             uploadFileName: this._responseData,
@@ -107,11 +107,15 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
         });
         const { code, data = {} } = res;
         if (code === 1) {
-            ctx._validResult = data;
-            ctx.setState({
-                groupStatus: GROUP_STATUS.SAVE
-            })
-            message.success('校验成功！')
+            if (data.failNum > 0) {
+                message.error(data.failMsg)
+            } else {
+                ctx._validResult = data;
+                ctx.setState({
+                    groupStatus: GROUP_STATUS.SAVE
+                })
+                message.success('校验成功！')
+            }
         } else {
             message.error(data.failMsg)
         }
@@ -216,7 +220,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                     label="实体"
                 >
                     {getFieldDecorator('entityId', {
-                        initialValue: get(router, 'params.entityId', '')
+                        initialValue: get(router, 'location.query.entityId', '')
                     })(
                         <Select
                             disabled

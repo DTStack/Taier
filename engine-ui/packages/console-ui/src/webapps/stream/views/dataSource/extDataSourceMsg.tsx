@@ -15,6 +15,9 @@ const showMapArr: any = {
         ['jdbcUrl', 'jdbcUrl'],
         ['username', '用户名']
     ],
+    [DATA_SOURCE.KUDU]: [
+        ['hostPorts', '集群地址']
+    ],
     [DATA_SOURCE.POSTGRESQL]: [
         ['jdbcUrl', 'jdbcUrl'],
         ['username', '用户名']
@@ -51,13 +54,16 @@ const showMapArr: any = {
         ['hostPorts', '集群地址'],
         ['database', '数据库']
     ],
-    [DATA_SOURCE.KAFKA]: [
+    [DATA_SOURCE.KAFKA_11]: [
         ['address', '集群地址']
     ],
     [DATA_SOURCE.KAFKA_09]: [
         ['address', '集群地址']
     ],
     [DATA_SOURCE.KAFKA_10]: [
+        ['address', '集群地址']
+    ],
+    [DATA_SOURCE.KAFKA]: [
         ['address', '集群地址']
     ]
 }

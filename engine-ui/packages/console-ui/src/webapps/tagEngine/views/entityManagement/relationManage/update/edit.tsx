@@ -29,7 +29,7 @@ class EditRelation extends React.Component<any, IState> {
 
     componentDidMount () {
         const { router } = this.props;
-        const { relationId } = router.params;
+        const { relationId } = router.location.query;
         this.loadRelation(relationId);
     }
 

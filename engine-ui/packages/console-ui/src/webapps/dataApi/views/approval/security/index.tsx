@@ -1,6 +1,6 @@
 import * as React from 'react';
 import utils from 'utils';
-
+import { connect } from 'react-redux';
 import {
     Table, Card, Input, Button, Popconfirm, message, Tooltip
 } from 'antd';
@@ -9,6 +9,13 @@ import { SECURITY_TYPE } from '../../../consts';
 import approvalApi from '../../../api/approval';
 import APIDetailModal from './apiDetailModal';
 import EditModal from './editModal';
+
+const mapStateToProps = (state: any) => {
+    const { user, approval, apiManage, project } = state;
+    return { approval, apiManage, user, project }
+};
+
+@(connect(mapStateToProps, null) as any)
 
 class Security extends React.Component<any, any> {
     state: any = {
@@ -28,9 +35,19 @@ class Security extends React.Component<any, any> {
         editModalKey: null
 
     }
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps: any) {
+        const project = nextProps.project
+        const oldProj = this.props.project
+        if (oldProj && project && oldProj.id !== project.id) {
+            this.fetchGroupList();
+        }
+    }
+
     componentDidMount () {
         this.fetchGroupList();
     }
+
     fetchGroupList () {
         const { pagination, name } = this.state;
         let fetchParams: any = {};

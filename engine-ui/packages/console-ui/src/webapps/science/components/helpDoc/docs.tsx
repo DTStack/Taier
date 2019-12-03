@@ -35,6 +35,16 @@ export const additionalColumn = (
 )
 export const missRate = (
     <div>
+        <p>可选项。可设置缺失率阈值，若大于这个阈值，则报错。</p>
+    </div>
+)
+export const drop = (
+    <div>
         <p>若选择删除，编码后的数据将线性无关。</p>
+    </div>
+)
+export const ignore = (
+    <div>
+        <p>若选择忽略，则不对空元素进行编码</p>
     </div>
 )

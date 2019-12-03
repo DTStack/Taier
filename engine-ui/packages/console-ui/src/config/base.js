@@ -16,7 +16,7 @@ export const SCIENCE_BASE_URL = '/api/dataScience';
 
 export const rdosApp = {
     id: 'rdos',
-    name: '离线计算',
+    name: '离线开发',
     filename: 'batch.html',
     link: '/batch.html#',
     target: '_blank',

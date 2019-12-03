@@ -7,6 +7,7 @@ module.exports = {
         proxy: {
             '/api/dq': {
                 target: 'http://172.16.10.251:8089', // 开发环境
+                // target: 'http://172.16.3.66:8089', // 联调
                 // target: "http://172.16.6.135:8089", // tmp server
                 // target: "http://172.16.10.45:8089",
                 // ignorePath: true,
@@ -31,9 +32,10 @@ module.exports = {
             },
             '/api/streamapp': {
                 // target: "http://172.16.1.191:9021", // formal test ser
-                target: "http://172.16.10.251:9023", // formal test ser
+                // target: "http://172.16.10.251:9023", // formal test ser
                 // target: "http://172.16.8.108:9023", // dev
                 // target: 'http://172.16.10.86:9021', // test
+                target: 'http://172.16.0.185:9021', // chener
                 // ignorePath: true,
                 // Mock
                 // pathRewrite:{"^/api/streamapp":"/api/rdos"},
@@ -59,6 +61,7 @@ module.exports = {
             '/api/da': { // da地址
                 // target: 'http://172.16.10.45:8087',
                 target: "http://172.16.10.251:8087",//开发环境
+                // target: "http://172.16.0.131:8087",// liantiao
 
                 // pathRewrite:{"^/api/da/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/da"},
                 changeOrigin: true,
@@ -66,7 +69,7 @@ module.exports = {
             },
             '/api/v1': { // 标签引擎
                 target: 'http://172.16.8.194:8084', // 开发环境
-                // target: 'http://172.16.3.177:8084', // yaoyuan
+                // target: 'http://172.16.0.203:8084', // yaoyuan
                 // pathRewrite:{"^/api/tag":"/"},
                 changeOrigin: true,
                 secure: false

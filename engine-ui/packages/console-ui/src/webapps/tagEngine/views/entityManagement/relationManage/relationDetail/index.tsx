@@ -23,27 +23,27 @@ class RelationDetail extends React.Component<any, IState> {
     state: IState = {
         data: {}
     }
-    componentDidMount() {
+    componentDidMount () {
         this.fetchData();
     }
 
     fetchData = async () => {
-        const { params } = this.props.router;
-        const res = await API.getRelation({ relationId: params.relationId });
-        if (res.code === 0) {
+        const { location } = this.props.router;
+        const res = await API.getRelation({ relationId: location.query.relationId });
+        if (res.code === 1) {
             this.setState({
                 data: res.data
             })
         }
     }
-    
+
     render () {
         const { data } = this.state;
         return (
             <div className="c-relationDetail">
                 <Breadcrumb breadcrumbNameMap={breadcrumbNameMap} />
                 <BasicInfo data={data}/>
-                <RelativeEntity data={data.relationCollection}/>
+                <RelativeEntity data={data}/>
             </div>
         )
     }

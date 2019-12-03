@@ -21,7 +21,7 @@ const Search = Input.Search;
     return {
         licenseApps: state.licenseApps
     }
-})as any)
+}) as any)
 class Header extends React.Component<any, any> {
     constructor (props: any) {
         super(props);
@@ -238,7 +238,7 @@ class Header extends React.Component<any, any> {
                         selectedKeys={[this.state.current]}
                         mode="horizontal"
                     >
-                        { !isProject && this.renderProjectSelect()}
+                        {!isProject && this.renderProjectSelect()}
                         {
                             !isProject && navData.map(item => (
                                 <Menu.Item

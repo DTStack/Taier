@@ -160,11 +160,11 @@ const routeConfig = [
                 component: CreateRelation
             },
             {
-                path: '/relationManage/edit/:relationId',
+                path: '/relationManage/edit',
                 component: EditRelation
             },
             {
-                path: '/relationManage/detail/:relationId',
+                path: '/relationManage/detail',
                 component: RelationDetail
             },
             {
@@ -203,15 +203,15 @@ const routeConfig = [
                 component: GroupManagement
             },
             {
-                path: '/groupAnalyse/upload/:entityId',
+                path: '/groupAnalyse/upload',
                 component: GroupUpload
             },
             {
-                path: '/groupAnalyse/upload/edit/:groupId/:entityId',
+                path: '/groupAnalyse/upload/edit',
                 component: GroupUploadEdit
             },
             {
-                path: '/groupAnalyse/detail/:groupId/:entityId',
+                path: '/groupAnalyse/detail',
                 component: GroupDetail
             },
             {

@@ -13,7 +13,7 @@ export interface IRelationEntity<T = any> extends INode {
      * 数据源表名
      */
     dataSourceTable?: string;
-     /**
+    /**
      * 实体维度中文名称
      */
     attrNameCN?: string;

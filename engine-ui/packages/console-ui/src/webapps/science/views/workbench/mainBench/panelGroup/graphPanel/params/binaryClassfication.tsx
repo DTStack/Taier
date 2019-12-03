@@ -17,7 +17,7 @@ class FieldSetting extends React.PureComponent<any, any> {
         const targetEdge = currentTab.graphData.find((o: any) => {
             return o.edge && o.target.data.id == componentId
         })
-        if (targetEdge) {
+        if (targetEdge && (this.state.originalColumns.length < 1)) {
             this.setState({
                 fetching: true
             });
@@ -128,7 +128,7 @@ class BinaryClassfication extends React.PureComponent<any, any> {
     }
     handleSaveComponent = (field: any, filedValue: any) => {
         const { data, currentTab, componentId, changeContent } = this.props;
-        const fieldName = TASK_ENUM[COMPONENT_TYPE.DATA_EVALUATE.CONFUSION_MATRIX];
+        const fieldName = TASK_ENUM[COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION];
         const currentComponentData = currentTab.graphData.find((o: any) => o.vertex && o.data.id === componentId);
         const params: any = {
             ...currentComponentData.data,
@@ -141,7 +141,8 @@ class BinaryClassfication extends React.PureComponent<any, any> {
         }
         api.addOrUpdateTask(params).then((res: any) => {
             if (res.code == 1) {
-                currentComponentData.data = { ...params, ...res.data };
+                console.log(params, currentComponentData.data);
+                currentComponentData.data = Object.assign({}, params, res.data);
                 changeContent({}, currentTab);
             } else {
                 message.warning('保存失败');

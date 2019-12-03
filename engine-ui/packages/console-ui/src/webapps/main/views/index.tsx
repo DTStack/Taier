@@ -578,7 +578,8 @@ class Main extends React.Component<any, any> {
         }
         return <Cookies
             watchFields={[ // 当页面cookie如下字段的值发生变更时会触发页面刷新
-                'dt_token', 'dt_tenant_id', 'dt_user_id', 'project_id', 'science_project_id', 'stream_project_id'
+                'dt_token', 'dt_tenant_id', 'dt_user_id', 'project_id', 'science_project_id', 'stream_project_id',
+                'api_project_id'
             ]}
             onFieldsChanged={this.onFieldsChanged}
         >

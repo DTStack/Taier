@@ -1,6 +1,6 @@
 {
   "name": "data-stack-web",
-  "version": "3.9.0-beta.3.1",
+  "version": "3.9.0",
   "description": "Making data valuable.",
   "main": "src/app.js",
   "license": "MIT",
@@ -105,7 +105,7 @@
     "file-loader": "^1.1.11",
     "friendly-errors-webpack-plugin": "^1.7.0",
     "happypack": "^5.0.0",
-    "html-webpack-plugin": "^4.0.0-alpha",
+    "html-webpack-plugin": "4.0.0-beta.8",
     "husky": "1.2.0",
     "jest": "*",
     "less": "3.8.1",
