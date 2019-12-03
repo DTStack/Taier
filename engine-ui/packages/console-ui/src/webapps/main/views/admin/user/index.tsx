@@ -564,6 +564,12 @@ class AdminUser extends React.Component<any, UserManaState> {
             currentPage: 1
         }, this.loadData)
     }
+
+
+
+
+
+
     initAddMember = () => {
         this.loadUsersNotInProject();
         this.setState({ visible: true })
@@ -702,7 +708,8 @@ class AdminUser extends React.Component<any, UserManaState> {
         } else if (active == MY_APPS.DATA_QUALITY) {
             selectValue = dqSelectedProject;
             projectsOptions = dqProjects;
-            onSelectChange = this.onDqProjectSelect
+            onSelectChange = this.onDqProjectSelect;
+            console.log(dqSelectedProject, selectValue, projectsOptions);
         }
 
         const projectOpts = projectsOptions && projectsOptions.map((project: any) =>

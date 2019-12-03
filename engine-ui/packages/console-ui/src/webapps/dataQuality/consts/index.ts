@@ -8,9 +8,11 @@ export const TASK_STATUS: any = {
 }
 
 export const PROJECT_ROLE = { // 项目角色
-    PROJECT_OWNER: 5, // 项目所有者
     TENANT_OWVER: 1, // 租户所有者
-    VISITOR: 4 // 访客
+    PROJECT_ADMIN: 2, // 项目管理员
+    VISITOR: 3, // 访客
+    DATA_DEVELOP: 4, // 数据开发
+    PROJECT_OWNER: 5 // 项目所有者
 }
 
 export const STICK_STATUS: any = {
