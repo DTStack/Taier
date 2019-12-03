@@ -76,7 +76,7 @@ class AdminUser extends React.Component<any, any> {
         return app === 'analyticsEngine';
     }
     isProjectExsit () {
-        const { active, projects, streamProjects, scienceProjects , tagProjects } = this.state;
+        const { active, projects, streamProjects, scienceProjects, tagProjects } = this.state;
         let appMap = {
             [MY_APPS.RDOS]: projects,
             [MY_APPS.STREAM]: streamProjects,
