@@ -58,7 +58,8 @@ describe('workbench reducer', () => {
         })
         expect(nextState).toEqual({
             ...initialState,
-            taskCustomParams: payload
+            taskCustomParams: payload,
+            showPanel: true
         });
     })
     /**
