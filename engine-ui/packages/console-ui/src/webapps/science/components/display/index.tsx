@@ -64,6 +64,10 @@ export function nodeTypeIcon (type: any) {
         case COMPONENT_TYPE.FEATURE_ENGINEER.ONE_HOT: {
             imageName = 'one-hot'; break;
         }
+        case COMPONENT_TYPE.DATA_TOOLS.PYTHON_SCRIPT: {
+            imageName = 'python';
+            break;
+        }
         default: return '';
     }
 

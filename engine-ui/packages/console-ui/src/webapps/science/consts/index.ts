@@ -1,4 +1,4 @@
-/**
+/***
  * 项目类型
  */
 export const PROJECT_TYPE: any = {
@@ -198,7 +198,8 @@ export const COMPONENT_TYPE = {
         WRITE_DATABASE: 2 // 写数据库
     },
     DATA_TOOLS: {
-        SQL_SCRIPT: 3 // sql脚本
+        SQL_SCRIPT: 3, // sql脚本
+        PYTHON_SCRIPT: 25 // python脚本
     },
     DATA_MERGE: {
         TYPE_CHANGE: 4, // 类型转换
@@ -235,6 +236,7 @@ export const TASK_ENUM = {
     [COMPONENT_TYPE.DATA_SOURCE.READ_DATABASE]: 'readTableComponent',
     [COMPONENT_TYPE.DATA_SOURCE.WRITE_DATABASE]: 'writeTableComponent',
     [COMPONENT_TYPE.DATA_TOOLS.SQL_SCRIPT]: 'sqlComponent',
+    [COMPONENT_TYPE.DATA_TOOLS.PYTHON_SCRIPT]: 'pythonComponent',
     [COMPONENT_TYPE.DATA_MERGE.TYPE_CHANGE]: 'transTypeComponent',
     [COMPONENT_TYPE.DATA_MERGE.NORMALIZE]: 'normalizationComponent',
     [COMPONENT_TYPE.DATA_MERGE.STANDARD]: 'standardizationComponent',
@@ -284,7 +286,14 @@ export const INPUT_TYPE = {
     SQL_3: 16,
     SQL_4: 17,
     SQL_OUT: 18,
-    SOURCE_WRITE: 19, // 写数据表的输出，但是读数据表暂时没有输出
+    // 写数据表的输出，但是读数据表暂时没有输出
+    SOURCE_WRITE: 19,
+    // PYTHON
+    PYTHON_1: 52,
+    PYTHON_2: 53,
+    PYTHON_3: 54,
+    PYTHON_4: 55,
+    PYTHON_OUT: 56,
     // GBDT
     GBDT_IMPORTANT: 24,
     // kmeans
@@ -336,6 +345,15 @@ export const CONSTRAINT_TEXT: any = {
             { key: INPUT_TYPE.SQL_4, value: 'SQL结果输入4' }
         ],
         output: [{ key: INPUT_TYPE.SQL_OUT, value: 'SQL结果输出' }]
+    },
+    [COMPONENT_TYPE.DATA_TOOLS.PYTHON_SCRIPT]: {
+        input: [
+            { key: INPUT_TYPE.PYTHON_1, value: 'python结果输入1' },
+            { key: INPUT_TYPE.PYTHON_2, value: 'python结果输入2' },
+            { key: INPUT_TYPE.PYTHON_3, value: 'python结果输入3' },
+            { key: INPUT_TYPE.PYTHON_4, value: 'python结果输入4' }
+        ],
+        output: [{ key: INPUT_TYPE.PYTHON_OUT, value: 'python结果输出' }]
     },
     [COMPONENT_TYPE.DATA_MERGE.TYPE_CHANGE]: {
         input: [

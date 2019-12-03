@@ -83,6 +83,13 @@ export function openExperiment (id: any) {
         })
     }
 }
+
+export function updateExperimentTab (newState: object) {
+    return (dispatch: any) => {
+        dispatch(addTab(siderBarType.experiment, newState))
+    }
+}
+
 export function saveExperiment (tabData: any, isMessage = true) {
     return (dispatch: any, getState: any) => {
         return new Promise(async (resolve: any) => {
