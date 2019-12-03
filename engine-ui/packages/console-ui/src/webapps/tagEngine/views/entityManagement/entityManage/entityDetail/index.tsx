@@ -49,6 +49,18 @@ export default class EntityDetail extends React.Component<IProps, IState> {
         })
     }
 
+    regetData = (isKey, val) => {
+        let entityInfor = isKey ? {
+            ...this.state.entityInfor,
+            entityPrimaryKeyCn: val
+        } : this.state.entityInfor;
+        this.setState({
+            entityInfor
+        }, () => {
+            this.getEntityData();
+        })
+    }
+
     handleGotoEdit = () => {
         const { entityInfor } = this.state;
         hashHistory.push({ pathname: '/entityManage/edit', state: { ...entityInfor } })
@@ -77,7 +89,7 @@ export default class EntityDetail extends React.Component<IProps, IState> {
                 />
                 <BaseInfor infor={entityInfor} />
                 <ModuleTitle title={'数据维度'} />
-                <DimensionData regetData={this.getEntityData} infor={entityInfor} />
+                <DimensionData regetData={this.regetData} infor={entityInfor} />
             </div>
         )
     }

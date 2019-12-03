@@ -718,7 +718,7 @@ class BaseForm extends React.Component<any, any> {
                             }],
                             initialValue: config.username || ''
                         })(
-                            <Input autoComplete="off" />
+                            <Input onChange={() => { this.setState({ isTestConnect: false }) }} autoComplete="off" />
                         )}
                         {/* {showUserNameWarning && <Tooltip overlayClassName="big-tooltip" title={'若需要实时采集MySQL的数据，这里的用户需具有REPLICATION SLAVE权限，否则无法读取底层日志采集数据'}>
                             <Icon className="help-doc" type="question-circle-o" />
@@ -736,7 +736,7 @@ class BaseForm extends React.Component<any, any> {
                             }],
                             initialValue: ''
                         })(
-                            <Input type="password" onChange={hidePasswordInDom} autoComplete="off" />
+                            <Input type="password" onChange={() => { this.setState({ isTestConnect: false }); hidePasswordInDom(); }} autoComplete="off" />
                         )}
                     </FormItem>
                 ]

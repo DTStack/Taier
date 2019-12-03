@@ -73,7 +73,7 @@ export default class DimensionData extends React.Component<IProps, IState> {
             if (code === 1) {
                 Message.success('修改成功！');
                 this.onCancelEdit();
-                this.props.regetData();
+                this.props.regetData(currentItem.isPrimaryKey, editInputVal);
             }
         })
     };
@@ -148,7 +148,7 @@ export default class DimensionData extends React.Component<IProps, IState> {
             key: 'isMultipleValue',
             width: 150,
             render: (text: any) => {
-                return text ? '是' : '否'
+                return text ? '是' : ''
             }
         }, {
             title: '关联原子标签',
