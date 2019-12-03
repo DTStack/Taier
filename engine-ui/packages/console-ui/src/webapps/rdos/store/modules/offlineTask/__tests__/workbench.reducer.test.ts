@@ -9,7 +9,8 @@ describe('workbench reducer', () => {
             tabs: [],
             currentTab: undefined,
             isCurrentTabNew: undefined,
-            taskCustomParams: []
+            taskCustomParams: [],
+            showPanel: false
         }
         return obj
     }
