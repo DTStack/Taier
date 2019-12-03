@@ -122,6 +122,7 @@ class OutputOrigin extends React.Component<any, any> {
                             showSearch filterOption={(input: any, option: any) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                         >
                             <Option value={DATA_SOURCE.MYSQL}>MySQL</Option>
+                            <Option value={DATA_SOURCE.POLAR_DB}>PolarDB for MySQL8</Option>
                             <Option value={DATA_SOURCE.ORACLE}>Oracle</Option>
                             {/* <Option value={DATA_SOURCE.POSTGRESQL}>PostgreSQL</Option> */}
                             <Option value={DATA_SOURCE.KUDU}>Kudu</Option>

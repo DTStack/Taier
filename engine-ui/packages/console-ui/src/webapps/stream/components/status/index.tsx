@@ -264,6 +264,8 @@ export function DatabaseType (props: any) {
             return <span>Kafka</span>
         case DATA_SOURCE.BEATS:
             return <span>Beats</span>
+        case DATA_SOURCE.POLAR_DB:
+            return <span>PolarDB for MySQL8</span>
         default:
             return <span>其他</span>
     }

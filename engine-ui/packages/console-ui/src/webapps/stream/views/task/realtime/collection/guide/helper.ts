@@ -10,7 +10,7 @@ export function cleanCollectionParams (data: any) {
     if (!sourceMap || !targetMap) {
         return data;
     }
-    const isMysqlSource = sourceMap.type == DATA_SOURCE.MYSQL;
+    const isMysqlSource = sourceMap.type == DATA_SOURCE.MYSQL || sourceMap.type == DATA_SOURCE.POLAR_DB;
     if (!isMysqlSource) {
         targetMap.analyticalRules = undefined;
     }

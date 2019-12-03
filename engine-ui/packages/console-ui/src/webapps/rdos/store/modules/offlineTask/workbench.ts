@@ -17,7 +17,8 @@ const getCachedData = () => {
             tabs: [],
             currentTab: undefined,
             isCurrentTabNew: undefined,
-            taskCustomParams: []
+            taskCustomParams: [],
+            showPanel: false
         };
     }
     return initialState;
@@ -56,7 +57,10 @@ export const workbenchReducer = (state = getCachedData(), action: any) => {
 
         case workbenchAction.LOAD_TASK_CUSTOM_PARAMS: {
             const data = action.payload;
-            nextState = assign({}, state, { taskCustomParams: data });
+            nextState = assign({}, state, {
+                taskCustomParams: data,
+                showPanel: true
+            })
             break;
         }
 
