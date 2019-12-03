@@ -34,7 +34,7 @@ class CollectionSource extends React.Component<any, any> {
         const { sourceMap = {} } = collectionData;
         this.getSupportDaTypes();
         if (sourceMap.sourceId) {
-            if (sourceMap.type === DATA_SOURCE.MYSQL) {
+            if (sourceMap.type === DATA_SOURCE.MYSQL || sourceMap.type === DATA_SOURCE.POLAR_DB) {
                 this.getValidMysqlTableList(sourceMap.sourceId);
             }
             if (sourceMap.collectType == collectType.FILE) {
@@ -50,7 +50,7 @@ class CollectionSource extends React.Component<any, any> {
         const { collectionData: oldCol } = this.props;
         const { sourceMap: oldSource = {} } = oldCol;
         if (sourceMap.sourceId && oldSource.sourceId != sourceMap.sourceId) {
-            if (sourceMap.type === DATA_SOURCE.MYSQL && sourceMap.sourceId) {
+            if ((sourceMap.type === DATA_SOURCE.MYSQL || sourceMap.type === DATA_SOURCE.POLAR_DB) && sourceMap.sourceId) {
                 this.setState({
                     tableList: []
                 });
@@ -373,6 +373,7 @@ class CollectionSourceForm extends React.Component<any, any> {
         const isCollectTypeEdit = !!sourceId;
 
         switch (type) {
+            case DATA_SOURCE.POLAR_DB:
             case DATA_SOURCE.MYSQL: {
                 return [
                     <FormItem
