@@ -140,13 +140,13 @@ class GraphContainer extends React.Component<any, GraphContainerState> {
             if (cell.vertex) {
                 menu.addItem('重命名', null, function () {
                     ctx.initEditTaskCell(cell, currentNode);
-                }, null, null, true);
+                }, null, null, !ctx.props.isRunning);
                 menu.addItem('删除', null, function () {
                     ctx.removeCell(cell);
-                }, null, null, true);
+                }, null, null, !ctx.props.isRunning);
                 menu.addItem('复制', null, function () {
                     ctx.copyCell(cell);
-                }, null, null, true);
+                }, null, null, !ctx.props.isRunning);
                 menu.addSeparator();
                 menu.addItem('从此处开始执行', null, function () {
                     ctx.startHandlerFromHere(cell);
@@ -730,6 +730,9 @@ class GraphContainer extends React.Component<any, GraphContainerState> {
                         if (res[0].code === 1 && res[1].code === 1) {
                             // 如果两次保存都成功，则更新cellData
                             ctx.updateCellData(cell, taskData, res);
+                        } else {
+                            // 重命名输入框恢复到之前
+                            editTarget.value = originName
                         }
                     })
                 }

@@ -200,36 +200,18 @@ const utils = {
         document.cookie = name + '=' + value + expires + '; path=/';
     },
 
-    // TODO, 可以修改为递归算法
+    /**
+     * 转换 Byte 转换为小于1024值最大单位
+     * @param value 'B' | 'KB' | 'MB' | 'GB' | 'TB' | 'PB' 转换原始值
+     */
     convertBytes (value: number) {
-        if (value >= 1024) {
-            const val0 = Number((value / 1024).toFixed(2));
-
-            if (val0 >= 1024) {
-                // to KB
-
-                const val1 = Number((val0 / 1024).toFixed(2));
-
-                if (val1 >= 1024) {
-                    // MB
-
-                    const val2 = Number((val1 / 1024).toFixed(2));
-
-                    if (val2 >= 1024) {
-                        const val3 = Number((val2 / 1024).toFixed(2));
-                        return `${val3} PB`;
-                    } else {
-                        return `${val2} GB`;
-                    }
-                } else {
-                    return `${val1} MB`;
-                }
-            } else {
-                return `${val0} KB`;
-            }
-        } else {
-            return `${value} B`;
+        const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+        let i = 0;
+        while (value >= 1024) {
+            value = Number((value / 1024).toFixed(2));
+            i++;
         }
+        return `${value} ${units[i]}`;
     },
 
     /**

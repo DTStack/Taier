@@ -45,6 +45,27 @@ const hdfsConf =
 "dfs.client.failover.proxy.provider.defaultDfs": "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider" 
 }`
 
+const kuduConf = `{
+    "openKerberos":false,
+    "user":"",
+    "keytabPath":"",
+    "workerCount":4,
+    "bossCount":1,
+    "operationTimeout":30000,
+    "adminOperationTimeout":30000
+}`;
+
+const kuduOthersPh = `输入JSON格式的参数，示例及默认参数如下：
+{
+    "openKerberos":false,
+    "user":"",
+    "keytabPath":"",
+    "workerCount":4,
+    "bossCount":1,
+    "operationTimeout":30000,
+    "adminOperationTimeout":30000
+}`;
+
 class BaseForm extends React.Component<any, any> {
     state: any = {
         sourceType: 1,
@@ -523,6 +544,51 @@ class BaseForm extends React.Component<any, any> {
                 formItems.push(uploadForm)
                 return formItems
             }
+            case DATA_SOURCE.KUDU: {
+                const formItems = [
+                    <FormItem
+                        {...formItemLayout}
+                        label="集群地址"
+                        key="hostPorts"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('dataJson.hostPorts', {
+                            rules: [{
+                                required: true, message: '配置不可为空！'
+                            }],
+                            initialValue: config.hostPorts || ''
+                        })(
+                            <Input
+                                type="textarea"
+                                // rows={5}
+                                {...rowFix5}
+                                placeholder="集群地址，例如：IP1:Port,IP2:Port,IP3:Port"
+                            />
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="其他参数"
+                        key="others"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('dataJson.others', {
+                            rules: [],
+                            initialValue: config.others ? typeof config.others == 'string'
+                                ? JSON.stringify(JSON.parse(config.others), null, 4) : JSON.stringify(config.others, null, 4) : ''
+                        })(
+                            <Input type="textarea" {...rowFix5} placeholder={kuduOthersPh} />
+                        )}
+                        <CopyIcon
+                            style={{ position: 'absolute', right: '-20px', bottom: '0px' }}
+                            copyText={kuduConf}
+                        />
+                    </FormItem>
+                ]
+                const uploadForm: any = getFieldValue('dataJson.openKerberos') ? this.uploadForm() : [];
+                formItems.push(uploadForm)
+                return formItems
+            }
             case DATA_SOURCE.FTP: {
                 const ftpFormItems: any = [
                     <FormItem
@@ -721,6 +787,7 @@ class BaseForm extends React.Component<any, any> {
                 ]
             }
             case DATA_SOURCE.KAFKA:
+            case DATA_SOURCE.KAFKA_11:
             case DATA_SOURCE.KAFKA_09:
             case DATA_SOURCE.KAFKA_10: {
                 return [

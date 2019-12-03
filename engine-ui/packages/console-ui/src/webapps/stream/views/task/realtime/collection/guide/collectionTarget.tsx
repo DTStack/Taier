@@ -235,9 +235,10 @@ class CollectionTargetForm extends React.Component<any, any> {
         const isWriteStrategyBeTime = writeStrategy == writeStrategys.TIME;
 
         switch (targetMap.type) {
+            case DATA_SOURCE.KAFKA:
             case DATA_SOURCE.KAFKA_09:
             case DATA_SOURCE.KAFKA_10:
-            case DATA_SOURCE.KAFKA: {
+            case DATA_SOURCE.KAFKA_11: {
                 return (
                     <FormItem
                         {...formItemLayout}
@@ -249,7 +250,7 @@ class CollectionTargetForm extends React.Component<any, any> {
                             }]
                         })(
                             <Select
-                                disabled={isEdit}
+                                disabled={isEdit && targetMap.type === DATA_SOURCE.KAFKA}
                                 style={{ width: '100%' }}
                                 placeholder="请选择topic"
 

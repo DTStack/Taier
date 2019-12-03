@@ -35,7 +35,12 @@ export function TaskStatus (props: any) {
         case TASK_STATUS.STOPED:
             return <span>
                 <Circle className="status_stoped" />&nbsp;
-                    取消
+                手动取消
+            </span>
+        case TASK_STATUS.AUTO_CANCEL:
+            return <span>
+                <Circle className="status_stoped" />&nbsp;
+                自动取消
             </span>
         case TASK_STATUS.RUN_FAILED:
             return <span>
@@ -157,6 +162,10 @@ export function DatabaseType (props: any) {
             return <span>KYLIN</span>
         case DATA_SOURCE.MYSQL:
             return <span>MySQL</span>
+        case DATA_SOURCE.POLAR_DB:
+            return <span>PolarDB</span>
+        case DATA_SOURCE.CLICK_HOUSE:
+            return <span>ClickHouse</span>
         case DATA_SOURCE.ORACLE:
             return <span>Oracle</span>
         case DATA_SOURCE.SQLSERVER:
@@ -167,8 +176,10 @@ export function DatabaseType (props: any) {
             return <span>RDBMS</span>
         case DATA_SOURCE.HDFS:
             return <span>HDFS</span>
-        case DATA_SOURCE.HIVE:
-            return <span>Hive</span>
+        case DATA_SOURCE.HIVE_2:
+            return <span>Hive2.x</span>
+        case DATA_SOURCE.HIVE_1:
+            return <span>Hive1.x</span>
         case DATA_SOURCE.HBASE:
             return <span>HBase</span>
         case DATA_SOURCE.FTP:

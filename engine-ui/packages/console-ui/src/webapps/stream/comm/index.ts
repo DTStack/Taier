@@ -301,8 +301,8 @@ export function isProjectCouldEdit (project: any, user: any) {
 /**
  * 是不是kafka
  */
-export function isKafka (type: any) {
-    return type == DATA_SOURCE.KAFKA || type == DATA_SOURCE.KAFKA_09 || type == DATA_SOURCE.KAFKA_10;
+export function isKafka (type: number) {
+    return type === DATA_SOURCE.KAFKA || type === DATA_SOURCE.KAFKA_11 || type === DATA_SOURCE.KAFKA_09 || type === DATA_SOURCE.KAFKA_10;
 }
 
 /**

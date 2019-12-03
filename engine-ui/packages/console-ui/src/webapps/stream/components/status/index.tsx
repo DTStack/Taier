@@ -258,6 +258,9 @@ export function DatabaseType (props: any) {
         case DATA_SOURCE.MONGODB:
             return <span>MongoDB</span>
         case DATA_SOURCE.KAFKA:
+        case DATA_SOURCE.KAFKA_09:
+        case DATA_SOURCE.KAFKA_10:
+        case DATA_SOURCE.KAFKA_11:
             return <span>Kafka</span>
         case DATA_SOURCE.BEATS:
             return <span>Beats</span>

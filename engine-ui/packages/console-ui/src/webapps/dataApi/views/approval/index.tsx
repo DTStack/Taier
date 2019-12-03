@@ -21,8 +21,8 @@ const orderType: any = {
     'descend': 'desc'
 }
 const mapStateToProps = (state: any) => {
-    const { user, approval, apiManage } = state;
-    return { approval, apiManage, user }
+    const { user, approval, apiManage, project } = state;
+    return { approval, apiManage, user, project }
 };
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -54,7 +54,18 @@ class APIApproval extends React.Component<any, any> {
     componentWillMount () {
 
     }
+    // eslint-disable-next-line
+     UNSAFE_componentWillReceiveProps (nextProps: any) {
+        const project = nextProps.project
+        const oldProj = this.props.project
+        if (oldProj && project && oldProj.id !== project.id) {
+            this.getAllApplyList()
+        }
+    }
     componentDidMount () {
+        this.getAllApplyList();
+    }
+    getAllApplyList = () => {
         const status = this.props.router.location.query && this.props.router.location.query.status
         let arr: any = [];
         if (status) {

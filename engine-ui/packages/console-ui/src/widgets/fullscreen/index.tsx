@@ -18,7 +18,7 @@ export default class FullScreenButton extends React.Component<any, any> {
         window.dispatchEvent(event);
     }
     componentDidMount () {
-        const { target } = this.props;
+        const { target, onFullscreen } = this.props;
         const propsDom = document.getElementById(target)
         const domEle: any = propsDom || document.body;
         let callBack = (event: any) => {
@@ -32,6 +32,7 @@ export default class FullScreenButton extends React.Component<any, any> {
             } else if (domEle.webkitRequestFullscreen) { // Webkit
                 node = document.webkitFullscreenElement;
             }
+            onFullscreen && onFullscreen(!!node);
             this.setState({
                 isFullScreen: !!node
             }, this.dispatchResizeEvent)
@@ -59,6 +60,9 @@ export default class FullScreenButton extends React.Component<any, any> {
         } else if (domEle.webkitRequestFullscreen) { // Webkit
             document.onwebkitfullscreenchange = null;
         }
+        if (this.state.isFullScreen) {
+            this.exitFullscreen();
+        }
     }
     keyPressFullScreen = (evt: any) => {
         evt.preventDefault();
@@ -66,18 +70,9 @@ export default class FullScreenButton extends React.Component<any, any> {
     }
 
     fullScreen = () => {
-        const { target, onFullscreen } = this.props;
-        if (onFullscreen) { onFullscreen(this.state.isFullScreen) };
+        const { target } = this.props;
         if (this.state.isFullScreen) {
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            } else if (document.mozExitFullscreen) {
-                document.mozExitFullscreen();
-            } else if (document.webkitExitFullscreen) {
-                document.webkitExitFullscreen();
-            } else if (document.msExitFullscreen) {
-                document.msExitFullscreen();
-            }
+            this.exitFullscreen();
         } else {
             const propsDom = document.getElementById(target)
             const domEle = propsDom || document.body;
@@ -92,7 +87,17 @@ export default class FullScreenButton extends React.Component<any, any> {
             }
         }
     }
-
+    exitFullscreen = () => {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.mozExitFullscreen) {
+            document.mozExitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+    }
     render () {
         const { themeDark, fullIcon, exitFullIcon, iconStyle, ...other } = this.props;
         const title = this.state.isFullScreen ? '退出全屏' : '全屏';

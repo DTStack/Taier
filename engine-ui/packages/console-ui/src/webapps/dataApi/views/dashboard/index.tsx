@@ -19,8 +19,8 @@ require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
 
 const mapStateToProps = (state: any) => {
-    const { dashBoard, user, common } = state;
-    return { dashBoard, user, common }
+    const { dashBoard, user, common, project } = state;
+    return { dashBoard, user, common, project }
 };
 
 const mapDispatchToProps = (dispatch: any) => ({

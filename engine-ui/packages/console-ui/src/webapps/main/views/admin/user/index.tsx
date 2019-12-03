@@ -10,7 +10,7 @@ import {
 import utils from 'utils'
 import { hasProject } from 'funcs'
 
-import { MY_APPS, RDOS_ROLE, APP_ROLE } from '../../../consts'
+import { MY_APPS, RDOS_ROLE, APP_ROLE, API_PRO_ROLES } from '../../../consts'
 import Api from '../../../api'
 import AppTabs from '../../../components/app-tabs'
 
@@ -19,14 +19,43 @@ import EditMemberRoleForm from './editRole'
 
 const Option = Select.Option
 const Search = Input.Search;
-
+interface UserManaState {
+    active: string;
+    loading: string | boolean;
+    users: {
+        data: any[];
+    };
+    projects: any[];
+    streamProjects: any[];
+    scienceProjects: any[];
+    tagProjects: any[];
+    apiProjects: any[];
+    dqProjects: any[];
+    selectedProject: number;
+    streamSelectedProject: number;
+    scienceSelectedProject: number;
+    tagSelectedProject: number;
+    apiSelectedProject: number;
+    dqSelectedProject: number;
+    dataBase: any[];
+    selecteDatabase: number;
+    notProjectUsers: any[];
+    roles: any[];
+    editTarget: any;
+    currentPage: number;
+    visible: boolean;
+    visibleEditRole: boolean;
+    searchName: string | undefined;
+    myRoles?: any;
+    roleIds?: number | any[];
+}
 @(connect((state: any) => {
     return {
         user: state.user,
         licenseApps: state.licenseApps
     }
 }) as any)
-class AdminUser extends React.Component<any, any> {
+class AdminUser extends React.Component<any, UserManaState> {
     memberForm: any;
     eidtRoleForm: any;
 
@@ -46,6 +75,10 @@ class AdminUser extends React.Component<any, any> {
         streamSelectedProject: undefined,
         scienceSelectedProject: undefined,
         tagSelectedProject: undefined,
+        apiProjects: [],
+        dqProjects: [],
+        apiSelectedProject: undefined,
+        dqSelectedProject: undefined,
         dataBase: [],
         selecteDatabase: undefined,
         notProjectUsers: [],
@@ -55,10 +88,8 @@ class AdminUser extends React.Component<any, any> {
         currentPage: 1,
         visible: false,
         visibleEditRole: false,
-
         searchName: undefined
     }
-
     componentDidUpdate (prevProps: any, prevState: any) {
         if (this.props.licenseApps.length > 0 && prevProps.licenseApps !== this.props.licenseApps) {
             const { apps, licenseApps = [] } = this.props
@@ -76,12 +107,14 @@ class AdminUser extends React.Component<any, any> {
         return app === 'analyticsEngine';
     }
     isProjectExsit () {
-        const { active, projects, streamProjects, scienceProjects, tagProjects } = this.state;
+        const { active, projects, streamProjects, scienceProjects, apiProjects, tagProjects } = this.state;
         let appMap = {
             [MY_APPS.RDOS]: projects,
             [MY_APPS.STREAM]: streamProjects,
             [MY_APPS.SCIENCE]: scienceProjects,
-            [MY_APPS.TAG]: tagProjects
+            [MY_APPS.TAG]: tagProjects,
+            [MY_APPS.API]: apiProjects,
+            [MY_APPS.DATA_QUALITY]: apiProjects
         }
         return appMap[active] && appMap[active].length
     }
@@ -89,7 +122,7 @@ class AdminUser extends React.Component<any, any> {
      * 这边加一个isGetProjectsBack，当是getProjects调用的时候，防止服务器返回一个空数组，而不断的重复调用
      */
     loadData = (isGetProjectsBack?: any, isGetDatabaseBack?: any) => {
-        const { active, selectedProject, streamSelectedProject, scienceSelectedProject, tagSelectedProject, currentPage, dataBase, selecteDatabase } = this.state;
+        const { active, selectedProject, streamSelectedProject, scienceSelectedProject, apiSelectedProject, dqSelectedProject, tagSelectedProject, currentPage, dataBase, selecteDatabase } = this.state;
         const params: any = {
             pageSize: 10,
             currentPage
@@ -122,6 +155,10 @@ class AdminUser extends React.Component<any, any> {
                 params.projectId = scienceSelectedProject;
             } else if (MY_APPS.TAG == active) {
                 params.projectId = tagSelectedProject;
+            } else if (MY_APPS.API == active) {
+                params.projectId = apiSelectedProject;
+            } else if (MY_APPS.DATA_QUALITY == active) {
+                params.projectId = dqSelectedProject;
             }
             this.loadUsers(active, params);
             this.loadRoles(active, assign(params, {
@@ -170,7 +207,16 @@ class AdminUser extends React.Component<any, any> {
                         }
                         break;
                     }
-                    case MY_APPS.API:
+                    case MY_APPS.API: {
+                        if (roleValue == API_PRO_ROLES.VISITOR) {
+                            isVisitor = true
+                        } else if (roleValue == API_PRO_ROLES.PRO_MANAGER) {
+                            isProjectAdmin = true;
+                        } else if (roleValue == API_PRO_ROLES.PRO_OWNER) {
+                            isProjectOwner = true;
+                        }
+                        break;
+                    }
                     case MY_APPS.ANALYTICS_ENGINE:
                     case MY_APPS.DATA_QUALITY: {
                         if (roleValue == APP_ROLE.VISITOR) {
@@ -289,6 +335,18 @@ class AdminUser extends React.Component<any, any> {
                         tagProjects: res.data,
                         tagSelectedProject: cookiesProject || projectId
                     }, this.loadData.bind(this, true))
+                } else if (app == MY_APPS.API) {
+                    cookiesProject = getNotNullProject(utils.getCookie('api_project_id'), res.data)
+                    ctx.setState({
+                        apiProjects: res.data,
+                        apiSelectedProject: cookiesProject || projectId
+                    }, this.loadData.bind(this, true))
+                } else if (app == MY_APPS.DATA_QUALITY) {
+                    cookiesProject = getNotNullProject(utils.getCookie('dq_project_id'), res.data)
+                    ctx.setState({
+                        dqProjects: res.data,
+                        dqSelectedProject: cookiesProject || projectId
+                    }, this.loadData.bind(this, true))
                 }
             }
         })
@@ -323,7 +381,7 @@ class AdminUser extends React.Component<any, any> {
 
         // 塞入要添加的用户列表
         const targetUsers = [];
-        const uids = projectRole.targetUserIds;
+        const uids = projectRole.targetUserIds || [];
 
         for (let i = 0; i < uids.length; i++) {
             const user = notProjectUsers.find((u: any) => `${u.userId}` === uids[i])
@@ -360,12 +418,14 @@ class AdminUser extends React.Component<any, any> {
         });
     }
     getProjectId (active: any) {
-        const { selectedProject, streamSelectedProject, scienceSelectedProject, tagSelectedProject } = this.state;
+        const { selectedProject, streamSelectedProject, scienceSelectedProject, tagSelectedProject, apiSelectedProject, dqSelectedProject } = this.state;
         let map = {
             [MY_APPS.RDOS]: selectedProject,
             [MY_APPS.STREAM]: streamSelectedProject,
             [MY_APPS.SCIENCE]: scienceSelectedProject,
-            [MY_APPS.TAG]: tagSelectedProject
+            [MY_APPS.TAG]: tagSelectedProject,
+            [MY_APPS.API]: apiSelectedProject,
+            [MY_APPS.DATA_QUALITY]: dqSelectedProject
         }
         return map[active];
     }
@@ -469,6 +529,8 @@ class AdminUser extends React.Component<any, any> {
             streamProjects: [],
             scienceProjects: [],
             tagProjects: [],
+            apiProjects: [],
+            dqProjects: [],
             searchName: undefined
         }, () => {
             this.props.router.replace('/admin/user?app=' + key)
@@ -508,6 +570,18 @@ class AdminUser extends React.Component<any, any> {
             currentPage: 1
         }, this.loadData)
     }
+    onApiProjectSelect = (value: any) => {
+        this.setState({
+            apiSelectedProject: value,
+            currentPage: 1
+        }, this.loadData)
+    }
+    onDqProjectSelect = (value: any) => {
+        this.setState({
+            dqSelectedProject: value,
+            currentPage: 1
+        }, this.loadData)
+    }
     initAddMember = () => {
         this.loadUsersNotInProject();
         this.setState({ visible: true })
@@ -516,9 +590,10 @@ class AdminUser extends React.Component<any, any> {
     initColums = () => {
         const ctx = this;
         const { active } = this.state;
-        const hideDel = (active == MY_APPS.RDOS || active == MY_APPS.STREAM || active == MY_APPS.ANALYTICS_ENGINE || active == MY_APPS.SCIENCE);
-        const isProject = (active == MY_APPS.RDOS || active == MY_APPS.STREAM || active == MY_APPS.SCIENCE || active == MY_APPS.TAG);
-
+        const hideDel = (active == MY_APPS.RDOS || active == MY_APPS.STREAM || active == MY_APPS.ANALYTICS_ENGINE ||
+            active == MY_APPS.SCIENCE || active == MY_APPS.API || active == MY_APPS.DATA_QUALITY) || active == MY_APPS.TAG;
+        const isProject = (active == MY_APPS.RDOS || active == MY_APPS.STREAM ||
+            active == MY_APPS.SCIENCE || active == MY_APPS.API || active == MY_APPS.DATA_QUALITY) || active == MY_APPS.TAG;
         return [{
             title: '账号',
             dataIndex: 'user.userName',
@@ -611,7 +686,11 @@ class AdminUser extends React.Component<any, any> {
             scienceSelectedProject,
             scienceProjects,
             tagSelectedProject,
-            tagProjects
+            tagProjects,
+            apiSelectedProject,
+            apiProjects,
+            dqSelectedProject,
+            dqProjects
         } = this.state;
 
         let selectValue;
@@ -639,6 +718,14 @@ class AdminUser extends React.Component<any, any> {
             selectValue = tagSelectedProject;
             projectsOptions = tagProjects;
             onSelectChange = this.onTagProjectSelect
+        } else if (active == MY_APPS.API) {
+            selectValue = apiSelectedProject;
+            projectsOptions = apiProjects;
+            onSelectChange = this.onApiProjectSelect
+        } else if (active == MY_APPS.DATA_QUALITY) {
+            selectValue = dqSelectedProject;
+            projectsOptions = dqProjects;
+            onSelectChange = this.onDqProjectSelect
         }
 
         const projectOpts = projectsOptions && projectsOptions.map((project: any) =>

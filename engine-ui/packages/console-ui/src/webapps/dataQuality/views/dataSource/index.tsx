@@ -22,8 +22,8 @@ import { pickBy } from 'lodash';
 const Search = Input.Search;
 
 const mapStateToProps = (state: any) => {
-    const { dataSource } = state;
-    return { dataSource };
+    const { dataSource, project } = state;
+    return { dataSource, project };
 };
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -53,6 +53,15 @@ class DataSource extends React.Component<any, any> {
 
     componentDidMount () {
         this.props.getDataSources(this.state.params);
+    }
+
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps: any) {
+        const project = nextProps.project
+        const oldProj = this.props.project
+        if (oldProj && project && oldProj.id !== project.id) {
+            this.props.getDataSources(this.state.params);
+        }
     }
 
     searchDataSources = (name: any) => {

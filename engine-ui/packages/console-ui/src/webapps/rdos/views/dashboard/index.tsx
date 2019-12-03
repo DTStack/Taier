@@ -167,14 +167,14 @@ class Index extends React.Component<any, any> {
         </div>
         const title = <div>
             <Row>
-                <Col span={16} >
+                <Col span={16}>
                     {data.status == 1 ? (
                         <Link to={`/offline/task?projectId=${data.id}`}>
-                            <span className="company-name" onClick={() => { this.setRouter('operation', data) }}>
+                            <span className="company-name" title={data.projectAlias} onClick={() => { this.setRouter('operation', data) }}>
                                 {data.projectAlias}&nbsp;&nbsp;
                             </span>
                         </Link>
-                    ) : (<span className="company-name no-hover">
+                    ) : (<span title={data.projectAlias} className="company-name no-hover">
                         {data.projectAlias}&nbsp;&nbsp;
                     </span>)}
                     {this.renderTitleText(data)}
