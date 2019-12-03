@@ -45,6 +45,7 @@ class CommonEditorContainer extends React.Component<any, any> {
     }
 
     handleEditorTxtChange = (newVal: any, editorInstance: any) => {
+        debugger
         const task = this.props.currentTabData
         const taskCustomParams = this.props.taskCustomParams;
         let params: any = {

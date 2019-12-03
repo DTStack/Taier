@@ -31,8 +31,8 @@ class Default extends React.Component<any, any> {
         const couldEdit = isProjectCouldEdit(project, user);
         const themeDark = editor.options.theme !== 'vs' ? true : undefined;
         const iconBaseUrl = themeDark ? '/public/rdos/img/theme-dark' : '/public/rdos/img';
-
-        return workbench.tabs.length ? (
+        const { tabs, showPanel } = workbench;
+        return (tabs.length && showPanel) ? (
             <Workbench />
         ) : (
             couldEdit && (
