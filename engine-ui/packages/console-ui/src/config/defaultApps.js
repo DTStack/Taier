@@ -87,7 +87,7 @@ module.exports = [
         icon: '/public/main/img/icon_4.png',
         newIcon: '/public/main/img/tag.png',
         description: '快速生成规则标签，提供便捷、统一标签服务管理',
-        className: 'icon_factory_menu1'
+        className: 'icon_dropdown_tag'
     }, {
         id: 'science',
         name: '数据科学',

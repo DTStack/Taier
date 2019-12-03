@@ -58,16 +58,6 @@ export const daApp = {
     apiBase: '/dataApi'
 }
 
-export const dlApp = {
-    id: 'dataLabel',
-    name: '标签工厂',
-    link: 'dataLabel.html#/',
-    filename: 'dataLabel.html',
-    target: '_blank',
-    enable: true,
-    apiBase: '/tag'
-}
-
 export const consoleApp = {
     id: 'console',
     name: '控制台',
