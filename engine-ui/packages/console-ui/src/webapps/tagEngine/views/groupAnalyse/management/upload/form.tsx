@@ -68,7 +68,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
     }
 
     loadEntities = () => {
-        API.selectEntity().then(res => {
+        API.selectEntity().then((res: any) => {
             const { code, data = [] } = res;
             if (code === 1) {
                 this.setState({
@@ -101,7 +101,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
         const res = await GroupAPI.analysisGroup({
             entityId: get(router, 'location.query.entityId', ''),
             groupId: formData.groupId,
-            taskId: -1,
+            taskId: null,
             uploadFileName: this._responseData,
             entityAttrList: entityAttrs
         });
@@ -135,7 +135,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
         }
     }
 
-    onAttrChange = (value, option) => {
+    onAttrChange = (value: any, option: any) => {
         const { entityAttrs } = this.state;
         const newState = entityAttrs.slice();
         const res = newState.find((o) => { return o.entityAttr === value });
