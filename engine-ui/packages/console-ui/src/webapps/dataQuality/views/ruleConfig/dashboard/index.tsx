@@ -29,8 +29,8 @@ const Option = Select.Option;
 const TabPane = Tabs.TabPane;
 
 const mapStateToProps = (state: any) => {
-    const { ruleConfig, dataSource, common } = state;
-    return { ruleConfig, dataSource, common };
+    const { ruleConfig, dataSource, common, project } = state;
+    return { ruleConfig, dataSource, common, project };
 };
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -77,6 +77,27 @@ class RuleConfig extends React.Component<any, any> {
             }
             this.props.router.replace('/dq/rule');
         });
+    }
+
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps: any) {
+        const project = nextProps.project
+        const oldProj = this.props.project
+        if (oldProj && project && oldProj.id !== project.id) {
+            this.props.getDataSourcesList();
+            this.props.getMonitorLists(this.state.params).then((res: any) => {
+                if (res && res.data && res.data.data) {
+                    const record = res.data.data.filter((item: any) => {
+                        return item.tableId == utils.getParameterByName('tableId');
+                    });
+
+                    if (record && record.length > 0) {
+                        this.openSlidePane(record[0]);
+                    }
+                }
+                this.props.router.replace('/dq/rule');
+            });
+        }
     }
 
     // table设置
