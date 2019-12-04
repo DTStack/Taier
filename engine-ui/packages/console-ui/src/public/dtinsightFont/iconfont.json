@@ -249,6 +249,13 @@
       "font_class": "icon_dropdown_tag",
       "unicode": "e6bc",
       "unicode_decimal": 59068
+    },
+    {
+      "icon_id": "12134281",
+      "name": "icon_safe",
+      "font_class": "icon_safe",
+      "unicode": "e6bd",
+      "unicode_decimal": 59069
     }
   ]
 }
