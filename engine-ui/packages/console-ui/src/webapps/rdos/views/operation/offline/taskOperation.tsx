@@ -286,7 +286,7 @@ class OfflineTaskList extends React.Component<any, any> {
                 title: '确认提示',
                 content: '确认需要重跑选择的任务及其全部下游任务？',
                 onOk () {
-                    Api.batchRestartAndResume({ jobIdList: selected }).then((res: any) => {
+                    Api.batchRestartAndResume({ jobIdList: selected.map((item: any) => item.split('_')[1]) }).then((res: any) => {
                         if (res.code === 1) {
                             message.success('已经成功重跑当前选中及其全部下游任务')
                             ctx.setState({ selectedRowKeys: [], checkAll: false })

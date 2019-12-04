@@ -113,7 +113,11 @@ class Welcome extends React.Component<any, any> {
                             style={{ marginTop: 20 }}
                             bordered={false}
                             noHovering
-                            title={<div style={{ fontSize: '16px' }}>欢迎使用DTInsight.Science数据科学平台</div>}
+                            title={
+                                <div style={{ fontSize: '16px' }}>
+                                    欢迎使用{window.APP_CONF.prefix ? `${window.APP_CONF.prefix}.` : ''}{window.APP_CONF.name}数据科学平台
+                                </div>
+                            }
                             extra={<>
                                 <Button className='o-button--large-font' ghost type="primary" onClick={this.handleNewProject}>创建项目</Button>
                                 <Button className='o-button--large-font' ghost type="primary" onClick={this.gotoProjectList}>项目列表</Button>
