@@ -792,27 +792,6 @@ export default class InputPanel extends React.Component<any, any> {
                 this.getTopicType(index, value);
                 break;
             }
-            case 'topic': {
-                timeColumoption[index] = [];
-                allParamsType.map((v: any) => {
-                    if (v != 'type' && v != 'sourceId' && v != 'topic') {
-                        if (v == 'columns') {
-                            panelColumn[index][v] = [];
-                        } else if (v == 'timeType') {
-                            panelColumn[index][v] = 1
-                        } else if (v == 'parallelism') {
-                            panelColumn[index][v] = 1
-                        } else if (v == 'offsetReset') {
-                            panelColumn[index][v] = 'latest'
-                        } else if (v == 'timeZone') {
-                            panelColumn[index][v] = 'Asia/Shanghai'
-                        } else {
-                            panelColumn[index][v] = undefined
-                        }
-                    }
-                })
-                break;
-            }
             default: {
                 shouldUpdateEditor = false;
             }
