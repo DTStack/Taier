@@ -184,10 +184,10 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                 return (
                     <Card className="c_offten_project_card" noHovering bordered={false} title={this.getCardTitle(project, index)}>
                         <Row className='c_offten_project_card_content'>
-                            <Col span={13}>
+                            <Col span={12}>
                                 API创建数： <span className='c_project_num'>{project.apiCreateCount}</span>
                             </Col>
-                            <Col span={11}>
+                            <Col span={12}>
                                 API发布数： <span className='c_project_num'>{project.apiIssueCount}</span>
                             </Col>
                             <Col span={24}>

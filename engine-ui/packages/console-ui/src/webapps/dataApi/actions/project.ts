@@ -38,7 +38,7 @@ export function getProject (id: any, callback?: Function) {
                 type: projectAction.GET_PROJECT,
                 data: res.data
             })
-            callback();
+            if (callback) callback();
         })
     }
 }
