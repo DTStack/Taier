@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Link, hashHistory, withRouter } from 'react-router';
+import { hashHistory, withRouter } from 'react-router';
 import { connect } from 'react-redux';
 import { Card, Row, Col, Icon, Spin } from 'antd';
 import { cloneDeep } from 'lodash';
@@ -96,7 +96,9 @@ class ProjectPanel extends React.Component<any, ProjectState> {
             return arr;
         }
     }
-
+    enterProject () {
+        hashHistory.push(`/api/overview`);
+    }
     getCardTitle = (project: any, index: number) => {
         if (!project) return;
         const title = <div>
@@ -104,15 +106,15 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                 <Col span={18} className='c_offten_project_card_title_info' >
                     {
                         project.status == PROJECT_STATUS.NORMAL ? (
-                            <Link to={`/api/overview?projectId=${project.id}`}>
+                            <>
                                 <span className='c_offten_project_card_title_name' onClick={
                                     () => {
-                                        this.props.dispatch(projectActions.getProject(project.id))
+                                        this.props.dispatch(projectActions.getProject(project.id, this.enterProject))
                                     }}
                                 title={project.projectAlias}>
                                     {utils.textOverflowExchange(project.projectAlias, 19)}
                                 </span><br />
-                            </Link>
+                            </>
                         ) : <span className='c_offten_project_card_title_name' title={project.projectAlias}>
                             {utils.textOverflowExchange(project.projectAlias, 19)}
                         </span>
@@ -182,10 +184,10 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                 return (
                     <Card className="c_offten_project_card" noHovering bordered={false} title={this.getCardTitle(project, index)}>
                         <Row className='c_offten_project_card_content'>
-                            <Col span={13}>
+                            <Col span={12}>
                                 API创建数： <span className='c_project_num'>{project.apiCreateCount}</span>
                             </Col>
-                            <Col span={11}>
+                            <Col span={12}>
                                 API发布数： <span className='c_project_num'>{project.apiIssueCount}</span>
                             </Col>
                             <Col span={24}>
