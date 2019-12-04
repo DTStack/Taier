@@ -7,6 +7,7 @@ module.exports = {
         proxy: {
             '/api/dq': {
                 target: 'http://172.16.10.251:8089', // 开发环境
+                // target: 'http://172.16.3.66:8089', // 联调
                 // target: "http://172.16.6.135:8089", // tmp server
                 // target: "http://172.16.10.45:8089",
                 // ignorePath: true,
@@ -31,10 +32,10 @@ module.exports = {
             },
             '/api/streamapp': {
                 // target: "http://172.16.1.191:9021", // formal test ser
-                // target: "http://172.16.10.251:9023", // formal test ser
+                target: "http://172.16.10.251:9023", // formal test ser
                 // target: "http://172.16.8.108:9023", // dev
                 // target: 'http://172.16.10.86:9021', // test
-                target: 'http://172.16.0.185:9021', // chener
+                // target: 'http://172.16.0.185:9021', // chener
                 // ignorePath: true,
                 // Mock
                 // pathRewrite:{"^/api/streamapp":"/api/rdos"},

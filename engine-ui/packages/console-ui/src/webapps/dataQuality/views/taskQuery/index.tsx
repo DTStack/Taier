@@ -35,8 +35,8 @@ const TabPane = Tabs.TabPane;
 const RangePicker = DatePicker.RangePicker;
 
 const mapStateToProps = (state: any) => {
-    const { taskQuery, dataSource, common } = state;
-    return { taskQuery, dataSource, common };
+    const { taskQuery, dataSource, common, project } = state;
+    return { taskQuery, dataSource, common, project };
 };
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -77,6 +77,16 @@ class TaskQuery extends React.Component<any, any> {
     componentDidMount () {
         this.props.getTaskList(this.state.params);
         this.props.getDataSourcesList();
+    }
+
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps: any) {
+        const project = nextProps.project
+        const oldProj = this.props.project
+        if (oldProj && project && oldProj.id !== project.id) {
+            this.props.getTaskList(this.state.params);
+            this.props.getDataSourcesList();
+        }
     }
 
     renderLogInfo = (status: any, record: any) => {

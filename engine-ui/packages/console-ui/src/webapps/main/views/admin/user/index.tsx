@@ -29,10 +29,12 @@ interface UserManaState {
     streamProjects: any[];
     scienceProjects: any[];
     apiProjects: any[];
+    dqProjects: any[];
     selectedProject: number;
     streamSelectedProject: number;
     scienceSelectedProject: number;
     apiSelectedProject: number;
+    dqSelectedProject: number;
     dataBase: any[];
     selecteDatabase: number;
     notProjectUsers: any[];
@@ -67,10 +69,12 @@ class AdminUser extends React.Component<any, UserManaState> {
         streamProjects: [],
         scienceProjects: [],
         apiProjects: [],
+        dqProjects: [],
         selectedProject: undefined,
         streamSelectedProject: undefined,
         scienceSelectedProject: undefined,
         apiSelectedProject: undefined,
+        dqSelectedProject: undefined,
         dataBase: [],
         selecteDatabase: undefined,
         notProjectUsers: [],
@@ -99,12 +103,13 @@ class AdminUser extends React.Component<any, UserManaState> {
         return app === 'analyticsEngine';
     }
     isProjectExsit () {
-        const { active, projects, streamProjects, scienceProjects, apiProjects } = this.state;
+        const { active, projects, streamProjects, scienceProjects, apiProjects, dqProjects } = this.state;
         let appMap = {
             [MY_APPS.RDOS]: projects,
             [MY_APPS.STREAM]: streamProjects,
             [MY_APPS.SCIENCE]: scienceProjects,
-            [MY_APPS.API]: apiProjects
+            [MY_APPS.API]: apiProjects,
+            [MY_APPS.DATA_QUALITY]: dqProjects
         }
         return appMap[active] && appMap[active].length
     }
@@ -113,7 +118,7 @@ class AdminUser extends React.Component<any, UserManaState> {
      */
     loadData = (isGetProjectsBack?: any, isGetDatabaseBack?: any) => {
         const { active, selectedProject, streamSelectedProject, scienceSelectedProject,
-            apiSelectedProject,
+            apiSelectedProject, dqSelectedProject,
             currentPage, dataBase, selecteDatabase } = this.state;
         const params: any = {
             pageSize: 10,
@@ -147,6 +152,8 @@ class AdminUser extends React.Component<any, UserManaState> {
                 params.projectId = scienceSelectedProject;
             } else if (MY_APPS.API == active) {
                 params.projectId = apiSelectedProject;
+            } else if (MY_APPS.DATA_QUALITY == active) {
+                params.projectId = dqSelectedProject;
             }
 
             this.loadUsers(active, params);
@@ -324,6 +331,12 @@ class AdminUser extends React.Component<any, UserManaState> {
                         apiProjects: res.data,
                         apiSelectedProject: cookiesProject || projectId
                     }, this.loadData.bind(this, true))
+                } else if (app == MY_APPS.DATA_QUALITY) {
+                    cookiesProject = getNotNullProject(utils.getCookie('dq_project_id'), res.data)
+                    ctx.setState({
+                        dqProjects: res.data,
+                        dqSelectedProject: cookiesProject || projectId
+                    }, this.loadData.bind(this, true))
                 }
             }
         })
@@ -395,12 +408,13 @@ class AdminUser extends React.Component<any, UserManaState> {
         });
     }
     getProjectId (active: any) {
-        const { selectedProject, streamSelectedProject, scienceSelectedProject, apiSelectedProject } = this.state;
+        const { selectedProject, streamSelectedProject, scienceSelectedProject, apiSelectedProject, dqSelectedProject } = this.state;
         let map = {
             [MY_APPS.RDOS]: selectedProject,
             [MY_APPS.STREAM]: streamSelectedProject,
             [MY_APPS.SCIENCE]: scienceSelectedProject,
-            [MY_APPS.API]: apiSelectedProject
+            [MY_APPS.API]: apiSelectedProject,
+            [MY_APPS.DATA_QUALITY]: dqSelectedProject
         }
         return map[active];
     }
@@ -504,6 +518,7 @@ class AdminUser extends React.Component<any, UserManaState> {
             streamProjects: [],
             scienceProjects: [],
             apiProjects: [],
+            dqProjects: [],
             searchName: undefined
         }, () => {
             this.props.router.replace('/admin/user?app=' + key)
@@ -543,6 +558,12 @@ class AdminUser extends React.Component<any, UserManaState> {
             currentPage: 1
         }, this.loadData)
     }
+    onDqProjectSelect = (value: any) => {
+        this.setState({
+            dqSelectedProject: value,
+            currentPage: 1
+        }, this.loadData)
+    }
     initAddMember = () => {
         this.loadUsersNotInProject();
         this.setState({ visible: true })
@@ -551,8 +572,10 @@ class AdminUser extends React.Component<any, UserManaState> {
     initColums = () => {
         const ctx = this;
         const { active } = this.state;
-        const hideDel = (active == MY_APPS.RDOS || active == MY_APPS.STREAM || active == MY_APPS.ANALYTICS_ENGINE || active == MY_APPS.SCIENCE || active == MY_APPS.API);
-        const isProject = (active == MY_APPS.RDOS || active == MY_APPS.STREAM || active == MY_APPS.SCIENCE || active == MY_APPS.API);
+        const hideDel = (active == MY_APPS.RDOS || active == MY_APPS.STREAM || active == MY_APPS.ANALYTICS_ENGINE ||
+            active == MY_APPS.SCIENCE || active == MY_APPS.API || active == MY_APPS.DATA_QUALITY);
+        const isProject = (active == MY_APPS.RDOS || active == MY_APPS.STREAM ||
+            active == MY_APPS.SCIENCE || active == MY_APPS.API || active == MY_APPS.DATA_QUALITY);
 
         return [{
             title: '账号',
@@ -646,7 +669,9 @@ class AdminUser extends React.Component<any, UserManaState> {
             scienceSelectedProject,
             scienceProjects,
             apiSelectedProject,
-            apiProjects
+            apiProjects,
+            dqSelectedProject,
+            dqProjects
         } = this.state;
 
         let selectValue;
@@ -674,6 +699,10 @@ class AdminUser extends React.Component<any, UserManaState> {
             selectValue = apiSelectedProject;
             projectsOptions = apiProjects;
             onSelectChange = this.onApiProjectSelect
+        } else if (active == MY_APPS.DATA_QUALITY) {
+            selectValue = dqSelectedProject;
+            projectsOptions = dqProjects;
+            onSelectChange = this.onDqProjectSelect;
         }
 
         const projectOpts = projectsOptions && projectsOptions.map((project: any) =>
@@ -686,7 +715,6 @@ class AdminUser extends React.Component<any, UserManaState> {
                 {item.name}
             </Option>
         )
-
         const title = (
             <span>
                 {
