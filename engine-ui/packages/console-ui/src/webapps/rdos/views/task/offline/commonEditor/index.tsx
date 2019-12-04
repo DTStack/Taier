@@ -226,7 +226,7 @@ class CommonEditorContainer extends React.Component<any, any> {
             ...toolBarOptions
         }
 
-        if (mode === 'sql' ) {
+        if (mode === 'sql') {
             toolbarOpts.runningMenu = (
                 <Menu
                     onClick={this.execSQL.bind(this, true)}
