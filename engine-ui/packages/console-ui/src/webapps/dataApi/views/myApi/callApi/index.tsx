@@ -75,8 +75,8 @@ class CallApi extends React.Component<any, any> {
                     <span className='c-call-api__header__title'>API调用认证</span>
                 </header>
                 <div className='c-call-api__content'>
-                    <Card title={<span>方式一：AK/SK签名加密方式<Tooltip title='API调用时，需将APP Key、APP Secret加密后的签名填写在Header中进行调用，以便API调用具有更高的安全性'>
-                        <Icon style={{ marginLeft: '6px' }} type="exclamation-circle-o" />
+                    <Card title={<span>方式一：AK/SK签名加密方式<Tooltip title='API调用时，需将APP Key、APP Secret加密后的签名填写在Header中进行调用，以便API调用具有更高的安全性，适合应用系统间、跨域名等安全性要求高的使用场景。'>
+                        <Icon style={{ marginLeft: '6px' }} type="question-circle-o" />
                     </Tooltip></span>} bordered={false} noHovering={true}>
                         <section className='c-call-api__content__section'>
                             <div className='c-call-api__section__title'>
@@ -125,7 +125,7 @@ class CallApi extends React.Component<any, any> {
                         </section>
                     </Card>
                     <Card title={<span>方式二：TOKEN加密方式<Tooltip title='API调用时，需将API-TOKEN填写至Header中进行调用，适合API测试、企业内部等安全性要求不高的使用场景。'>
-                        <Icon style={{ marginLeft: '6px' }} type="exclamation-circle-o" />
+                        <Icon style={{ marginLeft: '6px' }} type="question-circle-o" />
                     </Tooltip></span>} bordered={false} noHovering={true}>
                         <section className='c-call-api__content__section'>
                             <div className='c-call-api__section__title'>

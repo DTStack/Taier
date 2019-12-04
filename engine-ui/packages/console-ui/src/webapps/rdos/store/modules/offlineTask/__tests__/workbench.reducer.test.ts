@@ -9,7 +9,8 @@ describe('workbench reducer', () => {
             tabs: [],
             currentTab: undefined,
             isCurrentTabNew: undefined,
-            taskCustomParams: []
+            taskCustomParams: [],
+            showPanel: false
         }
         return obj
     }
@@ -58,7 +59,8 @@ describe('workbench reducer', () => {
         })
         expect(nextState).toEqual({
             ...initialState,
-            taskCustomParams: payload
+            taskCustomParams: payload,
+            showPanel: true
         });
     })
     /**

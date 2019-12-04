@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.9.0-beta.4.1](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.4...3.9.0-beta.4.1) (2019-12-03)
+
+
+### Bug Fixes
+
+* **taskoperation:** prehand jobIdList param by split ([0c0ddd2](http://git.dtstack.cn/dtstack/data-stack-web/commit/0c0ddd2dc3f1bb41ae60a1bc07eb9ce6b2a796e8)), closes [#20272](http://redmine.prod.dtstack.cn/issues/20272)
+
 ## [3.9.0-beta.4](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.3.1...3.9.0-beta.4) (2019-11-26)
 
 

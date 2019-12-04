@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { debounce } from 'lodash';
 import { bindActionCreators } from 'redux';
 
-import { Button, Modal, Checkbox } from 'antd';
+import { Button, Modal, Checkbox, Menu, Tooltip } from 'antd';
 
 import utils from 'utils';
 import { filterComments, splitSql, getContainer } from 'funcs';
@@ -147,9 +147,13 @@ class EditorContainer extends React.Component<any, any> {
         this.props.updateUser({ isCheckDDL });
     };
 
-    filterSql = (sql: any) => {
+    filterSql = (sql: any, batchSession?: boolean) => {
         const arr: any = [];
         let sqls: any = filterComments(sql);
+
+        // 为 batchSession 时，SQL 无需切割
+        if (batchSession) return [utils.trim(sqls)];
+
         // 如果有有效内容
         if (sqls) {
             sqls = splitSql(sqls);
@@ -168,7 +172,11 @@ class EditorContainer extends React.Component<any, any> {
         return arr;
     };
 
-    execSQL = () => {
+    /**
+     * batchSession 该标记指定所选SQL是否在同一session中执行
+     * 支持这一操作需从【高级运行】触发
+     */
+    execSQL = (batchSession?: any) => {
         const {
             user,
             editor,
@@ -180,7 +188,8 @@ class EditorContainer extends React.Component<any, any> {
         const params: any = {
             projectId: project.id,
             isCheckDDL: user.isCheckDDL,
-            taskVariables: currentTabData.taskVariables
+            taskVariables: currentTabData.taskVariables,
+            singleSession: !batchSession // 是否为单 session 模式，batchSession 时，则支持批量SQL
         };
 
         this.setState({ execConfirmVisible: false });
@@ -190,7 +199,7 @@ class EditorContainer extends React.Component<any, any> {
             currentTabData.sqlText ||
             currentTabData.scriptText;
 
-        const sqls = this.filterSql(code);
+        const sqls = this.filterSql(code, batchSession);
 
         if (sqls && sqls.length > 0) {
             let i = 0;
@@ -287,6 +296,7 @@ class EditorContainer extends React.Component<any, any> {
         const { currentTab } = this.props;
         this.props.resetConsole(currentTab)
     }
+
     tableCompleteItems (tableList: any) {
         return tableList.map(
             (table: any) => {
@@ -533,6 +543,16 @@ class EditorContainer extends React.Component<any, any> {
         } else return null;
     }
 
+    renderRunningMenu = () => {
+        return (
+            <Menu
+                onClick={this.execSQL.bind(this, true)}
+            >
+                <Menu.Item key="runBatch"><Tooltip title="选中多段SQL代码时，将在一个session中运行">高级运行</Tooltip></Menu.Item>
+            </Menu>
+        )
+    }
+
     renderRightButton = () => {
         const {
             hideRightPane, editor,
@@ -614,6 +634,7 @@ class EditorContainer extends React.Component<any, any> {
             onThemeChange: (key: any) => {
                 this.props.updateEditorOptions({ theme: key })
             },
+            runningMenu: this.renderRunningMenu(),
             rightCustomButton: this.renderRightButton()
         }
 

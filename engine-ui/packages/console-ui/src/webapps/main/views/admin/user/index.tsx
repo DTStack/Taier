@@ -103,13 +103,13 @@ class AdminUser extends React.Component<any, UserManaState> {
         return app === 'analyticsEngine';
     }
     isProjectExsit () {
-        const { active, projects, streamProjects, scienceProjects, apiProjects } = this.state;
+        const { active, projects, streamProjects, scienceProjects, apiProjects, dqProjects } = this.state;
         let appMap = {
             [MY_APPS.RDOS]: projects,
             [MY_APPS.STREAM]: streamProjects,
             [MY_APPS.SCIENCE]: scienceProjects,
             [MY_APPS.API]: apiProjects,
-            [MY_APPS.DATA_QUALITY]: apiProjects
+            [MY_APPS.DATA_QUALITY]: dqProjects
         }
         return appMap[active] && appMap[active].length
     }
@@ -702,7 +702,7 @@ class AdminUser extends React.Component<any, UserManaState> {
         } else if (active == MY_APPS.DATA_QUALITY) {
             selectValue = dqSelectedProject;
             projectsOptions = dqProjects;
-            onSelectChange = this.onDqProjectSelect
+            onSelectChange = this.onDqProjectSelect;
         }
 
         const projectOpts = projectsOptions && projectsOptions.map((project: any) =>
@@ -715,7 +715,6 @@ class AdminUser extends React.Component<any, UserManaState> {
                 {item.name}
             </Option>
         )
-
         const title = (
             <span>
                 {
