@@ -85,6 +85,16 @@ export const mineActions: any = {
             });
         }
     },
+    // 重置token
+    resetToken (params: number) {
+        return (dispatch: any) => {
+            return API.resetToken(params).then((res: any) => {
+                if (res.code === 1) {
+                    return res;
+                }
+            });
+        }
+    },
     // 查看api错误日志
     queryApiCallLog (params: any) {
         let callFunc = 'queryApiCallLogForNormal'

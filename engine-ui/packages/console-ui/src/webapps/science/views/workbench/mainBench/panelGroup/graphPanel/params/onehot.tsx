@@ -244,6 +244,7 @@ class OneHot extends React.PureComponent<any, any> {
         this.handleSaveComponent = debounce(this.handleSaveComponent, 800);
     }
     handleSaveComponent = (field: any, filedValue: any) => {
+        alert('1q')
         const { data, currentTab, componentId, changeContent } = this.props;
         const fieldName = TASK_ENUM[COMPONENT_TYPE.FEATURE_ENGINEER.ONE_HOT];
         const currentComponentData = currentTab.graphData.find((o: any) => o.vertex && o.data.id === componentId);

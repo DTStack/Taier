@@ -32,6 +32,7 @@ export function getProject (id: any) {
             projectId: id
         }).then((res: any) => {
             if (res.code === 1) {
+                dispatch(getProjects())
                 return dispatch({
                     type: projectAction.GET_PROJECT,
                     data: res.data
@@ -81,9 +82,10 @@ export function getProjectList (params?: any) {
         })
         Api.getProjectListInfo(params).then((res: any) => {
             if (res.code === 1) {
+                const data = res.data || {}
                 dispatch({
                     type: projectAction.GET_PROJECT_LIST,
-                    data: res.data.data
+                    data: data.data
                 })
             }
             dispatch({

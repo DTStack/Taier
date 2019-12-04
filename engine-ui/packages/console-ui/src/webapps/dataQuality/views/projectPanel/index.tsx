@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Link, hashHistory, withRouter } from 'react-router';
 import { connect } from 'react-redux';
 import { Card, Row, Col, Icon, Spin } from 'antd';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isEqual } from 'lodash';
 import moment from 'moment';
 import utils from 'utils';
 import NewProjectModal from '../../components/newProject';
@@ -40,6 +40,15 @@ class ProjectPanel extends React.Component<any, ProjectState> {
         dispatch(projectActions.getProjectList());
         this.getProjectSummary();
     }
+
+    componentDidUpdate (prevProps: any, prevState: any) {
+        const { projectListInfo } = this.props;
+        const oldProjectListInfo = prevProps.projectListInfo;
+        if (projectListInfo && !isEqual(projectListInfo, oldProjectListInfo)) {
+            this.getProjectSummary();
+        }
+    }
+
     getProjectSummary = () => {
         Api.getProjectSummary().then(res => {
             if (res.code === 1) {

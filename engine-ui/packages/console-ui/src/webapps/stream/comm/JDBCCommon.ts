@@ -2,6 +2,7 @@ import { DATA_SOURCE } from './const';
 
 export const jdbcUrlExample: any = {
     [DATA_SOURCE.MYSQL]: 'jdbc:mysql://host:port/dbName',
+    [DATA_SOURCE.POLAR_DB]: 'jdbc:mysql://host:port/dbName',
     [DATA_SOURCE.ORACLE]: [
         'jdbc:oracle:thin:@host:port:dbName',
         'jdbc:oracle:thin:@//host:port/service_name'

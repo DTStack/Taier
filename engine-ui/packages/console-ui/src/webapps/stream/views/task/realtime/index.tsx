@@ -105,6 +105,7 @@ class TaskIndex extends React.Component<any, any> {
                 switch (type) {
                     case DATA_SOURCE.ORACLE:
                     case DATA_SOURCE.MYSQL:
+                    case DATA_SOURCE.POLAR_DB:
                     case DATA_SOURCE.MONGODB:
                     case DATA_SOURCE.REDIS: {
                         if (!primaryKey || !primaryKey.length) {

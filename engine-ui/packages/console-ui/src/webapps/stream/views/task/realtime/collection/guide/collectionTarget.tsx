@@ -21,7 +21,7 @@ const prefixRule = '${schema}_${table}';
 function getSourceInitialField (sourceType: any, data: any) {
     const initialFields: any = { type: sourceType };
     const { sourceMap = {} } = data;
-    const isMysqlSource = sourceMap.type == DATA_SOURCE.MYSQL;
+    const isMysqlSource = sourceMap.type == DATA_SOURCE.MYSQL || sourceMap.type == DATA_SOURCE.POLAR_DB;
     switch (sourceType) {
         case DATA_SOURCE.HDFS: {
             initialFields.fileType = 'orc';
@@ -230,7 +230,7 @@ class CollectionTargetForm extends React.Component<any, any> {
         const { getFieldDecorator } = this.props.form;
         if (!targetMap || !sourceMap) return [];
         const isText = targetMap.fileType == 'text';
-        const isMysqlSource = sourceMap.type == DATA_SOURCE.MYSQL;
+        const isMysqlSource = sourceMap.type == DATA_SOURCE.MYSQL || sourceMap.type == DATA_SOURCE.POLAR_DB;
         const { writeTableType, writeStrategy, table, writeMode } = targetMap;
         const isWriteStrategyBeTime = writeStrategy == writeStrategys.TIME;
 

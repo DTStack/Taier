@@ -58,6 +58,13 @@ class ApiCallMethod extends React.Component<any, any> {
                 }
             );
     }
+    resetToken = (apiId: number) => {
+        this.props.resetToken(apiId).then((res: any) => {
+            if (res) {
+                this.setState({ token: res.data && res.data.token })
+            }
+        })
+    }
     componentDidMount () {
         const { showRecord = {}, mode } = this.props;
         let { apiId, status, id } = showRecord;
@@ -175,6 +182,7 @@ class ApiCallMethod extends React.Component<any, any> {
                         mode={mode}
                         callUrl={callUrl}
                         token={token}
+                        resetToken={this.resetToken}
                         apiMarket={apiMarket}
                         apiVersionCode={apiVersionCode}
                         apiId={apiId} />

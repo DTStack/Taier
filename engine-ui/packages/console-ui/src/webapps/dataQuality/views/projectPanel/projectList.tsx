@@ -103,18 +103,21 @@ class ProjectsList extends React.Component<any, ProjectState> {
             currentPage: pagination.current,
             pageSize: pagination.pageSize,
             fuzzyName: params.search || undefined,
-            orderBy: params.filed ? params.filed.replace(/([A-Z])/g, '_$1').toLowerCase() : undefined,
+            orderBy: params.filed
+                ? (params.filed == 'projectAlias' ? 'dq_project_name'
+                    : params.filed.replace(/([A-Z])/g, '_$1').toLowerCase()) : undefined,
             sort: params.sort || undefined
         });
         this.setState({
             loading: false
         })
         if (res && res.code == 1) {
+            const data = res.data || {};
             this.setState({
-                data: res.data.data,
+                data: data.data,
                 pagination: {
                     ...this.state.pagination,
-                    total: res.data.totalCount
+                    total: data.totalCount || 0
                 }
             })
         }
@@ -135,6 +138,7 @@ class ProjectsList extends React.Component<any, ProjectState> {
             dataIndex: 'projectAlias',
             key: 'projectAlias',
             width: '180px',
+            sorter: true,
             render: (text: any, record: any) => {
                 if (record.status == PROJECT_STATUS.NORMAL) {
                     return <a onClick={() => this.handleEnterProject(record)}>{text}</a>

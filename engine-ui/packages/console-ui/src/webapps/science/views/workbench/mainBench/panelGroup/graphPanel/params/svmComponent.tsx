@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Tabs, Form, Button, Select, message, Spin } from 'antd';
+import { Tabs, Form, Button, Input, Select, message, Spin } from 'antd';
 import { MemorySetting as BaseMemorySetting, ChooseModal as BaseChooseModal } from './typeChange';
 import { formItemLayout } from './index';
 import { isEmpty, cloneDeep, debounce, get } from 'lodash';
@@ -73,10 +73,10 @@ class ParamSetting extends React.PureComponent<any, any> {
         }],
         nuclearDatas: [{
             value: 'auto',
-            name: 'auto'
+            name: 'auto (1/特征数) '
         }, {
-            value: 'float',
-            name: 'float'
+            value: 'custom',
+            name: '自定义'
         }]
     }
     handleSubmit (name: any, value: any) {
@@ -91,6 +91,8 @@ class ParamSetting extends React.PureComponent<any, any> {
         const { getFieldDecorator, getFieldValue } = this.props.form;
         const svmVal = getFieldValue('kernel');
         const showNuclear: boolean = svmVal == 'rbf' || svmVal == 'poly' || svmVal == 'sigmoid';
+        // 根据核系数判断auto/自定义 判断是否增加gamma参数输入框
+        let gammaType = getFieldValue('gammaType') !== 'auto'
         return (
             <Form className="params-form">
                 <FormItem
@@ -126,11 +128,11 @@ class ParamSetting extends React.PureComponent<any, any> {
                             colon={false}
                             {...formItemLayout}
                         >
-                            {getFieldDecorator('gamma', {
+                            { getFieldDecorator('gammaType', {
                                 initialValue: 'auto',
                                 rules: [{ required: false }]
                             })(
-                                <Select placeholder="请选择核系数" onChange={this.handleSubmit.bind(this, 'gamma')}>
+                                <Select placeholder="请选择核系数" onChange={this.handleSubmit.bind(this, 'gammaType')}>
                                     {nuclearDatas.map((item: any, index: any) => {
                                         return <Option key={item.value} value={item.value}>{item.name}</Option>
                                     })}
@@ -139,6 +141,22 @@ class ParamSetting extends React.PureComponent<any, any> {
                         </FormItem>
                     )
                 }
+                { gammaType && (
+                    <FormItem
+                        label={<div style={{ display: 'inline-block' }}>gamma<span className="supplementary">(0,+inf), float型</span></div> }
+                        colon={false}
+                        {...formItemLayout}
+                    >
+                        { getFieldDecorator('gamma', {
+                            rules: [
+                                { required: false },
+                                { pattern: /^[+]?[0-9]*\.?[0-9]+$/, message: '取值范围(0,+inf), float型' }
+                            ]
+                        })(
+                            <Input placeholder="请输入gamma" onBlur={(e: any) => this.handleSubmit('gamma', e.target.value)}/>
+                        )}
+                    </FormItem>
+                )}
                 {renderNumberFormItem({
                     handleSubmit: this.handleSubmit.bind(this),
                     label: '最小收敛误差',
@@ -323,6 +341,10 @@ class SvmComponent extends React.PureComponent<any, any> {
         if (field) {
             params[fieldName][field] = filedValue
         }
+        // 核系数 gamma参数特殊处理
+        if (field === 'gammaType' && filedValue === 'auto') {
+            params[fieldName]['gamma'] = null
+        }
         api.addOrUpdateTask(params).then((res: any) => {
             if (res.code == 1) {
                 currentComponentData.data = { ...params, ...res.data };
@@ -363,6 +385,9 @@ class SvmComponent extends React.PureComponent<any, any> {
                 const values: any = {
                     kernel: { value: data.kernel },
                     degree: { value: data.degree },
+                    // 核系数
+                    gammaType: { value: data.gammaType },
+                    // gamma参数
                     gamma: { value: data.gamma },
                     tol: { value: data.tol },
                     c: { value: data.c },

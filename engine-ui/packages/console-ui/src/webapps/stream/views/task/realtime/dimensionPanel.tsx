@@ -172,6 +172,7 @@ class OutputOrigin extends React.Component<any, any> {
                             }
                         >
                             <Option value={DATA_SOURCE.MYSQL}>MySQL</Option>
+                            <Option value={DATA_SOURCE.POLAR_DB}>PolarDB for MySQL8</Option>
                             <Option value={DATA_SOURCE.ORACLE}>Oracle</Option>
                             {/* <Option value={DATA_SOURCE.POSTGRESQL}>PostgreSQL</Option> */}
                             <Option value={DATA_SOURCE.KUDU}>Kudu</Option>
@@ -416,6 +417,7 @@ class OutputOrigin extends React.Component<any, any> {
                         case DATA_SOURCE.KUDU:
                         case DATA_SOURCE.POSTGRESQL:
                         case DATA_SOURCE.ORACLE:
+                        case DATA_SOURCE.POLAR_DB:
                         case DATA_SOURCE.MYSQL: {
                             return (
                                 <FormItem {...formItemLayout} label="主键">
@@ -838,7 +840,7 @@ export default class OutputPanel extends React.Component<any, any> {
             this.getTypeOriginData(index, v.type);
             if (haveTableList(v.type)) {
                 this.getTableType(index, v.sourceId);
-                if (v.type == DATA_SOURCE.MYSQL) {
+                if (v.type == DATA_SOURCE.MYSQL || v.type == DATA_SOURCE.POLAR_DB) {
                     this.getTableColumns(index, v.sourceId, v.table);
                 }
             }
@@ -906,7 +908,7 @@ export default class OutputPanel extends React.Component<any, any> {
                     this.getTypeOriginData(index, v.type);
                     if (haveTableList(v.type)) {
                         this.getTableType(index, v.sourceId);
-                        if (v.type == DATA_SOURCE.MYSQL) {
+                        if (v.type == DATA_SOURCE.MYSQL || v.type == DATA_SOURCE.POLAR_DB) {
                             this.getTableColumns(index, v.sourceId, v.table);
                         }
                     }
