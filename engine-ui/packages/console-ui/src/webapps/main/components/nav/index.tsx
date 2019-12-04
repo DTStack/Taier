@@ -80,11 +80,11 @@ function renderATagMenuItems (menuItems: any, isRoot?: boolean, isRenderIcon = f
     let subMenuItems = subMenuList || [];
     let Menu = renderMenuItem(menuItems, isRoot, isRenderIcon);
     let subMenu = renderMenuItem(subMenuItems, isRoot, isRenderIcon);
-    console.log(subMenu)
+    let isShowSubMenu = subMenuItems && (subMenuItems.findIndex((item: any) => item.enable && (!item.needRoot || (item.needRoot && isRoot))) > -1)
     return (
         [ Menu,
             // eslint-disable-next-line react/jsx-key
-            <SubMenu
+            isShowSubMenu && (<SubMenu
                 className="my-menu-item menu_mini"
                 title={(
                     <span
@@ -103,7 +103,7 @@ function renderATagMenuItems (menuItems: any, isRoot?: boolean, isRenderIcon = f
                 )}
             >
                 { subMenu }
-            </SubMenu>]
+            </SubMenu>)]
     )
 }
 export function Logo (props: any) {
