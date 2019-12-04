@@ -15,7 +15,6 @@ declare var APP_CONF: any;
 
 const UIC_URL_TARGET = APP_CONF.UIC_URL || '';
 
-
 export const Title = styled.span`
     color: #ffffff;
     margin-left: 10px;
@@ -61,19 +60,12 @@ export function compareEnableApp (apps: any, licenseApps: any, isShowHome?: any)
         }
     }
 }
-/**
- * 判断是否是空数组
- * @param arr  数组元素 
- */
-function isEmptyArray (arr: []) {
-    if (Array.isArray(arr) && arr.length === 0) return true
-    return false
-}
+
 /**
  * 渲染各个应用的菜单导航项
  * @param menuItems 菜单项列表
  */
-function renderMenuItem (menuItems: any, isRoot?: boolean, isRenderIcon = false)  {
+function renderMenuItem (menuItems: any, isRoot?: boolean, isRenderIcon = false) {
     return menuItems && menuItems.length > 0 ? menuItems.map((menu: any) => {
         const isShow = menu.enable && (!menu.needRoot || (menu.needRoot && isRoot))
         return isShow ? (<Menu.Item key={menu.id} className={menu.menuClass}>
@@ -85,20 +77,21 @@ function renderMenuItem (menuItems: any, isRoot?: boolean, isRenderIcon = false)
     }) : []
 }
 function renderATagMenuItems (menuItems: any, isRoot?: boolean, isRenderIcon = false, subMenuList?: any) {
-    let subMenuItems = subMenuList ? subMenuList : [];
+    let subMenuItems = subMenuList || [];
     let Menu = renderMenuItem(menuItems, isRoot, isRenderIcon);
     let subMenu = renderMenuItem(subMenuItems, isRoot, isRenderIcon);
     console.log(subMenu)
     return (
         [ Menu,
+            // eslint-disable-next-line react/jsx-key
             <SubMenu
                 className="my-menu-item menu_mini"
                 title={(
                     <span
-                    style={{
-                        height: '47px'
-                    }}
-                    className="my-menu-item"
+                        style={{
+                            height: '47px'
+                        }}
+                        className="my-menu-item"
                     >
                         <span
                             className="menu-text-ellipsis"
@@ -109,7 +102,7 @@ function renderATagMenuItems (menuItems: any, isRoot?: boolean, isRenderIcon = f
                     </span>
                 )}
             >
-            { subMenu }
+                { subMenu }
             </SubMenu>]
     )
 }
