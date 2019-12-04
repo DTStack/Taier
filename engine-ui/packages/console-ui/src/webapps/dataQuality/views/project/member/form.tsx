@@ -37,18 +37,17 @@ class MemberForm extends React.Component<any, any> {
         let roleOptions: any = []; let defaultRoles: any = [];
         if (roles) {
             roles.forEach((role: any) => {
-                // 过滤项目所有者，租户所有者，访客三种无效的授权对象
-                if (role.roleValue !== PROJECT_ROLE.PROJECT_OWNER &&
-                    role.roleValue !== PROJECT_ROLE.TENANT_OWVER) {
-                    const option: any = { label: role.roleName, value: role.id }
-
-                    if (role.roleValue === PROJECT_ROLE.VISITOR) {
-                        defaultRoles.push(role.id)
-                        option.disabled = true;
-                    }
-
-                    roleOptions.push(option)
+                // 置灰项目所有者，租户所有者两种授权对象
+                const option: any = { label: role.roleName, value: role.id }
+                if (role.roleValue === PROJECT_ROLE.PROJECT_OWNER ||
+                    role.roleValue === PROJECT_ROLE.TENANT_OWVER ||
+                    role.roleValue === PROJECT_ROLE.VISITOR) {
+                    option.disabled = true;
                 }
+                if (role.roleValue === PROJECT_ROLE.VISITOR) {
+                    defaultRoles.push(role.id)
+                }
+                roleOptions.push(option)
             })
         }
 
