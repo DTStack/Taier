@@ -147,12 +147,9 @@ class EditorContainer extends React.Component<any, any> {
         this.props.updateUser({ isCheckDDL });
     };
 
-    filterSql = (sql: any, batchSession?: boolean) => {
+    filterSql = (sql: any) => {
         const arr: any = [];
         let sqls: any = filterComments(sql);
-
-        // 为 batchSession 时，SQL 无需切割
-        if (batchSession) return [utils.trim(sqls)];
 
         // 如果有有效内容
         if (sqls) {
@@ -199,7 +196,7 @@ class EditorContainer extends React.Component<any, any> {
             currentTabData.sqlText ||
             currentTabData.scriptText;
 
-        const sqls = this.filterSql(code, batchSession);
+        const sqls = this.filterSql(code);
 
         if (sqls && sqls.length > 0) {
             let i = 0;
