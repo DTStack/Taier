@@ -1,12 +1,12 @@
 import * as React from 'react'
 import moment from 'moment';
-
+import { Popconfirm } from 'antd';
 import './style.scss';
 import RegisterSection from './register';
 import CreateSection from './create';
 import Webservice from './webservice';
 import { showAdminMsg } from '../../components/adminMsgModal';
-
+import Copy from 'main/components/copy-icon';
 import { API_METHOD, API_METHOD_KEY } from '../../consts';
 import { getApiMarketValue } from '../../utils';
 import HelpDoc from '../../views/helpDoc'
@@ -50,6 +50,12 @@ class Content extends React.Component<any, any> {
             return null;
         }
     }
+
+    resetKey = () => {
+        const { resetToken, showRecord = {} } = this.props;
+        resetToken(showRecord.id)
+    }
+
     render () {
         const {
             apiId,
@@ -107,6 +113,20 @@ class Content extends React.Component<any, any> {
                         )}
                         {showUserInfo && <div>
                             <p data-title="调用URL：" className="pseudo-title p-line">{callUrl}</p>
+                            <p data-title="API-TOKEN：" className="pseudo-title p-line">
+                                {token}
+                                <span>
+                                    <Copy
+                                        customView={(
+                                            <a style={{ marginLeft: '13px' }}>复制</a>
+                                        )}
+                                        copyText={token}
+                                    />
+                                    <Popconfirm title="确定重置吗?" onConfirm={this.resetKey} okText="确认" cancelText="取消">
+                                        <a style={{ marginLeft: '13px' }}>重置</a>
+                                    </Popconfirm>
+                                </span>
+                            </p>
                             <p data-title="支持调用次数：" className="pseudo-title p-line">
                                 {callLimit == -1 ? '无限制' : callLimit}
                                 <a style={{ marginLeft: '5px' }} onClick={() => {

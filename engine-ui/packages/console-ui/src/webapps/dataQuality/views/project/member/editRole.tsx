@@ -20,7 +20,7 @@ class EditRoleForm extends React.Component<any, any> {
         let roleOptions: any = [];
         if (roles) {
             roles.forEach((role: any) => {
-                // 过滤项目所有者，租户所有者，访客三种无效的授权对象
+                // 置灰项目所有者，租户所有者两种授权对象
                 const disabled = role.roleValue === PROJECT_ROLE.PROJECT_OWNER ||
                     role.roleValue === PROJECT_ROLE.TENANT_OWVER ||
                     role.roleValue === PROJECT_ROLE.VISITOR

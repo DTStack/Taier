@@ -26,8 +26,9 @@ class Header extends React.Component<any, any> {
     constructor (props: any) {
         super(props);
         this.state = {
-            current: 'project',
-            filter: ''
+            current: '/entityManage',
+            filter: '',
+            navItem: []
         };
     }
 
@@ -38,19 +39,21 @@ class Header extends React.Component<any, any> {
         const pathName = location.pathname;
         if (licenseApps != preProps.licenseApps) {
             const currentlicenseApps = licenseApps.find(item => item.id == 'tagEngine');
-            if (currentlicenseApps && currentlicenseApps.length) {
+            if (currentlicenseApps) {
                 const { children } = currentlicenseApps;
                 let navItem = navData.filter(item => children.some(ele => (ele.name == item.permissionName) && ele.isShow));
                 if (navItem.length) {
-                    this.setState({
-                        navItem
-                    });
                     const currentRouter = navItem.filter(item => item.routers.includes(pathName));
+                    let current = '';
                     if (currentRouter[0]) {
-                        this.updateSelected(currentRouter[0].permissionUrl)
+                        current = currentRouter[0].permissionUrl
                     } else {
-                        this.updateSelected(navItem[0] ? navItem[0].permissionUrl : '')
+                        current = navItem[0] ? navItem[0].permissionUrl : '';
                     }
+                    this.setState({
+                        navItem,
+                        current
+                    });
                 }
             } else {
                 this.goIndex();
@@ -87,7 +90,9 @@ class Header extends React.Component<any, any> {
 
     goIndex = () => {
         const { router } = this.props;
-        this.setState({ current: 'overview' });
+        const { navItem } = this.state;
+        let current = navItem[0] ? navItem[0].permissionUrl : '';
+        this.setState({ current });
         router.push('/');
     };
 
@@ -220,10 +225,9 @@ class Header extends React.Component<any, any> {
         }
     }
     render () {
-        const { user, apps, app, licenseApps, router, navData } = this.props;
-        const { current } = this.state;
+        const { user, apps, app, licenseApps, router } = this.props;
+        const { current, navItem } = this.state;
         let pathname = router.location.pathname;
-        const display = current !== 'overview' ? 'inline-block' : 'none';
         const isProject = pathname == '/';
         return (
             <div className={`header ${window.APP_CONF.theme || 'default'}`}>
@@ -241,16 +245,15 @@ class Header extends React.Component<any, any> {
                     <Menu
                         className={'my-menu'}
                         onClick={this.handleClick}
-                        selectedKeys={[this.state.current]}
+                        selectedKeys={[current]}
                         mode="horizontal"
                     >
                         {!isProject && this.renderProjectSelect()}
                         {
-                            !isProject && navData.map(item => (
+                            !isProject && navItem.map(item => (
                                 <Menu.Item
                                     className="my-menu-item"
                                     key={item.permissionUrl}
-                                    style={{ display }}
                                 >
                                     <Link to={item.permissionUrl}>{item.permissionName}</Link>
                                 </Menu.Item>

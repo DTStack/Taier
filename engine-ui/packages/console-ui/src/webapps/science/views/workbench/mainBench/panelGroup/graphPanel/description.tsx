@@ -79,6 +79,9 @@ class Description extends React.Component<any, any> {
             case COMPONENT_TYPE.FEATURE_ENGINEER.ONE_HOT:
                 title = 'one-hot编码';
                 break;
+            case COMPONENT_TYPE.DATA_TOOLS.PYTHON_SCRIPT:
+                title = 'Python脚本';
+                break;
             default:
                 return ''
         }
@@ -159,6 +162,9 @@ class Description extends React.Component<any, any> {
                     羽毛球  =>  0010
                     乒乓球  =>  0001
                     离散特征进行one-hot编码，编码后的特征，每一维度的特征都可看做是连续的特征，可对每一维度特征进行归一化。`;
+                break;
+            case COMPONENT_TYPE.DATA_TOOLS.PYTHON_SCRIPT:
+                description = `Python脚本组件，可自定义Python进行数据处理。`;
                 break;
             default:
                 return ''

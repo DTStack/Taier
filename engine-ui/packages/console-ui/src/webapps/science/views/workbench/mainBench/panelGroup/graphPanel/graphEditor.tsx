@@ -423,6 +423,7 @@ class GraphEditor extends React.Component<any, any> {
                             new mxConnectionConstraint(new mxPoint(0.5, 0), perimeter, CONSTRAINT_TEXT[type].input[0].value)
                         ];
                     }
+                    case COMPONENT_TYPE.DATA_TOOLS.PYTHON_SCRIPT:
                     case COMPONENT_TYPE.DATA_TOOLS.SQL_SCRIPT: {
                         const outputs: any = [
                             new mxConnectionConstraint(new mxPoint(0.5, 1), perimeter, CONSTRAINT_TEXT[type].output[0].value)

@@ -180,6 +180,7 @@ class BaseForm extends React.Component<any, any> {
         switch (type) {
             case DATA_SOURCE.HIVE:
                 return /jdbc:(\w)+:\/\/(\w)+/;
+            case DATA_SOURCE.POLAR_DB:
             case DATA_SOURCE.MYSQL:
                 return /jdbc:mysql:\/\/(\w)+/;
             case DATA_SOURCE.ORACLE:
@@ -1039,6 +1040,7 @@ class BaseForm extends React.Component<any, any> {
                 ]
             }
             case DATA_SOURCE.MYSQL:
+            case DATA_SOURCE.POLAR_DB:
             case DATA_SOURCE.SQLSERVER:
             case DATA_SOURCE.POSTGRESQL: {
                 return [

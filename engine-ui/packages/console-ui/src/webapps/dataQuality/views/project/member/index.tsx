@@ -229,7 +229,7 @@ class ProjectMember extends React.Component<any, any> {
             title: '加入时间',
             dataIndex: 'gmtCreate',
             key: 'gmtCreate',
-            render: (text: any, record: any) => utils.formatDateTime(record.user.gmtCreate)
+            render: (text: any, record: any) => utils.formatDateTime(record.gmtCreate)
         }, {
             title: '操作',
             width: 100,

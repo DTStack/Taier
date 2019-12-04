@@ -51,8 +51,8 @@ class ProjectForm extends React.Component<any, any> {
                                 pattern: /^[A-Za-z0-9_]*([A-Za-z])[A-Za-z0-9_]*$/,
                                 message: '项目标识由字母、数字、下划线组成!'
                             }, {
-                                max: 20,
-                                message: '项目标识不得超过20个字符！'
+                                max: 64,
+                                message: '项目标识不得超过64个字符！'
                             }]
                         })(
                             <Input placeholder="请输入项目标识" />
@@ -65,8 +65,8 @@ class ProjectForm extends React.Component<any, any> {
                     >
                         {getFieldDecorator('projectAlias', {
                             rules: [{
-                                max: 20,
-                                message: '项目别名不得超过20个字符！'
+                                max: 64,
+                                message: '项目别名不得超过64个字符！'
                             }]
                         })(
                             <Input placeholder="请输入项目别名" />
@@ -79,11 +79,11 @@ class ProjectForm extends React.Component<any, any> {
                     >
                         {getFieldDecorator('projectDesc', {
                             rules: [{
-                                max: 200,
-                                message: '项目描述请控制在200个字符以内！'
+                                max: 128,
+                                message: '项目描述请控制在128个字符以内！'
                             }]
                         })(
-                            <Input type="textarea" placeholder="项目描述请控制在200个字符以内" {...rowFix}/>
+                            <Input type="textarea" placeholder="项目描述请控制在128个字符以内" {...rowFix}/>
                         )}
                     </FormItem>
                 </Form>

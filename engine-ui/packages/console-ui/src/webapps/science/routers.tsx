@@ -45,8 +45,7 @@ export default (
             <Route path="role/edit/:roleId" component={RoleEdit} />
         </Route>
         <Route path="/science" component={Container}>
-            {/* <IndexRedirect to='index' /> */}
-            <IndexRoute component={Index} />
+            <IndexRedirect to='index' />
             <Route path='index' component={Index}>
                 <IndexRoute component={Welcome} />
                 <Route path='welcome' component={Welcome} />
