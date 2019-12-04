@@ -189,7 +189,7 @@ class EditorContainer extends React.Component<any, any> {
             projectId: project.id,
             isCheckDDL: user.isCheckDDL,
             taskVariables: currentTabData.taskVariables,
-            singleSession: !batchSession // 是否为单 session 模式，batchSession 时，则支持批量SQL
+            singleSession: !!batchSession // 是否为单 session 模式, 为 true 时，支持batchSession 时，则支持批量SQL，false 则相反
         };
 
         this.setState({ execConfirmVisible: false });
