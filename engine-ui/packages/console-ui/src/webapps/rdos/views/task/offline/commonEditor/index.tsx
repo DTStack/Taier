@@ -67,12 +67,9 @@ class CommonEditorContainer extends React.Component<any, any> {
         this.props.updateUser({ isCheckDDL });
     };
 
-    filterSql = (sql: any, batchSession?: boolean) => {
+    filterSql = (sql: any) => {
         const arr: any = [];
         let sqls: any = filterComments(sql);
-
-        // 为 batchSession 时，SQL 无需切割
-        if (batchSession) return [utils.trim(sqls)];
 
         // 如果有有效内容
         if (sqls) {
@@ -110,7 +107,7 @@ class CommonEditorContainer extends React.Component<any, any> {
             projectId: project.id,
             isCheckDDL: user.isCheckDDL,
             taskVariables: currentTabData.taskVariables,
-            singleSession: !batchSession // 是否为单 session 模式，batchSession 时，则支持批量SQL
+            singleSession: !batchSession // 是否为单 session 模式, 为 true 时，支持batchSession 时，则支持批量SQL，false 则相反
         };
 
         const code =
@@ -119,7 +116,7 @@ class CommonEditorContainer extends React.Component<any, any> {
             currentTabData.scriptText;
 
         if (singleLineMode) {
-            let sqls = this.filterSql(code, batchSession);
+            let sqls = this.filterSql(code);
             if (sqls && sqls.length > 0) {
                 let i = 0;
                 this.props.setOutput(currentTab, `正在提交...`);
