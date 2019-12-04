@@ -15,15 +15,14 @@ export const commonActions: any = {
         }
     },
     getMenuList () {
-        return (dispatch: any) => {
-            API.getMenuList().then((res: any) => {
-                if (res.code === 1) {
-                    dispatch({
-                        type: commonActionType.GET_ALL_MENU_LIST,
-                        payload: res.data
-                    });
-                }
-            });
+        return async (dispatch: any) => {
+            const res = await API.getMenuList();
+            if (res.code === 1) {
+                dispatch({
+                    type: commonActionType.GET_ALL_MENU_LIST,
+                    payload: res.data
+                });
+            }
         }
     }
 }
