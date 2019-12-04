@@ -183,10 +183,11 @@ class StepTwo extends React.PureComponent<IProps, IState> {
     onChangeSelect = (value) => {
         this.setState({
             tags: [],
-            activeTag: ''
+            activeTag: '',
+            initConfig: {}
+        }, () => {
+            this.getEntityAtomTagList(value);
         });
-        this.onValidateLabelRule();
-        this.getEntityAtomTagList(value);
     }
     onChangeSelectTag=(value) => { // 选择标签节点
         this.setState({
