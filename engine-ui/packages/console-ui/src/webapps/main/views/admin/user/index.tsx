@@ -564,12 +564,6 @@ class AdminUser extends React.Component<any, UserManaState> {
             currentPage: 1
         }, this.loadData)
     }
-
-
-
-
-
-
     initAddMember = () => {
         this.loadUsersNotInProject();
         this.setState({ visible: true })
@@ -721,7 +715,6 @@ class AdminUser extends React.Component<any, UserManaState> {
                 {item.name}
             </Option>
         )
-
         const title = (
             <span>
                 {
