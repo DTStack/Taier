@@ -56,6 +56,8 @@ public class PoolHttpClient {
 
 	private static int SLEEP_TIME_MILLI_SECOND = 2000;
 
+    private static int DEFAULT_RETRY_TIMES = 3;
+
 	private static ObjectMapper objectMapper = new ObjectMapper();
 
 	private static CloseableHttpClient httpClient = getHttpClient();
@@ -126,7 +128,7 @@ public class PoolHttpClient {
 
 
 
-	public static String get(String url) throws IOException {
+	private static String getRequest(String url) throws IOException {
 		String respBody = null;
 		HttpGet httpGet = null;
 		CloseableHttpResponse response = null;
@@ -160,11 +162,19 @@ public class PoolHttpClient {
 		return respBody;
 	}
 
+    public static String get(String url) throws IOException {
+        try {
+            return get(url, DEFAULT_RETRY_TIMES);
+        } catch (Exception e) {
+            throw new IOException(e);
+        }
+    }
+
 	public static String get(String url, int retryNumber) throws Exception{
 		return RetryUtil.executeWithRetry(new Callable<String>() {
 			@Override
 			public String call() throws Exception{
-				return get(url);
+				return getRequest(url);
 			}
 		}, retryNumber, SLEEP_TIME_MILLI_SECOND,false);
 	}
