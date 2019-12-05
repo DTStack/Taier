@@ -25,5 +25,5 @@ export interface IGroup {
     groupDataCount?: number;
     createAt?: Date | string | number;
     updateAt?: Date | string | number;
-    apiEnable?: boolean;
+    isOpen?: boolean;
 }
