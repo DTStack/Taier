@@ -159,17 +159,49 @@ export default class EntityEdit extends React.Component<IProps, IState> {
             this.baseFormRef.props.form.validateFields((err: any, values: any) => {
                 if (!err) {
                     let resultBV = { ...values };
+                    let newDimensionInfor: any[] = [];
                     if (baseFormVal.id) {
                         resultBV.id = baseFormVal.id;
+                        let newArrs: any[] = [];
+                        let oldArrs: any[] = [];
+                        let keyArr: any = {};
+                        dimensionInfor.forEach(item => {
+                            let newItem = {
+                                ...item,
+                                dataType: item.dataType || (attrTypeOptions[0] && attrTypeOptions[0].value),
+                                isAtomTag: true,
+                                isPrimaryKey: item.entityAttr == resultBV.entityPrimaryKey
+                            };
+                            if (item.id) {
+                                if (newItem.isPrimaryKey) {
+                                    keyArr = newItem;
+                                } else {
+                                    oldArrs.push(newItem);
+                                }
+                            } else {
+                                newArrs.push(newItem);
+                            }
+                        })
+                        newDimensionInfor = [
+                            ...newArrs,
+                            keyArr,
+                            ...oldArrs
+                        ]
+                    } else {
+                        dimensionInfor.forEach(item => {
+                            let newItem = {
+                                ...item,
+                                dataType: item.dataType || (attrTypeOptions[0] && attrTypeOptions[0].value),
+                                isAtomTag: true,
+                                isPrimaryKey: item.entityAttr == resultBV.entityPrimaryKey
+                            };
+                            if (newItem.isPrimaryKey) {
+                                newDimensionInfor.unshift(newItem);
+                            } else {
+                                newDimensionInfor.push(newItem);
+                            }
+                        })
                     }
-                    let newDimensionInfor: any[] = dimensionInfor.map(item => {
-                        return {
-                            ...item,
-                            dataType: item.dataType || (attrTypeOptions[0] && attrTypeOptions[0].value),
-                            isAtomTag: true,
-                            isPrimaryKey: item.entityAttr == resultBV.entityPrimaryKey
-                        }
-                    });
                     this.setState({
                         baseFormVal: resultBV,
                         current: current + 1,
