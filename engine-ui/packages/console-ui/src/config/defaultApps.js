@@ -45,7 +45,7 @@ module.exports = [
         link: 'analytics.html#/',
         filename: 'analytics.html',
         target: '_self',
-        enable: false,
+        enable: true,
         disableMessage: true, // 禁用消息
         apiBase: '/analytics',
         icon: '/public/main/img/icon_3.png',
@@ -70,7 +70,7 @@ module.exports = [
         link: 'dataApi.html#/',
         filename: 'dataApi.html',
         target: '_self',
-        enable: false,
+        enable: true,
         apiBase: '/dataApi',
         icon: '/public/main/img/icon_5.png',
         newIcon: '/public/main/img/icon_new5.png',
