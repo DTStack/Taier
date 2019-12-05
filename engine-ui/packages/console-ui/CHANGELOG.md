@@ -1,3 +1,17 @@
+# Change Log
+
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+<a name="3.9.0-beta.4.3"></a>
+# [3.9.0-beta.4.3](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.4.2...3.9.0-beta.4.3) (2019-12-05)
+
+
+### Bug Fixes
+
+* **rdos:** set current to 0 ([4a98a84](http://git.dtstack.cn/dtstack/data-stack-web/commits/4a98a84)), closes [#20574](http://redmine.prod.dtstack.cn/issues/20574)
+
+
+
 # Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
