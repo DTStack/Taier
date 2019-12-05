@@ -131,16 +131,18 @@ public class SyncPluginInfo {
     // 数据同步专用: 获取flink端插件classpath, 在programArgsList中添加engine端plugin根目录
     private List<URL> getUserClassPath(List<String> programArgList, String flinkSyncPluginRoot) {
         List<URL> urlList = new ArrayList<>();
-        if(programArgList == null || flinkSyncPluginRoot == null)
+        if(programArgList == null || flinkSyncPluginRoot == null){
             return urlList;
-
+        }
         int i = 0;
-        for(; i < programArgList.size() - 1; ++i)
-            if(programArgList.get(i).equals("-job") || programArgList.get(i).equals("--job"))
+        for(; i < programArgList.size() - 1; ++i){
+            if(programArgList.get(i).equals("-job") || programArgList.get(i).equals("--job")){
                 break;
-
-        if(i == programArgList.size() - 1)
+            }
+        }
+        if(i == programArgList.size() - 1){
             return urlList;
+        }
 
         programArgList.add("-pluginRoot");
         programArgList.add(localSyncFileDir);

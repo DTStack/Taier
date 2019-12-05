@@ -35,8 +35,6 @@ public class SyncPluginInfo {
 
     private static final String coreJarNamePrefix = "flinkx";
 
-    private static final String FILE_PROTOCOL = "file://";
-
     //同步模块在flink集群加载插件
     private String flinkRemoteSyncPluginRoot;
 
@@ -127,16 +125,18 @@ public class SyncPluginInfo {
     // 数据同步专用: 获取flink端插件classpath, 在programArgsList中添加engine端plugin根目录
     private List<URL> getUserClassPath(List<String> programArgList, String flinkSyncPluginRoot) {
         List<URL> urlList = new ArrayList<>();
-        if(programArgList == null || flinkSyncPluginRoot == null)
+        if(programArgList == null || flinkSyncPluginRoot == null){
             return urlList;
-
+        }
         int i = 0;
-        for(; i < programArgList.size() - 1; ++i)
-            if(programArgList.get(i).equals("-job") || programArgList.get(i).equals("--job"))
+        for(; i < programArgList.size() - 1; ++i){
+            if(programArgList.get(i).equals("-job") || programArgList.get(i).equals("--job")){
                 break;
-
-        if(i == programArgList.size() - 1)
+            }
+        }
+        if(i == programArgList.size() - 1){
             return urlList;
+        }
 
         programArgList.add("-pluginRoot");
         programArgList.add(localSyncFileDir);
@@ -151,26 +151,5 @@ public class SyncPluginInfo {
         } finally {
             return urlList;
         }
-    }
-
-    private List<URL> findJarsInDir(File dir, String prefix)  throws MalformedURLException {
-        List<URL> urlList = new ArrayList<>();
-
-        if(dir.exists() && dir.isDirectory()) {
-            File[] jarFiles = dir.listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) {
-                    return name.toLowerCase().endsWith(".jar");
-                }
-            });
-
-            for(File jarFile : jarFiles) {
-                URL url = new URL(prefix + File.separator +  jarFile.getName());
-                urlList.add(url);
-            }
-
-        }
-
-        return urlList;
     }
 }

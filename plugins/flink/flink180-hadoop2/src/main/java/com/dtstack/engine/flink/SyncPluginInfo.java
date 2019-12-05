@@ -9,10 +9,8 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.FilenameFilter;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,8 +32,6 @@ public class SyncPluginInfo {
     public static final String syncPluginDirName = "syncplugin";
 
     private static final String coreJarNamePrefix = "flinkx";
-
-    private static final String FILE_PROTOCOL = "file://";
 
     //同步模块在flink集群加载插件
     private String flinkRemoteSyncPluginRoot;
@@ -127,16 +123,20 @@ public class SyncPluginInfo {
     // 数据同步专用: 获取flink端插件classpath, 在programArgsList中添加engine端plugin根目录
     private List<URL> getUserClassPath(List<String> programArgList, String flinkSyncPluginRoot) {
         List<URL> urlList = new ArrayList<>();
-        if(programArgList == null || flinkSyncPluginRoot == null)
+        if(programArgList == null || flinkSyncPluginRoot == null){
             return urlList;
+        }
 
         int i = 0;
-        for(; i < programArgList.size() - 1; ++i)
-            if(programArgList.get(i).equals("-job") || programArgList.get(i).equals("--job"))
+        for(; i < programArgList.size() - 1; ++i){
+            if(programArgList.get(i).equals("-job") || programArgList.get(i).equals("--job")){
                 break;
+            }
+        }
 
-        if(i == programArgList.size() - 1)
+        if(i == programArgList.size() - 1){
             return urlList;
+        }
 
         programArgList.add("-pluginRoot");
         programArgList.add(localSyncFileDir);
@@ -153,24 +153,4 @@ public class SyncPluginInfo {
         }
     }
 
-    private List<URL> findJarsInDir(File dir, String prefix)  throws MalformedURLException {
-        List<URL> urlList = new ArrayList<>();
-
-        if(dir.exists() && dir.isDirectory()) {
-            File[] jarFiles = dir.listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) {
-                    return name.toLowerCase().endsWith(".jar");
-                }
-            });
-
-            for(File jarFile : jarFiles) {
-                URL url = new URL(prefix + File.separator +  jarFile.getName());
-                urlList.add(url);
-            }
-
-        }
-
-        return urlList;
-    }
 }
