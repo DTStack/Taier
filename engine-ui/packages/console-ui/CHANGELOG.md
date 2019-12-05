@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.9.0-beta.4.2](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.4.1...3.9.0-beta.4.2) (2019-12-04)
+
+
+### Bug Fixes
+
+* **taskjobflowview:** reset log pagenation when job changed ([f758afa](http://git.dtstack.cn/dtstack/data-stack-web/commit/f758afa4884830507bf92ba78ffff2fb1194c21b)), closes [#20528](http://redmine.prod.dtstack.cn/issues/20528)
+
 ## [3.9.0-beta.4.1](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.4...3.9.0-beta.4.1) (2019-12-03)
 
 

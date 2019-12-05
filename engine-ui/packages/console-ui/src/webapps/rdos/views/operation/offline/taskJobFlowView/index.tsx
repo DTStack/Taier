@@ -85,7 +85,11 @@ class TaskJobFlowView extends React.Component<any, any> {
     resetData = () => {
         this._originData = null; // 清空缓存数据
         this.setState({
-            graphData: null
+            graphData: null,
+            logPage: {
+                current: 0,
+                total: 0
+            }
         })
     }
 
@@ -241,7 +245,11 @@ class TaskJobFlowView extends React.Component<any, any> {
                 })
                 if (!isGroupTask) {
                     menu.addItem('查看任务日志', null, function () {
-                        ctx.showJobLog(currentNode.jobId)
+                        ctx.setState({
+                            logPage: Object.assign({}, ctx.state.logPage, { current: 1 })
+                        }, () => {
+                            ctx.showJobLog(currentNode.jobId)
+                        })
                     })
                     menu.addItem('查看任务属性', null, function () {
                         ctx.setState({ visible: true })
@@ -316,7 +324,11 @@ class TaskJobFlowView extends React.Component<any, any> {
                 const cell = evt.getProperty('cell')
                 if (cell && cell.vertex) {
                     const currentNode = cell.data;
-                    ctx.showJobLog(currentNode.jobId)
+                    ctx.setState({
+                        logPage: Object.assign({}, ctx.state.logPage, { current: 0 })
+                    }, () => {
+                        ctx.showJobLog(currentNode.jobId)
+                    })
                 }
             })
 
@@ -477,7 +489,7 @@ class TaskJobFlowView extends React.Component<any, any> {
                     )}
                     wrapClassName="vertical-center-modal m-log-modal"
                     visible={this.state.logVisible}
-                    onCancel={() => { this.setState({ logVisible: false }) }}
+                    onCancel={() => { this.setState({ logVisible: false, logPage: { current: 0 } }) }}
                     footer={null}
                     maskClosable={true}
                 >
