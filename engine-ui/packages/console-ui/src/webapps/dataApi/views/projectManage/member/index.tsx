@@ -348,6 +348,7 @@ class ProjectMember extends React.Component<any, any> {
                     onCancel={this.onCancel}
                 >
                     <EditMemberRoleForm
+                        key={`${Math.random()}`}
                         user={editTarget}
                         roles={roles}
                         wrappedComponentRef={(e: any) => { this.eidtRoleForm = e }}

@@ -1,6 +1,34 @@
+# Change Log
+
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+<a name="3.9.0-beta.4.3"></a>
+# [3.9.0-beta.4.3](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.4.2...3.9.0-beta.4.3) (2019-12-05)
+
+
+### Bug Fixes
+
+* **rdos:** set current to 0 ([4a98a84](http://git.dtstack.cn/dtstack/data-stack-web/commits/4a98a84)), closes [#20574](http://redmine.prod.dtstack.cn/issues/20574)
+
+
+
 # Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+## [3.9.0-beta.4.2](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.4.1...3.9.0-beta.4.2) (2019-12-04)
+
+
+### Bug Fixes
+
+* **taskjobflowview:** reset log pagenation when job changed ([f758afa](http://git.dtstack.cn/dtstack/data-stack-web/commit/f758afa4884830507bf92ba78ffff2fb1194c21b)), closes [#20528](http://redmine.prod.dtstack.cn/issues/20528)
+
+## [3.9.0-beta.4.1](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.4...3.9.0-beta.4.1) (2019-12-03)
+
+
+### Bug Fixes
+
+* **taskoperation:** prehand jobIdList param by split ([0c0ddd2](http://git.dtstack.cn/dtstack/data-stack-web/commit/0c0ddd2dc3f1bb41ae60a1bc07eb9ce6b2a796e8)), closes [#20272](http://redmine.prod.dtstack.cn/issues/20272)
 
 ## [3.9.0-beta.4](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.3.1...3.9.0-beta.4) (2019-11-26)
 

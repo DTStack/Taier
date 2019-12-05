@@ -20,7 +20,8 @@ export const DATA_SOURCE = {
     KAFKA_10: 17,
     KAFKA_11: 14, // KAFKA_11
     DB2: 19,
-    KUDU: 24
+    KUDU: 24,
+    POLAR_DB: 28
 }
 
 export const FUNC_TYPE_TEXT = {
@@ -47,7 +48,8 @@ export const DATA_SOURCE_TEXT: any = {
     26: 'KAFKA',
     18: 'KAFKA_09',
     17: 'KAFKA_10',
-    14: 'KAFKA_11'
+    14: 'KAFKA_11',
+    28: 'PolarDB for MySQL8'
 }
 
 export const REDIS_TYPE: any = {
@@ -160,16 +162,10 @@ export const PROJECT_ROLE: any = { // 项目角色
 
 export const RDB_TYPE_ARRAY: any = [ // sql/oracle/sqlserver
     DATA_SOURCE.MYSQL,
+    DATA_SOURCE.POLAR_DB,
     DATA_SOURCE.ORACLE,
     DATA_SOURCE.SQLSERVER,
     DATA_SOURCE.POSTGRESQL
-]
-
-export const SUPPROT_SUB_LIBRARY_DB_ARRAY: any = [ // 支持分库分表的数据库类型r
-    DATA_SOURCE.MYSQL
-    // DATA_SOURCE.ORACLE,
-    // DATA_SOURCE.SQLSERVER,
-    // DATA_SOURCE.POSTGRESQL,
 ]
 
 export const TASK_TYPE = { // 任务类型
@@ -451,6 +447,9 @@ export const DataSourceTypeFilter: any = [{ // 离线数据源类型过滤选项
     text: 'MySQL',
     value: DATA_SOURCE.MYSQL
 }, {
+    text: 'PolarDB for MySQL8',
+    value: DATA_SOURCE.POLAR_DB
+}, {
     text: 'Oracle',
     value: DATA_SOURCE.ORACLE
 }, {
@@ -489,6 +488,9 @@ export const StreamDataSourceTypeFilter: any = [{ // 实时数据源类型过滤
     text: 'MySQL',
     value: DATA_SOURCE.MYSQL
 }, {
+    text: 'PolarDB for MySQL8',
+    value: DATA_SOURCE.POLAR_DB
+}, {
     text: 'HBase',
     value: DATA_SOURCE.HBASE
 }, {
@@ -497,8 +499,7 @@ export const StreamDataSourceTypeFilter: any = [{ // 实时数据源类型过滤
 }, {
     text: 'Kafka',
     value: DATA_SOURCE.KAFKA_11
-}
-]
+}]
 
 export const propEditorOptions: any = { // 编辑器选项
     mode: 'text/x-properties',

@@ -20,7 +20,7 @@ const defaultProject: any = {
 }
 
 // Action
-export function getProject (id: any) {
+export function getProject (id: any, callback?: Function) {
     return (dispatch: any) => {
         const projectKey = 'api_project_id';
         const oldProjectID = utils.getCookie(projectKey);
@@ -34,10 +34,11 @@ export function getProject (id: any) {
             projectId: id
         }).then((res: any) => {
             dispatch(getProjects())
-            return dispatch({
+            dispatch({
                 type: projectAction.GET_PROJECT,
                 data: res.data
             })
+            if (callback) callback();
         })
     }
 }

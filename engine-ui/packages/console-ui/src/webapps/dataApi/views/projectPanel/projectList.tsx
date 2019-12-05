@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
+import { withRouter, hashHistory } from 'react-router';
 
 import { Icon, Card, Input, Table, Button, Tooltip } from 'antd';
 import NewProject from '../../components/newProject';
@@ -37,8 +37,8 @@ interface ProjectState {
         setStickProject: (params: any, callback: () => void) => {
             dispatch(projectActions.setStickProject(params, callback))
         },
-        getProject: (id: number) => {
-            dispatch(projectActions.getProject(id))
+        getProject: (id: number, callback?: Function) => {
+            dispatch(projectActions.getProject(id, callback))
         }
     }
 }) as any)
@@ -119,9 +119,11 @@ class ProjectsList extends React.Component<any, ProjectState> {
             })
         }
     }
+    enterProject () {
+        hashHistory.push(`/api/overview`);
+    }
     handleEnterProject = (record: any) => {
-        this.props.getProject(record.id);
-        this.props.router.push('/api/overview');
+        this.props.getProject(record.id, this.enterProject);
     }
     setStickProject = (record: any) => {
         this.props.setStickProject({
