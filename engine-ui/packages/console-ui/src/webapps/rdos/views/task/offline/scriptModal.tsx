@@ -111,18 +111,18 @@ class ScriptForm extends React.Component<any, any> {
                     })(
                         <Input type="hidden"></Input>
                     )}
-                        <FolderPicker
-                            type={MENU_TYPE.SCRIPT}
-                            ispicker
-                            treeData={ this.props.treeData }
-                            onChange={ this.handleSelectTreeChange.bind(this) }
-                            defaultNode={ isCreateNormal
-                                ? this.props.treeData.name
-                                : isCreateFromMenu
-                                    ? this.getFolderName(defaultData.parentId)
-                                    : this.getFolderName(defaultData.nodePid)
-                            }
-                        />
+                    <FolderPicker
+                        type={MENU_TYPE.SCRIPT}
+                        ispicker
+                        treeData={ this.props.treeData }
+                        onChange={ this.handleSelectTreeChange.bind(this) }
+                        defaultNode={ isCreateNormal
+                            ? this.props.treeData.name
+                            : isCreateFromMenu
+                                ? this.getFolderName(defaultData.parentId)
+                                : this.getFolderName(defaultData.nodePid)
+                        }
+                    />
                 </FormItem>
                 <FormItem
                     {...formItemLayout}
