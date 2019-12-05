@@ -246,7 +246,7 @@ class TaskJobFlowView extends React.Component<any, any> {
                 if (!isGroupTask) {
                     menu.addItem('查看任务日志', null, function () {
                         ctx.setState({
-                            logPage: Object.assign({}, ctx.state.logPage, { current: 1 })
+                            logPage: Object.assign({}, ctx.state.logPage, { current: 0 })
                         }, () => {
                             ctx.showJobLog(currentNode.jobId)
                         })
