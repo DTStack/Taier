@@ -33,7 +33,7 @@ export default {
     createOrUpdateGroup (group: IGroup) {
         return http.post(req.CREATE_OR_UPDATE_GROUP, group);
     },
-    getGroupSpecimens (params: { groupId } & IQueryParams) {
+    getGroupSpecimens (params: { groupId: number | string } & IQueryParams) {
         return http.post(req.GET_GROUP_SPECIMENS, params);
     },
     analysisGroup (params: IGroupAnalysis) {
@@ -52,7 +52,12 @@ export default {
         const entityAttrList = params.entityAttrList.map(o => `${o.entityAttr}-${o.entityAttrCn}`);
         return http.build(req.DOWNLOAD_GROUP_TEMPLATE, { fileName: params.fileName, entityAttrList: entityAttrList.join(',') });
     },
-    openAPI (params: { groupId: string | number, enable: boolean }) {
+    /**
+     * 
+     * @param params isOpenApi  0：关闭，1：开启
+
+     */
+    openAPI (params: { groupId: string | number, isOpenApi: 0 | 1 }) {
         return http.post(req.OPEN_API, params);
     }
 }

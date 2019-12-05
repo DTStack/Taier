@@ -246,9 +246,9 @@ export default class GroupManage extends React.Component<any, IState> {
                         className="noBorderBottom"
                     >
                         <Table
-                            locale={{
-                                emptyText: '暂无数据, 请确认是否已勾选实体！'
-                            }}
+                            locale={
+                                queryParams.entityId ? { emptyText: '暂无群组, 赶快去创建吧~' } : { emptyText: '暂无数据, 请确认是否已勾选实体!' }
+                            }
                             rowKey="groupId"
                             className="dt-ant-table dt-ant-table--border full-screen-table-47"
                             pagination={pagination}

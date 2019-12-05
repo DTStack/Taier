@@ -270,7 +270,7 @@ export default class EntityList extends React.Component<any, IState> {
                 </div>
                 <DeleteModal
                     title={'删除实体'}
-                    content={get(deleteItem, 'hasRefered') ? '解除字典的引用关系后，可删除' : '实体下标签及目录将同步删除，无法恢复，请谨慎操作'}
+                    content={get(deleteItem, 'hasRefered') ? '解除实体下标签的引用关系后，可删除' : '实体下标签及目录将同步删除，无法恢复，请谨慎操作'}
                     visible={deleteVisible}
                     onCancel={this.handleDeleteModel.bind(this, 'cancel')}
                     onOk={this.handleDeleteModel.bind(this, 'ok')}

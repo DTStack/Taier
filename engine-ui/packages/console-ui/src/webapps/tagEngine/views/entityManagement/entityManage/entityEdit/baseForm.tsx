@@ -23,15 +23,13 @@ class BaseForm extends React.Component<any, any> {
 
     componentDidMount () {
         const { infor = {}, form } = this.props;
-        if (infor.id) {
-            form.setFieldsValue({
-                entityName: infor.entityName,
-                dataSourceId: infor.dataSourceId,
-                dataSourceTable: infor.dataSourceTable,
-                entityPrimaryKey: infor.entityPrimaryKey,
-                entityDesc: infor.entityDesc
-            })
-        }
+        form.setFieldsValue({
+            entityName: infor.entityName,
+            dataSourceId: infor.dataSourceId,
+            dataSourceTable: infor.dataSourceTable,
+            entityPrimaryKey: infor.entityPrimaryKey,
+            entityDesc: infor.entityDesc
+        })
     }
 
     componentDidUpdate (preProps: any) {

@@ -149,7 +149,7 @@ export default class Index extends React.Component<any, IState> {
         })
     }
 
-    hnadleChangeProject = (key: any, value: any, reset: any) => {
+    handleChangeProject = (key: any, value: any, reset: any) => {
         const { viewItem } = this.state;
         API.updateProjectName({
             id: viewItem.id,
@@ -158,13 +158,17 @@ export default class Index extends React.Component<any, IState> {
             const { code } = res;
             if (code === 1) {
                 message.success('修改成功！');
+                this.props.getProjects();
                 reset();
                 this.setState({
                     viewItem: {
                         ...viewItem,
                         [key]: value
-                    }
-                })
+                    },
+                    searchVal: '',
+                    pageNo: 1,
+                    loading: true
+                }, this.getProjects)
             }
         })
     }
@@ -172,7 +176,7 @@ export default class Index extends React.Component<any, IState> {
     handleViewDetail = (record) => {
         this.props.setProject({
             id: record.id,
-            projectName: record.projectName
+            projectName: record.projectAlias || record.projectName
         })
         setTimeout(() => {
             hashHistory.push({ pathname: '/entityManage' })
@@ -322,7 +326,7 @@ export default class Index extends React.Component<any, IState> {
                     title='项目属性'
                     onCancel={this.handleCloseView}
                     visible={proModalVisible}
-                    onEdit={this.hnadleChangeProject}
+                    onEdit={this.handleChangeProject}
                     data={viewItem && [{
                         label: '项目名称',
                         value: viewItem.projectName
