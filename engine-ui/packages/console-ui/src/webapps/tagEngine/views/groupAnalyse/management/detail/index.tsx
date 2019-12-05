@@ -61,7 +61,7 @@ class GroupDetail extends React.Component<any, IState> {
     onEnableAPI = async () => {
         const { router } = this.props;
         const { groupDetail } = this.state;
-        const res = await GroupAPI.openAPI({ groupId: get(router, 'location.query.groupId'), enable: !groupDetail.apiEnable });
+        const res = await GroupAPI.openAPI({ groupId: get(router, 'location.query.groupId'), isOpenApi: groupDetail.isOpen ? 0 : 1 });
         if (res.code === 1) {
             message.success('API 开启成功！')
             this.loadDetail();
