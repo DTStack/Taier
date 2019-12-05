@@ -32,9 +32,8 @@ export default class Toolbar extends React.Component<any, any> {
         </Button>);
 
         return enableRun ? <span>
-            {
-                runningMenu ?
-                <Dropdown overlay={runningMenu || null} trigger={['hover']}>
+            { runningMenu
+                ? <Dropdown overlay={runningMenu || null} trigger={['hover']}>
                     { runBtn }
                 </Dropdown> : runBtn
             }
