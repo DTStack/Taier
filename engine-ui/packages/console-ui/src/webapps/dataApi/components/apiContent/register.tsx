@@ -7,7 +7,7 @@ import { constColumnsKeys } from '../../model/constColumnModel';
 import ErrorColumnModel from '../../model/errroColumnModel';
 
 import JsonContent from './jsonContent';
-import { generateUrlQuery, generateHeader, generateBody } from './helper';
+import { generateUrlQuery, generateHeader, generateTokenHeader, generateBody } from './helper';
 import { PARAMS_POSITION_TEXT } from '../../consts'
 
 class RegisterContentSection extends React.Component<any, any> {
@@ -121,27 +121,51 @@ class RegisterContentSection extends React.Component<any, any> {
                         </div>
                     )}
                 </section>
-                <section className='c-content-register__section'>
-                    <h1 className="title-border-l-blue">请求示例</h1>
-                    <div style={{ marginTop: '12px' }} className='c-content-register__section__card'>
-                        <div className='c-content-register__section__card__title c__section__card__title--bold'>Request URL</div>
-                        <div className='c-content-register__section__card__content'>
-                            {generateUrlQuery(inputColumn)}
+                <div style={{ overflow: 'hidden' }}>
+                    <section className='c-content-register__section c_left__section'>
+                        <h1 className="title-border-l-blue">请求示例</h1>
+                        <p className='c_title_method'>方式一：AK/SK签名加密方式</p>
+                        <div style={{ marginTop: '12px' }} className='c-content-register__section__card'>
+                            <div className='c-content-register__section__card__title c__section__card__title--bold'>Request URL</div>
+                            <div className='c-content-register__section__card__content'>
+                                {generateUrlQuery(inputColumn)}
+                            </div>
                         </div>
-                    </div>
-                    <div className='c-content-register__section__card'>
-                        <div className='c-content-register__section__card__title c__section__card__title--bold'>Headers</div>
-                        <div className='c-content-register__section__card__content'>
-                            {generateHeader(inputColumn)}
+                        <div className='c-content-register__section__card'>
+                            <div className='c-content-register__section__card__title c__section__card__title--bold'>Headers</div>
+                            <div className='c-content-register__section__card__content'>
+                                {generateHeader(inputColumn)}
+                            </div>
                         </div>
-                    </div>
-                    <div className='c-content-register__section__card'>
-                        <div className='c-content-register__section__card__title c__section__card__title--bold'>Body</div>
-                        <div className='c-content-register__section__card__content'>
-                            {getValue('bodyDesc') || generateBody(inputColumn, getValue('reqMethod'))}
+                        <div className='c-content-register__section__card'>
+                            <div className='c-content-register__section__card__title c__section__card__title--bold'>Body</div>
+                            <div className='c-content-register__section__card__content'>
+                                {getValue('bodyDesc') || generateBody(inputColumn, getValue('reqMethod'))}
+                            </div>
                         </div>
-                    </div>
-                </section>
+                    </section>
+                    <section className='c-content-register__section c_left__section' style={{ margin: '53px 0 0 20px' }}>
+                        <p className='c_title_method'>方式二：TOKEN加密方式</p>
+                        <div style={{ marginTop: '12px' }} className='c-content-register__section__card'>
+                            <div className='c-content-register__section__card__title c__section__card__title--bold'>Request URL</div>
+                            <div className='c-content-register__section__card__content'>
+                                {generateUrlQuery(inputColumn)}
+                            </div>
+                        </div>
+                        <div className='c-content-register__section__card'>
+                            <div className='c-content-register__section__card__title c__section__card__title--bold'>Headers</div>
+                            <div className='c-content-register__section__card__content'>
+                                {generateTokenHeader(inputColumn)}
+                            </div>
+                        </div>
+                        <div className='c-content-register__section__card'>
+                            <div className='c-content-register__section__card__title c__section__card__title--bold'>Body</div>
+                            <div className='c-content-register__section__card__content'>
+                                {getValue('bodyDesc') || generateBody(inputColumn, getValue('reqMethod'))}
+                            </div>
+                        </div>
+                    </section>
+                </div>
                 <section className='c-content-register__section'>
                     <h1 className="title-border-l-blue">返回结果</h1>
                     <div style={{ marginTop: '12px' }} className='c-content-register__section__card'>
