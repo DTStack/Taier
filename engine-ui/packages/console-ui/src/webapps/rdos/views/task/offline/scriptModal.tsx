@@ -111,18 +111,18 @@ class ScriptForm extends React.Component<any, any> {
                     })(
                         <Input type="hidden"></Input>
                     )}
-                    <FolderPicker
-                        type={MENU_TYPE.SCRIPT}
-                        ispicker
-                        treeData={ this.props.treeData }
-                        onChange={ this.handleSelectTreeChange.bind(this) }
-                        defaultNode={ isCreateNormal
-                            ? this.props.treeData.name
-                            : isCreateFromMenu
-                                ? this.getFolderName(defaultData.parentId)
-                                : this.getFolderName(defaultData.nodePid)
-                        }
-                    />
+                        <FolderPicker
+                            type={MENU_TYPE.SCRIPT}
+                            ispicker
+                            treeData={ this.props.treeData }
+                            onChange={ this.handleSelectTreeChange.bind(this) }
+                            defaultNode={ isCreateNormal
+                                ? this.props.treeData.name
+                                : isCreateFromMenu
+                                    ? this.getFolderName(defaultData.parentId)
+                                    : this.getFolderName(defaultData.nodePid)
+                            }
+                        />
                 </FormItem>
                 <FormItem
                     {...formItemLayout}
@@ -179,7 +179,7 @@ class ScriptForm extends React.Component<any, any> {
      * @param {any} id
      * @memberof FolderForm
      */
-    getFolderName(id: any) {
+    getFolderName (id: any) {
         const { treeData } = this.props;
         let name: any;
 
@@ -202,7 +202,7 @@ class ScriptForm extends React.Component<any, any> {
 const ScriptFormWrapper = Form.create<any>()(ScriptForm);
 
 class ScriptModal extends React.Component<any, any> {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props);
 
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -244,14 +244,13 @@ class ScriptModal extends React.Component<any, any> {
     }
 
     closeModal () {
-        this.dtcount++;
-
-        this.props.emptyModalDefault();
         this.props.toggleCreateScript();
+        this.props.emptyModalDefault();
+        this.dtcount++;
     }
 
     render () {
-        const { isModalShow, scriptTreeData, defaultData, editModalKey, scriptTypes } = this.props;
+        const { isModalShow, scriptTreeData, defaultData, scriptTypes } = this.props;
 
         if (!defaultData) this.isCreate = true;
         else {
@@ -262,7 +261,7 @@ class ScriptModal extends React.Component<any, any> {
         return (
             <div id="JS_script_modal">
                 <Modal
-                    key={editModalKey}
+                    key={this.dtcount}
                     title={!this.isCreate ? '编辑脚本' : '新建脚本' }
                     visible={ isModalShow }
                     footer={[
@@ -296,7 +295,6 @@ export default connect((state: any) => {
         isModalShow: state.offlineTask.modalShow.createScript,
         scriptTreeData: state.offlineTask.scriptTree,
         defaultData: state.offlineTask.modalShow.defaultData, // 表单默认数据
-        editModalKey: state.offlineTask.modalShow.editModalKey,
         scriptTypes: state.offlineTask.comm.scriptTypes
     }
 },
