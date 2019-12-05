@@ -7,16 +7,16 @@ const navData: any = [
         'routers': ['/database', '/entityManage', '/relationManage', '/dictionaryManage', '/entityManage/detail', '/entityManage/edit', '/relationManage', '/relationManage/create', '/relationManage/detail', '/dictionaryManage', '/dictionaryManage/detail', '/dictionaryManage/edit'], // 相关路由
         'children': [
             {
-                'permissionIcon': 'iconicon_factory_menu2',
-                'permissionName': '实体管理',
-                'permissionUrl': '/entityManage',
-                'routers': ['/entityManage', '/entityManage/detail', '/entityManage/edit']
-            },
-            {
                 'permissionIcon': 'iconpingtai_shujuyuan',
                 'permissionName': '数据源管理',
                 'permissionUrl': '/database',
                 'routers': ['/database']
+            },
+            {
+                'permissionIcon': 'iconicon_factory_menu2',
+                'permissionName': '实体管理',
+                'permissionUrl': '/entityManage',
+                'routers': ['/entityManage', '/entityManage/detail', '/entityManage/edit']
             },
             {
                 'permissionIcon': 'iconicon_factory_menu3',
