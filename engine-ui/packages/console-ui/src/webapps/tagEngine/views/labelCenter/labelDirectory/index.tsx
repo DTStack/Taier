@@ -226,7 +226,7 @@ export default class LabelDirectory extends React.PureComponent<IProps, IState> 
                         <Search value={searchValue} className="search" placeholder="搜索目录名称" onChange={this.onChangeSearch} />
                     </div>
                     <div className="right_wp">
-                        <Button type="primary" onClick={() => this.onHandleClickOperation('0', {})}>新建目录</Button>
+                        <Button type="primary" disabled={!entityId} onClick={() => this.onHandleClickOperation('0', {})}>新建目录</Button>
                     </div>
                 </div>
                 <div className="draggable-wrap-table">
