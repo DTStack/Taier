@@ -39,10 +39,18 @@ export default class EntityDetail extends React.Component<IProps, IState> {
         }).then((res: any) => {
             const { data = [], code } = res;
             if (code === 1) {
+                let propertyData: any[] = [];
+                data.forEach(item => {
+                    if (item.isPrimaryKey) {
+                        propertyData.unshift(item);
+                    } else {
+                        propertyData.push(item);
+                    }
+                })
                 this.setState({
                     entityInfor: {
                         ...this.state.entityInfor,
-                        propertyData: data
+                        propertyData
                     }
                 });
             }
