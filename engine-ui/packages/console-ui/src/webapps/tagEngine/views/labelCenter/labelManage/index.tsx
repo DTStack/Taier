@@ -75,7 +75,7 @@ export default class LabelManage extends React.PureComponent<IProps, IState> {
                             onChange={this.onChangeSearch}
                             onSearch={this.onSearch}
                         />
-                        <Button type="primary" onClick={this.onHandleClick}>新建标签</Button>
+                        <Button type="primary" disabled={!entityId} onClick={this.onHandleClick}>新建标签</Button>
                     </div>
                 </div>
                 <Conditions key={entityId} entityId={entityId} tagSelect={tagSelect} onChange={this.onChangeTagSelect}/>
