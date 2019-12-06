@@ -38,7 +38,7 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
 
     componentDidMount () {
         const { infor } = this.props;
-        let selectNum = infor.filter((item: any) => { return item.select; }).length;
+        let selectNum = infor.filter((item: any) => { return item.isAtomTag; }).length;
         this.setState({
             dataSource: infor,
             total: infor.length,
@@ -50,7 +50,7 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
         const { infor } = this.props;
         const { searchVal } = this.state;
         if (!isEqual(infor, preProps.infor)) {
-            let selectNum = infor.filter((item: any) => { return item.select; }).length;
+            let selectNum = infor.filter((item: any) => { return item.isAtomTag; }).length;
             let newDataSource = infor.filter((item: any) => {
                 return isEmpty(searchVal) || (item.entityAttr && item.entityAttr.indexOf(searchVal) != -1) || (item.entityAttrCn && item.entityAttrCn.indexOf(searchVal) != -1)
             });
