@@ -18,7 +18,7 @@ class BasicRelationInfo extends React.Component<IProps, any> {
                 <h1 className="row-title">
                     数据库信息
                     <span className="right">
-                        <Link to={`/relationManage/edit/${data.id}`}><Button>编辑</Button></Link>
+                        <Link to={`/relationManage/edit?relationId=${data.id}`}><Button>编辑</Button></Link>
                     </span>
                 </h1>
                 <table style={{ marginTop: 5 }} className="table-info" width="100%" {...{ width: '100%' }} cellPadding="0" cellSpacing="0">

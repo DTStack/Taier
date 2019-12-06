@@ -191,13 +191,14 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
 
     renderData = (data: INode[]) => {
         console.log('renderData:', data);
+        const graph = this.graph;
+        const rootCell = this.graph.getDefaultParent();
+        graph.removeCells(graph.selectAll(rootCell));
+        graph.view.clear();
+        graph.view.refresh();
+
         if (!data || data.length === 0) return;
         try {
-            const graph = this.graph;
-            const rootCell = this.graph.getDefaultParent();
-            graph.removeCells(graph.selectAll(rootCell));
-            graph.view.clear();
-            graph.view.refresh();
             const doc = mxUtils.createXmlDocument();
             const model = graph.getModel();
             const cellMap = this._cacheCells;
