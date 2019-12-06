@@ -11,9 +11,11 @@ import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
+import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -30,15 +32,11 @@ public class YarnAppStatusMonitor implements Runnable{
 
     private static final Logger LOG = LoggerFactory.getLogger(YarnAppStatusMonitor.class);
 
-    private static final Integer CHECK_INTERVAL = 20 * 1000;
+    private static final Integer CHECK_INTERVAL = 2 * 1000;
 
     private AtomicBoolean run = new AtomicBoolean(true);
 
-    private AtomicInteger counter = new AtomicInteger(0);
-
-    private static final Integer MAX_CLOSE_LIMIT = 3;
-
-    private static int MAX_RETRY_NUMBER = 3;
+    private static int MAX_RETRY_NUMBER = 2;
 
     private FlinkClusterClientManager clusterClientManager;
 
@@ -60,30 +58,35 @@ public class YarnAppStatusMonitor implements Runnable{
     @Override
     public void run() {
         while (run.get()) {
-            if (clusterClientManager.getIsClientOn()) {
-                if (yarnClient.isInState(Service.STATE.STARTED)) {
-                    judgeYarnAppStatus();
-                    if(clusterClientManager.getIsClientOn()){
-                        if(!isTaskManagerRunning()){
-                            LOG.error("TaskManager has no slots, prepare to stop Flink yarn-session client.");
-                            clusterClientManager.setIsClientOn(false);
+            try{
+                if (clusterClientManager.getIsClientOn()) {
+                    if (yarnClient.isInState(Service.STATE.STARTED)) {
+                        judgeYarnAppStatus();
+                        if(clusterClientManager.getIsClientOn()){
+                            if(!isTaskManagerRunning()){
+                                LOG.error("TaskManager has no slots, prepare to stop Flink yarn-session client.");
+                                clusterClientManager.setIsClientOn(false);
+                            }
                         }
+                    } else {
+                        LOG.error("Yarn client is no longer in state STARTED, prepare to stop Flink yarn-session client.");
+                        clusterClientManager.setIsClientOn(false);
                     }
-                } else {
-                    LOG.error("Yarn client is no longer in state STARTED, prepare to stop Flink yarn-session client.");
-                    clusterClientManager.setIsClientOn(false);
+                }
+
+                if (!clusterClientManager.getIsClientOn()) {
+                    retry();
+                }
+            }catch(Throwable t){
+                LOG.error("YarnAppStatus Monitor error:{}",t);
+            }finally {
+                try {
+                    Thread.sleep(CHECK_INTERVAL);
+                }catch(Exception e){
+                    LOG.error("",e);
                 }
             }
 
-            if (!clusterClientManager.getIsClientOn()) {
-                retry();
-            }
-
-            try {
-                Thread.sleep(CHECK_INTERVAL);
-            } catch (InterruptedException e) {
-                LOG.error("", e);
-            }
         }
     }
 
@@ -107,17 +110,10 @@ public class YarnAppStatusMonitor implements Runnable{
         this.run = new AtomicBoolean(run);
     }
 
-    private void judgeYarnAppStatus(){
+    private void judgeYarnAppStatus() throws Exception {
         ApplicationId applicationId = (ApplicationId) clusterClientManager.getClusterClient().getClusterId();
 
-        final ApplicationReport applicationReport;
-
-        try {
-            applicationReport = yarnClient.getApplicationReport(applicationId);
-        } catch (Exception e) {
-            LOG.error("Could not retrieve the Yarn application report for {}.", applicationId);
-            return;
-        }
+        ApplicationReport applicationReport = yarnClient.getApplicationReport(applicationId);
 
         YarnApplicationState appState = applicationReport.getYarnApplicationState();
 
