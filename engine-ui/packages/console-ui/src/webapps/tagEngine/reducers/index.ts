@@ -15,7 +15,7 @@ const rootReducer = combineReducers({
     apps,
     licenseApps, // licenseApps权限
     project,
-    projects, // 获取所有的项目
+    projects // 获取所有的项目
 })
 
 export default rootReducer

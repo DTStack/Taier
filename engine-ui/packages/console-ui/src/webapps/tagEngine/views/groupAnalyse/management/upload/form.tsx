@@ -150,7 +150,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
     }
 
     onAttrChange = (value: any, option: any) => {
-        const { entityAttrs,initialEntityAttrs } = this.state;
+        const { entityAttrs, initialEntityAttrs } = this.state;
         // const { form } = this.props;
         const newState = entityAttrs.slice();
         const res = newState.find((o) => { return o.entityAttr === value });
@@ -261,7 +261,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                         rules: [{
                             required: true, message: '请选择匹配维度!'
                         }],
-                        initialValue: initialEntityAttrs || [],
+                        initialValue: initialEntityAttrs || []
                         // normalize: this.normalizeAll,
                     })(
                         <Select

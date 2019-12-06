@@ -39,7 +39,7 @@ IState
     }
     componentDidUpdate (preProps) {
         const { tagId, type } = this.props;
-        if(tagId!=preProps.tagId){
+        if (tagId != preProps.tagId) {
             this.setState({
                 atomTagValueList: [],
                 textArea: ''
@@ -75,7 +75,7 @@ IState
     handleOk = () => {
         const { textArea } = this.state;
         let arr = new Set(textArea.split('\n'));
-        this.props.onChangeData({ values: Array.from(arr)})
+        this.props.onChangeData({ values: Array.from(arr) })
         this.setState({
             visible: false,
             textArea: ''

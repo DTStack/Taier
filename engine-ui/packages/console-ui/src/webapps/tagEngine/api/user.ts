@@ -1,5 +1,5 @@
 export default {
-    logout:{
+    logout: {
         method: 'post',
         url: `/api/v1/login/out`
     },
