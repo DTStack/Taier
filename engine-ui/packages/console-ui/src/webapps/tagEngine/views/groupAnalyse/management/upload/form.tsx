@@ -30,6 +30,8 @@ interface IState {
     entities: IEntity[];
     groupStatus: GROUP_STATUS;
     entityAttrs: any[];
+    entityAttrsCopy: any[];
+    initialEntityAttrs: any[];
 }
 
 const FormItem = Form.Item;
@@ -47,7 +49,9 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
         options: [],
         entities: [],
         groupStatus: GROUP_STATUS.VALID,
-        entityAttrs: []
+        entityAttrs: [],
+        entityAttrsCopy: [],
+        initialEntityAttrs: []
     }
 
     componentDidMount () {
@@ -65,6 +69,16 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                 options: res.data
             })
         }
+        let initialEntityAttrs = this.state.options.filter((item) => {
+            return item.isPrimaryKey === true
+        })
+        let entityAttrsCopy = [];
+        initialEntityAttrs.map((item) => {
+            entityAttrsCopy.push({ entityAttr: item.entityAttr, entityAttrCn: item.entityAttrCn })
+        })
+        initialEntityAttrs = initialEntityAttrs.map((item) => item.entityAttr)
+        this.setState({ initialEntityAttrs, entityAttrsCopy })
+        console.log('entityAttrs1111', entityAttrsCopy)
     }
 
     loadEntities = () => {
@@ -136,7 +150,8 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
     }
 
     onAttrChange = (value: any, option: any) => {
-        const { entityAttrs } = this.state;
+        const { entityAttrs,initialEntityAttrs } = this.state;
+        // const { form } = this.props;
         const newState = entityAttrs.slice();
         const res = newState.find((o) => { return o.entityAttr === value });
         if (!res) {
@@ -144,10 +159,16 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                 entityAttr: value,
                 entityAttrCn: option.props['data-attr']
             })
+            console.log('res', initialEntityAttrs)
+            // form.setFields({
+            //     'entityAttrList': this.state.initialEntityAttrs
+            // })
             this.setState({
+                // entityAttrs: [...entityAttrsCopy,...newState]
                 entityAttrs: newState
             })
         }
+        console.log('entityAttrs', this.state.entityAttrs)
     }
 
     onCancel = () => {
@@ -163,18 +184,16 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
     }
 
     render () {
-        const { options, entities, groupStatus, entityAttrs } = this.state;
+        const { options, entities, groupStatus, entityAttrs, initialEntityAttrs, entityAttrsCopy } = this.state;
         const { form, mode, formData = {}, router } = this.props;
         const { getFieldDecorator } = form;
         const btnText = mode && mode === 'edit' ? '立即保存' : '立即创建';
-
         const downloadUrl = GroupAPI.downloadGroupTemplate({
             fileName: form.getFieldValue('groupName'),
-            entityAttrList: entityAttrs
+            // entityAttrList: entityAttrs
+            entityAttrList: [...entityAttrsCopy, ...entityAttrs]
         });
-
-        const initialEntityAttrs = entityAttrs && entityAttrs.map(o => o.entityAttr);
-
+        // const initialEntityAttrs = entityAttrs && entityAttrs.map(o => o.entityAttr);
         return (
             <Form>
                 <FormItem
@@ -190,12 +209,12 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                             pattern: /^[\w\u4e00-\u9fa5]+$/,
                             message: '群组名称仅支持中文字符!'
                         }, {
-                            max: 20,
-                            message: '群组名称20字以内的中文字符!'
+                            max: 80,
+                            message: '群组名称80字以内的中文字符!'
                         }],
                         initialValue: get(formData, 'groupName', '')
                     })(
-                        <Input placeholder="请输入群组中文名称，20字以内的中文字符" />
+                        <Input placeholder="请输入群组中文名称，80字以内的中文字符" />
                     )}
                 </FormItem>
                 <FormItem
@@ -206,12 +225,12 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                 >
                     {getFieldDecorator('groupDesc', {
                         rules: [{
-                            max: 20,
-                            message: '群组名称20字以内的中文字符!'
+                            max: 500,
+                            message: '群组名称500字以内的中文字符!'
                         }],
                         initialValue: get(formData, 'groupDesc', '')
                     })(
-                        <Input.TextArea placeholder="请输入群组描述信息，长度限制在20个字符以内" />
+                        <Input.TextArea placeholder="请输入群组描述信息，长度限制在500个字符以内" />
                     )}
                 </FormItem>
                 <FormItem
@@ -242,7 +261,8 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                         rules: [{
                             required: true, message: '请选择匹配维度!'
                         }],
-                        initialValue: initialEntityAttrs || []
+                        initialValue: initialEntityAttrs || [],
+                        // normalize: this.normalizeAll,
                     })(
                         <Select
                             showSearch
@@ -252,7 +272,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                             style={{ width: 200 }}
                         >
                             {options && options.map((o: any) => {
-                                return <Option key={o.entityAttr} value={o.entityAttr} data-attr={o.entityAttrCn}>{o.entityAttrCn}</Option>
+                                return <Option key={o.entityAttr} disabled={initialEntityAttrs.includes(o.entityAttr)} value={o.entityAttr} data-attr={o.entityAttrCn}>{o.entityAttrCn}</Option>
                             })}
                         </Select>
                     )}
@@ -288,7 +308,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                 >
                     <div>
                         <Tooltip title="用户选择的实体维度信息生成模板； 选中的匹配维度将作为映射的内容提供下载模版，表头为实体设置映射的属性名称（中文）">
-                            <a href={ downloadUrl } download>
+                            <a href={downloadUrl} download>
                                 生成模板并下载 <Icon type="question-circle-o" />
                             </a>
                         </Tooltip>
@@ -315,8 +335,8 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                     style={{ marginTop: 100 }}
                     {...tailFormItemLayout}
                 >
-                    { groupStatus === GROUP_STATUS.SAVE ? <Button type="primary" style={{ marginRight: 20 }} onClick={this.handleSubmit}>{btnText}</Button> : null }
-                    { groupStatus === GROUP_STATUS.VALID ? <Button type="primary" style={{ marginRight: 20 }} onClick={this.validResult}>校验上传结果</Button> : null }
+                    {groupStatus === GROUP_STATUS.SAVE ? <Button type="primary" style={{ marginRight: 20 }} onClick={this.handleSubmit}>{btnText}</Button> : null}
+                    {groupStatus === GROUP_STATUS.VALID ? <Button type="primary" style={{ marginRight: 20 }} onClick={this.validResult}>校验上传结果</Button> : null}
                     <Button onClick={this.onCancel}>取消</Button>
                 </FormItem>
             </Form>

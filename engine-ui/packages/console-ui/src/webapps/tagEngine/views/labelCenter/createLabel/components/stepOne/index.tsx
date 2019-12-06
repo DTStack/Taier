@@ -97,7 +97,7 @@ class StepOne extends React.PureComponent<IProps, IState> {
                         rules: [
                             {
                                 required: true,
-                                max: 20,
+                                max: 80,
                                 pattern: /^[\u4E00-\u9FA5A-Za-z0-9_]+$/,
                                 message: '姓名只能包括汉字，字母、下划线、数字'
                             }
@@ -134,7 +134,7 @@ class StepOne extends React.PureComponent<IProps, IState> {
                                 message: '请输入标签描述'
                             }
                         ]
-                    })(<TextArea rows={4} maxLength={255} placeholder="请输入标签描述信息，长度限制在255个字符以内" />)}
+                    })(<TextArea rows={4} maxLength={500} placeholder="请输入标签描述信息，长度限制在500个字符以内" />)}
                 </Form.Item>
                 <div className="wrap_btn_content"><Button onClick={this.onHandlePrev}>取消</Button><Button type="primary" onClick={this.onHandleNext}>下一步</Button></div>
             </div>

@@ -112,7 +112,7 @@ class AddDirectpry extends React.PureComponent<IProps, IState> {
                                 message: '请输入目录名称'
                             },
                             {
-                                max: 20,
+                                max: 80,
                                 message: '最多输入20个字符'
                             },
                             {

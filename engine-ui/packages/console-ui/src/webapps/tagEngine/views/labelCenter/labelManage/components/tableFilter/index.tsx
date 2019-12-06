@@ -218,7 +218,7 @@ IState
                     <div className="select_wrap">
                         <div className="select_item">
                             <span className="label">标签状态：</span>
-                            <Select value={tagStatus} style={{ width: 120 }} onChange={(value) => this.handleChange(value, 'tagStatus')}>
+                            <Select value={tagStatus} disabled={!entityId} style={{ width: 120 }} onChange={(value) => this.handleChange(value, 'tagStatus')}>
                                 <Option value="-1">全部</Option>
                                 <Option value="0">正常</Option>
                                 <Option value="1">异常</Option>
@@ -226,7 +226,7 @@ IState
                         </div>
                         <div className="select_item">
                             <span className="label">标签类型：</span>
-                            <Select value={tagType} style={{ width: 120 }} onChange={(value) => this.handleChange(value, 'tagType')}>
+                            <Select value={tagType} disabled={!entityId} style={{ width: 120 }} onChange={(value) => this.handleChange(value, 'tagType')}>
                                 <Option value="-1">全部</Option>
                                 <Option value="0">原子标签</Option>
                                 <Option value="1">衍生标签</Option>

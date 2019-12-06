@@ -45,12 +45,12 @@ class CreateRelationEntityForm extends React.Component<IProps & FormComponentPro
                             pattern: /^[\w\u4e00-\u9fa5]+$/,
                             message: '实体名称仅支持中文字符!'
                         }, {
-                            max: 20,
-                            message: '实体名称20字以内的中文字符!'
+                            max: 80,
+                            message: '实体名称80字以内的中文字符!'
                         }],
                         initialValue: get(formData, 'relationName', '')
                     })(
-                        <Input placeholder="请输入实体中文名称，20字以内的中文字符"/>
+                        <Input placeholder="请输入实体中文名称，80字以内的中文字符"/>
                     )}
                 </FormItem>
                 <FormItem
@@ -82,11 +82,14 @@ class CreateRelationEntityForm extends React.Component<IProps & FormComponentPro
                     hasFeedback
                 >
                     {getFieldDecorator('relationDesc', {
-                        rules: [],
+                        rules: [{
+                            max: 500,
+                            message: '描述信息为500字以内的中文字符!'
+                        }],
                         initialValue: get(formData, 'relationDesc', '')
                     })(
                         <Input.TextArea
-                            placeholder="请输入描述信息，长度限制在255个字符以内"
+                            placeholder="请输入描述信息，长度限制在500个字符以内"
                             rows={4}
                         />
                     )}
