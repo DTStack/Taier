@@ -35,6 +35,7 @@ public class ExceptionInfoConstrant {
     public final static String FLINK_NO_RESOURCE_AVAILABLE_UNDO_RESTART_EXCEPTION = "org.apache.flink.runtime.jobmanager.scheduler.NoResourceAvailableException:";
     public final static String FLINK_METASPACE_OOM_UNDO_RESTART_EXCEPTION = "java.lang.OutOfMemoryError: Metaspace";
     public final static String FLINK_GET_LOG_ERROR_UNDO_RESTART_EXCEPTION = "Failed to get the stopped task log, please check if job history is enabled";
+    public final static String FLINK_UNALE_TO_GET_CLUSTERCLIENT_STATUS_EXCEPTION = "Unable to get ClusterClient status from Application Client";
 
 
     private static List<String> needAddMemoryRestartExceptions = Lists.newArrayList();
