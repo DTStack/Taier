@@ -73,7 +73,10 @@ module.exports = {
                 // target: 'http://172.16.8.163:7001/proxy/16/api/v1/', // yaoyuan
                 // pathRewrite:{"^/api/tag":"/"},
                 changeOrigin: true,
-                secure: false
+                secure: false,
+                "onProxyReq":function(proxyReq, req, res) {
+                    proxyReq.setHeader('X-Real-IP', req.ip)
+                }
             },
             '/api/console': { // 控制台
                 // target: 'http://172.16.10.168:8084', // 开发环境
