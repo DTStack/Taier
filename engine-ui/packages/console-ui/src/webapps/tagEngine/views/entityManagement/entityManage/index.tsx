@@ -20,6 +20,7 @@ interface IState {
     sorterField: string;
     deleteVisible: boolean;
     deleteItem: any;
+    isSearch: boolean;
 }
 
 let timer: any = null;
@@ -34,7 +35,8 @@ export default class EntityList extends React.Component<any, IState> {
         desc: true,
         sorterField: '',
         deleteVisible: false,
-        deleteItem: {}
+        deleteItem: {},
+        isSearch: false
     }
 
     componentDidMount () {
@@ -67,10 +69,15 @@ export default class EntityList extends React.Component<any, IState> {
     }
 
     handleSearch = (query: any) => {
+        let isSearch = false;
+        if (query) {
+            isSearch = true;
+        }
         this.setState({
             searchVal: query,
             pageNo: 1,
-            loading: true
+            loading: true,
+            isSearch
         }, this.getEntities)
     }
 
@@ -215,7 +222,7 @@ export default class EntityList extends React.Component<any, IState> {
     }
 
     render () {
-        const { total, pageSize, pageNo, dataSource, loading, searchVal, deleteVisible, deleteItem } = this.state;
+        const { isSearch, total, pageSize, pageNo, dataSource, loading, searchVal, deleteVisible, deleteItem } = this.state;
         const pagination: any = {
             total: +total || 0,
             pageSize: pageSize,
@@ -258,14 +265,14 @@ export default class EntityList extends React.Component<any, IState> {
                     >
                         <Table
                             rowKey="id"
-                            className="dt-ant-table--border self-define-empty"
+                            className={!dataSource.length && !isSearch ? ['dt-ant-table--border', 'self-define-empty'].join(' ') : ['dt-ant-table--border'].join('')}
                             pagination={pagination}
                             onChange={this.handleTableChange}
                             loading={loading}
                             columns={this.initColumns()}
                             dataSource={dataSource}
                         />
-                        {!dataSource.length ? <EmptyComp /> : null}
+                        {!dataSource.length && !isSearch ? <EmptyComp /> : null}
                     </Card>
                 </div>
                 <DeleteModal
