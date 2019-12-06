@@ -217,7 +217,7 @@ export default class EntityEdit extends React.Component<IProps, IState> {
                 if (item.isAtomTag) {
                     atomicLabelData.push({
                         entityAttr: item.entityAttr,
-                        tagName: item.tagName || entityAttrCn,
+                        tagName: item.tagName || entityAttrCn.slice(0, 80),
                         dimensionName: entityAttrCn,
                         type: item.dataType,
                         labelNum: item.tagValueCount,
