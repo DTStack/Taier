@@ -60,6 +60,7 @@ public class FlinkClusterClientManager {
     }
 
     public static FlinkClusterClientManager createWithInit(FlinkClientBuilder flinkClientBuilder) throws Exception {
+        LOG.warn("Start init FlinkClusterClientManager");
         FlinkClusterClientManager manager = new FlinkClusterClientManager();
         manager.flinkClientBuilder = flinkClientBuilder;
         manager.flinkConfig = flinkClientBuilder.getFlinkConfig();
@@ -73,6 +74,7 @@ public class FlinkClusterClientManager {
         } else if (flinkConfig.getClusterMode().equals(Deploy.yarn.name())) {
             if (flinkYarnSessionStarter == null) {
                 this.flinkYarnSessionStarter = new FlinkYarnSessionStarter(flinkClientBuilder, flinkConfig);
+                LOG.warn("Create FlinkYarnSessionStarter and start YarnSessionClientMonitor");
                 this.startYarnSessionClientMonitor();
             }
             boolean clientOn = flinkYarnSessionStarter.startFlinkYarnSession();

@@ -38,6 +38,8 @@ public class YarnAppStatusMonitor implements Runnable{
 
     private static final Integer MAX_CLOSE_LIMIT = 3;
 
+    private static int MAX_RETRY_NUMBER = 3;
+
     private FlinkClusterClientManager clusterClientManager;
 
     private YarnClient yarnClient;
@@ -62,7 +64,7 @@ public class YarnAppStatusMonitor implements Runnable{
                 if (yarnClient.isInState(Service.STATE.STARTED)) {
                     judgeYarnAppStatus();
                     if(clusterClientManager.getIsClientOn()){
-                        if(checkTaskManagerClose()){
+                        if(!isTaskManagerRunning()){
                             LOG.error("TaskManager has no slots, prepare to stop Flink yarn-session client.");
                             clusterClientManager.setIsClientOn(false);
                         }
@@ -143,19 +145,10 @@ public class YarnAppStatusMonitor implements Runnable{
         lastAppState = appState;
     }
 
-    private boolean checkTaskManagerClose(){
-        if(!isTaskManagerRunning()){
-            counter.incrementAndGet();
-        } else {
-            counter.set(0);
-        }
-        return counter.get() >= MAX_CLOSE_LIMIT;
-    }
-
     private boolean isTaskManagerRunning(){
         String reqUrl = String.format("%s%s", FlinkUtil.getReqUrl(clusterClientManager), FlinkRestParseUtil.OVERVIEW_INFO);
         try{
-            String message = PoolHttpClient.get(reqUrl);
+            String message = PoolHttpClient.get(reqUrl, MAX_RETRY_NUMBER);
             if(StringUtils.isNotBlank(message)){
                 Map<String, Object> taskManagerInfo = PublicUtil.jsonStrToObject(message, Map.class);
                 if(taskManagerInfo.containsKey("slots-total")){
