@@ -51,8 +51,8 @@ export default class LabelDetails extends React.PureComponent<IProps, IState> {
         })
     }
     onHandleEdit = () => {
-        const { tagId,entityId,data } = this.state;
-        hashHistory.push({ pathname: data.tagType == '原子标签' ? '/editAtomicLabel' : '/createLabel', query: { tagId,entityId } })
+        const { tagId, entityId, data } = this.state;
+        hashHistory.push({ pathname: data.tagType == '原子标签' ? '/editAtomicLabel' : '/createLabel', query: { tagId, entityId } })
     }
     onHandleMove = () => {
         this.setState({

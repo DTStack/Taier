@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { IGroupType } from '../../model/group';
 
-export function displayGroupType(type: IGroupType) {
+export function displayGroupType (type: IGroupType) {
     switch (type) {
         case IGroupType.REGULAR: {
             return <span>规则创建</span>

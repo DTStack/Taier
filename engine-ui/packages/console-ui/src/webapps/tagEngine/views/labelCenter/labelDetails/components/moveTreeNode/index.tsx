@@ -168,7 +168,7 @@ class MoveTreeNode extends React.PureComponent<IProps, IState> {
         });
     }
     render () {
-        const { searchValue, expandedKeys, autoExpandParent, data, selectedKeys} = this.state;
+        const { searchValue, expandedKeys, autoExpandParent, data, selectedKeys } = this.state;
         const { visible, title } = this.props;
         return (
             <Modal

@@ -37,9 +37,9 @@ IState
             <Row className="area-input-Row" type='flex' gutter={8}>
                 <Col>
                     {
-                        type=='number' ? (
+                        type == 'number' ? (
                             <InputNumber min={1} value={ data } onChange={this.onChangeInputNumber}/>
-                        ):(
+                        ) : (
                             <Input value={data} onChange={this.onChangeInputValue}/>
                         )
                     }

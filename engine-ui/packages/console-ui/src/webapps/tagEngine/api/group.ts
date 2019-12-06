@@ -53,11 +53,11 @@ export default {
         return http.build(req.DOWNLOAD_GROUP_TEMPLATE, { fileName: params.fileName, entityAttrList: entityAttrList.join(',') });
     },
     /**
-     * 
+     *
      * @param params isOpenApi  0：关闭，1：开启
 
      */
-    openAPI (params: { groupId: string | number, isOpenApi: 0 | 1 }) {
+    openAPI (params: { groupId: string | number; isOpenApi: 0 | 1 }) {
         return http.post(req.OPEN_API, params);
     }
 }

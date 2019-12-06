@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Dropdown, Menu, Icon, notification } from 'antd';
+import { Menu, Icon, notification } from 'antd';
 import classnames from 'classnames';
 import shortid from 'shortid';
 import { DragDropContext, DropTarget } from 'react-dnd';

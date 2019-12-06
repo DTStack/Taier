@@ -1,11 +1,10 @@
 import * as React from 'react';
-import {Row,Col} from 'antd';
+import { Row, Col } from 'antd';
 import TagValues from '../tagValues/index';
 import shortid from 'shortid';
 import PanelSelect from '../panelSelect';
 import { API } from '../../../../../api/apiMap';
 import './style.scss';
-
 
 interface IProps {
     tagId: string | number;
@@ -71,7 +70,7 @@ class DerivativeRules extends React.PureComponent<IProps, IState> {
             if (code === 1) {
                 if (data && data.length) {
                     this.setState({
-                        atomTagList: data,
+                        atomTagList: data
                     })
                 }
             }
@@ -83,7 +82,7 @@ class DerivativeRules extends React.PureComponent<IProps, IState> {
         })
     }
     render () {
-        const { tags, select, entityName,atomTagList} = this.state;
+        const { tags, select, entityName, atomTagList } = this.state;
         const currentTag = select ? tags.find(item => item.value == select) : '';
         const treeData = currentTag ? currentTag.params : '';
         return (
@@ -95,7 +94,7 @@ class DerivativeRules extends React.PureComponent<IProps, IState> {
                     <Col>
                         <PanelSelect atomTagList={atomTagList} treeData={treeData}/>
                     </Col>
-               </Row>
+                </Row>
             </div>
         )
     }
