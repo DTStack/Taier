@@ -43,7 +43,7 @@ class TaskParamsModal extends React.Component<any, any> {
     changeEditValue = (e: any) => {
         const { editRow: { max } } = this.state;
         if (max && e.target.value && e.target.value.length > max) {
-            message.warning(`输入不可超过${max}个字符！`);
+            message.warning(`字符长度不可超过${max}`);
             return false;
         }
         this.setState({

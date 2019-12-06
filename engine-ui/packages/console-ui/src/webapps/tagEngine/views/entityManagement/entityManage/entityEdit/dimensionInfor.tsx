@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Input, Table, Checkbox, Icon, Select, Tooltip, message as Message, Tag } from 'antd';
+import { Input, Table, Checkbox, Icon, Select, Tooltip, Tag } from 'antd';
 import ConfigDictModal from './configDictModal';
 import EditInput from '../../../../components/editInput';
 import './style.scss';
@@ -92,7 +92,7 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
                     let relaItem = dictValueVoList.find(ele => ele.value == item.entityAttr);
                     return {
                         ...item,
-                        entityAttrCn: relaItem ? relaItem.valueName : item.entityAttrCn
+                        entityAttrCn: relaItem ? relaItem.valueName ? relaItem.valueName.slice(0, 80) : '' : item.entityAttrCn
                     }
                 })
                 this.props.handleChange(newInfor);
@@ -122,10 +122,6 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
             }
             case 'entityAttrCn': {
                 let inputVal = e.target.value;
-                if (inputVal && inputVal.length > 20) {
-                    Message.warning('字符长度不可超过20！');
-                    return false;
-                }
                 infor[editIndex] = {
                     ...record,
                     entityAttrCn: inputVal
@@ -184,6 +180,7 @@ export default class DimensionInfor extends React.Component<Iprops, IState> {
                 return <EditInput
                     onChange={this.handleTableChange.bind(this, 'entityAttrCn', record)}
                     value={text}
+                    max={80}
                     style={{ width: 150 }}
                 />
             }

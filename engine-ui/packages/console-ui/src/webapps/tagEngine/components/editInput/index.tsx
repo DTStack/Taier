@@ -38,7 +38,7 @@ export default class EditInput extends React.PureComponent<IProps, IState> {
         let value = e.target.value;
         const { max } = this.props;
         if (value && max && value.length > max) {
-            message.warning(`字符长度不可超过${max}!`);
+            message.warning(`字符长度不可超过${max}`);
         } else {
             this.setState({
                 value
