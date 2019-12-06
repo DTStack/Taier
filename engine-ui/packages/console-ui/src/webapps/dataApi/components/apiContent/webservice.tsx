@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Editor from 'widgets/editor';
-import { generateUrlQuery, generateHeader } from './helper';
+import { generateUrlQuery, generateHeader, generateTokenHeader } from './helper';
 
 class Webservice extends React.Component<any, any> {
     render () {
@@ -13,27 +13,51 @@ class Webservice extends React.Component<any, any> {
         console.log(this.props)
         return (
             <div>
-                <section className='c-content-register__section'>
-                    <h1 className="title-border-l-blue">请求示例</h1>
-                    <div style={{ marginTop: '12px' }} className='c-content-register__section__card'>
-                        <div className='c-content-register__section__card__title c__section__card__title--bold'>Request URL</div>
-                        <div className='c-content-register__section__card__content'>
-                            {generateUrlQuery(inputColumn)}
+                 <div style={{ overflow: 'hidden' }}>
+                    <section className='c-content-register__section c_left__section'>
+                        <h1 className="title-border-l-blue">请求示例</h1>
+                        <p className='c_title_method'>方式一：AK/SK签名加密方式</p>
+                        <div style={{ marginTop: '12px' }} className='c-content-register__section__card'>
+                            <div className='c-content-register__section__card__title c__section__card__title--bold'>Request URL</div>
+                            <div className='c-content-register__section__card__content'>
+                                {generateUrlQuery(inputColumn)}
+                            </div>
                         </div>
-                    </div>
-                    <div className='c-content-register__section__card'>
-                        <div className='c-content-register__section__card__title c__section__card__title--bold'>Headers</div>
-                        <div className='c-content-register__section__card__content'>
-                            {generateHeader(inputColumn)}
+                        <div className='c-content-register__section__card'>
+                            <div className='c-content-register__section__card__title c__section__card__title--bold'>Headers</div>
+                            <div className='c-content-register__section__card__content'>
+                                {generateHeader(inputColumn)}
+                            </div>
                         </div>
-                    </div>
-                    <div className='c-content-register__section__card'>
-                        <div className='c-content-register__section__card__title c__section__card__title--bold'>Body</div>
-                        <div className='c-content-register__section__card__content'>
-                            请在接口规范中查看Body内容
+                        <div className='c-content-register__section__card'>
+                            <div className='c-content-register__section__card__title c__section__card__title--bold'>Body</div>
+                            <div className='c-content-register__section__card__content'>
+                                请在接口规范中查看Body内容
+                            </div>
                         </div>
-                    </div>
-                </section>
+                    </section>
+                    <section className='c-content-register__section c_left__section' style={{ margin: '53px 0 0 20px' }}>
+                        <p className='c_title_method'>方式二：TOKEN加密方式</p>
+                        <div style={{ marginTop: '12px' }} className='c-content-register__section__card'>
+                            <div className='c-content-register__section__card__title c__section__card__title--bold'>Request URL</div>
+                            <div className='c-content-register__section__card__content'>
+                                {generateUrlQuery(inputColumn)}
+                            </div>
+                        </div>
+                        <div className='c-content-register__section__card'>
+                            <div className='c-content-register__section__card__title c__section__card__title--bold'>Headers</div>
+                            <div className='c-content-register__section__card__content'>
+                                {generateTokenHeader(inputColumn)}
+                            </div>
+                        </div>
+                        <div className='c-content-register__section__card'>
+                            <div className='c-content-register__section__card__title c__section__card__title--bold'>Body</div>
+                            <div className='c-content-register__section__card__content'>
+                                请在接口规范中查看Body内容
+                            </div>
+                        </div>
+                    </section>
+                </div>
                 <section
                     style={{
                         marginTop: '40px'
