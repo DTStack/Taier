@@ -1,6 +1,13 @@
-# Change Log
+# Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+## [3.9.0-beta.4.4](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.4.3...3.9.0-beta.4.4) (2019-12-06)
+
+
+### Bug Fixes
+
+* **data source:** alter the jdbc url regx rule ([fb439ae](http://git.dtstack.cn/dtstack/data-stack-web/commit/fb439ae03a92c15424556ed21143a03f19d66ead)), closes [#20640](http://redmine.prod.dtstack.cn/issues/20640)
 
 <a name="3.9.0-beta.4.3"></a>
 # [3.9.0-beta.4.3](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.4.2...3.9.0-beta.4.3) (2019-12-05)
