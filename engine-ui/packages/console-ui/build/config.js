@@ -70,7 +70,7 @@ module.exports = {
             },
             '/api/v1': { // 标签引擎
                 target: 'http://172.16.8.194:8084', // 开发环境
-                // target: 'http://172.16.0.203:8084', // yaoyuan
+                // target: 'http://172.16.8.163:7001/proxy/16/api/v1/', // yaoyuan
                 // pathRewrite:{"^/api/tag":"/"},
                 changeOrigin: true,
                 secure: false

@@ -209,7 +209,15 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         this.onHandleTreeNode(key, 'remove')
     }
     onHandleAddCondition = (key) => {
-        this.onHandleTreeNode(key, 'append');
+        const { atomTagList } = this.state;
+        if (atomTagList && atomTagList.length) {
+            this.onHandleTreeNode(key, 'append');
+        } else {
+            notification.warning({
+                message: '原子标签',
+                description: '无原子标签，请先创建原子标签！'
+            });
+        }
     }
     onHandleTreeNode =(key: string, op: string, node?: any) => {
         const { activeTag, tags } = this.state;
