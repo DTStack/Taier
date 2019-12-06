@@ -334,13 +334,15 @@ export default class Index extends React.Component<any, IState> {
                         label: '项目显示名',
                         value: viewItem.projectAlias,
                         key: 'projectAlias',
-                        edit: true
+                        edit: true,
+                        max: 80
                     }, {
                         label: '项目描述',
                         value: viewItem.projectDesc,
                         key: 'projectDesc',
                         editType: 'textarea',
-                        edit: true
+                        edit: true,
+                        max: 500
                     }, {
                         label: '创建时间',
                         value: viewItem.gmtCreate

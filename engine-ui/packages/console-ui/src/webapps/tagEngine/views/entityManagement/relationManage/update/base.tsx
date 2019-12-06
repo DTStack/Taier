@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { cloneDeep, get } from 'lodash';
-import { Row, Button, Col } from 'antd';
+import { Row, Button, Col, message } from 'antd';
 
 import MxFactory from 'widgets/mxGraph';
 import { updateComponentState } from 'funcs';
@@ -164,7 +164,14 @@ class RelationUpdateBase extends React.Component<IProps, IState> {
     onPushRelationEntityCol = (relationEntityIndex: number) => {
         const { data } = this.state;
         const newState = cloneDeep(data);
+
         const relationEntity: IRelationEntity = newState.relationCollection[relationEntityIndex];
+
+        if (relationEntity.columns.length >= 5) {
+            message.warning('维度数量不能超过5个！');
+            return;
+        }
+
         if (!relationEntity.columns) {
             relationEntity.columns = [];
         }
