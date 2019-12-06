@@ -289,7 +289,17 @@ public class FlinkClient extends AbsClient {
      * yarnSession模式运行任务
      */
     private Pair<String, String> runJobByYarnSession(PackagedProgram program, int parallelism) throws Exception {
-        JobSubmissionResult result = flinkClusterClientManager.getClusterClient().run(program, parallelism);
+        JobSubmissionResult result = null;
+        try {
+            result = flinkClusterClientManager.getClusterClient().run(program, parallelism);
+        } catch (Exception e) {
+            if (e.getMessage().contains(ExceptionInfoConstrant.FLINK_UNALE_TO_GET_CLUSTERCLIENT_STATUS_EXCEPTION)) {
+                if(flinkClusterClientManager.getIsClientOn()){
+                    flinkClusterClientManager.setIsClientOn(false);
+                }
+            }
+            throw e;
+        }
         if (result.isJobExecutionResult()) {
             logger.info("Program execution finished");
             JobExecutionResult execResult = result.getJobExecutionResult();
@@ -565,6 +575,9 @@ public class FlinkClient extends AbsClient {
             String reqUrl = String.format("%s%s", getReqUrl(), path);
             return PoolHttpClient.get(reqUrl, MAX_RETRY_NUMBER);
         } catch (Exception e) {
+            if(flinkClusterClientManager.getIsClientOn()){
+                flinkClusterClientManager.setIsClientOn(false);
+            }
             throw new RdosException(ErrorCode.HTTP_CALL_ERROR, e);
         }
     }
