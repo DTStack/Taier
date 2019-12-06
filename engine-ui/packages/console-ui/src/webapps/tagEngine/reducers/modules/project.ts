@@ -57,7 +57,6 @@ export function getProjects (params?: any) {
     }
 }
 
-
 // Reducer
 // 获取系统下登录用户有权限的项目
 export function projects (state: any = [], action: any) {
@@ -68,7 +67,6 @@ export function projects (state: any = [], action: any) {
             return state
     }
 }
-
 
 export function project (state = defaultProject, action: any) {
     switch (action.type) {

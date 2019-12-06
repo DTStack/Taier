@@ -16,3 +16,4 @@ yarn-error.log
 build
 package-lock.json
 src/public/
+**/iconfont/**
