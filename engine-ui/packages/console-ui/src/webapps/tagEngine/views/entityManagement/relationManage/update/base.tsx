@@ -62,7 +62,7 @@ class RelationUpdateBase extends React.Component<IProps, IState> {
 
     static getDerivedStateFromProps (props: IProps, state: IState) {
         const { relationData } = props;
-        if (relationData && relationData !== state.data) {
+        if (relationData && relationData.id !== get(state, 'data.id')) {
             return {
                 data: relationData
             }
@@ -73,6 +73,13 @@ class RelationUpdateBase extends React.Component<IProps, IState> {
         const { relationData } = this.props;
         this.loadDataSource();
         if (relationData && relationData.dataSourceId) {
+            this.loadEntities(relationData.dataSourceId);
+        }
+    }
+
+    componentDidUpdate (prevProps, prevState) {
+        const { relationData } = this.props;
+        if (relationData && relationData.id !== get(prevProps, 'relationData.id')) {
             this.loadEntities(relationData.dataSourceId);
         }
     }
@@ -107,7 +114,9 @@ class RelationUpdateBase extends React.Component<IProps, IState> {
             this.loadEntities(values.dataSourceId);
             // 数据源改变时，需要清理画布上的数据
             updateComponentState(this, {
-                relationCollection: []
+                data: {
+                    relationCollection: []
+                }
             })
         }
     }
@@ -118,12 +127,9 @@ class RelationUpdateBase extends React.Component<IProps, IState> {
         if (!newState.relationCollection) {
             newState.relationCollection = [];
         }
-        //  else {
-        //     newState.relationCollection = [...data.relationCollection];
-        // }
 
         // 通过数组长度，计算新节点默认位置
-        const defaultPosition = newState.relationCollection.length * 80;
+        const defaultPosition = newState.relationCollection.length * 40;
         initialEntityNode.geometry.x = defaultPosition;
         initialEntityNode.geometry.y = defaultPosition;
         newState.relationCollection.push(initialEntityNode);
@@ -302,15 +308,15 @@ class RelationUpdateBase extends React.Component<IProps, IState> {
                 cellItem = getCellData(cell)
                 cellItem.source = getCellData(cell.source);
                 cellItem.source.rowIndex = Number(cell.value.getAttribute('sourceRow'));
-                const sourceRow = cellItem.source.columnOptions[cellItem.source.rowIndex - 1];
+                const sourceRow = cellItem.source.columns[cellItem.source.rowIndex - 1];
                 cellItem.source.attrId = sourceRow.id;
-                cellItem.source.attrName = sourceRow.entityAttr;
+                cellItem.source.attrName = sourceRow.attrName;
 
                 cellItem.target = getCellData(cell.target);
                 cellItem.target.rowIndex = Number(cell.value.getAttribute('targetRow'));
-                const targetRow = cellItem.target.columnOptions[cellItem.target.rowIndex - 1];
+                const targetRow = cellItem.target.columns[cellItem.target.rowIndex - 1];
                 cellItem.target.attrId = targetRow.id;
-                cellItem.target.attrName = targetRow.entityAttr;
+                cellItem.target.attrName = targetRow.attrName;
             }
             return cellItem;
         });
