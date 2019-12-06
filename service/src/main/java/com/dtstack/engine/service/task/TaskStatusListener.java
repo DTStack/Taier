@@ -213,7 +213,12 @@ public class TaskStatusListener implements Runnable{
 
                     zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
                     //数据的更新顺序，先更新job_cache，再更新engine_batch_job
-                    dealBatchJobAfterGetStatus(status, taskId);
+
+                    if (computeType == ComputeType.STREAM.getType()){
+                        dealStreamAfterGetStatus(status, taskId, engineTypeName, jobIdentifier, pluginInfoStr);
+                    } else {
+                        dealBatchJobAfterGetStatus(status, taskId);
+                    }
 
                     rdosBatchEngineJobDAO.updateJobStatusAndExecTime(taskId, status);
                 }
