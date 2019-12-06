@@ -159,6 +159,7 @@ export default class AtomicLabel extends React.Component<IProps, IState> {
                 return <EditInput
                     onChange={this.handleTableChange.bind(this, 'tagName', record, index)}
                     value={text}
+                    max={80}
                     style={{ width: 150 }}
                 />
             }
@@ -209,6 +210,7 @@ export default class AtomicLabel extends React.Component<IProps, IState> {
                 return <EditInput
                     onChange={this.handleTableChange.bind(this, 'tagDesc', record, index)}
                     value={text}
+                    max={500}
                     style={{ width: 150 }}
                 />
             }
