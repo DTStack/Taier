@@ -12,6 +12,8 @@ import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.util.ConverterUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -26,6 +28,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * create: 2019/8/27
  */
 public class FlinkClusterClientManager {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FlinkClusterClientManager.class);
 
     private FlinkClientBuilder flinkClientBuilder;
 
@@ -54,6 +58,7 @@ public class FlinkClusterClientManager {
     }
 
     public static FlinkClusterClientManager createWithInit(FlinkClientBuilder flinkClientBuilder) throws Exception {
+        LOG.warn("Start init FlinkClusterClientManager");
         FlinkClusterClientManager manager = new FlinkClusterClientManager();
         manager.flinkClientBuilder = flinkClientBuilder;
         manager.flinkConfig = flinkClientBuilder.getFlinkConfig();
@@ -67,6 +72,7 @@ public class FlinkClusterClientManager {
         } else if (flinkConfig.getClusterMode().equals(Deploy.yarn.name())) {
             if (flinkYarnSessionStarter == null) {
                 this.flinkYarnSessionStarter = new FlinkYarnSessionStarter(flinkClientBuilder, flinkConfig);
+                LOG.warn("Create FlinkYarnSessionStarter and start YarnSessionClientMonitor");
                 this.startYarnSessionClientMonitor();
             }
             boolean clientOn = flinkYarnSessionStarter.startFlinkYarnSession();

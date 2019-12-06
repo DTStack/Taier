@@ -3,8 +3,10 @@ package com.dtstack.engine.common.http;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.util.RetryUtil;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.config.RequestConfig;
@@ -51,6 +53,8 @@ public class PoolHttpClient {
 
 	// 将每个路由基础的连接增加到20
 	private static int maxPerRoute = 20;
+
+	private static int SLEEP_TIME_MILLI_SECOND = 2000;
 
 	private static ObjectMapper objectMapper = new ObjectMapper();
 
@@ -154,6 +158,15 @@ public class PoolHttpClient {
 			}
 		}
 		return respBody;
+	}
+
+	public static String get(String url, int retryNumber) throws Exception{
+		return RetryUtil.executeWithRetry(new Callable<String>() {
+			@Override
+			public String call() throws Exception{
+				return get(url);
+			}
+		}, retryNumber, SLEEP_TIME_MILLI_SECOND,false);
 	}
 
 	public static void main(String[] args) throws IOException {

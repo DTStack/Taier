@@ -59,11 +59,13 @@ public class FlinkYarnSeesionResourceInfo extends AbstractFlinkResourceInfo {
                     if (taskManagerList.size()==0){
                         this.addNodeResource(new NodeResourceDetail("1", flinkSessionSlotCount, flinkSessionSlotCount));
                     }else {
+                        int totalUsedSlots = 0;
                         for(Map<String, Object> tmp : taskManagerList){
                             int freeSlots = MapUtils.getIntValue(tmp,"freeSlots");
                             int slotsNumber = MapUtils.getIntValue(tmp, "slotsNumber");
-                            this.addNodeResource(new NodeResourceDetail((String)tmp.get("id"),freeSlots,slotsNumber));
+                            totalUsedSlots += slotsNumber - freeSlots;
                         }
+                        this.addNodeResource(new NodeResourceDetail("1", flinkSessionSlotCount - totalUsedSlots, flinkSessionSlotCount));
                     }
                 }
             }catch (Exception e){
