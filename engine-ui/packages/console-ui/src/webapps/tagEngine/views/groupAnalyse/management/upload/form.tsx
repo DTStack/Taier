@@ -106,7 +106,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
 
     validResult = async () => {
         const ctx = this;
-        const { entityAttrs } = this.state;
+        const { entityAttrs, entityAttrsCopy } = this.state;
         const { router, formData = {} } = this.props;
         if (!this._responseData) {
             message.error('请先上传样本文件！');
@@ -117,7 +117,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
             groupId: formData.groupId,
             taskId: null,
             uploadFileName: this._responseData,
-            entityAttrList: entityAttrs
+            entityAttrList: [...entityAttrsCopy, ...entityAttrs]
         });
         const { code, data = {} } = res;
         if (code === 1) {
@@ -150,8 +150,8 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
     }
 
     onAttrChange = (value: any, option: any) => {
+        console.log('value：', value, 'option：', option)
         const { entityAttrs, initialEntityAttrs } = this.state;
-        // const { form } = this.props;
         const newState = entityAttrs.slice();
         const res = newState.find((o) => { return o.entityAttr === value });
         if (!res) {
@@ -160,17 +160,18 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                 entityAttrCn: option.props['data-attr']
             })
             console.log('res', initialEntityAttrs)
-            // form.setFields({
-            //     'entityAttrList': this.state.initialEntityAttrs
-            // })
             this.setState({
-                // entityAttrs: [...entityAttrsCopy,...newState]
                 entityAttrs: newState
             })
         }
         console.log('entityAttrs', this.state.entityAttrs)
     }
 
+    onDeselect = (value: any) => {
+        let { entityAttrs } = this.state;
+        entityAttrs = entityAttrs.filter(({ entityAttr }) => entityAttr !== value);
+        this.setState({ entityAttrs });
+    }
     onCancel = () => {
         this.props.router.push('/groupAnalyse');
     }
@@ -190,7 +191,6 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
         const btnText = mode && mode === 'edit' ? '立即保存' : '立即创建';
         const downloadUrl = GroupAPI.downloadGroupTemplate({
             fileName: form.getFieldValue('groupName'),
-            // entityAttrList: entityAttrs
             entityAttrList: [...entityAttrsCopy, ...entityAttrs]
         });
         // const initialEntityAttrs = entityAttrs && entityAttrs.map(o => o.entityAttr);
@@ -262,12 +262,12 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                             required: true, message: '请选择匹配维度!'
                         }],
                         initialValue: initialEntityAttrs || []
-                        // normalize: this.normalizeAll,
                     })(
                         <Select
                             showSearch
                             mode="multiple"
                             onSelect={this.onAttrChange}
+                            onDeselect={this.onDeselect}
                             placeholder="请选择匹配维度"
                             style={{ width: 200 }}
                         >
