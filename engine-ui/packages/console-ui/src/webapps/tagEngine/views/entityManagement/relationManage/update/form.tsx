@@ -26,6 +26,7 @@ class CreateRelationEntityForm extends React.Component<IProps & FormComponentPro
         const { form, dataSourceList = [], onCreateRelationEntity, formData = {} } = this.props;
         const { getFieldDecorator } = form;
         const selectedSource = get(formData, 'dataSourceId') || form.getFieldValue('dataSourceId');
+        const exceedEntityLimit = get(formData, 'relationCollection', []).length >= 5;
         return (
             <Form>
                 <FormItem
@@ -101,7 +102,7 @@ class CreateRelationEntityForm extends React.Component<IProps & FormComponentPro
                     hasFeedback
                 >
                     <Button type="primary" icon="plus"
-                        disabled={!selectedSource}
+                        disabled={!selectedSource || exceedEntityLimit}
                         onClick={onCreateRelationEntity}
                     >
                         {selectedSource ? '新增实体' : '请先选择数据源' }
