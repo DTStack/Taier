@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { hashHistory } from 'react-router';
-import { Card, Table, Input, Button, Popconfirm, message } from 'antd';
+import { Card, Table, Input, Button, message } from 'antd';
 import { TableColumnConfig } from 'antd/lib/table/Table';
+import DeleteModal from '../../../components/deleteModal';
 
 import { updateComponentState } from 'funcs';
 
@@ -16,12 +17,16 @@ interface IState {
     dataSource: IRelation[];
     loading: boolean;
     queryParams: IQueryParams;
+    deleteVisible: boolean;
+    deleteItem: any;
 }
 
 export default class RelationManage extends React.Component<any, IState> {
     state: IState = {
         dataSource: [],
         loading: false,
+        deleteVisible: false,
+        deleteItem: {},
         queryParams: {
             total: 0,
             search: '',
@@ -60,13 +65,35 @@ export default class RelationManage extends React.Component<any, IState> {
         }))
     }
 
+    handleDeleteModel = (type: string) => {
+        if (type == 'ok') {
+            this.handDeleteRelation(this.state.deleteItem.id);
+        } else {
+            this.setState({
+                deleteVisible: false
+            })
+        }
+    }
+
     handDeleteRelation = async (id: number) => {
         const res = await API.deleteRelation({ relationId: id });
         if (res.code === 1) {
             message.success('删除关系成功！');
-            this.loadData();
+            this.setState({
+                queryParams: {
+                    ...this.state.queryParams,
+                    current: 1
+                },
+                loading: true,
+                deleteVisible: false
+            }, () => {
+                this.loadData();
+            })
         } else {
             message.error('删除关系失败！');
+            this.setState({
+                deleteVisible: false
+            })
         }
     }
 
@@ -120,7 +147,10 @@ export default class RelationManage extends React.Component<any, IState> {
                 break;
             }
             case 'delete': {
-                this.handDeleteRelation(record.id);
+                this.setState({
+                    deleteVisible: true,
+                    deleteItem: record
+                })
                 break;
             }
             default:;
@@ -169,13 +199,16 @@ export default class RelationManage extends React.Component<any, IState> {
                             编辑
                         </a>
                         <span className="ant-divider" />
-                        <Popconfirm
+                        <a onClick={this.handleOperateData.bind(this, 'delete', record)}>
+                        删除
+                        </a>
+                        {/* <Popconfirm
                             title={<span>删除关系后，关联的标签将失效<br />请谨慎操作！</span>}
                             okText="删除" cancelText="取消"
                             onConfirm={this.handleOperateData.bind(this, 'delete', record)}
                         >
                             <a>删除</a>
-                        </Popconfirm>
+                        </Popconfirm> */}
                     </span>
                 )
             }
@@ -184,7 +217,7 @@ export default class RelationManage extends React.Component<any, IState> {
     }
 
     render () {
-        const { dataSource, loading, queryParams } = this.state;
+        const { dataSource, loading, queryParams, deleteVisible } = this.state;
         const pagination: any = {
             total: queryParams.total,
             pageSize: queryParams.size,
@@ -230,6 +263,13 @@ export default class RelationManage extends React.Component<any, IState> {
                         />
                     </Card>
                 </div>
+                <DeleteModal
+                    title={'删除关系'}
+                    content={'删除关系后，关联的标签将失效，请谨慎操作！'}
+                    visible={deleteVisible}
+                    onCancel={this.handleDeleteModel.bind(this, 'cancel')}
+                    onOk={this.handleDeleteModel.bind(this, 'ok')}
+                />
             </div>
         )
     }
