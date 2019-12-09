@@ -21,6 +21,7 @@ class CreateRelation extends React.Component<any, any> {
         const res = await RelationAPI.createRelation(dataSource);
         if (res.code === 1) {
             message.success('添加关系成功！');
+            this.props.router.push('/relationManage');
         }
     }
 

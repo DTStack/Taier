@@ -101,10 +101,10 @@ class RelationUpdateBase extends React.Component<IProps, IState> {
     }
 
     loadEntities = async (dataSourceId: string | number) => {
-        const res = await API.getEntities({ dataSourceId });
+        const res = await API.selectEntity({ dataSourceId });
         if (res.code === 1) {
             this.setState({
-                entities: get(res, 'data.contentList', [])
+                entities: get(res, 'data', [])
             })
         }
     }
@@ -133,6 +133,15 @@ class RelationUpdateBase extends React.Component<IProps, IState> {
         initialEntityNode.geometry.x = defaultPosition;
         initialEntityNode.geometry.y = defaultPosition;
         newState.relationCollection.push(initialEntityNode);
+        this.setState({
+            data: newState
+        })
+    }
+
+    onRemoveEntityNode = (index: number) => {
+        const { data } = this.state;
+        const newState = cloneDeep(data);
+        newState.relationCollection.splice(index, 1);
         this.setState({
             data: newState
         })
@@ -283,9 +292,10 @@ class RelationUpdateBase extends React.Component<IProps, IState> {
             graph.popupMenuHandler.factoryMethod = function (menu: any, cell: any, evt: any) {
                 if (!cell) return;
                 // const currentNode = cell.data || {};
+                console.log('ctxMenu:', cell, evt);
                 if (cell.vertex) {
                     menu.addItem('删除实体', null, function () {
-                        graph.removeCells([cell])
+                        ctx.onRemoveEntityNode(cell.index);
                     }, null, null, true) // 正常状态
                 } else {
                     menu.addItem('删除依赖关系', null, function () {
