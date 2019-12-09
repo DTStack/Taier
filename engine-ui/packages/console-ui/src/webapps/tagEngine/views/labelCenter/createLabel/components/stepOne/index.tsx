@@ -119,6 +119,7 @@ class StepOne extends React.PureComponent<IProps, IState> {
                             dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
                             placeholder="请选择目录"
                             treeDefaultExpandAll
+                            treeNodeFilterProp="title"
                         >
                             {
                                 this.renderTreeNode(cateOption)

@@ -12,7 +12,7 @@ interface IProps extends FormComponentProps{
     onHandleChangeType: any;
     onChangeNode: any;
     onChangeLabel: any;
-    atomTagList: any[];
+    tagConfigData: any;
 }
 
 interface IState {
@@ -31,9 +31,13 @@ IState
         visible: false
     };
     componentDidMount () { }
-    renderConditionChildren = (data) => {
-        const { atomTagList, form, onChangeNode } = this.props;
-        const { getFieldDecorator } = form;
+    renderConditionChildren = (data, entityId) => {
+        const { tagConfigData, form, onChangeNode } = this.props;
+        let atomTagList = [];
+        if (tagConfigData[entityId]) {
+            atomTagList = tagConfigData[entityId].atomTagList
+        }
+
         return data.map((item, index) => {
             if (item.children && item.children.length) {
                 return (
@@ -41,47 +45,65 @@ IState
                         active: item.children.length > 1
                     })}>
                         {
-                            this.renderConditionChildren(item.children)
+                            this.renderConditionChildren(item.children, entityId)
                         }
                         <span className="condition" onClick={(e) => this.props.onHandleChangeType(item.key, item.type)}>{item.name}</span>
                     </div>
                 );
             }
-            return <SelectLabelRow onChangeNode={onChangeNode} form={form} atomTagList={atomTagList} getFieldDecorator={getFieldDecorator} data={item} key={item.key} extra={<div>
+            return <SelectLabelRow onChangeNode={onChangeNode} form={form} atomTagList={atomTagList} data={item} key={item.key} extra={<div>
                 <Icon type="minus-circle-o" className="icon" onClick={(e) => this.props.onHandleDeleteCondition(item.key)}/>
                 {
-                    (((data.length - 1) == index) || (item.key.split('-').length < 4)) && (<Icon type="plus-circle" className="icon" onClick={(e) => this.props.onHandleAddCondition(item.key)}/>)
+                    (((data.length - 1) == index) || (item.key.split('-').length < 4)) && (<Icon type="plus-circle" className="icon" onClick={(e) => this.props.onHandleAddCondition(item.key, entityId)}/>)
                 }
 
             </div>}/>
         });
     }
-    renderCondition = data => {
+    renderCondition = (data, entityId) => {
         if (data.children && data.children.length) {
             return <div className={classnames('select_wrap', {
                 active: data.children.length > 1
             })}>
                 {
-                    this.renderConditionChildren(data.children)
+                    this.renderConditionChildren(data.children, entityId)
                 }
                 <span className="condition" onClick={(e) => this.props.onHandleChangeType(data.key, data.type)}>{data.name}</span>
             </div>
         }
     }
     render () {
-        const { treeData, currentTag } = this.props
+        const { treeData, currentTag, form } = this.props;
+        const { getFieldDecorator } = form;
         return (
             <div className="panel_select">
-                <div className="edit_Wrap"><Input className="edit_value" value={currentTag.label} onChange={this.props.onChangeLabel}/><i className="iconfont iconbtn_edit"></i></div>
+                <div className="edit_Wrap">
+                    <Form.Item>
+                        {
+                            getFieldDecorator('labelName', {
+                                initialValue: currentTag.label,
+                                rules: [
+                                    {
+                                        required: true,
+                                        max: 80,
+                                        pattern: /^[\u4E00-\u9FA5A-Za-z0-9_]+$/,
+                                        message: '姓名只能包括汉字，字母、下划线、数字'
+                                    }
+                                ]
+                            })(<Input className="edit_value" value={currentTag.label} onChange={this.props.onChangeLabel}/>)
+                        }
+                    </Form.Item>
+                    <i className="iconfont iconbtn_edit"></i>
+                </div>
                 <div className="panel_wrap">
                     <div className={classnames('select_wrap', {
                         active: treeData.children && treeData.children.length > 1
                     })}>
                         {
                             treeData && treeData.children && treeData.children.map(item => {
-                                return (<Collapse title={item.entityName} key={item.key} active={item.children.length} extra={<Icon className="add_icon" onClick={(e) => this.props.onHandleAddCondition(item.key)} type="plus-circle" />}>
+                                return (<Collapse title={item.entityName} key={item.key} active={item.children.length} extra={<Icon className="add_icon" onClick={(e) => this.props.onHandleAddCondition(item.key, item.entityId)} type="plus-circle" />}>
                                     {
-                                        this.renderCondition(item)
+                                        this.renderCondition(item, item.entityId)
                                     }
                                 </Collapse>)
                             })

@@ -91,7 +91,7 @@ IState
         const { extra, atomTagList, data } = this.props;
         const { tagId, dataType, type } = data;
         return (
-            <Row className="select-label-Row" type='flex' gutter={16}>
+            <Row className="select-label-Row disabled" type='flex' gutter={16}>
                 <Col>
                     <Select showSearch value={tagId} disabled style={{ width: 100 }}>
                         {

@@ -93,9 +93,9 @@ export default class CreateLabel extends React.PureComponent<IProps, IState> {
         })
     }
     render () {
-        const { current, data, tagId } = this.state;
+        const { current, data } = this.state;
         const { location } = this.props;
-        const { entityId } = location.query;
+        const { entityId, tagId } = location.query;
         const breadcrumbNameMap = [
             {
                 path: '/labelCenter',
@@ -118,7 +118,7 @@ export default class CreateLabel extends React.PureComponent<IProps, IState> {
                     <div className="step_content">
 
                         <StepOne onPrev={this.onPrev} data={data} entityId={entityId} isShow={current == 0} onNext={this.onNext} />
-                        <StepTwo isShow={current == 1} data={data} entityId={entityId} onPrev={this.onPrev} onNext={this.onNext} />
+                        <StepTwo isShow={current == 1} tagId={tagId} data={data} entityId={entityId} onPrev={this.onPrev} onNext={this.onNext} />
                         {
                             current == 2 && <StepTree onPrev={this.onPrev} onNext={this.onNext} />
                         }
