@@ -17,6 +17,7 @@ interface IProps extends FormComponentProps {
     isShow: boolean;
     entityId: string|number;
     data: any;
+    tagId: string;
 }
 interface IState {
     entityList: any[];
@@ -26,6 +27,7 @@ interface IState {
     tags: any[];
     initConfig: any;
     initRowValue: any;
+    tagConfigData: any;
 }
 const formItemLayout = {
     labelCol: {
@@ -60,6 +62,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
             'value': '',
             'values': []
         },
+        tagConfigData: {},
         tags: [{
             tagValueId: null,
             label: '标签值1',
@@ -74,8 +77,8 @@ class StepTwo extends React.PureComponent<IProps, IState> {
     loadMainData () {
         this.getEntityList();
         this.getRelationList();
-        this.getEntityAtomTagList(null);
-        this.getAtomTagList();
+        const { tagId } = this.props;
+        !tagId && this.getEntityAtomTagList(null);
     }
     componentDidUpdate (preProps) {
         const { data } = this.props;
@@ -90,7 +93,14 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                     valid: true,
                     params: JSON.parse(item.param)
                 }
-            })
+            });
+            if (newtags && newtags.length) {
+                let { params } = newtags[0];
+                const { children = [] } = params;
+                children.forEach(item => {
+                    this.getAtomTagList(item.entityId)
+                })
+            }
             this.setState({
                 tags: newtags,
                 activeTag: newtags.length ? newtags[0].value : ''
@@ -127,7 +137,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
             entityId,
             relationId
         }).then(res => {
-            const { code, data } = res;
+            const { code, data = [] } = res;
             if (code === 1) {
                 let params = {
                     key: '0',
@@ -140,6 +150,9 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                         children: []
                     }))
                 }
+                data.forEach(item => {
+                    this.getAtomTagList(item.entityId);
+                })
                 this.setState({
                     initConfig: params,
                     tags: tags.map(item => {
@@ -149,9 +162,8 @@ class StepTwo extends React.PureComponent<IProps, IState> {
             }
         })
     }
-    getAtomTagList = () => { // 获取原子标签列表
-        const { entityId } = this.props;
-        const { initRowValue } = this.state;
+    getAtomTagList = (entityId) => { // 获取原子标签列表
+        const { initRowValue, tagConfigData } = this.state;
         API.getAtomTagList({
             entityId
         }).then(res => {
@@ -159,9 +171,13 @@ class StepTwo extends React.PureComponent<IProps, IState> {
             if (code === 1) {
                 if (data && data.length) {
                     let { dataType, entityAttr, tagId } = data[0];
-                    this.setState({
+                    let params = {
                         atomTagList: data,
                         initRowValue: Object.assign({}, initRowValue, { dataType, entityAttr, tagId, type: TagTypeOption[dataType][0].value })
+                    }
+                    tagConfigData[entityId] = params;
+                    this.setState({
+                        tagConfigData: tagConfigData
                     })
                 }
             }
@@ -181,9 +197,16 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         })
     }
     onChangeSelect = (value) => {
+        let currentId = shortid()
         this.setState({
-            tags: [],
-            activeTag: '',
+            tags: [{
+                tagValueId: null,
+                label: '标签值1',
+                value: currentId,
+                valid: true,
+                params: {}
+            }],
+            activeTag: currentId,
             initConfig: {}
         }, () => {
             this.getEntityAtomTagList(value);
@@ -208,10 +231,11 @@ class StepTwo extends React.PureComponent<IProps, IState> {
     onHandleDeleteCondition = (key) => {
         this.onHandleTreeNode(key, 'remove')
     }
-    onHandleAddCondition = (key) => {
-        const { atomTagList } = this.state;
+    onHandleAddCondition = (key, entityId) => {
+        const { tagConfigData } = this.state;
+        const { atomTagList, initRowValue } = tagConfigData[entityId]
         if (atomTagList && atomTagList.length) {
-            this.onHandleTreeNode(key, 'append');
+            this.onHandleTreeNode(key, 'append', {}, initRowValue);
         } else {
             notification.warning({
                 message: '原子标签',
@@ -219,13 +243,13 @@ class StepTwo extends React.PureComponent<IProps, IState> {
             });
         }
     }
-    onHandleTreeNode =(key: string, op: string, node?: any) => {
+    onHandleTreeNode =(key: string, op: string, node?: any, initRowValue?: any) => {
         const { activeTag, tags } = this.state;
         const newTags = tags.map(item => {
             if (activeTag == item.value) {
                 const currentConf = item.params;
                 if (op == 'append') {
-                    this.appendTreeNode(currentConf, key);
+                    this.appendTreeNode(currentConf, key, initRowValue);
                 } else if (op === 'remove') {
                     this.removeTreeNode(currentConf, key);
                 } else if (op == 'changeNode') {
@@ -250,8 +274,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
             }
         }
     }
-    appendTreeNode = (treeNode: any, key: any) => { // 添加节点
-        const { initRowValue } = this.state;
+    appendTreeNode = (treeNode: any, key: any, initRowValue: any) => { // 添加节点
         let level = key.split('-');
         if (treeNode.key == key) {
             let newKey = key + '-' + shortid();
@@ -275,7 +298,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                     break;
                 }
                 if (children[i].children) {
-                    this.appendTreeNode(children[i], key)
+                    this.appendTreeNode(children[i], key, initRowValue)
                 }
             }
         }
@@ -385,7 +408,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
     }
     render () {
         const { form, isShow, entityId } = this.props;
-        const { entityList, activeTag, tags, relationList, atomTagList, initConfig } = this.state;
+        const { entityList, activeTag, tags, relationList, tagConfigData, initConfig } = this.state;
         const { getFieldDecorator } = form;
         const currentTag = activeTag ? tags.find(item => item.value == activeTag) : '';
         const treeData = currentTag ? currentTag.params : '';
@@ -427,7 +450,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                     <TagValues config={initConfig} select={activeTag} value={tags} onChange={(value) => this.onChangeTags(value)} onSelect={this.onChangeSelectTag} />
                 </Form.Item>
                 {
-                    currentTag && (<PanelSelect atomTagList={atomTagList} ref={(node) => this.panelForm = node} treeData={treeData} currentTag={currentTag} onChangeLabel={this.onChangeLabel} onChangeNode={this.onHandleChangeNode} onHandleAddCondition={this.onHandleAddCondition} onHandleChangeType={this.onHandleChangeType} onHandleDeleteCondition={this.onHandleDeleteCondition}/>)
+                    currentTag && (<PanelSelect tagConfigData={tagConfigData} ref={(node) => this.panelForm = node} treeData={treeData} currentTag={currentTag} onChangeLabel={this.onChangeLabel} onChangeNode={this.onHandleChangeNode} onHandleAddCondition={this.onHandleAddCondition} onHandleChangeType={this.onHandleChangeType} onHandleDeleteCondition={this.onHandleDeleteCondition}/>)
                 }
                 <div className="wrap_btn_content"><Button onClick={this.onHandlePrev}>上一步</Button><Button type="primary" onClick={this.onHandleNext}>下一步</Button></div>
             </div>

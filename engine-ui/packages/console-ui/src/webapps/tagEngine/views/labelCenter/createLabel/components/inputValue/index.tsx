@@ -1,11 +1,12 @@
 import * as React from 'react';
-import { InputNumber, Col, Row, Input } from 'antd';
+import { InputNumber, Col, Row, Input, Form } from 'antd';
 
 interface IProps {
     type?: string;
     value?: any;
     data?: number;
     onChangeData?: any;
+    getFieldDecorator?: any;
 }
 
 interface IState {
@@ -32,17 +33,26 @@ IState
         this.props.onChangeData({ value: value })
     }
     render () {
-        const { data, type } = this.props;
+        const { data, type, getFieldDecorator } = this.props;
+        let Component = type == 'number' ? (
+            <InputNumber min={1} value={ data } onChange={this.onChangeInputNumber}/>
+        ) : (
+            <Input value={data} onChange={this.onChangeInputValue}/>
+        )
         return (
             <Row className="area-input-Row" type='flex' gutter={8}>
                 <Col>
-                    {
-                        type == 'number' ? (
-                            <InputNumber min={1} value={ data } onChange={this.onChangeInputNumber}/>
-                        ) : (
-                            <Input value={data} onChange={this.onChangeInputValue}/>
-                        )
-                    }
+
+                    <Form.Item required={false}>
+                        {
+                            getFieldDecorator('value', {
+                                rules: [{
+                                    require: true,
+                                    message: '请输入值'
+                                }]
+                            })(Component)
+                        }
+                    </Form.Item>
                 </Col>
             </Row>
         );

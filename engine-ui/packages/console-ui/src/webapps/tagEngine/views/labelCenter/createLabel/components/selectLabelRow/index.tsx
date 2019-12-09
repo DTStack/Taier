@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Col, Row, Select, Form } from 'antd';
+import { Col, Row, Select } from 'antd';
 import MultiSelect from '../multiSelect';
 import AreaInput from '../areaInput';
 import AbsoluteTime from '../absoluteTime';
@@ -36,7 +36,7 @@ IState
         name: ''
     };
     renderTypeFilter = () => {
-        const { getFieldDecorator, data } = this.props;
+        const { data, getFieldDecorator } = this.props;
         const { tagId, dataType, type, timeType, lValue, rValue, value, values } = data;
         if (type == 'OP_HAVE' || type == 'OP_NOT') {
             return null
@@ -46,7 +46,7 @@ IState
             if (type == 'OP_EQUAL' || type == 'OP_NOT_EQUAL') { // 如果是等于和不等于，属于区间范围
                 Component = (<MultiSelect data={values} onChangeData={this.onChangeValue} tagId={tagId} tip="提示选项为最近7天的属性关键词（最多展示 20 条），非所有关键词。可直接输入关键词，回车完成。"/>)
             } else {
-                Component = (<InputValue data={value} onChangeData={this.onChangeValue}/>)
+                Component = (<InputValue data={value} getFieldDecorator={getFieldDecorator} onChangeData={this.onChangeValue}/>)
             }
         } else if (dataType == 'TIME') { // 时间类型
             if (type == 'OP_ABSOLUTE_TIME') { // 绝对时间
@@ -62,20 +62,10 @@ IState
             } else if (type == 'OP_BETWEEN') {
                 Component = (<AreaInput onChangeData={this.onChangeValue} data={{ lValue, rValue }} leftText="在 " centerText=" 于 " rightText="之间" tip="包含起始和结束值，起始数值应小于终止数值。"/>)
             } else {
-                Component = (<InputValue data={value} type="number" onChangeData={this.onChangeValue}/>)
+                Component = (<InputValue data={value} getFieldDecorator={getFieldDecorator} type="number" onChangeData={this.onChangeValue}/>)
             }
         }
-        return (<Form.Item>
-            {
-                getFieldDecorator(data.key, {
-                    rules: [{
-                        required: false, message: '请输入有效值!' },
-                    {
-                        validator: this.validateValue
-                    }]
-                })(Component)
-            }
-        </Form.Item>)
+        return Component
     }
     validateValue = (rule, rvalue, callback) => {
         const { data } = this.props;
@@ -137,7 +127,7 @@ IState
         return (
             <Row className="select-label-Row" type='flex' gutter={16}>
                 <Col>
-                    <Select showSearch value={tagId} style={{ width: 100 }} onChange={this.onChangeAutoLabel}>
+                    <Select showSearch optionFilterProp="children" value={tagId} style={{ width: 100 }} onChange={this.onChangeAutoLabel}>
                         {
                             atomTagList.map((item: any) => <Option key={item.tagId} value={item.tagId}>{item.tagName}</Option>)
                         }

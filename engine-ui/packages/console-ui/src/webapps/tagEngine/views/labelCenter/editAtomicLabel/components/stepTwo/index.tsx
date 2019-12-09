@@ -54,7 +54,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
     componentDidUpdate (preProps) {
         const { data } = this.props;
         if (data != preProps.data) {
-            const { entityId, dimensionalityId, dateType, tagDictId, tagDictName, dictValueVoList } = data;
+            const { entityId, dimensionalityId, dateType, tagDictId, tagDictName, dictValueVoList = [] } = data;
             if (tagDictId) {
                 this.setState({
                     radio: 0
