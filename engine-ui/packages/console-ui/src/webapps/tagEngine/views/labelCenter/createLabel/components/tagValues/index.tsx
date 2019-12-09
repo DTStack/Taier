@@ -87,10 +87,10 @@ class TagValues extends React.Component<IProps, {}> {
     renderMenu = (data: any, index: number) => {
         return (
             <Menu onClick={({ item, key, keyPath }) => this.onHandleMenu({ item, key, keyPath }, data, index)}>
-                <Menu.Item key="0">
+                <Menu.Item key="0" className="tagValues_item">
                     <Icon type="copy" className="tagValues_copy"/>复制
                 </Menu.Item>
-                <Menu.Item key="1">
+                <Menu.Item key="1" className="tagValues_item">
                     <Icon type="delete" className="tagValues_delete"/>删除
                 </Menu.Item>
             </Menu>

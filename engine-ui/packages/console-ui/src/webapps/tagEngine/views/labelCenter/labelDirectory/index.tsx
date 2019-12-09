@@ -125,8 +125,11 @@ export default class LabelDirectory extends React.PureComponent<IProps, IState> 
         })
     };
     handleOk = () => {
+        const { currentData, expandedKeys } = this.state;
+        let newExpandedKeys = new Set([...expandedKeys, currentData.tagCateId])
         this.setState({
             visible: false,
+            expandedKeys: Array.from(newExpandedKeys),
             currentData: {}
         });
         this.getTagCate();

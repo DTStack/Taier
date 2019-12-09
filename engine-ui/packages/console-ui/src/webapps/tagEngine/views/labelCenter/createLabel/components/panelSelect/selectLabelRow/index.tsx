@@ -51,7 +51,7 @@ IState
             if (type == 'OP_ABSOLUTE_TIME') { // 绝对时间
                 Component = <AbsoluteTime onChangeData={this.onChangeValue} rowKey={key} form={form} data={{ timeType, value, lValue, rValue }}/>
             } else if (type == 'OP_RELATIVE_TIME') { // 相对时间点
-                Component = (<RelativeTime onChangeData={this.onChangeValue} rowKey={key} form={form} data={{ timeType, value }} tip=""/>)
+                Component = (<RelativeTime onChangeData={this.onChangeValue} rowKey={key} form={form} data={{ timeType, value }}/>)
             } else { // 相对时间区间
                 Component = (<AreaInput onChangeData={this.onChangeValue} rowKey={key} form={form} data={{ lValue, rValue }} leftText="在 过去" centerText="天 到 过去" rightText="天 之内" tip="起始数值应大于终止数值。"/>)
             }

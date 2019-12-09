@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Col, Row, Select, Icon, Tooltip, InputNumber, Form } from 'antd';
+import { Col, Row, Select, InputNumber, Form } from 'antd';
 import TagTypeOption from '../../../../../../consts/tagTypeOption';
 import './style.scss';
 
@@ -40,7 +40,7 @@ IState
         this.props.onChangeData(Object.assign({}, data, { timeType: value }))
     }
     render () {
-        const { tip, data, rowKey, form } = this.props;
+        const { data, rowKey, form } = this.props;
         const { getFieldDecorator } = form;
         return (
             <Row className="area-date-Row" type='flex' gutter={8}>
@@ -73,11 +73,6 @@ IState
                             TagTypeOption['OP_RELATIVE_TIME'].map(item => <Option key={item.value} value={item.value}>{item.label}</Option>)
                         }
                     </Select>
-                </Col>
-                <Col>
-                    <Tooltip placement="top" title={tip}>
-                        <Icon type="question-circle-o" className="tip" />
-                    </Tooltip>
                 </Col>
             </Row>
         );
