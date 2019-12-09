@@ -17,7 +17,7 @@
 
     <properties>
         <junit.version>4.11</junit.version>
-        <hadoop.version>3.0.0</hadoop.version>
+        <hadoop.version>3.0.0-cdh6.3.1</hadoop.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
