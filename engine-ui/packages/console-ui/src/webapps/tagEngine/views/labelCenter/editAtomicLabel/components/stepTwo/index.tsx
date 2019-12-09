@@ -54,17 +54,17 @@ class StepTwo extends React.PureComponent<IProps, IState> {
     componentDidUpdate (preProps) {
         const { data } = this.props;
         if (data != preProps.data) {
-            const { entityId, dimensionalityId, dateType, tagDictId, tagDictName, dictValueVoList = [] } = data;
+            const { entityId, dimensionalityId, dataType, tagDictId, tagDictName, dictValueVoList = [] } = data;
             if (tagDictId) {
                 this.setState({
                     radio: 0
                 });
-                this.props.form.setFieldsValue({ entityId, dimensionalityId, dateType, tagDictId })
+                this.props.form.setFieldsValue({ entityId, dimensionalityId, dataType, tagDictId })
             } else {
                 this.props.form.setFieldsValue({
                     entityId,
                     dimensionalityId,
-                    dateType,
+                    dataType,
                     tagDictId,
                     tagDictName,
                     dictValueVoList: dictValueVoList.map(item => {
@@ -191,7 +191,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                     )}
                 </Form.Item>
                 <Form.Item {...formItemLayout} label="数据类型">
-                    {getFieldDecorator('dateType', {
+                    {getFieldDecorator('dataType', {
                         rules: [
                             {
                                 required: true,

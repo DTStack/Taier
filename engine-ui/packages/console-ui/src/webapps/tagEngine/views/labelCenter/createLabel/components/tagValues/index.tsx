@@ -62,11 +62,11 @@ class TagValues extends React.Component<IProps, {}> {
             })
         } else {
             value.splice(index, 1);
-            this.props.onChange(value, value.length ? value[value.length - 1].value : '');
-            notification.success({
-                message: '删除标签成功!',
-                description: ''
-            })
+            this.props.onChange([...value], value.length ? value[value.length - 1].value : '');
+            // notification.success({
+            //     message: '删除标签成功!',
+            //     description: ''
+            // })
         }
     }
     moveCard = (id: string, atIndex: number) => {
