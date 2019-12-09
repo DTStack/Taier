@@ -1,20 +1,11 @@
-package com.dtstack.engine.sparkyarn.sparkyarn.util;
+package com.dtstack.engine.common.util;
 
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.Session;
-import com.jcraft.jsch.SftpATTRS;
-import com.jcraft.jsch.SftpException;
+import com.jcraft.jsch.*;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -24,7 +15,7 @@ import java.util.Vector;
 
 public class SFTPHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(SFTPHandler.class);
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(SFTPHandler.class);
 
     private static final String KEY_USERNAME = "username";
     private static final String KEY_PASSWORD = "password";
@@ -164,7 +155,7 @@ public class SFTPHandler {
                     SftpATTRS attrs = str.getAttrs();
                     boolean isdir = attrs.isDir();
                     String localFilePath = localDir + "/" + filename;
-                    String ftpFilePath = ftpDir + "/" + filename;
+                    String ftpFilePath = ftpDir;
                     if (isdir) {
                         File dir2 = new File(localFilePath);
                         if (!dir2.exists()) {
@@ -422,5 +413,3 @@ public class SFTPHandler {
         }
     }
 }
-
-

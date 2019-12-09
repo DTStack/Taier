@@ -1,9 +1,9 @@
 package com.dtstack.engine.sparkyarn.sparkext;
 
 import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.sparkyarn.sparkyarn.SparkYarnConfig;
 import com.dtstack.engine.sparkyarn.sparkyarn.util.FileUtil;
-import com.dtstack.engine.sparkyarn.sparkyarn.util.SFTPHandler;
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
 import org.apache.hadoop.conf.Configuration;

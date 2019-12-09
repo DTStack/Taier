@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.AppConfigurationEntry.LoginModuleControlFlag;
 
+import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.flink.FlinkConfig;
 import org.apache.commons.collections.MapUtils;
 import org.apache.hadoop.conf.Configuration;

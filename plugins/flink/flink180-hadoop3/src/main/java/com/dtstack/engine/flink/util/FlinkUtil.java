@@ -3,6 +3,7 @@ package com.dtstack.engine.flink.util;
 import com.dtstack.engine.common.enums.ClassLoaderType;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.enums.FlinkYarnMode;
 import org.apache.commons.lang3.StringUtils;
