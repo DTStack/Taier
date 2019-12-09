@@ -169,7 +169,7 @@ export default class EntityEdit extends React.Component<IProps, IState> {
                             let newItem = {
                                 ...item,
                                 dataType: item.dataType || (attrTypeOptions[0] && attrTypeOptions[0].value),
-                                isAtomTag: true,
+                                isAtomTag: (!item.id || item.isAtomTag) ? Boolean(true) : Boolean(false),
                                 isPrimaryKey: item.entityAttr == resultBV.entityPrimaryKey
                             };
                             if (item.id) {
