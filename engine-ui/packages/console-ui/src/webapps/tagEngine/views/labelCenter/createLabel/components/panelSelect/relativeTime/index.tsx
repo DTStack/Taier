@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Col, Row, Select, Icon, Tooltip, InputNumber } from 'antd';
-import TagTypeOption from '../../../../../consts/tagTypeOption';
+import { Col, Row, Select, Icon, Tooltip, InputNumber, Form } from 'antd';
+import TagTypeOption from '../../../../../../consts/tagTypeOption';
 import './style.scss';
 
 const { Option } = Select;
@@ -13,6 +13,8 @@ interface IProps {
         value: number;
     };
     onChangeData?: any;
+    form?: any;
+    rowKey?: string;
 }
 
 interface IState {
@@ -38,14 +40,29 @@ IState
         this.props.onChangeData(Object.assign({}, data, { timeType: value }))
     }
     render () {
-        const { tip, data } = this.props;
+        const { tip, data, rowKey, form } = this.props;
+        const { getFieldDecorator } = form;
         return (
             <Row className="area-date-Row" type='flex' gutter={8}>
                 <Col>
                     在
                 </Col>
                 <Col>
-                    <InputNumber onChange={this.onChangeInputNumber} min={1} value={data.value} />
+                    <Form.Item>
+                        {
+                            getFieldDecorator(rowKey, {
+                                initialValue: data.value,
+                                rules: [
+                                    {
+                                        required: true,
+                                        message: '请输入值！'
+                                    }
+                                ]
+                            })(
+                                <InputNumber onChange={this.onChangeInputNumber} min={1} />
+                            )
+                        }
+                    </Form.Item>
                 </Col>
                 <Col>
                     天

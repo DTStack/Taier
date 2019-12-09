@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Input, Col, Row, Select, Icon, Tooltip, Modal } from 'antd';
-import { API } from '../../../../../api/apiMap';
+import { Input, Col, Row, Select, Icon, Tooltip, Modal, Form } from 'antd';
+import { API } from '../../../../../../api/apiMap';
 import './style.scss';
 const { Option } = Select;
 const { TextArea } = Input;
@@ -11,6 +11,8 @@ interface IProps {
     value?: any;
     data?: any[];
     onChangeData?: any;
+    rowKey: string;
+    form?: any;
 }
 
 interface IState {
@@ -94,23 +96,36 @@ IState
         })
     }
     render () {
-        const { tip, data } = this.props
+        const { tip, data, form, rowKey } = this.props;
+        const { getFieldDecorator } = form;
         const { visible, atomTagValueList, textArea } = this.state;
         return (
             <Row className="multi-select-Row" type='flex' gutter={8}>
                 <Col>
-                    <Select
-                        mode="tags"
-                        style={{ width: 120 }}
-                        value={data}
-                        onChange={this.onChangeTags}
-                        tokenSeparators={[',']}
-                    >
+                    <Form.Item>
                         {
-                            atomTagValueList.map(item => <Option key={item} value={item}>{item}</Option>)
-                        }
+                            getFieldDecorator(rowKey, {
+                                initialValue: data,
+                                rules: [
+                                    {
+                                        required: true,
+                                        message: '请输入值！'
+                                    }
+                                ]
+                            })(<Select
+                                mode="tags"
+                                style={{ width: 120 }}
+                                onChange={this.onChangeTags}
+                                tokenSeparators={[',']}
+                            >
+                                {
+                                    atomTagValueList.map(item => <Option key={item} value={item}>{item}</Option>)
+                                }
 
-                    </Select>
+                            </Select>)
+                        }
+                    </Form.Item>
+
                 </Col>
                 <Col>
                     <Tooltip placement="top" title="点击可以批量复制粘贴">

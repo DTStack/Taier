@@ -42,31 +42,27 @@ class TagValues extends React.Component<IProps, {}> {
             value: id,
             valid: false,
             tagValueId: null,
-            params: config
-        }]);
-        this.props.onSelect(id);
+            params: cloneDeep(config)
+        }], id);
     }
     onHandleMenu = ({ item, key, keyPath }, data, index) => {
-        const { value = [], select } = this.props;
+        const { value = [] } = this.props;
         if (key == '0') {
             let id = shortid();
+
             this.props.onChange([...value, {
                 label: '标签值' + (value.length + 1),
                 value: id,
                 tagValueId: null,
                 params: cloneDeep(data.params)
-            }]);
-            this.props.onSelect(id);
+            }], id);
             notification.success({
                 message: '复制标签成功!',
                 description: ''
             })
         } else {
             value.splice(index, 1);
-            this.props.onChange(value);
-            if (data.value == select) {
-                this.props.onSelect('');
-            }
+            this.props.onChange(value, value.length ? value[value.length - 1].value : '');
             notification.success({
                 message: '删除标签成功!',
                 description: ''
@@ -117,8 +113,8 @@ class TagValues extends React.Component<IProps, {}> {
                                      findCard={this.findCard}>
                                      <div key={item.value} className={classnames('tag-item', { error: !item.valid, active: item.value == select })} onClick={ () => this.onHandleClick(item) }>
                                          <span>{item.label}</span>
-                                         <Dropdown overlay={this.renderMenu(item, index)} placement="bottomLeft">
-                                             <i className='iconfont iconmenu-pl'></i>
+                                         <Dropdown overlay={this.renderMenu(item, index)} trigger={['click']} placement="bottomLeft">
+                                             <i className='iconfont iconmenu-pl' onClick={e => e.stopPropagation()}></i>
                                          </Dropdown>
                                      </div>
                                  </Card>)
