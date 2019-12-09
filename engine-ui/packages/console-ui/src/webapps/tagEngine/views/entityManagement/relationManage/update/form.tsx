@@ -32,10 +32,7 @@ class CreateRelationEntityForm extends React.Component<IProps & FormComponentPro
                 <FormItem
                     {...formItemLayout}
                     label={(<span>
-                        关系名称&nbsp;
-                        <Tooltip title="仅支持同类型数据源的实体间创建关系模型">
-                            <Icon type="question-circle-o" />
-                        </Tooltip>
+                        关系名称
                     </span>)}
                     hasFeedback
                 >
@@ -76,6 +73,12 @@ class CreateRelationEntityForm extends React.Component<IProps & FormComponentPro
                             })}
                         </Select>
                     )}
+                    <span>
+                        &nbsp;
+                        <Tooltip title="仅支持同类型数据源的实体间创建关系模型">
+                            <Icon type="question-circle-o" />
+                        </Tooltip>
+                    </span>
                 </FormItem>
                 <FormItem
                     {...formItemLayout}
