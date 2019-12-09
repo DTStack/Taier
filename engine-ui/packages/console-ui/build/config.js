@@ -7,6 +7,7 @@ module.exports = {
         proxy: {
             '/api/dq': {
                 target: 'http://172.16.10.251:8089', // 开发环境
+                // target: 'http://172.16.3.66:8089', // 联调
                 // target: "http://172.16.6.135:8089", // tmp server
                 // target: "http://172.16.10.45:8089",
                 // ignorePath: true,

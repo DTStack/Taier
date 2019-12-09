@@ -28,8 +28,8 @@ const Search = Input.Search;
 const Option = Select.Option;
 
 const mapStateToProps = (state: any) => {
-    const { dataCheck, dataSource, common } = state;
-    return { dataCheck, dataSource, common };
+    const { dataCheck, dataSource, common, project } = state;
+    return { dataCheck, dataSource, common, project };
 };
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -62,6 +62,16 @@ class DataCheck extends React.Component<any, any> {
     componentDidMount () {
         this.props.getDataSourcesList();
         this.props.getLists(this.state.params);
+    }
+
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps: any) {
+        const project = nextProps.project
+        const oldProj = this.props.project
+        if (oldProj && project && oldProj.id !== project.id) {
+            this.props.getDataSourcesList();
+            this.props.getLists(this.state.params);
+        }
     }
 
     // table设置

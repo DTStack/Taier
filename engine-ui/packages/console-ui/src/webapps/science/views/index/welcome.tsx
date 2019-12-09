@@ -131,7 +131,7 @@ class Welcome extends React.Component<any, any> {
                         <div className="title">常用项目</div>
                         {
                             projects.map((item: any) => {
-                                return <a className="project" key={item.projectId} onClick={() => {
+                                return <a className="project" key={item.id} onClick={() => {
                                     this.props.router.push('/science/workbench');
                                     this.props.setProject(item);
                                 }}>{item.projectAlias}</a>
