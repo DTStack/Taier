@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { hashHistory } from 'react-router';
-import { Card, Table, Input, Button, Popconfirm, message } from 'antd';
+import { Card, Table, Input, Button, message } from 'antd';
 
 import { updateComponentState } from 'funcs';
 
@@ -10,6 +10,7 @@ import { IGroup } from '../../../model/group';
 import { IQueryParams } from '../../../model/comm';
 import { displayGroupType } from '../../../components/display';
 import SelectEntity from '../../../components/selectEntity';
+import DeleteModal from '../../../components/deleteModal';
 
 const Search = Input.Search
 
@@ -17,6 +18,8 @@ interface IState {
     dataSource: IGroup[];
     loading: boolean;
     queryParams: { entityId: string } & IQueryParams ;
+    deleteVisible: boolean;
+    deleteItem: any;
 }
 
 const basePath = '/groupAnalyse';
@@ -25,6 +28,8 @@ export default class GroupManage extends React.Component<any, IState> {
     state: IState = {
         dataSource: [],
         loading: false,
+        deleteVisible: false,
+        deleteItem: {},
         queryParams: {
             entityId: null,
             total: 0,
@@ -65,9 +70,30 @@ export default class GroupManage extends React.Component<any, IState> {
         const res = await GroupAPI.deleteGroup({ groupId: id });
         if (res.code === 1) {
             message.success('删除群组成功！');
-            this.loadData();
+            this.setState({
+                queryParams: {
+                    ...this.state.queryParams,
+                    current: 1
+                },
+                deleteVisible: false
+            }, () => {
+                this.loadData();
+            })
         } else {
             message.error('删除群组失败！');
+            this.setState({
+                deleteVisible: false
+            })
+        }
+    }
+
+    handleDeleteModel = (type: string) => {
+        if (type == 'ok') {
+            this.delete(this.state.deleteItem.groupId);
+        } else {
+            this.setState({
+                deleteVisible: false
+            })
         }
     }
 
@@ -141,7 +167,10 @@ export default class GroupManage extends React.Component<any, IState> {
             }
             case 'delete': {
                 // 请求删除
-                this.delete(record.groupId);
+                this.setState({
+                    deleteVisible: true,
+                    deleteItem: record
+                })
                 break;
             }
             default: ;
@@ -191,13 +220,9 @@ export default class GroupManage extends React.Component<any, IState> {
                             编辑
                         </a>
                         <span className="ant-divider" />
-                        <Popconfirm
-                            title={<span>群组删除后无法恢复<br />请谨慎操作！</span>}
-                            okText="删除" cancelText="取消"
-                            onConfirm={this.handleOperateData.bind(this, 'delete', record)}
-                        >
-                            <a>删除</a>
-                        </Popconfirm>
+                        <a onClick={this.handleOperateData.bind(this, 'delete', record)}>
+                            删除
+                        </a>
                     </span>
                 )
             }
@@ -205,7 +230,7 @@ export default class GroupManage extends React.Component<any, IState> {
     }
 
     render () {
-        const { dataSource, loading, queryParams } = this.state;
+        const { dataSource, loading, queryParams, deleteVisible } = this.state;
         const pagination: any = {
             total: queryParams.total,
             pageSize: queryParams.size,
@@ -259,6 +284,13 @@ export default class GroupManage extends React.Component<any, IState> {
                         />
                     </Card>
                 </div>
+                <DeleteModal
+                    title={'删除群组'}
+                    content={'群组删除后无法恢复，请谨慎操作！'}
+                    visible={deleteVisible}
+                    onCancel={this.handleDeleteModel.bind(this, 'cancel')}
+                    onOk={this.handleDeleteModel.bind(this, 'ok')}
+                />
             </div>
         )
     }

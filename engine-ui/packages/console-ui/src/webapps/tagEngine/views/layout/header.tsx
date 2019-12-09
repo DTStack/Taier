@@ -28,7 +28,8 @@ class Header extends React.Component<any, any> {
         this.state = {
             current: '/entityManage',
             filter: '',
-            navItem: []
+            navItem: [],
+            allChilOfNav: []
         };
     }
 
@@ -45,6 +46,13 @@ class Header extends React.Component<any, any> {
                 if (navItem.length) {
                     const currentRouter = navItem.filter(item => item.routers.includes(pathName));
                     let current = '';
+                    let allChilOfNav = navItem.reduce((pre, curr) => {
+                        if (curr.children) {
+                            return [ ...pre, ...curr.children ];
+                        } else {
+                            return pre;
+                        }
+                    }, []);
                     if (currentRouter[0]) {
                         current = currentRouter[0].permissionUrl
                     } else {
@@ -52,7 +60,8 @@ class Header extends React.Component<any, any> {
                     }
                     this.setState({
                         navItem,
-                        current
+                        current,
+                        allChilOfNav
                     });
                 }
             } else {
@@ -65,8 +74,13 @@ class Header extends React.Component<any, any> {
     };
 
     selectedProject = (evt: any) => {
-        const { dispatch } = this.props;
+        const { dispatch, location: { pathname }, router } = this.props;
+        const { allChilOfNav } = this.state;
         const projectId = evt.key;
+        let currentPartObj = allChilOfNav.find(item => item.routers.includes(pathname));
+        if (currentPartObj) {
+            router.push(currentPartObj.permissionUrl);
+        }
         if (projectId) {
             dispatch(ProjectAction.getProject(projectId));
             this.searchProject('');
