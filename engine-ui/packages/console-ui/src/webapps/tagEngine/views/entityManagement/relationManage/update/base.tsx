@@ -193,6 +193,15 @@ class RelationUpdateBase extends React.Component<IProps, IState> {
         })
     }
 
+    onRemoveRelationEntityCol = (relationEntityIndex: number, relationEntityColumnIndex: number) => {
+        const { data } = this.state;
+        const newState = cloneDeep(data);
+        newState.relationCollection[relationEntityIndex].columns.splice(relationEntityColumnIndex, 1);
+        this.setState({
+            data: newState
+        })
+    }
+
     onRelationEntityColumnChange = async (relationEntityIndex: number, relationEntityColumnIndex: number, relationEntityCol: IRelationEntity) => {
         const { data } = this.state;
         const newState = cloneDeep(data);
@@ -291,12 +300,22 @@ class RelationUpdateBase extends React.Component<IProps, IState> {
             graph.popupMenuHandler.autoExpand = true
             graph.popupMenuHandler.factoryMethod = function (menu: any, cell: any, evt: any) {
                 if (!cell) return;
-                // const currentNode = cell.data || {};
+                const isRelationEntityColumnSelected = evt.target.className.indexOf('relationEntityColumn__tr') > -1;
+
                 console.log('ctxMenu:', cell, evt);
                 if (cell.vertex) {
-                    menu.addItem('删除实体', null, function () {
-                        ctx.onRemoveEntityNode(cell.index);
-                    }, null, null, true) // 正常状态
+                    if (isRelationEntityColumnSelected) {
+                        const indexArr = evt.target.getAttribute('data-index').split('-');
+                        const columnIndex = parseInt(indexArr[1], 10);
+                        const entityIndex = parseInt(indexArr[0], 10);
+                        menu.addItem('删除维度', null, function () {
+                            ctx.onRemoveRelationEntityCol(entityIndex, columnIndex);
+                        }, null, null, true) // 正常状态
+                    } else {
+                        menu.addItem('删除实体', null, function () {
+                            ctx.onRemoveEntityNode(cell.index);
+                        }, null, null, true) // 正常状态
+                    }
                 } else {
                     menu.addItem('删除依赖关系', null, function () {
                         graph.removeCells([cell])

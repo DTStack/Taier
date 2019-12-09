@@ -9,12 +9,14 @@ import './style.scss';
 import API from '../../../api/relation';
 import { IQueryParams } from '../../../model/comm';
 import { IRelation } from '../../../model/relation';
+import EmptyGuide from './emptyGuide';
 
 const Search = Input.Search
 
 interface IState {
     dataSource: IRelation[];
     loading: boolean;
+    isSearch: boolean;
     queryParams: IQueryParams;
 }
 
@@ -22,6 +24,7 @@ export default class RelationManage extends React.Component<any, IState> {
     state: IState = {
         dataSource: [],
         loading: false,
+        isSearch: false,
         queryParams: {
             total: 0,
             search: '',
@@ -71,9 +74,14 @@ export default class RelationManage extends React.Component<any, IState> {
     }
 
     handleSearch = (query: any) => {
+        let isSearch = false;
+        if (query) {
+            isSearch = true;
+        }
         updateComponentState(this, {
             queryParams: {
                 current: 1,
+                isSearch: isSearch,
                 search: query
             }
         }, this.loadData)
@@ -184,7 +192,7 @@ export default class RelationManage extends React.Component<any, IState> {
     }
 
     render () {
-        const { dataSource, loading, queryParams } = this.state;
+        const { dataSource, loading, queryParams, isSearch } = this.state;
         const pagination: any = {
             total: queryParams.total,
             pageSize: queryParams.size,
@@ -221,13 +229,14 @@ export default class RelationManage extends React.Component<any, IState> {
                     >
                         <Table
                             rowKey="id"
-                            className="dt-ant-table dt-ant-table--border full-screen-table-47"
+                            className={!dataSource.length && !isSearch ? ['dt-ant-table--border', 'self-define-empty'].join(' ') : 'dt-ant-table dt-ant-table--border full-screen-table-47'}
                             pagination={pagination}
                             onChange={this.handleTableChange}
                             loading={loading}
                             columns={this.initColumns()}
                             dataSource={dataSource}
                         />
+                        {!dataSource.length && !isSearch ? <EmptyGuide /> : null}
                     </Card>
                 </div>
             </div>

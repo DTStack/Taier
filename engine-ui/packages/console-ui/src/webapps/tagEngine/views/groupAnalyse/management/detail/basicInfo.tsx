@@ -24,7 +24,7 @@ const GroupBasicInfo: React.SFC<IProps> = function (props: IProps) {
             <Row className="c-basicInfo__row">
                 <span >开启API: </span>
                 <span>
-                    <Switch checkedChildren="开" unCheckedChildren="关" onChange={onEnableAPI} checked={data.apiEnable}/>
+                    <Switch checkedChildren="开" unCheckedChildren="关" onChange={onEnableAPI} checked={data.isOpen}/>
                 </span>
             </Row>
             <Row className="c-basicInfo__row"><span >创建时间: </span><span>{wrapVal(data.createAt)}</span></Row>

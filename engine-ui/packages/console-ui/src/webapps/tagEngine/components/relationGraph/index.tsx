@@ -180,6 +180,7 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
     }
 
     componentWillUnmount () {
+        this.hideMenu();
         document.removeEventListener('click', this.hideMenu, false);
     }
 
