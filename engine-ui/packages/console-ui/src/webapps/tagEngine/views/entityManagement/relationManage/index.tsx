@@ -84,7 +84,6 @@ export default class RelationManage extends React.Component<any, IState> {
                     ...this.state.queryParams,
                     current: 1
                 },
-                loading: true,
                 deleteVisible: false
             }, () => {
                 this.loadData();
@@ -200,15 +199,8 @@ export default class RelationManage extends React.Component<any, IState> {
                         </a>
                         <span className="ant-divider" />
                         <a onClick={this.handleOperateData.bind(this, 'delete', record)}>
-                        删除
+                            删除
                         </a>
-                        {/* <Popconfirm
-                            title={<span>删除关系后，关联的标签将失效<br />请谨慎操作！</span>}
-                            okText="删除" cancelText="取消"
-                            onConfirm={this.handleOperateData.bind(this, 'delete', record)}
-                        >
-                            <a>删除</a>
-                        </Popconfirm> */}
                     </span>
                 )
             }
