@@ -59,7 +59,7 @@ export default class DimensionData extends React.Component<IProps, IState> {
     onChangeEdit = (e: any) => {
         const value = e.target.value;
         this.setState({
-            editInputVal: value ? value.slice(0, 20) : ''
+            editInputVal: value ? value.slice(0, 80) : ''
         });
     };
 
@@ -99,11 +99,11 @@ export default class DimensionData extends React.Component<IProps, IState> {
             render: (text: any, record: any) => {
                 return (
                     <div className="di-table-name-col">
-                        <div className="tag-box">
-                            {record.isPrimaryKey ? <a style={{ cursor: 'default' }}><i className='iconfont iconicon_key'></i></a> : null}
-                        </div>
                         <span>{text}</span>
                         {record.isPrimaryKey ? '(主键)' : ''}
+                        <div className="tag-box">
+                            {record.isPrimaryKey ? <a style={{ cursor: 'default' }}><i style={{ fontSize: 12 }} className='iconfont iconicon_key'></i></a> : null}
+                        </div>
                     </div>
                 )
             }
@@ -128,7 +128,7 @@ export default class DimensionData extends React.Component<IProps, IState> {
                     ) : (
                         <React.Fragment>
                             <EllipsisText value={text} />
-                            <a onClick={this.setEditItem.bind(this, record)}>修改</a>
+                            <a className="edit-btn" onClick={this.setEditItem.bind(this, record)}>修改</a>
                         </React.Fragment>
                     )}
                 </div>
