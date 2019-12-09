@@ -33,7 +33,6 @@ IState
     componentDidMount () { }
     renderConditionChildren = (data, entityId) => {
         const { tagConfigData, form, onChangeNode } = this.props;
-        const { getFieldDecorator } = form;
         let atomTagList = [];
         if (tagConfigData[entityId]) {
             atomTagList = tagConfigData[entityId].atomTagList
@@ -52,7 +51,7 @@ IState
                     </div>
                 );
             }
-            return <SelectLabelRow onChangeNode={onChangeNode} form={form} atomTagList={atomTagList} getFieldDecorator={getFieldDecorator} data={item} key={item.key} extra={<div>
+            return <SelectLabelRow onChangeNode={onChangeNode} form={form} atomTagList={atomTagList} data={item} key={item.key} extra={<div>
                 <Icon type="minus-circle-o" className="icon" onClick={(e) => this.props.onHandleDeleteCondition(item.key)}/>
                 {
                     (((data.length - 1) == index) || (item.key.split('-').length < 4)) && (<Icon type="plus-circle" className="icon" onClick={(e) => this.props.onHandleAddCondition(item.key, entityId)}/>)

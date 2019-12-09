@@ -6,7 +6,7 @@ interface IProps {
     value?: any;
     data?: number;
     onChangeData?: any;
-    getFieldDecorator?: any;
+    form?: any;
 }
 
 interface IState {
@@ -24,7 +24,6 @@ IState
     state: IState = {
         visible: false
     };
-    componentDidMount () { }
     onChangeInputNumber = (value) => {
         this.props.onChangeData({ value: value })
     }
@@ -33,11 +32,13 @@ IState
         this.props.onChangeData({ value: value })
     }
     render () {
-        const { data, type, getFieldDecorator } = this.props;
+        const { data, type, form } = this.props;
+        const { getFieldDecorator } = form;
+
         let Component = type == 'number' ? (
-            <InputNumber min={1} value={ data } onChange={this.onChangeInputNumber}/>
+            <InputNumber min={1} onChange={this.onChangeInputNumber}/>
         ) : (
-            <Input value={data} onChange={this.onChangeInputValue}/>
+            <Input onChange={this.onChangeInputValue}/>
         )
         return (
             <Row className="area-input-Row" type='flex' gutter={8}>
@@ -46,6 +47,7 @@ IState
                     <Form.Item required={false}>
                         {
                             getFieldDecorator('value', {
+                                initialValue: data,
                                 rules: [{
                                     require: true,
                                     message: '请输入值'

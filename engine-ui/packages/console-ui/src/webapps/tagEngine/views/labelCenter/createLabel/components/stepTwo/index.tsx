@@ -94,16 +94,11 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                     params: JSON.parse(item.param)
                 }
             });
-            if (newtags && newtags.length) {
-                let { params } = newtags[0];
-                const { children = [] } = params;
-                children.forEach(item => {
-                    this.getAtomTagList(item.entityId)
-                })
-            }
             this.setState({
                 tags: newtags,
                 activeTag: newtags.length ? newtags[0].value : ''
+            }, () => {
+                this.getEntityAtomTagList(relationId)
             })
         }
     }
@@ -131,7 +126,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         })
     }
     getEntityAtomTagList = (relationId) => { // 衍生标签用来获取实体列表与其对应的原子标签列表
-        const { entityId } = this.props;
+        const { entityId, tagId } = this.props;
         const { tags } = this.state;
         API.getEntityAtomTagList({
             entityId,
@@ -155,7 +150,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                 })
                 this.setState({
                     initConfig: params,
-                    tags: tags.map(item => {
+                    tags: tagId ? tags : tags.map(item => {
                         return Object.assign(item, { params })
                     })
                 })
@@ -450,7 +445,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                     <TagValues config={initConfig} select={activeTag} value={tags} onChange={(value) => this.onChangeTags(value)} onSelect={this.onChangeSelectTag} />
                 </Form.Item>
                 {
-                    currentTag && (<PanelSelect tagConfigData={tagConfigData} ref={(node) => this.panelForm = node} treeData={treeData} currentTag={currentTag} onChangeLabel={this.onChangeLabel} onChangeNode={this.onHandleChangeNode} onHandleAddCondition={this.onHandleAddCondition} onHandleChangeType={this.onHandleChangeType} onHandleDeleteCondition={this.onHandleDeleteCondition}/>)
+                    currentTag && (<PanelSelect key={activeTag} tagConfigData={tagConfigData} ref={(node) => this.panelForm = node} treeData={treeData} currentTag={currentTag} onChangeLabel={this.onChangeLabel} onChangeNode={this.onHandleChangeNode} onHandleAddCondition={this.onHandleAddCondition} onHandleChangeType={this.onHandleChangeType} onHandleDeleteCondition={this.onHandleDeleteCondition}/>)
                 }
                 <div className="wrap_btn_content"><Button onClick={this.onHandlePrev}>上一步</Button><Button type="primary" onClick={this.onHandleNext}>下一步</Button></div>
             </div>
