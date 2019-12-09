@@ -93,7 +93,7 @@ class GroupDetail extends React.Component<any, IState> {
                         <Tabs
                             defaultActiveKey="1"
                             animated={false}
-                            tabBarStyle={{ height: 40 }}
+                            tabBarStyle={{ height: 38 }}
                         >
                             <TabPane tab="基本信息" key="basicInfo"><BasicInfo onEnableAPI={this.onEnableAPI} data={groupDetail}/></TabPane>
                             <TabPane tab="样本列表" key="specimenList"><SpecimenList router={router} /></TabPane>

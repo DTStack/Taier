@@ -9,7 +9,6 @@
         border-radius: 2px;
         padding: 0 12px;
         height: 32px;
-        line-height: 32px;
         margin-bottom: 12px;
         .iconfont{
             cursor: pointer;
@@ -43,7 +42,7 @@
         top: 2px;
         cursor: pointer;
         font-size: 18px;
-        color:#999999;
+        color:#2491F7;
     }
     .card{
         cursor: move;
@@ -57,5 +56,4 @@
 .tagValues_delete{
     font-size: 12px;
     margin-right: 8px;
-    color:red;
 }

@@ -4,7 +4,7 @@ import MultiSelect from '../multiSelect';
 import AreaInput from '../areaInput';
 import AbsoluteTime from '../absoluteTime';
 import RelativeTime from '../relativeTime';
-import TagTypeOption from '../../../../../consts/tagTypeOption';
+import TagTypeOption from '../../../../../../consts/tagTypeOption';
 import InputValue from '../inputValue';
 
 import './style.scss';
@@ -36,45 +36,35 @@ IState
     };
     renderTypeFilter = () => {
         const { data, form } = this.props;
-        const { tagId, dataType, type, timeType, lValue, rValue, value, values } = data;
+        const { tagId, dataType, type, timeType, lValue, rValue, value, values, key } = data;
         if (type == 'OP_HAVE' || type == 'OP_NOT') {
             return null
         }
         let Component;
         if (dataType == 'CHARACTER') { // 字符型
             if (type == 'OP_EQUAL' || type == 'OP_NOT_EQUAL') { // 如果是等于和不等于，属于区间范围
-                Component = (<MultiSelect data={values} onChangeData={this.onChangeValue} tagId={tagId} tip="提示选项为最近7天的属性关键词（最多展示 20 条），非所有关键词。可直接输入关键词，回车完成。"/>)
+                Component = (<MultiSelect data={values} rowKey={key} form={form} onChangeData={this.onChangeValue} tagId={tagId} tip="提示选项为最近7天的属性关键词（最多展示 20 条），非所有关键词。可直接输入关键词，回车完成。"/>)
             } else {
-                Component = (<InputValue data={value} form={form} onChangeData={this.onChangeValue}/>)
+                Component = (<InputValue data={value} form={form} rowKey={key} onChangeData={this.onChangeValue}/>)
             }
         } else if (dataType == 'TIME') { // 时间类型
             if (type == 'OP_ABSOLUTE_TIME') { // 绝对时间
-                Component = <AbsoluteTime onChangeData={this.onChangeValue} data={{ timeType, value, lValue, rValue }}/>
+                Component = <AbsoluteTime onChangeData={this.onChangeValue} rowKey={key} form={form} data={{ timeType, value, lValue, rValue }}/>
             } else if (type == 'OP_RELATIVE_TIME') { // 相对时间点
-                Component = (<RelativeTime onChangeData={this.onChangeValue} data={{ timeType, value }} tip=""/>)
+                Component = (<RelativeTime onChangeData={this.onChangeValue} rowKey={key} form={form} data={{ timeType, value }} tip=""/>)
             } else { // 相对时间区间
-                Component = (<AreaInput onChangeData={this.onChangeValue} data={{ lValue, rValue }} leftText="在 过去" centerText="天 到 过去" rightText="天 之内" tip="起始数值应大于终止数值。"/>)
+                Component = (<AreaInput onChangeData={this.onChangeValue} rowKey={key} form={form} data={{ lValue, rValue }} leftText="在 过去" centerText="天 到 过去" rightText="天 之内" tip="起始数值应大于终止数值。"/>)
             }
         } else if (dataType == 'NUMBER') { // 数值型
             if (type == 'OP_EQUAL' || type == 'OP_NOT_EQUAL') { // 如果是等于和不等于，属于区间范围
-                Component = (<MultiSelect onChangeData={this.onChangeValue} data={values} type="number" tagId={tagId} tip="可直接输入，回车完成"/>)
+                Component = (<MultiSelect form={form} rowKey={key} onChangeData={this.onChangeValue} data={values} type="number" tagId={tagId} tip="可直接输入，回车完成"/>)
             } else if (type == 'OP_BETWEEN') {
-                Component = (<AreaInput onChangeData={this.onChangeValue} data={{ lValue, rValue }} leftText="在 " centerText=" 于 " rightText="之间" tip="包含起始和结束值，起始数值应小于终止数值。"/>)
+                Component = (<AreaInput onChangeData={this.onChangeValue} rowKey={key} form={form} data={{ lValue, rValue }} leftText="在 " centerText=" 于 " rightText="之间" tip="包含起始和结束值，起始数值应小于终止数值。"/>)
             } else {
-                Component = (<InputValue data={value} form={form} type="number" onChangeData={this.onChangeValue}/>)
+                Component = (<InputValue data={value} form={form} rowKey={key} type="number" onChangeData={this.onChangeValue}/>)
             }
         }
         return Component
-    }
-    validateValue = (rule, rvalue, callback) => {
-        const { data } = this.props;
-        const { lValue, rValue, value, values } = data;
-        if (lValue || rValue || value || values.length) {
-            callback()
-        } else {
-            // eslint-disable-next-line standard/no-callback-literal
-            callback('请输入有效值!')
-        }
     }
     onChangeValue = (value) => {
         const { data } = this.props;

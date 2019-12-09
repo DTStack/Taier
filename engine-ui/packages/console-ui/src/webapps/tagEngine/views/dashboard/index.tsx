@@ -179,7 +179,7 @@ export default class Index extends React.Component<any, IState> {
             projectName: record.projectAlias || record.projectName
         })
         setTimeout(() => {
-            hashHistory.push({ pathname: '/entityManage' })
+            hashHistory.push({ pathname: '/database' })
         })
     }
 

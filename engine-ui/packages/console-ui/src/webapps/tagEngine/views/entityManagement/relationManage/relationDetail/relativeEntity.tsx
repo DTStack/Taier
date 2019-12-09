@@ -26,6 +26,7 @@ class BasicRelationInfo extends React.Component<IProps, any> {
                         <RelationGraph
                             mode={GRAPH_MODE.READ}
                             data={data.relationCollection}
+                            attachClass="graph-bg"
                             entities={entities}
                         />
                     </Card>

@@ -7,6 +7,7 @@ interface IProps {
     data?: number;
     onChangeData?: any;
     form?: any;
+    rowKey?: string;
 }
 
 interface IState {
@@ -32,7 +33,7 @@ IState
         this.props.onChangeData({ value: value })
     }
     render () {
-        const { data, type, form } = this.props;
+        const { data, type, form, rowKey } = this.props;
         const { getFieldDecorator } = form;
 
         let Component = type == 'number' ? (
@@ -43,15 +44,16 @@ IState
         return (
             <Row className="area-input-Row" type='flex' gutter={8}>
                 <Col>
-
-                    <Form.Item required={false}>
+                    <Form.Item>
                         {
-                            getFieldDecorator('value', {
+                            getFieldDecorator(rowKey, {
                                 initialValue: data,
-                                rules: [{
-                                    require: true,
-                                    message: '请输入值'
-                                }]
+                                rules: [
+                                    {
+                                        required: true,
+                                        message: '请输入值！'
+                                    }
+                                ]
                             })(Component)
                         }
                     </Form.Item>

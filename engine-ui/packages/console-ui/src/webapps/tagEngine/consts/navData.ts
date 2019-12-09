@@ -3,7 +3,7 @@ const navData: any = [
         'permissionName': '实体管理',
         'permissionIcon': '',
         'authCode': '',
-        'permissionUrl': '/entityManage',
+        'permissionUrl': '/database',
         'routers': ['/database', '/entityManage', '/relationManage', '/dictionaryManage', '/entityManage/detail', '/entityManage/edit', '/relationManage', '/relationManage/create', '/relationManage/detail', '/dictionaryManage', '/dictionaryManage/detail', '/dictionaryManage/edit'], // 相关路由
         'children': [
             {
