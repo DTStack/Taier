@@ -67,6 +67,7 @@ class RelationUpdateBase extends React.Component<IProps, IState> {
                 data: relationData
             }
         }
+        return null
     }
 
     componentDidMount () {
