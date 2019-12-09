@@ -21,6 +21,14 @@ public class SFTPHandler {
     private static final String KEY_HOST = "sftpConf.host";
     private static final String KEY_PORT = "sftpConf.port";
     private static final String KEY_TIMEOUT = "sftpConf.timeout";
+    private static final String KEY_RSA = "sftpConf.rsaPath";
+    private static final String KEY_AUTHENTICATION = "sftpConf.auth";
+
+    //密码校验
+    private static final String PASSWORD_AUTHENTICATION = "1";
+
+    //免密登录   需要私钥路径
+    private static final String PUBKEY_AUTHENTICATION = "2";
 
     private static final String KEYWORD_FILE_NOT_EXISTS = "No such file";
 
@@ -40,15 +48,24 @@ public class SFTPHandler {
         String host = sftpConfig.get(KEY_HOST);
         int port = Integer.parseInt(sftpConfig.get(KEY_PORT));
         String username = sftpConfig.get(KEY_USERNAME);
+        String password = sftpConfig.get(KEY_PASSWORD);
+        String rsaPath = sftpConfig.get(KEY_RSA);
+        String authType = sftpConfig.get(KEY_AUTHENTICATION);
 
         try {
             JSch jsch = new JSch();
+            if (PUBKEY_AUTHENTICATION.equals(authType) && StringUtils.isNotBlank(rsaPath)) {
+                jsch.addIdentity(rsaPath.trim(), "");
+            }
             Session session = jsch.getSession(username, host, port);
             if (session == null) {
                 throw new RuntimeException("Login failed. Please check if username and password are correct");
             }
 
-            session.setPassword(sftpConfig.get(KEY_PASSWORD));
+            if (authType == null || PASSWORD_AUTHENTICATION.equals(authType)) {
+                //默认走密码验证模式
+                session.setPassword(password);
+            }
             Properties config = new Properties();
             config.put("StrictHostKeyChecking", "no");
             session.setConfig(config);
