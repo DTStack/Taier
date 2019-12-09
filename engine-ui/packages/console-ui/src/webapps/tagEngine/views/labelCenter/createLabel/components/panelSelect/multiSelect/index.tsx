@@ -76,7 +76,7 @@ IState
     }
     handleOk = () => {
         const { textArea } = this.state;
-        let arr = new Set(textArea.split('\n'));
+        let arr = textArea ? new Set(textArea.split('\n')) : [];
         this.props.onChangeData({ values: Array.from(arr) })
         this.setState({
             visible: false,

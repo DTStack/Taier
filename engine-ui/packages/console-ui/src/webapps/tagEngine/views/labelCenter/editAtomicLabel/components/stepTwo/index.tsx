@@ -1,11 +1,10 @@
 import * as React from 'react';
-import { Form, Select, Button, Radio, Input } from 'antd';
+import { Form, Select, Button, Radio, Input, Table, Popover } from 'antd';
 import { FormComponentProps } from 'antd/lib/form/Form';
 import SetDictionary from '../../../../../components/setDictionary';
 import { API } from '../../../../../api/apiMap';
 
 import './style.scss';
-import { Link } from 'react-router';
 const { Option } = Select;
 
 interface IProps extends FormComponentProps {
@@ -23,6 +22,7 @@ interface IState {
     select: '';
     tags: any[];
     radio: any;
+    tagVals: any[];
 }
 const formItemLayout = {
     labelCol: {
@@ -46,7 +46,8 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         dictList: [],
         select: '',
         tags: [],
-        radio: 0
+        radio: 0,
+        tagVals: []
     };
     componentDidMount () {
         this.loadMainData(false);
@@ -151,6 +152,35 @@ class StepTwo extends React.PureComponent<IProps, IState> {
             radio: value
         })
     }
+    handleViewTagVals = () => {
+
+    }
+    renderPopoverContent = () => {
+        const { tagVals } = this.state;
+        let dataSource = tagVals.map((item, index) => {
+            return {
+                value: item,
+                index
+            }
+        })
+        let columns = [
+            {
+                title: '部分标签值',
+                dataIndex: 'value',
+                key: 'value'
+            }
+        ];
+        return (
+            <Table
+                rowKey="index"
+                pagination={false}
+                loading={false}
+                columns={columns}
+                scroll={{ y: 250, x: 120 }}
+                dataSource={dataSource}
+            />
+        )
+    }
     render () {
         const { form, isShow } = this.props;
         const { entityList, dimensionList, dataTypeList, dictList, radio } = this.state;
@@ -207,7 +237,9 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                     )}
                 </Form.Item>
                 <Form.Item {...formItemLayout} label="查看标签值">
-                    <Link to="#">标签值详情</Link>
+                    <Popover overlayClassName="label-detail-content" onVisibleChange={this.handleViewTagVals} placement="rightTop" title={null} content={this.renderPopoverContent} trigger="click">
+                        <a>标签值详情</a>
+                    </Popover>
                 </Form.Item>
                 <Form.Item {...formItemLayout} label="字典类型">
                     <Radio.Group value={radio} onChange={this.onSelectRadio}>
