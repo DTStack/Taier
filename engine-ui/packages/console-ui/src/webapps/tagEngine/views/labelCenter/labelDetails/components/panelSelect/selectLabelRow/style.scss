@@ -1,4 +1,4 @@
-.select-label-Row {
+.select-label-Row.disabled {
     margin-bottom: 20px;
     .icon {
         cursor: pointer;
@@ -10,5 +10,13 @@
     }
     .ant-form-item{
         margin-bottom: 0;
+    }
+    .edit,.tip{
+        cursor: pointer;
+        color: #dddddd;
+        font-size: 16px;
+        margin-right: 8px;
+        position: relative;
+        top:6px;
     }
 }

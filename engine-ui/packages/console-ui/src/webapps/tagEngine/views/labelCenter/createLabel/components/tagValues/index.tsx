@@ -7,6 +7,7 @@ import HTML5Backend from 'react-dnd-html5-backend';
 import update from 'immutability-helper'
 import Card from './card';
 import './style.scss';
+import { cloneDeep } from 'lodash';
 
 interface IProps{
     value?: {
@@ -48,12 +49,12 @@ class TagValues extends React.Component<IProps, {}> {
     onHandleMenu = ({ item, key, keyPath }, data, index) => {
         const { value = [], select } = this.props;
         if (key == '0') {
-            let id = shortid()
+            let id = shortid();
             this.props.onChange([...value, {
                 label: '标签值' + (value.length + 1),
                 value: id,
                 tagValueId: null,
-                params: data.params
+                params: cloneDeep(data.params)
             }]);
             this.props.onSelect(id);
             notification.success({

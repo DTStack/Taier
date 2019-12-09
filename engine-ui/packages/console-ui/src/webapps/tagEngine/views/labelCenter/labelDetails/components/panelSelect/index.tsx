@@ -7,7 +7,7 @@ import Collapse from './collapse/index';
 import './style.scss';
 interface IProps extends FormComponentProps{
     treeData: any;
-    atomTagList: any[];
+    tagConfigData: any;
 }
 
 interface IState {
@@ -26,9 +26,10 @@ IState
         visible: false
     };
     componentDidMount () { }
-    renderConditionChildren = (data) => {
-        const { atomTagList, form } = this.props;
+    renderConditionChildren = (data, entityId) => {
+        const { form, tagConfigData } = this.props;
         const { getFieldDecorator } = form;
+        let atomTagList = tagConfigData[entityId] ? tagConfigData[entityId] : []
         return data.map((item, index) => {
             if (item.children && item.children.length) {
                 return (
@@ -36,7 +37,7 @@ IState
                         active: item.children.length > 1
                     })}>
                         {
-                            this.renderConditionChildren(item.children)
+                            this.renderConditionChildren(item.children, entityId)
                         }
                         <span className="condition">{item.name}</span>
                     </div>
@@ -45,13 +46,13 @@ IState
             return <SelectLabelRow form={form} atomTagList={atomTagList} getFieldDecorator={getFieldDecorator} data={item} key={item.key}/>
         });
     }
-    renderCondition = data => {
+    renderCondition = (data, entityId) => {
         if (data.children && data.children.length) {
             return <div className={classnames('select_wrap', {
                 active: data.children.length > 1
             })}>
                 {
-                    this.renderConditionChildren(data.children)
+                    this.renderConditionChildren(data.children, entityId)
                 }
                 <span className="condition">{data.name}</span>
             </div>
@@ -69,7 +70,7 @@ IState
                             treeData && treeData.children && treeData.children.map(item => {
                                 return (<Collapse title={item.entityName} key={item.key} active={item.children.length} extra={''}>
                                     {
-                                        this.renderCondition(item)
+                                        this.renderCondition(item, item.entityId)
                                     }
                                 </Collapse>)
                             })

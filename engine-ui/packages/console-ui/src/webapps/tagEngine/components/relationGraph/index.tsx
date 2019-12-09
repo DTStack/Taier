@@ -114,10 +114,11 @@ interface ISelect {
     optionIndex: string;
     bind?: { attr: string; value?: any }[];
     bindOption?: { attr: string; value?: any }[];
+    disableOption?: (option: any) => boolean;
 }
 
 function componentSelect (data: ISelect) {
-    const { id, options = [], value, className, placeholder, bind = [], optionIndex, bindOption = [] } = data;
+    const { id, options = [], value, className, placeholder, bind = [], optionIndex, bindOption = [], disableOption } = data;
     const getDataAttr = (arr: any, columnData?: any) => {
         let bindAttr = '';
         if (arr.length > 0) {
@@ -127,11 +128,15 @@ function componentSelect (data: ISelect) {
         }
         return bindAttr;
     }
+    const disableOpt = function (option) {
+        if (disableOption) return disableOption(option);
+        return false;
+    }
     return `
         <select id="${id}" value="${value}" placeholder="${placeholder}" class="${className}" ${getDataAttr(bind)}>
             ${placeholder ? `<option selected value="" data-default>${placeholder}</option>` : ''}
             ${options && options.map((o: any) => {
-        return `<option title="${o.id}" value="${o.id}" ${o.id == value ? 'selected' : ''} ${getDataAttr(bindOption, o)}>${o[optionIndex]}</option>`;
+        return `<option ${disableOpt(o) ? 'disabled' : ''} title="${o.id}" value="${o.id}" ${o.id == value ? 'selected' : ''} ${getDataAttr(bindOption, o)}>${o[optionIndex]}</option>`;
     })}
         </select>
     `;
@@ -171,6 +176,18 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
 
     componentDidMount () {
         this.initGraph();
+        document.addEventListener('click', this.hideMenu, false)
+    }
+
+    componentWillUnmount () {
+        document.removeEventListener('click', this.hideMenu, false);
+    }
+
+    hideMenu = () => {
+        const popMenus = document.querySelector('.mxPopupMenu')
+        if (popMenus) {
+            document.body.removeChild(popMenus)
+        }
     }
 
     initGraph () {
@@ -270,8 +287,11 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
                         className: 'relationEntityColumn__tr',
                         placeholder: '请选择维度',
                         bind: [{ attr: 'index', value: cell.index + '-' + i }],
-                        optionIndex: 'entityAttr',
-                        bindOption: [{ attr: 'entityAttr' }, { attr: 'entityAttrCn' }]
+                        optionIndex: 'entityAttrCn',
+                        bindOption: [{ attr: 'entityAttr' }, { attr: 'entityAttrCn' }],
+                        disableOption: function (option: any) {
+                            return data.columns.findIndex((col: any) => col.id == option.id) > -1;
+                        }
                     })}</td></tr>`)
                     content = componentVertex(entitiesSelect, columns);
                 }

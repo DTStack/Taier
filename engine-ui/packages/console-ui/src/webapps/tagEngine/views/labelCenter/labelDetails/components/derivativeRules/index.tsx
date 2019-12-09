@@ -16,6 +16,7 @@ interface IState {
     atomTagList: any[];
     select: string;
     entityName: string;
+    tagConfigData: any;
 }
 
 function wrapVal (value: string | number) {
@@ -27,13 +28,13 @@ class DerivativeRules extends React.PureComponent<IProps, IState> {
         tags: [],
         atomTagList: [],
         select: '',
-        entityName: ''
+        entityName: '',
+        tagConfigData: {}
     }
     componentDidMount () {
         const { tagId } = this.props;
         if (tagId) {
             this.getDeriveTagVO(tagId);
-            this.getAtomTagList();
         }
     }
     getDeriveTagVO = (tagId) => {
@@ -50,6 +51,13 @@ class DerivativeRules extends React.PureComponent<IProps, IState> {
                         params: JSON.parse(item.param)
                     }
                 })
+                if (newtags && newtags.length) {
+                    let { params } = newtags[0];
+                    const { children = [] } = params;
+                    children.forEach(item => {
+                        this.getAtomTagList(item.entityId)
+                    })
+                }
                 this.setState({
                     tags: newtags,
                     entityName,
@@ -61,8 +69,8 @@ class DerivativeRules extends React.PureComponent<IProps, IState> {
             }
         })
     }
-    getAtomTagList = () => { // 获取原子标签列表
-        const { entityId } = this.props;
+    getAtomTagList = (entityId) => { // 获取原子标签列表
+        const { tagConfigData } = this.state;
         API.getAtomTagList({
             entityId
         }).then(res => {
@@ -70,7 +78,7 @@ class DerivativeRules extends React.PureComponent<IProps, IState> {
             if (code === 1) {
                 if (data && data.length) {
                     this.setState({
-                        atomTagList: data
+                        tagConfigData: Object.assign({}, tagConfigData, { [entityId]: data })
                     })
                 }
             }
@@ -82,7 +90,7 @@ class DerivativeRules extends React.PureComponent<IProps, IState> {
         })
     }
     render () {
-        const { tags, select, entityName, atomTagList } = this.state;
+        const { tags, select, entityName, tagConfigData } = this.state;
         const currentTag = select ? tags.find(item => item.value == select) : '';
         const treeData = currentTag ? currentTag.params : '';
         return (
@@ -92,7 +100,7 @@ class DerivativeRules extends React.PureComponent<IProps, IState> {
                 <Row className="info_item" type="flex">
                     <Col className="label">标签值规则： </Col>
                     <Col>
-                        <PanelSelect atomTagList={atomTagList} treeData={treeData}/>
+                        <PanelSelect tagConfigData={tagConfigData} treeData={treeData}/>
                     </Col>
                 </Row>
             </div>
