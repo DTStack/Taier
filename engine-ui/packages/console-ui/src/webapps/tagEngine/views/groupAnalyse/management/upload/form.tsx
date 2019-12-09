@@ -2,7 +2,7 @@ import * as React from 'react';
 import { get } from 'lodash';
 import { FormComponentProps } from 'antd/lib/form/Form';
 import { UploadChangeParam } from 'antd/lib/upload/interface';
-import { Form, Input, Tooltip, Icon, Upload, Select, Button, message } from 'antd';
+import { Form, Input, Tooltip, Icon, Upload, Select, Button, message, Row, Col } from 'antd';
 
 import { formItemLayout, tailFormItemLayout } from '../../../../comm/const';
 import { API } from '../../../../api/apiMap';
@@ -102,6 +102,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                 this.props.handSubmit(values);
             }
         });
+        this.props.router.push('/groupAnalyse');
     }
 
     validResult = async () => {
@@ -214,7 +215,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                         }],
                         initialValue: get(formData, 'groupName', '')
                     })(
-                        <Input placeholder="请输入群组中文名称，80字以内的中文字符" />
+                        <Input style={{ width: 340 }} placeholder="请输入群组中文名称，80字以内的中文字符" />
                     )}
                 </FormItem>
                 <FormItem
@@ -230,7 +231,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                         }],
                         initialValue: get(formData, 'groupDesc', '')
                     })(
-                        <Input.TextArea placeholder="请输入群组描述信息，长度限制在500个字符以内" />
+                        <Input.TextArea placeholder="请输入群组描述信息，长度限制在500个字符以内" style={{ width: 340 }} />
                     )}
                 </FormItem>
                 <FormItem
@@ -245,7 +246,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                             disabled
                             showSearch
                             placeholder="请选择实体"
-                            style={{ width: 200 }}
+                            style={{ width: 340 }}
                         >
                             {entities && entities.map((o: IEntity) => {
                                 return <Option key={o.id} value={o.id}>{o.entityName}</Option>
@@ -256,6 +257,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                 <FormItem
                     {...formItemLayout}
                     label="选择匹配维度"
+                    style={{ marginBottom: 15 }}
                 >
                     {getFieldDecorator('entityAttrList', {
                         rules: [{
@@ -269,7 +271,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                             onSelect={this.onAttrChange}
                             onDeselect={this.onDeselect}
                             placeholder="请选择匹配维度"
-                            style={{ width: 200 }}
+                            style={{ width: 340 }}
                         >
                             {options && options.map((o: any) => {
                                 return <Option key={o.entityAttr} disabled={initialEntityAttrs.includes(o.entityAttr)} value={o.entityAttr} data-attr={o.entityAttrCn}>{o.entityAttrCn}</Option>
@@ -284,6 +286,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                             label={(<span>
                                 样本数量
                             </span>)}
+                            style={{ marginBottom: 0 }}
                         >
                             <span>{get(formData, 'groupDataCount', '')}</span>
                         </FormItem>
@@ -292,6 +295,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                             label={(<span>
                                 数据更新模式
                             </span>)}
+                            style={{ marginBottom: 0 }}
                         >
                             <span>
                                 <Tooltip title="增量更新，对历史数据进行合并、去重">
@@ -313,7 +317,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                             </a>
                         </Tooltip>
                     </div>
-                    <div className="dropbox" style={{ height: 200 }}>
+                    <div className="dropbox" style={{ height: 200, width: 340 }}>
                         {getFieldDecorator('dragger', {
                             rules: [{
                                 required: true, message: '请选择上传文件!'
@@ -322,22 +326,28 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                             getValueFromEvent: this.normFile
                         })(
                             <Upload.Dragger accept=".csv,.xlsx" onChange={this.onFileUploadChange} name="files" action="/api/v1/group/uploadModule">
-                                <p className="ant-upload-drag-icon">
-                                    <Icon type="inbox" />
-                                </p>
-                                <p className="ant-upload-text">点击或将文件拖拽到此处上传</p>
-                                <p className="ant-upload-hint">仅支持xlsx，文件大小≤10M</p>
+                                <Row>
+                                    <Col span={9}>
+                                        <p className="ant-upload-drag-icon">
+                                            <Icon type="upload" />
+                                        </p>
+                                    </Col>
+                                    <Col span={14}>
+                                        <p className="ant-upload-text">点击或将文件拖拽到此处上传</p>
+                                        <p className="ant-upload-hint">仅支持xlsx，文件大小≤10M</p>
+                                    </Col>
+                                </Row>
                             </Upload.Dragger>
                         )}
                     </div>
                 </FormItem>
                 <FormItem
-                    style={{ marginTop: 100 }}
+                    style={{ marginTop: 40 }}
                     {...tailFormItemLayout}
                 >
                     {groupStatus === GROUP_STATUS.SAVE ? <Button type="primary" style={{ marginRight: 20 }} onClick={this.handleSubmit}>{btnText}</Button> : null}
                     {groupStatus === GROUP_STATUS.VALID ? <Button type="primary" style={{ marginRight: 20 }} onClick={this.validResult}>校验上传结果</Button> : null}
-                    <Button onClick={this.onCancel}>取消</Button>
+                    <Button onClick={this.onCancel} style={{ padding: '0 45', marginLeft: 80 }}>取消</Button>
                 </FormItem>
             </Form>
         )

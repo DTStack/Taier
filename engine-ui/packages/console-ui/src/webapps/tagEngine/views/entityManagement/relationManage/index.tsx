@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { hashHistory } from 'react-router';
-import { Card, Table, Input, Button, Popconfirm, message } from 'antd';
+import { Card, Table, Input, Button, message } from 'antd';
 import { TableColumnConfig } from 'antd/lib/table/Table';
+import DeleteModal from '../../../components/deleteModal';
 
 import { updateComponentState } from 'funcs';
 
@@ -9,19 +10,26 @@ import './style.scss';
 import API from '../../../api/relation';
 import { IQueryParams } from '../../../model/comm';
 import { IRelation } from '../../../model/relation';
+import EmptyGuide from './emptyGuide';
 
 const Search = Input.Search
 
 interface IState {
     dataSource: IRelation[];
     loading: boolean;
+    isSearch: boolean;
     queryParams: IQueryParams;
+    deleteVisible: boolean;
+    deleteItem: any;
 }
 
 export default class RelationManage extends React.Component<any, IState> {
     state: IState = {
         dataSource: [],
         loading: false,
+        deleteVisible: false,
+        deleteItem: {},
+        isSearch: false,
         queryParams: {
             total: 0,
             search: '',
@@ -60,20 +68,46 @@ export default class RelationManage extends React.Component<any, IState> {
         }))
     }
 
+    handleDeleteModel = (type: string) => {
+        if (type == 'ok') {
+            this.handDeleteRelation(this.state.deleteItem.id);
+        } else {
+            this.setState({
+                deleteVisible: false
+            })
+        }
+    }
+
     handDeleteRelation = async (id: number) => {
         const res = await API.deleteRelation({ relationId: id });
         if (res.code === 1) {
             message.success('删除关系成功！');
-            this.loadData();
+            this.setState({
+                queryParams: {
+                    ...this.state.queryParams,
+                    current: 1
+                },
+                deleteVisible: false
+            }, () => {
+                this.loadData();
+            })
         } else {
             message.error('删除关系失败！');
+            this.setState({
+                deleteVisible: false
+            })
         }
     }
 
     handleSearch = (query: any) => {
+        let isSearch = false;
+        if (query) {
+            isSearch = true;
+        }
         updateComponentState(this, {
             queryParams: {
                 current: 1,
+                isSearch: isSearch,
                 search: query
             }
         }, this.loadData)
@@ -120,7 +154,10 @@ export default class RelationManage extends React.Component<any, IState> {
                 break;
             }
             case 'delete': {
-                this.handDeleteRelation(record.id);
+                this.setState({
+                    deleteVisible: true,
+                    deleteItem: record
+                })
                 break;
             }
             default:;
@@ -169,13 +206,9 @@ export default class RelationManage extends React.Component<any, IState> {
                             编辑
                         </a>
                         <span className="ant-divider" />
-                        <Popconfirm
-                            title={<span>删除关系后，关联的标签将失效<br />请谨慎操作！</span>}
-                            okText="删除" cancelText="取消"
-                            onConfirm={this.handleOperateData.bind(this, 'delete', record)}
-                        >
-                            <a>删除</a>
-                        </Popconfirm>
+                        <a onClick={this.handleOperateData.bind(this, 'delete', record)}>
+                            删除
+                        </a>
                     </span>
                 )
             }
@@ -184,7 +217,7 @@ export default class RelationManage extends React.Component<any, IState> {
     }
 
     render () {
-        const { dataSource, loading, queryParams } = this.state;
+        const { dataSource, loading, queryParams, deleteVisible, isSearch } = this.state;
         const pagination: any = {
             total: queryParams.total,
             pageSize: queryParams.size,
@@ -221,15 +254,23 @@ export default class RelationManage extends React.Component<any, IState> {
                     >
                         <Table
                             rowKey="id"
-                            className="dt-ant-table dt-ant-table--border full-screen-table-47"
+                            className={!dataSource.length && !isSearch ? ['dt-ant-table--border', 'self-define-empty'].join(' ') : 'dt-ant-table dt-ant-table--border full-screen-table-47'}
                             pagination={pagination}
                             onChange={this.handleTableChange}
                             loading={loading}
                             columns={this.initColumns()}
                             dataSource={dataSource}
                         />
+                        {!dataSource.length && !isSearch ? <EmptyGuide /> : null}
                     </Card>
                 </div>
+                <DeleteModal
+                    title={'删除关系'}
+                    content={'删除关系后，关联的标签将失效，请谨慎操作！'}
+                    visible={deleteVisible}
+                    onCancel={this.handleDeleteModel.bind(this, 'cancel')}
+                    onOk={this.handleDeleteModel.bind(this, 'ok')}
+                />
             </div>
         )
     }

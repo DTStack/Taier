@@ -11,12 +11,12 @@ import { IGroup } from '../../../../model/group';
 import { IQueryParams } from '../../../../model/comm';
 import { defaultBarOption } from '../../../../comm/const';
 import GroupAPI, { IGroupsAnalysis } from '../../../../api/group';
-
+import './style.scss'
 interface IState {
     groups: any[];
     tags: any[];
     result: any;
-    queryParams: { entityId: string } & IQueryParams ;
+    queryParams: { entityId: string } & IQueryParams;
     formData: IGroupsAnalysis;
     groupA: IGroup;
     groupB: IGroup;
@@ -35,7 +35,9 @@ const IndexContainer = styled.div`
     text-align: center;
     min-width: 200px;
     display: inline-block;
-    height: 32px;
+    height: 35px;
+    line-height: 35px;
+    box-sizing: border-box;
     color: #666666;
     margin-left: 8px;
 `
@@ -253,7 +255,7 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
             console.log('charts:' + index, options);
             return (
                 <div key={`chart-${index}`} className="c-groupPortrait__chart-item">
-                    <EChart.Bar options={options}/>
+                    <EChart.Bar options={options} />
                 </div>
             )
         });
@@ -268,7 +270,7 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
             const disabled = o.groupId === groupA.groupId || o.groupId === groupB.groupId;
             return <Option key={o.groupId} value={o.groupId} title={o.groupName} disabled={disabled} data-item={o}>{o.groupName}</Option>
         });
-
+        const style = { height: 36, width: 359};
         const filterContent = (
             <Form className="c-groupPortrait__form">
                 <FormItem
@@ -276,37 +278,39 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
                     hasFeedback
                     required
                     {...formItemLayout}
+                    style={{ marginBottom: 16 }}
                 >
                     <Select
                         placeholder="请选择群体"
-                        style={{ width: 120 }}
+                        style={style}
                         onSelect={this.onGroupASelect}
                     >
-                        { groupOptions }
+                        {groupOptions}
                     </Select>
                     <IndexContainer>
-                        <span>{groupA.groupDataCount}个样本在当前时间内被标记</span>
+                        <span className='number_font'>{groupA.groupDataCount}</span><span>个样本在当前时间内被标记</span>
                     </IndexContainer>
                     <IndexContainer style={{ position: 'absolute', height: '88px', padding: '10px 0' }}>
                         <p>重叠样本量</p>
-                        <IndexTitle>{groupOverlapData.coincideNum}</IndexTitle>
+                        <IndexTitle className='number_font'>{groupOverlapData.coincideNum}</IndexTitle>
                     </IndexContainer>
                 </FormItem>
                 <FormItem
                     label="选择群体B"
                     hasFeedback
                     {...formItemLayout}
+                    style={{ marginBottom: 20 }}
                     required
                 >
                     <Select
                         placeholder="请选择群体"
-                        style={{ width: 120 }}
+                        style={style}
                         onSelect={this.onGroupBSelect}
                     >
-                        { groupOptions }
+                        {groupOptions}
                     </Select>
                     <IndexContainer>
-                        <span>{groupB.groupDataCount}个样本在当前时间内被标记</span>
+                        <span className='number_font'>{groupB.groupDataCount}</span><span>个样本在当前时间内被标记</span>
                     </IndexContainer>
                 </FormItem>
                 <FormItem
@@ -318,11 +322,11 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
                     <Select
                         mode={'multiple'}
                         placeholder="对比分析标签"
-                        style={{ width: 200 }}
+                        style={style}
                         onSearch={this.getTags}
                         onSelect={this.onTagSelect}
                     >
-                        { tags && tags.map((o: any) => {
+                        {tags && tags.map((o: any) => {
                             return <Option key={o.tagId} value={o.tagId} data-name={o.tagName}>{o.tagName}</Option>
                         })}
                     </Select>
@@ -343,8 +347,8 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
         return (
             <div className="c-groupPortrait">
                 <Row>
-                    <Col style={{ width: 600 }}>
-                        { filterContent }
+                    <Col style={{ width: 1000 }}>
+                        {filterContent}
                     </Col>
                 </Row>
 
