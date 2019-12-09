@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Col, Row, Select, DatePicker } from 'antd';
-import TagTypeOption from '../../../../../consts/tagTypeOption';
+import { Col, Row, Select, DatePicker, Form } from 'antd';
+import TagTypeOption from '../../../../../../consts/tagTypeOption';
 import moment from 'moment';
 import './style.scss';
 const { Option } = Select;
@@ -10,6 +10,8 @@ interface IProps {
     value?: any;
     data?: any;
     onChangeData?: any;
+    form?: any;
+    rowKey?: string;
 }
 
 interface IState {
@@ -34,7 +36,6 @@ IState
     }
     onChangeRangePicker = (value, dateStrings) => {
         const { data, onChangeData } = this.props;
-        console.log(dateStrings);
         onChangeData(Object.assign({}, data, { value: '', lValue: dateStrings[0], rValue: dateStrings[1] }))
     }
     onChangeDatePicker = (value) => {
@@ -42,9 +43,18 @@ IState
         onChangeData(Object.assign({}, data, { value, lValue: '', rValue: '' }))
     }
     render () {
-        const { data } = this.props;
+        const { data, form, rowKey } = this.props;
+        const { getFieldDecorator } = form;
         const { lValue, rValue, value } = data;
-        let rangDate: any = lValue && rValue ? [moment(lValue), moment(rValue)] : [];
+        let dateValue: any = data.timeType == 'OP_BETWEEN' ? [moment(lValue), moment(rValue)] : moment(value);
+        let Component = data.timeType == 'OP_BETWEEN' ? (
+            <RangePicker
+                showTime
+                onChange={this.onChangeRangePicker}
+                format="YYYY-MM-DD HH:mm:ss"
+            />
+        ) : (<DatePicker onChange={this.onChangeDatePicker} showTime format="YYYY-MM-DD HH:mm:ss" placeholder="Select Time" />)
+
         return (
             <Row className="absoluteTime" type='flex' gutter={8}>
                 <Col>
@@ -55,16 +65,19 @@ IState
                     </Select>
                 </Col>
                 <Col>
-                    {
-                        data.timeType == 'OP_BETWEEN' ? (
-                            <RangePicker
-                                showTime
-                                value={rangDate}
-                                onChange={this.onChangeRangePicker}
-                                format="YYYY-MM-DD HH:mm:ss"
-                            />
-                        ) : (<DatePicker onChange={this.onChangeDatePicker} value={moment(value)} showTime format="YYYY-MM-DD HH:mm:ss" placeholder="Select Time" />)
-                    }
+                    <Form.Item>
+                        {
+                            getFieldDecorator(rowKey, {
+                                initialValue: dateValue,
+                                rules: [
+                                    {
+                                        required: true,
+                                        message: '请选择时间！'
+                                    }
+                                ]
+                            })(Component)
+                        }
+                    </Form.Item>
                 </Col>
             </Row>
         );

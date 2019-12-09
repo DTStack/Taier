@@ -11,12 +11,12 @@
             font-size: 12px;
             color: #666666;
         }
-        .row-content{
+        .condition-row-content{
             flex: 1;
             border-bottom: 1px dashed #DDDDDD;
         }
         &:last-child{
-            .row-content{
+            .condition-row-content{
                 border-bottom: none;
             }  
         }

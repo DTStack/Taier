@@ -13,7 +13,7 @@ interface IState {
     dataSource: any[];
     loading: boolean;
     visibleDropdown: boolean;
-    queryParams: { groupId: string; columns?: any[] } & IQueryParams ;
+    queryParams: { groupId: string; columns?: any[] } & IQueryParams;
 }
 
 const Title = styled.div`
@@ -101,6 +101,7 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
         const params: IQueryParams = {
             current: pagination.current
         };
+        console.log('params', params)
         if (sorter) {
             params.orders = [{
                 asc: sorter.order !== 'descend',
@@ -113,9 +114,11 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
     onFilterChange = async (checkedValue: any) => {
         // TODO delete a relation entity.
         console.log('checkedValue:', checkedValue);
-        updateComponentState(this, { queryParams: {
-            columns: checkedValue
-        } }, this.loadData)
+        updateComponentState(this, {
+            queryParams: {
+                columns: checkedValue
+            }
+        }, this.loadData)
     }
 
     initColumns = () => {
@@ -135,7 +138,11 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
             visibleDropdown: !this.state.visibleDropdown
         })
     }
-
+    Cancel = () => {
+        this.setState({
+            visibleDropdown: false
+        })
+    }
     render () {
         const { dataSource, loading, queryParams, dataColumns } = this.state;
         const pagination: any = {
@@ -150,11 +157,14 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
                     <OverlayRow><Checkbox value="A">A</Checkbox></OverlayRow>
                     <OverlayRow><Checkbox value="B">B</Checkbox></OverlayRow>
                     <OverlayRow><Checkbox value="C">C</Checkbox></OverlayRow>
-                    { dataColumns && dataColumns.map(item => <OverlayRow key={item.entityAttr}>
+                    {dataColumns && dataColumns.map(item => <OverlayRow key={item.entityAttr}>
                         <Checkbox value={item.entityAttr}>{item.entityAttrCn}</Checkbox>
                     </OverlayRow>)}
                     <div style={{ height: '1px', width: '100%' }} className="ant-divider" />
-                    <OverlayRow><Checkbox value="ALL">全选</Checkbox></OverlayRow>
+                    <OverlayRow>
+                        <Checkbox value="ALL">全选</Checkbox>
+                        <a style={{ marginLeft: '80px' }} className="ant-dropdown-link" onClick={this.Cancel}>关闭</a>
+                    </OverlayRow>
                 </Checkbox.Group>
             </Overlay>
         );

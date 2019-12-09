@@ -2,8 +2,9 @@ import * as React from 'react';
 import { Form, Input, Icon } from 'antd';
 import { FormComponentProps } from 'antd/lib/form/Form';
 import classnames from 'classnames';
-import SelectLabelRow from '../selectLabelRow';
-import Collapse from '../collapse/index';
+import SelectLabelRow from './selectLabelRow';
+import Collapse from './collapse/index';
+import './style.scss';
 interface IProps extends FormComponentProps{
     treeData: any;
     currentTag: any;
@@ -90,7 +91,7 @@ IState
                                         message: '姓名只能包括汉字，字母、下划线、数字'
                                     }
                                 ]
-                            })(<Input className="edit_value" value={currentTag.label} onChange={this.props.onChangeLabel}/>)
+                            })(<Input className="edit_value" onChange={this.props.onChangeLabel}/>)
                         }
                     </Form.Item>
                     <i className="iconfont iconbtn_edit"></i>

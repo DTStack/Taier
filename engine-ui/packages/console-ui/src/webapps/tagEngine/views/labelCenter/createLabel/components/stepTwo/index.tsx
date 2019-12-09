@@ -208,13 +208,17 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         });
     }
     onChangeSelectTag=(value) => { // 选择标签节点
+        this.onValidateLabelRule();
         this.setState({
             activeTag: value
-        })
+        });
     }
-    onChangeTags = (value) => {
+    onChangeTags = (value, active) => {
         this.setState({
-            tags: value
+            tags: value,
+            activeTag: active || this.state.activeTag
+        }, () => {
+            active && this.onValidateLabelRule();
         })
     }
     onHandleChangeNode = (key, node) => { // 改变节点值
@@ -228,7 +232,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
     }
     onHandleAddCondition = (key, entityId) => {
         const { tagConfigData } = this.state;
-        const { atomTagList, initRowValue } = tagConfigData[entityId]
+        const { atomTagList, initRowValue } = tagConfigData[entityId];
         if (atomTagList && atomTagList.length) {
             this.onHandleTreeNode(key, 'append', {}, initRowValue);
         } else {
@@ -322,37 +326,45 @@ class StepTwo extends React.PureComponent<IProps, IState> {
     onValidateLabelRule = () => {
         const { tags, activeTag } = this.state;
         const that = this;
-        this.panelForm.validateFields((err, values) => {
-            if (err) {
-                let current = tags.find(item => item.value == activeTag);
-                notification.warning({
-                    message: current.label,
-                    description: '请填写有效标签规则'
+        let current = tags.find(item => item.value == activeTag);
+        const { params } = current;
+        const { children } = params;
+        if (children.some(item => item.children.length > 0)) { // 如果未填写一条标签规则
+            if (this.panelForm) {
+                this.panelForm.validateFields((err, values) => {
+                    if (err) {
+                        let current = tags.find(item => item.value == activeTag);
+                        notification.error({
+                            message: current.label,
+                            description: '请填写有效标签规则'
+                        });
+                        return false;
+                    }
+                    let isRepeat = [];
+                    for (let i = 0; i < tags.length; i++) {
+                        if (isRepeat.includes(tags[i].label)) {
+                            notification.error({
+                                message: tags[i].label,
+                                description: '标签名称重复，请检查！'
+                            });
+                            return false;
+                        }
+                        if (tags[i].params == this.state.initConfig) {
+                            notification.error({
+                                message: tags[i].label,
+                                description: '请填写标签！'
+                            });
+                            return false;
+                        }
+                        isRepeat.push(tags[i].label);
+                    }
+                    let newTag = tags.map(item => Object.assign(item, { valid: !err }));
+                    that.setState({
+                        tags: newTag
+                    })
                 });
             }
-            let isRepeat = [];
-            for (let i = 0; i < tags.length; i++) {
-                if (isRepeat.includes(tags[i].label)) {
-                    notification.error({
-                        message: tags[i].label,
-                        description: '标签名称重复，请检查！'
-                    });
-                    return false;
-                }
-                if (tags[i].params == this.state.initConfig) {
-                    notification.error({
-                        message: tags[i].label,
-                        description: '请填写标签！'
-                    });
-                    return false;
-                }
-                isRepeat.push(tags[i].label);
-            }
-            let newTag = tags.map(item => Object.assign(item, { valid: !err }));
-            that.setState({
-                tags: newTag
-            })
-        });
+        }
     }
     onHandleNext = (e: any) => {
         const { tags, activeTag } = this.state;
@@ -376,7 +388,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
             if (tags[i].params == this.state.initConfig) {
                 notification.error({
                     message: tags[i].label,
-                    description: '请添加标签规则！'
+                    description: '至少添加一条标签规则！'
                 });
                 return false;
             }
@@ -390,6 +402,13 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                     description: '请填写有效标签规则'
                 });
             } else {
+                if (tags.some(item => !item.valid)) {
+                    notification.error({
+                        message: '标签规则',
+                        description: '请检查填写有效标签规则！'
+                    });
+                    return
+                }
                 that.props.form.validateFields((err, values) => {
                     if (!err) {
                         that.props.onNext(Object.assign({}, values, { tags }));
@@ -442,7 +461,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                     )}
                 </Form.Item>
                 <Form.Item {...formItemLayout} label="已选标签" required>
-                    <TagValues config={initConfig} select={activeTag} value={tags} onChange={(value) => this.onChangeTags(value)} onSelect={this.onChangeSelectTag} />
+                    <TagValues config={initConfig} select={activeTag} value={tags} onChange={this.onChangeTags} onSelect={this.onChangeSelectTag} />
                 </Form.Item>
                 {
                     currentTag && (<PanelSelect key={activeTag} tagConfigData={tagConfigData} ref={(node) => this.panelForm = node} treeData={treeData} currentTag={currentTag} onChangeLabel={this.onChangeLabel} onChangeNode={this.onHandleChangeNode} onHandleAddCondition={this.onHandleAddCondition} onHandleChangeType={this.onHandleChangeType} onHandleDeleteCondition={this.onHandleDeleteCondition}/>)

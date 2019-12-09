@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { InputNumber, Col, Row, Icon, Tooltip } from 'antd';
+import { InputNumber, Col, Row, Icon, Tooltip, Form } from 'antd';
 import './style.scss';
 
 interface IProps {
@@ -12,6 +12,8 @@ interface IProps {
         rValue: number;
         lValue: number;
     };
+    form?: any;
+    rowKey?: string;
     onChangeData?: any;
 }
 
@@ -40,7 +42,8 @@ IState
         this.props.onChangeData(Object.assign({}, data, { rValue: value }))
     }
     render () {
-        const { tip, leftText, centerText, rightText, data } = this.props;
+        const { tip, leftText, centerText, rightText, data, rowKey, form } = this.props;
+        const { getFieldDecorator } = form;
         return (
             <Row className="area-input-Row" type='flex' gutter={8}>
                 <Col>
@@ -49,7 +52,21 @@ IState
                     }
                 </Col>
                 <Col>
-                    <InputNumber min={1} value={data ? data.lValue : null} onChange={this.onChangeLvalue}/>
+                    <Form.Item>
+                        {
+                            getFieldDecorator(rowKey + 'l', {
+                                initialValue: data.lValue || null,
+                                rules: [
+                                    {
+                                        required: true,
+                                        message: '请输入值！'
+                                    }
+                                ]
+                            })(
+                                <InputNumber min={1} onChange={this.onChangeLvalue}/>
+                            )
+                        }
+                    </Form.Item>
                 </Col>
                 <Col>
                     {
@@ -57,7 +74,21 @@ IState
                     }
                 </Col>
                 <Col>
-                    <InputNumber min={1} value={data ? data.rValue : null} onChange={this.onChangeRvalue}/>
+                    <Form.Item>
+                        {
+                            getFieldDecorator(rowKey + 'r', {
+                                initialValue: data.rValue || null,
+                                rules: [
+                                    {
+                                        required: true,
+                                        message: '请输入值！'
+                                    }
+                                ]
+                            })(
+                                <InputNumber min={1} onChange={this.onChangeLvalue}/>
+                            )
+                        }
+                    </Form.Item>
                 </Col>
                 <Col>
                     {

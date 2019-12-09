@@ -73,7 +73,7 @@ export class Conditions extends React.Component<IProps, IState> {
         return (<div className="conditions">
             <div className="condition-item">
                 <div className="row-label">一级分类</div>
-                <div className="row-content">
+                <div className="condition-row-content">
                     <TagSelect option={oneOption} value={tagSelect[0]} onChange={(value) => this.onChange(value, 1)}/>
                 </div>
             </div>
@@ -81,7 +81,7 @@ export class Conditions extends React.Component<IProps, IState> {
                 twoOption.length > 0 && tagSelect[0] && (
                     <div className="condition-item">
                         <div className="row-label">二级分类</div>
-                        <div className="row-content">
+                        <div className="condition-row-content">
                             <TagSelect option={twoOption} value={tagSelect[1]} onChange={(value) => this.onChange(value, 2)}/>
                         </div>
                     </div>
@@ -91,7 +91,7 @@ export class Conditions extends React.Component<IProps, IState> {
                 threeOption.length > 0 && tagSelect[1] && (
                     <div className="condition-item">
                         <div className="row-label">三级分类</div>
-                        <div className="row-content">
+                        <div className="condition-row-content">
                             <TagSelect option={threeOption} value={tagSelect[2]} onChange={(value) => this.onChange(value, 3)}/>
                         </div>
                     </div>

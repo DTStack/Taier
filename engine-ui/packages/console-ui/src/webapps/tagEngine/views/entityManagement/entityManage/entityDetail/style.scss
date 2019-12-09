@@ -52,8 +52,19 @@
 			border-bottom: none
 		}
     }
+    .ant-table-row {
+        .edit-btn {
+            display: none;
+        }
+        &:hover {
+            .edit-btn {
+                display: inline-block;
+            }
+        }
+    }
     .dd-edit-cell{
         display: flex;
+        width: 100%;
         .edit_input_row{
             display: flex;
             align-items: center;
@@ -67,11 +78,11 @@
 		display: flex;
 		width: 100%;
 		align-items: center;
-		margin-left: -20px;
+		// margin-left: -20px;
 		.tag-box {
-			width: 16px;
-			text-align: right;
-            margin-right: 4px;
+			// width: 16px;
+			// text-align: right;
+            margin-left: 4px;
 		}
 	}
     .total-count-box {

@@ -34,7 +34,6 @@ const Li = styled.p`
     vertical-align: middle;
 `
 
-
 export default function EmptyGuide () {
     return (
         <Container>
