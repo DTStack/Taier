@@ -125,7 +125,7 @@ public class DtContainer {
             }
 
             amClient = RPC.getProxy(ApplicationContainerProtocol.class, ApplicationContainerProtocol.versionID, addr, newConf);
-            LocalRemotePath[] localRemotePaths = amClient.getOutputLocation();
+            LocalRemotePath[] localRemotePaths = amClient.getOutputLocation("localRemotePath");
             LOG.info("get localRemotePaths:" + localRemotePaths.length);
 
             this.dfs = FileSystem.get(conf);
@@ -276,7 +276,7 @@ public class DtContainer {
 
     public void uploadOutputFiles() throws IOException {
         LOG.info("uploadOutputFiles start");
-        List<LocalRemotePath> outputs = Arrays.asList(amClient.getOutputLocation());
+        List<LocalRemotePath> outputs = Arrays.asList(amClient.getOutputLocation("outputs"));
         for (LocalRemotePath s : outputs) {
             LOG.info("Output path: " + s.getLocalLocation() + ":" + s.getDfsLocation());
         }
