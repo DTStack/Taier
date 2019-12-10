@@ -108,7 +108,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
     validResult = async () => {
         const ctx = this;
         const { entityAttrs, entityAttrsCopy } = this.state;
-        const { router, formData = {} } = this.props;
+        const { router, formData } = this.props;
         if (!this._responseData) {
             message.error('请先上传样本文件！');
             return;
