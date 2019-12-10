@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.AppConfigurationEntry.LoginModuleControlFlag;
 
+import com.dtstack.engine.common.util.SFTPHandler;
 import org.apache.commons.collections.MapUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
@@ -59,9 +60,18 @@ public class KerberosUtils {
 
     private static final String REMOTEDIR = "remoteDir";
 
+    private static final String KEY_USERNAME = "username";
+    private static final String KEY_PASSWORD = "password";
+    private static final String KEY_HOST = "host";
+    private static final String KEY_PORT = "port";
+    private static final String KEY_TIMEOUT = "timeout";
+    private static final String KEY_RSA = "rsaPath";
+    private static final String KEY_AUTHENTICATION = "auth";
+
     private static final String localhost = getLocalHostName();
 
     public static void login(Configuration config) throws IOException {
+
         Map<String, String> kerberosConfig = new HashMap<>();
         kerberosConfig.put(HDFS_PRINCIPAL, config.get(HDFS_PRINCIPAL));
         kerberosConfig.put(HDFS_KEYTABPATH, config.get(HDFS_KEYTABPATH));
@@ -86,7 +96,7 @@ public class KerberosUtils {
                     }
                     SFTPHandler handler = null;
                     try {
-                        handler = SFTPHandler.getInstance(config);
+                        handler = SFTPHandler.getInstance(getSftp(config));
                         keytabPath = loadFromSftp(MapUtils.getString(kerberosConfig, key), remoteDir, localPath, handler);
                         LOG.info("load file from sftp: " + keytabPath);
                     } catch (Exception e){
@@ -513,7 +523,7 @@ public class KerberosUtils {
             }
             SFTPHandler handler = null;
             try {
-                handler = SFTPHandler.getInstance(config);
+                handler = SFTPHandler.getInstance(getSftp(config));
                 keytabPath = loadFromSftp(config.get(key), remoteDir, localPath, handler);
                 LOG.info("load file from sftp: " + keytabPath);
             } catch (Exception e){
@@ -529,5 +539,17 @@ public class KerberosUtils {
 
     public static boolean isOpenKerberos(Configuration config){
         return "true".equals(config.get("openKerberos"));
+    }
+
+    private static Map<String, String> getSftp(Configuration config){
+        Map<String, String> sftpConfig = new HashMap<>();
+        sftpConfig.put(KEY_USERNAME, config.get(KEY_USERNAME));
+        sftpConfig.put(KEY_PASSWORD, config.get(KEY_USERNAME));
+        sftpConfig.put(KEY_HOST, config.get(KEY_USERNAME));
+        sftpConfig.put(KEY_PORT, config.get(KEY_USERNAME));
+        sftpConfig.put(KEY_TIMEOUT, config.get(KEY_USERNAME));
+        sftpConfig.put(KEY_RSA, config.get(KEY_USERNAME));
+        sftpConfig.put(KEY_AUTHENTICATION, config.get(KEY_USERNAME));
+        return sftpConfig;
     }
 }
