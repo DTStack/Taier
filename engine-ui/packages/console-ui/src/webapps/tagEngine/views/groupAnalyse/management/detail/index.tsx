@@ -63,7 +63,8 @@ class GroupDetail extends React.Component<any, IState> {
         const { groupDetail } = this.state;
         const res = await GroupAPI.openAPI({ groupId: get(router, 'location.query.groupId'), isOpenApi: groupDetail.isOpen ? 0 : 1 });
         if (res.code === 1) {
-            message.success('API 开启成功！')
+            const mes = groupDetail.isOpen ? 'ApI 关闭成功' : 'ApI 开启成功'
+            message.success(mes)
             this.loadDetail();
         }
     }
@@ -83,7 +84,7 @@ class GroupDetail extends React.Component<any, IState> {
                     <Row>
                         <Col className="left">
                             <h1>{groupDetail.groupName || '-'}</h1>
-                            <p className="description"><span style={{ marginRight: 10 }}>最近更新时间：{groupDetail.updateAt}</span> <GroupStatus value={0}/></p>
+                            <p className="description"><span style={{ marginRight: 10 }}>最近更新时间：{groupDetail.updateAt}</span> <GroupStatus value={0} /></p>
                         </Col>
                         <Col className="right">
                             <Button type="primary"><Link to={`/groupAnalyse/upload/edit?groupId=${get(router, 'location.query.groupId')}&entityId=${get(router, 'location.query.entityId')}`}>编辑</Link></Button>
@@ -95,7 +96,7 @@ class GroupDetail extends React.Component<any, IState> {
                             animated={false}
                             tabBarStyle={{ height: 38 }}
                         >
-                            <TabPane tab="基本信息" key="basicInfo"><BasicInfo onEnableAPI={this.onEnableAPI} data={groupDetail}/></TabPane>
+                            <TabPane tab="基本信息" key="basicInfo"><BasicInfo onEnableAPI={this.onEnableAPI} data={groupDetail} /></TabPane>
                             <TabPane tab="样本列表" key="specimenList"><SpecimenList router={router} /></TabPane>
                             <TabPane tab="群组画像" key="portrait"><Portrait router={router} /></TabPane>
                         </Tabs>

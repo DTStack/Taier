@@ -334,7 +334,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                                     </Col>
                                     <Col span={14}>
                                         <p className="ant-upload-text">点击或将文件拖拽到此处上传</p>
-                                        <p className="ant-upload-hint">仅支持xlsx，文件大小≤10M</p>
+                                        <p className="ant-upload-hint">仅支持csv，文件大小≤10M</p>
                                     </Col>
                                 </Row>
                             </Upload.Dragger>
