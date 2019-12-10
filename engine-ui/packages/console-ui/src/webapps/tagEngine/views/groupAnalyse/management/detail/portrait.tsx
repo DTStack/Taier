@@ -176,7 +176,7 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
         const { groupPojoIdList = [] } = formData;
         const group: IGroup = option.props['data-item'];
         const newArr = groupPojoIdList.slice();
-
+        console.log('formData', formData)
         newArr[1] = {
             groupId: value,
             groupName: group.groupName
@@ -264,13 +264,13 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
 
     render () {
         const {
-            groups = [], tags, groupA, groupB, groupOverlapData
+            groups = [], tags, groupA, groupB, groupOverlapData, formData
         } = this.state;
         const groupOptions = groups && groups.map((o: IGroup) => {
             const disabled = o.groupId === groupA.groupId || o.groupId === groupB.groupId;
             return <Option key={o.groupId} value={o.groupId} title={o.groupName} disabled={disabled} data-item={o}>{o.groupName}</Option>
         });
-        const style = { height: 36, width: 359};
+        const style = { height: 36, width: 359 };
         const filterContent = (
             <Form className="c-groupPortrait__form">
                 <FormItem
@@ -287,13 +287,22 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
                     >
                         {groupOptions}
                     </Select>
-                    <IndexContainer>
-                        <span className='number_font'>{groupA.groupDataCount}</span><span>个样本在当前时间内被标记</span>
-                    </IndexContainer>
-                    <IndexContainer style={{ position: 'absolute', height: '88px', padding: '10px 0' }}>
-                        <p>重叠样本量</p>
-                        <IndexTitle className='number_font'>{groupOverlapData.coincideNum}</IndexTitle>
-                    </IndexContainer>
+                    {
+                        formData.groupPojoIdList[0] ? (
+                            <IndexContainer>
+                                <span className='number_font'>{groupA.groupDataCount}</span><span>个样本在当前时间内被标记</span>
+                            </IndexContainer>
+                        ) : ''
+                    }
+                    {
+                        formData.groupPojoIdList[1] ? (
+                            <IndexContainer style={{ position: 'absolute', height: '88px', padding: '10px 0' }}>
+                                <p>重叠样本量</p>
+                                <IndexTitle className='number_font'>{groupOverlapData.coincideNum}</IndexTitle>
+                            </IndexContainer>
+                        ) : ''
+                    }
+
                 </FormItem>
                 <FormItem
                     label="选择群体B"
@@ -309,9 +318,12 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
                     >
                         {groupOptions}
                     </Select>
-                    <IndexContainer>
-                        <span className='number_font'>{groupB.groupDataCount}</span><span>个样本在当前时间内被标记</span>
-                    </IndexContainer>
+                    {
+                        formData.groupPojoIdList[1] ? (<IndexContainer>
+                            <span className='number_font'>{groupB.groupDataCount}</span><span>个样本在当前时间内被标记</span>
+                        </IndexContainer>) : ''
+                    }
+
                 </FormItem>
                 <FormItem
                     label="对比分析标签"
@@ -334,7 +346,7 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
                 <FormItem
                     wrapperCol={{
                         span: 3,
-                        offset: 3
+                        offset: 5
                     }}
                     label=""
                     hasFeedback

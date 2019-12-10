@@ -17,7 +17,7 @@ const Search = Input.Search
 interface IState {
     dataSource: IGroup[];
     loading: boolean;
-    queryParams: { entityId: string } & IQueryParams ;
+    queryParams: { entityId: string } & IQueryParams;
     deleteVisible: boolean;
     deleteItem: any;
 }
@@ -126,11 +126,13 @@ export default class GroupManage extends React.Component<any, IState> {
     }
 
     handleEntityChange = (value) => {
+        console.log('value', value)
         if (value) {
             updateComponentState(this, {
                 queryParams: {
                     entityId: value,
                     current: 1,
+                    size: 20,
                     search: ''
                 }
             }, this.loadData)
@@ -240,7 +242,7 @@ export default class GroupManage extends React.Component<any, IState> {
             <div>
                 <div className="left_wp">
                     <span>选择实体：</span>
-                    <SelectEntity value={queryParams.entityId} onChange={this.handleEntityChange}/>
+                    <SelectEntity value={queryParams.entityId} onChange={this.handleEntityChange} />
                 </div>
             </div>
         )

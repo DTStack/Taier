@@ -38,8 +38,6 @@ class BasicRelationInfo extends React.Component<IProps, any> {
                             <td>{utils.formatDateTime(data.createAt)}</td>
                         </tr>
                         <tr>
-                            <td>数据量</td>
-                            <td>{data.usedCount}</td>
                             <td>关系描述</td>
                             <td>{data.relationDesc}</td>
                         </tr>
