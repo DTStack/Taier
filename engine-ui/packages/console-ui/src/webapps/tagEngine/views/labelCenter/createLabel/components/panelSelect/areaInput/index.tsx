@@ -12,6 +12,7 @@ interface IProps {
         rValue: number;
         lValue: number;
     };
+    type?: string;
     form?: any;
     rowKey?: string;
     onChangeData?: any;
@@ -19,6 +20,7 @@ interface IProps {
 
 interface IState {
     visible: boolean;
+    confirmDirty: boolean;
 }
 
 export default class AreaInput extends React.PureComponent<
@@ -30,7 +32,8 @@ IState
     }
 
     state: IState = {
-        visible: false
+        visible: false,
+        confirmDirty: false
     };
     componentDidMount () { }
     onChangeLvalue = (value) => {
@@ -40,6 +43,42 @@ IState
     onChangeRvalue = (value) => {
         const { data } = this.props;
         this.props.onChangeData(Object.assign({}, data, { rValue: value }))
+    }
+    checkLeft = (rule, value, callback) => {
+        const { form, rowKey, type } = this.props;
+        if (type == 'number') {
+            if (value && value > form.getFieldValue(rowKey + 'r')) {
+                // eslint-disable-next-line standard/no-callback-literal
+                callback('起始数值要小于终止数值！');
+            } else {
+                callback();
+            }
+        } else {
+            if (value && value < form.getFieldValue(rowKey + 'r')) {
+                // eslint-disable-next-line standard/no-callback-literal
+                callback('起始数值要大于终止数值！');
+            } else {
+                callback();
+            }
+        }
+    }
+    checkRight = (rule, value, callback) => {
+        const { form, rowKey, type } = this.props;
+        if (type == 'number') {
+            if (value && value < form.getFieldValue(rowKey + 'l')) {
+                // eslint-disable-next-line standard/no-callback-literal
+                callback('终止数值要大于起始数值！');
+            } else {
+                callback();
+            }
+        } else {
+            if (value && value > form.getFieldValue(rowKey + 'l')) {
+                // eslint-disable-next-line standard/no-callback-literal
+                callback('终止数值要小于起始数值！');
+            } else {
+                callback();
+            }
+        }
     }
     render () {
         const { tip, leftText, centerText, rightText, data, rowKey, form } = this.props;
@@ -60,6 +99,8 @@ IState
                                     {
                                         required: true,
                                         message: '请输入值！'
+                                    }, {
+                                        validator: this.checkLeft
                                     }
                                 ]
                             })(
@@ -82,6 +123,8 @@ IState
                                     {
                                         required: true,
                                         message: '请输入值！'
+                                    }, {
+                                        validator: this.checkRight
                                     }
                                 ]
                             })(
