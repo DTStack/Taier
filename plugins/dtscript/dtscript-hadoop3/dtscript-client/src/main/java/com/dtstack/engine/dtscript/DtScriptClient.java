@@ -10,6 +10,7 @@ import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.dtscript.client.Client;
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
@@ -25,12 +26,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * dt-yarn-shell客户端
@@ -48,6 +44,8 @@ public class DtScriptClient extends AbsClient {
     private static final String APP_URL_FORMAT = "http://%s";
 
     private static final Gson gson = new Gson();
+
+    private static List<String> keyList = Lists.newArrayList("hadoopConf", "yarnConf", "sftpConf");
 
     private Client client;
 
@@ -74,12 +72,6 @@ public class DtScriptClient extends AbsClient {
         while(enumeration.hasMoreElements()) {
             String key = (String) enumeration.nextElement();
             Object value = prop.get(key);
-            if (key.contains("sftpConf")){
-                Map<String,Object> map = (Map<String, Object>) value;
-                for(Map.Entry<String,Object> entry : map.entrySet()) {
-                    conf.set("sftpConf."+entry.getKey(), MapUtils.getString(map,entry.getKey()));
-                }
-            }
             if(value instanceof String) {
                 conf.set(key, (String)value);
             } else if(value instanceof  Integer) {
@@ -89,9 +81,11 @@ public class DtScriptClient extends AbsClient {
             } else if(value instanceof Double) {
                 conf.setDouble(key, (Double)value);
             } else if(value instanceof Map) {
-                Map<String,Object> map = (Map<String, Object>) value;
-                for(Map.Entry<String,Object> entry : map.entrySet()) {
-                    conf.set(entry.getKey(), MapUtils.getString(map,entry.getKey()));
+                if(keyList.contains(key)){
+                    Map<String,Object> map = (Map<String, Object>) value;
+                    for(Map.Entry<String,Object> entry : map.entrySet()) {
+                        conf.set(entry.getKey(), MapUtils.getString(map,entry.getKey()));
+                    }
                 }
             } else {
                 conf.set(key, value.toString());

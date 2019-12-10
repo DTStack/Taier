@@ -1,20 +1,12 @@
-package com.dtstack.engine.sparkyarn.sparkyarn.util;
+package com.dtstack.engine.common.util;
 
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.Session;
-import com.jcraft.jsch.SftpATTRS;
-import com.jcraft.jsch.SftpException;
+import com.dtstack.engine.common.enums.SftpType;
+import com.jcraft.jsch.*;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -24,13 +16,15 @@ import java.util.Vector;
 
 public class SFTPHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(SFTPHandler.class);
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(SFTPHandler.class);
 
     private static final String KEY_USERNAME = "username";
     private static final String KEY_PASSWORD = "password";
     private static final String KEY_HOST = "host";
     private static final String KEY_PORT = "port";
     private static final String KEY_TIMEOUT = "timeout";
+    private static final String KEY_RSA = "rsaPath";
+    private static final String KEY_AUTHENTICATION = "auth";
 
     private static final String KEYWORD_FILE_NOT_EXISTS = "No such file";
 
@@ -60,15 +54,24 @@ public class SFTPHandler {
         String host = MapUtils.getString(sftpConfig, KEY_HOST);
         int port = MapUtils.getIntValue(sftpConfig, KEY_PORT, DEFAULT_HOST);
         String username = MapUtils.getString(sftpConfig, KEY_USERNAME);
+        String password = MapUtils.getString(sftpConfig, KEY_PASSWORD);
+        String rsaPath = MapUtils.getString(sftpConfig, KEY_RSA);
+        int authType = MapUtils.getInteger(sftpConfig, KEY_AUTHENTICATION);
 
         try {
             JSch jsch = new JSch();
+            if (SftpType.PUBKEY_AUTHENTICATION.equals(authType) && StringUtils.isNotBlank(rsaPath)) {
+                jsch.addIdentity(rsaPath.trim(), "");
+            }
             Session session = jsch.getSession(username, host, port);
             if (session == null) {
                 throw new RuntimeException("Login failed. Please check if username and password are correct");
             }
 
-            session.setPassword(MapUtils.getString(sftpConfig, KEY_PASSWORD));
+            if (StringUtils.isNotBlank(String.valueOf(authType)) || SftpType.PASSWORD_AUTHENTICATION.equals(authType)) {
+                //默认走密码验证模式
+                session.setPassword(password);
+            }
             Properties config = new Properties();
             config.put("StrictHostKeyChecking", "no");
             session.setConfig(config);
@@ -147,7 +150,7 @@ public class SFTPHandler {
                     SftpATTRS attrs = str.getAttrs();
                     boolean isdir = attrs.isDir();
                     String localFilePath = localDir + "/" + filename;
-                    String ftpFilePath = ftpDir + "/" + filename;
+                    String ftpFilePath = ftpDir;
                     if (isdir) {
                         File dir2 = new File(localFilePath);
                         if (!dir2.exists()) {
@@ -404,5 +407,28 @@ public class SFTPHandler {
             session.disconnect();
         }
     }
-}
 
+    public String loadFromSftp(String fileName, String remoteDir, String localDir, String host){
+        String remoteFile = remoteDir + File.separator +  host + File.separator + fileName;
+        String localFile = localDir + File.separator + fileName;
+        try {
+            if (new File(fileName).exists()){
+                return fileName;
+            } else {
+                downloadFile(remoteFile, localFile);
+                return localFile;
+            }
+        } catch (Exception e){
+            logger.error("load file error: ", e);
+            return fileName;
+        } finally {
+            if (channelSftp != null) {
+                channelSftp.disconnect();
+            }
+
+            if (session != null) {
+                session.disconnect();
+            }
+        }
+    }
+}

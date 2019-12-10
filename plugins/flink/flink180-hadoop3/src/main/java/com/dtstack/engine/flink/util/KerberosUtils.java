@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.AppConfigurationEntry.LoginModuleControlFlag;
 
+import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.flink.FlinkConfig;
 import org.apache.commons.collections.MapUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -84,18 +85,8 @@ public class KerberosUtils {
                     if (!dirs.exists()){
                         dirs.mkdirs();
                     }
-                    SFTPHandler handler = null;
-                    try {
-                        handler = SFTPHandler.getInstance(config.getSftpConf());
-                        keytabPath = loadFromSftp(MapUtils.getString(kerberosConfig, key), remoteDir, localPath, handler);
-                        LOG.info("load file from sftp: " + keytabPath);
-                    } catch (Exception e){
-                        throw new RuntimeException(e);
-                    } finally {
-                        if (handler != null){
-                            handler.close();
-                        }
-                    }
+                    SFTPHandler handler = SFTPHandler.getInstance(config.getSftpConf());
+                    keytabPath = handler.loadFromSftp(MapUtils.getString(kerberosConfig, key), remoteDir, localPath, localhost);
                 }
                 kerberosConfig.put(key, keytabPath);
             }
@@ -415,16 +406,5 @@ public class KerberosUtils {
             LOG.error("Get localhostname error: " + e);
         }
         return localhost;
-    }
-
-    private static String loadFromSftp(String fileName, String remoteDir, String localDir, SFTPHandler handler){
-        String remoteFile = remoteDir + File.separator +  localhost + File.separator + fileName;
-        String localFile = localDir + File.separator + fileName;
-        if (new File(fileName).exists()){
-            return fileName;
-        } else {
-            handler.downloadFile(remoteFile, localFile);
-            return localFile;
-        }
     }
 }
