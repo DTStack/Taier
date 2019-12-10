@@ -15,7 +15,10 @@ $activeColor: #262e36; // 主色
     }
 }
 .dt-dev-tools {
-    
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+    position: relative;
     .container {
         min-width: $minWidth;
     }

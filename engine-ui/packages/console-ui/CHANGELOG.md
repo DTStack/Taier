@@ -1,6 +1,85 @@
+# Change Log
+
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+<a name="3.9.0-beta.5"></a>
+# [3.9.0-beta.5](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.4.4...3.9.0-beta.5) (2019-12-07)
+
+
+### Bug Fixes
+
+* lint error ([1ed67cd](http://git.dtstack.cn/dtstack/data-stack-web/commits/1ed67cd))
+* **api:** add percent ([eb1043f](http://git.dtstack.cn/dtstack/data-stack-web/commits/eb1043f))
+* **api:** fix async callback ([390f34e](http://git.dtstack.cn/dtstack/data-stack-web/commits/390f34e))
+* **api:** fix style, no callbalk, role key ([81606a2](http://git.dtstack.cn/dtstack/data-stack-web/commits/81606a2))
+* **api:** fix webservice ([dc27c09](http://git.dtstack.cn/dtstack/data-stack-web/commits/dc27c09))
+* **api:** fix word ([8d99d6b](http://git.dtstack.cn/dtstack/data-stack-web/commits/8d99d6b))
+* **dataApi:** fixed browser zoom navigator error ([e6c4a77](http://git.dtstack.cn/dtstack/data-stack-web/commits/e6c4a77))
+* **dataApi/nav:** fix codereview ([34d8e02](http://git.dtstack.cn/dtstack/data-stack-web/commits/34d8e02))
+* **dataApi/nav:** fix eslint error ([50bb5d7](http://git.dtstack.cn/dtstack/data-stack-web/commits/50bb5d7))
+* **editor:** alter singleSession value ([dcf8914](http://git.dtstack.cn/dtstack/data-stack-web/commits/dcf8914))
+* **ideeditor:** undefined runningMenu occurs exception when DataSync ([fb203ef](http://git.dtstack.cn/dtstack/data-stack-web/commits/fb203ef)), closes [#20549](http://redmine.prod.dtstack.cn/issues/20549)
+* **lint:** fix lint ([25cb9a6](http://git.dtstack.cn/dtstack/data-stack-web/commits/25cb9a6))
+* **rdos:** fix eslint error ([706afed](http://git.dtstack.cn/dtstack/data-stack-web/commits/706afed))
+* **rdos:** fix unit test initialState ([835f1c5](http://git.dtstack.cn/dtstack/data-stack-web/commits/835f1c5))
+* **rdos:** test ([b680351](http://git.dtstack.cn/dtstack/data-stack-web/commits/b680351))
+* **rdos/folderModal:** fix create new folder or  storage location ([1a56828](http://git.dtstack.cn/dtstack/data-stack-web/commits/1a56828))
+* **rdos/img:** restore table query icon ([e5526bb](http://git.dtstack.cn/dtstack/data-stack-web/commits/e5526bb))
+* **rdos/scriptModal:** fix create new folder or script storage location ([062ba63](http://git.dtstack.cn/dtstack/data-stack-web/commits/062ba63))
+* **rdos/task:** fix Slow interface leads to mi ([243a6d1](http://git.dtstack.cn/dtstack/data-stack-web/commits/243a6d1))
+* **rdos/task:** fix unit test ([2452a87](http://git.dtstack.cn/dtstack/data-stack-web/commits/2452a87))
+* **rdos/task:** remove unless file ([2fa80db](http://git.dtstack.cn/dtstack/data-stack-web/commits/2fa80db))
+* **Science/experiment:** fix experiment localtabs ([a855f77](http://git.dtstack.cn/dtstack/data-stack-web/commits/a855f77))
+* **Science/experiment:** fix switchTab commonTab not update immediately ([d2ebd1f](http://git.dtstack.cn/dtstack/data-stack-web/commits/d2ebd1f))
+* **Science/experiment:** remove useless file ([bc494ef](http://git.dtstack.cn/dtstack/data-stack-web/commits/bc494ef))
+* **Science/experiment:** use enum type declare ScheduleStatus ([a8375c8](http://git.dtstack.cn/dtstack/data-stack-web/commits/a8375c8))
+* **Science/python:** delete unless code ([21c37c4](http://git.dtstack.cn/dtstack/data-stack-web/commits/21c37c4))
+* add horizontal scroll ([21be6ad](http://git.dtstack.cn/dtstack/data-stack-web/commits/21be6ad))
+* conflicts ([3c36490](http://git.dtstack.cn/dtstack/data-stack-web/commits/3c36490))
+* lint error ([f6c7207](http://git.dtstack.cn/dtstack/data-stack-web/commits/f6c7207))
+* remove filter sqls logic when is oneSession mode ([bb8e385](http://git.dtstack.cn/dtstack/data-stack-web/commits/bb8e385))
+* **Science/python:** fix eslint ([58609a8](http://git.dtstack.cn/dtstack/data-stack-web/commits/58609a8))
+* **Science/Python:** fix pythonComponent ([d7218f8](http://git.dtstack.cn/dtstack/data-stack-web/commits/d7218f8))
+* **stream:** remove reset topic logic ([7fc739a](http://git.dtstack.cn/dtstack/data-stack-web/commits/7fc739a))
+* remove reset topic logic ([d1d9d6f](http://git.dtstack.cn/dtstack/data-stack-web/commits/d1d9d6f))
+
+
+### Features
+
+* **api:** add register token show ([725e015](http://git.dtstack.cn/dtstack/data-stack-web/commits/725e015))
+* **api:** add reset_token ([8b60736](http://git.dtstack.cn/dtstack/data-stack-web/commits/8b60736))
+* **api:** add token ([3ca7284](http://git.dtstack.cn/dtstack/data-stack-web/commits/3ca7284))
+* **api:** feat api token style ([86aa8a9](http://git.dtstack.cn/dtstack/data-stack-web/commits/86aa8a9))
+* **api:** fix id ([121deaf](http://git.dtstack.cn/dtstack/data-stack-web/commits/121deaf))
+* **editor:** support exec mutiple line sqls by single request ([0cf9d1a](http://git.dtstack.cn/dtstack/data-stack-web/commits/0cf9d1a)), closes [#19605](http://redmine.prod.dtstack.cn/issues/19605)
+* **Science/Python:** remove base64 npm package ([7ddba3b](http://git.dtstack.cn/dtstack/data-stack-web/commits/7ddba3b))
+* **Science/PythonComponent:** add base64 encode pythonCode ([bd61be8](http://git.dtstack.cn/dtstack/data-stack-web/commits/bd61be8))
+* **Science/PythonComponent:** add python component ([26d7ba2](http://git.dtstack.cn/dtstack/data-stack-web/commits/26d7ba2))
+* **Science/SVM:** optimize SVMcomponents ([5fd61f3](http://git.dtstack.cn/dtstack/data-stack-web/commits/5fd61f3))
+* **stream:** add new datasource PolarDB ([02435e6](http://git.dtstack.cn/dtstack/data-stack-web/commits/02435e6)), closes [#20230](http://redmine.prod.dtstack.cn/issues/20230)
+
+
+
+<a name="3.9.0-beta.4.3"></a>
+# [3.9.0-beta.4.3](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.4.2...3.9.0-beta.4.3) (2019-12-05)
+
+
+### Bug Fixes
+
+* **rdos:** set current to 0 ([4a98a84](http://git.dtstack.cn/dtstack/data-stack-web/commits/4a98a84)), closes [#20574](http://redmine.prod.dtstack.cn/issues/20574)
+
+
+
 # Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+## [3.9.0-beta.4.2](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.4.1...3.9.0-beta.4.2) (2019-12-04)
+
+
+### Bug Fixes
+
+* **taskjobflowview:** reset log pagenation when job changed ([f758afa](http://git.dtstack.cn/dtstack/data-stack-web/commit/f758afa4884830507bf92ba78ffff2fb1194c21b)), closes [#20528](http://redmine.prod.dtstack.cn/issues/20528)
 
 ## [3.9.0-beta.4.1](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.9.0-beta.4...3.9.0-beta.4.1) (2019-12-03)
 

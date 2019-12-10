@@ -65,14 +65,6 @@ class IDEEditor extends React.Component<any, any> {
                     {extraView}
                 </div>
             </SplitPane>
-            // return <div className="editor-pane-box">
-            //     <div className="editor-view">
-
-            //     </div>
-            //     <div className="extra-view">
-
-            //     </div>
-            // </div>
         } else {
             return editorView;
         }

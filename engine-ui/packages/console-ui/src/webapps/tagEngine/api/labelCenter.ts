@@ -93,5 +93,14 @@ export default {
     getGroupTag: { // 获取群组对比标签
         method: 'post',
         url: '/api/v1/tag/getGroupTag'
+    },
+    canDeleteTag: { // 是否可以删除标签
+        method: 'post',
+        url: '/api/v1/tag/canDeleteTag'
+    },
+    canDeleteTagCate: { // 是否可以删除标签目录
+        method: 'post',
+        url: '/api/v1/tagCate/canDeleteTagCate'
     }
+
 };

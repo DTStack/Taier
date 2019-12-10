@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Tabs, Card, Button, Row, Col, message as Message, Popconfirm } from 'antd';
+import { Tabs, Card, Button, Row, Col, message as Message } from 'antd';
 import { hashHistory } from 'react-router';
 import Breadcrumb from '../../../components/breadcrumb';
 import { GroupStatus } from '../../../components/status';
@@ -7,6 +7,8 @@ import MoveTreeNode from './components/moveTreeNode';
 import BasicInfo from './components/basicInfo';
 import LableRules from './components/labelRules';
 import DerivativeRules from './components/derivativeRules';
+import DeleteModal from '../../../components/deleteModal'
+
 import { API } from '../../../api/apiMap';
 import './style.scss';
 
@@ -20,6 +22,8 @@ interface IState {
     entityId: string|number;
     visible: boolean;
     moveVisible: boolean;
+    deleteVisible: boolean;
+    canDelete: boolean;
     data: any;
 }
 
@@ -29,7 +33,9 @@ export default class LabelDetails extends React.PureComponent<IProps, IState> {
         moveVisible: false,
         tagId: '',
         entityId: '',
-        data: {}
+        data: {},
+        deleteVisible: false,
+        canDelete: false
     };
     componentDidMount () {
         const { location } = this.props;
@@ -66,18 +72,38 @@ export default class LabelDetails extends React.PureComponent<IProps, IState> {
     }
     onHandleDelete = () => {
         const { tagId } = this.state;
-        API.deleteTag({
-            tagId: tagId
-        }).then(res => {
-            const { code } = res;
-            if (code) {
-                Message.success('删除成功！');
-                this.props.router.goBack();
+        API.canDeleteTag({
+            tagId
+        }).then((res: any) => {
+            const { data, code } = res;
+            if (code === 1) {
+                this.setState({
+                    deleteVisible: true,
+                    canDelete: data
+                })
             }
         })
     }
+    handleDeleteModel = (type: string) => {
+        const { tagId } = this.state;
+        if (type == 'ok') {
+            API.deleteTag({
+                tagId
+            }).then(res => {
+                const { code } = res;
+                if (code === 1) {
+                    Message.success('删除成功！');
+                    this.props.router.goBack();
+                }
+            })
+        }
+        this.setState({
+            deleteVisible: false,
+            canDelete: false
+        })
+    }
     render () {
-        const { moveVisible, data } = this.state;
+        const { moveVisible, data, canDelete, deleteVisible } = this.state;
         const { location } = this.props;
         const { tagId, entityId } = location.state;
         const breadcrumbNameMap = [
@@ -107,10 +133,7 @@ export default class LabelDetails extends React.PureComponent<IProps, IState> {
                         </Col>
                         <Col className="right">
                             <Button type="primary" className="btn" onClick={this.onHandleEdit}>编辑</Button>
-                            <Popconfirm placement="top" title="确定删除此标签？" onConfirm={this.onHandleDelete}>
-                                <Button type="primary" className="btn">删除</Button>
-                            </Popconfirm>
-
+                            <Button type="primary" className="btn" onClick={this.onHandleDelete}>删除</Button>
                             <Button type="primary" className="btn" onClick={this.onHandleMove}>移动至</Button>
                         </Col>
                     </Row>
@@ -136,6 +159,16 @@ export default class LabelDetails extends React.PureComponent<IProps, IState> {
                     </Row>
                 </Card>
                 <MoveTreeNode visible={moveVisible} id={ tagId } entityId={entityId} handleOk={() => this.onHandleCancelMove('ok')} handleCancel={() => this.onHandleCancelMove('cancel')}/>
+                <DeleteModal
+                    title={'删除标签'}
+                    content={canDelete ? '删除标签后，无法恢复请谨慎操作！' : '解除当前标签的引用关系后可删除'}
+                    visible={deleteVisible}
+                    onCancel={this.handleDeleteModel.bind(this, 'cancel')}
+                    onOk={this.handleDeleteModel.bind(this, 'ok')}
+                    footer={
+                        !canDelete ? <Button type="primary" onClick={this.handleDeleteModel.bind(this, 'cancel')}>我知道了</Button> : undefined
+                    }
+                />
             </div>
         );
     }
