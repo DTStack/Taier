@@ -328,7 +328,6 @@ class GraphContainer extends React.Component<any, GraphContainerState> {
             const cell = evt.getProperty('cell');
             const event = evt.getProperty('event');
             // 处理连接点点击
-            if (evt.srcElement.tagName === "IMG") return false
             if (event && event.button === 2) {
                 // 鼠标右键
                 return false;
