@@ -408,23 +408,27 @@ public class SFTPHandler {
         }
     }
 
-    public static String loadFromSftp(Map<String, String> sftpConf, String fileName, String remoteDir, String localDir, String host){
+    public String loadFromSftp(String fileName, String remoteDir, String localDir, String host){
         String remoteFile = remoteDir + File.separator +  host + File.separator + fileName;
         String localFile = localDir + File.separator + fileName;
-        SFTPHandler handler = null;
         try {
-            handler = SFTPHandler.getInstance(sftpConf);
             if (new File(fileName).exists()){
                 return fileName;
             } else {
-                handler.downloadFile(remoteFile, localFile);
+                downloadFile(remoteFile, localFile);
                 return localFile;
             }
         } catch (Exception e){
             logger.error("load file error: ", e);
             return fileName;
         } finally {
-            handler.close();
+            if (channelSftp != null) {
+                channelSftp.disconnect();
+            }
+
+            if (session != null) {
+                session.disconnect();
+            }
         }
     }
 }
