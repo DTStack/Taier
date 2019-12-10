@@ -500,7 +500,7 @@ public class KerberosUtils {
             if (!dirs.exists()){
                 dirs.mkdirs();
             }
-            SFTPHandler handler = SFTPHandler.getInstance(getSftp(config));;
+            SFTPHandler handler = SFTPHandler.getInstance(getSftp(config));
             keytabPath = handler.loadFromSftp(config.get(key), remoteDir, localPath, localhost);
         }
         return keytabPath;
