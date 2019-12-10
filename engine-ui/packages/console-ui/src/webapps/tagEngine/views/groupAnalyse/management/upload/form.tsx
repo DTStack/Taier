@@ -32,6 +32,7 @@ interface IState {
     entityAttrs: any[];
     entityAttrsCopy: any[];
     initialEntityAttrs: any[];
+    fileList: any[];
 }
 
 const FormItem = Form.Item;
@@ -51,7 +52,8 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
         groupStatus: GROUP_STATUS.VALID,
         entityAttrs: [],
         entityAttrsCopy: [],
-        initialEntityAttrs: []
+        initialEntityAttrs: [],
+        fileList: []
     }
 
     componentDidMount () {
@@ -108,7 +110,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
     validResult = async () => {
         const ctx = this;
         const { entityAttrs, entityAttrsCopy } = this.state;
-        const { router, formData } = this.props;
+        const { router, formData = {} } = this.props;
         if (!this._responseData) {
             message.error('请先上传样本文件！');
             return;
@@ -121,6 +123,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
             entityAttrList: [...entityAttrsCopy, ...entityAttrs]
         });
         const { code, data = {} } = res;
+        console.log('res,', res)
         if (code === 1) {
             if (data.failNum > 0) {
                 message.error(data.failMsg)
@@ -128,8 +131,10 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                 ctx._validResult = data;
                 ctx.setState({
                     groupStatus: GROUP_STATUS.SAVE
-                })
+                });
                 message.success('校验成功！')
+                message.success('成功导入' + data.successNum + '条')
+                message.error('导入失败' + data.failNum + '条')
             }
         } else {
             message.error(data.failMsg)
@@ -149,7 +154,6 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
             message.error('上传文件失败！');
         }
     }
-
     onAttrChange = (value: any, option: any) => {
         console.log('value：', value, 'option：', option)
         const { entityAttrs, initialEntityAttrs } = this.state;
@@ -182,11 +186,12 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
         if (Array.isArray(e)) {
             return e;
         }
+        this.setState({ fileList: e.fileList })
         return e && e.fileList;
     }
 
     render () {
-        const { options, entities, groupStatus, entityAttrs, initialEntityAttrs, entityAttrsCopy } = this.state;
+        const { options, entities, groupStatus, entityAttrs, initialEntityAttrs, entityAttrsCopy, fileList } = this.state;
         const { form, mode, formData = {}, router } = this.props;
         const { getFieldDecorator } = form;
         const btnText = mode && mode === 'edit' ? '立即保存' : '立即创建';
@@ -325,7 +330,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                             valuePropName: 'file',
                             getValueFromEvent: this.normFile
                         })(
-                            <Upload.Dragger accept=".csv,.xlsx" onChange={this.onFileUploadChange} name="files" action="/api/v1/group/uploadModule">
+                            <Upload.Dragger accept=".csv" onChange={this.onFileUploadChange} name="files" action="/api/v1/group/uploadModule" disabled={fileList.length == 1}>
                                 <Row>
                                     <Col span={9}>
                                         <p className="ant-upload-drag-icon">
