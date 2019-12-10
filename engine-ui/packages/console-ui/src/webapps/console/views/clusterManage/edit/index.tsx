@@ -41,7 +41,7 @@ const confirm = Modal.confirm;
 function giveMeAKey () {
     return (new Date().getTime() + '' + ~~(Math.random() * 100000))
 }
-
+let timer: any = null;
 @(connect((state: any) => {
     return {
         testStatus: state.testStatus,
@@ -138,7 +138,6 @@ class EditCluster extends React.Component<any, any> {
         if (isHadoop) {
             setFieldsValue(copyComp);
             for (let i in copyComp) {
-                console.log(i, !!copyComp[i].kerberosFile)
                 if (copyComp[i].kerberosFile) {
                     setFieldsValue({
                         [i]: {
@@ -146,6 +145,17 @@ class EditCluster extends React.Component<any, any> {
                             // openKerberos: copyComp[i].openKerberos,
                             // kerberosFile: copyComp[i].kerberosFile
                         }
+                    })
+                }
+                if (i === 'sftpConf' || copyComp[i].rsaPath) {
+                    timer = setTimeout(() => {
+                        setFieldsValue({
+                            [i]: {
+                                ...copyComp[i]
+                            }
+                        })
+                        clearTimeout(timer);
+                        timer = null;
                     })
                 }
             }
@@ -1545,6 +1555,8 @@ class EditCluster extends React.Component<any, any> {
                 return (
                     <SftpConfig
                         isView={isView}
+                        getFieldValue={getFieldValue}
+                        setFieldsValue={setFieldsValue}
                         getFieldDecorator={getFieldDecorator}
                         singleButton={this.renderExtFooter(isView, component)}
                     />

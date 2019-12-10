@@ -102,7 +102,7 @@ export const HADOOP_GROUP_VALUE = [ // hadoop 引擎支持的组件类型(复选
     { label: 'SparkThrift', value: COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER },
     { label: 'CarbonData ThriftServer', value: COMPONENT_TYPE_VALUE.CARBONDATA },
     { label: 'Hive Server', value: COMPONENT_TYPE_VALUE.HIVESERVER },
-    { label: 'SFTP', value: COMPONENT_TYPE_VALUE.SFTP },
+    { label: 'SFTP', value: COMPONENT_TYPE_VALUE.SFTP, disabled: true },
     { label: 'Impala SQL', value: COMPONENT_TYPE_VALUE.IMPALASQL }
 ];
 export const COMPONEMT_CONFIG_KEYS = {
