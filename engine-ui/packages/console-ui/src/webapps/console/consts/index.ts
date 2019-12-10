@@ -109,7 +109,7 @@ export const COMPONEMT_CONFIG_KEYS = {
     FLINK: 'flinkConf',
     SPARK: 'sparkConf',
     LEARNING: 'learningConf',
-    DTYARNSHELL: 'dtyarnshellConf',
+    DTYARNSHELL: 'dtscriptConf',
     HDFS: 'hadoopConf',
     YARN: 'yarnConf',
     SPARKTHRIFTSERVER: 'hiveConf',
@@ -268,13 +268,13 @@ export const validateSparkParams: any = [ // spark
     'sparkConf.kerberosFile'
 ]
 export const validateDtYarnShellParams: any = [
-    'dtyarnshellConf.jlogstashRoot',
-    'dtyarnshellConf.javaHome',
-    'dtyarnshellConf.hadoopHomeDir',
-    // 'dtyarnshellConf.hdfsPrincipal',
-    // 'dtyarnshellConf.hdfsKeytabPath',
-    // 'dtyarnshellConf.hdfsKrb5ConfPath',
-    'dtyarnshellConf.kerberosFile'
+    'dtscriptConf.jlogstashRoot',
+    'dtscriptConf.javaHome',
+    'dtscriptConf.hadoopHomeDir',
+    // 'dtscriptConf.hdfsPrincipal',
+    // 'dtscriptConf.hdfsKeytabPath',
+    // 'dtscriptConf.hdfsKrb5ConfPath',
+    'dtscriptConf.kerberosFile'
 ]
 
 export const validateLearningParams: any = [
@@ -316,8 +316,8 @@ export const DTYARNSHELL_KEY_MAP_DOTS: any = {
     'python3Path': 'python3.path'
 }
 export const FLINK_KEY_MAP: any = {
-    'yarn.jobmanager.help.mb': 'yarnJobmanagerHelpMb',
-    'yarn.taskmanager.help.mb': 'yarnTaskmanagerHelpMb',
+    'yarn.jobmanager.heap.mb': 'yarnJobmanagerHeapMb',
+    'yarn.taskmanager.heap.mb': 'yarnTaskmanagerHeapMb',
     'yarn.taskmanager.numberOfTaskSlots': 'yarnTaskmanagerNumberOfTaskSlots',
     'yarn.taskmanager.numberOfTaskManager': 'yarnTaskmanagerNumberOfTaskManager',
     // prometheus相关
@@ -338,8 +338,8 @@ export const FLINK_KEY_MAP: any = {
     'high-availability.storageDir': 'high-availabilityStorageDir'
 }
 export const FLINK_KEY_MAP_DOTS: any = {
-    'yarnJobmanagerHelpMb': 'yarn.jobmanager.help.mb',
-    'yarnTaskmanagerHelpMb': 'yarn.taskmanager.help.mb',
+    'yarnJobmanagerHeapMb': 'yarn.jobmanager.heap.mb',
+    'yarnTaskmanagerHeapMb': 'yarn.taskmanager.heap.mb',
     'yarnTaskmanagerNumberOfTaskSlots': 'yarn.taskmanager.numberOfTaskSlots',
     'yarnTaskmanagerNumberOfTaskManager': 'yarn.taskmanager.numberOfTaskManager',
     'stateCheckpointsDir': 'state.checkpoints.dir',
@@ -382,8 +382,8 @@ export const notExtKeysFlink: any = [
     'high-availability.cluster-id',
     // 'flinkPrincipal', 'flinkKeytabPath', 'flinkKrb5ConfPath',
     // 'zkPrincipal', 'zkKeytabPath', 'zkLoginName',
-    'yarn.jobmanager.help.mb',
-    'yarn.taskmanager.help.mb', 'yarn.taskmanager.numberOfTaskSlots', 'yarn.taskmanager.numberOfTaskManager',
+    'yarn.jobmanager.heap.mb',
+    'yarn.taskmanager.heap.mb', 'yarn.taskmanager.numberOfTaskSlots', 'yarn.taskmanager.numberOfTaskManager',
     'openKerberos', 'kerberosFile',
     'flinkSessionSlotCount',
     'state.checkpoints.dir',

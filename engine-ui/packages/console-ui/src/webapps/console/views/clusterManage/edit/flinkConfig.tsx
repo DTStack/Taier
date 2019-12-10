@@ -255,20 +255,20 @@ export default class FlinkConfig extends React.Component<any, any> {
                         )}
                     </FormItem>
                     <FormItem
-                        label="yarn.jobmanager.help.mb"
+                        label="yarn.jobmanager.heap.mb"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.yarnJobmanagerHelpMb`, {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.yarnJobmanagerHeapMb`, {
                             initialValue: 1024
                         })(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
                     <FormItem
-                        label="yarn.taskmanager.help.mb"
+                        label="yarn.taskmanager.heap.mb"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.yarnTaskmanagerHelpMb`, {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.yarnTaskmanagerHeapMb`, {
                             initialValue: 1024
                         })(
                             <Input disabled={isView} />
