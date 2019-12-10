@@ -173,10 +173,10 @@ class ProjectPanel extends React.Component<any, ProjectState> {
                 return (
                     <Card className="c_offten_project_card" noHovering bordered={false} title={this.getCardTitle(project, index)}>
                         <Row className='c_offten_project_card_content'>
-                            <Col span={13}>
+                            <Col span={12}>
                                 已配置表数： <span className='c_project_num'>{project.tableCount}</span>
                             </Col>
-                            <Col span={11}>
+                            <Col span={12}>
                                 今日告警数： <span className='c_project_num'>{project.todayAlaim}</span>
                             </Col>
                             <Col span={24}>

@@ -48,7 +48,6 @@ class EditRoleForm extends React.Component<any, any> {
         if (roles) {
             roles.forEach((role: any) => {
                 const disabled = isDisabledRole(app, role.roleValue, loginUser, myRoles)
-
                 roleOptions.push({ label: role.roleName, value: role.id, disabled })
             })
         }

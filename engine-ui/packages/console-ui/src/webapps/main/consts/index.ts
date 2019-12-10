@@ -71,6 +71,14 @@ export const APP_ROLE = { // 项目角色
     PROOWNER: 6 // 项目所有者
 }
 
+export const QUALITY_PRO_ROLES = { // 项目角色
+    TENANT_OWVER: 1, // 租户所有者
+    PRO_ADMIN: 2, // 项目管理员
+    VISITOR: 3, // 访客
+    DATA_DEVELOP: 4, // 数据开发
+    PRO_OWNER: 5 // 项目所有者
+}
+
 export const API_PRO_ROLES: any = {
     TENANT_OWVER: 1, // 租户所有者
     API_MANAGER: 2, // API管理员
