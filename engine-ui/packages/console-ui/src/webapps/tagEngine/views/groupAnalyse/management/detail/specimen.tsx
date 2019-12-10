@@ -14,6 +14,11 @@ interface IState {
     loading: boolean;
     visibleDropdown: boolean;
     queryParams: { groupId: string; columns?: any[] } & IQueryParams;
+    defaultChecked: boolean;
+    indeterminate: boolean;
+    checkAll: boolean;
+    plainOptions: any[];
+    defaultList: any[];
 }
 
 const Title = styled.div`
@@ -65,7 +70,12 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
                 asc: false,
                 field: 'updateAt'
             }]
-        }
+        },
+        defaultChecked: true,
+        indeterminate: true,
+        checkAll: true,
+        plainOptions: [],
+        defaultList: []
     }
 
     componentDidMount () {
@@ -132,7 +142,6 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
             }
         });
     }
-
     onDropDownChange = () => {
         this.setState({
             visibleDropdown: !this.state.visibleDropdown
@@ -150,24 +159,26 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
             pageSize: queryParams.size,
             current: queryParams.current
         };
-
+        const defaultList = dataColumns.map((item) => item.entityAttr)
+        // this.setState({plainOptions:defaultList,defaultList})
+        // console.log('arrr,', arr)
         const overlay = (
             <Overlay >
-                <Checkbox.Group onChange={this.onFilterChange}>
+                <Checkbox.Group onChange={this.onFilterChange} defaultValue={defaultList}>
                     <div className='overlay_menu'>
-                        <OverlayRow><Checkbox value="A">A</Checkbox></OverlayRow>
-                        <OverlayRow><Checkbox value="B">B</Checkbox></OverlayRow>
-                        <OverlayRow><Checkbox value="C">C</Checkbox></OverlayRow>
                         {dataColumns && dataColumns.map(item => <OverlayRow key={item.entityAttr}>
-                            <Checkbox value={item.entityAttr}>{item.entityAttrCn}</Checkbox>
+                            <Checkbox value={item.entityAttr} >{item.entityAttrCn}</Checkbox>
                         </OverlayRow>)}
                     </div>
                     <div style={{ height: '1px', width: '95%', backgroundColor: '#DDDDDD' }} className="ant-divider" />
-                    <OverlayRow>
-                        <Checkbox value="ALL">全选</Checkbox>
-                        <a style={{ marginLeft: '80px' }} className="ant-dropdown-link" onClick={this.Cancel}>关闭</a>
-                    </OverlayRow>
                 </Checkbox.Group>
+                <OverlayRow>
+                    <Checkbox
+                        indeterminate={this.state.indeterminate}
+                        checked={this.state.checkAll}
+                    >全选</Checkbox>
+                    <a style={{ marginLeft: '80px' }} className="ant-dropdown-link" onClick={this.Cancel}>关闭</a>
+                </OverlayRow>
             </Overlay>
         );
 
