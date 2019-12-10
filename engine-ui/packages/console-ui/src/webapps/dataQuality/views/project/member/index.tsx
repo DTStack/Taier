@@ -295,8 +295,8 @@ class ProjectMember extends React.Component<any, any> {
         return (
             <div>
                 <h1 className="box-title" style={{ paddingTop: '0' }}>
-                    {project.projectName}
-                    <span className="box-sub-title">&nbsp;描述：{project.projectDesc}</span>
+                    {utils.textOverflowExchange(project.projectName, 60)}
+                    <span className="box-sub-title">&nbsp;描述：{utils.textOverflowExchange(project.projectDesc, 50)}</span>
                 </h1>
                 <div className="box-2 m-card">
                     <Card
