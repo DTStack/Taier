@@ -173,27 +173,27 @@ class BaseForm extends React.Component<any, any> {
     getJDBCRule = (type: any) => {
         switch (type) {
             case DATA_SOURCE.KYLIN:
-                return /http:\/\/([\w, .])+:(\w)+/;
+                return /http:\/\/([\w, .])+:(.)+/;
             case DATA_SOURCE.HIVE_1:
             case DATA_SOURCE.HIVE_2:
             case DATA_SOURCE.POLAR_DB:
             case DATA_SOURCE.CARBONDATA:
-                return /jdbc:(\w)+:\/\/(\w)+/;
+                return /jdbc:(\w)+:\/\/(.)+/;
             case DATA_SOURCE.MYSQL:
-                return /jdbc:mysql:\/\/(\w)+/;
+                return /jdbc:mysql:\/\/(.)+/;
             case DATA_SOURCE.CLICK_HOUSE:
-                return /jdbc:clickhouse:\/\/(\w)+/;
+                return /jdbc:clickhouse:\/\/(.)+/;
             case DATA_SOURCE.DB2:
-                return /jdbc:db2:\/\/(\w)+/;
+                return /jdbc:db2:\/\/(.)+/;
             case DATA_SOURCE.ORACLE:
-                return /jdbc:oracle:thin:@(\/\/)?(\w)+/;
+                return /jdbc:oracle:thin:@(\/\/)?(.)+/;
             case DATA_SOURCE.SQLSERVER:
                 return undefined;
             case DATA_SOURCE.LIBRASQL:
             case DATA_SOURCE.POSTGRESQL:
-                return /jdbc:postgresql:\/\/(\w)+/;
+                return /jdbc:postgresql:\/\/(.)+/;
             case DATA_SOURCE.GBASE:
-                return /jdbc:gbase:\/\/(\w)+/;
+                return /jdbc:gbase:\/\/(.)+/;
             default:
                 return undefined;
         }
