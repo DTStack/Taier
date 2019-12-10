@@ -10,6 +10,7 @@ export enum IGroupType {
 }
 
 export interface IGroup {
+    apiUrl: string;
     groupId?: number;
     entityId?: number;
     groupType?: IGroupType;
