@@ -15,7 +15,7 @@ public interface ApplicationContainerProtocol extends VersionedProtocol {
 
   HeartbeatResponse heartbeat(DtContainerId containerId, HeartbeatRequest heartbeatRequest);
 
-  LocalRemotePath[] getOutputLocation();
+  LocalRemotePath[] getOutputLocation(String str);
 
   LocalRemotePath[] getInputSplit(DtContainerId containerId);
 
