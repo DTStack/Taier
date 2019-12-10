@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.AppConfigurationEntry.LoginModuleControlFlag;
 
+import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.flink.FlinkConfig;
 import org.apache.commons.collections.MapUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -46,7 +47,7 @@ public class KerberosUtils {
 
     private static final String KEYWORD_KEYTAB = "Path";
 
-    private static final String DIR = "/keytab";
+    private static final String DIR = "/keytab/";
 
     private static final String USER_DIR = System.getProperty("user.dir");
 
@@ -113,7 +114,7 @@ public class KerberosUtils {
         String zkPrincipal = kerberosConfig.get(ZK_PRINCIPAL);
         String zkKeytabPath = kerberosConfig.get(ZK_KEYTABPATH);
 
-        KerberosUtils.setJaasConf(zkLoginName, userPrincipal, userKeytabPath);
+        //KerberosUtils.setJaasConf(zkLoginName, zkPrincipal, zkKeytabPath);
         KerberosUtils.setZookeeperServerPrincipal("zookeeper.server.principal", zkPrincipal);
         KerberosUtils.login(userPrincipal, userKeytabPath, krb5ConfPath, hadoopConf);
     }
@@ -192,15 +193,43 @@ public class KerberosUtils {
 
     public static void setJaasConf(String loginContextName, String principal, String keytabFile)
             throws IOException {
+        if ((loginContextName == null) || (loginContextName.length() <= 0)) {
+            LOG.error("input loginContextName is invalid.");
+            throw new IOException("input loginContextName is invalid.");
+        }
+
+        if ((principal == null) || (principal.length() <= 0)) {
+            LOG.error("input principal is invalid.");
+            throw new IOException("input principal is invalid.");
+        }
+
+        if ((keytabFile == null) || (keytabFile.length() <= 0)) {
+            LOG.error("input keytabFile is invalid.");
+            throw new IOException("input keytabFile is invalid.");
+        }
 
         File userKeytabFile = new File(keytabFile);
+        if (!userKeytabFile.exists()) {
+            LOG.error("userKeytabFile(" + userKeytabFile.getAbsolutePath() + ") does not exsit.");
+            throw new IOException("userKeytabFile(" + userKeytabFile.getAbsolutePath() + ") does not exsit.");
+        }
 
         javax.security.auth.login.Configuration.setConfiguration(new JaasConfiguration(loginContextName, principal,
                 userKeytabFile.getAbsolutePath()));
 
         javax.security.auth.login.Configuration conf = javax.security.auth.login.Configuration.getConfiguration();
+        if (!(conf instanceof JaasConfiguration)) {
+            LOG.error("javax.security.auth.login.Configuration is not JaasConfiguration.");
+            throw new IOException("javax.security.auth.login.Configuration is not JaasConfiguration.");
+        }
 
         AppConfigurationEntry[] entrys = conf.getAppConfigurationEntry(loginContextName);
+        if (entrys == null) {
+            LOG.error("javax.security.auth.login.Configuration has no AppConfigurationEntry named " + loginContextName
+                    + ".");
+            throw new IOException("javax.security.auth.login.Configuration has no AppConfigurationEntry named "
+                    + loginContextName + ".");
+        }
 
         boolean checkPrincipal = false;
         boolean checkKeytab = false;
