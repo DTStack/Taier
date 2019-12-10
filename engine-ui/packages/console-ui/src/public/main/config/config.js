@@ -3,8 +3,8 @@
  */
 window.APP_CONF = {
     name: '', // 应用名字
-    titleName: '数栈', // 网页title
-    loadingTitle: '数栈', // loading的应用名字
+    titleName: 'DTinsight · 数栈', // 网页title
+    loadingTitle: 'DTinsight · 数栈', // loading的应用名字
     indexTitle: '袋鼠云 · 数栈DTinsight', // 主页的大标题
     indexDesc: '云原生一站式数据中台PaaS', // 大标题下的简介
     showCopyright: true, // 是否显示版权信息

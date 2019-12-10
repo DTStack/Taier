@@ -164,11 +164,9 @@ class FolderModal extends React.Component<any, any> {
 
     closeModal () {
         const { toggleCreateFolder, emptyModalDefault } = this.props;
-
-        this.dtcount++;
-
         emptyModalDefault();
         toggleCreateFolder();
+        this.dtcount++;
     }
 
     getTreeData (cateType: any) {
