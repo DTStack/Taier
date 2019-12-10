@@ -94,18 +94,7 @@ public class KerberosUtils {
                     if (!dirs.exists()){
                         dirs.mkdirs();
                     }
-                    SFTPHandler handler = null;
-                    try {
-                        handler = SFTPHandler.getInstance(getSftp(config));
-                        keytabPath = SFTPHandler.loadFromSftp(MapUtils.getString(kerberosConfig, key), remoteDir, localPath, handler, localhost);
-                        LOG.info("load file from sftp: " + keytabPath);
-                    } catch (Exception e){
-                        throw new RuntimeException(e);
-                    } finally {
-                        if (handler != null){
-                            handler.close();
-                        }
-                    }
+                    keytabPath = SFTPHandler.loadFromSftp(getSftp(config),MapUtils.getString(kerberosConfig, key), remoteDir, localPath, localhost);
                 }
                 kerberosConfig.put(key, keytabPath);
             }
@@ -510,18 +499,7 @@ public class KerberosUtils {
             if (!dirs.exists()){
                 dirs.mkdirs();
             }
-            SFTPHandler handler = null;
-            try {
-                handler = SFTPHandler.getInstance(getSftp(config));
-                keytabPath = SFTPHandler.loadFromSftp(config.get(key), remoteDir, localPath, handler, localhost);
-                LOG.info("load file from sftp: " + keytabPath);
-            } catch (Exception e){
-                throw new RuntimeException(e);
-            } finally {
-                if (handler != null){
-                    handler.close();
-                }
-            }
+            keytabPath = SFTPHandler.loadFromSftp(getSftp(config), config.get(key), remoteDir, localPath, localhost);
         }
         return keytabPath;
     }
