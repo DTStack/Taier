@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { Table, Select, message as Message, Popconfirm } from 'antd';
+import { Table, Select, message as Message, Button } from 'antd';
 import { Link } from 'react-router';
 import MoveTreeNode from '../moveTreeNode';
 import { API } from '../../../../../api/apiMap';
+import DeleteModal from '../../../../../components/deleteModal';
 
 import './style.scss';
 
@@ -26,6 +27,8 @@ interface IState {
     order: string;
     field: string;
     tagId: number;
+    deleteVisible: boolean;
+    canDelete: boolean;
 }
 const Option = Select.Option;
 export default class TableFilter extends React.PureComponent<
@@ -43,7 +46,9 @@ IState
         dataSource: [],
         order: '',
         field: '',
-        tagId: null
+        tagId: null,
+        deleteVisible: false,
+        canDelete: false
     };
     componentDidMount () {
         const { entityId } = this.props;
@@ -125,13 +130,16 @@ IState
         );
     };
     deleteTag = (id) => { // 删除标签
-        API.deleteTag({
+        API.canDeleteTag({
             tagId: id
-        }).then(res => {
-            const { code } = res;
+        }).then((res: any) => {
+            const { data, code } = res;
             if (code === 1) {
-                Message.success('删除成功！');
-                this.loadMainData();
+                this.setState({
+                    deleteVisible: true,
+                    tagId: id,
+                    canDelete: data
+                })
             }
         })
     }
@@ -150,8 +158,27 @@ IState
             tagId: null
         })
     }
+    handleDeleteModel = (type: string) => {
+        const { tagId } = this.state;
+        if (type == 'ok') {
+            API.deleteTag({
+                tagId
+            }).then(res => {
+                const { code } = res;
+                if (code === 1) {
+                    Message.success('删除成功！');
+                    this.loadMainData();
+                }
+            })
+        }
+        this.setState({
+            tagId: null,
+            deleteVisible: false,
+            canDelete: false
+        })
+    }
     render () {
-        const { pageNo, pageSize, loading, total, dataSource, tagStatus, tagType, visible, tagId } = this.state;
+        const { pageNo, pageSize, loading, total, dataSource, tagStatus, tagType, visible, tagId, canDelete, deleteVisible } = this.state;
         const { entityId } = this.props;
         const columns = [
             {
@@ -203,9 +230,7 @@ IState
                             <span className="ant-divider" />
                             <a onClick={() => this.onHandleMove(id)}>移动</a>
                             <span className="ant-divider" />
-                            <Popconfirm placement="top" title="确定删除此标签？" onConfirm={() => this.deleteTag(id)}>
-                                <a >删除</a>
-                            </Popconfirm>
+                            <a onClick={() => this.deleteTag(id)}>删除</a>
                         </div>
                     );
                 }
@@ -254,7 +279,16 @@ IState
                     />
                 </div>
                 <MoveTreeNode id={tagId} entityId={entityId} visible={visible} handleOk={() => this.onHandleCancelMove('ok')} handleCancel={() => this.onHandleCancelMove('cancel')}/>
-
+                <DeleteModal
+                    title={'删除标签'}
+                    content={canDelete ? '删除标签后，无法恢复请谨慎操作！' : '解除当前标签的引用关系后可删除'}
+                    visible={deleteVisible}
+                    onCancel={this.handleDeleteModel.bind(this, 'cancel')}
+                    onOk={this.handleDeleteModel.bind(this, 'ok')}
+                    footer={
+                        !canDelete ? <Button type="primary" onClick={this.handleDeleteModel.bind(this, 'cancel')}>我知道了</Button> : undefined
+                    }
+                />
             </div>
         );
     }
