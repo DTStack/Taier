@@ -1,5 +1,6 @@
 package com.dtstack.engine.common.util;
 
+import com.dtstack.engine.common.enums.SftpType;
 import com.jcraft.jsch.*;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
@@ -24,12 +25,6 @@ public class SFTPHandler {
     private static final String KEY_TIMEOUT = "timeout";
     private static final String KEY_RSA = "rsaPath";
     private static final String KEY_AUTHENTICATION = "auth";
-
-    //密码校验
-    private static final String PASSWORD_AUTHENTICATION = "1";
-
-    //免密登录   需要私钥路径
-    private static final String PUBKEY_AUTHENTICATION = "2";
 
     private static final String KEYWORD_FILE_NOT_EXISTS = "No such file";
 
@@ -61,11 +56,11 @@ public class SFTPHandler {
         String username = MapUtils.getString(sftpConfig, KEY_USERNAME);
         String password = MapUtils.getString(sftpConfig, KEY_PASSWORD);
         String rsaPath = MapUtils.getString(sftpConfig, KEY_RSA);
-        String authType = MapUtils.getString(sftpConfig, KEY_AUTHENTICATION);
+        int authType = MapUtils.getInteger(sftpConfig, KEY_AUTHENTICATION);
 
         try {
             JSch jsch = new JSch();
-            if (PUBKEY_AUTHENTICATION.equals(authType) && StringUtils.isNotBlank(rsaPath)) {
+            if (SftpType.PUBKEY_AUTHENTICATION.equals(authType) && StringUtils.isNotBlank(rsaPath)) {
                 jsch.addIdentity(rsaPath.trim(), "");
             }
             Session session = jsch.getSession(username, host, port);
@@ -73,7 +68,7 @@ public class SFTPHandler {
                 throw new RuntimeException("Login failed. Please check if username and password are correct");
             }
 
-            if (authType == null || PASSWORD_AUTHENTICATION.equals(authType)) {
+            if (StringUtils.isNotBlank(String.valueOf(authType)) || SftpType.PASSWORD_AUTHENTICATION.equals(authType)) {
                 //默认走密码验证模式
                 session.setPassword(password);
             }
@@ -410,6 +405,17 @@ public class SFTPHandler {
 
         if (session != null) {
             session.disconnect();
+        }
+    }
+
+    public static String loadFromSftp(String fileName, String remoteDir, String localDir, SFTPHandler handler, String host){
+        String remoteFile = remoteDir + File.separator +  host + File.separator + fileName;
+        String localFile = localDir + File.separator + fileName;
+        if (new File(fileName).exists()){
+            return fileName;
+        } else {
+            handler.downloadFile(remoteFile, localFile);
+            return localFile;
         }
     }
 }

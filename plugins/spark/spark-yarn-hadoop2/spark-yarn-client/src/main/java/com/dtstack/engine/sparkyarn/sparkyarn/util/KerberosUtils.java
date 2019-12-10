@@ -91,7 +91,7 @@ public class KerberosUtils {
                     SFTPHandler handler = null;
                     try {
                         handler = SFTPHandler.getInstance(config.getSftpConf());
-                        keytabPath = loadFromSftp(MapUtils.getString(kerberosConfig, key), remoteDir, localPath, handler);
+                        keytabPath = SFTPHandler.loadFromSftp(MapUtils.getString(kerberosConfig, key), remoteDir, localPath, handler, localhost);
                         LOG.debug("load file from sftp: " + keytabPath);
                     } catch (Exception e){
                         LOG.error("load file error: ", e);
@@ -498,16 +498,5 @@ public class KerberosUtils {
             LOG.error("Get localhostname error: " + e);
         }
         return localhost;
-    }
-
-    private static String loadFromSftp(String fileName, String remoteDir, String localDir, SFTPHandler handler){
-        String remoteFile = remoteDir + File.separator +  localhost + File.separator + fileName;
-        String localFile = localDir + File.separator + fileName;
-        if (new File(fileName).exists()){
-            return fileName;
-        } else {
-            handler.downloadFile(remoteFile, localFile);
-            return localFile;
-        }
     }
 }
