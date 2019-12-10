@@ -45,7 +45,7 @@ IState
         const { tip, leftText, centerText, rightText, data, rowKey, form } = this.props;
         const { getFieldDecorator } = form;
         return (
-            <Row className="area-input-Row" type='flex' gutter={8}>
+            <Row className="area-input-Row" type='flex' align="middle" gutter={8}>
                 <Col>
                     {
                         leftText
@@ -85,7 +85,7 @@ IState
                                     }
                                 ]
                             })(
-                                <InputNumber min={1} onChange={this.onChangeLvalue}/>
+                                <InputNumber min={1} onChange={this.onChangeRvalue}/>
                             )
                         }
                     </Form.Item>

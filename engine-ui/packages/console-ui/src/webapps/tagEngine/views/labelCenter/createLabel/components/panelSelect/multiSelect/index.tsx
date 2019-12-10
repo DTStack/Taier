@@ -100,7 +100,7 @@ IState
         const { getFieldDecorator } = form;
         const { visible, atomTagValueList, textArea } = this.state;
         return (
-            <Row className="multi-select-Row" type='flex' gutter={8}>
+            <Row className="multi-select-Row" align="middle" type='flex' gutter={8}>
                 <Col>
                     <Form.Item>
                         {

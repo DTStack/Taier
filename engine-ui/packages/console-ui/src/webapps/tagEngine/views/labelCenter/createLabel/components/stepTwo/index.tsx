@@ -232,7 +232,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
     }
     onHandleAddCondition = (key, entityId) => {
         const { tagConfigData } = this.state;
-        const { atomTagList, initRowValue } = tagConfigData[entityId];
+        const { atomTagList = [], initRowValue } = tagConfigData[entityId];
         if (atomTagList && atomTagList.length) {
             this.onHandleTreeNode(key, 'append', {}, initRowValue);
         } else {

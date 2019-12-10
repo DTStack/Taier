@@ -42,7 +42,7 @@ IState
             <Input onChange={this.onChangeInputValue}/>
         )
         return (
-            <Row className="area-input-Row" type='flex' gutter={8}>
+            <Row className="area-input-Row" type='flex' align="middle" gutter={8}>
                 <Col>
                     <Form.Item>
                         {

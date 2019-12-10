@@ -43,7 +43,7 @@ IState
         const { data, rowKey, form } = this.props;
         const { getFieldDecorator } = form;
         return (
-            <Row className="area-date-Row" type='flex' gutter={8}>
+            <Row className="area-date-Row" type='flex' align="middle" gutter={8}>
                 <Col>
                     在
                 </Col>
