@@ -67,7 +67,7 @@ class PythonScript extends React.Component<any, any> {
                 fieldKeys.forEach(key => {
                     const ele = changedFields[key];
                     if (!ele.errors && !ele.validating && !ele.dirty) {
-                        props.handleSave(key, ele)
+                        props.handleSave(key, ele.value)
                     }
                 })
             },
