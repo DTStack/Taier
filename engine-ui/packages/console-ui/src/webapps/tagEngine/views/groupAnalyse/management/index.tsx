@@ -275,7 +275,7 @@ export default class GroupManage extends React.Component<any, IState> {
                                 queryParams.entityId ? { emptyText: '暂无群组, 赶快去创建吧~' } : { emptyText: '暂无数据, 请确认是否已勾选实体!' }
                             }
                             rowKey="groupId"
-                            className="dt-ant-table dt-ant-table--border full-screen-table-47"
+                            className="dt-ant-table--border"
                             pagination={pagination}
                             onChange={this.handleTableChange}
                             loading={loading}
