@@ -39,7 +39,7 @@ export default class CreateLabel extends React.PureComponent<IProps, IState> {
             this.getDeriveTagVO(tagId)
         }
     }
-    getDeriveTagVO = (tagId) => {
+    getDeriveTagVO = (tagId) => { // 获取标签详情
         API.getDeriveTagVO({ tagId }).then(res => {
             const { code, data } = res;
             if (code === 1) {

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Card, message } from 'antd';
 import { get } from 'lodash';
-
+import { hashHistory } from 'react-router';
 import { IDataSource } from '../../../../model/dataSource';
 
 import UploadForm from './form';
@@ -50,10 +50,16 @@ class GroupUploadEdit extends React.Component<IProps, any> {
 
     update = async (values: any) => {
         const { formData } = this.state;
+        const { router } = this.props;
+        const query = router.location.query;
         console.log('update values of form: ', formData);
         const res = await API.createOrUpdateGroup(Object.assign(formData, values));
         if (res.code === 1) {
             message.success('修改群组成功！');
+            hashHistory.push({
+                pathname: `/groupAnalyse/detail`,
+                query: query
+            })
         } else {
             message.error('修改群组失败！');
         }
@@ -69,7 +75,7 @@ class GroupUploadEdit extends React.Component<IProps, any> {
                     bordered={false}
                     className="noBorderBottom"
                 >
-                    <UploadForm formData={formData} router={this.props.router} handSubmit={this.update} mode="edit"/>
+                    <UploadForm formData={formData} router={this.props.router} handSubmit={this.update} mode="edit" />
                 </Card>
             </div>
         )

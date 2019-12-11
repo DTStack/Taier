@@ -106,7 +106,7 @@ class TagValues extends React.Component<IProps, {}> {
                 {
                     connectDropTarget &&
                      connectDropTarget(
-                         <div className="tagValues">
+                         <div className="tagValues view">
                              {
                                  value.map((item, index) => (<Card
                                      key={item.value}

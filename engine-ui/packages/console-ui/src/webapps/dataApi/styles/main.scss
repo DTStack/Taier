@@ -12,6 +12,9 @@
 @import './views/project.scss';
 @import './views/layout.scss';
 
+.root {
+    height: 100%;
+}
 table{
     font-size:12px;
 }

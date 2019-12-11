@@ -248,18 +248,38 @@ class Header extends React.Component<any, any> {
             id: 'approvalAndsecurity',
             name: '授权与安全',
             link: `${baseUrl}/${API_ROUTER.APPROVAL}`,
-            enable: approvalNav && approvalNav.isShow
+            enable: approvalNav && approvalNav.isShow,
+            menuClass: 'menu_large'
         }, {
             id: 'dataSource',
             name: '数据源管理',
             link: `${baseUrl}/${API_ROUTER.DATASOURCE}`,
-            enable: dataSourceNav && dataSourceNav.isShow
+            enable: dataSourceNav && dataSourceNav.isShow,
+            menuClass: 'menu_large'
         }, {
             id: 'project',
             name: '项目管理',
             link: `${baseUrl}/${API_ROUTER.PROJECT}/${pid}/config`,
-            enable: projectManaNav && projectManaNav.isShow
+            enable: projectManaNav && projectManaNav.isShow,
+            menuClass: 'menu_large'
         }];
+        const subMenuItems = [
+            {
+                id: 'approvalAndsecurity',
+                name: '授权与安全',
+                link: `${baseUrl}/${API_ROUTER.APPROVAL}`,
+                enable: approvalNav && approvalNav.isShow
+            }, {
+                id: 'dataSource',
+                name: '数据源管理',
+                link: `${baseUrl}/${API_ROUTER.DATASOURCE}`,
+                enable: dataSourceNav && dataSourceNav.isShow
+            }, {
+                id: 'project',
+                name: '项目管理',
+                link: `${baseUrl}/${API_ROUTER.PROJECT}/${pid}/config`,
+                enable: projectManaNav && projectManaNav.isShow
+            }]
         const settingMenus: any = [{
             id: 'admin/audit',
             name: '安全审计',
@@ -284,6 +304,7 @@ class Header extends React.Component<any, any> {
                 selectProjectsubMenu={display && this.renderProjectSelect()}
                 logo={logo}
                 menuItems={menuItems}
+                subMenuItems={subMenuItems}
                 licenseApps={licenseApps}
                 settingMenus={settingMenus}
                 {...this.props}

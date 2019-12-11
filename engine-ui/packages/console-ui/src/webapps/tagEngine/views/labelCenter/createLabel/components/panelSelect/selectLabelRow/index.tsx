@@ -59,7 +59,7 @@ IState
             if (type == 'OP_EQUAL' || type == 'OP_NOT_EQUAL') { // 如果是等于和不等于，属于区间范围
                 Component = (<MultiSelect form={form} rowKey={key} onChangeData={this.onChangeValue} data={values} type="number" tagId={tagId} tip="可直接输入，回车完成"/>)
             } else if (type == 'OP_BETWEEN') {
-                Component = (<AreaInput onChangeData={this.onChangeValue} rowKey={key} form={form} data={{ lValue, rValue }} leftText="在 " centerText=" 于 " rightText="之间" tip="包含起始和结束值，起始数值应小于终止数值。"/>)
+                Component = (<AreaInput type="number" onChangeData={this.onChangeValue} rowKey={key} form={form} data={{ lValue, rValue }} leftText="在 " centerText=" 于 " rightText="之间" tip="包含起始和结束值，起始数值应小于终止数值。"/>)
             } else {
                 Component = (<InputValue data={value} form={form} rowKey={key} type="number" onChangeData={this.onChangeValue}/>)
             }

@@ -1,6 +1,6 @@
 {
   "name": "data-stack-web",
-  "version": "3.9.0-beta.4.1",
+  "version": "3.9.0-beta.5",
   "description": "Making data valuable.",
   "main": "src/app.js",
   "license": "MIT",
@@ -42,7 +42,7 @@
     "prop-types": "^15.6.2",
     "qs": "^6.7.0",
     "react": "16.6.3",
-    "react-copy-to-clipboard": "5.0.0",
+    "react-copy-to-clipboard": "^5.0.0",
     "react-dnd": "^5.0.0",
     "react-dnd-html5-backend": "^5.0.1",
     "react-dom": "16.6.3",

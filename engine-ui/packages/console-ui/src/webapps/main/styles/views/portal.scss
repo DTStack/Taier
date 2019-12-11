@@ -1,5 +1,12 @@
-.portal {
+.root {
+    height: 100%;
+}
 
+.portal {
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+    position: relative;
     .l-content {
         width: 980px;
         margin: auto;

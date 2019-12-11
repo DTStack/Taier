@@ -74,7 +74,7 @@ class StepOne extends React.PureComponent<IProps, IState> {
         return data.map((item: any) => {
             if (item.children && item.children.length) {
                 return (
-                    <TreeNode value={item.tagCateId} disabled={!item.canMove} title={item.cateName} key={item.tagCateId}>
+                    <TreeNode value={item.tagCateId} disabled title={item.cateName} key={item.tagCateId}>
 
                         {
                             this.renderTreeNode(item.children)
@@ -82,7 +82,7 @@ class StepOne extends React.PureComponent<IProps, IState> {
                     </TreeNode>
                 )
             }
-            return <TreeNode value={item.tagCateId} disabled={!item.canMove} title={item.cateName} key={item.tagCateId} />
+            return <TreeNode value={item.tagCateId} title={item.cateName} key={item.tagCateId} />
         })
     }
 

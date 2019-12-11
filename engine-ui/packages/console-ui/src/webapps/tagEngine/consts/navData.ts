@@ -4,7 +4,7 @@ const navData: any = [
         'permissionIcon': '',
         'authCode': '',
         'permissionUrl': '/database',
-        'routers': ['/database', '/entityManage', '/relationManage', '/dictionaryManage', '/entityManage/detail', '/entityManage/edit', '/relationManage', '/relationManage/create', '/relationManage/detail', '/dictionaryManage', '/dictionaryManage/detail', '/dictionaryManage/edit'], // 相关路由
+        'routers': ['/database', '/entityManage', '/relationManage', '/dictionaryManage', '/entityManage/detail', '/entityManage/edit', '/relationManage', '/relationManage/create', '/relationManage/edit', '/relationManage/detail', '/dictionaryManage', '/dictionaryManage/detail', '/dictionaryManage/edit'], // 相关路由
         'children': [
             {
                 'permissionIcon': 'iconpingtai_shujuyuan',
@@ -22,7 +22,7 @@ const navData: any = [
                 'permissionIcon': 'iconicon_factory_menu3',
                 'permissionName': '关系管理',
                 'permissionUrl': '/relationManage',
-                'routers': ['/relationManage', '/relationManage/create', '/relationManage/detail']
+                'routers': ['/relationManage', '/relationManage/create', '/relationManage/edit', '/relationManage/detail']
             },
             {
                 'permissionIcon': 'iconicon_factory_menu',

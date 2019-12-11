@@ -14,6 +14,7 @@ import DataSourceAPI from '../../../../api/dataSource';
 import RelationGraph, { GRAPH_MODE } from '../../../../components/relationGraph';
 import { IRelation, IRelationEntity } from '../../../../model/relation';
 import { IEntity } from '../../../../model/entity';
+import './style.scss';
 
 interface IState {
     dataSourceList: IDataSource[];
@@ -90,13 +91,10 @@ class RelationUpdateBase extends React.Component<IProps, IState> {
     }
 
     loadDataSource = async (query?: string) => {
-        const res = await DataSourceAPI.getTagDataSourceList({
-            current: 1,
-            search: query
-        });
+        const res = await DataSourceAPI.selectDataSource({});
         if (res.code === 1) {
             this.setState({
-                dataSourceList: get(res, 'data.contentList', [])
+                dataSourceList: get(res, 'data', [])
             })
         }
     }
@@ -224,7 +222,6 @@ class RelationUpdateBase extends React.Component<IProps, IState> {
 
     onSelectChange = (e: any) => {
         const ctx = this;
-        console.log('onSelectChange:', e);
         const isSelect = e.target.nodeName === 'SELECT';
         if (isSelect) {
             const claName = e.target.className;

@@ -52,7 +52,6 @@ class EditRelation extends React.Component<any, IState> {
 
     render () {
         const { relationData } = this.state;
-        console.log('dataSource', JSON.stringify(relationData));
         return (
             <div className="c-createRelation">
                 <Breadcrumb breadcrumbNameMap={breadcrumbNameMap} />

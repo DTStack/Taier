@@ -259,7 +259,7 @@ class RuleForm extends React.Component<any, any> {
                     }],
                     initialValue: get(data, 'columnName')
                 })(
-                    <Select disabled={!isEdit} style={{ width: '150px' }}>
+                    <Select showSearch disabled={!isEdit} style={{ width: '150px' }}>
                         {tableColumn.map((item: any) => {
                             return (
                                 <Option
@@ -291,7 +291,7 @@ class RuleForm extends React.Component<any, any> {
                     }],
                     initialValue: get(data, 'columnName')
                 })(
-                    <Select disabled={!isEdit} style={{ width: '150px' }}>
+                    <Select showSearch disabled={!isEdit} style={{ width: '150px' }}>
                         {tableColumn.map((item: any) => {
                             return (
                                 <Option

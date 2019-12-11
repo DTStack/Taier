@@ -61,24 +61,22 @@ class CreateRelationEntityForm extends React.Component<IProps & FormComponentPro
                             required: true, message: '请先选择数据源!'
                         }],
                         initialValue: get(formData, 'dataSourceId')
-                    })(
+                    })(<div className="form_data">
                         <Select
                             showSearch
                             optionFilterProp="title"
                             placeholder="请选择数据类型"
-                            style={{ width: 200 }}
+                            style={{ width: '100%' }}
                         >
                             { dataSourceList && dataSourceList.map((o: IDataSource) => {
                                 return <Option key={o.id} value={o.id} title={o.dataName}>{o.dataName}</Option>
                             })}
                         </Select>
-                    )}
-                    <span>
-                        &nbsp;
                         <Tooltip title="仅支持同类型数据源的实体间创建关系模型">
-                            <Icon type="question-circle-o" />
+                            <Icon type="question-circle-o" className="tip"/>
                         </Tooltip>
-                    </span>
+                    </div>)}
+
                 </FormItem>
                 <FormItem
                     {...formItemLayout}

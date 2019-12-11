@@ -45,39 +45,48 @@ IState
     render () {
         const { data, form, rowKey } = this.props;
         const { getFieldDecorator } = form;
-        const { lValue, rValue, value } = data;
-        let dateValue: any = data.timeType == 'OP_BETWEEN' ? [moment(lValue), moment(rValue)] : moment(value);
-        let Component = data.timeType == 'OP_BETWEEN' ? (
-            <RangePicker
-                showTime
-                onChange={this.onChangeRangePicker}
-                format="YYYY-MM-DD HH:mm:ss"
-            />
-        ) : (<DatePicker onChange={this.onChangeDatePicker} showTime format="YYYY-MM-DD HH:mm:ss" placeholder="Select Time" />)
-
+        const { lValue, rValue, value, timeType } = data;
+        let rangeDate = lValue && rValue ? [moment(lValue), moment(rValue)] : [];
+        const rangeConfig = {
+            initialValue: rangeDate,
+            rules: [{ type: timeType == 'OP_BETWEEN' ? 'array' : 'object', required: true, message: '请选择时间!' }]
+        };
+        const dateConfig = {
+            initialValue: value ? moment(value) : moment(),
+            rules: [{ type: 'object', required: true, message: '请选择时间!' }]
+        };
         return (
-            <Row className="absoluteTime" type='flex' gutter={8}>
+            <Row className="absoluteTime" type='flex' gutter={8} align="middle">
                 <Col>
-                    <Select value={data.timeType} onChange={this.onChangeSelect} style={{ width: 80, marginRight: 20 }}>
+                    <Select value={timeType} onChange={this.onChangeSelect} style={{ width: 80, marginRight: 20 }}>
                         {
                             TagTypeOption['OP_ABSOLUTE_TIME'].map(item => <Option key={item.value} value={item.value}>{item.label}</Option>)
                         }
                     </Select>
                 </Col>
                 <Col>
-                    <Form.Item>
-                        {
-                            getFieldDecorator(rowKey, {
-                                initialValue: dateValue,
-                                rules: [
-                                    {
-                                        required: true,
-                                        message: '请选择时间！'
-                                    }
-                                ]
-                            })(Component)
-                        }
-                    </Form.Item>
+                    {
+                        timeType == 'OP_BETWEEN' ? (
+                            <Form.Item>
+                                {
+                                    getFieldDecorator(rowKey + '-rangePicker', rangeConfig)(
+                                        <RangePicker
+                                            showTime
+                                            onChange={this.onChangeRangePicker}
+                                            format="YYYY-MM-DD HH:mm:ss"
+                                        />
+                                    )}
+                            </Form.Item>
+                        ) : (
+                            <Form.Item>
+                                {
+                                    getFieldDecorator(rowKey + '-datePicker', dateConfig)(
+                                        <DatePicker onChange={this.onChangeDatePicker} showTime format="YYYY-MM-DD HH:mm:ss" placeholder="Select Time" />
+                                    )}
+                            </Form.Item>
+                        )
+                    }
+
                 </Col>
             </Row>
         );

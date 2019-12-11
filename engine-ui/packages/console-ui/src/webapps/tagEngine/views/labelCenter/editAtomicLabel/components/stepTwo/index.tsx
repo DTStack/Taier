@@ -55,7 +55,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
     componentDidUpdate (preProps) {
         const { data } = this.props;
         if (data != preProps.data) {
-            const { entityId, dimensionalityId, dataType, tagDictId, tagDictName, dictValueVoList = [] } = data;
+            const { entityId, dimensionalityId, dataType, tagDictId, tagDictName, dictValueVoList = [], columnValues } = data;
             if (tagDictId) {
                 this.setState({
                     radio: 0
@@ -77,6 +77,9 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                         }
                     }) })
             }
+            this.setState({
+                tagVals: columnValues
+            })
         }
     }
     loadMainData (isClear: boolean) {
@@ -151,9 +154,6 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         this.setState({
             radio: value
         })
-    }
-    handleViewTagVals = () => {
-
     }
     renderPopoverContent = () => {
         const { tagVals } = this.state;
@@ -237,7 +237,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                     )}
                 </Form.Item>
                 <Form.Item {...formItemLayout} label="查看标签值">
-                    <Popover overlayClassName="label-detail-content" onVisibleChange={this.handleViewTagVals} placement="rightTop" title={null} content={this.renderPopoverContent} trigger="click">
+                    <Popover overlayClassName="label-detail-content" placement="rightTop" title={null} content={this.renderPopoverContent()} trigger="click">
                         <a>标签值详情</a>
                     </Popover>
                 </Form.Item>

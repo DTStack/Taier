@@ -1,9 +1,10 @@
 import * as React from 'react';
-import { Input, Button, Table, Popconfirm, message as Message } from 'antd';
+import { Input, Button, Table, message as Message } from 'antd';
 import AddDirectory from './components/addDirectory';
 import MoveTreeNode from './components/moveTreeNode';
 import { API } from '../../../api/apiMap';
 import SelectEntity from '../../../components/selectEntity';
+import DeleteModal from '../../../components/deleteModal'
 import './style.scss';
 
 const Search = Input.Search;
@@ -20,6 +21,9 @@ interface IState {
     dataList: any[];
     entityId: string;
     currentData: any;
+    deleteVisible: boolean;
+    canDelete: boolean;
+    tagCateId: number;
 }
 
 export default class LabelDirectory extends React.PureComponent<IProps, IState> {
@@ -32,7 +36,10 @@ export default class LabelDirectory extends React.PureComponent<IProps, IState> 
         type: '0',
         data: [],
         entityId: '',
-        currentData: {}
+        currentData: {},
+        deleteVisible: false,
+        canDelete: false,
+        tagCateId: null
     };
     handleChange = (value) => { // 改变实体
         this.setState({
@@ -152,19 +159,42 @@ export default class LabelDirectory extends React.PureComponent<IProps, IState> 
     }
     deleteTagCate = (id) => {
         const { entityId } = this.state;
-        API.deleteTagCate({
+        API.canDeleteTagCate({
             entityId,
             tagCateId: id
-        }).then(res => { // 获取主键列表
-            const { code } = res;
+        }).then((res: any) => {
+            const { data, code } = res;
             if (code === 1) {
-                Message.success('删除成功！');
-                this.getTagCate();
+                this.setState({
+                    deleteVisible: true,
+                    tagCateId: id,
+                    canDelete: data
+                })
             }
         })
     }
+    handleDeleteModel = (type: string) => {
+        const { tagCateId, entityId } = this.state;
+        if (type == 'ok') {
+            API.deleteTagCate({
+                entityId,
+                tagCateId
+            }).then(res => { // 获取主键列表
+                const { code } = res;
+                if (code === 1) {
+                    Message.success('删除成功！');
+                    this.getTagCate();
+                }
+            })
+        }
+        this.setState({
+            tagCateId: null,
+            deleteVisible: false,
+            canDelete: false
+        })
+    }
     render () {
-        const { data, visible, type, moveVisible, expandedKeys, searchValue, entityId, currentData } = this.state;
+        const { data, visible, type, moveVisible, expandedKeys, searchValue, entityId, currentData, canDelete, deleteVisible } = this.state;
         const columns = [
             {
                 title: '目录结构',
@@ -208,10 +238,7 @@ export default class LabelDirectory extends React.PureComponent<IProps, IState> 
                             <span className="ant-divider" />
                             <a onClick={() => this.onHandleMove(record)}>移动</a>
                             <span className="ant-divider" />
-                            <Popconfirm placement="top" title="确定删除此目录？" onConfirm={() => this.deleteTagCate(id)}>
-                                <a >删除</a>
-                            </Popconfirm>
-
+                            <a onClick={() => this.deleteTagCate(id)}>删除</a>
                         </div>
                     );
                 }
@@ -237,6 +264,16 @@ export default class LabelDirectory extends React.PureComponent<IProps, IState> 
                 </div>
                 <AddDirectory entityId={entityId} data={currentData} visible={visible} type={type} handleOk={this.handleOk} handleCancel={this.handleCancel}/>
                 <MoveTreeNode data={data} entityId={entityId} id={currentData.tagCateId} visible={moveVisible} handleOk={() => this.onHandleCancelMove('ok')} handleCancel={() => this.onHandleCancelMove('cancel')}/>
+                <DeleteModal
+                    title={'删除目录'}
+                    content={canDelete ? '确定删除此目录？' : '目录下无标签内容时可被删除'}
+                    visible={deleteVisible}
+                    onCancel={this.handleDeleteModel.bind(this, 'cancel')}
+                    onOk={this.handleDeleteModel.bind(this, 'ok')}
+                    footer={
+                        !canDelete ? <Button type="primary" onClick={this.handleDeleteModel.bind(this, 'cancel')}>我知道了</Button> : undefined
+                    }
+                />
             </div>
         );
     }

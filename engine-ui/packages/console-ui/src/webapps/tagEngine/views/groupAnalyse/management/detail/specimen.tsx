@@ -14,6 +14,11 @@ interface IState {
     loading: boolean;
     visibleDropdown: boolean;
     queryParams: { groupId: string; columns?: any[] } & IQueryParams;
+    defaultChecked: boolean;
+    indeterminate: boolean;
+    checkAll: boolean;
+    plainOptions: any[];
+    defaultList: any[];
 }
 
 const Title = styled.div`
@@ -47,7 +52,7 @@ const Overlay = styled.div`
 `
 
 const OverlayRow = styled.div`
-    padding: 5px;
+    padding: 6px;
 `
 
 export default class GroupSpecimenList extends React.Component<any, IState> {
@@ -65,7 +70,12 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
                 asc: false,
                 field: 'updateAt'
             }]
-        }
+        },
+        defaultChecked: true,
+        indeterminate: true,
+        checkAll: true,
+        plainOptions: [],
+        defaultList: []
     }
 
     componentDidMount () {
@@ -96,21 +106,6 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
             loading: false
         });
     }
-
-    handleTableChange = (pagination: any, filters: any, sorter: any) => {
-        const params: IQueryParams = {
-            current: pagination.current
-        };
-        console.log('params', params)
-        if (sorter) {
-            params.orders = [{
-                asc: sorter.order !== 'descend',
-                field: sorter.field
-            }]
-        }
-        updateComponentState(this, { queryParams: params }, this.loadData)
-    }
-
     onFilterChange = async (checkedValue: any) => {
         // TODO delete a relation entity.
         console.log('checkedValue:', checkedValue);
@@ -123,16 +118,32 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
 
     initColumns = () => {
         const { dataColumns = [] } = this.state;
-        return dataColumns && dataColumns.map(col => {
-            return {
-                title: col.entityAttrCn,
-                dataIndex: col.entityAttr,
-                key: col.entityAttr,
-                sorter: true
+        return dataColumns && dataColumns.map((col, index) => {
+            if (index === 0) {
+                return {
+                    title: col.entityAttrCn,
+                    width: 130,
+                    dataIndex: col.entityAttr,
+                    key: col.entityAttr,
+                    fixed: 'left'
+                }
+            } else if (index === dataColumns.length - 1) {
+                return {
+                    title: col.entityAttrCn,
+                    width: 130,
+                    dataIndex: col.entityAttr,
+                    key: col.entityAttr,
+                    fixed: 'right'
+                }
+            } else {
+                return {
+                    title: col.entityAttrCn,
+                    dataIndex: col.entityAttr,
+                    key: col.entityAttr
+                }
             }
         });
     }
-
     onDropDownChange = () => {
         this.setState({
             visibleDropdown: !this.state.visibleDropdown
@@ -150,22 +161,24 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
             pageSize: queryParams.size,
             current: queryParams.current
         };
-
+        const defaultList = dataColumns.map((item) => item.entityAttr)
         const overlay = (
-            <Overlay>
-                <Checkbox.Group onChange={this.onFilterChange}>
-                    <OverlayRow><Checkbox value="A">A</Checkbox></OverlayRow>
-                    <OverlayRow><Checkbox value="B">B</Checkbox></OverlayRow>
-                    <OverlayRow><Checkbox value="C">C</Checkbox></OverlayRow>
-                    {dataColumns && dataColumns.map(item => <OverlayRow key={item.entityAttr}>
-                        <Checkbox value={item.entityAttr}>{item.entityAttrCn}</Checkbox>
-                    </OverlayRow>)}
-                    <div style={{ height: '1px', width: '100%' }} className="ant-divider" />
-                    <OverlayRow>
-                        <Checkbox value="ALL">全选</Checkbox>
-                        <a style={{ marginLeft: '80px' }} className="ant-dropdown-link" onClick={this.Cancel}>关闭</a>
-                    </OverlayRow>
+            <Overlay >
+                <Checkbox.Group onChange={this.onFilterChange} defaultValue={defaultList}>
+                    <div className='overlay_menu'>
+                        {dataColumns && dataColumns.map(item => <OverlayRow key={item.entityAttr}>
+                            <Checkbox value={item.entityAttr} >{item.entityAttrCn}</Checkbox>
+                        </OverlayRow>)}
+                    </div>
+                    <div style={{ height: '1px', width: '95%', backgroundColor: '#DDDDDD' }} className="ant-divider" />
                 </Checkbox.Group>
+                <OverlayRow>
+                    <Checkbox
+                        indeterminate={this.state.indeterminate}
+                        checked={this.state.checkAll}
+                    >全选</Checkbox>
+                    <a style={{ marginLeft: '80px' }} className="ant-dropdown-link" onClick={this.Cancel}>关闭</a>
+                </OverlayRow>
             </Overlay>
         );
 
@@ -192,14 +205,13 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
                 </Header>
                 <Table
                     style={{
-                        maxHeight: '500px',
+                        // maxHeight: '500px',
                         border: '1px solid #e9e9e9',
                         borderTop: 0
                     }}
                     rowKey="id"
                     className="dt-ant-table dt-ant-table--border full-screen-table-47 bd"
                     pagination={pagination}
-                    onChange={this.handleTableChange}
                     loading={loading}
                     columns={this.initColumns()}
                     dataSource={dataSource}
