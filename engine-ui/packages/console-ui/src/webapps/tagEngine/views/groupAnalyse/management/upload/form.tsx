@@ -154,24 +154,52 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
             message.error('上传文件失败！');
         }
     }
-    onAttrChange = (value: any, option: any) => {
+    onAttrChange = (value: string, option: any) => {
         console.log('value：', value, 'option：', option)
         const { entityAttrs, initialEntityAttrs } = this.state;
-        const newState = entityAttrs.slice();
-        const res = newState.find((o) => { return o.entityAttr === value });
-        if (!res) {
-            newState.push({
-                entityAttr: value,
-                entityAttrCn: option.props['data-attr']
-            })
-            console.log('res', initialEntityAttrs)
-            this.setState({
-                entityAttrs: newState
-            })
+        const attrList = initialEntityAttrs.concat(entityAttrs.map((o: any) => o.entityAttr));
+
+        if (attrList.length > 4) {
+            message.error('最多只能选择5个维度');
+            this.props.form.setFieldsValue({
+                entityAttrList: attrList
+            });
+            // this.props.form.setFields({
+            //     entityAttrList: {
+            //         value: attrList,
+            //         errors: [new Error('最多只能选择5个维度')]
+            //     }
+            // });
+        } else {
+            const newState = entityAttrs.slice();
+            const res = newState.find((o) => { return o.entityAttr === value });
+            if (!res) {
+                newState.push({
+                    entityAttr: value,
+                    entityAttrCn: option.props['data-attr']
+                })
+                console.log('res', initialEntityAttrs)
+                this.setState({
+                    entityAttrs: newState
+                })
+            }
         }
+
         console.log('entityAttrs', this.state.entityAttrs)
     }
-
+    // onAttrError = (rule, value, callback) => {
+    //     const { entityAttrs, initialEntityAttrs } = this.state;
+    //     const attrList = initialEntityAttrs.concat(entityAttrs.map((o: any) => o.entityAttr));
+    //     if (value.length > 4) {
+    //         this.props.form.setFields({
+    //             entityAttrList: {
+    //                 value: attrList,
+    //                 errors: [new Error('最多只能选择5个维度')]
+    //             }
+    //         });
+    //         message.error('最多只能选择5个维度')
+    //     }
+    // }
     onDeselect = (value: any) => {
         let { entityAttrs } = this.state;
         entityAttrs = entityAttrs.filter(({ entityAttr }) => entityAttr !== value);
@@ -195,9 +223,11 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
         const { form, mode, formData = {}, router } = this.props;
         const { getFieldDecorator } = form;
         const btnText = mode && mode === 'edit' ? '立即保存' : '立即创建';
+        const entityAttrList = [...entityAttrsCopy, ...entityAttrs]
+        console.log('entityAttrList,', entityAttrList)
         const downloadUrl = GroupAPI.downloadGroupTemplate({
             fileName: form.getFieldValue('groupName'),
-            entityAttrList: [...entityAttrsCopy, ...entityAttrs]
+            entityAttrList: entityAttrList
         });
         // const initialEntityAttrs = entityAttrs && entityAttrs.map(o => o.entityAttr);
         return (
@@ -267,7 +297,11 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                     {getFieldDecorator('entityAttrList', {
                         rules: [{
                             required: true, message: '请选择匹配维度!'
-                        }],
+                        }
+                        // {
+                        //     validator: this.onAttrError
+                        // }
+                        ],
                         initialValue: initialEntityAttrs || []
                     })(
                         <Select
