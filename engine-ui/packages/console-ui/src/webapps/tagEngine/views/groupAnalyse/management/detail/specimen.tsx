@@ -171,6 +171,12 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
         });
         e.target.checked ? this.onFilterChange(this.state.defaultListCopy) : this.onFilterChange([]);
     };
+    onPaginationChange = e => {
+        const {queryParams} = this.state;
+        queryParams.current = e.current
+        this.setState({ queryParams})
+        this.loadData()
+    }
     render () {
         const { dataSource, loading, queryParams, defaultList, defaultListCopy } = this.state;
         const pagination: any = {
@@ -229,6 +235,7 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
                     rowKey="id"
                     className="dt-ant-table dt-ant-table--border full-screen-table-47 bd"
                     pagination={pagination}
+                    onChange={this.onPaginationChange}
                     loading={loading}
                     columns={this.initColumns()}
                     dataSource={dataSource}
