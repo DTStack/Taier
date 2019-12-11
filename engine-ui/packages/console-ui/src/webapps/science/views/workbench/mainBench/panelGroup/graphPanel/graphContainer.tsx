@@ -88,7 +88,6 @@ class GraphContainer extends React.Component<any, GraphContainerState> {
     }
 
     shouldComponentUpdate (nextProps: any) {
-        console.log('graph should update:', nextProps);
         return true;
     }
 
@@ -327,6 +326,8 @@ class GraphContainer extends React.Component<any, GraphContainerState> {
         graph.addListener(mxEvent.CLICK, function (sender: any, evt: any) {
             const cell = evt.getProperty('cell');
             const event = evt.getProperty('event');
+            let matchVertex = event.target.closest('.vertex');
+            if (!matchVertex) return false;
             if (event && event.button === 2) {
                 // 鼠标右键
                 return false;
@@ -530,7 +531,6 @@ class GraphContainer extends React.Component<any, GraphContainerState> {
     }
     /* 导出PMML */
     handleExportPMML = (cell: any) => {
-        console.log(cell);
         window.open(`${ReqUrls.DOWNLOAD_PMML}?taskId=${cell.data.id}`, '_blank');
     }
     /* 模型描述 */
@@ -613,6 +613,7 @@ class GraphContainer extends React.Component<any, GraphContainerState> {
             cell = this.getCellData(cell);
             updateGraphVertex(data.graphData, cell);
             this.props.updateTaskData({}, data, false);
+            this._graph.clearSelection();
         } else if (eventName === 'cellConnected') {
             let length = data.graphData.length;
             if (data.graphData.findIndex((o: any) => o.graph) !== -1) {
@@ -651,8 +652,8 @@ class GraphContainer extends React.Component<any, GraphContainerState> {
                 })
             }
             this.props.updateTaskData({}, data, false);
+            this._graph.clearSelection();
         }
-        this._graph.clearSelection();
     }
     /*
     ** 设置输入域(input/textarea)光标的位置
@@ -695,7 +696,6 @@ class GraphContainer extends React.Component<any, GraphContainerState> {
         }
 
         const editSucc = (evt: any) => {
-            console.log(evt)
             const originName = task.name;
             if ((evt.type === 'keypress' && (event as any).keyCode === 13) || evt.type === 'blur') {
                 editTarget.style.display = 'none';
