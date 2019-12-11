@@ -106,21 +106,6 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
             loading: false
         });
     }
-
-    handleTableChange = (pagination: any, filters: any, sorter: any) => {
-        const params: IQueryParams = {
-            current: pagination.current
-        };
-        console.log('params', params)
-        if (sorter) {
-            params.orders = [{
-                asc: sorter.order !== 'descend',
-                field: sorter.field
-            }]
-        }
-        updateComponentState(this, { queryParams: params }, this.loadData)
-    }
-
     onFilterChange = async (checkedValue: any) => {
         // TODO delete a relation entity.
         console.log('checkedValue:', checkedValue);
@@ -140,7 +125,6 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
                     width: 130,
                     dataIndex: col.entityAttr,
                     key: col.entityAttr,
-                    sorter: true,
                     fixed: 'left'
                 }
             } else if (index === dataColumns.length - 1) {
@@ -149,15 +133,13 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
                     width: 130,
                     dataIndex: col.entityAttr,
                     key: col.entityAttr,
-                    sorter: true,
                     fixed: 'right'
                 }
             } else {
                 return {
                     title: col.entityAttrCn,
                     dataIndex: col.entityAttr,
-                    key: col.entityAttr,
-                    sorter: true
+                    key: col.entityAttr
                 }
             }
         });
@@ -180,8 +162,6 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
             current: queryParams.current
         };
         const defaultList = dataColumns.map((item) => item.entityAttr)
-        // this.setState({plainOptions:defaultList,defaultList})
-        // console.log('arrr,', arr)
         const overlay = (
             <Overlay >
                 <Checkbox.Group onChange={this.onFilterChange} defaultValue={defaultList}>
@@ -225,14 +205,13 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
                 </Header>
                 <Table
                     style={{
-                        maxHeight: '500px',
+                        // maxHeight: '500px',
                         border: '1px solid #e9e9e9',
                         borderTop: 0
                     }}
                     rowKey="id"
                     className="dt-ant-table dt-ant-table--border full-screen-table-47 bd"
                     pagination={pagination}
-                    onChange={this.handleTableChange}
                     loading={loading}
                     columns={this.initColumns()}
                     dataSource={dataSource}
