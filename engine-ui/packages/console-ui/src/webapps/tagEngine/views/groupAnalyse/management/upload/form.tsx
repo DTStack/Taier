@@ -2,7 +2,7 @@ import * as React from 'react';
 import { get } from 'lodash';
 import { FormComponentProps } from 'antd/lib/form/Form';
 import { UploadChangeParam } from 'antd/lib/upload/interface';
-import { Form, Input, Tooltip, Icon, Upload, Select, Button, message, Row, Col } from 'antd';
+import { Form, Input, Tooltip, Icon, Upload, Select, Button, message, Row, Col, notification } from 'antd';
 
 import { formItemLayout, tailFormItemLayout } from '../../../../comm/const';
 import { API } from '../../../../api/apiMap';
@@ -110,7 +110,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
     validResult = async () => {
         const ctx = this;
         const { entityAttrs, entityAttrsCopy } = this.state;
-        const { router, formData } = this.props;
+        const { router, formData = { groupId: null } } = this.props;
         if (!this._responseData) {
             message.error('请先上传样本文件！');
             return;
@@ -132,9 +132,10 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                 ctx.setState({
                     groupStatus: GROUP_STATUS.SAVE
                 });
-                message.success('校验成功！')
-                message.success('成功导入' + data.successNum + '条')
-                message.error('导入失败' + data.failNum + '条')
+                notification.success({
+                    message: '校验成功',
+                    description: `成功导入 ${data.successNum} 条，导入失败 ${data.failNum}条`
+                })
             }
         } else {
             message.error(data.failMsg)
@@ -154,24 +155,39 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
             message.error('上传文件失败！');
         }
     }
-    onAttrChange = (value: any, option: any) => {
+    onAttrChange = (value: string, option: any) => {
         console.log('value：', value, 'option：', option)
         const { entityAttrs, initialEntityAttrs } = this.state;
-        const newState = entityAttrs.slice();
-        const res = newState.find((o) => { return o.entityAttr === value });
-        if (!res) {
-            newState.push({
-                entityAttr: value,
-                entityAttrCn: option.props['data-attr']
-            })
-            console.log('res', initialEntityAttrs)
-            this.setState({
-                entityAttrs: newState
-            })
+        const attrList = initialEntityAttrs.concat(entityAttrs.map((o: any) => o.entityAttr));
+        if (attrList.length < 5) {
+            const newState = entityAttrs.slice();
+            const res = newState.find((o) => { return o.entityAttr === value });
+            if (!res) {
+                newState.push({
+                    entityAttr: value,
+                    entityAttrCn: option.props['data-attr']
+                })
+                console.log('res', initialEntityAttrs)
+                this.setState({
+                    entityAttrs: newState
+                })
+            }
         }
         console.log('entityAttrs', this.state.entityAttrs)
     }
-
+    onAttrError = (rule, value, callback) => {
+        const { entityAttrs, initialEntityAttrs } = this.state;
+        const attrList = initialEntityAttrs.concat(entityAttrs.map((o: any) => o.entityAttr));
+        if (value.length > 5) {
+            this.props.form.setFields({
+                entityAttrList: {
+                    value: attrList,
+                    errors: [new Error('最多只能选择5个维度')]
+                }
+            });
+            callback()
+        }
+    }
     onDeselect = (value: any) => {
         let { entityAttrs } = this.state;
         entityAttrs = entityAttrs.filter(({ entityAttr }) => entityAttr !== value);
@@ -195,9 +211,11 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
         const { form, mode, formData = {}, router } = this.props;
         const { getFieldDecorator } = form;
         const btnText = mode && mode === 'edit' ? '立即保存' : '立即创建';
+        const entityAttrList = [...entityAttrsCopy, ...entityAttrs]
+        console.log('entityAttrList,', entityAttrList)
         const downloadUrl = GroupAPI.downloadGroupTemplate({
             fileName: form.getFieldValue('groupName'),
-            entityAttrList: [...entityAttrsCopy, ...entityAttrs]
+            entityAttrList: entityAttrList
         });
         // const initialEntityAttrs = entityAttrs && entityAttrs.map(o => o.entityAttr);
         return (
@@ -267,7 +285,11 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                     {getFieldDecorator('entityAttrList', {
                         rules: [{
                             required: true, message: '请选择匹配维度!'
-                        }],
+                        },
+                        {
+                            validator: this.onAttrError
+                        }
+                        ],
                         initialValue: initialEntityAttrs || []
                     })(
                         <Select

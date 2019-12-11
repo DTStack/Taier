@@ -51,13 +51,14 @@ class GroupUploadEdit extends React.Component<IProps, any> {
     update = async (values: any) => {
         const { formData } = this.state;
         const { router } = this.props;
+        const query = router.location.query;
         console.log('update values of form: ', formData);
         const res = await API.createOrUpdateGroup(Object.assign(formData, values));
         if (res.code === 1) {
             message.success('修改群组成功！');
             hashHistory.push({
                 pathname: `/groupAnalyse/detail`,
-                query: router.location.query
+                query: query
             })
         } else {
             message.error('修改群组失败！');
