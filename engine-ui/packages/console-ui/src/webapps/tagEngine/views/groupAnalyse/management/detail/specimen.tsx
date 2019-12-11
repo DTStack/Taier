@@ -134,11 +134,31 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
     initColumns = () => {
         const { dataColumns = [] } = this.state;
         return dataColumns && dataColumns.map((col, index) => {
-            return {
-                title: col.entityAttrCn,
-                dataIndex: col.entityAttr,
-                key: col.entityAttr,
-                sorter: true
+            if (index === 0) {
+                return {
+                    title: col.entityAttrCn,
+                    width: 130,
+                    dataIndex: col.entityAttr,
+                    key: col.entityAttr,
+                    sorter: true,
+                    fixed: 'left'
+                }
+            } else if (index === dataColumns.length - 1) {
+                return {
+                    title: col.entityAttrCn,
+                    width: 130,
+                    dataIndex: col.entityAttr,
+                    key: col.entityAttr,
+                    sorter: true,
+                    fixed: 'right'
+                }
+            } else {
+                return {
+                    title: col.entityAttrCn,
+                    dataIndex: col.entityAttr,
+                    key: col.entityAttr,
+                    sorter: true
+                }
             }
         });
     }
