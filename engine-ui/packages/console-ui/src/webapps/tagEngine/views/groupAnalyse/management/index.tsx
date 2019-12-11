@@ -101,6 +101,7 @@ export default class GroupManage extends React.Component<any, IState> {
         updateComponentState(this, {
             queryParams: {
                 current: 1,
+                size: 20,
                 search: query
             }
         }, this.loadData)
@@ -108,7 +109,7 @@ export default class GroupManage extends React.Component<any, IState> {
 
     onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         updateComponentState(this, {
-            queryParams: { search: e.target.value }
+            queryParams: { search: e.target.value, size: 20 }
         })
     }
 
