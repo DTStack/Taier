@@ -94,35 +94,42 @@ export default class SftpConfig extends React.Component<any, any> {
                             </RadioGroup>
                         )}
                     </FormItem>
-                    {getFieldValue(`${COMPONEMT_CONFIG_KEYS.SFTP}.auth`) !== '2' ? <FormItem
-                        label="密码"
-                        {...formItemLayout}
-                    >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SFTP}.password`, {
-                            rules: [{
-                                required: true,
-                                message: '请输入密码'
-                            }]
-                        })(
-                            <Input disabled={isView} />
-                        )}
-                    </FormItem> :
-                    <FormItem
-                        label="私钥地址"
-                        {...formItemLayout}
-                    >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SFTP}.rsaPath`, {
-                            rules: [{
-                                required: true,
-                                message: '请输入私钥地址'
-                            }]
-                        })(
-                            <Input disabled={isView} />
-                        )}
-                        <Tooltip overlayClassName="big-tooltip" title={'用户的私钥储存路径，默认为～/.ssh/id_rsa'}>
-                            <Icon style={{ position: 'absolute', right: -20, top: 10 }} type="question-circle-o" />
-                        </Tooltip>
-                    </FormItem>}
+                    {  
+                        getFieldValue(`${COMPONEMT_CONFIG_KEYS.SFTP}.auth`) !== '2'
+                            ? (
+                                <FormItem
+                                    label="密码"
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SFTP}.password`, {
+                                        rules: [{
+                                            required: true,
+                                            message: '请输入密码'
+                                        }]
+                                    })(
+                                        <Input disabled={isView} />
+                                    )}
+                                </FormItem>
+                            )
+                            : (
+                                <FormItem
+                                    label="私钥地址"
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SFTP}.rsaPath`, {
+                                        rules: [{
+                                            required: true,
+                                            message: '请输入私钥地址'
+                                        }]
+                                    })(
+                                        <Input disabled={isView} />
+                                    )}
+                                    <Tooltip overlayClassName="big-tooltip" title={'用户的私钥储存路径，默认为～/.ssh/id_rsa'}>
+                                        <Icon style={{ position: 'absolute', right: -20, top: 10 }} type="question-circle-o" />
+                                    </Tooltip>
+                                </FormItem>
+                            )
+                    }
                 </div>
                 {singleButton}
             </React.Fragment>
