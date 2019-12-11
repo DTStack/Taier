@@ -20,6 +20,8 @@ interface IState {
     queryParams: { entityId: string } & IQueryParams;
     deleteVisible: boolean;
     deleteItem: any;
+    emptyText: string;
+    isSearch: boolean;
 }
 
 const basePath = '/groupAnalyse';
@@ -40,7 +42,9 @@ export default class GroupManage extends React.Component<any, IState> {
                 asc: false,
                 field: 'updateAt'
             }]
-        }
+        },
+        emptyText: '暂无数据, 请确认是否已勾选实体!',
+        isSearch: false
     }
 
     loadData = async () => {
@@ -59,6 +63,7 @@ export default class GroupManage extends React.Component<any, IState> {
                     current: Number(data.current),
                     size: Number(data.size)
                 }
+                // emptyText: queryParams.entityId ? '暂无群组, 赶快去创建吧~' : '暂无数据, 请确认是否已勾选实体!'
             });
         }
         ctx.setState({
@@ -99,6 +104,7 @@ export default class GroupManage extends React.Component<any, IState> {
 
     handleSearch = (query: string) => {
         updateComponentState(this, {
+            isSearch: true,
             queryParams: {
                 current: 1,
                 size: 20,
@@ -233,12 +239,14 @@ export default class GroupManage extends React.Component<any, IState> {
     }
 
     render () {
-        const { dataSource, loading, queryParams, deleteVisible } = this.state;
+        const { dataSource, loading, queryParams, deleteVisible, isSearch, emptyText } = this.state;
         const pagination: any = {
             total: queryParams.total,
             pageSize: queryParams.size,
             current: queryParams.current
         };
+        const emptyText1 = queryParams.entityId && isSearch ? '暂无数据~' : '暂无群组, 赶快去创建吧~';
+        // this.setState({ emptyText: emptyText1 })
         const title = (
             <div>
                 <div className="left_wp">
@@ -275,7 +283,7 @@ export default class GroupManage extends React.Component<any, IState> {
                     >
                         <Table
                             locale={
-                                queryParams.entityId ? { emptyText: '暂无群组, 赶快去创建吧~' } : { emptyText: '暂无数据, 请确认是否已勾选实体!' }
+                                { emptyText: isSearch ? emptyText1 : emptyText }
                             }
                             rowKey="groupId"
                             className="dt-ant-table--border"

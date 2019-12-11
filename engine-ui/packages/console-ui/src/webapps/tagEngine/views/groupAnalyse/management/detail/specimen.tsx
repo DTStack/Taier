@@ -172,9 +172,9 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
         e.target.checked ? this.onFilterChange(this.state.defaultListCopy) : this.onFilterChange([]);
     };
     onPaginationChange = e => {
-        const {queryParams} = this.state;
+        const { queryParams } = this.state;
         queryParams.current = e.current
-        this.setState({ queryParams})
+        this.setState({ queryParams })
         this.loadData()
     }
     render () {
@@ -239,6 +239,7 @@ export default class GroupSpecimenList extends React.Component<any, IState> {
                     loading={loading}
                     columns={this.initColumns()}
                     dataSource={dataSource}
+                    scroll={{ x: 2300 }}
                 />
             </Card>
         )
