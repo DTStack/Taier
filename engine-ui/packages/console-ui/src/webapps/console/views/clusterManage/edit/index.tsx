@@ -321,7 +321,7 @@ class EditCluster extends React.Component<any, any> {
         let hiveConfig = config.hiveConf || {};
         let hiveServerConfig = config.hiveServerConf || {};
         let learningConfig = config.learningConf || {};
-        let dtyarnshellConfig = config.dtyarnshellConf || {};
+        let dtyarnshellConfig = config.dtscriptConf || {};
         let libraConfig = config.libraConf || {};
         function setDefault (config: any, notExtKeys: any, type: any, keys: any) {
             const keyAndValue = Object.entries(config);
@@ -857,7 +857,7 @@ class EditCluster extends React.Component<any, any> {
             }
             case COMPONENT_TYPE_VALUE.DTYARNSHELL: {
                 form.setFieldsValue({
-                    [COMPONEMT_CONFIG_KEYS.DTYARNSHELL]: toChsKeys(allComponentConf.dtyarnshellConf || {}, DTYARNSHELL_KEY_MAP)
+                    [COMPONEMT_CONFIG_KEYS.DTYARNSHELL]: toChsKeys(allComponentConf.dtscriptConf || {}, DTYARNSHELL_KEY_MAP)
                 })
                 break;
             }
@@ -1002,7 +1002,7 @@ class EditCluster extends React.Component<any, any> {
         componentConf['sparkConf'] = { ...toChsKeys(formValues.sparkConf || {}, SPARK_KEY_MAP_DOTS), ...sparkExtParams };
         componentConf['flinkConf'] = { ...toChsKeys({ ...formValues.flinkConf } || {}, FLINK_KEY_MAP_DOTS), ...flinkExtParams };
         componentConf['learningConf'] = { ...learningTypeName, ...myLowerCase(formValues.learningConf), ...learningExtParams };
-        componentConf['dtyarnshellConf'] = { ...dtyarnshellTypeName, ...toChsKeys(formValues.dtyarnshellConf || {}, DTYARNSHELL_KEY_MAP_DOTS), ...dtyarnshellExtParams };
+        componentConf['dtscriptConf'] = { ...dtyarnshellTypeName, ...toChsKeys(formValues.dtscriptConf || {}, DTYARNSHELL_KEY_MAP_DOTS), ...dtyarnshellExtParams };
         componentConf['libraConf'] = { ...formValues.libraConf, ...libraExtParams };
         componentConf['sftpConf'] = formValues.sftpConf || {};
         // 服务端兼容，不允许null
@@ -1572,7 +1572,7 @@ class EditCluster extends React.Component<any, any> {
                             </div>
                         )}
                         singleButton={this.renderExtFooter(isView, component)}
-                        kerberosView={this.uploadForm('dtyarnshellConf')}
+                        kerberosView={this.uploadForm('dtscriptConf')}
                     />
                 )
             }
