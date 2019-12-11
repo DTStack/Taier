@@ -259,12 +259,19 @@ class RuleForm extends React.Component<any, any> {
                     }],
                     initialValue: get(data, 'columnName')
                 })(
-                    <Select showSearch disabled={!isEdit} style={{ width: '150px' }}>
+                    <Select
+                        showSearch
+                        disabled={!isEdit}
+                        style={{ width: '150px' }}
+                        filterOption={(input: any, option: any) =>
+                            option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                        }
+                    >
                         {tableColumn.map((item: any) => {
                             return (
                                 <Option
-                                    key={item.key}
-                                    value={item.key}
+                                    key={`${item.key}`}
+                                    value={`${item.key}`}
                                 >
                                     {item.key}
                                 </Option>
@@ -291,12 +298,19 @@ class RuleForm extends React.Component<any, any> {
                     }],
                     initialValue: get(data, 'columnName')
                 })(
-                    <Select showSearch disabled={!isEdit} style={{ width: '150px' }}>
+                    <Select
+                        showSearch
+                        disabled={!isEdit}
+                        style={{ width: '150px' }}
+                        filterOption={(input: any, option: any) =>
+                            option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                        }
+                    >
                         {tableColumn.map((item: any) => {
                             return (
                                 <Option
-                                    key={item.key}
-                                    value={item.key}
+                                    key={`${item.key}`}
+                                    value={`${item.key}`}
                                 >
                                     {item.key}
                                 </Option>

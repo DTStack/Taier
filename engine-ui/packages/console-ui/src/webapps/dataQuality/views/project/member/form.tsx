@@ -34,7 +34,8 @@ class MemberForm extends React.Component<any, any> {
             }
             )
 
-        let roleOptions: any = []; let defaultRoles: any = [];
+        let roleOptions: any = [];
+        let defaultRoles: any = [];
         if (roles) {
             roles.forEach((role: any) => {
                 // 置灰项目所有者，租户所有者两种授权对象
