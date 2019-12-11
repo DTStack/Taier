@@ -375,7 +375,11 @@ class AdminUser extends React.Component<any, UserManaState> {
         // 塞入要添加的用户列表
         const targetUsers = [];
         const uids = projectRole.targetUserIds || [];
-
+        const { roleIds = [] } = projectRole;
+        if (roleIds.length === 0) {
+            message.error('分配角色不能为空');
+            return;
+        }
         for (let i = 0; i < uids.length; i++) {
             const user = notProjectUsers.find((u: any) => `${u.userId}` === uids[i])
 
