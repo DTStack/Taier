@@ -224,7 +224,7 @@ public class ApplicationContainerListener
     }
 
     @Override
-    public LocalRemotePath[] getOutputLocation() {
+    public LocalRemotePath[] getOutputLocation(String str) {
         LOG.debug("-----call getOutputLocation-----");
         return new LocalRemotePath[0];
     }
