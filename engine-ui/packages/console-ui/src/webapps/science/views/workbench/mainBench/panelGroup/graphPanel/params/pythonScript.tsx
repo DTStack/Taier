@@ -31,7 +31,7 @@ class PythonScript extends React.Component<any, any> {
     static getDerivedStateFromProps (nextProps: any, prevState: any) {
         if (!prevState.dirty) {
             return {
-                code: nextProps.data ? decodeURIComponent((window.atob(nextProps.data.python))) : ''
+                code: (nextProps.data && Object.keys(nextProps.data).length > 0) ? decodeURIComponent((window.atob(nextProps.data.python))) : ''
             }
         }
         return null
