@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Link, hashHistory } from 'react-router';
 import { Card, Table, Input, Button, message as Message } from 'antd';
 import EmptyComp from './emptyComp';
+import classnames from 'classnames';
 import DeleteModal from '../../../components/deleteModal';
 import './style.scss';
 import { API } from '../../../api/apiMap'
@@ -265,7 +266,7 @@ export default class EntityList extends React.Component<any, IState> {
                     >
                         <Table
                             rowKey="id"
-                            className={!dataSource.length && !isSearch ? ['dt-ant-table--border', 'self-define-empty'].join(' ') : ['dt-ant-table--border'].join('')}
+                            className={classnames('dt-ant-table--border', { 'self-define-empty': !dataSource.length && !isSearch })}
                             pagination={pagination}
                             onChange={this.handleTableChange}
                             loading={loading}

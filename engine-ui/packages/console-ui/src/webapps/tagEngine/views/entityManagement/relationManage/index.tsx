@@ -5,6 +5,7 @@ import { TableColumnConfig } from 'antd/lib/table/Table';
 import DeleteModal from '../../../components/deleteModal';
 
 import { updateComponentState } from 'funcs';
+import classnames from 'classnames';
 
 import './style.scss';
 import API from '../../../api/relation';
@@ -107,9 +108,9 @@ export default class RelationManage extends React.Component<any, IState> {
         updateComponentState(this, {
             queryParams: {
                 current: 1,
-                isSearch: isSearch,
                 search: query
-            }
+            },
+            isSearch: isSearch,
         }, this.loadData)
     }
 
@@ -254,7 +255,7 @@ export default class RelationManage extends React.Component<any, IState> {
                     >
                         <Table
                             rowKey="id"
-                            className={!dataSource.length && !isSearch ? ['dt-ant-table--border', 'self-define-empty'].join(' ') : 'dt-ant-table dt-ant-table--border full-screen-table-47'}
+                            className={classnames('dt-ant-table--border', { 'self-define-empty': !dataSource.length && !isSearch })}
                             pagination={pagination}
                             onChange={this.handleTableChange}
                             loading={loading}
