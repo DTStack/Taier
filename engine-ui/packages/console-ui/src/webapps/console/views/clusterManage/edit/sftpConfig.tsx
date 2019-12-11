@@ -94,7 +94,7 @@ export default class SftpConfig extends React.Component<any, any> {
                             </RadioGroup>
                         )}
                     </FormItem>
-                    {  
+                    {
                         getFieldValue(`${COMPONEMT_CONFIG_KEYS.SFTP}.auth`) !== '2'
                             ? (
                                 <FormItem
