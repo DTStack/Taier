@@ -150,7 +150,13 @@ public class SFTPHandler {
                     SftpATTRS attrs = str.getAttrs();
                     boolean isdir = attrs.isDir();
                     String localFilePath = localDir + "/" + filename;
-                    String ftpFilePath = ftpDir;
+                    String ftpFilePath;
+                    File isFile = new File(ftpDir);
+                    if (isFile.isFile()){
+                        ftpFilePath = ftpDir;
+                    } else {
+                        ftpFilePath = ftpDir + "/" + filename;
+                    }
                     if (isdir) {
                         File dir2 = new File(localFilePath);
                         if (!dir2.exists()) {
