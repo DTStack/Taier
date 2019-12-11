@@ -114,7 +114,7 @@ IState
         const { extra, atomTagList, data } = this.props;
         const { tagId, dataType, type } = data;
         return (
-            <Row className="select-label-Row" type='flex' gutter={16}>
+            <Row className="select-label-Row" type='flex' align="middle" gutter={16}>
                 <Col>
                     <Select showSearch optionFilterProp="children" value={tagId} style={{ width: 100 }} onChange={this.onChangeAutoLabel}>
                         {

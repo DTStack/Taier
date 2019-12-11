@@ -67,7 +67,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
             tagValueId: null,
             label: '标签值1',
             value: currentId,
-            valid: true,
+            valid: false,
             params: {}
         }]
     };
@@ -198,7 +198,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                 tagValueId: null,
                 label: '标签值1',
                 value: currentId,
-                valid: true,
+                valid: false,
                 params: {}
             }],
             activeTag: currentId,
@@ -209,17 +209,20 @@ class StepTwo extends React.PureComponent<IProps, IState> {
     }
     onChangeSelectTag=(value) => { // 选择标签节点
         this.onValidateLabelRule();
-        this.setState({
-            activeTag: value
-        });
+        setTimeout(() => {
+            this.setState({
+                activeTag: value
+            });
+        }, 1000)
     }
     onChangeTags = (value, active) => {
-        this.setState({
-            tags: value,
-            activeTag: active || this.state.activeTag
-        }, () => {
-            active && this.onValidateLabelRule();
-        })
+        active && this.onValidateLabelRule()
+        setTimeout(() => {
+            this.setState({
+                tags: value,
+                activeTag: active || this.state.activeTag
+            });
+        }, 1000)
     }
     onHandleChangeNode = (key, node) => { // 改变节点值
         this.onHandleTreeNode(key, 'changeNode', node)
@@ -364,6 +367,11 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                     })
                 });
             }
+        } else {
+            notification.error({
+                message: current.label,
+                description: '至少条件一条标签规则'
+            });
         }
     }
     onHandleNext = (e: any) => {

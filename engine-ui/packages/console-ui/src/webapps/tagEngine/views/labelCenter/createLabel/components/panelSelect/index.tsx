@@ -86,12 +86,11 @@ IState
                                 rules: [
                                     {
                                         required: true,
-                                        max: 80,
                                         pattern: /^[\u4E00-\u9FA5A-Za-z0-9_]+$/,
                                         message: '姓名只能包括汉字，字母、下划线、数字'
                                     }
                                 ]
-                            })(<Input className="edit_value" onChange={this.props.onChangeLabel}/>)
+                            })(<Input className="edit_value" maxLength='80' onChange={this.props.onChangeLabel}/>)
                         }
                     </Form.Item>
                     <i className="iconfont iconbtn_edit"></i>

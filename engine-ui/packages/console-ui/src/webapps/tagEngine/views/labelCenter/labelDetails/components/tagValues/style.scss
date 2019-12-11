@@ -9,6 +9,10 @@
         border-radius: 2px;
         padding: 4px 12px;
         margin-bottom: 12px;
+        white-space: nowrap;
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
         .iconfont{
             cursor: pointer;
             margin-left: 12px;

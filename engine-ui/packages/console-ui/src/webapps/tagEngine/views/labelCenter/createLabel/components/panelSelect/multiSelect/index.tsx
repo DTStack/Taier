@@ -75,7 +75,8 @@ IState
         })
     }
     handleOk = () => {
-        const { textArea } = this.state;
+        let { textArea } = this.state;
+        textArea = textArea.trim();
         let arr = textArea ? new Set(textArea.split('\n')) : [];
         this.props.onChangeData({ values: Array.from(arr) })
         this.setState({
@@ -107,6 +108,11 @@ IState
                             getFieldDecorator(rowKey, {
                                 initialValue: data,
                                 rules: [
+                                    {
+                                        type: 'array',
+                                        max: 50,
+                                        message: '最多可输入50条'
+                                    },
                                     {
                                         required: true,
                                         message: '请输入值！'

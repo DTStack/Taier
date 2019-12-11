@@ -3,16 +3,22 @@
     flex-wrap: wrap;
     align-items: baseline;
     .tag-item{
+        position: relative;
         cursor: pointer;
         background: #FFFFFF;
         border: 1px solid #DDDDDD;
         border-radius: 2px;
-        padding: 0 12px;
+        padding: 0 20px 0 12px;
         height: 32px;
         margin-bottom: 12px;
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
         .iconfont{
-            cursor: pointer;
-            margin-left: 12px;
+            position: absolute;
+            top: 2px;
+            right: 0;
             color:#999999;
         }
         &.error{
