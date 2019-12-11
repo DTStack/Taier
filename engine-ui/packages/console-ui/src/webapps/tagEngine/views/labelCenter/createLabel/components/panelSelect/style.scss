@@ -61,4 +61,12 @@
             display: block;
         }
     }
+    .ant-form-item-control{
+        position: relative;
+        .ant-form-explain{
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+        }
+    }
 }

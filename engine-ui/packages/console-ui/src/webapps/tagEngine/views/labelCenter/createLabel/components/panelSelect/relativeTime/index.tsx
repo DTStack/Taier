@@ -50,7 +50,7 @@ IState
                 <Col>
                     <Form.Item>
                         {
-                            getFieldDecorator(rowKey, {
+                            getFieldDecorator(rowKey + '_inputNumber', {
                                 initialValue: data.value,
                                 rules: [
                                     {

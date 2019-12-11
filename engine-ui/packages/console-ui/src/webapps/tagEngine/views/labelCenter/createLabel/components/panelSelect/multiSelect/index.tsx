@@ -105,7 +105,7 @@ IState
                 <Col>
                     <Form.Item>
                         {
-                            getFieldDecorator(rowKey, {
+                            getFieldDecorator(rowKey + '_multi_select', {
                                 initialValue: data,
                                 rules: [
                                     {
