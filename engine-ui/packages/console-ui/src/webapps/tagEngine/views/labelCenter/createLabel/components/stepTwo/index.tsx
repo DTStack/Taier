@@ -216,6 +216,13 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         }, 1000)
     }
     onChangeTags = (value, active) => {
+        if (value && value.length > 20) {
+            notification.warning({
+                message: '标签',
+                description: '标签值最多添加20个！'
+            });
+            return false;
+        }
         active && this.onValidateLabelRule()
         setTimeout(() => {
             this.setState({
