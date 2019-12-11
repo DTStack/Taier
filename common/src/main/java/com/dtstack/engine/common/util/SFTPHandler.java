@@ -56,7 +56,7 @@ public class SFTPHandler {
         String username = MapUtils.getString(sftpConfig, KEY_USERNAME);
         String password = MapUtils.getString(sftpConfig, KEY_PASSWORD);
         String rsaPath = MapUtils.getString(sftpConfig, KEY_RSA);
-        int authType = MapUtils.getInteger(sftpConfig, KEY_AUTHENTICATION);
+        int authType = MapUtils.getInteger(sftpConfig, KEY_AUTHENTICATION, SftpType.PASSWORD_AUTHENTICATION.getType());
 
         try {
             JSch jsch = new JSch();
