@@ -8,7 +8,7 @@ class InputSource extends React.Component<any, any> {
         super(props);
     }
     render () {
-        const source = Array.from({ length: 4 }).map((ele: any, index: number) => ({ tableName: `table${index + 1}` }));
+        const source = Array.from({ length: 4 }).map((ele: any, index: number) => ({ tableName: `table${index}` }));
         const { data } = this.props;
         return (
             <>
