@@ -69,14 +69,16 @@ class BaseForm extends React.Component<any, any> {
         hadoopConfig: 'defaultDfs',
         hadoopConfigStr: hdfsConf,
         hasCarbonDataConfig: false,
-        ftpProtocal: 'ftp'
+        ftpProtocal: 'ftp',
+        authMethod: '1'
     }
     componentDidMount () {
         const sourceData = this.props.sourceData;
         if (!isEmpty(sourceData)) {
             let initialState: any = {
                 sourceType: sourceData.type,
-                ftpProtocal: (sourceData.dataJson && sourceData.dataJson.protocol) || 'ftp'
+                ftpProtocal: (sourceData.dataJson && sourceData.dataJson.protocol) || 'ftp',
+                authMethod: (sourceData.dataJson && sourceData.dataJson.auth) || '1'
             }
             if (sourceData.dataJson && sourceData.type === DATA_SOURCE.CARBONDATA) {
                 const hdfsConf = sourceData.dataJson.hdfsCustomConfig;
@@ -144,7 +146,14 @@ class BaseForm extends React.Component<any, any> {
 
     ftpProtocalChange = (e: any) => {
         this.setState({
-            ftpProtocal: e.target.value
+            ftpProtocal: e.target.value,
+            authMethod: '1'
+        })
+    }
+
+    authMethodChange = (e: any) => {
+        this.setState({
+            authMethod: e.target.value
         })
     }
 
@@ -307,11 +316,10 @@ class BaseForm extends React.Component<any, any> {
 
     renderDynamic () {
         const { form, sourceData, showUserNameWarning } = this.props;
-        const { sourceType, ftpProtocal, hasCarbonDataConfig } = this.state;
+        const { sourceType, ftpProtocal, hasCarbonDataConfig, authMethod } = this.state;
 
         const { getFieldDecorator, getFieldValue } = form;
         const config = sourceData.dataJson || {};
-        console.log(config);
         const jdbcRulePattern: any = {
             pattern: this.getJDBCRule(sourceType),
             message: '请检查您的JDBC地址格式！'
@@ -797,43 +805,46 @@ class BaseForm extends React.Component<any, any> {
                         })(
                             <Input autoComplete="off" />
                         )}
-                    </FormItem>,
-                    <FormItem
-                        key="password"
-                        {...formItemLayout}
-                        label="密码"
-                        hasFeedback
-                    >
-                        {getFieldDecorator('dataJson.password', {
-                            rules: [{
-                                required: true, message: '密码不可为空！'
-                            }],
-                            initialValue: ''
-                        })(
-                            <Input type="password" onChange={hidePasswordInDom} autoComplete="off" />
-                        )}
-                    </FormItem>,
-                    <FormItem
-                        key="protocol"
-                        {...formItemLayout}
-                        label="协议"
-                        hasFeedback
-                    >
-                        {getFieldDecorator('dataJson.protocol', {
-                            rules: [{
-                                required: true, message: '协议不可为空！'
-                            }],
-                            initialValue: config.protocol || 'ftp'
-                        })(
-                            <RadioGroup onChange={this.ftpProtocalChange}>
-                                <Radio value="ftp">FTP</Radio>
-                                <Radio value="sftp">SFTP</Radio>
-                            </RadioGroup>
-                        )}
                     </FormItem>
                 ];
-
                 if (ftpProtocal === 'ftp') {
+                    ftpFormItems.push(
+                        <FormItem
+                            key="password"
+                            {...formItemLayout}
+                            label="密码"
+                            hasFeedback
+                        >
+                            {getFieldDecorator('dataJson.password', {
+                                rules: [{
+                                    required: true, message: '密码不可为空！'
+                                }],
+                                initialValue: ''
+                            })(
+                                <Input type="password" onChange={hidePasswordInDom} autoComplete="off" />
+                            )}
+                        </FormItem>
+                    )
+                    ftpFormItems.push(
+                        <FormItem
+                            key="protocol"
+                            {...formItemLayout}
+                            label="协议"
+                            hasFeedback
+                        >
+                            {getFieldDecorator('dataJson.protocol', {
+                                rules: [{
+                                    required: true, message: '协议不可为空！'
+                                }],
+                                initialValue: config.protocol || 'ftp'
+                            })(
+                                <RadioGroup onChange={this.ftpProtocalChange}>
+                                    <Radio value="ftp">FTP</Radio>
+                                    <Radio value="sftp">SFTP</Radio>
+                                </RadioGroup>
+                            )}
+                        </FormItem>
+                    )
                     ftpFormItems.push(
                         <FormItem
                             key="connectMode"
@@ -854,6 +865,88 @@ class BaseForm extends React.Component<any, any> {
                             )}
                         </FormItem>
                     )
+                } else {
+                    if (authMethod !== '2') {
+                        ftpFormItems.push(
+                            <FormItem
+                                key="password"
+                                {...formItemLayout}
+                                label="密码"
+                                hasFeedback
+                            >
+                                {getFieldDecorator('dataJson.password', {
+                                    rules: [{
+                                        required: true, message: '密码不可为空！'
+                                    }],
+                                    initialValue: ''
+                                })(
+                                    <Input type="password" onChange={hidePasswordInDom} autoComplete="off" />
+                                )}
+                            </FormItem>
+                        )
+                    }
+                    ftpFormItems.push(
+                        <FormItem
+                            key="protocol"
+                            {...formItemLayout}
+                            label="协议"
+                            hasFeedback
+                        >
+                            {getFieldDecorator('dataJson.protocol', {
+                                rules: [{
+                                    required: true, message: '协议不可为空！'
+                                }],
+                                initialValue: config.protocol || 'ftp'
+                            })(
+                                <RadioGroup onChange={this.ftpProtocalChange}>
+                                    <Radio value="ftp">FTP</Radio>
+                                    <Radio value="sftp">SFTP</Radio>
+                                </RadioGroup>
+                            )}
+                        </FormItem>
+                    )
+                    ftpFormItems.push(
+                        <FormItem
+                            key="auth"
+                            {...formItemLayout}
+                            label="认证方式"
+                            hasFeedback
+                        >
+                            {getFieldDecorator('dataJson.auth', {
+                                rules: [{
+                                    required: true, message: '认证方式不可为空！'
+                                }],
+                                initialValue: config.auth || '1'
+                            })(
+                                <RadioGroup onChange={this.authMethodChange}>
+                                    <Radio value="1">密码</Radio>
+                                    <Radio value="2">私钥</Radio>
+                                </RadioGroup>
+                            )}
+                        </FormItem>
+                    )
+                    if (authMethod === '2') {
+                        ftpFormItems.push(
+                            <FormItem
+                                key="rsaPath"
+                                {...formItemLayout}
+                                label="私钥地址"
+                                hasFeedback
+                            >
+                                {getFieldDecorator('dataJson.rsaPath', {
+                                    rules: [{
+                                        required: true, message: '私钥地址不可为空！'
+                                    }],
+                                    initialValue: config.rsaPath || '～/.ssh/id_rsa'
+                                })(
+                                    <Input type="rsaPath" autoComplete="off" />
+                                )}
+                                <Tooltip overlayClassName="big-tooltip" title={'用户的私钥储存路径，默认为～/.ssh/id_rsa'}>
+                                    <Icon className="help-doc" type="question-circle-o" />
+                                </Tooltip>
+                            </FormItem>
+                        )
+                    }
                 }
 
                 return ftpFormItems;

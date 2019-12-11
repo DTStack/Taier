@@ -43,7 +43,7 @@ const confirm = Modal.confirm;
 function giveMeAKey () {
     return (new Date().getTime() + '' + ~~(Math.random() * 100000))
 }
-
+let timer: any = null;
 @(connect((state: any) => {
     return {
         testStatus: state.testStatus,
@@ -116,14 +116,17 @@ class EditCluster extends React.Component<any, any> {
         let copyComp = cloneDeep(compConf);
         for (let key in copyComp) {
             if (key == COMPONEMT_CONFIG_KEYS.SPARK) {
-                const typeArr = copyComp[key].typeName.split('-');
+                const { typeName } = copyComp[key];
+                const typeArr = (typeName && typeName.split('-')) || [];
                 copyComp[key] = Object.assign({}, toChsKeys(copyComp[key] || {}, SPARK_KEY_MAP), {
-                    typeName: `${typeArr[0]}-${typeArr[1]}`
+                    typeName: typeArr.length > 1 ? `${typeArr[0]}-${typeArr[1]}` : 'spark-yarn'
                 })
             }
             if (key == COMPONEMT_CONFIG_KEYS.FLINK) {
+                const { typeName } = copyComp[key];
+                const typeArr = (typeName && typeName.split('-')) || [];
                 copyComp[key] = Object.assign({}, toChsKeys(copyComp[key] || {}, FLINK_KEY_MAP), {
-                    typeName: copyComp[key].typeName.split('-')[0]
+                    typeName: typeArr[0] || 'flink140'
                 })
             }
             if (key == COMPONEMT_CONFIG_KEYS.LEARNING) {
@@ -146,7 +149,6 @@ class EditCluster extends React.Component<any, any> {
         if (isHadoop) {
             setFieldsValue(copyComp);
             for (let i in copyComp) {
-                console.log(i, !!copyComp[i].kerberosFile)
                 if (copyComp[i].kerberosFile) {
                     setFieldsValue({
                         [i]: {
@@ -154,6 +156,17 @@ class EditCluster extends React.Component<any, any> {
                             // openKerberos: copyComp[i].openKerberos,
                             // kerberosFile: copyComp[i].kerberosFile
                         }
+                    })
+                }
+                if (i === 'sftpConf' || copyComp[i].rsaPath) {
+                    timer = setTimeout(() => {
+                        setFieldsValue({
+                            [i]: {
+                                ...copyComp[i]
+                            }
+                        })
+                        clearTimeout(timer);
+                        timer = null;
                     })
                 }
             }
@@ -1597,6 +1610,8 @@ class EditCluster extends React.Component<any, any> {
                 return (
                     <SftpConfig
                         isView={isView}
+                        getFieldValue={getFieldValue}
+                        setFieldsValue={setFieldsValue}
                         getFieldDecorator={getFieldDecorator}
                         singleButton={this.renderExtFooter(isView, component)}
                     />
