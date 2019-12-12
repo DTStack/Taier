@@ -1,8 +1,11 @@
 import * as React from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux'
 import { Card, Input, Table, Row, Col, Button, Pagination, message } from 'antd';
 
+import * as experimentActions from '../../../actions/experimentActions'
 import Api from '../../../api'
-import { offlineTaskPeriodFilter } from '../../../comm/const'
+import { offlineTaskPeriodFilter, ScheduleStatus } from '../../../comm/const'
 import { taskType } from '../../../consts';
 import { appUriDict } from 'main/consts';
 import { toRdosGateway } from 'funcs';
@@ -10,6 +13,17 @@ import { toRdosGateway } from 'funcs';
 import utils from 'utils';
 
 const Search = Input.Search;
+
+@(connect((state: any) => {
+    return {
+        tabs: state.experiment.localTabs || []
+    }
+}, (dispatch: any) => {
+    return {
+        ...bindActionCreators(experimentActions, dispatch)
+    }
+}) as any)
+
 class Experiment extends React.PureComponent<any, any> {
     state: any = {
         data: [],
@@ -56,7 +70,8 @@ class Experiment extends React.PureComponent<any, any> {
             }
         }, this.getTableData)
     }
-    handleForzenTasks = async (flag: any) => {
+    handleForzenTasks = async (flag: ScheduleStatus, taskList: any []) => {
+        // flag  2 冻结实验  flag 1解冻实验
         const { selectedRowKeys } = this.state;
         let res = await Api.comm.frozenTask({
             scheduleStatus: flag,
@@ -64,8 +79,27 @@ class Experiment extends React.PureComponent<any, any> {
         })
         if (res && res.code == 1) {
             message.success('操作成功！');
+            // 更新算法实验调度周期组件冻结状态 后端拿不到实验id  前端根据中文名称来匹配
+            let taskTabs = taskList.filter(item => selectedRowKeys.indexOf(item.id) > -1)
+            this.updateLocalTabs(taskTabs, flag)
             this.getTableData();
         }
+    }
+    /**
+     * 运维中心任务管理某个实验冻结/未冻结 更新缓存的实验列表
+     * @param experimentTabs 冻结/未冻结的实验列表
+     * @param flag 2 冻结实验 1 解冻实验
+     */
+    updateLocalTabs (experimentTabs: any[], flag: ScheduleStatus) {
+        let scheduleStatus = flag === ScheduleStatus.FREZED ? ScheduleStatus.FREZED : ScheduleStatus.UNFREZED
+        let { tabs } = this.props;
+        tabs.forEach((tab: any) => {
+            let experimentTab = experimentTabs.find((ele: any) => tab.name === ele.name)
+            if (experimentTab) {
+                tab.scheduleStatus = scheduleStatus;
+                this.props.updateExperimentTab(tab)
+            }
+        })
     }
     getTableData = async () => {
         const { params, pagination } = this.state;
@@ -136,13 +170,14 @@ class Experiment extends React.PureComponent<any, any> {
             dataIndex: 'ownerUser.userName'
         }]
     }
-    tableFooter = () => {
+    tableFooter = (item: any[]) => {
         return (
             <Row>
                 <Col span={12}>
                     <Button
                         style={{ marginRight: 10 }}
-                        onClick={this.handleForzenTasks.bind(this, 2)}
+                        onClick={this.handleForzenTasks.bind(this, ScheduleStatus.FREZED, item)}
+                        // onClick={this.handleForzenTasks.bind(this, 2, item)}
                         size="small"
                         type="primary"
                     >
@@ -150,7 +185,7 @@ class Experiment extends React.PureComponent<any, any> {
                     </Button>
                     <Button
                         size="small"
-                        onClick={this.handleForzenTasks.bind(this, 1)}
+                        onClick={this.handleForzenTasks.bind(this, ScheduleStatus.UNFREZED, item)}
                     >
                         解冻实验
                     </Button>

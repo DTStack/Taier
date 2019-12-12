@@ -5,6 +5,43 @@ export default {
 
     // ===== common ===== //
     GET_ALL_MENU_LIST: `${DATA_API_BASE_URL}/user/showMenuList`, // 获取所有功能菜单
+
+    // LOGIN: `${STREAM_BASE_URL}/user/login`,
+    ADD_ROLE_USRE: `${DATA_API_BASE_URL}/roleUser/addRoleUser`, // 项目用户
+    GET_NOT_PROJECT_USERS: `${DATA_API_BASE_URL}/project/getUsersNotInProject`, // 获取所以用户
+    LOGOUT: `/uic/api/v2/logout`,
+    APP_LOGOUT: `${DATA_API_BASE_URL}/login/out`,
+    UPDATE_USER_ROLE: `${DATA_API_BASE_URL}/roleUser/updateUserRole`, // 更新用户角色
+    GET_USER_BY_ID: `${DATA_API_BASE_URL}/user/getUserById`, // 根据用户ID获取用户
+    SEARCH_UIC_USERS: `${DATA_API_BASE_URL}/project/getUicUsersNotInProject`,
+
+    // ===== 项目模块 ===== //
+    CREATE_PROJECT: `${DATA_API_BASE_URL}/project/createProject`, // 创建项目
+    REMOVE_USER_FROM_PROJECT: `${DATA_API_BASE_URL}/roleUser/removeRoleUserFromProject`, // 删除项目用户接口
+    ADD_PROJECT_USER: `${DATA_API_BASE_URL}/roleUser/addRoleUserNew`, // 添加项目用户接口
+    QUERY_PROJECT_LIST: `${DATA_API_BASE_URL}/project/queryProjects`, // 查询项目列表
+    GET_PROJECT_LIST: `${DATA_API_BASE_URL}/project/getProjects`, // 获取当前用户有权限的项目列表
+    GET_ALL_PROJECTS: `${DATA_API_BASE_URL}/project/getAllProjects`, // 获取所以项目列表
+    GET_USRE_PROJECTS: `${DATA_API_BASE_URL}/project/getProjectUserIn`, // 获取用户所在的所有项目
+    GET_PROJECT_USERS: `${DATA_API_BASE_URL}/project/getProjectUsers`, // 获取所在的项目所有用户
+    GET_PROJECT_BY_ID: `${DATA_API_BASE_URL}/project/getProjectByProjectId`, // 获取项目详情
+    UPDATE_PROJECT_INFO: `${DATA_API_BASE_URL}/project/updateProjectInfo`, // 修改项目描述
+    GET_PROJECT_INFO: `${DATA_API_BASE_URL}/project/getProjectInfo`, // 获取项目信息包括告警
+    GET_PROJECT_LIST_INFO: `${DATA_API_BASE_URL}/project/getProjectList`, // 首页project查询
+    SET_STICKY: `${DATA_API_BASE_URL}/project/setSticky`, // 置顶
+    GET_PROJECT_SUMMARY: `${DATA_API_BASE_URL}/project/getProjectSummaryVO`, // 获取项目总信息
+    DELETE_PROJECT: `${DATA_API_BASE_URL}/project/deleteProject`, // 删除项目接口
+    UPDATE_PROJECT_SCHEDULE: `${DATA_API_BASE_URL}/project/closeOrOpenSchedule`, // 开启或关闭项目调度
+    BIND_PRODUCTION_PROJECT: `${DATA_API_BASE_URL}/project/bindingProject`, // 绑定生产项目
+    GET_COULD_BINDING_PROJECT_LIST: `${DATA_API_BASE_URL}/project/getBindingProjects`, // 获取可以绑定的项目
+
+    // ===== 角色管理 ===== //
+    GET_ROLE_LIST: `${DATA_API_BASE_URL}/role/pageQuery`, // 获取角色列表
+    UPDATE_ROLE: `${DATA_API_BASE_URL}/role/addOrUpdateRole`, // 新建/更新角色
+    DELETE_ROLE: `${DATA_API_BASE_URL}/role/deleteRole`, // 删除角色
+    GET_ROLE_TREE: `${DATA_API_BASE_URL}/permission/tree`, // 编辑角色
+    GET_ROLE_INFO: `${DATA_API_BASE_URL}/permission/getPermissionIdsByRoleId`, // 获取角色信息
+
     // ===== api授权审批 ====//
     HANDLE_APPLY: `${DATA_API_BASE_URL}/apply/handleApply`, // 审批
     EDIT_HANDLE_APPLY: `${DATA_API_BASE_URL}/apply/editHandleApply`, // 管理员修改api申请的调用周期和次数
@@ -60,6 +97,7 @@ export default {
     GET_USER_SK_INFO: `${DATA_API_BASE_URL}/skAuth/getUserSkInfo`, // 获取用户appKey，appSecret信息
     RESET_APP_SECRET: `${DATA_API_BASE_URL}/skAuth/resetAppSecret`, // 重置app secret
     GENERATE_SECRET: `${DATA_API_BASE_URL}/skAuth/generateSkInfo`, // 生成app secret
+    RESET_TOKEN: `${DATA_API_BASE_URL}/apply/resetApplyTokenForNormal`, // 重置token
 
     // ===== 市场信息 =====//
     GET_CATALOGUE: `${DATA_API_BASE_URL}/catalogue/getCatalogue`, // 获取市场分类信息

@@ -96,20 +96,20 @@ export const HADOOP_GROUP_VALUE = [ // hadoop 引擎支持的组件类型(复选
     { label: 'Flink', value: COMPONENT_TYPE_VALUE.FLINK },
     { label: 'Spark', value: COMPONENT_TYPE_VALUE.SPARK },
     { label: 'Learning', value: COMPONENT_TYPE_VALUE.LEARNING },
-    { label: 'DTYarnShell', value: COMPONENT_TYPE_VALUE.DTYARNSHELL },
+    { label: 'DTScript', value: COMPONENT_TYPE_VALUE.DTYARNSHELL }, // DTYarnShell => DTScript
     { label: 'HDFS', value: COMPONENT_TYPE_VALUE.HDFS, disabled: true },
     { label: 'YARN', value: COMPONENT_TYPE_VALUE.YARN, disabled: true },
     { label: 'SparkThrift', value: COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER },
     { label: 'CarbonData ThriftServer', value: COMPONENT_TYPE_VALUE.CARBONDATA },
     { label: 'Hive Server', value: COMPONENT_TYPE_VALUE.HIVESERVER },
-    { label: 'SFTP', value: COMPONENT_TYPE_VALUE.SFTP },
+    { label: 'SFTP', value: COMPONENT_TYPE_VALUE.SFTP, disabled: true },
     { label: 'Impala SQL', value: COMPONENT_TYPE_VALUE.IMPALASQL }
 ];
 export const COMPONEMT_CONFIG_KEYS = {
     FLINK: 'flinkConf',
     SPARK: 'sparkConf',
     LEARNING: 'learningConf',
-    DTYARNSHELL: 'dtyarnshellConf',
+    DTYARNSHELL: 'dtscriptConf',
     HDFS: 'hadoopConf',
     YARN: 'yarnConf',
     SPARKTHRIFTSERVER: 'hiveConf',
@@ -226,7 +226,9 @@ export const validateFlinkParams: any = [ // flink
     'flinkConf.typeName',
     'flinkConf.clusterMode',
     'flinkConf.flinkJarPath',
-    'flinkConf.flinkJobHistory',
+    // 'flinkConf.flinkJobHistory',
+    // 'flinkConf.flinkJobHistory',
+    // 'flinkConf.flinkJobHistory',
     // 'flinkConf.flinkPrincipal',
     // 'flinkConf.flinkKeytabPath',
     // 'flinkConf.flinkKrb5ConfPath',
@@ -266,13 +268,13 @@ export const validateSparkParams: any = [ // spark
     'sparkConf.kerberosFile'
 ]
 export const validateDtYarnShellParams: any = [
-    'dtyarnshellConf.jlogstashRoot',
-    'dtyarnshellConf.javaHome',
-    'dtyarnshellConf.hadoopHomeDir',
-    // 'dtyarnshellConf.hdfsPrincipal',
-    // 'dtyarnshellConf.hdfsKeytabPath',
-    // 'dtyarnshellConf.hdfsKrb5ConfPath',
-    'dtyarnshellConf.kerberosFile'
+    'dtscriptConf.jlogstashRoot',
+    'dtscriptConf.javaHome',
+    'dtscriptConf.hadoopHomeDir',
+    // 'dtscriptConf.hdfsPrincipal',
+    // 'dtscriptConf.hdfsKeytabPath',
+    // 'dtscriptConf.hdfsKrb5ConfPath',
+    'dtscriptConf.kerberosFile'
 ]
 
 export const validateLearningParams: any = [
@@ -314,39 +316,79 @@ export const DTYARNSHELL_KEY_MAP_DOTS: any = {
     'python3Path': 'python3.path'
 }
 export const FLINK_KEY_MAP: any = {
-    'yarn.jobmanager.help.mb': 'yarnJobmanagerHelpMb',
-    'yarn.taskmanager.help.mb': 'yarnTaskmanagerHelpMb',
+    'yarn.jobmanager.heap.mb': 'yarnJobmanagerHeapMb',
+    'yarn.taskmanager.heap.mb': 'yarnTaskmanagerHeapMb',
     'yarn.taskmanager.numberOfTaskSlots': 'yarnTaskmanagerNumberOfTaskSlots',
-    'yarn.taskmanager.numberOfTaskManager': 'yarnTaskmanagerNumberOfTaskManager'
+    'yarn.taskmanager.numberOfTaskManager': 'yarnTaskmanagerNumberOfTaskManager',
+    // prometheus相关
+    'metrics.reporter.promgateway.class': 'metricsReporterPromgatewayClass',
+    'metrics.reporter.promgateway.host': 'metricsReporterPromgatewayHost',
+    'metrics.reporter.promgateway.port': 'metricsReporterPromgatewayPort',
+    'metrics.reporter.promgateway.jobName': 'metricsReporterPromgatewayJobName',
+    'metrics.reporter.promgateway.randomJobNameSuffix': 'metricsReporterPromgatewayRandomJobNameSuffix',
+    'metrics.reporter.promgateway.deleteOnShutdown': 'metricsReporterPromgatewayDeleteOnShutdown',
+    // flinkJobHistory =>
+    'historyserver.web.address': 'historyserverWebAddress',
+    'historyserver.web.port': 'historyserverWebPort',
+
+    'high-availability.cluster-id': 'high-availabilityCluster-id',
+    'high-availability.zookeeper.path.root': 'high-availabilityZookeeperPathRoot',
+    'high-availability.zookeeper.quorum': 'high-availabilityZookeeperQuorum',
+    'jobmanager.archive.fs.dir': 'jobmanagerArchiveFsDir',
+    'high-availability.storageDir': 'high-availabilityStorageDir'
 }
 export const FLINK_KEY_MAP_DOTS: any = {
-    'yarnJobmanagerHelpMb': 'yarn.jobmanager.help.mb',
-    'yarnTaskmanagerHelpMb': 'yarn.taskmanager.help.mb',
+    'yarnJobmanagerHeapMb': 'yarn.jobmanager.heap.mb',
+    'yarnTaskmanagerHeapMb': 'yarn.taskmanager.heap.mb',
     'yarnTaskmanagerNumberOfTaskSlots': 'yarn.taskmanager.numberOfTaskSlots',
     'yarnTaskmanagerNumberOfTaskManager': 'yarn.taskmanager.numberOfTaskManager',
     'stateCheckpointsDir': 'state.checkpoints.dir',
-    'stateCheckpointsNum-retained': 'state.checkpoints.num-retained'
+    'stateCheckpointsNum-retained': 'state.checkpoints.num-retained',
+    // prometheus相关
+    'metricsReporterPromgatewayClass': 'metrics.reporter.promgateway.class',
+    'metricsReporterPromgatewayHost': 'metrics.reporter.promgateway.host',
+    'metricsReporterPromgatewayPort': 'metrics.reporter.promgateway.port',
+    'metricsReporterPromgatewayJobName': 'metrics.reporter.promgateway.jobName',
+    'metricsReporterPromgatewayRandomJobNameSuffix': 'metrics.reporter.promgateway.randomJobNameSuffix',
+    'metricsReporterPromgatewayDeleteOnShutdown': 'metrics.reporter.promgateway.deleteOnShutdown',
+    // flinkJobHistory =>
+    'historyserverWebAddress': 'historyserver.web.address',
+    'historyserverWebPort': 'historyserver.web.port',
+
+    'high-availabilityCluster-id': 'high-availability.cluster-id',
+    'high-availabilityZookeeperPathRoot': 'high-availability.zookeeper.path.root',
+    'high-availabilityZookeeperQuorum': 'high-availability.zookeeper.quorum',
+    'jobmanagerArchiveFsDir': 'jobmanager.archive.fs.dir',
+    'high-availabilityStorageDir': 'high-availability.storageDir'
 }
 // 非用户自定义参数
 export const notExtKeysFlink: any = [
-    'typeName', 'flinkZkAddress',
-    'flinkHighAvailabilityStorageDir',
-    'flinkZkNamespace', 'reporterClass',
-    'gatewayHost', 'gatewayPort',
-    'gatewayJobName', 'deleteOnShutdown',
-    'randomJobNameSuffix', 'jarTmpDir',
+    'typeName',
+    'high-availability',
+    'high-availability.zookeeper.quorum',
+    'high-availability.storageDir',
+    'high-availability.zookeeper.path.root',
+    'metrics.reporter.promgateway.class',
+    'metrics.reporter.promgateway.host',
+    'metrics.reporter.promgateway.port',
+    'metrics.reporter.promgateway.jobName',
+    'metrics.reporter.promgateway.randomJobNameSuffix',
+    'metrics.reporter.promgateway.deleteOnShutdown',
+    'jarTmpDir',
     'flinkPluginRoot', 'remotePluginRootDir',
     'clusterMode', 'flinkJarPath',
-    'flinkJobHistory',
-    'flinkClusterId',
+    'historyserver.web.address',
+    'historyserver.web.port',
+    'high-availability.cluster-id',
     // 'flinkPrincipal', 'flinkKeytabPath', 'flinkKrb5ConfPath',
     // 'zkPrincipal', 'zkKeytabPath', 'zkLoginName',
-    'yarn.jobmanager.help.mb',
-    'yarn.taskmanager.help.mb', 'yarn.taskmanager.numberOfTaskSlots', 'yarn.taskmanager.numberOfTaskManager',
+    'yarn.jobmanager.heap.mb',
+    'yarn.taskmanager.heap.mb', 'yarn.taskmanager.numberOfTaskSlots', 'yarn.taskmanager.numberOfTaskManager',
     'openKerberos', 'kerberosFile',
     'flinkSessionSlotCount',
     'state.checkpoints.dir',
-    'jobmanagerArchiveFsDir',
+    // 'jobmanagerArchiveFsDir',
+    'jobmanager.archive.fs.dir',
     'state.checkpoints.num-retained'
 ];
 export const notExtKeysSpark: any = [

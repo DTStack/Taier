@@ -52,6 +52,7 @@ class SqlScript extends React.Component<any, any> {
         })
     }
     handleSaveSql = () => {
+        alert('sql change')
         const { currentTab, componentId, changeContent, data } = this.props;
         const currentComponentData = currentTab.graphData.find((o: any) => o.vertex && o.data.id === componentId);
         const sysParams = matchTaskParams(this.props.sysParams, this.state.code);

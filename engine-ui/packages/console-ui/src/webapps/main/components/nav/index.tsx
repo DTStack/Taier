@@ -9,6 +9,7 @@ import { MY_APPS } from '../../consts';
 import 'public/dtinsightFont/iconfont.css'
 import './style.scss'
 
+const SubMenu = Menu.SubMenu;
 declare var window: any;
 declare var APP_CONF: any;
 
@@ -60,16 +61,50 @@ export function compareEnableApp (apps: any, licenseApps: any, isShowHome?: any)
     }
 }
 
-function renderATagMenuItems (menuItems: any, isRoot?: boolean, isRenderIcon = false) {
+/**
+ * 渲染各个应用的菜单导航项
+ * @param menuItems 菜单项列表
+ */
+function renderMenuItem (menuItems: any, isRoot?: boolean, isRenderIcon = false) {
     return menuItems && menuItems.length > 0 ? menuItems.map((menu: any) => {
         const isShow = menu.enable && (!menu.needRoot || (menu.needRoot && isRoot))
-        return isShow ? (<Menu.Item key={menu.id}>
+        return isShow ? (<Menu.Item key={menu.id} className={menu.menuClass}>
             <a href={menu.link} target={menu.target} className="dropdown-content">
                 {(isRenderIcon || menu.enableIcon) && <span className={`iconfont icon-${menu.className || ''}`}></span>}
                 {menu.name}
             </a>
         </Menu.Item>) : ''
     }) : []
+}
+function renderATagMenuItems (menuItems: any, isRoot?: boolean, isRenderIcon = false, subMenuList?: any) {
+    let subMenuItems = subMenuList || [];
+    let Menu = renderMenuItem(menuItems, isRoot, isRenderIcon);
+    let subMenu = renderMenuItem(subMenuItems, isRoot, isRenderIcon);
+    let isShowSubMenu = subMenuItems && (subMenuItems.findIndex((item: any) => item.enable && (!item.needRoot || (item.needRoot && isRoot))) > -1)
+    return (
+        [ Menu,
+            // eslint-disable-next-line react/jsx-key
+            isShowSubMenu && (<SubMenu
+                className="my-menu-item menu_mini"
+                title={(
+                    <span
+                        style={{
+                            height: '47px'
+                        }}
+                        className="my-menu-item"
+                    >
+                        <span
+                            className="menu-text-ellipsis"
+                        >
+                            其他
+                        </span>&nbsp;
+                        <Icon type="caret-down" />
+                    </span>
+                )}
+            >
+                { subMenu }
+            </SubMenu>)]
+    )
 }
 export function Logo (props: any) {
     const { linkTo, img } = props
@@ -79,7 +114,7 @@ export function Logo (props: any) {
 }
 
 export function MenuLeft (props: any) {
-    const { activeKey, onClick, menuItems, user, customItems = [] } = props;
+    const { activeKey, onClick, menuItems, subMenuItems, user, customItems = [], selectProjectsubMenu } = props;
     return (
         <div className="menu left">
             <Menu
@@ -88,7 +123,8 @@ export function MenuLeft (props: any) {
                 selectedKeys={[activeKey]}
                 mode="horizontal"
             >
-                {customItems.concat(renderATagMenuItems(menuItems, user.isRoot))}
+                {selectProjectsubMenu}
+                {customItems.concat(renderATagMenuItems(menuItems, user.isRoot, false, subMenuItems))}
             </Menu>
         </div>
     )
@@ -244,12 +280,13 @@ class Navigator extends React.Component<any, any> {
 
     render () {
         const {
-            user, logo, menuItems,
+            user, logo, menuItems, subMenuItems,
             settingMenus, apps, app, licenseApps,
             menuLeft, menuRight, logoWidth, showHelpSite, helpUrl, customItems
         } = this.props;
         const { current } = this.state
         const theme = window.APP_CONF.theme;
+        console.log(this.props)
         return (
             <header className={`header ${theme || 'default'}`}>
                 <div style={{ width: logoWidth }} className="logo left txt-left">
@@ -257,10 +294,12 @@ class Navigator extends React.Component<any, any> {
                 </div>
                 {
                     menuLeft || <MenuLeft
+                        selectProjectsubMenu={this.props.selectProjectsubMenu}
                         user={user}
                         activeKey={current}
                         customItems={customItems}
                         menuItems={menuItems}
+                        subMenuItems={subMenuItems}
                         licenseApps={licenseApps}
                         onClick={this.handleClick}
                     />

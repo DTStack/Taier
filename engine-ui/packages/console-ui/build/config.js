@@ -7,6 +7,7 @@ module.exports = {
         proxy: {
             '/api/dq': {
                 target: 'http://172.16.10.251:8089', // 开发环境
+                // target: 'http://172.16.3.66:8089', // 联调
                 // target: "http://172.16.6.135:8089", // tmp server
                 // target: "http://172.16.10.45:8089",
                 // ignorePath: true,
@@ -34,6 +35,7 @@ module.exports = {
                 target: "http://172.16.10.251:9023", // formal test ser
                 // target: "http://172.16.8.108:9023", // dev
                 // target: 'http://172.16.10.86:9021', // test
+                // target: 'http://172.16.0.185:9021', // chener
                 // ignorePath: true,
                 // Mock
                 // pathRewrite:{"^/api/streamapp":"/api/rdos"},
@@ -49,6 +51,7 @@ module.exports = {
                 secure: false
             },
             '/api/dataScience': { // 算法平台
+                // target: 'http://172.16.3.196:9029', // 联调环境
                 target: 'http://172.16.10.251:9029', // 开发环境
                 // target: 'http://127.0.0.1:3000', // 测试环境
                 // target: 'http://172.16.3.30:9029', // 联调环境
@@ -59,6 +62,7 @@ module.exports = {
             '/api/da': { // da地址
                 // target: 'http://172.16.10.45:8087',
                 target: "http://172.16.10.251:8087",//开发环境
+                // target: "http://172.16.0.131:8087",// liantiao
 
                 // pathRewrite:{"^/api/da/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/da"},
                 changeOrigin: true,
@@ -71,7 +75,8 @@ module.exports = {
                 secure: false
             },
             '/api/console': { // 控制台
-                target: 'http://172.16.10.168:8084', // 开发环境
+                // target: 'http://172.16.10.168:8084', // 开发环境
+                target: 'http://172.16.2.150:8084', // 开发环境
                 // target: "http://172.16.10.65", // test server
                 // target: "http://172.16.10.34:8084",   // test
                 // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},

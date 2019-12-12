@@ -140,13 +140,13 @@ class GraphContainer extends React.Component<any, GraphContainerState> {
             if (cell.vertex) {
                 menu.addItem('重命名', null, function () {
                     ctx.initEditTaskCell(cell, currentNode);
-                }, null, null, true);
+                }, null, null, !ctx.props.isRunning);
                 menu.addItem('删除', null, function () {
                     ctx.removeCell(cell);
-                }, null, null, true);
+                }, null, null, !ctx.props.isRunning);
                 menu.addItem('复制', null, function () {
                     ctx.copyCell(cell);
-                }, null, null, true);
+                }, null, null, !ctx.props.isRunning);
                 menu.addSeparator();
                 menu.addItem('从此处开始执行', null, function () {
                     ctx.startHandlerFromHere(cell);
@@ -174,7 +174,8 @@ class GraphContainer extends React.Component<any, GraphContainerState> {
                 const reportList = [
                     COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION,
                     COMPONENT_TYPE.DATA_EVALUATE.REGRESSION_CLASSIFICATION,
-                    COMPONENT_TYPE.DATA_EVALUATE.UNION_CLASSIFICATION
+                    COMPONENT_TYPE.DATA_EVALUATE.UNION_CLASSIFICATION,
+                    COMPONENT_TYPE.DATA_EVALUATE.CONFUSION_MATRIX
                 ]
                 if (reportList.includes(currentNode.componentType)) {
                     menu.addItem('查看评估报告', null, function () {
@@ -219,19 +220,26 @@ class GraphContainer extends React.Component<any, GraphContainerState> {
     }
     componentType = (componentType: any) => {
         switch (componentType) {
-            case 1: return '读数据表';
-            case 2: return '写数据表';
-            case 3: return 'sql脚本';
-            case 4: return '类型转换';
-            case 5: return '归一化';
-            case 6: return '拆分';
-            case 7: return '逻辑二分类';
-            case 8: return '数据预测';
-            case 9: return '二分类评估';
+            case COMPONENT_TYPE.DATA_SOURCE.READ_DATABASE: return '读数据表';
+            case COMPONENT_TYPE.DATA_SOURCE.WRITE_DATABASE: return '写数据表';
+            case COMPONENT_TYPE.DATA_TOOLS.SQL_SCRIPT: return 'sql脚本';
+            case COMPONENT_TYPE.DATA_TOOLS.PYTHON_SCRIPT: return 'python脚本';
+            case COMPONENT_TYPE.DATA_MERGE.TYPE_CHANGE: return '类型转换';
+            case COMPONENT_TYPE.DATA_MERGE.NORMALIZE: return '归一化';
+            case COMPONENT_TYPE.DATA_PRE_HAND.DATA_SPLIT: return '拆分';
+            case COMPONENT_TYPE.MACHINE_LEARNING.LOGISTIC_REGRESSION: return '逻辑二分类';
+            case COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT: return '数据预测';
+            case COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION: return '二分类评估';
             case COMPONENT_TYPE.MACHINE_LEARNING.KMEANS_UNION: return 'kmeans聚类';
             case COMPONENT_TYPE.MACHINE_LEARNING.GBDT_REGRESSION: return 'GBDT回归';
             case COMPONENT_TYPE.DATA_EVALUATE.UNION_CLASSIFICATION: return '聚类模型评估';
             case COMPONENT_TYPE.DATA_EVALUATE.REGRESSION_CLASSIFICATION: return '回归模型评估';
+            case COMPONENT_TYPE.DATA_MERGE.STANDARD: return '标准化';
+            case COMPONENT_TYPE.DATA_MERGE.MISS_VALUE: return '缺失值填充';
+            case COMPONENT_TYPE.MACHINE_LEARNING.GBDT_CLASS: return 'GBDT二分类';
+            case COMPONENT_TYPE.MACHINE_LEARNING.SVM: return 'SVM';
+            case COMPONENT_TYPE.DATA_EVALUATE.CONFUSION_MATRIX: return '混淆矩阵';
+            case COMPONENT_TYPE.FEATURE_ENGINEER.ONE_HOT: return 'one-hot编码';
             default: return '未知';
         }
     }
@@ -723,6 +731,9 @@ class GraphContainer extends React.Component<any, GraphContainerState> {
                         if (res[0].code === 1 && res[1].code === 1) {
                             // 如果两次保存都成功，则更新cellData
                             ctx.updateCellData(cell, taskData, res);
+                        } else {
+                            // 重命名输入框恢复到之前
+                            editTarget.value = originName
                         }
                     })
                 }

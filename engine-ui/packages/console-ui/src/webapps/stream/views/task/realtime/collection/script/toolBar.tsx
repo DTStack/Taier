@@ -16,7 +16,7 @@ import { actions as collectionActions } from '../../../../../store/modules/realt
 const FormItem = Form.Item;
 const Option = Select.Option;
 
-const sourceTypes: any = [DATA_SOURCE.MYSQL, DATA_SOURCE.BEATS];
+const sourceTypes: any = [DATA_SOURCE.MYSQL, DATA_SOURCE.POLAR_DB, DATA_SOURCE.BEATS];
 
 class ImportTemplateForm extends React.Component<any, any> {
     state: any = {

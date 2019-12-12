@@ -15,13 +15,39 @@ class AdminDashboard extends React.Component<any, any> {
     state: any = {
         nowView: 'callTop'
     }
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps: any) {
+        const project = nextProps.project
+        const oldProj = this.props.project
+        const { menuList = [] } = nextProps.common;
+        if (oldProj && oldProj.id && project && oldProj.id !== project.id) {
+            if (this.isApiMarketAdmin(menuList)) {
+                this.props.chooseAdminDate(10, {
+                    target: {
+                        value: this.props.dashBoard.adminDate
+                    }
+                })
+            }
+        }
+    }
 
     componentDidMount () {
-        this.props.chooseAdminDate(10, {
-            target: {
-                value: this.props.dashBoard.adminDate
-            }
-        })
+        const { menuList = [] } = this.props.common;
+        const isAdmin = this.isApiMarketAdmin(menuList);
+        if (isAdmin) {
+            this.props.chooseAdminDate(10, {
+                target: {
+                    value: this.props.dashBoard.adminDate
+                }
+            })
+        }
+    }
+    isApiMarketAdmin = (menuList: string[]): boolean => {
+        let isApiMarketAdmin = false;
+        if (menuList && menuList.indexOf('overview_market_menu') > -1) {
+            isApiMarketAdmin = true;
+        }
+        return isApiMarketAdmin;
     }
     topViewChange (key: any) {
         this.setState({

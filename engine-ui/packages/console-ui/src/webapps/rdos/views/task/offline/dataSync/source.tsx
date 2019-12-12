@@ -300,7 +300,7 @@ class SourceForm extends React.Component<any, any> {
             form
         } = this.props;
 
-        if (sourceMap.type && sourceMap.type.type !== DATA_SOURCE.HIVE) {
+        if (sourceMap.type && sourceMap.type.type !== DATA_SOURCE.HIVE_2 && sourceMap.type.type !== DATA_SOURCE.HIVE_1) {
             return;
         }
         // Reset partition
@@ -905,7 +905,9 @@ class SourceForm extends React.Component<any, any> {
             case DATA_SOURCE.GBASE:
             case DATA_SOURCE.DB2:
             case DATA_SOURCE.MYSQL:
+            case DATA_SOURCE.POLAR_DB:
             case DATA_SOURCE.ORACLE:
+            case DATA_SOURCE.CLICK_HOUSE:
             case DATA_SOURCE.SQLSERVER:
             case DATA_SOURCE.LIBRASQL:
             case DATA_SOURCE.POSTGRESQL: {
@@ -1167,7 +1169,8 @@ class SourceForm extends React.Component<any, any> {
                 break;
             }
             case DATA_SOURCE.MAXCOMPUTE:
-            case DATA_SOURCE.HIVE: {
+            case DATA_SOURCE.HIVE_1:
+            case DATA_SOURCE.HIVE_2: {
                 // Hive
                 formItem = [
                     !selectHack && (

@@ -22,14 +22,16 @@ const formItemLayout: any = { // 表单正常布局
     }
 }
 
+// 匹配规则：$[函数]或$[a-z0-9+-两个字符]或随意输入几个字符
+// 原来的正则：/(^\$\[(\S+\(\S*\)|[a-z0-9\+\-\:\s\/\\\*]{2,})\]$)|(^(?!\$)\S+$)/i;
+/* eslint-disable-next-line */
+export const paramsRegPattern = /^\$\[(\S+\((.*)\)|.+)\]$|^(?!\$)\S+$/i;
+
 class TaskParams extends React.Component<any, any> {
     onChange = (index: any, value: any) => {
         const { tabData, onChange } = this.props;
 
-        /* eslint-disable-next-line */
-        const reg = /(^\$\[(\S+\(\S*\)|[a-z0-9\+\-\:\s\/\\\*]{2,})\]$)|(^(?!\$)\S+$)/i;
-
-        if (!value || reg.test(value)) {
+        if (!value || paramsRegPattern.test(value)) {
             const taskVariables: any = [...tabData.taskVariables];
             taskVariables[index].paramCommand = value;
             onChange({ taskVariables })
@@ -58,9 +60,7 @@ class TaskParams extends React.Component<any, any> {
             >
                 {getFieldDecorator(param.paramName, {
                     rules: [{
-                        // 匹配规则：$[函数]或$[a-z0-9+-两个字符]或随意输入几个字符
-                        /* eslint-disable-next-line */
-                        pattern: /(^\$\[(\S+\(\S*\)|[a-z0-9\+\-\:\s\/\\\*]{2,})\]$)|(^(?!\$)\S+$)/i,
+                        pattern: paramsRegPattern,
                         message: '参数格式不正确'
                     }],
                     initialValue: param.paramCommand

@@ -143,9 +143,10 @@ class InputOrigin extends React.Component<any, any> {
                             <Select placeholder="请选择" className="right-select" onChange={(v: any) => { handleInputChange('type', index, v) }}
                                 showSearch filterOption={(input: any, option: any) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                             >
-                                <Option value={DATA_SOURCE.KAFKA}>{DATA_SOURCE_TEXT[DATA_SOURCE.KAFKA]}</Option>
+                                <Option value={DATA_SOURCE.KAFKA_11}>{DATA_SOURCE_TEXT[DATA_SOURCE.KAFKA_11]}</Option>
                                 <Option value={DATA_SOURCE.KAFKA_10}>{DATA_SOURCE_TEXT[DATA_SOURCE.KAFKA_10]}</Option>
                                 <Option value={DATA_SOURCE.KAFKA_09}>{DATA_SOURCE_TEXT[DATA_SOURCE.KAFKA_09]}</Option>
+                                <Option value={DATA_SOURCE.KAFKA}>{DATA_SOURCE_TEXT[DATA_SOURCE.KAFKA]}</Option>
                             </Select>
                         )}
                     </FormItem>
@@ -632,7 +633,7 @@ export default class InputPanel extends React.Component<any, any> {
 
     changeInputTabs = (type: any, index?: any) => {
         const inputData: any = {
-            type: DATA_SOURCE.KAFKA,
+            type: DATA_SOURCE.KAFKA_11,
             sourceId: undefined,
             topic: [],
             table: undefined,
@@ -789,27 +790,6 @@ export default class InputPanel extends React.Component<any, any> {
                     }
                 })
                 this.getTopicType(index, value);
-                break;
-            }
-            case 'topic': {
-                timeColumoption[index] = [];
-                allParamsType.map((v: any) => {
-                    if (v != 'type' && v != 'sourceId' && v != 'topic') {
-                        if (v == 'columns') {
-                            panelColumn[index][v] = [];
-                        } else if (v == 'timeType') {
-                            panelColumn[index][v] = 1
-                        } else if (v == 'parallelism') {
-                            panelColumn[index][v] = 1
-                        } else if (v == 'offsetReset') {
-                            panelColumn[index][v] = 'latest'
-                        } else if (v == 'timeZone') {
-                            panelColumn[index][v] = 'Asia/Shanghai'
-                        } else {
-                            panelColumn[index][v] = undefined
-                        }
-                    }
-                })
                 break;
             }
             default: {

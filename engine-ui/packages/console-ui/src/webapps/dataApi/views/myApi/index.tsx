@@ -7,8 +7,8 @@ import NoApprovedCard from './noApprovedCard'
 import ApprovedCard from './approvedCard'
 
 const mapStateToProps = (state: any) => {
-    const { user, mine } = state;
-    return { mine, user }
+    const { user, mine, project } = state;
+    return { mine, user, project }
 };
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -53,6 +53,11 @@ const mapDispatchToProps = (dispatch: any) => ({
     getApiCallUrl (id: any) {
         return dispatch(mineActions.getApiCallUrl({
             apiId: id
+        }));
+    },
+    resetToken (id: any) {
+        return dispatch(mineActions.resetToken({
+            applyId: id
         }));
     },
     queryApiCallLog (id: any, currentPage: any, bizType: any, time: any) {

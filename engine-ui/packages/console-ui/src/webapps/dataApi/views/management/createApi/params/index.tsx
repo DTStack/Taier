@@ -580,7 +580,8 @@ class ManageParamsConfig extends React.Component<any, any> {
         ) : [];
     }
     sqlFormat () {
-        this.props.sqlFormat(this.state.editor.sql, this.props.dataSourceType)
+        const dataSourceType = this.props.dataSourceType || this.props.form.getFieldValue('dataSourceType');
+        this.props.sqlFormat(this.state.editor.sql, dataSourceType)
             .then(
                 (res: any) => {
                     if (res) {

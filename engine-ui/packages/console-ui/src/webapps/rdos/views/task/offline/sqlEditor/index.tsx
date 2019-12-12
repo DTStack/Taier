@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { debounce } from 'lodash';
 import { bindActionCreators } from 'redux';
 
-import { Button, Modal, Checkbox } from 'antd';
+import { Button, Modal, Checkbox, Menu, Tooltip } from 'antd';
 
 import utils from 'utils';
 import { filterComments, splitSql, getContainer } from 'funcs';
@@ -150,6 +150,7 @@ class EditorContainer extends React.Component<any, any> {
     filterSql = (sql: any) => {
         const arr: any = [];
         let sqls: any = filterComments(sql);
+
         // 如果有有效内容
         if (sqls) {
             sqls = splitSql(sqls);
@@ -168,7 +169,11 @@ class EditorContainer extends React.Component<any, any> {
         return arr;
     };
 
-    execSQL = () => {
+    /**
+     * batchSession 该标记指定所选SQL是否在同一session中执行
+     * 支持这一操作需从【高级运行】触发
+     */
+    execSQL = (batchSession?: any) => {
         const {
             user,
             editor,
@@ -180,7 +185,8 @@ class EditorContainer extends React.Component<any, any> {
         const params: any = {
             projectId: project.id,
             isCheckDDL: user.isCheckDDL,
-            taskVariables: currentTabData.taskVariables
+            taskVariables: currentTabData.taskVariables,
+            singleSession: !!batchSession // 是否为单 session 模式, 为 true 时，支持batchSession 时，则支持批量SQL，false 则相反
         };
 
         this.setState({ execConfirmVisible: false });
@@ -287,6 +293,7 @@ class EditorContainer extends React.Component<any, any> {
         const { currentTab } = this.props;
         this.props.resetConsole(currentTab)
     }
+
     tableCompleteItems (tableList: any) {
         return tableList.map(
             (table: any) => {
@@ -533,6 +540,16 @@ class EditorContainer extends React.Component<any, any> {
         } else return null;
     }
 
+    renderRunningMenu = () => {
+        return (
+            <Menu
+                onClick={this.execSQL.bind(this, true)}
+            >
+                <Menu.Item key="runBatch"><Tooltip title="选中多段SQL代码时，将在一个session中运行">高级运行</Tooltip></Menu.Item>
+            </Menu>
+        )
+    }
+
     renderRightButton = () => {
         const {
             hideRightPane, editor,
@@ -614,6 +631,7 @@ class EditorContainer extends React.Component<any, any> {
             onThemeChange: (key: any) => {
                 this.props.updateEditorOptions({ theme: key })
             },
+            runningMenu: this.renderRunningMenu(),
             rightCustomButton: this.renderRightButton()
         }
 

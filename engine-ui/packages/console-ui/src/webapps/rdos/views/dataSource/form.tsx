@@ -69,14 +69,16 @@ class BaseForm extends React.Component<any, any> {
         hadoopConfig: 'defaultDfs',
         hadoopConfigStr: hdfsConf,
         hasCarbonDataConfig: false,
-        ftpProtocal: 'ftp'
+        ftpProtocal: 'ftp',
+        authMethod: '1'
     }
     componentDidMount () {
         const sourceData = this.props.sourceData;
         if (!isEmpty(sourceData)) {
             let initialState: any = {
                 sourceType: sourceData.type,
-                ftpProtocal: (sourceData.dataJson && sourceData.dataJson.protocol) || 'ftp'
+                ftpProtocal: (sourceData.dataJson && sourceData.dataJson.protocol) || 'ftp',
+                authMethod: (sourceData.dataJson && sourceData.dataJson.auth) || '1'
             }
             if (sourceData.dataJson && sourceData.type === DATA_SOURCE.CARBONDATA) {
                 const hdfsConf = sourceData.dataJson.hdfsCustomConfig;
@@ -144,7 +146,14 @@ class BaseForm extends React.Component<any, any> {
 
     ftpProtocalChange = (e: any) => {
         this.setState({
-            ftpProtocal: e.target.value
+            ftpProtocal: e.target.value,
+            authMethod: '1'
+        })
+    }
+
+    authMethodChange = (e: any) => {
+        this.setState({
+            authMethod: e.target.value
         })
     }
 
@@ -173,23 +182,27 @@ class BaseForm extends React.Component<any, any> {
     getJDBCRule = (type: any) => {
         switch (type) {
             case DATA_SOURCE.KYLIN:
-                return /http:\/\/([\w, .])+:(\w)+/;
-            case DATA_SOURCE.HIVE:
+                return /http:\/\/([\w, .])+:(.)+/;
+            case DATA_SOURCE.HIVE_1:
+            case DATA_SOURCE.HIVE_2:
+            case DATA_SOURCE.POLAR_DB:
             case DATA_SOURCE.CARBONDATA:
-                return /jdbc:(\w)+:\/\/(\w)+/;
+                return /jdbc:(\w)+:\/\/(.)+/;
             case DATA_SOURCE.MYSQL:
-                return /jdbc:mysql:\/\/(\w)+/;
+                return /jdbc:mysql:\/\/(.)+/;
+            case DATA_SOURCE.CLICK_HOUSE:
+                return /jdbc:clickhouse:\/\/(.)+/;
             case DATA_SOURCE.DB2:
-                return /jdbc:db2:\/\/(\w)+/;
+                return /jdbc:db2:\/\/(.)+/;
             case DATA_SOURCE.ORACLE:
-                return /jdbc:oracle:thin:@(\/\/)?(\w)+/;
+                return /jdbc:oracle:thin:@(\/\/)?(.)+/;
             case DATA_SOURCE.SQLSERVER:
                 return undefined;
             case DATA_SOURCE.LIBRASQL:
             case DATA_SOURCE.POSTGRESQL:
-                return /jdbc:postgresql:\/\/(\w)+/;
+                return /jdbc:postgresql:\/\/(.)+/;
             case DATA_SOURCE.GBASE:
-                return /jdbc:gbase:\/\/(\w)+/;
+                return /jdbc:gbase:\/\/(.)+/;
             default:
                 return undefined;
         }
@@ -230,9 +243,6 @@ class BaseForm extends React.Component<any, any> {
                         {...formNewLayout}
                         key={`kerberosFile`}
                         label=""
-                        // style={{
-                        //     margin: 0
-                        // }}
                     >
                         {getFieldDecorator(`kerberosFile`, {
                             rules: [{
@@ -306,11 +316,10 @@ class BaseForm extends React.Component<any, any> {
 
     renderDynamic () {
         const { form, sourceData, showUserNameWarning } = this.props;
-        const { sourceType, ftpProtocal, hasCarbonDataConfig } = this.state;
+        const { sourceType, ftpProtocal, hasCarbonDataConfig, authMethod } = this.state;
 
         const { getFieldDecorator, getFieldValue } = form;
         const config = sourceData.dataJson || {};
-        console.log(config);
         const jdbcRulePattern: any = {
             pattern: this.getJDBCRule(sourceType),
             message: '请检查您的JDBC地址格式！'
@@ -575,7 +584,8 @@ class BaseForm extends React.Component<any, any> {
                 }
                 return formItems
             }
-            case DATA_SOURCE.HIVE: {
+            case DATA_SOURCE.HIVE_1:
+            case DATA_SOURCE.HIVE_2: {
                 const formItems: any = [
                     <FormItem
                         {...formItemLayout}
@@ -660,25 +670,27 @@ class BaseForm extends React.Component<any, any> {
                             style={{ position: 'absolute', right: '-20px', bottom: '0px' }}
                             copyText={hdfsConf}
                         />
-                    </FormItem>,
-                    <FormItem
-                        {...formItemLayout}
-                        label="开启Kerberos认证"
-                        key="dataJson.openKerberos"
-                    >
-                        {getFieldDecorator('dataJson.openKerberos', {
-                            valuePropName: 'checked',
-                            initialValue: config.openKerberos || false
-                        })(
-                            <Switch />
-                        )}
                     </FormItem>
                 ]
+                if (sourceType === DATA_SOURCE.HIVE_2) {
+                    formItems.push(
+                        <FormItem
+                            {...formItemLayout}
+                            label="开启Kerberos认证"
+                            key="dataJson.openKerberos"
+                        >
+                            {getFieldDecorator('dataJson.openKerberos', {
+                                valuePropName: 'checked',
+                                initialValue: config.openKerberos || false
+                            })(
+                                <Switch />
+                            )}
+                        </FormItem>
+                    )
+                }
                 const uploadForm: any = getFieldValue('dataJson.openKerberos') ? this.uploadForm() : [];
-                // const uploadForm = this.uploadForm()
                 formItems.push(uploadForm)
-
-                return formItems
+                return formItems;
             }
             case DATA_SOURCE.HBASE: {
                 const formItems = [
@@ -793,43 +805,46 @@ class BaseForm extends React.Component<any, any> {
                         })(
                             <Input autoComplete="off" />
                         )}
-                    </FormItem>,
-                    <FormItem
-                        key="password"
-                        {...formItemLayout}
-                        label="密码"
-                        hasFeedback
-                    >
-                        {getFieldDecorator('dataJson.password', {
-                            rules: [{
-                                required: true, message: '密码不可为空！'
-                            }],
-                            initialValue: ''
-                        })(
-                            <Input type="password" onChange={hidePasswordInDom} autoComplete="off" />
-                        )}
-                    </FormItem>,
-                    <FormItem
-                        key="protocol"
-                        {...formItemLayout}
-                        label="协议"
-                        hasFeedback
-                    >
-                        {getFieldDecorator('dataJson.protocol', {
-                            rules: [{
-                                required: true, message: '协议不可为空！'
-                            }],
-                            initialValue: config.protocol || 'ftp'
-                        })(
-                            <RadioGroup onChange={this.ftpProtocalChange}>
-                                <Radio value="ftp">FTP</Radio>
-                                <Radio value="sftp">SFTP</Radio>
-                            </RadioGroup>
-                        )}
                     </FormItem>
                 ];
-
                 if (ftpProtocal === 'ftp') {
+                    ftpFormItems.push(
+                        <FormItem
+                            key="password"
+                            {...formItemLayout}
+                            label="密码"
+                            hasFeedback
+                        >
+                            {getFieldDecorator('dataJson.password', {
+                                rules: [{
+                                    required: true, message: '密码不可为空！'
+                                }],
+                                initialValue: ''
+                            })(
+                                <Input type="password" onChange={hidePasswordInDom} autoComplete="off" />
+                            )}
+                        </FormItem>
+                    )
+                    ftpFormItems.push(
+                        <FormItem
+                            key="protocol"
+                            {...formItemLayout}
+                            label="协议"
+                            hasFeedback
+                        >
+                            {getFieldDecorator('dataJson.protocol', {
+                                rules: [{
+                                    required: true, message: '协议不可为空！'
+                                }],
+                                initialValue: config.protocol || 'ftp'
+                            })(
+                                <RadioGroup onChange={this.ftpProtocalChange}>
+                                    <Radio value="ftp">FTP</Radio>
+                                    <Radio value="sftp">SFTP</Radio>
+                                </RadioGroup>
+                            )}
+                        </FormItem>
+                    )
                     ftpFormItems.push(
                         <FormItem
                             key="connectMode"
@@ -850,6 +865,88 @@ class BaseForm extends React.Component<any, any> {
                             )}
                         </FormItem>
                     )
+                } else {
+                    if (authMethod !== '2') {
+                        ftpFormItems.push(
+                            <FormItem
+                                key="password"
+                                {...formItemLayout}
+                                label="密码"
+                                hasFeedback
+                            >
+                                {getFieldDecorator('dataJson.password', {
+                                    rules: [{
+                                        required: true, message: '密码不可为空！'
+                                    }],
+                                    initialValue: ''
+                                })(
+                                    <Input type="password" onChange={hidePasswordInDom} autoComplete="off" />
+                                )}
+                            </FormItem>
+                        )
+                    }
+                    ftpFormItems.push(
+                        <FormItem
+                            key="protocol"
+                            {...formItemLayout}
+                            label="协议"
+                            hasFeedback
+                        >
+                            {getFieldDecorator('dataJson.protocol', {
+                                rules: [{
+                                    required: true, message: '协议不可为空！'
+                                }],
+                                initialValue: config.protocol || 'ftp'
+                            })(
+                                <RadioGroup onChange={this.ftpProtocalChange}>
+                                    <Radio value="ftp">FTP</Radio>
+                                    <Radio value="sftp">SFTP</Radio>
+                                </RadioGroup>
+                            )}
+                        </FormItem>
+                    )
+                    ftpFormItems.push(
+                        <FormItem
+                            key="auth"
+                            {...formItemLayout}
+                            label="认证方式"
+                            hasFeedback
+                        >
+                            {getFieldDecorator('dataJson.auth', {
+                                rules: [{
+                                    required: true, message: '认证方式不可为空！'
+                                }],
+                                initialValue: config.auth || '1'
+                            })(
+                                <RadioGroup onChange={this.authMethodChange}>
+                                    <Radio value="1">密码</Radio>
+                                    <Radio value="2">私钥</Radio>
+                                </RadioGroup>
+                            )}
+                        </FormItem>
+                    )
+                    if (authMethod === '2') {
+                        ftpFormItems.push(
+                            <FormItem
+                                key="rsaPath"
+                                {...formItemLayout}
+                                label="私钥地址"
+                                hasFeedback
+                            >
+                                {getFieldDecorator('dataJson.rsaPath', {
+                                    rules: [{
+                                        required: true, message: '私钥地址不可为空！'
+                                    }],
+                                    initialValue: config.rsaPath || '～/.ssh/id_rsa'
+                                })(
+                                    <Input type="rsaPath" autoComplete="off" />
+                                )}
+                                <Tooltip overlayClassName="big-tooltip" title={'用户的私钥储存路径，默认为～/.ssh/id_rsa'}>
+                                    <Icon className="help-doc" type="question-circle-o" />
+                                </Tooltip>
+                            </FormItem>
+                        )
+                    }
                 }
 
                 return ftpFormItems;
@@ -1155,9 +1252,11 @@ class BaseForm extends React.Component<any, any> {
             }
             case DATA_SOURCE.GBASE:
             case DATA_SOURCE.MYSQL:
+            case DATA_SOURCE.POLAR_DB:
             case DATA_SOURCE.DB2:
             case DATA_SOURCE.SQLSERVER:
             case DATA_SOURCE.LIBRASQL:
+            case DATA_SOURCE.CLICK_HOUSE:
             case DATA_SOURCE.POSTGRESQL: {
                 return [
                     <FormItem
@@ -1251,6 +1350,7 @@ class BaseForm extends React.Component<any, any> {
                         initialValue: sourceData.type ? sourceData.type.toString() : sourceType.toString()
                     })(
                         <Select
+                            showSearch
                             onChange={this.sourceChange}
                             disabled={status === 'edit'}>
                             {sourceTypeList}

@@ -21,7 +21,7 @@ const prefixRule = '${schema}_${table}';
 function getSourceInitialField (sourceType: any, data: any) {
     const initialFields: any = { type: sourceType };
     const { sourceMap = {} } = data;
-    const isMysqlSource = sourceMap.type == DATA_SOURCE.MYSQL;
+    const isMysqlSource = sourceMap.type == DATA_SOURCE.MYSQL || sourceMap.type == DATA_SOURCE.POLAR_DB;
     switch (sourceType) {
         case DATA_SOURCE.HDFS: {
             initialFields.fileType = 'orc';
@@ -230,14 +230,15 @@ class CollectionTargetForm extends React.Component<any, any> {
         const { getFieldDecorator } = this.props.form;
         if (!targetMap || !sourceMap) return [];
         const isText = targetMap.fileType == 'text';
-        const isMysqlSource = sourceMap.type == DATA_SOURCE.MYSQL;
+        const isMysqlSource = sourceMap.type == DATA_SOURCE.MYSQL || sourceMap.type == DATA_SOURCE.POLAR_DB;
         const { writeTableType, writeStrategy, table, writeMode } = targetMap;
         const isWriteStrategyBeTime = writeStrategy == writeStrategys.TIME;
 
         switch (targetMap.type) {
+            case DATA_SOURCE.KAFKA:
             case DATA_SOURCE.KAFKA_09:
             case DATA_SOURCE.KAFKA_10:
-            case DATA_SOURCE.KAFKA: {
+            case DATA_SOURCE.KAFKA_11: {
                 return (
                     <FormItem
                         {...formItemLayout}
@@ -249,7 +250,7 @@ class CollectionTargetForm extends React.Component<any, any> {
                             }]
                         })(
                             <Select
-                                disabled={isEdit}
+                                disabled={isEdit && targetMap.type === DATA_SOURCE.KAFKA}
                                 style={{ width: '100%' }}
                                 placeholder="请选择topic"
 

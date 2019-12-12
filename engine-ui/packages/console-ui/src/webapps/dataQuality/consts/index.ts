@@ -7,6 +7,26 @@ export const TASK_STATUS: any = {
     UNPASS: 4
 }
 
+export const PROJECT_ROLE = { // 项目角色
+    TENANT_OWVER: 1, // 租户所有者
+    PROJECT_ADMIN: 2, // 项目管理员
+    VISITOR: 3, // 访客
+    DATA_DEVELOP: 4, // 数据开发
+    PROJECT_OWNER: 5 // 项目所有者
+}
+
+export const STICK_STATUS: any = {
+    NO_TOP: 0,
+    TOP: 1
+}
+
+// 项目状态
+export const PROJECT_STATUS: any = {
+    INITIALIZE: 0, // 创建中
+    NORMAL: 1, // 正常
+    DISABLE: 2, // 禁用
+    FAIL: 3// 创建失败
+}
 // 告警类型
 export const ALARM_TYPE: any = {
     EMAIL: '1',
@@ -50,8 +70,32 @@ export const CHECK_STATUS: any = { // 2，4, 5, 6 可查看报告
 }
 
 export const HELP_DOC_URL: any = {
-    REMOTE: '/public/helpSite/valid/v3.0/RuleManage/Remote.html'
+    REMOTE: '/public/helpSite/valid/v3.0/RuleManage/Remote.html',
+    CREATE_RULE: '/public/helpSite/valid/v3.0/RuleManage/CreateRule.html',
+    RULE_DETAIL: '/public/helpSite/valid/v3.0/RuleManage/RuleDetail.html',
+    REPORT_DETAIL: '/public/helpSite/valid/v3.0/CheckResult/DetailReport.html',
+    REPORT_TABLE: '/public/helpSite/valid/v3.0/CheckResult/TableReport.html',
+    CREATE_VALI: '/public/helpSite/valid/v3.0/RowsComp/Create.html'
 }
+
+export const OPERA_ROW_ONE_DATA = [{
+    title: '新建规则',
+    link: HELP_DOC_URL.CREATE_RULE
+}, {
+    title: '查看计算规则',
+    link: HELP_DOC_URL.RULE_DETAIL
+}, {
+    title: '查询详细报告',
+    link: HELP_DOC_URL.REPORT_DETAIL
+}];
+
+export const OPERA_ROW_TWO_DATA = [{
+    title: '查看表级报告',
+    link: HELP_DOC_URL.REPORT_TABLE
+}, {
+    title: '新建逐行校验',
+    link: HELP_DOC_URL.CREATE_VALI
+}]
 
 /**
  * 校验状态--中文

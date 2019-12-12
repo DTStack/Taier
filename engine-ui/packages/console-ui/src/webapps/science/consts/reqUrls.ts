@@ -61,6 +61,7 @@ export default {
     COMPONENT_FORMAT_SQL: `${SCIENCE_BASE_URL}/service/dataManager/sqlFormat`, // 评估报告图表数据
     GET_REGRESSION_EVALUATION_GRAPH: `${SCIENCE_BASE_URL}/service/dataManager/regressionEvaluationGraph`, // 回归模型评估 直方图
     GET_CLUSTER_REGRESSTION_GRAPH: `${SCIENCE_BASE_URL}/service/dataManager/clusterRegressionGraph`, // 聚类评估 饼图
+    GET_MISSVALUE_GRAPH: `${SCIENCE_BASE_URL}/service/dataManager/confusionMatrixGraph`, // 缺失值矩阵
 
     // === 模型 === //
     SAVE_MODEL: `${SCIENCE_BASE_URL}/service/scienceModel/saveModel`, // 新增保存模型

@@ -19,8 +19,8 @@ require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
 
 const mapStateToProps = (state: any) => {
-    const { dashBoard } = state;
-    return { dashBoard };
+    const { dashBoard, project } = state;
+    return { dashBoard, project };
 };
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -53,6 +53,22 @@ class DashBoard extends React.Component<any, any> {
                 this.initLineChart(res.data);
             }
         });
+    }
+
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps: any) {
+        const project = nextProps.project
+        const oldProj = this.props.project
+        if (oldProj && project && oldProj.id !== project.id) {
+            this.props.getUsage();
+            this.props.getAlarmSum();
+            this.props.getTopRecord({ date: this.state.currentDate });
+            DBApi.getAlarmTrend().then((res: any) => {
+                if (res.code === 1) {
+                    this.initLineChart(res.data);
+                }
+            });
+        }
     }
 
     resize = () => {

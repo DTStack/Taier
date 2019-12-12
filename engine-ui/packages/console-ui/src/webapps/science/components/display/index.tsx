@@ -15,9 +15,18 @@ export function nodeTypeIcon (type: any) {
         case COMPONENT_TYPE.DATA_TOOLS.SQL_SCRIPT: {
             return `<i class="anticon anticon-tool"></i>`
         }
-        case COMPONENT_TYPE.DATA_MERGE.TYPE_CHANGE:
-        case COMPONENT_TYPE.DATA_MERGE.NORMALIZE: {
+        case COMPONENT_TYPE.DATA_MERGE.TYPE_CHANGE: // 类型转换|归一化
+        case COMPONENT_TYPE.DATA_MERGE.NORMALIZE:
+        {
             imageName = 'data_merge'; break;
+        }
+        case COMPONENT_TYPE.DATA_MERGE.STANDARD: // 标准化
+        {
+            imageName = 'standard'; break;
+        }
+        case COMPONENT_TYPE.DATA_MERGE.MISS_VALUE:// 缺失值填充
+        {
+            imageName = 'miss-val'; break;
         }
         case COMPONENT_TYPE.DATA_PRE_HAND.DATA_SPLIT: {
             imageName = 'data_prehand'; break;
@@ -31,6 +40,12 @@ export function nodeTypeIcon (type: any) {
         case COMPONENT_TYPE.MACHINE_LEARNING.GBDT_REGRESSION: {
             imageName = 'gbdt'; break;
         }
+        case COMPONENT_TYPE.MACHINE_LEARNING.GBDT_CLASS: {
+            imageName = 'gbdt'; break;
+        }
+        case COMPONENT_TYPE.MACHINE_LEARNING.SVM: {
+            imageName = 'svm'; break;
+        }
         case COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT: {
             imageName = 'data_predict'; break;
         }
@@ -42,6 +57,16 @@ export function nodeTypeIcon (type: any) {
         }
         case COMPONENT_TYPE.DATA_EVALUATE.REGRESSION_CLASSIFICATION: {
             imageName = 'regressionClassificcation'; break;
+        }
+        case COMPONENT_TYPE.DATA_EVALUATE.CONFUSION_MATRIX: {
+            imageName = 'confusion-matrix'; break;
+        }
+        case COMPONENT_TYPE.FEATURE_ENGINEER.ONE_HOT: {
+            imageName = 'one-hot'; break;
+        }
+        case COMPONENT_TYPE.DATA_TOOLS.PYTHON_SCRIPT: {
+            imageName = 'python';
+            break;
         }
         default: return '';
     }

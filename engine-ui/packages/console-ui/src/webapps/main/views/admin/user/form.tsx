@@ -11,6 +11,8 @@ import {
     MY_APPS,
     RDOS_ROLE,
     APP_ROLE,
+    API_PRO_ROLES,
+    QUALITY_PRO_ROLES,
     formItemLayout
 } from '../../../consts';
 
@@ -26,23 +28,37 @@ export const isDisabledRole = (app: any, value: any, loginUser: any, myRoles: an
         case MY_APPS.SCIENCE: {
             if (loginUser.isTenantAdmin || myRoles.isProjectOwner) { // 租户管理员和项目拥有者
                 return (value === RDOS_ROLE.PROJECT_OWNER ||
-                value === RDOS_ROLE.TENANT_OWVER)
+                value === RDOS_ROLE.TENANT_OWVER ||
+                value === RDOS_ROLE.VISITOR)
             } else if (myRoles.isProjectAdmin) { // 项目管理员
                 return value === RDOS_ROLE.PROJECT_OWNER ||
                 value === RDOS_ROLE.TENANT_OWVER ||
-                value === RDOS_ROLE.PROJECT_ADMIN
+                value === RDOS_ROLE.PROJECT_ADMIN ||
+                value === RDOS_ROLE.VISITOR
             } else {
                 return true;
             }
         }
-        case MY_APPS.API:
+        case MY_APPS.API: {
+            if (loginUser.isTenantAdmin || myRoles.isProjectOwner) { // 租户管理员和项目拥有者
+                return (value === API_PRO_ROLES.TENANT_OWVER || value === API_PRO_ROLES.PRO_OWNER ||
+                    value === API_PRO_ROLES.VISITOR)
+            } else if (myRoles.isProjectAdmin) { // 项目管理员
+                return (value === API_PRO_ROLES.TENANT_OWVER || value === API_PRO_ROLES.PRO_OWNER ||
+                    value === API_PRO_ROLES.PRO_MANAGER || value === API_PRO_ROLES.VISITOR)
+            } else {
+                return true;
+            }
+        }
         case MY_APPS.LABEL:
         case MY_APPS.ANALYTICS_ENGINE:
         case MY_APPS.DATA_QUALITY: {
-            if (loginUser.isTenantAdmin) { // 租户管理员
-                return value === APP_ROLE.TENANT_OWVER
-            } else if (myRoles.isProjectAdmin) { // 产品管理员
-                return (value === APP_ROLE.TENANT_OWVER || value === APP_ROLE.ADMIN)
+            if (loginUser.isTenantAdmin || myRoles.isProjectOwner) { // 租户管理员和项目拥有者
+                return (value === QUALITY_PRO_ROLES.TENANT_OWVER || value === QUALITY_PRO_ROLES.PRO_OWNER ||
+                    value === QUALITY_PRO_ROLES.VISITOR)
+            } else if (myRoles.isProjectAdmin) { // 项目管理员
+                return (value === QUALITY_PRO_ROLES.TENANT_OWVER || value === QUALITY_PRO_ROLES.PRO_OWNER ||
+                    value === QUALITY_PRO_ROLES.PRO_ADMIN || value === QUALITY_PRO_ROLES.VISITOR)
             } else {
                 return true;
             }

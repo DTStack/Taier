@@ -17,6 +17,8 @@ export default class FlinkConfig extends React.Component<any, any> {
             getFieldDecorator,
             getFieldValue,
             checked,
+            isZookeeper,
+            onChangeZookeeper,
             changeCheckbox,
             kerberosView,
             setFieldsValue,
@@ -107,53 +109,81 @@ export default class FlinkConfig extends React.Component<any, any> {
                         )}
                     </FormItem>
                     <FormItem
-                        label="flinkClusterId"
+                        label="high-availability"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkClusterId`, {})(
-                            <Input disabled={isView} />
-                        )}
-                    </FormItem>
-                    <FormItem
-                        label="flinkZkAddress"
-                        {...formItemLayout}
-                    >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkZkAddress`, {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.high-availability`, {
                             rules: [{
                                 required: true,
-                                message: '请输入flinkZkAddress'
-                            }]
+                                message: '请输入high-availability'
+                            }],
+                            initialValue: 'NONE'
+                        })(
+                            <Select onChange={onChangeZookeeper} disabled={isView} style={{ width: '120px' }}>
+                                <Option value="NONE">NONE</Option>
+                                <Option value="ZOOKEEPER">ZOOKEEPER</Option>
+                            </Select>
+                        )}
+                    </FormItem>
+                    {
+                        isZookeeper ? (
+                            <React.Fragment>
+                                <FormItem
+                                    label="high-availability.cluster-id"
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.high-availabilityCluster-id`, {
+                                        rules: [{
+                                            required: true,
+                                            message: '请输入high-availability.cluster-id'
+                                        }]
+                                    })(
+                                        <Input disabled={isView} />
+                                    )}
+                                </FormItem>
+                                <FormItem
+                                    label={<Tooltip title="high-availability.zookeeper.quorum">high-availability.zookeeper.quorum</Tooltip>}
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.high-availabilityZookeeperQuorum`, {
+                                        rules: [{
+                                            required: true,
+                                            message: '请输入high-availability.zookeeper.quorum'
+                                        }]
 
-                        })(
-                            <Input disabled={isView} placeholder="hostname1:port,hostname2:port，多个地址用英文逗号隔开" />
-                        )}
-                    </FormItem>
-                    <FormItem
-                        label={<Tooltip title="flinkHighAvailabilityStorageDir">flinkHighAvailabilityStorageDir</Tooltip>}
-                        {...formItemLayout}
-                    >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkHighAvailabilityStorageDir`, {
-                            rules: [{
-                                required: true,
-                                message: '请输入flinkHighAvailabilityStorageDir'
-                            }]
-                        })(
-                            <Input disabled={isView} placeholder="Flink高可用存储地址，例如：/flink140/ha" />
-                        )}
-                    </FormItem>
-                    <FormItem
-                        label="flinkZkNamespace"
-                        {...formItemLayout}
-                    >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkZkNamespace`, {
-                            rules: [{
-                                required: true,
-                                message: '请输入flinkZkNamespace'
-                            }]
-                        })(
-                            <Input disabled={isView} placeholder="Flink在Zookeeper的namespace，例如：/flink140" />
-                        )}
-                    </FormItem>
+                                    })(
+                                        <Input disabled={isView} placeholder="hostname1:port,hostname2:port，多个地址用英文逗号隔开" />
+                                    )}
+                                </FormItem>
+                                <FormItem
+                                    label={<Tooltip title="high-availability.storageDir">high-availability.storageDir</Tooltip>}
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.high-availabilityStorageDir`, {
+                                        rules: [{
+                                            required: true,
+                                            message: '请输入high-availability.storageDir'
+                                        }]
+                                    })(
+                                        <Input disabled={isView} placeholder="Flink高可用存储地址，例如：/flink140/ha" />
+                                    )}
+                                </FormItem>
+                                <FormItem
+                                    label="high-availability.zookeeper.path.root"
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.high-availabilityZookeeperPathRoot`, {
+                                        rules: [{
+                                            required: true,
+                                            message: '请输入high-availability.zookeeper.path.root'
+                                        }]
+                                    })(
+                                        <Input disabled={isView} placeholder="Flink在Zookeeper的namespace，例如：/flink140" />
+                                    )}
+                                </FormItem>
+                            </React.Fragment>
+                        ) : null
+                    }
                     <FormItem
                         label="flinkJarPath"
                         {...formItemLayout}
@@ -169,13 +199,26 @@ export default class FlinkConfig extends React.Component<any, any> {
                     </FormItem>
 
                     <FormItem
-                        label="flinkJobHistory"
+                        label="historyserver.web.address"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.flinkJobHistory`, {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.historyserverWebAddress`, {
                             rules: [{
                                 required: true,
-                                message: '请输入flinkJobHistory'
+                                message: '请输入historyserver.web.address'
+                            }]
+                        })(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label="historyserver.web.port"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.historyserverWebPort`, {
+                            rules: [{
+                                required: true,
+                                message: '请输入historyserver.web.port'
                             }]
                         })(
                             <Input disabled={isView} />
@@ -212,20 +255,20 @@ export default class FlinkConfig extends React.Component<any, any> {
                         )}
                     </FormItem>
                     <FormItem
-                        label="yarn.jobmanager.help.mb"
+                        label="yarn.jobmanager.heap.mb"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.yarnJobmanagerHelpMb`, {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.yarnJobmanagerHeapMb`, {
                             initialValue: 1024
                         })(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
                     <FormItem
-                        label="yarn.taskmanager.help.mb"
+                        label="yarn.taskmanager.heap.mb"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.yarnTaskmanagerHelpMb`, {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.yarnTaskmanagerHeapMb`, {
                             initialValue: 1024
                         })(
                             <Input disabled={isView} />
@@ -279,13 +322,13 @@ export default class FlinkConfig extends React.Component<any, any> {
                         )}
                     </FormItem>
                     <FormItem
-                        label={<Tooltip title="jobmanagerArchiveFsDir">jobmanagerArchiveFsDir</Tooltip>}
+                        label={<Tooltip title="jobmanager.archive.fs.dir">jobmanager.archive.fs.dir</Tooltip>}
                         {...formItemLayout}
                     >
                         {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.jobmanagerArchiveFsDir`, {
                             rules: [{
                                 required: true,
-                                message: '请输入jobmanagerArchiveFsDir'
+                                message: '请输入jobmanager.archive.fs.dir'
                             }]
                         })(
                             <Input disabled={isView} />
@@ -302,62 +345,62 @@ export default class FlinkConfig extends React.Component<any, any> {
                     </div>
                     {checked ? (<div>
                         <FormItem
-                            label="reporterClass"
+                            label={<Tooltip title="metrics.reporter.promgateway.class">metrics.reporter.promgateway.class</Tooltip>}
                             {...formItemLayout}
                         >
-                            {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.reporterClass`, {
+                            {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.metricsReporterPromgatewayClass`, {
                                 initialValue: 'org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter'
                             })(
                                 <Input disabled={true} />
                             )}
                         </FormItem>
                         <FormItem
-                            label="gatewayHost"
+                            label={<Tooltip title="metrics.reporter.promgateway.host">metrics.reporter.promgateway.host</Tooltip>}
                             {...formItemLayout}
                         >
-                            {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.gatewayHost`, {
+                            {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.metricsReporterPromgatewayHost`, {
                                 rules: [{
                                     required: true,
-                                    message: '请输入gatewayHost'
+                                    message: '请输入metrics.reporter.promgateway.host'
                                 }]
                             })(
                                 <Input disabled={isView} />
                             )}
                         </FormItem>
                         <FormItem
-                            label="gatewayPort"
+                            label={<Tooltip title="metrics.reporter.promgateway.port">metrics.reporter.promgateway.port</Tooltip>}
                             {...formItemLayout}
                         >
-                            {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.gatewayPort`, {
+                            {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.metricsReporterPromgatewayPort`, {
                                 rules: [{
                                     required: true,
-                                    message: '请输入gatewayPort'
+                                    message: '请输入metrics.reporter.promgateway.port'
                                 }]
                             })(
                                 <Input disabled={isView} />
                             )}
                         </FormItem>
                         <FormItem
-                            label="gatewayJobName"
+                            label={<Tooltip title="metrics.reporter.promgateway.jobName">metrics.reporter.promgateway.jobName</Tooltip>}
                             {...formItemLayout}
                         >
-                            {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.gatewayJobName`, {
+                            {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.metricsReporterPromgatewayJobName`, {
                                 rules: [{
                                     required: true,
-                                    message: '请输入gatewayJobName'
+                                    message: '请输入metrics.reporter.promgateway.jobName'
                                 }]
                             })(
                                 <Input disabled={isView} />
                             )}
                         </FormItem>
                         <FormItem
-                            label="deleteOnShutdown"
+                            label={<Tooltip title="metrics.reporter.promgateway.randomJobNameSuffix">metrics.reporter.promgateway.randomJobNameSuffix</Tooltip>}
                             {...formItemLayout}
                         >
-                            {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.deleteOnShutdown`, {
+                            {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.metricsReporterPromgatewayRandomJobNameSuffix`, {
                                 rules: [{
                                     required: true,
-                                    message: 'deleteOnShutdown'
+                                    message: '请输入metrics.reporter.promgateway.randomJobNameSuffix'
                                 }],
                                 initialValue: 'TRUE'
                             })(
@@ -368,13 +411,13 @@ export default class FlinkConfig extends React.Component<any, any> {
                             )}
                         </FormItem>
                         <FormItem
-                            label="randomJobNameSuffix"
+                            label={<Tooltip title="metrics.reporter.promgateway.deleteOnShutdown">metrics.reporter.promgateway.deleteOnShutdown</Tooltip>}
                             {...formItemLayout}
                         >
-                            {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.randomJobNameSuffix`, {
+                            {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.metricsReporterPromgatewayDeleteOnShutdown`, {
                                 rules: [{
                                     required: true,
-                                    message: 'randomJobNameSuffix'
+                                    message: '请输入metrics.reporter.promgateway.deleteOnShutdown'
                                 }],
                                 initialValue: 'TRUE'
                             })(

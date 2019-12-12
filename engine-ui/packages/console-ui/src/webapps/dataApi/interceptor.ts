@@ -54,10 +54,11 @@ export function authAfterFormated (response: any) {
 }
 
 export function isSelectedProject () {
-    const pid = utils.getCookie('project_id')
-    if (!pid || pid === 'undefined') {
-        utils.deleteCookie('project_id')
-        // browserHistory.push('/')
+    const pid = utils.getCookie('api_project_id')
+    const projectIdFromURL = utils.getParameterByName('pid');
+    if ((!pid || pid === 'undefined') && !projectIdFromURL) {
+        utils.deleteCookie('api_project_id')
+        hashHistory.push('/')
     }
 }
 

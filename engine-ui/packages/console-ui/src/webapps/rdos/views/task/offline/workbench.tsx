@@ -454,15 +454,6 @@ class Workbench extends React.Component<any, any> {
         }
 
         saveTab(saveData, isSave, type, isButtonSubmit);
-        // setTimeout(() => {
-        //     isButtonSubmit ? this.setState({
-        //         theReqIsEnd: true,
-        //         confirmSaveVisible: false,
-        //         showPublish: true
-        //     }) : this.setState({
-        //         theReqIsEnd: true
-        //     })
-        // }, 500);
     }
 
     submitTab () {

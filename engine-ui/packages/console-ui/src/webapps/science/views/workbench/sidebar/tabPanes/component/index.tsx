@@ -116,6 +116,7 @@ class ComponentSidebar extends React.Component<any, any> {
                 // 如果正在运行，无法拖进组件
                 return;
             }
+
             const params: any = {
                 taskType: data.taskType,
                 componentType: data.componentType,
@@ -229,6 +230,12 @@ class ComponentSidebar extends React.Component<any, any> {
                                 case COMPONENT_TYPE.DATA_MERGE.NORMALIZE: {
                                     return 'anchor-component-file o-tree-icon--data-merge'
                                 }
+                                case COMPONENT_TYPE.DATA_MERGE.STANDARD: {
+                                    return 'anchor-component-file o-tree-icon--data-merge-standard'
+                                }
+                                case COMPONENT_TYPE.DATA_MERGE.MISS_VALUE: {
+                                    return 'anchor-component-file o-tree-icon--data-merge-missval'
+                                }
                                 case COMPONENT_TYPE.DATA_PRE_HAND.DATA_SPLIT: {
                                     return 'anchor-component-file o-tree-icon--data-pre-hand'
                                 }
@@ -241,6 +248,12 @@ class ComponentSidebar extends React.Component<any, any> {
                                 case COMPONENT_TYPE.MACHINE_LEARNING.KMEANS_UNION: {
                                     return 'anchor-component-file o-tree-icon--machine-kmeans'
                                 }
+                                case COMPONENT_TYPE.MACHINE_LEARNING.GBDT_CLASS: {
+                                    return 'anchor-component-file o-tree-icon--machine-gbdt'
+                                }
+                                case COMPONENT_TYPE.MACHINE_LEARNING.SVM: {
+                                    return 'anchor-component-file o-tree-icon--machine-svm'
+                                }
                                 case COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT: {
                                     return 'anchor-component-file o-tree-icon--data-predict'
                                 }
@@ -252,6 +265,15 @@ class ComponentSidebar extends React.Component<any, any> {
                                 }
                                 case COMPONENT_TYPE.DATA_EVALUATE.UNION_CLASSIFICATION: {
                                     return 'anchor-component-file o-tree-icon--data-um'
+                                }
+                                case COMPONENT_TYPE.DATA_EVALUATE.CONFUSION_MATRIX: {
+                                    return 'anchor-component-file o-tree-icon--confusion-matrix'
+                                }
+                                case COMPONENT_TYPE.FEATURE_ENGINEER.ONE_HOT: {
+                                    return 'anchor-component-file o-tree-icon--one-hot'
+                                }
+                                case COMPONENT_TYPE.DATA_TOOLS.PYTHON_SCRIPT: {
+                                    return 'anchor-component-file o-tree-icon--python'
                                 }
                                 default: return 'anchor-folder';
                             }
