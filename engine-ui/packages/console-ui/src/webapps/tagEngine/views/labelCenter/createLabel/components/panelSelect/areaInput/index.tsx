@@ -46,15 +46,17 @@ IState
     }
     checkLeft = (rule, value, callback) => {
         const { form, rowKey, type } = this.props;
+        let rValue = form.getFieldValue(rowKey + 'r');
         if (type == 'number') {
-            if (value && value > form.getFieldValue(rowKey + 'r')) {
+            if (value && rValue && value > rValue) {
+                // form.validateFields(['confirm'], { force: true });
                 // eslint-disable-next-line standard/no-callback-literal
                 callback('起始数值要小于终止数值！');
             } else {
                 callback();
             }
         } else {
-            if (value && value < form.getFieldValue(rowKey + 'r')) {
+            if (value && rValue && value < rValue) {
                 // eslint-disable-next-line standard/no-callback-literal
                 callback('起始数值要大于终止数值！');
             } else {

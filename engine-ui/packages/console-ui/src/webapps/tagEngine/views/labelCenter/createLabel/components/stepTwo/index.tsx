@@ -417,7 +417,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                     description: '请填写有效标签规则'
                 });
             } else {
-                if (tags.some(item => !item.valid)) {
+                if (tags.some(item => item.value != activeTag && !item.valid)) {
                     notification.error({
                         message: '标签规则',
                         description: '请检查填写有效标签规则！'
