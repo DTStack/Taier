@@ -290,21 +290,6 @@ class TaskForm extends React.Component<any, any> {
                     )
                 }
                 {
-                    (isDeepLearning || isPython23 || isPyTask) && (
-                        <FormItem
-                            {...formItemLayout}
-                            label="参数"
-                        >
-                            {getFieldDecorator('options', {
-                                initialValue: this.isEditExist ? defaultData.options : ''
-                            })(
-                                <Input type="textarea" autosize={{ minRows: 2, maxRows: 4 }} placeholder="输入命令行参数，多个参数用空格隔开" />
-                            )}
-                            {/* <HelpDoc doc="optionsTaskHelp" /> */}
-                        </FormItem>
-                    )
-                }
-                {
                     isPyTask && <div>
                         <FormItem
                             {...formItemLayout}
@@ -400,33 +385,20 @@ class TaskForm extends React.Component<any, any> {
                                 )}
                             </FormItem>
                         }
-                        {(isMl || isMrTask) && <FormItem
-                            {...formItemLayout}
-                            label="参数"
-                            hasFeedback
-                        >
-                            {getFieldDecorator('exeArgs', {
-                                rules: [],
-                                initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.exeArgs
-                            })(
-                                <Input type="textarea" autosize={{ minRows: 2, maxRows: 4 }} placeholder="请输入任务参数" />
-                            )}
-                        </FormItem>}
-                        { isHadoopMR && <FormItem
-                            {...formItemLayout}
-                            label="参数"
-                        >
-                            {getFieldDecorator('exeArgs', {
-                                initialValue: isCreateNormal ? hadoopMRJsonValue : isCreateFromMenu
-                                    ? hadoopMRJsonValue : defaultData.exeArgs,
-                                rules: [{
-                                    required: true, message: '请输入参数'
-                                }]
-                            })(
-                                <Input type="textarea" autosize={{ minRows: 6, maxRows: 8 }} placeholder="请输入任务参数" />
-                            )}
-                            {/* <HelpDoc doc="optionsTaskHelp" /> */}
-                        </FormItem>}
+                        {
+                            (isMl || isMrTask || isDeepLearning || isPython23 || isPyTask || isHadoopMR) && (
+                                <FormItem
+                                    {...formItemLayout}
+                                    label="参数"
+                                >
+                                    {getFieldDecorator('options', {
+                                        initialValue: this.isEditExist ? defaultData.options : isHadoopMR ? hadoopMRJsonValue : undefined
+                                    })(
+                                        <Input type="textarea" autosize={{ minRows: 2, maxRows: 4 }} placeholder="请输入任务参数" />
+                                    )}
+                                </FormItem>
+                            )
+                        }
                     </span>
                 }
                 {
