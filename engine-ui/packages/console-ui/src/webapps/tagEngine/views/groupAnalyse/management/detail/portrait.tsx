@@ -223,7 +223,6 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
                 })
             }
         }
-        console.log('value22222,', this.state.formData.tagGroupList)
     }
     onDeselect = (value: any) => {
         let { formData = { tagGroupList: [] } } = this.state;
@@ -258,7 +257,6 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
         const charts = result && result.map((chart, index) => {
             const options = cloneDeep(defaultBarOption);
             options.title.text = chart.title;
-            // options.xAxis.data = chart.xAxis;
             options.legend.data = chart.legend;
             options.series = chart.series.map(o => {
                 o.type = 'bar';

@@ -56,6 +56,7 @@ class GroupUploadEdit extends React.Component<IProps, any> {
         const res = await API.createOrUpdateGroup(Object.assign(formData, values));
         if (res.code === 1) {
             message.success('修改群组成功！');
+            this.getGroupData();
             hashHistory.push({
                 pathname: `/groupAnalyse/detail`,
                 query: query
