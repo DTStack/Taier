@@ -3,7 +3,7 @@
  */
 window.APP_CONF = {
     name: 'TagEngine', // 应用名字
-    loadingTitle: '标签引擎', // loading的应用名字
+    loadingTitle: 'TagEngine · 标签引擎', // loading的应用名字
     logo: 'public/tagEngine/img/logo.png', // header图标
-    titleName: '标签引擎' // 网页title
+    titleName: 'TagEngine · 标签引擎' // 网页title
 }
