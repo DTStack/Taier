@@ -11,10 +11,6 @@
         "target": "es5",
         "lib": [ "es6","es2016","dom" ],
         "jsx": "react",
-        "lib": [
-            "es7",
-            "dom"
-        ],
         "allowSyntheticDefaultImports": true,
         "noUnusedLocals": true,
         "importHelpers": true,

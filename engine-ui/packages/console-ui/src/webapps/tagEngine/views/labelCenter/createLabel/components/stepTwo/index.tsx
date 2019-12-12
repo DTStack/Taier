@@ -216,6 +216,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
         }, 1000)
     }
     onChangeTags = (value, active) => {
+        const { tags } = this.state;
         if (value && value.length > 20) {
             notification.warning({
                 message: '标签',
@@ -223,13 +224,20 @@ class StepTwo extends React.PureComponent<IProps, IState> {
             });
             return false;
         }
-        active && this.onValidateLabelRule()
-        setTimeout(() => {
+        if (value.length < tags.length) { // 删除标签
             this.setState({
                 tags: value,
                 activeTag: active || this.state.activeTag
             });
-        }, 1000)
+        } else {
+            active && this.onValidateLabelRule()
+            setTimeout(() => {
+                this.setState({
+                    tags: value,
+                    activeTag: active || this.state.activeTag
+                });
+            }, 1000)
+        }
     }
     onHandleChangeNode = (key, node) => { // 改变节点值
         this.onHandleTreeNode(key, 'changeNode', node)
@@ -333,7 +341,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
             }
         }
     }
-    onValidateLabelRule = () => {
+    onValidateLabelRule = (callback?: any) => {
         const { tags, activeTag } = this.state;
         const that = this;
         let current = tags.find(item => item.value == activeTag);
@@ -348,6 +356,10 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                             message: current.label,
                             description: '请填写有效标签规则'
                         });
+                        let newTag = tags.map(item => Object.assign(item, { valid: item.value == activeTag ? false : item.valid }));
+                        this.setState({
+                            tags: newTag
+                        })
                         return false;
                     }
                     let isRepeat = [];
@@ -368,69 +380,43 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                         }
                         isRepeat.push(tags[i].label);
                     }
-                    let newTag = tags.map(item => Object.assign(item, { valid: !err }));
-                    that.setState({
-                        tags: newTag
-                    })
+                    let newTag = tags.map(item => Object.assign(item, { valid: item.value == activeTag ? true : item.valid }));
+                    if (callback) {
+                        callback(newTag)
+                    } else {
+                        that.setState({
+                            tags: newTag
+                        })
+                    }
                 });
             }
         } else {
             notification.error({
                 message: current.label,
-                description: '至少条件一条标签规则'
+                description: '至少添加一条标签规则'
             });
+            let newTag = tags.map(item => Object.assign(item, { valid: item.value == activeTag ? false : item.valid }));
+            that.setState({
+                tags: newTag
+            })
         }
     }
     onHandleNext = (e: any) => {
-        const { tags, activeTag } = this.state;
         const that = this;
-        if (!tags || tags.length < 1) {
-            notification.error({
-                message: '标签值',
-                description: '请添加标签值'
-            });
-            return false;
-        }
-        let isRepeat = [];
-        for (let i = 0; i < tags.length; i++) {
-            if (isRepeat.includes(tags[i].label)) {
-                notification.error({
-                    message: tags[i].label,
-                    description: '标签名称重复，请检查！'
-                });
-                return false;
-            }
-            if (tags[i].params == this.state.initConfig) {
-                notification.error({
-                    message: tags[i].label,
-                    description: '至少添加一条标签规则！'
-                });
-                return false;
-            }
-            isRepeat.push(tags[i].label);
-        }
-        this.panelForm.validateFields((err, values) => {
-            if (err) {
-                let current = tags.find(item => item.value == activeTag);
-                notification.error({
-                    message: current.label,
-                    description: '请填写有效标签规则'
-                });
-            } else {
-                if (tags.some(item => item.value != activeTag && !item.valid)) {
-                    notification.error({
-                        message: '标签规则',
-                        description: '请检查填写有效标签规则！'
-                    });
-                    return
-                }
-                that.props.form.validateFields((err, values) => {
-                    if (!err) {
+        this.onValidateLabelRule((tags) => {
+            that.props.form.validateFields((err, values) => {
+                if (!err) {
+                    if (tags.some(item => !item.valid)) {
+                        notification.error({
+                            message: '标签规则',
+                            description: '请监测标签规则，填写有效标签规则！'
+                        });
+                    } else {
                         that.props.onNext(Object.assign({}, values, { tags }));
                     }
-                });
-            }
-        });
+                }
+            });
+        })
     }
     onHandlePrev = () => {
         this.props.onPrev();
