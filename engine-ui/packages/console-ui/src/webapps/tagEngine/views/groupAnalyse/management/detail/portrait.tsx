@@ -223,12 +223,24 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
                 })
             }
         }
+        console.log('value22222,', this.state.formData.tagGroupList)
     }
-
+    onDeselect = (value: any) => {
+        let { formData = { tagGroupList: [] } } = this.state;
+        let { tagGroupList = [] } = formData;
+        console.log('value111,', value);
+        const newArr = tagGroupList.filter((item) => item.tagId !== value);
+        updateComponentState(this, {
+            formData: {
+                tagGroupList: newArr
+            }
+        });
+    }
     startAnalyse = async () => {
         const { formData } = this.state;
         this.setState({
-            loading: true
+            loading: true,
+            result: []
         })
         const res = await GroupAPI.analysisGroups(formData);
         if (res.code === 1) {
@@ -246,12 +258,23 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
         const charts = result && result.map((chart, index) => {
             const options = cloneDeep(defaultBarOption);
             options.title.text = chart.title;
-            options.xAxis.data = chart.xAxis;
+            // options.xAxis.data = chart.xAxis;
             options.legend.data = chart.legend;
             options.series = chart.series.map(o => {
                 o.type = 'bar';
                 return o;
             });
+            options.xAxis = {
+                data: chart.xAxis,
+                axisLine: { lineStyle: { type: 'solid', color: '#BABABA', width: 1 } },
+                axisTick: { show: false },
+                nameTextStyle: { color: '#666666' }
+            }
+            options.yAxis = {
+                axisLine: { show: false },
+                splitLine: { lineStyle: { type: 'dashed' } },
+                axisTick: { show: false }
+            }
             console.log('charts:' + index, options);
             return (
                 <div key={`chart-${index}`} className="c-groupPortrait__chart-item">
@@ -337,6 +360,7 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
                         style={style}
                         onSearch={this.getTags}
                         onSelect={this.onTagSelect}
+                        onDeselect={this.onDeselect}
                     >
                         {tags && tags.map((o: any) => {
                             return <Option key={o.tagId} value={o.tagId} data-name={o.tagName}>{o.tagName}</Option>

@@ -42,7 +42,8 @@ class Bar extends React.Component<IProps, any> {
         const { style, className } = this.props;
         const mStyle = Object.assign({
             height: '100%',
-            width: '100%'
+            width: '100%',
+            padding: 10
         }, style);
         return (
             <Resize onResize={this.resize}>
