@@ -1,6 +1,7 @@
 /* eslint-disable no-redeclare */
 /* eslint-disable new-cap */
 import * as React from 'react';
+import { get } from 'lodash';
 
 import {
     Tooltip
@@ -165,7 +166,6 @@ const getRowY = function (state: any, tr: any) {
     var offsetTop = parseInt(div.style.top);
     var y = state.y + (tr.offsetTop + tr.offsetHeight / 2 - div.scrollTop + offsetTop) * s;
     y = Math.min(state.y + state.height, Math.max(state.y + offsetTop * s, y));
-    console.log('getRow', tr, div, offsetTop, y);
     return y;
 };
 
@@ -173,6 +173,10 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
     private Container: HTMLDivElement;
     private graph: any;
     private _cacheCells: Map<number | string, any> = new Map();
+    private _sourceRowNode: any;
+    private _sourceCurrentRow: number;
+    private _targetRowNode: any;
+    private _targetCurrentRow: number;
 
     componentDidMount () {
         this.initGraph();
@@ -260,29 +264,32 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
     }
 
     customLabelContent = (cell: any) => {
-        const { mode, entities } = this.props;
+        const { mode, entities, data } = this.props;
         if (cell && cell.vertex) {
-            const data: INode = cell.value;
-            if (data) {
+            const value: INode = cell.value;
+            if (value) {
                 let content = '';
                 if (mode && mode === GRAPH_MODE.READ) {
                     let columns = '';
-                    data.columns.forEach((o: INode) => columns += `<tr><td title="${o.attrName}">${o.attrName}</td></tr>`)
-                    content = componentVertex(data.name, columns, false);
+                    value.columns.forEach((o: INode) => columns += `<tr><td title="${o.attrName}">${o.attrName}</td></tr>`)
+                    content = componentVertex(value.name, columns, false);
                 } else {
                     const entitiesSelect = componentSelect({
                         options: entities,
-                        id: data.id,
-                        value: data.id,
+                        id: value.id,
+                        value: value.id,
                         className: 'relationEntity__select',
                         placeholder: '请选择实体',
                         bind: [{ attr: 'index', value: cell.index }],
                         optionIndex: 'entityName',
-                        bindOption: [{ attr: 'entityName' }, { attr: 'dataSourceTable' }]
+                        bindOption: [{ attr: 'entityName' }, { attr: 'dataSourceTable' }],
+                        disableOption: function (option: any) {
+                            return data.findIndex((col: any) => col.id == option.id) > -1;
+                        }
                     });
                     let columns = '';
-                    data.columns.forEach((o: INode, i: number) => columns += `<tr><td>${componentSelect({
-                        options: data.columnOptions,
+                    value.columns.forEach((o: INode, i: number) => columns += `<tr><td>${componentSelect({
+                        options: value.columnOptions,
                         id: '',
                         value: o.id,
                         className: 'relationEntityColumn__tr',
@@ -291,7 +298,7 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
                         optionIndex: 'entityAttrCn',
                         bindOption: [{ attr: 'entityAttr' }, { attr: 'entityAttrCn' }],
                         disableOption: function (option: any) {
-                            return data.columns.findIndex((col: any) => col.id == option.id) > -1;
+                            return value.columns.findIndex((col: any) => col.id == option.id) > -1;
                         }
                     })}</td></tr>`)
                     content = componentVertex(entitiesSelect, columns);
@@ -341,6 +348,7 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
 
     /*  初始化graph的editor */
     initGraphEditor = (container: any) => {
+        const ctx = this;
         const { mode } = this.props;
 
         mxConstants.DEFAULT_VALID_COLOR = 'none';
@@ -459,7 +467,6 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
                     // Finds the vertical center
                     var states = [];
                     var y: any = 0;
-                    console.log('y:', y);
                     for (var i = 0; i < edges.length; i++) {
                         states[i] = this.getState(edges[i]);
                         y += states[i].absolutePoints[0].y;
@@ -579,6 +586,31 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
             }
         }
 
+        graph.isValidConnection = function (source: any, target: any) {
+            const sourceRowIndex = ctx._sourceCurrentRow;
+            const targetRowIndex = ctx._targetCurrentRow;
+            const sourceRow = get(source, 'value.columns', [])[sourceRowIndex - 1];
+            const targetRow = get(target, 'value.columns', [])[targetRowIndex - 1];
+            console.log('sourceRowNode:', ctx._sourceRowNode, ctx._sourceCurrentRow);
+            console.log('targetRowNode', ctx._targetRowNode, ctx._targetCurrentRow);
+
+            // 如果不存在源维度，或者不存在目标维度
+            if (!sourceRow || !sourceRow.id || !targetRow || !targetRow.id) {
+                return false;
+            }
+            // 维度只能1对多
+            const outgoingEdges = graph.getEdges(source, null, null, true, false);
+            console.log('outgoingEdges', outgoingEdges);
+            const existCol = outgoingEdges.find((edge: any) => {
+                const rowIndex = edge.value.getAttribute('sourceRow');
+                return sourceRowIndex == rowIndex;
+            })
+            if (existCol) {
+                return false;
+            }
+            return true;
+        }
+
         // Implements the connect preview style by default edgeStyle
         graph.connectionHandler.createEdgeState = function (me: any) {
             var edge = graph.createEdge(null, null, null, null, null);
@@ -665,6 +697,8 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
         graph.connectionHandler.mouseMove = function (sender: any, me: any) {
             if (this.edgeState != null) {
                 this.currentRowNode = this.updateRow(me.getSource());
+                ctx._targetRowNode = this.currentRowNode;
+                ctx._targetCurrentRow = this.currentRow;
 
                 if (this.currentRow != null) {
                     this.edgeState.cell.value.setAttribute('targetRow', this.currentRow);
@@ -691,7 +725,8 @@ class RelationGraph<T = any> extends React.Component<IProps<T>, any> {
 
             // Stores the source row in the handler
             this.sourceRowNode = this.currentRowNode;
-
+            ctx._sourceRowNode = this.currentRowNode;
+            ctx._sourceCurrentRow = this.currentRow;
             return state;
         };
 

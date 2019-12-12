@@ -298,7 +298,7 @@ class RelationUpdateBase extends React.Component<IProps, IState> {
             graph.popupMenuHandler.autoExpand = true
             graph.popupMenuHandler.factoryMethod = function (menu: any, cell: any, evt: any) {
                 if (!cell) return;
-                const isRelationEntityColumnSelected = evt.target.className.indexOf('relationEntityColumn__tr') > -1;
+                const isRelationEntityColumnSelected = get(evt, 'target.className', '').indexOf('relationEntityColumn__tr') > -1;
 
                 console.log('ctxMenu:', cell, evt);
                 if (cell.vertex) {
