@@ -102,9 +102,9 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                 values.groupType = IGroupType.UPLOAD;
                 values.taskId = ctx._validResult.taskId;
                 this.props.handSubmit(values);
+                this.props.router.push('/groupAnalyse');
             }
         });
-        this.props.router.push('/groupAnalyse');
     }
 
     validResult = async () => {
@@ -175,18 +175,20 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
         }
         console.log('entityAttrs', this.state.entityAttrs)
     }
-    onAttrError = (rule, value, callback) => {
+    onAttrError = (rule, values, callback) => {
         const { entityAttrs, initialEntityAttrs } = this.state;
         const attrList = initialEntityAttrs.concat(entityAttrs.map((o: any) => o.entityAttr));
-        if (value.length > 5) {
+        if (values.length > 5) {
             this.props.form.setFields({
                 entityAttrList: {
                     value: attrList,
                     errors: [new Error('最多只能选择5个维度')]
                 }
             });
-            callback()
+            return false;
         }
+        callback();
+        return true;
     }
     onDeselect = (value: any) => {
         let { entityAttrs } = this.state;
