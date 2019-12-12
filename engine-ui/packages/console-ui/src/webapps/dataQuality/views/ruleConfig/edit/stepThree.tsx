@@ -13,6 +13,7 @@ import {
 
 import { ruleConfigActions } from '../../../actions/ruleConfig';
 import { halfFormItemLayout, ALARM_TYPE } from '../../../consts';
+import utils from 'utils';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -123,7 +124,11 @@ class StepThree extends React.Component<any, any> {
     renderUserList = (data: any) => {
         return data.map((item: any) => {
             return (
-                <Option key={item.id} value={item.id.toString()}>
+                <Option
+                    key={item.id}
+                    value={item.id.toString()}
+                    {...{name: item.userName, optionFilterProp: 'name'}}
+                >
                     {item.userName}
                 </Option>
             );
@@ -712,6 +717,10 @@ class StepThree extends React.Component<any, any> {
                                     allowClear
                                     mode="multiple"
                                     onChange={this.onNotifyUserChange}
+                                    filterOption={(inputValue: any, option: any) => {
+                                        const val = utils.trim(inputValue);
+                                        return option.props.name.toLowerCase().indexOf(val.toLowerCase()) > -1
+                                    }}
                                 >
                                     {this.renderUserList(userList)}
                                 </Select>
