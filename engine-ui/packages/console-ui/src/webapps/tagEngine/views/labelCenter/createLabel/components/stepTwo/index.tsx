@@ -380,9 +380,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                         }
                         isRepeat.push(tags[i].label);
                     }
-                    console.log('tags', tags);
                     let newTag = tags.map(item => Object.assign(item, { valid: item.value == activeTag ? true : item.valid }));
-                    console.log('newTag', newTag);
                     if (callback) {
                         callback(newTag)
                     } else {
@@ -411,7 +409,7 @@ class StepTwo extends React.PureComponent<IProps, IState> {
                     if (tags.some(item => !item.valid)) {
                         notification.error({
                             message: '标签规则',
-                            description: '请填写有效标签规则'
+                            description: '请监测标签规则，填写有效标签规则！'
                         });
                     } else {
                         that.props.onNext(Object.assign({}, values, { tags }));
