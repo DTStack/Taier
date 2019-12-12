@@ -292,7 +292,7 @@ async function getRunningTaskStatus (tabId: any, tabData: any, jobIds: any, disp
             // 成功
             resolveDataExperiment(tabId, response.data, null, dispatch);
             dispatch(saveExperiment(tabData, false)) // 静默保存
-        } else if (status.compeletedFinish && !status.handlerStatus) {
+        } else if (!status.handlerStatus) {
             // 失败
             rejectDataExperiment(tabId, response.data, tabData, dispatch);
             dispatch(saveExperiment(tabData, false))
