@@ -170,7 +170,6 @@ class GraphEditor extends React.Component<any, any> {
         graph.setAllowDanglingEdges(false)
         // // 启用/禁止连接
         graph.foldingEnabled = false;
-        mxClient.NO_FO = true;
         // 禁止Edge对象移动
         graph.isCellsMovable = function () {
             var cell = graph.getSelectionCell()
@@ -203,29 +202,6 @@ class GraphEditor extends React.Component<any, any> {
         graph.connectionHandler.createEdgeState = function (me: any) {
             var edge = graph.createEdge(null, null, null, null, null);
             return new mxCellState(this.graph.view, edge, this.graph.getCellStyle(edge));
-        };
-        // Adds scrollbars to the outermost div and keeps the
-        // DIV position and size the same as the vertex
-        var oldRedrawLabel = graph.cellRenderer.redrawLabel;
-        graph.cellRenderer.redrawLabel = function (state: any) {
-            oldRedrawLabel.apply(this, arguments); // "supercall"
-            var graph = state.view.graph;
-            var model = graph.model;
-
-            if (model.isVertex(state.cell) && state.text != null) {
-                // Scrollbars are on the div
-                var s = graph.view.scale;
-                state.text.node.style.overflow = 'hidden';
-                var div = state.text.node.getElementsByClassName('vertex')[0]; // state.text.node.getElementsByTagName('div')[0];
-
-                if (div != null) {
-                    // Adds height of the title table cell
-                    div.style.display = 'block';
-                    div.style.top = '0px';
-                    div.style.width = Math.max(1, Math.round(state.width / s)) + 'px';
-                    div.style.height = Math.max(1, Math.round((state.height / s))) + 'px';
-                }
-            }
         };
     }
     /* 重置一些添加事件的方法 */
