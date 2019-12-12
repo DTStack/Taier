@@ -35,8 +35,8 @@ const GroupBasicInfo: React.SFC<IProps> = function (props: IProps) {
             {
                 data.isOpen ? (<Row className="c-basicInfo__row" style={style1}>
                     <Col span={2} className="basicInfo_col">调用URL: </Col>
-                    <Col span={5}>{wrapVal(data.apiUrl)}</Col>
-                    <Col span={2}>
+                    <Col>
+                        {wrapVal(data.apiUrl)} &nbsp;&nbsp;&nbsp;&nbsp;
                         <CopyToClipboard key="copy" text={data.apiUrl}
                             onCopy={copyOk}>
                             <a >复制</a>

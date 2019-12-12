@@ -112,7 +112,7 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
         loading: false
     }
 
-    static getDerivedStateFromProps (props, state: IState) {
+    static getDerivedStateFromProps (props: any, state: IState) {
         const entityId = get(props, 'router.location.query.entityId')
         if (entityId !== get(state, 'queryParams.entityId')) {
             const newState: IState = Object.assign({}, state);
@@ -151,7 +151,7 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
         }
     }
 
-    onGroupASelect = (value, option) => {
+    onGroupASelect = (value: any, option: any) => {
         const { formData = { groupPojoIdList: [] } } = this.state;
         const { groupPojoIdList = [] } = formData;
         const group: IGroup = option.props['data-item'];
@@ -171,7 +171,7 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
         });
     }
 
-    onGroupBSelect = (value, option) => {
+    onGroupBSelect = (value: any, option: any) => {
         const { formData = { groupPojoIdList: [] } } = this.state;
         const { groupPojoIdList = [] } = formData;
         const group: IGroup = option.props['data-item'];
@@ -206,7 +206,7 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
         }
     }
 
-    onTagSelect = (value, option) => {
+    onTagSelect = (value: any, option: any) => {
         const { formData = { tagGroupList: [] } } = this.state;
         const { tagGroupList = [] } = formData;
         if (tagGroupList.length < 20) {
@@ -254,11 +254,11 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
 
     renderAnalyseResult = () => {
         const { result } = this.state;
-        const charts = result && result.map((chart, index) => {
+        const charts = result && result.map((chart: any, index: any) => {
             const options = cloneDeep(defaultBarOption);
             options.title.text = chart.title;
             options.legend.data = chart.legend;
-            options.series = chart.series.map(o => {
+            options.series = chart.series.map((o: any) => {
                 o.type = 'bar';
                 return o;
             });
@@ -373,7 +373,7 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
                     label=""
                     hasFeedback
                 >
-                    <Button type="primary" onClick={this.startAnalyse}>开始分析</Button>
+                    <Button type="primary" onClick={this.startAnalyse} disabled={formData.groupPojoIdList[0] && formData.groupPojoIdList[1] ? false : true }>开始分析</Button>
                 </FormItem>
             </Form>
         );

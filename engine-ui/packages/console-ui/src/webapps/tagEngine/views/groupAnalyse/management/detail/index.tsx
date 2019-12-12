@@ -71,7 +71,7 @@ class GroupDetail extends React.Component<any, IState> {
 
     render () {
         const { router } = this.props;
-        const { groupDetail = {} } = this.state;
+        const { groupDetail } = this.state;
         return (
             <div className="c-groupDetail m-card">
                 <Breadcrumb breadcrumbNameMap={breadcrumbNameMap} />

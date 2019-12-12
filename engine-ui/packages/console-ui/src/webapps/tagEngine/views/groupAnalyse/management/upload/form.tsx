@@ -74,7 +74,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
         let initialEntityAttrs = this.state.options.filter((item) => {
             return item.isPrimaryKey === true
         })
-        let entityAttrsCopy = [];
+        let entityAttrsCopy: any = [];
         initialEntityAttrs.map((item) => {
             entityAttrsCopy.push({ entityAttr: item.entityAttr, entityAttrCn: item.entityAttrCn })
         })
@@ -175,7 +175,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
         }
         console.log('entityAttrs', this.state.entityAttrs)
     }
-    onAttrError = (rule, values, callback) => {
+    onAttrError = (rule: any, values: any, callback: any) => {
         const { entityAttrs, initialEntityAttrs } = this.state;
         const attrList = initialEntityAttrs.concat(entityAttrs.map((o: any) => o.entityAttr));
         if (values.length > 5) {
@@ -219,7 +219,6 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
             fileName: form.getFieldValue('groupName'),
             entityAttrList: entityAttrList
         });
-        // const initialEntityAttrs = entityAttrs && entityAttrs.map(o => o.entityAttr);
         return (
             <Form>
                 <FormItem
