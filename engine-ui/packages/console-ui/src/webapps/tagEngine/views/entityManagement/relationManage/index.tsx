@@ -110,7 +110,7 @@ export default class RelationManage extends React.Component<any, IState> {
                 current: 1,
                 search: query
             },
-            isSearch: isSearch,
+            isSearch: isSearch
         }, this.loadData)
     }
 

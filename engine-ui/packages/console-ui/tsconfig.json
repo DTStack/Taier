@@ -4,7 +4,7 @@
         "outDir":"./dist/",
         "baseUrl": ".",
         "experimentalDecorators": true,
-        "noImplicitAny": false,
+        "noImplicitAny": true,
         "esModuleInterop": true,
         "allowJs": true,
         "module": "commonjs",
