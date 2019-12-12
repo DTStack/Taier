@@ -155,7 +155,7 @@ class MoveTreeNode extends React.PureComponent<IProps, IState> {
                 );
             if (item.children && item.children.length) {
                 return (
-                    <TreeNode disabled={item.canMove || id == item.tagCateId} key={!item.tagCateId} title={title}>
+                    <TreeNode disabled={item.canMove || id == item.tagCateId} key={item.tagCateId} title={title}>
                         {
                             this.renderNode(item.children)
                         }
