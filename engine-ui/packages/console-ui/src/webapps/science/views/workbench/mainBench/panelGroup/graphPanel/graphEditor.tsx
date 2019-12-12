@@ -244,7 +244,7 @@ class GraphEditor extends React.Component<any, any> {
         if (!data) return;
         this._cacheCells = {};
         const graph = this.graph;
-        graph.getModel().clear();
+        // graph.getModel().clear();
         this._edges = []; // 清空
         const cells = graph.getChildCells(graph.getDefaultParent());
         // Clean data;
@@ -666,6 +666,7 @@ class GraphEditor extends React.Component<any, any> {
                     }
                     mxEvent.redirectMouseEvents(icon.node, this.graph, getState);
                     this.currentFocusArea.add(icon.bounds);
+                    // console.log(this.currentFocusArea)
                     this.focusIcons.push(icon);
                     this.focusPoints.push(cp);
                 }
