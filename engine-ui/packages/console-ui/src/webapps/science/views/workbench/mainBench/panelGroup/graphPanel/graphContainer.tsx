@@ -326,8 +326,6 @@ class GraphContainer extends React.Component<any, GraphContainerState> {
         graph.addListener(mxEvent.CLICK, function (sender: any, evt: any) {
             const cell = evt.getProperty('cell');
             const event = evt.getProperty('event');
-            let matchVertex = event.target.closest('.vertex');
-            if (!matchVertex) return false;
             if (event && event.button === 2) {
                 // 鼠标右键
                 return false;
