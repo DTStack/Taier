@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { assign, get, uniqBy, concat } from 'lodash';
-import * as _ from 'lodash';
 import { connect } from 'react-redux';
 import {
     Select, Table, Card,
