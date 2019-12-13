@@ -1107,7 +1107,7 @@ class BaseForm extends React.Component<any, any> {
                         })(
                             <Input.TextArea
                                 rows={4}
-                                placeholder="MongoDB集群地址，例如：IP1:Port,IP2:Port,IP3:Port"
+                                placeholder="MongoDB集群地址，例如：IP1:Port?authSource=admin,IP2:Port?authSource=admin"
                             />
                         )}
                     </FormItem>,
@@ -1139,21 +1139,6 @@ class BaseForm extends React.Component<any, any> {
                             initialValue: ''
                         })(
                             <Input type="password" onChange={hidePasswordInDom} autoComplete="off" />
-                        )}
-                    </FormItem>,
-                    <FormItem
-                        key="database"
-                        {...formItemLayout}
-                        label="数据库"
-                        hasFeedback
-                    >
-                        {getFieldDecorator('dataJson.database', {
-                            rules: [{
-                                required: true, message: '数据库不可为空！'
-                            }],
-                            initialValue: config.database || ''
-                        })(
-                            <Input autoComplete="off" />
                         )}
                     </FormItem>
                 ]

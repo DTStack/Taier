@@ -48,6 +48,9 @@ class ResourceManage extends React.Component<any, any> {
         modalKey: '',
         editModalKey: null
     }
+
+    private requestEnd: boolean = true; // 请求结束
+
     componentDidMount () {
         this.props.getTenantList(); // 租户列表
         this.initList()
@@ -73,7 +76,8 @@ class ResourceManage extends React.Component<any, any> {
     }
     bindTenant (params: any) {
         const { canSubmit, reqParams } = params;
-        if (canSubmit) {
+        if (canSubmit && this.requestEnd) {
+            this.requestEnd = false;
             Api.bindTenant({ ...reqParams }).then((res: any) => {
                 if (res.code === 1) {
                     this.setState({
@@ -82,6 +86,7 @@ class ResourceManage extends React.Component<any, any> {
                     message.success('租户绑定成功')
                     this.searchTenant()
                 }
+                this.requestEnd = true;
             })
         }
     }
