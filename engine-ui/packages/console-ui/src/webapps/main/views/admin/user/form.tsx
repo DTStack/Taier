@@ -137,7 +137,7 @@ class UserRoleForm extends React.Component<any, any> {
                             placeholder="请搜索并选择用户"
                             filterOption={(inputValue: any, option: any) => {
                                 const val = utils.trim(inputValue);
-                                return option.props.name.indexOf(val) > -1
+                                return option.props.name.toLowerCase().indexOf(val.toLowerCase()) > -1
                             }}
                             onChange={this.onSeachChange}
                             onSearch={this.debounceSearch}
