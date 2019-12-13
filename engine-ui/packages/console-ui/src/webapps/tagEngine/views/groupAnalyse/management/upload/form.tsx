@@ -361,7 +361,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                             getValueFromEvent: this.normFile
                         })(
                             <Upload.Dragger accept=".csv"
-                                onChange={this.onFileUploadChange} name="files" 
+                                onChange={this.onFileUploadChange} name="files"
                                 action="/api/v1/group/uploadModule" disabled={fileList.length == 1}>
                                 <Row>
                                     <Col span={9}>
