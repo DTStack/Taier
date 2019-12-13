@@ -263,7 +263,7 @@ class Header extends React.Component<any, any> {
             enable: projectManaNav && projectManaNav.isShow,
             menuClass: 'menu_large'
         }];
-        const subMenuItems = [
+        const subMenuItems: any = display && [
             {
                 id: 'approvalAndsecurity',
                 name: '授权与安全',
