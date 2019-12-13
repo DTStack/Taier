@@ -5,6 +5,15 @@
 @import './views/queueManage.scss';
 @import './views/resourceManage.scss';
 @import './views/clusterManage.scss';
+.root {
+    height: 100%;
+}
+.main {
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+    position: relative;
+}
 table{
     font-size:12px;
 }
