@@ -4,9 +4,9 @@ import { IQueryParams } from '../model/comm';
 import { IGroup } from '../model/group';
 
 export interface IGroupsAnalysis {
-    entityId: number | string;
-    groupPojoIdList: { groupId?: number; groupName?: string }[];
-    tagGroupList: { tagId?: number; tagName?: string }[];
+    entityId?: number | string;
+    groupPojoIdList?: { groupId?: number; groupName?: string }[];
+    tagGroupList?: { tagId?: number; tagName?: string }[];
 }
 
 export interface IGroupAnalysis {
