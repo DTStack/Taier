@@ -98,6 +98,7 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
         e.preventDefault();
         const ctx = this;
         this.props.form.validateFields((err, values) => {
+            console.log('vals11111,', values)
             if (!err) {
                 values.groupType = IGroupType.UPLOAD;
                 values.taskId = ctx._validResult.taskId;
@@ -123,9 +124,14 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
             entityAttrList: [...entityAttrsCopy, ...entityAttrs]
         });
         const { code, data = {} } = res;
+        if (data.successNum) {
+            ctx.setState({
+                groupStatus: GROUP_STATUS.SAVE
+            });
+        }
         console.log('res,', res)
         if (code === 1) {
-            if (data.failNum > 0) {
+            if (data.successNum < 0) {
                 message.error(data.failMsg)
             } else {
                 ctx._validResult = data;

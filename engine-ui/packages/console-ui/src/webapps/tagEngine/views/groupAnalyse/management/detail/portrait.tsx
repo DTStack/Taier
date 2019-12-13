@@ -373,11 +373,10 @@ export default class GroupPortrait extends React.PureComponent<any, IState> {
                     label=""
                     hasFeedback
                 >
-                    <Button type="primary" onClick={this.startAnalyse} disabled={formData.groupPojoIdList[0] && formData.groupPojoIdList[1] ? false : true }>开始分析</Button>
+                    <Button type="primary" onClick={this.startAnalyse} disabled={!(formData.groupPojoIdList[0] && formData.groupPojoIdList[1])}>开始分析</Button>
                 </FormItem>
             </Form>
         );
-
         return (
             <div className="c-groupPortrait">
                 <Row>
