@@ -98,7 +98,6 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
         e.preventDefault();
         const ctx = this;
         this.props.form.validateFields((err, values) => {
-            console.log('vals11111,', values)
             if (!err) {
                 values.groupType = IGroupType.UPLOAD;
                 values.taskId = ctx._validResult.taskId;
@@ -124,20 +123,22 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
             entityAttrList: [...entityAttrsCopy, ...entityAttrs]
         });
         const { code, data = {} } = res;
-        if (data.successNum) {
-            ctx.setState({
-                groupStatus: GROUP_STATUS.SAVE
-            });
-        }
+        // if (data.successNum > 0) {
+        //     ctx.setState({
+        //         groupStatus: GROUP_STATUS.SAVE
+        //     });
+        // }
         console.log('res,', res)
         if (code === 1) {
             if (data.successNum < 0) {
                 message.error(data.failMsg)
             } else {
                 ctx._validResult = data;
-                ctx.setState({
-                    groupStatus: GROUP_STATUS.SAVE
-                });
+                if (data.successNum > 0) {
+                    ctx.setState({
+                        groupStatus: GROUP_STATUS.SAVE
+                    });
+                }
                 notification.success({
                     message: '校验成功',
                     description: `成功导入 ${data.successNum} 条，导入失败 ${data.failNum}条`
@@ -359,7 +360,9 @@ class GroupUpload extends React.Component<IProps & FormComponentProps, IState> {
                             valuePropName: 'file',
                             getValueFromEvent: this.normFile
                         })(
-                            <Upload.Dragger accept=".csv" onChange={this.onFileUploadChange} name="files" action="/api/v1/group/uploadModule" disabled={fileList.length == 1}>
+                            <Upload.Dragger accept=".csv"
+                                onChange={this.onFileUploadChange} name="files" 
+                                action="/api/v1/group/uploadModule" disabled={fileList.length == 1}>
                                 <Row>
                                     <Col span={9}>
                                         <p className="ant-upload-drag-icon">
