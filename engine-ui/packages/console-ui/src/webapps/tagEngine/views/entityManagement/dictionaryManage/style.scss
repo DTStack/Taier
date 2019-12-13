@@ -1,0 +1,111 @@
+.tage-dictionary-manage {
+
+	.ant-card-wider-padding .ant-card-head{
+		padding: 0 20px;
+	}
+	.ant-card-wider-padding .ant-card-body{
+		padding: 0;
+	}
+	.m-table tr>td:first-child, .m-table tr>th:first-child{
+		padding-left: 20px;
+	}
+	.m-table tr>td:last-child, .m-table tr>th:last-child{
+		padding-right: 15px;
+	}
+	.noBorderBottom {
+		.ant-card-head {
+			border-bottom: none
+		}
+	}
+}
+
+.dd-base-infor {
+    th,td{
+        word-wrap: break-word;
+        word-break: break-all;
+    }
+    .review_info{
+        width: 100%;
+        background: #FFFFFF;
+        border-top: 1px solid #DDDDDD;
+        border-left: 1px solid #DDDDDD;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        tr{
+            line-height: 40px;
+            display: flex;
+            width: 100%;
+        }
+        
+        td{
+           border-bottom: 1px solid #DDDDDD;
+           border-right: 1px solid #DDDDDD;
+           padding: 0 20px;
+           &:nth-child(odd){
+               background: #FAFAFA;
+               padding: 0 30px;
+               font-size: 12px;
+               color: #333333;
+               width: 200px;
+            }
+            &:nth-child(even){
+                flex: 1;
+             }
+        }
+    }
+}
+
+.dictionary-edit {
+	.notice {
+		font-size: 12px;
+		color: #999999; 
+		margin-left: 8px; 
+		position: absolute; 
+		right: -437px; 
+	}
+	.upload-file-box {
+		width: 100%;
+		padding: 0px 0px 10px 0px;
+		position: relative;
+		.upload-file-area {
+			width: 100%;
+			cursor: pointer;
+			background: #FAFAFA;
+			border: 1px dashed #DDDDDD;
+			border-radius: 2px;
+			border-radius: 2px;
+			height: 110px;
+			display: flex;
+			justify-content: center;
+			flex-direction: column;
+			align-items: center;
+			img {
+				height: 48px;
+			}
+			.text {
+				font-size: 12px;
+				color: #666666;
+				margin-top: 10px;
+			}
+		}
+		.download-btn {
+			position: absolute;
+			width: 50px;
+			height: 20px;
+			display: inline-block;
+			line-height: 20px;
+			right: -70px;
+			top: 46px;
+		}
+		.notice-icon {
+			position: absolute;
+			right: -90px;
+			top: 50px;
+			color: #999999;
+		}
+	}
+	.dic-rule-limit-note {
+		color: #999999;
+		margin-bottom: -10px;
+	}
+}

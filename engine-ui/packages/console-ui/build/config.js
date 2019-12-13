@@ -68,11 +68,15 @@ module.exports = {
                 changeOrigin: true,
                 secure: false
             },
-            '/api/tag': { // 数据标签
-                target: 'http://172.16.8.107:8085', // 开发环境
-                // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
+            '/api/v1': { // 标签引擎
+                target: 'http://172.16.8.194:8084', // 开发环境
+                // target: 'http://172.16.8.163:7001/proxy/16/api/v1/', // yaoyuan
+                // pathRewrite:{"^/api/tag":"/"},
                 changeOrigin: true,
-                secure: false
+                secure: false,
+                "onProxyReq":function(proxyReq, req, res) {
+                    proxyReq.setHeader('X-Real-IP', req.ip)
+                }
             },
             '/api/console': { // 控制台
                 target: 'http://172.16.10.168:8084', // 开发环境

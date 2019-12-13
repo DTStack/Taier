@@ -23,9 +23,11 @@ interface RoleState {
     scienceProjects: any[];
     apiProjects: any[];
     dqProjects: any[];
+    tagProjects: any[];
     selectedProject: number;
     streamSelectedProject: number;
     scienceSelectedProject: number;
+    tagSelectedProject: number;
     apiSelectedProject: number;
     dqSelectedProject: number;
     dataBase: any[];
@@ -47,11 +49,13 @@ class AdminRole extends React.Component<any, RoleState> {
         projects: [],
         streamProjects: [],
         scienceProjects: [],
-        apiProjects: [],
-        dqProjects: [],
+        tagProjects: [],
         selectedProject: '',
         streamSelectedProject: '',
         scienceSelectedProject: '',
+        tagSelectedProject: undefined,
+        apiProjects: [],
+        dqProjects: [],
         apiSelectedProject: '',
         dqSelectedProject: '',
         dataBase: [],
@@ -85,11 +89,10 @@ class AdminRole extends React.Component<any, RoleState> {
 
     loadData = () => {
         this.setState({ loading: 'loading' })
-
-        const { active, selectedProject, streamSelectedProject, scienceSelectedProject, apiSelectedProject, dqSelectedProject, selecteDatabase, currentPage } = this.state
+        const { active, selectedProject, streamSelectedProject, scienceSelectedProject, apiSelectedProject, dqSelectedProject, tagSelectedProject, selecteDatabase, currentPage } = this.state
         const app = active;
         const haveSelected = (MY_APPS.RDOS == active && selectedProject) || (MY_APPS.STREAM == active && streamSelectedProject) ||
-        (MY_APPS.SCIENCE == active && scienceSelectedProject) || (MY_APPS.API == active && apiSelectedProject) || (MY_APPS.DATA_QUALITY == active && dqSelectedProject)
+        (MY_APPS.SCIENCE == active && scienceSelectedProject) || (MY_APPS.API == active && apiSelectedProject) || (MY_APPS.DATA_QUALITY == active && dqSelectedProject) || (MY_APPS.TAG == active && tagSelectedProject)
         const databaseExsit = (MY_APPS.ANALYTICS_ENGINE == active && selecteDatabase);
         const params: any = {
             pageSize: 10,
@@ -112,6 +115,8 @@ class AdminRole extends React.Component<any, RoleState> {
                 params.projectId = streamSelectedProject;
             } else if (MY_APPS.SCIENCE == active) {
                 params.projectId = scienceSelectedProject;
+            } else if (MY_APPS.TAG == active) {
+                params.projectId = tagSelectedProject;
             } else if (MY_APPS.API == active) {
                 params.projectId = apiSelectedProject;
             } else if (MY_APPS.DATA_QUALITY == active) {
@@ -183,6 +188,11 @@ class AdminRole extends React.Component<any, RoleState> {
                         scienceProjects: res.data,
                         scienceSelectedProject: selectedProject
                     }, this.loadData)
+                } else if (MY_APPS.TAG == app) {
+                    ctx.setState({
+                        tagProjects: res.data,
+                        tagSelectedProject: selectedProject
+                    }, this.loadData)
                 } else if (MY_APPS.API == app) {
                     ctx.setState({
                         apiProjects: res.data,
@@ -249,6 +259,12 @@ class AdminRole extends React.Component<any, RoleState> {
     onScienceProjectSelect = (value: any) => {
         this.setState({
             scienceSelectedProject: value,
+            currentPage: 1
+        }, this.loadData)
+    }
+    onTagProjectSelect = (value: any) => {
+        this.setState({
+            tagSelectedProject: value,
             currentPage: 1
         }, this.loadData)
     }
@@ -320,7 +336,7 @@ class AdminRole extends React.Component<any, RoleState> {
         const {
             data, loading, projects, streamProjects,
             active, selectedProject, streamSelectedProject, dataBase, selecteDatabase,
-            scienceSelectedProject, scienceProjects, apiProjects, apiSelectedProject, dqProjects, dqSelectedProject
+            scienceSelectedProject, scienceProjects, tagSelectedProject, tagProjects, apiProjects, apiSelectedProject, dqProjects, dqSelectedProject
         } = this.state;
         let projectsOptions = [];
 
@@ -340,6 +356,10 @@ class AdminRole extends React.Component<any, RoleState> {
             selectValue = scienceSelectedProject;
             projectsOptions = scienceProjects;
             onSelectChange = this.onScienceProjectSelect
+        } else if (active == MY_APPS.TAG) {
+            selectValue = tagSelectedProject;
+            projectsOptions = tagProjects;
+            onSelectChange = this.onTagProjectSelect
         } else if (active == MY_APPS.API) {
             selectValue = apiSelectedProject;
             projectsOptions = apiProjects;

@@ -77,17 +77,17 @@ module.exports = [
         description: '数据API快速生成与注册，帮助企业提高数据开放与共享效率',
         className: 'icon_dropdown_api'
     }, {
-        id: 'dataLabel',
-        name: '标签工厂',
-        link: 'dataLabel.html#/',
-        filename: 'dataLabel.html',
+        id: 'tagEngine',
+        name: '标签引擎',
+        link: 'tagEngine.html#/',
+        filename: 'tagEngine.html',
         target: '_self',
-        enable: false,
-        apiBase: '/dataLabel',
+        enable: true,
+        apiBase: '/tag',
         icon: '/public/main/img/icon_4.png',
-        newIcon: '/public/main/img/icon_new4.png',
+        newIcon: '/public/main/img/tag.png',
         description: '快速生成规则标签，提供便捷、统一标签服务管理',
-        className: ''
+        className: 'icon_dropdown_tag'
     }, {
         id: 'science',
         name: '数据科学',

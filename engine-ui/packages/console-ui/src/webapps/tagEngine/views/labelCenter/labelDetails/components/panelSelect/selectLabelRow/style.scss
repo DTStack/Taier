@@ -1,0 +1,22 @@
+.select-label-Row.disabled {
+    margin-bottom: 20px;
+    .icon {
+        cursor: pointer;
+        color: #dddddd;
+        font-size: 18px;
+        margin-right: 12px;
+        position: relative;
+        top:4px;
+    }
+    .ant-form-item{
+        margin-bottom: 0;
+    }
+    .edit,.tip{
+        cursor: pointer;
+        color: #dddddd;
+        font-size: 16px;
+        margin-right: 8px;
+        position: relative;
+        top:6px;
+    }
+}

@@ -1,0 +1,33 @@
+.labelDirectory{
+    background: #FFFFFF;
+    box-shadow: 0 2px 6px 0 rgba(0,0,0,0.10);
+    padding-bottom: 20px;
+    .title_wrap{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px 12px;
+        .left_wp{
+            display:flex;
+            align-items: center;
+        }
+    }
+   
+    .search{
+        width:226px;
+        margin-left: 20px;
+    }
+    .draggable-wrap-table{
+        background: #fff;
+        .table_wrap{
+          
+            width: 100%;
+            padding: 0 20px;
+            .ant-table-body{
+                border: 1px solid #DDDDDD;
+                border-bottom: none;
+            }
+        }
+    }
+    
+}

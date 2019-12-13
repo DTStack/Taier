@@ -1,0 +1,76 @@
+.atom_stepTwo{
+    width: 800px;
+    margin: 60px auto;
+    .wrap_btn_content{
+        text-align: center;
+        margin-top: 40px;
+        .ant-btn{
+            margin-right: 8px;
+            width: 76px;
+        }
+    }
+    .panel_select{
+        background: #FFFFFF;
+        border: 1px solid #DDDDDD;
+        border-radius: 2px;
+        padding: 20px 32px;
+        .edit_Wrap{
+            width: 170px;
+            position: relative;
+            margin-bottom: 20px;
+            .edit_value{
+                width: 170px;
+                padding-right: 20px;
+                border-radius: 4px;
+                height: 32px;
+                line-height: 32px;
+            }
+            .iconfont{
+                position: absolute;
+                right: 12px;
+                top:4px;
+                font-size: 16px;
+                color: #999999;
+            }
+        } 
+    }
+    .panel_wrap{
+        .select_wrap{
+            padding-left:0;
+            position: relative;
+            .condition{
+                cursor: pointer;
+                position: absolute;
+                display: none;
+                left: -13px;
+                top: 50%;
+                margin-top: -13px;
+                background: #DDEFFF;
+                width: 26px;
+                height: 26px;
+                border-radius: 50%;
+                font-size: 12px;
+                color: #2491F7;
+                text-align: center;
+                line-height: 26px;
+            }
+            .add_icon{
+                cursor: pointer;
+                color: #2491F7;
+                font-size: 18px;
+            }
+            .delete_icon{
+                cursor: pointer;
+                color: #2491F7;
+                font-size: 18px;
+            }
+        }
+        .select_wrap.active{
+            padding-left: 25px;
+            border-left: 2px solid #DDEFFF;
+        }
+        .select_wrap.active>.condition{
+            display: block;
+        }
+    }
+}

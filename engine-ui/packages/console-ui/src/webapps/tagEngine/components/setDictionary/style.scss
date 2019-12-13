@@ -1,0 +1,85 @@
+.set-dictionary{
+    margin-top: 10px;
+    .input_wrap{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        .close{
+            cursor: pointer;
+            color: #999999;
+            margin-left: 20px;
+        }
+        .input{
+            height: 24px;
+            line-height: 24px;
+        }
+    }
+
+    .noRepeat_dic_val {
+      .ant-input {
+        border-color: #dddddd !important;
+      }
+      .ant-input:hover {
+        border-color: #58abf9 !important;
+      }
+      .ant-input:focus {
+        border-color: #58abf9 !important;
+        box-shadow: 0 0 0 2px rgba(36, 145, 247, 0.2);
+      }
+    }
+    
+
+    .ant-table-placeholder {
+        border-left: 1px solid #e9e9e9 !important;
+        border-right: 1px solid #e9e9e9 !important;
+        border-bottom: 1px solid #e9e9e9 !important;
+    }
+    
+    .ant-table-tbody > tr > td{
+        padding: 8px 24px !important;
+    }
+    .add_dictionary{
+        height: 40px;
+        display: flex;
+        align-items: center;
+        padding: 0 24px;
+        border-left:1px solid #e9e9e9;
+        border-right:1px solid #e9e9e9;
+        border-bottom:1px solid #e9e9e9;
+        .plus{
+            cursor: pointer;
+            border: 1px solid #e9e9e9;
+            border-radius: 2px;
+            font-size: 12px;
+            padding: 4px;
+            color: #333;
+        }
+    }
+    .ant-table-row {
+        -webkit-animation-name: fadeIn;
+        animation-name: fadeIn;
+        -webkit-animation-duration: 0.3s;
+        animation-duration: 0.3s;
+        -webkit-animation-fill-mode: both;
+        animation-fill-mode: both;
+      }
+    @-webkit-keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+      
+        to {
+          opacity: 1;
+        }
+      }
+      
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+      
+        to {
+          opacity: 1;
+        }
+      }
+}

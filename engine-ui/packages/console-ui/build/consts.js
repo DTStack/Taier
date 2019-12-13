@@ -12,7 +12,7 @@ const RDOS_PATH = path.resolve(WEB_APPS, 'rdos');                 // RDOS
 const STREAM_PATH = path.resolve(WEB_APPS, 'stream');                 // 流计算
 const DATA_QUALITY_PATH = path.resolve(WEB_APPS, 'dataQuality');  // 数据质量
 const DATA_API_PATH = path.resolve(WEB_APPS, 'dataApi');          // 数据API
-const DATA_LABEL_PATH = path.resolve(WEB_APPS, 'dataLabel');      // 标签工厂
+const DATA_TAG_PATH = path.resolve(WEB_APPS, 'tagEngine');      // 标签引擎
 const DATA_MAP_PATH = path.resolve(WEB_APPS, 'dataMap');          // 数据地图
 const CONSOLE_PATH = path.resolve(WEB_APPS, 'console');          // 控制台
 const ANALYTICS_ENGINE_PATH = path.resolve(WEB_APPS, 'analyticsEngine'); // 分析引擎
@@ -26,7 +26,7 @@ const RDOS_APP_FILE = path.resolve(RDOS_PATH, 'app');
 const STREAM_APP_FILE = path.resolve(STREAM_PATH, 'app');
 const DATA_QUALITY_APP_FILE = path.resolve(DATA_QUALITY_PATH, 'app');
 const DATA_API_APP_FILE = path.resolve(DATA_API_PATH, 'app');
-const DATA_LABEL_APP_FILE = path.resolve(DATA_LABEL_PATH, 'app');
+const DATA_TAG_APP_FILE = path.resolve(DATA_TAG_PATH, 'app');
 const CONSOLE_APP_FILE = path.resolve(CONSOLE_PATH, 'app');
 const DATA_MAP_APP_FILE = path.resolve(DATA_MAP_PATH, 'app');
 const META_DATA_APP_FILE = path.resolve(META_DATA_PATH, 'app');
@@ -50,7 +50,7 @@ module.exports = {
     STREAM_PATH,
     DATA_QUALITY_PATH,
     DATA_API_PATH,
-    DATA_LABEL_PATH,
+    DATA_TAG_PATH,
     CONSOLE_PATH,
     DATA_MAP_PATH,
     META_DATA_PATH,
@@ -63,7 +63,7 @@ module.exports = {
     STREAM_APP_FILE,
     DATA_QUALITY_APP_FILE,
     DATA_API_APP_FILE,
-    DATA_LABEL_APP_FILE,
+    DATA_TAG_APP_FILE,
     CONSOLE_APP_FILE,
     DATA_MAP_APP_FILE,
     META_DATA_APP_FILE,

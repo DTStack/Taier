@@ -10,7 +10,6 @@ const MY_PATH = require("./consts");
 
 const baseConf = require("./base.js")();
 var config = require("./config");
-
 /**
  * Sets process.env.NODE_ENV on DefinePlugin to value development. Enables NamedChunksPlugin and NamedModulesPlugin.
  *  **/
@@ -91,10 +90,24 @@ const devServer = Object.assign(
         historyApiFallback: true,
         disableHostCheck: true,
         quiet: true,
+        compress: true,
+        inline:true,
+        clientLogLevel: 'none',
         stats: {
             colors: true,
             "errors-only": false,
             cached: true
+        },
+        useLocalIp: true,
+        watchOptions: {
+          ignored: /node_modules/,
+          aggregateTimeout: 600,
+        },
+        before(app) {
+          app.use((req, res, next) => {
+            res.set('Access-Control-Allow-Origin', '*');
+            next();
+          });
         },
         contentBase: baseConf.output.path,
         publicPath: baseConf.output.publicPath
@@ -107,6 +120,7 @@ const merged = function(env) {
         devtool: "cheap-module-eval-source-map", //
         devServer: devServer,
         plugins: htmlPlugs,
+
         module: {
             rules: [...cssLoader]
         }

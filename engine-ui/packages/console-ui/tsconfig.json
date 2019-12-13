@@ -4,17 +4,16 @@
         "outDir":"./dist/",
         "baseUrl": ".",
         "experimentalDecorators": true,
-        "noImplicitAny": true,
+        "noImplicitAny": false,
         "esModuleInterop": true,
         "allowJs": true,
         "module": "commonjs",
         "target": "es5",
+        "lib": [ "es6","es2016","dom" ],
         "jsx": "react",
-        "lib": [
-            "es7",
-            "dom"
-        ],
         "allowSyntheticDefaultImports": true,
+        "noUnusedLocals": true,
+        "importHelpers": true,
         "paths": {
             "utils/*": ["./src/utils/*"], // 工具文件夹
             "utils": ["./src/utils"], // 工具文件夹
@@ -32,8 +31,15 @@
             "dataLabel/*": ["./src/webapps/dataLabel/*"],
             "console/*": ["./src/webapps/console/*"],
             "analyticsEngine/*": ["./src/webapps/analyticsEngine/*"],
-            "database": ["./src/database"] // 数据库
-        }
+            "database": ["./src/database"], // 数据库
+            "tagEngine/*":["./src/webapps/tagEngine/*"]
+        },
+        "skipLibCheck": true,
+        "typeRoots": [
+            "node",
+            "node_modules/@types",
+            "./typings"
+        ],
     },
     "exclude": [
         "node_modules",
@@ -41,6 +47,8 @@
         "src/public/**/*"
     ],
     "include": [
+        "./**/*.ts",
+        "./**/*.tsx",
         "src/**/*"
     ]
 }

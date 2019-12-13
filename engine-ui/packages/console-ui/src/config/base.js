@@ -8,7 +8,7 @@ export const STREAM_BASE_URL_NOT_SERVICE = '/api/streamapp';
 export const DQ_BASE_URL = '/api/dq/service';
 export const DQ_BASE_URL_NOT_SERVICE = '/api/dq';
 export const DATA_API_BASE_URL = '/api/da/service';
-export const DL_BASE_URL = '/api/tag/service';
+export const TAG_ENGINE_URL = '/api/v1'; // 标签引擎
 export const CONSOLE_BASE_URL = '/api/console/service';
 export const CONSOLE_BASE_UPLOAD_URL = '/api/console';
 export const ANALYTICS_ENGINE_BASE_URL = '/api/analysis/service';
@@ -58,16 +58,6 @@ export const daApp = {
     apiBase: '/dataApi'
 }
 
-export const dlApp = {
-    id: 'dataLabel',
-    name: '标签工厂',
-    link: 'dataLabel.html#/',
-    filename: 'dataLabel.html',
-    target: '_blank',
-    enable: true,
-    apiBase: '/tag'
-}
-
 export const consoleApp = {
     id: 'console',
     name: '控制台',
@@ -99,4 +89,13 @@ export const scienceApp = {
     target: '_blank',
     enable: true,
     apiBase: '/science'
+}
+export const tagApp = {
+    id: 'tagEngine',
+    name: '标签引擎',
+    link: 'tagEngine.html#/',
+    filename: 'tagEngine.html',
+    target: '_self',
+    enable: true,
+    apiBase: '/tag'
 }

@@ -3,7 +3,7 @@ import { notification, Modal } from 'antd';
 import { NotificationApi } from 'antd/lib/notification';
 import React from 'react';
 import { MY_APPS } from 'main/consts';
-import { rdosApp, streamApp, scienceApp, daApp } from 'config/base';
+import { rdosApp, streamApp, scienceApp, tagApp, daApp } from 'config/base';
 import { mergeDeep } from 'utils/merge';
 import moment from 'moment';
 
@@ -32,9 +32,9 @@ export function hidePasswordInDom () {
  * @param thisRef 组件this引用
  * @param newState 待更新状态
  */
-export function updateComponentState (thisRef: { state: object; setState: Function }, newState: object): void {
+export function updateComponentState (thisRef: { state: object; setState: Function }, newState: object, callback?: Function): void {
     if (thisRef && thisRef.setState) {
-        thisRef.setState(mergeDeep(thisRef.state, newState));
+        thisRef.setState(mergeDeep(thisRef.state, newState), callback);
     }
 }
 
@@ -181,8 +181,7 @@ export function openNewWindow (url: any, target: any) {
  * @param {s} app
  */
 export function hasProject (app: any) {
-    return app === MY_APPS.RDOS || app === MY_APPS.STREAM ||
-    app === MY_APPS.SCIENCE || app === MY_APPS.API || app === MY_APPS.DATA_QUALITY
+    return app === MY_APPS.RDOS || app === MY_APPS.STREAM || app === MY_APPS.SCIENCE || app === MY_APPS.TAG || app === MY_APPS.API || app === MY_APPS.DATA_QUALITY
 }
 
 /**
@@ -311,7 +310,6 @@ export function filterComments (sql: string) {
         }
     }
     sql = replaceStrFormIndexArr(sql, ' ', parser.comments)
-    console.log(sql);
     return sql;
 }
 
@@ -571,7 +569,7 @@ export function toRdosGateway (uri: any, params: any = {}) {
 }
 
 export function isCookieBeProjectType (key: any) {
-    return ['project_id', 'science_project_id', 'stream_project_id', 'api_project_id'].includes(key);
+    return ['project_id', 'science_project_id', 'tag_project_id', 'stream_project_id', 'api_project_id'].includes(key);
 }
 
 export function isCurrentProjectChanged (key: any) {
@@ -579,6 +577,7 @@ export function isCurrentProjectChanged (key: any) {
         'project_id': rdosApp.filename,
         'science_project_id': scienceApp.filename,
         'stream_project_id': streamApp.filename,
+        'tag_project_id': tagApp.filename,
         'api_project_id': daApp.filename
     }
     const pathname = location.pathname;
