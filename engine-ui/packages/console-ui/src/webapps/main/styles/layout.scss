@@ -1,5 +1,13 @@
 @import './const.scss';
-
+.root {
+    height: 100%;
+}
+.message {
+    height: 100%;
+    width: 100%;
+    position: relative;
+    overflow: auto;
+}
 .container {
     min-width: $minWidth;
     position: absolute;
