@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { assign, get } from 'lodash';
+import { assign, get, uniqBy, concat } from 'lodash';
 import { connect } from 'react-redux';
 import {
     Select, Table, Card,
@@ -346,7 +346,7 @@ class AdminUser extends React.Component<any, UserManaState> {
     }
 
     loadUsersNotInProject = (userName?: any) => {
-        const { active, selecteDatabase } = this.state;
+        const { active, selecteDatabase, notProjectUsers } = this.state;
         const params: any = {
             userName
         }
@@ -362,7 +362,7 @@ class AdminUser extends React.Component<any, UserManaState> {
         }
 
         Api.loadUsersNotInProject(active, params).then((res: any) => {
-            this.setState({ notProjectUsers: res.data })
+            this.setState({ notProjectUsers: uniqBy(concat(res.data, notProjectUsers), 'userId') })
         })
     }
 
