@@ -127,7 +127,7 @@ class StepThree extends React.Component<any, any> {
                 <Option
                     key={item.id}
                     value={item.id.toString()}
-                    {...{name: item.userName, optionFilterProp: 'name'}}
+                    {...{ name: item.userName, optionFilterProp: 'name' }}
                 >
                     {item.userName}
                 </Option>
