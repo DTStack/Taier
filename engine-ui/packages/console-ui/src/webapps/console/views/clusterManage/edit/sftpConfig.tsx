@@ -81,7 +81,7 @@ export default class SftpConfig extends React.Component<any, any> {
                                     if (e.target.value === '2') {
                                         timer = setTimeout(() => {
                                             setFieldsValue({
-                                                [`${COMPONEMT_CONFIG_KEYS.SFTP}.rsaPath`]: '～/.ssh/id_rsa'
+                                                [`${COMPONEMT_CONFIG_KEYS.SFTP}.rsaPath`]: '~/.ssh/id_rsa'
                                             })
                                             clearTimeout(timer);
                                             timer = null;
@@ -124,7 +124,7 @@ export default class SftpConfig extends React.Component<any, any> {
                                     })(
                                         <Input disabled={isView} />
                                     )}
-                                    <Tooltip overlayClassName="big-tooltip" title={'用户的私钥储存路径，默认为～/.ssh/id_rsa'}>
+                                    <Tooltip overlayClassName="big-tooltip" title={'用户的私钥储存路径，默认为~/.ssh/id_rsa'}>
                                         <Icon style={{ position: 'absolute', right: -20, top: 10 }} type="question-circle-o" />
                                     </Tooltip>
                                 </FormItem>

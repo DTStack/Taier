@@ -937,11 +937,11 @@ class BaseForm extends React.Component<any, any> {
                                     rules: [{
                                         required: true, message: '私钥地址不可为空！'
                                     }],
-                                    initialValue: config.rsaPath || '～/.ssh/id_rsa'
+                                    initialValue: config.rsaPath || '~/.ssh/id_rsa'
                                 })(
                                     <Input type="rsaPath" autoComplete="off" />
                                 )}
-                                <Tooltip overlayClassName="big-tooltip" title={'用户的私钥储存路径，默认为～/.ssh/id_rsa'}>
+                                <Tooltip overlayClassName="big-tooltip" title={'用户的私钥储存路径，默认为~/.ssh/id_rsa'}>
                                     <Icon className="help-doc" type="question-circle-o" />
                                 </Tooltip>
                             </FormItem>
