@@ -68,7 +68,7 @@ public class SFTPHandler {
                 throw new RuntimeException("Login failed. Please check if username and password are correct");
             }
 
-            if (StringUtils.isBlank(String.valueOf(authType)) || SftpType.PASSWORD_AUTHENTICATION.getType()==authType) {
+            if (authType == 0 || SftpType.PASSWORD_AUTHENTICATION.getType()==authType) {
                 //默认走密码验证模式
                 session.setPassword(password);
             }
