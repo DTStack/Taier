@@ -44,7 +44,6 @@ class EditRoleForm extends React.Component<any, any> {
         const getFieldDecorator = form.getFieldDecorator;
 
         const roleOptions: any = [];
-
         if (roles) {
             roles.forEach((role: any) => {
                 const disabled = isDisabledRole(app, role.roleValue, loginUser, myRoles)

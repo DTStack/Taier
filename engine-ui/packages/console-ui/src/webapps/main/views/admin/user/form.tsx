@@ -10,6 +10,7 @@ import utils from 'utils'
 import {
     MY_APPS,
     RDOS_ROLE,
+    TAG_ROLE,
     APP_ROLE,
     API_PRO_ROLES,
     QUALITY_PRO_ROLES,
@@ -25,8 +26,7 @@ export const isDisabledRole = (app: any, value: any, loginUser: any, myRoles: an
     switch (app) {
         case MY_APPS.RDOS:
         case MY_APPS.STREAM:
-        case MY_APPS.SCIENCE:
-        case MY_APPS.TAG: {
+        case MY_APPS.SCIENCE: {
             if (loginUser.isTenantAdmin || myRoles.isProjectOwner) { // 租户管理员和项目拥有者
                 return (value === RDOS_ROLE.PROJECT_OWNER ||
                 value === RDOS_ROLE.TENANT_OWVER ||
@@ -36,6 +36,20 @@ export const isDisabledRole = (app: any, value: any, loginUser: any, myRoles: an
                 value === RDOS_ROLE.TENANT_OWVER ||
                 value === RDOS_ROLE.PROJECT_ADMIN ||
                 value === RDOS_ROLE.VISITOR
+            } else {
+                return true;
+            }
+        }
+        case MY_APPS.TAG: {
+            if (loginUser.isTenantAdmin || myRoles.isProjectOwner) { // 租户管理员和项目拥有者
+                return (value === TAG_ROLE.PROJECT_OWNER ||
+                value === TAG_ROLE.TENANT_OWVER ||
+                value === TAG_ROLE.VISITOR)
+            } else if (myRoles.isProjectAdmin) { // 项目管理员
+                return value === TAG_ROLE.PROJECT_OWNER ||
+                value === TAG_ROLE.TENANT_OWVER ||
+                value === TAG_ROLE.PROJECT_ADMIN ||
+                value === TAG_ROLE.VISITOR
             } else {
                 return true;
             }
@@ -103,19 +117,29 @@ class UserRoleForm extends React.Component<any, any> {
 
         if (roles) {
             roles.forEach((role: any) => {
-                const disabled = isDisabledRole(app, role.roleValue, user, myRoles)
-                const isRdosOrStream = MY_APPS.RDOS == app || MY_APPS.STREAM == app
-
-                if (role.roleValue == APP_ROLE.VISITOR && !isRdosOrStream) {
-                    initialValue.push(role.id)
-                } else if (role.roleValue == RDOS_ROLE.VISITOR && isRdosOrStream) {
-                    initialValue.push(role.id)
+                const disabled = isDisabledRole(app, role.roleValue, user, myRoles);
+                switch (app) {
+                    case MY_APPS.RDOS:
+                    case MY_APPS.STREAM:
+                    case MY_APPS.SCIENCE:
+                        if (role.roleValue == RDOS_ROLE.VISITOR) {
+                            initialValue.push(role.id)
+                        };
+                        break;
+                    case MY_APPS.TAG:
+                        if (role.roleValue == TAG_ROLE.VISITOR) {
+                            initialValue.push(role.id)
+                        }
+                        break;
+                    default:
+                        if (role.roleValue == APP_ROLE.VISITOR) {
+                            initialValue.push(role.id)
+                        }
                 }
-
                 roleOptions.push({ label: role.roleName, value: role.id, disabled })
             })
         }
-
+        console.log('initialValue', initialValue, roles, user)
         return (
             <Form>
                 <FormItem
