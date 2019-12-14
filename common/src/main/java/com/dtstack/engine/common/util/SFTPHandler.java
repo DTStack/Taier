@@ -60,7 +60,7 @@ public class SFTPHandler {
 
         try {
             JSch jsch = new JSch();
-            if (SftpType.PUBKEY_AUTHENTICATION.equals(authType) && StringUtils.isNotBlank(rsaPath)) {
+            if (SftpType.PUBKEY_AUTHENTICATION.getType()==authType && StringUtils.isNotBlank(rsaPath)) {
                 jsch.addIdentity(rsaPath.trim(), "");
             }
             Session session = jsch.getSession(username, host, port);
@@ -68,7 +68,7 @@ public class SFTPHandler {
                 throw new RuntimeException("Login failed. Please check if username and password are correct");
             }
 
-            if (StringUtils.isNotBlank(String.valueOf(authType)) || SftpType.PASSWORD_AUTHENTICATION.equals(authType)) {
+            if (SftpType.PASSWORD_AUTHENTICATION.getType()==authType) {
                 //默认走密码验证模式
                 session.setPassword(password);
             }
