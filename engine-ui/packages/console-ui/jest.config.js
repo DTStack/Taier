@@ -2,6 +2,7 @@ const appConf = require('./mock/appConfig');
 
 // jest.config.js
 module.exports = {
+    preset: 'ts-jest',
     globals: {
         'APP_CONF': appConf
     },

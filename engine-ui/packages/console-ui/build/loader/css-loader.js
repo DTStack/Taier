@@ -1,5 +1,5 @@
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const theme = require('../../src/theme')();
+const theme = require('dt-common/src/theme')();
 
 module.exports = {
   dev: [

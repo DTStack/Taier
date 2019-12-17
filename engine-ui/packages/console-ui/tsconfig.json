@@ -12,27 +12,7 @@
         "lib": [ "es6","es2016","dom" ],
         "jsx": "react",
         "allowSyntheticDefaultImports": true,
-        "noUnusedLocals": true,
-        "importHelpers": true,
         "paths": {
-            "utils/*": ["./src/utils/*"], // 工具文件夹
-            "utils": ["./src/utils"], // 工具文件夹
-            "funcs/*": ["./src/funcs/*"], // 零碎的公共方法，抽象成工具类的则移至utils目录
-            "funcs": ["./src/funcs"], // 零碎的公共方法，抽象成工具类的则移至utils目录
-            "widgets/*": ["./src/widgets/*"], // 工具文件夹
-            "consts/*": ["./src/consts/*"], // 工具文件夹
-            "public/*": ["./src/public/*"], // 公共资源
-            "config/*": ["./src/config/*"], // 数据文件，后期可能替换为借口
-            "main/*": ["./src/webapps/main/*"],
-            "rdos/*": ["./src/webapps/rdos/*"],
-            "stream/*": ["./src/webapps/stream/*"],
-            "science/*": ["./src/webapps/science/*"],
-            "dataQuality/*": ["./src/webapps/dataQuality/*"],
-            "dataLabel/*": ["./src/webapps/dataLabel/*"],
-            "console/*": ["./src/webapps/console/*"],
-            "analyticsEngine/*": ["./src/webapps/analyticsEngine/*"],
-            "database": ["./src/database"], // 数据库
-            "tagEngine/*":["./src/webapps/tagEngine/*"]
         },
         "skipLibCheck": true,
         "typeRoots": [

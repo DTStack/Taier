@@ -22,5 +22,8 @@
     "javascript.format.insertSpaceBeforeFunctionParenthesis": true,
     "typescript.format.insertSpaceBeforeFunctionParenthesis": true,
     "javascript.format.insertSpaceAfterConstructor": true,
-    "typescript.format.insertSpaceAfterConstructor": true
+    "typescript.format.insertSpaceAfterConstructor": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    }
 }

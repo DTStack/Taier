@@ -5,11 +5,14 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const FriendlyErrorsWebpackPlugin = require("friendly-errors-webpack-plugin");
 const cssLoader = require("./loader/css-loader.js").dev;
 const notifier = require("node-notifier");
+const ForkTsCheckerNotifierWebpackPlugin = require('fork-ts-checker-notifier-webpack-plugin');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 const MY_PATH = require("./consts");
 
 const baseConf = require("./base.js")();
 var config = require("./config");
+
 /**
  * Sets process.env.NODE_ENV on DefinePlugin to value development. Enables NamedChunksPlugin and NamedModulesPlugin.
  *  **/
@@ -23,10 +26,6 @@ baseConf.output = {
     sourceMapFilename: "[name].map",
     publicPath: "/"
 };
-
-// Add react-hot-loader
-baseConf.module.rules[1].loader.unshift("react-hot-loader/webpack");
-
 
 baseConf.plugins.push(
     new FriendlyErrorsWebpackPlugin({
@@ -53,35 +52,6 @@ baseConf.plugins.push(
     new webpack.HotModuleReplacementPlugin() // 开启全局的模块热替换(HMR)
 );
 
-const htmlPlugs = [];
-function loadHtmlPlugs() {
-    const appConfs = require(path.resolve(
-        MY_PATH.APP_PATH,
-        "config/defaultApps"
-    ));
-    for (var i = 0; i < appConfs.length; i++) {
-        const app = appConfs[i];
-        if (app.enable) {
-            const tmp = path.resolve(
-                MY_PATH.WEB_PUBLIC,
-                `${app.id}/index.html`
-            );
-            htmlPlugs.push(
-                new HtmlWebpackPlugin({
-                    filename: app.filename,
-                    template: tmp,
-                    inject: "body",
-                    chunks: [app.id, "manifest"],
-                    showErrors: true,
-                    hash: true
-                })
-            );
-        }
-    }
-}
-
-loadHtmlPlugs();
-
 const devServer = Object.assign(
     {
         hot: true, // 开启服务器的模块热替换
@@ -90,9 +60,6 @@ const devServer = Object.assign(
         historyApiFallback: true,
         disableHostCheck: true,
         quiet: true,
-        compress: true,
-        inline:true,
-        clientLogLevel: 'none',
         stats: {
             colors: true,
             "errors-only": false,
@@ -100,14 +67,8 @@ const devServer = Object.assign(
         },
         useLocalIp: true,
         watchOptions: {
-          ignored: /node_modules/,
-          aggregateTimeout: 600,
-        },
-        before(app) {
-          app.use((req, res, next) => {
-            res.set('Access-Control-Allow-Origin', '*');
-            next();
-          });
+            ignored: /node_modules/,
+            aggregateTimeout: 600,
         },
         contentBase: baseConf.output.path,
         publicPath: baseConf.output.publicPath
@@ -119,8 +80,24 @@ const merged = function(env) {
     return webpackMerge(baseConf, {
         devtool: "cheap-module-eval-source-map", //
         devServer: devServer,
-        plugins: htmlPlugs,
-
+        plugins: [
+            new ForkTsCheckerWebpackPlugin({
+                eslint: true,
+                compilerOptions: {
+                    skipLibCheck: true
+                },
+                reportFiles: ['src/**/*.{ts,tsx}']
+            }),
+            new ForkTsCheckerNotifierWebpackPlugin({ title: 'TypeScript', excludeWarnings: false }),
+            new HtmlWebpackPlugin({
+                filename: 'index.html',
+                template: path.resolve(MY_PATH.WEB_PUBLIC, `index.html`),
+                inject: "body",
+                chunks: ['app', "manifest"],
+                showErrors: true,
+                hash: true
+            })
+        ],
         module: {
             rules: [...cssLoader]
         }
