@@ -11,6 +11,7 @@ import AdminUser from 'dt-common/src/views/admin/user'
 import AdminRole from 'dt-common/src/views/admin/role'
 import RoleAdd from 'dt-common/src/views/admin/role/add'
 import RoleEdit from 'dt-common/src/views/admin/role/edit'
+import Audit from 'dt-common/src/views/admin/audit'
 
 // 数据API
 import Container from './views'
@@ -38,6 +39,7 @@ export default (
             <Route path="role" component={ AdminRole } />
             <Route path="role/add" component={ RoleAdd } />
             <Route path="role/edit/:roleId" component={ RoleEdit } />
+            <Route path="audit" component={ Audit } />
         </Route>
         <Route path="/console" component={ Container }>
             <IndexRoute component={ QueueManage } />

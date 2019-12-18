@@ -3601,7 +3601,7 @@ draft-js@^0.10.0, draft-js@~0.10.0:
 
 "dt-common@git+ssh://git@git.dtstack.cn:10022/dt-insight-front/dt-common.git":
   version "3.9.0-beta.5"
-  resolved "git+ssh://git@git.dtstack.cn:10022/dt-insight-front/dt-common.git#0dde14d21abe2c8a643ffb93bcc2908ee9610adb"
+  resolved "git+ssh://git@git.dtstack.cn:10022/dt-insight-front/dt-common.git#2fa746f75de7e025b2f78c29289fe0a6c031532b"
   dependencies:
     "@handsontable/react" "^2.1.0"
     "@types/classnames" "^2.2.9"

@@ -124,7 +124,7 @@ module.exports = function () {
                 }, {
                     from: path.resolve(MY_PATH.ROOT_PATH, 'node_modules/dt-common/src/public'),
                     to: path.resolve(MY_PATH.BUILD_PATH, 'public'),
-                    ignore: ['*/index.html', 'common', 'config', 'favicon.*', 'img']
+                    ignore: ['*/index.html', 'common', 'config', 'favicon.*']
                 }, {
                     from: path.resolve(MY_PATH.ROOT_PATH, 'docs'),
                     to: path.resolve(MY_PATH.BUILD_PATH, 'docs')

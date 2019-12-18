@@ -21,7 +21,7 @@ class Header extends React.Component<any, any> {
     }
 
     render () {
-        const baseUrl = '/console.html#/console'
+        const baseUrl = '/console';
         const { app, licenseApps } = this.props;
 
         const menuItems: any = [{
