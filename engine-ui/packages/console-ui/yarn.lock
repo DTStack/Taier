@@ -3599,9 +3599,9 @@ draft-js@^0.10.0, draft-js@~0.10.0:
     immutable "~3.7.4"
     object-assign "^4.1.0"
 
-"dt-common@git+ssh://git@git.dtstack.cn:10022/dt-insight-front/dt-common.git":
+"dt-common@git+http://insight_frontend_lib:jb02o18123K_lib@git.dtstack.cn/dt-insight-front/dt-common.git":
   version "3.9.0-beta.5"
-  resolved "git+ssh://git@git.dtstack.cn:10022/dt-insight-front/dt-common.git#2fa746f75de7e025b2f78c29289fe0a6c031532b"
+  resolved "git+http://insight_frontend_lib:jb02o18123K_lib@git.dtstack.cn/dt-insight-front/dt-common.git#e2e0cf2879a83b927c21cb96d84f0e3fdc6227a0"
   dependencies:
     "@handsontable/react" "^2.1.0"
     "@types/classnames" "^2.2.9"
