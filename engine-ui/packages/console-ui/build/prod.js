@@ -43,19 +43,19 @@ const htmlMinify = {
 baseConf.mode = "production";
 
 // JS loader
-baseConf.module.rules.unshift(
-    {
-        test: /\.[jt]sx?$/,
-        include: MY_PATH.APP_PATH,
-        exclude: [
-            path.resolve(MY_PATH.ROOT_PATH, "node_modules"),
-            path.resolve(MY_PATH.WEB_PUBLIC)
-        ],
-        loader: [
-            "happypack/loader?id=happy-ts",
-        ]
-    }
-)
+// baseConf.module.rules.unshift(
+//     {
+//         test: /\.[jt]sx?$/,
+//         include: MY_PATH.APP_PATH,
+//         exclude: [
+//             path.resolve(MY_PATH.ROOT_PATH, "node_modules"),
+//             path.resolve(MY_PATH.WEB_PUBLIC)
+//         ],
+//         loader: [
+//             "happypack/loader?id=happy-ts",
+//         ]
+//     }
+// )
 
 baseConf.optimization.minimizer = [
     new TerserPlugin({
