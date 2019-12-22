@@ -83,9 +83,11 @@ public class ApplicationContainerListener
            LOG.info("hdfs principal:" + conf.get("hdfsPrincipal"));
            LOG.info("hdfs principal:" + conf.get("hdfsKeytabPath"));
            final Configuration newConf = new Configuration(conf);
-           if (KerberosUtils.isOpenKerberos(conf)){
-               newConf.set(DTScriptConstant.RPC_SERVER_PRINCIPAL, conf.get("hdfsPrincipal"));
-               newConf.set(DTScriptConstant.RPC_SERVER_KEYTAB, KerberosUtils.downloadAndReplace(newConf,"hdfsKeytabPath"));
+           if (KerberosUtils.isOpenKerberos(newConf)){
+               String keytabPath = KerberosUtils.localPath(newConf);
+               String principal = KerberosUtils.getPrincipal(keytabPath);
+               newConf.set(DTScriptConstant.RPC_SERVER_PRINCIPAL, principal);
+               newConf.set(DTScriptConstant.RPC_SERVER_KEYTAB, keytabPath);
                SecurityUtil.setAuthenticationMethod(UserGroupInformation.AuthenticationMethod.KERBEROS, newConf);
                SecurityUtil.login(newConf, DTScriptConstant.RPC_SERVER_KEYTAB, DTScriptConstant.RPC_SERVER_PRINCIPAL);
            }

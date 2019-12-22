@@ -414,8 +414,8 @@ public class SFTPHandler {
         }
     }
 
-    public String loadFromSftp(String fileName, String remoteDir, String localDir, String host){
-        String remoteFile = remoteDir + File.separator +  host + File.separator + fileName;
+    public String loadFromSftp(String fileName, String remoteDir, String localDir){
+        String remoteFile = remoteDir + File.separator + fileName;
         String localFile = localDir + File.separator + fileName;
         try {
             if (new File(fileName).exists()){

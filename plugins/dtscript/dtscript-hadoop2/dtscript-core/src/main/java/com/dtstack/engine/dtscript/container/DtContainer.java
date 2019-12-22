@@ -25,6 +25,7 @@ import org.apache.hadoop.ipc.RPC;
 import org.apache.hadoop.net.NetUtils;
 import org.apache.hadoop.security.SecurityUtil;
 import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.hadoop.security.authentication.util.KerberosUtil;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.records.ContainerId;
 import org.apache.hadoop.yarn.server.nodemanager.ContainerExecutor;
@@ -47,6 +48,8 @@ import java.util.concurrent.TimeUnit;
 public class DtContainer {
 
     private static final Log LOG = LogFactory.getLog(DtContainer.class);
+
+    private static final String PRINCIPALFILE = "principalFile";
 
     private DtYarnConfiguration conf;
 
@@ -108,16 +111,17 @@ public class DtContainer {
             LOG.info("appMasterHost:" + appMasterHost + ", port:" + appMasterPort);
             final Configuration newConf = new Configuration(conf);
 
-            if (KerberosUtils.isOpenKerberos(conf)){
-                UserGroupInformation myGui = UserGroupInformation.loginUserFromKeytabAndReturnUGI(conf.get("hdfsPrincipal"),
-                        KerberosUtils.downloadAndReplace(newConf,"hdfsKeytabPath"));
+            if (KerberosUtils.isOpenKerberos(newConf)){
+                String keytabPath = KerberosUtils.localPath(newConf);
+                String principal = KerberosUtils.getPrincipal(keytabPath);
+                UserGroupInformation myGui = UserGroupInformation.loginUserFromKeytabAndReturnUGI(principal, keytabPath);
                 UserGroupInformation.setLoginUser(myGui);
                 UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
                 LOG.info("-ugi---:" + ugi);
                 LOG.info("isenabled:" + UserGroupInformation.isSecurityEnabled());
-                LOG.info("hdfs principal:" + conf.get("hdfsPrincipal"));
-                newConf.set(DTScriptConstant.RPC_SERVER_PRINCIPAL, conf.get("hdfsPrincipal"));
-                newConf.set(DTScriptConstant.RPC_SERVER_KEYTAB, KerberosUtils.downloadAndReplace(newConf, "hdfsKeytabPath"));
+                LOG.info("hdfs principal:" + principal);
+                newConf.set(DTScriptConstant.RPC_SERVER_PRINCIPAL, principal);
+                newConf.set(DTScriptConstant.RPC_SERVER_KEYTAB, keytabPath);
                 UserGroupInformation.setConfiguration(newConf);
                 SecurityUtil.setAuthenticationMethod(UserGroupInformation.AuthenticationMethod.KERBEROS, newConf);
 

@@ -60,6 +60,8 @@ public class FlinkConfig {
 
     private String remoteDir;
 
+    private String principalFile;
+
     private Map<String, String> sftpConf;
 
     private Map<String, String> kerberosConfig;
@@ -281,6 +283,14 @@ public class FlinkConfig {
 
     public static void setEngineFlinkConfigs(List<String> engineFlinkConfigs) {
         ENGINE_FLINK_CONFIGS = engineFlinkConfigs;
+    }
+
+    public String getPrincipalFile() {
+        return principalFile;
+    }
+
+    public void setPrincipalFile(String principalFile) {
+        this.principalFile = principalFile;
     }
 
     private static List<String> initEngineFlinkConfigFields() {
