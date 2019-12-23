@@ -7,7 +7,6 @@ const HappyPack = require('happypack');
 const ProgressBarPlugin = require('progress-bar-webpack-plugin');
 const os = require('os');
 const happyThreadPool = HappyPack.ThreadPool({ size: os.cpus().length });
-const tsImportPluginFactory = require('ts-import-plugin');
 
 const MY_PATH = require('./consts');
 const monacoConfig = require('./monacoConfig');
@@ -21,10 +20,10 @@ module.exports = function () {
         },
         output: {
             path: MY_PATH.BUILD_PATH,
-            chunkFilename: "[name].[chunkhash:8].js",
-            filename: "[name].[chunkhash:8].js",
+            chunkFilename: "[name].[hash].js",
+            filename: "[name].[hash].js",
             sourceMapFilename: "[name].map",
-            publicPath: "/",
+            publicPath: MY_PATH.BASE_NAME,
             globalObject: 'self',
         },
         optimization: {

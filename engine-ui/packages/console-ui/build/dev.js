@@ -18,15 +18,6 @@ var config = require("./config");
  *  **/
 baseConf.mode = "development";
 
-baseConf.output = {
-    ...baseConf.output,
-    path: MY_PATH.BUILD_PATH,
-    chunkFilename: "[name].js",
-    filename: "[name].js",
-    sourceMapFilename: "[name].map",
-    publicPath: "/"
-};
-
 baseConf.plugins.push(
     new FriendlyErrorsWebpackPlugin({
         clearConsole: true,

@@ -2,16 +2,16 @@
 <html lang="zh-cn">
 
 <head>
-	<title></title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
-	<meta charset="utf-8">
+    <title></title>
+    <base href="./" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
+    <meta charset="utf-8">
     <link rel="Shortcut Icon" href="public/favicon.png">
     <script>
         if (/Edge\/|Trident\/|MSIE /.test(window.navigator.userAgent)) {
-            window.location.href = "/public/compatibility/tips.html"
+            window.location.href = "public/compatibility/tips.html"
         }
     </script>
-    <base href="/" />
 	<style type="text/css">
         .laoding-wrapper {
             width: 100%;
@@ -164,11 +164,11 @@
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="/public/config/config.js"></script>
+    <script type="text/javascript" src="public/config/config.js"></script>
     <script>
         if (navigator.serviceWorker!=null) {
             const version="sw_version_1";
-            navigator.serviceWorker.register("/sw.js")
+            navigator.serviceWorker.register("sw.js")
             .then(function(registration){
                 if (localStorage.getItem('sw_version_1') !== version) {
                     registration.update().then(function () {
