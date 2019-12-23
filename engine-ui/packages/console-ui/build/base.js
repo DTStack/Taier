@@ -69,7 +69,7 @@ module.exports = function () {
                         path.resolve(MY_PATH.ROOT_PATH, "node_modules/dt-common"),
                     ],
                     loader: [
-                        "happypack/loader?id=happy-ts",
+                        "happypack/loader?id=happy-babel",
                     ]
                 },
                 {
@@ -100,13 +100,11 @@ module.exports = function () {
                 languages: monacoConfig.languages
             }),
             new HappyPack({
-                id: 'happy-ts',
+                id: 'happy-babel',
                 loaders: [{
-                    loader: 'ts-loader',
+                    loader: 'babel-loader',
                     options: {
-                        allowTsInNodeModules: true,
-                        happyPackMode: true,
-                        transpileOnly: true
+                        cacheDirectory: true
                     }
                 }],
                 threadPool: happyThreadPool
