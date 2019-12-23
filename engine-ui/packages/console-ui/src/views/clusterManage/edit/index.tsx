@@ -933,7 +933,8 @@ class EditCluster extends React.Component<any, any> {
         const { componentTypeCode, componentName, componentId } = component;
         if (componentTypeCode == COMPONENT_TYPE_VALUE.HDFS ||
             componentTypeCode == COMPONENT_TYPE_VALUE.YARN ||
-            componentTypeCode == COMPONENT_TYPE_VALUE.LIBRASQL || COMPONENT_TYPE_VALUE.SFTP) {
+            componentTypeCode == COMPONENT_TYPE_VALUE.LIBRASQL ||
+            componentTypeCode == COMPONENT_TYPE_VALUE.SFTP) {
             message.error(`${componentName}不允许删除！`)
         } else {
             Api.deleteComponent({
