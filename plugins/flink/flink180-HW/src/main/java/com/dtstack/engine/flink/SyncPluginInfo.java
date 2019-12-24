@@ -33,9 +33,9 @@ public class SyncPluginInfo {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncPluginInfo.class);
 
-    private static final String fileSP = File.separator;
+    public static final String fileSP = File.separator;
 
-    private static final String syncPluginDirName = "syncplugin";
+    public static final String syncPluginDirName = "syncplugin";
 
     private static final String coreJarNamePrefix = "flinkx";
 

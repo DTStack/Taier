@@ -73,8 +73,7 @@ public class FlinkConfig {
 
     private boolean flinkHighAvailability = false;
 
-    private String pluginLoadMode = "classpath";
-
+    private String pluginLoadMode = "shipfile";
 
     public String getTypeName() {
         return typeName;

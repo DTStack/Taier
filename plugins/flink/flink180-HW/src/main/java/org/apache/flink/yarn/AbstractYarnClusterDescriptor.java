@@ -19,6 +19,7 @@
 package org.apache.flink.yarn;
 
 import avro.shaded.com.google.common.collect.Sets;
+import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.cache.DistributedCache;
@@ -555,11 +556,44 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         clusterSpecification.setProgram(program);
         JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, clusterSpecification.getConfiguration(), clusterSpecification.getParallelism());
         jobGraph.setAllowQueuedScheduling(true);
-        fillJobGraphClassPath(jobGraph);
-        fillStreamJobGraphClassPath(jobGraph);
+        dealPluginByLoadMode(jobGraph);
         clusterSpecification.setJobGraph(jobGraph);
         return jobGraph;
     }
+
+    private void dealPluginByLoadMode(JobGraph jobGraph) throws Exception {
+
+        String pluginLoadMode = flinkConfiguration.getString(ConfigConstrant.FLINK_PLUGIN_LOAD_MODE, ConfigConstrant.FLINK_PLUGIN_CLASSPATH_LOAD);
+        if (StringUtils.equalsIgnoreCase(pluginLoadMode, ConfigConstrant.FLINK_PLUGIN_CLASSPATH_LOAD)) {
+            fillJobGraphClassPath(jobGraph);
+            fillStreamJobGraphClassPath(jobGraph);
+        } else {
+            fillPluginPathToShipFiles(jobGraph);
+        }
+    }
+
+    private void fillPluginPathToShipFiles(JobGraph jobGraph) {
+        List<File> shipFiles = new ArrayList<>();
+        // flinksql get classpath
+        Map<String, DistributedCache.DistributedCacheEntry> jobCacheFileConfig = jobGraph.getUserArtifacts();
+        for(Map.Entry<String,  DistributedCache.DistributedCacheEntry> tmp : jobCacheFileConfig.entrySet()){
+            if(tmp.getKey().startsWith("class_path")){
+                shipFiles.add(new File(tmp.getValue().filePath));
+            }
+        }
+        // flinkx get classpath
+        jobGraph.getClasspaths().forEach(jarFile -> {
+            try {
+                shipFiles.add(new File(jarFile.toURI()));
+            } catch (URISyntaxException e) {
+                throw new IllegalArgumentException("Couldn't add local user jar: " + jarFile
+                        + " Currently only file:/// URLs are supported.");
+            }
+        });
+        jobGraph.getClasspaths().clear();
+        addShipFiles(shipFiles);
+    }
+
     private  JobGraph fillStreamJobGraphClassPath(JobGraph jobGraph) throws MalformedURLException {
         Map<String, DistributedCache.DistributedCacheEntry> jobCacheFileConfig = jobGraph.getUserArtifacts();
         for(Map.Entry<String,  DistributedCache.DistributedCacheEntry> tmp : jobCacheFileConfig.entrySet()){
