@@ -5,6 +5,15 @@ module.exports = {
         port: 8080,
         host: '0.0.0.0',
         proxy: {
+            '/dt-common': {
+                target: 'http://dev.insight.dtstack.net/', // 开发环境
+                // target: "http://172.16.6.135:8089", // tmp server
+                // target: "http://172.16.10.45:8089",
+                // ignorePath: true,
+                // pathRewrite:{"/dt-common": "/portal"},
+                changeOrigin: true,
+                secure: false
+            },
             '/api/dq': {
                 target: 'http://172.16.10.251:8089', // 开发环境
                 // target: "http://172.16.6.135:8089", // tmp server

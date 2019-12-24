@@ -3,6 +3,7 @@ import * as ReactDOM from 'react-dom'
 import { AppContainer } from 'react-hot-loader'
 
 import { getStore } from 'dt-common/src/utils/reduxUtils'
+import * as log from 'dt-common/src/utils/log';
 
 import Root from './root'
 
@@ -26,3 +27,5 @@ if ((module as any).hot) {
         render(newRoot)
     })
 }
+
+log.appInfo();
