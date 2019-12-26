@@ -85,7 +85,6 @@ class EditCluster extends React.Component<any, any> {
         extDefaultValue: {},
         fileHaveChange: false,
         checked: false,
-        isZookeeper: false,
         allComponentConf: {},
         engineTypeKey: ENGINE_TYPE.HADOOP, // 默认hadoop engineType
         flinkPrometheus: undefined, // 配置Prometheus参数
@@ -300,11 +299,6 @@ class EditCluster extends React.Component<any, any> {
                         if (flinkData && flinkData.hasOwnProperty('metrics.reporter.promgateway.class')) {
                             this.setState({
                                 checked: true
-                            })
-                        }
-                        if (flinkData && flinkData.hasOwnProperty('high-availability.zookeeper.quorum')) {
-                            this.setState({
-                                isZookeeper: true
                             })
                         }
                         this.setFormDataConf(activeKey, componentConf);
@@ -1076,10 +1070,6 @@ class EditCluster extends React.Component<any, any> {
             }
         })
     }
-    onChangeZookeeper (value: string) {
-        /* eslint-disable-next-line */
-        this.setState({ isZookeeper: value == 'NONE' ? false : true })
-    }
     onCancel () {
         this.setState({
             addEngineVisible: false
@@ -1437,7 +1427,7 @@ class EditCluster extends React.Component<any, any> {
      * 渲染 Component Config
      */
     renderComponentConf = (component: any) => {
-        const { checked, securityStatus, zipConfig, isZookeeper } = this.state;
+        const { checked, securityStatus, zipConfig } = this.state;
         const { getFieldDecorator, getFieldValue, setFieldsValue, resetFields } = this.props.form;
         const { mode } = this.props.location.state || {} as any;
         const isView = mode == 'view';
@@ -1526,8 +1516,6 @@ class EditCluster extends React.Component<any, any> {
                         resetFields={resetFields}
                         securityStatus={securityStatus}
                         checked={checked}
-                        isZookeeper={isZookeeper}
-                        onChangeZookeeper={this.onChangeZookeeper.bind(this)}
                         changeCheckbox={this.changeCheckbox.bind(this)}
                         customView={(
                             <div>
