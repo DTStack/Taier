@@ -2,6 +2,7 @@ package com.dtstack.engine.dtscript.am;
 
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.api.ApplicationContext;
+import com.dtstack.engine.dtscript.common.SecurityUtil;
 import com.dtstack.engine.dtscript.container.ContainerEntity;
 import com.dtstack.engine.dtscript.container.DtContainer;
 import com.dtstack.engine.dtscript.container.DtContainerId;
@@ -82,8 +83,6 @@ public class ApplicationMaster extends CompositeService {
      */
     ApplicationContainerListener containerListener;
 
-    private ByteBuffer allTokens;
-
     NMCallbackHandler nmAsyncHandler;
 
     String appMasterHostname;
@@ -108,22 +107,6 @@ public class ApplicationMaster extends CompositeService {
     private void init() throws IOException {
         LOG.info("appmaster init start...");
 
-        Credentials credentials =
-                UserGroupInformation.getCurrentUser().getCredentials();
-        DataOutputBuffer dob = new DataOutputBuffer();
-        credentials.writeTokenStorageToStream(dob);
-        // Now remove the AM->RM token so that containers cannot access it.
-        Iterator<Token<?>> iter = credentials.getAllTokens().iterator();
-        LOG.info("Executing with tokens:");
-        while (iter.hasNext()) {
-            Token<?> token = iter.next();
-            LOG.info(token);
-            if (token.getKind().equals(AMRMTokenIdentifier.KIND_NAME)) {
-                iter.remove();
-            }
-        }
-
-        allTokens = ByteBuffer.wrap(dob.getData(), 0, dob.getLength());
         LOG.info("-------------");
 
         rmCallbackHandler = new RMCallbackHandler();
@@ -447,7 +430,7 @@ public class ApplicationMaster extends CompositeService {
         containerEnv.put(DtYarnConstants.Environment.XLEARNING_TF_INDEX.toString(), String.valueOf(index));
 
         ContainerLaunchContext ctx = ContainerLaunchContext.newInstance(
-                containerLocalResource, containerEnv, containerLaunchcommands, null, allTokens.duplicate(), null);
+                containerLocalResource, containerEnv, containerLaunchcommands, null, SecurityUtil.copyUserToken(), null);
 
         try {
             LOG.info("nmAsync.class: " + nmAsync.getClass().getName());

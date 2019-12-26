@@ -4,6 +4,7 @@ package com.dtstack.engine.dtscript.client;
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.am.ApplicationMaster;
 import com.dtstack.engine.dtscript.api.DtYarnConstants;
+import com.dtstack.engine.dtscript.common.SecurityUtil;
 import com.dtstack.engine.dtscript.common.exceptions.RequestOverLimitException;
 import com.dtstack.engine.dtscript.util.KerberosUtils;
 import com.dtstack.engine.dtscript.util.Utilities;
@@ -66,6 +67,11 @@ public class Client {
             LOG.info("start init security!");
             KerberosUtils.login(conf);
         }
+        String appSubmitterUserName = System.getenv(ApplicationConstants.Environment.USER.name());
+        if (conf.get("hadoop.job.ugi") == null) {
+            UserGroupInformation ugi = UserGroupInformation.createRemoteUser(appSubmitterUserName);
+            conf.set("hadoop.job.ugi", ugi.getUserName() + "," + ugi.getUserName());
+        }
         this.dfs = FileSystem.get(conf);
 
         yarnClient = YarnClient.createYarnClient();
@@ -99,6 +105,7 @@ public class Client {
             UserGroupInformation ugi = UserGroupInformation.createRemoteUser(appSubmitterUserName);
             taskConf.set("hadoop.job.ugi", ugi.getUserName() + "," + ugi.getUserName());
         }
+        taskConf.set("ipc.client.fallback-to-simple-auth-allowed", "true");
 
         taskConf.set(DtYarnConfiguration.LEARNING_AM_MEMORY, String.valueOf(clientArguments.amMem));
         taskConf.set(DtYarnConfiguration.LEARNING_AM_CORES, String.valueOf(clientArguments.amCores));
@@ -251,13 +258,11 @@ public class Client {
         capability.setMemory(taskConf.getInt(DtYarnConfiguration.LEARNING_AM_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY));
         capability.setVirtualCores(taskConf.getInt(DtYarnConfiguration.LEARNING_AM_CORES, DtYarnConfiguration.DEFAULT_LEARNING_AM_CORES));
         applicationContext.setResource(capability);
+        ByteBuffer tokenBuffer = SecurityUtil.getDelegationTokens(conf, yarnClient);
         ContainerLaunchContext amContainer = ContainerLaunchContext.newInstance(
-                localResources, appMasterEnv, appMasterLaunchcommands, null, null, null);
+                localResources, appMasterEnv, appMasterLaunchcommands, null, tokenBuffer, null);
 
 
-        if (KerberosUtils.isOpenKerberos(conf)){
-            amContainer.setTokens(setupTokens());
-        }
         applicationContext.setAMContainerSpec(amContainer);
 
         Priority priority = Records.newRecord(Priority.class);
@@ -267,26 +272,6 @@ public class Client {
         applicationId = yarnClient.submitApplication(applicationContext);
 
         return applicationId.toString();
-    }
-
-    private ByteBuffer setupTokens() throws IOException {
-        Credentials credentials = new Credentials();
-        String tokenRenewer = conf.get(YarnConfiguration.RM_PRINCIPAL);
-        if (tokenRenewer == null || tokenRenewer.length() == 0) {
-            throw new IOException(
-                    "Can't get Master Kerberos principal for the RM to use as renewer");
-        }
-
-        // For now, only getting tokens for the default file-system.
-        final Token<?> tokens[] = dfs.addDelegationTokens(tokenRenewer, credentials);
-        if (tokens != null) {
-            for (Token<?> token : tokens) {
-                LOG.info("Got dt for " + dfs.getUri() + "; " + token);
-            }
-        }
-        DataOutputBuffer dob = new DataOutputBuffer();
-        credentials.writeTokenStorageToStream(dob);
-        return ByteBuffer.wrap(dob.getData(), 0, dob.getLength());
     }
 
 
