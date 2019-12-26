@@ -364,7 +364,7 @@ export const FLINK_KEY_MAP_DOTS: any = {
 // 非用户自定义参数
 export const notExtKeysFlink: any = [
     'typeName',
-    'high-availability',
+    // 'high-availability',
     'high-availability.zookeeper.quorum',
     'high-availability.storageDir',
     'high-availability.zookeeper.path.root',

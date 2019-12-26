@@ -17,8 +17,6 @@ export default class FlinkConfig extends React.Component<any, any> {
             getFieldDecorator,
             getFieldValue,
             checked,
-            isZookeeper,
-            onChangeZookeeper,
             changeCheckbox,
             kerberosView,
             setFieldsValue,
@@ -109,81 +107,58 @@ export default class FlinkConfig extends React.Component<any, any> {
                         )}
                     </FormItem>
                     <FormItem
-                        label="high-availability"
+                        label="high-availability.cluster-id"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.high-availability`, {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.high-availabilityCluster-id`, {
                             rules: [{
                                 required: true,
-                                message: '请输入high-availability'
-                            }],
-                            initialValue: 'NONE'
+                                message: '请输入high-availability.cluster-id'
+                            }]
                         })(
-                            <Select onChange={onChangeZookeeper} disabled={isView} style={{ width: '120px' }}>
-                                <Option value="NONE">NONE</Option>
-                                <Option value="ZOOKEEPER">ZOOKEEPER</Option>
-                            </Select>
+                            <Input disabled={isView} />
                         )}
                     </FormItem>
-                    {
-                        isZookeeper ? (
-                            <React.Fragment>
-                                <FormItem
-                                    label="high-availability.cluster-id"
-                                    {...formItemLayout}
-                                >
-                                    {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.high-availabilityCluster-id`, {
-                                        rules: [{
-                                            required: true,
-                                            message: '请输入high-availability.cluster-id'
-                                        }]
-                                    })(
-                                        <Input disabled={isView} />
-                                    )}
-                                </FormItem>
-                                <FormItem
-                                    label={<Tooltip title="high-availability.zookeeper.quorum">high-availability.zookeeper.quorum</Tooltip>}
-                                    {...formItemLayout}
-                                >
-                                    {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.high-availabilityZookeeperQuorum`, {
-                                        rules: [{
-                                            required: true,
-                                            message: '请输入high-availability.zookeeper.quorum'
-                                        }]
+                    <FormItem
+                        label={<Tooltip title="high-availability.zookeeper.quorum">high-availability.zookeeper.quorum</Tooltip>}
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.high-availabilityZookeeperQuorum`, {
+                            rules: [{
+                                required: true,
+                                message: '请输入high-availability.zookeeper.quorum'
+                            }]
 
-                                    })(
-                                        <Input disabled={isView} placeholder="hostname1:port,hostname2:port，多个地址用英文逗号隔开" />
-                                    )}
-                                </FormItem>
-                                <FormItem
-                                    label={<Tooltip title="high-availability.storageDir">high-availability.storageDir</Tooltip>}
-                                    {...formItemLayout}
-                                >
-                                    {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.high-availabilityStorageDir`, {
-                                        rules: [{
-                                            required: true,
-                                            message: '请输入high-availability.storageDir'
-                                        }]
-                                    })(
-                                        <Input disabled={isView} placeholder="Flink高可用存储地址，例如：/flink140/ha" />
-                                    )}
-                                </FormItem>
-                                <FormItem
-                                    label="high-availability.zookeeper.path.root"
-                                    {...formItemLayout}
-                                >
-                                    {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.high-availabilityZookeeperPathRoot`, {
-                                        rules: [{
-                                            required: true,
-                                            message: '请输入high-availability.zookeeper.path.root'
-                                        }]
-                                    })(
-                                        <Input disabled={isView} placeholder="Flink在Zookeeper的namespace，例如：/flink140" />
-                                    )}
-                                </FormItem>
-                            </React.Fragment>
-                        ) : null
-                    }
+                        })(
+                            <Input disabled={isView} placeholder="hostname1:port,hostname2:port，多个地址用英文逗号隔开" />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label={<Tooltip title="high-availability.storageDir">high-availability.storageDir</Tooltip>}
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.high-availabilityStorageDir`, {
+                            rules: [{
+                                required: true,
+                                message: '请输入high-availability.storageDir'
+                            }]
+                        })(
+                            <Input disabled={isView} placeholder="Flink高可用存储地址，例如：/flink140/ha" />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label="high-availability.zookeeper.path.root"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.FLINK}.high-availabilityZookeeperPathRoot`, {
+                            rules: [{
+                                required: true,
+                                message: '请输入high-availability.zookeeper.path.root'
+                            }]
+                        })(
+                            <Input disabled={isView} placeholder="Flink在Zookeeper的namespace，例如：/flink140" />
+                        )}
+                    </FormItem>
                     <FormItem
                         label="flinkJarPath"
                         {...formItemLayout}
