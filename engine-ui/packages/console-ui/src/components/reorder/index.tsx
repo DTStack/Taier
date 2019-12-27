@@ -20,7 +20,8 @@ class Reorder extends React.Component<any, any> {
             groupName: priorityResource.groupName,
             node: this.props.node,
             jobId: priorityResource.taskId,
-            jobIndex: jobIndex
+            jobIndex: jobIndex,
+            clusterName: priorityResource.clusterName
         }).then((res: any) => {
             if (res.code == 1) {
                 message.success('修改成功');
