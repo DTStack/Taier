@@ -68,7 +68,7 @@ public class SyncPluginInfo {
             programArgList.addAll(Arrays.asList(args.split("\\s+")));
         }
 
-        FlinkYarnMode taskRunMode = FlinkUtil.getTaskRunMode(jobClient.getConfProperties(),jobClient.getComputeType());
+        FlinkYarnMode taskRunMode = FlinkUtil.getTaskRunMode(jobClient.getConfProperties());
 
         programArgList.add("-monitor");
         if(StringUtils.isNotEmpty(monitorAddress)) {
