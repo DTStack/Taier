@@ -155,7 +155,7 @@ public class FlinkUtil {
         if (StringUtils.isEmpty(modeStr)){
             return FlinkYarnMode.PER_JOB;
         } else {
-            return FlinkYarnMode.NEW;
+            return FlinkYarnMode.mode(modeStr);
         }
     }
 
