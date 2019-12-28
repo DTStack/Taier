@@ -17,7 +17,7 @@ public enum FlinkYarnMode {
     PER_JOB;
 
     public static FlinkYarnMode mode(String mode) {
-        if (FlinkYarnMode.PER_JOB.name().equalsIgnoreCase(mode)) {
+        if (FlinkYarnMode.SESSION.name().equalsIgnoreCase(mode)) {
             return SESSION;
         } else if (FlinkYarnMode.PER_JOB.name().equalsIgnoreCase(mode)){
             return PER_JOB;
