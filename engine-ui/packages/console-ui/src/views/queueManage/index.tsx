@@ -7,7 +7,6 @@
 import * as React from 'react';
 import { Table, Tabs, Select, Card, Button } from 'antd';
 import utils from 'dt-common/src/utils'
-import { isNaN } from 'lodash';
 import Api from '../../api/console';
 import '../../styles/main.scss';
 import TaskDetail from './taskDetail';
@@ -25,6 +24,7 @@ class QueueManage extends React.Component<any, any> {
         nowView: utils.getParameterByName('tab') || 'overview',
         clusterList: [],
         clusterId: undefined,
+        clusterMap: {},
         nodeList: [],
         // 节点值
         node: undefined,
@@ -34,21 +34,12 @@ class QueueManage extends React.Component<any, any> {
 
     componentDidMount () {
         this.getClusterSelect();
-        this.getNodeAddressSelect();
-        this.getClusterDetail();
     }
     // 渲染集群
     getClusterDetail () {
-        const { table, node, clusterList } = this.state;
+        const { table, node, clusterMap } = this.state;
         const { pageIndex } = table;
         let { clusterId } = this.state;
-        if (isNaN(Number(clusterId))) { // clusterName 转化 id
-            clusterList.map((item: any) => {
-                if (item.clusterName == clusterId) {
-                    return clusterId = item.id
-                }
-            })
-        }
         if (node) {
             this.setState({
                 table: {
@@ -63,8 +54,14 @@ class QueueManage extends React.Component<any, any> {
                 node: node
             }).then((res: any) => {
                 if (res.code == 1) {
+                    let data = res.data.data;
                     this.setState({
-                        dataSource: res.data.data,
+                        dataSource: Array.isArray(data) ? data.map(item => {
+                            return {
+                                ...item,
+                                clusterName: clusterMap[clusterId]
+                            }
+                        }) : [],
                         table: {
                             ...table,
                             loading: false,
@@ -87,9 +84,28 @@ class QueueManage extends React.Component<any, any> {
         return Api.getAllCluster().then((res: any) => {
             if (res.code == 1) {
                 const data = res.data;
+                let clusterMap: any = {};
+                let clusterList: any = [];
+                if (Array.isArray(data)) {
+                    clusterMap = data.reduce((pre, curr) => {
+                        return {
+                            ...pre,
+                            [curr.id]: curr.clusterName
+                        }
+                    }, {});
+                    clusterList = data.map(item => {
+                        return {
+                            ...item,
+                            id: item.id + ''
+                        }
+                    })
+                }
                 this.setState({
-                    clusterList: data || [],
-                    clusterId: data && data[0] && data[0].clusterName // 首次取第一项集群名称展示
+                    clusterList,
+                    clusterMap,
+                    clusterId: data && data[0] && data[0].id + '' // 首次取第一项集群名称展示
+                }, () => {
+                    this.getNodeAddressSelect();
                 })
             }
         })
@@ -132,7 +148,6 @@ class QueueManage extends React.Component<any, any> {
                     nodeList: data || [],
                     node: data && data.length ? data[0] : undefined
                 }, this.getClusterDetail.bind(this))
-                console.log(data);
             }
         })
     }
@@ -234,7 +249,6 @@ class QueueManage extends React.Component<any, any> {
                 engineType: record.engineType,
                 groupName: record.groupName,
                 node: this.state.node
-
             }
         });
         this.setState({
@@ -283,7 +297,6 @@ class QueueManage extends React.Component<any, any> {
                                 集群：
                                 <Select style={{ width: 150, marginRight: '10px' }}
                                     placeholder="选择集群"
-                                    allowClear
                                     onChange={this.clusterOptionChange.bind(this)}
                                     value={clusterId}
                                 >

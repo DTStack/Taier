@@ -74,12 +74,15 @@ class TaskDetail extends React.Component<any, any> {
         const { query = {} } = this.props;
         this.searchTaskFuzzy();
         this.getEngineList();
-        this.getGroupList();
         this.setState({
             engineType: query.engineType,
             groupName: query.groupName,
+            clusterName: query.clusterName,
             node: query.node
-        }, this.getDetailTaskList.bind(this))
+        }, () => {
+            this.getDetailTaskList();
+            this.getGroupList();
+        })
         this.searchTaskList();
     }
     // 获取计算类型
@@ -198,7 +201,7 @@ class TaskDetail extends React.Component<any, any> {
             }).then((res: any) => {
                 if (res.code == 1) {
                     this.setState({
-                        dataSource: res.data ? res.data.theJob : [],
+                        dataSource: res.data ? this.parsePluginInfo(res.data.theJob) : [],
                         // 单个任务信息
                         singleTaskInfo: res.data ? res.data.theJob : undefined,
                         // 获取执行顺序
@@ -392,7 +395,7 @@ class TaskDetail extends React.Component<any, any> {
     }
     // 获取详细任务
     getDetailTaskList () {
-        const { engineType, groupName, node } = this.state;
+        const { engineType, groupName, node, clusterName } = this.state;
         const { table } = this.state;
         const { pageIndex } = table;
         this.setState({
@@ -400,7 +403,7 @@ class TaskDetail extends React.Component<any, any> {
             selectedRowKeys: [],
             killTaskInfo: []
         })
-        if (engineType && groupName && node) {
+        if (engineType && groupName && node && clusterName) {
             this.setState({
                 table: {
                     ...table,
@@ -412,13 +415,14 @@ class TaskDetail extends React.Component<any, any> {
                 groupName: groupName,
                 node: node,
                 pageSize: PAGE_SIZE,
-                currentPage: pageIndex
+                currentPage: pageIndex,
+                clusterName
             }).then((res: any) => {
                 if (res.code == 1) {
                     const data = res.data || {};
                     const isReducePageIndex = data.topN && data.topN.length === 0 && (data.queueSize != 0 && data.queueSize % PAGE_SIZE === 0);
                     this.setState({
-                        dataSource: data.topN,
+                        dataSource: Array.isArray(data.topN) ? this.parsePluginInfo(data.topN) : [],
                         table: {
                             ...table,
                             loading: false,
@@ -428,7 +432,6 @@ class TaskDetail extends React.Component<any, any> {
                     }, () => {
                         isReducePageIndex && this.getDetailTaskList()
                     })
-                    console.log(res);
                 } else {
                     this.setState({
                         table: {
@@ -439,6 +442,17 @@ class TaskDetail extends React.Component<any, any> {
                 }
             })
         }
+    }
+
+    // 解析数据中PluginInfo中的clusterName
+    parsePluginInfo (data: any = []) {
+        return data.map(item => {
+            let clusterName = item.pluginInfo ? JSON.parse(item.pluginInfo).cluster : '';
+            return {
+                ...item,
+                clusterName
+            }
+        })
     }
 
     // 请求置顶调整接口
@@ -453,6 +467,7 @@ class TaskDetail extends React.Component<any, any> {
             groupName: record.groupName,
             node: node,
             jobId: record.taskId,
+            clusterName: record.clusterName,
             jobIndex: 1
         }).then((res: any) => {
             if (res.code == 1) {
@@ -531,16 +546,6 @@ class TaskDetail extends React.Component<any, any> {
             {
                 title: '集群',
                 dataIndex: 'clusterName',
-                render (text: any, record: any) {
-                    // let str = record.groupName;
-                    // return str ? String(str).subString(0, String(str).indexOf('_')) : ''
-                    const arr = (record.groupName || '').split('_');
-                    if (arr.length == 1) {
-                        return record.groupName
-                    } else {
-                        return arr[0]
-                    }
-                },
                 width: '70px'
             },
             {
@@ -698,12 +703,13 @@ class TaskDetail extends React.Component<any, any> {
         if (e.target.checked) {
             selectedRowKeys = this.state.dataSource.map((item: any) => item.taskId);
             killTaskInfo = this.state.dataSource.map((item: any) => {
-                const { taskId, groupName, jobType, engineType, computeType } = item;
+                const { taskId, groupName, jobType, engineType, computeType, clusterName } = item;
                 return {
                     taskId,
                     groupName,
                     jobType,
                     engineType,
+                    clusterName,
                     computeType
                 }
             })
@@ -828,7 +834,6 @@ class TaskDetail extends React.Component<any, any> {
                             style={{ width: '150px', marginRight: '10px' }}
                             value={this.state.clusterName}
                             onChange={this.changeClusterValue.bind(this)}
-                            allowClear
                         >
                             {this.getClusterListOptionView()}
                         </Select>
@@ -951,6 +956,7 @@ class TaskDetail extends React.Component<any, any> {
                     groupName={this.state.groupName}
                     jobName={this.state.jobName}
                     computeType={this.state.computeType}
+                    clusterName={this.state.clusterName}
                 />
                 <Reorder
                     visible={isShowReorder}

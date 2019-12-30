@@ -31,7 +31,7 @@ class KillAllTask extends React.Component<any, any> {
         })
     }
     initParams () {
-        const { killResource = [], node, totalModel, totalSize, engineType, groupName, jobName, computeType } = this.props;
+        const { killResource = [], node, totalModel, totalSize, engineType, groupName, jobName, computeType, clusterName } = this.props;
         let params: any;
         if (totalModel !== undefined) {
             // 杀死全部任务
@@ -45,7 +45,8 @@ class KillAllTask extends React.Component<any, any> {
                 params = {
                     ...params,
                     engineType,
-                    groupName
+                    groupName,
+                    clusterName
                 };
             } else {
                 // 按照任务筛选杀死全部任务
