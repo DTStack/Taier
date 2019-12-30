@@ -566,7 +566,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
 
     private void dealPluginByLoadMode(JobGraph jobGraph) throws Exception {
 
-        String pluginLoadMode = flinkConfiguration.getString(ConfigConstrant.FLINK_PLUGIN_LOAD_MODE, ConfigConstrant.FLINK_PLUGIN_CLASSPATH_LOAD);
+        String pluginLoadMode = flinkConfiguration.getString(ConfigConstrant.FLINK_PLUGIN_LOAD_MODE, ConfigConstrant.FLINK_PLUGIN_SHIPFILE_LOAD);
         if (StringUtils.equalsIgnoreCase(pluginLoadMode, ConfigConstrant.FLINK_PLUGIN_CLASSPATH_LOAD)) {
             fillJobGraphClassPath(jobGraph);
             fillStreamJobGraphClassPath(jobGraph);

@@ -1,5 +1,6 @@
 package com.dtstack.engine.flink;
 
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosException;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
@@ -33,6 +34,7 @@ import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -224,6 +226,17 @@ public class FlinkClientBuilder {
             flinkJarPath = flinkConfig.getFlinkJarPath();
         }
 
+        if (StringUtils.isNotBlank(flinkConfig.getPluginLoadMode()) && ConfigConstrant.FLINK_PLUGIN_SHIPFILE_LOAD.equalsIgnoreCase(flinkConfig.getPluginLoadMode())) {
+            newConf.setString(ConfigConstrant.FLINK_PLUGIN_LOAD_MODE, flinkConfig.getPluginLoadMode());
+            newConf.setString("classloader.resolve-order", "parent-first");
+
+            String flinkPluginRoot = flinkConfig.getFlinkPluginRoot();
+            List<File> pluginPaths = fillAllPluginPathForYarnSession(isPerjob, flinkPluginRoot);
+            if (!pluginPaths.isEmpty()) {
+                clusterDescriptor.addShipFiles(pluginPaths);
+            }
+        }
+
         List<URL> classpaths = new ArrayList<>();
         if (flinkJarPath != null) {
             File[] jars = new File(flinkJarPath).listFiles();
@@ -367,5 +380,30 @@ public class FlinkClientBuilder {
         }
 
         return configuration;
+    }
+
+    private List<File> fillAllPluginPathForYarnSession(boolean isPerjob, String flinkPluginRoot) {
+        List<File> pluginPaths = Lists.newArrayList();
+        if (!isPerjob) {
+            //预加载同步插件jar包
+            if(StringUtils.isNotBlank(flinkPluginRoot)){
+                String syncPluginDir = buildSyncPluginDir(flinkPluginRoot);
+                try {
+                    File[] jars = new File(syncPluginDir).listFiles();
+                    if(jars != null){
+                        pluginPaths.addAll(Arrays.asList(jars));
+                    }else {
+                        LOG.warn("jars in flinkPluginRoot is null, flinkPluginRoot = {}", flinkPluginRoot);
+                    }
+                }catch (Exception e){
+                    LOG.error("error to load jars in flinkPluginRoot, flinkPluginRoot = {}, e = {}", flinkPluginRoot, ExceptionUtil.getErrorMessage(e));
+                }
+            }
+        }
+        return pluginPaths;
+    }
+
+    public String buildSyncPluginDir(String pluginRoot){
+        return pluginRoot +  SyncPluginInfo.fileSP + SyncPluginInfo.syncPluginDirName;
     }
 }
