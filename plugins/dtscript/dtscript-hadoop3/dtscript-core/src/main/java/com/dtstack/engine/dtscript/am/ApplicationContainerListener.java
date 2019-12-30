@@ -1,24 +1,17 @@
 package com.dtstack.engine.dtscript.am;
 
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
-import com.dtstack.engine.dtscript.common.DTScriptConstant;
+import com.dtstack.engine.dtscript.common.*;
 import com.dtstack.engine.dtscript.container.ContainerEntity;
 import com.dtstack.engine.dtscript.container.DtContainerId;
 import com.dtstack.engine.dtscript.api.ApplicationContainerProtocol;
 import com.dtstack.engine.dtscript.api.ApplicationContext;
-import com.dtstack.engine.dtscript.common.DtContainerStatus;
-import com.dtstack.engine.dtscript.common.HeartbeatRequest;
-import com.dtstack.engine.dtscript.common.HeartbeatResponse;
-import com.dtstack.engine.dtscript.common.LocalRemotePath;
-import com.dtstack.engine.dtscript.util.KerberosUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.ipc.ProtocolSignature;
 import org.apache.hadoop.ipc.RPC;
 import org.apache.hadoop.ipc.Server;
-import org.apache.hadoop.security.SecurityUtil;
-import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authorize.ServiceAuthorizationManager;
 import org.apache.hadoop.service.AbstractService;
 import org.apache.hadoop.yarn.api.records.NodeId;
@@ -78,30 +71,17 @@ public class ApplicationContainerListener
     @Override
     public void start() {
 
-       try{
+        try{
+            final Configuration newConf = new Configuration(conf);
+            Configuration conf = SecurityUtil.disableSecureRpc(getConfig());
 
-           LOG.info("hdfs principal:" + conf.get("hdfsPrincipal"));
-           LOG.info("hdfs principal:" + conf.get("hdfsKeytabPath"));
-           final Configuration newConf = new Configuration(conf);
-           if (KerberosUtils.isOpenKerberos(conf)){
-               newConf.set(DTScriptConstant.RPC_SERVER_PRINCIPAL, conf.get("hdfsPrincipal"));
-               newConf.set(DTScriptConstant.RPC_SERVER_KEYTAB, KerberosUtils.downloadAndReplace(newConf,"hdfsKeytabPath"));
-               SecurityUtil.setAuthenticationMethod(UserGroupInformation.AuthenticationMethod.KERBEROS, newConf);
-               SecurityUtil.login(newConf, DTScriptConstant.RPC_SERVER_KEYTAB, DTScriptConstant.RPC_SERVER_PRINCIPAL);
-           }
+            RPC.Builder builder = new RPC.Builder(conf)
+                    .setProtocol(ApplicationContainerProtocol.class)
+                    .setInstance(this)
+                    .setBindAddress("0.0.0.0")
+                    .setPort(0);
 
-            RPC.Builder builder = new RPC.Builder(newConf)
-            .setProtocol(ApplicationContainerProtocol.class)
-            .setInstance(this)
-            .setBindAddress("0.0.0.0")
-            .setPort(0)
-            .setVerbose(false)
-            .setNumHandlers(5);
-
-           server = builder.build();
-
-           ((RPC.Server) server).addProtocol(RPC.RpcKind.RPC_WRITABLE, ApplicationContainerProtocol.class, this);
-
+            server = builder.build();
             server.start();
             containerLostDetector.start();
 
@@ -109,14 +89,14 @@ public class ApplicationContainerListener
             serviceAuthorizationManager.refreshWithLoadedConfiguration(newConf, new DTPolicyProvider());
             LOG.info(serviceAuthorizationManager);
 
-           LOG.info("----start rpc success----");
+            LOG.info("----start rpc success----");
         } catch (Exception e) {
             LOG.error("Error starting application containers handler server!", e);
             e.printStackTrace();
             return;
         }finally {
-           //SecurityUtil.setSecurityInfoProviders(new SecurityInfo[0]);
-       }
+            //SecurityUtil.setSecurityInfoProviders(new SecurityInfo[0]);
+        }
 
     }
 

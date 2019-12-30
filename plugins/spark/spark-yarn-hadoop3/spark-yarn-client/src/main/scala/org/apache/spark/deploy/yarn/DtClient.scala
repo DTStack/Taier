@@ -396,13 +396,8 @@ private[spark] class DtClient(
   def initSecurity():Unit = {
     val userPrincipal = sparkConf.get("spark.yarn.principal")
     val userKeytabPath = sparkConf.get("spark.yarn.keytab")
-    val krb5ConfPath = sparkConf.get("spark.krb5path")
-    try
-      KerberosUtils.login(userPrincipal, userKeytabPath, krb5ConfPath, yarnConf)
-    catch {
-      case e: IOException =>
-        e.printStackTrace()
-    }
+    UserGroupInformation.setConfiguration(yarnConf)
+    UserGroupInformation.loginUserFromKeytab(userPrincipal, userKeytabPath)
   }
 
   /**

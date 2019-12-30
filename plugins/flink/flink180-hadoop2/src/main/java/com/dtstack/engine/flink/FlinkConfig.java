@@ -56,8 +56,6 @@ public class FlinkConfig {
 
     private boolean openKerberos;
 
-    private String localKeytab;
-
     private String remoteDir;
 
     private String principalFile;
@@ -163,14 +161,6 @@ public class FlinkConfig {
 
     public void setOpenKerberos(boolean openKerberos) {
         this.openKerberos = openKerberos;
-    }
-
-    public String getLocalKeytab() {
-        return localKeytab;
-    }
-
-    public void setLocalKeytab(String localKeytab) {
-        this.localKeytab = localKeytab;
     }
 
     public String getRemoteDir() {
