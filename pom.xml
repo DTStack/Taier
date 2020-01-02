@@ -16,27 +16,27 @@
     </properties>
 
     <modules>
-        <module>common</module>
-        <module>plugins/base</module>
-        <!--<module>plugins/spark/spark-hadoop2</module>-->
-        <module>plugins/spark/spark-yarn-hadoop2</module>
-        <module>plugins/spark/spark-yarn-hadoop3</module>
-        <!--<module>plugins/spark/spark160-yarn-hadoop2</module>-->
-        <!--<module>plugins/flink/flink150-hadoop2</module>-->
-        <module>plugins/flink/flink180-hadoop2</module>
-        <module>plugins/flink/flink180-hadoop3</module>
-        <module>plugins/flink/flink180-HW</module>
-        <module>plugins/dtscript/dtscript-hadoop2</module>
-        <module>plugins/dtscript/dtscript-hadoop3</module>
-        <module>plugins/learning/learning-hadoop2</module>
-        <module>plugins/odps</module>
-        <module>plugins/kylin</module>
-        <module>plugins/rdbs</module>
-        <module>plugins/hadoop/hadoop2</module>
-        <module>plugins/hadoop/hadoop3</module>
-        <module>service</module>
-        <module>web</module>
-        <module>entrance</module>
+        <module>engine-common</module>
+        <module>engine-service</module>
+        <module>engine-router</module>
+        <module>engine-entrance</module>
+        <module>engine-plugins/base</module>
+        <!--<module>engine-plugins/spark/spark-hadoop2</module>-->
+        <module>engine-plugins/spark/spark-yarn-hadoop2</module>
+        <module>engine-plugins/spark/spark-yarn-hadoop3</module>
+        <!--<module>engine-plugins/spark/spark160-yarn-hadoop2</module>-->
+        <!--<module>engine-plugins/flink/flink150-hadoop2</module>-->
+        <module>engine-plugins/flink/flink180-hadoop2</module>
+        <module>engine-plugins/flink/flink180-hadoop3</module>
+        <module>engine-plugins/flink/flink180-HW</module>
+        <module>engine-plugins/dtscript/dtscript-hadoop2</module>
+        <module>engine-plugins/dtscript/dtscript-hadoop3</module>
+        <module>engine-plugins/learning/learning-hadoop2</module>
+        <module>engine-plugins/odps</module>
+        <module>engine-plugins/kylin</module>
+        <module>engine-plugins/rdbs</module>
+        <module>engine-plugins/hadoop/hadoop2</module>
+        <module>engine-plugins/hadoop/hadoop3</module>
     </modules>
 
     <dependencies>

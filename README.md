@@ -215,6 +215,7 @@ yarnConf内容包括yarn的链接信息，支持HA模式与非HA模式
 * [spark_yarn插件](docs/spark_yarn.md)
 * [dtyarnshell插件](docs/dtyarnshell.md)
 * [mysql插件](docs/mysql.md)
+    * 使用 mysql插件 用户需要create 权限并且mysql配置要设置 enforce_gtid_consistency=OFF，gtid_mode=OFF
 * [oracle插件](docs/oracle.md)
 * [sqlserver插件](docs/sqlserver.md)
 * [maxcompute插件](docs/maxcompute.md)

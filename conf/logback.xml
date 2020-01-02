@@ -56,7 +56,7 @@
         <appender-ref ref="flinkAppender" />
     </logger>
 
-    <logger name="com.dtstack.engine.web.vertx.BaseVerticle" level="info" additivity="false">
+    <logger name="com.dtstack.engine.router.vertx.BaseVerticle" level="info" additivity="false">
         <appender-ref ref="request" />
     </logger>
 
