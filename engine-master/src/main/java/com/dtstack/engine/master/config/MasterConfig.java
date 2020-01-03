@@ -1,4 +1,4 @@
-package com.dtstack.engine.master;
+package com.dtstack.engine.master.config;
 
 import com.dtstack.engine.common.config.AbstractYamlConfig;
 import com.dtstack.engine.common.exception.EngineAgumentsException;

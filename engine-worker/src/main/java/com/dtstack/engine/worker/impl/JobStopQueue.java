@@ -1,4 +1,4 @@
-package com.dtstack.engine.worker;
+package com.dtstack.engine.worker.impl;
 
 import com.dtstack.engine.common.config.ConfigParse;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -14,6 +14,7 @@ import com.dtstack.engine.domain.RdosEngineJobCache;
 import com.dtstack.engine.domain.RdosEngineJobStopRecord;
 import com.dtstack.engine.common.enums.RequestStart;
 import com.dtstack.engine.common.enums.StoppedStatus;
+import com.dtstack.engine.worker.WorkNode;
 import com.dtstack.engine.worker.send.HttpSendClient;
 import com.dtstack.engine.common.util.TaskIdUtil;
 import com.dtstack.engine.service.zookeeper.ZkDistributed;

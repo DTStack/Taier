@@ -1,4 +1,4 @@
-package com.dtstack.engine.worker;
+package com.dtstack.engine.worker.impl;
 
 import com.dtstack.engine.common.annotation.Param;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -13,6 +13,7 @@ import com.dtstack.engine.domain.RdosEngineJob;
 import com.dtstack.engine.domain.RdosEngineJobCache;
 import com.dtstack.engine.common.queue.GroupPriorityQueue;
 import com.dtstack.engine.service.zookeeper.ZkDistributed;
+import com.dtstack.engine.worker.WorkNode;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;

@@ -1,5 +1,5 @@
 
-package com.dtstack.engine.worker;
+package com.dtstack.engine.worker.impl;
 
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
@@ -11,6 +11,7 @@ import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.domain.RdosEngineJob;
 import com.dtstack.engine.domain.RdosEngineJobCache;
 import com.dtstack.engine.common.enums.StoppedStatus;
+import com.dtstack.engine.worker.WorkNode;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

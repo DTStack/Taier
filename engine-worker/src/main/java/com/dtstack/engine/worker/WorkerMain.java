@@ -5,8 +5,13 @@ import com.dtstack.engine.common.log.LogbackComponent;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
 import com.dtstack.engine.common.JobSubmitExecutor;
+import com.dtstack.engine.service.task.HeartBeatListener;
 import com.dtstack.engine.service.zookeeper.ZkDistributed;
 import com.dtstack.engine.router.VertxHttpServer;
+import com.dtstack.engine.worker.cache.LocalCacheSyncZkListener;
+import com.dtstack.engine.worker.cache.ZkLocalCache;
+import com.dtstack.engine.worker.cache.ZkSyncLocalCacheListener;
+import com.dtstack.engine.worker.config.WorkConfig;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,8 +58,17 @@ public class WorkerMain {
         jobSubmitExecutor = JobSubmitExecutor.getInstance();
         zkDistributed = ZkDistributed.createZkDistributed(nodeConfig).zkRegistration();
         vertxHttpServer = new VertxHttpServer(nodeConfig);
+        init(zkDistributed);
 
         logger.warn("start engine success...");
+    }
+
+    public static void init(ZkDistributed zkDistributed) {
+        ZkLocalCache.getInstance().init(zkDistributed);
+        WorkNode.getInstance().init();
+		HeartBeatListener.init();
+        LocalCacheSyncZkListener.init();
+        ZkSyncLocalCacheListener.init();
     }
 
     private static void shutdown() {

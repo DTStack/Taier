@@ -5,8 +5,10 @@ import com.dtstack.engine.common.log.LogbackComponent;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
 import com.dtstack.engine.common.JobSubmitExecutor;
+import com.dtstack.engine.master.MasterMain;
 import com.dtstack.engine.service.zookeeper.ZkDistributed;
 import com.dtstack.engine.router.VertxHttpServer;
+import com.dtstack.engine.worker.WorkerMain;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,9 +57,10 @@ public class EngineMain {
 		jobSubmitExecutor = JobSubmitExecutor.getInstance();
 		zkDistributed = ZkDistributed.createZkDistributed(nodeConfig).zkRegistration();
 		vertxHttpServer = new VertxHttpServer(nodeConfig);
+		WorkerMain.init(zkDistributed);
+		MasterMain.init();
 
 		logger.warn("start engine success...");
-
 	}
 
 	private static void shutdown() {

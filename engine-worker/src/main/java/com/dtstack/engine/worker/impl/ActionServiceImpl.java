@@ -1,4 +1,4 @@
-package com.dtstack.engine.worker;
+package com.dtstack.engine.worker.impl;
 
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosException;
@@ -19,6 +19,7 @@ import com.dtstack.engine.dao.RdosEngineJobRetryDAO;
 import com.dtstack.engine.dao.RdosEngineJobStopRecordDAO;
 import com.dtstack.engine.dao.RdosEngineUniqueSignDAO;
 import com.dtstack.engine.dao.RdosStreamTaskCheckpointDAO;
+import com.dtstack.engine.worker.WorkNode;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;

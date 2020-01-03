@@ -1,4 +1,4 @@
-package com.dtstack.engine.service;
+package com.dtstack.engine.service.impl;
 
 import com.dtstack.engine.common.annotation.Param;
 import com.dtstack.engine.dao.RdosNodeMachineDAO;

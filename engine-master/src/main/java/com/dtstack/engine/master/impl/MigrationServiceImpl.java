@@ -1,4 +1,6 @@
-package com.dtstack.engine.master;
+package com.dtstack.engine.master.impl;
+
+import com.dtstack.engine.master.MasterNode;
 
 import java.util.Map;
 

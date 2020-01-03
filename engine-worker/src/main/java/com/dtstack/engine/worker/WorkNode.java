@@ -18,10 +18,14 @@ import com.dtstack.engine.domain.RdosEngineJob;
 import com.dtstack.engine.domain.RdosEngineJobCache;
 import com.dtstack.engine.domain.RdosPluginInfo;
 import com.dtstack.engine.common.enums.RequestStart;
+import com.dtstack.engine.worker.impl.JobStopQueue;
 import com.dtstack.engine.worker.send.HttpSendClient;
 import com.dtstack.engine.common.util.TaskIdUtil;
 import com.dtstack.engine.service.zookeeper.ZkDistributed;
 import com.dtstack.engine.worker.cache.ZkLocalCache;
+import com.dtstack.engine.worker.task.QueueListener;
+import com.dtstack.engine.worker.task.TaskListener;
+import com.dtstack.engine.worker.task.TaskStatusListener;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -76,7 +80,18 @@ public class WorkNode {
         return singleton;
     }
 
+    private ExecutorService executors  = new ThreadPoolExecutor(3, 3,
+            0L, TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<Runnable>());
+
     private WorkNode(){
+    }
+
+    public void init() {
+        executors.execute(new TaskListener());
+        executors.execute(new TaskStatusListener());
+        executors.execute(new QueueListener());
+
         ExecutorService recoverExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory("recoverDealer"));
         recoverExecutor.submit(new RecoverDealer());

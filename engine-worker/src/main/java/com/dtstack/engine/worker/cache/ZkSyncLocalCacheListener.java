@@ -27,7 +27,13 @@ public class ZkSyncLocalCacheListener implements Runnable {
     private static long CHECK_INTERVAL = 2000;
     private int logOutput = 0;
 
-    public ZkSyncLocalCacheListener() {
+    private static ZkSyncLocalCacheListener listener;
+
+    public static void init(){
+        listener = new ZkSyncLocalCacheListener();
+    }
+
+    private ZkSyncLocalCacheListener() {
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("ZkSyncLocalCacheListener"));
         scheduledService.scheduleWithFixedDelay(
                 this,

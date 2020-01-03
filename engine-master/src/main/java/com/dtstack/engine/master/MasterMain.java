@@ -4,7 +4,11 @@ import com.dtstack.engine.common.config.ConfigParse;
 import com.dtstack.engine.common.log.LogbackComponent;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
-import com.dtstack.engine.common.JobSubmitExecutor;
+import com.dtstack.engine.master.config.MasterConfig;
+import com.dtstack.engine.master.task.HeartBeatCheckListener;
+import com.dtstack.engine.master.task.LogStoreListener;
+import com.dtstack.engine.master.task.MasterListener;
+import com.dtstack.engine.service.task.HeartBeatListener;
 import com.dtstack.engine.service.zookeeper.ZkDistributed;
 import com.dtstack.engine.router.VertxHttpServer;
 import com.google.common.collect.Lists;
@@ -29,8 +33,6 @@ public class MasterMain {
 
     private static ZkDistributed zkDistributed;
 
-    private static JobSubmitExecutor jobSubmitExecutor;
-
     public static void main(String[] args) throws Exception {
         try {
             SystemPropertyUtil.setSystemUserDir();
@@ -50,15 +52,21 @@ public class MasterMain {
 
 
     private static void initService(Map<String, Object> nodeConfig) throws Exception {
-        jobSubmitExecutor = JobSubmitExecutor.getInstance();
         zkDistributed = ZkDistributed.createZkDistributed(nodeConfig).zkRegistration();
         vertxHttpServer = new VertxHttpServer(nodeConfig);
 
         logger.warn("start engine success...");
     }
 
+    public static void init() {
+        MasterListener masterListener = new MasterListener();
+        HeartBeatCheckListener.init(masterListener);
+        LogStoreListener.init(masterListener);
+        HeartBeatListener.init();
+    }
+
     private static void shutdown() {
-        List<Closeable> closeables = Lists.newArrayList(vertxHttpServer, zkDistributed, jobSubmitExecutor);
+        List<Closeable> closeables = Lists.newArrayList(vertxHttpServer, zkDistributed);
         for (Closeable closeable : closeables) {
             if (closeables != null) {
                 try {

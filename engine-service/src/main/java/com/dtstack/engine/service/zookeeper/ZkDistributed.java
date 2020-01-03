@@ -44,9 +44,9 @@ import com.netflix.curator.framework.CuratorFrameworkFactory;
 import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
 import com.netflix.curator.retry.ExponentialBackoffRetry;
 
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
+//import java.util.concurrent.ThreadPoolExecutor;
+//import java.util.concurrent.ExecutorService;
+//import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 /**
  *
@@ -103,12 +103,7 @@ public class ZkDistributed implements Closeable{
 //	private ZkShardManager zkShardManager = ZkShardManager.getInstance();
 	private static List<InterProcessMutex> interProcessMutexs = Lists.newArrayList();
 
-	private ExecutorService executors  = new ThreadPoolExecutor(4, 8,
-			0L, TimeUnit.MILLISECONDS,
-			new LinkedBlockingQueue<Runnable>());
-
 	private RdosNodeMachineDAO rdosNodeMachineDAO = new RdosNodeMachineDAO();
-
 
 	private ZkDistributed(Map<String,Object> nodeConfig) throws Exception {
 		this.nodeConfig  = nodeConfig;
@@ -171,23 +166,9 @@ public class ZkDistributed implements Closeable{
 		HeartBeatListener.init();
 //		zkLocalCache.init(this);
 		registrationDB();
-		initScheduledExecutorService();
+//		initScheduledExecutorService();
 		logger.warn("init zk server success...");
 		return this;
-	}
-
-	private void initScheduledExecutorService() {
-//		HeartBeatListener heartBeatListener = new HeartBeatListener();
-//		masterListener = new MasterListener();
-//		HeartBeatCheckListener heartBeatCheckListener = new HeartBeatCheckListener(masterListener);
-//		executors.execute(new TaskListener());
-//		executors.execute(new TaskStatusListener(new CheckpointListener(masterListener)));
-//		executors.execute(new QueueListener());
-//		LocalCacheSyncZkListener localCacheSyncZKListener = new LocalCacheSyncZkListener();
-//		ZkSyncLocalCacheListener zkSyncLocalCacheListener = new ZkSyncLocalCacheListener();
-		if(ConfigParse.getPluginStoreInfo()!=null){
-//			executors.execute(new LogStoreListener(masterListener));
-		}
 	}
 
 	private void registrationDB() throws IOException {

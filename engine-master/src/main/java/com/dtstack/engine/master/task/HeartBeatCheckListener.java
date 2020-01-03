@@ -43,7 +43,13 @@ public class HeartBeatCheckListener implements Runnable{
 
 	private int logOutput = 0;
 
-	public HeartBeatCheckListener(MasterListener masterListener){
+	private static HeartBeatCheckListener listener;
+
+	public static void init(MasterListener masterListener) {
+		listener = new HeartBeatCheckListener(masterListener);
+	}
+
+	private HeartBeatCheckListener(MasterListener masterListener){
 		this.masterListener = masterListener;
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("HeartBeatCheckListener"));
         scheduledService.scheduleWithFixedDelay(
