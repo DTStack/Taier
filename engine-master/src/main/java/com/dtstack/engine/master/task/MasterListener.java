@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.master.MasterNode;
-import com.dtstack.engine.service.zk.ZkDistributed;
+import com.dtstack.engine.service.zookeeper.ZkDistributed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dtstack.engine.common.exception.ExceptionUtil;

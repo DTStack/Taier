@@ -5,7 +5,7 @@ import com.dtstack.engine.common.log.LogbackComponent;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
 import com.dtstack.engine.common.JobSubmitExecutor;
-import com.dtstack.engine.service.zk.ZkDistributed;
+import com.dtstack.engine.service.zookeeper.ZkDistributed;
 import com.dtstack.engine.router.VertxHttpServer;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;

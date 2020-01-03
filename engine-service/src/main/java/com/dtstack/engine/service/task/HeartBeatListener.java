@@ -2,8 +2,8 @@ package com.dtstack.engine.service.task;
 
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.service.zk.data.BrokerHeartNode;
-import com.dtstack.engine.service.zk.ZkDistributed;
+import com.dtstack.engine.service.data.BrokerHeartNode;
+import com.dtstack.engine.service.zookeeper.ZkDistributed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -27,9 +27,15 @@ public class HeartBeatListener implements Runnable {
 
     private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 
+    private static HeartBeatListener listener = null;
+
     private int logOutput = 0;
 
-    public HeartBeatListener() {
+    public static void init(){
+        listener = new HeartBeatListener();
+    }
+
+    private HeartBeatListener() {
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("HeartBeatListener"));
         scheduledService.scheduleWithFixedDelay(
                 this,

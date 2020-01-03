@@ -6,5 +6,8 @@ package com.dtstack.engine.common;
  * create: 2020/1/02
  */
 public interface RootUrls {
-	String ROOT = "/node";
+    String ROOT = "/node";
+
+    String ACTION = String.format("%s/%s", ROOT, "action");
+
 }

@@ -1,8 +1,8 @@
 package com.dtstack.engine.service;
 
 import com.dtstack.engine.common.annotation.Param;
-import com.dtstack.engine.service.db.dao.RdosNodeMachineDAO;
-import com.dtstack.engine.service.db.dataobject.RdosNodeMachine;
+import com.dtstack.engine.dao.RdosNodeMachineDAO;
+import com.dtstack.engine.domain.RdosNodeMachine;
 
 import java.util.List;
 
