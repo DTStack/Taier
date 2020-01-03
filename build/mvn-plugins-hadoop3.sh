@@ -2,9 +2,7 @@
 echo 'Dependency Hadoop-3.0.0 Building...'
 
 mvn clean package -DskipTests -Dhadoop.version=3.0.0 -pl \
-engine-entrance/engine-league,\
-engine-entrance/engine-master,\
-engine-entrance/engine-worker,\
+engine-entrance, \
 engine-plugins/dtscript/dtscript-hadoop3/dtscript-client,\
 engine-plugins/hadoop/hadoop3,\
 engine-plugins/flink/flink180-hadoop3,\

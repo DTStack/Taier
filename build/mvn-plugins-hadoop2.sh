@@ -2,9 +2,7 @@
 echo 'Dependency Hadoop-2.7.3 Building...'
 
 mvn clean package -DskipTests -Dhadoop.version=2.7.3 -pl \
-engine-entrance/engine-league,\
-engine-entrance/engine-master,\
-engine-entrance/engine-worker,\
+engine-entrance, \
 engine-plugins/flink/flink180-hadoop2,\
 engine-plugins/spark/spark-yarn-hadoop2,\
 engine-plugins/dtscript/dtscript-hadoop2/dtscript-client,\
