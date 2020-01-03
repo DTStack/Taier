@@ -19,6 +19,8 @@
         <module>engine-common</module>
         <module>engine-service</module>
         <module>engine-router</module>
+        <module>engine-worker</module>
+        <module>engine-master</module>
         <module>engine-entrance</module>
         <module>engine-plugins/base</module>
         <!--<module>engine-plugins/spark/spark-hadoop2</module>-->
