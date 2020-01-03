@@ -26,7 +26,6 @@ public class ApiResult {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
 	public ApiResult(){
-//		setRequestId(RequestContext.get().getRequestId());
 	}
 	/**
 	 * @return the requestId

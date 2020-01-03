@@ -1,5 +1,7 @@
 package com.dtstack.engine.service.send;
 
+import com.dtstack.engine.common.RootUrls;
+
 /**
  * 
  * Reason: TODO ADD REASON(可选)
@@ -8,9 +10,7 @@ package com.dtstack.engine.service.send;
  * @author sishu.yss
  *
  */
-public class Urls {
-
-	public final static String ROOT = "/node";
+public class Urls implements RootUrls {
 
 	public final static String ACTION = String.format("%s/%s",ROOT,"action");
 

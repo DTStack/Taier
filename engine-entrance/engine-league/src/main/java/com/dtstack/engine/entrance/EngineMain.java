@@ -1,14 +1,18 @@
 package com.dtstack.engine.entrance;
 
 import com.dtstack.engine.common.config.ConfigParse;
+import com.dtstack.engine.common.log.LogbackComponent;
+import com.dtstack.engine.common.util.ShutdownHookUtil;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
-import com.dtstack.engine.entrance.configs.YamlConfig;
-import com.dtstack.engine.entrance.log.LogbackComponent;
 import com.dtstack.engine.common.JobSubmitExecutor;
 import com.dtstack.engine.service.zk.ZkDistributed;
 import com.dtstack.engine.router.VertxHttpServer;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.Closeable;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,12 +38,12 @@ public class EngineMain {
 			SystemPropertyUtil.setSystemUserDir();
 			LogbackComponent.setupLogger();
 			// load config
-			Map<String,Object> nodeConfig = new YamlConfig().loadConf();
+			Map<String,Object> nodeConfig = new EngineConfig().loadConf();
 			ConfigParse.setConfigs(nodeConfig);
 			// init service
 			initService(nodeConfig);
 			// add hook
-			addShutDownHook();
+			ShutdownHookUtil.addShutdownHook(EngineMain::shutdown, EngineMain.class.getSimpleName(), logger);
 		} catch (Throwable e) {
 			logger.error("node start error:{}", e);
 			System.exit(-1);
@@ -48,18 +52,24 @@ public class EngineMain {
 
 	
 	private static void initService(Map<String,Object> nodeConfig) throws Exception{
-
 		jobSubmitExecutor = JobSubmitExecutor.getInstance();
-
 		zkDistributed = ZkDistributed.createZkDistributed(nodeConfig).zkRegistration();
-
 		vertxHttpServer = new VertxHttpServer(nodeConfig);
 
 		logger.warn("start engine success...");
 
 	}
-	
-	private static void addShutDownHook(){
-		new ShutDownHook(vertxHttpServer,zkDistributed,jobSubmitExecutor).addShutDownHook();
+
+	private static void shutdown() {
+		List<Closeable> closeables = Lists.newArrayList(vertxHttpServer, zkDistributed, jobSubmitExecutor);
+		for (Closeable closeable : closeables) {
+			if (closeables != null) {
+				try {
+					closeable.close();
+				} catch (Exception e) {
+					logger.error("", e);
+				}
+			}
+		}
 	}
 }

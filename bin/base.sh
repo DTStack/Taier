@@ -28,4 +28,4 @@ JAVA_OPTS="$JAVA_OPTS -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOcc
 #Comment to speed up starting time
 #JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
 
-exec java $JAVA_OPTS -cp $basedir/lib/* com.dtstack.engine.entrance.EngineMain "$@"
+exec java $JAVA_OPTS -cp $basedir/lib/* com.dtstack.engine.entrance.MasterMain "$@"

@@ -21,10 +21,10 @@
 			<artifactId>vertx-web</artifactId>
 			<version>3.3.3</version>
 		</dependency>
-		
+
 		<dependency>
 		    <groupId>com.dtstack.engine</groupId>
-		    <artifactId>engine-service</artifactId>
+		    <artifactId>engine-common</artifactId>
 			<version>1.0.0</version>
 		</dependency>
   </dependencies>

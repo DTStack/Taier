@@ -1,4 +1,4 @@
-package com.dtstack.engine.entrance.configs;
+package com.dtstack.engine.common.config;
 
 
 

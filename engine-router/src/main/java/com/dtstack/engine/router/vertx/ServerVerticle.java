@@ -4,8 +4,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.dtstack.engine.common.RootUrls;
 import com.dtstack.engine.common.config.ConfigParse;
-import com.dtstack.engine.service.send.Urls;
 import com.dtstack.engine.router.HttpCommon;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.AbstractVerticle;
@@ -42,7 +42,7 @@ public class ServerVerticle extends AbstractVerticle{
         router.route().handler(CorsHandler.create("*")
                 .allowedHeaders(allowHearders())
                 .allowedMethods(allowMethods()));
-        router.post(Urls.ROOT+"/*").handler(new BaseVerticle()::request);
+        router.post(RootUrls.ROOT+"/*").handler(new BaseVerticle()::request);
         vertx.createHttpServer()
         .requestHandler(router::accept)
         .listen(config().getInteger("http.port", port),

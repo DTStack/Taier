@@ -1,4 +1,4 @@
-package com.dtstack.engine.entrance.log;
+package com.dtstack.engine.common.log;
 
 import java.io.File;
 import java.io.IOException;
