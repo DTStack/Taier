@@ -4,6 +4,7 @@ import com.dtstack.engine.common.callback.ClassLoaderCallBack;
 import com.dtstack.engine.common.callback.ClassLoaderCallBackMethod;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ClientArgumentException;
+import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.LimitResourceException;
 import com.dtstack.engine.common.exception.RdosException;
 import com.dtstack.engine.common.pojo.JobResult;
@@ -148,6 +149,8 @@ public class ClientProxy implements IClient{
                 throw new ClientArgumentException(e);
             } else if (e instanceof LimitResourceException) {
                 throw new LimitResourceException(e.getMessage());
+            } else if (e instanceof RdosException && ((RdosException) e).getErrorCode() == ErrorCode.HTTP_CALL_ERROR){
+                return false;
             }
             throw new RdosException(e.getMessage());
         }
