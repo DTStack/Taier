@@ -1,6 +1,6 @@
 package com.dtstack.engine.service.zk.data;
 
-import com.dtstack.engine.service.util.TaskIdUtil;
+import com.dtstack.engine.common.util.TaskIdUtil;
 
 import java.util.Comparator;
 import java.util.concurrent.ConcurrentSkipListMap;

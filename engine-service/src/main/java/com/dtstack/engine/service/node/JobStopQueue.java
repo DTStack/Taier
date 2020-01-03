@@ -15,7 +15,7 @@ import com.dtstack.engine.service.db.dataobject.RdosEngineJobStopRecord;
 import com.dtstack.engine.service.enums.RequestStart;
 import com.dtstack.engine.service.enums.StoppedStatus;
 import com.dtstack.engine.service.send.HttpSendClient;
-import com.dtstack.engine.service.util.TaskIdUtil;
+import com.dtstack.engine.common.util.TaskIdUtil;
 import com.dtstack.engine.service.zk.ZkDistributed;
 import com.dtstack.engine.service.zk.cache.ZkLocalCache;
 import org.slf4j.Logger;

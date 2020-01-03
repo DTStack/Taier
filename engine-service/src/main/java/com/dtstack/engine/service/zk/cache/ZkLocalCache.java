@@ -9,7 +9,7 @@ import com.dtstack.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.engine.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.engine.common.queue.GroupPriorityQueue;
 import com.dtstack.engine.service.node.WorkNode;
-import com.dtstack.engine.service.util.TaskIdUtil;
+import com.dtstack.engine.common.util.TaskIdUtil;
 import com.dtstack.engine.service.zk.ZkDistributed;
 import com.dtstack.engine.service.zk.ZkShardManager;
 import com.dtstack.engine.service.zk.data.BrokerDataNode;

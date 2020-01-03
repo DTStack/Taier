@@ -9,7 +9,7 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobSubmitExecutor;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.service.node.WorkNode;
-import com.dtstack.engine.service.util.TaskIdUtil;
+import com.dtstack.engine.common.util.TaskIdUtil;
 import com.dtstack.engine.service.zk.cache.ZkLocalCache;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

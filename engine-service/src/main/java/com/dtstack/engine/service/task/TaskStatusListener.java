@@ -12,7 +12,7 @@ import com.dtstack.engine.service.db.dao.RdosEngineJobDAO;
 import com.dtstack.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.engine.service.db.dao.RdosPluginInfoDAO;
 import com.dtstack.engine.service.db.dataobject.RdosEngineJob;
-import com.dtstack.engine.service.util.TaskIdUtil;
+import com.dtstack.engine.common.util.TaskIdUtil;
 import com.dtstack.engine.service.zk.cache.ZkLocalCache;
 import com.dtstack.engine.service.zk.data.BrokerDataShard;
 import com.google.common.base.Strings;
