@@ -1,4 +1,4 @@
-package com.dtstack.engine.entrance.test;
+package com.dtstack.engine.service;
 
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.ComputeType;

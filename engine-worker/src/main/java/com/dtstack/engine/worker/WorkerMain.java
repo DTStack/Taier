@@ -1,4 +1,4 @@
-package com.dtstack.engine.entrance;
+package com.dtstack.engine.worker;
 
 import com.dtstack.engine.common.config.ConfigParse;
 import com.dtstack.engine.common.log.LogbackComponent;
@@ -21,9 +21,9 @@ import java.util.Map;
  *
  * @author sishu.yss
  */
-public class MasterMain {
+public class WorkerMain {
 
-    private static final Logger logger = LoggerFactory.getLogger(MasterMain.class);
+    private static final Logger logger = LoggerFactory.getLogger(WorkerMain.class);
 
     private static VertxHttpServer vertxHttpServer;
 
@@ -36,12 +36,12 @@ public class MasterMain {
             SystemPropertyUtil.setSystemUserDir();
             LogbackComponent.setupLogger();
             // load config
-            Map<String, Object> nodeConfig = new MasterConfig().loadConf();
+            Map<String, Object> nodeConfig = new WorkConfig().loadConf();
             ConfigParse.setConfigs(nodeConfig);
             // init service
             initService(nodeConfig);
             // add hook
-            ShutdownHookUtil.addShutdownHook(MasterMain::shutdown, MasterMain.class.getSimpleName(), logger);
+            ShutdownHookUtil.addShutdownHook(WorkerMain::shutdown, WorkerMain.class.getSimpleName(), logger);
         } catch (Throwable e) {
             logger.error("node start error:{}", e);
             System.exit(-1);
