@@ -5,6 +5,7 @@ import com.dtstack.engine.common.log.LogbackComponent;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
 import com.dtstack.engine.common.JobSubmitExecutor;
+import com.dtstack.engine.entrance.config.EngineConfig;
 import com.dtstack.engine.master.MasterMain;
 import com.dtstack.engine.service.zookeeper.ZkDistributed;
 import com.dtstack.engine.router.VertxHttpServer;
@@ -47,7 +48,7 @@ public class EngineMain {
 			// add hook
 			ShutdownHookUtil.addShutdownHook(EngineMain::shutdown, EngineMain.class.getSimpleName(), logger);
 		} catch (Throwable e) {
-			logger.error("node start error:{}", e);
+			logger.error("Engine start error:{}", e);
 			System.exit(-1);
 		}
 	}
@@ -60,7 +61,7 @@ public class EngineMain {
 		WorkerMain.init(zkDistributed);
 		MasterMain.init();
 
-		logger.warn("start engine success...");
+		logger.warn("start Engine success...");
 	}
 
 	private static void shutdown() {

@@ -48,7 +48,7 @@ public class WorkerMain {
             // add hook
             ShutdownHookUtil.addShutdownHook(WorkerMain::shutdown, WorkerMain.class.getSimpleName(), logger);
         } catch (Throwable e) {
-            logger.error("node start error:{}", e);
+            logger.error("only engine-worker start error:{}", e);
             System.exit(-1);
         }
     }
@@ -60,7 +60,7 @@ public class WorkerMain {
         vertxHttpServer = new VertxHttpServer(nodeConfig);
         init(zkDistributed);
 
-        logger.warn("start engine success...");
+        logger.warn("start only engine-worker success...");
     }
 
     public static void init(ZkDistributed zkDistributed) {

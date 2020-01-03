@@ -45,7 +45,7 @@ public class MasterMain {
             // add hook
             ShutdownHookUtil.addShutdownHook(MasterMain::shutdown, MasterMain.class.getSimpleName(), logger);
         } catch (Throwable e) {
-            logger.error("node start error:{}", e);
+            logger.error("only engine-master start error:{}", e);
             System.exit(-1);
         }
     }
@@ -54,8 +54,9 @@ public class MasterMain {
     private static void initService(Map<String, Object> nodeConfig) throws Exception {
         zkDistributed = ZkDistributed.createZkDistributed(nodeConfig).zkRegistration();
         vertxHttpServer = new VertxHttpServer(nodeConfig);
+        init();
 
-        logger.warn("start engine success...");
+        logger.warn("start only engine-master success...");
     }
 
     public static void init() {

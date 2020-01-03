@@ -11,23 +11,12 @@ import com.dtstack.engine.common.config.ConfigParse;
 import com.dtstack.engine.common.util.KerberosUtils;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.RdosNodeMachineDAO;
-//import com.dtstack.engine.service.task.CheckpointListener;
-//import com.dtstack.engine.service.task.HeartBeatCheckListener;
-import com.dtstack.engine.service.task.HeartBeatListener;
-//import com.dtstack.engine.service.task.MasterListener;
-//import com.dtstack.engine.service.task.QueueListener;
-//import com.dtstack.engine.service.task.TaskListener;
-//import com.dtstack.engine.service.task.TaskStatusListener;
-//import com.dtstack.engine.worker.cache.LocalCacheSyncZkListener;
-//import com.dtstack.engine.worker.cache.ZkLocalCache;
-//import com.dtstack.engine.worker.cache.ZkSyncLocalCacheListener;
 import com.dtstack.engine.service.data.BrokerDataShard;
 import com.dtstack.engine.service.data.BrokerHeartNode;
 import com.dtstack.engine.service.data.BrokersNode;
 import com.dtstack.engine.service.data.BrokerQueueNode;
 import com.dtstack.engine.common.EngineDeployInfo;
 import com.dtstack.engine.common.enums.MachineAppType;
-//import com.dtstack.engine.service.task.LogStoreListener;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -44,9 +33,6 @@ import com.netflix.curator.framework.CuratorFrameworkFactory;
 import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
 import com.netflix.curator.retry.ExponentialBackoffRetry;
 
-//import java.util.concurrent.ThreadPoolExecutor;
-//import java.util.concurrent.ExecutorService;
-//import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 /**
  *
@@ -85,8 +71,6 @@ public class ZkDistributed implements Closeable{
 
 	private CuratorFramework zkClient;
 
-//    private MasterListener masterListener;
-
 	private static ObjectMapper objectMapper = new ObjectMapper();
 
 	private static volatile ZkDistributed zkDistributed;
@@ -99,8 +83,6 @@ public class ZkDistributed implements Closeable{
 
 	private String masterAddrCache = "";
 
-//	private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
-//	private ZkShardManager zkShardManager = ZkShardManager.getInstance();
 	private static List<InterProcessMutex> interProcessMutexs = Lists.newArrayList();
 
 	private RdosNodeMachineDAO rdosNodeMachineDAO = new RdosNodeMachineDAO();
@@ -163,10 +145,7 @@ public class ZkDistributed implements Closeable{
 		createLocalBrokerDataNode();
 		createLocalBrokerDataLock();
 		createLocalBrokerQueueNode();
-		HeartBeatListener.init();
-//		zkLocalCache.init(this);
 		registrationDB();
-//		initScheduledExecutorService();
 		logger.warn("init zk server success...");
 		return this;
 	}
@@ -354,22 +333,6 @@ public class ZkDistributed implements Closeable{
 		this.localNode = String.format("%s/%s", this.brokersNode,this.localAddress);
 		this.engineTypeList = ConfigParse.getEngineTypeList();
 	}
-
-//	public Map<String,BrokerDataShard> getBrokerDataNode(String node) {
-//		try {
-//			List<String> shards = getBrokerDataChildren(node);
-//			Map<String,BrokerDataShard> shardMap = new ConcurrentHashMap<>(shards.size());
-//			for (String shard:shards){
-//				BrokerDataShard shardNode = getBrokerDataShard(node,shard);
-//				shardMap.put(shard,shardNode);
-//			}
-//			return shardMap;
-//		} catch (Exception e) {
-//			logger.error("{}:getBrokerNodeData error:{}", node,
-//					ExceptionUtil.getErrorMessage(e));
-//		}
-//		return null;
-//	}
 
 	public List<String> getBrokerDataChildren(String node) {
 		try {
@@ -590,9 +553,6 @@ public class ZkDistributed implements Closeable{
 	public void close() throws IOException {
 		try{
 			disableBrokerHeartNode(this.localAddress, false);
-//			zkLocalCache.close();
-//			lockRelease();
-//			executors.shutdown();
 		}catch (Throwable e){
 			logger.error("",e);
 		}

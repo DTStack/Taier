@@ -7,6 +7,31 @@ HO_HEAP_SIZE="${HO_HEAP_SIZE:=512m}"
 JAVA_HOME=/opt/dtstack/java
 PATH=$JAVA_HOME/bin:$PATH
 
+function print_usage(){
+  echo "Usage: engine [COMMAND]"
+  echo "  where COMMAND is one of:"
+  echo "  master                                run the MasterMain"
+  echo "  worker                                run the WorkerMain"
+}
+
+COMMAND=$1
+case $COMMAND in
+  # usage flags
+  --help|-help|-h)
+    print_usage
+    exit
+    ;;
+esac
+
+if [ "$COMMAND" = "master" ] ; then
+  CLASS='com.dtstack.engine.master.MasterMain'
+elif [ "$COMMAND" = "worker" ] ; then
+  CLASS='com.dtstack.engine.worker.WorkerMain'
+else
+  CLASS='com.dtstack.engine.entrance.EngineMain'
+fi
+
+
 unset CDPATH
 export basedir=$(cd `dirname $0`/..; pwd)
 
@@ -28,4 +53,4 @@ JAVA_OPTS="$JAVA_OPTS -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOcc
 #Comment to speed up starting time
 #JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
 
-exec java $JAVA_OPTS -cp $basedir/lib/* com.dtstack.engine.entrance.MasterMain "$@"
+exec java $JAVA_OPTS -cp $basedir/lib/* $CLASS "$@"
