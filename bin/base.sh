@@ -30,6 +30,7 @@ elif [ "$COMMAND" = "worker" ] ; then
 else
   CLASS='com.dtstack.engine.entrance.EngineMain'
 fi
+echo 'exec java MainClass is' $CLASS.
 
 
 unset CDPATH
