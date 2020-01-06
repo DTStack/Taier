@@ -57,9 +57,9 @@ public class FlinkConfig {
 
     private boolean openKerberos;
 
-    private String localKeytab;
-
     private String remoteDir;
+
+    private String principalFile;
 
     private Map<String, String> sftpConf;
 
@@ -162,14 +162,6 @@ public class FlinkConfig {
 
     public void setOpenKerberos(boolean openKerberos) {
         this.openKerberos = openKerberos;
-    }
-
-    public String getLocalKeytab() {
-        return localKeytab;
-    }
-
-    public void setLocalKeytab(String localKeytab) {
-        this.localKeytab = localKeytab;
     }
 
     public String getRemoteDir() {
@@ -285,6 +277,14 @@ public class FlinkConfig {
 
     public static void setEngineFlinkConfigs(List<String> engineFlinkConfigs) {
         ENGINE_FLINK_CONFIGS = engineFlinkConfigs;
+    }
+
+    public String getPrincipalFile() {
+        return principalFile;
+    }
+
+    public void setPrincipalFile(String principalFile) {
+        this.principalFile = principalFile;
     }
 
     private static List<String> initEngineFlinkConfigFields() {

@@ -1,6 +1,7 @@
 package com.dtstack.engine.dtscript.am;
 
 import com.dtstack.engine.dtscript.api.DtYarnConstants;
+import com.dtstack.engine.dtscript.common.SecurityUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -38,9 +39,8 @@ public class ContainerEnvBuilder {
 
         LOG.info("Setting environments for the Container");
         Map<String, String> containerEnv = new HashMap<>();
-        if (conf.get("hadoopUserName")!=null){
-            System.setProperty(DtYarnConstants.Environment.HADOOP_USER_NAME.toString(), conf.get("hadoopUserName"));
-        }
+
+        containerEnv.put(DtYarnConstants.Environment.HADOOP_USER_NAME.toString(), conf.get("hadoop.job.ugi").split(",")[0]);
         containerEnv.put(DtYarnConstants.Environment.DT_EXEC_CMD.toString(), cmd);
         containerEnv.put("CLASSPATH", System.getenv("CLASSPATH"));
         containerEnv.put(DtYarnConstants.Environment.APP_ATTEMPTID.toString(), applicationAttemptID.toString());
@@ -51,6 +51,7 @@ public class ContainerEnvBuilder {
                 String.valueOf(containerListener.getServerPort()));
         containerEnv.put("PATH", System.getenv("PATH") + ":" + System.getenv(DtYarnConstants.Environment.USER_PATH.toString()));
         containerEnv.put(DtYarnConstants.Environment.APP_TYPE.toString(),learningAppType);
+        SecurityUtil.setupUserEnv(containerEnv);
 
         LOG.info("container env:" + containerEnv.toString());
         Set<String> envStr = containerEnv.keySet();
