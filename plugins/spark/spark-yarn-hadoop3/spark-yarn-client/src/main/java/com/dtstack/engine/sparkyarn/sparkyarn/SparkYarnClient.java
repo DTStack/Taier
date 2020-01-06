@@ -386,11 +386,10 @@ public class SparkYarnClient extends AbsClient {
         sparkConf.set("security", "false");
 
         if (sparkYarnConfig.isOpenKerberos()){
-            sparkConf.set("spark.yarn.keytab", sparkYarnConfig.getKerberosConfig().get("sparkKeytabPath"));
-            sparkConf.set("spark.yarn.principal", sparkYarnConfig.getKerberosConfig().get("sparkPrincipal"));
-            sparkConf.set("spark.zookeeper.principal", sparkYarnConfig.getKerberosConfig().get("zkPrincipal"));
-            sparkConf.set("spark.zookeeper.keytab", sparkYarnConfig.getKerberosConfig().get("zkKeytabPath"));
-            sparkConf.set("spark.krb5path", sparkYarnConfig.getKerberosConfig().get("sparkKrb5ConfPath"));
+            String keytab = KerberosUtils.localPath(sparkYarnConfig);
+            String principal = KerberosUtils.getPrincipal(keytab);
+            sparkConf.set("spark.yarn.keytab", keytab);
+            sparkConf.set("spark.yarn.principal", principal);
             sparkConf.set("security", String.valueOf(sparkYarnConfig.isOpenKerberos()));
         }
         if(sparkExtProp != null){

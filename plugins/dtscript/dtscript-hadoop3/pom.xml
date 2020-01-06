@@ -26,15 +26,6 @@
         <module>dtscript-client</module>
     </modules>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.dtstack.engine</groupId>
-            <artifactId>common</artifactId>
-            <version>1.0.0</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
-
     <build>
         <plugins>
             <plugin>

@@ -24,7 +24,6 @@ import java.nio.charset.StandardCharsets
 import java.util.zip.{ZipEntry, ZipOutputStream}
 import java.util.{Properties, UUID}
 
-import com.dtstack.engine.sparkyarn.sparkyarn.util.KerberosUtils
 import com.google.common.base.Objects
 import com.google.common.io.Files
 import org.apache.hadoop.conf.Configuration
@@ -396,13 +395,8 @@ private[spark] class DtClient(
   def initSecurity():Unit = {
     val userPrincipal = sparkConf.get("spark.yarn.principal")
     val userKeytabPath = sparkConf.get("spark.yarn.keytab")
-    val krb5ConfPath = sparkConf.get("spark.krb5path")
-    try
-      KerberosUtils.login(userPrincipal, userKeytabPath, krb5ConfPath, yarnConf)
-    catch {
-      case e: IOException =>
-        e.printStackTrace()
-    }
+    UserGroupInformation.setConfiguration(yarnConf)
+    UserGroupInformation.loginUserFromKeytab(userPrincipal, userKeytabPath)
   }
 
   /**

@@ -61,9 +61,9 @@ public class SparkYarnConfig {
 
     private String carbonStorePath;
 
-    private String localKeytab;
-
     private String remoteDir;
+
+    private String principalFile;
 
     private Map<String, String> sftpConf;
 
@@ -245,14 +245,6 @@ public class SparkYarnConfig {
         this.jvmOptions = jvmOptions;
     }
 
-    public String getLocalKeytab() {
-        return localKeytab;
-    }
-
-    public void setLocalKeytab(String localKeytab) {
-        this.localKeytab = localKeytab;
-    }
-
     public String getRemoteDir() {
         return remoteDir;
     }
@@ -275,5 +267,13 @@ public class SparkYarnConfig {
 
     public void setKerberosConfig(Map<String, String> kerberosConfig) {
         this.kerberosConfig = kerberosConfig;
+    }
+
+    public String getPrincipalFile() {
+        return principalFile;
+    }
+
+    public void setPrincipalFile(String principalFile) {
+        this.principalFile = principalFile;
     }
 }
