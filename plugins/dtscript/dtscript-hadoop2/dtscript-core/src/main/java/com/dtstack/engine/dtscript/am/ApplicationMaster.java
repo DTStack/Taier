@@ -184,7 +184,7 @@ public class ApplicationMaster extends CompositeService {
         Resource workerCapability = Records.newRecord(Resource.class);
         workerCapability.setMemory(appArguments.workerMemory+appArguments.containerMemory);
         workerCapability.setVirtualCores(appArguments.workerVCores);
-        return new AMRMClient.ContainerRequest(workerCapability, null, null, priority);
+        return new AMRMClient.ContainerRequest(workerCapability, appArguments.nodes, null, priority);
     }
 
     private List<String> buildContainerLaunchCommand(int containerMemory) {

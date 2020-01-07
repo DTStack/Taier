@@ -35,6 +35,8 @@ public class DtYarnConfiguration extends YarnConfiguration {
 
     public static final int DEFAULT_LEARNING_AM_CORES = 1;
 
+    public static final String CONTAINER_REQUEST_NODES = "container.request.nodes";
+
     public static final String LEARNING_WORKER_MEMORY = "xlearning.worker.memory";
 
     public static final int DEFAULT_LEARNING_WORKER_MEMORY = 512;
