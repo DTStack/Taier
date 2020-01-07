@@ -134,7 +134,6 @@ public class SFTPHandler {
     public int downloadDir(String ftpDir, String localDir) {
         int sum = 0;
         try {
-            reCreateLocalDir(localDir);
 
             try {
                 Vector files = channelSftp.ls(ftpDir);
@@ -151,11 +150,10 @@ public class SFTPHandler {
                     boolean isdir = attrs.isDir();
                     String localFilePath = localDir + "/" + filename;
                     String ftpFilePath;
-                    File isFile = new File(ftpDir);
-                    if (isFile.isFile()){
-                        ftpFilePath = ftpDir;
-                    } else {
+                    if (channelSftp.stat(ftpDir).isDir()){
                         ftpFilePath = ftpDir + "/" + filename;
+                    } else {
+                        ftpFilePath = ftpDir;
                     }
                     if (isdir) {
                         File dir2 = new File(localFilePath);
