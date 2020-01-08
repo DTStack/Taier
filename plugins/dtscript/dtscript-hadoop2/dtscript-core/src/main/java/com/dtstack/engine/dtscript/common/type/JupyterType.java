@@ -17,9 +17,10 @@ public class JupyterType extends AppType {
     private final static String JUPYTER_NOTEBOOK_CONFIG_PREFIX = "c.";
     private final static String JUPYTER_NOTEBOOK_CONFIG_SIGN = "=";
 
-    private final static String JUPYTER_NOTEBOOK_CONFIG_PORT_TMP = "${port}";
+    private final static String JUPYTER_NOTEBOOK_CONFIG_PORT_TMP = "#{port}";
 
     private final static String LINEFEED = "\n";
+    private final static String JUPYTER_CONFIG_FILENAME = "jupyter_notebook_config.py";
     private final static String JUPYTER_BIN_PATH = "jupyter.path";
     private final static String JUPYTER_WORKSPACE_ROOT = "jupyter.workspace.root";
     private final static String JUPYTER_WORKSPACE = "jupyter.workspace";
@@ -41,15 +42,16 @@ public class JupyterType extends AppType {
         String jupyterWorkspace = jupyterWorkspaceRoot + clientArguments.getAppName();
         conf.set(JUPYTER_WORKSPACE, jupyterWorkspace);
 
-        String bash = " <<JUPYTER\n";
-        bash += "if [ ! -d \"" + jupyterWorkspace + "\" ]; then\n";
-        bash += "  mkdir \"" + jupyterWorkspace + "\"\n";
-        bash += "fi\n";
-        bash += "cd \"" + jupyterWorkspace + "\"\n";
-        bash += generateJupyterNotebookConfig(conf, jupyterWorkspace);
-        bash += jupyterBinPath + " --config ./jupyter_notebook_config.py --allow-root\n";
-        bash += "JUPYTER";
-        return cmdPrefix(conf) + bash;
+        StringBuilder bashScript = new StringBuilder(400);
+        bashScript.append(cmdPrefix(conf)).append(" <<JUPYTER").append(LINEFEED);
+        bashScript.append("if [ ! -d \"").append(jupyterWorkspace).append("\" ]; then").append(LINEFEED);
+        bashScript.append("  mkdir \"").append(jupyterWorkspace).append("\"").append(LINEFEED);
+        bashScript.append("fi").append(LINEFEED);
+        bashScript.append("cd \"").append(jupyterWorkspace).append("\"").append(LINEFEED);
+        bashScript.append(generateJupyterNotebookConfig(conf, jupyterWorkspace));
+        bashScript.append(jupyterBinPath).append(" --config ").append(jupyterWorkspace).append("/").append(JUPYTER_CONFIG_FILENAME).append(" --allow-root").append(LINEFEED);
+        bashScript.append("JUPYTER");
+        return bashScript.toString();
     }
 
     @Override
@@ -77,12 +79,13 @@ public class JupyterType extends AppType {
             portEnd = Integer.valueOf(configPort[1]);
         }
         int port = NetUtils.getAvailablePortRange(portStart, portEnd);
+        containerInfo.put("port", port);
         return cmd.replace(JUPYTER_NOTEBOOK_CONFIG_PORT_TMP, String.valueOf(port));
     }
 
     private String generateJupyterNotebookConfig(YarnConfiguration conf, String workspace) {
         StringBuilder jncsb = new StringBuilder(200);
-        jncsb.append("cat > jupyter_notebook_config.py <<EOF").append(LINEFEED);
+        jncsb.append("cat > ").append(JUPYTER_CONFIG_FILENAME).append(" <<EOF").append(LINEFEED);
         Iterator<Map.Entry<String, String>> confEntryIt = conf.iterator();
         while (confEntryIt.hasNext()) {
             Map.Entry<String, String> confEntry = confEntryIt.next();
@@ -91,7 +94,7 @@ public class JupyterType extends AppType {
             }
         }
         jncsb.append("c.NotebookApp.notebook_dir").append(JUPYTER_NOTEBOOK_CONFIG_SIGN).append("'").append(workspace).append("'").append(LINEFEED);
-        jncsb.append("c.NotebookApp.port=").append(JUPYTER_NOTEBOOK_CONFIG_PORT_TMP).append(LINEFEED);
+        jncsb.append("c.NotebookApp.port").append(JUPYTER_NOTEBOOK_CONFIG_SIGN).append(JUPYTER_NOTEBOOK_CONFIG_PORT_TMP).append(LINEFEED);
         jncsb.append("EOF").append(LINEFEED);
         return jncsb.toString();
     }
