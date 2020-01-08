@@ -118,7 +118,6 @@ export class SparkThriftConfig extends React.Component<any, any> {
                         )}
                     </FormItem>
                     {customView}
-                    {kerberosView}
                 </div>
                 {singleButton}
             </React.Fragment>
