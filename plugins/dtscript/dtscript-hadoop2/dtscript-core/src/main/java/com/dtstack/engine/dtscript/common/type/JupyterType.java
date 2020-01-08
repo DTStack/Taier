@@ -1,26 +1,99 @@
 package com.dtstack.engine.dtscript.common.type;
 
 
+import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.client.ClientArguments;
+import com.dtstack.engine.dtscript.util.NetUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
+import java.io.File;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class JupyterType extends AppType {
 
+    private final static String JUPYTER_NOTEBOOK_CONFIG_PREFIX = "c.";
+    private final static String JUPYTER_NOTEBOOK_CONFIG_SIGN = "=";
+
+    private final static String JUPYTER_NOTEBOOK_CONFIG_PORT_TMP = "${port}";
+
+    private final static String LINEFEED = "\n";
+    private final static String JUPYTER_BIN_PATH = "jupyter.path";
+    private final static String JUPYTER_WORKSPACE_ROOT = "jupyter.workspace.root";
+    private final static String JUPYTER_WORKSPACE = "jupyter.workspace";
+
     @Override
     public String buildCmd(ClientArguments clientArguments, YarnConfiguration conf) {
-        String bash = "#!/bin/bash\n";
-        String config = "cat > jupyter_notebook_config.py <<EOF" +
-                "c.NotebookApp.open_browser = False\n" +
-                "c.NotebookApp.allow_remote_access = True\n" +
-                "c.NotebookApp.ip = '*'\n" +
-                "c.NotebookApp.token = ''\n" +
-                "c.NotebookApp.default_url = '/lab'\n" +
-                "c.NotebookApp.port = 18888\n" +
-                "c.NotebookApp.notebook_dir = '/root/engine-aiworks/test'\n" +
-                "EOF ";
-        return null;
+
+        String jupyterBinPath = conf.get(JUPYTER_BIN_PATH, "");
+        if (StringUtils.isBlank(jupyterBinPath)) {
+            throw new IllegalArgumentException(JUPYTER_BIN_PATH + " must be set");
+        }
+        String jupyterWorkspaceRoot = conf.get(JUPYTER_WORKSPACE_ROOT, "");
+        if (StringUtils.isBlank(jupyterWorkspaceRoot)) {
+            throw new IllegalArgumentException(JUPYTER_WORKSPACE_ROOT + " must be set");
+        }
+        if (!jupyterWorkspaceRoot.endsWith("/")) {
+            jupyterWorkspaceRoot += "/";
+        }
+        String jupyterWorkspace = jupyterWorkspaceRoot + clientArguments.getAppName();
+        conf.set(JUPYTER_WORKSPACE, jupyterWorkspace);
+
+        String bash = " <<JUPYTER\n";
+        bash += "if [ ! -d \"" + jupyterWorkspace + "\" ]; then\n";
+        bash += "  mkdir \"" + jupyterWorkspace + "\"\n";
+        bash += "fi\n";
+        bash += "cd \"" + jupyterWorkspace + "\"\n";
+        bash += generateJupyterNotebookConfig(conf, jupyterWorkspace);
+        bash += jupyterBinPath + " --config ./jupyter_notebook_config.py --allow-root\n";
+        bash += "JUPYTER";
+        return cmdPrefix(conf) + bash;
+    }
+
+    @Override
+    public String cmdPrefix(YarnConfiguration config) {
+        return "bash";
+    }
+
+    @Override
+    public String cmdContainerExtra(String cmd, DtYarnConfiguration conf, Map<String, Object> containerInfo) {
+        String jupyterWorkspace = conf.get(JUPYTER_WORKSPACE_ROOT, "");
+        File jupyterWorkspaceDir = new File(jupyterWorkspace);
+        if (!jupyterWorkspaceDir.exists()) {
+            if (!jupyterWorkspaceDir.mkdirs()) {
+                throw new RuntimeException("create dir of " + jupyterWorkspace + "failed");
+            }
+        }
+
+        String[] configPort = conf.getStrings(DtYarnConfiguration.APP_CONTAINER_PORT_RANGE, "8888", "65535");
+        int portStart = 8888;
+        int portEnd = 65535;
+        if (configPort.length == 1) {
+            portStart = Integer.valueOf(configPort[0]);
+        } else if (configPort.length == 2) {
+            portStart = Integer.valueOf(configPort[0]);
+            portEnd = Integer.valueOf(configPort[1]);
+        }
+        int port = NetUtils.getAvailablePortRange(portStart, portEnd);
+        return cmd.replace(JUPYTER_NOTEBOOK_CONFIG_PORT_TMP, String.valueOf(port));
+    }
+
+    private String generateJupyterNotebookConfig(YarnConfiguration conf, String workspace) {
+        StringBuilder jncsb = new StringBuilder(200);
+        jncsb.append("cat > jupyter_notebook_config.py <<EOF").append(LINEFEED);
+        Iterator<Map.Entry<String, String>> confEntryIt = conf.iterator();
+        while (confEntryIt.hasNext()) {
+            Map.Entry<String, String> confEntry = confEntryIt.next();
+            if (confEntry.getKey().startsWith(JUPYTER_NOTEBOOK_CONFIG_PREFIX)) {
+                jncsb.append(confEntry.getKey()).append(JUPYTER_NOTEBOOK_CONFIG_SIGN).append(confEntry.getValue()).append(LINEFEED);
+            }
+        }
+        jncsb.append("c.NotebookApp.notebook_dir").append(JUPYTER_NOTEBOOK_CONFIG_SIGN).append("'").append(workspace).append("'").append(LINEFEED);
+        jncsb.append("c.NotebookApp.port=").append(JUPYTER_NOTEBOOK_CONFIG_PORT_TMP).append(LINEFEED);
+        jncsb.append("EOF").append(LINEFEED);
+        return jncsb.toString();
     }
 
     @Override

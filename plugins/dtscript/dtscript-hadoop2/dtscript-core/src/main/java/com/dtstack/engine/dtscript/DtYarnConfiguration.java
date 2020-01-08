@@ -117,4 +117,7 @@ public class DtYarnConfiguration extends YarnConfiguration {
     public static final String APP_NODEMANAGER_EXCLUSIVE = "exclusive";
 
     public static final boolean DEFAULT_APP_NODEMANAGER_EXCLUSIVE = false;
+
+    public static final String APP_CONTAINER_PORT_RANGE = "container.port.range";
+
 }

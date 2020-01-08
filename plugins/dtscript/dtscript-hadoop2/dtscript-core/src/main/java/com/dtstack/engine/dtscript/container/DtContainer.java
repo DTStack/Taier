@@ -174,7 +174,7 @@ public class DtContainer {
                 + " 1>" +logDir
                 + "/dtstdout.log 2>"+logDir+"/dterror.log";
 
-        command = appType.cmdContainerExtra(command, containerInfo);
+        command = appType.cmdContainerExtra(command, conf, containerInfo);
 
         String[] cmd = {"bash", "-c", command};
 

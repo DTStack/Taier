@@ -184,7 +184,7 @@ public class ApplicationMaster extends CompositeService {
         Resource workerCapability = Records.newRecord(Resource.class);
         workerCapability.setMemory(appArguments.workerMemory+appArguments.containerMemory);
         workerCapability.setVirtualCores(appArguments.workerVCores);
-        return new AMRMClient.ContainerRequest(workerCapability, appArguments.nodes, null, priority);
+        return new AMRMClient.ContainerRequest(workerCapability, appArguments.nodes, null, priority, false);
     }
 
     private List<String> buildContainerLaunchCommand(int containerMemory) {
@@ -224,6 +224,8 @@ public class ApplicationMaster extends CompositeService {
         }
 
         AMRMClient.ContainerRequest workerContainerRequest = buildContainerRequest();
+        LOG.info("ContainerRequest:" + workerContainerRequest.toString() + " nodes:" + workerContainerRequest.getNodes() + " racks:" + workerContainerRequest.getRacks());
+
         List<String> workerContainerLaunchCommands = buildContainerLaunchCommand(appArguments.containerMemory);
         Map<String, LocalResource> containerLocalResource = buildContainerLocalResource();
         Map<String, String> workerContainerEnv = new ContainerEnvBuilder(DtYarnConstants.WORKER, this).build();

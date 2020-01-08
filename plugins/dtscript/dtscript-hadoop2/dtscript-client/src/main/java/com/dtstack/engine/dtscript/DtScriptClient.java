@@ -45,8 +45,6 @@ public class DtScriptClient extends AbsClient {
 
     private static final Gson gson = new Gson();
 
-    private static List<String> keyList = Lists.newArrayList("hadoopConf", "yarnConf", "sftpConf");
-
     private Client client;
 
     private DtYarnConfiguration conf = new DtYarnConfiguration();
@@ -81,11 +79,9 @@ public class DtScriptClient extends AbsClient {
             } else if(value instanceof Double) {
                 conf.setDouble(key, (Double)value);
             } else if(value instanceof Map) {
-                if(keyList.contains(key)){
-                    Map<String,Object> map = (Map<String, Object>) value;
-                    for(Map.Entry<String,Object> entry : map.entrySet()) {
-                        conf.set(entry.getKey(), MapUtils.getString(map,entry.getKey()));
-                    }
+                Map<String,Object> map = (Map<String, Object>) value;
+                for(Map.Entry<String,Object> entry : map.entrySet()) {
+                    conf.set(entry.getKey(), MapUtils.getString(map,entry.getKey()));
                 }
             } else {
                 conf.set(key, value.toString());

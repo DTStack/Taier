@@ -27,21 +27,18 @@ public class NetUtils {
         }
     }
 
-    public static int getAvailablePortRange(int port) {
+    public static int getAvailablePortRange(int portStart, int portEnd) {
         while (true) {
-            if (!checkPortUsed(port)) {
-                LOG.warn("Container availablePort port:" + port);
-                return port;
+            if (!checkPortUsed(portStart)) {
+                LOG.warn("Container availablePort port:" + portStart);
+                return portStart;
             }
-            port++;
-            if (port < 0 || port > 65535) {
+            portStart++;
+            if (portStart < 0 || portStart > portEnd) {
                 throw new IllegalArgumentException("Invalid port configuration. Port must be between 0" +
-                        "and 65535, but was " + port + ".");
+                        "and " + portEnd + ", but was " + portStart + ".");
             }
         }
     }
 
-    public static void main(String[] args) {
-        System.out.println(getAvailablePortRange(6767));
-    }
 }
