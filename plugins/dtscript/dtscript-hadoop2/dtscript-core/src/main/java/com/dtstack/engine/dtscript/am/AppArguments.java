@@ -34,6 +34,8 @@ public class AppArguments {
 
     final ApplicationAttemptId applicationAttemptID;
 
+    String[] nodes = null;
+
     int workerMemory;
 
     int workerVCores;
@@ -94,6 +96,8 @@ public class AppArguments {
             throw new IllegalArgumentException(
                     "Application Attempt Id is not available in environment");
         }
+
+        nodes = conf.getStrings(DtYarnConfiguration.CONTAINER_REQUEST_NODES, (String[]) null);
 
         workerMemory = conf.getInt(DtYarnConfiguration.LEARNING_WORKER_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_WORKER_MEMORY);
         workerVCores = conf.getInt(DtYarnConfiguration.LEARNING_WORKER_VCORES, DtYarnConfiguration.DEFAULT_LEARNING_WORKER_VCORES);

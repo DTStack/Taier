@@ -1,6 +1,7 @@
 package com.dtstack.engine.dtscript.common.type;
 
 
+import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.client.ClientArguments;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
@@ -28,6 +29,8 @@ public abstract class AppType {
             return new Python3Type();
         } else if (type.equalsIgnoreCase(AppTypeEnum.JLOGSTASH.name())) {
             return new JLogstashType();
+        } else if (type.equalsIgnoreCase(AppTypeEnum.JUPYTER.name())) {
+            return new JupyterType();
         }
         throw new IllegalArgumentException("Unsupported appType: " + type);
     }
@@ -51,7 +54,7 @@ public abstract class AppType {
     /**
      * 每个类型，可能对执行时的命令有额外的参数处理
      */
-    public String cmdContainerExtra(String cmd, Map<String, Object> containerInfo) {
+    public String cmdContainerExtra(String cmd, DtYarnConfiguration conf, Map<String, Object> containerInfo) {
         return cmd;
     }
 

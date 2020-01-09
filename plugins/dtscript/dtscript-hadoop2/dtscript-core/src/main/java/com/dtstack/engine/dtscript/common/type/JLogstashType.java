@@ -1,6 +1,7 @@
 package com.dtstack.engine.dtscript.common.type;
 
 import ch.qos.logback.classic.Level;
+import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.util.GZipUtil;
 import com.dtstack.engine.dtscript.client.ClientArguments;
 import com.dtstack.engine.dtscript.util.Base64Util;
@@ -93,7 +94,7 @@ public class JLogstashType extends AppType {
      * 端口被占用会进行检测，并递增进行重新设置端口，如6767被占用，则使用6768
      */
     @Override
-    public String cmdContainerExtra(String cmd, Map<String, Object> containerInfo) {
+    public String cmdContainerExtra(String cmd, DtYarnConfiguration conf, Map<String, Object> containerInfo) {
         try {
             String[] args = cmd.split("\\s+");
             String fStr = null;
@@ -120,7 +121,7 @@ public class JLogstashType extends AppType {
                             if ("Beats".equalsIgnoreCase(inputType)) {
                                 isChg = true;
                                 int configPort = MapUtils.getInteger(inputConfig, "port", 6767);
-                                int port = NetUtils.getAvailablePortRange(configPort);
+                                int port = NetUtils.getAvailablePortRange(configPort, 65535);
                                 inputConfig.put("port", port);
 
                                 Map<String, Object> beats = new HashMap<>(1);
@@ -140,7 +141,7 @@ public class JLogstashType extends AppType {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return super.cmdContainerExtra(cmd, containerInfo);
+        return super.cmdContainerExtra(cmd, conf, containerInfo);
     }
 
     @Override

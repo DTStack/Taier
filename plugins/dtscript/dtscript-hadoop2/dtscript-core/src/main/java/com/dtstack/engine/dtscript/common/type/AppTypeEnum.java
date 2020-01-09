@@ -6,5 +6,5 @@ package com.dtstack.engine.dtscript.common.type;
  * create: 2019/7/30
  */
 public enum AppTypeEnum {
-    JLOGSTASH, SHELL, PYTHON, PYTHON2, PYTHON3
+    JLOGSTASH, SHELL, PYTHON, PYTHON2, PYTHON3, JUPYTER
 }
