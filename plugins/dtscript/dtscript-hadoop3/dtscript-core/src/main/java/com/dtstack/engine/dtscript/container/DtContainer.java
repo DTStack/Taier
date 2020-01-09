@@ -34,6 +34,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -68,7 +70,7 @@ public class DtContainer {
 
     private final AppType appType;
 
-    private final Map<String,Object> containerInfo;
+    private final Map<String, Object> containerInfo;
 
     private DtContainer() throws IOException {
         containerInfo = new HashMap<>();
@@ -108,9 +110,9 @@ public class DtContainer {
             LOG.info("appMasterHost:" + appMasterHost + ", port:" + appMasterPort);
             final Configuration newConf = new Configuration(conf);
 
-            if (KerberosUtils.isOpenKerberos(conf)){
+            if (KerberosUtils.isOpenKerberos(conf)) {
                 UserGroupInformation myGui = UserGroupInformation.loginUserFromKeytabAndReturnUGI(conf.get("hdfsPrincipal"),
-                        KerberosUtils.downloadAndReplace(newConf,"hdfsKeytabPath"));
+                        KerberosUtils.downloadAndReplace(newConf, "hdfsKeytabPath"));
                 UserGroupInformation.setLoginUser(myGui);
                 UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
                 LOG.info("-ugi---:" + ugi);
@@ -136,7 +138,13 @@ public class DtContainer {
             System.exit(1);
         }
 
-        containerInfo.put("host", NetUtils.getHostname());
+        try {
+            InetAddress inetAddress = InetAddress.getLocalHost();
+            containerInfo.put("host", inetAddress.getHostName());
+            containerInfo.put("ip", inetAddress.getHostAddress());
+        } catch (UnknownHostException e) {
+            LOG.error("Container unknow host! e:{}", e);
+        }
 
         containerStatusNotifier = new ContainerStatusNotifier(amClient, conf, containerId);
         containerStatusNotifier.start();
@@ -171,10 +179,10 @@ public class DtContainer {
 
         //LOG_DIRS 是可以配置多个路径的,并且以逗号分隔
         String command = envs.get(DtYarnConstants.Environment.DT_EXEC_CMD.toString())
-                + " 1>" +logDir
-                + "/dtstdout.log 2>"+logDir+"/dterror.log";
+                + " 1>" + logDir
+                + "/dtstdout.log 2>" + logDir + "/dterror.log";
 
-        command = appType.cmdContainerExtra(command, containerInfo);
+        command = appType.cmdContainerExtra(command, conf, containerInfo);
 
         String[] cmd = {"bash", "-c", command};
 
@@ -208,7 +216,7 @@ public class DtContainer {
 
     }
 
-    private void printInfo(InputStream inputStream){
+    private void printInfo(InputStream inputStream) {
 
         InputStreamReader isr = new InputStreamReader(inputStream);
         //用缓冲器读行
@@ -216,14 +224,14 @@ public class DtContainer {
         String line;
         //直到读完为止
 
-        try{
-            while((line = br.readLine()) != null) {
+        try {
+            while ((line = br.readLine()) != null) {
                 LOG.info(line);
             }
 
-        }catch (Exception e){
+        } catch (Exception e) {
             LOG.warn("exception:", e);
-        }finally {
+        } finally {
             try {
                 inputStream.close();
             } catch (IOException e) {
@@ -232,14 +240,14 @@ public class DtContainer {
         }
     }
 
-    private String getFirstLogFile(String logFile){
+    private String getFirstLogFile(String logFile) {
 
-        if(Strings.isNullOrEmpty(logFile)){
+        if (Strings.isNullOrEmpty(logFile)) {
             return logFile;
         }
 
         String[] splitStr = logFile.split(",");
-        if(splitStr.length == 0){
+        if (splitStr.length == 0) {
             return logFile;
         }
 
@@ -249,7 +257,7 @@ public class DtContainer {
 
     private void reportFailedAndExit(String msg) {
         LOG.info("reportFailedAndExit: " + msg);
-        if(msg == null || msg.length() == 0) {
+        if (msg == null || msg.length() == 0) {
             msg = "";
             LOG.warn("reportFailedAndExit， the msg is blank");
         }
@@ -293,7 +301,7 @@ public class DtContainer {
                 if (localFs.exists(localPath)) {
                     dfs.copyFromLocalFile(false, false, localPath, remotePath);
                     String localAbsolutePath = new File(outputInfo.getLocalLocation()).getAbsolutePath();
-                    String hostName =  (InetAddress.getLocalHost()).getHostName();
+                    String hostName = (InetAddress.getLocalHost()).getHostName();
                     if (hostName == null) {
                         hostName = "";
                     }
@@ -305,17 +313,15 @@ public class DtContainer {
     }
 
     private void printContainerInfo() throws IOException {
-        FSDataOutputStream out = null;
+        FSDataOutputStream stream = null;
         try {
             ContainerId cId = containerId.getContainerId();
-            Path cIdPath = Utilities.getRemotePath(conf, cId.getApplicationAttemptId().getApplicationId(), "containers/" + cId.toString());
-            if (dfs.exists(cIdPath)) {
-                dfs.delete(cIdPath);
-            }
-            out = FileSystem.create(cIdPath.getFileSystem(conf), cIdPath, new FsPermission(FsPermission.createImmutable((short) 0777)));
-            out.writeUTF(new ObjectMapper().writeValueAsString(containerInfo));
+            Path path = Utilities.getRemotePath(conf, cId.getApplicationAttemptId().getApplicationId(), cId.toString()+".out");
+            stream = FileSystem.create(path.getFileSystem(conf), path, new FsPermission(FsPermission.createImmutable((short) 0777)));
+            stream.write(new ObjectMapper().writeValueAsString(containerInfo).getBytes(StandardCharsets.UTF_8));
+            stream.write("\n".getBytes(StandardCharsets.UTF_8));
         } finally {
-            IOUtils.closeStream(out);
+            IOUtils.closeStream(stream);
         }
     }
 
@@ -357,7 +363,7 @@ public class DtContainer {
             }
         } catch (Throwable e) {
             LOG.error("Some errors has occurred during container running!", e);
-            if (container!=null){
+            if (container != null) {
                 container.reportFailedAndExit(DebugUtil.stackTrace(e));
             }
         }

@@ -19,9 +19,9 @@ public class DtYarnConfiguration extends YarnConfiguration {
      */
     public static final String DEFAULT_APP_TYPE = "shell";
 
-    public static final String LEARNING_STAGING_DIR = "xlearning.staging.dir";
+    public static final String CONTAINER_STAGING_DIR = "container.staging.dir";
 
-    public static final String DEFAULT_LEARNING_STAGING_DIR = "/tmp/Learning/staging";
+    public static final String DEFAULT_CONTAINER_STAGING_DIR = "/dtInsight/aiworks/staging";
 
     public static final String LEARNING_USER_CLASSPATH_FIRST = "learning.user.classpath.first";
 
@@ -34,6 +34,8 @@ public class DtYarnConfiguration extends YarnConfiguration {
     public static final String LEARNING_AM_CORES = "xlearning.am.cores";
 
     public static final int DEFAULT_LEARNING_AM_CORES = 1;
+
+    public static final String CONTAINER_REQUEST_NODES = "container.request.nodes";
 
     public static final String LEARNING_WORKER_MEMORY = "xlearning.worker.memory";
 
@@ -115,4 +117,6 @@ public class DtYarnConfiguration extends YarnConfiguration {
     public static final String APP_NODEMANAGER_EXCLUSIVE = "exclusive";
 
     public static final boolean DEFAULT_APP_NODEMANAGER_EXCLUSIVE = false;
+
+    public static final String APP_CONTAINER_PORT_RANGE = "container.port.range";
 }
