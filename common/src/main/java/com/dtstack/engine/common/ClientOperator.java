@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
  * Reason:
  * Date: 2018/1/11
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
@@ -22,35 +23,36 @@ public class ClientOperator {
 
     private static ClientOperator singleton = new ClientOperator();
 
-    private ClientOperator(){
+    private ClientOperator() {
     }
 
-    public static ClientOperator getInstance(){
+    public static ClientOperator getInstance() {
         return singleton;
     }
 
-    public RdosTaskStatus getJobStatus(String engineType, String pluginInfo, JobIdentifier jobIdentifier){
+    public RdosTaskStatus getJobStatus(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
 
         String jobId = jobIdentifier.getEngineJobId();
-        if(Strings.isNullOrEmpty(jobId)){
+        if (Strings.isNullOrEmpty(jobId)) {
             throw new RdosException("can't get job of jobId is empty or null!");
         }
 
-        try{
+        try {
             IClient client = clientCache.getClient(engineType, pluginInfo);
             Object result = client.getJobStatus(jobIdentifier);
 
-            if(result == null){
+            if (result == null) {
                 return null;
             }
 
-            return  (RdosTaskStatus) result;
-        }catch (Exception e){
-            throw new RdosException("get job:" + jobId + " exception:" + ExceptionUtil.getErrorMessage(e));
+            return (RdosTaskStatus) result;
+        } catch (Exception e) {
+            LOG.error("getStatus happens error：{}", e);
+            return RdosTaskStatus.FAILED;
         }
     }
 
-    public String getEngineMessageByHttp(String engineType, String path, String pluginInfo){
+    public String getEngineMessageByHttp(String engineType, String path, String pluginInfo) {
         String message;
 
         try {
@@ -67,31 +69,31 @@ public class ClientOperator {
 
         String logInfo;
 
-        try{
+        try {
             IClient client = clientCache.getClient(engineType, pluginInfo);
             logInfo = client.getJobLog(jobIdentifier);
-        }catch (Exception e){
+        } catch (Exception e) {
             logInfo = ExceptionUtil.getErrorMessage(e);
         }
 
         return logInfo;
     }
 
-    public String getCheckpoints(String engineType, String pluginInfo, JobIdentifier jobIdentifier){
+    public String getCheckpoints(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
 
-        try{
+        try {
             IClient client = clientCache.getClient(engineType, pluginInfo);
             return client.getCheckpoints(jobIdentifier);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new RdosException("get job checkpoints:" + jobIdentifier.getEngineJobId() + " exception:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 
-    public String getJobMaster(String engineType, String pluginInfo, JobIdentifier jobIdentifier){
-        try{
+    public String getJobMaster(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
+        try {
             IClient client = clientCache.getClient(engineType, pluginInfo);
             return client.getJobMaster(jobIdentifier);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new RdosException("get job master exception:" + ExceptionUtil.getErrorMessage(e));
         }
     }
