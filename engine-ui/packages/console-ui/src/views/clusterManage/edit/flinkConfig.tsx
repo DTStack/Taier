@@ -18,7 +18,6 @@ export default class FlinkConfig extends React.Component<any, any> {
             getFieldValue,
             checked,
             changeCheckbox,
-            kerberosView,
             setFieldsValue,
             resetFields
         } = this.props;

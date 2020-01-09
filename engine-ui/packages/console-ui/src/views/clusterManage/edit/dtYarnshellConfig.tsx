@@ -6,7 +6,7 @@ const FormItem = Form.Item;
 
 export default class DtyarnShellConfig extends React.Component<any, any> {
     render () {
-        const { singleButton, customView, isView, getFieldDecorator, securityStatus, kerberosView } = this.props;
+        const { singleButton, customView, isView, getFieldDecorator, securityStatus } = this.props;
         console.log(securityStatus)
         return (
             <React.Fragment>
