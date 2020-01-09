@@ -74,8 +74,6 @@ public class ApplicationMaster extends CompositeService {
 
     ApplicationAttemptId applicationAttemptID;
 
-    private AMRMClient.ContainerRequest workerContainerRequest;
-
     AppArguments appArguments;
 
     /**
@@ -163,13 +161,13 @@ public class ApplicationMaster extends CompositeService {
         }
     }
 
-    private void buildContainerRequest() {
+    private AMRMClient.ContainerRequest buildContainerRequest() {
         Priority priority = Records.newRecord(Priority.class);
         priority.setPriority(appArguments.appPriority);
         Resource workerCapability = Records.newRecord(Resource.class);
         workerCapability.setMemory(appArguments.workerMemory+appArguments.containerMemory);
         workerCapability.setVirtualCores(appArguments.workerVCores);
-        workerContainerRequest = new AMRMClient.ContainerRequest(workerCapability, null, null, priority);
+        return new AMRMClient.ContainerRequest(workerCapability, appArguments.nodes, null, priority, false);
     }
 
     private List<String> buildContainerLaunchCommand(int containerMemory) {
@@ -208,13 +206,15 @@ public class ApplicationMaster extends CompositeService {
             rmCallbackHandler.startWorkerContainersExclusive();
         }
 
-        buildContainerRequest();
+        AMRMClient.ContainerRequest workerContainerRequest = buildContainerRequest();
+        LOG.info("ContainerRequest:" + workerContainerRequest.toString() + " nodes:" + workerContainerRequest.getNodes() + " racks:" + workerContainerRequest.getRacks());
+
         List<String> workerContainerLaunchCommands = buildContainerLaunchCommand(appArguments.containerMemory);
         Map<String, LocalResource> containerLocalResource = buildContainerLocalResource();
         Map<String, String> workerContainerEnv = new ContainerEnvBuilder(DtYarnConstants.WORKER, this).build();
 
 
-        List<Container> acquiredWorkerContainers = handleRMCallbackOfContainerRequest(appArguments.workerNum);
+        List<Container> acquiredWorkerContainers = handleRMCallbackOfContainerRequest(appArguments.workerNum, workerContainerRequest);
 
         int i = 0;
         for (Container container : acquiredWorkerContainers) {
@@ -242,7 +242,7 @@ public class ApplicationMaster extends CompositeService {
             }
 
             //失败后重试
-            acquiredWorkerContainers = handleRMCallbackOfContainerRequest(failedEntities.size());
+            acquiredWorkerContainers = handleRMCallbackOfContainerRequest(failedEntities.size(), workerContainerRequest);
 
             for (ContainerEntity containerEntity : failedEntities) {
                 Container container = acquiredWorkerContainers.remove(0);
@@ -264,15 +264,15 @@ public class ApplicationMaster extends CompositeService {
 
     }
 
-    public List<Container> handleRMCallbackOfContainerRequest(int workerNum) {
+    public List<Container> handleRMCallbackOfContainerRequest(int workerNum, AMRMClient.ContainerRequest request) {
         rmCallbackHandler.setNeededWorkerContainersCount(workerNum);
         rmCallbackHandler.resetAllocatedWorkerContainerNumber();
         rmCallbackHandler.resetAcquiredWorkerContainers();
 
-        clearAMRMRequests();
+        clearAMRMRequests(request);
 
         for (int i = 0; i < workerNum; ++i) {
-            amrmAsync.addContainerRequest(workerContainerRequest);
+            amrmAsync.addContainerRequest(request);
         }
 
         LOG.info("Try to allocate " + workerNum + " worker containers");
@@ -296,7 +296,7 @@ public class ApplicationMaster extends CompositeService {
                 for (Container container : releaseContainers) {
                     LOG.info("Releaseing container: " + container.getId().toString());
                     amrmAsync.releaseAssignedContainer(container.getId());
-                    amrmAsync.addContainerRequest(workerContainerRequest);
+                    amrmAsync.addContainerRequest(request);
                 }
                 rmCallbackHandler.removeReleaseContainers(releaseContainers);
             }
@@ -323,7 +323,7 @@ public class ApplicationMaster extends CompositeService {
         return acquiredWorkerContainers;
     }
 
-    private void clearAMRMRequests() {
+    private void clearAMRMRequests(AMRMClient.ContainerRequest request) {
         try {
             Field amrmField = amrmAsync.getClass().getSuperclass().getDeclaredField("client");
             amrmField.setAccessible(true);
@@ -334,11 +334,11 @@ public class ApplicationMaster extends CompositeService {
             Map<Priority, Map<String, TreeMap<Resource, Object>>> remoteRequestsTable = (Map) remoteRequestsTableField.get(amrm);
 
             if (remoteRequestsTable != null) {
-                Map<String, TreeMap<Resource, Object>> remoteRequests = remoteRequestsTable.get(workerContainerRequest.getPriority());
+                Map<String, TreeMap<Resource, Object>> remoteRequests = remoteRequestsTable.get(request.getPriority());
                 if (remoteRequests != null) {
                     TreeMap<Resource, Object> reqMap = remoteRequests.get("*");
                     if (reqMap != null) {
-                        Object resourceRequestInfo = reqMap.get(workerContainerRequest.getCapability());
+                        Object resourceRequestInfo = reqMap.get(request.getCapability());
                         if (resourceRequestInfo != null) {
                             Field remoteRequestField = resourceRequestInfo.getClass().getDeclaredField("remoteRequest");
                             remoteRequestField.setAccessible(true);

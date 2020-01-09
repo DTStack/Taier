@@ -26,6 +26,7 @@ public class ClientArguments {
     private Options allOptions;
     String appName;
     AppType appType;
+    String nodes;
     int amMem;
     int amCores;
     int workerMemory;
@@ -78,6 +79,14 @@ public class ClientArguments {
 
     public void setAppType(AppType appType) {
         this.appType = appType;
+    }
+
+    public String getNodes() {
+        return nodes;
+    }
+
+    public void setNodes(String nodes) {
+        this.nodes = nodes;
     }
 
     public int getAmMem() {
@@ -356,6 +365,7 @@ public class ClientArguments {
     private void init() {
         appName = "";
         appType = new DummyType();
+        nodes = null;
         amMem = DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY;
         amCores = DtYarnConfiguration.DEFAULT_LEARNING_AM_CORES;
         workerMemory = DtYarnConfiguration.DEFAULT_LEARNING_WORKER_MEMORY;
@@ -387,6 +397,9 @@ public class ClientArguments {
                 "set the Application name");
         allOptions.addOption("appType", "app-type", true,
                 "set the Application type, default \"XLEARNING\"");
+
+        allOptions.addOption("nodes", "nodes", true,
+                "nodes of request Container");
 
         allOptions.addOption("amMemory", "am-memory", true,
                 "Amount of memory in MB to be requested to run the application master");
@@ -504,6 +517,11 @@ public class ClientArguments {
 
         if (commandLine.hasOption("app-type")) {
             appType = AppType.fromString(commandLine.getOptionValue("app-type").trim());
+        }
+
+        if (commandLine.hasOption("nodes")) {
+            //separatorChars is ','
+            nodes = commandLine.getOptionValue("nodes");
         }
 
         if (commandLine.hasOption("am-memory")) {

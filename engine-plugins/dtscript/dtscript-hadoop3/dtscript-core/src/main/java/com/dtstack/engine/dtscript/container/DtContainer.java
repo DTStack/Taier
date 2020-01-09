@@ -1,6 +1,7 @@
 package com.dtstack.engine.dtscript.container;
 
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
+import com.dtstack.engine.dtscript.common.DTScriptConstant;
 import com.dtstack.engine.dtscript.common.SecurityUtil;
 import com.dtstack.engine.dtscript.common.type.AppType;
 import com.dtstack.engine.dtscript.api.ApplicationContainerProtocol;
@@ -10,6 +11,7 @@ import com.dtstack.engine.dtscript.common.LocalRemotePath;
 import com.dtstack.engine.dtscript.common.ReturnValue;
 import com.dtstack.engine.dtscript.common.type.DummyType;
 import com.dtstack.engine.dtscript.util.DebugUtil;
+import com.dtstack.engine.dtscript.util.KerberosUtils;
 import com.dtstack.engine.dtscript.util.Utilities;
 import com.google.common.base.Strings;
 import org.apache.commons.logging.Log;
@@ -32,6 +34,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,8 +50,6 @@ import java.util.concurrent.TimeUnit;
 public class DtContainer {
 
     private static final Log LOG = LogFactory.getLog(DtContainer.class);
-
-    private static final String PRINCIPALFILE = "principalFile";
 
     private DtYarnConfiguration conf;
 
@@ -69,7 +71,7 @@ public class DtContainer {
 
     private final AppType appType;
 
-    private final Map<String,Object> containerInfo;
+    private final Map<String, Object> containerInfo;
 
     private DtContainer() throws IOException {
         containerInfo = new HashMap<>();
@@ -117,7 +119,13 @@ public class DtContainer {
             System.exit(1);
         }
 
-        containerInfo.put("host", NetUtils.getHostname());
+        try {
+            InetAddress inetAddress = InetAddress.getLocalHost();
+            containerInfo.put("host", inetAddress.getHostName());
+            containerInfo.put("ip", inetAddress.getHostAddress());
+        } catch (UnknownHostException e) {
+            LOG.error("Container unknow host! e:{}", e);
+        }
 
         containerStatusNotifier = new ContainerStatusNotifier(amClient, conf, containerId);
         containerStatusNotifier.start();
@@ -152,10 +160,10 @@ public class DtContainer {
 
         //LOG_DIRS 是可以配置多个路径的,并且以逗号分隔
         String command = envs.get(DtYarnConstants.Environment.DT_EXEC_CMD.toString())
-                + " 1>" +logDir
-                + "/dtstdout.log 2>"+logDir+"/dterror.log";
+                + " 1>" + logDir
+                + "/dtstdout.log 2>" + logDir + "/dterror.log";
 
-        command = appType.cmdContainerExtra(command, containerInfo);
+        command = appType.cmdContainerExtra(command, conf, containerInfo);
 
         String[] cmd = {"bash", "-c", command};
 
@@ -189,7 +197,7 @@ public class DtContainer {
 
     }
 
-    private void printInfo(InputStream inputStream){
+    private void printInfo(InputStream inputStream) {
 
         InputStreamReader isr = new InputStreamReader(inputStream);
         //用缓冲器读行
@@ -197,14 +205,14 @@ public class DtContainer {
         String line;
         //直到读完为止
 
-        try{
-            while((line = br.readLine()) != null) {
+        try {
+            while ((line = br.readLine()) != null) {
                 LOG.info(line);
             }
 
-        }catch (Exception e){
+        } catch (Exception e) {
             LOG.warn("exception:", e);
-        }finally {
+        } finally {
             try {
                 inputStream.close();
             } catch (IOException e) {
@@ -213,14 +221,14 @@ public class DtContainer {
         }
     }
 
-    private String getFirstLogFile(String logFile){
+    private String getFirstLogFile(String logFile) {
 
-        if(Strings.isNullOrEmpty(logFile)){
+        if (Strings.isNullOrEmpty(logFile)) {
             return logFile;
         }
 
         String[] splitStr = logFile.split(",");
-        if(splitStr.length == 0){
+        if (splitStr.length == 0) {
             return logFile;
         }
 
@@ -230,7 +238,7 @@ public class DtContainer {
 
     private void reportFailedAndExit(String msg) {
         LOG.info("reportFailedAndExit: " + msg);
-        if(msg == null || msg.length() == 0) {
+        if (msg == null || msg.length() == 0) {
             msg = "";
             LOG.warn("reportFailedAndExit， the msg is blank");
         }
@@ -274,7 +282,7 @@ public class DtContainer {
                 if (localFs.exists(localPath)) {
                     dfs.copyFromLocalFile(false, false, localPath, remotePath);
                     String localAbsolutePath = new File(outputInfo.getLocalLocation()).getAbsolutePath();
-                    String hostName =  (InetAddress.getLocalHost()).getHostName();
+                    String hostName = (InetAddress.getLocalHost()).getHostName();
                     if (hostName == null) {
                         hostName = "";
                     }
@@ -286,19 +294,15 @@ public class DtContainer {
     }
 
     private void printContainerInfo() throws IOException {
-        FSDataOutputStream out = null;
+        FSDataOutputStream stream = null;
         try {
             ContainerId cId = containerId.getContainerId();
-            Path cIdPath = Utilities.getRemotePath(conf, cId.getApplicationAttemptId().getApplicationId(), "containers/" + cId.toString());
-            if (dfs.exists(cIdPath)) {
-                dfs.delete(cIdPath);
-                LOG.warn("delete exists containerId Path :" + cIdPath.getName());
-            }
-            out = FileSystem.create(cIdPath.getFileSystem(conf), cIdPath, new FsPermission(FsPermission.createImmutable((short) 0777)));
-            out.writeUTF(new ObjectMapper().writeValueAsString(containerInfo));
-            LOG.warn("create containerId Path:" + cIdPath.getName());
+            Path path = Utilities.getRemotePath(conf, cId.getApplicationAttemptId().getApplicationId(), cId.toString()+".out");
+            stream = FileSystem.create(path.getFileSystem(conf), path, new FsPermission(FsPermission.createImmutable((short) 0777)));
+            stream.write(new ObjectMapper().writeValueAsString(containerInfo).getBytes(StandardCharsets.UTF_8));
+            stream.write("\n".getBytes(StandardCharsets.UTF_8));
         } finally {
-            IOUtils.closeStream(out);
+            IOUtils.closeStream(stream);
         }
     }
 

@@ -107,6 +107,7 @@ public class Client {
         }
         taskConf.set("ipc.client.fallback-to-simple-auth-allowed", "true");
 
+        taskConf.set(DtYarnConfiguration.CONTAINER_REQUEST_NODES, clientArguments.nodes);
         taskConf.set(DtYarnConfiguration.LEARNING_AM_MEMORY, String.valueOf(clientArguments.amMem));
         taskConf.set(DtYarnConfiguration.LEARNING_AM_CORES, String.valueOf(clientArguments.amCores));
         taskConf.set(DtYarnConfiguration.LEARNING_WORKER_MEMORY, String.valueOf(clientArguments.workerMemory));
@@ -140,6 +141,18 @@ public class Client {
         clientArguments.setApplicationId(applicationId.toString());
         LOG.info("Got new Application: " + applicationId.toString());
 
+        Map<String, String> appMasterEnv = new HashMap<>();
+
+        /** launch command */
+        LOG.info("Building app launch command");
+        String launchCmd = new LaunchCommandBuilder(clientArguments, taskConf).buildCmd();
+        if (StringUtils.isNotBlank(launchCmd)) {
+            appMasterEnv.put(DtYarnConstants.Environment.DT_EXEC_CMD.toString(), launchCmd);
+        } else {
+            throw new IllegalArgumentException("Invalid launch cmd for the application");
+        }
+        LOG.info("app launch command: " + launchCmd);
+
         Path jobConfPath = Utilities.getRemotePath(taskConf, applicationId, DtYarnConstants.LEARNING_JOB_CONFIGURATION);
         LOG.info("job conf path: " + jobConfPath);
         FSDataOutputStream out = FileSystem.create(jobConfPath.getFileSystem(taskConf), jobConfPath,
@@ -150,17 +163,10 @@ public class Client {
         localResources.put(DtYarnConstants.LEARNING_JOB_CONFIGURATION,
                 Utilities.createApplicationResource(dfs, jobConfPath, LocalResourceType.FILE));
 
-        ApplicationSubmissionContext applicationContext = newAPP.getApplicationSubmissionContext();
-        applicationContext.setApplicationId(applicationId);
-        applicationContext.setApplicationName(clientArguments.appName);
-        applicationContext.setApplicationType(clientArguments.appType.name());
-        applicationContext.setMaxAppAttempts(clientArguments.maxAppAttempts);
-
         localResources.put(DtYarnConstants.APP_MASTER_JAR,
                 Utilities.createApplicationResource(dfs, appMasterJar, LocalResourceType.FILE));
 
 
-        Map<String, String> appMasterEnv = new HashMap<>();
         StringBuilder classPathEnv = new StringBuilder("./*");
 
         for (String cp : taskConf.getStrings(DtYarnConfiguration.YARN_APPLICATION_CLASSPATH,
@@ -220,17 +226,6 @@ public class Client {
         appMasterEnv.put(DtYarnConstants.Environment.APP_TYPE.toString(), clientArguments.appType.name());
         appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_STAGING_LOCATION.toString(), Utilities.getRemotePath(taskConf, applicationId, "").toString());
         appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_JOB_CONF_LOCATION.toString(), jobConfPath.toString());
-
-        /** launch command */
-        LOG.info("Building app launch command");
-        String launchCmd = new LaunchCommandBuilder(clientArguments, taskConf).buildCmd();
-        if (StringUtils.isNotBlank(launchCmd)) {
-            appMasterEnv.put(DtYarnConstants.Environment.DT_EXEC_CMD.toString(), launchCmd);
-        } else {
-            throw new IllegalArgumentException("Invalid launch cmd for the application");
-        }
-        LOG.info("app launch command: " + launchCmd);
-
         appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_CONTAINER_MAX_MEMORY.toString(), String.valueOf(newAppResponse.getMaximumResourceCapability().getMemory()));
 
 
@@ -253,6 +248,12 @@ public class Client {
         LOG.info("Application master launch command: " + command.toString());
         List<String> appMasterLaunchcommands = new ArrayList<>();
         appMasterLaunchcommands.add(command.toString());
+
+        ApplicationSubmissionContext applicationContext = newAPP.getApplicationSubmissionContext();
+        applicationContext.setApplicationId(applicationId);
+        applicationContext.setApplicationName(clientArguments.appName);
+        applicationContext.setApplicationType(clientArguments.appType.name());
+        applicationContext.setMaxAppAttempts(clientArguments.maxAppAttempts);
 
         Resource capability = Records.newRecord(Resource.class);
         capability.setMemory(taskConf.getInt(DtYarnConfiguration.LEARNING_AM_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY));

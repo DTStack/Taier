@@ -69,7 +69,7 @@ public final class Utilities {
 
   public static Path getRemotePath(YarnConfiguration conf, ApplicationId appId, String fileName) {
     String pathSuffix = appId.toString() + "/" + fileName;
-    Path remotePath = new Path(conf.get(DtYarnConfiguration.LEARNING_STAGING_DIR, DtYarnConfiguration.DEFAULT_LEARNING_STAGING_DIR),
+    Path remotePath = new Path(conf.get(DtYarnConfiguration.CONTAINER_STAGING_DIR, DtYarnConfiguration.DEFAULT_CONTAINER_STAGING_DIR),
             pathSuffix);
     remotePath = new Path(conf.get("fs.defaultFS"), remotePath);
     LOG.debug("Got remote path of " + fileName + " is " + remotePath.toString());
