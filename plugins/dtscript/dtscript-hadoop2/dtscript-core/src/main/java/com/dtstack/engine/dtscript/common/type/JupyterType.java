@@ -20,10 +20,15 @@ public class JupyterType extends AppType {
     private final static String JUPYTER_NOTEBOOK_CONFIG_PORT_TMP = "#{port}";
 
     private final static String LINEFEED = "\n";
+    private final static String JUPYTER_PROJECT_ROOT = "jupyter.project.root";
+    private final static String JUPYTER_PROJECT_DIR_KEY = "jupyter.project.dir";
+    private final static String JUPYTER_CONFIG_DIR_KEY = "jupyter.conf.dir";
+    private final static String JUPYTER_CONFIG_DIR_SUFFIX = "/conf";
     private final static String JUPYTER_CONFIG_FILENAME = "jupyter_notebook_config.py";
     private final static String JUPYTER_BIN_PATH = "jupyter.path";
-    private final static String JUPYTER_WORKSPACE_ROOT = "jupyter.workspace.root";
-    private final static String JUPYTER_WORKSPACE = "jupyter.workspace";
+    private final static String JUPYTER_WORKSPACE_DIR_KEY = "jupyter.workspace.dir";
+    private final static String JUPYTER_WORKSPACE_DIR_SUFFIX = "/workspace";
+    private final static String JUPYTER_ALLOW_ROOT = "jupyter.allow.root";
     private final static String[] DEFAULT_PORT_RANGE = new String[]{"8888", "65535"};
 
 
@@ -34,24 +39,37 @@ public class JupyterType extends AppType {
         if (StringUtils.isBlank(jupyterBinPath)) {
             throw new IllegalArgumentException(JUPYTER_BIN_PATH + " must be set");
         }
-        String jupyterWorkspaceRoot = conf.get(JUPYTER_WORKSPACE_ROOT, "");
-        if (StringUtils.isBlank(jupyterWorkspaceRoot)) {
-            throw new IllegalArgumentException(JUPYTER_WORKSPACE_ROOT + " must be set");
+        boolean allowRoot = conf.getBoolean(JUPYTER_ALLOW_ROOT, true);
+
+        String jupyterProjectRoot = conf.get(JUPYTER_PROJECT_ROOT, "");
+        if (StringUtils.isBlank(jupyterProjectRoot)) {
+            throw new IllegalArgumentException(jupyterProjectRoot + " must be set");
         }
-        if (!jupyterWorkspaceRoot.endsWith("/")) {
-            jupyterWorkspaceRoot += "/";
+        if (!jupyterProjectRoot.endsWith("/")) {
+            jupyterProjectRoot += "/";
         }
-        String jupyterWorkspace = jupyterWorkspaceRoot + clientArguments.getAppName();
-        conf.set(JUPYTER_WORKSPACE, jupyterWorkspace);
+        String jupyterProject = jupyterProjectRoot + clientArguments.getAppName();
+        String jupyterWorkspace = jupyterProject + JUPYTER_WORKSPACE_DIR_SUFFIX;
+        String jupyterConfDir = jupyterProject + JUPYTER_CONFIG_DIR_SUFFIX;
+        conf.set(JUPYTER_PROJECT_DIR_KEY, jupyterProject);
+        conf.set(JUPYTER_WORKSPACE_DIR_KEY, jupyterWorkspace);
+        conf.set(JUPYTER_CONFIG_DIR_KEY, jupyterConfDir);
 
         StringBuilder bashScript = new StringBuilder(400);
         bashScript.append(cmdPrefix(conf)).append(" <<JUPYTER").append(LINEFEED);
         bashScript.append("if [ ! -d \"").append(jupyterWorkspace).append("\" ]; then").append(LINEFEED);
         bashScript.append("  mkdir \"").append(jupyterWorkspace).append("\"").append(LINEFEED);
         bashScript.append("fi").append(LINEFEED);
-        bashScript.append("cd \"").append(jupyterWorkspace).append("\"").append(LINEFEED);
+        bashScript.append("if [ ! -d \"").append(jupyterConfDir).append("\" ]; then").append(LINEFEED);
+        bashScript.append("  mkdir \"").append(jupyterConfDir).append("\"").append(LINEFEED);
+        bashScript.append("fi").append(LINEFEED);
+        bashScript.append("cd \"").append(jupyterConfDir).append("\"").append(LINEFEED);
         bashScript.append(generateJupyterNotebookConfig(conf, jupyterWorkspace));
-        bashScript.append(jupyterBinPath).append(" --config ").append(jupyterWorkspace).append("/").append(JUPYTER_CONFIG_FILENAME).append(" --allow-root").append(LINEFEED);
+        bashScript.append(jupyterBinPath).append(" --config ").append(jupyterConfDir).append("/").append(JUPYTER_CONFIG_FILENAME);
+        if (allowRoot) {
+            bashScript.append(" --allow-root");
+        }
+        bashScript.append(LINEFEED);
         bashScript.append("JUPYTER");
         return bashScript.toString();
     }
@@ -63,11 +81,11 @@ public class JupyterType extends AppType {
 
     @Override
     public String cmdContainerExtra(String cmd, DtYarnConfiguration conf, Map<String, Object> containerInfo) {
-        String jupyterWorkspace = conf.get(JUPYTER_WORKSPACE_ROOT, "");
-        File jupyterWorkspaceDir = new File(jupyterWorkspace);
-        if (!jupyterWorkspaceDir.exists()) {
-            if (!jupyterWorkspaceDir.mkdirs()) {
-                throw new RuntimeException("create dir of " + jupyterWorkspace + "failed");
+        String jupyterProject = conf.get(JUPYTER_PROJECT_DIR_KEY);
+        File jupyterProjectDir = new File(jupyterProject);
+        if (!jupyterProjectDir.exists()) {
+            if (!jupyterProjectDir.mkdirs()) {
+                throw new RuntimeException("create the jupyterWorkspaceRootDir of " + jupyterProject + " failed");
             }
         }
 

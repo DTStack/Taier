@@ -19,9 +19,9 @@ public class DtYarnConfiguration extends YarnConfiguration {
      */
     public static final String DEFAULT_APP_TYPE = "shell";
 
-    public static final String LEARNING_STAGING_DIR = "xlearning.staging.dir";
+    public static final String CONTAINER_STAGING_DIR = "container.staging.dir";
 
-    public static final String DEFAULT_LEARNING_STAGING_DIR = "/tmp/Learning/staging";
+    public static final String DEFAULT_CONTAINER_STAGING_DIR = "/dtInsight/aiworks/staging";
 
     public static final String LEARNING_USER_CLASSPATH_FIRST = "learning.user.classpath.first";
 
