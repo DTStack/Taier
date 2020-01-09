@@ -24,6 +24,8 @@ public class JupyterType extends AppType {
     private final static String JUPYTER_BIN_PATH = "jupyter.path";
     private final static String JUPYTER_WORKSPACE_ROOT = "jupyter.workspace.root";
     private final static String JUPYTER_WORKSPACE = "jupyter.workspace";
+    private final static String[] DEFAULT_PORT_RANGE = new String[]{"8888", "65535"};
+
 
     @Override
     public String buildCmd(ClientArguments clientArguments, YarnConfiguration conf) {
@@ -69,12 +71,12 @@ public class JupyterType extends AppType {
             }
         }
 
-        String[] configPort = conf.getStrings(DtYarnConfiguration.APP_CONTAINER_PORT_RANGE, "8888", "65535");
-        int portStart = 8888;
-        int portEnd = 65535;
+        String[] configPort = conf.getStrings(DtYarnConfiguration.APP_CONTAINER_PORT_RANGE, DEFAULT_PORT_RANGE);
+        int portStart = Integer.valueOf(DEFAULT_PORT_RANGE[0]);
+        int portEnd = Integer.valueOf(DEFAULT_PORT_RANGE[1]);
         if (configPort.length == 1) {
             portStart = Integer.valueOf(configPort[0]);
-        } else if (configPort.length == 2) {
+        } else if (configPort.length >= DEFAULT_PORT_RANGE.length) {
             portStart = Integer.valueOf(configPort[0]);
             portEnd = Integer.valueOf(configPort[1]);
         }
