@@ -110,7 +110,7 @@ public class JobClient extends OrderObject{
         try{
             return ClientOperator.getInstance().getCheckpoints(engineType, pluginInfo, jobIdentifier);
         }catch (Exception e){
-            logger.error("", e);
+            logger.error("getCheckpoints happens error：{}", e);
             return null;
         }
     }

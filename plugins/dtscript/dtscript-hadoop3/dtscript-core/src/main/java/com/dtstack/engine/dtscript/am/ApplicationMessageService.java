@@ -3,6 +3,7 @@ package com.dtstack.engine.dtscript.am;
 import com.dtstack.engine.dtscript.api.ApplicationContext;
 import com.dtstack.engine.dtscript.api.ApplicationMessageProtocol;
 import com.dtstack.engine.dtscript.common.Message;
+import com.dtstack.engine.dtscript.common.SecurityUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -36,7 +37,9 @@ public class ApplicationMessageService extends AbstractService implements
   @Override
   public void start() {
     LOG.info("Starting application message server");
-    RPC.Builder builder = new RPC.Builder(getConfig());
+
+    Configuration conf = SecurityUtil.disableSecureRpc(getConfig());
+    RPC.Builder builder = new RPC.Builder(conf);
     builder.setProtocol(ApplicationMessageProtocol.class);
     builder.setInstance(this);
     builder.setBindAddress("0.0.0.0");
@@ -96,7 +99,7 @@ public class ApplicationMessageService extends AbstractService implements
   public ProtocolSignature getProtocolSignature(String protocol,
                                                 long clientVersion, int clientMethodsHash) throws IOException {
     return ProtocolSignature.getProtocolSignature(this, protocol,
-        clientVersion, clientMethodsHash);
+            clientVersion, clientMethodsHash);
   }
 
 }

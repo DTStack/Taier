@@ -1,7 +1,7 @@
 package com.dtstack.engine.dtscript.container;
 
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
-import com.dtstack.engine.dtscript.common.DTScriptConstant;
+import com.dtstack.engine.dtscript.common.SecurityUtil;
 import com.dtstack.engine.dtscript.common.type.AppType;
 import com.dtstack.engine.dtscript.api.ApplicationContainerProtocol;
 import com.dtstack.engine.dtscript.api.DtYarnConstants;
@@ -10,7 +10,6 @@ import com.dtstack.engine.dtscript.common.LocalRemotePath;
 import com.dtstack.engine.dtscript.common.ReturnValue;
 import com.dtstack.engine.dtscript.common.type.DummyType;
 import com.dtstack.engine.dtscript.util.DebugUtil;
-import com.dtstack.engine.dtscript.util.KerberosUtils;
 import com.dtstack.engine.dtscript.util.Utilities;
 import com.google.common.base.Strings;
 import org.apache.commons.logging.Log;
@@ -23,7 +22,6 @@ import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.ipc.RPC;
 import org.apache.hadoop.net.NetUtils;
-import org.apache.hadoop.security.SecurityUtil;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.records.ContainerId;
@@ -34,6 +32,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -47,6 +46,8 @@ import java.util.concurrent.TimeUnit;
 public class DtContainer {
 
     private static final Log LOG = LogFactory.getLog(DtContainer.class);
+
+    private static final String PRINCIPALFILE = "principalFile";
 
     private DtYarnConfiguration conf;
 
@@ -75,12 +76,7 @@ public class DtContainer {
 
         this.conf = new DtYarnConfiguration();
 
-        Path hdfsSidePath = new Path("hdfs-side.xml");
-        Path coreSidePath = new Path("core-side.xml");
-
         conf.addResource(new Path(DtYarnConstants.LEARNING_JOB_CONFIGURATION));
-        conf.addResource(coreSidePath);
-        conf.addResource(hdfsSidePath);
 
         localFs = FileSystem.getLocal(conf);
 
@@ -106,25 +102,10 @@ public class DtContainer {
         InetSocketAddress addr = new InetSocketAddress(appMasterHost, appMasterPort);
         try {
             LOG.info("appMasterHost:" + appMasterHost + ", port:" + appMasterPort);
-            final Configuration newConf = new Configuration(conf);
-
-            if (KerberosUtils.isOpenKerberos(conf)){
-                UserGroupInformation myGui = UserGroupInformation.loginUserFromKeytabAndReturnUGI(conf.get("hdfsPrincipal"),
-                        KerberosUtils.downloadAndReplace(newConf,"hdfsKeytabPath"));
-                UserGroupInformation.setLoginUser(myGui);
-                UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
-                LOG.info("-ugi---:" + ugi);
-                LOG.info("isenabled:" + UserGroupInformation.isSecurityEnabled());
-                LOG.info("hdfs principal:" + conf.get("hdfsPrincipal"));
-                newConf.set(DTScriptConstant.RPC_SERVER_PRINCIPAL, conf.get("hdfsPrincipal"));
-                newConf.set(DTScriptConstant.RPC_SERVER_KEYTAB, KerberosUtils.downloadAndReplace(newConf, "hdfsKeytabPath"));
-                UserGroupInformation.setConfiguration(newConf);
-                SecurityUtil.setAuthenticationMethod(UserGroupInformation.AuthenticationMethod.KERBEROS, newConf);
-
-                SecurityUtil.login(newConf, DTScriptConstant.RPC_SERVER_KEYTAB, DTScriptConstant.RPC_SERVER_PRINCIPAL);
-            }
-
-            amClient = RPC.getProxy(ApplicationContainerProtocol.class, ApplicationContainerProtocol.versionID, addr, newConf);
+            amClient = RPC.getProxy(ApplicationContainerProtocol.class,
+                    ApplicationContainerProtocol.versionID,
+                    addr,
+                    conf);
             LocalRemotePath[] localRemotePaths = amClient.getOutputLocation("localRemotePath");
             LOG.info("get localRemotePaths:" + localRemotePaths.length);
 
@@ -311,9 +292,11 @@ public class DtContainer {
             Path cIdPath = Utilities.getRemotePath(conf, cId.getApplicationAttemptId().getApplicationId(), "containers/" + cId.toString());
             if (dfs.exists(cIdPath)) {
                 dfs.delete(cIdPath);
+                LOG.warn("delete exists containerId Path :" + cIdPath.getName());
             }
             out = FileSystem.create(cIdPath.getFileSystem(conf), cIdPath, new FsPermission(FsPermission.createImmutable((short) 0777)));
             out.writeUTF(new ObjectMapper().writeValueAsString(containerInfo));
+            LOG.warn("create containerId Path:" + cIdPath.getName());
         } finally {
             IOUtils.closeStream(out);
         }
@@ -339,25 +322,35 @@ public class DtContainer {
     }
 
     public static void main(String[] args) {
+
         DtContainer container = null;
         try {
-            container = new DtContainer();
-            container.init();
-            ReturnValue response = container.run();
-            if (response.getExitValue() == 0) {
-                LOG.info("DtContainer " + container.getContainerId().toString() + " finish successfully");
-                container.reportSucceededAndExit();
-            } else if (response.getExitValue() == ContainerExecutor.ExitCode.FORCE_KILLED.getExitCode()
-                    || response.getExitValue() == ContainerExecutor.ExitCode.TERMINATED.getExitCode()) {
-                LOG.warn("DtContainer run exited!");
-                container.reportFailedAndExit(response.getErrorLog());
-            } else {
-                LOG.error("DtContainer run failed! error");
-                container.reportFailedAndExit(response.getErrorLog());
-            }
+            final DtContainer fcontainer = new DtContainer();
+            container = fcontainer;
+            UserGroupInformation ugi = SecurityUtil.setupUserGroupInformation();
+
+            ugi.doAs((PrivilegedExceptionAction<Void>) () -> {
+
+                fcontainer.init();
+                ReturnValue response = fcontainer.run();
+                if (response.getExitValue() == 0) {
+                    LOG.info("DtContainer " + fcontainer.getContainerId().toString() + " finish successfully");
+                    fcontainer.reportSucceededAndExit();
+                } else if (response.getExitValue() == ContainerExecutor.ExitCode.FORCE_KILLED.getExitCode()
+                        || response.getExitValue() == ContainerExecutor.ExitCode.TERMINATED.getExitCode()) {
+                    LOG.warn("DtContainer run exited!");
+                    fcontainer.reportFailedAndExit(response.getErrorLog());
+                } else {
+                    LOG.error("DtContainer run failed! error");
+                    fcontainer.reportFailedAndExit(response.getErrorLog());
+                }
+
+                return null;
+            });
+
         } catch (Throwable e) {
             LOG.error("Some errors has occurred during container running!", e);
-            if (container!=null){
+            if (container != null){
                 container.reportFailedAndExit(DebugUtil.stackTrace(e));
             }
         }
