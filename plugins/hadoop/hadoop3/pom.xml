@@ -15,7 +15,7 @@
 
     <properties>
         <jar.name>hadoop3</jar.name>
-        <hadoop.version>3.0.0</hadoop.version>
+        <hadoop.version>3.0.0-cdh6.3.1</hadoop.version>
     </properties>
 
     <dependencies>
