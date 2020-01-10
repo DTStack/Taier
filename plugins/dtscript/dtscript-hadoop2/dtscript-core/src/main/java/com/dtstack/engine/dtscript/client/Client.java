@@ -107,7 +107,6 @@ public class Client {
         }
         taskConf.set("ipc.client.fallback-to-simple-auth-allowed", "true");
 
-        taskConf.set(DtYarnConfiguration.CONTAINER_REQUEST_NODES, clientArguments.nodes);
         if (clientArguments.nodes != null) {
             taskConf.set(DtYarnConfiguration.CONTAINER_REQUEST_NODES, clientArguments.nodes);
         }
