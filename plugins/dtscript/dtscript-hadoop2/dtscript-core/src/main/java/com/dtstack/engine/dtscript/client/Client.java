@@ -99,8 +99,9 @@ public class Client {
             UserGroupInformation ugi = UserGroupInformation.createRemoteUser(appSubmitterUserName);
             taskConf.set("hadoop.job.ugi", ugi.getUserName() + "," + ugi.getUserName());
         }
-
-        taskConf.set(DtYarnConfiguration.CONTAINER_REQUEST_NODES, clientArguments.nodes);
+        if (clientArguments.nodes != null) {
+            taskConf.set(DtYarnConfiguration.CONTAINER_REQUEST_NODES, clientArguments.nodes);
+        }
         taskConf.set(DtYarnConfiguration.LEARNING_AM_MEMORY, String.valueOf(clientArguments.amMem));
         taskConf.set(DtYarnConfiguration.LEARNING_AM_CORES, String.valueOf(clientArguments.amCores));
         taskConf.set(DtYarnConfiguration.LEARNING_WORKER_MEMORY, String.valueOf(clientArguments.workerMemory));
