@@ -17,7 +17,7 @@ import { formItemLayout, ENGINE_TYPE, COMPONENT_TYPE_VALUE, SPARK_KEY_MAP, COMPO
     DEFAULT_COMP_TEST, DEFAULT_COMP_REQUIRED,
     DTYARNSHELL_KEY_MAP, DTYARNSHELL_KEY_MAP_DOTS,
     notExtKeysFlink, notExtKeysSpark, notExtKeysHiveServer,
-    notExtKeysLearning, notExtKeysDtyarnShell,
+    notExtKeysLearning, notExtKeysDtyarnShell, notExtKeyDtscriptPython, notExtKeyDtscriptJupter,
     notExtKeysSparkThrift, notExtKeysLibraSql } from '../../../consts';
 
 import { updateTestStatus, updateRequiredStatus } from '../../../reducers/modules/cluster';
@@ -76,7 +76,10 @@ class EditCluster extends React.Component<any, any> {
         sparkThrif_params: [],
         hiveServer_params: [],
         learning_params: [],
-        dtyarnshell_params: [],
+        // dtyarnshell => dtscript
+        dtyarnshell_params: [], // dtscript公共参数
+        dtscript_python_params: [], // dtscript python参数
+        dtscript_jupyter_params: [], // dtscript jupyter
         libraSql_params: [],
         sftp_params: [],
         core: null,
@@ -105,6 +108,21 @@ class EditCluster extends React.Component<any, any> {
     }
 
     /**
+     * 获取dtscript中 公共参数、python、jupyter notebook 参数
+     * 展开 dtscriptConf, 便于统一 set
+     */
+    expandDtscriptConf = (conf: any = {}) => {
+        const extraKey = ['pythonConf', 'jupyterConf'];
+        const { pythonConf = {}, jupyterConf = {} } = conf;
+        const commConf = cloneDeep(conf);
+        extraKey.forEach(key => delete commConf[key]);
+        return {
+            ...commConf,
+            ...pythonConf,
+            ...jupyterConf
+        }
+    }
+    /**
      * set formData （转化服务端数据）
      * @param engineType 引擎类型
      * @param compConf 组件配置
@@ -132,7 +150,8 @@ class EditCluster extends React.Component<any, any> {
                 copyComp[key] = myUpperCase(copyComp[key])
             }
             if (key == COMPONEMT_CONFIG_KEYS.DTYARNSHELL) {
-                copyComp[key] = toChsKeys(copyComp[key] || {}, DTYARNSHELL_KEY_MAP)
+                const dtscriptConf = this.expandDtscriptConf(copyComp[key] || {});
+                copyComp[key] = toChsKeys(dtscriptConf || {}, DTYARNSHELL_KEY_MAP)
             }
             if (key == COMPONEMT_CONFIG_KEYS.HDFS) { // 由于上传文件的hdfs yarn不是form数据，不做set
                 delete copyComp[key]
@@ -144,7 +163,6 @@ class EditCluster extends React.Component<any, any> {
                 delete copyComp[key]
             }
         }
-        console.log(copyComp, compConf);
         if (isHadoop) {
             setFieldsValue(copyComp);
             for (let i in copyComp) {
@@ -290,6 +308,8 @@ class EditCluster extends React.Component<any, any> {
                             hiveServer_params: extParams.hiveServerKeys,
                             learning_params: extParams.learningKeys,
                             dtyarnshell_params: extParams.dtyarnshellKeys,
+                            dtscript_python_params: extParams.dtscriptPythonKeys,
+                            dtscript_jupyter_params: extParams.dtscriptJupyterKeys,
                             libraSql_params: extParams.libraSqlKeys,
                             extDefaultValue: extParams.default,
                             flinkPrometheus: componentConf.flinkConf,
@@ -320,6 +340,8 @@ class EditCluster extends React.Component<any, any> {
             hiveServerKeys: [],
             learningKeys: [],
             dtyarnshellKeys: [],
+            dtscriptPythonKeys: [],
+            dtscriptJupyterKeys: [],
             libraSqlKeys: [],
             default: {}
         };
@@ -329,6 +351,8 @@ class EditCluster extends React.Component<any, any> {
         let hiveServerConfig = config.hiveServerConf || {};
         let learningConfig = config.learningConf || {};
         let dtyarnshellConfig = config.dtscriptConf || {};
+        let dtscriptPythonConfig = (config.dtscriptConf && config.dtscriptConf.pythonConf) || {};
+        let dtscriptJupyterConfig = (config.dtscriptConf && config.dtscriptConf.jupyterConf) || {};
         let libraConfig = config.libraConf || {};
         function setDefault (config: any, notExtKeys: any, type: any, keys: any) {
             const keyAndValue = Object.entries(config);
@@ -352,6 +376,8 @@ class EditCluster extends React.Component<any, any> {
         setDefault(hiveServerConfig, notExtKeysHiveServer, 'hiveServer', result.hiveServerKeys)
         setDefault(learningConfig, notExtKeysLearning, 'learning', result.learningKeys)
         setDefault(dtyarnshellConfig, notExtKeysDtyarnShell, 'dtyarnshell', result.dtyarnshellKeys)
+        setDefault(dtscriptPythonConfig, notExtKeyDtscriptPython, 'dtscript-python', result.dtscriptPythonKeys)
+        setDefault(dtscriptJupyterConfig, notExtKeyDtscriptJupter, 'dtscript-jupyter', result.dtscriptJupyterKeys)
         setDefault(libraConfig, notExtKeysLibraSql, 'libra', result.libraSqlKeys)
         return result;
     }
@@ -424,7 +450,6 @@ class EditCluster extends React.Component<any, any> {
                     (res: any) => {
                         console.log(res.code)
                         if (res.code == 1) {
-                            // console.log('1111111')
                             this.setState({
                                 uploadKLoading: false,
                                 kfile: {
@@ -436,7 +461,6 @@ class EditCluster extends React.Component<any, any> {
                                 }
                             })
                         } else {
-                            // console.log('2222222222')
                             this.setState({
                                 uploadKLoading: false
                             })
@@ -450,7 +474,8 @@ class EditCluster extends React.Component<any, any> {
     addParam(type: any) {
         const { flink_params, spark_params, sparkThrif_params,
             hiveServer_params, learning_params,
-            dtyarnshell_params, libraSql_params } = this.state;
+            dtyarnshell_params, dtscript_python_params, dtscript_jupyter_params,
+            libraSql_params } = this.state;
         if (type == 'flink') {
             this.setState({
                 flink_params: [...flink_params, {
@@ -487,9 +512,21 @@ class EditCluster extends React.Component<any, any> {
                     id: giveMeAKey()
                 }]
             })
-        } else {
+        } else if (type == 'dtyarnshell') {
             this.setState({
-                dtyarnshell_params: [...dtyarnshell_params, {
+                dtyarnshell_params: [...dtyarnshell_params, { // 公共参数
+                    id: giveMeAKey()
+                }]
+            })
+        } else if (type === 'dtscriptPython') {
+            this.setState({
+                dtscript_python_params: [...dtscript_python_params, {
+                    id: giveMeAKey()
+                }]
+            })
+        } else if (type === 'dtscriptJupyter') {
+            this.setState({
+                dtscript_jupyter_params: [...dtscript_jupyter_params, {
                     id: giveMeAKey()
                 }]
             })
@@ -498,7 +535,8 @@ class EditCluster extends React.Component<any, any> {
     deleteParam (id: any, type: any) {
         const { flink_params, spark_params, sparkThrif_params,
             hiveServer_params, learning_params,
-            dtyarnshell_params, libraSql_params } = this.state;
+            dtyarnshell_params, dtscript_python_params, dtscript_jupyter_params,
+            libraSql_params } = this.state;
         let tmpParams: any;
         let tmpStateName: any;
         if (type == 'flink') {
@@ -519,11 +557,17 @@ class EditCluster extends React.Component<any, any> {
         } else if (type == 'libra') {
             tmpStateName = 'libraSql_params';
             tmpParams = libraSql_params;
-        } else {
+        } else if (type == 'dtyarnshell') {
             tmpStateName = 'dtyarnshell_params';
             tmpParams = dtyarnshell_params;
+        } else if (type === 'dtscriptPython') {
+            tmpStateName = 'dtscript_python_params';
+            tmpParams = dtscript_python_params;
+        } else if (type === 'dtscriptJupyter') {
+            tmpStateName = 'dtscript_jupyter_params';
+            tmpParams = dtscript_jupyter_params;
         }
-        tmpParams = tmpParams.filter(
+        tmpParams = tmpParams && tmpParams.filter(
             (param: any) => {
                 return param.id != id;
             }
@@ -535,9 +579,9 @@ class EditCluster extends React.Component<any, any> {
     /**
      * 渲染组件额外参数
      */
-    renderExtraParam(type: any) {
+    renderExtraParam(type: string) {
         const { flink_params, spark_params, sparkThrif_params,
-            hiveServer_params, learning_params, dtyarnshell_params,
+            hiveServer_params, learning_params, dtyarnshell_params, dtscript_python_params, dtscript_jupyter_params,
             libraSql_params, extDefaultValue } = this.state;
         const { getFieldDecorator } = this.props.form;
         const { mode } = this.props.location.state || {} as any;
@@ -555,12 +599,16 @@ class EditCluster extends React.Component<any, any> {
             tmpParams = hiveServer_params
         } else if (type == 'libra') {
             tmpParams = libraSql_params
-        } else if (type == 'dtyarnshell') {
+        } else if (type == 'dtyarnshell') { // 公共参数
             tmpParams = dtyarnshell_params
+        } else if (type === 'dtscriptPython') {
+            tmpParams = dtscript_python_params
+        } else if (type === 'dtscriptJupyter') {
+            tmpParams = dtscript_jupyter_params
         } else {
             tmpParams = dtyarnshell_params;
         }
-        return tmpParams.map(
+        return tmpParams && tmpParams.map(
             (param: any) => {
                 return (<Row key={param.id}>
                     <Col span={formItemLayout.labelCol.sm.span}>
@@ -603,7 +651,7 @@ class EditCluster extends React.Component<any, any> {
             isView ? null : (
                 <Row>
                     <Col span={formItemLayout.labelCol.sm.span}></Col>
-                    <Col className="m-card" span={formItemLayout.wrapperCol.sm.span}>
+                    <Col className="m-card" style={{ marginBottom: '20px' }} span={formItemLayout.wrapperCol.sm.span}>
                         <a onClick={this.addParam.bind(this, type)}>添加自定义参数</a>
                     </Col>
                 </Row>
@@ -631,7 +679,6 @@ class EditCluster extends React.Component<any, any> {
             }
             const componentConf = this.getComponentConf(values);
             const saveConfig = componentConf[COMPONEMT_CONFIG_KEY_ENUM[component.componentTypeCode]];
-            console.log(component, componentConf, saveConfig)
             if (saveConfig && saveConfig.openKerberos && saveConfig.kerberosFile) {
                 const kerberosFile = saveConfig.kerberosFile
                 delete saveConfig.kerberosFile;
@@ -978,6 +1025,25 @@ class EditCluster extends React.Component<any, any> {
             </React.Fragment>
         )
     }
+    // Dtscript组件参数分类
+    getDtscriptSubConfig = (dtscriptConf: any, subType: string) => {
+        let mapKeys;
+        if (subType == 'dtscriptComm') {
+            mapKeys = ['java.home', 'hadoop.home.dir'];
+        } else if (subType == 'dtscriptPython') {
+            mapKeys = ['python2.path', 'python3.path']
+        } else if (subType == 'dtscriptJupyter') {
+            mapKeys = ['jupyter.path', 'c.NotebookApp.open_browser', 'c.NotebookApp.allow_remote_access',
+                'c.NotebookApp.ip', 'c.NotebookApp.token', 'c.NotebookApp.default_url'];
+        }
+        let subConf = {};
+        for (let key in dtscriptConf) {
+            mapKeys.forEach(item => {
+                if (key === item) subConf[key] = dtscriptConf[key]
+            })
+        }
+        return subConf;
+    }
     /**
      * 转换成服务端可用数据
      */
@@ -985,13 +1051,14 @@ class EditCluster extends React.Component<any, any> {
         let { zipConfig } = this.state;
         zipConfig = typeof zipConfig == 'string' ? JSON.parse(zipConfig) : zipConfig
         let componentConf: any = {};
-        console.log(formValues)
         const sparkExtParams = this.getCustomParams(formValues, 'spark')
         const flinkExtParams = this.getCustomParams(formValues, 'flink')
         const sparkThriftExtParams = this.getCustomParams(formValues, 'sparkThrift')
         const learningExtParams = this.getCustomParams(formValues, 'learning');
         const hiveServerExtParams = this.getCustomParams(formValues, 'hiveServer');
         const dtyarnshellExtParams = this.getCustomParams(formValues, 'dtyarnshell');
+        const dtscriptPythonExtParams = this.getCustomParams(formValues, 'dtscriptPython');
+        const dtscriptJupyterExtParams = this.getCustomParams(formValues, 'dtscriptJupyter');
         const libraExtParams = this.getCustomParams(formValues, 'libra');
         const learningTypeName: any = {
             typeName: `learning`
@@ -999,6 +1066,10 @@ class EditCluster extends React.Component<any, any> {
         const dtyarnshellTypeName: any = {
             typeName: `dtscript`
         }
+        const dtscriptConf = toChsKeys(formValues.dtscriptConf || {}, DTYARNSHELL_KEY_MAP_DOTS)
+        const commConf = { ...this.getDtscriptSubConfig(dtscriptConf, 'dtscriptComm'), ...dtyarnshellExtParams };
+        const dtscriptPythonConf = { ...this.getDtscriptSubConfig(dtscriptConf, 'dtscriptPython'), ...dtscriptPythonExtParams };
+        const dtscriptJupyterConf = { ...this.getDtscriptSubConfig(dtscriptConf, 'dtscriptJupyter'), ...dtscriptJupyterExtParams };
         // md5zip 随hdfs组件一起保存
         componentConf['hadoopConf'] = zipConfig.hadoopConf;
         componentConf['yarnConf'] = zipConfig.yarnConf;
@@ -1010,7 +1081,8 @@ class EditCluster extends React.Component<any, any> {
         componentConf['sparkConf'] = { ...toChsKeys(formValues.sparkConf || {}, SPARK_KEY_MAP_DOTS), ...sparkExtParams };
         componentConf['flinkConf'] = { ...toChsKeys({ ...formValues.flinkConf } || {}, FLINK_KEY_MAP_DOTS), ...flinkExtParams };
         componentConf['learningConf'] = { ...learningTypeName, ...myLowerCase(formValues.learningConf), ...learningExtParams };
-        componentConf['dtscriptConf'] = { ...dtyarnshellTypeName, ...toChsKeys(formValues.dtscriptConf || {}, DTYARNSHELL_KEY_MAP_DOTS), ...dtyarnshellExtParams };
+        // 特殊处理 dtscriptConf
+        componentConf['dtscriptConf'] = { ...dtyarnshellTypeName, ...commConf, pythonConf: dtscriptPythonConf, jupyterConf: dtscriptJupyterConf };
         componentConf['libraConf'] = { ...formValues.libraConf, ...libraExtParams };
         componentConf['sftpConf'] = formValues.sftpConf || {};
         // 服务端兼容，不允许null
@@ -1290,7 +1362,6 @@ class EditCluster extends React.Component<any, any> {
         const nullArr: any[] = [];
         const formValue = getFieldValue(`${key}.kerberosFile`)
         const keyNum = COMPONENT_TYPE_VALUE[findKey(COMPONEMT_CONFIG_KEYS, (item) => { return item === key })]
-        // console.log(formValue, this.props.form.getFieldsValue())
         const upProps = {
             beforeUpload: (file: any) => {
                 file.modifyTime = moment();
@@ -1567,10 +1638,22 @@ class EditCluster extends React.Component<any, any> {
                         getFieldDecorator={getFieldDecorator}
                         isView={isView}
                         securityStatus={securityStatus}
-                        customView={(
+                        customCommView={(
                             <div>
                                 {this.renderExtraParam('dtyarnshell')}
                                 {this.showAddCustomParam(isView, 'dtyarnshell')}
+                            </div>
+                        )}
+                        customPythonView={(
+                            <div>
+                                {this.renderExtraParam('dtscriptPython')}
+                                {this.showAddCustomParam(isView, 'dtscriptPython')}
+                            </div>
+                        )}
+                        customJupyterView={(
+                            <div>
+                                {this.renderExtraParam('dtscriptJupyter')}
+                                {this.showAddCustomParam(isView, 'dtscriptJupyter')}
                             </div>
                         )}
                         singleButton={this.renderExtFooter(isView, component)}
