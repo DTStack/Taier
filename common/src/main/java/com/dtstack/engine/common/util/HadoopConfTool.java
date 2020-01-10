@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.conf.Configuration;
 
 import java.util.List;
 import java.util.Map;
@@ -114,5 +115,9 @@ public class HadoopConfTool {
         }
 
         return disableCache;
+    }
+
+    public static void setFsHdfsImplDisableCache(Configuration conf){
+        conf.setBoolean(FS_HDFS_IMPL_DISABLE_CACHE, true);
     }
 }
