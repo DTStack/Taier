@@ -104,7 +104,7 @@ class ZipConfig extends React.Component<any, any> {
                             : key}：
                     </Col>
                     <Col className="formitem-textvalue" span={formItemLayout.wrapperCol.sm.span - 1}>
-                        {value}
+                        {`${value}`}
                     </Col>
                 </Row>)
             }
