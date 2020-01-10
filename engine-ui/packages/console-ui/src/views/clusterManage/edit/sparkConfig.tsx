@@ -7,7 +7,7 @@ const FormItem = Form.Item;
 
 export default class SparkConfig extends React.Component<any, any> {
     render () {
-        const { singleButton, customView, isView, getFieldDecorator, securityStatus, kerberosView } = this.props;
+        const { singleButton, customView, isView, getFieldDecorator, securityStatus } = this.props;
         console.log(securityStatus)
         return (
             <React.Fragment>
@@ -86,90 +86,7 @@ export default class SparkConfig extends React.Component<any, any> {
                             <Input disabled={isView} />
                         )}
                     </FormItem>
-                    {/* {
-                        securityStatus ? <div>
-                            <FormItem
-                                label="sparkPrincipal"
-                                {...formItemLayout}
-                            >
-                                {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SPARK}.sparkPrincipal`, {
-                                    rules: [{
-                                        required: true,
-                                        message: '请输入sparkPrincipal'
-                                    }]
-                                })(
-                                    <Input disabled={isView} />
-                                )}
-                            </FormItem>
-                            <FormItem
-                                label="sparkKeytabPath"
-                                {...formItemLayout}
-                            >
-                                {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SPARK}.sparkKeytabPath`, {
-                                    rules: [{
-                                        required: true,
-                                        message: '请输入sparkKeytabPath'
-                                    }]
-                                })(
-                                    <Input disabled={isView} />
-                                )}
-                            </FormItem>
-                            <FormItem
-                                label="sparkKrb5ConfPath"
-                                {...formItemLayout}
-                            >
-                                {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SPARK}.sparkKrb5ConfPath`, {
-                                    rules: [{
-                                        required: true,
-                                        message: '请输入sparkKrb5ConfPath'
-                                    }]
-                                })(
-                                    <Input disabled={isView} />
-                                )}
-                            </FormItem>
-                            <FormItem
-                                label="zkPrincipal"
-                                {...formItemLayout}
-                            >
-                                {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SPARK}.zkPrincipal`, {
-                                    rules: [{
-                                        required: true,
-                                        message: '请输入zkPrincipal'
-                                    }]
-                                })(
-                                    <Input disabled={isView} />
-                                )}
-                            </FormItem>
-                            <FormItem
-                                label="zkKeytabPath"
-                                {...formItemLayout}
-                            >
-                                {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SPARK}.zkKeytabPath`, {
-                                    rules: [{
-                                        required: true,
-                                        message: '请输入zkKeytabPath'
-                                    }]
-                                })(
-                                    <Input disabled={isView} />
-                                )}
-                            </FormItem>
-                            <FormItem
-                                label="zkLoginName"
-                                {...formItemLayout}
-                            >
-                                {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SPARK}.zkLoginName`, {
-                                    rules: [{
-                                        required: true,
-                                        message: '请输入zkLoginName'
-                                    }]
-                                })(
-                                    <Input disabled={isView} />
-                                )}
-                            </FormItem>
-                        </div> : null
-                    } */}
                     {customView}
-                    {kerberosView}
                 </div>
                 {singleButton}
             </React.Fragment>
