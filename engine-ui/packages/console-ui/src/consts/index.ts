@@ -271,9 +271,6 @@ export const validateDtYarnShellParams: any = [
     'dtscriptConf.jlogstashRoot',
     'dtscriptConf.javaHome',
     'dtscriptConf.hadoopHomeDir',
-    // 'dtscriptConf.hdfsPrincipal',
-    // 'dtscriptConf.hdfsKeytabPath',
-    // 'dtscriptConf.hdfsKrb5ConfPath',
     'dtscriptConf.kerberosFile'
 ]
 
@@ -302,18 +299,34 @@ export const SPARK_KEY_MAP_DOTS: any = {
     'sparkYarnAppMasterEnvPYSPARK_DRIVER_PYTHON': 'spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON'
 }
 export const DTYARNSHELL_KEY_MAP: any = {
-    'jlogstash.root': 'jlogstashRoot',
+    // comm
     'java.home': 'javaHome',
     'hadoop.home.dir': 'hadoopHomeDir',
+    // python
     'python2.path': 'python2Path',
-    'python3.path': 'python3Path'
+    'python3.path': 'python3Path',
+    // jupyter
+    'jupyter.path': 'jupyterPath',
+    'c.NotebookApp.open_browser': 'cNotebookAppOpen_browser',
+    'c.NotebookApp.allow_remote_access': 'cNotebookAppAllow_remote_access',
+    'c.NotebookApp.ip': 'cNotebookAppIp',
+    'c.NotebookApp.token': 'cNotebookAppToken',
+    'c.NotebookApp.default_url': 'cNotebookAppDefault_url'
 }
 export const DTYARNSHELL_KEY_MAP_DOTS: any = {
-    'jlogstashRoot': 'jlogstash.root',
+    // comm
     'javaHome': 'java.home',
     'hadoopHomeDir': 'hadoop.home.dir',
+    // python
     'python2Path': 'python2.path',
-    'python3Path': 'python3.path'
+    'python3Path': 'python3.path',
+    // jupyter
+    'jupyterPath': 'jupyter.path',
+    'cNotebookAppOpen_browser': 'c.NotebookApp.open_browser',
+    'cNotebookAppAllow_remote_access': 'c.NotebookApp.allow_remote_access',
+    'cNotebookAppIp': 'c.NotebookApp.ip',
+    'cNotebookAppToken': 'c.NotebookApp.token',
+    'cNotebookAppDefault_url': 'c.NotebookApp.default_url'
 }
 export const FLINK_KEY_MAP: any = {
     'yarn.jobmanager.heap.mb': 'yarnJobmanagerHeapMb',
@@ -406,12 +419,26 @@ export const notExtKeysLearning: any = [
     'learning.history.webapp.https.address',
     'openKerberos', 'kerberosFile'
 ];
+// DTscript
 export const notExtKeysDtyarnShell: any = [
     'typeName', 'jlogstash.root',
-    'java.home', 'hadoop.home.dir', 'python2.path',
-    'python3.path',
-    // 'hdfsPrincipal', 'hdfsKeytabPath', 'hdfsKrb5ConfPath',
+    'pythonConf', 'jupyterConf',
+    'java.home', 'hadoop.home.dir',
     'openKerberos', 'kerberosFile'
+]
+export const notExtKeyDtscriptPython: any = [
+    'typeName',
+    'python2.path',
+    'python3.path'
+]
+export const notExtKeyDtscriptJupter: any = [
+    'typeName',
+    'jupyter.path',
+    'c.NotebookApp.open_browser',
+    'c.NotebookApp.allow_remote_access',
+    'c.NotebookApp.ip',
+    'c.NotebookApp.token',
+    'c.NotebookApp.default_url'
 ]
 export const notExtKeysSparkThrift: any = [
     'jdbcUrl', 'username', 'password',

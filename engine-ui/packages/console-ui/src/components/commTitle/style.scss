@@ -1,0 +1,14 @@
+.c-title__color {
+    position: relative;
+    font-size: 14px;
+    line-height: 20px;
+    &:before {
+        position: absolute;
+        content: "";
+        left: -10px;
+        width: 4px;
+        top: 2px;
+        bottom: 2px;
+        background: #2491F7;
+    }
+}
