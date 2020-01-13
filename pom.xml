@@ -12,7 +12,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <zookeeper.version>3.4.6</zookeeper.version>
         <revision>3.6.6</revision>
-        <hadoop.version>3.0.0-cdh6.3.1</hadoop.version>
+        <hadoop.version>3.0.0</hadoop.version>
     </properties>
 
     <modules>

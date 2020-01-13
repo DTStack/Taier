@@ -63,9 +63,6 @@ public class HadoopClient extends AbsClient {
         customerConf.initHadoopConf(config.getHadoopConf());
         customerConf.initYarnConf(config.getYarnConf());
         conf = customerConf.getYarnConfiguration();
-        conf.set("yarn.app.mapreduce.am.env", "HADOOP_MAPRED_HOME=/usr/lib/hadoop-mapreduce");
-        conf.set("mapreduce.map.env", "HADOOP_MAPRED_HOME=/usr/lib/hadoop-mapreduce");
-        conf.set("mapreduce.reduce.env", "HADOOP_MAPRED_HOME=/usr/lib/hadoop-mapreduce");
 
         conf.set("mapreduce.framework.name", "yarn");
         conf.set("yarn.scheduler.maximum-allocation-mb", "1024");
