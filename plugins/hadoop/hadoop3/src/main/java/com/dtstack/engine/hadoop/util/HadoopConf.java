@@ -1,8 +1,6 @@
 package com.dtstack.engine.hadoop.util;
 
 
-import com.dtstack.engine.common.util.HadoopConfTool;
-import com.dtstack.engine.common.util.YarnConfTool;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
@@ -12,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -87,40 +84,22 @@ public class HadoopConf {
 
     public void initHadoopConf(Map<String, Object> conf){
 
-	    if(conf == null || conf.size() == 0){
+        if(conf == null || conf.size() == 0){
             //读取环境变量--走默认配置
             configuration = getDefaultConfiguration();
             return;
         }
 
         configuration = new Configuration();
-        String nameServices = HadoopConfTool.getDfsNameServices(conf);
-        if (StringUtils.isNotBlank(nameServices)){
-            String haNameNodesKey = HadoopConfTool.getDfsHaNameNodesKey(conf);
-            String haNameNodesVal = HadoopConfTool.getDfsHaNameNodes(conf, haNameNodesKey);
-            String proxyProviderKey = HadoopConfTool.getClientFailoverProxyProviderKey(conf);
-            String proxyProvider = HadoopConfTool.getClientFailoverProxyProviderVal(conf, proxyProviderKey);
-            List<String> nnRpcAddressList = HadoopConfTool.getDfsNameNodeRpcAddressKeys(conf);
 
-            configuration.set(HadoopConfTool.DFS_NAME_SERVICES, nameServices);
-            configuration.set(haNameNodesKey, haNameNodesVal);
-            //配置自动故障切换实现方式
-            configuration.set(proxyProviderKey, proxyProvider);
-            nnRpcAddressList.forEach(key -> {
-                String val = HadoopConfTool.getDfsNameNodeRpcAddress(conf, key);
-                configuration.set(key, val);
-            });
-        }
-
-        String defaultFs = HadoopConfTool.getFSDefaults(conf);
-        configuration.set(HadoopConfTool.FS_DEFAULTFS, defaultFs);
-
-        //非必须:针对hdfs的文件系统实现
-        String fsHdfsImpl = HadoopConfTool.getFsHdfsImpl(conf);
-        configuration.set(HadoopConfTool.FS_HDFS_IMPL, fsHdfsImpl);
-        //非必须:如果多个hadoopclient之间不互相影响需要取消cache
-        String disableCache = HadoopConfTool.getFsHdfsImplDisableCache(conf);
-        configuration.set(HadoopConfTool.FS_HDFS_IMPL_DISABLE_CACHE, disableCache);
+        conf.keySet().forEach(key ->{
+            Object value = conf.get(key);
+            if (value instanceof String){
+                configuration.set(key, (String) value);
+            } else if (value instanceof Boolean){
+                configuration.setBoolean(key, (boolean) value);
+            }
+        });
     }
 
     public void initYarnConf(Map<String, Object> conf){
@@ -131,19 +110,16 @@ public class HadoopConf {
             return;
         }
 
-        String haRmIds = YarnConfTool.getYarnResourcemanagerHaRmIds(conf);
-        List<String> addressKeys = YarnConfTool.getYarnResourceManagerAddressKeys(conf);
-        String haEnabled = YarnConfTool.getYarnResourcemanagerHaEnabled(conf);
+        yarnConfiguration = configuration == null ? new YarnConfiguration() : new YarnConfiguration(configuration);
 
-        yarnConfiguration = new YarnConfiguration(configuration);
-        if (StringUtils.isNotBlank(haRmIds)) {
-            yarnConfiguration.set(YarnConfTool.YARN_RESOURCEMANAGER_HA_RM_IDS, haRmIds);
-        }
-        addressKeys.forEach(key -> {
-            String rmMgrAddr = YarnConfTool.getYarnResourceManagerAddressVal(conf, key);
-            yarnConfiguration.set(key, rmMgrAddr);
+        conf.keySet().forEach(key ->{
+            Object value = conf.get(key);
+            if (value instanceof String){
+                yarnConfiguration.set(key, (String) value);
+            } else if (value instanceof Boolean){
+                yarnConfiguration.setBoolean(key, (boolean) value);
+            }
         });
-        yarnConfiguration.set(YarnConfTool.YARN_RESOURCEMANAGER_HA_ENABLED, haEnabled);//必要
     }
 
     public static Configuration getDefaultConfiguration() {
