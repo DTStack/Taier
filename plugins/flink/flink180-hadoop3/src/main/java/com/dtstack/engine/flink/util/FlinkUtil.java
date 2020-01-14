@@ -153,7 +153,7 @@ public class FlinkUtil {
         String modeStr = properties.getProperty(ConfigConstrant.FLINK_TASK_RUN_MODE_KEY);
 
         if (StringUtils.isEmpty(modeStr)){
-            return FlinkYarnMode.PER_JOB;
+            return FlinkYarnMode.SESSION;
         } else {
             return FlinkYarnMode.mode(modeStr);
         }
