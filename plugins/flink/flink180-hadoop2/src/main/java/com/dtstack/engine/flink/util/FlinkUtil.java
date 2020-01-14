@@ -158,9 +158,8 @@ public class FlinkUtil {
             } else {
                 return FlinkYarnMode.SESSION;
             }
-        } else {
-            return FlinkYarnMode.mode(modeStr);
         }
+        return FlinkYarnMode.mode(modeStr);
     }
 
 }
