@@ -156,10 +156,10 @@ public class TaskStatusListener implements Runnable{
                                     String engineTypeName = TaskIdUtil.getEngineType(zkTaskId);
                                     String taskId = TaskIdUtil.getTaskId(zkTaskId);
 
-                                    //便于排查问题
+                                    //todo : 测试日志，便于排查问题
                                     logger.info("jobId:{} status:{}", taskId, entry.getValue().intValue());
 
-                                    dealJob(taskId, engineTypeName, zkTaskId, computeType);
+                                    dealBatchJob(taskId, engineTypeName, zkTaskId, computeType);
                                 }
                             } catch (Throwable e) {
                                 logger.error("", e);
@@ -178,7 +178,7 @@ public class TaskStatusListener implements Runnable{
         }
 	}
 
-    private void dealJob(String taskId, String engineTypeName, String zkTaskId, int computeType) throws Exception {
+    private void dealBatchJob(String taskId, String engineTypeName, String zkTaskId, int computeType) throws Exception {
         RdosEngineJob rdosBatchJob  = rdosBatchEngineJobDAO.getRdosTaskByTaskId(taskId);
 
         if(rdosBatchJob != null){
@@ -196,7 +196,7 @@ public class TaskStatusListener implements Runnable{
 
                 if(rdosTaskStatus != null){
 
-//                    updateJobEngineLog(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
+                    updateJobEngineLog(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
 
                     rdosTaskStatus = checkNotFoundStatus(rdosTaskStatus, taskId);
 

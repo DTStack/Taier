@@ -325,11 +325,7 @@ public class ActionServiceImpl {
         RdosEngineJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
         if (batchJob != null) {
         	log.put("logInfo",batchJob.getLogInfo());
-        	String engineLog = "";
-            if (StringUtils.isBlank(batchJob.getEngineLog())) {
-                engineLog = workNode.getAndUpdateEngineLog(jobId, batchJob.getEngineJobId(), batchJob.getApplicationId(), batchJob.getPluginInfoId());
-            }
-        	log.put("engineLog", engineLog);
+        	log.put("engineLog",batchJob.getEngineLog());
         }
         return PublicUtil.objToString(log);
     }
