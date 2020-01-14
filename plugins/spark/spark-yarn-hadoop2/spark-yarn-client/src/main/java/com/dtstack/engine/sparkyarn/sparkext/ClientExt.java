@@ -67,16 +67,6 @@ public class ClientExt extends DtClient {
             loadConfFromLocal(hadoopConfFiles);
         } else {
             String confDirName = this.creatDirIfPresent();
-            boolean downloadFlag = false;
-            if (sparkYarnConfig.getSftpConf() != null && !sparkYarnConfig.getSftpConf().isEmpty()) {
-                downloadFlag = this.downloadFileFromSftp(confDirName);
-            }
-            if (!downloadFlag){
-                downloadFlag = this.downloadFileFromHdfs(confDirName);
-            }
-            if (!downloadFlag){
-                throw new RuntimeException("----download file exception---");
-            }
             this.loadConfFromDir(hadoopConfFiles, confDirName);
         }
 
@@ -102,6 +92,17 @@ public class ClientExt extends DtClient {
             if (!dirFile.mkdir()) {
                 throw new RdosException(String.format("can not create dir '%s' on engine", confFileDirName));
             }
+        }
+
+        boolean downloadFlag = false;
+        if (sparkYarnConfig.getSftpConf() != null && !sparkYarnConfig.getSftpConf().isEmpty()) {
+            downloadFlag = this.downloadFileFromSftp(confFileDirName);
+        }
+        if (!downloadFlag){
+            downloadFlag = this.downloadFileFromHdfs(confFileDirName);
+        }
+        if (!downloadFlag){
+            throw new RuntimeException("----download file exception---");
         }
         return confFileDirName;
     }
