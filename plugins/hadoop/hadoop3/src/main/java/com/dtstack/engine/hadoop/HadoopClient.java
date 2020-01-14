@@ -243,7 +243,7 @@ public class HadoopClient extends AbsClient {
             return;
         }
 
-        UserGroupInformation.setThreadLocalData(HADOOP_USER_NAME, config.getHadoopUserName());
+        UserGroupInformation.createRemoteUser(config.getHadoopUserName());
     }
 
 
