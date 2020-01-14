@@ -149,14 +149,17 @@ public class FlinkUtil {
      * @param properties
      * @return
      */
-    public static FlinkYarnMode getTaskRunMode(Properties properties){
+    public static FlinkYarnMode getTaskRunMode(Properties properties, ComputeType computeType){
         String modeStr = properties.getProperty(ConfigConstrant.FLINK_TASK_RUN_MODE_KEY);
 
         if (StringUtils.isEmpty(modeStr)){
-            return FlinkYarnMode.PER_JOB;
-        } else {
-            return FlinkYarnMode.mode(modeStr);
+            if (ComputeType.STREAM == computeType) {
+                return FlinkYarnMode.PER_JOB;
+            } else {
+                return FlinkYarnMode.SESSION;
+            }
         }
+        return FlinkYarnMode.mode(modeStr);
     }
 
 }
