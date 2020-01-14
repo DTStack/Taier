@@ -1,9 +1,5 @@
 package com.dtstack.engine.service.node;
 
-import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.config.ConfigParse;
-import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
@@ -270,24 +266,6 @@ public class WorkNode {
         }
 
         return result;
-    }
-
-    public String getAndUpdateEngineLog(String jobId, String engineJobId, String appId, long pluginId) throws Exception {
-        String engineLog = null;
-        try {
-            String pluginInfoStr = pluginInfoDao.getPluginInfo(pluginId);
-            Map<String, Object> params = PublicUtil.jsonStrToObject(pluginInfoStr, Map.class);
-            String engineType = MathUtil.getString(params.get(ConfigParse.TYPE_NAME_KEY));
-            JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineJobId, appId, jobId);
-            //从engine获取log
-            engineLog = JobClient.getEngineLog(engineType, pluginInfoStr, jobIdentifier);
-            rdosEngineBatchJobDao.updateEngineLog(jobId, engineLog);
-        } catch (Throwable e){
-            LOG.error("getAndUpdateEngineLog error jobId {} ,error info {}..", jobId, ExceptionUtil.getErrorMessage(e));
-            engineLog = ExceptionUtil.getErrorMessage(e);
-            rdosEngineBatchJobDao.updateEngineLog(jobId, engineLog);
-        }
-        return engineLog;
     }
 
     /**
