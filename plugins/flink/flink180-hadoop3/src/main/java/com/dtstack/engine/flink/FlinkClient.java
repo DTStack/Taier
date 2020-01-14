@@ -216,7 +216,7 @@ public class FlinkClient extends AbsClient {
             programArgList.addAll(Arrays.asList(args.split("\\s+")));
         }
 
-        FlinkYarnMode taskRunMode = FlinkUtil.getTaskRunMode(jobClient.getConfProperties());
+        FlinkYarnMode taskRunMode = FlinkUtil.getTaskRunMode(jobClient.getConfProperties(), jobClient.getComputeType());
 
         SavepointRestoreSettings spSettings = buildSavepointSetting(jobClient);
         PackagedProgram packagedProgram = null;
@@ -655,7 +655,7 @@ public class FlinkClient extends AbsClient {
     @Override
     public boolean judgeSlots(JobClient jobClient) {
 
-        FlinkYarnMode taskRunMode = FlinkUtil.getTaskRunMode(jobClient.getConfProperties());
+        FlinkYarnMode taskRunMode = FlinkUtil.getTaskRunMode(jobClient.getConfProperties(), jobClient.getComputeType());
         boolean isPerJob = ComputeType.STREAM == jobClient.getComputeType() || FlinkYarnMode.isPerJob(taskRunMode);
         FlinkPerJobResourceInfo perJobResourceInfo = new FlinkPerJobResourceInfo();
         boolean yarnRs;
