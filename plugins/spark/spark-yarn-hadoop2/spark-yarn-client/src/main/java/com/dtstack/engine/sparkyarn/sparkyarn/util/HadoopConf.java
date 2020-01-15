@@ -1,6 +1,7 @@
 package com.dtstack.engine.sparkyarn.sparkyarn.util;
 
 
+import com.dtstack.engine.base.util.HadoopConfTool;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
@@ -91,7 +92,7 @@ public class HadoopConf {
         }
 
         configuration = new Configuration();
-
+        HadoopConfTool.setFsHdfsImplDisableCache(configuration);
         conf.keySet().forEach(key ->{
             Object value = conf.get(key);
             if (value instanceof String){

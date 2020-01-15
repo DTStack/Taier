@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
-echo 'Dependency Hadoop-3.0.0 Building...'
 
-mvn clean package -DskipTests -Dhadoop.version=3.0.0 -pl \
+hadoopversion=$1
+if [ ! -n "$hadoopversion" ]
+then
+    hadoopversion=3.0.0
+fi
+echo "Dependency ${hadoopversion} Building..."
+
+mvn clean package -DskipTests -Dhadoop.version=${hadoopversion} -pl \
 plugins/dtscript/dtscript-hadoop3/dtscript-client,\
 plugins/hadoop/hadoop3,\
 plugins/flink/flink180-hadoop3,\
