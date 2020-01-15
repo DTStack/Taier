@@ -41,5 +41,9 @@
         SELECT `retry_task_params` FROM `rdos_engine_job_retry` WHERE job_id=#{jobId}  and retry_num = #{retryNum} and is_deleted=0;
     </select>
 
+    <update id="updateEngineLog">
+        update rdos_engine_job_retry set engine_log = #{engineLog},gmt_modified=now() where id = #{id}
+    </update>
+
 
 </mapper>

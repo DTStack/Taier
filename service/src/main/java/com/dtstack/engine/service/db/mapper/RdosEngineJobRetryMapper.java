@@ -17,4 +17,6 @@ public interface RdosEngineJobRetryMapper {
     String getRetryTaskParams(@Param("jobId")String jobId, @Param("retryNum") int retrynum);
 
 	void removeByJobId(@Param("jobId")String jobId);
+
+	void updateEngineLog(@Param("id") long id, @Param("engineLog") String engineLog);
 }

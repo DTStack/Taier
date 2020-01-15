@@ -57,4 +57,16 @@ public class RdosEngineJobRetryDAO {
             }
         });
     }
+
+    public void updateEngineLog(long id, String engineLog){
+        MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
+
+            @Override
+            public Object execute(SqlSession sqlSession) throws Exception {
+                RdosEngineJobRetryMapper mapper = sqlSession.getMapper(RdosEngineJobRetryMapper.class);
+                mapper.updateEngineLog(id, engineLog);
+                return null;
+            }
+        });
+    }
 }

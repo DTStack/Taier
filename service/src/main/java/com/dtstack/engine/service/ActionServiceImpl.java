@@ -325,9 +325,12 @@ public class ActionServiceImpl {
         RdosEngineJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
         if (batchJob != null) {
         	log.put("logInfo",batchJob.getLogInfo());
-        	String engineLog = "";
+        	String engineLog = null;
             if (StringUtils.isBlank(batchJob.getEngineLog())) {
                 engineLog = workNode.getAndUpdateEngineLog(jobId, batchJob.getEngineJobId(), batchJob.getApplicationId(), batchJob.getPluginInfoId());
+                if (engineLog == null) {
+                    engineLog = "";
+                }
             }
         	log.put("engineLog", engineLog);
         }
@@ -343,6 +346,7 @@ public class ActionServiceImpl {
             throw new RdosException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
+        RdosEngineJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
         List<Map<String,String>> logs = new ArrayList<>(5);
         List<RdosEngineJobRetry> batchJobRetrys = batchJobRetryDAO.getJobRetryByJobId(jobId);
         if (CollectionUtils.isNotEmpty(batchJobRetrys)) {
@@ -350,8 +354,18 @@ public class ActionServiceImpl {
         		Map<String,String> log = new HashMap<String,String>(4);
         		log.put("retryNum",jobRetry.getRetryNum().toString());
         		log.put("logInfo",jobRetry.getLogInfo());
-        		log.put("engineLog",jobRetry.getEngineLog());
-        		log.put("retryTaskParams",jobRetry.getRetryTaskParams());
+        		String engineLog = jobRetry.getEngineLog();
+        		if (StringUtils.isBlank(jobRetry.getEngineLog())){
+                    engineLog = workNode.getAndUpdateEngineLog(jobId, jobRetry.getEngineJobId(), jobRetry.getApplicationId(), batchJob.getPluginInfoId());
+                    if (engineLog != null){
+                        logger.info("batchJobRetryDAO.updateEngineLog id:{}, jobId:{}, engineLog:{}", jobRetry.getId(), jobRetry.getJobId(), engineLog);
+                        batchJobRetryDAO.updateEngineLog(jobRetry.getId(), engineLog);
+                    } else {
+                        engineLog = "";
+                    }
+                }
+                log.put("engineLog", engineLog);
+                log.put("retryTaskParams",jobRetry.getRetryTaskParams());
         		logs.add(log);
         	});
         }

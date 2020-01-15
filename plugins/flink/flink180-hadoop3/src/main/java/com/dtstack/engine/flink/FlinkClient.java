@@ -615,6 +615,10 @@ public class FlinkClient extends AbsClient {
             retMap.put("exception", except);
             retMap.put("accuInfo", accuInfo);
             return FlinkRestParseUtil.parseEngineLog(retMap);
+        } catch(RdosException e){
+            //http 请求失败时返回空日志
+            logger.error("", e);
+            return null;
         } catch (Exception e) {
             logger.error("", e);
             Map<String, String> map = new LinkedHashMap<>(8);

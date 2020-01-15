@@ -272,7 +272,7 @@ public class WorkNode {
         return result;
     }
 
-    public String getAndUpdateEngineLog(String jobId, String engineJobId, String appId, long pluginId) throws Exception {
+    public String getAndUpdateEngineLog(String jobId, String engineJobId, String appId, long pluginId) {
         String engineLog = null;
         try {
             String pluginInfoStr = pluginInfoDao.getPluginInfo(pluginId);
@@ -281,11 +281,11 @@ public class WorkNode {
             JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineJobId, appId, jobId);
             //从engine获取log
             engineLog = JobClient.getEngineLog(engineType, pluginInfoStr, jobIdentifier);
-            rdosEngineBatchJobDao.updateEngineLog(jobId, engineLog);
+            if (engineLog != null) {
+                rdosEngineBatchJobDao.updateEngineLog(jobId, engineLog);
+            }
         } catch (Throwable e){
             LOG.error("getAndUpdateEngineLog error jobId {} ,error info {}..", jobId, ExceptionUtil.getErrorMessage(e));
-            engineLog = ExceptionUtil.getErrorMessage(e);
-            rdosEngineBatchJobDao.updateEngineLog(jobId, engineLog);
         }
         return engineLog;
     }
