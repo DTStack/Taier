@@ -43,7 +43,7 @@ public class JupyterType extends AppType {
 
         String jupyterProjectRoot = conf.get(JUPYTER_PROJECT_ROOT, "");
         if (StringUtils.isBlank(jupyterProjectRoot)) {
-            throw new IllegalArgumentException(jupyterProjectRoot + " must be set");
+            throw new IllegalArgumentException(JUPYTER_PROJECT_ROOT + " must be set");
         }
         if (!jupyterProjectRoot.endsWith("/")) {
             jupyterProjectRoot += "/";
