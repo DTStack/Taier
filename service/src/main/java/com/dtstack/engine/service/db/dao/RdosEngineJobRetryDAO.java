@@ -25,13 +25,13 @@ public class RdosEngineJobRetryDAO {
         });
 	}
 
-    public List<RdosEngineJobRetry> getJobRetryByJobId(String jobId) {
-        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<RdosEngineJobRetry>>(){
+    public RdosEngineJobRetry getJobRetryByJobId(String jobId, int retrynum) {
+        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<RdosEngineJobRetry>(){
 
             @Override
-            public List<RdosEngineJobRetry> execute(SqlSession sqlSession) throws Exception {
+            public RdosEngineJobRetry execute(SqlSession sqlSession) throws Exception {
                 RdosEngineJobRetryMapper mapper = sqlSession.getMapper(RdosEngineJobRetryMapper.class);
-                return mapper.getJobRetryByJobId(jobId);
+                return mapper.getJobRetryByJobId(jobId, retrynum);
             }
         });
     }

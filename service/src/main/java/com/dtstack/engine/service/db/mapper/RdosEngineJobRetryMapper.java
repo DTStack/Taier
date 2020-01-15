@@ -12,9 +12,9 @@ public interface RdosEngineJobRetryMapper {
 
 	void insert(RdosEngineJobRetry rdosEngineJobRetry);
 
-	List<RdosEngineJobRetry> getJobRetryByJobId(@Param("jobId") String jobId);
+	RdosEngineJobRetry getJobRetryByJobId(@Param("jobId") String jobId, @Param("retryNum") int retryNum);
 
-    String getRetryTaskParams(@Param("jobId")String jobId, @Param("retryNum") int retrynum);
+    String getRetryTaskParams(@Param("jobId")String jobId, @Param("retryNum") int retryNum);
 
 	void removeByJobId(@Param("jobId")String jobId);
 

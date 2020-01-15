@@ -34,7 +34,7 @@
     <select id="getJobRetryByJobId" resultMap="jobRetryResult">
         select
         <include refid="select_content_fragment"/>
-        from rdos_engine_job_retry where job_id=#{jobId} and is_deleted=0 limit 5;
+        from rdos_engine_job_retry where job_id=#{jobId} and retry_num = #{retryNum} and is_deleted=0 limit 1;
     </select>
 
     <select id="getRetryTaskParams" resultType="java.lang.String">
