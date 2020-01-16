@@ -3,7 +3,6 @@ const webpack = require("webpack");
 const webpackMerge = require("webpack-merge");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const cssLoader = require("./loader/css-loader.js").pro;
-const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 // const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 // baseConf.plugins.push(
@@ -42,21 +41,6 @@ const htmlMinify = {
  *  **/
 baseConf.mode = "production";
 
-// JS loader
-// baseConf.module.rules.unshift(
-//     {
-//         test: /\.[jt]sx?$/,
-//         include: MY_PATH.APP_PATH,
-//         exclude: [
-//             path.resolve(MY_PATH.ROOT_PATH, "node_modules"),
-//             path.resolve(MY_PATH.WEB_PUBLIC)
-//         ],
-//         loader: [
-//             "happypack/loader?id=happy-ts",
-//         ]
-//     }
-// )
-
 baseConf.optimization.minimizer = [
     new TerserPlugin({
         parallel: true,
@@ -73,11 +57,6 @@ baseConf.optimization.minimizer = [
 module.exports = function(env) {
     return webpackMerge(baseConf, {
         plugins: [
-            new ForkTsCheckerWebpackPlugin({
-                async: false,
-                useTypescriptIncrementalApi: true,
-                memoryLimit: 4096
-            }),
             new HtmlWebpackPlugin({
                 filename: 'index.html',
                 template: path.resolve( MY_PATH.WEB_PUBLIC, `index.html`),

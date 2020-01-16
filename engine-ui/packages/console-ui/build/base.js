@@ -19,6 +19,7 @@ module.exports = function () {
             app: MY_PATH.APP_FILE,
         },
         output: {
+            pathinfo: false,
             path: MY_PATH.BUILD_PATH,
             chunkFilename: "[name].[hash].js",
             filename: "[name].[hash].js",
