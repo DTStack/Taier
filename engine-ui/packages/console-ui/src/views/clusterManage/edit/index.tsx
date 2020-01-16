@@ -1036,10 +1036,21 @@ class EditCluster extends React.Component<any, any> {
             mapKeys = ['jupyter.path', 'c.NotebookApp.open_browser', 'c.NotebookApp.allow_remote_access',
                 'c.NotebookApp.ip', 'c.NotebookApp.token', 'c.NotebookApp.default_url'];
         }
+        let singQuoteKeys = ['c.NotebookApp.ip', 'c.NotebookApp.token', 'c.NotebookApp.default_url'];
         let subConf = {};
         for (let key in dtscriptConf) {
             mapKeys.forEach(item => {
                 if (key === item) subConf[key] = dtscriptConf[key]
+                // 后端需要value值加单引号处理
+                singQuoteKeys.forEach(singlekey => {
+                    if (singlekey === key) {
+                        let newVal = dtscriptConf[key];
+                        if (dtscriptConf[key].indexOf("'") === -1) {
+                            newVal = `'${dtscriptConf[key]}'`
+                        }
+                        subConf[key] = newVal
+                    }
+                })
             })
         }
         return subConf;

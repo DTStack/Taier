@@ -79,11 +79,11 @@ export default class DtyarnShellConfig extends React.Component<any, any> {
                         {...formItemLayout}
                     >
                         {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.DTYARNSHELL}.cNotebookAppOpen_browser`, {
-                            initialValue: 'FALSE'
+                            initialValue: 'False'
                         })(
                             <Select disabled={isView} style={{ width: '100px' }} >
-                                <Option value="TRUE">TRUE</Option>
-                                <Option value="FALSE">FALSE</Option>
+                                <Option value="True">True</Option>
+                                <Option value="False">False</Option>
                             </Select>
                         )}
                     </FormItem>
@@ -92,11 +92,11 @@ export default class DtyarnShellConfig extends React.Component<any, any> {
                         {...formItemLayout}
                     >
                         {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.DTYARNSHELL}.cNotebookAppAllow_remote_access`, {
-                            initialValue: 'TRUE'
+                            initialValue: 'True'
                         })(
                             <Select disabled={isView} style={{ width: '100px' }} >
-                                <Option value="TRUE">TRUE</Option>
-                                <Option value="FALSE">FALSE</Option>
+                                <Option value="True">True</Option>
+                                <Option value="False">False</Option>
                             </Select>
                         )}
                     </FormItem>
@@ -105,6 +105,7 @@ export default class DtyarnShellConfig extends React.Component<any, any> {
                         {...formItemLayout}
                     >
                         {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.DTYARNSHELL}.cNotebookAppIp`, {
+                            initialValue: "'*'"
                         })(
                             <Input disabled={isView} />
                         )}
@@ -114,6 +115,7 @@ export default class DtyarnShellConfig extends React.Component<any, any> {
                         {...formItemLayout}
                     >
                         {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.DTYARNSHELL}.cNotebookAppToken`, {
+                            initialValue: "''"
                         })(
                             <Input disabled={isView} />
                         )}
@@ -123,6 +125,7 @@ export default class DtyarnShellConfig extends React.Component<any, any> {
                         {...formItemLayout}
                     >
                         {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.DTYARNSHELL}.cNotebookAppDefault_url`, {
+                            initialValue: "'/lab'"
                         })(
                             <Input disabled={isView} />
                         )}
