@@ -31,6 +31,12 @@
         UPDATE `rdos_engine_job_retry` SET `is_deleted` = 1 WHERE job_id=#{jobId};
     </update>
 
+    <select id="listJobRetryByJobId" resultMap="jobRetryResult">
+        select
+        <include refid="select_content_fragment"/>
+        from rdos_engine_job_retry where job_id=#{jobId} and is_deleted=0 limit 5;
+    </select>
+
     <select id="getJobRetryByJobId" resultMap="jobRetryResult">
         select
         <include refid="select_content_fragment"/>

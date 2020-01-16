@@ -339,7 +339,30 @@ public class ActionServiceImpl {
     /**
      * 根据jobid 和 计算类型，查询job的重试retry日志
      */
-    public String retryLog(@Param("jobId") String jobId,@Param("computeType") Integer computeType, @Param("retryNum") Integer retryNum) throws Exception {
+    public String retryLog(@Param("jobId") String jobId,@Param("computeType") Integer computeType) throws Exception {
+
+        if (StringUtils.isBlank(jobId) || computeType==null){
+            throw new RdosException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
+        }
+
+        List<Map<String,String>> logs = new ArrayList<>(5);
+        List<RdosEngineJobRetry> batchJobRetrys = batchJobRetryDAO.listJobRetryByJobId(jobId);
+        if (CollectionUtils.isNotEmpty(batchJobRetrys)) {
+            batchJobRetrys.forEach(jobRetry->{
+                Map<String,String> log = new HashMap<String,String>(4);
+                log.put("retryNum",jobRetry.getRetryNum().toString());
+                log.put("logInfo",jobRetry.getLogInfo());
+                log.put("retryTaskParams",jobRetry.getRetryTaskParams());
+                logs.add(log);
+            });
+        }
+        return PublicUtil.objToString(logs);
+    }
+
+    /**
+     * 根据jobid 和 计算类型，查询job的重试retry日志
+     */
+    public String retryLogDetail(@Param("jobId") String jobId,@Param("computeType") Integer computeType, @Param("retryNum") Integer retryNum) throws Exception {
 
         if (StringUtils.isBlank(jobId) || computeType==null){
             throw new RdosException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
