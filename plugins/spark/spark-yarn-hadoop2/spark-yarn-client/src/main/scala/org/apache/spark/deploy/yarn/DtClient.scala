@@ -880,9 +880,9 @@ private[spark] class DtClient(
         env("SPARK_JAVA_OPTS") = value
       }
 
-      if (!sparkConf.get("SPARK_JAVA_OPTS").isEmpty) {
-        env("SPARK_JAVA_OPTS") = sparkConf.get("SPARK_JAVA_OPTS")
-      }
+//      if (!sparkConf.get("SPARK_JAVA_OPTS").isEmpty) {
+//        env("SPARK_JAVA_OPTS") = sparkConf.get("SPARK_JAVA_OPTS")
+//      }
 
 
       // propagate PYSPARK_DRIVER_PYTHON and PYSPARK_PYTHON to driver in cluster mode
