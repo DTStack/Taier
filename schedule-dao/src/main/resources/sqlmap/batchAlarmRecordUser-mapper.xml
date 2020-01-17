@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dtstack.task.dao.BatchAlarmRecordUserDao">
+
+    <select id="getAlarmByRecordUserId" resultType="java.lang.Long">
+        SELECT DISTINCT
+            alarm_record_id
+        FROM rdos_batch_alarm_record_user
+        WHERE is_deleted = 0 and app_type = #{appType} and user_id = #{userId} and project_id = #{projectId}
+    </select>
+
+    <insert id="insert" parameterType="BatchAlarmRecordUser" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO rdos_batch_alarm_record_user
+        (tenant_id,project_id,dtuic_tenant_id,app_type,alarm_record_id,user_id)
+        VALUES
+        (#{tenantId},#{projectId},#{dtuicTenantId},#{appType},#{alarmRecordId},#{userId})
+    </insert>
+
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO rdos_batch_alarm_record_user
+        (tenant_id, project_id,dtuic_tenant_id,app_type,alarm_record_id,user_id,gmt_create,gmt_modified,is_deleted)
+        VALUES
+        <foreach item="item" index="index" collection="list" separator=",">
+            (#{item.tenantId},#{item.projectId},#{item.dtuicTenantId},#{item.appType},#{item.alarmRecordId},#{item.userId},#{item.gmtCreate},#{item.gmtModified},#{item.isDeleted})
+        </foreach>
+        on duplicate key update alarm_record_id=values(alarm_record_id),user_id=values(user_id)
+    </insert>
+
+
+    <select id="getAlarmUserIdByRecordId" resultType="java.lang.Long">
+        SELECT DISTINCT
+            user_id
+        FROM rdos_batch_alarm_record_user
+        WHERE is_deleted = 0 and app_type = #{appType} and alarm_record_id = #{alarmRecordId} and project_id = #{projectId}
+    </select>
+
+</mapper>

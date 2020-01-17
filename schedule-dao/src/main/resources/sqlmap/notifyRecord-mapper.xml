@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.task.dao.NotifyRecordDao">
+
+    <sql id="select_content_fragment">
+        id,tenant_id,project_id,dtuic_tenant_id,app_type,notify_id,content_id,cyc_time,status,gmt_create,gmt_modified,is_deleted
+    </sql>
+
+    <select id="getOne" resultType="NotifyRecord">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_notify_record
+        WHERE id = #{id} AND tenant_id = #{tenantId} AND project_id = #{projectId} AND is_deleted=0
+    </select>
+
+    <insert id="insert" parameterType="NotifyRecord" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO rdos_notify_record
+        (tenant_id,project_id,dtuic_tenant_id,app_type,notify_id,content_id,status,cyc_time)
+        VALUES
+        (#{tenantId},#{projectId},#{dtuicTenantId}, #{appType},#{notifyId},#{contentId},#{status},#{cycTime})
+    </insert>
+
+</mapper>

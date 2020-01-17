@@ -1,0 +1,1343 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.task.dao.BatchJobDao">
+
+    <sql id="select_content_fragment">
+      bj.id,bj.tenant_id,bj.project_id,bj.dtuic_tenant_id,bj.app_type,bj.job_id,bj.job_key,bj.job_name,bj.task_id,bj.gmt_create,bj.gmt_modified,bj.create_user_id,bj.is_deleted,bj.type,bj.is_restart,
+      bj.business_date,bj.cyc_time,dependency_type,flow_job_id,bj.period_type,bj.status,bj.task_type,bj.fill_id,bj.exec_start_time,bj.exec_end_time,bj.exec_time,bj.submit_time,bj.retry_num,max_retry_num,
+      bj.node_address,bj.version_id,bj.next_cyc_time,bj.log_info
+    </sql>
+
+    <sql id="select_where_fragment">
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            <if test="model.id != null and model.id > 0">
+                AND bj.id = #{model.id}
+            </if>
+            <if test="model.tenantId != null">
+                AND bj.tenant_id = #{model.tenantId} AND ts.tenant_id = #{model.tenantId}
+            </if>
+            <if test="model.projectId != null">
+                AND bj.project_id = #{model.projectId} AND ts.project_id = #{model.projectId}
+            </if>
+            <if test="model.jobId != null">
+                AND bj.job_id = #{model.jobId}
+            </if>
+            <if test="model.jobKey != null">
+                AND bj.job_key = #{model.jobKey}
+            </if>
+            <if test="model.jobName != null">
+                AND bj.job_name = #{model.jobName}
+            </if>
+            <if test="model.taskId != null">
+                AND bj.task_id = #{model.taskId}
+            </if>
+            <if test="model.gmtCreate != null">
+                AND bj.gmt_create = #{model.gmtCreate}
+            </if>
+            <if test="model.gmtModified != null">
+                AND bj.gmt_modified = #{model.gmtModified}
+            </if>
+            <if test="model.createUserId != null">
+                AND bj.create_user_id = #{model.createUserId}
+            </if>
+            <if test="model.isDeleted != null">
+                AND bj.is_deleted = #{model.isDeleted}
+            </if>
+            <if test="model.type != null">
+                AND bj.type = #{model.type}
+            </if>
+            <if test="model.isRestart != null">
+                AND bj.is_restart = #{model.isRestart}
+            </if>
+            <if test="model.businessDate != null">
+                AND bj.business_date = #{model.businessDate}
+            </if>
+            <if test="model.likeBusinessDate != null">
+                AND bj.business_date like '${model.likeBusinessDate}%'
+            </if>
+            <if test="model.cycTime != null">
+                AND bj.cyc_time = #{model.cycTime}
+            </if>
+            <if test="model.taskIds != null and model.taskIds.size() > 0">
+                AND bj.task_id IN
+                <foreach item="taskId" index="index" collection="model.taskIds" open="(" separator="," close=")">
+                    #{taskId}
+                </foreach>
+            </if>
+            <if test="model.jobStatuses != null and model.jobStatuses.size() > 0">
+                AND bj.status IN
+                <foreach item="status" index="index" collection="model.jobStatuses" open="(" separator="," close=")">
+                    #{status}
+                </foreach>
+            </if>
+
+            <if test="model.execTime != null">
+                AND bj.exec_time &gt;= #{model.execTime}
+            </if>
+            <choose>
+                <when test="model.taskNameLike != null and  model.searchType==1" >
+                    AND ts.name LIKE '%${model.taskNameLike}%'
+                </when>
+                <when test="model.taskNameLike != null and  model.searchType==2" >
+                    AND ts.name =#{model.taskNameLike}
+                </when>
+                <when test="model.taskNameLike != null and  model.searchType==3" >
+                    AND ts.name LIKE '${model.taskNameLike}%'
+                </when>
+                <when test="model.taskNameLike != null and  model.searchType==4" >
+                    AND ts.name LIKE '%${model.taskNameLike}'
+                </when>
+            </choose>
+
+            <if test="model.taskCreateId != null">
+                AND ts.create_user_id = #{model.taskCreateId}
+            </if>
+            <if test="model.taskTypes != null and model.taskTypes.size() > 0">
+                AND ts.task_type IN
+                <foreach item="item" index="index" collection="model.taskTypes" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="model.jobNameRightLike != null">
+                AND bj.job_name LIKE '${model.jobNameRightLike}%'
+            </if>
+            <if test="model.bizStartDay != null and model.bizEndDay != null">
+                AND bj.business_date &gt;= ${model.bizStartDay} and  bj.business_date &lt; ${model.bizEndDay}
+            </if>
+
+            <if test="model.startGmtCreate != null">
+                AND to_days(bj.gmt_create) = to_days(#{model.startGmtCreate})
+            </if>
+            <if test="model.taskPeriodId != null and model.taskPeriodId.size()>0">
+                AND bj.period_type IN
+                <foreach collection="model.taskPeriodId" separator="," index="index" item="item" open="(" close=")">
+                    ${item}
+                </foreach>
+            </if>
+            <if test="model.cycStartDay != null and model.cycEndDay != null">
+                AND bj.cyc_time &gt;= ${model.cycStartDay} and  bj.cyc_time &lt;= ${model.cycEndDay}
+            </if>
+
+            <if test="model.flowJobId != null">
+                AND bj.flow_job_id = #{model.flowJobId}
+            </if>
+            <if test="model.needQuerySonNode == false">
+                AND ts.flow_id =0
+            </if>
+            <if test="model.appType != null">
+                AND bj.app_type = #{model.appType}
+            </if>
+            <if test="model.ownerUserId != null">
+                AND ts.owner_user_id = #{model.ownerUserId}
+            </if>
+        </trim>
+    </sql>
+
+    <sql id="select_where_fragment_without_ts">
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            <if test="model.id != null and model.id > 0">
+                AND bj.id = #{model.id}
+            </if>
+            <if test="model.tenantId != null">
+                AND bj.tenant_id = #{model.tenantId}
+            </if>
+            <if test="model.projectId != null">
+                AND bj.project_id = #{model.projectId}
+            </if>
+            <if test="model.jobId != null">
+                AND bj.job_id = #{model.jobId}
+            </if>
+            <if test="model.jobKey != null">
+                AND bj.job_key = #{model.jobKey}
+            </if>
+            <if test="model.jobName != null">
+                AND bj.job_name = #{model.jobName}
+            </if>
+            <if test="model.taskId != null">
+                AND bj.task_id = #{model.taskId}
+            </if>
+            <if test="model.gmtCreate != null">
+                AND bj.gmt_create = #{model.gmtCreate}
+            </if>
+            <if test="model.gmtModified != null">
+                AND bj.gmt_modified = #{model.gmtModified}
+            </if>
+            <if test="model.createUserId != null">
+                AND bj.create_user_id = #{model.createUserId}
+            </if>
+            <if test="model.isDeleted != null">
+                AND bj.is_deleted = #{model.isDeleted}
+            </if>
+            <if test="model.type != null">
+                AND bj.type = #{model.type}
+            </if>
+            <if test="model.isRestart != null">
+                AND bj.is_restart = #{model.isRestart}
+            </if>
+            <if test="model.businessDate != null">
+                AND bj.business_date = #{model.businessDate}
+            </if>
+            <if test="model.likeBusinessDate != null">
+                AND bj.business_date like '${model.likeBusinessDate}%'
+            </if>
+            <if test="model.cycTime != null">
+                AND bj.cyc_time = #{model.cycTime}
+            </if>
+            <if test="model.taskIds != null and model.taskIds.size() > 0">
+                AND bj.task_id IN
+                <foreach item="taskId" index="index" collection="model.taskIds" open="(" separator="," close=")">
+                    #{taskId}
+                </foreach>
+            </if>
+            <if test="model.jobStatuses != null and model.jobStatuses.size() > 0">
+                AND bj.status IN
+                <foreach item="status" index="index" collection="model.jobStatuses" open="(" separator="," close=")">
+                    #{status}
+                </foreach>
+            </if>
+
+            <if test="model.execTime != null">
+                AND bj.exec_time &gt;= #{model.execTime}
+            </if>
+
+            <if test="model.jobNameRightLike != null">
+                AND bj.job_name LIKE '${model.jobNameRightLike}%'
+            </if>
+            <if test="model.bizStartDay != null and model.bizEndDay != null">
+                AND bj.business_date &gt;= ${model.bizStartDay} and  bj.business_date &lt; ${model.bizEndDay}
+            </if>
+
+            <if test="model.startGmtCreate != null">
+                AND to_days(bj.gmt_create) = to_days(#{model.startGmtCreate})
+            </if>
+            <if test="model.taskPeriodId != null and model.taskPeriodId.size()>0">
+                AND bj.period_type IN
+                <foreach collection="model.taskPeriodId" separator="," index="index" item="item" open="(" close=")">
+                    ${item}
+                </foreach>
+            </if>
+            <if test="model.cycStartDay != null and model.cycEndDay != null">
+                AND bj.cyc_time &gt;= ${model.cycStartDay} and  bj.cyc_time &lt;= ${model.cycEndDay}
+            </if>
+
+            <if test="model.flowJobId != null">
+                AND bj.flow_job_id = #{model.flowJobId}
+            </if>
+            <if test="model.appType != null">
+                AND bj.app_type = #{model.appType}
+            </if>
+        </trim>
+    </sql>
+
+    <sql id="select_where_batch_job">
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            <if test="model.id != null and model.id > 0">
+                AND id = #{model.id}
+            </if>
+            <if test="model.tenantId != null">
+                AND tenant_id = #{model.tenantId}
+            </if>
+            <if test="model.projectId != null">
+                AND project_id = #{model.projectId}
+            </if>
+            <if test="model.jobId != null">
+                AND job_id = #{model.jobId}
+            </if>
+            <if test="model.jobKey != null">
+                AND job_key = #{model.jobKey}
+            </if>
+            <if test="model.jobName != null">
+                AND job_name = #{model.jobName}
+            </if>
+            <if test="model.taskId != null">
+                AND task_id = #{model.taskId}
+            </if>
+            <if test="model.gmtCreate != null">
+                AND gmt_create = #{model.gmtCreate}
+            </if>
+            <if test="model.gmtModified != null">
+                AND gmt_modified = #{model.gmtModified}
+            </if>
+            <if test="model.createUserId != null">
+                AND create_user_id = #{model.createUserId}
+            </if>
+            <if test="model.isDeleted != null">
+                AND is_deleted = #{model.isDeleted}
+            </if>
+            <if test="model.type != null">
+                AND type = #{model.type}
+            </if>
+            <if test="model.isRestart != null">
+                AND is_restart = #{model.isRestart}
+            </if>
+            <if test="model.businessDate != null">
+                AND business_date = #{model.businessDate}
+            </if>
+            <if test="model.likeBusinessDate != null">
+                AND business_date like '${model.likeBusinessDate}%'
+            </if>
+            <if test="model.cycTime != null">
+                AND cyc_time = #{model.cycTime}
+            </if>
+            <if test="model.appType != null">
+                AND app_type = #{model.appType}
+            </if>
+            <if test="model.taskIds != null and model.taskIds.size() > 0">
+                AND task_id IN
+                <foreach item="taskId" index="index" collection="model.taskIds" open="(" separator="," close=")">
+                    #{taskId}
+                </foreach>
+            </if>
+            <if test="model.jobStatuses != null and model.jobStatuses.size() > 0">
+                AND status IN
+                <foreach item="status" index="index" collection="model.jobStatuses" open="(" separator="," close=")">
+                    #{status}
+                </foreach>
+            </if>
+            <if test="model.taskTypes != null and model.taskTypes.size() > 0">
+                AND task_type IN
+                <foreach item="item" index="index" collection="model.taskTypes" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="model.jobNameRightLike != null">
+                AND job_name LIKE '${model.jobNameRightLike}%'
+            </if>
+            <if test="model.bizStartDay != null and model.bizEndDay != null">
+                AND business_date &gt;= ${model.bizStartDay} and  business_date &lt; ${model.bizEndDay}
+            </if>
+
+            <if test="model.startGmtCreate != null">
+                AND to_days(gmt_create) = to_days(#{model.startGmtCreate})
+            </if>
+            <if test="model.taskPeriodId != null and model.taskPeriodId.size()>0">
+                AND period_type IN
+                <foreach collection="model.taskPeriodId" separator="," index="index" item="item" open="(" close=")">
+                    ${item}
+                </foreach>
+            </if>
+            <if test="model.cycStartDay != null and model.cycEndDay != null">
+                AND cyc_time &gt;= ${model.cycStartDay} and  cyc_time &lt;= ${model.cycEndDay}
+            </if>
+
+            <if test="model.flowJobId != null">
+                AND flow_job_id = #{model.flowJobId}
+            </if>
+            <if test="model.queryWorkFlowModel == 1">
+                AND flow_job_id = "0"
+            </if>
+            <if test="model.queryWorkFlowModel == 2">
+                AND flow_job_id != "0"
+            </if>
+            <if test="model.queryWorkFlowModel == 4">
+                AND task_type != 10
+            </if>
+        </trim>
+    </sql>
+
+
+    <sql id="page_condition">
+        <trim prefix="ORDER BY " prefixOverrides=",">
+            <if test="model.execTimeSort != null and model.execTimeSort != ''">
+                , bj.exec_time ${model.execTimeSort}
+            </if>
+            <if test="model.execStartSort != null and model.execStartSort != ''">
+                , bj.exec_start_time ${model.execStartSort}
+            </if>
+            <if test="model.execEndSort != null and model.execEndSort != ''">
+                , bj.exec_end_time ${model.execEndSort}
+            </if>
+            <if test="model.cycSort != null and model.cycSort != ''">
+                , bj.cyc_time ${model.cycSort}
+            </if>
+            <if test="model.businessDateSort != null and model.businessDateSort != ''">
+                , bj.business_date ${model.businessDateSort}
+            </if>
+            <if test="model.retryNumSort != null and model.retryNumSort != ''">
+                , bj.retry_num  ${model.retryNumSort}
+            </if>
+            <if test="orderBy != null and orderBy != ''">
+                , bj.${orderBy} ${sort}
+            </if>
+            , bj.gmt_create desc
+        </trim>
+        <if test="start != null and pageSize != null">
+            limit #{start} , #{pageSize}
+        </if>
+        <if test="start == null and pageSize != null">
+            limit #{pageSize}
+        </if>
+        <if test="start == null and pageSize == null">
+            limit 1000
+        </if>
+    </sql>
+
+    <sql id="update_fragment">
+        <set>
+            <if test="id != null">
+                id = #{id},
+            </if>
+            <if test="tenantId != null">
+                tenant_id = #{tenantId},
+            </if>
+            <if test="projectId != null">
+                project_id = #{projectId},
+            </if>
+            <if test="jobId != null">
+                job_id = #{jobId},
+            </if>
+            <if test="jobKey != null">
+                job_key = #{jobKey},
+            </if>
+            <if test="jobName != null">
+                job_name = #{jobName},
+            </if>
+            <if test="taskId != null">
+                task_id = #{taskId},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified},
+            </if>
+            <if test="createUserId != null">
+                create_user_id = #{createUserId},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted},
+            </if>
+            <if test="type != null">
+                type = #{type},
+            </if>
+            <if test="isRestart != null">
+                is_restart = #{isRestart},
+            </if>
+            <if test="businessDate != null">
+                business_date = #{businessDate},
+            </if>
+            <if test="cycTime != null">
+                cyc_time = #{cycTime},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="dtuicTenantId !=null">
+                dtuic_tenant_id  = #{dtuicTenantId},
+            </if>
+            <if test="appType!=null">
+                app_tpye = #{dtuicTenantId},
+            </if>
+            <if test="logInfo!=null">
+                log_info = #{logInfo},
+            </if>
+        </set>
+    </sql>
+
+    <select id="getOne" resultType="BatchJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_job bj
+        WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <select id="listByJobIds" resultType="BatchJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_job bj
+        WHERE id in
+        <foreach item="id" index="index" collection="jobIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        AND project_id = #{projectId}
+        AND is_deleted = 0
+    </select>
+
+    <select id="listAfterOrBeforeJobs" resultType="BatchJob">
+        SELECT
+        <include refid="select_content_fragment" />
+        from rdos_batch_job bj
+        where task_id = #{taskId}
+        <choose>
+            <when test="isAfter">
+                AND cyc_time > #{cycTime}
+            </when>
+            <otherwise>
+                <![CDATA[ AND cyc_time < ]]> #{cycTime}
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="getByJobKeyAndType" resultType="BatchJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_job bj
+        WHERE job_key = #{jobKey} AND type = #{type} AND is_deleted = 0
+    </select>
+
+    <select id="getByJobKey" resultType="BatchJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_job bj
+        WHERE job_key = #{jobKey} AND is_deleted = 0
+    </select>
+
+
+
+    <select id="countByStatusAndType" resultType="java.util.HashMap">
+        SELECT status,COUNT(1) as count
+        FROM  rdos_batch_job ts
+        WHERE ts.is_deleted = 0
+        <if test="dtuicTenantId != null and dtuicTenantId != -1">
+           AND  ts.dtuic_tenant_id = #{dtuicTenantId}
+        </if>
+        <if test="projectId!=null and projectId != -1">
+            AND ts.project_id = #{projectId}
+        </if>
+        <if test="tenantId!=null">
+            AND ts.tenant_id = #{tenantId}
+        </if>
+        AND ts.type = #{type}
+        AND ts.app_type = #{appType}
+        AND ts.task_type != 10
+        <if test="startTime != null and startTime != ''">
+            AND ts.cyc_time <![CDATA[>=]]> #{startTime}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            AND ts.cyc_time <![CDATA[<]]> #{endTime}
+        </if>
+        <if test="statuses != null">
+            AND ts.status in
+            <foreach item="status" index="index" collection="statuses" open="(" separator="," close=")">
+                #{status}
+            </foreach>
+        </if>
+        group by status
+    </select>
+
+    <select id="selectStatusAndType" resultType="java.util.HashMap">
+        SELECT if(ts.is_deleted = 1,CONCAT(ts.name,'(已删除)'),ts.name) AS name, bj.status AS status,bj.exec_start_time AS execStartTime
+        FROM  rdos_batch_job bj
+        LEFT JOIN rdos_batch_task_shade ts on bj.task_id = ts.task_id
+        WHERE  bj.is_deleted = 0
+        <if test="dtuicTenantId != null and dtuicTenantId != -1">
+            AND  bj.dtuic_tenant_id = #{dtuicTenantId}
+        </if>
+        <if test="projectId!=null and projectId != -1">
+            AND bj.project_id = #{projectId}
+        </if>
+        <if test="tenantId!=null">
+            AND bj.tenant_id = #{tenantId}
+        </if>
+        AND bj.type = #{type}
+        AND bj.app_type = #{appType}
+        AND bj.task_type != 10
+        <if test="startTime != null and startTime != ''">
+            AND bj.cyc_time <![CDATA[>=]]> #{startTime}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            AND bj.cyc_time <![CDATA[<]]> #{endTime}
+        </if>
+        <if test="statuses != null">
+            AND bj.status in
+            <foreach item="status" index="index" collection="statuses" open="(" separator="," close=")">
+                #{status}
+            </foreach>
+        </if>
+        ORDER BY bj.exec_start_time LIMIT #{startPage}, #{pageSize}
+    </select>
+
+
+    <select id="listTopRunTime" resultType="java.util.HashMap">
+        SELECT bj.id AS id, bj.task_id AS taskId, bj.cyc_time AS cycTime, ifnull(bj.type, 0) AS type,bj.task_type as taskType,
+               bj.exec_time AS execTime,bj.is_deleted as isDeleted,bj.create_user_id AS createUserId
+        FROM rdos_batch_job bj
+        WHERE bj.is_deleted = 0
+        <if test="dtuicTenantId != null and dtuicTenantId != -1">
+            AND  bj.dtuic_tenant_id = #{dtuicTenantId}
+        </if>
+        <if test="projectId!=null and projectId != -1">
+            AND bj.project_id = #{projectId}
+        </if>
+        AND bj.exec_start_time &gt;= #{startTime} AND bj.exec_start_time &lt;= #{endTime}
+        ORDER BY bj.exec_time desc limit #{pageQuery.start}, #{pageQuery.pageSize}
+    </select>
+
+    <select id="listTopErrorByType" resultType="java.util.HashMap">
+        SELECT bj.task_id AS taskId, count(1) as errorCount
+        FROM rdos_batch_job bj
+        WHERE bj.is_deleted = 0
+        <if test="dtuicTenantId != null and dtuicTenantId != -1">
+            AND  bj.dtuic_tenant_id = #{dtuicTenantId}
+        </if>
+        <if test="projectId!=null and projectId != -1">
+            AND bj.project_id = #{projectId}
+        </if>
+        <if test="tenantId!=null">
+            AND bj.tenant_id = #{tenantId}
+        </if>
+        AND bj.status in
+        <foreach item="status" index="index" collection="statuses" open="(" separator="," close=")">
+            #{status}
+        </foreach>
+        AND bj.type = #{type}
+        AND bj.app_type = #{appType}
+        AND bj.cyc_time is not null and bj.cyc_time >= #{time}
+        group by bj.task_id
+        ORDER BY count(1) desc limit #{pageQuery.start}, #{pageQuery.pageSize}
+    </select>
+    
+    <select id="listThirtyDayJobs" resultType="java.util.HashMap">
+  		SELECT DATE_FORMAT(bj.cyc_time, '%m/%d') AS day, COUNT(1) AS cnt
+        FROM rdos_batch_job bj
+        LEFT JOIN rdos_engine_batch_job ebj ON bj.job_id = ebj.job_id
+        LEFT JOIN rdos_batch_task_shade ts ON bj.task_id = ts.id
+        WHERE bj.cyc_time is not null and to_days(bj.cyc_time) >= (to_days(NOW()) -30)
+        and bj.type = #{type}
+        and bj.project_id = #{projectId} 
+        and bj.tenant_id = #{tenantId}
+        and ts.task_type = #{taskType}
+        and bj.is_deleted = 0
+        <if test="statusList != null and statusList.size()>0">
+            and ebj.status in
+            <foreach collection="statusList" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        GROUP BY day
+    </select>
+    
+    <select id="countScienceJobStatus" resultType="java.util.HashMap">
+  		SELECT COUNT(1) AS total,
+  		SUM(case when ebj.status = 4 or ebj.status = 16 then 1 else 0 end) AS deployCount,
+  		SUM(case when ebj.status = 8 then 1 else 0 end) AS failCount,
+  		SUM(case when ebj.status = #{status} then 1 else 0 end) AS successCount
+        FROM rdos_batch_job bj
+        LEFT JOIN rdos_engine_batch_job ebj ON bj.job_id = ebj.job_id
+        LEFT JOIN rdos_batch_task_shade ts ON bj.task_id = ts.id
+        WHERE bj.type = #{type}
+        and bj.tenant_id = #{tenantId}
+        and ts.task_type = #{taskType}
+        and bj.is_deleted = 0
+        <if test="projectIds != null and projectIds.size()>0">
+            and bj.project_id in
+            <foreach collection="projectIds" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="listTodayJobs" resultType="java.util.HashMap">
+        SELECT DATE_FORMAT(bj.exec_start_time, '%H') AS hour, COUNT(1) AS data
+        FROM rdos_batch_job bj
+        WHERE bj.exec_start_time is not null and to_days(bj.exec_start_time) = to_days(NOW())
+        AND bj.type = #{type}
+        AND bj.app_type = #{appType}
+        AND bj.is_deleted = 0
+        <if test="dtuicTenantId != null and dtuicTenantId != -1">
+            AND  bj.dtuic_tenant_id = #{dtuicTenantId}
+        </if>
+        <if test="projectId!=null and projectId != -1 ">
+            AND bj.project_id = #{projectId}
+        </if>
+        <if test="tenantId!=null">
+            AND bj.tenant_id = #{tenantId}
+        </if>
+        <if test="statusList != null and statusList.size()>0">
+            AND bj.status IN
+            <foreach collection="statusList" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        GROUP BY hour
+    </select>
+
+    <select id="listYesterdayJobs" resultType="java.util.HashMap">
+        SELECT DATE_FORMAT(bj.exec_start_time, '%H') AS hour, COUNT(1) AS data
+        FROM rdos_batch_job bj
+        WHERE bj.exec_start_time is not null and to_days(bj.exec_start_time) = to_days(NOW()) - 1
+        and bj.type = #{type}
+        and bj.app_type = #{appType}
+        <if test="dtuicTenantId != null and dtuicTenantId != -1">
+            AND  bj.dtuic_tenant_id = #{dtuicTenantId}
+        </if>
+        <if test="projectId!=null and projectId != -1" >
+            AND bj.project_id = #{projectId}
+        </if>
+        <if test="tenantId!=null">
+            AND bj.tenant_id = #{tenantId}
+        </if>
+        and bj.is_deleted = 0
+        <if test="statusList != null and statusList.size()>0">
+            and bj.status in
+            <foreach collection="statusList" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        GROUP BY hour
+    </select>
+
+    <select id="listMonthJobs" resultType="java.util.HashMap">
+        SELECT DATE_FORMAT(bj.exec_start_time, '%H') AS hour, COUNT(1) AS data
+        FROM rdos_batch_job bj
+        WHERE bj.exec_start_time is not null and to_days(bj.exec_start_time) >= to_days(NOW()) - 30
+        and bj.type = #{type}
+        and bj.app_type = #{appType}
+        <if test="dtuicTenantId != null and dtuicTenantId != -1">
+            AND  bj.dtuic_tenant_id = #{dtuicTenantId}
+        </if>
+        <if test="projectId!=null and projectId != -1 ">
+            AND bj.project_id = #{projectId}
+        </if>
+        <if test="tenantId!=null">
+            AND bj.tenant_id = #{tenantId}
+        </if>
+        and bj.is_deleted = 0
+        <if test="statusList != null and statusList.size()>0">
+            and bj.status in
+            <foreach collection="statusList" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        GROUP BY hour
+    </select>
+
+    <select id="listRestartBatchJobList" resultType="BatchJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_job bj
+        where type = #{type}
+        AND status = #{status}
+        <if test="lastTime != null">
+            AND gmt_modified &gt;= #{lastTime}
+        </if>
+        AND is_restart = 1
+        AND is_deleted = 0
+    </select>
+
+    <select id="listJobByJobKeys" resultType="BatchJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_job bj
+        where job_key IN
+        <foreach item="jobKey" index="index" collection="jobKeys" open="(" separator="," close=")">
+            #{jobKey}
+        </foreach>
+        AND is_deleted = 0
+    </select>
+
+    <select id="listIdByTaskIdAndStatus" resultType="java.lang.Long">
+        SELECT
+        bj.id
+        FROM rdos_batch_job bj
+        where bj.task_id = #{taskId}
+        AND bj.status IN
+        <foreach item="status" index="index" collection="statuses" open="(" separator="," close=")">
+            #{status}
+        </foreach>
+        AND bj.is_deleted = 0
+    </select>
+
+    <select id="listJobIdByTaskIdAndStatus" resultType="java.lang.Long">
+        SELECT
+        bj.job_id
+        FROM rdos_batch_job bj, rdos_engine_batch_job ebj
+        where bj.job_id = ebj.job_id AND bj.task_id = #{taskId}
+        AND ebj.status IN
+        <foreach item="status" index="index" collection="statuses" open="(" separator="," close=")">
+            #{status}
+        </foreach>
+        AND bj.is_deleted = 0
+    </select>
+
+    <select id="listTaskExeTimeInfo" resultType="java.util.HashMap">
+        select bj.job_id AS jobId, ebj.exec_start_time AS execStartTime, ebj.exec_end_time AS execEndTime, ebj.exec_time
+        AS execTime
+        from rdos_batch_job bj, rdos_engine_batch_job ebj
+        where bj.task_id = #{taskId}
+        AND ebj.status IN
+        <foreach item="status" index="index" collection="statuses" open="(" separator="," close=")">
+            #{status}
+        </foreach>
+        AND ebj.is_deleted = 0 AND bj.is_deleted = 0 AND bj.job_id = ebj.job_id
+        order by ${pageQuery.orderBy} ${pageQuery.sort} limit #{pageQuery.start} , #{pageQuery.pageSize}
+    </select>
+
+    <select id="getByJobId" resultType="BatchJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_job bj
+        where job_id = #{jobId}
+        <if test="isDeleted!=null">
+            and is_deleted = #{isDeleted}
+        </if>
+    </select>
+
+    <select id="getId" resultType="java.lang.Long">
+        SELECT
+        id
+        FROM rdos_batch_job bj
+        where job_id = #{jobId} AND is_deleted = 0
+    </select>
+
+    <sql id="groupColumn">
+         id,tenant_id,project_id,job_id,job_key,job_name,task_id,gmt_create,max(gmt_modified) as gmt_modified,create_user_id,is_deleted,type,is_restart,business_date,cyc_time,dependency_type,flow_job_id
+      ,period_type ,left(business_date,8) as groupDate
+    </sql>
+
+    <select id="generalQuery" parameterType="com.dtstack.dtcenter.common.pager.PageQuery" resultType="BatchJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        from (
+        select *,'' as groupDate from rdos_batch_job
+        <include refid="select_where_batch_job"/>
+        and period_type not in (0,1)
+        union
+        select
+        bj.*,
+        left(bj.business_date,8) as groupDate
+        from rdos_batch_job bj
+        LEFT JOIN rdos_batch_task_shade ts ON bj.task_id = ts.task_id
+        <include refid="select_where_fragment"/>
+        and bj.period_type in (0,1)
+        group by bj.task_id,groupDate
+        )bj
+        LEFT JOIN rdos_batch_task_shade ts ON bj.task_id = ts.task_id
+        <include refid="select_where_fragment"/>
+        <if test="model.pageQuery == true">
+            <include refid="page_condition"/>
+        </if>
+    </select>
+
+    <select id="generalQueryWithMinAndHour" parameterType="com.dtstack.dtcenter.common.pager.PageQuery" resultType="BatchJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        from (
+        select *,'' as groupDate from rdos_batch_job
+        <include refid="select_where_batch_job"/>
+        union
+        select
+        bj.*,
+        left(bj.business_date,8) as groupDate
+        from rdos_batch_job bj
+        LEFT JOIN rdos_batch_task_shade ts ON bj.task_id = ts.task_id
+        <include refid="select_where_fragment"/>
+        group by bj.task_id,groupDate
+        )bj
+        LEFT JOIN rdos_batch_task_shade ts ON bj.task_id = ts.task_id
+        <include refid="select_where_fragment"/>
+        <if test="model.pageQuery == true">
+            <include refid="page_condition"/>
+        </if>
+    </select>
+
+    <select id="minOrHourJobQuery" parameterType="com.dtstack.dtcenter.common.pager.PageQuery" resultType="BatchJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        from  rdos_batch_job bj
+        LEFT JOIN rdos_batch_task_shade ts ON bj.task_id = ts.task_id
+        <include refid="select_where_fragment"/>
+        <include refid="queryWorkFlow"/>
+        <if test="model.jobIds != null and model.jobIds.size > 0">
+            or bj.job_id in
+            <foreach collection="model.jobIds" item="jobId" open="(" separator="," close=")">
+                #{jobId}
+            </foreach>
+        </if>
+        <if test="model.ownerUserId != null">
+            AND ts.owner_user_id = #{model.ownerUserId}
+        </if>
+        <if test="model.pageQuery == true">
+            <include refid="page_condition"/>
+        </if>
+    </select>
+
+    <select id="generalCount" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+        from (
+        select *,'' as groupDate  from rdos_batch_job
+        <include refid="select_where_batch_job"/>
+        and  period_type not in (0,1)
+
+        union
+        select * ,left(business_date,8) as groupDate from rdos_batch_job
+        <include refid="select_where_batch_job"/>
+        and  period_type in (0,1)
+        group by  task_id,groupDate
+        )bj
+        <include refid="select_where_batch_job"/>
+        <if test="model.taskIds != null and model.taskIds.size > 0">
+            or bj.task_id in
+            <foreach collection="model.taskIds" item="taskId" open="(" separator="," close=")">
+                #{taskId}
+            </foreach>
+        </if>
+        limit 1
+    </select>
+
+    <select id="generalCountWithMinAndHour" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+        from (
+        select *,'' as groupDate  from rdos_batch_job
+        <include refid="select_where_batch_job"/>
+
+        union
+        select * ,left(business_date,8) as groupDate from rdos_batch_job
+        <include refid="select_where_batch_job"/>
+        group by  task_id,groupDate
+        )bj
+        <include refid="select_where_batch_job"/>
+        <if test="model.taskIds != null and model.taskIds.size > 0">
+            or bj.task_id in
+            <foreach collection="model.taskIds" item="taskId" open="(" separator="," close=")">
+                #{taskId}
+            </foreach>
+        </if>
+        limit 1
+    </select>
+
+    <select id="minOrHourJobCount" resultType="java.lang.Integer">
+        select count(1)
+        FROM rdos_batch_job bj
+        LEFT JOIN rdos_batch_task_shade ts ON bj.task_id = ts.task_id
+        <include refid="select_where_fragment"/>
+        <include refid="queryWorkFlow"/>
+        <if test="model.jobIds != null and model.jobIds.size > 0">
+            or bj.job_id in
+            <foreach collection="model.jobIds" item="jobId" open="(" separator="," close=")">
+                #{jobId}
+            </foreach>
+        </if>
+        <if test="model.ownerUserId != null">
+            AND ts.owner_user_id = #{model.ownerUserId}
+        </if>
+    </select>
+
+    <select id="getJobsStatusStatistics" resultType="java.util.HashMap">
+        SELECT status, COUNT(1) as count
+        FROM rdos_batch_job bj
+        <include refid="select_where_batch_job"/>
+        group by status
+    </select>
+
+    <sql id="queryWorkFlow">
+        <if test="model.queryWorkFlowModel == 1">
+            AND bj.flow_job_id = "0"
+        </if>
+        <if test="model.queryWorkFlowModel == 2">
+            AND bj.flow_job_id != "0"
+        </if>
+        <if test="model.queryWorkFlowModel == 4">
+            AND bj.task_type != 10
+        </if>
+    </sql>
+
+    <insert id="insert" parameterType="BatchJob" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO rdos_batch_job
+        (tenant_id,project_id,job_id,job_key,job_name,task_id,gmt_create,gmt_modified,create_user_id,is_deleted,type,is_restart,business_date,cyc_time,dependency_type,flow_job_id,next_cyc_time,task_type,node_address,max_retry_num,version_id,fill_id)
+        VALUES
+        (#{tenantId},#{projectId},#{jobId},#{jobKey},#{jobName},#{taskId},#{gmtCreate},#{gmtModified},#{createUserId},#{isDeleted},#{type},#{isRestart},#{businessDate},#{cycTime},#{dependencyType},#{flowJobId},#{nextCycTime},#{taskType},#{nodeAddress},#{maxRetryNum},#{versionId},#{fillId})
+    </insert>
+
+    <insert id="batchInsert" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO rdos_batch_job
+        (tenant_id,project_id,dtuic_tenant_id,app_type,job_id,job_key,job_name,task_id,gmt_create,gmt_modified,create_user_id,is_deleted,type,is_restart,business_date,cyc_time,dependency_type,flow_job_id,period_type,next_cyc_time,task_type,node_address,max_retry_num,version_id,fill_id)
+        VALUES
+        <foreach item="item" index="index" collection="list" separator=",">
+            (#{item.tenantId},#{item.projectId},#{item.dtuicTenantId},#{item.appType},#{item.jobId},#{item.jobKey},#{item.jobName},#{item.taskId},#{item.gmtCreate},#{item.gmtModified},#{item.createUserId},#{item.isDeleted},#{item.type},
+            #{item.isRestart},#{item.businessDate},#{item.cycTime},#{item.dependencyType},#{item.flowJobId},#{item.periodType},#{item.nextCycTime},#{item.taskType},#{item.nodeAddress},#{item.maxRetryNum},#{item.versionId},#{item.fillId})
+        </foreach>
+    </insert>
+
+    <update id="update" parameterType="BatchJob">
+        UPDATE
+        rdos_batch_job
+        <include refid="update_fragment"/>
+        WHERE id = #{id} AND is_deleted = 0
+    </update>
+
+    <select id="listFillJobName" resultType="java.lang.String">
+        SELECT DISTINCT substring_index(bj.job_name, '-', 1)
+        FROM rdos_batch_job bj LEFT JOIN rdos_engine_batch_job ebj
+        ON bj.job_id = ebj.job_id
+        <include refid="select_where_fragment_without_ts" />
+        <include refid="page_condition"/>
+    </select>
+
+    <select id="countFillJobNameDistinct" resultType="java.lang.Integer">
+        SELECT count(DISTINCT bj.fill_id) FROM
+        rdos_batch_job bj
+        LEFT JOIN rdos_batch_task_shade ts ON bj.task_id = ts.task_id
+        <include refid="select_where_fragment"/>
+    </select>
+
+
+    <select id="countFillJobNameDistinctWithOutTask" resultType="java.lang.Integer">
+        SELECT count(DISTINCT bj.fill_id) FROM
+        rdos_batch_job bj
+        <include refid="select_where_batch_job"/>
+    </select>
+
+    <select id="countFillJobName" resultType="java.lang.Integer">
+        SELECT count(job_name)
+        FROM rdos_batch_job bj
+        LEFT JOIN rdos_engine_batch_job ebj
+        ON bj.job_id = ebj.job_id
+        <include refid="select_where_fragment_without_ts"/>
+    </select>
+
+    <select id="listFillJobBizDate" resultType="java.lang.String">
+        SELECT DISTINCT SUBSTR(business_date FROM 1 FOR 8)
+        FROM rdos_batch_job bj
+        <include refid="select_where_fragment_without_ts"/>
+    </select>
+
+    <select id="listNeedStopFillDataJob" resultType = "BatchJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_job bj
+        WHERE bj.job_name like #{fillDataJobName} AND bj.status IN
+        <foreach item="status" index="index" collection="statusList" open="(" separator="," close=")">
+            #{status}
+        </foreach>
+        and bj.project_id = #{projectId}
+        and bj.app_type = #{appType}
+        and bj.is_deleted = 0
+    </select>
+    
+    <select id="listTaskExeInfo" resultType="java.util.HashMap">
+        select a.exec_start_time as execStartTime, a.job_id as jobId, ifnull(a.type, 0) as type,
+               ifnull(a.status, 0) as status, a.exec_time as execTime from rdos_batch_job a
+        where a.task_id = #{taskId} and a.project_id = #{projectId} and a.app_type = #{appType}
+        order by a.exec_start_time desc limit #{limitNum};
+    </select>
+
+    <select id="getSubJobsAndStatusByFlowId" resultType="BatchJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_job bj
+        WHERE flow_job_id = #{jobId} AND is_deleted = 0
+    </select>
+    
+    <select id="countFillDataAllStatusByJobName" resultType="java.util.HashMap">
+        SELECT
+	      ebj.status*1 as status,count(ebj.status) as count
+        FROM
+        rdos_batch_job bj
+        LEFT JOIN rdos_engine_batch_job ebj ON bj.job_id = ebj.job_id
+        WHERE
+        bj.is_deleted = 0
+        AND bj.job_name LIKE '${jobName}%'
+        <if test="jobIds != null and jobIds.size > 0">
+            AND bj.job_id NOT IN
+            <foreach collection="jobIds" item="jobId" index="index" open="(" separator="," close=")">
+                #{jobId}
+            </foreach>
+        </if>
+        AND bj.type = 1
+        GROUP BY ebj.status
+    </select>
+
+    <select id="getWorkFlowJobId" resultType="java.lang.String">
+        SELECT job_id
+        FROM rdos_batch_job
+        WHERE id in
+        <foreach item="id" index="index" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        AND task_type in
+        <foreach item="taskType" index="index" collection="taskTypes" open="(" separator="," close=")">
+            #{taskType}
+        </foreach>
+        AND is_deleted = 0
+    </select>
+
+    <select id="getSubJobsByFlowIds" resultType="BatchJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_job bj
+        WHERE flow_job_id in
+        <foreach item="flowId" index="index" collection="flowIds" open="(" separator="," close=")">
+            #{flowId}
+        </foreach>
+        AND bj.is_deleted = 0
+    </select>
+
+    <select id="getTaskTypeByJobId" resultType="java.lang.Integer">
+        SELECT
+            task_type
+        FROM
+            rdos_batch_job bj
+            LEFT JOIN rdos_batch_task bt ON bj.task_id = bt.id
+        WHERE
+            bj.job_id = #{jobId} and bj.is_deleted = 0 and bt.is_deleted = 0
+    </select>
+
+    <select id="getFlowJobIdsByJobName" resultType="java.lang.String">
+        SELECT
+			flow_job_id
+			FROM
+			rdos_batch_job bj
+			LEFT JOIN rdos_engine_batch_job ebj ON bj.job_id = ebj.job_id
+			WHERE
+			bj.is_deleted = 0
+			AND bj.type = 1
+			AND bj.job_name LIKE '${jobName}%'
+			AND bj.flow_job_id != '0'
+			GROUP BY bj.flow_job_id
+    </select>
+
+    <update id="setJobRestart">
+        update rdos_batch_job set is_restart = 1
+        where job_id in
+        <foreach collection="list" item="jobId" open="(" separator="," close=")">
+            #{jobId}
+        </foreach>
+    </update>
+
+    <select id="countByFillDataAllStatus" resultType="java.util.HashMap">
+        SELECT
+        bj.status*1 as status,
+        count(bj.status) as count,
+        bj.fill_id as fillId
+        FROM
+        rdos_batch_job bj
+        where
+        bj.is_deleted = 0
+        AND bj.task_type != 10
+        AND bj.type = 1
+        AND bj.fill_id in
+        <foreach collection="fillIdList" index="index" item="fillId" open="(" close=")" separator=",">
+            #{fillId}
+        </foreach>
+        group by bj.fill_id,bj.status
+    </select>
+
+    <select id="listFillIdList" resultType="java.lang.String">
+        SELECT DISTINCT
+        bj.fill_id
+        FROM rdos_batch_job bj
+        LEFT JOIN rdos_batch_task_shade ts ON bj.task_id = ts.task_id
+        <include refid="select_where_fragment" />
+        <include refid="page_condition"/>
+    </select>
+
+
+    <select id="listFillIdListWithOutTask" resultType="java.lang.String">
+        SELECT DISTINCT
+        bj.fill_id
+        FROM rdos_batch_job bj
+        <include refid="select_where_batch_job" />
+        <include refid="page_condition"/>
+    </select>
+
+    <select id="queryFillData" resultType="BatchJob">
+        select
+        <include refid="select_content_fragment"/>
+        from
+        rdos_batch_job bj
+        left join rdos_batch_fill_data_job fj on fj.id = bj.fill_id
+        <include refid="select_where_fragment_without_ts"/>
+        AND fj.job_name = #{model.fillDataJobName}
+        <include refid="queryWorkFlow"/>
+        <if test="model.ownerUserId != null">
+            AND ts.owner_user_id = #{model.ownerUserId}
+        </if>
+        <include refid="page_condition"/>
+    </select>
+
+    <select id="countByFillData" resultType="java.lang.Integer">
+        select count(bj.id)
+        from
+        rdos_batch_job bj
+        left join rdos_batch_fill_data_job fj on fj.id = bj.fill_id
+        <include refid="select_where_fragment_without_ts"/>
+        and fj.job_name = #{model.fillDataJobName}
+        <include refid="queryWorkFlow"/>
+        <if test="model.ownerUserId != null">
+            AND ts.owner_user_id = #{model.ownerUserId}
+        </if>
+    </select>
+
+    <select id="getWorkFlowTopNode" resultType="BatchJob">
+        SELECT
+            <include refid="select_content_fragment"/>
+        FROM
+            rdos_batch_job bj
+        WHERE
+            bj.job_key IN ( SELECT job_key FROM rdos_batch_job_job WHERE parent_job_key = ( SELECT job_key FROM rdos_batch_job WHERE job_id = #{jobId} ) )
+            AND bj.flow_job_id != '0'
+    </select>
+
+    <select id="listByJobIdList" resultType="BatchJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_job
+        where job_id in
+        <foreach collection="jobIds" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+        and project_id = #{projectId}
+    </select>
+
+    <select id="listJobIdByTaskType" resultType="java.lang.String">
+        SELECT
+        job_id
+        from rdos_batch_job
+        where task_type = #{taskType} and is_deleted = 0
+    </select>
+
+    <select id="getStatusById" resultType="java.lang.Integer">
+        SELECT
+        status
+        FROM rdos_batch_job
+        WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <select id="countTasksByCycTimeTypeAndAddress" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+        FROM rdos_batch_job
+        WHERE node_address = #{nodeAddress}
+        AND type = #{scheduleType}
+        AND task_type != 10
+        <if test="cycStartTime != null">
+            AND cyc_time &gt;= #{cycStartTime}
+        </if>
+        <if test="cycEndTime != null">
+            AND cyc_time &lt; #{cycEndTime}
+        </if>
+        AND (status = 0 or (status = 10 and task_type in (10, 14)))
+        AND is_deleted = 0
+    </select>
+
+    <select id="listSimpleJobByStatusAddress" resultType="SimpleBatchJobPO">
+        SELECT id, job_id, type
+        FROM rdos_batch_job
+        WHERE id > #{startId} AND (node_address = #{nodeAddress} or node_address is null)
+        <if test="statuses != null">
+            AND status IN
+            <foreach item="status" index="index" collection="statuses" open="(" separator="," close=")">
+                #{status}
+            </foreach>
+        </if>
+        AND is_deleted = 0
+        order by id asc limit 500
+    </select>
+
+    <update id="updateNodeAddress">
+        UPDATE
+        rdos_batch_job
+        set node_address = #{nodeAddress}
+        WHERE id IN
+        <foreach item="id" index="index" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+
+    <update id="updateJobStatus">
+        UPDATE rdos_batch_job
+        SET status = #{status},gmt_modified = now()
+        WHERE is_deleted=0
+        AND id IN
+        <foreach item="id" index="index" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="stopUnsubmitJob" >
+        UPDATE  rdos_batch_job
+        set status = #{status} where status = 0 and  job_name like #{likeName} and project_id = #{projectId} and app_type = #{appType};
+    </update>
+
+    <select id="getByTaskIdAndStatusOrderByIdLimit" resultType="BatchJob">
+        SELECT
+            *
+        FROM rdos_batch_job job
+        WHERE job.task_id = #{taskId} and  #{time} > STR_TO_DATE(job.cyc_time,"%Y%m%d%H%i%s")
+          and job.status = #{status}
+          and job.is_deleted = 0
+        order by job.cyc_time desc limit 1
+    </select>
+
+    <select id="listExecJobByCycTimeTypeAddress" resultType="BatchJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_job bj
+        WHERE id > #{startId} AND node_address = #{nodeAddress}
+        <if test="scheduleType != null">
+            AND type = #{scheduleType}
+        </if>
+        <if test="cycStartTime != null">
+            AND cyc_time &gt;= #{cycStartTime}
+        </if>
+        <if test="cycEndTime != null">
+            AND cyc_time &lt; #{cycEndTime}
+        </if>
+        AND (status = 0 or ((status = 10 or status=4) and task_type in (10, 14)))
+        AND is_deleted = 0
+        order by id, cyc_time asc limit 500
+    </select>
+
+    <update id="updateJobInfoByJobId">
+        UPDATE rdos_batch_job
+        SET status = #{status}, gmt_modified = now(),
+        <if test="execStartTime != null">
+          exec_start_time = #{execStartTime},
+        </if>
+        <if test="execEndTime != null">
+          exec_end_time = #{execEndTime},
+        </if>
+        exec_time = #{execTime}, retry_num = #{retryNum}
+        WHERE job_id = #{jobId}
+        AND is_deleted=0
+    </update>
+
+    <update id="updateStatusAndLogInfoById">
+        UPDATE rdos_batch_job
+        SET status = #{status}, gmt_modified = now(), log_info = #{logInfo}
+        WHERE id = #{id}
+        AND is_deleted=0
+    </update>
+
+    <update id="updateStatusByJobId">
+        UPDATE rdos_batch_job
+        <set>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="logInfo != null">
+                log_info = #{logInfo},
+            </if>
+            gmt_modified = now()
+        </set>
+        WHERE job_id = #{jobId}
+        AND is_deleted=0
+    </update>
+
+    <select id="listByBusinessDateAndPeriodTypeAndStatusList" resultType="BatchJob">
+        select
+        <include refid= "select_content_fragment"/>
+        from rdos_batch_job bj
+        LEFT JOIN rdos_batch_task_shade ts on ts.task_id = bj.task_id
+        WHERE
+        ts.flow_id = 0
+        <if test="model.taskPeriodId != null and model.taskPeriodId.size()>0">
+            AND bj.period_type IN
+            <foreach collection="model.taskPeriodId" separator="," index="index" item="item" open="(" close=")">
+                ${item}
+            </foreach>
+        </if>
+        <if test="model.jobStatuses != null and model.jobStatuses.size() > 0">
+            AND bj.status IN
+            <foreach item="status" index="index" collection="model.jobStatuses" open="(" separator="," close=")">
+                #{status}
+            </foreach>
+        </if>
+        <if test="model.bizStartDay != null and model.bizEndDay != null">
+            AND bj.business_date &gt;= ${model.bizStartDay} and  bj.business_date &lt; ${model.bizEndDay}
+        </if>
+        AND bj.tenant_id = ${model.tenantId} AND bj.project_id = ${model.projectId} AND bj.is_deleted = 0
+        AND bj.type = 0
+    </select>
+</mapper>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.task.dao.BatchJobAlarmDao">
+
+    <sql id="select_content_fragment">
+      id,tenant_id,project_id,dtuic_tenant_id,app_type,job_id,task_id,task_status,gmt_create,gmt_modified,is_deleted
+    </sql>
+
+    <sql id="update_fragment">
+        <set>
+            <if test="jobId != null">
+                job_id = #{jobId},
+            </if>
+            <if test="taskId != null">
+                task_id = #{taskId},
+            </if>
+            <if test="taskStatus != null">
+                task_status = #{taskStatus},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted},
+            </if>
+            <if test="dtuicTenantId !=null">
+                dtuic_tenant_id  = #{dtuicTenantId},
+            </if>
+            <if test="appType!=null">
+                app_type = #{appType},
+            </if>
+        </set>
+    </sql>
+
+    <insert id="insert" parameterType="BatchJobAlarm" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO rdos_batch_job_alarm
+          (tenant_id,dtuic_tenant_id,app_type,project_id,job_id,task_id,task_status)
+        VALUES
+          (#{tenantId},#{dtuicTenantId},#{appType},#{projectId},#{jobId},#{taskId},#{taskStatus})
+    </insert>
+
+    <select id="countByJobId" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+        FROM rdos_batch_job_alarm
+        WHERE job_id = #{jobId} AND is_deleted = 0
+    </select>
+
+    <select id="getByTaskId" resultType="BatchJobAlarm">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_job_alarm
+        WHERE task_id = #{taskId} and app_type = #{appType} and is_deleted = 0
+    </select>
+
+    <update id="update" parameterType="BatchJobAlarm">
+        UPDATE
+        rdos_batch_job_alarm
+        <include refid="update_fragment"/>
+        WHERE
+        id = #{id} AND is_deleted = 0
+    </update>
+
+    <delete id="deleteFinishedJob">
+        delete from
+        rdos_batch_job_alarm
+        where task_status in
+        <foreach item="status" index="index" collection="statuses" open="(" separator="," close=")">
+            #{status}
+        </foreach>
+        AND is_deleted = 0
+    </delete>
+
+</mapper>

@@ -11,8 +11,11 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <zookeeper.version>3.4.6</zookeeper.version>
-        <revision>3.6.6</revision>
         <hadoop.version>2.7.3</hadoop.version>
+        <spring.version>4.1.9.RELEASE</spring.version>
+        <dtCenter.common>4.0.1-SNAPSHOT</dtCenter.common>
+        <dtCenter.sdk>1.0.1-SNAPSHOT</dtCenter.sdk>
+        <fastjson>2.9.6</fastjson>
     </properties>
 
     <modules>
@@ -23,6 +26,12 @@
         <module>engine-worker</module>
         <module>engine-master</module>
         <module>engine-entrance</module>
+        <module>engine-base</module>
+        <module>schedule-common</module>
+        <module>schedule-dao</module>
+        <module>schedule-service</module>
+        <module>schedule-router</module>
+        <module>schedule-runner</module>
         <module>engine-plugins/base</module>
         <!--<module>engine-plugins/spark/spark-hadoop2</module>-->
         <module>engine-plugins/spark/spark-yarn-hadoop2</module>
@@ -43,6 +52,8 @@
     </modules>
 
     <dependencies>
+
+        <!-- DAG -->
 
         <dependency>
             <groupId>log4j</groupId>
@@ -104,7 +115,177 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Schedule -->
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.20</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+            <version>3.4.4</version>
+        </dependency>
+        <!-- mybatis/spring包 -->
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+            <version>1.3.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.dtstack.dtcenter</groupId>
+            <artifactId>common.metric</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.dtstack.dtcenter</groupId>
+            <artifactId>common.hadoop</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.dtstack.dtcenter</groupId>
+            <artifactId>common.rdbms.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.dtstack.dtcenter</groupId>
+            <artifactId>common.base</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.dtstack.dtcenter</groupId>
+            <artifactId>common.rdbms.hive</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.dtstack.dtcenter</groupId>
+            <artifactId>common.rdbms.impala</artifactId>
+        </dependency>
     </dependencies>
+
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.dtstack.dtcenter</groupId>
+                <artifactId>common.hadoop</artifactId>
+                <version>${dtCenter.common}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.dtstack.dtcenter</groupId>
+                <artifactId>common.rdbms.hive</artifactId>
+                <version>${dtCenter.common}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.dtstack.dtcenter</groupId>
+                <artifactId>common.rdbms.impala</artifactId>
+                <version>${dtCenter.common}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.dtstack.dtcenter</groupId>
+                <artifactId>common.rdbms.core</artifactId>
+                <version>${dtCenter.common}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.dtstack.dtcenter</groupId>
+                <artifactId>common.base</artifactId>
+                <version>${dtCenter.common}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-tx</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-oxm</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-aop</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-context-support</artifactId>
+                    </exclusion>
+                </exclusions>
+
+            </dependency>
+
+            <dependency>
+                <artifactId>sdk-core</artifactId>
+                <groupId>com.dtstack.rdos</groupId>
+                <version>${dtCenter.sdk}</version>
+            </dependency>
+
+            <dependency>
+                <artifactId>sdk-console-client</artifactId>
+                <groupId>com.dtstack.rdos</groupId>
+                <version>${dtCenter.sdk}</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>com.dtstack.dtcenter</groupId>
+                <artifactId>common.metric</artifactId>
+                <version>${dtCenter.common}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${fastjson}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${fastjson}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${fastjson}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>

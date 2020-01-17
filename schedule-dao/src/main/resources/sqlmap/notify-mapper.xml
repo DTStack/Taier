@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.task.dao.NotifyDao">
+
+
+    <sql id="select_content_fragment">
+      id,tenant_id,project_id,dtuic_tenant_id,app_type,biz_type,relation_id,name,trigger_type,webhook,uncomplete_time,send_way,start_time,end_time,status,create_user_id,gmt_create,gmt_modified,is_deleted
+    </sql>
+
+    <sql id="update_fragment">
+        <set>
+            <if test="id != null">
+                id = #{id},
+            </if>
+            <if test="tenantId != null">
+                tenant_id = #{tenantId},
+            </if>
+            <if test="projectId != null">
+                project_id = #{projectId},
+            </if>
+            <if test="bizType != null">
+                biz_type = #{bizType},
+            </if>
+            <if test="relationId != null">
+                relation_id = #{relationId},
+            </if>
+            <if test="triggerType != null">
+                trigger_type = #{triggerType},
+            </if>
+            <if test="webhook != null">
+                webhook = #{webhook},
+            </if>
+            <if test="uncompleteTime != null">
+                uncomplete_time = #{uncompleteTime},
+            </if>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="sendWay != null">
+                send_way = #{sendWay},
+            </if>
+            <if test="startTime != null">
+                start_time = #{startTime},
+            </if>
+            <if test="endTime != null">
+                end_time = #{endTime},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="createUserId != null">
+                create_user_id = #{createUserId},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = now(),
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted},
+            </if>
+        </set>
+    </sql>
+
+    <select id="getOne" resultType="Notify">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_notify
+        WHERE id = #{id} AND tenant_id = #{tenantId} AND project_id = #{projectId} AND is_deleted = 0
+    </select>
+
+    <insert id="insert" parameterType="Notify" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO rdos_notify
+          (tenant_id,project_id,dtuic_tenant_id,app_type,biz_type,relation_id,name,trigger_type,webhook,uncomplete_time,send_way,start_time,end_time,create_user_id)
+        VALUES
+          (#{tenantId},#{projectId}, #{dtuicTenantId}, #{appType}, #{bizType},#{relationId},#{name},#{triggerType},#{webhook},#{uncompleteTime},#{sendWay},#{startTime},#{endTime},#{createUserId})
+    </insert>
+
+    <update id="update" parameterType="Notify">
+        UPDATE
+        rdos_notify
+        <include refid="update_fragment"/>
+        WHERE
+        id = #{id} AND tenant_id = #{tenantId} AND project_id = #{projectId} AND is_deleted = 0
+    </update>
+
+    <select id="getByBizTypeAndRelationIdAndName" resultType="Notify">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_notify
+        WHERE biz_type = #{bizType} AND relation_id = #{relationId} AND name = #{name} AND tenant_id = #{tenantId} AND project_id = #{projectId} AND is_deleted = 0
+    </select>
+
+    <select id="getNotifyByNameAndProjectId" resultType="Notify">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_notify
+        WHERE biz_type = #{bizType} AND name = #{name} AND project_id = #{projectId} AND is_deleted = 0
+    </select>
+
+    <select id="getByRelationIdAndBizTypeAndName" resultType="Notify">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_notify
+        WHERE relation_id = #{relationId}
+        AND biz_type = #{bizType}
+        AND app_type = #{appType}
+        AND name = #{name}
+        AND tenant_id = #{tenantId}
+        AND project_id = #{projectId}
+        AND is_deleted = 0
+    </select>
+
+</mapper>
