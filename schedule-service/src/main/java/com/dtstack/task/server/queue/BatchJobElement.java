@@ -1,6 +1,6 @@
 package com.dtstack.task.server.queue;
 
-import com.dtstack.task.common.enums.SentinelType;
+import com.dtstack.engine.common.enums.SentinelType;
 import com.dtstack.task.server.bo.ScheduleBatchJob;
 
 import java.util.concurrent.atomic.AtomicLong;

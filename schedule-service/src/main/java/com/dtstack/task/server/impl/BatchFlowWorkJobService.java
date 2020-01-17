@@ -2,7 +2,7 @@ package com.dtstack.task.server.impl;
 
 import com.dtstack.dtcenter.common.constant.TaskStatusConstrant;
 import com.dtstack.dtcenter.common.enums.TaskStatus;
-import com.dtstack.task.domain.BatchJob;
+import com.dtstack.engine.domain.BatchJob;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;

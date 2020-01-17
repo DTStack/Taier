@@ -3,7 +3,7 @@ package com.dtstack.task.web.callback;
 import com.dtstack.dtcenter.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.common.exception.ExceptionEnums;
 import com.dtstack.dtcenter.common.hadoop.HdfsOperator;
-import com.dtstack.task.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.task.web.util.ResponseUtil;
 import io.vertx.ext.web.RoutingContext;
 import org.codehaus.jackson.map.ObjectMapper;

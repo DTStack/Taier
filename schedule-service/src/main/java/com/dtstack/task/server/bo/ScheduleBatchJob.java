@@ -1,7 +1,7 @@
 package com.dtstack.task.server.bo;
 
-import com.dtstack.task.domain.BatchJob;
-import com.dtstack.task.domain.BatchJobJob;
+import com.dtstack.engine.domain.BatchJob;
+import com.dtstack.engine.domain.BatchJobJob;
 import com.google.common.collect.Lists;
 
 import java.util.List;

@@ -1,6 +1,6 @@
 package com.dtstack.task.server.vo;
 
-import com.dtstack.task.domain.AppTenantEntity;
+import com.dtstack.engine.domain.AppTenantEntity;
 
 import java.util.List;
 

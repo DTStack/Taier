@@ -5,18 +5,32 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.common.constant.TaskStatusConstrant;
 import com.dtstack.dtcenter.common.enums.*;
+import com.dtstack.engine.dao.BatchAlarmDao;
+import com.dtstack.engine.dao.BatchAlarmRecordDao;
+import com.dtstack.engine.dao.BatchAlarmRecordUserDao;
+import com.dtstack.engine.dao.BatchJobAlarmDao;
+import com.dtstack.engine.dao.BatchJobDao;
+import com.dtstack.engine.dao.BatchTaskShadeDao;
+import com.dtstack.engine.dao.NotifyDao;
+import com.dtstack.engine.dao.NotifyRecordDao;
+import com.dtstack.engine.dao.NotifyUserDao;
+import com.dtstack.engine.domain.BatchAlarm;
+import com.dtstack.engine.domain.BatchAlarmRecord;
+import com.dtstack.engine.domain.BatchAlarmRecordUser;
+import com.dtstack.engine.domain.BatchJob;
+import com.dtstack.engine.domain.BatchJobAlarm;
+import com.dtstack.engine.domain.BatchTaskShade;
+import com.dtstack.engine.domain.Notify;
+import com.dtstack.engine.domain.NotifyRecord;
 import com.dtstack.sdk.console.client.ConsoleNotifyApiClient;
 import com.dtstack.sdk.console.domain.SetAlarmUserDTO;
 import com.dtstack.sdk.console.domain.parameter.NotifyRecordParam;
 import com.dtstack.sdk.console.domain.parameter.SetAlarmNotifyRecordParam;
 import com.dtstack.sdk.core.common.ApiResponse;
-import com.dtstack.task.common.TaskThreadFactory;
-import com.dtstack.task.common.enums.EScheduleType;
-import com.dtstack.task.common.env.EnvironmentContext;
-import com.dtstack.task.common.exception.RdosDefineException;
-import com.dtstack.task.dao.*;
-import com.dtstack.task.domain.*;
-import com.dtstack.task.dto.UserDTO;
+import com.dtstack.engine.common.enums.EScheduleType;
+import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.dto.UserDTO;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
@@ -102,7 +116,7 @@ public class BatchAlarmProcessor implements Runnable, InitializingBean, Disposab
 
     private static final SimpleDateFormat day_sdf = new SimpleDateFormat("yyyyMMdd");
 
-    private ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new TaskThreadFactory("BatchAlarmProcessor"));
+    private ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("BatchAlarmProcessor"));
 
     @Override
     public void run() {

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.BatchFillDataJobDao">
+
+    <sql id="select_content_fragment">
+      id,dtuic_tenant_id,app_type,tenant_id,project_id,job_name,run_day,from_day,to_day,gmt_create,gmt_modified,create_user_id,is_deleted
+    </sql>
+
+    <select id="getByJobName" resultType="BatchFillDataJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_fill_data_job
+        WHERE job_name = #{jobName} and project_id = #{projectId} and is_deleted = 0
+    </select>
+
+    <insert id="insert" parameterType="BatchFillDataJob" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO rdos_batch_fill_data_job
+          (tenant_id,project_id,job_name,run_day,from_day,to_day,gmt_create,gmt_modified,create_user_id,is_deleted,dtuic_tenant_id,app_type)
+        VALUES
+          (#{tenantId},#{projectId},#{jobName},#{runDay},#{fromDay},#{toDay},#{gmtCreate},#{gmtModified},#{createUserId},#{isDeleted},#{dtuicTenantId},#{appType})
+    </insert>
+
+    <select id="listFillJob" resultType="BatchFillDataJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_fill_data_job
+        WHERE project_id = #{projectId} and job_name in
+        <foreach collection="nameList" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        and is_deleted = 0 order by gmt_create desc
+    </select>
+
+    <select id="getFillJobList" resultType="BatchFillDataJob">
+        SELECT * FROM rdos_batch_fill_data_job WHERE
+            tenant_id = #{tenantId} AND
+            project_id = #{projectId} AND is_deleted = 0 AND
+        id IN
+        <foreach collection="fillIdList" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+</mapper>

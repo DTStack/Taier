@@ -1,9 +1,9 @@
 package com.dtstack.task.server.vo;
 
-import com.dtstack.task.domain.BatchTask;
-import com.dtstack.task.domain.BatchTaskShade;
-import com.dtstack.task.dto.UserDTO;
-import com.dtstack.task.dto.BatchTaskForFillDataDTO;
+import com.dtstack.engine.domain.BatchTask;
+import com.dtstack.engine.domain.BatchTaskShade;
+import com.dtstack.engine.dto.UserDTO;
+import com.dtstack.engine.dto.BatchTaskForFillDataDTO;
 import com.dtstack.task.server.parser.ESchedulePeriodType;
 import com.dtstack.task.server.parser.ScheduleCron;
 import com.dtstack.task.server.parser.ScheduleFactory;

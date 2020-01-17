@@ -1,6 +1,6 @@
 package com.dtstack.task.server.vo;
 
-import com.dtstack.task.domain.BatchTaskShade;
+import com.dtstack.engine.domain.BatchTaskShade;
 
 import java.sql.Timestamp;
 

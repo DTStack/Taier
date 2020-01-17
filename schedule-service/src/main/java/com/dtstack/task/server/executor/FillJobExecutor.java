@@ -1,6 +1,6 @@
 package com.dtstack.task.server.executor;
 
-import com.dtstack.task.common.enums.EScheduleType;
+import com.dtstack.engine.common.enums.EScheduleType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

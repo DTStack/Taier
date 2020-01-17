@@ -7,10 +7,9 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.dtstack.task.common.util.ExceptionUtil;
-import com.dtstack.task.common.util.LogCountUtil;
+import com.dtstack.engine.common.util.ExceptionUtil;
+import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.task.server.node.MasterNode;
-import com.dtstack.task.common.TaskThreadFactory;
 import com.dtstack.task.server.zk.ZkService;
 import com.dtstack.task.server.zk.data.BrokerHeartNode;
 import org.slf4j.Logger;
@@ -52,7 +51,7 @@ public class HeartBeatCheckListener implements Listener {
         this.masterListener = masterListener;
         this.masterNode = masterNode;
         this.zkService = zkService;
-        scheduledService = new ScheduledThreadPoolExecutor(1, new TaskThreadFactory("HeartBeatCheckListener"));
+        scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("HeartBeatCheckListener"));
         scheduledService.scheduleWithFixedDelay(
                 this,
                 CHECK_INTERVAL,

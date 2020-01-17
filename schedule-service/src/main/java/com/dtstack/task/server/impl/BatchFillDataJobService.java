@@ -1,7 +1,7 @@
 package com.dtstack.task.server.impl;
 
-import com.dtstack.task.dao.BatchFillDataJobDao;
-import com.dtstack.task.domain.BatchFillDataJob;
+import com.dtstack.engine.dao.BatchFillDataJobDao;
+import com.dtstack.engine.domain.BatchFillDataJob;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -5,12 +5,11 @@ import com.dtstack.dtcenter.common.constant.TaskStatusConstrant;
 import com.dtstack.dtcenter.common.engine.EngineSend;
 import com.dtstack.dtcenter.common.enums.TaskStatus;
 import com.dtstack.sql.Twins;
-import com.dtstack.task.common.TaskThreadFactory;
-import com.dtstack.task.common.constant.JobFieldInfo;
-import com.dtstack.task.common.enums.EScheduleType;
-import com.dtstack.task.common.env.EnvironmentContext;
-import com.dtstack.task.dao.BatchJobDao;
-import com.dtstack.task.domain.po.SimpleBatchJobPO;
+import com.dtstack.engine.common.constrant.JobFieldInfo;
+import com.dtstack.engine.common.enums.EScheduleType;
+import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.dao.BatchJobDao;
+import com.dtstack.engine.domain.po.SimpleBatchJobPO;
 import com.dtstack.task.server.executor.AbstractJobExecutor;
 import com.dtstack.task.server.executor.CronJobExecutor;
 import com.dtstack.task.server.executor.FillJobExecutor;
@@ -95,12 +94,12 @@ public class WorkNode implements InitializingBean, DisposableBean {
         executors.add(cronJobExecutor);
 
         executorService = new ThreadPoolExecutor(executors.size(), executors.size(), 0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(), new TaskThreadFactory("ExecutorDealer"));
+                new LinkedBlockingQueue<>(), CustomThreadFactory("ExecutorDealer"));
         for (AbstractJobExecutor executor : executors) {
             executorService.submit(executor);
         }
 
-        scheduledService = new ScheduledThreadPoolExecutor(1, new TaskThreadFactory("JobStatusDealer"));
+        scheduledService = new ScheduledThreadPoolExecutor(1, new Cust("JobStatusDealer"));
         scheduledService.scheduleWithFixedDelay(
                 new JobStatusDealer(),
                 0,

@@ -1,12 +1,11 @@
 package com.dtstack.task.server.impl;
 
 import com.dtstack.dtcenter.common.annotation.Forbidden;
-import com.dtstack.task.common.enums.EScheduleType;
-import com.dtstack.task.dao.JobGraphTriggerDao;
-import com.dtstack.task.domain.JobGraphTrigger;
+import com.dtstack.engine.common.enums.EScheduleType;
+import com.dtstack.engine.dao.JobGraphTriggerDao;
+import com.dtstack.engine.domain.JobGraphTrigger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 

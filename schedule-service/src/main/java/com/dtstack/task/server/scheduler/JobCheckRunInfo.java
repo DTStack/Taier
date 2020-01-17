@@ -1,7 +1,7 @@
 package com.dtstack.task.server.scheduler;
 
 
-import com.dtstack.task.common.enums.JobCheckStatus;
+import com.dtstack.engine.common.enums.JobCheckStatus;
 
 /**
  * company: www.dtstack.com

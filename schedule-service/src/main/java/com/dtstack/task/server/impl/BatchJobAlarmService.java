@@ -1,9 +1,9 @@
 package com.dtstack.task.server.impl;
 
 import com.dtstack.dtcenter.common.annotation.Forbidden;
-import com.dtstack.task.dao.BatchJobAlarmDao;
-import com.dtstack.task.domain.BatchJob;
-import com.dtstack.task.domain.BatchJobAlarm;
+import com.dtstack.engine.dao.BatchJobAlarmDao;
+import com.dtstack.engine.domain.BatchJob;
+import com.dtstack.engine.domain.BatchJobAlarm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -5,7 +5,7 @@ import com.dtstack.sdk.console.client.ConsoleSegmentidApiClient;
 import com.dtstack.sdk.console.client.ConsoleTenantApiClient;
 import com.dtstack.sdk.console.client.TaskParamApiClient;
 import com.dtstack.sdk.core.common.DtInsightApi;
-import com.dtstack.task.common.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.context.annotation.Bean;
 

@@ -9,11 +9,11 @@ import com.dtstack.dtcenter.common.enums.Sort;
 import com.dtstack.dtcenter.common.pager.PageQuery;
 import com.dtstack.dtcenter.common.pager.PageResult;
 import com.dtstack.dtcenter.common.util.MathUtil;
-import com.dtstack.task.common.exception.ErrorCode;
-import com.dtstack.task.common.exception.RdosDefineException;
-import com.dtstack.task.dao.BatchTaskShadeDao;
-import com.dtstack.task.domain.BatchTaskShade;
-import com.dtstack.task.dto.BatchTaskShadeDTO;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.dao.BatchTaskShadeDao;
+import com.dtstack.engine.domain.BatchJob;
+import com.dtstack.engine.domain.BatchTaskShade;
+import com.dtstack.engine.dto.BatchTaskShadeDTO;
 import com.dtstack.task.send.TaskUrlConstant;
 import com.dtstack.task.server.scheduler.JobGraphBuilder;
 import com.dtstack.task.server.vo.BatchTaskShadeVO;
@@ -145,7 +145,7 @@ public class BatchTaskShadeService {
      *
      * @param jobKey
      * @return
-     * @see JobGraphBuilder#getSelfDependencyJobKeys(com.dtstack.task.domain.BatchJob, com.dtstack.task.server.parser.ScheduleCron, java.lang.String)
+     * @see JobGraphBuilder#getSelfDependencyJobKeys(BatchJob, com.dtstack.task.server.parser.ScheduleCron, java.lang.String)
      */
     @Forbidden
     public String getTaskNameByJobKey(String jobKey,Integer appType) {

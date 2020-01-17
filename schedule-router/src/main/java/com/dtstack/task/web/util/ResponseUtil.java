@@ -1,6 +1,5 @@
 package com.dtstack.task.web.util;
 
-import com.dtstack.task.common.exception.ErrorCode;
 import com.dtstack.task.web.callback.ApiResult;
 import io.vertx.ext.web.RoutingContext;
 
