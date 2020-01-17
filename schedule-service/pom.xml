@@ -26,7 +26,7 @@
         </dependency>
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>engine-base</artifactId>
+            <artifactId>engine-api</artifactId>
             <version>1.0.0</version>
         </dependency>
 

@@ -26,7 +26,7 @@
         <module>engine-worker</module>
         <module>engine-master</module>
         <module>engine-entrance</module>
-        <module>engine-base</module>
+        <module>engine-api</module>
         <module>schedule-common</module>
         <module>schedule-dao</module>
         <module>schedule-service</module>
