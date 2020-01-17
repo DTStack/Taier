@@ -107,7 +107,9 @@ public class Client {
         }
         taskConf.set("ipc.client.fallback-to-simple-auth-allowed", "true");
 
-        taskConf.set(DtYarnConfiguration.CONTAINER_REQUEST_NODES, clientArguments.nodes);
+        if (clientArguments.nodes != null) {
+            taskConf.set(DtYarnConfiguration.CONTAINER_REQUEST_NODES, clientArguments.nodes);
+        }
         taskConf.set(DtYarnConfiguration.LEARNING_AM_MEMORY, String.valueOf(clientArguments.amMem));
         taskConf.set(DtYarnConfiguration.LEARNING_AM_CORES, String.valueOf(clientArguments.amCores));
         taskConf.set(DtYarnConfiguration.LEARNING_WORKER_MEMORY, String.valueOf(clientArguments.workerMemory));
@@ -352,9 +354,8 @@ public class Client {
     }
 
     public List<String> getContainerInfos(String jobId) throws IOException {
-        ApplicationId appId = ConverterUtils.toApplicationId(jobId);
-        Path cIdPath = Utilities.getRemotePath(conf, appId, "containers");
-        FileStatus[] status = dfs.listStatus(cIdPath);
+        Path remotePath = new Path(conf.get(DtYarnConfiguration.CONTAINER_STAGING_DIR, DtYarnConfiguration.DEFAULT_CONTAINER_STAGING_DIR), jobId);
+        FileStatus[] status = dfs.listStatus(remotePath);
         List<String> infos = new ArrayList<>(status.length);
         for (FileStatus file : status) {
             if (!file.getPath().getName().startsWith("container")) {

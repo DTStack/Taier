@@ -91,12 +91,7 @@ public class JobClient extends OrderObject{
      * @return
      */
     public static RdosTaskStatus getStatus(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
-        try {
-            return ClientOperator.getInstance().getJobStatus(engineType, pluginInfo, jobIdentifier);
-        } catch (Exception e) {
-            logger.error("getStatus happens error：{}", e);
-            return RdosTaskStatus.FAILED;
-        }
+        return ClientOperator.getInstance().getJobStatus(engineType, pluginInfo, jobIdentifier);
     }
 
     public static String getEngineLog(String engineType, String pluginInfo, JobIdentifier jobIdentifier){

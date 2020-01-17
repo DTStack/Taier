@@ -118,7 +118,7 @@ public class FlinkUtil {
             if(ComputeType.STREAM == computeType){
                 return FlinkYarnMode.PER_JOB;
             } else {
-                return FlinkYarnMode.NEW;
+                return FlinkYarnMode.SESSION;
             }
         }
         return FlinkYarnMode.mode(modeStr);

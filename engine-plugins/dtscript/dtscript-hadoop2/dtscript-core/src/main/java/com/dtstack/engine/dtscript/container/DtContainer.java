@@ -104,7 +104,6 @@ public class DtContainer {
         InetSocketAddress addr = new InetSocketAddress(appMasterHost, appMasterPort);
         try {
             LOG.info("appMasterHost:" + appMasterHost + ", port:" + appMasterPort);
-            final Configuration newConf = new Configuration(conf);
             amClient = RPC.getProxy(ApplicationContainerProtocol.class,
                     ApplicationContainerProtocol.versionID,
                     addr,
@@ -299,6 +298,9 @@ public class DtContainer {
         try {
             ContainerId cId = containerId.getContainerId();
             Path path = Utilities.getRemotePath(conf, cId.getApplicationAttemptId().getApplicationId(), cId.toString()+".out");
+            if (dfs.exists(path)) {
+                dfs.delete(path);
+            }
             stream = FileSystem.create(path.getFileSystem(conf), path, new FsPermission(FsPermission.createImmutable((short) 0777)));
             stream.write(new ObjectMapper().writeValueAsString(containerInfo).getBytes(StandardCharsets.UTF_8));
             stream.write("\n".getBytes(StandardCharsets.UTF_8));
