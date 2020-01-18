@@ -2,7 +2,7 @@ package com.dtstack.engine.master.zk.listener;
 
 import com.dtstack.engine.common.util.ExceptionUtil;
 import com.dtstack.engine.common.util.LogCountUtil;
-import com.dtstack.engine.master.node.MasterNode;
+import com.dtstack.engine.master.node.FailoverStrategy;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.master.zk.ZkService;
 import org.slf4j.Logger;
@@ -30,10 +30,10 @@ public class MasterListener implements Listener {
     private AtomicBoolean isMaster = new AtomicBoolean(false);
     private final ScheduledExecutorService scheduledService;
     private ZkService zkService;
-    private MasterNode masterNode;
+    private FailoverStrategy failoverStrategy;
 
-    public MasterListener(MasterNode masterNode, ZkService zkService) {
-        this.masterNode = masterNode;
+    public MasterListener(FailoverStrategy failoverStrategy, ZkService zkService) {
+        this.failoverStrategy = failoverStrategy;
         this.zkService = zkService;
 
         scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("MasterListener"));
@@ -49,7 +49,7 @@ public class MasterListener implements Listener {
         try {
             logOutput++;
             isMaster.getAndSet(zkService.setMaster());
-            masterNode.setIsMaster(isMaster.get());
+            failoverStrategy.setIsMaster(isMaster.get());
 
             if (LogCountUtil.count(logOutput, MULTIPLES)) {
                 logger.info("MasterListener start again...");

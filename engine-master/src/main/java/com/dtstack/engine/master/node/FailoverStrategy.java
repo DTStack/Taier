@@ -42,9 +42,9 @@ import java.util.concurrent.TimeUnit;
  * create: 2019/10/22
  */
 @Component
-public class MasterNode {
+public class FailoverStrategy {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MasterNode.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FailoverStrategy.class);
 
     private BlockingQueue<String> queue = new LinkedBlockingDeque<>();
 
@@ -82,7 +82,7 @@ public class MasterNode {
 
     private boolean currIsMaster = false;
 
-    private MasterNode() {
+    private FailoverStrategy() {
         masterNodeDealer = new ThreadPoolExecutor(2, 2, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory("masterNodeDealer"));
     }

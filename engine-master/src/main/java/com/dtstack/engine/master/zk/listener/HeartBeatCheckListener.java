@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.util.ExceptionUtil;
 import com.dtstack.engine.common.util.LogCountUtil;
-import com.dtstack.engine.master.node.MasterNode;
+import com.dtstack.engine.master.node.FailoverStrategy;
 import com.dtstack.engine.master.zk.ZkService;
 import com.dtstack.engine.master.zk.data.BrokerHeartNode;
 import org.slf4j.Logger;
@@ -46,11 +46,11 @@ public class HeartBeatCheckListener implements Listener {
 
     private ZkService zkService;
 
-    private MasterNode masterNode;
+    private FailoverStrategy failoverStrategy;
 
-    public HeartBeatCheckListener(MasterListener masterListener, MasterNode masterNode, ZkService zkService) {
+    public HeartBeatCheckListener(MasterListener masterListener, FailoverStrategy failoverStrategy, ZkService zkService) {
         this.masterListener = masterListener;
-        this.masterNode = masterNode;
+        this.failoverStrategy = failoverStrategy;
         this.zkService = zkService;
         scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("HeartBeatCheckListener"));
         scheduledService.scheduleWithFixedDelay(
@@ -114,7 +114,7 @@ public class HeartBeatCheckListener implements Listener {
                     //先置为 false
                     this.zkService.disableBrokerHeartNode(node, true);
                     //再进行容灾，容灾时还需要再判断一下是否alive，node可能已经恢复
-                    this.masterNode.dataMigration(node);
+                    this.failoverStrategy.dataMigration(node);
                     this.zkService.removeBrokerQueueNode(node);
                     this.brokerNodeCounts.remove(node);
                 } else {

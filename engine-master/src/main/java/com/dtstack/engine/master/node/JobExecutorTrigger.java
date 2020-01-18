@@ -44,9 +44,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * create: 2019/10/22
  */
 @Component
-public class WorkNode implements InitializingBean, DisposableBean {
+public class JobExecutorTrigger implements InitializingBean, DisposableBean {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WorkNode.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JobExecutorTrigger.class);
 
     private static final AtomicBoolean INIT = new AtomicBoolean(true);
 

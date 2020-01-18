@@ -3,7 +3,7 @@ package com.dtstack.engine.master.zk.listener;
 import com.dtstack.engine.common.util.ExceptionUtil;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.master.node.WorkNode;
+import com.dtstack.engine.master.node.JobExecutorTrigger;
 import com.dtstack.engine.master.queue.ClusterQueueInfo;
 import com.dtstack.engine.master.queue.QueueInfo;
 import com.dtstack.engine.master.zk.ZkService;
@@ -33,11 +33,11 @@ public class QueueListener implements Listener {
 
     private final ScheduledExecutorService scheduledService;
 
-    private WorkNode workNode;
+    private JobExecutorTrigger jobExecutorTrigger;
     private ZkService zkService;
 
-    public QueueListener(WorkNode workNode, ZkService zkService) {
-        this.workNode = workNode;
+    public QueueListener(JobExecutorTrigger jobExecutorTrigger, ZkService zkService) {
+        this.jobExecutorTrigger = jobExecutorTrigger;
         this.zkService = zkService;
 
         scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("QueueListener"));
@@ -59,7 +59,7 @@ public class QueueListener implements Listener {
             ClusterQueueInfo.getInstance().updateClusterQueueInfo(queueInfo);
 
             //更新当前节点的queue 信息
-            Map<Integer, QueueInfo> nodeQueueInfo = workNode.getNodeQueueInfo();
+            Map<Integer, QueueInfo> nodeQueueInfo = jobExecutorTrigger.getNodeQueueInfo();
             BrokerQueueNode localQueueNode = new BrokerQueueNode();
             localQueueNode.setQueueInfo(nodeQueueInfo);
             zkService.updateSynchronizedLocalQueueNode(zkService.getLocalAddress(), localQueueNode);

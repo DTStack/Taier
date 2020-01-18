@@ -4,8 +4,8 @@ import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.ExceptionUtil;
 import com.dtstack.engine.common.util.KerberosUtils;
-import com.dtstack.engine.master.node.MasterNode;
-import com.dtstack.engine.master.node.WorkNode;
+import com.dtstack.engine.master.node.FailoverStrategy;
+import com.dtstack.engine.master.node.JobExecutorTrigger;
 import com.dtstack.engine.master.zk.listener.HeartBeatCheckListener;
 import com.dtstack.engine.master.zk.listener.HeartBeatListener;
 import com.dtstack.engine.master.zk.listener.Listener;
@@ -72,10 +72,10 @@ public class ZkService implements InitializingBean, DisposableBean {
     private EnvironmentContext environmentContext;
 
     @Autowired
-    private MasterNode masterNode;
+    private FailoverStrategy failoverStrategy;
 
     @Autowired
-    private WorkNode workNode;
+    private JobExecutorTrigger jobExecutorTrigger;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -141,10 +141,10 @@ public class ZkService implements InitializingBean, DisposableBean {
 
     private void initScheduledExecutorService() {
         listeners.add(new HeartBeatListener(this));
-        MasterListener masterListener = new MasterListener(masterNode, this);
+        MasterListener masterListener = new MasterListener(failoverStrategy, this);
         listeners.add(masterListener);
-        listeners.add(new HeartBeatCheckListener(masterListener, masterNode, this));
-        listeners.add(new QueueListener(workNode, this));
+        listeners.add(new HeartBeatCheckListener(masterListener, failoverStrategy, this));
+        listeners.add(new QueueListener(jobExecutorTrigger, this));
     }
 
     private void createLocalBrokerHeartNode() throws Exception {
@@ -414,11 +414,11 @@ public class ZkService implements InitializingBean, DisposableBean {
         this.environmentContext = environmentContext;
     }
 
-    public void setMasterNode(MasterNode masterNode) {
-        this.masterNode = masterNode;
+    public void setFailoverStrategy(FailoverStrategy failoverStrategy) {
+        this.failoverStrategy = failoverStrategy;
     }
 
-    public void setWorkNode(WorkNode workNode) {
-        this.workNode = workNode;
+    public void setJobExecutorTrigger(JobExecutorTrigger jobExecutorTrigger) {
+        this.jobExecutorTrigger = jobExecutorTrigger;
     }
 }
