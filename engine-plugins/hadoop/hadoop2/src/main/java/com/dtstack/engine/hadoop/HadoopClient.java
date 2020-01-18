@@ -1,7 +1,7 @@
 package com.dtstack.engine.hadoop;
 
 
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.AbsClient;
@@ -146,7 +146,7 @@ public class HadoopClient extends AbsClient {
                 case FAILED:
                     return RdosTaskStatus.FAILED;
                 default:
-                    throw new RdosException("Unsupported application state");
+                    throw new RdosDefineException("Unsupported application state");
             }
         } catch (YarnException e) {
             return RdosTaskStatus.NOTFOUND;
@@ -155,12 +155,12 @@ public class HadoopClient extends AbsClient {
 
     @Override
     public String getJobMaster(JobIdentifier jobIdentifier) {
-        throw new RdosException("hadoop client not support method 'getJobMaster'");
+        throw new RdosDefineException("hadoop client not support method 'getJobMaster'");
     }
 
     @Override
     public String getMessageByHttp(String path) {
-        throw new RdosException("hadoop client not support method 'getJobMaster'");
+        throw new RdosDefineException("hadoop client not support method 'getJobMaster'");
     }
 
     private JobResult submitJobWithJar(JobClient jobClient) {
@@ -175,16 +175,16 @@ public class HadoopClient extends AbsClient {
             }
 
             if(jarFileInfo == null){
-                throw new RdosException("need at least one jar.");
+                throw new RdosDefineException("need at least one jar.");
             }
 
             String jarPath = jarFileInfo.getJarPath();
             if(StringUtils.isBlank(jarPath)) {
-                throw new RdosException("jar path is needful");
+                throw new RdosDefineException("jar path is needful");
             }
 
             if(!jarPath.startsWith(HDFS_PREFIX)) {
-                throw new RdosException("only support hdfs protocol for jar path");
+                throw new RdosDefineException("only support hdfs protocol for jar path");
             }
 
             setHadoopUserName(config);

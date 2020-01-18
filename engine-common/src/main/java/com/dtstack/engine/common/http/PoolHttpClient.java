@@ -5,7 +5,7 @@ import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.RetryUtil;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
@@ -142,9 +142,9 @@ public class PoolHttpClient {
 				logger.warn("request url:{} fail:{}",url,response.getStatusLine().getStatusCode());
 
 				if(response.getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND){
-					throw new RdosException(HttpStatus.SC_NOT_FOUND + "", HTTP_CALL_ERROR);
+					throw new RdosDefineException(HttpStatus.SC_NOT_FOUND + "", HTTP_CALL_ERROR);
 				}else if(response.getStatusLine().getStatusCode() == HttpStatus.SC_INTERNAL_SERVER_ERROR){
-					throw new RdosException(HttpStatus.SC_INTERNAL_SERVER_ERROR + "", HTTP_CALL_ERROR);
+					throw new RdosDefineException(HttpStatus.SC_INTERNAL_SERVER_ERROR + "", HTTP_CALL_ERROR);
 				}
 			}
 		} catch (IOException e) {

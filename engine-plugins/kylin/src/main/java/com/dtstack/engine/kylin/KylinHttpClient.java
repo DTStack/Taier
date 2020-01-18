@@ -19,7 +19,7 @@
 
 package com.dtstack.engine.kylin;
 
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.kylin.constraint.ConfigConstraint;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -115,7 +115,7 @@ public class KylinHttpClient {
 
         RequestResult requestResult = get(String.format(API_AUTHENTICATION, kylinConfig.getHostPort()), headerParams);
         if(requestResult.getStatusCode() != HttpStatus.SC_OK){
-            throw new RdosException("Login failed, please check if the account information is correct.Error info:" + requestResult.getMsg());
+            throw new RdosDefineException("Login failed, please check if the account information is correct.Error info:" + requestResult.getMsg());
         }
     }
 
@@ -136,7 +136,7 @@ public class KylinHttpClient {
             bodyEntity = objectMapper.writeValueAsString(bodyMap);
         } catch (Exception e){
             logger.error("Failed to build body map:", e);
-            throw new RdosException("Failed to build body map");
+            throw new RdosDefineException("Failed to build body map");
         }
 
         return put(String.format(API_BUILD_CUBE, kylinConfig.getHostPort(), kylinConfig.getCubeName()), bodyEntity);
@@ -200,7 +200,7 @@ public class KylinHttpClient {
                 httpPut.setEntity(new StringEntity(bodyEntity));
             } catch (UnsupportedEncodingException e){
                 logger.error("Failed to build put request body:", e);
-                throw new RdosException("Failed to build put request body");
+                throw new RdosDefineException("Failed to build put request body");
             }
         }
 

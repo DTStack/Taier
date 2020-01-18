@@ -1,9 +1,10 @@
 package com.dtstack.engine.router.callback;
 
 
+import com.dtstack.dtcenter.common.exception.ExceptionEnums;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.router.util.ResponseUtil;
 import io.vertx.ext.web.RoutingContext;
 
@@ -37,15 +38,15 @@ public class ApiCallbackMethod {
 			ResponseUtil.res200(context, objectMapper.writeValueAsString(apiResult));
 		} catch (Throwable e) {
 
-            ErrorCode errorCode;
+			ExceptionEnums errorCode;
             String errorMsg;
-            RdosException rdosDefineException = null;
-			if (e.getCause() instanceof RdosException) {
-				rdosDefineException = ((RdosException)e.getCause());
+            RdosDefineException rdosDefineException = null;
+			if (e.getCause() instanceof RdosDefineException) {
+				rdosDefineException = ((RdosDefineException)e.getCause());
 				errorCode = rdosDefineException.getErrorCode();
 				errorMsg = rdosDefineException.getErrorMsg();
-			} else if (e instanceof RdosException) {
-				rdosDefineException = ((RdosException)e);
+			} else if (e instanceof RdosDefineException) {
+				rdosDefineException = ((RdosDefineException)e);
 				errorCode = rdosDefineException.getErrorCode();
 				errorMsg = rdosDefineException.getErrorMsg();
 			}else{

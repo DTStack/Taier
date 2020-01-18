@@ -1,6 +1,6 @@
 package com.dtstack.engine.flink.util;
 
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.google.common.io.Files;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -54,7 +54,7 @@ public class FileUtil {
                 return downLoadFileFromHdfs(urlStr, dstFileName, hadoopConf);
             }catch (Exception e){
                 logger.error("", e);
-                throw new RdosException(" get exception download from hdfs, error:" + e.getCause().toString());
+                throw new RdosDefineException(" get exception download from hdfs, error:" + e.getCause().toString());
             }
         }
 
@@ -90,7 +90,7 @@ public class FileUtil {
             logger.info("download from remote url:{} success,dest file name is {}.", urlStr, dstFileName);
         } catch (IOException e) {
             logger.error("download from remote url:" + urlStr +"failure.", e);
-            throw new RdosException("download from remote url:" + urlStr +"failure." + e.getMessage());
+            throw new RdosDefineException("download from remote url:" + urlStr +"failure." + e.getMessage());
         }
 
         return true;
@@ -100,7 +100,7 @@ public class FileUtil {
 
         Pair<String, String> pair = parseHdfsUri(uriStr);
         if(pair == null){
-            throw new RdosException("can't parse hdfs url from given uriStr:" + uriStr);
+            throw new RdosDefineException("can't parse hdfs url from given uriStr:" + uriStr);
         }
 
         String hdfsUri = pair.getLeft();

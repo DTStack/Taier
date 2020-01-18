@@ -1,6 +1,6 @@
 package com.dtstack.engine.flink;
 
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
@@ -55,7 +55,7 @@ public class SqlPluginInfo {
 
         File sqlPluginDirFile = new File(localSqlPluginDir);
         if(!sqlPluginDirFile.exists() || !sqlPluginDirFile.isDirectory()){
-            throw new RdosException("not exists flink sql plugin dir:" + localSqlPluginDir + ", please check it!!!");
+            throw new RdosDefineException("not exists flink sql plugin dir:" + localSqlPluginDir + ", please check it!!!");
         }
 
         setLocalJarRootDir(localSqlPluginDir);
@@ -67,7 +67,7 @@ public class SqlPluginInfo {
         File jarFile = new File(jarPath);
 
         if(!jarFile.exists()){
-            throw new RdosException("don't exists path: " + jarPath);
+            throw new RdosDefineException("don't exists path: " + jarPath);
         }
 
         return jarPath;
@@ -146,7 +146,7 @@ public class SqlPluginInfo {
         }
 
         if (StringUtils.isEmpty(coreJarFileName)){
-            throw new RdosException("Can not find core jar file in path:" + localSqlRootJar);
+            throw new RdosDefineException("Can not find core jar file in path:" + localSqlRootJar);
         }
 
         return coreJarFileName;

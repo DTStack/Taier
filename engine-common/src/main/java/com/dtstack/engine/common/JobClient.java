@@ -2,7 +2,7 @@ package com.dtstack.engine.common;
 
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.pojo.JobResult;
@@ -266,7 +266,7 @@ public class JobClient extends OrderObject{
 
     public void doStatusCallBack(Integer status){
         if(jobClientCallBack == null){
-            throw new RdosException("not set jobClientCallBak...");
+            throw new RdosDefineException("not set jobClientCallBak...");
         }
         jobClientCallBack.updateStatus(status);
     }

@@ -1,8 +1,8 @@
 package com.dtstack.engine.learning;
 
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.learning.conf.LearningConfiguration;
 import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.exception.RdosException;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.AbsClient;
 import com.dtstack.engine.common.JobClient;
@@ -152,7 +152,7 @@ public class LearningClient extends AbsClient {
                 case FAILED:
                     return RdosTaskStatus.FAILED;
                 default:
-                    throw new RdosException("Unsupported application state");
+                    throw new RdosDefineException("Unsupported application state");
             }
         } catch (YarnException e) {
             LOG.error("", e);
@@ -162,7 +162,7 @@ public class LearningClient extends AbsClient {
 
     @Override
     public String getJobMaster(JobIdentifier jobIdentifier) {
-        throw new RdosException("learning client not support method 'getJobMaster'");
+        throw new RdosDefineException("learning client not support method 'getJobMaster'");
     }
 
     @Override

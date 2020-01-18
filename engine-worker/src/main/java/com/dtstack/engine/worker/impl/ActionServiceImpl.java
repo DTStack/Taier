@@ -1,7 +1,7 @@
 package com.dtstack.engine.worker.impl;
 
 import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.annotation.Param;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.JobSubmitExecutor;
@@ -158,7 +158,7 @@ public class ActionServiceImpl {
         List<Map<String, Object>> paramList = (List<Map<String, Object>>) paramsObj;
 
         if (paramList.size() > TASK_STOP_LIMIT){
-            throw new RdosException("please don't stop too many tasks at once, limit:" + TASK_STOP_LIMIT);
+            throw new RdosDefineException("please don't stop too many tasks at once, limit:" + TASK_STOP_LIMIT);
         }
 
         for(Map<String, Object> param : paramList){
@@ -182,15 +182,15 @@ public class ActionServiceImpl {
     private void checkParam(ParamAction paramAction) throws Exception{
 
         if(StringUtils.isBlank(paramAction.getTaskId())){
-           throw new RdosException("param taskId is not allow null", ErrorCode.INVALID_PARAMETERS);
+           throw new RdosDefineException("param taskId is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
         if(paramAction.getComputeType() == null){
-            throw new RdosException("param computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
+            throw new RdosDefineException("param computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
         if(paramAction.getEngineType() == null){
-            throw new RdosException("param engineType is not allow null", ErrorCode.INVALID_PARAMETERS);
+            throw new RdosDefineException("param engineType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
     }
 
@@ -260,7 +260,7 @@ public class ActionServiceImpl {
     public Integer status(@Param("jobId") String jobId,@Param("computeType") Integer computeType) throws Exception {
 
         if (StringUtils.isBlank(jobId)||computeType==null){
-            throw new RdosException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
+            throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
         RdosEngineJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
@@ -276,7 +276,7 @@ public class ActionServiceImpl {
     public Map<String, Integer> statusByJobIds(@Param("jobIds") List<String> jobIds,@Param("computeType") Integer computeType) throws Exception {
 
         if (CollectionUtils.isEmpty(jobIds)||computeType==null){
-            throw new RdosException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
+            throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
         Map<String,Integer> result = null;
@@ -297,7 +297,7 @@ public class ActionServiceImpl {
     public Long startTime(@Param("jobId") String jobId,@Param("computeType") Integer computeType) throws Exception {
 
         if (StringUtils.isBlank(jobId)||computeType==null){
-            throw new RdosException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
+            throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
         Date startTime = null;
@@ -317,7 +317,7 @@ public class ActionServiceImpl {
     public String log(@Param("jobId") String jobId,@Param("computeType") Integer computeType) throws Exception {
 
         if (StringUtils.isBlank(jobId)||computeType==null){
-            throw new RdosException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
+            throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
         Map<String,String> log = new HashMap<>(2);
@@ -335,7 +335,7 @@ public class ActionServiceImpl {
     public String retryLog(@Param("jobId") String jobId,@Param("computeType") Integer computeType) throws Exception {
 
         if (StringUtils.isBlank(jobId) || computeType==null){
-            throw new RdosException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
+            throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
         List<Map<String,String>> logs = new ArrayList<>(5);
@@ -359,7 +359,7 @@ public class ActionServiceImpl {
     public List<Map<String,Object>> entitys(@Param("jobIds") List<String> jobIds,@Param("computeType") Integer computeType) throws Exception {
 
         if (CollectionUtils.isEmpty(jobIds)||computeType==null){
-            throw new RdosException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
+            throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
         List<Map<String,Object>> result = null;
@@ -434,7 +434,7 @@ public class ActionServiceImpl {
         Byte currStatus = rdosEngineBatchJob.getStatus();
 
         if(!RdosTaskStatus.canReset(currStatus)){
-            throw new RdosException(String.format("computeType(%d) taskId(%s) can't reset status, current status(%d)", computeType, jobId, currStatus.intValue()));
+            throw new RdosDefineException(String.format("computeType(%d) taskId(%s) can't reset status, current status(%d)", computeType, jobId, currStatus.intValue()));
         }
 
         //do reset status

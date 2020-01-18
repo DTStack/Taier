@@ -1,6 +1,6 @@
 package com.dtstack.engine.spark160.sparkext;
 
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.spark160.sparkyarn.SparkYarnConfig;
 import com.dtstack.engine.spark160.sparkyarn.util.FileUtil;
 import com.google.common.base.Strings;
@@ -85,7 +85,7 @@ public class ClientExt extends CdhClient {
         try {
             Files.createParentDirs(dirFile);
         } catch (IOException e) {
-            throw new RdosException(String.format("can not create dir '%s' on engine", dirFile.getParent()));
+            throw new RdosDefineException(String.format("can not create dir '%s' on engine", dirFile.getParent()));
         }
 
         if(dirFile.exists()){
@@ -95,7 +95,7 @@ public class ClientExt extends CdhClient {
             }
         } else {
             if(!dirFile.mkdir()){
-                throw new RdosException(String.format("can not create dir '%s' on engine", confFileDirName));
+                throw new RdosDefineException(String.format("can not create dir '%s' on engine", confFileDirName));
             }
         }
 

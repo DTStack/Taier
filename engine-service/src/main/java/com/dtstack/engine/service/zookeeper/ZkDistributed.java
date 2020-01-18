@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.dtstack.engine.common.config.ConfigParse;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.KerberosUtils;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.RdosNodeMachineDAO;
@@ -24,7 +25,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.exception.RdosException;
 import com.dtstack.engine.common.enums.RdosNodeMachineType;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -320,14 +320,14 @@ public class ZkDistributed implements Closeable{
 		this.zkAddress = ConfigParse.getNodeZkAddress();
 		if (StringUtils.isBlank(this.zkAddress)
 				|| this.zkAddress.split("/").length < 2) {
-			throw new RdosException("zkAddress is error");
+			throw new RdosDefineException("zkAddress is error");
 		}
 		String[] zks = this.zkAddress.split("/");
 		this.zkAddress = zks[0].trim();
 		this.distributeRootNode = String.format("/%s", zks[1].trim());
 		this.localAddress = ConfigParse.getLocalAddress();
 		if (StringUtils.isBlank(this.localAddress)||this.localAddress.split(":").length < 2) {
-			throw new RdosException("localAddress is error");
+			throw new RdosDefineException("localAddress is error");
 		}
 		this.brokersNode = String.format("%s/brokers", this.distributeRootNode);
 		this.localNode = String.format("%s/%s", this.brokersNode,this.localAddress);

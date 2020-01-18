@@ -1,7 +1,7 @@
 package com.dtstack.engine.worker.impl;
 
 import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.annotation.Param;
 import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.common.util.ApplicationWSParser;
@@ -100,13 +100,13 @@ public class StreamTaskServiceImpl {
         //只获取运行中的任务的log—url
         Byte status = engineJob.getStatus();
         if (!RdosTaskStatus.RUNNING.getStatus().equals(status.intValue())) {
-            throw new RdosException(String.format("job:%s not running status ", taskId), ErrorCode.INVALID_TASK_STATUS);
+            throw new RdosDefineException(String.format("job:%s not running status ", taskId), ErrorCode.INVALID_TASK_STATUS);
         }
 
         String applicationId = engineJob.getApplicationId();
 
         if (StringUtils.isEmpty(applicationId)) {
-            throw new RdosException(String.format("job %s not running in perjob", taskId), ErrorCode.INVALID_TASK_RUN_MODE);
+            throw new RdosDefineException(String.format("job %s not running in perjob", taskId), ErrorCode.INVALID_TASK_RUN_MODE);
         }
 
         Preconditions.checkState(applicationId.contains("application"), String.format("current task %s don't have application id.", taskId));
@@ -118,7 +118,7 @@ public class StreamTaskServiceImpl {
         try{
             RdosEngineJobCache rdosEngineJobCache = rdosEngineJobCacheDAO.getJobById(taskId);
             if (rdosEngineJobCache == null) {
-                throw new RdosException(String.format("job:%s not exist in job cache table ", taskId),ErrorCode.JOB_CACHE_NOT_EXIST);
+                throw new RdosDefineException(String.format("job:%s not exist in job cache table ", taskId),ErrorCode.JOB_CACHE_NOT_EXIST);
             }
             String jobInfo = rdosEngineJobCache.getJobInfo();
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
@@ -141,10 +141,10 @@ public class StreamTaskServiceImpl {
                 RdosTaskStatus jobStatus = JobClient.getStatus(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
                 Integer statusCode = jobStatus.getStatus();
                 if (RdosTaskStatus.getStoppedStatus().contains(statusCode)) {
-                    throw new RdosException(String.format("job:%s had stop ", taskId), ErrorCode.INVALID_TASK_STATUS, e);
+                    throw new RdosDefineException(String.format("job:%s had stop ", taskId), ErrorCode.INVALID_TASK_STATUS, e);
                 }
             }
-            throw new RdosException(String.format("get job:%s ref application url error..", taskId), ErrorCode.UNKNOWN_ERROR, e);
+            throw new RdosDefineException(String.format("get job:%s ref application url error..", taskId), ErrorCode.UNKNOWN_ERROR, e);
         }
 
     }

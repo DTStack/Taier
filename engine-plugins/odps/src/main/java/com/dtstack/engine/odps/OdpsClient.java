@@ -2,7 +2,7 @@ package com.dtstack.engine.odps;
 
 import com.aliyun.odps.Job;
 import com.aliyun.odps.task.SQLTask;
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.AbsClient;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -140,7 +140,7 @@ public class OdpsClient extends AbsClient {
                 throw new RuntimeException("can't find task status for task: " + jobId);
             }
         } catch (Exception e) {
-            throw new RdosException(e.getMessage());
+            throw new RdosDefineException(e.getMessage());
         }
 
         RdosTaskStatus rdosTaskStatus = null;
@@ -166,12 +166,12 @@ public class OdpsClient extends AbsClient {
 
     @Override
     public String getJobMaster(JobIdentifier jobIdentifier) {
-        throw new RdosException("odps client not support method 'getJobMaster'");
+        throw new RdosDefineException("odps client not support method 'getJobMaster'");
     }
 
     @Override
     public String getMessageByHttp(String path) {
-        throw new RdosException("odps client not support method 'getMessageByHttp'");
+        throw new RdosDefineException("odps client not support method 'getMessageByHttp'");
     }
 
     @Override

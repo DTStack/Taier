@@ -1,6 +1,6 @@
 package com.dtstack.engine.common.util;
 
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 
 import java.sql.Date;
 import java.sql.Timestamp;
@@ -52,7 +52,7 @@ public class ClassUtil {
 
         }
 
-        throw new RdosException("not support for type " + str);
+        throw new RdosDefineException("not support for type " + str);
     }
 
     public static Object convertType(Object field, String fromType, String toType) {

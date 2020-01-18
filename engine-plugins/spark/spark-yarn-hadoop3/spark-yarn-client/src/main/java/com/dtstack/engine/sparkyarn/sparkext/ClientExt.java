@@ -1,6 +1,6 @@
 package com.dtstack.engine.sparkyarn.sparkext;
 
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.sparkyarn.sparkyarn.SparkYarnConfig;
 import com.dtstack.engine.sparkyarn.sparkyarn.util.FileUtil;
@@ -80,7 +80,7 @@ public class ClientExt extends DtClient {
         try {
             Files.createParentDirs(dirFile);
         } catch (IOException e) {
-            throw new RdosException(String.format("can not create dir '%s' on engine", dirFile.getParent()));
+            throw new RdosDefineException(String.format("can not create dir '%s' on engine", dirFile.getParent()));
         }
 
         if (dirFile.exists()) {
@@ -90,7 +90,7 @@ public class ClientExt extends DtClient {
             }
         } else {
             if (!dirFile.mkdir()) {
-                throw new RdosException(String.format("can not create dir '%s' on engine", confFileDirName));
+                throw new RdosDefineException(String.format("can not create dir '%s' on engine", confFileDirName));
             }
         }
 

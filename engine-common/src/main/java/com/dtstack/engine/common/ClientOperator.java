@@ -1,7 +1,7 @@
 package com.dtstack.engine.common;
 
 import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
@@ -34,7 +34,7 @@ public class ClientOperator {
 
         String jobId = jobIdentifier.getEngineJobId();
         if (Strings.isNullOrEmpty(jobId)) {
-            throw new RdosException("can't get job of jobId is empty or null!");
+            throw new RdosDefineException("can't get job of jobId is empty or null!");
         }
 
         try {
@@ -85,7 +85,7 @@ public class ClientOperator {
             IClient client = clientCache.getClient(engineType, pluginInfo);
             return client.getCheckpoints(jobIdentifier);
         } catch (Exception e) {
-            throw new RdosException("get job checkpoints:" + jobIdentifier.getEngineJobId() + " exception:" + ExceptionUtil.getErrorMessage(e));
+            throw new RdosDefineException("get job checkpoints:" + jobIdentifier.getEngineJobId() + " exception:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 
@@ -94,7 +94,7 @@ public class ClientOperator {
             IClient client = clientCache.getClient(engineType, pluginInfo);
             return client.getJobMaster(jobIdentifier);
         } catch (Exception e) {
-            throw new RdosException("get job master exception:" + ExceptionUtil.getErrorMessage(e));
+            throw new RdosDefineException("get job master exception:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 

@@ -1,7 +1,7 @@
 package com.dtstack.engine.common.util;
 
 import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.enums.EngineType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +38,7 @@ public class TaskIdUtil {
     public static String getZkTaskId(int computeType, String engineType, String taskId) {
         EngineType type = EngineType.getEngineType(engineType);
         if (type == null) {
-            throw new RdosException("engineType is not support", ErrorCode.INVALID_PARAMETERS);
+            throw new RdosDefineException("engineType is not support", ErrorCode.INVALID_PARAMETERS);
         }
         return String.valueOf(computeType) + type.getVal() + NO_MIGRATION_FLAG + taskId;
     }

@@ -1,6 +1,6 @@
 package com.dtstack.engine.spark160.sparkyarn.parser;
 
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.JarFileInfo;
 
 import java.util.regex.Matcher;
@@ -15,7 +15,7 @@ public class AddJarOperator {
 
 		Matcher matcher = pattern.matcher(sql);
 		if(!matcher.find()){
-			throw new RdosException("not a addJar operator:" + sql);
+			throw new RdosDefineException("not a addJar operator:" + sql);
 		}
 
 		JarFileInfo jarFileInfo = new JarFileInfo();

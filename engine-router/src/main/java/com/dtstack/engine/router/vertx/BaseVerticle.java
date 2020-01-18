@@ -1,7 +1,7 @@
 package com.dtstack.engine.router.vertx;
 
 import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.common.annotation.Param;
 import com.dtstack.engine.common.config.ConfigParse;
@@ -64,7 +64,7 @@ public class BaseVerticle {
 		logger.info("receive http request:{}:{}",path,rbody);
 		String[] paths = path.split("/");
 		if(paths.length < 2){
-			throw new RdosException("request address error", ErrorCode.SERVICE_NOT_EXIST);
+			throw new RdosDefineException("request address error", ErrorCode.SERVICE_NOT_EXIST);
 		}
 
 		String name = paths[paths.length-2];
@@ -84,7 +84,7 @@ public class BaseVerticle {
 			cla = obj.getClass();
 		}
 		if(cla.getAnnotation(Forbidden.class) != null){
-			throw new RdosException(ErrorCode.SERVICE_FORBIDDEN);
+			throw new RdosDefineException(ErrorCode.SERVICE_FORBIDDEN);
 		}
 		
 		Method[] methods = cla.getMethods();
@@ -96,10 +96,10 @@ public class BaseVerticle {
 			}
 		}
 		if(mm == null){
-			throw new RdosException(ErrorCode.METHOD_NOT_EXIST);
+			throw new RdosDefineException(ErrorCode.METHOD_NOT_EXIST);
 		}
 		if(mm.getAnnotation(Forbidden.class) != null){
-			throw new RdosException(ErrorCode.METHOD_FORBIDDEN);
+			throw new RdosDefineException(ErrorCode.METHOD_FORBIDDEN);
 		}
 		return mm.invoke(obj, mapToParamObjects(params,mm.getParameters(),mm.getParameterTypes()));
 	} 
@@ -110,7 +110,7 @@ public class BaseVerticle {
 		String ctime = routingContext.request().getHeader("ctime");
 		String md5other = MD5Util.getMD5String(String.format("%s:%s:%s", ctime,body,ctime));
 		if(!ConfigParse.isDebug() && !md5other.equals(md5)){
-			throw new RdosException(ErrorCode.CALL_UNLAWFUL);
+			throw new RdosDefineException(ErrorCode.CALL_UNLAWFUL);
 		}
 	}
 	
@@ -141,7 +141,7 @@ public class BaseVerticle {
 
 	public String upperFirstLetter(String word){
         if(Strings.isNullOrEmpty(word)){
-            throw new RdosException("can't upper word of empty | null", ErrorCode.INVALID_PARAMETERS);
+            throw new RdosDefineException("can't upper word of empty | null", ErrorCode.INVALID_PARAMETERS);
         }
 
         if(word.length() == 1){

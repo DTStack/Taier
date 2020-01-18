@@ -1,6 +1,6 @@
 package com.dtstack.engine.common.util;
 
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,7 +28,7 @@ public class UrlUtil {
 	public static String getHttpRootURL(String url){
 		Matcher matcher = URLPattern.matcher(url);
 		if(!matcher.find()){
-			throw new RdosException(String.format("url:%s is not regular HTTP_URL", url));
+			throw new RdosDefineException(String.format("url:%s is not regular HTTP_URL", url));
 		}
 
 		String protocol = matcher.group(1) == null ? "http" : matcher.group(1);

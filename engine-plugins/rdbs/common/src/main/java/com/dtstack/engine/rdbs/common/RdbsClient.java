@@ -1,6 +1,6 @@
 package com.dtstack.engine.rdbs.common;
 
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.AbsClient;
 import com.dtstack.engine.common.JobClient;
@@ -70,7 +70,7 @@ public abstract class RdbsClient extends AbsClient {
     }
 
     private JobResult submitJobWithJar(JobClient jobClient) {
-        throw new RdosException(dbType + "client not support MR job");
+        throw new RdosDefineException(dbType + "client not support MR job");
     }
 
     @Override
@@ -92,12 +92,12 @@ public abstract class RdbsClient extends AbsClient {
 
     @Override
     public String getJobMaster(JobIdentifier jobIdentifier) {
-        throw new RdosException(dbType + " client not support method 'getJobMaster'");
+        throw new RdosDefineException(dbType + " client not support method 'getJobMaster'");
     }
 
     @Override
     public String getMessageByHttp(String path) {
-        throw new RdosException(dbType + "client not support method 'getMessageByHttp'");
+        throw new RdosDefineException(dbType + "client not support method 'getMessageByHttp'");
     }
 
     @Override

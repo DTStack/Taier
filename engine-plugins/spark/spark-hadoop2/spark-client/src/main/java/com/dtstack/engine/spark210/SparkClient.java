@@ -1,6 +1,6 @@
 package com.dtstack.engine.spark210;
 
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.common.AbsClient;
 import com.dtstack.engine.common.JarFileInfo;
@@ -83,7 +83,7 @@ public class SparkClient extends AbsClient {
 
         if(errorMessage != null){
             logger.error(errorMessage);
-            throw new RdosException(errorMessage);
+            throw new RdosDefineException(errorMessage);
         }
     }
 
@@ -110,11 +110,11 @@ public class SparkClient extends AbsClient {
         String exeArgsStr = jobParam.getClassArgs();
 
         if(!jarPath.startsWith("hdfs://")){
-            throw new RdosException("spark jar path protocol must be hdfs://");
+            throw new RdosDefineException("spark jar path protocol must be hdfs://");
         }
 
         if(Strings.isNullOrEmpty(appName)){
-            throw new RdosException("spark jar must set app name!");
+            throw new RdosDefineException("spark jar must set app name!");
         }
 
 
@@ -139,7 +139,7 @@ public class SparkClient extends AbsClient {
 
         ComputeType computeType = jobClient.getComputeType();
         if(computeType == null){
-            throw new RdosException("need to set compute type.");
+            throw new RdosDefineException("need to set compute type.");
         }
 
         switch (computeType){
@@ -150,7 +150,7 @@ public class SparkClient extends AbsClient {
 
         }
 
-        throw new RdosException("not support for compute type :" + computeType);
+        throw new RdosDefineException("not support for compute type :" + computeType);
 
     }
 
@@ -173,7 +173,7 @@ public class SparkClient extends AbsClient {
             sqlExeJson = URLEncoder.encode(sqlExeJson, Charsets.UTF_8.name());
         }catch (Exception e){
             logger.error("", e);
-            throw new RdosException("get unexpected exception:" + e.getMessage());
+            throw new RdosDefineException("get unexpected exception:" + e.getMessage());
         }
 
         String[] appArgs = new String[]{sqlExeJson};
@@ -222,7 +222,7 @@ public class SparkClient extends AbsClient {
             }
         } catch (IOException e) {
             logger.error("", e);
-            throw new RdosException("submit spark job exception:" + e.getMessage());
+            throw new RdosDefineException("submit spark job exception:" + e.getMessage());
         }
 
         logger.info("submit job {} over, result {}.", submissionId, submitResult);
@@ -230,7 +230,7 @@ public class SparkClient extends AbsClient {
     }
 
     private JobResult submitSparkSqlJobForStream(JobClient jobClient){
-        throw new RdosException("not support spark sql job for stream type.");
+        throw new RdosDefineException("not support spark sql job for stream type.");
     }
 
     @Override

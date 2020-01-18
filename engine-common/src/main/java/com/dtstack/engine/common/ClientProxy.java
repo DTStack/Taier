@@ -6,7 +6,7 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ClientArgumentException;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.LimitResourceException;
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.restart.ARestartService;
 import org.slf4j.Logger;
@@ -55,7 +55,7 @@ public class ClientProxy implements IClient{
                 }
             }, targetClient.getClass().getClassLoader(),true);
         } catch (Exception e) {
-            throw new RdosException(e.getMessage());
+            throw new RdosDefineException(e.getMessage());
         }
     }
 
@@ -70,7 +70,7 @@ public class ClientProxy implements IClient{
                 }
             }, targetClient.getClass().getClassLoader(),true);
         } catch (Exception e) {
-            throw new RdosException(e.getMessage());
+            throw new RdosDefineException(e.getMessage());
         }
     }
 
@@ -85,7 +85,7 @@ public class ClientProxy implements IClient{
                 }
             }, targetClient.getClass().getClassLoader(),true);
         } catch (Exception e) {
-            throw new RdosException(e.getMessage());
+            throw new RdosDefineException(e.getMessage());
         }
     }
 
@@ -100,7 +100,7 @@ public class ClientProxy implements IClient{
                 }
             }, targetClient.getClass().getClassLoader(),true);
         } catch (Exception e) {
-            throw new RdosException(e.getMessage());
+            throw new RdosDefineException(e.getMessage());
         }
     }
 
@@ -115,7 +115,7 @@ public class ClientProxy implements IClient{
                 }
             }, targetClient.getClass().getClassLoader(),true);
         } catch (Exception e) {
-            throw new RdosException(e.getMessage());
+            throw new RdosDefineException(e.getMessage());
         }
     }
 
@@ -130,7 +130,7 @@ public class ClientProxy implements IClient{
                 }
             }, targetClient.getClass().getClassLoader(),true);
         } catch (Exception e) {
-            throw new RdosException(e.getMessage());
+            throw new RdosDefineException(e.getMessage());
         }
     }
 
@@ -149,10 +149,10 @@ public class ClientProxy implements IClient{
                 throw new ClientArgumentException(e);
             } else if (e instanceof LimitResourceException) {
                 throw new LimitResourceException(e.getMessage());
-            } else if (e instanceof RdosException && ((RdosException) e).getErrorCode() == ErrorCode.HTTP_CALL_ERROR){
+            } else if (e instanceof RdosDefineException && ((RdosDefineException) e).getErrorCode() == ErrorCode.HTTP_CALL_ERROR){
                 return false;
             }
-            throw new RdosException(e.getMessage());
+            throw new RdosDefineException(e.getMessage());
         }
     }
 
@@ -167,7 +167,7 @@ public class ClientProxy implements IClient{
                 }
             }, targetClient.getClass().getClassLoader(),true);
         } catch (Exception e) {
-            throw new RdosException(e.getMessage());
+            throw new RdosDefineException(e.getMessage());
         }
     }
 
@@ -182,7 +182,7 @@ public class ClientProxy implements IClient{
                 }
             }, targetClient.getClass().getClassLoader(),true);
         } catch (Exception e) {
-            throw new RdosException(e.getMessage());
+            throw new RdosDefineException(e.getMessage());
         }
     }
 
@@ -197,7 +197,7 @@ public class ClientProxy implements IClient{
                 }
             }, targetClient.getClass().getClassLoader(),true);
         } catch (Exception e) {
-            throw new RdosException(e.getMessage());
+            throw new RdosDefineException(e.getMessage());
         }
     }
 

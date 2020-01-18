@@ -1,7 +1,7 @@
 package com.dtstack.engine.common.util;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import org.apache.commons.math3.util.Pair;
 import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
@@ -35,12 +35,12 @@ public class ApplicationWSParser {
         org.jsoup.nodes.Document document = Jsoup.parse(httpText);
         Elements el = document.getElementsByClass("content");
         if(el.size() < 1){
-            throw new RdosException("httpText don't have any ele in http class : content");
+            throw new RdosDefineException("httpText don't have any ele in http class : content");
         }
 
         Elements afs = el.get(0).select("a[href]");
         if (afs.size() < 1) {
-            throw new RdosException("httpText data format not correct, please check task status");
+            throw new RdosDefineException("httpText data format not correct, please check task status");
         }
         String amErrURL = afs.get(1).attr("href");
 

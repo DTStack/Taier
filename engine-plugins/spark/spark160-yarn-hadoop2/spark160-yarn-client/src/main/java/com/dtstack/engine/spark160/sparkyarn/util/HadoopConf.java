@@ -1,7 +1,7 @@
 package com.dtstack.engine.spark160.sparkyarn.util;
 
 
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.HadoopConfTool;
 import com.dtstack.engine.common.util.YarnConfTool;
 import org.apache.commons.lang3.StringUtils;
@@ -197,7 +197,7 @@ public class HadoopConf {
             } else if (value instanceof Boolean){
                 yarnConfiguration.setBoolean(key, (boolean) value);
             } else {
-                throw new RdosException("init hive security conf failed!, type of value is not supported");
+                throw new RdosDefineException("init hive security conf failed!, type of value is not supported");
             }
         });
     }

@@ -1,7 +1,7 @@
 package com.dtstack.engine.dtscript;
 
 import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.AbsClient;
 import com.dtstack.engine.common.JobClient;
@@ -10,7 +10,6 @@ import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.dtscript.client.Client;
-import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
@@ -158,7 +157,7 @@ public class DtScriptClient extends AbsClient {
                 case FAILED:
                     return RdosTaskStatus.FAILED;
                 default:
-                    throw new RdosException("Unsupported application state");
+                    throw new RdosDefineException("Unsupported application state");
             }
         } catch (YarnException e) {
             LOG.error("", e);

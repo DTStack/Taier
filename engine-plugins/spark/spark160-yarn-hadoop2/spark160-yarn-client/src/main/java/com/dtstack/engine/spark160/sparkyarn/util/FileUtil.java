@@ -1,6 +1,6 @@
 package com.dtstack.engine.spark160.sparkyarn.util;
 
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
@@ -67,7 +67,7 @@ public class FileUtil {
 
         Pair<String, String> pair = parseHdfsUri(uriStr);
         if(pair == null){
-            throw new RdosException("can't parse hdfs url from given uriStr:" + uriStr);
+            throw new RdosDefineException("can't parse hdfs url from given uriStr:" + uriStr);
         }
 
         String hdfsUri = pair.getLeft();

@@ -1,7 +1,7 @@
 package com.dtstack.engine.sparkyarn.sparkyarn;
 
 import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.MathUtil;
@@ -166,11 +166,11 @@ public class SparkYarnClient extends AbsClient {
         String exeArgsStr = jobParam.getClassArgs();
 
         if(!jarPath.startsWith(HDFS_PREFIX)){
-            throw new RdosException("spark jar path protocol must be " + HDFS_PREFIX);
+            throw new RdosDefineException("spark jar path protocol must be " + HDFS_PREFIX);
         }
 
         if(Strings.isNullOrEmpty(appName)){
-            throw new RdosException("spark jar must set app name!");
+            throw new RdosDefineException("spark jar must set app name!");
         }
 
         String[] appArgs = new String[]{};
@@ -321,7 +321,7 @@ public class SparkYarnClient extends AbsClient {
             sqlExeJson = URLEncoder.encode(sqlExeJson, Charsets.UTF_8.name());
         }catch (Exception e){
             logger.error("", e);
-            throw new RdosException("get unexpected exception:" + e.getMessage());
+            throw new RdosDefineException("get unexpected exception:" + e.getMessage());
         }
 
         String sqlProxyClass = sparkYarnConfig.getSparkSqlProxyMainClass();
@@ -427,14 +427,14 @@ public class SparkYarnClient extends AbsClient {
 
 
     private JobResult submitSparkSqlJobForStream(JobClient jobClient){
-        throw new RdosException("not support spark sql job for stream type.");
+        throw new RdosDefineException("not support spark sql job for stream type.");
     }
 
     private JobResult submitSqlJob(JobClient jobClient) {
 
         ComputeType computeType = jobClient.getComputeType();
         if(computeType == null){
-            throw new RdosException("need to set compute type.");
+            throw new RdosDefineException("need to set compute type.");
         }
 
         switch (computeType){
@@ -447,7 +447,7 @@ public class SparkYarnClient extends AbsClient {
 
         }
 
-        throw new RdosException("not support for compute type :" + computeType);
+        throw new RdosDefineException("not support for compute type :" + computeType);
 
     }
 
@@ -507,7 +507,7 @@ public class SparkYarnClient extends AbsClient {
                 case FAILED:
                     return RdosTaskStatus.FAILED;
                 default:
-                    throw new RdosException("Unsupported application state");
+                    throw new RdosDefineException("Unsupported application state");
             }
         } catch (YarnException e) {
             logger.error("", e);

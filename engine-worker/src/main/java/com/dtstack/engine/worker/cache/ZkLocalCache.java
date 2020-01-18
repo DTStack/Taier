@@ -1,6 +1,6 @@
 package com.dtstack.engine.worker.cache;
 
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.config.ConfigParse;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.queue.ClusterQueueInfo;
@@ -123,7 +123,7 @@ public class ZkLocalCache implements Closeable {
 
         GroupPriorityQueue groupPriorityQueue = workNode.getEngineTypeQueue(engineType);
         if (groupPriorityQueue == null) {
-            throw new RdosException("not support engineType:" + engineType);
+            throw new RdosDefineException("not support engineType:" + engineType);
         }
         Map<String, Integer> otherQueueInfoMap = Maps.newHashMap();
         for (Map.Entry<String, ClusterQueueInfo.GroupQueueInfo> zkInfoEntry : engineTypeQueueInfo.getGroupQueueInfoMap().entrySet()) {

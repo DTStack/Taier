@@ -1,6 +1,6 @@
 package com.dtstack.engine.rdbs.common.executor;
 
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.rdbs.common.constant.ConfigConstant;
 import com.google.common.base.Preconditions;
@@ -73,7 +73,7 @@ public abstract class ConnFactory {
             stmt = conn.createStatement();
             stmt.execute(testSql);
         }catch (Exception e){
-            throw new RdosException("get conn exception:" + e.toString());
+            throw new RdosDefineException("get conn exception:" + e.toString());
         }finally {
 
             try{

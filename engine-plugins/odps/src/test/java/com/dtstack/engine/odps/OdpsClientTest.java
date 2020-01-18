@@ -9,7 +9,7 @@
 //import com.aliyun.odps.account.Account;
 //import com.aliyun.odps.account.AliyunAccount;
 //import com.aliyun.odps.task.SQLTask;
-//import com.dtstack.rdos.commom.exception.RdosException;
+//import com.dtstack.rdos.commom.exception.RdosDefineException;
 //import JobClient;
 //import RdosTaskStatus;
 //import JobResult;
@@ -69,7 +69,7 @@
 //                    throw new RuntimeException("can't find task status for task: " + jobId);
 //                }
 //            } catch (Exception e) {
-//                throw new RdosException(e.getMessage());
+//                throw new RdosDefineException(e.getMessage());
 //            }
 //
 //            RdosTaskStatus rdosTaskStatus = null;

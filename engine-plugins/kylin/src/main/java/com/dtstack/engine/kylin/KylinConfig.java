@@ -20,7 +20,7 @@
 package com.dtstack.engine.kylin;
 
 import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.kylin.constraint.ConfigConstraint;
 import com.dtstack.engine.kylin.enums.EBuildType;
 import org.apache.commons.lang3.StringUtils;
@@ -73,7 +73,7 @@ public class KylinConfig {
 
     public KylinConfig setCubeName(String cubeName) {
         if(StringUtils.isEmpty(cubeName)){
-            throw new RdosException("Must specify cubeName", ErrorCode.INVALID_PARAMETERS);
+            throw new RdosDefineException("Must specify cubeName", ErrorCode.INVALID_PARAMETERS);
         }
 
         this.cubeName = cubeName;
@@ -95,7 +95,7 @@ public class KylinConfig {
 
     public KylinConfig setHostPort(String hostPort) {
         if(StringUtils.isEmpty(hostPort)){
-            throw new RdosException("Must specify hostPort", ErrorCode.INVALID_PARAMETERS);
+            throw new RdosDefineException("Must specify hostPort", ErrorCode.INVALID_PARAMETERS);
         }
 
         this.hostPort = getFormatUrl(hostPort);
@@ -104,7 +104,7 @@ public class KylinConfig {
 
     public String getFormatUrl(String hostPort){
         if(!hostPort.matches(HOSP_PORT_REGEX)){
-            throw new RdosException("", ErrorCode.INVALID_PARAMETERS);
+            throw new RdosDefineException("", ErrorCode.INVALID_PARAMETERS);
         }
 
         Matcher matcher = HOSP_PORT_PATTERN.matcher(hostPort);

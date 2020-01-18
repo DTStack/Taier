@@ -1,6 +1,6 @@
 package com.dtstack.engine.flink;
 
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.flink.enums.FlinkYarnMode;
@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -112,7 +111,7 @@ public class SyncPluginInfo {
         }
 
         if (StringUtils.isEmpty(coreJarFileName)){
-            throw new RdosException("Can not find core jar file in path:" + localSyncFileDir);
+            throw new RdosDefineException("Can not find core jar file in path:" + localSyncFileDir);
         }
 
         return coreJarFileName;

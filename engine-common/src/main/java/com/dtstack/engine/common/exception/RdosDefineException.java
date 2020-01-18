@@ -3,34 +3,70 @@ package com.dtstack.engine.common.exception;
 
 import com.dtstack.dtcenter.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.common.exception.ExceptionEnums;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author sishu.yss
  */
-public class RdosDefineException extends DtCenterDefException {
+public class RdosDefineException extends RuntimeException {
 
 
-    public RdosDefineException(String message) {
-        super(message);
+    private String errorMessage;
+
+    private ErrorCode errorCode;
+
+    public RdosDefineException(String errorMessage){
+        super(errorMessage);
+        this.errorMessage = errorMessage;
+        this.errorCode = ErrorCode.UNKNOWN_ERROR;
     }
 
-    public RdosDefineException(String message, Throwable cause) {
-        super(message, cause);
+    public RdosDefineException(ErrorCode errorCode){
+        super(buildErrorInfo(errorCode, errorCode.getDescription()));
+        this.errorCode = errorCode;
+        setErrorMessage("");
     }
 
-    public RdosDefineException(ExceptionEnums errorCode) {
-        super(errorCode);
+    public RdosDefineException(String message, ErrorCode errorCode){
+        super(buildErrorInfo(errorCode, message));
+        this.errorCode = errorCode;
+        setErrorMessage(message);
     }
 
-    public RdosDefineException(String message, ExceptionEnums errorCode) {
-        super(message, errorCode);
+    public RdosDefineException(ErrorCode errorCode, Throwable cause){
+        super(buildErrorInfo(errorCode, errorCode.getDescription()), cause);
+        this.errorCode = errorCode;
+        this.errorMessage = errorCode.getDescription();
     }
 
-    public RdosDefineException(ExceptionEnums errorCode, Throwable cause) {
-        super(errorCode, cause);
+    public RdosDefineException(String message, ErrorCode errorCode, Throwable cause) {
+        super(buildErrorInfo(errorCode, message), cause);
+        this.errorCode = errorCode;
+        setErrorMessage(message);
     }
 
-    public RdosDefineException(String message, ExceptionEnums errorCode, Throwable cause) {
-        super(message, errorCode, cause);
+    private void setErrorMessage(String extMsg){
+        if(StringUtils.isEmpty(extMsg)){
+            this.errorMessage = errorCode.getDescription();
+        }else{
+            this.errorMessage = errorCode.getDescription() + "-" + extMsg;
+        }
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public String getErrorMsg() {
+        return errorMessage;
+    }
+
+    public ErrorCode getErrorCode() {
+        return errorCode;
+    }
+
+    private static String buildErrorInfo(ErrorCode errorCode, String errorMessage) {
+        return "{errorCode=" + errorCode.getCode() +
+                ", errorMessage=" + errorMessage + "}";
     }
 }

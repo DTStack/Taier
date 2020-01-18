@@ -1,6 +1,6 @@
 package com.dtstack.engine.flink;
 
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.config.ConfigParse;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.util.FlinkConfUtil;
@@ -112,7 +112,7 @@ public class FlinkYarnSessionStarter {
         String zkAddress = ConfigParse.getNodeZkAddress();
         if (StringUtils.isBlank(zkAddress)
                 || zkAddress.split("/").length < 2) {
-            throw new RdosException("zkAddress is error");
+            throw new RdosDefineException("zkAddress is error");
         }
         String[] zks = zkAddress.split("/");
         zkAddress = zks[0].trim();
