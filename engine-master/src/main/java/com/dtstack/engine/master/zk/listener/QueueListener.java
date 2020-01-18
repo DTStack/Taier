@@ -2,7 +2,7 @@ package com.dtstack.engine.master.zk.listener;
 
 import com.dtstack.engine.common.util.ExceptionUtil;
 import com.dtstack.engine.common.util.LogCountUtil;
-import com.dtstack.task.common.TaskThreadFactory;
+import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.master.node.WorkNode;
 import com.dtstack.engine.master.queue.ClusterQueueInfo;
 import com.dtstack.engine.master.queue.QueueInfo;
@@ -40,7 +40,7 @@ public class QueueListener implements Listener {
         this.workNode = workNode;
         this.zkService = zkService;
 
-        scheduledService = new ScheduledThreadPoolExecutor(1, new TaskThreadFactory("QueueListener"));
+        scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("QueueListener"));
         scheduledService.scheduleWithFixedDelay(
                 this,
                 0,

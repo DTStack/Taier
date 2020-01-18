@@ -1,6 +1,6 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.task.domain.NotifyUser;
+import com.dtstack.engine.domain.NotifyUser;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

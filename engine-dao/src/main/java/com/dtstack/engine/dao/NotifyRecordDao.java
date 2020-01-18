@@ -1,6 +1,6 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.task.domain.NotifyRecord;
+import com.dtstack.engine.domain.NotifyRecord;
 import org.apache.ibatis.annotations.Param;
 
 /**

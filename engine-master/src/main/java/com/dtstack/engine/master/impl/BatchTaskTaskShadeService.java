@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.common.annotation.Forbidden;
 import com.dtstack.dtcenter.common.enums.EJobType;
 import com.dtstack.engine.common.enums.DisplayDirect;
+import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.BatchTaskTaskShadeDao;
 import com.dtstack.engine.domain.BatchTaskShade;

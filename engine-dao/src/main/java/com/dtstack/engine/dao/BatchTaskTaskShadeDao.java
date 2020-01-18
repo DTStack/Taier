@@ -1,6 +1,6 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.task.domain.BatchTaskTaskShade;
+import com.dtstack.engine.domain.BatchTaskTaskShade;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

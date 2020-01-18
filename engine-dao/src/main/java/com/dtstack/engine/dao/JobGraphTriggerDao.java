@@ -1,6 +1,6 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.task.domain.JobGraphTrigger;
+import com.dtstack.engine.domain.JobGraphTrigger;
 import org.apache.ibatis.annotations.Param;
 
 import java.sql.Timestamp;

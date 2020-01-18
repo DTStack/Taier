@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.common.constant.TaskStatusConstrant;
 import com.dtstack.dtcenter.common.engine.EngineSend;
 import com.dtstack.dtcenter.common.enums.TaskStatus;
+import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.sql.Twins;
 import com.dtstack.engine.common.constrant.JobFieldInfo;
 import com.dtstack.engine.common.enums.EScheduleType;
@@ -94,12 +95,12 @@ public class WorkNode implements InitializingBean, DisposableBean {
         executors.add(cronJobExecutor);
 
         executorService = new ThreadPoolExecutor(executors.size(), executors.size(), 0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(), CustomThreadFactory("ExecutorDealer"));
+                new LinkedBlockingQueue<>(), new CustomThreadFactory("ExecutorDealer"));
         for (AbstractJobExecutor executor : executors) {
             executorService.submit(executor);
         }
 
-        scheduledService = new ScheduledThreadPoolExecutor(1, new Cust("JobStatusDealer"));
+        scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("JobStatusDealer"));
         scheduledService.scheduleWithFixedDelay(
                 new JobStatusDealer(),
                 0,

@@ -5,7 +5,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.common.engine.EngineSend;
 import com.dtstack.dtcenter.common.enums.EJobType;
 import com.dtstack.dtcenter.common.enums.EngineType;
-import com.dtstack.task.common.TaskThreadFactory;
+import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.domain.BatchJob;
 import com.dtstack.engine.domain.BatchTaskShade;
@@ -45,7 +46,7 @@ public class JobStopSender implements InitializingBean, DisposableBean, Runnable
     private BatchTaskShadeService batchTaskShadeService;
 
     private ExecutorService jobStopSenderExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(), new TaskThreadFactory("JobStopSender"));
+            new LinkedBlockingQueue<>(), new CustomThreadFactory("JobStopSender"));
 
     private ArrayBlockingQueue<StoppedJob> stopJobQueue = new ArrayBlockingQueue<StoppedJob>(1000);
 

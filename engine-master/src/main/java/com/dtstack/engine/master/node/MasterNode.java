@@ -2,6 +2,7 @@ package com.dtstack.engine.master.node;
 
 import com.dtstack.dtcenter.common.constant.TaskStatusConstrant;
 import com.dtstack.dtcenter.common.enums.TaskStatus;
+import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.dao.BatchJobDao;
 import com.dtstack.engine.domain.po.SimpleBatchJobPO;
@@ -83,7 +84,7 @@ public class MasterNode {
 
     private MasterNode() {
         masterNodeDealer = new ThreadPoolExecutor(2, 2, 0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(), new TaskThreadFactory("masterNodeDealer"));
+                new LinkedBlockingQueue<>(), new CustomThreadFactory("masterNodeDealer"));
     }
 
     public void setIsMaster(boolean isMaster) {
@@ -95,7 +96,7 @@ public class MasterNode {
 
             if (masterNodeDealer.isShutdown()) {
                 masterNodeDealer = new ThreadPoolExecutor(2, 2, 0L, TimeUnit.MILLISECONDS,
-                        new LinkedBlockingQueue<>(), new TaskThreadFactory("masterNodeDealer"));
+                        new LinkedBlockingQueue<>(), new CustomThreadFactory("masterNodeDealer"));
             }
             masterNodeDealer.submit(faultTolerantDealer);
             masterNodeDealer.submit(new JobGraphChecker());
@@ -259,7 +260,7 @@ public class MasterNode {
                 continue;
             }
             LOG.warn("---masterSendJobs node:{} begin------", nodeEntry.getKey());
-            HttpSendClient.masterSendJobs(nodeEntry.getKey());
+            HttpSendClient.masterSendJobs(nodeEntry.getKey(), null);
             LOG.warn("---masterSendJobs node:{} end------", nodeEntry.getKey());
         }
     }

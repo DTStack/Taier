@@ -27,7 +27,6 @@
         <module>engine-master</module>
         <module>engine-entrance</module>
         <module>engine-api</module>
-        <module>schedule-service</module>
         <module>schedule-router</module>
         <module>schedule-runner</module>
 <!--        <module>engine-plugins/base</module>

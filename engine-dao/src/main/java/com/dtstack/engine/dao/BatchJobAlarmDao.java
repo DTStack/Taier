@@ -1,6 +1,6 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.task.domain.BatchJobAlarm;
+import com.dtstack.engine.domain.BatchJobAlarm;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

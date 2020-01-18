@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.scheduler;
 
-import com.dtstack.task.common.TaskThreadFactory;
+import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -44,7 +44,7 @@ public class JobGraphBuilderTrigger implements Runnable {
     private ScheduledExecutorService scheduledService;
 
     public JobGraphBuilderTrigger() {
-        scheduledService = new ScheduledThreadPoolExecutor(1, new TaskThreadFactory("JobGraphTrigger"));
+        scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("JobGraphTrigger"));
     }
 
     public void dealMaster(boolean isMaster) {
@@ -64,7 +64,7 @@ public class JobGraphBuilderTrigger implements Runnable {
             return;
         }
         if (scheduledService.isShutdown()) {
-            scheduledService = new ScheduledThreadPoolExecutor(1, new TaskThreadFactory("JobGraphTrigger"));
+            scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("JobGraphTrigger"));
         }
         scheduledService.scheduleAtFixedRate(
                 this,

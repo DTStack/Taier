@@ -2,7 +2,7 @@ package com.dtstack.engine.master.zk.listener;
 
 import com.dtstack.engine.common.util.ExceptionUtil;
 import com.dtstack.engine.common.util.LogCountUtil;
-import com.dtstack.task.common.TaskThreadFactory;
+import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.master.zk.ZkService;
 import com.dtstack.engine.master.zk.data.BrokerHeartNode;
 import org.slf4j.Logger;
@@ -33,7 +33,7 @@ public class HeartBeatListener implements Listener {
     public HeartBeatListener(ZkService zkService) {
         this.zkService = zkService;
 
-        scheduledService = new ScheduledThreadPoolExecutor(1, new TaskThreadFactory("HeartBeatListener"));
+        scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("HeartBeatListener"));
         scheduledService.scheduleWithFixedDelay(
                 this,
                 0,

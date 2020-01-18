@@ -3,7 +3,7 @@ package com.dtstack.engine.master.zk.listener;
 import com.dtstack.engine.common.util.ExceptionUtil;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.master.node.MasterNode;
-import com.dtstack.task.common.TaskThreadFactory;
+import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.master.zk.ZkService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +36,7 @@ public class MasterListener implements Listener {
         this.masterNode = masterNode;
         this.zkService = zkService;
 
-        scheduledService = new ScheduledThreadPoolExecutor(1, new TaskThreadFactory("MasterListener"));
+        scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("MasterListener"));
         scheduledService.scheduleWithFixedDelay(
                 this,
                 0,

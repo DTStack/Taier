@@ -4,12 +4,13 @@ import com.dtstack.dtcenter.common.engine.EngineSend;
 import com.dtstack.dtcenter.common.enums.*;
 import com.dtstack.dtcenter.common.util.DateUtil;
 import com.dtstack.dtcenter.common.util.MathUtil;
+import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.domain.BatchEngineJob;
 import com.dtstack.engine.domain.BatchJob;
 import com.dtstack.engine.domain.BatchJobJob;
 import com.dtstack.engine.domain.BatchTaskShade;
 import com.dtstack.engine.domain.BatchTaskTaskShade;
-import com.dtstack.task.common.TaskThreadFactory;
 import com.dtstack.engine.common.enums.DependencyType;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -128,7 +129,7 @@ public class JobGraphBuilder {
             }
 
             ExecutorService jobGraphBuildPool = new ThreadPoolExecutor(0, MAX_TASK_BUILD_THREAD, 10L, TimeUnit.SECONDS,
-                    new ArrayBlockingQueue<Runnable>(1), new TaskThreadFactory("JobGraphBuilder"));
+                    new ArrayBlockingQueue<Runnable>(1), new CustomThreadFactory("JobGraphBuilder"));
 
             List<ScheduleBatchJob> allJobs = new ArrayList<>(totalTask);
             Map<String, String> flowJobId = new ConcurrentHashMap<>(totalTask);

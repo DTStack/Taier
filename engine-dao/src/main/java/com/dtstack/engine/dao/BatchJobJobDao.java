@@ -1,7 +1,7 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.task.domain.BatchJobJob;
-import com.dtstack.task.dto.BatchJobJobTaskDTO;
+import com.dtstack.engine.domain.BatchJobJob;
+import com.dtstack.engine.dto.BatchJobJobTaskDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Collection;

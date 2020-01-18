@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.queue;
 
-import com.dtstack.task.common.TaskThreadFactory;
+import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.SentinelType;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import org.slf4j.Logger;
@@ -94,7 +94,7 @@ public class JopPriorityQueue {
         this.queueSizeLimited = queueSize;
         this.scheduleType = scheduleType;
         this.ingestion = ingestion;
-        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new TaskThreadFactory("acquire-" + scheduleType + "-Job"));
+        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("acquire-" + scheduleType + "-Job"));
         scheduledService.scheduleWithFixedDelay(
                 this.acquireGroupQueueJob,
                 0,

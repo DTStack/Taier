@@ -1,8 +1,8 @@
 package com.dtstack.engine.dao;
 
 import com.dtstack.dtcenter.common.pager.PageQuery;
-import com.dtstack.task.domain.BatchAlarm;
-import com.dtstack.task.dto.BatchAlarmDTO;
+import com.dtstack.engine.domain.BatchAlarm;
+import com.dtstack.engine.dto.BatchAlarmDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
