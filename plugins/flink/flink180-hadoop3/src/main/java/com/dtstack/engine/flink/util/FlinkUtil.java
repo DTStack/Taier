@@ -6,6 +6,7 @@ import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.enums.FlinkYarnMode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.ProgramInvocationException;
@@ -35,6 +36,7 @@ public class FlinkUtil {
 
     private static String fileSP = File.separator;
 
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     public static PackagedProgram buildProgram(String fromPath, String toPath, List<URL> classpaths, EJobType jobType,
                                                String entryPointClass, String[] programArgs,
@@ -157,6 +159,14 @@ public class FlinkUtil {
         } else {
             return FlinkYarnMode.mode(modeStr);
         }
+    }
+
+    public static Map<String,Object> ObjectToMap(Object obj) throws Exception{
+        return objectMapper.readValue(objectMapper.writeValueAsBytes(obj), Map.class);
+    }
+
+    public static <T> T jsonStrToObject(String jsonStr, Class<T> clazz) throws Exception{
+        return  objectMapper.readValue(jsonStr, clazz);
     }
 
 }
