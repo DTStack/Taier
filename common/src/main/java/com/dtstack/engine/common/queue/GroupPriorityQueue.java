@@ -35,8 +35,6 @@ public class GroupPriorityQueue {
     private AtomicLong startId = new AtomicLong(0);
     private AtomicInteger stopAcquireCount = new AtomicInteger(0);
 
-    private AtomicInteger queueJobSize = new AtomicInteger(0);
-
     private Ingestion ingestion;
     /**
      * key: groupName
@@ -68,19 +66,10 @@ public class GroupPriorityQueue {
         }
 
         queue.put(jobClient);
-        queueJobSize.incrementAndGet();
     }
 
     public Map<String, OrderLinkedBlockingQueue<JobClient>> getGroupPriorityQueueMap() {
         return groupPriorityQueueMap;
-    }
-
-    public int incrQueueSize(){
-        return queueJobSize.incrementAndGet();
-    }
-
-    public int decrQueueSize(){
-        return queueJobSize.decrementAndGet();
     }
 
     public boolean remove(String groupName, String jobId) {
@@ -90,7 +79,6 @@ public class GroupPriorityQueue {
         }
 
         if (queue.remove(jobId)) {
-            queueJobSize.decrementAndGet();
             return true;
         }
         return false;
@@ -103,7 +91,7 @@ public class GroupPriorityQueue {
      * @return
      */
     public boolean isBlocked() {
-        boolean blocked = running.get() || queueJobSize.get() >= QUEUE_SIZE_LIMITED;
+        boolean blocked = running.get() || queueSize() >= QUEUE_SIZE_LIMITED;
         if (blocked && !running.get()) {
             running.set(true);
             stopAcquireCount.set(0);
@@ -111,7 +99,11 @@ public class GroupPriorityQueue {
         return blocked;
     }
 
-    public void resetStartId(){
+    private long queueSize() {
+        return groupPriorityQueueMap.values().stream().mapToInt(OrderLinkedBlockingQueue::size).count();
+    }
+
+    public void resetStartId() {
         startId.set(0);
     }
 
@@ -120,23 +112,20 @@ public class GroupPriorityQueue {
         @Override
         public void run() {
 
-            if (Boolean.FALSE == running.get()) {
+            if (Boolean.FALSE == running.get() && queueSize() >= QUEUE_SIZE_LIMITED) {
                 return;
             }
 
             /**
-             * 如果队列中的任务数量小于 ${GroupPriorityQueue.QUEUE_SIZE_LIMITED} 并且 连续调度了 ${GroupPriorityQueue.STOP_ACQUIRE_LIMITED} 次都没有查询到新的数据，则停止调度
+             * 如果队列中的任务数量小于 ${GroupPriorityQueue.QUEUE_SIZE_LIMITED} , 在连续调度了  ${GroupPriorityQueue.STOP_ACQUIRE_LIMITED} 次都没有查询到新的数据，则停止调度
              */
-            if (queueJobSize.get() < QUEUE_SIZE_LIMITED) {
-                long limitId = ingestion.ingestion(GroupPriorityQueue.this, startId.get(), QUEUE_SIZE_LIMITED);
-                if (limitId != startId.get()){
-                    stopAcquireCount.set(0);
-                } else if (stopAcquireCount.incrementAndGet() >= STOP_ACQUIRE_LIMITED) {
-                    running.set(false);
-                }
-                startId.set(limitId);
+            long limitId = ingestion.ingestion(GroupPriorityQueue.this, startId.get(), QUEUE_SIZE_LIMITED);
+            if (limitId != startId.get()){
+                stopAcquireCount.set(0);
+            } else if (stopAcquireCount.incrementAndGet() >= STOP_ACQUIRE_LIMITED) {
+                running.set(false);
             }
-
+            startId.set(limitId);
         }
     }
 
