@@ -43,24 +43,18 @@ public class JobSubmitProcessor implements Runnable {
             }
 
             if (clusterClient.judgeSlots(jobClient)) {
-                if (logger.isInfoEnabled()) {
-                    logger.info("--------submit job:{} to engine start----.", jobClient.toString());
-                }
+                logger.info("--------submit job:{} to engine start----.", jobClient.toString());
 
                 jobClient.doStatusCallBack(RdosTaskStatus.COMPUTING.getStatus());
 
                 jobResult = clusterClient.submitJob(jobClient);
 
-                if (logger.isInfoEnabled()) {
-                    logger.info("submit job result is:{}.", jobResult);
-                }
+                logger.info("submit job result is:{}.", jobResult);
 
                 String jobId = jobResult.getData(JobResult.JOB_ID_KEY);
                 jobClient.setEngineTaskId(jobId);
                 addToTaskListener(jobClient, jobResult);
-                if (logger.isInfoEnabled()) {
-                    logger.info("--------submit job:{} to engine end----", jobClient.getTaskId());
-                }
+                logger.info("--------submit job:{} to engine end----", jobClient.getTaskId());
             } else {
                 logger.info(" jobId:{} engineType:{} judgeSlots result is false", jobClient.getTaskId(), jobClient.getEngineType());
                 jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());

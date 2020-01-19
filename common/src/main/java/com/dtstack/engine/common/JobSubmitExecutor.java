@@ -169,7 +169,6 @@ public class JobSubmitExecutor implements Closeable{
         private boolean submitJob(JobClient jobClient,OrderLinkedBlockingQueue<JobClient> priorityQueue){
             try {
                 jobSubmitPool.submit(new JobSubmitProcessor(jobClient, ()-> handlerNoResource(jobClient,priorityQueue)));
-                groupPriorityQueueMap.get(jobClient.getEngineType()).decrQueueSize();
                 return true;
             } catch (RejectedExecutionException e){
                 logger.error("", e);
@@ -182,7 +181,6 @@ public class JobSubmitExecutor implements Closeable{
                 //因为资源不足提交任务失败，优先级数值增加 WAIT_INTERVAL
                 jobClient.setPriority(jobClient.getPriority() + WAIT_INTERVAL);
                 priorityQueue.put(jobClient);
-                groupPriorityQueueMap.get(jobClient.getEngineType()).incrQueueSize();
             } catch (InterruptedException e){
                 logger.error("add jobClient: " + jobClient.getTaskId() +" back to queue error:", e);
             }
