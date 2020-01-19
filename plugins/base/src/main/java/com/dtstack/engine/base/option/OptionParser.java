@@ -1,6 +1,6 @@
-package com.dtstack.engine.flink.option;
+package com.dtstack.engine.base.option;
 
-import com.dtstack.engine.flink.util.FlinkUtil;
+import com.dtstack.engine.base.util.JsonUtil;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import org.apache.commons.cli.BasicParser;
@@ -11,7 +11,6 @@ import org.apache.commons.lang.StringUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +29,7 @@ public class OptionParser {
         initOptions(addOptions(args));
     }
 
-    private CommandLine addOptions(String[] args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, ParseException {
+    private CommandLine addOptions(String[] args) throws ParseException {
         Class cla = properties.getClass();
         Field[] fields = cla.getDeclaredFields();
         for(Field field:fields){
@@ -44,7 +43,7 @@ public class OptionParser {
         return cl;
     }
 
-    private void initOptions(CommandLine cl) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, ParseException {
+    private void initOptions(CommandLine cl) throws IllegalAccessException {
         Class cla = properties.getClass();
         Field[] fields = cla.getDeclaredFields();
         for(Field field:fields){
@@ -68,7 +67,7 @@ public class OptionParser {
     }
 
     public List<String> getProgramExeArgList() throws Exception {
-        Map<String,Object> mapConf = FlinkUtil.ObjectToMap(properties);
+        Map<String,Object> mapConf = JsonUtil.ObjectToMap(properties);
         List<String> args = Lists.newArrayList();
         for(Map.Entry<String, Object> one : mapConf.entrySet()){
             String key = one.getKey();

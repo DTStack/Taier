@@ -1,5 +1,8 @@
 package com.dtstack.engine.flink;
 
+import com.dtstack.engine.base.option.OptionParser;
+import com.dtstack.engine.base.option.Options;
+import com.dtstack.engine.base.util.JsonUtil;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosException;
@@ -21,8 +24,6 @@ import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.constrant.ExceptionInfoConstrant;
 import com.dtstack.engine.flink.enums.Deploy;
 import com.dtstack.engine.flink.enums.FlinkYarnMode;
-import com.dtstack.engine.flink.option.OptionParser;
-import com.dtstack.engine.flink.option.Options;
 import com.dtstack.engine.flink.parser.AddJarOperator;
 import com.dtstack.engine.flink.util.FLinkConfUtil;
 import com.dtstack.engine.flink.util.FlinkUtil;
@@ -827,7 +828,7 @@ public class FlinkClient extends AbsClient {
             Options launcherOptions = optionParser.getOptions();
             String confProp = launcherOptions.getConfProp();
             confProp = URLDecoder.decode(confProp, Charsets.UTF_8.toString());
-            Properties confProperties = FlinkUtil.jsonStrToObject(confProp, Properties.class);
+            Properties confProperties = JsonUtil.jsonStrToObject(confProp, Properties.class);
             String sftpKeytab = confProperties.getProperty(ConfigConstrant.KAFKA_SFTP_KEYTAB);
             String localKeytab = confProperties.getProperty(ConfigConstrant.SECURITY_KERBEROS_LOGIN_KEYTAB);
             if (!(new File(localKeytab).exists())){

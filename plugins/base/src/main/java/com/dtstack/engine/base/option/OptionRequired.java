@@ -1,4 +1,4 @@
-package com.dtstack.engine.flink.option;
+package com.dtstack.engine.base.option;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -15,3 +15,4 @@ public @interface OptionRequired {
 
     String description() default "";
 }
+
