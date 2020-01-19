@@ -39,14 +39,16 @@
 
     <select id="listByStage" resultMap="rdosEngineJobCacheResult">
         select * from rdos_engine_job_cache
-        where id > #{id} and (node_address = #{nodeAddress} or node_address is null)
+        where id > #{startId} and (node_address = #{nodeAddress} or node_address is null)
         <if test="stage != null">
             and stage = #{stage}
         </if>
         <if test="engineType != null">
             and engine_type = #{engineType}
         </if>
-        and is_deleted=0 order by job_priority asc limit 500;
+        and is_deleted=0
+        order by id, job_priority asc
+        limit 500;
     </select>
 
     <select id="getByJobIds" resultMap="rdosEngineJobCacheResult">
