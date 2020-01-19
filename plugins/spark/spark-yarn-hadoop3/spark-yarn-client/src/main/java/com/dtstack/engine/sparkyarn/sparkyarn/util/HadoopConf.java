@@ -1,7 +1,7 @@
 package com.dtstack.engine.sparkyarn.sparkyarn.util;
 
 
-import com.dtstack.engine.common.util.HadoopConfTool;
+import com.dtstack.engine.base.util.HadoopConfTool;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hdfs.DistributedFileSystem;

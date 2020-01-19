@@ -221,6 +221,7 @@ public class WorkNode {
 
     private void updateJobStatus(String jobId, Integer computeType, Integer status) {
         rdosEngineBatchJobDao.updateJobStatus(jobId, status);
+        LOG.info("jobId:{} update job status to {}", jobId, status);
     }
 
     public void saveCache(JobClient jobClient, int stage, boolean insert){
@@ -267,6 +268,7 @@ public class WorkNode {
             rdosEngineJobCacheDAO.deleteJob(jobId);
             //修改任务状态
             rdosEngineBatchJobDao.updateJobStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
+            LOG.info("jobId:{} update job status to {}", jobId, RdosTaskStatus.CANCELED.getStatus());
         }
 
         return result;
