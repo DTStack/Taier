@@ -264,6 +264,7 @@ public class FlinkClient extends AbsClient {
                 //只有当程序本身没有指定并行度的时候该参数才生效
                 Integer runParallelism = FlinkUtil.getJobParallelism(jobClient.getConfProperties());
                 clearClassPathShipfileLoadMode(packagedProgram);
+                logger.info("--------job:{} run by session mode-----.", jobClient.getTaskId());
                 runResult = runJobByYarnSession(packagedProgram,runParallelism);
             }
 
@@ -281,6 +282,7 @@ public class FlinkClient extends AbsClient {
      * perjob模式提交任务
      */
     private Pair<String, String> runJobByPerJob(ClusterSpecification clusterSpecification, JobClient jobClient) throws Exception{
+        logger.info("--------job:{} run by PerJob mode-----.", jobClient.getTaskId());
         AbstractYarnClusterDescriptor descriptor = flinkClientBuilder.createClusterDescriptorByMode(jobClient, true);
         descriptor.setName(jobClient.getJobName());
         ClusterClient<ApplicationId> clusterClient = descriptor.deployJobCluster(clusterSpecification, new JobGraph(),true);
@@ -625,6 +627,10 @@ public class FlinkClient extends AbsClient {
             retMap.put("exception", except);
             retMap.put("accuInfo", accuInfo);
             return FlinkRestParseUtil.parseEngineLog(retMap);
+        } catch(RdosException e){
+            //http 请求失败时返回空日志
+            logger.error("", e);
+            return null;
         } catch (Exception e) {
             logger.error("", e);
             Map<String, String> map = new LinkedHashMap<>(8);

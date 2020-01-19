@@ -5,7 +5,6 @@ import com.dtstack.engine.common.exception.RdosException;
 import com.dtstack.engine.common.annotation.Param;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.JobSubmitExecutor;
-import com.dtstack.engine.service.db.dao.*;
 import com.dtstack.engine.service.db.dataobject.RdosEngineJobRetry;
 import com.dtstack.engine.service.db.dataobject.RdosEngineJobStopRecord;
 import com.dtstack.engine.service.db.dataobject.RdosEngineUniqueSign;
@@ -325,7 +324,14 @@ public class ActionServiceImpl {
         RdosEngineJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
         if (batchJob != null) {
         	log.put("logInfo",batchJob.getLogInfo());
-        	log.put("engineLog",batchJob.getEngineLog());
+        	String engineLog = null;
+            if (StringUtils.isBlank(batchJob.getEngineLog())) {
+                engineLog = workNode.getAndUpdateEngineLog(jobId, batchJob.getEngineJobId(), batchJob.getApplicationId(), batchJob.getPluginInfoId());
+                if (engineLog == null) {
+                    engineLog = "";
+                }
+            }
+        	log.put("engineLog", engineLog);
         }
         return PublicUtil.objToString(log);
     }
@@ -340,18 +346,52 @@ public class ActionServiceImpl {
         }
 
         List<Map<String,String>> logs = new ArrayList<>(5);
-        List<RdosEngineJobRetry> batchJobRetrys = batchJobRetryDAO.getJobRetryByJobId(jobId);
+        List<RdosEngineJobRetry> batchJobRetrys = batchJobRetryDAO.listJobRetryByJobId(jobId);
         if (CollectionUtils.isNotEmpty(batchJobRetrys)) {
-        	batchJobRetrys.forEach(jobRetry->{
-        		Map<String,String> log = new HashMap<String,String>(4);
-        		log.put("retryNum",jobRetry.getRetryNum().toString());
-        		log.put("logInfo",jobRetry.getLogInfo());
-        		log.put("engineLog",jobRetry.getEngineLog());
-        		log.put("retryTaskParams",jobRetry.getRetryTaskParams());
-        		logs.add(log);
-        	});
+            batchJobRetrys.forEach(jobRetry->{
+                Map<String,String> log = new HashMap<String,String>(4);
+                log.put("retryNum",jobRetry.getRetryNum().toString());
+                log.put("logInfo",jobRetry.getLogInfo());
+                log.put("retryTaskParams",jobRetry.getRetryTaskParams());
+                logs.add(log);
+            });
         }
         return PublicUtil.objToString(logs);
+    }
+
+    /**
+     * 根据jobid 和 计算类型，查询job的重试retry日志
+     */
+    public String retryLogDetail(@Param("jobId") String jobId,@Param("computeType") Integer computeType, @Param("retryNum") Integer retryNum) throws Exception {
+
+        if (StringUtils.isBlank(jobId) || computeType==null){
+            throw new RdosException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
+        }
+        if (retryNum == null || retryNum <= 0) {
+            retryNum = 1;
+        }
+
+        RdosEngineJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
+        //数组库中存储的retryNum为0开始的索引位置
+        RdosEngineJobRetry jobRetry = batchJobRetryDAO.getJobRetryByJobId(jobId, retryNum - 1);
+        Map<String,String> log = new HashMap<String,String>(4);
+        if (jobRetry != null) {
+            log.put("retryNum",jobRetry.getRetryNum().toString());
+            log.put("logInfo",jobRetry.getLogInfo());
+            String engineLog = jobRetry.getEngineLog();
+            if (StringUtils.isBlank(jobRetry.getEngineLog())){
+                engineLog = workNode.getAndUpdateEngineLog(jobId, jobRetry.getEngineJobId(), jobRetry.getApplicationId(), batchJob.getPluginInfoId());
+                if (engineLog != null){
+                    logger.info("batchJobRetryDAO.updateEngineLog id:{}, jobId:{}, engineLog:{}", jobRetry.getId(), jobRetry.getJobId(), engineLog);
+                    batchJobRetryDAO.updateEngineLog(jobRetry.getId(), engineLog);
+                } else {
+                    engineLog = "";
+                }
+            }
+            log.put("engineLog", engineLog);
+            log.put("retryTaskParams",jobRetry.getRetryTaskParams());
+        }
+        return PublicUtil.objToString(log);
     }
 
     /**
