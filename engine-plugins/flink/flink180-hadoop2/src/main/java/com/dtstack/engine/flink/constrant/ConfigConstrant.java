@@ -32,4 +32,7 @@ public class ConfigConstrant {
     public final static String FLINK_PLUGIN_LOAD_MODE = "pluginLoadMode";
     public static final String FLINK_PLUGIN_CLASSPATH_LOAD = "classpath";
     public static final String FLINK_PLUGIN_SHIPFILE_LOAD = "shipfile";
+
+    public static final String KAFKA_SFTP_KEYTAB = "kafka.sftp.keytab";
+    public static final String SECURITY_KERBEROS_LOGIN_KEYTAB= "security.kerberos.login.keytab";
 }

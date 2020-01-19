@@ -1,6 +1,10 @@
 package com.dtstack.engine.worker;
 
 import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
+import com.dtstack.engine.common.JobIdentifier;
+import com.dtstack.engine.common.config.ConfigParse;
+import com.dtstack.engine.common.exception.ExceptionUtil;
+import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
@@ -233,6 +237,7 @@ public class WorkNode {
 
     private void updateJobStatus(String jobId, Integer computeType, Integer status) {
         rdosEngineBatchJobDao.updateJobStatus(jobId, status);
+        LOG.info("jobId:{} update job status to {}", jobId, status);
     }
 
     public void saveCache(JobClient jobClient, int stage, boolean insert){
@@ -279,9 +284,28 @@ public class WorkNode {
             rdosEngineJobCacheDAO.deleteJob(jobId);
             //修改任务状态
             rdosEngineBatchJobDao.updateJobStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
+            LOG.info("jobId:{} update job status to {}", jobId, RdosTaskStatus.CANCELED.getStatus());
         }
 
         return result;
+    }
+
+    public String getAndUpdateEngineLog(String jobId, String engineJobId, String appId, long pluginId) {
+        String engineLog = null;
+        try {
+            String pluginInfoStr = pluginInfoDao.getPluginInfo(pluginId);
+            Map<String, Object> params = PublicUtil.jsonStrToObject(pluginInfoStr, Map.class);
+            String engineType = MathUtil.getString(params.get(ConfigParse.TYPE_NAME_KEY));
+            JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineJobId, appId, jobId);
+            //从engine获取log
+            engineLog = JobClient.getEngineLog(engineType, pluginInfoStr, jobIdentifier);
+            if (engineLog != null) {
+                rdosEngineBatchJobDao.updateEngineLog(jobId, engineLog);
+            }
+        } catch (Throwable e){
+            LOG.error("getAndUpdateEngineLog error jobId {} ,error info {}..", jobId, ExceptionUtil.getErrorMessage(e));
+        }
+        return engineLog;
     }
 
     /**

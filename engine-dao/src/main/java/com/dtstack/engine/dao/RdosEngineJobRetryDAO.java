@@ -25,13 +25,24 @@ public class RdosEngineJobRetryDAO {
         });
 	}
 
-    public List<RdosEngineJobRetry> getJobRetryByJobId(String jobId) {
+    public List<RdosEngineJobRetry> listJobRetryByJobId(String jobId) {
         return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<RdosEngineJobRetry>>(){
 
             @Override
             public List<RdosEngineJobRetry> execute(SqlSession sqlSession) throws Exception {
                 RdosEngineJobRetryMapper mapper = sqlSession.getMapper(RdosEngineJobRetryMapper.class);
-                return mapper.getJobRetryByJobId(jobId);
+                return mapper.listJobRetryByJobId(jobId);
+            }
+        });
+    }
+
+    public RdosEngineJobRetry getJobRetryByJobId(String jobId, int retrynum) {
+        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<RdosEngineJobRetry>(){
+
+            @Override
+            public RdosEngineJobRetry execute(SqlSession sqlSession) throws Exception {
+                RdosEngineJobRetryMapper mapper = sqlSession.getMapper(RdosEngineJobRetryMapper.class);
+                return mapper.getJobRetryByJobId(jobId, retrynum);
             }
         });
     }
@@ -53,6 +64,18 @@ public class RdosEngineJobRetryDAO {
             public Object execute(SqlSession sqlSession) throws Exception {
                 RdosEngineJobRetryMapper mapper = sqlSession.getMapper(RdosEngineJobRetryMapper.class);
                 mapper.removeByJobId(jobId);
+                return null;
+            }
+        });
+    }
+
+    public void updateEngineLog(long id, String engineLog){
+        MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
+
+            @Override
+            public Object execute(SqlSession sqlSession) throws Exception {
+                RdosEngineJobRetryMapper mapper = sqlSession.getMapper(RdosEngineJobRetryMapper.class);
+                mapper.updateEngineLog(id, engineLog);
                 return null;
             }
         });

@@ -31,15 +31,25 @@
         UPDATE `rdos_engine_job_retry` SET `is_deleted` = 1 WHERE job_id=#{jobId};
     </update>
 
-    <select id="getJobRetryByJobId" resultMap="jobRetryResult">
+    <select id="listJobRetryByJobId" resultMap="jobRetryResult">
         select
         <include refid="select_content_fragment"/>
         from rdos_engine_job_retry where job_id=#{jobId} and is_deleted=0 limit 5;
     </select>
 
+    <select id="getJobRetryByJobId" resultMap="jobRetryResult">
+        select
+        <include refid="select_content_fragment"/>
+        from rdos_engine_job_retry where job_id=#{jobId} and retry_num = #{retryNum} and is_deleted=0 limit 1;
+    </select>
+
     <select id="getRetryTaskParams" resultType="java.lang.String">
         SELECT `retry_task_params` FROM `rdos_engine_job_retry` WHERE job_id=#{jobId}  and retry_num = #{retryNum} and is_deleted=0;
     </select>
+
+    <update id="updateEngineLog">
+        update rdos_engine_job_retry set engine_log = #{engineLog},gmt_modified=now() where id = #{id}
+    </update>
 
 
 </mapper>

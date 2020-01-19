@@ -110,6 +110,7 @@ public class JobStopAction {
     private void removeJob(JobClient jobClient) {
         engineJobCacheDao.deleteJob(jobClient.getTaskId());
         batchJobDAO.updateJobStatus(jobClient.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
+        LOG.info("jobId:{} update job status to {}", jobClient.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
     }
 
 }

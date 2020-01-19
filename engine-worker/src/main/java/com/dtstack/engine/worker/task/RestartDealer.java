@@ -360,6 +360,7 @@ public class RestartDealer {
 
     private void updateJobStatus(String jobId, Integer computeType, Integer status) {
         engineBatchJobDAO.updateJobStatus(jobId, status);
+        LOG.info("jobId:{} update job status to {}", jobId, status);
     }
 
     private void addToRestart(JobClient jobClient){
