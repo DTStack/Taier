@@ -35,6 +35,8 @@ public class SftpFactory extends BasePooledObjectFactory<ChannelSftp>  {
 
     private static final int DEFAULT_PORT = 22;
 
+    private static final int DEFAULT_TIME_OUT = 0;
+
     private static final int DEFAULT_RETRY_TIMES = 3;
     private static final int SLEEP_TIME_MILLI_SECOND = 2000;
 
@@ -55,7 +57,7 @@ public class SftpFactory extends BasePooledObjectFactory<ChannelSftp>  {
         password = MapUtils.getString(sftpConfig, KEY_PASSWORD);
         rsaPath = MapUtils.getString(sftpConfig, KEY_RSA);
         authType = MapUtils.getInteger(sftpConfig, KEY_AUTHENTICATION, SftpType.PASSWORD_AUTHENTICATION.getType());
-        timeout = MapUtils.getIntValue(sftpConfig, KEY_TIMEOUT, 0);
+        timeout = MapUtils.getIntValue(sftpConfig, KEY_TIMEOUT, DEFAULT_TIME_OUT);
     }
 
     private void checkConfig(Map<String, String> sftpConfig) {
