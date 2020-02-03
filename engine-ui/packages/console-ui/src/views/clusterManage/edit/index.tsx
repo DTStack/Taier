@@ -1042,15 +1042,17 @@ class EditCluster extends React.Component<any, any> {
             mapKeys.forEach(item => {
                 if (key === item) subConf[key] = dtscriptConf[key]
                 // 后端需要value值加单引号处理
-                singQuoteKeys.forEach(singlekey => {
-                    if (singlekey === key) {
-                        let newVal = dtscriptConf[key];
-                        if (dtscriptConf[key].indexOf("'") === -1) {
-                            newVal = `'${dtscriptConf[key]}'`
+                if (subType == 'dtscriptJupyter') {
+                    singQuoteKeys.forEach(singlekey => {
+                        if (singlekey === key) {
+                            let newVal = dtscriptConf[key];
+                            if (dtscriptConf[key].indexOf("'") === -1) {
+                                newVal = `'${dtscriptConf[key]}'`
+                            }
+                            subConf[key] = newVal
                         }
-                        subConf[key] = newVal
-                    }
-                })
+                    })
+                }
             })
         }
         return subConf;
