@@ -17,10 +17,10 @@ public class Options {
     @OptionRequired(description = "Running mode")
     private  String mode = "local";
 
-    @OptionRequired(required = true,description = "Job name")
+    @OptionRequired(description = "Job name")
     private  String name;
 
-    @OptionRequired(required = true,description = "Job sql file")
+    @OptionRequired(description = "Job sql file")
     private  String sql;
 
     @OptionRequired(description = "Flink configuration directory")
@@ -29,10 +29,10 @@ public class Options {
     @OptionRequired(description = "Yarn and Hadoop configuration directory")
     private  String yarnconf;
 
-    @OptionRequired(required = true,description = "Sql local plugin root")
+    @OptionRequired(description = "Sql local plugin root")
     private  String localSqlPluginPath;
 
-    @OptionRequired(required = true,description = "Sql remote plugin root")
+    @OptionRequired(description = "Sql remote plugin root")
     private  String remoteSqlPluginPath ;
 
     @OptionRequired(description = "sql ext jar,eg udf jar")
