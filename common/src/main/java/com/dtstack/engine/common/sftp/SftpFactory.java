@@ -13,8 +13,6 @@ import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Map;
 import java.util.Properties;
 
@@ -49,6 +47,8 @@ public class SftpFactory extends BasePooledObjectFactory<ChannelSftp>  {
     private int timeout;
 
     public SftpFactory(Map<String, String> sftpConfig) {
+        checkConfig(sftpConfig);
+
         host = MapUtils.getString(sftpConfig, KEY_HOST);
         port = MapUtils.getIntValue(sftpConfig, KEY_PORT, DEFAULT_PORT);
         username = MapUtils.getString(sftpConfig, KEY_USERNAME);
@@ -56,6 +56,15 @@ public class SftpFactory extends BasePooledObjectFactory<ChannelSftp>  {
         rsaPath = MapUtils.getString(sftpConfig, KEY_RSA);
         authType = MapUtils.getInteger(sftpConfig, KEY_AUTHENTICATION, SftpType.PASSWORD_AUTHENTICATION.getType());
         timeout = MapUtils.getIntValue(sftpConfig, KEY_TIMEOUT, 0);
+    }
+
+    private void checkConfig(Map<String, String> sftpConfig) {
+        if(sftpConfig == null || sftpConfig.isEmpty()){
+            throw new IllegalArgumentException("The config of sftp is null");
+        }
+        if(StringUtils.isEmpty(sftpConfig.get(KEY_HOST))){
+            throw new IllegalArgumentException("The host of sftp is null");
+        }
     }
 
     @Override
@@ -76,7 +85,7 @@ public class SftpFactory extends BasePooledObjectFactory<ChannelSftp>  {
     private ChannelSftp getChannelSftp() throws JSchException {
 
             JSch jsch = new JSch();
-            if (SftpType.PUBKEY_AUTHENTICATION.getType()==authType && StringUtils.isNotBlank(rsaPath)) {
+            if (SftpType.PUBKEY_AUTHENTICATION.getType() == authType && StringUtils.isNotBlank(rsaPath)) {
                 jsch.addIdentity(rsaPath.trim(), "");
             }
             Session session = jsch.getSession(username, host, port);
@@ -104,65 +113,10 @@ public class SftpFactory extends BasePooledObjectFactory<ChannelSftp>  {
     }
 
 
-//    try {
-//        JSch jsch = new JSch();
-//        if (SftpType.PUBKEY_AUTHENTICATION.getType()==authType && StringUtils.isNotBlank(rsaPath)) {
-//            jsch.addIdentity(rsaPath.trim(), "");
-//        }
-//        Session session = jsch.getSession(username, host, port);
-//        if (session == null) {
-//            throw new RuntimeException("Login failed. Please check if username and password are correct");
-//        }
-//
-//        if (SftpType.PASSWORD_AUTHENTICATION.getType()==authType) {
-//            //默认走密码验证模式
-//            session.setPassword(password);
-//        }
-//        Properties config = new Properties();
-//        config.put("StrictHostKeyChecking", "no");
-//        session.setConfig(config);
-//        session.setTimeout(timeout);
-//        session.connect();
-//
-//        ChannelSftp channelSftp = (ChannelSftp) session.openChannel("sftp");
-//        channelSftp.connect();
-//
-//        logger.info("create执行, 与ftp服务器建立连接成功 : " + channelSftp);
-//
-//        return channelSftp;
-//    } catch (Exception e){
-//        String message = String.format("与ftp服务器建立连接失败 : [%s]",
-//                "message:host =" + host + ",username = " + username + ",port =" + port);
-//        logger.error(message);
-//        throw new RuntimeException(message, e);
-//    }
-
-
     @Override
     public PooledObject<ChannelSftp> wrap(ChannelSftp channelSftp) {
         return new DefaultPooledObject<>(channelSftp);
     }
-
-//    // 验证对象，Pool对象可以设置借出归还时候是否需要验证对象
-//    @Override
-//    public boolean validateObject(PooledObject<ChannelSftp> pooledObject) {
-//        ChannelSftp channelSftp = pooledObject.getObject();
-//        return channelSftp != null && !channelSftp.isClosed() && channelSftp.isConnected();
-//    }
-
-//    /**
-//     * 钝化归还对象，对归还的对象清理
-//     * 清空输入流，避免因为上一个请求字节未读取完导致inputStream非空，对下一个产生影响
-//     */
-//    @Override
-//    public void passivateObject(PooledObject<ChannelSftp> p) throws Exception {
-//        ChannelSftp channelSftp = p.getObject();
-//        InputStream inputStream = channelSftp.getInputStream();
-//        int available = inputStream.available();
-//        if (available > 0) {
-//            inputStream.skip(available);
-//        }
-//    }
 
     // 销毁对象
     @Override
