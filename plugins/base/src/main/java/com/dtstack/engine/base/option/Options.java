@@ -2,6 +2,9 @@ package com.dtstack.engine.base.option;
 
 public class Options {
 
+    @OptionRequired(description = "jobid")
+    private  String jobid = "jobid";
+
     @OptionRequired(description = "Running mode")
     private  String mode = "local";
 
@@ -165,5 +168,13 @@ public class Options {
 
     public void setPluginLoadMode(String pluginLoadMode) {
         this.pluginLoadMode = pluginLoadMode;
+    }
+
+    public String getJobid() {
+        return jobid;
+    }
+
+    public void setJobid(String jobid) {
+        this.jobid = jobid;
     }
 }
