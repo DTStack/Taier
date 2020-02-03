@@ -8,6 +8,9 @@ public class Options {
     @OptionRequired(description = "job")
     private  String job = "job";
 
+    @OptionRequired(description = "monitor")
+    private  String monitor = "monitor";
+
     @OptionRequired(description = "Running mode")
     private  String mode = "local";
 
@@ -187,5 +190,13 @@ public class Options {
 
     public void setJob(String job) {
         this.job = job;
+    }
+
+    public String getMonitor() {
+        return monitor;
+    }
+
+    public void setMonitor(String monitor) {
+        this.monitor = monitor;
     }
 }
