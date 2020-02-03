@@ -11,6 +11,9 @@ public class Options {
     @OptionRequired(description = "monitor")
     private  String monitor = "monitor";
 
+    @OptionRequired(description = "pluginRoot")
+    private  String pluginRoot = "pluginRoot";
+
     @OptionRequired(description = "Running mode")
     private  String mode = "local";
 
@@ -198,5 +201,9 @@ public class Options {
 
     public void setMonitor(String monitor) {
         this.monitor = monitor;
+    }
+
+    public String getPluginRoot() {
+        return pluginRoot;
     }
 }
