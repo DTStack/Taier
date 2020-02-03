@@ -5,6 +5,9 @@ public class Options {
     @OptionRequired(description = "jobid")
     private  String jobid = "jobid";
 
+    @OptionRequired(description = "job")
+    private  String job = "job";
+
     @OptionRequired(description = "Running mode")
     private  String mode = "local";
 
@@ -176,5 +179,13 @@ public class Options {
 
     public void setJobid(String jobid) {
         this.jobid = jobid;
+    }
+
+    public String getJob() {
+        return job;
+    }
+
+    public void setJob(String job) {
+        this.job = job;
     }
 }
