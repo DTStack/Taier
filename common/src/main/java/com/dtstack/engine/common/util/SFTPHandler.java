@@ -107,16 +107,14 @@ public class SFTPHandler {
             });
 
             ChannelSftp channelSftp = sftpPool.borrowObject();
-            Session sessionSftp;
-            try {
-                sessionSftp = channelSftp.getSession();
-                sessionSftp.setTimeout(MapUtils.getIntValue(sftpConfig, MAX_WAIT_MILLIS, DEFAULT_TIME_OUT));
-            } catch (JSchException e) {
-                logger.error("获取sessionSftp异常", e);
-                throw new RuntimeException("获取sessionSftp异常, 请检查sessionSftp是否正常", e);
-            }
+            setSessionTimeout(sftpConfig, channelSftp);
             return new SFTPHandler(channelSftp, sftpPool);
         });
+
+        if (!sftpHandler.channelSftp.isConnected()) {
+            sftpHandler.channelSftp = sftpHandler.sftpPool.borrowObject();
+            setSessionTimeout(sftpConfig, sftpHandler.channelSftp);
+        }
 
         return sftpHandler;
     }
@@ -128,6 +126,17 @@ public class SFTPHandler {
 
         if(StringUtils.isEmpty(sftpConfig.get(KEY_HOST))){
             throw new IllegalArgumentException("The host of sftp is null");
+        }
+    }
+
+    private static void setSessionTimeout(Map<String, String> sftpConfig, ChannelSftp channelSftp){
+        Session sessionSftp;
+        try {
+            sessionSftp = channelSftp.getSession();
+            sessionSftp.setTimeout(MapUtils.getIntValue(sftpConfig, MAX_WAIT_MILLIS, DEFAULT_TIME_OUT));
+        } catch (JSchException e) {
+            logger.error("获取sessionSftp异常", e);
+            throw new RuntimeException("获取sessionSftp异常, 请检查sessionSftp是否正常", e);
         }
     }
 
@@ -209,7 +218,7 @@ public class SFTPHandler {
         }
     }
 
-    public boolean isFileExist(String ftpPath){
+    private boolean isFileExist(String ftpPath){
         try {
             channelSftp.lstat(ftpPath);
             return true;
