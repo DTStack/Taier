@@ -114,6 +114,13 @@ public class SftpFactory extends BasePooledObjectFactory<ChannelSftp>  {
 
     }
 
+    @Override
+    public boolean validateObject(PooledObject<ChannelSftp> p) {
+        if (p.getObject().isConnected()) {
+            return true;
+        }
+        return false;
+    }
 
     @Override
     public PooledObject<ChannelSftp> wrap(ChannelSftp channelSftp) {

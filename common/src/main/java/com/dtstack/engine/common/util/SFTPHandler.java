@@ -1,7 +1,9 @@
 package com.dtstack.engine.common.util;
 
+import com.alibaba.fastjson.JSON;
 import com.dtstack.engine.common.sftp.SftpFactory;
 import com.dtstack.engine.common.sftp.SftpPool;
+import com.dtstack.engine.common.sftp.SftpPoolConfig;
 import com.google.common.collect.Maps;
 import com.jcraft.jsch.*;
 import org.apache.commons.collections.MapUtils;
@@ -24,6 +26,14 @@ public class SFTPHandler {
     private static final String KEY_HOST = "host";
     private static final String KEY_PORT = "port";
     private static final String KEY_TIMEOUT = "timeout";
+    private static final String MAX_TOTAL = "maxTotal";
+    private static final String MAX_IDLE = "maxIdle";
+    private static final String MIN_IDLE = "minIdle";
+    private static final String MAX_WAIT_MILLIS = "maxWaitMillis";
+    private static final int MAX_TOTAL_VALUE = 8;
+    private static final int MAX_IDLE_VALUE = 8;
+    private static final int MIN_IDLE_VALUE = 1;
+    private static final long MAX_WAIT_MILLIS_VALUE = 3600000;
     private static final String KEY_RSA = "rsaPath";
     private static final String KEY_AUTHENTICATION = "auth";
 
@@ -33,14 +43,13 @@ public class SFTPHandler {
     private static final int DEFAULT_TIME_OUT = 0;
     private static final String DEFAULT_PORT = "22";
 
+    private static Map<String, SFTPHandler> sftpHandlerMap = Maps.newConcurrentMap();
     private static Map<String, SftpPool> sftpPoolMap = Maps.newConcurrentMap();
 
-    private Session session;
     private ChannelSftp channelSftp;
     private SftpPool sftpPool;
 
-    private SFTPHandler(Session session, ChannelSftp channelSftp, SftpPool sftpPool) {
-        this.session = session;
+    private SFTPHandler(ChannelSftp channelSftp, SftpPool sftpPool) {
         this.channelSftp = channelSftp;
         this.sftpPool = sftpPool;
     }
@@ -51,56 +60,65 @@ public class SFTPHandler {
             put(KEY_PORT, String.valueOf(port));
             put(KEY_USERNAME, username);
             put(KEY_PASSWORD, password);
-            put(KEY_TIMEOUT, timeout == null ? null : timeout.toString());
+            put(MAX_WAIT_MILLIS, timeout == null ? null : timeout.toString());
         }});
     }
 
     public static SFTPHandler getInstance(Map<String, String> sftpConfig){
-        int maxTotal = 8;
-        int maxIdle = 8;
-        int minIdle = 0;
+        String sftpConfigKey = JSON.toJSONString(sftpConfig);
+        SFTPHandler sftpHandler = sftpHandlerMap.computeIfAbsent(sftpConfigKey, key -> {
+            checkConfig(sftpConfig);
+            String sftpPoolKey = MapUtils.getString(sftpConfig, KEY_HOST).trim() +
+                    MapUtils.getString(sftpConfig, KEY_PORT, DEFAULT_PORT).trim() +
+                    MapUtils.getString(sftpConfig, KEY_USERNAME).trim() +
+                    MapUtils.getString(sftpConfig, KEY_PASSWORD).trim();
 
-        checkConfig(sftpConfig);
-        String sftpPoolKey = MapUtils.getString(sftpConfig, KEY_HOST).trim() +
-                MapUtils.getString(sftpConfig, KEY_PORT, DEFAULT_PORT).trim() +
-                MapUtils.getString(sftpConfig, KEY_USERNAME).trim() +
-                MapUtils.getString(sftpConfig, KEY_PASSWORD).trim();
+            SftpPool sftpPool = sftpPoolMap.computeIfAbsent(sftpPoolKey, k -> {
+                SftpPool sftpPool1 = null;
 
-        SftpPool sftpPool = sftpPoolMap.computeIfAbsent(sftpPoolKey, k -> {
-            //先检测sftp主机验证能否通过，再缓存
-            SftpFactory sftpFactory = new SftpFactory(sftpConfig);
-            ChannelSftp channelSftpTest = sftpFactory.create();
-            final SftpPool sftpPool1;
-            if(channelSftpTest != null) {
-                sftpPool1 = new SftpPool(sftpFactory, maxTotal, maxIdle, minIdle);
-                //释放资源，防止内存泄漏
-                try {
-                    channelSftpTest.disconnect();
-                    channelSftpTest.getSession().disconnect();
-                } catch (JSchException e) {
-                    logger.error("channelSftpTest获取getSession异常", e);
+                //先检测sftp主机验证能否通过，再缓存
+                SftpFactory sftpFactory = new SftpFactory(sftpConfig);
+                ChannelSftp channelSftpTest = sftpFactory.create();
+
+                if(channelSftpTest != null) {
+                    //释放资源，防止内存泄漏
+                    try {
+                        channelSftpTest.disconnect();
+                        channelSftpTest.getSession().disconnect();
+                    } catch (JSchException e) {
+                        logger.error("channelSftpTest获取getSession异常", e);
+                    }
+
+                    int maxTotal = MapUtils.getInteger(sftpConfig, MAX_TOTAL, MAX_TOTAL_VALUE);
+                    int maxIdle = MapUtils.getInteger(sftpConfig, MAX_IDLE, MAX_IDLE_VALUE);
+                    int minIdle = MapUtils.getInteger(sftpConfig, MIN_IDLE, MIN_IDLE_VALUE);
+                    long maxWaitMillis = MapUtils.getLongValue(sftpConfig, MAX_WAIT_MILLIS, MAX_WAIT_MILLIS_VALUE);
+                    SftpPoolConfig sftpPoolConfig = new SftpPoolConfig(maxTotal, maxIdle, minIdle);
+                    sftpPoolConfig.setMaxWaitMillis(maxWaitMillis);
+                    sftpPool1 = new SftpPool(sftpFactory, sftpPoolConfig);
+
+                } else {
+                    String message = String.format("SFTPHandler连接sftp失败 : [%s]",
+                            "message:host =" + MapUtils.getString(sftpConfig, KEY_HOST) +
+                                    ",username = " + MapUtils.getString(sftpConfig, KEY_USERNAME));
+                    logger.error(message);
                 }
-            } else {
-                String message = String.format("SFTPHandler连接sftp失败 : [%s]",
-                        "message:host =" + MapUtils.getString(sftpConfig, KEY_HOST) +
-                                ",username = " + MapUtils.getString(sftpConfig, KEY_USERNAME));
-                logger.error(message);
-                throw new RuntimeException(message);
+                return sftpPool1;
+            });
+
+            ChannelSftp channelSftp = sftpPool.borrowObject();
+            Session sessionSftp;
+            try {
+                sessionSftp = channelSftp.getSession();
+                sessionSftp.setTimeout(MapUtils.getIntValue(sftpConfig, MAX_WAIT_MILLIS, DEFAULT_TIME_OUT));
+            } catch (JSchException e) {
+                logger.error("获取sessionSftp异常", e);
+                throw new RuntimeException("获取sessionSftp异常, 请检查sessionSftp是否正常", e);
             }
-            return sftpPool1;
+            return new SFTPHandler(channelSftp, sftpPool);
         });
 
-        ChannelSftp channelSftp = sftpPool.borrowObject();
-        Session sessionSftp;
-        try {
-            sessionSftp = channelSftp.getSession();
-            sessionSftp.setTimeout(MapUtils.getIntValue(sftpConfig, KEY_TIMEOUT, DEFAULT_TIME_OUT));
-        } catch (JSchException e) {
-            logger.error("获取sessionSftp异常", e);
-            throw new RuntimeException("获取sessionSftp异常, 请检查sessionSftp是否正常", e);
-        }
-
-        return new SFTPHandler(sessionSftp, channelSftp, sftpPool);
+        return sftpHandler;
     }
 
     private static void checkConfig(Map<String, String> sftpConfig){
@@ -191,171 +209,6 @@ public class SFTPHandler {
         }
     }
 
-
-    /**
-     * 重新创建本地路径
-     *
-     * @param localDir
-     * @return
-     */
-    private boolean reCreateLocalDir(String localDir) {
-        File dir = new File(localDir);
-        if(dir.exists()) {
-            delLocalDir(dir);
-        }
-        return mkLocalDir(localDir);
-    }
-
-    private boolean mkLocalDir(String localDir) {
-        File dir = new File(localDir);
-        if (dir.exists()) {
-            return true;
-        } else {
-            String parentDir = localDir.substring(0, localDir.lastIndexOf("/"));
-            mkLocalDir(parentDir);
-            return dir.mkdir();
-        }
-    }
-
-    private  boolean delLocalDir(File dir) {
-        if (dir.isDirectory()) {
-            String[] children = dir.list();
-            for (int i = 0; i < children.length; i++) {
-                boolean success = delLocalDir(new File(dir, children[i]));
-                if (!success)
-                    return false;
-            }
-
-        }
-        if (dir.delete()) {
-            logger.info("delete success,dir={}", dir);
-            return true;
-        } else {
-            logger.info("delete failed,dir={}", dir);
-
-        }
-        return false;
-    }
-
-    public Vector listFile(String ftpPath) throws SftpException {
-        return channelSftp.ls(ftpPath);
-    }
-
-
-    public boolean uploadDir(String dstDir, String srcDir) {
-        File file = new File(srcDir);
-        if (file.isDirectory()) {
-            dstDir += "/" + file.getName();
-            if (!createIfNotExist(dstDir)) {
-                logger.error("创建sftp服务器路径失败:" + dstDir);
-                return false;
-            }
-            File[] files = file.listFiles();
-            for (File file1 : files) {
-                uploadDir(dstDir, file1.getPath());
-            }
-        } else {
-            return upload(dstDir, file.getName(), file.getParent(), true);
-        }
-        return false;
-    }
-
-    public boolean upload(String baseDir, String filePath) {
-        return upload(baseDir, filePath, false);
-    }
-
-    public boolean upload(String baseDir, String filePath, boolean multiplex) {
-        File file = new File(filePath);
-        if (!file.exists() || !file.isFile()) {
-            throw new RuntimeException("该路径不存在或不是文件路径");
-        }
-        return upload(baseDir, file.getName(), file.getParent(), multiplex);
-    }
-
-    /**
-     *  sftp 上传文件 且会覆盖同名文件
-     *  @param baseDir 目标路径
-     *  @param fileName 文件名
-     *  @param filePath 本地文件目录
-     */
-    public boolean upload(String baseDir, String fileName, String filePath, boolean multiplex) {
-        logger.info("路径：baseDir="+baseDir);
-        try {
-            //检查路径
-            if(!createIfNotExist(baseDir)){
-                logger.error("创建sftp服务器路径失败:" + baseDir);
-                return false;
-            }
-            String dst = baseDir + "/" + fileName;
-            String src = filePath + "/" + fileName;
-            logger.info("开始上传，本地服务器路径：["+src +"]目标服务器路径：["+dst+"]");
-            channelSftp.put(src, dst);
-            logger.info("上传成功");
-            return true;
-        } catch (Exception e) {
-            logger.error("上传失败", e);
-            return false;
-        } finally {
-            if (!multiplex) {
-                close();
-            }
-        }
-    }
-
-    public boolean uploadInputStreamToHdfs(byte[] bytes, String dstPath) {
-        return uploadInputStreamToHdfs(bytes, dstPath, false);
-    }
-
-    /**
-     * 上传文件流到sftp
-     *
-     * 同名覆盖
-     * @param bytes
-     * @param dstPath 目标路径（含文件名）
-     * @param multiplex 连接是否需要关闭
-     * @return
-     */
-    public boolean uploadInputStreamToHdfs(byte[] bytes, String dstPath, boolean multiplex) {
-        logger.info("路径：baseDir=" + dstPath);
-        try {
-            ByteArrayInputStream is = new ByteArrayInputStream(bytes);
-            File file = new File(dstPath);
-            //检查路径
-            if (!createIfNotExist(file.getParent())) {
-                logger.error("创建sftp服务器路径失败:" + file.getParent());
-                return false;
-            }
-            channelSftp.put(is, dstPath);
-            logger.info("uploadInputStreamToHdfs success");
-            return true;
-        } catch (Exception e) {
-            logger.error("上传失败", e);
-            return false;
-        } finally {
-            if (!multiplex) {
-                close();
-            }
-        }
-    }
-
-
-
-    /**
-     * 判断文件夹是否存在
-     * true 目录创建成功，false 目录创建失败
-     * @param filePath 文件夹路径
-     * @return
-     */
-    public boolean createIfNotExist(String filePath) {
-        String paths[] = filePath.split("\\/");
-        String dir = paths[0];
-        for (int i = 0; i < paths.length - 1; i++) {
-            dir = dir + "/" + paths[i + 1];
-            if (!mkdir(dir)) return false;
-        }
-        return true;
-    }
-
     public boolean isFileExist(String ftpPath){
         try {
             channelSftp.lstat(ftpPath);
@@ -367,53 +220,6 @@ public class SFTPHandler {
                 throw new RuntimeException("Check file exists error", e);
             }
         }
-    }
-
-    public void deleteDir(String ftpPath) {
-        try {
-            channelSftp.cd(ftpPath);
-        } catch (SftpException e) {
-            logger.info("", e);
-            return;
-        }
-        try {
-            Vector files = channelSftp.ls(ftpPath);
-            for (Iterator<ChannelSftp.LsEntry> iterator = files.iterator(); iterator.hasNext(); ) {
-                ChannelSftp.LsEntry str = iterator.next();
-                String filename = str.getFilename();
-                if (filename.equals(".") || filename.equals("..")) {
-                    continue;
-                }
-                SftpATTRS attrs = str.getAttrs();
-                if (attrs.isDir()) {
-                    deleteDir(ftpPath + "/" + filename);
-                } else {
-                    channelSftp.rm(ftpPath + "/" + filename);
-                }
-            }
-            if(channelSftp.ls(ftpPath).size() == 2) {
-                channelSftp.rmdir(ftpPath);
-            }
-        } catch (SftpException e) {
-            logger.error("", e);
-            throw new RuntimeException("删除sftp路径失败，sftpPath=" + ftpPath);
-        }
-    }
-
-    public boolean mkdir(String path) {
-        try{
-            channelSftp.cd(path);
-        }catch(SftpException sException){
-            if(ChannelSftp.SSH_FX_NO_SUCH_FILE == sException.id){
-                try {
-                    channelSftp.mkdir(path);
-                } catch (SftpException e) {
-                    logger.error("sftp isExist error {}", e);
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 
     public void close(){
