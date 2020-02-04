@@ -35,7 +35,6 @@ public class FlinkUtil {
 
     private static String fileSP = File.separator;
 
-
     public static PackagedProgram buildProgram(String fromPath, String toPath, List<URL> classpaths, EJobType jobType,
                                                String entryPointClass, String[] programArgs,
                                                SavepointRestoreSettings spSetting, Configuration hadoopConf)

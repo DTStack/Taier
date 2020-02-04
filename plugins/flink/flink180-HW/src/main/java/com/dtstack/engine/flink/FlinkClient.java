@@ -1,5 +1,8 @@
 package com.dtstack.engine.flink;
 
+import com.dtstack.engine.base.option.OptionParser;
+import com.dtstack.engine.base.option.Options;
+import com.dtstack.engine.base.util.JsonUtil;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosException;
@@ -15,6 +18,7 @@ import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.constrant.ExceptionInfoConstrant;
 import com.dtstack.engine.flink.enums.Deploy;
@@ -65,6 +69,7 @@ import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -220,6 +225,11 @@ public class FlinkClient extends AbsClient {
         SavepointRestoreSettings spSettings = buildSavepointSetting(jobClient);
         PackagedProgram packagedProgram = null;
         String[] programArgs = programArgList.toArray(new String[programArgList.size()]);
+
+        if (flinkConfig.isOpenKerberos()){
+            downloadKeyTab(programArgs, flinkConfig);
+        }
+
         File jarFile = null;
         try{
             if(FlinkYarnMode.isPerJob(taskRunMode)){
@@ -802,6 +812,24 @@ public class FlinkClient extends AbsClient {
     private void clearClassPathShipfileLoadMode(PackagedProgram packagedProgram) {
         if (ConfigConstrant.FLINK_PLUGIN_SHIPFILE_LOAD.equalsIgnoreCase(flinkConfig.getPluginLoadMode())) {
             packagedProgram.getClasspaths().clear();
+        }
+    }
+
+    private void downloadKeyTab(String[] programArgs, FlinkConfig flinkConfig){
+        try{
+            OptionParser optionParser = new OptionParser(programArgs);
+            Options launcherOptions = optionParser.getOptions();
+            String confProp = launcherOptions.getConfProp();
+            confProp = URLDecoder.decode(confProp, org.apache.commons.io.Charsets.UTF_8.toString());
+            Properties confProperties = JsonUtil.jsonStrToObject(confProp, Properties.class);
+            String sftpKeytab = confProperties.getProperty(ConfigConstrant.KAFKA_SFTP_KEYTAB);
+            String localKeytab = confProperties.getProperty(ConfigConstrant.SECURITY_KERBEROS_LOGIN_KEYTAB);
+            if (!(new File(localKeytab).exists())){
+                SFTPHandler handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());
+                handler.downloadFile(sftpKeytab, localKeytab);
+            }
+        } catch (Exception e) {
+            logger.error("Download keytab from sftp failed", e);
         }
     }
 
