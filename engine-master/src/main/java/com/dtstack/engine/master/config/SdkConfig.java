@@ -1,4 +1,4 @@
-package com.dtstack.task.runner.config;
+package com.dtstack.engine.master.config;
 
 import com.dtstack.sdk.console.client.ConsoleNotifyApiClient;
 import com.dtstack.sdk.console.client.ConsoleSegmentidApiClient;

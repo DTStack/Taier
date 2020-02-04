@@ -1,4 +1,4 @@
-package com.dtstack.task.runner.config;
+package com.dtstack.engine.master.config;
 
 import com.dtstack.dtcenter.common.engine.ConsoleSend;
 import com.dtstack.dtcenter.common.engine.EngineSend;

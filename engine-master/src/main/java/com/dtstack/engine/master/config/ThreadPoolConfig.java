@@ -1,4 +1,4 @@
-package com.dtstack.task.runner.config;
+package com.dtstack.engine.master.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,9 +1,9 @@
 package com.dtstack.engine.entrance;
 
+import com.dtstack.dtcenter.common.util.SystemPropertyUtil;
 import com.dtstack.engine.common.config.ConfigParse;
 import com.dtstack.engine.common.log.LogbackComponent;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
-import com.dtstack.engine.common.util.SystemPropertyUtil;
 import com.dtstack.engine.common.JobSubmitExecutor;
 import com.dtstack.engine.entrance.config.EngineConfig;
 import com.dtstack.engine.master.MasterMain;
@@ -57,7 +57,7 @@ public class EngineMain {
 	private static void initService(Map<String,Object> nodeConfig) throws Exception{
 		jobSubmitExecutor = JobSubmitExecutor.getInstance();
 		zkDistributed = ZkDistributed.createZkDistributed(nodeConfig).zkRegistration();
-		vertxHttpServer = new VertxHttpServer(nodeConfig);
+		vertxHttpServer = new VertxHttpServer(null,null);
 		WorkerMain.init(zkDistributed);
 		MasterMain.init();
 

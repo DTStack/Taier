@@ -27,8 +27,6 @@
         <module>engine-master</module>
         <module>engine-entrance</module>
         <module>engine-api</module>
-        <module>schedule-router</module>
-        <module>schedule-runner</module>
 <!--        <module>engine-plugins/base</module>
         &lt;!&ndash;<module>engine-plugins/spark/spark-hadoop2</module>&ndash;&gt;
         <module>engine-plugins/spark/spark-yarn-hadoop2</module>

@@ -1,9 +1,9 @@
 package com.dtstack.engine.worker;
 
+import com.dtstack.dtcenter.common.util.SystemPropertyUtil;
 import com.dtstack.engine.common.config.ConfigParse;
 import com.dtstack.engine.common.log.LogbackComponent;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
-import com.dtstack.engine.common.util.SystemPropertyUtil;
 import com.dtstack.engine.common.JobSubmitExecutor;
 import com.dtstack.engine.service.task.HeartBeatListener;
 import com.dtstack.engine.service.zookeeper.ZkDistributed;
@@ -57,7 +57,7 @@ public class WorkerMain {
     private static void initService(Map<String, Object> nodeConfig) throws Exception {
         jobSubmitExecutor = JobSubmitExecutor.getInstance();
         zkDistributed = ZkDistributed.createZkDistributed(nodeConfig).zkRegistration();
-        vertxHttpServer = new VertxHttpServer(nodeConfig);
+        vertxHttpServer = new VertxHttpServer(null,null);
         init(zkDistributed);
 
         logger.warn("start only engine-worker success...");

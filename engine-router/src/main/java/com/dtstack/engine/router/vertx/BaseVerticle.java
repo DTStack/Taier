@@ -1,155 +1,129 @@
 package com.dtstack.engine.router.vertx;
 
+import com.dtstack.dtcenter.common.annotation.Forbidden;
+import com.dtstack.dtcenter.common.util.AopTargetUtils;
+import com.dtstack.dtcenter.common.util.PublicUtil;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.annotation.Forbidden;
-import com.dtstack.engine.common.annotation.Param;
-import com.dtstack.engine.common.config.ConfigParse;
-import com.dtstack.engine.common.util.MD5Util;
-import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.router.callback.ApiCallback;
-import com.dtstack.engine.router.callback.ApiCallbackMethod;
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.RoutingContext;
+import org.apache.ibatis.annotations.Param;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
+import org.springframework.context.ApplicationContext;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 
 /**
- * 
  * @author sishu.yss
- *
  */
 public class BaseVerticle {
-	
-	private static Logger logger = LoggerFactory.getLogger(BaseVerticle.class);
+	private static Logger LOGGER = LoggerFactory.getLogger(BaseVerticle.class);
 
-	private static String classNameTemplate = "com.dtstack.engine.service.%sServiceImpl";
+	protected ApplicationContext context;
 
-	private static Map<String,Object> objects = Maps.newConcurrentMap();
-	
-	private final static String CODE = "UTF-8";
+	private static final String BEAN_TEMPLATE = "%sService";
+	private static final String USER_ID = "userId";
+	private static final String PROJECT_ID = "projectId";
+	private static final String TENANT_ID = "tenantId";
+	private static final String AUTH_SERVICE = "authService";
+	private static final String IS_ROOT = "isRoot";
 
-	private static ObjectMapper objectMapper = new ObjectMapper();
-
-	public void request(final RoutingContext routingContext){
-		
-		final BaseVerticle allRequestVerticle  = this;
-		
-		ApiCallbackMethod.doCallback(new ApiCallback(){
-
-			@Override
-			public Object execute() throws Exception {
-				return allRequestVerticle.reflectionMethod(routingContext);
-			}
-
-		}, routingContext);
-	}
-	
-	
-	protected Object reflectionMethod(RoutingContext routingContext) throws Exception{
+	protected Object reflectionMethod(RoutingContext routingContext, Map<String, Object> params) throws Exception {
 		HttpServerRequest httpServerRequest = routingContext.request();
-		//调用合法性验证
-//		check(routingContext);
-		String rbody = routingContext.getBodyAsString(CODE);
-		Map<String,Object> params = objectMapper.readValue(rbody,Map.class);
 		String path = httpServerRequest.path();
-		logger.info("receive http request:{}:{}",path,rbody);
 		String[] paths = path.split("/");
-		if(paths.length < 2){
-			throw new RdosDefineException("request address error", ErrorCode.SERVICE_NOT_EXIST);
+		if (paths.length < 2) {
+			throw new Exception("url path error,please check");
 		}
+		String name = paths[paths.length - 2];
+		String method = paths[paths.length - 1];
+		Object obj = context.getBean(String.format(BEAN_TEMPLATE, name));
+		Object targetObj = AopTargetUtils.getTarget(obj);
 
-		String name = paths[paths.length-2];
-		String method = paths[paths.length-1];
-		Class<?> cla = null;
-		Object obj = objects.get(name);
-		if(obj == null){
-			synchronized(BaseVerticle.class){
-				if(obj == null){
-				    String className = upperFirstLetter(name);
-					cla = Class.forName(String.format(classNameTemplate, className));
-					obj = cla.newInstance();
-					objects.put(name,obj);
-				}
-			}
-		}else{
-			cla = obj.getClass();
+		if (targetObj == null) {
+			throw new RdosDefineException(ErrorCode.SERVICE_NOT_EXIST);
 		}
-		if(cla.getAnnotation(Forbidden.class) != null){
+		if (targetObj.getClass().getAnnotation(Forbidden.class) != null) {
 			throw new RdosDefineException(ErrorCode.SERVICE_FORBIDDEN);
 		}
-		
-		Method[] methods = cla.getMethods();
+		Method targetMethod = getMethod(targetObj.getClass(), method);
+		if (targetMethod == null) {
+			throw new RdosDefineException(ErrorCode.METHOD_NOT_EXIST);
+		}
+		if (targetMethod.getAnnotation(Forbidden.class) != null) {
+			throw new RdosDefineException(ErrorCode.METHOD_FORBIDDEN);
+		}
+		Method proxyMethod = getMethod(obj.getClass(), method);
+		Object result =  proxyMethod.invoke(obj, mapToParamObjects(params, targetMethod.getParameters(), targetMethod.getParameterTypes()));
+
+		return result;
+	}
+
+	private Method getMethod(Class<?> clazz, String method) {
+		Method[] methods = clazz.getMethods();
 		Method mm = null;
-		for(Method med:methods){
-			if(med.getName().equals(method)){
+		for (Method med : methods) {
+			if (med.getName().equals(method)) {
 				mm = med;
 				break;
 			}
 		}
-		if(mm == null){
-			throw new RdosDefineException(ErrorCode.METHOD_NOT_EXIST);
-		}
-		if(mm.getAnnotation(Forbidden.class) != null){
-			throw new RdosDefineException(ErrorCode.METHOD_FORBIDDEN);
-		}
-		return mm.invoke(obj, mapToParamObjects(params,mm.getParameters(),mm.getParameterTypes()));
-	} 
-	
-	public void check(RoutingContext routingContext){
-		String body = routingContext.getBodyAsString(CODE);
-		String md5  = routingContext.request().getHeader("md5");
-		String ctime = routingContext.request().getHeader("ctime");
-		String md5other = MD5Util.getMD5String(String.format("%s:%s:%s", ctime,body,ctime));
-		if(!ConfigParse.isDebug() && !md5other.equals(md5)){
-			throw new RdosDefineException(ErrorCode.CALL_UNLAWFUL);
-		}
+		return mm;
 	}
-	
+
 	private Object[] mapToParamObjects(Map<String, Object> params,
-			Parameter[] parameters, Class<?>[] parameterTypes) throws IOException {
-		if(parameters==null||parameters.length==0){return new Object[]{};}
-		int length = parameters.length;
-		Object[] objs  = new Object[length];
-		for(int i=0; i<parameters.length; i++){
-			Parameter pa = parameters[i];
-			Class<?> paramterType = parameterTypes[i];
-			Param param = pa.getAnnotation(Param.class);
-			Object obj = null;
-			if(param != null){
-				obj = params.get(param.value());
-				if(obj!=null&&!obj.getClass().equals(paramterType)){
-					obj = PublicUtil.ClassConvter(paramterType, obj);
-				}
-			}else if(Map.class.equals(paramterType)){
-				obj = params;
-			}else{
-				obj = PublicUtil.mapToObject(params, paramterType);
-			}
-			objs[i] = obj;
+									   Parameter[] parameters, Class<?>[] parameterTypes) throws Exception {
+		LOGGER.info("--->mapToParamObjects   :params{},parameters {},parameterTypes{}", params, parameters, parameterTypes);
+		if (parameters == null || parameters.length == 0) {
+			return new Object[]{};
 		}
-		return objs;
+		Object[] args = new Object[parameters.length];
+		for (int i = 0; i < parameters.length; i++) {
+			Parameter parameter = parameters[i];
+			Class<?> parameterType = parameterTypes[i];
+			Param param = parameter.getAnnotation(Param.class);
+			Object obj = null;
+			if (param != null) {
+				obj = params.get(param.value());
+				if (obj != null) {
+					if (Collection.class == parameterType || List.class.isAssignableFrom(parameterType)) {
+						//只适合基本数据类型的
+						ParameterizedType parameterizedType = (ParameterizedType) parameter.getParameterizedType();
+						Type t = parameterizedType.getActualTypeArguments()[0];
+						Class clazz = Class.forName(t.getTypeName());
+						if (clazz != null) {
+							List list = (List) obj;
+							List converterArgs = new ArrayList<>(list.size());
+							for (Object arg : list) {
+								arg = PublicUtil.ClassConvter(clazz, arg);
+								converterArgs.add(arg);
+							}
+							obj = converterArgs;
+						}
+					} else {
+						if (!obj.getClass().equals(parameterType)) {
+							obj = PublicUtil.ClassConvter(parameterType, obj);
+						}
+					}
+				}
+			} else if (Map.class.equals(parameterType)) {
+				obj = params;
+			} else {
+				obj = PublicUtil.objectToObject(params, parameterType);
+			}
+			args[i] = obj;
+		}
+		LOGGER.info("-->mapToParamObjects  end");
+		return args;
 	}
 
-	public String upperFirstLetter(String word){
-        if(Strings.isNullOrEmpty(word)){
-            throw new RdosDefineException("can't upper word of empty | null", ErrorCode.INVALID_PARAMETERS);
-        }
-
-        if(word.length() == 1){
-            return word.toUpperCase();
-        }
-
-        String first = word.substring(0, 1).toUpperCase();
-        String newWord = first + word.substring(1);
-        return newWord;
-	}
 }
