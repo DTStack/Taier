@@ -45,7 +45,7 @@ public class SFTPHandler {
     private static final long MAX_WAIT_MILLIS_VALUE = 1000L * 60L * 60L;
     private static final long MIN_EVICTABLE_IDLE_TIME_VALUE = -1;
     private static final long SOFT_MIN_EVICTABLE_IDLE_TIME_VALUE = 1000L * 60L * 30L;
-    private static final long TIME_BETWEEN_EVICTION_RUNS_VALUE = 1000L * 60L * 10L;
+    private static final long TIME_BETWEEN_EVICTION_RUNS_VALUE = 1000L * 60L * 5L;
 
 
     private static final String KEYWORD_FILE_NOT_EXISTS = "No such file";
