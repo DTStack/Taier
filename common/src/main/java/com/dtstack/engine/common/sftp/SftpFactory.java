@@ -126,17 +126,16 @@ public class SftpFactory extends BasePooledObjectFactory<ChannelSftp>  {
         ChannelSftp channelSftp = p.getObject();
 
         if (channelSftp != null) {
-            channelSftp.disconnect();
-        }
-        try {
-            Session sftpSession = channelSftp.getSession();
-            if (sftpSession != null) {
-                sftpSession.disconnect();
+            try {
+                channelSftp.disconnect();
+                channelSftp.getSession().disconnect();
+            } catch (JSchException e) {
+                logger.error("destroySftpObject error: ", e);
             }
-        } catch (JSchException e) {
-            logger.error("destroySftpObject error: ", e);
-            e.printStackTrace();
+        } else {
+            logger.error("When destroyObject channelSftp, channelSftp is null");
         }
+
 
     }
 

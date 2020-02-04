@@ -27,8 +27,10 @@ public class SFTPHandler {
     private static final String KEY_RSA = "rsaPath";
     private static final String KEY_AUTHENTICATION = "auth";
 
+
     private static final String KEYWORD_FILE_NOT_EXISTS = "No such file";
 
+    private static final int DEFAULT_TIME_OUT = 0;
     private static final String DEFAULT_PORT = "22";
 
     private static Map<String, SftpPool> sftpPoolMap = Maps.newConcurrentMap();
@@ -54,48 +56,46 @@ public class SFTPHandler {
     }
 
     public static SFTPHandler getInstance(Map<String, String> sftpConfig){
+        int maxTotal = 8;
+        int maxIdle = 8;
+        int minIdle = 0;
+
         checkConfig(sftpConfig);
+        String sftpPoolKey = MapUtils.getString(sftpConfig, KEY_HOST).trim() +
+                MapUtils.getString(sftpConfig, KEY_PORT, DEFAULT_PORT).trim() +
+                MapUtils.getString(sftpConfig, KEY_USERNAME).trim() +
+                MapUtils.getString(sftpConfig, KEY_PASSWORD).trim();
 
-        String host = MapUtils.getString(sftpConfig, KEY_HOST).trim();
-        String port = MapUtils.getString(sftpConfig, KEY_PORT, DEFAULT_PORT).trim();
-        String username = MapUtils.getString(sftpConfig, KEY_USERNAME).trim();
-        String password = MapUtils.getString(sftpConfig, KEY_PASSWORD).trim();
-
-        SftpPool sftpPool = sftpPoolMap.get(host + port + username + password);
-        if (sftpPool == null) {
-            //双重检验, 考虑并发
-            synchronized (SFTPHandler.class){
-                if (sftpPoolMap.get(host + port + username + password) == null) {
-                    //先检测sftp主机验证能否通过，再缓存起来
-                    SftpFactory sftpFactory = new SftpFactory(sftpConfig);
-                    ChannelSftp channelSftpTest = sftpFactory.create();
-                    if(channelSftpTest != null) {
-                        sftpPool = new SftpPool(sftpFactory, 8, 8, 0);
-                        //缓存sftpPool，维护多个sftpPool
-                        sftpPoolMap.put(host + port + username + password, sftpPool);
-                        //释放资源，防止内存泄漏
-                        channelSftpTest.disconnect();
-                        try {
-                            channelSftpTest.getSession().disconnect();
-                        } catch (JSchException e) {
-                            logger.error("channelSftpTest获取getSession异常", e);
-                        }
-                    } else {
-                        String message = String.format("SFTPHandler连接sftp失败 : [%s]",
-                                "message:host =" + host + ",username = " + username);
-                        logger.error(message);
-                        throw new RuntimeException(message);
-                    }
+        SftpPool sftpPool = sftpPoolMap.computeIfAbsent(sftpPoolKey, k -> {
+            //先检测sftp主机验证能否通过，再缓存
+            SftpFactory sftpFactory = new SftpFactory(sftpConfig);
+            ChannelSftp channelSftpTest = sftpFactory.create();
+            final SftpPool sftpPool1;
+            if(channelSftpTest != null) {
+                sftpPool1 = new SftpPool(sftpFactory, maxTotal, maxIdle, minIdle);
+                //释放资源，防止内存泄漏
+                try {
+                    channelSftpTest.disconnect();
+                    channelSftpTest.getSession().disconnect();
+                } catch (JSchException e) {
+                    logger.error("channelSftpTest获取getSession异常", e);
                 }
+            } else {
+                String message = String.format("SFTPHandler连接sftp失败 : [%s]",
+                        "message:host =" + MapUtils.getString(sftpConfig, KEY_HOST) +
+                                ",username = " + MapUtils.getString(sftpConfig, KEY_USERNAME));
+                logger.error(message);
+                throw new RuntimeException(message);
             }
+            return sftpPool1;
+        });
 
-        }
         ChannelSftp channelSftp = sftpPool.borrowObject();
         Session sessionSftp;
         try {
             sessionSftp = channelSftp.getSession();
+            sessionSftp.setTimeout(MapUtils.getIntValue(sftpConfig, KEY_TIMEOUT, DEFAULT_TIME_OUT));
         } catch (JSchException e) {
-            e.printStackTrace();
             logger.error("获取sessionSftp异常", e);
             throw new RuntimeException("获取sessionSftp异常, 请检查sessionSftp是否正常", e);
         }

@@ -44,7 +44,7 @@ public class SftpPool {
      * 归还一个sftp连接对象
      */
     public void returnObject(ChannelSftp channelSftp) {
-        if (channelSftp!=null) {
+        if (channelSftp != null) {
             pool.returnObject(channelSftp);
             logger.info("归还channelSftp到Sfpt连接池中 : " + channelSftp);
         }
