@@ -1,8 +1,5 @@
 package com.dtstack.engine.flink;
 
-import com.dtstack.engine.base.option.OptionParser;
-import com.dtstack.engine.base.option.Options;
-import com.dtstack.engine.base.util.JsonUtil;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosException;
@@ -200,6 +197,10 @@ public class FlinkClient extends AbsClient {
 
     private JobResult submitJobWithJar(JobClient jobClient, List<URL> classPaths, List<String> programArgList) {
 
+        if (flinkConfig.isOpenKerberos()){
+            downloadKeyTab(jobClient.getTaskParams(), flinkConfig);
+        }
+
         if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
             if(existsJobOnFlink(jobClient.getEngineTaskId())){
                 return JobResult.createSuccessResult(jobClient.getEngineTaskId());
@@ -226,10 +227,6 @@ public class FlinkClient extends AbsClient {
         SavepointRestoreSettings spSettings = buildSavepointSetting(jobClient);
         PackagedProgram packagedProgram = null;
         String[] programArgs = programArgList.toArray(new String[programArgList.size()]);
-
-        if (flinkConfig.isOpenKerberos()){
-            downloadKeyTab(programArgs, flinkConfig);
-        }
 
         File jarFile = null;
         try{
@@ -828,16 +825,20 @@ public class FlinkClient extends AbsClient {
         return jobHistory;
     }
 
-    private void downloadKeyTab(String[] programArgs, FlinkConfig flinkConfig){
+    private void downloadKeyTab(String taskParams, FlinkConfig flinkConfig){
         try{
-            OptionParser optionParser = new OptionParser(programArgs);
-            Options launcherOptions = optionParser.getOptions();
-            String confProp = launcherOptions.getConfProp();
-            confProp = URLDecoder.decode(confProp, Charsets.UTF_8.toString());
-            Properties confProperties = JsonUtil.jsonStrToObject(confProp, Properties.class);
+            Properties confProperties = new Properties();
+            List<String> taskParam = DtStringUtil.splitIngoreBlank(taskParams.trim());
+            for (int i = 0; i < taskParam.size(); ++i) {
+                String[] pair = taskParam.get(i).split("=", 2);
+                confProperties.setProperty(pair[0], pair[1]);
+            }
             String sftpKeytab = confProperties.getProperty(ConfigConstrant.KAFKA_SFTP_KEYTAB);
+            if (StringUtils.isBlank(sftpKeytab)){
+                throw new Exception(ConfigConstrant.KAFKA_SFTP_KEYTAB + " must not be null");
+            }
             String localKeytab = confProperties.getProperty(ConfigConstrant.SECURITY_KERBEROS_LOGIN_KEYTAB);
-            if (!(new File(localKeytab).exists())){
+            if (StringUtils.isNotBlank(localKeytab) && !(new File(localKeytab).exists())){
                 SFTPHandler handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());
                 handler.downloadFile(sftpKeytab, localKeytab);
             }
