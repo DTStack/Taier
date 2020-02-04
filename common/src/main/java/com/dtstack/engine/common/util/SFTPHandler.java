@@ -30,20 +30,26 @@ public class SFTPHandler {
     private static final String MAX_IDLE = "maxIdle";
     private static final String MIN_IDLE = "minIdle";
     private static final String MAX_WAIT_MILLIS = "maxWaitMillis";
+    private static final String MIN_EVICTABLE_IDLE_TIME = "minEvictableIdleTimeMillis";
+    private static final String SOFT_MIN_EVICTABLE_IDLE_TIME = "softMinEvictableIdleTimeMillis";
+    private static final String TIME_BETWEEN_EVICTION_RUNS = "timeBetweenEvictionRunsMillis";
+    private static final String KEY_RSA = "rsaPath";
+    private static final String KEY_AUTHENTICATION = "auth";
+    private static final int DEFAULT_TIME_OUT = 0;
+    private static final String DEFAULT_PORT = "22";
+
+    //SftpPoolConfig
     private static final int MAX_TOTAL_VALUE = 8;
     private static final int MAX_IDLE_VALUE = 8;
     private static final int MIN_IDLE_VALUE = 1;
-    private static final long MAX_WAIT_MILLIS_VALUE = 3600000;
-    private static final String KEY_RSA = "rsaPath";
-    private static final String KEY_AUTHENTICATION = "auth";
+    private static final long MAX_WAIT_MILLIS_VALUE = 1000L * 60L * 60L;
+    private static final long MIN_EVICTABLE_IDLE_TIME_VALUE = -1;
+    private static final long SOFT_MIN_EVICTABLE_IDLE_TIME_VALUE = 1000L * 60L * 30L;
+    private static final long TIME_BETWEEN_EVICTION_RUNS_VALUE = 1000L * 60L * 10L;
 
 
     private static final String KEYWORD_FILE_NOT_EXISTS = "No such file";
 
-    private static final int DEFAULT_TIME_OUT = 0;
-    private static final String DEFAULT_PORT = "22";
-
-    private static Map<String, SFTPHandler> sftpHandlerMap = Maps.newConcurrentMap();
     private static Map<String, SftpPool> sftpPoolMap = Maps.newConcurrentMap();
 
     private ChannelSftp channelSftp;
@@ -65,58 +71,50 @@ public class SFTPHandler {
     }
 
     public static SFTPHandler getInstance(Map<String, String> sftpConfig){
-        String sftpConfigKey = JSON.toJSONString(sftpConfig);
-        SFTPHandler sftpHandler = sftpHandlerMap.computeIfAbsent(sftpConfigKey, key -> {
-            checkConfig(sftpConfig);
-            String sftpPoolKey = MapUtils.getString(sftpConfig, KEY_HOST).trim() +
-                    MapUtils.getString(sftpConfig, KEY_PORT, DEFAULT_PORT).trim() +
-                    MapUtils.getString(sftpConfig, KEY_USERNAME).trim() +
-                    MapUtils.getString(sftpConfig, KEY_PASSWORD).trim();
+        checkConfig(sftpConfig);
+        String sftpPoolKey = MapUtils.getString(sftpConfig, KEY_HOST).trim() +
+                MapUtils.getString(sftpConfig, KEY_PORT, DEFAULT_PORT).trim() +
+                MapUtils.getString(sftpConfig, KEY_USERNAME).trim() +
+                MapUtils.getString(sftpConfig, KEY_PASSWORD).trim();
 
-            SftpPool sftpPool = sftpPoolMap.computeIfAbsent(sftpPoolKey, k -> {
-                SftpPool sftpPool1 = null;
-
-                //先检测sftp主机验证能否通过，再缓存
-                SftpFactory sftpFactory = new SftpFactory(sftpConfig);
-                ChannelSftp channelSftpTest = sftpFactory.create();
-
-                if(channelSftpTest != null) {
-                    //释放资源，防止内存泄漏
-                    try {
-                        channelSftpTest.disconnect();
-                        channelSftpTest.getSession().disconnect();
-                    } catch (JSchException e) {
-                        logger.error("channelSftpTest获取getSession异常", e);
-                    }
-
-                    int maxTotal = MapUtils.getInteger(sftpConfig, MAX_TOTAL, MAX_TOTAL_VALUE);
-                    int maxIdle = MapUtils.getInteger(sftpConfig, MAX_IDLE, MAX_IDLE_VALUE);
-                    int minIdle = MapUtils.getInteger(sftpConfig, MIN_IDLE, MIN_IDLE_VALUE);
-                    long maxWaitMillis = MapUtils.getLongValue(sftpConfig, MAX_WAIT_MILLIS, MAX_WAIT_MILLIS_VALUE);
-                    SftpPoolConfig sftpPoolConfig = new SftpPoolConfig(maxTotal, maxIdle, minIdle);
-                    sftpPoolConfig.setMaxWaitMillis(maxWaitMillis);
-                    sftpPool1 = new SftpPool(sftpFactory, sftpPoolConfig);
-
-                } else {
-                    String message = String.format("SFTPHandler连接sftp失败 : [%s]",
-                            "message:host =" + MapUtils.getString(sftpConfig, KEY_HOST) +
-                                    ",username = " + MapUtils.getString(sftpConfig, KEY_USERNAME));
-                    logger.error(message);
+        SftpPool sftpPool = sftpPoolMap.computeIfAbsent(sftpPoolKey, k -> {
+            SftpPool sftpPool1 = null;
+            //先检测sftp主机验证能否通过，再缓存
+            SftpFactory sftpFactory = new SftpFactory(sftpConfig);
+            ChannelSftp channelSftpTest = sftpFactory.create();
+            if(channelSftpTest != null) {
+                //释放资源，防止内存泄漏
+                try {
+                    channelSftpTest.disconnect();
+                    channelSftpTest.getSession().disconnect();
+                } catch (JSchException e) {
+                    logger.error("channelSftpTest获取Session异常", e);
                 }
-                return sftpPool1;
-            });
-
-            ChannelSftp channelSftp = sftpPool.borrowObject();
-            setSessionTimeout(sftpConfig, channelSftp);
-            return new SFTPHandler(channelSftp, sftpPool);
+                int maxTotal = MapUtils.getInteger(sftpConfig, MAX_TOTAL, MAX_TOTAL_VALUE);
+                int maxIdle = MapUtils.getInteger(sftpConfig, MAX_IDLE, MAX_IDLE_VALUE);
+                int minIdle = MapUtils.getInteger(sftpConfig, MIN_IDLE, MIN_IDLE_VALUE);
+                long maxWaitMillis = MapUtils.getLongValue(sftpConfig, MAX_WAIT_MILLIS, MAX_WAIT_MILLIS_VALUE);
+                long minEvictableIdleTimeMillis = MapUtils.getLongValue(sftpConfig, MIN_EVICTABLE_IDLE_TIME, MIN_EVICTABLE_IDLE_TIME_VALUE);
+                long softMinEvictableIdleTimeMillis = MapUtils.getLongValue(sftpConfig, SOFT_MIN_EVICTABLE_IDLE_TIME, SOFT_MIN_EVICTABLE_IDLE_TIME_VALUE);
+                long timeBetweenEvictionRunsMillis = MapUtils.getLongValue(sftpConfig, TIME_BETWEEN_EVICTION_RUNS, TIME_BETWEEN_EVICTION_RUNS_VALUE);
+                SftpPoolConfig sftpPoolConfig = new SftpPoolConfig(maxTotal, maxIdle, minIdle);
+                sftpPoolConfig.setMaxWaitMillis(maxWaitMillis); //从idle队列里面取对象时，阻塞时最大等待时长
+                sftpPoolConfig.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis); //处于idle状态超过此值时，会被destory
+                sftpPoolConfig.setSoftMinEvictableIdleTimeMillis(softMinEvictableIdleTimeMillis); //处于idle状态超过此值时，会被destory, 保留minIdle个空闲连接数。默认为-1
+                sftpPoolConfig.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis); //evict线程每次间隔时间
+                sftpPool1 = new SftpPool(sftpFactory, sftpPoolConfig);
+            } else {
+                String message = String.format("SFTPHandler连接sftp失败 : [%s]",
+                        "message:host =" + MapUtils.getString(sftpConfig, KEY_HOST) +
+                                ",username = " + MapUtils.getString(sftpConfig, KEY_USERNAME));
+                logger.error(message);
+            }
+            return sftpPool1;
         });
 
-        if (!sftpHandler.channelSftp.isConnected()) {
-            sftpHandler.channelSftp = sftpHandler.sftpPool.borrowObject();
-            setSessionTimeout(sftpConfig, sftpHandler.channelSftp);
-        }
-
-        return sftpHandler;
+        ChannelSftp channelSftp = sftpPool.borrowObject();
+        setSessionTimeout(sftpConfig, channelSftp);
+        return new SFTPHandler(channelSftp, sftpPool);
     }
 
     private static void checkConfig(Map<String, String> sftpConfig){
@@ -133,7 +131,7 @@ public class SFTPHandler {
         Session sessionSftp;
         try {
             sessionSftp = channelSftp.getSession();
-            sessionSftp.setTimeout(MapUtils.getIntValue(sftpConfig, MAX_WAIT_MILLIS, DEFAULT_TIME_OUT));
+            sessionSftp.setTimeout(MapUtils.getIntValue(sftpConfig, KEY_TIMEOUT, DEFAULT_TIME_OUT));
         } catch (JSchException e) {
             logger.error("获取sessionSftp异常", e);
             throw new RuntimeException("获取sessionSftp异常, 请检查sessionSftp是否正常", e);

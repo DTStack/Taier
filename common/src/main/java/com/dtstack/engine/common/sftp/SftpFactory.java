@@ -134,6 +134,7 @@ public class SftpFactory extends BasePooledObjectFactory<ChannelSftp>  {
 
         if (channelSftp != null) {
             try {
+                logger.info("SftpFactory destroyObject is called");
                 channelSftp.disconnect();
                 channelSftp.getSession().disconnect();
             } catch (JSchException e) {
