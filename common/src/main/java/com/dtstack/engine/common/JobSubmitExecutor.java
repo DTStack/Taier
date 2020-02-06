@@ -160,6 +160,7 @@ public class JobSubmitExecutor implements Closeable{
                 //提交任务
                 if (submitJob(jobClient,priorityQueue)) {
                     it.remove();
+                    logger.info("jobId:{} submit job, remove job from Queue.", jobClient.getTaskId());
                 }
                 //group queue 一次提交一个任务
                 break;

@@ -184,6 +184,7 @@ public class WorkNode {
             );
             if (!judgeBlocked || !groupQueue.isBlocked()){
                 groupQueue.add(jobClient);
+                LOG.info("jobId:{} redirect add job to queue.", jobClient.getTaskId());
             }
         }catch (Exception e){
             LOG.error("add to priority queue error:", e);
@@ -438,6 +439,7 @@ public class WorkNode {
                             updateJobStatus(jobClient.getTaskId(), jobClient.getComputeType().getType(), jobStatus);
                         });
                         groupPriorityQueue.add(jobClient);
+                        LOG.info("jobId:{} load from db, emit job to queue.", jobClient.getTaskId());
                         startId = jobCache.getId();
                         if (++count >= limited){
                             break outLoop;
