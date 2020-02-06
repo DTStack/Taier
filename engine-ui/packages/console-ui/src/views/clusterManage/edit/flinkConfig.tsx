@@ -12,6 +12,7 @@ export default class FlinkConfig extends React.Component<any, any> {
         const {
             singleButton,
             customView,
+            kerberosView,
             isView,
             securityStatus,
             getFieldDecorator,
@@ -404,6 +405,7 @@ export default class FlinkConfig extends React.Component<any, any> {
                     </div>) : null
                     }
                     {customView}
+                    {kerberosView}
                 </div>
                 {singleButton}
             </React.Fragment>
