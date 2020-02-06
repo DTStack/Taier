@@ -112,20 +112,22 @@ public class GroupPriorityQueue {
         @Override
         public void run() {
 
-            if (Boolean.FALSE == running.get() && queueSize() >= QUEUE_SIZE_LIMITED) {
+            if (Boolean.FALSE == running.get()) {
                 return;
             }
 
             /**
              * 如果队列中的任务数量小于 ${GroupPriorityQueue.QUEUE_SIZE_LIMITED} , 在连续调度了  ${GroupPriorityQueue.STOP_ACQUIRE_LIMITED} 次都没有查询到新的数据，则停止调度
              */
-            long limitId = ingestion.ingestion(GroupPriorityQueue.this, startId.get(), QUEUE_SIZE_LIMITED);
-            if (limitId != startId.get()){
-                stopAcquireCount.set(0);
-            } else if (stopAcquireCount.incrementAndGet() >= STOP_ACQUIRE_LIMITED) {
-                running.set(false);
+            if (queueSize() < QUEUE_SIZE_LIMITED){
+                long limitId = ingestion.ingestion(GroupPriorityQueue.this, startId.get(), QUEUE_SIZE_LIMITED);
+                if (limitId != startId.get()){
+                    stopAcquireCount.set(0);
+                } else if (stopAcquireCount.incrementAndGet() >= STOP_ACQUIRE_LIMITED) {
+                    running.set(false);
+                }
+                startId.set(limitId);
             }
-            startId.set(limitId);
         }
     }
 
