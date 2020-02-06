@@ -7,7 +7,7 @@ const Option = Select.Option;
 
 export default class DtyarnShellConfig extends React.Component<any, any> {
     render () {
-        const { singleButton, customCommView, customPythonView, customJupyterView,
+        const { singleButton, customCommView, customPythonView, customJupyterView, kerberosView,
             isView, getFieldDecorator, securityStatus } = this.props;
         console.log(securityStatus)
         return (
@@ -131,6 +131,7 @@ export default class DtyarnShellConfig extends React.Component<any, any> {
                         )}
                     </FormItem>
                     {customJupyterView}
+                    {kerberosView}
                 </div>
                 {singleButton}
             </React.Fragment>
