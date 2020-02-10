@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -32,9 +33,10 @@ import java.util.List;
  * Company: www.dtstack.com
  * @author jiangbo
  */
-public class StreamTaskServiceImpl {
+@Service
+public class StreamTaskService {
 
-    private static final Logger logger = LoggerFactory.getLogger(StreamTaskServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(StreamTaskService.class);
 
     private RdosStreamTaskCheckpointDAO rdosStreamTaskCheckpointDAO = new RdosStreamTaskCheckpointDAO();
 

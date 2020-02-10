@@ -1,13 +1,15 @@
 package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.master.MasterNode;
+import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
 /**
  * Created by sishu.yss on 2017/3/14.
  */
-public class MigrationServiceImpl {
+@Service
+public class MigrationService {
 
     private MasterNode masterNode = MasterNode.getInstance();
 

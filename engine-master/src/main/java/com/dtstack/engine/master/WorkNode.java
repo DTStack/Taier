@@ -157,6 +157,20 @@ public class WorkNode {
         }
     }
 
+    public void addSubmitJob(Map<String, Object> params) {
+        try{
+            ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
+//            checkParam(paramAction);
+//            if(!checkSubmitted(paramAction)){
+//                return result;
+//            }
+            JobClient jobClient = new JobClient(paramAction);
+            this.addSubmitJob(jobClient, true);
+        }catch (Exception e){
+            LOG.error("", e);
+        }
+    }
+
     /**
      * 提交优先级队列->最终提交到具体执行组件
      */

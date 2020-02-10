@@ -34,6 +34,7 @@ import com.dtstack.engine.domain.BatchTaskShade;
 import com.dtstack.engine.dto.BatchJobDTO;
 import com.dtstack.engine.dto.BatchTaskForFillDataDTO;
 import com.dtstack.engine.dto.QueryJobDTO;
+import com.dtstack.engine.master.WorkNode;
 import com.dtstack.task.send.TaskUrlConstant;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.job.impl.BatchHadoopJobStartTrigger;
@@ -964,13 +965,18 @@ public class BatchJobService {
                 }
                 actionParam.put("name", batchJob.getJobName());
                 actionParam.put("taskId", batchJob.getJobId());
-                taskJson = objMapper.writeValueAsString(actionParam);
+
+                //TODO, 拼装控制台的集群信息
+
+//                taskJson = objMapper.writeValueAsString(actionParam);
                 if (EJobType.HIVE_SQL.getType().equals(batchJob.getTaskType()) || EJobType.IMPALA_SQL.getType().equals(batchJob.getTaskType())) {
-                    engineSend.sendTask(taskJson, ldapUserName, ldapPassword, dbName, null, null);
+                    //TODO, 拼装是区别ldap
+//                    engineSend.sendTask(taskJson, ldapUserName, ldapPassword, dbName, null, null);
                     return;
                 }
                 //TODO 放入队列
-                engineSend.sendTask(taskJson, null, null);
+//                engineSend.sendTask(taskJson, null, null);
+                WorkNode.getInstance().addSubmitJob(actionParam);
                 return;
             }
         }

@@ -26,6 +26,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -43,9 +44,10 @@ import java.util.UUID;
  * Company: www.dtstack.com
  * @author sishu.yss
  */
-public class ActionServiceImpl {
+@Service
+public class ActionService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ActionServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(ActionService.class);
 
     private RdosEngineJobDAO batchJobDAO = new RdosEngineJobDAO();
 

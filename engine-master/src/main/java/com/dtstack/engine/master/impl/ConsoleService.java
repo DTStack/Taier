@@ -18,6 +18,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,9 +35,10 @@ import java.util.Map;
  * author: toutian
  * create: 2018/9/18
  */
-public class ConsoleServiceImpl {
+@Service
+public class ConsoleService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ConsoleServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(ConsoleService.class);
 
     private RdosEngineJobDAO engineBatchJobDAO = new RdosEngineJobDAO();
 
