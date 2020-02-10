@@ -14,4 +14,8 @@ public interface Urls extends RootUrls {
 
     String MASTER_SEND_JOBS = String.format("%s/%s",ACTION,"masterSendJobs");
 
+    String SUBMIT = String.format("%s/%s", ACTION, "submit");
+
+    String WORK_SEND_STOP = String.format("%s/%s", ACTION, "workSendStop");
+
 }

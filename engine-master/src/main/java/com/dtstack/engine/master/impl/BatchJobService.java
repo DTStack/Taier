@@ -969,6 +969,7 @@ public class BatchJobService {
                     engineSend.sendTask(taskJson, ldapUserName, ldapPassword, dbName, null, null);
                     return;
                 }
+                //TODO 放入队列
                 engineSend.sendTask(taskJson, null, null);
                 return;
             }

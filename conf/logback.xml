@@ -52,7 +52,7 @@
         <appender-ref ref="request" />
     </logger>
 
-    <logger name="com.dtstack.engine.service.zookeeper" level="info" additivity="false">
+    <logger name="com.dtstack.engine.master.zookeeper" level="info" additivity="false">
         <appender-ref ref="zkAppender" />
     </logger>
     <logger name="com.dtstack.engine.master.task" level="info" additivity="false">
@@ -61,7 +61,7 @@
     <logger name="com.dtstack.engine.worker.task" level="info" additivity="false">
         <appender-ref ref="zkAppender" />
     </logger>
-    <logger name="com.dtstack.engine.worker.cache" level="info" additivity="false">
+    <logger name="com.dtstack.engine.master.cache" level="info" additivity="false">
         <appender-ref ref="zkAppender" />
     </logger>
     <logger name="com.dtstack.engine.service.task" level="info" additivity="false">

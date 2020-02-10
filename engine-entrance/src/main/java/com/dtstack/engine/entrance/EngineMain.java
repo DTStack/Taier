@@ -7,7 +7,7 @@ import com.dtstack.engine.common.util.ShutdownHookUtil;
 import com.dtstack.engine.common.JobSubmitExecutor;
 import com.dtstack.engine.entrance.config.EngineConfig;
 import com.dtstack.engine.master.MasterMain;
-import com.dtstack.engine.service.zookeeper.ZkDistributed;
+import com.dtstack.engine.master.zookeeper.ZkDistributed;
 import com.dtstack.engine.router.VertxHttpServer;
 import com.dtstack.engine.worker.WorkerMain;
 import com.google.common.collect.Lists;
@@ -58,7 +58,7 @@ public class EngineMain {
 		jobSubmitExecutor = JobSubmitExecutor.getInstance();
 		zkDistributed = ZkDistributed.createZkDistributed(nodeConfig).zkRegistration();
 		vertxHttpServer = new VertxHttpServer(null,null);
-		WorkerMain.init(zkDistributed);
+//		WorkerMain.init(zkDistributed);
 		MasterMain.init();
 
 		logger.warn("start Engine success...");

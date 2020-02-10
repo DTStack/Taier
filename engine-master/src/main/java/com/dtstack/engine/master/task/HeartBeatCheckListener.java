@@ -9,10 +9,10 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.master.MasterNode;
-import com.dtstack.engine.service.data.BrokerHeartNode;
+import com.dtstack.engine.master.data.BrokerHeartNode;
 import com.dtstack.engine.dao.RdosNodeMachineDAO;
 import com.dtstack.engine.common.enums.RdosNodeMachineType;
-import com.dtstack.engine.service.zookeeper.ZkDistributed;
+import com.dtstack.engine.master.zookeeper.ZkDistributed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
