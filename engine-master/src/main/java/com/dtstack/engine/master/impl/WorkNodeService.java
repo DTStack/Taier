@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.master.node.JobExecutorTrigger;
+import com.dtstack.engine.master.executor.JobExecutorTrigger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

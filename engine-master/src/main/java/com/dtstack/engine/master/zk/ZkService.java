@@ -5,7 +5,7 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.ExceptionUtil;
 import com.dtstack.engine.common.util.KerberosUtils;
 import com.dtstack.engine.master.node.FailoverStrategy;
-import com.dtstack.engine.master.node.JobExecutorTrigger;
+import com.dtstack.engine.master.executor.JobExecutorTrigger;
 import com.dtstack.engine.master.zk.listener.HeartBeatCheckListener;
 import com.dtstack.engine.master.zk.listener.HeartBeatListener;
 import com.dtstack.engine.master.zk.listener.Listener;

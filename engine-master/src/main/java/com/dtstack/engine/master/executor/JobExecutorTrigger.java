@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.node;
+package com.dtstack.engine.master.executor;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.common.constant.TaskStatusConstrant;
@@ -11,9 +11,6 @@ import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.dao.BatchJobDao;
 import com.dtstack.engine.domain.po.SimpleBatchJobPO;
-import com.dtstack.engine.master.executor.AbstractJobExecutor;
-import com.dtstack.engine.master.executor.CronJobExecutor;
-import com.dtstack.engine.master.executor.FillJobExecutor;
 import com.dtstack.engine.master.queue.QueueInfo;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
 import com.dtstack.engine.master.zk.ZkService;

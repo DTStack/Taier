@@ -3,7 +3,7 @@ package com.dtstack.engine.master.zk.listener;
 import com.dtstack.engine.common.util.ExceptionUtil;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.master.node.JobExecutorTrigger;
+import com.dtstack.engine.master.executor.JobExecutorTrigger;
 import com.dtstack.engine.master.queue.ClusterQueueInfo;
 import com.dtstack.engine.master.queue.QueueInfo;
 import com.dtstack.engine.master.zk.ZkService;
