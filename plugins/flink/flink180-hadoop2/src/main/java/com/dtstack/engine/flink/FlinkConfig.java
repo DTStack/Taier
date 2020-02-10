@@ -1,5 +1,6 @@
 package com.dtstack.engine.flink;
 
+import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -72,8 +73,7 @@ public class FlinkConfig {
 
     private boolean flinkHighAvailability = false;
 
-    private String pluginLoadMode = "classpath";
-
+    private String pluginLoadMode = "shipfile";
 
     public String getTypeName() {
         return typeName;
@@ -228,6 +228,9 @@ public class FlinkConfig {
     }
 
     public String getPluginLoadMode() {
+        if (Strings.isNullOrEmpty(pluginLoadMode)) {
+            return ConfigConstrant.FLINK_PLUGIN_SHIPFILE_LOAD;
+        }
         return pluginLoadMode;
     }
 

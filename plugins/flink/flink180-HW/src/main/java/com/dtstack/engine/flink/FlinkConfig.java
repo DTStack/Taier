@@ -1,5 +1,6 @@
 package com.dtstack.engine.flink;
 
+import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -69,6 +70,8 @@ public class FlinkConfig {
     private String flinkSessionName = "Flink session";
 
     private boolean yarnSessionStartAuto = true;
+
+    private String pluginLoadMode = "shipfile";
 
 
     public String getTypeName() {
@@ -261,6 +264,17 @@ public class FlinkConfig {
 
     public static void setEngineFlinkConfigs(List<String> engineFlinkConfigs) {
         ENGINE_FLINK_CONFIGS = engineFlinkConfigs;
+    }
+
+    public String getPluginLoadMode() {
+        if (Strings.isNullOrEmpty(pluginLoadMode)) {
+            return ConfigConstrant.FLINK_PLUGIN_SHIPFILE_LOAD;
+        }
+        return pluginLoadMode;
+    }
+
+    public void setPluginLoadMode(String pluginLoadMode) {
+        this.pluginLoadMode = pluginLoadMode;
     }
 
     private static List<String> initEngineFlinkConfigFields() {

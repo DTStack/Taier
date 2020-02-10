@@ -250,7 +250,8 @@ public class DtContainer {
     private void reportFailedAndExit(String msg) {
         LOG.info("reportFailedAndExit: " + msg);
         if(msg == null || msg.length() == 0) {
-            LOG.error("my error msg is: " + msg);
+            msg = "";
+            LOG.warn("reportFailedAndExit， the msg is blank");
         }
         Date now = new Date();
         containerStatusNotifier.setContainerErrorMessage(msg);
