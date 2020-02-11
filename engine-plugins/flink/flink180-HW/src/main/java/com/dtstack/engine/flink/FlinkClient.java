@@ -803,6 +803,7 @@ public class FlinkClient extends AbsClient {
         String webAddress = flinkClientBuilder.getFlinkConfiguration().getValue(HistoryServerOptions.HISTORY_SERVER_WEB_ADDRESS);
         String port = flinkClientBuilder.getFlinkConfiguration().getValue(HistoryServerOptions.HISTORY_SERVER_WEB_PORT);
         if (StringUtils.isBlank(webAddress) || StringUtils.isBlank(port)) {
+
             throw new RdosDefineException("History Server webAddress:" + webAddress + " port:" + port);
         }
         jobHistory = String.format("http://%s:%s", webAddress, port);

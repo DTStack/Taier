@@ -1,9 +1,9 @@
 package com.dtstack.engine.router.callback;
 
-import com.dtstack.dtcenter.common.exception.DtCenterDefException;
-import com.dtstack.dtcenter.common.exception.ExceptionEnums;
 import com.dtstack.dtcenter.common.hadoop.HdfsOperator;
 import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.ExceptionEnums;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.router.util.ResponseUtil;
 import io.vertx.ext.web.RoutingContext;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -39,9 +39,9 @@ public class ApiCallbackMethod {
 			try {
 				ExceptionEnums errorCode = ErrorCode.UNKNOWN_ERROR;
 				String errorMsg = null;
-				DtCenterDefException rdosDefineException = null;
-				if (e.getCause() instanceof DtCenterDefException) {
-					rdosDefineException = ((DtCenterDefException)e.getCause());
+				RdosDefineException rdosDefineException = null;
+				if (e.getCause() instanceof RdosDefineException) {
+					rdosDefineException = (RdosDefineException)e.getCause();
 					if(rdosDefineException.getErrorCode()!=null){
 						errorCode = rdosDefineException.getErrorCode();
 					}
@@ -49,8 +49,8 @@ public class ApiCallbackMethod {
 					if (e.getCause().getCause() != null) {
 					    logger.error("{}", e.getCause().getCause());
                     }
-				} else if (e instanceof DtCenterDefException) {
-					rdosDefineException = ((DtCenterDefException)e);
+				} else if (e instanceof RdosDefineException) {
+					rdosDefineException = (RdosDefineException)e;
 					if(rdosDefineException.getErrorCode()!=null){
 						errorCode = rdosDefineException.getErrorCode();
 					}

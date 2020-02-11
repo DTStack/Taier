@@ -1,19 +1,14 @@
 package com.dtstack.engine.master.cache;
 
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.config.ConfigParse;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.queue.ClusterQueueInfo;
-import com.dtstack.engine.common.queue.GroupInfo;
 import com.dtstack.engine.dao.RdosEngineJobCacheDAO;
 import com.dtstack.engine.domain.RdosEngineJobCache;
-import com.dtstack.engine.common.queue.GroupPriorityQueue;
 import com.dtstack.engine.common.util.TaskIdUtil;
 import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.zookeeper.ZkDistributed;
 import com.dtstack.engine.master.data.BrokerDataNode;
 import com.dtstack.engine.master.data.BrokerDataShard;
-import com.google.common.collect.Maps;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -50,9 +45,7 @@ public class ZkLocalCache implements Closeable {
     private final ReentrantLock lock = new ReentrantLock();
 
     private WorkNode workNode;
-    private ClusterQueueInfo clusterQueueInfo = ClusterQueueInfo.getInstance();
     private ZkShardManager zkShardManager = ZkShardManager.getInstance();
-    private LocalCacheSyncZkListener localCacheSyncZkListener;
 
     private ZkLocalCache() {
     }
@@ -112,54 +105,7 @@ public class ZkLocalCache implements Closeable {
      * 选择节点间（队列负载+已提交任务 加权值）+ 误差 符合要求的node，做任务分发
      */
     public String getDistributeNode(String engineType, String groupName, List<String> excludeNodes) {
-        if (clusterQueueInfo.isEmpty()) {
-            return localAddress;
-        }
-
-        ClusterQueueInfo.EngineTypeQueueInfo engineTypeQueueInfo = clusterQueueInfo.getEngineTypeQueueInfo(engineType);
-        if (engineTypeQueueInfo == null) {
-            return localAddress;
-        }
-
-        GroupPriorityQueue groupPriorityQueue = workNode.getEngineTypeQueue(engineType);
-        if (groupPriorityQueue == null) {
-            throw new RdosDefineException("not support engineType:" + engineType);
-        }
-        Map<String, Integer> otherQueueInfoMap = Maps.newHashMap();
-        for (Map.Entry<String, ClusterQueueInfo.GroupQueueInfo> zkInfoEntry : engineTypeQueueInfo.getGroupQueueInfoMap().entrySet()) {
-            ClusterQueueInfo.GroupQueueInfo groupQueueZkInfo = zkInfoEntry.getValue();
-            Map<String, GroupInfo> remoteQueueInfo = groupQueueZkInfo.getGroupInfo();
-            GroupInfo groupInfo = remoteQueueInfo.getOrDefault(groupName, new GroupInfo());
-            otherQueueInfoMap.put(zkInfoEntry.getKey(), groupInfo.getSize());
-        }
-        int localQueueSize = otherQueueInfoMap.getOrDefault(localAddress, 0);
-
-        String node = null;
-        int minWeight = Integer.MAX_VALUE;
-        for (Map.Entry<String, Integer> queueEntry : otherQueueInfoMap.entrySet()) {
-            if (excludeNodes.contains(queueEntry.getKey())) {
-                continue;
-            }
-            int queueSize = queueEntry.getValue();
-            int weight = queueSize * distributeQueueWeight + getZkDataSize(queueEntry.getKey()) * distributeZkWeight;
-            if (minWeight > weight) {
-                minWeight = weight;
-                node = queueEntry.getKey();
-            }
-        }
-        int localWeight = localQueueSize * distributeQueueWeight + getZkDataSize(localAddress) * distributeZkWeight;
-        if (localWeight - minWeight <= distributeDeviation) {
-            return localAddress;
-        }
-        return node;
-    }
-
-    public Map<String, Integer> getZkDataSizeCache() {
-        return zkDataSizeCache;
-    }
-
-    public void setZkDataSizeCache(Map<String, Integer> zkDataSizeCache) {
-        this.zkDataSizeCache = zkDataSizeCache;
+        return localAddress;
     }
 
     public int getZkDataSize(String node){
@@ -192,17 +138,9 @@ public class ZkLocalCache implements Closeable {
 
     @Override
     public void close() throws IOException {
-        if (localCacheSyncZkListener != null) {
-            localCacheSyncZkListener.run();
-        }
     }
 
     public void setWorkNode(WorkNode workNode) {
         this.workNode = workNode;
     }
-
-    public void setLocalCacheSyncZkListener(LocalCacheSyncZkListener localCacheSyncZkListener) {
-        this.localCacheSyncZkListener = localCacheSyncZkListener;
-    }
-
 }

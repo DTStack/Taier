@@ -19,7 +19,7 @@ import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.LearningFrameType;
 import com.dtstack.engine.common.enums.QueryWorkFlowModel;
 import com.dtstack.engine.common.enums.TaskOperateType;
-import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.BatchFillDataJobDao;
@@ -972,7 +972,7 @@ public class BatchJobService {
 //                    engineSend.sendTask(taskJson, ldapUserName, ldapPassword, dbName, null, null);
                     return;
                 }
-                //TODO 放入队列
+                //TODO, 放入队列
 //                engineSend.sendTask(taskJson, null, null);
                 WorkNode.getInstance().addSubmitJob(actionParam);
                 return;

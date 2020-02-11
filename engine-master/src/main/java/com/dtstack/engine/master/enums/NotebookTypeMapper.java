@@ -1,4 +1,4 @@
-package com.dtstack.engine.common.enums;
+package com.dtstack.engine.master.enums;
 
 import com.dtstack.dtcenter.common.enums.EJobType;
 import com.dtstack.dtcenter.common.enums.EngineType;
@@ -9,6 +9,7 @@ import java.util.Map;
 
 /**
  * company: www.dtstack.com
+ *
  * author: toutian
  * create: 2019/10/22
  */

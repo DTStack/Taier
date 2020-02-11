@@ -1,8 +1,6 @@
 package com.dtstack.engine.common.exception;
 
 
-import com.dtstack.dtcenter.common.exception.DtCenterDefException;
-import com.dtstack.dtcenter.common.exception.ExceptionEnums;
 import org.apache.commons.lang3.StringUtils;
 
 /**

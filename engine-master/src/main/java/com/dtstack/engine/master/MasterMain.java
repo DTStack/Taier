@@ -1,8 +1,8 @@
 package com.dtstack.engine.master;
 
-import com.dtstack.dtcenter.common.util.SystemPropertyUtil;
 import com.dtstack.engine.common.config.ConfigParse;
-import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.common.util.SystemPropertyUtil;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.common.log.LogbackComponent;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
 import com.dtstack.engine.master.config.CacheConfig;
@@ -16,7 +16,6 @@ import com.dtstack.engine.master.task.LogStoreListener;
 import com.dtstack.engine.master.task.MasterListener;
 import com.dtstack.engine.master.task.HeartBeatListener;
 import com.dtstack.engine.master.zookeeper.ZkDistributed;
-import com.dtstack.engine.router.VertxHttpServer;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +36,7 @@ public class MasterMain {
 
     private static final Logger logger = LoggerFactory.getLogger(MasterMain.class);
 
-    private static VertxHttpServer vertxHttpServer;
+//    private static VertxHttpServer vertxHttpServer;
 
     private static ZkDistributed zkDistributed;
 
@@ -73,7 +72,6 @@ public class MasterMain {
 
     private static void initService(ApplicationContext context) throws Exception {
         zkDistributed = ZkDistributed.createZkDistributed(null).zkRegistration();
-        vertxHttpServer = new VertxHttpServer(context, environmentContext);
         init();
 
         logger.warn("start only engine-master success...");
@@ -87,7 +85,7 @@ public class MasterMain {
     }
 
     private static void shutdown() {
-        List<Closeable> closeables = Lists.newArrayList(vertxHttpServer, zkDistributed);
+        List<Closeable> closeables = Lists.newArrayList( zkDistributed);
         for (Closeable closeable : closeables) {
             if (closeables != null) {
                 try {

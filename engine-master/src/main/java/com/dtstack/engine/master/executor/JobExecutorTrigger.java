@@ -8,7 +8,7 @@ import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.sql.Twins;
 import com.dtstack.engine.common.constrant.JobFieldInfo;
 import com.dtstack.engine.common.enums.EScheduleType;
-import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.dao.BatchJobDao;
 import com.dtstack.engine.domain.po.SimpleBatchJobPO;
 import com.dtstack.engine.master.queue.QueueInfo;

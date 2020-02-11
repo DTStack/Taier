@@ -25,7 +25,7 @@ import com.dtstack.engine.common.util.TaskIdUtil;
 import com.dtstack.engine.master.impl.JobStopQueue;
 import com.dtstack.engine.master.resource.JobComputeResourcePlain;
 import com.dtstack.engine.master.send.HttpSendClient;
-import com.dtstack.engine.master.task.QueueListener;
+//import com.dtstack.engine.master.task.QueueListener;
 import com.dtstack.engine.master.task.TaskListener;
 import com.dtstack.engine.master.task.TaskStatusListener;
 import com.dtstack.engine.master.zookeeper.ZkDistributed;
@@ -102,7 +102,7 @@ public class WorkNode {
     public void init() {
         executors.execute(new TaskListener());
         executors.execute(new TaskStatusListener());
-        executors.execute(new QueueListener());
+//        executors.execute(new QueueListener());
 
         ExecutorService recoverExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory("recoverDealer"));
@@ -114,40 +114,45 @@ public class WorkNode {
         zkLocalCache.setWorkNode(this);
     }
 
-    public GroupPriorityQueue getEngineTypeQueue(String engineType) {
-        return priorityQueueMap.computeIfAbsent(engineType, k -> new GroupPriorityQueue(engineType,
-                (groupPriorityQueue, startId, limited) -> {
-                    return this.emitJob2GQ(engineType, groupPriorityQueue, startId, limited);
-                })
-        );
+    public GroupPriorityQueue getPriorityQueue(JobClient jobClient) {
+        String jobResource = jobComputeResourcePlain.getJobResource(jobClient);
+        return priorityQueueMap.get(jobResource);
+    }
+
+    public GroupPriorityQueue getPriorityQueue(String jobResource) {
+        return priorityQueueMap.get(jobResource);
     }
 
     /**
-     * 获取当前节点的队列大小信息
+     * 获取所有节点的队列大小信息
+     * key1: address,
+     * key2: jobResource
      */
-    public Map<String, GroupInfo> getQueueInfo(){
-        String localAddress = zkDistributed.getLocalAddress();
-        Map<String, GroupInfo> queueInfo = Maps.newHashMap();
-        priorityQueueMap.forEach((jobResource, priorityQueue) -> {
-            int queueSize = rdosEngineJobCacheDAO.countGroupQueueJob(jobResource, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), localAddress);
+    public Map<String, Map<String, GroupInfo>> getQueueInfo(){
+        //todo,获取所有节点的队列信息，
+        //todo max priority 取在内存队列的，非重试任务的最大的priority
+//        String localAddress = zkDistributed.getLocalAddress();
+//        Map<String, GroupInfo> queueInfo = Maps.newHashMap();
+//        priorityQueueMap.forEach((jobResource, priorityQueue) -> {
+//            int queueSize = rdosEngineJobCacheDAO.countGroupQueueJob(jobResource, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), localAddress);
+//
+//            Iterator<JobClient> it = priorityQueue.getQueue().iterator();
+//            JobClient topPriorityJob = null;
+//            while (it.hasNext()){
+//                JobClient topJob = it.next();
+//                if (topJob.isJobRetryWaiting()){
+//                    continue;
+//                }
+//                topPriorityJob = topJob;
+//                break;
+//            }
+//            GroupInfo groupInfo = new GroupInfo();
+//            groupInfo.setSize(queueSize);
+//            groupInfo.setPriority(topPriorityJob == null ? 0 : topPriorityJob.getPriority());
+//            queueInfo.put(jobResource, groupInfo);
+//        });
 
-            Iterator<JobClient> it = priorityQueue.getQueue().iterator();
-            JobClient topPriorityJob = null;
-            while (it.hasNext()){
-                JobClient topJob = it.next();
-                if (topJob.isJobRetryWaiting()){
-                    continue;
-                }
-                topPriorityJob = topJob;
-                break;
-            }
-            GroupInfo groupInfo = new GroupInfo();
-            groupInfo.setSize(queueSize);
-            groupInfo.setPriority(topPriorityJob == null ? 0 : topPriorityJob.getPriority());
-            queueInfo.put(jobResource, groupInfo);
-        });
-
-        return queueInfo;
+        return null;
     }
 
     /**

@@ -19,5 +19,10 @@
     </properties>
 
 
-
+    <dependencies>
+        <dependency>
+            <groupId>com.dtstack.dtcenter</groupId>
+            <artifactId>common.base</artifactId>
+        </dependency>
+    </dependencies>
 </project>

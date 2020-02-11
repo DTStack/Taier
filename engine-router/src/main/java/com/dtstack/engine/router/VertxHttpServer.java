@@ -4,7 +4,7 @@ import java.io.Closeable;
 import java.io.IOException;
 
 import com.dtstack.dtcenter.common.login.SessionUtil;
-import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.VertxOptions;
 import org.slf4j.Logger;

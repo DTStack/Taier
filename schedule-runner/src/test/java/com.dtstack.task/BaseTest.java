@@ -1,6 +1,6 @@
 package com.dtstack.task;
 
-import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.task.runner.config.CacheConfig;
 import com.dtstack.task.runner.config.MybatisConfig;
 import com.dtstack.task.runner.config.RdosBeanConfig;

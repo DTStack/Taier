@@ -4,7 +4,6 @@ import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.annotation.Param;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.common.JobSubmitExecutor;
 import com.dtstack.engine.domain.RdosEngineJobRetry;
 import com.dtstack.engine.domain.RdosEngineJobStopRecord;
 import com.dtstack.engine.domain.RdosEngineUniqueSign;

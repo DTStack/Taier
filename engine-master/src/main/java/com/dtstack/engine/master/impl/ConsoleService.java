@@ -96,8 +96,11 @@ public class ConsoleService {
         try {
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
             JobClient theJobClient = new JobClient(paramAction);
-            GroupPriorityQueue queue = workNode.getEngineTypeQueue(theJobClient.getEngineType());
-            OrderLinkedBlockingQueue<JobClient> jobQueue = queue.getQueue().get(theJobClient.getGroupName());
+            GroupPriorityQueue priorityQueue = workNode.getPriorityQueue(theJobClient);
+            if (priorityQueue == null) {
+                return null;
+            }
+            OrderLinkedBlockingQueue<JobClient> jobQueue = priorityQueue.getQueue();
             if (jobQueue == null) {
                 return null;
             }
@@ -143,43 +146,43 @@ public class ConsoleService {
         return types;
     }
 
-    public Collection<Map<String, Object>> groups(@Param("engineType") String engineType) {
-        Preconditions.checkNotNull(engineType, "parameters of engineType is required");
-        GroupPriorityQueue queue = workNode.getEngineTypeQueue(engineType);
-        if (queue != null) {
-            Map<String, OrderLinkedBlockingQueue<JobClient>> map = queue.getQueue();
-            List<Map<String, Object>> groups = new ArrayList<>(map.size());
-            for (Map.Entry<String, OrderLinkedBlockingQueue<JobClient>> entry : map.entrySet()) {
-                String groupName = entry.getKey();
-                int groupSize = entry.getValue().size();
-                long generateTime = 0L;
-                long waitTime = 0L;
-                if (groupSize > 0) {
-                    JobClient jobClient = entry.getValue().getTop();
-                    generateTime = jobClient.getGenerateTime();
-                    waitTime = System.currentTimeMillis() - jobClient.getGenerateTime();
-                }
-                Map<String, Object> element = new HashMap<>(3);
-                element.put("groupName", groupName);
-                element.put("groupSize", groupSize);
-                element.put("generateTime", generateTime);
-                element.put("waitTime", waitTime);
-                groups.add(element);
+    //TODO, 控制台改造
+    public Collection<Map<String, Object>> groups(@Param("engineType") String engineType,
+                                                  @Param("jobResource") String jobResource) {
+        Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
+        GroupPriorityQueue priorityQueue = workNode.getPriorityQueue(jobResource);
+        if (priorityQueue != null) {
+            List<Map<String, Object>> groups = new ArrayList<>(1);
+
+            int groupSize = priorityQueue.getQueue().size();
+            long generateTime = 0L;
+            long waitTime = 0L;
+            if (groupSize > 0) {
+                JobClient jobClient = priorityQueue.getQueue().getTop();
+                generateTime = jobClient.getGenerateTime();
+                waitTime = System.currentTimeMillis() - jobClient.getGenerateTime();
             }
+            Map<String, Object> element = new HashMap<>(3);
+            element.put("groupName", jobResource);
+            element.put("groupSize", groupSize);
+            element.put("generateTime", generateTime);
+            element.put("waitTime", waitTime);
+            groups.add(element);
             return groups;
         }
         return Collections.EMPTY_SET;
     }
 
+    //TODO, 控制台改造
     public Map<String, Object> groupDetail(@Param("engineType") String engineType,
                                            @Param("groupName") String groupName,
+                                           @Param("jobResource") String jobResource,
                                            @Param("pageSize") int pageSize,
                                            @Param("currentPage") int currentPage) {
-        Preconditions.checkNotNull(engineType, "parameters of engineType is required");
-        Preconditions.checkNotNull(groupName, "parameters of groupName is required");
+        Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
         try {
-            GroupPriorityQueue queue = workNode.getEngineTypeQueue(engineType);
-            OrderLinkedBlockingQueue<JobClient> jobQueue = queue.getQueue().get(groupName);
+            GroupPriorityQueue priorityQueue = workNode.getPriorityQueue(engineType);
+            OrderLinkedBlockingQueue<JobClient> jobQueue = priorityQueue.getQueue();
             if (jobQueue == null){
                 return null;
             }
@@ -219,18 +222,19 @@ public class ConsoleService {
         return null;
     }
 
+    //TODO, 控制台改造
     public Boolean jobPriority(@Param("jobId") String jobId,
                                @Param("engineType") String engineType,
                                @Param("groupName") String groupName,
+                               @Param("jobResource") String jobResource,
                                @Param("jobIndex") int jobIndex) {
 
-        Preconditions.checkNotNull(engineType, "parameters of engineType is required");
-        Preconditions.checkNotNull(groupName, "parameters of groupName is required");
+        Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
         Preconditions.checkNotNull(jobId, "parameters of jobId is required");
 
         try {
-            GroupPriorityQueue queue = workNode.getEngineTypeQueue(engineType);
-            OrderLinkedBlockingQueue<JobClient> jobQueue = queue.getQueue().get(groupName);
+            GroupPriorityQueue priorityQueue = workNode.getPriorityQueue(jobResource);
+            OrderLinkedBlockingQueue<JobClient> jobQueue = priorityQueue.getQueue();
             if (jobQueue == null) {
                 return false;
             }

@@ -23,10 +23,12 @@ import com.dtstack.engine.domain.RdosStreamTaskCheckpoint;
 import com.dtstack.engine.common.util.TaskIdUtil;
 import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.cache.ZkLocalCache;
+import com.dtstack.engine.master.resource.JobComputeResourcePlain;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.util.Map;
@@ -44,6 +46,9 @@ public class RestartDealer {
     private static final Logger LOG = LoggerFactory.getLogger(RestartDealer.class);
 
     private static final Integer SUBMIT_INTERVAL = 2 * 60 * 1000;
+
+    @Autowired
+    private JobComputeResourcePlain jobComputeResourcePlain;
 
     private RdosEngineJobCacheDAO engineJobCacheDAO = new RdosEngineJobCacheDAO();
 
@@ -365,7 +370,8 @@ public class RestartDealer {
 
     private void addToRestart(JobClient jobClient){
         jobClient.setRestartTime(System.currentTimeMillis() + SUBMIT_INTERVAL);
-        WorkNode.getInstance().redirectSubmitJob(jobClient, false);
+        String jobResource = jobComputeResourcePlain.getJobResource(jobClient);
+        WorkNode.getInstance().redirectSubmitJob(jobResource, jobClient, false);
     }
 
     /**

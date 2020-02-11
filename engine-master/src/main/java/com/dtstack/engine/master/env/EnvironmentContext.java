@@ -1,4 +1,4 @@
-package com.dtstack.engine.common.env;
+package com.dtstack.engine.master.env;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

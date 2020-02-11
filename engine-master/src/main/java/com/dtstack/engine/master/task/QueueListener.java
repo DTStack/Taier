@@ -1,12 +1,8 @@
 package com.dtstack.engine.master.task;
 
 import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.queue.ClusterQueueInfo;
 import com.dtstack.engine.master.WorkNode;
-import com.dtstack.engine.master.zookeeper.ZkDistributed;
-import com.dtstack.engine.master.data.BrokerQueueNode;
 import com.dtstack.engine.common.queue.GroupInfo;
-import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,44 +10,34 @@ import java.util.Map;
 
 
 /**
- *
- * @author sishu.yss
- *
+ * company: www.dtstack.com
+ * author: toutian
+ * create: 2020/2/10
  */
-public class QueueListener implements Runnable{
+public class QueueListener implements Runnable {
 
-	private static final Logger logger = LoggerFactory.getLogger(QueueListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(QueueListener.class);
 
-	private final static int listener = 5 * 1000;
+    private final static int listener = 5 * 1000;
 
-    private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
+    public QueueListener() {
+    }
 
-	public QueueListener(){
-	}
+    @Override
+    public void run() {
 
-	@Override
-	public void run() {
-
-        while(true){
-            try{
+        while (true) {
+            try {
                 logger.warn("QueueListener start again....");
                 //获取所有节点的queue
-                Map<String, BrokerQueueNode> queueNodeMap = zkDistributed.getAllBrokerQueueNode();
-                Map<String, Map<String, Map<String, GroupInfo>>> queueInfo = Maps.newHashMap();
-                queueNodeMap.forEach( (address, queueNode) -> queueInfo.put(address, queueNode.getGroupQueueInfo()));
+                Map<String, Map<String, GroupInfo>> queueInfo = WorkNode.getInstance().getQueueInfo();
 
-                ClusterQueueInfo.getInstance().updateClusterQueueInfo(queueInfo);
 
                 //更新当前节点的queue 信息
-                Map<String, Map<String, GroupInfo>>  engineTypeGroup = WorkNode.getInstance().getQueueInfo();
 
-                BrokerQueueNode localQueueNode = new BrokerQueueNode();
-                localQueueNode.setGroupQueueInfo(engineTypeGroup);
-
-                zkDistributed.updateSynchronizedLocalQueueNode(zkDistributed.getLocalAddress(), localQueueNode);
-            }catch(Throwable e){
-                logger.error("QueueListener error:{}",ExceptionUtil.getErrorMessage(e));
-            }finally {
+            } catch (Throwable e) {
+                logger.error("QueueListener error:{}", ExceptionUtil.getErrorMessage(e));
+            } finally {
                 try {
                     Thread.sleep(listener);
                 } catch (InterruptedException e1) {
@@ -60,5 +46,5 @@ public class QueueListener implements Runnable{
             }
         }
 
-	}
+    }
 }

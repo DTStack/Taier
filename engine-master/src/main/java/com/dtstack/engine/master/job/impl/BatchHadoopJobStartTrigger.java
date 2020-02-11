@@ -14,7 +14,7 @@ import com.dtstack.dtcenter.hive.service.HiveTableService;
 import com.dtstack.dtcenter.impala.service.ImpalaJdbcService;
 import com.dtstack.dtcenter.impala.service.ImpalaTableService;
 import com.dtstack.engine.common.enums.EScheduleType;
-import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.BatchJobDao;
 import com.dtstack.engine.domain.BatchJob;

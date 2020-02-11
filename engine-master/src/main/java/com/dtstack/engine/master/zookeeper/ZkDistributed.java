@@ -218,28 +218,28 @@ public class ZkDistributed implements Closeable{
 	}
 
 
-	public void updateSynchronizedLocalQueueNode(String localAddress, BrokerQueueNode source){
-        String nodePath = String.format("%s/%s/%s", brokersNode, localAddress, queueNode);
-        try{
-            if(this.brokerQueueLock.acquire(30, TimeUnit.SECONDS)){
-                zkClient.setData().forPath(nodePath, objectMapper.writeValueAsBytes(source));
-            }
-        }catch (Exception e){
-            logger.error("{} updateSynchronizedLocalQueueNode error:{}", nodePath,
-                    ExceptionUtil.getErrorMessage(e));
-        }finally {
-
-            try{
-                if(this.brokerQueueLock.isAcquiredInThisProcess()){
-                    this.brokerQueueLock.release();
-                }
-            } catch (Exception e) {
-                logger.error("{}:updateSynchronizedLocalQueueNode error:{}", nodePath,
-                        ExceptionUtil.getErrorMessage(e));
-            }
-
-        }
-    }
+//	public void updateSynchronizedLocalQueueNode(String localAddress, BrokerQueueNode source){
+//        String nodePath = String.format("%s/%s/%s", brokersNode, localAddress, queueNode);
+//        try{
+//            if(this.brokerQueueLock.acquire(30, TimeUnit.SECONDS)){
+//                zkClient.setData().forPath(nodePath, objectMapper.writeValueAsBytes(source));
+//            }
+//        }catch (Exception e){
+//            logger.error("{} updateSynchronizedLocalQueueNode error:{}", nodePath,
+//                    ExceptionUtil.getErrorMessage(e));
+//        }finally {
+//
+//            try{
+//                if(this.brokerQueueLock.isAcquiredInThisProcess()){
+//                    this.brokerQueueLock.release();
+//                }
+//            } catch (Exception e) {
+//                logger.error("{}:updateSynchronizedLocalQueueNode error:{}", nodePath,
+//                        ExceptionUtil.getErrorMessage(e));
+//            }
+//
+//        }
+//    }
 
 	public void synchronizedBrokerDataShard(String nodeAddress, String shard, BrokerDataShard brokerDataShard,boolean isCover){
 		String nodePath = String.format("%s/%s/%s/%s",this.brokersNode,nodeAddress,metaDataNode,shard);
@@ -493,7 +493,7 @@ public class ZkDistributed implements Closeable{
 
 	public void removeBrokerQueueNode(String address){
 		BrokerQueueNode brokerQueueNode = new BrokerQueueNode();
-		zkDistributed.updateSynchronizedLocalQueueNode(address, brokerQueueNode);
+//		zkDistributed.updateSynchronizedLocalQueueNode(address, brokerQueueNode);
 	}
 
 	public List<InterProcessMutex> acquireBrokerLock(List<String> brokers, boolean musted){

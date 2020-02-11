@@ -1,7 +1,5 @@
 package com.dtstack.engine.common.exception;
 
-import com.dtstack.dtcenter.common.exception.ExceptionEnums;
-
 /**
  * 错误码定义
  * FIXME 各个模块的错误码用分割线分开

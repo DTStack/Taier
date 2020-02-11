@@ -1,15 +1,13 @@
 package com.dtstack.engine.entrance;
 
-import com.dtstack.dtcenter.common.util.SystemPropertyUtil;
 import com.dtstack.engine.common.config.ConfigParse;
 import com.dtstack.engine.common.log.LogbackComponent;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
-import com.dtstack.engine.common.JobSubmitExecutor;
+import com.dtstack.engine.common.util.SystemPropertyUtil;
 import com.dtstack.engine.entrance.config.EngineConfig;
 import com.dtstack.engine.master.MasterMain;
 import com.dtstack.engine.master.zookeeper.ZkDistributed;
 import com.dtstack.engine.router.VertxHttpServer;
-import com.dtstack.engine.worker.WorkerMain;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +32,6 @@ public class EngineMain {
 
 	private static ZkDistributed zkDistributed;
 
-	private static JobSubmitExecutor jobSubmitExecutor;
-
 	public static void main(String[] args) throws Exception {
 		try {
 			SystemPropertyUtil.setSystemUserDir();
@@ -55,7 +51,6 @@ public class EngineMain {
 
 	
 	private static void initService(Map<String,Object> nodeConfig) throws Exception{
-		jobSubmitExecutor = JobSubmitExecutor.getInstance();
 		zkDistributed = ZkDistributed.createZkDistributed(nodeConfig).zkRegistration();
 		vertxHttpServer = new VertxHttpServer(null,null);
 //		WorkerMain.init(zkDistributed);
@@ -65,7 +60,7 @@ public class EngineMain {
 	}
 
 	private static void shutdown() {
-		List<Closeable> closeables = Lists.newArrayList(vertxHttpServer, zkDistributed, jobSubmitExecutor);
+		List<Closeable> closeables = Lists.newArrayList(vertxHttpServer, zkDistributed);
 		for (Closeable closeable : closeables) {
 			if (closeables != null) {
 				try {

@@ -1,8 +1,7 @@
 package com.dtstack.engine.router.vertx;
 
 import com.dtstack.engine.common.RootUrls;
-import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.router.vertx.BaseVerticle;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpMethod;

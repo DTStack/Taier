@@ -625,7 +625,7 @@ public class FlinkClient extends AbsClient {
             retMap.put("exception", except);
             retMap.put("accuInfo", accuInfo);
             return FlinkRestParseUtil.parseEngineLog(retMap);
-        } catch(RdosException e){
+        } catch(RdosDefineException e){
             //http 请求失败时返回空日志
             logger.error("", e);
             return null;

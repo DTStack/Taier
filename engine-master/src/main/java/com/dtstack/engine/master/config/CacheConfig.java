@@ -3,7 +3,7 @@ package com.dtstack.engine.master.config;
 import com.dtstack.dtcenter.common.cache.*;
 import com.dtstack.dtcenter.common.enums.AppType;
 import com.dtstack.dtcenter.common.lock.RedLock;
-import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;

@@ -7,7 +7,7 @@ import com.dtstack.sql.Twins;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.JobCheckStatus;
 import com.dtstack.engine.common.enums.SentinelType;
-import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.dao.BatchJobDao;
 import com.dtstack.engine.dao.BatchJobJobDao;
 import com.dtstack.engine.domain.BatchJob;
