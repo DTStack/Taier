@@ -29,7 +29,7 @@
     "core-js": "^3.3.2",
     "d3-selection": "1.1.0",
     "diff-match-patch": "1.0.0",
-    "dt-common": "git+http://insight_frontend_lib:jb02o18123K_lib@git.dtstack.cn/dt-insight-front/dt-common.git",
+    "dt-common": "3.10.0-beta.2",
     "dt-sql-parser": "^2.0.4",
     "echarts": "3.8.5",
     "handsontable": "^6.2.2",
