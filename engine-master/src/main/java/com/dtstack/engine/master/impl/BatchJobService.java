@@ -916,8 +916,6 @@ public class BatchJobService {
      */
     public void sendTaskStartTrigger(BatchJob batchJob) throws Exception {
 
-        String taskJson = null;
-
         BatchTaskShade batchTask = batchTaskShadeService.getBatchTaskById(batchJob.getTaskId(), batchJob.getAppType());
         if (batchTask == null) {
             throw new RdosDefineException("can not find task by id:" + batchJob.getTaskId());

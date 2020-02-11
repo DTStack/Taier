@@ -396,6 +396,14 @@ public class JobClient extends OrderObject{
         return restartTime != 0 && System.currentTimeMillis() <= restartTime;
     }
 
+    public String getClusterType() {
+        return null;
+    }
+
+    public String getResourceType() {
+        return null;
+    }
+
     @Override
     public String toString() {
         return "JobClient{" +

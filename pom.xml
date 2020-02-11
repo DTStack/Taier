@@ -27,12 +27,12 @@
         <module>engine-master</module>
         <module>engine-entrance</module>
         <module>engine-api</module>
-<!--        <module>engine-plugins/base</module>
-        &lt;!&ndash;<module>engine-plugins/spark/spark-hadoop2</module>&ndash;&gt;
+        <module>engine-plugins/base</module>
+        <!--<module>engine-plugins/spark/spark-hadoop2</module>-->
         <module>engine-plugins/spark/spark-yarn-hadoop2</module>
         <module>engine-plugins/spark/spark-yarn-hadoop3</module>
-        &lt;!&ndash;<module>engine-plugins/spark/spark160-yarn-hadoop2</module>&ndash;&gt;
-        &lt;!&ndash;<module>engine-plugins/flink/flink150-hadoop2</module>&ndash;&gt;
+        <!--<module>engine-plugins/spark/spark160-yarn-hadoop2</module>-->
+        <!--<module>engine-plugins/flink/flink150-hadoop2</module>-->
         <module>engine-plugins/flink/flink180-hadoop2</module>
         <module>engine-plugins/flink/flink180-hadoop3</module>
         <module>engine-plugins/flink/flink180-HW</module>
@@ -43,7 +43,7 @@
         <module>engine-plugins/kylin</module>
         <module>engine-plugins/rdbs</module>
         <module>engine-plugins/hadoop/hadoop2</module>
-        <module>engine-plugins/hadoop/hadoop3</module>-->
+        <module>engine-plugins/hadoop/hadoop3</module>
     </modules>
 
     <dependencies>

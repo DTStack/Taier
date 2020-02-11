@@ -24,6 +24,7 @@ import com.dtstack.engine.domain.RdosPluginInfo;
 import com.dtstack.engine.common.enums.RequestStart;
 import com.dtstack.engine.common.util.TaskIdUtil;
 import com.dtstack.engine.master.impl.JobStopQueue;
+import com.dtstack.engine.master.resource.JobComputeResourcePlain;
 import com.dtstack.engine.master.send.HttpSendClient;
 import com.dtstack.engine.master.task.QueueListener;
 import com.dtstack.engine.master.task.TaskListener;
@@ -38,6 +39,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -62,6 +64,9 @@ public class WorkNode {
 
     /**任务分发到执行engine上最多重试3次*/
     private static final int DISPATCH_RETRY_LIMIT = 3;
+
+    @Autowired
+    private JobComputeResourcePlain jobComputeResourcePlain;
 
     private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 
@@ -207,7 +212,8 @@ public class WorkNode {
 
     public void redirectSubmitJob(JobClient jobClient, boolean judgeBlocked){
         try{
-            GroupPriorityQueue groupQueue = priorityQueueMap.computeIfAbsent(jobClient.getEngineType(), k -> new GroupPriorityQueue(jobClient.getEngineType(),
+            String jobResource = jobComputeResourcePlain.getJobResource(jobClient);
+            GroupPriorityQueue groupQueue = priorityQueueMap.computeIfAbsent(jobResource, k -> new GroupPriorityQueue(jobClient.getEngineType(),
                     (groupPriorityQueue, startId, limited) -> {
                         return this.emitJob2GQ(jobClient.getEngineType(), groupPriorityQueue, startId, limited);
                     })
