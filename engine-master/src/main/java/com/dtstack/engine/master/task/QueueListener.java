@@ -43,7 +43,7 @@ public class QueueListener implements Runnable{
                 ClusterQueueInfo.getInstance().updateClusterQueueInfo(queueInfo);
 
                 //更新当前节点的queue 信息
-                Map<String, Map<String, GroupInfo>>  engineTypeGroup = WorkNode.getInstance().getEngineTypeQueueInfo();
+                Map<String, Map<String, GroupInfo>>  engineTypeGroup = WorkNode.getInstance().getQueueInfo();
 
                 BrokerQueueNode localQueueNode = new BrokerQueueNode();
                 localQueueNode.setGroupQueueInfo(engineTypeGroup);

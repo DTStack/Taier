@@ -433,7 +433,7 @@ public class ActionService {
         checkParam(paramAction);
         workNode.fillJobClientEngineId(paramAction);
         JobClient jobClient = new JobClient(paramAction);
-        List<String> infos = JobSubmitExecutor.getInstance().containerInfos(jobClient);
+        List<String> infos = jobClient.getContainerInfos();
         return infos;
     }
 

@@ -1,12 +1,12 @@
 package com.dtstack.engine.master.task;
 
+import com.dtstack.engine.common.JobSubmitDealer;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.dao.RdosEngineJobDAO;
 import com.dtstack.engine.dao.RdosEngineJobCacheDAO;
 import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.JobSubmitExecutor;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.util.TaskIdUtil;
 import com.dtstack.engine.master.WorkNode;
@@ -18,19 +18,16 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * 
- * Reason: TODO ADD REASON(可选)
- * Date: 2017年03月03日 下午1:25:18
- * Company: www.dtstack.com
- * @author sishu.yss
- *
+ * company: www.dtstack.com
+ * author: toutian
+ * create: 2020/2/10
  */
 public class TaskListener implements Runnable{
-	
+
 	private static Logger logger = LoggerFactory.getLogger(TaskListener.class);
-	
+
 	private LinkedBlockingQueue<JobClient> queue;
-	
+
 	private RdosEngineJobDAO rdosbatchJobDAO = new RdosEngineJobDAO();
 
 	private RdosEngineJobCacheDAO rdosEngineJobCacheDao = new RdosEngineJobCacheDAO();
@@ -38,7 +35,7 @@ public class TaskListener implements Runnable{
 	private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
 
 	public TaskListener(){
-		queue = JobSubmitExecutor.getInstance().getQueueForTaskListener();
+		queue = JobSubmitDealer.getSubmittedQueue();
 	}
 
 	@Override

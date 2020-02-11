@@ -1,13 +1,15 @@
 package com.dtstack.engine.common.queue;
 
+import com.dtstack.engine.common.JobSubmitDealer;
 import com.dtstack.engine.common.config.ConfigParse;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
-import com.google.common.collect.Maps;
 
-import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -35,32 +37,37 @@ public class GroupPriorityQueue {
     private AtomicLong startId = new AtomicLong(0);
     private AtomicInteger stopAcquireCount = new AtomicInteger(0);
 
+    private String jobResource;
     private Ingestion ingestion;
+
+    private JobSubmitDealer jobSubmitDealer;
     /**
      * key: groupName
      */
-    private Map<String, OrderLinkedBlockingQueue<JobClient>> groupPriorityQueueMap = Maps.newHashMap();
+    private OrderLinkedBlockingQueue<JobClient> queue = new OrderLinkedBlockingQueue<>();
 
     /**
      * 每个GroupPriorityQueue中增加独立线程，以定时调度方式从数据库中获取任务。（数据库查询以id和优先级为条件）
      *
-     * @param engineType
+     * @param jobResource
      * @param ingestion
      */
-    public GroupPriorityQueue(String engineType, Ingestion ingestion) {
+    public GroupPriorityQueue(String jobResource, Ingestion ingestion) {
+        this.jobResource = jobResource;
         this.ingestion = ingestion;
-        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("acquire-" + engineType + "Job"));
+        this.jobSubmitDealer = new JobSubmitDealer(this);
+        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("acquireJob_" + jobResource));
         scheduledService.scheduleWithFixedDelay(
                 new AcquireGroupQueueJob(),
                 0,
                 WAIT_INTERVAL,
                 TimeUnit.MILLISECONDS);
+
+        ExecutorService jobSubmitService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new CustomThreadFactory("jobSubmit_" + jobResource));
+        jobSubmitService.submit(jobSubmitDealer);
     }
 
     public void add(JobClient jobClient) throws InterruptedException {
-        OrderLinkedBlockingQueue<JobClient> queue = groupPriorityQueueMap.computeIfAbsent(jobClient.getGroupName(),
-                k -> new OrderLinkedBlockingQueue<>());
-
         if (queue.contains(jobClient)) {
             return;
         }
@@ -68,16 +75,11 @@ public class GroupPriorityQueue {
         queue.put(jobClient);
     }
 
-    public Map<String, OrderLinkedBlockingQueue<JobClient>> getGroupPriorityQueueMap() {
-        return groupPriorityQueueMap;
+    public OrderLinkedBlockingQueue<JobClient> getQueue() {
+        return queue;
     }
 
-    public boolean remove(String groupName, String jobId) {
-        OrderLinkedBlockingQueue<JobClient> queue = groupPriorityQueueMap.get(groupName);
-        if (queue == null) {
-            return false;
-        }
-
+    public boolean remove(String jobId) {
         if (queue.remove(jobId)) {
             return true;
         }
@@ -100,11 +102,15 @@ public class GroupPriorityQueue {
     }
 
     private long queueSize() {
-        return groupPriorityQueueMap.values().stream().mapToInt(OrderLinkedBlockingQueue::size).count();
+        return queue.size();
     }
 
     public void resetStartId() {
         startId.set(0);
+    }
+
+    public String getJobResource() {
+        return jobResource;
     }
 
     private class AcquireGroupQueueJob implements Runnable {
@@ -120,7 +126,7 @@ public class GroupPriorityQueue {
              * 如果队列中的任务数量小于 ${GroupPriorityQueue.QUEUE_SIZE_LIMITED} , 在连续调度了  ${GroupPriorityQueue.STOP_ACQUIRE_LIMITED} 次都没有查询到新的数据，则停止调度
              */
             long limitId = ingestion.ingestion(GroupPriorityQueue.this, startId.get(), QUEUE_SIZE_LIMITED);
-            if (limitId != startId.get()){
+            if (limitId != startId.get()) {
                 stopAcquireCount.set(0);
             } else if (stopAcquireCount.incrementAndGet() >= STOP_ACQUIRE_LIMITED) {
                 running.set(false);

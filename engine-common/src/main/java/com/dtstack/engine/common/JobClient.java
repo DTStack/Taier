@@ -115,6 +115,14 @@ public class JobClient extends OrderObject{
         }
     }
 
+    public JobResult stopJob() throws Exception {
+        return ClientOperator.getInstance().stopJob(this);
+    }
+
+    public List<String> getContainerInfos() throws Exception {
+        return ClientOperator.getInstance().containerInfos(this);
+    }
+
     @Deprecated
     public JobClient() {
 
@@ -289,10 +297,6 @@ public class JobClient extends OrderObject{
 
     public void setClassArgs(String classArgs) {
         this.classArgs = classArgs;
-    }
-
-    public JobResult stopJob() throws Exception {
-        return JobSubmitExecutor.getInstance().stopJob(this);
     }
 
     public int getAgain() {

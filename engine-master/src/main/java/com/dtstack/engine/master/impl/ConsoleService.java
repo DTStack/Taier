@@ -97,7 +97,7 @@ public class ConsoleService {
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
             JobClient theJobClient = new JobClient(paramAction);
             GroupPriorityQueue queue = workNode.getEngineTypeQueue(theJobClient.getEngineType());
-            OrderLinkedBlockingQueue<JobClient> jobQueue = queue.getGroupPriorityQueueMap().get(theJobClient.getGroupName());
+            OrderLinkedBlockingQueue<JobClient> jobQueue = queue.getQueue().get(theJobClient.getGroupName());
             if (jobQueue == null) {
                 return null;
             }
@@ -147,7 +147,7 @@ public class ConsoleService {
         Preconditions.checkNotNull(engineType, "parameters of engineType is required");
         GroupPriorityQueue queue = workNode.getEngineTypeQueue(engineType);
         if (queue != null) {
-            Map<String, OrderLinkedBlockingQueue<JobClient>> map = queue.getGroupPriorityQueueMap();
+            Map<String, OrderLinkedBlockingQueue<JobClient>> map = queue.getQueue();
             List<Map<String, Object>> groups = new ArrayList<>(map.size());
             for (Map.Entry<String, OrderLinkedBlockingQueue<JobClient>> entry : map.entrySet()) {
                 String groupName = entry.getKey();
@@ -179,7 +179,7 @@ public class ConsoleService {
         Preconditions.checkNotNull(groupName, "parameters of groupName is required");
         try {
             GroupPriorityQueue queue = workNode.getEngineTypeQueue(engineType);
-            OrderLinkedBlockingQueue<JobClient> jobQueue = queue.getGroupPriorityQueueMap().get(groupName);
+            OrderLinkedBlockingQueue<JobClient> jobQueue = queue.getQueue().get(groupName);
             if (jobQueue == null){
                 return null;
             }
@@ -230,7 +230,7 @@ public class ConsoleService {
 
         try {
             GroupPriorityQueue queue = workNode.getEngineTypeQueue(engineType);
-            OrderLinkedBlockingQueue<JobClient> jobQueue = queue.getGroupPriorityQueueMap().get(groupName);
+            OrderLinkedBlockingQueue<JobClient> jobQueue = queue.getQueue().get(groupName);
             if (jobQueue == null) {
                 return false;
             }

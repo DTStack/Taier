@@ -17,7 +17,8 @@ public interface RdosEngineJobCacheMapper {
     int insert(@Param("jobId")String jobId,  @Param("engineType") String engineType,
                @Param("computeType") Integer computeType, @Param("stage") int stage,
                @Param("jobInfo")String jobInfo, @Param("nodeAddress") String nodeAddress,
-               @Param("jobName") String jobName, @Param("jobPriority") Long jobPriority, @Param("groupName") String groupName);
+               @Param("jobName") String jobName, @Param("jobPriority") Long jobPriority,
+               @Param("groupName") String groupName, @Param("jobResource") String jobResource);
 
     int delete(@Param("jobId")String jobId);
 
@@ -32,6 +33,6 @@ public interface RdosEngineJobCacheMapper {
 
     List<String> listNames(@Param("computeType") Integer computeType,@Param("jobName") String jobName);
 
-    int countByStage(@Param("engineType") String engineType, @Param("groupName") String groupName, @Param("stage") Integer stage, @Param("nodeAddress") String nodeAddress);
+    int countByStage(@Param("jobResource") String jobResource, @Param("stage") Integer stage, @Param("nodeAddress") String nodeAddress);
 
 }
