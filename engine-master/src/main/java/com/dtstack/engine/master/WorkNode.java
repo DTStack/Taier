@@ -213,7 +213,7 @@ public class WorkNode {
     public void redirectSubmitJob(JobClient jobClient, boolean judgeBlocked){
         try{
             String jobResource = jobComputeResourcePlain.getJobResource(jobClient);
-            GroupPriorityQueue groupQueue = priorityQueueMap.computeIfAbsent(jobResource, k -> new GroupPriorityQueue(jobClient.getEngineType(),
+            GroupPriorityQueue groupQueue = priorityQueueMap.computeIfAbsent(jobResource, k -> new GroupPriorityQueue(jobResource,
                     (groupPriorityQueue, startId, limited) -> {
                         return this.emitJob2GQ(jobClient.getEngineType(), groupPriorityQueue, startId, limited);
                     })
