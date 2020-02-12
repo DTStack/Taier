@@ -4,12 +4,12 @@ package com.dtstack.engine.master.impl;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.dao.RdosEngineJobDAO;
-import com.dtstack.engine.dao.RdosEngineJobCacheDAO;
+import com.dtstack.engine.dao.EngineJobCacheDao;
+import com.dtstack.engine.dao.EngineJobDao;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.pojo.ParamAction;
-import com.dtstack.engine.domain.RdosEngineJob;
-import com.dtstack.engine.domain.RdosEngineJobCache;
+import com.dtstack.engine.domain.EngineJob;
+import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.common.enums.StoppedStatus;
 import com.dtstack.engine.master.WorkNode;
 import org.apache.commons.lang3.StringUtils;
@@ -27,9 +27,9 @@ public class JobStopAction {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobStopAction.class);
 
-    private RdosEngineJobDAO batchJobDAO = new RdosEngineJobDAO();
+    private EngineJobDao batchJobDAO = new EngineJobDao();
 
-    private RdosEngineJobCacheDAO engineJobCacheDao = new RdosEngineJobCacheDAO();
+    private EngineJobCacheDao engineJobCacheDao = new EngineJobCacheDao();
 
     private WorkNode workNode;
 
@@ -48,7 +48,7 @@ public class JobStopAction {
 
         //job数量小会全都缓存在内存，如果超过 GroupPriorityQueue.QUEUE_SIZE_LIMITED 大小则会存在数据库中
         //如果存储在数据库中的job，必须判断jobcache表不为空并stage=1 并且 jobstatus=WAITENGINE
-        RdosEngineJobCache jobCache = engineJobCacheDao.getJobById(paramAction.getTaskId());
+        EngineJobCache jobCache = engineJobCacheDao.getJobById(paramAction.getTaskId());
         if(jobCache == null){
             return jobStopStatus(jobClient);
         } else if (EJobCacheStage.IN_PRIORITY_QUEUE.getStage() == jobCache.getStage()){
@@ -92,7 +92,7 @@ public class JobStopAction {
     }
 
     private Byte getJobStatus(JobClient jobClient) {
-    	RdosEngineJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
+    	EngineJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
     	if (batchJob != null) {
     		return batchJob.getStatus();
     	}
@@ -100,7 +100,7 @@ public class JobStopAction {
     }
 
     private String getEngineTaskId(JobClient jobClient) {
-    	RdosEngineJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
+    	EngineJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
     	if (batchJob != null) {
     		return batchJob.getEngineJobId();
     	}

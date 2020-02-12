@@ -11,7 +11,7 @@ import com.dtstack.engine.common.config.ConfigParse;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.KerberosUtils;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.dao.RdosNodeMachineDAO;
+import com.dtstack.engine.dao.NodeMachineDao;
 import com.dtstack.engine.master.data.BrokerDataShard;
 import com.dtstack.engine.master.data.BrokerHeartNode;
 import com.dtstack.engine.master.data.BrokersNode;
@@ -85,7 +85,7 @@ public class ZkDistributed implements Closeable{
 
 	private static List<InterProcessMutex> interProcessMutexs = Lists.newArrayList();
 
-	private RdosNodeMachineDAO rdosNodeMachineDAO = new RdosNodeMachineDAO();
+	private NodeMachineDao nodeMachineDao = new NodeMachineDao();
 
 	private ZkDistributed(Map<String,Object> nodeConfig) {
 		try {
@@ -157,7 +157,7 @@ public class ZkDistributed implements Closeable{
 		EngineDeployInfo deployInfo = new EngineDeployInfo(engineTypeList);
 		String deployInfoStr = PublicUtil.objToString(deployInfo.getDeployMap());
 
-		rdosNodeMachineDAO.insert(this.localAddress, RdosNodeMachineType.SLAVE.getType(), MachineAppType.ENGINE, deployInfoStr);
+		nodeMachineDao.insert(this.localAddress, RdosNodeMachineType.SLAVE.getType(), MachineAppType.ENGINE, deployInfoStr);
 	}
 
 	private void createLocalBrokerHeartNode() throws Exception{
@@ -285,8 +285,8 @@ public class ZkDistributed implements Closeable{
 					brokersNode.setMaster(this.localAddress);
 					this.zkClient.setData().forPath(this.brokersNode,
 							objectMapper.writeValueAsBytes(brokersNode));
-					rdosNodeMachineDAO.updateOneTypeMachineToSlave(MachineAppType.ENGINE.getType());
-					rdosNodeMachineDAO.updateMachineType(this.localAddress,RdosNodeMachineType.MASTER.getType());
+					nodeMachineDao.updateOneTypeMachineToSlave(MachineAppType.ENGINE.getType());
+					nodeMachineDao.updateMachineType(this.localAddress,RdosNodeMachineType.MASTER.getType());
 					if(zkMasterAddr != null){
 						masterAddrCache = zkMasterAddr;
 					}
@@ -488,7 +488,7 @@ public class ZkDistributed implements Closeable{
 			disableBrokerHeartNode.setSeq(STOP_HEALTH_CHECK_SEQ);
 		}
 		zkDistributed.updateSynchronizedLocalBrokerHeartNode(localAddress,disableBrokerHeartNode, true);
-		this.rdosNodeMachineDAO.disableMachineNode(localAddress, RdosNodeMachineType.SLAVE.getType());
+		this.nodeMachineDao.disableMachineNode(localAddress, RdosNodeMachineType.SLAVE.getType());
 	}
 
 	public void removeBrokerQueueNode(String address){

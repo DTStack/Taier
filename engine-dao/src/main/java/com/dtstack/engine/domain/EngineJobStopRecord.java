@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  * @author toutian
  */
-public class RdosEngineJobStopRecord extends DataObject {
+public class EngineJobStopRecord extends DataObject {
 
     private String taskId;
     private Integer taskType;
@@ -65,8 +65,8 @@ public class RdosEngineJobStopRecord extends DataObject {
         this.version = version;
     }
 
-    public static RdosEngineJobStopRecord toEntity(Map<String, Object> jsrMap) {
-        RdosEngineJobStopRecord jobStopRecord = new RdosEngineJobStopRecord();
+    public static EngineJobStopRecord toEntity(Map<String, Object> jsrMap) {
+        EngineJobStopRecord jobStopRecord = new EngineJobStopRecord();
         jobStopRecord.setTaskId(MapUtils.getString(jsrMap, "taskId"));
         jobStopRecord.setTaskType(MapUtils.getInteger(jsrMap, "taskType"));
         jobStopRecord.setEngineType(MapUtils.getString(jsrMap, "engineType"));
@@ -78,7 +78,7 @@ public class RdosEngineJobStopRecord extends DataObject {
 
     @Override
     public String toString() {
-        return "RdosEngineJobStopRecord{" +
+        return "EngineJobStopRecord{" +
                 "taskId='" + taskId + '\'' +
                 ", taskType=" + taskType +
                 ", engineType='" + engineType + '\'' +

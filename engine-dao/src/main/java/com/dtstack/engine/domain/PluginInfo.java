@@ -7,7 +7,7 @@ package com.dtstack.engine.domain;
  * @author xuchao
  */
 
-public class RdosPluginInfo extends DataObject{
+public class PluginInfo extends DataObject{
 
     private String pluginKey;
 

@@ -1,85 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.engine.mapper.RdosEngineJobMapper">
+<mapper namespace="com.dtstack.engine.dao.EngineJobDao">
 	
-	<resultMap id="rdosEngineTaskResult" type="com.dtstack.engine.domain.RdosEngineJob">
-        <id column="id" property="id" jdbcType="BIGINT" />
-        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
-        <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
-        <result column="exec_start_time" property="execStartTime" jdbcType="TIMESTAMP"/>
-        <result column="exec_end_time" property="execEndTime" jdbcType="TIMESTAMP"/>
-        <result column="exec_time" property="execTime" jdbcType="BIGINT"/>
-        <result column="job_id" property="jobId" jdbcType="VARCHAR" />
-        <result column="job_name" property="jobName" jdbcType="VARCHAR" />
-        <result column="engine_job_id" property="engineJobId" jdbcType="VARCHAR" />
-        <result column="plugin_info_id" property="pluginInfoId" jdbcType="BIGINT"/>
-        <result column="status" property="status" jdbcType="INTEGER" />
-        <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
-        <result column="engine_log" property="engineLog" jdbcType="VARCHAR"/>
-        <result column="retry_task_params" property="retryTaskParams" jdbcType="LONGVARCHAR"/>
-        <result column="log_info" property="logInfo" jdbcType="VARCHAR"/>
-        <result column="source_type" property="sourceType" jdbcType="INTEGER" />
-        <result column="application_id" property="applicationId" jdbcType="VARCHAR"/>
-        <result column="retry_num" property="retryNum" jdbcType="INTEGER" />
-         <result column="compute_type" property="computeType" jdbcType="INTEGER" />
-    </resultMap>
-	
-   <insert id="insert" parameterType="com.dtstack.engine.domain.RdosEngineJob">
+    <insert id="insert" parameterType="EngineJob" useGeneratedKeys="true" keyProperty="id">
 	   insert into rdos_engine_job(gmt_create,gmt_modified,job_id,status,source_type,job_name, compute_type)
 	   values(now(),now(),#{jobId},#{status}, #{sourceType}, #{jobName}, #{computeType})
-	   <selectKey resultType="long" keyProperty="id" order="AFTER">
-	      SELECT LAST_INSERT_ID() AS ID
-	   </selectKey>
     </insert>
 
-    <update id="jobFail" parameterType="java.util.HashMap">
+    <update id="jobFail">
         update rdos_engine_job set exec_start_time=now(), exec_end_time=now(), exec_time = 0,gmt_modified=now(),status=#{status}, log_info = #{logInfo} where job_id=#{jobId};
     </update>
 	
-   <update id="updateJobStatus" parameterType="java.util.HashMap">
+   <update id="updateJobStatus">
 	   update rdos_engine_job set gmt_modified=now(),status=#{status} where job_id=#{jobId};
    </update>
 
-    <update id="updateTaskStatusNotStopped" parameterType="java.util.HashMap">
+    <update id="updateTaskStatusNotStopped">
         update rdos_engine_job set gmt_modified=now(),status=#{status} where job_id=#{jobId} and status not in
         <foreach item="stopStatus" index="index" collection="stopStatuses" open="(" separator="," close=")">
             #{stopStatus}
         </foreach>
     </update>
 
-    <update id="updateTaskStatusCompareOld" parameterType="java.util.HashMap">
+    <update id="updateTaskStatusCompareOld">
         update rdos_engine_job set gmt_modified=now(),status=#{status},job_name=#{jobName} where job_id=#{jobId} and status=#{oldStatus};
     </update>
 
-    <update id="updateJobPluginId" parameterType="java.util.HashMap">
+    <update id="updateJobPluginId">
         update rdos_engine_job set gmt_modified=now(), plugin_info_id=#{pluginId} where job_id=#{jobId};
     </update>
    
-   <update id="updateJobEngineId" parameterType="java.util.HashMap">
+   <update id="updateJobEngineId">
 	   update rdos_engine_job set gmt_modified=now(),exec_start_time=now(),engine_job_id=#{engineId},application_id=#{appId} where job_id=#{jobId};
    </update>
 
-   <update id="updateJobEngineIdAndStatus" parameterType="java.util.HashMap">
+   <update id="updateJobEngineIdAndStatus">
        update rdos_engine_job
        set gmt_modified=now(), exec_end_time=now(),engine_job_id=#{engineId},status=#{status},application_id=#{appId}
        where job_id=#{jobId};
    </update>
 
-    <update id="updateJobSubmitFailed" parameterType="java.util.HashMap">
+    <update id="updateJobSubmitFailed">
         update rdos_engine_job
         set gmt_modified=now(),exec_start_time=now(),exec_end_time=now(),engine_job_id=#{engineId},status=#{status},application_id=#{appId}
         where job_id=#{jobId};
     </update>
    
-   <update id="updateJobStatusAndExecTime" parameterType="java.util.HashMap">
+   <update id="updateJobStatusAndExecTime">
 	   update rdos_engine_job set gmt_modified=now(), exec_end_time=now(), status=#{status}, exec_time=timestampdiff(SECOND, exec_start_time, now()) where job_id=#{jobId};
    </update>
    
-   <select id="getRdosJobByJobId" parameterType="java.util.HashMap" resultMap="rdosEngineTaskResult">
+   <select id="getRdosJobByJobId" resultType="EngineJob">
        select * from rdos_engine_job where job_id=#{jobId} and is_deleted=0;
    </select>
 
-    <select id="getRdosJobByJobIds" parameterType="java.util.HashMap" resultMap="rdosEngineTaskResult">
+    <select id="getRdosJobByJobIds" resultType="EngineJob">
         select job_id, engine_job_id,application_id,plugin_info_id,status,engine_log,log_info,exec_start_time,exec_end_time,exec_time,retry_num,retry_task_params,gmt_create,gmt_modified,is_deleted,source_type,compute_type from rdos_engine_job
         where job_id IN
         <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
@@ -100,7 +75,7 @@
         update rdos_engine_job set log_info = #{submitLog}, gmt_modified=now() where job_id = #{jobId}
     </update>
 
-    <select id="getByName" parameterType="java.lang.String" resultMap="rdosEngineTaskResult">
+    <select id="getByName" parameterType="java.lang.String" resultType="EngineJob">
         select * from rdos_engine_job where job_name = #{jobName} and is_deleted=0;
     </select>
 
@@ -108,7 +83,7 @@
         select job_name from rdos_engine_job where job_name LIKE '%${jobName}%' and is_deleted=0;
     </select>
 
-    <update id="updateRetryNum" parameterType="java.util.HashMap">
+    <update id="updateRetryNum">
 	   update rdos_engine_job set retry_num=#{retryNum} where job_id=#{jobId};
    </update>
 
@@ -127,7 +102,7 @@
         and is_deleted=0
     </select>
 
-    <select id="listJobStatus" parameterType="java.util.HashMap" resultMap="rdosEngineTaskResult">
+    <select id="listJobStatus" resultType="EngineJob">
         select job_id as jobId,status,exec_start_time as execStartTime,exec_end_time as execEndTime,exec_time as execTime,retry_num as retryNum
         from rdos_engine_job
         where gmt_modified &gt;= #{time} and compute_type = #{computeType}

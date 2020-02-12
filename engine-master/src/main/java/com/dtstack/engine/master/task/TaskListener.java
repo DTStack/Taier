@@ -4,8 +4,8 @@ import com.dtstack.engine.common.JobSubmitDealer;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.dao.RdosEngineJobDAO;
-import com.dtstack.engine.dao.RdosEngineJobCacheDAO;
+import com.dtstack.engine.dao.EngineJobCacheDao;
+import com.dtstack.engine.dao.EngineJobDao;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.util.TaskIdUtil;
@@ -28,9 +28,9 @@ public class TaskListener implements Runnable{
 
 	private LinkedBlockingQueue<JobClient> queue;
 
-	private RdosEngineJobDAO rdosbatchJobDAO = new RdosEngineJobDAO();
+	private EngineJobDao rdosbatchJobDAO = new EngineJobDao();
 
-	private RdosEngineJobCacheDAO rdosEngineJobCacheDao = new RdosEngineJobCacheDAO();
+	private EngineJobCacheDao engineJobCacheDao = new EngineJobCacheDao();
 
 	private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
 
@@ -65,7 +65,7 @@ public class TaskListener implements Runnable{
 				}else{
 					rdosbatchJobDAO.submitFail(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus(), jobClient.getJobResult().getJsonStr());
 					zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.FAILED.getStatus());
-					rdosEngineJobCacheDao.deleteJob(jobClient.getTaskId());
+					engineJobCacheDao.deleteJob(jobClient.getTaskId());
 				}
 			} catch (Throwable e) {
 				logger.error("TaskListener run error:{}", ExceptionUtil.getErrorMessage(e));

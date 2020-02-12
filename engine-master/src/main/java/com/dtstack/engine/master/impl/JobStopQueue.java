@@ -6,12 +6,12 @@ import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
-import com.dtstack.engine.dao.RdosEngineJobDAO;
-import com.dtstack.engine.dao.RdosEngineJobCacheDAO;
-import com.dtstack.engine.dao.RdosEngineJobStopRecordDAO;
-import com.dtstack.engine.domain.RdosEngineJob;
-import com.dtstack.engine.domain.RdosEngineJobCache;
-import com.dtstack.engine.domain.RdosEngineJobStopRecord;
+import com.dtstack.engine.dao.EngineJobCacheDao;
+import com.dtstack.engine.dao.EngineJobDao;
+import com.dtstack.engine.dao.EngineJobStopRecordDao;
+import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.domain.EngineJob;
+import com.dtstack.engine.domain.EngineJobStopRecord;
 import com.dtstack.engine.common.enums.RequestStart;
 import com.dtstack.engine.common.enums.StoppedStatus;
 import com.dtstack.engine.master.WorkNode;
@@ -55,11 +55,11 @@ public class JobStopQueue {
 
     private DelayBlockingQueue<StoppedJob<ParamAction>> stopJobQueue = new DelayBlockingQueue<StoppedJob<ParamAction>>(1000);
 
-    private RdosEngineJobCacheDAO jobCacheDAO = new RdosEngineJobCacheDAO();
+    private EngineJobCacheDao jobCacheDAO = new EngineJobCacheDao();
 
-    private RdosEngineJobStopRecordDAO jobStopRecordDAO = new RdosEngineJobStopRecordDAO();
+    private EngineJobStopRecordDao jobStopRecordDAO = new EngineJobStopRecordDao();
 
-    private RdosEngineJobDAO batchJobDAO = new RdosEngineJobDAO();
+    private EngineJobDao batchJobDAO = new EngineJobDao();
 
     private WorkNode workNode;
 
@@ -122,14 +122,14 @@ public class JobStopQueue {
                 try {
                     tmpStartId = startId.get();
                     //根据条件判断是否有数据存在
-                    List<RdosEngineJobStopRecord> jobStopRecords = jobStopRecordDAO.listStopJob(startId.get());
+                    List<EngineJobStopRecord> jobStopRecords = jobStopRecordDAO.listStopJob(startId.get());
                     if (jobStopRecords.isEmpty()) {
                         break;
                     }
                     //使用乐观锁防止多节点重复停止任务
-                    Iterator<RdosEngineJobStopRecord> it = jobStopRecords.iterator();
+                    Iterator<EngineJobStopRecord> it = jobStopRecords.iterator();
                     while (it.hasNext()) {
-                        RdosEngineJobStopRecord jobStopRecord = it.next();
+                        EngineJobStopRecord jobStopRecord = it.next();
                         startId.set(jobStopRecord.getId());
                         //已经被修改过version的任务代表其他节点正在处理，可以忽略
                         Integer update = jobStopRecordDAO.updateVersion(jobStopRecord.getId(), jobStopRecord.getVersion());
@@ -142,16 +142,16 @@ public class JobStopQueue {
                         break;
                     }
                     List<String> jobIds = jobStopRecords.stream().map(job -> job.getTaskId()).collect(Collectors.toList());
-                    List<RdosEngineJobCache> jobCaches = jobCacheDAO.getJobByIds(jobIds);
+                    List<EngineJobCache> jobCaches = jobCacheDAO.getJobByIds(jobIds);
 
                     //为了下面兼容异常状态的任务停止
-                    Map<String, RdosEngineJobCache> jobCacheMap = new HashMap<>(jobCaches.size());
-                    for (RdosEngineJobCache jobCache : jobCaches) {
+                    Map<String, EngineJobCache> jobCacheMap = new HashMap<>(jobCaches.size());
+                    for (EngineJobCache jobCache : jobCaches) {
                         jobCacheMap.put(jobCache.getJobId(), jobCache);
                     }
 
-                    for (RdosEngineJobStopRecord jobStopRecord : jobStopRecords) {
-                        RdosEngineJobCache jobCache = jobCacheMap.get(jobStopRecord.getTaskId());
+                    for (EngineJobStopRecord jobStopRecord : jobStopRecords) {
+                        EngineJobCache jobCache = jobCacheMap.get(jobStopRecord.getTaskId());
                         if (jobCache != null) {
                             //停止任务的时效性，发起停止操作要比任务存入jobCache表的时间要迟
                             if (jobCache.getGmtCreate().after(jobStopRecord.getGmtCreate())) {
@@ -227,7 +227,7 @@ public class JobStopQueue {
      * @return
      */
     private boolean checkCanStop(String taskId, Integer computeType) {
-    	RdosEngineJob rdosEngineBatchJob = batchJobDAO.getRdosTaskByTaskId(taskId);
+    	EngineJob rdosEngineBatchJob = batchJobDAO.getRdosTaskByTaskId(taskId);
         Integer sta = rdosEngineBatchJob.getStatus().intValue();
         return RdosTaskStatus.getCanStopStatus().contains(sta);
     }

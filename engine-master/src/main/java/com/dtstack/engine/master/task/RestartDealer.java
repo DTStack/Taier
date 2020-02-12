@@ -12,14 +12,14 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.restart.ARestartService;
 import com.dtstack.engine.common.restart.IJobRestartStrategy;
-import com.dtstack.engine.dao.RdosEngineJobDAO;
-import com.dtstack.engine.dao.RdosEngineJobRetryDAO;
-import com.dtstack.engine.dao.RdosEngineJobCacheDAO;
-import com.dtstack.engine.dao.RdosStreamTaskCheckpointDAO;
-import com.dtstack.engine.domain.RdosEngineJob;
-import com.dtstack.engine.domain.RdosEngineJobCache;
-import com.dtstack.engine.domain.RdosEngineJobRetry;
-import com.dtstack.engine.domain.RdosStreamTaskCheckpoint;
+import com.dtstack.engine.dao.EngineJobDao;
+import com.dtstack.engine.dao.EngineJobRetryDao;
+import com.dtstack.engine.dao.EngineJobCacheDao;
+import com.dtstack.engine.dao.StreamTaskCheckpointDao;
+import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.domain.EngineJob;
+import com.dtstack.engine.domain.EngineJobRetry;
+import com.dtstack.engine.domain.StreamTaskCheckpoint;
 import com.dtstack.engine.common.util.TaskIdUtil;
 import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.cache.ZkLocalCache;
@@ -50,13 +50,13 @@ public class RestartDealer {
     @Autowired
     private JobComputeResourcePlain jobComputeResourcePlain;
 
-    private RdosEngineJobCacheDAO engineJobCacheDAO = new RdosEngineJobCacheDAO();
+    private EngineJobCacheDao engineJobCacheDAO = new EngineJobCacheDao();
 
-    private RdosEngineJobDAO engineBatchJobDAO = new RdosEngineJobDAO();
+    private EngineJobDao engineBatchJobDAO = new EngineJobDao();
 
-    private RdosEngineJobRetryDAO engineJobRetryDAO = new RdosEngineJobRetryDAO();
+    private EngineJobRetryDao engineJobRetryDAO = new EngineJobRetryDao();
 
-    private RdosStreamTaskCheckpointDAO streamTaskCheckpointDAO = new RdosStreamTaskCheckpointDAO();
+    private StreamTaskCheckpointDao streamTaskCheckpointDAO = new StreamTaskCheckpointDao();
 
     private ClientCache clientCache = ClientCache.getInstance();
 
@@ -158,7 +158,7 @@ public class RestartDealer {
                 return false;
             }
 
-            RdosEngineJobCache jobCache = engineJobCacheDAO.getJobById(jobId);
+            EngineJobCache jobCache = engineJobCacheDAO.getJobById(jobId);
             if(jobCache == null){
                 LOG.error("can't get record from rdos_engine_job_cache by jobId:{}", jobId);
                 return false;
@@ -269,7 +269,7 @@ public class RestartDealer {
         }
 
         LOG.info("Set checkpoint path for job:{}", jobId);
-        RdosStreamTaskCheckpoint taskCheckpoint = streamTaskCheckpointDAO.getByTaskId(jobId);
+        StreamTaskCheckpoint taskCheckpoint = streamTaskCheckpointDAO.getByTaskId(jobId);
         if(taskCheckpoint != null){
             LOG.info("Set checkpoint path:{}", taskCheckpoint.getCheckpointSavepath());
             jobClient.setExternalPath(taskCheckpoint.getCheckpointSavepath());
@@ -290,7 +290,7 @@ public class RestartDealer {
         if(ComputeType.STREAM.getType().equals(computeType)){
             //do nothing
         }else{
-            RdosEngineJob engineBatchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobId);
+            EngineJob engineBatchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobId);
             if(engineBatchJob == null){
                 LOG.error("batch job {} can't find.", jobId);
                 return false;
@@ -310,7 +310,7 @@ public class RestartDealer {
             return false;
         }
 
-        RdosEngineJobCache jobCache = engineJobCacheDAO.getJobById(jobId);
+        EngineJobCache jobCache = engineJobCacheDAO.getJobById(jobId);
         if(jobCache == null){
             LOG.error("can't get record from rdos_engine_job_cache by jobId:{}", jobId);
             return false;
@@ -354,8 +354,8 @@ public class RestartDealer {
 
     private void jobRetryRecord(JobClient jobClient) {
         try {
-            RdosEngineJob batchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
-            RdosEngineJobRetry batchJobRetry = RdosEngineJobRetry.toEntity(batchJob, jobClient);
+            EngineJob batchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
+            EngineJobRetry batchJobRetry = EngineJobRetry.toEntity(batchJob, jobClient);
             batchJobRetry.setStatus(RdosTaskStatus.RESTARTING.getStatus().byteValue());
             engineJobRetryDAO.insert(batchJobRetry);
         } catch (Throwable e ){
@@ -381,12 +381,12 @@ public class RestartDealer {
      * @return
      */
     private Integer getAlreadyRetryNum(String jobId, Integer computeType){
-        RdosEngineJob rdosEngineBatchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobId);
+        EngineJob rdosEngineBatchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobId);
         return rdosEngineBatchJob.getRetryNum() == null ? 0 : rdosEngineBatchJob.getRetryNum();
     }
 
     private void increaseJobRetryNum(String jobId, Integer computeType){
-        RdosEngineJob rdosEngineBatchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobId);
+        EngineJob rdosEngineBatchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobId);
         Integer retryNum = rdosEngineBatchJob.getRetryNum() == null ? 0 : rdosEngineBatchJob.getRetryNum();
         retryNum++;
         engineBatchJobDAO.updateRetryNum(jobId, retryNum);

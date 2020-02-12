@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.EngineJobStopRecordDao">
+
+    <insert id="insert" parameterType="EngineJobStopRecord" useGeneratedKeys="true" keyProperty="id">
+        insert into rdos_engine_job_stop_record(task_id, task_type, engine_type, compute_type, group_name)
+        values(#{taskId}, #{taskType}, #{engineType}, #{computeType}, #{groupName})
+    </insert>
+
+    <update id="delete">
+        update rdos_engine_job_stop_record set gmt_modified = now(), is_deleted = 1 where id = #{id}
+    </update>
+
+    <update id="updateVersion">
+        update rdos_engine_job_stop_record set version = version + 1, gmt_modified = now() where id = #{id} and version = #{version}
+    </update>
+
+    <select id="listStopJob" resultType="EngineJobStopRecord">
+        select id,task_id,task_type,engine_type,compute_type,group_name,version,gmt_create,gmt_modified,is_deleted
+        from rdos_engine_job_stop_record where id > #{startId} and is_deleted =0 and version = 0
+        order by id asc limit 100;
+    </select>
+
+    <update id="resetRecord">
+        update rdos_engine_job_stop_record set version = 0, gmt_modified = now() where id = #{id} and is_deleted =0
+    </update>
+
+</mapper>

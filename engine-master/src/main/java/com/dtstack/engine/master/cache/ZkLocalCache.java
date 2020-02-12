@@ -2,8 +2,8 @@ package com.dtstack.engine.master.cache;
 
 import com.dtstack.engine.common.config.ConfigParse;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.dao.RdosEngineJobCacheDAO;
-import com.dtstack.engine.domain.RdosEngineJobCache;
+import com.dtstack.engine.dao.EngineJobCacheDao;
+import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.common.util.TaskIdUtil;
 import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.zookeeper.ZkDistributed;
@@ -40,7 +40,7 @@ public class ZkLocalCache implements Closeable {
         return zkLocalCache;
     }
 
-    private RdosEngineJobCacheDAO engineJobCacheDao = new RdosEngineJobCacheDAO();
+    private EngineJobCacheDao engineJobCacheDao = new EngineJobCacheDao();
 
     private final ReentrantLock lock = new ReentrantLock();
 
@@ -93,7 +93,7 @@ public class ZkLocalCache implements Closeable {
         //查数据库
         if (addr==null){
             String jobId = TaskIdUtil.getTaskId(zkTaskId);
-            RdosEngineJobCache jobCache = engineJobCacheDao.getJobById(jobId);
+            EngineJobCache jobCache = engineJobCacheDao.getJobById(jobId);
             if (jobCache!=null){
                 addr = jobCache.getNodeAddress();
             }

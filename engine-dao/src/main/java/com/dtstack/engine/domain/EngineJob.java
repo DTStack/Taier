@@ -1,20 +1,21 @@
 package com.dtstack.engine.domain;
 
 
-import com.dtstack.engine.common.JobClient;
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.Date;
 
 /**
- * @author toutian
+ * 
+ * @author sishu.yss
+ *
  */
-public class RdosEngineJobRetry extends DataObject {
+public class EngineJob extends DataObject{
 
     /**
      * 工作任务id
      */
     private String jobId;
+
+    private String jobName;
 
     /**
      * 执行引擎任务id
@@ -31,15 +32,21 @@ public class RdosEngineJobRetry extends DataObject {
 
     private Date execEndTime;
 
+    private Long execTime;
+
     private String logInfo;
 
     private String engineLog;
 
-    private Integer retryNum;
-
     private String retryTaskParams;
 
+    private long pluginInfoId;
+
+    private Integer sourceType;
+
     private String applicationId;
+    
+    private Integer computeType;
 
     public String getApplicationId() {
         return applicationId;
@@ -49,6 +56,7 @@ public class RdosEngineJobRetry extends DataObject {
         this.applicationId = applicationId;
     }
 
+    private Integer retryNum;
 
     public String getJobId() {
         return jobId;
@@ -56,6 +64,14 @@ public class RdosEngineJobRetry extends DataObject {
 
     public void setJobId(String jobId) {
         this.jobId = jobId;
+    }
+
+    public String getJobName() {
+        return jobName;
+    }
+
+    public void setJobName(String jobName) {
+        this.jobName = jobName;
     }
 
     public String getEngineJobId() {
@@ -75,19 +91,27 @@ public class RdosEngineJobRetry extends DataObject {
     }
 
     public Date getExecStartTime() {
-        return execStartTime;
-    }
+    return execStartTime;
+}
 
     public void setExecStartTime(Date execStartTime) {
-        this.execStartTime = execStartTime;
-    }
+    this.execStartTime = execStartTime;
+}
 
     public Date getExecEndTime() {
-        return execEndTime;
-    }
+    return execEndTime;
+}
 
     public void setExecEndTime(Date execEndTime) {
-        this.execEndTime = execEndTime;
+    this.execEndTime = execEndTime;
+}
+
+    public Long getExecTime() {
+       return execTime;
+    }
+
+    public void setExecTime(Long execTime) {
+       this.execTime = execTime;
     }
 
     public String getLogInfo() {
@@ -106,6 +130,21 @@ public class RdosEngineJobRetry extends DataObject {
         this.engineLog = engineLog;
     }
 
+    public long getPluginInfoId() {
+        return pluginInfoId;
+    }
+
+    public void setPluginInfoId(long pluginInfoId) {
+        this.pluginInfoId = pluginInfoId;
+    }
+
+    public Integer getSourceType() {
+        return sourceType;
+    }
+
+    public void setSourceType(Integer sourceType) {
+        this.sourceType = sourceType;
+    }
 
     public Integer getRetryNum() {
         return retryNum;
@@ -115,40 +154,6 @@ public class RdosEngineJobRetry extends DataObject {
         this.retryNum = retryNum;
     }
 
-    public static RdosEngineJobRetry toEntity(RdosEngineJob batchJob, JobClient jobClient) {
-        RdosEngineJobRetry batchJobRetry = new RdosEngineJobRetry();
-        batchJobRetry.setJobId(batchJob.getJobId());
-        batchJobRetry.setExecStartTime(batchJob.getExecStartTime());
-        batchJobRetry.setExecEndTime(batchJob.getExecEndTime());
-        batchJobRetry.setRetryNum(batchJob.getRetryNum());
-        batchJobRetry.setStatus(batchJob.getStatus());
-        batchJobRetry.setGmtCreate(batchJob.getGmtCreate());
-        batchJobRetry.setGmtModified(batchJob.getGmtModified());
-        batchJobRetry.setEngineLog(batchJob.getEngineLog());
-        batchJobRetry.setRetryTaskParams(batchJob.getRetryTaskParams());
-
-        if (batchJob.getApplicationId() == null) {
-            batchJobRetry.setApplicationId(jobClient.getApplicationId());
-        } else {
-            batchJobRetry.setApplicationId(batchJob.getApplicationId());
-        }
-        if (batchJob.getEngineJobId() == null) {
-            batchJobRetry.setEngineJobId(jobClient.getEngineTaskId());
-        } else {
-            batchJobRetry.setEngineJobId(batchJob.getEngineJobId());
-        }
-        try {
-            if (StringUtils.isEmpty(batchJob.getLogInfo()) && jobClient.getJobResult() != null) {
-                batchJobRetry.setLogInfo(jobClient.getJobResult().getMsgInfo());
-            } else {
-                batchJobRetry.setLogInfo(batchJob.getLogInfo());
-            }
-        } catch (Throwable e) {
-            batchJobRetry.setLogInfo("commit job error，parses log error:" + e.getMessage());
-        }
-        return batchJobRetry;
-    }
-
     public String getRetryTaskParams() {
         return retryTaskParams;
     }
@@ -156,4 +161,12 @@ public class RdosEngineJobRetry extends DataObject {
     public void setRetryTaskParams(String retryTaskParams) {
         this.retryTaskParams = retryTaskParams;
     }
+
+	public Integer getComputeType() {
+		return computeType;
+	}
+
+	public void setComputeType(Integer computeType) {
+		this.computeType = computeType;
+	}
 }

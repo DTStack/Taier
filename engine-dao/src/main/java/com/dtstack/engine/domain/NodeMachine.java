@@ -8,7 +8,7 @@ package com.dtstack.engine.domain;
  * @author sishu.yss
  *
  */
-public class RdosNodeMachine extends DataObject{
+public class NodeMachine extends DataObject{
 	
 	/**
 	 * node 主机ip
@@ -40,7 +40,7 @@ public class RdosNodeMachine extends DataObject{
 		this.appType = appType;
 	}
 
-	public RdosNodeMachine(String ip2, Long port2, Integer machineType2, String appType, String deployInfo) {
+	public NodeMachine(String ip2, Long port2, Integer machineType2, String appType, String deployInfo) {
 		this.ip=ip2;
 		this.port = port2;
 		this.machineType = machineType2;
@@ -48,7 +48,7 @@ public class RdosNodeMachine extends DataObject{
 		this.deployInfo = deployInfo;
 	}
 	
-	public RdosNodeMachine(){
+	public NodeMachine(){
 		
 	}
 

@@ -7,7 +7,7 @@ package com.dtstack.engine.domain;
  * @author xuchao
  */
 
-public class RdosEngineJobCache extends DataObject{
+public class EngineJobCache extends DataObject{
 
     private String jobId;
 

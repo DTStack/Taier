@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.master.MasterNode;
 import com.dtstack.engine.master.data.BrokerHeartNode;
-import com.dtstack.engine.dao.RdosNodeMachineDAO;
+import com.dtstack.engine.dao.NodeMachineDao;
 import com.dtstack.engine.common.enums.RdosNodeMachineType;
 import com.dtstack.engine.master.zookeeper.ZkDistributed;
 import org.slf4j.Logger;
@@ -39,7 +39,7 @@ public class HeartBeatCheckListener implements Runnable{
 
 	private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 	private MasterNode masterNode = MasterNode.getInstance();
-	private RdosNodeMachineDAO rdosNodeMachineDAO = new RdosNodeMachineDAO();
+	private NodeMachineDao nodeMachineDao = new NodeMachineDao();
 
 	private int logOutput = 0;
 
@@ -88,7 +88,7 @@ public class HeartBeatCheckListener implements Runnable{
 					continue;
 				}
 				BrokerNodeCount brokerNodeCount = brokerNodeCounts.computeIfAbsent(node, k->{
-					this.rdosNodeMachineDAO.ableMachineNode(node, RdosNodeMachineType.SLAVE.getType());
+					this.nodeMachineDao.ableMachineNode(node, RdosNodeMachineType.SLAVE.getType());
 					return new BrokerNodeCount(brokerNode);
 				});
 				//是否假死
@@ -104,7 +104,7 @@ public class HeartBeatCheckListener implements Runnable{
 				}else{
 					//对失去心跳的节点，可能在重启，进行计数
 					brokerNodeCount.increment();
-					this.rdosNodeMachineDAO.disableMachineNode(node, RdosNodeMachineType.SLAVE.getType());
+					this.nodeMachineDao.disableMachineNode(node, RdosNodeMachineType.SLAVE.getType());
 				}
 				//做宕机快速恢复的策略，异常宕机时alive=true
 				boolean dataMigration = brokerNode.getAlive() && brokerNodeCount.getCount() > OUTAGE_TIMEOUT_COUNT ||

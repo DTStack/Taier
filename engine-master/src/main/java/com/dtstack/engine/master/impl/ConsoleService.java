@@ -7,10 +7,10 @@ import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.queue.OrderLinkedBlockingQueue;
-import com.dtstack.engine.dao.RdosEngineJobDAO;
-import com.dtstack.engine.dao.RdosEngineJobCacheDAO;
-import com.dtstack.engine.domain.RdosEngineJob;
-import com.dtstack.engine.domain.RdosEngineJobCache;
+import com.dtstack.engine.dao.EngineJobDao;
+import com.dtstack.engine.dao.EngineJobCacheDao;
+import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.domain.EngineJob;
 import com.dtstack.engine.common.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.zookeeper.ZkDistributed;
@@ -40,9 +40,9 @@ public class ConsoleService {
 
     private static final Logger logger = LoggerFactory.getLogger(ConsoleService.class);
 
-    private RdosEngineJobDAO engineBatchJobDAO = new RdosEngineJobDAO();
+    private EngineJobDao engineBatchJobDAO = new EngineJobDao();
 
-    private RdosEngineJobCacheDAO engineJobCacheDao = new RdosEngineJobCacheDAO();
+    private EngineJobCacheDao engineJobCacheDao = new EngineJobCacheDao();
 
     private WorkNode workNode = WorkNode.getInstance();
 
@@ -62,14 +62,14 @@ public class ConsoleService {
         ComputeType type = ComputeType.valueOf(computeType.toUpperCase());
         Preconditions.checkNotNull(type, "parameters of computeType is STREAM/BATCH");
         String jobId = null;
-        RdosEngineJob batchJob = engineBatchJobDAO.getByName(jobName);
+        EngineJob batchJob = engineBatchJobDAO.getByName(jobName);
         if (batchJob != null) {
         	jobId = batchJob.getJobId();
         }
         if (jobId == null) {
             return null;
         }
-        RdosEngineJobCache jobCache = engineJobCacheDao.getJobById(jobId);
+        EngineJobCache jobCache = engineJobCacheDao.getJobById(jobId);
         if (jobCache == null) {
             return null;
         }
@@ -82,14 +82,14 @@ public class ConsoleService {
         ComputeType type = ComputeType.valueOf(computeType.toUpperCase());
         Preconditions.checkNotNull(type, "parameters of computeType is STREAM/BATCH");
         String jobId = null;
-        RdosEngineJob batchJob = engineBatchJobDAO.getByName(jobName);
+        EngineJob batchJob = engineBatchJobDAO.getByName(jobName);
         if (batchJob != null) {
         	jobId = batchJob.getJobId();
         }
         if (jobId == null) {
             return null;
         }
-        RdosEngineJobCache jobCache = engineJobCacheDao.getJobById(jobId);
+        EngineJobCache jobCache = engineJobCacheDao.getJobById(jobId);
         if (jobCache == null) {
             return null;
         }
@@ -261,7 +261,7 @@ public class ConsoleService {
     }
 
     private void setJobFromDB(ComputeType computeType, String jobId, Map<String, Object> jobMap) {
-        RdosEngineJob engineBatchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobId);
+        EngineJob engineBatchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobId);
         if (engineBatchJob != null) {
         	Integer status = engineBatchJob.getStatus().intValue();
         	jobMap.put("status", status);

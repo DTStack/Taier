@@ -8,10 +8,10 @@ import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.dao.RdosEngineJobDAO;
-import com.dtstack.engine.dao.RdosEngineJobCacheDAO;
-import com.dtstack.engine.dao.RdosPluginInfoDAO;
-import com.dtstack.engine.domain.RdosEngineJob;
+import com.dtstack.engine.dao.EngineJobCacheDao;
+import com.dtstack.engine.dao.EngineJobDao;
+import com.dtstack.engine.dao.PluginInfoDao;
+import com.dtstack.engine.domain.EngineJob;
 import com.dtstack.engine.common.util.TaskIdUtil;
 import com.dtstack.engine.master.bo.FailedTaskInfo;
 import com.dtstack.engine.master.cache.ZkLocalCache;
@@ -56,11 +56,11 @@ public class TaskStatusListener implements Runnable{
 	/**记录job 连续某个状态的频次*/
 	private Map<String, TaskStatusFrequency> jobStatusFrequency = Maps.newConcurrentMap();
 
-	private RdosEngineJobDAO rdosBatchEngineJobDAO = new RdosEngineJobDAO();
+	private EngineJobDao rdosBatchEngineJobDAO = new EngineJobDao();
 
-	private RdosEngineJobCacheDAO rdosEngineJobCacheDao = new RdosEngineJobCacheDAO();
+	private EngineJobCacheDao engineJobCacheDao = new EngineJobCacheDao();
 
-	private RdosPluginInfoDAO pluginInfoDao = new RdosPluginInfoDAO();
+	private PluginInfoDao pluginInfoDao = new PluginInfoDao();
 
 	/**失败任务的额外处理：当前只是对(失败任务 or 取消任务)继续更新日志或者更新checkpoint*/
     private Map<String, FailedTaskInfo> failedJobCache = Maps.newConcurrentMap();
@@ -183,7 +183,7 @@ public class TaskStatusListener implements Runnable{
 	}
 
     private void dealBatchJob(String taskId, String engineTypeName, String zkTaskId, int computeType) throws Exception {
-        RdosEngineJob rdosBatchJob  = rdosBatchEngineJobDAO.getRdosTaskByTaskId(taskId);
+        EngineJob rdosBatchJob  = rdosBatchEngineJobDAO.getRdosTaskByTaskId(taskId);
 
         if(rdosBatchJob != null){
             String engineTaskId = rdosBatchJob.getEngineJobId();
@@ -235,7 +235,7 @@ public class TaskStatusListener implements Runnable{
             }
         } else {
             zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.FAILED.getStatus());
-            rdosEngineJobCacheDao.deleteJob(taskId);
+            engineJobCacheDao.deleteJob(taskId);
         }
     }
 
@@ -284,7 +284,7 @@ public class TaskStatusListener implements Runnable{
 
         if(RdosTaskStatus.getStoppedStatus().contains(status)){
             jobStatusFrequency.remove(jobId);
-            rdosEngineJobCacheDao.deleteJob(jobId);
+            engineJobCacheDao.deleteJob(jobId);
 
             if(Strings.isNullOrEmpty(engineTaskId)){
                 return;
@@ -312,7 +312,7 @@ public class TaskStatusListener implements Runnable{
     private void dealBatchJobAfterGetStatus(Integer status, String jobId) throws ExecutionException{
         if(RdosTaskStatus.getStoppedStatus().contains(status)){
             jobStatusFrequency.remove(jobId);
-            rdosEngineJobCacheDao.deleteJob(jobId);
+            engineJobCacheDao.deleteJob(jobId);
         }
     }
 

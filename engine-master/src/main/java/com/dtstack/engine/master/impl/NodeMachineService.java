@@ -1,8 +1,8 @@
 package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.common.annotation.Param;
-import com.dtstack.engine.dao.RdosNodeMachineDAO;
-import com.dtstack.engine.domain.RdosNodeMachine;
+import com.dtstack.engine.dao.NodeMachineDao;
+import com.dtstack.engine.domain.NodeMachine;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,13 +10,13 @@ import java.util.List;
 @Service
 public class NodeMachineService {
 
-    private RdosNodeMachineDAO rdosNodeMachineDAO = new RdosNodeMachineDAO();
+    private NodeMachineDao nodeMachineDao = new NodeMachineDao();
 
-    public List<RdosNodeMachine> listByAppType(@Param("appType") String appType){
-        return rdosNodeMachineDAO.listByAppType(appType);
+    public List<NodeMachine> listByAppType(@Param("appType") String appType){
+        return nodeMachineDao.listByAppType(appType);
     }
 
-    public RdosNodeMachine getByAppTypeAndMachineType(@Param("appType") String appType, @Param("machineType") int machineType){
-        return rdosNodeMachineDAO.getByAppTypeAndMachineType(appType,machineType);
+    public NodeMachine getByAppTypeAndMachineType(@Param("appType") String appType, @Param("machineType") int machineType){
+        return nodeMachineDao.getByAppTypeAndMachineType(appType,machineType);
     }
 }

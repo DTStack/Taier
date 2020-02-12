@@ -12,12 +12,12 @@ import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.ParamAction;
-import com.dtstack.engine.dao.RdosEngineJobDAO;
-import com.dtstack.engine.dao.RdosEngineJobCacheDAO;
-import com.dtstack.engine.dao.RdosStreamTaskCheckpointDAO;
-import com.dtstack.engine.domain.RdosEngineJob;
-import com.dtstack.engine.domain.RdosEngineJobCache;
-import com.dtstack.engine.domain.RdosStreamTaskCheckpoint;
+import com.dtstack.engine.dao.EngineJobCacheDao;
+import com.dtstack.engine.dao.EngineJobDao;
+import com.dtstack.engine.dao.StreamTaskCheckpointDao;
+import com.dtstack.engine.domain.EngineJob;
+import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.domain.StreamTaskCheckpoint;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
@@ -38,11 +38,11 @@ public class StreamTaskService {
 
     private static final Logger logger = LoggerFactory.getLogger(StreamTaskService.class);
 
-    private RdosStreamTaskCheckpointDAO rdosStreamTaskCheckpointDAO = new RdosStreamTaskCheckpointDAO();
+    private StreamTaskCheckpointDao streamTaskCheckpointDao = new StreamTaskCheckpointDao();
 
-    private RdosEngineJobDAO rdosEngineJobDAO = new RdosEngineJobDAO();
+    private EngineJobDao engineJobDao = new EngineJobDao();
 
-    private RdosEngineJobCacheDAO rdosEngineJobCacheDAO = new RdosEngineJobCacheDAO();
+    private EngineJobCacheDao engineJobCacheDao = new EngineJobCacheDao();
 
     private static final String APPLICATION_REST_API_TMP = "%s/ws/v1/cluster/apps/%s";
 
@@ -50,26 +50,26 @@ public class StreamTaskService {
     /**
      * 查询checkPoint
      */
-    public List<RdosStreamTaskCheckpoint> getCheckPoint(@Param("taskId") String taskId, @Param("triggerStart") Long triggerStart, @Param("triggerEnd") Long triggerEnd){
-        return rdosStreamTaskCheckpointDAO.listByTaskIdAndRangeTime(taskId,triggerStart,triggerEnd);
+    public List<StreamTaskCheckpoint> getCheckPoint(@Param("taskId") String taskId, @Param("triggerStart") Long triggerStart, @Param("triggerEnd") Long triggerEnd){
+        return streamTaskCheckpointDao.listByTaskIdAndRangeTime(taskId,triggerStart,triggerEnd);
     }
 
-    public RdosStreamTaskCheckpoint getByTaskIdAndEngineTaskId(@Param("taskId") String taskId, @Param("engineTaskId") String engineTaskId){
-        return rdosStreamTaskCheckpointDAO.getByTaskIdAndEngineTaskId(taskId, engineTaskId);
+    public StreamTaskCheckpoint getByTaskIdAndEngineTaskId(@Param("taskId") String taskId, @Param("engineTaskId") String engineTaskId){
+        return streamTaskCheckpointDao.getByTaskIdAndEngineTaskId(taskId, engineTaskId);
     }
 
     /**
      * 查询stream job
      */
-    public List<RdosEngineJob> getEngineStreamJob(@Param("taskIds") List<String> taskIds){
-        return rdosEngineJobDAO.getRdosTaskByTaskIds(taskIds);
+    public List<EngineJob> getEngineStreamJob(@Param("taskIds") List<String> taskIds){
+        return engineJobDao.getRdosTaskByTaskIds(taskIds);
     }
 
     /**
      * 获取某个状态的任务task_id
      */
     public List<String> getTaskIdsByStatus(@Param("status") Integer status){
-        return rdosEngineJobDAO.getTaskIdsByStatus(status, ComputeType.STREAM.getType());
+        return engineJobDao.getTaskIdsByStatus(status, ComputeType.STREAM.getType());
     }
 
     /**
@@ -78,7 +78,7 @@ public class StreamTaskService {
     public Byte getTaskStatus(@Param("taskId") String taskId){
         Byte status = null;
         if (StringUtils.isNotEmpty(taskId)){
-        	RdosEngineJob engineJob = rdosEngineJobDAO.getRdosTaskByTaskId(taskId);
+        	EngineJob engineJob = engineJobDao.getRdosTaskByTaskId(taskId);
             if (engineJob != null){
                 status = engineJob.getStatus();
             }
@@ -96,7 +96,7 @@ public class StreamTaskService {
 
         Preconditions.checkState(StringUtils.isNotEmpty(taskId), "taskId can't be empty");
 
-        RdosEngineJob engineJob = rdosEngineJobDAO.getRdosTaskByTaskId(taskId);
+        EngineJob engineJob = engineJobDao.getRdosTaskByTaskId(taskId);
         Preconditions.checkNotNull(engineJob, "can't find record by taskId" + taskId);
 
         //只获取运行中的任务的log—url
@@ -118,11 +118,11 @@ public class StreamTaskService {
 
         //如何获取url前缀
         try{
-            RdosEngineJobCache rdosEngineJobCache = rdosEngineJobCacheDAO.getJobById(taskId);
-            if (rdosEngineJobCache == null) {
+            EngineJobCache engineJobCache = engineJobCacheDao.getJobById(taskId);
+            if (engineJobCache == null) {
                 throw new RdosDefineException(String.format("job:%s not exist in job cache table ", taskId),ErrorCode.JOB_CACHE_NOT_EXIST);
             }
-            String jobInfo = rdosEngineJobCache.getJobInfo();
+            String jobInfo = engineJobCache.getJobInfo();
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
 
             jobIdentifier = JobIdentifier.createInstance(engineJob.getEngineJobId(), applicationId, taskId);

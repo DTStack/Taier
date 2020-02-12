@@ -2,31 +2,14 @@ package com.dtstack.engine.master;
 
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
-import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.enums.EJobCacheStage;
-import com.dtstack.engine.common.queue.GroupInfo;
-import com.dtstack.engine.dao.RdosEngineJobCacheDAO;
-import com.dtstack.engine.dao.RdosEngineJobDAO;
-import com.dtstack.engine.domain.RdosEngineJobCache;
-import com.dtstack.engine.master.send.HttpSendClient;
+import com.dtstack.engine.dao.EngineJobCacheDao;
+import com.dtstack.engine.dao.EngineJobDao;
 import com.dtstack.engine.master.zookeeper.ZkDistributed;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.pojo.ParamAction;
-import com.dtstack.engine.master.data.BrokerDataShard;
-import com.dtstack.engine.master.data.BrokerHeartNode;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -47,11 +30,11 @@ public class MasterNode {
 
     private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 
-    private RdosEngineJobCacheDAO engineJobCacheDao = new RdosEngineJobCacheDAO();
+    private EngineJobCacheDao engineJobCacheDao = new EngineJobCacheDao();
 
-    private RdosEngineJobCacheDAO rdosEngineJobCacheDAO = new RdosEngineJobCacheDAO();
+    private EngineJobCacheDao engineJobCacheDao = new EngineJobCacheDao();
 
-    private RdosEngineJobDAO rdosEngineBatchJobDao = new RdosEngineJobDAO();
+    private EngineJobDao rdosEngineBatchJobDao = new EngineJobDao();
 
     private FaultTolerantDealer faultTolerantDealer = new FaultTolerantDealer();
 
@@ -140,13 +123,13 @@ public class MasterNode {
 //            LOG.warn("----- broker:{} 节点容灾任务开始恢复----", broker);
 //            long startId = 0L;
 //            while (true) {
-//                List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(startId, broker, null, null);
+//                List<EngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(startId, broker, null, null);
 //                if (CollectionUtils.isEmpty(jobCaches)) {
 //                    break;
 //                }
 //                Map<String, Map<String, List<String>>> priorityEngineTypes = Maps.newHashMap();
 //                List<String> submitedJobs = Lists.newArrayList();
-//                for (RdosEngineJobCache jobCache : jobCaches) {
+//                for (EngineJobCache jobCache : jobCaches) {
 //                    try {
 //                        ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
 //                        JobClient jobClient = new JobClient(paramAction);
@@ -169,7 +152,7 @@ public class MasterNode {
 //                distributeZkJobs(submitedJobs);
 //            }
 //            //在迁移任务的时候，可能出现要迁移的节点也宕机了，任务没有正常接收
-//            List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(0L, broker, null, null);
+//            List<EngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(0L, broker, null, null);
 //            if (CollectionUtils.isNotEmpty(jobCaches)) {
 //                //如果尚有任务未迁移完成，重置 broker 继续恢复
 //                zkDistributed.updateSynchronizedLocalBrokerHeartNode(broker, BrokerHeartNode.initNullBrokerHeartNode(), true);
@@ -295,7 +278,7 @@ public class MasterNode {
      * @param taskId
      */
     public void dealSubmitFailJob(String taskId, Integer computeType, String errorMsg){
-        rdosEngineJobCacheDAO.deleteJob(taskId);
+        engineJobCacheDao.deleteJob(taskId);
         rdosEngineBatchJobDao.submitFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(errorMsg));
     }
 

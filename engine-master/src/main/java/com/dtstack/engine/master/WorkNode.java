@@ -14,12 +14,12 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.queue.GroupInfo;
 import com.dtstack.engine.common.queue.GroupPriorityQueue;
-import com.dtstack.engine.dao.RdosEngineJobDAO;
-import com.dtstack.engine.dao.RdosEngineJobCacheDAO;
-import com.dtstack.engine.dao.RdosPluginInfoDAO;
-import com.dtstack.engine.domain.RdosEngineJob;
-import com.dtstack.engine.domain.RdosEngineJobCache;
-import com.dtstack.engine.domain.RdosPluginInfo;
+import com.dtstack.engine.dao.EngineJobDao;
+import com.dtstack.engine.dao.EngineJobCacheDao;
+import com.dtstack.engine.dao.PluginInfoDao;
+import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.domain.EngineJob;
+import com.dtstack.engine.domain.PluginInfo;
 import com.dtstack.engine.common.enums.RequestStart;
 import com.dtstack.engine.common.util.TaskIdUtil;
 import com.dtstack.engine.master.impl.JobStopQueue;
@@ -41,10 +41,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -72,11 +70,11 @@ public class WorkNode {
 
     private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
 
-    private RdosEngineJobCacheDAO rdosEngineJobCacheDAO = new RdosEngineJobCacheDAO();
+    private EngineJobCacheDao engineJobCacheDao = new EngineJobCacheDao();
 
-    private RdosEngineJobDAO rdosEngineBatchJobDao = new RdosEngineJobDAO();
+    private EngineJobDao rdosEngineBatchJobDao = new EngineJobDao();
 
-    private RdosPluginInfoDAO pluginInfoDao = new RdosPluginInfoDAO();
+    private PluginInfoDao pluginInfoDao = new PluginInfoDao();
 
     /**
      * key: 计算引擎类型（集群groupName + computeResourceType）
@@ -134,7 +132,7 @@ public class WorkNode {
 //        String localAddress = zkDistributed.getLocalAddress();
 //        Map<String, GroupInfo> queueInfo = Maps.newHashMap();
 //        priorityQueueMap.forEach((jobResource, priorityQueue) -> {
-//            int queueSize = rdosEngineJobCacheDAO.countGroupQueueJob(jobResource, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), localAddress);
+//            int queueSize = engineJobCacheDao.countGroupQueueJob(jobResource, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), localAddress);
 //
 //            Iterator<JobClient> it = priorityQueue.getQueue().iterator();
 //            JobClient topPriorityJob = null;
@@ -232,8 +230,8 @@ public class WorkNode {
     }
 
     public void masterSendSubmitJob(List<String> jobIds){
-        List<RdosEngineJobCache> jobCaches = rdosEngineJobCacheDAO.getJobByIds(jobIds);
-        for (RdosEngineJobCache jobCache :jobCaches){
+        List<EngineJobCache> jobCaches = engineJobCacheDao.getJobByIds(jobIds);
+        for (EngineJobCache jobCache :jobCaches){
             try {
                 ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                 JobClient jobClient = new JobClient(paramAction);
@@ -267,15 +265,15 @@ public class WorkNode {
     public void saveCache(JobClient jobClient, String jobResource, int stage, boolean insert){
         String nodeAddress = zkDistributed.getLocalAddress();
         if(insert){
-            rdosEngineJobCacheDAO.insertJob(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobResource);
+            engineJobCacheDao.insertJob(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobResource);
         } else {
-            rdosEngineJobCacheDAO.updateJobStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority());
+            engineJobCacheDao.updateJobStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority());
         }
     }
 
     public void updateCache(JobClient jobClient, int stage){
         String nodeAddress = zkDistributed.getLocalAddress();
-        rdosEngineJobCacheDAO.updateJobStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority());
+        engineJobCacheDao.updateJobStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority());
     }
 
     private void updateJobClientPluginInfo(String jobId, Integer computeType, String pluginInfoStr){
@@ -283,7 +281,7 @@ public class WorkNode {
 
         //请求不带插件的连接信息的话则默认为使用本地默认的集群配置---pluginInfoId = -1;
         if(!Strings.isNullOrEmpty(pluginInfoStr)){
-            RdosPluginInfo pluginInfo = pluginInfoDao.getByPluginInfo(pluginInfoStr);
+            PluginInfo pluginInfo = pluginInfoDao.getByPluginInfo(pluginInfoStr);
             if(pluginInfo == null){
                 refPluginInfoId = pluginInfoDao.replaceInto(pluginInfoStr, EPluginType.DYNAMIC.getType());
             }else{
@@ -305,7 +303,7 @@ public class WorkNode {
         if(result){
             String zkTaskId = TaskIdUtil.getZkTaskId(computeType, engineType, jobId);
             zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.CANCELED.getStatus());
-            rdosEngineJobCacheDAO.deleteJob(jobId);
+            engineJobCacheDao.deleteJob(jobId);
             //修改任务状态
             rdosEngineBatchJobDao.updateJobStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
             LOG.info("jobId:{} update job status to {}", jobId, RdosTaskStatus.CANCELED.getStatus());
@@ -340,7 +338,7 @@ public class WorkNode {
 
         if(paramAction.getEngineTaskId() == null){
             //从数据库补齐数据
-            RdosEngineJob batchJob = rdosEngineBatchJobDao.getRdosTaskByTaskId(paramAction.getTaskId());
+            EngineJob batchJob = rdosEngineBatchJobDao.getRdosTaskByTaskId(paramAction.getTaskId());
             if(batchJob != null){
             	paramAction.setEngineTaskId(batchJob.getEngineJobId());
             	paramAction.setApplicationId(batchJob.getApplicationId());
@@ -398,7 +396,7 @@ public class WorkNode {
      * @param taskId
      */
     public void dealSubmitFailJob(String taskId, Integer computeType, String errorMsg){
-        rdosEngineJobCacheDAO.deleteJob(taskId);
+        engineJobCacheDao.deleteJob(taskId);
         rdosEngineBatchJobDao.submitFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(errorMsg));
     }
 
@@ -425,14 +423,14 @@ public class WorkNode {
             locks = zkDistributed.acquireBrokerLock(Lists.newArrayList(localAddress),true);
             long startId = 0L;
             while (true) {
-                List<RdosEngineJobCache> jobCaches = rdosEngineJobCacheDAO.getJobForPriorityQueue(startId, localAddress, null, null);
+                List<EngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(startId, localAddress, null, null);
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     //两种情况：
                     //1. 可能本身没有jobcaches的数据
                     //2. master节点已经为此节点做了容灾
                     break;
                 }
-                for(RdosEngineJobCache jobCache : jobCaches){
+                for(EngineJobCache jobCache : jobCaches){
                     try {
                         ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                         JobClient jobClient = new JobClient(paramAction);
@@ -462,11 +460,11 @@ public class WorkNode {
             int count = 0;
             outLoop :
             while (true) {
-                List<RdosEngineJobCache> jobCaches = rdosEngineJobCacheDAO.getJobForPriorityQueue(startId, localAddress, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), engineType);
+                List<EngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(startId, localAddress, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), engineType);
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     break;
                 }
-                for(RdosEngineJobCache jobCache : jobCaches){
+                for(EngineJobCache jobCache : jobCaches){
                     try {
                         ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                         JobClient jobClient = new JobClient(paramAction);

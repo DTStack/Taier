@@ -1,43 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.engine.mapper.RdosEngineJobRetryMapper">
-
-    <resultMap id="jobRetryResult" type="com.dtstack.engine.domain.RdosEngineJobRetry">
-        <id column="id" property="id" jdbcType="BIGINT"/>
-        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP"/>
-        <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP"/>
-        <result column="exec_start_time" property="execStartTime" jdbcType="TIMESTAMP"/>
-        <result column="exec_end_time" property="execEndTime" jdbcType="TIMESTAMP"/>
-        <result column="job_id" property="jobId" jdbcType="VARCHAR"/>
-        <result column="engine_job_id" property="engineJobId" jdbcType="VARCHAR"/>
-        <result column="status" property="status" jdbcType="INTEGER"/>
-        <result column="is_deleted" property="isDeleted" jdbcType="INTEGER"/>
-        <result column="engine_log" property="engineLog" jdbcType="VARCHAR"/>
-        <result column="retry_task_params" property="retryTaskParams" jdbcType="LONGVARCHAR"/>
-        <result column="log_info" property="logInfo" jdbcType="VARCHAR"/>
-        <result column="application_id" property="applicationId" jdbcType="VARCHAR"/>
-        <result column="retry_num" property="retryNum" jdbcType="INTEGER"/>
-    </resultMap>
+<mapper namespace="com.dtstack.engine.dao.EngineJobRetryDao">
 
     <sql id="select_content_fragment">
         id,gmt_create,gmt_modified,exec_start_time,exec_end_time,job_id,engine_job_id,status,is_deleted,engine_log,log_info,application_id,retry_num,retry_task_params
     </sql>
 
-    <insert id="insert" parameterType="com.dtstack.engine.domain.RdosEngineJobRetry">
+    <insert id="insert" parameterType="EngineJobRetry" useGeneratedKeys="true" keyProperty="id">
 	   insert into rdos_engine_job_retry(gmt_create,gmt_modified,exec_start_time,exec_end_time,job_id,engine_job_id,status,engine_log,log_info,application_id,retry_num,retry_task_params)
 	   values(#{gmtCreate},#{gmtModified},#{execStartTime},#{execEndTime},#{jobId},#{engineJobId},#{status},#{engineLog},#{logInfo},#{applicationId},#{retryNum},#{retryTaskParams})
     </insert>
+
     <update id="removeByJobId">
         UPDATE `rdos_engine_job_retry` SET `is_deleted` = 1 WHERE job_id=#{jobId};
     </update>
 
-    <select id="listJobRetryByJobId" resultMap="jobRetryResult">
+    <select id="listJobRetryByJobId" resultType="EngineJobRetry">
         select
         <include refid="select_content_fragment"/>
         from rdos_engine_job_retry where job_id=#{jobId} and is_deleted=0 limit 5;
     </select>
 
-    <select id="getJobRetryByJobId" resultMap="jobRetryResult">
+    <select id="getJobRetryByJobId" resultType="EngineJobRetry">
         select
         <include refid="select_content_fragment"/>
         from rdos_engine_job_retry where job_id=#{jobId} and retry_num = #{retryNum} and is_deleted=0 limit 1;
