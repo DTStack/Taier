@@ -17,15 +17,14 @@ public interface RdosEngineJobCacheMapper {
     int insert(@Param("jobId")String jobId,  @Param("engineType") String engineType,
                @Param("computeType") Integer computeType, @Param("stage") int stage,
                @Param("jobInfo")String jobInfo, @Param("nodeAddress") String nodeAddress,
-               @Param("jobName") String jobName, @Param("jobPriority") Long jobPriority,
-               @Param("groupName") String groupName, @Param("jobResource") String jobResource);
+               //todo groupName -> jobResource
+               @Param("jobName") String jobName, @Param("jobPriority") Long jobPriority, @Param("groupName") String jobResource);
 
     int delete(@Param("jobId")String jobId);
 
     RdosEngineJobCache getOne(@Param("jobId")String jobId);
 
-    int updateStage(@Param("jobId") String jobId, @Param("stage") Integer stage,@Param("nodeAddress") String nodeAddress,
-            @Param("jobPriority") Long jobPriority, @Param("groupName") String groupName);
+    int updateStage(@Param("jobId") String jobId, @Param("stage") Integer stage,@Param("nodeAddress") String nodeAddress, @Param("jobPriority") Long jobPriority);
 
     List<RdosEngineJobCache> listByStage(@Param("startId") Long id, @Param("nodeAddress") String nodeAddress, @Param("stage") Integer stage, @Param("engineType") String engineType);
 
@@ -33,6 +32,6 @@ public interface RdosEngineJobCacheMapper {
 
     List<String> listNames(@Param("computeType") Integer computeType,@Param("jobName") String jobName);
 
-    int countByStage(@Param("jobResource") String jobResource, @Param("stage") Integer stage, @Param("nodeAddress") String nodeAddress);
+    int countByStage(@Param("groupName") String jobResource, @Param("stage") Integer stage, @Param("nodeAddress") String nodeAddress);
 
 }

@@ -18,28 +18,27 @@ import java.util.List;
 public class RdosEngineJobCacheDAO {
 
     public void insertJob(String jobId, String engineType, Integer computeType,
-                          int stage, String jobInfo, String nodeAddress, String jobName,
-                          Long jobPriority, String groupName, String jobResource){
+                          int stage, String jobInfo, String nodeAddress, String jobName, Long jobPriority, String jobResource){
 
         MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 
             @Override
             public Object execute(SqlSession sqlSession) throws Exception {
                 RdosEngineJobCacheMapper mapper = sqlSession.getMapper(RdosEngineJobCacheMapper.class);
-                mapper.insert(jobId, engineType, computeType, stage, jobInfo, nodeAddress, jobName, jobPriority, groupName, jobResource);
+                mapper.insert(jobId, engineType, computeType, stage, jobInfo, nodeAddress, jobName, jobPriority, jobResource);
                 return null;
             }
         });
     }
 
-    public void updateJobStage(String jobId, int stage, String nodeAddress, Long jobPriority, String groupName){
+    public void updateJobStage(String jobId, int stage, String nodeAddress, Long jobPriority){
 
         MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 
             @Override
             public Object execute(SqlSession sqlSession) throws Exception {
                 RdosEngineJobCacheMapper mapper = sqlSession.getMapper(RdosEngineJobCacheMapper.class);
-                mapper.updateStage(jobId, stage, nodeAddress, jobPriority, groupName);
+                mapper.updateStage(jobId, stage, nodeAddress, jobPriority);
                 return null;
             }
         });

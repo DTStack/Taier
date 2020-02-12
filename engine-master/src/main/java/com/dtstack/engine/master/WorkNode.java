@@ -264,18 +264,18 @@ public class WorkNode {
         LOG.info("jobId:{} update job status to {}", jobId, status);
     }
 
-    public void saveCache(JobClient jobClient,String jobResource, int stage, boolean insert){
+    public void saveCache(JobClient jobClient, String jobResource, int stage, boolean insert){
         String nodeAddress = zkDistributed.getLocalAddress();
         if(insert){
-            rdosEngineJobCacheDAO.insertJob(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobClient.getGroupName(), jobResource);
+            rdosEngineJobCacheDAO.insertJob(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobResource);
         } else {
-            rdosEngineJobCacheDAO.updateJobStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority(), jobClient.getGroupName());
+            rdosEngineJobCacheDAO.updateJobStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority());
         }
     }
 
     public void updateCache(JobClient jobClient, int stage){
         String nodeAddress = zkDistributed.getLocalAddress();
-        rdosEngineJobCacheDAO.updateJobStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority(), jobClient.getGroupName());
+        rdosEngineJobCacheDAO.updateJobStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority());
     }
 
     private void updateJobClientPluginInfo(String jobId, Integer computeType, String pluginInfoStr){

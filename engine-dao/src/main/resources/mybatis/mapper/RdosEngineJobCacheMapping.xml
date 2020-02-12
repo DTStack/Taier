@@ -68,7 +68,7 @@
 
     <select id="countByStage" resultType="java.lang.Integer">
         select count(1) from rdos_engine_job_cache
-        where engine_type = #{engineType} and group_name = #{groupName} and node_address = #{nodeAddress}
+        where group_name = #{groupName} and node_address = #{nodeAddress}
         <if test="stage != null">
             and stage = #{stage}
         </if>

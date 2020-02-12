@@ -324,7 +324,7 @@ public class JobClient extends OrderObject{
     }
 
     public String getGroupName() {
-        return groupName + "_" + computeType.name().toLowerCase();
+        return groupName;
     }
 
     public void setGroupName(String groupName) {

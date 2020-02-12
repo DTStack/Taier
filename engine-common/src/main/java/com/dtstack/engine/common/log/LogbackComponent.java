@@ -10,7 +10,7 @@ import ch.qos.logback.core.util.StatusPrinter;
 
 /**
  *
- * Reason: TODO ADD REASON(可选)
+ *
  * Date: 2017年02月23日 下午1:27:16
  * Company: www.dtstack.com
  * @author sishu.yss
