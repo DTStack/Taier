@@ -1,11 +1,11 @@
 package com.dtstack.engine.master.cache;
 
-import com.dtstack.engine.common.config.ConfigParse;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.common.util.TaskIdUtil;
 import com.dtstack.engine.master.WorkNode;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.zookeeper.ZkDistributed;
 import com.dtstack.engine.master.data.BrokerDataNode;
 import com.dtstack.engine.master.data.BrokerDataShard;
@@ -46,6 +46,9 @@ public class ZkLocalCache implements Closeable {
     @Autowired
     private EngineJobCacheDao engineJobCacheDao;
 
+    @Autowired
+    private EnvironmentContext environmentContext;
+
     private final ReentrantLock lock = new ReentrantLock();
 
     private WorkNode workNode;
@@ -57,10 +60,10 @@ public class ZkLocalCache implements Closeable {
     public void init(ZkDistributed zkDistributed) {
         localAddress = zkDistributed.getLocalAddress();
         localDataCache = new BrokerDataNode(new ConcurrentHashMap<String,BrokerDataShard>(16));
-        distributeQueueWeight = ConfigParse.getTaskDistributeQueueWeight();
-        distributeZkWeight = ConfigParse.getTaskDistributeZkWeight();
-        distributeDeviation = ConfigParse.getTaskDistributeDeviation();
-        perShardSize = ConfigParse.getShardSize();
+        distributeQueueWeight = 1;
+        distributeZkWeight = 1;
+        distributeDeviation = 1;
+        perShardSize = environmentContext.getShardSize();
         zkShardManager.init(zkDistributed);
     }
 

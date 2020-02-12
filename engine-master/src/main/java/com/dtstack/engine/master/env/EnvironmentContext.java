@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.env;
 
+import com.dtstack.engine.common.util.AddressUtil;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
@@ -20,20 +21,8 @@ public class EnvironmentContext {
     /**
      * =========base=======
      */
-    public String getNodeZkAddress() {
-        return environment.getProperty("nodeZkAddress");
-    }
-
-    public String getLocalAddress() {
-        return environment.getProperty("localAddress");
-    }
-
     public String getSecurity() {
         return environment.getProperty("security");
-    }
-
-    public int getQueueSize() {
-        return Integer.parseInt(environment.getProperty("queueSize", "5000"));
     }
 
     public Long getAcquireQueueJobInterval() {
@@ -230,7 +219,48 @@ public class EnvironmentContext {
     public String getHdfsTaskPath() {
         return environment.getProperty("hdfs.task.path", "/dtInsight/task/");
     }
+
     /**
-     * ====end=======
+     * ====engine=======
      */
+    public int getSlots(){
+        return Integer.parseInt(environment.getProperty("slots", "10"));
+    }
+
+    public String getLocalAddress(){
+        String localAddress = environment.getProperty("localAddress");
+        if(StringUtils.isBlank(localAddress)){
+            localAddress = String.format("%s:%s", AddressUtil.getOneIP(), "8090");
+        }
+        return localAddress;
+    }
+
+    public String getNodeZkAddress(){
+        return environment.getProperty("nodeZkAddress");
+    }
+
+    public int getExeQueueSize(){
+        return Integer.parseInt(environment.getProperty("exeQueueSize", "1"));
+    }
+
+    public boolean isDebug(){
+        return Boolean.parseBoolean(environment.getProperty("isDebug", "false"));
+    }
+
+    public int getShardSize() {
+        return Integer.parseInt(environment.getProperty("shardSize", "200"));
+    }
+
+    public int getQueueSize() {
+        return Integer.parseInt(environment.getProperty("queueSize", "500"));
+    }
+
+    public int getJobStoppedRetry(){
+        return Integer.parseInt(environment.getProperty("jobStoppedRetry", "10"));
+    }
+
+    public long getJobStoppedDelay(){
+        return Integer.parseInt(environment.getProperty("jobStoppedDelay", "3000"));
+    }
+
 }

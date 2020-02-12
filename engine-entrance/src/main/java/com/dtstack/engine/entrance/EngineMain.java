@@ -1,20 +1,28 @@
 package com.dtstack.engine.entrance;
 
-import com.dtstack.engine.common.config.ConfigParse;
 import com.dtstack.engine.common.log.LogbackComponent;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
-import com.dtstack.engine.entrance.config.EngineConfig;
-import com.dtstack.engine.master.MasterMain;
+import com.dtstack.engine.master.config.CacheConfig;
+import com.dtstack.engine.master.config.MybatisConfig;
+import com.dtstack.engine.master.config.RdosBeanConfig;
+import com.dtstack.engine.master.config.SdkConfig;
+import com.dtstack.engine.master.config.ThreadPoolConfig;
+import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.master.task.HeartBeatCheckListener;
+import com.dtstack.engine.master.task.HeartBeatListener;
+import com.dtstack.engine.master.task.LogStoreListener;
+import com.dtstack.engine.master.task.MasterListener;
 import com.dtstack.engine.master.zookeeper.ZkDistributed;
 import com.dtstack.engine.router.VertxHttpServer;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.io.Closeable;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 
@@ -31,36 +39,49 @@ public class EngineMain {
 	private static VertxHttpServer vertxHttpServer;
 
 	private static ZkDistributed zkDistributed;
+	private static EnvironmentContext environmentContext;
 
 	public static void main(String[] args) throws Exception {
 		try {
-			SystemPropertyUtil.setSystemUserDir();
+            setSystemProperty();
 			LogbackComponent.setupLogger();
-			// load config
-			Map<String,Object> nodeConfig = new EngineConfig().loadConf();
-			ConfigParse.setConfigs(nodeConfig);
+
+			ApplicationContext context = new AnnotationConfigApplicationContext(
+					EnvironmentContext.class, CacheConfig.class, ThreadPoolConfig.class,
+					MybatisConfig.class, RdosBeanConfig.class, SdkConfig.class);
+			environmentContext = (EnvironmentContext) context.getBean("environmentContext");
+
 			// init service
-			initService(nodeConfig);
+			initService(context);
 			// add hook
 			ShutdownHookUtil.addShutdownHook(EngineMain::shutdown, EngineMain.class.getSimpleName(), logger);
 		} catch (Throwable e) {
-			logger.error("Engine start error:{}", e);
+			logger.error("only engine-master start error:{}", e);
 			System.exit(-1);
 		}
 	}
 
-	
-	private static void initService(Map<String,Object> nodeConfig) throws Exception{
-		zkDistributed = ZkDistributed.createZkDistributed(nodeConfig).zkRegistration();
-		vertxHttpServer = new VertxHttpServer(null,null);
-//		WorkerMain.init(zkDistributed);
-		MasterMain.init();
+	private static void setSystemProperty() {
+		SystemPropertyUtil.setSystemUserDir();
+		SystemPropertyUtil.setHadoopUserName(environmentContext.getHadoopUserName());
+	}
 
-		logger.warn("start Engine success...");
+	private static void initService(ApplicationContext context) throws Exception {
+		zkDistributed = ZkDistributed.createZkDistributed(null).zkRegistration();
+		init();
+
+		logger.warn("start only engine-master success...");
+	}
+
+	public static void init() {
+		MasterListener masterListener = new MasterListener();
+		HeartBeatCheckListener.init(masterListener);
+		LogStoreListener.init(masterListener);
+		HeartBeatListener.init();
 	}
 
 	private static void shutdown() {
-		List<Closeable> closeables = Lists.newArrayList(vertxHttpServer, zkDistributed);
+		List<Closeable> closeables = Lists.newArrayList( zkDistributed);
 		for (Closeable closeable : closeables) {
 			if (closeables != null) {
 				try {

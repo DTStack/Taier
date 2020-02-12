@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.common.config.ConfigParse;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
@@ -15,6 +14,7 @@ import com.dtstack.engine.domain.EngineJobStopRecord;
 import com.dtstack.engine.common.enums.RequestStart;
 import com.dtstack.engine.common.enums.StoppedStatus;
 import com.dtstack.engine.master.WorkNode;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.send.HttpSendClient;
 import com.dtstack.engine.common.util.TaskIdUtil;
 import com.dtstack.engine.master.zookeeper.ZkDistributed;
@@ -66,6 +66,9 @@ public class JobStopQueue {
     @Autowired
     private EngineJobDao engineJobDao;
 
+    @Autowired
+    private EnvironmentContext environmentContext;
+
     private WorkNode workNode;
 
     private JobStopAction jobStopAction;
@@ -90,8 +93,8 @@ public class JobStopQueue {
     public JobStopQueue(WorkNode workNode) {
         this.workNode = workNode;
         this.jobStopAction = new JobStopAction(workNode);
-        this.jobStoppedRetry = ConfigParse.getJobStoppedRetry();
-        this.jobStoppedDelay = ConfigParse.getJobStoppedDelay();
+        this.jobStoppedRetry = environmentContext.getJobStoppedRetry();
+        this.jobStoppedDelay = environmentContext.getJobStoppedDelay();
     }
 
     public void start() {

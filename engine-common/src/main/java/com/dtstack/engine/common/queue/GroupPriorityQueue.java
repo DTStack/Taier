@@ -1,7 +1,6 @@
 package com.dtstack.engine.common.queue;
 
 import com.dtstack.engine.common.JobSubmitDealer;
-import com.dtstack.engine.common.config.ConfigParse;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
 
@@ -26,18 +25,18 @@ import java.util.concurrent.atomic.AtomicLong;
 public class GroupPriorityQueue {
 
     private static final int WAIT_INTERVAL = 5000;
-    private static final int QUEUE_SIZE_LIMITED = ConfigParse.getQueueSize();
     private static final int STOP_ACQUIRE_LIMITED = 10;
-
     /**
-     * queue 初始为不进行调度，但队列的负载超过 QUEUE_SIZE_LIMITED 的阈值时触发调度
+     * queue 初始为不进行调度，但队列的负载超过 queueSizeLimited 的阈值时触发调度
      */
     private AtomicBoolean running = new AtomicBoolean(false);
 
     private AtomicLong startId = new AtomicLong(0);
+
     private AtomicInteger stopAcquireCount = new AtomicInteger(0);
 
     private String jobResource;
+    private int queueSizeLimited;
     private Ingestion ingestion;
 
     private JobSubmitDealer jobSubmitDealer;
@@ -52,8 +51,9 @@ public class GroupPriorityQueue {
      * @param jobResource
      * @param ingestion
      */
-    public GroupPriorityQueue(String jobResource, Ingestion ingestion) {
+    public GroupPriorityQueue(String jobResource, int queueSizeLimited, Ingestion ingestion) {
         this.jobResource = jobResource;
+        this.queueSizeLimited = queueSizeLimited;
         this.ingestion = ingestion;
         this.jobSubmitDealer = new JobSubmitDealer(this);
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("acquireJob_" + jobResource));
@@ -93,7 +93,7 @@ public class GroupPriorityQueue {
      * @return
      */
     public boolean isBlocked() {
-        boolean blocked = running.get() || queueSize() >= QUEUE_SIZE_LIMITED;
+        boolean blocked = running.get() || queueSize() >= queueSizeLimited;
         if (blocked && !running.get()) {
             running.set(true);
             stopAcquireCount.set(0);
@@ -118,14 +118,14 @@ public class GroupPriorityQueue {
         @Override
         public void run() {
 
-            if (Boolean.FALSE == running.get() && queueSize() >= QUEUE_SIZE_LIMITED) {
+            if (Boolean.FALSE == running.get() && queueSize() >= queueSizeLimited) {
                 return;
             }
 
             /**
-             * 如果队列中的任务数量小于 ${GroupPriorityQueue.QUEUE_SIZE_LIMITED} , 在连续调度了  ${GroupPriorityQueue.STOP_ACQUIRE_LIMITED} 次都没有查询到新的数据，则停止调度
+             * 如果队列中的任务数量小于 ${GroupPriorityQueue.queueSizeLimited} , 在连续调度了  ${GroupPriorityQueue.STOP_ACQUIRE_LIMITED} 次都没有查询到新的数据，则停止调度
              */
-            long limitId = ingestion.ingestion(GroupPriorityQueue.this, startId.get(), QUEUE_SIZE_LIMITED);
+            long limitId = ingestion.ingestion(GroupPriorityQueue.this, startId.get(), queueSizeLimited);
             if (limitId != startId.get()) {
                 stopAcquireCount.set(0);
             } else if (stopAcquireCount.incrementAndGet() >= STOP_ACQUIRE_LIMITED) {

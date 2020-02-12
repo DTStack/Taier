@@ -1,9 +1,8 @@
 package com.dtstack.engine.common;
 
-import com.dtstack.engine.common.enums.EngineType;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.exception.ClientAccessException;
 import com.dtstack.engine.common.loader.DtClassLoader;
-import com.dtstack.engine.common.config.ConfigParse;
 import com.dtstack.engine.common.util.MD5Util;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -48,30 +47,6 @@ public class ClientCache {
 
     public static ClientCache getInstance(){
         return singleton;
-    }
-
-    public void initLocalPlugin(List<Map<String, Object>> clientParamsList) throws Exception {
-        for(Map<String, Object> params : clientParamsList){
-            String clientTypeStr = (String) params.get(ConfigParse.TYPE_NAME_KEY);
-            if(clientTypeStr == null){
-                throw new Exception("node.yml of engineTypes setting error, typeName must not be null!!!");
-            }
-
-            loadComputerPlugin(clientTypeStr);
-            IClient client = ClientFactory.createPluginClass(clientTypeStr);
-
-            Properties clusterProp = new Properties();
-            clusterProp.putAll(params);
-            String paramsStr = PublicUtil.objToString(params);
-            String pluginInfoMd5 = MD5Util.getMD5String(paramsStr);
-            clusterProp.put(MD5_SUM_KEY, pluginInfoMd5);
-            client.init(clusterProp);
-
-            String engineType = EngineType.getEngineTypeWithoutVersion(clientTypeStr);
-            addDefaultClient(engineType, client, pluginInfoMd5);
-        }
-
-        LOG.warn("init local plugin success,{}", defaultClientMap.toString());
     }
 
     /**
@@ -132,7 +107,7 @@ public class ClientCache {
     public IClient buildPluginClient(String pluginInfo) throws Exception {
 
         Map<String, Object> params = PublicUtil.jsonStrToObject(pluginInfo, Map.class);
-        String clientTypeStr = MathUtil.getString(params.get(ConfigParse.TYPE_NAME_KEY));
+        String clientTypeStr = MathUtil.getString(params.get(ConfigConstant.TYPE_NAME_KEY));
         loadComputerPlugin(clientTypeStr);
         return ClientFactory.createPluginClass(clientTypeStr);
     }

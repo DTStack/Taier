@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.dtstack.engine.common.config.ConfigParse;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.KerberosUtils;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -18,6 +17,7 @@ import com.dtstack.engine.master.data.BrokersNode;
 import com.dtstack.engine.master.data.BrokerQueueNode;
 import com.dtstack.engine.common.EngineDeployInfo;
 import com.dtstack.engine.common.enums.MachineAppType;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -91,6 +91,9 @@ public class ZkDistributed implements Closeable{
 	@Autowired
 	private NodeMachineDao nodeMachineDao;
 
+	@Autowired
+	private EnvironmentContext environmentContext;
+
 	private ZkDistributed(Map<String,Object> nodeConfig) {
 		try {
 			this.nodeConfig  = nodeConfig;
@@ -111,7 +114,7 @@ public class ZkDistributed implements Closeable{
 	}
 
 	private void initZk() throws IOException {
-		if (ConfigParse.getSecurity() != null){
+		if (environmentContext.getSecurity() != null){
 			initSecurity();
 		}
 		this.zkClient = CuratorFrameworkFactory.builder()
@@ -122,9 +125,11 @@ public class ZkDistributed implements Closeable{
 		logger.warn("connector zk success...");
 	}
 
-	private static void initSecurity() {
+	private void initSecurity() {
 		try {
-			Map<String, String> securityKvs = (Map<String, String>) ConfigParse.getSecurity();
+			//TODO
+//			Map<String, String> securityKvs = (Map<String, String>) environmentContext.getSecurity();
+			Map<String, String> securityKvs = null;
 			String userPrincipal = securityKvs.get("userPrincipal");
 			String userKeytabPath = securityKvs.get("userKeytabPath");
 			String krb5ConfPath = securityKvs.get("krb5ConfPath");
@@ -325,7 +330,7 @@ public class ZkDistributed implements Closeable{
 	}
 
 	private void checkDistributedConfig() throws Exception {
-		this.zkAddress = ConfigParse.getNodeZkAddress();
+		this.zkAddress = environmentContext.getNodeZkAddress();
 		if (StringUtils.isBlank(this.zkAddress)
 				|| this.zkAddress.split("/").length < 2) {
 			throw new RdosDefineException("zkAddress is error");
@@ -333,13 +338,13 @@ public class ZkDistributed implements Closeable{
 		String[] zks = this.zkAddress.split("/");
 		this.zkAddress = zks[0].trim();
 		this.distributeRootNode = String.format("/%s", zks[1].trim());
-		this.localAddress = ConfigParse.getLocalAddress();
+		this.localAddress = environmentContext.getLocalAddress();
 		if (StringUtils.isBlank(this.localAddress)||this.localAddress.split(":").length < 2) {
 			throw new RdosDefineException("localAddress is error");
 		}
 		this.brokersNode = String.format("%s/brokers", this.distributeRootNode);
 		this.localNode = String.format("%s/%s", this.brokersNode,this.localAddress);
-		this.engineTypeList = ConfigParse.getEngineTypeList();
+//		this.engineTypeList = environmentContext.getEngineTypeList();
 	}
 
 	public List<String> getBrokerDataChildren(String node) {

@@ -1,8 +1,8 @@
 package com.dtstack.engine.master;
 
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
 import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.config.ConfigParse;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -22,6 +22,7 @@ import com.dtstack.engine.domain.EngineJob;
 import com.dtstack.engine.domain.PluginInfo;
 import com.dtstack.engine.common.enums.RequestStart;
 import com.dtstack.engine.common.util.TaskIdUtil;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.JobStopQueue;
 import com.dtstack.engine.master.resource.JobComputeResourcePlain;
 import com.dtstack.engine.master.send.HttpSendClient;
@@ -80,6 +81,9 @@ public class WorkNode {
 
     @Autowired
     private PluginInfoDao pluginInfoDao;
+
+    @Autowired
+    private EnvironmentContext environmentContext;
 
     /**
      * key: 计算引擎类型（集群groupName + computeResourceType）
@@ -220,7 +224,7 @@ public class WorkNode {
 
     public void redirectSubmitJob(String jobResource, JobClient jobClient, boolean judgeBlocked){
         try{
-            GroupPriorityQueue groupQueue = priorityQueueMap.computeIfAbsent(jobResource, k -> new GroupPriorityQueue(jobResource,
+            GroupPriorityQueue groupQueue = priorityQueueMap.computeIfAbsent(jobResource, k -> new GroupPriorityQueue(jobResource, environmentContext.getQueueSize(),
                     (groupPriorityQueue, startId, limited) -> {
                         return this.emitJob2GQ(jobClient.getEngineType(), groupPriorityQueue, startId, limited);
                     })
@@ -323,7 +327,7 @@ public class WorkNode {
         try {
             String pluginInfoStr = pluginInfoDao.getPluginInfo(pluginId);
             Map<String, Object> params = PublicUtil.jsonStrToObject(pluginInfoStr, Map.class);
-            String engineType = MathUtil.getString(params.get(ConfigParse.TYPE_NAME_KEY));
+            String engineType = MathUtil.getString(params.get(ConfigConstant.TYPE_NAME_KEY));
             JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineJobId, appId, jobId);
             //从engine获取log
             engineLog = JobClient.getEngineLog(engineType, pluginInfoStr, jobIdentifier);

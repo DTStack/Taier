@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd"
+         updateCheck="false">
+
+    <diskStore path="user.dir/RodsEhCache"/>
+
+    <!--  默认的管理策略
+    maxElementsOnDisk： 在磁盘上缓存的element的最大数目，默认值为0，表示不限制。
+    eternal:设定缓存的elements是否永远不过期。如果为true，则缓存的数据始终有效，如果为false那么还要根据timeToIdleSeconds，timeToLiveSeconds判断。
+    diskPersistent： 是否在磁盘上持久化。指重启jvm后，数据是否有效。默认为false。
+    diskExpiryThreadIntervalSeconds:对象检测线程运行时间间隔。标识对象状态（过期/持久化）的线程多长时间运行一次。
+    -->
+    <defaultCache eternal="false"
+                  maxElementsInMemory="1000"
+                  overflowToDisk="false"
+                  diskPersistent="false"
+                  timeToIdleSeconds="600"
+                  timeToLiveSeconds="600"
+                  diskExpiryThreadIntervalSeconds="120"
+                  memoryStoreEvictionPolicy="LRU"/>
+
+    <!-- 组播方式：multicastGroupPort需要保证与其他系统不重复，进行端口注册  -->
+    <!-- 若因未注册，配置了重复端口，造成权限缓存数据异常，请自行解决  -->
+    <!--<cacheManagerPeerProviderFactory-->
+            <!--class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"-->
+            <!--properties="peerDiscovery=automatic,-->
+                        <!--multicastGroupAddress=230.0.0.1,-->
+                        <!--multicastGroupPort=4546, timeToLive=1"/>-->
+
+    <cache name="authEhCache"
+           eternal="false"
+           maxElementsInMemory="1000"
+           overflowToDisk="false"
+           diskPersistent="false"
+           timeToIdleSeconds="1000"
+           timeToLiveSeconds="1000"
+           memoryStoreEvictionPolicy="LRU">
+        <!--<cacheEventListenerFactory-->
+                <!--class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"-->
+                <!--properties="replicateRemovals=true"/>-->
+        <!--<bootstrapCacheLoaderFactory-->
+                <!--class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory"/>-->
+    </cache>
+
+</ehcache>

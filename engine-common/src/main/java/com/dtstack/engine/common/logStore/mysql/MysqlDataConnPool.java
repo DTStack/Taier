@@ -2,7 +2,6 @@ package com.dtstack.engine.common.logStore.mysql;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.pool.DruidPooledConnection;
-import com.dtstack.engine.common.config.ConfigParse;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,7 +96,7 @@ public class MysqlDataConnPool {
     }
 
     private void init() {
-        Map<String, String> pluginStore = ConfigParse.getPluginStoreInfo();
+        Map<String, String> pluginStore = null;
         if (pluginStore == null) {
             LOG.error("pluginStore can not be null");
             throw new RuntimeException("pluginStore can not be null");
