@@ -107,15 +107,8 @@ public class FlinkRestartService extends ARestartService {
                     return strategy;
                 }
             }
-
-            for (String emsg : UndoRestartExceptionList) {
-                if (msg.contains(emsg)) {
-                    strategy = new FlinkUndoRestart();
-                    return strategy;
-                }
-            }
         }
-        return strategy;
+        return new FlinkUndoRestart();
     }
 
     @Override
