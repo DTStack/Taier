@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.task;
 
 import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.plugin.log.LogStoreFactory;
+import com.dtstack.engine.common.logStore.LogStoreFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
