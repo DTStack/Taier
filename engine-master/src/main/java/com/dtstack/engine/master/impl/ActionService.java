@@ -25,6 +25,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -48,17 +49,23 @@ public class ActionService {
 
     private static final Logger logger = LoggerFactory.getLogger(ActionService.class);
 
-    private EngineJobDao batchJobDAO = new EngineJobDao();
+    @Autowired
+    private EngineJobDao engineJobDao;
 
-    private EngineJobCacheDao jobCacheDAO = new EngineJobCacheDao();
+    @Autowired
+    private EngineJobCacheDao engineJobCacheDao;
 
-    private EngineUniqueSignDao uniqueSignDAO = new EngineUniqueSignDao();
+    @Autowired
+    private EngineUniqueSignDao engineUniqueSignDao;
 
-    private EngineJobRetryDao batchJobRetryDAO = new EngineJobRetryDao();
+    @Autowired
+    private EngineJobRetryDao engineJobRetryDao;
 
-    private EngineJobStopRecordDao jobStopRecordDAO = new EngineJobStopRecordDao();
+    @Autowired
+    private EngineJobStopRecordDao engineJobStopRecordDao;
 
-    private StreamTaskCheckpointDao streamTaskCheckpointDao = new StreamTaskCheckpointDao();
+    @Autowired
+    private StreamTaskCheckpointDao streamTaskCheckpointDao;
 
     private WorkNode workNode = WorkNode.getInstance();
 
@@ -167,7 +174,7 @@ public class ActionService {
              * 在性能要求较高的接口上尽可能使用java原生方法，性能对比 {@link com.dtstack.engine.dtscript.entrance.test.RdosEngineJobStopRecordCompare}
              */
             EngineJobStopRecord jobStopRecord = EngineJobStopRecord.toEntity(param);
-            jobStopRecordDAO.insert(jobStopRecord);
+            engineJobStopRecordDao.insert(jobStopRecord);
         }
 
     }
@@ -196,7 +203,7 @@ public class ActionService {
     }
 
     private boolean checkSubmitted(ParamAction paramAction){
-        EngineJob rdosEngineBatchJob = batchJobDAO.getRdosTaskByTaskId(paramAction.getTaskId());
+        EngineJob rdosEngineBatchJob = engineJobDao.getRdosJobByJobId(paramAction.getTaskId());
         if(rdosEngineBatchJob != null) {
         	return true;
         }
@@ -218,11 +225,11 @@ public class ActionService {
 
         //当前任务已经存在在engine里面了
         //不允许相同任务同时在engine上运行---考虑将cache的清理放在任务结束的时候(停止，取消，完成)
-        if(jobCacheDAO.getJobById(jobId) != null){
+        if(engineJobCacheDao.getOne(jobId) != null){
             return result;
         }
         try {
-            EngineJob rdosEngineBatchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
+            EngineJob rdosEngineBatchJob = engineJobDao.getRdosJobByJobId(jobId);
             if(rdosEngineBatchJob == null){
                 rdosEngineBatchJob = new EngineJob();
                 rdosEngineBatchJob.setJobId(jobId);
@@ -230,17 +237,17 @@ public class ActionService {
                 rdosEngineBatchJob.setSourceType(paramAction.getSourceType());
                 rdosEngineBatchJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
                 rdosEngineBatchJob.setComputeType(computerType);
-                batchJobDAO.insert(rdosEngineBatchJob);
+                engineJobDao.insert(rdosEngineBatchJob);
                 result =  true;
             }else{
                 result = RdosTaskStatus.canStartAgain(rdosEngineBatchJob.getStatus());
                 if (result && ComputeType.BATCH.getType().equals(computerType)) {
-                    batchJobRetryDAO.removeByJobId(jobId);
+                    engineJobRetryDao.removeByJobId(jobId);
                 }
 
                 if(result && rdosEngineBatchJob.getStatus().intValue() != RdosTaskStatus.ENGINEACCEPTED.getStatus() ){
                     int oldStatus = rdosEngineBatchJob.getStatus().intValue();
-                    Integer update = batchJobDAO.updateTaskStatusCompareOld(rdosEngineBatchJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus(),oldStatus, paramAction.getName());
+                    Integer update = engineJobDao.updateTaskStatusCompareOld(rdosEngineBatchJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus(),oldStatus, paramAction.getName());
                     if (update==null||update!=1){
                         result = false;
                     }
@@ -264,7 +271,7 @@ public class ActionService {
             throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
-        EngineJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
+        EngineJob batchJob = engineJobDao.getRdosJobByJobId(jobId);
         if (batchJob != null) {
         	return batchJob.getStatus().intValue();
         }
@@ -281,7 +288,7 @@ public class ActionService {
         }
 
         Map<String,Integer> result = null;
-        List<EngineJob> batchJobs = batchJobDAO.getRdosTaskByTaskIds(jobIds);
+        List<EngineJob> batchJobs = engineJobDao.getRdosJobByJobIds(jobIds);
         if (CollectionUtils.isNotEmpty(batchJobs)) {
         	result = new HashMap<>(batchJobs.size());
         	for (EngineJob batchJob:batchJobs){
@@ -302,7 +309,7 @@ public class ActionService {
         }
 
         Date startTime = null;
-        EngineJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
+        EngineJob batchJob = engineJobDao.getRdosJobByJobId(jobId);
         if (batchJob != null) {
         	startTime = batchJob.getExecStartTime();
         }
@@ -322,7 +329,7 @@ public class ActionService {
         }
 
         Map<String,String> log = new HashMap<>(2);
-        EngineJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
+        EngineJob batchJob = engineJobDao.getRdosJobByJobId(jobId);
         if (batchJob != null) {
         	log.put("logInfo",batchJob.getLogInfo());
         	String engineLog = null;
@@ -347,7 +354,7 @@ public class ActionService {
         }
 
         List<Map<String,String>> logs = new ArrayList<>(5);
-        List<EngineJobRetry> batchJobRetrys = batchJobRetryDAO.listJobRetryByJobId(jobId);
+        List<EngineJobRetry> batchJobRetrys = engineJobRetryDao.listJobRetryByJobId(jobId);
         if (CollectionUtils.isNotEmpty(batchJobRetrys)) {
             batchJobRetrys.forEach(jobRetry->{
                 Map<String,String> log = new HashMap<String,String>(4);
@@ -372,9 +379,9 @@ public class ActionService {
             retryNum = 1;
         }
 
-        EngineJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
+        EngineJob batchJob = engineJobDao.getRdosJobByJobId(jobId);
         //数组库中存储的retryNum为0开始的索引位置
-        EngineJobRetry jobRetry = batchJobRetryDAO.getJobRetryByJobId(jobId, retryNum - 1);
+        EngineJobRetry jobRetry = engineJobRetryDao.getJobRetryByJobId(jobId, retryNum - 1);
         Map<String,String> log = new HashMap<String,String>(4);
         if (jobRetry != null) {
             log.put("retryNum",jobRetry.getRetryNum().toString());
@@ -383,8 +390,8 @@ public class ActionService {
             if (StringUtils.isBlank(jobRetry.getEngineLog())){
                 engineLog = workNode.getAndUpdateEngineLog(jobId, jobRetry.getEngineJobId(), jobRetry.getApplicationId(), batchJob.getPluginInfoId());
                 if (engineLog != null){
-                    logger.info("batchJobRetryDAO.updateEngineLog id:{}, jobId:{}, engineLog:{}", jobRetry.getId(), jobRetry.getJobId(), engineLog);
-                    batchJobRetryDAO.updateEngineLog(jobRetry.getId(), engineLog);
+                    logger.info("engineJobRetryDao.updateEngineLog id:{}, jobId:{}, engineLog:{}", jobRetry.getId(), jobRetry.getJobId(), engineLog);
+                    engineJobRetryDao.updateEngineLog(jobRetry.getId(), engineLog);
                 } else {
                     engineLog = "";
                 }
@@ -405,7 +412,7 @@ public class ActionService {
         }
 
         List<Map<String,Object>> result = null;
-        List<EngineJob> batchJobs = batchJobDAO.getRdosTaskByTaskIds(jobIds);
+        List<EngineJob> batchJobs = engineJobDao.getRdosJobByJobIds(jobIds);
         if (CollectionUtils.isNotEmpty(batchJobs)) {
         	result = new ArrayList<>(batchJobs.size());
         	for (EngineJob batchJob:batchJobs){
@@ -457,7 +464,7 @@ public class ActionService {
                 EngineUniqueSign generateUniqueSign = new EngineUniqueSign();
                 generateUniqueSign.setUniqueSign(sb.toString());
                 //新增操作
-                uniqueSignDAO.generate(generateUniqueSign);
+                engineUniqueSignDao.insert(generateUniqueSign);
                 break;
             }catch(Exception e){
             }
@@ -471,7 +478,7 @@ public class ActionService {
      */
     public String resetTaskStatus(@Param("jobId") String jobId, @Param("computeType") Integer computeType){
         //check jobstatus can reset
-        EngineJob rdosEngineBatchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
+        EngineJob rdosEngineBatchJob = engineJobDao.getRdosJobByJobId(jobId);
         Preconditions.checkNotNull(rdosEngineBatchJob, "not exists job with id " + jobId);
         Byte currStatus = rdosEngineBatchJob.getStatus();
 
@@ -480,10 +487,10 @@ public class ActionService {
         }
 
         //do reset status
-        batchJobDAO.updateJobEngineIdAndStatus(jobId, null, RdosTaskStatus.UNSUBMIT.getStatus(),null);
-        batchJobDAO.updateSubmitLog(jobId, "");
-        batchJobDAO.updateEngineLog(jobId, "");
-        batchJobDAO.resetExecTime(jobId);
+        engineJobDao.updateJobEngineIdAndStatus(jobId, null, RdosTaskStatus.UNSUBMIT.getStatus(),null);
+        engineJobDao.updateSubmitLog(jobId, "");
+        engineJobDao.updateEngineLog(jobId, "");
+        engineJobDao.resetExecTime(jobId);
 
         return jobId;
     }
@@ -496,7 +503,7 @@ public class ActionService {
             throw new RuntimeException("time is null");
         }
 
-        List<EngineJob> batchJobs = batchJobDAO.listJobStatus(new Timestamp(time), ComputeType.BATCH.getType());
+        List<EngineJob> batchJobs = engineJobDao.listJobStatus(new Timestamp(time), ComputeType.BATCH.getType());
         if (CollectionUtils.isNotEmpty(batchJobs)) {
             List<Map<String, Object>> result = new ArrayList<>(batchJobs.size());
             for (EngineJob batchJob : batchJobs) {
@@ -511,7 +518,7 @@ public class ActionService {
 
     public List<Map<String, Object>> listJobStatusByJobIds(@Param("jobIds") List<String> jobIds) throws Exception {
         if (CollectionUtils.isNotEmpty(jobIds)) {
-            List<EngineJob> batchJobs = batchJobDAO.getRdosTaskByTaskIds(jobIds);
+            List<EngineJob> batchJobs = engineJobDao.getRdosJobByJobIds(jobIds);
             if (CollectionUtils.isNotEmpty(batchJobs)) {
                 List<Map<String, Object>> result = new ArrayList<>(batchJobs.size());
                 for (EngineJob batchJob : batchJobs) {

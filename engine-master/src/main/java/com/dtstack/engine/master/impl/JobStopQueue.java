@@ -21,6 +21,8 @@ import com.dtstack.engine.master.zookeeper.ZkDistributed;
 import com.dtstack.engine.master.cache.ZkLocalCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -44,7 +46,7 @@ import java.util.stream.Collectors;
  *
  * @author xuchao
  */
-
+@Component
 public class JobStopQueue {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobStopQueue.class);
@@ -55,11 +57,14 @@ public class JobStopQueue {
 
     private DelayBlockingQueue<StoppedJob<ParamAction>> stopJobQueue = new DelayBlockingQueue<StoppedJob<ParamAction>>(1000);
 
-    private EngineJobCacheDao jobCacheDAO = new EngineJobCacheDao();
+    @Autowired
+    private EngineJobCacheDao engineJobCacheDao;
 
-    private EngineJobStopRecordDao jobStopRecordDAO = new EngineJobStopRecordDao();
+    @Autowired
+    private EngineJobStopRecordDao engineJobStopRecordDao;
 
-    private EngineJobDao batchJobDAO = new EngineJobDao();
+    @Autowired
+    private EngineJobDao engineJobDao;
 
     private WorkNode workNode;
 
@@ -122,7 +127,7 @@ public class JobStopQueue {
                 try {
                     tmpStartId = startId.get();
                     //根据条件判断是否有数据存在
-                    List<EngineJobStopRecord> jobStopRecords = jobStopRecordDAO.listStopJob(startId.get());
+                    List<EngineJobStopRecord> jobStopRecords = engineJobStopRecordDao.listStopJob(startId.get());
                     if (jobStopRecords.isEmpty()) {
                         break;
                     }
@@ -132,7 +137,7 @@ public class JobStopQueue {
                         EngineJobStopRecord jobStopRecord = it.next();
                         startId.set(jobStopRecord.getId());
                         //已经被修改过version的任务代表其他节点正在处理，可以忽略
-                        Integer update = jobStopRecordDAO.updateVersion(jobStopRecord.getId(), jobStopRecord.getVersion());
+                        Integer update = engineJobStopRecordDao.updateVersion(jobStopRecord.getId(), jobStopRecord.getVersion());
                         if (update != 1) {
                             it.remove();
                         }
@@ -142,7 +147,7 @@ public class JobStopQueue {
                         break;
                     }
                     List<String> jobIds = jobStopRecords.stream().map(job -> job.getTaskId()).collect(Collectors.toList());
-                    List<EngineJobCache> jobCaches = jobCacheDAO.getJobByIds(jobIds);
+                    List<EngineJobCache> jobCaches = engineJobCacheDao.getByJobIds(jobIds);
 
                     //为了下面兼容异常状态的任务停止
                     Map<String, EngineJobCache> jobCacheMap = new HashMap<>(jobCaches.size());
@@ -155,7 +160,7 @@ public class JobStopQueue {
                         if (jobCache != null) {
                             //停止任务的时效性，发起停止操作要比任务存入jobCache表的时间要迟
                             if (jobCache.getGmtCreate().after(jobStopRecord.getGmtCreate())) {
-                                jobStopRecordDAO.delete(jobStopRecord.getId());
+                                engineJobStopRecordDao.delete(jobStopRecord.getId());
                                 continue;
                             }
 
@@ -165,16 +170,16 @@ public class JobStopQueue {
                             boolean res = JobStopQueue.this.processStopJob(paramAction);
                             if (!res) {
                                 //重置version等待下一次轮询stop
-                                jobStopRecordDAO.resetRecord(jobStopRecord.getId());
+                                engineJobStopRecordDao.resetRecord(jobStopRecord.getId());
                                 startId.set(tmpStartId);
                             }
 
                         } else {
                             LOG.warn("[Unnormal Job] jobId:{}", jobStopRecord.getTaskId());
                             //jobcache表没有记录，可能任务已经停止。在update表时增加where条件不等于stopped
-                            batchJobDAO.updateTaskStatusNotStopped(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus(), RdosTaskStatus.getStoppedStatus());
+                            engineJobDao.updateTaskStatusNotStopped(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus(), RdosTaskStatus.getStoppedStatus());
                             zkLocalCache.updateLocalMemTaskStatus(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
-                            jobStopRecordDAO.delete(jobStopRecord.getId());
+                            engineJobStopRecordDao.delete(jobStopRecord.getId());
                         }
                     }
 
@@ -227,7 +232,7 @@ public class JobStopQueue {
      * @return
      */
     private boolean checkCanStop(String taskId, Integer computeType) {
-    	EngineJob rdosEngineBatchJob = batchJobDAO.getRdosTaskByTaskId(taskId);
+    	EngineJob rdosEngineBatchJob = engineJobDao.getRdosJobByJobId(taskId);
         Integer sta = rdosEngineBatchJob.getStatus().intValue();
         return RdosTaskStatus.getCanStopStatus().contains(sta);
     }
@@ -265,7 +270,7 @@ public class JobStopQueue {
                             continue;
                         default:
                     }
-                    jobStopRecordDAO.delete(stoppedJob.job.getStopJobId());
+                    engineJobStopRecordDao.delete(stoppedJob.job.getStopJobId());
                 } catch (Exception e) {
                     LOG.error("", e);
                 }

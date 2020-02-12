@@ -19,12 +19,15 @@ import org.slf4j.LoggerFactory;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.google.common.collect.Maps;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * @company: www.dtstack.com
  * @author: toutian
  * @create: 2018/9/8
  */
+@Component
 public class HeartBeatCheckListener implements Runnable{
 
 	private static final Logger logger = LoggerFactory.getLogger(HeartBeatCheckListener.class);
@@ -39,7 +42,9 @@ public class HeartBeatCheckListener implements Runnable{
 
 	private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 	private MasterNode masterNode = MasterNode.getInstance();
-	private NodeMachineDao nodeMachineDao = new NodeMachineDao();
+
+	@Autowired
+	private NodeMachineDao nodeMachineDao;
 
 	private int logOutput = 0;
 
@@ -88,7 +93,8 @@ public class HeartBeatCheckListener implements Runnable{
 					continue;
 				}
 				BrokerNodeCount brokerNodeCount = brokerNodeCounts.computeIfAbsent(node, k->{
-					this.nodeMachineDao.ableMachineNode(node, RdosNodeMachineType.SLAVE.getType());
+					//TODO
+//					this.nodeMachineDao.ableMachineNode(node, RdosNodeMachineType.SLAVE.getType());
 					return new BrokerNodeCount(brokerNode);
 				});
 				//是否假死
@@ -104,7 +110,8 @@ public class HeartBeatCheckListener implements Runnable{
 				}else{
 					//对失去心跳的节点，可能在重启，进行计数
 					brokerNodeCount.increment();
-					this.nodeMachineDao.disableMachineNode(node, RdosNodeMachineType.SLAVE.getType());
+					//TODO
+//					this.nodeMachineDao.disableMachineNode(node, RdosNodeMachineType.SLAVE.getType());
 				}
 				//做宕机快速恢复的策略，异常宕机时alive=true
 				boolean dataMigration = brokerNode.getAlive() && brokerNodeCount.getCount() > OUTAGE_TIMEOUT_COUNT ||

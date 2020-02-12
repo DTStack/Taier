@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -38,11 +39,14 @@ public class StreamTaskService {
 
     private static final Logger logger = LoggerFactory.getLogger(StreamTaskService.class);
 
-    private StreamTaskCheckpointDao streamTaskCheckpointDao = new StreamTaskCheckpointDao();
+    @Autowired
+    private StreamTaskCheckpointDao streamTaskCheckpointDao;
 
-    private EngineJobDao engineJobDao = new EngineJobDao();
+    @Autowired
+    private EngineJobDao engineJobDao;
 
-    private EngineJobCacheDao engineJobCacheDao = new EngineJobCacheDao();
+    @Autowired
+    private EngineJobCacheDao engineJobCacheDao;
 
     private static final String APPLICATION_REST_API_TMP = "%s/ws/v1/cluster/apps/%s";
 
@@ -62,7 +66,7 @@ public class StreamTaskService {
      * 查询stream job
      */
     public List<EngineJob> getEngineStreamJob(@Param("taskIds") List<String> taskIds){
-        return engineJobDao.getRdosTaskByTaskIds(taskIds);
+        return engineJobDao.getRdosJobByJobIds(taskIds);
     }
 
     /**
@@ -78,7 +82,7 @@ public class StreamTaskService {
     public Byte getTaskStatus(@Param("taskId") String taskId){
         Byte status = null;
         if (StringUtils.isNotEmpty(taskId)){
-        	EngineJob engineJob = engineJobDao.getRdosTaskByTaskId(taskId);
+        	EngineJob engineJob = engineJobDao.getRdosJobByJobId(taskId);
             if (engineJob != null){
                 status = engineJob.getStatus();
             }
@@ -96,7 +100,7 @@ public class StreamTaskService {
 
         Preconditions.checkState(StringUtils.isNotEmpty(taskId), "taskId can't be empty");
 
-        EngineJob engineJob = engineJobDao.getRdosTaskByTaskId(taskId);
+        EngineJob engineJob = engineJobDao.getRdosJobByJobId(taskId);
         Preconditions.checkNotNull(engineJob, "can't find record by taskId" + taskId);
 
         //只获取运行中的任务的log—url
@@ -118,7 +122,7 @@ public class StreamTaskService {
 
         //如何获取url前缀
         try{
-            EngineJobCache engineJobCache = engineJobCacheDao.getJobById(taskId);
+            EngineJobCache engineJobCache = engineJobCacheDao.getOne(taskId);
             if (engineJobCache == null) {
                 throw new RdosDefineException(String.format("job:%s not exist in job cache table ", taskId),ErrorCode.JOB_CACHE_NOT_EXIST);
             }

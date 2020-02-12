@@ -9,6 +9,8 @@ import com.dtstack.engine.master.zookeeper.ZkDistributed;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -22,6 +24,7 @@ import java.util.concurrent.TimeUnit;
  * author: toutian
  * create: 2018/9/1
  */
+@Component
 public class MasterNode {
 
     private static final Logger LOG = LoggerFactory.getLogger(MasterNode.class);
@@ -30,11 +33,11 @@ public class MasterNode {
 
     private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 
-    private EngineJobCacheDao engineJobCacheDao = new EngineJobCacheDao();
+    @Autowired
+    private EngineJobCacheDao engineJobCacheDao;
 
-    private EngineJobCacheDao engineJobCacheDao = new EngineJobCacheDao();
-
-    private EngineJobDao rdosEngineBatchJobDao = new EngineJobDao();
+    @Autowired
+    private EngineJobDao rdosEngineBatchJobDao;
 
     private FaultTolerantDealer faultTolerantDealer = new FaultTolerantDealer();
 
@@ -278,8 +281,8 @@ public class MasterNode {
      * @param taskId
      */
     public void dealSubmitFailJob(String taskId, Integer computeType, String errorMsg){
-        engineJobCacheDao.deleteJob(taskId);
-        rdosEngineBatchJobDao.submitFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(errorMsg));
+        engineJobCacheDao.delete(taskId);
+        rdosEngineBatchJobDao.jobFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(errorMsg));
     }
 
 }

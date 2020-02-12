@@ -23,6 +23,8 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
@@ -37,6 +39,7 @@ import java.util.concurrent.TimeUnit;
  * @author sishu.yss
  *
  */
+@Component
 public class TaskStatusListener implements Runnable{
 
 	private static Logger logger = LoggerFactory.getLogger(TaskStatusListener.class);
@@ -56,11 +59,14 @@ public class TaskStatusListener implements Runnable{
 	/**记录job 连续某个状态的频次*/
 	private Map<String, TaskStatusFrequency> jobStatusFrequency = Maps.newConcurrentMap();
 
-	private EngineJobDao rdosBatchEngineJobDAO = new EngineJobDao();
+	@Autowired
+	private EngineJobDao engineJobDao;
 
-	private EngineJobCacheDao engineJobCacheDao = new EngineJobCacheDao();
+	@Autowired
+	private EngineJobCacheDao engineJobCacheDao;
 
-	private PluginInfoDao pluginInfoDao = new PluginInfoDao();
+	@Autowired
+	private PluginInfoDao pluginInfoDao;
 
 	/**失败任务的额外处理：当前只是对(失败任务 or 取消任务)继续更新日志或者更新checkpoint*/
     private Map<String, FailedTaskInfo> failedJobCache = Maps.newConcurrentMap();
@@ -183,7 +189,7 @@ public class TaskStatusListener implements Runnable{
 	}
 
     private void dealBatchJob(String taskId, String engineTypeName, String zkTaskId, int computeType) throws Exception {
-        EngineJob rdosBatchJob  = rdosBatchEngineJobDAO.getRdosTaskByTaskId(taskId);
+        EngineJob rdosBatchJob  = engineJobDao.getRdosJobByJobId(taskId);
 
         if(rdosBatchJob != null){
             String engineTaskId = rdosBatchJob.getEngineJobId();
@@ -224,7 +230,7 @@ public class TaskStatusListener implements Runnable{
                         dealBatchJobAfterGetStatus(status, taskId);
                     }
 
-                    rdosBatchEngineJobDAO.updateJobStatusAndExecTime(taskId, status);
+                    engineJobDao.updateJobStatusAndExecTime(taskId, status);
                 }
 
                 if(RdosTaskStatus.FAILED.equals(rdosTaskStatus)){
@@ -235,7 +241,7 @@ public class TaskStatusListener implements Runnable{
             }
         } else {
             zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.FAILED.getStatus());
-            engineJobCacheDao.deleteJob(taskId);
+            engineJobCacheDao.delete(taskId);
         }
     }
 
@@ -256,7 +262,7 @@ public class TaskStatusListener implements Runnable{
     private void updateJobEngineLog(String jobId, String jobLog, Integer computeType){
 
         //写入db
-        rdosBatchEngineJobDAO.updateEngineLog(jobId, jobLog);
+        engineJobDao.updateEngineLog(jobId, jobLog);
     }
 
     private RdosTaskStatus checkNotFoundStatus(RdosTaskStatus taskStatus, String jobId){
@@ -284,7 +290,7 @@ public class TaskStatusListener implements Runnable{
 
         if(RdosTaskStatus.getStoppedStatus().contains(status)){
             jobStatusFrequency.remove(jobId);
-            engineJobCacheDao.deleteJob(jobId);
+            engineJobCacheDao.delete(jobId);
 
             if(Strings.isNullOrEmpty(engineTaskId)){
                 return;
@@ -312,7 +318,7 @@ public class TaskStatusListener implements Runnable{
     private void dealBatchJobAfterGetStatus(Integer status, String jobId) throws ExecutionException{
         if(RdosTaskStatus.getStoppedStatus().contains(status)){
             jobStatusFrequency.remove(jobId);
-            engineJobCacheDao.deleteJob(jobId);
+            engineJobCacheDao.delete(jobId);
         }
     }
 

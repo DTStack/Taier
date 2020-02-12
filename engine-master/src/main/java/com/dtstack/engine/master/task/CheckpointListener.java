@@ -23,6 +23,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -38,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * 定时清理DB中的checkpoint
  */
+@Component
 public class CheckpointListener implements Runnable {
 
     private static Logger logger = LoggerFactory.getLogger(CheckpointListener.class);
@@ -86,11 +89,11 @@ public class CheckpointListener implements Runnable {
      */
     private Map<String, Integer> taskEngineIdAndRetainedNum = Maps.newConcurrentMap();
 
-    private StreamTaskCheckpointDao streamTaskCheckpointDao = new StreamTaskCheckpointDao();
+    @Autowired
+    private StreamTaskCheckpointDao streamTaskCheckpointDao;
 
-    private EngineJobCacheDao engineJobCacheDAO = new EngineJobCacheDao();
-
-    private EngineJobCacheDao engineJobCacheDao = new EngineJobCacheDao();
+    @Autowired
+    private EngineJobCacheDao engineJobCacheDao;
 
     private Cache<String, Integer> checkpointGetTotalNumCache = CacheBuilder.newBuilder().expireAfterWrite(60 * 60, TimeUnit.SECONDS).build();
 
@@ -256,7 +259,7 @@ public class CheckpointListener implements Runnable {
             Timestamp now = new Timestamp(System.currentTimeMillis());
             streamTaskCheckpointDao.insert(jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(),"", now, lastExternalPath, "");
         } else {
-            streamTaskCheckpointDao.update(jobIdentifier.getTaskId(), lastExternalPath);
+            streamTaskCheckpointDao.updateCheckpoint(jobIdentifier.getTaskId(), lastExternalPath);
         }
     }
 
@@ -288,7 +291,7 @@ public class CheckpointListener implements Runnable {
             return false;
         }
 
-        EngineJobCache jobCache = engineJobCacheDAO.getJobById(jobId);
+        EngineJobCache jobCache = engineJobCacheDao.getOne(jobId);
         if(jobCache == null){
             logger.warn("Can not get job cache from db with jobId:[{}]", jobId);
             return false;
@@ -389,7 +392,7 @@ public class CheckpointListener implements Runnable {
         Map<String, Object> taskParams = checkpointConfigCache.get(jobId, () -> {
             Map<String, Object> result = Maps.newConcurrentMap();
 
-            EngineJobCache jobCache = engineJobCacheDao.getJobById(jobId);
+            EngineJobCache jobCache = engineJobCacheDao.getOne(jobId);
             String tps = String.valueOf(getValueFromStringInfoKey(jobCache.getJobInfo(), TASK_PARAMS_KEY));
 
             if (StringUtils.isNotEmpty(tps)) {

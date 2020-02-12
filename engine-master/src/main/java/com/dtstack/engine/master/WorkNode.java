@@ -39,6 +39,7 @@ import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.List;
@@ -56,6 +57,7 @@ import java.util.concurrent.TimeUnit;
  * Company: www.dtstack.com
  * @author xuchao
  */
+@Component
 public class WorkNode {
 
     private static final Logger LOG = LoggerFactory.getLogger(WorkNode.class);
@@ -70,11 +72,14 @@ public class WorkNode {
 
     private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
 
-    private EngineJobCacheDao engineJobCacheDao = new EngineJobCacheDao();
+    @Autowired
+    private EngineJobCacheDao engineJobCacheDao;
 
-    private EngineJobDao rdosEngineBatchJobDao = new EngineJobDao();
+    @Autowired
+    private EngineJobDao rdosEngineBatchJobDao;
 
-    private PluginInfoDao pluginInfoDao = new PluginInfoDao();
+    @Autowired
+    private PluginInfoDao pluginInfoDao;
 
     /**
      * key: 计算引擎类型（集群groupName + computeResourceType）
@@ -230,7 +235,7 @@ public class WorkNode {
     }
 
     public void masterSendSubmitJob(List<String> jobIds){
-        List<EngineJobCache> jobCaches = engineJobCacheDao.getJobByIds(jobIds);
+        List<EngineJobCache> jobCaches = engineJobCacheDao.getByJobIds(jobIds);
         for (EngineJobCache jobCache :jobCaches){
             try {
                 ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
@@ -265,15 +270,15 @@ public class WorkNode {
     public void saveCache(JobClient jobClient, String jobResource, int stage, boolean insert){
         String nodeAddress = zkDistributed.getLocalAddress();
         if(insert){
-            engineJobCacheDao.insertJob(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobResource);
+            engineJobCacheDao.insert(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobResource);
         } else {
-            engineJobCacheDao.updateJobStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority());
+            engineJobCacheDao.updateStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority());
         }
     }
 
     public void updateCache(JobClient jobClient, int stage){
         String nodeAddress = zkDistributed.getLocalAddress();
-        engineJobCacheDao.updateJobStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority());
+        engineJobCacheDao.updateStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority());
     }
 
     private void updateJobClientPluginInfo(String jobId, Integer computeType, String pluginInfoStr){
@@ -281,9 +286,10 @@ public class WorkNode {
 
         //请求不带插件的连接信息的话则默认为使用本地默认的集群配置---pluginInfoId = -1;
         if(!Strings.isNullOrEmpty(pluginInfoStr)){
-            PluginInfo pluginInfo = pluginInfoDao.getByPluginInfo(pluginInfoStr);
+            PluginInfo pluginInfo = pluginInfoDao.getByKey(pluginInfoStr);
             if(pluginInfo == null){
-                refPluginInfoId = pluginInfoDao.replaceInto(pluginInfoStr, EPluginType.DYNAMIC.getType());
+                //TODO
+//                refPluginInfoId = pluginInfoDao.replaceInto(pluginInfoStr, EPluginType.DYNAMIC.getType());
             }else{
                 refPluginInfoId = pluginInfo.getId();
             }
@@ -303,7 +309,7 @@ public class WorkNode {
         if(result){
             String zkTaskId = TaskIdUtil.getZkTaskId(computeType, engineType, jobId);
             zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.CANCELED.getStatus());
-            engineJobCacheDao.deleteJob(jobId);
+            engineJobCacheDao.delete(jobId);
             //修改任务状态
             rdosEngineBatchJobDao.updateJobStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
             LOG.info("jobId:{} update job status to {}", jobId, RdosTaskStatus.CANCELED.getStatus());
@@ -338,7 +344,7 @@ public class WorkNode {
 
         if(paramAction.getEngineTaskId() == null){
             //从数据库补齐数据
-            EngineJob batchJob = rdosEngineBatchJobDao.getRdosTaskByTaskId(paramAction.getTaskId());
+            EngineJob batchJob = rdosEngineBatchJobDao.getRdosJobByJobId(paramAction.getTaskId());
             if(batchJob != null){
             	paramAction.setEngineTaskId(batchJob.getEngineJobId());
             	paramAction.setApplicationId(batchJob.getApplicationId());
@@ -396,8 +402,8 @@ public class WorkNode {
      * @param taskId
      */
     public void dealSubmitFailJob(String taskId, Integer computeType, String errorMsg){
-        engineJobCacheDao.deleteJob(taskId);
-        rdosEngineBatchJobDao.submitFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(errorMsg));
+        engineJobCacheDao.delete(taskId);
+        rdosEngineBatchJobDao.jobFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(errorMsg));
     }
 
     class RecoverDealer implements Runnable{
@@ -423,7 +429,7 @@ public class WorkNode {
             locks = zkDistributed.acquireBrokerLock(Lists.newArrayList(localAddress),true);
             long startId = 0L;
             while (true) {
-                List<EngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(startId, localAddress, null, null);
+                List<EngineJobCache> jobCaches = engineJobCacheDao.listByStage(startId, localAddress, null, null);
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     //两种情况：
                     //1. 可能本身没有jobcaches的数据
@@ -460,7 +466,7 @@ public class WorkNode {
             int count = 0;
             outLoop :
             while (true) {
-                List<EngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(startId, localAddress, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), engineType);
+                List<EngineJobCache> jobCaches = engineJobCacheDao.listByStage(startId, localAddress, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), engineType);
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     break;
                 }

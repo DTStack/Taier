@@ -15,6 +15,8 @@ import com.dtstack.engine.master.WorkNode;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Reason:
@@ -23,13 +25,16 @@ import org.slf4j.LoggerFactory;
  * @author xuchao
  */
 
+@Component
 public class JobStopAction {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobStopAction.class);
 
-    private EngineJobDao batchJobDAO = new EngineJobDao();
+    @Autowired
+    private EngineJobDao engineJobDao;
 
-    private EngineJobCacheDao engineJobCacheDao = new EngineJobCacheDao();
+    @Autowired
+    private EngineJobCacheDao engineJobCacheDao;
 
     private WorkNode workNode;
 
@@ -48,7 +53,7 @@ public class JobStopAction {
 
         //job数量小会全都缓存在内存，如果超过 GroupPriorityQueue.QUEUE_SIZE_LIMITED 大小则会存在数据库中
         //如果存储在数据库中的job，必须判断jobcache表不为空并stage=1 并且 jobstatus=WAITENGINE
-        EngineJobCache jobCache = engineJobCacheDao.getJobById(paramAction.getTaskId());
+        EngineJobCache jobCache = engineJobCacheDao.getOne(paramAction.getTaskId());
         if(jobCache == null){
             return jobStopStatus(jobClient);
         } else if (EJobCacheStage.IN_PRIORITY_QUEUE.getStage() == jobCache.getStage()){
@@ -92,7 +97,7 @@ public class JobStopAction {
     }
 
     private Byte getJobStatus(JobClient jobClient) {
-    	EngineJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
+    	EngineJob batchJob = engineJobDao.getRdosJobByJobId(jobClient.getTaskId());
     	if (batchJob != null) {
     		return batchJob.getStatus();
     	}
@@ -100,7 +105,7 @@ public class JobStopAction {
     }
 
     private String getEngineTaskId(JobClient jobClient) {
-    	EngineJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
+    	EngineJob batchJob = engineJobDao.getRdosJobByJobId(jobClient.getTaskId());
     	if (batchJob != null) {
     		return batchJob.getEngineJobId();
     	}
@@ -108,8 +113,8 @@ public class JobStopAction {
     }
 
     private void removeJob(JobClient jobClient) {
-        engineJobCacheDao.deleteJob(jobClient.getTaskId());
-        batchJobDAO.updateJobStatus(jobClient.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
+        engineJobCacheDao.delete(jobClient.getTaskId());
+        engineJobDao.updateJobStatusAndExecTime(jobClient.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
         LOG.info("jobId:{} update job status to {}", jobClient.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
     }
 

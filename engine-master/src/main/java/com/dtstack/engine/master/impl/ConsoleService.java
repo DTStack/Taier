@@ -18,6 +18,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -40,9 +41,11 @@ public class ConsoleService {
 
     private static final Logger logger = LoggerFactory.getLogger(ConsoleService.class);
 
-    private EngineJobDao engineBatchJobDAO = new EngineJobDao();
+    @Autowired
+    private EngineJobDao engineJobDao;
 
-    private EngineJobCacheDao engineJobCacheDao = new EngineJobCacheDao();
+    @Autowired
+    private EngineJobCacheDao engineJobCacheDao;
 
     private WorkNode workNode = WorkNode.getInstance();
 
@@ -62,14 +65,14 @@ public class ConsoleService {
         ComputeType type = ComputeType.valueOf(computeType.toUpperCase());
         Preconditions.checkNotNull(type, "parameters of computeType is STREAM/BATCH");
         String jobId = null;
-        EngineJob batchJob = engineBatchJobDAO.getByName(jobName);
+        EngineJob batchJob = engineJobDao.getByName(jobName);
         if (batchJob != null) {
         	jobId = batchJob.getJobId();
         }
         if (jobId == null) {
             return null;
         }
-        EngineJobCache jobCache = engineJobCacheDao.getJobById(jobId);
+        EngineJobCache jobCache = engineJobCacheDao.getOne(jobId);
         if (jobCache == null) {
             return null;
         }
@@ -82,14 +85,14 @@ public class ConsoleService {
         ComputeType type = ComputeType.valueOf(computeType.toUpperCase());
         Preconditions.checkNotNull(type, "parameters of computeType is STREAM/BATCH");
         String jobId = null;
-        EngineJob batchJob = engineBatchJobDAO.getByName(jobName);
+        EngineJob batchJob = engineJobDao.getByName(jobName);
         if (batchJob != null) {
         	jobId = batchJob.getJobId();
         }
         if (jobId == null) {
             return null;
         }
-        EngineJobCache jobCache = engineJobCacheDao.getJobById(jobId);
+        EngineJobCache jobCache = engineJobCacheDao.getOne(jobId);
         if (jobCache == null) {
             return null;
         }
@@ -261,7 +264,7 @@ public class ConsoleService {
     }
 
     private void setJobFromDB(ComputeType computeType, String jobId, Map<String, Object> jobMap) {
-        EngineJob engineBatchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobId);
+        EngineJob engineBatchJob = engineJobDao.getRdosJobByJobId(jobId);
         if (engineBatchJob != null) {
         	Integer status = engineBatchJob.getStatus().intValue();
         	jobMap.put("status", status);

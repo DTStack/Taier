@@ -14,6 +14,8 @@ import com.dtstack.engine.master.cache.ZkLocalCache;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -22,15 +24,18 @@ import java.util.concurrent.LinkedBlockingQueue;
  * author: toutian
  * create: 2020/2/10
  */
+@Component
 public class TaskListener implements Runnable{
 
 	private static Logger logger = LoggerFactory.getLogger(TaskListener.class);
 
 	private LinkedBlockingQueue<JobClient> queue;
 
-	private EngineJobDao rdosbatchJobDAO = new EngineJobDao();
+	@Autowired
+	private EngineJobDao engineJobDao;
 
-	private EngineJobCacheDao engineJobCacheDao = new EngineJobCacheDao();
+	@Autowired
+	private EngineJobCacheDao engineJobCacheDao;
 
 	private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
 
@@ -57,15 +62,15 @@ public class TaskListener implements Runnable{
 				if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
 					JobResult jobResult = jobClient.getJobResult();
 					String appId = jobResult.getData(JobResult.EXT_ID_KEY);
-					rdosbatchJobDAO.updateJobEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId(),appId);
-					rdosbatchJobDAO.updateSubmitLog(jobClient.getTaskId(), jobClient.getJobResult().getJsonStr());
+					engineJobDao.updateJobEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId(),appId);
+					engineJobDao.updateSubmitLog(jobClient.getTaskId(), jobClient.getJobResult().getJsonStr());
 					WorkNode.getInstance().updateCache(jobClient, EJobCacheStage.IN_SUBMIT_QUEUE.getStage());
 					jobClient.doStatusCallBack(RdosTaskStatus.SUBMITTED.getStatus());
 					zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.SUBMITTED.getStatus());
 				}else{
-					rdosbatchJobDAO.submitFail(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus(), jobClient.getJobResult().getJsonStr());
+					engineJobDao.jobFail(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus(), jobClient.getJobResult().getJsonStr());
 					zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.FAILED.getStatus());
-					engineJobCacheDao.deleteJob(jobClient.getTaskId());
+					engineJobCacheDao.delete(jobClient.getTaskId());
 				}
 			} catch (Throwable e) {
 				logger.error("TaskListener run error:{}", ExceptionUtil.getErrorMessage(e));

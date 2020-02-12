@@ -9,6 +9,8 @@ import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.zookeeper.ZkDistributed;
 import com.dtstack.engine.master.data.BrokerDataNode;
 import com.dtstack.engine.master.data.BrokerDataShard;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -24,6 +26,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * author: toutian
  * create: 2018/9/6
  */
+@Component
 public class ZkLocalCache implements Closeable {
 
     private volatile BrokerDataNode localDataCache;
@@ -40,7 +43,8 @@ public class ZkLocalCache implements Closeable {
         return zkLocalCache;
     }
 
-    private EngineJobCacheDao engineJobCacheDao = new EngineJobCacheDao();
+    @Autowired
+    private EngineJobCacheDao engineJobCacheDao;
 
     private final ReentrantLock lock = new ReentrantLock();
 
@@ -93,7 +97,7 @@ public class ZkLocalCache implements Closeable {
         //查数据库
         if (addr==null){
             String jobId = TaskIdUtil.getTaskId(zkTaskId);
-            EngineJobCache jobCache = engineJobCacheDao.getJobById(jobId);
+            EngineJobCache jobCache = engineJobCacheDao.getOne(jobId);
             if (jobCache!=null){
                 addr = jobCache.getNodeAddress();
             }
