@@ -131,6 +131,7 @@ public class JobSubmitExecutor implements Closeable{
                         String engineType = priorityQueueEntry.getKey();
                         String groupName = queueEntry.getKey();
                         OrderLinkedBlockingQueue<JobClient> queue = queueEntry.getValue();
+                        logger.info("submitDealer deal engineType:{} groupName:{} queueSize:{}", engineType, groupName, queue.size());
                         try {
                             submitJobClient(engineType,groupName,queue);
                         } catch (Exception e2){
@@ -150,11 +151,14 @@ public class JobSubmitExecutor implements Closeable{
             Iterator<JobClient> it = priorityQueue.iterator();
             while (it.hasNext()){
                 JobClient jobClient = it.next();
+
                 //重试任务时间未满足条件
                 if (jobClient.isJobRetryWaiting()){
+                    logger.info("jobId:{} job still in RetryWaiting", jobClient.getTaskId());
                     continue;
                 }
                 if (!checkLocalPriorityIsMax(engineType,groupName,jobClient.getPriority())){
+                    logger.info("jobId:{} checkLocalPriorityIsMax is false, wait other node job which priority higher.", jobClient.getTaskId());
                     break;
                 }
                 //提交任务
