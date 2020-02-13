@@ -9,7 +9,6 @@ import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -24,7 +23,12 @@ public class YarnAppStatusMonitor implements Runnable{
 
     private static final Logger LOG = LoggerFactory.getLogger(YarnAppStatusMonitor.class);
 
-    private static final Integer CHECK_INTERVAL = 2 * 1000;
+    /**
+     * 检查时间不需要太频繁，默认10s/次
+     */
+    private static final Integer CHECK_INTERVAL = 10 * 1000;
+
+    private static final Integer RETRY_WAIT = 10 * 1000;
 
     private volatile AtomicBoolean run = new AtomicBoolean(true);
 
@@ -77,6 +81,9 @@ public class YarnAppStatusMonitor implements Runnable{
                                 }
                         }
                         lastAppState = appState;
+                        if (!clusterClientManager.getIsClientOn()){
+                            continue;
+                        }
                     } else {
                         LOG.error("Yarn client is no longer in state STARTED, prepare to stop Flink yarn-session client.");
                         clusterClientManager.setIsClientOn(false);
@@ -87,6 +94,7 @@ public class YarnAppStatusMonitor implements Runnable{
                         clusterClientManager.setIsClientOn(false);
                     }
                 }else {
+                    //retry时有一段等待时间，确保session正常运行。
                     retry();
                 }
             }catch (Throwable t){
@@ -113,6 +121,8 @@ public class YarnAppStatusMonitor implements Runnable{
             startTime = System.currentTimeMillis();
             this.lastAppState = YarnApplicationState.NEW;
             clusterClientManager.initClusterClient();
+
+            Thread.sleep(RETRY_WAIT);
         } catch (Exception e) {
             LOG.error("", e);
         }
