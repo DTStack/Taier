@@ -30,7 +30,7 @@ public class YarnAppStatusMonitor implements Runnable{
 
     private static final Integer RETRY_WAIT = 10 * 1000;
 
-    private volatile AtomicBoolean run = new AtomicBoolean(true);
+    private AtomicBoolean run = new AtomicBoolean(true);
 
     private static int MAX_RETRY_NUMBER = 2;
 
