@@ -53,7 +53,6 @@ public class CommonResource {
 
         EngineType engineType = EngineType.getEngineType(jobClient.getEngineType());
         switch (engineType) {
-            case Flink:
             case Spark:
             case Learning:
             case DtScript:

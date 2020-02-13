@@ -40,9 +40,7 @@ public class GroupPriorityQueue {
     private Ingestion ingestion;
 
     private JobSubmitDealer jobSubmitDealer;
-    /**
-     * key: groupName
-     */
+
     private OrderLinkedBlockingQueue<JobClient> queue = new OrderLinkedBlockingQueue<>();
 
     /**

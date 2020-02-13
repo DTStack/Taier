@@ -1,6 +1,8 @@
 package com.dtstack.engine.master.resource;
 
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.master.env.EnvironmentContext;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -12,11 +14,27 @@ import org.springframework.stereotype.Component;
 @Component
 public class JobComputeResourcePlain {
 
+    private static final String SPLIT = "_";
+
     @Autowired
     private CommonResource commonResource;
 
+    @Autowired
+    private EnvironmentContext environmentContext;
+
     public String getJobResource(JobClient jobClient) {
-        ComputeResourceType computeResourceType = commonResource.getComputeResourceType(jobClient);
-        return jobClient.getGroupName() + "_" + computeResourceType.name();
+        ComputeResourceType computeResourceType = commonResource.newInstance(jobClient);
+
+        String plainType = environmentContext.getComputeResourcePlain();
+        String jobResource = null;
+        if (ComputeResourcePlain.Cluster.name().equalsIgnoreCase(plainType)) {
+            jobResource = StringUtils.substringBefore(jobClient.getGroupName(), SPLIT);
+        } else if (ComputeResourcePlain.ClusterQueue.name().equalsIgnoreCase(plainType)) {
+            jobResource = jobClient.getGroupName();
+        } else {
+            jobResource = StringUtils.substringBefore(jobClient.getGroupName(), SPLIT);
+        }
+
+        return jobResource + SPLIT + computeResourceType.name();
     }
 }

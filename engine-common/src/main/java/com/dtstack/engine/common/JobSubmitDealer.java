@@ -46,13 +46,14 @@ public class JobSubmitDealer implements Runnable {
             OrderLinkedBlockingQueue<JobClient> queue = priorityQueue.getQueue();
             while (true) {
                 JobClient jobClient = queue.take();
+                //todo
                 //重试任务时间未满足条件
-                if (jobClient.isJobRetryWaiting()) {
-                    continue;
-                }
-                if (!checkLocalPriorityIsMax(jobResource, jobClient.getPriority())) {
-                    break;
-                }
+//                if (jobClient.isJobRetryWaiting()) {
+//                    continue;
+//                }
+//                if (!checkLocalPriorityIsMax(jobResource, jobClient.getPriority())) {
+//                    break;
+//                }
                 //提交任务
                 submitJob(jobClient);
             }
@@ -60,6 +61,26 @@ public class JobSubmitDealer implements Runnable {
             logger.error("", e);
         }
     }
+
+//    private void submitJobClient(String engineType, String groupName, OrderLinkedBlockingQueue<JobClient> priorityQueue){
+//        Iterator<JobClient> it = priorityQueue.iterator();
+//        while (it.hasNext()){
+//            JobClient jobClient = it.next();
+//            //重试任务时间未满足条件
+//            if (jobClient.isJobRetryWaiting()){
+//                continue;
+//            }
+//            if (!checkLocalPriorityIsMax(engineType,groupName,jobClient.getPriority())){
+//                break;
+//            }
+//            //提交任务
+//            if (submitJob(jobClient,priorityQueue)) {
+//                it.remove();
+//            }
+//            //group queue 一次提交一个任务
+//            break;
+//        }
+//    }
 
     //TODO ,重构zk优先级方式
     private boolean checkLocalPriorityIsMax(String jobResource, long localPriority) {

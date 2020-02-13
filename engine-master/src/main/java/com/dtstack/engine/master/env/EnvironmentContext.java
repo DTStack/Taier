@@ -263,4 +263,13 @@ public class EnvironmentContext {
         return Integer.parseInt(environment.getProperty("jobStoppedDelay", "3000"));
     }
 
+    /**
+     * plain 1:cluster、2:cluster+queue
+     * @return
+     */
+    public String getComputeResourcePlain() {
+        return environment.getProperty("computeResourcePlain", "Cluster");
+    }
+
+
 }
