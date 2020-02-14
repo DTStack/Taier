@@ -1,6 +1,5 @@
 package com.dtstack.engine.service.task;
 
-import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.EngineType;
@@ -127,33 +126,22 @@ public class RestartDealer {
             return false;
         }
         try {
-            Integer alreadyRetryNum = getAlreadyRetryNum(jobId, computeType);
+            if(!checkJobInfo(jobId, engineJobId)){
+                return false;
+            }
             // 是否需要重新提交
-            boolean needResubmit = checkNeedResubmit(jobId, engineJobId, appId, engineType, pluginInfo, computeType, alreadyRetryNum);
-            LOG.info("[checkAndRestart] jobId:{} engineJobId:{} status:{} engineType:{} alreadyRetryNum:{} needResubmit:{}",
-                                        jobId, engineJobId, status, engineType, alreadyRetryNum, needResubmit);
-
-            if(!needResubmit){
-                return false;
-            }
-
-            RdosEngineJobCache jobCache = engineJobCacheDAO.getJobById(jobId);
-            if(jobCache == null){
-                LOG.error("can't get record from rdos_engine_job_cache by jobId:{}", jobId);
-                return false;
-            }
-
-            IJobRestartStrategy restartStrategy = getRestartStrategy(engineType, pluginInfo, jobId, engineJobId, appId );
-
-            if (restartStrategy == null) {
-                return false;
-            }
-
+            Integer alreadyRetryNum = getAlreadyRetryNum(jobId, computeType);
             String lastRetryParams = "";
             if (alreadyRetryNum > 0)  {
                 lastRetryParams = getLastRetryParams(jobId, alreadyRetryNum-1);
             }
 
+            IJobRestartStrategy restartStrategy = getRestartStrategy(engineType, pluginInfo, jobId, engineJobId, appId );
+            if (restartStrategy == null) {
+                return false;
+            }
+
+            RdosEngineJobCache jobCache = engineJobCacheDAO.getJobById(jobId);
             //   根据策略调整参数配置
             String jobInfo =  restartStrategy.restart(jobCache.getJobInfo(), alreadyRetryNum, lastRetryParams);
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
@@ -181,7 +169,7 @@ public class RestartDealer {
             addToRestart(jobClient);
             // update retryNum
             increaseJobRetryNum(jobId, computeType);
-            LOG.warn("jobName:{}---jobId:{} resubmit again...",jobClient.getJobName(), jobClient.getTaskId());
+            LOG.warn("jobId:{} jobName:{} alreadyRetryNum:{} resubmit again...", jobClient.getTaskId(), jobClient.getJobName(), alreadyRetryNum);
             return true;
         } catch (Exception e) {
             LOG.error("", e);
@@ -255,43 +243,21 @@ public class RestartDealer {
         }
     }
 
-    private boolean checkNeedResubmit(String jobId,
-                                      String engineJobId,
-                                      String appId,
-                                      String engineType,
-                                      String pluginInfo,
-                                      Integer computeType,
-                                      Integer alreadyRetryNum) throws Exception {
+    private boolean checkJobInfo(String jobId, String engineJobId) throws Exception {
         if(Strings.isNullOrEmpty(engineJobId)){
+            LOG.error("[retry=false] jobId:{} engineJobId is null.", jobId);
             return false;
         }
 
-        if(ComputeType.STREAM.getType().equals(computeType)){
-            //do nothing
-        }else{
-            RdosEngineJob engineBatchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobId);
-            if(engineBatchJob == null){
-                LOG.error("batch job {} can't find.", jobId);
-                return false;
-            }
-        }
-
-        IClient client = clientCache.getClient(engineType, pluginInfo);
-        if(client == null){
-            LOG.error("can't get client by engineType:{}", engineJobId);
-            return false;
-        }
-
-        ARestartService restartService = client.getRestartService();
-
-        if(restartService == null){
-            LOG.warn("engineType " + engineType + " not support restart." );
+        RdosEngineJob engineBatchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobId);
+        if(engineBatchJob == null){
+            LOG.error("[retry=false] jobId:{} can't get record from rdos_engine_job.", jobId);
             return false;
         }
 
         RdosEngineJobCache jobCache = engineJobCacheDAO.getJobById(jobId);
         if(jobCache == null){
-            LOG.error("can't get record from rdos_engine_job_cache by jobId:{}", jobId);
+            LOG.info("[retry=false] jobId:{} can't get record from rdos_engine_job_cache.", jobId);
             return false;
         }
 
@@ -300,10 +266,11 @@ public class RestartDealer {
         JobClient jobClient = new JobClient(paramAction);
 
         if(!jobClient.getIsFailRetry()){
+            LOG.info("[retry=false] jobId:{} isFailRetry:{}", jobClient.getTaskId(), jobClient.getIsFailRetry());
             return false;
         }
-        // 未到达失败重试次数
-        return restartService.checkCanRestart(jobId, engineJobId, appId, client, alreadyRetryNum, jobClient.getMaxRetryNum());
+
+        return true;
     }
 
     private void resetStatus(JobClient jobClient, boolean submitFailed){
