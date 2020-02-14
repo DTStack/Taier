@@ -32,15 +32,6 @@ public class FlinkRestartService extends ARestartService {
 
     private Cache<String, String> jobErrorInfoCache = CacheBuilder.newBuilder().maximumSize(50).expireAfterWrite(5 * 60, TimeUnit.SECONDS).build();
 
-    @Override
-    public boolean checkCanRestart(String jobId, String engineJobId, String appId,IClient client,
-                                   int alreadyRetryNum, int maxRetryNum) {
-
-        JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineJobId, appId, jobId);
-        String msg = getErrorMsgByURL(jobIdentifier, client);
-        return checkCanRestart(jobId, msg, alreadyRetryNum, maxRetryNum);
-    }
-
     public String getErrorMsgByURL(JobIdentifier jobIdentifier, IClient client) {
         String errorLog = null;
         try {
@@ -58,22 +49,6 @@ public class FlinkRestartService extends ARestartService {
         }
 
         return errorLog;
-    }
-
-    @Override
-    public boolean checkCanRestart(String jobId, String msg, int alreadyRetryNum, int maxRetryNum) {
-
-        boolean restart = false;
-
-        IJobRestartStrategy iJobRestartStrategy = parseErrorLog(msg);
-
-        restart = iJobRestartStrategy == null ? false : true;
-
-        if(restart){
-            return retry(jobId,alreadyRetryNum, maxRetryNum);
-        }else {
-            return false;
-        }
     }
 
     public IJobRestartStrategy parseErrorLog(String msg) {
@@ -96,8 +71,4 @@ public class FlinkRestartService extends ARestartService {
         return parseErrorLog(msg);
     }
 
-    @Override
-    public boolean retry(String jobId, int alreadyRetryNum, int maxRetryNum){
-        return alreadyRetryNum < maxRetryNum;
-    }
 }
