@@ -1,8 +1,12 @@
 package com.dtstack.engine.entrance;
 
+import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
+import akka.actor.Props;
 import com.dtstack.engine.common.log.LogbackComponent;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
+import com.dtstack.engine.master.Master;
 import com.dtstack.engine.master.config.CacheConfig;
 import com.dtstack.engine.master.config.MybatisConfig;
 import com.dtstack.engine.master.config.RdosBeanConfig;
@@ -16,6 +20,7 @@ import com.dtstack.engine.master.task.MasterListener;
 import com.dtstack.engine.master.zookeeper.ZkDistributed;
 import com.dtstack.engine.router.VertxHttpServer;
 import com.google.common.collect.Lists;
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -55,6 +60,10 @@ public class EngineMain {
 			initService(context);
 			// add hook
 			ShutdownHookUtil.addShutdownHook(EngineMain::shutdown, EngineMain.class.getSimpleName(), logger);
+
+			ActorSystem system = ActorSystem.create("AkkaRemoteMaster", ConfigFactory.load("master.conf"));
+			// Create an actor
+			ActorRef actorRef = system.actorOf(Props.create(Master.class), "Master");
 		} catch (Throwable e) {
 			logger.error("only engine-master start error:{}", e);
 			System.exit(-1);
