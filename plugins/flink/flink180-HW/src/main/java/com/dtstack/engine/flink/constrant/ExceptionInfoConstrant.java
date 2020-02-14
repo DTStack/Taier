@@ -23,8 +23,6 @@ public class ExceptionInfoConstrant {
 
 
     /**  undo restart*/
-    public final static String FLINK_ENGINE_DOWN_UNDO_RESTART_EXCEPTION = "Could not connect to the leading JobManager";
-    public final static String FLINK_NO_RESOURCE_AVAILABLE_UNDO_RESTART_EXCEPTION = "org.apache.flink.runtime.jobmanager.scheduler.NoResourceAvailableException:";
     public final static String FLINK_UNALE_TO_GET_CLUSTERCLIENT_STATUS_EXCEPTION = "Unable to get ClusterClient status from Application Client";
 
 

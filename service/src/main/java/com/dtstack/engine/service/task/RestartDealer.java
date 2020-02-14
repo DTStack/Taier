@@ -16,7 +16,6 @@ import com.dtstack.engine.service.db.dao.RdosEngineJobDAO;
 import com.dtstack.engine.service.db.dao.RdosEngineJobRetryDAO;
 import com.dtstack.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.engine.service.db.dao.RdosStreamTaskCheckpointDAO;
-import com.dtstack.engine.service.db.dataobject.*;
 import com.dtstack.engine.service.db.dataobject.RdosEngineJob;
 import com.dtstack.engine.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.engine.service.db.dataobject.RdosEngineJobRetry;
@@ -97,35 +96,12 @@ public class RestartDealer {
             return false;
         }
 
-        String engineType = jobClient.getEngineType();
-
-        try{
-            String pluginInfo = jobClient.getPluginInfo();
-            String resultMsg = jobClient.getJobResult().getMsgInfo();
-
-            IClient client = clientCache.getClient(engineType, pluginInfo);
-            if(client == null){
-                LOG.error("can't get client by engineType:{}", engineType);
-                return false;
-            }
-
-            if(!jobClient.getIsFailRetry()){
-                return false;
-            }
-
-            ARestartService restartStrategy = client.getRestartService();
-            if(restartStrategy == null){
-                LOG.warn("engineType " + engineType + " not support restart." );
-                return false;
-            }
-
-            Integer alreadyRetryNum = getAlreadyRetryNum(jobClient.getTaskId(), jobClient.getComputeType().getType());
-            return restartStrategy.retrySubmitFail(jobClient.getTaskId(), resultMsg, alreadyRetryNum, jobClient.getMaxRetryNum());
-        }catch (Exception e){
-            LOG.error("", e);
+        if(!jobClient.getIsFailRetry()){
+            return false;
         }
 
-        return false;
+        Integer alreadyRetryNum = getAlreadyRetryNum(jobClient.getTaskId(), jobClient.getComputeType().getType());
+        return alreadyRetryNum < jobClient.getMaxRetryNum();
     }
 
     /***

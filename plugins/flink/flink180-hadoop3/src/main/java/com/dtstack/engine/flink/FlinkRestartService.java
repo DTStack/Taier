@@ -30,29 +30,9 @@ public class FlinkRestartService extends ARestartService {
 
     private static Logger logger = LoggerFactory.getLogger(FlinkRestartService.class);
 
-    private final static String FLINK_EXCEPTION_URL = "/jobs/%s/exceptions";
-
-    private final static List<String> unrestartExceptionList = Lists.newArrayList(EngineResourceInfo.LIMIT_RESOURCE_ERROR);
     private final static List<String> AddMemRestartExceptionList = ExceptionInfoConstrant.getNeedAddMemRestartException();
-    private final static List<String> UndoRestartExceptionList = ExceptionInfoConstrant.getNeedUndoRestartException();
 
     private Cache<String, String> jobErrorInfoCache = CacheBuilder.newBuilder().maximumSize(50).expireAfterWrite(5 * 60, TimeUnit.SECONDS).build();
-
-    @Override
-    public boolean checkFailureForEngineDown(String msg) {
-        if(StringUtils.isNotBlank(msg) && msg.contains(ExceptionInfoConstrant.FLINK_ENGINE_DOWN_UNDO_RESTART_EXCEPTION)){
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean checkNOResource(String msg) {
-        if(StringUtils.isNotBlank(msg) && msg.contains(ExceptionInfoConstrant.FLINK_NO_RESOURCE_AVAILABLE_UNDO_RESTART_EXCEPTION)){
-            return true;
-        }
-        return false;
-    }
 
     @Override
     public boolean checkCanRestart(String jobId, String engineJobId, String appId,IClient client,
