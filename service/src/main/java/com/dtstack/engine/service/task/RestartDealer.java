@@ -74,34 +74,41 @@ public class RestartDealer {
      * @return
      */
     public boolean checkAndRestartForSubmitResult(JobClient jobClient){
-        if(!checkNeedReSubmitForSubmitResult(jobClient)){
+        if(!checkSubmitResult(jobClient)){
+            return false;
+        }
+
+        Integer alreadyRetryNum = getAlreadyRetryNum(jobClient.getTaskId(), jobClient.getComputeType().getType());
+        if (alreadyRetryNum >= jobClient.getMaxRetryNum()) {
+            LOG.info("[retry=false] jobId:{} alreadyRetryNum:{}", jobClient.getTaskId(), alreadyRetryNum);
             return false;
         }
 
         resetStatus(jobClient, true);
         addToRestart(jobClient);
+        LOG.info("【retry=true】 jobId:{} alreadyRetryNum:{} will retry and add into queue again.", jobClient.getTaskId(), alreadyRetryNum);
         //update retry num
         increaseJobRetryNum(jobClient.getTaskId(), jobClient.getComputeType().getType());
-        LOG.info("------ job: {} add into orderLinkedBlockingQueue again.", jobClient.getTaskId());
         return true;
     }
 
-    private boolean checkNeedReSubmitForSubmitResult(JobClient jobClient){
+    private boolean checkSubmitResult(JobClient jobClient){
         if(jobClient.getJobResult() == null){
             //未提交过
             return true;
         }
 
         if(!jobClient.getJobResult().getCheckRetry()){
+            LOG.info("[retry=false] jobId:{} jobResult.checkRetry:{} jobResult.msgInfo:{}", jobClient.getTaskId(), jobClient.getJobResult().getCheckRetry(), jobClient.getJobResult().getMsgInfo());
             return false;
         }
 
         if(!jobClient.getIsFailRetry()){
+            LOG.info("[retry=false] jobId:{} isFailRetry:{}", jobClient.getTaskId(), jobClient.getIsFailRetry());
             return false;
         }
 
-        Integer alreadyRetryNum = getAlreadyRetryNum(jobClient.getTaskId(), jobClient.getComputeType().getType());
-        return alreadyRetryNum < jobClient.getMaxRetryNum();
+        return true;
     }
 
     /***

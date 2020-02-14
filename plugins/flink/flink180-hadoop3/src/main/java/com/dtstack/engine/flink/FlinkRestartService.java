@@ -65,11 +65,9 @@ public class FlinkRestartService extends ARestartService {
     @Override
     public boolean checkCanRestart(String jobId, String msg, int alreadyRetryNum, int maxRetryNum) {
 
-        boolean restart = false;
-
         IJobRestartStrategy iJobRestartStrategy = parseErrorLog(msg);
 
-        restart = iJobRestartStrategy == null ? false : true;
+        boolean restart = iJobRestartStrategy != null;
 
         if(restart){
             return retry(jobId,alreadyRetryNum, maxRetryNum);
