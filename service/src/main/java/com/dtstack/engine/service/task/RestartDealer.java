@@ -23,6 +23,7 @@ import com.dtstack.engine.service.node.WorkNode;
 import com.dtstack.engine.service.util.TaskIdUtil;
 import com.dtstack.engine.service.zk.cache.ZkLocalCache;
 import com.google.common.base.Strings;
+import javafx.util.Pair;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,16 +78,17 @@ public class RestartDealer {
             return false;
         }
 
-        Integer alreadyRetryNum = getAlreadyRetryNum(jobClient.getTaskId(), jobClient.getComputeType().getType());
+        int alreadyRetryNum = getAlreadyRetryNum(jobClient.getTaskId(), jobClient.getComputeType().getType());
         if (alreadyRetryNum >= jobClient.getMaxRetryNum()) {
-            LOG.info("[retry=false] jobId:{} alreadyRetryNum:{}", jobClient.getTaskId(), alreadyRetryNum);
+            LOG.info("[retry=false] jobId:{} alreadyRetryNum:{} maxRetryNum:{}, alreadyRetryNum >= maxRetryNum.", jobClient.getTaskId(), alreadyRetryNum, jobClient.getMaxRetryNum());
             return false;
         }
 
         resetStatus(jobClient, true);
+        //添加到重试队列中
         addToRestart(jobClient);
         LOG.info("【retry=true】 jobId:{} alreadyRetryNum:{} will retry and add into queue again.", jobClient.getTaskId(), alreadyRetryNum);
-        //update retry num
+        //update retryNum
         increaseJobRetryNum(jobClient.getTaskId(), jobClient.getComputeType().getType());
         return true;
     }
@@ -98,12 +100,12 @@ public class RestartDealer {
         }
 
         if(!jobClient.getJobResult().getCheckRetry()){
-            LOG.info("[retry=false] jobId:{} jobResult.checkRetry:{} jobResult.msgInfo:{}", jobClient.getTaskId(), jobClient.getJobResult().getCheckRetry(), jobClient.getJobResult().getMsgInfo());
+            LOG.info("[retry=false] jobId:{} jobResult.checkRetry:{} jobResult.msgInfo:{} check retry is false.", jobClient.getTaskId(), jobClient.getJobResult().getCheckRetry(), jobClient.getJobResult().getMsgInfo());
             return false;
         }
 
         if(!jobClient.getIsFailRetry()){
-            LOG.info("[retry=false] jobId:{} isFailRetry:{}", jobClient.getTaskId(), jobClient.getIsFailRetry());
+            LOG.info("[retry=false] jobId:{} isFailRetry:{} isFailRetry is false.", jobClient.getTaskId(), jobClient.getIsFailRetry());
             return false;
         }
 
@@ -120,33 +122,53 @@ public class RestartDealer {
      * @param pluginInfo
      * @return
      */
-    public boolean checkAndRestart(Integer status, String jobId, String engineJobId, String appId, String engineType,
-                                          Integer computeType, String pluginInfo){
-        if(!RdosTaskStatus.FAILED.getStatus().equals(status) && !RdosTaskStatus.SUBMITFAILD.getStatus().equals(status)){
+    public boolean checkAndRestart(Integer status, String jobId, String engineJobId, String appId,
+                                   String engineType, Integer computeType, String pluginInfo){
+        Pair<Boolean, JobClient> checkResult = checkJobInfo(jobId, engineJobId, status);
+        if(!checkResult.getKey()){
             return false;
         }
+        // 是否需要重新提交
+        int alreadyRetryNum = getAlreadyRetryNum(jobId, computeType);
+        if (alreadyRetryNum >= jobClient.getMaxRetryNum()) {
+            LOG.info("[retry=false] jobId:{} alreadyRetryNum:{} maxRetryNum:{}, alreadyRetryNum >= maxRetryNum.", jobClient.getTaskId(), alreadyRetryNum, jobClient.getMaxRetryNum());
+            return false;
+        }
+
+        JobClient jobClient = getJobClientWithStrategy(jobId, engineJobId, appId, engineType, pluginInfo, alreadyRetryNum);
+        if (jobClient == null) {
+            LOG.error("[retry=false] jobId:{} default not retry, because getJobClientWithStrategy is null.", jobId);
+            return false;
+        }
+
+        resetStatus(jobClient, false);
+        //添加到重试队列中
+        addToRestart(jobClient);
+        LOG.info("【retry=true】 jobId:{} alreadyRetryNum:{} will retry and add into queue again.", jobId, alreadyRetryNum);
+        //update retryNum
+        increaseJobRetryNum(jobId, computeType);
+        return true;
+    }
+
+    private JobClient getJobClientWithStrategy(String jobId, String engineJobId, String appId, String engineType, String pluginInfo, int alreadyRetryNum) {
         try {
-            if(!checkJobInfo(jobId, engineJobId)){
-                return false;
+
+            IJobRestartStrategy restartStrategy = getRestartStrategy(engineType, pluginInfo, jobId, engineJobId, appId);
+            if (restartStrategy == null) {
+                //todo
             }
-            // 是否需要重新提交
-            Integer alreadyRetryNum = getAlreadyRetryNum(jobId, computeType);
+
+            RdosEngineJobCache jobCache = engineJobCacheDAO.getJobById(jobId);
+
             String lastRetryParams = "";
             if (alreadyRetryNum > 0)  {
                 lastRetryParams = getLastRetryParams(jobId, alreadyRetryNum-1);
             }
 
-            IJobRestartStrategy restartStrategy = getRestartStrategy(engineType, pluginInfo, jobId, engineJobId, appId);
-            if (restartStrategy == null) {
-                return false;
-            }
-
-            RdosEngineJobCache jobCache = engineJobCacheDAO.getJobById(jobId);
             //   根据策略调整参数配置
             String jobInfo =  restartStrategy.restart(jobCache.getJobInfo(), alreadyRetryNum, lastRetryParams);
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
 
-            saveRetryTaskParam(jobId, paramAction.getTaskParams());
 
             JobClient jobClient = new JobClient(paramAction);
             String finalJobId = jobClient.getTaskId();
@@ -163,17 +185,12 @@ public class RestartDealer {
             if(EJobType.SYNC.equals(jobClient.getJobType())){
                 setCheckpointPath(jobClient);
             }
+            saveRetryTaskParam(jobId, paramAction.getTaskParams());
 
-            resetStatus(jobClient, false);
-            //  添加到重试队列中
-            addToRestart(jobClient);
-            // update retryNum
-            increaseJobRetryNum(jobId, computeType);
-            LOG.warn("jobId:{} jobName:{} alreadyRetryNum:{} resubmit again...", jobClient.getTaskId(), jobClient.getJobName(), alreadyRetryNum);
-            return true;
+            return jobClient;
         } catch (Exception e) {
             LOG.error("", e);
-            return false;
+            return null;
         }
     }
 
@@ -242,34 +259,46 @@ public class RestartDealer {
         }
     }
 
-    private boolean checkJobInfo(String jobId, String engineJobId) throws Exception {
+    private Pair<Boolean, JobClient> checkJobInfo(String jobId, String engineJobId, Integer status) {
+        Pair<Boolean, JobClient> check = new Pair<>(false, null);
+
+        if(!RdosTaskStatus.FAILED.getStatus().equals(status) && !RdosTaskStatus.SUBMITFAILD.getStatus().equals(status)){
+            return check;
+        }
+
         if(Strings.isNullOrEmpty(engineJobId)){
             LOG.error("[retry=false] jobId:{} engineJobId is null.", jobId);
-            return false;
+            return check;
         }
 
         RdosEngineJob engineBatchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobId);
         if(engineBatchJob == null){
-            LOG.error("[retry=false] jobId:{} can't get record from rdos_engine_job.", jobId);
-            return false;
+            LOG.error("[retry=false] jobId:{} get RdosEngineJob is null.", jobId);
+            return check;
         }
 
         RdosEngineJobCache jobCache = engineJobCacheDAO.getJobById(jobId);
         if(jobCache == null){
-            LOG.info("[retry=false] jobId:{} can't get record from rdos_engine_job_cache.", jobId);
-            return false;
+            LOG.info("[retry=false] jobId:{} get RdosEngineJobCache is null.", jobId);
+            return check;
         }
 
-        String jobInfo = jobCache.getJobInfo();
-        ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
-        JobClient jobClient = new JobClient(paramAction);
+        try {
+            String jobInfo = jobCache.getJobInfo();
+            ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
+            JobClient jobClient = new JobClient(paramAction);
 
-        if(!jobClient.getIsFailRetry()){
-            LOG.info("[retry=false] jobId:{} isFailRetry:{}", jobClient.getTaskId(), jobClient.getIsFailRetry());
-            return false;
+            if(!jobClient.getIsFailRetry()){
+                LOG.info("[retry=false] jobId:{} isFailRetry:{} isFailRetry is false.", jobClient.getTaskId(), jobClient.getIsFailRetry());
+                return check;
+            }
+
+            return new Pair<Boolean, JobClient>(true, jobClient);
+        } catch (Exception e){
+            // 解析任务的jobInfo反序列到ParamAction失败，任务不进行重试.
+            LOG.error("[retry=false] jobId:{} default not retry, because getIsFailRetry happens error:{}.", jobId, e);
+            return check;
         }
-
-        return true;
     }
 
     private void resetStatus(JobClient jobClient, boolean submitFailed){
