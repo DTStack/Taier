@@ -6,7 +6,6 @@ import com.dtstack.engine.common.restart.CommonRestartService;
 import com.dtstack.engine.common.restart.IJobRestartStrategy;
 import com.dtstack.engine.flink.constrant.ExceptionInfoConstrant;
 import com.dtstack.engine.flink.restart.FlinkAddMemoryRestart;
-import com.dtstack.engine.flink.restart.FlinkUndoRestart;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -52,16 +51,14 @@ public class FlinkRestartService extends CommonRestartService {
     }
 
     public IJobRestartStrategy parseErrorLog(String msg) {
-        IJobRestartStrategy strategy = null;
         if (StringUtils.isNotBlank(msg)) {
             for (String emsg : AddMemRestartExceptionList) {
                 if (msg.contains(emsg)) {
-                    strategy = new FlinkAddMemoryRestart();
-                    return strategy;
+                    return new FlinkAddMemoryRestart();
                 }
             }
         }
-        return new FlinkUndoRestart();
+        return null;
     }
 
     @Override

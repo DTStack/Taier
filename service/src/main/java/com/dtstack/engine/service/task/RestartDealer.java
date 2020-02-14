@@ -128,6 +128,8 @@ public class RestartDealer {
         if(!checkResult.getKey()){
             return false;
         }
+
+        JobClient jobClient = checkResult.getValue();
         // 是否需要重新提交
         int alreadyRetryNum = getAlreadyRetryNum(jobId, computeType);
         if (alreadyRetryNum >= jobClient.getMaxRetryNum()) {
@@ -135,15 +137,26 @@ public class RestartDealer {
             return false;
         }
 
-        JobClient jobClient = getJobClientWithStrategy(jobId, engineJobId, appId, engineType, pluginInfo, alreadyRetryNum);
-        if (jobClient == null) {
-            LOG.error("[retry=false] jobId:{} default not retry, because getJobClientWithStrategy is null.", jobId);
-            return false;
+        JobClient clientWithStrategy = getJobClientWithStrategy(jobId, engineJobId, appId, engineType, pluginInfo, alreadyRetryNum);
+        if (clientWithStrategy == null) {
+            clientWithStrategy = jobClient;
+            clientWithStrategy.setCallBack((jobStatus)->{
+                updateJobStatus(jobId, computeType, jobStatus);
+            });
+
+            if(EngineType.Kylin.name().equalsIgnoreCase(clientWithStrategy.getEngineType())){
+                setRetryTag(clientWithStrategy);
+            }
+
+            //checkpoint的路径
+            if(EJobType.SYNC.equals(clientWithStrategy.getJobType())){
+                setCheckpointPath(clientWithStrategy);
+            }
         }
 
-        resetStatus(jobClient, false);
+        resetStatus(clientWithStrategy, false);
         //添加到重试队列中
-        addToRestart(jobClient);
+        addToRestart(clientWithStrategy);
         LOG.info("【retry=true】 jobId:{} alreadyRetryNum:{} will retry and add into queue again.", jobId, alreadyRetryNum);
         //update retryNum
         increaseJobRetryNum(jobId, computeType);
@@ -155,41 +168,26 @@ public class RestartDealer {
 
             IJobRestartStrategy restartStrategy = getRestartStrategy(engineType, pluginInfo, jobId, engineJobId, appId);
             if (restartStrategy == null) {
-                //todo
+                return null;
             }
-
-            RdosEngineJobCache jobCache = engineJobCacheDAO.getJobById(jobId);
 
             String lastRetryParams = "";
             if (alreadyRetryNum > 0)  {
                 lastRetryParams = getLastRetryParams(jobId, alreadyRetryNum-1);
             }
 
-            //   根据策略调整参数配置
-            String jobInfo =  restartStrategy.restart(jobCache.getJobInfo(), alreadyRetryNum, lastRetryParams);
+            //根据策略调整参数配置
+            RdosEngineJobCache jobCache = engineJobCacheDAO.getJobById(jobId);
+            String jobInfo = restartStrategy.restart(jobCache.getJobInfo(), alreadyRetryNum, lastRetryParams);
+
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
-
-
             JobClient jobClient = new JobClient(paramAction);
-            String finalJobId = jobClient.getTaskId();
-            Integer finalComputeType = jobClient.getComputeType().getType();
-            jobClient.setCallBack((jobStatus)->{
-                updateJobStatus(finalJobId, finalComputeType, jobStatus);
-            });
 
-            if(EngineType.Kylin.name().equalsIgnoreCase(jobClient.getEngineType())){
-                setRetryTag(jobClient);
-            }
-
-            // checkpoint的路径
-            if(EJobType.SYNC.equals(jobClient.getJobType())){
-                setCheckpointPath(jobClient);
-            }
             saveRetryTaskParam(jobId, paramAction.getTaskParams());
 
             return jobClient;
         } catch (Exception e) {
-            LOG.error("", e);
+            LOG.error("jobId:{} get JobClient With Strategy happens error:{}.", jobId, e);
             return null;
         }
     }
@@ -232,7 +230,7 @@ public class RestartDealer {
             pluginInfoMap.put("retry", true);
             jobClient.setPluginInfo(PublicUtil.objToString(pluginInfoMap));
         } catch (IOException e) {
-            LOG.warn("Set retry tag error:", e);
+            LOG.warn("Set retry tag error:{}", e);
         }
     }
 
@@ -246,17 +244,15 @@ public class RestartDealer {
             return;
         }
 
-        String jobId = jobClient.getTaskId();
-        if(StringUtils.isEmpty(jobId)){
+        if(StringUtils.isEmpty(jobClient.getTaskId())){
             return;
         }
 
-        LOG.info("Set checkpoint path for job:{}", jobId);
-        RdosStreamTaskCheckpoint taskCheckpoint = streamTaskCheckpointDAO.getByTaskId(jobId);
+        RdosStreamTaskCheckpoint taskCheckpoint = streamTaskCheckpointDAO.getByTaskId(jobClient.getTaskId());
         if(taskCheckpoint != null){
-            LOG.info("Set checkpoint path:{}", taskCheckpoint.getCheckpointSavepath());
             jobClient.setExternalPath(taskCheckpoint.getCheckpointSavepath());
         }
+        LOG.info("jobId:{} set checkpoint path:{}", jobClient.getTaskId(), jobClient.getExternalPath());
     }
 
     private Pair<Boolean, JobClient> checkJobInfo(String jobId, String engineJobId, Integer status) {
