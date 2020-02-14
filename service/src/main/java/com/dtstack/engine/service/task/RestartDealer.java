@@ -9,7 +9,7 @@ import com.dtstack.engine.common.ClientCache;
 import com.dtstack.engine.common.IClient;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.pojo.ParamAction;
-import com.dtstack.engine.common.restart.ARestartService;
+import com.dtstack.engine.common.restart.CommonRestartService;
 import com.dtstack.engine.common.restart.IJobRestartStrategy;
 import com.dtstack.engine.service.db.dao.RdosEngineJobDAO;
 import com.dtstack.engine.service.db.dao.RdosEngineJobRetryDAO;
@@ -136,7 +136,7 @@ public class RestartDealer {
                 lastRetryParams = getLastRetryParams(jobId, alreadyRetryNum-1);
             }
 
-            IJobRestartStrategy restartStrategy = getRestartStrategy(engineType, pluginInfo, jobId, engineJobId, appId );
+            IJobRestartStrategy restartStrategy = getRestartStrategy(engineType, pluginInfo, jobId, engineJobId, appId);
             if (restartStrategy == null) {
                 return false;
             }
@@ -205,9 +205,8 @@ public class RestartDealer {
      */
     private IJobRestartStrategy getRestartStrategy(String engineType, String pluginInfo, String jobId, String engineJobId, String appId) throws Exception {
         IClient client = clientCache.getClient(engineType, pluginInfo);
-        ARestartService restartService = client.getRestartService();
-        IJobRestartStrategy strategy = restartService.getAndParseErrorLog(jobId, engineJobId, appId, client);
-        return strategy;
+        CommonRestartService restartService = client.getRestartService();
+        return restartService.getAndParseErrorLog(jobId, engineJobId, appId, client);
     }
 
     private void setRetryTag(JobClient jobClient){

@@ -9,7 +9,7 @@ import com.dtstack.engine.common.IClient;
  * @author xuchao
  */
 
-public abstract class ARestartService {
+public class CommonRestartService {
 
     public IJobRestartStrategy getAndParseErrorLog(String jobId, String engineJobId, String appId, IClient client) {
         return null;

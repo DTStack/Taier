@@ -2,7 +2,7 @@ package com.dtstack.engine.flink;
 
 import com.dtstack.engine.common.IClient;
 import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.restart.ARestartService;
+import com.dtstack.engine.common.restart.CommonRestartService;
 import com.dtstack.engine.common.restart.IJobRestartStrategy;
 import com.dtstack.engine.flink.constrant.ExceptionInfoConstrant;
 import com.dtstack.engine.flink.restart.FlinkAddMemoryRestart;
@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
  * @author xuchao
  */
 
-public class FlinkRestartService extends ARestartService {
+public class FlinkRestartService extends CommonRestartService {
 
     private static Logger logger = LoggerFactory.getLogger(FlinkRestartService.class);
 
