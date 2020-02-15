@@ -1,11 +1,11 @@
-package com.dtstack.engine.rdbs.mysql;
+package com.dtstack.engine.rdbs.tidb;
 
 
 import com.dtstack.engine.rdbs.common.executor.ConnFactory;
 
-public class MysqlConnFactory extends ConnFactory {
+public class TiDBConnFactory extends ConnFactory {
 
-    public MysqlConnFactory() {
+    public TiDBConnFactory() {
         driverName = "com.mysql.jdbc.Driver";
         testSql = "select 1111";
     }

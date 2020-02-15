@@ -26,7 +26,8 @@ public enum EngineType {
     Hive('a'),
     PostgreSQL('b'),
     Kylin('c'),
-    Impala('d');
+    Impala('d'),
+    TiDB('e');
 
     private char val;
 
@@ -53,6 +54,8 @@ public enum EngineType {
                 return EngineType.DtScript;
             case "mysql":
                 return EngineType.Mysql;
+            case "tidb":
+                return EngineType.TiDB;
             case "oracle":
                 return EngineType.Oracle;
             case "sqlserver":

@@ -1,4 +1,4 @@
-package com.dtstack.engine.rdbs.mysql;
+package com.dtstack.engine.rdbs.tidb;
 
 
 import java.sql.Connection;
