@@ -1,1 +1,1 @@
-com.dtstack.engine.rdbs.tidb.MysqlClient
+com.dtstack.engine.rdbs.mysql.MysqlClient

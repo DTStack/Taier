@@ -1,4 +1,4 @@
-package com.dtstack.engine.rdbs.tidb;
+package com.dtstack.engine.rdbs.mysql;
 
 
 import com.dtstack.engine.rdbs.common.executor.ConnFactory;
