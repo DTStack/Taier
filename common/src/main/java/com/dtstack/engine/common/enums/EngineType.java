@@ -26,7 +26,8 @@ public enum EngineType {
     Hive('a'),
     PostgreSQL('b'),
     Kylin('c'),
-    Impala('d');
+    Impala('d'),
+    TiDB('e');
 
     private char val;
 
@@ -69,6 +70,8 @@ public enum EngineType {
                 return EngineType.Kylin;
             case "impala":
                 return EngineType.Impala;
+            case "tidb":
+                return EngineType.TiDB;
             default:
                 throw new UnsupportedOperationException("unsupported operation exception");
         }
