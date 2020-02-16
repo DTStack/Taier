@@ -6,7 +6,7 @@ import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.common.util.TaskIdUtil;
 import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.master.zookeeper.ZkDistributed;
+import com.dtstack.engine.master.zk.ZkService;
 import com.dtstack.engine.master.data.BrokerDataNode;
 import com.dtstack.engine.master.data.BrokerDataShard;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,11 +37,8 @@ public class ZkLocalCache implements Closeable {
     private int distributeDeviation;
     private int perShardSize;
     private volatile Map<String, Integer> zkDataSizeCache;
-    private static ZkLocalCache zkLocalCache = new ZkLocalCache();
 
-    public static ZkLocalCache getInstance() {
-        return zkLocalCache;
-    }
+    private final ReentrantLock lock = new ReentrantLock();
 
     @Autowired
     private EngineJobCacheDao engineJobCacheDao;
@@ -49,22 +46,22 @@ public class ZkLocalCache implements Closeable {
     @Autowired
     private EnvironmentContext environmentContext;
 
-    private final ReentrantLock lock = new ReentrantLock();
-
+    @Autowired
     private WorkNode workNode;
-    private ZkShardManager zkShardManager = ZkShardManager.getInstance();
+
+    @Autowired
+    private ZkShardManager zkShardManager;
 
     private ZkLocalCache() {
     }
 
-    public void init(ZkDistributed zkDistributed) {
-        localAddress = zkDistributed.getLocalAddress();
+    public void init(ZkService zkService) {
+        localAddress = zkService.getLocalAddress();
         localDataCache = new BrokerDataNode(new ConcurrentHashMap<String,BrokerDataShard>(16));
         distributeQueueWeight = 1;
         distributeZkWeight = 1;
         distributeDeviation = 1;
         perShardSize = environmentContext.getShardSize();
-        zkShardManager.init(zkDistributed);
     }
 
     public void updateLocalMemTaskStatus(String zkTaskId, Integer status) {

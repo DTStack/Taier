@@ -9,11 +9,6 @@ import com.dtstack.engine.master.config.RdosBeanConfig;
 import com.dtstack.engine.master.config.SdkConfig;
 import com.dtstack.engine.master.config.ThreadPoolConfig;
 import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.master.task.HeartBeatCheckListener;
-import com.dtstack.engine.master.task.HeartBeatListener;
-import com.dtstack.engine.master.task.LogStoreListener;
-import com.dtstack.engine.master.task.MasterListener;
-import com.dtstack.engine.master.zookeeper.ZkDistributed;
 import com.dtstack.engine.router.VertxHttpServer;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
@@ -38,7 +33,6 @@ public class EngineMain {
 
 	private static VertxHttpServer vertxHttpServer;
 
-	private static ZkDistributed zkDistributed;
 	private static EnvironmentContext environmentContext;
 
 	public static void main(String[] args) throws Exception {
@@ -67,21 +61,16 @@ public class EngineMain {
 	}
 
 	private static void initService(ApplicationContext context) throws Exception {
-		zkDistributed = ZkDistributed.createZkDistributed(null).zkRegistration();
 		init();
 
 		logger.warn("start only engine-master success...");
 	}
 
 	public static void init() {
-		MasterListener masterListener = new MasterListener();
-		HeartBeatCheckListener.init(masterListener);
-		LogStoreListener.init(masterListener);
-		HeartBeatListener.init();
 	}
 
 	private static void shutdown() {
-		List<Closeable> closeables = Lists.newArrayList( zkDistributed);
+		List<Closeable> closeables = Lists.newArrayList();
 		for (Closeable closeable : closeables) {
 			if (closeables != null) {
 				try {

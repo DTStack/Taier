@@ -9,7 +9,6 @@ import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.EJobCacheStage;
-import com.dtstack.engine.common.enums.EPluginType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.queue.GroupInfo;
@@ -26,10 +25,9 @@ import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.JobStopQueue;
 import com.dtstack.engine.master.resource.JobComputeResourcePlain;
 import com.dtstack.engine.master.send.HttpSendClient;
-//import com.dtstack.engine.master.task.QueueListener;
 import com.dtstack.engine.master.task.TaskListener;
 import com.dtstack.engine.master.task.TaskStatusListener;
-import com.dtstack.engine.master.zookeeper.ZkDistributed;
+import com.dtstack.engine.master.zk.ZkService;
 import com.dtstack.engine.master.cache.ZkLocalCache;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -69,9 +67,11 @@ public class WorkNode {
     @Autowired
     private JobComputeResourcePlain jobComputeResourcePlain;
 
-    private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
+    @Autowired
+    private ZkService zkService;
 
-    private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
+    @Autowired
+    private ZkLocalCache zkLocalCache;
 
     @Autowired
     private EngineJobCacheDao engineJobCacheDao;
@@ -138,7 +138,7 @@ public class WorkNode {
     public Map<String, Map<String, GroupInfo>> getQueueInfo(){
         //todo,获取所有节点的队列信息，
         //todo max priority 取在内存队列的，非重试任务的最大的priority
-//        String localAddress = zkDistributed.getLocalAddress();
+//        String localAddress = zkService.getLocalAddress();
 //        Map<String, GroupInfo> queueInfo = Maps.newHashMap();
 //        priorityQueueMap.forEach((jobResource, priorityQueue) -> {
 //            int queueSize = engineJobCacheDao.countGroupQueueJob(jobResource, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), localAddress);
@@ -276,7 +276,7 @@ public class WorkNode {
     }
 
     public void saveCache(JobClient jobClient, String jobResource, int stage, boolean insert){
-        String nodeAddress = zkDistributed.getLocalAddress();
+        String nodeAddress = zkService.getLocalAddress();
         if(insert){
             engineJobCacheDao.insert(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobResource);
         } else {
@@ -285,7 +285,7 @@ public class WorkNode {
     }
 
     public void updateCache(JobClient jobClient, int stage){
-        String nodeAddress = zkDistributed.getLocalAddress();
+        String nodeAddress = zkService.getLocalAddress();
         engineJobCacheDao.updateStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority());
     }
 
@@ -374,7 +374,7 @@ public class WorkNode {
                 result.put("errorInfo","distribute node can not be null");
                 return result;
             }
-            if (address.equals(zkDistributed.getLocalAddress())){
+            if (address.equals(zkService.getLocalAddress())){
                 this.addSubmitJob(jobClient, true);
                 return result;
             }
@@ -431,10 +431,8 @@ public class WorkNode {
      * 重启后，各自节点load自己的数据
      */
     public void loadQueueFromDB(){
-        List<InterProcessMutex> locks = null;
-        String localAddress = zkDistributed.getLocalAddress();
+        String localAddress = zkService.getLocalAddress();
         try {
-            locks = zkDistributed.acquireBrokerLock(Lists.newArrayList(localAddress),true);
             long startId = 0L;
             while (true) {
                 List<EngineJobCache> jobCaches = engineJobCacheDao.listByStage(startId, localAddress, null, null);
@@ -463,13 +461,11 @@ public class WorkNode {
             }
         } catch (Exception e) {
             LOG.error("----broker:{} RecoverDealer error:{}", localAddress, e);
-        } finally {
-            zkDistributed.releaseLock(locks);
         }
     }
 
     private Long emitJob2GQ(String engineType, GroupPriorityQueue groupPriorityQueue, long startId, int limited){
-        String localAddress = zkDistributed.getLocalAddress();
+        String localAddress = zkService.getLocalAddress();
         try {
             int count = 0;
             outLoop :

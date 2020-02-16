@@ -63,7 +63,11 @@ public class RestartDealer {
 
     private ClientCache clientCache = ClientCache.getInstance();
 
-    private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
+    @Autowired
+    private ZkLocalCache zkLocalCache;
+
+    @Autowired
+    private WorkNode workNode;
 
     private static RestartDealer sigleton = new RestartDealer();
 
@@ -310,7 +314,7 @@ public class RestartDealer {
         Integer computeType = jobClient.getComputeType().getType();
         String engineType = jobClient.getEngineType();
         //重试的时候，更改cache状态
-        WorkNode.getInstance().updateCache(jobClient, EJobCacheStage.IN_PRIORITY_QUEUE.getStage());
+        workNode.updateCache(jobClient, EJobCacheStage.IN_PRIORITY_QUEUE.getStage());
         String zkTaskId = TaskIdUtil.getZkTaskId(computeType, engineType, jobId);
         //重试任务更改在zk的状态，统一做状态清理
         zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.RESTARTING.getStatus());
@@ -347,7 +351,7 @@ public class RestartDealer {
     }
 
     private void addToRestart(JobClient jobClient){
-        WorkNode.getInstance().addRestartJob(jobClient);
+        workNode.addRestartJob(jobClient);
     }
 
     /**

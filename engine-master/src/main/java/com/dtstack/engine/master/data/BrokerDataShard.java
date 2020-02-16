@@ -21,7 +21,7 @@ public class BrokerDataShard {
 
     /**
      * 请使用 getView() 获取数据视图，不可修改！
-     * 仅用于ZkDistributed中的数据迁移，方便管理任务
+     * 仅用于Zk中的数据迁移，方便管理任务
      */
     public BrokerDataTreeMap<String, Byte> getMetas() {
         return metas;

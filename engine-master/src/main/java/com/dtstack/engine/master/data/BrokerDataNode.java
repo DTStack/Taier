@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.data;
 
-import com.dtstack.engine.master.zookeeper.ShardConsistentHash;
+import com.dtstack.engine.common.hash.ShardConsistentHash;
 
 import java.util.Map;
 import java.util.Set;

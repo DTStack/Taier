@@ -5,7 +5,7 @@ import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.EngineJobDao;
-import com.dtstack.engine.master.zookeeper.ZkDistributed;
+import com.dtstack.engine.master.zk.ZkService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,8 @@ public class MasterNode {
 
     private BlockingQueue<String> queue = new LinkedBlockingDeque<>();
 
-    private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
+    @Autowired
+    private ZkService zkService;
 
     @Autowired
     private EngineJobCacheDao engineJobCacheDao;
@@ -43,13 +44,7 @@ public class MasterNode {
 
     private ExecutorService faultTolerantExecutor;
 
-    private static MasterNode masterNode = new MasterNode();
-
     private boolean currIsMaster = false;
-
-    public static MasterNode getInstance() {
-        return masterNode;
-    }
 
     private MasterNode() {
         faultTolerantExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
@@ -115,9 +110,9 @@ public class MasterNode {
 //        List<InterProcessMutex> locks = null;
 //        try {
 //            //获取锁
-//            locks = zkDistributed.acquireBrokerLock(Lists.newArrayList(broker), true);
+//            locks = zkService.acquireBrokerLock(Lists.newArrayList(broker), true);
 //            //再获取锁后再次判断broker是否alive
-//            BrokerHeartNode brokerHeart = zkDistributed.getBrokerHeartNode(broker);
+//            BrokerHeartNode brokerHeart = zkService.getBrokerHeartNode(broker);
 //            if (brokerHeart.getAlive()) {
 //                //broker可能在获取锁的窗口期间，先获得了锁，进行了数据恢复
 //                return;
@@ -158,17 +153,17 @@ public class MasterNode {
 //            List<EngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(0L, broker, null, null);
 //            if (CollectionUtils.isNotEmpty(jobCaches)) {
 //                //如果尚有任务未迁移完成，重置 broker 继续恢复
-//                zkDistributed.updateSynchronizedLocalBrokerHeartNode(broker, BrokerHeartNode.initNullBrokerHeartNode(), true);
+//                zkService.updateSynchronizedLocalBrokerHeartNode(broker, BrokerHeartNode.initNullBrokerHeartNode(), true);
 //            }
-//            List<String> shards = zkDistributed.getBrokerDataChildren(broker);
+//            List<String> shards = zkService.getBrokerDataChildren(broker);
 //            for (String shard : shards) {
-//                zkDistributed.synchronizedBrokerDataShard(broker, shard, BrokerDataShard.initBrokerDataShard(), true);
+//                zkService.synchronizedBrokerDataShard(broker, shard, BrokerDataShard.initBrokerDataShard(), true);
 //            }
 //            LOG.warn("----- broker:{} 节点容灾任务结束恢复-----", broker);
 //        } catch (Exception e) {
 //            LOG.error("----broker:{} faultTolerantRecover error:{}", broker, e);
 //        } finally {
-//            zkDistributed.releaseLock(locks);
+//            zkService.releaseLock(locks);
 //        }
 //    }
 //
@@ -235,7 +230,7 @@ public class MasterNode {
 //        if (jobs.isEmpty()) {
 //            return;
 //        }
-//        Map<String, Integer> zkDataCache = zkDistributed.getAliveBrokerShardSize();
+//        Map<String, Integer> zkDataCache = zkService.getAliveBrokerShardSize();
 //        if (zkDataCache == null) {
 //            return;
 //        }
@@ -266,7 +261,7 @@ public class MasterNode {
 //            if (nodeEntry.getValue().isEmpty()) {
 //                continue;
 //            }
-////            if (nodeEntry.getKey().equals(zkDistributed.getLocalAddress())){
+////            if (nodeEntry.getKey().equals(zkService.getLocalAddress())){
 ////                workNode.masterSendSubmitJob(nodeEntry.getValue());
 ////                continue;
 ////            }

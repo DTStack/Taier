@@ -37,7 +37,11 @@ public class TaskListener implements Runnable{
 	@Autowired
 	private EngineJobCacheDao engineJobCacheDao;
 
-	private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
+	@Autowired
+	private ZkLocalCache zkLocalCache;
+
+	@Autowired
+	private WorkNode workNode;
 
 	public TaskListener(){
 		queue = JobSubmitDealer.getSubmittedQueue();
@@ -64,7 +68,7 @@ public class TaskListener implements Runnable{
 					String appId = jobResult.getData(JobResult.EXT_ID_KEY);
 					engineJobDao.updateJobEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId(),appId);
 					engineJobDao.updateSubmitLog(jobClient.getTaskId(), jobClient.getJobResult().getJsonStr());
-					WorkNode.getInstance().updateCache(jobClient, EJobCacheStage.IN_SUBMIT_QUEUE.getStage());
+					workNode.updateCache(jobClient, EJobCacheStage.IN_SUBMIT_QUEUE.getStage());
 					jobClient.doStatusCallBack(RdosTaskStatus.SUBMITTED.getStatus());
 					zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.SUBMITTED.getStatus());
 				}else{

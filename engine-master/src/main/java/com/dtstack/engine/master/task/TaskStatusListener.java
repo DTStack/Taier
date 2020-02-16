@@ -54,7 +54,8 @@ public class TaskStatusListener implements Runnable{
 
     private static final int JOB_FAILOVER_CONFIG = 50;
 
-	private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
+    @Autowired
+	private ZkLocalCache zkLocalCache;
 
 	/**记录job 连续某个状态的频次*/
 	private Map<String, TaskStatusFrequency> jobStatusFrequency = Maps.newConcurrentMap();

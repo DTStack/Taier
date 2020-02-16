@@ -159,6 +159,8 @@ public class BatchJobService {
     @Autowired
     private JobRichOperator jobRichOperator;
 
+    @Autowired
+    private WorkNode workNode;
 
     private final static List<Integer> FINISH_STATUS = Lists.newArrayList(TaskStatus.FINISHED.getStatus(), TaskStatus.MANUALSUCCESS.getStatus(), TaskStatus.CANCELING.getStatus(), TaskStatus.CANCELED.getStatus());
     private final static List<Integer> FAILED_STATUS = Lists.newArrayList(TaskStatus.FAILED.getStatus(), TaskStatus.SUBMITFAILD.getStatus(), TaskStatus.KILLED.getStatus());
@@ -974,7 +976,7 @@ public class BatchJobService {
                 }
                 //TODO, 放入队列
 //                engineSend.sendTask(taskJson, null, null);
-                WorkNode.getInstance().addSubmitJob(actionParam);
+                workNode.addSubmitJob(actionParam);
                 return;
             }
         }

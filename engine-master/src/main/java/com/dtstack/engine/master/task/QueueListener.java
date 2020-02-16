@@ -30,7 +30,7 @@ public class QueueListener implements Runnable {
             try {
                 logger.warn("QueueListener start again....");
                 //获取所有节点的queue
-                Map<String, Map<String, GroupInfo>> queueInfo = WorkNode.getInstance().getQueueInfo();
+//                Map<String, Map<String, GroupInfo>> queueInfo = workNode.getQueueInfo();
 
 
                 //更新当前节点的queue 信息

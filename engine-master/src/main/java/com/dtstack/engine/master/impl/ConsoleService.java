@@ -13,7 +13,7 @@ import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.domain.EngineJob;
 import com.dtstack.engine.common.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.WorkNode;
-import com.dtstack.engine.master.zookeeper.ZkDistributed;
+import com.dtstack.engine.master.zk.ZkService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
@@ -47,13 +47,15 @@ public class ConsoleService {
     @Autowired
     private EngineJobCacheDao engineJobCacheDao;
 
-    private WorkNode workNode = WorkNode.getInstance();
+    @Autowired
+    private WorkNode workNode;
 
-    private ZkDistributed zkDistributed = ZkDistributed.createZkDistributed(null);
+    @Autowired
+    private ZkService zkService;
 
     public List<String> nodes() {
         try {
-            return zkDistributed.getAliveBrokersChildren();
+            return zkService.getAliveBrokersChildren();
         } catch (Exception e) {
             return Collections.EMPTY_LIST;
         }

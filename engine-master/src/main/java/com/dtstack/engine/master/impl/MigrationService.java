@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.master.MasterNode;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -11,7 +12,8 @@ import java.util.Map;
 @Service
 public class MigrationService {
 
-    private MasterNode masterNode = MasterNode.getInstance();
+    @Autowired
+    private MasterNode masterNode;
 
     public void migrate(Map<String,Object> params) throws Exception{
         String node = (String)params.get("node");

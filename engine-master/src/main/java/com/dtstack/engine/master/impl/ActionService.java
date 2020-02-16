@@ -67,7 +67,8 @@ public class ActionService {
     @Autowired
     private StreamTaskCheckpointDao streamTaskCheckpointDao;
 
-    private WorkNode workNode = WorkNode.getInstance();
+    @Autowired
+    private WorkNode workNode;
 
     private static int length = 8;
 

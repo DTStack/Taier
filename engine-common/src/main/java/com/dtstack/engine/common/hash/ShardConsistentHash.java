@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.zookeeper;
+package com.dtstack.engine.common.hash;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
