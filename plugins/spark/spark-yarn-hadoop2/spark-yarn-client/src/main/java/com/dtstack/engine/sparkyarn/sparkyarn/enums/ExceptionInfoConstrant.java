@@ -13,10 +13,6 @@ public class ExceptionInfoConstrant {
 
     private static Logger logger = LoggerFactory.getLogger(ExceptionInfoConstrant.class);
 
-    public final static String SPARK_ENGINE_DOWN_RESTART_EXCEPTION = "Current state is not alive: STANDBY";
-
-    public final static String TREENODE_RESTART_EXCEPTION = "org.apache.spark.sql.catalyst.errors.package$TreeNodeException: execute, tree";
-
     private static List<String> needRestartExceptions = Lists.newArrayList();
 
     static {

@@ -8,7 +8,7 @@ import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.LimitResourceException;
 import com.dtstack.engine.common.exception.RdosException;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.restart.ARestartService;
+import com.dtstack.engine.common.restart.CommonRestartService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -187,12 +187,12 @@ public class ClientProxy implements IClient{
     }
 
     @Override
-    public ARestartService getRestartService() {
+    public CommonRestartService getRestartService() {
         try {
-            return ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<ARestartService>(){
+            return ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<CommonRestartService>(){
 
                 @Override
-                public ARestartService execute() throws Exception {
+                public CommonRestartService execute() throws Exception {
                     return targetClient.getRestartService();
                 }
             }, targetClient.getClass().getClassLoader(),true);

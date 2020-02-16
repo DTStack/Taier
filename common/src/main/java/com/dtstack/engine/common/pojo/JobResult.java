@@ -1,9 +1,8 @@
 package com.dtstack.engine.common.pojo;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.google.common.base.Strings;
-import org.apache.sling.commons.json.JSONException;
-import org.apache.sling.commons.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,8 +74,8 @@ public class JobResult {
         return jobResult;
     }
 
-    public String getMsgInfo() throws JSONException {
-        if(!json.has(MSG_INFO)){
+    public String getMsgInfo() {
+        if(!json.containsKey(MSG_INFO)){
             return "";
         }
 
@@ -95,16 +94,11 @@ public class JobResult {
 
     public String getData(String key){
 
-        if(!json.has(key)){
+        if(!json.containsKey(key)){
             return null;
         }
 
-        try {
-            return (String) json.get(key);
-        } catch (JSONException e) {
-            logger.error("", e);
-            return null;
-        }
+        return json.getString(key);
     }
 
     public static String addTimeForMsg(String msg){
