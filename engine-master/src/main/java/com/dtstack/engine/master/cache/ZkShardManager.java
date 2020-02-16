@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -27,6 +28,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * author: toutian
  * create: 2018/9/1
  */
+@Component
 public class ZkShardManager implements Runnable, InitializingBean {
 
     private static Logger logger = LoggerFactory.getLogger(ZkShardManager.class);

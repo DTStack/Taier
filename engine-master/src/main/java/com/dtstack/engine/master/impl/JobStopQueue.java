@@ -18,7 +18,6 @@ import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.send.HttpSendClient;
 import com.dtstack.engine.common.util.TaskIdUtil;
-import com.dtstack.engine.master.zk.ZkService;
 import com.dtstack.engine.master.cache.ZkLocalCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,9 +49,6 @@ import java.util.stream.Collectors;
 public class JobStopQueue {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobStopQueue.class);
-
-    @Autowired
-    private ZkService zkService;
 
     @Autowired
     private ZkLocalCache zkLocalCache;
@@ -212,7 +208,7 @@ public class JobStopQueue {
                 return true;
             }
 
-            if (!address.equals(zkService.getLocalAddress())) {
+            if (!address.equals(environmentContext.getLocalAddress())) {
                 paramAction.setRequestStart(RequestStart.NODE.getStart());
                 LOG.info("action stop jobId:{} to worker node addr:{}." + paramAction.getTaskId(), address);
                 Boolean res = HttpSendClient.actionStopJobToWorker(address, paramAction);

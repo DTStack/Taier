@@ -13,7 +13,6 @@ import com.dtstack.engine.dao.BatchJobDao;
 import com.dtstack.engine.domain.po.SimpleBatchJobPO;
 import com.dtstack.engine.master.queue.QueueInfo;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
-import com.dtstack.engine.master.zk.ZkService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
@@ -62,9 +61,6 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
     private EnvironmentContext environmentContext;
 
     @Autowired
-    private ZkService zkService;
-
-    @Autowired
     private BatchJobDao batchJobDao;
 
     @Autowired
@@ -109,7 +105,7 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
      * 获取当前节点的 type类型下的 job实例信息
      */
     public Map<Integer, QueueInfo> getNodeQueueInfo() {
-        String localAddress = zkService.getLocalAddress();
+        String localAddress = environmentContext.getLocalAddress();
         Twins<String, String> cycTime = jobRichOperator.getCycTimeLimit();
         Map<Integer, QueueInfo> nodeQueueInfo = Maps.newHashMap();
         executors.forEach(executor -> nodeQueueInfo.computeIfAbsent(executor.getScheduleType(), k -> {
@@ -144,7 +140,7 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
 
         @Override
         public void run() {
-            if (StringUtils.isBlank(zkService.getLocalAddress())) {
+            if (StringUtils.isBlank(environmentContext.getLocalAddress())) {
                 return;
             }
 
@@ -177,7 +173,7 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
             try {
                 long startId = 0L;
                 while (true) {
-                    List<SimpleBatchJobPO> jobs = batchJobDao.listSimpleJobByStatusAddress(startId, SUBMIT_ENGINE_STATUSES, zkService.getLocalAddress());
+                    List<SimpleBatchJobPO> jobs = batchJobDao.listSimpleJobByStatusAddress(startId, SUBMIT_ENGINE_STATUSES, environmentContext.getLocalAddress());
                     if (CollectionUtils.isEmpty(jobs)) {
                         break;
                     }
@@ -195,7 +191,7 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
                 }
             } catch (Exception e) {
                 INIT.compareAndSet(true, false);
-                LOG.error("----nodeAddress:{} syncAllStatus error:{}", zkService.getLocalAddress(), e);
+                LOG.error("----nodeAddress:{} syncAllStatus error:{}", environmentContext.getLocalAddress(), e);
                 throw e;
             }
             return jobCount;
@@ -212,7 +208,7 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
                 batchUpdateJobStatusInfo(jobStatusInfos);
                 jobCount = jobStatusInfos.size();
             } catch (Exception e) {
-                LOG.error("----nodeAddress:{} syncBulkStatus error:{}", zkService.getLocalAddress(), e);
+                LOG.error("----nodeAddress:{} syncBulkStatus error:{}", environmentContext.getLocalAddress(), e);
                 throw e;
             }
             return jobCount;

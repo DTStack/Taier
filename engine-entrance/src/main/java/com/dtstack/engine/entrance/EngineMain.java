@@ -45,6 +45,7 @@ public class EngineMain {
 					MybatisConfig.class, RdosBeanConfig.class, SdkConfig.class);
 			environmentContext = (EnvironmentContext) context.getBean("environmentContext");
 
+			setHadoopUserName();
 			// init service
 			initService(context);
 			// add hook
@@ -57,6 +58,9 @@ public class EngineMain {
 
 	private static void setSystemProperty() {
 		SystemPropertyUtil.setSystemUserDir();
+	}
+
+	private static void setHadoopUserName(){
 		SystemPropertyUtil.setHadoopUserName(environmentContext.getHadoopUserName());
 	}
 

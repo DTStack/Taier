@@ -25,18 +25,18 @@ import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.JobStopQueue;
 import com.dtstack.engine.master.resource.JobComputeResourcePlain;
 import com.dtstack.engine.master.send.HttpSendClient;
+import com.dtstack.engine.master.task.QueueListener;
 import com.dtstack.engine.master.task.TaskListener;
 import com.dtstack.engine.master.task.TaskStatusListener;
-import com.dtstack.engine.master.zk.ZkService;
 import com.dtstack.engine.master.cache.ZkLocalCache;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -57,7 +57,7 @@ import java.util.concurrent.TimeUnit;
  * @author xuchao
  */
 @Component
-public class WorkNode {
+public class WorkNode implements InitializingBean {
 
     private static final Logger LOG = LoggerFactory.getLogger(WorkNode.class);
 
@@ -66,9 +66,6 @@ public class WorkNode {
 
     @Autowired
     private JobComputeResourcePlain jobComputeResourcePlain;
-
-    @Autowired
-    private ZkService zkService;
 
     @Autowired
     private ZkLocalCache zkLocalCache;
@@ -93,23 +90,15 @@ public class WorkNode {
 
     private JobStopQueue jobStopQueue;
 
-    private static WorkNode singleton = new WorkNode();
-
-    public static WorkNode getInstance(){
-        return singleton;
-    }
-
     private ExecutorService executors  = new ThreadPoolExecutor(3, 3,
             0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<Runnable>());
 
-    private WorkNode(){
-    }
-
-    public void init() {
+    @Override
+    public void afterPropertiesSet() throws Exception {
         executors.execute(new TaskListener());
         executors.execute(new TaskStatusListener());
-//        executors.execute(new QueueListener());
+        executors.execute(new QueueListener());
 
         ExecutorService recoverExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory("recoverDealer"));
@@ -117,8 +106,6 @@ public class WorkNode {
 
         jobStopQueue = new JobStopQueue(this);
         jobStopQueue.start();
-
-        zkLocalCache.setWorkNode(this);
     }
 
     public GroupPriorityQueue getPriorityQueue(JobClient jobClient) {
@@ -276,7 +263,7 @@ public class WorkNode {
     }
 
     public void saveCache(JobClient jobClient, String jobResource, int stage, boolean insert){
-        String nodeAddress = zkService.getLocalAddress();
+        String nodeAddress = environmentContext.getLocalAddress();
         if(insert){
             engineJobCacheDao.insert(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobResource);
         } else {
@@ -285,7 +272,7 @@ public class WorkNode {
     }
 
     public void updateCache(JobClient jobClient, int stage){
-        String nodeAddress = zkService.getLocalAddress();
+        String nodeAddress = environmentContext.getLocalAddress();
         engineJobCacheDao.updateStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority());
     }
 
@@ -374,7 +361,7 @@ public class WorkNode {
                 result.put("errorInfo","distribute node can not be null");
                 return result;
             }
-            if (address.equals(zkService.getLocalAddress())){
+            if (address.equals(environmentContext.getLocalAddress())){
                 this.addSubmitJob(jobClient, true);
                 return result;
             }
@@ -431,7 +418,7 @@ public class WorkNode {
      * 重启后，各自节点load自己的数据
      */
     public void loadQueueFromDB(){
-        String localAddress = zkService.getLocalAddress();
+        String localAddress = environmentContext.getLocalAddress();
         try {
             long startId = 0L;
             while (true) {
@@ -465,7 +452,7 @@ public class WorkNode {
     }
 
     private Long emitJob2GQ(String engineType, GroupPriorityQueue groupPriorityQueue, long startId, int limited){
-        String localAddress = zkService.getLocalAddress();
+        String localAddress = environmentContext.getLocalAddress();
         try {
             int count = 0;
             outLoop :

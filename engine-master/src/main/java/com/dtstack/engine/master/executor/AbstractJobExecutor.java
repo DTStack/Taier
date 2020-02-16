@@ -22,7 +22,6 @@ import com.dtstack.engine.master.queue.JopPriorityQueue;
 import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.scheduler.JobErrorInfo;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
-import com.dtstack.engine.master.zk.ZkService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -57,9 +56,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
     @Autowired
     private EnvironmentContext env;
-
-    @Autowired
-    protected ZkService zkService;
 
     @Autowired
     protected BatchJobDao batchJobDao;
@@ -249,7 +245,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     }
 
     private Long emitJob2Queue(JopPriorityQueue jopPriorityQueue, long startId) {
-        String nodeAddress = zkService.getLocalAddress();
+        String nodeAddress = environmentContext.getLocalAddress();
         if (StringUtils.isBlank(nodeAddress)) {
             return startId;
         }

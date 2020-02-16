@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
  * @author sishu.yss
  */
 @Component
-@PropertySource(value = "file:${user.dir}/conf/application.properties", ignoreResourceNotFound = false)
+@PropertySource(value = "file:${user.dir}/conf/application.properties")
 public class EnvironmentContext {
 
     @Autowired

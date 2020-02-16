@@ -6,6 +6,7 @@ import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.dao.BatchJobDao;
 import com.dtstack.engine.domain.po.SimpleBatchJobPO;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.WorkNodeService;
 import com.dtstack.engine.master.queue.ClusterQueueInfo;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
@@ -60,6 +61,9 @@ public class FailoverStrategy {
         UNFINISHED_STATUSES.addAll(TaskStatusConstrant.SUBMITTING_STATUS);
         UNFINISHED_STATUSES.add(TaskStatus.RESTARTING.getStatus());
     }
+
+    @Autowired
+    private EnvironmentContext environmentContext;
 
     @Autowired
     private ZkService zkService;
@@ -255,7 +259,7 @@ public class FailoverStrategy {
             }
             batchJobDao.updateNodeAddress(nodeEntry.getKey(), nodeEntry.getValue());
 
-            if (nodeEntry.getKey().equals(zkService.getLocalAddress())) {
+            if (nodeEntry.getKey().equals(environmentContext.getLocalAddress())) {
                 workNodeService.masterSendJobs();
                 continue;
             }

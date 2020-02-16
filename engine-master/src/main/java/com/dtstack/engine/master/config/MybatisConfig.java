@@ -28,7 +28,7 @@ import java.beans.PropertyVetoException;
 @Configuration
 @EnableTransactionManagement(proxyTargetClass = true)
 @ComponentScan(basePackages = {"com.dtstack.*"})
-@MapperScan(basePackages = {"com.dtstack.task.dao"}, sqlSessionTemplateRef = "sqlSessionTemplate")
+@MapperScan(basePackages = {"com.dtstack.engine.dao"}, sqlSessionTemplateRef = "sqlSessionTemplate")
 public class MybatisConfig {
 
     @Autowired
@@ -55,7 +55,7 @@ public class MybatisConfig {
     public SqlSessionFactory sqlSessionFactory() throws Exception {
         SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
         sqlSessionFactoryBean.setDataSource(dataSource());
-        sqlSessionFactoryBean.setTypeAliasesPackage("com.dtstack.task.domain,com.dtstack.task.domain.po");
+        sqlSessionFactoryBean.setTypeAliasesPackage("com.dtstack.engine.domain,com.dtstack.engine.domain.po");
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         Resource[] resourceDash = resolver.getResources(environmentContext.getMybatisMapperLocations());
         Resource[] resources = (Resource[]) ArrayUtils.addAll(resourceDash);

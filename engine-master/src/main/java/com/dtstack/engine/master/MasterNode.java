@@ -5,7 +5,6 @@ import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.EngineJobDao;
-import com.dtstack.engine.master.zk.ZkService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,9 +29,6 @@ public class MasterNode {
     private static final Logger LOG = LoggerFactory.getLogger(MasterNode.class);
 
     private BlockingQueue<String> queue = new LinkedBlockingDeque<>();
-
-    @Autowired
-    private ZkService zkService;
 
     @Autowired
     private EngineJobCacheDao engineJobCacheDao;
