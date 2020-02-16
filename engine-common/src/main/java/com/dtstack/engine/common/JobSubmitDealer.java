@@ -61,6 +61,7 @@ public class JobSubmitDealer implements Runnable {
             try {
                 JobClient jobClient = acquireJobFromQueue();
                 if (!checkLocalPriorityIsMax(jobResource, jobClient.getPriority())) {
+                    logger.info("jobId:{} checkLocalPriorityIsMax is false, wait other node job which priority higher.", jobClient.getTaskId());
                     break;
                 }
                 //提交任务
@@ -81,6 +82,7 @@ public class JobSubmitDealer implements Runnable {
             }
         }
         jobClient = queue.take();
+        logger.info("jobId{} acquireJobFromQueue, jobResource{} queueSize:{}.", jobClient.getTaskId(), jobResource, priorityQueue.queueSize());
         return jobClient;
     }
 

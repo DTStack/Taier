@@ -486,6 +486,7 @@ public class WorkNode {
                             updateJobStatus(jobClient.getTaskId(), jobClient.getComputeType().getType(), jobStatus);
                         });
                         groupPriorityQueue.add(jobClient);
+                        LOG.info("jobId:{} load from db, emit job to queue.", jobClient.getTaskId());
                         startId = jobCache.getId();
                         if (++count >= limited){
                             break outLoop;

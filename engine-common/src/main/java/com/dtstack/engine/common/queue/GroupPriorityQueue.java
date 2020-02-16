@@ -71,9 +71,11 @@ public class GroupPriorityQueue {
 
     public void add(JobClient jobClient) throws InterruptedException {
         if (isBlocked()){
+            logger.info("jobId:{} unable add to queue, because queue is blocked.", jobClient.getTaskId());
             return;
         }
         if (queue.contains(jobClient)) {
+            logger.info("jobId:{} unable add to queue, because jobId already exist.", jobClient.getTaskId());
             return;
         }
 
@@ -111,7 +113,7 @@ public class GroupPriorityQueue {
         return blocked;
     }
 
-    private long queueSize() {
+    public long queueSize() {
         return queue.size() + jobSubmitDealer.getRestartJobQueueSize();
     }
 
