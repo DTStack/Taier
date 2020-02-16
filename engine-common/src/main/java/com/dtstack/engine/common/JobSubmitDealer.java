@@ -6,6 +6,8 @@ import com.dtstack.engine.common.exception.ClientArgumentException;
 import com.dtstack.engine.common.exception.LimitResourceException;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.pojo.RestartJob;
+import com.dtstack.engine.common.queue.DelayBlockingQueue;
 import com.dtstack.engine.common.queue.GroupPriorityQueue;
 import com.dtstack.engine.common.queue.OrderLinkedBlockingQueue;
 import org.slf4j.Logger;
@@ -22,65 +24,65 @@ public class JobSubmitDealer implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(JobSubmitDealer.class);
 
-    /***循环间隔时间3s*/
-    private static final int WAIT_INTERVAL = 2 * 1000;
-
-    private GroupPriorityQueue priorityQueue;
-
     /**
      * 用于taskListener处理, 此处为static修饰，全局共用一个
      */
     private static LinkedBlockingQueue<JobClient> submittedQueue = new LinkedBlockingQueue<>();
 
-    public JobSubmitDealer(GroupPriorityQueue queue) {
-        if (queue == null) {
+    /***循环间隔时间3s*/
+    private static final int WAIT_INTERVAL = 2 * 1000;
+
+    private GroupPriorityQueue priorityQueue;
+    private String jobResource = null;
+    private OrderLinkedBlockingQueue<JobClient> queue = null;
+    private DelayBlockingQueue<RestartJob<JobClient>> restartJobQueue = null;
+
+    public JobSubmitDealer(GroupPriorityQueue priorityQueue) {
+        if (priorityQueue == null) {
             throw new RdosDefineException("queue must not null.");
         }
-        this.priorityQueue = queue;
+        this.priorityQueue = priorityQueue;
+        this.jobResource = priorityQueue.getJobResource();
+        this.queue = priorityQueue.getQueue();
+        this.restartJobQueue = new DelayBlockingQueue<RestartJob<JobClient>>(priorityQueue.getQueueSizeLimited());
+    }
+
+    public boolean tryPutRestartJob(JobClient jobClient) {
+        return restartJobQueue.tryPut(new RestartJob<>(jobClient, priorityQueue.getJobRestartDelay()));
+    }
+
+    public int getRestartJobQueueSize() {
+        return restartJobQueue.size();
     }
 
     @Override
     public void run() {
-        try {
-            String jobResource = priorityQueue.getJobResource();
-            OrderLinkedBlockingQueue<JobClient> queue = priorityQueue.getQueue();
-            while (true) {
-                JobClient jobClient = queue.take();
-                //todo
-                //重试任务时间未满足条件
-//                if (jobClient.isJobRetryWaiting()) {
-//                    continue;
-//                }
-//                if (!checkLocalPriorityIsMax(jobResource, jobClient.getPriority())) {
-//                    break;
-//                }
+        while (true) {
+            try {
+                JobClient jobClient = acquireJobFromQueue();
+                if (!checkLocalPriorityIsMax(jobResource, jobClient.getPriority())) {
+                    break;
+                }
                 //提交任务
                 submitJob(jobClient);
+            } catch (Exception e) {
+                logger.error("", e);
             }
-        } catch (Exception e) {
-            logger.error("", e);
         }
     }
 
-//    private void submitJobClient(String engineType, String groupName, OrderLinkedBlockingQueue<JobClient> priorityQueue){
-//        Iterator<JobClient> it = priorityQueue.iterator();
-//        while (it.hasNext()){
-//            JobClient jobClient = it.next();
-//            //重试任务时间未满足条件
-//            if (jobClient.isJobRetryWaiting()){
-//                continue;
-//            }
-//            if (!checkLocalPriorityIsMax(engineType,groupName,jobClient.getPriority())){
-//                break;
-//            }
-//            //提交任务
-//            if (submitJob(jobClient,priorityQueue)) {
-//                it.remove();
-//            }
-//            //group queue 一次提交一个任务
-//            break;
-//        }
-//    }
+    private JobClient acquireJobFromQueue() throws InterruptedException {
+        JobClient jobClient = null;
+        RestartJob<JobClient> restartJob = null;
+        while ((restartJob = restartJobQueue.poll()) != null){
+            jobClient = restartJob.getJob();
+            if (jobClient != null) {
+                break;
+            }
+        }
+        jobClient = queue.take();
+        return jobClient;
+    }
 
     //TODO ,重构zk优先级方式
     private boolean checkLocalPriorityIsMax(String jobResource, long localPriority) {

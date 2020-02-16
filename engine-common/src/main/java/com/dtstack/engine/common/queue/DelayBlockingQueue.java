@@ -36,4 +36,16 @@ public class DelayBlockingQueue<E extends Delayed> {
         }
         return e;
     }
+
+    public E poll() {
+        E e = delayQ.poll();
+        if (e != null) {
+            available.release();
+        }
+        return e;
+    }
+
+    public int size() {
+        return available.availablePermits();
+    }
 }

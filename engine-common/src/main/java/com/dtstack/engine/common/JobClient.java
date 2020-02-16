@@ -79,8 +79,6 @@ public class JobClient extends OrderObject{
 
     private String pluginInfo;
 
-    private long restartTime = 0;
-
     private long generateTime;
 
     private int maxRetryNum;
@@ -140,7 +138,6 @@ public class JobClient extends OrderObject{
         this.externalPath = paramAction.getExternalPath();
         this.engineType = paramAction.getEngineType();
         this.classArgs = paramAction.getExeArgs();
-        this.restartTime = paramAction.getRestartTime();
         this.generateTime = paramAction.getGenerateTime();
         if (paramAction.getComputeType().equals(ComputeType.STREAM.getType())){
             this.maxRetryNum = 0;
@@ -183,7 +180,6 @@ public class JobClient extends OrderObject{
         action.setEngineType(engineType);
         action.setExeArgs(classArgs);
         action.setGroupName(groupName);
-        action.setRestartTime(restartTime);
         action.setGenerateTime(generateTime);
         action.setPriority(priority);
         action.setApplicationId(applicationId);
@@ -355,14 +351,6 @@ public class JobClient extends OrderObject{
         this.coreJarInfo = coreJarInfo;
     }
 
-    public long getRestartTime() {
-        return restartTime;
-    }
-
-    public void setRestartTime(long restartTime) {
-        this.restartTime = restartTime;
-    }
-
     public long getGenerateTime() {
         return generateTime;
     }
@@ -395,11 +383,6 @@ public class JobClient extends OrderObject{
         this.maxRetryNum = maxRetryNum;
     }
 
-
-    public boolean isJobRetryWaiting(){
-        return restartTime != 0 && System.currentTimeMillis() <= restartTime;
-    }
-
     public String getClusterType() {
         return null;
     }
@@ -428,7 +411,6 @@ public class JobClient extends OrderObject{
                 ", classArgs='" + classArgs +
                 ", again=" + again +
                 ", groupName=" + groupName +
-                ", restartTime=" + restartTime +
                 ", generateTime=" + generateTime +
                 ", priority=" + priority +
                 ", maxRetryNum=" + maxRetryNum +

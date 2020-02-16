@@ -271,5 +271,8 @@ public class EnvironmentContext {
         return environment.getProperty("computeResourcePlain", "Cluster");
     }
 
+    public long getJobRestartDelay() {
+        return Long.parseLong(environment.getProperty("jobRestartDelay"), 2 * 60 * 1000);
+    }
 
 }

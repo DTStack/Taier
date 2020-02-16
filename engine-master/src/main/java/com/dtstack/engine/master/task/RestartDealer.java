@@ -46,8 +46,6 @@ public class RestartDealer {
 
     private static final Logger LOG = LoggerFactory.getLogger(RestartDealer.class);
 
-    private static final Integer SUBMIT_INTERVAL = 2 * 60 * 1000;
-
     @Autowired
     private JobComputeResourcePlain jobComputeResourcePlain;
 
@@ -374,9 +372,7 @@ public class RestartDealer {
     }
 
     private void addToRestart(JobClient jobClient){
-        jobClient.setRestartTime(System.currentTimeMillis() + SUBMIT_INTERVAL);
-        String jobResource = jobComputeResourcePlain.getJobResource(jobClient);
-        WorkNode.getInstance().redirectSubmitJob(jobResource, jobClient, false);
+        WorkNode.getInstance().addRestartJob(jobClient);
     }
 
     /**

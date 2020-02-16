@@ -15,13 +15,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * 执行引擎对应的优先级队列信息
- * Date: 2018/1/15
- * Company: www.dtstack.com
- *
- * @author xuchao
+ * company: www.dtstack.com
+ * author: toutian
+ * create: 2020/2/16
  */
-
 public class GroupPriorityQueue {
 
     private static final int WAIT_INTERVAL = 5000;
@@ -37,11 +34,11 @@ public class GroupPriorityQueue {
 
     private String jobResource;
     private int queueSizeLimited;
+    private long jobRestartDelay;
     private Ingestion ingestion;
 
-    private JobSubmitDealer jobSubmitDealer;
-
-    private OrderLinkedBlockingQueue<JobClient> queue = new OrderLinkedBlockingQueue<>();
+    private OrderLinkedBlockingQueue<JobClient> queue = null;
+    private JobSubmitDealer jobSubmitDealer = null;
 
     /**
      * 每个GroupPriorityQueue中增加独立线程，以定时调度方式从数据库中获取任务。（数据库查询以id和优先级为条件）
@@ -49,11 +46,14 @@ public class GroupPriorityQueue {
      * @param jobResource
      * @param ingestion
      */
-    public GroupPriorityQueue(String jobResource, int queueSizeLimited, Ingestion ingestion) {
+    public GroupPriorityQueue(String jobResource, int queueSizeLimited, long jobRestartDelay, Ingestion ingestion) {
         this.jobResource = jobResource;
         this.queueSizeLimited = queueSizeLimited;
+        this.jobRestartDelay = jobRestartDelay;
         this.ingestion = ingestion;
+        this.queue = new OrderLinkedBlockingQueue<>(queueSizeLimited * 2);
         this.jobSubmitDealer = new JobSubmitDealer(this);
+
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("acquireJob_" + jobResource));
         scheduledService.scheduleWithFixedDelay(
                 new AcquireGroupQueueJob(),
@@ -66,11 +66,18 @@ public class GroupPriorityQueue {
     }
 
     public void add(JobClient jobClient) throws InterruptedException {
+        if (isBlocked()){
+            return;
+        }
         if (queue.contains(jobClient)) {
             return;
         }
 
         queue.put(jobClient);
+    }
+
+    public void addRestartJob(JobClient jobClient) {
+        jobSubmitDealer.tryPutRestartJob(jobClient);
     }
 
     public OrderLinkedBlockingQueue<JobClient> getQueue() {
@@ -100,7 +107,7 @@ public class GroupPriorityQueue {
     }
 
     private long queueSize() {
-        return queue.size();
+        return queue.size() + jobSubmitDealer.getRestartJobQueueSize();
     }
 
     public void resetStartId() {
@@ -109,6 +116,14 @@ public class GroupPriorityQueue {
 
     public String getJobResource() {
         return jobResource;
+    }
+
+    public int getQueueSizeLimited() {
+        return queueSizeLimited;
+    }
+
+    public long getJobRestartDelay() {
+        return jobRestartDelay;
     }
 
     private class AcquireGroupQueueJob implements Runnable {

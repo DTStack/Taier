@@ -54,8 +54,6 @@ public class ParamAction {
 
 	private Integer sourceType;
 
-	private long restartTime;
-
 	private long priority;
 
 	private long generateTime = System.currentTimeMillis();
@@ -176,14 +174,6 @@ public class ParamAction {
 
 	public void setSourceType(Integer sourceType) {
 		this.sourceType = sourceType;
-	}
-
-	public long getRestartTime() {
-		return restartTime;
-	}
-
-	public void setRestartTime(long restartTime) {
-		this.restartTime = restartTime;
 	}
 
 	public long getGenerateTime() {

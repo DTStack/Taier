@@ -204,7 +204,7 @@ public class WorkNode {
         updateJobStatus(jobClient.getTaskId(), computeType, RdosTaskStatus.WAITENGINE.getStatus());
 
         //加入节点的优先级队列
-        this.redirectSubmitJob(jobResource, jobClient, true);
+        this.redirectSubmitJob(jobResource, jobClient);
     }
 
     /**
@@ -222,20 +222,24 @@ public class WorkNode {
         zkLocalCache.updateLocalMemTaskStatus(zkTaskId,RdosTaskStatus.SUBMITTED.getStatus());
     }
 
-    public void redirectSubmitJob(String jobResource, JobClient jobClient, boolean judgeBlocked){
+    public void redirectSubmitJob(String jobResource, JobClient jobClient){
         try{
-            GroupPriorityQueue groupQueue = priorityQueueMap.computeIfAbsent(jobResource, k -> new GroupPriorityQueue(jobResource, environmentContext.getQueueSize(),
+            GroupPriorityQueue groupQueue = priorityQueueMap.computeIfAbsent(jobResource, k -> new GroupPriorityQueue(jobResource, environmentContext.getQueueSize(), environmentContext.getJobRestartDelay(),
                     (groupPriorityQueue, startId, limited) -> {
                         return this.emitJob2GQ(jobClient.getEngineType(), groupPriorityQueue, startId, limited);
                     })
             );
-            if (!judgeBlocked || !groupQueue.isBlocked()){
-                groupQueue.add(jobClient);
-            }
+            groupQueue.add(jobClient);
         }catch (Exception e){
             LOG.error("add to priority queue error:", e);
             dealSubmitFailJob(jobClient.getTaskId(), jobClient.getComputeType().getType(), e.toString());
         }
+    }
+
+    public void addRestartJob(JobClient jobClient) {
+        String jobResource = jobComputeResourcePlain.getJobResource(jobClient);
+        GroupPriorityQueue queue = priorityQueueMap.get(jobResource);
+        queue.addRestartJob(jobClient);
     }
 
     public void masterSendSubmitJob(List<String> jobIds){

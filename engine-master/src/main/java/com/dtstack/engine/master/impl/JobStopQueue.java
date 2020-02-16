@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.dtstack.engine.common.pojo.StoppedJob;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
@@ -28,7 +29,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Delayed;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
@@ -119,7 +119,7 @@ public class JobStopQueue {
     }
 
     public boolean tryPutStopJobQueue(ParamAction paramAction) {
-        return stopJobQueue.tryPut(new StoppedJob<ParamAction>(paramAction));
+        return stopJobQueue.tryPut(new StoppedJob<ParamAction>(paramAction, jobStoppedRetry, jobStoppedDelay));
     }
 
     private class AcquireStopJob implements Runnable {
@@ -218,7 +218,7 @@ public class JobStopQueue {
                     return res;
                 }
             }
-            stopJobQueue.put(new StoppedJob<ParamAction>(paramAction));
+            stopJobQueue.put(new StoppedJob<ParamAction>(paramAction, jobStoppedRetry, jobStoppedDelay));
             return true;
         } catch (Throwable e) {
             LOG.error("processStopJob happens error, element:{}", paramAction, e);
@@ -252,7 +252,7 @@ public class JobStopQueue {
             while (run) {
                 try {
                     StoppedJob<ParamAction> stoppedJob = stopJobQueue.take();
-                    StoppedStatus stoppedStatus = jobStopAction.stopJob(stoppedJob.job);
+                    StoppedStatus stoppedStatus = jobStopAction.stopJob(stoppedJob.getJob());
                     switch (stoppedStatus) {
                         case STOPPED:
                         case MISSED:
@@ -260,7 +260,7 @@ public class JobStopQueue {
                         case STOPPING:
                         case RETRY:
                             if (!stoppedJob.isRetry()) {
-                                LOG.warn("jobId:{} retry limited!", stoppedJob.job.getTaskId());
+                                LOG.warn("jobId:{} retry limited!", stoppedJob.getJob().getTaskId());
                                 break;
                             }
                             stoppedJob.incrCount();
@@ -273,7 +273,7 @@ public class JobStopQueue {
                             continue;
                         default:
                     }
-                    engineJobStopRecordDao.delete(stoppedJob.job.getStopJobId());
+                    engineJobStopRecordDao.delete(stoppedJob.getJob().getStopJobId());
                 } catch (Exception e) {
                     LOG.error("", e);
                 }
@@ -289,44 +289,6 @@ public class JobStopQueue {
 
         public void reStart() {
             this.run = true;
-        }
-    }
-
-    private class StoppedJob<T> implements Delayed {
-        private int count;
-        private T job;
-        private int retry;
-        private long now;
-        private long expired;
-
-        private StoppedJob(T job) {
-            this.job = job;
-            this.retry = jobStoppedRetry;
-            this.now = System.currentTimeMillis();
-            this.expired = now + jobStoppedDelay;
-        }
-
-        private void incrCount() {
-            count += 1;
-        }
-
-        private boolean isRetry() {
-            return retry == 0 || count <= retry;
-        }
-
-        private void reset(long delay) {
-            this.now = System.currentTimeMillis();
-            this.expired = now + delay;
-        }
-
-        @Override
-        public long getDelay(TimeUnit unit) {
-            return unit.convert(this.expired - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
-        }
-
-        @Override
-        public int compareTo(Delayed o) {
-            return (int) (this.getDelay(TimeUnit.MILLISECONDS) - o.getDelay(TimeUnit.MILLISECONDS));
         }
     }
 }
