@@ -3,6 +3,8 @@ package com.dtstack.engine.common.queue;
 import com.dtstack.engine.common.JobSubmitDealer;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -20,6 +22,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * create: 2020/2/16
  */
 public class GroupPriorityQueue {
+
+    private static final Logger logger = LoggerFactory.getLogger(GroupPriorityQueue.class);
 
     private static final int WAIT_INTERVAL = 5000;
     private static final int STOP_ACQUIRE_LIMITED = 10;
@@ -74,6 +78,7 @@ public class GroupPriorityQueue {
         }
 
         queue.put(jobClient);
+        logger.info("jobId:{} redirect add job to queue.", jobClient.getTaskId());
     }
 
     public void addRestartJob(JobClient jobClient) {
@@ -131,20 +136,22 @@ public class GroupPriorityQueue {
         @Override
         public void run() {
 
-            if (Boolean.FALSE == running.get() && queueSize() >= queueSizeLimited) {
+            if (Boolean.FALSE == running.get()) {
                 return;
             }
 
             /**
-             * 如果队列中的任务数量小于 ${GroupPriorityQueue.queueSizeLimited} , 在连续调度了  ${GroupPriorityQueue.STOP_ACQUIRE_LIMITED} 次都没有查询到新的数据，则停止调度
+             * 如果队列中的任务数量小于 ${GroupPriorityQueue.QUEUE_SIZE_LIMITED} , 在连续调度了  ${GroupPriorityQueue.STOP_ACQUIRE_LIMITED} 次都没有查询到新的数据，则停止调度
              */
-            long limitId = ingestion.ingestion(GroupPriorityQueue.this, startId.get(), queueSizeLimited);
-            if (limitId != startId.get()) {
-                stopAcquireCount.set(0);
-            } else if (stopAcquireCount.incrementAndGet() >= STOP_ACQUIRE_LIMITED) {
-                running.set(false);
+            if (queueSize() < queueSizeLimited){
+                long limitId = ingestion.ingestion(GroupPriorityQueue.this, startId.get(), queueSizeLimited);
+                if (limitId != startId.get()){
+                    stopAcquireCount.set(0);
+                } else if (stopAcquireCount.incrementAndGet() >= STOP_ACQUIRE_LIMITED) {
+                    running.set(false);
+                }
+                startId.set(limitId);
             }
-            startId.set(limitId);
         }
     }
 

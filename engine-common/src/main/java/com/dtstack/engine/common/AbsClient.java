@@ -2,8 +2,7 @@ package com.dtstack.engine.common;
 
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.restart.ARestartService;
-import com.dtstack.engine.common.restart.DefaultRestartService;
+import com.dtstack.engine.common.restart.CommonRestartService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +20,7 @@ public abstract class AbsClient implements IClient{
 
     private static final Logger logger = LoggerFactory.getLogger(AbsClient.class);
 
-    protected ARestartService restartService = new DefaultRestartService();
+    protected CommonRestartService restartService = new CommonRestartService();
 
     @Override
 	public JobResult submitJob(JobClient jobClient) {
@@ -79,7 +78,7 @@ public abstract class AbsClient implements IClient{
     }
 
     @Override
-    public ARestartService getRestartService() {
+    public CommonRestartService getRestartService() {
         return restartService;
     }
 }

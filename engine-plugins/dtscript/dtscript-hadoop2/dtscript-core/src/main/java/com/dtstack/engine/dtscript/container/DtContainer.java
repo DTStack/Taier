@@ -75,6 +75,7 @@ public class DtContainer {
 
     private DtContainer() throws IOException {
         containerInfo = new HashMap<>();
+        containerInfo.put("time", System.currentTimeMillis());
 
         this.conf = new DtYarnConfiguration();
 
