@@ -36,11 +36,8 @@ public class JobStopAction {
     @Autowired
     private EngineJobCacheDao engineJobCacheDao;
 
+    @Autowired
     private WorkNode workNode;
-
-    public JobStopAction(WorkNode workNode){
-        this.workNode = workNode;
-    }
 
     public StoppedStatus stopJob(ParamAction paramAction) throws Exception {
 

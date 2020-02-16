@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
 @Component
 public class JobStopQueue {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JobStopQueue.class);
+    private static final Logger logger = LoggerFactory.getLogger(JobStopQueue.class);
 
     @Autowired
     private ZkLocalCache zkLocalCache;
@@ -67,15 +67,11 @@ public class JobStopQueue {
     @Autowired
     private EnvironmentContext environmentContext;
 
+    @Autowired
     private WorkNode workNode;
 
+    @Autowired
     private JobStopAction jobStopAction;
-
-    private final int jobStoppedRetry;
-    /**
-     * delay 3 second
-     */
-    private final long jobStoppedDelay;
 
     private static final int WAIT_INTERVAL = 1000;
 
@@ -87,13 +83,6 @@ public class JobStopQueue {
     private ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("acquire-stopJob"));
 
     private StopProcessor stopProcessor = new StopProcessor();
-
-    public JobStopQueue(WorkNode workNode) {
-        this.workNode = workNode;
-        this.jobStopAction = new JobStopAction(workNode);
-        this.jobStoppedRetry = environmentContext.getJobStoppedRetry();
-        this.jobStoppedDelay = environmentContext.getJobStoppedDelay();
-    }
 
     public void start() {
         if (simpleES.isShutdown()) {
@@ -117,7 +106,7 @@ public class JobStopQueue {
     }
 
     public boolean tryPutStopJobQueue(ParamAction paramAction) {
-        return stopJobQueue.tryPut(new StoppedJob<ParamAction>(paramAction, jobStoppedRetry, jobStoppedDelay));
+        return stopJobQueue.tryPut(new StoppedJob<ParamAction>(paramAction, environmentContext.getJobStoppedRetry(), environmentContext.getJobRestartDelay()));
     }
 
     private class AcquireStopJob implements Runnable {
@@ -176,7 +165,7 @@ public class JobStopQueue {
                             }
 
                         } else {
-                            LOG.warn("[Unnormal Job] jobId:{}", jobStopRecord.getTaskId());
+                            logger.warn("[Unnormal Job] jobId:{}", jobStopRecord.getTaskId());
                             //jobcache表没有记录，可能任务已经停止。在update表时增加where条件不等于stopped
                             engineJobDao.updateTaskStatusNotStopped(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus(), RdosTaskStatus.getStoppedStatus());
                             zkLocalCache.updateLocalMemTaskStatus(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
@@ -186,7 +175,7 @@ public class JobStopQueue {
 
                     Thread.sleep(500);
                 } catch (Throwable e) {
-                    LOG.error("when acquire stop jobs happens error:{}", e);
+                    logger.error("when acquire stop jobs happens error:{}", e);
                 }
             }
         }
@@ -204,22 +193,22 @@ public class JobStopQueue {
             String zkTaskId = TaskIdUtil.getZkTaskId(computeType, paramAction.getEngineType(), jobId);
             String address = zkLocalCache.getJobLocationAddr(zkTaskId);
             if (address == null) {
-                LOG.info("can't get info from engine zk for jobId" + jobId);
+                logger.info("can't get info from engine zk for jobId" + jobId);
                 return true;
             }
 
             if (!address.equals(environmentContext.getLocalAddress())) {
                 paramAction.setRequestStart(RequestStart.NODE.getStart());
-                LOG.info("action stop jobId:{} to worker node addr:{}." + paramAction.getTaskId(), address);
+                logger.info("action stop jobId:{} to worker node addr:{}." + paramAction.getTaskId(), address);
                 Boolean res = HttpSendClient.actionStopJobToWorker(address, paramAction);
                 if (res != null) {
                     return res;
                 }
             }
-            stopJobQueue.put(new StoppedJob<ParamAction>(paramAction, jobStoppedRetry, jobStoppedDelay));
+            stopJobQueue.put(new StoppedJob<ParamAction>(paramAction, environmentContext.getJobStoppedRetry(), environmentContext.getJobRestartDelay()));
             return true;
         } catch (Throwable e) {
-            LOG.error("processStopJob happens error, element:{}", paramAction, e);
+            logger.error("processStopJob happens error, element:{}", paramAction, e);
             //停止发生错误时，需要避免死循环进行停止
             return true;
         }
@@ -245,7 +234,7 @@ public class JobStopQueue {
         @Override
         public void run() {
 
-            LOG.info("job stop process thread is start...");
+            logger.info("job stop process thread is start...");
 
             while (run) {
                 try {
@@ -258,14 +247,14 @@ public class JobStopQueue {
                         case STOPPING:
                         case RETRY:
                             if (!stoppedJob.isRetry()) {
-                                LOG.warn("jobId:{} retry limited!", stoppedJob.getJob().getTaskId());
+                                logger.warn("jobId:{} retry limited!", stoppedJob.getJob().getTaskId());
                                 break;
                             }
                             stoppedJob.incrCount();
                             if (StoppedStatus.STOPPING == stoppedStatus) {
-                                stoppedJob.reset(jobStoppedDelay * 20);
+                                stoppedJob.reset(environmentContext.getJobRestartDelay() * 20);
                             } else if (StoppedStatus.RETRY == stoppedStatus) {
-                                stoppedJob.reset(jobStoppedDelay);
+                                stoppedJob.reset(environmentContext.getJobRestartDelay());
                             }
                             stopJobQueue.put(stoppedJob);
                             continue;
@@ -273,11 +262,11 @@ public class JobStopQueue {
                     }
                     engineJobStopRecordDao.delete(stoppedJob.getJob().getStopJobId());
                 } catch (Exception e) {
-                    LOG.error("", e);
+                    logger.error("", e);
                 }
             }
 
-            LOG.info("job stop process thread is shutdown...");
+            logger.info("job stop process thread is shutdown...");
 
         }
 

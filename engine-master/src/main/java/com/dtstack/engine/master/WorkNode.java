@@ -74,7 +74,7 @@ public class WorkNode implements InitializingBean {
     private EngineJobCacheDao engineJobCacheDao;
 
     @Autowired
-    private EngineJobDao rdosEngineBatchJobDao;
+    private EngineJobDao engineJobDao;
 
     @Autowired
     private PluginInfoDao pluginInfoDao;
@@ -88,6 +88,7 @@ public class WorkNode implements InitializingBean {
      */
     private Map<String, GroupPriorityQueue> priorityQueueMap = Maps.newConcurrentMap();
 
+    @Autowired
     private JobStopQueue jobStopQueue;
 
     private ExecutorService executors  = new ThreadPoolExecutor(3, 3,
@@ -103,9 +104,6 @@ public class WorkNode implements InitializingBean {
         ExecutorService recoverExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory("recoverDealer"));
         recoverExecutor.submit(new RecoverDealer());
-
-        jobStopQueue = new JobStopQueue(this);
-        jobStopQueue.start();
     }
 
     public GroupPriorityQueue getPriorityQueue(JobClient jobClient) {
@@ -258,7 +256,7 @@ public class WorkNode implements InitializingBean {
 
 
     private void updateJobStatus(String jobId, Integer computeType, Integer status) {
-        rdosEngineBatchJobDao.updateJobStatus(jobId, status);
+        engineJobDao.updateJobStatus(jobId, status);
         LOG.info("jobId:{} update job status to {}", jobId, status);
     }
 
@@ -290,7 +288,7 @@ public class WorkNode implements InitializingBean {
             }
         }
         //更新任务ref的pluginInfo
-        rdosEngineBatchJobDao.updateJobPluginId(jobId, refPluginInfoId);
+        engineJobDao.updateJobPluginId(jobId, refPluginInfoId);
 
     }
 
@@ -306,7 +304,7 @@ public class WorkNode implements InitializingBean {
             zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.CANCELED.getStatus());
             engineJobCacheDao.delete(jobId);
             //修改任务状态
-            rdosEngineBatchJobDao.updateJobStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
+            engineJobDao.updateJobStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
             LOG.info("jobId:{} update job status to {}", jobId, RdosTaskStatus.CANCELED.getStatus());
         }
 
@@ -323,7 +321,7 @@ public class WorkNode implements InitializingBean {
             //从engine获取log
             engineLog = JobClient.getEngineLog(engineType, pluginInfoStr, jobIdentifier);
             if (engineLog != null) {
-                rdosEngineBatchJobDao.updateEngineLog(jobId, engineLog);
+                engineJobDao.updateEngineLog(jobId, engineLog);
             }
         } catch (Throwable e){
             LOG.error("getAndUpdateEngineLog error jobId {} ,error info {}..", jobId, ExceptionUtil.getErrorMessage(e));
@@ -339,7 +337,7 @@ public class WorkNode implements InitializingBean {
 
         if(paramAction.getEngineTaskId() == null){
             //从数据库补齐数据
-            EngineJob batchJob = rdosEngineBatchJobDao.getRdosJobByJobId(paramAction.getTaskId());
+            EngineJob batchJob = engineJobDao.getRdosJobByJobId(paramAction.getTaskId());
             if(batchJob != null){
             	paramAction.setEngineTaskId(batchJob.getEngineJobId());
             	paramAction.setApplicationId(batchJob.getApplicationId());
@@ -398,7 +396,7 @@ public class WorkNode implements InitializingBean {
      */
     public void dealSubmitFailJob(String taskId, Integer computeType, String errorMsg){
         engineJobCacheDao.delete(taskId);
-        rdosEngineBatchJobDao.jobFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(errorMsg));
+        engineJobDao.jobFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(errorMsg));
     }
 
     class RecoverDealer implements Runnable{
