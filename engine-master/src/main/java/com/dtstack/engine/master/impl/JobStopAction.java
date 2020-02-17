@@ -43,7 +43,7 @@ public class JobStopAction {
 
         JobClient jobClient = new JobClient(paramAction);
         //在work节点等待队列中查找，状态流转时engineaccept和enginedistribute无法停止
-        if(workNode.stopTaskIfExists(paramAction.getEngineType(), jobClient.getGroupName(), paramAction.getTaskId(), paramAction.getComputeType())){
+        if(workNode.stopTaskIfExists(jobClient)){
             LOG.info("jobId:{} stopped success, because of [stopTaskIfExists].", paramAction.getTaskId());
             return StoppedStatus.STOPPED;
         }

@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.taskDealer;
+package com.dtstack.engine.master.taskdealer;
 
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.EJobType;
@@ -18,7 +18,6 @@ import com.dtstack.engine.dao.StreamTaskCheckpointDao;
 import com.dtstack.engine.domain.EngineJob;
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.domain.EngineJobRetry;
-import com.dtstack.engine.common.util.TaskIdUtil;
 import com.dtstack.engine.domain.StreamTaskCheckpoint;
 import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.cache.ZkLocalCache;
@@ -315,9 +314,8 @@ public class TaskRestartDealer {
         String engineType = jobClient.getEngineType();
         //重试的时候，更改cache状态
         workNode.updateCache(jobClient, EJobCacheStage.RESTART.getStage());
-        String zkTaskId = TaskIdUtil.getZkTaskId(computeType, engineType, jobId);
         //重试任务更改在zk的状态，统一做状态清理
-        zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.RESTARTING.getStatus());
+        zkLocalCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.RESTARTING.getStatus());
 
         //重试的任务不置为失败，waitengine
         jobRetryRecord(jobClient);

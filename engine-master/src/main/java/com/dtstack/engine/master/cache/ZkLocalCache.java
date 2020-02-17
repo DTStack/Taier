@@ -3,7 +3,6 @@ package com.dtstack.engine.master.cache;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.domain.EngineJobCache;
-import com.dtstack.engine.common.util.TaskIdUtil;
 import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.data.BrokerDataNode;
@@ -47,7 +46,7 @@ public class ZkLocalCache {
         if (zkTaskId == null || status == null) {
             throw new UnsupportedOperationException();
         }
-        //任务只有在提交成功后开始zk status轮询并同时checkShard一次
+        //任务只有在提交成功后开始task status轮询并同时checkShard一次
         if (RdosTaskStatus.SUBMITTED.getStatus().equals(status)){
             checkShard();
         }
@@ -55,7 +54,7 @@ public class ZkLocalCache {
         Lock lock = zkShardManager.tryLock(shard);
         lock.lock();
         try {
-            localDataCache.getShards().get(shard).put(zkTaskId, status.byteValue());
+            localDataCache.getShards().get(shard).put(zkTaskId, status);
         } finally {
             lock.unlock();
         }
@@ -66,16 +65,15 @@ public class ZkLocalCache {
     }
 
 
-    public String getJobLocationAddr(String zkTaskId) {
+    public String getJobLocationAddr(String jobId) {
         String addr = null;
         //先查本地
-        String shard = localDataCache.getShard(zkTaskId);
-        if (localDataCache.getShards().get(shard).containsKey(zkTaskId)) {
+        String shard = localDataCache.getShard(jobId);
+        if (localDataCache.getShards().get(shard).containsKey(jobId)) {
             addr = environmentContext.getLocalAddress();
         }
         //查数据库
         if (addr==null){
-            String jobId = TaskIdUtil.getTaskId(zkTaskId);
             EngineJobCache jobCache = engineJobCacheDao.getOne(jobId);
             if (jobCache!=null){
                 addr = jobCache.getNodeAddress();

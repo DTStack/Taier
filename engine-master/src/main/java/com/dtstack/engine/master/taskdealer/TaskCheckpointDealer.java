@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.taskDealer;
+package com.dtstack.engine.master.taskdealer;
 
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.MathUtil;

@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.taskDealer;
+package com.dtstack.engine.master.taskdealer;
 
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.logStore.LogStoreFactory;

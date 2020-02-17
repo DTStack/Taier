@@ -19,12 +19,11 @@ import com.dtstack.engine.dao.PluginInfoDao;
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.domain.EngineJob;
 import com.dtstack.engine.domain.PluginInfo;
-import com.dtstack.engine.common.util.TaskIdUtil;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.JobStopQueue;
 import com.dtstack.engine.master.resource.JobComputeResourcePlain;
-import com.dtstack.engine.master.taskDealer.TaskSubmittedDealer;
-import com.dtstack.engine.master.taskDealer.TaskStatusDealer;
+import com.dtstack.engine.master.taskdealer.TaskSubmittedDealer;
+import com.dtstack.engine.master.taskdealer.TaskStatusDealer;
 import com.dtstack.engine.master.cache.ZkLocalCache;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
@@ -174,11 +173,8 @@ public class WorkNode implements InitializingBean {
         if(jobClient.getPluginInfo() != null){
             updateJobClientPluginInfo(jobClient.getTaskId(), computeType, jobClient.getPluginInfo());
         }
-        String zkTaskId = TaskIdUtil.getZkTaskId(computeType, jobClient.getEngineType(), jobClient.getTaskId());
         updateCache(jobClient, EJobCacheStage.SUBMITTED.getStage());
-        //检查分片
-        zkLocalCache.checkShard();
-        zkLocalCache.updateLocalMemTaskStatus(zkTaskId,RdosTaskStatus.SUBMITTED.getStatus());
+        zkLocalCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.SUBMITTED.getStatus());
     }
 
     public void redirectSubmitJob(String jobResource, JobClient jobClient){
@@ -266,16 +262,17 @@ public class WorkNode implements InitializingBean {
 
     }
 
-    public boolean stopTaskIfExists(String engineType, String groupName, String jobId, Integer computeType){
-        GroupPriorityQueue groupPriorityQueue = priorityQueueMap.get(engineType);
+    public boolean stopTaskIfExists(JobClient jobClient){
+        String jobId = jobClient.getTaskId();
+        String jobResource = jobComputeResourcePlain.getJobResource(jobClient);
+        GroupPriorityQueue groupPriorityQueue = priorityQueueMap.get(jobResource);
         if(groupPriorityQueue == null){
             return false;
         }
 
         boolean result = groupPriorityQueue.remove(jobId);
         if(result){
-            String zkTaskId = TaskIdUtil.getZkTaskId(computeType, engineType, jobId);
-            zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.CANCELED.getStatus());
+            zkLocalCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
             engineJobCacheDao.delete(jobId);
             //修改任务状态
             engineJobDao.updateJobStatus(jobId, RdosTaskStatus.CANCELED.getStatus());

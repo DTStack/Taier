@@ -4,6 +4,7 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 
 import java.util.Collections;
 import java.util.NavigableMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -13,7 +14,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class BrokerDataShard {
 
-    private BrokerDataTreeMap<String, Byte> metas;
+    private ConcurrentSkipListMap<String, Integer> metas;
     private long version;
 
     @JsonIgnore
@@ -23,11 +24,11 @@ public class BrokerDataShard {
      * 请使用 getView() 获取数据视图，不可修改！
      * 仅用于Zk中的数据迁移，方便管理任务
      */
-    public BrokerDataTreeMap<String, Byte> getMetas() {
+    public ConcurrentSkipListMap<String, Integer> getMetas() {
         return metas;
     }
 
-    public void setMetas(BrokerDataTreeMap<String, Byte> metas) {
+    public void setMetas(ConcurrentSkipListMap<String, Integer> metas) {
         this.metas = metas;
     }
 
@@ -45,12 +46,12 @@ public class BrokerDataShard {
         this.newVersion = new AtomicLong(version);
     }
 
-    public Byte put(String key, Byte value) {
+    public Integer put(String key, Integer value) {
         newVersion.incrementAndGet();
         return metas.put(key, value);
     }
 
-    public Byte remove(String key) {
+    public Integer remove(String key) {
         newVersion.incrementAndGet();
         return metas.remove(key);
     }
@@ -64,13 +65,13 @@ public class BrokerDataShard {
     }
 
     @JsonIgnore
-    public NavigableMap<String, Byte> getView() {
+    public NavigableMap<String, Integer> getView() {
         return Collections.unmodifiableNavigableMap(metas);
     }
 
     public static BrokerDataShard initBrokerDataShard() {
         BrokerDataShard brokerNode = new BrokerDataShard();
-        brokerNode.setMetas(BrokerDataTreeMap.initBrokerDataTreeMap());
+        brokerNode.setMetas(new ConcurrentSkipListMap<String, Integer>());
         brokerNode.setVersion(0);
         return brokerNode;
     }

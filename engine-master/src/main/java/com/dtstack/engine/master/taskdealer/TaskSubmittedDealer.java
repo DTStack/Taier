@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.taskDealer;
+package com.dtstack.engine.master.taskdealer;
 
 import com.dtstack.engine.common.JobSubmitDealer;
 import com.dtstack.engine.common.exception.ExceptionUtil;
@@ -8,7 +8,6 @@ import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.EngineJobDao;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.util.TaskIdUtil;
 import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.cache.ZkLocalCache;
 import org.apache.commons.lang3.StringUtils;
@@ -61,8 +60,6 @@ public class TaskSubmittedDealer implements Runnable{
 				logger.info("success submit job to Engine, jobId:{} jobResult:{} ...", jobClient.getTaskId(), jobClient.getJobResult());
 
 				//存储执行日志
-				String zkTaskId = TaskIdUtil.getZkTaskId(jobClient.getComputeType().getType(), jobClient.getEngineType(), jobClient.getTaskId());
-
 				if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
 					JobResult jobResult = jobClient.getJobResult();
 					String appId = jobResult.getData(JobResult.EXT_ID_KEY);
@@ -70,10 +67,10 @@ public class TaskSubmittedDealer implements Runnable{
 					engineJobDao.updateSubmitLog(jobClient.getTaskId(), jobClient.getJobResult().getJsonStr());
 					workNode.updateCache(jobClient, EJobCacheStage.SUBMITTED.getStage());
 					jobClient.doStatusCallBack(RdosTaskStatus.SUBMITTED.getStatus());
-					zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.SUBMITTED.getStatus());
+					zkLocalCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.SUBMITTED.getStatus());
 				}else{
 					engineJobDao.jobFail(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus(), jobClient.getJobResult().getJsonStr());
-					zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.FAILED.getStatus());
+					zkLocalCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus());
 					engineJobCacheDao.delete(jobClient.getTaskId());
 				}
 			} catch (Throwable e) {

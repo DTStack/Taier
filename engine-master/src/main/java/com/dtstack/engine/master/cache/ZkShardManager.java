@@ -5,7 +5,6 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.hash.ShardConsistentHash;
 import com.dtstack.engine.master.data.BrokerDataNode;
 import com.dtstack.engine.master.data.BrokerDataShard;
-import com.dtstack.engine.master.data.BrokerDataTreeMap;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -73,11 +73,11 @@ public class ZkShardManager implements Runnable, InitializingBean {
     public void run() {
         for (Map.Entry<String, BrokerDataShard> shardEntry : shards.entrySet()) {
             BrokerDataShard brokerDataShard = shardEntry.getValue();
-            BrokerDataTreeMap<String, Byte> shardData = brokerDataShard.getMetas();
-            Iterator<Map.Entry<String, Byte>> it = shardData.entrySet().iterator();
+            ConcurrentSkipListMap<String, Integer> shardData = brokerDataShard.getMetas();
+            Iterator<Map.Entry<String, Integer>> it = shardData.entrySet().iterator();
             while (it.hasNext()) {
-                Map.Entry<String, Byte> data = it.next();
-                if (RdosTaskStatus.needClean(data.getValue().intValue())) {
+                Map.Entry<String, Integer> data = it.next();
+                if (RdosTaskStatus.needClean(data.getValue())) {
                     brokerDataShard.getNewVersion().incrementAndGet();
                     it.remove();
                 }
@@ -112,10 +112,10 @@ public class ZkShardManager implements Runnable, InitializingBean {
         for (Map.Entry<String, BrokerDataShard> shardEntry : shards.entrySet()) {
             String shard = shardEntry.getKey();
             BrokerDataShard brokerDataShard = shardEntry.getValue();
-            BrokerDataTreeMap<String, Byte> shardData = brokerDataShard.getMetas();
-            Iterator<Map.Entry<String, Byte>> it = shardData.entrySet().iterator();
+            ConcurrentSkipListMap<String, Integer> shardData = brokerDataShard.getMetas();
+            Iterator<Map.Entry<String, Integer>> it = shardData.entrySet().iterator();
             while (it.hasNext()) {
-                Map.Entry<String, Byte> data = it.next();
+                Map.Entry<String, Integer> data = it.next();
                 String zkTaskId = data.getKey();
                 String newShard = consistentHash.get(zkTaskId);
                 if (newShard.equals(shard)) {

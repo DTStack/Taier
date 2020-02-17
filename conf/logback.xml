@@ -55,7 +55,7 @@
     <logger name="com.dtstack.engine.master.zookeeper" level="info" additivity="false">
         <appender-ref ref="zkAppender" />
     </logger>
-    <logger name="com.dtstack.engine.master.taskDealer" level="info" additivity="false">
+    <logger name="com.dtstack.engine.master.taskdealer" level="info" additivity="false">
         <appender-ref ref="zkAppender" />
     </logger>
     <logger name="com.dtstack.engine.worker.task" level="info" additivity="false">
