@@ -68,7 +68,7 @@ public class TaskListener implements Runnable{
 					String appId = jobResult.getData(JobResult.EXT_ID_KEY);
 					engineJobDao.updateJobEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId(),appId);
 					engineJobDao.updateSubmitLog(jobClient.getTaskId(), jobClient.getJobResult().getJsonStr());
-					workNode.updateCache(jobClient, EJobCacheStage.IN_SUBMIT_QUEUE.getStage());
+					workNode.updateCache(jobClient, EJobCacheStage.SUBMITTED.getStage());
 					jobClient.doStatusCallBack(RdosTaskStatus.SUBMITTED.getStatus());
 					zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.SUBMITTED.getStatus());
 				}else{

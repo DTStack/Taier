@@ -77,6 +77,9 @@ public class ZkService implements InitializingBean, DisposableBean {
     @Autowired
     private JobExecutorTrigger jobExecutorTrigger;
 
+    @Autowired
+    private QueueListener queueListener;
+
     @Override
     public void afterPropertiesSet() throws Exception {
         initConfig();
@@ -144,7 +147,7 @@ public class ZkService implements InitializingBean, DisposableBean {
         MasterListener masterListener = new MasterListener(failoverStrategy, this);
         listeners.add(masterListener);
         listeners.add(new HeartBeatCheckListener(masterListener, failoverStrategy, this));
-        listeners.add(new QueueListener(jobExecutorTrigger, this));
+        listeners.add(queueListener);
     }
 
     private void createLocalBrokerHeartNode() throws Exception {

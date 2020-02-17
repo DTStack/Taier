@@ -1,23 +1,40 @@
 package com.dtstack.engine.common.enums;
 
-/**
- * 区分engine接收到任务之后所处的阶段,用于在master切换之后主动恢复队列数据
- * Date: 2018/1/10
- * Company: www.dtstack.com
- * @author xuchao
- */
+import com.google.common.collect.Lists;
 
+import java.util.List;
+
+/**
+ * company: www.dtstack.com
+ * author: toutian
+ * create: 2020/01/17
+ */
 public enum EJobCacheStage {
-    /**1:在节点的优先级队列上还未下发, 2:已经下发到执行节点上*/
-    IN_PRIORITY_QUEUE(1), IN_SUBMIT_QUEUE(2);
+    //JOB 在DB中，未加到优先级队列
+    DB(1),
+    //JOB 在优先级队列，等待提交
+    PRIORITY(2),
+    //JOB 因为失败进入重试队列，等待重试的delay时间后，可以重新提交
+    RESTART(3),
+    //JOB 已经提交，处于状态轮询中
+    SUBMITTED(4);
+
 
     int stage;
 
-    EJobCacheStage(int stage){
+    EJobCacheStage(int stage) {
         this.stage = stage;
     }
 
-    public int getStage(){
+    public int getStage() {
         return stage;
+    }
+
+    public static List<Integer> unSubmitted() {
+        return Lists.newArrayList(
+                DB.getStage(),
+                PRIORITY.getStage(),
+                RESTART.getStage()
+        );
     }
 }

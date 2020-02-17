@@ -8,7 +8,7 @@ import com.dtstack.engine.dao.BatchJobDao;
 import com.dtstack.engine.domain.po.SimpleBatchJobPO;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.WorkNodeService;
-import com.dtstack.engine.master.queue.ClusterQueueInfo;
+import com.dtstack.engine.master.queue.JobPartitioner;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.scheduler.JobGraphBuilderTrigger;
 import com.dtstack.engine.master.send.HttpSendClient;
@@ -79,6 +79,9 @@ public class FailoverStrategy {
 
     @Autowired
     private JobGraphBuilderTrigger jobGraphBuilderTrigger;
+
+    @Autowired
+    private JobPartitioner jobPartitioner;
 
     private FaultTolerantDealer faultTolerantDealer = new FaultTolerantDealer();
 
@@ -239,7 +242,7 @@ public class FailoverStrategy {
     }
 
     private Map<String, Integer> computeJobSizeForNode(int jobSize, int scheduleType) {
-        Map<String, Integer> jobSizeInfo = ClusterQueueInfo.getInstance().computeQueueJobSize(scheduleType, jobSize);
+        Map<String, Integer> jobSizeInfo = jobPartitioner.computeQueueJobSize(scheduleType, jobSize);
         if (jobSizeInfo == null) {
             //if empty
             List<String> aliveNodes = zkService.getAliveBrokersChildren();

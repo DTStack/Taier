@@ -128,7 +128,7 @@ public class MasterNode {
 //                        ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
 //                        JobClient jobClient = new JobClient(paramAction);
 //                        Map<String, List<String>> groups = null;
-//                        if (jobCache.getStage() == EJobCacheStage.IN_PRIORITY_QUEUE.getStage()) {
+//                        if (jobCache.getStage() == EJobCacheStage.DB.getStage()) {
 //                            groups = priorityEngineTypes.computeIfAbsent(jobCache.getEngineType(), k -> Maps.newHashMap());
 //                            List<String> jobIds = groups.computeIfAbsent(jobClient.getGroupName(), k -> Lists.newArrayList());
 //                            jobIds.add(jobCache.getJobId());
@@ -202,14 +202,14 @@ public class MasterNode {
 //        if (clusterQueueInfo.isEmpty()) {
 //            return null;
 //        }
-//        ClusterQueueInfo.EngineTypeQueueInfo engineTypeQueueInfo = clusterQueueInfo.getEngineTypeQueueInfo(engineType);
+//        JobPartitioner.EngineTypeQueueInfo engineTypeQueueInfo = clusterQueueInfo.getEngineTypeQueueInfo(engineType);
 //        if (engineTypeQueueInfo == null) {
 //            return null;
 //        }
 //        Map<String, Integer> nodeSort = Maps.newHashMap();
 //        int total = jobSize;
-//        for (Map.Entry<String, ClusterQueueInfo.GroupQueueInfo> engineTypeEntry : engineTypeQueueInfo.getGroupQueueInfoMap().entrySet()) {
-//            ClusterQueueInfo.GroupQueueInfo groupEntry = engineTypeEntry.getValue();
+//        for (Map.Entry<String, JobPartitioner.GroupQueueInfo> engineTypeEntry : engineTypeQueueInfo.getGroupQueueInfoMap().entrySet()) {
+//            JobPartitioner.GroupQueueInfo groupEntry = engineTypeEntry.getValue();
 //            Map<String, GroupInfo> remoteQueueInfo = groupEntry.getGroupInfo();
 //            GroupInfo groupInfo = remoteQueueInfo.getOrDefault(groupName, new GroupInfo());
 //            total += groupInfo.getSize();

@@ -181,4 +181,5 @@ public interface BatchJobDao {
 
     List<BatchJob> listByBusinessDateAndPeriodTypeAndStatusList(PageQuery<BatchJobDTO> pageQuery);
 
+    List<String> getAllNodeAddress();
 }

@@ -1340,4 +1340,10 @@
         AND bj.tenant_id = ${model.tenantId} AND bj.project_id = ${model.projectId} AND bj.is_deleted = 0
         AND bj.type = 0
     </select>
+
+    <select id="getAllNodeAddress" resultType="java.lang.String">
+        SELECT DISTINCT(node_address) as nodeAddress
+        FROM rdos_batch_job
+        WHERE is_deleted = 0
+    </select>
 </mapper>

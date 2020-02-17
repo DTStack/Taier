@@ -1,17 +1,17 @@
 package com.dtstack.engine.master.zookeeper.listener;
 
-import com.dtstack.engine.common.util.ExceptionUtil;
+import com.dtstack.engine.common.queue.GroupInfo;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.executor.JobExecutorTrigger;
-import com.dtstack.engine.master.queue.ClusterQueueInfo;
 import com.dtstack.engine.master.queue.QueueInfo;
-import com.dtstack.engine.master.zookeeper.ZkService;
-import com.dtstack.engine.master.zookeeper.data.BrokerQueueNode;
-import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
  * author: toutian
  * create: 2019/10/22
  */
+@Component
 public class QueueListener implements Listener {
 
     private static final Logger logger = LoggerFactory.getLogger(QueueListener.class);
@@ -31,15 +32,18 @@ public class QueueListener implements Listener {
     private final static int MULTIPLES = 10;
     private final static int CHECK_INTERVAL = 5000;
 
+    @Autowired
+    private JobExecutorTrigger jobExecutorTrigger;
+
+    @Autowired
+    private WorkNode workNode;
+
     private final ScheduledExecutorService scheduledService;
 
-    private JobExecutorTrigger jobExecutorTrigger;
-    private ZkService zkService;
+    private volatile Map<Integer, Map<String, QueueInfo>> allNodesJobQueueTypes = new HashMap<>();
+    private volatile Map<String, Map<String, GroupInfo>> allNodesGroupQueueJobResources = new HashMap<>();
 
-    public QueueListener(JobExecutorTrigger jobExecutorTrigger, ZkService zkService) {
-        this.jobExecutorTrigger = jobExecutorTrigger;
-        this.zkService = zkService;
-
+    public QueueListener() {
         scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("QueueListener"));
         scheduledService.scheduleWithFixedDelay(
                 this,
@@ -50,29 +54,57 @@ public class QueueListener implements Listener {
 
     @Override
     public void run() {
-        try {
-            logOutput++;
-            //获取所有节点的queue
-            Map<String, BrokerQueueNode> queueNodeMap = zkService.getAllBrokerQueueNode();
-            Map<String, Map<Integer, QueueInfo>> queueInfo = Maps.newHashMap();
-            queueNodeMap.forEach((address, queueNode) -> queueInfo.put(address, queueNode.getQueueInfo()));
-            ClusterQueueInfo.getInstance().updateClusterQueueInfo(queueInfo);
-
-            //更新当前节点的queue 信息
-            Map<Integer, QueueInfo> nodeQueueInfo = jobExecutorTrigger.getNodeQueueInfo();
-            BrokerQueueNode localQueueNode = new BrokerQueueNode();
-            localQueueNode.setQueueInfo(nodeQueueInfo);
-            zkService.updateSynchronizedLocalQueueNode(zkService.getLocalAddress(), localQueueNode);
-            if (LogCountUtil.count(logOutput, MULTIPLES)) {
-                logger.info("QueueListener start again....");
-            }
-
-
-            //TODO
-//            workNode.getQueueInfo()
-        } catch (Throwable e) {
-            logger.error("QueueListener error:{}", ExceptionUtil.getErrorMessage(e));
+        logOutput++;
+        if (LogCountUtil.count(logOutput, MULTIPLES)) {
+            logger.info("QueueListener start again....");
         }
+        try {
+            Map<String, Map<Integer, QueueInfo>> allNodesJobQueueInfo = jobExecutorTrigger.getAllNodesJobQueueInfo();
+            if (allNodesJobQueueInfo != null) {
+                Map<Integer, Map<String, QueueInfo>> allNodesJobQueueTypes = new HashMap<>();
+                allNodesJobQueueInfo.forEach((address, typeJobQueueInfo) -> {
+                    typeJobQueueInfo.forEach((type, queueInfo) -> {
+                        Map<String, QueueInfo> nodesJobQueue = allNodesJobQueueTypes.computeIfAbsent(type, k -> {
+                            Map<String, QueueInfo> value = new HashMap<>();
+                            value.put(address, queueInfo);
+                            return value;
+                        });
+                        nodesJobQueue.put(address, queueInfo);
+                    });
+                });
+                this.allNodesJobQueueTypes = allNodesJobQueueTypes;
+            }
+        } catch (Throwable e) {
+            logger.error("allNodesJobQueueInfo error:{}", e);
+        }
+
+        try {
+            Map<String, Map<String, GroupInfo>> allNodesGroupQueueInfo = workNode.getAllNodesGroupQueueInfo();
+            if (allNodesGroupQueueInfo != null) {
+                Map<String, Map<String, GroupInfo>> allNodesGroupQueueJobResources = new HashMap<>();
+                allNodesGroupQueueInfo.forEach((address, jobResourceGroupQueueInfo) -> {
+                    jobResourceGroupQueueInfo.forEach((jobResource, groupInfo) -> {
+                        Map<String, GroupInfo> nodesJobQueue = allNodesGroupQueueJobResources.computeIfAbsent(jobResource, k -> {
+                            Map<String, GroupInfo> value = new HashMap<>();
+                            value.put(address, groupInfo);
+                            return value;
+                        });
+                        nodesJobQueue.put(address, groupInfo);
+                    });
+                });
+                this.allNodesGroupQueueJobResources = allNodesGroupQueueJobResources;
+            }
+        } catch (Throwable e) {
+            logger.error("allNodesGroupQueueInfo error:{}", e);
+        }
+    }
+
+    public Map<Integer, Map<String, QueueInfo>> getAllNodesJobQueueInfo() {
+        return allNodesJobQueueTypes;
+    }
+
+    public Map<String, Map<String, GroupInfo>> getAllNodesGroupQueueInfo() {
+        return allNodesGroupQueueJobResources;
     }
 
     @Override

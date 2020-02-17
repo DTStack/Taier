@@ -30,5 +30,9 @@ public interface EngineJobCacheDao {
 
     List<String> listNames(@Param("computeType") Integer computeType,@Param("jobName") String jobName);
 
-    int countByStage(@Param("groupName") String jobResource, @Param("stage") Integer stage, @Param("nodeAddress") String nodeAddress);
+    int countByStage(@Param("groupName") String jobResource, @Param("stages") List<Integer> stages, @Param("nodeAddress") String nodeAddress);
+
+    long maxPriorityByStage(@Param("groupName") String jobResource, @Param("stage") Integer stages, @Param("nodeAddress") String nodeAddress);
+
+    List<String> getAllNodeAddress();
 }

@@ -17,8 +17,6 @@ import com.dtstack.engine.master.bo.FailedTaskInfo;
 import com.dtstack.engine.master.cache.ZkLocalCache;
 import com.dtstack.engine.master.data.BrokerDataShard;
 import com.google.common.base.Strings;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -45,20 +43,15 @@ public class TaskStatusListener implements Runnable{
 	private static Logger logger = LoggerFactory.getLogger(TaskStatusListener.class);
 
 	/**最大允许查询不到任务信息的次数--超过这个次数任务会被设置为CANCELED*/
-    public final static int NOT_FOUND_LIMIT_TIMES = 300;
+    private final static int NOT_FOUND_LIMIT_TIMES = 300;
 
     /**最大允许查询不到的任务信息最久时间*/
-    public final static int NOT_FOUND_LIMIT_INTERVAL = 3 * 60 * 1000;
+    private final static int NOT_FOUND_LIMIT_INTERVAL = 3 * 60 * 1000;
 
     private static final long LISTENER_INTERVAL = 2000;
 
-    private static final int JOB_FAILOVER_CONFIG = 50;
-
     @Autowired
 	private ZkLocalCache zkLocalCache;
-
-	/**记录job 连续某个状态的频次*/
-	private Map<String, TaskStatusFrequency> jobStatusFrequency = Maps.newConcurrentMap();
 
 	@Autowired
 	private EngineJobDao engineJobDao;
@@ -69,24 +62,17 @@ public class TaskStatusListener implements Runnable{
 	@Autowired
 	private PluginInfoDao pluginInfoDao;
 
+    @Autowired
+    private CheckpointListener checkpointListener;
+
 	/**失败任务的额外处理：当前只是对(失败任务 or 取消任务)继续更新日志或者更新checkpoint*/
     private Map<String, FailedTaskInfo> failedJobCache = Maps.newConcurrentMap();
 
+    /**记录job 连续某个状态的频次*/
+    private Map<String, TaskStatusFrequency> jobStatusFrequency = Maps.newConcurrentMap();
+
     private ExecutorService taskStatusPool = new ThreadPoolExecutor(1,Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
                 new SynchronousQueue<>(true), new CustomThreadFactory("taskStatusListener"));
-
-    //  failover log
-    private Cache<String, Long> failoverTimestampCache = CacheBuilder.newBuilder().maximumSize(JOB_FAILOVER_CONFIG).build();
-
-    private CheckpointListener checkpointListener;
-
-    public TaskStatusListener() {
-        init();
-    }
-
-    public void init() {
-        checkpointListener = new CheckpointListener();
-    }
 
     @Override
 	public void run() {

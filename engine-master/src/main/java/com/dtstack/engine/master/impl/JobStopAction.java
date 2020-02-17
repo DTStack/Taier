@@ -53,15 +53,15 @@ public class JobStopAction {
         EngineJobCache jobCache = engineJobCacheDao.getOne(paramAction.getTaskId());
         if(jobCache == null){
             return jobStopStatus(jobClient);
-        } else if (EJobCacheStage.IN_PRIORITY_QUEUE.getStage() == jobCache.getStage()){
+        } else if (EJobCacheStage.unSubmitted().contains(jobCache.getStage())){
             Byte status = getJobStatus(jobClient);
             if (status !=null && RdosTaskStatus.WAITENGINE.getStatus() == status.intValue()){
                 //删除
                 removeJob(jobClient);
-                LOG.info("jobId:{} stopped success, because of [IN_PRIORITY_QUEUE & WAITENGINE].", paramAction.getTaskId());
+                LOG.info("jobId:{} stopped success, because of [DB & WAITENGINE].", paramAction.getTaskId());
                 return StoppedStatus.STOPPED;
             }
-        } else if (EJobCacheStage.IN_SUBMIT_QUEUE.getStage() == jobCache.getStage()) {
+        } else if (EJobCacheStage.SUBMITTED.getStage() == jobCache.getStage()) {
             /**
              * 停止过程中存在超时情况（就flink perjob而言，cancel job 是一个阻塞调用），
              * 一旦"取消任务超时并再次触发取消"与"任务停止后立即重启"并发，可能会出现取消上一次任务的情况，并出现异常（就flink perjob而言，会出现Job colud not be found 异常）

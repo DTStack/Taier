@@ -93,7 +93,7 @@ public class ZkLocalCache {
 //            return localAddress;
 //        }
 //
-//        ClusterQueueInfo.EngineTypeQueueInfo engineTypeQueueInfo = clusterQueueInfo.getEngineTypeQueueInfo(engineType);
+//        JobPartitioner.EngineTypeQueueInfo engineTypeQueueInfo = clusterQueueInfo.getEngineTypeQueueInfo(engineType);
 //        if (engineTypeQueueInfo == null) {
 //            return localAddress;
 //        }
@@ -103,8 +103,8 @@ public class ZkLocalCache {
 //            throw new RdosException("not support engineType:" + engineType);
 //        }
 //        Map<String, Integer> otherQueueInfoMap = Maps.newHashMap();
-//        for (Map.Entry<String, ClusterQueueInfo.GroupQueueInfo> zkInfoEntry : engineTypeQueueInfo.getGroupQueueInfoMap().entrySet()) {
-//            ClusterQueueInfo.GroupQueueInfo groupQueueZkInfo = zkInfoEntry.getValue();
+//        for (Map.Entry<String, JobPartitioner.GroupQueueInfo> zkInfoEntry : engineTypeQueueInfo.getGroupQueueInfoMap().entrySet()) {
+//            JobPartitioner.GroupQueueInfo groupQueueZkInfo = zkInfoEntry.getValue();
 //            Map<String, GroupInfo> remoteQueueInfo = groupQueueZkInfo.getGroupInfo();
 //            GroupInfo groupInfo = remoteQueueInfo.getOrDefault(groupName, new GroupInfo());
 //            otherQueueInfoMap.put(zkInfoEntry.getKey(), groupInfo.getSize());

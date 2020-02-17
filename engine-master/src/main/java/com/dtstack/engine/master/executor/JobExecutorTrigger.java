@@ -102,19 +102,27 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
     }
 
     /**
-     * 获取当前节点的 type类型下的 job实例信息
+     * 同步所有节点的 type类型下的 job实例信息
+     * key1: nodeAddress,
+     * key2: scheduleType
      */
-    public Map<Integer, QueueInfo> getNodeQueueInfo() {
-        String localAddress = environmentContext.getLocalAddress();
+    public Map<String, Map<Integer, QueueInfo>> getAllNodesJobQueueInfo() {
+        List<String> allNodeAddress = batchJobDao.getAllNodeAddress();
         Twins<String, String> cycTime = jobRichOperator.getCycTimeLimit();
-        Map<Integer, QueueInfo> nodeQueueInfo = Maps.newHashMap();
-        executors.forEach(executor -> nodeQueueInfo.computeIfAbsent(executor.getScheduleType(), k -> {
-            int queueSize = batchJobDao.countTasksByCycTimeTypeAndAddress(localAddress, executor.getScheduleType(), cycTime.getKey(), cycTime.getType());
-            QueueInfo queueInfo = new QueueInfo();
-            queueInfo.setSize(queueSize);
-            return queueInfo;
-        }));
-        return nodeQueueInfo;
+        Map<String, Map<Integer, QueueInfo>> allNodeJobInfo = Maps.newHashMap();
+        for (String nodeAddress : allNodeAddress) {
+            allNodeJobInfo.computeIfAbsent(nodeAddress, na -> {
+                Map<Integer, QueueInfo> nodeJobInfo = Maps.newHashMap();
+                executors.forEach(executor -> nodeJobInfo.computeIfAbsent(executor.getScheduleType(), k -> {
+                    int queueSize = batchJobDao.countTasksByCycTimeTypeAndAddress(nodeAddress, executor.getScheduleType(), cycTime.getKey(), cycTime.getType());
+                    QueueInfo queueInfo = new QueueInfo();
+                    queueInfo.setSize(queueSize);
+                    return queueInfo;
+                }));
+                return nodeJobInfo;
+            });
+        }
+        return allNodeJobInfo;
     }
 
     @Override

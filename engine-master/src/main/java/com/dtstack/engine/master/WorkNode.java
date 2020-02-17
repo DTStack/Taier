@@ -81,6 +81,12 @@ public class WorkNode implements InitializingBean {
     @Autowired
     private EnvironmentContext environmentContext;
 
+    @Autowired
+    private TaskListener taskListener;
+
+    @Autowired
+    private TaskStatusListener taskStatusListener;
+
     /**
      * key: 计算引擎类型（集群groupName + computeResourceType）
      * value: queue
@@ -96,8 +102,8 @@ public class WorkNode implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        executors.execute(new TaskListener());
-        executors.execute(new TaskStatusListener());
+        executors.execute(taskListener);
+        executors.execute(taskStatusListener);
 
         ExecutorService recoverExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory("recoverDealer"));
@@ -115,34 +121,27 @@ public class WorkNode implements InitializingBean {
 
     /**
      * 获取所有节点的队列大小信息
-     * key1: address,
+     * key1: nodeAddress,
      * key2: jobResource
      */
-    public Map<String, Map<String, GroupInfo>> getQueueInfo(){
-        //todo,获取所有节点的队列信息，
-        //todo max priority 取在内存队列的，非重试任务的最大的priority
-//        String localAddress = zkService.getLocalAddress();
-//        Map<String, GroupInfo> queueInfo = Maps.newHashMap();
-//        priorityQueueMap.forEach((jobResource, priorityQueue) -> {
-//            int queueSize = engineJobCacheDao.countGroupQueueJob(jobResource, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), localAddress);
-//
-//            Iterator<JobClient> it = priorityQueue.getQueue().iterator();
-//            JobClient topPriorityJob = null;
-//            while (it.hasNext()){
-//                JobClient topJob = it.next();
-//                if (topJob.isJobRetryWaiting()){
-//                    continue;
-//                }
-//                topPriorityJob = topJob;
-//                break;
-//            }
-//            GroupInfo groupInfo = new GroupInfo();
-//            groupInfo.setSize(queueSize);
-//            groupInfo.setPriority(topPriorityJob == null ? 0 : topPriorityJob.getPriority());
-//            queueInfo.put(jobResource, groupInfo);
-//        });
-
-        return null;
+    public Map<String, Map<String, GroupInfo>> getAllNodesGroupQueueInfo(){
+        List<String> allNodeAddress = engineJobCacheDao.getAllNodeAddress();
+        Map<String, Map<String, GroupInfo>> allNodeGroupInfo = Maps.newHashMap();
+        for (String nodeAddress : allNodeAddress) {
+            allNodeGroupInfo.computeIfAbsent(nodeAddress, na -> {
+                Map<String, GroupInfo> nodeGroupInfo = Maps.newHashMap();
+                priorityQueueMap.forEach((jobResource, priorityQueue) -> {
+                    int groupSize = engineJobCacheDao.countByStage(jobResource, EJobCacheStage.unSubmitted(), nodeAddress);
+                    long maxPriority = engineJobCacheDao.maxPriorityByStage(jobResource, EJobCacheStage.PRIORITY.getStage(), nodeAddress);
+                    GroupInfo groupInfo = new GroupInfo();
+                    groupInfo.setSize(groupSize);
+                    groupInfo.setPriority(maxPriority);
+                    nodeGroupInfo.put(jobResource, groupInfo);
+                });
+                return nodeGroupInfo;
+            });
+        }
+        return allNodeGroupInfo;
     }
 
     /**
@@ -179,7 +178,7 @@ public class WorkNode implements InitializingBean {
             updateJobStatus(jobClient.getTaskId(), computeType, jobStatus);
         });
 
-        saveCache(jobClient, jobResource, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), insert);
+        saveCache(jobClient, jobResource, EJobCacheStage.DB.getStage(), insert);
         updateJobStatus(jobClient.getTaskId(), computeType, RdosTaskStatus.WAITENGINE.getStatus());
 
         //加入节点的优先级队列
@@ -195,7 +194,7 @@ public class WorkNode implements InitializingBean {
             updateJobClientPluginInfo(jobClient.getTaskId(), computeType, jobClient.getPluginInfo());
         }
         String zkTaskId = TaskIdUtil.getZkTaskId(computeType, jobClient.getEngineType(), jobClient.getTaskId());
-        updateCache(jobClient, EJobCacheStage.IN_SUBMIT_QUEUE.getStage());
+        updateCache(jobClient, EJobCacheStage.SUBMITTED.getStage());
         //检查分片
         zkLocalCache.checkShard();
         zkLocalCache.updateLocalMemTaskStatus(zkTaskId,RdosTaskStatus.SUBMITTED.getStatus());
@@ -227,7 +226,7 @@ public class WorkNode implements InitializingBean {
             try {
                 ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                 JobClient jobClient = new JobClient(paramAction);
-                if (EJobCacheStage.IN_PRIORITY_QUEUE.getStage() == jobCache.getStage()) {
+                if (EJobCacheStage.unSubmitted().contains(jobCache.getStage())) {
                     this.addSubmitJob(jobClient, false);
                 } else {
                     this.afterSubmitJob(jobClient);
@@ -425,7 +424,7 @@ public class WorkNode implements InitializingBean {
                     try {
                         ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                         JobClient jobClient = new JobClient(paramAction);
-                        if (EJobCacheStage.IN_PRIORITY_QUEUE.getStage() == jobCache.getStage()) {
+                        if (EJobCacheStage.unSubmitted().contains(jobCache.getStage())) {
                             this.addSubmitJob(jobClient, false);
                         } else {
                             this.afterSubmitJob(jobClient);
@@ -449,7 +448,7 @@ public class WorkNode implements InitializingBean {
             int count = 0;
             outLoop :
             while (true) {
-                List<EngineJobCache> jobCaches = engineJobCacheDao.listByStage(startId, localAddress, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), engineType);
+                List<EngineJobCache> jobCaches = engineJobCacheDao.listByStage(startId, localAddress, EJobCacheStage.DB.getStage(), engineType);
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     break;
                 }

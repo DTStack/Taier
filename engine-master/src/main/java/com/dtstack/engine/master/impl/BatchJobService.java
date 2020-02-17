@@ -35,12 +35,12 @@ import com.dtstack.engine.dto.BatchJobDTO;
 import com.dtstack.engine.dto.BatchTaskForFillDataDTO;
 import com.dtstack.engine.dto.QueryJobDTO;
 import com.dtstack.engine.master.WorkNode;
+import com.dtstack.engine.master.queue.JobPartitioner;
 import com.dtstack.task.send.TaskUrlConstant;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.job.impl.BatchHadoopJobStartTrigger;
 import com.dtstack.engine.master.job.impl.BatchKylinJobStartTrigger;
 import com.dtstack.engine.master.job.impl.BatchLibraJobStartTrigger;
-import com.dtstack.engine.master.queue.ClusterQueueInfo;
 import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
@@ -161,6 +161,9 @@ public class BatchJobService {
 
     @Autowired
     private WorkNode workNode;
+
+    @Autowired
+    private JobPartitioner jobPartitioner;
 
     private final static List<Integer> FINISH_STATUS = Lists.newArrayList(TaskStatus.FINISHED.getStatus(), TaskStatus.MANUALSUCCESS.getStatus(), TaskStatus.CANCELING.getStatus(), TaskStatus.CANCELED.getStatus());
     private final static List<Integer> FAILED_STATUS = Lists.newArrayList(TaskStatus.FAILED.getStatus(), TaskStatus.SUBMITFAILD.getStatus(), TaskStatus.KILLED.getStatus());
@@ -1258,7 +1261,7 @@ public class BatchJobService {
     }
 
     private Map<String, Integer> computeJobSizeForNode(int jobSize, int scheduleType) {
-        Map<String, Integer> jobSizeInfo = ClusterQueueInfo.getInstance().computeQueueJobSize(scheduleType, jobSize);
+        Map<String, Integer> jobSizeInfo = jobPartitioner.computeQueueJobSize(scheduleType, jobSize);
         if (jobSizeInfo == null) {
             //if empty
             List<String> aliveNodes = zkService.getAliveBrokersChildren();
