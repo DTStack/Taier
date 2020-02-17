@@ -115,7 +115,6 @@ public class HeartBeatCheckListener implements Listener {
                     this.zkService.disableBrokerHeartNode(node, true);
                     //再进行容灾，容灾时还需要再判断一下是否alive，node可能已经恢复
                     this.failoverStrategy.dataMigration(node);
-                    this.zkService.removeBrokerQueueNode(node);
                     this.brokerNodeCounts.remove(node);
                 } else {
                     brokerNodeCount.setBrokerHeartNode(brokerNode);

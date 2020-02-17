@@ -5,17 +5,14 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.ExceptionUtil;
 import com.dtstack.engine.common.util.KerberosUtils;
 import com.dtstack.engine.master.node.FailoverStrategy;
-import com.dtstack.engine.master.executor.JobExecutorTrigger;
 import com.dtstack.engine.master.zookeeper.listener.HeartBeatCheckListener;
 import com.dtstack.engine.master.zookeeper.listener.HeartBeatListener;
 import com.dtstack.engine.master.zookeeper.listener.Listener;
 import com.dtstack.engine.master.zookeeper.listener.MasterListener;
 import com.dtstack.engine.master.zookeeper.listener.QueueListener;
 import com.dtstack.engine.master.zookeeper.data.BrokerHeartNode;
-import com.dtstack.engine.master.zookeeper.data.BrokerQueueNode;
 import com.dtstack.engine.master.zookeeper.data.BrokersNode;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.netflix.curator.framework.CuratorFramework;
 import com.netflix.curator.framework.CuratorFrameworkFactory;
 import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
@@ -45,10 +42,7 @@ public class ZkService implements InitializingBean, DisposableBean {
 
     private static final Logger logger = LoggerFactory.getLogger(ZkService.class);
 
-    private final static String META_DATA_NODE = "data";
-    private final static String META_DATA_LOCK = "dataLock";
     private final static String HEART_NODE = "heart";
-    private final static String QUEUE_NODE = "queue";
 
     private ZkConfig zkConfig;
     private String zkAddress;
@@ -60,7 +54,6 @@ public class ZkService implements InitializingBean, DisposableBean {
     private CuratorFramework zkClient;
     private InterProcessMutex masterLock;
     private InterProcessMutex brokerHeartLock;
-    private InterProcessMutex brokerQueueLock;
 
     private String lastMasterAddress = "";
 
@@ -73,9 +66,6 @@ public class ZkService implements InitializingBean, DisposableBean {
 
     @Autowired
     private FailoverStrategy failoverStrategy;
-
-    @Autowired
-    private JobExecutorTrigger jobExecutorTrigger;
 
     @Autowired
     private QueueListener queueListener;
@@ -134,9 +124,6 @@ public class ZkService implements InitializingBean, DisposableBean {
         createNodeIfNotExists(this.localNode, "");
         initNeedLock();
         createLocalBrokerHeartNode();
-        createLocalBrokerDataNode();
-        createLocalBrokerDataLock();
-        createLocalBrokerQueueNode();
         initScheduledExecutorService();
         logger.warn("init zk server success...");
         return this;
@@ -159,31 +146,6 @@ public class ZkService implements InitializingBean, DisposableBean {
             updateSynchronizedLocalBrokerHeartNode(this.localAddress, BrokerHeartNode.initBrokerHeartNode(), true);
         }
     }
-
-    private void createLocalBrokerDataNode() throws Exception {
-        String nodePath = String.format("%s/%s", this.localNode, META_DATA_NODE);
-        if (zkClient.checkExists().forPath(nodePath) == null) {
-            zkClient.create().forPath(nodePath,
-                    objectMapper.writeValueAsBytes(""));
-        }
-    }
-
-    private void createLocalBrokerDataLock() throws Exception {
-        String nodePath = String.format("%s/%s", this.localNode, META_DATA_LOCK);
-        if (zkClient.checkExists().forPath(nodePath) == null) {
-            zkClient.create().forPath(nodePath,
-                    objectMapper.writeValueAsBytes(""));
-        }
-    }
-
-    private void createLocalBrokerQueueNode() throws Exception {
-        String nodePath = String.format("%s/%s", this.localNode, QUEUE_NODE);
-        if (zkClient.checkExists().forPath(nodePath) == null) {
-            zkClient.create().forPath(nodePath,
-                    objectMapper.writeValueAsBytes(BrokerQueueNode.initBrokerQueueNode()));
-        }
-    }
-
 
     public void updateSynchronizedLocalBrokerHeartNode(String localAddress, BrokerHeartNode source, boolean isCover) {
         String nodePath = String.format("%s/%s/%s", brokersNode, localAddress, HEART_NODE);
@@ -209,30 +171,6 @@ public class ZkService implements InitializingBean, DisposableBean {
         }
     }
 
-
-    public void updateSynchronizedLocalQueueNode(String localAddress, BrokerQueueNode source) {
-        String nodePath = String.format("%s/%s/%s", brokersNode, localAddress, QUEUE_NODE);
-        try {
-            if (this.brokerQueueLock.acquire(30, TimeUnit.SECONDS)) {
-                zkClient.setData().forPath(nodePath, objectMapper.writeValueAsBytes(source));
-            }
-        } catch (Exception e) {
-            logger.error("{} updateSynchronizedLocalQueueNode error:{}", nodePath,
-                    ExceptionUtil.getErrorMessage(e));
-        } finally {
-
-            try {
-                if (this.brokerQueueLock.isAcquiredInThisProcess()) {
-                    this.brokerQueueLock.release();
-                }
-            } catch (Exception e) {
-                logger.error("{}:updateSynchronizedLocalQueueNode error:{}", nodePath,
-                        ExceptionUtil.getErrorMessage(e));
-            }
-
-        }
-    }
-
     private void initNeedLock() {
         this.masterLock = createDistributeLock(String.format(
                 "%s/%s", this.distributeRootNode, "masterLock"));
@@ -240,12 +178,8 @@ public class ZkService implements InitializingBean, DisposableBean {
         this.brokerHeartLock = createDistributeLock(String.format(
                 "%s/%s", this.distributeRootNode, "brokerheartlock"));
 
-        this.brokerQueueLock = createDistributeLock(String.format(
-                "%s/%s", this.distributeRootNode, "brokerqueuelock"));
-
         interProcessMutexes.add(this.masterLock);
         interProcessMutexes.add(this.brokerHeartLock);
-        interProcessMutexes.add(this.brokerQueueLock);
 
     }
 
@@ -309,17 +243,6 @@ public class ZkService implements InitializingBean, DisposableBean {
         this.localNode = String.format("%s/%s", this.brokersNode, this.localAddress);
     }
 
-    public List<String> getBrokerDataChildren(String node) {
-        try {
-            String nodePath = String.format("%s/%s/%s", this.brokersNode, node, META_DATA_NODE);
-            return zkClient.getChildren().forPath(nodePath);
-        } catch (Exception e) {
-            logger.error("getBrokerDataChildren error:{}",
-                    ExceptionUtil.getErrorMessage(e));
-        }
-        return Lists.newArrayList();
-    }
-
     public BrokerHeartNode getBrokerHeartNode(String node) {
         try {
             String nodePath = String.format("%s/%s/%s", this.brokersNode, node, HEART_NODE);
@@ -331,30 +254,6 @@ public class ZkService implements InitializingBean, DisposableBean {
                     ExceptionUtil.getErrorMessage(e));
         }
         return BrokerHeartNode.initNullBrokerHeartNode();
-    }
-
-    public Map<String, BrokerQueueNode> getAllBrokerQueueNode() {
-        List<String> brokerList = getAliveBrokersChildren();
-        Map<String, BrokerQueueNode> queueNodeMap = Maps.newHashMap();
-
-        for (String broker : brokerList) {
-            BrokerQueueNode queueNode = getBrokerQueueNode(broker);
-            queueNodeMap.put(broker, queueNode);
-        }
-
-        return queueNodeMap;
-    }
-
-    private BrokerQueueNode getBrokerQueueNode(String node) {
-        try {
-            String nodePath = String.format("%s/%s/%s", this.brokersNode, node, QUEUE_NODE);
-            BrokerQueueNode queueNode = objectMapper.readValue(zkClient.getData().forPath(nodePath), BrokerQueueNode.class);
-            return queueNode;
-        } catch (Exception e) {
-            logger.error("{} getBrokerQueueNode error:{}", node, ExceptionUtil.getErrorMessage(e));
-        }
-
-        return BrokerQueueNode.initBrokerQueueNode();
     }
 
     public List<String> getBrokersChildren() {
@@ -396,11 +295,6 @@ public class ZkService implements InitializingBean, DisposableBean {
         this.updateSynchronizedLocalBrokerHeartNode(localAddress, disableBrokerHeartNode, true);
     }
 
-    public void removeBrokerQueueNode(String address) {
-        BrokerQueueNode brokerQueueNode = new BrokerQueueNode();
-        this.updateSynchronizedLocalQueueNode(address, brokerQueueNode);
-    }
-
     @Override
     public void destroy() throws Exception {
         disableBrokerHeartNode(this.localAddress, false);
@@ -417,11 +311,4 @@ public class ZkService implements InitializingBean, DisposableBean {
         this.environmentContext = environmentContext;
     }
 
-    public void setFailoverStrategy(FailoverStrategy failoverStrategy) {
-        this.failoverStrategy = failoverStrategy;
-    }
-
-    public void setJobExecutorTrigger(JobExecutorTrigger jobExecutorTrigger) {
-        this.jobExecutorTrigger = jobExecutorTrigger;
-    }
 }
