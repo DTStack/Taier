@@ -46,7 +46,7 @@ import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
 import com.dtstack.engine.master.scheduler.JobStopSender;
 import com.dtstack.engine.master.vo.*;
-import com.dtstack.engine.master.zk.ZkService;
+import com.dtstack.engine.master.zookeeper.ZkService;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

@@ -1,42 +1,39 @@
-package com.dtstack.engine.master.zk.listener;
+package com.dtstack.engine.master.zookeeper.listener;
 
 import com.dtstack.engine.common.util.ExceptionUtil;
 import com.dtstack.engine.common.util.LogCountUtil;
-import com.dtstack.engine.master.node.FailoverStrategy;
 import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.master.zk.ZkService;
+import com.dtstack.engine.master.zookeeper.ZkService;
+import com.dtstack.engine.master.zookeeper.data.BrokerHeartNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 
 /**
  * company: www.dtstack.com
- * @author toutian
+ * author: toutian
  * create: 2019/10/22
  */
-public class MasterListener implements Listener {
+public class HeartBeatListener implements Listener {
 
-    private static final Logger logger = LoggerFactory.getLogger(MasterListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(HeartBeatListener.class);
 
     private int logOutput = 0;
     private final static int MULTIPLES = 10;
     private final static int CHECK_INTERVAL = 1000;
 
-    private AtomicBoolean isMaster = new AtomicBoolean(false);
     private final ScheduledExecutorService scheduledService;
-    private ZkService zkService;
-    private FailoverStrategy failoverStrategy;
 
-    public MasterListener(FailoverStrategy failoverStrategy, ZkService zkService) {
-        this.failoverStrategy = failoverStrategy;
+    private ZkService zkService;
+
+    public HeartBeatListener(ZkService zkService) {
         this.zkService = zkService;
 
-        scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("MasterListener"));
+        scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("HeartBeatListener"));
         scheduledService.scheduleWithFixedDelay(
                 this,
                 0,
@@ -48,22 +45,16 @@ public class MasterListener implements Listener {
     public void run() {
         try {
             logOutput++;
-            isMaster.getAndSet(zkService.setMaster());
-            failoverStrategy.setIsMaster(isMaster.get());
-
+            BrokerHeartNode brokerHeartNode = BrokerHeartNode.initBrokerHeartNode();
+            brokerHeartNode.setSeq(1L);
+            brokerHeartNode.setAlive(true);
+            zkService.updateSynchronizedLocalBrokerHeartNode(zkService.getLocalAddress(), brokerHeartNode, false);
             if (LogCountUtil.count(logOutput, MULTIPLES)) {
-                logger.info("MasterListener start again...");
-                if (isMaster()) {
-                    logger.info("i am is master...");
-                }
+                logger.info("HeartBeatListener start again...");
             }
         } catch (Throwable e) {
-            logger.error("MasterCheck error:{}", ExceptionUtil.getErrorMessage(e));
+            logger.error(ExceptionUtil.getErrorMessage(e));
         }
-    }
-
-    public boolean isMaster() {
-        return isMaster.get();
     }
 
     @Override

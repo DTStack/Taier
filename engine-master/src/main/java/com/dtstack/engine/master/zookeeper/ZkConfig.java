@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.zk;
+package com.dtstack.engine.master.zookeeper;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.common.util.AddressUtil;

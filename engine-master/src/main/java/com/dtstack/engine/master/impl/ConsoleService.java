@@ -13,7 +13,7 @@ import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.domain.EngineJob;
 import com.dtstack.engine.common.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.WorkNode;
-import com.dtstack.engine.master.zk.ZkService;
+import com.dtstack.engine.master.zookeeper.ZkService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;

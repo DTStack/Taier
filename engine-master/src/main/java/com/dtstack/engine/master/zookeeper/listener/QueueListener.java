@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.zk.listener;
+package com.dtstack.engine.master.zookeeper.listener;
 
 import com.dtstack.engine.common.util.ExceptionUtil;
 import com.dtstack.engine.common.util.LogCountUtil;
@@ -6,8 +6,8 @@ import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.master.executor.JobExecutorTrigger;
 import com.dtstack.engine.master.queue.ClusterQueueInfo;
 import com.dtstack.engine.master.queue.QueueInfo;
-import com.dtstack.engine.master.zk.ZkService;
-import com.dtstack.engine.master.zk.data.BrokerQueueNode;
+import com.dtstack.engine.master.zookeeper.ZkService;
+import com.dtstack.engine.master.zookeeper.data.BrokerQueueNode;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,6 +66,10 @@ public class QueueListener implements Listener {
             if (LogCountUtil.count(logOutput, MULTIPLES)) {
                 logger.info("QueueListener start again....");
             }
+
+
+            //TODO
+//            workNode.getQueueInfo()
         } catch (Throwable e) {
             logger.error("QueueListener error:{}", ExceptionUtil.getErrorMessage(e));
         }

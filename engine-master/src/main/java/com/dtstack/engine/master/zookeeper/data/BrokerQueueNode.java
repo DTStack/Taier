@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.zk.data;
+package com.dtstack.engine.master.zookeeper.data;
 
 import com.dtstack.engine.master.queue.QueueInfo;
 import com.google.common.collect.Maps;

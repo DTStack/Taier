@@ -25,7 +25,6 @@ import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.JobStopQueue;
 import com.dtstack.engine.master.resource.JobComputeResourcePlain;
 import com.dtstack.engine.master.send.HttpSendClient;
-import com.dtstack.engine.master.task.QueueListener;
 import com.dtstack.engine.master.task.TaskListener;
 import com.dtstack.engine.master.task.TaskStatusListener;
 import com.dtstack.engine.master.cache.ZkLocalCache;
@@ -91,7 +90,7 @@ public class WorkNode implements InitializingBean {
     @Autowired
     private JobStopQueue jobStopQueue;
 
-    private ExecutorService executors  = new ThreadPoolExecutor(3, 3,
+    private ExecutorService executors  = new ThreadPoolExecutor(2, 3,
             0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<Runnable>());
 
@@ -99,7 +98,6 @@ public class WorkNode implements InitializingBean {
     public void afterPropertiesSet() throws Exception {
         executors.execute(new TaskListener());
         executors.execute(new TaskStatusListener());
-        executors.execute(new QueueListener());
 
         ExecutorService recoverExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory("recoverDealer"));
@@ -161,10 +159,6 @@ public class WorkNode implements InitializingBean {
     public void addSubmitJob(Map<String, Object> params) {
         try{
             ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
-//            checkParam(paramAction);
-//            if(!checkSubmitted(paramAction)){
-//                return result;
-//            }
             JobClient jobClient = new JobClient(paramAction);
             this.addSubmitJob(jobClient, true);
         }catch (Exception e){

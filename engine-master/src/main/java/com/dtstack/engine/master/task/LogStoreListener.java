@@ -2,7 +2,7 @@ package com.dtstack.engine.master.task;
 
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.logStore.LogStoreFactory;
-import com.dtstack.engine.master.zk.listener.MasterListener;
+import com.dtstack.engine.master.zookeeper.listener.MasterListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
