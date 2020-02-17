@@ -12,7 +12,7 @@ import com.dtstack.engine.common.RootUrls;
  */
 public interface Urls extends RootUrls {
 
-    String MASTER_SEND_JOBS = String.format("%s/%s",ACTION,"masterSendJobs");
+    String MASTER_TRIGGER_NODE = String.format("%s/%s",ACTION,"masterTriggerNode");
 
     String SUBMIT = String.format("%s/%s", ACTION, "submit");
 

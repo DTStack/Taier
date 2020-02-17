@@ -2,7 +2,9 @@ package com.dtstack.engine.common.enums;
 
 import com.google.common.collect.Lists;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * company: www.dtstack.com
@@ -36,5 +38,9 @@ public enum EJobCacheStage {
                 PRIORITY.getStage(),
                 RESTART.getStage()
         );
+    }
+
+    public static List<Integer> allStage() {
+        return Arrays.stream(EJobCacheStage.values()).map(EJobCacheStage::getStage).collect(Collectors.toList());
     }
 }

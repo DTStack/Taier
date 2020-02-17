@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.queue;
 
+import com.dtstack.engine.common.queue.GroupInfo;
 import com.dtstack.engine.master.zookeeper.listener.QueueListener;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ public class JobPartitioner {
     /**
      * compute job number per node
      */
-    public Map<String, Integer> computeQueueJobSize(Integer type, int jobSize) {
+    public Map<String, Integer> computeBatchJobSize(Integer type, int jobSize) {
         Map<Integer, Map<String, QueueInfo>> allNodesJobQueueInfo = queueListener.getAllNodesJobQueueInfo();
         if (allNodesJobQueueInfo.isEmpty()) {
             return null;
@@ -44,4 +45,26 @@ public class JobPartitioner {
         return nodeSort;
     }
 
+    public Map<String, Integer> computeJobCacheSize(String jobResource, int jobSize) {
+        Map<String, Map<String, GroupInfo>> allNodesGroupQueueJobResources = queueListener.getAllNodesGroupQueueInfo();
+        if (allNodesGroupQueueJobResources.isEmpty()) {
+            return null;
+        }
+        Map<String, GroupInfo> nodesGroupQueue = allNodesGroupQueueJobResources.get(jobResource);
+        if (nodesGroupQueue == null) {
+            return null;
+        }
+        Map<String, Integer> nodeSort = Maps.newHashMap();
+        int total = jobSize;
+        for (Map.Entry<String, GroupInfo> groupInfoEntry : nodesGroupQueue.entrySet()) {
+            GroupInfo groupInfo = groupInfoEntry.getValue();
+            total += groupInfo.getSize();
+            nodeSort.put(groupInfoEntry.getKey(), groupInfo.getSize());
+        }
+        int avg = total / nodeSort.size() + 1;
+        for (Map.Entry<String, Integer> entry : nodeSort.entrySet()) {
+            entry.setValue(avg - entry.getValue());
+        }
+        return nodeSort;
+    }
 }

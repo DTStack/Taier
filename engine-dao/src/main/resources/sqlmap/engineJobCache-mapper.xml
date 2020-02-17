@@ -77,4 +77,22 @@
         WHERE is_deleted = 0
     </select>
 
+    <update id="updateNodeAddress">
+        UPDATE
+        rdos_engine_job_cache
+        set node_address = #{nodeAddress}, is_failover = 1
+        WHERE job_id IN
+        <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
+            #{jobId}
+        </foreach>
+    </update>
+
+    <select id="listByFailover" resultType="EngineJobCache">
+        select * from rdos_engine_job_cache
+        where id > #{startId} and is_failover = 1
+        and (node_address = #{nodeAddress} or node_address is null)
+        and is_deleted=0
+        order by id, job_priority asc
+        limit 500;
+    </select>
 </mapper>

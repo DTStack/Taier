@@ -22,6 +22,8 @@ public class EngineJobCache extends DataObject{
     private Long jobPriority;
     private String groupName;
 
+    private Integer isFailover;
+
     public String getJobId() {
         return jobId;
     }
@@ -92,5 +94,13 @@ public class EngineJobCache extends DataObject{
 
     public void setGroupName(String groupName) {
         this.groupName = groupName;
+    }
+
+    public Integer getIsFailover() {
+        return isFailover;
+    }
+
+    public void setIsFailover(Integer isFailover) {
+        this.isFailover = isFailover;
     }
 }

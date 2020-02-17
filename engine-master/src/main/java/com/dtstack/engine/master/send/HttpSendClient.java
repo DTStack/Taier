@@ -14,8 +14,8 @@ import java.util.Map;
  */
 public class HttpSendClient {
 
-    public static void masterSendJobs(String target,Map<String, Object> params) {
-        PoolHttpClient.post(UrlUtil.getHttpUrl(target,Urls.MASTER_SEND_JOBS),params);
+    public static void masterTriggerNode(String target) {
+        PoolHttpClient.post(UrlUtil.getHttpUrl(target,Urls.MASTER_TRIGGER_NODE), null);
     }
 
     /**

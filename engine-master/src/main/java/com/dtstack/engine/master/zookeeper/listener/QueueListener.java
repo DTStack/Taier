@@ -84,12 +84,12 @@ public class QueueListener implements Listener {
                 Map<String, Map<String, GroupInfo>> allNodesGroupQueueJobResources = new HashMap<>();
                 allNodesGroupQueueInfo.forEach((address, jobResourceGroupQueueInfo) -> {
                     jobResourceGroupQueueInfo.forEach((jobResource, groupInfo) -> {
-                        Map<String, GroupInfo> nodesJobQueue = allNodesGroupQueueJobResources.computeIfAbsent(jobResource, k -> {
+                        Map<String, GroupInfo> nodesGroupQueue = allNodesGroupQueueJobResources.computeIfAbsent(jobResource, k -> {
                             Map<String, GroupInfo> value = new HashMap<>();
                             value.put(address, groupInfo);
                             return value;
                         });
-                        nodesJobQueue.put(address, groupInfo);
+                        nodesGroupQueue.put(address, groupInfo);
                     });
                 });
                 this.allNodesGroupQueueJobResources = allNodesGroupQueueJobResources;

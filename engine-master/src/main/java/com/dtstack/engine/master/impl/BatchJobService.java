@@ -1261,7 +1261,7 @@ public class BatchJobService {
     }
 
     private Map<String, Integer> computeJobSizeForNode(int jobSize, int scheduleType) {
-        Map<String, Integer> jobSizeInfo = jobPartitioner.computeQueueJobSize(scheduleType, jobSize);
+        Map<String, Integer> jobSizeInfo = jobPartitioner.computeBatchJobSize(scheduleType, jobSize);
         if (jobSizeInfo == null) {
             //if empty
             List<String> aliveNodes = zkService.getAliveBrokersChildren();

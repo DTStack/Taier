@@ -55,9 +55,6 @@ public class WorkNode implements InitializingBean {
 
     private static final Logger LOG = LoggerFactory.getLogger(WorkNode.class);
 
-    /**任务分发到执行engine上最多重试3次*/
-    private static final int DISPATCH_RETRY_LIMIT = 3;
-
     @Autowired
     private JobComputeResourcePlain jobComputeResourcePlain;
 
@@ -115,7 +112,7 @@ public class WorkNode implements InitializingBean {
     }
 
     /**
-     * 获取所有节点的队列大小信息
+     * 获取所有节点的队列大小信息（job已经submitted的除外）
      * key1: nodeAddress,
      * key2: jobResource
      */

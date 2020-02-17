@@ -35,4 +35,8 @@ public interface EngineJobCacheDao {
     long maxPriorityByStage(@Param("groupName") String jobResource, @Param("stage") Integer stages, @Param("nodeAddress") String nodeAddress);
 
     List<String> getAllNodeAddress();
+
+    Integer updateNodeAddress(@Param("nodeAddress") String nodeAddress, @Param("jobIds") List<String> ids);
+
+    List<EngineJobCache> listByFailover(@Param("startId") Long id, @Param("nodeAddress") String nodeAddress);
 }
