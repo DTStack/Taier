@@ -17,7 +17,7 @@ import com.dtstack.engine.common.enums.StoppedStatus;
 import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.send.HttpSendClient;
-import com.dtstack.engine.master.cache.ZkLocalCache;
+import com.dtstack.engine.master.cache.ShardCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +50,7 @@ public class JobStopQueue {
     private static final Logger logger = LoggerFactory.getLogger(JobStopQueue.class);
 
     @Autowired
-    private ZkLocalCache zkLocalCache;
+    private ShardCache shardCache;
 
     private DelayBlockingQueue<StoppedJob<ParamAction>> stopJobQueue = new DelayBlockingQueue<StoppedJob<ParamAction>>(1000);
 
@@ -167,7 +167,7 @@ public class JobStopQueue {
                             logger.warn("[Unnormal Job] jobId:{}", jobStopRecord.getTaskId());
                             //jobcache表没有记录，可能任务已经停止。在update表时增加where条件不等于stopped
                             engineJobDao.updateTaskStatusNotStopped(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus(), RdosTaskStatus.getStoppedStatus());
-                            zkLocalCache.updateLocalMemTaskStatus(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
+                            shardCache.updateLocalMemTaskStatus(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
                             engineJobStopRecordDao.delete(jobStopRecord.getId());
                         }
                     }
@@ -187,7 +187,7 @@ public class JobStopQueue {
                 return true;
             }
 
-            String address = zkLocalCache.getJobLocationAddr(jobId);
+            String address = shardCache.getJobLocationAddr(jobId);
             if (address == null) {
                 logger.info("can't get info from engine zk for jobId" + jobId);
                 return true;

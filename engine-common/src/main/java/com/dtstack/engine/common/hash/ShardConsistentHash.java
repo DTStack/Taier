@@ -26,7 +26,7 @@ public class ShardConsistentHash {
      */
     private final SortedMap<Long, String> circle = new ConcurrentSkipListMap<>();
 
-    private ShardConsistentHash() {
+    public ShardConsistentHash() {
     }
 
     /**

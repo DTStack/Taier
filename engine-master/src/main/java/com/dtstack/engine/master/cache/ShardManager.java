@@ -3,8 +3,8 @@ package com.dtstack.engine.master.cache;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.hash.ShardConsistentHash;
-import com.dtstack.engine.master.data.BrokerDataNode;
-import com.dtstack.engine.master.data.BrokerDataShard;
+import com.dtstack.engine.common.hash.Shard;
+import com.dtstack.engine.common.hash.ShardData;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,27 +29,28 @@ import java.util.concurrent.locks.ReentrantLock;
  * create: 2018/9/1
  */
 @Component
-public class ZkShardManager implements Runnable, InitializingBean {
+public class ShardManager implements Runnable, InitializingBean {
 
-    private static Logger logger = LoggerFactory.getLogger(ZkShardManager.class);
+    private static Logger logger = LoggerFactory.getLogger(ShardManager.class);
 
     private static final long DATA_CLEAN_INTERVAL = 1000;
 
     private static final String SHARD_NODE = "shard";
 
+    private Shard shard = new Shard();
+
     @Autowired
-    private ZkLocalCache zkLocalCache;
+    private ShardCache shardCache;
 
     private final AtomicInteger shardSequence = new AtomicInteger(1);
     private ShardConsistentHash consistentHash;
-    private Map<String, BrokerDataShard> shards;
+    private Map<String, ShardData> shards;
     private Map<String, ReentrantLock> cacheShardLocks = Maps.newConcurrentMap();
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        BrokerDataNode brokerDataNode = zkLocalCache.getBrokerData();
-        this.shards = brokerDataNode.getShards();
-        this.consistentHash = brokerDataNode.getConsistentHash();
+        this.shards = shard.getShards();
+        this.consistentHash = shard.getConsistentHash();
         if (consistentHash.getSize() == 0) {
             createShardNode(1);
         } else {
@@ -65,14 +66,18 @@ public class ZkShardManager implements Runnable, InitializingBean {
                 TimeUnit.MILLISECONDS);
     }
 
+    public Shard getShard() {
+        return shard;
+    }
+
     public ReentrantLock tryLock(String shard) {
         return cacheShardLocks.get(shard);
     }
 
     @Override
     public void run() {
-        for (Map.Entry<String, BrokerDataShard> shardEntry : shards.entrySet()) {
-            BrokerDataShard brokerDataShard = shardEntry.getValue();
+        for (Map.Entry<String, ShardData> shardEntry : shards.entrySet()) {
+            ShardData brokerDataShard = shardEntry.getValue();
             ConcurrentSkipListMap<String, Integer> shardData = brokerDataShard.getMetas();
             Iterator<Map.Entry<String, Integer>> it = shardData.entrySet().iterator();
             while (it.hasNext()) {
@@ -98,7 +103,7 @@ public class ZkShardManager implements Runnable, InitializingBean {
                 lock.lock();
                 cacheShardLocks.put(shardName, lock);
                 consistentHash.add(shardName);
-                shards.put(shardName, BrokerDataShard.initBrokerDataShard());
+                shards.put(shardName, ShardData.initShardData());
             }
             logger.info("ZkShardManager resizeShard-create:{} start", nodeNum);
             resizeShard();
@@ -109,9 +114,9 @@ public class ZkShardManager implements Runnable, InitializingBean {
     }
 
     private void resizeShard() {
-        for (Map.Entry<String, BrokerDataShard> shardEntry : shards.entrySet()) {
+        for (Map.Entry<String, ShardData> shardEntry : shards.entrySet()) {
             String shard = shardEntry.getKey();
-            BrokerDataShard brokerDataShard = shardEntry.getValue();
+            ShardData brokerDataShard = shardEntry.getValue();
             ConcurrentSkipListMap<String, Integer> shardData = brokerDataShard.getMetas();
             Iterator<Map.Entry<String, Integer>> it = shardData.entrySet().iterator();
             while (it.hasNext()) {

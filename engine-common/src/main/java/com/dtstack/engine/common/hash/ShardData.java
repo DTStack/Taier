@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.data;
+package com.dtstack.engine.common.hash;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * author: toutian
  * create: 2018/9/1
  */
-public class BrokerDataShard {
+public class ShardData {
 
     private ConcurrentSkipListMap<String, Integer> metas;
     private long version;
@@ -69,8 +69,8 @@ public class BrokerDataShard {
         return Collections.unmodifiableNavigableMap(metas);
     }
 
-    public static BrokerDataShard initBrokerDataShard() {
-        BrokerDataShard brokerNode = new BrokerDataShard();
+    public static ShardData initShardData() {
+        ShardData brokerNode = new ShardData();
         brokerNode.setMetas(new ConcurrentSkipListMap<String, Integer>());
         brokerNode.setVersion(0);
         return brokerNode;

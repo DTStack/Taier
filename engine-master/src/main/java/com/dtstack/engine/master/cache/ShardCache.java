@@ -5,14 +5,12 @@ import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.master.data.BrokerDataNode;
-import com.dtstack.engine.master.data.BrokerDataShard;
+import com.dtstack.engine.common.hash.ShardData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -22,11 +20,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * create: 2018/9/6
  */
 @Component
-public class ZkLocalCache {
-
-    private volatile BrokerDataNode localDataCache = new BrokerDataNode(new ConcurrentHashMap<String,BrokerDataShard>(16));
-
-    private volatile Map<String, Integer> zkDataSizeCache;
+public class ShardCache {
 
     private final ReentrantLock lock = new ReentrantLock();
 
@@ -40,70 +34,59 @@ public class ZkLocalCache {
     private WorkNode workNode;
 
     @Autowired
-    private ZkShardManager zkShardManager;
+    private ShardManager shardManager;
 
     public void updateLocalMemTaskStatus(String zkTaskId, Integer status) {
         if (zkTaskId == null || status == null) {
             throw new UnsupportedOperationException();
         }
         //任务只有在提交成功后开始task status轮询并同时checkShard一次
-        if (RdosTaskStatus.SUBMITTED.getStatus().equals(status)){
+        if (RdosTaskStatus.SUBMITTED.getStatus().equals(status)) {
             checkShard();
         }
-        String shard = localDataCache.getShard(zkTaskId);
-        Lock lock = zkShardManager.tryLock(shard);
+        String shard = shardManager.getShard().getShard(zkTaskId);
+        Lock lock = shardManager.tryLock(shard);
         lock.lock();
         try {
-            localDataCache.getShards().get(shard).put(zkTaskId, status);
+            shardManager.getShard().getShards().get(shard).put(zkTaskId, status);
         } finally {
             lock.unlock();
         }
     }
 
-    public BrokerDataNode getBrokerData() {
-        return localDataCache;
-    }
-
-
     public String getJobLocationAddr(String jobId) {
         String addr = null;
         //先查本地
-        String shard = localDataCache.getShard(jobId);
-        if (localDataCache.getShards().get(shard).containsKey(jobId)) {
+        String shard = shardManager.getShard().getShard(jobId);
+        if (shardManager.getShard().getShards().get(shard).containsKey(jobId)) {
             addr = environmentContext.getLocalAddress();
         }
         //查数据库
-        if (addr==null){
+        if (addr == null) {
             EngineJobCache jobCache = engineJobCacheDao.getOne(jobId);
-            if (jobCache!=null){
+            if (jobCache != null) {
                 addr = jobCache.getNodeAddress();
             }
         }
         return addr;
     }
 
-    public int getZkDataSize(String node){
-        if (zkDataSizeCache!=null){
-            return zkDataSizeCache.getOrDefault(node, 0);
-        }
-        return 0;
-    }
 
     /**
      * 任务状态轮询的时候注意并发删除操作，CopyOnWrite
      */
-    public Map<String, BrokerDataShard> cloneShardData() {
-        return new HashMap<>(localDataCache.getShards());
+    public Map<String, ShardData> cloneShardData() {
+        return new HashMap<>(shardManager.getShard().getShards());
     }
 
     public void checkShard() {
         final ReentrantLock createShardLock = this.lock;
         createShardLock.lock();
         try {
-            int shardSize = localDataCache.getShards().size();
-            int avg = localDataCache.getDataSize() / localDataCache.getShards().size();
+            int shardSize = shardManager.getShard().getShards().size();
+            int avg = shardManager.getShard().getDataSize() / shardManager.getShard().getShards().size();
             if (avg >= environmentContext.getShardSize()) {
-                zkShardManager.createShardNode(shardSize);
+                shardManager.createShardNode(shardSize);
             }
         } finally {
             createShardLock.unlock();

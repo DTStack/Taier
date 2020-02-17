@@ -9,7 +9,7 @@ import com.dtstack.engine.dao.EngineJobDao;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.master.WorkNode;
-import com.dtstack.engine.master.cache.ZkLocalCache;
+import com.dtstack.engine.master.cache.ShardCache;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +37,7 @@ public class TaskSubmittedDealer implements Runnable{
 	private EngineJobCacheDao engineJobCacheDao;
 
 	@Autowired
-	private ZkLocalCache zkLocalCache;
+	private ShardCache shardCache;
 
 	@Autowired
 	private WorkNode workNode;
@@ -67,10 +67,10 @@ public class TaskSubmittedDealer implements Runnable{
 					engineJobDao.updateSubmitLog(jobClient.getTaskId(), jobClient.getJobResult().getJsonStr());
 					workNode.updateCache(jobClient, EJobCacheStage.SUBMITTED.getStage());
 					jobClient.doStatusCallBack(RdosTaskStatus.SUBMITTED.getStatus());
-					zkLocalCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.SUBMITTED.getStatus());
+					shardCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.SUBMITTED.getStatus());
 				}else{
 					engineJobDao.jobFail(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus(), jobClient.getJobResult().getJsonStr());
-					zkLocalCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus());
+					shardCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus());
 					engineJobCacheDao.delete(jobClient.getTaskId());
 				}
 			} catch (Throwable e) {

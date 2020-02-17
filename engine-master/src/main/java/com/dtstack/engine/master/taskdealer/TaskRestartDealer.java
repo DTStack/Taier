@@ -20,7 +20,7 @@ import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.domain.EngineJobRetry;
 import com.dtstack.engine.domain.StreamTaskCheckpoint;
 import com.dtstack.engine.master.WorkNode;
-import com.dtstack.engine.master.cache.ZkLocalCache;
+import com.dtstack.engine.master.cache.ShardCache;
 import com.dtstack.engine.master.resource.JobComputeResourcePlain;
 import com.google.common.base.Strings;
 import javafx.util.Pair;
@@ -63,7 +63,7 @@ public class TaskRestartDealer {
     private ClientCache clientCache = ClientCache.getInstance();
 
     @Autowired
-    private ZkLocalCache zkLocalCache;
+    private ShardCache shardCache;
 
     @Autowired
     private WorkNode workNode;
@@ -315,7 +315,7 @@ public class TaskRestartDealer {
         //重试的时候，更改cache状态
         workNode.updateCache(jobClient, EJobCacheStage.RESTART.getStage());
         //重试任务更改在zk的状态，统一做状态清理
-        zkLocalCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.RESTARTING.getStatus());
+        shardCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.RESTARTING.getStatus());
 
         //重试的任务不置为失败，waitengine
         jobRetryRecord(jobClient);

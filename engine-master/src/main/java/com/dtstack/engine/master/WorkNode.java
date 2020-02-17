@@ -24,7 +24,7 @@ import com.dtstack.engine.master.impl.JobStopQueue;
 import com.dtstack.engine.master.resource.JobComputeResourcePlain;
 import com.dtstack.engine.master.taskdealer.TaskSubmittedDealer;
 import com.dtstack.engine.master.taskdealer.TaskStatusDealer;
-import com.dtstack.engine.master.cache.ZkLocalCache;
+import com.dtstack.engine.master.cache.ShardCache;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
@@ -58,7 +58,7 @@ public class WorkNode implements InitializingBean {
     private JobComputeResourcePlain jobComputeResourcePlain;
 
     @Autowired
-    private ZkLocalCache zkLocalCache;
+    private ShardCache shardCache;
 
     @Autowired
     private EngineJobCacheDao engineJobCacheDao;
@@ -174,7 +174,7 @@ public class WorkNode implements InitializingBean {
             updateJobClientPluginInfo(jobClient.getTaskId(), computeType, jobClient.getPluginInfo());
         }
         updateCache(jobClient, EJobCacheStage.SUBMITTED.getStage());
-        zkLocalCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.SUBMITTED.getStatus());
+        shardCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.SUBMITTED.getStatus());
     }
 
     public void redirectSubmitJob(String jobResource, JobClient jobClient){
@@ -272,7 +272,7 @@ public class WorkNode implements InitializingBean {
 
         boolean result = groupPriorityQueue.remove(jobId);
         if(result){
-            zkLocalCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
+            shardCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
             engineJobCacheDao.delete(jobId);
             //修改任务状态
             engineJobDao.updateJobStatus(jobId, RdosTaskStatus.CANCELED.getStatus());

@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.taskdealer;
 
 import com.dtstack.engine.common.exception.ExceptionUtil;
+import com.dtstack.engine.common.hash.ShardData;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
@@ -14,8 +15,7 @@ import com.dtstack.engine.dao.PluginInfoDao;
 import com.dtstack.engine.domain.EngineJob;
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.master.bo.FailedTaskInfo;
-import com.dtstack.engine.master.cache.ZkLocalCache;
-import com.dtstack.engine.master.data.BrokerDataShard;
+import com.dtstack.engine.master.cache.ShardCache;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
@@ -51,7 +51,7 @@ public class TaskStatusDealer implements Runnable{
     private static final long LISTENER_INTERVAL = 2000;
 
     @Autowired
-	private ZkLocalCache zkLocalCache;
+	private ShardCache shardCache;
 
 	@Autowired
 	private EngineJobDao engineJobDao;
@@ -140,9 +140,9 @@ public class TaskStatusDealer implements Runnable{
 
 	private void updateTaskStatus(){
         try {
-            Map<String, BrokerDataShard> shards = zkLocalCache.cloneShardData();
+            Map<String, ShardData> shards = shardCache.cloneShardData();
             CountDownLatch ctl = new CountDownLatch(shards.size());
-            for (Map.Entry<String,BrokerDataShard> shardEntry: shards.entrySet()) {
+            for (Map.Entry<String,ShardData> shardEntry: shards.entrySet()) {
                 taskStatusPool.submit(()->{
                     try {
                         for (Map.Entry<String, Integer> entry : shardEntry.getValue().getView().entrySet()) {
@@ -169,13 +169,13 @@ public class TaskStatusDealer implements Runnable{
         }
 	}
 
-    private void dealJob(String taskId) throws Exception {
-        EngineJob engineJob  = engineJobDao.getRdosJobByJobId(taskId);
-        EngineJobCache engineJobCache = engineJobCacheDao.getOne(taskId);
+    private void dealJob(String jobId) throws Exception {
+        EngineJob engineJob  = engineJobDao.getRdosJobByJobId(jobId);
+        EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
         if(engineJob != null && engineJobCache != null){
             String engineTaskId = engineJob.getEngineJobId();
             String appId = engineJob.getApplicationId();
-            JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineTaskId, appId, taskId);
+            JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineTaskId, appId, jobId);
 
             if(StringUtils.isNotBlank(engineTaskId)){
                 String pluginInfoStr = "";
@@ -187,31 +187,31 @@ public class TaskStatusDealer implements Runnable{
 
                 if(rdosTaskStatus != null){
 
-                    updateJobEngineLog(taskId, jobIdentifier, engineJobCache.getEngineType(), engineJobCache.getComputeType(), pluginInfoStr);
+                    updateJobEngineLog(jobId, jobIdentifier, engineJobCache.getEngineType(), engineJobCache.getComputeType(), pluginInfoStr);
 
-                    rdosTaskStatus = checkNotFoundStatus(rdosTaskStatus, taskId);
+                    rdosTaskStatus = checkNotFoundStatus(rdosTaskStatus, jobId);
 
                     Integer status = rdosTaskStatus.getStatus();
                     // 重试状态 先不更新状态
-                    boolean isRestart = TaskRestartDealer.getInstance().checkAndRestart(status, taskId, engineTaskId, appId, engineJobCache.getEngineType(), engineJobCache.getComputeType(), pluginInfoStr);
+                    boolean isRestart = TaskRestartDealer.getInstance().checkAndRestart(status, jobId, engineTaskId, appId, engineJobCache.getEngineType(), engineJobCache.getComputeType(), pluginInfoStr);
                     if(isRestart){
                         return;
                     }
 
-                    if(taskCheckpointDealer.isSyncTaskAndOpenCheckpoint(taskId, engineJobCache.getEngineType(), engineJobCache.getComputeType())){
+                    if(taskCheckpointDealer.isSyncTaskAndOpenCheckpoint(jobId, engineJobCache.getEngineType(), engineJobCache.getComputeType())){
                         taskCheckpointDealer.dealSyncTaskCheckpoint(status, jobIdentifier, pluginInfoStr);
                     }
 
-                    zkLocalCache.updateLocalMemTaskStatus(taskId, status);
+                    shardCache.updateLocalMemTaskStatus(jobId, status);
                     //数据的更新顺序，先更新job_cache，再更新engine_batch_job
 
                     if (ComputeType.STREAM.getType().equals(engineJob.getComputeType())) {
-                        dealStreamAfterGetStatus(status, taskId, engineJobCache.getEngineType(), jobIdentifier, pluginInfoStr);
+                        dealStreamAfterGetStatus(status, jobId, engineJobCache.getEngineType(), jobIdentifier, pluginInfoStr);
                     } else {
-                        dealBatchJobAfterGetStatus(status, taskId);
+                        dealBatchJobAfterGetStatus(status, jobId);
                     }
 
-                    engineJobDao.updateJobStatusAndExecTime(taskId, status);
+                    engineJobDao.updateJobStatusAndExecTime(jobId, status);
                 }
 
                 if(RdosTaskStatus.FAILED.equals(rdosTaskStatus)){
@@ -221,8 +221,8 @@ public class TaskStatusDealer implements Runnable{
                 }
             }
         } else {
-            zkLocalCache.updateLocalMemTaskStatus(taskId, RdosTaskStatus.FAILED.getStatus());
-            engineJobCacheDao.delete(taskId);
+            shardCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.FAILED.getStatus());
+            engineJobCacheDao.delete(jobId);
         }
     }
 
