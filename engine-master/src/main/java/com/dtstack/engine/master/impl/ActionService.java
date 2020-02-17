@@ -90,7 +90,7 @@ public class ActionService {
             if(canAccepted){
                 //选择节点间队列负载最小的node，做任务分发
                 JobClient jobClient = new JobClient(paramAction);
-                workNode.addStartJob(jobClient);
+                workNode.addSubmitJob(jobClient, true);
                 return true;
             }
             logger.warn("Job taskId：" + paramAction.getTaskId() + " duplicate submissions are not allowed");

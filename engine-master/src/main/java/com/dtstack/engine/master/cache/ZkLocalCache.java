@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
@@ -83,53 +82,6 @@ public class ZkLocalCache {
             }
         }
         return addr;
-    }
-
-    /**
-     * 选择节点间（队列负载+已提交任务 加权值）+ 误差 符合要求的node，做任务分发
-     */
-    public String getDistributeNode(String engineType, String groupName, List<String> excludeNodes) {
-//        if (clusterQueueInfo.isEmpty()) {
-//            return localAddress;
-//        }
-//
-//        JobPartitioner.EngineTypeQueueInfo engineTypeQueueInfo = clusterQueueInfo.getEngineTypeQueueInfo(engineType);
-//        if (engineTypeQueueInfo == null) {
-//            return localAddress;
-//        }
-//
-//        GroupPriorityQueue groupPriorityQueue = workNode.getEngineTypeQueue(engineType);
-//        if (groupPriorityQueue == null) {
-//            throw new RdosException("not support engineType:" + engineType);
-//        }
-//        Map<String, Integer> otherQueueInfoMap = Maps.newHashMap();
-//        for (Map.Entry<String, JobPartitioner.GroupQueueInfo> zkInfoEntry : engineTypeQueueInfo.getGroupQueueInfoMap().entrySet()) {
-//            JobPartitioner.GroupQueueInfo groupQueueZkInfo = zkInfoEntry.getValue();
-//            Map<String, GroupInfo> remoteQueueInfo = groupQueueZkInfo.getGroupInfo();
-//            GroupInfo groupInfo = remoteQueueInfo.getOrDefault(groupName, new GroupInfo());
-//            otherQueueInfoMap.put(zkInfoEntry.getKey(), groupInfo.getSize());
-//        }
-//        int localQueueSize = otherQueueInfoMap.getOrDefault(localAddress, 0);
-//
-//        String node = null;
-//        int minWeight = Integer.MAX_VALUE;
-//        for (Map.Entry<String, Integer> queueEntry : otherQueueInfoMap.entrySet()) {
-//            if (excludeNodes.contains(queueEntry.getKey())) {
-//                continue;
-//            }
-//            int queueSize = queueEntry.getValue();
-//            int weight = queueSize * distributeQueueWeight + getZkDataSize(queueEntry.getKey()) * distributeZkWeight;
-//            if (minWeight > weight) {
-//                minWeight = weight;
-//                node = queueEntry.getKey();
-//            }
-//        }
-//        int localWeight = localQueueSize * distributeQueueWeight + getZkDataSize(localAddress) * distributeZkWeight;
-//        if (localWeight - minWeight <= distributeDeviation) {
-//            return localAddress;
-//        }
-//        return node;
-        return environmentContext.getLocalAddress();
     }
 
     public int getZkDataSize(String node){

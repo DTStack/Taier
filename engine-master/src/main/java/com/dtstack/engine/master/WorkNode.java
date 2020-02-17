@@ -19,27 +19,22 @@ import com.dtstack.engine.dao.PluginInfoDao;
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.domain.EngineJob;
 import com.dtstack.engine.domain.PluginInfo;
-import com.dtstack.engine.common.enums.RequestStart;
 import com.dtstack.engine.common.util.TaskIdUtil;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.JobStopQueue;
 import com.dtstack.engine.master.resource.JobComputeResourcePlain;
-import com.dtstack.engine.master.send.HttpSendClient;
 import com.dtstack.engine.master.task.TaskListener;
 import com.dtstack.engine.master.task.TaskStatusListener;
 import com.dtstack.engine.master.cache.ZkLocalCache;
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -142,17 +137,6 @@ public class WorkNode implements InitializingBean {
             });
         }
         return allNodeGroupInfo;
-    }
-
-    /**
-     * 任务分发
-     */
-    public void addStartJob(JobClient jobClient){
-        Map<String,Object> distributeResult = distributeTask(jobClient,0,Lists.newArrayList());
-        if (!MapUtils.getBooleanValue(distributeResult,"result")){
-            String errorInfo = String.format("engine master 下发任务异常:\n %s",MapUtils.getString(distributeResult,"errorInfo"));
-            dealSubmitFailJob(jobClient.getTaskId(), jobClient.getComputeType().getType(), errorInfo);
-        }
     }
 
     public void addSubmitJob(Map<String, Object> params) {
@@ -337,50 +321,6 @@ public class WorkNode implements InitializingBean {
             }
         }
 
-    }
-
-    /**
-     * 判断任务队列长度，分发任务到其他work节点
-     */
-    private Map<String,Object> distributeTask(JobClient jobClient, int retryNum, List<String> excludeNodes){
-        Map<String,Object> result = new HashMap<>();
-        result.put("result",true);
-        try {
-            String address = zkLocalCache.getDistributeNode(jobClient.getEngineType(), jobClient.getGroupName(),excludeNodes);
-            if(Strings.isNullOrEmpty(address)){
-                result.put("result",false);
-                result.put("errorInfo","distribute node can not be null");
-                return result;
-            }
-            if (address.equals(environmentContext.getLocalAddress())){
-                this.addSubmitJob(jobClient, true);
-                return result;
-            }
-            ParamAction paramAction = jobClient.getParamAction();
-            paramAction.setRequestStart(RequestStart.NODE.getStart());
-            if(HttpSendClient.actionSubmit(address, paramAction)){
-                return result;
-            }else{
-                //处理发送失败的情况(比如网络失败,或者slave主动返回失败)
-                if(retryNum >= DISPATCH_RETRY_LIMIT){
-                    String errorInfo = String.format("Job taskId:%s the network failed more than 3 times，DISPATCH_RETRY_LIMIT >= 3 ", paramAction.getTaskId());
-                    LOG.error(errorInfo);
-                    result.put("result",false);
-                    result.put("errorInfo",errorInfo);
-                    return result;
-                }
-                retryNum++;
-                excludeNodes.add(address);
-                return distributeTask(jobClient, retryNum, excludeNodes);
-            }
-
-        } catch (Exception e) {
-            //只有json 解析的异常才会抛出到这个地方,这应该是不可能发生的
-            LOG.error("Job taskId:{} ---not impossible,please check your program ----,{}", jobClient.getTaskId(), e);
-            result.put("result",false);
-            result.put("errorInfo",String.format("Job taskId:%s ---not impossible,please check your program ----,%s",jobClient.getTaskId(),e));
-            return result;
-        }
     }
 
     /**
