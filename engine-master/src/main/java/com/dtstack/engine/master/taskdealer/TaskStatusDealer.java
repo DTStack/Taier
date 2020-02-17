@@ -2,7 +2,7 @@ package com.dtstack.engine.master.taskdealer;
 
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.hash.ShardData;
-import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -16,13 +16,12 @@ import com.dtstack.engine.domain.EngineJob;
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.master.bo.FailedTaskInfo;
 import com.dtstack.engine.master.cache.ShardCache;
+import com.dtstack.engine.master.cache.ShardManager;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
@@ -33,11 +32,10 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
- *
- * @author sishu.yss
- *
+ * company: www.dtstack.com
+ * @author toutian
+ * create: 2020/01/17
  */
-@Component
 public class TaskStatusDealer implements Runnable{
 
 	private static Logger logger = LoggerFactory.getLogger(TaskStatusDealer.class);
@@ -48,22 +46,17 @@ public class TaskStatusDealer implements Runnable{
     /**最大允许查询不到的任务信息最久时间*/
     private final static int NOT_FOUND_LIMIT_INTERVAL = 3 * 60 * 1000;
 
-    private static final long LISTENER_INTERVAL = 2000;
+    public static final long INTERVAL = 2000;
+    private final static int MULTIPLES = 5;
+    private int logOutput = 0;
 
-    @Autowired
-	private ShardCache shardCache;
-
-	@Autowired
 	private EngineJobDao engineJobDao;
-
-	@Autowired
 	private EngineJobCacheDao engineJobCacheDao;
-
-	@Autowired
 	private PluginInfoDao pluginInfoDao;
-
-    @Autowired
     private TaskCheckpointDealer taskCheckpointDealer;
+    private ShardManager shardManager;
+    private ShardCache shardCache;
+    private String jobResource;
 
 	/**失败任务的额外处理：当前只是对(失败任务 or 取消任务)继续更新日志或者更新checkpoint*/
     private Map<String, FailedTaskInfo> failedJobCache = Maps.newConcurrentMap();
@@ -76,19 +69,14 @@ public class TaskStatusDealer implements Runnable{
 
     @Override
 	public void run() {
-	  	int index = 0;
-	  	while(true){
-	  		try{
-		  		++index;
-                Thread.sleep(LISTENER_INTERVAL);
-		  		if(PublicUtil.count(index, 5)){
-		  		    logger.warn("\n\t\t  \t\tThread.sleep({});TaskStatusListener start again...", LISTENER_INTERVAL);
-		  		}
-		  		updateTaskStatus();
-                dealFailedJob();
-			}catch(Throwable e){
-				logger.error("TaskStatusTaskListener run error:{}",ExceptionUtil.getErrorMessage(e));
+        try{
+            if(LogCountUtil.count(logOutput++, MULTIPLES)){
+                logger.info("jobResource:{} TaskStatusListener start again...", jobResource);
             }
+            updateTaskStatus();
+            dealFailedJob();
+        }catch(Throwable e){
+            logger.error("jobResource:{} TaskStatusTaskListener run error:{}", jobResource, e);
         }
 	}
 
@@ -118,7 +106,7 @@ public class TaskStatusDealer implements Runnable{
                 }
             }
         }catch (Exception e){
-            logger.error("dealFailed job run error:{}",ExceptionUtil.getErrorMessage(e));
+            logger.error("dealFailed job run error:{}", e);
         }
     }
 
@@ -140,7 +128,7 @@ public class TaskStatusDealer implements Runnable{
 
 	private void updateTaskStatus(){
         try {
-            Map<String, ShardData> shards = shardCache.cloneShardData();
+            Map<String, ShardData> shards = shardManager.getShards();
             CountDownLatch ctl = new CountDownLatch(shards.size());
             for (Map.Entry<String,ShardData> shardEntry: shards.entrySet()) {
                 taskStatusPool.submit(()->{
@@ -235,7 +223,7 @@ public class TaskStatusDealer implements Runnable{
             }
         } catch (Throwable e){
             String errorLog = ExceptionUtil.getErrorMessage(e);
-            logger.error("update JobEngine Log error jobid {} ,error info {}..", jobId, errorLog);
+            logger.error("update JobEngine Log error jobId:{} ,error info {}..", jobId, errorLog);
             updateJobEngineLog(jobId, errorLog, computeType);
         }
     }
@@ -323,4 +311,32 @@ public class TaskStatusDealer implements Runnable{
         return statusFrequency;
     }
 
+
+    public void setEngineJobDao(EngineJobDao engineJobDao) {
+        this.engineJobDao = engineJobDao;
+    }
+
+    public void setEngineJobCacheDao(EngineJobCacheDao engineJobCacheDao) {
+        this.engineJobCacheDao = engineJobCacheDao;
+    }
+
+    public void setPluginInfoDao(PluginInfoDao pluginInfoDao) {
+        this.pluginInfoDao = pluginInfoDao;
+    }
+
+    public void setTaskCheckpointDealer(TaskCheckpointDealer taskCheckpointDealer) {
+        this.taskCheckpointDealer = taskCheckpointDealer;
+    }
+
+    public void setShardManager(ShardManager shardManager) {
+        this.shardManager = shardManager;
+    }
+
+    public void setShardCache(ShardCache shardCache) {
+        this.shardCache = shardCache;
+    }
+
+    public void setJobResource(String jobResource) {
+        this.jobResource = jobResource;
+    }
 }

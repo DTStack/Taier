@@ -14,10 +14,6 @@ public class Shard {
     public Shard() {
     }
 
-    public String getShard(String jobId) {
-        return consistentHash.get(jobId);
-    }
-
     public int getDataSize() {
         return shards.values().stream().map(ShardData::metaSize).reduce(Integer::sum).orElse(0);
     }

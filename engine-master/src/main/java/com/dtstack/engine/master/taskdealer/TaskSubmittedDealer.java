@@ -1,7 +1,6 @@
 package com.dtstack.engine.master.taskdealer;
 
 import com.dtstack.engine.common.JobSubmitDealer;
-import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.dao.EngineJobCacheDao;
@@ -50,7 +49,7 @@ public class TaskSubmittedDealer implements Runnable{
 	public void run() {
 		while(true){
 			try {
-				JobClient jobClient  = queue.take();
+				JobClient jobClient = queue.take();
 
 				if(TaskRestartDealer.getInstance().checkAndRestartForSubmitResult(jobClient)){
 					logger.warn("failed submit job restarting, jobId:{} jobResult:{} ...", jobClient.getTaskId(), jobClient.getJobResult());
@@ -74,7 +73,7 @@ public class TaskSubmittedDealer implements Runnable{
 					engineJobCacheDao.delete(jobClient.getTaskId());
 				}
 			} catch (Throwable e) {
-				logger.error("TaskListener run error:{}", ExceptionUtil.getErrorMessage(e));
+				logger.error("TaskListener run error:{}", e);
 			}
         }
 	}

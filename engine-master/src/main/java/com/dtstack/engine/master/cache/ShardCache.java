@@ -1,16 +1,23 @@
 package com.dtstack.engine.master.cache;
 
+import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.dao.EngineJobCacheDao;
+import com.dtstack.engine.dao.EngineJobDao;
+import com.dtstack.engine.dao.PluginInfoDao;
 import com.dtstack.engine.domain.EngineJobCache;
-import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.common.hash.ShardData;
+import com.dtstack.engine.master.resource.ComputeResourceType;
+import com.dtstack.engine.master.taskdealer.TaskCheckpointDealer;
+import com.dtstack.engine.master.taskdealer.TaskStatusDealer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -24,41 +31,72 @@ public class ShardCache {
 
     private final ReentrantLock lock = new ReentrantLock();
 
-    @Autowired
-    private EngineJobCacheDao engineJobCacheDao;
+    private static final ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(ComputeResourceType.values().length, new CustomThreadFactory("TaskStatusDealer"));
 
     @Autowired
     private EnvironmentContext environmentContext;
 
     @Autowired
-    private WorkNode workNode;
+    private EngineJobCacheDao engineJobCacheDao;
 
     @Autowired
-    private ShardManager shardManager;
+    private EngineJobDao engineJobDao;
 
-    public void updateLocalMemTaskStatus(String zkTaskId, Integer status) {
-        if (zkTaskId == null || status == null) {
+    @Autowired
+    private PluginInfoDao pluginInfoDao;
+
+    @Autowired
+    private TaskCheckpointDealer taskCheckpointDealer;
+
+    private Map<String, ShardManager> jobResourceShardManager = new ConcurrentHashMap<>();
+
+    private ShardManager getShardManager(String jobId) {
+        EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
+        return jobResourceShardManager.computeIfAbsent(engineJobCache.getGroupName(), jr -> {
+            ShardManager shardManager = new ShardManager();
+            TaskStatusDealer taskStatusDealer = new TaskStatusDealer();
+            taskStatusDealer.setEngineJobCacheDao(engineJobCacheDao);
+            taskStatusDealer.setEngineJobDao(engineJobDao);
+            taskStatusDealer.setPluginInfoDao(pluginInfoDao);
+            taskStatusDealer.setTaskCheckpointDealer(taskCheckpointDealer);
+            taskStatusDealer.setShardManager(shardManager);
+            taskStatusDealer.setShardCache(this);
+            taskStatusDealer.setJobResource(engineJobCache.getGroupName());
+            scheduledService.scheduleWithFixedDelay(
+                    taskStatusDealer,
+                    0,
+                    TaskStatusDealer.INTERVAL,
+                    TimeUnit.MILLISECONDS);
+            return shardManager;
+        });
+    }
+
+    public void updateLocalMemTaskStatus(String jobId, Integer status) {
+        if (jobId == null || status == null) {
             throw new UnsupportedOperationException();
         }
         //任务只有在提交成功后开始task status轮询并同时checkShard一次
         if (RdosTaskStatus.SUBMITTED.getStatus().equals(status)) {
-            checkShard();
+            checkShard(jobId);
         }
-        String shard = shardManager.getShard().getShard(zkTaskId);
+        ShardManager shardManager = getShardManager(jobId);
+        String shard = shardManager.getShardName(jobId);
         Lock lock = shardManager.tryLock(shard);
-        lock.lock();
-        try {
-            shardManager.getShard().getShards().get(shard).put(zkTaskId, status);
-        } finally {
-            lock.unlock();
+        if (lock != null) {
+            lock.lock();
+            try {
+                shardManager.getShardData(jobId).put(jobId, status);
+            } finally {
+                lock.unlock();
+            }
         }
     }
 
     public String getJobLocationAddr(String jobId) {
         String addr = null;
         //先查本地
-        String shard = shardManager.getShard().getShard(jobId);
-        if (shardManager.getShard().getShards().get(shard).containsKey(jobId)) {
+        ShardManager shardManager = getShardManager(jobId);
+        if (shardManager.getShardData(jobId).containsKey(jobId)) {
             addr = environmentContext.getLocalAddress();
         }
         //查数据库
@@ -71,22 +109,14 @@ public class ShardCache {
         return addr;
     }
 
-
-    /**
-     * 任务状态轮询的时候注意并发删除操作，CopyOnWrite
-     */
-    public Map<String, ShardData> cloneShardData() {
-        return new HashMap<>(shardManager.getShard().getShards());
-    }
-
-    public void checkShard() {
+    public void checkShard(String jobId) {
         final ReentrantLock createShardLock = this.lock;
         createShardLock.lock();
         try {
-            int shardSize = shardManager.getShard().getShards().size();
-            int avg = shardManager.getShard().getDataSize() / shardManager.getShard().getShards().size();
+            int shardSize = getShardManager(jobId).getShards().size();
+            int avg = getShardManager(jobId).getShardDataSize() / shardSize;
             if (avg >= environmentContext.getShardSize()) {
-                shardManager.createShardNode(shardSize);
+                getShardManager(jobId).createShardNode(shardSize);
             }
         } finally {
             createShardLock.unlock();

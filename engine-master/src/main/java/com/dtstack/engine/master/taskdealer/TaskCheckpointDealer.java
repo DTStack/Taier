@@ -191,7 +191,7 @@ public class TaskCheckpointDealer implements Runnable {
                 }
             }
         } catch (Exception e) {
-            logger.error("deal stream checkpoint error: {}", ExceptionUtil.getErrorMessage(e));
+            logger.error("deal stream checkpoint error: {}", e);
         }
 
     }
@@ -363,7 +363,7 @@ public class TaskCheckpointDealer implements Runnable {
                 }
             }
         } catch (IOException e) {
-            logger.error("taskID:{} ,engineTaskId:{}, error log:{}\n", taskId, engineTaskId, ExceptionUtil.getErrorMessage(e));
+            logger.error("jobId:{} ,engineTaskId:{}, error log:{}", taskId, engineTaskId, e);
         }
 
 

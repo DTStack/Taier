@@ -23,7 +23,6 @@ import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.JobStopQueue;
 import com.dtstack.engine.master.resource.JobComputeResourcePlain;
 import com.dtstack.engine.master.taskdealer.TaskSubmittedDealer;
-import com.dtstack.engine.master.taskdealer.TaskStatusDealer;
 import com.dtstack.engine.master.cache.ShardCache;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
@@ -75,9 +74,6 @@ public class WorkNode implements InitializingBean {
     @Autowired
     private TaskSubmittedDealer taskSubmittedDealer;
 
-    @Autowired
-    private TaskStatusDealer taskStatusDealer;
-
     /**
      * key: 计算引擎类型（集群groupName + computeResourceType）
      * value: queue
@@ -87,14 +83,13 @@ public class WorkNode implements InitializingBean {
     @Autowired
     private JobStopQueue jobStopQueue;
 
-    private ExecutorService executors  = new ThreadPoolExecutor(2, 3,
+    private ExecutorService executors  = new ThreadPoolExecutor(1, 1,
             0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<Runnable>());
 
     @Override
     public void afterPropertiesSet() throws Exception {
         executors.execute(taskSubmittedDealer);
-        executors.execute(taskStatusDealer);
 
         ExecutorService recoverExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory("recoverDealer"));
@@ -295,7 +290,7 @@ public class WorkNode implements InitializingBean {
                 engineJobDao.updateEngineLog(jobId, engineLog);
             }
         } catch (Throwable e){
-            LOG.error("getAndUpdateEngineLog error jobId {} ,error info {}..", jobId, ExceptionUtil.getErrorMessage(e));
+            LOG.error("getAndUpdateEngineLog error jobId:{} error:{}.", jobId, e);
         }
         return engineLog;
     }

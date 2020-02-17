@@ -5,12 +5,10 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.hash.ShardConsistentHash;
 import com.dtstack.engine.common.hash.Shard;
 import com.dtstack.engine.common.hash.ShardData;
+import com.dtstack.engine.master.resource.ComputeResourceType;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -22,33 +20,27 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * data 数据分配及空闲检测
+ * data 数据分片及空闲检测
  * <p>
  * company: www.dtstack.com
  * author: toutian
  * create: 2018/9/1
  */
-@Component
-public class ShardManager implements Runnable, InitializingBean {
+public class ShardManager implements Runnable {
 
     private static Logger logger = LoggerFactory.getLogger(ShardManager.class);
 
     private static final long DATA_CLEAN_INTERVAL = 1000;
-
     private static final String SHARD_NODE = "shard";
+    private static final ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(ComputeResourceType.values().length, new CustomThreadFactory("ShardManager"));
 
+    private AtomicInteger shardSequence = new AtomicInteger(1);
     private Shard shard = new Shard();
-
-    @Autowired
-    private ShardCache shardCache;
-
-    private final AtomicInteger shardSequence = new AtomicInteger(1);
-    private ShardConsistentHash consistentHash;
     private Map<String, ShardData> shards;
+    private ShardConsistentHash consistentHash;
     private Map<String, ReentrantLock> cacheShardLocks = Maps.newConcurrentMap();
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
+    public ShardManager() {
         this.shards = shard.getShards();
         this.consistentHash = shard.getConsistentHash();
         if (consistentHash.getSize() == 0) {
@@ -58,7 +50,6 @@ public class ShardManager implements Runnable, InitializingBean {
                 initShardNode(shardName);
             }
         }
-        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("ZkShardManager"));
         scheduledService.scheduleWithFixedDelay(
                 this,
                 0,
@@ -66,8 +57,21 @@ public class ShardManager implements Runnable, InitializingBean {
                 TimeUnit.MILLISECONDS);
     }
 
-    public Shard getShard() {
-        return shard;
+    public String getShardName(String jobId) {
+        return consistentHash.get(jobId);
+    }
+
+    public ShardData getShardData(String jobId) {
+        String shardName = consistentHash.get(jobId);
+        return shards.get(shardName);
+    }
+
+    public Map<String, ShardData> getShards() {
+        return shards;
+    }
+
+    public int getShardDataSize() {
+        return shard.getDataSize();
     }
 
     public ReentrantLock tryLock(String shard) {
@@ -121,12 +125,12 @@ public class ShardManager implements Runnable, InitializingBean {
             Iterator<Map.Entry<String, Integer>> it = shardData.entrySet().iterator();
             while (it.hasNext()) {
                 Map.Entry<String, Integer> data = it.next();
-                String zkTaskId = data.getKey();
-                String newShard = consistentHash.get(zkTaskId);
+                String jobId = data.getKey();
+                String newShard = consistentHash.get(jobId);
                 if (newShard.equals(shard)) {
                     continue;
                 }
-                shards.get(newShard).put(zkTaskId, data.getValue());
+                shards.get(newShard).put(jobId, data.getValue());
                 it.remove();
             }
         }
