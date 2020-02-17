@@ -2,7 +2,7 @@ package com.dtstack.engine.common;
 
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.restart.ARestartService;
+import com.dtstack.engine.common.restart.CommonRestartService;
 
 import java.io.IOException;
 import java.util.List;
@@ -37,6 +37,6 @@ public interface IClient {
 
 	String getCheckpoints(JobIdentifier jobIdentifier);
 
-	ARestartService getRestartService();
+	CommonRestartService getRestartService();
 
 }
