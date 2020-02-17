@@ -27,7 +27,7 @@ public class UnitConvertUtil {
      * @param memStr
      * @return
      */
-    public static Integer convert2MB(String memStr){
+    public static Integer convert2Mb(String memStr){
         Matcher matcher = capacityPattern.matcher(memStr);
         if(matcher.find() && matcher.groupCount() == 2){
             String num = matcher.group(1);

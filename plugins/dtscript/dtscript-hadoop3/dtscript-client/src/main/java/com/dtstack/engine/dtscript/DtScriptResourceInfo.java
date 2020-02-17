@@ -34,7 +34,7 @@ public class DtScriptResourceInfo extends AbstractYarnResourceInfo {
         int amCores = clientArguments.getAmCores();
         int amMem = clientArguments.getAmMem();
 
-        int workerCores = clientArguments.getWorkerVCores();
+        int workerCores = clientArguments.getWorkerVcores();
         int workerMem = clientArguments.getWorkerMemory();
         int workerNum = clientArguments.getWorkerNum();
 

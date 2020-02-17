@@ -6,7 +6,7 @@ import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.common.AbsClient;
+import com.dtstack.engine.common.AbstractClient;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -53,7 +53,7 @@ import java.util.Properties;
 /**
  * Created by softfly on 17/8/10.
  */
-public class SparkYarnClient extends AbsClient {
+public class SparkYarnClient extends AbstractClient {
 
     private static final Logger logger = LoggerFactory.getLogger(SparkYarnClient.class);
 
@@ -108,7 +108,7 @@ public class SparkYarnClient extends AbsClient {
         sparkYarnConfig = PublicUtil.jsonStrToObject(propStr, SparkYarnConfig.class);
         setHadoopUserName(sparkYarnConfig);
         initYarnConf(sparkYarnConfig);
-        sparkYarnConfig.setDefaultFS(yarnConf.get(HadoopConfTool.FS_DEFAULTFS));
+        sparkYarnConfig.setDefaultFs(yarnConf.get(HadoopConfTool.FS_DEFAULTFS));
         System.setProperty(SPARK_YARN_MODE, "true");
         parseWebAppAddr();
         if (sparkYarnConfig.isOpenKerberos()){

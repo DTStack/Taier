@@ -5,7 +5,7 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
 import java.util.List;
 
-public class ShellType extends AppType {
+public class ShellType extends AbstractAppType {
 
     @Override
     public String cmdPrefix(YarnConfiguration config) {

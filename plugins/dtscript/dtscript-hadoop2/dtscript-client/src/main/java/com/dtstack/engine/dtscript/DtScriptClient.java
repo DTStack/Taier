@@ -3,14 +3,13 @@ package com.dtstack.engine.dtscript;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosException;
 import com.dtstack.engine.common.util.MathUtil;
-import com.dtstack.engine.common.AbsClient;
+import com.dtstack.engine.common.AbstractClient;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.dtscript.client.Client;
-import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
@@ -35,7 +34,7 @@ import java.util.*;
  *
  * @author jingzhen
  */
-public class DtScriptClient extends AbsClient {
+public class DtScriptClient extends AbstractClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(DtScriptClient.class);
 

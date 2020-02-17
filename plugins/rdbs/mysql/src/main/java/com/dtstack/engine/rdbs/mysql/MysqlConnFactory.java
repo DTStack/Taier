@@ -1,9 +1,9 @@
 package com.dtstack.engine.rdbs.mysql;
 
 
-import com.dtstack.engine.rdbs.common.executor.ConnFactory;
+import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 
-public class MysqlConnFactory extends ConnFactory {
+public class MysqlConnFactory extends AbstractConnFactory {
 
     public MysqlConnFactory() {
         driverName = "com.mysql.jdbc.Driver";

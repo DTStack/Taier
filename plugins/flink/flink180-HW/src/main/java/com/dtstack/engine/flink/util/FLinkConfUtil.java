@@ -65,18 +65,18 @@ public class FLinkConfUtil {
         final int numberTaskManagers = 1;
 
         // JobManager Memory
-        final int jobManagerMemoryMB = configuration.getInteger(JobManagerOptions.JOB_MANAGER_HEAP_MEMORY_MB);
+        final int jobManagerMemoryMb = configuration.getInteger(JobManagerOptions.JOB_MANAGER_HEAP_MEMORY_MB);
 
         // Task Managers memory
-        final int taskManagerMemoryMB = configuration.getInteger(TaskManagerOptions.TASK_MANAGER_HEAP_MEMORY_MB);
+        final int taskManagerMemoryMb = configuration.getInteger(TaskManagerOptions.TASK_MANAGER_HEAP_MEMORY_MB);
 
         int slotsPerTaskManager = configuration.getInteger(ConfigConstants.TASK_MANAGER_NUM_TASK_SLOTS, 1);
 
         int defaultParallelism = configuration.getInteger(ConfigConstants.DEFAULT_PARALLELISM_KEY, 1);
 
         return new ClusterSpecification.ClusterSpecificationBuilder()
-                .setMasterMemoryMB(jobManagerMemoryMB)
-                .setTaskManagerMemoryMB(taskManagerMemoryMB)
+                .setMasterMemoryMB(jobManagerMemoryMb)
+                .setTaskManagerMemoryMB(taskManagerMemoryMb)
                 .setNumberTaskManagers(numberTaskManagers)
                 .setSlotsPerTaskManager(slotsPerTaskManager)
                 .setParallelism(defaultParallelism)
@@ -85,17 +85,17 @@ public class FLinkConfUtil {
 
     public static ClusterSpecification createYarnSessionSpecification(Configuration configuration) {
         // JobManager Memory
-        final int jobManagerMemoryMB = configuration.getInteger("yarn.jobmanager.heap.mb", 1024);
+        final int jobManagerMemoryMb = configuration.getInteger("yarn.jobmanager.heap.mb", 1024);
 
         // Task Managers memory
-        final int taskManagerMemoryMB = configuration.getInteger("yarn.taskmanager.heap.mb", 1024);
+        final int taskManagerMemoryMb = configuration.getInteger("yarn.taskmanager.heap.mb", 1024);
 
         int slotsPerTaskManager = configuration.getInteger("yarn.taskmanager.numberOfTaskSlots", 2);
         int numberOfTaskManager = configuration.getInteger("yarn.taskmanager.numberOfTaskManager", 2);
 
         return new ClusterSpecification.ClusterSpecificationBuilder()
-                .setMasterMemoryMB(jobManagerMemoryMB)
-                .setTaskManagerMemoryMB(taskManagerMemoryMB)
+                .setMasterMemoryMB(jobManagerMemoryMb)
+                .setTaskManagerMemoryMB(taskManagerMemoryMb)
                 .setNumberTaskManagers(numberOfTaskManager)
                 .setSlotsPerTaskManager(slotsPerTaskManager)
                 .createClusterSpecification();

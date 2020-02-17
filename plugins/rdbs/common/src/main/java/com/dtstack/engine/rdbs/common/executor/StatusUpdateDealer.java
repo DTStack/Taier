@@ -4,7 +4,7 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.plugin.log.LogStoreFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dtstack.engine.common.plugin.log.LogStore;
+import com.dtstack.engine.common.plugin.log.AbstractLogStore;
 import java.util.Map;
 
 /**
@@ -21,7 +21,7 @@ public class StatusUpdateDealer implements Runnable {
 
     private final int interval = 2 * 1000;
 
-    private LogStore logstore = LogStoreFactory.getLogStore(null);
+    private AbstractLogStore logstore = LogStoreFactory.getLogStore(null);
 
     private boolean isRun = true;
 

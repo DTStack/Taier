@@ -12,7 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class JupyterType extends AppType {
+public class JupyterType extends AbstractAppType {
 
     private final static String JUPYTER_NOTEBOOK_CONFIG_PREFIX = "c.";
     private final static String JUPYTER_NOTEBOOK_CONFIG_SIGN = "=";

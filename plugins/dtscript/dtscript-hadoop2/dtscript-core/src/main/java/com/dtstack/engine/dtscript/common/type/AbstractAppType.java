@@ -12,13 +12,13 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 
-public abstract class AppType {
+public abstract class AbstractAppType {
 
     protected static final ObjectMapper objectMapper = new ObjectMapper();
 
-    protected static final Logger buildCmdLog = LoggerFactory.getLogger(AppType.class);
+    protected static final Logger buildCmdLog = LoggerFactory.getLogger(AbstractAppType.class);
 
-    public static AppType fromString(String type) {
+    public static AbstractAppType fromString(String type) {
         if (StringUtils.isBlank(type)) {
             return new DummyType();
         } else if (type.equalsIgnoreCase(AppTypeEnum.SHELL.name())) {

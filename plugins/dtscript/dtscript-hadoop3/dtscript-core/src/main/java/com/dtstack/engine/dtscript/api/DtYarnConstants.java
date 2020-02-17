@@ -16,40 +16,41 @@ public interface DtYarnConstants {
   String WORKER = "worker";
 
   enum Environment {
+    //
     HADOOP_USER_NAME("HADOOP_USER_NAME"),
-
+    //
     APP_TYPE("APP_TYPE"),
-
+    //
     XLEARNING_CONTAINER_MAX_MEMORY("XLEARNING_MAX_MEM"),
-
+    //
     XLEARNING_TF_ROLE("TF_ROLE"),
-
+    //
     XLEARNING_TF_INDEX("TF_INDEX"),
-
+    //
     XLEARNING_STAGING_LOCATION("XLEARNING_STAGING_LOCATION"),
-
+    //
     APP_JAR_LOCATION("APP_JAR_LOCATION"),
-
+    //
     FILES_LOCATION("FILES_LOCATION"),
-
+    //
     XLEARNING_JOB_CONF_LOCATION("XLEARNING_JOB_CONF_LOCATION"),
-
+    //
     CACHE_FILE_LOCATION("CACHE_FILE_LOCATION"),
-
+    //
     DT_EXEC_CMD("DT_EXEC_CMD"),
-
+    //
     USER_PATH("USER_PATH"),
-
+    //
     APPMASTER_HOST("APPMASTER_HOST"),
-
+    //
     APPMASTER_PORT("APPMASTER_PORT"),
-
+    //
     APP_ID("APP_ID"),
-
+    //
     APP_ATTEMPTID("APP_ATTEMPTID"),
-
+    //
     OUTPUTS("OUTPUTS"),
-
+    //
     INPUTS("INPUTS");
 
     private final String variable;
@@ -67,7 +68,7 @@ public interface DtYarnConstants {
       return variable;
     }
 
-    public String $() {
+    public String dollar() {
       if (Shell.WINDOWS) {
         return "%" + variable + "%";
       } else {
@@ -77,7 +78,7 @@ public interface DtYarnConstants {
 
     @InterfaceAudience.Public
     @InterfaceStability.Unstable
-    public String $$() {
+    public String doubleDollar() {
       return ApplicationConstants.PARAMETER_EXPANSION_LEFT +
           variable +
           ApplicationConstants.PARAMETER_EXPANSION_RIGHT;

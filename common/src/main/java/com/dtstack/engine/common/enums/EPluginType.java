@@ -8,7 +8,10 @@ package com.dtstack.engine.common.enums;
  */
 
 public enum  EPluginType {
-    DEFAULT(0), DYNAMIC(1);
+    //
+    DEFAULT(0),
+    //
+    DYNAMIC(1);
 
     int type;
 

@@ -30,7 +30,7 @@ public class MyBatisConnectionFactory {
  
     static {
         try {
-            Map<String,String> db = ConfigParse.getDB();
+            Map<String,String> db = ConfigParse.getDb();
             Properties properties = objectMapper.readValue(objectMapper.writeValueAsBytes(db),Properties.class);
             InputStream input = MyBatisConnectionFactory.class.getClassLoader().getResourceAsStream(resource);
             if (sqlSessionFactory == null) {

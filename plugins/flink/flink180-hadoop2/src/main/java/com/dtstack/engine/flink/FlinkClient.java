@@ -6,7 +6,7 @@ import com.dtstack.engine.common.exception.RdosException;
 import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.common.AbsClient;
+import com.dtstack.engine.common.AbstractClient;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -67,7 +67,6 @@ import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -81,7 +80,7 @@ import static java.security.AccessController.doPrivileged;
  * Company: www.dtstack.com
  * @author xuchao
  */
-public class FlinkClient extends AbsClient {
+public class FlinkClient extends AbstractClient {
 
     private static final Logger logger = LoggerFactory.getLogger(FlinkClient.class);
 
@@ -139,7 +138,7 @@ public class FlinkClient extends AbsClient {
         initYarnClient();
 
         flinkClientBuilder = FlinkClientBuilder.create(flinkConfig, hadoopConf, yarnConf, yarnClient);
-        flinkClientBuilder.initFLinkConfiguration(flinkExtProp);
+        flinkClientBuilder.initFlinkConfiguration(flinkExtProp);
 
         flinkClusterClientManager = FlinkClusterClientManager.createWithInit(flinkClientBuilder);
     }
@@ -428,8 +427,8 @@ public class FlinkClient extends AbsClient {
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
         try{
             ClusterClient targetClusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
-            JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobIdentifier.getEngineJobId()));
-            targetClusterClient.cancel(jobID);
+            JobID jobId = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobIdentifier.getEngineJobId()));
+            targetClusterClient.cancel(jobId);
         }catch (Exception e){
             logger.error("", e);
             return JobResult.createErrorResult(e);
@@ -591,9 +590,9 @@ public class FlinkClient extends AbsClient {
         }
     }
 
-    private String getMessageByHttp(String path, String reqURL) throws IOException {
-        String reqUrl = String.format("%s%s", reqURL, path);
-        return PoolHttpClient.get(reqUrl);
+    private String getMessageByHttp(String path, String reqUrl) throws IOException {
+        String url = String.format("%s%s", reqUrl, path);
+        return PoolHttpClient.get(url);
     }
 
     @Override
@@ -603,24 +602,24 @@ public class FlinkClient extends AbsClient {
         String applicationId = jobIdentifier.getApplicationId();
 
         RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
-        String reqURL;
+        String reqUrl;
 
         //从jobhistory读取
         if(StringUtils.isNotBlank(applicationId) && (rdosTaskStatus.equals(RdosTaskStatus.FINISHED) || rdosTaskStatus.equals(RdosTaskStatus.CANCELED)
                 || rdosTaskStatus.equals(RdosTaskStatus.FAILED) || rdosTaskStatus.equals(RdosTaskStatus.KILLED))){
-            reqURL = getJobHistoryURL();
+            reqUrl = getJobHistoryUrl();
         }else{
             ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
-            reqURL = currClient.getWebInterfaceURL();
+            reqUrl = currClient.getWebInterfaceURL();
         }
 
         Map<String,String> retMap = Maps.newHashMap();
 
         try {
             String exceptPath = String.format(FlinkRestParseUtil.EXCEPTION_INFO, jobId);
-            String except = getExceptionInfo(exceptPath, reqURL);
+            String except = getExceptionInfo(exceptPath, reqUrl);
             String accuPath = String.format(FlinkRestParseUtil.JOB_ACCUMULATOR_INFO, jobId);
-            String accuInfo = getMessageByHttp(accuPath, reqURL);
+            String accuInfo = getMessageByHttp(accuPath, reqUrl);
             retMap.put("exception", except);
             retMap.put("accuInfo", accuInfo);
             return FlinkRestParseUtil.parseEngineLog(retMap);
@@ -633,7 +632,7 @@ public class FlinkClient extends AbsClient {
             Map<String, String> map = new LinkedHashMap<>(8);
             map.put("jobId", jobId);
             map.put("exception", ExceptionInfoConstrant.FLINK_GET_LOG_ERROR_UNDO_RESTART_EXCEPTION);
-            map.put("reqURL", reqURL);
+            map.put("reqUrl", reqUrl);
             map.put("engineLogErr", ExceptionUtil.getErrorMessage(e));
             return new Gson().toJson(map);
         }
@@ -642,13 +641,13 @@ public class FlinkClient extends AbsClient {
     /**
      *  perjob模式下任务完成后进入jobHistory会有一定的时间
      */
-    private String getExceptionInfo(String exceptPath,String reqURL){
+    private String getExceptionInfo(String exceptPath,String reqUrl){
         String exceptionInfo = "";
         int i = 0;
         while (i < 10){
             try {
                 Thread.sleep(500);
-                exceptionInfo = getMessageByHttp(exceptPath, reqURL);
+                exceptionInfo = getMessageByHttp(exceptPath, reqUrl);
                 return exceptionInfo;
             } catch (RdosException e){
                 if (!e.getErrorMessage().contains("404")){
@@ -772,17 +771,17 @@ public class FlinkClient extends AbsClient {
 
         RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
 
-        String reqURL;
+        String reqUrl;
         if(rdosTaskStatus.equals(RdosTaskStatus.FINISHED) || rdosTaskStatus.equals(RdosTaskStatus.CANCELED)
                 || rdosTaskStatus.equals(RdosTaskStatus.FAILED) || rdosTaskStatus.equals(RdosTaskStatus.KILLED)){
-            reqURL = getJobHistoryURL();
+            reqUrl = getJobHistoryUrl();
         }else{
             ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
-            reqURL = currClient.getWebInterfaceURL();
+            reqUrl = currClient.getWebInterfaceURL();
         }
 
         try {
-            return getMessageByHttp(String.format(FLINK_CP_URL_FORMAT, jobId), reqURL);
+            return getMessageByHttp(String.format(FLINK_CP_URL_FORMAT, jobId), reqUrl);
         } catch (IOException e) {
             logger.error("", e);
             return null;
@@ -812,7 +811,7 @@ public class FlinkClient extends AbsClient {
         }
     }
 
-    private String getJobHistoryURL() {
+    private String getJobHistoryUrl() {
         if (StringUtils.isNotBlank(jobHistory)) {
             return jobHistory;
         }

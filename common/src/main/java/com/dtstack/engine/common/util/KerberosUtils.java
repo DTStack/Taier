@@ -220,12 +220,14 @@ public class KerberosUtils {
             KEYTAB_KERBEROS_OPTIONS.put("principal", principal);
         }
 
+        @Override
         public AppConfigurationEntry[] getAppConfigurationEntry(String appName) {
             if (loginContextName.equals(appName)) {
                 return KEYTAB_KERBEROS_CONF;
             }
-            if (baseConfig != null)
+            if (baseConfig != null) {
                 return baseConfig.getAppConfigurationEntry(appName);
+            }
             return (null);
         }
     }

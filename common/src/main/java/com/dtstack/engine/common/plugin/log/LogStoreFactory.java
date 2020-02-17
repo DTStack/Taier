@@ -7,7 +7,7 @@ import com.dtstack.engine.common.plugin.log.mysql.MysqlLogStore;
  */
 public class LogStoreFactory {
 
-    public static LogStore getLogStore(Integer type){
+    public static AbstractLogStore getLogStore(Integer type){
         if(type == null){
             return MysqlLogStore.getInstance();
         }

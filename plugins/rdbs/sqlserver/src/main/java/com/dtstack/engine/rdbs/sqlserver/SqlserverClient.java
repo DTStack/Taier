@@ -1,16 +1,16 @@
 package com.dtstack.engine.rdbs.sqlserver;
 
 
-import com.dtstack.engine.rdbs.common.RdbsClient;
-import com.dtstack.engine.rdbs.common.executor.ConnFactory;
+import com.dtstack.engine.rdbs.common.AbstractRdbsClient;
+import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 
-public class SqlserverClient extends RdbsClient {
+public class SqlserverClient extends AbstractRdbsClient {
     public SqlserverClient() {
         this.dbType = "sqlserver";
     }
 
     @Override
-    protected ConnFactory getConnFactory() {
+    protected AbstractConnFactory getConnFactory() {
         return new SqlserverConnFactory();
     }
 }

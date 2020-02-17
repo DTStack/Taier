@@ -28,11 +28,11 @@ public class HeartbeatRequest implements Writable {
     containerUserDir = "";
   }
 
-  public void setXLearningContainerStatus(DtContainerStatus xlearningContainerStatus) {
+  public void setXlearningContainerStatus(DtContainerStatus xlearningContainerStatus) {
     this.xlearningContainerStatus = xlearningContainerStatus;
   }
 
-  public DtContainerStatus getXLearningContainerStatus() {
+  public DtContainerStatus getXlearningContainerStatus() {
     return this.xlearningContainerStatus;
   }
 

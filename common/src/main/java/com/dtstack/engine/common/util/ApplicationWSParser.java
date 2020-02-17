@@ -24,14 +24,14 @@ public class ApplicationWSParser {
 
     private static final Pattern ERR_INFO_BYTE_PATTERN = Pattern.compile("(\\d+)\\s*bytes");
 
-    public static String getAMContainerLogsURL(String jsonStr) {
+    public static String getAmContainerLogsUrl(String jsonStr) {
         JSONObject jsonObject = JSONObject.parseObject(jsonStr);
         JSONObject roogEle = jsonObject.getJSONObject(AM_ROOT_TAG);
         String amContainerLogsEle = roogEle.getString(AM_CONTAINER_LOGS_TAG);
         return amContainerLogsEle;
     }
 
-    public static Pair<String, String> parserAMContainerPreViewHttp(String httpText, String preURL){
+    public static Pair<String, String> parserAmContainerPreViewHttp(String httpText, String preUrl){
         org.jsoup.nodes.Document document = Jsoup.parse(httpText);
         Elements el = document.getElementsByClass("content");
         if(el.size() < 1){
@@ -42,11 +42,11 @@ public class ApplicationWSParser {
         if (afs.size() < 1) {
             throw new RdosException("httpText data format not correct, please check task status");
         }
-        String amErrURL = afs.get(1).attr("href");
+        String amErrUrl = afs.get(1).attr("href");
 
         //截取url参数部分
-        amErrURL = amErrURL.substring(0, amErrURL.indexOf("?"));
-        amErrURL = preURL + amErrURL;
+        amErrUrl = amErrUrl.substring(0, amErrUrl.indexOf("?"));
+        amErrUrl = preUrl + amErrUrl;
 
         String jobErrByteStr = afs.get(1).text();
 
@@ -56,6 +56,6 @@ public class ApplicationWSParser {
             infoTotalBytes = matcher.group(1);
         }
 
-        return new Pair<>(amErrURL, infoTotalBytes);
+        return new Pair<>(amErrUrl, infoTotalBytes);
     }
 }

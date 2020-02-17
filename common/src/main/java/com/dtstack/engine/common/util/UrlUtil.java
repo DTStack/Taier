@@ -25,7 +25,7 @@ public class UrlUtil {
 	 * 返回URL请求的 ${域名:port}部分
 	 * @return
 	 */
-	public static String getHttpRootURL(String url){
+	public static String getHttpRootUrl(String url){
 		Matcher matcher = URLPattern.matcher(url);
 		if(!matcher.find()){
 			throw new RdosException(String.format("url:%s is not regular HTTP_URL", url));

@@ -73,9 +73,9 @@ public class FileUtil {
 
             FileOutputStream fout = new FileOutputStream(outFile);
             URL url = new URL(urlStr);
-            HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
-            httpURLConnection.connect();
-            BufferedInputStream bfInputStream = new BufferedInputStream(httpURLConnection.getInputStream());
+            HttpURLConnection httpUrlConnection = (HttpURLConnection) url.openConnection();
+            httpUrlConnection.connect();
+            BufferedInputStream bfInputStream = new BufferedInputStream(httpUrlConnection.getInputStream());
 
             byte[] buf = new byte[BUFFER_SIZE];
             int readSize = -1;
@@ -86,7 +86,7 @@ public class FileUtil {
             //释放资源
             fout.close();
             bfInputStream.close();
-            httpURLConnection.disconnect();
+            httpUrlConnection.disconnect();
             logger.info("download from remote url:{} success,dest file name is {}.", urlStr, dstFileName);
         } catch (IOException e) {
             logger.error("download from remote url:" + urlStr +"failure.", e);

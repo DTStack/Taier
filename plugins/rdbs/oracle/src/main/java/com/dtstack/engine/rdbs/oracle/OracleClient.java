@@ -1,17 +1,17 @@
 package com.dtstack.engine.rdbs.oracle;
 
 
-import com.dtstack.engine.rdbs.common.RdbsClient;
-import com.dtstack.engine.rdbs.common.executor.ConnFactory;
+import com.dtstack.engine.rdbs.common.AbstractRdbsClient;
+import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 
-public class OracleClient extends RdbsClient {
+public class OracleClient extends AbstractRdbsClient {
 
     public OracleClient() {
         this.dbType = "oracle";
     }
 
     @Override
-    protected ConnFactory getConnFactory() {
+    protected AbstractConnFactory getConnFactory() {
         return new OracleConnFactory();
     }
 }

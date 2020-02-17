@@ -86,7 +86,7 @@ public class FlinkClientBuilder {
         return builder;
     }
 
-    public void initFLinkConfiguration(Properties extProp) {
+    public void initFlinkConfiguration(Properties extProp) {
         Configuration config = new Configuration();
         config.setString("akka.client.timeout", AKKA_CLIENT_TIMEOUT);
         config.setString("akka.ask.timeout", AKKA_ASK_TIMEOUT);
@@ -115,16 +115,16 @@ public class FlinkClientBuilder {
 
     public ClusterClient createStandalone() {
         if (HighAvailabilityMode.ZOOKEEPER == HighAvailabilityMode.valueOf(flinkConfiguration.getValue(HighAvailabilityOptions.HA_MODE))) {
-            return initClusterClientByZK();
+            return initClusterClientByZk();
         } else {
-            return initClusterClientByURL();
+            return initClusterClientByUrl();
         }
     }
 
     /**
      * 根据zk获取clusterclient
      */
-    private ClusterClient initClusterClientByZK() {
+    private ClusterClient initClusterClientByZk() {
 
         Configuration config = new Configuration(flinkConfiguration);
         MiniClusterConfiguration.Builder configBuilder = new MiniClusterConfiguration.Builder();
@@ -150,7 +150,7 @@ public class FlinkClientBuilder {
     /**
      * 直接指定jobmanager host:port方式
      */
-    private ClusterClient initClusterClientByURL() {
+    private ClusterClient initClusterClientByUrl() {
 
         String[] splitInfo = flinkConfig.getFlinkJobMgrUrl().split(":");
         if (splitInfo.length < 2) {

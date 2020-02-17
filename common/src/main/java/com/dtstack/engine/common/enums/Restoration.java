@@ -4,8 +4,10 @@ package com.dtstack.engine.common.enums;
  * Created by sishu.yss on 2017/3/9.
  */
 public enum Restoration {
-
-    NO(0),YES(1);
+    //
+    NO(0),
+    //
+    YES(1);
 
     private int type;
 

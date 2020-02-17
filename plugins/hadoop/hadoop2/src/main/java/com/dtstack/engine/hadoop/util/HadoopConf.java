@@ -112,7 +112,7 @@ public class HadoopConf {
             });
         }
 
-        String defaultFs = HadoopConfTool.getFSDefaults(conf);
+        String defaultFs = HadoopConfTool.getFsDefaults(conf);
         configuration.set(HadoopConfTool.FS_DEFAULTFS, defaultFs);
 
         //非必须:针对hdfs的文件系统实现

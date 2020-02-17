@@ -208,8 +208,9 @@ public class SFTPHandler {
             String[] children = dir.list();
             for (int i = 0; i < children.length; i++) {
                 boolean success = delLocalDir(new File(dir, children[i]));
-                if (!success)
+                if (!success) {
                     return false;
+                }
             }
 
         }
@@ -337,7 +338,9 @@ public class SFTPHandler {
         String dir = paths[0];
         for (int i = 0; i < paths.length - 1; i++) {
             dir = dir + "/" + paths[i + 1];
-            if (!mkdir(dir)) return false;
+            if (!mkdir(dir)) {
+                return false;
+            }
         }
         return true;
     }

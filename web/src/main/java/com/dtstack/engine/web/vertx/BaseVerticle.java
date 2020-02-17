@@ -108,7 +108,7 @@ public class BaseVerticle {
 		String body = routingContext.getBodyAsString(CODE);
 		String md5  = routingContext.request().getHeader("md5");
 		String ctime = routingContext.request().getHeader("ctime");
-		String md5other = MD5Util.getMD5String(String.format("%s:%s:%s", ctime,body,ctime));
+		String md5other = MD5Util.getMd5String(String.format("%s:%s:%s", ctime,body,ctime));
 		if(!ConfigParse.isDebug() && !md5other.equals(md5)){
 			throw new RdosException(ErrorCode.CALL_UNLAWFUL);
 		}
@@ -127,7 +127,7 @@ public class BaseVerticle {
 			if(param != null){
 				obj = params.get(param.value());
 				if(obj!=null&&!obj.getClass().equals(paramterType)){
-					obj = PublicUtil.ClassConvter(paramterType, obj);
+					obj = PublicUtil.classConvter(paramterType, obj);
 				}
 			}else if(Map.class.equals(paramterType)){
 				obj = params;

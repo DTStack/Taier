@@ -13,19 +13,32 @@ import java.util.regex.Pattern;
 
 public enum EngineType {
 
+    //
     Flink('0'),
+    //
     Spark('1'),
 //    Datax('2'),
+    //
     Learning('3'),
+    //
     DtScript('4'),
+    //
     Mysql('5'),
+    //
     Oracle('6'),
+    //
     Sqlserver('7'),
+    //
     Maxcompute('8'),
+    //
     Hadoop('9'),
+    //
     Hive('a'),
+    //
     PostgreSQL('b'),
+    //
     Kylin('c'),
+    //
     Impala('d');
 
     private char val;

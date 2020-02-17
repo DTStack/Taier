@@ -15,7 +15,7 @@ public class RdosStreamTaskCheckpoint extends DataObject {
 
     private String taskEngineId;
 
-    private String checkpointID;
+    private String checkpointId;
 
     private Timestamp checkpointTrigger;
 
@@ -59,12 +59,12 @@ public class RdosStreamTaskCheckpoint extends DataObject {
         this.triggerEnd = triggerEnd;
     }
 
-    public String getCheckpointID() {
-        return checkpointID;
+    public String getCheckpointId() {
+        return checkpointId;
     }
 
-    public void setCheckpointID(String checkpointID) {
-        this.checkpointID = checkpointID;
+    public void setCheckpointId(String checkpointId) {
+        this.checkpointId = checkpointId;
     }
 
     public Timestamp getCheckpointTrigger() {

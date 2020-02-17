@@ -40,7 +40,7 @@ public class PublicUtil {
 
 
 	@SuppressWarnings("unchecked")
-	public static Map<String,Object> ObjectToMap(Object obj) throws JsonParseException, JsonMappingException, JsonGenerationException, IOException{
+	public static Map<String,Object> objectToMap(Object obj) throws JsonParseException, JsonMappingException, JsonGenerationException, IOException{
 		
 		return objectMapper.readValue(objectMapper.writeValueAsBytes(obj), Map.class);
 	}
@@ -54,7 +54,7 @@ public class PublicUtil {
 		return index%multiples==0;
 	}
 	
-	public static Object ClassConvter(Class<?> clazz,Object obj){
+	public static Object classConvter(Class<?> clazz, Object obj){
 		if(clazz.equals(Integer.class)||int.class.equals(clazz)){
 			obj = Integer.parseInt(obj.toString());
 		}else if(clazz.equals(Long.class)|| long.class.equals(clazz)){
