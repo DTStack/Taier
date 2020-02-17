@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.task;
+package com.dtstack.engine.master.taskDealer;
 
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -38,9 +38,9 @@ import java.util.concurrent.TimeUnit;
  *
  */
 @Component
-public class TaskStatusListener implements Runnable{
+public class TaskStatusDealer implements Runnable{
 
-	private static Logger logger = LoggerFactory.getLogger(TaskStatusListener.class);
+	private static Logger logger = LoggerFactory.getLogger(TaskStatusDealer.class);
 
 	/**最大允许查询不到任务信息的次数--超过这个次数任务会被设置为CANCELED*/
     private final static int NOT_FOUND_LIMIT_TIMES = 300;
@@ -63,13 +63,13 @@ public class TaskStatusListener implements Runnable{
 	private PluginInfoDao pluginInfoDao;
 
     @Autowired
-    private CheckpointListener checkpointListener;
+    private TaskCheckpointDealer taskCheckpointDealer;
 
 	/**失败任务的额外处理：当前只是对(失败任务 or 取消任务)继续更新日志或者更新checkpoint*/
     private Map<String, FailedTaskInfo> failedJobCache = Maps.newConcurrentMap();
 
     /**记录job 连续某个状态的频次*/
-    private Map<String, TaskStatusFrequency> jobStatusFrequency = Maps.newConcurrentMap();
+    private Map<String, TaskStatusFrequencyDealer> jobStatusFrequency = Maps.newConcurrentMap();
 
     private ExecutorService taskStatusPool = new ThreadPoolExecutor(1,Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
                 new SynchronousQueue<>(true), new CustomThreadFactory("taskStatusListener"));
@@ -100,19 +100,19 @@ public class TaskStatusListener implements Runnable{
                 updateJobEngineLog(failedTaskInfo.getJobId(), failedTaskInfo.getJobIdentifier(),
                         failedTaskInfo.getEngineType(), failedTaskInfo.getComputeType() , failedTaskInfo.getPluginInfo());
 
-                boolean streamAndopenCheckpoint = isFlinkStreamTask(failedTaskInfo) && checkpointListener.checkOpenCheckPoint(failedTaskInfo.getJobId());
+                boolean streamAndopenCheckpoint = isFlinkStreamTask(failedTaskInfo) && taskCheckpointDealer.checkOpenCheckPoint(failedTaskInfo.getJobId());
                 if(streamAndopenCheckpoint) {
                     //更新checkpoint
-                    checkpointListener.updateStreamJobCheckpoints(failedTaskInfo.getJobIdentifier(), failedTaskInfo.getEngineType(), failedTaskInfo.getPluginInfo());
+                    taskCheckpointDealer.updateStreamJobCheckpoints(failedTaskInfo.getJobIdentifier(), failedTaskInfo.getEngineType(), failedTaskInfo.getPluginInfo());
                 } else if(isSyncTask(failedTaskInfo)){
-                    checkpointListener.updateBatchTaskCheckpoint(failedTaskInfo.getPluginInfo(),failedTaskInfo.getJobIdentifier());
+                    taskCheckpointDealer.updateBatchTaskCheckpoint(failedTaskInfo.getPluginInfo(),failedTaskInfo.getJobIdentifier());
                 }
 
                 failedTaskInfo.waitClean();
                 if(!failedTaskInfo.allowClean()){
                     // filter batch task
                     if(streamAndopenCheckpoint){
-                        checkpointListener.dealStreamCheckpoint(failedTaskInfo);
+                        taskCheckpointDealer.dealStreamCheckpoint(failedTaskInfo);
                     }
                     failedJobCache.remove(key);
                 }
@@ -199,13 +199,13 @@ public class TaskStatusListener implements Runnable{
 
                     Integer status = rdosTaskStatus.getStatus();
                     // 重试状态 先不更新状态
-                    boolean isRestart = RestartDealer.getInstance().checkAndRestart(status, taskId, engineTaskId, appId, engineTypeName, computeType, pluginInfoStr);
+                    boolean isRestart = TaskRestartDealer.getInstance().checkAndRestart(status, taskId, engineTaskId, appId, engineTypeName, computeType, pluginInfoStr);
                     if(isRestart){
                         return;
                     }
 
-                    if(checkpointListener.isSyncTaskAndOpenCheckpoint(taskId, engineTypeName, computeType)){
-                        checkpointListener.dealSyncTaskCheckpoint(status, jobIdentifier, pluginInfoStr);
+                    if(taskCheckpointDealer.isSyncTaskAndOpenCheckpoint(taskId, engineTypeName, computeType)){
+                        taskCheckpointDealer.dealSyncTaskCheckpoint(status, jobIdentifier, pluginInfoStr);
                     }
 
                     zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
@@ -253,7 +253,7 @@ public class TaskStatusListener implements Runnable{
     }
 
     private RdosTaskStatus checkNotFoundStatus(RdosTaskStatus taskStatus, String jobId){
-        TaskStatusFrequency statusPair = updateJobStatusFrequency(jobId, taskStatus.getStatus());
+        TaskStatusFrequencyDealer statusPair = updateJobStatusFrequency(jobId, taskStatus.getStatus());
         if(statusPair.getStatus() == RdosTaskStatus.NOTFOUND.getStatus().intValue()){
             if(statusPair.getNum() >= NOT_FOUND_LIMIT_TIMES ||
                     System.currentTimeMillis() - statusPair.getCreateTime() >= NOT_FOUND_LIMIT_INTERVAL){
@@ -273,7 +273,7 @@ public class TaskStatusListener implements Runnable{
 
         String engineTaskId = jobIdentifier.getEngineJobId();
 
-        boolean openCheckPoint = checkpointListener.checkOpenCheckPoint(jobId);
+        boolean openCheckPoint = taskCheckpointDealer.checkOpenCheckPoint(jobId);
 
         if(RdosTaskStatus.getStoppedStatus().contains(status)){
             jobStatusFrequency.remove(jobId);
@@ -284,7 +284,7 @@ public class TaskStatusListener implements Runnable{
             }
 
             if (openCheckPoint) {
-                checkpointListener.updateStreamJobCheckpoints(jobIdentifier, engineTypeName, pluginInfo);
+                taskCheckpointDealer.updateStreamJobCheckpoints(jobIdentifier, engineTypeName, pluginInfo);
             }
         }
 
@@ -294,9 +294,9 @@ public class TaskStatusListener implements Runnable{
 
         if(RdosTaskStatus.RUNNING.getStatus().equals(status)){
             //运行中的stream任务需要更新checkpoint 并且 控制频率
-            Integer checkpointCallNum = checkpointListener.getCheckpointCallNum(engineTaskId);
-            if(checkpointCallNum % CheckpointListener.CHECKPOINT_GET_RATE == 0){
-                checkpointListener.updateStreamJobCheckpoints(jobIdentifier, engineTypeName, pluginInfo);
+            Integer checkpointCallNum = taskCheckpointDealer.getCheckpointCallNum(engineTaskId);
+            if(checkpointCallNum % TaskCheckpointDealer.CHECKPOINT_GET_RATE == 0){
+                taskCheckpointDealer.updateStreamJobCheckpoints(jobIdentifier, engineTypeName, pluginInfo);
             }
         }
 
@@ -315,14 +315,14 @@ public class TaskStatusListener implements Runnable{
      * @param status
      * @return
      */
-    private TaskStatusFrequency updateJobStatusFrequency(String jobId, Integer status){
+    private TaskStatusFrequencyDealer updateJobStatusFrequency(String jobId, Integer status){
 
-        TaskStatusFrequency statusFrequency = jobStatusFrequency.get(jobId);
-        statusFrequency = statusFrequency == null ? new TaskStatusFrequency(status) : statusFrequency;
+        TaskStatusFrequencyDealer statusFrequency = jobStatusFrequency.get(jobId);
+        statusFrequency = statusFrequency == null ? new TaskStatusFrequencyDealer(status) : statusFrequency;
         if(statusFrequency.getStatus() == status.intValue()){
             statusFrequency.setNum(statusFrequency.getNum() + 1);
         }else{
-            statusFrequency = new TaskStatusFrequency(status);
+            statusFrequency = new TaskStatusFrequencyDealer(status);
         }
 
         jobStatusFrequency.put(jobId, statusFrequency);

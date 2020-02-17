@@ -19,7 +19,7 @@ import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.scheduler.JobGraphBuilderTrigger;
 import com.dtstack.engine.master.send.HttpSendClient;
 import com.dtstack.engine.master.zookeeper.ZkService;
-import com.dtstack.engine.master.zookeeper.data.BrokerHeartNode;
+import com.dtstack.engine.master.data.BrokerHeartNode;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;

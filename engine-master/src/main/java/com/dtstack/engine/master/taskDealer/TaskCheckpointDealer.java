@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.task;
+package com.dtstack.engine.master.taskDealer;
 
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.MathUtil;
@@ -41,9 +41,9 @@ import java.util.concurrent.TimeUnit;
  * 定时清理DB中的checkpoint
  */
 @Component
-public class CheckpointListener implements Runnable {
+public class TaskCheckpointDealer implements Runnable {
 
-    private static Logger logger = LoggerFactory.getLogger(CheckpointListener.class);
+    private static Logger logger = LoggerFactory.getLogger(TaskCheckpointDealer.class);
 
     private final static String CHECKPOINT_RETAINED_KEY = "state.checkpoints.num-retained";
 
@@ -103,7 +103,7 @@ public class CheckpointListener implements Runnable {
 
     private ScheduledExecutorService checkpointCleanPoll = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("checkpointCleaner"));
 
-    public CheckpointListener(){
+    public TaskCheckpointDealer(){
         checkpointCleanPoll.scheduleWithFixedDelay(
                 this,
                 0,
@@ -176,8 +176,8 @@ public class CheckpointListener implements Runnable {
             JobIdentifier jobIdentifier = failedTaskInfo.getJobIdentifier();
             if (null != jobIdentifier && StringUtils.isNotBlank(jobIdentifier.getEngineJobId())) {
                 if (checkOpenCheckPoint(failedTaskInfo.getJobId())) {
-                    Boolean sqlCleanMode = MathUtil.getBoolean(getParmaFromJobCache(failedTaskInfo.getJobId(), CheckpointListener.SQL_CHECKPOINT_CLEANUP_MODE_KEY), false);
-                    Boolean flinkCleanMode = MathUtil.getBoolean(getParmaFromJobCache(failedTaskInfo.getJobId(), CheckpointListener.FLINK_CHECKPOINT_CLEANUP_MODE_KEY), false);
+                    Boolean sqlCleanMode = MathUtil.getBoolean(getParmaFromJobCache(failedTaskInfo.getJobId(), TaskCheckpointDealer.SQL_CHECKPOINT_CLEANUP_MODE_KEY), false);
+                    Boolean flinkCleanMode = MathUtil.getBoolean(getParmaFromJobCache(failedTaskInfo.getJobId(), TaskCheckpointDealer.FLINK_CHECKPOINT_CLEANUP_MODE_KEY), false);
                     if (sqlCleanMode || flinkCleanMode ) {
                         // true then remove all
                         cleanAllCheckpointByTaskEngineId(jobIdentifier.getEngineJobId());

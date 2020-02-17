@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.task;
+package com.dtstack.engine.master.taskDealer;
 
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.EJobType;
@@ -42,9 +42,9 @@ import java.util.Map;
  * @author xuchao
  */
 @Component
-public class RestartDealer {
+public class TaskRestartDealer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RestartDealer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TaskRestartDealer.class);
 
     @Autowired
     private JobComputeResourcePlain jobComputeResourcePlain;
@@ -69,12 +69,12 @@ public class RestartDealer {
     @Autowired
     private WorkNode workNode;
 
-    private static RestartDealer sigleton = new RestartDealer();
+    private static TaskRestartDealer sigleton = new TaskRestartDealer();
 
-    private RestartDealer(){
+    private TaskRestartDealer(){
     }
 
-    public static RestartDealer getInstance(){
+    public static TaskRestartDealer getInstance(){
         return sigleton;
     }
 

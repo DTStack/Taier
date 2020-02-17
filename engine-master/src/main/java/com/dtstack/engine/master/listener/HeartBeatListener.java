@@ -1,10 +1,10 @@
-package com.dtstack.engine.master.zookeeper.listener;
+package com.dtstack.engine.master.listener;
 
 import com.dtstack.engine.common.util.ExceptionUtil;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.master.data.BrokerHeartNode;
 import com.dtstack.engine.master.zookeeper.ZkService;
-import com.dtstack.engine.master.zookeeper.data.BrokerHeartNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

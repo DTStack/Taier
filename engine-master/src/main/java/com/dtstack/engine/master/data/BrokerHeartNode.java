@@ -1,12 +1,9 @@
 package com.dtstack.engine.master.data;
 
 /**
- * 
- *
- * Date: 2017年03月03日 下午1:25:18
- * Company: www.dtstack.com
- * @author sishu.yss
- *
+ * company: www.dtstack.com
+ * author: toutian
+ * create: 2019/10/22
  */
 public class BrokerHeartNode {
 	

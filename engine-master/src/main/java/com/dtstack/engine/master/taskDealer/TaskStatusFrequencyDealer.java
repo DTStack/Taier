@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.task;
+package com.dtstack.engine.master.taskDealer;
 
 /**
  * Reason:
@@ -7,7 +7,7 @@ package com.dtstack.engine.master.task;
  * @author xuchao
  */
 
-public class TaskStatusFrequency {
+public class TaskStatusFrequencyDealer {
 
     private Integer status;
 
@@ -15,7 +15,7 @@ public class TaskStatusFrequency {
 
     private Long createTime;
 
-    public TaskStatusFrequency(Integer status){
+    public TaskStatusFrequencyDealer(Integer status){
         createTime = System.currentTimeMillis();
         this.status = status;
         this.num = 0;

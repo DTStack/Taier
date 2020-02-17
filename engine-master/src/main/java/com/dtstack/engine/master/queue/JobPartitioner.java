@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.queue;
 
 import com.dtstack.engine.common.queue.GroupInfo;
-import com.dtstack.engine.master.zookeeper.listener.QueueListener;
+import com.dtstack.engine.master.listener.QueueListener;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

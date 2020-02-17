@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.zookeeper.listener;
+package com.dtstack.engine.master.listener;
 
 /**
  * company: www.dtstack.com

@@ -23,8 +23,8 @@ import com.dtstack.engine.common.util.TaskIdUtil;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.JobStopQueue;
 import com.dtstack.engine.master.resource.JobComputeResourcePlain;
-import com.dtstack.engine.master.task.TaskListener;
-import com.dtstack.engine.master.task.TaskStatusListener;
+import com.dtstack.engine.master.taskDealer.TaskSubmittedDealer;
+import com.dtstack.engine.master.taskDealer.TaskStatusDealer;
 import com.dtstack.engine.master.cache.ZkLocalCache;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
@@ -74,10 +74,10 @@ public class WorkNode implements InitializingBean {
     private EnvironmentContext environmentContext;
 
     @Autowired
-    private TaskListener taskListener;
+    private TaskSubmittedDealer taskSubmittedDealer;
 
     @Autowired
-    private TaskStatusListener taskStatusListener;
+    private TaskStatusDealer taskStatusDealer;
 
     /**
      * key: 计算引擎类型（集群groupName + computeResourceType）
@@ -94,8 +94,8 @@ public class WorkNode implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        executors.execute(taskListener);
-        executors.execute(taskStatusListener);
+        executors.execute(taskSubmittedDealer);
+        executors.execute(taskStatusDealer);
 
         ExecutorService recoverExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory("recoverDealer"));

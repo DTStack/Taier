@@ -1,8 +1,8 @@
-package com.dtstack.engine.master.task;
+package com.dtstack.engine.master.taskDealer;
 
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.logStore.LogStoreFactory;
-import com.dtstack.engine.master.zookeeper.listener.MasterListener;
+import com.dtstack.engine.master.listener.MasterListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,21 +13,21 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by sishu.yss on 2018/2/26.
  */
-public class LogStoreListener implements Runnable {
+public class TaskLogStoreDealer implements Runnable {
 
-    private static final Logger logger = LoggerFactory.getLogger(LogStoreListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(TaskLogStoreDealer.class);
 
     private final static int CHECK_INTERVAL = 18000000;
 
     private MasterListener masterListener;
 
-    private static LogStoreListener listener;
+    private static TaskLogStoreDealer listener;
 
     public static void init(MasterListener masterListener) {
-        listener = new LogStoreListener(masterListener);
+        listener = new TaskLogStoreDealer(masterListener);
     }
 
-    private LogStoreListener(MasterListener masterListener) {
+    private TaskLogStoreDealer(MasterListener masterListener) {
         this.masterListener = masterListener;
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("HeartBeatCheckListener"));
         scheduledService.scheduleWithFixedDelay(
@@ -40,7 +40,7 @@ public class LogStoreListener implements Runnable {
     @Override
     public void run() {
         try {
-            logger.info("LogStoreListener start again...");
+            logger.info("TaskLogStoreDealer start again...");
             if (masterListener.isMaster()) {
                 LogStoreFactory.getLogStore(null).clearJob();
             }

@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.task;
+package com.dtstack.engine.master.taskDealer;
 
 import com.dtstack.engine.common.JobSubmitDealer;
 import com.dtstack.engine.common.exception.ExceptionUtil;
@@ -25,9 +25,9 @@ import java.util.concurrent.LinkedBlockingQueue;
  * create: 2020/2/10
  */
 @Component
-public class TaskListener implements Runnable{
+public class TaskSubmittedDealer implements Runnable{
 
-	private static Logger logger = LoggerFactory.getLogger(TaskListener.class);
+	private static Logger logger = LoggerFactory.getLogger(TaskSubmittedDealer.class);
 
 	private LinkedBlockingQueue<JobClient> queue;
 
@@ -43,7 +43,7 @@ public class TaskListener implements Runnable{
 	@Autowired
 	private WorkNode workNode;
 
-	public TaskListener(){
+	public TaskSubmittedDealer(){
 		queue = JobSubmitDealer.getSubmittedQueue();
 	}
 
@@ -53,7 +53,7 @@ public class TaskListener implements Runnable{
 			try {
 				JobClient jobClient  = queue.take();
 
-				if(RestartDealer.getInstance().checkAndRestartForSubmitResult(jobClient)){
+				if(TaskRestartDealer.getInstance().checkAndRestartForSubmitResult(jobClient)){
 					logger.warn("failed submit job restarting, jobId:{} jobResult:{} ...", jobClient.getTaskId(), jobClient.getJobResult());
 					continue;
 				}

@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.zookeeper.listener;
+package com.dtstack.engine.master.listener;
 
 import com.dtstack.engine.common.queue.GroupInfo;
 import com.dtstack.engine.common.util.LogCountUtil;
