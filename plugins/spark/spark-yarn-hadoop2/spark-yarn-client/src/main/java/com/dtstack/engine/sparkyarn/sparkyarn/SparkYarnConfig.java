@@ -45,7 +45,7 @@ public class SparkYarnConfig {
 
     private Map<String, Object> hiveConf;
 
-    private String defaultFS;
+    private String defaultFs;
 
     private String hadoopUserName;
     //队列名称
@@ -95,12 +95,12 @@ public class SparkYarnConfig {
 
     public String getSparkYarnArchive() {
         if(Strings.isNullOrEmpty(sparkYarnArchive)){
-            return String.format(DEFAULT_SPARK_YARN_ARCHIVE, defaultFS);
+            return String.format(DEFAULT_SPARK_YARN_ARCHIVE, defaultFs);
         }
 
         if(!sparkYarnArchive.trim().startsWith(HDFS_FLAG)){
             sparkYarnArchive = sparkYarnArchive.trim();
-            sparkYarnArchive = defaultFS + sparkYarnArchive;
+            sparkYarnArchive = defaultFs + sparkYarnArchive;
         }
 
         return sparkYarnArchive;
@@ -112,12 +112,12 @@ public class SparkYarnConfig {
 
     public String getSparkSqlProxyPath() {
         if(Strings.isNullOrEmpty(sparkSqlProxyPath)){
-            return String.format(DEFAULT_SPARK_SQL_PROXY_JAR_PATH, defaultFS);
+            return String.format(DEFAULT_SPARK_SQL_PROXY_JAR_PATH, defaultFs);
         }
 
         if(!sparkSqlProxyPath.trim().startsWith(HDFS_FLAG)){
             sparkSqlProxyPath = sparkSqlProxyPath.trim();
-            sparkSqlProxyPath = defaultFS + sparkSqlProxyPath;
+            sparkSqlProxyPath = defaultFs + sparkSqlProxyPath;
         }
 
         return sparkSqlProxyPath;
@@ -142,12 +142,12 @@ public class SparkYarnConfig {
 
     public String getSparkPythonExtLibPath() {
         if(Strings.isNullOrEmpty(sparkPythonExtLibPath)){
-            return String.format(DEFAULT_SPARK_PYTHON_EXTLIBPATH, defaultFS);
+            return String.format(DEFAULT_SPARK_PYTHON_EXTLIBPATH, defaultFs);
         }
 
         if(!sparkPythonExtLibPath.startsWith(HDFS_FLAG)){
             sparkPythonExtLibPath = sparkPythonExtLibPath.trim();
-            sparkPythonExtLibPath = defaultFS + sparkPythonExtLibPath;
+            sparkPythonExtLibPath = defaultFs + sparkPythonExtLibPath;
         }
 
         return sparkPythonExtLibPath;
@@ -173,12 +173,12 @@ public class SparkYarnConfig {
         this.yarnConf = yarnConf;
     }
 
-    public String getDefaultFS() {
-        return defaultFS;
+    public String getDefaultFs() {
+        return defaultFs;
     }
 
-    public void setDefaultFS(String defaultFS) {
-        this.defaultFS = defaultFS;
+    public void setDefaultFs(String defaultFs) {
+        this.defaultFs = defaultFs;
     }
 
     public String getMd5sum() {

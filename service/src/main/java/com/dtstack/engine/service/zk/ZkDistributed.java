@@ -167,7 +167,7 @@ public class ZkDistributed implements Closeable{
 		createLocalBrokerDataLock();
 		createLocalBrokerQueueNode();
 		zkLocalCache.init(this);
-		registrationDB();
+		registrationDb();
 		initScheduledExecutorService();
 		logger.warn("init zk server success...");
 		return this;
@@ -180,14 +180,14 @@ public class ZkDistributed implements Closeable{
 		executors.execute(new TaskListener());
 		executors.execute(new TaskStatusListener(new CheckpointListener(masterListener)));
 		executors.execute(new QueueListener());
-		LocalCacheSyncZkListener localCacheSyncZKListener = new LocalCacheSyncZkListener();
+		LocalCacheSyncZkListener localCacheSyncZkListener = new LocalCacheSyncZkListener();
 		ZkSyncLocalCacheListener zkSyncLocalCacheListener = new ZkSyncLocalCacheListener();
 		if(ConfigParse.getPluginStoreInfo()!=null){
 			executors.execute(new LogStoreListener(masterListener));
 		}
 	}
 
-	private void registrationDB() throws IOException {
+	private void registrationDb() throws IOException {
 
 		EngineDeployInfo deployInfo = new EngineDeployInfo(engineTypeList);
 		String deployInfoStr = PublicUtil.objToString(deployInfo.getDeployMap());

@@ -9,7 +9,7 @@
         <result column="task_id" property="taskId" jdbcType="VARCHAR"/>
         <result column="task_engine_id" property="taskEngineId" jdbcType="VARCHAR"/>
 
-        <result column="checkpoint_id" property="checkpointID" jdbcType="VARCHAR"/>
+        <result column="checkpoint_id" property="checkpointId" jdbcType="VARCHAR"/>
         <result column="checkpoint_trigger" property="checkpointTrigger" jdbcType="TIMESTAMP"/>
         <result column="checkpoint_savepath" property="checkpointSavepath" jdbcType="VARCHAR"/>
         <result column="checkpoint_counts" property="checkpointCounts" jdbcType="VARCHAR" />
@@ -26,7 +26,7 @@
         values(#{taskId}, #{engineTaskId}, #{checkpointId}, #{checkpointTrigger}, #{checkpointSavepath}, #{checkpointCounts});
     </insert>
 
-    <update id="batchDeleteByEngineTaskIdAndCheckpointID">
+    <update id="batchDeleteByEngineTaskIdAndCheckpointId">
         update rdos_stream_task_checkpoint
         set is_deleted = 1
         where task_engine_id = #{taskEngineId} and #{checkpointId}+0 >checkpoint_id and is_deleted = 0;
@@ -57,11 +57,11 @@
         order by CONVERT(checkpoint_id,SIGNED) desc limit 1
     </select>
 
-    <select id="getByTaskEngineIDAndCheckpointIndexAndCount"  resultMap="rdosStreamCheckpointResult">
+    <select id="getByTaskEngineIdAndCheckpointIndexAndCount" resultMap="rdosStreamCheckpointResult">
         select
         <include refid="select_content_fragment"/>
         from rdos_stream_task_checkpoint
-        where is_deleted =0 and task_engine_id = #{taskEngineID}
+        where is_deleted =0 and task_engine_id = #{taskEngineId}
         order by CONVERT(checkpoint_id,SIGNED) desc
         limit #{startIndex}, #{count}
     </select>

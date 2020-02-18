@@ -7,8 +7,12 @@ package com.dtstack.engine.web.enums;
  *
  */
 public enum Code {
-	
-	NORMAL(1),REDIRECT(0),FAIL(-1);
+	//
+	NORMAL(1),
+	//
+	REDIRECT(0),
+	//
+	FAIL(-1);
 	
 	private int type;
 	

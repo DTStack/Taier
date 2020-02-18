@@ -116,41 +116,41 @@ public class CheckpointListener implements Runnable {
             if (taskEngineIdAndRetainedNum.isEmpty()) {
                 return;
             }
-            SubtractionCheckpointRecord();
+            subtractionCheckpointRecord();
         }
     }
 
-    public void SubtractionCheckpointRecord() {
+    public void subtractionCheckpointRecord() {
         if (!taskEngineIdAndRetainedNum.isEmpty()) {
-            taskEngineIdAndRetainedNum.forEach((taskEngineID, retainedNum) -> SubtractionCheckpointRecord(taskEngineID));
+            taskEngineIdAndRetainedNum.forEach((taskEngineId, retainedNum) -> subtractionCheckpointRecord(taskEngineId));
         }
     }
 
-    public void SubtractionCheckpointRecord(String taskEngineID) {
+    public void subtractionCheckpointRecord(String taskEngineId) {
         try {
 
-            int retainedNum = taskEngineIdAndRetainedNum.getOrDefault(taskEngineID, 1);
-            List<RdosStreamTaskCheckpoint> threshold = rdosStreamTaskCheckpointDAO.getByTaskEngineIDAndCheckpointIndexAndCount(taskEngineID,retainedNum-1, 1);
+            int retainedNum = taskEngineIdAndRetainedNum.getOrDefault(taskEngineId, 1);
+            List<RdosStreamTaskCheckpoint> threshold = rdosStreamTaskCheckpointDAO.getByTaskEngineIdAndCheckpointIndexAndCount(taskEngineId,retainedNum-1, 1);
 
             if (threshold.isEmpty()) {
                 return;
             }
             RdosStreamTaskCheckpoint thresholdCheckpoint = threshold.get(0);
-            rdosStreamTaskCheckpointDAO.batchDeleteByEngineTaskIdAndCheckpointID(thresholdCheckpoint.getTaskEngineId(), thresholdCheckpoint.getCheckpointID());
+            rdosStreamTaskCheckpointDAO.batchDeleteByEngineTaskIdAndCheckpointId(thresholdCheckpoint.getTaskEngineId(), thresholdCheckpoint.getCheckpointId());
         } catch (Exception e){
-            logger.error("taskEngineID Id :{}", taskEngineID);
+            logger.error("taskEngineId Id :{}", taskEngineId);
             logger.error("", e);
         }
 
     }
 
-    public void  cleanAllCheckpointByTaskEngineId(String taskEngineID) {
-        rdosStreamTaskCheckpointDAO.cleanAllCheckpointByTaskEngineId(taskEngineID);
+    public void  cleanAllCheckpointByTaskEngineId(String taskEngineId) {
+        rdosStreamTaskCheckpointDAO.cleanAllCheckpointByTaskEngineId(taskEngineId);
     }
 
-    public void putTaskEngineIdAndRetainedNum(String taskEngineID, String pluginInfo) {
+    public void putTaskEngineIdAndRetainedNum(String taskEngineId, String pluginInfo) {
         int retainedNum = parseRetainedNum(pluginInfo);
-        taskEngineIdAndRetainedNum.put(taskEngineID, retainedNum);
+        taskEngineIdAndRetainedNum.put(taskEngineId, retainedNum);
 
     }
 
@@ -164,8 +164,8 @@ public class CheckpointListener implements Runnable {
         return Integer.valueOf(pluginInfoMap.getOrDefault(CHECKPOINT_RETAINED_KEY, 1).toString());
     }
 
-    public boolean existTaskEngineIdAndRetainedNum(String taskEngineID) {
-        return taskEngineIdAndRetainedNum.containsKey(taskEngineID);
+    public boolean existTaskEngineIdAndRetainedNum(String taskEngineId) {
+        return taskEngineIdAndRetainedNum.containsKey(taskEngineId);
     }
 
     public void removeByTaskEngineId(String taskEngineId) {
@@ -184,7 +184,7 @@ public class CheckpointListener implements Runnable {
                         cleanAllCheckpointByTaskEngineId(jobIdentifier.getEngineJobId());
                     } else {
                         //主动清理超过范围的checkpoint
-                        SubtractionCheckpointRecord(jobIdentifier.getEngineJobId());
+                        subtractionCheckpointRecord(jobIdentifier.getEngineJobId());
                     }
                     //集合中移除该任务
                     removeByTaskEngineId(jobIdentifier.getEngineJobId());
@@ -346,19 +346,19 @@ public class CheckpointListener implements Runnable {
             putTaskEngineIdAndRetainedNum(engineTaskId, pluginInfo);
 
             for (Map<String, Object> entity : cpList) {
-                String checkpointID = String.valueOf(entity.get(CHECKPOINT_ID_KEY));
+                String checkpointId = String.valueOf(entity.get(CHECKPOINT_ID_KEY));
                 Long   checkpointTrigger = MathUtil.getLongVal(entity.get(TRIGGER_TIMESTAMP_KEY));
                 String checkpointSavepath = String.valueOf(entity.get(CHECKPOINT_SAVEPATH_KEY));
                 String status = String.valueOf(entity.get(CHECKPOINT_STATUS_KEY));
 
-                String checkpointCacheKey = engineTaskId + SEPARATOR + checkpointID;
+                String checkpointCacheKey = engineTaskId + SEPARATOR + checkpointId;
 
                 if (!StringUtils.equalsIgnoreCase(CHECKPOINT_NOT_EXTERNALLY_ADDRESS_KEY, checkpointSavepath) &&
                         StringUtils.equalsIgnoreCase(CHECKPOINT_COMPLETED_STATUS, status) &&
                         StringUtils.isEmpty(checkpointInsertedCache.getIfPresent(checkpointCacheKey))) {
                     Timestamp checkpointTriggerTimestamp = new Timestamp(checkpointTrigger);
 
-                    rdosStreamTaskCheckpointDAO.insert(taskId, engineTaskId, checkpointID, checkpointTriggerTimestamp, checkpointSavepath, checkpointCounts);
+                    rdosStreamTaskCheckpointDAO.insert(taskId, engineTaskId, checkpointId, checkpointTriggerTimestamp, checkpointSavepath, checkpointCounts);
                     checkpointInsertedCache.put(checkpointCacheKey, "1");  //存在标识
 
                 }
@@ -373,11 +373,11 @@ public class CheckpointListener implements Runnable {
 
     private void checkpointIntervalClean(String engineTaskId, Map<String, Object> entity, String pluginInfo) {
         if (!existTaskEngineIdAndRetainedNum(engineTaskId)) {
-            Integer checkpointID = MathUtil.getIntegerVal(entity.get(CHECKPOINT_ID_KEY));
+            Integer checkpointId = MathUtil.getIntegerVal(entity.get(CHECKPOINT_ID_KEY));
 
-            if (null != checkpointID) {
+            if (null != checkpointId) {
                 int retainedNum = parseRetainedNum(pluginInfo);
-                rdosStreamTaskCheckpointDAO.batchDeleteByEngineTaskIdAndCheckpointID(engineTaskId, MathUtil.getString(checkpointID - retainedNum + 1));
+                rdosStreamTaskCheckpointDAO.batchDeleteByEngineTaskIdAndCheckpointId(engineTaskId, MathUtil.getString(checkpointId - retainedNum + 1));
             }
         }
     }

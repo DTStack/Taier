@@ -23,7 +23,7 @@ public class HttpSendClient {
      * @throws IOException
      */
     public static boolean actionSubmit(String address, ParamAction paramAction) throws IOException {
-        String dataJson = PoolHttpClient.post(UrlUtil.getHttpUrl(address, Urls.SUBMIT), PublicUtil.ObjectToMap(paramAction));
+        String dataJson = PoolHttpClient.post(UrlUtil.getHttpUrl(address, Urls.SUBMIT), PublicUtil.objectToMap(paramAction));
         if(dataJson == null){
             return false;
         }
@@ -43,7 +43,7 @@ public class HttpSendClient {
     }
 
     public static Boolean actionStopJobToWorker(String address, ParamAction paramMap) throws IOException {
-        String dataJson = PoolHttpClient.post(UrlUtil.getHttpUrl(address, Urls.WORK_SEND_STOP), PublicUtil.ObjectToMap(paramMap));
+        String dataJson = PoolHttpClient.post(UrlUtil.getHttpUrl(address, Urls.WORK_SEND_STOP), PublicUtil.objectToMap(paramMap));
         if(dataJson == null){
             return null;
         }

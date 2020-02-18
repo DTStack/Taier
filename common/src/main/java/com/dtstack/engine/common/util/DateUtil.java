@@ -621,8 +621,9 @@ public class DateUtil {
      * @throws ParseException 
      */
     public static String longToString(long day, String format) throws ParseException {
-    	if (("" + day).length() <= 10)
-    		day=day*1000;
+    	if (("" + day).length() <= 10){
+            day=day*1000;
+        }
     	SimpleDateFormat dateFormat = new SimpleDateFormat(format);
 	    String Date = dateFormat.format(day);
     	return Date;

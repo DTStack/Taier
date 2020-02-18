@@ -30,7 +30,7 @@ public class ContainerLostDetector implements Runnable {
             if(now - entity.getLastBeatTime() > MAX_HEART_BEAT_WAIT_TIME) {
                 HeartbeatRequest request = new HeartbeatRequest();
                 request.setErrMsg("CONTAINER TIME OUT");
-                request.setXLearningContainerStatus(DtContainerStatus.TIMEOUT);
+                request.setXlearningContainerStatus(DtContainerStatus.TIMEOUT);
                 parent.heartbeat(entity.getContainerId(), request);
             }
         }

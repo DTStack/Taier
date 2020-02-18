@@ -5,7 +5,7 @@ import java.util.Collection;
 /**
  * Created by sishu.yss on 2018/4/17.
  */
-public abstract class LogStore {
+public abstract class AbstractLogStore {
 
     public abstract  int insert(String jobId, String jobInfo, int status);
 

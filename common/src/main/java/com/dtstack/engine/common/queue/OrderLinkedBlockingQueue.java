@@ -452,8 +452,8 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
 
     public boolean remove(String sign) {
         if (StringUtils.isBlank(sign)) {return false;}
+        allLock.lock();
         try {
-            allLock.lock();
             for (Node<E> trail = head, p = trail.next;
                  p != null;
                  trail = p, p = p.next) {
@@ -472,10 +472,10 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
         }
     }
 
-    public IndexNode<E> getElement(String sign) {
+    public IndexNode<E> getElement(String sign) throws InterruptedException {
         if (sign == null){ return null;}
+        allLock.lockInterruptibly();
         try {
-            allLock.lockInterruptibly();
             int idx=0;
             for (Node<E> p = head.next; p != null; p = p.next){
                 idx++;
@@ -493,10 +493,10 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
         }
     }
 
-    public E getIndexOrLast(int idx) {
+    public E getIndexOrLast(int idx) throws InterruptedException {
         if (idx <= 0){ return null;}
+        allLock.lockInterruptibly();
         try {
-            allLock.lockInterruptibly();
             int i = 1;
             for (Node<E> pre = head,p = pre.next;; pre=p,p = p.next,i++){
                 if (i>=idx||p==null){

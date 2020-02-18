@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class JLogstashType extends AppType {
+public class JLogstashType extends AbstractAppType {
 
     @Override
     public String buildCmd(ClientArguments clientArguments, YarnConfiguration conf) {
@@ -113,9 +113,9 @@ public class JLogstashType extends AppType {
                 if (!inputs.isEmpty()) {
                     int i = 1;
                     for (Map input : inputs) {
-                        Iterator<Map.Entry<String, Map>> inputIT = input.entrySet().iterator();
-                        while (inputIT.hasNext()) {
-                            Map.Entry<String, Map> inputEntry = inputIT.next();
+                        Iterator<Map.Entry<String, Map>> inputIt = input.entrySet().iterator();
+                        while (inputIt.hasNext()) {
+                            Map.Entry<String, Map> inputEntry = inputIt.next();
                             String inputType = inputEntry.getKey();
                             Map<String, Object> inputConfig = inputEntry.getValue();
                             if ("Beats".equalsIgnoreCase(inputType)) {

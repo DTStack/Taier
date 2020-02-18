@@ -1,13 +1,13 @@
 package com.dtstack.engine.rdbs.impala;
 
 import com.dtstack.engine.common.util.DtStringUtil;
-import com.dtstack.engine.rdbs.common.executor.ConnFactory;
+import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Properties;
 
-public class ImpalaConnFactory extends ConnFactory {
+public class ImpalaConnFactory extends AbstractConnFactory {
 
     public static String AUTHMECH = "AuthMech";
 
@@ -19,10 +19,10 @@ public class ImpalaConnFactory extends ConnFactory {
     @Override
     public void init(Properties props) throws ClassNotFoundException {
         super.init(props);
-        if (StringUtils.isNotBlank(getUserName()) && !dbURL.contains(AUTHMECH) && StringUtils.isNotBlank(getPwd())){
-            dbURL = dbURL + ";AuthMech=3";
-        } else if (StringUtils.isNotBlank(getUserName()) && !dbURL.contains(AUTHMECH) && StringUtils.isBlank(getPwd())){
-            dbURL = dbURL + ";AuthMech=2";
+        if (StringUtils.isNotBlank(getUserName()) && !dbUrl.contains(AUTHMECH) && StringUtils.isNotBlank(getPwd())){
+            dbUrl = dbUrl + ";AuthMech=3";
+        } else if (StringUtils.isNotBlank(getUserName()) && !dbUrl.contains(AUTHMECH) && StringUtils.isBlank(getPwd())){
+            dbUrl = dbUrl + ";AuthMech=2";
         }
     }
 

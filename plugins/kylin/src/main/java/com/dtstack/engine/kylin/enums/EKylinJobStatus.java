@@ -7,19 +7,19 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
  * @date 2019/7/2
  */
 public enum EKylinJobStatus {
-
+    //
     NEW(RdosTaskStatus.WAITCOMPUTE, 0),
-
+    //
     PENDING(RdosTaskStatus.WAITCOMPUTE, 1),
-
+    //
     RUNNING(RdosTaskStatus.RUNNING, 2),
-
+    //
     FINISHED(RdosTaskStatus.FINISHED, 4),
-
+    //
     ERROR(RdosTaskStatus.FAILED, 8),
-
+    //
     STOPPED(RdosTaskStatus.CANCELED, 32),
-
+    //
     DISCARDED(RdosTaskStatus.CANCELED, 16);
 
     private RdosTaskStatus rdosStatus;

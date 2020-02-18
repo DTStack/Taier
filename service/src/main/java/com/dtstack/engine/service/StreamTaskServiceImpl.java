@@ -126,15 +126,15 @@ public class StreamTaskServiceImpl {
             jobIdentifier = JobIdentifier.createInstance(engineJob.getEngineJobId(), applicationId, taskId);
             jobClient = new JobClient(paramAction);
             String jobMaster = JobClient.getJobMaster(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
-            String rootURL = UrlUtil.getHttpRootURL(jobMaster);
-            String requestURl = String.format(APPLICATION_REST_API_TMP, rootURL, applicationId);
+            String rootUrl = UrlUtil.getHttpRootUrl(jobMaster);
+            String requestUrl = String.format(APPLICATION_REST_API_TMP, rootUrl, applicationId);
 
-            String response = PoolHttpClient.get(requestURl);
-            String amContainerLogsURL = ApplicationWSParser.getAMContainerLogsURL(response);
+            String response = PoolHttpClient.get(requestUrl);
+            String amContainerLogsUrl = ApplicationWSParser.getAmContainerLogsUrl(response);
 
-            String logPreURL = UrlUtil.getHttpRootURL(amContainerLogsURL);
-            String amContainerPreViewHttp = PoolHttpClient.get(amContainerLogsURL);
-            return ApplicationWSParser.parserAMContainerPreViewHttp(amContainerPreViewHttp, logPreURL);
+            String logPreUrl = UrlUtil.getHttpRootUrl(amContainerLogsUrl);
+            String amContainerPreViewHttp = PoolHttpClient.get(amContainerLogsUrl);
+            return ApplicationWSParser.parserAmContainerPreViewHttp(amContainerPreViewHttp, logPreUrl);
 
         }catch (Exception e){
             if (jobClient != null && jobIdentifier != null) {

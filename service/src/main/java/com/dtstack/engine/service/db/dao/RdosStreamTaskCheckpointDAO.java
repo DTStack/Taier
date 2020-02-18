@@ -42,13 +42,13 @@ public class RdosStreamTaskCheckpointDAO {
         });
     }
 
-    public List<RdosStreamTaskCheckpoint> getByTaskEngineIDAndCheckpointIndexAndCount(String taskEngineID, int startIndex, int count){
+    public List<RdosStreamTaskCheckpoint> getByTaskEngineIdAndCheckpointIndexAndCount(String taskEngineId, int startIndex, int count){
         return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<RdosStreamTaskCheckpoint>>(){
 
             @Override
             public List<RdosStreamTaskCheckpoint> execute(SqlSession sqlSession) throws Exception {
                 RdosStreamTaskCheckpointMapper taskCheckpointMapper = sqlSession.getMapper(RdosStreamTaskCheckpointMapper.class);
-                return taskCheckpointMapper.getByTaskEngineIDAndCheckpointIndexAndCount(taskEngineID, startIndex, count);
+                return taskCheckpointMapper.getByTaskEngineIdAndCheckpointIndexAndCount(taskEngineId, startIndex, count);
             }
         });
     }
@@ -65,13 +65,13 @@ public class RdosStreamTaskCheckpointDAO {
         });
     }
 
-    public void batchDeleteByEngineTaskIdAndCheckpointID(String taskEngineId, String checkpointID) {
+    public void batchDeleteByEngineTaskIdAndCheckpointId(String taskEngineId, String checkpointId) {
         MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 
             @Override
             public Object execute(SqlSession sqlSession) throws Exception {
                 RdosStreamTaskCheckpointMapper taskCheckpointMapper = sqlSession.getMapper(RdosStreamTaskCheckpointMapper.class);
-                taskCheckpointMapper.batchDeleteByEngineTaskIdAndCheckpointID(taskEngineId, checkpointID);
+                taskCheckpointMapper.batchDeleteByEngineTaskIdAndCheckpointId(taskEngineId, checkpointId);
                 return null;
             }
         });

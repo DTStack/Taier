@@ -2,7 +2,7 @@ package com.dtstack.engine.rdbs.common;
 
 import com.dtstack.engine.common.exception.RdosException;
 import com.dtstack.engine.common.util.MathUtil;
-import com.dtstack.engine.common.AbsClient;
+import com.dtstack.engine.common.AbstractClient;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.EJobType;
@@ -10,7 +10,7 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.rdbs.common.constant.ConfigConstant;
 import com.dtstack.engine.base.resource.EngineResourceInfo;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.rdbs.common.executor.ConnFactory;
+import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 import com.dtstack.engine.rdbs.common.executor.RdbsExeQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,19 +25,19 @@ import java.util.Properties;
  * @author jingzhen
  */
 
-public abstract class RdbsClient extends AbsClient {
+public abstract class AbstractRdbsClient extends AbstractClient {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RdbsClient.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractRdbsClient.class);
 
     private RdbsExeQueue exeQueue;
 
     private EngineResourceInfo resourceInfo;
 
-    private ConnFactory connFactory;
+    private AbstractConnFactory connFactory;
 
     protected String dbType = "rdbs";
 
-    protected abstract ConnFactory getConnFactory();
+    protected abstract AbstractConnFactory getConnFactory();
 
     @Override
     public void init(Properties prop) throws Exception {

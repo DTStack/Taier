@@ -4,7 +4,7 @@ import com.dtstack.learning.conf.LearningConfiguration;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosException;
 import com.dtstack.engine.common.util.MathUtil;
-import com.dtstack.engine.common.AbsClient;
+import com.dtstack.engine.common.AbstractClient;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.EJobType;
@@ -36,7 +36,7 @@ import java.util.Properties;
  *
  * @author jingzhen
  */
-public class LearningClient extends AbsClient {
+public class LearningClient extends AbstractClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(LearningClient.class);
 

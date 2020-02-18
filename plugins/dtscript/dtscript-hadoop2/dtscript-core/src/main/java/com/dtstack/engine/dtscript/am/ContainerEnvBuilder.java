@@ -34,7 +34,7 @@ public class ContainerEnvBuilder {
         final Configuration conf = applicationMaster.conf;
         final String cmd = applicationMaster.appArguments.cmd;
         final int workerNum = applicationMaster.appArguments.workerNum;
-        final ApplicationAttemptId applicationAttemptID = applicationMaster.appArguments.applicationAttemptID;
+        final ApplicationAttemptId applicationAttemptId = applicationMaster.appArguments.applicationAttemptID;
         final ApplicationContainerListener containerListener = applicationMaster.containerListener;
 
         LOG.info("Setting environments for the Container");
@@ -43,8 +43,8 @@ public class ContainerEnvBuilder {
         containerEnv.put(DtYarnConstants.Environment.HADOOP_USER_NAME.toString(), conf.get("hadoop.job.ugi").split(",")[0]);
         containerEnv.put(DtYarnConstants.Environment.DT_EXEC_CMD.toString(), cmd);
         containerEnv.put("CLASSPATH", System.getenv("CLASSPATH"));
-        containerEnv.put(DtYarnConstants.Environment.APP_ATTEMPTID.toString(), applicationAttemptID.toString());
-        containerEnv.put(DtYarnConstants.Environment.APP_ID.toString(), applicationAttemptID.getApplicationId().toString());
+        containerEnv.put(DtYarnConstants.Environment.APP_ATTEMPTID.toString(), applicationAttemptId.toString());
+        containerEnv.put(DtYarnConstants.Environment.APP_ID.toString(), applicationAttemptId.getApplicationId().toString());
         containerEnv.put(DtYarnConstants.Environment.APPMASTER_HOST.toString(),
                 System.getenv(ApplicationConstants.Environment.NM_HOST.toString()));
         containerEnv.put(DtYarnConstants.Environment.APPMASTER_PORT.toString(),

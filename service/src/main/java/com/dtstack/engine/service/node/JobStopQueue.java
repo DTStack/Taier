@@ -74,7 +74,7 @@ public class JobStopQueue {
 
     private AtomicLong startId = new AtomicLong(0);
 
-    private ExecutorService simpleES = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+    private ExecutorService simpleEs = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<>(), new CustomThreadFactory("stopProcessor"));
 
     private ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("acquire-stopJob"));
@@ -89,13 +89,13 @@ public class JobStopQueue {
     }
 
     public void start() {
-        if (simpleES.isShutdown()) {
-            simpleES = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+        if (simpleEs.isShutdown()) {
+            simpleEs = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                     new LinkedBlockingQueue<>(), new CustomThreadFactory("stopProcessor"));
             stopProcessor.reStart();
         }
 
-        simpleES.submit(stopProcessor);
+        simpleEs.submit(stopProcessor);
 
         scheduledService.scheduleAtFixedRate(
                 new AcquireStopJob(),
@@ -106,7 +106,7 @@ public class JobStopQueue {
 
     public void stop() {
         stopProcessor.stop();
-        simpleES.shutdownNow();
+        simpleEs.shutdownNow();
     }
 
     public boolean tryPutStopJobQueue(ParamAction paramAction) {

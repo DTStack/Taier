@@ -94,7 +94,7 @@ public class WorkNode {
     public GroupPriorityQueue getEngineTypeQueue(String engineType) {
         return priorityQueueMap.computeIfAbsent(engineType, k -> new GroupPriorityQueue(engineType,
                 (groupPriorityQueue, startId, limited) -> {
-                    return this.emitJob2GQ(engineType, groupPriorityQueue, startId, limited);
+                    return this.emitJob2Gq(engineType, groupPriorityQueue, startId, limited);
                 })
         );
     }
@@ -179,7 +179,7 @@ public class WorkNode {
         try{
             GroupPriorityQueue groupQueue = priorityQueueMap.computeIfAbsent(jobClient.getEngineType(), k -> new GroupPriorityQueue(jobClient.getEngineType(),
                     (groupPriorityQueue, startId, limited) -> {
-                        return this.emitJob2GQ(jobClient.getEngineType(), groupPriorityQueue, startId, limited);
+                        return this.emitJob2Gq(jobClient.getEngineType(), groupPriorityQueue, startId, limited);
                     })
             );
             if (!judgeBlocked || !groupQueue.isBlocked()){
@@ -372,7 +372,7 @@ public class WorkNode {
         public void run() {
             LOG.info("-----重启后任务开始恢复----");
             try{
-                loadQueueFromDB();
+                loadQueueFromDb();
             }catch (Exception e){
                 LOG.error("----load data from DB error:{}", e);
             }
@@ -383,7 +383,7 @@ public class WorkNode {
     /**
      * 重启后，各自节点load自己的数据
      */
-    public void loadQueueFromDB(){
+    public void loadQueueFromDb(){
         List<InterProcessMutex> locks = null;
         String localAddress = zkDistributed.getLocalAddress();
         try {
@@ -421,7 +421,7 @@ public class WorkNode {
         }
     }
 
-    private Long emitJob2GQ(String engineType, GroupPriorityQueue groupPriorityQueue, long startId, int limited){
+    private Long emitJob2Gq(String engineType, GroupPriorityQueue groupPriorityQueue, long startId, int limited){
         String localAddress = zkDistributed.getLocalAddress();
         try {
             int count = 0;

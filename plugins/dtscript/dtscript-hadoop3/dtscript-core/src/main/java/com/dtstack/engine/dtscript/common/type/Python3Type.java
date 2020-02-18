@@ -9,7 +9,7 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import java.net.URLEncoder;
 import java.util.List;
 
-public class Python3Type extends AppType {
+public class Python3Type extends AbstractAppType {
 
     @Override
     public String cmdPrefix(YarnConfiguration config) {

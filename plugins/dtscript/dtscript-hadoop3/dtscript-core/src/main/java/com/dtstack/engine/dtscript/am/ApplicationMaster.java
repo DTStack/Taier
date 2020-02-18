@@ -15,11 +15,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.DataOutputBuffer;
 import org.apache.hadoop.net.NetUtils;
-import org.apache.hadoop.security.Credentials;
 import org.apache.hadoop.security.UserGroupInformation;
-import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.service.CompositeService;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.protocolrecords.RegisterApplicationMasterResponse;
@@ -37,7 +34,6 @@ import org.apache.hadoop.yarn.client.api.AMRMClient;
 import org.apache.hadoop.yarn.client.api.async.AMRMClientAsync;
 import org.apache.hadoop.yarn.client.api.async.NMClientAsync;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
-import org.apache.hadoop.yarn.security.AMRMTokenIdentifier;
 import org.apache.hadoop.yarn.util.Records;
 
 import java.io.IOException;
@@ -45,11 +41,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
-import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -72,7 +66,7 @@ public class ApplicationMaster extends CompositeService {
 
     final ApplicationContext applicationContext;
 
-    ApplicationAttemptId applicationAttemptID;
+    ApplicationAttemptId applicationAttemptId;
 
     AppArguments appArguments;
 
@@ -142,8 +136,8 @@ public class ApplicationMaster extends CompositeService {
             int maxMem = response.getMaximumResourceCapability().getMemory();
             LOG.info("Max mem capabililty of resources in this cluster " + maxMem);
 
-            int maxVCores = response.getMaximumResourceCapability().getVirtualCores();
-            LOG.info("Max vcores capabililty of resources in this cluster " + maxVCores);
+            int maxVcores = response.getMaximumResourceCapability().getVirtualCores();
+            LOG.info("Max vcores capabililty of resources in this cluster " + maxVcores);
         } catch (Exception e) {
             LOG.info("app master register failed: " + DebugUtil.stackTrace(e));
             throw new RuntimeException("Registering application master failed,", e);
@@ -166,7 +160,7 @@ public class ApplicationMaster extends CompositeService {
         priority.setPriority(appArguments.appPriority);
         Resource workerCapability = Records.newRecord(Resource.class);
         workerCapability.setMemory(appArguments.workerMemory+appArguments.containerMemory);
-        workerCapability.setVirtualCores(appArguments.workerVCores);
+        workerCapability.setVirtualCores(appArguments.workerVcores);
         if (appArguments.nodes == null){
             return new AMRMClient.ContainerRequest(workerCapability, null, null, priority, true);
         } else {
@@ -218,7 +212,7 @@ public class ApplicationMaster extends CompositeService {
         Map<String, String> workerContainerEnv = new ContainerEnvBuilder(DtYarnConstants.WORKER, this).build();
 
 
-        List<Container> acquiredWorkerContainers = handleRMCallbackOfContainerRequest(appArguments.workerNum, workerContainerRequest);
+        List<Container> acquiredWorkerContainers = handleRmCallbackOfContainerRequest(appArguments.workerNum, workerContainerRequest);
 
         int i = 0;
         for (Container container : acquiredWorkerContainers) {
@@ -246,7 +240,7 @@ public class ApplicationMaster extends CompositeService {
             }
 
             //失败后重试
-            acquiredWorkerContainers = handleRMCallbackOfContainerRequest(failedEntities.size(), workerContainerRequest);
+            acquiredWorkerContainers = handleRmCallbackOfContainerRequest(failedEntities.size(), workerContainerRequest);
 
             for (ContainerEntity containerEntity : failedEntities) {
                 Container container = acquiredWorkerContainers.remove(0);
@@ -268,12 +262,12 @@ public class ApplicationMaster extends CompositeService {
 
     }
 
-    public List<Container> handleRMCallbackOfContainerRequest(int workerNum, AMRMClient.ContainerRequest request) {
+    public List<Container> handleRmCallbackOfContainerRequest(int workerNum, AMRMClient.ContainerRequest request) {
         rmCallbackHandler.setNeededWorkerContainersCount(workerNum);
         rmCallbackHandler.resetAllocatedWorkerContainerNumber();
         rmCallbackHandler.resetAcquiredWorkerContainers();
 
-        clearAMRMRequests(request);
+        clearAmRmRequests(request);
 
         for (int i = 0; i < workerNum; ++i) {
             amrmAsync.addContainerRequest(request);
@@ -327,7 +321,7 @@ public class ApplicationMaster extends CompositeService {
         return acquiredWorkerContainers;
     }
 
-    private void clearAMRMRequests(AMRMClient.ContainerRequest request) {
+    private void clearAmRmRequests(AMRMClient.ContainerRequest request) {
         try {
             Field amrmField = amrmAsync.getClass().getSuperclass().getDeclaredField("client");
             amrmField.setAccessible(true);

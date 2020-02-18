@@ -3,7 +3,7 @@ package com.dtstack.engine.rdbs.hive;
 
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.rdbs.common.constant.ConfigConstant;
-import com.dtstack.engine.rdbs.common.executor.ConnFactory;
+import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
@@ -15,7 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-public class HiveConnFactory extends ConnFactory {
+public class HiveConnFactory extends AbstractConnFactory {
 
     private String hiveSubType;
 
@@ -44,10 +44,10 @@ public class HiveConnFactory extends ConnFactory {
         hiveSubType = props.getProperty(HIVE_SUB_TYPE);
         queue = MathUtil.getString(props.get(ConfigConstant.QUEUE));
         if (StringUtils.isNotBlank(queue)) {
-            if (super.dbURL.contains(PARAMS_BEGIN)) {
-                super.dbURL += (PARAMS_AND + MAPREDUCE_JOB_QUEUENAME + queue);
+            if (super.dbUrl.contains(PARAMS_BEGIN)) {
+                super.dbUrl += (PARAMS_AND + MAPREDUCE_JOB_QUEUENAME + queue);
             } else {
-                super.dbURL += (PARAMS_BEGIN + MAPREDUCE_JOB_QUEUENAME + queue);
+                super.dbUrl += (PARAMS_BEGIN + MAPREDUCE_JOB_QUEUENAME + queue);
             }
         }
     }
@@ -68,11 +68,11 @@ public class HiveConnFactory extends ConnFactory {
         }
 
         if (getUserName() == null) {
-            conn = DriverManager.getConnection(dbURL, properties);
+            conn = DriverManager.getConnection(dbUrl, properties);
         } else {
             properties.setProperty(ConfigConstant.JDBC_USER_NAME_KEY, getUserName());
             properties.setProperty(ConfigConstant.JDBC_PASSWORD_KEY, getPwd());
-            conn = DriverManager.getConnection(dbURL, properties);
+            conn = DriverManager.getConnection(dbUrl, properties);
         }
         return conn;
     }

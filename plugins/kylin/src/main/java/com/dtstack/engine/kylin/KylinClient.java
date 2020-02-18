@@ -1,7 +1,7 @@
 package com.dtstack.engine.kylin;
 
 import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.AbsClient;
+import com.dtstack.engine.common.AbstractClient;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.EJobType;
@@ -22,7 +22,7 @@ import java.util.*;
  * @author jiangbo
  * @date 2019/7/2
  */
-public class KylinClient extends AbsClient {
+public class KylinClient extends AbstractClient {
 
     private static final Logger logger = LoggerFactory.getLogger(KylinClient.class);
 

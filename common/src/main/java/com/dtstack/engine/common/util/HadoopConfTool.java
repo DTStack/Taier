@@ -44,7 +44,7 @@ public class HadoopConfTool {
         return nameServices;
     }
 
-    public static String getFSDefaults(Map<String, Object> conf){
+    public static String getFsDefaults(Map<String, Object> conf){
         String defaultFs = MathUtil.getString(conf.get(FS_DEFAULTFS));
         Preconditions.checkNotNull(defaultFs, FS_DEFAULTFS + "can not empty");
         return defaultFs;

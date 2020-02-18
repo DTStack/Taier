@@ -1,16 +1,16 @@
 package com.dtstack.engine.rdbs.impala;
 
-import com.dtstack.engine.rdbs.common.RdbsClient;
-import com.dtstack.engine.rdbs.common.executor.ConnFactory;
+import com.dtstack.engine.rdbs.common.AbstractRdbsClient;
+import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 
-public class ImpalaClient extends RdbsClient {
+public class ImpalaClient extends AbstractRdbsClient {
 
     public ImpalaClient() {
         this.dbType = "impala";
     }
 
     @Override
-    protected ConnFactory getConnFactory() {
+    protected AbstractConnFactory getConnFactory() {
         return new ImpalaConnFactory();
     }
 

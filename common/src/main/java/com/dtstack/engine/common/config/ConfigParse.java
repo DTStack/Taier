@@ -31,7 +31,7 @@ public class ConfigParse {
     public  static String getLocalAddress(){
         String localAddress = (String)configs.get("localAddress");
         if(StringUtils.isBlank(localAddress)){
-            localAddress = String.format("%s:%s",AddressUtil.getOneIP(),"8090");
+            localAddress = String.format("%s:%s",AddressUtil.getOneIp(),"8090");
         }
         return localAddress;
     }
@@ -80,10 +80,10 @@ public class ConfigParse {
 
     public static Map<String,String> getPluginStoreInfo(){
         Object storeInfo = configs.get("pluginStoreInfo");
-        return storeInfo == null?getDB():(Map<String, String>)storeInfo;
+        return storeInfo == null? getDb():(Map<String, String>)storeInfo;
     }
 
-    public static Map<String, String> getDB(){
+    public static Map<String, String> getDb(){
         Map<String, String> db = (Map<String, String>)configs.get("db");
         return db;
     }

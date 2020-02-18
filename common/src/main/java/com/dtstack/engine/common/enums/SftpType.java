@@ -24,7 +24,10 @@ package com.dtstack.engine.common.enums;
  * @Description:
  */
 public enum SftpType {
-    PASSWORD_AUTHENTICATION(1), PUBKEY_AUTHENTICATION(2);
+    //
+    PASSWORD_AUTHENTICATION(1),
+    //
+    PUBKEY_AUTHENTICATION(2);
 
     int type;
 

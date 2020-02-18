@@ -1,8 +1,8 @@
 package com.dtstack.engine.rdbs.oracle;
 
-import com.dtstack.engine.rdbs.common.executor.ConnFactory;
+import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 
-public class OracleConnFactory extends ConnFactory {
+public class OracleConnFactory extends AbstractConnFactory {
 
     public OracleConnFactory() {
         driverName = "oracle.jdbc.driver.OracleDriver";

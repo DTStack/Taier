@@ -43,14 +43,14 @@ public class ApplicationWebService extends AbstractService {
       String appDir = getClass().getClassLoader().getResource("xlWebApp").toString();
       appWebAppContext.setResourceBase(appDir);
       appWebAppContext.addServlet(DefaultServlet.class, "/*");
-      final String[] ALL_URLS = {"/*"};
+      final String[] allUrls = {"/*"};
       FilterHolder[] filterHolders =
           webAppContext.getServletHandler().getFilters();
       for (FilterHolder filterHolder : filterHolders) {
         if (!"guice".equals(filterHolder.getName())) {
           HttpServer2.defineFilter(appWebAppContext, filterHolder.getName(),
               filterHolder.getClassName(), filterHolder.getInitParameters(),
-              ALL_URLS);
+              allUrls);
         }
       }
       httpServer.addContext(appWebAppContext, true);

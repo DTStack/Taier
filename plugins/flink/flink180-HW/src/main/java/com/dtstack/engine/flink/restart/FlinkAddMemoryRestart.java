@@ -58,11 +58,11 @@ public class FlinkAddMemoryRestart implements IJobRestartStrategy {
         return taskParams;
     }
 
-    public Map<String, Object> splitStr(String str, String Separator) {
+    public Map<String, Object> splitStr(String str, String separator) {
         Map<String, Object> res = Maps.newHashMap();
 
         for (String s : str.split("\n")) {
-            String[] keyAndVal = s.split(Separator);
+            String[] keyAndVal = s.split(separator);
             if (keyAndVal.length > 1) {
                 res.put(keyAndVal[0], keyAndVal[1]);
             }

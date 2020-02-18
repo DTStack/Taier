@@ -1,9 +1,9 @@
 package com.dtstack.engine.rdbs.sqlserver;
 
 
-import com.dtstack.engine.rdbs.common.executor.ConnFactory;
+import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 
-public class SqlserverConnFactory extends ConnFactory {
+public class SqlserverConnFactory extends AbstractConnFactory {
 
     public SqlserverConnFactory() {
         driverName = "net.sourceforge.jtds.jdbc.Driver";

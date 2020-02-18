@@ -1,7 +1,7 @@
 package com.dtstack.engine.common.plugin.log.mysql;
 
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.plugin.log.LogStore;
+import com.dtstack.engine.common.plugin.log.AbstractLogStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +19,7 @@ import java.util.Collection;
  * @author xuchao
  */
 
-public class MysqlLogStore extends LogStore {
+public class MysqlLogStore extends AbstractLogStore {
     
     private static final Logger LOG = LoggerFactory.getLogger(MysqlLogStore.class);
 

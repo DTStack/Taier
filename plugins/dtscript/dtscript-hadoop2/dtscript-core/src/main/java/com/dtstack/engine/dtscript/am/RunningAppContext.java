@@ -29,8 +29,8 @@ public class RunningAppContext implements ApplicationContext {
     }
 
     @Override
-    public ApplicationId getApplicationID() {
-        return appMaster.applicationAttemptID.getApplicationId();
+    public ApplicationId getApplicationId() {
+        return appMaster.applicationAttemptId.getApplicationId();
     }
 
     @Override
@@ -103,7 +103,7 @@ public class RunningAppContext implements ApplicationContext {
     }
 
     @Override
-    public Map<DtContainerId, String> getMapedTaskID() {
+    public Map<DtContainerId, String> getMapedTaskId() {
         //return appMaster.containerListener.getMapedTaskID();
         return null;
     }

@@ -17,7 +17,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public interface ApplicationContext {
 
-  ApplicationId getApplicationID();
+  ApplicationId getApplicationId();
 
   int getWorkerNum();
 
@@ -45,7 +45,7 @@ public interface ApplicationContext {
 
   Map<DtContainerId, String> getContainersAppFinishTime();
 
-  Map<DtContainerId, String> getMapedTaskID();
+  Map<DtContainerId, String> getMapedTaskId();
 
   Map<DtContainerId, ConcurrentHashMap<String, LinkedBlockingDeque<Object>>> getContainersCpuMetrics();
 

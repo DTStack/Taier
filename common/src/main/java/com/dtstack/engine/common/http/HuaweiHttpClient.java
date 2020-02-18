@@ -83,7 +83,7 @@ public class HuaweiHttpClient {
 
         SSLContext sslcontext = null;
         try {
-            sslcontext = createIgnoreVerifySSL();
+            sslcontext = createIgnoreVerifySsl();
         } catch (Exception e){
             throw new RuntimeException("", e);
         }
@@ -114,7 +114,7 @@ public class HuaweiHttpClient {
                 .build();
     }
 
-    public static SSLContext createIgnoreVerifySSL() throws NoSuchAlgorithmException, KeyManagementException {
+    public static SSLContext createIgnoreVerifySsl() throws NoSuchAlgorithmException, KeyManagementException {
         SSLContext sc = SSLContext.getInstance("TLS");
 
         // 实现一个X509TrustManager接口，用于绕过验证，不用修改里面的方法
