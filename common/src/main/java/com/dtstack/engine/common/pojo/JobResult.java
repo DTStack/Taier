@@ -2,6 +2,7 @@ package com.dtstack.engine.common.pojo;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.exception.ExceptionUtil;
+import com.dtstack.engine.common.util.DateUtil;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +20,6 @@ import java.util.Date;
 public class JobResult {
 
     private static final Logger logger = LoggerFactory.getLogger(JobResult.class);
-
-    private static final SimpleDateFormat SIMPLE_DATE_FORMATDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private boolean checkRetry;
 
@@ -102,9 +101,7 @@ public class JobResult {
     }
 
     public static String addTimeForMsg(String msg){
-        synchronized (SIMPLE_DATE_FORMATDF) {
-            return SIMPLE_DATE_FORMATDF.format(new Date())+":"+msg;
-        }
+        return DateUtil.timestampToString(new Date())+":"+msg;
     }
 
     public JSONObject getJson() {
