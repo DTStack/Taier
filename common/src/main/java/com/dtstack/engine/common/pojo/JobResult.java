@@ -20,7 +20,7 @@ public class JobResult {
 
     private static final Logger logger = LoggerFactory.getLogger(JobResult.class);
 
-    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final SimpleDateFormat SIMPLE_DATE_FORMATDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private boolean checkRetry;
 
@@ -102,7 +102,9 @@ public class JobResult {
     }
 
     public static String addTimeForMsg(String msg){
-        return sdf.format(new Date())+":"+msg;
+        synchronized (SIMPLE_DATE_FORMATDF) {
+            return SIMPLE_DATE_FORMATDF.format(new Date())+":"+msg;
+        }
     }
 
     public JSONObject getJson() {

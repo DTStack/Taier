@@ -48,7 +48,7 @@ public class AddressUtil {
         if (ip.contains(":")) {return true;}
         if (ip.startsWith("127.")) {return true;}
         if (ip.startsWith("169.254.")) {return true;}
-        if (ip.equals("255.255.255.255")) {return true;}
+        if ("255.255.255.255".equals(ip)) {return true;}
         return false;
     }
 

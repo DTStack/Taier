@@ -350,7 +350,7 @@ public class ZkDistributed implements Closeable{
 	public String isHaveMaster() throws Exception {
 		byte[] data = this.zkClient.getData().forPath(this.brokersNode);
 		String de = new String(data);
-		if (data == null||de.equals("[]")
+		if (data == null|| "[]".equals(de)
 				|| StringUtils.isBlank(objectMapper.readValue(data,
 				BrokersNode.class).getMaster())) {
 			return null;

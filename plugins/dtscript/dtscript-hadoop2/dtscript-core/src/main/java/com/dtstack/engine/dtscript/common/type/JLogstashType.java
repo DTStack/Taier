@@ -100,7 +100,7 @@ public class JLogstashType extends AbstractAppType {
             String fStr = null;
             int idx = -1;
             for (int i = 0; i < args.length - 1; ++i) {
-                if (args[i].equals("-f")) {
+                if ("-f".equals(args[i])) {
                     fStr = Base64Util.baseDecode(GZipUtil.deCompress(args[i + 1]));
                     idx = i + 1;
                     break;

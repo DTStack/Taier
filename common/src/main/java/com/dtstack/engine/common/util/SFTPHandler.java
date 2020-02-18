@@ -143,7 +143,7 @@ public class SFTPHandler {
                 for (Iterator<ChannelSftp.LsEntry> iterator = files.iterator(); iterator.hasNext(); ) {
                     ChannelSftp.LsEntry str = iterator.next();
                     String filename = str.getFilename();
-                    if (filename.equals(".") || filename.equals("..")) {
+                    if (".".equals(filename) || "..".equals(filename)) {
                         continue;
                     }
                     SftpATTRS attrs = str.getAttrs();
@@ -370,7 +370,7 @@ public class SFTPHandler {
             for (Iterator<ChannelSftp.LsEntry> iterator = files.iterator(); iterator.hasNext(); ) {
                 ChannelSftp.LsEntry str = iterator.next();
                 String filename = str.getFilename();
-                if (filename.equals(".") || filename.equals("..")) {
+                if (".".equals(filename) || "..".equals(filename)) {
                     continue;
                 }
                 SftpATTRS attrs = str.getAttrs();

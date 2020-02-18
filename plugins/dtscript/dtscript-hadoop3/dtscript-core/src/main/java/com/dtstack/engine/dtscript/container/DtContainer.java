@@ -103,7 +103,7 @@ public class DtContainer {
         try {
             LOG.info("appMasterHost:" + appMasterHost + ", port:" + appMasterPort);
             amClient = RPC.getProxy(ApplicationContainerProtocol.class,
-                    ApplicationContainerProtocol.versionID,
+                    ApplicationContainerProtocol.VERSION_ID,
                     addr,
                     conf);
             LocalRemotePath[] localRemotePaths = amClient.getOutputLocation("localRemotePath");

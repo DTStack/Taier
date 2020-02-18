@@ -81,7 +81,7 @@ public class LocalIpAddressUtil {
         if (ip.startsWith("169.254.")) {
             return true;
         }
-        if (ip.equals("255.255.255.255")) {
+        if (("255.255.255.255").equals(ip)) {
             return true;
         }
         return false;
