@@ -134,8 +134,8 @@ public class Client {
 
         YarnConfiguration taskConf = init(clientArguments);
 
-        YarnClientApplication newAPP = yarnClient.createApplication();
-        GetNewApplicationResponse newAppResponse = newAPP.getNewApplicationResponse();
+        YarnClientApplication newApp = yarnClient.createApplication();
+        GetNewApplicationResponse newAppResponse = newApp.getNewApplicationResponse();
         ApplicationId applicationId = newAppResponse.getApplicationId();
         clientArguments.setApplicationId(applicationId.toString());
         LOG.info("Got new Application: " + applicationId.toString());
@@ -249,7 +249,7 @@ public class Client {
         List<String> appMasterLaunchcommands = new ArrayList<>();
         appMasterLaunchcommands.add(command.toString());
 
-        ApplicationSubmissionContext applicationContext = newAPP.getApplicationSubmissionContext();
+        ApplicationSubmissionContext applicationContext = newApp.getApplicationSubmissionContext();
         applicationContext.setApplicationId(applicationId);
         applicationContext.setApplicationName(clientArguments.appName);
         applicationContext.setApplicationType(clientArguments.appType.name());
@@ -278,8 +278,8 @@ public class Client {
     private void checkArguments(DtYarnConfiguration taskConf, GetNewApplicationResponse newApplication) {
         int maxMem = newApplication.getMaximumResourceCapability().getMemory();
         LOG.info("Max mem capability of resources in this cluster " + maxMem);
-        int maxVCores = newApplication.getMaximumResourceCapability().getVirtualCores();
-        LOG.info("Max vcores capability of resources in this cluster " + maxVCores);
+        int maxVcores = newApplication.getMaximumResourceCapability().getVirtualCores();
+        LOG.info("Max vcores capability of resources in this cluster " + maxVcores);
 
         int amMem = taskConf.getInt(DtYarnConfiguration.LEARNING_AM_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY);
         int amCores = taskConf.getInt(DtYarnConfiguration.LEARNING_AM_CORES, DtYarnConfiguration.DEFAULT_LEARNING_AM_CORES);
@@ -293,9 +293,9 @@ public class Client {
                             + " Specified memory=" + amMem);
         }
         LOG.info("Apply for am Memory " + amMem + "M");
-        if (amCores > maxVCores) {
+        if (amCores > maxVcores) {
             throw new RequestOverLimitException("am vcores requested " + amCores +
-                    " above the max threshold of yarn cluster " + maxVCores);
+                    " above the max threshold of yarn cluster " + maxVcores);
         }
         if (amCores <= 0) {
             throw new IllegalArgumentException(
@@ -323,9 +323,9 @@ public class Client {
                             + "Specified memory=" + workerMemory);
         }
         LOG.info("Apply for worker Memory " + workerMemory + "M");
-        if (workerVcores > maxVCores) {
+        if (workerVcores > maxVcores) {
             throw new RequestOverLimitException("Worker vcores requested " + workerVcores +
-                    " above the max threshold of yarn cluster " + maxVCores);
+                    " above the max threshold of yarn cluster " + maxVcores);
         }
         if (workerVcores <= 0) {
             throw new IllegalArgumentException(
