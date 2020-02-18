@@ -52,7 +52,7 @@ export default {
     DELETE_COMPONENT: `${CONSOLE_BASE_URL}/component/delete`,
     DELETE_KERBEROS: `${CONSOLE_BASE_URL}/component/rmKerberosConfig`, // 删除Haddop Kerberos认证文件
     ADD_ENGINE: `${CONSOLE_BASE_URL}/engine/addEngine`,
-    UPDATE_HADOOP_VERSION: `${CONSOLE_BASE_URL}/cluster/updateHadoopVersion`, // 更新hadoop版本
+    UPDATE_CLUSTER_VERSION: `${CONSOLE_BASE_URL}/cluster/updateGlobalConfig`, // 更新hadoop版本
     // 资源管理
     GET_ALL_CLUSTER: `${CONSOLE_BASE_URL}/cluster/getAllCluster`,
     SEARCH_TENANT: `${CONSOLE_BASE_URL}/tenant/pageQuery`,

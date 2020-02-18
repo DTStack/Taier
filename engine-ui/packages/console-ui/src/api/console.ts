@@ -129,8 +129,8 @@ export default {
     getClusterInfo (params: any) {
         return http.post(req.GET_CLUSTER_INFO, params);
     },
-    updateHadoopVersion (params: { clusterId: number; hadoopVersion: string }) {
-        return http.post(req.UPDATE_HADOOP_VERSION, params);
+    updateClusterVersion (params: { clusterId: number; hadoopVersion: string; syncType: number /* 同步元数据组件类型 */ }) {
+        return http.post(req.UPDATE_CLUSTER_VERSION, params);
     },
     // 资源管理
     getAllCluster (params?: any) {
