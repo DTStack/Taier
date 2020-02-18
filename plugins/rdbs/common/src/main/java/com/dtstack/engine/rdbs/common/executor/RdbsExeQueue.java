@@ -173,16 +173,13 @@ public class RdbsExeQueue {
 
         private String taskParams;
 
-        private JobClient jobClient;
-
-        public RdbsExe(String jobName, String sql, String jobId, JobClient client){
-            this(jobName, sql, jobId, null, client);
+        public RdbsExe(String jobName, String sql, String jobId){
+            this(jobName, sql, jobId, null);
         }
 
-        public RdbsExe(String jobName, String sql, String jobId, String taskParams, JobClient client){
+        public RdbsExe(String jobName, String sql, String jobId, String taskParams){
             this.jobName = jobName;
             this.taskParams = taskParams;
-            this.jobClient = client;
             if (connFactory.supportProcedure()) {
                 jobSqlProc =  createSqlProc(sql, jobName, jobId);
             } else {
@@ -399,7 +396,7 @@ public class RdbsExeQueue {
                     String sql = jobClient.getSql();
                     String jobId = jobClient.getTaskId();
 
-                    RdbsExe rdbsExe = new RdbsExe(taskName, sql, jobId, jobClient.getTaskParams(), jobClient);
+                    RdbsExe rdbsExe = new RdbsExe(taskName, sql, jobId, jobClient.getTaskParams());
                     try{
                         jobExecutor.submit(rdbsExe);
                         threadCache.put(jobId, rdbsExe);
