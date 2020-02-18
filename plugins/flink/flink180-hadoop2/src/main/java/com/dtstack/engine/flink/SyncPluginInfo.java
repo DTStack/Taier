@@ -29,9 +29,9 @@ public class SyncPluginInfo {
 
     public static final String fileSP = File.separator;
 
-    public static final String syncPluginDirName = "syncplugin";
+    public static final String SYNC_PLUGIN_DIR_NAME = "syncplugin";
 
-    private static final String coreJarNamePrefix = "flinkx";
+    private static final String CORE_JAR_NAME_PREFIX = "flinkx";
 
     //同步模块在flink集群加载插件
     private String flinkRemoteSyncPluginRoot;
@@ -100,7 +100,7 @@ public class SyncPluginInfo {
             File[] jarFiles = pluginDir.listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
-                    return name.toLowerCase().startsWith(coreJarNamePrefix) && name.toLowerCase().endsWith(".jar");
+                    return name.toLowerCase().startsWith(CORE_JAR_NAME_PREFIX) && name.toLowerCase().endsWith(".jar");
                 }
             });
 
@@ -117,7 +117,7 @@ public class SyncPluginInfo {
     }
 
     public String getSyncPluginDir(String pluginRoot){
-        return pluginRoot + fileSP + syncPluginDirName;
+        return pluginRoot + fileSP + SYNC_PLUGIN_DIR_NAME;
     }
 
     // 数据同步专用: 获取flink端插件classpath, 在programArgsList中添加engine端plugin根目录
@@ -129,7 +129,7 @@ public class SyncPluginInfo {
 
         int i = 0;
         for(; i < programArgList.size() - 1; ++i){
-            if(programArgList.get(i).equals("-job") || programArgList.get(i).equals("--job")){
+            if("-job".equals(programArgList.get(i)) || "--job".equals(programArgList.get(i))){
                 break;
             }
         }

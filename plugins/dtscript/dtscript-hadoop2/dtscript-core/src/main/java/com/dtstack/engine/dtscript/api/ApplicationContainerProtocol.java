@@ -8,7 +8,7 @@ import org.apache.hadoop.ipc.VersionedProtocol;
 
 public interface ApplicationContainerProtocol extends VersionedProtocol {
 
-  long versionID = 1090L;
+  long VERSION_ID = 1090L;
 
   HeartbeatResponse heartbeat(DtContainerId containerId, HeartbeatRequest heartbeatRequest);
 

@@ -19,12 +19,12 @@ public class DtScriptUtil {
 
         String appType = null;
         for (int i = 0; i < args.size() - 1; ++i) {
-            if (args.get(i).equals("--app-type")) {
+            if ("--app-type".equals(args.get(i))) {
                 appType = args.get(i + 1);
             }
         }
         for (int i = 0; i < args.size() - 1; ++i) {
-            if (args.get(i).equals("--launch-cmd") || args.get(i).equals("--cmd-opts")) {
+            if ("--launch-cmd".equals(args.get(i)) || "--cmd-opts".equals(args.get(i))) {
                 if (!AppTypeEnum.JLOGSTASH.name().equalsIgnoreCase(appType)) {
                     args.set(i + 1, new String(decoder.decodeBuffer(args.get(i + 1)), "UTF-8"));
                 }

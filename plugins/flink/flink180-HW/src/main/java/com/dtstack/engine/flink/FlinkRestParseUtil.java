@@ -78,27 +78,27 @@ public class FlinkRestParseUtil {
                         if (name == null) {
                             continue;
                         }
-                        if(name.equals("numRead")) {
+                        if("numRead".equals(name)) {
                             perfMap.put("numRead", Long.valueOf(value));
-                        } else if(name.equals("numWrite")) {
+                        } else if("numWrite".equals(name)) {
                             perfMap.put("numWrite", Long.valueOf(value));
-                        } else if(name.equals("nErrors")) {
+                        } else if("nErrors".equals(name)) {
                             perfMap.put("numError", Long.valueOf(value));
-                        } else if(name.equals("nullErrors")){
+                        } else if("nullErrors".equals(name)){
                             perfMap.put("nullErrors", Long.valueOf(value));
-                        } else if(name.equals("duplicateErrors")){
+                        } else if("duplicateErrors".equals(name)){
                             perfMap.put("duplicateErrors", Long.valueOf(value));
-                        } else if(name.equals("conversionErrors")){
+                        } else if("conversionErrors".equals(name)){
                             perfMap.put("conversionErrors", Long.valueOf(value));
-                        } else if(name.equals("otherErrors")){
+                        } else if("otherErrors".equals(name)){
                             perfMap.put("otherErrors", Long.valueOf(value));
-                        } else if(name.equals("tableCol")){
+                        } else if("tableCol".equals(name)){
                             String[] tableCol = value.split("-");
                             increConfMap.put("table",tableCol[0]);
                             increConfMap.put("increColumn",tableCol[1]);
-                        } else if(name.equals("endLocation")){
+                        } else if("endLocation".equals(name)){
                             increConfMap.put("endLocation",value);
-                        } else if(name.equals("startLocation")){
+                        } else if("startLocation".equals(name)){
                             increConfMap.put("startLocation",value);
                         }
                     }

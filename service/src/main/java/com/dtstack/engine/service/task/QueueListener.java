@@ -22,7 +22,7 @@ public class QueueListener implements Runnable{
 
 	private static final Logger logger = LoggerFactory.getLogger(QueueListener.class);
 
-	private final static int listener = 5 * 1000;
+	private final static int LISTENER = 5 * 1000;
 
     private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 
@@ -53,7 +53,7 @@ public class QueueListener implements Runnable{
                 logger.error("QueueListener error:{}",ExceptionUtil.getErrorMessage(e));
             }finally {
                 try {
-                    Thread.sleep(listener);
+                    Thread.sleep(LISTENER);
                 } catch (InterruptedException e1) {
                     logger.error("", e1);
                 }

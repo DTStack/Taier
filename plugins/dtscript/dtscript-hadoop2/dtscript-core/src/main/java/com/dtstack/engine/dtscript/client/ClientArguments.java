@@ -511,7 +511,7 @@ public class ClientArguments {
             appName = commandLine.getOptionValue("app-name");
         }
 
-        if (appName.trim().equals("")) {
+        if ("".equals(appName.trim())) {
             appName = "XLearning-" + System.currentTimeMillis();
         }
 

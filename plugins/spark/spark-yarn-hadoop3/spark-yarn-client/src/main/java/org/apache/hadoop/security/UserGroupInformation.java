@@ -378,7 +378,7 @@ public class UserGroupInformation {
       System.getProperty("os.name").startsWith("Windows");
   private static final boolean is64Bit =
       System.getProperty("os.arch").contains("64");
-  private static final boolean aix = System.getProperty("os.name").equals("AIX");
+  private static final boolean aix = "AIX".equals(System.getProperty("os.name"));
 
   /* Return the OS login module class name */
   private static String getOSLoginModuleName() {

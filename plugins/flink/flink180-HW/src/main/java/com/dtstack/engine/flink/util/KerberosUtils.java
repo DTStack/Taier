@@ -390,7 +390,7 @@ public class KerberosUtils {
 
     public static String getServerPrincipal(String principalConfig, String hostname) throws IOException {
         String[] components = getComponents(principalConfig);
-        return components != null && components.length == 3 && components[1].equals("_HOST") ? replacePattern(components, hostname) : principalConfig;
+        return components != null && components.length == 3 && "_HOST".equals(components[1]) ? replacePattern(components, hostname) : principalConfig;
     }
 
     private static String[] getComponents(String principalConfig) {
@@ -399,7 +399,7 @@ public class KerberosUtils {
 
     private static String replacePattern(String[] components, String hostname) throws IOException {
         String fqdn = hostname;
-        if (hostname == null || hostname.isEmpty() || hostname.equals("0.0.0.0")) {
+        if (hostname == null || hostname.isEmpty() || "0.0.0.0".equals(hostname)) {
             fqdn = getLocalHostName();
         }
 

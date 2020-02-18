@@ -19,13 +19,13 @@ import java.util.SimpleTimeZone;
  */
 public class DateUtil {
 
-    static final String timeZone = "GMT+8";
-    static final String datetimeFormat = "yyyy-MM-dd HH:mm:ss";
-    static final String dateFormat = "yyyy-MM-dd";
-    static final String timeFormat = "HH:mm:ss";
-    static final SimpleDateFormat datetimeFormatter = new SimpleDateFormat(datetimeFormat);
-    static final SimpleDateFormat dateFormatter = new SimpleDateFormat(dateFormat);
-    static final SimpleDateFormat timeFormatter = new SimpleDateFormat(timeFormat);
+    static final String TIME_ZONE = "GMT+8";
+    static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    static final String DATE_FORMAT = "yyyy-MM-dd";
+    static final String TIME_FORMAT = "HH:mm:ss";
+    static final SimpleDateFormat datetimeFormatter = new SimpleDateFormat(DATE_TIME_FORMAT);
+    static final SimpleDateFormat dateFormatter = new SimpleDateFormat(DATE_FORMAT);
+    static final SimpleDateFormat timeFormatter = new SimpleDateFormat(TIME_FORMAT);
 
     public static java.sql.Date columnToDate(Object column) {
         if(column instanceof String) {
@@ -96,9 +96,9 @@ public class DateUtil {
      * @return
      */
     public static long getTodayStart(long day,String scope) {
-    	if(scope.equals("MS")){
+    	if("MS".equals(scope)){
     		return getTodayStart(day)*1000;
-    	}else if(scope.equals("S")){
+    	}else if("S".equals(scope)){
     		return getTodayStart(day);
     	}else{
     		return getTodayStart(day);
@@ -134,9 +134,9 @@ public class DateUtil {
      * @return
      */
     public static long getNextDayStart(long day,String scope) {
-    	if(scope.equals("MS")){
+    	if("MS".equals(scope)){
     		return getNextDayStart(day)*1000;
-    	}else if(scope.equals("S")){
+    	}else if("S".equals(scope)){
     		return getNextDayStart(day);
     	}else{
     		return getNextDayStart(day);
@@ -474,11 +474,11 @@ public class DateUtil {
     	if(condition==null){
     		return getMillToDay(cal,dateT);
     	}
-        if(condition.equals("-")){
+        if("-".equals(condition)){
         	dateT = (cal.get(Calendar.DATE) - severalDays);
         	return getMillToDay(cal,dateT);
         }
-        if(condition.equals("+")){
+        if("+".equals(condition)){
         	dateT = (cal.get(Calendar.DATE) + severalDays);
         	return getMillToDay(cal,dateT);
         }
@@ -500,11 +500,11 @@ public class DateUtil {
     	if(condition==null){
     		return getStampToDay(cal,dateT);
     	}
-    	if(condition.equals("-")){
+    	if("-".equals(condition)){
     		dateT = (cal.get(Calendar.DATE) - severalDays);
     		return getStampToDay(cal,dateT);
     	}
-    	if(condition.equals("+")){
+    	if("+".equals(condition)){
     		dateT = (cal.get(Calendar.DATE) + severalDays);
     		return getStampToDay(cal,dateT);
     	}

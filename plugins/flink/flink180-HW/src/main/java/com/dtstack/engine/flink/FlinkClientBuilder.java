@@ -404,6 +404,6 @@ public class FlinkClientBuilder {
     }
 
     public String buildSyncPluginDir(String pluginRoot){
-        return pluginRoot +  SyncPluginInfo.fileSP + SyncPluginInfo.syncPluginDirName;
+        return pluginRoot +  SyncPluginInfo.fileSP + SyncPluginInfo.SYNC_PLUGIN_DIR_NAME;
     }
 }

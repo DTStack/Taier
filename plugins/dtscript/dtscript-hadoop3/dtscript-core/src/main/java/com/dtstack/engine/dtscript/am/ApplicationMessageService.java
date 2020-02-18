@@ -92,7 +92,7 @@ public class ApplicationMessageService extends AbstractService implements
 
   @Override
   public long getProtocolVersion(String protocol, long clientVersion) throws IOException {
-    return versionID;
+    return VERSION_ID;
   }
 
   @Override
