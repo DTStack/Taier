@@ -383,6 +383,7 @@ public class FlinkClient extends AbsClient {
                 return submitSqlJobForBatch(jobClient);
             case STREAM:
                 return submitSqlJobForStream(jobClient);
+            default:
 
         }
 

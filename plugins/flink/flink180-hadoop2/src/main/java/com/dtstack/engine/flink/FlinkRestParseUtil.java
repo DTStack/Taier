@@ -72,13 +72,13 @@ public class FlinkRestParseUtil {
                         if (name == null) {
                             continue;
                         }
-                        if(name.equals("tableCol")){
+                        if("tableCol".equals(name)){
                             String[] tableCol = value.split("-");
                             increConfMap.put("table",tableCol[0]);
                             increConfMap.put("increColumn",tableCol[1]);
-                        } else if(name.equals("endLocation")){
+                        } else if("endLocation".equals(name)){
                             increConfMap.put("endLocation",value);
-                        } else if(name.equals("startLocation")){
+                        } else if("startLocation".equals(name)){
                             increConfMap.put("startLocation",value);
                         }
                     }
