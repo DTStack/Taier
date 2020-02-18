@@ -101,8 +101,9 @@ public class DtStringUtil {
      * @return 返回压缩后的文本
      */
     public static final String zip(String str) {
-        if (str == null)
+        if (str == null) {
             return null;
+        }
         byte[] compressed;
         ByteArrayOutputStream out = null;
         ZipOutputStream zout = null;

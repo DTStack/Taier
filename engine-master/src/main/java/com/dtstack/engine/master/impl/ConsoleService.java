@@ -114,8 +114,8 @@ public class ConsoleService {
                 return null;
             }
             JobClient theJob = idxNode.getItem();
-            Map<String, Object> theJobMap = PublicUtil.ObjectToMap(theJob);
-            setJobFromDB(type, theJob.getTaskId(), theJobMap);
+            Map<String, Object> theJobMap = PublicUtil.objectToMap(theJob);
+            setJobFromDb(type, theJob.getTaskId(), theJobMap);
             theJobMap.put("generateTime", theJob.getGenerateTime());
 
             Map<String, Object> result = new HashMap<>();
@@ -207,8 +207,8 @@ public class ConsoleService {
                 JobClient jobClient = jobIt.next();
                 c++;
                 if (startIndex < c && pageSize-- > 0) {
-                    Map<String, Object> jobMap = PublicUtil.ObjectToMap(jobClient);
-                    setJobFromDB(jobClient.getComputeType(), jobClient.getTaskId(), jobMap);
+                    Map<String, Object> jobMap = PublicUtil.objectToMap(jobClient);
+                    setJobFromDb(jobClient.getComputeType(), jobClient.getTaskId(), jobMap);
                     jobMap.put("generateTime", jobClient.getGenerateTime());
                     topN.add(jobMap);
                 }
@@ -265,7 +265,7 @@ public class ConsoleService {
         return false;
     }
 
-    private void setJobFromDB(ComputeType computeType, String jobId, Map<String, Object> jobMap) {
+    private void setJobFromDb(ComputeType computeType, String jobId, Map<String, Object> jobMap) {
         EngineJob engineBatchJob = engineJobDao.getRdosJobByJobId(jobId);
         if (engineBatchJob != null) {
         	Integer status = engineBatchJob.getStatus().intValue();

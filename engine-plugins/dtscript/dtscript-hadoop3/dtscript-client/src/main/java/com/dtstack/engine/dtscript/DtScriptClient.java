@@ -3,7 +3,7 @@ package com.dtstack.engine.dtscript;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MathUtil;
-import com.dtstack.engine.common.AbsClient;
+import com.dtstack.engine.common.AbstractClient;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.EJobType;
@@ -34,7 +34,7 @@ import java.util.*;
  *
  * @author jingzhen
  */
-public class DtScriptClient extends AbsClient {
+public class DtScriptClient extends AbstractClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(DtScriptClient.class);
 

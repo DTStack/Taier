@@ -2,7 +2,7 @@ package com.dtstack.engine.dtscript.client;
 
 import ch.qos.logback.classic.Level;
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
-import com.dtstack.engine.dtscript.common.type.AppType;
+import com.dtstack.engine.dtscript.common.type.AbstractAppType;
 import com.dtstack.engine.dtscript.common.type.DummyType;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -25,15 +25,15 @@ public class ClientArguments {
 
     private Options allOptions;
     String appName;
-    AppType appType;
+    AbstractAppType appType;
     String nodes;
     int amMem;
     int amCores;
     int workerMemory;
-    int workerVCores;
+    int workerVcores;
     int workerNum;
     int psMemory;
-    int psVCores;
+    int psVcores;
     int psNum;
     int appMem;
     int maxAppAttempts;
@@ -73,11 +73,11 @@ public class ClientArguments {
         this.appName = appName;
     }
 
-    public AppType getAppType() {
+    public AbstractAppType getAppType() {
         return appType;
     }
 
-    public void setAppType(AppType appType) {
+    public void setAppType(AbstractAppType appType) {
         this.appType = appType;
     }
 
@@ -113,12 +113,12 @@ public class ClientArguments {
         this.workerMemory = workerMemory;
     }
 
-    public int getWorkerVCores() {
-        return workerVCores;
+    public int getWorkerVcores() {
+        return workerVcores;
     }
 
-    public void setWorkerVCores(int workerVCores) {
-        this.workerVCores = workerVCores;
+    public void setWorkerVcores(int workerVcores) {
+        this.workerVcores = workerVcores;
     }
 
     public int getWorkerNum() {
@@ -145,12 +145,12 @@ public class ClientArguments {
         this.psMemory = psMemory;
     }
 
-    public int getPsVCores() {
-        return psVCores;
+    public int getPsVcores() {
+        return psVcores;
     }
 
-    public void setPsVCores(int psVCores) {
-        this.psVCores = psVCores;
+    public void setPsVcores(int psVcores) {
+        this.psVcores = psVcores;
     }
 
     public int getPsNum() {
@@ -369,7 +369,7 @@ public class ClientArguments {
         amMem = DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY;
         amCores = DtYarnConfiguration.DEFAULT_LEARNING_AM_CORES;
         workerMemory = DtYarnConfiguration.DEFAULT_LEARNING_WORKER_MEMORY;
-        workerVCores = DtYarnConfiguration.DEFAULT_LEARNING_WORKER_VCORES;
+        workerVcores = DtYarnConfiguration.DEFAULT_LEARNING_WORKER_VCORES;
         workerNum = DtYarnConfiguration.DEFAULT_DT_WORKER_NUM;
         appMem = DtYarnConfiguration.DEFAULT_LEARNING_APP_MEMORY;
         pythonVersion = DtYarnConfiguration.DEFAULT_LEARNING_PYTHON_VERSION;
@@ -511,12 +511,12 @@ public class ClientArguments {
             appName = commandLine.getOptionValue("app-name");
         }
 
-        if (appName.trim().equals("")) {
+        if ("".equals(appName.trim())) {
             appName = "XLearning-" + System.currentTimeMillis();
         }
 
         if (commandLine.hasOption("app-type")) {
-            appType = AppType.fromString(commandLine.getOptionValue("app-type").trim());
+            appType = AbstractAppType.fromString(commandLine.getOptionValue("app-type").trim());
         }
 
         if (commandLine.hasOption("nodes")) {
@@ -529,8 +529,8 @@ public class ClientArguments {
         }
 
         if (commandLine.hasOption("am-cores")) {
-            String workerVCoresStr = commandLine.getOptionValue("am-cores");
-            amCores = Integer.parseInt(workerVCoresStr);
+            String workerVcoresStr = commandLine.getOptionValue("am-cores");
+            amCores = Integer.parseInt(workerVcoresStr);
         }
 
         if (commandLine.hasOption("worker-memory")) {
@@ -538,8 +538,8 @@ public class ClientArguments {
         }
 
         if (commandLine.hasOption("worker-cores")) {
-            String workerVCoresStr = commandLine.getOptionValue("worker-cores");
-            workerVCores = Integer.parseInt(workerVCoresStr);
+            String workerVcoresStr = commandLine.getOptionValue("worker-cores");
+            workerVcores = Integer.parseInt(workerVcoresStr);
         }
 
         if (commandLine.hasOption("worker-num")) {

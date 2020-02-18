@@ -50,6 +50,7 @@ public class ClassUtil {
             case "timestamp":
                 return Timestamp.class;
 
+            default:
         }
 
         throw new RdosDefineException("not support for type " + str);

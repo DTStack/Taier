@@ -137,7 +137,7 @@ public class TaskCheckpointDealer implements Runnable {
             StreamTaskCheckpoint thresholdCheckpoint = threshold.get(0);
             streamTaskCheckpointDao.batchDeleteByEngineTaskIdAndCheckpointID(thresholdCheckpoint.getTaskEngineId(), thresholdCheckpoint.getCheckpointID());
         } catch (Exception e){
-            logger.error("taskEngineID Id :{}", taskEngineID);
+            logger.error("taskEngineId Id :{}", taskEngineId);
             logger.error("", e);
         }
 
@@ -147,9 +147,9 @@ public class TaskCheckpointDealer implements Runnable {
         streamTaskCheckpointDao.cleanAllCheckpointByTaskEngineId(taskEngineID);
     }
 
-    public void putTaskEngineIdAndRetainedNum(String taskEngineID, String pluginInfo) {
+    public void putTaskEngineIdAndRetainedNum(String taskEngineId, String pluginInfo) {
         int retainedNum = parseRetainedNum(pluginInfo);
-        taskEngineIdAndRetainedNum.put(taskEngineID, retainedNum);
+        taskEngineIdAndRetainedNum.put(taskEngineId, retainedNum);
 
     }
 
@@ -163,8 +163,8 @@ public class TaskCheckpointDealer implements Runnable {
         return Integer.valueOf(pluginInfoMap.getOrDefault(CHECKPOINT_RETAINED_KEY, 1).toString());
     }
 
-    public boolean existTaskEngineIdAndRetainedNum(String taskEngineID) {
-        return taskEngineIdAndRetainedNum.containsKey(taskEngineID);
+    public boolean existTaskEngineIdAndRetainedNum(String taskEngineId) {
+        return taskEngineIdAndRetainedNum.containsKey(taskEngineId);
     }
 
     public void removeByTaskEngineId(String taskEngineId) {
@@ -345,12 +345,12 @@ public class TaskCheckpointDealer implements Runnable {
             putTaskEngineIdAndRetainedNum(engineTaskId, pluginInfo);
 
             for (Map<String, Object> entity : cpList) {
-                String checkpointID = String.valueOf(entity.get(CHECKPOINT_ID_KEY));
+                String checkpointId = String.valueOf(entity.get(CHECKPOINT_ID_KEY));
                 Long   checkpointTrigger = MathUtil.getLongVal(entity.get(TRIGGER_TIMESTAMP_KEY));
                 String checkpointSavepath = String.valueOf(entity.get(CHECKPOINT_SAVEPATH_KEY));
                 String status = String.valueOf(entity.get(CHECKPOINT_STATUS_KEY));
 
-                String checkpointCacheKey = engineTaskId + SEPARATOR + checkpointID;
+                String checkpointCacheKey = engineTaskId + SEPARATOR + checkpointId;
 
                 if (!StringUtils.equalsIgnoreCase(CHECKPOINT_NOT_EXTERNALLY_ADDRESS_KEY, checkpointSavepath) &&
                         StringUtils.equalsIgnoreCase(CHECKPOINT_COMPLETED_STATUS, status) &&
@@ -372,9 +372,9 @@ public class TaskCheckpointDealer implements Runnable {
 
     private void checkpointIntervalClean(String engineTaskId, Map<String, Object> entity, String pluginInfo) {
         if (!existTaskEngineIdAndRetainedNum(engineTaskId)) {
-            Integer checkpointID = MathUtil.getIntegerVal(entity.get(CHECKPOINT_ID_KEY));
+            Integer checkpointId = MathUtil.getIntegerVal(entity.get(CHECKPOINT_ID_KEY));
 
-            if (null != checkpointID) {
+            if (null != checkpointId) {
                 int retainedNum = parseRetainedNum(pluginInfo);
                 streamTaskCheckpointDao.batchDeleteByEngineTaskIdAndCheckpointID(engineTaskId, MathUtil.getString(checkpointID - retainedNum + 1));
             }

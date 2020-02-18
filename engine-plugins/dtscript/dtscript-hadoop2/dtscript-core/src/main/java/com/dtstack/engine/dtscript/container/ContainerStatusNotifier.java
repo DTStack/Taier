@@ -55,7 +55,7 @@ public class ContainerStatusNotifier implements Runnable {
     }
 
     public void setContainerStatus(DtContainerStatus containerStatus) {
-        this.heartbeatRequest.setXLearningContainerStatus(containerStatus);
+        this.heartbeatRequest.setXlearningContainerStatus(containerStatus);
     }
 
     public void setContainersStartTime(String startTime) {
@@ -67,7 +67,7 @@ public class ContainerStatusNotifier implements Runnable {
     }
 
     public void reportContainerStatusNow(DtContainerStatus containerStatus) {
-        heartbeatRequest.setXLearningContainerStatus(containerStatus);
+        heartbeatRequest.setXlearningContainerStatus(containerStatus);
         heartbeatWithRetry();
     }
 

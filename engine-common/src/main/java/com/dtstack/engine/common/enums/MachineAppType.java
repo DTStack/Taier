@@ -4,8 +4,16 @@ package com.dtstack.engine.common.enums;
  * Created by sishu.yss on 2017/5/22.
  */
 public enum MachineAppType {
-	
-    ENGINE("engine"),WEB("web"),FLINK("flink"),SPARK("spark"),DATAX("datax");
+	//
+    ENGINE("engine"),
+    //
+    WEB("web"),
+    //
+    FLINK("flink"),
+    //
+    SPARK("spark"),
+    //
+    DATAX("datax");
 
     private String type;
 

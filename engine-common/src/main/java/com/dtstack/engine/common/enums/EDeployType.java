@@ -7,8 +7,12 @@ package com.dtstack.engine.common.enums;
  * @author xuchao
  */
 public enum EDeployType {
-
-    STANDALONE(0, "standalone"), YARN(1, "yarn"), MESOS(2, "mesos");
+    //
+    STANDALONE(0, "standalone"),
+    //
+    YARN(1, "yarn"),
+    //
+    MESOS(2, "mesos");
 
     int type;
 

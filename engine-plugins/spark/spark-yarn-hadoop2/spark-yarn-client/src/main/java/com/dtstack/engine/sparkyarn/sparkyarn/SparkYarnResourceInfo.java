@@ -51,12 +51,12 @@ public class SparkYarnResourceInfo extends AbstractYarnResourceInfo {
         int driverMem = DEFAULT_MEM;
         if(properties != null && properties.containsKey(DRIVER_MEM_KEY)){
             String setMemStr = properties.getProperty(DRIVER_MEM_KEY);
-            driverMem = UnitConvertUtil.convert2MB(setMemStr);
+            driverMem = UnitConvertUtil.convert2Mb(setMemStr);
         }
         int driverMemOverhead = DEFAULT_MEM_OVERHEAD;
         if(properties != null && properties.containsKey(DRIVER_MEM_OVERHEAD_KEY)){
             String setMemStr = properties.getProperty(DRIVER_MEM_OVERHEAD_KEY);
-            driverMemOverhead = UnitConvertUtil.convert2MB(setMemStr);
+            driverMemOverhead = UnitConvertUtil.convert2Mb(setMemStr);
         }
         driverMem += driverMemOverhead;
 
@@ -72,12 +72,12 @@ public class SparkYarnResourceInfo extends AbstractYarnResourceInfo {
         int executorMem = DEFAULT_MEM;
         if(properties != null && properties.containsKey(EXECUTOR_MEM_KEY)){
             String setMemStr = properties.getProperty(EXECUTOR_MEM_KEY);
-            executorMem = UnitConvertUtil.convert2MB(setMemStr);
+            executorMem = UnitConvertUtil.convert2Mb(setMemStr);
         }
         int executorMemOverhead = DEFAULT_MEM_OVERHEAD;
         if(properties != null && properties.containsKey(EXECUTOR_MEM_OVERHEAD_KEY)){
             String setMemStr = properties.getProperty(EXECUTOR_MEM_OVERHEAD_KEY);
-            executorMemOverhead = UnitConvertUtil.convert2MB(setMemStr);
+            executorMemOverhead = UnitConvertUtil.convert2Mb(setMemStr);
         }
         executorMem += executorMemOverhead;
 

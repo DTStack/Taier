@@ -48,7 +48,7 @@ public class AddressUtil {
         if (ip.contains(":")) {return true;}
         if (ip.startsWith("127.")) {return true;}
         if (ip.startsWith("169.254.")) {return true;}
-        if (ip.equals("255.255.255.255")) {return true;}
+        if ("255.255.255.255".equals(ip)) {return true;}
         return false;
     }
 
@@ -64,7 +64,7 @@ public class AddressUtil {
         return ret;
     }
 
-    public static String getOneIP(){
+    public static String getOneIp(){
         List<String> ips =   resolveLocalIps();
         return ips.size()>0?ips.get(0):"0.0.0.0";
     }
@@ -105,6 +105,6 @@ public class AddressUtil {
     }
 
     public static void main(String[] args){
-        System.out.print(getOneIP());
+        System.out.print(getOneIp());
     }
 }

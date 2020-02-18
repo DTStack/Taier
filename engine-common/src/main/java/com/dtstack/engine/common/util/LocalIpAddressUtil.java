@@ -65,15 +65,25 @@ public class LocalIpAddressUtil {
 
     public static String getLocalAddress(){
         List<String> ls = resolveLocalIps();
-        if(ls.size()==0) return "127.0.0.1";
+        if(ls.size()==0) {
+            return "127.0.0.1";
+        }
         return ls.get(0);
     }
 
     private static boolean isSpecialIp(String ip) {
-        if (ip.contains(":")) return true;
-        if (ip.startsWith("127.")) return true;
-        if (ip.startsWith("169.254.")) return true;
-        if (ip.equals("255.255.255.255")) return true;
+        if (ip.contains(":")) {
+            return true;
+        }
+        if (ip.startsWith("127.")) {
+            return true;
+        }
+        if (ip.startsWith("169.254.")) {
+            return true;
+        }
+        if (("255.255.255.255").equals(ip)) {
+            return true;
+        }
         return false;
     }
 

@@ -29,9 +29,9 @@ public class SqlPluginInfo {
 
     private static final Logger logger = LoggerFactory.getLogger(SqlPluginInfo.class);
 
-    private static final String sqlPluginDirName = "sqlplugin";
+    private static final String SQL_PLUGIN_DIR_NAME = "sqlplugin";
 
-    private static final String coreJarNamePrefix = "core";
+    private static final String CORE_JAR_NAME_PREFIX = "core";
 
     private static String SP = File.separator;
 
@@ -94,7 +94,7 @@ public class SqlPluginInfo {
     }
 
     public String getSqlPluginDir(String pluginRoot){
-        return pluginRoot + SP + sqlPluginDirName;
+        return pluginRoot + SP + SQL_PLUGIN_DIR_NAME;
     }
 
     public List<String> buildExeArgs(JobClient jobClient) throws IOException {
@@ -136,7 +136,7 @@ public class SqlPluginInfo {
             File[] jarFiles = pluginDir.listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
-                    return name.toLowerCase().startsWith(coreJarNamePrefix) && name.toLowerCase().endsWith(".jar");
+                    return name.toLowerCase().startsWith(CORE_JAR_NAME_PREFIX) && name.toLowerCase().endsWith(".jar");
                 }
             });
 

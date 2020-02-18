@@ -16,9 +16,9 @@ import java.util.List;
  * @author xuchao
  */
 
-public abstract class AbsClient implements IClient{
+public abstract class AbstractClient implements IClient{
 
-    private static final Logger logger = LoggerFactory.getLogger(AbsClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractClient.class);
 
     protected CommonRestartService restartService = new CommonRestartService();
 

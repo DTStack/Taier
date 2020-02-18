@@ -7,7 +7,7 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
 import java.util.List;
 
-public class Python2Type extends AppType {
+public class Python2Type extends AbstractAppType {
 
     @Override
     public String cmdPrefix(YarnConfiguration config) {

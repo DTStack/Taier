@@ -133,7 +133,7 @@ public class JobClient extends OrderObject{
         this.taskId = paramAction.getTaskId();
         this.engineTaskId = paramAction.getEngineTaskId();
         this.applicationId = paramAction.getApplicationId();
-        this.jobType = EJobType.getEJobType(paramAction.getTaskType());
+        this.jobType = EJobType.getEjobType(paramAction.getTaskType());
         this.computeType = ComputeType.getType(paramAction.getComputeType());
         this.externalPath = paramAction.getExternalPath();
         this.engineType = paramAction.getEngineType();

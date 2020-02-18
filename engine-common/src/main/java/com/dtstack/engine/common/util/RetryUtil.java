@@ -1,5 +1,6 @@
 package com.dtstack.engine.common.util;
 
+import com.dtstack.engine.common.CustomThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.List;
@@ -95,8 +96,8 @@ public final class RetryUtil {
      */
     public static ThreadPoolExecutor createThreadPoolExecutor() {
         return new ThreadPoolExecutor(0, 5,
-                60L, TimeUnit.SECONDS,
-                new SynchronousQueue<Runnable>());
+                60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(),
+                new CustomThreadFactory("asyncRetryPool"));
     }
 
 

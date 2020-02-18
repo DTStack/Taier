@@ -4,7 +4,7 @@ package com.dtstack.engine.hadoop;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.common.AbsClient;
+import com.dtstack.engine.common.AbstractClient;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -40,7 +40,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
-public class HadoopClient extends AbsClient {
+public class HadoopClient extends AbstractClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(HadoopClient.class);
     private static final String USER_DIR = System.getProperty("user.dir");

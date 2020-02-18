@@ -21,7 +21,7 @@ public class StatusUpdateDealer implements Runnable {
 
     private final int interval = 2 * 1000;
 
-    private LogStore logstore = LogStoreFactory.getLogStore(null);
+    private AbstractLogStore logstore = LogStoreFactory.getLogStore(null);
 
     private boolean isRun = true;
 

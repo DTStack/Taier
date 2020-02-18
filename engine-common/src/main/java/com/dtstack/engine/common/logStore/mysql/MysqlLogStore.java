@@ -19,7 +19,7 @@ import java.util.Collection;
  * @author xuchao
  */
 
-public class MysqlLogStore extends LogStore {
+public class MysqlLogStore extends AbstractLogStore {
     
     private static final Logger LOG = LoggerFactory.getLogger(MysqlLogStore.class);
 

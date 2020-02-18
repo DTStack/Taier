@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class JLogstashType extends AppType {
+public class JLogstashType extends AbstractAppType {
 
     @Override
     public String buildCmd(ClientArguments clientArguments, YarnConfiguration conf) {
@@ -100,7 +100,7 @@ public class JLogstashType extends AppType {
             String fStr = null;
             int idx = -1;
             for (int i = 0; i < args.length - 1; ++i) {
-                if (args[i].equals("-f")) {
+                if ("-f".equals(args[i])) {
                     fStr = Base64Util.baseDecode(GZipUtil.deCompress(args[i + 1]));
                     idx = i + 1;
                     break;
@@ -113,9 +113,9 @@ public class JLogstashType extends AppType {
                 if (!inputs.isEmpty()) {
                     int i = 1;
                     for (Map input : inputs) {
-                        Iterator<Map.Entry<String, Map>> inputIT = input.entrySet().iterator();
-                        while (inputIT.hasNext()) {
-                            Map.Entry<String, Map> inputEntry = inputIT.next();
+                        Iterator<Map.Entry<String, Map>> inputIt = input.entrySet().iterator();
+                        while (inputIt.hasNext()) {
+                            Map.Entry<String, Map> inputEntry = inputIt.next();
                             String inputType = inputEntry.getKey();
                             Map<String, Object> inputConfig = inputEntry.getValue();
                             if ("Beats".equalsIgnoreCase(inputType)) {

@@ -9,8 +9,10 @@ package com.dtstack.engine.common.enums;
  * @author sishu.yss
  */
 public enum ComputeType {
-
-    STREAM(0), BATCH(1);
+    //
+    STREAM(0),
+    //
+    BATCH(1);
 
     private Integer type;
 

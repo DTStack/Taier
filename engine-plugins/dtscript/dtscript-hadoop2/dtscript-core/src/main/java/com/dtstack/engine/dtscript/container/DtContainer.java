@@ -1,9 +1,8 @@
 package com.dtstack.engine.dtscript.container;
 
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
-import com.dtstack.engine.dtscript.common.DTScriptConstant;
 import com.dtstack.engine.dtscript.common.SecurityUtil;
-import com.dtstack.engine.dtscript.common.type.AppType;
+import com.dtstack.engine.dtscript.common.type.AbstractAppType;
 import com.dtstack.engine.dtscript.api.ApplicationContainerProtocol;
 import com.dtstack.engine.dtscript.api.DtYarnConstants;
 import com.dtstack.engine.dtscript.common.DtContainerStatus;
@@ -11,7 +10,6 @@ import com.dtstack.engine.dtscript.common.LocalRemotePath;
 import com.dtstack.engine.dtscript.common.ReturnValue;
 import com.dtstack.engine.dtscript.common.type.DummyType;
 import com.dtstack.engine.dtscript.util.DebugUtil;
-import com.dtstack.engine.dtscript.util.KerberosUtils;
 import com.dtstack.engine.dtscript.util.Utilities;
 import com.google.common.base.Strings;
 import org.apache.commons.logging.Log;
@@ -23,7 +21,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.ipc.RPC;
-import org.apache.hadoop.net.NetUtils;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.records.ContainerId;
@@ -69,7 +66,7 @@ public class DtContainer {
 
     private FileSystem dfs;
 
-    private final AppType appType;
+    private final AbstractAppType appType;
 
     private final Map<String, Object> containerInfo;
 
@@ -91,7 +88,7 @@ public class DtContainer {
         this.role = envs.get(DtYarnConstants.Environment.XLEARNING_TF_ROLE.toString());
         if (envs.containsKey(DtYarnConstants.Environment.APP_TYPE.toString())) {
             String applicationType = envs.get(DtYarnConstants.Environment.APP_TYPE.toString()).toUpperCase();
-            appType = AppType.fromString(applicationType);
+            appType = AbstractAppType.fromString(applicationType);
         } else {
             appType = new DummyType();
         }
@@ -106,7 +103,7 @@ public class DtContainer {
         try {
             LOG.info("appMasterHost:" + appMasterHost + ", port:" + appMasterPort);
             amClient = RPC.getProxy(ApplicationContainerProtocol.class,
-                    ApplicationContainerProtocol.versionID,
+                    ApplicationContainerProtocol.VERSION_ID,
                     addr,
                     conf);
             LocalRemotePath[] localRemotePaths = amClient.getOutputLocation();

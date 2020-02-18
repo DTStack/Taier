@@ -22,7 +22,7 @@ public class MD5Util {
      * @param str 待加密的字符串
      * @return md5加密后的字符串
      */
-    public static String getMD5String(String str) {
+    public static String getMd5String(String str) {
         byte[] bytes = null;
         try {
             MessageDigest md5 = MessageDigest.getInstance("MD5");
@@ -44,8 +44,8 @@ public class MD5Util {
      * @param str 待加密的字符串
      * @return md5加密后的大写字符串
      */
-    public static String getMD5UpperString(String str) {
-        return getMD5String(str).toUpperCase();
+    public static String getMd5UpperString(String str) {
+        return getMd5String(str).toUpperCase();
     }
 
     /**
@@ -54,7 +54,7 @@ public class MD5Util {
      * @param file 文件对象
      * @return 文件的md5
      */
-    public static String getFileMD5String(File file) {
+    public static String getFileMd5String(File file) {
         String ret = "";
         FileInputStream in = null;
         FileChannel ch = null;
@@ -95,8 +95,8 @@ public class MD5Util {
      * @param file 文件对象
      * @return 文件md5大写字符串
      */
-    public static String getFileMD5UpperString(File file) {
-        return getFileMD5String(file).toUpperCase();
+    public static String getFileMd5UpperString(File file) {
+        return getFileMd5String(file).toUpperCase();
     }
 
     /**
@@ -106,8 +106,8 @@ public class MD5Util {
      * @param md5  基准md5
      * @return 校验结果
      */
-    public static boolean checkFileMD5(File file, String md5) {
-        return getFileMD5String(file).equalsIgnoreCase(md5);
+    public static boolean checkFileMd5(File file, String md5) {
+        return getFileMd5String(file).equalsIgnoreCase(md5);
     }
 
     /**
@@ -117,8 +117,8 @@ public class MD5Util {
      * @param md5 基准md5
      * @return 校验结果
      */
-    public static boolean checkMD5(String str, String md5) {
-        return getMD5String(str).equalsIgnoreCase(md5);
+    public static boolean checkMd5(String str, String md5) {
+        return getMd5String(str).equalsIgnoreCase(md5);
     }
 
     /**
@@ -128,8 +128,8 @@ public class MD5Util {
      * @param salt 盐
      * @return 加盐md5
      */
-    public static String getMD5AndSalt(String str, String salt) {
-        return getMD5String(getMD5String(str).concat(salt));
+    public static String getMd5AndSalt(String str, String salt) {
+        return getMd5String(getMd5String(str).concat(salt));
     }
       /*private static String bytesToHex(byte[] bytes) {
         // 将MD5输出的二进制结果转换为小写的十六进制

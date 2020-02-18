@@ -1,6 +1,6 @@
 package com.dtstack.engine.rdbs.common.executor;
 
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosException;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.rdbs.common.constant.ConfigConstant;
 import com.google.common.base.Preconditions;
@@ -26,13 +26,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author xuchao
  */
 
-public abstract class ConnFactory {
+public abstract class AbstractConnFactory {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ConnFactory.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractConnFactory.class);
 
     private AtomicBoolean isFirstLoaded = new AtomicBoolean(true);
 
-    protected String dbURL;
+    protected String dbUrl;
 
     private String userName;
 
@@ -43,18 +43,18 @@ public abstract class ConnFactory {
     protected String testSql = null;
 
     public void init(Properties properties) throws ClassNotFoundException {
-        synchronized (ConnFactory.class){
+        synchronized (AbstractConnFactory.class){
             if(isFirstLoaded.get()){
                 Class.forName(driverName);
                 isFirstLoaded.set(false);
             }
 
         }
-        dbURL = MathUtil.getString(properties.get(ConfigConstant.DB_URL));
+        dbUrl = MathUtil.getString(properties.get(ConfigConstant.DB_URL));
         userName = MathUtil.getString(properties.get(ConfigConstant.USER_NAME));
         pwd = MathUtil.getString(properties.get(ConfigConstant.PWD));
 
-        Preconditions.checkNotNull(dbURL, "db url can't be null");
+        Preconditions.checkNotNull(dbUrl, "db url can't be null");
         testConn();
     }
 
@@ -73,7 +73,7 @@ public abstract class ConnFactory {
             stmt = conn.createStatement();
             stmt.execute(testSql);
         }catch (Exception e){
-            throw new RdosDefineException("get conn exception:" + e.toString());
+            throw new RdosException("get conn exception:" + e.toString());
         }finally {
 
             try{
@@ -96,9 +96,9 @@ public abstract class ConnFactory {
         Connection conn;
 
         if (userName == null) {
-            conn = DriverManager.getConnection(dbURL);
+            conn = DriverManager.getConnection(dbUrl);
         } else {
-            conn = DriverManager.getConnection(dbURL, userName, pwd);
+            conn = DriverManager.getConnection(dbUrl, userName, pwd);
         }
         return conn;
     }

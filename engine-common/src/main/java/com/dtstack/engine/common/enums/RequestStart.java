@@ -1,8 +1,10 @@
 package com.dtstack.engine.common.enums;
 
 public enum RequestStart {
-	
-    WEB(0),NODE(1);
+	//
+    WEB(0),
+    //
+    NODE(1);
     
     
     private int start;

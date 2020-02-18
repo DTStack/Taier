@@ -131,7 +131,7 @@ public class HadoopConf {
             return;
         }
 
-        MapToConf(conf, yarnConfiguration);
+        mapToConf(conf, yarnConfiguration);
     }
 
     public static Configuration getDefaultConfiguration() {
@@ -160,14 +160,14 @@ public class HadoopConf {
 		return yarnConfiguration;
 	}
 
-	private static void MapToConf(Map<String, Object> map, Configuration config){
+	private static void mapToConf(Map<String, Object> map, Configuration config){
         for (Map.Entry<String, Object> entry : map.entrySet()){
             if (entry.getValue() instanceof String){
                 config.set(entry.getKey(), (String) entry.getValue());
             } else if (entry.getValue() instanceof Boolean){
                 config.setBoolean(entry.getKey(), (Boolean) entry.getValue());
             } else if (entry.getValue() instanceof Map){
-                MapToConf((Map<String, Object>) entry.getValue(), config);
+                mapToConf((Map<String, Object>) entry.getValue(), config);
             }
         }
     }

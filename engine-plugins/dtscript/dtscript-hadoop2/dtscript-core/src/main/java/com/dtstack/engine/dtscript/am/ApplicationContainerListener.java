@@ -170,13 +170,13 @@ public class ApplicationContainerListener
     public HeartbeatResponse heartbeat(DtContainerId containerId, HeartbeatRequest heartbeatRequest) {
 
         try{
-            DtContainerStatus currentContainerStatus = heartbeatRequest.getXLearningContainerStatus();
+            DtContainerStatus currentContainerStatus = heartbeatRequest.getXlearningContainerStatus();
 
             LOG.warn("Received heartbeat from container " + containerId.toString() + ", status is " + currentContainerStatus.toString());
 
             ContainerEntity oldEntity = getLaneOf(containerId);
             if(oldEntity != null) {
-                DtContainerStatus status = heartbeatRequest.getXLearningContainerStatus();
+                DtContainerStatus status = heartbeatRequest.getXlearningContainerStatus();
                 oldEntity.setLastBeatTime(System.currentTimeMillis());
                 if(oldEntity.getDtContainerStatus() != status) {
                     LOG.info("Received heartbeat container status change from container " + containerId.toString() + ", status is " + currentContainerStatus.toString());

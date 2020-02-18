@@ -9,8 +9,10 @@ package com.dtstack.engine.common.enums;
  *
  */
 public enum RdosNodeMachineType {
-	
-	MASTER(0),SLAVE(1);
+	//
+	MASTER(0),
+	//
+	SLAVE(1);
 	
 	private int type ;
 	

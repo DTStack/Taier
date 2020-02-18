@@ -1,9 +1,9 @@
 package com.dtstack.engine.rdbs.postgresql;
 
 
-import com.dtstack.engine.rdbs.common.executor.ConnFactory;
+import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 
-public class PostgreSQLConnFactory extends ConnFactory {
+public class PostgreSQLConnFactory extends AbstractConnFactory {
 
     public PostgreSQLConnFactory() {
         driverName = "org.postgresql.Driver";

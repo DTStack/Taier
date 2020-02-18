@@ -9,7 +9,7 @@ import com.google.common.collect.Queues;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dtstack.engine.common.logStore.LogStore;
+import com.dtstack.engine.common.logStore.AbstractLogStore;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -61,11 +61,11 @@ public class RdbsExeQueue {
     /**缓存所有进入执行引擎的任务---在执行完成删除*/
     private Map<String, JobClient> jobCache = Maps.newConcurrentMap();
 
-    private LogStore logStore = LogStoreFactory.getLogStore(null);
+    private AbstractLogStore logStore = LogStoreFactory.getLogStore(null);
 
-    private ConnFactory connFactory;
+    private AbstractConnFactory connFactory;
 
-    public RdbsExeQueue(ConnFactory connFactory, Integer maxPoolSize, Integer minPoolSize){
+    public RdbsExeQueue(AbstractConnFactory connFactory, Integer maxPoolSize, Integer minPoolSize){
         this.connFactory = connFactory;
         if (maxPoolSize != null) {
             this.maxSize = maxPoolSize;

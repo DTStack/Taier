@@ -3,10 +3,7 @@ package com.dtstack.engine.common.util;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
-import java.util.SimpleTimeZone;
+import java.util.*;
 
 
 /**
@@ -19,13 +16,47 @@ import java.util.SimpleTimeZone;
  */
 public class DateUtil {
 
-    static final String timeZone = "GMT+8";
-    static final String datetimeFormat = "yyyy-MM-dd HH:mm:ss";
-    static final String dateFormat = "yyyy-MM-dd";
-    static final String timeFormat = "HH:mm:ss";
-    static final SimpleDateFormat datetimeFormatter = new SimpleDateFormat(datetimeFormat);
-    static final SimpleDateFormat dateFormatter = new SimpleDateFormat(dateFormat);
-    static final SimpleDateFormat timeFormatter = new SimpleDateFormat(timeFormat);
+    private static final String TIME_ZONE = "GMT+8";
+    private static final String STANDARD_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    private static final String UN_STANDARD_DATETIME_FORMAT = "yyyyMMddHHmmss";
+    private static final String DATE_FORMAT = "yyyy-MM-dd";
+    private static final String TIME_FORMAT = "HH:mm:ss";
+    private static final String YEAR_FORMAT = "yyyy";
+
+    private static final String STANDARD_DATETIME_FORMAT_KEY = "standardDatetimeFormatter";
+    private static final String UN_STANDARD_DATETIME_FORMAT_KEY = "unStandardDatetimeFormatter";
+    private static final String DATE_FORMAT_KEY = "dateFormatter";
+    private static final String TIME_FORMAT_KEY = "timeFormatter";
+    private static final String YEAR_FORMAT_KEY = "yearFormatter";
+    private static final String START_TIME = "1970-01-01";
+
+    public static ThreadLocal<Map<String,SimpleDateFormat>> datetimeFormatter = ThreadLocal.withInitial(() -> {
+        TimeZone timeZone = TimeZone.getTimeZone(TIME_ZONE);
+
+        Map<String, SimpleDateFormat> formatterMap = new HashMap<>();
+
+        SimpleDateFormat standardDatetimeFormatter = new SimpleDateFormat(STANDARD_DATETIME_FORMAT);
+        standardDatetimeFormatter.setTimeZone(timeZone);
+        formatterMap.put(STANDARD_DATETIME_FORMAT_KEY,standardDatetimeFormatter);
+
+        SimpleDateFormat unStandardDatetimeFormatter = new SimpleDateFormat(UN_STANDARD_DATETIME_FORMAT);
+        unStandardDatetimeFormatter.setTimeZone(timeZone);
+        formatterMap.put(UN_STANDARD_DATETIME_FORMAT_KEY,unStandardDatetimeFormatter);
+
+        SimpleDateFormat dateFormatter = new SimpleDateFormat(DATE_FORMAT);
+        dateFormatter.setTimeZone(timeZone);
+        formatterMap.put(DATE_FORMAT_KEY,dateFormatter);
+
+        SimpleDateFormat timeFormatter = new SimpleDateFormat(TIME_FORMAT);
+        timeFormatter.setTimeZone(timeZone);
+        formatterMap.put(TIME_FORMAT_KEY,timeFormatter);
+
+        SimpleDateFormat yearFormatter = new SimpleDateFormat(YEAR_FORMAT);
+        yearFormatter.setTimeZone(timeZone);
+        formatterMap.put(YEAR_FORMAT_KEY,yearFormatter);
+
+        return formatterMap;
+    });
 
     public static java.sql.Date columnToDate(Object column) {
         if(column instanceof String) {
@@ -46,25 +77,63 @@ public class DateUtil {
     }
 
     public static Date stringToDate(String strDate)  {
-        if(strDate == null){
+        if(strDate == null || strDate.trim().length() == 0) {
             return null;
         }
         try {
-            return datetimeFormatter.parse(strDate);
+            return datetimeFormatter.get().get(STANDARD_DATETIME_FORMAT_KEY).parse(strDate);
         } catch (ParseException ignored) {
         }
 
         try {
-            return dateFormatter.parse(strDate);
+            return datetimeFormatter.get().get(UN_STANDARD_DATETIME_FORMAT_KEY).parse(strDate);
         } catch (ParseException ignored) {
         }
 
         try {
-            return timeFormatter.parse(strDate);
+            return datetimeFormatter.get().get(DATE_FORMAT_KEY).parse(strDate);
+        } catch (ParseException ignored) {
+        }
+
+        try {
+            return datetimeFormatter.get().get(TIME_FORMAT_KEY).parse(strDate);
+        } catch (ParseException ignored) {
+        }
+
+        try {
+            return datetimeFormatter.get().get(YEAR_FORMAT_KEY).parse(strDate);
         } catch (ParseException ignored) {
         }
 
         throw new RuntimeException("can't parse date");
+    }
+
+    public static String dateToString(Date date) {
+        return datetimeFormatter.get().get(DATE_FORMAT_KEY).format(date);
+    }
+
+    public static String timestampToString(Date date) {
+        return datetimeFormatter.get().get(STANDARD_DATETIME_FORMAT_KEY).format(date);
+    }
+
+    public static String dateToYearString(Date date) {
+        return datetimeFormatter.get().get(YEAR_FORMAT_KEY).format(date);
+    }
+
+    public static SimpleDateFormat getDateTimeFormatter(){
+        return datetimeFormatter.get().get(STANDARD_DATETIME_FORMAT_KEY);
+    }
+
+    public static SimpleDateFormat getDateFormatter(){
+        return datetimeFormatter.get().get(DATE_FORMAT_KEY);
+    }
+
+    public static SimpleDateFormat getTimeFormatter(){
+        return datetimeFormatter.get().get(TIME_FORMAT_KEY);
+    }
+
+    public static SimpleDateFormat getYearFormatter(){
+        return datetimeFormatter.get().get(YEAR_FORMAT_KEY);
     }
 
     /**
@@ -96,9 +165,9 @@ public class DateUtil {
      * @return
      */
     public static long getTodayStart(long day,String scope) {
-    	if(scope.equals("MS")){
+    	if("MS".equals(scope)){
     		return getTodayStart(day)*1000;
-    	}else if(scope.equals("S")){
+    	}else if("S".equals(scope)){
     		return getTodayStart(day);
     	}else{
     		return getTodayStart(day);
@@ -134,9 +203,9 @@ public class DateUtil {
      * @return
      */
     public static long getNextDayStart(long day,String scope) {
-    	if(scope.equals("MS")){
+    	if("MS".equals(scope)){
     		return getNextDayStart(day)*1000;
-    	}else if(scope.equals("S")){
+    	}else if("S".equals(scope)){
     		return getNextDayStart(day);
     	}else{
     		return getNextDayStart(day);
@@ -474,11 +543,11 @@ public class DateUtil {
     	if(condition==null){
     		return getMillToDay(cal,dateT);
     	}
-        if(condition.equals("-")){
+        if("-".equals(condition)){
         	dateT = (cal.get(Calendar.DATE) - severalDays);
         	return getMillToDay(cal,dateT);
         }
-        if(condition.equals("+")){
+        if("+".equals(condition)){
         	dateT = (cal.get(Calendar.DATE) + severalDays);
         	return getMillToDay(cal,dateT);
         }
@@ -500,11 +569,11 @@ public class DateUtil {
     	if(condition==null){
     		return getStampToDay(cal,dateT);
     	}
-    	if(condition.equals("-")){
+    	if("-".equals(condition)){
     		dateT = (cal.get(Calendar.DATE) - severalDays);
     		return getStampToDay(cal,dateT);
     	}
-    	if(condition.equals("+")){
+    	if("+".equals(condition)){
     		dateT = (cal.get(Calendar.DATE) + severalDays);
     		return getStampToDay(cal,dateT);
     	}
@@ -621,8 +690,9 @@ public class DateUtil {
      * @throws ParseException 
      */
     public static String longToString(long day, String format) throws ParseException {
-    	if (("" + day).length() <= 10)
-    		day=day*1000;
+    	if (("" + day).length() <= 10){
+            day=day*1000;
+        }
     	SimpleDateFormat dateFormat = new SimpleDateFormat(format);
 	    String Date = dateFormat.format(day);
     	return Date;

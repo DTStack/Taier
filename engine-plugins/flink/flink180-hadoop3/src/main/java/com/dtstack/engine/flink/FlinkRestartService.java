@@ -31,7 +31,7 @@ public class FlinkRestartService extends CommonRestartService {
 
     private Cache<String, String> jobErrorInfoCache = CacheBuilder.newBuilder().maximumSize(50).expireAfterWrite(5 * 60, TimeUnit.SECONDS).build();
 
-    public String getErrorMsgByURL(JobIdentifier jobIdentifier, IClient client) {
+    public String getErrorMsgByUrl(JobIdentifier jobIdentifier, IClient client) {
         String errorLog = null;
         try {
             errorLog = jobErrorInfoCache.get(jobIdentifier.getEngineJobId(), () -> {
@@ -64,7 +64,7 @@ public class FlinkRestartService extends CommonRestartService {
     @Override
     public IJobRestartStrategy getAndParseErrorLog(String jobId, String engineJobId, String appId, IClient client) {
         JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineJobId, appId, jobId);
-        String msg = getErrorMsgByURL(jobIdentifier, client);
+        String msg = getErrorMsgByUrl(jobIdentifier, client);
         return parseErrorLog(msg);
     }
 

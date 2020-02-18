@@ -6,7 +6,7 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.common.AbsClient;
+import com.dtstack.engine.common.AbstractClient;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -67,7 +67,6 @@ import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -81,7 +80,7 @@ import static java.security.AccessController.doPrivileged;
  * Company: www.dtstack.com
  * @author xuchao
  */
-public class FlinkClient extends AbsClient {
+public class FlinkClient extends AbstractClient {
 
     private static final Logger logger = LoggerFactory.getLogger(FlinkClient.class);
 
@@ -139,7 +138,7 @@ public class FlinkClient extends AbsClient {
         initYarnClient();
 
         flinkClientBuilder = FlinkClientBuilder.create(flinkConfig, hadoopConf, yarnConf, yarnClient);
-        flinkClientBuilder.initFLinkConfiguration(flinkExtProp);
+        flinkClientBuilder.initFlinkConfiguration(flinkExtProp);
 
         flinkClusterClientManager = FlinkClusterClientManager.createWithInit(flinkClientBuilder);
     }
@@ -381,6 +380,7 @@ public class FlinkClient extends AbsClient {
                 return submitSqlJobForBatch(jobClient);
             case STREAM:
                 return submitSqlJobForStream(jobClient);
+            default:
 
         }
 
