@@ -74,6 +74,10 @@ public class GroupPriorityQueue {
             logger.info("jobId:{} unable add to queue, because queue is blocked.", jobClient.getTaskId());
             return;
         }
+        addRedirect(jobClient);
+    }
+
+    public void addRedirect(JobClient jobClient) throws InterruptedException {
         if (queue.contains(jobClient)) {
             logger.info("jobId:{} unable add to queue, because jobId already exist.", jobClient.getTaskId());
             return;

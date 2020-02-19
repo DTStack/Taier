@@ -46,8 +46,7 @@
 
     <select id="listNames" resultType="java.lang.String">
         select job_name from rdos_engine_job_cache
-        where job_name like '%${jobName}%' and compute_type = #{computeType}
-        and stage = 1 and is_deleted=0;
+        where job_name like '%${jobName}%' and is_deleted=0;
     </select>
 
     <select id="countByStage" resultType="java.lang.Integer">
@@ -94,5 +93,33 @@
         and is_deleted=0
         order by id, job_priority asc
         limit 500;
+    </select>
+
+    <select id="getJobResources" resultType="java.lang.String">
+        SELECT DISTINCT(job_resource) as jobResource
+        FROM rdos_engine_job_cache
+        WHERE is_deleted = 0
+    </select>
+
+    <select id="groupByJobResource" resultType="java.util.HashMap">
+        SELECT
+        job_resource as jobResource,
+        min(gmt_create) as generateTime,
+        count(1) as jobSize
+        FROM rdos_engine_job_cache
+        WHERE stage != 4 and is_deleted = 0
+        group by job_resource
+    </select>
+
+    <select id="countByJobResource" resultType="java.lang.Long">
+        SELECT
+        count(1) as count
+        FROM rdos_engine_job_cache
+        WHERE job_resource = #{jobResource} and is_deleted = 0
+    </select>
+
+    <select id="listByJobResource" resultType="EngineJobCache">
+        SELECT * FROM rdos_engine_job_cache
+        WHERE job_resource = #{jobResource} and is_deleted = 0
     </select>
 </mapper>

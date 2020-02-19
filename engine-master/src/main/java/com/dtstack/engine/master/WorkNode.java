@@ -150,11 +150,11 @@ public class WorkNode implements InitializingBean {
             updateJobClientPluginInfo(jobClient.getTaskId(), computeType, jobClient.getPluginInfo());
         }
         jobClient.setCallBack((jobStatus)-> {
-            updateJobStatus(jobClient.getTaskId(), computeType, jobStatus);
+            updateJobStatus(jobClient.getTaskId(), jobStatus);
         });
 
         saveCache(jobClient, jobResource, EJobCacheStage.DB.getStage(), insert);
-        updateJobStatus(jobClient.getTaskId(), computeType, RdosTaskStatus.WAITENGINE.getStatus());
+        jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
 
         //加入节点的优先级队列
         this.redirectSubmitJob(jobResource, jobClient);
@@ -220,7 +220,7 @@ public class WorkNode implements InitializingBean {
     }
 
 
-    private void updateJobStatus(String jobId, Integer computeType, Integer status) {
+    public void updateJobStatus(String jobId, Integer status) {
         engineJobDao.updateJobStatus(jobId, status);
         LOG.info("jobId:{} update job status to {}", jobId, status);
     }
@@ -386,7 +386,7 @@ public class WorkNode implements InitializingBean {
                         ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                         JobClient jobClient = new JobClient(paramAction);
                         jobClient.setCallBack((jobStatus)-> {
-                            updateJobStatus(jobClient.getTaskId(), jobClient.getComputeType().getType(), jobStatus);
+                            updateJobStatus(jobClient.getTaskId(), jobStatus);
                         });
                         groupPriorityQueue.add(jobClient);
                         LOG.info("jobId:{} load from db, emit job to queue.", jobClient.getTaskId());

@@ -4,6 +4,7 @@ import com.dtstack.engine.domain.EngineJobCache;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * company: www.dtstack.com
@@ -27,7 +28,7 @@ public interface EngineJobCacheDao {
 
     List<EngineJobCache> getByJobIds(@Param("jobIds") List<String> jobIds);
 
-    List<String> listNames(@Param("computeType") Integer computeType,@Param("jobName") String jobName);
+    List<String> listNames(@Param("jobName") String jobName);
 
     int countByStage(@Param("jobResource") String jobResource, @Param("stages") List<Integer> stages, @Param("nodeAddress") String nodeAddress);
 
@@ -38,4 +39,12 @@ public interface EngineJobCacheDao {
     Integer updateNodeAddress(@Param("nodeAddress") String nodeAddress, @Param("jobIds") List<String> ids);
 
     List<EngineJobCache> listByFailover(@Param("startId") Long id, @Param("nodeAddress") String nodeAddress);
+
+    List<String> getJobResources();
+
+    List<Map<String,Object>> groupByJobResource();
+
+    Long countByJobResource(@Param("jobResource") String jobResource);
+
+    List<EngineJobCache> listByJobResource(@Param("jobResource") String jobResource);
 }
