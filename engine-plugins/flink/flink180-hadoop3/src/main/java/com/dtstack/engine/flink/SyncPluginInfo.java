@@ -28,7 +28,7 @@ public class SyncPluginInfo {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncPluginInfo.class);
 
-    public static final String fileSP = File.separator;
+    public static final String FILE_SP = File.separator;
 
     public static final String SYNC_PLUGIN_DIR_NAME = "syncplugin";
 
@@ -89,7 +89,7 @@ public class SyncPluginInfo {
     public JarFileInfo createAddJarInfo(){
         JarFileInfo jarFileInfo = new JarFileInfo();
         String coreJarFileName = getCoreJarFileName();
-        String jarFilePath  = localSyncFileDir + fileSP + coreJarFileName;
+        String jarFilePath  = localSyncFileDir + FILE_SP + coreJarFileName;
         jarFileInfo.setJarPath(jarFilePath);
         return jarFileInfo;
     }
@@ -118,7 +118,7 @@ public class SyncPluginInfo {
     }
 
     public String getSyncPluginDir(String pluginRoot){
-        return pluginRoot + fileSP + SYNC_PLUGIN_DIR_NAME;
+        return pluginRoot + FILE_SP + SYNC_PLUGIN_DIR_NAME;
     }
 
     // 数据同步专用: 获取flink端插件classpath, 在programArgsList中添加engine端plugin根目录

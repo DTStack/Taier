@@ -14,7 +14,7 @@ import java.util.Map;
 
 public abstract class AbstractAppType {
 
-    protected static final ObjectMapper objectMapper = new ObjectMapper();
+    protected static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     protected static final Logger buildCmdLog = LoggerFactory.getLogger(AbstractAppType.class);
 

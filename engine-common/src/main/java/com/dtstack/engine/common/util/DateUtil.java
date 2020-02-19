@@ -660,8 +660,8 @@ public class DateUtil {
      */
     public static long stringToLong(String day, String format) throws ParseException {
     	SimpleDateFormat dateFormat = new SimpleDateFormat(format);
-        long Date = dateFormat.parse(day).getTime();
-    	return Date;
+        long date = dateFormat.parse(day).getTime();
+    	return date;
     }
     
     /**
@@ -674,8 +674,8 @@ public class DateUtil {
     public static Date stringToDate(String day, String format)  {
     	try {
 			SimpleDateFormat dateFormat = new SimpleDateFormat(format);
-			 Date Date = dateFormat.parse(day);
-			return Date;
+			 Date date = dateFormat.parse(day);
+			return date;
 		} catch (ParseException e) {
 			return new Date();
 		}
@@ -694,8 +694,8 @@ public class DateUtil {
             day=day*1000;
         }
     	SimpleDateFormat dateFormat = new SimpleDateFormat(format);
-	    String Date = dateFormat.format(day);
-    	return Date;
+	    String date = dateFormat.format(day);
+    	return date;
     }
 
     /**

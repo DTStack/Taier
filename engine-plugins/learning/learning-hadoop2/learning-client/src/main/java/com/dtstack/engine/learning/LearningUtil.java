@@ -15,14 +15,14 @@ import java.util.List;
 
 public class LearningUtil {
 
-    private static final BASE64Decoder decoder = new BASE64Decoder();
+    private static final BASE64Decoder DECODER = new BASE64Decoder();
 
     public static String[] buildPythonArgs(JobClient jobClient) throws IOException {
         String exeArgs = jobClient.getClassArgs();
         String[] args = exeArgs.split("\\s+");
         for(int i = 0; i < args.length - 1; ++i) {
             if("--launch-cmd".equals(args[i]) || "--cmd-opts".equals(args[i]) || "--remote-dfs-config".equals(args[i])) {
-                args[i+1] = new String(decoder.decodeBuffer(args[i+1]), "UTF-8");
+                args[i+1] = new String(DECODER.decodeBuffer(args[i+1]), "UTF-8");
             }
         }
 

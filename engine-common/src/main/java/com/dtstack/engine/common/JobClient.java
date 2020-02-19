@@ -121,7 +121,6 @@ public class JobClient extends OrderObject{
         return ClientOperator.getInstance().containerInfos(this);
     }
 
-    @Deprecated
     public JobClient() {
 
     }

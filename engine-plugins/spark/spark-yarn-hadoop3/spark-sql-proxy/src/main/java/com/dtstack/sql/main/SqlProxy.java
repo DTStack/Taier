@@ -27,7 +27,7 @@ public class SqlProxy {
 
     private static final Logger logger = LoggerFactory.getLogger(SqlProxy.class);
 
-    private static final ObjectMapper objMapper = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private static final String DEFAULT_APP_NAME = "spark_default_name";
 
@@ -85,7 +85,7 @@ public class SqlProxy {
 
         Map<String, Object> argsMap = null;
         try{
-            argsMap = objMapper.readValue(argInfo, Map.class);
+            argsMap = OBJECT_MAPPER.readValue(argInfo, Map.class);
         }catch (Exception e){
             logger.error("", e);
             throw new RuntimeException("parse args json error, message: " + argInfo, e);

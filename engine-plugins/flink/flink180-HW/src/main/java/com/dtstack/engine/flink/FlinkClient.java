@@ -92,7 +92,7 @@ public class FlinkClient extends AbstractClient {
 
     private String tmpFileDirPath = "./tmp";
 
-    private static final Path tmpdir = Paths.get(doPrivileged(new GetPropertyAction("java.io.tmpdir")));
+    private static final Path TMPDIR = Paths.get(doPrivileged(new GetPropertyAction("java.io.tmpdir")));
 
     private Properties flinkExtProp;
 
@@ -283,7 +283,7 @@ public class FlinkClient extends AbstractClient {
         String applicationId = clusterClient.getClusterId().toString();
         String flinkJobId = clusterSpecification.getJobGraph().getJobID().toString();
 
-        delFilesFromDir(tmpdir, applicationId);
+        delFilesFromDir(TMPDIR, applicationId);
 
         flinkClusterClientManager.addClient(applicationId, clusterClient);
 
@@ -313,7 +313,7 @@ public class FlinkClient extends AbstractClient {
         } else {
             logger.info("Job has been submitted with JobID " + result.getJobID());
         }
-        delFilesFromDir(tmpdir, "flink-jobgraph");
+        delFilesFromDir(TMPDIR, "flink-jobgraph");
 
         return Pair.create(result.getJobID().toString(), null);
     }
@@ -379,10 +379,9 @@ public class FlinkClient extends AbstractClient {
                 return submitSqlJobForBatch(jobClient);
             case STREAM:
                 return submitSqlJobForStream(jobClient);
-
+            default:
+                throw new RdosDefineException("not support for compute type :" + computeType);
         }
-
-        throw new RdosDefineException("not support for compute type :" + computeType);
     }
 
     /**
@@ -799,7 +798,6 @@ public class FlinkClient extends AbstractClient {
         String webAddress = flinkClientBuilder.getFlinkConfiguration().getValue(HistoryServerOptions.HISTORY_SERVER_WEB_ADDRESS);
         String port = flinkClientBuilder.getFlinkConfiguration().getValue(HistoryServerOptions.HISTORY_SERVER_WEB_PORT);
         if (StringUtils.isBlank(webAddress) || StringUtils.isBlank(port)) {
-
             throw new RdosDefineException("History Server webAddress:" + webAddress + " port:" + port);
         }
         jobHistory = String.format("http://%s:%s", webAddress, port);

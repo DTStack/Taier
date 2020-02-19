@@ -63,7 +63,7 @@ public class KerberosUtils {
 
     private static final String ZK_LOGINNAME = "zkLoginName";
 
-    private static final String localhost = getLocalHostName();
+    private static final String LOCALHOST = getLocalHostName();
 
     public static void login(FlinkConfig config) throws IOException {
         Map<String, String> kerberosConfig = config.getKerberosConfig();
@@ -80,7 +80,7 @@ public class KerberosUtils {
                     keytabPath = localKeytab + MapUtils.getString(kerberosConfig, key);
                     LOG.info("Read localKeytab on: " + keytabPath);
                 } else {
-                    String localPath = USER_DIR + DIR + remoteDir + File.separator + localhost;
+                    String localPath = USER_DIR + DIR + remoteDir + File.separator + LOCALHOST;
                     File dirs = new File(localPath);
                     if (!dirs.exists()){
                         dirs.mkdirs();
@@ -420,7 +420,7 @@ public class KerberosUtils {
     }
 
     private static String loadFromSftp(String fileName, String remoteDir, String localDir, SFTPHandler handler){
-        String remoteFile = remoteDir + File.separator +  localhost + File.separator + fileName;
+        String remoteFile = remoteDir + File.separator + LOCALHOST + File.separator + fileName;
         String localFile = localDir + File.separator + fileName;
         if (new File(fileName).exists()){
             return fileName;

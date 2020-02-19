@@ -180,7 +180,6 @@ public class FlinkClientBuilder {
     /**
      * 根据yarn方式获取ClusterClient
      */
-    @Deprecated
     public ClusterClient<ApplicationId> initYarnClusterClient() {
 
         Configuration newConf = new Configuration(flinkConfiguration);
@@ -423,7 +422,7 @@ public class FlinkClientBuilder {
     }
 
     public String buildSyncPluginDir(String pluginRoot) {
-        return pluginRoot + SyncPluginInfo.fileSP + SyncPluginInfo.SYNC_PLUGIN_DIR_NAME;
+        return pluginRoot + SyncPluginInfo.FILE_SP + SyncPluginInfo.SYNC_PLUGIN_DIR_NAME;
     }
 
 }
