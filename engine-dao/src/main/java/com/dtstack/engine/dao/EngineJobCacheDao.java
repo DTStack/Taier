@@ -15,8 +15,7 @@ public interface EngineJobCacheDao {
     int insert(@Param("jobId")String jobId, @Param("engineType") String engineType,
                @Param("computeType") Integer computeType, @Param("stage") int stage,
                @Param("jobInfo")String jobInfo, @Param("nodeAddress") String nodeAddress,
-               //todo groupName -> jobResource
-               @Param("jobName") String jobName, @Param("jobPriority") Long jobPriority, @Param("groupName") String jobResource);
+               @Param("jobName") String jobName, @Param("jobPriority") Long jobPriority, @Param("jobResource") String jobResource);
 
     int delete(@Param("jobId")String jobId);
 
@@ -30,9 +29,9 @@ public interface EngineJobCacheDao {
 
     List<String> listNames(@Param("computeType") Integer computeType,@Param("jobName") String jobName);
 
-    int countByStage(@Param("groupName") String jobResource, @Param("stages") List<Integer> stages, @Param("nodeAddress") String nodeAddress);
+    int countByStage(@Param("jobResource") String jobResource, @Param("stages") List<Integer> stages, @Param("nodeAddress") String nodeAddress);
 
-    long maxPriorityByStage(@Param("groupName") String jobResource, @Param("stage") Integer stages, @Param("nodeAddress") String nodeAddress);
+    long maxPriorityByStage(@Param("jobResource") String jobResource, @Param("stage") Integer stages, @Param("nodeAddress") String nodeAddress);
 
     List<String> getAllNodeAddress();
 

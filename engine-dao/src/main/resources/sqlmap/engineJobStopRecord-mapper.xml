@@ -3,8 +3,8 @@
 <mapper namespace="com.dtstack.engine.dao.EngineJobStopRecordDao">
 
     <insert id="insert" parameterType="EngineJobStopRecord" useGeneratedKeys="true" keyProperty="id">
-        insert into rdos_engine_job_stop_record(task_id, task_type, engine_type, compute_type, group_name)
-        values(#{taskId}, #{taskType}, #{engineType}, #{computeType}, #{groupName})
+        insert into rdos_engine_job_stop_record(task_id, task_type, engine_type, compute_type, job_resource)
+        values(#{taskId}, #{taskType}, #{engineType}, #{computeType}, #{jobResource})
     </insert>
 
     <update id="delete">

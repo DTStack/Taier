@@ -13,7 +13,7 @@ public class EngineJobStopRecord extends DataObject {
     private Integer taskType;
     private String engineType;
     private Integer computeType;
-    private String groupName;
+    private String jobResource;
     private int version;
 
 
@@ -49,12 +49,12 @@ public class EngineJobStopRecord extends DataObject {
         this.computeType = computeType;
     }
 
-    public String getGroupName() {
-        return groupName;
+    public String getJobResource() {
+        return jobResource;
     }
 
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
+    public void setJobResource(String jobResource) {
+        this.jobResource = jobResource;
     }
 
     public int getVersion() {
@@ -71,7 +71,7 @@ public class EngineJobStopRecord extends DataObject {
         jobStopRecord.setTaskType(MapUtils.getInteger(jsrMap, "taskType"));
         jobStopRecord.setEngineType(MapUtils.getString(jsrMap, "engineType"));
         jobStopRecord.setComputeType(MapUtils.getInteger(jsrMap, "computeType"));
-        jobStopRecord.setGroupName(MapUtils.getString(jsrMap, "groupName"));
+        jobStopRecord.setJobResource(MapUtils.getString(jsrMap, "jobResource"));
         return jobStopRecord;
     }
 
@@ -83,7 +83,7 @@ public class EngineJobStopRecord extends DataObject {
                 ", taskType=" + taskType +
                 ", engineType='" + engineType + '\'' +
                 ", computeType=" + computeType +
-                ", groupName='" + groupName + '\'' +
+                ", jobResource='" + jobResource + '\'' +
                 ", version='" + version + '\'' +
                 '}';
     }

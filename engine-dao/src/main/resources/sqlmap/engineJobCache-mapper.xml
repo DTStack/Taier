@@ -3,8 +3,8 @@
 <mapper namespace="com.dtstack.engine.dao.EngineJobCacheDao">
 
     <insert id="insert" parameterType="EngineJobCache" useGeneratedKeys="true" keyProperty="id">
-        insert into rdos_engine_job_cache( job_id, engine_type, compute_type, stage, job_info, node_address, job_name, job_priority, group_name)
-        values(#{jobId}, #{engineType}, #{computeType}, #{stage}, #{jobInfo}, #{nodeAddress},#{jobName},#{jobPriority},#{groupName});
+        insert into rdos_engine_job_cache( job_id, engine_type, compute_type, stage, job_info, node_address, job_name, job_priority, job_resource)
+        values(#{jobId}, #{engineType}, #{computeType}, #{stage}, #{jobInfo}, #{nodeAddress},#{jobName},#{jobPriority},#{jobResource});
     </insert>
 
     <delete id="delete">
@@ -17,7 +17,7 @@
 
     <update id="updateStage">
         update rdos_engine_job_cache
-        set node_address = #{nodeAddress}, stage = #{stage}, job_priority = #{jobPriority}, group_name = #{groupName}, gmt_modified=now()
+        set node_address = #{nodeAddress}, stage = #{stage}, job_priority = #{jobPriority}, job_resource = #{jobResource}, gmt_modified=now()
         where job_id = #{jobId}
     </update>
 
@@ -52,7 +52,7 @@
 
     <select id="countByStage" resultType="java.lang.Integer">
         select count(1) from rdos_engine_job_cache
-        where group_name = #{groupName} and node_address = #{nodeAddress}
+        where job_resource = #{jobResource} and node_address = #{nodeAddress}
         <if test="stages != null">
             and stage in
             <foreach collection="stages" item="stage" open="(" separator="," close=")">
@@ -64,7 +64,7 @@
 
     <select id="maxPriorityByStage" resultType="java.lang.Long">
         select max(job_priority) from rdos_engine_job_cache
-        where group_name = #{groupName} and node_address = #{nodeAddress}
+        where job_resource = #{jobResource} and node_address = #{nodeAddress}
         <if test="stage != null">
             and stage = #{stage}
         </if>

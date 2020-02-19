@@ -115,7 +115,7 @@ CREATE TABLE `rdos_engine_job_cache` (
   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
   `job_priority` BIGINT(20) DEFAULT NULL COMMENT '任务优先级',
-  `group_name` VARCHAR(256) DEFAULT NULL COMMENT 'group name',
+  `job_resource` VARCHAR(256) DEFAULT NULL COMMENT 'job的计算引擎资源类型',
   `is_failover` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0：不是，1：由故障恢复来的任务',
   PRIMARY KEY (`id`),
   unique KEY `index_job_id` (`job_id`(128))
@@ -204,7 +204,7 @@ CREATE TABLE `rdos_engine_job_stop_record` (
   `task_type` int(10) DEFAULT NULL COMMENT '任务类型',
   `engine_type` varchar(256) NOT NULL COMMENT '任务的执行引擎类型',
   `compute_type` tinyint(2) NOT NULL COMMENT '计算类型stream/batch',
-  `group_name` VARCHAR(256) DEFAULT NULL COMMENT 'group name',
+  `job_resource` VARCHAR(256) DEFAULT NULL COMMENT 'job的计算引擎资源类型',
   `version` int(10) DEFAULT '0' COMMENT '版本号',
   `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
