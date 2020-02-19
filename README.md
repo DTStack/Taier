@@ -71,7 +71,7 @@ bin/bash.sh
     "exeArgs": "...",
     "taskParams": "...",
     "maxRetryNum": "...",
-    "groupName": "...",
+    "jobResource": "...",
     "pluginInfo": {...}
 }
 ```
@@ -108,7 +108,7 @@ bin/bash.sh
 7. exeArgs: 执行参数
 8. taskParams: 环境参数
 9. maxRetryNum: 最大重试次数
-10. groupName: 队列名称
+10. jobResource: 队列名称
 11. pluginInfo: 插件信息
 
 ### 4.2 pluginInfo

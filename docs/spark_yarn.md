@@ -58,7 +58,7 @@
  "taskParams": "##Driver程序使用的CPU核数,默认为1\r\n##driver.cores=1\r\n\r\n##Driver程序使用内存大小,默认512m\r\n##driver.memory=512m\r\n\r\n##对Spark每个action结果集大小的限制，最少是1M，若设为0则不限制大小。\r\n##若Job结果超过限制则会异常退出，若结果集限制过大也可能造成OOM问题，默认1g\r\n##driver.maxResultSize=1g\r\n\r\n##SparkContext 启动时是否记录有效 SparkConf信息,默认false\r\n##logConf=false\r\n\r\n\r\n##启动的executor的数量，默认为1\r\nexecutor.instances=1\r\n\r\n#每个executor使用的CPU核数，默认为1\r\nexecutor.cores=1\r\n\r\n##每个executor内存大小,默认512\r\n##executor.memory=512m\n\nspark.sql.parquet.enableVectorizedReader=false",
  "maxRetryNum": 0,
  "taskType": 0,
- "groupName": "default_c",
+ "jobResource": "default_c",
  "sourceType": 2,
  "name": "run_sql_task_1561907443389",
  "tenantId": 1,

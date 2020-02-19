@@ -20,7 +20,7 @@ public class EngineJobCache extends DataObject{
     private String jobName;
     private Integer stage;
     private Long jobPriority;
-    private String groupName;
+    private String jobResource;
 
     private Integer isFailover;
 
@@ -88,12 +88,12 @@ public class EngineJobCache extends DataObject{
         this.jobPriority = jobPriority;
     }
 
-    public String getGroupName() {
-        return groupName;
+    public String getJobResource() {
+        return jobResource;
     }
 
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
+    public void setJobResource(String jobResource) {
+        this.jobResource = jobResource;
     }
 
     public Integer getIsFailover() {

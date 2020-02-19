@@ -311,7 +311,7 @@ public class FailoverStrategy {
                 for (EngineJobCache jobCache : jobCaches) {
                     try {
                         if (jobCache.getStage() == EJobCacheStage.DB.getStage()) {
-                            List<String> jobIds = jobResources.computeIfAbsent(jobCache.getGroupName(), k -> Lists.newArrayList());
+                            List<String> jobIds = jobResources.computeIfAbsent(jobCache.getJobResource(), k -> Lists.newArrayList());
                             jobIds.add(jobCache.getJobId());
                         } else {
                             submittedJobs.add(jobCache.getJobId());

@@ -52,7 +52,7 @@ public class ShardCache {
 
     private ShardManager getShardManager(String jobId) {
         EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
-        return jobResourceShardManager.computeIfAbsent(engineJobCache.getGroupName(), jr -> {
+        return jobResourceShardManager.computeIfAbsent(engineJobCache.getJobResource(), jr -> {
             ShardManager shardManager = new ShardManager();
             TaskStatusDealer taskStatusDealer = new TaskStatusDealer();
             taskStatusDealer.setEngineJobCacheDao(engineJobCacheDao);
@@ -61,7 +61,7 @@ public class ShardCache {
             taskStatusDealer.setTaskCheckpointDealer(taskCheckpointDealer);
             taskStatusDealer.setShardManager(shardManager);
             taskStatusDealer.setShardCache(this);
-            taskStatusDealer.setJobResource(engineJobCache.getGroupName());
+            taskStatusDealer.setJobResource(engineJobCache.getJobResource());
             scheduledService.scheduleWithFixedDelay(
                     taskStatusDealer,
                     0,
