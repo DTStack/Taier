@@ -211,6 +211,16 @@ class EditCluster extends React.Component<any, any> {
             }
         }
     }
+
+    /**
+     * 获取引擎数据
+     */
+    getEngineData (clusterData: any, type: any) {
+        const enginesData = clusterData.engines || [];
+        const engineData = enginesData.find((item: any) => item.engineType == type) || {}; // hadoop engine 总数据
+        return engineData;
+    }
+
     // 获取kerberos文件信息
     deleteKerberosFile () {
         const { location } = this.props;
@@ -1178,8 +1188,8 @@ class EditCluster extends React.Component<any, any> {
                 const metaDataComponent = [COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER, COMPONENT_TYPE_VALUE.HIVESERVER, COMPONENT_TYPE_VALUE.IMPALASQL];
                 return metaDataComponent.indexOf(componentType) > -1;
             }
-            const hadoopComponentData = this.getComponetData(clusterData, ENGINE_TYPE.HADOOP);
-
+            const hadoopEngineData = this.getEngineData(clusterData, ENGINE_TYPE.HADOOP);
+            const hadoopComponentData = hadoopEngineData.components;
             return (
                 <Card className='shadow' style={{ margin: '20px 20px 10px 20px' }} noHovering>
                     <div style={markStyle}>
@@ -1237,7 +1247,7 @@ class EditCluster extends React.Component<any, any> {
                                 >
                                     {getFieldDecorator('syncType', {
                                         rules: [],
-                                        initialValue: ''
+                                        initialValue: `${hadoopEngineData.syncType}` || ''
                                     })(
                                         <Select style={{ width: '200px', marginRight: '10px' }} disabled={isView}>
                                             {
