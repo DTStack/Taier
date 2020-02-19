@@ -2,8 +2,10 @@
 import * as React from 'react';
 import { cloneDeep, mapValues, findKey } from 'lodash';
 import { connect } from 'react-redux';
-import { Form, Input, Row, Col, Icon, Button, message, Card, Tabs,
-    Modal, Upload, Tooltip, Switch, Select } from 'antd';
+import {
+    Form, Input, Row, Col, Icon, Button, message, Card, Tabs,
+    Modal, Upload, Tooltip, Switch, Select, Tag
+} from 'antd';
 import Api from '../../../api/console'
 import moment from 'moment'
 
@@ -255,19 +257,21 @@ class EditCluster extends React.Component<any, any> {
     }
 
     // 更新hadoop版本
-    updateHadoopVersion = () => {
-        const { location } = this.props;
+    updateClusterVersion = () => {
+        const { location, form } = this.props;
         const params = location.state || {};
-        const hadoopVersion = this.props.form.getFieldValue('hadoopVersion');
-        Api.updateHadoopVersion({
+        Api.updateClusterVersion({
             clusterId: params.cluster.id || params.cluster.clusterId,
-            hadoopVersion: hadoopVersion
+            hadoopVersion: form.getFieldValue('hadoopVersion'),
+            syncType: form.getFieldValue('syncType')
         }).then(res => {
             if (res.code === 1) {
+                this.getDataList();
                 message.success('集群版本保存成功！')
             }
         })
     }
+
     // 填充表单数据
     getDataList (engineType?: any) {
         const { location } = this.props;
@@ -470,8 +474,8 @@ class EditCluster extends React.Component<any, any> {
                 )
         }
     }
-    /* eslint-disable */
-    addParam(type: any) {
+
+    addParam (type: any) {
         const { flink_params, spark_params, sparkThrif_params,
             hiveServer_params, learning_params,
             dtyarnshell_params, dtscript_python_params, dtscript_jupyter_params,
@@ -579,7 +583,7 @@ class EditCluster extends React.Component<any, any> {
     /**
      * 渲染组件额外参数
      */
-    renderExtraParam(type: string) {
+    renderExtraParam (type: string) {
         const { flink_params, spark_params, sparkThrif_params,
             hiveServer_params, learning_params, dtyarnshell_params, dtscript_python_params, dtscript_jupyter_params,
             libraSql_params, extDefaultValue } = this.state;
@@ -758,16 +762,7 @@ class EditCluster extends React.Component<any, any> {
         const { updateRequiredStatus, updateTestStatus, form } = this.props;
         const { cluster } = this.props.location.state || {} as any;
         const { engineTypeKey, clusterData } = this.state;
-        // 页面滚动至底部
-        // const scroll = () => {
-        //     const ele = document.querySelector('#JS_console_container');
-        //     ele.scrollTop = 0;
-        //     ele.scrollTo({
-        //         top: ele.scrollHeight,
-        //         behavior: 'smooth'
-        //     })
-        // }
-        // scroll();
+
         form.validateFields(null, {}, (err: any, values: any) => {
             console.log(values)
             if (!err) {
@@ -1177,185 +1172,219 @@ class EditCluster extends React.Component<any, any> {
             marginTop: '20px',
             borderBottom: !isView && '1px dashed #DDDDDD'
         }
-        return isHadoopEngine(engineType) ? <Card className='shadow' style={{ margin: '20px 20px 10px 20px' }} noHovering>
-            <div style={markStyle}>
-                <Row>
-                    <Col span={14} pull={2}>
-                        <FormItem
-                            label="集群标识"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('clusterName', {
-                                rules: [{
-                                    required: true,
-                                    message: '请输入集群标识'
-                                }, {
-                                    pattern: /^[a-z0-9_]{1,64}$/i,
-                                    message: '集群标识不能超过64字符，支持英文、数字、下划线'
-                                }],
-                                initialValue: clusterData.clusterName
-                            })(
-                                <Input disabled={true} placeholder="请输入集群标识" style={{ width: '200px' }} />
-                            )}
-                            <span style={{ marginLeft: '20px' }}>节点数：{nodeNumber || '--'} </span>
-                            <span style={{ marginLeft: '5px' }}>资源数：{core || '--'}VCore {this.exchangeMemory(memory)} </span>
-                        </FormItem>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col span={14} pull={2}>
-                        <FormItem
-                            label="集群版本"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('hadoopVersion', {
-                                rules: [{
-                                    required: true,
-                                    message: '请选择集群版本'
-                                }],
-                                initialValue: clusterData.hadoopVersion || 'hadoop2'
-                            })(
-                                <Select style={{ width: '200px', marginRight: '10px' }} disabled={isView}>
-                                    <Option value='hadoop2' key='hadoop2'>hadoop2</Option>
-                                    <Option value='hadoop3' key='hadoop3'>hadoop3</Option>
-                                    <Option value='HW' key='HW'>HW</Option>
-                                </Select>
 
-                            )}
-                            <a onClick={() => {
-                                this.updateHadoopVersion();
-                            }} {...{ disabled: isView }}>保存</a>
-                        </FormItem>
-                    </Col>
-                </Row>
-            </div>
-            {
-                isView ? null : (
-                    <React.Fragment>
-                        <div className="upload-file">
-                            <div className='upload-title'>上传配置文件</div>
-                            <p style={{ marginBottom: '24px' }}>您需要获取Hadoop、Spark、Flink集群的配置文件，至少包括：<strong>core-site.xml、hdfs-site.xml、hive-site.xml、yarn-site.xml</strong>文件</p>
-                            <Row>
-                                <Col span={24}>
-                                    <FormItem
-                                        label={null}
-                                        {...formItemLayout}
-                                    >
-                                        {getFieldDecorator('file', null)(
-                                            <div>
-                                                {
-                                                    uploadLoading
-                                                        ? <label
-                                                            style={{ lineHeight: '28px' }}
-                                                            className="ant-btn disble"
-                                                        >上传文件</label>
-                                                        : <label
-                                                            style={{ lineHeight: '28px', textIndent: 'initial' }}
-                                                            className="ant-btn"
-                                                            htmlFor="myOfflinFile">
-                                                            <span><Icon type="upload" />上传文件</span>
-                                                        </label>
-                                                }
-                                                {uploadLoading ? <Icon className="blue-loading" type="loading" /> : null}
-                                                <span> {file.files && file.files[0] && file.files[0].name}</span>
-                                                <input
-                                                    name="file"
-                                                    type="file"
-                                                    id="myOfflinFile"
-                                                    onChange={this.fileChange.bind(this)}
-                                                    accept=".zip"
-                                                    style={{ display: 'none' }}
-                                                />
-                                                <span style={{ marginLeft: '10px' }}>支持扩展名：.zip</span>
-                                            </div>
-                                        )}
-                                    </FormItem>
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col span={24}>
-                                    <FormItem
-                                        label={null}
-                                        {...formItemLayout}
-                                    >
-                                        {getFieldDecorator('kerberosFile', {
-                                            rules: [{
-                                            }]
-                                        })(
-                                            <div
-                                                style={{
-                                                    display: 'flex',
-                                                    alignItems: 'center'
-                                                }}
-                                            >
-                                                <div
-                                                    style={{
-                                                        marginRight: '10px'
-                                                    }}
-                                                >
-                                                    Haddoop Kerberos认证文件:
-                                                </div>
-                                                {
-                                                    uploadKLoading
-                                                        ? <label
-                                                            style={{ lineHeight: '28px' }}
-                                                            className="ant-btn disble"
-                                                        >上传文件</label>
-                                                        : <label
-                                                            style={{ lineHeight: '28px', textIndent: 'initial' }}
-                                                            className="ant-btn"
-                                                            htmlFor="kerberosFiles">
-                                                            <span><Icon type="upload" />上传文件</span>
-                                                        </label>
-                                                }
-                                                {uploadKLoading ? <Icon className="blue-loading" type="loading" /> : null}
-                                                {/* <span> {kfile.files && kfile.files.length > 0 && kfile.files[0].name}</span> */}
-                                                <div
-                                                    style={{
-                                                        display: 'flex',
-                                                        alignItems: 'center'
-                                                    }}
-                                                >
-                                                    {kfile.files && kfile.files.length > 0 && kfile.files[0].name}
-                                                    {
-                                                        kfile.files && kfile.files.length > 0
-                                                            ? (
-                                                                <Icon
-                                                                    type="close-circle"
-                                                                    style={{
-                                                                        cursor: 'pointer'
-                                                                    }}
-                                                                    onClick={() => {
-                                                                        console.log('delete')
-                                                                        this.deleteKerberosFile();
-                                                                    }}
-                                                                />
-                                                            )
-                                                            : null
-                                                    }
-                                                </div>
-                                                <input
-                                                    name="file"
-                                                    type="file"
-                                                    ref={(e) => { this.kfile = e }}
-                                                    id="kerberosFiles"
-                                                    onChange={this.kfileChange.bind(this)}
-                                                    accept=".zip"
-                                                    style={{ display: 'none' }}
-                                                />
-                                                <span style={{ marginLeft: '10px' }}>支持扩展名：.zip</span>
-                                            </div>
-                                        )}
-                                    </FormItem>
-                                </Col>
-                            </Row>
-                            {/* 暂无控制台帮助文档 */}
-                            <div className='upload-help'>如何获取这些配置文件？请您参考<span>《帮助文档》</span></div>
-                        </div>
-                    </React.Fragment>
-                )
+        if (isHadoopEngine(engineType)) {
+            const isSupportMetaData = (componentType: number) => {
+                const metaDataComponent = [COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER, COMPONENT_TYPE_VALUE.HIVESERVER, COMPONENT_TYPE_VALUE.IMPALASQL];
+                return metaDataComponent.indexOf(componentType) > -1;
             }
-        </Card> : null
+            const hadoopComponentData = this.getComponetData(clusterData, ENGINE_TYPE.HADOOP);
+
+            return (
+                <Card className='shadow' style={{ margin: '20px 20px 10px 20px' }} noHovering>
+                    <div style={markStyle}>
+                        <Row>
+                            <Col span={16} pull={2}>
+                                <FormItem
+                                    label="集群标识"
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator('clusterName', {
+                                        rules: [{
+                                            required: true,
+                                            message: '请输入集群标识'
+                                        }, {
+                                            pattern: /^[a-z0-9_]{1,64}$/i,
+                                            message: '集群标识不能超过64字符，支持英文、数字、下划线'
+                                        }],
+                                        initialValue: clusterData.clusterName
+                                    })(
+                                        <Input disabled={true} placeholder="请输入集群标识" style={{ width: '200px' }} />
+                                    )}
+                                    <span style={{ marginLeft: '20px' }}>节点数：{nodeNumber || '--'} </span>
+                                    <span style={{ marginLeft: '5px' }}>资源数：{core || '--'}VCore {this.exchangeMemory(memory)} </span>
+                                </FormItem>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col span={16} pull={2}>
+                                <FormItem
+                                    label="集群版本"
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator('hadoopVersion', {
+                                        rules: [{
+                                            required: true,
+                                            message: '请选择集群版本'
+                                        }],
+                                        initialValue: clusterData.hadoopVersion || 'hadoop2'
+                                    })(
+                                        <Select style={{ width: '200px', marginRight: '10px' }} disabled={isView}>
+                                            <Option value='hadoop2' key='hadoop2'>hadoop2</Option>
+                                            <Option value='hadoop3' key='hadoop3'>hadoop3</Option>
+                                            <Option value='HW' key='HW'>HW</Option>
+                                        </Select>
+
+                                    )}
+                                </FormItem>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col span={16} pull={2}>
+                                <FormItem
+                                    label="元数据获取"
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator('syncType', {
+                                        rules: [],
+                                        initialValue: ''
+                                    })(
+                                        <Select style={{ width: '200px', marginRight: '10px' }} disabled={isView}>
+                                            {
+                                                hadoopComponentData && hadoopComponentData
+                                                    .filter(item => isSupportMetaData(item.componentTypeCode))
+                                                    .map(item => <Option key={item.componentTypeCode}>{item.componentName}</Option>)
+                                            }
+                                        </Select>
+                                    )}
+                                    <a onClick={() => {
+                                        this.updateClusterVersion();
+                                    }} {...{ disabled: isView }}>保存</a>
+                                </FormItem>
+                            </Col>
+                        </Row>
+                    </div>
+                    {
+                        isView ? null : (
+                            <React.Fragment>
+                                <div className="upload-file">
+                                    <div className='upload-title'>上传配置文件</div>
+                                    <p style={{ marginBottom: '24px' }}>您需要获取Hadoop、Spark、Flink集群的配置文件，至少包括：<strong>core-site.xml、hdfs-site.xml、hive-site.xml、yarn-site.xml</strong>文件</p>
+                                    <Row>
+                                        <Col span={24}>
+                                            <FormItem
+                                                label={null}
+                                                {...formItemLayout}
+                                            >
+                                                {getFieldDecorator('file', null)(
+                                                    <div>
+                                                        {
+                                                            uploadLoading
+                                                                ? <label
+                                                                    style={{ lineHeight: '28px' }}
+                                                                    className="ant-btn disble"
+                                                                >上传文件</label>
+                                                                : <label
+                                                                    style={{ lineHeight: '28px', textIndent: 'initial' }}
+                                                                    className="ant-btn"
+                                                                    htmlFor="myOfflinFile">
+                                                                    <span><Icon type="upload" />上传文件</span>
+                                                                </label>
+                                                        }
+                                                        {uploadLoading ? <Icon className="blue-loading" type="loading" /> : null}
+                                                        <span> {file.files && file.files[0] && file.files[0].name}</span>
+                                                        <input
+                                                            name="file"
+                                                            type="file"
+                                                            id="myOfflinFile"
+                                                            onChange={this.fileChange.bind(this)}
+                                                            accept=".zip"
+                                                            style={{ display: 'none' }}
+                                                        />
+                                                        <span style={{ marginLeft: '10px' }}>支持扩展名：.zip</span>
+                                                    </div>
+                                                )}
+                                            </FormItem>
+                                        </Col>
+                                    </Row>
+                                    <Row>
+                                        <Col span={24}>
+                                            <FormItem
+                                                label={null}
+                                                {...formItemLayout}
+                                            >
+                                                {getFieldDecorator('kerberosFile', {
+                                                    rules: [{
+                                                    }]
+                                                })(
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            alignItems: 'center'
+                                                        }}
+                                                    >
+                                                        <div
+                                                            style={{
+                                                                marginRight: '10px'
+                                                            }}
+                                                        >
+                                                            Haddoop Kerberos认证文件:
+                                                        </div>
+                                                        {
+                                                            uploadKLoading
+                                                                ? <label
+                                                                    style={{ lineHeight: '28px' }}
+                                                                    className="ant-btn disble"
+                                                                >上传文件</label>
+                                                                : <label
+                                                                    style={{ lineHeight: '28px', textIndent: 'initial' }}
+                                                                    className="ant-btn"
+                                                                    htmlFor="kerberosFiles">
+                                                                    <span><Icon type="upload" />上传文件</span>
+                                                                </label>
+                                                        }
+                                                        {uploadKLoading ? <Icon className="blue-loading" type="loading" /> : null}
+                                                        {/* <span> {kfile.files && kfile.files.length > 0 && kfile.files[0].name}</span> */}
+                                                        <div
+                                                            style={{
+                                                                display: 'flex',
+                                                                alignItems: 'center'
+                                                            }}
+                                                        >
+                                                            {kfile.files && kfile.files.length > 0 && kfile.files[0].name}
+                                                            {
+                                                                kfile.files && kfile.files.length > 0
+                                                                    ? (
+                                                                        <Icon
+                                                                            type="close-circle"
+                                                                            style={{
+                                                                                cursor: 'pointer'
+                                                                            }}
+                                                                            onClick={() => {
+                                                                                console.log('delete')
+                                                                                this.deleteKerberosFile();
+                                                                            }}
+                                                                        />
+                                                                    )
+                                                                    : null
+                                                            }
+                                                        </div>
+                                                        <input
+                                                            name="file"
+                                                            type="file"
+                                                            ref={(e) => { this.kfile = e }}
+                                                            id="kerberosFiles"
+                                                            onChange={this.kfileChange.bind(this)}
+                                                            accept=".zip"
+                                                            style={{ display: 'none' }}
+                                                        />
+                                                        <span style={{ marginLeft: '10px' }}>支持扩展名：.zip</span>
+                                                    </div>
+                                                )}
+                                            </FormItem>
+                                        </Col>
+                                    </Row>
+                                    {/* 暂无控制台帮助文档 */}
+                                    <div className='upload-help'>如何获取这些配置文件？请您参考<span>《帮助文档》</span></div>
+                                </div>
+                            </React.Fragment>
+                        )
+                    }
+                </Card>
+            );
+        } else {
+            return null;
+        }
     }
 
     // 开启kerberos认证
@@ -1706,6 +1735,7 @@ class EditCluster extends React.Component<any, any> {
                 return <div>目前暂无该组件配置</div>
         }
     }
+
     render () {
         const { clusterData, allTestLoading,
             engineTypeKey, editModalKey, modalKey,
@@ -1715,9 +1745,14 @@ class EditCluster extends React.Component<any, any> {
         const hadoopComponentData = this.getComponetData(clusterData, ENGINE_TYPE.HADOOP);
         const libraComponentData = this.getComponetData(clusterData, ENGINE_TYPE.LIBRA);
         const tabCompData = isHadoopEngine(engineTypeKey) ? hadoopComponentData : libraComponentData; // 不同engine的组件数据
-        // const tabCompData = isHadoopEngine(engineTypeKey) ? [...hadoopComponentData, { componentId: 2321, componentName: 'SFTP', componentTypeCode: 10, config: {} }] : libraComponentData; // 不同engine的组件数据
         const engineList = clusterData.engines || [];
-        // console.log(this.state, tabCompData)
+
+        const renderMetaTag = (componentType: number, syncType: number) => {
+            return componentType === syncType || [COMPONENT_TYPE_VALUE.LIBRASQL].indexOf(componentType) > -1
+                ? <Tag color="blue">Meta</Tag>
+                : null;
+        }
+
         return (
             <div className='console-wrapper' ref={(el) => { this.container = el; }}>
                 <div>
@@ -1731,7 +1766,7 @@ class EditCluster extends React.Component<any, any> {
                 >
                     {
                         engineList && engineList.map((item: any, index: any) => {
-                            const { engineType } = item;
+                            const { engineType, syncType } = item;
                             const isHadoop = isHadoopEngine(engineType);
                             return (
                                 <TabPane
@@ -1783,7 +1818,7 @@ class EditCluster extends React.Component<any, any> {
                                                                 tab={
                                                                     <span>
                                                                         <RequiredIcon componentData={item} showRequireStatus={this.props.showRequireStatus}/>
-                                                                        <span className='tab-title'>{componentName}</span>
+                                                                        <span className='tab-title'>{renderMetaTag(item.componentTypeCode, syncType)}{componentName}</span>
                                                                         <TestRestIcon componentData={item} testStatus={this.props.testStatus}/>
                                                                     </span>
                                                                 }

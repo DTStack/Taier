@@ -50,7 +50,7 @@ export const ENGINE_TYPE_ARRAY: any = [{ // 引擎类型下拉框数据
     name: 'LibrA',
     value: ENGINE_TYPE_NAME.LIBRA
 }]
-export const COMPONENT_TYPE_VALUE: any = {
+export const COMPONENT_TYPE_VALUE = {
     FLINK: 0,
     SPARK: 1,
     LEARNING: 2,
