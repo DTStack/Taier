@@ -42,7 +42,7 @@ public class DtScriptClient extends AbstractClient {
 
     private static final String APP_URL_FORMAT = "http://%s";
 
-    private static final Gson gson = new Gson();
+    private static final Gson GSON = new Gson();
 
     private Client client;
 
@@ -246,7 +246,7 @@ public class DtScriptClient extends AbstractClient {
             LOG.error("", e);
             jobLog.put("msg_info", e.getMessage());
         }
-        return gson.toJson(jobLog, Map.class);
+        return GSON.toJson(jobLog, Map.class);
     }
 
     @Override

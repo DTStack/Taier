@@ -23,7 +23,7 @@ public class ApiResult {
 	private String errorMsg;
 	private long space;
 	private String requestId = UUID.randomUUID().toString();
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
 	public ApiResult(){
 //		setRequestId(RequestContext.get().getRequestId());
@@ -100,7 +100,7 @@ public class ApiResult {
 		ApiResult apiResult = createErrorResult(message, code);
 		String result;
 		try {
-			result = objectMapper.writeValueAsString(apiResult);
+			result = OBJECT_MAPPER.writeValueAsString(apiResult);
 		} catch (Exception e) {
             LOG.error("", e);
 			result = "code:" + code + ",message:" + message;
@@ -139,7 +139,7 @@ public class ApiResult {
 		try {
 			ApiResult apiResult = new ApiResult();
 			apiResult.setCode(code);
-			return objectMapper.writeValueAsString(apiResult);
+			return OBJECT_MAPPER.writeValueAsString(apiResult);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

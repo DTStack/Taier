@@ -25,7 +25,7 @@ public class ShutDownHook {
 	}
 
 	public void addShutDownHook(){
-		   Thread shut =new Thread(new ShutDownHookThread());
+		   Thread shut = new Thread(new ShutDownHookThread());
 		   shut.setDaemon(true);
 		   Runtime.getRuntime().addShutdownHook(shut);
 		   logger.warn("addShutDownHook success ...");

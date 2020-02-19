@@ -33,7 +33,7 @@ public class SyncPluginInfo {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncPluginInfo.class);
 
-    public static final String fileSP = File.separator;
+    public static final String FILE_SP = File.separator;
 
     public static final String SYNC_PLUGIN_DIR_NAME = "syncplugin";
 
@@ -96,7 +96,7 @@ public class SyncPluginInfo {
     public JarFileInfo createAddJarInfo(){
         JarFileInfo jarFileInfo = new JarFileInfo();
         String coreJarFileName = getCoreJarFileName();
-        String jarFilePath  = localSyncFileDir + fileSP + coreJarFileName;
+        String jarFilePath  = localSyncFileDir + FILE_SP + coreJarFileName;
         jarFileInfo.setJarPath(jarFilePath);
         return jarFileInfo;
     }
@@ -125,7 +125,7 @@ public class SyncPluginInfo {
     }
 
     public String getSyncPluginDir(String pluginRoot){
-        return pluginRoot + fileSP + SYNC_PLUGIN_DIR_NAME;
+        return pluginRoot + FILE_SP + SYNC_PLUGIN_DIR_NAME;
     }
 
     // 数据同步专用: 获取flink端插件classpath, 在programArgsList中添加engine端plugin根目录
@@ -166,12 +166,12 @@ public class SyncPluginInfo {
             Preconditions.checkArgument(StringUtils.isNotEmpty(readerName), "reader name should not be empty");
             Preconditions.checkArgument(StringUtils.isNotEmpty(writerName), "writer ame should not be empty");
 
-            File commonDir = new File(localSyncFileDir + fileSP + "common");
-            File readerDir = new File(localSyncFileDir + fileSP + readerName);
-            File writerDir = new File(localSyncFileDir + fileSP + writerName);
-            urlList.addAll(findJarsInDir(commonDir, FILE_PROTOCOL + flinkSyncPluginRoot + fileSP + "common"));
-            urlList.addAll(findJarsInDir(readerDir, FILE_PROTOCOL + flinkSyncPluginRoot + fileSP + readerName));
-            urlList.addAll(findJarsInDir(writerDir, FILE_PROTOCOL + flinkSyncPluginRoot + fileSP + writerName));
+            File commonDir = new File(localSyncFileDir + FILE_SP + "common");
+            File readerDir = new File(localSyncFileDir + FILE_SP + readerName);
+            File writerDir = new File(localSyncFileDir + FILE_SP + writerName);
+            urlList.addAll(findJarsInDir(commonDir, FILE_PROTOCOL + flinkSyncPluginRoot + FILE_SP + "common"));
+            urlList.addAll(findJarsInDir(readerDir, FILE_PROTOCOL + flinkSyncPluginRoot + FILE_SP + readerName));
+            urlList.addAll(findJarsInDir(writerDir, FILE_PROTOCOL + flinkSyncPluginRoot + FILE_SP + writerName));
 
         } catch (Exception e) {
             LOG.error("", e);

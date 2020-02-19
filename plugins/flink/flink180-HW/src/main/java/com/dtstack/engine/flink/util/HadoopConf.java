@@ -30,7 +30,7 @@ public class HadoopConf {
 
     private static volatile YarnConfiguration defaultYarnConfiguration = null;
 
-    private static final Object initLock = new Object();
+    private static final Object INIT_LOCK = new Object();
 
     private Configuration configuration;
 
@@ -39,7 +39,7 @@ public class HadoopConf {
     private static void initDefaultConfig(){
 
         if(defaultConfiguration == null){
-            synchronized (initLock){
+            synchronized (INIT_LOCK){
                 if(defaultConfiguration != null){
                     return;
                 }
