@@ -56,7 +56,7 @@
     "taskParams": "worker.memory=512m worker.cores=1",
     "maxRetryNum": 0,
     "taskType": 3,
-    "jobResource": "default_c",
+    "groupName": "default_c",
     "sourceType": 2,
     "name": "run_python_task_1561900891604",
     "tenantId": 1,

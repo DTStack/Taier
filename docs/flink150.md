@@ -74,7 +74,7 @@
     "taskParams": "sql.checkpoint.cleanup.mode = false\nmr.job.parallelism = 1\nspark.sql.parquet.enableVectorizedReader = false\nflinkTaskRunMode = new\nsql.checkpoint.interval = 600000\nsql.env.parallelism = 1\n",
     "maxRetryNum": 0,
     "taskType": 2,
-    "jobResource": "default_c",
+    "groupName": "default_c",
     "name": "P_oracle2hive0114_2019_06_03_31_05-oracle2hive0114-20190603000000",
     "tenantId": 1,
     "taskId": "9a3abbbd"

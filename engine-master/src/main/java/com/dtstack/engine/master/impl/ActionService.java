@@ -236,7 +236,7 @@ public class ActionService {
                 rdosEngineBatchJob.setJobId(jobId);
                 rdosEngineBatchJob.setJobName(paramAction.getName());
                 rdosEngineBatchJob.setSourceType(paramAction.getSourceType());
-                rdosEngineBatchJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
+                rdosEngineBatchJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus());
                 rdosEngineBatchJob.setComputeType(computerType);
                 engineJobDao.insert(rdosEngineBatchJob);
                 result =  true;
@@ -246,8 +246,8 @@ public class ActionService {
                     engineJobRetryDao.removeByJobId(jobId);
                 }
 
-                if(result && rdosEngineBatchJob.getStatus().intValue() != RdosTaskStatus.ENGINEACCEPTED.getStatus() ){
-                    int oldStatus = rdosEngineBatchJob.getStatus().intValue();
+                if(result && !RdosTaskStatus.ENGINEACCEPTED.getStatus().equals(rdosEngineBatchJob.getStatus()) ){
+                    int oldStatus = rdosEngineBatchJob.getStatus();
                     Integer update = engineJobDao.updateTaskStatusCompareOld(rdosEngineBatchJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus(),oldStatus, paramAction.getName());
                     if (update==null||update!=1){
                         result = false;
@@ -274,7 +274,7 @@ public class ActionService {
 
         EngineJob batchJob = engineJobDao.getRdosJobByJobId(jobId);
         if (batchJob != null) {
-        	return batchJob.getStatus().intValue();
+        	return batchJob.getStatus();
         }
         return null;
     }
@@ -293,7 +293,7 @@ public class ActionService {
         if (CollectionUtils.isNotEmpty(batchJobs)) {
         	result = new HashMap<>(batchJobs.size());
         	for (EngineJob batchJob:batchJobs){
-        		result.put(batchJob.getJobId(),batchJob.getStatus().intValue());
+        		result.put(batchJob.getJobId(),batchJob.getStatus());
         	}
         }
         return result;
@@ -481,7 +481,7 @@ public class ActionService {
         //check jobstatus can reset
         EngineJob rdosEngineBatchJob = engineJobDao.getRdosJobByJobId(jobId);
         Preconditions.checkNotNull(rdosEngineBatchJob, "not exists job with id " + jobId);
-        Byte currStatus = rdosEngineBatchJob.getStatus();
+        Integer currStatus = rdosEngineBatchJob.getStatus();
 
         if(!RdosTaskStatus.canReset(currStatus)){
             throw new RdosDefineException(String.format("computeType(%d) taskId(%s) can't reset status, current status(%d)", computeType, jobId, currStatus.intValue()));

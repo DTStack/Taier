@@ -54,7 +54,7 @@ public class JobStopAction {
         if(jobCache == null){
             return jobStopStatus(jobClient);
         } else if (EJobCacheStage.unSubmitted().contains(jobCache.getStage())){
-            Byte status = getJobStatus(jobClient);
+            Integer status = getJobStatus(jobClient);
             if (status !=null && RdosTaskStatus.WAITENGINE.getStatus() == status.intValue()){
                 //删除
                 removeJob(jobClient);
@@ -84,7 +84,7 @@ public class JobStopAction {
     }
 
     private StoppedStatus jobStopStatus(JobClient jobClient){
-        Byte status = getJobStatus(jobClient);
+        Integer status = getJobStatus(jobClient);
         if (status != null && RdosTaskStatus.isStopped(status)){
             LOG.info("jobId:{} stopped success, task status is STOPPED.", jobClient.getTaskId());
             return StoppedStatus.STOPPED;
@@ -93,7 +93,7 @@ public class JobStopAction {
         return StoppedStatus.MISSED;
     }
 
-    private Byte getJobStatus(JobClient jobClient) {
+    private Integer getJobStatus(JobClient jobClient) {
     	EngineJob batchJob = engineJobDao.getRdosJobByJobId(jobClient.getTaskId());
     	if (batchJob != null) {
     		return batchJob.getStatus();

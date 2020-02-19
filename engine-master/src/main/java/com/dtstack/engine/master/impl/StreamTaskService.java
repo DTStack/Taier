@@ -79,8 +79,8 @@ public class StreamTaskService {
     /**
      * 获取任务的状态
      */
-    public Byte getTaskStatus(@Param("taskId") String taskId){
-        Byte status = null;
+    public Integer getTaskStatus(@Param("taskId") String taskId){
+        Integer status = null;
         if (StringUtils.isNotEmpty(taskId)){
         	EngineJob engineJob = engineJobDao.getRdosJobByJobId(taskId);
             if (engineJob != null){
@@ -104,7 +104,7 @@ public class StreamTaskService {
         Preconditions.checkNotNull(engineJob, "can't find record by taskId" + taskId);
 
         //只获取运行中的任务的log—url
-        Byte status = engineJob.getStatus();
+        Integer status = engineJob.getStatus();
         if (!RdosTaskStatus.RUNNING.getStatus().equals(status.intValue())) {
             throw new RdosDefineException(String.format("job:%s not running status ", taskId), ErrorCode.INVALID_TASK_STATUS);
         }

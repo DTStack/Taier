@@ -26,7 +26,7 @@ public class EngineJob extends DataObject{
      * 任务状态
      * UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELING(6),CANCELED(7),FAILED(8)
      */
-    private Byte status;
+    private Integer status;
 
     private Date execStartTime;
 
@@ -82,11 +82,11 @@ public class EngineJob extends DataObject{
         this.engineJobId = engineJobId;
     }
 
-    public Byte getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(Byte status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 

@@ -336,7 +336,7 @@ public class TaskRestartDealer {
         try {
             EngineJob batchJob = engineJobDao.getRdosJobByJobId(jobClient.getTaskId());
             EngineJobRetry batchJobRetry = EngineJobRetry.toEntity(batchJob, jobClient);
-            batchJobRetry.setStatus(RdosTaskStatus.RESTARTING.getStatus().byteValue());
+            batchJobRetry.setStatus(RdosTaskStatus.RESTARTING.getStatus());
             engineJobRetryDao.insert(batchJobRetry);
         } catch (Throwable e ){
             LOG.error("{}",e);

@@ -31,6 +31,9 @@ import java.util.Map;
 
 /**
  * 对接数栈控制台
+ *
+ * TODO, groupName 代码engine中内存队列的类型名字
+ *
  * <p>
  * company: www.dtstack.com
  * author: toutian
@@ -87,9 +90,9 @@ public class ConsoleService {
         ComputeType type = ComputeType.valueOf(computeType.toUpperCase());
         Preconditions.checkNotNull(type, "parameters of computeType is STREAM/BATCH");
         String jobId = null;
-        EngineJob batchJob = engineJobDao.getByName(jobName);
-        if (batchJob != null) {
-        	jobId = batchJob.getJobId();
+        EngineJob engineJob = engineJobDao.getByName(jobName);
+        if (engineJob != null) {
+        	jobId = engineJob.getJobId();
         }
         if (jobId == null) {
             return null;
@@ -99,28 +102,14 @@ public class ConsoleService {
             return null;
         }
         try {
-            ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
-            JobClient theJobClient = new JobClient(paramAction);
-            GroupPriorityQueue priorityQueue = workNode.getPriorityQueue(theJobClient);
-            if (priorityQueue == null) {
-                return null;
-            }
-            OrderLinkedBlockingQueue<JobClient> jobQueue = priorityQueue.getQueue();
-            if (jobQueue == null) {
-                return null;
-            }
-            OrderLinkedBlockingQueue.IndexNode<JobClient> idxNode = jobQueue.getElement(jobId);
-            if (idxNode == null) {
-                return null;
-            }
-            JobClient theJob = idxNode.getItem();
-            Map<String, Object> theJobMap = PublicUtil.objectToMap(theJob);
-            setJobFromDb(type, theJob.getTaskId(), theJobMap);
-            theJobMap.put("generateTime", theJob.getGenerateTime());
+            Map<String, Object> theJobMap = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), Map.class);
+            theJobMap.put("status", engineJob.getStatus());
+            theJobMap.put("execStartTime", engineJob.getExecStartTime());
+            theJobMap.put("generateTime", jobCache.getGmtCreate());
 
             Map<String, Object> result = new HashMap<>();
             result.put("theJob", Lists.newArrayList(theJobMap));
-            result.put("theJobIdx", idxNode.getIndex());
+            result.put("theJobIdx", 1);
             result.put("node", jobCache.getNodeAddress());
 
             return result;

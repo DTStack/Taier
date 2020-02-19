@@ -75,7 +75,7 @@ public class WorkNode implements InitializingBean {
     private TaskSubmittedDealer taskSubmittedDealer;
 
     /**
-     * key: 计算引擎类型（集群groupName + computeResourceType）
+     * key: jobResource, 计算引擎类型
      * value: queue
      */
     private Map<String, GroupPriorityQueue> priorityQueueMap = Maps.newConcurrentMap();

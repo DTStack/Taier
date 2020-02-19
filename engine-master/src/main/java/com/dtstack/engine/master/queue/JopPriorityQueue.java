@@ -67,9 +67,7 @@ public class JopPriorityQueue {
     private Integer scheduleType;
 
     private Ingestion ingestion;
-    /**
-     * key: groupName
-     */
+
     private OrderLinkedBlockingQueue<BatchJobElement> queue = new OrderLinkedBlockingQueue<>();
 
     private List<BatchJobElement> survivor = new ArrayList<>(queueSizeLimited);

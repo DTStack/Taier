@@ -135,18 +135,16 @@ public enum RdosTaskStatus {
         return false;
     }
 
-    public static boolean canStartAgain(Byte status){
-		int sta = status.intValue();
-        if(sta == RdosTaskStatus.SUBMITTING.getStatus() || sta == RdosTaskStatus.UNSUBMIT.getStatus()){
+    public static boolean canStartAgain(Integer status){
+        if(RdosTaskStatus.SUBMITTING.getStatus().equals(status) || RdosTaskStatus.UNSUBMIT.getStatus().equals(status)){
     	    return true;
         }
 
         return false;
     }
 
-    public static boolean canReset(Byte currStatus){
-        int sta = currStatus.intValue();
-        return STOPPED_STATUS.contains(sta) || sta == RdosTaskStatus.UNSUBMIT.getStatus();
+    public static boolean canReset(Integer currStatus){
+        return STOPPED_STATUS.contains(currStatus) || RdosTaskStatus.UNSUBMIT.getStatus().equals(currStatus);
 
     }
 
@@ -154,8 +152,8 @@ public enum RdosTaskStatus {
         return CAN_STOP_STATUS;
     }
 
-    public static boolean isStopped(Byte status) {
-        return STOPPED_STATUS.contains(status.intValue());
+    public static boolean isStopped(Integer status) {
+        return STOPPED_STATUS.contains(status);
     }
 
 
