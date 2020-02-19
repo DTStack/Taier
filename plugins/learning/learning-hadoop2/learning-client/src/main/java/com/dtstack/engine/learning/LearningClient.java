@@ -44,7 +44,7 @@ public class LearningClient extends AbstractClient {
 
     private LearningConfiguration conf = new LearningConfiguration();
 
-    private static final Gson gson = new Gson();
+    private static final Gson GSON = new Gson();
 
     @Override
     public void init(Properties prop) throws Exception {
@@ -207,7 +207,7 @@ public class LearningClient extends AbstractClient {
             LOG.error("", e);
             jobLog.put("msg_info", e.getMessage());
         }
-        return gson.toJson(jobLog, Map.class);
+        return GSON.toJson(jobLog, Map.class);
     }
 
 }

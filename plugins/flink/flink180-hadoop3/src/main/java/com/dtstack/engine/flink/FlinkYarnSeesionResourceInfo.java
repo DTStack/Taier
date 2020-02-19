@@ -25,7 +25,7 @@ public class FlinkYarnSeesionResourceInfo extends AbstractFlinkResourceInfo {
 
     private static final Logger logger = LoggerFactory.getLogger(FlinkYarnSeesionResourceInfo.class);
 
-    private final static ObjectMapper objMapper = new ObjectMapper();
+    private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     public FlinkYarnSeesionResourceInfo() {
     }
@@ -53,7 +53,7 @@ public class FlinkYarnSeesionResourceInfo extends AbstractFlinkResourceInfo {
     public FlinkYarnSeesionResourceInfo getFlinkSessionSlots(String message, int flinkSessionSlotCount){
         if(StringUtils.isNotBlank(message)){
             try{
-                Map<String, Object> taskManagerInfo = objMapper.readValue(message, Map.class);
+                Map<String, Object> taskManagerInfo = OBJECT_MAPPER.readValue(message, Map.class);
                 if(taskManagerInfo.containsKey("taskmanagers")){
                     List<Map<String, Object>> taskManagerList = (List<Map<String, Object>>) taskManagerInfo.get("taskmanagers");
                     if (taskManagerList.size()==0){

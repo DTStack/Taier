@@ -115,7 +115,6 @@ public class JobClient extends OrderObject{
         }
     }
 
-    @Deprecated
     public JobClient() {
 
     }

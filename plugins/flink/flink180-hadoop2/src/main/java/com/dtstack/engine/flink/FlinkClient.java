@@ -93,7 +93,7 @@ public class FlinkClient extends AbstractClient {
 
     private String tmpFileDirPath = "./tmp";
 
-    private static final Path tmpdir = Paths.get(doPrivileged(new GetPropertyAction("java.io.tmpdir")));
+    private static final Path TMPDIR = Paths.get(doPrivileged(new GetPropertyAction("java.io.tmpdir")));
 
     private Properties flinkExtProp;
 
@@ -286,7 +286,7 @@ public class FlinkClient extends AbstractClient {
         String applicationId = clusterClient.getClusterId().toString();
         String flinkJobId = clusterSpecification.getJobGraph().getJobID().toString();
 
-        delFilesFromDir(tmpdir, applicationId);
+        delFilesFromDir(TMPDIR, applicationId);
 
         flinkClusterClientManager.addClient(applicationId, clusterClient);
 
@@ -316,7 +316,7 @@ public class FlinkClient extends AbstractClient {
         } else {
             logger.info("Job has been submitted with JobID " + result.getJobID());
         }
-        delFilesFromDir(tmpdir, "flink-jobgraph");
+        delFilesFromDir(TMPDIR, "flink-jobgraph");
 
         return Pair.create(result.getJobID().toString(), null);
     }

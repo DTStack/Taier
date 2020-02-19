@@ -12,7 +12,6 @@ import java.util.regex.Pattern;
  */
 
 public enum EngineType {
-
     //
     Flink('0'),
     //
@@ -159,9 +158,11 @@ public enum EngineType {
         return false;
     }
 
+    private final static Pattern PATTERN = Pattern.compile("([a-zA-Z]+).*");
+
     public static String getEngineTypeWithoutVersion(String engineType) {
-        Pattern pattern = Pattern.compile("([a-zA-Z]+).*");
-        Matcher matcher = pattern.matcher(engineType);
+
+        Matcher matcher = PATTERN.matcher(engineType);
         if (!matcher.find()) {
             return engineType;
         }

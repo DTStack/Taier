@@ -16,7 +16,7 @@ import java.util.Vector;
 
 public class SFTPHandler {
 
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(SFTPHandler.class);
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(SFTPHandler.class);
 
     private static final String KEY_USERNAME = "username";
     private static final String KEY_PASSWORD = "password";

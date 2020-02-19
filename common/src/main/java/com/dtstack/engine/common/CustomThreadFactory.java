@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author xuchao
  */
 public class CustomThreadFactory implements ThreadFactory {
-    private static final AtomicInteger poolNumber = new AtomicInteger(1);
+    private static final AtomicInteger POOL_NUMBER = new AtomicInteger(1);
     private final ThreadGroup group;
     private final AtomicInteger threadNumber = new AtomicInteger(1);
     private final String namePrefix;
@@ -20,7 +20,7 @@ public class CustomThreadFactory implements ThreadFactory {
         group = (s != null) ? s.getThreadGroup() :
                 Thread.currentThread().getThreadGroup();
         namePrefix = "pool-" + name + "-" +
-                poolNumber.getAndIncrement() +
+                POOL_NUMBER.getAndIncrement() +
                 "-thread-";
     }
 

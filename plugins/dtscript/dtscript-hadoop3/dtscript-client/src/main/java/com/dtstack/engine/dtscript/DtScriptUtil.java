@@ -10,7 +10,7 @@ import java.util.List;
 
 
 public class DtScriptUtil {
-    private static final BASE64Decoder decoder = new BASE64Decoder();
+    private static final BASE64Decoder DECODER = new BASE64Decoder();
 
     public static String[] buildPythonArgs(JobClient jobClient) throws IOException {
         String exeArgs = jobClient.getClassArgs();
@@ -26,7 +26,7 @@ public class DtScriptUtil {
         for (int i = 0; i < args.size() - 1; ++i) {
             if ("--launch-cmd".equals(args.get(i)) || "--cmd-opts".equals(args.get(i))) {
                 if (!AppTypeEnum.JLOGSTASH.name().equalsIgnoreCase(appType)) {
-                    args.set(i + 1, new String(decoder.decodeBuffer(args.get(i + 1)), "UTF-8"));
+                    args.set(i + 1, new String(DECODER.decodeBuffer(args.get(i + 1)), "UTF-8"));
                 }
             }
         }

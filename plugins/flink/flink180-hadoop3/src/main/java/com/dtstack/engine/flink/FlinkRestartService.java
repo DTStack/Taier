@@ -27,7 +27,7 @@ public class FlinkRestartService extends CommonRestartService {
 
     private static Logger logger = LoggerFactory.getLogger(FlinkRestartService.class);
 
-    private final static List<String> AddMemRestartExceptionList = ExceptionInfoConstrant.getNeedAddMemRestartException();
+    private final static List<String> ADD_MEM_RESTART_EXCEPTION = ExceptionInfoConstrant.getNeedAddMemRestartException();
 
     private Cache<String, String> jobErrorInfoCache = CacheBuilder.newBuilder().maximumSize(50).expireAfterWrite(5 * 60, TimeUnit.SECONDS).build();
 
@@ -52,7 +52,7 @@ public class FlinkRestartService extends CommonRestartService {
 
     public IJobRestartStrategy parseErrorLog(String msg) {
         if (StringUtils.isNotBlank(msg)) {
-            for (String emsg : AddMemRestartExceptionList) {
+            for (String emsg : ADD_MEM_RESTART_EXCEPTION) {
                 if (msg.contains(emsg)) {
                     return new FlinkAddMemoryRestart();
                 }

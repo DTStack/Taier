@@ -108,7 +108,7 @@ public class JLogstashType extends AbstractAppType {
             }
             boolean isChg = false;
             if (StringUtils.isNotBlank(fStr)) {
-                Map configs = objectMapper.readValue(fStr, Map.class);
+                Map configs = OBJECT_MAPPER.readValue(fStr, Map.class);
                 List<Map> inputs = (List<Map>) MapUtils.getObject(configs, "inputs", Collections.EMPTY_LIST);
                 if (!inputs.isEmpty()) {
                     int i = 1;
@@ -131,7 +131,7 @@ public class JLogstashType extends AbstractAppType {
                         }
                     }
                 }
-                fStr = objectMapper.writeValueAsString(configs);
+                fStr = OBJECT_MAPPER.writeValueAsString(configs);
             }
             if (idx != -1 && isChg) {
                 args[idx] = GZipUtil.compress(Base64Util.baseEncode(fStr));
