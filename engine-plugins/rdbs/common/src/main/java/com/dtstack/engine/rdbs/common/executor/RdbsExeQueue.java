@@ -3,13 +3,13 @@ package com.dtstack.engine.rdbs.common.executor;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.logStore.LogStoreFactory;
+import com.dtstack.engine.common.logstore.LogStoreFactory;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dtstack.engine.common.logStore.AbstractLogStore;
+import com.dtstack.engine.common.logstore.AbstractLogStore;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;

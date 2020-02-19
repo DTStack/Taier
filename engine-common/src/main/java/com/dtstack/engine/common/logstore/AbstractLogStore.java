@@ -1,4 +1,4 @@
-package com.dtstack.engine.common.plugin.log;
+package com.dtstack.engine.common.logstore;
 
 import java.util.Collection;
 

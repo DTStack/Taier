@@ -1,4 +1,4 @@
-package com.dtstack.engine.common.logStore.mysql;
+package com.dtstack.engine.common.logstore.mysql;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.pool.DruidPooledConnection;

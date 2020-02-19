@@ -1,7 +1,7 @@
-package com.dtstack.engine.common.logStore;
+package com.dtstack.engine.common.logstore;
 
 
-import com.dtstack.engine.common.logStore.mysql.MysqlLogStore;
+import com.dtstack.engine.common.logstore.mysql.MysqlLogStore;
 
 /**
  * Created by sishu.yss on 2018/4/17.

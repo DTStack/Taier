@@ -29,16 +29,15 @@
         <module>engine-api</module>
         <module>engine-plugins/base</module>
         <!--<module>engine-plugins/spark/spark-hadoop2</module>-->
-        <module>engine-plugins/spark/spark-yarn-hadoop2</module>
-        <module>engine-plugins/spark/spark-yarn-hadoop3</module>
-        <!--<module>engine-plugins/spark/spark160-yarn-hadoop2</module>-->
-        <!--<module>engine-plugins/flink/flink150-hadoop2</module>-->
-        <module>engine-plugins/flink/flink180-hadoop2</module>
-        <module>engine-plugins/flink/flink180-hadoop3</module>
-        <module>engine-plugins/flink/flink180-HW</module>
-        <module>engine-plugins/dtscript/dtscript-hadoop2</module>
-        <module>engine-plugins/dtscript/dtscript-hadoop3</module>
-        <module>engine-plugins/learning/learning-hadoop2</module>
+        <!--<module>engine-plugins/spark/spark-yarn-hadoop2</module>-->
+        <!--<module>engine-plugins/spark/spark-yarn-hadoop3</module>-->
+        <!--&lt;!&ndash;<module>engine-plugins/spark/spark160-yarn-hadoop2</module>&ndash;&gt;-->
+        <!--<module>engine-plugins/flink/flink180-hadoop2</module>-->
+        <!--<module>engine-plugins/flink/flink180-hadoop3</module>-->
+        <!--<module>engine-plugins/flink/flink180-HW</module>-->
+        <!--<module>engine-plugins/dtscript/dtscript-hadoop2</module>-->
+        <!--<module>engine-plugins/dtscript/dtscript-hadoop3</module>-->
+        <!--<module>engine-plugins/learning/learning-hadoop2</module>-->
         <module>engine-plugins/odps</module>
         <module>engine-plugins/kylin</module>
         <module>engine-plugins/rdbs</module>

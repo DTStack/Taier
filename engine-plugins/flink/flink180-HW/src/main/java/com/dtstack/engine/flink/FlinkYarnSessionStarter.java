@@ -1,6 +1,5 @@
 package com.dtstack.engine.flink;
 
-import com.dtstack.engine.common.config.ConfigParse;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.util.FLinkConfUtil;
@@ -11,6 +10,8 @@ import com.netflix.curator.framework.CuratorFramework;
 import com.netflix.curator.framework.CuratorFrameworkFactory;
 import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
 import com.netflix.curator.retry.ExponentialBackoffRetry;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.configuration.HighAvailabilityOptions;
 import org.apache.flink.util.FlinkException;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
@@ -106,15 +107,13 @@ public class FlinkYarnSessionStarter {
     }
 
     private void initZk() {
-        String zkAddress = ConfigParse.getNodeZkAddress();
-        if (StringUtils.isBlank(zkAddress)
-                    || zkAddress.split("/").length < 2) {
-                throw new RdosDefineException("zkAddress is error");
+        Configuration flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
+        String zkAddress = flinkConfiguration.getValue(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM);
+        if (StringUtils.isBlank(zkAddress)) {
+            throw new RdosDefineException("zkAddress is error");
         }
-        String[] zks = zkAddress.split("/");
-        zkAddress = zks[0].trim();
-        String distributeRootNode = String.format("/%s", zks[1].trim());
-        lockPath = String.format("%s/yarn_session/%s", distributeRootNode, flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue());
+        lockPath = String.format("/yarn_session/%s", flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue());
+
         this.zkClient = CuratorFrameworkFactory.builder()
                 .connectString(zkAddress).retryPolicy(new ExponentialBackoffRetry(1000, 3))
                 .connectionTimeoutMs(1000)

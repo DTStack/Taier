@@ -125,17 +125,17 @@ public class TaskCheckpointDealer implements Runnable {
         }
     }
 
-    public void subtractionCheckpointRecord(String taskEngineID) {
+    public void subtractionCheckpointRecord(String taskEngineId) {
         try {
 
-            int retainedNum = taskEngineIdAndRetainedNum.getOrDefault(taskEngineID, 1);
-            List<StreamTaskCheckpoint> threshold = streamTaskCheckpointDao.getByTaskEngineIDAndCheckpointIndexAndCount(taskEngineID,retainedNum-1, 1);
+            int retainedNum = taskEngineIdAndRetainedNum.getOrDefault(taskEngineId, 1);
+            List<StreamTaskCheckpoint> threshold = streamTaskCheckpointDao.getByTaskEngineIdAndCheckpointIndexAndCount(taskEngineId,retainedNum-1, 1);
 
             if (threshold.isEmpty()) {
                 return;
             }
             StreamTaskCheckpoint thresholdCheckpoint = threshold.get(0);
-            streamTaskCheckpointDao.batchDeleteByEngineTaskIdAndCheckpointID(thresholdCheckpoint.getTaskEngineId(), thresholdCheckpoint.getCheckpointID());
+            streamTaskCheckpointDao.batchDeleteByEngineTaskIdAndCheckpointId(thresholdCheckpoint.getTaskEngineId(), thresholdCheckpoint.getCheckpointId());
         } catch (Exception e){
             logger.error("taskEngineId Id :{}", taskEngineId);
             logger.error("", e);
@@ -357,7 +357,7 @@ public class TaskCheckpointDealer implements Runnable {
                         StringUtils.isEmpty(checkpointInsertedCache.getIfPresent(checkpointCacheKey))) {
                     Timestamp checkpointTriggerTimestamp = new Timestamp(checkpointTrigger);
 
-                    streamTaskCheckpointDao.insert(taskId, engineTaskId, checkpointID, checkpointTriggerTimestamp, checkpointSavepath, checkpointCounts);
+                    streamTaskCheckpointDao.insert(taskId, engineTaskId, checkpointId, checkpointTriggerTimestamp, checkpointSavepath, checkpointCounts);
                     checkpointInsertedCache.put(checkpointCacheKey, "1");  //存在标识
 
                 }
@@ -376,7 +376,7 @@ public class TaskCheckpointDealer implements Runnable {
 
             if (null != checkpointId) {
                 int retainedNum = parseRetainedNum(pluginInfo);
-                streamTaskCheckpointDao.batchDeleteByEngineTaskIdAndCheckpointID(engineTaskId, MathUtil.getString(checkpointID - retainedNum + 1));
+                streamTaskCheckpointDao.batchDeleteByEngineTaskIdAndCheckpointId(engineTaskId, MathUtil.getString(checkpointId - retainedNum + 1));
             }
         }
     }

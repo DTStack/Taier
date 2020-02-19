@@ -1,10 +1,10 @@
 package com.dtstack.engine.rdbs.common.executor;
 
 import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.logStore.LogStoreFactory;
+import com.dtstack.engine.common.logstore.AbstractLogStore;
+import com.dtstack.engine.common.logstore.LogStoreFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dtstack.engine.common.logStore.LogStore;
 import java.util.Map;
 
 /**
