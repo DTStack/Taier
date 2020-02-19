@@ -197,7 +197,6 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
 
     @Override
     public E take() throws InterruptedException {
-        // TODO Auto-generated method stub
         E x;
         int c = -1;
         final AtomicInteger count = this.count;
@@ -238,7 +237,6 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
 
     @Override
     public int drainTo(Collection<? super E> c, int maxElements) {
-        // TODO Auto-generated method stub
         return 0;
     }
 

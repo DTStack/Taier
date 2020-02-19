@@ -34,7 +34,7 @@ import java.util.Map;
 /**
  * 对接数栈控制台
  * <p>
- * TODO, groupName 代码engine中内存队列的类型名字
+ * 代码engine中内存队列的类型名字
  * <p>
  * <p>
  * company: www.dtstack.com

@@ -22,7 +22,6 @@ import java.util.Properties;
 
 /**
  * 插件客户端
- * TODO 所有存储的client都是clientproxy
  * Date: 2018/2/5
  * Company: www.dtstack.com
  * @author xuchao
