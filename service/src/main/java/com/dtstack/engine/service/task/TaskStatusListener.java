@@ -196,7 +196,7 @@ public class TaskStatusListener implements Runnable{
 
                 if(rdosTaskStatus != null){
 
-                    updateJobEngineLog(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
+//                    updateJobEngineLog(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
 
                     rdosTaskStatus = checkNotFoundStatus(rdosTaskStatus, taskId);
 
