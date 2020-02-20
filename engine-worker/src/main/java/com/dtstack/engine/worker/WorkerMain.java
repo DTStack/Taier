@@ -32,7 +32,7 @@ public class WorkerMain {
             ActorSystem system = ActorSystem.create("AkkaRemoteWork", ConfigFactory.load("worker.conf"));
             // Create an actor
             ActorSelection toMaster = system.actorSelection("akka.tcp://AkkaRemoteMaster@127.0.0.1:2552/user/Master");
-            WorkerInfo workInfo = new WorkerInfo("127.0.0.1", 123);
+            WorkerInfo workInfo = new WorkerInfo("127.0.0.1", 123, "", System.currentTimeMillis());
             Runnable runnable = new WorkerListener(toMaster, workInfo);
             // 线程池优化
             ThreadPoolExecutor executor = new ThreadPoolExecutor(5, 10, 200, TimeUnit.MILLISECONDS,
