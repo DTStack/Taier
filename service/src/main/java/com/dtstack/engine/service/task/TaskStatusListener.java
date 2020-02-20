@@ -12,6 +12,7 @@ import com.dtstack.engine.service.db.dao.RdosEngineJobDAO;
 import com.dtstack.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.engine.service.db.dao.RdosPluginInfoDAO;
 import com.dtstack.engine.service.db.dataobject.RdosEngineJob;
+import com.dtstack.engine.service.node.WorkNode;
 import com.dtstack.engine.service.util.TaskIdUtil;
 import com.dtstack.engine.service.zk.cache.ZkLocalCache;
 import com.dtstack.engine.service.zk.data.BrokerDataShard;
@@ -240,20 +241,15 @@ public class TaskStatusListener implements Runnable{
             //从engine获取log
             String jobLog = JobClient.getEngineLog(engineType, pluginInfo, jobIdentifier);
             if (jobLog != null){
-                updateJobEngineLog(jobId, jobLog, computeType);
+                WorkNode.getInstance().updateJobEngineLog(jobId, jobLog, engineType);
             }
         } catch (Throwable e){
             String errorLog = ExceptionUtil.getErrorMessage(e);
             logger.error("update JobEngine Log error jobid {} ,error info {}..", jobId, errorLog);
-            updateJobEngineLog(jobId, errorLog, computeType);
+            WorkNode.getInstance().updateJobEngineLog(jobId, errorLog, engineType);
         }
     }
 
-    private void updateJobEngineLog(String jobId, String jobLog, Integer computeType){
-
-        //写入db
-        rdosBatchEngineJobDAO.updateEngineLog(jobId, jobLog);
-    }
 
     private RdosTaskStatus checkNotFoundStatus(RdosTaskStatus taskStatus, String jobId){
         TaskStatusFrequency statusPair = updateJobStatusFrequency(jobId, taskStatus.getStatus());
