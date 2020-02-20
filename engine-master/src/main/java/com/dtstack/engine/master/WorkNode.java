@@ -165,7 +165,7 @@ public class WorkNode implements InitializingBean {
         try{
             GroupPriorityQueue groupQueue = priorityQueueMap.computeIfAbsent(jobResource, k -> new GroupPriorityQueue(jobResource, environmentContext.getQueueSize(), environmentContext.getJobRestartDelay(),
                     (groupPriorityQueue, startId, limited) -> {
-                        return this.emitJob2GQ(jobClient.getEngineType(), groupPriorityQueue, startId, limited);
+                        return this.emitJob2GQ(jobResource, groupPriorityQueue, startId, limited);
                     })
             );
             groupQueue.add(jobClient);
@@ -358,13 +358,13 @@ public class WorkNode implements InitializingBean {
         }
     }
 
-    private Long emitJob2GQ(String engineType, GroupPriorityQueue groupPriorityQueue, long startId, int limited){
+    private Long emitJob2GQ(String jobResource, GroupPriorityQueue groupPriorityQueue, long startId, int limited){
         String localAddress = environmentContext.getLocalAddress();
         try {
             int count = 0;
             outLoop :
             while (true) {
-                List<EngineJobCache> jobCaches = engineJobCacheDao.listByStage(startId, localAddress, EJobCacheStage.DB.getStage(), engineType);
+                List<EngineJobCache> jobCaches = engineJobCacheDao.listByStage(startId, localAddress, EJobCacheStage.DB.getStage(), jobResource);
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     break;
                 }
