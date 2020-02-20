@@ -24,16 +24,7 @@ public class ExceptionInfoConstrant {
 
     /**  undo restart*/
     public final static String FLINK_ENGINE_DOWN_UNDO_RESTART_EXCEPTION = "Could not connect to the leading JobManager";
-    public final static String FLINK_AKKA_VERSION_UNDO_RESTART_EXCEPTION = "No configuration setting found for key 'akka.version'";
-    public final static String JDBC_LINK_FAILURE_UNDO_RESTART_EXCEPTION = "com.mysql.jdbc.exceptions.jdbc4.CommunicationsException: Communications link failure";
-    public final static String JOBMGR_NOT_RESPONSE_UNDO_RESTART_EXCEPTION = "JobTimeoutException: JobManager did not respond within";
-    public final static String FUTURES_TIME_OUT_UNDO_RESTART_EXCEPTION = "java.util.concurrent.TimeoutException: Futures timed out after";
-    public final static String  UPLOAD_UNDO_RESTART_EXCEPTION= "Could not upload the program's JAR files to the JobManager";
-    public final static String  IN_INITIALIZER_UNDO_RESTART_EXCEPTION = "java.lang.ExceptionInInitializerError";
-    public final static String  LEASE_EXPIRED_UNDO_RESTART_EXCEPTION = "org.apache.hadoop.ipc.RemoteException(org.apache.hadoop.hdfs.server.namenode.LeaseExpiredException)";
-    public final static String  AKKA_ASK_TIMEOUT_UNDO_RESTART_EXCEPTION = "akka.pattern.AskTimeoutException";
     public final static String FLINK_NO_RESOURCE_AVAILABLE_UNDO_RESTART_EXCEPTION = "org.apache.flink.runtime.jobmanager.scheduler.NoResourceAvailableException:";
-    public final static String FLINK_METASPACE_OOM_UNDO_RESTART_EXCEPTION = "java.lang.OutOfMemoryError: Metaspace";
     public final static String FLINK_GET_LOG_ERROR_UNDO_RESTART_EXCEPTION = "Failed to get the stopped task log, please check if job history is enabled";
 
     public final static String FLINK_UNALE_TO_GET_CLUSTERCLIENT_STATUS_EXCEPTION = "Unable to get ClusterClient status from Application Client";
