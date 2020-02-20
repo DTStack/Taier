@@ -99,7 +99,6 @@ public class SparkYarnClient extends AbsClient {
     private Properties sparkExtProp;
 
     public SparkYarnClient(){
-        this.restartService = new SparkRestartService();
     }
 
     @Override
