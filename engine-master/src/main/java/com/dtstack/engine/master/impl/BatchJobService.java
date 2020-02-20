@@ -160,7 +160,7 @@ public class BatchJobService {
     private JobRichOperator jobRichOperator;
 
     @Autowired
-    private WorkNode workNode;
+    private ActionService actionService;
 
     @Autowired
     private JobPartitioner jobPartitioner;
@@ -979,7 +979,8 @@ public class BatchJobService {
                 }
                 //TODO, 放入队列
 //                engineSend.sendTask(taskJson, null, null);
-                workNode.addSubmitJob(actionParam);
+                actionService.start(actionParam);
+
                 return;
             }
         }

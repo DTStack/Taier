@@ -81,14 +81,14 @@ public class ShardManager implements Runnable {
     @Override
     public void run() {
         for (Map.Entry<String, ShardData> shardEntry : shards.entrySet()) {
-            ShardData brokerDataShard = shardEntry.getValue();
-            ConcurrentSkipListMap<String, Integer> shardData = brokerDataShard.getMetas();
-            Iterator<Map.Entry<String, Integer>> it = shardData.entrySet().iterator();
+            ShardData shardData = shardEntry.getValue();
+            ConcurrentSkipListMap<String, Integer> metas = shardData.getMetas();
+            Iterator<Map.Entry<String, Integer>> it = metas.entrySet().iterator();
             while (it.hasNext()) {
-                Map.Entry<String, Integer> data = it.next();
-                if (RdosTaskStatus.needClean(data.getValue())) {
-                    brokerDataShard.getNewVersion().incrementAndGet();
+                Map.Entry<String, Integer> jobWithStatus = it.next();
+                if (RdosTaskStatus.needClean(jobWithStatus.getValue())) {
                     it.remove();
+                    shardData.getNewVersion().incrementAndGet();
                 }
             }
         }

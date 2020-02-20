@@ -3,7 +3,6 @@ package com.dtstack.engine.master;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
 import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
@@ -130,16 +129,6 @@ public class WorkNode implements InitializingBean {
         return allNodeGroupInfo;
     }
 
-    public void addSubmitJob(Map<String, Object> params) {
-        try{
-            ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
-            JobClient jobClient = new JobClient(paramAction);
-            this.addSubmitJob(jobClient, true);
-        }catch (Exception e){
-            LOG.error("", e);
-        }
-    }
-
     /**
      * 提交优先级队列->最终提交到具体执行组件
      */
@@ -212,8 +201,6 @@ public class WorkNode implements InitializingBean {
 
         priorityQueueMap.forEach((k,v)->v.resetStartId());
     }
-
-
 
     public boolean workSendStop(ParamAction paramAction){
         return jobStopQueue.tryPutStopJobQueue(paramAction);

@@ -230,25 +230,25 @@ public class ActionService {
             return result;
         }
         try {
-            EngineJob rdosEngineBatchJob = engineJobDao.getRdosJobByJobId(jobId);
-            if(rdosEngineBatchJob == null){
-                rdosEngineBatchJob = new EngineJob();
-                rdosEngineBatchJob.setJobId(jobId);
-                rdosEngineBatchJob.setJobName(paramAction.getName());
-                rdosEngineBatchJob.setSourceType(paramAction.getSourceType());
-                rdosEngineBatchJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus());
-                rdosEngineBatchJob.setComputeType(computerType);
-                engineJobDao.insert(rdosEngineBatchJob);
+            EngineJob engineJob = engineJobDao.getRdosJobByJobId(jobId);
+            if(engineJob == null){
+                engineJob = new EngineJob();
+                engineJob.setJobId(jobId);
+                engineJob.setJobName(paramAction.getName());
+                engineJob.setSourceType(paramAction.getSourceType());
+                engineJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus());
+                engineJob.setComputeType(computerType);
+                engineJobDao.insert(engineJob);
                 result =  true;
             }else{
-                result = RdosTaskStatus.canStartAgain(rdosEngineBatchJob.getStatus());
+                result = RdosTaskStatus.canStartAgain(engineJob.getStatus());
                 if (result && ComputeType.BATCH.getType().equals(computerType)) {
                     engineJobRetryDao.removeByJobId(jobId);
                 }
 
-                if(result && !RdosTaskStatus.ENGINEACCEPTED.getStatus().equals(rdosEngineBatchJob.getStatus()) ){
-                    int oldStatus = rdosEngineBatchJob.getStatus();
-                    Integer update = engineJobDao.updateTaskStatusCompareOld(rdosEngineBatchJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus(),oldStatus, paramAction.getName());
+                if(result && !RdosTaskStatus.ENGINEACCEPTED.getStatus().equals(engineJob.getStatus()) ){
+                    int oldStatus = engineJob.getStatus();
+                    Integer update = engineJobDao.updateTaskStatusCompareOld(engineJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus(),oldStatus, paramAction.getName());
                     if (update==null||update!=1){
                         result = false;
                     }
