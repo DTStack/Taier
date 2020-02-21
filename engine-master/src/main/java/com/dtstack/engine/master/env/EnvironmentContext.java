@@ -275,4 +275,8 @@ public class EnvironmentContext {
         return Long.parseLong(environment.getProperty("jobRestartDelay"), 2 * 60 * 1000);
     }
 
+    public String getAkkaSystemName() {
+        return environment.getProperty("AkkaSystemNam", "AkkaRemoteMaster");
+    }
+
 }

@@ -18,24 +18,22 @@ import java.util.stream.Collectors;
 
 public class ActorManager implements Runnable {
 
-    private Map<String,Object> configMap = Maps.newHashMap();
     private ActorSystem system;
     private ActorRef actorRef;
     private Map<String, WorkerInfo> workerInfoMap = Maps.newHashMap();
     private static volatile ActorManager actorManager;
-    private Long timeout = Long.valueOf(3000);
+    private Long timeout = Long.valueOf(4000);
 
-    private ActorManager(Map<String, Object> map){
-        this.configMap = map;
-        this.system = ActorSystem.create("AkkaRemoteMaster", ConfigFactory.parseMap(map));
+    private ActorManager(String name){
+        this.system = ActorSystem.create(name, ConfigFactory.load());
         this.actorRef = system.actorOf(Props.create(Master.class), "Master");
     }
 
-    public static ActorManager createMasterActorManager(Map<String, Object> map){
+    public static ActorManager createMasterActorManager(String name){
         if(actorManager == null){
             synchronized(ActorManager.class){
                 if(actorManager == null){
-                    actorManager = new ActorManager(map);
+                    actorManager = new ActorManager(name);
                 }
             }
         }

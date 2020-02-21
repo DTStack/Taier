@@ -129,13 +129,13 @@ public class JobSubmitDealer implements Runnable {
             }
 
             // 判断资源
-            if (AkkaOperator.getInstance().judgeSlots(jobClient)) {
+            if (WorkerOperator.getInstance().judgeSlots(jobClient)) {
                 logger.info("--------submit job:{} to engine start----.", jobClient.toString());
 
                 jobClient.doStatusCallBack(RdosTaskStatus.COMPUTING.getStatus());
 
                 // 提交任务
-                jobResult = AkkaOperator.getInstance().submitJob(jobClient);
+                jobResult = WorkerOperator.getInstance().submitJob(jobClient);
 
                 logger.info("submit job result is:{}.", jobResult);
 

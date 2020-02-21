@@ -3,11 +3,10 @@ package com.dtstack.engine.worker;
 import akka.actor.AbstractActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import com.dtstack.engine.common.ClientOperator;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.JobIdentifier;
+import com.dtstack.engine.common.*;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.message.*;
 
 import java.util.List;
 
@@ -16,31 +15,39 @@ public class Worker extends AbstractActor{
 
     public Receive createReceive() {
         return receiveBuilder()
-                .matchEquals("judgeSlots", msg->{ log.info("judgeSlots");})
-                .matchEquals("submitJob", msg->{ log.info("submitjob");})
-                .matchEquals("getJobStatus", msg->{
-                    RdosTaskStatus status = ClientOperator.getInstance().getJobStatus("engineType", "pluginInfo", JobIdentifier.createInstance("", "", ""));
+                .match(MessageJudgeSlots.class, msg->{
+                    JobClient jobClient = msg.getJobClient();
+                    IClient clusterClient = ClientCache.getInstance().getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
+                    sender().tell(clusterClient.judgeSlots(jobClient), getSelf());
+                })
+                .match(MessageSubmitJob.class, msg->{
+                    JobClient jobClient = msg.getJobClient();
+                    IClient clusterClient = ClientCache.getInstance().getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
+                    sender().tell(clusterClient.submitJob(jobClient), getSelf());
+                })
+                .match(MessageGetJobStatus.class, msg->{
+                    RdosTaskStatus status = ClientOperator.getInstance().getJobStatus(msg.getEngineType(), msg.getPluginInfo(), msg.getJobIdentifier());
                     sender().tell(status, getSelf());
                 })
-                .matchEquals("getEngineLog", msg->{
-                    String engineLog = ClientOperator.getInstance().getEngineLog("engineType", "pluginInfo", JobIdentifier.createInstance("", "", ""));
+                .match(MessageGetEngineLog.class, msg->{
+                    String engineLog = ClientOperator.getInstance().getEngineLog(msg.getEngineType(), msg.getPluginInfo(), msg.getJobIdentifier());
                     sender().tell(engineLog, getSelf());
                 })
-                .matchEquals("getJobMaster", msg->{
-                    String jobMaster = ClientOperator.getInstance().getJobMaster("engineType", "pluginInfo", JobIdentifier.createInstance("", "", ""));
+                .match(MessageGetJobMaster.class, msg->{
+                    String jobMaster = ClientOperator.getInstance().getJobMaster(msg.getEngineType(), msg.getPluginInfo(), msg.getJobIdentifier());
                     sender().tell(jobMaster, getSelf());
                 })
-                .matchEquals("stopJob", msg->{
-                    JobResult result = ClientOperator.getInstance().stopJob(new JobClient());
+                .match(MessageStopJob.class, msg->{
+                    JobResult result = ClientOperator.getInstance().stopJob(msg.getJobClient());
                     sender().tell(result, getSelf());
 
                 })
-                .matchEquals("getCheckpoints", msg->{
-                    String checkPoints = ClientOperator.getInstance().getCheckpoints("engineType", "pluginInfo", JobIdentifier.createInstance("", "", ""));
+                .match(MessageGetCheckpoints.class, msg->{
+                    String checkPoints = ClientOperator.getInstance().getCheckpoints(msg.getEngineType(), msg.getPluginInfo(), msg.getJobIdentifier());
                     sender().tell(checkPoints, getSelf());
                 })
-                .matchEquals("containerInfos", msg->{
-                    List<String> containerInfos = ClientOperator.getInstance().containerInfos(new JobClient());
+                .match(MessageContainerInfos.class, msg->{
+                    List<String> containerInfos = ClientOperator.getInstance().containerInfos(msg.getJobClient());
                     sender().tell(containerInfos, getSelf());
                 })
                 .build();

@@ -10,9 +10,9 @@ import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.io.*;
+import java.util.Properties;
+import java.util.concurrent.*;
 
 
 public class WorkerMain {
@@ -28,16 +28,24 @@ public class WorkerMain {
 
             ShutdownHookUtil.addShutdownHook(WorkerMain::shutdown, WorkerMain.class.getSimpleName(), logger);
 
-            // TODO: 2020/2/14 创建远程actor发送心跳信息
-            ActorSystem system = ActorSystem.create("AkkaRemoteWork", ConfigFactory.load("worker.conf"));
+            Properties properties = loadConfig();
+            String name = properties.getProperty("AkkaRemoteWork", "akkaRemoteWork");
+
+            ActorSystem system = ActorSystem.create(name, ConfigFactory.load());
             // Create an actor
-            ActorSelection toMaster = system.actorSelection("akka.tcp://AkkaRemoteMaster@127.0.0.1:2552/user/Master");
-            WorkerInfo workInfo = new WorkerInfo("127.0.0.1", 123, "", System.currentTimeMillis());
+
+            String path = properties.getProperty("masterRemotePath");
+            //"akka.tcp://AkkaRemoteMaster@127.0.0.1:2552/user/Master"
+
+            ActorSelection toMaster = system.actorSelection(path);
+            String ip = properties.getProperty("workIp");
+            int port = Integer.parseInt(properties.getProperty("workPort"));
+            String workRemotePath = properties.getProperty("workRemotePath");
+            WorkerInfo workInfo = new WorkerInfo(ip, port, workRemotePath, System.currentTimeMillis());
+
             Runnable runnable = new WorkerListener(toMaster, workInfo);
-            // 线程池优化
-            ThreadPoolExecutor executor = new ThreadPoolExecutor(5, 10, 200, TimeUnit.MILLISECONDS,
-                    new LinkedBlockingQueue<Runnable>());
-            executor.submit(runnable);
+            ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
+            singleThreadExecutor.execute(runnable);
         } catch (Throwable e) {
             logger.error("only engine-worker start error:{}", e);
             System.exit(-1);
@@ -47,5 +55,13 @@ public class WorkerMain {
 
     private static void shutdown() {
         logger.info("Worker is shutdown...");
+    }
+
+    private static Properties loadConfig() throws IOException {
+        Properties properties = new Properties();
+        String file = System.getProperty("user.dir") + "/conf/worker.properties";
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
+        properties.load(bufferedReader);
+        return properties;
     }
 }

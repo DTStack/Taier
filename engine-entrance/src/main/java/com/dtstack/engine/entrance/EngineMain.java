@@ -53,7 +53,7 @@ public class EngineMain {
 			// add hook
 			ShutdownHookUtil.addShutdownHook(EngineMain::shutdown, EngineMain.class.getSimpleName(), logger);
 
-			ActorManager.createMasterActorManager(new HashMap<>());
+			ActorManager.createMasterActorManager(environmentContext.getAkkaSystemName());
 		} catch (Throwable e) {
 			logger.error("only engine-master start error:{}", e);
 			System.exit(-1);
