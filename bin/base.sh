@@ -25,8 +25,10 @@ esac
 
 if [ "$COMMAND" = "master" ] ; then
   CLASS='com.dtstack.engine.master.MasterMain'
+  FILE='../conf/master.conf'
 elif [ "$COMMAND" = "worker" ] ; then
   CLASS='com.dtstack.engine.worker.WorkerMain'
+  FILE='../conf/worker.conf'
 else
   CLASS='com.dtstack.engine.entrance.EngineMain'
 fi
@@ -50,6 +52,8 @@ JAVA_OPTS="$JAVA_OPTS -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,a
 
 #-XX:MaxDirectMemorySize=16M According to owner memory
 JAVA_OPTS="$JAVA_OPTS -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:+HeapDumpOnOutOfMemoryError -XX:+DisableExplicitGC -Dfile.encoding=UTF-8 -Djna.nosys=true -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps"
+
+JAVA_OPTS="$JAVA_OPTS -Dconfig.file=${FILE}"
 
 #Comment to speed up starting time
 #JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
