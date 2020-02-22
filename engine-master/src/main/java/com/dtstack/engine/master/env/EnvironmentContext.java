@@ -276,7 +276,11 @@ public class EnvironmentContext {
     }
 
     public String getAkkaSystemName() {
-        return environment.getProperty("AkkaSystemNam", "AkkaRemoteMaster");
+        return environment.getProperty("AkkaSystemName", "AkkaRemoteMaster");
+    }
+
+    public String getAkkaRemotePath() {
+        return environment.getProperty("AkkaRemotePath", "akka.tcp://AkkaRemoteMaster@127.0.0.1:2552/user/Master");
     }
 
 }

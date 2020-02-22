@@ -19,7 +19,7 @@ public class Master extends AbstractActor {
         return receiveBuilder()
                 .match(WorkerInfo.class, msg -> {
                     workerInfos.put(msg.getIp()+ ":" + msg.getPort(), msg);
-                    log.info(msg.getIp() + " is alive.");})
+                    log.info(msg.getIp() + ":" + msg.getPort() + " is alive.");})
                 .matchEquals("getWorkerInfos", msg -> {sender().tell(workerInfos, getSelf());})
                 .build();
     }

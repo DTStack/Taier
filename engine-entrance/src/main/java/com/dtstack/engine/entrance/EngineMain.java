@@ -20,6 +20,8 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import java.io.Closeable;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * 
@@ -53,7 +55,11 @@ public class EngineMain {
 			// add hook
 			ShutdownHookUtil.addShutdownHook(EngineMain::shutdown, EngineMain.class.getSimpleName(), logger);
 
-			ActorManager.createMasterActorManager(environmentContext.getAkkaSystemName());
+			Runnable runnable = ActorManager.createMasterActorManager(environmentContext.getAkkaSystemName(),
+					environmentContext.getAkkaRemotePath());
+			ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
+			singleThreadExecutor.execute(runnable);
+
 		} catch (Throwable e) {
 			logger.error("only engine-master start error:{}", e);
 			System.exit(-1);

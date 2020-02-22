@@ -2,6 +2,7 @@ package com.dtstack.engine.worker;
 
 import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
+import akka.actor.Props;
 import com.dtstack.engine.common.WorkerInfo;
 import com.dtstack.engine.common.log.LogbackComponent;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
@@ -29,11 +30,11 @@ public class WorkerMain {
             ShutdownHookUtil.addShutdownHook(WorkerMain::shutdown, WorkerMain.class.getSimpleName(), logger);
 
             Properties properties = loadConfig();
-            String name = properties.getProperty("AkkaRemoteWork", "akkaRemoteWork");
+            String name = properties.getProperty("akkaRemoteWork", "akkaRemoteWork");
 
             ActorSystem system = ActorSystem.create(name, ConfigFactory.load());
             // Create an actor
-
+            system.actorOf(Props.create(Worker.class), "Worker");
             String path = properties.getProperty("masterRemotePath");
             //"akka.tcp://AkkaRemoteMaster@127.0.0.1:2552/user/Master"
 
@@ -41,9 +42,8 @@ public class WorkerMain {
             String ip = properties.getProperty("workIp");
             int port = Integer.parseInt(properties.getProperty("workPort"));
             String workRemotePath = properties.getProperty("workRemotePath");
-            WorkerInfo workInfo = new WorkerInfo(ip, port, workRemotePath, System.currentTimeMillis());
 
-            Runnable runnable = new WorkerListener(toMaster, workInfo);
+            Runnable runnable = new WorkerListener(toMaster, ip, port , workRemotePath);
             ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
             singleThreadExecutor.execute(runnable);
         } catch (Throwable e) {
