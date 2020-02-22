@@ -6,6 +6,7 @@ import com.dtstack.engine.common.WorkerInfo;
 import com.dtstack.engine.common.log.LogbackComponent;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
+import com.dtstack.engine.worker.listener.HeartBeatListener;
 import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +44,7 @@ public class WorkerMain {
             String workRemotePath = properties.getProperty("workRemotePath");
             WorkerInfo workInfo = new WorkerInfo(ip, port, workRemotePath, System.currentTimeMillis());
 
-            Runnable runnable = new WorkerListener(toMaster, workInfo);
+            Runnable runnable = new HeartBeatListener(toMaster, workInfo);
             ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
             singleThreadExecutor.execute(runnable);
         } catch (Throwable e) {
