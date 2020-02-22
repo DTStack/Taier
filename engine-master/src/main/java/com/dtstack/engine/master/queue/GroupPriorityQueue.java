@@ -1,8 +1,9 @@
-package com.dtstack.engine.common.queue;
+package com.dtstack.engine.master.queue;
 
-import com.dtstack.engine.common.JobSubmitDealer;
+import com.dtstack.engine.master.taskdealer.JobSubmitDealer;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.queue.OrderLinkedBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

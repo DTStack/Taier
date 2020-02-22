@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.taskdealer;
 
-import com.dtstack.engine.common.JobSubmitDealer;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.dao.EngineJobCacheDao;

@@ -1,5 +1,8 @@
-package com.dtstack.engine.common;
+package com.dtstack.engine.master.taskdealer;
 
+import com.dtstack.engine.common.ClientCache;
+import com.dtstack.engine.common.IClient;
+import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ClientAccessException;
 import com.dtstack.engine.common.exception.ClientArgumentException;
@@ -8,8 +11,8 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.RestartJob;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
-import com.dtstack.engine.common.queue.GroupPriorityQueue;
 import com.dtstack.engine.common.queue.OrderLinkedBlockingQueue;
+import com.dtstack.engine.master.queue.GroupPriorityQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

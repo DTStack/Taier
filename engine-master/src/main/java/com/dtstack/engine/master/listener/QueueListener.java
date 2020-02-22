@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.listener;
 
-import com.dtstack.engine.common.queue.GroupInfo;
+import com.dtstack.engine.master.queue.GroupInfo;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.master.WorkNode;
