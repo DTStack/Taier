@@ -1,4 +1,4 @@
-package com.dtstack.engine.worker;
+package com.dtstack.engine.worker.service;
 
 import akka.actor.AbstractActor;
 import akka.event.Logging;
@@ -10,7 +10,7 @@ import com.dtstack.engine.common.message.*;
 
 import java.util.List;
 
-public class Worker extends AbstractActor{
+public class JobService extends AbstractActor{
     LoggingAdapter log = Logging.getLogger(getContext().system(), this);
 
     public Receive createReceive() {

@@ -3,10 +3,11 @@ package com.dtstack.engine.worker;
 import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import com.dtstack.engine.common.WorkerInfo;
 import com.dtstack.engine.common.log.LogbackComponent;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
+import com.dtstack.engine.worker.listener.HeartBeatListener;
+import com.dtstack.engine.worker.service.JobService;
 import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,7 @@ public class WorkerMain {
 
             ActorSystem system = ActorSystem.create(name, ConfigFactory.load());
             // Create an actor
-            system.actorOf(Props.create(Worker.class), "Worker");
+            system.actorOf(Props.create(JobService.class), "Worker");
             String path = properties.getProperty("masterRemotePath");
             //"akka.tcp://AkkaRemoteMaster@127.0.0.1:2552/user/Master"
 
@@ -43,7 +44,7 @@ public class WorkerMain {
             int port = Integer.parseInt(properties.getProperty("workPort"));
             String workRemotePath = properties.getProperty("workRemotePath");
 
-            Runnable runnable = new WorkerListener(toMaster, ip, port , workRemotePath);
+            Runnable runnable = new HeartBeatListener(toMaster, ip, port , workRemotePath);
             ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
             singleThreadExecutor.execute(runnable);
         } catch (Throwable e) {
