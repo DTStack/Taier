@@ -42,4 +42,14 @@
         update rdos_engine_job_stop_record set version = 0, gmt_modified = now() where id = #{id} and is_deleted =0
     </update>
 
+    <select id="listByJobIds" parameterType="java.util.HashMap" resultType="java.lang.String">
+        select task_id as jobId
+        from rdos_engine_job_stop_record
+        where task_id in
+        <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
+            #{jobId}
+        </foreach>
+        and is_deleted =0;
+    </select>
+
 </mapper>

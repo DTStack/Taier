@@ -19,4 +19,6 @@ public interface RdosEngineJobStopRecordMapper {
     List<RdosEngineJobStopRecord> listStopJob(@Param("startId") Long startId);
 
     Integer resetRecord(@Param("id") Long id);
+
+    List<String> listByJobIds(@Param("jobIds") List<String> jobIds);
 }

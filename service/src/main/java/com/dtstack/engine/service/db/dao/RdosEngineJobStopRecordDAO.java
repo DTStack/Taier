@@ -35,6 +35,17 @@ public class RdosEngineJobStopRecordDAO {
         });
     }
 
+    public List<String> listByJobIds(List<String> jobIds) {
+        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<String>>() {
+
+            @Override
+            public List<String> execute(SqlSession sqlSession) throws Exception {
+                RdosEngineJobStopRecordMapper rdosEngineJobStopRecordMapper = sqlSession.getMapper(RdosEngineJobStopRecordMapper.class);
+                return rdosEngineJobStopRecordMapper.listByJobIds(jobIds);
+            }
+        });
+    }
+
     public void delete(Long id) {
         MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>() {
 
