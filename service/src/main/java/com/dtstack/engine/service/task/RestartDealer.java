@@ -23,8 +23,8 @@ import com.dtstack.engine.service.node.WorkNode;
 import com.dtstack.engine.service.util.TaskIdUtil;
 import com.dtstack.engine.service.zk.cache.ZkLocalCache;
 import com.google.common.base.Strings;
-import javafx.util.Pair;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
