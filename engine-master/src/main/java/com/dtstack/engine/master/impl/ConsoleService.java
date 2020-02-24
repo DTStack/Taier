@@ -57,15 +57,15 @@ public class ConsoleService {
     @Autowired
     private ShardCache shardCache;
 
-    public Boolean stopJob(String jobId, Integer status) {
+    public Boolean finishJob(String jobId, Integer status) {
         if(!RdosTaskStatus.isStopped(status)){
-            logger.warn("Job status：" + status + " is not Stopped status");
+            logger.warn("Job status：" + status + " is not stopped status");
             return false;
         }
         shardCache.updateLocalMemTaskStatus(jobId, status);
         engineJobCacheDao.delete(jobId);
         engineJobDao.updateJobStatus(jobId, status);
-        logger.info("Job id：" + jobId + " is stopped");
+        logger.info("Job id：" + jobId + " is finished");
         return true;
     }
 
