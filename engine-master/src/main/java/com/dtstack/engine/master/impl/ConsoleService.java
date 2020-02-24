@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.common.annotation.Param;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.pojo.ParamAction;
@@ -9,6 +10,7 @@ import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.domain.EngineJob;
 import com.dtstack.engine.master.WorkNode;
+import com.dtstack.engine.master.cache.ShardCache;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -51,6 +53,21 @@ public class ConsoleService {
 
     @Autowired
     private ZkService zkService;
+
+    @Autowired
+    private ShardCache shardCache;
+
+    public Boolean stopJob(String jobId, Integer status) {
+        if(!RdosTaskStatus.isStopped(status)){
+            logger.warn("Job status：" + status + " is not Stopped status");
+            return false;
+        }
+        shardCache.updateLocalMemTaskStatus(jobId, status);
+        engineJobCacheDao.delete(jobId);
+        engineJobDao.updateJobStatus(jobId, status);
+        logger.info("Job id：" + jobId + " is stopped");
+        return true;
+    }
 
     public List<String> nodes() {
         try {
