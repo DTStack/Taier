@@ -1,12 +1,23 @@
 package com.dtstack.engine.master.queue;
 
+import com.dtstack.engine.common.enums.EJobCacheStage;
+import com.dtstack.engine.common.pojo.ParamAction;
+import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.dao.EngineJobCacheDao;
+import com.dtstack.engine.dao.EngineJobDao;
+import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.master.WorkNode;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.taskdealer.JobSubmitDealer;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.queue.OrderLinkedBlockingQueue;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
@@ -40,45 +51,26 @@ public class GroupPriorityQueue {
     private String jobResource;
     private int queueSizeLimited;
     private long jobRestartDelay;
-    private Ingestion ingestion;
+    private EnvironmentContext environmentContext;
+    private EngineJobCacheDao engineJobCacheDao;
+    private EngineJobDao engineJobDao;
+    private WorkNode workNode;
 
     private OrderLinkedBlockingQueue<JobClient> queue = null;
     private JobSubmitDealer jobSubmitDealer = null;
 
-    /**
-     * 每个GroupPriorityQueue中增加独立线程，以定时调度方式从数据库中获取任务。（数据库查询以id和优先级为条件）
-     *
-     * @param jobResource
-     * @param ingestion
-     */
-    public GroupPriorityQueue(String jobResource, int queueSizeLimited, long jobRestartDelay, Ingestion ingestion) {
-        this.jobResource = jobResource;
-        this.queueSizeLimited = queueSizeLimited;
-        this.jobRestartDelay = jobRestartDelay;
-        this.ingestion = ingestion;
-        this.queue = new OrderLinkedBlockingQueue<>(queueSizeLimited * 2);
-        this.jobSubmitDealer = new JobSubmitDealer(this);
-
-        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("acquireJob_" + jobResource));
-        scheduledService.scheduleWithFixedDelay(
-                new AcquireGroupQueueJob(),
-                0,
-                WAIT_INTERVAL,
-                TimeUnit.MILLISECONDS);
-
-        ExecutorService jobSubmitService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new CustomThreadFactory("jobSubmit_" + jobResource));
-        jobSubmitService.submit(jobSubmitDealer);
+    private GroupPriorityQueue() {
     }
 
     public void add(JobClient jobClient) throws InterruptedException {
-        if (isBlocked()){
+        if (isBlocked()) {
             logger.info("jobId:{} unable add to queue, because queue is blocked.", jobClient.getTaskId());
             return;
         }
         addRedirect(jobClient);
     }
 
-    public void addRedirect(JobClient jobClient) throws InterruptedException {
+    private void addRedirect(JobClient jobClient) throws InterruptedException {
         if (queue.contains(jobClient)) {
             logger.info("jobId:{} unable add to queue, because jobId already exist.", jobClient.getTaskId());
             return;
@@ -150,9 +142,9 @@ public class GroupPriorityQueue {
             /**
              * 如果队列中的任务数量小于 ${GroupPriorityQueue.QUEUE_SIZE_LIMITED} , 在连续调度了  ${GroupPriorityQueue.STOP_ACQUIRE_LIMITED} 次都没有查询到新的数据，则停止调度
              */
-            if (queueSize() < queueSizeLimited){
-                long limitId = ingestion.ingestion(GroupPriorityQueue.this, startId.get(), queueSizeLimited);
-                if (limitId != startId.get()){
+            if (queueSize() < queueSizeLimited) {
+                long limitId = emitJob2PriorityQueue(startId.get());
+                if (limitId != startId.get()) {
                     stopAcquireCount.set(0);
                 } else if (stopAcquireCount.incrementAndGet() >= STOP_ACQUIRE_LIMITED) {
                     running.set(false);
@@ -162,16 +154,119 @@ public class GroupPriorityQueue {
         }
     }
 
-    public interface Ingestion {
+    private Long emitJob2PriorityQueue(long startId){
+        String localAddress = environmentContext.getLocalAddress();
+        try {
+            int count = 0;
+            outLoop :
+            while (true) {
+                List<EngineJobCache> jobCaches = engineJobCacheDao.listByStage(startId, localAddress, EJobCacheStage.DB.getStage(), jobResource);
+                if (CollectionUtils.isEmpty(jobCaches)) {
+                    break;
+                }
+                for(EngineJobCache jobCache : jobCaches){
+                    try {
+                        ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
+                        JobClient jobClient = new JobClient(paramAction);
+                        jobClient.setCallBack((jobStatus)-> {
+                            workNode.updateJobStatus(jobClient.getTaskId(), jobStatus);
+                        });
 
-        /**
-         * 匿名函数获取engineType下的任务
-         *
-         * @param groupPriorityQueue
-         * @param startId
-         * @param limited
-         * @return
-         */
-        Long ingestion(GroupPriorityQueue groupPriorityQueue, long startId, int limited);
+                        this.addRedirect(jobClient);
+                        logger.info("jobId:{} load from db, emit job to queue.", jobClient.getTaskId());
+                        startId = jobCache.getId();
+                        if (++count >= queueSizeLimited){
+                            break outLoop;
+                        }
+                    } catch (Exception e) {
+                        //数据转换异常--打日志
+                        logger.error("", e);
+                        workNode.dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "This task stores information exception and cannot be converted." + e.toString());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.error("emitJob2PriorityQueue error:{}", localAddress, e);
+        }
+        return startId;
+    }
+
+
+
+    public GroupPriorityQueue setJobResource(String jobResource) {
+        this.jobResource = jobResource;
+        return this;
+    }
+
+    public GroupPriorityQueue setEnvironmentContext(EnvironmentContext environmentContext) {
+        this.environmentContext = environmentContext;
+        return this;
+    }
+
+    public GroupPriorityQueue setEngineJobCacheDao(EngineJobCacheDao engineJobCacheDao) {
+        this.engineJobCacheDao = engineJobCacheDao;
+        return this;
+    }
+
+    public GroupPriorityQueue setEngineJobDao(EngineJobDao engineJobDao) {
+        this.engineJobDao = engineJobDao;
+        return this;
+    }
+
+    public GroupPriorityQueue setWorkNode(WorkNode workNode) {
+        this.workNode = workNode;
+        return this;
+    }
+
+    public static GroupPriorityQueue builder() {
+        return new GroupPriorityQueue();
+    }
+
+    private void checkParams() {
+        if (StringUtils.isBlank(jobResource)) {
+            throw new RuntimeException("jobResource is null.");
+        }
+        if (queueSizeLimited <= 0) {
+            throw new RuntimeException("queueSizeLimited less than 0.");
+        }
+        if (jobRestartDelay <= 0) {
+            throw new RuntimeException("jobRestartDelay less than 0.");
+        }
+        if (null == environmentContext) {
+            throw new RuntimeException("environmentContext is null.");
+        }
+        if (null == engineJobCacheDao) {
+            throw new RuntimeException("engineJobCacheDao is null.");
+        }
+        if (null == engineJobDao) {
+            throw new RuntimeException("engineJobDao is null.");
+        }
+        if (null == workNode) {
+            throw new RuntimeException("workNode is null.");
+        }
+    }
+
+    /**
+     * 每个GroupPriorityQueue中增加独立线程，以定时调度方式从数据库中获取任务。（数据库查询以id和优先级为条件）
+     */
+    public GroupPriorityQueue build(){
+        this.queueSizeLimited = environmentContext.getQueueSize();
+        this.jobRestartDelay = environmentContext.getJobRestartDelay();
+
+        checkParams();
+
+        this.queue = new OrderLinkedBlockingQueue<>(queueSizeLimited * 2);
+        this.jobSubmitDealer = new JobSubmitDealer(this);
+
+        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("acquireJob_" + jobResource));
+        scheduledService.scheduleWithFixedDelay(
+                new AcquireGroupQueueJob(),
+                0,
+                WAIT_INTERVAL,
+                TimeUnit.MILLISECONDS);
+
+        ExecutorService jobSubmitService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new CustomThreadFactory("jobSubmit_" + jobResource));
+        jobSubmitService.submit(jobSubmitDealer);
+        return this;
     }
 }

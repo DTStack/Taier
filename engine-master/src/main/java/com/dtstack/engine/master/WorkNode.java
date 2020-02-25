@@ -163,11 +163,13 @@ public class WorkNode implements InitializingBean {
 
     public void redirectSubmitJob(String jobResource, JobClient jobClient){
         try{
-            GroupPriorityQueue groupQueue = priorityQueueMap.computeIfAbsent(jobResource, k -> new GroupPriorityQueue(jobResource, environmentContext.getQueueSize(), environmentContext.getJobRestartDelay(),
-                    (groupPriorityQueue, startId, limited) -> {
-                        return this.emitJob2GQ(jobResource, groupPriorityQueue, startId, limited);
-                    })
-            );
+            GroupPriorityQueue groupQueue = priorityQueueMap.computeIfAbsent(jobResource, k -> GroupPriorityQueue.builder()
+                    .setJobResource(jobResource)
+                    .setEnvironmentContext(environmentContext)
+                    .setEngineJobCacheDao(engineJobCacheDao)
+                    .setEngineJobDao(engineJobDao)
+                    .setWorkNode(this)
+                    .build());
             groupQueue.add(jobClient);
         }catch (Exception e){
             LOG.error("add to priority queue error:", e);
@@ -356,42 +358,6 @@ public class WorkNode implements InitializingBean {
         } catch (Exception e) {
             LOG.error("----broker:{} RecoverDealer error:{}", localAddress, e);
         }
-    }
-
-    private Long emitJob2GQ(String jobResource, GroupPriorityQueue groupPriorityQueue, long startId, int limited){
-        String localAddress = environmentContext.getLocalAddress();
-        try {
-            int count = 0;
-            outLoop :
-            while (true) {
-                List<EngineJobCache> jobCaches = engineJobCacheDao.listByStage(startId, localAddress, EJobCacheStage.DB.getStage(), jobResource);
-                if (CollectionUtils.isEmpty(jobCaches)) {
-                    break;
-                }
-                for(EngineJobCache jobCache : jobCaches){
-                    try {
-                        ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
-                        JobClient jobClient = new JobClient(paramAction);
-                        jobClient.setCallBack((jobStatus)-> {
-                            updateJobStatus(jobClient.getTaskId(), jobStatus);
-                        });
-                        groupPriorityQueue.add(jobClient);
-                        LOG.info("jobId:{} load from db, emit job to queue.", jobClient.getTaskId());
-                        startId = jobCache.getId();
-                        if (++count >= limited){
-                            break outLoop;
-                        }
-                    } catch (Exception e) {
-                        //数据转换异常--打日志
-                        LOG.error("", e);
-                        dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "This task stores information exception and cannot be converted." + e.toString());
-                    }
-                }
-            }
-        } catch (Exception e) {
-            LOG.error("emitJob2GQ error:{}", localAddress, e);
-        }
-        return startId;
     }
 
 }
