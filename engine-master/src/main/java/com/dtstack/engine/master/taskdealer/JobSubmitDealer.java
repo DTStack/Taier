@@ -12,10 +12,13 @@ import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.RestartJob;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
 import com.dtstack.engine.common.queue.OrderLinkedBlockingQueue;
+import com.dtstack.engine.master.queue.GroupInfo;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
+import com.dtstack.engine.master.queue.JobPartitioner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -35,16 +38,23 @@ public class JobSubmitDealer implements Runnable {
     /***循环间隔时间3s*/
     private static final int WAIT_INTERVAL = 2 * 1000;
 
+    private String localAddress;
     private GroupPriorityQueue priorityQueue;
+    private JobPartitioner jobPartitioner;
     private String jobResource = null;
     private OrderLinkedBlockingQueue<JobClient> queue = null;
     private DelayBlockingQueue<RestartJob<JobClient>> restartJobQueue = null;
 
-    public JobSubmitDealer(GroupPriorityQueue priorityQueue) {
-        if (priorityQueue == null) {
-            throw new RdosDefineException("queue must not null.");
+    public JobSubmitDealer(String localAddress, GroupPriorityQueue priorityQueue, JobPartitioner jobPartitioner) {
+        if (null == priorityQueue) {
+            throw new RdosDefineException("priorityQueue must not null.");
         }
+        if (null == jobPartitioner) {
+            throw new RdosDefineException("jobPartitioner must not null.");
+        }
+        this.localAddress = localAddress;
         this.priorityQueue = priorityQueue;
+        this.jobPartitioner = jobPartitioner;
         this.jobResource = priorityQueue.getJobResource();
         this.queue = priorityQueue.getQueue();
         this.restartJobQueue = new DelayBlockingQueue<RestartJob<JobClient>>(priorityQueue.getQueueSizeLimited());
@@ -63,8 +73,8 @@ public class JobSubmitDealer implements Runnable {
         while (true) {
             try {
                 JobClient jobClient = acquireJobFromQueue();
-                if (!checkLocalPriorityIsMax(jobResource, jobClient.getPriority())) {
-                    logger.info("jobId:{} checkLocalPriorityIsMax is false, wait other node job which priority higher.", jobClient.getTaskId());
+                if (!checkMaxPriority(jobResource, jobClient.getPriority())) {
+                    logger.info("jobId:{} checkMaxPriority is false, wait other node job which priority higher.", jobClient.getTaskId());
                     break;
                 }
                 //提交任务
@@ -78,7 +88,7 @@ public class JobSubmitDealer implements Runnable {
     private JobClient acquireJobFromQueue() throws InterruptedException {
         JobClient jobClient = null;
         RestartJob<JobClient> restartJob = null;
-        while ((restartJob = restartJobQueue.poll()) != null){
+        while ((restartJob = restartJobQueue.poll()) != null) {
             jobClient = restartJob.getJob();
             if (jobClient != null) {
                 break;
@@ -89,32 +99,19 @@ public class JobSubmitDealer implements Runnable {
         return jobClient;
     }
 
-    //TODO ,重构zk优先级方式
-    private boolean checkLocalPriorityIsMax(String jobResource, long localPriority) {
-//        if (clusterQueueInfo.isEmpty()) {
-//            //等待第一次从zk上获取信息
-//            return false;
-//        }
-//        ClusterQueueInfo.EngineTypeQueueInfo zkInfo = clusterQueueInfo.getEngineTypeQueueInfo(engineType);
-//        if (zkInfo == null) {
-//            return true;
-//        }
-//        boolean result = true;
-//        for (Map.Entry<String, ClusterQueueInfo.GroupQueueInfo> zkInfoEntry : zkInfo.getGroupQueueInfoMap().entrySet()) {
-//            String address = zkInfoEntry.getKey();
-//            if (localAddress.equals(address)) {
-//                continue;
-//            }
-//            ClusterQueueInfo.GroupQueueInfo groupQueueZkInfo = zkInfoEntry.getValue();
-//            Map<String, GroupInfo> remoteQueueInfo = groupQueueZkInfo.getGroupInfo();
-//            GroupInfo groupInfo = remoteQueueInfo.getOrDefault(groupName, new GroupInfo());
-//            //Priority值越低，优先级越高
-//            if (groupInfo.getPriority() > 0 && groupInfo.getPriority() < localPriority) {
-//                result = false;
-//                break;
-//            }
-//        }
-//        return result;
+    private boolean checkMaxPriority(String jobResource, long localPriority) {
+        Map<String, GroupInfo> groupInfoMap = jobPartitioner.getGroupInfoByJobResource(jobResource);
+        for (Map.Entry<String, GroupInfo> groupInfoEntry : groupInfoMap.entrySet()) {
+            String address = groupInfoEntry.getKey();
+            GroupInfo groupInfo = groupInfoEntry.getValue();
+            if (localAddress.equals(address)) {
+                continue;
+            }
+            //Priority值越低，优先级越高
+            if (groupInfo.getPriority() > 0 && groupInfo.getPriority() < localPriority) {
+                return false;
+            }
+        }
         return true;
     }
 

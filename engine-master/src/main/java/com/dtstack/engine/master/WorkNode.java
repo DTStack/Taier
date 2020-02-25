@@ -22,6 +22,7 @@ import com.dtstack.engine.domain.EngineJob;
 import com.dtstack.engine.domain.PluginInfo;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.JobStopQueue;
+import com.dtstack.engine.master.queue.JobPartitioner;
 import com.dtstack.engine.master.resource.JobComputeResourcePlain;
 import com.dtstack.engine.master.taskdealer.TaskSubmittedDealer;
 import com.dtstack.engine.master.cache.ShardCache;
@@ -74,6 +75,9 @@ public class WorkNode implements InitializingBean {
 
     @Autowired
     private TaskSubmittedDealer taskSubmittedDealer;
+
+    @Autowired
+    private JobPartitioner jobPartitioner;
 
     /**
      * key: jobResource, 计算引擎类型
@@ -170,6 +174,7 @@ public class WorkNode implements InitializingBean {
                     .setEnvironmentContext(environmentContext)
                     .setEngineJobCacheDao(engineJobCacheDao)
                     .setEngineJobDao(engineJobDao)
+                    .setJobPartitioner(jobPartitioner)
                     .setWorkNode(this)
                     .build());
             groupQueue.add(jobClient);

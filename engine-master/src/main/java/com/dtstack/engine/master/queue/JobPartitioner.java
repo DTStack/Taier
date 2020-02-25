@@ -66,4 +66,12 @@ public class JobPartitioner {
         }
         return nodeSort;
     }
+
+    public Map<String, GroupInfo> getGroupInfoByJobResource(String jobResource) {
+        Map<String, Map<String, GroupInfo>> allNodesGroupQueueJobResources = queueListener.getAllNodesGroupQueueInfo();
+        if (allNodesGroupQueueJobResources.isEmpty()) {
+            return null;
+        }
+        return allNodesGroupQueueJobResources.get(jobResource);
+    }
 }

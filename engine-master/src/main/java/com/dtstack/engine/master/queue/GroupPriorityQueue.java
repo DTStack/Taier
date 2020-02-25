@@ -55,6 +55,7 @@ public class GroupPriorityQueue {
     private EngineJobCacheDao engineJobCacheDao;
     private EngineJobDao engineJobDao;
     private WorkNode workNode;
+    private JobPartitioner jobPartitioner;
 
     private OrderLinkedBlockingQueue<JobClient> queue = null;
     private JobSubmitDealer jobSubmitDealer = null;
@@ -218,6 +219,11 @@ public class GroupPriorityQueue {
         return this;
     }
 
+    public GroupPriorityQueue setJobPartitioner(JobPartitioner jobPartitioner) {
+        this.jobPartitioner = jobPartitioner;
+        return this;
+    }
+
     public static GroupPriorityQueue builder() {
         return new GroupPriorityQueue();
     }
@@ -244,6 +250,9 @@ public class GroupPriorityQueue {
         if (null == workNode) {
             throw new RuntimeException("workNode is null.");
         }
+        if (null == jobPartitioner) {
+            throw new RuntimeException("jobPartitioner is null.");
+        }
     }
 
     /**
@@ -256,7 +265,7 @@ public class GroupPriorityQueue {
         checkParams();
 
         this.queue = new OrderLinkedBlockingQueue<>(queueSizeLimited * 2);
-        this.jobSubmitDealer = new JobSubmitDealer(this);
+        this.jobSubmitDealer = new JobSubmitDealer(environmentContext.getLocalAddress(), this, jobPartitioner);
 
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("acquireJob_" + jobResource));
         scheduledService.scheduleWithFixedDelay(
