@@ -4,9 +4,10 @@ import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.plugin.log.LogStoreFactory;
+import com.dtstack.engine.common.util.DateUtil;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dtstack.engine.common.plugin.log.LogStore;
@@ -15,6 +16,7 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -24,6 +26,8 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * mysql 执行队列
@@ -42,7 +46,9 @@ public class RdbsExeQueue {
 
     private static String ORACLE_STATEMENT_CLASS_NAME = "oracle.jdbc.driver.T4CStatement";
 
-    private int minSize = 1;
+    private static Pattern pattern = Pattern.compile("^select");
+
+    private int minSize = 20;
 
     /**最大允许同时执行的sql任务长度*/
     private int maxSize = 20;
@@ -93,9 +99,9 @@ public class RdbsExeQueue {
     public String submit(JobClient jobClient){
 
         try {
-            waitQueue.put(jobClient);
-            jobCache.put(jobClient.getTaskId(), jobClient);
             logStore.insert(jobClient.getTaskId(), jobClient.getParamAction().toString(), RdosTaskStatus.SCHEDULED.getStatus());
+            jobCache.put(jobClient.getTaskId(), jobClient);
+            waitQueue.put(jobClient);
         } catch (InterruptedException e) {
             LOG.error("", e);
             return null;
@@ -168,7 +174,7 @@ public class RdbsExeQueue {
         private String taskParams;
 
         public RdbsExe(String jobName, String sql, String jobId){
-             this(jobName, sql, jobId, null);
+            this(jobName, sql, jobId, null);
         }
 
         public RdbsExe(String jobName, String sql, String jobId, String taskParams){
@@ -185,30 +191,46 @@ public class RdbsExeQueue {
         private boolean executeSqlList() {
             Connection conn = null;
             boolean exeResult = false;
-
+            long start = System.currentTimeMillis();
+            String currentSql = "";
             try {
                 conn = connFactory.getConnByTaskParams(taskParams, jobName);
-
+                conn.setAutoCommit(false);
                 if(isCancel.get()){
-                    LOG.info("job:{} is canceled", jobName);
+                    LOG.info("exe cancel, jobId={}, jobName={} is canceled", engineJobId, jobName);
                     return false;
                 }
 
                 simpleStmt = conn.createStatement();
                 logStore.updateStatus(engineJobId, RdosTaskStatus.RUNNING.getStatus());
+                int i = 1;
                 for(String sql : sqlList) {
-                    LOG.info("job {}, now execte sql... {} ", engineJobId, sql);
-                    simpleStmt.execute(sql);
+                    currentSql = sql;
+                    if (isSelectSql(sql)){
+                        LOG.info("exe {} line skip,jobId={},jobName={},sql={}",i++,  engineJobId, jobName,sql);
+                        continue;
+                    }
+
+                    long sqlStart = System.currentTimeMillis();
+                    simpleStmt.execute(String.format("%s;", currentSql));
+                    LOG.info("exe {} line success,jobId={},jobName={},cost={}ms", i++, engineJobId, jobName, (System.currentTimeMillis() - sqlStart));
                     if(isCancel.get()) {
-                        LOG.info("job:{} is canceled", jobName);
+                        LOG.info("exe cancel,jobId={},jobName={}", engineJobId, jobName);
                         return false;
                     }
                 }
+                conn.commit();
                 exeResult = true;
             } catch (Exception e) {
-                LOG.error("", e);
+                LOG.error("exe error,jobId={},jobName={},ex={}",engineJobId, jobName, e);
+                try {
+                    conn.rollback();
+                } catch (SQLException e1) {
+                    LOG.error("rollback error,jobId={},jobName={},ex={}",engineJobId, jobName, e1);
+                }
                 //错误信息更新到日志里面
-                logStore.updateErrorLog(engineJobId, e.toString());
+                logStore.updateErrorLog(engineJobId, String.format("startTime=[%s],endTime=[%s],sql=[%s]\n\r error=[%s]", DateUtil.getDate(start, "yyyyMMdd HH:mm:ss"),
+                        DateUtil.getDate(new Date(), "yyyyMMdd HH:mm:ss"), currentSql, e.toString()));
             } finally {
 
                 try {
@@ -225,7 +247,7 @@ public class RdbsExeQueue {
                     LOG.error("", e);
                 }
 
-                LOG.info("job:{} exe end...", jobName, exeResult);
+                LOG.info("exe finish, jobId={},jobName={},exeResult={},cost={}ms", engineJobId, jobName, exeResult, (System.currentTimeMillis() - start));
                 //修改指定任务的状态--成功或者失败
                 //TODO 处理cancel job 情况
                 logStore.updateStatus(engineJobId, exeResult ? RdosTaskStatus.FINISHED.getStatus() : RdosTaskStatus.FAILED.getStatus());
@@ -234,6 +256,14 @@ public class RdbsExeQueue {
             }
             return exeResult;
 
+        }
+
+        private boolean isSelectSql(String sql){
+            Matcher matcher = pattern.matcher(sql.toLowerCase().trim());
+            if(matcher.find()) {
+                return true;
+            }
+            return false;
         }
 
         /**
@@ -343,10 +373,10 @@ public class RdbsExeQueue {
          */
         @Override
         public void run() {
-            if(StringUtils.isNotBlank(jobSqlProc)) {
-                runProc();
-            } else {
+            if(CollectionUtils.isNotEmpty(sqlList)) {
                 executeSqlList();
+            } else {
+                runProc();
             }
         }
     }
