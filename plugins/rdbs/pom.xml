@@ -21,6 +21,7 @@
         <module>hive</module>
         <module>postgresql</module>
         <module>impala</module>
+        <module>tidb</module>
     </modules>
 
 
