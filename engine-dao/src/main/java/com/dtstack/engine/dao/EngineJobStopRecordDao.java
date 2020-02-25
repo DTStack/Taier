@@ -3,6 +3,7 @@ package com.dtstack.engine.dao;
 import com.dtstack.engine.domain.EngineJobStopRecord;
 import org.apache.ibatis.annotations.Param;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 /**
@@ -16,9 +17,9 @@ public interface EngineJobStopRecordDao {
 
     Integer delete(@Param("id") Long id);
 
-    Integer updateVersion(@Param("id") Long id, @Param("version") Integer version);
+    Integer updateOperatorExpiredVersion(@Param("id") Long id, @Param("operatorExpired") Timestamp operatorExpired, @Param("version") Integer version);
 
-    List<EngineJobStopRecord> listStopJob(@Param("startId") Long startId);
+    List<EngineJobStopRecord> listStopJob(@Param("startId") Long startId, @Param("lessThanOperatorExpired") Timestamp lessThanOperatorExpired);
 
-    Integer resetRecord(@Param("id") Long id);
+    List<String> listByJobIds(@Param("jobIds") List<String> jobIds);
 }

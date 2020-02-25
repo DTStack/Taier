@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -33,7 +34,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 /**
@@ -73,8 +73,7 @@ public class JobStopQueue {
     private JobStopAction jobStopAction;
 
     private static final int WAIT_INTERVAL = 1000;
-
-    private AtomicLong startId = new AtomicLong(0);
+    private static final int OPERATOR_EXPIRED_INTERVAL = 60000;
 
     private ExecutorService simpleEs = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<>(), new CustomThreadFactory("stopProcessor"));
@@ -82,6 +81,7 @@ public class JobStopQueue {
     private ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("acquire-stopJob"));
 
     private StopProcessor stopProcessor = new StopProcessor();
+    private AcquireStopJob acquireStopJob = new AcquireStopJob();
 
     public void start() {
         if (simpleEs.isShutdown()) {
@@ -93,7 +93,7 @@ public class JobStopQueue {
         simpleEs.submit(stopProcessor);
 
         scheduledService.scheduleAtFixedRate(
-                new AcquireStopJob(),
+                acquireStopJob,
                 WAIT_INTERVAL,
                 WAIT_INTERVAL,
                 TimeUnit.MILLISECONDS);
@@ -111,12 +111,13 @@ public class JobStopQueue {
     private class AcquireStopJob implements Runnable {
         @Override
         public void run() {
-            long tmpStartId = 0;
+            long tmpStartId = 0L;
+            Timestamp operatorExpired = new Timestamp(System.currentTimeMillis() + OPERATOR_EXPIRED_INTERVAL);
+            Timestamp lessThanOperatorExpired = new Timestamp(System.currentTimeMillis());
             while (true) {
                 try {
-                    tmpStartId = startId.get();
                     //根据条件判断是否有数据存在
-                    List<EngineJobStopRecord> jobStopRecords = engineJobStopRecordDao.listStopJob(startId.get());
+                    List<EngineJobStopRecord> jobStopRecords = engineJobStopRecordDao.listStopJob(tmpStartId, lessThanOperatorExpired);
                     if (jobStopRecords.isEmpty()) {
                         break;
                     }
@@ -124,9 +125,9 @@ public class JobStopQueue {
                     Iterator<EngineJobStopRecord> it = jobStopRecords.iterator();
                     while (it.hasNext()) {
                         EngineJobStopRecord jobStopRecord = it.next();
-                        startId.set(jobStopRecord.getId());
+                        tmpStartId = jobStopRecord.getId();
                         //已经被修改过version的任务代表其他节点正在处理，可以忽略
-                        Integer update = engineJobStopRecordDao.updateVersion(jobStopRecord.getId(), jobStopRecord.getVersion());
+                        Integer update = engineJobStopRecordDao.updateOperatorExpiredVersion(jobStopRecord.getId(), operatorExpired, jobStopRecord.getVersion());
                         if (update != 1) {
                             it.remove();
                         }
@@ -135,7 +136,7 @@ public class JobStopQueue {
                     if (jobStopRecords.isEmpty()) {
                         break;
                     }
-                    List<String> jobIds = jobStopRecords.stream().map(job -> job.getTaskId()).collect(Collectors.toList());
+                    List<String> jobIds = jobStopRecords.stream().map(EngineJobStopRecord::getTaskId).collect(Collectors.toList());
                     List<EngineJobCache> jobCaches = engineJobCacheDao.getByJobIds(jobIds);
 
                     //为了下面兼容异常状态的任务停止
@@ -156,13 +157,8 @@ public class JobStopQueue {
                             ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                             paramAction.setStopJobId(jobStopRecord.getId());
                             workNode.fillJobClientEngineId(paramAction);
-                            boolean res = JobStopQueue.this.processStopJob(paramAction);
-                            if (!res) {
-                                //重置version等待下一次轮询stop
-                                engineJobStopRecordDao.resetRecord(jobStopRecord.getId());
-                                startId.set(tmpStartId);
-                            }
 
+                            JobStopQueue.this.processStopJob(paramAction);
                         } else {
                             logger.warn("[Unnormal Job] jobId:{}", jobStopRecord.getTaskId());
                             //jobcache表没有记录，可能任务已经停止。在update表时增加where条件不等于stopped
@@ -197,8 +193,11 @@ public class JobStopQueue {
                 paramAction.setRequestStart(RequestStart.NODE.getStart());
                 logger.info("action stop jobId:{} to worker node addr:{}." + paramAction.getTaskId(), address);
                 Boolean res = HttpSendClient.actionStopJobToWorker(address, paramAction);
-                if (res != null) {
-                    return res;
+                if (res != null && res) {
+                    return true;
+                } else {
+                    logger.info("can't stop jobId:{} to worker node addr:{}, maybe busy with queue." + paramAction.getTaskId(), address);
+                    return false;
                 }
             }
             stopJobQueue.put(new StoppedJob<ParamAction>(paramAction, environmentContext.getJobStoppedRetry(), environmentContext.getJobRestartDelay()));

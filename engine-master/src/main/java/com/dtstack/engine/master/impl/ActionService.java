@@ -165,19 +165,29 @@ public class ActionService {
         }
 
         List<Map<String, Object>> paramList = (List<Map<String, Object>>) paramsObj;
-
         if (paramList.size() > TASK_STOP_LIMIT){
             throw new RdosDefineException("please don't stop too many tasks at once, limit:" + TASK_STOP_LIMIT);
         }
 
+        List<EngineJobStopRecord> jobStopRecords = new ArrayList<>(paramList.size());
+        List<String> jobIds = new ArrayList<>(paramList.size());
         for(Map<String, Object> param : paramList){
             /**
              * 在性能要求较高的接口上尽可能使用java原生方法，性能对比 {@link com.dtstack.engine.dtscript.entrance.test.RdosEngineJobStopRecordCompare}
              */
             EngineJobStopRecord jobStopRecord = EngineJobStopRecord.toEntity(param);
-            engineJobStopRecordDao.insert(jobStopRecord);
+            jobStopRecords.add(jobStopRecord);
+            jobIds.add(jobStopRecord.getTaskId());
         }
 
+        List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(jobIds);
+        for (EngineJobStopRecord jobStopRecord : jobStopRecords) {
+            if (alreadyExistJobIds.contains(jobStopRecord.getTaskId())) {
+                logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobStopRecord.getTaskId());
+                continue;
+            }
+            engineJobStopRecordDao.insert(jobStopRecord);
+        }
     }
 
     /**
