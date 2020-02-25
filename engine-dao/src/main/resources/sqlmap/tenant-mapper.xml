@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.TenantDao">
+
+    <sql id="update_fragment">
+        <set>
+            <if test="dtUicTenantId != null">
+                dt_uic_tenant_id = #{dtUicTenantId},
+            </if>
+            <if test="tenantName != null">
+                tenant_name = #{tenantName},
+            </if>
+            <if test="tenantDesc != null">
+                tenant_desc = #{tenantDesc},
+            </if>
+            gmt_modified = now()
+        </set>
+    </sql>
+
+    <insert id="insert" parameterType="Tenant" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO console_dtuic_tenant(dt_uic_tenant_id,tenant_name,tenant_desc)
+        VALUES (#{dtUicTenantId},#{tenantName},#{tenantDesc})
+    </insert>
+
+    <select id="listAllDtUicTenantIds" resultType="java.lang.Long">
+        SELECT dt_uic_tenant_id
+        FROM console_dtuic_tenant
+        WHERE is_deleted = 0
+    </select>
+
+    <select id="getNameByDtUicTenantId" resultType="java.lang.String">
+        SELECT tenant_name
+        FROM console_dtuic_tenant
+        WHERE is_deleted = 0 AND dt_uic_tenant_id = #{dtUicTenantId}
+    </select>
+
+    <select id="getIdByDtUicTenantId" resultType="java.lang.Long">
+        SELECT id
+        FROM console_dtuic_tenant
+        WHERE is_deleted = 0 AND dt_uic_tenant_id = #{dtUicTenantId}
+    </select>
+
+    <select id="getByDtUicTenantId"  resultType="Tenant">
+        SELECT *
+        FROM console_dtuic_tenant
+        WHERE is_deleted = 0 AND dt_uic_tenant_id = #{dtUicTenantId}
+    </select>
+
+    <select id="listDtUicTenantIdByIds" resultType="java.lang.Long">
+        SELECT dt_uic_tenant_id
+        FROM console_dtuic_tenant
+        WHERE is_deleted = 0
+        <if test="ids.size() > 0">
+            and id in
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+</mapper>

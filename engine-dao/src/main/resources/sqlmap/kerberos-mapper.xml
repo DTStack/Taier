@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.KerberosDao">
+
+    <sql id="select_content_fragment">
+      id,cluster_id,open_kerberos,name,remote_path,principal,gmt_create,gmt_modified,is_deleted
+    </sql>
+
+    <sql id="update_fragment">
+        <set>
+            <if test="clusterId != null">
+                cluster_id = #{clusterId},
+            </if>
+            <if test="openKerberos != null">
+                open_kerberos = #{openKerberos},
+            </if>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="remotePath != null">
+                remote_path = #{remotePath},
+            </if>
+            <if test="principal != null">
+                principal = #{principal},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted},
+            </if>
+
+            gmt_modified =now()
+        </set>
+    </sql>
+
+    <select id="getByClusterId" resultType="KerberosConfig">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM console_kerberos
+        WHERE cluster_id = #{clusterId} and is_deleted = 0
+        limit 1
+    </select>
+
+    <insert id="insert" parameterType="Cluster" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO console_kerberos(cluster_id,open_kerberos,name,remote_path,principal)
+        VALUES (#{clusterId},#{openKerberos},#{name},#{remotePath},#{principal})
+    </insert>
+
+
+    <update id="update">
+        UPDATE console_kerberos
+        <include refid="update_fragment"/>
+        where id = #{id} and is_deleted = 0
+    </update>
+</mapper>

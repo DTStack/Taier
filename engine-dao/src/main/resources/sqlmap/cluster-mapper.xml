@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.ClusterDao">
+
+    <sql id="select_content_fragment">
+      id,cluster_name,gmt_create,gmt_modified,is_deleted,hadoop_version
+    </sql>
+
+    <sql id="select_where_fragment">
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            <if test="model.id != null and model.id > 0">
+                AND id = #{model.id}
+            </if>
+            <if test="model.clusterName != null">
+                AND cluster_name like '%${model.clusterName}%'
+            </if>
+            <if test="model.isDeleted != null">
+                AND is_deleted = #{model.isDeleted}
+            </if>
+            <if test="model.hadoopVersion != null">
+                AND hadoop_version = #{model.hadoopVersion}
+            </if>
+        </trim>
+    </sql>
+
+    <select id="generalQuery" resultType="com.dtstack.engine.vo.ClusterVO">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM console_cluster
+        <include refid="select_where_fragment"/>
+        <if test="orderBy != null and sort != null">
+            order by ${orderBy} ${sort}
+        </if>
+        <if test="orderBy != null and sort == null">
+            order by ${orderBy} desc
+        </if>
+        <if test="start != null and pageSize != null">
+            limit #{start} , #{pageSize}
+        </if>
+        <if test="start == null and pageSize != null">
+            limit #{pageSize}
+        </if>
+        <if test="start == null and pageSize == null">
+            limit 1000
+        </if>
+    </select>
+
+    <select id="generalCount" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+        FROM console_cluster
+        <include refid="select_where_fragment"/>
+        limit 1
+    </select>
+
+    <select id="getByClusterName" resultType="Cluster">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM console_cluster
+        WHERE cluster_name = #{clusterName} AND is_deleted = 0
+    </select>
+
+    <select id="getOne" resultType="Cluster">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM console_cluster
+        WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <insert id="insert" parameterType="Cluster" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO console_cluster(id,cluster_name,hadoop_version)
+        VALUES (#{id},#{clusterName},#{hadoopVersion})
+    </insert>
+
+    <insert id="insertWithId" parameterType="Cluster">
+        INSERT INTO console_cluster(id,cluster_name,hadoop_version)
+        VALUES (#{id},#{clusterName},#{hadoopVersion})
+        on duplicate key update cluster_name=values(cluster_name)
+    </insert>
+
+    <select id="listAll" resultType="Cluster">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM console_cluster
+        WHERE is_deleted = 0
+    </select>
+
+    <update id="updateHadoopVersion">
+        UPDATE console_cluster
+        set hadoop_version = #{hadoopVersion}
+        where id = #{id} and is_deleted = 0
+    </update>
+</mapper>

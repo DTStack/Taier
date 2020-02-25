@@ -15,4 +15,8 @@ public class ConfigConstant {
 
     public static final String DEFAULT_GROUP_NAME = "default_default";
 
+    public static String LOCAL_HADOOP_CONF_DIR = System.getProperty("user.dir") + "/conf/hadoop";
+
+    public static final String MD5_SUM_KEY = "md5zip";
+
 }
