@@ -1,9 +1,9 @@
 package com.dtstack.engine.router;
 
-import java.io.Closeable;
 import java.io.IOException;
 
 import com.dtstack.dtcenter.common.login.SessionUtil;
+import com.dtstack.engine.common.Service;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.VertxOptions;
@@ -19,9 +19,9 @@ import org.springframework.context.ApplicationContext;
  * @author sishu.yss
  *
  */
-public class VertxHttpServer implements Closeable {
+public class RouterService implements Service {
 	
-	private static final Logger logger = LoggerFactory.getLogger(VertxHttpServer.class);
+	private static final Logger logger = LoggerFactory.getLogger(RouterService.class);
 
 	private ApplicationContext context;
 
@@ -29,14 +29,15 @@ public class VertxHttpServer implements Closeable {
 
 	private Vertx vertx;
 
-	public VertxHttpServer(ApplicationContext context, EnvironmentContext environmentContext){
+	public RouterService(ApplicationContext context){
 		this.context = context;
-		this.environmentContext = environmentContext;
+		this.environmentContext = (EnvironmentContext) context.getBean("environmentContext");
 		initService();
 	}
 
+	@Override
 	public void initService(){
-		logger.info("VertxHttpServer start...");
+		logger.info("RouterService start...");
 		VertxOptions options = new VertxOptions();
 		//设置Vert.x实例使用的Event Loop线程的数量
 		options.setEventLoopPoolSize(environmentContext.getEventLoopPoolSize());
