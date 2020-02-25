@@ -1,8 +1,10 @@
 package com.dtstack.engine.master;
 
 import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.engine.common.enums.EPluginType;
 import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
 import com.dtstack.engine.common.JobIdentifier;
+import com.dtstack.engine.common.util.MD5Util;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
@@ -233,10 +235,15 @@ public class WorkNode implements InitializingBean {
 
         //请求不带插件的连接信息的话则默认为使用本地默认的集群配置---pluginInfoId = -1;
         if(!Strings.isNullOrEmpty(pluginInfoStr)){
-            PluginInfo pluginInfo = pluginInfoDao.getByKey(pluginInfoStr);
+            String pluginKey = MD5Util.getMd5String(pluginInfoStr);
+            PluginInfo pluginInfo = pluginInfoDao.getByKey(pluginKey);
             if(pluginInfo == null){
-                //TODO
-//                refPluginInfoId = pluginInfoDao.replaceInto(pluginInfoStr, EPluginType.DYNAMIC.getType());
+                pluginInfo = new PluginInfo();
+                pluginInfo.setPluginInfo(pluginInfoStr);
+                pluginInfo.setPluginKey(pluginKey);
+                pluginInfo.setType(EPluginType.DYNAMIC.getType());
+
+                refPluginInfoId = pluginInfoDao.replaceInto(pluginInfo);
             }else{
                 refPluginInfoId = pluginInfo.getId();
             }
