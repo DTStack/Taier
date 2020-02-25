@@ -204,7 +204,8 @@ public class JobStopQueue {
                 if (res != null && res) {
                     return true;
                 } else {
-                    LOG.info("can't stop jobId:{} to worker node addr:{}." + paramAction.getTaskId(), address);
+                    LOG.info("can't stop jobId:{} to worker node addr:{}, maybe busy with queue." + paramAction.getTaskId(), address);
+                    return false;
                 }
             }
             stopJobQueue.put(new StoppedJob<ParamAction>(paramAction));
