@@ -101,6 +101,9 @@ public class JobSubmitDealer implements Runnable {
 
     private boolean checkMaxPriority(String jobResource, long localPriority) {
         Map<String, GroupInfo> groupInfoMap = jobPartitioner.getGroupInfoByJobResource(jobResource);
+        if (null == groupInfoMap) {
+            return true;
+        }
         for (Map.Entry<String, GroupInfo> groupInfoEntry : groupInfoMap.entrySet()) {
             String address = groupInfoEntry.getKey();
             GroupInfo groupInfo = groupInfoEntry.getValue();
