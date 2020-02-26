@@ -46,7 +46,7 @@ public class ServerVerticle extends AbstractVerticle{
                                 future.complete();
                             }else{
                                 future.fail(result.cause());
-                                LOG.error("", result.cause());
+                                LOG.error("http.address:{} http.port:{}", environmentContext.getHttpAddress(), environmentContext.getHttpPort(), result.cause());
                                 System.exit(-1);
                             }
                         });

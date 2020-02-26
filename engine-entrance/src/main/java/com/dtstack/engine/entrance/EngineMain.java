@@ -53,7 +53,7 @@ public class EngineMain {
             ApplicationContext context = new AnnotationConfigApplicationContext(
                     EnvironmentContext.class, CacheConfig.class, ThreadPoolConfig.class,
                     MybatisConfig.class, RdosBeanConfig.class, SdkConfig.class);
-            environmentContext = (EnvironmentContext) context.getBean("environmentContext");
+            environmentContext = (EnvironmentContext) context.getBean(EnvironmentContext.class);
 
             setHadoopUserName();
             // init service

@@ -8,6 +8,7 @@ import com.dtstack.engine.master.executor.JobExecutorTrigger;
 import com.dtstack.engine.master.queue.QueueInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +25,7 @@ import java.util.concurrent.TimeUnit;
  * create: 2019/10/22
  */
 @Component
-public class QueueListener implements Listener {
+public class QueueListener implements InitializingBean, Listener {
 
     private static final Logger logger = LoggerFactory.getLogger(QueueListener.class);
 
@@ -38,12 +39,13 @@ public class QueueListener implements Listener {
     @Autowired
     private WorkNode workNode;
 
-    private final ScheduledExecutorService scheduledService;
+    private ScheduledExecutorService scheduledService;
 
     private volatile Map<Integer, Map<String, QueueInfo>> allNodesJobQueueTypes = new HashMap<>();
     private volatile Map<String, Map<String, GroupInfo>> allNodesGroupQueueJobResources = new HashMap<>();
 
-    public QueueListener() {
+    @Override
+    public void afterPropertiesSet() throws Exception {
         scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("QueueListener"));
         scheduledService.scheduleWithFixedDelay(
                 this,
@@ -111,4 +113,5 @@ public class QueueListener implements Listener {
     public void close() throws Exception {
         scheduledService.shutdownNow();
     }
+
 }

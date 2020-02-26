@@ -32,7 +32,6 @@ public class RouterService implements Service {
 	public RouterService(ApplicationContext context){
 		this.context = context;
 		this.environmentContext = (EnvironmentContext) context.getBean("environmentContext");
-		initService();
 	}
 
 	@Override
