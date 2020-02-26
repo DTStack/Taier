@@ -5,7 +5,7 @@ cache:
    - node_modules/
 
 before_script:
-  - "npm install --unsafe-perm=true --allow-root"
+  - "yarn install"
 
 stages:
   - lint
