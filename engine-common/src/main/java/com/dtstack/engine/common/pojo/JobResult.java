@@ -7,6 +7,7 @@ import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -17,9 +18,11 @@ import java.util.Date;
  * @author xuchao
  */
 
-public class JobResult {
+public class JobResult implements Serializable {
 
     private static final Logger logger = LoggerFactory.getLogger(JobResult.class);
+
+    private static final long serialVersionUID = 1L;
 
     private boolean checkRetry;
 

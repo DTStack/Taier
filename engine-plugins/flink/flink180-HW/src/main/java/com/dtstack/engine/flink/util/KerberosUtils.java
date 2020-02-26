@@ -86,7 +86,7 @@ public class KerberosUtils {
                         dirs.mkdirs();
                     }
                     SFTPHandler handler = SFTPHandler.getInstance(config.getSftpConf());
-                    keytabPath = handler.loadFromSftp(MapUtils.getString(kerberosConfig, key), remoteDir, localPath, localhost);
+                    keytabPath = handler.loadFromSftp(MapUtils.getString(kerberosConfig, key), remoteDir, localPath);
                 }
                 kerberosConfig.put(key, keytabPath);
             }

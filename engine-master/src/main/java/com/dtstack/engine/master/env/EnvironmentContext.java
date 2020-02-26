@@ -275,4 +275,12 @@ public class EnvironmentContext {
         return Long.parseLong(environment.getProperty("jobRestartDelay"), 2 * 60 * 1000);
     }
 
+    public String getAkkaSystemName() {
+        return environment.getProperty("AkkaSystemName", "AkkaRemoteMaster");
+    }
+
+    public String getAkkaRemotePath() {
+        return environment.getProperty("AkkaRemotePath", "akka.tcp://AkkaRemoteMaster@127.0.0.1:2552/user/Master");
+    }
+
 }

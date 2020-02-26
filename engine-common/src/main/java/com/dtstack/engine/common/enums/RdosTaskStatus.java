@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -16,7 +17,7 @@ import java.util.List;
  * @author sishu.yss
  *
  */
-public enum RdosTaskStatus {
+public enum RdosTaskStatus implements Serializable {
     //
 	UNSUBMIT(0),
     //
@@ -84,6 +85,8 @@ public enum RdosTaskStatus {
     );
 
 	private static final Logger logger = LoggerFactory.getLogger(RdosTaskStatus.class);
+
+    private static final long serialVersionUID = 1L;
 	
 	RdosTaskStatus(int status){
 		this.status = status;

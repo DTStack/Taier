@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.taskdealer;
 
-import com.dtstack.engine.common.ClientCache;
-import com.dtstack.engine.common.IClient;
+import com.dtstack.engine.common.WorkerOperator;
+import com.dtstack.engine.common.akka.ActorManager;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ClientAccessException;
@@ -123,20 +123,22 @@ public class JobSubmitDealer implements Runnable {
         JobResult jobResult = null;
         try {
             jobClient.doStatusCallBack(RdosTaskStatus.WAITCOMPUTE.getStatus());
-            IClient clusterClient = ClientCache.getInstance().getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
+            //IClient clusterClient = ClientCache.getInstance().getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
 
-            if (clusterClient == null) {
-                jobResult = JobResult.createErrorResult("client type (" + jobClient.getEngineType() + ") don't found.");
+            if (ActorManager.getInstance().getWorkerInfoMap().size() == 0) {
+                jobResult = JobResult.createErrorResult("worker don't found.");
                 addToTaskListener(jobClient, jobResult);
                 return;
             }
 
-            if (clusterClient.judgeSlots(jobClient)) {
+            // 判断资源
+            if (WorkerOperator.getInstance().judgeSlots(jobClient)) {
                 logger.info("--------submit job:{} to engine start----.", jobClient.toString());
 
                 jobClient.doStatusCallBack(RdosTaskStatus.COMPUTING.getStatus());
 
-                jobResult = clusterClient.submitJob(jobClient);
+                // 提交任务
+                jobResult = WorkerOperator.getInstance().submitJob(jobClient);
 
                 logger.info("submit job result is:{}.", jobResult);
 

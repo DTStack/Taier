@@ -1,9 +1,9 @@
 package com.dtstack.engine.rdbs.tidb;
 
 
-import com.dtstack.engine.rdbs.common.executor.ConnFactory;
+import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 
-public class TiDBConnFactory extends ConnFactory {
+public class TiDBConnFactory extends AbstractConnFactory {
 
     public TiDBConnFactory() {
         driverName = "com.mysql.jdbc.Driver";
