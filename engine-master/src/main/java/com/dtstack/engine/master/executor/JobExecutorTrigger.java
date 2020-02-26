@@ -79,9 +79,6 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
 
     private ExecutorService executorService;
 
-    private ScheduledExecutorService scheduledService;
-
-
     @Override
     public void afterPropertiesSet() throws Exception {
         LOG.info("Initializing " + this.getClass().getName());
@@ -95,7 +92,7 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
             executorService.submit(executor);
         }
 
-        scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("JobStatusDealer"));
+        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("JobStatusDealer"));
         scheduledService.scheduleWithFixedDelay(
                 new JobStatusDealer(),
                 0,
@@ -113,6 +110,9 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
         Twins<String, String> cycTime = jobRichOperator.getCycTimeLimit();
         Map<String, Map<Integer, QueueInfo>> allNodeJobInfo = Maps.newHashMap();
         for (String nodeAddress : allNodeAddress) {
+            if (StringUtils.isBlank(nodeAddress)) {
+                continue;
+            }
             allNodeJobInfo.computeIfAbsent(nodeAddress, na -> {
                 Map<Integer, QueueInfo> nodeJobInfo = Maps.newHashMap();
                 executors.forEach(executor -> nodeJobInfo.computeIfAbsent(executor.getScheduleType(), k -> {

@@ -43,7 +43,7 @@
         order by CONVERT(checkpoint_id,SIGNED) desc limit 1
     </select>
 
-    <select id="getByTaskEngineIdAndCheckpointIndexAndCount" resultMap="StreamTaskCheckpoint">
+    <select id="getByTaskEngineIdAndCheckpointIndexAndCount" resultType="StreamTaskCheckpoint">
         select
         <include refid="select_content_fragment"/>
         from rdos_stream_task_checkpoint

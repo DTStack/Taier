@@ -159,16 +159,14 @@ public class ZkService implements InitializingBean, DisposableBean {
                         objectMapper.writeValueAsBytes(target));
             }
         } catch (Exception e) {
-            logger.error("{}:updateSynchronizedBrokerHeartNode error:{}", nodePath,
-                    ExceptionUtil.getErrorMessage(e));
+            logger.error("{}:updateSynchronizedBrokerHeartNode error:", nodePath, e);
         } finally {
             try {
                 if (this.brokerHeartLock.isAcquiredInThisProcess()) {
                     this.brokerHeartLock.release();
                 }
             } catch (Exception e) {
-                logger.error("{}:updateSynchronizedBrokerHeartNode error:{}", nodePath,
-                        ExceptionUtil.getErrorMessage(e));
+                logger.error("{}:updateSynchronizedBrokerHeartNode error:", nodePath, e);
             }
         }
     }

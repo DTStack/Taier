@@ -29,6 +29,7 @@ import com.dtstack.engine.master.cache.ShardCache;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -121,6 +122,9 @@ public class WorkNode implements InitializingBean {
         List<String> allNodeAddress = engineJobCacheDao.getAllNodeAddress();
         Map<String, Map<String, GroupInfo>> allNodeGroupInfo = Maps.newHashMap();
         for (String nodeAddress : allNodeAddress) {
+            if (StringUtils.isBlank(nodeAddress)) {
+                continue;
+            }
             allNodeGroupInfo.computeIfAbsent(nodeAddress, na -> {
                 Map<String, GroupInfo> nodeGroupInfo = Maps.newHashMap();
                 priorityQueueMap.forEach((jobResource, priorityQueue) -> {

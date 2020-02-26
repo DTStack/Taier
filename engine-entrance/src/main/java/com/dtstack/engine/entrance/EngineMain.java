@@ -66,7 +66,7 @@ public class EngineMain {
             ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
             singleThreadExecutor.execute(runnable);
         } catch (Throwable e) {
-            logger.error("only engine-master start error:{}", e);
+            logger.error("only engine-master start error:", e);
             System.exit(-1);
         }
     }
