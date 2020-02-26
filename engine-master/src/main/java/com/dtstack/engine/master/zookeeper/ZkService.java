@@ -72,6 +72,8 @@ public class ZkService implements InitializingBean, DisposableBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        logger.info("Initializing " + this.getClass().getName());
+
         initConfig();
         checkDistributedConfig();
         initClient();

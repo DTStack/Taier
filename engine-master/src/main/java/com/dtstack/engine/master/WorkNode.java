@@ -94,6 +94,8 @@ public class WorkNode implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        LOG.info("Initializing " + this.getClass().getName());
+
         executors.execute(taskSubmittedDealer);
 
         ExecutorService recoverExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,

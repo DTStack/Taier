@@ -125,6 +125,8 @@ public class JobStopSender implements InitializingBean, DisposableBean, Runnable
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        logger.info("Initializing " + this.getClass().getName());
+
         jobStopSenderExecutor.submit(this);
     }
 

@@ -84,6 +84,8 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        LOG.info("Initializing " + this.getClass().getName());
+
         executors.add(fillJobExecutor);
         executors.add(cronJobExecutor);
 

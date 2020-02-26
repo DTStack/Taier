@@ -499,6 +499,8 @@ public class BatchAlarmProcessor implements Runnable, InitializingBean, Disposab
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        logger.info("Initializing " + this.getClass().getName());
+
         scheduledService.scheduleWithFixedDelay(
                 this,
                 0,

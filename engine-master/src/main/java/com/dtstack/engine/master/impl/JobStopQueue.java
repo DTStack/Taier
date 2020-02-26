@@ -82,6 +82,8 @@ public class JobStopQueue implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() {
+        logger.info("Initializing " + this.getClass().getName());
+
         jobStoppedRetry = environmentContext.getJobStoppedRetry();
         jobStoppedDelay = environmentContext.getJobStoppedDelay();
 
