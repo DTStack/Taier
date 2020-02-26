@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dtstack.engine.dao.EngineJobDao">
-	
+
     <insert id="insert" parameterType="EngineJob" useGeneratedKeys="true" keyProperty="id">
 	   insert into rdos_engine_job(gmt_create,gmt_modified,job_id,status,source_type,job_name, compute_type)
 	   values(now(),now(),#{jobId},#{status}, #{sourceType}, #{jobName}, #{computeType})
@@ -10,7 +10,7 @@
     <update id="jobFail">
         update rdos_engine_job set exec_start_time=now(), exec_end_time=now(), exec_time = 0,gmt_modified=now(),status=#{status}, log_info = #{logInfo} where job_id=#{jobId};
     </update>
-	
+
    <update id="updateJobStatus">
 	   update rdos_engine_job set gmt_modified=now(),status=#{status} where job_id=#{jobId};
    </update>
@@ -29,27 +29,26 @@
     <update id="updateJobPluginId">
         update rdos_engine_job set gmt_modified=now(), plugin_info_id=#{pluginId} where job_id=#{jobId};
     </update>
-   
-   <update id="updateJobEngineId">
-	   update rdos_engine_job set gmt_modified=now(),exec_start_time=now(),engine_job_id=#{engineId},application_id=#{appId} where job_id=#{jobId};
+
+   <update id="updateJobSubmitSuccess">
+	   update rdos_engine_job
+	   set log_info = #{submitLog}, engine_job_id=#{engineId}, application_id=#{appId},
+	    gmt_modified=now(), exec_start_time=now()
+	   where job_id=#{jobId};
    </update>
 
-   <update id="updateJobEngineIdAndStatus">
+   <update id="updateJobUnSubmitOrRestart">
        update rdos_engine_job
-       set gmt_modified=now(), exec_end_time=now(),engine_job_id=#{engineId},status=#{status},application_id=#{appId}
+       set status=#{status},
+       application_id = null, engine_job_id = null, engine_log = null, log_info = null,
+       retry_task_params = null, exec_end_time = null,exec_start_time = null, exec_time = 0, gmt_modified=now()
        where job_id=#{jobId};
    </update>
 
-    <update id="updateJobSubmitFailed">
-        update rdos_engine_job
-        set gmt_modified=now(),exec_start_time=now(),exec_end_time=now(),engine_job_id=#{engineId},status=#{status},application_id=#{appId}
-        where job_id=#{jobId};
-    </update>
-   
    <update id="updateJobStatusAndExecTime">
 	   update rdos_engine_job set gmt_modified=now(), exec_end_time=now(), status=#{status}, exec_time=timestampdiff(SECOND, exec_start_time, now()) where job_id=#{jobId};
    </update>
-   
+
    <select id="getRdosJobByJobId" resultType="EngineJob">
        select * from rdos_engine_job where job_id=#{jobId} and is_deleted=0;
    </select>
@@ -62,7 +61,7 @@
         </foreach>
         and is_deleted=0;
     </select>
-   
+
     <update id="updateEngineLog">
         update rdos_engine_job set engine_log = #{engineLog},gmt_modified=now() where job_id = #{jobId}
     </update>
@@ -70,31 +69,17 @@
     <update id="updateRetryTaskParams">
         update rdos_engine_job set retry_task_params = #{retryTaskParams},gmt_modified=now() where job_id = #{jobId}
     </update>
-    
-     <update id="updateSubmitLog">
-        update rdos_engine_job set log_info = #{submitLog}, gmt_modified=now() where job_id = #{jobId}
-    </update>
 
     <select id="getByName" parameterType="java.lang.String" resultType="EngineJob">
         select * from rdos_engine_job where job_name = #{jobName} and is_deleted=0;
     </select>
 
-    <select id="listNames" parameterType="java.lang.String" resultType="java.lang.String">
-        select job_name from rdos_engine_job where job_name LIKE '%${jobName}%' and is_deleted=0;
-    </select>
-
     <update id="updateRetryNum">
-	   update rdos_engine_job set retry_num=#{retryNum} where job_id=#{jobId};
+	   update rdos_engine_job set retry_num=#{retryNum}, gmt_modified=now() where job_id=#{jobId};
    </update>
 
-    <update id="resetExecTime">
-        update rdos_engine_job
-        set exec_end_time = null,exec_start_time = null,exec_time = 0
-        where job_id=#{jobId} and is_deleted=0
-    </update>
-    
-    <select id="getTaskIdsByStatus" resultType="java.lang.String">
-        select task_id from rdos_engine_job
+    <select id="getJobIdsByStatus" resultType="java.lang.String">
+        select job_id from rdos_engine_job
         where status = #{status}
         <if test="computeType != null">
             and compute_type = #{computeType}

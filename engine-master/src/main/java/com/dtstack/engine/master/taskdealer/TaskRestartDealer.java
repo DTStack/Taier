@@ -95,7 +95,7 @@ public class TaskRestartDealer {
             return false;
         }
 
-        resetStatus(jobClient, true);
+        resetStatus(jobClient);
         //添加到重试队列中
         addToRestart(jobClient);
         LOG.info("【retry=true】 jobId:{} alreadyRetryNum:{} will retry and add into queue again.", jobClient.getTaskId(), alreadyRetryNum);
@@ -165,7 +165,7 @@ public class TaskRestartDealer {
             }
         }
 
-        resetStatus(clientWithStrategy, false);
+        resetStatus(clientWithStrategy);
         //添加到重试队列中
         addToRestart(clientWithStrategy);
         LOG.info("【retry=true】 jobId:{} alreadyRetryNum:{} will retry and add into queue again.", jobId, alreadyRetryNum);
@@ -308,7 +308,7 @@ public class TaskRestartDealer {
         }
     }
 
-    private void resetStatus(JobClient jobClient, boolean submitFailed){
+    private void resetStatus(JobClient jobClient){
         String jobId = jobClient.getTaskId();
         Integer computeType = jobClient.getComputeType().getType();
         String engineType = jobClient.getEngineType();
@@ -319,17 +319,8 @@ public class TaskRestartDealer {
 
         //重试的任务不置为失败，waitengine
         jobRetryRecord(jobClient);
-        
-        if (submitFailed){
-        	engineJobDao.updateJobSubmitFailed(jobId, null, RdosTaskStatus.RESTARTING.getStatus(),null);
-        } else {
-        	engineJobDao.updateJobEngineIdAndStatus(jobId, null, RdosTaskStatus.RESTARTING.getStatus(),null);
-        }
-        
-        engineJobDao.updateSubmitLog(jobId, null);
-        engineJobDao.updateEngineLog(jobId, null);
-        engineJobDao.updateRetryTaskParams(jobId, null);
-        engineJobDao.resetExecTime(jobId);
+
+        engineJobDao.updateJobUnSubmitOrRestart(jobId, RdosTaskStatus.RESTARTING.getStatus());
     }
 
     private void jobRetryRecord(JobClient jobClient) {

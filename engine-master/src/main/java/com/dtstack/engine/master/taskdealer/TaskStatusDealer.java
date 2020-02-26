@@ -219,16 +219,16 @@ public class TaskStatusDealer implements Runnable{
             //从engine获取log
             String jobLog = JobClient.getEngineLog(engineType, pluginInfo, jobIdentifier);
             if (jobLog != null){
-                updateJobEngineLog(jobId, jobLog, computeType);
+                updateJobEngineLog(jobId, jobLog);
             }
         } catch (Throwable e){
             String errorLog = ExceptionUtil.getErrorMessage(e);
             logger.error("update JobEngine Log error jobId:{} ,error info {}..", jobId, errorLog);
-            updateJobEngineLog(jobId, errorLog, computeType);
+            updateJobEngineLog(jobId, errorLog);
         }
     }
 
-    private void updateJobEngineLog(String jobId, String jobLog, Integer computeType){
+    private void updateJobEngineLog(String jobId, String jobLog){
 
         //写入db
         engineJobDao.updateEngineLog(jobId, jobLog);

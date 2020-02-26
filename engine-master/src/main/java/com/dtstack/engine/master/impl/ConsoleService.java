@@ -65,7 +65,7 @@ public class ConsoleService {
         shardCache.updateLocalMemTaskStatus(jobId, status);
         engineJobCacheDao.delete(jobId);
         engineJobDao.updateJobStatus(jobId, status);
-        logger.info("Job id：" + jobId + " is finished");
+        logger.info("jobId:{} is finished", jobId);
         return true;
     }
 

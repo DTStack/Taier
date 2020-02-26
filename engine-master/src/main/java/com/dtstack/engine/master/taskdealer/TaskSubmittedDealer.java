@@ -61,8 +61,7 @@ public class TaskSubmittedDealer implements Runnable{
 				if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
 					JobResult jobResult = jobClient.getJobResult();
 					String appId = jobResult.getData(JobResult.EXT_ID_KEY);
-					engineJobDao.updateJobEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId(),appId);
-					engineJobDao.updateSubmitLog(jobClient.getTaskId(), jobClient.getJobResult().getJsonStr());
+					engineJobDao.updateJobSubmitSuccess(jobClient.getTaskId(), jobClient.getEngineTaskId(), appId, jobClient.getJobResult().getJsonStr());
 					workNode.updateCache(jobClient, EJobCacheStage.SUBMITTED.getStage());
 					jobClient.doStatusCallBack(RdosTaskStatus.SUBMITTED.getStatus());
 					shardCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.SUBMITTED.getStatus());

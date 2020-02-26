@@ -25,11 +25,9 @@ public interface EngineJobDao {
 
 	void updateJobStatusAndExecTime(@Param("jobId") String jobId, @Param("status") int status);
 
-	void updateJobEngineId(@Param("jobId") String jobId, @Param("engineId") String engineId,@Param("appId") String appId);
+	void updateJobSubmitSuccess(@Param("jobId") String jobId, @Param("engineId") String engineId, @Param("appId") String appId, @Param("submitLog") String submitLog);
 
-	void updateJobEngineIdAndStatus(@Param("jobId") String jobId, @Param("engineId") String engineId, @Param("status") int status,@Param("appId") String appId);
-
-	void updateJobSubmitFailed(@Param("jobId") String jobId, @Param("engineId") String engineId, @Param("status") int status,@Param("appId") String appId);
+	void updateJobUnSubmitOrRestart(@Param("jobId") String jobId, @Param("status") int status);
 
 	EngineJob getRdosJobByJobId(@Param("jobId") String jobId);
 
@@ -39,19 +37,13 @@ public interface EngineJobDao {
 
 	void updateRetryTaskParams(@Param("jobId")String jobId,  @Param("retryTaskParams")String retryTaskParams);
 
-	void updateSubmitLog(@Param("jobId") String jobId, @Param("submitLog") String submitLog);
-
 	Integer updateTaskStatusCompareOld(@Param("jobId") String jobId, @Param("status")Integer status,@Param("oldStatus") Integer oldStatus, @Param("jobName")String jobName);
 
 	EngineJob getByName(@Param("jobName") String jobName);
 
-	List<String> listNames(@Param("jobName") String jobName);
-
 	void updateRetryNum(@Param("jobId")String jobId, @Param("retryNum")Integer retryNum);
 
-	Integer resetExecTime(@Param("jobId")String jobId);
-
-	List<String> getTaskIdsByStatus(@Param("status")Integer status, @Param("computeType")Integer computeType);
+	List<String> getJobIdsByStatus(@Param("status")Integer status, @Param("computeType")Integer computeType);
 
 	List<EngineJob> listJobStatus(@Param("time") Timestamp timeStamp, @Param("computeType")Integer computeType);
 

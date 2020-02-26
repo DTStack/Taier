@@ -73,7 +73,7 @@ public class StreamTaskService {
      * 获取某个状态的任务task_id
      */
     public List<String> getTaskIdsByStatus(@Param("status") Integer status){
-        return engineJobDao.getTaskIdsByStatus(status, ComputeType.STREAM.getType());
+        return engineJobDao.getJobIdsByStatus(status, ComputeType.STREAM.getType());
     }
 
     /**

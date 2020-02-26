@@ -498,11 +498,7 @@ public class ActionService {
         }
 
         //do reset status
-        engineJobDao.updateJobEngineIdAndStatus(jobId, null, RdosTaskStatus.UNSUBMIT.getStatus(),null);
-        engineJobDao.updateSubmitLog(jobId, "");
-        engineJobDao.updateEngineLog(jobId, "");
-        engineJobDao.resetExecTime(jobId);
-
+        engineJobDao.updateJobUnSubmitOrRestart(jobId, RdosTaskStatus.UNSUBMIT.getStatus());
         return jobId;
     }
 
