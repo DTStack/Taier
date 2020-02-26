@@ -186,7 +186,7 @@ public class WorkNode implements InitializingBean {
             groupQueue.add(jobClient);
         }catch (Exception e){
             LOG.error("add to priority queue error:", e);
-            dealSubmitFailJob(jobClient.getTaskId(), jobClient.getComputeType().getType(), e.toString());
+            dealSubmitFailJob(jobClient.getTaskId(), e.toString());
         }
     }
 
@@ -210,7 +210,7 @@ public class WorkNode implements InitializingBean {
             } catch (Exception e) {
                 //数据转换异常--打日志
                 LOG.error("", e);
-                this.dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "This task stores information exception and cannot be converted." + e.toString());
+                this.dealSubmitFailJob(jobCache.getJobId(), "This task stores information exception and cannot be converted." + e.toString());
             }
         }
 
@@ -224,7 +224,7 @@ public class WorkNode implements InitializingBean {
 
     public void updateJobStatus(String jobId, Integer status) {
         engineJobDao.updateJobStatus(jobId, status);
-        LOG.info("jobId:{} update job status to {}", jobId, status);
+        LOG.info("jobId:{} update job status:{}.", jobId, status);
     }
 
     public void saveCache(JobClient jobClient, String jobResource, int stage, boolean insert){
@@ -262,26 +262,6 @@ public class WorkNode implements InitializingBean {
         //更新任务ref的pluginInfo
         engineJobDao.updateJobPluginId(jobId, refPluginInfoId);
 
-    }
-
-    public boolean stopTaskIfExists(JobClient jobClient){
-        String jobId = jobClient.getTaskId();
-        String jobResource = jobComputeResourcePlain.getJobResource(jobClient);
-        GroupPriorityQueue groupPriorityQueue = priorityQueueMap.get(jobResource);
-        if(groupPriorityQueue == null){
-            return false;
-        }
-
-        boolean result = groupPriorityQueue.remove(jobId);
-        if(result){
-            shardCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
-            engineJobCacheDao.delete(jobId);
-            //修改任务状态
-            engineJobDao.updateJobStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
-            LOG.info("jobId:{} update job status to {}", jobId, RdosTaskStatus.CANCELED.getStatus());
-        }
-
-        return result;
     }
 
     public String getAndUpdateEngineLog(String jobId, String engineJobId, String appId, long pluginId) {
@@ -323,9 +303,10 @@ public class WorkNode implements InitializingBean {
      * master 节点分发任务失败
      * @param taskId
      */
-    public void dealSubmitFailJob(String taskId, Integer computeType, String errorMsg){
+    public void dealSubmitFailJob(String taskId, String errorMsg){
         engineJobCacheDao.delete(taskId);
         engineJobDao.jobFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(errorMsg));
+        LOG.info("jobId:{} update job status:{}, job is finished.", taskId, RdosTaskStatus.SUBMITFAILD.getStatus());
     }
 
     class RecoverDealer implements Runnable{
@@ -369,7 +350,7 @@ public class WorkNode implements InitializingBean {
                     } catch (Exception e) {
                         //数据转换异常--打日志
                         LOG.error("", e);
-                        dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "This task stores information exception and cannot be converted." + e.toString());
+                        dealSubmitFailJob(jobCache.getJobId(), "This task stores information exception and cannot be converted." + e.toString());
                     }
                 }
             }

@@ -75,7 +75,7 @@ public class NodeRecoverService {
                     } catch (Exception e) {
                         //数据转换异常--打日志
                         logger.error("{}", e);
-                        workNode.dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "This task stores information exception and cannot be converted." + e.toString());
+                        workNode.dealSubmitFailJob(jobCache.getJobId(), "This task stores information exception and cannot be converted." + e.toString());
                     }
                 }
             }

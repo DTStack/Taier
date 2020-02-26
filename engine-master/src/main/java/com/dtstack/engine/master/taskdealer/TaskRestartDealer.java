@@ -152,7 +152,7 @@ public class TaskRestartDealer {
         if (clientWithStrategy == null) {
             clientWithStrategy = jobClient;
             clientWithStrategy.setCallBack((jobStatus)->{
-                updateJobStatus(jobId, computeType, jobStatus);
+                updateJobStatus(jobId, jobStatus);
             });
 
             if(EngineType.Kylin.name().equalsIgnoreCase(clientWithStrategy.getEngineType())){
@@ -321,6 +321,7 @@ public class TaskRestartDealer {
         jobRetryRecord(jobClient);
 
         engineJobDao.updateJobUnSubmitOrRestart(jobId, RdosTaskStatus.RESTARTING.getStatus());
+        LOG.info("jobId:{} update job status:{}.", jobId, RdosTaskStatus.RESTARTING.getStatus());
     }
 
     private void jobRetryRecord(JobClient jobClient) {
@@ -334,9 +335,9 @@ public class TaskRestartDealer {
         }
     }
 
-    private void updateJobStatus(String jobId, Integer computeType, Integer status) {
+    private void updateJobStatus(String jobId, Integer status) {
         engineJobDao.updateJobStatus(jobId, status);
-        LOG.info("jobId:{} update job status to {}", jobId, status);
+        LOG.info("jobId:{} update job status:{}.", jobId, status);
     }
 
     private void addToRestart(JobClient jobClient){

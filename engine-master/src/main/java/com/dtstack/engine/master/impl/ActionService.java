@@ -259,6 +259,7 @@ public class ActionService {
                 if(result && !RdosTaskStatus.ENGINEACCEPTED.getStatus().equals(engineJob.getStatus()) ){
                     int oldStatus = engineJob.getStatus();
                     Integer update = engineJobDao.updateTaskStatusCompareOld(engineJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus(),oldStatus, paramAction.getName());
+                    logger.info("jobId:{} update job status:{}.", jobId, RdosTaskStatus.ENGINEACCEPTED.getStatus());
                     if (update==null||update!=1){
                         result = false;
                     }
@@ -499,6 +500,7 @@ public class ActionService {
 
         //do reset status
         engineJobDao.updateJobUnSubmitOrRestart(jobId, RdosTaskStatus.UNSUBMIT.getStatus());
+        logger.info("jobId:{} update job status:{}.", jobId, RdosTaskStatus.UNSUBMIT.getStatus());
         return jobId;
     }
 

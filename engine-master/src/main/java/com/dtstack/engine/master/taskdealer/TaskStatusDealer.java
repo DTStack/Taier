@@ -200,6 +200,7 @@ public class TaskStatusDealer implements Runnable{
                     }
 
                     engineJobDao.updateJobStatusAndExecTime(jobId, status);
+                    logger.info("jobId:{} update job status:{}, job is finished.", jobId, RdosTaskStatus.CANCELED.getStatus());
                 }
 
                 if(RdosTaskStatus.FAILED.equals(rdosTaskStatus)){

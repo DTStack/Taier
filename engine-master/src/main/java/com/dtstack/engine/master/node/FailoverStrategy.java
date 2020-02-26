@@ -417,6 +417,7 @@ public class FailoverStrategy {
     public void dealSubmitFailJob(String taskId, String errorMsg){
         engineJobCacheDao.delete(taskId);
         rdosEngineBatchJobDao.jobFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(errorMsg));
+        LOG.info("jobId:{} update job status:{}, job is finished.", taskId, RdosTaskStatus.SUBMITFAILD.getStatus());
     }
 }
 

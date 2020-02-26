@@ -80,7 +80,7 @@ public class JobStopAction {
         engineJobCacheDao.delete(jobId);
         //修改任务状态
         engineJobDao.updateJobStatusAndExecTime(jobId, RdosTaskStatus.CANCELED.getStatus());
-        LOG.info("jobId:{} update job status to {}", jobId, RdosTaskStatus.CANCELED.getStatus());
+        LOG.info("jobId:{} update job status:{}, job is finished.", jobId, RdosTaskStatus.CANCELED.getStatus());
     }
 
 }
