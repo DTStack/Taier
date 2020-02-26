@@ -203,7 +203,7 @@ class EditCluster extends React.Component<any, any> {
             })
         } else if (isTiDBEngine(engineType)) {
             setFieldsValue({
-                libraConf: compConf.tidbConf
+                tidbConf: compConf.tidbConf
             })
         }
     }

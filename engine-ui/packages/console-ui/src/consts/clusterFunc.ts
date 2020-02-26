@@ -62,8 +62,8 @@ export function validateCompParams (componentValue: any) {
  * @param hadoopComp hadoop参数配置项
  * @param libraComp libra参数配置项
  */
-export function exChangeComponentConf (hadoopComp: any = [], ...array: any[]) {
-    const comp = hadoopComp.concat(array);
+export function exChangeComponentConf (hadoopComp: any = [], libraComp: any = [], tidbComp: any = []) {
+    const comp = hadoopComp.concat(libraComp, tidbComp);
     let componentConf: any = {};
     comp.map((item: any) => {
         const componentTypeCode = item && item.componentTypeCode;
