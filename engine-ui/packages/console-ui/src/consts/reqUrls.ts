@@ -58,5 +58,11 @@ export default {
     SEARCH_TENANT: `${CONSOLE_BASE_URL}/tenant/pageQuery`,
     GET_QUEUE: `${CONSOLE_BASE_URL}/engine/getQueue`,
     BIND_TENANT: `${CONSOLE_BASE_URL}/tenant/bindingTenant`,
-    SWITCH_QUEUE: `${CONSOLE_BASE_URL}/tenant/bindingQueue`
+    SWITCH_QUEUE: `${CONSOLE_BASE_URL}/tenant/bindingQueue`,
+
+    // TiDB 引擎账号绑定
+    ACCOUNT_UNBIND_LIST: `${CONSOLE_BASE_URL}/account/getTenantUnBandList`,
+    ACCOUNT_BIND: `${CONSOLE_BASE_URL}/account/bindAccount`,
+    ACCOUNT_BIND_LIST: `${CONSOLE_BASE_URL}/account/pageQuery`,
+    ACCOUNT_UNBIND: `${CONSOLE_BASE_URL}/account/unbindAccount`
 }

@@ -1,6 +1,12 @@
 // cluster function
-import { TASK_STATE, COMPONENT_TYPE_VALUE, COMPONEMT_CONFIG_KEY_ENUM, ENGINE_TYPE, validateFlinkParams, validateHiveParams,
-    validateCarbonDataParams, validateSparkParams, validateDtYarnShellParams, validateLearningParams, validateHiveServerParams, validateLibraParams, validateSftpDataParams, validateImpalaSqlParams } from './index';
+import {
+    TASK_STATE, COMPONENT_TYPE_VALUE, COMPONEMT_CONFIG_KEY_ENUM,
+    ENGINE_TYPE, validateFlinkParams, validateHiveParams,
+    validateCarbonDataParams, validateSparkParams, validateDtYarnShellParams,
+    validateLearningParams, validateHiveServerParams, validateLibraParams,
+    validateSftpDataParams, validateImpalaSqlParams
+} from './index';
+import { numOrStr } from 'typing';
 
 /**
  * 返回不同组件校验参数
@@ -56,8 +62,8 @@ export function validateCompParams (componentValue: any) {
  * @param hadoopComp hadoop参数配置项
  * @param libraComp libra参数配置项
  */
-export function exChangeComponentConf (hadoopComp: any = [], libraComp: any = []) {
-    const comp = hadoopComp.concat(libraComp);
+export function exChangeComponentConf (hadoopComp: any = [], ...array: any[]) {
+    const comp = hadoopComp.concat(array);
     let componentConf: any = {};
     comp.map((item: any) => {
         const componentTypeCode = item && item.componentTypeCode;
@@ -67,6 +73,7 @@ export function exChangeComponentConf (hadoopComp: any = [], libraComp: any = []
     })
     return componentConf
 }
+
 /**
  * 引擎显示测试结果
  * @param testResults 测试结果
@@ -426,6 +433,16 @@ export function toChsKeys (obj: any, keyMap: any) {
 }
 
 // 是否是hadoop引擎
-export function isHadoopEngine (engineType: any) {
+export function isHadoopEngine (engineType: numOrStr) {
     return engineType == ENGINE_TYPE.HADOOP
+}
+
+// 是否是Libra引擎
+export function isLibraEngine (engineType: numOrStr) {
+    return engineType == ENGINE_TYPE.LIBRA
+}
+
+// 是否是TiDB引擎
+export function isTiDBEngine (engineType: numOrStr) {
+    return engineType == ENGINE_TYPE.TI_DB;
 }
