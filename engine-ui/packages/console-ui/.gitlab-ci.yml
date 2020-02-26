@@ -5,7 +5,7 @@ cache:
    - node_modules/
 
 before_script:
-  - "yarn install"
+  - "npm run install"
 
 stages:
   - lint
