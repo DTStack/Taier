@@ -12,6 +12,7 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.ParamAction;
+import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.queue.GroupInfo;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
 import com.dtstack.engine.dao.EngineJobDao;
@@ -77,6 +78,9 @@ public class WorkNode implements InitializingBean {
 
     @Autowired
     private JobPartitioner jobPartitioner;
+
+    @Autowired
+    private WorkerOperator workerOperator;
 
     /**
      * key: jobResource, 计算引擎类型
@@ -169,6 +173,7 @@ public class WorkNode implements InitializingBean {
                     .setEngineJobCacheDao(engineJobCacheDao)
                     .setEngineJobDao(engineJobDao)
                     .setJobPartitioner(jobPartitioner)
+                    .setWorkerOperator(workerOperator)
                     .setWorkNode(this)
                     .build());
             groupQueue.add(jobClient);

@@ -1,4 +1,4 @@
-package com.dtstack.engine.common;
+package com.dtstack.engine.common.worker;
 
 import java.io.Serializable;
 

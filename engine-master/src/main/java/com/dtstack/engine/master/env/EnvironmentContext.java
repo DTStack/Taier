@@ -280,7 +280,7 @@ public class EnvironmentContext {
     }
 
     public String getAkkaRemotePath() {
-        return environment.getProperty("AkkaRemotePath", "akka.tcp://AkkaRemoteMaster@127.0.0.1:2552/user/Master");
+        return environment.getProperty("AkkaRemotePath", "akka.tcp://AkkaRemoteMaster@127.0.0.1:2552/user/AkkaMasterActor");
     }
 
 }
