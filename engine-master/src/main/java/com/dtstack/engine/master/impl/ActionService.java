@@ -20,7 +20,6 @@ import com.dtstack.engine.dao.EngineUniqueSignDao;
 import com.dtstack.engine.dao.StreamTaskCheckpointDao;
 import com.dtstack.engine.master.WorkNode;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -101,49 +100,6 @@ public class ActionService {
     }
 
     /**
-     * 节点间 http 交互方法
-     * 执行从 work node 上下发的任务
-     */
-    public Map<String, Object> submit(Map<String, Object> params){
-        Map<String, Object> result = Maps.newHashMap();
-        result.put("send", true);
-        try{
-            ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
-            checkParam(paramAction);
-            if(!checkSubmitted(paramAction)){
-                return result;
-            }
-            JobClient jobClient = new JobClient(paramAction);
-            workNode.addSubmitJob(jobClient, true);
-        }catch (Exception e){
-            logger.error("", e);
-            result.put("send", false);
-        }
-        return result;
-    }
-
-    /**
-     * master 节点分发的容灾任务
-     */
-    public void masterSendJobs(Map<String, Object> params) throws Exception {
-        try {
-            if(!params.containsKey("jobIds")){
-                logger.info("invalid param:" + params);
-                return;
-            }
-            Object paramsObj = params.get("jobIds");
-            if(!(paramsObj instanceof List)){
-                logger.info("invalid param:" + params);
-                return;
-            }
-            List<String> jobIds = (List<String>) paramsObj;
-            workNode.masterSendSubmitJob(jobIds);
-        }catch (Exception e){
-            logger.error("", e);
-        }
-    }
-
-    /**
      * 只允许发到master节点上
      * 1: 在master等待队列中查找
      * 2: 在worker-exe等待队列里面查找
@@ -190,14 +146,6 @@ public class ActionService {
         }
     }
 
-    /**
-     * 节点间 http 交互方法
-     */
-    public boolean workSendStop(Map<String, Object> params) throws Exception {
-        ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
-        return workNode.workSendStop(paramAction);
-    }
-
     private void checkParam(ParamAction paramAction) throws Exception{
 
         if(StringUtils.isBlank(paramAction.getTaskId())){
@@ -211,15 +159,6 @@ public class ActionService {
         if(paramAction.getEngineType() == null){
             throw new RdosDefineException("param engineType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
-    }
-
-    private boolean checkSubmitted(ParamAction paramAction){
-        EngineJob rdosEngineBatchJob = engineJobDao.getRdosJobByJobId(paramAction.getTaskId());
-        if(rdosEngineBatchJob != null) {
-        	return true;
-        }
-        logger.error("can't find job from engineBatchJob:" + paramAction);
-        return false;
     }
 
     /**
@@ -449,10 +388,15 @@ public class ActionService {
     public List<String> containerInfos(Map<String, Object> param) throws Exception {
         ParamAction paramAction = PublicUtil.mapToObject(param, ParamAction.class);
         checkParam(paramAction);
-        workNode.fillJobClientEngineId(paramAction);
-        JobClient jobClient = new JobClient(paramAction);
-        List<String> infos = jobClient.getContainerInfos();
-        return infos;
+        //从数据库补齐数据
+        EngineJob batchJob = engineJobDao.getRdosJobByJobId(paramAction.getTaskId());
+        if(batchJob != null){
+            paramAction.setEngineTaskId(batchJob.getEngineJobId());
+            paramAction.setApplicationId(batchJob.getApplicationId());
+            JobClient jobClient = new JobClient(paramAction);
+            return jobClient.getContainerInfos();
+        }
+        return null;
     }
 
     public String generateUniqueSign(){

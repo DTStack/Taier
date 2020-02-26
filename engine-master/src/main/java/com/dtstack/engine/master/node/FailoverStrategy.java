@@ -406,7 +406,7 @@ public class FailoverStrategy {
                 continue;
             }
 
-            engineJobCacheDao.updateNodeAddress(nodeEntry.getKey(), nodeEntry.getValue());
+            engineJobCacheDao.updateNodeAddressFailover(nodeEntry.getKey(), nodeEntry.getValue());
         }
     }
 

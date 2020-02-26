@@ -48,6 +48,7 @@ public class NodeRecoverService {
             jobExecutorTrigger.recoverOtherNode();
             logger.info("--- deal recoverOtherNode done ------");
             recoverJobCaches();
+            workNode.resetPriorityQueueStartId();
         } catch (Exception e) {
             logger.error("", e);
         }
@@ -58,23 +59,18 @@ public class NodeRecoverService {
         try {
             long startId = 0L;
             while (true) {
-                List<EngineJobCache> jobCaches = engineJobCacheDao.listByFailover(startId, localAddress);
+                List<EngineJobCache> jobCaches = engineJobCacheDao.listByFailover(startId, localAddress, EJobCacheStage.SUBMITTED.getStage());
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     break;
                 }
-                for(EngineJobCache jobCache : jobCaches){
+                for (EngineJobCache jobCache : jobCaches) {
                     try {
                         ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                         JobClient jobClient = new JobClient(paramAction);
-                        if (EJobCacheStage.unSubmitted().contains(jobCache.getStage())) {
-                            workNode.addSubmitJob(jobClient, false);
-                        } else {
-                            workNode.afterSubmitJob(jobClient);
-                        }
+                        workNode.afterSubmitJob(jobClient);
                         startId = jobCache.getId();
                     } catch (Exception e) {
                         //数据转换异常--打日志
-                        logger.error("{}", e);
                         workNode.dealSubmitFailJob(jobCache.getJobId(), "This task stores information exception and cannot be converted." + e.toString());
                     }
                 }

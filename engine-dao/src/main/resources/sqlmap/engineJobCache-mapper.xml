@@ -17,9 +17,21 @@
 
     <update id="updateStage">
         update rdos_engine_job_cache
-        set node_address = #{nodeAddress}, stage = #{stage}, job_priority = #{jobPriority}, job_resource = #{jobResource}, gmt_modified=now()
+        set
+        node_address = #{nodeAddress}, stage = #{stage}, job_priority = #{jobPriority}, job_resource = #{jobResource},
+        is_failover = 0, gmt_modified=now()
         where job_id = #{jobId}
     </update>
+
+    <select id="listByFailover" resultType="EngineJobCache">
+        select * from rdos_engine_job_cache
+        where id > #{startId} and is_failover = 1
+        and (node_address = #{nodeAddress} or node_address is null)
+        and stage = #{stage}
+        and is_deleted=0
+        order by id, job_priority asc
+        limit 500;
+    </select>
 
     <select id="listByStage" resultType="EngineJobCache">
         select * from rdos_engine_job_cache
@@ -27,8 +39,8 @@
         <if test="stage != null">
             and stage = #{stage}
         </if>
-        <if test="engineType != null">
-            and engine_type = #{engineType}
+        <if test="jobResource != null">
+            and job_resource = #{jobResource}
         </if>
         and is_deleted=0
         order by id, job_priority asc
@@ -76,7 +88,7 @@
         WHERE is_deleted = 0
     </select>
 
-    <update id="updateNodeAddress">
+    <update id="updateNodeAddressFailover">
         UPDATE
         rdos_engine_job_cache
         set node_address = #{nodeAddress}, is_failover = 1
@@ -85,15 +97,6 @@
             #{jobId}
         </foreach>
     </update>
-
-    <select id="listByFailover" resultType="EngineJobCache">
-        select * from rdos_engine_job_cache
-        where id > #{startId} and is_failover = 1
-        and (node_address = #{nodeAddress} or node_address is null)
-        and is_deleted=0
-        order by id, job_priority asc
-        limit 500;
-    </select>
 
     <select id="getJobResources" resultType="java.lang.String">
         SELECT DISTINCT(job_resource) as jobResource

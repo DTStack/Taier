@@ -24,7 +24,7 @@ public interface EngineJobCacheDao {
 
     int updateStage(@Param("jobId") String jobId, @Param("stage") Integer stage,@Param("nodeAddress") String nodeAddress, @Param("jobPriority") Long jobPriority);
 
-    List<EngineJobCache> listByStage(@Param("startId") Long id, @Param("nodeAddress") String nodeAddress, @Param("stage") Integer stage, @Param("engineType") String engineType);
+    List<EngineJobCache> listByStage(@Param("startId") Long id, @Param("nodeAddress") String nodeAddress, @Param("stage") Integer stage, @Param("jobResource") String jobResource);
 
     List<EngineJobCache> getByJobIds(@Param("jobIds") List<String> jobIds);
 
@@ -36,9 +36,9 @@ public interface EngineJobCacheDao {
 
     List<String> getAllNodeAddress();
 
-    Integer updateNodeAddress(@Param("nodeAddress") String nodeAddress, @Param("jobIds") List<String> ids);
+    Integer updateNodeAddressFailover(@Param("nodeAddress") String nodeAddress, @Param("jobIds") List<String> ids);
 
-    List<EngineJobCache> listByFailover(@Param("startId") Long id, @Param("nodeAddress") String nodeAddress);
+    List<EngineJobCache> listByFailover(@Param("startId") Long id, @Param("nodeAddress") String nodeAddress, @Param("stage") Integer stage);
 
     List<String> getJobResources();
 

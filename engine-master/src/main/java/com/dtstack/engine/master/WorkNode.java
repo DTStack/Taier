@@ -18,10 +18,8 @@ import com.dtstack.engine.dao.EngineJobDao;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.PluginInfoDao;
 import com.dtstack.engine.domain.EngineJobCache;
-import com.dtstack.engine.domain.EngineJob;
 import com.dtstack.engine.domain.PluginInfo;
 import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.master.impl.JobStopQueue;
 import com.dtstack.engine.master.queue.JobPartitioner;
 import com.dtstack.engine.master.resource.JobComputeResourcePlain;
 import com.dtstack.engine.master.taskdealer.TaskSubmittedDealer;
@@ -86,9 +84,6 @@ public class WorkNode implements InitializingBean {
      */
     private Map<String, GroupPriorityQueue> priorityQueueMap = Maps.newConcurrentMap();
 
-    @Autowired
-    private JobStopQueue jobStopQueue;
-
     private ExecutorService executors  = new ThreadPoolExecutor(1, 1,
             0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<Runnable>());
@@ -104,13 +99,8 @@ public class WorkNode implements InitializingBean {
         recoverExecutor.submit(new RecoverDealer());
     }
 
-    public GroupPriorityQueue getPriorityQueue(JobClient jobClient) {
-        String jobResource = jobComputeResourcePlain.getJobResource(jobClient);
-        return priorityQueueMap.get(jobResource);
-    }
-
-    public GroupPriorityQueue getPriorityQueue(String jobResource) {
-        return priorityQueueMap.get(jobResource);
+    public void resetPriorityQueueStartId() {
+        priorityQueueMap.values().forEach(GroupPriorityQueue::resetStartId);
     }
 
     /**
@@ -146,9 +136,8 @@ public class WorkNode implements InitializingBean {
      */
     public void addSubmitJob(JobClient jobClient, boolean insert) {
         String jobResource = jobComputeResourcePlain.getJobResource(jobClient);
-        Integer computeType = jobClient.getComputeType().getType();
         if(jobClient.getPluginInfo() != null){
-            updateJobClientPluginInfo(jobClient.getTaskId(), computeType, jobClient.getPluginInfo());
+            updateJobClientPluginInfo(jobClient.getTaskId(), jobClient.getPluginInfo());
         }
         jobClient.setCallBack((jobStatus)-> {
             updateJobStatus(jobClient.getTaskId(), jobStatus);
@@ -165,15 +154,14 @@ public class WorkNode implements InitializingBean {
      * 容灾时对已经提交到执行组件的任务，进行恢复
      */
     public void afterSubmitJob(JobClient jobClient) {
-        Integer computeType = jobClient.getComputeType().getType();
         if(jobClient.getPluginInfo() != null){
-            updateJobClientPluginInfo(jobClient.getTaskId(), computeType, jobClient.getPluginInfo());
+            updateJobClientPluginInfo(jobClient.getTaskId(), jobClient.getPluginInfo());
         }
         updateCache(jobClient, EJobCacheStage.SUBMITTED.getStage());
         shardCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.SUBMITTED.getStatus());
     }
 
-    public void redirectSubmitJob(String jobResource, JobClient jobClient){
+    private void redirectSubmitJob(String jobResource, JobClient jobClient){
         try{
             GroupPriorityQueue groupQueue = priorityQueueMap.computeIfAbsent(jobResource, k -> GroupPriorityQueue.builder()
                     .setJobResource(jobResource)
@@ -185,7 +173,6 @@ public class WorkNode implements InitializingBean {
                     .build());
             groupQueue.add(jobClient);
         }catch (Exception e){
-            LOG.error("add to priority queue error:", e);
             dealSubmitFailJob(jobClient.getTaskId(), e.toString());
         }
     }
@@ -195,32 +182,6 @@ public class WorkNode implements InitializingBean {
         GroupPriorityQueue queue = priorityQueueMap.get(jobResource);
         queue.addRestartJob(jobClient);
     }
-
-    public void masterSendSubmitJob(List<String> jobIds){
-        List<EngineJobCache> jobCaches = engineJobCacheDao.getByJobIds(jobIds);
-        for (EngineJobCache jobCache :jobCaches){
-            try {
-                ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
-                JobClient jobClient = new JobClient(paramAction);
-                if (EJobCacheStage.unSubmitted().contains(jobCache.getStage())) {
-                    this.addSubmitJob(jobClient, false);
-                } else {
-                    this.afterSubmitJob(jobClient);
-                }
-            } catch (Exception e) {
-                //数据转换异常--打日志
-                LOG.error("", e);
-                this.dealSubmitFailJob(jobCache.getJobId(), "This task stores information exception and cannot be converted." + e.toString());
-            }
-        }
-
-        priorityQueueMap.forEach((k,v)->v.resetStartId());
-    }
-
-    public boolean workSendStop(ParamAction paramAction){
-        return jobStopQueue.tryPutStopJobQueue(paramAction);
-    }
-
 
     public void updateJobStatus(String jobId, Integer status) {
         engineJobDao.updateJobStatus(jobId, status);
@@ -241,7 +202,7 @@ public class WorkNode implements InitializingBean {
         engineJobCacheDao.updateStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority());
     }
 
-    private void updateJobClientPluginInfo(String jobId, Integer computeType, String pluginInfoStr){
+    private void updateJobClientPluginInfo(String jobId, String pluginInfoStr){
         Long refPluginInfoId = -1L;
 
         //请求不带插件的连接信息的话则默认为使用本地默认的集群配置---pluginInfoId = -1;
@@ -283,23 +244,6 @@ public class WorkNode implements InitializingBean {
     }
 
     /**
-     * 根据taskId 补齐 engineTaskId
-     * @param paramAction
-     */
-    public void fillJobClientEngineId(ParamAction paramAction){
-
-        if(paramAction.getEngineTaskId() == null){
-            //从数据库补齐数据
-            EngineJob batchJob = engineJobDao.getRdosJobByJobId(paramAction.getTaskId());
-            if(batchJob != null){
-            	paramAction.setEngineTaskId(batchJob.getEngineJobId());
-            	paramAction.setApplicationId(batchJob.getApplicationId());
-            }
-        }
-
-    }
-
-    /**
      * master 节点分发任务失败
      * @param taskId
      */
@@ -313,49 +257,38 @@ public class WorkNode implements InitializingBean {
         @Override
         public void run() {
             LOG.info("-----重启后任务开始恢复----");
-            try{
-                loadQueueFromDB();
-            }catch (Exception e){
-                LOG.error("----load data from DB error:{}", e);
-            }
-            LOG.info("-----重启后任务结束恢复-----");
-        }
-    }
-
-    /**
-     * 重启后，各自节点load自己的数据
-     */
-    public void loadQueueFromDB(){
-        String localAddress = environmentContext.getLocalAddress();
-        try {
-            long startId = 0L;
-            while (true) {
-                List<EngineJobCache> jobCaches = engineJobCacheDao.listByStage(startId, localAddress, null, null);
-                if (CollectionUtils.isEmpty(jobCaches)) {
-                    //两种情况：
-                    //1. 可能本身没有jobcaches的数据
-                    //2. master节点已经为此节点做了容灾
-                    break;
-                }
-                for(EngineJobCache jobCache : jobCaches){
-                    try {
-                        ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
-                        JobClient jobClient = new JobClient(paramAction);
-                        if (EJobCacheStage.unSubmitted().contains(jobCache.getStage())) {
-                            this.addSubmitJob(jobClient, false);
-                        } else {
-                            this.afterSubmitJob(jobClient);
+            String localAddress = environmentContext.getLocalAddress();
+            try {
+                long startId = 0L;
+                while (true) {
+                    List<EngineJobCache> jobCaches = engineJobCacheDao.listByStage(startId, localAddress, null, null);
+                    if (CollectionUtils.isEmpty(jobCaches)) {
+                        //两种情况：
+                        //1. 可能本身没有jobcaches的数据
+                        //2. master节点已经为此节点做了容灾
+                        break;
+                    }
+                    for(EngineJobCache jobCache : jobCaches){
+                        try {
+                            ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
+                            JobClient jobClient = new JobClient(paramAction);
+                            if (EJobCacheStage.unSubmitted().contains(jobCache.getStage())) {
+                                WorkNode.this.addSubmitJob(jobClient, false);
+                            } else {
+                                WorkNode.this.afterSubmitJob(jobClient);
+                            }
+                            startId = jobCache.getId();
+                        } catch (Exception e) {
+                            //数据转换异常--打日志
+                            dealSubmitFailJob(jobCache.getJobId(), "This task stores information exception and cannot be converted." + e.toString());
                         }
-                        startId = jobCache.getId();
-                    } catch (Exception e) {
-                        //数据转换异常--打日志
-                        LOG.error("", e);
-                        dealSubmitFailJob(jobCache.getJobId(), "This task stores information exception and cannot be converted." + e.toString());
                     }
                 }
+            } catch (Exception e) {
+                LOG.error("----broker:{} RecoverDealer error:{}", localAddress, e);
             }
-        } catch (Exception e) {
-            LOG.error("----broker:{} RecoverDealer error:{}", localAddress, e);
+
+            LOG.info("-----重启后任务结束恢复-----");
         }
     }
 

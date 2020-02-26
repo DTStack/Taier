@@ -14,8 +14,4 @@ public interface Urls extends RootUrls {
 
     String MASTER_TRIGGER_NODE = String.format("%s/%s",ACTION,"masterTriggerNode");
 
-    String SUBMIT = String.format("%s/%s", ACTION, "submit");
-
-    String WORK_SEND_STOP = String.format("%s/%s", ACTION, "workSendStop");
-
 }
