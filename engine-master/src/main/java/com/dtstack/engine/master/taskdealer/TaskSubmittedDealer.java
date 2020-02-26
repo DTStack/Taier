@@ -68,7 +68,6 @@ public class TaskSubmittedDealer implements Runnable{
 					shardCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.SUBMITTED.getStatus());
 				}else{
 					engineJobDao.jobFail(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus(), jobClient.getJobResult().getJsonStr());
-					shardCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus());
 					engineJobCacheDao.delete(jobClient.getTaskId());
 				}
 			} catch (Throwable e) {
