@@ -79,6 +79,7 @@ public class GroupPriorityQueue {
 
         queue.put(jobClient);
         logger.info("jobId:{} redirect add job to queue.", jobClient.getTaskId());
+        workNode.updateCache(jobClient, EJobCacheStage.PRIORITY.getStage());
     }
 
     public void addRestartJob(JobClient jobClient) {
