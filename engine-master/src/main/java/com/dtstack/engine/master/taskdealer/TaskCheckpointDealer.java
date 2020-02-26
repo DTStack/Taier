@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.taskdealer;
 
-import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
@@ -23,6 +22,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -41,7 +41,7 @@ import java.util.concurrent.TimeUnit;
  * 定时清理DB中的checkpoint
  */
 @Component
-public class TaskCheckpointDealer implements Runnable {
+public class TaskCheckpointDealer implements InitializingBean, Runnable {
 
     private static Logger logger = LoggerFactory.getLogger(TaskCheckpointDealer.class);
 
@@ -103,7 +103,8 @@ public class TaskCheckpointDealer implements Runnable {
 
     private ScheduledExecutorService checkpointCleanPoll = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("checkpointCleaner"));
 
-    public TaskCheckpointDealer(){
+    @Override
+    public void afterPropertiesSet() throws Exception {
         checkpointCleanPoll.scheduleWithFixedDelay(
                 this,
                 0,

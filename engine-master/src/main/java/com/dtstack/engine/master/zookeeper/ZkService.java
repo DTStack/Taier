@@ -8,10 +8,10 @@ import com.dtstack.engine.master.listener.HeartBeatCheckListener;
 import com.dtstack.engine.master.listener.HeartBeatListener;
 import com.dtstack.engine.master.listener.Listener;
 import com.dtstack.engine.master.listener.MasterListener;
-import com.dtstack.engine.master.listener.QueueListener;
 import com.dtstack.engine.master.node.FailoverStrategy;
 import com.dtstack.engine.master.data.BrokerHeartNode;
 import com.dtstack.engine.master.data.BrokersNode;
+import com.dtstack.engine.master.taskdealer.TaskLogStoreDealer;
 import com.google.common.collect.Lists;
 import com.netflix.curator.framework.CuratorFramework;
 import com.netflix.curator.framework.CuratorFrameworkFactory;
@@ -66,9 +66,6 @@ public class ZkService implements InitializingBean, DisposableBean {
 
     @Autowired
     private FailoverStrategy failoverStrategy;
-
-    @Autowired
-    private QueueListener queueListener;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -136,7 +133,7 @@ public class ZkService implements InitializingBean, DisposableBean {
         MasterListener masterListener = new MasterListener(failoverStrategy, this);
         listeners.add(masterListener);
         listeners.add(new HeartBeatCheckListener(masterListener, failoverStrategy, this));
-        listeners.add(queueListener);
+        listeners.add(new TaskLogStoreDealer(masterListener));
     }
 
     private void createLocalBrokerHeartNode() throws Exception {

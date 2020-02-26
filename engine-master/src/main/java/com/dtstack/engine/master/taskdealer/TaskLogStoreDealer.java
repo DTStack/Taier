@@ -2,6 +2,7 @@ package com.dtstack.engine.master.taskdealer;
 
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.logstore.LogStoreFactory;
+import com.dtstack.engine.master.listener.Listener;
 import com.dtstack.engine.master.listener.MasterListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by sishu.yss on 2018/2/26.
  */
-public class TaskLogStoreDealer implements Runnable {
+public class TaskLogStoreDealer implements Listener, Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(TaskLogStoreDealer.class);
 
@@ -21,15 +22,11 @@ public class TaskLogStoreDealer implements Runnable {
 
     private MasterListener masterListener;
 
-    private static TaskLogStoreDealer listener;
+    private ScheduledExecutorService scheduledService;
 
-    public static void init(MasterListener masterListener) {
-        listener = new TaskLogStoreDealer(masterListener);
-    }
-
-    private TaskLogStoreDealer(MasterListener masterListener) {
+    public TaskLogStoreDealer(MasterListener masterListener) {
         this.masterListener = masterListener;
-        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("HeartBeatCheckListener"));
+        this.scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("HeartBeatCheckListener"));
         scheduledService.scheduleWithFixedDelay(
                 this,
                 CHECK_INTERVAL,
@@ -47,5 +44,10 @@ public class TaskLogStoreDealer implements Runnable {
         } catch (Exception e) {
             logger.error("", e);
         }
+    }
+
+    @Override
+    public void close() throws Exception {
+        scheduledService.shutdownNow();
     }
 }
