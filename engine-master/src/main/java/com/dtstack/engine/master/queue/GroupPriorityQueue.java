@@ -265,7 +265,7 @@ public class GroupPriorityQueue {
         checkParams();
 
         this.queue = new OrderLinkedBlockingQueue<>(queueSizeLimited * 2);
-        this.jobSubmitDealer = new JobSubmitDealer(environmentContext.getLocalAddress(), this, jobPartitioner);
+        this.jobSubmitDealer = new JobSubmitDealer(environmentContext.getLocalAddress(), this, jobPartitioner, engineJobCacheDao);
 
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("acquireJob_" + jobResource));
         scheduledService.scheduleWithFixedDelay(

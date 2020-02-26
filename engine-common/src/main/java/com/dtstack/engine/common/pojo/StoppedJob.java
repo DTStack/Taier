@@ -31,7 +31,7 @@ public class StoppedJob<T> implements Delayed {
         return retry == 0 || count <= retry;
     }
 
-    public void reset(long delay) {
+    public void resetDelay(long delay) {
         this.now = System.currentTimeMillis();
         this.expired = now + delay;
     }

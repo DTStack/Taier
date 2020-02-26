@@ -1,7 +1,6 @@
 package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.common.pojo.StoppedJob;
-import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.ParamAction;
@@ -10,16 +9,13 @@ import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.EngineJobDao;
 import com.dtstack.engine.dao.EngineJobStopRecordDao;
 import com.dtstack.engine.domain.EngineJobCache;
-import com.dtstack.engine.domain.EngineJob;
 import com.dtstack.engine.domain.EngineJobStopRecord;
-import com.dtstack.engine.common.enums.RequestStart;
 import com.dtstack.engine.common.enums.StoppedStatus;
-import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.master.send.HttpSendClient;
 import com.dtstack.engine.master.cache.ShardCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -45,14 +41,14 @@ import java.util.stream.Collectors;
  * @author xuchao
  */
 @Component
-public class JobStopQueue {
+public class JobStopQueue implements InitializingBean {
 
     private static final Logger logger = LoggerFactory.getLogger(JobStopQueue.class);
 
     @Autowired
     private ShardCache shardCache;
 
-    private DelayBlockingQueue<StoppedJob<ParamAction>> stopJobQueue = new DelayBlockingQueue<StoppedJob<ParamAction>>(1000);
+    private DelayBlockingQueue<StoppedJob<JobElement>> stopJobQueue = new DelayBlockingQueue<StoppedJob<JobElement>>(1000);
 
     @Autowired
     private EngineJobCacheDao engineJobCacheDao;
@@ -67,13 +63,13 @@ public class JobStopQueue {
     private EnvironmentContext environmentContext;
 
     @Autowired
-    private WorkNode workNode;
-
-    @Autowired
     private JobStopAction jobStopAction;
 
     private static final int WAIT_INTERVAL = 1000;
     private static final int OPERATOR_EXPIRED_INTERVAL = 60000;
+
+    private int jobStoppedRetry;
+    private long jobStoppedDelay;
 
     private ExecutorService simpleEs = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<>(), new CustomThreadFactory("stopProcessor"));
@@ -83,7 +79,12 @@ public class JobStopQueue {
     private StopProcessor stopProcessor = new StopProcessor();
     private AcquireStopJob acquireStopJob = new AcquireStopJob();
 
-    public void start() {
+
+    @Override
+    public void afterPropertiesSet() {
+        jobStoppedRetry = environmentContext.getJobStoppedRetry();
+        jobStoppedDelay = environmentContext.getJobStoppedDelay();
+
         if (simpleEs.isShutdown()) {
             simpleEs = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                     new LinkedBlockingQueue<>(), new CustomThreadFactory("stopProcessor"));
@@ -105,7 +106,8 @@ public class JobStopQueue {
     }
 
     public boolean tryPutStopJobQueue(ParamAction paramAction) {
-        return stopJobQueue.tryPut(new StoppedJob<ParamAction>(paramAction, environmentContext.getJobStoppedRetry(), environmentContext.getJobRestartDelay()));
+        JobElement jobElement = new JobElement(paramAction.getTaskId(), paramAction.getStopJobId());
+        return stopJobQueue.tryPut(new StoppedJob<JobElement>(jobElement, jobStoppedRetry, jobStoppedDelay));
     }
 
     private class AcquireStopJob implements Runnable {
@@ -154,11 +156,8 @@ public class JobStopQueue {
                                 continue;
                             }
 
-                            ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
-                            paramAction.setStopJobId(jobStopRecord.getId());
-                            workNode.fillJobClientEngineId(paramAction);
-
-                            JobStopQueue.this.processStopJob(paramAction);
+                            JobElement jobElement = new JobElement(jobCache.getJobId(), jobStopRecord.getId());
+                            stopJobQueue.put(new StoppedJob<JobElement>(jobElement, jobStoppedRetry, jobStoppedDelay));
                         } else {
                             logger.warn("[Unnormal Job] jobId:{}", jobStopRecord.getTaskId());
                             //jobcache表没有记录，可能任务已经停止。在update表时增加where条件不等于stopped
@@ -176,52 +175,6 @@ public class JobStopQueue {
         }
     }
 
-    private boolean processStopJob(ParamAction paramAction) {
-        try {
-            String jobId = paramAction.getTaskId();
-            if (!checkCanStop(jobId, paramAction.getComputeType())) {
-                return true;
-            }
-
-            String address = shardCache.getJobLocationAddr(jobId);
-            if (address == null) {
-                logger.info("can't get info from engine zk for jobId" + jobId);
-                return true;
-            }
-
-            if (!address.equals(environmentContext.getLocalAddress())) {
-                paramAction.setRequestStart(RequestStart.NODE.getStart());
-                logger.info("action stop jobId:{} to worker node addr:{}." + paramAction.getTaskId(), address);
-                Boolean res = HttpSendClient.actionStopJobToWorker(address, paramAction);
-                if (res != null && res) {
-                    return true;
-                } else {
-                    logger.info("can't stop jobId:{} to worker node addr:{}, maybe busy with queue." + paramAction.getTaskId(), address);
-                    return false;
-                }
-            }
-            stopJobQueue.put(new StoppedJob<ParamAction>(paramAction, environmentContext.getJobStoppedRetry(), environmentContext.getJobRestartDelay()));
-            return true;
-        } catch (Throwable e) {
-            logger.error("processStopJob happens error, element:{}", paramAction, e);
-            //停止发生错误时，需要避免死循环进行停止
-            return true;
-        }
-    }
-
-    /**
-     * 判断任务是否可停止
-     *
-     * @param taskId
-     * @param computeType
-     * @return
-     */
-    private boolean checkCanStop(String taskId, Integer computeType) {
-    	EngineJob rdosEngineBatchJob = engineJobDao.getRdosJobByJobId(taskId);
-        Integer sta = rdosEngineBatchJob.getStatus().intValue();
-        return RdosTaskStatus.getCanStopStatus().contains(sta);
-    }
-
     private class StopProcessor implements Runnable {
 
         private boolean run = true;
@@ -233,29 +186,29 @@ public class JobStopQueue {
 
             while (run) {
                 try {
-                    StoppedJob<ParamAction> stoppedJob = stopJobQueue.take();
+                    StoppedJob<JobElement> stoppedJob = stopJobQueue.take();
                     StoppedStatus stoppedStatus = jobStopAction.stopJob(stoppedJob.getJob());
                     switch (stoppedStatus) {
                         case STOPPED:
                         case MISSED:
+                            engineJobStopRecordDao.delete(stoppedJob.getJob().stopJobId);
                             break;
                         case STOPPING:
                         case RETRY:
-                            if (!stoppedJob.isRetry()) {
-                                logger.warn("jobId:{} retry limited!", stoppedJob.getJob().getTaskId());
-                                break;
+                            if (stoppedJob.isRetry()) {
+                                if (StoppedStatus.STOPPING == stoppedStatus) {
+                                    stoppedJob.resetDelay(jobStoppedDelay * 20);
+                                } else if (StoppedStatus.RETRY == stoppedStatus) {
+                                    stoppedJob.resetDelay(jobStoppedDelay);
+                                }
+                                stoppedJob.incrCount();
+                                stopJobQueue.put(stoppedJob);
+                            } else {
+                                logger.warn("jobId:{} retry limited!", stoppedJob.getJob().jobId);
+                                engineJobStopRecordDao.delete(stoppedJob.getJob().stopJobId);
                             }
-                            stoppedJob.incrCount();
-                            if (StoppedStatus.STOPPING == stoppedStatus) {
-                                stoppedJob.reset(environmentContext.getJobRestartDelay() * 20);
-                            } else if (StoppedStatus.RETRY == stoppedStatus) {
-                                stoppedJob.reset(environmentContext.getJobRestartDelay());
-                            }
-                            stopJobQueue.put(stoppedJob);
-                            continue;
                         default:
                     }
-                    engineJobStopRecordDao.delete(stoppedJob.getJob().getStopJobId());
                 } catch (Exception e) {
                     logger.error("", e);
                 }
@@ -271,6 +224,17 @@ public class JobStopQueue {
 
         public void reStart() {
             this.run = true;
+        }
+    }
+
+    public static class JobElement {
+
+        public String jobId;
+        public long stopJobId;
+
+        public JobElement(String jobId, long stopJobId) {
+            this.jobId = jobId;
+            this.stopJobId = stopJobId;
         }
     }
 }

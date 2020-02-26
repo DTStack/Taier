@@ -2,6 +2,7 @@ package com.dtstack.engine.master.cache;
 
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.hash.ShardData;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.EngineJobDao;
 import com.dtstack.engine.dao.PluginInfoDao;
@@ -52,6 +53,9 @@ public class ShardCache {
 
     private ShardManager getShardManager(String jobId) {
         EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
+        if (engineJobCache == null) {
+            return null;
+        }
         return jobResourceShardManager.computeIfAbsent(engineJobCache.getJobResource(), jr -> {
             ShardManager shardManager = new ShardManager();
             TaskStatusDealer taskStatusDealer = new TaskStatusDealer();
@@ -73,50 +77,89 @@ public class ShardCache {
 
     public void updateLocalMemTaskStatus(String jobId, Integer status) {
         if (jobId == null || status == null) {
-            throw new UnsupportedOperationException();
+            throw new IllegalArgumentException("jobId or status not null.");
         }
         //任务只有在提交成功后开始task status轮询并同时checkShard一次
         if (RdosTaskStatus.SUBMITTED.getStatus().equals(status)) {
             checkShard(jobId);
         }
         ShardManager shardManager = getShardManager(jobId);
-        String shard = shardManager.getShardName(jobId);
-        Lock lock = shardManager.tryLock(shard);
-        if (lock != null) {
-            lock.lock();
-            try {
-                shardManager.getShardData(jobId).put(jobId, status);
-            } finally {
-                lock.unlock();
+        if (shardManager != null) {
+            String shardName = shardManager.getShardName(jobId);
+            if (shardName == null) {
+                return;
+            }
+            Lock lock = shardManager.tryLock(shardName);
+            if (lock != null) {
+                lock.lock();
+                try {
+                    ShardData shardData = shardManager.getShardData(jobId);
+                    if (shardData != null) {
+                        shardData.put(jobId, status);
+                    }
+                } finally {
+                    lock.unlock();
+                }
             }
         }
     }
 
-    public String getJobLocationAddr(String jobId) {
-        String addr = null;
+    public void removeIfPresent(String jobId) {
+        if (jobId == null) {
+            throw new IllegalArgumentException("jobId not null.");
+        }
+        ShardManager shardManager = getShardManager(jobId);
+        if (shardManager != null) {
+            String shardName = shardManager.getShardName(jobId);
+            if (shardName == null) {
+                return;
+            }
+            Lock lock = shardManager.tryLock(shardName);
+            if (lock != null) {
+                lock.lock();
+                try {
+                    ShardData shardData = shardManager.getShardData(jobId);
+                    if (shardData != null) {
+                        shardData.remove(jobId);
+                    }
+                } finally {
+                    lock.unlock();
+                }
+            }
+        }
+    }
+
+    public String getJobNodeAddress(String jobId) {
+        String nodeAddress = null;
         //先查本地
         ShardManager shardManager = getShardManager(jobId);
-        if (shardManager.getShardData(jobId).containsKey(jobId)) {
-            addr = environmentContext.getLocalAddress();
-        }
-        //查数据库
-        if (addr == null) {
-            EngineJobCache jobCache = engineJobCacheDao.getOne(jobId);
-            if (jobCache != null) {
-                addr = jobCache.getNodeAddress();
+        if (shardManager != null) {
+            ShardData shardData = shardManager.getShardData(jobId);
+            if (shardData != null && shardData.containsKey(jobId)) {
+                nodeAddress = environmentContext.getLocalAddress();
+            }
+            //查数据库
+            if (nodeAddress == null) {
+                EngineJobCache jobCache = engineJobCacheDao.getOne(jobId);
+                if (jobCache != null) {
+                    nodeAddress = jobCache.getNodeAddress();
+                }
             }
         }
-        return addr;
+        return nodeAddress;
     }
 
-    public void checkShard(String jobId) {
+    private void checkShard(String jobId) {
         final ReentrantLock createShardLock = this.lock;
         createShardLock.lock();
         try {
-            int shardSize = getShardManager(jobId).getShards().size();
-            int avg = getShardManager(jobId).getShardDataSize() / shardSize;
-            if (avg >= environmentContext.getShardSize()) {
-                getShardManager(jobId).createShardNode(shardSize);
+            ShardManager shardManager = getShardManager(jobId);
+            if (shardManager != null) {
+                int shardSize = shardManager.getShards().size();
+                int avg = shardManager.getShardDataSize() / shardSize;
+                if (avg >= environmentContext.getShardSize()) {
+                    shardManager.createShardNode(shardSize);
+                }
             }
         } finally {
             createShardLock.unlock();

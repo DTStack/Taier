@@ -12,6 +12,8 @@ import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.RestartJob;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
 import com.dtstack.engine.common.queue.OrderLinkedBlockingQueue;
+import com.dtstack.engine.dao.EngineJobCacheDao;
+import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.master.queue.GroupInfo;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.queue.JobPartitioner;
@@ -41,20 +43,25 @@ public class JobSubmitDealer implements Runnable {
     private String localAddress;
     private GroupPriorityQueue priorityQueue;
     private JobPartitioner jobPartitioner;
+    private EngineJobCacheDao engineJobCacheDao;
     private String jobResource = null;
     private OrderLinkedBlockingQueue<JobClient> queue = null;
     private DelayBlockingQueue<RestartJob<JobClient>> restartJobQueue = null;
 
-    public JobSubmitDealer(String localAddress, GroupPriorityQueue priorityQueue, JobPartitioner jobPartitioner) {
+    public JobSubmitDealer(String localAddress, GroupPriorityQueue priorityQueue, JobPartitioner jobPartitioner, EngineJobCacheDao engineJobCacheDao) {
         if (null == priorityQueue) {
             throw new RdosDefineException("priorityQueue must not null.");
         }
         if (null == jobPartitioner) {
             throw new RdosDefineException("jobPartitioner must not null.");
         }
+        if (null == engineJobCacheDao) {
+            throw new RdosDefineException("engineJobCacheDao must not null.");
+        }
         this.localAddress = localAddress;
         this.priorityQueue = priorityQueue;
         this.jobPartitioner = jobPartitioner;
+        this.engineJobCacheDao = engineJobCacheDao;
         this.jobResource = priorityQueue.getJobResource();
         this.queue = priorityQueue.getQueue();
         this.restartJobQueue = new DelayBlockingQueue<RestartJob<JobClient>>(priorityQueue.getQueueSizeLimited());
@@ -73,9 +80,14 @@ public class JobSubmitDealer implements Runnable {
         while (true) {
             try {
                 JobClient jobClient = acquireJobFromQueue();
+                if (checkIsFinished(jobClient.getTaskId())) {
+                    logger.info("jobId:{} checkIsFinished is true, job is Finished.", jobClient.getTaskId());
+                    continue;
+                }
                 if (!checkMaxPriority(jobResource, jobClient.getPriority())) {
                     logger.info("jobId:{} checkMaxPriority is false, wait other node job which priority higher.", jobClient.getTaskId());
-                    break;
+                    queue.put(jobClient);
+                    continue;
                 }
                 //提交任务
                 submitJob(jobClient);
@@ -97,6 +109,14 @@ public class JobSubmitDealer implements Runnable {
         jobClient = queue.take();
         logger.info("jobId{} acquireJobFromQueue, jobResource{} queueSize:{}.", jobClient.getTaskId(), jobResource, priorityQueue.queueSize());
         return jobClient;
+    }
+
+    private boolean checkIsFinished(String jobId) {
+        EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
+        if (engineJobCache == null) {
+            return true;
+        }
+        return false;
     }
 
     private boolean checkMaxPriority(String jobResource, long localPriority) {
