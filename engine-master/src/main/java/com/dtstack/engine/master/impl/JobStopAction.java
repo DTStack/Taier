@@ -52,6 +52,7 @@ public class JobStopAction {
             return StoppedStatus.MISSED;
         } else if (EJobCacheStage.unSubmitted().contains(jobCache.getStage())) {
             removeMemStatusAndJobCache(jobCache.getJobId());
+            LOG.info("jobId:{} stopped success, task status is STOPPED.", jobElement.jobId);
             return StoppedStatus.STOPPED;
         } else {
             if (engineJob == null) {
