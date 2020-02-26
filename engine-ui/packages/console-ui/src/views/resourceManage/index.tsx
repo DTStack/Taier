@@ -3,8 +3,12 @@ import { Row, Col, Select, Button, Card, Form, Tabs, Table, Input, message } fro
 import Api from '../../api/console';
 import { connect } from 'react-redux';
 import { getTenantList } from '../../actions/console'
-import { ENGINE_TYPE, ENGINE_TYPE_NAME } from '../../consts';
+import { ENGIN_TYPE_TEXT } from '../../consts';
+import { isHadoopEngine, isTiDBEngine } from '../../consts/clusterFunc';
 import BindCommModal from '../../components/bindCommModal';
+
+import BindAccountPane from './bindAccount';
+
 const FormItem = Form.Item;
 const Option = Select.Option;
 const TabPane = Tabs.TabPane;
@@ -232,7 +236,7 @@ class ResourceManage extends React.Component<any, any> {
             }
         ]
     }
-    initLibraColumns = () => {
+    initOtherColumns = () => {
         return [{
             title: '租户',
             dataIndex: 'tenantName',
@@ -243,7 +247,7 @@ class ResourceManage extends React.Component<any, any> {
     }
     render () {
         const hadoopColumns = this.initHadoopColumns();
-        const libraColumns = this.initLibraColumns()
+        const otherColumns = this.initOtherColumns()
         const { tableData, queryParams, total, loading, engineList, clusterList,
             tenantModal, queueModal, modalKey, editModalKey } = this.state;
         const { tenantList } = this.props.consoleUser;
@@ -291,13 +295,14 @@ class ResourceManage extends React.Component<any, any> {
                             {
                                 engineList && engineList.map((item: any) => {
                                     const { engineType } = item
-                                    const isHadoop = engineType == ENGINE_TYPE.HADOOP
-                                    const engineName = isHadoop ? ENGINE_TYPE_NAME.HADOOP : ENGINE_TYPE_NAME.LIBRA
+                                    const isHadoop = isHadoopEngine(engineType);
+                                    const engineName = ENGIN_TYPE_TEXT[engineType];
                                     return (
                                         <TabPane className='tab-pane-wrapper' tab={engineName} key={`${engineType}`}>
                                             <Tabs
                                                 className='engine-detail-tabs'
                                                 tabPosition='top'
+                                                animated={false}
                                             >
                                                 <TabPane tab="租户绑定" key={`${engineType}-tenant`}>
                                                     <div style={{ margin: 15 }}>
@@ -315,14 +320,25 @@ class ResourceManage extends React.Component<any, any> {
                                                         <Table
                                                             className='m-table border-table'
                                                             loading={loading}
-                                                            columns={isHadoop ? hadoopColumns : libraColumns}
+                                                            rowKey="tenantId"
+                                                            columns={isHadoop ? hadoopColumns : otherColumns}
                                                             dataSource={tableData}
                                                             pagination={pagination}
                                                             onChange={this.handleTableChange}
                                                         />
                                                     </div>
                                                 </TabPane>
-                                                {/* <TabPane tab="队列管理" key="queue">队列管理</TabPane> */}
+                                                {
+                                                    isTiDBEngine(engineType)
+                                                        ? <TabPane tab="账号绑定" key="bindAccount">
+                                                            <BindAccountPane
+                                                                key={`${queryParams.clusterId}-${engineType}`}
+                                                                engineType={parseInt(engineType, 10)}
+                                                                clusterId={queryParams.clusterId}
+                                                            />
+                                                        </TabPane>
+                                                        : null
+                                                }
                                             </Tabs>
                                         </TabPane>
                                     )

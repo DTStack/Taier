@@ -9,10 +9,14 @@ import {
 import Api from '../../../api/console'
 import moment from 'moment'
 
-import { exChangeComponentConf,
+import {
+    isTiDBEngine,
+    isLibraEngine,
+    isHadoopEngine,
+    exChangeComponentConf,
     showTestResult, validateAllRequired,
-    myUpperCase, myLowerCase, toChsKeys,
-    isHadoopEngine } from '../../../consts/clusterFunc';
+    myUpperCase, myLowerCase, toChsKeys
+} from '../../../consts/clusterFunc';
 
 import { formItemLayout, ENGINE_TYPE, COMPONENT_TYPE_VALUE, SPARK_KEY_MAP, COMPONEMT_CONFIG_KEYS, COMPONEMT_CONFIG_KEY_ENUM,
     SPARK_KEY_MAP_DOTS, FLINK_KEY_MAP, FLINK_KEY_MAP_DOTS,
@@ -20,7 +24,7 @@ import { formItemLayout, ENGINE_TYPE, COMPONENT_TYPE_VALUE, SPARK_KEY_MAP, COMPO
     DTYARNSHELL_KEY_MAP, DTYARNSHELL_KEY_MAP_DOTS,
     notExtKeysFlink, notExtKeysSpark, notExtKeysHiveServer,
     notExtKeysLearning, notExtKeysDtyarnShell, notExtKeyDtscriptPython, notExtKeyDtscriptJupter,
-    notExtKeysSparkThrift, notExtKeysLibraSql } from '../../../consts';
+    notExtKeysSparkThrift, notExtKeysLibraSql, notExtKeysTidbSql } from '../../../consts';
 
 import { updateTestStatus, updateRequiredStatus } from '../../../reducers/modules/cluster';
 import GoBack from 'dt-common/src/components/go-back';
@@ -30,13 +34,15 @@ import LearningConfig from './learningConfig';
 import DtyarnShellConfig from './dtYarnshellConfig';
 import HiveServerConfig from './hiveServerConfig';
 import LibraSqlConfig from './libraSqlConfig';
+import TiDBSqlConfig from './tidbSqlConfig';
 import ZipConfig from './zipConfig';
 import ImpalaSQLConfig from './impalaSQLConfig';
 import { SparkThriftConfig, CarbonDataConfig } from './sparkThriftAndCarbonData';
 import SftpConfig from './sftpConfig';
-import AddCommModal from '../../../components/addCommModal';
 import RequiredIcon from '../../../components/requiredIcon';
 import TestRestIcon from '../../../components/testResultIcon';
+import AddCommModal from '../../../components/addCommModal';
+import AddEngineModal from '../../../components/addEngineModal';
 
 const Option = Select.Option;
 const FormItem = Form.Item;
@@ -83,6 +89,7 @@ class EditCluster extends React.Component<any, any> {
         dtscript_python_params: [], // dtscript python参数
         dtscript_jupyter_params: [], // dtscript jupyter
         libraSql_params: [],
+        tidbSql_params: [],
         sftp_params: [],
         core: null,
         nodeNumber: null,
@@ -164,20 +171,21 @@ class EditCluster extends React.Component<any, any> {
             if (key == COMPONEMT_CONFIG_KEYS.LIBRASQL) {
                 delete copyComp[key]
             }
+            if (key == COMPONEMT_CONFIG_KEYS.TI_DB_SQL) {
+                delete copyComp[key]
+            }
         }
         if (isHadoop) {
             setFieldsValue(copyComp);
             for (let i in copyComp) {
-                if (copyComp[i].kerberosFile) {
+                if (copyComp[i] && copyComp[i].kerberosFile) {
                     setFieldsValue({
                         [i]: {
                             ...copyComp[i]
-                            // openKerberos: copyComp[i].openKerberos,
-                            // kerberosFile: copyComp[i].kerberosFile
                         }
                     })
                 }
-                if (i === 'sftpConf' || copyComp[i].rsaPath) {
+                if (i === 'sftpConf' || (copyComp[i] && copyComp[i].rsaPath)) {
                     timer = setTimeout(() => {
                         setFieldsValue({
                             [i]: {
@@ -189,25 +197,37 @@ class EditCluster extends React.Component<any, any> {
                     })
                 }
             }
-        } else {
+        } else if (isLibraEngine(engineType)) {
             setFieldsValue({
                 libraConf: compConf.libraConf
             })
+        } else if (isTiDBEngine(engineType)) {
+            setFieldsValue({
+                libraConf: compConf.tidbConf
+            })
         }
     }
+
     /**
      * 组件数据
      */
-    getComponetData (clusterData: any, type: any) {
+    getComponentData (clusterData: any, type: any) {
         const enginesData = clusterData.engines || [];
         const hadoopConf = enginesData.find((item: any) => item.engineType == ENGINE_TYPE.HADOOP) || {}; // hadoop engine 总数据
         const libraConf = enginesData.find((item: any) => item.engineType == ENGINE_TYPE.LIBRA) || {}; // libra engine 总数据
+        const tiDBConf = enginesData.find((item: any) => item.engineType == ENGINE_TYPE.TI_DB) || {}; // TiDB 总数据
         switch (type) {
             case ENGINE_TYPE.HADOOP: {
                 return hadoopConf.components || []
             }
             case ENGINE_TYPE.LIBRA: {
                 return libraConf.components || []
+            }
+            case ENGINE_TYPE.TI_DB: {
+                return tiDBConf.components || []
+            }
+            default: {
+                return [];
             }
         }
     }
@@ -221,7 +241,7 @@ class EditCluster extends React.Component<any, any> {
         return engineData;
     }
 
-    // 获取kerberos文件信息
+    // 获取 kerberos 文件信息
     deleteKerberosFile () {
         const { location } = this.props;
         const params = location.state || {};
@@ -297,11 +317,13 @@ class EditCluster extends React.Component<any, any> {
                         const activeKey = engineType || (enginesData[0] && enginesData[0].engineType)
                         const hadoopConf = enginesData.find((item: any) => item.engineType == ENGINE_TYPE.HADOOP) || {};
                         const resource = hadoopConf.resource || {}; // 资源信息
-                        const hadoopComponentData = this.getComponetData(data, ENGINE_TYPE.HADOOP);
-                        const libraComponentData = this.getComponetData(data, ENGINE_TYPE.LIBRA)
-                        let componentConf = exChangeComponentConf(hadoopComponentData, libraComponentData) || {}; // 所有引擎数据组合
+                        const hadoopComponentData = this.getComponentData(data, ENGINE_TYPE.HADOOP);
+                        const libraComponentData = this.getComponentData(data, ENGINE_TYPE.LIBRA);
+                        const tidbComponentData = this.getComponentData(data, ENGINE_TYPE.TI_DB);
+                        let componentConf = exChangeComponentConf(hadoopComponentData, libraComponentData, tidbComponentData) || {}; // 所有引擎数据组合
                         const flinkData = componentConf.flinkConf;
-                        const extParams = this.exchangeServerParams(componentConf)
+                        const extParams = this.exchangeServerParams(componentConf);
+
                         componentConf.flinkConf = myUpperCase(flinkData);
                         this.setState({
                             clusterData: data,
@@ -325,6 +347,7 @@ class EditCluster extends React.Component<any, any> {
                             dtscript_python_params: extParams.dtscriptPythonKeys,
                             dtscript_jupyter_params: extParams.dtscriptJupyterKeys,
                             libraSql_params: extParams.libraSqlKeys,
+                            tidbSql_params: extParams.tidbSqlKeys,
                             extDefaultValue: extParams.default,
                             flinkPrometheus: componentConf.flinkConf,
                             flinkData: flinkData
@@ -357,6 +380,7 @@ class EditCluster extends React.Component<any, any> {
             dtscriptPythonKeys: [],
             dtscriptJupyterKeys: [],
             libraSqlKeys: [],
+            tidbSqlKeys: [],
             default: {}
         };
         let flinkConfig = config.flinkConf || {};
@@ -368,6 +392,8 @@ class EditCluster extends React.Component<any, any> {
         let dtscriptPythonConfig = (config.dtscriptConf && config.dtscriptConf.pythonConf) || {};
         let dtscriptJupyterConfig = (config.dtscriptConf && config.dtscriptConf.jupyterConf) || {};
         let libraConfig = config.libraConf || {};
+        let tidbConfig = config.tidbConf || {};
+
         function setDefault (config: any, notExtKeys: any, type: any, keys: any) {
             const keyAndValue = Object.entries(config);
             keyAndValue.map(
@@ -392,9 +418,11 @@ class EditCluster extends React.Component<any, any> {
         setDefault(dtyarnshellConfig, notExtKeysDtyarnShell, 'dtyarnshell', result.dtyarnshellKeys)
         setDefault(dtscriptPythonConfig, notExtKeyDtscriptPython, 'dtscript-python', result.dtscriptPythonKeys)
         setDefault(dtscriptJupyterConfig, notExtKeyDtscriptJupter, 'dtscript-jupyter', result.dtscriptJupyterKeys)
-        setDefault(libraConfig, notExtKeysLibraSql, 'libra', result.libraSqlKeys)
+        setDefault(libraConfig, notExtKeysLibraSql, 'libra', result.libraSqlKeys);
+        setDefault(tidbConfig, notExtKeysTidbSql, 'tidb', result.tidbSqlKeys);
         return result;
     }
+
     validateFileType (val: string) {
         let flag = false;
         const reg = /\.(zip)$/
@@ -486,10 +514,11 @@ class EditCluster extends React.Component<any, any> {
     }
 
     addParam (type: any) {
-        const { flink_params, spark_params, sparkThrif_params,
+        const {
             hiveServer_params, learning_params,
+            flink_params, spark_params, sparkThrif_params,
             dtyarnshell_params, dtscript_python_params, dtscript_jupyter_params,
-            libraSql_params } = this.state;
+            libraSql_params, tidbSql_params } = this.state;
         if (type == 'flink') {
             this.setState({
                 flink_params: [...flink_params, {
@@ -523,6 +552,12 @@ class EditCluster extends React.Component<any, any> {
         } else if (type == 'libra') {
             this.setState({
                 libraSql_params: [...libraSql_params, {
+                    id: giveMeAKey()
+                }]
+            })
+        } else if (type == 'tidb') {
+            this.setState({
+                tidbSql_params: [...tidbSql_params, {
                     id: giveMeAKey()
                 }]
             })
@@ -590,38 +625,73 @@ class EditCluster extends React.Component<any, any> {
             [tmpStateName]: tmpParams
         })
     }
+
+    geTmpParams (type: string) {
+        const {
+            flink_params, spark_params, sparkThrif_params,
+            dtscript_python_params, dtscript_jupyter_params,
+            hiveServer_params, learning_params, dtyarnshell_params,
+            libraSql_params, tidbSql_params } = this.state;
+        let tmpParams: any;
+        switch (type) {
+            case 'flink': {
+                tmpParams = flink_params;
+                break;
+            }
+            case 'spark': {
+                tmpParams = spark_params;
+                break;
+            }
+            case 'learning': {
+                tmpParams = learning_params;
+                break;
+            }
+            case 'sparkThrift': {
+                tmpParams = sparkThrif_params
+                break;
+            }
+            case 'hiveServer': {
+                tmpParams = hiveServer_params
+                break;
+            }
+            case 'libra': {
+                tmpParams = libraSql_params
+                break;
+            }
+            case 'tidb': {
+                tmpParams = tidbSql_params
+                break;
+            }
+            case 'dtyarnshell': {
+                tmpParams = dtyarnshell_params
+                break;
+            }
+            case 'dtscriptPython': {
+                tmpParams = dtscript_python_params
+                break;
+            }
+            case 'dtscriptJupyter': {
+                tmpParams = dtscript_jupyter_params
+                break;
+            }
+            default: {
+                tmpParams = dtyarnshell_params;
+                break;
+            }
+        }
+        return tmpParams;
+    }
+
     /**
      * 渲染组件额外参数
      */
     renderExtraParam (type: string) {
-        const { flink_params, spark_params, sparkThrif_params,
-            hiveServer_params, learning_params, dtyarnshell_params, dtscript_python_params, dtscript_jupyter_params,
-            libraSql_params, extDefaultValue } = this.state;
+        const { extDefaultValue } = this.state;
         const { getFieldDecorator } = this.props.form;
         const { mode } = this.props.location.state || {} as any;
-        const isView = mode == 'view'
-        let tmpParams: any;
-        if (type == 'flink') {
-            tmpParams = flink_params;
-        } else if (type == 'spark') {
-            tmpParams = spark_params;
-        } else if (type == 'learning') {
-            tmpParams = learning_params;
-        } else if (type == 'sparkThrift') {
-            tmpParams = sparkThrif_params
-        } else if (type == 'hiveServer') {
-            tmpParams = hiveServer_params
-        } else if (type == 'libra') {
-            tmpParams = libraSql_params
-        } else if (type == 'dtyarnshell') { // 公共参数
-            tmpParams = dtyarnshell_params
-        } else if (type === 'dtscriptPython') {
-            tmpParams = dtscript_python_params
-        } else if (type === 'dtscriptJupyter') {
-            tmpParams = dtscript_jupyter_params
-        } else {
-            tmpParams = dtyarnshell_params;
-        }
+        const isView = mode == 'view';
+        const tmpParams = this.geTmpParams(type);
+
         return tmpParams && tmpParams.map(
             (param: any) => {
                 return (<Row key={param.id}>
@@ -658,7 +728,7 @@ class EditCluster extends React.Component<any, any> {
             }
         )
     }
-    /* eslint-enable */
+
     // 添加自定义参数
     showAddCustomParam = (isView: any, type: any) => {
         return (
@@ -672,6 +742,7 @@ class EditCluster extends React.Component<any, any> {
             )
         )
     }
+
     exchangeMemory (totalMemory: any) {
         if (!totalMemory) {
             return '--';
@@ -680,6 +751,7 @@ class EditCluster extends React.Component<any, any> {
         const haveDot = Math.floor(memory) != memory
         return `${haveDot ? memory.toFixed(2) : memory}GB`
     }
+
     saveComponent (component: any) {
         const { validateFieldsAndScroll } = this.props.form;
         const { cluster } = this.props.location.state || {} as any;
@@ -704,7 +776,6 @@ class EditCluster extends React.Component<any, any> {
                 }).then((res: any) => {
                     if (res.code === 1) {
                         // 避免上传配置文件的组件hdfs、yarn保存之后会导致另一项组件数据清空，这里不请求数据
-                        // this.getDataList(this.state.engineTypeKey);
                         message.success(`${component.componentName}保存成功`)
                     }
                 })
@@ -720,7 +791,6 @@ class EditCluster extends React.Component<any, any> {
                     }).then((res: any) => {
                         if (res.code === 1) {
                             // 避免上传配置文件的组件hdfs、yarn保存之后会导致另一项组件数据清空，这里不请求数据
-                            // this.getDataList(this.state.engineTypeKey);
                             message.success(`${component.componentName}保存成功`)
                         }
                     });
@@ -746,6 +816,7 @@ class EditCluster extends React.Component<any, any> {
             })
         }
     }
+
     addEngine (params: any) {
         const { cluster } = this.props.location.state || {} as any;
         const { canSubmit, reqParams } = params;
@@ -860,9 +931,7 @@ class EditCluster extends React.Component<any, any> {
                         )
                 }
             } else {
-                const hadoopComponentData = this.getComponetData(clusterData, ENGINE_TYPE.HADOOP);
-                const libraComponentData = this.getComponetData(clusterData, ENGINE_TYPE.LIBRA);
-                const tabCompData = isHadoopEngine(engineTypeKey) ? hadoopComponentData : libraComponentData;
+                const tabCompData = this.getComponentData(clusterData, engineTypeKey);
                 const requiredStatus = validateAllRequired(form.validateFields, tabCompData);
                 updateRequiredStatus(requiredStatus);
                 message.error('你有必填配置项未填写！')
@@ -956,6 +1025,12 @@ class EditCluster extends React.Component<any, any> {
                 })
                 break;
             }
+            case COMPONENT_TYPE_VALUE.TIDB_SQL: {
+                form.setFieldsValue({
+                    [COMPONEMT_CONFIG_KEYS.LIBRASQL]: allComponentConf.tidbConf
+                })
+                break;
+            }
         }
     }
     showDeleteConfirm (component: any) {
@@ -980,6 +1055,7 @@ class EditCluster extends React.Component<any, any> {
         if (componentTypeCode == COMPONENT_TYPE_VALUE.HDFS ||
             componentTypeCode == COMPONENT_TYPE_VALUE.YARN ||
             componentTypeCode == COMPONENT_TYPE_VALUE.LIBRASQL ||
+            componentTypeCode == COMPONENT_TYPE_VALUE.TIDB_SQL ||
             componentTypeCode == COMPONENT_TYPE_VALUE.SFTP) {
             message.error(`${componentName}不允许删除！`)
         } else {
@@ -1062,6 +1138,7 @@ class EditCluster extends React.Component<any, any> {
         }
         return subConf;
     }
+
     /**
      * 转换成服务端可用数据
      */
@@ -1078,6 +1155,7 @@ class EditCluster extends React.Component<any, any> {
         const dtscriptPythonExtParams = this.getCustomParams(formValues, 'dtscriptPython');
         const dtscriptJupyterExtParams = this.getCustomParams(formValues, 'dtscriptJupyter');
         const libraExtParams = this.getCustomParams(formValues, 'libra');
+        const tidbExtParams = this.getCustomParams(formValues, 'tidb');
         const learningTypeName: any = {
             typeName: `learning`
         }
@@ -1102,6 +1180,7 @@ class EditCluster extends React.Component<any, any> {
         // 特殊处理 dtscriptConf
         componentConf['dtscriptConf'] = { ...dtyarnshellTypeName, ...commConf, pythonConf: dtscriptPythonConf, jupyterConf: dtscriptJupyterConf };
         componentConf['libraConf'] = { ...formValues.libraConf, ...libraExtParams };
+        componentConf['tidbConf'] = { ...formValues.tidbConf, ...tidbExtParams };
         componentConf['sftpConf'] = formValues.sftpConf || {};
         // 服务端兼容，不允许null
         componentConf['hiveConf'].username = componentConf['hiveConf'].username || '';
@@ -1114,6 +1193,7 @@ class EditCluster extends React.Component<any, any> {
         componentConf['hiveServerConf'].password = componentConf['hiveServerConf'].password || '';
         return componentConf;
     }
+
     getCustomParams (data: any, ParamKey: any) {
         let params: any = {};
         let tmpParam: any = {};
@@ -1170,8 +1250,9 @@ class EditCluster extends React.Component<any, any> {
             addComponentVisible: false
         })
     }
+
     /**
-     * LIBA不显示集群信息
+     * LIBA 不显示集群信息
      */
     displayResource = (engineType: any) => {
         const { getFieldDecorator } = this.props.form;
@@ -1247,7 +1328,7 @@ class EditCluster extends React.Component<any, any> {
                                 >
                                     {getFieldDecorator('syncType', {
                                         rules: [],
-                                        initialValue: `${hadoopEngineData.syncType}` || ''
+                                        initialValue: `${hadoopEngineData.syncType || ''}`
                                     })(
                                         <Select style={{ width: '200px', marginRight: '10px' }} disabled={isView}>
                                             {
@@ -1344,7 +1425,6 @@ class EditCluster extends React.Component<any, any> {
                                                                 </label>
                                                         }
                                                         {uploadKLoading ? <Icon className="blue-loading" type="loading" /> : null}
-                                                        {/* <span> {kfile.files && kfile.files.length > 0 && kfile.files[0].name}</span> */}
                                                         <div
                                                             style={{
                                                                 display: 'flex',
@@ -1553,8 +1633,9 @@ class EditCluster extends React.Component<any, any> {
         const { checked, securityStatus, zipConfig } = this.state;
         const { getFieldDecorator, getFieldValue, setFieldsValue, resetFields } = this.props.form;
         const { mode } = this.props.location.state || {} as any;
+        const componentType = component.componentTypeCode;
         const isView = mode == 'view';
-        switch (component.componentTypeCode) {
+        switch (componentType) {
             case COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER: {
                 return (
                     <SparkThriftConfig
@@ -1741,6 +1822,23 @@ class EditCluster extends React.Component<any, any> {
                     />
                 )
             }
+            case COMPONENT_TYPE_VALUE.TIDB_SQL: {
+                return (
+                    <TiDBSqlConfig
+                        isView={isView}
+                        getFieldDecorator={getFieldDecorator}
+                        customView={(
+                            <div>
+                                <div className="engine-config-content">
+                                    {this.renderExtraParam('tidb')}
+                                    {this.showAddCustomParam(isView, 'tidb')}
+                                </div>
+                            </div>
+                        )}
+                        singleButton={this.renderExtFooter(isView, component)}
+                    />
+                )
+            }
             default:
                 return <div>目前暂无该组件配置</div>
         }
@@ -1752,13 +1850,12 @@ class EditCluster extends React.Component<any, any> {
             addEngineVisible, addComponentVisible } = this.state;
         const { mode } = this.props.location.state || {} as any;
         const isView = mode == 'view';
-        const hadoopComponentData = this.getComponetData(clusterData, ENGINE_TYPE.HADOOP);
-        const libraComponentData = this.getComponetData(clusterData, ENGINE_TYPE.LIBRA);
-        const tabCompData = isHadoopEngine(engineTypeKey) ? hadoopComponentData : libraComponentData; // 不同engine的组件数据
+        const hadoopComponentData = this.getComponentData(clusterData, ENGINE_TYPE.HADOOP);
+        const tabCompData = this.getEngineData(clusterData, engineTypeKey).components; // 不同engine的组件数据
         const engineList = clusterData.engines || [];
 
         const renderMetaTag = (componentType: number, syncType: number) => {
-            return componentType === syncType || [COMPONENT_TYPE_VALUE.LIBRASQL].indexOf(componentType) > -1
+            return componentType === syncType || [COMPONENT_TYPE_VALUE.LIBRASQL, COMPONENT_TYPE_VALUE.TIDB_SQL].indexOf(componentType) > -1
                 ? <Tag color="blue">Meta</Tag>
                 : null;
         }
@@ -1766,13 +1863,15 @@ class EditCluster extends React.Component<any, any> {
         return (
             <div className='console-wrapper' ref={(el) => { this.container = el; }}>
                 <div>
-                    <p className='back-icon'><GoBack size="default" type="textButton" style={{ fontSize: '14px', color: '#333333' }}></GoBack></p>
+                    <p className='back-icon'>
+                        <GoBack size="default" type="textButton" style={{ fontSize: '14px', color: '#333333' }}></GoBack>
+                    </p>
                     <div className='config-title'>集群信息</div>
                 </div>
                 <Tabs
-                    activeKey={`${engineTypeKey}`}
                     tabPosition='top'
                     onChange={this.onTabChange}
+                    activeKey={`${engineTypeKey}`}
                 >
                     {
                         engineList && engineList.map((item: any, index: any) => {
@@ -1787,7 +1886,7 @@ class EditCluster extends React.Component<any, any> {
                                         {this.displayResource(engineType)}
                                         {
                                             isView ? null : (
-                                                <div style={{ margin: '5px 20px 0px 20px', textAlign: 'right' }}>
+                                                <div style={{ margin: '10px 20px 0px 20px', textAlign: 'right' }}>
                                                     {isHadoop && <Button onClick={() => {
                                                         this.setState({
                                                             modalKey: Math.random(),
@@ -1850,12 +1949,12 @@ class EditCluster extends React.Component<any, any> {
                         })
                     }
                 </Tabs>
-                <AddCommModal
+                <AddEngineModal
+                    singleMode={true}
                     key={editModalKey}
                     title='增加引擎'
-                    isAddCluster={false}
+                    existEngines={engineList}
                     visible={addEngineVisible}
-                    engineList={engineList}
                     onCancel={() => this.onCancel()}
                     onOk={this.addEngine.bind(this)}
                 />

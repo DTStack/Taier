@@ -35,21 +35,34 @@ export const DATA_SOURCE: any = {
     MAXCOMPUTE: 10,
     ADSMAXCOMPUTE: 11
 }
-export const ENGINE_TYPE: any = {
+export const ENGINE_TYPE = {
     HADOOP: 1,
-    LIBRA: 2
+    LIBRA: 2,
+    TI_DB: 4
 }
-export const ENGINE_TYPE_NAME: any = {
+export const ENGINE_TYPE_NAME = {
     HADOOP: 'Hadoop',
-    LIBRA: 'LibrA'
+    LIBRA: 'LibrA',
+    TI_DB: 'TiDB'
 }
-export const ENGINE_TYPE_ARRAY: any = [{ // 引擎类型下拉框数据
+
+export const ENGIN_TYPE_TEXT = {
+    [ENGINE_TYPE.HADOOP]: 'Hadoop',
+    [ENGINE_TYPE.LIBRA]: 'LibrA',
+    [ENGINE_TYPE.TI_DB]: 'TiDB'
+}
+
+export const ENGINE_TYPE_ARRAY = [{ // 引擎类型下拉框数据
     name: 'Hadoop',
     value: ENGINE_TYPE_NAME.HADOOP
 }, {
     name: 'LibrA',
     value: ENGINE_TYPE_NAME.LIBRA
-}]
+}, {
+    name: 'TiDB',
+    value: ENGINE_TYPE_NAME.TI_DB
+}];
+
 export const COMPONENT_TYPE_VALUE = {
     FLINK: 0,
     SPARK: 1,
@@ -62,7 +75,8 @@ export const COMPONENT_TYPE_VALUE = {
     LIBRASQL: 8,
     HIVESERVER: 9,
     SFTP: 10,
-    IMPALASQL: 11
+    IMPALASQL: 11,
+    TIDB_SQL: 12
 }
 export const DEFAULT_COMP_TEST: any = { // 测试结果默认数据
     flinkTestResult: {},
@@ -93,16 +107,16 @@ export const DEFAULT_COMP_REQUIRED: any = { // 必填默认数据
     sftpShowRequired: false
 }
 export const HADOOP_GROUP_VALUE = [ // hadoop 引擎支持的组件类型(复选框)
+    { label: 'HDFS', value: COMPONENT_TYPE_VALUE.HDFS, disabled: true },
+    { label: 'YARN', value: COMPONENT_TYPE_VALUE.YARN, disabled: true },
+    { label: 'SFTP', value: COMPONENT_TYPE_VALUE.SFTP, disabled: true },
     { label: 'Flink', value: COMPONENT_TYPE_VALUE.FLINK },
     { label: 'Spark', value: COMPONENT_TYPE_VALUE.SPARK },
     { label: 'Learning', value: COMPONENT_TYPE_VALUE.LEARNING },
     { label: 'DTScript', value: COMPONENT_TYPE_VALUE.DTYARNSHELL }, // DTYarnShell => DTScript
-    { label: 'HDFS', value: COMPONENT_TYPE_VALUE.HDFS, disabled: true },
-    { label: 'YARN', value: COMPONENT_TYPE_VALUE.YARN, disabled: true },
     { label: 'SparkThrift', value: COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER },
     { label: 'CarbonData ThriftServer', value: COMPONENT_TYPE_VALUE.CARBONDATA },
     { label: 'Hive Server', value: COMPONENT_TYPE_VALUE.HIVESERVER },
-    { label: 'SFTP', value: COMPONENT_TYPE_VALUE.SFTP, disabled: true },
     { label: 'Impala SQL', value: COMPONENT_TYPE_VALUE.IMPALASQL }
 ];
 export const COMPONEMT_CONFIG_KEYS = {
@@ -115,12 +129,13 @@ export const COMPONEMT_CONFIG_KEYS = {
     SPARKTHRIFTSERVER: 'hiveConf',
     CARBONDATA: 'carbonConf',
     LIBRASQL: 'libraConf',
+    TI_DB_SQL: 'tidbConf',
     HIVESERVER: 'hiveServerConf',
     SFTP: 'sftpConf',
     IMPALASQL: 'impalaSqlConf'
 }
 // 组件对应的key值
-export const COMPONEMT_CONFIG_KEY_ENUM: any = {
+export const COMPONEMT_CONFIG_KEY_ENUM = {
     [COMPONENT_TYPE_VALUE.FLINK]: COMPONEMT_CONFIG_KEYS.FLINK,
     [COMPONENT_TYPE_VALUE.SPARK]: COMPONEMT_CONFIG_KEYS.SPARK,
     [COMPONENT_TYPE_VALUE.LEARNING]: COMPONEMT_CONFIG_KEYS.LEARNING,
@@ -131,6 +146,7 @@ export const COMPONEMT_CONFIG_KEY_ENUM: any = {
     [COMPONENT_TYPE_VALUE.CARBONDATA]: COMPONEMT_CONFIG_KEYS.CARBONDATA,
     [COMPONENT_TYPE_VALUE.HIVESERVER]: COMPONEMT_CONFIG_KEYS.HIVESERVER,
     [COMPONENT_TYPE_VALUE.LIBRASQL]: COMPONEMT_CONFIG_KEYS.LIBRASQL,
+    [COMPONENT_TYPE_VALUE.TIDB_SQL]: COMPONEMT_CONFIG_KEYS.TI_DB_SQL,
     [COMPONENT_TYPE_VALUE.SFTP]: COMPONEMT_CONFIG_KEYS.SFTP,
     [COMPONENT_TYPE_VALUE.IMPALASQL]: COMPONEMT_CONFIG_KEYS.IMPALASQL
 };
@@ -143,8 +159,9 @@ export const API_METHOD: any = {
     POST: 1
     // GET:2
 }
+
 /* eslint-disable-next-line */
-export const API_METHOD_key: any = {
+export const API_METHOD_key = {
     1: 'POST',
     2: 'GET'
 }
@@ -452,6 +469,13 @@ export const notExtKeysHiveServer: any = [
     'openKerberos', 'kerberosFile'
 ]
 export const notExtKeysLibraSql: any = [
+    'jdbcUrl', 'username', 'password',
+    'driverClassName', 'useConnectionPool', 'maxPoolSize',
+    'minPoolSize', 'initialPoolSize', 'jdbcIdel', 'maxRows',
+    'queryTimeout', 'checkTimeout'
+]
+
+export const notExtKeysTidbSql: any = [
     'jdbcUrl', 'username', 'password',
     'driverClassName', 'useConnectionPool', 'maxPoolSize',
     'minPoolSize', 'initialPoolSize', 'jdbcIdel', 'maxRows',

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { hashHistory } from 'react-router';
 import { Card, Table, Button, message } from 'antd';
-import AddCommModal from '../../components/addCommModal';
+import AddEngineModal from '../../components/addEngineModal';
 import moment from 'moment';
 import Api from '../../api/console'
 const PAGE_SIZE = 10;
@@ -115,6 +115,7 @@ class ClusterManage extends React.Component<any, any> {
     onCancel () {
         this.setState({ newClusterModal: false })
     }
+
     onSubmit (params: any) {
         const { canSubmit, reqParams } = params;
         if (canSubmit) {
@@ -165,11 +166,10 @@ class ClusterManage extends React.Component<any, any> {
                         onChange={this.handleTableChange}
                     />
                 </Card>
-                <AddCommModal
+                <AddEngineModal
                     key={editModalKey}
                     title='新增集群'
                     visible={newClusterModal}
-                    isAddCluster={true}
                     onCancel={this.onCancel.bind(this)}
                     onOk={this.onSubmit.bind(this)}
                 />
