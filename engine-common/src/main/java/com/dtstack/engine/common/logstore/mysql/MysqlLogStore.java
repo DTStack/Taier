@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * 操作
@@ -45,18 +46,21 @@ public class MysqlLogStore extends com.dtstack.engine.common.logstore.AbstractLo
 
     private static final String RETAIN_CLEAR_SQL = "delete from rdos_plugin_job_info where status in (5,7,8,9,13,14,15) and (UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(gmt_modified)) > " + retain_time;
 
-    private MysqlDataConnPool dataConnPool = MysqlDataConnPool.getInstance();
+    private static MysqlDataConnPool dataConnPool;
 
     private static volatile MysqlLogStore mysqlLogStore = null;
 
     private MysqlLogStore(){
-
     }
 
-    public static MysqlLogStore getInstance(){
+    public static MysqlLogStore getInstance(Map<String, String> dbConfig){
+        if (dbConfig == null) {
+            return null;
+        }
         if(mysqlLogStore==null){
             synchronized (MysqlLogStore.class){
                 if(mysqlLogStore==null){
+                    dataConnPool = MysqlDataConnPool.getInstance(dbConfig);
                     mysqlLogStore = new MysqlLogStore();
                 }
             }
@@ -66,12 +70,11 @@ public class MysqlLogStore extends com.dtstack.engine.common.logstore.AbstractLo
 
     @Override
     public int insert(String jobId, String jobInfo, int status){
-        MysqlDataConnPool metaDataConnPool = MysqlDataConnPool.getInstance();
         Connection connection = null;
         PreparedStatement pstmt = null;
 
         try {
-            connection = metaDataConnPool.getConn();
+            connection = dataConnPool.getConn();
             pstmt = connection.prepareStatement(REPLACE_INTO_SQL);
             pstmt.setString(1, jobId);
             pstmt.setString(2, jobInfo);
@@ -231,12 +234,11 @@ public class MysqlLogStore extends com.dtstack.engine.common.logstore.AbstractLo
 
     @Override
     public String getLogByJobId(String jobId){
-        MysqlDataConnPool metaDataConnPool = MysqlDataConnPool.getInstance();
         Connection connection = null;
         PreparedStatement pstmt = null;
 
         try {
-            connection = metaDataConnPool.getConn();
+            connection = dataConnPool.getConn();
             pstmt = connection.prepareStatement(GET_LOG_BY_JOB_ID);
             pstmt.setString(1, jobId);
 
@@ -268,12 +270,11 @@ public class MysqlLogStore extends com.dtstack.engine.common.logstore.AbstractLo
 
     @Override
     public void timeOutDeal(){
-        MysqlDataConnPool metaDataConnPool = MysqlDataConnPool.getInstance();
         Connection connection = null;
         Statement stmt = null;
 
         try {
-            connection = metaDataConnPool.getConn();
+            connection = dataConnPool.getConn();
             stmt = connection.createStatement();
             stmt.executeUpdate(TIME_OUT_TO_FAIL_SQL);
 
@@ -296,12 +297,11 @@ public class MysqlLogStore extends com.dtstack.engine.common.logstore.AbstractLo
 
     @Override
     public void clearJob(){
-        MysqlDataConnPool metaDataConnPool = MysqlDataConnPool.getInstance();
         Connection connection = null;
         Statement stmt = null;
 
         try {
-            connection = metaDataConnPool.getConn();
+            connection = dataConnPool.getConn();
             stmt = connection.createStatement();
             stmt.executeUpdate(RETAIN_CLEAR_SQL);
 

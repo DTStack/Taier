@@ -10,7 +10,6 @@ import com.google.common.collect.Queues;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dtstack.engine.common.logstore.AbstractLogStore;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -67,8 +66,6 @@ public class RdbsExeQueue {
     /**缓存所有进入执行引擎的任务---在执行完成删除*/
     private Map<String, JobClient> jobCache = Maps.newConcurrentMap();
 
-    private AbstractLogStore logStore = LogStoreFactory.getLogStore(null);
-
     private AbstractConnFactory connFactory;
 
     public RdbsExeQueue(AbstractConnFactory connFactory, Integer maxPoolSize, Integer minPoolSize){
@@ -99,7 +96,9 @@ public class RdbsExeQueue {
     public String submit(JobClient jobClient){
 
         try {
-            logStore.insert(jobClient.getTaskId(), jobClient.getParamAction().toString(), RdosTaskStatus.SCHEDULED.getStatus());
+            if (LogStoreFactory.getLogStore() != null) {
+                LogStoreFactory.getLogStore().insert(jobClient.getTaskId(), jobClient.getParamAction().toString(), RdosTaskStatus.SCHEDULED.getStatus());
+            }
             jobCache.put(jobClient.getTaskId(), jobClient);
             waitQueue.put(jobClient);
         } catch (InterruptedException e) {
@@ -133,16 +132,20 @@ public class RdbsExeQueue {
 
 
     public RdosTaskStatus getJobStatus(String jobId){
-        Integer status = logStore.getStatusByJobId(jobId);
-        if(status == null){
-            return null;
+        if (LogStoreFactory.getLogStore() != null) {
+            Integer status = LogStoreFactory.getLogStore().getStatusByJobId(jobId);
+            if (status != null) {
+                return RdosTaskStatus.getTaskStatus(status);
+            }
         }
-
-        return RdosTaskStatus.getTaskStatus(status);
+        return null;
     }
 
     public String getJobLog(String jobId){
-        String logInfo = logStore.getLogByJobId(jobId);
+        String logInfo = null;
+        if (LogStoreFactory.getLogStore() != null) {
+            logInfo = LogStoreFactory.getLogStore().getLogByJobId(jobId);
+        }
         return logInfo == null ? "" : logInfo;
     }
 
@@ -202,7 +205,9 @@ public class RdbsExeQueue {
                 }
 
                 simpleStmt = conn.createStatement();
-                logStore.updateStatus(engineJobId, RdosTaskStatus.RUNNING.getStatus());
+                if (LogStoreFactory.getLogStore() != null) {
+                    LogStoreFactory.getLogStore().updateStatus(engineJobId, RdosTaskStatus.RUNNING.getStatus());
+                }
                 int i = 1;
                 for(String sql : sqlList) {
                     currentSql = sql;
@@ -229,8 +234,10 @@ public class RdbsExeQueue {
                     LOG.error("rollback error,jobId={},jobName={},ex={}",engineJobId, jobName, e1);
                 }
                 //错误信息更新到日志里面
-                logStore.updateErrorLog(engineJobId, String.format("startTime=[%s],endTime=[%s],sql=[%s]\n\r error=[%s]", DateUtil.getDate(start, "yyyyMMdd HH:mm:ss"),
-                        DateUtil.getDate(new Date(), "yyyyMMdd HH:mm:ss"), currentSql, e.toString()));
+                if (LogStoreFactory.getLogStore() != null) {
+                    LogStoreFactory.getLogStore().updateErrorLog(engineJobId, String.format("startTime=[%s],endTime=[%s],sql=[%s]\n\r error=[%s]", DateUtil.getDate(start, "yyyyMMdd HH:mm:ss"),
+                            DateUtil.getDate(new Date(), "yyyyMMdd HH:mm:ss"), currentSql, e.toString()));
+                }
             } finally {
 
                 try {
@@ -250,7 +257,9 @@ public class RdbsExeQueue {
                 LOG.info("exe finish, jobId={},jobName={},exeResult={},cost={}ms", engineJobId, jobName, exeResult, (System.currentTimeMillis() - start));
                 //修改指定任务的状态--成功或者失败
                 //处理cancel job 情况
-                logStore.updateStatus(engineJobId, exeResult ? RdosTaskStatus.FINISHED.getStatus() : RdosTaskStatus.FAILED.getStatus());
+                if (LogStoreFactory.getLogStore() != null) {
+                    LogStoreFactory.getLogStore().updateStatus(engineJobId, exeResult ? RdosTaskStatus.FINISHED.getStatus() : RdosTaskStatus.FAILED.getStatus());
+                }
                 jobCache.remove(engineJobId);
                 threadCache.remove(engineJobId);
             }
@@ -296,7 +305,9 @@ public class RdbsExeQueue {
                     LOG.error("", e);
                 }finally {
                     //更新任务状态
-                    logStore.updateStatus(engineJobId, RdosTaskStatus.CANCELED.getStatus());
+                    if (LogStoreFactory.getLogStore() != null) {
+                        LogStoreFactory.getLogStore().updateStatus(engineJobId, RdosTaskStatus.CANCELED.getStatus());
+                    }
                     jobCache.remove(engineJobId);
                 }
             }
@@ -328,7 +339,9 @@ public class RdbsExeQueue {
             }catch (Exception e){
                 LOG.error("", e);
                 //错误信息更新到日志里面
-                logStore.updateErrorLog(engineJobId, e.toString());
+                if (LogStoreFactory.getLogStore() != null) {
+                    LogStoreFactory.getLogStore().updateErrorLog(engineJobId, e.toString());
+                }
             }finally {
 
                 try {
@@ -361,7 +374,9 @@ public class RdbsExeQueue {
                 LOG.info("job:{} exe end...", jobName, exeResult);
                 //修改指定任务的状态--成功或者失败
                 //TODO 处理cancel job 情况
-                logStore.updateStatus(engineJobId, exeResult ? RdosTaskStatus.FINISHED.getStatus() : RdosTaskStatus.FAILED.getStatus());
+                if (LogStoreFactory.getLogStore() != null){
+                    LogStoreFactory.getLogStore().updateStatus(engineJobId, exeResult ? RdosTaskStatus.FINISHED.getStatus() : RdosTaskStatus.FAILED.getStatus());
+                }
                 jobCache.remove(engineJobId);
             }
             return exeResult;

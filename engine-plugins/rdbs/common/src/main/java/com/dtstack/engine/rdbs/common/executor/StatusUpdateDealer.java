@@ -1,7 +1,6 @@
 package com.dtstack.engine.rdbs.common.executor;
 
 import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.logstore.AbstractLogStore;
 import com.dtstack.engine.common.logstore.LogStoreFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +19,6 @@ public class StatusUpdateDealer implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(StatusUpdateDealer.class);
 
     private final int interval = 2 * 1000;
-
-    private AbstractLogStore logstore = LogStoreFactory.getLogStore(null);
 
     private boolean isRun = true;
 
@@ -42,9 +39,11 @@ public class StatusUpdateDealer implements Runnable {
 
                 i++;
                 //更新时间
-                logstore.updateModifyTime(jobCache.keySet());
-                //更新很久未有操作的任务---防止某台机器挂了,任务状态未被更新
-                logstore.timeOutDeal();
+                if (LogStoreFactory.getLogStore() != null) {
+                    LogStoreFactory.getLogStore().updateModifyTime(jobCache.keySet());
+                    //更新很久未有操作的任务---防止某台机器挂了,任务状态未被更新
+                    LogStoreFactory.getLogStore().timeOutDeal();
+                }
                 Thread.sleep(interval);
             }catch (Throwable e){
                 LOG.error("", e);

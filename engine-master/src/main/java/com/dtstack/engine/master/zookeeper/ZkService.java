@@ -133,7 +133,7 @@ public class ZkService implements InitializingBean, DisposableBean {
         MasterListener masterListener = new MasterListener(failoverStrategy, this);
         listeners.add(masterListener);
         listeners.add(new HeartBeatCheckListener(masterListener, failoverStrategy, this));
-        listeners.add(new TaskLogStoreDealer(masterListener));
+        listeners.add(new TaskLogStoreDealer(masterListener, environmentContext));
     }
 
     private void createLocalBrokerHeartNode() throws Exception {

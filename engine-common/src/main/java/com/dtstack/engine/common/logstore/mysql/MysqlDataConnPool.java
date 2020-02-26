@@ -24,6 +24,8 @@ public class MysqlDataConnPool {
 
     private static final String DRIVER_NAME = "com.mysql.jdbc.Driver";
 
+    private static Map<String, String> dbConfig;
+
     private String dbUrl;
 
     private String dbUserName;
@@ -96,14 +98,13 @@ public class MysqlDataConnPool {
     }
 
     private void init() {
-        Map<String, String> pluginStore = null;
-        if (pluginStore == null) {
-            LOG.error("pluginStore can not be null");
-            throw new RuntimeException("pluginStore can not be null");
+        if (dbConfig == null) {
+            LOG.error("dbConfig can not be null");
+            throw new RuntimeException("dbConfig can not be null");
         }
-        dbUrl = pluginStore.get("url");
-        dbUserName = pluginStore.get("userName");
-        dbPwd = pluginStore.get("pwd");
+        dbUrl = dbConfig.get("url");
+        dbUserName = dbConfig.get("userName");
+        dbPwd = dbConfig.get("pwd");
 
         dataSource.setDriverClassName(DRIVER_NAME);
         dataSource.setUrl(dbUrl);
@@ -145,7 +146,8 @@ public class MysqlDataConnPool {
     }
 
 
-    public static MysqlDataConnPool getInstance() {
+    public static MysqlDataConnPool getInstance(Map<String, String> dbConfig) {
+        MysqlDataConnPool.dbConfig = dbConfig;
         return SingletonHolder.instance;
     }
 
