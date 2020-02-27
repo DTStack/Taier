@@ -25,8 +25,7 @@ public class WorkerMain implements Worker {
             SystemPropertyUtil.setSystemUserDir();
             LogbackComponent.setupLogger();
 
-            String workerSystemName = WorkerConfig.getWorkerSystemName();
-            ActorSystem system = ActorSystem.create(workerSystemName, ConfigFactory.load());
+            ActorSystem system = ActorSystem.create("workerSystemName", ConfigFactory.load());
             Config config = system.settings().config();
             WorkerConfig.loadConfig(config);
 
