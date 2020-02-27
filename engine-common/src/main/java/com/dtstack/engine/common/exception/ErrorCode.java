@@ -323,7 +323,14 @@ public enum ErrorCode implements ExceptionEnums {
     DATAMASK_CONFIG_WITH_TABLES_CANNOT_BE_DELETED(1001, "该配置还有关联的表，不能删除."),
     DATAMASK_RULE_WITH_CONFIGS_CANNOT_BE_DELETED(1002, "该规则还有关联的脱敏配置，不能删除."),
 
+    /***----------------start 组件管理 相关错误码 start ----------------------------------------****/
+    CAN_NOT_FIN_SFTP(650, "sftp组件不存在"),
+    SFTP_PATH_CAN_NOT_BE_EMPTY(650, "sftp路径不能为空"),
+    CANT_NOT_FIND_CLUSTER(651, "该集群不存在"),
+    /***----------------end 组件管理 相关错误码 end ----------------------------------------****/
+
     NOT_USED(10000000, "");
+
 
 
 	private int code;

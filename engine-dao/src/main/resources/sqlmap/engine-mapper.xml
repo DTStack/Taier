@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.EngineDao">
+
+    <sql id="select_content_fragment">
+      id,cluster_id,engine_name,engine_type,total_node,total_memory,total_core,gmt_create,gmt_modified,is_deleted
+    </sql>
+
+    <insert id="insert" parameterType="Engine" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO console_engine(cluster_id,engine_name,engine_type,total_node,total_memory,total_core)
+        VALUES (#{clusterId},#{engineName},#{engineType},#{totalNode},#{totalMemory},#{totalCore})
+    </insert>
+
+    <select id="getOne" resultType="Engine">
+        select
+        <include refid="select_content_fragment"/>
+        from console_engine
+        where id = #{id} and is_deleted = 0
+    </select>
+
+    <select id="listByClusterId" resultType="Engine">
+        select
+        <include refid="select_content_fragment"/>
+        from console_engine
+        where cluster_id = #{clusterId} and is_deleted = 0
+    </select>
+
+    <select id="listByEngineIds" resultType="Engine">
+        select
+        <include refid="select_content_fragment"/>
+        from console_engine
+        where is_deleted = 0
+        <if test="engineIds.size() > 0">
+            and id in
+            <foreach collection="engineIds" item="engineId" open="(" separator="," close=")">
+                #{engineId}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getByClusterIdAndEngineType" resultType="Engine">
+        select
+        <include refid="select_content_fragment"/>
+        from console_engine
+        where cluster_id = #{clusterId} and engine_type = #{engineType} and is_deleted = 0
+        limit 1
+    </select>
+
+    <update id="update" parameterType="Engine">
+        update console_engine
+        <include refid="update_fragment"/>
+        where id = #{id} and is_deleted = 0
+    </update>
+
+    <update id="delete" parameterType="java.lang.Long">
+        update console_engine
+        set is_deleted = 1
+        where id = #{id} and is_deleted = 0
+    </update>
+
+    <sql id="update_fragment">
+        <set>
+            <if test="totalNode != null">
+                total_node = #{totalNode},
+            </if>
+            <if test="totalMemory != null">
+                total_memory = #{totalMemory},
+            </if>
+            <if test="totalCore != null">
+                total_core = #{totalCore},
+            </if>
+            gmt_modified = now()
+        </set>
+    </sql>
+</mapper>

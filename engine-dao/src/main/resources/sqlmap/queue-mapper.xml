@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.QueueDao">
+
+    <sql id="select_content_fragment">
+      id,engine_id,queue_name,capacity,max_capacity,queue_state,parent_queue_id,queue_path,gmt_create,gmt_modified,is_deleted
+    </sql>
+
+    <sql id="update_fragment">
+        <set>
+            <if test="id != null">
+                id = #{id},
+            </if>
+            <if test="engineId != null">
+                engine_id = #{engineId},
+            </if>
+            <if test="queueName != null">
+                queue_name = #{queueName},
+            </if>
+            <if test="capacity != null">
+                capacity = #{capacity},
+            </if>
+            <if test="maxCapacity != null">
+                max_capacity = #{maxCapacity},
+            </if>
+            <if test="queueState != null">
+                queue_state = #{queueState},
+            </if>
+
+            gmt_modified =now()
+        </set>
+    </sql>
+
+    <select id="listByEngineId" resultType="Queue">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM console_queue
+        WHERE engine_id = #{engineId} AND is_deleted = 0
+    </select>
+
+    <select id="listByEngineIdWithLeaf" resultType="Queue">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM
+        console_queue t
+        WHERE NOT EXISTS(
+        select  t1.id,t1.parent_queue_id from console_queue t1, console_queue t2  where
+        t1.id=t2.parent_queue_id
+        AND t.id = t1.id AND t1.engine_id = #{engineId}
+        ) AND is_deleted = 0 AND t.engine_id = #{engineId}
+    </select>
+
+    <insert id="insert" parameterType="Queue" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO console_queue(engine_id,queue_name,capacity,max_capacity,queue_state,parent_queue_id,queue_path)
+        VALUES (#{engineId},#{queueName},#{capacity},#{maxCapacity},#{queueState},#{parentQueueId},#{queuePath})
+    </insert>
+
+    <update id="update" parameterType="Queue">
+        UPDATE
+        console_queue
+        <include refid="update_fragment"/>
+        WHERE
+        id = #{id} AND is_deleted = 0
+    </update>
+
+    <delete id="deleteByIds">
+        UPDATE console_queue SET is_deleted = 1, gmt_modified = now()
+        WHERE id in
+        <foreach item="id" index="index" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        AND engine_id = #{engineId} AND is_deleted = 0
+    </delete>
+
+    <select id="getOne" resultType="Queue">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM console_queue
+        WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <select id="countByParentQueueId" resultType="java.lang.Integer">
+        SELECT
+        COUNT(1)
+        FROM console_queue
+        WHERE parent_queue_id = #{parentQueueId} AND is_deleted = 0
+    </select>
+
+    <select id="listByIds" resultType="Queue">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM console_queue
+        WHERE is_deleted = 0
+        <if test="ids.size() > 0">
+            and id in
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+
+</mapper>

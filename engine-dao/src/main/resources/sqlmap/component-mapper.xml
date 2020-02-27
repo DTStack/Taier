@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.ComponentDao">
+
+    <sql id="select_content_fragment">
+      id,engine_id,component_name,component_type_code,component_config,gmt_create,gmt_modified,is_deleted
+    </sql>
+
+    <sql id="update_fragment">
+        <set>
+            <if test="componentConfig != null">
+                component_config = #{componentConfig},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted},
+            </if>
+
+            gmt_modified =now()
+        </set>
+    </sql>
+
+    <select id="getOne" resultType="Component">
+        select <include refid="select_content_fragment"/>
+        from console_component
+        where id = #{id} and is_deleted = 0
+    </select>
+
+    <insert id="insert" parameterType="Component" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO console_component(engine_id,component_name,component_type_code,component_config)
+        VALUES (#{engineId},#{componentName},#{componentTypeCode},#{componentConfig})
+    </insert>
+
+    <update id="update">
+        update console_component
+        <include refid="update_fragment"/>
+        where id = #{id} and is_deleted = 0
+    </update>
+
+    <select id="listByEngineId" resultType="Component">
+        select <include refid="select_content_fragment"/>
+        from console_component
+        where engine_id = #{engineId} and is_deleted = 0
+    </select>
+
+    <select id="getByEngineIdAndComponentType" resultType="Component">
+        select <include refid="select_content_fragment"/>
+        from console_component
+        where engine_id = #{engineId} and component_type_code = #{type} and is_deleted = 0
+    </select>
+
+
+
+    <select id="getByClusterIdAndComponentType" resultType="Component">
+        SELECT
+        c.id,c.engine_id,c.component_name,c.component_type_code,c.component_config,c.gmt_create,c.gmt_modified,c.is_deleted
+        FROM
+        console_component c
+        LEFT JOIN console_engine ENGINE ON ENGINE.id = c.engine_id
+        LEFT JOIN console_cluster cluster ON cluster.id = ENGINE.cluster_id
+        WHERE
+        cluster.id = #{clusterId} and c.component_type_code = #{type} and c.is_deleted = 0
+    </select>
+
+
+
+    <select id="getClusterIdByComponentId" resultType="java.lang.Long">
+        SELECT
+        ce.cluster_id
+        FROM
+        console_component cc
+        LEFT JOIN console_engine ce ON cc.engine_id = ce.id
+        WHERE
+        cc.id = #{componentId}
+        and cc.is_deleted = 0
+        and ce.is_deleted = 0
+    </select>
+</mapper>
