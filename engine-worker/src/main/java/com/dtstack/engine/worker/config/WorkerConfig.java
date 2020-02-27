@@ -3,12 +3,8 @@ package com.dtstack.engine.worker.config;
 import com.dtstack.engine.common.akka.Master;
 import com.dtstack.engine.common.akka.Worker;
 import com.dtstack.engine.common.util.AddressUtil;
+import com.typesafe.config.Config;
 import org.apache.commons.lang.StringUtils;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Properties;
 
 /**
  * company: www.dtstack.com
@@ -18,16 +14,16 @@ import java.util.Properties;
 public class WorkerConfig {
 
     private final static String REMOTE_PATH_TEMPLATE = "akka.tcp://%s@%s:%s/user/%s";
-    private final static Properties WORK_CONFIG = new Properties();
+    private final static String MASTER_CONFIG_PREFIX = "akka.master.";
+    private final static String WORKER_CONFIG_PREFIX = "akka.worker.";
+    private static Config WORK_CONFIG = null;
 
-    public static void loadConfig() throws IOException {
-        String file = System.getProperty("user.dir") + "/conf/worker.properties";
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
-        WORK_CONFIG.load(bufferedReader);
+    public static void loadConfig(Config config) {
+        WORK_CONFIG = config;
     }
 
     public static String getMasterSystemName() {
-        String name = WORK_CONFIG.getProperty("masterSystemName");
+        String name = WORK_CONFIG.getString(MASTER_CONFIG_PREFIX + "masterSystemName");
         if (StringUtils.isBlank(name)) {
             name = Master.class.getSimpleName();
         }
@@ -35,32 +31,24 @@ public class WorkerConfig {
     }
 
 
-    public static String getMasterRemotePath() {
-        String path = WORK_CONFIG.getProperty("masterRemotePath");
-        if (StringUtils.isBlank(path)) {
-            path = String.format(REMOTE_PATH_TEMPLATE, getMasterSystemName(), getMasterIp(), getMasterPort(), getMasterSystemName());
+    public static String getMasterAddress() {
+        String masterAddress = WORK_CONFIG.getString(MASTER_CONFIG_PREFIX + "masterAddress");
+        if (StringUtils.isBlank(masterAddress)) {
+            throw new IllegalArgumentException("masterAddress is null.");
         }
-        return path;
-    }
-
-    public static String getMasterIp() {
-        String masterIp = WORK_CONFIG.getProperty("masterIp");
-        if (StringUtils.isBlank(masterIp)) {
-            throw new IllegalArgumentException("masterIp is null.");
-        }
-        return masterIp;
-    }
-
-    public static String getMasterPort() {
-        String masterPort = WORK_CONFIG.getProperty("masterPort");
-        if (StringUtils.isBlank(masterPort)) {
-            throw new IllegalArgumentException("masterPort is null.");
-        }
-        return masterPort;
+        return masterAddress;
     }
 
     public static String getWorkerSystemName() {
-        String name = WORK_CONFIG.getProperty("workerSystemName");
+        String name = WORK_CONFIG.getString(WORKER_CONFIG_PREFIX + "workerSystemName");
+        if (StringUtils.isBlank(name)) {
+            name = Worker.class.getSimpleName();
+        }
+        return name;
+    }
+
+    public static String getWorkerName() {
+        String name = WORK_CONFIG.getString(WORKER_CONFIG_PREFIX + "workerName");
         if (StringUtils.isBlank(name)) {
             name = Worker.class.getSimpleName();
         }
@@ -68,7 +56,7 @@ public class WorkerConfig {
     }
 
     public static String getWorkerRemotePath() {
-        String path = WORK_CONFIG.getProperty("workerRemotePath");
+        String path = WORK_CONFIG.getString(WORKER_CONFIG_PREFIX + "workerRemotePath");
         if (StringUtils.isBlank(path)) {
             path = String.format(REMOTE_PATH_TEMPLATE, getWorkerSystemName(), getWorkerIp(), getWorkerPort(), getWorkerSystemName());
         }
@@ -76,17 +64,17 @@ public class WorkerConfig {
     }
 
     public static String getWorkerIp() {
-        String workerIp = WORK_CONFIG.getProperty("workerIp");
+        String workerIp = WORK_CONFIG.getString("akka.remote.netty.tcp.hostname");
         if (StringUtils.isBlank(workerIp)) {
             workerIp = AddressUtil.getOneIp();
         }
         return workerIp;
     }
 
-    public static String getWorkerPort() {
-        String workerPort = WORK_CONFIG.getProperty("workerPort");
-        if (StringUtils.isBlank(workerPort)) {
-            workerPort = "10000";
+    public static int getWorkerPort() {
+        int workerPort = WORK_CONFIG.getInt("akka.remote.netty.tcp.port");
+        if (workerPort != 0) {
+            workerPort = 10000;
         }
         return workerPort;
     }
