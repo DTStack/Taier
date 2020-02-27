@@ -11,6 +11,6 @@ package com.dtstack.engine.master.restartStrategy;
 public interface JobRestartStrategy {
 
 
-    String getRestartStrategy(String taskParam, int retryNum, String lastRetryParams);
+    String setRestartInfo(String taskParam, int retryNum, String lastRetryParams);
 
 }

@@ -7,10 +7,8 @@ import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.ClientCache;
-import com.dtstack.engine.common.IClient;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.pojo.ParamAction;
-import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.restartStrategy.JobRestartStrategy;
 import com.dtstack.engine.dao.EngineJobDao;
 import com.dtstack.engine.dao.EngineJobRetryDao;
@@ -194,7 +192,7 @@ public class TaskRestartDealer {
 
             //根据策略调整参数配置
             EngineJobCache jobCache = engineJobCacheDao.getOne(jobId);
-            String jobInfo = restartStrategy.getRestartStrategy(jobCache.getJobInfo(), alreadyRetryNum, lastRetryParams);
+            String jobInfo = restartStrategy.setRestartInfo(jobCache.getJobInfo(), alreadyRetryNum, lastRetryParams);
 
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
             JobClient jobClient = new JobClient(paramAction);

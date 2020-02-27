@@ -29,7 +29,7 @@ public class FlinkAddMemoryRestartStrategy implements JobRestartStrategy {
 
 
     @Override
-    public String getRestartStrategy(String taskParams, int retryNum, String lastRetryParams) {
+    public String setRestartInfo(String taskParams, int retryNum, String lastRetryParams) {
         try {
             Map<String, Object> pluginInfoMap = PublicUtil.jsonStrToObject(taskParams, Map.class);
             String tps = String.valueOf(pluginInfoMap.getOrDefault(TASK_PARAMS_KEY, ""));
