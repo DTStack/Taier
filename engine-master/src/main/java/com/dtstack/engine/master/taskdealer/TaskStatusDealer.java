@@ -181,7 +181,7 @@ public class TaskStatusDealer implements Runnable{
 
                     Integer status = rdosTaskStatus.getStatus();
                     // 重试状态 先不更新状态
-                    boolean isRestart = TaskRestartDealer.getInstance().checkAndRestart(status, jobId, engineTaskId, appId, engineJobCache.getEngineType(), engineJobCache.getComputeType(), pluginInfoStr);
+                    boolean isRestart = TaskRestartDealer.getInstance().checkAndRestart(status, jobId, engineTaskId, appId, engineJobCache.getEngineType(), pluginInfoStr);
                     if(isRestart){
                         return;
                     }
