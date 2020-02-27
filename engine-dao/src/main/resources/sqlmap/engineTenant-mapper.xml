@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.EngineTenantDao">
+
+    <sql id="select_content_fragment">
+      id,tenant_id,engine_id,queue_id,gmt_create,gmt_modified,is_deleted
+    </sql>
+
+    <select id="listEngineIdByTenantId" resultType="java.lang.Long">
+        select
+         engine_id
+        from console_engine_tenant
+        where tenant_id = #{tenantId} and is_deleted = 0
+    </select>
+
+    <insert id="insert" parameterType="EngineTenant" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO console_engine_tenant(tenant_id,engine_id,queue_id)
+        VALUES (#{tenantId},#{engineId},#{queueId})
+    </insert>
+
+    <update id="updateQueueId">
+        update console_engine_tenant
+        set queue_id = #{queueId}
+        where tenant_id = #{tenantId} and engine_id = #{engineId} and is_deleted = 0
+    </update>
+
+    <select id="generalCount" resultType="java.lang.Integer">
+        select
+         count(*)
+        from console_engine_tenant et left join console_dtuic_tenant t
+        on et.tenant_id = t.id
+        where et.engine_id = #{engineId} and t.tenant_name like concat(concat('%',#{tenantName}),'%')
+        and et.is_deleted = 0
+    </select>
+
+    <select id="generalQuery" resultType="com.dtstack.engine.vo.EngineTenantVO">
+        select
+        t.dt_uic_tenant_id as tenant_id,t.tenant_name,et.queue_id
+        from console_engine_tenant et left join console_dtuic_tenant t
+        on et.tenant_id = t.id
+        where et.engine_id = #{engineId} and t.tenant_name like concat(concat('%',#{tenantName}),'%')
+        and et.is_deleted = 0
+        <if test="query.orderBy != null and query.sort != null">
+            order by t.${query.orderBy} ${query.sort}
+        </if>
+        <if test="query.orderBy != null and query.sort == null">
+            order by t.${query.orderBy} desc
+        </if>
+        <if test="query.start != null and query.pageSize != null">
+            limit #{query.start} , #{query.pageSize}
+        </if>
+        <if test="query.start == null and query.pageSize != null">
+            limit #{query.pageSize}
+        </if>
+        <if test="query.start == null and query.pageSize == null">
+            limit 1000
+        </if>
+    </select>
+
+    <select id="listByEngineIds" resultType="EngineTenant">
+        select
+        <include refid="select_content_fragment"/>
+        from console_engine_tenant
+        where is_deleted = 0
+        <if test="engineIds.size() > 0">
+            and engine_id in
+            <foreach collection="engineIds" item="engineId" open="(" separator="," close=")">
+                #{engineId}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="listTenantIdByQueueIds" resultType="java.lang.Long">
+        select tenant_id from console_engine_tenant
+        where is_deleted = 0
+        <if test="queueIds.size() > 0">
+            and queue_id in
+            <foreach collection="queueIds" item="queueId" open="(" separator="," close=")">
+                #{queueId}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getQueueIdByTenantId" resultType="java.lang.Long">
+        select queue_id from console_engine_tenant
+        where is_deleted = 0 and tenant_id = #{tenantId} and queue_id is not NULL
+    </select>
+
+
+    <select id="listEngineTenant" resultType="com.dtstack.engine.vo.EngineTenantVO">
+        select
+        t.dt_uic_tenant_id as tenant_id,t.tenant_name,et.queue_id
+        from console_engine_tenant et left join console_dtuic_tenant t
+        on et.tenant_id = t.id
+        where et.engine_id = #{engineId}
+        and et.is_deleted = 0
+    </select>
+
+    <select id="getByTenantIdAndEngineType" resultType="EngineTenant">
+        SELECT
+            et.id,et.tenant_id,et.engine_id,et.queue_id,et.gmt_create,et.gmt_modified,et.is_deleted
+        FROM
+            console_engine_tenant et
+            LEFT JOIN console_engine e ON e.id = et.engine_id
+			LEFT JOIN console_dtuic_tenant dt ON dt.id = et.tenant_id
+        WHERE
+            dt.dt_uic_tenant_id = #{dtuicTenantId}
+            AND e.engine_type = #{engineType}
+        LIMIT 1
+    </select>
+
+
+    <select id="getClusterIdByTenantId" resultType="java.lang.Long">
+        SELECT
+        ce.cluster_id
+        FROM
+        console_engine ce
+        LEFT JOIN console_engine_tenant cet ON cet.engine_id = ce.id
+        WHERE
+        cet.tenant_id = #{tenantId}
+        LIMIT 1
+    </select>
+
+</mapper>

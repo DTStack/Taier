@@ -3,7 +3,7 @@ package com.dtstack.engine.worker.listener;
 import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
 import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.WorkerInfo;
+import com.dtstack.engine.common.worker.WorkerInfo;
 import com.dtstack.engine.common.util.LogCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

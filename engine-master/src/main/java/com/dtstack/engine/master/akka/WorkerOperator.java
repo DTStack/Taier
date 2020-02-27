@@ -1,15 +1,18 @@
-package com.dtstack.engine.common;
+package com.dtstack.engine.master.akka;
 
 import akka.actor.ActorSelection;
-import akka.actor.ActorSystem;
 import akka.pattern.Patterns;
-import com.dtstack.engine.common.akka.ActorManager;
+import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.message.*;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.util.RandomUtils;
+import com.dtstack.engine.common.worker.WorkerInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
@@ -18,22 +21,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+@Component
 public class WorkerOperator {
-    private static final Logger LOG = LoggerFactory.getLogger(WorkerOperator.class);
 
-    private ActorSystem system = ActorManager.getInstance().getSystem();
+    private static final Logger logger = LoggerFactory.getLogger(WorkerOperator.class);
 
-    private Map<String, WorkerInfo> workerActors = ActorManager.getInstance().getWorkerInfoMap();
-
-    private static WorkerOperator singleton = new WorkerOperator();
-
-    public static WorkerOperator getInstance() {
-        return singleton;
-    }
+    @Autowired
+    private ActorManager actorManager;
 
     private Object sendRequest(Object message) throws Exception {
-        String path = RandomUtils.getRandomValueFromMap(workerActors).getPath();
-        ActorSelection actorRef = system.actorSelection(path);
+        String path = RandomUtils.getRandomValueFromMap(actorManager.getWorkerInfoMap()).getPath();
+        ActorSelection actorRef = actorManager.getSystem().actorSelection(path);
         Future<Object> future = Patterns.ask(actorRef, message, 5000);
         Object result = Await.result(future, Duration.create(3, TimeUnit.SECONDS));
         return result;
@@ -73,5 +71,9 @@ public class WorkerOperator {
 
     public List<String> containerInfos(JobClient jobClient) throws Exception {
         return (List<String>) sendRequest(new MessageContainerInfos(jobClient));
+    }
+
+    public Map<String, WorkerInfo> getWorkerInfoMap() {
+        return actorManager.getWorkerInfoMap();
     }
 }

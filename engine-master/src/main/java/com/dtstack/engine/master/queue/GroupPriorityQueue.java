@@ -7,6 +7,7 @@ import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.EngineJobDao;
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.master.WorkNode;
+import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.taskdealer.JobSubmitDealer;
 import com.dtstack.engine.common.CustomThreadFactory;
@@ -56,6 +57,7 @@ public class GroupPriorityQueue {
     private EngineJobDao engineJobDao;
     private WorkNode workNode;
     private JobPartitioner jobPartitioner;
+    private WorkerOperator workerOperator;
 
     private OrderLinkedBlockingQueue<JobClient> queue = null;
     private JobSubmitDealer jobSubmitDealer = null;
@@ -224,6 +226,11 @@ public class GroupPriorityQueue {
         return this;
     }
 
+    public GroupPriorityQueue setWorkerOperator(WorkerOperator workerOperator) {
+        this.workerOperator = workerOperator;
+        return this;
+    }
+
     public static GroupPriorityQueue builder() {
         return new GroupPriorityQueue();
     }
@@ -253,6 +260,9 @@ public class GroupPriorityQueue {
         if (null == jobPartitioner) {
             throw new RuntimeException("jobPartitioner is null.");
         }
+        if (null == workerOperator) {
+            throw new RuntimeException("workerOperator is null.");
+        }
     }
 
     /**
@@ -265,7 +275,7 @@ public class GroupPriorityQueue {
         checkParams();
 
         this.queue = new OrderLinkedBlockingQueue<>(queueSizeLimited * 2);
-        this.jobSubmitDealer = new JobSubmitDealer(environmentContext.getLocalAddress(), this, jobPartitioner, engineJobCacheDao);
+        this.jobSubmitDealer = new JobSubmitDealer(environmentContext.getLocalAddress(), this, jobPartitioner, workerOperator, engineJobCacheDao);
 
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("acquireJob_" + jobResource));
         scheduledService.scheduleWithFixedDelay(

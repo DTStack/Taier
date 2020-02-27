@@ -1,10 +1,11 @@
 package com.dtstack.engine.entrance;
 
 import com.dtstack.engine.common.Service;
-import com.dtstack.engine.common.akka.ActorManager;
+import com.dtstack.engine.master.akka.ActorManager;
 import com.dtstack.engine.common.log.LogbackComponent;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
+import com.dtstack.engine.master.config.ActorManagerBeanConfig;
 import com.dtstack.engine.master.config.CacheConfig;
 import com.dtstack.engine.master.config.MybatisConfig;
 import com.dtstack.engine.master.config.RdosBeanConfig;
@@ -21,8 +22,6 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Date: 2017年02月17日 下午8:57:21
@@ -51,7 +50,7 @@ public class EngineMain {
             LogbackComponent.setupLogger();
 
             ApplicationContext context = new AnnotationConfigApplicationContext(
-                    EnvironmentContext.class, CacheConfig.class, ThreadPoolConfig.class,
+                    EnvironmentContext.class, ActorManagerBeanConfig.class, CacheConfig.class, ThreadPoolConfig.class,
                     MybatisConfig.class, RdosBeanConfig.class, SdkConfig.class);
             environmentContext = (EnvironmentContext) context.getBean(EnvironmentContext.class);
 
@@ -60,11 +59,6 @@ public class EngineMain {
             initServices(context);
             // add hook
             ShutdownHookUtil.addShutdownHook(EngineMain::shutdown, EngineMain.class.getSimpleName(), logger);
-
-            Runnable runnable = ActorManager.createMasterActorManager(environmentContext.getAkkaSystemName(),
-                    environmentContext.getAkkaRemotePath());
-            ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
-            singleThreadExecutor.execute(runnable);
         } catch (Throwable e) {
             logger.error("only engine-master start error:", e);
             System.exit(-1);

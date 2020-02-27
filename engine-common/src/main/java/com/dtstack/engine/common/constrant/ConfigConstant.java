@@ -36,4 +36,8 @@ public class ConfigConstant {
     public static final String AKKA_REMOTE_NETTY_TCP_HOSTNAME = "akka.remote.netty.tcp.hostname";
     public static final String AKKA_REMOTE_NETTY_TCP_PORT = "akka.remote.netty.tcp.port";
 
+    public static String LOCAL_HADOOP_CONF_DIR = System.getProperty("user.dir") + "/conf/hadoop";
+
+    public static final String MD5_SUM_KEY = "md5zip";
+
 }

@@ -1,7 +1,6 @@
 package com.dtstack.engine.master.taskdealer;
 
-import com.dtstack.engine.common.WorkerOperator;
-import com.dtstack.engine.common.akka.ActorManager;
+import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ClientAccessException;
@@ -43,17 +42,21 @@ public class JobSubmitDealer implements Runnable {
     private String localAddress;
     private GroupPriorityQueue priorityQueue;
     private JobPartitioner jobPartitioner;
+    private WorkerOperator workerOperator;
     private EngineJobCacheDao engineJobCacheDao;
     private String jobResource = null;
     private OrderLinkedBlockingQueue<JobClient> queue = null;
     private DelayBlockingQueue<RestartJob<JobClient>> restartJobQueue = null;
 
-    public JobSubmitDealer(String localAddress, GroupPriorityQueue priorityQueue, JobPartitioner jobPartitioner, EngineJobCacheDao engineJobCacheDao) {
+    public JobSubmitDealer(String localAddress, GroupPriorityQueue priorityQueue, JobPartitioner jobPartitioner, WorkerOperator workerOperator, EngineJobCacheDao engineJobCacheDao) {
         if (null == priorityQueue) {
             throw new RdosDefineException("priorityQueue must not null.");
         }
         if (null == jobPartitioner) {
             throw new RdosDefineException("jobPartitioner must not null.");
+        }
+        if (null == workerOperator) {
+            throw new RdosDefineException("workerOperator must not null.");
         }
         if (null == engineJobCacheDao) {
             throw new RdosDefineException("engineJobCacheDao must not null.");
@@ -61,6 +64,7 @@ public class JobSubmitDealer implements Runnable {
         this.localAddress = localAddress;
         this.priorityQueue = priorityQueue;
         this.jobPartitioner = jobPartitioner;
+        this.workerOperator = workerOperator;
         this.engineJobCacheDao = engineJobCacheDao;
         this.jobResource = priorityQueue.getJobResource();
         this.queue = priorityQueue.getQueue();
@@ -142,23 +146,22 @@ public class JobSubmitDealer implements Runnable {
 
         JobResult jobResult = null;
         try {
-            jobClient.doStatusCallBack(RdosTaskStatus.WAITCOMPUTE.getStatus());
-            //IClient clusterClient = ClientCache.getInstance().getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
-
-            if (ActorManager.getInstance().getWorkerInfoMap().size() == 0) {
-                jobResult = JobResult.createErrorResult("worker don't found.");
-                addToTaskListener(jobClient, jobResult);
+            if (workerOperator.getWorkerInfoMap().size() == 0) {
+                logger.info(" jobId:{} engineType:{} worker not find.", jobClient.getTaskId(), jobClient.getEngineType());
+                handlerNoResource(jobClient);
                 return;
             }
 
+            jobClient.doStatusCallBack(RdosTaskStatus.WAITCOMPUTE.getStatus());
+
             // 判断资源
-            if (WorkerOperator.getInstance().judgeSlots(jobClient)) {
+            if (workerOperator.judgeSlots(jobClient)) {
                 logger.info("--------submit job:{} to engine start----.", jobClient.toString());
 
                 jobClient.doStatusCallBack(RdosTaskStatus.COMPUTING.getStatus());
 
                 // 提交任务
-                jobResult = WorkerOperator.getInstance().submitJob(jobClient);
+                jobResult = workerOperator.submitJob(jobClient);
 
                 logger.info("submit job result is:{}.", jobResult);
 
