@@ -2,7 +2,7 @@ package com.dtstack.engine.common;
 
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.restart.CommonRestartService;
+import com.dtstack.engine.common.restart.RestartStrategyType;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +19,6 @@ import java.util.List;
 public abstract class AbstractClient implements IClient{
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractClient.class);
-
-    protected CommonRestartService restartService = new CommonRestartService();
 
     @Override
 	public JobResult submitJob(JobClient jobClient) {
@@ -78,7 +76,7 @@ public abstract class AbstractClient implements IClient{
     }
 
     @Override
-    public CommonRestartService getRestartService() {
-        return restartService;
+    public RestartStrategyType getRestartStrategyType(JobIdentifier jobIdentifier) {
+        return RestartStrategyType.NONE;
     }
 }
