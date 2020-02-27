@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dtstack.engine.dao.EngineJobCacheDao">
 
-    <insert id="insert" parameterType="EngineJobCache" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="EngineJobCache" useGeneratedKeys="true">
         insert into rdos_engine_job_cache( job_id, engine_type, compute_type, stage, job_info, node_address, job_name, job_priority, job_resource)
         values(#{jobId}, #{engineType}, #{computeType}, #{stage}, #{jobInfo}, #{nodeAddress},#{jobName},#{jobPriority},#{jobResource});
     </insert>
