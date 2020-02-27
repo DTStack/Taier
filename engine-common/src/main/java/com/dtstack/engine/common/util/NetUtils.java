@@ -1,17 +1,12 @@
-package com.dtstack.engine.dtscript.util;
+package com.dtstack.engine.common.util;
 
-import com.dtstack.engine.dtscript.container.DtContainer;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 
-/**
- * company: www.dtstack.com
- * author: toutian
- * create: 2018/10/26
- */
 public class NetUtils {
 
     private static final Log LOG = LogFactory.getLog(NetUtils.class);
