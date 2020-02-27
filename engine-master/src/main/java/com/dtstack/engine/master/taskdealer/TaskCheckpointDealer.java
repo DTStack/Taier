@@ -213,12 +213,7 @@ public class TaskCheckpointDealer implements InitializingBean, Runnable {
 
 
     private String getLastExternalPath(String pluginInfo,JobIdentifier jobIdentifier){
-        String checkpointJson = null;
-        try {
-            checkpointJson = workerOperator.getCheckpoints(EngineType.Flink.name(), pluginInfo, jobIdentifier);
-        } catch (Exception e) {
-            logger.error("Get checkpoints failed", e);
-        }
+        String checkpointJson = workerOperator.getCheckpoints(EngineType.Flink.name(), pluginInfo, jobIdentifier);
         if(StringUtils.isEmpty(checkpointJson)){
             return null;
         }
@@ -393,12 +388,7 @@ public class TaskCheckpointDealer implements InitializingBean, Runnable {
 
 
     public void updateStreamJobCheckpoints(JobIdentifier jobIdentifier, String engineTypeName, String pluginInfo){
-        String checkPointJsonStr = null;
-        try {
-            checkPointJsonStr = workerOperator.getCheckpoints(engineTypeName, pluginInfo, jobIdentifier);
-        } catch (Exception e) {
-            logger.error("Get checkpoints failed", e);
-        }
+        String checkPointJsonStr = workerOperator.getCheckpoints(EngineType.Flink.name(), pluginInfo, jobIdentifier);
         updateStreamJobCheckPoint(jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), checkPointJsonStr, pluginInfo);
     }
 
