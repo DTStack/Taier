@@ -275,6 +275,22 @@ public class EnvironmentContext {
         return Long.parseLong(environment.getProperty("jobRestartDelay"), 2 * 60 * 1000);
     }
 
+    public String getHadoopConfigField() {
+        return environment.getProperty("hadoop.config.field", "confHdfsPath");
+    }
+
+    public String getHadoopConfigHdfsPath() {
+        return environment.getProperty("hadoop.config.hdfsPath", "/dtInsight/console/hadoop_config");
+    }
+
+    public String getLocalKerberosDir() {
+        return environment.getProperty("local.kerberos.dir", System.getProperty("user.dir") + "/kerberosConfig");
+    }
+
+    public String getKerberosTemplatepath() {
+        return environment.getProperty("kerberos.template.path", System.getProperty("user.dir") + "/conf/kerberos");
+    }
+
     public String getAkkaSystemName() {
         return environment.getProperty("AkkaSystemName", "AkkaRemoteMaster");
     }

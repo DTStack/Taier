@@ -165,6 +165,9 @@ public class BatchJobService {
     @Autowired
     private JobPartitioner jobPartitioner;
 
+    @Autowired
+    private ClusterService clusterService;
+
     private final static List<Integer> FINISH_STATUS = Lists.newArrayList(TaskStatus.FINISHED.getStatus(), TaskStatus.MANUALSUCCESS.getStatus(), TaskStatus.CANCELING.getStatus(), TaskStatus.CANCELED.getStatus());
     private final static List<Integer> FAILED_STATUS = Lists.newArrayList(TaskStatus.FAILED.getStatus(), TaskStatus.SUBMITFAILD.getStatus(), TaskStatus.KILLED.getStatus());
 
@@ -969,16 +972,25 @@ public class BatchJobService {
                 actionParam.put("name", batchJob.getJobName());
                 actionParam.put("taskId", batchJob.getJobId());
 
-                //TODO, 拼装控制台的集群信息
+                //拼装控制台的集群信息
 
-//                taskJson = objMapper.writeValueAsString(actionParam);
-                if (EJobType.HIVE_SQL.getType().equals(batchJob.getTaskType()) || EJobType.IMPALA_SQL.getType().equals(batchJob.getTaskType())) {
-                    //TODO, 拼装是区别ldap
-//                    engineSend.sendTask(taskJson, ldapUserName, ldapPassword, dbName, null, null);
-                    return;
+                Long tenantId = info.getLong("tenantId");
+                String engineType = info.getString("engineType");
+                String pluginInfo = clusterService.pluginInfo(tenantId, engineType);
+                String groupName = "default_default";
+                if (StringUtils.isNotBlank(pluginInfo)) {
+                    JSONObject pluginInfoJson = JSONObject.parseObject(pluginInfo);
+                    if (EJobType.HIVE_SQL.getType().equals(batchJob.getTaskType()) || EJobType.IMPALA_SQL.getType().equals(batchJob.getTaskType())) {
+                        addUserNameToImpalaOrHive(pluginInfoJson, ldapUserName, ldapPassword, dbName, engineType);
+                    }
+                    groupName = pluginInfoJson.getString("cluster") + "_" + pluginInfoJson.getString("queue");
+                    pluginInfo = pluginInfoJson.toJSONString();
                 }
+
+                actionParam.put("pluginInfo", pluginInfo);
+                actionParam.put("groupName", groupName);
+
                 //TODO, 放入队列
-//                engineSend.sendTask(taskJson, null, null);
                 actionService.start(actionParam);
 
                 return;
@@ -988,6 +1000,15 @@ public class BatchJobService {
         this.updateStatusAndLogInfoById(batchJob.getId(), TaskStatus.FAILED.getStatus(), "任务运行信息为空");
     }
 
+    private void addUserNameToImpalaOrHive(JSONObject pluginInfoJson, String userName, String password, String dbName, String engineType) {
+        if(pluginInfoJson == null || org.apache.commons.lang3.StringUtils.isBlank(userName) || (!EngineType.IMPALA.getEngineName().equals(engineType) && !EngineType.HIVE.getEngineName().equals(engineType))){
+            return;
+        }
+
+        pluginInfoJson.put("userName", userName);
+        pluginInfoJson.put("pwd", password);
+        pluginInfoJson.put("dbUrl", String.format(pluginInfoJson.getString("dbUrl"), dbName));
+    }
 
     public String getTableName(String table) {
         String simpleTableName = table;
@@ -2023,7 +2044,8 @@ public class BatchJobService {
     /**
      * 获取重跑的数据节点信息
      *
-     * @param batchJob
+     * @param jobKey
+     * @param parentTaskId
      * @param isOnlyNextChild
      * @return
      */

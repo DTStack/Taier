@@ -9,7 +9,6 @@ engine-plugins/dtscript/dtscript-hadoop2/dtscript-client,\
 engine-plugins/learning/learning-hadoop2/learning-client,\
 engine-plugins/hadoop/hadoop2,\
 engine-plugins/kylin,\
-engine-plugins/rdbs,\
 engine-plugins/odps,\
 engine-entrance \
 -am -amd
