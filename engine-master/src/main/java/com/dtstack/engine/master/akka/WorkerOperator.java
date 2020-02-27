@@ -9,7 +9,7 @@ import com.dtstack.engine.common.message.*;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.restart.RestartStrategyType;
 import com.dtstack.engine.common.util.RandomUtils;
-import com.dtstack.engine.common.worker.WorkerInfo;
+import com.dtstack.engine.common.message.WorkerInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

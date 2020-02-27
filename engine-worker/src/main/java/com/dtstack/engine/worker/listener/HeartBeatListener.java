@@ -3,7 +3,7 @@ package com.dtstack.engine.worker.listener;
 import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
 import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.worker.WorkerInfo;
+import com.dtstack.engine.common.message.WorkerInfo;
 import com.dtstack.engine.common.util.LogCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +19,6 @@ public class HeartBeatListener implements Runnable {
     private int logOutput = 0;
     private final static int MULTIPLES = 10;
     private final static int CHECK_INTERVAL = 2000;
-    private final ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("HeartBeatListener"));
 
     private ActorSelection actorSelection;
     private String ip;
@@ -33,6 +32,7 @@ public class HeartBeatListener implements Runnable {
         this.port = port;
         this.path = path;
 
+        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("HeartBeatListener"));
         scheduledService.scheduleWithFixedDelay(
                 this,
                 CHECK_INTERVAL,

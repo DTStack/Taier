@@ -5,7 +5,7 @@ import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.pattern.Patterns;
 import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.worker.WorkerInfo;
+import com.dtstack.engine.common.message.WorkerInfo;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.google.common.collect.Maps;
 import com.typesafe.config.ConfigFactory;
@@ -61,7 +61,7 @@ public class ActorManager implements InitializingBean, Runnable {
     @Override
     public void afterPropertiesSet() throws Exception {
         this.system = ActorSystem.create(name, ConfigFactory.load());
-        this.system.actorOf(Props.create(AkkaMasterActor.class), "AkkaMasterActor");
+        this.system.actorOf(Props.create(AkkaMasterActor.class), AkkaMasterActor.class.getSimpleName());
         this.actorSelection = system.actorSelection(path);
         scheduledService.scheduleWithFixedDelay(
                 this,
