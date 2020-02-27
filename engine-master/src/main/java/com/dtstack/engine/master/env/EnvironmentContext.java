@@ -299,4 +299,12 @@ public class EnvironmentContext {
         return environment.getProperty("AkkaRemotePath", "akka.tcp://AkkaRemoteMaster@127.0.0.1:2552/user/AkkaMasterActor");
     }
 
+    public Long getAkkaAskTimeout() {
+        return Long.parseLong(environment.getProperty("AkkaAskTimeout", "60000"));
+    }
+
+    public Long getAskResultTimeout() {
+        return Long.parseLong(environment.getProperty("AkkaAskTimeout", "60"));
+    }
+
 }

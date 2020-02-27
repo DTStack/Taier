@@ -18,6 +18,7 @@ import com.dtstack.engine.dao.StreamTaskCheckpointDao;
 import com.dtstack.engine.domain.EngineJob;
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.domain.StreamTaskCheckpoint;
+import com.dtstack.engine.master.akka.WorkerOperator;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
@@ -47,6 +48,9 @@ public class StreamTaskService {
 
     @Autowired
     private EngineJobCacheDao engineJobCacheDao;
+
+    @Autowired
+    private WorkerOperator workerOperator;
 
     private static final String APPLICATION_REST_API_TMP = "%s/ws/v1/cluster/apps/%s";
 
@@ -131,7 +135,7 @@ public class StreamTaskService {
 
             jobIdentifier = JobIdentifier.createInstance(engineJob.getEngineJobId(), applicationId, taskId);
             jobClient = new JobClient(paramAction);
-            String jobMaster = JobClient.getJobMaster(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
+            String jobMaster = workerOperator.getJobMaster(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
             String rootUrl = UrlUtil.getHttpRootUrl(jobMaster);
             String requestUrl = String.format(APPLICATION_REST_API_TMP, rootUrl, applicationId);
 
@@ -144,7 +148,12 @@ public class StreamTaskService {
 
         }catch (Exception e){
             if (jobClient != null && jobIdentifier != null) {
-                RdosTaskStatus jobStatus = JobClient.getStatus(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
+                RdosTaskStatus jobStatus = null;
+                try {
+                    jobStatus = workerOperator.getJobStatus(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
+                } catch (Exception ex) {
+                    logger.error("Get job status failed", ex);
+                }
                 Integer statusCode = jobStatus.getStatus();
                 if (RdosTaskStatus.getStoppedStatus().contains(statusCode)) {
                     throw new RdosDefineException(String.format("job:%s had stop ", taskId), ErrorCode.INVALID_TASK_STATUS, e);

@@ -13,6 +13,7 @@ import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.StreamTaskCheckpointDao;
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.domain.StreamTaskCheckpoint;
+import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.bo.FailedTaskInfo;
 import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
@@ -94,6 +95,9 @@ public class TaskCheckpointDealer implements InitializingBean, Runnable {
 
     @Autowired
     private EngineJobCacheDao engineJobCacheDao;
+
+    @Autowired
+    private WorkerOperator workerOperator;
 
     private Cache<String, Integer> checkpointGetTotalNumCache = CacheBuilder.newBuilder().expireAfterWrite(60 * 60, TimeUnit.SECONDS).build();
 
@@ -209,7 +213,12 @@ public class TaskCheckpointDealer implements InitializingBean, Runnable {
 
 
     private String getLastExternalPath(String pluginInfo,JobIdentifier jobIdentifier){
-        String checkpointJson = JobClient.getCheckpoints(EngineType.Flink.name(), pluginInfo, jobIdentifier);
+        String checkpointJson = null;
+        try {
+            checkpointJson = workerOperator.getCheckpoints(EngineType.Flink.name(), pluginInfo, jobIdentifier);
+        } catch (Exception e) {
+            logger.error("Get checkpoints failed", e);
+        }
         if(StringUtils.isEmpty(checkpointJson)){
             return null;
         }
@@ -384,7 +393,12 @@ public class TaskCheckpointDealer implements InitializingBean, Runnable {
 
 
     public void updateStreamJobCheckpoints(JobIdentifier jobIdentifier, String engineTypeName, String pluginInfo){
-        String checkPointJsonStr = JobClient.getCheckpoints(engineTypeName, pluginInfo, jobIdentifier);
+        String checkPointJsonStr = null;
+        try {
+            checkPointJsonStr = workerOperator.getCheckpoints(engineTypeName, pluginInfo, jobIdentifier);
+        } catch (Exception e) {
+            logger.error("Get checkpoints failed", e);
+        }
         updateStreamJobCheckPoint(jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), checkPointJsonStr, pluginInfo);
     }
 

@@ -19,6 +19,7 @@ import com.dtstack.engine.dao.EngineJobStopRecordDao;
 import com.dtstack.engine.dao.EngineUniqueSignDao;
 import com.dtstack.engine.dao.StreamTaskCheckpointDao;
 import com.dtstack.engine.master.WorkNode;
+import com.dtstack.engine.master.akka.WorkerOperator;
 import com.google.common.base.Preconditions;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -68,6 +69,9 @@ public class ActionService {
 
     @Autowired
     private WorkNode workNode;
+
+    @Autowired
+    private WorkerOperator workerOperator;
 
     private static int length = 8;
 
@@ -394,7 +398,7 @@ public class ActionService {
             paramAction.setEngineTaskId(batchJob.getEngineJobId());
             paramAction.setApplicationId(batchJob.getApplicationId());
             JobClient jobClient = new JobClient(paramAction);
-            return jobClient.getContainerInfos();
+            return workerOperator.containerInfos(jobClient);
         }
         return null;
     }
