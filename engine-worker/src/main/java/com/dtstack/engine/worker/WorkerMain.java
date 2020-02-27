@@ -11,6 +11,7 @@ import com.dtstack.engine.worker.config.WorkerConfig;
 import com.dtstack.engine.worker.listener.HeartBeatListener;
 import com.dtstack.engine.worker.service.JobService;
 import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.impl.ConfigImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
