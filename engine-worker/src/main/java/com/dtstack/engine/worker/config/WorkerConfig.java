@@ -14,8 +14,8 @@ import org.apache.commons.lang.StringUtils;
 public class WorkerConfig {
 
     private final static String REMOTE_PATH_TEMPLATE = "akka.tcp://%s@%s:%s/user/%s";
-    private final static String MASTER_CONFIG_PREFIX = "akka.master.";
-    private final static String WORKER_CONFIG_PREFIX = "akka.worker.";
+    private final static String MASTER_CONFIG_PREFIX = "akka.master";
+    private final static String WORKER_CONFIG_PREFIX = "akka.worker";
     private static Config WORK_CONFIG = null;
 
     public static void loadConfig(Config config) {
@@ -23,7 +23,10 @@ public class WorkerConfig {
     }
 
     public static String getMasterSystemName() {
-        String name = WORK_CONFIG.getString(MASTER_CONFIG_PREFIX + "masterSystemName");
+        String name = null;
+        if (WORK_CONFIG.hasPath(MASTER_CONFIG_PREFIX)) {
+            name = WORK_CONFIG.getString(MASTER_CONFIG_PREFIX + ".masterSystemName");
+        }
         if (StringUtils.isBlank(name)) {
             name = Master.class.getSimpleName();
         }
@@ -32,7 +35,10 @@ public class WorkerConfig {
 
 
     public static String getMasterAddress() {
-        String masterAddress = WORK_CONFIG.getString(MASTER_CONFIG_PREFIX + "masterAddress");
+        String masterAddress = null;
+        if (WORK_CONFIG.hasPath(MASTER_CONFIG_PREFIX)) {
+            masterAddress = WORK_CONFIG.getString(MASTER_CONFIG_PREFIX + ".masterAddress");
+        }
         if (StringUtils.isBlank(masterAddress)) {
             throw new IllegalArgumentException("masterAddress is null.");
         }
@@ -40,15 +46,14 @@ public class WorkerConfig {
     }
 
     public static String getWorkerSystemName() {
-        String name = WORK_CONFIG.getString(WORKER_CONFIG_PREFIX + "workerSystemName");
-        if (StringUtils.isBlank(name)) {
-            name = Worker.class.getSimpleName();
-        }
-        return name;
+        return "workerSystemName";
     }
 
     public static String getWorkerName() {
-        String name = WORK_CONFIG.getString(WORKER_CONFIG_PREFIX + "workerName");
+        String name = null;
+        if (WORK_CONFIG.hasPath(WORKER_CONFIG_PREFIX)) {
+            name = WORK_CONFIG.getString(WORKER_CONFIG_PREFIX + ".workerName");
+        }
         if (StringUtils.isBlank(name)) {
             name = Worker.class.getSimpleName();
         }
@@ -56,7 +61,10 @@ public class WorkerConfig {
     }
 
     public static String getWorkerRemotePath() {
-        String path = WORK_CONFIG.getString(WORKER_CONFIG_PREFIX + "workerRemotePath");
+        String path = null;
+        if (WORK_CONFIG.hasPath(WORKER_CONFIG_PREFIX)) {
+            path = WORK_CONFIG.getString(WORKER_CONFIG_PREFIX + ".workerRemotePath");
+        }
         if (StringUtils.isBlank(path)) {
             path = String.format(REMOTE_PATH_TEMPLATE, getWorkerSystemName(), getWorkerIp(), getWorkerPort(), getWorkerSystemName());
         }
