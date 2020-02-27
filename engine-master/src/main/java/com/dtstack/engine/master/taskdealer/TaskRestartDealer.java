@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.taskdealer;
 
+import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.EngineType;
@@ -9,8 +10,8 @@ import com.dtstack.engine.common.ClientCache;
 import com.dtstack.engine.common.IClient;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.pojo.ParamAction;
-import com.dtstack.engine.common.restart.CommonRestartService;
-import com.dtstack.engine.common.restart.IJobRestartStrategy;
+import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.restartStrategy.JobRestartStrategy;
 import com.dtstack.engine.dao.EngineJobDao;
 import com.dtstack.engine.dao.EngineJobRetryDao;
 import com.dtstack.engine.dao.EngineJobCacheDao;
@@ -22,6 +23,7 @@ import com.dtstack.engine.domain.StreamTaskCheckpoint;
 import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.cache.ShardCache;
 import com.dtstack.engine.master.resource.JobComputeResourcePlain;
+import com.dtstack.engine.master.restartStrategy.JobRestartStrategyPlain;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
@@ -67,6 +69,9 @@ public class TaskRestartDealer {
 
     @Autowired
     private WorkNode workNode;
+
+    @Autowired
+    private JobRestartStrategyPlain jobRestartStrategyPlain;
 
     private static TaskRestartDealer sigleton = new TaskRestartDealer();
 
@@ -177,7 +182,7 @@ public class TaskRestartDealer {
     private JobClient getJobClientWithStrategy(String jobId, String engineJobId, String appId, String engineType, String pluginInfo, int alreadyRetryNum) {
         try {
 
-            IJobRestartStrategy restartStrategy = getRestartStrategy(engineType, pluginInfo, jobId, engineJobId, appId);
+            JobRestartStrategy restartStrategy = getRestartStrategy(engineType, pluginInfo, jobId, engineJobId, appId);
             if (restartStrategy == null) {
                 return null;
             }
@@ -189,7 +194,7 @@ public class TaskRestartDealer {
 
             //根据策略调整参数配置
             EngineJobCache jobCache = engineJobCacheDao.getOne(jobId);
-            String jobInfo = restartStrategy.restart(jobCache.getJobInfo(), alreadyRetryNum, lastRetryParams);
+            String jobInfo = restartStrategy.getRestartStrategy(jobCache.getJobInfo(), alreadyRetryNum, lastRetryParams);
 
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
             JobClient jobClient = new JobClient(paramAction);
@@ -222,17 +227,11 @@ public class TaskRestartDealer {
     }
 
     /**
-     *   根据日志提取重试策略
-     * @param engineType
-     * @param pluginInfo
-     * @param engineJobId
-     * @return
-     * @throws Exception
+     * 获取重试策略
      */
-    private IJobRestartStrategy getRestartStrategy(String engineType, String pluginInfo, String jobId, String engineJobId, String appId) throws Exception {
-        IClient client = clientCache.getClient(engineType, pluginInfo);
-        CommonRestartService restartService = client.getRestartService();
-        return restartService.getAndParseErrorLog(jobId, engineJobId, appId, client);
+    private JobRestartStrategy getRestartStrategy(String engineType, String pluginInfo, String jobId, String engineJobId, String appId) {
+        JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineJobId, appId, jobId);
+        return jobRestartStrategyPlain.getRestartStrategyByEngineType(engineType, pluginInfo, jobIdentifier);
     }
 
     private void setRetryTag(JobClient jobClient){

@@ -7,6 +7,7 @@ import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.message.*;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.restart.RestartStrategyType;
 import com.dtstack.engine.common.util.RandomUtils;
 import com.dtstack.engine.common.worker.WorkerInfo;
 import org.slf4j.Logger;
@@ -71,6 +72,10 @@ public class WorkerOperator {
 
     public List<String> containerInfos(JobClient jobClient) throws Exception {
         return (List<String>) sendRequest(new MessageContainerInfos(jobClient));
+    }
+
+    public RestartStrategyType getRestartStrategyType(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
+        return RestartStrategyType.NONE;
     }
 
     public Map<String, WorkerInfo> getWorkerInfoMap() {

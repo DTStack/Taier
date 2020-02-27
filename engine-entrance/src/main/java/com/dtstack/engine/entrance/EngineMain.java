@@ -1,7 +1,6 @@
 package com.dtstack.engine.entrance;
 
 import com.dtstack.engine.common.Service;
-import com.dtstack.engine.master.akka.ActorManager;
 import com.dtstack.engine.common.log.LogbackComponent;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
 import com.dtstack.engine.common.util.SystemPropertyUtil;

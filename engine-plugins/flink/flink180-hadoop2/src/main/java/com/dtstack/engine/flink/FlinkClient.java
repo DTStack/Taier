@@ -4,6 +4,7 @@ import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
+import com.dtstack.engine.common.restart.RestartStrategyType;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.AbstractClient;
@@ -116,10 +117,6 @@ public class FlinkClient extends AbstractClient {
     private FlinkClusterClientManager flinkClusterClientManager;
 
     private String jobHistory;
-
-    public FlinkClient(){
-        this.restartService = new FlinkRestartService();
-    }
 
     @Override
     public void init(Properties prop) throws Exception {
@@ -844,5 +841,22 @@ public class FlinkClient extends AbstractClient {
         } catch (Exception e) {
             logger.error("Download keytab from sftp failed", e);
         }
+    }
+
+    @Override
+    public RestartStrategyType getRestartStrategyType(JobIdentifier jobIdentifier) {
+        try {
+            String logMsg = this.getJobLog(jobIdentifier);
+            if (StringUtils.isNotBlank(logMsg)) {
+                for (String exceptionMsg : ExceptionInfoConstrant.getNeedAddMemRestartException()) {
+                    if (logMsg.contains(exceptionMsg)) {
+                        return RestartStrategyType.ADD_MEMORY;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.error("jobId:{} getRestartStrategyType error:", jobIdentifier.getTaskId(), e);
+        }
+        return RestartStrategyType.NONE;
     }
 }

@@ -2,19 +2,17 @@ package com.dtstack.engine.common;
 
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.restart.CommonRestartService;
+import com.dtstack.engine.common.restart.RestartStrategyType;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
 /**
- * FIXME 添加新的方法的时候注意要对{@link ClientProxy}一起修改
- * Date: 2017/2/20
- * Company: www.dtstack.com
- * @author xuchao
+ * company: www.dtstack.com
+ * author: toutian
+ * create: 2020/2/27
  */
-
 public interface IClient {
 
     void init(Properties prop) throws Exception;
@@ -37,6 +35,6 @@ public interface IClient {
 
 	String getCheckpoints(JobIdentifier jobIdentifier);
 
-	CommonRestartService getRestartService();
+	RestartStrategyType getRestartStrategyType(JobIdentifier jobIdentifier);
 
 }
