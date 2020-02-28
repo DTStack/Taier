@@ -1,16 +1,13 @@
 package com.dtstack.engine.common;
 
-import java.util.Map;
+import java.io.Serializable;
 
 /**
  * company: www.dtstack.com
  * author: toutian
  * create: 2018/9/6
  */
-public  interface  JobClientCallBack {
-
-    default void execute(Map<String, ? extends Object> param){
-    }
+public interface JobClientCallBack extends Serializable {
 
     void updateStatus(Integer status);
 }

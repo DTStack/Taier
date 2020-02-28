@@ -5,11 +5,11 @@ package com.dtstack.engine.common.callback;
  */
 public class ClassLoaderCallBackMethod {
 
-    public static <M> M callbackAndReset(ClassLoaderCallBack<M> classLoaderCallBack, ClassLoader toSetClassLoader, boolean reset) throws Exception {
+    public static <M> M callbackAndReset(CallBack<M> callBack, ClassLoader toSetClassLoader, boolean reset) throws Exception {
 
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(toSetClassLoader);
-        M result = classLoaderCallBack.execute();
+        M result = callBack.execute();
         if(reset){
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }

@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.ServiceLoader;
 
-import com.dtstack.engine.common.callback.ClassLoaderCallBack;
+import com.dtstack.engine.common.callback.CallBack;
 import com.dtstack.engine.common.callback.ClassLoaderCallBackMethod;
 
 import com.google.common.collect.Maps;
@@ -25,7 +25,7 @@ public class ClientFactory {
     public static IClient createPluginClass(String pluginType) throws Exception {
 
         ClassLoader classLoader = pluginClassLoader.get(pluginType);
-        return ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<IClient>() {
+        return ClassLoaderCallBackMethod.callbackAndReset(new CallBack<IClient>() {
 
             @Override
             public IClient execute() throws Exception {

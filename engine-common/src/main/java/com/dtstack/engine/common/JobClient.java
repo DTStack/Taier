@@ -239,6 +239,10 @@ public class JobClient extends OrderObject{
         this.jobClientCallBack = jobClientCallBack;
     }
 
+    public JobClientCallBack getJobCallBack() {
+        return jobClientCallBack;
+    }
+
     public String getSql() {
         return sql;
     }

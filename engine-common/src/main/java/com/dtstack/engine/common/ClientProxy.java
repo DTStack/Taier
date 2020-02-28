@@ -1,6 +1,6 @@
 package com.dtstack.engine.common;
 
-import com.dtstack.engine.common.callback.ClassLoaderCallBack;
+import com.dtstack.engine.common.callback.CallBack;
 import com.dtstack.engine.common.callback.ClassLoaderCallBackMethod;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ClientArgumentException;
@@ -35,7 +35,7 @@ public class ClientProxy implements IClient{
 
     @Override
     public void init(Properties prop) throws Exception {
-        ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<String>(){
+        ClassLoaderCallBackMethod.callbackAndReset(new CallBack<String>(){
             @Override
             public String execute() throws Exception {
                  targetClient.init(prop);
@@ -47,7 +47,7 @@ public class ClientProxy implements IClient{
     @Override
     public JobResult submitJob(JobClient jobClient){
         try {
-            return ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<JobResult>(){
+            return ClassLoaderCallBackMethod.callbackAndReset(new CallBack<JobResult>(){
 
                 @Override
                 public JobResult execute() throws Exception {
@@ -62,7 +62,7 @@ public class ClientProxy implements IClient{
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
         try {
-            return ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<JobResult>(){
+            return ClassLoaderCallBackMethod.callbackAndReset(new CallBack<JobResult>(){
 
                 @Override
                 public JobResult execute() throws Exception {
@@ -77,7 +77,7 @@ public class ClientProxy implements IClient{
     @Override
     public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
         try {
-            return ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<RdosTaskStatus>(){
+            return ClassLoaderCallBackMethod.callbackAndReset(new CallBack<RdosTaskStatus>(){
 
                 @Override
                 public RdosTaskStatus execute() throws Exception {
@@ -92,7 +92,7 @@ public class ClientProxy implements IClient{
     @Override
     public String getJobMaster(JobIdentifier jobIdentifier) {
         try {
-            return ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<String>(){
+            return ClassLoaderCallBackMethod.callbackAndReset(new CallBack<String>(){
 
                 @Override
                 public String execute() throws Exception {
@@ -107,7 +107,7 @@ public class ClientProxy implements IClient{
     @Override
     public String getMessageByHttp(String path) {
         try {
-            return ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<String>(){
+            return ClassLoaderCallBackMethod.callbackAndReset(new CallBack<String>(){
 
                 @Override
                 public String execute() throws Exception {
@@ -122,7 +122,7 @@ public class ClientProxy implements IClient{
     @Override
     public String getJobLog(JobIdentifier jobIdentifier) {
         try {
-            return ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<String>(){
+            return ClassLoaderCallBackMethod.callbackAndReset(new CallBack<String>(){
 
                 @Override
                 public String execute() throws Exception {
@@ -137,7 +137,7 @@ public class ClientProxy implements IClient{
     @Override
     public boolean judgeSlots(JobClient jobClient) {
         try {
-            return ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<Boolean>(){
+            return ClassLoaderCallBackMethod.callbackAndReset(new CallBack<Boolean>(){
 
                 @Override
                 public Boolean execute() throws Exception {
@@ -159,7 +159,7 @@ public class ClientProxy implements IClient{
     @Override
     public List<String> getContainerInfos(JobIdentifier jobIdentifier) {
         try {
-            return ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<List<String>>(){
+            return ClassLoaderCallBackMethod.callbackAndReset(new CallBack<List<String>>(){
 
                 @Override
                 public List<String> execute() throws Exception {
@@ -174,7 +174,7 @@ public class ClientProxy implements IClient{
     @Override
     public String getCheckpoints(JobIdentifier jobIdentifier) {
         try {
-            return ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<String>(){
+            return ClassLoaderCallBackMethod.callbackAndReset(new CallBack<String>(){
 
                 @Override
                 public String execute() throws Exception {
@@ -189,7 +189,7 @@ public class ClientProxy implements IClient{
     @Override
     public RestartStrategyType getRestartStrategyType(JobIdentifier jobIdentifier) {
         try {
-            return ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<RestartStrategyType>(){
+            return ClassLoaderCallBackMethod.callbackAndReset(new CallBack<RestartStrategyType>(){
 
                 @Override
                 public RestartStrategyType execute() throws Exception {

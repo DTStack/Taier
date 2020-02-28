@@ -3,7 +3,9 @@ package com.dtstack.engine.master.akka;
 import akka.actor.ActorSelection;
 import akka.pattern.Patterns;
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.JobClientCallBack;
 import com.dtstack.engine.common.JobIdentifier;
+import com.dtstack.engine.common.callback.CallBack;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -52,7 +54,7 @@ public class WorkerOperator {
     public boolean judgeSlots(JobClient jobClient) {
         Object result = null;
         try {
-            result = sendRequest(new MessageJudgeSlots(jobClient));
+            result = callbackAndReset(jobClient, () -> sendRequest(new MessageJudgeSlots(jobClient)));
         } catch (Exception e) {
             logger.error("jobid:{} judgeSlots failed!", jobClient.getTaskId(), e);
             return false;
@@ -61,7 +63,7 @@ public class WorkerOperator {
     }
 
     public JobResult submitJob(JobClient jobClient) throws Exception {
-        return (JobResult) sendRequest(new MessageSubmitJob(jobClient));
+        return (JobResult) callbackAndReset(jobClient, () -> sendRequest(new MessageSubmitJob(jobClient)));
     }
 
     public RdosTaskStatus getJobStatus(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
@@ -126,7 +128,7 @@ public class WorkerOperator {
 
     public List<String> containerInfos(JobClient jobClient) {
         try {
-            return (List<String>) sendRequest(new MessageContainerInfos(jobClient));
+            return (List<String>) callbackAndReset(jobClient, () -> sendRequest(new MessageContainerInfos(jobClient)));
         } catch (Exception e) {
             logger.error("getCheckpoints failed!", e);
             return null;
@@ -141,6 +143,14 @@ public class WorkerOperator {
             logger.error("getCheckpoints failed!", e);
             return RestartStrategyType.NONE;
         }
+    }
+
+    public <M> M callbackAndReset(JobClient jobClient, CallBack<M> classLoaderCallBack) throws Exception {
+        JobClientCallBack callBack = jobClient.getJobCallBack();
+        jobClient.setCallBack(null);
+        M result = classLoaderCallBack.execute();
+        jobClient.setCallBack(callBack);
+        return result;
     }
 
 }

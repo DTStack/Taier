@@ -88,11 +88,12 @@ public class JobSubmitDealer implements Runnable {
                     logger.info("jobId:{} checkIsFinished is true, job is Finished.", jobClient.getTaskId());
                     continue;
                 }
-                if (!checkMaxPriority(jobResource, jobClient.getPriority())) {
-                    logger.info("jobId:{} checkMaxPriority is false, wait other node job which priority higher.", jobClient.getTaskId());
-                    queue.put(jobClient);
-                    continue;
-                }
+                //todo， check的时候 如果节点已经挂了就直接先忽略
+//                if (!checkMaxPriority(jobResource, jobClient.getPriority())) {
+//                    logger.info("jobId:{} checkMaxPriority is false, wait other node job which priority higher.", jobClient.getTaskId());
+//                    queue.put(jobClient);
+//                    continue;
+//                }
                 //提交任务
                 submitJob(jobClient);
             } catch (Exception e) {
@@ -149,7 +150,7 @@ public class JobSubmitDealer implements Runnable {
             if (workerOperator.getWorkerInfoMap().isEmpty()) {
                 logger.info(" jobId:{} engineType:{} worker not find.", jobClient.getTaskId(), jobClient.getEngineType());
                 handlerNoResource(jobClient);
-                Thread.sleep(10000);
+                Thread.sleep(10000);//TODO
                 return;
             }
 
