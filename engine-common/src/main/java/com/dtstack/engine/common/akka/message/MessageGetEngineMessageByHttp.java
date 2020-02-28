@@ -1,20 +1,18 @@
-package com.dtstack.engine.common.message;
-
-import com.dtstack.engine.common.JobIdentifier;
+package com.dtstack.engine.common.akka.message;
 
 import java.io.Serializable;
 
-public class MessageGetJobStatus implements Serializable {
+public class MessageGetEngineMessageByHttp implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String engineType;
     private String pluginInfo;
-    private JobIdentifier jobIdentifier;
+    private String path;
 
-    public MessageGetJobStatus(String engineType, String pluginInfo, JobIdentifier jobIdentifier){
+    public MessageGetEngineMessageByHttp(String engineType, String path, String pluginInfo){
         this.engineType = engineType;
         this.pluginInfo = pluginInfo;
-        this.jobIdentifier = jobIdentifier;
+        this.path = path;
     }
 
     public String getEngineType() {
@@ -33,11 +31,11 @@ public class MessageGetJobStatus implements Serializable {
         this.pluginInfo = pluginInfo;
     }
 
-    public JobIdentifier getJobIdentifier() {
-        return jobIdentifier;
+    public String getPath() {
+        return path;
     }
 
-    public void setJobIdentifier(JobIdentifier jobIdentifier) {
-        this.jobIdentifier = jobIdentifier;
+    public void setPath(String path) {
+        this.path = path;
     }
 }

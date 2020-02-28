@@ -1,15 +1,15 @@
-package com.dtstack.engine.common.message;
+package com.dtstack.engine.common.akka.message;
 
 import com.dtstack.engine.common.JobClient;
 
 import java.io.Serializable;
 
-public class MessageJudgeSlots implements Serializable {
+public class MessageSubmitJob implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private JobClient jobClient;
 
-    public MessageJudgeSlots(JobClient jobClient){
+    public MessageSubmitJob(JobClient jobClient){
         this.jobClient = jobClient;
     }
 

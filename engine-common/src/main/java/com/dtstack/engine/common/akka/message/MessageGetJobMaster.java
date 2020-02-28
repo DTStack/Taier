@@ -1,4 +1,4 @@
-package com.dtstack.engine.common.message;
+package com.dtstack.engine.common.akka.message;
 
 import com.dtstack.engine.common.JobIdentifier;
 

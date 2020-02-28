@@ -3,7 +3,7 @@ package com.dtstack.engine.master.akka;
 import akka.actor.AbstractActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import com.dtstack.engine.common.message.WorkerInfo;
+import com.dtstack.engine.common.akka.message.WorkerInfo;
 import com.google.common.collect.Maps;
 
 import java.util.HashMap;

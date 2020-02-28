@@ -5,12 +5,11 @@ import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.pattern.Patterns;
 import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.message.WorkerInfo;
+import com.dtstack.engine.common.akka.message.WorkerInfo;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.google.common.collect.Maps;
 import com.typesafe.config.ConfigFactory;
-import org.apache.commons.collections.MapUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,6 +65,7 @@ public class ActorManager implements InitializingBean, Runnable {
         HashMap<String, WorkerInfo> infos = (HashMap<String, WorkerInfo>) Await.result(future, Duration.create(3, TimeUnit.SECONDS));
         updateToZk(infos);
         workerInfoMap = getWorkersFromZk().entrySet().stream()
+                //
                 .filter(map -> System.currentTimeMillis() - map.getValue().getTimestamp() > timeout)
                 .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
     }

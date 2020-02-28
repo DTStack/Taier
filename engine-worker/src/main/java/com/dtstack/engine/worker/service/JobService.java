@@ -1,12 +1,10 @@
 package com.dtstack.engine.worker.service;
 
 import akka.actor.AbstractActor;
-import akka.event.Logging;
-import akka.event.LoggingAdapter;
 import com.dtstack.engine.common.*;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.message.*;
+import com.dtstack.engine.common.akka.message.*;
 
 import java.util.List;
 

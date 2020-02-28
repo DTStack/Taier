@@ -1,17 +1,17 @@
-package com.dtstack.engine.common.message;
+package com.dtstack.engine.common.akka.message;
 
 import com.dtstack.engine.common.JobIdentifier;
 
 import java.io.Serializable;
 
-public class MessageGetCheckpoints implements Serializable {
+public class MessageGetJobStatus implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String engineType;
     private String pluginInfo;
     private JobIdentifier jobIdentifier;
 
-    public MessageGetCheckpoints(String engineType, String pluginInfo, JobIdentifier jobIdentifier){
+    public MessageGetJobStatus(String engineType, String pluginInfo, JobIdentifier jobIdentifier){
         this.engineType = engineType;
         this.pluginInfo = pluginInfo;
         this.jobIdentifier = jobIdentifier;
