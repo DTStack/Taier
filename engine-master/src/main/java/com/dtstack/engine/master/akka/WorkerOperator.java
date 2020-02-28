@@ -147,10 +147,12 @@ public class WorkerOperator {
 
     public <M> M callbackAndReset(JobClient jobClient, CallBack<M> classLoaderCallBack) throws Exception {
         JobClientCallBack callBack = jobClient.getJobCallBack();
-        jobClient.setCallBack(null);
-        M result = classLoaderCallBack.execute();
-        jobClient.setCallBack(callBack);
-        return result;
+        try {
+            jobClient.setCallBack(null);
+            return classLoaderCallBack.execute();
+        } finally {
+            jobClient.setCallBack(callBack);
+        }
     }
 
 }

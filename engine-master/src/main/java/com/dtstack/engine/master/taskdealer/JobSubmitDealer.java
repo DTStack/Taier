@@ -105,6 +105,7 @@ public class JobSubmitDealer implements Runnable {
     private JobClient acquireJobFromQueue() throws InterruptedException {
         JobClient jobClient = null;
         RestartJob<JobClient> restartJob = null;
+        //TODO restartQueue -> queue
         while ((restartJob = restartJobQueue.poll()) != null) {
             jobClient = restartJob.getJob();
             if (jobClient != null) {
@@ -112,7 +113,7 @@ public class JobSubmitDealer implements Runnable {
             }
         }
         jobClient = queue.take();
-        logger.info("jobId{} acquireJobFromQueue, jobResource{} queueSize:{}.", jobClient.getTaskId(), jobResource, priorityQueue.queueSize());
+        logger.info("jobId{} acquireJobFromQueue, jobResource:{} queueSize:{}.", jobClient.getTaskId(), jobResource, priorityQueue.queueSize());
         return jobClient;
     }
 
