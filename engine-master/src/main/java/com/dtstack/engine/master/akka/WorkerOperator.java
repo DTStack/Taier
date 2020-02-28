@@ -45,6 +45,11 @@ public class WorkerOperator {
         return result;
     }
 
+    public Map<String, WorkerInfo> getWorkerInfoMap() {
+        return actorManager.getWorkerInfoMap();
+    }
+
+
     public boolean judgeSlots(JobClient jobClient) {
         Object result = null;
         try {
@@ -62,22 +67,24 @@ public class WorkerOperator {
 
     public RdosTaskStatus getJobStatus(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
         String jobId = jobIdentifier.getEngineJobId();
-        if(Strings.isNullOrEmpty(jobId)){
+        if (Strings.isNullOrEmpty(jobId)) {
             throw new RdosDefineException("can't get job of jobId is empty or null!");
         }
         try {
             Object result = sendRequest(new MessageGetJobStatus(engineType, pluginInfo, jobIdentifier));
-            if(result == null){
+            if (result == null) {
                 return null;
             }
 
-            return  (RdosTaskStatus) result;
+            return (RdosTaskStatus) result;
         } catch (Exception e) {
-            throw new RdosDefineException("get job:" + jobId + " exception:" + ExceptionUtil.getErrorMessage(e));
+            logger.error("getStatus happens error：{}", e);
+            return RdosTaskStatus.FAILED;
         }
     }
 
-    public String getEngineMessageByHttp(String engineType, String path, String pluginInfo)  {
+    @Deprecated
+    public String getEngineMessageByHttp(String engineType, String path, String pluginInfo) {
         String message;
         try {
             message = (String) sendRequest(new MessageGetEngineMessageByHttp(engineType, path, pluginInfo));
@@ -89,9 +96,9 @@ public class WorkerOperator {
 
     public String getEngineLog(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
         String logInfo;
-        try{
+        try {
             logInfo = (String) sendRequest(new MessageGetEngineLog(engineType, pluginInfo, jobIdentifier));
-        }catch (Exception e){
+        } catch (Exception e) {
             logInfo = ExceptionUtil.getErrorMessage(e);
         }
         return logInfo;
@@ -99,9 +106,9 @@ public class WorkerOperator {
 
     public String getCheckpoints(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
         String checkpoints = null;
-        try{
+        try {
             checkpoints = (String) sendRequest(new MessageGetCheckpoints(engineType, pluginInfo, jobIdentifier));
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error("getCheckpoints failed!", e);
         }
         return checkpoints;
@@ -112,18 +119,29 @@ public class WorkerOperator {
     }
 
     public JobResult stopJob(JobClient jobClient) throws Exception {
+        if (jobClient.getEngineTaskId() == null) {
+            return JobResult.createSuccessResult(jobClient.getTaskId());
+        }
         return (JobResult) sendRequest(new MessageStopJob(jobClient));
     }
 
-    public List<String> containerInfos(JobClient jobClient) throws Exception {
-        return (List<String>) sendRequest(new MessageContainerInfos(jobClient));
+    public List<String> containerInfos(JobClient jobClient) {
+        try {
+            return (List<String>) sendRequest(new MessageContainerInfos(jobClient));
+        } catch (Exception e) {
+            logger.error("getCheckpoints failed!", e);
+            return null;
+        }
     }
 
     public RestartStrategyType getRestartStrategyType(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
-        return RestartStrategyType.NONE;
+        try {
+            //TODO
+            return null;
+        } catch (Exception e) {
+            logger.error("getCheckpoints failed!", e);
+            return RestartStrategyType.NONE;
+        }
     }
 
-    public Map<String, WorkerInfo> getWorkerInfoMap() {
-        return actorManager.getWorkerInfoMap();
-    }
 }
