@@ -183,6 +183,7 @@ public class GroupPriorityQueue {
                             break outLoop;
                         }
                     } catch (Exception e) {
+                        logger.error("", e);
                         //数据转换异常--打日志
                         workNode.dealSubmitFailJob(jobCache.getJobId(), "This task stores information exception and cannot be converted." + e.toString());
                     }

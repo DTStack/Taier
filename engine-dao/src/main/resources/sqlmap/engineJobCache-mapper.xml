@@ -18,7 +18,7 @@
     <update id="updateStage">
         update rdos_engine_job_cache
         set
-        node_address = #{nodeAddress}, stage = #{stage}, job_priority = #{jobPriority}, job_resource = #{jobResource},
+        node_address = #{nodeAddress}, stage = #{stage}, job_priority = #{jobPriority},
         is_failover = 0, gmt_modified=now()
         where job_id = #{jobId}
     </update>
