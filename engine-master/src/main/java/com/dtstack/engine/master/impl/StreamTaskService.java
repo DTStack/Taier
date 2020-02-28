@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.annotation.Param;
 import com.dtstack.engine.common.http.PoolHttpClient;
@@ -153,6 +154,7 @@ public class StreamTaskService {
                     jobStatus = workerOperator.getJobStatus(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
                 } catch (Exception ex) {
                     logger.error("Get job status failed", ex);
+                    throw new RdosDefineException(("Get job status failed! jobid: " + jobClient.getTaskId() + " exception:" + ExceptionUtil.getErrorMessage(e)));
                 }
                 Integer statusCode = jobStatus.getStatus();
                 if (RdosTaskStatus.getStoppedStatus().contains(statusCode)) {

@@ -5,6 +5,7 @@ import akka.pattern.Patterns;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.message.*;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.restart.RestartStrategyType;
@@ -42,8 +43,15 @@ public class WorkerOperator {
         return result;
     }
 
-    public boolean judgeSlots(JobClient jobClient) throws Exception {
-        return (boolean) sendRequest(new MessageJudgeSlots(jobClient));
+    public boolean judgeSlots(JobClient jobClient) {
+        Object result = null;
+        try {
+            result = sendRequest(new MessageJudgeSlots(jobClient));
+        } catch (Exception e) {
+            logger.error("jobid:{} judgeSlots failed!", jobClient.getTaskId(), e);
+            return false;
+        }
+        return (boolean) result;
     }
 
     public JobResult submitJob(JobClient jobClient) throws Exception {
@@ -54,16 +62,34 @@ public class WorkerOperator {
         return (RdosTaskStatus) sendRequest(new MessageGetJobStatus(engineType, pluginInfo, jobIdentifier));
     }
 
-    public String getEngineMessageByHttp(String engineType, String path, String pluginInfo) throws Exception {
-        return (String) sendRequest(new MessageGetEngineMessageByHttp(engineType, path, pluginInfo));
+    public String getEngineMessageByHttp(String engineType, String path, String pluginInfo)  {
+        String message;
+        try {
+            message = (String) sendRequest(new MessageGetEngineMessageByHttp(engineType, path, pluginInfo));
+        } catch (Exception e) {
+            message = ExceptionUtil.getErrorMessage(e);
+        }
+        return message;
     }
 
-    public String getEngineLog(String engineType, String pluginInfo, JobIdentifier jobIdentifier) throws Exception {
-        return (String) sendRequest(new MessageGetEngineLog(engineType, pluginInfo, jobIdentifier));
+    public String getEngineLog(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
+        String logInfo;
+        try{
+            logInfo = (String) sendRequest(new MessageGetEngineLog(engineType, pluginInfo, jobIdentifier));
+        }catch (Exception e){
+            logInfo = ExceptionUtil.getErrorMessage(e);
+        }
+        return logInfo;
     }
 
-    public String getCheckpoints(String engineType, String pluginInfo, JobIdentifier jobIdentifier) throws Exception {
-        return (String) sendRequest(new MessageGetCheckpoints(engineType, pluginInfo, jobIdentifier));
+    public String getCheckpoints(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
+        String checkpoints = null;
+        try{
+            checkpoints = (String) sendRequest(new MessageGetCheckpoints(engineType, pluginInfo, jobIdentifier));
+        }catch (Exception e){
+            logger.error("getCheckpoints failed!", e);
+        }
+        return checkpoints;
     }
 
     public String getJobMaster(String engineType, String pluginInfo, JobIdentifier jobIdentifier) throws Exception {

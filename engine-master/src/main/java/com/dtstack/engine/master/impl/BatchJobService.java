@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.common.annotation.Forbidden;
 import com.dtstack.dtcenter.common.constant.TaskStatusConstrant;
+import com.dtstack.dtcenter.common.engine.ConsoleConstant;
 import com.dtstack.dtcenter.common.engine.EngineSend;
 import com.dtstack.dtcenter.common.enums.*;
 import com.dtstack.dtcenter.common.exception.DtCenterDefException;
@@ -19,6 +20,7 @@ import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.LearningFrameType;
 import com.dtstack.engine.common.enums.QueryWorkFlowModel;
 import com.dtstack.engine.common.enums.TaskOperateType;
+import com.dtstack.engine.domain.*;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -26,15 +28,11 @@ import com.dtstack.engine.dao.BatchFillDataJobDao;
 import com.dtstack.engine.dao.BatchJobDao;
 import com.dtstack.engine.dao.BatchJobJobDao;
 import com.dtstack.engine.dao.BatchTaskShadeDao;
-import com.dtstack.engine.domain.BatchEngineJob;
-import com.dtstack.engine.domain.BatchFillDataJob;
-import com.dtstack.engine.domain.BatchJob;
-import com.dtstack.engine.domain.BatchJobJob;
-import com.dtstack.engine.domain.BatchTaskShade;
 import com.dtstack.engine.dto.BatchJobDTO;
 import com.dtstack.engine.dto.BatchTaskForFillDataDTO;
 import com.dtstack.engine.dto.QueryJobDTO;
 import com.dtstack.engine.master.WorkNode;
+import com.dtstack.engine.master.plugininfo.PluginWrapper;
 import com.dtstack.engine.master.queue.JobPartitioner;
 import com.dtstack.task.send.TaskUrlConstant;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
@@ -167,6 +165,9 @@ public class BatchJobService {
 
     @Autowired
     private ClusterService clusterService;
+
+    @Autowired
+    private PluginWrapper pluginWrapper;
 
     private final static List<Integer> FINISH_STATUS = Lists.newArrayList(TaskStatus.FINISHED.getStatus(), TaskStatus.MANUALSUCCESS.getStatus(), TaskStatus.CANCELING.getStatus(), TaskStatus.CANCELED.getStatus());
     private final static List<Integer> FAILED_STATUS = Lists.newArrayList(TaskStatus.FAILED.getStatus(), TaskStatus.SUBMITFAILD.getStatus(), TaskStatus.KILLED.getStatus());
@@ -953,14 +954,6 @@ public class BatchJobService {
             JSONObject info = extObject.getJSONObject(TaskUrlConstant.INFO);
             if (Objects.nonNull(info)) {
                 Integer multiEngineType = info.getInteger("multiEngineType");
-                String ldapUserName = info.getString("ldapUserName");
-                String ldapPassword = info.getString("ldapPassword");
-                String dbName = info.getString("dbName");
-                if (StringUtils.isNotBlank(ldapUserName)) {
-                    info.remove("ldapUserName");
-                    info.remove("ldapPassword");
-                    info.remove("dbName");
-                }
                 Map<String, Object> actionParam = PublicUtil.strToMap(info.toJSONString());
                 if (MultiEngineType.HADOOP.getType() == multiEngineType) {
                     batchHadoopJobStartTrigger.readyForTaskStartTrigger(actionParam, batchTask, batchJob);
@@ -973,24 +966,8 @@ public class BatchJobService {
                 actionParam.put("taskId", batchJob.getJobId());
 
                 //拼装控制台的集群信息
+                actionParam = pluginWrapper.wrapperPluginInfo(actionParam);
 
-                Long tenantId = info.getLong("tenantId");
-                String engineType = info.getString("engineType");
-                String pluginInfo = clusterService.pluginInfo(tenantId, engineType);
-                String groupName = "default_default";
-                if (StringUtils.isNotBlank(pluginInfo)) {
-                    JSONObject pluginInfoJson = JSONObject.parseObject(pluginInfo);
-                    if (EJobType.HIVE_SQL.getType().equals(batchJob.getTaskType()) || EJobType.IMPALA_SQL.getType().equals(batchJob.getTaskType())) {
-                        addUserNameToImpalaOrHive(pluginInfoJson, ldapUserName, ldapPassword, dbName, engineType);
-                    }
-                    groupName = pluginInfoJson.getString("cluster") + "_" + pluginInfoJson.getString("queue");
-                    pluginInfo = pluginInfoJson.toJSONString();
-                }
-
-                actionParam.put("pluginInfo", pluginInfo);
-                actionParam.put("groupName", groupName);
-
-                //TODO, 放入队列
                 actionService.start(actionParam);
 
                 return;
