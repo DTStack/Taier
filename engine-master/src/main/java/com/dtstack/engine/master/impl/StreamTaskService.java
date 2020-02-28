@@ -149,13 +149,7 @@ public class StreamTaskService {
 
         }catch (Exception e){
             if (jobClient != null && jobIdentifier != null) {
-                RdosTaskStatus jobStatus = null;
-                try {
-                    jobStatus = workerOperator.getJobStatus(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
-                } catch (Exception ex) {
-                    logger.error("Get job status failed", ex);
-                    throw new RdosDefineException(("Get job status failed! jobid: " + jobClient.getTaskId() + " exception:" + ExceptionUtil.getErrorMessage(e)));
-                }
+                RdosTaskStatus jobStatus = workerOperator.getJobStatus(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);;
                 Integer statusCode = jobStatus.getStatus();
                 if (RdosTaskStatus.getStoppedStatus().contains(statusCode)) {
                     throw new RdosDefineException(String.format("job:%s had stop ", taskId), ErrorCode.INVALID_TASK_STATUS, e);
