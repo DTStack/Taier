@@ -1,7 +1,10 @@
 package com.dtstack.engine.master.config;
 
-import com.dtstack.engine.master.akka.ActorManager;
+import com.dtstack.engine.common.akka.config.WorkerConfig;
+import com.dtstack.engine.master.akka.AkkaWorkerManager;
 import com.dtstack.engine.master.env.EnvironmentContext;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,11 +21,12 @@ public class ActorManagerBeanConfig {
     private EnvironmentContext environmentContext;
 
     @Bean
-    public ActorManager actorManager() {
-        ActorManager actorManager = new ActorManager();
-        actorManager.setName(environmentContext.getAkkaSystemName());
-        actorManager.setPath(environmentContext.getAkkaRemotePath());
-        return actorManager;
+    public AkkaWorkerManager actorManager() {
+        Config config = ConfigFactory.load();
+        WorkerConfig.loadConfig(config);
+        AkkaWorkerManager akkaWorkerManager = new AkkaWorkerManager();
+        akkaWorkerManager.setEnvironmentContext(environmentContext);
+        return akkaWorkerManager;
     }
 
 }

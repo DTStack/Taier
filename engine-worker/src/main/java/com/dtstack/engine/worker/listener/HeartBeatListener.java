@@ -3,11 +3,11 @@ package com.dtstack.engine.worker.listener;
 import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
+import com.dtstack.engine.common.akka.config.WorkerConfig;
 import com.dtstack.dtcenter.common.util.AddressUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.akka.message.WorkerInfo;
 import com.dtstack.engine.common.util.LogCountUtil;
-import com.dtstack.engine.worker.config.WorkerConfig;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,15 +25,18 @@ public class HeartBeatListener implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(HeartBeatListener.class);
 
-    private final String masterTemp = "akka.tcp://AkkaRemoteMaster@%s/user/AkkaMasterActor";
+    private final static String MASTER_REMOTE_PATH_TEMPLATE = "akka.tcp://%s@%s/user/%s";
     private int logOutput = 0;
     private final static int MULTIPLES = 10;
     private final static int CHECK_INTERVAL = 2000;
+    private final static int MONITOR_CHECK_INTERVAL = 2000;
     private static Random random = new Random();
     private volatile Set<String> availableNodes = new CopyOnWriteArraySet();
     private volatile Set<String> disableNodes = new CopyOnWriteArraySet();
     private ActorSystem system;
     private String masterAddress;
+    private String masterSystemName;
+    private String masterName;
     private String workerIp;
     private int workerPort;
     private String workerRemotePath;
@@ -43,12 +46,20 @@ public class HeartBeatListener implements Runnable {
         this.system = system;
         this.masterAddress = WorkerConfig.getMasterAddress();
         this.availableNodes.addAll(Arrays.asList(masterAddress.split(",")));
+
+        this.masterSystemName = WorkerConfig.getMasterSystemName();
+        this.masterName = WorkerConfig.getMasterName();
+
         this.workerIp = WorkerConfig.getWorkerIp();
         this.workerPort = WorkerConfig.getWorkerPort();
         this.workerRemotePath = WorkerConfig.getWorkerRemotePath();
 
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(2, new CustomThreadFactory("HeartBeatListener"));
-        scheduledService.submit(new HeartBeatListener.MonitorNode());
+        scheduledService.scheduleWithFixedDelay(
+                new HeartBeatListener.MonitorNode(),
+                MONITOR_CHECK_INTERVAL,
+                MONITOR_CHECK_INTERVAL,
+                TimeUnit.MILLISECONDS);
         scheduledService.scheduleWithFixedDelay(
                 this,
                 CHECK_INTERVAL,
@@ -66,14 +77,14 @@ public class HeartBeatListener implements Runnable {
         }
     }
 
-    private ActorSelection getOneActorSelection(String masterAddress){
+    private ActorSelection getOneActorSelection(String masterAddress) {
         int size = availableNodes.size();
         String ipAndPort = masterAddress.split(",")[0];
         if (availableNodes.size() != 0) {
             int index = random.nextInt(size);
             ipAndPort = Lists.newArrayList(availableNodes).get(index);
         }
-        String masterRemotePath = String.format(masterTemp, ipAndPort);
+        String masterRemotePath = String.format(MASTER_REMOTE_PATH_TEMPLATE, masterSystemName, ipAndPort, masterName);
         ActorSelection master = system.actorSelection(masterRemotePath);
         return master;
     }
@@ -81,26 +92,23 @@ public class HeartBeatListener implements Runnable {
     private class MonitorNode implements Runnable {
         @Override
         public void run() {
-            while (true) {
-                try {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("availableNodes--->{},disableNodes---->{}", availableNodes, disableNodes);
-                    }
-                    if (disableNodes.size() > 0) {
-                        Iterator<String> iterators = disableNodes.iterator();
-                        while (iterators.hasNext()) {
-                            String uri = iterators.next();
-                            String[] up = uri.split(":");
-                            if (AddressUtil.telnet(up[0], Integer.parseInt(up[1]))) {
-                                availableNodes.add(uri);
-                                disableNodes.remove(uri);
-                            }
+            try {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("availableNodes--->{},disableNodes---->{}", availableNodes, disableNodes);
+                }
+                if (disableNodes.size() > 0) {
+                    Iterator<String> iterators = disableNodes.iterator();
+                    while (iterators.hasNext()) {
+                        String uri = iterators.next();
+                        String[] up = uri.split(":");
+                        if (AddressUtil.telnet(up[0], Integer.parseInt(up[1]))) {
+                            availableNodes.add(uri);
+                            disableNodes.remove(uri);
                         }
                     }
-                    Thread.sleep(5000);
-                } catch (Exception e) {
-                    logger.error("", e);
                 }
+            } catch (Exception e) {
+                logger.error("", e);
             }
         }
     }

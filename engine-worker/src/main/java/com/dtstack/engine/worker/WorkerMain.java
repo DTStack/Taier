@@ -3,11 +3,10 @@ package com.dtstack.engine.worker;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import com.dtstack.engine.common.akka.Worker;
 import com.dtstack.engine.common.log.LogbackComponent;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
-import com.dtstack.engine.worker.config.WorkerConfig;
+import com.dtstack.engine.common.akka.config.WorkerConfig;
 import com.dtstack.engine.worker.listener.HeartBeatListener;
 import com.dtstack.engine.worker.service.JobService;
 import com.typesafe.config.Config;
@@ -15,7 +14,7 @@ import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WorkerMain implements Worker {
+public class WorkerMain {
 
     private static final Logger logger = LoggerFactory.getLogger(WorkerMain.class);
 

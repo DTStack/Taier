@@ -5,6 +5,7 @@ import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.pattern.Patterns;
 import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.common.akka.config.WorkerConfig;
 import com.dtstack.engine.common.akka.message.WorkerInfo;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.master.env.EnvironmentContext;
@@ -26,11 +27,10 @@ import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
-public class ActorManager implements InitializingBean, Runnable {
+public class AkkaWorkerManager implements InitializingBean, Runnable {
 
-    private static final Logger logger = LoggerFactory.getLogger(ActorManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(AkkaWorkerManager.class);
 
     private static ObjectMapper objectMapper = new ObjectMapper();
     private final static String GET_WORKER_INFOS = "getWorkerInfos";
@@ -46,8 +46,10 @@ public class ActorManager implements InitializingBean, Runnable {
     private String path;
     private long timeout = 5000L;
 
+    private Duration duration;
+
     @Autowired
-    private EnvironmentContext env;
+    private EnvironmentContext environmentContext;
 
     @Autowired
     private ZkService zkService;
@@ -65,8 +67,12 @@ public class ActorManager implements InitializingBean, Runnable {
     }
 
     private void updateWorkerActors() throws Exception {
-        Future<Object> future = Patterns.ask(actorSelection, GET_WORKER_INFOS, env.getAkkaAskTimeout());
-        HashMap<String, WorkerInfo> infos = (HashMap<String, WorkerInfo>) Await.result(future, Duration.create(env.getAskResultTimeout(), TimeUnit.SECONDS));
+        Future<Object> future = Patterns.ask(actorSelection, GET_WORKER_INFOS, environmentContext.getAkkaAskTimeout());
+        Object askResult = Await.result(future, duration);
+        if (askResult == null){
+            return;
+        }
+        HashMap<String, WorkerInfo> infos = (HashMap<String, WorkerInfo>) askResult;
         workerInfoMap = infos;
         /*if (infos.size() > 0){
             updateToZk(infos);
@@ -103,30 +109,15 @@ public class ActorManager implements InitializingBean, Runnable {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        this.system = ActorSystem.create(name, ConfigFactory.load());
-        this.system.actorOf(Props.create(AkkaMasterActor.class), AkkaMasterActor.class.getSimpleName());
+        this.duration = Duration.create(environmentContext.getAkkaAskResultTimeout(), TimeUnit.SECONDS);
+        this.system = ActorSystem.create(WorkerConfig.getMasterSystemName(), ConfigFactory.load());
+        this.system.actorOf(Props.create(AkkaMasterActor.class), WorkerConfig.getMasterName());
         this.actorSelection = system.actorSelection(path);
         scheduledService.scheduleWithFixedDelay(
                 this,
                 CHECK_INTERVAL,
                 CHECK_INTERVAL,
                 TimeUnit.MILLISECONDS);
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
     }
 
     public ActorSystem getSystem() {
@@ -139,5 +130,13 @@ public class ActorManager implements InitializingBean, Runnable {
 
     public Map<String, WorkerInfo> getWorkerInfoMap() {
         return workerInfoMap;
+    }
+
+    public EnvironmentContext getEnvironmentContext() {
+        return environmentContext;
+    }
+
+    public void setEnvironmentContext(EnvironmentContext environmentContext) {
+        this.environmentContext = environmentContext;
     }
 }

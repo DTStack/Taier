@@ -35,18 +35,18 @@ public class WorkerOperator {
     private EnvironmentContext env;
 
     @Autowired
-    private ActorManager actorManager;
+    private AkkaWorkerManager akkaWorkerManager;
 
     private Object sendRequest(Object message) throws Exception {
-        String path = RandomUtils.getRandomValueFromMap(actorManager.getWorkerInfoMap()).getPath();
-        ActorSelection actorRef = actorManager.getSystem().actorSelection(path);
-        Future<Object> future = Patterns.ask(actorRef, message, env.getAskResultTimeout());
-        Object result = Await.result(future, Duration.create(env.getAskResultTimeout(), TimeUnit.SECONDS));
+        String path = RandomUtils.getRandomValueFromMap(akkaWorkerManager.getWorkerInfoMap()).getPath();
+        ActorSelection actorRef = akkaWorkerManager.getSystem().actorSelection(path);
+        Future<Object> future = Patterns.ask(actorRef, message, env.getAkkaAskResultTimeout());
+        Object result = Await.result(future, Duration.create(env.getAkkaAskResultTimeout(), TimeUnit.SECONDS));
         return result;
     }
 
     public Map<String, WorkerInfo> getWorkerInfoMap() {
-        return actorManager.getWorkerInfoMap();
+        return akkaWorkerManager.getWorkerInfoMap();
     }
 
 
