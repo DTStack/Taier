@@ -113,7 +113,7 @@ public class AkkaConfig {
         if (StringUtils.isBlank(configValue)) {
             return defaultValue;
         } else {
-            return configKey;
+            return configValue;
         }
     }
 
