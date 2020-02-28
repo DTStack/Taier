@@ -36,21 +36,14 @@ public class AkkaConfig {
     }
 
     public static String getMasterName() {
-        String name = null;
-        if (AKKA_CONFIG.hasPath(MASTER_CONFIG_PREFIX)) {
-            name = AKKA_CONFIG.getString(MASTER_CONFIG_PREFIX + ".masterName");
-        }
-        if (StringUtils.isBlank(name)) {
-            name = Master.class.getSimpleName();
-        }
-        return name;
+        String keyName = MASTER_CONFIG_PREFIX + ".masterName";
+        String defaultValue = Master.class.getSimpleName();
+        return getValueWithDefault(keyName, defaultValue);
     }
 
     public static String getMasterAddress() {
-        String masterAddress = null;
-        if (AKKA_CONFIG.hasPath(MASTER_CONFIG_PREFIX)) {
-            masterAddress = AKKA_CONFIG.getString(MASTER_CONFIG_PREFIX + ".masterAddress");
-        }
+        String keyName = MASTER_CONFIG_PREFIX + ".masterAddress";
+        String masterAddress = getValueWithDefault(keyName, null);
         if (StringUtils.isBlank(masterAddress)) {
             throw new IllegalArgumentException("masterAddress is null.");
         }
@@ -58,14 +51,9 @@ public class AkkaConfig {
     }
 
     public static String getMasterRemotePath() {
-        String path = null;
-        if (AKKA_CONFIG.hasPath(MASTER_CONFIG_PREFIX)) {
-            path = AKKA_CONFIG.getString(MASTER_CONFIG_PREFIX + ".masterRemotePath");
-        }
-        if (StringUtils.isBlank(path)) {
-            path = String.format(REMOTE_PATH_TEMPLATE, getMasterSystemName(), getAkkaHostname(), getAkkaPort(), getMasterName());
-        }
-        return path;
+        String keyName = MASTER_CONFIG_PREFIX + ".masterRemotePath";
+        String masterRemotePath = String.format(REMOTE_PATH_TEMPLATE, getMasterSystemName(), getAkkaHostname(), getAkkaPort(), getMasterName());
+        return getValueWithDefault(keyName, masterRemotePath);
     }
 
     public static String getWorkerSystemName() {
@@ -73,37 +61,25 @@ public class AkkaConfig {
     }
 
     public static String getWorkerName() {
-        String name = null;
-        if (AKKA_CONFIG.hasPath(WORKER_CONFIG_PREFIX)) {
-            name = AKKA_CONFIG.getString(WORKER_CONFIG_PREFIX + ".workerName");
-        }
-        if (StringUtils.isBlank(name)) {
-            name = Worker.class.getSimpleName();
-        }
-        return name;
+        String keyName = WORKER_CONFIG_PREFIX + ".workerName";
+        String workerName = Worker.class.getSimpleName();
+        return getValueWithDefault(keyName, workerName);
     }
 
     public static String getWorkerRemotePath() {
-        String path = null;
-        if (AKKA_CONFIG.hasPath(WORKER_CONFIG_PREFIX)) {
-            path = AKKA_CONFIG.getString(WORKER_CONFIG_PREFIX + ".workerRemotePath");
-        }
-        if (StringUtils.isBlank(path)) {
-            path = String.format(REMOTE_PATH_TEMPLATE, getWorkerSystemName(), getAkkaHostname(), getAkkaPort(), getWorkerName());
-        }
-        return path;
+        String keyName = WORKER_CONFIG_PREFIX + ".workerRemotePath";
+        String workerRemotePath = String.format(REMOTE_PATH_TEMPLATE, getWorkerSystemName(), getAkkaHostname(), getAkkaPort(), getWorkerName());;
+        return getValueWithDefault(keyName, workerRemotePath);
     }
 
     public static String getAkkaHostname() {
-        String akkaIp = AKKA_CONFIG.getString("akka.remote.netty.tcp.hostname");
-        if (StringUtils.isBlank(akkaIp)) {
-            akkaIp = AddressUtil.getOneIp();
-        }
-        return akkaIp;
+        String akkaIp = AKKA_CONFIG.getString(ConfigConstant.AKKA_REMOTE_NETTY_TCP_HOSTNAME);
+        String defaultIp = AddressUtil.getOneIp();
+        return getValueWithDefault(akkaIp, defaultIp);
     }
 
     public static int getAkkaPort() {
-        int akkaPort = AKKA_CONFIG.getInt("akka.remote.netty.tcp.port");
+        int akkaPort = AKKA_CONFIG.getInt(ConfigConstant.AKKA_REMOTE_NETTY_TCP_PORT);
         if (akkaPort == 0) {
             akkaPort = 2554;
         }
@@ -112,10 +88,6 @@ public class AkkaConfig {
 
     public static Config checkIpAndPort(Config config) {
         HashMap<String, Object> configMap = Maps.newHashMap();
-        int port = config.getInt(ConfigConstant.AKKA_REMOTE_NETTY_TCP_PORT);
-        int endPort = port + 100;
-        port = NetUtils.getAvailablePortRange(port, endPort);
-        configMap.put(ConfigConstant.AKKA_REMOTE_NETTY_TCP_PORT, port);
 
         String hostname = config.getString(ConfigConstant.AKKA_REMOTE_NETTY_TCP_HOSTNAME);
         if (StringUtils.isBlank(hostname)) {
@@ -123,9 +95,26 @@ public class AkkaConfig {
         }
         configMap.put(ConfigConstant.AKKA_REMOTE_NETTY_TCP_HOSTNAME, hostname);
 
+        int port = config.getInt(ConfigConstant.AKKA_REMOTE_NETTY_TCP_PORT);
+        int endPort = port + 100;
+        port = NetUtils.getAvailablePortRange(hostname, port, endPort);
+        configMap.put(ConfigConstant.AKKA_REMOTE_NETTY_TCP_PORT, port);
+
         Config loadConfig = ConfigFactory.parseMap(configMap).withFallback(config);
         loadConfig(loadConfig);
         return loadConfig;
+    }
+
+    public static String getValueWithDefault(String configKey, String defaultValue){
+        String configValue = null;
+        if (AKKA_CONFIG.hasPath(configKey)){
+            configValue = AKKA_CONFIG.getString(configKey);
+        }
+        if (StringUtils.isBlank(configValue)) {
+            return defaultValue;
+        } else {
+            return configKey;
+        }
     }
 
 }

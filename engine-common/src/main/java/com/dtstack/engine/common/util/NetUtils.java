@@ -1,6 +1,7 @@
 package com.dtstack.engine.common.util;
 
 
+import com.dtstack.dtcenter.common.util.AddressUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -11,21 +12,10 @@ public class NetUtils {
 
     private static final Log LOG = LogFactory.getLog(NetUtils.class);
 
-    public static boolean checkPortUsed(int port) {
-        try {
-            ServerSocket socket = new ServerSocket(port);
-            socket.close();
-            return false;
-        } catch (IOException e) {
-            LOG.warn("Invalid port:" + port + " configuration");
-            return true;
-        }
-    }
-
-    public static int getAvailablePortRange(int portStart, int portEnd) {
+    public static int getAvailablePortRange(String hostname, int portStart, int portEnd) {
         while (true) {
-            if (!checkPortUsed(portStart)) {
-                LOG.warn("Container availablePort port:" + portStart);
+            if (!AddressUtil.telnet(hostname, portStart)) {
+                LOG.warn("Akka availablePort port:" + portStart);
                 return portStart;
             }
             portStart++;
