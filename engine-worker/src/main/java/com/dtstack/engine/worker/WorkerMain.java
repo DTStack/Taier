@@ -34,14 +34,13 @@ public class WorkerMain implements Worker {
             ActorRef actorRef = system.actorOf(Props.create(JobService.class), workerName);
 
             String masterAddress = WorkerConfig.getMasterAddress();
-            String masterRemotePath = null;//todo
-            ActorSelection master = system.actorSelection(masterRemotePath);
+            ActorSelection master = system.actorSelection(masterAddress);
 
             String workIp = WorkerConfig.getWorkerIp();
             int workerPort = WorkerConfig.getWorkerPort();
             String workerRemotePath = WorkerConfig.getWorkerRemotePath();
 
-            new HeartBeatListener(masterAddress, workIp, workerPort, workerRemotePath);
+            new HeartBeatListener(system, masterAddress, workIp, workerPort, workerRemotePath);
 
             ShutdownHookUtil.addShutdownHook(WorkerMain::shutdown, WorkerMain.class.getSimpleName(), logger);
         } catch (Throwable e) {

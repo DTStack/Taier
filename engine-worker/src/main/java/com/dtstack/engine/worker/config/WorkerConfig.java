@@ -52,7 +52,7 @@ public class WorkerConfig {
     }
 
     public static String getWorkerSystemName() {
-        return "workerSystemName";
+        return "WorkerSystem";
     }
 
     public static String getWorkerName() {
@@ -87,8 +87,8 @@ public class WorkerConfig {
 
     public static int getWorkerPort() {
         int workerPort = WORK_CONFIG.getInt("akka.remote.netty.tcp.port");
-        if (workerPort != 0) {
-            workerPort = 10000;
+        if (workerPort == 0) {
+            workerPort = 2554;
         }
         return workerPort;
     }

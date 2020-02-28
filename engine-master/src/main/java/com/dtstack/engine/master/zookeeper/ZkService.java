@@ -224,6 +224,10 @@ public class ZkService implements InitializingBean, DisposableBean {
         }
     }
 
+    public boolean nodeIfExists(String node) throws Exception {
+        return zkClient.checkExists().forPath(node) == null ? false : true;
+    }
+
     private void checkDistributedConfig() throws Exception {
         if (StringUtils.isBlank(this.zkConfig.getNodeZkAddress())
                 || this.zkConfig.getNodeZkAddress().split("/").length < 2) {
@@ -282,6 +286,14 @@ public class ZkService implements InitializingBean, DisposableBean {
 
     public String getLocalAddress() {
         return localAddress;
+    }
+
+    public String getLocalNode() {
+        return localNode;
+    }
+
+    public String getBrokersNode() {
+        return brokersNode;
     }
 
     public void disableBrokerHeartNode(String localAddress, boolean stopHealthCheck) {

@@ -7,10 +7,10 @@ import akka.pattern.Patterns;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.message.WorkerInfo;
 import com.dtstack.engine.common.util.LogCountUtil;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.google.common.collect.Maps;
 import com.typesafe.config.ConfigFactory;
-import org.apache.commons.collections.MapUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +47,9 @@ public class ActorManager implements InitializingBean, Runnable {
     private long timeout = 5000L;
 
     @Autowired
+    private EnvironmentContext env;
+
+    @Autowired
     private ZkService zkService;
 
     @Override
@@ -62,16 +65,19 @@ public class ActorManager implements InitializingBean, Runnable {
     }
 
     private void updateWorkerActors() throws Exception {
-        Future<Object> future = Patterns.ask(actorSelection, GET_WORKER_INFOS, 3000);
-        HashMap<String, WorkerInfo> infos = (HashMap<String, WorkerInfo>) Await.result(future, Duration.create(3, TimeUnit.SECONDS));
-        updateToZk(infos);
-        workerInfoMap = getWorkersFromZk().entrySet().stream()
+        Future<Object> future = Patterns.ask(actorSelection, GET_WORKER_INFOS, env.getAkkaAskTimeout());
+        HashMap<String, WorkerInfo> infos = (HashMap<String, WorkerInfo>) Await.result(future, Duration.create(env.getAskResultTimeout(), TimeUnit.SECONDS));
+        workerInfoMap = infos;
+        /*if (infos.size() > 0){
+            updateToZk(infos);
+        }
+        Object o = getWorkersFromZk().entrySet().stream()
                 .filter(map -> System.currentTimeMillis() - map.getValue().getTimestamp() > timeout)
-                .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
+                .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));*/
     }
 
     private void updateToZk(HashMap<String, WorkerInfo> infos) throws Exception {
-        String node = zkService.getLocalAddress() + NODE_SUFFIX;
+        String node = zkService.getLocalNode() + NODE_SUFFIX;
         zkService.createNodeIfNotExists(node, infos);
     }
 
@@ -79,10 +85,12 @@ public class ActorManager implements InitializingBean, Runnable {
         HashMap<String, WorkerInfo> workers = Maps.newHashMap();
         List<String> children = zkService.getBrokersChildren();
         for (String address : children){
-            String node = address + NODE_SUFFIX;
+            String node = zkService.getBrokersNode() + "/" + address + NODE_SUFFIX;
             HashMap<String, WorkerInfo> nodeMap = Maps.newHashMap();
             try {
-                nodeMap = objectMapper.readValue(zkService.getDataFromPath(node), HashMap.class);
+                if (zkService.nodeIfExists(node)){
+                    nodeMap = objectMapper.readValue(zkService.getDataFromPath(node), HashMap.class);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }

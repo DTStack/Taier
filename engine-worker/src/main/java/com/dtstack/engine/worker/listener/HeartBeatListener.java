@@ -25,7 +25,7 @@ public class HeartBeatListener implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(HeartBeatListener.class);
 
-    private final String masterTemp = "akka.tcp://AkkaRemoteMaster@%s/user/Master";
+    private final String masterTemp = "akka.tcp://AkkaRemoteMaster@%s/user/AkkaMasterActor";
     private int logOutput = 0;
     private final static int MULTIPLES = 10;
     private final static int CHECK_INTERVAL = 2000;
@@ -59,7 +59,7 @@ public class HeartBeatListener implements Runnable {
     @Override
     public void run() {
         WorkerInfo workerInfo = new WorkerInfo(ip, port, path, System.currentTimeMillis());
-        ActorSelection actorSelection = getOneActorSelection();
+        ActorSelection actorSelection = getOneActorSelection(masterAddress);
         actorSelection.tell(workerInfo, ActorRef.noSender());
         if (LogCountUtil.count(logOutput, MULTIPLES)) {
             logger.info("HeartBeatListener Running...");
