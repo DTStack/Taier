@@ -123,7 +123,8 @@ public class WorkNode implements InitializingBean {
                 Map<String, GroupInfo> nodeGroupInfo = Maps.newHashMap();
                 priorityQueueMap.forEach((jobResource, priorityQueue) -> {
                     int groupSize = engineJobCacheDao.countByStage(jobResource, EJobCacheStage.unSubmitted(), nodeAddress);
-                    long maxPriority = engineJobCacheDao.maxPriorityByStage(jobResource, EJobCacheStage.PRIORITY.getStage(), nodeAddress);
+                    Long maxPriority = engineJobCacheDao.maxPriorityByStage(jobResource, EJobCacheStage.PRIORITY.getStage(), nodeAddress);
+                    maxPriority = maxPriority == null ? 0 : maxPriority;
                     GroupInfo groupInfo = new GroupInfo();
                     groupInfo.setSize(groupSize);
                     groupInfo.setPriority(maxPriority);
@@ -238,7 +239,7 @@ public class WorkNode implements InitializingBean {
             String engineType = MathUtil.getString(params.get(ConfigConstant.TYPE_NAME_KEY));
             JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineJobId, appId, jobId);
             //从engine获取log
-            engineLog = JobClient.getEngineLog(engineType, pluginInfoStr, jobIdentifier);
+            engineLog = workerOperator.getEngineLog(engineType, pluginInfoStr, jobIdentifier);
             if (engineLog != null) {
                 engineJobDao.updateEngineLog(jobId, engineLog);
             }

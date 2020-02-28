@@ -272,7 +272,7 @@ public class EnvironmentContext {
     }
 
     public long getJobRestartDelay() {
-        return Long.parseLong(environment.getProperty("jobRestartDelay"), 2 * 60 * 1000);
+        return Long.parseLong(environment.getProperty("jobRestartDelay", Integer.toString(2 * 60 * 1000) ));
     }
 
     public String getHadoopConfigField() {
@@ -297,6 +297,14 @@ public class EnvironmentContext {
 
     public String getAkkaRemotePath() {
         return environment.getProperty("AkkaRemotePath", "akka.tcp://AkkaRemoteMaster@127.0.0.1:2552/user/AkkaMasterActor");
+    }
+
+    public Long getAkkaAskTimeout() {
+        return Long.parseLong(environment.getProperty("AkkaAskTimeout", "60000"));
+    }
+
+    public Long getAskResultTimeout() {
+        return Long.parseLong(environment.getProperty("AkkaAskTimeout", "60"));
     }
 
 }

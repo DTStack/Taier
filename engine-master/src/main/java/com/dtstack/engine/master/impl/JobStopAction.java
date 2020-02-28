@@ -12,6 +12,7 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.domain.EngineJob;
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.common.enums.StoppedStatus;
+import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.cache.ShardCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +41,9 @@ public class JobStopAction {
     @Autowired
     private ShardCache shardCache;
 
+    @Autowired
+    private WorkerOperator workerOperator;
+
     public StoppedStatus stopJob(JobStopQueue.JobElement jobElement) throws Exception {
         EngineJobCache jobCache = engineJobCacheDao.getOne(jobElement.jobId);
         EngineJob engineJob = engineJobDao.getRdosJobByJobId(jobElement.jobId);
@@ -63,7 +67,7 @@ public class JobStopAction {
             paramAction.setEngineTaskId(engineJob.getEngineJobId());
             paramAction.setApplicationId(engineJob.getApplicationId());
             JobClient jobClient = new JobClient(paramAction);
-            JobResult jobResult = jobClient.stopJob();
+            JobResult jobResult = workerOperator.stopJob(jobClient);
             if (jobResult.getCheckRetry()) {
                 LOG.info("jobId:{} is retry.", paramAction.getTaskId());
                 return StoppedStatus.RETRY;
