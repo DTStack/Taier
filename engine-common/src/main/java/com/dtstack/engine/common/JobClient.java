@@ -1,7 +1,6 @@
 package com.dtstack.engine.common;
 
 import com.dtstack.engine.common.constrant.ConfigConstant;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -82,44 +81,6 @@ public class JobClient extends OrderObject{
     private long generateTime;
 
     private int maxRetryNum;
-
-    /***
-     * 获取engine上job执行的状态
-     * @param jobIdentifier
-     * @return
-     */
-    public static RdosTaskStatus getStatus(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
-        return ClientOperator.getInstance().getJobStatus(engineType, pluginInfo, jobIdentifier);
-    }
-
-    public static String getEngineLog(String engineType, String pluginInfo, JobIdentifier jobIdentifier){
-        return ClientOperator.getInstance().getEngineLog(engineType, pluginInfo, jobIdentifier);
-    }
-
-    public static String getInfoByHttp(String engineType, String path, String pluginInfo){
-        return ClientOperator.getInstance().getEngineMessageByHttp(engineType, path, pluginInfo);
-    }
-
-    public static String getJobMaster(String engineType, String pluginInfo, JobIdentifier jobIdentifier){
-        return ClientOperator.getInstance().getJobMaster(engineType, pluginInfo, jobIdentifier);
-    }
-
-    public static String getCheckpoints(String engineType, String pluginInfo, JobIdentifier jobIdentifier){
-        try{
-            return ClientOperator.getInstance().getCheckpoints(engineType, pluginInfo, jobIdentifier);
-        }catch (Exception e){
-            logger.error("getCheckpoints happens error：{}", e);
-            return null;
-        }
-    }
-
-    public JobResult stopJob() throws Exception {
-        return ClientOperator.getInstance().stopJob(this);
-    }
-
-    public List<String> getContainerInfos() throws Exception {
-        return ClientOperator.getInstance().containerInfos(this);
-    }
 
     public JobClient() {
 

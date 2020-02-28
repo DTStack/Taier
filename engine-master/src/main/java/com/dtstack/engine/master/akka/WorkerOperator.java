@@ -10,6 +10,7 @@ import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.restart.RestartStrategyType;
 import com.dtstack.engine.common.util.RandomUtils;
 import com.dtstack.engine.common.message.WorkerInfo;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,13 +29,16 @@ public class WorkerOperator {
     private static final Logger logger = LoggerFactory.getLogger(WorkerOperator.class);
 
     @Autowired
+    private EnvironmentContext env;
+
+    @Autowired
     private ActorManager actorManager;
 
     private Object sendRequest(Object message) throws Exception {
         String path = RandomUtils.getRandomValueFromMap(actorManager.getWorkerInfoMap()).getPath();
         ActorSelection actorRef = actorManager.getSystem().actorSelection(path);
-        Future<Object> future = Patterns.ask(actorRef, message, 5000);
-        Object result = Await.result(future, Duration.create(3, TimeUnit.SECONDS));
+        Future<Object> future = Patterns.ask(actorRef, message, env.getAskResultTimeout());
+        Object result = Await.result(future, Duration.create(env.getAskResultTimeout(), TimeUnit.SECONDS));
         return result;
     }
 

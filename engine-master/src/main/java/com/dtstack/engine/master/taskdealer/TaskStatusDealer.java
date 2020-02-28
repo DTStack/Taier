@@ -4,7 +4,6 @@ import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.hash.ShardData;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EngineType;
@@ -14,6 +13,7 @@ import com.dtstack.engine.dao.EngineJobDao;
 import com.dtstack.engine.dao.PluginInfoDao;
 import com.dtstack.engine.domain.EngineJob;
 import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.bo.FailedTaskInfo;
 import com.dtstack.engine.master.cache.ShardCache;
 import com.dtstack.engine.master.cache.ShardManager;
@@ -22,6 +22,7 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
@@ -57,6 +58,9 @@ public class TaskStatusDealer implements Runnable{
     private ShardManager shardManager;
     private ShardCache shardCache;
     private String jobResource;
+
+    @Autowired
+    private WorkerOperator workerOperator;
 
 	/**失败任务的额外处理：当前只是对(失败任务 or 取消任务)继续更新日志或者更新checkpoint*/
     private Map<String, FailedTaskInfo> failedJobCache = Maps.newConcurrentMap();
@@ -171,7 +175,7 @@ public class TaskStatusDealer implements Runnable{
                     pluginInfoStr = pluginInfoDao.getPluginInfo(engineJob.getPluginInfoId());
                 }
 
-                RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineJobCache.getEngineType(), pluginInfoStr, jobIdentifier);
+                RdosTaskStatus rdosTaskStatus = workerOperator.getJobStatus(engineJobCache.getEngineType(), pluginInfoStr, jobIdentifier);
 
                 if(rdosTaskStatus != null){
 
@@ -218,7 +222,7 @@ public class TaskStatusDealer implements Runnable{
 	private void updateJobEngineLog(String jobId, JobIdentifier jobIdentifier, String engineType, int computeType, String pluginInfo){
         try {
             //从engine获取log
-            String jobLog = JobClient.getEngineLog(engineType, pluginInfo, jobIdentifier);
+            String jobLog = workerOperator.getEngineLog(engineType, pluginInfo, jobIdentifier);
             if (jobLog != null){
                 updateJobEngineLog(jobId, jobLog);
             }
