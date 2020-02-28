@@ -22,12 +22,12 @@ public class ConfigConstant {
     public static final String AKKA_REMOTE_NETTY_TCP_HOSTNAME = "akka.remote.netty.tcp.hostname";
     public static final String AKKA_REMOTE_NETTY_TCP_PORT = "akka.remote.netty.tcp.port";
 
-    public static final String AKKA_MASTER_SYSTEM = "akka.master.system";
+    public static final String AKKA_MASTER_SYSTEM = "masterSystem";
     public static final String AKKA_MASTER_NAME = "akka.master.name";
     public static final String AKKA_MASTER_REMOTE_PATH = "akka.master.remotePath";
     public static final String AKKA_MASTER_MASTERADDRESS = "akka.master.masterAddress";
 
-    public static final String AKKA_WORKER_SYSTEM = "akka.worker.system";
+    public static final String AKKA_WORKER_SYSTEM = "workerSystem";
     public static final String AKKA_WORKER_NAME = "akka.worker.name";
     public static final String AKKA_WORKER_REMOTE_PATH = "akka.worker.remotePath";
 
