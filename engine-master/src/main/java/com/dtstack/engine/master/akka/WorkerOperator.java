@@ -39,7 +39,7 @@ public class WorkerOperator {
     private Object sendRequest(Object message) throws Exception {
         String path = RandomUtils.getRandomValueFromMap(akkaWorkerManager.getWorkerInfoMap());
         ActorSelection actorRef = akkaWorkerManager.getSystem().actorSelection(path);
-        Future<Object> future = Patterns.ask(actorRef, message, env.getAkkaAskResultTimeout());
+        Future<Object> future = Patterns.ask(actorRef, message, env.getAkkaAskTimeout());
         Object result = Await.result(future, Duration.create(env.getAkkaAskResultTimeout(), TimeUnit.SECONDS));
         return result;
     }
