@@ -25,23 +25,22 @@ public class WorkerMain implements Worker {
             SystemPropertyUtil.setSystemUserDir();
             LogbackComponent.setupLogger();
 
-            ActorSystem system = ActorSystem.create(WorkerConfig.getWorkerSystemName(), ConfigFactory.load());
-            Config config = system.settings().config();
-            WorkerConfig.loadConfig(config);
+            Config workerConfig = WorkerConfig.checkIpAndPort(ConfigFactory.load());
+            ActorSystem system = ActorSystem.create(WorkerConfig.getWorkerSystemName(), workerConfig);
+            WorkerConfig.loadConfig(workerConfig);
 
             // Create an actor
             String workerName = WorkerConfig.getWorkerName();
             ActorRef actorRef = system.actorOf(Props.create(JobService.class), workerName);
 
-//            String masterRemotePath = WorkerConfig.getMasterRemotePath();
-            String masterRemotePath = null;//todo
-            ActorSelection master = system.actorSelection(masterRemotePath);
+            String masterAddress = WorkerConfig.getMasterAddress();
+            ActorSelection master = system.actorSelection(masterAddress);
 
             String workIp = WorkerConfig.getWorkerIp();
             int workerPort = WorkerConfig.getWorkerPort();
             String workerRemotePath = WorkerConfig.getWorkerRemotePath();
 
-            new HeartBeatListener(master, workIp, workerPort, workerRemotePath);
+            new HeartBeatListener(system, masterAddress, workIp, workerPort, workerRemotePath);
 
             ShutdownHookUtil.addShutdownHook(WorkerMain::shutdown, WorkerMain.class.getSimpleName(), logger);
         } catch (Throwable e) {

@@ -14,7 +14,7 @@ import java.net.ServerSocket;
  */
 public class NetUtils {
 
-    private static final Log LOG = LogFactory.getLog(DtContainer.class);
+    private static final Log LOG = LogFactory.getLog(NetUtils.class);
 
     public static boolean checkPortUsed(int port) {
         try {

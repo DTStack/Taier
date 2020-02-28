@@ -2,9 +2,15 @@ package com.dtstack.engine.worker.config;
 
 import com.dtstack.engine.common.akka.Master;
 import com.dtstack.engine.common.akka.Worker;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.util.AddressUtil;
+import com.dtstack.engine.common.util.NetUtils;
+import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import org.apache.commons.lang.StringUtils;
+
+import java.util.HashMap;
 
 /**
  * company: www.dtstack.com
@@ -46,7 +52,7 @@ public class WorkerConfig {
     }
 
     public static String getWorkerSystemName() {
-        return "workerSystemName";
+        return "WorkerSystem";
     }
 
     public static String getWorkerName() {
@@ -81,10 +87,27 @@ public class WorkerConfig {
 
     public static int getWorkerPort() {
         int workerPort = WORK_CONFIG.getInt("akka.remote.netty.tcp.port");
-        if (workerPort != 0) {
-            workerPort = 10000;
+        if (workerPort == 0) {
+            workerPort = 2554;
         }
         return workerPort;
+    }
+
+    public static Config checkIpAndPort(Config config){
+        HashMap<String, Object> configMap = Maps.newHashMap();
+        int port = config.getInt(ConfigConstant.AKKA_REMOTE_NETTY_TCP_PORT);
+        int endPort = port + 100;
+        port = NetUtils.getAvailablePortRange(port, endPort);
+        configMap.put(ConfigConstant.AKKA_REMOTE_NETTY_TCP_PORT, port);
+
+        String hostname = config.getString(ConfigConstant.AKKA_REMOTE_NETTY_TCP_HOSTNAME);
+        if (StringUtils.isBlank(hostname)){
+            hostname = AddressUtil.getOneIp();
+        }
+        configMap.put(ConfigConstant.AKKA_REMOTE_NETTY_TCP_HOSTNAME, hostname);
+
+        return ConfigFactory.parseMap(configMap).withFallback(config);
+
     }
 
 }
