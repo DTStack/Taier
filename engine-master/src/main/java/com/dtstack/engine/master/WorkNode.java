@@ -179,6 +179,7 @@ public class WorkNode implements InitializingBean {
                     .build());
             groupQueue.add(jobClient);
         }catch (Exception e){
+            LOG.error("", e);
             dealSubmitFailJob(jobClient.getTaskId(), e.toString());
         }
     }
@@ -285,6 +286,7 @@ public class WorkNode implements InitializingBean {
                             }
                             startId = jobCache.getId();
                         } catch (Exception e) {
+                            LOG.error("", e);
                             //数据转换异常--打日志
                             dealSubmitFailJob(jobCache.getJobId(), "This task stores information exception and cannot be converted." + e.toString());
                         }

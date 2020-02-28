@@ -44,6 +44,28 @@
         </encoder>
     </appender>
 
+    <appender name="worker" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${user.dir}/logs/rdos_worker.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${user.dir}/logs/rdos_worker_%d{yyyy-MM-dd}.log</fileNamePattern>
+            <MaxHistory>10</MaxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} [%file:%line] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="schedule" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${user.dir}/logs/rdos_schedule.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${user.dir}/logs/rdos_schedule_%d{yyyy-MM-dd}.log</fileNamePattern>
+            <MaxHistory>10</MaxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} [%file:%line] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
     <logger name="org.apache.flink.runtime" level="warn" additivity="false">
         <appender-ref ref="flinkAppender" />
     </logger>
@@ -52,30 +74,29 @@
         <appender-ref ref="request" />
     </logger>
 
-    <logger name="com.dtstack.engine.master.zookeeper" level="info" additivity="false">
-        <appender-ref ref="zkAppender" />
+    <logger name="com.dtstack.engine.master" level="info" additivity="false">
+        <appender-ref ref="allAppender" />
     </logger>
-    <logger name="com.dtstack.engine.master.taskdealer" level="info" additivity="false">
-        <appender-ref ref="zkAppender" />
-    </logger>
-    <logger name="com.dtstack.engine.worker.task" level="info" additivity="false">
-        <appender-ref ref="zkAppender" />
-    </logger>
-    <logger name="com.dtstack.engine.master.cache" level="info" additivity="false">
-        <appender-ref ref="zkAppender" />
-    </logger>
-    <logger name="com.dtstack.engine.service.task" level="info" additivity="false">
+
+    <logger name="com.dtstack.engine.master.listener" level="info" additivity="false">
         <appender-ref ref="zkAppender" />
     </logger>
 
-    <logger name="com.dtstack.engine.worker.task.CheckpointListener" level="info" additivity="false">
-        <appender-ref ref="allAppender" />
+    <logger name="com.dtstack.engine.worker" level="info" additivity="false">
+        <appender-ref ref="worker" />
     </logger>
-    <logger name="com.dtstack.engine.worker.task.TaskStatusListener" level="info" additivity="false">
-        <appender-ref ref="allAppender" />
+
+    <logger name="com.dtstack.engine.master.executor" level="info" additivity="false">
+        <appender-ref ref="schedule" />
     </logger>
-    <logger name="com.dtstack.engine.worker.task.TaskListener" level="info" additivity="false">
-        <appender-ref ref="allAppender" />
+    <logger name="com.dtstack.engine.master.job" level="info" additivity="false">
+        <appender-ref ref="schedule" />
+    </logger>
+    <logger name="com.dtstack.engine.master.parser" level="info" additivity="false">
+        <appender-ref ref="schedule" />
+    </logger>
+    <logger name="com.dtstack.engine.master.scheduler" level="info" additivity="false">
+        <appender-ref ref="schedule" />
     </logger>
 
     <root level="info">

@@ -149,6 +149,7 @@ public class JobSubmitDealer implements Runnable {
             if (workerOperator.getWorkerInfoMap().size() == 0) {
                 logger.info(" jobId:{} engineType:{} worker not find.", jobClient.getTaskId(), jobClient.getEngineType());
                 handlerNoResource(jobClient);
+                Thread.sleep(10000);
                 return;
             }
 
