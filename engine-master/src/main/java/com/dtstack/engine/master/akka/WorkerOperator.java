@@ -6,11 +6,13 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.message.*;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.util.RandomUtils;
 import com.dtstack.engine.common.worker.WorkerInfo;
 import com.dtstack.engine.master.env.EnvironmentContext;
+import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,8 +59,21 @@ public class WorkerOperator {
         return (JobResult) sendRequest(new MessageSubmitJob(jobClient));
     }
 
-    public RdosTaskStatus getJobStatus(String engineType, String pluginInfo, JobIdentifier jobIdentifier) throws Exception {
-        return (RdosTaskStatus) sendRequest(new MessageGetJobStatus(engineType, pluginInfo, jobIdentifier));
+    public RdosTaskStatus getJobStatus(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
+        String jobId = jobIdentifier.getEngineJobId();
+        if(Strings.isNullOrEmpty(jobId)){
+            throw new RdosDefineException("can't get job of jobId is empty or null!");
+        }
+        try {
+            Object result = sendRequest(new MessageGetJobStatus(engineType, pluginInfo, jobIdentifier));
+            if(result == null){
+                return null;
+            }
+
+            return  (RdosTaskStatus) result;
+        } catch (Exception e) {
+            throw new RdosDefineException("get job:" + jobId + " exception:" + ExceptionUtil.getErrorMessage(e));
+        }
     }
 
     public String getEngineMessageByHttp(String engineType, String path, String pluginInfo)  {
