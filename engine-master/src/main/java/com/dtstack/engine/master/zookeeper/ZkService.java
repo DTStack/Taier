@@ -308,4 +308,16 @@ public class ZkService implements InitializingBean, DisposableBean {
         this.environmentContext = environmentContext;
     }
 
+    public void setDataOnPath(String nodePath, Object data){
+        try {
+            zkClient.setData().forPath(nodePath, objectMapper.writeValueAsBytes(data));
+        } catch (Exception e) {
+            logger.error(ExceptionUtil.getErrorMessage(e));
+        }
+    }
+
+    public byte[] getDataFromPath(String nodePath) throws Exception {
+        return zkClient.getData().forPath(nodePath);
+    }
+
 }

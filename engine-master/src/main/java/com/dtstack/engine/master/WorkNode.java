@@ -239,7 +239,7 @@ public class WorkNode implements InitializingBean {
             String engineType = MathUtil.getString(params.get(ConfigConstant.TYPE_NAME_KEY));
             JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineJobId, appId, jobId);
             //从engine获取log
-            engineLog = JobClient.getEngineLog(engineType, pluginInfoStr, jobIdentifier);
+            engineLog = workerOperator.getEngineLog(engineType, pluginInfoStr, jobIdentifier);
             if (engineLog != null) {
                 engineJobDao.updateEngineLog(jobId, engineLog);
             }
