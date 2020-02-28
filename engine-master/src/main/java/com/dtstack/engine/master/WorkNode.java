@@ -123,7 +123,8 @@ public class WorkNode implements InitializingBean {
                 Map<String, GroupInfo> nodeGroupInfo = Maps.newHashMap();
                 priorityQueueMap.forEach((jobResource, priorityQueue) -> {
                     int groupSize = engineJobCacheDao.countByStage(jobResource, EJobCacheStage.unSubmitted(), nodeAddress);
-                    long maxPriority = engineJobCacheDao.maxPriorityByStage(jobResource, EJobCacheStage.PRIORITY.getStage(), nodeAddress);
+                    Long maxPriority = engineJobCacheDao.maxPriorityByStage(jobResource, EJobCacheStage.PRIORITY.getStage(), nodeAddress);
+                    maxPriority = maxPriority == null ? 0 : maxPriority;
                     GroupInfo groupInfo = new GroupInfo();
                     groupInfo.setSize(groupSize);
                     groupInfo.setPriority(maxPriority);
