@@ -20,6 +20,7 @@ import com.dtstack.engine.dao.BatchJobDao;
 import com.dtstack.engine.domain.BatchJob;
 import com.dtstack.engine.domain.BatchTaskShade;
 import com.dtstack.engine.dto.BatchTaskParamShade;
+import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.task.send.TaskUrlConstant;
 import com.dtstack.engine.master.job.IJobStartTrigger;
 import com.dtstack.engine.master.scheduler.JobParamReplace;
@@ -68,6 +69,9 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
 
     @Autowired
     private ConsoleSend consoleSend;
+
+    @Autowired
+    private ClusterService clusterService;
 
     @Autowired
     private EnvironmentContext environmentContext;
@@ -445,7 +449,7 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
      * @return checkpoint存储路径
      */
     private String getSavepointPath(Long tenantId) {
-        String clusterInfoStr = consoleSend.getCluster(String.valueOf(tenantId));
+        String clusterInfoStr = clusterService.clusterInfo(tenantId);
         JSONObject clusterJson = JSONObject.parseObject(clusterInfoStr);
         JSONObject flinkConf = clusterJson.getJSONObject("flinkConf");
         if (!flinkConf.containsKey(KEY_SAVEPOINT)) {
