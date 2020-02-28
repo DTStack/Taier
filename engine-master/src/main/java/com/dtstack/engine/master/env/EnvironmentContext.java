@@ -292,11 +292,11 @@ public class EnvironmentContext {
     }
 
     public Long getAkkaAskTimeout() {
-        return Long.parseLong(environment.getProperty("AkkaAskTimeout", "60000"));
+        return Long.parseLong(environment.getProperty("akkaAskTimeout", "60000"));
     }
 
     public Long getAkkaAskResultTimeout() {
-        return Long.parseLong(environment.getProperty("AkkaAskTimeout", "60"));
+        return Long.parseLong(environment.getProperty("akkaAskResultTimeout", "60"));
     }
 
 }

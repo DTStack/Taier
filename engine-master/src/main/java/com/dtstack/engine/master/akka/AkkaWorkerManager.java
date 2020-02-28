@@ -62,7 +62,7 @@ public class AkkaWorkerManager implements InitializingBean, Runnable {
         try {
             updateWorkerActors();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("updateWorkerActors happens error:", e);
         }
         if (LogCountUtil.count(logOutput, MULTIPLES)) {
             logger.info("Update WorkerInfos...");
@@ -81,7 +81,7 @@ public class AkkaWorkerManager implements InitializingBean, Runnable {
         }
         HashMap<String, HashMap> allWorkers = getWorkersFromZk();
         for (Map.Entry<String, HashMap> entry : allWorkers.entrySet()){
-            if (System.currentTimeMillis() - (Long) entry.getValue().get(TIMESTAMP) < timeout){
+            if ((System.currentTimeMillis() - (Long) entry.getValue().get(TIMESTAMP)) < timeout){
                 workerInfoMap.put(entry.getKey(), (String) entry.getValue().get(PATH));
             }
         }
@@ -107,7 +107,7 @@ public class AkkaWorkerManager implements InitializingBean, Runnable {
                     nodeMap = objectMapper.readValue(zkService.getDataFromPath(node), HashMap.class);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("", e);
             }
             if (nodeMap != null && nodeMap.size() > 0){
                 workers.putAll(nodeMap);

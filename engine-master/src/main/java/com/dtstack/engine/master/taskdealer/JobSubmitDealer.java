@@ -146,7 +146,7 @@ public class JobSubmitDealer implements Runnable {
 
         JobResult jobResult = null;
         try {
-            if (workerOperator.getWorkerInfoMap().size() == 0) {
+            if (workerOperator.getWorkerInfoMap().isEmpty()) {
                 logger.info(" jobId:{} engineType:{} worker not find.", jobClient.getTaskId(), jobClient.getEngineType());
                 handlerNoResource(jobClient);
                 Thread.sleep(10000);
@@ -157,31 +157,31 @@ public class JobSubmitDealer implements Runnable {
 
             // 判断资源
             if (workerOperator.judgeSlots(jobClient)) {
-                logger.info("--------submit job:{} to engine start----.", jobClient.toString());
+                logger.info("jobId:{} engineType:{} submit jobClient:{} to engine start.", jobClient.getTaskId(), jobClient.getEngineType(), jobClient);
 
                 jobClient.doStatusCallBack(RdosTaskStatus.COMPUTING.getStatus());
 
                 // 提交任务
                 jobResult = workerOperator.submitJob(jobClient);
 
-                logger.info("submit job result is:{}.", jobResult);
+                logger.info("jobId:{} engineType:{} submit jobResult:{}.", jobClient.getTaskId(), jobClient.getEngineType(), jobResult);
 
                 String jobId = jobResult.getData(JobResult.JOB_ID_KEY);
                 jobClient.setEngineTaskId(jobId);
                 addToTaskListener(jobClient, jobResult);
-                logger.info("--------submit job:{} to engine end----", jobClient.getTaskId());
+                logger.info("jobId:{} engineType:{} submit to engine end.", jobClient.getTaskId(), jobClient.getEngineType());
             } else {
-                logger.info(" jobId:{} engineType:{} judgeSlots result is false", jobClient.getTaskId(), jobClient.getEngineType());
+                logger.info("jobId:{} engineType:{} judgeSlots result is false.", jobClient.getTaskId(), jobClient.getEngineType());
                 jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
                 handlerNoResource(jobClient);
             }
         } catch (ClientAccessException | ClientArgumentException | LimitResourceException e) {
-            logger.error("get unexpected exception", e);
+            logger.error("jobId:{} engineType:{} submitJob happens system error:", jobClient.getTaskId(), jobClient.getEngineType(), e);
             jobClient.setEngineTaskId(null);
             jobResult = JobResult.createErrorResult(false, e);
             addToTaskListener(jobClient, jobResult);
         } catch (Throwable e) {
-            logger.error("get unexpected exception", e);
+            logger.error("jobId:{} engineType:{} submitJob happens unknown error:", jobClient.getTaskId(), jobClient.getEngineType(), e);
             //捕获未处理异常,防止跳出执行线程
             jobClient.setEngineTaskId(null);
             jobResult = JobResult.createErrorResult(true, e);
@@ -195,7 +195,7 @@ public class JobSubmitDealer implements Runnable {
             jobClient.setPriority(jobClient.getPriority() + WAIT_INTERVAL);
             priorityQueue.getQueue().put(jobClient);
         } catch (InterruptedException e) {
-            logger.error("add jobClient: " + jobClient.getTaskId() + " back to queue error:", e);
+            logger.error("jobId:{} engineType:{} handlerNoResource happens error:", jobClient.getTaskId(), jobClient.getEngineType(), e);
         }
     }
 
