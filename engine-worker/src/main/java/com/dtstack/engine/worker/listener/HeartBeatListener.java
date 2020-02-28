@@ -3,11 +3,11 @@ package com.dtstack.engine.worker.listener;
 import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
-import com.dtstack.dtcenter.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.common.util.AddressUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.akka.message.WorkerInfo;
 import com.dtstack.engine.common.util.LogCountUtil;
+import com.dtstack.engine.worker.config.WorkerConfig;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,18 +34,18 @@ public class HeartBeatListener implements Runnable {
     private volatile Set<String> disableNodes = new CopyOnWriteArraySet();
     private ActorSystem system;
     private String masterAddress;
-    private String ip;
-    private int port;
-    private String path;
+    private String workerIp;
+    private int workerPort;
+    private String workerRemotePath;
 
 
-    public HeartBeatListener(ActorSystem system, String masterAddress, String ip, int port, String path) {
+    public HeartBeatListener(ActorSystem system) {
         this.system = system;
-        this.masterAddress = masterAddress;
-        availableNodes.addAll(Arrays.asList(masterAddress.split(",")));
-        this.ip = ip;
-        this.port = port;
-        this.path = path;
+        this.masterAddress = WorkerConfig.getMasterAddress();
+        this.availableNodes.addAll(Arrays.asList(masterAddress.split(",")));
+        this.workerIp = WorkerConfig.getWorkerIp();
+        this.workerPort = WorkerConfig.getWorkerPort();
+        this.workerRemotePath = WorkerConfig.getWorkerRemotePath();
 
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(2, new CustomThreadFactory("HeartBeatListener"));
         scheduledService.submit(new HeartBeatListener.MonitorNode());
@@ -58,7 +58,7 @@ public class HeartBeatListener implements Runnable {
 
     @Override
     public void run() {
-        WorkerInfo workerInfo = new WorkerInfo(ip, port, path, System.currentTimeMillis());
+        WorkerInfo workerInfo = new WorkerInfo(workerIp, workerPort, workerRemotePath, System.currentTimeMillis());
         ActorSelection actorSelection = getOneActorSelection(masterAddress);
         actorSelection.tell(workerInfo, ActorRef.noSender());
         if (LogCountUtil.count(logOutput, MULTIPLES)) {

@@ -24,7 +24,7 @@ public class WorkerConfig {
     private final static String WORKER_CONFIG_PREFIX = "akka.worker";
     private static Config WORK_CONFIG = null;
 
-    public static void loadConfig(Config config) {
+    private static void loadConfig(Config config) {
         WORK_CONFIG = config;
     }
 
@@ -93,7 +93,7 @@ public class WorkerConfig {
         return workerPort;
     }
 
-    public static Config checkIpAndPort(Config config){
+    public static Config checkIpAndPort(Config config) {
         HashMap<String, Object> configMap = Maps.newHashMap();
         int port = config.getInt(ConfigConstant.AKKA_REMOTE_NETTY_TCP_PORT);
         int endPort = port + 100;
@@ -101,12 +101,14 @@ public class WorkerConfig {
         configMap.put(ConfigConstant.AKKA_REMOTE_NETTY_TCP_PORT, port);
 
         String hostname = config.getString(ConfigConstant.AKKA_REMOTE_NETTY_TCP_HOSTNAME);
-        if (StringUtils.isBlank(hostname)){
+        if (StringUtils.isBlank(hostname)) {
             hostname = AddressUtil.getOneIp();
         }
         configMap.put(ConfigConstant.AKKA_REMOTE_NETTY_TCP_HOSTNAME, hostname);
 
-        return ConfigFactory.parseMap(configMap).withFallback(config);
+        Config loadConfig = ConfigFactory.parseMap(configMap).withFallback(config);
+        loadConfig(loadConfig);
+        return loadConfig;
 
     }
 

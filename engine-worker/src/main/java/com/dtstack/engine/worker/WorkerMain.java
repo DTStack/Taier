@@ -1,7 +1,6 @@
 package com.dtstack.engine.worker;
 
 import akka.actor.ActorRef;
-import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import com.dtstack.engine.common.akka.Worker;
@@ -27,20 +26,12 @@ public class WorkerMain implements Worker {
 
             Config workerConfig = WorkerConfig.checkIpAndPort(ConfigFactory.load());
             ActorSystem system = ActorSystem.create(WorkerConfig.getWorkerSystemName(), workerConfig);
-            WorkerConfig.loadConfig(workerConfig);
 
             // Create an actor
             String workerName = WorkerConfig.getWorkerName();
             ActorRef actorRef = system.actorOf(Props.create(JobService.class), workerName);
 
-            String masterAddress = WorkerConfig.getMasterAddress();
-            ActorSelection master = system.actorSelection(masterAddress);
-
-            String workIp = WorkerConfig.getWorkerIp();
-            int workerPort = WorkerConfig.getWorkerPort();
-            String workerRemotePath = WorkerConfig.getWorkerRemotePath();
-
-            new HeartBeatListener(system, masterAddress, workIp, workerPort, workerRemotePath);
+            new HeartBeatListener(system);
 
             ShutdownHookUtil.addShutdownHook(WorkerMain::shutdown, WorkerMain.class.getSimpleName(), logger);
         } catch (Throwable e) {
