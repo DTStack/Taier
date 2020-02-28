@@ -46,6 +46,6 @@ public class DelayBlockingQueue<E extends Delayed> {
     }
 
     public int size() {
-        return available.availablePermits();
+        return available.drainPermits();
     }
 }
