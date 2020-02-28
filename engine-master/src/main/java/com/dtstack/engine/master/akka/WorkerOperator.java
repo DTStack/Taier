@@ -11,7 +11,6 @@ import com.dtstack.engine.common.akka.message.*;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.restart.RestartStrategyType;
 import com.dtstack.engine.common.util.RandomUtils;
-import com.dtstack.engine.common.akka.message.WorkerInfo;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
@@ -38,14 +37,14 @@ public class WorkerOperator {
     private AkkaWorkerManager akkaWorkerManager;
 
     private Object sendRequest(Object message) throws Exception {
-        String path = RandomUtils.getRandomValueFromMap(akkaWorkerManager.getWorkerInfoMap()).getPath();
+        String path = RandomUtils.getRandomValueFromMap(akkaWorkerManager.getWorkerInfoMap());
         ActorSelection actorRef = akkaWorkerManager.getSystem().actorSelection(path);
         Future<Object> future = Patterns.ask(actorRef, message, env.getAkkaAskResultTimeout());
         Object result = Await.result(future, Duration.create(env.getAkkaAskResultTimeout(), TimeUnit.SECONDS));
         return result;
     }
 
-    public Map<String, WorkerInfo> getWorkerInfoMap() {
+    public Map<String, String> getWorkerInfoMap() {
         return akkaWorkerManager.getWorkerInfoMap();
     }
 

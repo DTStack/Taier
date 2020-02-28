@@ -13,6 +13,8 @@ import com.dtstack.engine.master.zookeeper.ZkService;
 import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.apache.logging.log4j.util.Strings;
+import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,13 +38,15 @@ public class AkkaWorkerManager implements InitializingBean, Runnable {
     private static ObjectMapper objectMapper = new ObjectMapper();
     private final static String GET_WORKER_INFOS = "getWorkerInfos";
     private final static String NODE_SUFFIX = "/workers";
+    private final static String TIMESTAMP = "timestamp";
+    private final static String PATH = "path";
     private int logOutput = 0;
     private final static int MULTIPLES = 10;
     private final static int CHECK_INTERVAL = 2000;
     private final ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("WorkerInfoListener"));
     private ActorSystem system;
     private ActorSelection actorSelection;
-    private Map<String, WorkerInfo> workerInfoMap = Maps.newHashMap();
+    private Map<String, String> workerInfoMap = Maps.newHashMap();
     private long timeout = 5000L;
 
     private Duration duration;
@@ -72,26 +76,32 @@ public class AkkaWorkerManager implements InitializingBean, Runnable {
             return;
         }
         HashMap<String, WorkerInfo> infos = (HashMap<String, WorkerInfo>) askResult;
-        workerInfoMap = infos;
-        /*if (infos.size() > 0){
+        if (infos.size() > 0){
             updateToZk(infos);
         }
-        Object o = getWorkersFromZk().entrySet().stream()
-                .filter(map -> System.currentTimeMillis() - map.getValue().getTimestamp() > timeout)
-                .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));*/
+        HashMap<String, HashMap> allWorkers = getWorkersFromZk();
+        for (Map.Entry<String, HashMap> entry : allWorkers.entrySet()){
+            if (System.currentTimeMillis() - (Long) entry.getValue().get(TIMESTAMP) < timeout){
+                workerInfoMap.put(entry.getKey(), (String) entry.getValue().get(PATH));
+            }
+        }
     }
 
     private void updateToZk(HashMap<String, WorkerInfo> infos) throws Exception {
         String node = zkService.getLocalNode() + NODE_SUFFIX;
-        zkService.createNodeIfNotExists(node, infos);
+        if (zkService.nodeIfExists(node)){
+            zkService.setDataOnPath(node, infos);
+        } else {
+            zkService.createNodeIfNotExists(node, infos);
+        }
     }
 
-    private HashMap<String, WorkerInfo> getWorkersFromZk(){
-        HashMap<String, WorkerInfo> workers = Maps.newHashMap();
+    private HashMap<String, HashMap> getWorkersFromZk(){
+        HashMap<String, HashMap> workers = Maps.newHashMap();
         List<String> children = zkService.getBrokersChildren();
         for (String address : children){
-            String node = zkService.getBrokersNode() + "/" + address + NODE_SUFFIX;
-            HashMap<String, WorkerInfo> nodeMap = Maps.newHashMap();
+            String node = String.format("%s/%s%s",zkService.getBrokersNode(), address,NODE_SUFFIX);
+            HashMap<String, HashMap> nodeMap = Maps.newHashMap();
             try {
                 if (zkService.nodeIfExists(node)){
                     nodeMap = objectMapper.readValue(zkService.getDataFromPath(node), HashMap.class);
@@ -99,7 +109,7 @@ public class AkkaWorkerManager implements InitializingBean, Runnable {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            if (nodeMap.size() > 0){
+            if (nodeMap != null && nodeMap.size() > 0){
                 workers.putAll(nodeMap);
             }
         }
@@ -108,6 +118,7 @@ public class AkkaWorkerManager implements InitializingBean, Runnable {
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        objectMapper.configure(DeserializationConfig.Feature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true) ;
         Config config = AkkaConfig.checkIpAndPort(ConfigFactory.load());
         this.duration = Duration.create(environmentContext.getAkkaAskResultTimeout(), TimeUnit.SECONDS);
         this.system = ActorSystem.create(AkkaConfig.getMasterSystemName(), config);
@@ -128,7 +139,7 @@ public class AkkaWorkerManager implements InitializingBean, Runnable {
         return actorSelection;
     }
 
-    public Map<String, WorkerInfo> getWorkerInfoMap() {
+    public Map<String, String> getWorkerInfoMap() {
         return workerInfoMap;
     }
 
