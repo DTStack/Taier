@@ -1,8 +1,6 @@
 package com.dtstack.engine.master.akka;
 
 import akka.actor.AbstractActor;
-import akka.event.Logging;
-import akka.event.LoggingAdapter;
 import com.dtstack.engine.common.akka.message.WorkerInfo;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
@@ -15,15 +13,19 @@ public class AkkaMasterActor extends AbstractActor {
 
     private static final Logger logger = LoggerFactory.getLogger(AkkaMasterActor.class);
 
+    private static final String GET_WORKER_INFOS = "getWorkerInfos";
+    private final static String IP_PORT_TEMPLATE = "%s:%s";
+
     public HashMap<String, WorkerInfo> workerInfos = Maps.newHashMap();
 
     public Receive createReceive() {
         return receiveBuilder()
                 .match(WorkerInfo.class, msg -> {
-                    workerInfos.put(msg.getIp() + ":" + msg.getPort(), msg);
-                    logger.info(msg.getIp() + ":" + msg.getPort() + " is alive.");
+                    String ipAndPort = String.format(IP_PORT_TEMPLATE, msg.getIp(), msg.getPort());
+                    workerInfos.put(ipAndPort, msg);
+                    logger.info(ipAndPort + " is alive.");
                 })
-                .matchEquals("getWorkerInfos", msg -> {
+                .matchEquals(GET_WORKER_INFOS, msg -> {
                     sender().tell(workerInfos, getSelf());
                 })
                 .build();
