@@ -6,7 +6,7 @@ import akka.actor.Props;
 import com.dtstack.engine.common.log.LogbackComponent;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
-import com.dtstack.engine.common.akka.config.WorkerConfig;
+import com.dtstack.engine.common.akka.config.AkkaConfig;
 import com.dtstack.engine.worker.listener.HeartBeatListener;
 import com.dtstack.engine.worker.service.JobService;
 import com.typesafe.config.Config;
@@ -23,11 +23,11 @@ public class WorkerMain {
             SystemPropertyUtil.setSystemUserDir();
             LogbackComponent.setupLogger();
 
-            Config workerConfig = WorkerConfig.checkIpAndPort(ConfigFactory.load());
-            ActorSystem system = ActorSystem.create(WorkerConfig.getWorkerSystemName(), workerConfig);
+            Config workerConfig = AkkaConfig.checkIpAndPort(ConfigFactory.load());
+            ActorSystem system = ActorSystem.create(AkkaConfig.getWorkerSystemName(), workerConfig);
 
             // Create an actor
-            String workerName = WorkerConfig.getWorkerName();
+            String workerName = AkkaConfig.getWorkerName();
             ActorRef actorRef = system.actorOf(Props.create(JobService.class), workerName);
 
             new HeartBeatListener(system);

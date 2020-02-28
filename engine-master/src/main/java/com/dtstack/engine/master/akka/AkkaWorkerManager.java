@@ -5,12 +5,13 @@ import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.pattern.Patterns;
 import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.akka.config.WorkerConfig;
+import com.dtstack.engine.common.akka.config.AkkaConfig;
 import com.dtstack.engine.common.akka.message.WorkerInfo;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.google.common.collect.Maps;
+import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -42,8 +43,6 @@ public class AkkaWorkerManager implements InitializingBean, Runnable {
     private ActorSystem system;
     private ActorSelection actorSelection;
     private Map<String, WorkerInfo> workerInfoMap = Maps.newHashMap();
-    private String name;
-    private String path;
     private long timeout = 5000L;
 
     private Duration duration;
@@ -109,10 +108,11 @@ public class AkkaWorkerManager implements InitializingBean, Runnable {
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        Config config = AkkaConfig.checkIpAndPort(ConfigFactory.load());
         this.duration = Duration.create(environmentContext.getAkkaAskResultTimeout(), TimeUnit.SECONDS);
-        this.system = ActorSystem.create(WorkerConfig.getMasterSystemName(), ConfigFactory.load());
-        this.system.actorOf(Props.create(AkkaMasterActor.class), WorkerConfig.getMasterName());
-        this.actorSelection = system.actorSelection(path);
+        this.system = ActorSystem.create(AkkaConfig.getMasterSystemName(), config);
+        this.system.actorOf(Props.create(AkkaMasterActor.class), AkkaConfig.getMasterName());
+        this.actorSelection = system.actorSelection(AkkaConfig.getMasterRemotePath());
         scheduledService.scheduleWithFixedDelay(
                 this,
                 CHECK_INTERVAL,

@@ -3,7 +3,7 @@ package com.dtstack.engine.worker.listener;
 import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
-import com.dtstack.engine.common.akka.config.WorkerConfig;
+import com.dtstack.engine.common.akka.config.AkkaConfig;
 import com.dtstack.dtcenter.common.util.AddressUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.akka.message.WorkerInfo;
@@ -44,15 +44,15 @@ public class HeartBeatListener implements Runnable {
 
     public HeartBeatListener(ActorSystem system) {
         this.system = system;
-        this.masterAddress = WorkerConfig.getMasterAddress();
+        this.masterAddress = AkkaConfig.getMasterAddress();
         this.availableNodes.addAll(Arrays.asList(masterAddress.split(",")));
 
-        this.masterSystemName = WorkerConfig.getMasterSystemName();
-        this.masterName = WorkerConfig.getMasterName();
+        this.masterSystemName = AkkaConfig.getMasterSystemName();
+        this.masterName = AkkaConfig.getMasterName();
 
-        this.workerIp = WorkerConfig.getWorkerIp();
-        this.workerPort = WorkerConfig.getWorkerPort();
-        this.workerRemotePath = WorkerConfig.getWorkerRemotePath();
+        this.workerIp = AkkaConfig.getAkkaHostname();
+        this.workerPort = AkkaConfig.getAkkaPort();
+        this.workerRemotePath = AkkaConfig.getWorkerRemotePath();
 
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(2, new CustomThreadFactory("HeartBeatListener"));
         scheduledService.scheduleWithFixedDelay(

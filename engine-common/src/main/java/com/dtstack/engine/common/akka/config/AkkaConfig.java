@@ -17,7 +17,7 @@ import java.util.HashMap;
  * author: yanxi
  * create: 2020/2/27
  */
-public class WorkerConfig {
+public class AkkaConfig {
 
     private final static String REMOTE_PATH_TEMPLATE = "akka.tcp://%s@%s:%s/user/%s";
     private final static String MASTER_CONFIG_PREFIX = "akka.master";
@@ -57,6 +57,17 @@ public class WorkerConfig {
         return masterAddress;
     }
 
+    public static String getMasterRemotePath() {
+        String path = null;
+        if (AKKA_CONFIG.hasPath(MASTER_CONFIG_PREFIX)) {
+            path = AKKA_CONFIG.getString(MASTER_CONFIG_PREFIX + ".masterRemotePath");
+        }
+        if (StringUtils.isBlank(path)) {
+            path = String.format(REMOTE_PATH_TEMPLATE, getMasterSystemName(), getAkkaHostname(), getAkkaPort(), getMasterName());
+        }
+        return path;
+    }
+
     public static String getWorkerSystemName() {
         return "WorkerSystem";
     }
@@ -78,25 +89,25 @@ public class WorkerConfig {
             path = AKKA_CONFIG.getString(WORKER_CONFIG_PREFIX + ".workerRemotePath");
         }
         if (StringUtils.isBlank(path)) {
-            path = String.format(REMOTE_PATH_TEMPLATE, getWorkerSystemName(), getWorkerIp(), getWorkerPort(), getWorkerName());
+            path = String.format(REMOTE_PATH_TEMPLATE, getWorkerSystemName(), getAkkaHostname(), getAkkaPort(), getWorkerName());
         }
         return path;
     }
 
-    public static String getWorkerIp() {
-        String workerIp = AKKA_CONFIG.getString("akka.remote.netty.tcp.hostname");
-        if (StringUtils.isBlank(workerIp)) {
-            workerIp = AddressUtil.getOneIp();
+    public static String getAkkaHostname() {
+        String akkaIp = AKKA_CONFIG.getString("akka.remote.netty.tcp.hostname");
+        if (StringUtils.isBlank(akkaIp)) {
+            akkaIp = AddressUtil.getOneIp();
         }
-        return workerIp;
+        return akkaIp;
     }
 
-    public static int getWorkerPort() {
-        int workerPort = AKKA_CONFIG.getInt("akka.remote.netty.tcp.port");
-        if (workerPort == 0) {
-            workerPort = 2554;
+    public static int getAkkaPort() {
+        int akkaPort = AKKA_CONFIG.getInt("akka.remote.netty.tcp.port");
+        if (akkaPort == 0) {
+            akkaPort = 2554;
         }
-        return workerPort;
+        return akkaPort;
     }
 
     public static Config checkIpAndPort(Config config) {
