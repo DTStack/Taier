@@ -272,7 +272,7 @@ public class EnvironmentContext {
     }
 
     public long getJobRestartDelay() {
-        return Long.parseLong(environment.getProperty("jobRestartDelay"), 2 * 60 * 1000);
+        return Long.parseLong(environment.getProperty("jobRestartDelay", Integer.toString(2 * 60 * 1000) ));
     }
 
     public String getHadoopConfigField() {

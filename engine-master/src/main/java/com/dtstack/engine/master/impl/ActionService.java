@@ -87,7 +87,7 @@ public class ActionService {
             boolean canAccepted = receiveStartJob(paramAction);
             //会对重复数据做校验
             if(canAccepted){
-                //选择节点间队列负载最小的node，做任务分发
+                
                 JobClient jobClient = new JobClient(paramAction);
                 workNode.addSubmitJob(jobClient, true);
                 return true;
