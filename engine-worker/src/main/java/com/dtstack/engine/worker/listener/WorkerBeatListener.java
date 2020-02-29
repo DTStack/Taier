@@ -3,6 +3,7 @@ package com.dtstack.engine.worker.listener;
 import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
+import akka.pattern.Patterns;
 import com.dtstack.engine.common.akka.config.AkkaConfig;
 import com.dtstack.dtcenter.common.util.AddressUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
@@ -11,6 +12,9 @@ import com.dtstack.engine.common.util.LogCountUtil;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.concurrent.Await;
+import scala.concurrent.Future;
+import scala.concurrent.duration.Duration;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -78,10 +82,7 @@ public class WorkerBeatListener implements Runnable {
     }
 
     private void sendWorkerInfoToMaster(WorkerInfo workerInfo, String masterAddress){
-        ActorSelection masterActor;
-        if (null != activeMasterActor){
-            masterActor = activeMasterActor;
-        } else {
+        if (null == activeMasterActor){
             int size = availableNodes.size();
             String ipAndPort = masterAddress.split(",")[0];
             if (availableNodes.size() != 0) {
@@ -89,13 +90,13 @@ public class WorkerBeatListener implements Runnable {
                 ipAndPort = Lists.newArrayList(availableNodes).get(index);
             }
             String masterRemotePath = String.format(MASTER_REMOTE_PATH_TEMPLATE, masterSystemName, ipAndPort, masterName);
-            masterActor = system.actorSelection(masterRemotePath);
-            activeMasterActor = masterActor;
+            activeMasterActor = system.actorSelection(masterRemotePath);
             logger.info("Get an ActorSelection, path:{}", masterRemotePath);
         }
         try {
-            masterActor.tell(workerInfo, ActorRef.noSender());
-        } catch (Exception e){
+            Future<Object> future = Patterns.ask(activeMasterActor, workerInfo, AkkaConfig.getAkkaAskTimeout());
+            Object result = Await.result(future, Duration.create(AkkaConfig.getAkkaAskResultTimeout(), TimeUnit.SECONDS));
+        } catch (Throwable e){
             String ip = activeMasterActor.anchorPath().address().host().toString();
             String port = activeMasterActor.anchorPath().address().port().toString();
             String ipAndPort = String.format(IP_PORT_TEMPLATE, ip, port);
