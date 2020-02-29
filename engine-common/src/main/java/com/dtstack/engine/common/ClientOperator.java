@@ -4,6 +4,7 @@ import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.restart.RestartStrategyType;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,6 +114,11 @@ public class ClientOperator {
     public List<String> containerInfos(JobClient jobClient) throws Exception {
         IClient client = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
         return client.getContainerInfos(JobIdentifier.createInstance(jobClient.getEngineTaskId(), null, jobClient.getTaskId()));
+    }
+
+    public RestartStrategyType getRestartStrategyType(String engineType, String pluginInfo, JobIdentifier jobIdentifier) throws Exception {
+        IClient client = clientCache.getClient(engineType, pluginInfo);
+        return client.getRestartStrategyType(jobIdentifier);
     }
 
 }

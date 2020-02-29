@@ -5,6 +5,7 @@ import com.dtstack.engine.common.*;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.akka.message.*;
+import com.dtstack.engine.common.restart.RestartStrategyType;
 
 import java.util.List;
 
@@ -46,6 +47,10 @@ public class JobService extends AbstractActor {
                 .match(MessageContainerInfos.class, msg -> {
                     List<String> containerInfos = ClientOperator.getInstance().containerInfos(msg.getJobClient());
                     sender().tell(containerInfos, getSelf());
+                })
+                .match(MessageGetRestartStrategyType.class, msg -> {
+                    RestartStrategyType restartStrategyType = ClientOperator.getInstance().getRestartStrategyType(msg.getEngineType(), msg.getPluginInfo(), msg.getJobIdentifier());
+                    sender().tell(restartStrategyType, getSelf());
                 })
                 .build();
     }
