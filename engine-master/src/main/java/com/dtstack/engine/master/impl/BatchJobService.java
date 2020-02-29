@@ -2505,7 +2505,7 @@ public class BatchJobService {
             String log = actionService.log(jobId, ComputeType.BATCH.getType());
             return JSONObject.parseObject(log);
         } catch (Exception e) {
-            logger.error("Exception when find log by jobId: {} and computeType: {}", jobId, ComputeType.BATCH.getType(), e);
+            logger.error("Exception when getLogInfoFromEngine by jobId: {} and computeType: {}", jobId, ComputeType.BATCH.getType(), e);
         }
         return null;
     }

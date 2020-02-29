@@ -2,7 +2,6 @@ package com.dtstack.engine.master.scheduler;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.common.engine.EngineSend;
 import com.dtstack.dtcenter.common.enums.EJobType;
 import com.dtstack.dtcenter.common.enums.EngineType;
 import com.dtstack.engine.common.CustomThreadFactory;

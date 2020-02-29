@@ -2,9 +2,9 @@ package com.dtstack.engine.master.executor;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.common.constant.TaskStatusConstrant;
-import com.dtstack.dtcenter.common.engine.EngineSend;
 import com.dtstack.dtcenter.common.enums.TaskStatus;
 import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.master.impl.ActionService;
 import com.dtstack.sql.Twins;
 import com.dtstack.engine.common.constrant.JobFieldInfo;
 import com.dtstack.engine.common.enums.EScheduleType;
@@ -73,7 +73,7 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
     private JobRichOperator jobRichOperator;
 
     @Autowired
-    private EngineSend engineSend;
+    private ActionService actionService;
 
     private List<AbstractJobExecutor> executors = new ArrayList<>(EScheduleType.values().length);
 
@@ -192,17 +192,13 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
                         jobIds.add(batchJob.getJobId());
                         startId = batchJob.getId();
                     }
-                    JSONObject jobIdsJson = new JSONObject();
-                    jobIdsJson.put("jobIds", jobIds);
-                    List<Map<String, Object>> jobStatusInfos = engineSend.listJobStatusByJobIds(jobIdsJson.toJSONString(), null, 3);
+                    List<Map<String, Object>> jobStatusInfos = actionService.listJobStatusByJobIds(jobIds);
                     batchUpdateJobStatusInfo(jobStatusInfos);
-
                     jobCount += jobs.size();
                 }
             } catch (Exception e) {
                 INIT.compareAndSet(true, false);
                 LOG.error("----nodeAddress:{} syncAllStatus error:{}", environmentContext.getLocalAddress(), e);
-                throw e;
             }
             return jobCount;
         }
@@ -210,11 +206,9 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
         private Long syncBulkStatus() {
             long jobCount = 0L;
             try {
-                JSONObject timeJson = new JSONObject();
                 //多同步10分钟数据，以免时钟不一致
                 lastSyncTime -= 600000;
-                timeJson.put("time", lastSyncTime);
-                List<Map<String, Object>> jobStatusInfos = engineSend.listJobStatus(timeJson.toJSONString(), null, 3);
+                List<Map<String, Object>> jobStatusInfos = actionService.listJobStatus(lastSyncTime);
                 batchUpdateJobStatusInfo(jobStatusInfos);
                 jobCount = jobStatusInfos.size();
             } catch (Exception e) {
