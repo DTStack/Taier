@@ -17,6 +17,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -52,6 +53,7 @@ public class GroupPriorityQueue {
     private String jobResource;
     private int queueSizeLimited;
     private long jobRestartDelay;
+    private ApplicationContext applicationContext;
     private EnvironmentContext environmentContext;
     private EngineJobCacheDao engineJobCacheDao;
     private EngineJobDao engineJobDao;
@@ -195,40 +197,18 @@ public class GroupPriorityQueue {
         return startId;
     }
 
-
+    public GroupPriorityQueue setApplicationContext(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+        return this;
+    }
 
     public GroupPriorityQueue setJobResource(String jobResource) {
         this.jobResource = jobResource;
         return this;
     }
 
-    public GroupPriorityQueue setEnvironmentContext(EnvironmentContext environmentContext) {
-        this.environmentContext = environmentContext;
-        return this;
-    }
-
-    public GroupPriorityQueue setEngineJobCacheDao(EngineJobCacheDao engineJobCacheDao) {
-        this.engineJobCacheDao = engineJobCacheDao;
-        return this;
-    }
-
-    public GroupPriorityQueue setEngineJobDao(EngineJobDao engineJobDao) {
-        this.engineJobDao = engineJobDao;
-        return this;
-    }
-
     public GroupPriorityQueue setWorkNode(WorkNode workNode) {
         this.workNode = workNode;
-        return this;
-    }
-
-    public GroupPriorityQueue setJobPartitioner(JobPartitioner jobPartitioner) {
-        this.jobPartitioner = jobPartitioner;
-        return this;
-    }
-
-    public GroupPriorityQueue setWorkerOperator(WorkerOperator workerOperator) {
-        this.workerOperator = workerOperator;
         return this;
     }
 
@@ -270,6 +250,12 @@ public class GroupPriorityQueue {
      * 每个GroupPriorityQueue中增加独立线程，以定时调度方式从数据库中获取任务。（数据库查询以id和优先级为条件）
      */
     public GroupPriorityQueue build(){
+        this.environmentContext = applicationContext.getBean(EnvironmentContext.class);
+        this.engineJobCacheDao = applicationContext.getBean(EngineJobCacheDao.class);
+        this.engineJobDao = applicationContext.getBean(EngineJobDao.class);
+        this.jobPartitioner = applicationContext.getBean(JobPartitioner.class);
+        this.workerOperator = applicationContext.getBean(WorkerOperator.class);
+
         this.queueSizeLimited = environmentContext.getQueueSize();
         this.jobRestartDelay = environmentContext.getJobRestartDelay();
 
