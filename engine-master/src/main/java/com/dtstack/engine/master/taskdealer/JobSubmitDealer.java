@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.taskdealer;
 
+import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.exception.WorkerAccessException;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.common.JobClient;
@@ -21,7 +22,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * company: www.dtstack.com
@@ -70,7 +74,29 @@ public class JobSubmitDealer implements Runnable {
         this.jobResource = priorityQueue.getJobResource();
         this.queue = priorityQueue.getQueue();
         this.restartJobQueue = new DelayBlockingQueue<RestartJob<JobClient>>(priorityQueue.getQueueSizeLimited());
+
+        ExecutorService executorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(), new CustomThreadFactory("JobSubmitDealer-RestartJobProcessor"));
+        executorService.submit(new RestartJobProcessor());
     }
+
+    private class RestartJobProcessor implements Runnable {
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    RestartJob<JobClient> restartJob = restartJobQueue.take();
+                    JobClient jobClient = restartJob.getJob();
+                    if (jobClient != null) {
+                        queue.put(jobClient);
+                    }
+                } catch (Exception e) {
+                    logger.error("", e);
+                }
+            }
+        }
+    }
+
 
     public boolean tryPutRestartJob(JobClient jobClient) {
         return restartJobQueue.tryPut(new RestartJob<>(jobClient, priorityQueue.getJobRestartDelay()));
@@ -84,38 +110,23 @@ public class JobSubmitDealer implements Runnable {
     public void run() {
         while (true) {
             try {
-                JobClient jobClient = acquireJobFromQueue();
+                JobClient jobClient = queue.take();
+                logger.info("jobId{} jobResource:{} queueSize:{} take job from queue.", jobClient.getTaskId(), jobResource, priorityQueue.queueSize());
                 if (checkIsFinished(jobClient.getTaskId())) {
                     logger.info("jobId:{} checkIsFinished is true, job is Finished.", jobClient.getTaskId());
                     continue;
                 }
-                //todo， check的时候 如果节点已经挂了就直接先忽略
-//                if (!checkMaxPriority(jobResource, jobClient.getPriority())) {
-//                    logger.info("jobId:{} checkMaxPriority is false, wait other node job which priority higher.", jobClient.getTaskId());
-//                    queue.put(jobClient);
-//                    continue;
-//                }
+                if (!checkMaxPriority(jobResource, jobClient.getPriority())) {
+                    logger.info("jobId:{} checkMaxPriority is false, wait other node job which priority higher.", jobClient.getTaskId());
+                    queue.put(jobClient);
+                    continue;
+                }
                 //提交任务
                 submitJob(jobClient);
             } catch (Exception e) {
                 logger.error("", e);
             }
         }
-    }
-
-    private JobClient acquireJobFromQueue() throws InterruptedException {
-        JobClient jobClient = null;
-        RestartJob<JobClient> restartJob = null;
-        //TODO restartQueue -> queue
-        while ((restartJob = restartJobQueue.poll()) != null) {
-            jobClient = restartJob.getJob();
-            if (jobClient != null) {
-                break;
-            }
-        }
-        jobClient = queue.take();
-        logger.info("jobId{} acquireJobFromQueue, jobResource:{} queueSize:{}.", jobClient.getTaskId(), jobResource, priorityQueue.queueSize());
-        return jobClient;
     }
 
     private boolean checkIsFinished(String jobId) {
