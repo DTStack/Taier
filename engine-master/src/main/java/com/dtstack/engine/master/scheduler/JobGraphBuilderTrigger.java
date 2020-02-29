@@ -108,17 +108,17 @@ public class JobGraphBuilderTrigger implements Runnable {
         if (RUNNING.get()) {
             logger.warn("---trigger to build job graph start---");
 
-//            DateTime dateTime = DateTime.now();
-//            dateTime = dateTime.plusDays(1);
-//
-//            String triggerDay = dateTime.toString(dateTimeFormatter);
-//            try {
-//                jobGraphBuilder.buildTaskJobGraph(triggerDay);
-//            } catch (Exception e) {
-//                logger.error("", e);
-//            }
+            DateTime dateTime = DateTime.now();
+            dateTime = dateTime.plusDays(1);
+
+            String triggerDay = dateTime.toString(dateTimeFormatter);
+            try {
+                jobGraphBuilder.buildTaskJobGraph(triggerDay);
+            } catch (Exception e) {
+                logger.error("", e);
+            }
             //注意不需要将jobList直接加入到缓存队列里面。等待执行到当天数据的时候再去获取
-//            logger.warn("---trigger to build day:{} job graph end!--", triggerDay);
+            logger.warn("---trigger to build day:{} job graph end!--", triggerDay);
         } else {
             logger.warn("---triggering, but Running is false---");
         }

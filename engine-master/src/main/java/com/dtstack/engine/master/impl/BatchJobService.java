@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.common.annotation.Forbidden;
 import com.dtstack.dtcenter.common.constant.TaskStatusConstrant;
 import com.dtstack.dtcenter.common.engine.ConsoleConstant;
-import com.dtstack.dtcenter.common.engine.EngineSend;
 import com.dtstack.dtcenter.common.enums.*;
 import com.dtstack.dtcenter.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.common.hadoop.HadoopConf;
@@ -111,9 +110,6 @@ public class BatchJobService {
 
     @Autowired
     private BatchTaskShadeService batchTaskShadeService;
-
-    @Autowired
-    private EngineSend engineSend;
 
     @Autowired
     private JobGraphBuilder jobGraphBuilder;
@@ -1210,8 +1206,7 @@ public class BatchJobService {
             jsonArray.add(params);
         }
         sendData.put("jobs", jsonArray);
-        String sendJson = objMapper.writeValueAsString(sendData);
-        engineSend.stopTask(sendJson, null, 2);
+        actionService.stop(sendData);
         return "";
     }
 
@@ -2506,11 +2501,13 @@ public class BatchJobService {
      */
     @Forbidden
     public JSONObject getLogInfoFromEngine(String jobId) {
-        JSONObject logsBody = new JSONObject(2);
-        logsBody.put("jobId", jobId);
-        logsBody.put("computeType", ComputeType.BATCH.getType());
-        String log = engineSend.log(logsBody.toJSONString(), null, null);
-        return JSONObject.parseObject(log);
+        try {
+            String log = actionService.log(jobId, ComputeType.BATCH.getType());
+            return JSONObject.parseObject(log);
+        } catch (Exception e) {
+            logger.error("Exception when getLogInfoFromEngine by jobId: {} and computeType: {}", jobId, ComputeType.BATCH.getType(), e);
+        }
+        return null;
     }
 
 

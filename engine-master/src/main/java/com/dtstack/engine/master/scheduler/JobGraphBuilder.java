@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.scheduler;
 
-import com.dtstack.dtcenter.common.engine.EngineSend;
 import com.dtstack.dtcenter.common.enums.*;
 import com.dtstack.dtcenter.common.util.DateUtil;
 import com.dtstack.dtcenter.common.util.MathUtil;
@@ -95,7 +94,7 @@ public class JobGraphBuilder {
     private BatchJobAlarmService batchJobAlarmService;
 
     @Autowired
-    private EngineSend engineSend;
+    private ActionService actionService;
 
     private Lock lock = new ReentrantLock();
 
@@ -337,7 +336,7 @@ public class JobGraphBuilder {
                 //补数据的名称和后缀用‘-’分割开-->在查询的时候会用到
                 targetJobName = targetJobName + "-" + task.getName() + "-" + triggerTime;
             }
-            batchJob.setJobId(engineSend.generateUniqueSign());
+            batchJob.setJobId(actionService.generateUniqueSign());
             batchJob.setJobKey(jobKey);
             batchJob.setJobName(targetJobName);
             batchJob.setPeriodType(scheduleCron.getPeriodType());

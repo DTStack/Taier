@@ -2,8 +2,6 @@ package com.dtstack.engine.master.job.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
-import com.dtstack.dtcenter.common.engine.ConsoleSend;
-import com.dtstack.dtcenter.common.engine.EngineSend;
 import com.dtstack.dtcenter.common.enums.*;
 import com.dtstack.dtcenter.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.common.hadoop.HadoopConf;
@@ -20,6 +18,7 @@ import com.dtstack.engine.dao.BatchJobDao;
 import com.dtstack.engine.domain.BatchJob;
 import com.dtstack.engine.domain.BatchTaskShade;
 import com.dtstack.engine.dto.BatchTaskParamShade;
+import com.dtstack.engine.master.impl.ActionService;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.task.send.TaskUrlConstant;
 import com.dtstack.engine.master.job.IJobStartTrigger;
@@ -65,10 +64,7 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
     private BatchJobDao batchJobDao;
 
     @Autowired
-    private EngineSend engineSend;
-
-    @Autowired
-    private ConsoleSend consoleSend;
+    private ActionService actionService;
 
     @Autowired
     private ClusterService clusterService;
@@ -406,11 +402,13 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
     }
 
     public JSONObject getLogInfoFromEngine(@Param("jobId") String jobId) {
-        JSONObject logsBody = new JSONObject(2);
-        logsBody.put("jobId", jobId);
-        logsBody.put("computeType", ComputeType.BATCH.getType());
-        String log = engineSend.log(logsBody.toJSONString(), null, null);
-        return JSONObject.parseObject(log);
+        try {
+            String log = actionService.log(jobId, ComputeType.BATCH.getType());
+            return JSONObject.parseObject(log);
+        } catch (Exception e) {
+            LOG.error("Exception when getLogInfoFromEngine by jobId: {} and computeType: {}", jobId, ComputeType.BATCH.getType(), e);
+        }
+        return null;
     }
 
 
