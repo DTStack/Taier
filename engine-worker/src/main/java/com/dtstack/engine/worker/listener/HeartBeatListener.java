@@ -26,6 +26,7 @@ public class HeartBeatListener implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(HeartBeatListener.class);
 
     private final static String MASTER_REMOTE_PATH_TEMPLATE = "akka.tcp://%s@%s/user/%s";
+    private final static String IP_PORT_TEMPLATE = "%s:%s";
     private int logOutput = 0;
     private final static int MULTIPLES = 30;
     private final static int CHECK_INTERVAL = 1000;
@@ -39,6 +40,7 @@ public class HeartBeatListener implements Runnable {
     private String workerIp;
     private int workerPort;
     private String workerRemotePath;
+    private ActorSelection activeMasterActor;
 
 
     public HeartBeatListener(ActorSystem system) {
@@ -69,24 +71,40 @@ public class HeartBeatListener implements Runnable {
     @Override
     public void run() {
         WorkerInfo workerInfo = new WorkerInfo(workerIp, workerPort, workerRemotePath, System.currentTimeMillis());
-        ActorSelection actorSelection = getOneActorSelection(masterAddress);
-        actorSelection.tell(workerInfo, ActorRef.noSender());
+        sendWorkerInfoToMaster(workerInfo, masterAddress);
         if (LogCountUtil.count(logOutput++, MULTIPLES)) {
             logger.info("HeartBeatListener Running gap:[{} ms]...", CHECK_INTERVAL * MULTIPLES);
         }
     }
 
-    private ActorSelection getOneActorSelection(String masterAddress) {
-        int size = availableNodes.size();
-        String ipAndPort = masterAddress.split(",")[0];
-        if (availableNodes.size() != 0) {
-            int index = random.nextInt(size);
-            ipAndPort = Lists.newArrayList(availableNodes).get(index);
+    private void sendWorkerInfoToMaster(WorkerInfo workerInfo, String masterAddress){
+        ActorSelection masterActor;
+        if (null != activeMasterActor){
+            masterActor = activeMasterActor;
+        } else {
+            int size = availableNodes.size();
+            String ipAndPort = masterAddress.split(",")[0];
+            if (availableNodes.size() != 0) {
+                int index = random.nextInt(size);
+                ipAndPort = Lists.newArrayList(availableNodes).get(index);
+            }
+            String masterRemotePath = String.format(MASTER_REMOTE_PATH_TEMPLATE, masterSystemName, ipAndPort, masterName);
+            masterActor = system.actorSelection(masterRemotePath);
+            activeMasterActor = masterActor;
+            logger.info("Get an ActorSelection, path:{}", masterRemotePath);
         }
-        String masterRemotePath = String.format(MASTER_REMOTE_PATH_TEMPLATE, masterSystemName, ipAndPort, masterName);
-        ActorSelection master = system.actorSelection(masterRemotePath);
-        logger.info("Get an ActorSelection, path:{}", masterRemotePath);
-        return master;
+        try {
+            masterActor.tell(workerInfo, ActorRef.noSender());
+        } catch (Exception e){
+            String ip = activeMasterActor.anchorPath().address().host().toString();
+            String port = activeMasterActor.anchorPath().address().port().toString();
+            String ipAndPort = String.format(IP_PORT_TEMPLATE, ip, port);
+            availableNodes.remove(ipAndPort);
+            disableNodes.add(ipAndPort);
+            activeMasterActor = null;
+            logger.error("Send WorkerInfo to master happens error:{}", e);
+        }
+
     }
 
     private class MonitorNode implements Runnable {
