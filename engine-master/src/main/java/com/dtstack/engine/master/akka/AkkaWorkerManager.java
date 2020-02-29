@@ -106,6 +106,7 @@ public class AkkaWorkerManager implements InitializingBean, Runnable {
         this.system = ActorSystem.create(AkkaConfig.getMasterSystemName(), config);
         this.system.actorOf(Props.create(AkkaMasterActor.class), AkkaConfig.getMasterName());
         this.actorSelection = system.actorSelection(AkkaConfig.getMasterRemotePath());
+        logger.info("ActorSelection path is : {}", AkkaConfig.getMasterRemotePath());
         scheduledService.scheduleWithFixedDelay(
                 this,
                 CHECK_INTERVAL,

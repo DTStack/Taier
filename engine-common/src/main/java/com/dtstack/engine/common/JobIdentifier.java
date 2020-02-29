@@ -1,5 +1,7 @@
 package com.dtstack.engine.common;
 
+import java.io.Serializable;
+
 /**
  * Reason:
  * Date: 2018/11/5
@@ -7,7 +9,7 @@ package com.dtstack.engine.common;
  * @author xuchao
  */
 
-public class JobIdentifier {
+public class JobIdentifier implements Serializable {
 
     private String engineJobId;
 
