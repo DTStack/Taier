@@ -139,7 +139,7 @@ public class WorkerOperator {
         try {
             return (RestartStrategyType) sendRequest(new MessageGetCheckpoints(engineType, pluginInfo, jobIdentifier));
         } catch (Exception e) {
-            logger.error("getCheckpoints failed!", e);
+            logger.error("getRestartStrategyType failed!", e);
             return RestartStrategyType.NONE;
         }
     }

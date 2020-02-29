@@ -83,8 +83,8 @@ public class TaskStatusDealer implements Runnable {
     @Override
     public void run() {
         try {
-            if (logger.isDebugEnabled() && LogCountUtil.count(logOutput++, MULTIPLES)) {
-                logger.debug("jobResource:{} TaskStatusListener start again gap:[{} ms]...", jobResource, INTERVAL * MULTIPLES);
+            if (logger.isInfoEnabled() && LogCountUtil.count(logOutput++, MULTIPLES)) {
+                logger.info("jobResource:{} TaskStatusListener start again gap:[{} ms]...", jobResource, INTERVAL * MULTIPLES);
             }
             updateTaskStatus();
             dealFailedJob();
