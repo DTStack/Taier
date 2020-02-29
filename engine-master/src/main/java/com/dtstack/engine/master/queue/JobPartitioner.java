@@ -1,10 +1,13 @@
 package com.dtstack.engine.master.queue;
 
 import com.dtstack.engine.master.listener.QueueListener;
+import com.dtstack.engine.master.zookeeper.ZkService;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,6 +20,9 @@ public class JobPartitioner {
 
     @Autowired
     private QueueListener queueListener;
+
+    @Autowired
+    private ZkService zkService;
 
     /**
      * compute job number per node
@@ -72,6 +78,20 @@ public class JobPartitioner {
         if (allNodesGroupQueueJobResources.isEmpty()) {
             return null;
         }
-        return allNodesGroupQueueJobResources.get(jobResource);
+        Map<String, GroupInfo> nodesGroupQueue = allNodesGroupQueueJobResources.get(jobResource);
+        if (nodesGroupQueue.isEmpty()) {
+            return null;
+        }
+        List<String> aliveBrokers = zkService.getAliveBrokersChildren();
+        //将不存活节点过滤
+        Iterator<Map.Entry<String, GroupInfo>> nodesGroupQueueIt = nodesGroupQueue.entrySet().iterator();
+        while (nodesGroupQueueIt.hasNext()) {
+            Map.Entry<String, GroupInfo> groupInfoEntry = nodesGroupQueueIt.next();
+            String nodeAddress = groupInfoEntry.getKey();
+            if (!aliveBrokers.contains(nodeAddress)) {
+                nodesGroupQueueIt.remove();
+            }
+        }
+        return nodesGroupQueue;
     }
 }
