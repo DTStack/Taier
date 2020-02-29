@@ -81,13 +81,10 @@ public class TaskRestartDealer {
             return false;
         }
 
-        resetStatus(jobClient);
-        //添加到重试队列中
-        addToRestart(jobClient);
-        LOG.info("【retry=true】 jobId:{} alreadyRetryNum:{} will retry and add into queue again.", jobClient.getTaskId(), alreadyRetryNum);
-        //update retryNum
-        increaseJobRetryNum(jobClient.getTaskId());
-        return true;
+        boolean retry = restartJob(jobClient);
+        LOG.info("【retry={}】 jobId:{} alreadyRetryNum:{} will retry and add into queue again.", retry, jobClient.getTaskId(), alreadyRetryNum);
+
+        return retry;
     }
 
     private boolean checkSubmitResult(JobClient jobClient){
@@ -149,13 +146,10 @@ public class TaskRestartDealer {
             }
         }
 
-        resetStatus(clientWithStrategy);
-        //添加到重试队列中
-        addToRestart(clientWithStrategy);
-        LOG.info("【retry=true】 jobId:{} alreadyRetryNum:{} will retry and add into queue again.", jobId, alreadyRetryNum);
-        //update retryNum
-        increaseJobRetryNum(jobId);
-        return true;
+        boolean retry = restartJob(clientWithStrategy);
+        LOG.info("【retry={}】 jobId:{} alreadyRetryNum:{} will retry and add into queue again.", retry, jobClient.getTaskId(), alreadyRetryNum);
+
+        return retry;
     }
 
     private JobClient getJobClientWithStrategy(String jobId, String engineJobId, String appId, String engineType, String pluginInfo, int alreadyRetryNum) {
@@ -258,13 +252,13 @@ public class TaskRestartDealer {
 
         EngineJob engineBatchJob = engineJobDao.getRdosJobByJobId(jobId);
         if(engineBatchJob == null){
-            LOG.error("[retry=false] jobId:{} get RdosEngineJob is null.", jobId);
+            LOG.error("[retry=false] jobId:{} get EngineJob is null.", jobId);
             return check;
         }
 
         EngineJobCache jobCache = engineJobCacheDao.getOne(jobId);
         if(jobCache == null){
-            LOG.info("[retry=false] jobId:{} get RdosEngineJobCache is null.", jobId);
+            LOG.info("[retry=false] jobId:{} get EngineJobCache is null.", jobId);
             return check;
         }
 
@@ -286,18 +280,26 @@ public class TaskRestartDealer {
         }
     }
 
-    private void resetStatus(JobClient jobClient){
-        String jobId = jobClient.getTaskId();
-        //重试的时候，更改cache状态
-        workNode.updateCache(jobClient, EJobCacheStage.RESTART.getStage());
-        //重试任务更改在zk的状态，统一做状态清理
-        shardCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.RESTARTING.getStatus());
+    private boolean restartJob(JobClient jobClient){
+        //添加到重试队列中
+        boolean isAdd = workNode.addRestartJob(jobClient);
+        if (isAdd) {
+            String jobId = jobClient.getTaskId();
+            //重试的时候，更改cache状态
+            workNode.updateCache(jobClient, EJobCacheStage.RESTART.getStage());
+            //重试任务更改在zk的状态，统一做状态清理
+            shardCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.RESTARTING.getStatus());
 
-        //重试的任务不置为失败，waitengine
-        jobRetryRecord(jobClient);
+            //重试的任务不置为失败，waitengine
+            jobRetryRecord(jobClient);
 
-        engineJobDao.updateJobUnSubmitOrRestart(jobId, RdosTaskStatus.RESTARTING.getStatus());
-        LOG.info("jobId:{} update job status:{}.", jobId, RdosTaskStatus.RESTARTING.getStatus());
+            engineJobDao.updateJobUnSubmitOrRestart(jobId, RdosTaskStatus.RESTARTING.getStatus());
+            LOG.info("jobId:{} update job status:{}.", jobId, RdosTaskStatus.RESTARTING.getStatus());
+
+            //update retryNum
+            increaseJobRetryNum(jobClient.getTaskId());
+        }
+        return isAdd;
     }
 
     private void jobRetryRecord(JobClient jobClient) {
@@ -314,10 +316,6 @@ public class TaskRestartDealer {
     private void updateJobStatus(String jobId, Integer status) {
         engineJobDao.updateJobStatus(jobId, status);
         LOG.info("jobId:{} update job status:{}.", jobId, status);
-    }
-
-    private void addToRestart(JobClient jobClient){
-        workNode.addRestartJob(jobClient);
     }
 
     /**

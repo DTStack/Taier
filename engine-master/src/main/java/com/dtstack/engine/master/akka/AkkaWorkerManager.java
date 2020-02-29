@@ -42,7 +42,7 @@ public class AkkaWorkerManager implements InitializingBean, Runnable {
     private int logOutput = 0;
     private final static int MULTIPLES = 10;
     private final static int CHECK_INTERVAL = 10000;
-    private final ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("WorkerInfoListener"));
+    private final ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName()));
     private ActorSystem system;
     private ActorSelection actorSelection;
     private Set<String> availableWorkers = new HashSet<>();

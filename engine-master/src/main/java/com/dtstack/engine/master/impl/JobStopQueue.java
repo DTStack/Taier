@@ -72,9 +72,9 @@ public class JobStopQueue implements InitializingBean {
     private long jobStoppedDelay;
 
     private ExecutorService simpleEs = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(), new CustomThreadFactory("stopProcessor"));
+            new LinkedBlockingQueue<>(), new CustomThreadFactory(this.getClass().getSimpleName()));
 
-    private ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("acquire-stopJob"));
+    private ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName() + "_AcquireStopJob"));
 
     private StopProcessor stopProcessor = new StopProcessor();
     private AcquireStopJob acquireStopJob = new AcquireStopJob();
@@ -89,7 +89,7 @@ public class JobStopQueue implements InitializingBean {
 
         if (simpleEs.isShutdown()) {
             simpleEs = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
-                    new LinkedBlockingQueue<>(), new CustomThreadFactory("stopProcessor"));
+                    new LinkedBlockingQueue<>(), new CustomThreadFactory(this.getClass().getSimpleName() + "_StopProcessor"));
             stopProcessor.reStart();
         }
 

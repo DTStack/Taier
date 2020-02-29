@@ -36,7 +36,7 @@ public class MasterListener implements Listener {
         this.failoverStrategy = failoverStrategy;
         this.zkService = zkService;
 
-        scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("MasterListener"));
+        scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName()));
         scheduledService.scheduleWithFixedDelay(
                 this,
                 0,

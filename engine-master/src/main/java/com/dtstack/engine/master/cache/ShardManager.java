@@ -32,7 +32,7 @@ public class ShardManager implements Runnable {
 
     private static final long DATA_CLEAN_INTERVAL = 1000;
     private static final String SHARD_NODE = "shard";
-    private static final ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(ComputeResourceType.values().length, new CustomThreadFactory("ShardManager"));
+    private static final ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(ComputeResourceType.values().length, new CustomThreadFactory(this.getClass().getSimpleName()));
 
     private AtomicInteger shardSequence = new AtomicInteger(1);
     private Shard shard = new Shard();

@@ -93,7 +93,7 @@ public class JopPriorityQueue {
         this.queueSizeLimited = queueSize;
         this.scheduleType = scheduleType;
         this.ingestion = ingestion;
-        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("acquire-" + scheduleType + "-Job"));
+        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName() + "_Acquire_" + scheduleType + "_Job"));
         scheduledService.scheduleWithFixedDelay(
                 this.acquireGroupQueueJob,
                 0,

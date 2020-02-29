@@ -86,8 +86,8 @@ public class GroupPriorityQueue {
         workNode.updateCache(jobClient, EJobCacheStage.PRIORITY.getStage());
     }
 
-    public void addRestartJob(JobClient jobClient) {
-        jobSubmitDealer.tryPutRestartJob(jobClient);
+    public boolean addRestartJob(JobClient jobClient) {
+        return jobSubmitDealer.tryPutRestartJob(jobClient);
     }
 
     public OrderLinkedBlockingQueue<JobClient> getQueue() {
@@ -160,28 +160,28 @@ public class GroupPriorityQueue {
         }
     }
 
-    private Long emitJob2PriorityQueue(long startId){
+    private Long emitJob2PriorityQueue(long startId) {
         String localAddress = environmentContext.getLocalAddress();
         try {
             int count = 0;
-            outLoop :
+            outLoop:
             while (true) {
                 List<EngineJobCache> jobCaches = engineJobCacheDao.listByStage(startId, localAddress, EJobCacheStage.DB.getStage(), jobResource);
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     break;
                 }
-                for(EngineJobCache jobCache : jobCaches){
+                for (EngineJobCache jobCache : jobCaches) {
                     try {
                         ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                         JobClient jobClient = new JobClient(paramAction);
-                        jobClient.setCallBack((jobStatus)-> {
+                        jobClient.setCallBack((jobStatus) -> {
                             workNode.updateJobStatus(jobClient.getTaskId(), jobStatus);
                         });
 
                         this.addRedirect(jobClient);
                         logger.info("jobId:{} load from db, emit job to queue.", jobClient.getTaskId());
                         startId = jobCache.getId();
-                        if (++count >= queueSizeLimited){
+                        if (++count >= queueSizeLimited) {
                             break outLoop;
                         }
                     } catch (Exception e) {
@@ -249,7 +249,7 @@ public class GroupPriorityQueue {
     /**
      * 每个GroupPriorityQueue中增加独立线程，以定时调度方式从数据库中获取任务。（数据库查询以id和优先级为条件）
      */
-    public GroupPriorityQueue build(){
+    public GroupPriorityQueue build() {
         this.environmentContext = applicationContext.getBean(EnvironmentContext.class);
         this.engineJobCacheDao = applicationContext.getBean(EngineJobCacheDao.class);
         this.engineJobDao = applicationContext.getBean(EngineJobDao.class);
@@ -264,14 +264,14 @@ public class GroupPriorityQueue {
         this.queue = new OrderLinkedBlockingQueue<>(queueSizeLimited * 2);
         this.jobSubmitDealer = new JobSubmitDealer(environmentContext.getLocalAddress(), this, jobPartitioner, workerOperator, engineJobCacheDao);
 
-        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("acquireJob_" + jobResource));
+        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName() + "_" + jobResource + "_AcquireJob"));
         scheduledService.scheduleWithFixedDelay(
                 new AcquireGroupQueueJob(),
                 0,
                 WAIT_INTERVAL,
                 TimeUnit.MILLISECONDS);
 
-        ExecutorService jobSubmitService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new CustomThreadFactory("jobSubmit_" + jobResource));
+        ExecutorService jobSubmitService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new CustomThreadFactory(this.getClass().getSimpleName() + "_" + jobResource + "_JobSubmit"));
         jobSubmitService.submit(jobSubmitDealer);
         return this;
     }
