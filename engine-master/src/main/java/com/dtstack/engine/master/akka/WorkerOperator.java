@@ -136,16 +136,10 @@ public class WorkerOperator {
     }
 
     public RestartStrategyType getRestartStrategyType(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
-        RestartStrategyType result;
         try {
-            result = (RestartStrategyType) sendRequest(new MessageGetCheckpoints(engineType, pluginInfo, jobIdentifier));
+            return (RestartStrategyType) sendRequest(new MessageGetCheckpoints(engineType, pluginInfo, jobIdentifier));
         } catch (Exception e) {
             logger.error("getCheckpoints failed!", e);
-            return RestartStrategyType.NONE;
-        }
-        if (result != null){
-            return result;
-        } else {
             return RestartStrategyType.NONE;
         }
     }
