@@ -29,7 +29,6 @@ public class HeartBeatListener implements Runnable {
     private int logOutput = 0;
     private final static int MULTIPLES = 10;
     private final static int CHECK_INTERVAL = 2000;
-    private final static int MONITOR_CHECK_INTERVAL = 2000;
     private static Random random = new Random();
     private volatile Set<String> availableNodes = new CopyOnWriteArraySet();
     private volatile Set<String> disableNodes = new CopyOnWriteArraySet();
@@ -56,14 +55,14 @@ public class HeartBeatListener implements Runnable {
 
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(2, new CustomThreadFactory("HeartBeatListener"));
         scheduledService.scheduleWithFixedDelay(
-                new HeartBeatListener.MonitorNode(),
-                MONITOR_CHECK_INTERVAL,
-                MONITOR_CHECK_INTERVAL,
+                this,
+                0,
+                CHECK_INTERVAL,
                 TimeUnit.MILLISECONDS);
         scheduledService.scheduleWithFixedDelay(
-                this,
-                CHECK_INTERVAL,
-                CHECK_INTERVAL,
+                new HeartBeatListener.MonitorNode(),
+                CHECK_INTERVAL * 10,
+                CHECK_INTERVAL * 10,
                 TimeUnit.MILLISECONDS);
     }
 
