@@ -85,6 +85,7 @@ public class HeartBeatListener implements Runnable {
         }
         String masterRemotePath = String.format(MASTER_REMOTE_PATH_TEMPLATE, masterSystemName, ipAndPort, masterName);
         ActorSelection master = system.actorSelection(masterRemotePath);
+        logger.info("Get an ActorSelection, path:{}", masterRemotePath);
         return master;
     }
 
