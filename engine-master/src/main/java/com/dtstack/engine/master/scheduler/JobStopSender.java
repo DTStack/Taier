@@ -10,6 +10,7 @@ import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.domain.BatchJob;
 import com.dtstack.engine.domain.BatchTaskShade;
+import com.dtstack.engine.master.impl.ActionService;
 import com.dtstack.engine.master.impl.BatchTaskShadeService;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -40,7 +41,7 @@ public class JobStopSender implements InitializingBean, DisposableBean, Runnable
     private volatile boolean run = true;
 
     @Autowired
-    private EngineSend engineSend;
+    private ActionService actionService;
 
     @Autowired
     private BatchTaskShadeService batchTaskShadeService;
@@ -120,7 +121,7 @@ public class JobStopSender implements InitializingBean, DisposableBean, Runnable
         JSONObject sendData = new JSONObject();
         sendData.put("jobs", jsonArray);
 
-        engineSend.stopTask(sendData.toJSONString(), null, 2);
+        actionService.stop(sendData);
     }
 
     @Override
