@@ -29,9 +29,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -125,7 +127,7 @@ public class ZkService implements InitializingBean, DisposableBean {
         createNodeIfNotExists(this.distributeRootNode, "");
         createNodeIfNotExists(this.brokersNode, BrokersNode.initBrokersNode());
         createNodeIfNotExists(this.localNode, "");
-        createNodeIfNotExists(this.workersNode, "");
+        createNodeIfNotExists(this.workersNode, new HashMap<>());
         initNeedLock();
         createLocalBrokerHeartNode();
         initScheduledExecutorService();
@@ -286,23 +288,22 @@ public class ZkService implements InitializingBean, DisposableBean {
         return alives;
     }
 
-    public Map<String, Map<String, Object>> getAllBrokerWorkersNode() {
-        Map<String, Map<String, Object>> allWorkers = new HashMap<>();
+    public List<Map<String, Object>> getAllBrokerWorkersNode() {
+        List<Map<String, Object>> allWorkers = new ArrayList<>();
         List<String> children = this.getBrokersChildren();
         for (String address : children) {
             String nodePath = String.format("%s/%s/%s", this.brokersNode, address, WORKER_NODE);
-            Map<String, Object> workerNode = null;
             try {
-                workerNode = objectMapper.readValue(zkClient.getData().forPath(nodePath), HashMap.class);
+                List<Map<String, Object>> workerNode = objectMapper.readValue(zkClient.getData().forPath(nodePath), ArrayList.class);
+                allWorkers.addAll(workerNode);
             } catch (Exception e) {
                 logger.error("", e);
             }
-            allWorkers.put(address, workerNode);
         }
         return allWorkers;
     }
 
-    public void updateBrokerWorkersNode(Map<String, WorkerInfo> workerData) {
+    public void updateBrokerWorkersNode(Set<WorkerInfo> workerData) {
         String nodePath = String.format("%s/%s", localNode, WORKER_NODE);
         try {
             zkClient.setData().forPath(nodePath, objectMapper.writeValueAsBytes(workerData));

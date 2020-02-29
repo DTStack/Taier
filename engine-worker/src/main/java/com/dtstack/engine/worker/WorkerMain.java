@@ -34,7 +34,7 @@ public class WorkerMain {
 
             ShutdownHookUtil.addShutdownHook(WorkerMain::shutdown, WorkerMain.class.getSimpleName(), logger);
         } catch (Throwable e) {
-            logger.error("only engine-worker start error:{}", e);
+            logger.error("engine-worker start error:{}", e);
             System.exit(-1);
         }
     }

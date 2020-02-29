@@ -48,5 +48,20 @@ public class WorkerInfo implements Serializable {
     public void setTimestamp(Long timestamp) {
         this.timestamp = timestamp;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        WorkerInfo that = (WorkerInfo) o;
+
+        return path != null ? path.equals(that.path) : that.path == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return path != null ? path.hashCode() : 0;
+    }
 }
 

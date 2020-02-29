@@ -18,7 +18,12 @@
 
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>engine-router</artifactId>
+            <artifactId>engine-master</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.dtstack.engine</groupId>
+            <artifactId>engine-worker</artifactId>
             <version>1.0.0</version>
         </dependency>
     </dependencies>

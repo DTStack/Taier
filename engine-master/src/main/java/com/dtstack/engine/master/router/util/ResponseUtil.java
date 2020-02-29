@@ -1,8 +1,8 @@
-package com.dtstack.engine.router.util;
+package com.dtstack.engine.master.router.util;
 
 
 import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.router.callback.ApiResult;
+import com.dtstack.engine.master.router.callback.ApiResult;
 import io.vertx.ext.web.RoutingContext;
 
 

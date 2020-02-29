@@ -64,16 +64,6 @@ public class TaskRestartDealer {
     @Autowired
     private JobRestartStrategyPlain jobRestartStrategyPlain;
 
-    private static TaskRestartDealer sigleton = new TaskRestartDealer();
-
-    private TaskRestartDealer(){
-    }
-
-    public static TaskRestartDealer getInstance(){
-        return sigleton;
-    }
-
-
     /**
      * 对提交结果判定是否重试
      * 不限制重试次数
@@ -298,8 +288,6 @@ public class TaskRestartDealer {
 
     private void resetStatus(JobClient jobClient){
         String jobId = jobClient.getTaskId();
-        Integer computeType = jobClient.getComputeType().getType();
-        String engineType = jobClient.getEngineType();
         //重试的时候，更改cache状态
         workNode.updateCache(jobClient, EJobCacheStage.RESTART.getStage());
         //重试任务更改在zk的状态，统一做状态清理

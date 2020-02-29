@@ -21,7 +21,6 @@
     <modules>
         <module>engine-common</module>
         <module>engine-dao</module>
-        <module>engine-router</module>
         <module>engine-worker</module>
         <module>engine-master</module>
         <module>engine-entrance</module>

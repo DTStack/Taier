@@ -10,9 +10,10 @@ import com.dtstack.engine.common.akka.message.WorkerInfo;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.zookeeper.ZkService;
-import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -23,8 +24,10 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
-import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -38,11 +41,11 @@ public class AkkaWorkerManager implements InitializingBean, Runnable {
     private final static String PATH = "path";
     private int logOutput = 0;
     private final static int MULTIPLES = 10;
-    private final static int CHECK_INTERVAL = 2000;
+    private final static int CHECK_INTERVAL = 10000;
     private final ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("WorkerInfoListener"));
     private ActorSystem system;
     private ActorSelection actorSelection;
-    private Map<String, String> workerInfoMap = Maps.newHashMap();
+    private Set<String> availableWorkers = new HashSet<>();
     private long workNodeTimeout;
 
     private Duration duration;
@@ -60,9 +63,6 @@ public class AkkaWorkerManager implements InitializingBean, Runnable {
         } catch (Exception e) {
             logger.error("updateWorkerActors happens error:", e);
         }
-        if (LogCountUtil.count(logOutput, MULTIPLES)) {
-            logger.info("Update WorkerInfos...");
-        }
     }
 
     private void updateWorkerActors() throws Exception {
@@ -71,15 +71,29 @@ public class AkkaWorkerManager implements InitializingBean, Runnable {
         if (askResult == null) {
             return;
         }
-        HashMap<String, WorkerInfo> infos = (HashMap<String, WorkerInfo>) askResult;
-        if (infos.size() > 0) {
-            zkService.updateBrokerWorkersNode(infos);
+        Set<WorkerInfo> workerInfos = (Set<WorkerInfo>) askResult;
+        if (workerInfos.size() > 0) {
+            zkService.updateBrokerWorkersNode(workerInfos);
         }
-        Map<String, Map<String, Object>> allWorkers = zkService.getAllBrokerWorkersNode();
-        for (Map.Entry<String, Map<String, Object>> entry : allWorkers.entrySet()) {
-            if ((System.currentTimeMillis() - (Long) entry.getValue().get(TIMESTAMP)) < workNodeTimeout) {
-                workerInfoMap.put(entry.getKey(), (String) entry.getValue().get(PATH));
+        List<Map<String, Object>> allWorkers = zkService.getAllBrokerWorkersNode();
+        Set<String> newWorkers = new HashSet<>(allWorkers.size());
+        if (!allWorkers.isEmpty()) {
+            for (Map<String, Object> workNode : allWorkers) {
+                if (!workNode.isEmpty()) {
+                    long timestamp = MapUtils.getLong(workNode, TIMESTAMP, 0L);
+                    String path = MapUtils.getString(workNode, PATH, "");
+                    if (timestamp == 0 || StringUtils.isBlank(path)) {
+                        continue;
+                    }
+                    if ((System.currentTimeMillis() - timestamp) < workNodeTimeout) {
+                        newWorkers.add(path);
+                    }
+                }
             }
+        }
+        availableWorkers = newWorkers;
+        if (LogCountUtil.count(logOutput++, MULTIPLES)) {
+            logger.info("availableWorkers:{} gap:[{} ms]", availableWorkers, CHECK_INTERVAL * MULTIPLES);
         }
     }
 
@@ -107,8 +121,8 @@ public class AkkaWorkerManager implements InitializingBean, Runnable {
         return actorSelection;
     }
 
-    public Map<String, String> getWorkerInfoMap() {
-        return workerInfoMap;
+    public Set<String> getAvailableWorkers() {
+        return availableWorkers;
     }
 
     public EnvironmentContext getEnvironmentContext() {

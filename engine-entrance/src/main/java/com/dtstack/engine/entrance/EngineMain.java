@@ -1,95 +1,34 @@
 package com.dtstack.engine.entrance;
 
-import com.dtstack.engine.common.Service;
-import com.dtstack.engine.common.log.LogbackComponent;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
-import com.dtstack.engine.common.util.SystemPropertyUtil;
-import com.dtstack.engine.master.config.ActorManagerBeanConfig;
-import com.dtstack.engine.master.config.CacheConfig;
-import com.dtstack.engine.master.config.MybatisConfig;
-import com.dtstack.engine.master.config.RdosBeanConfig;
-import com.dtstack.engine.master.config.SdkConfig;
-import com.dtstack.engine.master.config.ThreadPoolConfig;
-import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.router.RouterService;
-import com.google.common.collect.Lists;
+import com.dtstack.engine.master.MasterMain;
+import com.dtstack.engine.worker.WorkerMain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-
-import java.io.Closeable;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
- * Date: 2017年02月17日 下午8:57:21
- * Company: www.dtstack.com
- *
- * @author sishu.yss
+ * company: www.dtstack.com
+ * author: toutian
+ * create: 2020/02/29
  */
 public class EngineMain {
 
     private static final Logger logger = LoggerFactory.getLogger(EngineMain.class);
 
-    private static final List<Class<? extends Service>> SERVICES = new ArrayList<Class<? extends Service>>();
-
-    static {
-        SERVICES.add(RouterService.class);
-    }
-
-    private static final List<Closeable> CLOSEABLES = Lists.newArrayList();
-
-
-    private static EnvironmentContext environmentContext;
-
     public static void main(String[] args) throws Exception {
         try {
-            setSystemProperty();
-            LogbackComponent.setupLogger();
 
-            ApplicationContext context = new AnnotationConfigApplicationContext(
-                    EnvironmentContext.class, ActorManagerBeanConfig.class, CacheConfig.class, ThreadPoolConfig.class,
-                    MybatisConfig.class, RdosBeanConfig.class, SdkConfig.class);
-            environmentContext = (EnvironmentContext) context.getBean(EnvironmentContext.class);
-
-            setHadoopUserName();
-            // init service
-            initServices(context);
+            MasterMain.main(null);
+            WorkerMain.main(null);
             // add hook
             ShutdownHookUtil.addShutdownHook(EngineMain::shutdown, EngineMain.class.getSimpleName(), logger);
         } catch (Throwable e) {
-            logger.error("only engine-master start error:", e);
+            logger.error("engine-master start error:", e);
             System.exit(-1);
         }
     }
 
-    private static void setSystemProperty() {
-        SystemPropertyUtil.setSystemUserDir();
-    }
-
-    private static void setHadoopUserName() {
-        SystemPropertyUtil.setHadoopUserName(environmentContext.getHadoopUserName());
-    }
-
-    private static void initServices(ApplicationContext context) throws Exception {
-        for (Class<? extends Service> serviceClass : SERVICES) {
-            Class<? extends Service> c = serviceClass.asSubclass(Service.class);
-            Service service = c.getConstructor(ApplicationContext.class).newInstance(context);
-            service.initService();
-            CLOSEABLES.add(service);
-        }
-    }
-
     private static void shutdown() {
-        for (Closeable closeable : CLOSEABLES) {
-            if (closeable != null) {
-                try {
-                    closeable.close();
-                } catch (Exception e) {
-                    logger.error("", e);
-                }
-            }
-        }
+        logger.info("EngineMain is shutdown...");
     }
 }

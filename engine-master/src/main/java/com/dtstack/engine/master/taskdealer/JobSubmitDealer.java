@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.taskdealer;
 
+import com.dtstack.engine.common.exception.WorkerAccessException;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
@@ -148,12 +149,6 @@ public class JobSubmitDealer implements Runnable {
 
         JobResult jobResult = null;
         try {
-            if (workerOperator.getWorkerInfoMap().isEmpty()) {
-                logger.info(" jobId:{} engineType:{} worker not find.", jobClient.getTaskId(), jobClient.getEngineType());
-                handlerNoResource(jobClient);
-                Thread.sleep(10000);//TODO
-                return;
-            }
 
             jobClient.doStatusCallBack(RdosTaskStatus.WAITCOMPUTE.getStatus());
 
@@ -177,6 +172,9 @@ public class JobSubmitDealer implements Runnable {
                 jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
                 handlerNoResource(jobClient);
             }
+        } catch (WorkerAccessException e) {
+            logger.info(" jobId:{} engineType:{} worker not find.", jobClient.getTaskId(), jobClient.getEngineType());
+            handlerNoResource(jobClient);
         } catch (ClientAccessException | ClientArgumentException | LimitResourceException e) {
             logger.error("jobId:{} engineType:{} submitJob happens system error:", jobClient.getTaskId(), jobClient.getEngineType(), e);
             jobClient.setEngineTaskId(null);

@@ -4,14 +4,14 @@ import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.hash.ShardData;
 import com.dtstack.engine.dao.EngineJobCacheDao;
-import com.dtstack.engine.dao.EngineJobDao;
-import com.dtstack.engine.dao.PluginInfoDao;
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.resource.ComputeResourceType;
-import com.dtstack.engine.master.taskdealer.TaskCheckpointDealer;
 import com.dtstack.engine.master.taskdealer.TaskStatusDealer;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -28,26 +28,19 @@ import java.util.concurrent.locks.ReentrantLock;
  * create: 2018/9/6
  */
 @Component
-public class ShardCache {
+public class ShardCache implements ApplicationContextAware {
 
     private final ReentrantLock lock = new ReentrantLock();
 
     private static final ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(ComputeResourceType.values().length, new CustomThreadFactory("TaskStatusDealer"));
+
+    private ApplicationContext applicationContext;
 
     @Autowired
     private EnvironmentContext environmentContext;
 
     @Autowired
     private EngineJobCacheDao engineJobCacheDao;
-
-    @Autowired
-    private EngineJobDao engineJobDao;
-
-    @Autowired
-    private PluginInfoDao pluginInfoDao;
-
-    @Autowired
-    private TaskCheckpointDealer taskCheckpointDealer;
 
     private Map<String, ShardManager> jobResourceShardManager = new ConcurrentHashMap<>();
 
@@ -59,10 +52,7 @@ public class ShardCache {
         return jobResourceShardManager.computeIfAbsent(engineJobCache.getJobResource(), jr -> {
             ShardManager shardManager = new ShardManager();
             TaskStatusDealer taskStatusDealer = new TaskStatusDealer();
-            taskStatusDealer.setEngineJobCacheDao(engineJobCacheDao);
-            taskStatusDealer.setEngineJobDao(engineJobDao);
-            taskStatusDealer.setPluginInfoDao(pluginInfoDao);
-            taskStatusDealer.setTaskCheckpointDealer(taskCheckpointDealer);
+            taskStatusDealer.setApplicationContext(applicationContext);
             taskStatusDealer.setShardManager(shardManager);
             taskStatusDealer.setShardCache(this);
             taskStatusDealer.setJobResource(engineJobCache.getJobResource());
@@ -166,4 +156,8 @@ public class ShardCache {
         }
     }
 
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
 }

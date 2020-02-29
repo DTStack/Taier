@@ -2,11 +2,11 @@ package com.dtstack.engine.master.akka;
 
 import akka.actor.AbstractActor;
 import com.dtstack.engine.common.akka.message.WorkerInfo;
-import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 
 public class AkkaMasterActor extends AbstractActor {
@@ -16,14 +16,17 @@ public class AkkaMasterActor extends AbstractActor {
     public static final String GET_WORKER_INFOS = "getWorkerInfos";
     private final static String IP_PORT_TEMPLATE = "%s:%s";
 
-    public HashMap<String, WorkerInfo> workerInfos = Maps.newHashMap();
+    private Set<WorkerInfo> workerInfos = new HashSet<>();
 
     public Receive createReceive() {
         return receiveBuilder()
-                .match(WorkerInfo.class, msg -> {
-                    String ipAndPort = String.format(IP_PORT_TEMPLATE, msg.getIp(), msg.getPort());
-                    workerInfos.put(ipAndPort, msg);
-                    logger.info(ipAndPort + " is alive.");
+                .match(WorkerInfo.class, workerInfo -> {
+                    String ipAndPort = String.format(IP_PORT_TEMPLATE, workerInfo.getIp(), workerInfo.getPort());
+                    workerInfos.remove(workerInfo);
+                    workerInfos.add(workerInfo);
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(ipAndPort + " is alive.");
+                    }
                 })
                 .matchEquals(GET_WORKER_INFOS, msg -> {
                     sender().tell(workerInfos, getSelf());

@@ -10,6 +10,7 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.akka.message.*;
+import com.dtstack.engine.common.exception.WorkerAccessException;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.restart.RestartStrategyType;
 import com.dtstack.engine.common.util.RandomUtils;
@@ -24,7 +25,7 @@ import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -39,17 +40,16 @@ public class WorkerOperator {
     private AkkaWorkerManager akkaWorkerManager;
 
     private Object sendRequest(Object message) throws Exception {
-        String path = RandomUtils.getRandomValueFromMap(akkaWorkerManager.getWorkerInfoMap());
+        String path = RandomUtils.getRandomValueFromMap(akkaWorkerManager.getAvailableWorkers());
+        if (null == path) {
+            Thread.sleep(10000);
+            throw new WorkerAccessException("sleep 10000 ms.");
+        }
         ActorSelection actorRef = akkaWorkerManager.getSystem().actorSelection(path);
         Future<Object> future = Patterns.ask(actorRef, message, env.getAkkaAskTimeout());
         Object result = Await.result(future, Duration.create(env.getAkkaAskResultTimeout(), TimeUnit.SECONDS));
         return result;
     }
-
-    public Map<String, String> getWorkerInfoMap() {
-        return akkaWorkerManager.getWorkerInfoMap();
-    }
-
 
     public boolean judgeSlots(JobClient jobClient) {
         Object result = null;

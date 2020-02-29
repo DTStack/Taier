@@ -83,21 +83,21 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
     public void afterPropertiesSet() throws Exception {
         LOG.info("Initializing " + this.getClass().getName());
 
-        executors.add(fillJobExecutor);
-        executors.add(cronJobExecutor);
-
-        executorService = new ThreadPoolExecutor(executors.size(), executors.size(), 0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(), new CustomThreadFactory("ExecutorDealer"));
-        for (AbstractJobExecutor executor : executors) {
-            executorService.submit(executor);
-        }
-
-        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("JobStatusDealer"));
-        scheduledService.scheduleWithFixedDelay(
-                new JobStatusDealer(),
-                0,
-                environmentContext.getJobStatusDealerInterval(),
-                TimeUnit.MILLISECONDS);
+//        executors.add(fillJobExecutor);
+//        executors.add(cronJobExecutor);
+//
+//        executorService = new ThreadPoolExecutor(executors.size(), executors.size(), 0L, TimeUnit.MILLISECONDS,
+//                new LinkedBlockingQueue<>(), new CustomThreadFactory("ExecutorDealer"));
+//        for (AbstractJobExecutor executor : executors) {
+//            executorService.submit(executor);
+//        }
+//
+//        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("JobStatusDealer"));
+//        scheduledService.scheduleWithFixedDelay(
+//                new JobStatusDealer(),
+//                0,
+//                environmentContext.getJobStatusDealerInterval(),
+//                TimeUnit.MILLISECONDS);
     }
 
     /**

@@ -27,8 +27,8 @@ public class HeartBeatListener implements Runnable {
 
     private final static String MASTER_REMOTE_PATH_TEMPLATE = "akka.tcp://%s@%s/user/%s";
     private int logOutput = 0;
-    private final static int MULTIPLES = 10;
-    private final static int CHECK_INTERVAL = 2000;
+    private final static int MULTIPLES = 30;
+    private final static int CHECK_INTERVAL = 1000;
     private static Random random = new Random();
     private volatile Set<String> availableNodes = new CopyOnWriteArraySet();
     private volatile Set<String> disableNodes = new CopyOnWriteArraySet();
@@ -71,8 +71,8 @@ public class HeartBeatListener implements Runnable {
         WorkerInfo workerInfo = new WorkerInfo(workerIp, workerPort, workerRemotePath, System.currentTimeMillis());
         ActorSelection actorSelection = getOneActorSelection(masterAddress);
         actorSelection.tell(workerInfo, ActorRef.noSender());
-        if (LogCountUtil.count(logOutput, MULTIPLES)) {
-            logger.info("HeartBeatListener Running...");
+        if (LogCountUtil.count(logOutput++, MULTIPLES)) {
+            logger.info("HeartBeatListener Running gap:[{} ms]...", CHECK_INTERVAL * MULTIPLES);
         }
     }
 

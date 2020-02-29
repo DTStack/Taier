@@ -25,12 +25,13 @@ esac
 
 if [ "$COMMAND" = "master" ] ; then
   CLASS='com.dtstack.engine.master.MasterMain'
-  FILE='../conf/master.conf'
+  FILE='../conf/common.conf'
 elif [ "$COMMAND" = "worker" ] ; then
   CLASS='com.dtstack.engine.worker.WorkerMain'
   FILE='../conf/worker.conf'
 else
   CLASS='com.dtstack.engine.entrance.EngineMain'
+  FILE='../conf/engine.conf'
 fi
 echo 'exec java MainClass is' $CLASS.
 

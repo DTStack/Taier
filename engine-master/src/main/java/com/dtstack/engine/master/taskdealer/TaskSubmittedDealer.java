@@ -40,6 +40,9 @@ public class TaskSubmittedDealer implements Runnable{
 	@Autowired
 	private WorkNode workNode;
 
+	@Autowired
+	private TaskRestartDealer taskRestartDealer;
+
 	public TaskSubmittedDealer(){
 		queue = JobSubmitDealer.getSubmittedQueue();
 	}
@@ -50,7 +53,7 @@ public class TaskSubmittedDealer implements Runnable{
 			try {
 				JobClient jobClient = queue.take();
 
-				if(TaskRestartDealer.getInstance().checkAndRestartForSubmitResult(jobClient)){
+				if(taskRestartDealer.checkAndRestartForSubmitResult(jobClient)){
 					logger.warn("failed submit job restarting, jobId:{} jobResult:{} ...", jobClient.getTaskId(), jobClient.getJobResult());
 					continue;
 				}
