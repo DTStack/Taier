@@ -21,9 +21,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class HeartBeatListener implements Runnable {
+public class WorkerBeatListener implements Runnable {
 
-    private static final Logger logger = LoggerFactory.getLogger(HeartBeatListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(WorkerBeatListener.class);
 
     private final static String MASTER_REMOTE_PATH_TEMPLATE = "akka.tcp://%s@%s/user/%s";
     private int logOutput = 0;
@@ -41,7 +41,7 @@ public class HeartBeatListener implements Runnable {
     private String workerRemotePath;
 
 
-    public HeartBeatListener(ActorSystem system) {
+    public WorkerBeatListener(ActorSystem system) {
         this.system = system;
         this.masterAddress = AkkaConfig.getMasterAddress();
         this.availableNodes.addAll(Arrays.asList(masterAddress.split(",")));
@@ -53,14 +53,14 @@ public class HeartBeatListener implements Runnable {
         this.workerPort = AkkaConfig.getAkkaPort();
         this.workerRemotePath = AkkaConfig.getWorkerRemotePath();
 
-        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(2, new CustomThreadFactory("HeartBeatListener"));
+        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(2, new CustomThreadFactory(this.getClass().getSimpleName()));
         scheduledService.scheduleWithFixedDelay(
                 this,
                 0,
                 CHECK_INTERVAL,
                 TimeUnit.MILLISECONDS);
         scheduledService.scheduleWithFixedDelay(
-                new HeartBeatListener.MonitorNode(),
+                new WorkerBeatListener.MonitorNode(),
                 CHECK_INTERVAL * 10,
                 CHECK_INTERVAL * 10,
                 TimeUnit.MILLISECONDS);
@@ -72,7 +72,7 @@ public class HeartBeatListener implements Runnable {
         ActorSelection actorSelection = getOneActorSelection(masterAddress);
         actorSelection.tell(workerInfo, ActorRef.noSender());
         if (LogCountUtil.count(logOutput++, MULTIPLES)) {
-            logger.info("HeartBeatListener Running gap:[{} ms]...", CHECK_INTERVAL * MULTIPLES);
+            logger.info("WorkerBeatListener Running gap:[{} ms]...", CHECK_INTERVAL * MULTIPLES);
         }
     }
 

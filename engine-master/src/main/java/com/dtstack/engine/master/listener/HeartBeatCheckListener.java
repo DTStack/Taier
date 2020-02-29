@@ -52,7 +52,7 @@ public class HeartBeatCheckListener implements Listener {
         this.masterListener = masterListener;
         this.failoverStrategy = failoverStrategy;
         this.zkService = zkService;
-        scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("HeartBeatCheckListener"));
+        scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName()));
         scheduledService.scheduleWithFixedDelay(
                 this,
                 CHECK_INTERVAL,

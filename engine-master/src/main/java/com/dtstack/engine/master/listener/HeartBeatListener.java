@@ -33,7 +33,7 @@ public class HeartBeatListener implements Listener {
     public HeartBeatListener(ZkService zkService) {
         this.zkService = zkService;
 
-        scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("HeartBeatListener"));
+        scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName()));
         scheduledService.scheduleWithFixedDelay(
                 this,
                 0,

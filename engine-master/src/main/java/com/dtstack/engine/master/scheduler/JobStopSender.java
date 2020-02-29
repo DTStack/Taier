@@ -46,7 +46,7 @@ public class JobStopSender implements InitializingBean, DisposableBean, Runnable
     private BatchTaskShadeService batchTaskShadeService;
 
     private ExecutorService jobStopSenderExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(), new CustomThreadFactory("JobStopSender"));
+            new LinkedBlockingQueue<>(), new CustomThreadFactory(this.getClass().getSimpleName()));
 
     private ArrayBlockingQueue<StoppedJob> stopJobQueue = new ArrayBlockingQueue<StoppedJob>(1000);
 

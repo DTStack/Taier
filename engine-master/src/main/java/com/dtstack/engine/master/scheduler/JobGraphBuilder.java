@@ -129,7 +129,7 @@ public class JobGraphBuilder {
             }
 
             ExecutorService jobGraphBuildPool = new ThreadPoolExecutor(0, MAX_TASK_BUILD_THREAD, 10L, TimeUnit.SECONDS,
-                    new ArrayBlockingQueue<Runnable>(1), new CustomThreadFactory("JobGraphBuilder"));
+                    new ArrayBlockingQueue<Runnable>(1), new CustomThreadFactory(this.getClass().getSimpleName()));
 
             List<ScheduleBatchJob> allJobs = new ArrayList<>(totalTask);
             Map<String, String> flowJobId = new ConcurrentHashMap<>(totalTask);

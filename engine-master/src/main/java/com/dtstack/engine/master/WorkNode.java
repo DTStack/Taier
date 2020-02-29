@@ -101,7 +101,7 @@ public class WorkNode implements InitializingBean, ApplicationContextAware {
         executors.execute(taskSubmittedDealer);
 
         ExecutorService recoverExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(), new CustomThreadFactory("recoverDealer"));
+                new LinkedBlockingQueue<>(), new CustomThreadFactory(this.getClass().getSimpleName()));
         recoverExecutor.submit(new RecoverDealer());
     }
 

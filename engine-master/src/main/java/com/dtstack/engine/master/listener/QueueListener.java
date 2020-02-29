@@ -46,7 +46,7 @@ public class QueueListener implements InitializingBean, Listener {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("QueueListener"));
+        scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName()));
         scheduledService.scheduleWithFixedDelay(
                 this,
                 0,

@@ -117,7 +117,7 @@ public class BatchAlarmProcessor implements Runnable, InitializingBean, Disposab
 
     private static final SimpleDateFormat day_sdf = new SimpleDateFormat("yyyyMMdd");
 
-    private ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("BatchAlarmProcessor"));
+    private ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName()));
 
     @Override
     public void run() {

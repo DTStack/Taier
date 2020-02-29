@@ -78,18 +78,18 @@ public class TaskStatusDealer implements Runnable {
     private Map<String, TaskStatusFrequencyDealer> jobStatusFrequency = Maps.newConcurrentMap();
 
     private ExecutorService taskStatusPool = new ThreadPoolExecutor(1, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
-            new SynchronousQueue<>(true), new CustomThreadFactory("taskStatusListener"));
+            new SynchronousQueue<>(true), new CustomThreadFactory(this.getClass().getSimpleName()));
 
     @Override
     public void run() {
         try {
             if (logger.isInfoEnabled() && LogCountUtil.count(logOutput++, MULTIPLES)) {
-                logger.info("jobResource:{} TaskStatusListener start again gap:[{} ms]...", jobResource, INTERVAL * MULTIPLES);
+                logger.info("jobResource:{} start again gap:[{} ms]...", jobResource, INTERVAL * MULTIPLES);
             }
             updateTaskStatus();
             dealFailedJob();
         } catch (Throwable e) {
-            logger.error("jobResource:{} TaskStatusTaskListener run error:{}", jobResource, e);
+            logger.error("jobResource:{} run error:{}", jobResource, e);
         }
     }
 

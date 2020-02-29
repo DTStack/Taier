@@ -7,7 +7,7 @@ import com.dtstack.engine.common.log.LogbackComponent;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
 import com.dtstack.engine.common.akka.config.AkkaConfig;
-import com.dtstack.engine.worker.listener.HeartBeatListener;
+import com.dtstack.engine.worker.listener.WorkerBeatListener;
 import com.dtstack.engine.worker.service.JobService;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -30,7 +30,7 @@ public class WorkerMain {
             String workerName = AkkaConfig.getWorkerName();
             ActorRef actorRef = system.actorOf(Props.create(JobService.class), workerName);
 
-            new HeartBeatListener(system);
+            new WorkerBeatListener(system);
 
             ShutdownHookUtil.addShutdownHook(WorkerMain::shutdown, WorkerMain.class.getSimpleName(), logger);
         } catch (Throwable e) {

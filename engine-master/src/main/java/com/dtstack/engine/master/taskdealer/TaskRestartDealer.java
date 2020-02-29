@@ -252,13 +252,13 @@ public class TaskRestartDealer {
 
         EngineJob engineBatchJob = engineJobDao.getRdosJobByJobId(jobId);
         if(engineBatchJob == null){
-            LOG.error("[retry=false] jobId:{} get RdosEngineJob is null.", jobId);
+            LOG.error("[retry=false] jobId:{} get EngineJob is null.", jobId);
             return check;
         }
 
         EngineJobCache jobCache = engineJobCacheDao.getOne(jobId);
         if(jobCache == null){
-            LOG.info("[retry=false] jobId:{} get RdosEngineJobCache is null.", jobId);
+            LOG.info("[retry=false] jobId:{} get EngineJobCache is null.", jobId);
             return check;
         }
 

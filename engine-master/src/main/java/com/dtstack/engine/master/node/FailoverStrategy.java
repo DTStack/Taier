@@ -103,7 +103,7 @@ public class FailoverStrategy {
 
     private FailoverStrategy() {
         masterNodeDealer = new ThreadPoolExecutor(2, 2, 0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(), new CustomThreadFactory("masterNodeDealer"));
+                new LinkedBlockingQueue<>(), new CustomThreadFactory(this.getClass().getSimpleName()));
     }
 
     public void setIsMaster(boolean isMaster) {
@@ -115,7 +115,7 @@ public class FailoverStrategy {
 
             if (masterNodeDealer.isShutdown()) {
                 masterNodeDealer = new ThreadPoolExecutor(2, 2, 0L, TimeUnit.MILLISECONDS,
-                        new LinkedBlockingQueue<>(), new CustomThreadFactory("masterNodeDealer"));
+                        new LinkedBlockingQueue<>(), new CustomThreadFactory(this.getClass().getSimpleName()));
             }
             masterNodeDealer.submit(faultTolerantDealer);
             masterNodeDealer.submit(new JobGraphChecker());

@@ -105,7 +105,7 @@ public class TaskCheckpointDealer implements InitializingBean, Runnable {
 
     private Cache<String, Map<String, Object>> checkpointConfigCache = CacheBuilder.newBuilder().maximumSize(JOB_CHECKPOINT_CONFIG).build();
 
-    private ScheduledExecutorService checkpointCleanPoll = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("checkpointCleaner"));
+    private ScheduledExecutorService checkpointCleanPoll = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName()));
 
     @Override
     public void afterPropertiesSet() throws Exception {

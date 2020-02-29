@@ -76,7 +76,7 @@ public class JobSubmitDealer implements Runnable {
         this.restartJobQueue = new DelayBlockingQueue<RestartJob<JobClient>>(priorityQueue.getQueueSizeLimited());
 
         ExecutorService executorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(), new CustomThreadFactory("JobSubmitDealer-RestartJobProcessor"));
+                new LinkedBlockingQueue<>(), new CustomThreadFactory(this.getClass().getSimpleName() + "_RestartJobProcessor"));
         executorService.submit(new RestartJobProcessor());
     }
 

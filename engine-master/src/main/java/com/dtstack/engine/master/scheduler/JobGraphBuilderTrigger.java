@@ -44,7 +44,7 @@ public class JobGraphBuilderTrigger implements Runnable {
     private ScheduledExecutorService scheduledService;
 
     public JobGraphBuilderTrigger() {
-        scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("JobGraphTrigger"));
+        scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName()));
     }
 
     public void dealMaster(boolean isMaster) {
@@ -64,7 +64,7 @@ public class JobGraphBuilderTrigger implements Runnable {
             return;
         }
         if (scheduledService.isShutdown()) {
-            scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("JobGraphTrigger"));
+            scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName()));
         }
         scheduledService.scheduleAtFixedRate(
                 this,

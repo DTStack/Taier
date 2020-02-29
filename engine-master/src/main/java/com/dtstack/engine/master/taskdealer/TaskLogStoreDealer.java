@@ -36,7 +36,7 @@ public class TaskLogStoreDealer implements Listener, Runnable {
         dbConfig.put("pwd", environmentContext.getJdbcPassword());
         logStore = LogStoreFactory.getLogStore(dbConfig);
 
-        this.scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("HeartBeatCheckListener"));
+        this.scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName()));
         scheduledService.scheduleWithFixedDelay(
                 this,
                 CHECK_INTERVAL,
