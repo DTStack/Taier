@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.zookeeper;
 
+import com.dtstack.engine.common.akka.message.WorkerInfo;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.ExceptionUtil;
@@ -28,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -43,6 +45,7 @@ public class ZkService implements InitializingBean, DisposableBean {
     private static final Logger logger = LoggerFactory.getLogger(ZkService.class);
 
     private final static String HEART_NODE = "heart";
+    private final static String WORKER_NODE = "workers";
 
     private ZkConfig zkConfig;
     private String zkAddress;
@@ -50,6 +53,7 @@ public class ZkService implements InitializingBean, DisposableBean {
     private String distributeRootNode;
     private String brokersNode;
     private String localNode;
+    private String workersNode;
 
     private CuratorFramework zkClient;
     private InterProcessMutex masterLock;
@@ -121,6 +125,7 @@ public class ZkService implements InitializingBean, DisposableBean {
         createNodeIfNotExists(this.distributeRootNode, "");
         createNodeIfNotExists(this.brokersNode, BrokersNode.initBrokersNode());
         createNodeIfNotExists(this.localNode, "");
+        createNodeIfNotExists(this.workersNode, "");
         initNeedLock();
         createLocalBrokerHeartNode();
         initScheduledExecutorService();
@@ -224,10 +229,6 @@ public class ZkService implements InitializingBean, DisposableBean {
         }
     }
 
-    public boolean nodeIfExists(String node) throws Exception {
-        return zkClient.checkExists().forPath(node) == null ? false : true;
-    }
-
     private void checkDistributedConfig() throws Exception {
         if (StringUtils.isBlank(this.zkConfig.getNodeZkAddress())
                 || this.zkConfig.getNodeZkAddress().split("/").length < 2) {
@@ -242,6 +243,7 @@ public class ZkService implements InitializingBean, DisposableBean {
         }
         this.brokersNode = String.format("%s/brokers", this.distributeRootNode);
         this.localNode = String.format("%s/%s", this.brokersNode, this.localAddress);
+        this.workersNode = String.format("%s/%s", this.localNode, WORKER_NODE);
     }
 
     public BrokerHeartNode getBrokerHeartNode(String node) {
@@ -284,16 +286,33 @@ public class ZkService implements InitializingBean, DisposableBean {
         return alives;
     }
 
+    public Map<String, Map<String, Object>> getAllBrokerWorkersNode() {
+        Map<String, Map<String, Object>> allWorkers = new HashMap<>();
+        List<String> children = this.getBrokersChildren();
+        for (String address : children) {
+            String nodePath = String.format("%s/%s/%s", this.brokersNode, address, WORKER_NODE);
+            Map<String, Object> workerNode = null;
+            try {
+                workerNode = objectMapper.readValue(zkClient.getData().forPath(nodePath), HashMap.class);
+            } catch (Exception e) {
+                logger.error("", e);
+            }
+            allWorkers.put(address, workerNode);
+        }
+        return allWorkers;
+    }
+
+    public void updateBrokerWorkersNode(Map<String, WorkerInfo> workerData) {
+        String nodePath = String.format("%s/%s", localNode, WORKER_NODE);
+        try {
+            zkClient.setData().forPath(nodePath, objectMapper.writeValueAsBytes(workerData));
+        } catch (Exception e) {
+            logger.error("{}:updateBrokerWorkersNode error:", nodePath, e);
+        }
+    }
+
     public String getLocalAddress() {
         return localAddress;
-    }
-
-    public String getLocalNode() {
-        return localNode;
-    }
-
-    public String getBrokersNode() {
-        return brokersNode;
     }
 
     public void disableBrokerHeartNode(String localAddress, boolean stopHealthCheck) {
@@ -318,18 +337,6 @@ public class ZkService implements InitializingBean, DisposableBean {
 
     public void setEnvironmentContext(EnvironmentContext environmentContext) {
         this.environmentContext = environmentContext;
-    }
-
-    public void setDataOnPath(String nodePath, Object data){
-        try {
-            zkClient.setData().forPath(nodePath, objectMapper.writeValueAsBytes(data));
-        } catch (Exception e) {
-            logger.error(ExceptionUtil.getErrorMessage(e));
-        }
-    }
-
-    public byte[] getDataFromPath(String nodePath) throws Exception {
-        return zkClient.getData().forPath(nodePath);
     }
 
 }

@@ -299,4 +299,7 @@ public class EnvironmentContext {
         return Long.parseLong(environment.getProperty("akkaAskResultTimeout", "60"));
     }
 
+    public long getWorkerNodeTimeout() {
+        return Long.parseLong(environment.getProperty("workerNodeTimeout", "5"));
+    }
 }

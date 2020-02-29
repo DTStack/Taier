@@ -13,7 +13,7 @@ public class AkkaMasterActor extends AbstractActor {
 
     private static final Logger logger = LoggerFactory.getLogger(AkkaMasterActor.class);
 
-    private static final String GET_WORKER_INFOS = "getWorkerInfos";
+    public static final String GET_WORKER_INFOS = "getWorkerInfos";
     private final static String IP_PORT_TEMPLATE = "%s:%s";
 
     public HashMap<String, WorkerInfo> workerInfos = Maps.newHashMap();
