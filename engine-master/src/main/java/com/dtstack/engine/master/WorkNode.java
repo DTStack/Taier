@@ -31,8 +31,11 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -52,9 +55,11 @@ import java.util.concurrent.TimeUnit;
  * @author xuchao
  */
 @Component
-public class WorkNode implements InitializingBean {
+public class WorkNode implements InitializingBean, ApplicationContextAware {
 
     private static final Logger LOG = LoggerFactory.getLogger(WorkNode.class);
+
+    private ApplicationContext applicationContext;
 
     @Autowired
     private JobComputeResourcePlain jobComputeResourcePlain;
@@ -102,6 +107,11 @@ public class WorkNode implements InitializingBean {
         ExecutorService recoverExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory("recoverDealer"));
         recoverExecutor.submit(new RecoverDealer());
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 
     public void resetPriorityQueueStartId() {
@@ -184,16 +194,12 @@ public class WorkNode implements InitializingBean {
     }
 
     private GroupPriorityQueue getGroupPriorityQueue(String jobResource) {
-        GroupPriorityQueue groupQueue = priorityQueueMap.computeIfAbsent(jobResource, k -> GroupPriorityQueue.builder()
+        GroupPriorityQueue groupPriorityQueue = priorityQueueMap.computeIfAbsent(jobResource, k -> GroupPriorityQueue.builder()
+                .setApplicationContext(applicationContext)
                 .setJobResource(jobResource)
-                .setEnvironmentContext(environmentContext)
-                .setEngineJobCacheDao(engineJobCacheDao)
-                .setEngineJobDao(engineJobDao)
-                .setJobPartitioner(jobPartitioner)
-                .setWorkerOperator(workerOperator)
                 .setWorkNode(this)
                 .build());
-        return groupQueue;
+        return groupPriorityQueue;
     }
 
     public void updateJobStatus(String jobId, Integer status) {
