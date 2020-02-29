@@ -32,7 +32,7 @@ public class ShardCache implements ApplicationContextAware {
 
     private final ReentrantLock lock = new ReentrantLock();
 
-    private static final ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(ComputeResourceType.values().length, new CustomThreadFactory(this.getClass().getSimpleName()));
+    private static final ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(ComputeResourceType.values().length, new CustomThreadFactory(Class.class.getSimpleName()));
 
     private ApplicationContext applicationContext;
 

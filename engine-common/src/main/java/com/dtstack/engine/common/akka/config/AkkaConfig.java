@@ -81,6 +81,16 @@ public class AkkaConfig {
         return Integer.valueOf(getValueWithDefault(keyName, "2555"));
     }
 
+    public static Long getAkkaAskTimeout() {
+        String keyName = ConfigConstant.AKKA_ASK_TIMEOUT;
+        return Long.valueOf(getValueWithDefault(keyName, "10000"));
+    }
+
+    public static Long getAkkaAskResultTimeout() {
+        String keyName = ConfigConstant.AKKA_ASK_RESULT_TIMEOUT;
+        return Long.valueOf(getValueWithDefault(keyName, "10"));
+    }
+
     public static Config checkIpAndPort(Config config) {
         HashMap<String, Object> configMap = Maps.newHashMap();
 
