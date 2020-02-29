@@ -86,8 +86,8 @@ public class GroupPriorityQueue {
         workNode.updateCache(jobClient, EJobCacheStage.PRIORITY.getStage());
     }
 
-    public void addRestartJob(JobClient jobClient) {
-        jobSubmitDealer.tryPutRestartJob(jobClient);
+    public boolean addRestartJob(JobClient jobClient) {
+        return jobSubmitDealer.tryPutRestartJob(jobClient);
     }
 
     public OrderLinkedBlockingQueue<JobClient> getQueue() {

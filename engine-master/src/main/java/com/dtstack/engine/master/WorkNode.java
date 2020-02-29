@@ -46,13 +46,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 处理任务优先级队列
- * 1--n 数值越大表明优先级越高
- * 任务停止队列
- * Date: 2018/1/8
- * Company: www.dtstack.com
- *
- * @author xuchao
+ * company: www.dtstack.com
+ * author: toutian
+ * create: 2020/2/29
  */
 @Component
 public class WorkNode implements InitializingBean, ApplicationContextAware {
@@ -187,10 +183,10 @@ public class WorkNode implements InitializingBean, ApplicationContextAware {
         }
     }
 
-    public void addRestartJob(JobClient jobClient) {
+    public boolean addRestartJob(JobClient jobClient) {
         String jobResource = jobComputeResourcePlain.getJobResource(jobClient);
         GroupPriorityQueue groupPriorityQueue = getGroupPriorityQueue(jobResource);
-        groupPriorityQueue.addRestartJob(jobClient);
+        return groupPriorityQueue.addRestartJob(jobClient);
     }
 
     private GroupPriorityQueue getGroupPriorityQueue(String jobResource) {
