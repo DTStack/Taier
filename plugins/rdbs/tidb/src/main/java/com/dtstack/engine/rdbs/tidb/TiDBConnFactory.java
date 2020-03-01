@@ -1,6 +1,9 @@
 package com.dtstack.engine.rdbs.tidb;
 
+import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.rdbs.common.executor.ConnFactory;
+
+import java.util.List;
 
 public class TiDBConnFactory extends ConnFactory {
 
@@ -10,17 +13,27 @@ public class TiDBConnFactory extends ConnFactory {
     }
 
     @Override
+    public boolean supportProcedure() {
+        return false;
+    }
+
+    @Override
+    public List<String> buildSqlList(String sql) {
+        return DtStringUtil.splitIgnoreQuota(sql, ';');
+    }
+
+    @Override
     public String getCreateProcedureHeader(String procName) {
-        return String.format("create procedure %s() \n", procName);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public String getCallProc(String procName) {
-        return String.format("call %s()", procName);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public String getDropProc(String procName) {
-        return String.format("DROP PROCEDURE %s", procName);
+        throw new UnsupportedOperationException();
     }
 }
