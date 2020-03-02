@@ -1,5 +1,7 @@
-package com.dtstack.engine.common;
+package com.dtstack.engine.worker.client;
 
+import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.restart.RestartStrategyType;

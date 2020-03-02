@@ -353,6 +353,5 @@ public class TaskStatusDealer implements Runnable {
     private void createLogDelayDealer(){
         this.jobCompletedLogDelayDealer = new JobCompletedLogDelayDealer(applicationContext);
         this.jobLogDelay = environmentContext.getJobLogDelay();
-        taskStatusPool.execute(jobCompletedLogDelayDealer);
     }
 }

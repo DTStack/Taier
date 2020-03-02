@@ -6,6 +6,9 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.akka.message.*;
 import com.dtstack.engine.common.restart.RestartStrategyType;
+import com.dtstack.engine.worker.client.ClientCache;
+import com.dtstack.engine.worker.client.ClientOperator;
+import com.dtstack.engine.worker.client.IClient;
 
 import java.util.List;
 

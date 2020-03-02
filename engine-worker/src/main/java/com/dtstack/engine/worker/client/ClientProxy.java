@@ -1,5 +1,7 @@
-package com.dtstack.engine.common;
+package com.dtstack.engine.worker.client;
 
+import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.callback.CallBack;
 import com.dtstack.engine.common.callback.ClassLoaderCallBackMethod;
 import com.dtstack.engine.common.enums.RdosTaskStatus;

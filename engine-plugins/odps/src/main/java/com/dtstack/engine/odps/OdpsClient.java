@@ -3,7 +3,7 @@ package com.dtstack.engine.odps;
 import com.aliyun.odps.Job;
 import com.aliyun.odps.task.SQLTask;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.AbstractClient;
+import com.dtstack.engine.worker.client.AbstractClient;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.EJobType;
