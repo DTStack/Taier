@@ -694,8 +694,11 @@ public class ComponentService {
     public void addComponentWithConfig(Long engineId, String confName, JSONObject config, boolean updateQueue){
         EComponentType type = EComponentType.getByConfName(confName);
 
+        if (Objects.isNull(config)) {
+            config = new JSONObject();
+        }
         Component component = componentDao.getByEngineIdAndComponentType(engineId, type.getTypeCode());
-        if(component == null){
+        if (component == null) {
             component = new Component();
             component.setEngineId(engineId);
             component.setComponentName(type.getName());
@@ -708,7 +711,7 @@ public class ComponentService {
             componentDao.update(component);
         }
 
-        if(EComponentType.YARN == type){
+        if (EComponentType.YARN == type) {
             engineService.updateResource(engineId, config, updateQueue);
         }
     }
@@ -1044,6 +1047,9 @@ public class ComponentService {
         Engine engine = engineDao.getByClusterIdAndEngineType(clusterId, MultiEngineType.HADOOP.getType());
         if (engine != null) {
             Component hdfsComponent = componentDao.getByEngineIdAndComponentType(engine.getId(), EComponentType.HDFS.getTypeCode());
+            if(Objects.isNull(hdfsComponent)){
+                return new JSONObject();
+            }
             String componentConfig = hdfsComponent.getComponentConfig();
             if (StringUtils.isNotEmpty(componentConfig)) {
                 JSONObject config = JSONObject.parseObject(componentConfig);
