@@ -1,6 +1,5 @@
 package com.dtstack.engine.worker.listener;
 
-import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
 import akka.pattern.Patterns;
@@ -77,7 +76,7 @@ public class WorkerBeatListener implements Runnable {
         WorkerInfo workerInfo = new WorkerInfo(workerIp, workerPort, workerRemotePath, System.currentTimeMillis());
         sendWorkerInfoToMaster(workerInfo, masterAddress);
         if (LogCountUtil.count(logOutput++, MULTIPLES)) {
-            logger.info("WorkerBeatListener Running gap:[{} ms]...", CHECK_INTERVAL * MULTIPLES);
+            logger.info("WorkerBeatListener Running workerRemotePath:{} gap:[{} ms]...", workerRemotePath, CHECK_INTERVAL * MULTIPLES);
         }
     }
 
@@ -88,10 +87,12 @@ public class WorkerBeatListener implements Runnable {
             if (availableNodes.size() != 0) {
                 int index = random.nextInt(size);
                 ipAndPort = Lists.newArrayList(availableNodes).get(index);
+            } else {
+                logger.info("worker not connect available nodes, default ipAndPort:{} availableNodes:{} disableNodes:{}", ipAndPort, availableNodes, disableNodes);
             }
             String masterRemotePath = String.format(MASTER_REMOTE_PATH_TEMPLATE, masterSystemName, ipAndPort, masterName);
             activeMasterActor = system.actorSelection(masterRemotePath);
-            logger.info("Get an ActorSelection, path:{}", masterRemotePath);
+            logger.info("get an ActorSelection of masterRemotePath:{}", masterRemotePath);
         }
         try {
             Future<Object> future = Patterns.ask(activeMasterActor, workerInfo, AkkaConfig.getAkkaAskTimeout());
@@ -103,7 +104,7 @@ public class WorkerBeatListener implements Runnable {
             availableNodes.remove(ipAndPort);
             disableNodes.add(ipAndPort);
             activeMasterActor = null;
-            logger.error("Send WorkerInfo to master happens error:{}", e);
+            logger.error("Can't send WorkerInfo to master, availableNodes:{} disableNodes:{}, happens error:{}", availableNodes, disableNodes, e);
         }
 
     }
