@@ -820,13 +820,19 @@ class EditCluster extends React.Component<any, any> {
     addEngine (params: any) {
         const { cluster } = this.props.location.state || {} as any;
         const { canSubmit, reqParams } = params;
-        const { engineTypeKey } = this.state;
+        const { engineTypeKey, clusterData } = this.state;
+        const engineList = clusterData.engines || [];
         if (canSubmit) {
-            Api.addEngine({
-                clusterId: cluster.id || cluster.clusterId,
-                engineName: reqParams.engineName,
-                componentTypeCodeList: reqParams.componentTypeCodeList
-            }).then((res: any) => {
+            reqParams.clusterId = cluster.id || cluster.clusterId;
+            reqParams.clusterName = cluster.clusterName;
+            // 此处需过滤已添加过的引擎
+            const engineArr = [];
+            reqParams.engineList.forEach(engine => {
+                const exist = engineList && engineList.find(o => o.engineName.toLowerCase() == engine.engineName.toLowerCase());
+                if (!exist) engineArr.push(engine);
+            });
+            reqParams.engineList = engineArr;
+            Api.addEngines(reqParams).then((res: any) => {
                 if (res.code === 1) {
                     this.onCancel()
                     this.getDataList(engineTypeKey);
@@ -835,6 +841,7 @@ class EditCluster extends React.Component<any, any> {
             })
         }
     }
+
     /**
      * 测试全部连通性
      * @param componentValue 组件类型值
@@ -1950,7 +1957,6 @@ class EditCluster extends React.Component<any, any> {
                     }
                 </Tabs>
                 <AddEngineModal
-                    singleMode={true}
                     key={editModalKey}
                     title='增加引擎'
                     existEngines={engineList}

@@ -69,7 +69,6 @@ export default {
     killAllTask (params: any) {
         return http.post(req.KILL_ALL_TASK, params);
     },
-
     // 引擎列表
     getEngineList (params?: any) {
         return http.post(req.GET_ENGINE_LIST, params);
@@ -125,6 +124,9 @@ export default {
     },
     addEngine (params: any) {
         return http.post(req.ADD_ENGINE, params);
+    },
+    addEngines (params: any) {
+        return http.post(req.ADD_ENGINS, params);
     },
     getClusterInfo (params: any) {
         return http.post(req.GET_CLUSTER_INFO, params);
