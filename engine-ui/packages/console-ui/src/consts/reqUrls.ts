@@ -52,6 +52,7 @@ export default {
     DELETE_COMPONENT: `${CONSOLE_BASE_URL}/component/delete`,
     DELETE_KERBEROS: `${CONSOLE_BASE_URL}/component/rmKerberosConfig`, // 删除Haddop Kerberos认证文件
     ADD_ENGINE: `${CONSOLE_BASE_URL}/engine/addEngine`,
+    ADD_ENGINS: `${CONSOLE_BASE_URL}/engine/addEngines`,
     UPDATE_CLUSTER_VERSION: `${CONSOLE_BASE_URL}/cluster/updateGlobalConfig`, // 更新hadoop版本
     // 资源管理
     GET_ALL_CLUSTER: `${CONSOLE_BASE_URL}/cluster/getAllCluster`,

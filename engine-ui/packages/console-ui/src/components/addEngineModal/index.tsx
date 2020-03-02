@@ -212,8 +212,11 @@ class AddEngineModal extends React.Component<any, any> {
         const { getFieldDecorator } = this.props.form;
         const { title, visible, onCancel, singleMode, existEngines } = this.props;
 
+        const isEdit = existEngines && existEngines.length > 0;
+        const initialEngineValues = [];
         const engineCheckboxOptions = ENGINE_TYPE_ARRAY.map(engine => {
-            const exist = existEngines && existEngines.find(o => o.engineName === engine.name);
+            const exist = existEngines && existEngines.find(o => o.engineName.toLowerCase() == engine.value.toLowerCase());
+            if (exist) initialEngineValues.push(engine.value);
             return {
                 value: engine.value,
                 label: engine.name,
@@ -230,23 +233,22 @@ class AddEngineModal extends React.Component<any, any> {
             >
                 <Form>
                     {
-                        !singleMode
-                            ? <FormItem
-                                label="集群标识"
-                                {...formItemLayout}
-                            >
-                                {getFieldDecorator('clusterName', {
-                                    rules: [{
-                                        required: true,
-                                        message: '集群标识不可为空！'
-                                    }, {
-                                        pattern: /^[a-z0-9_]{1,64}$/i,
-                                        message: '集群标识不能超过64字符，支持英文、数字、下划线'
-                                    }]
-                                })(
-                                    <Input placeholder="请输入集群标识" />
-                                )}
-                            </FormItem> : null
+                        !isEdit ? <FormItem
+                            label="集群标识"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('clusterName', {
+                                rules: [{
+                                    required: true,
+                                    message: '集群标识不可为空！'
+                                }, {
+                                    pattern: /^[a-z0-9_]{1,64}$/i,
+                                    message: '集群标识不能超过64字符，支持英文、数字、下划线'
+                                }]
+                            })(
+                                <Input placeholder="请输入集群标识" />
+                            )}
+                        </FormItem> : null
                     }
                     <FormItem
                         label="引擎类型"
@@ -257,7 +259,7 @@ class AddEngineModal extends React.Component<any, any> {
                                 required: true,
                                 message: '引擎类型不可为空！'
                             }],
-                            initialValue: !existEngines ? [ENGINE_TYPE_NAME.HADOOP] : []
+                            initialValue: isEdit ? initialEngineValues : [ENGINE_TYPE_NAME.HADOOP]
                         })(
                             singleMode
                                 ? <RadioGroup options={engineCheckboxOptions}/>
