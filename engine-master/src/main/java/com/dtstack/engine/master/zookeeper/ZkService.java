@@ -31,6 +31,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -127,7 +128,7 @@ public class ZkService implements InitializingBean, DisposableBean {
         createNodeIfNotExists(this.distributeRootNode, "");
         createNodeIfNotExists(this.brokersNode, BrokersNode.initBrokersNode());
         createNodeIfNotExists(this.localNode, "");
-        createNodeIfNotExists(this.workersNode, new HashMap<>());
+        createNodeIfNotExists(this.workersNode, new HashSet<>());
         initNeedLock();
         createLocalBrokerHeartNode();
         initScheduledExecutorService();
