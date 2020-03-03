@@ -124,7 +124,11 @@ class BindAccountTable extends React.Component<IProps, IState> {
     }
 
     onUnBindAccount = async (account: IAccount) => {
-        const res = await AccountApi.unbindAccount({ id: account.bindUserId });
+        const res = await AccountApi.unbindAccount({
+            id: account.bindUserId,
+            name: account.name,
+            password: account.password
+        });
         if (res.code === 1) {
             message.success('解绑成功！');
             this.showHideBindModal(null);

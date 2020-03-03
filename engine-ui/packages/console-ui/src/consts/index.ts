@@ -89,6 +89,7 @@ export const DEFAULT_COMP_TEST: any = { // 测试结果默认数据
     carbonTestResult: {},
     hiveServerTestResult: {},
     libraSqlTestResult: {},
+    tidbSqlTestResult: {},
     impalaSqlTestResult: {},
     sftpTestResult: {}
 }

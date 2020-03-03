@@ -24,8 +24,10 @@ class BindAccountModal extends React.Component<IProps, any> {
     }
 
     onSubmit = (callback: (values: any) => {}) => {
-        const { form, userList } = this.props;
-        form.validateFields((err, user) => {
+        const { form, data, userList } = this.props;
+        const isEdit = data !== null && data !== undefined;
+        const validFields = isEdit ? ['username', 'id'] : ['bindUserId'];
+        form.validateFields(validFields.concat(['name', 'password']), (err, user) => {
             if (!err) {
                 const selectedUser = userList.find(u => u.userId == user.bindUserId);
                 if (selectedUser) {
@@ -55,6 +57,14 @@ class BindAccountModal extends React.Component<IProps, any> {
         this.onSubmit(onUnbind)
     }
 
+    onCancel = (e: any) => {
+        const { onCancel, form } = this.props;
+        if (onCancel) {
+            setTimeout(() => form.resetFields(), 0);
+            onCancel(e);
+        }
+    }
+
     render () {
         const { getFieldDecorator } = this.props.form;
         const { visible, onCancel, title, data, engineText, userList } = this.props;
@@ -68,7 +78,7 @@ class BindAccountModal extends React.Component<IProps, any> {
                     : null
                 }
                 <span className="right">
-                    <Button onClick={onCancel} style={{ marginRight: 10 }}>取消</Button>
+                    <Button onClick={this.onCancel} style={{ marginRight: 10 }}>取消</Button>
                     <Button type="primary" disabled={isEdit} onClick={this.onOk}>确定</Button>
                 </span>
             </div>
@@ -101,9 +111,9 @@ class BindAccountModal extends React.Component<IProps, any> {
                                 {getFieldDecorator('bindUserId', {
                                     rules: [{
                                         required: true,
-                                        message: '租户不可为空！'
+                                        message: '产品账号不可为空！'
                                     }],
-                                    initialValue: ''
+                                    initialValue: undefined
                                 })(
                                     <Select
                                         allowClear
@@ -129,7 +139,7 @@ class BindAccountModal extends React.Component<IProps, any> {
                                         {getFieldDecorator('username', {
                                             rules: [{
                                                 required: true,
-                                                message: '租户不可为空！'
+                                                message: '产品账号不可为空！'
                                             }],
                                             initialValue: get(data, 'username', '')
                                         })(
@@ -158,9 +168,9 @@ class BindAccountModal extends React.Component<IProps, any> {
                             {getFieldDecorator('name', {
                                 rules: [{
                                     required: true,
-                                    message: '集群不可为空！'
+                                    message: '数据库账号不可为空！'
                                 }],
-                                initialValue: ``
+                                initialValue: get(data, 'name', '')
                             })(
                                 <Input placeholder="请输入数据库账号" />
                             )}
@@ -172,7 +182,7 @@ class BindAccountModal extends React.Component<IProps, any> {
                             {getFieldDecorator('password', {
                                 rules: [{
                                     required: true,
-                                    message: '集群不可为空！'
+                                    message: '数据库密码不可为空！'
                                 }],
                                 initialValue: ``
                             })(

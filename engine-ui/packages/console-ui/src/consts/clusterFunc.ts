@@ -150,6 +150,12 @@ export function showTestResult (testResults: any, engineType: any) {
                 })
                 break;
             }
+            case COMPONENT_TYPE_VALUE.TIDB_SQL: {
+                testStatus = Object.assign(testStatus, {
+                    tidbSqlTestResult: !isHadoop ? comp : {}
+                })
+                break;
+            }
             case COMPONENT_TYPE_VALUE.SFTP: {
                 testStatus = Object.assign(testStatus, {
                     sftpTestResult: isHadoop ? comp : {}

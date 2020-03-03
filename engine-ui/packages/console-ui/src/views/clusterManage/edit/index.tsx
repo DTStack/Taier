@@ -859,13 +859,13 @@ class EditCluster extends React.Component<any, any> {
                     allTestLoading: true
                 })
                 let componentConf = this.getComponentConf(values);
-                let hasFile = false;
+                let hasKerberosFile = false;
                 let fileObj = {}
                 componentConf = mapValues(componentConf, (item, key) => {
                     console.log(item, item && item.kerberosFile)
                     let newConfig = item
                     if (item && item.kerberosFile) {
-                        hasFile = true;
+                        hasKerberosFile = true;
                         fileObj = {
                             ...fileObj,
                             [`${key}KerberosFile`]: item.kerberosFile
@@ -875,7 +875,7 @@ class EditCluster extends React.Component<any, any> {
                     return newConfig;
                 })
                 console.log('startapi', componentConf, cluster)
-                if (hasFile) {
+                if (hasKerberosFile) {
                     Api.testComponentKerberos({
                         ...fileObj,
                         clusterId: cluster.id || cluster.clusterId,

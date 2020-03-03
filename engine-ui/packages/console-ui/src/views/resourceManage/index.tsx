@@ -300,11 +300,12 @@ class ResourceManage extends React.Component<any, any> {
                                     return (
                                         <TabPane className='tab-pane-wrapper' tab={engineName} key={`${engineType}`}>
                                             <Tabs
+                                                key={`${engineType}-tenant`}
                                                 className='engine-detail-tabs'
                                                 tabPosition='top'
                                                 animated={false}
                                             >
-                                                <TabPane tab="租户绑定" key={`${engineType}-tenant`}>
+                                                <TabPane tab="租户绑定" key={`bindTenant`}>
                                                     <div style={{ margin: 15 }}>
                                                         <Search
                                                             style={{ width: '200px', marginBottom: '20px' }}

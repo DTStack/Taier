@@ -25,7 +25,7 @@ export default {
         return http.post(req.ACCOUNT_BIND_LIST, params)
     },
 
-    unbindAccount (params: { id: numOrStr }) {
+    unbindAccount (params: { id: numOrStr; name: string; password: string }) {
         return http.post(req.ACCOUNT_UNBIND, params)
     }
 }
