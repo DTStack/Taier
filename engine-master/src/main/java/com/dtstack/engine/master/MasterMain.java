@@ -4,12 +4,7 @@ import com.dtstack.engine.common.Service;
 import com.dtstack.engine.common.log.LogbackComponent;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
-import com.dtstack.engine.master.config.ActorManagerBeanConfig;
-import com.dtstack.engine.master.config.CacheConfig;
-import com.dtstack.engine.master.config.MybatisConfig;
-import com.dtstack.engine.master.config.RdosBeanConfig;
-import com.dtstack.engine.master.config.SdkConfig;
-import com.dtstack.engine.master.config.ThreadPoolConfig;
+import com.dtstack.engine.master.config.*;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.router.RouterService;
 import com.google.common.collect.Lists;
@@ -49,7 +44,7 @@ public class MasterMain {
 
             ApplicationContext context = new AnnotationConfigApplicationContext(
                     EnvironmentContext.class, ActorManagerBeanConfig.class, CacheConfig.class, ThreadPoolConfig.class,
-                    MybatisConfig.class, RdosBeanConfig.class, SdkConfig.class);
+                    MybatisConfig.class, RdosBeanConfig.class);
             environmentContext = (EnvironmentContext) context.getBean(EnvironmentContext.class);
 
             setHadoopUserName();

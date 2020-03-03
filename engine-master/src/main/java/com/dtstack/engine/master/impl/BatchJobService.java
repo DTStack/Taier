@@ -124,12 +124,6 @@ public class BatchJobService {
     private BatchJobJobService batchJobJobService;
 
     @Autowired
-    private BatchAlarmService batchAlarmService;
-
-    @Autowired
-    private BatchJobAlarmService batchJobAlarmService;
-
-    @Autowired
     private EnvironmentContext env;
 
     @Autowired
@@ -1379,19 +1373,6 @@ public class BatchJobService {
             throw new RdosDefineException("请检查所选择的具体日期范围", ErrorCode.NO_FILLDATA_TASK_IS_GENERATE);
         }
 
-        List<Long> needMonitorTaskIdList = batchAlarmService.getAllNeedMonitorTaskId(projectId);
-        for (ScheduleBatchJob batchJob : addBatchMap.values()) {
-            if (needMonitorTaskIdList.contains(batchJob.getTaskId())) {
-                Integer status = batchJob.getStatus();
-                BatchJob job = batchJobDao.getByJobId(batchJob.getJobId(), Deleted.NORMAL.getStatus());
-                if (Objects.isNull(job)) {
-                    logger.info("fill task data job id {} not found job", batchJob.getJobId());
-                    continue;
-                }
-                job.setStatus(status);
-                batchJobAlarmService.saveBatchJobAlarm(job);
-            }
-        }
         return fillName;
     }
 
@@ -2613,7 +2594,7 @@ public class BatchJobService {
             //需要保存BatchJob, BatchJobJob
             this.insertJobList(cronTrigger, EScheduleType.NORMAL_SCHEDULE.getType());
             //添加到告警监控表里面
-            jobGraphBuilder.saveJobAlarm(cronTrigger);
+
             if (CollectionUtils.isNotEmpty(cronTrigger)) {
                 for (ScheduleBatchJob job : cronTrigger) {
                     logger.info("create job task shade for test {}", job.getJobKey());

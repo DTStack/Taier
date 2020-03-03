@@ -31,11 +31,4 @@ public class RdosBeanConfig {
         return consoleSend;
     }
 
-    @Bean
-    public EngineSend engineSend(ConsoleSend consoleSend) {
-        EngineSend engineSend = new EngineSend(environmentContext.getEngineNode());
-        engineSend.setConsoleSend(consoleSend);
-        return engineSend;
-    }
-
 }
