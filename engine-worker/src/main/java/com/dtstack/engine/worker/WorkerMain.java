@@ -1,14 +1,9 @@
 package com.dtstack.engine.worker;
 
-import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
-import akka.actor.Props;
 import com.dtstack.engine.common.log.LogbackComponent;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
 import com.dtstack.engine.common.akka.config.AkkaConfig;
-import com.dtstack.engine.worker.listener.WorkerBeatListener;
-import com.dtstack.engine.worker.service.JobService;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
@@ -22,15 +17,8 @@ public class WorkerMain {
         try {
             SystemPropertyUtil.setSystemUserDir();
             LogbackComponent.setupLogger();
-
             Config workerConfig = AkkaConfig.checkIpAndPort(ConfigFactory.load());
-            ActorSystem system = ActorSystem.create(AkkaConfig.getWorkerSystemName(), workerConfig);
-
-            // Create an actor
-            String workerName = AkkaConfig.getWorkerName();
-            ActorRef actorRef = system.actorOf(Props.create(JobService.class), workerName);
-
-            new WorkerBeatListener(system);
+            new AkkaWorkerServerImpl().start(workerConfig);
 
             ShutdownHookUtil.addShutdownHook(WorkerMain::shutdown, WorkerMain.class.getSimpleName(), logger);
         } catch (Throwable e) {

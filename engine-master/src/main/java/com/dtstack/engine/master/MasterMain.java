@@ -4,7 +4,7 @@ import com.dtstack.engine.common.Service;
 import com.dtstack.engine.common.log.LogbackComponent;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
-import com.dtstack.engine.master.config.ActorManagerBeanConfig;
+import com.dtstack.engine.master.config.MasterServerBeanConfig;
 import com.dtstack.engine.master.config.CacheConfig;
 import com.dtstack.engine.master.config.MybatisConfig;
 import com.dtstack.engine.master.config.RdosBeanConfig;
@@ -48,7 +48,7 @@ public class MasterMain {
             LogbackComponent.setupLogger();
 
             ApplicationContext context = new AnnotationConfigApplicationContext(
-                    EnvironmentContext.class, ActorManagerBeanConfig.class, CacheConfig.class, ThreadPoolConfig.class,
+                    EnvironmentContext.class, MasterServerBeanConfig.class, CacheConfig.class, ThreadPoolConfig.class,
                     MybatisConfig.class, RdosBeanConfig.class, SdkConfig.class);
             environmentContext = (EnvironmentContext) context.getBean(EnvironmentContext.class);
 
