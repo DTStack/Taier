@@ -67,8 +67,8 @@ public class GroupPriorityQueue {
     private GroupPriorityQueue() {
     }
 
-    public void add(JobClient jobClient) throws InterruptedException {
-        if (isBlocked()) {
+    public void add(JobClient jobClient, boolean judgeBlock) throws InterruptedException {
+        if (judgeBlock && isBlocked()) {
             logger.info("jobId:{} unable add to queue, because queue is blocked.", jobClient.getTaskId());
             return;
         }

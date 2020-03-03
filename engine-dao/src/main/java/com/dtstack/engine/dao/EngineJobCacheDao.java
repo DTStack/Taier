@@ -42,9 +42,9 @@ public interface EngineJobCacheDao {
 
     List<String> getJobResources();
 
-    List<Map<String,Object>> groupByJobResource();
+    List<Map<String,Object>> groupByJobResource(@Param("nodeAddress") String nodeAddress);
 
-    Long countByJobResource(@Param("jobResource") String jobResource);
+    Long countByJobResource(@Param("jobResource") String jobResource, @Param("nodeAddress") String nodeAddress);
 
-    List<EngineJobCache> listByJobResource(@Param("jobResource") String jobResource);
+    List<EngineJobCache> listByJobResource(@Param("jobResource") String jobResource, @Param("nodeAddress") String nodeAddress);
 }

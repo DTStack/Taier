@@ -1,21 +1,36 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSONObject;
+import com.dtstack.dtcenter.common.annotation.Forbidden;
+import com.dtstack.dtcenter.common.enums.EComponentType;
+import com.dtstack.dtcenter.common.enums.MultiEngineType;
+import com.dtstack.dtcenter.common.util.DateUtil;
 import com.dtstack.engine.common.annotation.Param;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.pojo.ParamAction;
+import com.dtstack.engine.dao.ClusterDao;
+import com.dtstack.engine.dao.EngineDao;
 import com.dtstack.engine.dao.EngineJobDao;
 import com.dtstack.engine.dao.EngineJobCacheDao;
+import com.dtstack.engine.domain.Cluster;
+import com.dtstack.engine.domain.Component;
+import com.dtstack.engine.domain.Engine;
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.domain.EngineJob;
 import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.cache.ShardCache;
-import com.dtstack.engine.master.zookeeper.ZkService;
+import com.dtstack.engine.master.component.ComponentFactory;
+import com.dtstack.engine.master.component.FlinkComponent;
+import com.dtstack.engine.master.component.YARNComponent;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,16 +64,28 @@ public class ConsoleService {
     private EngineJobCacheDao engineJobCacheDao;
 
     @Autowired
-    private WorkNode workNode;
+    private ClusterDao clusterDao;
 
     @Autowired
-    private ZkService zkService;
+    private EngineDao engineDao;
+
+    @Autowired
+    private ComponentService componentService;
+
+    @Autowired
+    private WorkNode workNode;
 
     @Autowired
     private ShardCache shardCache;
 
+    @Autowired
+    private ActionService actionService;
+
+    private static final Integer GROUP_TOTAL_KILL_MODEL = 0;
+    private static final Integer NAME_TOTAL_KILL_MODEL = 1;
+
     public Boolean finishJob(String jobId, Integer status) {
-        if(!RdosTaskStatus.isStopped(status)){
+        if (!RdosTaskStatus.isStopped(status)) {
             logger.warn("Job status：" + status + " is not stopped status");
             return false;
         }
@@ -71,27 +98,10 @@ public class ConsoleService {
 
     public List<String> nodes() {
         try {
-            return zkService.getAliveBrokersChildren();
+            return engineJobCacheDao.getAllNodeAddress();
         } catch (Exception e) {
             return Collections.EMPTY_LIST;
         }
-    }
-
-    public String getNodeByJobName(@Param("jobName") String jobName) {
-        Preconditions.checkNotNull(jobName, "parameters of jobName not be null.");
-        String jobId = null;
-        EngineJob batchJob = engineJobDao.getByName(jobName);
-        if (batchJob != null) {
-            jobId = batchJob.getJobId();
-        }
-        if (jobId == null) {
-            return null;
-        }
-        EngineJobCache jobCache = engineJobCacheDao.getOne(jobId);
-        if (jobCache == null) {
-            return null;
-        }
-        return jobCache.getNodeAddress();
     }
 
     public Map<String, Object> searchJob(@Param("jobName") String jobName) {
@@ -104,20 +114,18 @@ public class ConsoleService {
         if (jobId == null) {
             return null;
         }
-        EngineJobCache jobCache = engineJobCacheDao.getOne(jobId);
-        if (jobCache == null) {
+        EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
+        if (engineJobCache == null) {
             return null;
         }
         try {
-            Map<String, Object> theJobMap = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), Map.class);
-            theJobMap.put("status", engineJob.getStatus());
-            theJobMap.put("execStartTime", engineJob.getExecStartTime());
-            theJobMap.put("generateTime", jobCache.getGmtCreate());
+            Map<String, Object> theJobMap = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), Map.class);
+            this.fillJobInfo(theJobMap, engineJob, engineJobCache);
 
-            Map<String, Object> result = new HashMap<>();
+            Map<String, Object> result = new HashMap<>(3);
             result.put("theJob", Lists.newArrayList(theJobMap));
             result.put("theJobIdx", 1);
-            result.put("node", jobCache.getNodeAddress());
+            result.put("node", engineJobCache.getNodeAddress());
 
             return result;
         } catch (Exception e) {
@@ -142,13 +150,12 @@ public class ConsoleService {
 
     /**
      * 根据计算引擎类型显示任务
-     *
-     * @param jobResource 计算引擎类型
-     * @return
      */
-    public List<Map<String, Object>> overview() {
-
-        List<Map<String, Object>> groupResult = engineJobCacheDao.groupByJobResource();
+    public List<Map<String, Object>> overview(@Param("node") String nodeAddress) {
+        if (StringUtils.isBlank(nodeAddress)) {
+            nodeAddress = null;
+        }
+        List<Map<String, Object>> groupResult = engineJobCacheDao.groupByJobResource(nodeAddress);
         if (CollectionUtils.isNotEmpty(groupResult)) {
             groupResult.forEach(record -> {
                 long generateTime = MapUtils.getLong(record, "generateTime");
@@ -160,26 +167,27 @@ public class ConsoleService {
     }
 
     public Map<String, Object> groupDetail(@Param("jobResource") String jobResource,
+                                           @Param("node") String nodeAddress,
                                            @Param("pageSize") int pageSize,
                                            @Param("currentPage") int currentPage) {
         Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
+        if (StringUtils.isBlank(nodeAddress)) {
+            nodeAddress = null;
+        }
         Map<String, Object> result = new HashMap<>();
         List<Map<String, Object>> topN = new ArrayList<>();
         Long count = 0L;
         result.put("queueSize", count);
         result.put("topN", topN);
         try {
-            count = engineJobCacheDao.countByJobResource(jobResource);
+            count = engineJobCacheDao.countByJobResource(jobResource, nodeAddress);
             if (count > 0) {
-                List<EngineJobCache> engineJobCaches = engineJobCacheDao.listByJobResource(jobResource);
+                List<EngineJobCache> engineJobCaches = engineJobCacheDao.listByJobResource(jobResource, nodeAddress);
                 for (EngineJobCache engineJobCache : engineJobCaches) {
                     Map<String, Object> theJobMap = PublicUtil.objectToMap(engineJobCache);
-                    theJobMap.put("generateTime", engineJobCache.getGmtCreate());
                     EngineJob engineJob = engineJobDao.getRdosJobByJobId(engineJobCache.getJobId());
                     if (engineJob != null) {
-                        Integer status = engineJob.getStatus();
-                        theJobMap.put("status", status);
-                        theJobMap.put("execStartTime", engineJob.getExecStartTime());
+                        this.fillJobInfo(theJobMap, engineJob, engineJobCache);
                     }
                 }
             }
@@ -187,6 +195,15 @@ public class ConsoleService {
             logger.error("{}", e);
         }
         return result;
+    }
+
+    private void fillJobInfo(Map<String, Object> theJobMap, EngineJob engineJob, EngineJobCache engineJobCache) {
+        theJobMap.put("status", engineJob.getStatus());
+        theJobMap.put("execStartTime", engineJob.getExecStartTime());
+        theJobMap.put("generateTime", engineJobCache.getGmtCreate());
+        long currentTime = System.currentTimeMillis();
+        String waitTime = DateUtil.getTimeDifference(currentTime - engineJobCache.getGmtCreate().getTime());
+        theJobMap.put("waitTime", waitTime);
     }
 
     public Boolean jobStick(@Param("jobId") String jobId,
@@ -201,6 +218,7 @@ public class ConsoleService {
             jobClient.setCallBack((jobStatus)-> {
                 workNode.updateJobStatus(jobClient.getTaskId(), jobStatus);
             });
+            workNode.addGroupPriorityQueue(engineJobCache.getJobResource(), jobClient, false);
             return true;
         } catch (Exception e) {
             logger.error("{}", e);
@@ -208,4 +226,142 @@ public class ConsoleService {
         return false;
     }
 
+    public void stopJob(@Param("computeTypeInt") String computeTypeInt,
+                        @Param("engineType") String engineType,
+                        @Param("queueName") String queueName,
+                        @Param("clusterName") String clusterName,
+                        @Param("jobId") String jobId) throws Exception {
+        Preconditions.checkNotNull(jobId, "parameters of jobId is required");
+
+        Map<String, Object> params = new HashMap<>(4);
+        params.put("taskId", jobId);
+        params.put("engineType", engineType);
+        params.put("computeType", computeTypeInt);
+        params.put("groupName", clusterName + '_' + queueName);
+
+        List<Map<String, Object>> jobs = new ArrayList<>(1);
+        jobs.add(params);
+
+
+        Map<String, Object> stopJobs = new HashMap<>(1);
+        stopJobs.put("jobs", jobs);
+
+        actionService.stop(stopJobs);
+    }
+
+    public void stopJobList(@Param("jobResource") String jobResource,
+                            @Param("node") String nodeAddress,
+                            @Param("jobIdList") List<Map<String, Object>> jobIdList,
+                            @Param("jobName") String jobName,
+                            @Param("totalModel") Integer totalModel,
+                            @Param("totalSize") Integer totalSize) throws Exception {
+        if (StringUtils.isBlank(nodeAddress)) {
+            nodeAddress = null;
+        }
+        List<Map<String, Object>> jobs = null;
+        if (totalModel != null) {
+            List<Map<String, Object>> topN = null;
+            if (GROUP_TOTAL_KILL_MODEL.equals(totalModel)) {
+                Map<String, Object> groupDetail = groupDetail(jobResource, nodeAddress, totalSize, 1);
+                if (groupDetail == null) {
+                    return;
+                }
+                topN = (List<Map<String, Object>>) groupDetail.get("topN");
+            } else if (NAME_TOTAL_KILL_MODEL.equals(totalModel)) {
+                Map<String, Object> searchJob = searchJob(jobName);
+                if (searchJob == null) {
+                    return;
+                }
+                topN = (List<Map<String, Object>>) searchJob.get("theJob");
+            }
+            jobs = topN;
+        } else {
+            jobs = jobIdList;
+        }
+        if (jobs == null || jobs.isEmpty()) {
+            return;
+        }
+
+        Map<String, Object> stopJobs = new HashMap<>(1);
+        stopJobs.put("jobs", jobs);
+
+        actionService.stop(stopJobs);
+    }
+
+    public Map<String, Object> clusterResources(@Param("clusterName") String clusterName) {
+        if (StringUtils.isEmpty(clusterName)) {
+            return MapUtils.EMPTY_MAP;
+        }
+
+        Cluster cluster = clusterDao.getByClusterName(clusterName);
+        if (cluster == null) {
+            throw new RdosDefineException(ErrorCode.DATA_NOT_FIND);
+        }
+
+        Component yarnComponent = getYarnComponent(cluster.getId());
+        if (yarnComponent == null) {
+            return null;
+        }
+
+        Map<String, Object> yarnConfig = JSONObject.parseObject(yarnComponent.getComponentConfig(), Map.class);
+
+        return getResources(yarnConfig, cluster.getId());
+    }
+
+    @Forbidden
+    public Map<String, Object> getResources(Map<String, Object> yarnConfig, Long clusterId) {
+        YARNComponent yarnComponent = null;
+        try {
+            Map<String, Object> kerberosConfig = componentService.fillKerberosConfig(JSONObject.toJSONString(yarnConfig), clusterId);
+            yarnComponent = (YARNComponent) ComponentFactory.getComponent(kerberosConfig, EComponentType.YARN);
+            yarnComponent.initClusterResource(false);
+
+            FlinkComponent flinkComponent = (FlinkComponent) ComponentFactory.getComponent(null, EComponentType.FLINK);
+            flinkComponent.initTaskManagerResource(yarnComponent.getYarnClient());
+
+            Map<String, Object> clusterResources = new HashMap<>(2);
+            clusterResources.put("yarn", yarnComponent.getClusterNodes());
+            clusterResources.put("flink", flinkComponent.getTaskManagerDescriptions());
+            return clusterResources;
+        } catch (Exception e) {
+            logger.error(" ", e);
+            throw new RdosDefineException("flink资源获取异常");
+        } finally {
+            if (yarnComponent != null) {
+                yarnComponent.closeYarnClient();
+            }
+        }
+    }
+
+    private Component getYarnComponent(Long clusterId) {
+        List<Engine> engines = engineDao.listByClusterId(clusterId);
+        if (CollectionUtils.isEmpty(engines)) {
+            return null;
+        }
+
+        Engine hadoopEngine = null;
+        for (Engine e : engines) {
+            if (e.getEngineType() == MultiEngineType.HADOOP.getType()) {
+                hadoopEngine = e;
+                break;
+            }
+        }
+
+        if (hadoopEngine == null) {
+            return null;
+        }
+
+        List<Component> componentList = componentService.listComponent(hadoopEngine.getId());
+        if (CollectionUtils.isEmpty(componentList)) {
+            return null;
+        }
+
+        for (Component component : componentList) {
+            if (EComponentType.YARN.getTypeCode() == component.getComponentTypeCode()) {
+                return component;
+            }
+        }
+
+        return null;
+    }
 }

@@ -110,8 +110,12 @@
         min(gmt_create) as generateTime,
         count(1) as jobSize
         FROM rdos_engine_job_cache
-        WHERE stage != 4 and is_deleted = 0
+        WHERE is_deleted = 0
+        <if test="nodeAddress != null">
+            and node_address = #{nodeAddress}
+        </if>
         group by job_resource
+        order by job_resource asc
     </select>
 
     <select id="countByJobResource" resultType="java.lang.Long">
@@ -119,10 +123,17 @@
         count(1) as count
         FROM rdos_engine_job_cache
         WHERE job_resource = #{jobResource} and is_deleted = 0
+        <if test="nodeAddress != null">
+            and node_address = #{nodeAddress}
+        </if>
     </select>
 
     <select id="listByJobResource" resultType="EngineJobCache">
         SELECT * FROM rdos_engine_job_cache
         WHERE job_resource = #{jobResource} and is_deleted = 0
+        <if test="nodeAddress != null">
+            and node_address = #{nodeAddress}
+        </if>
+        order by stage desc, job_priority asc
     </select>
 </mapper>
