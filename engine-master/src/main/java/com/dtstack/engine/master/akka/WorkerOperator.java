@@ -26,15 +26,14 @@ public class WorkerOperator {
     @Autowired
     private AkkaMasterServerImpl masterServer;
 
-    public boolean judgeSlots(JobClient jobClient) {
-        Object result = null;
-        try {
-            result = callbackAndReset(jobClient, () -> masterServer.sendMessage(new MessageJudgeSlots(jobClient)));
-        } catch (Exception e) {
-            logger.error("jobid:{} judgeSlots failed!", jobClient.getTaskId(), e);
-            return false;
+    public boolean judgeSlots(JobClient jobClient) throws Exception {
+        Object result = callbackAndReset(jobClient, () -> masterServer.sendMessage(new MessageJudgeSlots(jobClient)));
+
+        if (result instanceof Throwable){
+            throw new Exception((Throwable) result);
+        } else {
+            return (boolean) result;
         }
-        return (boolean) result;
     }
 
     public JobResult submitJob(JobClient jobClient) throws Exception {

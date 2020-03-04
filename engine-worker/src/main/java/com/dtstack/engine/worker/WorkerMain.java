@@ -18,7 +18,7 @@ public class WorkerMain {
             SystemPropertyUtil.setSystemUserDir();
             LogbackComponent.setupLogger();
             Config workerConfig = AkkaConfig.checkIpAndPort(ConfigFactory.load());
-            new AkkaWorkerServerImpl().start(workerConfig);
+            AkkaWorkerServerImpl.getAkkaWorkerServer().start(workerConfig);
 
             ShutdownHookUtil.addShutdownHook(WorkerMain::shutdown, WorkerMain.class.getSimpleName(), logger);
         } catch (Throwable e) {

@@ -55,6 +55,10 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
     private String workerRemotePath;
     private ActorSelection activeMasterActor;
 
+    private static AkkaWorkerServerImpl akkaWorkerServer = new AkkaWorkerServerImpl();
+
+    private AkkaWorkerServerImpl(){}
+
     @Override
     public Config loadConfig() {
         return null;
@@ -127,6 +131,10 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
         if (LogCountUtil.count(logOutput++, MULTIPLES)) {
             logger.info("WorkerBeatListener Running workerRemotePath:{} gap:[{} ms]...", workerRemotePath, CHECK_INTERVAL * MULTIPLES);
         }
+    }
+
+    public static AkkaWorkerServerImpl getAkkaWorkerServer() {
+        return akkaWorkerServer;
     }
 
     private class MonitorNode implements Runnable {
