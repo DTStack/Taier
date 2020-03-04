@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
+import scala.concurrent.duration.FiniteDuration;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -54,6 +55,7 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
     private int workerPort;
     private String workerRemotePath;
     private ActorSelection activeMasterActor;
+    private FiniteDuration askResultTimeout;
 
     private static AkkaWorkerServerImpl akkaWorkerServer = new AkkaWorkerServerImpl();
 
@@ -77,6 +79,7 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
         this.workerIp = AkkaConfig.getAkkaHostname();
         this.workerPort = AkkaConfig.getAkkaPort();
         this.workerRemotePath = AkkaConfig.getWorkerRemotePath();
+        this.askResultTimeout = Duration.create(AkkaConfig.getAkkaAskResultTimeout(), TimeUnit.SECONDS);
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(2, new CustomThreadFactory(this.getClass().getSimpleName()));
         scheduledService.scheduleWithFixedDelay(
                 this,
@@ -94,7 +97,7 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
     public void heartBeat(WorkerInfo workerInfo) {
         try {
             Future<Object> future = Patterns.ask(getActiveMasterAddress(), workerInfo, AkkaConfig.getAkkaAskTimeout());
-            Object result = Await.result(future, Duration.create(AkkaConfig.getAkkaAskResultTimeout(), TimeUnit.SECONDS));
+            Object result = Await.result(future, askResultTimeout);
         } catch (Throwable e){
             String ip = activeMasterActor.anchorPath().address().host().toString();
             String port = activeMasterActor.anchorPath().address().port().toString();
