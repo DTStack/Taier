@@ -304,6 +304,6 @@ public class EnvironmentContext {
     }
 
     public long getJobLogDelay(){
-        return Integer.parseInt(environment.getProperty("jobLogDelay", "3000"));
+        return Integer.parseInt(environment.getProperty("jobLogDelay", "30000"));
     }
 }

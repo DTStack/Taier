@@ -29,8 +29,8 @@ public class WorkerOperator {
     public boolean judgeSlots(JobClient jobClient) throws Exception {
         Object result = callbackAndReset(jobClient, () -> masterServer.sendMessage(new MessageJudgeSlots(jobClient)));
 
-        if (result instanceof Throwable){
-            throw new Exception((Throwable) result);
+        if (result instanceof Exception){
+            throw (Exception) result;
         } else {
             return (boolean) result;
         }
