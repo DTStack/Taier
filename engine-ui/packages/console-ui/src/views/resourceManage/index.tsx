@@ -321,7 +321,7 @@ class ResourceManage extends React.Component<any, any> {
                                                         <Table
                                                             className='m-table border-table'
                                                             loading={loading}
-                                                            rowKey="tenantId"
+                                                            rowKey={(record, index) => `${index}-${record.tenantId}`}
                                                             columns={isHadoop ? hadoopColumns : otherColumns}
                                                             dataSource={tableData}
                                                             pagination={pagination}

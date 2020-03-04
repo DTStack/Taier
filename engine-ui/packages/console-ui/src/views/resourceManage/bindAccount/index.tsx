@@ -233,8 +233,8 @@ class BindAccountTable extends React.Component<IProps, IState> {
                 </span>
                 <Table
                     className='m-table border-table'
-                    rowKey="userId"
                     loading={loading}
+                    rowKey={(record, index) => `accounts-${index}-${record.userId}`}
                     columns={this.initColumns()}
                     dataSource={tableData}
                     pagination={pagination}
