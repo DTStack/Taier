@@ -64,6 +64,7 @@ export default {
     // TiDB 引擎账号绑定
     ACCOUNT_UNBIND_LIST: `${CONSOLE_BASE_URL}/account/getTenantUnBandList`,
     ACCOUNT_BIND: `${CONSOLE_BASE_URL}/account/bindAccount`,
+    UPDATE_ACCOUNT_BIND: `${CONSOLE_BASE_URL}/account/updateBindAccount`,
     ACCOUNT_BIND_LIST: `${CONSOLE_BASE_URL}/account/pageQuery`,
     ACCOUNT_UNBIND: `${CONSOLE_BASE_URL}/account/unbindAccount`
 }

@@ -138,14 +138,23 @@ class BindAccountTable extends React.Component<IProps, IState> {
     }
 
     onBindAccountUpdate = async (account: IAccount) => {
-        const { queryParams } = this.state;
-        account.bindTenantId = queryParams.dtuicTenantId;
-        const res = await AccountApi.bindAccount(account);
-        if (res.code === 1) {
-            message.success('绑定成功！');
+        const { queryParams, modalData } = this.state;
+        const isEdit = modalData;
+        const handOk = () => {
             this.showHideBindModal(null);
             this.fetchData();
             this.fetchUnbindUsers();
+        }
+        account.bindTenantId = queryParams.dtuicTenantId;
+        let res = { code: 0 };
+        if (isEdit) {
+            res = await AccountApi.updateBindAccount(account);
+        } else {
+            res = await AccountApi.bindAccount(account);
+        }
+        if (res.code === 1) {
+            message.success('绑定成功！');
+            handOk();
         }
     }
 

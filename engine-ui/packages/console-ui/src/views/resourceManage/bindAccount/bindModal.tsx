@@ -79,7 +79,7 @@ class BindAccountModal extends React.Component<IProps, any> {
                 }
                 <span className="right">
                     <Button onClick={this.onCancel} style={{ marginRight: 10 }}>取消</Button>
-                    <Button type="primary" disabled={isEdit} onClick={this.onOk}>确定</Button>
+                    <Button type="primary" onClick={this.onOk}>确定</Button>
                 </span>
             </div>
         )
