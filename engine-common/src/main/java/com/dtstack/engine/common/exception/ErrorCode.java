@@ -1,5 +1,7 @@
 package com.dtstack.engine.common.exception;
 
+import java.io.Serializable;
+
 /**
  * 错误码定义
  * FIXME 各个模块的错误码用分割线分开
@@ -7,7 +9,7 @@ package com.dtstack.engine.common.exception;
  * author: xuchao
  * create: 2017/12/1
  */
-public enum ErrorCode implements ExceptionEnums {
+public enum ErrorCode implements ExceptionEnums, Serializable {
 
 
 //    /***----------------start 公共模块错误码 0 ~ 100 start----------------------------------------****/
