@@ -2,6 +2,7 @@ package com.dtstack.engine.master.plugininfo;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.common.enums.EngineType;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.impl.ClusterService;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
@@ -49,10 +50,12 @@ public class PluginWrapper{
 
         Long tenantId = MapUtils.getLong(actionParam, TENANT_ID);
         String engineType = MapUtils.getString(actionParam, ENGINE_TYPE);
-        String pluginInfo = clusterService.pluginInfo(tenantId, engineType);
+        JSONObject pluginInfoJson = clusterService.pluginInfoJSON(tenantId, engineType);
         String groupName = DEFAULT_GROUP_NAME;
-        if (StringUtils.isNotBlank(pluginInfo)) {
-            JSONObject pluginInfoJson = JSONObject.parseObject(pluginInfo);
+        if (pluginInfoJson == null) {
+            throw new RdosDefineException("pluginInfo not be null");
+        }
+        if (pluginInfoJson.isEmpty()) {
             addParamsToJdbcUrl(actionParam, pluginInfoJson);
             addUserNameToHadoop(pluginInfoJson, ldapUserName);
             addUserNameToImpalaOrHive(pluginInfoJson, ldapUserName, ldapPassword, dbName, engineType);
@@ -61,7 +64,7 @@ public class PluginWrapper{
             actionParam.put(GROUP_NAME, groupName);
         }
 
-        actionParam.put(PLUGIN_INFO, pluginInfo);
+        actionParam.put(PLUGIN_INFO, pluginInfoJson.toJSONString());
         actionParam.put(GROUP_NAME, groupName);
 
         return actionParam;
