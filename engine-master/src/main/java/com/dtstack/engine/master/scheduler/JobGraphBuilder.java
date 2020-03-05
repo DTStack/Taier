@@ -88,12 +88,6 @@ public class JobGraphBuilder {
     private JobGraphTriggerService jobGraphTriggerService;
 
     @Autowired
-    private BatchAlarmService batchAlarmService;
-
-    @Autowired
-    private BatchJobAlarmService batchJobAlarmService;
-
-    @Autowired
     private ActionService actionService;
 
     private Lock lock = new ReentrantLock();
@@ -239,7 +233,6 @@ public class JobGraphBuilder {
         batchJobService.insertJobList(jobList, EScheduleType.NORMAL_SCHEDULE.getType());
 
         //添加到告警监控表里面
-        saveJobAlarm(jobList);
 
         //记录当天job已经生成
         String triggerTimeStr = triggerDay + " 00:00:00";
@@ -249,24 +242,7 @@ public class JobGraphBuilder {
         return true;
     }
 
-    /**
-     * 批量提交
-     */
-    public void saveJobAlarm(List<ScheduleBatchJob> jobList) {
-        //先获取所有在用的告警
-        List<Long> taskIdList = batchAlarmService.getAllNeedMonitorTaskId();
-        if (CollectionUtils.isEmpty(taskIdList)) {
-            return;
-        }
 
-        for (ScheduleBatchJob batchJob : jobList) {
-            if (!taskIdList.contains(batchJob.getTaskId())) {
-                continue;
-            }
-
-            batchJobAlarmService.saveBatchJobAlarm(batchJob.getBatchJob());
-        }
-    }
 
     public List<ScheduleBatchJob> buildJobRunBean(BatchTaskShade task, String keyPreStr, EScheduleType scheduleType,
                                                   boolean needAddFather, boolean needSelfDependency, String triggerDay,
