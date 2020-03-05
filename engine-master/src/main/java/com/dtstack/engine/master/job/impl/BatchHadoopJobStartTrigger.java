@@ -2,15 +2,17 @@ package com.dtstack.engine.master.job.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
+import com.dtstack.dtcenter.common.cache.connection.CacheConnectionHelper;
+import com.dtstack.dtcenter.common.engine.*;
 import com.dtstack.dtcenter.common.enums.*;
 import com.dtstack.dtcenter.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.common.hadoop.HadoopConf;
 import com.dtstack.dtcenter.common.hadoop.HdfsOperator;
+import com.dtstack.dtcenter.common.util.DBUtil;
+import com.dtstack.dtcenter.common.util.PublicUtil;
 import com.dtstack.dtcenter.common.util.RetryUtil;
 import com.dtstack.dtcenter.hive.service.HiveJdbcService;
 import com.dtstack.dtcenter.hive.service.HiveTableService;
-import com.dtstack.dtcenter.impala.service.ImpalaJdbcService;
-import com.dtstack.dtcenter.impala.service.ImpalaTableService;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -39,8 +41,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -71,12 +77,6 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
 
     @Autowired
     private EnvironmentContext environmentContext;
-
-    @Autowired
-    private ImpalaJdbcService impalaJdbcService;
-
-    @Autowired
-    private ImpalaTableService impalaTableService;
 
     @Autowired
     private HiveTableService hiveTableService;
@@ -216,7 +216,7 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
      * @return
      * @throws Exception
      */
-    public String replaceTablePath(boolean saveDirty, String sqlText, String taskName, Integer tableType, String db, Long dtuicTenantId) throws Exception {
+    private String replaceTablePath(boolean saveDirty, String sqlText, String taskName, Integer tableType, String db, Long dtuicTenantId) throws Exception {
         if (StringUtils.isBlank(db)) {
             return sqlText;
         }
@@ -244,8 +244,8 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
                 String alterSql = String.format(ADD_PART_TEMP, tableName, taskName, time);
                 String location = "";
                 if (ETableType.IMPALA.getType() == tableType) {
-                    impalaJdbcService.executeQuery(dtuicTenantId, db, alterSql);
-                    location =  impalaTableService.getTableLocation(dtuicTenantId,db,tableName);
+                    executeQuery(dtuicTenantId, db, alterSql);
+                    location = getTableLocation(dtuicTenantId, db, tableName);
                 } else if (ETableType.HIVE.getType() == tableType) {
                     hiveJdbcService.executeQuery(dtuicTenantId, db, alterSql);
                     location =  hiveTableService.getTableLocation(dtuicTenantId,db,tableName);
@@ -262,6 +262,160 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
         return sqlObject.toJSONString();
     }
 
+
+    private String getTableLocation(Long dtuicTenantId, String dbName, String tableName) throws Exception {
+        String location = null;
+        List<List<Object>> result = executeQuery(dtuicTenantId, dbName, String.format("DESCRIBE formatted %s", tableName));
+        Iterator var6 = result.iterator();
+
+        while(var6.hasNext()) {
+            List<Object> objects = (List)var6.next();
+            if (objects.get(0).toString().contains("Location:")) {
+                location = objects.get(1).toString();
+            }
+        }
+
+        return location;
+    }
+
+
+    private List<List<Object>> executeQuery(Long dtuicTenantId, String dbName, String sql) throws Exception {
+        return this.executeQuery(dtuicTenantId, dbName, sql, true);
+    }
+
+    private List<List<Object>> executeQuery(Long dtuicTenantId, String dbName, String sql, Boolean isEnd) throws Exception {
+        return this.executeQuery(dtuicTenantId, null, null, dbName, sql, isEnd);
+    }
+
+    private List<List<Object>> executeQuery(Long dtuicTenantId, String userName, String password, String dbName, String sql, Boolean isEnd) throws Exception {
+        JdbcInfo jdbcInfo = this.getJdbcInfo(dtuicTenantId);
+        Connection connection = this.getConnection(dtuicTenantId, userName, password, dbName);
+        JdbcQuery jdbcQuery = (new JdbcQuery(connection, dbName, dtuicTenantId, sql, org.apache.commons.lang3.BooleanUtils.isFalse(isEnd))).maxRows(jdbcInfo.getMaxRows());
+        return this.executeBaseQuery(jdbcQuery.done());
+    }
+
+    private JdbcInfo getJdbcInfo(Long dtuicTenantId) {
+        JdbcInfo jdbcInfo = null;
+        if (dtuicTenantId != null) {
+            jdbcInfo = getImpalaJDBCInfo(dtuicTenantId);
+        }
+
+        if (jdbcInfo == null) {
+            throw new DtCenterDefException("can't get impala jdbc conf from console");
+        } else {
+            JdbcUrlPropertiesValue.setNullPropertiesToDefaultValue(jdbcInfo);
+            return jdbcInfo;
+        }
+    }
+
+    public JdbcInfo getImpalaJDBCInfo(Long dtuicTenantId) {
+        String tenantIdStr = dtuicTenantId.toString();
+        JdbcInfo data = (JdbcInfo) ConsoleUtil.getImpala(tenantIdStr, JdbcInfo.class);
+        if (data == null) {
+            tenantIdStr = tenantIdStr.intern();
+            //todo
+            synchronized(tenantIdStr) {
+                data = (JdbcInfo)ConsoleUtil.getImpala(tenantIdStr, JdbcInfo.class);
+                if (data == null) {
+                    data = impalaInfo(dtuicTenantId);
+                    if (data != null) {
+                        ConsoleUtil.setImpala(tenantIdStr, data);
+                    }
+                }
+            }
+        }
+
+        return data;
+    }
+
+    private JdbcInfo impalaInfo(Long dtuicTenantId) {
+        Object data = clusterService.impalaInfo(dtuicTenantId);
+        JdbcInfo JDBCInfo = null;
+        if (data != null) {
+            try {
+                JDBCInfo = (JdbcInfo) PublicUtil.strToObject(data.toString(), JdbcInfo.class);
+            } catch (IOException e) {
+                LOG.error("", e);
+            }
+        }
+
+        return JDBCInfo;
+    }
+
+
+
+    private Connection getConnection(Long dtuicTenantId, String userName, String password, String dbName) {
+        JdbcInfo jdbcInfo = this.getJdbcInfo(dtuicTenantId);
+        password = StringUtils.isBlank(userName) ? jdbcInfo.getPassword() : password;
+        userName = StringUtils.isBlank(userName) ? jdbcInfo.getUsername() : userName;
+        return DBUtil.getConnection(DataBaseType.Impala, String.format(jdbcInfo.getJdbcUrl(), dbName), userName, password, (Map)null);
+    }
+
+    private List<List<Object>> executeBaseQuery(JdbcQuery jdbcQuery) throws Exception {
+        List<List<Object>> result = Lists.newArrayList();
+        Statement stmt = null;
+        ResultSet res = null;
+
+        try {
+            stmt = jdbcQuery.getConnection().createStatement();
+            stmt.setQueryTimeout(jdbcQuery.getQueryTimeout());
+            stmt.setMaxRows(jdbcQuery.getMaxRows());
+            LOG.info("impala query:{}", jdbcQuery.getSql());
+            if (StringUtils.isNotEmpty(jdbcQuery.getDatabase())) {
+                stmt.execute("use " + jdbcQuery.getDatabase());
+            }
+
+            if (stmt.execute(jdbcQuery.getSql())) {
+                res = stmt.getResultSet();
+                int columns = res.getMetaData().getColumnCount();
+                List<Object> cloumnName = Lists.newArrayList();
+
+                for(int i = 1; i <= columns; ++i) {
+                    String name = res.getMetaData().getColumnName(i);
+                    if (name.contains(".")) {
+                        name = name.split("\\.")[1];
+                    }
+
+                    cloumnName.add(name);
+                }
+
+                result.add(cloumnName);
+
+                while(res.next()) {
+                    List<Object> objects = Lists.newArrayList();
+
+                    for(int i = 1; i <= columns; ++i) {
+                        objects.add(res.getObject(i));
+                    }
+
+                    result.add(objects);
+                }
+            }
+        } catch (Throwable var12) {
+            if (var12.getMessage() != null && var12.getMessage().contains("AuthorizationException")) {
+                throw new DtCenterDefException("未授权", var12);
+            }
+
+            throw var12;
+        } finally {
+            if (stmt != null) {
+                stmt.close();
+            }
+
+            if (res != null) {
+                res.close();
+            }
+
+            if (!jdbcQuery.getMultiplex() && jdbcQuery.getConnection() != null && CacheConnectionHelper.getSessionKey() == null) {
+                jdbcQuery.getConnection().close();
+                LOG.info("success close impala connection");
+            }
+
+        }
+
+        return result;
+    }
+
     private String createPartitionImpala(Long dtuicTenantId, String job, Map<String, Object> actionParam) {
         String name = (String) actionParam.getOrDefault("name", "");
         String engineIdentity = (String) actionParam.getOrDefault("engineIdentity", "");
@@ -273,7 +427,7 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
         long time = System.currentTimeMillis();
         String alterSql = String.format(ADD_PART_TEMP, tableName, name, time);
         try {
-            impalaJdbcService.executeQuery(dtuicTenantId, engineIdentity, alterSql);
+            executeQuery(dtuicTenantId, engineIdentity, alterSql);
         } catch (Exception e) {
             LOG.error("createPartitionImpala error {} ", alterSql, e);
             return job;
