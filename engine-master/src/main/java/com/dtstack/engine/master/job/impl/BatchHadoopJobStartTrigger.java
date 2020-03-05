@@ -289,7 +289,7 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
 
     private List<List<Object>> executeQuery(Long dtuicTenantId, String userName, String password, String dbName, String sql, Boolean isEnd) throws Exception {
         JdbcInfo jdbcInfo = this.getJdbcInfo(dtuicTenantId);
-        Connection connection = this.getConnection(dtuicTenantId, userName, password, dbName);
+        Connection connection = this.getConnection(jdbcInfo, userName, password, dbName);
         JdbcQuery jdbcQuery = (new JdbcQuery(connection, dbName, dtuicTenantId, sql, org.apache.commons.lang3.BooleanUtils.isFalse(isEnd))).maxRows(jdbcInfo.getMaxRows());
         return this.executeBaseQuery(jdbcQuery.done());
     }
@@ -297,7 +297,7 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
     private JdbcInfo getJdbcInfo(Long dtuicTenantId) {
         JdbcInfo jdbcInfo = null;
         if (dtuicTenantId != null) {
-            jdbcInfo = getImpalaJDBCInfo(dtuicTenantId);
+            jdbcInfo = impalaInfo(dtuicTenantId);
         }
 
         if (jdbcInfo == null) {
@@ -306,26 +306,6 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
             JdbcUrlPropertiesValue.setNullPropertiesToDefaultValue(jdbcInfo);
             return jdbcInfo;
         }
-    }
-
-    public JdbcInfo getImpalaJDBCInfo(Long dtuicTenantId) {
-        String tenantIdStr = dtuicTenantId.toString();
-        JdbcInfo data = (JdbcInfo) ConsoleUtil.getImpala(tenantIdStr, JdbcInfo.class);
-        if (data == null) {
-            tenantIdStr = tenantIdStr.intern();
-            //todo
-            synchronized(tenantIdStr) {
-                data = (JdbcInfo)ConsoleUtil.getImpala(tenantIdStr, JdbcInfo.class);
-                if (data == null) {
-                    data = impalaInfo(dtuicTenantId);
-                    if (data != null) {
-                        ConsoleUtil.setImpala(tenantIdStr, data);
-                    }
-                }
-            }
-        }
-
-        return data;
     }
 
     private JdbcInfo impalaInfo(Long dtuicTenantId) {
@@ -342,10 +322,7 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
         return JDBCInfo;
     }
 
-
-
-    private Connection getConnection(Long dtuicTenantId, String userName, String password, String dbName) {
-        JdbcInfo jdbcInfo = this.getJdbcInfo(dtuicTenantId);
+    private Connection getConnection(JdbcInfo jdbcInfo, String userName, String password, String dbName) {
         password = StringUtils.isBlank(userName) ? jdbcInfo.getPassword() : password;
         userName = StringUtils.isBlank(userName) ? jdbcInfo.getUsername() : userName;
         return DBUtil.getConnection(DataBaseType.Impala, String.format(jdbcInfo.getJdbcUrl(), dbName), userName, password, (Map)null);
