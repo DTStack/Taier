@@ -37,6 +37,7 @@ public class SFTPHandler {
     private static final String KEY_AUTHENTICATION = "auth";
     private static final int DEFAULT_TIME_OUT = 0;
     private static final String DEFAULT_PORT = "22";
+    private static final String STRING_EMPTY = "";
 
     //SftpPoolConfig
     private static final int MAX_TOTAL_VALUE = 8;
@@ -72,10 +73,7 @@ public class SFTPHandler {
 
     public static SFTPHandler getInstance(Map<String, String> sftpConfig){
         checkConfig(sftpConfig);
-        String sftpPoolKey = MapUtils.getString(sftpConfig, KEY_HOST).trim() +
-                MapUtils.getString(sftpConfig, KEY_PORT, DEFAULT_PORT).trim() +
-                MapUtils.getString(sftpConfig, KEY_USERNAME).trim() +
-                MapUtils.getString(sftpConfig, KEY_PASSWORD).trim();
+        String sftpPoolKey = getSftpPoolKey(sftpConfig);
 
         SftpPool sftpPool = sftpPoolMap.computeIfAbsent(sftpPoolKey, k -> {
             SftpPool sftpPool1 = null;
@@ -115,6 +113,13 @@ public class SFTPHandler {
         ChannelSftp channelSftp = sftpPool.borrowObject();
         setSessionTimeout(sftpConfig, channelSftp);
         return new SFTPHandler(channelSftp, sftpPool);
+    }
+
+    private static String getSftpPoolKey(Map<String, String> sftpConfig) {
+        return MapUtils.getString(sftpConfig, KEY_HOST, STRING_EMPTY).trim() +
+                MapUtils.getString(sftpConfig, KEY_PORT, DEFAULT_PORT).trim() +
+                MapUtils.getString(sftpConfig, KEY_USERNAME, STRING_EMPTY).trim() +
+                MapUtils.getString(sftpConfig, KEY_PASSWORD, STRING_EMPTY).trim();
     }
 
     private static void checkConfig(Map<String, String> sftpConfig){
