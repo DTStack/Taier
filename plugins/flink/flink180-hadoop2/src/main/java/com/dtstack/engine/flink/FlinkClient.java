@@ -689,11 +689,6 @@ public class FlinkClient extends AbsClient {
 
     @Override
     public void beforeSubmitFunc(JobClient jobClient) {
-        logger.info("beforeSubmitFunc run with jobClient.pluginInfo: {}", jobClient.getPluginInfo());
-        if(flinkConfig == null) {
-            logger.error("flinkConfig can not empty! jobClient.pluginInfo: {}", jobClient.getPluginInfo());
-            throw new RuntimeException("flinkConfig can not empty!");
-        }
         String sql = jobClient.getSql();
         List<String> sqlArr = DtStringUtil.splitIgnoreQuota(sql, ';');
         if(sqlArr.size() == 0){
