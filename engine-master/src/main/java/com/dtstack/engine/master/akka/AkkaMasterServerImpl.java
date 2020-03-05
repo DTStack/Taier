@@ -5,9 +5,12 @@ import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.pattern.Patterns;
 import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.common.akka.RpcService;
 import com.dtstack.engine.common.akka.config.AkkaConfig;
 import com.dtstack.engine.common.akka.message.WorkerInfo;
+import com.dtstack.engine.common.exception.WorkerAccessException;
 import com.dtstack.engine.common.util.LogCountUtil;
+import com.dtstack.engine.common.util.RandomUtils;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.typesafe.config.Config;
@@ -24,17 +27,19 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class AkkaWorkerManager implements InitializingBean, Runnable {
+/**
+ * @Auther: jiangjunjie
+ * @Date: 2020/3/3
+ * @Description:
+ */
+public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterServer<Object, String>, RpcService<Config> {
 
-    private static final Logger logger = LoggerFactory.getLogger(AkkaWorkerManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(AkkaMasterServerImpl.class);
 
     private static ObjectMapper objectMapper = new ObjectMapper();
     private final static String TIMESTAMP = "timestamp";
@@ -47,27 +52,63 @@ public class AkkaWorkerManager implements InitializingBean, Runnable {
     private ActorSelection actorSelection;
     private Set<String> availableWorkers = new HashSet<>();
     private long workNodeTimeout;
-
     private Duration duration;
-
-    @Autowired
     private EnvironmentContext environmentContext;
 
     @Autowired
     private ZkService zkService;
 
+    public AkkaMasterServerImpl(EnvironmentContext environmentContext){
+        this.environmentContext = environmentContext;
+    }
+
+    @Override
+    public Config loadConfig() {
+        return AkkaConfig.checkIpAndPort(ConfigFactory.load());
+    }
+
+    @Override
+    public void start(Config config) {
+        this.system = ActorSystem.create(AkkaConfig.getMasterSystemName(), config);
+        this.system.actorOf(Props.create(AkkaMasterActor.class), AkkaConfig.getMasterName());
+    }
+
+    @Override
+    public String strategyForGetWorker(Collection<String> workers) {
+        return RandomUtils.getRandomValueFromMap(workers);
+    }
+
+    @Override
+    public Object sendMessage(Object message) throws Exception  {
+        String path = strategyForGetWorker(availableWorkers);
+        if (null == path) {
+            Thread.sleep(10000);
+            throw new WorkerAccessException("sleep 10000 ms.");
+        }
+        ActorSelection actorRef = system.actorSelection(path);
+        Future<Object> future = Patterns.ask(actorRef, message, environmentContext.getAkkaAskTimeout());
+        Object result = Await.result(future, Duration.create(environmentContext.getAkkaAskResultTimeout(), TimeUnit.SECONDS));
+        return result;
+    }
+
     @Override
     public void run() {
         try {
-            updateWorkerActors();
+            updateWorkerInfo();
         } catch (Exception e) {
             logger.error("updateWorkerActors happens error:", e);
         }
     }
 
-    private void updateWorkerActors() throws Exception {
+    @Override
+    public void updateWorkerInfo() {
         Future<Object> future = Patterns.ask(actorSelection, AkkaMasterActor.GET_WORKER_INFOS, environmentContext.getAkkaAskTimeout());
-        Object askResult = Await.result(future, duration);
+        Object askResult = null;
+        try {
+            askResult = Await.result(future, duration);
+        } catch (Exception e) {
+            logger.error("updateWorkerActors happens error:", e);
+        }
         if (askResult == null) {
             return;
         }
@@ -100,11 +141,9 @@ public class AkkaWorkerManager implements InitializingBean, Runnable {
     @Override
     public void afterPropertiesSet() throws Exception {
         objectMapper.configure(DeserializationConfig.Feature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
-        Config config = AkkaConfig.checkIpAndPort(ConfigFactory.load());
         this.duration = Duration.create(environmentContext.getAkkaAskResultTimeout(), TimeUnit.SECONDS);
         this.workNodeTimeout = environmentContext.getWorkerNodeTimeout();
-        this.system = ActorSystem.create(AkkaConfig.getMasterSystemName(), config);
-        this.system.actorOf(Props.create(AkkaMasterActor.class), AkkaConfig.getMasterName());
+        this.start(loadConfig());
         this.actorSelection = system.actorSelection(AkkaConfig.getMasterRemotePath());
         logger.info("get an ActorSelection of masterRemotePath:{}", AkkaConfig.getMasterRemotePath());
         scheduledService.scheduleWithFixedDelay(
@@ -112,25 +151,5 @@ public class AkkaWorkerManager implements InitializingBean, Runnable {
                 CHECK_INTERVAL,
                 CHECK_INTERVAL,
                 TimeUnit.MILLISECONDS);
-    }
-
-    public ActorSystem getSystem() {
-        return system;
-    }
-
-    public ActorSelection getActorSelection() {
-        return actorSelection;
-    }
-
-    public Set<String> getAvailableWorkers() {
-        return availableWorkers;
-    }
-
-    public EnvironmentContext getEnvironmentContext() {
-        return environmentContext;
-    }
-
-    public void setEnvironmentContext(EnvironmentContext environmentContext) {
-        this.environmentContext = environmentContext;
     }
 }

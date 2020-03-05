@@ -1,9 +1,7 @@
 package com.dtstack.engine.common.util;
 
-import java.util.List;
-import java.util.Map;
+import java.util.Collection;
 import java.util.Random;
-import java.util.Set;
 
 public class RandomUtils {
     private static Random random;
@@ -25,7 +23,7 @@ public class RandomUtils {
         return Math.abs(getRandom().nextInt()) % max;
     }
 
-    public static <V> V getRandomValueFromMap(Set<V> list) {
+    public static <V> V getRandomValueFromMap(Collection<V> list) {
         if (list.isEmpty()) {
             return null;
         }

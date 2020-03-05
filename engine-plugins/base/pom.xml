@@ -30,6 +30,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.dtstack.engine</groupId>
+            <artifactId>engine-worker</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-yarn-common</artifactId>
             <version>${hadoop.version}</version>

@@ -14,9 +14,11 @@ import com.dtstack.engine.dao.PluginInfoDao;
 import com.dtstack.engine.domain.EngineJob;
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.bo.CompletedTaskInfo;
 import com.dtstack.engine.master.bo.FailedTaskInfo;
 import com.dtstack.engine.master.cache.ShardCache;
 import com.dtstack.engine.master.cache.ShardManager;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
@@ -66,6 +68,9 @@ public class TaskStatusDealer implements Runnable {
     private TaskCheckpointDealer taskCheckpointDealer;
     private TaskRestartDealer taskRestartDealer;
     private WorkerOperator workerOperator;
+    private EnvironmentContext environmentContext;
+    private long jobLogDelay;
+    private JobCompletedLogDelayDealer jobCompletedLogDelayDealer;
 
     /**
      * 失败任务的额外处理：当前只是对(失败任务 or 取消任务)继续更新日志或者更新checkpoint
@@ -229,17 +234,7 @@ public class TaskStatusDealer implements Runnable {
     }
 
     private void updateJobEngineLog(String jobId, JobIdentifier jobIdentifier, String engineType, int computeType, String pluginInfo) {
-        try {
-            //从engine获取log
-            String jobLog = workerOperator.getEngineLog(engineType, pluginInfo, jobIdentifier);
-            if (jobLog != null) {
-                updateJobEngineLog(jobId, jobLog);
-            }
-        } catch (Throwable e) {
-            String errorLog = ExceptionUtil.getErrorMessage(e);
-            logger.error("update JobEngine Log error jobId:{} ,error info {}..", jobId, errorLog);
-            updateJobEngineLog(jobId, errorLog);
-        }
+        jobCompletedLogDelayDealer.addTaskToDelayQueue(new CompletedTaskInfo(jobId, jobIdentifier, engineType, computeType, pluginInfo, jobLogDelay));
     }
 
     private void updateJobEngineLog(String jobId, String jobLog) {
@@ -342,14 +337,21 @@ public class TaskStatusDealer implements Runnable {
     public void setApplicationContext(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
         setBean();
+        createLogDelayDealer();
     }
 
     private void setBean() {
+        this.environmentContext = applicationContext.getBean(EnvironmentContext.class);
         this.engineJobDao = applicationContext.getBean(EngineJobDao.class);
         this.engineJobCacheDao = applicationContext.getBean(EngineJobCacheDao.class);
         this.pluginInfoDao = applicationContext.getBean(PluginInfoDao.class);
         this.taskCheckpointDealer = applicationContext.getBean(TaskCheckpointDealer.class);
         this.taskRestartDealer = applicationContext.getBean(TaskRestartDealer.class);
         this.workerOperator = applicationContext.getBean(WorkerOperator.class);
+    }
+
+    private void createLogDelayDealer(){
+        this.jobCompletedLogDelayDealer = new JobCompletedLogDelayDealer(applicationContext);
+        this.jobLogDelay = environmentContext.getJobLogDelay();
     }
 }

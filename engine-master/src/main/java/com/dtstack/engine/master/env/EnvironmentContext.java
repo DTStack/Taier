@@ -302,4 +302,8 @@ public class EnvironmentContext {
     public long getWorkerNodeTimeout() {
         return Long.parseLong(environment.getProperty("workerNodeTimeout", "10000"));
     }
+
+    public long getJobLogDelay(){
+        return Integer.parseInt(environment.getProperty("jobLogDelay", "30000"));
+    }
 }

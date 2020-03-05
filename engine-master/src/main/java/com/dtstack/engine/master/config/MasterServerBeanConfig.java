@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.config;
 
-import com.dtstack.engine.master.akka.AkkaWorkerManager;
+import com.dtstack.engine.master.akka.AkkaMasterServerImpl;
+import com.dtstack.engine.master.akka.MasterServer;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -12,16 +13,15 @@ import org.springframework.context.annotation.Configuration;
  * create: 2020/2/26
  */
 @Configuration
-public class ActorManagerBeanConfig {
+public class MasterServerBeanConfig {
 
     @Autowired
     private EnvironmentContext environmentContext;
 
     @Bean
-    public AkkaWorkerManager actorManager() {
-        AkkaWorkerManager akkaWorkerManager = new AkkaWorkerManager();
-        akkaWorkerManager.setEnvironmentContext(environmentContext);
-        return akkaWorkerManager;
+    public MasterServer serverStart() {
+        MasterServer masterServer = new AkkaMasterServerImpl(environmentContext);
+        return masterServer;
     }
 
 }
