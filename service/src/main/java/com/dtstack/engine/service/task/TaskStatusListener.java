@@ -1,7 +1,6 @@
 package com.dtstack.engine.service.task;
 
 import com.dtstack.engine.common.config.ConfigParse;
-import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
@@ -107,8 +106,6 @@ public class TaskStatusListener implements Runnable{
             for(Map.Entry<String, FailedTaskInfo> failedTaskEntry : failedJobCache.entrySet()){
                 FailedTaskInfo failedTaskInfo = failedTaskEntry.getValue();
                 String key = failedTaskEntry.getKey();
-                updateJobEngineLog(failedTaskInfo.getJobId(), failedTaskInfo.getJobIdentifier(),
-                        failedTaskInfo.getEngineType(), failedTaskInfo.getComputeType() , failedTaskInfo.getPluginInfo());
 
                 boolean streamAndopenCheckpoint = isFlinkStreamTask(failedTaskInfo) && checkpointListener.checkOpenCheckPoint(failedTaskInfo.getJobId());
                 if(streamAndopenCheckpoint) {
@@ -219,6 +216,9 @@ public class TaskStatusListener implements Runnable{
                     }
 
                     zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
+                    if (RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus)){
+                        jobLogDelayDealer(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
+                    }
                     //数据的更新顺序，先更新job_cache，再更新engine_batch_job
 
                     if (computeType == ComputeType.STREAM.getType()){
@@ -242,8 +242,8 @@ public class TaskStatusListener implements Runnable{
         }
     }
 
-	private void updateJobEngineLog(String jobId, JobIdentifier jobIdentifier, String engineType, int computeType, String pluginInfo){
-        jobCompletedLogDelayDealer.addTaskToDelayQueue(new CompletedTaskInfo(jobId, jobIdentifier, engineType, computeType, pluginInfo, JOB_LOG_DELAY));
+	private void jobLogDelayDealer(String jobId, JobIdentifier jobIdentifier, String engineType, int computeType, String pluginInfo){
+        jobCompletedLogDelayDealer.addCompletedTaskInfo(new CompletedTaskInfo(jobId, jobIdentifier, engineType, computeType, pluginInfo, JOB_LOG_DELAY));
     }
 
 

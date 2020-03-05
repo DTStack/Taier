@@ -42,7 +42,7 @@ public class JobCompletedLogDelayDealer implements Runnable {
         }
     }
 
-    public void addTaskToDelayQueue(CompletedTaskInfo taskInfo){
+    public void addCompletedTaskInfo(CompletedTaskInfo taskInfo){
         try {
             delayBlockingQueue.put(taskInfo);
         } catch (InterruptedException e) {

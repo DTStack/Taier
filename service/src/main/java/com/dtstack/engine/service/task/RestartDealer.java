@@ -1,9 +1,11 @@
 package com.dtstack.engine.service.task;
 
+import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.ClientCache;
 import com.dtstack.engine.common.IClient;
@@ -307,8 +309,11 @@ public class RestartDealer {
         //重试任务更改在zk的状态，统一做状态清理
         zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.RESTARTING.getStatus());
 
+        RdosEngineJob batchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
+        WorkNode.getInstance().getAndUpdateEngineLog(jobId, jobClient.getEngineTaskId(), jobClient.getApplicationId(), batchJob.getPluginInfoId());
+
         //重试的任务不置为失败，waitengine
-        jobRetryRecord(jobClient);
+        jobRetryRecord(jobClient, batchJob);
         
         if (submitFailed){
         	engineBatchJobDAO.updateJobSubmitFailed(jobId, null, RdosTaskStatus.RESTARTING.getStatus(),null);
@@ -322,9 +327,11 @@ public class RestartDealer {
         engineBatchJobDAO.resetExecTime(jobId);
     }
 
-    private void jobRetryRecord(JobClient jobClient) {
+    private void jobRetryRecord(JobClient jobClient, RdosEngineJob batchJob) {
+        if (null == batchJob){
+            return;
+        }
         try {
-            RdosEngineJob batchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
             RdosEngineJobRetry batchJobRetry = RdosEngineJobRetry.toEntity(batchJob, jobClient);
             batchJobRetry.setStatus(RdosTaskStatus.RESTARTING.getStatus().byteValue());
             engineJobRetryDAO.insert(batchJobRetry);
