@@ -1,5 +1,7 @@
 package com.dtstack.engine.service.task;
 
+import com.dtstack.engine.common.config.ConfigParse;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
@@ -51,7 +53,9 @@ public class TaskStatusListener implements Runnable{
 
     private static final int JOB_FAILOVER_CONFIG = 50;
 
-	private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
+    private static final long JOB_LOG_DELAY = ConfigParse.getJobLogDelay();
+
+    private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
 
 	/**记录job 连续某个状态的频次*/
 	private Map<String, TaskStatusFrequency> jobStatusFrequency = Maps.newConcurrentMap();
@@ -72,6 +76,8 @@ public class TaskStatusListener implements Runnable{
     private Cache<String, Long> failoverTimestampCache = CacheBuilder.newBuilder().maximumSize(JOB_FAILOVER_CONFIG).build();
 
     private CheckpointListener checkpointListener;
+
+    private JobCompletedLogDelayDealer jobCompletedLogDelayDealer = new JobCompletedLogDelayDealer();
 
     public TaskStatusListener(CheckpointListener checkpointListener) {
         this.checkpointListener = checkpointListener;
@@ -237,17 +243,7 @@ public class TaskStatusListener implements Runnable{
     }
 
 	private void updateJobEngineLog(String jobId, JobIdentifier jobIdentifier, String engineType, int computeType, String pluginInfo){
-        try {
-            //从engine获取log
-            String jobLog = JobClient.getEngineLog(engineType, pluginInfo, jobIdentifier);
-            if (jobLog != null){
-                WorkNode.getInstance().updateJobEngineLog(jobId, jobLog, engineType);
-            }
-        } catch (Throwable e){
-            String errorLog = ExceptionUtil.getErrorMessage(e);
-            logger.error("update JobEngine Log error jobid {} ,error info {}..", jobId, errorLog);
-            WorkNode.getInstance().updateJobEngineLog(jobId, errorLog, engineType);
-        }
+        jobCompletedLogDelayDealer.addTaskToDelayQueue(new CompletedTaskInfo(jobId, jobIdentifier, engineType, computeType, pluginInfo, JOB_LOG_DELAY));
     }
 
 
