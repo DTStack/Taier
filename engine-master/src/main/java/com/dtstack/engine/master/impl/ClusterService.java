@@ -180,7 +180,7 @@ public class ClusterService implements InitializingBean {
         cluster.setClusterName(clusterDTO.getClusterName());
         cluster.setHadoopVersion(StringUtils.isEmpty(clusterDTO.getHadoopVersion()) ? "hadoop2" : clusterDTO.getHadoopVersion());
         Cluster byClusterName = clusterDao.getByClusterName(clusterDTO.getClusterName());
-        if (byClusterName != null){
+        if (byClusterName != null) {
             throw new EngineDefineException(ErrorCode.NAME_ALREADY_EXIST.getDescription());
         }
         clusterDao.insert(cluster);
@@ -224,7 +224,7 @@ public class ClusterService implements InitializingBean {
     }
 
     @Forbidden
-    public ClusterVO getClusterByName(String clusterName){
+    public ClusterVO getClusterByName(String clusterName) {
         Cluster cluster = clusterDao.getByClusterName(clusterName);
         EngineAssert.assertTrue(cluster != null, ErrorCode.DATA_NOT_FIND.getDescription());
 
@@ -268,7 +268,7 @@ public class ClusterService implements InitializingBean {
             return StringUtils.EMPTY;
         }
         List<Long> engineIds = engineTenantDao.listEngineIdByTenantId(tenantId);
-        if(CollectionUtils.isEmpty(engineIds)){
+        if (CollectionUtils.isEmpty(engineIds)) {
             return StringUtils.EMPTY;
         }
         Engine engine = engineDao.getOne(engineIds.get(0));
@@ -279,19 +279,19 @@ public class ClusterService implements InitializingBean {
     /**
      * 对外接口
      */
-    public String pluginInfo(@Param("tenantId") Long dtUicTenantId, @Param("engineType") String engineTypeStr) {
+    public JSONObject pluginInfoJSON(@Param("tenantId") Long dtUicTenantId, @Param("engineType") String engineTypeStr) {
         EngineTypeComponentType type;
         try {
             type = EngineTypeComponentType.getByEngineName(engineTypeStr);
         } catch (UnsupportedOperationException e) {
-            if(engineTypeStr.toLowerCase().contains("postgresql")){
+            if (engineTypeStr.toLowerCase().contains("postgresql")) {
                 type = EngineTypeComponentType.LIBRA_SQL;
             } else {
                 throw new EngineDefineException("Unknown engine type:" + engineTypeStr);
             }
         }
-        if (type==null){
-            return "";
+        if (type == null) {
+            throw new EngineDefineException("Unknown engine type:" + engineTypeStr);
         }
 
         ClusterVO cluster = getClusterByTenant(dtUicTenantId);
@@ -313,7 +313,11 @@ public class ClusterService implements InitializingBean {
         pluginJson.put(ConsoleConstant.CLUSTER, cluster.getClusterName());
         pluginJson.put(ConsoleConstant.TENANT_ID, tenantId);
         setClusterSftpDir(cluster.getClusterId(), clusterConfigJson, pluginJson);
-        return pluginJson.toJSONString();
+        return pluginJson;
+    }
+
+    public String pluginInfo(@Param("tenantId") Long dtUicTenantId, @Param("engineType") String engineTypeStr) {
+        return pluginInfoJSON(dtUicTenantId, engineTypeStr).toJSONString();
     }
 
     private void setClusterSftpDir(Long clusterId, JSONObject clusterConfigJson, JSONObject pluginJson) {
@@ -422,7 +426,7 @@ public class ClusterService implements InitializingBean {
                 config.put(type.getConfName(), component.getConfig());
             }
         }
-        config.put("clusterName",cluster.getClusterName());
+        config.put("clusterName", cluster.getClusterName());
         return config;
     }
 
@@ -492,18 +496,18 @@ public class ClusterService implements InitializingBean {
     }
 
     @Forbidden
-    public JSONObject convertPluginInfo(JSONObject clusterConfigJson, EngineTypeComponentType type,ClusterVO clusterVO) {
+    public JSONObject convertPluginInfo(JSONObject clusterConfigJson, EngineTypeComponentType type, ClusterVO clusterVO) {
         JSONObject pluginInfo;
         if (EComponentType.HDFS == type.getComponentType()) {
             pluginInfo = new JSONObject();
             JSONObject hadoopConf = clusterConfigJson.getJSONObject(EComponentType.HDFS.getConfName());
             pluginInfo.put("typeName", EngineType.Hadoop.getEngineName());
-            if(Objects.nonNull(clusterVO) && StringUtils.isNotBlank(clusterVO.getHadoopVersion())){
-                pluginInfo.put("typeName",clusterVO.getHadoopVersion());
+            if (Objects.nonNull(clusterVO) && StringUtils.isNotBlank(clusterVO.getHadoopVersion())) {
+                pluginInfo.put("typeName", clusterVO.getHadoopVersion());
             }
-            pluginInfo.put(EComponentType.HDFS.getConfName(),hadoopConf);
+            pluginInfo.put(EComponentType.HDFS.getConfName(), hadoopConf);
 
-            pluginInfo.put(EComponentType.YARN.getConfName(),clusterConfigJson.getJSONObject(EComponentType.YARN.getConfName()));
+            pluginInfo.put(EComponentType.YARN.getConfName(), clusterConfigJson.getJSONObject(EComponentType.YARN.getConfName()));
 
         } else if (EComponentType.LIBRA_SQL == type.getComponentType()) {
             JSONObject libraConf = clusterConfigJson.getJSONObject(EComponentType.LIBRA_SQL.getConfName());
@@ -541,22 +545,22 @@ public class ClusterService implements InitializingBean {
                     it.remove();
                     continue;
                 }
-                if(EComponentType.DT_SCRIPT == type.getComponentType() && EComponentType.SPARK_THRIFT.getConfName().equals(entry.getKey())){
+                if (EComponentType.DT_SCRIPT == type.getComponentType() && EComponentType.SPARK_THRIFT.getConfName().equals(entry.getKey())) {
                     //dt-script  不需要hive-site配置
                     continue;
                 }
                 pluginInfo.put(entry.getKey(), entry.getValue());
             }
-            if(EComponentType.HIVE_SERVER==type.getComponentType()){
+            if (EComponentType.HIVE_SERVER == type.getComponentType()) {
                 // fixme 特殊逻辑，libra用的是engine端的postgresql插件
-                String jdbcUrl=pluginInfo.getString("jdbcUrl");
-                jdbcUrl=jdbcUrl.replace("/%s","");
-                pluginInfo.put("dbUrl",jdbcUrl);
+                String jdbcUrl = pluginInfo.getString("jdbcUrl");
+                jdbcUrl = jdbcUrl.replace("/%s", "");
+                pluginInfo.put("dbUrl", jdbcUrl);
                 pluginInfo.remove("jdbcUrl");
-                pluginInfo.put("pwd",pluginInfo.getString("password"));
+                pluginInfo.put("pwd", pluginInfo.getString("password"));
                 pluginInfo.remove("password");
                 pluginInfo.put("typeName", "hive");
-                pluginInfo.put("userName",pluginInfo.getString("username"));
+                pluginInfo.put("userName", pluginInfo.getString("username"));
                 pluginInfo.remove("username");
             }
             pluginInfo.put(ConfigConstant.MD5_SUM_KEY, getZipFileMD5(clusterConfigJson));
@@ -566,8 +570,8 @@ public class ClusterService implements InitializingBean {
         return pluginInfo;
     }
 
-    private void removeMd5FieldInHadoopConf(JSONObject pluginInfo){
-        if(!pluginInfo.containsKey(EComponentType.HDFS.getConfName())){
+    private void removeMd5FieldInHadoopConf(JSONObject pluginInfo) {
+        if (!pluginInfo.containsKey(EComponentType.HDFS.getConfName())) {
             return;
         }
         JSONObject hadoopConf = pluginInfo.getJSONObject(EComponentType.HDFS.getConfName());
@@ -575,9 +579,9 @@ public class ClusterService implements InitializingBean {
         pluginInfo.put(EComponentType.HDFS.getConfName(), hadoopConf);
     }
 
-    private String getZipFileMD5(JSONObject clusterConfigJson){
+    private String getZipFileMD5(JSONObject clusterConfigJson) {
         JSONObject hadoopConf = clusterConfigJson.getJSONObject(EComponentType.HDFS.getConfName());
-        if(hadoopConf.containsKey(ConfigConstant.MD5_SUM_KEY)){
+        if (hadoopConf.containsKey(ConfigConstant.MD5_SUM_KEY)) {
             return hadoopConf.getString(ConfigConstant.MD5_SUM_KEY);
         }
         return "";
@@ -590,7 +594,7 @@ public class ClusterService implements InitializingBean {
         PageQuery<ClusterDTO> pageQuery = new PageQuery<>(1, 1000, "gmt_modified", Sort.DESC.name());
         pageQuery.setModel(new ClusterDTO());
         List<Cluster> clusterVOS = clusterDao.generalQuery(pageQuery);
-        if (CollectionUtils.isNotEmpty(clusterVOS)){
+        if (CollectionUtils.isNotEmpty(clusterVOS)) {
             return ClusterVO.toVOs(clusterVOS);
         }
         return Lists.newArrayList();
