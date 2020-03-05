@@ -66,9 +66,9 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <move file="${basedir}/target/${project.name}-${project.version}.jar"
+                                <copy file="${basedir}/target/${project.name}-${project.version}.jar"
                                       tofile="${basedir}/target/${project.name}-${git.branch}-with-dependencies.jar"/>
-                                <copy todir="${basedir}/../lib/"
+                                <move todir="${basedir}/../lib/"
                                       file="${basedir}/target/${project.name}-${git.branch}-with-dependencies.jar"/>
                                 <delete>
                                     <fileset dir="${basedir}/../lib/"
