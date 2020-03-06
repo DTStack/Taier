@@ -13,8 +13,8 @@ import com.dtstack.dtcenter.common.pager.PageResult;
 import com.dtstack.dtcenter.common.pager.Sort;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.exception.EngineAssert;
-import com.dtstack.engine.common.exception.EngineDefineException;
 import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.domain.*;
 import com.dtstack.engine.dto.ClusterDTO;
@@ -181,7 +181,7 @@ public class ClusterService implements InitializingBean {
         cluster.setHadoopVersion(StringUtils.isEmpty(clusterDTO.getHadoopVersion()) ? "hadoop2" : clusterDTO.getHadoopVersion());
         Cluster byClusterName = clusterDao.getByClusterName(clusterDTO.getClusterName());
         if (byClusterName != null) {
-            throw new EngineDefineException(ErrorCode.NAME_ALREADY_EXIST.getDescription());
+            throw new RdosDefineException(ErrorCode.NAME_ALREADY_EXIST.getDescription());
         }
         clusterDao.insert(cluster);
 
@@ -193,10 +193,10 @@ public class ClusterService implements InitializingBean {
     private void checkName(String name) {
         if (StringUtils.isNotBlank(name)) {
             if (name.length() >= 32) {
-                throw new EngineDefineException("名称过长");
+                throw new RdosDefineException("名称过长");
             }
         } else {
-            throw new EngineDefineException("名称不能为空");
+            throw new RdosDefineException("名称不能为空");
         }
     }
 
@@ -287,23 +287,23 @@ public class ClusterService implements InitializingBean {
             if (engineTypeStr.toLowerCase().contains("postgresql")) {
                 type = EngineTypeComponentType.LIBRA_SQL;
             } else {
-                throw new EngineDefineException("Unknown engine type:" + engineTypeStr);
+                throw new RdosDefineException("Unknown engine type:" + engineTypeStr);
             }
         }
         if (type == null) {
-            throw new EngineDefineException("Unknown engine type:" + engineTypeStr);
+            throw new RdosDefineException("Unknown engine type:" + engineTypeStr);
         }
 
         ClusterVO cluster = getClusterByTenant(dtUicTenantId);
         if (cluster == null) {
             String msg = format("The tenant [%s] is not bound to any cluster", dtUicTenantId);
-            throw new EngineDefineException(msg);
+            throw new RdosDefineException(msg);
         }
 
         JSONObject clusterConfigJson = buildClusterConfig(cluster);
         JSONObject pluginJson = convertPluginInfo(clusterConfigJson, type, cluster);
         if (pluginJson == null) {
-            throw new EngineDefineException(format("The cluster is not configured [%s] engine", engineTypeStr));
+            throw new RdosDefineException(format("The cluster is not configured [%s] engine", engineTypeStr));
         }
 
         Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
@@ -472,7 +472,7 @@ public class ClusterService implements InitializingBean {
             if (!Objects.equals(EComponentType.HDFS.getConfName(), key)) {
                 Component hdfsComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());
                 if (Objects.isNull(hdfsComponent)) {
-                    throw new EngineDefineException("开启kerberos后需要预先保存hdfs组件");
+                    throw new RdosDefineException("开启kerberos后需要预先保存hdfs组件");
                 }
                 kerberosConfigVO.setHdfsConfig(JSONObject.parseObject(hdfsComponent.getComponentConfig()));
             }
@@ -603,7 +603,7 @@ public class ClusterService implements InitializingBean {
     public Cluster getOne(Long clusterId) {
         Cluster one = clusterDao.getOne(clusterId);
         if (one == null) {
-            throw new EngineDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER.getDescription());
+            throw new RdosDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER.getDescription());
         }
         return one;
 

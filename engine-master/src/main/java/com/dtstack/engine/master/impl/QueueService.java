@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.impl;
 
 import com.dtstack.dtcenter.common.annotation.Forbidden;
-import com.dtstack.engine.common.exception.EngineDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.QueueDao;
 import com.dtstack.engine.domain.ClusterResourceDescription;
 import com.dtstack.engine.domain.Queue;
@@ -53,7 +53,7 @@ public class QueueService {
             if (!existQueueMap.isEmpty()) {
                 Integer delete = queueDao.deleteByIds(existQueueMap.values().stream().map(q -> q.getId()).collect(Collectors.toList()), engineId);
                 if (delete != existQueueMap.size()) {
-                    throw new EngineDefineException("操作失败");
+                    throw new RdosDefineException("操作失败");
                 }
             }
         }
@@ -72,7 +72,7 @@ public class QueueService {
                 queue.setQueuePath(queueDescription.getQueuePath());
                 Integer insert = queueDao.insert(queue);
                 if (insert != 1) {
-                    throw new EngineDefineException("操作失败");
+                    throw new RdosDefineException("操作失败");
                 }
                 newAddQueue(engineId, queue.getId(), queueDescription.getChildQueues());
             }
@@ -107,7 +107,7 @@ public class QueueService {
                     queue.setParentQueueId(parentQueueId);
                     Integer insert = queueDao.insert(queue);
                     if (insert != 1) {
-                        throw new EngineDefineException("操作失败");
+                        throw new RdosDefineException("操作失败");
                     }
                 }
 

@@ -3,7 +3,7 @@ package com.dtstack.engine.master.component;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.common.enums.EComponentType;
 import com.dtstack.dtcenter.common.hadoop.HadoopConfTool;
-import com.dtstack.engine.common.exception.EngineDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -49,7 +49,7 @@ public abstract class BaseComponent implements ComponentImpl {
     private void checkKerberosConfig(){
         for (String key : getKerberosKey()) {
             if (allConfig.get(key) == null){
-                throw new EngineDefineException(String.format("集群开启Kerberos认证时，%s插件必须填写[%s]配置",componentType.getName(),key));
+                throw new RdosDefineException(String.format("集群开启Kerberos认证时，%s插件必须填写[%s]配置",componentType.getName(),key));
             }
         }
     }
@@ -85,7 +85,7 @@ public abstract class BaseComponent implements ComponentImpl {
             if (StringUtils.isNotBlank(keytabPath) && StringUtils.isNotBlank(principal)) {
                 File keytabFile = new File(keytabPath);
                 if (!keytabFile.exists() || !keytabFile.isFile()) {
-                    throw new EngineDefineException("keytab文件不存在");
+                    throw new RdosDefineException("keytab文件不存在");
                 }
                 if (StringUtils.isNotEmpty(principal)) {
                     String localhost = InetAddress.getLocalHost().getCanonicalHostName();
@@ -103,7 +103,7 @@ public abstract class BaseComponent implements ComponentImpl {
             }
         } catch (IOException e) {
             LOG.error("{}", e);
-            throw new EngineDefineException("kerberos校验失败, Message:" + e.getMessage());
+            throw new RdosDefineException("kerberos校验失败, Message:" + e.getMessage());
         }
     }
 }

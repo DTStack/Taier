@@ -14,8 +14,8 @@ import com.dtstack.dtcenter.common.util.MD5Util;
 import com.dtstack.dtcenter.common.util.ZipUtil;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.exception.EngineAssert;
-import com.dtstack.engine.common.exception.EngineDefineException;
 import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.domain.*;
 import com.dtstack.engine.dto.Resource;
@@ -206,7 +206,7 @@ public class ComponentService {
 
         for (Component component : componentList) {
             if(componentTypeCodeList.contains(component.getComponentTypeCode())){
-                throw new EngineDefineException("组件:" + component.getComponentName() + " 已经存在，不能重复添加");
+                throw new RdosDefineException("组件:" + component.getComponentName() + " 已经存在，不能重复添加");
             }
         }
     }
@@ -216,7 +216,7 @@ public class ComponentService {
         EngineAssert.assertTrue(component != null, ErrorCode.DATA_NOT_FIND.getDescription());
 
         if(EngineUtil.isRequiredComponent(component.getComponentTypeCode())){
-            throw new EngineDefineException(component.getComponentName() + " 是必选组件，不可删除");
+            throw new RdosDefineException(component.getComponentName() + " 是必选组件，不可删除");
         }
 
         component.setIsDeleted(Deleted.DELETED.getStatus());
@@ -234,7 +234,7 @@ public class ComponentService {
     public Component getOne(Long id) {
         Component component = componentDao.getOne(id);
         if (component == null) {
-            throw new EngineDefineException("组件不存在");
+            throw new RdosDefineException("组件不存在");
         }
         return component;
     }
@@ -284,7 +284,7 @@ public class ComponentService {
         if (CollectionUtils.isNotEmpty(resources)) {
             return parseKerberosConfig(resources.get(0), localKerberosConf);
         }
-        throw new EngineDefineException("缺少xml配置文件");
+        throw new RdosDefineException("缺少xml配置文件");
     }
 
     private Map<String, String> parseKerberosConfig(Resource resource, String localKerberosConf) throws Exception {
@@ -296,7 +296,7 @@ public class ComponentService {
             }
             return map;
         }
-        throw new EngineDefineException("缺少xml配置文件");
+        throw new RdosDefineException("缺少xml配置文件");
     }
 
     public void update(@Param("componentId") Long componentId, @Param("configString") String configString, @Param("clusterId") Long clusterId) {
@@ -415,13 +415,13 @@ public class ComponentService {
                 queueService.updateQueue(component.getEngineId(), description);
             } catch (Exception e){
                 LOGGER.error("更新队列信息失败: ", e);
-                throw new EngineDefineException("更新队列信息失败");
+                throw new RdosDefineException("更新队列信息失败");
             }
         } else {
             try {
                 componentImpl.testConnection();
             } catch (Exception e){
-                throw new EngineDefineException(ErrorCode.TEST_CONN_FAIL.getDescription());
+                throw new RdosDefineException(ErrorCode.TEST_CONN_FAIL.getDescription());
             }
         }
 
@@ -444,7 +444,7 @@ public class ComponentService {
             if (!Objects.equals(EComponentType.HDFS.getTypeCode(), component.getComponentTypeCode())) {
                 Component hdfsComponent = componentDao.getByEngineIdAndComponentType(component.getEngineId(), EComponentType.HDFS.getTypeCode());
                 if (Objects.isNull(hdfsComponent)) {
-                    throw new EngineDefineException("开启kerberos后需要预先保存hdfs组件");
+                    throw new RdosDefineException("开启kerberos后需要预先保存hdfs组件");
                 }
                 config.putIfAbsent(KerberosKey.HDFS_CONFIG.getKey(), hdfsComponent.getComponentConfig());
             }
@@ -547,7 +547,7 @@ public class ComponentService {
             if (resource == null) {
                 JSONObject kerberosConfig = config.getJSONObject(KERBEROS_CONFIG);
                 if (kerberosConfig == null) {
-                    throw new EngineDefineException("kerberos配置错误");
+                    throw new RdosDefineException("kerberos配置错误");
                 }
                 KerberosConfigVerify.downloadKerberosFromSftp(clusterKey, localKerberosConf, getSFTPConfig(clusterId));
                 configMap.put(KERBEROS_CONFIG, kerberosConfig);
@@ -588,12 +588,12 @@ public class ComponentService {
     public JSONObject config(@Param("clusterId") Long clusterId,@Param("resources") List<Resource> resources){
         Cluster cluster = clusterDao.getOne(clusterId);
         if (cluster == null){
-            throw new EngineDefineException(ErrorCode.DATA_NOT_FIND.getDescription());
+            throw new RdosDefineException(ErrorCode.DATA_NOT_FIND.getDescription());
         }
 
         Engine hadoopEngine = engineDao.getByClusterIdAndEngineType(clusterId, MultiEngineType.HADOOP.getType());
         if(hadoopEngine == null){
-            throw new EngineDefineException("该集群没有配置[HADOOP]引擎");
+            throw new RdosDefineException("该集群没有配置[HADOOP]引擎");
         }
         //处理并强制校验
         JSONObject componentConfig = new JSONObject();
@@ -626,12 +626,12 @@ public class ComponentService {
         List<File> xmlFiles;
         try {
             if (CollectionUtils.isEmpty(resources)) {
-                throw new EngineDefineException("上传的文件不能为空");
+                throw new RdosDefineException("上传的文件不能为空");
             }
 
             Resource resource = resources.get(0);
             if (!resource.getContentType().contains(ZIP_CONTENT_TYPE)) {
-                throw new EngineDefineException("压缩包格式仅支持ZIP格式");
+                throw new RdosDefineException("压缩包格式仅支持ZIP格式");
             }
 
             //解压缩获得配置文件
@@ -642,21 +642,21 @@ public class ComponentService {
                 xmlFiles = XmlFileUtil.getFilesFromZip(xmlZipLocation, upzipLocation,validXml);
             } catch (Exception e) {
                 LOGGER.error("解压配置文件格式错误", e);
-                throw new EngineDefineException("解压配置文件格式错误");
+                throw new RdosDefineException("解压配置文件格式错误");
             }
 
             try {
                 confMap = XmlFileUtil.parseAndRead(xmlFiles);
                 confMap.put(ConfigConstant.MD5_SUM_KEY, md5sum);
             } catch (Exception e){
-                throw new EngineDefineException("解析配置文件出错:" + e.getMessage());
+                throw new RdosDefineException("解析配置文件出错:" + e.getMessage());
             }
 
             //上传xml文件到sftp
             uploadToSftp(cluster, xmlFiles);
             return confMap;
         } catch (Exception e){
-            throw new EngineDefineException(ErrorCode.SERVER_EXCEPTION.getDescription());
+            throw new RdosDefineException(ErrorCode.SERVER_EXCEPTION.getDescription());
         } finally {
             if (StringUtils.isNotBlank(upzipLocation)) {
                 ZipUtil.deletefile(upzipLocation);
@@ -669,7 +669,7 @@ public class ComponentService {
         Map<String, String> sftpConfig = getSFTPConfig(clusterId);
         String path = sftpConfig.get("path");
         if (StringUtils.isBlank(path)) {
-            throw new EngineDefineException("sftp组件路径配置不能为空");
+            throw new RdosDefineException("sftp组件路径配置不能为空");
         }
 
         return String.format(SFTP_HADOOP_CONFIG_PATH, path, SftpPath.CONSOLE_HADOOP_CONFIG,  cluster.getClusterName());
@@ -679,7 +679,7 @@ public class ComponentService {
         Map<String, String> sftpConfig = getSFTPConfig(cluster.getId());
         String path = sftpConfig.get("path");
         if (StringUtils.isBlank(path)) {
-            throw new EngineDefineException("sftp组件路径配置不能为空");
+            throw new RdosDefineException("sftp组件路径配置不能为空");
         }
 
         String sftpDir = String.format(SFTP_HADOOP_CONFIG_PATH, path, SftpPath.CONSOLE_HADOOP_CONFIG,  cluster.getClusterName());
@@ -740,7 +740,7 @@ public class ComponentService {
             //4.更新db信息
             updateKerberosConfig(clusterId, resource, remotePath, principal);
         } else {
-            throw new EngineDefineException("文件缺失");
+            throw new RdosDefineException("文件缺失");
         }
     }
 
@@ -853,7 +853,7 @@ public class ComponentService {
         if (dirFile.exists() && dirFile.isDirectory()) {
             File[] files = dirFile.listFiles();
             if (files.length > 0) {
-                file = Arrays.stream(files).filter(f -> f.getName().endsWith(".keytab")).findFirst().orElseThrow(() -> new EngineDefineException("压缩包中不包含keytab文件"));
+                file = Arrays.stream(files).filter(f -> f.getName().endsWith(".keytab")).findFirst().orElseThrow(() -> new RdosDefineException("压缩包中不包含keytab文件"));
             }
         }
         if (Objects.nonNull(file)) {
@@ -862,7 +862,7 @@ public class ComponentService {
                 keytab = Keytab.loadKeytab(file);
             } catch (IOException e) {
                 LOGGER.error("Keytab loadKeytab error {}", e);
-                throw new EngineDefineException("解析keytab文件失败");
+                throw new RdosDefineException("解析keytab文件失败");
             }
             List<PrincipalName> names = keytab.getPrincipals();
             if (CollectionUtils.isNotEmpty(names)) {
@@ -872,7 +872,7 @@ public class ComponentService {
                 }
             }
         }
-        throw new EngineDefineException("当前keytab文件不包含principal信息");
+        throw new RdosDefineException("当前keytab文件不包含principal信息");
     }
 
     public KerberosConfig getKerberosConfig(@Param("clusterId") Long clusterId) {
@@ -916,7 +916,7 @@ public class ComponentService {
             }
         }catch (Exception e) {
             LOGGER.error("", e);
-            throw new EngineDefineException("重命名文件失败");
+            throw new RdosDefineException("重命名文件失败");
         } finally {
             if (Objects.nonNull(file) && file.exists()) {
                 file.delete();
@@ -930,7 +930,7 @@ public class ComponentService {
         Map<String, String> confMap = getSFTPConfig(clusterId);
         String path = confMap.get("path");
         if (StringUtils.isBlank(path)) {
-            throw new EngineDefineException("SFTP组件的path配置不能为空");
+            throw new RdosDefineException("SFTP组件的path配置不能为空");
         }
         StringBuilder destDir = new StringBuilder().append(path).append(SEPARATE).append(getSftpClusterKey(clusterId));
         SFTPHandler handler = SFTPHandler.getInstance(confMap);
@@ -955,10 +955,10 @@ public class ComponentService {
             }
         } catch (Exception e) {
             LOGGER.error("", e);
-            if (e instanceof EngineDefineException) {
-                throw (EngineDefineException) e;
+            if (e instanceof RdosDefineException) {
+                throw (RdosDefineException) e;
             } else {
-                throw new EngineDefineException("文件上传sftp失败");
+                throw new RdosDefineException("文件上传sftp失败");
             }
         } finally {
             if (handler != null) {
@@ -971,7 +971,7 @@ public class ComponentService {
         Map<String, String> confMap = getSFTPConfig(clusterId);
         String path = confMap.get("path");
         if (StringUtils.isBlank(path)) {
-            throw new EngineDefineException("SFTP组件的path配置不能为空");
+            throw new RdosDefineException("SFTP组件的path配置不能为空");
         }
         StringBuilder destDir = new StringBuilder().append(path).append(SEPARATE).append(getSftpClusterKey(clusterId));
         SFTPHandler handler = SFTPHandler.getInstance(confMap);
@@ -979,14 +979,14 @@ public class ComponentService {
             KerberosConfigVerify.uploadLockFile(srcDir, destDir.toString(), handler);
             handler.uploadDir(path, srcDir);
             if (!handler.isFileExist(destDir.toString())) {
-                throw new EngineDefineException("文件上传sftp失败");
+                throw new RdosDefineException("文件上传sftp失败");
             }
         } catch (Exception e) {
             LOGGER.error("", e);
-            if (e instanceof EngineDefineException) {
-                throw (EngineDefineException) e;
+            if (e instanceof RdosDefineException) {
+                throw (RdosDefineException) e;
             } else {
-                throw new EngineDefineException("文件上传sftp失败");
+                throw new RdosDefineException("文件上传sftp失败");
             }
         } finally {
             if (handler != null) {
@@ -1001,7 +1001,7 @@ public class ComponentService {
         Engine hadoopEngine = getEngineByClusterId(clusterId);
         Component sftpComponent = componentDao.getByEngineIdAndComponentType(hadoopEngine.getId(), EComponentType.SFTP.getTypeCode());
         if (sftpComponent == null) {
-            throw new EngineDefineException("需要提前配置SFTP组件");
+            throw new RdosDefineException("需要提前配置SFTP组件");
         }
         return convertToMap(sftpComponent.getComponentConfig());
     }
@@ -1019,12 +1019,12 @@ public class ComponentService {
     private Engine getEngineByClusterId(Long clusterId) {
         Cluster cluster = clusterDao.getOne(clusterId);
         if (cluster == null) {
-            throw new EngineDefineException(ErrorCode.DATA_NOT_FIND.getDescription());
+            throw new RdosDefineException(ErrorCode.DATA_NOT_FIND.getDescription());
         }
 
         Engine hadoopEngine = engineDao.getByClusterIdAndEngineType(clusterId, MultiEngineType.HADOOP.getType());
         if (hadoopEngine == null) {
-            throw new EngineDefineException("该集群没有配置[HADOOP]引擎");
+            throw new RdosDefineException("该集群没有配置[HADOOP]引擎");
         }
         return hadoopEngine;
     }

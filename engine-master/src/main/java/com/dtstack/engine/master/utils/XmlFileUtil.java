@@ -4,7 +4,7 @@ import com.dtstack.dtcenter.common.hadoop.HdfsOperator;
 import com.dtstack.dtcenter.common.sftp.SFTPHandler;
 import com.dtstack.dtcenter.common.util.Xml2JsonUtil;
 import com.dtstack.dtcenter.common.util.ZipUtil;
-import com.dtstack.engine.common.exception.EngineDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -28,7 +28,7 @@ public class XmlFileUtil {
 
     public static List<File> filterXml(List<File> xmlFiles, List<String> validXml) {
         if (xmlFiles == null) {
-            throw new EngineDefineException("缺少必要配置文件：" + StringUtils.join(BASE_XML, ","));
+            throw new RdosDefineException("缺少必要配置文件：" + StringUtils.join(BASE_XML, ","));
         }
         if(null == validXml){
             validXml = Collections.emptyList();
@@ -47,7 +47,7 @@ public class XmlFileUtil {
             }
         }
         if (!checkFiles.isEmpty() || !validXml.isEmpty()) {
-            throw new EngineDefineException("缺少必要配置文件：" + StringUtils.join(checkFiles, ",")+StringUtils.join(validXml, ","));
+            throw new RdosDefineException("缺少必要配置文件：" + StringUtils.join(checkFiles, ",")+StringUtils.join(validXml, ","));
         }
         return xmlFiles;
     }
@@ -59,7 +59,7 @@ public class XmlFileUtil {
             return xmlFiles;
         } catch (Exception e) {
             LOGGER.error("{}", e);
-            throw new EngineDefineException("压缩包解压失败");
+            throw new RdosDefineException("压缩包解压失败");
         }
     }
 
@@ -90,7 +90,7 @@ public class XmlFileUtil {
                 }
             } catch (Exception e) {
                 LOGGER.error("{}", e);
-                throw new EngineDefineException("配置文件上传至HDFS失败，可能原因Hadoop配置不正确");
+                throw new RdosDefineException("配置文件上传至HDFS失败，可能原因Hadoop配置不正确");
             } finally {
                 HdfsOperator.release();
             }
@@ -111,7 +111,7 @@ public class XmlFileUtil {
                 }
             } catch (Exception e) {
                 LOGGER.error("uploadConfig2SFTP error {}", e);
-                throw new EngineDefineException("配置文件上传至SFTP失败");
+                throw new RdosDefineException("配置文件上传至SFTP失败");
             } finally {
                 if (instance != null){
                     instance.close();
