@@ -234,11 +234,9 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
                 String alterSql = String.format(ADD_PART_TEMP, tableName, taskName, time);
                 String location = "";
                 if (ETableType.IMPALA.getType() == tableType) {
-                    //todo
                     impalaService.executeQuery(dtuicTenantId, db, alterSql);
                     location = impalaService.getTableLocation(dtuicTenantId, db, tableName);
                 } else if (ETableType.HIVE.getType() == tableType) {
-                    //todo
                     hiveService.executeQuery(dtuicTenantId, db, alterSql);
                     location =  hiveService.getTableLocation(dtuicTenantId,db,tableName);
                 }
@@ -269,7 +267,6 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
         long time = System.currentTimeMillis();
         String alterSql = String.format(ADD_PART_TEMP, tableName, name, time);
         try {
-            //todo
             impalaService.executeQuery(dtuicTenantId, engineIdentity, alterSql);
         } catch (Exception e) {
             LOG.error("createPartitionImpala error {} ", alterSql, e);
@@ -333,7 +330,6 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
             try {
                 RetryUtil.executeWithRetry(() -> {
                     LOG.info("create partition dtuicTenantId {} {}", dtuicTenantId, sql);
-                    //todo
                     hiveService.executeQuery(dtuicTenantId, jdbcUrl, username, password, sql);
                     cleanFileName(parameter);
                     return null;
