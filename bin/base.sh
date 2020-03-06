@@ -6,6 +6,7 @@ ulimit -c unlimited
 HO_HEAP_SIZE="${HO_HEAP_SIZE:=512m}"
 JAVA_HOME=/opt/dtstack/java
 PATH=$JAVA_HOME/bin:$PATH
+CMD_PATH=`dirname $0`
 
 function print_usage(){
   echo "Usage: engine [COMMAND]"
@@ -25,13 +26,16 @@ esac
 
 if [ "$COMMAND" = "master" ] ; then
   CLASS='com.dtstack.engine.master.MasterMain'
-  FILE='../conf/common.conf'
+  FILE=$CMD_PATH'/../conf/common.conf'
+  LIB='engine-master-feat_scheduleMasterWorker-with-dependencies.jar'
 elif [ "$COMMAND" = "worker" ] ; then
   CLASS='com.dtstack.engine.worker.WorkerMain'
-  FILE='../conf/worker.conf'
+  FILE=$CMD_PATH'/../conf/worker.conf'
+  LIB='engine-worker-feat_scheduleMasterWorker-with-dependencies.jar'
 else
   CLASS='com.dtstack.engine.entrance.EngineMain'
-  FILE='../conf/engine.conf'
+  FILE=$CMD_PATH'/../conf/engine.conf'
+  LIB='engine-entrance-feat_scheduleMasterWorker-with-dependencies.jar'
 fi
 echo 'exec java MainClass is' $CLASS.
 
@@ -59,4 +63,4 @@ JAVA_OPTS="$JAVA_OPTS -Dconfig.file=${FILE}"
 #Comment to speed up starting time
 #JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
 
-exec java $JAVA_OPTS -cp $basedir/lib/* $CLASS "$@"
+exec java $JAVA_OPTS -cp $basedir/lib/$LIB $CLASS "$@"
