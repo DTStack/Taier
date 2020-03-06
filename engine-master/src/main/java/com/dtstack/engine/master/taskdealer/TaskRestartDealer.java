@@ -290,6 +290,9 @@ public class TaskRestartDealer {
             //重试任务更改在zk的状态，统一做状态清理
             shardCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.RESTARTING.getStatus());
 
+            EngineJob batchJob = engineJobDao.getRdosJobByJobId(jobClient.getTaskId());
+            workNode.getAndUpdateEngineLog(jobId, jobClient.getEngineTaskId(), jobClient.getApplicationId(), batchJob.getPluginInfoId());
+
             //重试的任务不置为失败，waitengine
             jobRetryRecord(jobClient);
 

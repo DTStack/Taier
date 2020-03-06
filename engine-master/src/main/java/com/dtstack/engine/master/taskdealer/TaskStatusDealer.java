@@ -103,8 +103,6 @@ public class TaskStatusDealer implements Runnable {
             for (Map.Entry<String, FailedTaskInfo> failedTaskEntry : failedJobCache.entrySet()) {
                 FailedTaskInfo failedTaskInfo = failedTaskEntry.getValue();
                 String key = failedTaskEntry.getKey();
-                updateJobEngineLog(failedTaskInfo.getJobId(), failedTaskInfo.getJobIdentifier(),
-                        failedTaskInfo.getEngineType(), failedTaskInfo.getComputeType(), failedTaskInfo.getPluginInfo());
 
                 boolean streamAndopenCheckpoint = isFlinkStreamTask(failedTaskInfo) && taskCheckpointDealer.checkOpenCheckPoint(failedTaskInfo.getJobId());
                 if (streamAndopenCheckpoint) {
@@ -193,8 +191,6 @@ public class TaskStatusDealer implements Runnable {
 
                 if (rdosTaskStatus != null) {
 
-                    updateJobEngineLog(jobId, jobIdentifier, engineJobCache.getEngineType(), engineJobCache.getComputeType(), pluginInfoStr);
-
                     rdosTaskStatus = checkNotFoundStatus(rdosTaskStatus, jobId);
 
                     Integer status = rdosTaskStatus.getStatus();
@@ -210,6 +206,9 @@ public class TaskStatusDealer implements Runnable {
 
                     shardCache.updateLocalMemTaskStatus(jobId, status);
                     //数据的更新顺序，先更新job_cache，再更新engine_batch_job
+                    if (RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus)){
+                        jobLogDelayDealer(jobId, jobIdentifier, engineJobCache.getEngineType(), engineJobCache.getComputeType(), pluginInfoStr);
+                    }
 
                     if (ComputeType.STREAM.getType().equals(engineJob.getComputeType())) {
                         dealStreamAfterGetStatus(status, jobId, engineJobCache.getEngineType(), jobIdentifier, pluginInfoStr);
@@ -231,10 +230,6 @@ public class TaskStatusDealer implements Runnable {
             shardCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.FAILED.getStatus());
             engineJobCacheDao.delete(jobId);
         }
-    }
-
-    private void updateJobEngineLog(String jobId, JobIdentifier jobIdentifier, String engineType, int computeType, String pluginInfo) {
-        jobCompletedLogDelayDealer.addTaskToDelayQueue(new CompletedTaskInfo(jobId, jobIdentifier, engineType, computeType, pluginInfo, jobLogDelay));
     }
 
     private void updateJobEngineLog(String jobId, String jobLog) {
@@ -300,6 +295,11 @@ public class TaskStatusDealer implements Runnable {
             engineJobCacheDao.delete(jobId);
         }
     }
+
+    private void jobLogDelayDealer(String jobId, JobIdentifier jobIdentifier, String engineType, int computeType, String pluginInfo){
+        jobCompletedLogDelayDealer.addCompletedTaskInfo(new CompletedTaskInfo(jobId, jobIdentifier, engineType, computeType, pluginInfo, jobLogDelay));
+    }
+
 
     /**
      * 更新任务状态频次
