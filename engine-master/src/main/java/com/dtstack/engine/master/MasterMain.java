@@ -44,7 +44,7 @@ public class MasterMain {
 
             ApplicationContext context = new AnnotationConfigApplicationContext(
                     EnvironmentContext.class, ActorManagerBeanConfig.class, CacheConfig.class, ThreadPoolConfig.class,
-                    MybatisConfig.class, RdosBeanConfig.class);
+                    MybatisConfig.class);
             environmentContext = (EnvironmentContext) context.getBean(EnvironmentContext.class);
 
             setHadoopUserName();
