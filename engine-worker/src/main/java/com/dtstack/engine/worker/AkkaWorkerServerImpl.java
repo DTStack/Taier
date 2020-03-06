@@ -99,8 +99,8 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
             Future<Object> future = Patterns.ask(getActiveMasterAddress(), workerInfo, AkkaConfig.getAkkaAskTimeout());
             Object result = Await.result(future, askResultTimeout);
         } catch (Throwable e){
-            String ip = activeMasterActor.anchorPath().address().host().toString();
-            String port = activeMasterActor.anchorPath().address().port().toString();
+            String ip = activeMasterActor.anchorPath().address().host().get();
+            String port = activeMasterActor.anchorPath().address().port().get().toString();
             String ipAndPort = String.format(IP_PORT_TEMPLATE, ip, port);
             availableNodes.remove(ipAndPort);
             disableNodes.add(ipAndPort);
