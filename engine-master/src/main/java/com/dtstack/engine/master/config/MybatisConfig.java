@@ -27,7 +27,7 @@ import java.beans.PropertyVetoException;
  */
 @Configuration
 @EnableTransactionManagement(proxyTargetClass = true)
-@ComponentScan(basePackages = {"com.dtstack.*"})
+@ComponentScan(basePackages = {"com.dtstack.engine.*"})
 @MapperScan(basePackages = {"com.dtstack.engine.dao"}, sqlSessionTemplateRef = "sqlSessionTemplate")
 public class MybatisConfig {
 

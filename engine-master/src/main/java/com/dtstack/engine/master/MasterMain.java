@@ -7,7 +7,6 @@ import com.dtstack.engine.common.util.SystemPropertyUtil;
 import com.dtstack.engine.master.config.MasterServerBeanConfig;
 import com.dtstack.engine.master.config.CacheConfig;
 import com.dtstack.engine.master.config.MybatisConfig;
-import com.dtstack.engine.master.config.RdosBeanConfig;
 import com.dtstack.engine.master.config.ThreadPoolConfig;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.router.RouterService;
@@ -48,7 +47,7 @@ public class MasterMain {
 
             ApplicationContext context = new AnnotationConfigApplicationContext(
                     EnvironmentContext.class, MasterServerBeanConfig.class, CacheConfig.class, ThreadPoolConfig.class,
-                    MybatisConfig.class, RdosBeanConfig.class);
+                    MybatisConfig.class);
             environmentContext = (EnvironmentContext) context.getBean(EnvironmentContext.class);
 
             setHadoopUserName();
