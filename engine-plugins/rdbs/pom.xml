@@ -24,5 +24,25 @@
         <module>tidb</module>
     </modules>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.dtstack.engine</groupId>
+            <artifactId>engine-common</artifactId>
+            <version>1.0.0</version>
+            <scope>provided</scope>
+        </dependency>
 
+        <dependency>
+            <groupId>com.dtstack.engine</groupId>
+            <artifactId>engine-worker</artifactId>
+            <version>1.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.dtstack.engine</groupId>
+            <artifactId>plugins.base</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+    </dependencies>
 </project>
