@@ -33,6 +33,7 @@
             <groupId>com.dtstack.engine</groupId>
             <artifactId>engine-worker</artifactId>
             <version>1.0.0</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
