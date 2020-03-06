@@ -24,7 +24,7 @@ public class WorkerOperator {
     private static final Logger logger = LoggerFactory.getLogger(WorkerOperator.class);
 
     @Autowired
-    private AkkaMasterServerImpl masterServer;
+    private MasterServer masterServer;
 
     public boolean judgeSlots(JobClient jobClient) throws Exception {
         Object result = callbackAndReset(jobClient, () -> masterServer.sendMessage(new MessageJudgeSlots(jobClient)));
