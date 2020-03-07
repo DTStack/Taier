@@ -121,4 +121,9 @@ public class ConfigParse {
         Object delay = configs.get("jobStoppedDelay");
         return delay == null ? 3000 : Long.parseLong(delay.toString());
     }
+
+    public static long getJobLogDelay(){
+        Object delay = configs.get("jobLogDelay");
+        return delay == null ? 60000 : Long.parseLong(delay.toString());
+    }
 }
