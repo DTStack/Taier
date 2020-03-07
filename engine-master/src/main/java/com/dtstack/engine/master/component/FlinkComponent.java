@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.util.TypeUtils;
 import com.dtstack.dtcenter.common.http.PoolHttpClient;
-import com.dtstack.engine.common.exception.EngineDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
@@ -103,7 +103,7 @@ public class FlinkComponent extends BaseComponent {
             }
             return applicationIds;
         } catch (Exception e) {
-            throw new EngineDefineException(e.getMessage());
+            throw new RdosDefineException(e.getMessage());
         }
     }
 

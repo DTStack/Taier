@@ -1,8 +1,7 @@
 package com.dtstack.engine.master.component;
 
 import com.dtstack.dtcenter.common.hadoop.HdfsOperator;
-import com.dtstack.engine.common.exception.EngineDefineException;
-import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.enums.KerberosKey;
 import com.dtstack.engine.master.utils.HadoopConf;
 import org.apache.commons.collections.MapUtils;
@@ -31,7 +30,7 @@ public class HDFSComponent extends BaseComponent {
             hadoopConf.getConfiguration().set("hadoop.security.authorization","false");
             HdfsOperator.getFileSystem(hadoopConf.getConfiguration());
         } catch (Exception e){
-            throw new EngineDefineException("连接hdfs失败:" + e.getMessage());
+            throw new RdosDefineException("连接hdfs失败:" + e.getMessage());
         } finally {
             try {
                 HdfsOperator.release();

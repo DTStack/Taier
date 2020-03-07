@@ -7,8 +7,8 @@ import com.dtstack.dtcenter.common.enums.EComponentType;
 import com.dtstack.dtcenter.common.enums.MultiEngineType;
 import com.dtstack.dtcenter.common.sftp.SftpPath;
 import com.dtstack.engine.common.exception.EngineAssert;
-import com.dtstack.engine.common.exception.EngineDefineException;
 import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.EngineDao;
 import com.dtstack.engine.dao.EngineTenantDao;
 import com.dtstack.engine.dao.QueueDao;
@@ -172,7 +172,7 @@ public class EngineService {
 
         for (Engine engine : engines) {
             if(engine.getEngineType() == engineType.getType()){
-                throw new EngineDefineException("引擎类型:" + engine.getEngineName() + " 已存在，不能重复添加");
+                throw new RdosDefineException("引擎类型:" + engine.getEngineName() + " 已存在，不能重复添加");
             }
         }
     }
@@ -220,12 +220,12 @@ public class EngineService {
         Component sftpComponent = componentMap.get(EComponentType.SFTP.getTypeCode());
         if (sparkComponent != null) {
             if (sftpComponent == null) {
-                throw new EngineDefineException(ErrorCode.CAN_NOT_FIN_SFTP.getDescription());
+                throw new RdosDefineException(ErrorCode.CAN_NOT_FIN_SFTP.getDescription());
             }
             JSONObject sftpConfig = JSONObject.parseObject(sftpComponent.getComponentConfig());
             String path = sftpConfig.getString("path");
             if (StringUtils.isBlank(path)) {
-                throw new EngineDefineException(ErrorCode.SFTP_PATH_CAN_NOT_BE_EMPTY.getDescription());
+                throw new RdosDefineException(ErrorCode.SFTP_PATH_CAN_NOT_BE_EMPTY.getDescription());
             }
             JSONObject jsonObject = JSONObject.parseObject(sparkComponent.getComponentConfig());
             jsonObject.put(CONF_HDFS_PATH, String.format(ComponentService.SFTP_HADOOP_CONFIG_PATH, path ,SftpPath.CONSOLE_HADOOP_CONFIG, clusterName));

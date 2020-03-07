@@ -20,7 +20,7 @@ package com.dtstack.engine.master.utils;
 
 import com.dtstack.dtcenter.common.enums.EComponentType;
 import com.dtstack.dtcenter.common.enums.MultiEngineType;
-import com.dtstack.engine.common.exception.EngineDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +61,7 @@ public class EngineUtil {
         List<Integer> supportedComponents = ENGINE_SUPPORTED_COMPONENTS.get(engineType.getType());
         for (Integer componentType : componentTypeCodeList) {
             if (!supportedComponents.contains(componentType)) {
-                throw new EngineDefineException("引擎:" + engineType.name() + " 不支持组件类型:" + componentType);
+                throw new RdosDefineException("引擎:" + engineType.name() + " 不支持组件类型:" + componentType);
             }
         }
     }

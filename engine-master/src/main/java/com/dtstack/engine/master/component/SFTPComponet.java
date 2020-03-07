@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.component;
 
 import com.dtstack.dtcenter.common.sftp.SFTPHandler;
-import com.dtstack.engine.common.exception.EngineDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.HashMap;
@@ -23,7 +23,7 @@ public class SFTPComponet extends BaseComponent {
             instance = SFTPHandler.getInstance(config);
             String path = config.get("path");
             if (StringUtils.isBlank(path)) {
-                throw new EngineDefineException("SFTP组件path配置不能为空");
+                throw new RdosDefineException("SFTP组件path配置不能为空");
             }
             //测试路径是否存在
             instance.listFile(path);

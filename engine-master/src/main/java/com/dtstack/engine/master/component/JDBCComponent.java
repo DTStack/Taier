@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.common.enums.DataBaseType;
 import com.dtstack.dtcenter.common.hadoop.HadoopConfTool;
 import com.dtstack.dtcenter.common.util.DBUtil;
-import com.dtstack.engine.common.exception.EngineDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.enums.KerberosKey;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -54,7 +54,7 @@ public class JDBCComponent extends BaseComponent {
         }
 
         if (StringUtils.isEmpty(jdbcUrl)) {
-            throw new EngineDefineException(dataBaseType.getTypeName() + "数据源的jdbcUrl为空");
+            throw new RdosDefineException(dataBaseType.getTypeName() + "数据源的jdbcUrl为空");
         }
 
         try {
@@ -66,7 +66,7 @@ public class JDBCComponent extends BaseComponent {
             }
         } catch (Exception e) {
             LOG.error("{}", e);
-            throw new EngineDefineException("kerberos校验失败, Message:" + e.getMessage());
+            throw new RdosDefineException("kerberos校验失败, Message:" + e.getMessage());
         }
 
         Connection conn = null;
