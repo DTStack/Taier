@@ -72,7 +72,6 @@ CREATE TABLE `console_queue` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- 集群kerberos配置表
 CREATE TABLE `console_kerberos` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `cluster_id` int(11) NOT NULL COMMENT '集群id',

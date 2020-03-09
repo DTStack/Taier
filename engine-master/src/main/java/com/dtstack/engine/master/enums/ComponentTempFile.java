@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.enums;
 
-import com.dtstack.engine.common.exception.EngineDefineException;
 import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
 
 public enum ComponentTempFile {
 
@@ -39,7 +39,7 @@ public enum ComponentTempFile {
                 return componentTempFile.getName();
             }
         }
-        throw new EngineDefineException(ErrorCode.INVALID_PARAMETERS.getDescription());
+        throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS.getDescription());
     }
 }
 
