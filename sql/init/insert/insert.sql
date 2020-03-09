@@ -88,134 +88,7 @@ from ide.rdos_batch_fill_data_job fdj;
 
 
 
-insert into rdos_batch_job_alarm (tenant_id, project_id, dtuic_tenant_id, app_type, job_id, task_id,
-                                             task_status, gmt_create, gmt_modified, is_deleted)
-select bj.tenant_id
-     , bj.project_id
-     , (select dtuic_tenant_id from ide.rdos_tenant where id = bj.tenant_id) as dtuic_tenant_id
-     , 1 as app_type
-     , bj.id as job_id
-     , bj.task_id
-     , bja.task_status
-     , bja.gmt_create
-     , bja.gmt_modified
-     , bja.is_deleted
-from ide.rdos_batch_job_alarm bja
-         left join ide.rdos_batch_job bj on bja.job_id = bj.id;
 
-
-
-insert into rdos_batch_alarm (id, tenant_id, project_id, dtuic_tenant_id, app_type, name, task_id, my_trigger,
-                                         uncomplete_time, status, create_user_id, gmt_create, gmt_modified, is_deleted,
-                                         sender_type, is_task_holder, receivers)
-select ba.id,
-       ba.tenant_id,
-       ba.project_id,
-       (select dtuic_tenant_id from ide.rdos_tenant where id = ba.tenant_id),
-       1,
-       ba.name,
-       ba.task_id,
-       ba.my_trigger,
-       ba.uncomplete_time,
-       ba.status,
-       ba.create_user_id,
-       ba.gmt_create,
-       ba.gmt_modified,
-       ba.is_deleted,
-       ba.sender_type,
-       ba.is_task_holder,
-       ''
-from ide.rdos_batch_alarm ba;
-
-
-insert into rdos_batch_alarm_record (id, tenant_id, project_id, alarm_id, cyc_time, alarm_content, trigger_type,
-                                                gmt_create, gmt_modified, is_deleted, dtuic_tenant_id)
-
-select ar.id,
-       ar.tenant_id,
-       ar.project_id,
-       ar.alarm_id,
-       ar.cyc_time,
-       ar.alarm_content,
-       ar.trigger_type,
-       ar.gmt_create,
-       ar.gmt_modified,
-       ar.is_deleted,
-       (select dtuic_tenant_id from ide.rdos_tenant where id = ar.tenant_id)
-from ide.rdos_batch_alarm_record ar;
-
-
-insert into rdos_notify (id,tenant_id, project_id, dtuic_tenant_id, app_type, biz_type, relation_id, name,
-                              trigger_type, webhook, uncomplete_time, send_way, start_time, end_time, status,
-                              create_user_id, gmt_create, gmt_modified, is_deleted)
-select id,
-       tenant_id,
-       project_id,
-       (select dtuic_tenant_id from ide.rdos_tenant where id = rn.tenant_id),
-       1,
-       biz_type,
-       relation_id,
-       name,
-       trigger_type,
-       webhook,
-       uncomplete_time,
-       send_way,
-       start_time,
-       end_time,
-       status,
-       create_user_id,
-       gmt_create,
-       gmt_modified,
-       is_deleted
-from ide.rdos_notify rn;
-
-
-insert into rdos_notify_record (id,tenant_id, project_id, dtuic_tenant_id, app_type, notify_id, content_id, cyc_time,
-                                     status, gmt_create, gmt_modified, is_deleted)
-select id,
-       tenant_id,
-       project_id,
-       (select dtuic_tenant_id from ide.rdos_tenant rt where rt.id = rnr.tenant_id),
-       1,
-       notify_id,
-       content_id,
-       cyc_time,
-       status,
-       gmt_create,
-       gmt_modified,
-       is_deleted
-from ide.rdos_notify_record rnr;
-
-
-
-insert into rdos_notify_user(tenant_id, project_id, dtuic_tenant_id, app_type, notify_id, user_id, gmt_create,
-                                  gmt_modified, is_deleted)
-select tenant_id,
-       project_id,
-       (select dtuic_tenant_id from ide.rdos_tenant where id = rnu.tenant_id),
-       1,
-       notify_id,
-       user_id,
-       gmt_create,
-       gmt_modified,
-       is_deleted
-from ide.rdos_notify_user rnu;
-
-
-insert into rdos_notify_alarm (id,tenant_id, project_id, dtuic_tenant_id, app_type, biz_type, notify_id, alarm_id,
-                                    gmt_create, gmt_modified, is_deleted)
-select id,
-       tenant_id,
-       project_id,
-       (select dtuic_tenant_id from ide.rdos_tenant where id = rna.tenant_id),
-       1,
-       biz_type,
-       notify_id,
-       alarm_id,
-       gmt_create,
-       gmt_modified,
-       is_deleted
-from ide.rdos_notify_alarm rna;
 
 -- 插入之后 在更新
 insert into rdos_batch_job(tenant_id, project_id, dtuic_tenant_id, app_type, job_id, job_key, job_name,
@@ -260,7 +133,7 @@ select tenant_id,
        0
 from ide.rdos_batch_job;
 
-update rdos_batch_job rbj left join ide.rdos_engine_batch_job rebj on rbj.job_id = rebj.job_id
+update rdos_batch_job rbj left join ide.rdos_engine_job rebj on rbj.job_id = rebj.job_id
 set rbj.status          = IFNULL(rebj.status, 0),
     rbj.exec_start_time = rebj.exec_start_time,
     rbj.exec_end_time   = rebj.exec_end_time,
@@ -272,9 +145,6 @@ where rbj.status = -1;
 update rdos_batch_job rbj left join ide.rdos_batch_task bt on rbj.task_id = bt.id
 set rbj.task_type = bt.task_type where bt.task_type is not null;
 
-
-create index rdos_batch_fill_data_relation_job_id_index
-    on ide.rdos_batch_fill_data_relation (job_id);
 
 update rdos_batch_job rbj
 set fill_id = (select fill_id
