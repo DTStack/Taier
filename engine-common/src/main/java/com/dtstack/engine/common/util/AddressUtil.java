@@ -1,5 +1,6 @@
 package com.dtstack.engine.common.util;
 
+import org.apache.commons.net.telnet.TelnetClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
@@ -102,6 +103,26 @@ public class AddressUtil {
         InetAddress address2 = InetAddress.getByName(host2);
 
         return address1.getHostAddress().equals(address2.getHostAddress()) && port1 == port2;
+    }
+
+    public static boolean telnet(String ip,int port){
+        TelnetClient client = null;
+        try{
+            client = new TelnetClient();
+            client.setConnectTimeout(3000);
+            client.connect(ip,port);
+            return true;
+        }catch(Exception e){
+            return false;
+        } finally {
+            try {
+                if (client != null){
+                    client.disconnect();
+                }
+            } catch (Exception e){
+                logger.error("{}",e);
+            }
+        }
     }
 
     public static void main(String[] args){

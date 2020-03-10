@@ -1,12 +1,8 @@
 package com.dtstack.engine.common.util;
 
 
-import com.dtstack.dtcenter.common.util.AddressUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.io.IOException;
-import java.net.ServerSocket;
 
 public class NetUtils {
 
