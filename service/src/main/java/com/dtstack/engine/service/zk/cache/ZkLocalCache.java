@@ -1,23 +1,17 @@
 package com.dtstack.engine.service.zk.cache;
 
-import com.dtstack.engine.common.exception.RdosException;
 import com.dtstack.engine.common.config.ConfigParse;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.queue.ClusterQueueInfo;
-import com.dtstack.engine.common.queue.GroupInfo;
+import com.dtstack.engine.service.queue.GroupInfo;
 import com.dtstack.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.engine.service.db.dataobject.RdosEngineJobCache;
-import com.dtstack.engine.common.queue.GroupPriorityQueue;
 import com.dtstack.engine.service.node.WorkNode;
-import com.dtstack.engine.service.util.TaskIdUtil;
+import com.dtstack.engine.service.task.QueueListener;
 import com.dtstack.engine.service.zk.ZkDistributed;
 import com.dtstack.engine.service.zk.ZkShardManager;
 import com.dtstack.engine.service.zk.data.BrokerDataNode;
 import com.dtstack.engine.service.zk.data.BrokerDataShard;
-import com.google.common.collect.Maps;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,16 +24,14 @@ import java.util.concurrent.locks.ReentrantLock;
  * author: toutian
  * create: 2018/9/6
  */
-public class ZkLocalCache implements Closeable {
+public class ZkLocalCache {
 
     private volatile BrokerDataNode localDataCache;
 
     private String localAddress;
-    private int distributeZkWeight;
     private int distributeQueueWeight;
     private int distributeDeviation;
     private int perShardSize;
-    private volatile Map<String, Integer> zkDataSizeCache;
     private static ZkLocalCache zkLocalCache = new ZkLocalCache();
 
     public static ZkLocalCache getInstance() {
@@ -50,10 +42,7 @@ public class ZkLocalCache implements Closeable {
 
     private final ReentrantLock lock = new ReentrantLock();
 
-    private WorkNode workNode;
-    private ClusterQueueInfo clusterQueueInfo = ClusterQueueInfo.getInstance();
     private ZkShardManager zkShardManager = ZkShardManager.getInstance();
-    private LocalCacheSyncZkListener localCacheSyncZkListener;
 
     private ZkLocalCache() {
     }
@@ -62,7 +51,6 @@ public class ZkLocalCache implements Closeable {
         localAddress = zkDistributed.getLocalAddress();
         localDataCache = new BrokerDataNode(new ConcurrentHashMap<String,BrokerDataShard>(16));
         distributeQueueWeight = ConfigParse.getTaskDistributeQueueWeight();
-        distributeZkWeight = ConfigParse.getTaskDistributeZkWeight();
         distributeDeviation = ConfigParse.getTaskDistributeDeviation();
         perShardSize = ConfigParse.getShardSize();
         zkShardManager.init(zkDistributed);
@@ -91,16 +79,15 @@ public class ZkLocalCache implements Closeable {
     }
 
 
-    public String getJobLocationAddr(String zkTaskId) {
+    public String getJobLocationAddr(String jobId) {
         String addr = null;
         //先查本地
-        String shard = localDataCache.getShard(zkTaskId);
-        if (localDataCache.getShards().get(shard).containsKey(zkTaskId)) {
+        String shard = localDataCache.getShard(jobId);
+        if (localDataCache.getShards().get(shard).containsKey(jobId)) {
             addr = localAddress;
         }
         //查数据库
         if (addr==null){
-            String jobId = TaskIdUtil.getTaskId(zkTaskId);
             RdosEngineJobCache jobCache = engineJobCacheDao.getJobById(jobId);
             if (jobCache!=null){
                 addr = jobCache.getNodeAddress();
@@ -113,61 +100,40 @@ public class ZkLocalCache implements Closeable {
      * 选择节点间（队列负载+已提交任务 加权值）+ 误差 符合要求的node，做任务分发
      */
     public String getDistributeNode(String engineType, String groupName, List<String> excludeNodes) {
-        if (clusterQueueInfo.isEmpty()) {
+        Map<String, Map<String, GroupInfo>> allNodesGroupQueueJobResources = QueueListener.getAllNodesGroupQueueInfo();
+        if (allNodesGroupQueueJobResources.isEmpty()) {
             return localAddress;
         }
 
-        ClusterQueueInfo.EngineTypeQueueInfo engineTypeQueueInfo = clusterQueueInfo.getEngineTypeQueueInfo(engineType);
-        if (engineTypeQueueInfo == null) {
+        String jobResource = WorkNode.getInstance().getJobResource(engineType, groupName);
+        Map<String, GroupInfo> nodesGroupQueue = allNodesGroupQueueJobResources.get(jobResource);
+        if (nodesGroupQueue == null) {
             return localAddress;
         }
 
-        GroupPriorityQueue groupPriorityQueue = workNode.getEngineTypeQueue(engineType);
-        if (groupPriorityQueue == null) {
-            throw new RdosException("not support engineType:" + engineType);
-        }
-        Map<String, Integer> otherQueueInfoMap = Maps.newHashMap();
-        for (Map.Entry<String, ClusterQueueInfo.GroupQueueInfo> zkInfoEntry : engineTypeQueueInfo.getGroupQueueInfoMap().entrySet()) {
-            ClusterQueueInfo.GroupQueueInfo groupQueueZkInfo = zkInfoEntry.getValue();
-            Map<String, GroupInfo> remoteQueueInfo = groupQueueZkInfo.getGroupInfo();
-            GroupInfo groupInfo = remoteQueueInfo.getOrDefault(groupName, new GroupInfo());
-            otherQueueInfoMap.put(zkInfoEntry.getKey(), groupInfo.getSize());
-        }
-        int localQueueSize = otherQueueInfoMap.getOrDefault(localAddress, 0);
+        GroupInfo localGroupInfo = nodesGroupQueue.get(localAddress);
+        int localQueueSize = localGroupInfo == null ? 0 : localGroupInfo.getSize();
 
         String node = null;
         int minWeight = Integer.MAX_VALUE;
-        for (Map.Entry<String, Integer> queueEntry : otherQueueInfoMap.entrySet()) {
-            if (excludeNodes.contains(queueEntry.getKey())) {
+        for (Map.Entry<String, GroupInfo> groupInfoEntry : nodesGroupQueue.entrySet()) {
+            String nodeAddress = groupInfoEntry.getKey();
+            GroupInfo groupInfo = groupInfoEntry.getValue();
+
+            if (excludeNodes.contains(nodeAddress)) {
                 continue;
             }
-            int queueSize = queueEntry.getValue();
-            int weight = queueSize * distributeQueueWeight + getZkDataSize(queueEntry.getKey()) * distributeZkWeight;
+            int weight = groupInfo.getSize() * distributeQueueWeight;
             if (minWeight > weight) {
                 minWeight = weight;
-                node = queueEntry.getKey();
+                node = nodeAddress;
             }
         }
-        int localWeight = localQueueSize * distributeQueueWeight + getZkDataSize(localAddress) * distributeZkWeight;
+        int localWeight = localQueueSize * distributeQueueWeight;
         if (localWeight - minWeight <= distributeDeviation) {
             return localAddress;
         }
         return node;
-    }
-
-    public Map<String, Integer> getZkDataSizeCache() {
-        return zkDataSizeCache;
-    }
-
-    public void setZkDataSizeCache(Map<String, Integer> zkDataSizeCache) {
-        this.zkDataSizeCache = zkDataSizeCache;
-    }
-
-    public int getZkDataSize(String node){
-        if (zkDataSizeCache!=null){
-            return zkDataSizeCache.getOrDefault(node, 0);
-        }
-        return 0;
     }
 
     /**
@@ -189,21 +155,6 @@ public class ZkLocalCache implements Closeable {
         } finally {
             createShardLock.unlock();
         }
-    }
-
-    @Override
-    public void close() throws IOException {
-        if (localCacheSyncZkListener != null) {
-            localCacheSyncZkListener.run();
-        }
-    }
-
-    public void setWorkNode(WorkNode workNode) {
-        this.workNode = workNode;
-    }
-
-    public void setLocalCacheSyncZkListener(LocalCacheSyncZkListener localCacheSyncZkListener) {
-        this.localCacheSyncZkListener = localCacheSyncZkListener;
     }
 
 }

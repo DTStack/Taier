@@ -1,6 +1,6 @@
 package com.dtstack.engine.service.zk.data;
 
-import com.dtstack.engine.common.queue.GroupInfo;
+import com.dtstack.engine.service.queue.GroupInfo;
 import com.google.common.collect.Maps;
 
 import java.util.Map;

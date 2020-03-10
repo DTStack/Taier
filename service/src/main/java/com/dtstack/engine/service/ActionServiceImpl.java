@@ -1,10 +1,10 @@
 package com.dtstack.engine.service;
 
+import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosException;
 import com.dtstack.engine.common.annotation.Param;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.common.JobSubmitExecutor;
 import com.dtstack.engine.service.db.dataobject.RdosEngineJobRetry;
 import com.dtstack.engine.service.db.dataobject.RdosEngineJobStopRecord;
 import com.dtstack.engine.service.db.dataobject.RdosEngineUniqueSign;
@@ -429,10 +429,16 @@ public class ActionServiceImpl {
     public List<String> containerInfos(Map<String, Object> param) throws Exception {
         ParamAction paramAction = PublicUtil.mapToObject(param, ParamAction.class);
         checkParam(paramAction);
-        workNode.fillJobClientEngineId(paramAction);
+        //从数据库补齐数据
+        RdosEngineJob batchJob = batchJobDAO.getRdosTaskByTaskId(paramAction.getTaskId());
+        if(batchJob != null){
+            paramAction.setEngineTaskId(batchJob.getEngineJobId());
+            paramAction.setApplicationId(batchJob.getApplicationId());
+        }
         JobClient jobClient = new JobClient(paramAction);
-        List<String> infos = JobSubmitExecutor.getInstance().containerInfos(jobClient);
-        return infos;
+
+        JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobClient.getEngineTaskId(), jobClient.getApplicationId(), jobClient.getTaskId());
+        return JobClient.getContainerInfos(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
     }
 
     public String generateUniqueSign(){

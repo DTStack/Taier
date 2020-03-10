@@ -1,5 +1,6 @@
 package com.dtstack.engine.common;
 
+import com.dtstack.engine.common.config.ConfigParse;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.RdosException;
@@ -85,6 +86,8 @@ public class JobClient extends OrderObject{
 
     private int maxRetryNum;
 
+    private volatile long lackingCount;
+
     /***
      * 获取engine上job执行的状态
      * @param jobIdentifier
@@ -120,6 +123,18 @@ public class JobClient extends OrderObject{
         }
     }
 
+    public static List<String> getContainerInfos(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
+        return ClientOperator.getInstance().getContainerInfos(engineType, pluginInfo, jobIdentifier);
+    }
+
+    public JobResult stopJob() throws Exception {
+        if(this.getEngineTaskId() == null){
+            return JobResult.createSuccessResult(this.getTaskId());
+        }
+        JobIdentifier jobIdentifier = JobIdentifier.createInstance(this.getEngineTaskId(), this.getApplicationId(), this.getTaskId());
+        return ClientOperator.getInstance().cancelJob(this.getEngineType(), this.getPluginInfo(), jobIdentifier);
+    }
+
     @Deprecated
     public JobClient() {
 
@@ -139,6 +154,7 @@ public class JobClient extends OrderObject{
         this.classArgs = paramAction.getExeArgs();
         this.restartTime = paramAction.getRestartTime();
         this.generateTime = paramAction.getGenerateTime();
+        this.lackingCount = paramAction.getLackingCount();
         if (paramAction.getComputeType().equals(ComputeType.STREAM.getType())){
             this.maxRetryNum = 0;
         } else {
@@ -185,6 +201,7 @@ public class JobClient extends OrderObject{
         action.setPriority(priority);
         action.setApplicationId(applicationId);
         action.setMaxRetryNum(maxRetryNum);
+        action.setLackingCount(lackingCount);
         if(!Strings.isNullOrEmpty(pluginInfo)){
             try{
                 action.setPluginInfo(PublicUtil.jsonStrToObject(pluginInfo, Map.class));
@@ -296,10 +313,6 @@ public class JobClient extends OrderObject{
         this.classArgs = classArgs;
     }
 
-    public JobResult stopJob() throws Exception {
-        return JobSubmitExecutor.getInstance().stopJob(this);
-    }
-
     public int getAgain() {
         return again;
     }
@@ -365,6 +378,9 @@ public class JobClient extends OrderObject{
     }
 
     public long getGenerateTime() {
+        if (generateTime <=0) {
+            generateTime = System.currentTimeMillis();
+        }
         return generateTime;
     }
 
@@ -401,6 +417,22 @@ public class JobClient extends OrderObject{
         return restartTime != 0 && System.currentTimeMillis() <= restartTime;
     }
 
+    public long getLackingCount() {
+        return lackingCount;
+    }
+
+    public void setLackingCount(long lackingCount) {
+        this.lackingCount = lackingCount;
+    }
+
+    public long lackingCountIncrement() {
+        return lackingCount++;
+    }
+
+    public boolean isLackLimited() {
+        return lackingCount++ > ConfigParse.getLackingCountLimited();
+    }
+
     @Override
     public String toString() {
         return "JobClient{" +
@@ -425,6 +457,7 @@ public class JobClient extends OrderObject{
                 ", generateTime=" + generateTime +
                 ", priority=" + priority +
                 ", maxRetryNum=" + maxRetryNum +
+                ", lackingCount=" + lackingCount +
                 '}';
     }
 

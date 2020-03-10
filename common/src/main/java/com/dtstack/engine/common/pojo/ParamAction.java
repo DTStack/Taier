@@ -58,11 +58,16 @@ public class ParamAction {
 
 	private long priority;
 
+	/**
+	 * 注意不要随意改
+	 */
 	private long generateTime = System.currentTimeMillis();
 
 	private Integer maxRetryNum;
 
 	private long stopJobId;
+
+	private long lackingCount;
 
 	public Integer getRequestStart() {
 		return requestStart;
@@ -224,6 +229,14 @@ public class ParamAction {
 
 	public void setStopJobId(long stopJobId) {
 		this.stopJobId = stopJobId;
+	}
+
+	public long getLackingCount() {
+		return lackingCount;
+	}
+
+	public void setLackingCount(long lackingCount) {
+		this.lackingCount = lackingCount;
 	}
 
 	@Override

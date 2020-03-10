@@ -1,18 +1,13 @@
 package com.dtstack.engine.service.node;
 
-import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.EJobCacheStage;
-import com.dtstack.engine.common.queue.ClusterQueueInfo;
-import com.dtstack.engine.common.queue.GroupInfo;
+import com.dtstack.engine.service.queue.GroupInfo;
 import com.dtstack.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.engine.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.engine.service.send.HttpSendClient;
+import com.dtstack.engine.service.task.QueueListener;
 import com.dtstack.engine.service.zk.ZkDistributed;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.pojo.ParamAction;
-import com.dtstack.engine.service.zk.cache.ZkLocalCache;
-import com.dtstack.engine.service.zk.data.BrokerDataShard;
 import com.dtstack.engine.service.zk.data.BrokerHeartNode;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -49,10 +44,6 @@ public class MasterNode {
     private RdosEngineJobCacheDAO engineJobCacheDao = new RdosEngineJobCacheDAO();
 
     private FaultTolerantDealer faultTolerantDealer = new FaultTolerantDealer();
-
-    private ClusterQueueInfo clusterQueueInfo = ClusterQueueInfo.getInstance();
-
-    private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
 
     private static WorkNode workNode = WorkNode.getInstance();
 
@@ -140,20 +131,17 @@ public class MasterNode {
             LOG.warn("----- broker:{} 节点容灾任务开始恢复----", broker);
             long startId = 0L;
             while (true) {
-                List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(startId, broker, null, null);
+                List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(startId, broker, null, null, null);
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     break;
                 }
-                Map<String, Map<String, List<String>>> priorityEngineTypes = Maps.newHashMap();
+                Map<String, List<String>> jobResources = Maps.newHashMap();
                 List<String> submitedJobs = Lists.newArrayList();
                 for (RdosEngineJobCache jobCache : jobCaches) {
                     try {
-                        ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
-                        JobClient jobClient = new JobClient(paramAction);
-                        Map<String, List<String>> groups = null;
-                        if (jobCache.getStage() == EJobCacheStage.IN_PRIORITY_QUEUE.getStage()) {
-                            groups = priorityEngineTypes.computeIfAbsent(jobCache.getEngineType(), k -> Maps.newHashMap());
-                            List<String> jobIds = groups.computeIfAbsent(jobClient.getGroupName(), k -> Lists.newArrayList());
+                        if (EJobCacheStage.unSubmitted().contains(jobCache.getStage())) {
+                            String jobResource = WorkNode.getInstance().getJobResource(jobCache.getEngineType(), jobCache.getGroupName());
+                            List<String> jobIds = jobResources.computeIfAbsent(jobResource, k -> Lists.newArrayList());
                             jobIds.add(jobCache.getJobId());
                         } else {
                             submitedJobs.add(jobCache.getJobId());
@@ -162,20 +150,16 @@ public class MasterNode {
                     } catch (Exception e) {
                         //数据转换异常--打日志
                         LOG.error("", e);
-                        workNode.dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "This task stores information exception and cannot be converted." + e.toString());
+                        workNode.dealSubmitFailJob(jobCache.getJobId(), "This task stores information exception and cannot be converted." + e.toString());
                     }
                 }
-                distributeQueueJobs(priorityEngineTypes);
+                distributeQueueJobs(jobResources);
                 distributeZkJobs(submitedJobs);
             }
             //在迁移任务的时候，可能出现要迁移的节点也宕机了，任务没有正常接收
-            List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(0L, broker, null, null);
+            List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(0L, broker, null, null, null);
             if (CollectionUtils.isNotEmpty(jobCaches)) {
                 zkDistributed.updateSynchronizedLocalBrokerHeartNode(broker, BrokerHeartNode.initNullBrokerHeartNode(), true);
-            }
-            List<String> shards = zkDistributed.getBrokerDataChildren(broker);
-            for (String shard : shards) {
-                zkDistributed.synchronizedBrokerDataShard(broker, shard, BrokerDataShard.initBrokerDataShard(), true);
             }
             LOG.warn("----- broker:{} 节点容灾任务结束恢复-----", broker);
         } catch (Exception e) {
@@ -185,57 +169,64 @@ public class MasterNode {
         }
     }
 
-    private void distributeQueueJobs(Map<String, Map<String, List<String>>> engineTypes) {
-        if (engineTypes.isEmpty()) {
+    private void distributeQueueJobs(Map<String, List<String>> jobResources) {
+        if (jobResources.isEmpty()) {
             return;
         }
         //任务多节点分发，每个节点要分发的任务量
         Map<String, List<String>> nodeJobs = Maps.newHashMap();
-        for (Map.Entry<String, Map<String, List<String>>> engineTypeEntry : engineTypes.entrySet()) {
-            String engineType = engineTypeEntry.getKey();
-            Map<String, List<String>> groups = engineTypeEntry.getValue();
-            for (Map.Entry<String, List<String>> groupEntry : groups.entrySet()) {
-                List<String> jobIds = groupEntry.getValue();
-                if (jobIds.isEmpty()) {
-                    continue;
-                }
-                String group = groupEntry.getKey();
-                Iterator<String> jobIdsIt = groupEntry.getValue().iterator();
-                Map<String, Integer> jobSizeInfo = computeQueueJobSize(engineType, group, jobIds.size());
-                if (jobSizeInfo == null) {
-                    continue;
-                }
-                for (Map.Entry<String, Integer> jobSizeEntry : jobSizeInfo.entrySet()) {
-                    int size = jobSizeEntry.getValue();
-                    String node = jobSizeEntry.getKey();
-                    while (size > 0 && jobIdsIt.hasNext()) {
-                        size--;
-                        String jobId = jobIdsIt.next();
-                        List<String> nodeJobIds = nodeJobs.computeIfAbsent(node, k -> Lists.newArrayList());
-                        nodeJobIds.add(jobId);
-                    }
+        for (Map.Entry<String, List<String>> jobResourceEntry : jobResources.entrySet()) {
+            String jobResource = jobResourceEntry.getKey();
+            List<String> jobIds = jobResourceEntry.getValue();
+            if (jobIds.isEmpty()) {
+                continue;
+            }
+            Map<String, Integer> jobCacheSizeInfo = computeJobCacheSizeForNode(jobIds.size(), jobResource);
+            Iterator<String> jobIdsIterator = jobIds.iterator();
+            for (Map.Entry<String, Integer> jobCacheSizeEntry : jobCacheSizeInfo.entrySet()) {
+                String nodeAddress = jobCacheSizeEntry.getKey();
+                int nodeSize = jobCacheSizeEntry.getValue();
+                while (nodeSize > 0 && jobIdsIterator.hasNext()) {
+                    nodeSize--;
+                    List<String> nodeJobIds = nodeJobs.computeIfAbsent(nodeAddress, k -> Lists.newArrayList());
+                    nodeJobIds.add(jobIdsIterator.next());
                 }
             }
         }
+
         sendJobs(nodeJobs);
     }
 
-    private Map<String, Integer> computeQueueJobSize(String engineType, String groupName, int jobSize) {
-        if (clusterQueueInfo.isEmpty()) {
+    private Map<String, Integer> computeJobCacheSizeForNode(int jobSize, String jobResource) {
+        Map<String, Integer> jobSizeInfo = computeJobCacheSize(jobResource, jobSize);
+        if (jobSizeInfo == null) {
+            //if empty
+            List<String> aliveNodes = zkDistributed.getAliveBrokersChildren();
+            jobSizeInfo = new HashMap<String, Integer>(aliveNodes.size());
+            int size = jobSize / aliveNodes.size() + 1;
+            for (String aliveNode : aliveNodes) {
+                jobSizeInfo.put(aliveNode, size);
+            }
+        }
+        return jobSizeInfo;
+    }
+
+
+    public Map<String, Integer> computeJobCacheSize(String jobResource, int jobSize) {
+        Map<String, Map<String, GroupInfo>> allNodesGroupQueueJobResources = QueueListener.getAllNodesGroupQueueInfo();
+        if (allNodesGroupQueueJobResources.isEmpty()) {
             return null;
         }
-        ClusterQueueInfo.EngineTypeQueueInfo engineTypeQueueInfo = clusterQueueInfo.getEngineTypeQueueInfo(engineType);
-        if (engineTypeQueueInfo == null) {
+        Map<String, GroupInfo> nodesGroupQueue = allNodesGroupQueueJobResources.get(jobResource);
+        if (nodesGroupQueue == null) {
             return null;
         }
         Map<String, Integer> nodeSort = Maps.newHashMap();
         int total = jobSize;
-        for (Map.Entry<String, ClusterQueueInfo.GroupQueueInfo> engineTypeEntry : engineTypeQueueInfo.getGroupQueueInfoMap().entrySet()) {
-            ClusterQueueInfo.GroupQueueInfo groupEntry = engineTypeEntry.getValue();
-            Map<String, GroupInfo> remoteQueueInfo = groupEntry.getGroupInfo();
-            GroupInfo groupInfo = remoteQueueInfo.getOrDefault(groupName, new GroupInfo());
+        for (Map.Entry<String, GroupInfo> groupInfoEntry : nodesGroupQueue.entrySet()) {
+            GroupInfo groupInfo = groupInfoEntry.getValue();
             total += groupInfo.getSize();
-            nodeSort.put(engineTypeEntry.getKey(), groupInfo.getSize());
+            nodeSort.put(groupInfoEntry.getKey(), groupInfo.getSize());
         }
         int avg = total / nodeSort.size() + 1;
         for (Map.Entry<String, Integer> entry : nodeSort.entrySet()) {
@@ -248,26 +239,17 @@ public class MasterNode {
         if (jobs.isEmpty()) {
             return;
         }
-        Map<String, Integer> zkDataCache = zkLocalCache.getZkDataSizeCache();
-        if (zkDataCache == null) {
-            return;
-        }
-        int total = jobs.size();
-        Map<String, Integer> nodeSort = Maps.newHashMap();
-        for (Map.Entry<String, Integer> entry : zkDataCache.entrySet()) {
-            total += entry.getValue();
-            nodeSort.put(entry.getKey(), entry.getValue());
-        }
-        int avg = total / nodeSort.size() + 1;
+        List<String> aliveNodes = zkDistributed.getAliveBrokersChildren();
+        int avg = jobs.size() / aliveNodes.size() + 1;
         //任务多节点分发，每个节点要分发的任务量
         Map<String, List<String>> nodeJobs = Maps.newHashMap();
         Iterator<String> jobsIt = jobs.iterator();
-        for (Map.Entry<String, Integer> entry : nodeSort.entrySet()) {
-            int size = avg - entry.getValue();
+        int size = avg;
+        for (String nodeAddress : aliveNodes) {
             if (size > 0 && jobsIt.hasNext()) {
                 size--;
                 String jobId = jobsIt.next();
-                List<String> nodeJobIds = nodeJobs.computeIfAbsent(entry.getKey(), k -> Lists.newArrayList());
+                List<String> nodeJobIds = nodeJobs.computeIfAbsent(nodeAddress, k -> Lists.newArrayList());
                 nodeJobIds.add(jobId);
             }
         }

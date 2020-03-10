@@ -15,7 +15,6 @@ import com.dtstack.engine.service.db.dataobject.RdosEngineJobStopRecord;
 import com.dtstack.engine.service.enums.RequestStart;
 import com.dtstack.engine.service.enums.StoppedStatus;
 import com.dtstack.engine.service.send.HttpSendClient;
-import com.dtstack.engine.service.util.TaskIdUtil;
 import com.dtstack.engine.service.zk.ZkDistributed;
 import com.dtstack.engine.service.zk.cache.ZkLocalCache;
 import org.slf4j.Logger;
@@ -192,10 +191,7 @@ public class JobStopQueue {
                 return true;
             }
 
-            //在zk上查找任务所在的worker-address
-            Integer computeType = paramAction.getComputeType();
-            String zkTaskId = TaskIdUtil.getZkTaskId(computeType, paramAction.getEngineType(), jobId);
-            String address = zkLocalCache.getJobLocationAddr(zkTaskId);
+            String address = zkLocalCache.getJobLocationAddr(jobId);
             if (address == null) {
                 LOG.info("can't get info from engine zk for jobId" + jobId);
                 return true;

@@ -1,29 +1,28 @@
 package com.dtstack.engine.service;
 
 import com.dtstack.engine.common.annotation.Param;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.enums.ComputeType;
-import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.pojo.ParamAction;
-import com.dtstack.engine.common.queue.OrderLinkedBlockingQueue;
 import com.dtstack.engine.service.db.dao.RdosEngineJobDAO;
 import com.dtstack.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.engine.service.db.dataobject.RdosEngineJob;
 import com.dtstack.engine.service.db.dataobject.RdosEngineJobCache;
-import com.dtstack.engine.common.queue.GroupPriorityQueue;
 import com.dtstack.engine.service.node.WorkNode;
-import com.dtstack.engine.service.zk.ZkDistributed;
+import com.dtstack.engine.service.zk.cache.ZkLocalCache;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -38,80 +37,57 @@ public class ConsoleServiceImpl {
 
     private static final Logger logger = LoggerFactory.getLogger(ConsoleServiceImpl.class);
 
-    private RdosEngineJobDAO engineBatchJobDAO = new RdosEngineJobDAO();
+    private RdosEngineJobDAO engineJobDao = new RdosEngineJobDAO();
 
     private RdosEngineJobCacheDAO engineJobCacheDao = new RdosEngineJobCacheDAO();
 
     private WorkNode workNode = WorkNode.getInstance();
 
-    private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
+    private static final Integer GROUP_TOTAL_KILL_MODEL = 0;
+    private static final Integer NAME_TOTAL_KILL_MODEL = 1;
+
+    public Boolean finishJob(String jobId, Integer status) {
+        if (!RdosTaskStatus.isStopped(status.byteValue())) {
+            logger.warn("Job status：" + status + " is not stopped status");
+            return false;
+        }
+        ZkLocalCache.getInstance().updateLocalMemTaskStatus(jobId, status);
+        engineJobCacheDao.deleteJob(jobId);
+        engineJobDao.updateJobStatus(jobId, status);
+        logger.info("jobId:{} update job status:{}, job is finished.", jobId, status);
+        return true;
+    }
 
     public List<String> nodes() {
         try {
-            return zkDistributed.getAliveBrokersChildren();
+            return engineJobCacheDao.getAllNodeAddress();
         } catch (Exception e) {
             return Collections.EMPTY_LIST;
         }
     }
 
-    public String getNodeByJobName(@Param("computeType") String computeType,
-                                     @Param("jobName") String jobName) {
-        Preconditions.checkNotNull(computeType, "parameters of computeType is required");
-        ComputeType type = ComputeType.valueOf(computeType.toUpperCase());
-        Preconditions.checkNotNull(type, "parameters of computeType is STREAM/BATCH");
+    public Map<String, Object> searchJob(@Param("jobName") String jobName) {
+        Preconditions.checkNotNull(jobName, "parameters of jobName not be null.");
         String jobId = null;
-        RdosEngineJob batchJob = engineBatchJobDAO.getByName(jobName);
-        if (batchJob != null) {
-        	jobId = batchJob.getJobId();
+        RdosEngineJob engineJob = engineJobDao.getByName(jobName);
+        if (engineJob != null) {
+            jobId = engineJob.getJobId();
         }
         if (jobId == null) {
             return null;
         }
-        RdosEngineJobCache jobCache = engineJobCacheDao.getJobById(jobId);
-        if (jobCache == null) {
-            return null;
-        }
-        return jobCache.getNodeAddress();
-    }
-
-    public Map<String, Object> searchJob(@Param("computeType") String computeType,
-                                         @Param("jobName") String jobName) {
-        Preconditions.checkNotNull(computeType, "parameters of computeType is required");
-        ComputeType type = ComputeType.valueOf(computeType.toUpperCase());
-        Preconditions.checkNotNull(type, "parameters of computeType is STREAM/BATCH");
-        String jobId = null;
-        RdosEngineJob batchJob = engineBatchJobDAO.getByName(jobName);
-        if (batchJob != null) {
-        	jobId = batchJob.getJobId();
-        }
-        if (jobId == null) {
-            return null;
-        }
-        RdosEngineJobCache jobCache = engineJobCacheDao.getJobById(jobId);
-        if (jobCache == null) {
+        RdosEngineJobCache engineJobCache = engineJobCacheDao.getJobById(jobId);
+        if (engineJobCache == null) {
             return null;
         }
         try {
-            ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
-            JobClient theJobClient = new JobClient(paramAction);
-            GroupPriorityQueue queue = workNode.getEngineTypeQueue(theJobClient.getEngineType());
-            OrderLinkedBlockingQueue<JobClient> jobQueue = queue.getGroupPriorityQueueMap().get(theJobClient.getGroupName());
-            if (jobQueue == null) {
-                return null;
-            }
-            OrderLinkedBlockingQueue.IndexNode<JobClient> idxNode = jobQueue.getElement(jobId);
-            if (idxNode == null) {
-                return null;
-            }
-            JobClient theJob = idxNode.getItem();
-            Map<String, Object> theJobMap = PublicUtil.ObjectToMap(theJob);
-            setJobFromDB(type, theJob.getTaskId(), theJobMap);
-            theJobMap.put("generateTime", theJob.getGenerateTime());
+            Map<String, Object> theJobMap = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), Map.class);
+            this.fillJobInfo(theJobMap, engineJob, engineJobCache);
 
-            Map<String, Object> result = new HashMap<>();
+            Map<String, Object> result = new HashMap<>(3);
             result.put("theJob", Lists.newArrayList(theJobMap));
-            result.put("theJobIdx", idxNode.getIndex());
-            result.put("node", jobCache.getNodeAddress());
+            result.put("theJobIdx", 1);
+            result.put("node", engineJobCache.getNodeAddress());
 
             return result;
         } catch (Exception e) {
@@ -120,133 +96,94 @@ public class ConsoleServiceImpl {
         return null;
     }
 
-    public List<String> listNames(@Param("computeType") String computeType,
-                                  @Param("jobName") String jobName) {
+    public List<String> listNames(@Param("jobName") String jobName) {
         try {
-            Preconditions.checkNotNull(computeType, "parameters of computeType is required");
-            ComputeType type = ComputeType.valueOf(computeType.toUpperCase());
-            Preconditions.checkNotNull(type, "parameters of computeType is STREAM/BATCH");
-            return engineJobCacheDao.listNames(type.getType(),jobName);
+            Preconditions.checkNotNull(jobName, "parameters of jobName not be null.");
+            return engineJobCacheDao.listNames(jobName);
         } catch (Exception e) {
             logger.error("{}", e);
         }
         return null;
     }
 
-    public List<String> engineTypes() {
-        List<String> types = new ArrayList<>(EngineType.values().length);
-        for (EngineType engineType : EngineType.values()) {
-            types.add(engineType.name().toLowerCase());
-        }
-        return types;
+    public List<String> jobResources() {
+        return engineJobCacheDao.getJobResources();
     }
 
-    public Collection<Map<String, Object>> groups(@Param("engineType") String engineType) {
-        Preconditions.checkNotNull(engineType, "parameters of engineType is required");
-        GroupPriorityQueue queue = workNode.getEngineTypeQueue(engineType);
-        if (queue != null) {
-            Map<String, OrderLinkedBlockingQueue<JobClient>> map = queue.getGroupPriorityQueueMap();
-            List<Map<String, Object>> groups = new ArrayList<>(map.size());
-            for (Map.Entry<String, OrderLinkedBlockingQueue<JobClient>> entry : map.entrySet()) {
-                String groupName = entry.getKey();
-                int groupSize = entry.getValue().size();
-                long generateTime = 0L;
-                long waitTime = 0L;
-                if (groupSize > 0) {
-                    JobClient jobClient = entry.getValue().getTop();
-                    generateTime = jobClient.getGenerateTime();
-                    waitTime = System.currentTimeMillis() - jobClient.getGenerateTime();
-                }
-                Map<String, Object> element = new HashMap<>(3);
-                element.put("groupName", groupName);
-                element.put("groupSize", groupSize);
-                element.put("generateTime", generateTime);
-                element.put("waitTime", waitTime);
-                groups.add(element);
-            }
-            return groups;
+    /**
+     * 根据计算引擎类型显示任务
+     */
+    public List<Map<String, Object>> overview(@Param("node") String nodeAddress) {
+        if (StringUtils.isBlank(nodeAddress)) {
+            nodeAddress = null;
         }
-        return Collections.EMPTY_SET;
+        List<Map<String, Object>> groupResult = engineJobCacheDao.groupByJobResource(nodeAddress);
+        if (CollectionUtils.isNotEmpty(groupResult)) {
+            groupResult.forEach(record -> {
+                long generateTime = MapUtils.getLong(record, "generateTime");
+                long waitTime = System.currentTimeMillis() - generateTime;
+                record.put("waitTime", waitTime);
+            });
+        }
+        return Lists.newArrayList();
     }
 
-    public Map<String, Object> groupDetail(@Param("engineType") String engineType,
+    public Map<String, Object> groupDetail(@Param("jobResource") String jobResource,
+                                           @Param("engineType") String engineType,
                                            @Param("groupName") String groupName,
+                                           @Param("node") String nodeAddress,
                                            @Param("pageSize") int pageSize,
                                            @Param("currentPage") int currentPage) {
-        Preconditions.checkNotNull(engineType, "parameters of engineType is required");
-        Preconditions.checkNotNull(groupName, "parameters of groupName is required");
-        try {
-            GroupPriorityQueue queue = workNode.getEngineTypeQueue(engineType);
-            OrderLinkedBlockingQueue<JobClient> jobQueue = queue.getGroupPriorityQueueMap().get(groupName);
-            if (jobQueue == null){
-                return null;
-            }
-            int queueSize = jobQueue.size();
-            List<Map<String, Object>> topN = new ArrayList<>();
-            Map<String, Object> result = new HashMap<>();
-            result.put("queueSize", queueSize);
-            result.put("topN", topN);
+        Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
+        if (StringUtils.isBlank(nodeAddress)) {
+            nodeAddress = null;
+        }
+        Map<String, Object> result = new HashMap<>();
+        List<Map<String, Object>> topN = new ArrayList<>();
+        Long count = 0L;
+        result.put("queueSize", count);
+        result.put("topN", topN);
 
-            Iterator<JobClient> jobIt = jobQueue.iterator();
-            int startIndex = pageSize * (currentPage - 1);
-            if (startIndex > queueSize) {
-                return result;
-            }
-            int c = 0;
-            while (jobIt.hasNext()) {
-                JobClient jobClient = jobIt.next();
-                c++;
-                if (startIndex < c && pageSize-- > 0) {
-                    Map<String, Object> jobMap = PublicUtil.ObjectToMap(jobClient);
-                    setJobFromDB(jobClient.getComputeType(), jobClient.getTaskId(), jobMap);
-                    jobMap.put("generateTime", jobClient.getGenerateTime());
-                    topN.add(jobMap);
-                }
-                if (pageSize <= 0) {
-                    break;
+        try {
+            count = engineJobCacheDao.countByJobResource(engineType, groupName, nodeAddress);
+            if (count > 0) {
+                List<RdosEngineJobCache> engineJobCaches = engineJobCacheDao.listByJobResource(engineType, groupName, nodeAddress);
+                for (RdosEngineJobCache engineJobCache : engineJobCaches) {
+                    Map<String, Object> theJobMap = PublicUtil.ObjectToMap(engineJobCache);
+                    RdosEngineJob engineJob = engineJobDao.getRdosTaskByTaskId(engineJobCache.getJobId());
+                    if (engineJob != null) {
+                        this.fillJobInfo(theJobMap, engineJob, engineJobCache);
+                    }
                 }
             }
-            if (topN.size() > queueSize){
-                queueSize = topN.size();
-                result.put("queueSize", queueSize);
-            }
-            return result;
         } catch (Exception e) {
             logger.error("{}", e);
         }
-        return null;
+        return result;
     }
 
-    public Boolean jobPriority(@Param("jobId") String jobId,
-                               @Param("engineType") String engineType,
-                               @Param("groupName") String groupName,
-                               @Param("jobIndex") int jobIndex) {
+    private void fillJobInfo(Map<String, Object> theJobMap, RdosEngineJob engineJob, RdosEngineJobCache engineJobCache) {
+        theJobMap.put("status", engineJob.getStatus());
+        theJobMap.put("execStartTime", engineJob.getExecStartTime());
+        theJobMap.put("generateTime", engineJobCache.getGmtCreate());
+        long currentTime = System.currentTimeMillis();
+        String waitTime = DateUtil.getTimeDifference(currentTime - engineJobCache.getGmtCreate().getTime());
+        theJobMap.put("waitTime", waitTime);
+    }
 
-        Preconditions.checkNotNull(engineType, "parameters of engineType is required");
-        Preconditions.checkNotNull(groupName, "parameters of groupName is required");
+    public Boolean jobStick(@Param("jobId") String jobId,
+                            @Param("jobResource") String jobResource) {
         Preconditions.checkNotNull(jobId, "parameters of jobId is required");
+        Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
 
         try {
-            GroupPriorityQueue queue = workNode.getEngineTypeQueue(engineType);
-            OrderLinkedBlockingQueue<JobClient> jobQueue = queue.getGroupPriorityQueueMap().get(groupName);
-            if (jobQueue == null) {
-                return false;
-            }
-            OrderLinkedBlockingQueue.IndexNode<JobClient> jobIdxNode = jobQueue.getElement(jobId);
-            if (jobIdxNode == null) {
-                return false;
-            }
-            JobClient theJob = jobIdxNode.getItem();
-            JobClient idxJob = jobQueue.getIndexOrLast(jobIndex);
-            if (idxJob == null) {
-                return false;
-            }
-            if (theJob.getPriority() == idxJob.getPriority()) {
-                return true;
-            }
-            theJob.setPriority(idxJob.getPriority() - 1);
-            jobQueue.remove(theJob.getTaskId());
-            jobQueue.put(theJob);
+            RdosEngineJobCache engineJobCache = engineJobCacheDao.getJobById(jobId);
+            ParamAction paramAction = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), ParamAction.class);
+            JobClient jobClient = new JobClient(paramAction);
+            jobClient.setCallBack((jobStatus)-> {
+                workNode.updateJobStatus(jobClient.getTaskId(), jobStatus);
+            });
+            workNode.addGroupPriorityQueue(jobClient, false);
             return true;
         } catch (Exception e) {
             logger.error("{}", e);
@@ -254,12 +191,69 @@ public class ConsoleServiceImpl {
         return false;
     }
 
-    private void setJobFromDB(ComputeType computeType, String jobId, Map<String, Object> jobMap) {
-        RdosEngineJob engineBatchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobId);
-        if (engineBatchJob != null) {
-        	Integer status = engineBatchJob.getStatus().intValue();
-        	jobMap.put("status", status);
-        	jobMap.put("execStartTime", engineBatchJob.getExecStartTime());
+    public void stopJob(@Param("computeTypeInt") String computeTypeInt,
+                        @Param("engineType") String engineType,
+                        @Param("queueName") String queueName,
+                        @Param("clusterName") String clusterName,
+                        @Param("jobId") String jobId) throws Exception {
+        Preconditions.checkNotNull(jobId, "parameters of jobId is required");
+
+        Map<String, Object> params = new HashMap<>(4);
+        params.put("taskId", jobId);
+        params.put("engineType", engineType);
+        params.put("computeType", computeTypeInt);
+        params.put("groupName", clusterName + '_' + queueName);
+
+        List<Map<String, Object>> jobs = new ArrayList<>(1);
+        jobs.add(params);
+
+
+        Map<String, Object> stopJobs = new HashMap<>(1);
+        stopJobs.put("jobs", jobs);
+
+        //TODO
+//        actionService.stop(stopJobs);
+    }
+
+    public void stopJobList(@Param("jobResource") String jobResource,
+                            @Param("engineType") String engineType,
+                            @Param("groupName") String groupName,
+                            @Param("node") String nodeAddress,
+                            @Param("jobIdList") List<Map<String, Object>> jobIdList,
+                            @Param("jobName") String jobName,
+                            @Param("totalModel") Integer totalModel,
+                            @Param("totalSize") Integer totalSize) throws Exception {
+        if (StringUtils.isBlank(nodeAddress)) {
+            nodeAddress = null;
         }
+        List<Map<String, Object>> jobs = null;
+        if (totalModel != null) {
+            List<Map<String, Object>> topN = null;
+            if (GROUP_TOTAL_KILL_MODEL.equals(totalModel)) {
+                Map<String, Object> groupDetail = groupDetail(jobResource, engineType, groupName, nodeAddress, totalSize, 1);
+                if (groupDetail == null) {
+                    return;
+                }
+                topN = (List<Map<String, Object>>) groupDetail.get("topN");
+            } else if (NAME_TOTAL_KILL_MODEL.equals(totalModel)) {
+                Map<String, Object> searchJob = searchJob(jobName);
+                if (searchJob == null) {
+                    return;
+                }
+                topN = (List<Map<String, Object>>) searchJob.get("theJob");
+            }
+            jobs = topN;
+        } else {
+            jobs = jobIdList;
+        }
+        if (jobs == null || jobs.isEmpty()) {
+            return;
+        }
+
+        Map<String, Object> stopJobs = new HashMap<>(1);
+        stopJobs.put("jobs", jobs);
+
+        //TODO
+//        actionService.stop(stopJobs);
     }
 }

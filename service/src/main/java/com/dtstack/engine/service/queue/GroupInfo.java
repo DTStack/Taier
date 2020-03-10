@@ -1,4 +1,4 @@
-package com.dtstack.engine.common.queue;
+package com.dtstack.engine.service.queue;
 
 /**
  * company: www.dtstack.com

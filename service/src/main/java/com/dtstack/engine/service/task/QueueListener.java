@@ -1,16 +1,17 @@
 package com.dtstack.engine.service.task;
 
-import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.queue.ClusterQueueInfo;
+import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.service.node.WorkNode;
-import com.dtstack.engine.service.zk.ZkDistributed;
-import com.dtstack.engine.service.zk.data.BrokerQueueNode;
-import com.dtstack.engine.common.queue.GroupInfo;
-import com.google.common.collect.Maps;
+import com.dtstack.engine.service.queue.GroupInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -22,43 +23,53 @@ public class QueueListener implements Runnable{
 
 	private static final Logger logger = LoggerFactory.getLogger(QueueListener.class);
 
-	private final static int listener = 5 * 1000;
+    private int logOutput = 0;
+    private final static int MULTIPLES = 10;
+    private final static int CHECK_INTERVAL = 5000;
 
-    private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
+    private ScheduledExecutorService scheduledService;
 
-	public QueueListener(){
+    private static volatile Map<String, Map<String, GroupInfo>> allNodesGroupQueueJobResources = new HashMap<>();
+
+    public QueueListener(){
+        scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName()));
+        scheduledService.scheduleWithFixedDelay(
+                this,
+                0,
+                CHECK_INTERVAL,
+                TimeUnit.MILLISECONDS);
 	}
 
-	@Override
-	public void run() {
-
-        while(true){
-            try{
-                logger.warn("QueueListener start again....");
-                //获取所有节点的queue
-                Map<String, BrokerQueueNode> queueNodeMap = zkDistributed.getAllBrokerQueueNode();
-                Map<String, Map<String, Map<String, GroupInfo>>> queueInfo = Maps.newHashMap();
-                queueNodeMap.forEach( (address, queueNode) -> queueInfo.put(address, queueNode.getGroupQueueInfo()));
-
-                ClusterQueueInfo.getInstance().updateClusterQueueInfo(queueInfo);
-
-                //更新当前节点的queue 信息
-                Map<String, Map<String, GroupInfo>>  engineTypeGroup = WorkNode.getInstance().getEngineTypeQueueInfo();
-
-                BrokerQueueNode localQueueNode = new BrokerQueueNode();
-                localQueueNode.setGroupQueueInfo(engineTypeGroup);
-
-                zkDistributed.updateSynchronizedLocalQueueNode(zkDistributed.getLocalAddress(), localQueueNode);
-            }catch(Throwable e){
-                logger.error("QueueListener error:{}",ExceptionUtil.getErrorMessage(e));
-            }finally {
-                try {
-                    Thread.sleep(listener);
-                } catch (InterruptedException e1) {
-                    logger.error("", e1);
-                }
-            }
+    @Override
+    public void run() {
+        logOutput++;
+        if (PublicUtil.count(logOutput, MULTIPLES)) {
+            logger.info("QueueListener start again....");
         }
 
-	}
+        try {
+            Map<String, Map<String, GroupInfo>> allNodesGroupQueueInfo = WorkNode.getInstance().getAllNodesGroupQueueInfo();
+            if (allNodesGroupQueueInfo != null) {
+                final Map<String, Map<String, GroupInfo>> tmpAllNodesGroupQueueJobResources = new HashMap<>();
+                allNodesGroupQueueInfo.forEach((address, jobResourceGroupQueueInfo) -> {
+                    jobResourceGroupQueueInfo.forEach((jobResource, groupInfo) -> {
+                        Map<String, GroupInfo> nodesGroupQueue = tmpAllNodesGroupQueueJobResources.computeIfAbsent(jobResource, k -> {
+                            Map<String, GroupInfo> value = new HashMap<>();
+                            value.put(address, groupInfo);
+                            return value;
+                        });
+                        nodesGroupQueue.put(address, groupInfo);
+                    });
+                });
+                allNodesGroupQueueJobResources = tmpAllNodesGroupQueueJobResources;
+            }
+        } catch (Throwable e) {
+            logger.error("allNodesGroupQueueInfo error:{}", e);
+        }
+    }
+
+    public static Map<String, Map<String, GroupInfo>> getAllNodesGroupQueueInfo() {
+        return allNodesGroupQueueJobResources;
+    }
+
 }
