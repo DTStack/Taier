@@ -64,7 +64,7 @@ public class PluginWrapper{
             actionParam.put(GROUP_NAME, groupName);
         }
 
-        actionParam.put(PLUGIN_INFO, pluginInfoJson.toJSONString());
+        actionParam.put(PLUGIN_INFO, pluginInfoJson);
         actionParam.put(GROUP_NAME, groupName);
 
         return actionParam;

@@ -944,7 +944,7 @@ public class BatchJobService {
             JSONObject info = extObject.getJSONObject(TaskUrlConstant.INFO);
             if (Objects.nonNull(info)) {
                 Integer multiEngineType = info.getInteger("multiEngineType");
-                Map<String, Object> actionParam = PublicUtil.strToMap(info.toJSONString());
+                Map<String, Object> actionParam = info;
                 if (MultiEngineType.HADOOP.getType() == multiEngineType) {
                     batchHadoopJobStartTrigger.readyForTaskStartTrigger(actionParam, batchTask, batchJob);
                 } else if (MultiEngineType.LIBRA.getType() == multiEngineType) {
