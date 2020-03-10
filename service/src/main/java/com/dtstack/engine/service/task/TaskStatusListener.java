@@ -216,7 +216,7 @@ public class TaskStatusListener implements Runnable{
                     }
 
                     zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
-                    if (RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus)){
+                    if (RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus())){
                         jobLogDelayDealer(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
                     }
                     //数据的更新顺序，先更新job_cache，再更新engine_batch_job
