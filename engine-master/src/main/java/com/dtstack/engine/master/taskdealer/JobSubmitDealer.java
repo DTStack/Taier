@@ -89,7 +89,7 @@ public class JobSubmitDealer implements Runnable {
                     JobClient jobClient = restartJob.getJob();
                     if (jobClient != null) {
                         queue.put(jobClient);
-                        logger.info("jobId{} take job from restartJobQueue queueSize:{} and add to priorityQueue.", jobClient.getTaskId(), restartJobQueue.size());
+                        logger.info("jobId:{} take job from restartJobQueue queueSize:{} and add to priorityQueue.", jobClient.getTaskId(), restartJobQueue.size());
                     }
                 } catch (Exception e) {
                     logger.error("", e);
@@ -101,7 +101,7 @@ public class JobSubmitDealer implements Runnable {
 
     public boolean tryPutRestartJob(JobClient jobClient) {
         boolean tryPut = restartJobQueue.tryPut(new RestartJob<>(jobClient, priorityQueue.getJobRestartDelay()));
-        logger.info("jobId{} {} add job to restartJobQueue .", jobClient.getTaskId(), tryPut ? "success" : "failed");
+        logger.info("jobId:{} {} add job to restartJobQueue .", jobClient.getTaskId(), tryPut ? "success" : "failed");
         return tryPut;
     }
 
@@ -114,7 +114,7 @@ public class JobSubmitDealer implements Runnable {
         while (true) {
             try {
                 JobClient jobClient = queue.take();
-                logger.info("jobId{} jobResource:{} queueSize:{} take job from priorityQueue.", jobClient.getTaskId(), jobResource, priorityQueue.queueSize());
+                logger.info("jobId:{} jobResource:{} queueSize:{} take job from priorityQueue.", jobClient.getTaskId(), jobResource, priorityQueue.queueSize());
                 if (checkIsFinished(jobClient.getTaskId())) {
                     logger.info("jobId:{} checkIsFinished is true, job is Finished.", jobClient.getTaskId());
                     continue;
