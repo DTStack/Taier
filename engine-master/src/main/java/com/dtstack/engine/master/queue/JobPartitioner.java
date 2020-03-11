@@ -79,7 +79,7 @@ public class JobPartitioner {
             return null;
         }
         Map<String, GroupInfo> nodesGroupQueue = allNodesGroupQueueJobResources.get(jobResource);
-        if (nodesGroupQueue.isEmpty()) {
+        if (nodesGroupQueue == null || nodesGroupQueue.isEmpty()) {
             return null;
         }
         List<String> aliveBrokers = zkService.getAliveBrokersChildren();
