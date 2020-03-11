@@ -3,6 +3,7 @@ package com.dtstack.engine.master.executor;
 import com.dtstack.dtcenter.common.constant.TaskStatusConstrant;
 import com.dtstack.dtcenter.common.enums.TaskStatus;
 import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.master.impl.ActionService;
 import com.dtstack.sql.Twins;
 import com.dtstack.engine.common.constrant.JobFieldInfo;
@@ -143,6 +144,10 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
 
     class JobStatusDealer implements Runnable {
 
+        private final static int MULTIPLES = 10;
+
+        private int logOutput = 0;
+
         private long lastSyncTime = 0;
 
         private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -153,7 +158,9 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
                 return;
             }
 
-            LOG.info("-----start JobStatusDealer----");
+            if (LogCountUtil.count(logOutput, MULTIPLES)){
+                LOG.info("-----start JobStatusDealer----");
+            }
             long syncStartTime = System.currentTimeMillis();
             try {
                 long syncJobCount = syncStatus();
@@ -163,7 +170,10 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
                     lastSyncTimeStr = sdf.format(new Date(lastSyncTime));
                 }
                 lastSyncTime = syncStartTime;
-                LOG.info("-----end JobStatusDealer, syncJobCount:{} syncStatusTimeUsed（ms）:{} lastSyncTime: {} -----", syncJobCount, syncTime, lastSyncTimeStr);
+                if (LogCountUtil.count(logOutput, MULTIPLES)){
+                    LOG.info("-----end JobStatusDealer, syncJobCount:{} syncStatusTimeUsed（ms）:{} lastSyncTime: {} -----", syncJobCount, syncTime, lastSyncTimeStr);
+                }
+                logOutput++;
             } catch (Exception e) {
                 LOG.error("----syncStatus happens error:{}", e);
             }
