@@ -414,7 +414,7 @@ public class WorkNode {
             locks = zkDistributed.acquireBrokerLock(Lists.newArrayList(localAddress),true);
             long startId = 0L;
             while (true) {
-                List<RdosEngineJobCache> jobCaches = rdosEngineJobCacheDAO.getJobForPriorityQueue(startId, localAddress, null, null, null);
+                List<RdosEngineJobCache> jobCaches = rdosEngineJobCacheDAO.listByNodeAddressStage(startId, localAddress, null, null, null);
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     //两种情况：
                     //1. 可能本身没有jobcaches的数据

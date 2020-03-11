@@ -1,6 +1,7 @@
 package com.dtstack.engine.service;
 
 import com.dtstack.engine.common.annotation.Param;
+import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -8,8 +9,10 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.service.db.dao.RdosEngineJobDAO;
 import com.dtstack.engine.service.db.dao.RdosEngineJobCacheDAO;
+import com.dtstack.engine.service.db.dao.RdosEngineJobStopRecordDAO;
 import com.dtstack.engine.service.db.dataobject.RdosEngineJob;
 import com.dtstack.engine.service.db.dataobject.RdosEngineJobCache;
+import com.dtstack.engine.service.db.dataobject.RdosEngineJobStopRecord;
 import com.dtstack.engine.service.node.WorkNode;
 import com.dtstack.engine.service.zk.cache.ZkLocalCache;
 import com.google.common.base.Preconditions;
@@ -21,10 +24,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 对接数栈控制台
@@ -41,10 +46,9 @@ public class ConsoleServiceImpl {
 
     private RdosEngineJobCacheDAO engineJobCacheDao = new RdosEngineJobCacheDAO();
 
-    private WorkNode workNode = WorkNode.getInstance();
+    private RdosEngineJobStopRecordDAO jobStopRecordDAO = new RdosEngineJobStopRecordDAO();
 
-    private static final Integer GROUP_TOTAL_KILL_MODEL = 0;
-    private static final Integer NAME_TOTAL_KILL_MODEL = 1;
+    private WorkNode workNode = WorkNode.getInstance();
 
     public Boolean finishJob(String jobId, Integer status) {
         if (!RdosTaskStatus.isStopped(status.byteValue())) {
@@ -113,19 +117,42 @@ public class ConsoleServiceImpl {
     /**
      * 根据计算引擎类型显示任务
      */
-    public List<Map<String, Object>> overview(@Param("node") String nodeAddress) {
+    public Collection<Map<String, Object>> overview(@Param("node") String nodeAddress) {
         if (StringUtils.isBlank(nodeAddress)) {
             nodeAddress = null;
         }
+
+        Map<String, Map<String, Object>> overview = new HashMap<>();
         List<Map<String, Object>> groupResult = engineJobCacheDao.groupByJobResource(nodeAddress);
         if (CollectionUtils.isNotEmpty(groupResult)) {
-            groupResult.forEach(record -> {
+            for (Map<String, Object> record : groupResult) {
                 long generateTime = MapUtils.getLong(record, "generateTime");
                 long waitTime = System.currentTimeMillis() - generateTime;
                 record.put("waitTime", waitTime);
-            });
+            }
+
+            for (Map<String, Object> record : groupResult) {
+                String engineType = MapUtils.getString(record, "engineType");
+                String groupName = MapUtils.getString(record, "groupName");
+                int stage = MapUtils.getInteger(record, "stage");
+                long waitTime = MapUtils.getLong(record, "waitTime");
+                long jobSize = MapUtils.getLong(record, "jobSize");
+                EJobCacheStage eJobCacheStage = EJobCacheStage.getStage(stage);
+                String jobResource = WorkNode.getInstance().getJobResource(engineType, groupName);
+
+                Map<String, Object> overviewRecord = overview.computeIfAbsent(jobResource, k-> {
+                    Map<String, Object> overviewEle = new HashMap<>();
+                    overviewEle.put("engineType", engineType);
+                    overviewEle.put("groupName", groupName);
+                    overviewEle.put("jobResource", jobResource);
+                    return overviewEle;
+                });
+                overviewRecord.put(eJobCacheStage.name().toLowerCase(), stage);
+                overviewRecord.put(eJobCacheStage.name().toLowerCase() + "JobSize", jobSize);
+                overviewRecord.put(eJobCacheStage.name().toLowerCase() + "WaitTime", waitTime);
+            }
         }
-        return Lists.newArrayList();
+        return overview.values();
     }
 
     public Map<String, Object> groupDetail(@Param("jobResource") String jobResource,
@@ -191,69 +218,97 @@ public class ConsoleServiceImpl {
         return false;
     }
 
-    public void stopJob(@Param("computeTypeInt") String computeTypeInt,
+    public void stopJob(@Param("computeType") Integer computeType,
                         @Param("engineType") String engineType,
-                        @Param("queueName") String queueName,
-                        @Param("clusterName") String clusterName,
                         @Param("jobId") String jobId) throws Exception {
         Preconditions.checkNotNull(jobId, "parameters of jobId is required");
 
-        Map<String, Object> params = new HashMap<>(4);
-        params.put("taskId", jobId);
-        params.put("engineType", engineType);
-        params.put("computeType", computeTypeInt);
-        params.put("groupName", clusterName + '_' + queueName);
-
-        List<Map<String, Object>> jobs = new ArrayList<>(1);
-        jobs.add(params);
-
-
-        Map<String, Object> stopJobs = new HashMap<>(1);
-        stopJobs.put("jobs", jobs);
-
-        //TODO
-//        actionService.stop(stopJobs);
-    }
-
-    public void stopJobList(@Param("jobResource") String jobResource,
-                            @Param("engineType") String engineType,
-                            @Param("groupName") String groupName,
-                            @Param("node") String nodeAddress,
-                            @Param("jobIdList") List<Map<String, Object>> jobIdList,
-                            @Param("jobName") String jobName,
-                            @Param("totalModel") Integer totalModel,
-                            @Param("totalSize") Integer totalSize) throws Exception {
-        if (StringUtils.isBlank(nodeAddress)) {
-            nodeAddress = null;
+        if (engineType == null) {
+            engineType = "";
         }
-        List<Map<String, Object>> jobs = null;
-        if (totalModel != null) {
-            List<Map<String, Object>> topN = null;
-            if (GROUP_TOTAL_KILL_MODEL.equals(totalModel)) {
-                Map<String, Object> groupDetail = groupDetail(jobResource, engineType, groupName, nodeAddress, totalSize, 1);
-                if (groupDetail == null) {
-                    return;
-                }
-                topN = (List<Map<String, Object>>) groupDetail.get("topN");
-            } else if (NAME_TOTAL_KILL_MODEL.equals(totalModel)) {
-                Map<String, Object> searchJob = searchJob(jobName);
-                if (searchJob == null) {
-                    return;
-                }
-                topN = (List<Map<String, Object>>) searchJob.get("theJob");
-            }
-            jobs = topN;
-        } else {
-            jobs = jobIdList;
+        if (computeType == null) {
+            computeType = -1;
         }
-        if (jobs == null || jobs.isEmpty()) {
+
+        List<String> alreadyExistJobIds = jobStopRecordDAO.listByJobIds(Lists.newArrayList(jobId));
+        if (alreadyExistJobIds.contains(jobId)) {
+            logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobId);
             return;
         }
 
-        Map<String, Object> stopJobs = new HashMap<>(1);
-        stopJobs.put("jobs", jobs);
+        RdosEngineJobStopRecord stopRecord = new RdosEngineJobStopRecord();
+        stopRecord.setComputeType(computeType);
+        stopRecord.setEngineType(engineType);
+        stopRecord.setTaskId(jobId);
 
-        //TODO
-//        actionService.stop(stopJobs);
+        jobStopRecordDAO.insert(stopRecord);
+    }
+
+    public void stopJobList(@Param("jobResource") String jobResource,
+                            @Param("computeType") Integer computeType,
+                            @Param("engineType") String engineType,
+                            @Param("groupName") String groupName,
+                            @Param("nodeAddress") String nodeAddress,
+                            @Param("stage") Integer stage,
+                            @Param("jobIdList") List<String> jobIdList) throws Exception {
+        if (jobIdList != null && !jobIdList.isEmpty()) {
+            //杀死指定jobIdList的任务
+
+            if (engineType == null) {
+                engineType = "";
+            }
+            if (computeType == null) {
+                computeType = -1;
+            }
+            List<String> alreadyExistJobIds = jobStopRecordDAO.listByJobIds(jobIdList);
+            for (String jobId : jobIdList) {
+                if (alreadyExistJobIds.contains(jobId)) {
+                    logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobId);
+                    continue;
+                }
+
+                RdosEngineJobStopRecord stopRecord = new RdosEngineJobStopRecord();
+                stopRecord.setComputeType(computeType);
+                stopRecord.setEngineType(engineType);
+                stopRecord.setTaskId(jobId);
+                jobStopRecordDAO.insert(stopRecord);
+            }
+        } else {
+            //根据条件杀死所有任务
+
+            Preconditions.checkNotNull(engineType, "parameters of engineType is required");
+            Preconditions.checkNotNull(groupName, "parameters of groupName is required");
+            Preconditions.checkNotNull(stage, "parameters of stage is required");
+
+            if (StringUtils.isBlank(nodeAddress)) {
+                nodeAddress = null;
+            }
+
+            long startId = 0L;
+            while (true) {
+                List<RdosEngineJobCache> jobCaches = engineJobCacheDao.listByNodeAddressStage(startId, nodeAddress, stage, engineType, groupName);
+                if (CollectionUtils.isEmpty(jobCaches)) {
+                    //两种情况：
+                    //1. 可能本身没有jobcaches的数据
+                    //2. master节点已经为此节点做了容灾
+                    break;
+                }
+                List<String> jobIds = jobCaches.stream().map(RdosEngineJobCache::getJobId).collect(Collectors.toList());
+                List<String> alreadyExistJobIds = jobStopRecordDAO.listByJobIds(jobIds);
+                for(RdosEngineJobCache jobCache : jobCaches){
+                    if (alreadyExistJobIds.contains(jobCache.getJobId())) {
+                        logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobCache.getJobId());
+                        continue;
+                    }
+
+                    RdosEngineJobStopRecord stopRecord = new RdosEngineJobStopRecord();
+                    stopRecord.setComputeType(computeType);
+                    stopRecord.setEngineType(engineType);
+                    stopRecord.setTaskId(jobCache.getJobId());
+                    stopRecord.setGroupName(jobCache.getGroupName());
+                    jobStopRecordDAO.insert(stopRecord);
+                }
+            }
+        }
     }
 }

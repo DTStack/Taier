@@ -39,7 +39,10 @@
 
     <select id="listByStage" resultMap="rdosEngineJobCacheResult">
         select * from rdos_engine_job_cache
-        where id > #{startId} and (node_address = #{nodeAddress} or node_address is null)
+        where id > #{startId}
+        <if test="nodeAddress != null">
+            and (node_address = #{nodeAddress} or node_address is null)
+        </if>
         <if test="stage != null">
             and stage = #{stage}
         </if>
@@ -124,6 +127,7 @@
         SELECT
         engine_type as engineType,
         group_name as groupName,
+        stage as stage,
         min(gmt_create) as generateTime,
         count(1) as jobSize
         FROM rdos_engine_job_cache
@@ -131,7 +135,7 @@
         <if test="nodeAddress != null">
             and node_address = #{nodeAddress}
         </if>
-        group by engine_type, group_name
-        order by engine_type, group_name asc
+        group by engine_type, group_name, stage
+        order by engine_type, group_name, stage asc
     </select>
 </mapper>

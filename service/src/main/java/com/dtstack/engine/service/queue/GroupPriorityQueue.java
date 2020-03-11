@@ -198,7 +198,7 @@ public class GroupPriorityQueue {
             int count = 0;
             outLoop :
             while (true) {
-                List<RdosEngineJobCache> jobCaches = rdosEngineJobCacheDAO.getJobForPriorityQueue(startId, localAddress, EJobCacheStage.DB.getStage(), engineType, groupName);
+                List<RdosEngineJobCache> jobCaches = rdosEngineJobCacheDAO.listByNodeAddressStage(startId, localAddress, EJobCacheStage.DB.getStage(), engineType, groupName);
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     break;
                 }

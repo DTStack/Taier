@@ -131,7 +131,7 @@ public class MasterNode {
             LOG.warn("----- broker:{} 节点容灾任务开始恢复----", broker);
             long startId = 0L;
             while (true) {
-                List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(startId, broker, null, null, null);
+                List<RdosEngineJobCache> jobCaches = engineJobCacheDao.listByNodeAddressStage(startId, broker, null, null, null);
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     break;
                 }
@@ -157,7 +157,7 @@ public class MasterNode {
                 distributeZkJobs(submitedJobs);
             }
             //在迁移任务的时候，可能出现要迁移的节点也宕机了，任务没有正常接收
-            List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(0L, broker, null, null, null);
+            List<RdosEngineJobCache> jobCaches = engineJobCacheDao.listByNodeAddressStage(0L, broker, null, null, null);
             if (CollectionUtils.isNotEmpty(jobCaches)) {
                 zkDistributed.updateSynchronizedLocalBrokerHeartNode(broker, BrokerHeartNode.initNullBrokerHeartNode(), true);
             }

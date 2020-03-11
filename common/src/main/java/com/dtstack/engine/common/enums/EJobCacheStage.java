@@ -42,6 +42,16 @@ public enum EJobCacheStage {
         );
     }
 
+    public static EJobCacheStage getStage(int stage) {
+        EJobCacheStage[] stages = EJobCacheStage.values();
+        for (EJobCacheStage eJobCacheStage : stages) {
+            if (eJobCacheStage.stage == stage) {
+                return eJobCacheStage;
+            }
+        }
+        throw new UnsupportedOperationException("unsupported stage:" + stage);
+    }
+
     public static List<Integer> allStage() {
         return Arrays.stream(EJobCacheStage.values()).map(EJobCacheStage::getStage).collect(Collectors.toList());
     }
