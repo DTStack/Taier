@@ -9,11 +9,11 @@ import java.util.concurrent.TimeUnit;
  * author: toutian
  * create: 2020/2/16
  */
-public class RestartJob<T> implements Delayed {
+public class SimpleJobDelay<T> implements Delayed {
     private T job;
     private long expired;
 
-    public RestartJob(T job, long delay) {
+    public SimpleJobDelay(T job, long delay) {
         this.job = job;
         this.expired = System.currentTimeMillis() + delay;
     }

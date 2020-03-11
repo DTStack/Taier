@@ -285,8 +285,6 @@ public class TaskRestartDealer {
         boolean isAdd = workNode.addRestartJob(jobClient);
         if (isAdd) {
             String jobId = jobClient.getTaskId();
-            //重试的时候，更改cache状态
-            workNode.updateCache(jobClient, EJobCacheStage.RESTART.getStage());
             //重试任务更改在zk的状态，统一做状态清理
             shardCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.RESTARTING.getStatus());
 

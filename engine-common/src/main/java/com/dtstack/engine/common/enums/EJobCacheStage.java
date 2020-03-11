@@ -18,8 +18,10 @@ public enum EJobCacheStage {
     PRIORITY(2),
     //JOB 因为失败进入重试队列，等待重试的delay时间后，可以重新提交
     RESTART(3),
+    //JOB 因为资源不足，处于资源不足等待中
+    LACKING(4),
     //JOB 已经提交，处于状态轮询中
-    SUBMITTED(4);
+    SUBMITTED(5);
 
 
     int stage;
@@ -36,7 +38,8 @@ public enum EJobCacheStage {
         return Lists.newArrayList(
                 DB.getStage(),
                 PRIORITY.getStage(),
-                RESTART.getStage()
+                RESTART.getStage(),
+                LACKING.getStage()
         );
     }
 

@@ -52,7 +52,7 @@ public class GroupPriorityQueue {
 
     private String jobResource;
     private int queueSizeLimited;
-    private long jobRestartDelay;
+
     private ApplicationContext applicationContext;
     private EnvironmentContext environmentContext;
     private EngineJobCacheDao engineJobCacheDao;
@@ -116,7 +116,7 @@ public class GroupPriorityQueue {
         return blocked;
     }
 
-    public long queueSize() {
+    private long queueSize() {
         return queue.size() + jobSubmitDealer.getRestartJobQueueSize();
     }
 
@@ -130,10 +130,6 @@ public class GroupPriorityQueue {
 
     public int getQueueSizeLimited() {
         return queueSizeLimited;
-    }
-
-    public long getJobRestartDelay() {
-        return jobRestartDelay;
     }
 
     private class AcquireGroupQueueJob implements Runnable {
@@ -192,7 +188,7 @@ public class GroupPriorityQueue {
                 }
             }
         } catch (Exception e) {
-            logger.error("emitJob2PriorityQueue error:{}", localAddress, e);
+            logger.error("emitJob2PriorityQueue localAddress:{} error:", localAddress, e);
         }
         return startId;
     }
@@ -222,9 +218,6 @@ public class GroupPriorityQueue {
         }
         if (queueSizeLimited <= 0) {
             throw new RuntimeException("queueSizeLimited less than 0.");
-        }
-        if (jobRestartDelay <= 0) {
-            throw new RuntimeException("jobRestartDelay less than 0.");
         }
         if (null == environmentContext) {
             throw new RuntimeException("environmentContext is null.");
@@ -257,12 +250,11 @@ public class GroupPriorityQueue {
         this.workerOperator = applicationContext.getBean(WorkerOperator.class);
 
         this.queueSizeLimited = environmentContext.getQueueSize();
-        this.jobRestartDelay = environmentContext.getJobRestartDelay();
 
         checkParams();
 
         this.queue = new OrderLinkedBlockingQueue<>(queueSizeLimited * 2);
-        this.jobSubmitDealer = new JobSubmitDealer(environmentContext.getLocalAddress(), this, jobPartitioner, workerOperator, engineJobCacheDao);
+        this.jobSubmitDealer = new JobSubmitDealer(environmentContext.getLocalAddress(), this, applicationContext);
 
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName() + "_" + jobResource + "_AcquireJob"));
         scheduledService.scheduleWithFixedDelay(

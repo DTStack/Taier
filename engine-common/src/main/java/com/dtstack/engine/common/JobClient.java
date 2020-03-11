@@ -82,6 +82,8 @@ public class JobClient extends OrderObject{
 
     private int maxRetryNum;
 
+    private volatile long lackingCount;
+
     public JobClient() {
 
     }
@@ -99,6 +101,8 @@ public class JobClient extends OrderObject{
         this.engineType = paramAction.getEngineType();
         this.classArgs = paramAction.getExeArgs();
         this.generateTime = paramAction.getGenerateTime();
+        this.lackingCount = paramAction.getLackingCount();
+
         if (paramAction.getComputeType().equals(ComputeType.STREAM.getType())){
             this.maxRetryNum = 0;
         } else {
@@ -144,6 +148,8 @@ public class JobClient extends OrderObject{
         action.setPriority(priority);
         action.setApplicationId(applicationId);
         action.setMaxRetryNum(maxRetryNum);
+        action.setLackingCount(lackingCount);
+
         if(!Strings.isNullOrEmpty(pluginInfo)){
             try{
                 action.setPluginInfo(PublicUtil.jsonStrToObject(pluginInfo, Map.class));
@@ -316,6 +322,9 @@ public class JobClient extends OrderObject{
     }
 
     public long getGenerateTime() {
+        if (generateTime <=0) {
+            generateTime = System.currentTimeMillis();
+        }
         return generateTime;
     }
 
@@ -353,6 +362,18 @@ public class JobClient extends OrderObject{
 
     public String getResourceType() {
         return null;
+    }
+
+    public long getLackingCount() {
+        return lackingCount;
+    }
+
+    public void setLackingCount(long lackingCount) {
+        this.lackingCount = lackingCount;
+    }
+
+    public long lackingCountIncrement() {
+        return lackingCount++;
     }
 
     @Override

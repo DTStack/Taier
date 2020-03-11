@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.taskdealer;
 
 import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.exception.WorkerAccessException;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.common.JobClient;
@@ -10,16 +11,18 @@ import com.dtstack.engine.common.exception.ClientArgumentException;
 import com.dtstack.engine.common.exception.LimitResourceException;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.pojo.RestartJob;
+import com.dtstack.engine.common.pojo.SimpleJobDelay;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
 import com.dtstack.engine.common.queue.OrderLinkedBlockingQueue;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.queue.GroupInfo;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.queue.JobPartitioner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -41,19 +44,28 @@ public class JobSubmitDealer implements Runnable {
      */
     private static LinkedBlockingQueue<JobClient> submittedQueue = new LinkedBlockingQueue<>();
 
-    /***循环间隔时间3s*/
-    private static final int WAIT_INTERVAL = 2 * 1000;
-
-    private String localAddress;
-    private GroupPriorityQueue priorityQueue;
     private JobPartitioner jobPartitioner;
     private WorkerOperator workerOperator;
     private EngineJobCacheDao engineJobCacheDao;
-    private String jobResource = null;
-    private OrderLinkedBlockingQueue<JobClient> queue = null;
-    private DelayBlockingQueue<RestartJob<JobClient>> restartJobQueue = null;
 
-    public JobSubmitDealer(String localAddress, GroupPriorityQueue priorityQueue, JobPartitioner jobPartitioner, WorkerOperator workerOperator, EngineJobCacheDao engineJobCacheDao) {
+    private long jobRestartDelay;
+    private long jobLackingDelay;
+    private long jobPriorityStep;
+    private long jobLackingInterval;
+    private long jobSubmitExpired;
+    private long jobLackingCountLimited = 3;
+
+    private String localAddress;
+    private String jobResource = null;
+    private GroupPriorityQueue priorityQueue;
+    private OrderLinkedBlockingQueue<JobClient> queue = null;
+    private DelayBlockingQueue<SimpleJobDelay<JobClient>> delayJobQueue = null;
+
+    public JobSubmitDealer(String localAddress, GroupPriorityQueue priorityQueue, ApplicationContext applicationContext) {
+        this.jobPartitioner = applicationContext.getBean(JobPartitioner.class);
+        this.workerOperator = applicationContext.getBean(WorkerOperator.class);
+        this.engineJobCacheDao = applicationContext.getBean(EngineJobCacheDao.class);
+        EnvironmentContext environmentContext = applicationContext.getBean(EnvironmentContext.class);
         if (null == priorityQueue) {
             throw new RdosDefineException("priorityQueue must not null.");
         }
@@ -66,14 +78,23 @@ public class JobSubmitDealer implements Runnable {
         if (null == engineJobCacheDao) {
             throw new RdosDefineException("engineJobCacheDao must not null.");
         }
+        if (null == environmentContext) {
+            throw new RdosDefineException("environmentContext must not null.");
+        }
+
+        jobRestartDelay = environmentContext.getJobRestartDelay();
+        jobLackingDelay = environmentContext.getJobLackingDelay();
+        jobPriorityStep = environmentContext.getJobPriorityStep();
+        jobLackingInterval = environmentContext.getJobLackingInterval();
+        jobSubmitExpired = environmentContext.getJobSubmitExpired();
+        jobLackingCountLimited = environmentContext.getJobLackingCountLimited();
+
+
         this.localAddress = localAddress;
         this.priorityQueue = priorityQueue;
-        this.jobPartitioner = jobPartitioner;
-        this.workerOperator = workerOperator;
-        this.engineJobCacheDao = engineJobCacheDao;
         this.jobResource = priorityQueue.getJobResource();
         this.queue = priorityQueue.getQueue();
-        this.restartJobQueue = new DelayBlockingQueue<RestartJob<JobClient>>(priorityQueue.getQueueSizeLimited());
+        this.delayJobQueue = new DelayBlockingQueue<SimpleJobDelay<JobClient>>(priorityQueue.getQueueSizeLimited());
 
         ExecutorService executorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory(this.getClass().getSimpleName() + "_RestartJobProcessor"));
@@ -85,11 +106,11 @@ public class JobSubmitDealer implements Runnable {
         public void run() {
             while (true) {
                 try {
-                    RestartJob<JobClient> restartJob = restartJobQueue.take();
-                    JobClient jobClient = restartJob.getJob();
+                    SimpleJobDelay<JobClient> simpleJobDelay = delayJobQueue.take();
+                    JobClient jobClient = simpleJobDelay.getJob();
                     if (jobClient != null) {
                         queue.put(jobClient);
-                        logger.info("jobId:{} take job from restartJobQueue queueSize:{} and add to priorityQueue.", jobClient.getTaskId(), restartJobQueue.size());
+                        logger.info("jobId{} take job from delayJobQueue queue size:{} and add to priorityQueue.", jobClient.getTaskId(), delayJobQueue.size());
                     }
                 } catch (Exception e) {
                     logger.error("", e);
@@ -98,15 +119,28 @@ public class JobSubmitDealer implements Runnable {
         }
     }
 
-
     public boolean tryPutRestartJob(JobClient jobClient) {
-        boolean tryPut = restartJobQueue.tryPut(new RestartJob<>(jobClient, priorityQueue.getJobRestartDelay()));
-        logger.info("jobId:{} {} add job to restartJobQueue .", jobClient.getTaskId(), tryPut ? "success" : "failed");
+        boolean tryPut = delayJobQueue.tryPut(new SimpleJobDelay<>(jobClient, jobRestartDelay));
+        logger.info("jobId{} {} add job to restart delayJobQueue.", jobClient.getTaskId(), tryPut ? "success" : "failed");
+        if (tryPut) {
+            engineJobCacheDao.updateStage(jobClient.getTaskId(), EJobCacheStage.RESTART.getStage(), localAddress, jobClient.getPriority());
+        }
         return tryPut;
     }
 
+    private boolean tryPutLackingJob(JobClient jobClient) {
+        boolean tryPut = delayJobQueue.tryPut(new SimpleJobDelay<>(jobClient, jobLackingDelay));
+        if (tryPut) {
+            jobClient.lackingCountIncrement();
+            engineJobCacheDao.updateStage(jobClient.getTaskId(), EJobCacheStage.LACKING.getStage(), localAddress, jobClient.getPriority());
+        }
+        logger.info("jobId{} {} add job to lacking delayJobQueue, job's lackingCount:{}.", jobClient.getTaskId(), tryPut ? "success" : "failed", jobClient.getLackingCount());
+        return tryPut;
+    }
+
+
     public int getRestartJobQueueSize() {
-        return restartJobQueue.size();
+        return delayJobQueue.size();
     }
 
     @Override
@@ -114,9 +148,13 @@ public class JobSubmitDealer implements Runnable {
         while (true) {
             try {
                 JobClient jobClient = queue.take();
-                logger.info("jobId:{} jobResource:{} queueSize:{} take job from priorityQueue.", jobClient.getTaskId(), jobResource, priorityQueue.queueSize());
+                logger.info("jobId{} jobResource:{} queue size:{} take job from priorityQueue.", jobClient.getTaskId(), jobResource, queue.size());
                 if (checkIsFinished(jobClient.getTaskId())) {
                     logger.info("jobId:{} checkIsFinished is true, job is Finished.", jobClient.getTaskId());
+                    continue;
+                }
+                if (checkJobSubmitExpired(jobClient.getGenerateTime())) {
+                    logger.info("jobId:{} checkJobSubmitExpired is true, job ignore to submit.", jobClient.getTaskId());
                     continue;
                 }
                 if (!checkMaxPriority(jobResource, jobClient.getPriority())) {
@@ -138,6 +176,14 @@ public class JobSubmitDealer implements Runnable {
             return true;
         }
         return false;
+    }
+
+    private boolean checkJobSubmitExpired(long generateTime) {
+        if (jobSubmitExpired <= 0) {
+            return false;
+        }
+        long diff = System.currentTimeMillis() - generateTime;
+        return diff > jobSubmitExpired;
     }
 
     private boolean checkMaxPriority(String jobResource, long localPriority) {
@@ -204,12 +250,19 @@ public class JobSubmitDealer implements Runnable {
     }
 
     private void handlerNoResource(JobClient jobClient) {
-        try {
-            //因为资源不足提交任务失败，优先级数值增加 WAIT_INTERVAL
-            jobClient.setPriority(jobClient.getPriority() + WAIT_INTERVAL);
-            priorityQueue.getQueue().put(jobClient);
-        } catch (InterruptedException e) {
-            logger.error("jobId:{} engineType:{} handlerNoResource happens error:", jobClient.getTaskId(), jobClient.getEngineType(), e);
+        //因为资源不足提交任务失败，优先级数值增加 WAIT_INTERVAL
+        jobClient.setPriority(jobClient.getPriority() + jobPriorityStep);
+
+        if (jobClient.lackingCountIncrement() > jobLackingCountLimited) {
+            tryPutLackingJob(jobClient);
+        } else {
+            try {
+                queue.put(jobClient);
+                Thread.sleep(jobLackingInterval);
+            } catch (Exception e) {
+                logger.error("jobId:{} engineType:{} handlerNoResource happens error:", jobClient.getTaskId(), jobClient.getEngineType(), e);
+                tryPutLackingJob(jobClient);
+            }
         }
     }
 

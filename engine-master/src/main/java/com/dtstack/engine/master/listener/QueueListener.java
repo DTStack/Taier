@@ -63,10 +63,10 @@ public class QueueListener implements InitializingBean, Listener {
         try {
             Map<String, Map<Integer, QueueInfo>> allNodesJobQueueInfo = jobExecutorTrigger.getAllNodesJobQueueInfo();
             if (allNodesJobQueueInfo != null) {
-                Map<Integer, Map<String, QueueInfo>> allNodesJobQueueTypes = new HashMap<>();
+                Map<Integer, Map<String, QueueInfo>> tmpAllNodesJobQueueTypes = new HashMap<>();
                 allNodesJobQueueInfo.forEach((address, typeJobQueueInfo) -> {
                     typeJobQueueInfo.forEach((type, queueInfo) -> {
-                        Map<String, QueueInfo> nodesJobQueue = allNodesJobQueueTypes.computeIfAbsent(type, k -> {
+                        Map<String, QueueInfo> nodesJobQueue = tmpAllNodesJobQueueTypes.computeIfAbsent(type, k -> {
                             Map<String, QueueInfo> value = new HashMap<>();
                             value.put(address, queueInfo);
                             return value;
@@ -74,7 +74,7 @@ public class QueueListener implements InitializingBean, Listener {
                         nodesJobQueue.put(address, queueInfo);
                     });
                 });
-                this.allNodesJobQueueTypes = allNodesJobQueueTypes;
+                this.allNodesJobQueueTypes = tmpAllNodesJobQueueTypes;
             }
         } catch (Throwable e) {
             logger.error("allNodesJobQueueInfo error:{}", e);
@@ -83,10 +83,10 @@ public class QueueListener implements InitializingBean, Listener {
         try {
             Map<String, Map<String, GroupInfo>> allNodesGroupQueueInfo = workNode.getAllNodesGroupQueueInfo();
             if (allNodesGroupQueueInfo != null) {
-                Map<String, Map<String, GroupInfo>> allNodesGroupQueueJobResources = new HashMap<>();
+                Map<String, Map<String, GroupInfo>> tmpAllNodesGroupQueueJobResources = new HashMap<>();
                 allNodesGroupQueueInfo.forEach((address, jobResourceGroupQueueInfo) -> {
                     jobResourceGroupQueueInfo.forEach((jobResource, groupInfo) -> {
-                        Map<String, GroupInfo> nodesGroupQueue = allNodesGroupQueueJobResources.computeIfAbsent(jobResource, k -> {
+                        Map<String, GroupInfo> nodesGroupQueue = tmpAllNodesGroupQueueJobResources.computeIfAbsent(jobResource, k -> {
                             Map<String, GroupInfo> value = new HashMap<>();
                             value.put(address, groupInfo);
                             return value;
@@ -94,7 +94,7 @@ public class QueueListener implements InitializingBean, Listener {
                         nodesGroupQueue.put(address, groupInfo);
                     });
                 });
-                this.allNodesGroupQueueJobResources = allNodesGroupQueueJobResources;
+                this.allNodesGroupQueueJobResources = tmpAllNodesGroupQueueJobResources;
             }
         } catch (Throwable e) {
             logger.error("allNodesGroupQueueInfo error:{}", e);
