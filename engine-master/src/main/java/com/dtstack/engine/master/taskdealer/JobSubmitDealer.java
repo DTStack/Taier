@@ -139,7 +139,7 @@ public class JobSubmitDealer implements Runnable {
     }
 
 
-    public int getRestartJobQueueSize() {
+    public int getDelayJobQueueSize() {
         return delayJobQueue.size();
     }
 
