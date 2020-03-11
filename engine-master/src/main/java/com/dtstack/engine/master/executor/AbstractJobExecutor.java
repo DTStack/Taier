@@ -34,7 +34,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.Timestamp;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -86,8 +85,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     private Set<String> notStartCache = Sets.newHashSet();
     private Map<String, JobErrorInfo> errorJobCache = Maps.newHashMap();
     private Map<Long, BatchTaskShade> taskCache = Maps.newHashMap();
-
-    private long lastCheckLoadedDay = 0;
 
     private int logOutput = 0;
 
@@ -260,7 +257,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
             outLoop:
             while (true) {
                 if (jopPriorityQueue.isBlocked()) {
-                    if (logger.isInfoEnabled()) {
+                    if (LogCountUtil.count(logOutput, MULTIPLES)) {
                         logger.info("scheduleType:{} nodeAddress:{} Queue Blocked!!!", getScheduleType(), nodeAddress);
                     }
                     break;
@@ -279,7 +276,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                     if (!put) {
                         //阻塞时的哨兵
                         jopPriorityQueue.putSentinel(SentinelType.END_QUEUE);
-                        if (logger.isInfoEnabled()) {
+                        if (LogCountUtil.count(logOutput, MULTIPLES)) {
                             logger.info("scheduleType:{} nodeAddress:{} add END_QUEUE Sentinel!!!", getScheduleType(), nodeAddress);
                         }
                         break outLoop;
@@ -335,16 +332,4 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         return cycTime;
     }
 
-    protected boolean checkLoadedDay() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-
-        long today = calendar.getTime().getTime();
-        boolean loaded = lastCheckLoadedDay < today;
-        lastCheckLoadedDay = today;
-        return loaded;
-    }
 }
