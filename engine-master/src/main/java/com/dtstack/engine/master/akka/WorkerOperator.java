@@ -11,6 +11,7 @@ import com.dtstack.engine.common.akka.message.*;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.restart.RestartStrategyType;
 import com.google.common.base.Strings;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +72,9 @@ public class WorkerOperator {
 
     public String getEngineLog(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
         String logInfo;
+        if (StringUtils.isNotBlank(jobIdentifier.getEngineJobId())) {
+            logger.warn("jobIdentifier:{}", jobIdentifier);
+        }
         try {
             logInfo = (String) masterServer.sendMessage(new MessageGetEngineLog(engineType, pluginInfo, jobIdentifier));
         } catch (Exception e) {

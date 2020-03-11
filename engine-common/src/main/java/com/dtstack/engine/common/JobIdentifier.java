@@ -50,4 +50,13 @@ public class JobIdentifier implements Serializable {
     public void setTaskId(String taskId) {
         this.taskId = taskId;
     }
+
+    @Override
+    public String toString() {
+        return "JobIdentifier{" +
+                "engineJobId='" + engineJobId + '\'' +
+                ", applicationId='" + applicationId + '\'' +
+                ", taskId='" + taskId + '\'' +
+                '}';
+    }
 }
