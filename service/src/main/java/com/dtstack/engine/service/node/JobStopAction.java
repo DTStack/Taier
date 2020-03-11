@@ -55,40 +55,29 @@ public class JobStopAction {
             LOG.info("jobId:{} cache is missed, stop interrupt.", jobClient.getTaskId());
             return StoppedStatus.MISSED;
         } else if (EJobCacheStage.unSubmitted().contains(jobCache.getStage())) {
-            if (engineJob !=null && RdosTaskStatus.WAITENGINE.getStatus() == engineJob.getStatus().intValue()){
-                //删除
-                removeJob(jobClient);
-                LOG.info("jobId:{} stopped success, because of [IN_PRIORITY_QUEUE & WAITENGINE].", paramAction.getTaskId());
-                return StoppedStatus.STOPPED;
-            }
+            //删除
+            removeJob(jobClient);
+            LOG.info("jobId:{} stopped success, task status is STOPPED.", jobClient.getTaskId());
+            return StoppedStatus.STOPPED;
         } else {
-            /**
-             * 停止过程中存在超时情况（就flink perjob而言，cancel job 是一个阻塞调用），
-             * 一旦"取消任务超时并再次触发取消"与"任务停止后立即重启"并发，可能会出现取消上一次任务的情况，并出现异常（就flink perjob而言，会出现Job colud not be found 异常）
-             */
-            String engineTaskId = getEngineTaskId(jobClient);
-            if (StringUtils.isNotBlank(jobClient.getEngineTaskId()) && !jobClient.getEngineTaskId().equals(engineTaskId)) {
+            if (engineJob == null) {
+                LOG.info("jobId:{} cache is missed, stop interrupt.", jobClient.getTaskId());
+                return StoppedStatus.MISSED;
+            }
+            if (StringUtils.isNotBlank(engineJob.getEngineJobId()) && !jobClient.getEngineTaskId().equals(engineJob.getEngineJobId())) {
                 LOG.info("jobId:{} stopped success, because of [difference engineTaskId].", paramAction.getTaskId());
                 return StoppedStatus.STOPPED;
             }
-        }
 
-        JobResult jobResult = jobClient.stopJob();
-        if (jobResult.getCheckRetry()){
-            LOG.info("jobId:{} is retry.", paramAction.getTaskId());
-            return StoppedStatus.RETRY;
-        } else {
-            LOG.info("jobId:{} is stopping.", paramAction.getTaskId());
-            return StoppedStatus.STOPPING;
+            JobResult jobResult = jobClient.stopJob();
+            if (jobResult.getCheckRetry()){
+                LOG.info("jobId:{} is retry.", paramAction.getTaskId());
+                return StoppedStatus.RETRY;
+            } else {
+                LOG.info("jobId:{} is stopping.", paramAction.getTaskId());
+                return StoppedStatus.STOPPING;
+            }
         }
-    }
-
-    private String getEngineTaskId(JobClient jobClient) {
-    	RdosEngineJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
-    	if (batchJob != null) {
-    		return batchJob.getEngineJobId();
-    	}
-        return null;
     }
 
     private void removeJob(JobClient jobClient) {
