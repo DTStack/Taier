@@ -40,7 +40,7 @@ public class MasterListener implements Listener {
         scheduledService.scheduleWithFixedDelay(
                 this,
                 CHECK_INTERVAL,
-                CHECK_INTERVAL,
+                60000,
                 TimeUnit.MILLISECONDS);
     }
 

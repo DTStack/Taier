@@ -23,12 +23,9 @@ import org.apache.hadoop.conf.Configuration;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -45,7 +42,7 @@ import java.util.concurrent.TimeUnit;
  * create: 2019/10/22
  */
 @Component
-public class ZkService implements InitializingBean, BeanFactoryPostProcessor, DisposableBean {
+public class ZkService implements InitializingBean, DisposableBean {
 
     private static final Logger logger = LoggerFactory.getLogger(ZkService.class);
 
@@ -133,6 +130,8 @@ public class ZkService implements InitializingBean, BeanFactoryPostProcessor, Di
         createNodeIfNotExists(this.workersNode, new HashSet<>());
         initNeedLock();
         createLocalBrokerHeartNode();
+        initScheduledExecutorService();
+        logger.warn("init zk server success...");
         return this;
     }
 
@@ -339,11 +338,5 @@ public class ZkService implements InitializingBean, BeanFactoryPostProcessor, Di
 
     public void setEnvironmentContext(EnvironmentContext environmentContext) {
         this.environmentContext = environmentContext;
-    }
-
-    @Override
-    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-        initScheduledExecutorService();
-        logger.warn("init zk server success...");
     }
 }
