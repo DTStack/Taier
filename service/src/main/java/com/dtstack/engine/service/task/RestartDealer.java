@@ -126,18 +126,19 @@ public class RestartDealer {
         JobClient clientWithStrategy = getJobClientWithStrategy(jobId, engineJobId, appId, engineType, pluginInfo, alreadyRetryNum);
         if (clientWithStrategy == null) {
             clientWithStrategy = jobClient;
-            clientWithStrategy.setCallBack((jobStatus)->{
-                updateJobStatus(jobId, jobStatus);
-            });
+        }
 
-            if(EngineType.Kylin.name().equalsIgnoreCase(clientWithStrategy.getEngineType())){
-                setRetryTag(clientWithStrategy);
-            }
+        clientWithStrategy.setCallBack((jobStatus)->{
+            updateJobStatus(jobId, jobStatus);
+        });
 
-            //checkpoint的路径
-            if(EJobType.SYNC.equals(clientWithStrategy.getJobType())){
-                setCheckpointPath(clientWithStrategy);
-            }
+        if(EngineType.Kylin.name().equalsIgnoreCase(clientWithStrategy.getEngineType())){
+            setRetryTag(clientWithStrategy);
+        }
+
+        //checkpoint的路径
+        if(EJobType.SYNC.equals(clientWithStrategy.getJobType())){
+            setCheckpointPath(clientWithStrategy);
         }
 
         boolean retry = restartJob(clientWithStrategy);
