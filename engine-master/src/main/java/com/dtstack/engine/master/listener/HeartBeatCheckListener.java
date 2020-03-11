@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.util.ExceptionUtil;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.master.node.FailoverStrategy;
 import com.dtstack.engine.master.data.BrokerHeartNode;

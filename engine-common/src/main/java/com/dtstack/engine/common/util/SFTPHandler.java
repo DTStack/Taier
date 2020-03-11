@@ -7,7 +7,7 @@ import com.dtstack.engine.common.sftp.SftpPoolConfig;
 import com.google.common.collect.Maps;
 import com.jcraft.jsch.*;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.*;
 
 import java.io.*;

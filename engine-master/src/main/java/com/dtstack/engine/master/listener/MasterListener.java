@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.listener;
 
-import com.dtstack.engine.common.util.ExceptionUtil;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.master.node.FailoverStrategy;
 import com.dtstack.engine.common.CustomThreadFactory;

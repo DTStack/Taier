@@ -15,7 +15,7 @@ import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.util.HadoopConfTool;
+import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.sparkyarn.sparkext.ClientExt;
 import com.dtstack.engine.sparkyarn.sparkext.ClientExtFactory;
 import com.dtstack.engine.sparkyarn.sparkyarn.parser.AddJarOperator;

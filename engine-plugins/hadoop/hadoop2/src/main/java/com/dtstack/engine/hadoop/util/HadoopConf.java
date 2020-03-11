@@ -1,7 +1,7 @@
 package com.dtstack.engine.hadoop.util;
 
 
-import com.dtstack.engine.common.util.HadoopConfTool;
+import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.common.util.YarnConfTool;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
