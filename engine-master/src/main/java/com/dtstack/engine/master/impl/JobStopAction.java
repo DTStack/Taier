@@ -14,6 +14,7 @@ import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.common.enums.StoppedStatus;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.cache.ShardCache;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,6 +68,12 @@ public class JobStopAction {
             paramAction.setEngineTaskId(engineJob.getEngineJobId());
             paramAction.setApplicationId(engineJob.getApplicationId());
             JobClient jobClient = new JobClient(paramAction);
+
+            if (StringUtils.isNotBlank(engineJob.getEngineJobId()) && !jobClient.getEngineTaskId().equals(engineJob.getEngineJobId())) {
+                LOG.info("jobId:{} stopped success, because of [difference engineJobId].", paramAction.getTaskId());
+                return StoppedStatus.STOPPED;
+            }
+
             JobResult jobResult = workerOperator.stopJob(jobClient);
             if (jobResult.getCheckRetry()) {
                 LOG.info("jobId:{} is retry.", paramAction.getTaskId());

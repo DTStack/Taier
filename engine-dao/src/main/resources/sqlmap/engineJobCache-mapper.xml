@@ -35,7 +35,10 @@
 
     <select id="listByStage" resultType="EngineJobCache">
         select * from rdos_engine_job_cache
-        where id > #{startId} and (node_address = #{nodeAddress} or node_address is null)
+        where id > #{startId}
+        <if test="nodeAddress != null">
+            and (node_address = #{nodeAddress} or node_address is null)
+        </if>
         <if test="stage != null">
             and stage = #{stage}
         </if>
@@ -107,6 +110,7 @@
     <select id="groupByJobResource" resultType="java.util.HashMap">
         SELECT
         job_resource as jobResource,
+        stage as stage,
         min(gmt_create) as generateTime,
         count(1) as jobSize
         FROM rdos_engine_job_cache
@@ -114,8 +118,8 @@
         <if test="nodeAddress != null">
             and node_address = #{nodeAddress}
         </if>
-        group by job_resource
-        order by job_resource asc
+        group by job_resource, stage
+        order by job_resource, stage asc
     </select>
 
     <select id="countByJobResource" resultType="java.lang.Long">
