@@ -142,13 +142,13 @@ public class ConfigParse {
         return interval == null ? 3000 : Long.parseLong(interval.toString());
     }
 
-    public static long getPriorityStep() {
-        Object priorityStep = configs.get("priorityStep");
+    public static long getJobPriorityStep() {
+        Object priorityStep = configs.get("jobPriorityStep");
         return priorityStep == null ? 10000 : Long.parseLong(priorityStep.toString());
     }
 
-    public static int getLackingCountLimited(){
-        Object lackingCountLimited = configs.get("lackingCountLimited");
+    public static int getJobLackingCountLimited(){
+        Object lackingCountLimited = configs.get("jobLackingCountLimited");
         return lackingCountLimited == null ? 3 : Integer.parseInt(lackingCountLimited.toString());
     }
 

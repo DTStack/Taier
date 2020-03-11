@@ -430,7 +430,7 @@ public class JobClient extends OrderObject{
     }
 
     public boolean isLackLimited() {
-        return lackingCount++ > ConfigParse.getLackingCountLimited();
+        return lackingCount++ >= ConfigParse.getJobLackingCountLimited();
     }
 
     @Override

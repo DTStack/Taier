@@ -72,7 +72,7 @@ public class GroupPriorityQueue {
         this.groupName = groupName;
 
         this.queue = new OrderLinkedBlockingQueue<>(QUEUE_SIZE_LIMITED * 2);
-        this.jobSubmitDealer = new JobSubmitDealer(jobResource, this);
+        this.jobSubmitDealer = new JobSubmitDealer(jobResource, engineType, groupName, this);
 
 
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName() + "_" + engineType + "_" + groupName + "_AcquireJob"));

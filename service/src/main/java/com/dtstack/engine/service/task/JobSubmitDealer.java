@@ -4,7 +4,6 @@ import com.dtstack.engine.common.ClientCache;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.IClient;
 import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.config.ConfigParse;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
@@ -44,7 +43,7 @@ public class JobSubmitDealer implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(JobSubmitDealer.class);
 
-    private static final long PRIORITY_STEP = ConfigParse.getPriorityStep();
+    private static final long PRIORITY_STEP = ConfigParse.getJobPriorityStep();
     private static final long JOB_LACKING_INTERVAL = ConfigParse.getJobLackingInterval();
     private static final long JOB_SUBMIT_EXPIRED = ConfigParse.getJobSubmitExpired();
 
@@ -52,10 +51,6 @@ public class JobSubmitDealer implements Runnable {
      * 用于taskListener处理
      */
     private static LinkedBlockingQueue<JobClient> submittedQueue = new LinkedBlockingQueue<>();
-
-    private ClientCache clientCache = ClientCache.getInstance();
-
-    private static JobSubmitDealer singleton = null;
 
     private String localAddress;
     private String jobResource;
@@ -67,9 +62,12 @@ public class JobSubmitDealer implements Runnable {
 
     private RdosEngineJobCacheDAO rdosEngineJobCacheDao = new RdosEngineJobCacheDAO();
 
-    public JobSubmitDealer(String jobResource, GroupPriorityQueue priorityQueue) {
+    public JobSubmitDealer(String jobResource, String engineType, String groupName, GroupPriorityQueue priorityQueue) {
         this.localAddress = ZkDistributed.getZkDistributed().getLocalAddress();
         this.jobResource = jobResource;
+        this.engineType = engineType;
+        this.groupName = groupName;
+        this.priorityQueue = priorityQueue;
         this.queue = priorityQueue.getQueue();
         this.delayJobQueue = new DelayBlockingQueue<SimpleJobDelay<JobClient>>(priorityQueue.getQueueSizeLimited());
 
@@ -87,7 +85,7 @@ public class JobSubmitDealer implements Runnable {
                     JobClient jobClient = simpleJobDelay.getJob();
                     if (jobClient != null) {
                         queue.put(jobClient);
-                        logger.info("jobId{} take job from delayJobQueue queue size:{} and add to priorityQueue.", jobClient.getTaskId(), delayJobQueue.size());
+                        logger.info("jobId:{} take job from delayJobQueue queue size:{} and add to priorityQueue.", jobClient.getTaskId(), delayJobQueue.size());
                     }
                 } catch (Exception e) {
                     logger.error("", e);
@@ -98,7 +96,7 @@ public class JobSubmitDealer implements Runnable {
 
     public boolean tryPutRestartJob(JobClient jobClient) {
         boolean tryPut = delayJobQueue.tryPut(new SimpleJobDelay<>(jobClient, priorityQueue.getJobRestartDelay()));
-        logger.info("jobId{} {} add job to restart delayJobQueue.", jobClient.getTaskId(), tryPut ? "success" : "failed");
+        logger.info("jobId:{} {} add job to restart delayJobQueue.", jobClient.getTaskId(), tryPut ? "success" : "failed");
         if (tryPut) {
             WorkNode.getInstance().updateCache(jobClient, EJobCacheStage.RESTART.getStage());
         }
@@ -111,7 +109,7 @@ public class JobSubmitDealer implements Runnable {
             jobClient.lackingCountIncrement();
             WorkNode.getInstance().updateCache(jobClient, EJobCacheStage.LACKING.getStage());
         }
-        logger.info("jobId{} {} add job to lacking delayJobQueue, job's lackingCount:{}.", jobClient.getTaskId(), tryPut ? "success" : "failed", jobClient.getLackingCount());
+        logger.info("jobId:{} {} add job to lacking delayJobQueue, job's lackingCount:{}.", jobClient.getTaskId(), tryPut ? "success" : "failed", jobClient.getLackingCount());
         return tryPut;
     }
 
@@ -124,7 +122,7 @@ public class JobSubmitDealer implements Runnable {
         while (true) {
             try {
                 JobClient jobClient = queue.take();
-                logger.info("jobId{} jobResource:{} queue size:{} take job from priorityQueue.", jobClient.getTaskId(), jobResource, queue.size());
+                logger.info("jobId:{} jobResource:{} queue size:{} take job from priorityQueue.", jobClient.getTaskId(), jobResource, queue.size());
                 if (checkIsFinished(jobClient.getTaskId())) {
                     logger.info("jobId:{} checkIsFinished is true, job is Finished.", jobClient.getTaskId());
                     continue;
