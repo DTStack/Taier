@@ -39,8 +39,8 @@ public class MasterListener implements Listener {
         scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName()));
         scheduledService.scheduleWithFixedDelay(
                 this,
-                CHECK_INTERVAL,
                 60000,
+                CHECK_INTERVAL,
                 TimeUnit.MILLISECONDS);
     }
 
