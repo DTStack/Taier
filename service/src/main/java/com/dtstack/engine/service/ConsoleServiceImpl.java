@@ -218,17 +218,8 @@ public class ConsoleServiceImpl {
         return false;
     }
 
-    public void stopJob(@Param("computeType") Integer computeType,
-                        @Param("engineType") String engineType,
-                        @Param("jobId") String jobId) throws Exception {
+    public void stopJob(@Param("jobId") String jobId) throws Exception {
         Preconditions.checkNotNull(jobId, "parameters of jobId is required");
-
-        if (engineType == null) {
-            engineType = "";
-        }
-        if (computeType == null) {
-            computeType = -1;
-        }
 
         List<String> alreadyExistJobIds = jobStopRecordDAO.listByJobIds(Lists.newArrayList(jobId));
         if (alreadyExistJobIds.contains(jobId)) {
@@ -237,8 +228,6 @@ public class ConsoleServiceImpl {
         }
 
         RdosEngineJobStopRecord stopRecord = new RdosEngineJobStopRecord();
-        stopRecord.setComputeType(computeType);
-        stopRecord.setEngineType(engineType);
         stopRecord.setTaskId(jobId);
 
         jobStopRecordDAO.insert(stopRecord);
@@ -254,12 +243,6 @@ public class ConsoleServiceImpl {
         if (jobIdList != null && !jobIdList.isEmpty()) {
             //杀死指定jobIdList的任务
 
-            if (engineType == null) {
-                engineType = "";
-            }
-            if (computeType == null) {
-                computeType = -1;
-            }
             List<String> alreadyExistJobIds = jobStopRecordDAO.listByJobIds(jobIdList);
             for (String jobId : jobIdList) {
                 if (alreadyExistJobIds.contains(jobId)) {
@@ -268,8 +251,6 @@ public class ConsoleServiceImpl {
                 }
 
                 RdosEngineJobStopRecord stopRecord = new RdosEngineJobStopRecord();
-                stopRecord.setComputeType(computeType);
-                stopRecord.setEngineType(engineType);
                 stopRecord.setTaskId(jobId);
                 jobStopRecordDAO.insert(stopRecord);
             }
@@ -302,10 +283,7 @@ public class ConsoleServiceImpl {
                     }
 
                     RdosEngineJobStopRecord stopRecord = new RdosEngineJobStopRecord();
-                    stopRecord.setComputeType(computeType);
-                    stopRecord.setEngineType(engineType);
                     stopRecord.setTaskId(jobCache.getJobId());
-                    stopRecord.setGroupName(jobCache.getGroupName());
                     jobStopRecordDAO.insert(stopRecord);
                 }
             }
