@@ -20,6 +20,7 @@ import com.dtstack.engine.service.queue.GroupInfo;
 import com.dtstack.engine.service.queue.GroupPriorityQueue;
 import com.dtstack.engine.service.queue.SimpleJobDelay;
 import com.dtstack.engine.service.zk.ZkDistributed;
+import com.dtstack.engine.service.zk.cache.ZkLocalCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,6 +62,8 @@ public class JobSubmitDealer implements Runnable {
     private DelayBlockingQueue<SimpleJobDelay<JobClient>> delayJobQueue = null;
 
     private RdosEngineJobCacheDAO rdosEngineJobCacheDao = new RdosEngineJobCacheDAO();
+    private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
+
 
     public JobSubmitDealer(String jobResource, String engineType, String groupName, GroupPriorityQueue priorityQueue) {
         this.localAddress = ZkDistributed.getZkDistributed().getLocalAddress();
@@ -85,6 +88,7 @@ public class JobSubmitDealer implements Runnable {
                     JobClient jobClient = simpleJobDelay.getJob();
                     if (jobClient != null) {
                         queue.put(jobClient);
+                        jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
                         logger.info("jobId:{} take job from delayJobQueue queue size:{} and add to priorityQueue.", jobClient.getTaskId(), delayJobQueue.size());
                     }
                 } catch (Exception e) {
@@ -98,6 +102,7 @@ public class JobSubmitDealer implements Runnable {
         boolean tryPut = delayJobQueue.tryPut(new SimpleJobDelay<>(jobClient, priorityQueue.getJobRestartDelay()));
         logger.info("jobId:{} {} add job to restart delayJobQueue.", jobClient.getTaskId(), tryPut ? "success" : "failed");
         if (tryPut) {
+            //restart的状态修改会在外面处理，这里只需要set stage
             WorkNode.getInstance().updateCache(jobClient, EJobCacheStage.RESTART.getStage());
         }
         return tryPut;
@@ -108,6 +113,7 @@ public class JobSubmitDealer implements Runnable {
         if (tryPut) {
             jobClient.lackingCountIncrement();
             WorkNode.getInstance().updateCache(jobClient, EJobCacheStage.LACKING.getStage());
+            jobClient.doStatusCallBack(RdosTaskStatus.LACKING.getStatus());
         }
         logger.info("jobId:{} {} add job to lacking delayJobQueue, job's lackingCount:{}.", jobClient.getTaskId(), tryPut ? "success" : "failed", jobClient.getLackingCount());
         return tryPut;
@@ -124,10 +130,15 @@ public class JobSubmitDealer implements Runnable {
                 JobClient jobClient = queue.take();
                 logger.info("jobId:{} jobResource:{} queue size:{} take job from priorityQueue.", jobClient.getTaskId(), jobResource, queue.size());
                 if (checkIsFinished(jobClient.getTaskId())) {
+                    zkLocalCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
+                    jobClient.doStatusCallBack(RdosTaskStatus.CANCELED.getStatus());
                     logger.info("jobId:{} checkIsFinished is true, job is Finished.", jobClient.getTaskId());
                     continue;
                 }
                 if (checkJobSubmitExpired(jobClient.getGenerateTime())) {
+                    zkLocalCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.AUTOCANCELED.getStatus());
+                    rdosEngineJobCacheDao.deleteJob(jobClient.getTaskId());
+                    jobClient.doStatusCallBack(RdosTaskStatus.AUTOCANCELED.getStatus());
                     logger.info("jobId:{} checkJobSubmitExpired is true, job ignore to submit.", jobClient.getTaskId());
                     continue;
                 }
@@ -204,7 +215,6 @@ public class JobSubmitDealer implements Runnable {
     private void submitJob(JobClient jobClient) {
         JobResult jobResult = null;
         try {
-            jobClient.doStatusCallBack(RdosTaskStatus.WAITCOMPUTE.getStatus());
             IClient clusterClient = ClientCache.getInstance().getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
 
             if (clusterClient == null) {
@@ -228,7 +238,6 @@ public class JobSubmitDealer implements Runnable {
                 logger.info("--------submit job:{} to engine end----", jobClient.getTaskId());
             } else {
                 logger.info(" jobId:{} engineType:{} judgeSlots result is false", jobClient.getTaskId(), jobClient.getEngineType());
-                jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
                 handlerNoResource(jobClient);
             }
         } catch (ClientAccessException | ClientArgumentException | LimitResourceException e) {

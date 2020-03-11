@@ -20,7 +20,7 @@ public enum RdosTaskStatus {
 
 	UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELLING(6),CANCELED(7),FAILED(8), SUBMITFAILD(9),
 	SUBMITTING(10), RESTARTING(11), MANUALSUCCESS(12), KILLED(13), SUBMITTED(14), NOTFOUND(15), WAITENGINE(16), WAITCOMPUTE(17),
-    FROZEN(18), ENGINEACCEPTED(19), ENGINEDISTRIBUTE(20), PARENTFAILED(21), FAILING(22), COMPUTING(23);
+    FROZEN(18), ENGINEACCEPTED(19), ENGINEDISTRIBUTE(20), PARENTFAILED(21), FAILING(22), COMPUTING(23), LACKING(24), AUTOCANCELED(25);
 	
 	private int status;
 
@@ -30,7 +30,7 @@ public enum RdosTaskStatus {
             DEPLOYING.getStatus(), RUNNING.getStatus(),
             SUBMITTING.getStatus(), RESTARTING.getStatus(),
             SUBMITTED.getStatus(), WAITENGINE.getStatus(),
-            WAITCOMPUTE.getStatus()
+            WAITCOMPUTE.getStatus(), LACKING.getStatus()
     );
 
     private final static List<Integer> STOPPED_STATUS = Lists.newArrayList(
@@ -38,7 +38,8 @@ public enum RdosTaskStatus {
             RdosTaskStatus.CANCELED.getStatus(),
             RdosTaskStatus.SUBMITFAILD.getStatus(),
             RdosTaskStatus.KILLED.getStatus(),
-            RdosTaskStatus.FINISHED.getStatus()
+            RdosTaskStatus.FINISHED.getStatus(),
+            RdosTaskStatus.AUTOCANCELED.getStatus()
     );
 
 	private static final Logger logger = LoggerFactory.getLogger(RdosTaskStatus.class);
