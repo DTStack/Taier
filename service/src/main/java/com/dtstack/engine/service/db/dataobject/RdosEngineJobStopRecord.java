@@ -2,6 +2,7 @@ package com.dtstack.engine.service.db.dataobject;
 
 import org.apache.commons.collections.MapUtils;
 
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -15,6 +16,7 @@ public class RdosEngineJobStopRecord extends DataObject {
     private Integer computeType;
     private String groupName;
     private int version;
+    private Date operatorExpired;
 
 
     public String getTaskId() {
@@ -65,6 +67,14 @@ public class RdosEngineJobStopRecord extends DataObject {
         this.version = version;
     }
 
+    public Date getOperatorExpired() {
+        return operatorExpired;
+    }
+
+    public void setOperatorExpired(Date operatorExpired) {
+        this.operatorExpired = operatorExpired;
+    }
+
     public static RdosEngineJobStopRecord toEntity(Map<String, Object> jsrMap) {
         RdosEngineJobStopRecord jobStopRecord = new RdosEngineJobStopRecord();
         jobStopRecord.setTaskId(MapUtils.getString(jsrMap, "taskId"));
@@ -85,6 +95,7 @@ public class RdosEngineJobStopRecord extends DataObject {
                 ", computeType=" + computeType +
                 ", groupName='" + groupName + '\'' +
                 ", version='" + version + '\'' +
+                ", operatorExpired='" + operatorExpired + '\'' +
                 '}';
     }
 
