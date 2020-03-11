@@ -15,7 +15,7 @@ public class AkkaMasterActor extends AbstractActor {
 
     public static final String GET_WORKER_INFOS = "getWorkerInfos";
     private final static String IP_PORT_TEMPLATE = "%s:%s";
-    private final static String SUCCUSS_INFO = "Send heartBeat success!";
+    private final static String SUCCUSS_INFO = "Receive heartBeat success!";
 
     private Set<WorkerInfo> workerInfos = new HashSet<>();
 
