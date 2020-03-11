@@ -111,7 +111,7 @@ public class WorkerOperator {
 
     public RestartStrategyType getRestartStrategyType(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
         try {
-            return (RestartStrategyType) masterServer.sendMessage(new MessageGetCheckpoints(engineType, pluginInfo, jobIdentifier));
+            return (RestartStrategyType) masterServer.sendMessage(new MessageGetRestartStrategyType(engineType, pluginInfo, jobIdentifier));
         } catch (Exception e) {
             logger.error("getRestartStrategyType failed!", e);
             return RestartStrategyType.NONE;

@@ -15,6 +15,7 @@ public class AkkaMasterActor extends AbstractActor {
 
     public static final String GET_WORKER_INFOS = "getWorkerInfos";
     private final static String IP_PORT_TEMPLATE = "%s:%s";
+    private final static String SUCCUSS_INFO = "Send heartBeat success!";
 
     private Set<WorkerInfo> workerInfos = new HashSet<>();
 
@@ -27,6 +28,7 @@ public class AkkaMasterActor extends AbstractActor {
                     if (logger.isDebugEnabled()) {
                         logger.debug(ipAndPort + " is alive.");
                     }
+                    sender().tell(SUCCUSS_INFO, getSelf());
                 })
                 .matchEquals(GET_WORKER_INFOS, msg -> {
                     sender().tell(workerInfos, getSelf());
