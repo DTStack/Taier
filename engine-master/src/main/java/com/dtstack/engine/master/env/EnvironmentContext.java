@@ -272,7 +272,27 @@ public class EnvironmentContext {
     }
 
     public long getJobRestartDelay() {
-        return Long.parseLong(environment.getProperty("jobRestartDelay", Integer.toString(2 * 60 * 1000) ));
+        return Long.parseLong(environment.getProperty("jobRestartDelay", Integer.toString(2 * 60 * 1000)));
+    }
+
+    public long getJobLackingDelay() {
+        return Long.parseLong(environment.getProperty("jobLackingDelay", Integer.toString(2 * 60 * 1000)));
+    }
+
+    public long getJobPriorityStep() {
+        return Long.parseLong(environment.getProperty("jobPriorityStep", "10000" ));
+    }
+
+    public long getJobLackingInterval() {
+        return Long.parseLong(environment.getProperty("jobLackingInterval", "3000" ));
+    }
+
+    public int getJobLackingCountLimited() {
+        return Integer.parseInt(environment.getProperty("jobLackingCountLimited", "3" ));
+    }
+
+    public long getJobSubmitExpired() {
+        return Long.parseLong(environment.getProperty("jobSubmitExpired", "0" ));
     }
 
     public String getHadoopConfigField() {

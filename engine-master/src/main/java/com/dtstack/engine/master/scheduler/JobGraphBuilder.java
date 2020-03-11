@@ -312,6 +312,11 @@ public class JobGraphBuilder {
                 //补数据的名称和后缀用‘-’分割开-->在查询的时候会用到
                 targetJobName = targetJobName + "-" + task.getName() + "-" + triggerTime;
             }
+            if(actionService == null) {
+                String errorMsg = "actionService is null in JobGraphBuilder#buildJobRunBean";
+                logger.error(errorMsg);
+                throw new RuntimeException(errorMsg);
+            }
             batchJob.setJobId(actionService.generateUniqueSign());
             batchJob.setJobKey(jobKey);
             batchJob.setJobName(targetJobName);

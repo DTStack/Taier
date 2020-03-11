@@ -62,6 +62,9 @@ public class ParamAction {
 
 	private long stopJobId;
 
+	private long lackingCount;
+
+
 	public Integer getRequestStart() {
 		return requestStart;
 	}
@@ -214,6 +217,14 @@ public class ParamAction {
 
 	public void setStopJobId(long stopJobId) {
 		this.stopJobId = stopJobId;
+	}
+
+	public long getLackingCount() {
+		return lackingCount;
+	}
+
+	public void setLackingCount(long lackingCount) {
+		this.lackingCount = lackingCount;
 	}
 
 	@Override

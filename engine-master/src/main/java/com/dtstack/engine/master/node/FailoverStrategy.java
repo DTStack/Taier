@@ -310,7 +310,7 @@ public class FailoverStrategy {
                 List<String> submittedJobs = Lists.newArrayList();
                 for (EngineJobCache jobCache : jobCaches) {
                     try {
-                        if (jobCache.getStage() == EJobCacheStage.DB.getStage()) {
+                        if (EJobCacheStage.unSubmitted().contains(jobCache.getStage())) {
                             List<String> jobIds = jobResources.computeIfAbsent(jobCache.getJobResource(), k -> Lists.newArrayList());
                             jobIds.add(jobCache.getJobId());
                         } else {
