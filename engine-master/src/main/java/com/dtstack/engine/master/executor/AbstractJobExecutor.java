@@ -3,6 +3,7 @@ package com.dtstack.engine.master.executor;
 import com.dtstack.dtcenter.common.enums.EJobType;
 import com.dtstack.dtcenter.common.enums.Restarted;
 import com.dtstack.dtcenter.common.enums.TaskStatus;
+import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.sql.Twins;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.JobCheckStatus;
@@ -54,6 +55,8 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
     private final Logger logger = LoggerFactory.getLogger(AbstractJobExecutor.class);
 
+    private final static int MULTIPLES = 10;
+
     @Autowired
     private EnvironmentContext env;
 
@@ -85,6 +88,8 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     private Map<Long, BatchTaskShade> taskCache = Maps.newHashMap();
 
     private long lastCheckLoadedDay = 0;
+
+    private int logOutput = 0;
 
     protected final AtomicBoolean RUNNING = new AtomicBoolean(true);
     private volatile long lastRestartJobLoadTime = 0L;
@@ -138,14 +143,14 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         long lastRebackId = 0L;
 
         while (RUNNING.get()) {
-
+            logOutput++;
             BatchJob batchJob = null;
             try {
                 BatchJobElement batchJobElement = jopPriorityQueue.takeJob();
                 if (batchJobElement.isSentinel()) {
                     //判断哨兵，执行的操作
                     operateAfterSentinel(batchJobElement.getSentinel());
-                    if (logger.isInfoEnabled()) {
+                    if (LogCountUtil.count(logOutput, MULTIPLES)) {
                         logger.info("========= scheduleType:{} operateAfterSentinel end=========", getScheduleType());
                     }
                     continue;
@@ -264,7 +269,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 if (CollectionUtils.isEmpty(listExecJobs)) {
                     //遍历数据库结束的哨兵
                     jopPriorityQueue.putSentinel(SentinelType.END_DB);
-                    if (logger.isInfoEnabled()) {
+                    if (LogCountUtil.count(logOutput, MULTIPLES)) {
                         logger.info("scheduleType:{} nodeAddress:{} add END_DB Sentinel!!!", getScheduleType(), nodeAddress);
                     }
                     break;
@@ -285,7 +290,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                     }
                 }
             }
-            if (logger.isInfoEnabled()) {
+            if (LogCountUtil.count(logOutput, MULTIPLES)) {
                 logger.info("scheduleType:{} nodeAddress:{} emitJob2Queue return startId:{}", getScheduleType(), nodeAddress, startId);
             }
         } catch (Exception e) {
