@@ -11,9 +11,11 @@ public class DelayBlockingQueue<E extends Delayed> {
 
     private final DelayQueue<E> delayQ = new DelayQueue<E>();
     private final Semaphore available;
+    private final int size;
 
     public DelayBlockingQueue(int capacity) {
-        available = new Semaphore(capacity, true);
+        this.size = capacity;
+        this.available = new Semaphore(capacity);
     }
 
     public void put(E e) throws InterruptedException {
@@ -46,6 +48,6 @@ public class DelayBlockingQueue<E extends Delayed> {
     }
 
     public int size() {
-        return available.drainPermits();
+        return size - available.availablePermits();
     }
 }

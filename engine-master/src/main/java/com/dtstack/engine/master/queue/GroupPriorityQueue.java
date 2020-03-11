@@ -117,7 +117,7 @@ public class GroupPriorityQueue {
     }
 
     private long queueSize() {
-        return queue.size() + jobSubmitDealer.getRestartJobQueueSize();
+        return queue.size() + jobSubmitDealer.getDelayJobQueueSize();
     }
 
     public void resetStartId() {
