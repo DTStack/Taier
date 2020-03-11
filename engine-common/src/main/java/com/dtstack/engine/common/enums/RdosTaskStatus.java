@@ -63,7 +63,13 @@ public enum RdosTaskStatus implements Serializable {
     //
     PARENTFAILED(21),
 
-    FAILING(22), COMPUTING(23);
+    FAILING(22),
+
+    COMPUTING(23),
+
+    LACKING(24),
+
+    AUTOCANCELED(25);
 	
 	private int status;
 
@@ -73,7 +79,7 @@ public enum RdosTaskStatus implements Serializable {
             DEPLOYING.getStatus(), RUNNING.getStatus(),
             SUBMITTING.getStatus(), RESTARTING.getStatus(),
             SUBMITTED.getStatus(), WAITENGINE.getStatus(),
-            WAITCOMPUTE.getStatus()
+            WAITCOMPUTE.getStatus(), LACKING.getStatus()
     );
 
     private final static List<Integer> STOPPED_STATUS = Lists.newArrayList(
@@ -81,7 +87,8 @@ public enum RdosTaskStatus implements Serializable {
             RdosTaskStatus.CANCELED.getStatus(),
             RdosTaskStatus.SUBMITFAILD.getStatus(),
             RdosTaskStatus.KILLED.getStatus(),
-            RdosTaskStatus.FINISHED.getStatus()
+            RdosTaskStatus.FINISHED.getStatus(),
+            RdosTaskStatus.AUTOCANCELED.getStatus()
     );
 
 	private static final Logger logger = LoggerFactory.getLogger(RdosTaskStatus.class);
