@@ -56,7 +56,7 @@ public class JobPartitioner {
             return null;
         }
         Map<String, GroupInfo> nodesGroupQueue = allNodesGroupQueueJobResources.get(jobResource);
-        if (nodesGroupQueue == null) {
+        if (nodesGroupQueue == null || nodesGroupQueue.isEmpty()) {
             return null;
         }
         Map<String, Integer> nodeSort = Maps.newHashMap();
