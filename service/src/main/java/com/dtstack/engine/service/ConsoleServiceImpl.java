@@ -140,7 +140,7 @@ public class ConsoleServiceImpl {
                 EJobCacheStage eJobCacheStage = EJobCacheStage.getStage(stage);
                 String jobResource = WorkNode.getInstance().getJobResource(engineType, groupName);
 
-                Map<String, Object> overviewRecord = overview.computeIfAbsent(jobResource, k-> {
+                Map<String, Object> overviewRecord = overview.computeIfAbsent(jobResource, k -> {
                     Map<String, Object> overviewEle = new HashMap<>();
                     overviewEle.put("engineType", engineType);
                     overviewEle.put("groupName", groupName);
@@ -160,10 +160,13 @@ public class ConsoleServiceImpl {
                                            @Param("groupName") String groupName,
                                            @Param("stage") Integer stage,
                                            @Param("node") String nodeAddress,
-                                           @Param("pageSize") int pageSize,
-                                           @Param("currentPage") int currentPage) {
+                                           @Param("pageSize") Integer pageSize,
+                                           @Param("currentPage") Integer currentPage) {
         Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
         Preconditions.checkNotNull(stage, "parameters of stage is required");
+        Preconditions.checkArgument(currentPage != null && currentPage > 0, "parameters of currentPage is required");
+        Preconditions.checkArgument(currentPage != null && currentPage > 0, "parameters of pageSize is required");
+
         if (StringUtils.isBlank(nodeAddress)) {
             nodeAddress = null;
         }
@@ -172,11 +175,15 @@ public class ConsoleServiceImpl {
         Long count = 0L;
         result.put("queueSize", count);
         result.put("topN", topN);
+        result.put("currentPage", currentPage);
+        result.put("pageSize", pageSize);
+
+        int start = (currentPage - 1) * pageSize;
 
         try {
             count = engineJobCacheDao.countByJobResource(engineType, groupName, stage, nodeAddress);
             if (count > 0) {
-                List<RdosEngineJobCache> engineJobCaches = engineJobCacheDao.listByJobResource(engineType, groupName, stage, nodeAddress);
+                List<RdosEngineJobCache> engineJobCaches = engineJobCacheDao.listByJobResource(engineType, groupName, stage, nodeAddress, start, pageSize);
                 for (RdosEngineJobCache engineJobCache : engineJobCaches) {
                     Map<String, Object> theJobMap = PublicUtil.ObjectToMap(engineJobCache);
                     RdosEngineJob engineJob = engineJobDao.getRdosTaskByTaskId(engineJobCache.getJobId());
@@ -210,7 +217,7 @@ public class ConsoleServiceImpl {
             RdosEngineJobCache engineJobCache = engineJobCacheDao.getJobById(jobId);
             ParamAction paramAction = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), ParamAction.class);
             JobClient jobClient = new JobClient(paramAction);
-            jobClient.setCallBack((jobStatus)-> {
+            jobClient.setCallBack((jobStatus) -> {
                 workNode.updateJobStatus(jobClient.getTaskId(), jobStatus);
             });
             workNode.addGroupPriorityQueue(jobClient, false);
@@ -279,7 +286,7 @@ public class ConsoleServiceImpl {
                 }
                 List<String> jobIds = jobCaches.stream().map(RdosEngineJobCache::getJobId).collect(Collectors.toList());
                 List<String> alreadyExistJobIds = jobStopRecordDAO.listByJobIds(jobIds);
-                for(RdosEngineJobCache jobCache : jobCaches){
+                for (RdosEngineJobCache jobCache : jobCaches) {
                     if (alreadyExistJobIds.contains(jobCache.getJobId())) {
                         logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobCache.getJobId());
                         continue;

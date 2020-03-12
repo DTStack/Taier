@@ -115,6 +115,7 @@
             and node_address = #{nodeAddress}
         </if>
         order by stage desc, job_priority asc
+        limit #{start} , #{pageSize}
     </select>
 
     <select id="getJobResources" resultType="java.lang.String">

@@ -152,13 +152,13 @@ public class RdosEngineJobCacheDAO {
         });
     }
 
-    public List<RdosEngineJobCache> listByJobResource(String engineType, String groupName, Integer stage, String nodeAddress) {
+    public List<RdosEngineJobCache> listByJobResource(String engineType, String groupName, Integer stage, String nodeAddress, Integer start, Integer pageSize) {
         return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<RdosEngineJobCache>>(){
 
             @Override
             public List<RdosEngineJobCache> execute(SqlSession sqlSession) throws Exception {
                 RdosEngineJobCacheMapper mapper = sqlSession.getMapper(RdosEngineJobCacheMapper.class);
-                return mapper.listByJobResource(engineType, groupName, stage, nodeAddress);
+                return mapper.listByJobResource(engineType, groupName, stage, nodeAddress, start, pageSize);
             }
         });
     }
