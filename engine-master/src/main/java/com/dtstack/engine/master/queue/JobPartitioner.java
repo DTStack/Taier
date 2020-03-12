@@ -33,7 +33,7 @@ public class JobPartitioner {
             return null;
         }
         Map<String, QueueInfo> nodesJobQueue = allNodesJobQueueInfo.get(type);
-        if (nodesJobQueue == null) {
+        if (nodesJobQueue == null || nodesJobQueue.isEmpty()) {
             return null;
         }
         Map<String, Integer> nodeSort = Maps.newHashMap();
@@ -56,7 +56,7 @@ public class JobPartitioner {
             return null;
         }
         Map<String, GroupInfo> nodesGroupQueue = allNodesGroupQueueJobResources.get(jobResource);
-        if (nodesGroupQueue == null) {
+        if (nodesGroupQueue == null || nodesGroupQueue.isEmpty()) {
             return null;
         }
         Map<String, Integer> nodeSort = Maps.newHashMap();
@@ -79,7 +79,7 @@ public class JobPartitioner {
             return null;
         }
         Map<String, GroupInfo> nodesGroupQueue = allNodesGroupQueueJobResources.get(jobResource);
-        if (nodesGroupQueue.isEmpty()) {
+        if (nodesGroupQueue == null || nodesGroupQueue.isEmpty()) {
             return null;
         }
         List<String> aliveBrokers = zkService.getAliveBrokersChildren();
