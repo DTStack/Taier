@@ -168,14 +168,14 @@ public class ConsoleService {
         if (CollectionUtils.isNotEmpty(groupResult)) {
             for (Map<String, Object> record : groupResult) {
                 long generateTime = MapUtils.getLong(record, "generateTime");
-                long waitTime = System.currentTimeMillis() - generateTime;
+                String waitTime = DateUtil.getTimeDifference(System.currentTimeMillis() - (generateTime * 1000));
                 record.put("waitTime", waitTime);
             }
 
             for (Map<String, Object> record : groupResult) {
                 String jobResource = MapUtils.getString(record, "jobResource");
                 int stage = MapUtils.getInteger(record, "stage");
-                long waitTime = MapUtils.getLong(record, "waitTime");
+                String waitTime = MapUtils.getString(record, "waitTime");
                 long jobSize = MapUtils.getLong(record, "jobSize");
                 EJobCacheStage eJobCacheStage = EJobCacheStage.getStage(stage);
 
@@ -194,9 +194,11 @@ public class ConsoleService {
 
     public Map<String, Object> groupDetail(@Param("jobResource") String jobResource,
                                            @Param("node") String nodeAddress,
+                                           @Param("stage") Integer stage,
                                            @Param("pageSize") int pageSize,
                                            @Param("currentPage") int currentPage) {
         Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
+        Preconditions.checkNotNull(stage, "parameters of stage is required");
         if (StringUtils.isBlank(nodeAddress)) {
             nodeAddress = null;
         }
@@ -206,15 +208,16 @@ public class ConsoleService {
         result.put("queueSize", count);
         result.put("topN", topN);
         try {
-            count = engineJobCacheDao.countByJobResource(jobResource, nodeAddress);
+            count = engineJobCacheDao.countByJobResource(jobResource, stage, nodeAddress);
             if (count > 0) {
-                List<EngineJobCache> engineJobCaches = engineJobCacheDao.listByJobResource(jobResource, nodeAddress);
+                List<EngineJobCache> engineJobCaches = engineJobCacheDao.listByJobResource(jobResource, stage, nodeAddress);
                 for (EngineJobCache engineJobCache : engineJobCaches) {
                     Map<String, Object> theJobMap = PublicUtil.objectToMap(engineJobCache);
                     EngineJob engineJob = engineJobDao.getRdosJobByJobId(engineJobCache.getJobId());
                     if (engineJob != null) {
                         this.fillJobInfo(theJobMap, engineJob, engineJobCache);
                     }
+                    topN.add(theJobMap);
                 }
             }
         } catch (Exception e) {

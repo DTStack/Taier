@@ -111,7 +111,7 @@
         SELECT
         job_resource as jobResource,
         stage as stage,
-        min(gmt_create) as generateTime,
+        unix_timestamp(min(gmt_create)) as generateTime,
         count(1) as jobSize
         FROM rdos_engine_job_cache
         WHERE is_deleted = 0
@@ -126,7 +126,7 @@
         SELECT
         count(1) as count
         FROM rdos_engine_job_cache
-        WHERE job_resource = #{jobResource} and is_deleted = 0
+        WHERE job_resource = #{jobResource} and stage = #{stage} and is_deleted = 0
         <if test="nodeAddress != null">
             and node_address = #{nodeAddress}
         </if>
@@ -134,7 +134,7 @@
 
     <select id="listByJobResource" resultType="EngineJobCache">
         SELECT * FROM rdos_engine_job_cache
-        WHERE job_resource = #{jobResource} and is_deleted = 0
+        WHERE job_resource = #{jobResource} and stage = #{stage} and is_deleted = 0
         <if test="nodeAddress != null">
             and node_address = #{nodeAddress}
         </if>
