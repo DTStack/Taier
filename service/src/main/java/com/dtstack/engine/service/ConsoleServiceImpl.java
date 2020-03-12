@@ -62,7 +62,7 @@ public class ConsoleServiceImpl {
         return true;
     }
 
-    public List<String> nodes() {
+    public List<String> nodeAddress() {
         try {
             return engineJobCacheDao.getAllNodeAddress();
         } catch (Exception e) {
@@ -91,7 +91,7 @@ public class ConsoleServiceImpl {
             Map<String, Object> result = new HashMap<>(3);
             result.put("theJob", Lists.newArrayList(theJobMap));
             result.put("theJobIdx", 1);
-            result.put("node", engineJobCache.getNodeAddress());
+            result.put("nodeAddress", engineJobCache.getNodeAddress());
 
             return result;
         } catch (Exception e) {
@@ -117,7 +117,7 @@ public class ConsoleServiceImpl {
     /**
      * 根据计算引擎类型显示任务
      */
-    public Collection<Map<String, Object>> overview(@Param("node") String nodeAddress) {
+    public Collection<Map<String, Object>> overview(@Param("nodeAddress") String nodeAddress) {
         if (StringUtils.isBlank(nodeAddress)) {
             nodeAddress = null;
         }
@@ -159,7 +159,7 @@ public class ConsoleServiceImpl {
                                            @Param("engineType") String engineType,
                                            @Param("groupName") String groupName,
                                            @Param("stage") Integer stage,
-                                           @Param("node") String nodeAddress,
+                                           @Param("nodeAddress") String nodeAddress,
                                            @Param("pageSize") Integer pageSize,
                                            @Param("currentPage") Integer currentPage) {
         Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
@@ -170,14 +170,8 @@ public class ConsoleServiceImpl {
         if (StringUtils.isBlank(nodeAddress)) {
             nodeAddress = null;
         }
-        Map<String, Object> result = new HashMap<>();
-        List<Map<String, Object>> topN = new ArrayList<>();
+        List<Map<String, Object>> data = new ArrayList<>();
         Long count = 0L;
-        result.put("queueSize", count);
-        result.put("topN", topN);
-        result.put("currentPage", currentPage);
-        result.put("pageSize", pageSize);
-
         int start = (currentPage - 1) * pageSize;
 
         try {
@@ -190,12 +184,17 @@ public class ConsoleServiceImpl {
                     if (engineJob != null) {
                         this.fillJobInfo(theJobMap, engineJob, engineJobCache);
                     }
-                    topN.add(theJobMap);
+                    data.add(theJobMap);
                 }
             }
         } catch (Exception e) {
             logger.error("{}", e);
         }
+        Map<String, Object> result = new HashMap<>();
+        result.put("data", data);
+        result.put("currentPage", currentPage);
+        result.put("pageSize", pageSize);
+        result.put("total", count);
         return result;
     }
 
