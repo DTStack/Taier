@@ -84,12 +84,8 @@ public class ConsoleService {
     private ShardCache shardCache;
 
     @Autowired
-    private ActionService actionService;
-
     private EngineJobStopRecordDao engineJobStopRecordDao;
 
-    private static final Integer GROUP_TOTAL_KILL_MODEL = 0;
-    private static final Integer NAME_TOTAL_KILL_MODEL = 1;
 
     public Boolean finishJob(String jobId, Integer status) {
         if (!RdosTaskStatus.isStopped(status)) {
@@ -103,7 +99,7 @@ public class ConsoleService {
         return true;
     }
 
-    public List<String> nodes() {
+    public List<String> nodeAddress() {
         try {
             return engineJobCacheDao.getAllNodeAddress();
         } catch (Exception e) {
@@ -132,7 +128,7 @@ public class ConsoleService {
             Map<String, Object> result = new HashMap<>(3);
             result.put("theJob", Lists.newArrayList(theJobMap));
             result.put("theJobIdx", 1);
-            result.put("node", engineJobCache.getNodeAddress());
+            result.put("nodeAddress", engineJobCache.getNodeAddress());
 
             return result;
         } catch (Exception e) {
@@ -158,7 +154,7 @@ public class ConsoleService {
     /**
      * 根据计算引擎类型显示任务
      */
-    public Collection<Map<String, Object>> overview(@Param("node") String nodeAddress) {
+    public Collection<Map<String, Object>> overview(@Param("nodeAddress") String nodeAddress) {
         if (StringUtils.isBlank(nodeAddress)) {
             nodeAddress = null;
         }
@@ -179,7 +175,7 @@ public class ConsoleService {
                 long jobSize = MapUtils.getLong(record, "jobSize");
                 EJobCacheStage eJobCacheStage = EJobCacheStage.getStage(stage);
 
-                Map<String, Object> overviewRecord = overview.computeIfAbsent(jobResource, k-> {
+                Map<String, Object> overviewRecord = overview.computeIfAbsent(jobResource, k -> {
                     Map<String, Object> overviewEle = new HashMap<>();
                     overviewEle.put("jobResource", jobResource);
                     return overviewEle;
@@ -193,36 +189,42 @@ public class ConsoleService {
     }
 
     public Map<String, Object> groupDetail(@Param("jobResource") String jobResource,
-                                           @Param("node") String nodeAddress,
+                                           @Param("nodeAddress") String nodeAddress,
                                            @Param("stage") Integer stage,
-                                           @Param("pageSize") int pageSize,
-                                           @Param("currentPage") int currentPage) {
+                                           @Param("pageSize") Integer pageSize,
+                                           @Param("currentPage") Integer currentPage) {
         Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
         Preconditions.checkNotNull(stage, "parameters of stage is required");
+        Preconditions.checkArgument(currentPage != null && currentPage > 0, "parameters of currentPage is required");
+        Preconditions.checkArgument(currentPage != null && currentPage > 0, "parameters of pageSize is required");
+
         if (StringUtils.isBlank(nodeAddress)) {
             nodeAddress = null;
         }
-        Map<String, Object> result = new HashMap<>();
-        List<Map<String, Object>> topN = new ArrayList<>();
+        List<Map<String, Object>> data = new ArrayList<>();
         Long count = 0L;
-        result.put("queueSize", count);
-        result.put("topN", topN);
+        int start = (currentPage - 1) * pageSize;
         try {
             count = engineJobCacheDao.countByJobResource(jobResource, stage, nodeAddress);
             if (count > 0) {
-                List<EngineJobCache> engineJobCaches = engineJobCacheDao.listByJobResource(jobResource, stage, nodeAddress);
+                List<EngineJobCache> engineJobCaches = engineJobCacheDao.listByJobResource(jobResource, stage, nodeAddress, start, pageSize);
                 for (EngineJobCache engineJobCache : engineJobCaches) {
                     Map<String, Object> theJobMap = PublicUtil.objectToMap(engineJobCache);
                     EngineJob engineJob = engineJobDao.getRdosJobByJobId(engineJobCache.getJobId());
                     if (engineJob != null) {
                         this.fillJobInfo(theJobMap, engineJob, engineJobCache);
                     }
-                    topN.add(theJobMap);
+                    data.add(theJobMap);
                 }
             }
         } catch (Exception e) {
             logger.error("{}", e);
         }
+        Map<String, Object> result = new HashMap<>();
+        result.put("data", data);
+        result.put("total", count);
+        result.put("currentPage", currentPage);
+        result.put("pageSize", pageSize);
         return result;
     }
 
@@ -244,7 +246,7 @@ public class ConsoleService {
             EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
             ParamAction paramAction = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), ParamAction.class);
             JobClient jobClient = new JobClient(paramAction);
-            jobClient.setCallBack((jobStatus)-> {
+            jobClient.setCallBack((jobStatus) -> {
                 workNode.updateJobStatus(jobClient.getTaskId(), jobStatus);
             });
             workNode.addGroupPriorityQueue(engineJobCache.getJobResource(), jobClient, false);
@@ -309,7 +311,7 @@ public class ConsoleService {
                 }
                 List<String> jobIds = jobCaches.stream().map(EngineJobCache::getJobId).collect(Collectors.toList());
                 List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(jobIds);
-                for(EngineJobCache jobCache : jobCaches){
+                for (EngineJobCache jobCache : jobCaches) {
                     if (alreadyExistJobIds.contains(jobCache.getJobId())) {
                         logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobCache.getJobId());
                         continue;
