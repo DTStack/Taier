@@ -128,7 +128,7 @@
         engine_type as engineType,
         group_name as groupName,
         stage as stage,
-        min(gmt_create) as generateTime,
+        unix_timestamp(min(gmt_create)) as generateTime,
         count(1) as jobSize
         FROM rdos_engine_job_cache
         WHERE is_deleted = 0

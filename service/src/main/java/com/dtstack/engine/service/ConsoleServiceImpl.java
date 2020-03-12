@@ -127,7 +127,7 @@ public class ConsoleServiceImpl {
         if (CollectionUtils.isNotEmpty(groupResult)) {
             for (Map<String, Object> record : groupResult) {
                 long generateTime = MapUtils.getLong(record, "generateTime");
-                long waitTime = System.currentTimeMillis() - generateTime;
+                String waitTime = DateUtil.getTimeDifference(System.currentTimeMillis() - (generateTime * 1000));
                 record.put("waitTime", waitTime);
             }
 
@@ -135,7 +135,7 @@ public class ConsoleServiceImpl {
                 String engineType = MapUtils.getString(record, "engineType");
                 String groupName = MapUtils.getString(record, "groupName");
                 int stage = MapUtils.getInteger(record, "stage");
-                long waitTime = MapUtils.getLong(record, "waitTime");
+                String waitTime = MapUtils.getString(record, "waitTime");
                 long jobSize = MapUtils.getLong(record, "jobSize");
                 EJobCacheStage eJobCacheStage = EJobCacheStage.getStage(stage);
                 String jobResource = WorkNode.getInstance().getJobResource(engineType, groupName);
