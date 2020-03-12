@@ -33,7 +33,7 @@ public class JobPartitioner {
             return null;
         }
         Map<String, QueueInfo> nodesJobQueue = allNodesJobQueueInfo.get(type);
-        if (nodesJobQueue == null) {
+        if (nodesJobQueue == null || nodesJobQueue.isEmpty()) {
             return null;
         }
         Map<String, Integer> nodeSort = Maps.newHashMap();
