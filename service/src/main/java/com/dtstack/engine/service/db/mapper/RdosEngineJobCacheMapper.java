@@ -39,9 +39,9 @@ public interface RdosEngineJobCacheMapper {
 
     Long maxPriorityByStage(@Param("engineType") String engineType, @Param("groupName") String groupName,@Param("stage") Integer stage,@Param("nodeAddress") String nodeAddress);
 
-    Long countByJobResource(@Param("engineType") String engineType, @Param("groupName") String groupName,@Param("nodeAddress") String nodeAddress);
+    Long countByJobResource(@Param("engineType") String engineType, @Param("groupName") String groupName, @Param("stage") Integer stage, @Param("nodeAddress") String nodeAddress);
 
-    List<RdosEngineJobCache> listByJobResource(@Param("engineType") String engineType, @Param("groupName") String groupName,@Param("nodeAddress") String nodeAddress);
+    List<RdosEngineJobCache> listByJobResource(@Param("engineType") String engineType, @Param("groupName") String groupName, @Param("stage") Integer stage, @Param("nodeAddress") String nodeAddress);
 
     List<String> getJobResources();
 

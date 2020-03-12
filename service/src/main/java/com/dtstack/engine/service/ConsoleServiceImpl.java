@@ -158,10 +158,12 @@ public class ConsoleServiceImpl {
     public Map<String, Object> groupDetail(@Param("jobResource") String jobResource,
                                            @Param("engineType") String engineType,
                                            @Param("groupName") String groupName,
+                                           @Param("stage") Integer stage,
                                            @Param("node") String nodeAddress,
                                            @Param("pageSize") int pageSize,
                                            @Param("currentPage") int currentPage) {
         Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
+        Preconditions.checkNotNull(stage, "parameters of stage is required");
         if (StringUtils.isBlank(nodeAddress)) {
             nodeAddress = null;
         }
@@ -172,15 +174,16 @@ public class ConsoleServiceImpl {
         result.put("topN", topN);
 
         try {
-            count = engineJobCacheDao.countByJobResource(engineType, groupName, nodeAddress);
+            count = engineJobCacheDao.countByJobResource(engineType, groupName, stage, nodeAddress);
             if (count > 0) {
-                List<RdosEngineJobCache> engineJobCaches = engineJobCacheDao.listByJobResource(engineType, groupName, nodeAddress);
+                List<RdosEngineJobCache> engineJobCaches = engineJobCacheDao.listByJobResource(engineType, groupName, stage, nodeAddress);
                 for (RdosEngineJobCache engineJobCache : engineJobCaches) {
                     Map<String, Object> theJobMap = PublicUtil.ObjectToMap(engineJobCache);
                     RdosEngineJob engineJob = engineJobDao.getRdosTaskByTaskId(engineJobCache.getJobId());
                     if (engineJob != null) {
                         this.fillJobInfo(theJobMap, engineJob, engineJobCache);
                     }
+                    topN.add(theJobMap);
                 }
             }
         } catch (Exception e) {

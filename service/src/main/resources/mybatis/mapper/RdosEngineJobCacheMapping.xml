@@ -102,7 +102,7 @@
         SELECT
         count(1) as count
         FROM rdos_engine_job_cache
-        WHERE engine_type = #{engineType} and group_name = #{groupName} and is_deleted = 0
+        WHERE engine_type = #{engineType} and group_name = #{groupName} and stage = #{stage} and is_deleted = 0
         <if test="nodeAddress != null">
             and node_address = #{nodeAddress}
         </if>
@@ -110,7 +110,7 @@
 
     <select id="listByJobResource" resultMap="rdosEngineJobCacheResult">
         SELECT * FROM rdos_engine_job_cache
-        WHERE engine_type = #{engineType} and group_name = #{groupName} and is_deleted = 0
+        WHERE engine_type = #{engineType} and group_name = #{groupName} and stage = #{stage} and is_deleted = 0
         <if test="nodeAddress != null">
             and node_address = #{nodeAddress}
         </if>

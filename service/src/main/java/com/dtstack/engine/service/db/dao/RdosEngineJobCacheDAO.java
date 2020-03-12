@@ -141,24 +141,24 @@ public class RdosEngineJobCacheDAO {
         });
     }
 
-    public Long countByJobResource(String engineType, String groupName, String nodeAddress) {
+    public Long countByJobResource(String engineType, String groupName, Integer stage, String nodeAddress) {
         return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Long>(){
 
             @Override
             public Long execute(SqlSession sqlSession) throws Exception {
                 RdosEngineJobCacheMapper mapper = sqlSession.getMapper(RdosEngineJobCacheMapper.class);
-                return mapper.countByJobResource(engineType, groupName, nodeAddress);
+                return mapper.countByJobResource(engineType, groupName, stage, nodeAddress);
             }
         });
     }
 
-    public List<RdosEngineJobCache> listByJobResource(String engineType, String groupName, String nodeAddress) {
+    public List<RdosEngineJobCache> listByJobResource(String engineType, String groupName, Integer stage, String nodeAddress) {
         return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<RdosEngineJobCache>>(){
 
             @Override
             public List<RdosEngineJobCache> execute(SqlSession sqlSession) throws Exception {
                 RdosEngineJobCacheMapper mapper = sqlSession.getMapper(RdosEngineJobCacheMapper.class);
-                return mapper.listByJobResource(engineType, groupName, nodeAddress);
+                return mapper.listByJobResource(engineType, groupName, stage, nodeAddress);
             }
         });
     }
