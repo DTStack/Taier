@@ -268,7 +268,7 @@ public class EnvironmentContext {
      * @return
      */
     public String getComputeResourcePlain() {
-        return environment.getProperty("computeResourcePlain", "Cluster");
+        return environment.getProperty("computeResourcePlain", "ClusterQueue");
     }
 
     public long getJobRestartDelay() {

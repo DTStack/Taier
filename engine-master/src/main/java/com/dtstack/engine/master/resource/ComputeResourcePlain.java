@@ -8,5 +8,6 @@ package com.dtstack.engine.master.resource;
 public enum ComputeResourcePlain {
 
     Cluster,
-    ClusterQueue;
+    ClusterQueue,
+    EngineTypeClusterQueue
 }

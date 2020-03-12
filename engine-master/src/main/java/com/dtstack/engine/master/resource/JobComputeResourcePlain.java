@@ -31,8 +31,10 @@ public class JobComputeResourcePlain {
             jobResource = StringUtils.substringBefore(jobClient.getGroupName(), SPLIT);
         } else if (ComputeResourcePlain.ClusterQueue.name().equalsIgnoreCase(plainType)) {
             jobResource = jobClient.getGroupName();
+        } else if (ComputeResourcePlain.EngineTypeClusterQueue.name().equalsIgnoreCase(plainType)) {
+            jobResource = jobClient.getEngineType() + SPLIT + jobClient.getGroupName();
         } else {
-            jobResource = StringUtils.substringBefore(jobClient.getGroupName(), SPLIT);
+            jobResource = jobClient.getGroupName();
         }
 
         return jobResource + SPLIT + computeResourceType.name();
