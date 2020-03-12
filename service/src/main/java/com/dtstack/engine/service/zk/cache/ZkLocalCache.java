@@ -107,7 +107,7 @@ public class ZkLocalCache {
 
         String jobResource = WorkNode.getInstance().getJobResource(engineType, groupName);
         Map<String, GroupInfo> nodesGroupQueue = allNodesGroupQueueJobResources.get(jobResource);
-        if (nodesGroupQueue == null) {
+        if (nodesGroupQueue == null || nodesGroupQueue.isEmpty()) {
             return localAddress;
         }
 

@@ -196,7 +196,7 @@ public class JobSubmitDealer implements Runnable {
             return null;
         }
         Map<String, GroupInfo> nodesGroupQueue = allNodesGroupQueueJobResources.get(jobResource);
-        if (nodesGroupQueue.isEmpty()) {
+        if (nodesGroupQueue == null || nodesGroupQueue.isEmpty()) {
             return null;
         }
         List<String> aliveBrokers = ZkDistributed.getZkDistributed().getAliveBrokersChildren();
