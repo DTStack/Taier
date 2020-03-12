@@ -144,6 +144,9 @@ public class RestartDealer {
             clientWithStrategy = jobClient;
         }
 
+        clientWithStrategy.setEngineTaskId(engineJobId);
+        clientWithStrategy.setApplicationId(engineJobId);
+
         clientWithStrategy.setCallBack((jobStatus)->{
             updateJobStatus(jobId, computeType, jobStatus);
         });
