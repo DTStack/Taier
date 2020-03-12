@@ -2,6 +2,7 @@ package com.dtstack.engine.master;
 
 import com.dtstack.engine.common.Service;
 import com.dtstack.engine.common.log.LogbackComponent;
+import com.dtstack.engine.common.security.NoExitSecurityManager;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
 import com.dtstack.engine.master.config.MasterServerBeanConfig;
@@ -56,6 +57,7 @@ public class MasterMain {
 
             // add hook
             ShutdownHookUtil.addShutdownHook(MasterMain::shutdown, MasterMain.class.getSimpleName(), logger);
+            System.setSecurityManager(new NoExitSecurityManager());
         } catch (Throwable e) {
             logger.error("engine-master start error:", e);
             System.exit(-1);

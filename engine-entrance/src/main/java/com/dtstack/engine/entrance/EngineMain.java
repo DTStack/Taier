@@ -1,5 +1,6 @@
 package com.dtstack.engine.entrance;
 
+import com.dtstack.engine.common.security.NoExitSecurityManager;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
 import com.dtstack.engine.master.MasterMain;
 import com.dtstack.engine.worker.WorkerMain;
@@ -22,6 +23,7 @@ public class EngineMain {
             WorkerMain.main(null);
             // add hook
             ShutdownHookUtil.addShutdownHook(EngineMain::shutdown, EngineMain.class.getSimpleName(), logger);
+            System.setSecurityManager(new NoExitSecurityManager());
         } catch (Throwable e) {
             logger.error("engine-master start error:", e);
             System.exit(-1);

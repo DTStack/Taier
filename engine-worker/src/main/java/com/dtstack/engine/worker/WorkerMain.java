@@ -1,6 +1,7 @@
 package com.dtstack.engine.worker;
 
 import com.dtstack.engine.common.log.LogbackComponent;
+import com.dtstack.engine.common.security.NoExitSecurityManager;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
 import com.dtstack.engine.common.akka.config.AkkaConfig;
@@ -21,6 +22,7 @@ public class WorkerMain {
             AkkaWorkerServerImpl.getAkkaWorkerServer().start(workerConfig);
 
             ShutdownHookUtil.addShutdownHook(WorkerMain::shutdown, WorkerMain.class.getSimpleName(), logger);
+            System.setSecurityManager(new NoExitSecurityManager());
         } catch (Throwable e) {
             logger.error("engine-worker start error:{}", e);
             System.exit(-1);
