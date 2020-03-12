@@ -80,7 +80,7 @@ public class RestartDealer {
             return false;
         }
 
-        boolean retry = restartJob(jobClient);
+        boolean retry = restartJob(jobClient, true);
         LOG.info("【retry={}】 jobId:{} alreadyRetryNum:{} will retry and add into queue again.", retry, jobClient.getTaskId(), alreadyRetryNum);
 
         return retry;
@@ -141,10 +141,9 @@ public class RestartDealer {
             setCheckpointPath(clientWithStrategy);
         }
 
-        boolean retry = restartJob(clientWithStrategy);
+        boolean retry = restartJob(clientWithStrategy, false);
         LOG.info("【retry={}】 jobId:{} alreadyRetryNum:{} will retry and add into queue again.", retry, jobClient.getTaskId(), alreadyRetryNum);
 
-        resetStatus(clientWithStrategy, false);
         return retry;
     }
 
@@ -277,11 +276,11 @@ public class RestartDealer {
         }
     }
 
-    private boolean restartJob(JobClient jobClient){
+    private boolean restartJob(JobClient jobClient, boolean submitFailed){
         //添加到重试队列中
         boolean isAdd = WorkNode.getInstance().addRestartJob(jobClient);
         if (isAdd) {
-            resetStatus(jobClient, true);
+            resetStatus(jobClient, submitFailed);
             //update retryNum
             increaseJobRetryNum(jobClient.getTaskId());
         }
