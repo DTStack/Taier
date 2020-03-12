@@ -144,8 +144,9 @@ public class RestartDealer {
             clientWithStrategy = jobClient;
         }
 
+        // 通过engineJobId或appId获取日志
         clientWithStrategy.setEngineTaskId(engineJobId);
-        clientWithStrategy.setApplicationId(engineJobId);
+        clientWithStrategy.setApplicationId(appId);
 
         clientWithStrategy.setCallBack((jobStatus)->{
             updateJobStatus(jobId, computeType, jobStatus);
