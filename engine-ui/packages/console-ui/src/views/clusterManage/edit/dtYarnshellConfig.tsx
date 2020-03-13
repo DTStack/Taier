@@ -134,7 +134,7 @@ export default class DtyarnShellConfig extends React.Component<any, any> {
                         label={<Tooltip title="jupyter.project.root">jupyter.project.root</Tooltip>}
                         {...formItemLayout}
                     >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.DTYARNSHELL}.jupyterProjecRoot`, {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.DTYARNSHELL}.jupyterProjectRoot`, {
                         })(
                             <Input disabled={isView} />
                         )}
