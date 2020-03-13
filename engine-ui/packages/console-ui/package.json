@@ -5,6 +5,7 @@
   "main": "src/app.js",
   "license": "MIT",
   "dependencies": {
+    "@babel/plugin-proposal-optional-chaining": "7.8.3",
     "@handsontable/react": "^2.1.0",
     "@hot-loader/react-dom": "16.11.0",
     "@types/classnames": "^2.2.9",
