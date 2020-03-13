@@ -264,6 +264,7 @@ public class JobSubmitDealer implements Runnable {
             try {
                 queue.put(jobClient);
                 Thread.sleep(JOB_LACKING_INTERVAL);
+                logger.info("jobId:{} unlimited_lackingCount:{} add to priorityQueue.", jobClient.getTaskId(), jobClient.getLackingCount());
             } catch (Exception e) {
                 logger.error("jobId:{} engineType:{} handlerNoResource happens error:", jobClient.getTaskId(), jobClient.getEngineType(), e);
                 tryPutLackingJob(jobClient);

@@ -286,6 +286,7 @@ public class ConsoleServiceImpl {
                 List<String> jobIds = jobCaches.stream().map(RdosEngineJobCache::getJobId).collect(Collectors.toList());
                 List<String> alreadyExistJobIds = jobStopRecordDAO.listByJobIds(jobIds);
                 for (RdosEngineJobCache jobCache : jobCaches) {
+                    startId = jobCache.getId();
                     if (alreadyExistJobIds.contains(jobCache.getJobId())) {
                         logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobCache.getJobId());
                         continue;
