@@ -65,6 +65,7 @@ class BindCommModal extends React.Component<any, any> {
                 visible={visible}
                 onOk={() => { onOk(this.getServiceParam()) }}
                 onCancel={onCancel}
+                width='600px'
                 className={isBindTenant ? 'no-padding-modal' : ''}
             >
                 <React.Fragment>
