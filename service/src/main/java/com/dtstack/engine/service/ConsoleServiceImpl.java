@@ -288,8 +288,25 @@ public class ConsoleServiceImpl {
                     startId = jobCache.getId();
                     jobIds.add(jobCache.getJobId());
                 }
-                Integer deleted = engineJobCacheDao.deleteByJobIds(jobIds);
-                logger.info("delete job size:{}, queryed job size:{}, jobIds:{}", deleted, jobCaches.size(), jobIds);
+
+                if (EJobCacheStage.unSubmitted().contains(stage)) {
+                    Integer deleted = engineJobCacheDao.deleteByJobIds(jobIds);
+                    logger.info("delete job size:{}, queryed job size:{}, jobIds:{}", deleted, jobCaches.size(), jobIds);
+                } else {
+                    //已提交的任务需要发送请求杀死，走正常杀任务的逻辑
+                    List<String> alreadyExistJobIds = jobStopRecordDAO.listByJobIds(jobIds);
+                    for (RdosEngineJobCache jobCache : jobCaches) {
+                        startId = jobCache.getId();
+                        if (alreadyExistJobIds.contains(jobCache.getJobId())) {
+                            logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobCache.getJobId());
+                            continue;
+                        }
+
+                        RdosEngineJobStopRecord stopRecord = new RdosEngineJobStopRecord();
+                        stopRecord.setTaskId(jobCache.getJobId());
+                        jobStopRecordDAO.insert(stopRecord);
+                    }
+                }
             }
         }
     }
