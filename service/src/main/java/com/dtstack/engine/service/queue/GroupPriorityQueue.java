@@ -204,7 +204,6 @@ public class GroupPriorityQueue {
                 }
                 for (RdosEngineJobCache jobCache : jobCaches) {
                     try {
-                        startId = jobCache.getId();
                         ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                         JobClient jobClient = new JobClient(paramAction);
                         jobClient.setCallBack((jobStatus) -> {
@@ -212,6 +211,7 @@ public class GroupPriorityQueue {
                         });
                         boolean added = this.add(jobClient, true);
                         logger.info("jobId:{} load from db, {} emit job to queue.", jobClient.getTaskId(), added ? "success" : "failed");
+                        startId = jobCache.getId();
                         if (!added) {
                             break outLoop;
                         }
