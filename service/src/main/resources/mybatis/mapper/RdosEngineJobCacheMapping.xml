@@ -27,6 +27,14 @@
         delete from rdos_engine_job_cache where job_id=#{jobId}
     </delete>
 
+    <delete id="deleteByJobIds">
+        delete from rdos_engine_job_cache
+        where job_id in
+        <foreach collection="jobIds" item="jobId" open="(" separator="," close=")">
+            #{jobId}
+        </foreach>
+    </delete>
+
     <select id="getOne" resultMap="rdosEngineJobCacheResult">
         select * from rdos_engine_job_cache where job_id=#{jobId} and is_deleted=0 order by gmt_create desc limit 1;
     </select>

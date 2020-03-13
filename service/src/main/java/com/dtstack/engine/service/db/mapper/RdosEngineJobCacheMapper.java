@@ -46,4 +46,6 @@ public interface RdosEngineJobCacheMapper {
     List<String> getJobResources();
 
     List<Map<String,Object>> groupByJobResource(@Param("nodeAddress") String nodeAddress);
+
+    Integer deleteByJobIds(@Param("jobIds") List<String>  jobIds);
 }

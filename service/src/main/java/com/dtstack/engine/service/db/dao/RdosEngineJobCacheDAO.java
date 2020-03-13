@@ -58,6 +58,18 @@ public class RdosEngineJobCacheDAO {
         });
     }
 
+    public Integer deleteByJobIds(List<String> jobIds){
+
+        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Integer>(){
+
+            @Override
+            public Integer execute(SqlSession sqlSession) throws Exception {
+                RdosEngineJobCacheMapper mapper = sqlSession.getMapper(RdosEngineJobCacheMapper.class);
+                return mapper.deleteByJobIds(jobIds);
+            }
+        });
+    }
+
     public RdosEngineJobCache getJobById(String jobId){
 
         return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<RdosEngineJobCache>(){

@@ -149,7 +149,6 @@ public class TaskStatusListener implements Runnable{
                                 if (!RdosTaskStatus.needClean(entry.getValue().intValue())) {
                                     String jobId = entry.getKey();
 
-                                    //todo : 测试日志，便于排查问题
                                     logger.info("jobId:{} status:{}", jobId, entry.getValue().intValue());
 
                                     dealJob(jobId);
@@ -174,7 +173,7 @@ public class TaskStatusListener implements Runnable{
     private void dealJob(String jobId) throws Exception {
         RdosEngineJob rdosBatchJob  = rdosBatchEngineJobDAO.getRdosTaskByTaskId(jobId);
         RdosEngineJobCache engineJobCache = rdosEngineJobCacheDao.getJobById(jobId);
-        if(rdosBatchJob != null){
+        if(rdosBatchJob != null && engineJobCache != null){
             String engineTaskId = rdosBatchJob.getEngineJobId();
             String appId = rdosBatchJob.getApplicationId();
             JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineTaskId, appId, jobId);
@@ -188,8 +187,6 @@ public class TaskStatusListener implements Runnable{
                 RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineJobCache.getEngineType(), pluginInfoStr, jobIdentifier);
 
                 if(rdosTaskStatus != null){
-
-//                    updateJobEngineLog(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
 
                     rdosTaskStatus = checkNotFoundStatus(rdosTaskStatus, jobId);
 
@@ -224,7 +221,8 @@ public class TaskStatusListener implements Runnable{
                 }
             }
         } else {
-            zkLocalCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.FAILED.getStatus());
+            zkLocalCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
+            rdosBatchEngineJobDAO.updateJobStatusAndExecTime(jobId, RdosTaskStatus.CANCELED.getStatus());
             rdosEngineJobCacheDao.deleteJob(jobId);
         }
     }
