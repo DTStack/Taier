@@ -86,23 +86,24 @@ public class GroupPriorityQueue {
         jobSubmitService.submit(jobSubmitDealer);
     }
 
-    public void add(JobClient jobClient, boolean judgeBlock) throws InterruptedException {
+    public boolean add(JobClient jobClient, boolean judgeBlock) throws InterruptedException {
         if (judgeBlock && isBlocked()) {
             logger.info("jobId:{} unable add to queue, because queue is blocked.", jobClient.getTaskId());
-            return;
+            return false;
         }
-        addRedirect(jobClient);
+        return addRedirect(jobClient);
     }
 
-    private void addRedirect(JobClient jobClient) throws InterruptedException {
+    private boolean addRedirect(JobClient jobClient) throws InterruptedException {
         if (queue.contains(jobClient)) {
             logger.info("jobId:{} unable add to queue, because jobId already exist.", jobClient.getTaskId());
-            return;
+            return true;
         }
 
         queue.put(jobClient);
         logger.info("jobId:{} redirect add job to queue.", jobClient.getTaskId());
         WorkNode.getInstance().updateCache(jobClient, EJobCacheStage.PRIORITY.getStage());
+        return true;
     }
 
     public boolean addRestartJob(JobClient jobClient) {
@@ -180,9 +181,9 @@ public class GroupPriorityQueue {
             /**
              * 如果队列中的任务数量小于 ${GroupPriorityQueue.QUEUE_SIZE_LIMITED} , 在连续调度了  ${GroupPriorityQueue.STOP_ACQUIRE_LIMITED} 次都没有查询到新的数据，则停止调度
              */
-            if (queueSize() < getQueueSizeLimited()){
+            if (queueSize() < getQueueSizeLimited()) {
                 long limitId = emitJob2PriorityQueue(startId.get());
-                if (limitId != startId.get()){
+                if (limitId != startId.get()) {
                     stopAcquireCount.set(0);
                 } else if (stopAcquireCount.incrementAndGet() >= STOP_ACQUIRE_LIMITED) {
                     running.set(false);
@@ -192,27 +193,26 @@ public class GroupPriorityQueue {
         }
     }
 
-    private Long emitJob2PriorityQueue(long startId){
+    private Long emitJob2PriorityQueue(long startId) {
         String localAddress = ZkDistributed.getZkDistributed().getLocalAddress();
         try {
-            int count = 0;
-            outLoop :
+            outLoop:
             while (true) {
                 List<RdosEngineJobCache> jobCaches = rdosEngineJobCacheDAO.listByNodeAddressStage(startId, localAddress, EJobCacheStage.DB.getStage(), engineType, groupName);
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     break;
                 }
-                for(RdosEngineJobCache jobCache : jobCaches){
+                for (RdosEngineJobCache jobCache : jobCaches) {
                     try {
+                        startId = jobCache.getId();
                         ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                         JobClient jobClient = new JobClient(paramAction);
-                        jobClient.setCallBack((jobStatus)-> {
+                        jobClient.setCallBack((jobStatus) -> {
                             WorkNode.getInstance().updateJobStatus(jobClient.getTaskId(), jobStatus);
                         });
-                        this.addRedirect(jobClient);
-                        logger.info("jobId:{} load from db, emit job to queue.", jobClient.getTaskId());
-                        startId = jobCache.getId();
-                        if (++count >= getQueueSizeLimited()){
+                        boolean added = this.add(jobClient, true);
+                        logger.info("jobId:{} load from db, {} emit job to queue.", jobClient.getTaskId(), added ? "success" : "failed");
+                        if (!added) {
                             break outLoop;
                         }
                     } catch (Exception e) {

@@ -161,14 +161,15 @@ public class WorkNode {
         zkLocalCache.updateLocalMemTaskStatus(jobClient.getTaskId(),RdosTaskStatus.SUBMITTED.getStatus());
     }
 
-    public void addGroupPriorityQueue(JobClient jobClient, boolean judgeBlock){
+    public boolean addGroupPriorityQueue(JobClient jobClient, boolean judgeBlock){
         try{
             String jobResource = getJobResource(jobClient.getEngineType(), jobClient.getGroupName());
             GroupPriorityQueue groupPriorityQueue = getGroupPriorityQueue(jobResource, jobClient.getEngineType(), jobClient.getGroupName());
-            groupPriorityQueue.add(jobClient, judgeBlock);
+            return groupPriorityQueue.add(jobClient, judgeBlock);
         }catch (Exception e){
             LOG.error("add to priority queue error:", e);
             dealSubmitFailJob(jobClient.getTaskId(), e.toString());
+            return false;
         }
     }
 

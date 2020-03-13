@@ -219,8 +219,7 @@ public class ConsoleServiceImpl {
             jobClient.setCallBack((jobStatus) -> {
                 workNode.updateJobStatus(jobClient.getTaskId(), jobStatus);
             });
-            workNode.addGroupPriorityQueue(jobClient, false);
-            return true;
+            return workNode.addGroupPriorityQueue(jobClient, false);
         } catch (Exception e) {
             logger.error("{}", e);
         }
