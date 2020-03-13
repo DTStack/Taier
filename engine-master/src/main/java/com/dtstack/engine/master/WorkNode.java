@@ -173,13 +173,14 @@ public class WorkNode implements InitializingBean, ApplicationContextAware {
         shardCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.SUBMITTED.getStatus());
     }
 
-    public void addGroupPriorityQueue(String jobResource, JobClient jobClient, boolean judgeBlock) {
+    public boolean addGroupPriorityQueue(String jobResource, JobClient jobClient, boolean judgeBlock) {
         try {
             GroupPriorityQueue groupPriorityQueue = getGroupPriorityQueue(jobResource);
-            groupPriorityQueue.add(jobClient, judgeBlock);
+            return groupPriorityQueue.add(jobClient, judgeBlock);
         } catch (Exception e) {
             LOG.error("", e);
             dealSubmitFailJob(jobClient.getTaskId(), e.toString());
+            return false;
         }
     }
 

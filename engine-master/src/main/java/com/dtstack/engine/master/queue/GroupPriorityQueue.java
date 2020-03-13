@@ -67,23 +67,24 @@ public class GroupPriorityQueue {
     private GroupPriorityQueue() {
     }
 
-    public void add(JobClient jobClient, boolean judgeBlock) throws InterruptedException {
+    public boolean add(JobClient jobClient, boolean judgeBlock) throws InterruptedException {
         if (judgeBlock && isBlocked()) {
             logger.info("jobId:{} unable add to queue, because queue is blocked.", jobClient.getTaskId());
-            return;
+            return false;
         }
-        addRedirect(jobClient);
+        return addRedirect(jobClient);
     }
 
-    private void addRedirect(JobClient jobClient) throws InterruptedException {
+    private boolean addRedirect(JobClient jobClient) throws InterruptedException {
         if (queue.contains(jobClient)) {
             logger.info("jobId:{} unable add to queue, because jobId already exist.", jobClient.getTaskId());
-            return;
+            return true;
         }
 
         queue.put(jobClient);
         logger.info("jobId:{} redirect add job to queue.", jobClient.getTaskId());
         workNode.updateCache(jobClient, EJobCacheStage.PRIORITY.getStage());
+        return true;
     }
 
     public boolean addRestartJob(JobClient jobClient) {
@@ -159,7 +160,6 @@ public class GroupPriorityQueue {
     private Long emitJob2PriorityQueue(long startId) {
         String localAddress = environmentContext.getLocalAddress();
         try {
-            int count = 0;
             outLoop:
             while (true) {
                 List<EngineJobCache> jobCaches = engineJobCacheDao.listByStage(startId, localAddress, EJobCacheStage.DB.getStage(), jobResource);
@@ -174,10 +174,10 @@ public class GroupPriorityQueue {
                             workNode.updateJobStatus(jobClient.getTaskId(), jobStatus);
                         });
 
-                        this.addRedirect(jobClient);
-                        logger.info("jobId:{} load from db, emit job to queue.", jobClient.getTaskId());
+                        boolean added = this.add(jobClient, true);
+                        logger.info("jobId:{} load from db, {} emit job to queue.", jobClient.getTaskId(), added ? "success" : "failed");
                         startId = jobCache.getId();
-                        if (++count >= queueSizeLimited) {
+                        if (!added) {
                             break outLoop;
                         }
                     } catch (Exception e) {
