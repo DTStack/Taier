@@ -2,10 +2,10 @@ package com.dtstack.engine.worker.client;
 
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.exception.ClientAccessException;
-import com.dtstack.engine.common.loader.DtClassLoader;
 import com.dtstack.engine.common.util.MD5Util;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.worker.loader.DtClassLoader;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
