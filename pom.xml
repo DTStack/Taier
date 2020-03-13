@@ -14,7 +14,6 @@
         <hadoop.version>2.7.3</hadoop.version>
         <spring.version>4.1.9.RELEASE</spring.version>
         <dtCenter.common>4.0.1-SNAPSHOT</dtCenter.common>
-        <dtCenter.sdk>1.0.1-SNAPSHOT</dtCenter.sdk>
         <fastjson>2.9.6</fastjson>
     </properties>
 
@@ -186,6 +185,80 @@
                 <groupId>com.dtstack.dtcenter</groupId>
                 <artifactId>common.rdbms.core</artifactId>
                 <version>${dtCenter.common}</version>
+                <exclusions>
+<!--                    <exclusion>
+                        <groupId>com.dtstack.dtcenter</groupId>
+                        <artifactId>sql-core</artifactId>
+                    </exclusion>-->
+<!--                    <exclusion>
+                        <groupId>com.dtstack.dtcenter</groupId>
+                        <artifactId>sql-parse</artifactId>
+                    </exclusion>-->
+                    <exclusion>
+                        <groupId>com.dtstack.dtcenter</groupId>
+                        <artifactId>common.base</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.dtstack.dtcenter</groupId>
+                        <artifactId>common.hadoop</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>dtstack.elasticsearch</groupId>
+                        <artifactId>elasticsearch-client-shade</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.mongodb</groupId>
+                        <artifactId>mongodb-driver</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.kudu</groupId>
+                        <artifactId>kudu-client</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.cloudera.impala.jdbc</groupId>
+                        <artifactId>ImpalaJDBC41</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.kafka</groupId>
+                        <artifactId>kafka_2.11</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.github.noraui</groupId>
+                        <artifactId>ojdbc8</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.hbase</groupId>
+                        <artifactId>hbase-client</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.alibaba</groupId>
+                        <artifactId>top-auto-sdk</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.ibm.db2</groupId>
+                        <artifactId>db2jcc</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.aliyun.odps</groupId>
+                        <artifactId>odps-sdk-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.mchange</groupId>
+                        <artifactId>c3p0</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>ru.yandex.clickhouse</groupId>
+                        <artifactId>clickhouse-jdbc</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.hive</groupId>
+                        <artifactId>hive-jdbc</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>dtstack.hive</groupId>
+                        <artifactId>hive-shade</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.dtstack.dtcenter</groupId>
