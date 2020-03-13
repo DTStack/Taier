@@ -227,7 +227,8 @@ public class TaskStatusDealer implements Runnable {
                 }
             }
         } else {
-            shardCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.FAILED.getStatus());
+            shardCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
+            engineJobDao.updateJobStatusAndExecTime(jobId, RdosTaskStatus.CANCELED.getStatus());
             engineJobCacheDao.delete(jobId);
         }
     }

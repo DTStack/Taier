@@ -141,4 +141,12 @@
         order by stage desc, job_priority asc
         limit #{start} , #{pageSize}
     </select>
+
+    <delete id="deleteByJobIds">
+        delete from rdos_engine_job_cache
+        where job_id in
+        <foreach collection="jobIds" item="jobId" open="(" separator="," close=")">
+            #{jobId}
+        </foreach>
+    </delete>
 </mapper>

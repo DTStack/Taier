@@ -309,17 +309,29 @@ public class ConsoleService {
                     //2. master节点已经为此节点做了容灾
                     break;
                 }
-                List<String> jobIds = jobCaches.stream().map(EngineJobCache::getJobId).collect(Collectors.toList());
-                List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(jobIds);
+                List<String> jobIds = new ArrayList<>(jobCaches.size());
                 for (EngineJobCache jobCache : jobCaches) {
-                    if (alreadyExistJobIds.contains(jobCache.getJobId())) {
-                        logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobCache.getJobId());
-                        continue;
-                    }
+                    startId = jobCache.getId();
+                    jobIds.add(jobCache.getJobId());
+                }
 
-                    EngineJobStopRecord stopRecord = new EngineJobStopRecord();
-                    stopRecord.setTaskId(jobCache.getJobId());
-                    engineJobStopRecordDao.insert(stopRecord);
+                if (EJobCacheStage.unSubmitted().contains(stage)) {
+                    Integer deleted = engineJobCacheDao.deleteByJobIds(jobIds);
+                    logger.info("delete job size:{}, queryed job size:{}, jobIds:{}", deleted, jobCaches.size(), jobIds);
+                } else {
+                    //已提交的任务需要发送请求杀死，走正常杀任务的逻辑
+                    List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(jobIds);
+                    for (EngineJobCache jobCache : jobCaches) {
+                        startId = jobCache.getId();
+                        if (alreadyExistJobIds.contains(jobCache.getJobId())) {
+                            logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobCache.getJobId());
+                            continue;
+                        }
+
+                        EngineJobStopRecord stopRecord = new EngineJobStopRecord();
+                        stopRecord.setTaskId(jobCache.getJobId());
+                        engineJobStopRecordDao.insert(stopRecord);
+                    }
                 }
             }
         }
