@@ -211,10 +211,10 @@ public class GroupPriorityQueue {
                         });
                         boolean added = this.add(jobClient, true);
                         logger.info("jobId:{} load from db, {} emit job to queue.", jobClient.getTaskId(), added ? "success" : "failed");
-                        startId = jobCache.getId();
                         if (!added) {
                             break outLoop;
                         }
+                        startId = jobCache.getId();
                     } catch (Exception e) {
                         //数据转换异常--打日志
                         logger.error("", e);
