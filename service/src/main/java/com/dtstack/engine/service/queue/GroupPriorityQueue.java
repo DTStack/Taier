@@ -97,7 +97,7 @@ public class GroupPriorityQueue {
     }
 
     private boolean addInner(JobClient jobClient) throws InterruptedException {
-        if (this.queueSize() >= getQueueSizeLimited()) {
+        if (this.priorityQueueSize() >= getQueueSizeLimited()) {
             blocked.set(true);
             running.set(false);
             logger.info("jobId:{} unable add to queue, because over QueueSizeLimited, set blocked=true running=false.", jobClient.getTaskId());
@@ -138,7 +138,7 @@ public class GroupPriorityQueue {
         return blocked.get();
     }
 
-    private long queueSize() {
+    private long priorityQueueSize() {
         return queue.size() + jobSubmitDealer.getDelayJobQueueSize();
     }
 
@@ -207,7 +207,7 @@ public class GroupPriorityQueue {
                 long limitId = emitJob2PriorityQueue(startId.get());
                 if (limitId == startId.get()) {
                     running.set(false);
-                    if (GroupPriorityQueue.this.queueSize() >= getQueueSizeLimited()) {
+                    if (GroupPriorityQueue.this.priorityQueueSize() >= getQueueSizeLimited()) {
                         blocked.set(true);
                     } else {
                         blocked.set(false);

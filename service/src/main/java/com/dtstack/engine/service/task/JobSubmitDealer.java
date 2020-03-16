@@ -258,7 +258,9 @@ public class JobSubmitDealer implements Runnable {
         //因为资源不足提交任务失败，优先级数值增加 WAIT_INTERVAL
         jobClient.setPriority(jobClient.getPriority() + PRIORITY_STEP);
 
-        if (jobClient.isLackLimited()) {
+        //资源不足的任务比重过大时，直接放入优先级队列重试
+        boolean isPutLackingJob = (priorityQueue.getQueue().size() > (priorityQueue.getQueueSizeLimited() >> 2)) || jobClient.isLackLimited();
+        if (isPutLackingJob) {
             tryPutLackingJob(jobClient);
         } else {
             try {
