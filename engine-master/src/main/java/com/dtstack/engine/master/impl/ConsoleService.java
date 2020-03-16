@@ -154,15 +154,23 @@ public class ConsoleService {
     /**
      * 根据计算引擎类型显示任务
      */
-    public Collection<Map<String, Object>> overview(@Param("nodeAddress") String nodeAddress) {
+    public Collection<Map<String, Object>> overview(@Param("nodeAddress") String nodeAddress, @Param("clusterName") String clusterName) {
         if (StringUtils.isBlank(nodeAddress)) {
             nodeAddress = null;
+        }
+
+        if (StringUtils.isBlank(clusterName)) {
+            clusterName = null;
         }
 
         Map<String, Map<String, Object>> overview = new HashMap<>();
         List<Map<String, Object>> groupResult = engineJobCacheDao.groupByJobResource(nodeAddress);
         if (CollectionUtils.isNotEmpty(groupResult)) {
             for (Map<String, Object> record : groupResult) {
+                String groupName = MapUtils.getString(record, "groupName");
+                if (!groupName.contains(clusterName)) {
+                    continue;
+                }
                 long generateTime = MapUtils.getLong(record, "generateTime");
                 String waitTime = DateUtil.getTimeDifference(System.currentTimeMillis() - (generateTime * 1000));
                 record.put("waitTime", waitTime);
@@ -271,6 +279,21 @@ public class ConsoleService {
         engineJobStopRecordDao.insert(stopRecord);
     }
 
+    /**
+     * 概览，杀死全部
+     */
+    public void stopAll(@Param("jobResource") String jobResource,
+                        @Param("nodeAddress") String nodeAddress,
+                        @Param("stage") Integer stage) throws Exception {
+
+        Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
+        Preconditions.checkNotNull(stage, "parameters of stage is required");
+
+        for (Integer eJobCacheStage : EJobCacheStage.unSubmitted()) {
+            this.stopJobList(jobResource, nodeAddress, stage, null);
+        }
+    }
+
     public void stopJobList(@Param("jobResource") String jobResource,
                             @Param("nodeAddress") String nodeAddress,
                             @Param("stage") Integer stage,
@@ -291,7 +314,6 @@ public class ConsoleService {
             }
         } else {
             //根据条件杀死所有任务
-
             Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
             Preconditions.checkNotNull(stage, "parameters of stage is required");
 
