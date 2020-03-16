@@ -25,7 +25,7 @@ public class ScheduleFactory {
 
     private static final ObjectMapper objMapper = new ObjectMapper();
 
-    private static final DateTimeFormatter timeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 
     private static final String BEGIN_DATE_KEY = "beginDate";
 
@@ -75,8 +75,8 @@ public class ScheduleFactory {
             scheduleCron.setSelfReliance(type);
         }
 
-        DateTime beginDateTime = timeFormatter.parseDateTime(beginDateStr + " 00:00:00");
-        DateTime endDateTime = timeFormatter.parseDateTime(endDateStr + " 23:59:59");
+        DateTime beginDateTime = TIME_FORMATTER.parseDateTime(beginDateStr + " 00:00:00");
+        DateTime endDateTime = TIME_FORMATTER.parseDateTime(endDateStr + " 23:59:59");
         scheduleCron.setBeginDate(beginDateTime.toDate());
         scheduleCron.setEndDate(endDateTime.toDate());
 

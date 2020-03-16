@@ -20,7 +20,7 @@ import java.util.Map;
 
 public class ScheduleCronWeekParser extends ScheduleCron {
 
-    private static final String cronFormat = "0 ${min} ${hour} ? * ${weekday}";
+    private static final String CRON_FORMAT = "0 ${min} ${hour} ? * ${weekday}";
 
     private static final String MINUTE_KEY = "min";
 
@@ -43,7 +43,7 @@ public class ScheduleCronWeekParser extends ScheduleCron {
         hour = MathUtil.getIntegerVal(param.get(HOUR_KEY));
         String weekDay = MathUtil.getString(param.get(WEEKDAY_KEY));
 
-        String cronStr = cronFormat.replace("${min}", minute + "").replace("${hour}", hour + "")
+        String cronStr = CRON_FORMAT.replace("${min}", minute + "").replace("${hour}", hour + "")
                 .replace("${weekday}", weekDay);
 
         setCronStr(cronStr);

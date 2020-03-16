@@ -19,6 +19,7 @@ public class AkkaMasterActor extends AbstractActor {
 
     private Set<WorkerInfo> workerInfos = new HashSet<>();
 
+    @Override
     public Receive createReceive() {
         return receiveBuilder()
                 .match(WorkerInfo.class, workerInfo -> {

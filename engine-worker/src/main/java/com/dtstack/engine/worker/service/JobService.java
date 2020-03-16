@@ -14,6 +14,7 @@ import java.util.List;
 
 public class JobService extends AbstractActor {
 
+    @Override
     public Receive createReceive() {
         return receiveBuilder()
                 .match(MessageJudgeSlots.class, msg -> {

@@ -29,18 +29,22 @@ public class BatchTaskShadeVO extends BatchTaskShade {
 
     private String sort = "desc";
 
+    @Override
     public Long getTenantId() {
         return tenantId;
     }
 
+    @Override
     public void setTenantId(Long tenantId) {
         this.tenantId = tenantId;
     }
 
+    @Override
     public Long getProjectId() {
         return projectId;
     }
 
+    @Override
     public void setProjectId(Long projectId) {
         this.projectId = projectId;
     }
