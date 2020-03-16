@@ -27,7 +27,6 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -40,15 +39,11 @@ public class GroupPriorityQueue {
     private static final Logger logger = LoggerFactory.getLogger(GroupPriorityQueue.class);
 
     private static final int WAIT_INTERVAL = 5000;
-    private static final int STOP_ACQUIRE_LIMITED = 10;
-    /**
-     * queue 初始为不进行调度，但队列的负载超过 queueSizeLimited 的阈值时触发调度
-     */
-    private AtomicBoolean running = new AtomicBoolean(false);
+
+    private AtomicBoolean blocked = new AtomicBoolean(false);
+    private AtomicBoolean running = new AtomicBoolean(true);
 
     private AtomicLong startId = new AtomicLong(0);
-
-    private AtomicInteger stopAcquireCount = new AtomicInteger(0);
 
     private String jobResource;
     private int queueSizeLimited;
@@ -68,8 +63,22 @@ public class GroupPriorityQueue {
     }
 
     public boolean add(JobClient jobClient, boolean judgeBlock) throws InterruptedException {
-        if (judgeBlock && isBlocked()) {
-            logger.info("jobId:{} unable add to queue, because queue is blocked.", jobClient.getTaskId());
+        if (judgeBlock) {
+            if (isBlocked()) {
+                logger.info("jobId:{} unable add to queue, because running queue is blocked.", jobClient.getTaskId());
+                return false;
+            }
+            return addInner(jobClient);
+        } else {
+            return addRedirect(jobClient);
+        }
+    }
+
+    private boolean addInner(JobClient jobClient) throws InterruptedException {
+        if (this.queueSize() >= getQueueSizeLimited()) {
+            blocked.set(true);
+            running.set(false);
+            logger.info("jobId:{} unable add to queue, because over QueueSizeLimited, set blocked=true running=false.", jobClient.getTaskId());
             return false;
         }
         return addRedirect(jobClient);
@@ -102,19 +111,8 @@ public class GroupPriorityQueue {
         return false;
     }
 
-    /**
-     * 如果当前队列没有开启调度并且队列的大小小于100，则直接提交到队列之中
-     * 否则，只在保存到jobCache表, 并且判断调度是否停止，如果停止则开启调度。
-     *
-     * @return
-     */
-    public boolean isBlocked() {
-        boolean blocked = running.get() || queueSize() >= queueSizeLimited;
-        if (blocked && !running.get()) {
-            running.set(true);
-            stopAcquireCount.set(0);
-        }
-        return blocked;
+    private boolean isBlocked() {
+        return blocked.get();
     }
 
     private long queueSize() {
@@ -138,19 +136,44 @@ public class GroupPriorityQueue {
         @Override
         public void run() {
 
-            if (Boolean.FALSE == running.get()) {
+            if (Boolean.FALSE == blocked.get()) {
                 return;
             }
 
+            long tmpQueueSize = queue.size();
+            int halfQueueSize = getQueueSizeLimited() >> 1;
+
+            if (Boolean.FALSE == running.get()) {
+                if (tmpQueueSize < halfQueueSize) {
+                    Long jobSize = engineJobCacheDao.countByJobResource(jobResource, EJobCacheStage.DB.getStage(), environmentContext.getLocalAddress());
+                    if (jobSize > 0) {
+                        running.set(true);
+                        blocked.set(true);
+                    } else {
+                        blocked.set(false);
+                        return;
+                    }
+                } else {
+                    return;
+                }
+            }
+
             /**
-             * 如果队列中的任务数量小于 ${GroupPriorityQueue.QUEUE_SIZE_LIMITED} , 在连续调度了  ${GroupPriorityQueue.STOP_ACQUIRE_LIMITED} 次都没有查询到新的数据，则停止调度
+             * 如果队列中的任务数量小于
+             * @see com.dtstack.engine.master.queue.GroupPriorityQueue#queueSizeLimited ,
+             * 并且没有查询到新的数据，则停止调度
+             * @see com.dtstack.engine.master.queue.GroupPriorityQueue#running
              */
-            if (queueSize() < queueSizeLimited) {
+            if (tmpQueueSize < getQueueSizeLimited()) {
                 long limitId = emitJob2PriorityQueue(startId.get());
-                if (limitId != startId.get()) {
-                    stopAcquireCount.set(0);
-                } else if (stopAcquireCount.incrementAndGet() >= STOP_ACQUIRE_LIMITED) {
+                if (limitId == startId.get()) {
                     running.set(false);
+                    if (GroupPriorityQueue.this.queueSize() >= getQueueSizeLimited()) {
+                        blocked.set(true);
+                    } else {
+                        blocked.set(false);
+                    }
+                    logger.info("Pause AcquireGroupQueueJob running...");
                 }
                 startId.set(limitId);
             }
@@ -174,9 +197,9 @@ public class GroupPriorityQueue {
                             workNode.updateJobStatus(jobClient.getTaskId(), jobStatus);
                         });
 
-                        boolean added = this.add(jobClient, true);
-                        logger.info("jobId:{} load from db, {} emit job to queue.", jobClient.getTaskId(), added ? "success" : "failed");
-                        if (!added) {
+                        boolean addInner = this.addInner(jobClient);
+                        logger.info("jobId:{} load from db, {} emit job to queue.", jobClient.getTaskId(), addInner ? "success" : "failed");
+                        if (!addInner) {
                             break outLoop;
                         }
                         startId = jobCache.getId();
@@ -259,7 +282,7 @@ public class GroupPriorityQueue {
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName() + "_" + jobResource + "_AcquireJob"));
         scheduledService.scheduleWithFixedDelay(
                 new AcquireGroupQueueJob(),
-                0,
+                WAIT_INTERVAL * 10,
                 WAIT_INTERVAL,
                 TimeUnit.MILLISECONDS);
 
