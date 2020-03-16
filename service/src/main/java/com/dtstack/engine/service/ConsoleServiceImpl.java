@@ -122,16 +122,12 @@ public class ConsoleServiceImpl {
             nodeAddress = null;
         }
 
-        if (StringUtils.isBlank(clusterName)) {
-            clusterName = null;
-        }
-
         Map<String, Map<String, Object>> overview = new HashMap<>();
         List<Map<String, Object>> groupResult = engineJobCacheDao.groupByJobResource(nodeAddress);
         if (CollectionUtils.isNotEmpty(groupResult)) {
             for (Map<String, Object> record : groupResult) {
                 String groupName = MapUtils.getString(record, "groupName");
-                if (!groupName.contains(clusterName)) {
+                if (StringUtils.isBlank(clusterName) && !groupName.contains(clusterName)) {
                     continue;
                 }
                 long generateTime = MapUtils.getLong(record, "generateTime");
@@ -173,7 +169,7 @@ public class ConsoleServiceImpl {
         Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
         Preconditions.checkNotNull(stage, "parameters of stage is required");
         Preconditions.checkArgument(currentPage != null && currentPage > 0, "parameters of currentPage is required");
-        Preconditions.checkArgument(currentPage != null && currentPage > 0, "parameters of pageSize is required");
+        Preconditions.checkArgument(pageSize != null && pageSize > 0, "parameters of pageSize is required");
 
         if (StringUtils.isBlank(nodeAddress)) {
             nodeAddress = null;
@@ -265,7 +261,7 @@ public class ConsoleServiceImpl {
         Preconditions.checkNotNull(stage, "parameters of stage is required");
 
         for (Integer eJobCacheStage : EJobCacheStage.unSubmitted()) {
-            this.stopJobList(jobResource, computeType, engineType, groupName, nodeAddress, stage, null);
+            this.stopJobList(jobResource, computeType, engineType, groupName, nodeAddress, eJobCacheStage, null);
         }
     }
 
