@@ -345,11 +345,13 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
     }
 
 	// 错误码编号
-	public int getCode(){
+	@Override
+    public int getCode(){
 		return code;
 	}
 
-	public String getDescription(){
+	@Override
+    public String getDescription(){
 		return description;
 	}
 

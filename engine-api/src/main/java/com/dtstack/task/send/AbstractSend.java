@@ -108,10 +108,12 @@ public abstract class AbstractSend {
                 final int code = data.getIntValue("code");
                 logger.error(data.getString("message"));
                 ExceptionEnums exEnum = new ExceptionEnums() {
+                    @Override
                     public int getCode() {
                         return code;
                     }
 
+                    @Override
                     public String getDescription() {
                         return null;
                     }

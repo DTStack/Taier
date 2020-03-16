@@ -1,12 +1,14 @@
 package com.dtstack.engine.dtscript.am;
 
 
+import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.dtscript.common.DtContainerStatus;
 import com.dtstack.engine.dtscript.common.HeartbeatRequest;
 import com.dtstack.engine.dtscript.container.ContainerEntity;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 
@@ -15,7 +17,7 @@ public class ContainerLostDetector implements Runnable {
     //超时3分钟 失败
     private static final long MAX_HEART_BEAT_WAIT_TIME = 1 * 60 * 1000L;
 
-    private ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName()));
 
     private ApplicationContainerListener parent;
 

@@ -80,10 +80,18 @@ public class Queue extends BaseEntity {
 
         Queue queue = (Queue) o;
 
-        if (queueName != null ? !queueName.equals(queue.queueName) : queue.queueName != null) return false;
-        if (capacity != null ? !capacity.equals(queue.capacity) : queue.capacity != null) return false;
-        if (maxCapacity != null ? !maxCapacity.equals(queue.maxCapacity) : queue.maxCapacity != null) return false;
-        if (queueState != null ? !queueState.equals(queue.queueState) : queue.queueState != null) return false;
+        if (queueName != null ? !queueName.equals(queue.queueName) : queue.queueName != null) {
+            return false;
+        }
+        if (capacity != null ? !capacity.equals(queue.capacity) : queue.capacity != null) {
+            return false;
+        }
+        if (maxCapacity != null ? !maxCapacity.equals(queue.maxCapacity) : queue.maxCapacity != null) {
+            return false;
+        }
+        if (queueState != null ? !queueState.equals(queue.queueState) : queue.queueState != null) {
+            return false;
+        }
         return queuePath != null ? queuePath.equals(queue.queuePath) : queue.queuePath == null;
     }
 }

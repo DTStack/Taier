@@ -21,7 +21,7 @@ public class ScheduleCronHourParser extends ScheduleCron {
 
     private static final Logger logger = LoggerFactory.getLogger(ScheduleCronHourParser.class);
 
-    private static final String cronFormat = "0 ${beginMin} ${beginHour}-${endHour}/${gapNum} * * ?";
+    private static final String CRON_FORMAT = "0 ${beginMin} ${beginHour}-${endHour}/${gapNum} * * ?";
 
     private static final String BEGIN_HOUR_KEY = "beginHour";
 
@@ -55,7 +55,7 @@ public class ScheduleCronHourParser extends ScheduleCron {
             return null;
         }
 
-        String cronStr = cronFormat.replace("${beginHour}", beginHour + "").replace("${endHour}", endHour + "")
+        String cronStr = CRON_FORMAT.replace("${beginHour}", beginHour + "").replace("${endHour}", endHour + "")
                 .replace("${gapNum}", gapNum + "").replace("${beginMin}", beginMinute + "");
         setCronStr(cronStr);
         return cronStr;

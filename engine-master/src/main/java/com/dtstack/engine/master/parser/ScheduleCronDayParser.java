@@ -17,7 +17,7 @@ import java.util.Map;
 
 public class ScheduleCronDayParser extends ScheduleCron {
 
-    private static final String cronFormat = "0 ${minute} ${hour} * * ?";
+    private static final String CRON_FORMAT = "0 ${minute} ${hour} * * ?";
 
     private static final String MINUTE_KEY = "min";
 
@@ -36,7 +36,7 @@ public class ScheduleCronDayParser extends ScheduleCron {
         minute = MathUtil.getIntegerVal(param.get(MINUTE_KEY));
         hour = MathUtil.getIntegerVal(param.get(HOUR_KEY));
 
-        String cronStr = cronFormat.replace("${minute}", minute + "").replace("${hour}", hour + "");
+        String cronStr = CRON_FORMAT.replace("${minute}", minute + "").replace("${hour}", hour + "");
         setCronStr(cronStr);
         return cronStr;
     }
