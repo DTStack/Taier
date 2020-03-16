@@ -179,13 +179,13 @@ public class GroupPriorityQueue {
                 return;
             }
 
-            long tmpQueueSize = GroupPriorityQueue.this.queueSize();
+            long tmpQueueSize = queue.size();
             int halfQueueSize = getQueueSizeLimited() >> 1;
 
             if (Boolean.FALSE == running.get()) {
                 if (tmpQueueSize < halfQueueSize) {
                     Long jobSize = rdosEngineJobCacheDAO.countByJobResource(engineType, groupName, EJobCacheStage.DB.getStage(), localAddress);
-                    if (jobSize >= halfQueueSize) {
+                    if (jobSize > 0) {
                         running.set(true);
                         blocked.set(true);
                     } else {
