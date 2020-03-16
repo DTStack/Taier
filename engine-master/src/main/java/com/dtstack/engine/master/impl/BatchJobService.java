@@ -1023,7 +1023,7 @@ public class BatchJobService {
             return;
         }
         String appType = exeArgsJson.getString("--app-type");
-        if (appType.equals("python")) {
+        if ("python".equals(appType)) {
             int pyVersion = exeArgsJson.getIntValue("--python-version");
             if (pyVersion == 0) {
                 exeArgsJson.put("--app-type", EngineType.Python3.getVal());

@@ -774,7 +774,9 @@ public class ComponentService {
                 File hiveFile = new File(localConsolePath + File.separator + "hive-site.xml");
                 if (!hiveFile.exists()) {
                     //本地没有下载sftp路径下的配置
-                    if (downloadClusterSftpPath(cluster, localConsolePath)) return;
+                    if (downloadClusterSftpPath(cluster, localConsolePath)) {
+                        return;
+                    }
                 }
                 hiveFile = new File(localConsolePath + File.separator + "hive-site.xml");
                 if (hiveFile.exists()) {
@@ -940,7 +942,7 @@ public class ComponentService {
                 for (Iterator<ChannelSftp.LsEntry> iterator = vector.iterator(); iterator.hasNext(); ) {
                     ChannelSftp.LsEntry str = iterator.next();
                     String filename = str.getFilename();
-                    if (filename.equals(".") || filename.equals("..")) {
+                    if (".".equals(filename) || "..".equals(filename)) {
                         continue;
                     }
                     if (StringUtils.isNotBlank(filename) && filename.endsWith(KerberosKey.KEYTAB.getKey())) {

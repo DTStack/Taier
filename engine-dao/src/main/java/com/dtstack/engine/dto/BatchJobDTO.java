@@ -242,10 +242,12 @@ public class BatchJobDTO extends BatchJob {
         this.businessDateLike = businessDateLike;
     }
 
+    @Override
     public Long getExecTime() {
         return execTime;
     }
 
+    @Override
     public void setExecTime(Long execTime) {
         this.execTime = execTime;
     }
@@ -306,10 +308,12 @@ public class BatchJobDTO extends BatchJob {
         this.likeBusinessDate = likeBusinessDate;
     }
 
+    @Override
     public List<Integer> getTaskTypes() {
         return taskTypes;
     }
 
+    @Override
     public void setTaskTypes(List<Integer> taskTypes) {
         this.taskTypes = taskTypes;
     }

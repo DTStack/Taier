@@ -156,10 +156,12 @@ public class BatchTaskVO extends BatchTaskShade {
 
     private Long taskId;
 
+    @Override
     public void setTaskId(Long taskId) {
         this.taskId = taskId;
     }
 
+    @Override
     public Long getTaskId() {
         return taskId;
     }

@@ -92,7 +92,7 @@ public class WorkNode implements InitializingBean, ApplicationContextAware {
 
     private ExecutorService executors = new ThreadPoolExecutor(1, 1,
             0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<Runnable>());
+            new LinkedBlockingQueue<Runnable>(), new CustomThreadFactory("taskSubmittedDealer"));
 
     @Override
     public void afterPropertiesSet() throws Exception {

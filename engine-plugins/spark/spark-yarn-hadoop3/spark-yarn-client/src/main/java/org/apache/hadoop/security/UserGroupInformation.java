@@ -960,8 +960,9 @@ public class UserGroupInformation {
   static void loginUserFromKeytab(String user,
                                   String path
                                   ) throws IOException {
-    if (!isSecurityEnabled())
+    if (!isSecurityEnabled()) {
       return;
+    }
 
     keytabFile = path;
     keytabPrincipal = user;
@@ -1033,8 +1034,9 @@ public class UserGroupInformation {
   public synchronized void checkTGTAndReloginFromKeytab() throws IOException {
     if (!isSecurityEnabled()
         || user.getAuthenticationMethod() != AuthenticationMethod.KERBEROS
-        || !isKeytab)
+        || !isKeytab) {
       return;
+    }
     KerberosTicket tgt = getTGT();
     if (tgt != null && !shouldRenewImmediatelyForTests &&
         Time.now() < getRefreshTime(tgt)) {
@@ -1058,8 +1060,9 @@ public class UserGroupInformation {
   throws IOException {
     if (!isSecurityEnabled() ||
          user.getAuthenticationMethod() != AuthenticationMethod.KERBEROS ||
-         !isKeytab)
+         !isKeytab) {
       return;
+    }
     
     long now = Time.now();
     if (!shouldRenewImmediatelyForTests && !hasSufficientTimeElapsed(now)) {
@@ -1125,8 +1128,9 @@ public class UserGroupInformation {
   throws IOException {
     if (!isSecurityEnabled() || 
         user.getAuthenticationMethod() != AuthenticationMethod.KERBEROS ||
-        !isKrbTkt)
+        !isKrbTkt) {
       return;
+    }
     LoginContext login = getLogin();
     if (login == null) {
       throw new IOException("login must be done first");
@@ -1173,8 +1177,9 @@ public class UserGroupInformation {
   static UserGroupInformation loginUserFromKeytabAndReturnUGI(String user,
                                                               String path
                                   ) throws IOException {
-    if (!isSecurityEnabled())
+    if (!isSecurityEnabled()) {
       return UserGroupInformation.getCurrentUser();
+    }
     String oldKeytabFile = null;
     String oldKeytabPrincipal = null;
 
@@ -1205,8 +1210,12 @@ public class UserGroupInformation {
       throw new IOException("Login failure for " + user + " from keytab " + 
                             path, le);
     } finally {
-      if(oldKeytabFile != null) keytabFile = oldKeytabFile;
-      if(oldKeytabPrincipal != null) keytabPrincipal = oldKeytabPrincipal;
+      if(oldKeytabFile != null) {
+        keytabFile = oldKeytabFile;
+      }
+      if(oldKeytabPrincipal != null) {
+        keytabPrincipal = oldKeytabPrincipal;
+      }
     }
   }
 

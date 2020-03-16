@@ -22,7 +22,7 @@ public class ScheduleCronMonthParser extends ScheduleCron {
 
     private static final Logger logger = LoggerFactory.getLogger(ScheduleCronMonthParser.class);
 
-    private static final String cronFormat = "0 ${min} ${hour} ${days} * ?";
+    private static final String CRON_FORMAT = "0 ${min} ${hour} ${days} * ?";
 
     private static final String MINUTE_KEY = "min";
 
@@ -44,7 +44,7 @@ public class ScheduleCronMonthParser extends ScheduleCron {
         hour = MathUtil.getIntegerVal(param.get(HOUR_KEY));
         String days = param.get(DAY_KEY).toString();
 
-        String cronStr = cronFormat.replace("${min}", minute + "").replace("${hour}", hour + "")
+        String cronStr = CRON_FORMAT.replace("${min}", minute + "").replace("${hour}", hour + "")
                 .replace("${days}", days+"");
 
         setCronStr(cronStr);

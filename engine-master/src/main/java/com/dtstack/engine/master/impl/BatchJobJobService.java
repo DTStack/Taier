@@ -267,7 +267,7 @@ public class BatchJobJobService {
 
         //展示非工作流中的任务节点时，过滤掉工作流中的节点
         if (!isSubTask) {
-            if (!vo.getFlowJobId().equals("0")) {
+            if (!"0".equals(vo.getFlowJobId())) {
                 return null;
             }
         }
