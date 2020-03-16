@@ -329,7 +329,8 @@ export const DTYARNSHELL_KEY_MAP: any = {
     'c.NotebookApp.allow_remote_access': 'cNotebookAppAllow_remote_access',
     'c.NotebookApp.ip': 'cNotebookAppIp',
     'c.NotebookApp.token': 'cNotebookAppToken',
-    'c.NotebookApp.default_url': 'cNotebookAppDefault_url'
+    'c.NotebookApp.default_url': 'cNotebookAppDefault_url',
+    'jupyter.project.root': 'jupyterProjectRoot'
 }
 export const DTYARNSHELL_KEY_MAP_DOTS: any = {
     // comm
@@ -344,7 +345,8 @@ export const DTYARNSHELL_KEY_MAP_DOTS: any = {
     'cNotebookAppAllow_remote_access': 'c.NotebookApp.allow_remote_access',
     'cNotebookAppIp': 'c.NotebookApp.ip',
     'cNotebookAppToken': 'c.NotebookApp.token',
-    'cNotebookAppDefault_url': 'c.NotebookApp.default_url'
+    'cNotebookAppDefault_url': 'c.NotebookApp.default_url',
+    'jupyterProjectRoot': 'jupyter.project.root'
 }
 export const FLINK_KEY_MAP: any = {
     'yarn.jobmanager.heap.mb': 'yarnJobmanagerHeapMb',
@@ -456,7 +458,8 @@ export const notExtKeyDtscriptJupter: any = [
     'c.NotebookApp.allow_remote_access',
     'c.NotebookApp.ip',
     'c.NotebookApp.token',
-    'c.NotebookApp.default_url'
+    'c.NotebookApp.default_url',
+    'jupyter.project.root'
 ]
 export const notExtKeysSparkThrift: any = [
     'jdbcUrl', 'username', 'password',

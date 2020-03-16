@@ -1122,7 +1122,7 @@ class EditCluster extends React.Component<any, any> {
             mapKeys = ['python2.path', 'python3.path']
         } else if (subType == 'dtscriptJupyter') {
             mapKeys = ['jupyter.path', 'c.NotebookApp.open_browser', 'c.NotebookApp.allow_remote_access',
-                'c.NotebookApp.ip', 'c.NotebookApp.token', 'c.NotebookApp.default_url'];
+                'c.NotebookApp.ip', 'c.NotebookApp.token', 'c.NotebookApp.default_url', 'jupyter.project.root'];
         }
         let singQuoteKeys = ['c.NotebookApp.ip', 'c.NotebookApp.token', 'c.NotebookApp.default_url'];
         let subConf = {};
