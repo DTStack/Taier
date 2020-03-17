@@ -184,10 +184,26 @@ public class ConsoleService {
                     overviewEle.put("jobResource", jobResource);
                     return overviewEle;
                 });
-                overviewRecord.put(eJobCacheStage.name().toLowerCase(), stage);
-                overviewRecord.put(eJobCacheStage.name().toLowerCase() + "JobSize", jobSize);
-                overviewRecord.put(eJobCacheStage.name().toLowerCase() + "WaitTime", waitTime);
+                String stageName = eJobCacheStage.name().toLowerCase();
+                overviewRecord.put(stageName, stage);
+                overviewRecord.put(stageName + "JobSize", jobSize);
+                overviewRecord.put(stageName + "WaitTime", waitTime);
             }
+
+            Collection<Map<String, Object>> overviewValues = overview.values();
+            for (Map<String, Object> record : overviewValues) {
+                for (EJobCacheStage checkStage : EJobCacheStage.values()) {
+                    String checkStageName = checkStage.name().toLowerCase();
+                    if (record.containsKey(checkStageName)) {
+                        continue;
+                    }
+
+                    record.put(checkStageName, checkStage.getStage());
+                    record.put(checkStageName + "JobSize", 0);
+                    record.put(checkStageName + "WaitTime", "");
+                }
+            }
+            return overviewValues;
         }
         return overview.values();
     }
