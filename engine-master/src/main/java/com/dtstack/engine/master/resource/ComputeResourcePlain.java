@@ -9,5 +9,6 @@ public enum ComputeResourcePlain {
 
     Cluster,
     ClusterQueue,
-    EngineTypeClusterQueue
+    EngineTypeClusterQueue,
+    EngineTypeClusterQueueComputeType
 }
