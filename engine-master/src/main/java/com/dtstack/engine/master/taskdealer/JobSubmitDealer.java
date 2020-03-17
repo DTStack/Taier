@@ -100,7 +100,7 @@ public class JobSubmitDealer implements Runnable {
         this.delayJobQueue = new DelayBlockingQueue<SimpleJobDelay<JobClient>>(priorityQueue.getQueueSizeLimited());
 
         ExecutorService executorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(), new CustomThreadFactory(this.getClass().getSimpleName() + "_RestartJobProcessor"));
+                new LinkedBlockingQueue<>(), new CustomThreadFactory(this.getClass().getSimpleName() + "_" + jobResource + "_DelayJobProcessor"));
         executorService.submit(new RestartJobProcessor());
     }
 
@@ -261,9 +261,8 @@ public class JobSubmitDealer implements Runnable {
         //因为资源不足提交任务失败，优先级数值增加 WAIT_INTERVAL
         jobClient.setPriority(jobClient.getPriority() + jobPriorityStep);
 
-        //资源不足的任务比重过大时，直接放入优先级队列重试
-        boolean isPutLackingJob = (priorityQueue.getQueue().size() > (priorityQueue.getQueueSizeLimited() >> 2)) || jobClient.lackingCountIncrement() > jobLackingCountLimited;
-        if (isPutLackingJob) {
+        //delayQueue的任务比重过大时，直接放入优先级队列重试
+        if (jobClient.lackingCountIncrement() > jobLackingCountLimited && delayJobQueue.size() < priorityQueue.getQueueSizeLimited()) {
             tryPutLackingJob(jobClient);
         } else {
             try {

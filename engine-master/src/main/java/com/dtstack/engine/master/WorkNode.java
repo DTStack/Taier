@@ -110,10 +110,6 @@ public class WorkNode implements InitializingBean, ApplicationContextAware {
         this.applicationContext = applicationContext;
     }
 
-    public void resetPriorityQueueStartId() {
-        priorityQueueMap.values().forEach(GroupPriorityQueue::resetStartId);
-    }
-
     /**
      * 获取所有节点的队列大小信息（job已经submitted的除外）
      * key1: nodeAddress,

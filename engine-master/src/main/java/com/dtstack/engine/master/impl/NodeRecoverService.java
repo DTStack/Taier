@@ -48,7 +48,6 @@ public class NodeRecoverService {
             jobExecutorTrigger.recoverOtherNode();
             logger.info("--- deal recoverOtherNode done ------");
             recoverJobCaches();
-            workNode.resetPriorityQueueStartId();
         } catch (Exception e) {
             logger.error("", e);
         }
