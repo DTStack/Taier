@@ -88,6 +88,7 @@ public class JobSubmitDealer implements Runnable {
                     JobClient jobClient = simpleJobDelay.getJob();
                     if (jobClient != null) {
                         queue.put(jobClient);
+                        WorkNode.getInstance().updateCache(jobClient, EJobCacheStage.PRIORITY.getStage());
                         jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
                         logger.info("jobId:{} take job from delayJobQueue queue size:{} and add to priorityQueue.", jobClient.getTaskId(), delayJobQueue.size());
                     }
