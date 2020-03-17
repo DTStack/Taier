@@ -264,7 +264,6 @@ public class ConsoleServiceImpl {
      * 概览，杀死全部
      */
     public void stopAll(@Param("jobResource") String jobResource,
-                        @Param("computeType") Integer computeType,
                         @Param("engineType") String engineType,
                         @Param("groupName") String groupName,
                         @Param("nodeAddress") String nodeAddress,
@@ -276,12 +275,11 @@ public class ConsoleServiceImpl {
         Preconditions.checkNotNull(stage, "parameters of stage is required");
 
         for (Integer eJobCacheStage : EJobCacheStage.unSubmitted()) {
-            this.stopJobList(jobResource, computeType, engineType, groupName, nodeAddress, eJobCacheStage, null);
+            this.stopJobList(jobResource, engineType, groupName, nodeAddress, eJobCacheStage, null);
         }
     }
 
     public void stopJobList(@Param("jobResource") String jobResource,
-                            @Param("computeType") Integer computeType,
                             @Param("engineType") String engineType,
                             @Param("groupName") String groupName,
                             @Param("nodeAddress") String nodeAddress,
