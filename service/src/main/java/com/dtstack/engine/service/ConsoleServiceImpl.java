@@ -266,13 +266,11 @@ public class ConsoleServiceImpl {
     public void stopAll(@Param("jobResource") String jobResource,
                         @Param("engineType") String engineType,
                         @Param("groupName") String groupName,
-                        @Param("nodeAddress") String nodeAddress,
-                        @Param("stage") Integer stage) throws Exception {
+                        @Param("nodeAddress") String nodeAddress) throws Exception {
 
         Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
         Preconditions.checkNotNull(engineType, "parameters of engineType is required");
         Preconditions.checkNotNull(groupName, "parameters of groupName is required");
-        Preconditions.checkNotNull(stage, "parameters of stage is required");
 
         for (Integer eJobCacheStage : EJobCacheStage.unSubmitted()) {
             this.stopJobList(jobResource, engineType, groupName, nodeAddress, eJobCacheStage, null);
