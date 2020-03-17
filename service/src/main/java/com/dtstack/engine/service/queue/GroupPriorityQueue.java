@@ -24,7 +24,6 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 执行引擎对应的优先级队列信息
@@ -42,9 +41,6 @@ public class GroupPriorityQueue {
     private static final int QUEUE_SIZE_LIMITED = ConfigParse.getQueueSize();
 
     private AtomicBoolean blocked = new AtomicBoolean(false);
-    private AtomicBoolean running = new AtomicBoolean(true);
-
-    private AtomicLong startId = new AtomicLong(0);
 
     private String jobResource;
     private String engineType;
@@ -87,7 +83,7 @@ public class GroupPriorityQueue {
     public boolean add(JobClient jobClient, boolean judgeBlock) throws InterruptedException {
         if (judgeBlock) {
             if (isBlocked()) {
-                logger.info("jobId:{} unable add to queue, because running queue is blocked.", jobClient.getTaskId());
+                logger.info("jobId:{} unable add to queue, because queue is blocked.", jobClient.getTaskId());
                 return false;
             }
             return addInner(jobClient);
@@ -99,8 +95,7 @@ public class GroupPriorityQueue {
     private boolean addInner(JobClient jobClient) throws InterruptedException {
         if (this.priorityQueueSize() >= getQueueSizeLimited()) {
             blocked.set(true);
-            running.set(false);
-            logger.info("jobId:{} unable add to queue, because over QueueSizeLimited, set blocked=true running=false.", jobClient.getTaskId());
+            logger.info("jobId:{} unable add to queue, because over QueueSizeLimited.", jobClient.getTaskId());
             return false;
         }
         return addRedirect(jobClient);
@@ -142,10 +137,6 @@ public class GroupPriorityQueue {
         return queue.size() + jobSubmitDealer.getDelayJobQueueSize();
     }
 
-    public void resetStartId() {
-        startId.set(0);
-    }
-
     public String getJobResource() {
         return jobResource;
     }
@@ -175,56 +166,41 @@ public class GroupPriorityQueue {
         @Override
         public void run() {
 
+            /**
+             * blocked=true，已存储的任务数据超出队列limited上限
+             */
             if (Boolean.FALSE == blocked.get()) {
-                return;
-            }
-
-            long tmpQueueSize = queue.size();
-            int halfQueueSize = getQueueSizeLimited() >> 1;
-
-            if (Boolean.FALSE == running.get()) {
-                if (tmpQueueSize < halfQueueSize) {
-                    Long jobSize = rdosEngineJobCacheDAO.countByJobResource(engineType, groupName, EJobCacheStage.DB.getStage(), localAddress);
-                    if (jobSize > 0) {
-                        running.set(true);
-                        blocked.set(true);
-                    } else {
-                        blocked.set(false);
-                        return;
-                    }
-                } else {
+                int jobSize = rdosEngineJobCacheDAO.countByStage(engineType, groupName, EJobCacheStage.unSubmitted(), localAddress);
+                if (jobSize < getQueueSizeLimited()) {
                     return;
                 }
+                blocked.set(true);
             }
 
             /**
              * 如果队列中的任务数量小于
              * @see com.dtstack.engine.service.queue.GroupPriorityQueue#QUEUE_SIZE_LIMITED ,
              * 并且没有查询到新的数据，则停止调度
-             * @see com.dtstack.engine.service.queue.GroupPriorityQueue#running
+             * @see com.dtstack.engine.service.queue.GroupPriorityQueue#blocked
              */
-            if (tmpQueueSize < getQueueSizeLimited()) {
-                long limitId = emitJob2PriorityQueue(startId.get());
-                if (limitId == startId.get()) {
-                    running.set(false);
-                    if (GroupPriorityQueue.this.priorityQueueSize() >= getQueueSizeLimited()) {
-                        blocked.set(true);
-                    } else {
-                        blocked.set(false);
-                    }
-                    logger.info("Pause AcquireGroupQueueJob running...");
+            if (priorityQueueSize() < getQueueSizeLimited()) {
+                boolean empty = emitJob2PriorityQueue();
+                if (empty) {
+                    blocked.set(false);
                 }
-                startId.set(limitId);
             }
         }
     }
 
-    private Long emitJob2PriorityQueue(long startId) {
+    private boolean emitJob2PriorityQueue() {
+        boolean empty = false;
         try {
+            long startId = 0L;
             outLoop:
             while (true) {
                 List<RdosEngineJobCache> jobCaches = rdosEngineJobCacheDAO.listByNodeAddressStage(startId, localAddress, EJobCacheStage.DB.getStage(), engineType, groupName);
                 if (CollectionUtils.isEmpty(jobCaches)) {
+                    empty = true;
                     break;
                 }
                 for (RdosEngineJobCache jobCache : jobCaches) {
@@ -237,6 +213,7 @@ public class GroupPriorityQueue {
                         boolean addInner = this.addInner(jobClient);
                         logger.info("jobId:{} load from db, {} emit job to queue.", jobClient.getTaskId(), addInner ? "success" : "failed");
                         if (!addInner) {
+                            empty = false;
                             break outLoop;
                         }
                         startId = jobCache.getId();
@@ -250,7 +227,7 @@ public class GroupPriorityQueue {
         } catch (Exception e) {
             logger.error("emitJob2PriorityQueue localAddress:{} error:", localAddress, e);
         }
-        return startId;
+        return empty;
     }
 
 }

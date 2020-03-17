@@ -207,8 +207,6 @@ public class WorkNode {
                 this.dealSubmitFailJob(jobCache.getJobId(), "This task stores information exception and cannot be converted." + e.toString());
             }
         }
-
-        priorityQueueMap.forEach((k,v)->v.resetStartId());
     }
 
 
