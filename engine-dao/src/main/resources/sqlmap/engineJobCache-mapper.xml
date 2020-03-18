@@ -3,20 +3,20 @@
 <mapper namespace="com.dtstack.engine.dao.EngineJobCacheDao">
 
     <insert id="insert" parameterType="EngineJobCache">
-        insert into schedule_stream_task_checkpoint( job_id, engine_type, compute_type, stage, job_info, node_address, job_name, job_priority, job_resource)
+        insert into schedule_engine_job_cache( job_id, engine_type, compute_type, stage, job_info, node_address, job_name, job_priority, job_resource)
         values(#{jobId}, #{engineType}, #{computeType}, #{stage}, #{jobInfo}, #{nodeAddress},#{jobName},#{jobPriority},#{jobResource});
     </insert>
 
     <delete id="delete">
-        delete from schedule_stream_task_checkpoint where job_id=#{jobId}
+        delete from schedule_engine_job_cache where job_id=#{jobId}
     </delete>
 
     <select id="getOne" resultType="EngineJobCache">
-        select * from schedule_stream_task_checkpoint where job_id=#{jobId} and is_deleted=0 order by gmt_create desc limit 1;
+        select * from schedule_engine_job_cache where job_id=#{jobId} and is_deleted=0 order by gmt_create desc limit 1;
     </select>
 
     <update id="updateStage">
-        update schedule_stream_task_checkpoint
+        update schedule_engine_job_cache
         set
         node_address = #{nodeAddress}, stage = #{stage}, job_priority = #{jobPriority},
         is_failover = 0, gmt_modified=now()
@@ -24,7 +24,7 @@
     </update>
 
     <select id="listByFailover" resultType="EngineJobCache">
-        select * from schedule_stream_task_checkpoint
+        select * from schedule_engine_job_cache
         where id > #{startId} and is_failover = 1
         and (node_address = #{nodeAddress} or node_address is null)
         and stage = #{stage}
@@ -34,7 +34,7 @@
     </select>
 
     <select id="listByStage" resultType="EngineJobCache">
-        select * from schedule_stream_task_checkpoint
+        select * from schedule_engine_job_cache
         where id > #{startId}
         <if test="nodeAddress != null">
             and (node_address = #{nodeAddress} or node_address is null)
@@ -51,7 +51,7 @@
     </select>
 
     <select id="getByJobIds" resultType="EngineJobCache">
-        select * from schedule_stream_task_checkpoint
+        select * from schedule_engine_job_cache
         WHERE job_id in
         <foreach collection="jobIds" item="jobId" open="(" separator="," close=")">
             #{jobId}
@@ -60,12 +60,12 @@
     </select>
 
     <select id="listNames" resultType="java.lang.String">
-        select job_name from schedule_stream_task_checkpoint
+        select job_name from schedule_engine_job_cache
         where job_name like '%${jobName}%' and is_deleted=0;
     </select>
 
     <select id="countByStage" resultType="java.lang.Integer">
-        select count(1) from schedule_stream_task_checkpoint
+        select count(1) from schedule_engine_job_cache
         where job_resource = #{jobResource} and node_address = #{nodeAddress}
         <if test="stages != null">
             and stage in
@@ -77,7 +77,7 @@
     </select>
 
     <select id="maxPriorityByStage" resultType="java.lang.Long">
-        select max(job_priority) from schedule_stream_task_checkpoint
+        select max(job_priority) from schedule_engine_job_cache
         where job_resource = #{jobResource} and node_address = #{nodeAddress}
         <if test="stage != null">
             and stage = #{stage}
@@ -87,13 +87,13 @@
 
     <select id="getAllNodeAddress" resultType="java.lang.String">
         SELECT DISTINCT(node_address) as nodeAddress
-        FROM schedule_stream_task_checkpoint
+        FROM schedule_engine_job_cache
         WHERE is_deleted = 0
     </select>
 
     <update id="updateNodeAddressFailover">
         UPDATE
-        schedule_stream_task_checkpoint
+        schedule_engine_job_cache
         set node_address = #{nodeAddress}, is_failover = 1
         WHERE job_id IN
         <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
@@ -103,7 +103,7 @@
 
     <select id="getJobResources" resultType="java.lang.String">
         SELECT DISTINCT(job_resource) as jobResource
-        FROM schedule_stream_task_checkpoint
+        FROM schedule_engine_job_cache
         WHERE is_deleted = 0
     </select>
 
@@ -113,7 +113,7 @@
         stage as stage,
         unix_timestamp(min(gmt_create)) as generateTime,
         count(1) as jobSize
-        FROM schedule_stream_task_checkpoint
+        FROM schedule_engine_job_cache
         WHERE is_deleted = 0
         <if test="nodeAddress != null">
             and node_address = #{nodeAddress}
@@ -125,7 +125,7 @@
     <select id="countByJobResource" resultType="java.lang.Long">
         SELECT
         count(1) as count
-        FROM schedule_stream_task_checkpoint
+        FROM schedule_engine_job_cache
         WHERE job_resource = #{jobResource} and stage = #{stage} and is_deleted = 0
         <if test="nodeAddress != null">
             and node_address = #{nodeAddress}
@@ -133,7 +133,7 @@
     </select>
 
     <select id="listByJobResource" resultType="EngineJobCache">
-        SELECT * FROM schedule_stream_task_checkpoint
+        SELECT * FROM schedule_engine_job_cache
         WHERE job_resource = #{jobResource} and stage = #{stage} and is_deleted = 0
         <if test="nodeAddress != null">
             and node_address = #{nodeAddress}
@@ -143,7 +143,7 @@
     </select>
 
     <delete id="deleteByJobIds">
-        delete from schedule_stream_task_checkpoint
+        delete from schedule_engine_job_cache
         where job_id in
         <foreach collection="jobIds" item="jobId" open="(" separator="," close=")">
             #{jobId}

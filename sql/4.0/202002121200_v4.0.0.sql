@@ -278,10 +278,3 @@ ALTER TABLE rdos_batch_job_job RENAME TO schedule_batch_job_job;
 ALTER TABLE rdos_batch_fill_data_job RENAME TO schedule_batch_fill_data_job;
 ALTER TABLE rdos_job_graph_trigger RENAME TO schedule_job_graph_trigger;
 
-
-
-
-
-
-
-
