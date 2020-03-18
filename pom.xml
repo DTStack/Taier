@@ -15,7 +15,6 @@
         <spring.version>4.1.9.RELEASE</spring.version>
         <dtCenter.common>4.0.1-SNAPSHOT</dtCenter.common>
         <fastjson>2.9.6</fastjson>
-        <jacoco>0.8.5</jacoco>
     </properties>
 
     <modules>
@@ -186,14 +185,14 @@
                 <artifactId>common.rdbms.core</artifactId>
                 <version>${dtCenter.common}</version>
                 <exclusions>
-<!--                    <exclusion>
-                        <groupId>com.dtstack.dtcenter</groupId>
-                        <artifactId>sql-core</artifactId>
-                    </exclusion>-->
-<!--                    <exclusion>
-                        <groupId>com.dtstack.dtcenter</groupId>
-                        <artifactId>sql-parse</artifactId>
-                    </exclusion>-->
+                    <!--                    <exclusion>
+                                            <groupId>com.dtstack.dtcenter</groupId>
+                                            <artifactId>sql-core</artifactId>
+                                        </exclusion>-->
+                    <!--                    <exclusion>
+                                            <groupId>com.dtstack.dtcenter</groupId>
+                                            <artifactId>sql-parse</artifactId>
+                                        </exclusion>-->
                     <exclusion>
                         <groupId>com.dtstack.dtcenter</groupId>
                         <artifactId>common.base</artifactId>
@@ -372,35 +371,36 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${jacoco}</version>
-                <configuration>
-                    <includes>
-                        <include>com/**/*</include>
-                    </includes>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>pre-test</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>post-test</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                        <configuration>
-                            <dataFile>target/jacoco.exec</dataFile>
-                            <outputDirectory>target/jacoco-ut</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.jacoco</groupId>-->
+                <!--<artifactId>jacoco-maven-plugin</artifactId>-->
+                <!--<version>0.8.1</version>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<id>prepare-agent</id>-->
+                        <!--<goals>-->
+                            <!--<goal>prepare-agent</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                    <!--<execution>-->
+                        <!--<id>report</id>-->
+                        <!--<phase>prepare-package</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>report</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                    <!--<execution>-->
+                        <!--<id>post-unit-test</id>-->
+                        <!--<phase>test</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>report</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<dataFile>target/jacoco.exec</dataFile>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
         </plugins>
     </build>
 </project>

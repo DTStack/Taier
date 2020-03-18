@@ -98,6 +98,9 @@
     <logger name="com.dtstack.engine.master.scheduler" level="info" additivity="false">
         <appender-ref ref="schedule" />
     </logger>
+    <logger name="com.dtstack.engine.master.queue.JopPriorityQueue" level="info" additivity="false">
+        <appender-ref ref="schedule" />
+    </logger>
 
     <root level="info">
         <appender-ref ref="allAppender" />

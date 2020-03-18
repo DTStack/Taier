@@ -108,24 +108,30 @@ public class JobSubmitDealer implements Runnable {
         @Override
         public void run() {
             while (true) {
+                SimpleJobDelay<JobClient> simpleJobDelay = null;
+                JobClient jobClient = null;
                 try {
-                    SimpleJobDelay<JobClient> simpleJobDelay = delayJobQueue.take();
-                    JobClient jobClient = simpleJobDelay.getJob();
+                    simpleJobDelay = delayJobQueue.take();
+                    jobClient = simpleJobDelay.getJob();
                     if (jobClient != null) {
-                        queue.put(jobClient);
                         engineJobCacheDao.updateStage(jobClient.getTaskId(), EJobCacheStage.PRIORITY.getStage(), localAddress, jobClient.getPriority());
                         jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
-                        logger.info("jobId:{} take job from delayJobQueue queue size:{} and add to priorityQueue.", jobClient.getTaskId(), delayJobQueue.size());
+                        queue.put(jobClient);
+                        logger.info("jobId:{} stage:{} take job from delayJobQueue queue size:{} and add to priorityQueue.", jobClient.getTaskId(), simpleJobDelay.getStage(), delayJobQueue.size());
                     }
                 } catch (Exception e) {
-                    logger.error("", e);
+                    if (simpleJobDelay != null && jobClient != null) {
+                        logger.error("jobId:{} stage:{}", jobClient.getTaskId(), simpleJobDelay.getStage(), e);
+                    } else {
+                        logger.error("{}", e);
+                    }
                 }
             }
         }
     }
 
     public boolean tryPutRestartJob(JobClient jobClient) {
-        boolean tryPut = delayJobQueue.tryPut(new SimpleJobDelay<>(jobClient, jobRestartDelay));
+        boolean tryPut = delayJobQueue.tryPut(new SimpleJobDelay<>(jobClient, EJobCacheStage.RESTART.getStage(), jobRestartDelay));
         logger.info("jobId:{} {} add job to restart delayJobQueue.", jobClient.getTaskId(), tryPut ? "success" : "failed");
         if (tryPut) {
             //restart的状态修改会在外面处理，这里只需要set stage
@@ -135,7 +141,7 @@ public class JobSubmitDealer implements Runnable {
     }
 
     private boolean tryPutLackingJob(JobClient jobClient) {
-        boolean tryPut = delayJobQueue.tryPut(new SimpleJobDelay<>(jobClient, jobLackingDelay));
+        boolean tryPut = delayJobQueue.tryPut(new SimpleJobDelay<>(jobClient, EJobCacheStage.RESTART.getStage(), jobLackingDelay));
         if (tryPut) {
             jobClient.lackingCountIncrement();
             engineJobCacheDao.updateStage(jobClient.getTaskId(), EJobCacheStage.LACKING.getStage(), localAddress, jobClient.getPriority());
