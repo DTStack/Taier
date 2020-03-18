@@ -3,6 +3,7 @@ package com.dtstack.engine.master.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.common.annotation.Forbidden;
 import com.dtstack.dtcenter.common.enums.EJobType;
+import com.dtstack.engine.common.annotation.Param;
 import com.dtstack.engine.common.enums.DisplayDirect;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -12,7 +13,6 @@ import com.dtstack.engine.domain.BatchTaskTaskShade;
 import com.dtstack.engine.master.vo.BatchTaskVO;
 import jodd.util.StringUtil;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

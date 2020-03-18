@@ -9,6 +9,7 @@ import com.dtstack.dtcenter.common.enums.Sort;
 import com.dtstack.dtcenter.common.pager.PageQuery;
 import com.dtstack.dtcenter.common.pager.PageResult;
 import com.dtstack.dtcenter.common.util.MathUtil;
+import com.dtstack.engine.common.annotation.Param;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.BatchTaskShadeDao;
@@ -23,7 +24,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.ibatis.annotations.Param;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.BeanUtils;
@@ -68,7 +68,7 @@ public class BatchTaskShadeService {
      * web 接口
      * task删除时触发同步清理
      */
-    public void deleteTask(@Param("taskId") Long taskId, @Param("modifyUserId") long modifyUserId,@Param("appType") Integer appType) {
+    public void deleteTask(@Param("taskId") Long taskId, @Param("modifyUserId") long modifyUserId, @Param("appType") Integer appType) {
         batchTaskShadeDao.delete(taskId, modifyUserId,appType);
         taskTaskShadeService.clearDataByTaskId(taskId);
     }
