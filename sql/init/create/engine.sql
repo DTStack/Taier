@@ -1,4 +1,4 @@
-CREATE TABLE `rdos_plugin_info` (
+CREATE TABLE `schedule_plugin_info` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `plugin_key` varchar(255) NOT NULL COMMENT '插件配置信息md5值',
   `plugin_info` text NOT NULL COMMENT '插件信息',
