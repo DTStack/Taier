@@ -7,7 +7,7 @@
     </sql>
 
     <insert id="insert" parameterType="JobGraphTrigger" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO rdos_job_graph_trigger
+        INSERT INTO schedule_job_graph_trigger
         (trigger_type,trigger_time)
         VALUES
         (#{triggerType},#{triggerTime})
@@ -16,13 +16,13 @@
     <select id="getByTriggerTimeAndTriggerType" resultType="JobGraphTrigger">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM rdos_job_graph_trigger
+        FROM schedule_job_graph_trigger
         WHERE trigger_time = #{triggerTime}
         AND trigger_type = #{triggerType} and is_deleted = 0
     </select>
 
     <delete id="deleteToday">
-        delete from rdos_job_graph_trigger
+        delete from schedule_job_graph_trigger
         where TO_DAYS(trigger_time) = TO_DAYS(CURRENT_DATE)
     </delete>
 </mapper>

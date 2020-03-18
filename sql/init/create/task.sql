@@ -1,4 +1,4 @@
-CREATE TABLE `rdos_batch_task_shade`
+CREATE TABLE `schedule_batch_task_shade`
 (
     `id`                      int(11)      NOT NULL AUTO_INCREMENT,
     `tenant_id`               int(11)      NOT NULL DEFAULT '-1' COMMENT '租户id',
@@ -39,7 +39,7 @@ CREATE TABLE `rdos_batch_task_shade`
   AUTO_INCREMENT = 0
   DEFAULT CHARSET = utf8;
 
-CREATE TABLE `rdos_batch_task_task_shade`
+CREATE TABLE `schedule_batch_task_task_shade`
 (
     `id`              int(11)    NOT NULL AUTO_INCREMENT,
     `tenant_id`       int(11)    NOT NULL COMMENT '租户id',
@@ -57,7 +57,7 @@ CREATE TABLE `rdos_batch_task_task_shade`
   DEFAULT CHARSET = utf8;
 
 
-CREATE TABLE `rdos_batch_job`
+CREATE TABLE `schedule_batch_job`
 (
     `id`              int(11)      NOT NULL AUTO_INCREMENT,
     `tenant_id`       int(11)      NOT NULL COMMENT '租户id',
@@ -103,7 +103,7 @@ CREATE TABLE `rdos_batch_job`
   AUTO_INCREMENT = 0
   DEFAULT CHARSET = utf8;
 
-CREATE TABLE `rdos_batch_job_job`
+CREATE TABLE `schedule_batch_job_job`
 (
     `id`              int(11)      NOT NULL AUTO_INCREMENT,
     `tenant_id`       int(11)      NOT NULL COMMENT '租户id',
@@ -121,7 +121,7 @@ CREATE TABLE `rdos_batch_job_job`
   DEFAULT CHARSET = utf8;
 
 
-CREATE TABLE `rdos_batch_fill_data_job`
+CREATE TABLE `schedule_batch_fill_data_job`
 (
     `id`              int(11)     NOT NULL AUTO_INCREMENT,
     `tenant_id`       int(11)     NOT NULL COMMENT '租户id',
@@ -143,7 +143,7 @@ CREATE TABLE `rdos_batch_fill_data_job`
   DEFAULT CHARSET = utf8;
 
 
-CREATE TABLE `rdos_job_graph_trigger`
+CREATE TABLE `schedule_job_graph_trigger`
 (
     `id`           int(11)    NOT NULL AUTO_INCREMENT,
     `trigger_type` tinyint(3) NOT NULL COMMENT '0:正常调度 1补数据',

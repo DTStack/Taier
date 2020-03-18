@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.engine.dao.EngineUniqueSignDao">
 
     <insert id="insert" parameterType="EngineUniqueSign" useGeneratedKeys="true" keyProperty="id">
-	   insert into rdos_engine_unique_sign(gmt_create,gmt_modified,unique_sign)
+	   insert into schedule_engine_unique_sign(gmt_create,gmt_modified,unique_sign)
 	   values(now(),now(),#{uniqueSign})
     </insert>
 

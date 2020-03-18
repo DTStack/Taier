@@ -10,7 +10,7 @@ CREATE TABLE `schedule_plugin_info` (
   UNIQUE KEY `index_plugin_id` (`plugin_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `rdos_engine_job` (
+CREATE TABLE `schedule_engine_job` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '任务状态 UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELING(6),CANCELED(7),FAILED(8)',
   `job_id` varchar(256) NOT NULL COMMENT '离线任务id',
@@ -38,7 +38,7 @@ CREATE TABLE `rdos_engine_job` (
   KEY `index_gmt_modified` (`gmt_modified`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
-CREATE TABLE `rdos_stream_task_checkpoint` (
+CREATE TABLE `schedule_stream_task_checkpoint` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `task_id` varchar(64) NOT NULL COMMENT '任务id',
   `task_engine_id` varchar(64) NOT NULL COMMENT '任务对于的引擎id',
@@ -53,7 +53,7 @@ CREATE TABLE `rdos_stream_task_checkpoint` (
   UNIQUE KEY `taskid_checkpoint` (`task_id`,`checkpoint_id`) COMMENT 'taskid和checkpoint组成的唯一索引'
 ) ENGINE=InnoDB AUTO_INCREMENT=26474 DEFAULT CHARSET=utf8;
 
-CREATE TABLE `rdos_engine_job_cache` (
+CREATE TABLE `schedule_engine_job_cache` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `job_id` varchar(256) NOT NULL COMMENT '任务id',
   `job_name` VARCHAR(256) DEFAULT NULL COMMENT '任务名称',
@@ -72,7 +72,7 @@ CREATE TABLE `rdos_engine_job_cache` (
   unique KEY `index_job_id` (`job_id`(128))
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
-CREATE TABLE `rdos_plugin_job_info` (
+CREATE TABLE `schedule_plugin_job_info` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `job_id` varchar(255) NOT NULL COMMENT '任务id',
   `job_info` LONGTEXT NOT NULL COMMENT '任务信息',
@@ -85,7 +85,7 @@ CREATE TABLE `rdos_plugin_job_info` (
   UNIQUE KEY `index_job_id` (`job_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `rdos_engine_unique_sign` (
+CREATE TABLE `schedule_engine_unique_sign` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `unique_sign` varchar(255) NOT NULL COMMENT '唯一标识',
   `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
@@ -96,7 +96,7 @@ CREATE TABLE `rdos_engine_unique_sign` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 重试记录表
-CREATE TABLE `rdos_engine_job_retry` (
+CREATE TABLE `schedule_engine_job_retry` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '任务状态 UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELING(6),CANCELED(7),FAILED(8)',
   `job_id` varchar(256) NOT NULL COMMENT '离线任务id',
@@ -114,7 +114,7 @@ CREATE TABLE `rdos_engine_job_retry` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
-CREATE TABLE `rdos_engine_job_stop_record` (
+CREATE TABLE `schedule_engine_job_stop_record` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `task_id` varchar(256) NOT NULL COMMENT '任务id',
   `task_type` int(10) DEFAULT NULL COMMENT '任务类型',
@@ -129,7 +129,7 @@ CREATE TABLE `rdos_engine_job_stop_record` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `rdos_node_machine` (
+CREATE TABLE `schedule_node_machine` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `ip` varchar(64) NOT NULL COMMENT 'master主机ip',
   `port` int(11) NOT NULL COMMENT 'master主机端口',

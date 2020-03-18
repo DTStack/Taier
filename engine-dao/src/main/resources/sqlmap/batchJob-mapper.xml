@@ -437,14 +437,14 @@
     <select id="getOne" resultType="BatchJob">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM rdos_batch_job bj
+        FROM schedule_batch_job bj
         WHERE id = #{id} AND is_deleted = 0
     </select>
 
     <select id="listByJobIds" resultType="BatchJob">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM rdos_batch_job bj
+        FROM schedule_batch_job bj
         WHERE id in
         <foreach item="id" index="index" collection="jobIds" open="(" separator="," close=")">
             #{id}
@@ -456,7 +456,7 @@
     <select id="listAfterOrBeforeJobs" resultType="BatchJob">
         SELECT
         <include refid="select_content_fragment" />
-        from rdos_batch_job bj
+        from schedule_batch_job bj
         where task_id = #{taskId}
         <choose>
             <when test="isAfter">
@@ -471,14 +471,14 @@
     <select id="getByJobKeyAndType" resultType="BatchJob">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM rdos_batch_job bj
+        FROM schedule_batch_job bj
         WHERE job_key = #{jobKey} AND type = #{type} AND is_deleted = 0
     </select>
 
     <select id="getByJobKey" resultType="BatchJob">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM rdos_batch_job bj
+        FROM schedule_batch_job bj
         WHERE job_key = #{jobKey} AND is_deleted = 0
     </select>
 
@@ -486,7 +486,7 @@
 
     <select id="countByStatusAndType" resultType="java.util.HashMap">
         SELECT status,COUNT(1) as count
-        FROM  rdos_batch_job ts
+        FROM  schedule_batch_job ts
         WHERE ts.is_deleted = 0
         <if test="dtuicTenantId != null and dtuicTenantId != -1">
            AND  ts.dtuic_tenant_id = #{dtuicTenantId}
@@ -517,8 +517,8 @@
 
     <select id="selectStatusAndType" resultType="java.util.HashMap">
         SELECT if(ts.is_deleted = 1,CONCAT(ts.name,'(已删除)'),ts.name) AS name, bj.status AS status,bj.exec_start_time AS execStartTime
-        FROM  rdos_batch_job bj
-        LEFT JOIN rdos_batch_task_shade ts on bj.task_id = ts.task_id
+        FROM  schedule_batch_job bj
+        LEFT JOIN schedule_batch_task_shade ts on bj.task_id = ts.task_id
         WHERE  bj.is_deleted = 0
         <if test="dtuicTenantId != null and dtuicTenantId != -1">
             AND  bj.dtuic_tenant_id = #{dtuicTenantId}
@@ -551,7 +551,7 @@
     <select id="listTopRunTime" resultType="java.util.HashMap">
         SELECT bj.id AS id, bj.task_id AS taskId, bj.cyc_time AS cycTime, ifnull(bj.type, 0) AS type,bj.task_type as taskType,
                bj.exec_time AS execTime,bj.is_deleted as isDeleted,bj.create_user_id AS createUserId
-        FROM rdos_batch_job bj
+        FROM schedule_batch_job bj
         WHERE bj.is_deleted = 0
         <if test="dtuicTenantId != null and dtuicTenantId != -1">
             AND  bj.dtuic_tenant_id = #{dtuicTenantId}
@@ -565,7 +565,7 @@
 
     <select id="listTopErrorByType" resultType="java.util.HashMap">
         SELECT bj.task_id AS taskId, count(1) as errorCount
-        FROM rdos_batch_job bj
+        FROM schedule_batch_job bj
         WHERE bj.is_deleted = 0
         <if test="dtuicTenantId != null and dtuicTenantId != -1">
             AND  bj.dtuic_tenant_id = #{dtuicTenantId}
@@ -589,9 +589,9 @@
     
     <select id="listThirtyDayJobs" resultType="java.util.HashMap">
   		SELECT DATE_FORMAT(bj.cyc_time, '%m/%d') AS day, COUNT(1) AS cnt
-        FROM rdos_batch_job bj
+        FROM schedule_batch_job bj
         LEFT JOIN rdos_engine_batch_job ebj ON bj.job_id = ebj.job_id
-        LEFT JOIN rdos_batch_task_shade ts ON bj.task_id = ts.id
+        LEFT JOIN schedule_batch_task_shade ts ON bj.task_id = ts.id
         WHERE bj.cyc_time is not null and to_days(bj.cyc_time) >= (to_days(NOW()) -30)
         and bj.type = #{type}
         and bj.project_id = #{projectId} 
@@ -612,9 +612,9 @@
   		SUM(case when ebj.status = 4 or ebj.status = 16 then 1 else 0 end) AS deployCount,
   		SUM(case when ebj.status = 8 then 1 else 0 end) AS failCount,
   		SUM(case when ebj.status = #{status} then 1 else 0 end) AS successCount
-        FROM rdos_batch_job bj
+        FROM schedule_batch_job bj
         LEFT JOIN rdos_engine_batch_job ebj ON bj.job_id = ebj.job_id
-        LEFT JOIN rdos_batch_task_shade ts ON bj.task_id = ts.id
+        LEFT JOIN schedule_batch_task_shade ts ON bj.task_id = ts.id
         WHERE bj.type = #{type}
         and bj.tenant_id = #{tenantId}
         and ts.task_type = #{taskType}
@@ -629,7 +629,7 @@
 
     <select id="listTodayJobs" resultType="java.util.HashMap">
         SELECT DATE_FORMAT(bj.exec_start_time, '%H') AS hour, COUNT(1) AS data
-        FROM rdos_batch_job bj
+        FROM schedule_batch_job bj
         WHERE bj.exec_start_time is not null and to_days(bj.exec_start_time) = to_days(NOW())
         AND bj.type = #{type}
         AND bj.app_type = #{appType}
@@ -654,7 +654,7 @@
 
     <select id="listYesterdayJobs" resultType="java.util.HashMap">
         SELECT DATE_FORMAT(bj.exec_start_time, '%H') AS hour, COUNT(1) AS data
-        FROM rdos_batch_job bj
+        FROM schedule_batch_job bj
         WHERE bj.exec_start_time is not null and to_days(bj.exec_start_time) = to_days(NOW()) - 1
         and bj.type = #{type}
         and bj.app_type = #{appType}
@@ -679,7 +679,7 @@
 
     <select id="listMonthJobs" resultType="java.util.HashMap">
         SELECT DATE_FORMAT(bj.exec_start_time, '%H') AS hour, COUNT(1) AS data
-        FROM rdos_batch_job bj
+        FROM schedule_batch_job bj
         WHERE bj.exec_start_time is not null and to_days(bj.exec_start_time) >= to_days(NOW()) - 30
         and bj.type = #{type}
         and bj.app_type = #{appType}
@@ -705,7 +705,7 @@
     <select id="listRestartBatchJobList" resultType="BatchJob">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM rdos_batch_job bj
+        FROM schedule_batch_job bj
         where type = #{type}
         AND status = #{status}
         <if test="lastTime != null">
@@ -718,7 +718,7 @@
     <select id="listJobByJobKeys" resultType="BatchJob">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM rdos_batch_job bj
+        FROM schedule_batch_job bj
         where job_key IN
         <foreach item="jobKey" index="index" collection="jobKeys" open="(" separator="," close=")">
             #{jobKey}
@@ -729,7 +729,7 @@
     <select id="listIdByTaskIdAndStatus" resultType="java.lang.Long">
         SELECT
         bj.id
-        FROM rdos_batch_job bj
+        FROM schedule_batch_job bj
         where bj.task_id = #{taskId}
         AND bj.status IN
         <foreach item="status" index="index" collection="statuses" open="(" separator="," close=")">
@@ -741,7 +741,7 @@
     <select id="listJobIdByTaskIdAndStatus" resultType="java.lang.Long">
         SELECT
         bj.job_id
-        FROM rdos_batch_job bj, rdos_engine_batch_job ebj
+        FROM schedule_batch_job bj, rdos_engine_batch_job ebj
         where bj.job_id = ebj.job_id AND bj.task_id = #{taskId}
         AND ebj.status IN
         <foreach item="status" index="index" collection="statuses" open="(" separator="," close=")">
@@ -753,7 +753,7 @@
     <select id="listTaskExeTimeInfo" resultType="java.util.HashMap">
         select bj.job_id AS jobId, ebj.exec_start_time AS execStartTime, ebj.exec_end_time AS execEndTime, ebj.exec_time
         AS execTime
-        from rdos_batch_job bj, rdos_engine_batch_job ebj
+        from schedule_batch_job bj, rdos_engine_batch_job ebj
         where bj.task_id = #{taskId}
         AND ebj.status IN
         <foreach item="status" index="index" collection="statuses" open="(" separator="," close=")">
@@ -766,7 +766,7 @@
     <select id="getByJobId" resultType="BatchJob">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM rdos_batch_job bj
+        FROM schedule_batch_job bj
         where job_id = #{jobId}
         <if test="isDeleted!=null">
             and is_deleted = #{isDeleted}
@@ -776,7 +776,7 @@
     <select id="getId" resultType="java.lang.Long">
         SELECT
         id
-        FROM rdos_batch_job bj
+        FROM schedule_batch_job bj
         where job_id = #{jobId} AND is_deleted = 0
     </select>
 
@@ -789,20 +789,20 @@
         SELECT
         <include refid="select_content_fragment"/>
         from (
-        select *,'' as groupDate from rdos_batch_job
+        select *,'' as groupDate from schedule_batch_job
         <include refid="select_where_batch_job"/>
         and period_type not in (0,1)
         union
         select
         bj.*,
         left(bj.business_date,8) as groupDate
-        from rdos_batch_job bj
-        LEFT JOIN rdos_batch_task_shade ts ON bj.task_id = ts.task_id
+        from schedule_batch_job bj
+        LEFT JOIN schedule_batch_task_shade ts ON bj.task_id = ts.task_id
         <include refid="select_where_fragment"/>
         and bj.period_type in (0,1)
         group by bj.task_id,groupDate
         )bj
-        LEFT JOIN rdos_batch_task_shade ts ON bj.task_id = ts.task_id
+        LEFT JOIN schedule_batch_task_shade ts ON bj.task_id = ts.task_id
         <include refid="select_where_fragment"/>
         <if test="model.pageQuery == true">
             <include refid="page_condition"/>
@@ -813,18 +813,18 @@
         SELECT
         <include refid="select_content_fragment"/>
         from (
-        select *,'' as groupDate from rdos_batch_job
+        select *,'' as groupDate from schedule_batch_job
         <include refid="select_where_batch_job"/>
         union
         select
         bj.*,
         left(bj.business_date,8) as groupDate
-        from rdos_batch_job bj
-        LEFT JOIN rdos_batch_task_shade ts ON bj.task_id = ts.task_id
+        from schedule_batch_job bj
+        LEFT JOIN schedule_batch_task_shade ts ON bj.task_id = ts.task_id
         <include refid="select_where_fragment"/>
         group by bj.task_id,groupDate
         )bj
-        LEFT JOIN rdos_batch_task_shade ts ON bj.task_id = ts.task_id
+        LEFT JOIN schedule_batch_task_shade ts ON bj.task_id = ts.task_id
         <include refid="select_where_fragment"/>
         <if test="model.pageQuery == true">
             <include refid="page_condition"/>
@@ -834,8 +834,8 @@
     <select id="minOrHourJobQuery" parameterType="com.dtstack.dtcenter.common.pager.PageQuery" resultType="BatchJob">
         SELECT
         <include refid="select_content_fragment"/>
-        from  rdos_batch_job bj
-        LEFT JOIN rdos_batch_task_shade ts ON bj.task_id = ts.task_id
+        from  schedule_batch_job bj
+        LEFT JOIN schedule_batch_task_shade ts ON bj.task_id = ts.task_id
         <include refid="select_where_fragment"/>
         <include refid="queryWorkFlow"/>
         <if test="model.jobIds != null and model.jobIds.size > 0">
@@ -855,12 +855,12 @@
     <select id="generalCount" resultType="java.lang.Integer">
         SELECT COUNT(1)
         from (
-        select *,'' as groupDate  from rdos_batch_job
+        select *,'' as groupDate  from schedule_batch_job
         <include refid="select_where_batch_job"/>
         and  period_type not in (0,1)
 
         union
-        select * ,left(business_date,8) as groupDate from rdos_batch_job
+        select * ,left(business_date,8) as groupDate from schedule_batch_job
         <include refid="select_where_batch_job"/>
         and  period_type in (0,1)
         group by  task_id,groupDate
@@ -878,11 +878,11 @@
     <select id="generalCountWithMinAndHour" resultType="java.lang.Integer">
         SELECT COUNT(1)
         from (
-        select *,'' as groupDate  from rdos_batch_job
+        select *,'' as groupDate  from schedule_batch_job
         <include refid="select_where_batch_job"/>
 
         union
-        select * ,left(business_date,8) as groupDate from rdos_batch_job
+        select * ,left(business_date,8) as groupDate from schedule_batch_job
         <include refid="select_where_batch_job"/>
         group by  task_id,groupDate
         )bj
@@ -898,8 +898,8 @@
 
     <select id="minOrHourJobCount" resultType="java.lang.Integer">
         select count(1)
-        FROM rdos_batch_job bj
-        LEFT JOIN rdos_batch_task_shade ts ON bj.task_id = ts.task_id
+        FROM schedule_batch_job bj
+        LEFT JOIN schedule_batch_task_shade ts ON bj.task_id = ts.task_id
         <include refid="select_where_fragment"/>
         <include refid="queryWorkFlow"/>
         <if test="model.jobIds != null and model.jobIds.size > 0">
@@ -915,7 +915,7 @@
 
     <select id="getJobsStatusStatistics" resultType="java.util.HashMap">
         SELECT status, COUNT(1) as count
-        FROM rdos_batch_job bj
+        FROM schedule_batch_job bj
         <include refid="select_where_batch_job"/>
         group by status
     </select>
@@ -933,14 +933,14 @@
     </sql>
 
     <insert id="insert" parameterType="BatchJob" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO rdos_batch_job
+        INSERT INTO schedule_batch_job
         (tenant_id,project_id,job_id,job_key,job_name,task_id,gmt_create,gmt_modified,create_user_id,is_deleted,type,is_restart,business_date,cyc_time,dependency_type,flow_job_id,next_cyc_time,task_type,node_address,max_retry_num,version_id,fill_id)
         VALUES
         (#{tenantId},#{projectId},#{jobId},#{jobKey},#{jobName},#{taskId},#{gmtCreate},#{gmtModified},#{createUserId},#{isDeleted},#{type},#{isRestart},#{businessDate},#{cycTime},#{dependencyType},#{flowJobId},#{nextCycTime},#{taskType},#{nodeAddress},#{maxRetryNum},#{versionId},#{fillId})
     </insert>
 
     <insert id="batchInsert" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO rdos_batch_job
+        INSERT INTO schedule_batch_job
         (tenant_id,project_id,dtuic_tenant_id,app_type,job_id,job_key,job_name,task_id,gmt_create,gmt_modified,create_user_id,is_deleted,type,is_restart,business_date,cyc_time,dependency_type,flow_job_id,period_type,next_cyc_time,task_type,node_address,max_retry_num,version_id,fill_id)
         VALUES
         <foreach item="item" index="index" collection="list" separator=",">
@@ -951,14 +951,14 @@
 
     <update id="update" parameterType="BatchJob">
         UPDATE
-        rdos_batch_job
+        schedule_batch_job
         <include refid="update_fragment"/>
         WHERE id = #{id} AND is_deleted = 0
     </update>
 
     <select id="listFillJobName" resultType="java.lang.String">
         SELECT DISTINCT substring_index(bj.job_name, '-', 1)
-        FROM rdos_batch_job bj LEFT JOIN rdos_engine_batch_job ebj
+        FROM schedule_batch_job bj LEFT JOIN rdos_engine_batch_job ebj
         ON bj.job_id = ebj.job_id
         <include refid="select_where_fragment_without_ts" />
         <include refid="page_condition"/>
@@ -966,21 +966,21 @@
 
     <select id="countFillJobNameDistinct" resultType="java.lang.Integer">
         SELECT count(DISTINCT bj.fill_id) FROM
-        rdos_batch_job bj
-        LEFT JOIN rdos_batch_task_shade ts ON bj.task_id = ts.task_id
+        schedule_batch_job bj
+        LEFT JOIN schedule_batch_task_shade ts ON bj.task_id = ts.task_id
         <include refid="select_where_fragment"/>
     </select>
 
 
     <select id="countFillJobNameDistinctWithOutTask" resultType="java.lang.Integer">
         SELECT count(DISTINCT bj.fill_id) FROM
-        rdos_batch_job bj
+        schedule_batch_job bj
         <include refid="select_where_batch_job"/>
     </select>
 
     <select id="countFillJobName" resultType="java.lang.Integer">
         SELECT count(job_name)
-        FROM rdos_batch_job bj
+        FROM schedule_batch_job bj
         LEFT JOIN rdos_engine_batch_job ebj
         ON bj.job_id = ebj.job_id
         <include refid="select_where_fragment_without_ts"/>
@@ -988,14 +988,14 @@
 
     <select id="listFillJobBizDate" resultType="java.lang.String">
         SELECT DISTINCT SUBSTR(business_date FROM 1 FOR 8)
-        FROM rdos_batch_job bj
+        FROM schedule_batch_job bj
         <include refid="select_where_fragment_without_ts"/>
     </select>
 
     <select id="listNeedStopFillDataJob" resultType = "BatchJob">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM rdos_batch_job bj
+        FROM schedule_batch_job bj
         WHERE bj.job_name like #{fillDataJobName} AND bj.status IN
         <foreach item="status" index="index" collection="statusList" open="(" separator="," close=")">
             #{status}
@@ -1007,7 +1007,7 @@
     
     <select id="listTaskExeInfo" resultType="java.util.HashMap">
         select a.exec_start_time as execStartTime, a.job_id as jobId, ifnull(a.type, 0) as type,
-               ifnull(a.status, 0) as status, a.exec_time as execTime from rdos_batch_job a
+               ifnull(a.status, 0) as status, a.exec_time as execTime from schedule_batch_job a
         where a.task_id = #{taskId} and a.project_id = #{projectId} and a.app_type = #{appType}
         order by a.exec_start_time desc limit #{limitNum};
     </select>
@@ -1015,7 +1015,7 @@
     <select id="getSubJobsAndStatusByFlowId" resultType="BatchJob">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM rdos_batch_job bj
+        FROM schedule_batch_job bj
         WHERE flow_job_id = #{jobId} AND is_deleted = 0
     </select>
     
@@ -1023,7 +1023,7 @@
         SELECT
 	      ebj.status*1 as status,count(ebj.status) as count
         FROM
-        rdos_batch_job bj
+        schedule_batch_job bj
         LEFT JOIN rdos_engine_batch_job ebj ON bj.job_id = ebj.job_id
         WHERE
         bj.is_deleted = 0
@@ -1040,7 +1040,7 @@
 
     <select id="getWorkFlowJobId" resultType="java.lang.String">
         SELECT job_id
-        FROM rdos_batch_job
+        FROM schedule_batch_job
         WHERE id in
         <foreach item="id" index="index" collection="ids" open="(" separator="," close=")">
             #{id}
@@ -1055,7 +1055,7 @@
     <select id="getSubJobsByFlowIds" resultType="BatchJob">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM rdos_batch_job bj
+        FROM schedule_batch_job bj
         WHERE flow_job_id in
         <foreach item="flowId" index="index" collection="flowIds" open="(" separator="," close=")">
             #{flowId}
@@ -1067,7 +1067,7 @@
         SELECT
             task_type
         FROM
-            rdos_batch_job bj
+            schedule_batch_job bj
             LEFT JOIN rdos_batch_task bt ON bj.task_id = bt.id
         WHERE
             bj.job_id = #{jobId} and bj.is_deleted = 0 and bt.is_deleted = 0
@@ -1077,7 +1077,7 @@
         SELECT
 			flow_job_id
 			FROM
-			rdos_batch_job bj
+			schedule_batch_job bj
 			LEFT JOIN rdos_engine_batch_job ebj ON bj.job_id = ebj.job_id
 			WHERE
 			bj.is_deleted = 0
@@ -1088,7 +1088,7 @@
     </select>
 
     <update id="setJobRestart">
-        update rdos_batch_job set is_restart = 1
+        update schedule_batch_job set is_restart = 1
         where job_id in
         <foreach collection="list" item="jobId" open="(" separator="," close=")">
             #{jobId}
@@ -1101,7 +1101,7 @@
         count(bj.status) as count,
         bj.fill_id as fillId
         FROM
-        rdos_batch_job bj
+        schedule_batch_job bj
         where
         bj.is_deleted = 0
         AND bj.task_type != 10
@@ -1116,8 +1116,8 @@
     <select id="listFillIdList" resultType="java.lang.String">
         SELECT DISTINCT
         bj.fill_id
-        FROM rdos_batch_job bj
-        LEFT JOIN rdos_batch_task_shade ts ON bj.task_id = ts.task_id
+        FROM schedule_batch_job bj
+        LEFT JOIN schedule_batch_task_shade ts ON bj.task_id = ts.task_id
         <include refid="select_where_fragment" />
         <include refid="page_condition"/>
     </select>
@@ -1126,7 +1126,7 @@
     <select id="listFillIdListWithOutTask" resultType="java.lang.String">
         SELECT DISTINCT
         bj.fill_id
-        FROM rdos_batch_job bj
+        FROM schedule_batch_job bj
         <include refid="select_where_batch_job" />
         <include refid="page_condition"/>
     </select>
@@ -1135,8 +1135,8 @@
         select
         <include refid="select_content_fragment"/>
         from
-        rdos_batch_job bj
-        left join rdos_batch_fill_data_job fj on fj.id = bj.fill_id
+        schedule_batch_job bj
+        left join schedule_batch_fill_data_job fj on fj.id = bj.fill_id
         <include refid="select_where_fragment_without_ts"/>
         AND fj.job_name = #{model.fillDataJobName}
         <include refid="queryWorkFlow"/>
@@ -1149,8 +1149,8 @@
     <select id="countByFillData" resultType="java.lang.Integer">
         select count(bj.id)
         from
-        rdos_batch_job bj
-        left join rdos_batch_fill_data_job fj on fj.id = bj.fill_id
+        schedule_batch_job bj
+        left join schedule_batch_fill_data_job fj on fj.id = bj.fill_id
         <include refid="select_where_fragment_without_ts"/>
         and fj.job_name = #{model.fillDataJobName}
         <include refid="queryWorkFlow"/>
@@ -1163,16 +1163,16 @@
         SELECT
             <include refid="select_content_fragment"/>
         FROM
-            rdos_batch_job bj
+            schedule_batch_job bj
         WHERE
-            bj.job_key IN ( SELECT job_key FROM rdos_batch_job_job WHERE parent_job_key = ( SELECT job_key FROM rdos_batch_job WHERE job_id = #{jobId} ) )
+            bj.job_key IN ( SELECT job_key FROM schedule_batch_job_job WHERE parent_job_key = ( SELECT job_key FROM schedule_batch_job WHERE job_id = #{jobId} ) )
             AND bj.flow_job_id != '0'
     </select>
 
     <select id="listByJobIdList" resultType="BatchJob">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM rdos_batch_job
+        FROM schedule_batch_job
         where job_id in
         <foreach collection="jobIds" item="item" open="(" close=")" separator=",">
             #{item}
@@ -1183,20 +1183,20 @@
     <select id="listJobIdByTaskType" resultType="java.lang.String">
         SELECT
         job_id
-        from rdos_batch_job
+        from schedule_batch_job
         where task_type = #{taskType} and is_deleted = 0
     </select>
 
     <select id="getStatusById" resultType="java.lang.Integer">
         SELECT
         status
-        FROM rdos_batch_job
+        FROM schedule_batch_job
         WHERE id = #{id} AND is_deleted = 0
     </select>
 
     <select id="countTasksByCycTimeTypeAndAddress" resultType="java.lang.Integer">
         SELECT COUNT(1)
-        FROM rdos_batch_job
+        FROM schedule_batch_job
         WHERE node_address = #{nodeAddress}
         AND type = #{scheduleType}
         AND task_type != 10
@@ -1212,7 +1212,7 @@
 
     <select id="listSimpleJobByStatusAddress" resultType="SimpleBatchJobPO">
         SELECT id, job_id, type
-        FROM rdos_batch_job
+        FROM schedule_batch_job
         WHERE id > #{startId} AND (node_address = #{nodeAddress} or node_address is null)
         <if test="statuses != null">
             AND status IN
@@ -1226,7 +1226,7 @@
 
     <update id="updateNodeAddress">
         UPDATE
-        rdos_batch_job
+        schedule_batch_job
         set node_address = #{nodeAddress}
         WHERE id IN
         <foreach item="id" index="index" collection="ids" open="(" separator="," close=")">
@@ -1236,7 +1236,7 @@
 
 
     <update id="updateJobStatus">
-        UPDATE rdos_batch_job
+        UPDATE schedule_batch_job
         SET status = #{status},gmt_modified = now()
         WHERE is_deleted=0
         AND id IN
@@ -1246,14 +1246,14 @@
     </update>
 
     <update id="stopUnsubmitJob" >
-        UPDATE  rdos_batch_job
+        UPDATE  schedule_batch_job
         set status = #{status} where status = 0 and  job_name like #{likeName} and project_id = #{projectId} and app_type = #{appType};
     </update>
 
     <select id="getByTaskIdAndStatusOrderByIdLimit" resultType="BatchJob">
         SELECT
             *
-        FROM rdos_batch_job job
+        FROM schedule_batch_job job
         WHERE job.task_id = #{taskId} and  #{time} > STR_TO_DATE(job.cyc_time,"%Y%m%d%H%i%s")
           and job.status = #{status}
           and job.is_deleted = 0
@@ -1263,7 +1263,7 @@
     <select id="listExecJobByCycTimeTypeAddress" resultType="BatchJob">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM rdos_batch_job bj
+        FROM schedule_batch_job bj
         WHERE id > #{startId} AND node_address = #{nodeAddress}
         <if test="scheduleType != null">
             AND type = #{scheduleType}
@@ -1280,7 +1280,7 @@
     </select>
 
     <update id="updateJobInfoByJobId">
-        UPDATE rdos_batch_job
+        UPDATE schedule_batch_job
         SET status = #{status}, gmt_modified = now(),
         <if test="execStartTime != null">
           exec_start_time = #{execStartTime},
@@ -1294,14 +1294,14 @@
     </update>
 
     <update id="updateStatusAndLogInfoById">
-        UPDATE rdos_batch_job
+        UPDATE schedule_batch_job
         SET status = #{status}, gmt_modified = now(), log_info = #{logInfo}
         WHERE id = #{id}
         AND is_deleted=0
     </update>
 
     <update id="updateStatusByJobId">
-        UPDATE rdos_batch_job
+        UPDATE schedule_batch_job
         <set>
             <if test="status != null">
                 status = #{status},
@@ -1318,8 +1318,8 @@
     <select id="listByBusinessDateAndPeriodTypeAndStatusList" resultType="BatchJob">
         select
         <include refid= "select_content_fragment"/>
-        from rdos_batch_job bj
-        LEFT JOIN rdos_batch_task_shade ts on ts.task_id = bj.task_id
+        from schedule_batch_job bj
+        LEFT JOIN schedule_batch_task_shade ts on ts.task_id = bj.task_id
         WHERE
         ts.flow_id = 0
         <if test="model.taskPeriodId != null and model.taskPeriodId.size()>0">
@@ -1343,7 +1343,7 @@
 
     <select id="getAllNodeAddress" resultType="java.lang.String">
         SELECT DISTINCT(node_address) as nodeAddress
-        FROM rdos_batch_job
+        FROM schedule_batch_job
         WHERE is_deleted = 0
     </select>
 </mapper>

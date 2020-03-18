@@ -5,7 +5,7 @@ alter table rdos_engine_job_cache change `group_name` `job_resource` varchar(256
 alter table rdos_engine_job_stop_record change `group_name` `job_resource` varchar(256)  DEFAULT '' COMMENT '计算引擎类型';
 ALTER TABLE  `rdos_engine_job_stop_record` modify  COLUMN `engine_type` varchar(256) DEFAULT NULL COMMENT '任务的执行引擎类型';
 ALTER TABLE  `rdos_engine_job_stop_record` modify  COLUMN `compute_type` tinyint(2) DEFAULT NULL COMMENT '计算类型stream/batch';
-ALTER TABLE rdos_plugin_info RENAME TO schedule_plugin_info;
+
 
 
 ---- Console
@@ -258,4 +258,30 @@ CREATE TABLE `rdos_job_graph_trigger`
     UNIQUE KEY `index_trigger_time` (`trigger_time`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
+
+
+---- 新增字段2
+ALTER TABLE rdos_plugin_info RENAME TO schedule_plugin_info;
+ALTER TABLE rdos_engine_job RENAME TO schedule_engine_job;
+ALTER TABLE rdos_stream_task_checkpoint RENAME TO schedule_stream_task_checkpoint;
+ALTER TABLE rdos_engine_job_cache RENAME TO schedule_engine_job_cache;
+ALTER TABLE rdos_plugin_job_info RENAME TO schedule_plugin_job_info;
+ALTER TABLE rdos_engine_unique_sign RENAME TO schedule_engine_unique_sign;
+ALTER TABLE rdos_engine_job_retry RENAME TO schedule_engine_job_retry;
+ALTER TABLE rdos_engine_job_stop_record RENAME TO schedule_engine_job_stop_record;
+ALTER TABLE rdos_node_machine RENAME TO schedule_node_machine;
+
+ALTER TABLE rdos_batch_task_shade RENAME TO schedule_batch_task_shade;
+ALTER TABLE rdos_batch_task_task_shade RENAME TO schedule_batch_task_task_shade;
+ALTER TABLE rdos_batch_job RENAME TO schedule_batch_job;
+ALTER TABLE rdos_batch_job_job RENAME TO schedule_batch_job_job;
+ALTER TABLE rdos_batch_fill_data_job RENAME TO schedule_batch_fill_data_job;
+ALTER TABLE rdos_job_graph_trigger RENAME TO schedule_job_graph_trigger;
+
+
+
+
+
+
+
 
