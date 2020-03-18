@@ -11,15 +11,21 @@ import java.util.concurrent.TimeUnit;
  */
 public class SimpleJobDelay<T> implements Delayed {
     private T job;
+    private int stage;
     private long expired;
 
-    public SimpleJobDelay(T job, long delay) {
+    public SimpleJobDelay(T job, int stage, long delay) {
         this.job = job;
+        this.stage = stage;
         this.expired = System.currentTimeMillis() + delay;
     }
 
     public T getJob() {
         return job;
+    }
+
+    public int getStage() {
+        return stage;
     }
 
     @Override
