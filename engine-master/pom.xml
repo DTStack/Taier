@@ -19,11 +19,6 @@
     <dependencies>
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>engine-api</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.dtstack.engine</groupId>
             <artifactId>engine-common</artifactId>
             <version>1.0.0</version>
             <exclusions>
