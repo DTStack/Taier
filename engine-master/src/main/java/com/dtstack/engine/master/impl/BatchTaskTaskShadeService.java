@@ -11,8 +11,8 @@ import com.dtstack.engine.dao.BatchTaskTaskShadeDao;
 import com.dtstack.engine.domain.BatchTaskShade;
 import com.dtstack.engine.domain.BatchTaskTaskShade;
 import com.dtstack.engine.master.vo.BatchTaskVO;
-import jodd.util.StringUtil;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +39,7 @@ public class BatchTaskTaskShadeService {
     }
 
     public void saveTaskTaskList(@Param("taskTask") String taskLists) {
-        if(StringUtil.isBlank(taskLists)){
+        if(StringUtils.isBlank(taskLists)){
             return;
         }
         List<BatchTaskTaskShade> taskTaskList = JSONObject.parseArray(taskLists, BatchTaskTaskShade.class);

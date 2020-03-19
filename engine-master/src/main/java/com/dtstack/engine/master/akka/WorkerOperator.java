@@ -9,7 +9,6 @@ import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.akka.message.*;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.restart.RestartStrategyType;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -110,15 +109,6 @@ public class WorkerOperator {
         } catch (Exception e) {
             logger.error("getCheckpoints failed!", e);
             return null;
-        }
-    }
-
-    public RestartStrategyType getRestartStrategyType(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
-        try {
-            return (RestartStrategyType) masterServer.sendMessage(new MessageGetRestartStrategyType(engineType, pluginInfo, jobIdentifier));
-        } catch (Exception e) {
-            logger.error("getRestartStrategyType failed!", e);
-            return RestartStrategyType.NONE;
         }
     }
 

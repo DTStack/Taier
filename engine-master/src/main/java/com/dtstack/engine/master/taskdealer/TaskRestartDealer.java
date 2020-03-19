@@ -1,14 +1,11 @@
 package com.dtstack.engine.master.taskdealer;
 
-import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.pojo.ParamAction;
-import com.dtstack.engine.master.restartStrategy.JobRestartStrategy;
 import com.dtstack.engine.dao.EngineJobDao;
 import com.dtstack.engine.dao.EngineJobRetryDao;
 import com.dtstack.engine.dao.EngineJobCacheDao;
@@ -19,7 +16,6 @@ import com.dtstack.engine.domain.EngineJobRetry;
 import com.dtstack.engine.domain.StreamTaskCheckpoint;
 import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.cache.ShardCache;
-import com.dtstack.engine.master.restartStrategy.JobRestartStrategyPlain;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
@@ -60,9 +56,6 @@ public class TaskRestartDealer {
 
     @Autowired
     private WorkNode workNode;
-
-    @Autowired
-    private JobRestartStrategyPlain jobRestartStrategyPlain;
 
     /**
      * 对提交结果判定是否重试
@@ -129,87 +122,27 @@ public class TaskRestartDealer {
             return false;
         }
 
-        JobClient clientWithStrategy = getJobClientWithStrategy(jobId, engineJobId, appId, engineType, pluginInfo, alreadyRetryNum);
-        if (clientWithStrategy == null) {
-            clientWithStrategy = jobClient;
-        }
-
         // 通过engineJobId或appId获取日志
-        clientWithStrategy.setEngineTaskId(engineJobId);
-        clientWithStrategy.setApplicationId(appId);
+        jobClient.setEngineTaskId(engineJobId);
+        jobClient.setApplicationId(appId);
 
-        clientWithStrategy.setCallBack((jobStatus)->{
+        jobClient.setCallBack((jobStatus)->{
             updateJobStatus(jobId, jobStatus);
         });
 
-        if(EngineType.Kylin.name().equalsIgnoreCase(clientWithStrategy.getEngineType())){
-            setRetryTag(clientWithStrategy);
+        if(EngineType.Kylin.name().equalsIgnoreCase(jobClient.getEngineType())){
+            setRetryTag(jobClient);
         }
 
         //checkpoint的路径
-        if(EJobType.SYNC.equals(clientWithStrategy.getJobType())){
-            setCheckpointPath(clientWithStrategy);
+        if(EJobType.SYNC.equals(jobClient.getJobType())){
+            setCheckpointPath(jobClient);
         }
 
-        boolean retry = restartJob(clientWithStrategy);
+        boolean retry = restartJob(jobClient);
         LOG.info("【retry={}】 jobId:{} alreadyRetryNum:{} will retry and add into queue again.", retry, jobClient.getTaskId(), alreadyRetryNum);
 
         return retry;
-    }
-
-    private JobClient getJobClientWithStrategy(String jobId, String engineJobId, String appId, String engineType, String pluginInfo, int alreadyRetryNum) {
-        try {
-
-            JobRestartStrategy restartStrategy = getRestartStrategy(engineType, pluginInfo, jobId, engineJobId, appId);
-            if (restartStrategy == null) {
-                return null;
-            }
-
-            String lastRetryParams = "";
-            if (alreadyRetryNum > 0)  {
-                lastRetryParams = getLastRetryParams(jobId, alreadyRetryNum-1);
-            }
-
-            //根据策略调整参数配置
-            EngineJobCache jobCache = engineJobCacheDao.getOne(jobId);
-            String jobInfo = restartStrategy.setRestartInfo(jobCache.getJobInfo(), alreadyRetryNum, lastRetryParams);
-
-            ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
-            JobClient jobClient = new JobClient(paramAction);
-
-            saveRetryTaskParam(jobId, paramAction.getTaskParams());
-
-            return jobClient;
-        } catch (Exception e) {
-            LOG.error("jobId:{} get JobClient With Strategy happens error:{}.", jobId, e);
-            return null;
-        }
-    }
-
-    private String getLastRetryParams(String jobId, int retrynum) {
-        String taskParams = "";
-        try {
-            taskParams = engineJobRetryDao.getRetryTaskParams(jobId, retrynum);
-        } catch (Exception e) {
-            LOG.error("", e);
-        }
-        return taskParams;
-    }
-
-    private void saveRetryTaskParam(String jobId, String taskParams) {
-        try {
-            engineJobDao.updateRetryTaskParams(jobId, taskParams);
-        } catch (Exception e) {
-            LOG.error("saveRetryTaskParam error..", e);
-        }
-    }
-
-    /**
-     * 获取重试策略
-     */
-    private JobRestartStrategy getRestartStrategy(String engineType, String pluginInfo, String jobId, String engineJobId, String appId) {
-        JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineJobId, appId, jobId);
-        return jobRestartStrategyPlain.getRestartStrategyByEngineType(engineType, pluginInfo, jobIdentifier);
     }
 
     private void setRetryTag(JobClient jobClient){
