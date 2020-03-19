@@ -67,9 +67,11 @@ public enum RdosTaskStatus implements Serializable {
 
     COMPUTING(23),
 
-    LACKING(24),
+    EXPIRE(24),
 
-    AUTOCANCELED(25);
+    LACKING(25),
+
+    AUTOCANCELED(26);
 	
 	private int status;
 
@@ -88,6 +90,7 @@ public enum RdosTaskStatus implements Serializable {
             RdosTaskStatus.SUBMITFAILD.getStatus(),
             RdosTaskStatus.KILLED.getStatus(),
             RdosTaskStatus.FINISHED.getStatus(),
+            RdosTaskStatus.EXPIRE.getStatus(),
             RdosTaskStatus.AUTOCANCELED.getStatus()
     );
 
