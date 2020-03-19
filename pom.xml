@@ -139,9 +139,92 @@
 
             <dependency>
                 <groupId>com.dtstack.dtcenter</groupId>
+                <artifactId>common.base</artifactId>
+                <version>${dtCenter.common}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.calcite</groupId>
+                        <artifactId>calcite-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.calcite</groupId>
+                        <artifactId>calcite-server</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.codehaus.jackson</groupId>
+                        <artifactId>jackson-mapper-asl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.esen.jdbc</groupId>
+                        <artifactId>gbase</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.alibaba</groupId>
+                        <artifactId>druid</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>net.sf.ehcache</groupId>
+                        <artifactId>ehcache</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.commons</groupId>
+                        <artifactId>commons-lang3</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>jedis</artifactId>
+                        <groupId>redis.clients</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework.data</groupId>
+                        <artifactId>spring-data-redis</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-net</groupId>
+                        <artifactId>commons-net</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>joda-time</groupId>
+                        <artifactId>joda-time</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>dom4j</groupId>
+                        <artifactId>dom4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>dtstack.hive</groupId>
+                        <artifactId>hive-shade</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.jcraft</groupId>
+                        <artifactId>jsch</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.mchange</groupId>
+                        <artifactId>c3p0</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.dtstack.dtcenter</groupId>
                 <artifactId>common.hadoop</artifactId>
                 <version>${dtCenter.common}</version>
                 <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.calcite</groupId>
+                        <artifactId>calcite-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.calcite</groupId>
+                        <artifactId>calcite-server</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.codehaus.jackson</groupId>
+                        <artifactId>jackson-mapper-asl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.esen.jdbc</groupId>
+                        <artifactId>gbase</artifactId>
+                    </exclusion>
                     <exclusion>
                         <groupId>org.apache.hadoop</groupId>
                         <artifactId>hadoop-common</artifactId>
@@ -185,14 +268,30 @@
                 <artifactId>common.rdbms.core</artifactId>
                 <version>${dtCenter.common}</version>
                 <exclusions>
-                    <!--                    <exclusion>
-                                            <groupId>com.dtstack.dtcenter</groupId>
-                                            <artifactId>sql-core</artifactId>
-                                        </exclusion>-->
-                    <!--                    <exclusion>
-                                            <groupId>com.dtstack.dtcenter</groupId>
-                                            <artifactId>sql-parse</artifactId>
-                                        </exclusion>-->
+                    <exclusion>
+                        <groupId>org.apache.calcite</groupId>
+                        <artifactId>calcite-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.calcite</groupId>
+                        <artifactId>calcite-server</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.codehaus.jackson</groupId>
+                        <artifactId>jackson-mapper-asl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.esen.jdbc</groupId>
+                        <artifactId>gbase</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.hive</groupId>
+                        <artifactId>hive-exec</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.alibaba</groupId>
+                        <artifactId>fastjson</artifactId>
+                    </exclusion>
                     <exclusion>
                         <groupId>com.dtstack.dtcenter</groupId>
                         <artifactId>common.base</artifactId>
@@ -258,79 +357,6 @@
                         <artifactId>hive-shade</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>com.dtstack.dtcenter</groupId>
-                <artifactId>common.base</artifactId>
-                <version>${dtCenter.common}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.alibaba</groupId>
-                        <artifactId>druid</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>net.sf.ehcache</groupId>
-                        <artifactId>ehcache</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.commons</groupId>
-                        <artifactId>commons-lang3</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>jedis</artifactId>
-                        <groupId>redis.clients</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.springframework.data</groupId>
-                        <artifactId>spring-data-redis</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>dtstack.hive</groupId>
-                        <artifactId>hive-shade</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.kerby</groupId>
-                        <artifactId>kerb-util</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>commons-net</groupId>
-                        <artifactId>commons-net</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.jcraft</groupId>
-                        <artifactId>jsch</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>joda-time</groupId>
-                        <artifactId>joda-time</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>dom4j</groupId>
-                        <artifactId>dom4j</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.mchange</groupId>
-                        <artifactId>c3p0</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-core</artifactId>
-                <version>${fastjson}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${fastjson}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-annotations</artifactId>
-                <version>${fastjson}</version>
             </dependency>
         </dependencies>
 
