@@ -337,10 +337,6 @@
                         <artifactId>db2jcc</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>com.aliyun.odps</groupId>
-                        <artifactId>odps-sdk-core</artifactId>
-                    </exclusion>
-                    <exclusion>
                         <groupId>com.mchange</groupId>
                         <artifactId>c3p0</artifactId>
                     </exclusion>
