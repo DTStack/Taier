@@ -271,10 +271,10 @@ ALTER TABLE rdos_engine_job_retry RENAME TO schedule_engine_job_retry;
 ALTER TABLE rdos_engine_job_stop_record RENAME TO schedule_engine_job_stop_record;
 ALTER TABLE rdos_node_machine RENAME TO schedule_node_machine;
 
-ALTER TABLE rdos_batch_task_shade RENAME TO schedule_batch_task_shade;
-ALTER TABLE rdos_batch_task_task_shade RENAME TO schedule_batch_task_task_shade;
-ALTER TABLE rdos_batch_job RENAME TO schedule_batch_job;
-ALTER TABLE rdos_batch_job_job RENAME TO schedule_batch_job_job;
-ALTER TABLE rdos_batch_fill_data_job RENAME TO schedule_batch_fill_data_job;
+ALTER TABLE rdos_batch_task_shade RENAME TO schedule_task_shade;
+ALTER TABLE rdos_batch_task_task_shade RENAME TO schedule_task_task_shade;
+ALTER TABLE rdos_batch_job RENAME TO schedule_job;
+ALTER TABLE rdos_batch_job_job RENAME TO schedule_job_job;
+ALTER TABLE rdos_batch_fill_data_job RENAME TO schedule_fill_data_job;
 ALTER TABLE rdos_job_graph_trigger RENAME TO schedule_job_graph_trigger;
 

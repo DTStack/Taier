@@ -1,4 +1,4 @@
-CREATE TABLE `schedule_batch_task_shade`
+CREATE TABLE `schedule_task_shade`
 (
     `id`                      int(11)      NOT NULL AUTO_INCREMENT,
     `tenant_id`               int(11)      NOT NULL DEFAULT '-1' COMMENT '租户id',
@@ -39,7 +39,7 @@ CREATE TABLE `schedule_batch_task_shade`
   AUTO_INCREMENT = 0
   DEFAULT CHARSET = utf8;
 
-CREATE TABLE `schedule_batch_task_task_shade`
+CREATE TABLE `schedule_task_task_shade`
 (
     `id`              int(11)    NOT NULL AUTO_INCREMENT,
     `tenant_id`       int(11)    NOT NULL COMMENT '租户id',
@@ -57,7 +57,7 @@ CREATE TABLE `schedule_batch_task_task_shade`
   DEFAULT CHARSET = utf8;
 
 
-CREATE TABLE `schedule_batch_job`
+CREATE TABLE `schedule_job`
 (
     `id`              int(11)      NOT NULL AUTO_INCREMENT,
     `tenant_id`       int(11)      NOT NULL COMMENT '租户id',
@@ -103,7 +103,7 @@ CREATE TABLE `schedule_batch_job`
   AUTO_INCREMENT = 0
   DEFAULT CHARSET = utf8;
 
-CREATE TABLE `schedule_batch_job_job`
+CREATE TABLE `schedule_job_job`
 (
     `id`              int(11)      NOT NULL AUTO_INCREMENT,
     `tenant_id`       int(11)      NOT NULL COMMENT '租户id',
@@ -121,8 +121,7 @@ CREATE TABLE `schedule_batch_job_job`
   DEFAULT CHARSET = utf8;
 
 
-CREATE TABLE `schedule_batch_fill_data_job`
-(
+CREATE TABLE `schedule_fill_data_job`(
     `id`              int(11)     NOT NULL AUTO_INCREMENT,
     `tenant_id`       int(11)     NOT NULL COMMENT '租户id',
     `project_id`      int(11)     NOT NULL COMMENT '项目id',
