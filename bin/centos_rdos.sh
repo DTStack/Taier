@@ -23,39 +23,20 @@ LS_OPEN_FILES=16384
 LS_NICE=19
 KILL_ON_STOP_TIMEOUT=1
 LS_OPTS=""
-REMOTE_PORT="9998"
-name=jlogdistribute
+REMOTE_PORT="9996"
+name=rdos
 LS_HEAP_SIZE="128m"
-ls_conf=${LS_CONF_DIR}/node.yaml
+ls_conf=${LS_CONF_DIR}/node.yml
 ls_log="${LS_LOG_DIR}/$name.log"
 pidfile="${CMD_HOME}/run/$name.pid"
-gc_log=${CMD_HOME}/logs/node.gc
-heapdump=${CMD_HOME}/node.hprof
+gc_log=${CMD_HOME}/logs/rdos.gc
+heapdump=${CMD_HOME}/rdos.hprof
 
-program=$CMD_HOME/bin/base.sh
-
-arg_num=$#
-createLSOPTS(){
-    extOps=''
-    if [[ $arg_num -gt 1 ]] ; then
-        index=0
-        for key in $@
-        do
-           if [[ $index -gt 0 ]] ; then
-                extOps=$extOps" "$key
-           fi
-           let index=$index+1
-        done
-    fi
-    echo $extOps
-}
-LS_OPTS=`createLSOPTS $@`
-
+program=${LS_HOME}/bin/base.sh
 args="agent -f ${ls_conf} -l ${ls_log} ${LS_OPTS}"
 #args="agent -f ${ls_conf} ${LS_OPTS}"
 
-# Get lsb functions
-. /lib/lsb/init-functions
+. /etc/init.d/functions
 
 quiet() {
   "$@" > /dev/null 2>&1
@@ -63,27 +44,31 @@ quiet() {
 }
 
 start() {
-  log_begin_msg "Starting $name"
+  COMPONENT=$1
+  if [ -z $COMPONENT ] ; then
+    COMPONENT="entrance"
+  fi  
 
-  JAVA_OPTS="${JAVA_OPTS} -Djava.io.tmpdir=${LS_HOME} -Xloggc:${gc_log} -XX:HeapDumpPath=${heapdump} -Dcom.sun.management.jmxremote.port=${REMOTE_PORT}"
+  echo -n "Starting $name component is $COMPONENT, "
+
+  JAVA_OPTS="${JAVA_OPTS} -Djava.io.tmpdir=${LS_HOME} -Xloggc:${gc_log} -XX:HeapDumpPath=${heapdump}"
   HOME=${LS_HOME}
   export PATH HOME LS_HEAP_SIZE JAVA_OPTS LS_USE_GC_LOGGING LS_GC_LOG_FILE
   #ulimit -n ${LS_OPEN_FILES}
 
   nice -n ${LS_NICE} sh -c "
     cd $LS_HOME
-    exec \"$program\" $args
-  " > "${LS_LOG_DIR}/$name.stdout" 2> "${LS_LOG_DIR}/$name.err" &
-  #/dev/null 2>&1
+    exec \"$program\" $COMPONENT $args
+   " 1> "${LS_LOG_DIR}/$name.stdout" 2> "${LS_LOG_DIR}/$name.err" &
 
   echo $! > $pidfile
-  echo "$name started."
-  log_end_msg $?
+  ret=$?
+  [ $ret -eq 0 ] && success || failure; echo
   return 0
 }
 
 stop() {
-  log_begin_msg "Stoping $name"
+  echo -n "Stoping $name "
   # Try a few times to kill TERM the program
   if status ; then
     pid=`cat "$pidfile"`
@@ -105,10 +90,11 @@ stop() {
         return 1 # stop timed out and not forced
       fi
     else
-      echo "$name stopped."
+      echo -n "$name stopped "
     fi
   fi
-  log_end_msg $?
+  ret=$?
+  [ $ret -eq 0 ] && success || failure; echo
 }
 
 status() {
@@ -130,24 +116,26 @@ status() {
 }
 
 reload() {
-  log_begin_msg "Reload $name"
+  echo -n "Reload $name "
   if status ; then
     kill -HUP `cat "$pidfile"`
   fi
-  log_end_msg $?
+  ret=$?
+  [ $ret -eq 0 ] && success || failure; echo
 }
 
 force_stop() {
-  log_begin_msg "Force stop $name"
+  echo -n "Force stop $name "
   if status ; then
     stop
     status && kill -KILL `cat "$pidfile"`
   fi
-  log_end_msg $?
+  ret=$?
+  [ $ret -eq 0 ] && success || failure; echo
 }
 
 configtest() {
-  log_begin_msg "Configtest $name"
+  echo -n "Configtest $name "
   # Check if a config file exists
   if [ ! "$(ls -A ${LS_CONF_DIR}/* 2> /dev/null)" ]; then
     echo "There aren't any configuration files in ${LS_CONF_DIR}"
@@ -162,7 +150,8 @@ configtest() {
   [ $? -eq 0 ] && return 0
   # Program not configured
   return 6
-  log_end_msg $?
+  ret=$?
+  [ $ret -eq 0 ] && success || failure; echo
 }
 
 case "$1" in
@@ -170,9 +159,9 @@ case "$1" in
     status
     code=$?
     if [ $code -eq 0 ]; then
-      echo "$name is already running"
+      echo "$name is already running "
     else
-      start
+      start $2
       code=$?
     fi
     exit $code
@@ -183,9 +172,9 @@ case "$1" in
     status
     code=$?
     if [ $code -eq 0 ] ; then
-      echo "$name is running"
+      echo "$name is running "
     else
-      echo "$name is not running"
+      echo "$name is not running "
     fi
     exit $code
     ;;
