@@ -263,7 +263,7 @@ CREATE TABLE `rdos_job_graph_trigger`
 ---- 新增字段2
 ALTER TABLE rdos_plugin_info RENAME TO schedule_plugin_info;
 ALTER TABLE rdos_engine_job RENAME TO schedule_engine_job;
-ALTER TABLE rdos_stream_task_checkpoint RENAME TO schedule_stream_task_checkpoint;
+ALTER TABLE rdos_stream_task_checkpoint RENAME TO schedule_engine_job_checkpoint;
 ALTER TABLE rdos_engine_job_cache RENAME TO schedule_engine_job_cache;
 ALTER TABLE rdos_plugin_job_info RENAME TO schedule_plugin_job_info;
 ALTER TABLE rdos_engine_unique_sign RENAME TO schedule_engine_unique_sign;

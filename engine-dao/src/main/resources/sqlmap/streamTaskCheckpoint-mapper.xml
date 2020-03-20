@@ -7,18 +7,18 @@
     </sql>
 
     <insert id="insert" parameterType="StreamTaskCheckpoint" useGeneratedKeys="true" keyProperty="id">
-        replace into schedule_stream_task_checkpoint( task_id, task_engine_id, checkpoint_id, checkpoint_trigger, checkpoint_savepath, checkpoint_counts)
+        replace into schedule_engine_job_checkpoint( task_id, task_engine_id, checkpoint_id, checkpoint_trigger, checkpoint_savepath, checkpoint_counts)
         values(#{taskId}, #{engineTaskId}, #{checkpointId}, #{checkpointTrigger}, #{checkpointSavepath}, #{checkpointCounts});
     </insert>
 
     <update id="batchDeleteByEngineTaskIdAndCheckpointId">
-        update schedule_stream_task_checkpoint
+        update schedule_engine_job_checkpoint
         set is_deleted = 1
         where task_engine_id = #{taskEngineId} and #{checkpointId}+0 >checkpoint_id and is_deleted = 0;
     </update>
 
     <update id="cleanAllCheckpointByTaskEngineId">
-        update schedule_stream_task_checkpoint
+        update schedule_engine_job_checkpoint
         set is_deleted = 1
         where task_engine_id = #{taskEngineId} and is_deleted = 0;
     </update>
@@ -26,7 +26,7 @@
     <select id="listByTaskIdAndRangeTime" resultType="StreamTaskCheckpoint">
         select
         <include refid="select_content_fragment"/>
-        from schedule_stream_task_checkpoint
+        from schedule_engine_job_checkpoint
         where is_deleted=0 and task_id=#{taskId}
         <if test="triggerStart != null and triggerEnd != null">
             and (UNIX_TIMESTAMP(checkpoint_trigger)>=#{triggerStart} or #{triggerEnd}>=UNIX_TIMESTAMP(checkpoint_trigger))
@@ -37,7 +37,7 @@
     <select id="getByTaskIdAndEngineTaskId" resultType="StreamTaskCheckpoint">
         select
         <include refid="select_content_fragment"/>
-        from schedule_stream_task_checkpoint
+        from schedule_engine_job_checkpoint
         where is_deleted=0 and task_id=#{taskId}
         and task_engine_id = #{taskEngineId}
         order by CONVERT(checkpoint_id,SIGNED) desc limit 1
@@ -46,7 +46,7 @@
     <select id="getByTaskEngineIdAndCheckpointIndexAndCount" resultType="StreamTaskCheckpoint">
         select
         <include refid="select_content_fragment"/>
-        from schedule_stream_task_checkpoint
+        from schedule_engine_job_checkpoint
         where is_deleted =0 and task_engine_id = #{taskEngineId}
         order by CONVERT(checkpoint_id,SIGNED) desc
         limit #{startIndex}, #{count}
@@ -54,7 +54,7 @@
 
 
     <update id="updateCheckpoint">
-        update schedule_stream_task_checkpoint
+        update schedule_engine_job_checkpoint
         set checkpoint_savepath = #{checkpoint}
         where task_id=#{taskId}
     </update>
@@ -62,13 +62,13 @@
     <select id="getByTaskId" resultType="StreamTaskCheckpoint">
         select
         <include refid="select_content_fragment"/>
-        from schedule_stream_task_checkpoint
+        from schedule_engine_job_checkpoint
         where is_deleted=0 and task_id=#{taskId}
         order by gmt_modified asc limit 1
     </select>
 
     <delete id="deleteByTaskId">
-        delete from schedule_stream_task_checkpoint
+        delete from schedule_engine_job_checkpoint
         where task_id=#{taskId}
     </delete>
 </mapper>

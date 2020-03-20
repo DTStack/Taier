@@ -38,7 +38,7 @@ CREATE TABLE `schedule_engine_job` (
   KEY `index_gmt_modified` (`gmt_modified`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
-CREATE TABLE `schedule_stream_task_checkpoint` (
+CREATE TABLE `schedule_engine_job_checkpoint` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `task_id` varchar(64) NOT NULL COMMENT '任务id',
   `task_engine_id` varchar(64) NOT NULL COMMENT '任务对于的引擎id',
