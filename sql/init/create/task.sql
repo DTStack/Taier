@@ -56,7 +56,6 @@ CREATE TABLE `schedule_task_task_shade`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
-
 CREATE TABLE `schedule_job`
 (
     `id`              int(11)      NOT NULL AUTO_INCREMENT,
@@ -121,7 +120,8 @@ CREATE TABLE `schedule_job_job`
   DEFAULT CHARSET = utf8;
 
 
-CREATE TABLE `schedule_fill_data_job`(
+CREATE TABLE `schedule_fill_data_job`
+(
     `id`              int(11)     NOT NULL AUTO_INCREMENT,
     `tenant_id`       int(11)     NOT NULL COMMENT '租户id',
     `project_id`      int(11)     NOT NULL COMMENT '项目id',
