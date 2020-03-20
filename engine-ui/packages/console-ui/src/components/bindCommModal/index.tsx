@@ -37,7 +37,7 @@ class BindCommModal extends React.Component<any, any> {
             queueList
         })
     }
-    /* eslint-disable */
+
     getServiceParam () {
         let params: any = {
             canSubmit: false,
@@ -48,8 +48,8 @@ class BindCommModal extends React.Component<any, any> {
         const { tenantInfo = {}, isBindTenant } = this.props;
         validateFields((err: any) => {
             if (!err) {
-                params.canSubmit = true,
-                params.reqParams = isBindTenant ? reqParams : Object.assign(reqParams, { tenantId: tenantInfo.tenantId }) // 切换队列覆盖默认值name
+                params.canSubmit = true;
+                params.reqParams = isBindTenant ? reqParams : Object.assign(reqParams, { tenantId: tenantInfo.tenantId }); // 切换队列覆盖默认值name
             }
         })
         return params
@@ -91,12 +91,12 @@ class BindCommModal extends React.Component<any, any> {
                                     allowClear
                                     showSearch
                                     placeholder='请选择租户'
-                                    optionFilterProp="children"
+                                    optionFilterProp="title"
                                     filterOption={(input: any, option: any) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                     disabled={disabled}
                                 >
                                     {tenantList && tenantList.map((tenantItem: any) => {
-                                        return <Option key={`${tenantItem.tenantId}`} value={`${tenantItem.tenantId}`}>{tenantItem.tenantName}</Option>
+                                        return <Option key={`${tenantItem.tenantId}`} value={`${tenantItem.tenantId}`} title={tenantItem.tenantName}>{tenantItem.tenantName}</Option>
                                     })}
                                 </Select>
                             )}
