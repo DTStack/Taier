@@ -178,6 +178,7 @@ public class JobSubmitDealer implements Runnable {
                 if (!checkMaxPriority(jobResource, jobClient.getPriority())) {
                     logger.info("jobId:{} checkMaxPriority is false, wait other node job which priority higher.", jobClient.getTaskId());
                     queue.put(jobClient);
+                    Thread.sleep(jobLackingInterval);
                     continue;
                 }
                 //提交任务
