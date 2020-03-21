@@ -231,7 +231,7 @@ public class ComponentService {
         }
     }
 
-    public Component getOne(Long id) {
+    public Component getOne(@Param("id") Long id) {
         Component component = componentDao.getOne(id);
         if (component == null) {
             throw new RdosDefineException("组件不存在");
