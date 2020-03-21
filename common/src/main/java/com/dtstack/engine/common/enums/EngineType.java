@@ -12,33 +12,22 @@ import java.util.regex.Pattern;
  */
 
 public enum EngineType {
-    //
+
     Flink('0'),
-    //
     Spark('1'),
 //    Datax('2'),
-    //
     Learning('3'),
-    //
     DtScript('4'),
-    //
     Mysql('5'),
-    //
     Oracle('6'),
-    //
     Sqlserver('7'),
-    //
     Maxcompute('8'),
-    //
     Hadoop('9'),
-    //
     Hive('a'),
-    //
     PostgreSQL('b'),
-    //
     Kylin('c'),
-    //
-    Impala('d');
+    Impala('d'),
+    TiDB('e');
 
     private char val;
 
@@ -81,6 +70,8 @@ public enum EngineType {
                 return EngineType.Kylin;
             case "impala":
                 return EngineType.Impala;
+            case "tidb":
+                return EngineType.TiDB;
             default:
                 throw new UnsupportedOperationException("unsupported operation exception");
         }
