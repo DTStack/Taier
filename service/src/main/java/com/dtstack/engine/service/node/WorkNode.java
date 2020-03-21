@@ -2,6 +2,7 @@ package com.dtstack.engine.service.node;
 
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.config.ConfigParse;
+import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -31,6 +32,7 @@ import com.google.common.collect.Maps;
 import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -285,12 +287,38 @@ public class WorkNode {
             //从engine获取log
             engineLog = JobClient.getEngineLog(engineType, pluginInfoStr, jobIdentifier);
             if (engineLog != null) {
-                rdosEngineBatchJobDao.updateEngineLog(jobId, engineLog);
+                updateJobEngineLog(jobId, engineLog, engineType);
             }
         } catch (Throwable e){
             LOG.error("getAndUpdateEngineLog error jobId {} ,error info {}..", jobId, ExceptionUtil.getErrorMessage(e));
         }
         return engineLog;
+    }
+
+    public void updateJobEngineLog(String jobId, String jobLog, String engineType) {
+        if (!EngineType.isFlink(engineType)) {
+            rdosEngineBatchJobDao.updateEngineLog(jobId, jobLog);
+            return;
+        }
+
+        RdosEngineJob batchJob = rdosEngineBatchJobDao.getRdosTaskByTaskId(jobId);
+        if (batchJob != null) {
+            if (StringUtils.isEmpty(batchJob.getEngineLog())) {
+                rdosEngineBatchJobDao.updateEngineLog(jobId, jobLog);
+            } else {
+                try {
+                    Map<String, Object> newLogMap = PublicUtil.jsonStrToObject(jobLog, Map.class);
+                    Map<String, Object> oldLogMap = PublicUtil.jsonStrToObject(batchJob.getEngineLog(), Map.class);
+                    newLogMap.forEach((key, value) -> {
+                        oldLogMap.put(key, value);
+                    });
+
+                    rdosEngineBatchJobDao.updateEngineLog(jobId, PublicUtil.objToString(oldLogMap));
+                } catch (Exception e) {
+                    LOG.warn("update batch engine log error,new log:{}, old log:{},msg:{}", jobLog, batchJob.getEngineLog(), e);
+                }
+            }
+        }
     }
 
     /**

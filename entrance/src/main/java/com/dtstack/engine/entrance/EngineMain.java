@@ -1,6 +1,7 @@
 package com.dtstack.engine.entrance;
 
 import com.dtstack.engine.common.config.ConfigParse;
+import com.dtstack.engine.common.security.NoExitSecurityManager;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
 import com.dtstack.engine.entrance.configs.YamlConfig;
 import com.dtstack.engine.entrance.log.LogbackComponent;
@@ -40,6 +41,7 @@ public class EngineMain {
 			initService(nodeConfig);
 			// add hook
 			addShutDownHook();
+			System.setSecurityManager(new NoExitSecurityManager());
 		} catch (Throwable e) {
 			logger.error("node start error:{}", e);
 			System.exit(-1);

@@ -1,5 +1,6 @@
 package com.dtstack.engine.service.task;
 
+import com.dtstack.engine.common.config.ConfigParse;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
@@ -12,6 +13,7 @@ import com.dtstack.engine.service.db.dao.RdosEngineJobDAO;
 import com.dtstack.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.engine.service.db.dao.RdosPluginInfoDAO;
 import com.dtstack.engine.service.db.dataobject.RdosEngineJob;
+import com.dtstack.engine.service.node.WorkNode;
 import com.dtstack.engine.service.util.TaskIdUtil;
 import com.dtstack.engine.service.zk.cache.ZkLocalCache;
 import com.dtstack.engine.service.zk.data.BrokerDataShard;
@@ -50,7 +52,9 @@ public class TaskStatusListener implements Runnable{
 
     private static final int JOB_FAILOVER_CONFIG = 50;
 
-	private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
+    private static final long JOB_LOG_DELAY = ConfigParse.getJobLogDelay();
+
+    private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
 
 	/**记录job 连续某个状态的频次*/
 	private Map<String, TaskStatusFrequency> jobStatusFrequency = Maps.newConcurrentMap();
@@ -71,6 +75,8 @@ public class TaskStatusListener implements Runnable{
     private Cache<String, Long> failoverTimestampCache = CacheBuilder.newBuilder().maximumSize(JOB_FAILOVER_CONFIG).build();
 
     private CheckpointListener checkpointListener;
+
+    private JobCompletedLogDelayDealer jobCompletedLogDelayDealer = new JobCompletedLogDelayDealer();
 
     public TaskStatusListener(CheckpointListener checkpointListener) {
         this.checkpointListener = checkpointListener;
@@ -100,8 +106,6 @@ public class TaskStatusListener implements Runnable{
             for(Map.Entry<String, FailedTaskInfo> failedTaskEntry : failedJobCache.entrySet()){
                 FailedTaskInfo failedTaskInfo = failedTaskEntry.getValue();
                 String key = failedTaskEntry.getKey();
-                updateJobEngineLog(failedTaskInfo.getJobId(), failedTaskInfo.getJobIdentifier(),
-                        failedTaskInfo.getEngineType(), failedTaskInfo.getComputeType() , failedTaskInfo.getPluginInfo());
 
                 boolean streamAndopenCheckpoint = isFlinkStreamTask(failedTaskInfo) && checkpointListener.checkOpenCheckPoint(failedTaskInfo.getJobId());
                 if(streamAndopenCheckpoint) {
@@ -196,7 +200,7 @@ public class TaskStatusListener implements Runnable{
 
                 if(rdosTaskStatus != null){
 
-                    updateJobEngineLog(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
+//                    updateJobEngineLog(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
 
                     rdosTaskStatus = checkNotFoundStatus(rdosTaskStatus, taskId);
 
@@ -212,6 +216,9 @@ public class TaskStatusListener implements Runnable{
                     }
 
                     zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
+                    if (RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus())){
+                        jobLogDelayDealer(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
+                    }
                     //数据的更新顺序，先更新job_cache，再更新engine_batch_job
 
                     if (computeType == ComputeType.STREAM.getType()){
@@ -235,25 +242,10 @@ public class TaskStatusListener implements Runnable{
         }
     }
 
-	private void updateJobEngineLog(String jobId, JobIdentifier jobIdentifier, String engineType, int computeType, String pluginInfo){
-        try {
-            //从engine获取log
-            String jobLog = JobClient.getEngineLog(engineType, pluginInfo, jobIdentifier);
-            if (jobLog != null){
-                updateJobEngineLog(jobId, jobLog, computeType);
-            }
-        } catch (Throwable e){
-            String errorLog = ExceptionUtil.getErrorMessage(e);
-            logger.error("update JobEngine Log error jobid {} ,error info {}..", jobId, errorLog);
-            updateJobEngineLog(jobId, errorLog, computeType);
-        }
+	private void jobLogDelayDealer(String jobId, JobIdentifier jobIdentifier, String engineType, int computeType, String pluginInfo){
+        jobCompletedLogDelayDealer.addCompletedTaskInfo(new CompletedTaskInfo(jobId, jobIdentifier, engineType, computeType, pluginInfo, JOB_LOG_DELAY));
     }
 
-    private void updateJobEngineLog(String jobId, String jobLog, Integer computeType){
-
-        //写入db
-        rdosBatchEngineJobDAO.updateEngineLog(jobId, jobLog);
-    }
 
     private RdosTaskStatus checkNotFoundStatus(RdosTaskStatus taskStatus, String jobId){
         TaskStatusFrequency statusPair = updateJobStatusFrequency(jobId, taskStatus.getStatus());

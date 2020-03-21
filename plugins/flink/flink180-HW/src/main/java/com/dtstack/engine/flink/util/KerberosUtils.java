@@ -85,18 +85,8 @@ public class KerberosUtils {
                     if (!dirs.exists()){
                         dirs.mkdirs();
                     }
-                    SFTPHandler handler = null;
-                    try {
-                        handler = SFTPHandler.getInstance(config.getSftpConf());
-                        keytabPath = loadFromSftp(MapUtils.getString(kerberosConfig, key), remoteDir, localPath, handler);
-                        LOG.info("load file from sftp: " + keytabPath);
-                    } catch (Exception e){
-                        throw new RuntimeException(e);
-                    } finally {
-                        if (handler != null){
-                            handler.close();
-                        }
-                    }
+                    SFTPHandler handler = SFTPHandler.getInstance(config.getSftpConf());
+                    keytabPath = handler.loadFromSftp(MapUtils.getString(kerberosConfig, key), remoteDir, localPath);
                 }
                 kerberosConfig.put(key, keytabPath);
             }
@@ -117,6 +107,7 @@ public class KerberosUtils {
         //KerberosUtils.setJaasConf(zkLoginName, zkPrincipal, zkKeytabPath);
         KerberosUtils.setZookeeperServerPrincipal("zookeeper.server.principal", zkPrincipal);
         KerberosUtils.login(userPrincipal, userKeytabPath, krb5ConfPath, hadoopConf);
+
     }
 
     public synchronized static void login(String userPrincipal, String userKeytabPath, String krb5ConfPath, Configuration conf)
@@ -417,16 +408,5 @@ public class KerberosUtils {
             LOG.error("Get localhostname error: " + e);
         }
         return localhost;
-    }
-
-    private static String loadFromSftp(String fileName, String remoteDir, String localDir, SFTPHandler handler){
-        String remoteFile = remoteDir + File.separator + LOCALHOST + File.separator + fileName;
-        String localFile = localDir + File.separator + fileName;
-        if (new File(fileName).exists()){
-            return fileName;
-        } else {
-            handler.downloadFile(remoteFile, localFile);
-            return localFile;
-        }
     }
 }

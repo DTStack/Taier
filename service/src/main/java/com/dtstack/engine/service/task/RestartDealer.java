@@ -1,9 +1,11 @@
 package com.dtstack.engine.service.task;
 
+import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.ClientCache;
 import com.dtstack.engine.common.IClient;
@@ -23,8 +25,8 @@ import com.dtstack.engine.service.node.WorkNode;
 import com.dtstack.engine.service.util.TaskIdUtil;
 import com.dtstack.engine.service.zk.cache.ZkLocalCache;
 import com.google.common.base.Strings;
-import javafx.util.Pair;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -140,18 +142,23 @@ public class RestartDealer {
         JobClient clientWithStrategy = getJobClientWithStrategy(jobId, engineJobId, appId, engineType, pluginInfo, alreadyRetryNum);
         if (clientWithStrategy == null) {
             clientWithStrategy = jobClient;
-            clientWithStrategy.setCallBack((jobStatus)->{
-                updateJobStatus(jobId, computeType, jobStatus);
-            });
+        }
 
-            if(EngineType.Kylin.name().equalsIgnoreCase(clientWithStrategy.getEngineType())){
-                setRetryTag(clientWithStrategy);
-            }
+        // 通过engineJobId或appId获取日志
+        clientWithStrategy.setEngineTaskId(engineJobId);
+        clientWithStrategy.setApplicationId(appId);
 
-            //checkpoint的路径
-            if(EJobType.SYNC.equals(clientWithStrategy.getJobType())){
-                setCheckpointPath(clientWithStrategy);
-            }
+        clientWithStrategy.setCallBack((jobStatus)->{
+            updateJobStatus(jobId, computeType, jobStatus);
+        });
+
+        if(EngineType.Kylin.name().equalsIgnoreCase(clientWithStrategy.getEngineType())){
+            setRetryTag(clientWithStrategy);
+        }
+
+        //checkpoint的路径
+        if(EJobType.SYNC.equals(clientWithStrategy.getJobType())){
+            setCheckpointPath(clientWithStrategy);
         }
 
         resetStatus(clientWithStrategy, false);
@@ -307,8 +314,11 @@ public class RestartDealer {
         //重试任务更改在zk的状态，统一做状态清理
         zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.RESTARTING.getStatus());
 
+        RdosEngineJob batchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
+        WorkNode.getInstance().getAndUpdateEngineLog(jobId, jobClient.getEngineTaskId(), jobClient.getApplicationId(), batchJob.getPluginInfoId());
+
         //重试的任务不置为失败，waitengine
-        jobRetryRecord(jobClient);
+        jobRetryRecord(jobClient, batchJob);
         
         if (submitFailed){
         	engineBatchJobDAO.updateJobSubmitFailed(jobId, null, RdosTaskStatus.RESTARTING.getStatus(),null);
@@ -322,9 +332,11 @@ public class RestartDealer {
         engineBatchJobDAO.resetExecTime(jobId);
     }
 
-    private void jobRetryRecord(JobClient jobClient) {
+    private void jobRetryRecord(JobClient jobClient, RdosEngineJob batchJob) {
+        if (null == batchJob){
+            return;
+        }
         try {
-            RdosEngineJob batchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
             RdosEngineJobRetry batchJobRetry = RdosEngineJobRetry.toEntity(batchJob, jobClient);
             batchJobRetry.setStatus(RdosTaskStatus.RESTARTING.getStatus().byteValue());
             engineJobRetryDAO.insert(batchJobRetry);
