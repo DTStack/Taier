@@ -143,6 +143,10 @@
                 <version>${dtCenter.common}</version>
                 <exclusions>
                     <exclusion>
+                        <artifactId>netty-all</artifactId>
+                        <groupId>io.netty</groupId>
+                    </exclusion>
+                    <exclusion>
                         <groupId>org.apache.calcite</groupId>
                         <artifactId>calcite-core</artifactId>
                     </exclusion>
@@ -210,6 +214,10 @@
                 <version>${dtCenter.common}</version>
                 <exclusions>
                     <exclusion>
+                        <artifactId>netty-all</artifactId>
+                        <groupId>io.netty</groupId>
+                    </exclusion>
+                    <exclusion>
                         <groupId>org.apache.calcite</groupId>
                         <artifactId>calcite-core</artifactId>
                     </exclusion>
@@ -268,6 +276,10 @@
                 <artifactId>common.rdbms.core</artifactId>
                 <version>${dtCenter.common}</version>
                 <exclusions>
+                    <exclusion>
+                        <artifactId>netty-all</artifactId>
+                        <groupId>io.netty</groupId>
+                    </exclusion>
                     <exclusion>
                         <groupId>org.apache.kylin</groupId>
                         <artifactId>kylin-jdbc</artifactId>
