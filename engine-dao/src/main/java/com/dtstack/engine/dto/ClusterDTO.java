@@ -8,6 +8,12 @@ public class ClusterDTO extends Cluster {
 
     private List<EngineDTO> engineList;
 
+    private Long clusterId;
+
+    public Long getClusterId() {
+        return clusterId;
+    }
+
     public List<EngineDTO> getEngineList() {
         return engineList;
     }
@@ -15,5 +21,6 @@ public class ClusterDTO extends Cluster {
     public void setEngineList(List<EngineDTO> engineList) {
         this.engineList = engineList;
     }
+
 }
 

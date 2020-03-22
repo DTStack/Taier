@@ -37,6 +37,14 @@ public class RequestUtil {
         return params;
     }
 
+    public static Map<String, Object> getRequestParams(Map<String, Object> params, RoutingContext routingContext) throws Exception {
+        if (params == null) {
+            params = Maps.newHashMap();
+        }
+        params.putAll(getCommonAttr(routingContext));
+        return params;
+    }
+
     public static void addBodyParam(ApplicationContext context, RoutingContext routingContext, Map<String, Object> bodyParam, Map<String, Object> params) {
         if (bodyParam == null) {
             bodyParam = routingContext.getBodyAsJson().getMap();

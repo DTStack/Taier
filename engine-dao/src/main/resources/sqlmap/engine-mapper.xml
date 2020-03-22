@@ -72,4 +72,10 @@
             gmt_modified = now()
         </set>
     </sql>
+
+    <update id="updateSyncTypeByClusterIdAndEngineType">
+        update console_engine
+        set sync_type = #{syncType}
+        where cluster_id = #{clusterId} and engine_type = #{engineType} and is_deleted = 0
+    </update>
 </mapper>

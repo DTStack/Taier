@@ -128,6 +128,7 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
             try {
                 if (ETableType.HIVE.getType() == tableType) {
                     job = this.createPartition(taskShade.getDtuicTenantId(), job);
+                    //todo
                 } else if (ETableType.IMPALA.getType() == tableType) {
                     job = this.createPartitionImpala(taskShade.getDtuicTenantId(), job, actionParam);
                 }
@@ -233,6 +234,7 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
                 Long time = Timestamp.valueOf(LocalDateTime.now()).getTime();
                 String alterSql = String.format(ADD_PART_TEMP, tableName, taskName, time);
                 String location = "";
+                //todo
                 if (ETableType.IMPALA.getType() == tableType) {
                     impalaService.executeQuery(dtuicTenantId, db, alterSql);
                     location = impalaService.getTableLocation(dtuicTenantId, db, tableName);

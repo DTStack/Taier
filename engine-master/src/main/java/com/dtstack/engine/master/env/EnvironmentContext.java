@@ -162,6 +162,10 @@ public class EnvironmentContext {
         return environment.getProperty("redis.sentinel", "");
     }
 
+    public String getDtUicUrl() {
+        return environment.getProperty("dtuic.url");
+    }
+
     /**
      * ===============hadoop ===============
      */

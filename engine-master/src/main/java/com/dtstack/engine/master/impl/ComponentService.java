@@ -31,6 +31,7 @@ import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.utils.EngineUtil;
 import com.dtstack.engine.master.utils.HadoopConf;
 import com.dtstack.engine.master.utils.XmlFileUtil;
+import com.dtstack.engine.vo.EngineTenantVO;
 import com.dtstack.engine.vo.TestConnectionVO;
 import com.google.common.collect.Lists;
 import com.jcraft.jsch.ChannelSftp;
@@ -424,8 +425,7 @@ public class ComponentService {
                 throw new RdosDefineException(ErrorCode.TEST_CONN_FAIL.getDescription());
             }
         }
-
-        updateCache(component.getEngineId());
+        updateCache(component.getEngineId(),component.getComponentTypeCode());
     }
 
     private void addClusterKerberosConfig(Map<String, Object> config, Component component) {
@@ -454,19 +454,34 @@ public class ComponentService {
     /**
      * 更新缓存
      */
-    public void updateCache(Long engineId){
-        List<Queue> refreshQueues = queueDao.listByEngineId(engineId);
-        if(CollectionUtils.isEmpty(refreshQueues)){
-            return;
-        }
+    public void updateCache(Long engineId, Integer componentCode) {
+        Set<Long> dtUicTenantIds = new HashSet<>();
+        if (Objects.nonNull(componentCode) &&(
+                EComponentType.TIDB_SQL.getTypeCode() == componentCode ||
+                        EComponentType.LIBRA_SQL.getTypeCode() == componentCode)) {
 
-        List<Long> queueIds = refreshQueues.stream().map(BaseEntity::getId).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(queueIds)) {
-            return;
-        }
+            //tidb 和libra 没有queue
+            List<EngineTenantVO> tenantVOS = engineTenantDao.listEngineTenant(engineId);
+            if(CollectionUtils.isNotEmpty(tenantVOS)){
+                for (EngineTenantVO tenantVO : tenantVOS) {
+                    if(Objects.nonNull(tenantVO) && Objects.nonNull(tenantVO.getTenantId())){
+                        dtUicTenantIds.add(tenantVO.getTenantId());
+                    }
+                }
+            }
+        } else {
+            List<Queue> refreshQueues = queueDao.listByEngineId(engineId);
+            if (CollectionUtils.isEmpty(refreshQueues)) {
+                return;
+            }
 
-        List<Long> tenantIds = engineTenantDao.listTenantIdByQueueIds(queueIds);
-        List<Long> dtUicTenantIds = tenantDao.listDtUicTenantIdByIds(tenantIds);
+            List<Long> queueIds = refreshQueues.stream().map(BaseEntity::getId).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(queueIds)) {
+                return;
+            }
+            List<Long> tenantIds = engineTenantDao.listTenantIdByQueueIds(queueIds);
+            dtUicTenantIds = new HashSet<>(tenantDao.listDtUicTenantIdByIds(tenantIds));
+        }
         if (!dtUicTenantIds.isEmpty()) {
             for (Long uicTenantId : dtUicTenantIds) {
                 consoleCache.publishRemoveMessage(uicTenantId.toString());
@@ -903,7 +918,8 @@ public class ComponentService {
 
         //刷新缓存
         List<Engine> engines = engineDao.listByClusterId(clusterId);
-        engines.stream().forEach(engine -> updateCache(engine.getId()));
+        engines.stream().forEach(engine -> updateCache(engine.getId(),null));
+
     }
 
     private File renameFile(String localKerberosConf, Resource resource) {
