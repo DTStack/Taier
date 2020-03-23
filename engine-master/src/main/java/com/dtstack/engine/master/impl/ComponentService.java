@@ -645,7 +645,7 @@ public class ComponentService {
             }
 
             Resource resource = resources.get(0);
-            if (!resource.getContentType().contains(ZIP_CONTENT_TYPE)) {
+            if (!resource.getFileName().contains(ZIP_CONTENT_TYPE)) {
                 throw new RdosDefineException("压缩包格式仅支持ZIP格式");
             }
 
