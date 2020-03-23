@@ -14,6 +14,7 @@ import com.dtstack.engine.service.db.dataobject.RdosEngineJob;
 import com.dtstack.engine.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.engine.service.db.dataobject.RdosEngineJobStopRecord;
 import com.dtstack.engine.service.node.WorkNode;
+import com.dtstack.engine.service.zk.ZkDistributed;
 import com.dtstack.engine.service.zk.cache.ZkLocalCache;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -64,7 +65,7 @@ public class ConsoleServiceImpl {
 
     public List<String> nodeAddress() {
         try {
-            return engineJobCacheDao.getAllNodeAddress();
+            return ZkDistributed.getZkDistributed().getAliveBrokersChildren();
         } catch (Exception e) {
             return Collections.EMPTY_LIST;
         }
