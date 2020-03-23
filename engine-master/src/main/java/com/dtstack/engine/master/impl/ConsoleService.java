@@ -29,6 +29,7 @@ import com.dtstack.engine.master.cache.ShardCache;
 import com.dtstack.engine.master.component.ComponentFactory;
 import com.dtstack.engine.master.component.FlinkComponent;
 import com.dtstack.engine.master.component.YARNComponent;
+import com.dtstack.engine.master.zookeeper.ZkService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -84,6 +85,9 @@ public class ConsoleService {
     private ShardCache shardCache;
 
     @Autowired
+    private ZkService zkService;
+
+    @Autowired
     private EngineJobStopRecordDao engineJobStopRecordDao;
 
 
@@ -101,7 +105,7 @@ public class ConsoleService {
 
     public List<String> nodeAddress() {
         try {
-            return engineJobCacheDao.getAllNodeAddress();
+            return zkService.getAliveBrokersChildren();
         } catch (Exception e) {
             return Collections.EMPTY_LIST;
         }
