@@ -16,6 +16,7 @@ import com.dtstack.engine.dao.QueueDao;
 import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.domain.*;
 import com.dtstack.engine.domain.Queue;
+import com.dtstack.engine.dto.ClusterDTO;
 import com.dtstack.engine.dto.EngineDTO;
 import com.dtstack.engine.master.component.ComponentFactory;
 import com.dtstack.engine.master.component.YARNComponent;
@@ -105,12 +106,21 @@ public class EngineService {
         return array.toJSONString();
     }
 
-    @Forbidden
-    public void addEngines(Long clusterId, List<EngineDTO> engineDTOList){
-        EngineAssert.assertTrue(CollectionUtils.isNotEmpty(engineDTOList), ErrorCode.INVALID_PARAMETERS.getDescription());
+    /**
+     * 添加多个engine
+     * @param clusterDTO
+     */
+    public void addEngines(ClusterDTO clusterDTO){
+        EngineAssert.assertTrue(Objects.nonNull(clusterDTO), ErrorCode.INVALID_PARAMETERS);
+        EngineAssert.assertTrue(CollectionUtils.isNotEmpty(clusterDTO.getEngineList()), ErrorCode.INVALID_PARAMETERS);
 
-        for (EngineDTO engineDTO : engineDTOList) {
-            addEngine(clusterId, engineDTO.getEngineName(), engineDTO.getComponentTypeCodeList());
+        for (EngineDTO engineDTO : clusterDTO.getEngineList()) {
+            if (Objects.nonNull(clusterDTO.getClusterId())) {
+                //前端调用
+                addEngine(clusterDTO.getClusterId(), engineDTO.getEngineName(), engineDTO.getComponentTypeCodeList());
+            } else {
+                addEngine(clusterDTO.getId(), engineDTO.getEngineName(), engineDTO.getComponentTypeCodeList());
+            }
         }
     }
 
@@ -155,11 +165,11 @@ public class EngineService {
             return;
         }
 
-        for (EngineTenant engineTenant : engineTenants) {
+        List<Long> tenantIds = engineTenants.stream().map(EngineTenant::getTenantId).distinct().collect(Collectors.toList());
+        for (Long tenantId : tenantIds) {
             EngineTenant et = new EngineTenant();
-            et.setTenantId(engineTenant.getTenantId());
+            et.setTenantId(tenantId);
             et.setEngineId(engineId);
-
             engineTenantDao.insert(et);
         }
     }
@@ -277,6 +287,19 @@ public class EngineService {
 
         engineDao.update(engine);
     }
+
+    /**
+     * 修改引擎数据同步类型
+     *
+     * @param clusterId
+     * @param engineType
+     * @param syncType
+     */
+    @Forbidden
+    public void updateSyncTypeByClusterIdAndEngineType(Long clusterId, Integer engineType, Integer syncType) {
+        engineDao.updateSyncTypeByClusterIdAndEngineType(clusterId, engineType, syncType);
+    }
+
 
     @Forbidden
     public void addEnginesByComponentConfig(JSONObject componentConfig, Long clusterId, boolean updateQueue){

@@ -50,7 +50,7 @@ public class PluginWrapper{
 
         Long tenantId = MapUtils.getLong(actionParam, TENANT_ID);
         String engineType = MapUtils.getString(actionParam, ENGINE_TYPE);
-        JSONObject pluginInfoJson = clusterService.pluginInfoJSON(tenantId, engineType);
+        JSONObject pluginInfoJson = clusterService.pluginInfoJSON(tenantId, engineType, null);
         String groupName = DEFAULT_GROUP_NAME;
         if (pluginInfoJson == null) {
             throw new RdosDefineException("pluginInfo not be null");

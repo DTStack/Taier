@@ -37,6 +37,9 @@ public class ServerVerticle extends AbstractVerticle{
                 .allowedHeaders(allowHearders())
                 .allowedMethods(allowMethods()));
         router.route().handler(CookieHandler.create());
+        ResourceVerticle resourceVerticle = new ResourceVerticle(context);
+
+        router.postWithRegex(RootUrls.ROOT + "/upload/.*").handler(resourceVerticle::handleUploadResource);
         router.postWithRegex(RootUrls.ROOT + "/.*").handler(new AllRequestVerticle(context)::request);
         vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true))
                 .requestHandler(router::accept)

@@ -20,4 +20,6 @@ public interface EngineDao {
     Integer update(Engine engine);
 
     Integer delete(@Param("id") Long id);
+
+    Integer updateSyncTypeByClusterIdAndEngineType(@Param("clusterId") Long clusterId, @Param("engineType") Integer engineType, @Param("syncType")Integer syncType);
 }

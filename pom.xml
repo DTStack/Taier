@@ -13,7 +13,7 @@
         <zookeeper.version>3.4.6</zookeeper.version>
         <hadoop.version>2.7.3</hadoop.version>
         <spring.version>4.1.9.RELEASE</spring.version>
-        <dtCenter.common>4.0.1-SNAPSHOT</dtCenter.common>
+        <dtCenter.common>4.0.0-SNAPSHOT</dtCenter.common>
         <fastjson>2.9.6</fastjson>
     </properties>
 
@@ -143,6 +143,10 @@
                 <version>${dtCenter.common}</version>
                 <exclusions>
                     <exclusion>
+                        <artifactId>netty-all</artifactId>
+                        <groupId>io.netty</groupId>
+                    </exclusion>
+                    <exclusion>
                         <groupId>org.apache.calcite</groupId>
                         <artifactId>calcite-core</artifactId>
                     </exclusion>
@@ -210,6 +214,10 @@
                 <version>${dtCenter.common}</version>
                 <exclusions>
                     <exclusion>
+                        <artifactId>netty-all</artifactId>
+                        <groupId>io.netty</groupId>
+                    </exclusion>
+                    <exclusion>
                         <groupId>org.apache.calcite</groupId>
                         <artifactId>calcite-core</artifactId>
                     </exclusion>
@@ -268,6 +276,18 @@
                 <artifactId>common.rdbms.core</artifactId>
                 <version>${dtCenter.common}</version>
                 <exclusions>
+                    <exclusion>
+                        <artifactId>netty-all</artifactId>
+                        <groupId>io.netty</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.kylin</groupId>
+                        <artifactId>kylin-jdbc</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
                     <exclusion>
                         <groupId>org.apache.calcite</groupId>
                         <artifactId>calcite-core</artifactId>

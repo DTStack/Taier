@@ -36,7 +36,7 @@ public class EngineUtil {
     public static final Map<Integer, List<Integer>> ENGINE_SUPPORTED_COMPONENTS = new HashMap<>();
 
     static {
-        ENGINE_SUPPORTED_COMPONENTS.put(LIBRA.getType(), Arrays.asList(EComponentType.LIBRA_SQL.getTypeCode()));
+        ENGINE_SUPPORTED_COMPONENTS.put(LIBRA.getType(), Collections.singletonList(EComponentType.LIBRA_SQL.getTypeCode()));
 
         List<Integer> hadoopEngineSupportedComponents = new ArrayList<>();
         for (EComponentType value : EComponentType.values()) {
@@ -44,6 +44,7 @@ public class EngineUtil {
         }
         hadoopEngineSupportedComponents.remove(EComponentType.LIBRA_SQL.getTypeCode());
         ENGINE_SUPPORTED_COMPONENTS.put(HADOOP.getType(), hadoopEngineSupportedComponents);
+        ENGINE_SUPPORTED_COMPONENTS.put(TIDB.getType(), Collections.singletonList(EComponentType.TIDB_SQL.getTypeCode()));
     }
 
     public static final List<Integer> REQUIRED_COMPONENT_TYPES = Arrays.asList(EComponentType.HDFS.getTypeCode(),
