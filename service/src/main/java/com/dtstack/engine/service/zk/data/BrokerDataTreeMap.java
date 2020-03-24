@@ -1,7 +1,5 @@
 package com.dtstack.engine.service.zk.data;
 
-import com.dtstack.engine.service.util.TaskIdUtil;
-
 import java.util.Comparator;
 import java.util.concurrent.ConcurrentSkipListMap;
 
@@ -26,10 +24,6 @@ public class BrokerDataTreeMap<K, V> extends ConcurrentSkipListMap<K, V> {
                 if (o1.equals(o2)) {
                     return 0;
                 }
-                if (TaskIdUtil.getTaskId((String) o1).equals(TaskIdUtil.getTaskId((String) o2))) {
-                    return 0;
-                }
-
                 return ((String) o1).compareTo((String) o2);
             }
         });

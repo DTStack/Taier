@@ -5,7 +5,6 @@ import com.dtstack.engine.common.security.NoExitSecurityManager;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
 import com.dtstack.engine.entrance.configs.YamlConfig;
 import com.dtstack.engine.entrance.log.LogbackComponent;
-import com.dtstack.engine.common.JobSubmitExecutor;
 import com.dtstack.engine.service.zk.ZkDistributed;
 import com.dtstack.engine.web.VertxHttpServer;
 import org.slf4j.Logger;
@@ -28,8 +27,6 @@ public class EngineMain {
 
 	private static ZkDistributed zkDistributed;
 
-	private static JobSubmitExecutor jobSubmitExecutor;
-
 	public static void main(String[] args) throws Exception {
 		try {
 			SystemPropertyUtil.setSystemUserDir();
@@ -51,8 +48,6 @@ public class EngineMain {
 	
 	private static void initService(Map<String,Object> nodeConfig) throws Exception{
 
-		jobSubmitExecutor = JobSubmitExecutor.getInstance();
-
 		zkDistributed = ZkDistributed.createZkDistributed(nodeConfig).zkRegistration();
 
 		vertxHttpServer = new VertxHttpServer(nodeConfig);
@@ -62,6 +57,6 @@ public class EngineMain {
 	}
 	
 	private static void addShutDownHook(){
-		new ShutDownHook(vertxHttpServer,zkDistributed,jobSubmitExecutor).addShutDownHook();
+		new ShutDownHook(vertxHttpServer,zkDistributed).addShutDownHook();
 	}
 }

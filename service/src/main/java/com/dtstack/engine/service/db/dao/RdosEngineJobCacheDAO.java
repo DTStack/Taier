@@ -7,6 +7,7 @@ import com.dtstack.engine.service.db.mapper.RdosEngineJobCacheMapper;
 import org.apache.ibatis.session.SqlSession;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Reason:
@@ -57,6 +58,18 @@ public class RdosEngineJobCacheDAO {
         });
     }
 
+    public Integer deleteByJobIds(List<String> jobIds){
+
+        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Integer>(){
+
+            @Override
+            public Integer execute(SqlSession sqlSession) throws Exception {
+                RdosEngineJobCacheMapper mapper = sqlSession.getMapper(RdosEngineJobCacheMapper.class);
+                return mapper.deleteByJobIds(jobIds);
+            }
+        });
+    }
+
     public RdosEngineJobCache getJobById(String jobId){
 
         return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<RdosEngineJobCache>(){
@@ -74,13 +87,13 @@ public class RdosEngineJobCacheDAO {
      * @param stage
      * @return
      */
-    public List<RdosEngineJobCache> getJobForPriorityQueue(Long id, String nodeAddress, Integer stage, String engineType){
+    public List<RdosEngineJobCache> listByNodeAddressStage(Long id, String nodeAddress, Integer stage, String engineType, String groupName){
         return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<RdosEngineJobCache>>(){
 
             @Override
             public List<RdosEngineJobCache> execute(SqlSession sqlSession) throws Exception {
                 RdosEngineJobCacheMapper mapper = sqlSession.getMapper(RdosEngineJobCacheMapper.class);
-                return mapper.listByStage(id,nodeAddress, stage, engineType);
+                return mapper.listByStage(id,nodeAddress, stage, engineType, groupName);
             }
         });
     }
@@ -96,24 +109,90 @@ public class RdosEngineJobCacheDAO {
         });
     }
 
-    public List<String> listNames(int computeType, String jobName) {
+    public List<String> listNames(String jobName) {
         return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<String>>(){
 
             @Override
             public List<String> execute(SqlSession sqlSession) throws Exception {
                 RdosEngineJobCacheMapper mapper = sqlSession.getMapper(RdosEngineJobCacheMapper.class);
-                return mapper.listNames(computeType, jobName);
+                return mapper.listNames(jobName);
             }
         });
     }
 
-    public int countGroupQueueJob(String engineType, String groupName, Integer stage, String localAddress){
+    public List<String> getAllNodeAddress() {
+        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<String>>(){
+
+            @Override
+            public List<String> execute(SqlSession sqlSession) throws Exception {
+                RdosEngineJobCacheMapper mapper = sqlSession.getMapper(RdosEngineJobCacheMapper.class);
+                return mapper.getAllNodeAddress();
+            }
+        });
+    }
+
+    public int countByStage(String engineType, String groupName, List<Integer> stages, String nodeAddress) {
         return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Integer>(){
 
             @Override
             public Integer execute(SqlSession sqlSession) throws Exception {
                 RdosEngineJobCacheMapper mapper = sqlSession.getMapper(RdosEngineJobCacheMapper.class);
-                return mapper.countByStage(engineType, groupName, stage, localAddress);
+                return mapper.countByStage(engineType, groupName, stages, nodeAddress);
+            }
+        });
+    }
+
+    public Long maxPriorityByStage(String engineType, String groupName, Integer stage, String nodeAddress) {
+        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Long>(){
+
+            @Override
+            public Long execute(SqlSession sqlSession) throws Exception {
+                RdosEngineJobCacheMapper mapper = sqlSession.getMapper(RdosEngineJobCacheMapper.class);
+                return mapper.maxPriorityByStage(engineType, groupName, stage, nodeAddress);
+            }
+        });
+    }
+
+    public Long countByJobResource(String engineType, String groupName, Integer stage, String nodeAddress) {
+        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Long>(){
+
+            @Override
+            public Long execute(SqlSession sqlSession) throws Exception {
+                RdosEngineJobCacheMapper mapper = sqlSession.getMapper(RdosEngineJobCacheMapper.class);
+                return mapper.countByJobResource(engineType, groupName, stage, nodeAddress);
+            }
+        });
+    }
+
+    public List<RdosEngineJobCache> listByJobResource(String engineType, String groupName, Integer stage, String nodeAddress, Integer start, Integer pageSize) {
+        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<RdosEngineJobCache>>(){
+
+            @Override
+            public List<RdosEngineJobCache> execute(SqlSession sqlSession) throws Exception {
+                RdosEngineJobCacheMapper mapper = sqlSession.getMapper(RdosEngineJobCacheMapper.class);
+                return mapper.listByJobResource(engineType, groupName, stage, nodeAddress, start, pageSize);
+            }
+        });
+    }
+
+    public List<String> getJobResources() {
+        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<String>>(){
+
+            @Override
+            public List<String> execute(SqlSession sqlSession) throws Exception {
+                RdosEngineJobCacheMapper mapper = sqlSession.getMapper(RdosEngineJobCacheMapper.class);
+                return mapper.getJobResources();
+            }
+        });
+    }
+
+    public List<Map<String,Object>> groupByJobResource(String nodeAddress) {
+        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<Map<String,Object>>>(){
+
+            @Override
+            public List<Map<String,Object>> execute(SqlSession sqlSession) throws Exception {
+                RdosEngineJobCacheMapper mapper = sqlSession.getMapper(RdosEngineJobCacheMapper.class);
+                return mapper.groupByJobResource(nodeAddress);
             }
         });
     }

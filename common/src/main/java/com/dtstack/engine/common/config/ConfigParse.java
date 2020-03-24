@@ -126,4 +126,34 @@ public class ConfigParse {
         Object delay = configs.get("jobLogDelay");
         return delay == null ? 60000 : Long.parseLong(delay.toString());
     }
+
+    public static long getJobRestartDelay(){
+        Object delay = configs.get("jobRestartDelay");
+        return delay == null ? 2 * 60 * 1000 : Long.parseLong(delay.toString());
+    }
+
+    public static long getJobLackingDelay(){
+        Object delay = configs.get("jobLackingDelay");
+        return delay == null ? 2 * 60 * 1000 : Long.parseLong(delay.toString());
+    }
+
+    public static long getJobLackingInterval(){
+        Object interval = configs.get("jobLackingInterval");
+        return interval == null ? 3000 : Long.parseLong(interval.toString());
+    }
+
+    public static long getJobPriorityStep() {
+        Object priorityStep = configs.get("jobPriorityStep");
+        return priorityStep == null ? 10000 : Long.parseLong(priorityStep.toString());
+    }
+
+    public static int getJobLackingCountLimited(){
+        Object lackingCountLimited = configs.get("jobLackingCountLimited");
+        return lackingCountLimited == null ? 3 : Integer.parseInt(lackingCountLimited.toString());
+    }
+
+    public static long getJobSubmitExpired(){
+        Object interval = configs.get("jobSubmitExpired");
+        return interval == null ? 0 : Long.parseLong(interval.toString());
+    }
 }

@@ -18,9 +18,7 @@ import com.dtstack.engine.service.task.MasterListener;
 import com.dtstack.engine.service.task.QueueListener;
 import com.dtstack.engine.service.task.TaskListener;
 import com.dtstack.engine.service.task.TaskStatusListener;
-import com.dtstack.engine.service.zk.cache.LocalCacheSyncZkListener;
 import com.dtstack.engine.service.zk.cache.ZkLocalCache;
-import com.dtstack.engine.service.zk.cache.ZkSyncLocalCacheListener;
 import com.dtstack.engine.service.zk.data.BrokerDataShard;
 import com.dtstack.engine.service.zk.data.BrokerHeartNode;
 import com.dtstack.engine.service.zk.data.BrokersNode;
@@ -38,7 +36,6 @@ import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosException;
 import com.dtstack.engine.service.enums.RdosNodeMachineType;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.netflix.curator.framework.CuratorFramework;
 import com.netflix.curator.framework.CuratorFrameworkFactory;
 import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
@@ -98,7 +95,6 @@ public class ZkDistributed implements Closeable{
 	private String masterAddrCache = "";
 
 	private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
-	private ZkShardManager zkShardManager = ZkShardManager.getInstance();
 	private static List<InterProcessMutex> interProcessMutexs = Lists.newArrayList();
 
 	private ExecutorService executors  = new ThreadPoolExecutor(4, 8,
@@ -180,8 +176,6 @@ public class ZkDistributed implements Closeable{
 		executors.execute(new TaskListener());
 		executors.execute(new TaskStatusListener(new CheckpointListener(masterListener)));
 		executors.execute(new QueueListener());
-		LocalCacheSyncZkListener localCacheSyncZkListener = new LocalCacheSyncZkListener();
-		ZkSyncLocalCacheListener zkSyncLocalCacheListener = new ZkSyncLocalCacheListener();
 		if(ConfigParse.getPluginStoreInfo()!=null){
 			executors.execute(new LogStoreListener(masterListener));
 		}
@@ -247,57 +241,6 @@ public class ZkDistributed implements Closeable{
 				}
 			} catch (Exception e) {
 				logger.error("{}:updateSynchronizedBrokerHeartNode error:{}", nodePath,
-						ExceptionUtil.getErrorMessage(e));
-			}
-		}
-	}
-
-
-	public void updateSynchronizedLocalQueueNode(String localAddress, BrokerQueueNode source){
-        String nodePath = String.format("%s/%s/%s", brokersNode, localAddress, queueNode);
-        try{
-            if(this.brokerQueueLock.acquire(30, TimeUnit.SECONDS)){
-                zkClient.setData().forPath(nodePath, objectMapper.writeValueAsBytes(source));
-            }
-        }catch (Exception e){
-            logger.error("{} updateSynchronizedLocalQueueNode error:{}", nodePath,
-                    ExceptionUtil.getErrorMessage(e));
-        }finally {
-
-            try{
-                if(this.brokerQueueLock.isAcquiredInThisProcess()){
-                    this.brokerQueueLock.release();
-                }
-            } catch (Exception e) {
-                logger.error("{}:updateSynchronizedLocalQueueNode error:{}", nodePath,
-                        ExceptionUtil.getErrorMessage(e));
-            }
-
-        }
-    }
-
-	public void synchronizedBrokerDataShard(String nodeAddress, String shard, BrokerDataShard brokerDataShard,boolean isCover){
-		String nodePath = String.format("%s/%s/%s/%s",this.brokersNode,nodeAddress,metaDataNode,shard);
-		InterProcessMutex lock = zkShardManager.getShardLock(shard);
-		try {
-			if(lock!=null&&lock.acquire(30, TimeUnit.SECONDS)){
-				if (!isCover) {
-					BrokerDataShard target = objectMapper.readValue(zkClient.getData().forPath(nodePath), BrokerDataShard.class);
-					target.getMetas().putAll(brokerDataShard.getMetas());
-					brokerDataShard = target;
-				}
-				zkClient.setData().forPath(nodePath, objectMapper.writeValueAsBytes(brokerDataShard));
-			}
-		} catch (Exception e) {
-			logger.error("{}:updateSynchronizedBrokerDatalock error:{}", nodePath,
-					ExceptionUtil.getErrorMessage(e));
-		} finally{
-			try {
-				if (lock!=null&&lock.isAcquiredInThisProcess()) {
-					lock.release();
-				}
-			} catch (Exception e) {
-				logger.error("{}:updateSynchronizedBrokerDatalock error:{}", nodePath,
 						ExceptionUtil.getErrorMessage(e));
 			}
 		}
@@ -383,22 +326,6 @@ public class ZkDistributed implements Closeable{
 		this.engineTypeList = ConfigParse.getEngineTypeList();
 	}
 
-//	public Map<String,BrokerDataShard> getBrokerDataNode(String node) {
-//		try {
-//			List<String> shards = getBrokerDataChildren(node);
-//			Map<String,BrokerDataShard> shardMap = new ConcurrentHashMap<>(shards.size());
-//			for (String shard:shards){
-//				BrokerDataShard shardNode = getBrokerDataShard(node,shard);
-//				shardMap.put(shard,shardNode);
-//			}
-//			return shardMap;
-//		} catch (Exception e) {
-//			logger.error("{}:getBrokerNodeData error:{}", node,
-//					ExceptionUtil.getErrorMessage(e));
-//		}
-//		return null;
-//	}
-
 	public List<String> getBrokerDataChildren(String node) {
 		try {
 			String nodePath = String.format("%s/%s/%s", this.brokersNode, node,this.metaDataNode);
@@ -471,30 +398,6 @@ public class ZkDistributed implements Closeable{
 		return BrokerHeartNode.initNullBrokerHeartNode();
 	}
 
-	public Map<String, BrokerQueueNode> getAllBrokerQueueNode(){
-        List<String> brokerList = getAliveBrokersChildren();
-        Map<String, BrokerQueueNode> queueNodeMap = Maps.newHashMap();
-
-        for(String broker : brokerList){
-            BrokerQueueNode queueNode = getBrokerQueueNode(broker);
-            queueNodeMap.put(broker, queueNode);
-        }
-
-        return queueNodeMap;
-    }
-
-    private BrokerQueueNode getBrokerQueueNode(String node){
-	    try{
-            String nodePath = String.format("%s/%s/%s", this.brokersNode, node, this.queueNode);
-            BrokerQueueNode queueNode = objectMapper.readValue(zkClient.getData().forPath(nodePath), BrokerQueueNode.class);
-            return queueNode;
-        }catch (Exception e){
-            logger.error("{} getBrokerQueueNode error:{}", node, ExceptionUtil.getErrorMessage(e));
-        }
-
-		return BrokerQueueNode.initBrokerQueueNode();
-	}
-
 	public List<String> getBrokersChildren() {
 		try {
 			return zkClient.getChildren().forPath(this.brokersNode);
@@ -522,21 +425,6 @@ public class ZkDistributed implements Closeable{
 		return alives;
 	}
 
-	public Map<String, Integer> getAliveBrokerShardSize(){
-		Map<String, Integer> shardSize = Maps.newConcurrentMap();
-		List<String> brokers = getAliveBrokersChildren();
-		for(String broker:brokers){
-			List<String> shards = getBrokerDataChildren(broker);
-			int size = 0;
-			for (String shard:shards){
-				BrokerDataShard shardNode = getBrokerDataShard(broker,shard);
-				size += shardNode.getMetas().size();
-			}
-			shardSize.put(broker,size);
-		}
-		return shardSize;
-	}
-
 	public static ZkDistributed getZkDistributed(){
 		return zkDistributed;
 	}
@@ -552,11 +440,6 @@ public class ZkDistributed implements Closeable{
 		}
 		zkDistributed.updateSynchronizedLocalBrokerHeartNode(localAddress,disableBrokerHeartNode, true);
 		this.rdosNodeMachineDAO.disableMachineNode(localAddress, RdosNodeMachineType.SLAVE.getType());
-	}
-
-	public void removeBrokerQueueNode(String address){
-		BrokerQueueNode brokerQueueNode = new BrokerQueueNode();
-		zkDistributed.updateSynchronizedLocalQueueNode(address, brokerQueueNode);
 	}
 
 	public List<InterProcessMutex> acquireBrokerLock(List<String> brokers, boolean musted){
@@ -618,9 +501,6 @@ public class ZkDistributed implements Closeable{
 	public void close() throws IOException {
 		try{
 			disableBrokerHeartNode(this.localAddress, false);
-			zkLocalCache.close();
-//			lockRelease();
-//			executors.shutdown();
 		}catch (Throwable e){
 			logger.error("",e);
 		}

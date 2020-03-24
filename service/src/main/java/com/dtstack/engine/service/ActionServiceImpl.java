@@ -1,10 +1,10 @@
 package com.dtstack.engine.service;
 
+import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosException;
 import com.dtstack.engine.common.annotation.Param;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.common.JobSubmitExecutor;
 import com.dtstack.engine.service.db.dataobject.RdosEngineJobRetry;
 import com.dtstack.engine.service.db.dataobject.RdosEngineJobStopRecord;
 import com.dtstack.engine.service.db.dataobject.RdosEngineUniqueSign;
@@ -156,19 +156,29 @@ public class ActionServiceImpl {
         }
 
         List<Map<String, Object>> paramList = (List<Map<String, Object>>) paramsObj;
-
         if (paramList.size() > TASK_STOP_LIMIT){
             throw new RdosException("please don't stop too many tasks at once, limit:" + TASK_STOP_LIMIT);
         }
 
+        List<RdosEngineJobStopRecord> jobStopRecords = new ArrayList<>(paramList.size());
+        List<String> jobIds = new ArrayList<>(paramList.size());
         for(Map<String, Object> param : paramList){
             /**
              * 在性能要求较高的接口上尽可能使用java原生方法，性能对比 {@link com.dtstack.engine.dtscript.entrance.test.RdosEngineJobStopRecordCompare}
              */
             RdosEngineJobStopRecord jobStopRecord = RdosEngineJobStopRecord.toEntity(param);
-            jobStopRecordDAO.insert(jobStopRecord);
+            jobStopRecords.add(jobStopRecord);
+            jobIds.add(jobStopRecord.getTaskId());
         }
 
+        List<String> alreadyExistJobIds = jobStopRecordDAO.listByJobIds(jobIds);
+        for (RdosEngineJobStopRecord jobStopRecord : jobStopRecords) {
+            if (alreadyExistJobIds.contains(jobStopRecord.getTaskId())) {
+                logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobStopRecord.getTaskId());
+                continue;
+            }
+            jobStopRecordDAO.insert(jobStopRecord);
+        }
     }
 
     /**
@@ -429,10 +439,16 @@ public class ActionServiceImpl {
     public List<String> containerInfos(Map<String, Object> param) throws Exception {
         ParamAction paramAction = PublicUtil.mapToObject(param, ParamAction.class);
         checkParam(paramAction);
-        workNode.fillJobClientEngineId(paramAction);
+        //从数据库补齐数据
+        RdosEngineJob batchJob = batchJobDAO.getRdosTaskByTaskId(paramAction.getTaskId());
+        if(batchJob != null){
+            paramAction.setEngineTaskId(batchJob.getEngineJobId());
+            paramAction.setApplicationId(batchJob.getApplicationId());
+        }
         JobClient jobClient = new JobClient(paramAction);
-        List<String> infos = JobSubmitExecutor.getInstance().containerInfos(jobClient);
-        return infos;
+
+        JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobClient.getEngineTaskId(), jobClient.getApplicationId(), jobClient.getTaskId());
+        return JobClient.getContainerInfos(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
     }
 
     public String generateUniqueSign(){

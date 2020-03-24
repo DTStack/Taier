@@ -109,7 +109,6 @@ public class HeartBeatCheckListener implements Runnable{
 					this.zkDistributed.disableBrokerHeartNode(node,true);
 					//再进行容灾，容灾时还需要再判断一下是否alive，node可能已经恢复
 					this.masterNode.dataMigration(node);
-					this.zkDistributed.removeBrokerQueueNode(node);
 					this.brokerNodeCounts.remove(node);
 				}else{
 					brokerNodeCount.setBrokerHeartNode(brokerNode);

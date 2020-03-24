@@ -3,9 +3,12 @@ package com.dtstack.engine.common;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosException;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.pojo.JobResult;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * Reason:
@@ -95,6 +98,24 @@ public class ClientOperator {
             return client.getJobMaster(jobIdentifier);
         } catch (Exception e) {
             throw new RdosException("get job master exception:" + ExceptionUtil.getErrorMessage(e));
+        }
+    }
+
+    public List<String> getContainerInfos(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
+        try {
+            IClient client = clientCache.getClient(engineType, pluginInfo);
+            return client.getContainerInfos(jobIdentifier);
+        } catch (Exception e) {
+            throw new RdosException("get containerInfos exception:" + ExceptionUtil.getErrorMessage(e));
+        }
+    }
+
+    public JobResult cancelJob(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
+        try {
+            IClient client = clientCache.getClient(engineType, pluginInfo);
+            return client.cancelJob(jobIdentifier);
+        } catch (Exception e) {
+            return JobResult.createErrorResult(ExceptionUtil.getErrorMessage(e));
         }
     }
 

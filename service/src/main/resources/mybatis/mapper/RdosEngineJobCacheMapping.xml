@@ -27,6 +27,14 @@
         delete from rdos_engine_job_cache where job_id=#{jobId}
     </delete>
 
+    <delete id="deleteByJobIds">
+        delete from rdos_engine_job_cache
+        where job_id in
+        <foreach collection="jobIds" item="jobId" open="(" separator="," close=")">
+            #{jobId}
+        </foreach>
+    </delete>
+
     <select id="getOne" resultMap="rdosEngineJobCacheResult">
         select * from rdos_engine_job_cache where job_id=#{jobId} and is_deleted=0 order by gmt_create desc limit 1;
     </select>
@@ -39,15 +47,21 @@
 
     <select id="listByStage" resultMap="rdosEngineJobCacheResult">
         select * from rdos_engine_job_cache
-        where id > #{startId} and (node_address = #{nodeAddress} or node_address is null)
+        where id > #{startId}
+        <if test="nodeAddress != null">
+            and (node_address = #{nodeAddress} or node_address is null)
+        </if>
         <if test="stage != null">
             and stage = #{stage}
         </if>
         <if test="engineType != null">
             and engine_type = #{engineType}
         </if>
+        <if test="groupName != null">
+            and group_name = #{groupName}
+        </if>
         and is_deleted=0
-        order by id, job_priority asc
+        order by id asc
         limit 500;
     </select>
 
@@ -62,18 +76,75 @@
 
     <select id="listNames" resultType="java.lang.String">
         select job_name from rdos_engine_job_cache
-        where job_name like '%${jobName}%' and compute_type = #{computeType}
-        and stage = 1 and is_deleted=0;
+        where job_name like '%${jobName}%' and is_deleted=0;
     </select>
 
     <select id="countByStage" resultType="java.lang.Integer">
         select count(1) from rdos_engine_job_cache
         where engine_type = #{engineType} and group_name = #{groupName} and node_address = #{nodeAddress}
+        <if test="stages != null">
+            and stage in
+            <foreach collection="stages" item="stage" open="(" separator="," close=")">
+                #{stage}
+            </foreach>
+        </if>
+        and is_deleted=0;
+    </select>
+
+    <select id="maxPriorityByStage" resultType="java.lang.Long">
+        select max(job_priority) from rdos_engine_job_cache
+        where  engine_type = #{engineType} and group_name = #{groupName} and node_address = #{nodeAddress}
         <if test="stage != null">
             and stage = #{stage}
         </if>
         and is_deleted=0;
     </select>
 
+    <select id="getAllNodeAddress" resultType="java.lang.String">
+        SELECT DISTINCT(node_address) as nodeAddress
+        FROM rdos_engine_job_cache
+        WHERE is_deleted = 0
+    </select>
 
+    <select id="countByJobResource" resultType="java.lang.Long">
+        SELECT
+        count(1) as count
+        FROM rdos_engine_job_cache
+        WHERE engine_type = #{engineType} and group_name = #{groupName} and stage = #{stage} and is_deleted = 0
+        <if test="nodeAddress != null">
+            and node_address = #{nodeAddress}
+        </if>
+    </select>
+
+    <select id="listByJobResource" resultMap="rdosEngineJobCacheResult">
+        SELECT * FROM rdos_engine_job_cache
+        WHERE engine_type = #{engineType} and group_name = #{groupName} and stage = #{stage} and is_deleted = 0
+        <if test="nodeAddress != null">
+            and node_address = #{nodeAddress}
+        </if>
+        order by stage desc, job_priority asc
+        limit #{start} , #{pageSize}
+    </select>
+
+    <select id="getJobResources" resultType="java.lang.String">
+        SELECT DISTINCT(CONCAT(engine_type, '_', group_name)) as jobResource
+        FROM rdos_engine_job_cache
+        WHERE is_deleted = 0
+    </select>
+
+    <select id="groupByJobResource" resultType="java.util.HashMap">
+        SELECT
+        engine_type as engineType,
+        group_name as groupName,
+        stage as stage,
+        unix_timestamp(min(gmt_create)) as generateTime,
+        count(1) as jobSize
+        FROM rdos_engine_job_cache
+        WHERE is_deleted = 0
+        <if test="nodeAddress != null">
+            and node_address = #{nodeAddress}
+        </if>
+        group by engine_type, group_name, stage
+        order by engine_type, group_name, stage asc
+    </select>
 </mapper>
