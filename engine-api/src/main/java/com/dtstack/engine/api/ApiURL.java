@@ -1,10 +1,10 @@
-package com.dtstack.task.send;
+package com.dtstack.engine.api;
 
 /**
  * @author yuemo
  * @date 2020-03-25
  */
-public class TaskUrlConstant {
+public class ApiURL {
 
     private static final String ROOT = "/node";
 
@@ -71,7 +71,7 @@ public class TaskUrlConstant {
     public static final String BATCH_TASK_SHADE_PAGEQUERY = String.format("%s/%s", BATCH_TASK_SHADE, "pageQuery");
     public static final String BATCH_TASK_SHADE_LIST_DEPENDENCY_TASK = String.format("%s/%s", BATCH_TASK_SHADE, "listDependencyTask");
     public static final String BATCH_TASK_SHADE_LIST_BYTASKIDS_NOTIN = String.format("%s/%s", BATCH_TASK_SHADE, "listByTaskIdsNotIn");
-
+    public static final String BATCH_TASK_SHADE_INFO = String.format("%s/%s", BATCH_TASK_SHADE, "info");
 
     public static final String BATCH_TASK_TASK_SHADE_DISPLAY_OFF_SPRING = String.format("%s/%s", BATCH_TASK_TASK_SHADE, "displayOffSpring");
     public static final String BATCH_TASK_TASK_SHADE_SAVE_TASK_LIST = String.format("%s/%s", BATCH_TASK_TASK_SHADE, "saveTaskTaskList");
