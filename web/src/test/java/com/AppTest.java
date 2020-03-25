@@ -1,4 +1,4 @@
-package org.web;
+package com;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
