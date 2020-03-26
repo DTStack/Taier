@@ -93,4 +93,15 @@
         where gmt_modified &gt;= #{time} and compute_type = #{computeType}
         and is_deleted=0;
     </select>
+
+    <update id="updateJobStatusByJobIds">
+        update rdos_engine_job
+        set gmt_modified=now(), status=#{status}
+        where job_id IN
+        <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
+            #{jobId}
+        </foreach>
+        and is_deleted=0;
+    </update>
+
 </mapper>
