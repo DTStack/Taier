@@ -34,4 +34,7 @@ public class ConfigConstant {
     public static final String AKKA_ASK_TIMEOUT = "akka.ask.timeout";
     public static final String AKKA_ASK_RESULT_TIMEOUT = "akka.ask.result.timeout";
 
+    public static final String SYSTEMRESOURCE_PROBE_INTERVAL = "systemresource.probe.Interval";
+    public static final String NODE_LABELS = "node.labels";
+
 }
