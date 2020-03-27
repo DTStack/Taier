@@ -8,6 +8,7 @@ import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.worker.loader.DtClassLoader;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,6 +108,9 @@ public class ClientCache {
 
         Map<String, Object> params = PublicUtil.jsonStrToObject(pluginInfo, Map.class);
         String clientTypeStr = MathUtil.getString(params.get(ConfigConstant.TYPE_NAME_KEY));
+        if (StringUtils.isNotBlank(clientTypeStr)) {
+            throw new RuntimeException("not support for typeName:" + clientTypeStr + " pluginInfo:" + pluginInfo);
+        }
         loadComputerPlugin(clientTypeStr);
         return ClientFactory.createPluginClass(clientTypeStr);
     }
