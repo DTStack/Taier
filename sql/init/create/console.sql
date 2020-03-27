@@ -17,6 +17,7 @@ CREATE TABLE `console_engine` (
   `total_node` int(11) NOT NULL COMMENT '节点数',
   `total_memory` int(11) NOT NULL COMMENT '总内存',
   `total_core` int(11) NOT NULL COMMENT '总核数',
+  `sync_type` tinyint(1) NULL COMMENT '获取元数据组件类型',
   `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',

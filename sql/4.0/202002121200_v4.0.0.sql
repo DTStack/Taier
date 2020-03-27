@@ -29,6 +29,7 @@ CREATE TABLE `console_engine` (
   `total_node` int(11) NOT NULL COMMENT '节点数',
   `total_memory` int(11) NOT NULL COMMENT '总内存',
   `total_core` int(11) NOT NULL COMMENT '总核数',
+  `sync_type` tinyint(1) NULL COMMENT '获取元数据组件类型',
   `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
@@ -297,8 +298,3 @@ ALTER TABLE  `schedule_job_graph_trigger` modify  COLUMN `trigger_time` datetime
 ALTER TABLE  `console_engine` modify  COLUMN `cluster_id` int(11) NOT NULL COMMENT '集群id';
 ALTER TABLE  `console_component` modify  COLUMN `engine_id` int(11) NOT NULL COMMENT '引擎id';
 
-
-
--- 新增字段2
-ALTER TABLE `console_engine` ADD COLUMN `sync_type` tinyint(1) NULL COMMENT '获取元数据组件类型' AFTER `total_core`;
-UPDATE `console_engine` set `sync_type` = 6 where `engine_type` = 1;
