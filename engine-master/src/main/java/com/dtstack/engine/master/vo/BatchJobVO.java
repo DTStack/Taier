@@ -105,6 +105,16 @@ public class BatchJobVO {
     // 增加是否是组任务（分钟或小时任务） 如果是 前端就不显示某些信息
     private boolean isGroupTask;
 
+    private Integer version;
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
+
     public BatchTaskVO getBatchTask() {
         return batchTask;
     }

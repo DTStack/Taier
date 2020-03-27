@@ -108,7 +108,7 @@ public class ScheduleCronMinParser extends ScheduleCron {
             return beginHour * 60 + beginMin;
         }
 
-        int result = beginHour * 60 + beginHour;
+        int result = beginHour * 60 + beginMin;
         int end = endHour * 60 + endMin;
 
         for( ; ; ){

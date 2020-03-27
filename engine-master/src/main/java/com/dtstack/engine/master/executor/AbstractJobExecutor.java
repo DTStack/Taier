@@ -3,18 +3,16 @@ package com.dtstack.engine.master.executor;
 import com.dtstack.dtcenter.common.enums.EJobType;
 import com.dtstack.dtcenter.common.enums.Restarted;
 import com.dtstack.dtcenter.common.enums.TaskStatus;
-import com.dtstack.engine.common.util.LogCountUtil;
-import com.dtstack.sql.Twins;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.JobCheckStatus;
 import com.dtstack.engine.common.enums.SentinelType;
-import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.dao.BatchJobDao;
 import com.dtstack.engine.dao.BatchJobJobDao;
 import com.dtstack.engine.domain.BatchJob;
 import com.dtstack.engine.domain.BatchJobJob;
 import com.dtstack.engine.domain.BatchTaskShade;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.BatchFlowWorkJobService;
 import com.dtstack.engine.master.impl.BatchJobService;
 import com.dtstack.engine.master.impl.BatchTaskShadeService;
@@ -23,6 +21,8 @@ import com.dtstack.engine.master.queue.JopPriorityQueue;
 import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.scheduler.JobErrorInfo;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
+import com.dtstack.engine.master.zookeeper.ZkService;
+import com.dtstack.sql.Twins;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -34,6 +34,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -54,10 +55,11 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
     private final Logger logger = LoggerFactory.getLogger(AbstractJobExecutor.class);
 
-    private final static int MULTIPLES = 10;
-
     @Autowired
     private EnvironmentContext env;
+
+    @Autowired
+    protected ZkService zkService;
 
     @Autowired
     protected BatchJobDao batchJobDao;
@@ -86,7 +88,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     private Map<String, JobErrorInfo> errorJobCache = Maps.newHashMap();
     private Map<Long, BatchTaskShade> taskCache = Maps.newHashMap();
 
-    private int logOutput = 0;
+    private long lastCheckLoadedDay = 0;
 
     protected final AtomicBoolean RUNNING = new AtomicBoolean(true);
     private volatile long lastRestartJobLoadTime = 0L;
@@ -140,14 +142,14 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         long lastRebackId = 0L;
 
         while (RUNNING.get()) {
-            logOutput++;
+
             BatchJob batchJob = null;
             try {
                 BatchJobElement batchJobElement = jopPriorityQueue.takeJob();
                 if (batchJobElement.isSentinel()) {
                     //判断哨兵，执行的操作
                     operateAfterSentinel(batchJobElement.getSentinel());
-                    if (LogCountUtil.count(logOutput, MULTIPLES)) {
+                    if (logger.isInfoEnabled()) {
                         logger.info("========= scheduleType:{} operateAfterSentinel end=========", getScheduleType());
                     }
                     continue;
@@ -155,7 +157,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
                 ScheduleBatchJob scheduleBatchJob = batchJobElement.getScheduleBatchJob();
                 batchJob = scheduleBatchJob.getBatchJob();
-
                 Long taskIdUnique = jobRichOperator.getTaskIdUnique(scheduleBatchJob.getAppType(), scheduleBatchJob.getTaskId());
                 BatchTaskShade batchTask = this.taskCache.computeIfAbsent(taskIdUnique,
                         k -> batchTaskShadeService.getBatchTaskById(scheduleBatchJob.getTaskId(), scheduleBatchJob.getBatchJob().getAppType()));
@@ -190,7 +191,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                             batchJobService.startJob(scheduleBatchJob.getBatchJob());
                             logger.info("---scheduleType:{} send job:{} to engine.", getScheduleType(), scheduleBatchJob.getJobId());
                         }
-                        if (!batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob.getJobId())) {
+                        if (!batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob.getJobId(),scheduleBatchJob.getAppType())) {
                             jopPriorityQueue.putSurvivor(batchJobElement);
                         }
                     } else {
@@ -198,6 +199,9 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                     }
                 } else if (checkRunInfo.getStatus() == JobCheckStatus.TIME_NOT_REACH) {
                     jopPriorityQueue.putSurvivor(batchJobElement);
+                    notStartCache.clear();
+                    errorJobCache.clear();
+                    taskCache.clear();
                     //队列是按时间排序的.当前时间未到之后的也可以忽略
                     jopPriorityQueue.reback(SentinelType.NONE);
                     long rebackId = batchJobElement.getScheduleBatchJob().getId();
@@ -247,7 +251,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     }
 
     private Long emitJob2Queue(JopPriorityQueue jopPriorityQueue, long startId) {
-        String nodeAddress = environmentContext.getLocalAddress();
+        String nodeAddress = zkService.getLocalAddress();
         if (StringUtils.isBlank(nodeAddress)) {
             return startId;
         }
@@ -257,7 +261,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
             outLoop:
             while (true) {
                 if (jopPriorityQueue.isBlocked()) {
-                    if (LogCountUtil.count(logOutput, MULTIPLES)) {
+                    if (logger.isInfoEnabled()) {
                         logger.info("scheduleType:{} nodeAddress:{} Queue Blocked!!!", getScheduleType(), nodeAddress);
                     }
                     break;
@@ -266,7 +270,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 if (CollectionUtils.isEmpty(listExecJobs)) {
                     //遍历数据库结束的哨兵
                     jopPriorityQueue.putSentinel(SentinelType.END_DB);
-                    if (LogCountUtil.count(logOutput, MULTIPLES)) {
+                    if (logger.isInfoEnabled()) {
                         logger.info("scheduleType:{} nodeAddress:{} add END_DB Sentinel!!!", getScheduleType(), nodeAddress);
                     }
                     break;
@@ -276,7 +280,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                     if (!put) {
                         //阻塞时的哨兵
                         jopPriorityQueue.putSentinel(SentinelType.END_QUEUE);
-                        if (LogCountUtil.count(logOutput, MULTIPLES)) {
+                        if (logger.isInfoEnabled()) {
                             logger.info("scheduleType:{} nodeAddress:{} add END_QUEUE Sentinel!!!", getScheduleType(), nodeAddress);
                         }
                         break outLoop;
@@ -287,7 +291,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                     }
                 }
             }
-            if (LogCountUtil.count(logOutput, MULTIPLES)) {
+            if (logger.isInfoEnabled()) {
                 logger.info("scheduleType:{} nodeAddress:{} emitJob2Queue return startId:{}", getScheduleType(), nodeAddress, startId);
             }
         } catch (Exception e) {
@@ -332,4 +336,16 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         return cycTime;
     }
 
+    protected boolean checkLoadedDay() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        long today = calendar.getTime().getTime();
+        boolean loaded = lastCheckLoadedDay < today;
+        lastCheckLoadedDay = today;
+        return loaded;
+    }
 }

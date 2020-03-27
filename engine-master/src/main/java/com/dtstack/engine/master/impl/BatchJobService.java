@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.common.annotation.Forbidden;
 import com.dtstack.dtcenter.common.constant.TaskStatusConstrant;
-import com.dtstack.dtcenter.common.engine.ConsoleConstant;
 import com.dtstack.dtcenter.common.enums.*;
 import com.dtstack.dtcenter.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.common.hadoop.HadoopConf;
@@ -21,24 +20,23 @@ import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.LearningFrameType;
 import com.dtstack.engine.common.enums.QueryWorkFlowModel;
 import com.dtstack.engine.common.enums.TaskOperateType;
-import com.dtstack.engine.domain.*;
-import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.BatchFillDataJobDao;
 import com.dtstack.engine.dao.BatchJobDao;
 import com.dtstack.engine.dao.BatchJobJobDao;
 import com.dtstack.engine.dao.BatchTaskShadeDao;
+import com.dtstack.engine.domain.*;
 import com.dtstack.engine.dto.BatchJobDTO;
 import com.dtstack.engine.dto.BatchTaskForFillDataDTO;
 import com.dtstack.engine.dto.QueryJobDTO;
-import com.dtstack.engine.master.WorkNode;
-import com.dtstack.engine.master.plugininfo.PluginWrapper;
-import com.dtstack.engine.master.queue.JobPartitioner;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.job.impl.BatchHadoopJobStartTrigger;
 import com.dtstack.engine.master.job.impl.BatchKylinJobStartTrigger;
 import com.dtstack.engine.master.job.impl.BatchLibraJobStartTrigger;
+import com.dtstack.engine.master.plugininfo.PluginWrapper;
+import com.dtstack.engine.master.queue.JobPartitioner;
 import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
@@ -200,7 +198,7 @@ public class BatchJobService {
      * @return
      */
     public PageResult getStatusJobList(@Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("appType") Integer appType,
-                                    @Param("dtuicTenantId") Long dtuicTenantId, @Param("status") Integer status, @Param("pageSize") int pageSize, @Param("pageIndex") int pageIndex) {
+                                       @Param("dtuicTenantId") Long dtuicTenantId, @Param("status") Integer status, @Param("pageSize") int pageSize, @Param("pageIndex") int pageIndex) {
         if (Objects.isNull(status) || Objects.isNull(dtuicTenantId)) {
             return null;
         }
@@ -440,7 +438,7 @@ public class BatchJobService {
         pageQuery.setModel(batchJobDTO);
 
         if (StringUtils.isNotBlank(vo.getTaskName()) || Objects.nonNull(vo.getOwnerId())) {
-            List<BatchTaskShade> batchTaskShades = batchTaskShadeDao.listByNameLike(vo.getProjectId(), vo.getTaskName(), vo.getAppType(), vo.getOwnerId());
+            List<BatchTaskShade> batchTaskShades = batchTaskShadeDao.listByNameLike(vo.getProjectId(), vo.getTaskName(), vo.getAppType(), vo.getOwnerId(),vo.getProjectIds());
             if (CollectionUtils.isNotEmpty(batchTaskShades)) {
                 batchJobDTO.setTaskIds(batchTaskShades.stream().map(BatchTaskShade::getTaskId).collect(Collectors.toList()));
             }
@@ -499,6 +497,8 @@ public class BatchJobService {
             vo.setJobId(e.getId());
             vo.setCycTime(DateUtil.addTimeSplit(e.getCycTime()));
             vo.setStatus(e.getStatus());
+            vo.setTaskId(e.getTaskId());
+            vo.setVersion(e.getVersionId());
             vos.add(vo);
         });
         return vos;
@@ -642,6 +642,7 @@ public class BatchJobService {
             if (batchJob.getPeriodType() != null) {
                 batchJobVO.setTaskPeriodId(batchJob.getPeriodType());
             }
+            batchJobVO.setVersion(batchJob.getVersionId());
             batchJobVO.setBatchTask(taskVO);
             batchJobVO.setOwnerUserId(taskShade.getOwnerUserId());
             vos.add(batchJobVO);
@@ -665,7 +666,7 @@ public class BatchJobService {
         //需要查询工作流的子节点
         batchJobDTO.setNeedQuerySonNode(true);
         if (StringUtils.isNotBlank(vo.getTaskName()) || Objects.nonNull(vo.getOwnerId())) {
-            List<BatchTaskShade> batchTaskShades = batchTaskShadeDao.listByNameLike(vo.getProjectId(), vo.getTaskName(), vo.getAppType(), vo.getOwnerId());
+            List<BatchTaskShade> batchTaskShades = batchTaskShadeDao.listByNameLike(vo.getProjectId(), vo.getTaskName(), vo.getAppType(), vo.getOwnerId(),vo.getProjectIds());
             if (CollectionUtils.isNotEmpty(batchTaskShades)) {
                 batchJobDTO.setTaskIds(batchTaskShades.stream().map(BatchTaskShade::getTaskId).collect(Collectors.toList()));
             }
@@ -786,6 +787,10 @@ public class BatchJobService {
         batchJobDTO.setRetryNumSort(vo.getRetryNumSort());
         batchJobDTO.setBusinessDateSort(vo.getBusinessDateSort());
         batchJobDTO.setTaskPeriodId(convertStringToList(vo.getTaskPeriodId()));
+
+        if (vo.getProjectIds()!=null && vo.getProjectIds().size()>0){
+            batchJobDTO.setProjectIds(vo.getProjectIds());
+        }
 
         //调度类型
         if (vo.getType() != null) {
@@ -910,14 +915,29 @@ public class BatchJobService {
     }
 
 
+    @Forbidden
+    public Integer updateStatusWithExecTime(BatchJob updateJob) {
+        if(Objects.isNull(updateJob) || Objects.isNull(updateJob.getJobId()) || Objects.isNull(updateJob.getAppType())){
+            return 0;
+        }
+        BatchJob job = batchJobDao.getByJobId(updateJob.getJobId(), Deleted.NORMAL.getStatus());
+        if (Objects.nonNull(job.getExecStartTime()) && Objects.nonNull(updateJob.getExecEndTime())){
+            updateJob.setExecTime((updateJob.getExecEndTime().getTime()-job.getExecStartTime().getTime())/1000);
+        }
+        return batchJobDao.updateStatusWithExecTime(updateJob);
+    }
+
+
     /**
      * 触发 engine 执行指定task
      */
     public void sendTaskStartTrigger(BatchJob batchJob) throws Exception {
 
+        String taskJson = null;
+
         BatchTaskShade batchTask = batchTaskShadeService.getBatchTaskById(batchJob.getTaskId(), batchJob.getAppType());
         if (batchTask == null) {
-            throw new RdosDefineException("can not find task by id:" + batchJob.getTaskId());
+            throw new RdosDefineException("can not fiind task by id:" + batchJob.getTaskId());
         }
 
         //判断是不是虚节点---虚节点直接完成
@@ -930,11 +950,12 @@ public class BatchJobService {
         if (batchTask.getTaskType().equals(EJobType.WORK_FLOW.getVal()) ||
                 batchTask.getTaskType().equals(EJobType.ALGORITHM_LAB.getVal())) {
             BatchJob updateJob = new BatchJob();
-            updateJob.setId(batchJob.getId());
+            updateJob.setJobId(batchJob.getJobId());
+            updateJob.setAppType(batchJob.getAppType());
             updateJob.setStatus(TaskStatus.SUBMITTING.getStatus());
             updateJob.setExecStartTime(new Timestamp(System.currentTimeMillis()));
             updateJob.setGmtModified(new Timestamp(System.currentTimeMillis()));
-            batchJobDao.update(updateJob);
+            batchJobDao.updateStatusWithExecTime(updateJob);
             return;
         }
 
@@ -944,7 +965,15 @@ public class BatchJobService {
             JSONObject info = extObject.getJSONObject(TaskConstant.INFO);
             if (Objects.nonNull(info)) {
                 Integer multiEngineType = info.getInteger("multiEngineType");
-                Map<String, Object> actionParam = info;
+                String ldapUserName = info.getString("ldapUserName");
+                String ldapPassword = info.getString("ldapPassword");
+                String dbName = info.getString("dbName");
+                if (StringUtils.isNotBlank(ldapUserName)) {
+                    info.remove("ldapUserName");
+                    info.remove("ldapPassword");
+                    info.remove("dbName");
+                }
+                Map<String, Object> actionParam = PublicUtil.strToMap(info.toJSONString());
                 if (MultiEngineType.HADOOP.getType() == multiEngineType) {
                     batchHadoopJobStartTrigger.readyForTaskStartTrigger(actionParam, batchTask, batchJob);
                 } else if (MultiEngineType.LIBRA.getType() == multiEngineType) {
@@ -954,12 +983,23 @@ public class BatchJobService {
                 }
                 actionParam.put("name", batchJob.getJobName());
                 actionParam.put("taskId", batchJob.getJobId());
+                taskJson = objMapper.writeValueAsString(actionParam);
 
+                // 出错重试配置,兼容之前的任务，没有这个参数则默认重试
+                JSONObject scheduleConf = JSONObject.parseObject(batchTask.getScheduleConf());
+                if (scheduleConf.containsKey("isFailRetry")) {
+                    actionParam.put("isFailRetry", scheduleConf.getBooleanValue("isFailRetry"));
+                    if (scheduleConf.getBooleanValue("isFailRetry")) {
+                        int maxRetryNum = scheduleConf.getIntValue("maxRetryNum") == 0 ? 3 : scheduleConf.getIntValue("maxRetryNum");
+                        actionParam.put("maxRetryNum", maxRetryNum);
+                    } else {
+                        actionParam.put("maxRetryNum", 0);
+                    }
+                }
                 //拼装控制台的集群信息
                 actionParam = pluginWrapper.wrapperPluginInfo(actionParam);
 
                 actionService.start(actionParam);
-
                 return;
             }
         }
@@ -1070,6 +1110,7 @@ public class BatchJobService {
         }
 
         if (status.equals(TaskStatus.UNSUBMIT.getStatus())) {
+            stopSubmittedJob(Lists.newArrayList(batchJob), dtuicTenantId, appType);
             return stopUnsubmitJob(batchJob);
         } else if (TaskStatusConstrant.RUNNING_STATUS.contains(status) || TaskStatusConstrant.WAIT_STATUS.contains(status)) {
             return stopSubmittedJob(Lists.newArrayList(batchJob), dtuicTenantId, appType);
@@ -1123,21 +1164,21 @@ public class BatchJobService {
                 //除了未提交的任务--其他都是发消息到engine端停止
                 if (checkJobCanStop(job.getStatus())) {
                     stopCount++;
-                    if (TaskStatus.UNSUBMIT.getStatus().equals(job.getStatus())) {
+                    if (TaskStatus.UNSUBMIT.getStatus().equals(job.getStatus()) || SPECIAL_TASK_TYPES.contains(job.getTaskType())) {
                         unSubmitJob.add(job.getId());
-                    } else {
-                        needSendStopJobs.add(job);
                     }
+                    //engineto同步状态可能会覆盖 所以都需要提交engine 更新
+                    needSendStopJobs.add(job);
                 }
-            }
-            //更新未提交任务状态
-            if (CollectionUtils.isNotEmpty(unSubmitJob)) {
-                batchJobDao.updateJobStatus(TaskStatus.CANCELED.getStatus(), unSubmitJob);
             }
 
             // 停止已提交的
             if (CollectionUtils.isNotEmpty(needSendStopJobs)) {
                 jobStopSender.addStopJob(needSendStopJobs, dtuicTenantId, appType);
+            }
+            //更新未提交任务状态
+            if (CollectionUtils.isNotEmpty(unSubmitJob)) {
+                batchJobDao.updateJobStatus(TaskStatus.CANCELED.getStatus(), unSubmitJob);
             }
         }
         return stopCount;
@@ -1225,7 +1266,6 @@ public class BatchJobService {
         List<BatchJobJob> jobJobWaitForSave = Lists.newArrayList();
 
         Map<String, Integer> nodeJobSize = computeJobSizeForNode(batchJobCollection.size(), scheduleType);
-        //TODO
         for (Map.Entry<String, Integer> nodeJobSizeEntry : nodeJobSize.entrySet()) {
             String nodeAddress = nodeJobSizeEntry.getKey();
             int nodeSize = nodeJobSizeEntry.getValue();
@@ -1997,8 +2037,7 @@ public class BatchJobService {
     /**
      * 获取重跑的数据节点信息
      *
-     * @param jobKey
-     * @param parentTaskId
+     * @param batchJob
      * @param isOnlyNextChild
      * @return
      */
@@ -2221,8 +2260,8 @@ public class BatchJobService {
         return operateModel;
     }
 
-    public List<String> listJobIdByTaskNameAndStatusList(@Param("taskName") String taskName, @Param("statusList") List<Integer> statusList, @Param("projectId") Long projectId) {
-        BatchTaskShade task = batchTaskShadeService.getByName(projectId, taskName);
+    public List<String> listJobIdByTaskNameAndStatusList(@Param("taskName") String taskName, @Param("statusList") List<Integer> statusList, @Param("projectId") Long projectId,@Param("appType") Integer appType) {
+        BatchTaskShade task = batchTaskShadeService.getByName(projectId, taskName,appType);
         if (task != null) {
             List<String> jobIdList = batchJobDao.listJobIdByTaskIdAndStatus(task.getId(), statusList);
             return jobIdList;
@@ -2289,6 +2328,15 @@ public class BatchJobService {
 
         }
         return updateSize;
+    }
+
+    /**
+     *  把开始时间和结束时间置为null
+     * @param jobId
+     * @return
+     */
+    public Integer updateTimeNull(@Param("jobId") String jobId){
+        return batchJobDao.updateNullTime(jobId);
     }
 
 
@@ -2564,9 +2612,13 @@ public class BatchJobService {
      * @throws Exception
      */
     @Transactional(rollbackFor = Exception.class)
-    public void createTodayTaskShade(@Param("taskId") Long taskId) {
+    public void createTodayTaskShade(@Param("taskId") Long taskId,@Param("appType") Integer appType) {
         try {
-            BatchTaskShade task = batchTaskShadeService.getBatchTaskById(taskId, 1);
+            //如果appType为空的话则为离线
+            if (Objects.isNull(appType)){
+                appType = 1;
+            }
+            BatchTaskShade task = batchTaskShadeService.getBatchTaskById(taskId, appType);
             Map<String, String> flowJobId = new ConcurrentHashMap<>();
             List<ScheduleBatchJob> cronTrigger = jobGraphBuilder.buildJobRunBean(task, "cronTrigger", EScheduleType.NORMAL_SCHEDULE,
                     true, true, new DateTime().toString("yyyy-MM-dd"), "cronJob" + "_" + task.getName(), null, task.getProjectId(), task.getTenantId());
@@ -2618,4 +2670,41 @@ public class BatchJobService {
         return batchJobDao.listByBusinessDateAndPeriodTypeAndStatusList(pageQuery);
     }
 
+    /**
+     * 根据cycTime和jobName获取，如获取当天的周期实例任务
+     * @param preCycTime
+     * @param preJobName
+     * @param scheduleType
+     * @return
+     */
+    public List<BatchJob> listByCyctimeAndJobName(@Param("preCycTime") String preCycTime, @Param("preJobName") String preJobName, @Param("scheduleType") Integer scheduleType) {
+        return batchJobDao.listJobByCyctimeAndJobName(preCycTime, preJobName, scheduleType);
+    }
+
+    /**
+     * 按批次根据cycTime和jobName获取，如获取当天的周期实例任务
+     * @param startId
+     * @param preCycTime
+     * @param preJobName
+     * @param scheduleType
+     * @param batchJobSize
+     * @return
+     */
+    public List<BatchJob> listByCyctimeAndJobName(@Param("startId") Long startId, @Param("preCycTime") String preCycTime, @Param("preJobName") String preJobName, @Param("scheduleType") Integer scheduleType, @Param("batchJobSize") Integer batchJobSize) {
+        return batchJobDao.listJobByCyctimeAndJobNameBatch(startId, preCycTime, preJobName, scheduleType, batchJobSize);
+    }
+
+    public Integer countByCyctimeAndJobName(@Param("preCycTime") String preCycTime, @Param("preJobName") String preJobName, @Param("scheduleType") Integer scheduleType) {
+        return batchJobDao.countJobByCyctimeAndJobName(preCycTime, preJobName, scheduleType);
+    }
+
+    /**
+     * 根据jobKey删除job jobjob记录
+     * @param jobKeyList
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteJobsByJobKey(@Param("jobKeyList") List<String> jobKeyList) {
+        batchJobDao.deleteByJobKey(jobKeyList);
+        batchJobJobDao.deleteByJobKey(jobKeyList);
+    }
 }

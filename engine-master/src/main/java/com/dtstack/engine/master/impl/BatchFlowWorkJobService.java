@@ -8,6 +8,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 /**
@@ -44,7 +45,7 @@ public class BatchFlowWorkJobService {
      *
      * @param jobId
      */
-    public boolean checkRemoveAndUpdateFlowJobStatus(String jobId) {
+    public boolean checkRemoveAndUpdateFlowJobStatus(String jobId,Integer appType) {
 
         List<BatchJob> subJobs = batchJobService.getSubJobsAndStatusByFlowId(jobId);
         boolean canRemove = false;
@@ -113,8 +114,21 @@ public class BatchFlowWorkJobService {
                 bottleStatus = TaskStatus.FROZEN.getStatus();
             }
         }
-        //更新工作流状态
-        batchJobService.updateStatusByJobId(jobId, bottleStatus);
+
+        if (TaskStatus.FINISHED.getStatus().equals(bottleStatus) || TaskStatus.FAILED.getStatus().equals(bottleStatus)
+                || TaskStatus.PARENTFAILED.getStatus().equals(bottleStatus) || TaskStatus.SUBMITFAILD.getStatus().equals(bottleStatus)) {
+            //更新结束时间时间
+            BatchJob updateJob = new BatchJob();
+            updateJob.setJobId(jobId);
+            updateJob.setStatus(bottleStatus);
+            updateJob.setAppType(appType);
+            updateJob.setExecEndTime(new Timestamp(System.currentTimeMillis()));
+            updateJob.setGmtModified(new Timestamp(System.currentTimeMillis()));
+            batchJobService.updateStatusWithExecTime(updateJob);
+        } else {
+            //更新工作流状态
+            batchJobService.updateStatusByJobId(jobId, bottleStatus);
+        }
         return canRemove;
     }
 

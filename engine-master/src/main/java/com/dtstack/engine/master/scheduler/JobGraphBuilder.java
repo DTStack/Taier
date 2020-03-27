@@ -4,15 +4,11 @@ import com.dtstack.dtcenter.common.enums.*;
 import com.dtstack.dtcenter.common.util.DateUtil;
 import com.dtstack.dtcenter.common.util.MathUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.domain.BatchEngineJob;
-import com.dtstack.engine.domain.BatchJob;
-import com.dtstack.engine.domain.BatchJobJob;
-import com.dtstack.engine.domain.BatchTaskShade;
-import com.dtstack.engine.domain.BatchTaskTaskShade;
 import com.dtstack.engine.common.enums.DependencyType;
 import com.dtstack.engine.common.enums.EScheduleType;
+import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.domain.*;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.impl.*;
 import com.dtstack.engine.master.parser.*;
@@ -69,7 +65,9 @@ public class JobGraphBuilder {
     public static final List<Integer> SPECIAL_TASK_TYPES = Lists.newArrayList(EJobType.WORK_FLOW.getVal(), EJobType.ALGORITHM_LAB.getVal());
 
     private static final int TASK_BATCH_SIZE = 50;
+    private static final int JOB_BATCH_SIZE = 50;
     private static final int MAX_TASK_BUILD_THREAD = 10;
+    private static final int MAX_JOB_CLEAN_THREAD = 10;
 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 
@@ -114,6 +112,8 @@ public class JobGraphBuilder {
                 return;
             }
 
+            cleanDirtyJobGraph(triggerDay);
+
             int totalTask = batchTaskShadeService.countTaskByStatus(ESubmitStatus.SUBMIT.getStatus(), EProjectScheduleStatus.NORMAL.getStatus());
             logger.info("Counting task which status=SUBMIT scheduleStatus=NORMAL totalTask:{}", totalTask);
 
@@ -122,7 +122,7 @@ public class JobGraphBuilder {
             }
 
             ExecutorService jobGraphBuildPool = new ThreadPoolExecutor(0, MAX_TASK_BUILD_THREAD, 10L, TimeUnit.SECONDS,
-                    new ArrayBlockingQueue<Runnable>(1), new CustomThreadFactory(this.getClass().getSimpleName()));
+                    new ArrayBlockingQueue<Runnable>(1), new CustomThreadFactory("JobGraphBuilder"));
 
             List<ScheduleBatchJob> allJobs = new ArrayList<>(totalTask);
             Map<String, String> flowJobId = new ConcurrentHashMap<>(totalTask);
@@ -164,14 +164,14 @@ public class JobGraphBuilder {
 
                                 if (SPECIAL_TASK_TYPES.contains(task.getTaskType())) {
                                     for (ScheduleBatchJob jobRunBean : jobRunBeans) {
-                                        flowJobId.put(jobRunBean.getTaskId() + "_" + jobRunBean.getCycTime(), jobRunBean.getJobId());
+                                        flowJobId.put(task.getTaskId() + "_" + jobRunBean.getCycTime(), jobRunBean.getJobId());
                                     }
                                 }
                             } catch (Exception e) {
                                 logger.error("", e);
                             }
                         }
-                        logger.info("batch-umber:{} done!!! allJobs size:{}", batchIdx, allJobs.size());
+                        logger.info("batch-number:{} done!!! allJobs size:{}", batchIdx, allJobs.size());
                     } catch (Throwable e) {
                         logger.error("{}", e);
                     } finally {
@@ -206,13 +206,57 @@ public class JobGraphBuilder {
     }
 
     /**
+     * 清理周期实例脏数据
+     * @param triggerDay
+     */
+    private void cleanDirtyJobGraph(String triggerDay) {
+        String preCycTime = DateUtil.getTimeStrWithoutSymbol(triggerDay);
+        int totalJob = batchJobService.countByCyctimeAndJobName(preCycTime, CRON_JOB_NAME, EScheduleType.NORMAL_SCHEDULE.getType());
+        if (totalJob <= 0) {
+            return;
+        }
+        logger.info("Start cleaning dirty cron job graph,  totalJob:{}", totalJob);
+
+        int totalBatch;
+        if (totalJob % JOB_BATCH_SIZE != 0) {
+            totalBatch = totalJob / JOB_BATCH_SIZE + 1;
+        } else {
+            totalBatch = totalJob / JOB_BATCH_SIZE;
+        }
+        long startId = 0L;
+        int i = 0;
+
+        while (true) {
+            final int batchIdx = ++i;
+            if (batchIdx > totalBatch) {
+                break;
+            }
+            final List<BatchJob> batchJobList = batchJobService.listByCyctimeAndJobName(startId, preCycTime,
+                    CRON_JOB_NAME, EScheduleType.NORMAL_SCHEDULE.getType(), JOB_BATCH_SIZE);
+            if (batchJobList.isEmpty()) {
+                break;
+            }
+            logger.info("Start clean batchJobList, batch-number:{} startId:{}", batchIdx, startId);
+            startId = batchJobList.get(batchJobList.size() - 1).getId();
+            List<String> jobKeyList = new ArrayList<>();
+            List<Long> jobIdList = new ArrayList<>();
+            for ( BatchJob batchJob : batchJobList ) {
+                jobKeyList.add(batchJob.getJobKey());
+                jobIdList.add(batchJob.getId());
+            }
+            batchJobService.deleteJobsByJobKey(jobKeyList);
+            logger.info("batch-number:{} done! Cleaning dirty jobs size:{}", batchIdx, batchJobList.size());
+        }
+    }
+
+    /**
      * <br>将工作流中的子任务flowJobId字段设置为所属工作流的实例id</br>
      * <br>用于BatchFlowWorkJobService中检查工作流子任务状态</br>
      *
      * @param jobList
      * @param flowJobId
      */
-    private void doSetFlowJobIdForSubTasks(List<ScheduleBatchJob> jobList, Map<String, String> flowJobId) {
+    public void doSetFlowJobIdForSubTasks(List<ScheduleBatchJob> jobList, Map<String, String> flowJobId) {
         for (ScheduleBatchJob job : jobList) {
             String flowIdKey = job.getBatchJob().getFlowJobId();
             job.getBatchJob().setFlowJobId(flowJobId.getOrDefault(flowIdKey, NORMAL_TASK_FLOW_ID));
@@ -334,7 +378,12 @@ public class JobGraphBuilder {
                         flowJobTime = DateUtil.getTimeStrWithoutSymbol(cycTime.get(0));
                     }
                 }
-                batchJob.setFlowJobId(task.getFlowId() + "_" + flowJobTime);
+                BatchTaskShade flowTaskShade = batchTaskShadeService.getBatchTaskById(task.getFlowId(), task.getAppType());
+                if (Objects.isNull(flowTaskShade)) {
+                    batchJob.setFlowJobId(NORMAL_TASK_FLOW_ID);
+                } else {
+                    batchJob.setFlowJobId(flowTaskShade.getTaskId() + "_" + flowJobTime);
+                }
             }
 
             batchJob.setGmtCreate(timestampNow);
@@ -368,7 +417,7 @@ public class JobGraphBuilder {
             batchJob.setBusinessDate(businessDate);
 
             //任务流中的子任务，起始节点将任务流节点作为父任务加入
-            if (task.getFlowId() > 0 && !whetherHasParentTask(task.getId())) {
+            if (task.getFlowId() > 0 && !whetherHasParentTask(task.getTaskId())) {
                 List<String> keys = getJobKeys(Lists.newArrayList(task.getFlowId()), batchJob, scheduleCron, keyPreStr);
                 scheduleBatchJob.addBatchJobJob(createNewJobJob(batchJob, jobKey, keys.get(0), timestampNow));
             }
@@ -1016,7 +1065,7 @@ public class JobGraphBuilder {
         if (batchTask.getTaskType().intValue() == EJobType.WORK_FLOW.getVal() ||
                 batchTask.getTaskType().intValue() == EJobType.ALGORITHM_LAB.getVal()) {
             for (ScheduleBatchJob jobRunBean : batchJobs) {
-                flowJobId.put(jobRunBean.getTaskId() + "_" + jobRunBean.getCycTime(), jobRunBean.getJobId());
+                flowJobId.put(batchTask.getTaskId() + "_" + jobRunBean.getCycTime(), jobRunBean.getJobId());
             }
             //将工作流下的子任务生成补数据任务实例
             List<ScheduleBatchJob> subTaskJobs = buildSubTasksJobForFlowWork(batchTask.getTaskId(), preStr, fillJobName, triggerDay, createUserId, beginTime, endTime, projectId, tenantId, appType);

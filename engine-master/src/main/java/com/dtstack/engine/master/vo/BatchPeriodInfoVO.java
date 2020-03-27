@@ -10,6 +10,27 @@ public class BatchPeriodInfoVO {
     private String cycTime;
     private Integer status;
 
+    private Long taskId;
+
+    private Integer version;
+
+    public Long getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
+
+
     public Long getJobId() {
         return jobId;
     }

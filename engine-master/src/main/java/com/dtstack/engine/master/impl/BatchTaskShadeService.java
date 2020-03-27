@@ -14,7 +14,6 @@ import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.BatchTaskShadeDao;
-import com.dtstack.engine.domain.BatchJob;
 import com.dtstack.engine.domain.BatchTaskShade;
 import com.dtstack.engine.dto.BatchTaskShadeDTO;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
@@ -58,6 +57,8 @@ public class BatchTaskShadeService {
     public void addOrUpdate(BatchTaskShadeDTO batchTaskShadeDTO) {
         //保存batch_task_shade
         if (batchTaskShadeDao.getOne(batchTaskShadeDTO.getTaskId(),batchTaskShadeDTO.getAppType()) != null) {
+            //更新提交时间
+            batchTaskShadeDTO.setGmtModified(new Timestamp(System.currentTimeMillis()));
             batchTaskShadeDao.update(batchTaskShadeDTO);
         } else {
             batchTaskShadeDao.insert(batchTaskShadeDTO);
@@ -68,9 +69,9 @@ public class BatchTaskShadeService {
      * web 接口
      * task删除时触发同步清理
      */
-    public void deleteTask(@Param("taskId") Long taskId, @Param("modifyUserId") long modifyUserId, @Param("appType") Integer appType) {
+    public void deleteTask(@Param("taskId") Long taskId, @Param("modifyUserId") long modifyUserId,@Param("appType") Integer appType) {
         batchTaskShadeDao.delete(taskId, modifyUserId,appType);
-        taskTaskShadeService.clearDataByTaskId(taskId);
+        taskTaskShadeService.clearDataByTaskId(taskId,appType);
     }
 
     @Forbidden
@@ -128,12 +129,16 @@ public class BatchTaskShadeService {
      */
     public List<BatchTaskShade> getTasksByName(@Param("projectId") long projectId,
                                                @Param("name") String name,@Param("appType") Integer appType) {
-        return batchTaskShadeDao.listByNameLike(projectId, name,appType,null);
+        return batchTaskShadeDao.listByNameLike(projectId, name,appType,null,null);
     }
 
     public BatchTaskShade getByName(@Param("projectId") long projectId,
-                                    @Param("name") String name) {
-        return batchTaskShadeDao.getByName(projectId, name);
+                                    @Param("name") String name,@Param("appType") Integer appType) {
+        //如果appType没传那就默认为ide
+        if (Objects.isNull(appType)){
+            appType = 1;
+        }
+        return batchTaskShadeDao.getByName(projectId, name,appType);
     }
 
     public void updateTaskName(@Param("taskId") long id, @Param("taskName") String taskName,@Param("appType")Integer appType) {
@@ -146,7 +151,7 @@ public class BatchTaskShadeService {
      *
      * @param jobKey
      * @return
-     * @see JobGraphBuilder#getSelfDependencyJobKeys(BatchJob, com.dtstack.engine.master.parser.ScheduleCron, java.lang.String)
+     * @see JobGraphBuilder#getSelfDependencyJobKeys(com.dtstack.task.domain.BatchJob, com.dtstack.task.server.parser.ScheduleCron, java.lang.String)
      */
     @Forbidden
     public String getTaskNameByJobKey(String jobKey,Integer appType) {

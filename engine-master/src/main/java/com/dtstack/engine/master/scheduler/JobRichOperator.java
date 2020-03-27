@@ -131,12 +131,7 @@ public class JobRichOperator {
             Boolean isSelfDependency = scheduleBatchJob.getTaskId().equals(dependencyTaskId);
 
             if (errorJobCache.containsKey(jobjob.getParentJobKey())) {
-                if (isSelfDependency && (DependencyType.SELF_DEPENDENCY_END.getType().equals(dependencyType))) {
-                    continue;
-                }
-                if (DependencyType.PRE_PERIOD_CHILD_DEPENDENCY_END.getType().equals(dependencyType)){
-                    continue;
-                }
+                if (checkDependEndStatus(dependencyType, isSelfDependency)) continue;
 
                 errorJobCache.put(scheduleBatchJob.getJobKey(), createErrJobCacheInfo(scheduleBatchJob.getBatchJob(), taskCache));
                 if (isSelfDependency) {
@@ -182,8 +177,7 @@ public class JobRichOperator {
             //自依赖还需要判断二种情况
             //如果是依赖父任务成功 要判断父任务状态 走自依赖上一个周期异常
             //如果是依赖父任务结束 只要是满足结束条件的 这一周期可以执行
-            if ((isSelfDependency && (DependencyType.SELF_DEPENDENCY_END.getType().equals(dependencyType)))
-                    || DependencyType.PRE_PERIOD_CHILD_DEPENDENCY_END.getType().equals(dependencyType)) {
+            if (checkDependEndStatus(dependencyType, isSelfDependency)) {
                 if (isEndStatus(dependencyJobStatus)) {
                     continue;
                 } else {
@@ -310,6 +304,23 @@ public class JobRichOperator {
         }
         return null;
 
+    }
+
+
+    /**
+     * 只要是结束状态 都可以运行
+     * @param dependencyType
+     * @param isSelfDependency
+     * @return
+     */
+    private boolean checkDependEndStatus(Integer dependencyType, Boolean isSelfDependency) {
+        if (isSelfDependency && (DependencyType.SELF_DEPENDENCY_END.getType().equals(dependencyType))) {
+            return true;
+        }
+        if (isSelfDependency && DependencyType.PRE_PERIOD_CHILD_DEPENDENCY_END.getType().equals(dependencyType)){
+            return true;
+        }
+        return false;
     }
 
 

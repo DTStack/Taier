@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,6 +32,19 @@ public class JobParamReplace {
 
     private final static String VAR_FORMAT = "${%s}";
 
+    public final static List<String> NOTEBOOK_FEATURE_PARAMETERS = new ArrayList<>();
+
+    static {
+        NOTEBOOK_FEATURE_PARAMETERS.add("bdp.system.localPath");
+        NOTEBOOK_FEATURE_PARAMETERS.add("bdp.system.remotePath");
+        NOTEBOOK_FEATURE_PARAMETERS.add("bdp.system.hdfsServer");
+
+//        SYS_PARAMETER.put("bdp.system.bizdate", "yyyyMMdd-1");
+//        SYS_PARAMETER.put("bdp.system.cyctime", "yyyyMMddHHmmss");
+//        SYS_PARAMETER.put("bdp.system.currmonth", "yyyyMM-0");
+//        SYS_PARAMETER.put("bdp.system.premonth", "yyyyMM-1");
+    }
+
 
     public String paramReplace(String sql, List<BatchTaskParamShade> paramList, String cycTime) {
 
@@ -51,7 +65,7 @@ public class JobParamReplace {
             paramName = ((BatchTaskParamShade) param).getParamName();
             paramCommand = ((BatchTaskParamShade) param).getParamCommand();
 
-            String targetVal = convertParam(type, paramName, paramCommand, cycTime);
+            String targetVal = convertParam(type, paramName, paramCommand, cycTime, ((BatchTaskParamShade) param).getTaskId());
             String replaceStr = String.format(VAR_FORMAT, paramName);
             sql = sql.replace(replaceStr, targetVal);
         }
@@ -59,12 +73,20 @@ public class JobParamReplace {
         return sql;
     }
 
-    public String convertParam(Integer type, String paramName, String paramCommand, String cycTime) {
+    public String convertParam(Integer type, String paramName, String paramCommand, String cycTime, Long taskId) {
 
         String command = paramCommand;
         if (type == EParamType.SYS_TYPE.getType()) {
-            command = TimeParamOperator.transform(command, cycTime);
-            return command;
+            if (NOTEBOOK_FEATURE_PARAMETERS.contains(paramName)) {
+                if (paramName.equals(NOTEBOOK_FEATURE_PARAMETERS.get(1))) {
+                    return paramCommand.concat("/") + taskId + "/";
+                } else {
+                    return paramCommand;
+                }
+            } else {
+                command = TimeParamOperator.transform(command, cycTime);
+                return command;
+            }
         } else {
             return TimeParamOperator.dealCustomizeTimeOperator(command, cycTime);
         }

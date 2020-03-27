@@ -30,7 +30,9 @@ public interface BatchJobJobDao {
 
     List<BatchJobJob> listByParentJobKeys(@Param("list") List<String> list);
 
-    List<BatchJobJobTaskDTO> listByParentJobKeysWithOutSelfTask(@Param("jobKeyList") List<String> jobKeyList, @Param("selfTaskIdList") List<Long> selfTaskIdList);
+    List<BatchJobJobTaskDTO> listByParentJobKeysWithOutSelfTask(@Param("jobKeyList") List<String> jobKeyList);
 
     List<BatchJobJobTaskDTO> listByJobKeysWithOutSelfTask(@Param("jobKeyList") List<String> jobKeys, @Param("selfTaskIdList") List<Long> taskIdList);
+
+    void deleteByJobKey(@Param("jobKeyList") List<String> jobKeyList);
 }

@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.engine.dao.BatchJobJobDao">
 
     <sql id="select_content_fragment">
-      id,tenant_id,project_id,dtuic_tenant_id,app_type,job_key,parent_job_key,gmt_create,gmt_modified,is_deleted
+        id,tenant_id,project_id,dtuic_tenant_id,app_type,job_key,parent_job_key,gmt_create,gmt_modified,is_deleted
     </sql>
     <sql id="update_fragment">
         <set>
@@ -120,10 +120,6 @@
         <foreach collection="jobKeyList" item="key" open="(" separator="," close=")">
             #{key}
         </foreach>
-        and bj.task_id not in
-        <foreach collection="selfTaskIdList" item="key" open="(" separator="," close=")">
-            #{key}
-        </foreach>
         and bjj.is_deleted = 0
         and bj.is_deleted = 0
     </select>
@@ -147,4 +143,12 @@
         and bjj.is_deleted = 0
         and bj.is_deleted = 0
     </select>
+
+    <delete id="deleteByJobKey">
+        delete from rdos_batch_job_job
+        where job_key in
+        <foreach collection="jobKeyList" item="jobKey" open="(" separator="," close=")">
+            #{jobKey}
+        </foreach>
+    </delete>
 </mapper>

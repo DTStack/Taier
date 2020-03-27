@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.engine.dao.BatchTaskTaskShadeDao">
 
     <sql id="select_content_fragment">
-      id,tenant_id,project_id,dtuic_tenant_id,app_type,task_id,parent_task_id,gmt_create,gmt_modified,is_deleted
+        id,tenant_id,project_id,dtuic_tenant_id,app_type,task_id,parent_task_id,gmt_create,gmt_modified,is_deleted
     </sql>
 
     <sql id="update_fragment">
@@ -29,6 +29,9 @@
             <if test="gmtModified != null">
                 gmt_modified = #{gmtModified},
             </if>
+            <if test="gmtModified == null">
+                gmt_modified = NOW(),
+            </if>
             <if test="isDeleted != null">
                 is_deleted = #{isDeleted},
             </if>
@@ -36,7 +39,7 @@
                 dtuic_tenant_id  = #{dtuicTenantId},
             </if>
             <if test="appType!=null">
-                app_tpye = #{dtuicTenantId},
+                app_type = #{appType},
             </if>
         </set>
     </sql>
@@ -57,14 +60,14 @@
 
     <delete id="deleteByTaskId">
         DELETE FROM rdos_batch_task_task_shade
-        WHERE task_id = #{taskId}
+        WHERE task_id = #{taskId} AND app_type = #{appType}
     </delete>
 
     <insert id="insert" parameterType="BatchTaskTaskShade" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO rdos_batch_task_task_shade
-          (id,dtuic_tenant_id,app_type, task_id,parent_task_id,project_id,tenant_id,gmt_create,gmt_modified,is_deleted)
+        (dtuic_tenant_id,app_type, task_id,parent_task_id,project_id,tenant_id,gmt_create,gmt_modified,is_deleted)
         VALUES
-          (#{id},#{dtuicTenantId},#{appType}, #{taskId},#{parentTaskId},#{projectId},#{tenantId},#{gmtCreate},#{gmtModified},#{isDeleted})
+        (#{dtuicTenantId},#{appType}, #{taskId},#{parentTaskId},#{projectId},#{tenantId},#{gmtCreate},#{gmtModified},#{isDeleted})
     </insert>
 
     <update id="update" parameterType="BatchTaskTaskShade">
@@ -72,7 +75,7 @@
         rdos_batch_task_task_shade
         <include refid="update_fragment"/>
         WHERE
-        id = #{id} AND is_deleted = 0
+        task_id = #{taskId} AND app_type = #{appType} AND is_deleted = 0
     </update>
 
     <select id="getOne" resultType="BatchTaskTaskShade">
@@ -80,6 +83,13 @@
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task_task_shade
         WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <select id="getOneByTaskId" resultType="BatchTaskTaskShade">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_batch_task_task_shade
+        WHERE task_id = #{taskId} and parent_task_id = #{parentTaskId} AND is_deleted = 0
     </select>
 
 </mapper>

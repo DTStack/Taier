@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.engine.dao.BatchTaskShadeDao">
 
     <sql id="select_content_fragment">
-      id,tenant_id,task_id,project_id,node_pid,name,task_type,engine_type,compute_type,sql_text,task_params,schedule_conf,period_type,app_type,dtuic_tenant_id,
+        id,tenant_id,task_id,project_id,node_pid,name,task_type,engine_type,compute_type,sql_text,task_params,schedule_conf,period_type,app_type,dtuic_tenant_id,
       schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version_id,is_deleted,task_desc,main_class,exe_args,flow_id,is_publish_to_produce,is_expire
     </sql>
 
@@ -18,7 +18,7 @@
     </sql>
 
     <sql id="simple_select_content_fragment">
-        id,tenant_id,project_id,name,task_type,engine_type,compute_type,period_type,schedule_conf,task_id,app_type,
+        id,tenant_id,project_id,name,task_type,engine_type,compute_type,period_type,schedule_conf,task_id,app_type,sql_text,
         schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version_id,is_deleted,flow_id,is_publish_to_produce,dtuic_tenant_id,is_expire
     </sql>
 
@@ -240,7 +240,7 @@
 
     <select id="countTaskByStatus" resultType="java.lang.Integer">
         SELECT
-        count(1)
+            count(1)
         FROM rdos_batch_task_shade
         WHERE submit_status = #{submitStatus} and project_schedule_status = #{projectScheduleStatus} and is_deleted = 0
     </select>
@@ -270,12 +270,21 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task_shade
-        WHERE project_id = #{projectId}  and is_deleted = 0 and app_type = #{appType}
+        WHERE    is_deleted = 0 and app_type = #{appType}
+        <if test="projectId != null">
+            and  project_id = #{projectId}
+        </if>
         <if test="ownerId!=null">
-           AND owner_user_id = #{ownerId}
+            AND owner_user_id = #{ownerId}
         </if>
         <if test="name!=null">
             AND name like '%${name}%'
+        </if>
+        <if test="projectIds != null and projectIds.size() > 0">
+            and   project_id in
+            <foreach collection="projectIds" open="(" separator="," close=")" item="projectId">
+                #{projectId}
+            </foreach>
         </if>
     </select>
 
@@ -304,7 +313,9 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task_shade
-        WHERE project_id = #{projectId} AND name = #{name} and is_deleted = 0
+        WHERE project_id = #{projectId} AND name = #{name}
+        AND app_type = #{appType}
+        and is_deleted = 0
         limit 1
     </select>
 
@@ -334,7 +345,7 @@
 
     <update id="updateTaskName">
         UPDATE
-        rdos_batch_task_shade
+            rdos_batch_task_shade
         set name = #{name}
         where task_id = #{taskId} and app_type = #{appType}
     </update>
@@ -347,11 +358,11 @@
 
     <insert id="insert" parameterType="BatchTaskShade" useGeneratedKeys="false" keyProperty="id">
         INSERT INTO rdos_batch_task_shade
-          (tenant_id,project_id,node_pid,name,task_type,engine_type,compute_type,sql_text,task_params,schedule_conf,period_type,
-          schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version_id,is_deleted,task_desc,main_class,exe_args,flow_id,app_type,dtuic_tenant_id,task_id,is_expire)
+        (tenant_id,project_id,node_pid,name,task_type,engine_type,compute_type,sql_text,task_params,schedule_conf,period_type,
+         schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version_id,is_deleted,task_desc,main_class,exe_args,flow_id,app_type,dtuic_tenant_id,task_id,is_expire)
         VALUES
-          (#{tenantId},#{projectId},#{nodePid},#{name},#{taskType},#{engineType},#{computeType},#{sqlText},#{taskParams},#{scheduleConf},#{periodType},
-          #{scheduleStatus},#{submitStatus},#{gmtCreate},#{gmtModified},#{modifyUserId},#{createUserId},#{ownerUserId},#{versionId},#{isDeleted},#{taskDesc},#{mainClass},#{exeArgs},#{flowId},#{appType},#{dtuicTenantId},#{taskId},#{isExpire})
+        (#{tenantId},#{projectId},#{nodePid},#{name},#{taskType},#{engineType},#{computeType},#{sqlText},#{taskParams},#{scheduleConf},#{periodType},
+         #{scheduleStatus},#{submitStatus},#{gmtCreate},#{gmtModified},#{modifyUserId},#{createUserId},#{ownerUserId},#{versionId},#{isDeleted},#{taskDesc},#{mainClass},#{exeArgs},#{flowId},#{appType},#{dtuicTenantId},#{taskId},#{isExpire})
     </insert>
 
     <update id="update" parameterType="BatchTaskShade">
@@ -426,8 +437,26 @@
         <if test="model.startTime != null">
             and to_days(gmt_modified) >= to_days(#{model.startTime})
         </if>
+        <if test="model.taskType != null">
+            and task_type = #{model.taskType}
+        </if>
         <if test="model.endTime != null">
             and to_days(#{model.endTime}) >= to_days(gmt_modified)
+        </if>
+        <if test="model.taskTypeList != null and model.taskTypeList.size()>0">
+            AND task_type IN
+            <foreach collection="model.taskTypeList" separator="," index="index" item="item" open="(" close=")">
+                ${item}
+            </foreach>
+        </if>
+        <if test="model.name != null">
+            and name like '%${model.name}%'
+        </if>
+        <if test="model.periodTypeList != null and model.periodTypeList.size()>0">
+            AND period_type IN
+            <foreach collection="model.periodTypeList" separator="," index="index" item="item" open="(" close=")">
+                ${item}
+            </foreach>
         </if>
         and if(is_publish_to_produce = 0, is_deleted = 0,1=1) and flow_id = 0
 
@@ -453,17 +482,35 @@
         count(1)
         FROM rdos_batch_task_shade
         where tenant_id = #{model.tenantId} and project_id = #{model.projectId}
-       <!-- <if test="model.taskModifyUserId != null">
-            and modify_user_id = #{model.taskModifyUserId}
-        </if>-->
         <if test="model.taskName != null">
             and name like '%${model.taskName}%'
         </if>
         <if test="model.startTime != null">
             and to_days(gmt_modified) >= to_days(#{model.startTime})
         </if>
+        <if test="model.taskType != null">
+            and task_type = #{model.taskType}
+        </if>
         <if test="model.endTime != null">
             and to_days(#{model.endTime}) >= to_days(gmt_modified)
+        </if>
+        <if test="model.taskTypeList != null and model.taskTypeList.size()>0">
+            AND task_type IN
+            <foreach collection="model.taskTypeList" separator="," index="index" item="item" open="(" close=")">
+                ${item}
+            </foreach>
+        </if>
+        <if test="model.name != null">
+            and name like '%${model.name}%'
+        </if>
+        <if test="model.periodTypeList != null and model.periodTypeList.size()>0">
+            AND period_type IN
+            <foreach collection="model.periodTypeList" separator="," index="index" item="item" open="(" close=")">
+                ${item}
+            </foreach>
+        </if>
+        <if test="model.name != null">
+            and name like '%${model.name}%'
         </if>
         and if(is_publish_to_produce = 0, is_deleted = 0,1=1) and flow_id = 0
     </select>
@@ -478,8 +525,8 @@
 
     <select id="countPublishToProduce" resultType="java.lang.Integer">
         select count(1) from rdos_batch_task_shade where
-        project_id = #{projectId} and app_type = #{appType}
-        and is_publish_to_produce = 1 and is_deleted = 0
+            project_id = #{projectId} and app_type = #{appType}
+                                                     and is_publish_to_produce = 1 and is_deleted = 0
     </select>
 
     <select id="listSimpleTaskByTaskIds" resultType="com.dtstack.engine.dto.BatchTaskForFillDataDTO">
@@ -502,22 +549,22 @@
 
     <select id="getSqlTextById" resultType="java.lang.String">
         SELECT
-        sql_text
+            sql_text
         FROM rdos_batch_task_shade
         WHERE id = #{id} AND is_deleted = 0
     </select>
 
     <select id="getWorkFlowTopNode" resultType="BatchTaskShade">
         SELECT
-            <include refid="alias_select_content_fragment"/>
+        <include refid="alias_select_content_fragment"/>
         FROM
-            rdos_batch_task_shade ts
-            LEFT JOIN ( SELECT DISTINCT task_id FROM rdos_batch_task_task_shade WHERE task_id IN ( SELECT task_id FROM rdos_batch_task_shade WHERE flow_id = #{workFlowId} and is_deleted = 0 )  and is_deleted = 0) tts ON ts.task_id = tts.task_id
+        rdos_batch_task_shade ts
+        LEFT JOIN ( SELECT DISTINCT task_id FROM rdos_batch_task_task_shade WHERE task_id IN ( SELECT task_id FROM rdos_batch_task_shade WHERE flow_id = #{workFlowId} and is_deleted = 0 )  and is_deleted = 0) tts ON ts.task_id = tts.task_id
         WHERE
-            ts.flow_id = #{workFlowId}
-            AND tts.task_id IS NULL
-            and ts.is_deleted = 0
-            limit 1
+        ts.flow_id = #{workFlowId}
+        AND tts.task_id IS NULL
+        and ts.is_deleted = 0
+        limit 1
     </select>
 
 
@@ -569,13 +616,13 @@
 
     <select id="getExtInfoByTaskIds" resultType="BatchTaskShade">
         SELECT
-           task_id ,extra_info
+        task_id ,extra_info
         FROM rdos_batch_task_shade
         where task_id IN
         <foreach item="id" index="index" collection="taskIds" open="(" separator="," close=")">
             #{id}
         </foreach>
-          and app_type = #{appType} and is_deleted = 0
+        and app_type = #{appType} and is_deleted = 0
     </select>
 
 
@@ -586,4 +633,9 @@
         rdos_batch_task_shade
         where id = #{id} and is_deleted = 0
     </select>
+
+
+    <update id="updateProjectScheduleStatus">
+        update rdos_batch_task_shade set project_schedule_status = #{scheduleStatus} where project_id = #{projectId} and app_type = #{appType}
+    </update>
 </mapper>

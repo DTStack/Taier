@@ -61,7 +61,6 @@ public class BatchTaskVO extends BatchTaskShade {
         init();
         if (getSimpleParams) {
             //精简不需要的参数（尤其是长字符串）
-            setSqlText(EMPYT);
             setTaskDesc(EMPYT);
             setTaskParams(EMPYT);
             setExeArgs(EMPYT);
@@ -156,12 +155,10 @@ public class BatchTaskVO extends BatchTaskShade {
 
     private Long taskId;
 
-    @Override
     public void setTaskId(Long taskId) {
         this.taskId = taskId;
     }
 
-    @Override
     public Long getTaskId() {
         return taskId;
     }

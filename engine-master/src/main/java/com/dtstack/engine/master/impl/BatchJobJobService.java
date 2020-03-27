@@ -169,7 +169,7 @@ public class BatchJobJobService {
         for (int i = level; i > 0; i--) {
             List<BatchJobJobTaskDTO> jobJobs;
             if (getChild) {
-                jobJobs = batchJobJobDao.listByParentJobKeysWithOutSelfTask(jobKeys, taskIdList);
+                jobJobs = batchJobJobDao.listByParentJobKeysWithOutSelfTask(jobKeys);
             } else {
                 jobJobs = batchJobJobDao.listByJobKeysWithOutSelfTask(jobKeys, taskIdList);
             }
@@ -267,7 +267,7 @@ public class BatchJobJobService {
 
         //展示非工作流中的任务节点时，过滤掉工作流中的节点
         if (!isSubTask) {
-            if (!"0".equals(vo.getFlowJobId())) {
+            if (!vo.getFlowJobId().equals("0")) {
                 return null;
             }
         }
@@ -317,7 +317,7 @@ public class BatchJobJobService {
         BatchTaskShade batchTaskShade = batchTaskShadeService.getBatchTaskById(job.getTaskId(),appType);
         BatchJobVO vo = new BatchJobVO(job);
         vo.setBatchTask(new BatchTaskVO(batchTaskShade, true));
-        if (batchTaskShade.getTaskType().intValue() == EJobType.WORK_FLOW.getVal()) {
+        if (batchTaskShade.getTaskType().intValue() == EJobType.WORK_FLOW.getVal() || batchTaskShade.getTaskType().intValue() == EJobType.ALGORITHM_LAB.getVal()) {
             try {
                 //工作流下全部实例,层级level使用int最大值
                 BatchJobVO subJobVO = this.displayOffSpringForFlowWork(job);

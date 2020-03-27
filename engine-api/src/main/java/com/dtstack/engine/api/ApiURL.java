@@ -10,6 +10,7 @@ public class ApiURL {
 
     private static final String BATCH_JOB = String.format("%s/%s", ROOT, "batchJob");
     private static final String BATCH_TASK = String.format("%s/%s", ROOT, "batchTask");
+    private static final String PROJECT = String.format("%s/%s", ROOT, "project");
     private static final String BATCH_TASK_SHADE = String.format("%s/%s", ROOT, "batchTaskShade");
     private static final String BATCH_TASK_TASK_SHADE = String.format("%s/%s", ROOT, "batchTaskTaskShade");
     private static final String BATCH_JOB_JOB = String.format("%s/%s", ROOT, "batchJobJob");
@@ -98,6 +99,8 @@ public class ApiURL {
     public static final String BATCH_ALARM_DELETE_ALARM_BYTASK = String.format("%s/%s", BATCH_ALARM, "deleteAlarmByTask");
     public static final String BATCH_ALARM_GETBYNAME_AND_PROJECTID = String.format("%s/%s", BATCH_ALARM, "getByNameAndProjectId");
     public static final String BATCH_ALARM_FORMAT_RECORD_USER = String.format("%s/%s", BATCH_ALARM, "formatRecordUser");
+
+    public static final String PROJECT_SCHEDULE= String.format("%s/%s", PROJECT, "updateSchedule");
 
 
     /**

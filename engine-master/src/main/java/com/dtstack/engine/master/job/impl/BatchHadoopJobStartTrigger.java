@@ -6,17 +6,18 @@ import com.dtstack.dtcenter.common.enums.*;
 import com.dtstack.dtcenter.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.common.hadoop.HadoopConf;
 import com.dtstack.dtcenter.common.hadoop.HdfsOperator;
+import com.dtstack.dtcenter.common.util.DBUtil;
 import com.dtstack.dtcenter.common.util.RetryUtil;
+import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.EScheduleType;
-import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.BatchJobDao;
 import com.dtstack.engine.domain.BatchJob;
 import com.dtstack.engine.domain.BatchTaskShade;
 import com.dtstack.engine.dto.BatchTaskParamShade;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ActionService;
 import com.dtstack.engine.master.impl.ClusterService;
-import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.master.job.IJobStartTrigger;
 import com.dtstack.engine.master.scheduler.JobParamReplace;
 import com.google.common.base.Charsets;
@@ -37,6 +38,7 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
+import java.sql.Connection;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -87,13 +89,12 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
 
     private static final String KEY_SAVEPOINT = "state.checkpoints.dir";
 
-    private static final String JOB_ID = "${jobId}";
-
     private static final String ADD_PART_TEMP = "alter table %s add partition(task_name='%s',time='%s')";
 
     @Override
     public void readyForTaskStartTrigger(Map<String, Object> actionParam, BatchTaskShade taskShade, BatchJob batchJob) throws Exception {
 
+        //info信息中数据
         String sql = (String) actionParam.get("sqlText");
         sql = sql == null ? "" : sql;
         String taskParams = taskShade.getTaskParams();
@@ -102,9 +103,8 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
 
         String taskExeArgs = null;
 
-        if (EJobType.SPARK_SQL.getVal().equals(taskShade.getTaskType()) || EJobType.HIVE_SQL.getVal().equals(taskShade.getTaskType())) {
-            sql = jobParamReplace.paramReplace(sql, taskParamsToReplace, batchJob.getCycTime());
-        } else if (EJobType.CARBON_SQL.getVal().equals(taskShade.getTaskType())) {
+        if (EJobType.SPARK_SQL.getVal().equals(taskShade.getTaskType()) || EJobType.HIVE_SQL.getVal().equals(taskShade.getTaskType())
+                || EJobType.CARBON_SQL.getVal().equals(taskShade.getTaskType())) {
             sql = jobParamReplace.paramReplace(sql, taskParamsToReplace, batchJob.getCycTime());
         } else if (EJobType.SYNC.getVal().equals(taskShade.getTaskType())) {
             String job = (String) actionParam.get("job");
@@ -126,9 +126,8 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
 
             // 创建分区
             try {
-                if (ETableType.HIVE.getType() == tableType) {
-                    job = this.createPartition(taskShade.getDtuicTenantId(), job);
-                } else if (ETableType.IMPALA.getType() == tableType) {
+                job = this.createPartition(taskShade.getDtuicTenantId(), job, tableType, actionParam);
+                if (ETableType.IMPALA.getType() == tableType) {
                     job = this.createPartitionImpala(taskShade.getDtuicTenantId(), job, actionParam);
                 }
             } catch (Exception e) {
@@ -153,15 +152,11 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
                 taskParams += String.format(" \n %s=%s", KEY_OPEN_CHECKPOINT, Boolean.TRUE.toString());
             }
 
-            job = URLEncoder.encode(job, Charsets.UTF_8.name());
+            job = URLEncoder.encode(job.replace(TaskConstant.JOB_ID,batchJob.getJobId()), Charsets.UTF_8.name());
             taskExeArgs = String.format(JOB_ARGS_TEMPLATE, batchJob.getJobName(), job);
             if (savepointArgs != null) {
                 taskExeArgs += " " + savepointArgs;
             }
-        }
-
-        if (EJobType.SPARK_SQL.getVal().equals(taskShade.getTaskType())) {
-            //sparkSql已经参数替换过
         } else if (taskShade.getEngineType().equals(EngineType.Learning.getVal())
                 || taskShade.getEngineType().equals(EngineType.Shell.getVal())
                 || taskShade.getEngineType().equals(EngineType.DtScript.getVal())
@@ -173,20 +168,24 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
             //替换系统参数
             String content = jobParamReplace.paramReplace(exeArgs, taskParamsToReplace, batchJob.getCycTime());
             //替换jobId
-            taskExeArgs = content.replace(JOB_ID, batchJob.getJobId());
+            taskExeArgs = content.replace(TaskConstant.JOB_ID, batchJob.getJobId());
             //提交上传路径
             if (StringUtils.isNotBlank(taskExeArgs) && taskExeArgs.contains(TaskConstant.UPLOADPATH)) {
                 taskExeArgs = taskExeArgs.replace(TaskConstant.UPLOADPATH, this.uploadSqlTextToHdfs(batchJob.getDtuicTenantId(), taskShade.getSqlText(), taskShade.getTaskType(),
                         taskShade.getName(), taskShade.getTenantId(), taskShade.getProjectId(), taskParamsToReplace, batchJob.getCycTime()));
             } else if (StringUtils.isNotBlank(sql) && sql.contains(TaskConstant.UPLOADPATH)) {
                 //上传代码到hdfs
-                sql = sql.replace(TaskConstant.UPLOADPATH, this.uploadSqlTextToHdfs(batchJob.getDtuicTenantId(), taskShade.getSqlText(), taskShade.getTaskType(),
-                        taskShade.getName(), taskShade.getTenantId(), taskShade.getProjectId(), taskParamsToReplace, batchJob.getCycTime()));
+                String uploadPath = this.uploadSqlTextToHdfs(batchJob.getDtuicTenantId(), taskShade.getSqlText(), taskShade.getTaskType(),
+                        taskShade.getName(), taskShade.getTenantId(), taskShade.getProjectId(), taskParamsToReplace, batchJob.getCycTime());
+                sql = sql.replace(TaskConstant.UPLOADPATH, uploadPath);
+                taskExeArgs = taskExeArgs.replace(TaskConstant.UPLOADPATH, uploadPath);
             }
 
         }
 
         if (taskExeArgs != null) {
+            //替换jobId
+            taskExeArgs = taskExeArgs.replace(TaskConstant.JOB_ID, batchJob.getJobId());
             actionParam.put("exeArgs", taskExeArgs);
         }
         //统一替换下sql
@@ -194,7 +193,10 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
 
         actionParam.put("sqlText", sql);
         actionParam.put("taskParams", taskParams);
+        //engine 不需要用到的参数 去除
+        actionParam.remove("taskParamsToReplace");
     }
+
 
     /**
      * 创建脏数据表的分区数据
@@ -206,7 +208,7 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
      * @return
      * @throws Exception
      */
-    private String replaceTablePath(boolean saveDirty, String sqlText, String taskName, Integer tableType, String db, Long dtuicTenantId) throws Exception {
+    public String replaceTablePath(boolean saveDirty, String sqlText, String taskName, Integer tableType, String db, Long dtuicTenantId) throws Exception {
         if (StringUtils.isBlank(db)) {
             return sqlText;
         }
@@ -296,7 +298,7 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
     /**
      * 创建hive的分区
      */
-    private String createPartition(Long dtuicTenantId, String job) {
+    public String createPartition(Long dtuicTenantId, String job,Integer tableType,Map<String, Object> actionParam) {
         JSONObject jobJSON = JSONObject.parseObject(job);
         JSONObject jobObj = jobJSON.getJSONObject("job");
         JSONObject parameter = jobObj.getJSONArray("content").getJSONObject(0)
@@ -310,27 +312,50 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
             String table = connection.getJSONArray("table").getString(0);
 
             String partition = parameter.getString("partition");
-            Map<String, String> split = Splitter.on("/").withKeyValueSeparator("=").split(partition);
+            Map<String, String> split = new HashMap<>();
+            if (StringUtils.countMatches(partition, "/") == 1) {
+                //pt=2020/04 分区中带/
+                String[] splits = partition.split("=");
+                split.put(splits[0], splits[1]);
+            } else {
+                //pt='asdfasd'/ds='1231231' 2级分区
+                split = Splitter.on("/").withKeyValueSeparator("=").split(partition);
+            }
             Map<String, String> formattedMap = new HashMap<>();
             for (Map.Entry<String, String> entry : split.entrySet()) {
                 String value = entry.getValue();
                 String key = entry.getKey();
-                value = value.trim();
-                if (value.startsWith("'")) {
+                if (value.startsWith("'") || value.startsWith("\"")) {
                     value = value.substring(1);
                 }
-                if (value.endsWith("'")) {
+                if (value.endsWith("'") || value.endsWith("\"")) {
                     value = value.substring(0, value.length() - 1);
                 }
                 formattedMap.put(key, value);
             }
+            // fileName  需要处理引号
+            parameter.put("fileName",Joiner.on("").withKeyValueSeparator("=").join(formattedMap));
             String join = Joiner.on("',").withKeyValueSeparator("='").join(formattedMap);
             partition = join + "'";
             String sql = String.format("alter table %s add if not exists partition (%s)", table, partition);
             try {
                 RetryUtil.executeWithRetry(() -> {
                     LOG.info("create partition dtuicTenantId {} {}", dtuicTenantId, sql);
-                    hiveService.executeQuery(dtuicTenantId, jdbcUrl, username, password, sql);
+                    if (ETableType.IMPALA.getType() == tableType) {
+                        Connection dbConnect = null;
+                        try {
+                            dbConnect = DBUtil.getConnection(DataBaseType.Impala, jdbcUrl, username, password);
+                            boolean success = DBUtil.executeSqlWithoutResultSet(dbConnect, sql);
+                            if (!success) {
+                                throw new RdosDefineException("");
+                            }
+                        } finally {
+                            DBUtil.closeDBResources(null, null, dbConnect);
+                        }
+                        return null;
+                    }else if (ETableType.HIVE.getType() == tableType) {
+                        hiveService.executeQuery(dtuicTenantId, jdbcUrl, username, password, sql);
+                    }
                     cleanFileName(parameter);
                     return null;
                 }, 3, 2000, false, Lists.newArrayList(SocketTimeoutException.class));

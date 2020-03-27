@@ -11,10 +11,12 @@ import com.dtstack.engine.dao.BatchTaskTaskShadeDao;
 import com.dtstack.engine.domain.BatchTaskShade;
 import com.dtstack.engine.domain.BatchTaskTaskShade;
 import com.dtstack.engine.master.vo.BatchTaskVO;
+import com.google.common.base.Preconditions;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -34,21 +36,29 @@ public class BatchTaskTaskShadeService {
     @Autowired
     private BatchTaskShadeService taskShadeService;
 
-    public void clearDataByTaskId(@Param("taskId") Long taskId) {
-        batchTaskTaskShadeDao.deleteByTaskId(taskId);
+    public void clearDataByTaskId(@Param("taskId") Long taskId,@Param("appType")Integer appType) {
+        batchTaskTaskShadeDao.deleteByTaskId(taskId,appType);
     }
 
+    @Transactional
     public void saveTaskTaskList(@Param("taskTask") String taskLists) {
         if(StringUtils.isBlank(taskLists)){
             return;
         }
         List<BatchTaskTaskShade> taskTaskList = JSONObject.parseArray(taskLists, BatchTaskTaskShade.class);
-        for (BatchTaskTaskShade taskTaskShade : taskTaskList) {
-            if (batchTaskTaskShadeDao.getOne(taskTaskShade.getTaskId()) != null) {
-                batchTaskTaskShadeDao.update(taskTaskShade);
-            } else {
-                batchTaskTaskShadeDao.insert(taskTaskShade);
-            }
+        Map<String,BatchTaskTaskShade> keys = new HashMap<>();
+        // 去重
+        for (BatchTaskTaskShade batchTaskTaskShade : taskTaskList) {
+            keys.put(String.format("%s.%s.%s",batchTaskTaskShade.getTaskId(),batchTaskTaskShade.getParentTaskId(),batchTaskTaskShade.getProjectId()),batchTaskTaskShade);
+            Preconditions.checkNotNull(batchTaskTaskShade.getTaskId());
+            Preconditions.checkNotNull(batchTaskTaskShade.getAppType());
+            //清除原来关系
+            batchTaskTaskShadeDao.deleteByTaskId(batchTaskTaskShade.getTaskId(), batchTaskTaskShade.getAppType());
+        }
+
+        // 保存现有任务关系
+        for (BatchTaskTaskShade taskTaskShade : keys.values()) {
+            batchTaskTaskShadeDao.insert(taskTaskShade);
         }
     }
 

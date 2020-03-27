@@ -25,7 +25,7 @@ public interface BatchTaskShadeDao {
 
     List<BatchTaskShade> listByTaskIds(@Param("taskIds") Collection<Long> taskIds, @Param("isDeleted") Integer isDeleted,@Param("appType")Integer appType);
 
-    List<BatchTaskShade> listByNameLike(@Param("projectId") long projectId, @Param("name") String name,@Param("appType")Integer appType,@Param("ownerId") Long ownerId);
+    List<BatchTaskShade> listByNameLike(@Param("projectId") long projectId, @Param("name") String name,@Param("appType")Integer appType,@Param("ownerId") Long ownerId,@Param("projectIds") List<Long> projectIds);
 
     List<BatchTaskShade> listByName(@Param("projectId") long projectId, @Param("name") String name);
 
@@ -33,7 +33,7 @@ public interface BatchTaskShadeDao {
 
     List<BatchTaskShade> listByNameLikeTail(@Param("projectId") long projectId, @Param("name") String name);
 
-    BatchTaskShade getByName(@Param("projectId") long projectId, @Param("name") String name);
+    BatchTaskShade getByName(@Param("projectId") long projectId, @Param("name") String name,@Param("appType") Integer appType);
 
     List<Map<String,Object>> listDependencyTask(@Param("projectId") long projectId, @Param("name") String name, @Param("taskIds") List<Long> taskIds);
 
@@ -86,4 +86,6 @@ public interface BatchTaskShadeDao {
     List<BatchTaskShade> getExtInfoByTaskIds(@Param("taskIds") List<Long> taskIds, @Param("appType")Integer appType);
 
     BatchTaskShade getById(@Param("id") Long id);
+
+    void updateProjectScheduleStatus(@Param("projectId")Long projectId,@Param("appType")Integer appType,@Param("scheduleStatus") Integer scheduleStatus);
 }

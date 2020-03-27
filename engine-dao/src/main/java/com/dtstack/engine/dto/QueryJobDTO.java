@@ -1,5 +1,7 @@
 package com.dtstack.engine.dto;
 
+import java.util.List;
+
 /**
  * company: www.dtstack.com
  * author: toutian
@@ -32,6 +34,15 @@ public class QueryJobDTO {
     private Boolean splitFiledFlag;
     private String searchType;
     private Integer appType;
+    private List<Long> projectIds;
+
+    public List<Long> getProjectIds() {
+        return projectIds;
+    }
+
+    public void setProjectIds(List<Long> projectIds) {
+        this.projectIds = projectIds;
+    }
 
     public Integer getAppType() {
         return appType;

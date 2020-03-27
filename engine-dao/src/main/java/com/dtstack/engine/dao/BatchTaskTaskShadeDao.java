@@ -14,11 +14,13 @@ public interface BatchTaskTaskShadeDao {
 
     BatchTaskTaskShade getOne(@Param("id") long id);
 
+    BatchTaskTaskShade getOneByTaskId(@Param("taskId") Long taskId, @Param("parentTaskId") Long parentTaskId);
+
     List<BatchTaskTaskShade> listChildTask(@Param("parentTaskId") long parentTaskId);
 
     List<BatchTaskTaskShade> listParentTask(@Param("childTaskId") long childTaskId);
 
-    Integer deleteByTaskId(@Param("taskId") long taskId);
+    Integer deleteByTaskId(@Param("taskId") long taskId,@Param("appType")Integer appType);
 
     Integer insert(BatchTaskTaskShade batchTaskTaskShade);
 
