@@ -117,4 +117,22 @@ public class ClientOperator {
         return client.getContainerInfos(JobIdentifier.createInstance(jobClient.getEngineTaskId(), null, jobClient.getTaskId()));
     }
 
+    public List<String> getContainerInfos(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
+        try {
+            IClient client = clientCache.getClient(engineType, pluginInfo);
+            return client.getContainerInfos(jobIdentifier);
+        } catch (Exception e) {
+            throw new RdosException("get containerInfos exception:" + ExceptionUtil.getErrorMessage(e));
+        }
+    }
+
+    public JobResult cancelJob(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
+        try {
+            IClient client = clientCache.getClient(engineType, pluginInfo);
+            return client.cancelJob(jobIdentifier);
+        } catch (Exception e) {
+            return JobResult.createErrorResult(ExceptionUtil.getErrorMessage(e));
+        }
+    }
+
 }

@@ -1,11 +1,7 @@
 package com.dtstack.engine.rdbs.tidb;
-
 import com.dtstack.engine.rdbs.common.AbstractRdbsClient;
 import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 
-/**
- * @author yuemo
- */
 public class TiDBClient extends AbstractRdbsClient {
 
     public TiDBClient() {

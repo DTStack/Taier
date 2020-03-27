@@ -4,6 +4,7 @@ import com.dtstack.sql.main.util.DtStringUtil;
 import com.dtstack.sql.main.util.ZipUtil;
 import com.google.common.base.Charsets;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Level;
 import org.apache.spark.SparkConf;
 import org.apache.spark.sql.SparkSession;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -52,10 +53,7 @@ public class SqlProxy {
                 .enableHiveSupport()
                 .getOrCreate();
 
-        if (StringUtils.isNotBlank(logLevel)) {
-            spark.sparkContext().setLogLevel(logLevel);
-        }
-
+        setLogLevel(spark, logLevel);
         //解压sql
         String unzipSql = ZipUtil.unzip(submitSql);
 
@@ -118,6 +116,19 @@ public class SqlProxy {
         }
 
         return sparkConf;
+    }
+
+    private static void setLogLevel(SparkSession sparkSession, String logLevel){
+
+        if (StringUtils.isBlank(logLevel)) {
+            return;
+        }
+
+        logger.warn("set log level to {}", logLevel);
+        sparkSession.sparkContext().setLogLevel(logLevel);
+
+        Level setLevel = Level.toLevel(logLevel);
+        org.apache.log4j.Logger.getLogger("org").setLevel(setLevel);
     }
 }
 

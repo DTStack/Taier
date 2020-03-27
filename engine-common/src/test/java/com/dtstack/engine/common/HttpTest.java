@@ -34,9 +34,16 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.util.EntityUtils;
 import org.apache.http.protocol.HttpContext;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HttpTest {
-    private static void config(HttpRequestBase httpRequestBase) {
+
+    private static final Logger logger = LoggerFactory.getLogger(HttpTest.class);
+
+
+    private void config(HttpRequestBase httpRequestBase) {
         httpRequestBase.setHeader("User-Agent", "Mozilla/5.0");
         httpRequestBase.setHeader("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
         httpRequestBase.setHeader("Accept-Language", "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3");//"en-US,en;q=0.5");
@@ -51,7 +58,8 @@ public class HttpTest {
         httpRequestBase.setConfig(requestConfig);
     }
 
-    public static void main(String[] args) {
+    @Test
+    public void testHttp() {
         ConnectionSocketFactory plainsf = PlainConnectionSocketFactory.getSocketFactory();
         LayeredConnectionSocketFactory sslsf = SSLConnectionSocketFactory.getSocketFactory();
         Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
@@ -113,24 +121,6 @@ public class HttpTest {
         String[] urisToGet = {
                 "http://blog.csdn.net/gaolu/article/details/48466059",
                 "http://blog.csdn.net/gaolu/article/details/48243103",
-                "http://blog.csdn.net/gaolu/article/details/47656987",
-                "http://blog.csdn.net/gaolu/article/details/47055029",
-
-                "http://blog.csdn.net/gaolu/article/details/46400883",
-                "http://blog.csdn.net/gaolu/article/details/46359127",
-                "http://blog.csdn.net/gaolu/article/details/46224821",
-                "http://blog.csdn.net/gaolu/article/details/45305769",
-
-                "http://blog.csdn.net/gaolu/article/details/43701763",
-                "http://blog.csdn.net/gaolu/article/details/43195449",
-                "http://blog.csdn.net/gaolu/article/details/42915521",
-                "http://blog.csdn.net/gaolu/article/details/41802319",
-
-                "http://blog.csdn.net/gaolu/article/details/41045233",
-                "http://blog.csdn.net/gaolu/article/details/40395425",
-                "http://blog.csdn.net/gaolu/article/details/40047065",
-                "http://blog.csdn.net/gaolu/article/details/39891877",
-
                 "http://blog.csdn.net/gaolu/article/details/39499073",
                 "http://blog.csdn.net/gaolu/article/details/39314327",
                 "http://blog.csdn.net/gaolu/article/details/38820809",
@@ -155,11 +145,11 @@ public class HttpTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {
-            System.out.println("thread " + Thread.currentThread().getName() + "," + System.currentTimeMillis() + ", 所有线程已完成，开始进入下一步！");
+            logger.info("thread " + Thread.currentThread().getName() + "," + System.currentTimeMillis() + ", 所有线程已完成，开始进入下一步！");
         }
 
         long end = System.currentTimeMillis();
-        System.out.println("consume -> " + (end - start));
+        logger.info("consume -> " + (end - start));
     }
 
     static class GetRunnable implements Runnable {
@@ -180,10 +170,10 @@ public class HttpTest {
             try {
                 response = httpClient.execute(httpget,HttpClientContext.create());
                 HttpEntity entity = response.getEntity();
-                System.out.println(EntityUtils.toString(entity, "utf-8")) ;
+                logger.info(EntityUtils.toString(entity, "utf-8")); ;
                 EntityUtils.consume(entity);
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error("{}", e);
             } finally {
                 countDownLatch.countDown();
 
