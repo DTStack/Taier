@@ -3,16 +3,16 @@
 <mapper namespace="com.dtstack.engine.dao.PluginInfoDao">
 
    <insert id="replaceInto" parameterType="PluginInfo" useGeneratedKeys="true" keyProperty="id">
-	   replace into rdos_plugin_info(plugin_key, plugin_info, type, gmt_create,gmt_modified)
+	   replace into schedule_plugin_info(plugin_key, plugin_info, type, gmt_create,gmt_modified)
 	   values(#{pluginKey}, #{pluginInfo}, #{type}, now(),now())
    </insert>
 
     <select id="getByKey" resultType="PluginInfo">
-        select * from rdos_plugin_info where plugin_key = #{pluginKey} and is_deleted=0
+        select * from schedule_plugin_info where plugin_key = #{pluginKey} and is_deleted=0
     </select>
 
     <select id="getPluginInfo" resultType="java.lang.String">
-        select plugin_info from rdos_plugin_info where id = #{id} and is_deleted = 0
+        select plugin_info from schedule_plugin_info where id = #{id} and is_deleted = 0
     </select>
 
 </mapper>

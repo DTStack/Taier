@@ -37,7 +37,7 @@
     <select id="listByJobKey" resultType="BatchJobJob">
         SELECT
         <include refid="select_content_fragment"/>
-        from rdos_batch_job_job
+        from schedule_job_job
         WHERE
         job_key = #{jobKey} and is_deleted = 0
     </select>
@@ -45,7 +45,7 @@
     <select id="listByJobKeys" resultType="BatchJobJob">
         SELECT
         <include refid="select_content_fragment"/>
-        from rdos_batch_job_job
+        from schedule_job_job
         WHERE
         job_key in
         <foreach collection="list" item="key" open="(" separator="," close=")">
@@ -57,20 +57,20 @@
     <select id="listByParentJobKey" resultType="BatchJobJob">
         SELECT
         <include refid="select_content_fragment"/>
-        from rdos_batch_job_job
+        from schedule_job_job
         WHERE
         parent_job_key = #{jobKey} and is_deleted = 0
     </select>
 
     <insert id="insert" parameterType="BatchJobJob" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO rdos_batch_job_job
+        INSERT INTO schedule_job_job
         (job_key,parent_job_key,gmt_create,gmt_modified,is_deleted,dtuic_tenant_id,app_type)
         VALUES
         (#{jobKey},#{parentJobKey},#{gmtCreate},#{gmtModified},#{isDeleted},#{dtuicTenantId},#{appType})
     </insert>
 
     <insert id="batchInsert" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO rdos_batch_job_job
+        INSERT INTO schedule_job_job
         (tenant_id,project_id,dtuic_tenant_id,app_type,job_key,parent_job_key,gmt_create,gmt_modified,is_deleted)
         VALUES
         <foreach item="item" index="index" collection="list" separator=",">
@@ -80,7 +80,7 @@
 
     <update id="update" parameterType="BatchJobJob">
         UPDATE
-        rdos_batch_job_job
+        schedule_job_job
         <include refid="update_fragment"/>
         WHERE
         id = #{id} AND is_deleted = 0
@@ -89,7 +89,7 @@
     <select id="listSelfDependency" resultType="BatchJobJob">
         SELECT
         <include refid="select_content_fragment"/>
-        from rdos_batch_job_job
+        from schedule_job_job
         WHERE
         job_key = #{pjobKey}
         and is_deleted = 0
@@ -99,7 +99,7 @@
     <select id="listByParentJobKeys" resultType="BatchJobJob">
         SELECT
         <include refid="select_content_fragment"/>
-        from rdos_batch_job_job
+        from schedule_job_job
         WHERE
         parent_job_key in
         <foreach collection="list" item="key" open="(" separator="," close=")">
@@ -113,8 +113,8 @@
         bjj.id,bjj.job_key,bjj.parent_job_key,bjj.gmt_create,bjj.gmt_modified,bjj.is_deleted,
         bj.task_id
         FROM
-        rdos_batch_job_job bjj
-        left join rdos_batch_job bj on bj.job_key = bjj.job_key
+        schedule_job_job bjj
+        left join schedule_job bj on bj.job_key = bjj.job_key
         WHERE
         bjj.parent_job_key IN
         <foreach collection="jobKeyList" item="key" open="(" separator="," close=")">
@@ -129,8 +129,8 @@
         bjj.id,bjj.job_key,bjj.parent_job_key,bjj.gmt_create,bjj.gmt_modified,bjj.is_deleted,
         bj.task_id
         FROM
-        rdos_batch_job_job bjj
-        left join rdos_batch_job bj on bj.job_key = bjj.parent_job_key
+        schedule_job_job bjj
+        left join schedule_job bj on bj.job_key = bjj.parent_job_key
         WHERE
         bjj.job_key IN
         <foreach collection="jobKeyList" item="key" open="(" separator="," close=")">

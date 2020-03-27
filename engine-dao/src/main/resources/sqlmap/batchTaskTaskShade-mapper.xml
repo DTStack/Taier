@@ -47,24 +47,24 @@
     <select id="listChildTask" resultType="BatchTaskTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM rdos_batch_task_task_shade
+        FROM schedule_task_task_shade
         WHERE parent_task_id = #{parentTaskId} and is_deleted = 0
     </select>
 
     <select id="listParentTask" resultType="BatchTaskTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM rdos_batch_task_task_shade
+        FROM schedule_task_task_shade
         WHERE task_id = #{childTaskId} and is_deleted = 0
     </select>
 
     <delete id="deleteByTaskId">
-        DELETE FROM rdos_batch_task_task_shade
-        WHERE task_id = #{taskId} AND app_type = #{appType}
+        DELETE FROM schedule_task_task_shade
+        WHERE task_id = #{taskId}
     </delete>
 
     <insert id="insert" parameterType="BatchTaskTaskShade" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO rdos_batch_task_task_shade
+        INSERT INTO schedule_task_task_shade
         (dtuic_tenant_id,app_type, task_id,parent_task_id,project_id,tenant_id,gmt_create,gmt_modified,is_deleted)
         VALUES
         (#{dtuicTenantId},#{appType}, #{taskId},#{parentTaskId},#{projectId},#{tenantId},#{gmtCreate},#{gmtModified},#{isDeleted})
@@ -72,7 +72,7 @@
 
     <update id="update" parameterType="BatchTaskTaskShade">
         UPDATE
-        rdos_batch_task_task_shade
+        schedule_task_task_shade
         <include refid="update_fragment"/>
         WHERE
         task_id = #{taskId} AND app_type = #{appType} AND is_deleted = 0
@@ -81,14 +81,14 @@
     <select id="getOne" resultType="BatchTaskTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM rdos_batch_task_task_shade
+        FROM schedule_task_task_shade
         WHERE id = #{id} AND is_deleted = 0
     </select>
 
     <select id="getOneByTaskId" resultType="BatchTaskTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM rdos_batch_task_task_shade
+        FROM schedule_task_task_shade
         WHERE task_id = #{taskId} and parent_task_id = #{parentTaskId} AND is_deleted = 0
     </select>
 

@@ -1,4 +1,4 @@
-CREATE TABLE `rdos_batch_task_shade`
+CREATE TABLE `schedule_task_shade`
 (
     `id`                      int(11)      NOT NULL AUTO_INCREMENT,
     `tenant_id`               int(11)      NOT NULL DEFAULT '-1' COMMENT '租户id',
@@ -25,9 +25,9 @@ CREATE TABLE `rdos_batch_task_shade`
     `owner_user_id`           int(11)      NOT NULL COMMENT '负责人id',
     `version_id`              int(11)      NOT NULL DEFAULT '0' COMMENT 'task版本',
     `is_deleted`              tinyint(1)   NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-    `task_desc`               varchar(256) NOT NULL,
-    `main_class`              varchar(256) NOT NULL,
-    `exe_args`                text                  DEFAULT NULL,
+    `task_desc`               varchar(256) NOT NULL             COMMENT '任务描述',
+    `main_class`              varchar(256) NOT NULL             COMMENT 'Jar包的入口函数',
+    `exe_args`                text                  DEFAULT NULL COMMENT '额外参数',
     `flow_id`                 INT(11)      NOT NULL DEFAULT '0' COMMENT '工作流id',
     `is_publish_to_produce`   tinyint(1)   NOT NULL DEFAULT '0' COMMENT '是否发布到生产环境：0-否，1-是',
     `extra_info`              text                  DEFAULT NULL COMMENT '存储task运行时所需的额外信息',
@@ -39,7 +39,7 @@ CREATE TABLE `rdos_batch_task_shade`
   AUTO_INCREMENT = 0
   DEFAULT CHARSET = utf8;
 
-CREATE TABLE `rdos_batch_task_task_shade`
+CREATE TABLE `schedule_task_task_shade`
 (
     `id`              int(11)    NOT NULL AUTO_INCREMENT,
     `tenant_id`       int(11)    NOT NULL COMMENT '租户id',
@@ -56,8 +56,7 @@ CREATE TABLE `rdos_batch_task_task_shade`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
-
-CREATE TABLE `rdos_batch_job`
+CREATE TABLE `schedule_job`
 (
     `id`              int(11)      NOT NULL AUTO_INCREMENT,
     `tenant_id`       int(11)      NOT NULL COMMENT '租户id',
@@ -65,8 +64,8 @@ CREATE TABLE `rdos_batch_job`
     `dtuic_tenant_id` int(11)      NOT NULL DEFAULT '-1' COMMENT 'uic租户id',
     `app_type`        int(11)      NOT NULL DEFAULT '0' COMMENT 'RDOS(1), DQ(2), API(3), TAG(4), MAP(5), CONSOLE(6), STREAM(7), DATASCIENCE(8)',
     `job_id`          varchar(256) NOT NULL COMMENT '工作任务id',
-    `job_key`         varchar(256) NOT NULL DEFAULT '',
-    `job_name`        VARCHAR(256) NOT NULL DEFAULT '',
+    `job_key`         varchar(256) NOT NULL DEFAULT '' COMMENT '工作任务key',
+    `job_name`        VARCHAR(256) NOT NULL DEFAULT '' COMMENT '工作任务名称',
     `task_id`         int(11)      NOT NULL COMMENT '任务id',
     `gmt_create`      datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
     `gmt_modified`    datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
@@ -76,7 +75,7 @@ CREATE TABLE `rdos_batch_job`
     `is_restart`      tinyint(1)   NOT NULL DEFAULT '0' COMMENT '0：非重启任务, 1：重启任务',
     `business_date`   varchar(256) NOT NULL COMMENT '业务日期 yyyyMMddHHmmss',
     `cyc_time`        varchar(256) NOT NULL COMMENT '调度时间 yyyyMMddHHmmss',
-    `dependency_type` tinyint(2)   NOT NULL DEFAULT 0,
+    `dependency_type` tinyint(2)   NOT NULL DEFAULT 0 COMMENT '依赖类型',
     `flow_job_id`     VARCHAR(256)          DEFAULT '0' NOT NULL COMMENT '工作流实例id',
     `period_type`     tinyint(2)            DEFAULT NULL COMMENT '周期类型',
     `status`          tinyint(1)   NOT NULL DEFAULT '0' COMMENT '任务状态 UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELING(6),CANCELED(7),FAILED(8)',
@@ -103,7 +102,7 @@ CREATE TABLE `rdos_batch_job`
   AUTO_INCREMENT = 0
   DEFAULT CHARSET = utf8;
 
-CREATE TABLE `rdos_batch_job_job`
+CREATE TABLE `schedule_job_job`
 (
     `id`              int(11)      NOT NULL AUTO_INCREMENT,
     `tenant_id`       int(11)      NOT NULL COMMENT '租户id',
@@ -121,14 +120,14 @@ CREATE TABLE `rdos_batch_job_job`
   DEFAULT CHARSET = utf8;
 
 
-CREATE TABLE `rdos_batch_fill_data_job`
+CREATE TABLE `schedule_fill_data_job`
 (
     `id`              int(11)     NOT NULL AUTO_INCREMENT,
     `tenant_id`       int(11)     NOT NULL COMMENT '租户id',
     `project_id`      int(11)     NOT NULL COMMENT '项目id',
     `dtuic_tenant_id` int(11)     NOT NULL DEFAULT '-1' COMMENT 'uic租户id',
     `app_type`        int(11)     NOT NULL DEFAULT '0' COMMENT 'RDOS(1), DQ(2), API(3), TAG(4), MAP(5), CONSOLE(6), STREAM(7), DATASCIENCE(8)',
-    `job_name`        VARCHAR(64) NOT NULL DEFAULT '',
+    `job_name`        VARCHAR(64) NOT NULL DEFAULT '' COMMENT '补数据任务名称',
     `run_day`         VARCHAR(64) NOT NULL COMMENT '补数据运行日期yyyy-MM-dd',
     `from_day`        VARCHAR(64) COMMENT '补数据开始业务日期yyyy-MM-dd',
     `to_day`          VARCHAR(64) COMMENT '补数据结束业务日期yyyy-MM-dd',
@@ -143,11 +142,11 @@ CREATE TABLE `rdos_batch_fill_data_job`
   DEFAULT CHARSET = utf8;
 
 
-CREATE TABLE `rdos_job_graph_trigger`
+CREATE TABLE `schedule_job_graph_trigger`
 (
     `id`           int(11)    NOT NULL AUTO_INCREMENT,
     `trigger_type` tinyint(3) NOT NULL COMMENT '0:正常调度 1补数据',
-    `trigger_time` datetime   NOT NULL,
+    `trigger_time` datetime   NOT NULL COMMENT '调度时间',
     `gmt_create`   datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
     `gmt_modified` datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
     `is_deleted`   int(10)    NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',

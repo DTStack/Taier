@@ -3,27 +3,27 @@
 <mapper namespace="com.dtstack.engine.dao.EngineJobStopRecordDao">
 
     <insert id="insert" parameterType="EngineJobStopRecord" useGeneratedKeys="true" keyProperty="id">
-        insert into rdos_engine_job_stop_record(task_id, task_type, engine_type, compute_type, job_resource)
+        insert into schedule_engine_job_stop_record(task_id, task_type, engine_type, compute_type, job_resource)
         values(#{taskId}, #{taskType}, #{engineType}, #{computeType}, #{jobResource})
     </insert>
 
     <update id="delete" parameterType="java.util.HashMap">
-        delete from rdos_engine_job_stop_record where id = #{id}
+        delete from schedule_engine_job_stop_record where id = #{id}
     </update>
 
     <update id="updateOperatorExpiredVersion" parameterType="java.util.HashMap">
-        update rdos_engine_job_stop_record set operator_expired = #{operatorExpired}, version = version + 1, gmt_modified = now() where id = #{id} and version = #{version}
+        update schedule_engine_job_stop_record set operator_expired = #{operatorExpired}, version = version + 1, gmt_modified = now() where id = #{id} and version = #{version}
     </update>
 
     <select id="listStopJob" parameterType="java.util.HashMap" resultType="EngineJobStopRecord">
         select id,task_id,task_type,engine_type,compute_type,job_resource,version,gmt_create,gmt_modified,is_deleted
-        from rdos_engine_job_stop_record where id > #{startId} and operator_expired &lt; #{lessThanOperatorExpired} and is_deleted =0
+        from schedule_engine_job_stop_record where id > #{startId} and operator_expired &lt; #{lessThanOperatorExpired} and is_deleted =0
         order by id asc limit 100;
     </select>
 
     <select id="listByJobIds" parameterType="java.util.HashMap" resultType="java.lang.String">
         select task_id as jobId
-        from rdos_engine_job_stop_record
+        from schedule_engine_job_stop_record
         where task_id in
         <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
             #{jobId}

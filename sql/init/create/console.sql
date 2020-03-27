@@ -11,7 +11,7 @@ CREATE TABLE `console_cluster` (
 
 CREATE TABLE `console_engine` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `cluster_id` int(11) NOT NULL,
+  `cluster_id` int(11) NOT NULL COMMENT '集群id',
   `engine_name` varchar(24) NOT NULL COMMENT '引擎名称',
   `engine_type` tinyint(4) NOT NULL COMMENT '引擎类型',
   `total_node` int(11) NOT NULL COMMENT '节点数',
@@ -25,7 +25,7 @@ CREATE TABLE `console_engine` (
 
 CREATE TABLE `console_component` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `engine_id` int(11) NOT NULL,
+  `engine_id` int(11) NOT NULL COMMENT '引擎id',
   `component_name` varchar(24) NOT NULL COMMENT '组件名称',
   `component_type_code` tinyint(1) NOT NULL COMMENT '组件类型',
   `component_config` text NOT NULL COMMENT '组件配置',

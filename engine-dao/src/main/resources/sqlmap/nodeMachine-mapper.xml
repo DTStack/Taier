@@ -3,37 +3,37 @@
 <mapper namespace="com.dtstack.engine.dao.NodeMachineDao">
 
     <insert id="insert" parameterType="NodeMachine" useGeneratedKeys="true" keyProperty="id">
-	    replace into rdos_node_machine(gmt_create,gmt_modified,ip,port,machine_type,app_type,deploy_info)
+	    replace into schedule_node_machine(gmt_create,gmt_modified,ip,port,machine_type,app_type,deploy_info)
 	    values(now(),now(),#{ip},#{port},#{machineType},#{appType}, #{deployInfo})
 	</insert>
 
     <update id="updateMachineType">
-        update rdos_node_machine set machine_type=#{machineType}, gmt_modified=now() where ip=#{ip} and port=#{port} and app_type=#{appType};
+        update schedule_node_machine set machine_type=#{machineType}, gmt_modified=now() where ip=#{ip} and port=#{port} and app_type=#{appType};
    </update>
 
     <update id="disableMachineNode">
-    update rdos_node_machine set is_deleted = 1, gmt_modified=now() where ip=#{ip} and port=#{port} and app_type=#{appType};
+    update schedule_node_machine set is_deleted = 1, gmt_modified=now() where ip=#{ip} and port=#{port} and app_type=#{appType};
   </update>
 
     <update id="ableMachineNode">
-        update rdos_node_machine set is_deleted = 0, gmt_modified=now() where ip=#{ip} and port=#{port} and app_type=#{appType};
+        update schedule_node_machine set is_deleted = 0, gmt_modified=now() where ip=#{ip} and port=#{port} and app_type=#{appType};
     </update>
 
     <update id="updateOneTypeMachineToSlave">
-         update rdos_node_machine set machine_type=1, gmt_modified=now() where app_type=#{type};
+         update schedule_node_machine set machine_type=1, gmt_modified=now() where app_type=#{type};
     </update>
 
     <update id="updateMachineToMaster">
-         update rdos_node_machine set machine_type=0, gmt_modified=now() where ip=#{ip} and app_type=#{appType};
+         update schedule_node_machine set machine_type=0, gmt_modified=now() where ip=#{ip} and app_type=#{appType};
     </update>
 
     <select id="listByAppType" resultType="NodeMachine">
-        SELECT * FROM rdos_node_machine
+        SELECT * FROM schedule_node_machine
         WHERE is_deleted=0 AND app_type=#{appType} ORDER BY machine_type ASC
     </select>
 
     <select id="getByAppTypeAndMachineType" resultType="NodeMachine">
-        SELECT * FROM rdos_node_machine
+        SELECT * FROM schedule_node_machine
         WHERE is_deleted=0 AND app_type=#{appType} AND machine_type=#{machineType} limit 1
     </select>
 </mapper>
