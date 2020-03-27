@@ -122,4 +122,13 @@ public class AkkaConfig {
         }
     }
 
+    public static long getSystemResourceProbeInterval() {
+        String keyName = ConfigConstant.NODE_LABELS;
+        return Integer.valueOf(getValueWithDefault(keyName, "5000"));
+    }
+
+    public static String getNodeLabels() {
+        String keyName = ConfigConstant.NODE_LABELS;
+        return getValueWithDefault(keyName, "default");
+    }
 }

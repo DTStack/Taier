@@ -2,10 +2,10 @@ package com.dtstack.engine.master.router.vertx;
 
 import com.dtstack.dtcenter.common.annotation.Forbidden;
 import com.dtstack.dtcenter.common.util.AopTargetUtils;
-import com.dtstack.dtcenter.common.util.PublicUtil;
 import com.dtstack.engine.common.annotation.Param;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.PublicUtil;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
@@ -87,38 +87,20 @@ public class BaseVerticle {
 			return new Object[]{};
 		}
 		Object[] args = new Object[parameters.length];
-		for (int i = 0; i < parameters.length; i++) {
-			Parameter parameter = parameters[i];
-			Class<?> parameterType = parameterTypes[i];
-			Param param = parameter.getAnnotation(Param.class);
+		for(int i=0; i<parameters.length; i++){
+			Parameter pa = parameters[i];
+			Class<?> paramterType = parameterTypes[i];
+			Param param = pa.getAnnotation(Param.class);
 			Object obj = null;
-			if (param != null) {
+			if(param != null){
 				obj = params.get(param.value());
-				if (obj != null) {
-					if (Collection.class == parameterType || List.class.isAssignableFrom(parameterType)) {
-						//只适合基本数据类型的
-						ParameterizedType parameterizedType = (ParameterizedType) parameter.getParameterizedType();
-						Type t = parameterizedType.getActualTypeArguments()[0];
-						Class clazz = Class.forName(t.getTypeName());
-						if (clazz != null) {
-							List list = (List) obj;
-							List converterArgs = new ArrayList<>(list.size());
-							for (Object arg : list) {
-								arg = PublicUtil.ClassConvter(clazz, arg);
-								converterArgs.add(arg);
-							}
-							obj = converterArgs;
-						}
-					} else {
-						if (!obj.getClass().equals(parameterType)) {
-							obj = PublicUtil.ClassConvter(parameterType, obj);
-						}
-					}
+				if(obj!=null&&!obj.getClass().equals(paramterType)){
+					obj = com.dtstack.engine.common.util.PublicUtil.classConvter(paramterType, obj);
 				}
-			} else if (Map.class.equals(parameterType)) {
+			}else if(Map.class.equals(paramterType)){
 				obj = params;
-			} else {
-				obj = PublicUtil.objectToObject(params, parameterType);
+			}else{
+				obj = PublicUtil.mapToObject(params, paramterType);
 			}
 			args[i] = obj;
 		}

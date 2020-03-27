@@ -16,7 +16,7 @@ import com.dtstack.engine.domain.BatchTaskShade;
 import com.dtstack.engine.dto.BatchTaskParamShade;
 import com.dtstack.engine.master.impl.ActionService;
 import com.dtstack.engine.master.impl.ClusterService;
-import com.dtstack.task.send.TaskUrlConstant;
+import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.master.job.IJobStartTrigger;
 import com.dtstack.engine.master.scheduler.JobParamReplace;
 import com.google.common.base.Charsets;
@@ -175,12 +175,12 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
             //替换jobId
             taskExeArgs = content.replace(JOB_ID, batchJob.getJobId());
             //提交上传路径
-            if (StringUtils.isNotBlank(taskExeArgs) && taskExeArgs.contains(TaskUrlConstant.UPLOADPATH)) {
-                taskExeArgs = taskExeArgs.replace(TaskUrlConstant.UPLOADPATH, this.uploadSqlTextToHdfs(batchJob.getDtuicTenantId(), taskShade.getSqlText(), taskShade.getTaskType(),
+            if (StringUtils.isNotBlank(taskExeArgs) && taskExeArgs.contains(TaskConstant.UPLOADPATH)) {
+                taskExeArgs = taskExeArgs.replace(TaskConstant.UPLOADPATH, this.uploadSqlTextToHdfs(batchJob.getDtuicTenantId(), taskShade.getSqlText(), taskShade.getTaskType(),
                         taskShade.getName(), taskShade.getTenantId(), taskShade.getProjectId(), taskParamsToReplace, batchJob.getCycTime()));
-            } else if (StringUtils.isNotBlank(sql) && sql.contains(TaskUrlConstant.UPLOADPATH)) {
+            } else if (StringUtils.isNotBlank(sql) && sql.contains(TaskConstant.UPLOADPATH)) {
                 //上传代码到hdfs
-                sql = sql.replace(TaskUrlConstant.UPLOADPATH, this.uploadSqlTextToHdfs(batchJob.getDtuicTenantId(), taskShade.getSqlText(), taskShade.getTaskType(),
+                sql = sql.replace(TaskConstant.UPLOADPATH, this.uploadSqlTextToHdfs(batchJob.getDtuicTenantId(), taskShade.getSqlText(), taskShade.getTaskType(),
                         taskShade.getName(), taskShade.getTenantId(), taskShade.getProjectId(), taskParamsToReplace, batchJob.getCycTime()));
             }
 

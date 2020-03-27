@@ -6,7 +6,7 @@ import com.dtstack.dtcenter.common.util.DateUtil;
 import com.dtstack.engine.domain.BatchEngineJob;
 import com.dtstack.engine.domain.BatchJob;
 import com.dtstack.engine.master.parser.ESchedulePeriodType;
-import jodd.util.StringUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,7 +111,7 @@ public class BatchJobVO {
 
     public void setBatchTask(BatchTaskVO batchTask) {
         this.isGroupTask = false;
-        if (StringUtil.isBlank(taskPeriodType)) {
+        if (StringUtils.isBlank(taskPeriodType)) {
             String taskType = "";
             if (ESchedulePeriodType.MIN.getVal() == getTaskPeriodId()) {
                 taskType = "分钟任务";

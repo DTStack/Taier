@@ -5,15 +5,18 @@ import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.pattern.Patterns;
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.akka.RpcService;
 import com.dtstack.engine.common.akka.config.AkkaConfig;
 import com.dtstack.engine.common.akka.message.WorkerInfo;
 import com.dtstack.engine.common.util.AddressUtil;
 import com.dtstack.engine.common.util.LogCountUtil;
+import com.dtstack.engine.worker.metric.SystemResourcesMetricsInitializer;
 import com.dtstack.engine.worker.service.JobService;
 import com.google.common.collect.Lists;
 import com.typesafe.config.Config;
+import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.concurrent.Await;
@@ -59,7 +62,8 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
 
     private static AkkaWorkerServerImpl akkaWorkerServer = new AkkaWorkerServerImpl();
 
-    private AkkaWorkerServerImpl(){}
+    private AkkaWorkerServerImpl() {
+    }
 
     @Override
     public Config loadConfig() {
@@ -98,7 +102,7 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
         try {
             Future<Object> future = Patterns.ask(getActiveMasterAddress(), workerInfo, AkkaConfig.getAkkaAskTimeout());
             Object result = Await.result(future, askResultTimeout);
-        } catch (Throwable e){
+        } catch (Throwable e) {
             String ip = activeMasterActor.anchorPath().address().host().get();
             String port = activeMasterActor.anchorPath().address().port().get().toString();
             String ipAndPort = String.format(IP_PORT_TEMPLATE, ip, port);
@@ -111,7 +115,7 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
 
     @Override
     public ActorSelection getActiveMasterAddress() {
-        if (null == activeMasterActor){
+        if (null == activeMasterActor) {
             int size = availableNodes.size();
             String ipAndPort = masterAddress.split(",")[0];
             if (availableNodes.size() != 0) {
@@ -130,6 +134,10 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
     @Override
     public void run() {
         WorkerInfo workerInfo = new WorkerInfo(workerIp, workerPort, workerRemotePath, System.currentTimeMillis());
+        if (MapUtils.isNotEmpty(SystemResourcesMetricsInitializer.getMetrics())) {
+            String systemResource = JSONObject.toJSONString(SystemResourcesMetricsInitializer.getMetrics());
+            workerInfo.setSystemResource(systemResource);
+        }
         heartBeat(workerInfo);
         if (LogCountUtil.count(logOutput++, MULTIPLES)) {
             logger.info("WorkerBeatListener Running workerRemotePath:{} gap:[{} ms]...", workerRemotePath, CHECK_INTERVAL * MULTIPLES);

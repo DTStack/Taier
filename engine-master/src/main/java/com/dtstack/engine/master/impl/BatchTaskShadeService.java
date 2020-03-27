@@ -10,13 +10,13 @@ import com.dtstack.dtcenter.common.pager.PageQuery;
 import com.dtstack.dtcenter.common.pager.PageResult;
 import com.dtstack.dtcenter.common.util.MathUtil;
 import com.dtstack.engine.common.annotation.Param;
+import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.BatchTaskShadeDao;
 import com.dtstack.engine.domain.BatchJob;
 import com.dtstack.engine.domain.BatchTaskShade;
 import com.dtstack.engine.dto.BatchTaskShadeDTO;
-import com.dtstack.task.send.TaskUrlConstant;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.vo.BatchTaskShadeVO;
 import com.dtstack.engine.master.vo.BatchTaskVO;
@@ -445,7 +445,7 @@ public class BatchTaskShadeService {
         if (Objects.isNull(extInfo)) {
             extInfo = new JSONObject();
         }
-        extInfo.put(TaskUrlConstant.INFO, info);
+        extInfo.put(TaskConstant.INFO, info);
         batchTaskShadeDao.updateTaskExtInfo(taskId, appType, extInfo.toJSONString());
     }
 

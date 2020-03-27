@@ -8,7 +8,6 @@ import com.google.common.base.Strings;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +60,7 @@ public class HadoopConf {
                     if (!dirFile.isDirectory()) {
                         LOG.error("HADOOP_CONF_DIR:{} is not dir.", dirFile.getAbsolutePath());
                     } else {
-                        defaultConfiguration.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
+                        defaultConfiguration.set("fs.hdfs.impl", "org.apache.hadoop.hdfs.DistributedFileSystem");
                         File[] xmlFileList = dirFile.listFiles(new FilenameFilter() {
                             @Override
                             public boolean accept(File dir, String name) {

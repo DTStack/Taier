@@ -224,7 +224,6 @@ yarnConf内容包括yarn的链接信息，支持HA模式与非HA模式
 * [learning插件](docs/learning.md)
 * [hadoop插件](docs/hadoop.md)
 
-
 ## 6. 其他参考资料
 
 * [在CDH集群中启用及配置Kerberos](docs/在CDH集群中启用及配置Kerberos.docx) @言蹊

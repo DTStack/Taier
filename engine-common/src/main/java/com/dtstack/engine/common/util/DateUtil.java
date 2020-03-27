@@ -828,4 +828,33 @@ public class DateUtil {
     	df.setTimeZone(new SimpleTimeZone(0, "GMT"));
         return df.format(date);
     }
+
+    public static String getTimeDifference(Long mill) {
+        if(mill != null && mill.longValue() != 0L) {
+            if(mill.longValue() < 1000L) {
+                return mill + "毫秒";
+            } else {
+                int dif = (int)(mill.longValue() / 1000L);
+                StringBuilder time = new StringBuilder();
+                int hours = dif / 3600;
+                if(hours > 0) {
+                    time.append(hours).append("小时");
+                }
+
+                int minutes = (dif - hours * 3600) / 60;
+                if(minutes > 0) {
+                    time.append(minutes).append("分钟");
+                }
+
+                int seconds = dif - hours * 3600 - minutes * 60;
+                if(seconds > 0) {
+                    time.append(seconds).append("秒");
+                }
+
+                return time.toString();
+            }
+        } else {
+            return "0秒";
+        }
+    }
 }

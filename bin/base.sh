@@ -6,38 +6,29 @@ ulimit -c unlimited
 HO_HEAP_SIZE="${HO_HEAP_SIZE:=512m}"
 JAVA_HOME=/opt/dtstack/java
 PATH=$JAVA_HOME/bin:$PATH
+
 CMD_PATH=`dirname $0`
+CMD_HOME=`cd "$CMD_PATH"/../; pwd`
+LS_CONF_DIR=$CMD_HOME/conf
+LS_LIB_DIR=$CMD_HOME/lib
 
-function print_usage(){
-  echo "Usage: engine [COMMAND]"
-  echo "  where COMMAND is one of:"
-  echo "  master                                run the MasterMain"
-  echo "  worker                                run the WorkerMain"
-}
+COMPONENT=$1
+echo 'start component is' $COMPONENT
 
-COMMAND=$1
-case $COMMAND in
-  # usage flags
-  --help|-help|-h)
-    print_usage
-    exit
-    ;;
-esac
-
-if [ "$COMMAND" = "master" ] ; then
-  CLASS='com.dtstack.engine.master.MasterMain'
-  FILE=$CMD_PATH'/../conf/common.conf'
-  LIB='engine-master-feat_scheduleMasterWorker-with-dependencies.jar'
-elif [ "$COMMAND" = "worker" ] ; then
-  CLASS='com.dtstack.engine.worker.WorkerMain'
-  FILE=$CMD_PATH'/../conf/worker.conf'
-  LIB='engine-worker-feat_scheduleMasterWorker-with-dependencies.jar'
+if [ "$COMPONENT" = "master" ] ; then
+  ENTRY_POINT_CLASS='com.dtstack.engine.master.MasterMain'
+  FILE=$LS_CONF_DIR'/master.conf'
+  LIB=`ls $LS_LIB_DIR/ |grep engine-master`
+elif [ "$COMPONENT" = "worker" ] ; then
+  ENTRY_POINT_CLASS='com.dtstack.engine.worker.WorkerMain'
+  FILE=$LS_CONF_DIR'/worker.conf'
+  LIB=`ls $LS_LIB_DIR/ |grep engine-worker`
 else
-  CLASS='com.dtstack.engine.entrance.EngineMain'
-  FILE=$CMD_PATH'/../conf/engine.conf'
-  LIB='engine-entrance-feat_scheduleMasterWorker-with-dependencies.jar'
+  ENTRY_POINT_CLASS='com.dtstack.engine.entrance.EngineMain'
+  FILE=$LS_CONF_DIR'/engine.conf'
+  LIB=`ls $LS_LIB_DIR/ |grep engine-entrance`
 fi
-echo 'exec java MainClass is' $CLASS.
+echo 'exec java MainClass is' $ENTRY_POINT_CLASS  ' FILE is' $FILE ' LIB is' $LIB.
 
 
 unset CDPATH
@@ -63,4 +54,4 @@ JAVA_OPTS="$JAVA_OPTS -Dconfig.file=${FILE}"
 #Comment to speed up starting time
 #JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
 
-exec java $JAVA_OPTS -cp $basedir/lib/$LIB $CLASS "$@"
+exec java $JAVA_OPTS -cp $basedir/lib/$LIB $ENTRY_POINT_CLASS "$@"

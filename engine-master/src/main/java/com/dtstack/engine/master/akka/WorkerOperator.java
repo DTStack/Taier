@@ -9,7 +9,6 @@ import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.akka.message.*;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.restart.RestartStrategyType;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -30,7 +29,7 @@ public class WorkerOperator {
     public boolean judgeSlots(JobClient jobClient) throws Exception {
         Object result = callbackAndReset(jobClient, () -> masterServer.sendMessage(new MessageJudgeSlots(jobClient)));
 
-        if (result instanceof Exception){
+        if (result instanceof Exception) {
             throw (Exception) result;
         } else {
             return (boolean) result;
@@ -113,22 +112,22 @@ public class WorkerOperator {
         }
     }
 
-    public RestartStrategyType getRestartStrategyType(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
-        try {
-            return (RestartStrategyType) masterServer.sendMessage(new MessageGetRestartStrategyType(engineType, pluginInfo, jobIdentifier));
-        } catch (Exception e) {
-            logger.error("getRestartStrategyType failed!", e);
-            return RestartStrategyType.NONE;
-        }
-    }
-
     private <M> M callbackAndReset(JobClient jobClient, CallBack<M> classLoaderCallBack) throws Exception {
         JobClientCallBack callBack = jobClient.getJobCallBack();
+        M result = null;
+        Exception exception = null;
         try {
             jobClient.setCallBack(null);
-            return classLoaderCallBack.execute();
+            result = classLoaderCallBack.execute();
+        } catch (Exception e) {
+            exception = e;
         } finally {
             jobClient.setCallBack(callBack);
+        }
+        if (exception != null) {
+            throw exception;
+        } else {
+            return result;
         }
     }
 

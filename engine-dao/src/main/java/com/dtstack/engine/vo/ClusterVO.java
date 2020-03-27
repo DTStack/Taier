@@ -12,6 +12,26 @@ public class ClusterVO extends Cluster {
 
     private List<EngineVO> engines;
 
+    private Long dtUicTenantId;
+
+    private Long dtUicUserId;
+
+    public Long getDtUicTenantId() {
+        return dtUicTenantId;
+    }
+
+    public void setDtUicTenantId(Long dtUicTenantId) {
+        this.dtUicTenantId = dtUicTenantId;
+    }
+
+    public Long getDtUicUserId() {
+        return dtUicUserId;
+    }
+
+    public void setDtUicUserId(Long dtUicUserId) {
+        this.dtUicUserId = dtUicUserId;
+    }
+
     public static ClusterVO toVO(Cluster cluster) {
         ClusterVO vo = new ClusterVO();
         try {

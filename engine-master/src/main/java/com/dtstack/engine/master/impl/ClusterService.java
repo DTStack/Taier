@@ -3,6 +3,7 @@ package com.dtstack.engine.master.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.common.annotation.Forbidden;
 import com.dtstack.dtcenter.common.engine.ConsoleConstant;
+import com.dtstack.dtcenter.common.enums.Deleted;
 import com.dtstack.dtcenter.common.enums.EComponentType;
 import com.dtstack.dtcenter.common.enums.EngineType;
 import com.dtstack.dtcenter.common.enums.MultiEngineType;
@@ -11,6 +12,7 @@ import com.dtstack.dtcenter.common.kerberos.KerberosConfigVerify;
 import com.dtstack.dtcenter.common.pager.PageQuery;
 import com.dtstack.dtcenter.common.pager.PageResult;
 import com.dtstack.dtcenter.common.pager.Sort;
+import com.dtstack.dtcenter.common.util.Base64Util;
 import com.dtstack.engine.common.annotation.Param;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.exception.EngineAssert;
@@ -22,7 +24,6 @@ import com.dtstack.engine.dto.ClusterDTO;
 import com.dtstack.engine.master.enums.ComponentTypeNameNeedVersion;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.master.utils.AgileUtil;
 import com.dtstack.engine.master.utils.HadoopConf;
 import com.dtstack.engine.master.vo.KerberosConfigVO;
 import com.dtstack.engine.vo.ClusterVO;
@@ -98,6 +99,16 @@ public class ClusterService implements InitializingBean {
     @Autowired
     private KerberosDao kerberosDao;
 
+    @Autowired
+    private UserDao userDao;
+
+    @Autowired
+    private AccountTenantDao accountTenantDao;
+
+    @Autowired
+    private AccountDao accountDao;
+
+
     @Override
     public void afterPropertiesSet() throws Exception {
         if (isDefaultClusterExist()) {
@@ -131,17 +142,10 @@ public class ClusterService implements InitializingBean {
         clusterDao.insertWithId(cluster);
 
         boolean updateQueue = true;
-        JSONObject componentConfig;
-        if (AgileUtil.isAgile()) {
-            componentConfig = JSONObject.parseObject(AgileUtil.getDefaultCluster());
-            uploadConfigFile(componentConfig);
-            updateQueue = false;
-        } else {
-            componentConfig = new JSONObject();
-            componentConfig.put(EComponentType.HDFS.getConfName(), HadoopConf.getDefaultHadoopConf());
-            componentConfig.put(EComponentType.YARN.getConfName(), HadoopConf.getDefaultYarnConf());
-            componentConfig.put(EComponentType.SPARK_THRIFT.getConfName(), new JSONObject().toJSONString());
-        }
+        JSONObject componentConfig = new JSONObject();
+        componentConfig.put(EComponentType.HDFS.getConfName(), HadoopConf.getDefaultHadoopConf());
+        componentConfig.put(EComponentType.YARN.getConfName(), HadoopConf.getDefaultYarnConf());
+        componentConfig.put(EComponentType.SPARK_THRIFT.getConfName(), new JSONObject().toJSONString());
 
         engineService.addEnginesByComponentConfig(componentConfig, cluster.getId(), updateQueue);
 
@@ -185,7 +189,9 @@ public class ClusterService implements InitializingBean {
         }
         clusterDao.insert(cluster);
 
-        engineService.addEngines(cluster.getId(), clusterDTO.getEngineList());
+        clusterDTO.setId(cluster.getId());
+        engineService.addEngines(clusterDTO);
+
 
         return getCluster(cluster.getId(), true);
     }
@@ -279,7 +285,7 @@ public class ClusterService implements InitializingBean {
     /**
      * 对外接口
      */
-    public JSONObject pluginInfoJSON(@Param("tenantId") Long dtUicTenantId, @Param("engineType") String engineTypeStr) {
+    public JSONObject pluginInfoJSON(@Param("tenantId") Long dtUicTenantId, @Param("engineType") String engineTypeStr, Long dtUicUserId) {
         EngineTypeComponentType type;
         try {
             type = EngineTypeComponentType.getByEngineName(engineTypeStr);
@@ -299,6 +305,8 @@ public class ClusterService implements InitializingBean {
             String msg = format("The tenant [%s] is not bound to any cluster", dtUicTenantId);
             throw new RdosDefineException(msg);
         }
+        cluster.setDtUicTenantId(dtUicTenantId);
+        cluster.setDtUicUserId(dtUicUserId);
 
         JSONObject clusterConfigJson = buildClusterConfig(cluster);
         JSONObject pluginJson = convertPluginInfo(clusterConfigJson, type, cluster);
@@ -316,8 +324,8 @@ public class ClusterService implements InitializingBean {
         return pluginJson;
     }
 
-    public String pluginInfo(@Param("tenantId") Long dtUicTenantId, @Param("engineType") String engineTypeStr) {
-        return pluginInfoJSON(dtUicTenantId, engineTypeStr).toJSONString();
+    public String pluginInfo(@Param("tenantId") Long dtUicTenantId, @Param("engineType") String engineTypeStr,@Param("userId") Long dtUicUserId) {
+        return pluginInfoJSON(dtUicTenantId, engineTypeStr, dtUicUserId).toJSONString();
     }
 
     private void setClusterSftpDir(Long clusterId, JSONObject clusterConfigJson, JSONObject pluginJson) {
@@ -416,6 +424,29 @@ public class ClusterService implements InitializingBean {
     public String sftpInfo(@Param("tenantId") Long dtUicTenantId) {
         return getConfigByKey(dtUicTenantId, EComponentType.SFTP.getConfName());
     }
+
+    public String tiDBInfo(@Param("tenantId") Long dtUicTenantId,@Param("userId") Long dtUicUserId){
+        //优先绑定账号
+        String jdbcInfo = getConfigByKey(dtUicTenantId, EComponentType.TIDB_SQL.getConfName());
+        User dtUicUser = userDao.getByDtUicUserId(dtUicUserId);
+        if(Objects.isNull(dtUicUser)){
+            return jdbcInfo;
+        }
+        Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
+        AccountTenant dbAccountTenant = accountTenantDao.getByAccount(dtUicUser.getId(), tenantId, null, Deleted.NORMAL.getStatus());
+        if(Objects.isNull(dbAccountTenant)){
+            return jdbcInfo;
+        }
+        Account account = accountDao.getById(dbAccountTenant.getAccountId());
+        if(Objects.isNull(account)){
+            return jdbcInfo;
+        }
+        JSONObject data = JSONObject.parseObject(jdbcInfo);
+        data.put("username",account.getName());
+        data.put("password", Base64Util.baseDecode(account.getPassword()));
+        return data.toJSONString();
+    }
+
 
     @Forbidden
     public JSONObject buildClusterConfig(ClusterVO cluster) {
@@ -533,6 +564,19 @@ public class ClusterService implements InitializingBean {
             pluginInfo.put("pwd", impalaConf.getString("password"));
             pluginInfo.remove("password");
             pluginInfo.put("typeName", "impala");
+        } else if (EComponentType.TIDB_SQL == type.getComponentType()) {
+            JSONObject tiDBConf = JSONObject.parseObject(tiDBInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
+            pluginInfo = new JSONObject();
+            if(Objects.nonNull(tiDBConf)){
+                pluginInfo.putAll(tiDBConf);
+            }
+            pluginInfo.put("dbUrl", tiDBConf.getString("jdbcUrl"));
+            pluginInfo.remove("jdbcUrl");
+            pluginInfo.put("userName", tiDBConf.getString("username"));
+            pluginInfo.remove("username");
+            pluginInfo.put("pwd", tiDBConf.getString("password"));
+            pluginInfo.remove("password");
+            pluginInfo.put("typeName", "tidb");
         } else {
             pluginInfo = clusterConfigJson.getJSONObject(type.getComponentType().getConfName());
             if (pluginInfo == null) {
@@ -610,18 +654,23 @@ public class ClusterService implements InitializingBean {
     }
 
     /**
-     * 更新集群hadoopVersion
+     * 更新全局配置
      *
      * @param hadoopVersion
+     * @param syncType
      * @param clusterId
      */
     @Transactional(rollbackFor = Exception.class)
-    public void updateHadoopVersion(@Param("hadoopVersion") String hadoopVersion, @Param("clusterId") Long clusterId) {
-        Cluster cluster = getOne(clusterId);
-        clusterDao.updateHadoopVersion(clusterId, hadoopVersion);
+    public void updateGlobalConfig(@Param("hadoopVersion") String hadoopVersion, @Param("syncType") Integer syncType, @Param("clusterId") Long clusterId) {
+        if (StringUtils.isNotBlank(hadoopVersion)) {
+            Cluster cluster = getOne(clusterId);
+            clusterDao.updateHadoopVersion(clusterId, hadoopVersion);
 
-        //更新各组件的typeName
-        updateComponetTypeName(hadoopVersion, clusterId);
+            //更新各组件的typeName
+            updateComponetTypeName(hadoopVersion, clusterId);
+        }
+
+        engineService.updateSyncTypeByClusterIdAndEngineType(clusterId, MultiEngineType.HADOOP.getType(), syncType);
     }
 
     /**
@@ -644,7 +693,7 @@ public class ClusterService implements InitializingBean {
                     }
                 }
                 //刷新缓存
-                componentService.updateCache(component.getEngineId());
+                componentService.updateCache(component.getEngineId(),component.getComponentTypeCode());
             }
         }
     }

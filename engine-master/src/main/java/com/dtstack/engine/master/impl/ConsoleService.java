@@ -4,12 +4,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.common.annotation.Forbidden;
 import com.dtstack.dtcenter.common.enums.EComponentType;
 import com.dtstack.dtcenter.common.enums.MultiEngineType;
-import com.dtstack.dtcenter.common.util.DateUtil;
 import com.dtstack.engine.common.annotation.Param;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.pojo.ParamAction;
@@ -29,6 +29,8 @@ import com.dtstack.engine.master.cache.ShardCache;
 import com.dtstack.engine.master.component.ComponentFactory;
 import com.dtstack.engine.master.component.FlinkComponent;
 import com.dtstack.engine.master.component.YARNComponent;
+import com.dtstack.engine.master.queue.GroupPriorityQueue;
+import com.dtstack.engine.master.zookeeper.ZkService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -84,6 +86,9 @@ public class ConsoleService {
     private ShardCache shardCache;
 
     @Autowired
+    private ZkService zkService;
+
+    @Autowired
     private EngineJobStopRecordDao engineJobStopRecordDao;
 
 
@@ -101,7 +106,7 @@ public class ConsoleService {
 
     public List<String> nodeAddress() {
         try {
-            return engineJobCacheDao.getAllNodeAddress();
+            return zkService.getAliveBrokersChildren();
         } catch (Exception e) {
             return Collections.EMPTY_LIST;
         }
@@ -257,19 +262,30 @@ public class ConsoleService {
         theJobMap.put("waitTime", waitTime);
     }
 
-    public Boolean jobStick(@Param("jobId") String jobId,
-                            @Param("jobResource") String jobResource) {
+    public Boolean jobStick(@Param("jobId") String jobId) {
         Preconditions.checkNotNull(jobId, "parameters of jobId is required");
-        Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
 
         try {
             EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
-            ParamAction paramAction = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), ParamAction.class);
-            JobClient jobClient = new JobClient(paramAction);
-            jobClient.setCallBack((jobStatus) -> {
-                workNode.updateJobStatus(jobClient.getTaskId(), jobStatus);
-            });
-            return workNode.addGroupPriorityQueue(engineJobCache.getJobResource(), jobClient, false);
+            //只支持DB、PRIORITY两种调整顺序
+            if (EJobCacheStage.DB.getStage() == engineJobCache.getStage() || EJobCacheStage.PRIORITY.getStage() == engineJobCache.getStage()) {
+                ParamAction paramAction = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), ParamAction.class);
+                JobClient jobClient = new JobClient(paramAction);
+                jobClient.setCallBack((jobStatus) -> {
+                    workNode.updateJobStatus(jobClient.getTaskId(), jobStatus);
+                });
+
+                Long maxPriority = engineJobCacheDao.maxPriorityByStage(engineJobCache.getJobResource(), EJobCacheStage.PRIORITY.getStage(), engineJobCache.getNodeAddress());
+                maxPriority = maxPriority == null ? 0 : maxPriority;
+                jobClient.setPriority(maxPriority - 1);
+
+                if (EJobCacheStage.PRIORITY.getStage() == engineJobCache.getStage()) {
+                    //先将队列中的元素移除，重复插入会被忽略
+                    GroupPriorityQueue groupPriorityQueue = workNode.getGroupPriorityQueue(engineJobCache.getJobResource());
+                    groupPriorityQueue.remove(engineJobCache.getJobId());
+                }
+                return workNode.addGroupPriorityQueue(engineJobCache.getJobResource(), jobClient, false);
+            }
         } catch (Exception e) {
             logger.error("{}", e);
         }
@@ -350,7 +366,8 @@ public class ConsoleService {
 
                 if (EJobCacheStage.unSubmitted().contains(stage)) {
                     Integer deleted = engineJobCacheDao.deleteByJobIds(jobIds);
-                    logger.info("delete job size:{}, queryed job size:{}, jobIds:{}", deleted, jobCaches.size(), jobIds);
+                    Integer updated = engineJobDao.updateJobStatusByJobIds(jobIds, RdosTaskStatus.CANCELED.getStatus());
+                    logger.info("delete job size:{}, update job size:{}, query job size:{}, jobIds:{}", deleted, updated, jobCaches.size(), jobIds);
                 } else {
                     //已提交的任务需要发送请求杀死，走正常杀任务的逻辑
                     List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(jobIds);

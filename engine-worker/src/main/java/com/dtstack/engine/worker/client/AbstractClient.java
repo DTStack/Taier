@@ -4,7 +4,6 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.restart.RestartStrategyType;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,8 +76,4 @@ public abstract class AbstractClient implements IClient{
         return null;
     }
 
-    @Override
-    public RestartStrategyType getRestartStrategyType(JobIdentifier jobIdentifier) {
-        return RestartStrategyType.NONE;
-    }
 }

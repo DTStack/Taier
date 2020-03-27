@@ -1,5 +1,7 @@
 package com.dtstack.engine.common.akka.message;
 
+import com.dtstack.engine.common.akka.config.AkkaConfig;
+
 import java.io.Serializable;
 
 public class WorkerInfo implements Serializable {
@@ -9,6 +11,8 @@ public class WorkerInfo implements Serializable {
     private int port;
     private String path;
     private Long timestamp;
+    private String nodeLabels = AkkaConfig.getNodeLabels();
+    private String systemResource;
 
     public WorkerInfo(String ip, int port, String path, Long timestamp) {
         this.ip = ip;
@@ -49,6 +53,22 @@ public class WorkerInfo implements Serializable {
         this.timestamp = timestamp;
     }
 
+    public String getNodeLabels() {
+        return nodeLabels;
+    }
+
+    public void setNodeLabels(String nodeLabels) {
+        this.nodeLabels = nodeLabels;
+    }
+
+    public String getSystemResource() {
+        return systemResource;
+    }
+
+    public void setSystemResource(String systemResource) {
+        this.systemResource = systemResource;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -66,6 +86,18 @@ public class WorkerInfo implements Serializable {
     @Override
     public int hashCode() {
         return path != null ? path.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return "WorkerInfo{" +
+                "ip='" + ip + '\'' +
+                ", port=" + port +
+                ", path='" + path + '\'' +
+                ", timestamp=" + timestamp +
+                ", nodeLabels=" + nodeLabels +
+                ", systemResource='" + systemResource + '\'' +
+                '}';
     }
 }
 

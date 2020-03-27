@@ -186,7 +186,7 @@ public class WorkNode implements InitializingBean, ApplicationContextAware {
         return groupPriorityQueue.addRestartJob(jobClient);
     }
 
-    private GroupPriorityQueue getGroupPriorityQueue(String jobResource) {
+    public GroupPriorityQueue getGroupPriorityQueue(String jobResource) {
         GroupPriorityQueue groupPriorityQueue = priorityQueueMap.computeIfAbsent(jobResource, k -> GroupPriorityQueue.builder()
                 .setApplicationContext(applicationContext)
                 .setJobResource(jobResource)

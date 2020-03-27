@@ -46,6 +46,9 @@ public class ComponentFactory {
             case IMPALA_SQL:
                 component = new JDBCComponent(config, DataBaseType.Impala);
                 break;
+            case TIDB_SQL:
+                component = new JDBCComponent(config,DataBaseType.TiDB);
+                break;
             default:
                 throw new IllegalArgumentException("未知组件类型");
         }

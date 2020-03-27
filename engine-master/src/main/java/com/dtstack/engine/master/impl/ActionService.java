@@ -287,8 +287,8 @@ public class ActionService {
         EngineJob batchJob = engineJobDao.getRdosJobByJobId(jobId);
         if (batchJob != null) {
         	log.put("logInfo",batchJob.getLogInfo());
-        	String engineLog = null;
-            if (StringUtils.isBlank(batchJob.getEngineLog())) {
+        	String engineLog = batchJob.getEngineLog();
+            if (StringUtils.isBlank(engineLog)) {
                 engineLog = workNode.getAndUpdateEngineLog(jobId, batchJob.getEngineJobId(), batchJob.getApplicationId(), batchJob.getPluginInfoId());
                 if (engineLog == null) {
                     engineLog = "";

@@ -399,6 +399,7 @@ public class JobClient extends OrderObject{
                 ", generateTime=" + generateTime +
                 ", priority=" + priority +
                 ", maxRetryNum=" + maxRetryNum +
+                ", lackingCount=" + lackingCount +
                 '}';
     }
 

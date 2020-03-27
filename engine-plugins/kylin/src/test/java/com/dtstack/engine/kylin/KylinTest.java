@@ -20,6 +20,8 @@
 package com.dtstack.engine.kylin;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -27,15 +29,13 @@ import org.junit.Test;
  * @date 2019/7/3
  */
 public class KylinTest {
+    private static final Logger logger = LoggerFactory.getLogger(KylinTest.class);
 
     @Test
     public void submitJobTest(){
         KylinConfig config = getConfig();
-        KylinHttpClient client = new KylinHttpClient();
-        client.init(config);
 
-        KylinHttpClient.RequestResult requestResult = client.buildCube(config);
-        System.out.println(requestResult.getBody());
+        logger.info("{}", config);
     }
 
     private KylinConfig getConfig(){

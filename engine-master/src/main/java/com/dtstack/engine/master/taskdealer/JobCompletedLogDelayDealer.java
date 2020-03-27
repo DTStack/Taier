@@ -16,6 +16,11 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * @Auther: jiangjunjie
+ * @Date: 2020-03-05
+ * @Description:
+ */
 public class JobCompletedLogDelayDealer implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(JobCompletedLogDelayDealer.class);
 

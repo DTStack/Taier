@@ -259,43 +259,7 @@ CREATE TABLE `rdos_job_graph_trigger`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
-
--- 修改表名
-ALTER TABLE rdos_plugin_info RENAME TO schedule_plugin_info;
-ALTER TABLE rdos_engine_job RENAME TO schedule_engine_job;
-ALTER TABLE rdos_stream_task_checkpoint RENAME TO schedule_engine_job_checkpoint;
-ALTER TABLE rdos_engine_job_cache RENAME TO schedule_engine_job_cache;
-ALTER TABLE rdos_plugin_job_info RENAME TO schedule_plugin_job_info;
-ALTER TABLE rdos_engine_unique_sign RENAME TO schedule_engine_unique_sign;
-ALTER TABLE rdos_engine_job_retry RENAME TO schedule_engine_job_retry;
-ALTER TABLE rdos_engine_job_stop_record RENAME TO schedule_engine_job_stop_record;
-ALTER TABLE rdos_node_machine RENAME TO schedule_node_machine;
-
-ALTER TABLE rdos_batch_task_shade RENAME TO schedule_task_shade;
-ALTER TABLE rdos_batch_task_task_shade RENAME TO schedule_task_task_shade;
-ALTER TABLE rdos_batch_job RENAME TO schedule_job;
-ALTER TABLE rdos_batch_job_job RENAME TO schedule_job_job;
-ALTER TABLE rdos_batch_fill_data_job RENAME TO schedule_fill_data_job;
-ALTER TABLE rdos_job_graph_trigger RENAME TO schedule_job_graph_trigger;
-
--- 新增comment
-ALTER TABLE  `schedule_engine_job_checkpoint` modify  COLUMN `checkpoint_id` varchar(64) DEFAULT NULL COMMENT '检查点id';
-ALTER TABLE  `schedule_engine_job_retry` modify  COLUMN `retry_num` int(10) NOT NULL DEFAULT '0' COMMENT '执行时，重试的次数';
-ALTER TABLE  `schedule_engine_job` modify  COLUMN `retry_num` int(10) NOT NULL DEFAULT '0' COMMENT '执行时，重试的次数';
-ALTER TABLE  `schedule_engine_job` modify  COLUMN `retry_task_params` text DEFAULT NULL COMMENT '重试任务参数';
-
-ALTER TABLE  `schedule_task_shade` modify  COLUMN `task_desc` varchar(256) NOT NULL COMMENT '任务描述';
-ALTER TABLE  `schedule_task_shade` modify  COLUMN `main_class` varchar(256) NOT NULL COMMENT 'Jar包的入口函数';
-ALTER TABLE  `schedule_task_shade` modify  COLUMN `exe_args` text DEFAULT NULL COMMENT '额外参数';
-ALTER TABLE  `schedule_job` modify  COLUMN `job_key` varchar(256) NOT NULL DEFAULT '' COMMENT '工作任务key';
-ALTER TABLE  `schedule_job` modify  COLUMN `job_name` VARCHAR(256) NOT NULL DEFAULT '' COMMENT '工作任务名称';
-ALTER TABLE  `schedule_job` modify  COLUMN `dependency_type` tinyint(2) NOT NULL DEFAULT 0  COMMENT '依赖类型';
-ALTER TABLE  `schedule_fill_data_job` modify  COLUMN `job_name` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '补数据任务名称';
-ALTER TABLE  `schedule_job_graph_trigger` modify  COLUMN `trigger_time` datetime NOT NULL COMMENT '调度时间';
-
-ALTER TABLE  `console_engine` modify  COLUMN `cluster_id` int(11) NOT NULL COMMENT '集群id';
-ALTER TABLE  `console_component` modify  COLUMN `engine_id` int(11) NOT NULL COMMENT '引擎id';
-
-
-
-
+--- 新增字段2
+ALTER TABLE `console_engine`
+    ADD COLUMN `sync_type` tinyint(1) NULL COMMENT '获取元数据组件类型' AFTER `total_core`;
+UPDATE `console_engine` set `sync_type` = 6 where `engine_type` = 1;

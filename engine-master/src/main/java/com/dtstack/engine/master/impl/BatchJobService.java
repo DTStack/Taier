@@ -16,6 +16,7 @@ import com.dtstack.dtcenter.common.util.DateUtil;
 import com.dtstack.dtcenter.common.util.MathUtil;
 import com.dtstack.dtcenter.common.util.PublicUtil;
 import com.dtstack.engine.common.annotation.Param;
+import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.LearningFrameType;
 import com.dtstack.engine.common.enums.QueryWorkFlowModel;
@@ -34,7 +35,6 @@ import com.dtstack.engine.dto.QueryJobDTO;
 import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.plugininfo.PluginWrapper;
 import com.dtstack.engine.master.queue.JobPartitioner;
-import com.dtstack.task.send.TaskUrlConstant;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.job.impl.BatchHadoopJobStartTrigger;
 import com.dtstack.engine.master.job.impl.BatchKylinJobStartTrigger;
@@ -941,7 +941,7 @@ public class BatchJobService {
         String extInfoByTaskId = batchTaskShadeDao.getExtInfoByTaskId(batchJob.getTaskId(), batchJob.getAppType());
         JSONObject extObject = JSONObject.parseObject(extInfoByTaskId);
         if (Objects.nonNull(extObject)) {
-            JSONObject info = extObject.getJSONObject(TaskUrlConstant.INFO);
+            JSONObject info = extObject.getJSONObject(TaskConstant.INFO);
             if (Objects.nonNull(info)) {
                 Integer multiEngineType = info.getInteger("multiEngineType");
                 Map<String, Object> actionParam = info;
