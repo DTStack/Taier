@@ -3,12 +3,12 @@
 <mapper namespace="com.dtstack.engine.dao.EngineDao">
 
     <sql id="select_content_fragment">
-      id,cluster_id,engine_name,engine_type,total_node,total_memory,total_core,gmt_create,gmt_modified,is_deleted
+      id,cluster_id,engine_name,engine_type,total_node,total_memory,total_core,sync_type,gmt_create,gmt_modified,is_deleted
     </sql>
 
     <insert id="insert" parameterType="Engine" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO console_engine(cluster_id,engine_name,engine_type,total_node,total_memory,total_core)
-        VALUES (#{clusterId},#{engineName},#{engineType},#{totalNode},#{totalMemory},#{totalCore})
+        INSERT INTO console_engine(cluster_id,engine_name,engine_type,total_node,total_memory,total_core,sync_type)
+        VALUES (#{clusterId},#{engineName},#{engineType},#{totalNode},#{totalMemory},#{totalCore},#{syncType})
     </insert>
 
     <select id="getOne" resultType="Engine">
@@ -68,6 +68,9 @@
             </if>
             <if test="totalCore != null">
                 total_core = #{totalCore},
+            </if>
+            <if test="syncType != null">
+                sync_type = #{syncType},
             </if>
             gmt_modified = now()
         </set>

@@ -31,8 +31,8 @@ public enum EngineTypeComponentType {
     CARBON_DATA(EngineType.Carbon, EComponentType.CARBON_DATA),
     LIBRA_SQL(EngineType.Libra, EComponentType.LIBRA_SQL),
     HIVE(EngineType.HIVE,EComponentType.HIVE_SERVER),
-    IMPALA_SQL(EngineType.Hadoop, EComponentType.IMPALA_SQL)
-    ;
+    IMPALA_SQL(EngineType.Hadoop, EComponentType.IMPALA_SQL),
+    TIDB_SQL(EngineType.TIDB, EComponentType.TIDB_SQL);
 
     private EngineType engineType;
 
@@ -86,7 +86,8 @@ public enum EngineTypeComponentType {
                 return null;
             case "impala":
                 return EngineTypeComponentType.IMPALA_SQL;
-
+            case "tidb":
+                return EngineTypeComponentType.TIDB_SQL;
             default:
                 throw new UnsupportedOperationException("未知引擎类型:" + engineName);
         }

@@ -14,6 +14,8 @@ public class Engine extends BaseEntity{
 
     private int totalCore;
 
+    private Integer syncType;
+
     public Long getClusterId() {
         return clusterId;
     }
@@ -60,5 +62,13 @@ public class Engine extends BaseEntity{
 
     public void setTotalCore(int totalCore) {
         this.totalCore = totalCore;
+    }
+
+    public Integer getSyncType() {
+        return syncType;
+    }
+
+    public void setSyncType(Integer syncType) {
+        this.syncType = syncType;
     }
 }
