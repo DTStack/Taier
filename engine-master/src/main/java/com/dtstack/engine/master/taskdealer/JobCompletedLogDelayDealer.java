@@ -1,13 +1,15 @@
-package com.dtstack.engine.service.task;
+package com.dtstack.engine.master.taskdealer;
 
 import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
-import com.dtstack.engine.service.node.WorkNode;
+import com.dtstack.engine.dao.EngineJobDao;
+import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.bo.CompletedTaskInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
@@ -22,11 +24,17 @@ import java.util.concurrent.TimeUnit;
 public class JobCompletedLogDelayDealer implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(JobCompletedLogDelayDealer.class);
 
+    private ApplicationContext applicationContext;
+    private EngineJobDao engineJobDao;
+    private WorkerOperator workerOperator;
+
     private DelayBlockingQueue<CompletedTaskInfo> delayBlockingQueue = new DelayBlockingQueue<CompletedTaskInfo>(1000);
     private ExecutorService taskStatusPool = new ThreadPoolExecutor(1, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
             new SynchronousQueue<>(true), new CustomThreadFactory(this.getClass().getSimpleName()));
 
-    public  JobCompletedLogDelayDealer() {
+    public  JobCompletedLogDelayDealer(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+        setBean();
         taskStatusPool.execute(this);
     }
 
@@ -52,15 +60,19 @@ public class JobCompletedLogDelayDealer implements Runnable {
 
     private void updateJobEngineLog(String jobId, JobIdentifier jobIdentifier, String engineType, String pluginInfo) {
         try {
-            //从engine获取log
-            String jobLog = JobClient.getEngineLog(engineType, pluginInfo, jobIdentifier);
-            if (jobLog != null){
-                WorkNode.getInstance().updateJobEngineLog(jobId, jobLog, engineType);
+            String jobLog = workerOperator.getEngineLog(engineType, pluginInfo, jobIdentifier);
+            if (jobLog != null) {
+                engineJobDao.updateEngineLog(jobId, jobLog);
             }
-        } catch (Throwable e){
+        } catch (Throwable e) {
             String errorLog = ExceptionUtil.getErrorMessage(e);
-            logger.error("update JobEngine Log error jobid {} ,error info {}..", jobId, errorLog);
-            WorkNode.getInstance().updateJobEngineLog(jobId, errorLog, engineType);
+            logger.error("update JobEngine Log error jobId:{} ,error info {}..", jobId, errorLog);
+            engineJobDao.updateEngineLog(jobId, errorLog);
         }
+    }
+
+    private void setBean() {
+        this.engineJobDao = applicationContext.getBean(EngineJobDao.class);
+        this.workerOperator = applicationContext.getBean(WorkerOperator.class);
     }
 }
