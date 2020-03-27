@@ -6,5 +6,6 @@ build:
     - sh ci/sonar_notify.sh
   only:
     - dev
+    - feat_scheduleMasterWorker
   tags:
     - dt-insight-engine
