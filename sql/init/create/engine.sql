@@ -20,7 +20,7 @@ CREATE TABLE `schedule_engine_job` (
   `exec_start_time` datetime DEFAULT NULL COMMENT '执行开始时间',
   `exec_end_time` datetime DEFAULT NULL COMMENT '执行结束时间',
   `exec_time` int(11) DEFAULT '0' COMMENT '执行时间',
-  `retry_num` int(10) NOT NULL DEFAULT '0',
+  `retry_num` int(10) NOT NULL DEFAULT '0' COMMENT '执行时，重试的次数',
   `log_info` mediumtext COMMENT '错误信息',
   `engine_log` longtext COMMENT '引擎错误信息',
   `plugin_info_id` int(11) DEFAULT NULL COMMENT '插件信息',

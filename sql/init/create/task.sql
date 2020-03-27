@@ -26,7 +26,7 @@ CREATE TABLE `schedule_task_shade`
     `version_id`              int(11)      NOT NULL DEFAULT '0' COMMENT 'task版本',
     `is_deleted`              tinyint(1)   NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
     `task_desc`               varchar(256) NOT NULL             COMMENT '任务描述',
-    `main_class`              varchar(256) NOT NULL             COMMENT '入口类',
+    `main_class`              varchar(256) NOT NULL             COMMENT 'Jar包的入口函数',
     `exe_args`                text                  DEFAULT NULL COMMENT '额外参数',
     `flow_id`                 INT(11)      NOT NULL DEFAULT '0' COMMENT '工作流id',
     `is_publish_to_produce`   tinyint(1)   NOT NULL DEFAULT '0' COMMENT '是否发布到生产环境：0-否，1-是',
