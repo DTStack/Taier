@@ -225,14 +225,14 @@
     <select id="getOne" resultType="BatchTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM rdos_batch_task_shade
+        FROM schedule_task_shade
         WHERE task_id = #{taskId} AND is_deleted = 0 and app_type = #{appType}
     </select>
 
     <select id="listTaskByStatus" resultType="BatchTaskShade">
         SELECT
         <include refid="select_content_fragment_with_sql"/>
-        FROM rdos_batch_task_shade
+        FROM schedule_task_shade
         WHERE id > #{startId} AND submit_status = #{submitStatus} and project_schedule_status = #{projectScheduleStatus} and is_deleted = 0
         order by id asc
         limit #{batchTaskSize}
@@ -241,14 +241,14 @@
     <select id="countTaskByStatus" resultType="java.lang.Integer">
         SELECT
         count(1)
-        FROM rdos_batch_task_shade
+        FROM schedule_task_shade
         WHERE submit_status = #{submitStatus} and project_schedule_status = #{projectScheduleStatus} and is_deleted = 0
     </select>
 
     <select id="listByTaskIds" resultType="BatchTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM rdos_batch_task_shade
+        FROM schedule_task_shade
         <where>
             <if test="appType != null">
                 AND app_type = #{appType}
@@ -269,7 +269,7 @@
     <select id="listByNameLike" resultType="BatchTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM rdos_batch_task_shade
+        FROM schedule_task_shade
         WHERE project_id = #{projectId}  and is_deleted = 0 and app_type = #{appType}
         <if test="ownerId!=null">
            AND owner_user_id = #{ownerId}
@@ -282,35 +282,35 @@
     <select id="listByName" resultType="BatchTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM rdos_batch_task_shade
+        FROM schedule_task_shade
         WHERE project_id = #{projectId} AND name=#{name} and is_deleted = 0
     </select>
 
     <select id="listByNameLikeFront" resultType="BatchTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM rdos_batch_task_shade
+        FROM schedule_task_shade
         WHERE project_id = #{projectId} AND name like '%${name}' and is_deleted = 0
     </select>
 
     <select id="listByNameLikeTail" resultType="BatchTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM rdos_batch_task_shade
+        FROM schedule_task_shade
         WHERE project_id = #{projectId} AND name like '${name}%' and is_deleted = 0
     </select>
 
     <select id="getByName" resultType="BatchTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM rdos_batch_task_shade
+        FROM schedule_task_shade
         WHERE project_id = #{projectId} AND name = #{name} and is_deleted = 0
         limit 1
     </select>
 
 
     <select id="listDependencyTask" resultType="java.util.Map">
-        SELECT ts.task_id as id ,ts.task_id,ts.name,ts.create_user_id as createUserId FROM rdos_batch_task_shade ts
+        SELECT ts.task_id as id ,ts.task_id,ts.name,ts.create_user_id as createUserId FROM schedule_task_shade ts
         WHERE ts.project_id = #{projectId} and ts.submit_status = 1
         and ts.task_id NOT IN
         <foreach item="id" index="index" collection="taskIds" open="(" separator="," close=")">
@@ -321,7 +321,7 @@
 
     <select id="listByTaskIdsNotIn" resultType="java.util.Map">
         SELECT ts.task_id as id, ts.task_id, ts.task_type as taskType,ts.name,ts.create_user_id as createUserId
-        FROM rdos_batch_task_shade ts
+        FROM schedule_task_shade ts
         WHERE ts.project_id = #{projectId} and ts.submit_status = 1
         and ts.compute_type = 1 and ts.task_type in (0,2) and ts.is_deleted = 0
         <if test="taskIds != null">
@@ -334,19 +334,19 @@
 
     <update id="updateTaskName">
         UPDATE
-        rdos_batch_task_shade
+        schedule_task_shade
         set name = #{name}
         where task_id = #{taskId} and app_type = #{appType}
     </update>
 
     <update id="delete">
-        UPDATE rdos_batch_task_shade
+        UPDATE schedule_task_shade
         SET is_deleted = 1, modify_user_id = #{userId}, gmt_modified = NOW()
         WHERE task_id = #{taskId}
     </update>
 
     <insert id="insert" parameterType="BatchTaskShade" useGeneratedKeys="false" keyProperty="id">
-        INSERT INTO rdos_batch_task_shade
+        INSERT INTO schedule_task_shade
           (tenant_id,project_id,node_pid,name,task_type,engine_type,compute_type,sql_text,task_params,schedule_conf,period_type,
           schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version_id,is_deleted,task_desc,main_class,exe_args,flow_id,app_type,dtuic_tenant_id,task_id,is_expire)
         VALUES
@@ -356,7 +356,7 @@
 
     <update id="update" parameterType="BatchTaskShade">
         UPDATE
-        rdos_batch_task_shade
+        schedule_task_shade
         <include refid="update_fragment"/>
         WHERE
         task_id = #{taskId} AND is_deleted = 0 and app_type = #{appType}
@@ -365,7 +365,7 @@
     <select id="listByType" resultType="BatchTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM rdos_batch_task_shade
+        FROM schedule_task_shade
         WHERE project_id = #{projectId} and task_type = #{type}
         <if test="taskName != null">
             and name like '%${taskName}%'
@@ -376,7 +376,7 @@
     <select id="generalQuery" parameterType="com.dtstack.dtcenter.common.pager.PageQuery" resultType="BatchTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM rdos_batch_task_shade
+        FROM schedule_task_shade
         <include refid="select_where_fragment"/>
         <if test="orderBy != null and sort != null">
             order by ${orderBy} ${sort}
@@ -397,14 +397,14 @@
 
     <select id="generalCount" resultType="java.lang.Integer">
         SELECT COUNT(1)
-        FROM rdos_batch_task_shade
+        FROM schedule_task_shade
         <include refid="select_where_fragment"/>
         limit 1
     </select>
 
     <update id="batchUpdateTaskScheduleStatus">
         UPDATE
-        rdos_batch_task_shade
+        schedule_task_shade
         set schedule_status = #{scheduleStatus}
         WHERE
         task_id in
@@ -418,7 +418,7 @@
     <select id="simpleQuery" parameterType="com.dtstack.dtcenter.common.pager.PageQuery" resultType="BatchTaskShade">
         SELECT
         <include refid="simple_select_content_fragment"/>
-        FROM rdos_batch_task_shade
+        FROM schedule_task_shade
         where tenant_id = #{model.tenantId} and project_id = #{model.projectId}
         <if test="model.taskName != null">
             and name like '%${model.taskName}%'
@@ -451,7 +451,7 @@
     <select id="simpleCount" resultType="java.lang.Integer">
         SELECT
         count(1)
-        FROM rdos_batch_task_shade
+        FROM schedule_task_shade
         where tenant_id = #{model.tenantId} and project_id = #{model.projectId}
        <!-- <if test="model.taskModifyUserId != null">
             and modify_user_id = #{model.taskModifyUserId}
@@ -469,7 +469,7 @@
     </select>
 
     <update id="updatePublishStatus" parameterType="java.util.List">
-        update rdos_batch_task_shade set is_publish_to_produce = #{status}
+        update schedule_task_shade set is_publish_to_produce = #{status}
         where id in
         <foreach collection="list" item="id" open="(" separator="," close=")">
             #{id}
@@ -477,7 +477,7 @@
     </update>
 
     <select id="countPublishToProduce" resultType="java.lang.Integer">
-        select count(1) from rdos_batch_task_shade where
+        select count(1) from schedule_task_shade where
         project_id = #{projectId} and app_type = #{appType}
         and is_publish_to_produce = 1 and is_deleted = 0
     </select>
@@ -485,7 +485,7 @@
     <select id="listSimpleTaskByTaskIds" resultType="com.dtstack.engine.dto.BatchTaskForFillDataDTO">
         SELECT
         <include refid="simple_select_content_fragment"/>
-        FROM rdos_batch_task_shade
+        FROM schedule_task_shade
         WHERE
         1 = 1
         <if test="isDeleted != null">
@@ -503,7 +503,7 @@
     <select id="getSqlTextById" resultType="java.lang.String">
         SELECT
         sql_text
-        FROM rdos_batch_task_shade
+        FROM schedule_task_shade
         WHERE id = #{id} AND is_deleted = 0
     </select>
 
@@ -511,8 +511,8 @@
         SELECT
             <include refid="alias_select_content_fragment"/>
         FROM
-            rdos_batch_task_shade ts
-            LEFT JOIN ( SELECT DISTINCT task_id FROM rdos_batch_task_task_shade WHERE task_id IN ( SELECT task_id FROM rdos_batch_task_shade WHERE flow_id = #{workFlowId} and is_deleted = 0 )  and is_deleted = 0) tts ON ts.task_id = tts.task_id
+            schedule_task_shade ts
+            LEFT JOIN ( SELECT DISTINCT task_id FROM schedule_task_task_shade WHERE task_id IN ( SELECT task_id FROM schedule_task_shade WHERE flow_id = #{workFlowId} and is_deleted = 0 )  and is_deleted = 0) tts ON ts.task_id = tts.task_id
         WHERE
             ts.flow_id = #{workFlowId}
             AND tts.task_id IS NULL
@@ -525,7 +525,7 @@
     <select id="listSimpleByTaskIds" resultType="BatchTaskShade">
         SELECT
         <include refid="simple_select_content_fragment"/>
-        FROM rdos_batch_task_shade
+        FROM schedule_task_shade
         WHERE
         1 = 1
         <if test="isDeleted != null">
@@ -544,7 +544,7 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM
-        rdos_batch_task_shade
+        schedule_task_shade
         where task_id = #{taskId}
         AND app_type  = #{appType}
         <if test="isDeleted != null">
@@ -555,7 +555,7 @@
 
     <update id="updateTaskExtInfo">
         UPDATE
-            rdos_batch_task_shade
+            schedule_task_shade
         set extra_info = #{extraInfo}
         where task_id = #{taskId} and app_type = #{appType} and is_deleted = 0
     </update>
@@ -563,14 +563,14 @@
     <select id="getExtInfoByTaskId" resultType="java.lang.String">
         SELECT
             extra_info
-        FROM rdos_batch_task_shade
+        FROM schedule_task_shade
         where task_id = #{taskId} and app_type = #{appType} and is_deleted = 0
     </select>
 
     <select id="getExtInfoByTaskIds" resultType="BatchTaskShade">
         SELECT
            task_id ,extra_info
-        FROM rdos_batch_task_shade
+        FROM schedule_task_shade
         where task_id IN
         <foreach item="id" index="index" collection="taskIds" open="(" separator="," close=")">
             #{id}
@@ -583,7 +583,7 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM
-        rdos_batch_task_shade
+        schedule_task_shade
         where id = #{id} and is_deleted = 0
     </select>
 </mapper>
