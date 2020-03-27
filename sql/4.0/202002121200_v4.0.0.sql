@@ -299,6 +299,6 @@ ALTER TABLE  `console_component` modify  COLUMN `engine_id` int(11) NOT NULL COM
 
 
 
---- 新增字段2
+-- 新增字段2
 ALTER TABLE `console_engine` ADD COLUMN `sync_type` tinyint(1) NULL COMMENT '获取元数据组件类型' AFTER `total_core`;
 UPDATE `console_engine` set `sync_type` = 6 where `engine_type` = 1;
