@@ -24,7 +24,6 @@ import com.dtstack.engine.dto.ClusterDTO;
 import com.dtstack.engine.master.enums.ComponentTypeNameNeedVersion;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.master.utils.AgileUtil;
 import com.dtstack.engine.master.utils.HadoopConf;
 import com.dtstack.engine.master.vo.KerberosConfigVO;
 import com.dtstack.engine.vo.ClusterVO;
@@ -143,17 +142,10 @@ public class ClusterService implements InitializingBean {
         clusterDao.insertWithId(cluster);
 
         boolean updateQueue = true;
-        JSONObject componentConfig;
-        if (AgileUtil.isAgile()) {
-            componentConfig = JSONObject.parseObject(AgileUtil.getDefaultCluster());
-            uploadConfigFile(componentConfig);
-            updateQueue = false;
-        } else {
-            componentConfig = new JSONObject();
-            componentConfig.put(EComponentType.HDFS.getConfName(), HadoopConf.getDefaultHadoopConf());
-            componentConfig.put(EComponentType.YARN.getConfName(), HadoopConf.getDefaultYarnConf());
-            componentConfig.put(EComponentType.SPARK_THRIFT.getConfName(), new JSONObject().toJSONString());
-        }
+        JSONObject componentConfig = new JSONObject();
+        componentConfig.put(EComponentType.HDFS.getConfName(), HadoopConf.getDefaultHadoopConf());
+        componentConfig.put(EComponentType.YARN.getConfName(), HadoopConf.getDefaultYarnConf());
+        componentConfig.put(EComponentType.SPARK_THRIFT.getConfName(), new JSONObject().toJSONString());
 
         engineService.addEnginesByComponentConfig(componentConfig, cluster.getId(), updateQueue);
 
