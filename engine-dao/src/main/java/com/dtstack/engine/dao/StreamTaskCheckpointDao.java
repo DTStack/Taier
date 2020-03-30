@@ -1,6 +1,6 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.engine.domain.StreamTaskCheckpoint;
+import com.dtstack.engine.api.domain.StreamTaskCheckpoint;
 import org.apache.ibatis.annotations.Param;
 
 import java.sql.Timestamp;

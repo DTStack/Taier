@@ -10,7 +10,7 @@ import com.dtstack.engine.common.constrant.JobFieldInfo;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.dao.BatchJobDao;
-import com.dtstack.engine.domain.po.SimpleBatchJobPO;
+import com.dtstack.engine.api.domain.po.SimpleBatchJobPO;
 import com.dtstack.engine.master.queue.QueueInfo;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
 import com.google.common.collect.Lists;

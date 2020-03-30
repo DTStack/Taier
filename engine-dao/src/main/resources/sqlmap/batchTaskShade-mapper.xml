@@ -384,7 +384,7 @@
         and  is_deleted = 0
     </select>
 
-    <select id="generalQuery" parameterType="com.dtstack.dtcenter.common.pager.PageQuery" resultType="BatchTaskShade">
+    <select id="generalQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="BatchTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_task_shade
@@ -426,7 +426,7 @@
         AND is_deleted = 0
     </update>
 
-    <select id="simpleQuery" parameterType="com.dtstack.dtcenter.common.pager.PageQuery" resultType="BatchTaskShade">
+    <select id="simpleQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="BatchTaskShade">
         SELECT
         <include refid="simple_select_content_fragment"/>
         FROM schedule_task_shade
@@ -529,7 +529,7 @@
         and is_publish_to_produce = 1 and is_deleted = 0
     </select>
 
-    <select id="listSimpleTaskByTaskIds" resultType="com.dtstack.engine.dto.BatchTaskForFillDataDTO">
+    <select id="listSimpleTaskByTaskIds" resultType="com.dtstack.engine.api.dto.BatchTaskForFillDataDTO">
         SELECT
         <include refid="simple_select_content_fragment"/>
         FROM schedule_task_shade

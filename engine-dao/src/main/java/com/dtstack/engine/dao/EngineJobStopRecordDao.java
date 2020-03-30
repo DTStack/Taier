@@ -1,6 +1,6 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.engine.domain.EngineJobStopRecord;
+import com.dtstack.engine.api.domain.EngineJobStopRecord;
 import org.apache.ibatis.annotations.Param;
 
 import java.sql.Timestamp;

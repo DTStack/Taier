@@ -15,7 +15,7 @@ import com.dtstack.engine.common.pojo.SimpleJobDelay;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
 import com.dtstack.engine.common.queue.OrderLinkedBlockingQueue;
 import com.dtstack.engine.dao.EngineJobCacheDao;
-import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.master.cache.ShardCache;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.queue.GroupInfo;

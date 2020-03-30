@@ -3,8 +3,8 @@ package com.dtstack.engine.master.vo;
 import com.dtstack.dtcenter.common.constant.TaskStatusConstrant;
 import com.dtstack.dtcenter.common.enums.TaskStatus;
 import com.dtstack.dtcenter.common.util.DateUtil;
-import com.dtstack.engine.domain.BatchEngineJob;
-import com.dtstack.engine.domain.BatchJob;
+import com.dtstack.engine.api.domain.BatchEngineJob;
+import com.dtstack.engine.api.domain.BatchJob;
 import com.dtstack.engine.master.parser.ESchedulePeriodType;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -18,7 +18,7 @@ import java.util.List;
  * author: toutian
  * create: 2017/6/6
  */
-public class BatchJobVO {
+public class BatchJobVO extends com.dtstack.engine.api.vo.BatchJobVO {
 
     private static final Logger logger = LoggerFactory.getLogger(BatchJobVO.class);
 
@@ -53,72 +53,6 @@ public class BatchJobVO {
         return str.substring(0,11);
     }
 
-    private BatchTaskVO batchTask;
-    private long id;
-    private Timestamp gmtCreate;
-    private Timestamp gmtModified;
-    private int isDeleted;
-    private Long tenantId;
-    private Long projectId;
-    private String tenantName;
-    private String projectName;
-    private String jobId;
-    private String jobKey;
-    private String jobName;
-    private int status;
-    private long taskId;
-    private long createUserId;
-    private Long ownerUserId;
-    private int type;
-    private String businessDate;
-    private String cycTime;
-    private Timestamp execStartTime;
-    private Timestamp execEndTime;
-    private String execTime;
-    private String execStartDate;
-    private String execEndDate;
-    private Integer taskPeriodId;
-    private String taskPeriodType;
-
-    private List<BatchJobVO> jobVOS;
-    private BatchEngineJob batchEngineJob;
-
-    private BatchJobVO subNodes;
-
-    private String flowJobId;
-
-    private Integer retryNum;
-
-    public Integer getRetryNum() {
-        return retryNum;
-    }
-
-    public void setRetryNum(Integer retryNum) {
-        this.retryNum = retryNum;
-    }
-
-    private List<BatchJobVO> relatedJobs;
-    //增加是否有脏数据标识 1表示有 0 表示无
-    private int isDirty;
-
-    private Integer isRestart;
-    // 增加是否是组任务（分钟或小时任务） 如果是 前端就不显示某些信息
-    private boolean isGroupTask;
-
-    private Integer version;
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
-    }
-
-    public BatchTaskVO getBatchTask() {
-        return batchTask;
-    }
-
     public void setBatchTask(BatchTaskVO batchTask) {
         this.isGroupTask = false;
         if (StringUtils.isBlank(taskPeriodType)) {
@@ -139,226 +73,6 @@ public class BatchJobVO {
             this.taskPeriodType = taskType;
         }
         this.batchTask = batchTask;
-    }
-
-    public Integer getIsRestart() {
-        return isRestart;
-    }
-
-    public void setIsRestart(Integer isRestart) {
-        this.isRestart = isRestart;
-    }
-
-    public String getTenantName() {
-        return tenantName;
-    }
-
-    public void setTenantName(String tenantName) {
-        this.tenantName = tenantName;
-    }
-
-    public String getProjectName() {
-        return projectName;
-    }
-
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public Timestamp getGmtCreate() {
-        return gmtCreate;
-    }
-
-    public void setGmtCreate(Timestamp gmtCreate) {
-        this.gmtCreate = gmtCreate;
-    }
-
-    public Timestamp getGmtModified() {
-        return gmtModified;
-    }
-
-    public void setGmtModified(Timestamp gmtModified) {
-        this.gmtModified = gmtModified;
-    }
-
-    public int getIsDeleted() {
-        return isDeleted;
-    }
-
-    public void setIsDeleted(int isDeleted) {
-        this.isDeleted = isDeleted;
-    }
-
-    public Long getTenantId() {
-        return tenantId;
-    }
-
-    public void setTenantId(Long tenantId) {
-        this.tenantId = tenantId;
-    }
-
-    public Long getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
-    }
-
-    public String getJobId() {
-        return jobId;
-    }
-
-    public void setJobId(String jobId) {
-        this.jobId = jobId;
-    }
-
-    public String getJobKey() {
-        return jobKey;
-    }
-
-    public void setJobKey(String jobKey) {
-        this.jobKey = jobKey;
-    }
-
-    public String getJobName() {
-        return jobName;
-    }
-
-    public void setJobName(String jobName) {
-        this.jobName = jobName;
-    }
-
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
-    public long getTaskId() {
-        return taskId;
-    }
-
-    public void setTaskId(long taskId) {
-        this.taskId = taskId;
-    }
-
-    public long getCreateUserId() {
-        return createUserId;
-    }
-
-    public void setCreateUserId(long createUserId) {
-        this.createUserId = createUserId;
-    }
-
-    public int getType() {
-        return type;
-    }
-
-    public void setType(int type) {
-        this.type = type;
-    }
-
-    public String getBusinessDate() {
-        return businessDate;
-    }
-
-    public void setBusinessDate(String businessDate) {
-        this.businessDate = businessDate;
-    }
-
-    public String getCycTime() {
-        return cycTime;
-    }
-
-    public void setCycTime(String cycTime) {
-        this.cycTime = cycTime;
-    }
-
-    public Timestamp getExecStartTime() {
-        return execStartTime;
-    }
-
-    public void setExecStartTime(Timestamp execStartTime) {
-        this.execStartTime = execStartTime;
-    }
-
-    public Timestamp getExecEndTime() {
-        return execEndTime;
-    }
-
-    public void setExecEndTime(Timestamp execEndTime) {
-        this.execEndTime = execEndTime;
-    }
-
-    public String getExecStartDate() {
-        return execStartDate;
-    }
-
-    public void setExecStartDate(String execStartDate) {
-        this.execStartDate = execStartDate;
-    }
-
-    public String getExecEndDate() {
-        return execEndDate;
-    }
-
-    public void setExecEndDate(String execEndDate) {
-        this.execEndDate = execEndDate;
-    }
-
-    public String getExecTime() {
-        return execTime;
-    }
-
-    public void setExecTime(String execTime) {
-        this.execTime = execTime;
-    }
-
-    public Integer getTaskPeriodId() {
-        return taskPeriodId;
-    }
-
-    public void setTaskPeriodId(Integer taskPeriodId) {
-        this.taskPeriodId = taskPeriodId;
-    }
-
-    public String getTaskPeriodType() {
-        return taskPeriodType;
-    }
-
-    public void setTaskPeriodType(String taskPeriodType) {
-        this.taskPeriodType = taskPeriodType;
-    }
-
-    public List<BatchJobVO> getJobVOS() {
-        return jobVOS;
-    }
-
-    public void setJobVOS(List<BatchJobVO> jobVOS) {
-        this.jobVOS = jobVOS;
-    }
-
-    public BatchEngineJob getBatchEngineJob() {
-        return batchEngineJob;
-    }
-
-    public BatchJobVO getSubNodes() {
-        return subNodes;
-    }
-
-    public void setSubNodes(BatchJobVO subNodes) {
-        this.subNodes = subNodes;
     }
 
     public void setBatchEngineJob(BatchEngineJob batchEngineJob) {
@@ -386,46 +100,5 @@ public class BatchJobVO {
             }
         }
         this.batchEngineJob = batchEngineJob;
-    }
-
-    public String getFlowJobId() {
-        return flowJobId;
-    }
-
-    public void setFlowJobId(String flowJobId) {
-        this.flowJobId = flowJobId;
-    }
-
-    public List<BatchJobVO> getRelatedJobs() {
-        return relatedJobs;
-    }
-
-    public void setRelatedJobs(List<BatchJobVO> relatedJobs) {
-        this.relatedJobs = relatedJobs;
-    }
-
-
-    public int getIsDirty() {
-        return isDirty;
-    }
-
-    public void setIsDirty(int isDirty) {
-        this.isDirty = isDirty;
-    }
-
-    public boolean getIsGroupTask() {
-        return isGroupTask;
-    }
-
-    public void setIsGroupTask(boolean groupTask) {
-        isGroupTask = groupTask;
-    }
-
-    public Long getOwnerUserId() {
-        return ownerUserId;
-    }
-
-    public void setOwnerUserId(Long ownerUserId) {
-        this.ownerUserId = ownerUserId;
     }
 }

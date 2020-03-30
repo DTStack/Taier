@@ -4,9 +4,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.common.enums.EngineType;
 import com.dtstack.dtcenter.common.util.TimeParamOperator;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.domain.BatchJob;
-import com.dtstack.engine.domain.BatchTaskShade;
-import com.dtstack.engine.dto.BatchTaskParamShade;
+import com.dtstack.engine.api.domain.BatchJob;
+import com.dtstack.engine.api.domain.BatchTaskShade;
+import com.dtstack.engine.api.dto.BatchTaskParamShade;
 import com.dtstack.engine.master.job.IJobStartTrigger;
 import org.springframework.stereotype.Service;
 

@@ -1,6 +1,6 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.engine.domain.Queue;
+import com.dtstack.engine.api.domain.Queue;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

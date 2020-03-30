@@ -1,6 +1,6 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.engine.domain.KerberosConfig;
+import com.dtstack.engine.api.domain.KerberosConfig;
 import org.apache.ibatis.annotations.Param;
 
 public interface KerberosDao {

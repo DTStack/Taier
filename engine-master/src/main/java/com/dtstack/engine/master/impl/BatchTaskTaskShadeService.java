@@ -3,13 +3,13 @@ package com.dtstack.engine.master.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.common.annotation.Forbidden;
 import com.dtstack.dtcenter.common.enums.EJobType;
-import com.dtstack.engine.common.annotation.Param;
+import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.common.enums.DisplayDirect;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.BatchTaskTaskShadeDao;
-import com.dtstack.engine.domain.BatchTaskShade;
-import com.dtstack.engine.domain.BatchTaskTaskShade;
+import com.dtstack.engine.api.domain.BatchTaskShade;
+import com.dtstack.engine.api.domain.BatchTaskTaskShade;
 import com.dtstack.engine.master.vo.BatchTaskVO;
 import com.google.common.base.Preconditions;
 import org.apache.commons.collections.CollectionUtils;
@@ -137,8 +137,8 @@ public class BatchTaskTaskShadeService {
             return vo;
         }
 
-        List<BatchTaskVO> parentTaskList = null;
-        List<BatchTaskVO> childTaskList = null;
+        List<com.dtstack.engine.api.vo.BatchTaskVO> parentTaskList = null;
+        List<com.dtstack.engine.api.vo.BatchTaskVO> childTaskList = null;
         if(!CollectionUtils.isEmpty(taskTasks)){
             Set<Long> taskIds = new HashSet<>(taskTasks.size());
             taskTasks.forEach(taskTask -> taskIds.add(taskTask.getParentTaskId()));
@@ -160,7 +160,7 @@ public class BatchTaskTaskShadeService {
         return vo;
     }
 
-    public List<BatchTaskVO> getRefTask(Set<Long> taskIds, int level, Integer directType, Long currentProjectId,Integer appType){
+    public List<com.dtstack.engine.api.vo.BatchTaskVO> getRefTask(Set<Long> taskIds, int level, Integer directType, Long currentProjectId, Integer appType){
 
         //获得所有父节点task
         List<BatchTaskShade> tasks = taskShadeService.getTaskByIds(new ArrayList<>(taskIds),appType);
@@ -168,7 +168,7 @@ public class BatchTaskTaskShadeService {
             return null;
         }
 
-        List<BatchTaskVO> refTaskVoList = new ArrayList<>(tasks.size());
+        List<com.dtstack.engine.api.vo.BatchTaskVO> refTaskVoList = new ArrayList<>(tasks.size());
         for (BatchTaskShade task : tasks) {
             refTaskVoList.add(this.getOffSpring(task, level, directType, currentProjectId,appType));
         }
@@ -233,7 +233,7 @@ public class BatchTaskTaskShadeService {
         }
         Set<Long> taskIds = new HashSet<>(childTaskTasks.size());
         childTaskTasks.forEach(taskTask -> taskIds.add(taskTask.getTaskId()));
-        List<BatchTaskVO> childTaskList = getFlowWorkSubTasksRefTask(taskIds, level, DisplayDirect.CHILD.getType(),appType);
+        List<com.dtstack.engine.api.vo.BatchTaskVO> childTaskList = getFlowWorkSubTasksRefTask(taskIds, level, DisplayDirect.CHILD.getType(),appType);
         if (childTaskList != null) {
             vo.setSubTaskVOS(childTaskList);
         }
@@ -241,7 +241,7 @@ public class BatchTaskTaskShadeService {
     }
 
     @Forbidden
-    public List<BatchTaskVO> getFlowWorkSubTasksRefTask(Set<Long> taskIds, int level, Integer directType,Integer appType) {
+    public List<com.dtstack.engine.api.vo.BatchTaskVO> getFlowWorkSubTasksRefTask(Set<Long> taskIds, int level, Integer directType, Integer appType) {
 
         //获得所有父节点task
         List<BatchTaskShade> tasks = taskShadeService.getTaskByIds(new ArrayList<>(taskIds),appType);
@@ -249,7 +249,7 @@ public class BatchTaskTaskShadeService {
             return null;
         }
 
-        List<BatchTaskVO> refTaskVoList = new ArrayList<>(tasks.size());
+        List<com.dtstack.engine.api.vo.BatchTaskVO> refTaskVoList = new ArrayList<>(tasks.size());
         for (BatchTaskShade task : tasks) {
             refTaskVoList.add(this.getFlowWorkOffSpring(task, level, directType,appType));
         }

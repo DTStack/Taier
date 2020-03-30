@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.common.annotation.Forbidden;
 import com.dtstack.dtcenter.common.enums.EComponentType;
 import com.dtstack.dtcenter.common.enums.MultiEngineType;
-import com.dtstack.engine.common.annotation.Param;
+import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
@@ -18,12 +18,12 @@ import com.dtstack.engine.dao.EngineDao;
 import com.dtstack.engine.dao.EngineJobDao;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.EngineJobStopRecordDao;
-import com.dtstack.engine.domain.Cluster;
-import com.dtstack.engine.domain.Component;
-import com.dtstack.engine.domain.Engine;
-import com.dtstack.engine.domain.EngineJobCache;
-import com.dtstack.engine.domain.EngineJob;
-import com.dtstack.engine.domain.EngineJobStopRecord;
+import com.dtstack.engine.api.domain.Cluster;
+import com.dtstack.engine.api.domain.Component;
+import com.dtstack.engine.api.domain.Engine;
+import com.dtstack.engine.api.domain.EngineJobCache;
+import com.dtstack.engine.api.domain.EngineJob;
+import com.dtstack.engine.api.domain.EngineJobStopRecord;
 import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.cache.ShardCache;
 import com.dtstack.engine.master.component.ComponentFactory;
@@ -47,7 +47,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 对接数栈控制台

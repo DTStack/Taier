@@ -8,7 +8,7 @@ import com.dtstack.engine.common.enums.DependencyType;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.domain.*;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.impl.*;
 import com.dtstack.engine.master.parser.*;
@@ -77,7 +77,7 @@ public class JobGraphBuilder {
     private BatchTaskShadeService batchTaskShadeService;
 
     @Autowired
-    private BatchJobService batchJobService;
+    private BatchJobServiceImpl batchJobServiceImpl;
 
     @Autowired
     private BatchTaskTaskShadeService taskTaskShadeService;
@@ -211,7 +211,7 @@ public class JobGraphBuilder {
      */
     private void cleanDirtyJobGraph(String triggerDay) {
         String preCycTime = DateUtil.getTimeStrWithoutSymbol(triggerDay);
-        int totalJob = batchJobService.countByCyctimeAndJobName(preCycTime, CRON_JOB_NAME, EScheduleType.NORMAL_SCHEDULE.getType());
+        int totalJob = batchJobServiceImpl.countByCyctimeAndJobName(preCycTime, CRON_JOB_NAME, EScheduleType.NORMAL_SCHEDULE.getType());
         if (totalJob <= 0) {
             return;
         }
@@ -231,7 +231,7 @@ public class JobGraphBuilder {
             if (batchIdx > totalBatch) {
                 break;
             }
-            final List<BatchJob> batchJobList = batchJobService.listByCyctimeAndJobName(startId, preCycTime,
+            final List<BatchJob> batchJobList = batchJobServiceImpl.listByCyctimeAndJobName(startId, preCycTime,
                     CRON_JOB_NAME, EScheduleType.NORMAL_SCHEDULE.getType(), JOB_BATCH_SIZE);
             if (batchJobList.isEmpty()) {
                 break;
@@ -244,7 +244,7 @@ public class JobGraphBuilder {
                 jobKeyList.add(batchJob.getJobKey());
                 jobIdList.add(batchJob.getId());
             }
-            batchJobService.deleteJobsByJobKey(jobKeyList);
+            batchJobServiceImpl.deleteJobsByJobKey(jobKeyList);
             logger.info("batch-number:{} done! Cleaning dirty jobs size:{}", batchIdx, batchJobList.size());
         }
     }
@@ -274,7 +274,7 @@ public class JobGraphBuilder {
     @Transactional
     public boolean saveJobGraph(List<ScheduleBatchJob> jobList, String triggerDay) {
         //需要保存BatchJob, BatchJobJob
-        batchJobService.insertJobList(jobList, EScheduleType.NORMAL_SCHEDULE.getType());
+        batchJobServiceImpl.insertJobList(jobList, EScheduleType.NORMAL_SCHEDULE.getType());
 
         //添加到告警监控表里面
 
@@ -512,7 +512,7 @@ public class JobGraphBuilder {
         String preSelfJobKey = getSelfDependencyJobKeys(batchJob, scheduleCron, keyPreStr);
         if (preSelfJobKey != null) {
             if (isFirst) {//需要查库判断是否存在
-                BatchJob dbBatchJob = batchJobService.getJobByJobKeyAndType(preSelfJobKey, scheduleType.getType());
+                BatchJob dbBatchJob = batchJobServiceImpl.getJobByJobKeyAndType(preSelfJobKey, scheduleType.getType());
                 if (dbBatchJob != null) {
                     scheduleBatchJob.addBatchJobJob(createNewJobJob(batchJob, jobKey, preSelfJobKey, timestampNow));
                 }
@@ -605,7 +605,7 @@ public class JobGraphBuilder {
                 //如果父任务在当前任务业务日期不同，则查询父任务是有已生成
                 if (Objects.nonNull(jobCycTime) && Objects.nonNull(fatherCycTime) && fatherCycTime.getDayOfYear() != jobCycTime.getDayOfYear()) {
                     //判断父任务是否生成
-                    BatchJob pBatchJob = batchJobService.getJobByJobKeyAndType(pjobKey, EScheduleType.NORMAL_SCHEDULE.getType());
+                    BatchJob pBatchJob = batchJobServiceImpl.getJobByJobKeyAndType(pjobKey, EScheduleType.NORMAL_SCHEDULE.getType());
                     if (pBatchJob == null) {
                         logger.error("getExternalJobKeys ,but not found the parent job of " + pTask.getTaskId()
                                 + " ,current job is " + batchJob.getJobId() + ", the pjobKey = " + pjobKey);

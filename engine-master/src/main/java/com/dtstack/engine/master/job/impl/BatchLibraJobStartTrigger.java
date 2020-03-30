@@ -1,9 +1,9 @@
 package com.dtstack.engine.master.job.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.domain.BatchJob;
-import com.dtstack.engine.domain.BatchTaskShade;
-import com.dtstack.engine.dto.BatchTaskParamShade;
+import com.dtstack.engine.api.domain.BatchJob;
+import com.dtstack.engine.api.domain.BatchTaskShade;
+import com.dtstack.engine.api.dto.BatchTaskParamShade;
 import com.dtstack.engine.master.job.IJobStartTrigger;
 import com.dtstack.engine.master.scheduler.JobParamReplace;
 import org.springframework.beans.factory.annotation.Autowired;

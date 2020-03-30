@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.job;
 
-import com.dtstack.engine.domain.BatchJob;
-import com.dtstack.engine.domain.BatchTaskShade;
+import com.dtstack.engine.api.domain.BatchJob;
+import com.dtstack.engine.api.domain.BatchTaskShade;
 
 import java.util.Map;
 

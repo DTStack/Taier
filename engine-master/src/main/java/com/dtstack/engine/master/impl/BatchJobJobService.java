@@ -4,16 +4,16 @@ import com.dtstack.dtcenter.common.annotation.Forbidden;
 import com.dtstack.dtcenter.common.enums.Deleted;
 import com.dtstack.dtcenter.common.enums.EJobType;
 import com.dtstack.dtcenter.common.util.MathUtil;
-import com.dtstack.engine.common.annotation.Param;
+import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.BatchJobDao;
 import com.dtstack.engine.dao.BatchJobJobDao;
-import com.dtstack.engine.domain.BatchJob;
-import com.dtstack.engine.domain.BatchJobJob;
-import com.dtstack.engine.domain.BatchTaskShade;
-import com.dtstack.engine.dto.BatchJobJobDTO;
-import com.dtstack.engine.dto.BatchJobJobTaskDTO;
+import com.dtstack.engine.api.domain.BatchJob;
+import com.dtstack.engine.api.domain.BatchJobJob;
+import com.dtstack.engine.api.domain.BatchTaskShade;
+import com.dtstack.engine.api.dto.BatchJobJobDTO;
+import com.dtstack.engine.api.dto.BatchJobJobTaskDTO;
 import com.dtstack.engine.master.vo.BatchJobVO;
 import com.dtstack.engine.master.vo.BatchTaskVO;
 import org.apache.commons.collections.CollectionUtils;
@@ -51,7 +51,7 @@ public class BatchJobJobService {
     private BatchJobDao batchJobDao;
 
     @Autowired
-    private BatchJobService batchJobService;
+    private BatchJobServiceImpl batchJobServiceImpl;
 
     @Autowired
     private BatchTaskShadeService batchTaskShadeService;
@@ -278,19 +278,19 @@ public class BatchJobJobService {
             while (it.hasNext()) {
                 BatchJobJobDTO jobJob = it.next();
 
-                if (job.getTaskId().longValue() == batchJobService.getTaskIdFromJobKey(jobJob.getJobKey()).longValue()) {
+                if (job.getTaskId().longValue() == batchJobServiceImpl.getTaskIdFromJobKey(jobJob.getJobKey()).longValue()) {
                     it.remove();
                     continue;
                 }
 
-                String jobDayStr = batchJobService.getJobTriggerTimeFromJobKey(job.getJobKey());
-                String jobJobDayStr = batchJobService.getJobTriggerTimeFromJobKey(jobJob.getJobKey());
+                String jobDayStr = batchJobServiceImpl.getJobTriggerTimeFromJobKey(job.getJobKey());
+                String jobJobDayStr = batchJobServiceImpl.getJobTriggerTimeFromJobKey(jobJob.getJobKey());
                 if (!jobDayStr.equals(jobJobDayStr)) {
                     it.remove();
                 }
             }
 
-            List<BatchJobVO> subJobVOs = new ArrayList<>(root.getChildren().size());
+            List<com.dtstack.engine.api.vo.BatchJobVO> subJobVOs = new ArrayList<>(root.getChildren().size());
             for (BatchJobJobDTO jobJobDTO : root.getChildren()) {
                 BatchJobVO subVO = getOffSpring(jobJobDTO, keyJobMap, idTaskMap, isSubTask);
                 if (subVO != null) {
@@ -313,7 +313,7 @@ public class BatchJobJobService {
      * 为工作流节点展开子节点
      */
     public BatchJobVO displayOffSpringWorkFlow(@Param("jobId") Long jobId,@Param("appType")Integer appType) throws Exception {
-        BatchJob job = batchJobService.getJobById(jobId);
+        BatchJob job = batchJobServiceImpl.getJobById(jobId);
         BatchTaskShade batchTaskShade = batchTaskShadeService.getBatchTaskById(job.getTaskId(),appType);
         BatchJobVO vo = new BatchJobVO(job);
         vo.setBatchTask(new BatchTaskVO(batchTaskShade, true));
@@ -388,9 +388,9 @@ public class BatchJobJobService {
         }
 
         if (CollectionUtils.isNotEmpty(root.getChildren())) {
-            root.getChildren().removeIf(jobJobDTO -> job.getTaskId().equals(batchJobService.getTaskIdFromJobKey(jobJobDTO.getJobKey())));
+            root.getChildren().removeIf(jobJobDTO -> job.getTaskId().equals(batchJobServiceImpl.getTaskIdFromJobKey(jobJobDTO.getJobKey())));
 
-            List<BatchJobVO> fatherVOs = new ArrayList<>();
+            List<com.dtstack.engine.api.vo.BatchJobVO> fatherVOs = new ArrayList<>();
             for (BatchJobJobDTO jobJobDTO : root.getChildren()) {
                 BatchJobVO item = this.getForefathers(jobJobDTO, keyJobMap, idTaskMap);
                 if (item != null) {

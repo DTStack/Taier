@@ -108,7 +108,7 @@
         and is_deleted = 0
     </select>
 
-    <select id="listByParentJobKeysWithOutSelfTask" resultType="com.dtstack.engine.dto.BatchJobJobTaskDTO">
+    <select id="listByParentJobKeysWithOutSelfTask" resultType="com.dtstack.engine.api.dto.BatchJobJobTaskDTO">
         SELECT
         bjj.id,bjj.job_key,bjj.parent_job_key,bjj.gmt_create,bjj.gmt_modified,bjj.is_deleted,
         bj.task_id
@@ -124,7 +124,7 @@
         and bj.is_deleted = 0
     </select>
 
-    <select id="listByJobKeysWithOutSelfTask" resultType="com.dtstack.engine.dto.BatchJobJobTaskDTO">
+    <select id="listByJobKeysWithOutSelfTask" resultType="com.dtstack.engine.api.dto.BatchJobJobTaskDTO">
         SELECT
         bjj.id,bjj.job_key,bjj.parent_job_key,bjj.gmt_create,bjj.gmt_modified,bjj.is_deleted,
         bj.task_id

@@ -1,9 +1,9 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.dtcenter.common.pager.PageQuery;
-import com.dtstack.engine.domain.BatchTaskShade;
-import com.dtstack.engine.dto.BatchTaskForFillDataDTO;
-import com.dtstack.engine.dto.BatchTaskShadeDTO;
+import com.dtstack.engine.api.domain.BatchTaskShade;
+import com.dtstack.engine.api.dto.BatchTaskForFillDataDTO;
+import com.dtstack.engine.api.dto.BatchTaskShadeDTO;
+import com.dtstack.engine.api.pager.PageQuery;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Collection;

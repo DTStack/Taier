@@ -2,13 +2,13 @@ package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.annotation.Param;
+import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
-import com.dtstack.engine.domain.EngineJobRetry;
-import com.dtstack.engine.domain.EngineJobStopRecord;
-import com.dtstack.engine.domain.EngineUniqueSign;
-import com.dtstack.engine.domain.EngineJob;
+import com.dtstack.engine.api.domain.EngineJobRetry;
+import com.dtstack.engine.api.domain.EngineJobStopRecord;
+import com.dtstack.engine.api.domain.EngineUniqueSign;
+import com.dtstack.engine.api.domain.EngineJob;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;

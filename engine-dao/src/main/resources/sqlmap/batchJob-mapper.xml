@@ -791,7 +791,7 @@
       ,period_type ,left(business_date,8) as groupDate
     </sql>
 
-    <select id="generalQuery" parameterType="com.dtstack.dtcenter.common.pager.PageQuery" resultType="BatchJob">
+    <select id="generalQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="BatchJob">
         SELECT
         <include refid="select_content_fragment"/>
         from (
@@ -815,7 +815,7 @@
         </if>
     </select>
 
-    <select id="generalQueryWithMinAndHour" parameterType="com.dtstack.dtcenter.common.pager.PageQuery" resultType="BatchJob">
+    <select id="generalQueryWithMinAndHour" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="BatchJob">
         SELECT
         <include refid="select_content_fragment"/>
         from (
@@ -837,7 +837,7 @@
         </if>
     </select>
 
-    <select id="minOrHourJobQuery" parameterType="com.dtstack.dtcenter.common.pager.PageQuery" resultType="BatchJob">
+    <select id="minOrHourJobQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="BatchJob">
         SELECT
         <include refid="select_content_fragment"/>
         from  schedule_job bj

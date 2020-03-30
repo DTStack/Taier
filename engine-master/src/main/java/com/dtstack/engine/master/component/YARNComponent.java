@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.component;
 
 import com.dtstack.dtcenter.common.hadoop.HadoopConfTool;
-import com.dtstack.engine.domain.ClusterResourceDescription;
+import com.dtstack.engine.api.domain.ClusterResourceDescription;
 import com.dtstack.engine.master.enums.KerberosKey;
 import com.dtstack.engine.master.utils.HadoopConf;
 import org.apache.commons.collections.CollectionUtils;

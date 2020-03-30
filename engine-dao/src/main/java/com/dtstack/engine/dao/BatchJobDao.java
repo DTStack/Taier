@@ -1,9 +1,9 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.dtcenter.common.pager.PageQuery;
-import com.dtstack.engine.domain.BatchJob;
-import com.dtstack.engine.domain.po.SimpleBatchJobPO;
-import com.dtstack.engine.dto.BatchJobDTO;
+import com.dtstack.engine.api.domain.BatchJob;
+import com.dtstack.engine.api.domain.po.SimpleBatchJobPO;
+import com.dtstack.engine.api.dto.BatchJobDTO;
+import com.dtstack.engine.api.pager.PageQuery;
 import org.apache.ibatis.annotations.Param;
 
 import java.sql.Timestamp;

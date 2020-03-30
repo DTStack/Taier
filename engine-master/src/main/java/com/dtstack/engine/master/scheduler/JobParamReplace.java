@@ -2,7 +2,7 @@ package com.dtstack.engine.master.scheduler;
 
 import com.dtstack.dtcenter.common.enums.EParamType;
 import com.dtstack.dtcenter.common.util.TimeParamOperator;
-import com.dtstack.engine.dto.BatchTaskParamShade;
+import com.dtstack.engine.api.dto.BatchTaskParamShade;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,9 +1,8 @@
 package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.annotation.Param;
+import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.common.util.ApplicationWSParser;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -16,9 +15,9 @@ import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.EngineJobDao;
 import com.dtstack.engine.dao.StreamTaskCheckpointDao;
-import com.dtstack.engine.domain.EngineJob;
-import com.dtstack.engine.domain.EngineJobCache;
-import com.dtstack.engine.domain.StreamTaskCheckpoint;
+import com.dtstack.engine.api.domain.EngineJob;
+import com.dtstack.engine.api.domain.EngineJobCache;
+import com.dtstack.engine.api.domain.StreamTaskCheckpoint;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;

@@ -2,7 +2,7 @@ package com.dtstack.engine.master.impl;
 
 import com.dtstack.dtcenter.common.constant.TaskStatusConstrant;
 import com.dtstack.dtcenter.common.enums.TaskStatus;
-import com.dtstack.engine.domain.BatchJob;
+import com.dtstack.engine.api.domain.BatchJob;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ public class BatchFlowWorkJobService {
             , TaskStatus.RESTARTING.getStatus(), TaskStatus.RUNNING.getStatus(), TaskStatus.MANUALSUCCESS.getStatus(), TaskStatus.FINISHED.getStatus());
 
     @Autowired
-    private BatchJobService batchJobService;
+    private BatchJobServiceImpl batchJobServiceImpl;
 
     /**
      * <br>1.工作流下无子任务更新为完成状态</br>
@@ -47,7 +47,7 @@ public class BatchFlowWorkJobService {
      */
     public boolean checkRemoveAndUpdateFlowJobStatus(String jobId,Integer appType) {
 
-        List<BatchJob> subJobs = batchJobService.getSubJobsAndStatusByFlowId(jobId);
+        List<BatchJob> subJobs = batchJobServiceImpl.getSubJobsAndStatusByFlowId(jobId);
         boolean canRemove = false;
         Integer bottleStatus = null;
         //没有子任务
@@ -124,10 +124,10 @@ public class BatchFlowWorkJobService {
             updateJob.setAppType(appType);
             updateJob.setExecEndTime(new Timestamp(System.currentTimeMillis()));
             updateJob.setGmtModified(new Timestamp(System.currentTimeMillis()));
-            batchJobService.updateStatusWithExecTime(updateJob);
+            batchJobServiceImpl.updateStatusWithExecTime(updateJob);
         } else {
             //更新工作流状态
-            batchJobService.updateStatusByJobId(jobId, bottleStatus);
+            batchJobServiceImpl.updateStatusByJobId(jobId, bottleStatus);
         }
         return canRemove;
     }

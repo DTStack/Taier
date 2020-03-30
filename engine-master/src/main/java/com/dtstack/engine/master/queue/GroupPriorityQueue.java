@@ -5,7 +5,7 @@ import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.EngineJobDao;
-import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.env.EnvironmentContext;

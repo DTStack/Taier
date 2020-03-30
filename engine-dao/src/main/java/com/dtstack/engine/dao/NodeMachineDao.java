@@ -1,6 +1,6 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.engine.domain.NodeMachine;
+import com.dtstack.engine.api.domain.NodeMachine;
 import org.apache.ibatis.annotations.Param;
 
 

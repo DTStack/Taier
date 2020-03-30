@@ -6,18 +6,18 @@ import com.dtstack.dtcenter.common.enums.Deleted;
 import com.dtstack.dtcenter.common.enums.EJobType;
 import com.dtstack.dtcenter.common.enums.ESubmitStatus;
 import com.dtstack.dtcenter.common.enums.Sort;
-import com.dtstack.dtcenter.common.pager.PageQuery;
-import com.dtstack.dtcenter.common.pager.PageResult;
 import com.dtstack.dtcenter.common.util.MathUtil;
-import com.dtstack.engine.common.annotation.Param;
+import com.dtstack.engine.api.annotation.Param;
+import com.dtstack.engine.api.pager.PageQuery;
+import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.BatchTaskShadeDao;
-import com.dtstack.engine.domain.BatchTaskShade;
-import com.dtstack.engine.dto.BatchTaskShadeDTO;
+import com.dtstack.engine.api.domain.BatchTaskShade;
+import com.dtstack.engine.api.dto.BatchTaskShadeDTO;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
-import com.dtstack.engine.master.vo.BatchTaskShadeVO;
+import com.dtstack.engine.api.vo.BatchTaskShadeVO;
 import com.dtstack.engine.master.vo.BatchTaskVO;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -373,16 +373,16 @@ public class BatchTaskShadeService {
      * @param taskId
      * @return
      */
-    public BatchTaskVO dealFlowWorkTask(@Param("taskId") Long taskId,@Param("appType")Integer appType) {
+    public com.dtstack.engine.api.vo.BatchTaskVO dealFlowWorkTask(@Param("taskId") Long taskId,@Param("appType")Integer appType) {
         BatchTaskShade taskShade = batchTaskShadeDao.getOne(taskId,appType);
         if (taskShade == null) {
             return null;
         }
-        BatchTaskVO vo = new BatchTaskVO(taskShade, true);
+        com.dtstack.engine.api.vo.BatchTaskVO vo = new BatchTaskVO(taskShade, true);
         if (EJobType.WORK_FLOW.getVal().intValue() == vo.getTaskType()) {
             List<BatchTaskShade> subtasks = this.getFlowWorkSubTasks(vo.getTaskId(),appType);
             if (CollectionUtils.isNotEmpty(subtasks)) {
-                List<BatchTaskVO> list = Lists.newArrayList();
+                List<com.dtstack.engine.api.vo.BatchTaskVO> list = Lists.newArrayList();
                 subtasks.forEach(task -> list.add(new BatchTaskVO(task,true)));
                 vo.setRelatedTasks(list);
             }
