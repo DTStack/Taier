@@ -108,7 +108,7 @@ public class ClientCache {
 
         Map<String, Object> params = PublicUtil.jsonStrToObject(pluginInfo, Map.class);
         String clientTypeStr = MathUtil.getString(params.get(ConfigConstant.TYPE_NAME_KEY));
-        if (StringUtils.isNotBlank(clientTypeStr)) {
+        if (StringUtils.isBlank(clientTypeStr)) {
             throw new RuntimeException("not support for typeName:" + clientTypeStr + " pluginInfo:" + pluginInfo);
         }
         loadComputerPlugin(clientTypeStr);
