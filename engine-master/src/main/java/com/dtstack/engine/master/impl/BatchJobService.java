@@ -2320,6 +2320,7 @@ public class BatchJobService {
         }
         Integer updateSize = 0;
         for (BatchJob job : batchJobs) {
+            job.setGmtModified(new Timestamp(System.currentTimeMillis()));
             if(Objects.nonNull(job.getStatus())){
                 //更新状态 日志信息也要更新
                 job.setLogInfo("");
