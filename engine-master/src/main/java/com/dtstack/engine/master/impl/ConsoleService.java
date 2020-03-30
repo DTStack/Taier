@@ -329,16 +329,22 @@ public class ConsoleService {
         if (jobIdList != null && !jobIdList.isEmpty()) {
             //杀死指定jobIdList的任务
 
-            List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(jobIdList);
-            for (String jobId : jobIdList) {
-                if (alreadyExistJobIds.contains(jobId)) {
-                    logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobId);
-                    continue;
-                }
+            if (EJobCacheStage.unSubmitted().contains(stage)) {
+                Integer deleted = engineJobCacheDao.deleteByJobIds(jobIdList);
+                Integer updated = engineJobDao.updateJobStatusByJobIds(jobIdList, RdosTaskStatus.CANCELED.getStatus());
+                logger.info("delete job size:{}, update job size:{}, deal jobIds:{}", deleted, updated, jobIdList);
+            } else {
+                List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(jobIdList);
+                for (String jobId : jobIdList) {
+                    if (alreadyExistJobIds.contains(jobId)) {
+                        logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobId);
+                        continue;
+                    }
 
-                EngineJobStopRecord stopRecord = new EngineJobStopRecord();
-                stopRecord.setTaskId(jobId);
-                engineJobStopRecordDao.insert(stopRecord);
+                    EngineJobStopRecord stopRecord = new EngineJobStopRecord();
+                    stopRecord.setTaskId(jobId);
+                    engineJobStopRecordDao.insert(stopRecord);
+                }
             }
         } else {
             //根据条件杀死所有任务
