@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  * create: 2019/10/22
  */
 @Service
-public class BatchJobJobService {
+public class BatchJobJobService implements com.dtstack.engine.api.service.BatchJobJobService {
 
     private final static Logger logger = LoggerFactory.getLogger(BatchJobJobService.class);
 

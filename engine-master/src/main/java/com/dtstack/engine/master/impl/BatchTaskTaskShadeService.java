@@ -26,7 +26,7 @@ import java.util.*;
  * create: 2019/10/22
  */
 @Service
-public class BatchTaskTaskShadeService {
+public class BatchTaskTaskShadeService implements com.dtstack.engine.api.service.BatchTaskTaskShadeService {
 
     private static final Long IS_WORK_FLOW_SUBNODE = 0L;
 
