@@ -28,7 +28,7 @@ public class BatchFlowWorkJobService {
             , TaskStatus.RESTARTING.getStatus(), TaskStatus.RUNNING.getStatus(), TaskStatus.MANUALSUCCESS.getStatus(), TaskStatus.FINISHED.getStatus());
 
     @Autowired
-    private BatchJobServiceImpl batchJobServiceImpl;
+    private BatchJobService batchJobService;
 
     /**
      * <br>1.工作流下无子任务更新为完成状态</br>
@@ -47,7 +47,7 @@ public class BatchFlowWorkJobService {
      */
     public boolean checkRemoveAndUpdateFlowJobStatus(String jobId,Integer appType) {
 
-        List<BatchJob> subJobs = batchJobServiceImpl.getSubJobsAndStatusByFlowId(jobId);
+        List<BatchJob> subJobs = batchJobService.getSubJobsAndStatusByFlowId(jobId);
         boolean canRemove = false;
         Integer bottleStatus = null;
         //没有子任务
@@ -124,10 +124,10 @@ public class BatchFlowWorkJobService {
             updateJob.setAppType(appType);
             updateJob.setExecEndTime(new Timestamp(System.currentTimeMillis()));
             updateJob.setGmtModified(new Timestamp(System.currentTimeMillis()));
-            batchJobServiceImpl.updateStatusWithExecTime(updateJob);
+            batchJobService.updateStatusWithExecTime(updateJob);
         } else {
             //更新工作流状态
-            batchJobServiceImpl.updateStatusByJobId(jobId, bottleStatus);
+            batchJobService.updateStatusByJobId(jobId, bottleStatus);
         }
         return canRemove;
     }

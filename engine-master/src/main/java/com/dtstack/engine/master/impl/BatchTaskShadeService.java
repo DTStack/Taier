@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
  * create: 2019/10/22
  */
 @Service
-public class BatchTaskShadeService {
+public class BatchTaskShadeService implements com.dtstack.engine.api.service.BatchTaskShadeService {
 
 
     @Autowired

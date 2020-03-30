@@ -15,7 +15,7 @@ import com.dtstack.engine.api.domain.BatchJob;
 import com.dtstack.engine.api.domain.BatchJobJob;
 import com.dtstack.engine.api.domain.BatchTaskShade;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
-import com.dtstack.engine.master.impl.BatchJobServiceImpl;
+import com.dtstack.engine.master.impl.BatchJobService;
 import com.dtstack.engine.master.impl.BatchTaskShadeService;
 import com.dtstack.engine.master.parser.ESchedulePeriodType;
 import com.dtstack.engine.master.parser.ScheduleCron;
@@ -62,7 +62,7 @@ public class JobRichOperator {
     private BatchJobJobDao batchJobJobDao;
 
     @Autowired
-    private BatchJobServiceImpl batchJobServiceImpl;
+    private BatchJobService batchJobService;
 
     @Autowired
     private BatchTaskShadeService batchTaskShadeService;
@@ -146,7 +146,7 @@ public class JobRichOperator {
                 break;
             }
 
-            BatchJob dependencyJob = batchJobServiceImpl.getJobByJobKeyAndType(jobjob.getParentJobKey(), scheduleType);
+            BatchJob dependencyJob = batchJobService.getJobByJobKeyAndType(jobjob.getParentJobKey(), scheduleType);
             if (dependencyJob == null) {//有可能任务已经失效.或者配置错误-->只有正常调度才可能存在
                 if (scheduleType == EScheduleType.FILL_DATA.getType()) {
                     continue;
@@ -161,7 +161,7 @@ public class JobRichOperator {
                 break;
             }
 
-            Integer dependencyJobStatus = batchJobServiceImpl.getStatusById(dependencyJob.getId());
+            Integer dependencyJobStatus = batchJobService.getStatusById(dependencyJob.getId());
 
             //工作中的起始子节点
             if (!StringUtils.equals("0", scheduleBatchJob.getBatchJob().getFlowJobId())) {
@@ -258,7 +258,7 @@ public class JobRichOperator {
                 if (jobKey.equals(childJobPreJob.getJobKey())) {
                     continue;
                 }
-                Integer childJobStatus = batchJobServiceImpl.getStatusById(childJobPreJob.getId());
+                Integer childJobStatus = batchJobService.getStatusById(childJobPreJob.getId());
                 boolean check;
                 if (DependencyType.PRE_PERIOD_CHILD_DEPENDENCY_SUCCESS.getType().equals(dependencyType)) {
                     check = isSuccessStatus(childJobStatus);
@@ -288,7 +288,7 @@ public class JobRichOperator {
             String prePeriodJobTriggerDateStr = JobGraphBuilder.getPrePeriodJobTriggerDateStr(cycTime, scheduleCron);
             String prePeriodJobKey = jobKey.substring(0, jobKey.lastIndexOf("_") + 1) + prePeriodJobTriggerDateStr;
             EScheduleType scheduleType = JobGraphBuilder.parseScheduleTypeFromJobKey(jobKey);
-            BatchJob dbBatchJob = batchJobServiceImpl.getJobByJobKeyAndType(prePeriodJobKey, scheduleType.getType());
+            BatchJob dbBatchJob = batchJobService.getJobByJobKeyAndType(prePeriodJobKey, scheduleType.getType());
             //上一个周期任务为空 直接返回
             if (Objects.isNull(dbBatchJob)) {
                 return null;
@@ -469,7 +469,7 @@ public class JobRichOperator {
                 String prePeriodJobTriggerDateStr = JobGraphBuilder.getPrePeriodJobTriggerDateStr(cycTime, scheduleCron);
                 String prePeriodJobKey = jobKey.substring(0, jobKey.lastIndexOf("_") + 1) + prePeriodJobTriggerDateStr;
                 EScheduleType scheduleType = JobGraphBuilder.parseScheduleTypeFromJobKey(jobKey);
-                BatchJob dbBatchJob = batchJobServiceImpl.getJobByJobKeyAndType(prePeriodJobKey, scheduleType.getType());
+                BatchJob dbBatchJob = batchJobService.getJobByJobKeyAndType(prePeriodJobKey, scheduleType.getType());
                 if (dbBatchJob != null) {
                     resultList.add(dbBatchJob);
                 }

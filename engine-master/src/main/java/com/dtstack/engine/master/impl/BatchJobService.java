@@ -15,7 +15,6 @@ import com.dtstack.dtcenter.common.util.PublicUtil;
 import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.service.BatchJobService;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.LearningFrameType;
@@ -78,9 +77,9 @@ import java.util.stream.Collectors;
  * create: 2017/5/3
  */
 @Service
-public class BatchJobServiceImpl implements BatchJobService {
+public class BatchJobService implements com.dtstack.engine.api.service.BatchJobService {
 
-    private final static Logger logger = LoggerFactory.getLogger(BatchJobServiceImpl.class);
+    private final static Logger logger = LoggerFactory.getLogger(BatchJobService.class);
 
     private static final ObjectMapper objMapper = new ObjectMapper();
 

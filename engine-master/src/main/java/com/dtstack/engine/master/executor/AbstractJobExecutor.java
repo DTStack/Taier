@@ -14,7 +14,7 @@ import com.dtstack.engine.api.domain.BatchTaskShade;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.BatchFlowWorkJobService;
-import com.dtstack.engine.master.impl.BatchJobServiceImpl;
+import com.dtstack.engine.master.impl.BatchJobService;
 import com.dtstack.engine.master.impl.BatchTaskShadeService;
 import com.dtstack.engine.master.queue.BatchJobElement;
 import com.dtstack.engine.master.queue.JopPriorityQueue;
@@ -71,7 +71,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     protected EnvironmentContext environmentContext;
 
     @Autowired
-    protected BatchJobServiceImpl batchJobServiceImpl;
+    protected BatchJobService batchJobService;
 
     @Autowired
     protected JobRichOperator jobRichOperator;
@@ -162,7 +162,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                         k -> batchTaskShadeService.getBatchTaskById(scheduleBatchJob.getTaskId(), scheduleBatchJob.getBatchJob().getAppType()));
                 if (batchTask == null) {
                     String errMsg = JobCheckStatus.NO_TASK.getMsg();
-                    batchJobServiceImpl.updateStatusAndLogInfoById(scheduleBatchJob.getId(), TaskStatus.SUBMITFAILD.getStatus(), errMsg);
+                    batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), TaskStatus.SUBMITFAILD.getStatus(), errMsg);
                     logger.warn("scheduleType:{} jobId [{}] submit failed for task [{}] already deleted.", getScheduleType(), scheduleBatchJob.getJobId(), scheduleBatchJob.getTaskId());
                     continue;
                 }
@@ -170,7 +170,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 Integer type = batchTask.getTaskType();
 
                 //获取batchJob 最新状态
-                Integer status = batchJobServiceImpl.getStatusById(scheduleBatchJob.getId());
+                Integer status = batchJobService.getStatusById(scheduleBatchJob.getId());
                 //未执行完工作流加入
                 if (TaskStatus.SUBMITTING.getStatus().equals(status) && (type.intValue() != EJobType.WORK_FLOW.getVal() && type.intValue() != EJobType.ALGORITHM_LAB.getVal())) {
                     continue;
@@ -188,14 +188,14 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                             type.intValue() == EJobType.ALGORITHM_LAB.getVal()) {
                         if (status.intValue() == TaskStatus.UNSUBMIT.getStatus()) {
                             //提交代码里面会将jobstatus设置为submitting
-                            batchJobServiceImpl.startJob(scheduleBatchJob.getBatchJob());
+                            batchJobService.startJob(scheduleBatchJob.getBatchJob());
                             logger.info("---scheduleType:{} send job:{} to engine.", getScheduleType(), scheduleBatchJob.getJobId());
                         }
                         if (!batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob.getJobId(),scheduleBatchJob.getAppType())) {
                             jopPriorityQueue.putSurvivor(batchJobElement);
                         }
                     } else {
-                        batchJobServiceImpl.startJob(scheduleBatchJob.getBatchJob());
+                        batchJobService.startJob(scheduleBatchJob.getBatchJob());
                     }
                 } else if (checkRunInfo.getStatus() == JobCheckStatus.TIME_NOT_REACH) {
                     jopPriorityQueue.putSurvivor(batchJobElement);
@@ -220,20 +220,20 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                         || checkRunInfo.getStatus() == JobCheckStatus.TASK_DELETE
                         || checkRunInfo.getStatus() == JobCheckStatus.FATHER_NO_CREATED) {
                     String errMsg = checkRunInfo.getErrMsg();
-                    batchJobServiceImpl.updateStatusAndLogInfoById(scheduleBatchJob.getId(), TaskStatus.FAILED.getStatus(), errMsg);
+                    batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), TaskStatus.FAILED.getStatus(), errMsg);
                 } else if (checkRunInfo.getStatus() == JobCheckStatus.FATHER_JOB_EXCEPTION) {
                     //上游任务失败
                     String errMsg = checkRunInfo.getErrMsg();
-                    batchJobServiceImpl.updateStatusAndLogInfoById(scheduleBatchJob.getId(), TaskStatus.PARENTFAILED.getStatus(), errMsg);
+                    batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), TaskStatus.PARENTFAILED.getStatus(), errMsg);
                 } else if (checkRunInfo.getStatus() == JobCheckStatus.TASK_PAUSE
                         || checkRunInfo.getStatus() == JobCheckStatus.DEPENDENCY_JOB_FROZEN) {
                     String errMsg = checkRunInfo.getErrMsg();
-                    batchJobServiceImpl.updateStatusAndLogInfoById(scheduleBatchJob.getId(), TaskStatus.FROZEN.getStatus(), errMsg);
+                    batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), TaskStatus.FROZEN.getStatus(), errMsg);
                 } else if (checkRunInfo.getStatus() == JobCheckStatus.DEPENDENCY_JOB_CANCELED
                         //过期任务置为取消
                         || checkRunInfo.getStatus() == JobCheckStatus.TIME_OVER_EXPIRE) {
                     String errMsg = checkRunInfo.getErrMsg();
-                    batchJobServiceImpl.updateStatusAndLogInfoById(scheduleBatchJob.getId(), TaskStatus.KILLED.getStatus(), errMsg);
+                    batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), TaskStatus.KILLED.getStatus(), errMsg);
                 } else if (checkRunInfo.getStatus() == JobCheckStatus.NOT_UNSUBMIT) {
                     //当前任务状态为未提交状态--直接移除
                 } else {
@@ -243,7 +243,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
             } catch (Exception e) {
                 logger.error("happens error:", e);
                 if (batchJob != null) {
-                    batchJobServiceImpl.updateStatusAndLogInfoById(batchJob.getId(), TaskStatus.SUBMITFAILD.getStatus(), e.getMessage());
+                    batchJobService.updateStatusAndLogInfoById(batchJob.getId(), TaskStatus.SUBMITFAILD.getStatus(), e.getMessage());
                     logger.error("scheduleType:{} job:{} submit failed", getScheduleType(), batchJob.getId());
                 }
             }

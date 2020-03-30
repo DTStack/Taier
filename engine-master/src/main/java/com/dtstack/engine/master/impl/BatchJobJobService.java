@@ -51,7 +51,7 @@ public class BatchJobJobService {
     private BatchJobDao batchJobDao;
 
     @Autowired
-    private BatchJobServiceImpl batchJobServiceImpl;
+    private BatchJobService batchJobService;
 
     @Autowired
     private BatchTaskShadeService batchTaskShadeService;
@@ -278,13 +278,13 @@ public class BatchJobJobService {
             while (it.hasNext()) {
                 BatchJobJobDTO jobJob = it.next();
 
-                if (job.getTaskId().longValue() == batchJobServiceImpl.getTaskIdFromJobKey(jobJob.getJobKey()).longValue()) {
+                if (job.getTaskId().longValue() == batchJobService.getTaskIdFromJobKey(jobJob.getJobKey()).longValue()) {
                     it.remove();
                     continue;
                 }
 
-                String jobDayStr = batchJobServiceImpl.getJobTriggerTimeFromJobKey(job.getJobKey());
-                String jobJobDayStr = batchJobServiceImpl.getJobTriggerTimeFromJobKey(jobJob.getJobKey());
+                String jobDayStr = batchJobService.getJobTriggerTimeFromJobKey(job.getJobKey());
+                String jobJobDayStr = batchJobService.getJobTriggerTimeFromJobKey(jobJob.getJobKey());
                 if (!jobDayStr.equals(jobJobDayStr)) {
                     it.remove();
                 }
@@ -313,7 +313,7 @@ public class BatchJobJobService {
      * 为工作流节点展开子节点
      */
     public BatchJobVO displayOffSpringWorkFlow(@Param("jobId") Long jobId,@Param("appType")Integer appType) throws Exception {
-        BatchJob job = batchJobServiceImpl.getJobById(jobId);
+        BatchJob job = batchJobService.getJobById(jobId);
         BatchTaskShade batchTaskShade = batchTaskShadeService.getBatchTaskById(job.getTaskId(),appType);
         BatchJobVO vo = new BatchJobVO(job);
         vo.setBatchTask(new BatchTaskVO(batchTaskShade, true));
@@ -388,7 +388,7 @@ public class BatchJobJobService {
         }
 
         if (CollectionUtils.isNotEmpty(root.getChildren())) {
-            root.getChildren().removeIf(jobJobDTO -> job.getTaskId().equals(batchJobServiceImpl.getTaskIdFromJobKey(jobJobDTO.getJobKey())));
+            root.getChildren().removeIf(jobJobDTO -> job.getTaskId().equals(batchJobService.getTaskIdFromJobKey(jobJobDTO.getJobKey())));
 
             List<com.dtstack.engine.api.vo.BatchJobVO> fatherVOs = new ArrayList<>();
             for (BatchJobJobDTO jobJobDTO : root.getChildren()) {
