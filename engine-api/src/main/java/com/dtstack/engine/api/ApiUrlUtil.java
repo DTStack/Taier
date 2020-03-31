@@ -3,6 +3,7 @@ package com.dtstack.engine.api;
 import com.dtstack.engine.api.service.BatchJobJobService;
 import com.dtstack.engine.api.service.BatchTaskShadeService;
 import com.dtstack.engine.api.service.BatchTaskTaskShadeService;
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -37,13 +38,13 @@ public class ApiUrlUtil {
             Method[] methods = serviceClass.getMethods();
             for (Method method : methods) {
                 String urlKey = String.format("%s_%s", serviceName, method.getName());
-                String urlValue = String.format("%s/%s/%s", root, firstStrUpperCase(serviceName), method.getName());
+                String urlValue = String.format("%s/%s/%s", root, firstStrLowerCase(serviceName), method.getName());
                 apiUrlMap.put(urlKey, urlValue);
             }
         }
     }
 
-    private static String firstStrUpperCase(String str) {
+    private static String firstStrLowerCase(String str) {
         char[] ch = str.toCharArray();
         if (ch[0] >= 'A' && ch[0] <= 'Z') {
             ch[0] = (char) (ch[0] + 32);
