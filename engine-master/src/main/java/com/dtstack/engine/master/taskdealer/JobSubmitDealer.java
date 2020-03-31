@@ -175,7 +175,7 @@ public class JobSubmitDealer implements Runnable {
                     logger.info("jobId:{} checkJobSubmitExpired is true, job ignore to submit.", jobClient.getTaskId());
                     continue;
                 }
-                if (!checkMaxPriority(jobResource, jobClient.getPriority())) {
+                if (!checkMaxPriority(jobResource)) {
                     logger.info("jobId:{} checkMaxPriority is false, wait other node job which priority higher.", jobClient.getTaskId());
                     queue.put(jobClient);
                     Thread.sleep(jobLackingInterval);
@@ -205,23 +205,27 @@ public class JobSubmitDealer implements Runnable {
         return diff > jobSubmitExpired;
     }
 
-    private boolean checkMaxPriority(String jobResource, long localPriority) {
+    private boolean checkMaxPriority(String jobResource) {
         Map<String, GroupInfo> groupInfoMap = jobPartitioner.getGroupInfoByJobResource(jobResource);
         if (null == groupInfoMap) {
             return true;
         }
+        String minPriorityAddress = null;
+        long minPriority = Long.MAX_VALUE;
         for (Map.Entry<String, GroupInfo> groupInfoEntry : groupInfoMap.entrySet()) {
             String address = groupInfoEntry.getKey();
             GroupInfo groupInfo = groupInfoEntry.getValue();
-            if (localAddress.equals(address)) {
-                continue;
-            }
             //Priority值越低，优先级越高
-            if (groupInfo.getPriority() > 0 && groupInfo.getPriority() < localPriority) {
-                return false;
+            if (groupInfo.getPriority() > 0 && groupInfo.getPriority() < minPriority) {
+                minPriorityAddress = address;
+                minPriority = groupInfo.getPriority();
             }
         }
-        return true;
+        if (localAddress.equalsIgnoreCase(minPriorityAddress)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private void submitJob(JobClient jobClient) {
@@ -274,6 +278,7 @@ public class JobSubmitDealer implements Runnable {
             tryPutLackingJob(jobClient);
         } else {
             try {
+                engineJobCacheDao.updateStage(jobClient.getTaskId(), EJobCacheStage.PRIORITY.getStage(), localAddress, jobClient.getPriority());
                 queue.put(jobClient);
                 Thread.sleep(jobLackingInterval);
                 logger.info("jobId:{} unlimited_lackingCount:{} add to priorityQueue.", jobClient.getTaskId(), jobClient.getLackingCount());
