@@ -19,6 +19,7 @@ import QueueManage from './views/queueManage'
 import ResourceManage from './views/resourceManage'
 import ClusterManage from './views/clusterManage'
 import EditCluster from './views/clusterManage/edit'
+import QueueManageDetail from './views/queueManage/taskDetail'
 
 // ======= 测试 =======
 // const Test = asyncComponent(() => import('./views/test')
@@ -27,7 +28,6 @@ import EditCluster from './views/clusterManage/edit'
 export default (
     <Route path="/" component={ Main }>
         <IndexRedirect to="/console" />
-        {/* <IndexRoute component={ Container } /> */}
         <Route path="/message" component={ MsgCenter }>
             <IndexRoute component={ MsgList } />
             <Route path="list" component={ MsgList } />
@@ -44,6 +44,7 @@ export default (
         <Route path="/console" component={ Container }>
             <IndexRoute component={ QueueManage } />
             <Route path="queueManage" component={QueueManage} />
+            <Route path="queueManage/detail" component={QueueManageDetail} />
             <Route path="resourceManage" component={ ResourceManage } />
             <Route path="clusterManage" component={ClusterManage} />
             <Route path="clusterManage/editCluster" component={ EditCluster } />
