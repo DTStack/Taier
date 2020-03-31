@@ -1,6 +1,6 @@
 
 // 任务状态
-export const TASK_STATE: any = {
+export const TASK_STATE = {
     UNSUBMIT: 0,
     CREATED: 1,
     SCHEDULED: 2,
@@ -21,8 +21,61 @@ export const TASK_STATE: any = {
     WAITCOMPUTE: 17,
     FROZEN: 18,
     ENGINEACCEPTED: 19,
-    ENGINEDISTRIBUTE: 20
+    ENGINEDISTRIBUTE: 20,
+    /**
+     * 等待资源
+     */
+    LACKING: 25,
+    /**
+     * 自动取消
+     */
+    AUTOCANCELED: 26
 }
+
+// JOB 在DB中，未加到优先级队列
+// DB(1),
+// //JOB 在优先级队列，等待提交
+// PRIORITY(2),
+// //JOB 因为失败进入重试队列，等待重试的delay时间后，可以重新提交
+// RESTART(3),
+// //JOB 因为资源不足，处于资源不足等待中
+// LACKING(4),
+// //JOB 已经提交，处于状态轮询中
+// SUBMITTED(5);
+/**
+ *  实例 stage
+ */
+export enum JobStage {
+    /**
+     * 已存储
+     */
+    Saved = 1,
+    /**
+     * 队列中
+     */
+    Queueing = 2,
+    /**
+     * 等待重试
+     */
+    WaitTry = 3,
+    /**
+     * 等待资源
+     */
+    WaitResource = 4,
+    /**
+     * 运行中
+     */
+    Running = 5
+}
+
+export const JobStageText = {
+    [JobStage.Queueing]: '队列中',
+    [JobStage.Saved]: '已存储',
+    [JobStage.WaitTry]: '等待重试',
+    [JobStage.WaitResource]: '等待资源',
+    [JobStage.Running]: '运行中'
+}
+
 // 常量
 export const DATA_SOURCE: any = {
     MYSQL: 1,

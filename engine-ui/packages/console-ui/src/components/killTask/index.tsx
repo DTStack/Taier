@@ -11,36 +11,18 @@ import Api from '../../api/console';
 class KillTask extends React.Component<any, any> {
     // 请求杀任务接口
     killTask () {
-        const { killResource } = this.props;
-        // console.log(killResource.jobName);
-        // 获取集群
-        var queueName, clusterName, computeTypeInt;
-        const arr = killResource.groupName.split('_');
-        if (arr.length == 1) {
-            clusterName = killResource.groupName
-        } else {
-            for (var i = 0; i <= arr.length; i++) {
-                clusterName = arr[0];
-                queueName = arr[1];
-            }
-        }
+        const { killResource, jobResource, groupName, stage, node } = this.props;
 
-        if (killResource.computeType == 'BATCH') {
-            computeTypeInt = 1
-        } else {
-            computeTypeInt = 0
-        }
-        Api.killTask({
-            computeTypeInt: computeTypeInt,
+        Api.killTasks({
             engineType: killResource.engineType,
-            jobId: killResource.taskId,
-            jobType: killResource.jobType,
-            queueName: queueName,
-            node: this.props.node,
-            clusterName: clusterName
+            jobIdList: [killResource.jobId],
+            stage,
+            jobResource,
+            groupName,
+            nodeAddress: node
         }).then((res: any) => {
             if (res.code == 1) {
-                this.props.killSuccess(killResource.taskId);
+                this.props.killSuccess(killResource.jobId);
                 message.success('操作成功');
                 this.props.autoRefresh();
                 // 异步,成功之后才能关闭

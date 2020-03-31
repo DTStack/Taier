@@ -61,13 +61,25 @@ export default {
     searchTaskFuzzy (params: any) {
         return http.post(req.SEARCH_TASKNAME_FUZZY, params);
     },
-    // 明细-杀任务
-    killTask (params: any) {
-        return http.post(req.KILL_TASK, params);
-    },
     // 明细-杀死选中或者杀死全部任务
-    killAllTask (params: any) {
+    killTasks (params: any) {
+        return http.post(req.KILL_TASKS, params);
+    },
+
+    killAllTask (params: {
+        engineType: string;
+        jobResource: string;
+        nodeAddress: string;
+        groupName: string;
+    }) {
         return http.post(req.KILL_ALL_TASK, params);
+    },
+
+    stickJob (params: {
+        jobId: string;
+        jobResource: string;
+    }) {
+        return http.post(req.JOB_STICK, params);
     },
     // 引擎列表
     getEngineList (params?: any) {

@@ -31,7 +31,9 @@ export default {
     SEARCH_TASKNAME_LIST: `${CONSOLE_BASE_URL}/group/searchJob`, // 明细-根据任务名搜索任务
     SEARCH_TASKNAME_FUZZY: `${CONSOLE_BASE_URL}/group/listNames`, // 明细-模糊查询任务名
     KILL_TASK: `${CONSOLE_BASE_URL}/group/stopJob`, // 明细-杀任务
-    KILL_ALL_TASK: `${CONSOLE_BASE_URL}/group/stopJobList`, // 明细-杀全部任务或选中任务
+    KILL_TASKS: `${CONSOLE_BASE_URL}/group/stopJobList`, // 明细-杀全部任务或选中任务
+    KILL_ALL_TASK: `${CONSOLE_BASE_URL}/group/stopJobAll`, // 杀全部任务
+    JOB_STICK: `${CONSOLE_BASE_URL}/group/jobStick`, // 置顶任务
 
     GET_ENGINE_LIST: `${CONSOLE_BASE_URL}/group/engineTypes`, // 引擎列表
     GET_GROUP_LIST: `${CONSOLE_BASE_URL}/group/groups`, // group列表

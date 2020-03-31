@@ -1,7 +1,13 @@
 import * as React from 'react';
 import { Modal, message } from 'antd';
+
+import styled from 'styled-components';
+
 import Api from '../../api/console';
 
+export const RedTxt = styled.span`
+    color: #FF5F5C;
+`
 class KillAllTask extends React.Component<any, any> {
     state: any = {
         confirmLoading: false
@@ -9,10 +15,9 @@ class KillAllTask extends React.Component<any, any> {
     // 请求杀任务接口
     killTask () {
         const { killResource = [] } = this.props;
-        let params = this.initParams();
-        Api.killAllTask(params).then((res: any) => {
+        const params = this.getReqParams();
+        Api.killTasks(params).then((res: any) => {
             if (res.code == 1) {
-                const delayTime = params.totalModel !== undefined ? 1000 : 0;
                 // 杀死全部任务为异步有延迟，需要延迟执行刷新数据操作
                 setTimeout(() => {
                     message.success('操作成功');
@@ -22,7 +27,7 @@ class KillAllTask extends React.Component<any, any> {
                     this.setState({
                         confirmLoading: false
                     })
-                }, delayTime)
+                }, 1000)
             } else {
                 this.setState({
                     confirmLoading: false
@@ -30,44 +35,32 @@ class KillAllTask extends React.Component<any, any> {
             }
         })
     }
-    initParams () {
-        const { killResource = [], node, totalModel, totalSize, engineType, groupName, jobName, computeType, clusterName } = this.props;
-        let params: any;
-        if (totalModel !== undefined) {
-            // 杀死全部任务
-            params = {
-                totalModel,
-                node,
-                totalSize
-            };
-            if (totalModel === 0) {
-                // 按照group筛选杀死全部任务
-                params = {
-                    ...params,
-                    engineType,
-                    groupName,
-                    clusterName
-                };
-            } else {
-                // 按照任务筛选杀死全部任务
-                params = {
-                    ...params,
-                    jobName,
-                    computeType
-                };
-            }
+
+    getReqParams () {
+        const {
+            killResource = [], node, stage,
+            engineType, jobResource, totalModel, groupName
+        } = this.props;
+        let params = {
+            stage,
+            groupName,
+            engineType,
+            jobResource,
+            jobIdList: [],
+            nodeAddress: node
+        };
+        const isKillAll = totalModel !== undefined;
+        if (isKillAll) {
+            params.jobIdList = []; // Kill All when array is null
         } else {
             // 杀死选中的任务
-            params = {
-                jobIdList: killResource,
-                node
-            };
+            params.jobIdList = killResource.map(job => job.jobId);
         }
         console.log('params:', params)
         return params;
     }
 
-    confirmKilltask () {
+    confirmKillTask () {
         this.setState({
             confirmLoading: true
         })
@@ -75,10 +68,14 @@ class KillAllTask extends React.Component<any, any> {
     }
     render () {
         const { totalModel } = this.props;
-        const title = totalModel !== undefined ? `杀死全部任务` : `杀死选中任务`;
-        const htmlText = totalModel !== undefined
-            ? <p style={{ color: 'red' }}>本操作将杀死列表（跨分页）中的全部任务，不仅是当前页</p>
-            : <p style={{ color: 'red' }}>本操作将杀死列表（非跨分页）中的选中任务</p>;
+        const isKillAll = totalModel !== undefined;
+        const title = isKillAll ? `杀死全部任务` : `杀死选中任务`;
+        const htmlText = isKillAll
+            ? <div>
+                <RedTxt>本操作将杀死列表（跨分页）中的全部任务，不仅是当前页</RedTxt><br/>
+                <RedTxt>杀死运行中的任务需要较长时间</RedTxt>
+            </div>
+            : <RedTxt>本操作将杀死列表（非跨分页）中的选中任务</RedTxt>;
         return (
             <Modal
                 title={title}
@@ -87,7 +84,7 @@ class KillAllTask extends React.Component<any, any> {
                 okType="danger"
                 confirmLoading={this.state.confirmLoading}
                 onCancel={this.props.onCancel}
-                onOk={this.confirmKilltask.bind(this)}
+                onOk={this.confirmKillTask.bind(this)}
             >
                 {htmlText}
             </Modal>
