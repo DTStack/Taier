@@ -126,11 +126,11 @@ public class WorkNode implements InitializingBean, ApplicationContextAware {
                 Map<String, GroupInfo> nodeGroupInfo = Maps.newHashMap();
                 priorityQueueMap.forEach((jobResource, priorityQueue) -> {
                     int groupSize = engineJobCacheDao.countByStage(jobResource, EJobCacheStage.unSubmitted(), nodeAddress);
-                    Long maxPriority = engineJobCacheDao.maxPriorityByStage(jobResource, EJobCacheStage.PRIORITY.getStage(), nodeAddress);
-                    maxPriority = maxPriority == null ? 0 : maxPriority;
+                    Long minPriority = engineJobCacheDao.minPriorityByStage(jobResource, EJobCacheStage.PRIORITY.getStage(), nodeAddress);
+                    minPriority = minPriority == null ? 0 : minPriority;
                     GroupInfo groupInfo = new GroupInfo();
                     groupInfo.setSize(groupSize);
-                    groupInfo.setPriority(maxPriority);
+                    groupInfo.setPriority(minPriority);
                     nodeGroupInfo.put(jobResource, groupInfo);
                 });
                 return nodeGroupInfo;
