@@ -217,7 +217,7 @@ public class JobSubmitDealer implements Runnable {
             String address = groupInfoEntry.getKey();
             GroupInfo groupInfo = groupInfoEntry.getValue();
 
-            if (localAddress.equals(address)) {
+            if (groupInfo.getPriority() > 0 && localAddress.equals(address)) {
                 localPriority = groupInfo.getPriority();
             }
 
