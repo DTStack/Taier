@@ -26,7 +26,7 @@ import java.util.*;
  * create: 2019/10/22
  */
 @Service
-public class BatchTaskTaskShadeService implements com.dtstack.engine.api.service.BatchTaskTaskShadeService {
+public class ScheduleTaskTaskShadeService implements com.dtstack.engine.api.service.ScheduleTaskTaskShadeService {
 
     private static final Long IS_WORK_FLOW_SUBNODE = 0L;
 
@@ -34,7 +34,7 @@ public class BatchTaskTaskShadeService implements com.dtstack.engine.api.service
     private BatchTaskTaskShadeDao batchTaskTaskShadeDao;
 
     @Autowired
-    private BatchTaskShadeService taskShadeService;
+    private ScheduleTaskShadeService taskShadeService;
 
     public void clearDataByTaskId(@Param("taskId") Long taskId,@Param("appType")Integer appType) {
         batchTaskTaskShadeDao.deleteByTaskId(taskId,appType);

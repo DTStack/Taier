@@ -1,9 +1,8 @@
 package com.dtstack.engine.api;
 
-import com.dtstack.engine.api.service.BatchJobJobService;
-import com.dtstack.engine.api.service.BatchTaskShadeService;
-import com.dtstack.engine.api.service.BatchTaskTaskShadeService;
-import org.apache.commons.lang3.StringUtils;
+import com.dtstack.engine.api.service.ScheduleJobJobService;
+import com.dtstack.engine.api.service.ScheduleTaskShadeService;
+import com.dtstack.engine.api.service.ScheduleTaskTaskShadeService;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -26,10 +25,10 @@ public class ApiUrlUtil {
     static {
         apiUrlMap = new ConcurrentHashMap<>();
         List<Class> classes = new ArrayList<Class>(){{
-           add(BatchJobJobService.class);
-           add(BatchJobJobService.class);
-           add(BatchTaskShadeService.class);
-           add(BatchTaskTaskShadeService.class);
+           add(ScheduleJobJobService.class);
+           add(ScheduleJobJobService.class);
+           add(ScheduleTaskShadeService.class);
+           add(ScheduleTaskTaskShadeService.class);
         }};
         final String root = "/node";
         for (Class serviceClass : classes) {

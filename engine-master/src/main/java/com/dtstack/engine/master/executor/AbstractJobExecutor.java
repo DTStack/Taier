@@ -14,8 +14,8 @@ import com.dtstack.engine.api.domain.BatchTaskShade;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.BatchFlowWorkJobService;
-import com.dtstack.engine.master.impl.BatchJobService;
-import com.dtstack.engine.master.impl.BatchTaskShadeService;
+import com.dtstack.engine.master.impl.ScheduleJobService;
+import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import com.dtstack.engine.master.queue.BatchJobElement;
 import com.dtstack.engine.master.queue.JopPriorityQueue;
 import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
@@ -71,13 +71,13 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     protected EnvironmentContext environmentContext;
 
     @Autowired
-    protected BatchJobService batchJobService;
+    protected ScheduleJobService batchJobService;
 
     @Autowired
     protected JobRichOperator jobRichOperator;
 
     @Autowired
-    protected BatchTaskShadeService batchTaskShadeService;
+    protected ScheduleTaskShadeService batchTaskShadeService;
 
     @Autowired
     protected BatchFlowWorkJobService batchFlowWorkJobService;

@@ -38,9 +38,9 @@ import java.util.stream.Collectors;
  * create: 2019/10/22
  */
 @Service
-public class BatchJobJobService implements com.dtstack.engine.api.service.BatchJobJobService {
+public class ScheduleJobJobService implements com.dtstack.engine.api.service.ScheduleJobJobService {
 
-    private final static Logger logger = LoggerFactory.getLogger(BatchJobJobService.class);
+    private final static Logger logger = LoggerFactory.getLogger(ScheduleJobJobService.class);
 
     private static final String WORKFLOW_PARENT = "0";
 
@@ -51,10 +51,10 @@ public class BatchJobJobService implements com.dtstack.engine.api.service.BatchJ
     private BatchJobDao batchJobDao;
 
     @Autowired
-    private BatchJobService batchJobService;
+    private ScheduleJobService batchJobService;
 
     @Autowired
-    private BatchTaskShadeService batchTaskShadeService;
+    private ScheduleTaskShadeService batchTaskShadeService;
 
     /**
      * @author toutian

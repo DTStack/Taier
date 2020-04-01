@@ -77,9 +77,9 @@ import java.util.stream.Collectors;
  * create: 2017/5/3
  */
 @Service
-public class BatchJobService implements com.dtstack.engine.api.service.BatchJobService {
+public class ScheduleJobService implements com.dtstack.engine.api.service.ScheduleJobService {
 
-    private final static Logger logger = LoggerFactory.getLogger(BatchJobService.class);
+    private final static Logger logger = LoggerFactory.getLogger(ScheduleJobService.class);
 
     private static final ObjectMapper objMapper = new ObjectMapper();
 
@@ -110,7 +110,7 @@ public class BatchJobService implements com.dtstack.engine.api.service.BatchJobS
     private BatchTaskShadeDao batchTaskShadeDao;
 
     @Autowired
-    private BatchTaskShadeService batchTaskShadeService;
+    private ScheduleTaskShadeService batchTaskShadeService;
 
     @Autowired
     private JobGraphBuilder jobGraphBuilder;
@@ -122,7 +122,7 @@ public class BatchJobService implements com.dtstack.engine.api.service.BatchJobS
     private BatchFillDataJobService batchFillDataJobService;
 
     @Autowired
-    private BatchJobJobService batchJobJobService;
+    private ScheduleJobJobService batchJobJobService;
 
     @Autowired
     private EnvironmentContext env;

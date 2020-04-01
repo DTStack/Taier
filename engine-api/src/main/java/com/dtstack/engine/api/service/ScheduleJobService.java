@@ -27,7 +27,7 @@ import java.util.Map;
  * author: toutian
  * create: 2017/5/3
  */
-public interface BatchJobService {
+public interface ScheduleJobService {
 
     /**
      * 根据任务id展示任务详情

@@ -10,7 +10,7 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.domain.BatchJob;
 import com.dtstack.engine.api.domain.BatchTaskShade;
 import com.dtstack.engine.master.impl.ActionService;
-import com.dtstack.engine.master.impl.BatchTaskShadeService;
+import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +43,7 @@ public class JobStopSender implements InitializingBean, DisposableBean, Runnable
     private ActionService actionService;
 
     @Autowired
-    private BatchTaskShadeService batchTaskShadeService;
+    private ScheduleTaskShadeService batchTaskShadeService;
 
     private ExecutorService jobStopSenderExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<>(), new CustomThreadFactory(this.getClass().getSimpleName()));

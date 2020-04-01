@@ -8,7 +8,7 @@ import com.dtstack.engine.api.vo.BatchJobVO;
  * author: toutian
  * create: 2019/10/22
  */
-public interface BatchJobJobService {
+public interface ScheduleJobJobService {
     /**
      * @author toutian
      */

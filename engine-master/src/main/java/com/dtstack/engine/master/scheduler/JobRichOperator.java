@@ -15,8 +15,8 @@ import com.dtstack.engine.api.domain.BatchJob;
 import com.dtstack.engine.api.domain.BatchJobJob;
 import com.dtstack.engine.api.domain.BatchTaskShade;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
-import com.dtstack.engine.master.impl.BatchJobService;
-import com.dtstack.engine.master.impl.BatchTaskShadeService;
+import com.dtstack.engine.master.impl.ScheduleJobService;
+import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import com.dtstack.engine.master.parser.ESchedulePeriodType;
 import com.dtstack.engine.master.parser.ScheduleCron;
 import com.dtstack.engine.master.parser.ScheduleFactory;
@@ -62,10 +62,10 @@ public class JobRichOperator {
     private BatchJobJobDao batchJobJobDao;
 
     @Autowired
-    private BatchJobService batchJobService;
+    private ScheduleJobService batchJobService;
 
     @Autowired
-    private BatchTaskShadeService batchTaskShadeService;
+    private ScheduleTaskShadeService batchTaskShadeService;
 
     /**
      * 判断任务是否可以执行

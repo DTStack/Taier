@@ -15,7 +15,7 @@ import java.util.Map;
  * author: toutian
  * create: 2019/10/22
  */
-public interface BatchTaskShadeService {
+public interface ScheduleTaskShadeService {
 
     /**
      * web 接口

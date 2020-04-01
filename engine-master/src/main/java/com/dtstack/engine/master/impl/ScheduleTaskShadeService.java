@@ -39,14 +39,14 @@ import java.util.stream.Collectors;
  * create: 2019/10/22
  */
 @Service
-public class BatchTaskShadeService implements com.dtstack.engine.api.service.BatchTaskShadeService {
+public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.ScheduleTaskShadeService {
 
 
     @Autowired
     private BatchTaskShadeDao batchTaskShadeDao;
 
     @Autowired
-    private BatchTaskTaskShadeService taskTaskShadeService;
+    private ScheduleTaskTaskShadeService taskTaskShadeService;
 
     private DateTimeFormatter timeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 

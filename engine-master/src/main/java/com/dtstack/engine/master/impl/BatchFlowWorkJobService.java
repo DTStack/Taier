@@ -28,7 +28,7 @@ public class BatchFlowWorkJobService {
             , TaskStatus.RESTARTING.getStatus(), TaskStatus.RUNNING.getStatus(), TaskStatus.MANUALSUCCESS.getStatus(), TaskStatus.FINISHED.getStatus());
 
     @Autowired
-    private BatchJobService batchJobService;
+    private ScheduleJobService batchJobService;
 
     /**
      * <br>1.工作流下无子任务更新为完成状态</br>

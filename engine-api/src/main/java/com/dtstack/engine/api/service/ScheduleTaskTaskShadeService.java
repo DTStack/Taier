@@ -12,7 +12,7 @@ import java.util.*;
  * author: toutian
  * create: 2019/10/22
  */
-public interface BatchTaskTaskShadeService {
+public interface ScheduleTaskTaskShadeService {
 
     public void clearDataByTaskId(@Param("taskId") Long taskId,@Param("appType")Integer appType);
 

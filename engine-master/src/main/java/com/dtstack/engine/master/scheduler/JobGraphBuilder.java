@@ -74,13 +74,13 @@ public class JobGraphBuilder {
     private static DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyyMMddHHmmss");
 
     @Autowired
-    private BatchTaskShadeService batchTaskShadeService;
+    private ScheduleTaskShadeService batchTaskShadeService;
 
     @Autowired
-    private BatchJobService batchJobService;
+    private ScheduleJobService batchJobService;
 
     @Autowired
-    private BatchTaskTaskShadeService taskTaskShadeService;
+    private ScheduleTaskTaskShadeService taskTaskShadeService;
 
     @Autowired
     private JobGraphTriggerService jobGraphTriggerService;
