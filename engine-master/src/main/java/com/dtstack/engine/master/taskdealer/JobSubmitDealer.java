@@ -212,16 +212,23 @@ public class JobSubmitDealer implements Runnable {
         }
         String minPriorityAddress = null;
         long minPriority = Long.MAX_VALUE;
+        long localPriority = Long.MAX_VALUE;
         for (Map.Entry<String, GroupInfo> groupInfoEntry : groupInfoMap.entrySet()) {
             String address = groupInfoEntry.getKey();
             GroupInfo groupInfo = groupInfoEntry.getValue();
+
+            if (localAddress.equals(address)) {
+                localPriority = groupInfo.getPriority();
+            }
+
             //Priority值越低，优先级越高
             if (groupInfo.getPriority() > 0 && groupInfo.getPriority() < minPriority) {
                 minPriorityAddress = address;
                 minPriority = groupInfo.getPriority();
             }
         }
-        if (localAddress.equalsIgnoreCase(minPriorityAddress)) {
+        // hashmap不排序，防止多节点下a、b相同priority逻辑死锁
+        if (localAddress.equalsIgnoreCase(minPriorityAddress) || localPriority == minPriority) {
             return true;
         } else {
             return false;
