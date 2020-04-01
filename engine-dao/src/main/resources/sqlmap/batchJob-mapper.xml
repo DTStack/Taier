@@ -75,16 +75,16 @@
                 AND bj.exec_time &gt;= #{model.execTime}
             </if>
             <choose>
-                <when test="model.taskNameLike != null and  model.searchType==1" >
+                <when test="model.taskNameLike != null and  model.searchType==1">
                     AND ts.name LIKE '%${model.taskNameLike}%'
                 </when>
-                <when test="model.taskNameLike != null and  model.searchType==2" >
+                <when test="model.taskNameLike != null and  model.searchType==2">
                     AND ts.name =#{model.taskNameLike}
                 </when>
-                <when test="model.taskNameLike != null and  model.searchType==3" >
+                <when test="model.taskNameLike != null and  model.searchType==3">
                     AND ts.name LIKE '${model.taskNameLike}%'
                 </when>
-                <when test="model.taskNameLike != null and  model.searchType==4" >
+                <when test="model.taskNameLike != null and  model.searchType==4">
                     AND ts.name LIKE '%${model.taskNameLike}'
                 </when>
             </choose>
@@ -102,7 +102,7 @@
                 AND bj.job_name LIKE '${model.jobNameRightLike}%'
             </if>
             <if test="model.bizStartDay != null and model.bizEndDay != null">
-                AND bj.business_date &gt;= ${model.bizStartDay} and  bj.business_date &lt; ${model.bizEndDay}
+                AND bj.business_date &gt;= ${model.bizStartDay} and bj.business_date &lt; ${model.bizEndDay}
             </if>
 
             <if test="model.startGmtCreate != null">
@@ -115,7 +115,7 @@
                 </foreach>
             </if>
             <if test="model.cycStartDay != null and model.cycEndDay != null">
-                AND bj.cyc_time &gt;= ${model.cycStartDay} and  bj.cyc_time &lt;= ${model.cycEndDay}
+                AND bj.cyc_time &gt;= ${model.cycStartDay} and bj.cyc_time &lt;= ${model.cycEndDay}
             </if>
 
             <if test="model.flowJobId != null">
@@ -204,7 +204,7 @@
                 AND bj.job_name LIKE '${model.jobNameRightLike}%'
             </if>
             <if test="model.bizStartDay != null and model.bizEndDay != null">
-                AND bj.business_date &gt;= ${model.bizStartDay} and  bj.business_date &lt; ${model.bizEndDay}
+                AND bj.business_date &gt;= ${model.bizStartDay} and bj.business_date &lt; ${model.bizEndDay}
             </if>
 
             <if test="model.startGmtCreate != null">
@@ -217,7 +217,7 @@
                 </foreach>
             </if>
             <if test="model.cycStartDay != null and model.cycEndDay != null">
-                AND bj.cyc_time &gt;= ${model.cycStartDay} and  bj.cyc_time &lt;= ${model.cycEndDay}
+                AND bj.cyc_time &gt;= ${model.cycStartDay} and bj.cyc_time &lt;= ${model.cycEndDay}
             </if>
 
             <if test="model.flowJobId != null">
@@ -304,7 +304,7 @@
                 AND job_name LIKE '${model.jobNameRightLike}%'
             </if>
             <if test="model.bizStartDay != null and model.bizEndDay != null">
-                AND business_date &gt;= ${model.bizStartDay} and  business_date &lt; ${model.bizEndDay}
+                AND business_date &gt;= ${model.bizStartDay} and business_date &lt; ${model.bizEndDay}
             </if>
 
             <if test="model.startGmtCreate != null">
@@ -317,7 +317,7 @@
                 </foreach>
             </if>
             <if test="model.cycStartDay != null and model.cycEndDay != null">
-                AND cyc_time &gt;= ${model.cycStartDay} and  cyc_time &lt;= ${model.cycEndDay}
+                AND cyc_time &gt;= ${model.cycStartDay} and cyc_time &lt;= ${model.cycEndDay}
             </if>
 
             <if test="model.flowJobId != null">
@@ -360,7 +360,7 @@
                 , bj.business_date ${model.businessDateSort}
             </if>
             <if test="model.retryNumSort != null and model.retryNumSort != ''">
-                , bj.retry_num  ${model.retryNumSort}
+                , bj.retry_num ${model.retryNumSort}
             </if>
             <if test="orderBy != null and orderBy != ''">
                 , bj.${orderBy} ${sort}
@@ -429,7 +429,7 @@
                 status = #{status},
             </if>
             <if test="dtuicTenantId !=null">
-                dtuic_tenant_id  = #{dtuicTenantId},
+                dtuic_tenant_id = #{dtuicTenantId},
             </if>
             <if test="appType!=null">
                 app_tpye = #{dtuicTenantId},
@@ -461,7 +461,7 @@
 
     <select id="listAfterOrBeforeJobs" resultType="BatchJob">
         SELECT
-        <include refid="select_content_fragment" />
+        <include refid="select_content_fragment"/>
         from schedule_job bj
         where task_id = #{taskId}
         <choose>
@@ -489,13 +489,12 @@
     </select>
 
 
-
     <select id="countByStatusAndType" resultType="java.util.HashMap">
         SELECT status,COUNT(1) as count
-        FROM  schedule_job ts
+        FROM schedule_job ts
         WHERE ts.is_deleted = 0
         <if test="dtuicTenantId != null and dtuicTenantId != -1">
-            AND  ts.dtuic_tenant_id = #{dtuicTenantId}
+            AND ts.dtuic_tenant_id = #{dtuicTenantId}
         </if>
         <if test="projectId!=null and projectId != -1">
             AND ts.project_id = #{projectId}
@@ -522,12 +521,13 @@
     </select>
 
     <select id="selectStatusAndType" resultType="java.util.HashMap">
-        SELECT if(ts.is_deleted = 1,CONCAT(ts.name,'(已删除)'),ts.name) AS name, bj.status AS status,bj.exec_start_time AS execStartTime
-        FROM  schedule_job bj
+        SELECT if(ts.is_deleted = 1,CONCAT(ts.name,'(已删除)'),ts.name) AS name, bj.status AS status,bj.exec_start_time AS
+        execStartTime
+        FROM schedule_job bj
         LEFT JOIN schedule_task_shade ts on bj.task_id = ts.task_id
-        WHERE  bj.is_deleted = 0
+        WHERE bj.is_deleted = 0
         <if test="dtuicTenantId != null and dtuicTenantId != -1">
-            AND  bj.dtuic_tenant_id = #{dtuicTenantId}
+            AND bj.dtuic_tenant_id = #{dtuicTenantId}
         </if>
         <if test="projectId!=null and projectId != -1">
             AND bj.project_id = #{projectId}
@@ -555,12 +555,13 @@
 
 
     <select id="listTopRunTime" resultType="java.util.HashMap">
-        SELECT bj.id AS id, bj.task_id AS taskId, bj.cyc_time AS cycTime, ifnull(bj.type, 0) AS type,bj.task_type as taskType,
-               bj.exec_time AS execTime,bj.is_deleted as isDeleted,bj.create_user_id AS createUserId
+        SELECT bj.id AS id, bj.task_id AS taskId, bj.cyc_time AS cycTime, ifnull(bj.type, 0) AS type,bj.task_type as
+        taskType,
+        bj.exec_time AS execTime,bj.is_deleted as isDeleted,bj.create_user_id AS createUserId
         FROM schedule_job bj
         WHERE bj.is_deleted = 0
         <if test="dtuicTenantId != null and dtuicTenantId != -1">
-            AND  bj.dtuic_tenant_id = #{dtuicTenantId}
+            AND bj.dtuic_tenant_id = #{dtuicTenantId}
         </if>
         <if test="projectId!=null and projectId != -1">
             AND bj.project_id = #{projectId}
@@ -574,7 +575,7 @@
         FROM schedule_job bj
         WHERE bj.is_deleted = 0
         <if test="dtuicTenantId != null and dtuicTenantId != -1">
-            AND  bj.dtuic_tenant_id = #{dtuicTenantId}
+            AND bj.dtuic_tenant_id = #{dtuicTenantId}
         </if>
         <if test="projectId!=null and projectId != -1">
             AND bj.project_id = #{projectId}
@@ -594,13 +595,13 @@
     </select>
 
     <select id="listThirtyDayJobs" resultType="java.util.HashMap">
-  		SELECT DATE_FORMAT(bj.cyc_time, '%m/%d') AS day, COUNT(1) AS cnt
+        SELECT DATE_FORMAT(bj.cyc_time, '%m/%d') AS day, COUNT(1) AS cnt
         FROM schedule_job bj
         LEFT JOIN rdos_engine_batch_job ebj ON bj.job_id = ebj.job_id
         LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.id
         WHERE bj.cyc_time is not null and to_days(bj.cyc_time) >= (to_days(NOW()) -30)
         and bj.type = #{type}
-        and bj.project_id = #{projectId} 
+        and bj.project_id = #{projectId}
         and bj.tenant_id = #{tenantId}
         and ts.task_type = #{taskType}
         and bj.is_deleted = 0
@@ -614,10 +615,10 @@
     </select>
 
     <select id="countScienceJobStatus" resultType="java.util.HashMap">
-  		SELECT COUNT(1) AS total,
-  		SUM(case when ebj.status = 4 or ebj.status = 16 then 1 else 0 end) AS deployCount,
-  		SUM(case when ebj.status = 8 then 1 else 0 end) AS failCount,
-  		SUM(case when ebj.status = #{status} then 1 else 0 end) AS successCount
+        SELECT COUNT(1) AS total,
+        SUM(case when ebj.status = 4 or ebj.status = 16 then 1 else 0 end) AS deployCount,
+        SUM(case when ebj.status = 8 then 1 else 0 end) AS failCount,
+        SUM(case when ebj.status = #{status} then 1 else 0 end) AS successCount
         FROM schedule_job bj
         LEFT JOIN rdos_engine_batch_job ebj ON bj.job_id = ebj.job_id
         LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.id
@@ -641,7 +642,7 @@
         AND bj.app_type = #{appType}
         AND bj.is_deleted = 0
         <if test="dtuicTenantId != null and dtuicTenantId != -1">
-            AND  bj.dtuic_tenant_id = #{dtuicTenantId}
+            AND bj.dtuic_tenant_id = #{dtuicTenantId}
         </if>
         <if test="projectId!=null and projectId != -1 ">
             AND bj.project_id = #{projectId}
@@ -665,9 +666,9 @@
         and bj.type = #{type}
         and bj.app_type = #{appType}
         <if test="dtuicTenantId != null and dtuicTenantId != -1">
-            AND  bj.dtuic_tenant_id = #{dtuicTenantId}
+            AND bj.dtuic_tenant_id = #{dtuicTenantId}
         </if>
-        <if test="projectId!=null and projectId != -1" >
+        <if test="projectId!=null and projectId != -1">
             AND bj.project_id = #{projectId}
         </if>
         <if test="tenantId!=null">
@@ -690,7 +691,7 @@
         and bj.type = #{type}
         and bj.app_type = #{appType}
         <if test="dtuicTenantId != null and dtuicTenantId != -1">
-            AND  bj.dtuic_tenant_id = #{dtuicTenantId}
+            AND bj.dtuic_tenant_id = #{dtuicTenantId}
         </if>
         <if test="projectId!=null and projectId != -1 ">
             AND bj.project_id = #{projectId}
@@ -815,7 +816,8 @@
         </if>
     </select>
 
-    <select id="generalQueryWithMinAndHour" parameterType="com.dtstack.dtcenter.common.pager.PageQuery" resultType="BatchJob">
+    <select id="generalQueryWithMinAndHour" parameterType="com.dtstack.dtcenter.common.pager.PageQuery"
+            resultType="BatchJob">
         SELECT
         <include refid="select_content_fragment"/>
         from (
@@ -840,7 +842,7 @@
     <select id="minOrHourJobQuery" parameterType="com.dtstack.dtcenter.common.pager.PageQuery" resultType="BatchJob">
         SELECT
         <include refid="select_content_fragment"/>
-        from  schedule_job bj
+        from schedule_job bj
         LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
         <include refid="select_where_fragment"/>
         <include refid="queryWorkFlow"/>
@@ -861,15 +863,15 @@
     <select id="generalCount" resultType="java.lang.Integer">
         SELECT COUNT(1)
         from (
-        select *,'' as groupDate  from schedule_job
+        select *,'' as groupDate from schedule_job
         <include refid="select_where_batch_job"/>
-        and  period_type not in (0,1)
+        and period_type not in (0,1)
 
         union
         select * ,left(business_date,8) as groupDate from schedule_job
         <include refid="select_where_batch_job"/>
-        and  period_type in (0,1)
-        group by  task_id,groupDate
+        and period_type in (0,1)
+        group by task_id,groupDate
         )bj
         <include refid="select_where_batch_job"/>
         <if test="model.taskIds != null and model.taskIds.size > 0">
@@ -884,13 +886,13 @@
     <select id="generalCountWithMinAndHour" resultType="java.lang.Integer">
         SELECT COUNT(1)
         from (
-        select *,'' as groupDate  from schedule_job
+        select *,'' as groupDate from schedule_job
         <include refid="select_where_batch_job"/>
 
         union
         select * ,left(business_date,8) as groupDate from schedule_job
         <include refid="select_where_batch_job"/>
-        group by  task_id,groupDate
+        group by task_id,groupDate
         )bj
         <include refid="select_where_batch_job"/>
         <if test="model.taskIds != null and model.taskIds.size > 0">
@@ -900,6 +902,18 @@
             </foreach>
         </if>
         limit 1
+    </select>
+
+    <select id="syncQueryJob" resultType="BatchJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+         FROM schedule_job bj
+        <include refid="select_where_batch_job"/>
+           AND is_deleted = 0
+        ORDER BY id DESC
+        <if test="start != null and pageSize != null">
+            limit #{start} , #{pageSize}
+        </if>
     </select>
 
     <select id="minOrHourJobCount" resultType="java.lang.Integer">
@@ -983,7 +997,7 @@
         SELECT DISTINCT substring_index(bj.job_name, '-', 1)
         FROM schedule_job bj LEFT JOIN rdos_engine_batch_job ebj
         ON bj.job_id = ebj.job_id
-        <include refid="select_where_fragment_without_ts" />
+        <include refid="select_where_fragment_without_ts"/>
         <include refid="page_condition"/>
     </select>
 
@@ -1015,7 +1029,7 @@
         <include refid="select_where_fragment_without_ts"/>
     </select>
 
-    <select id="listNeedStopFillDataJob" resultType = "BatchJob">
+    <select id="listNeedStopFillDataJob" resultType="BatchJob">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_job bj
@@ -1044,7 +1058,7 @@
 
     <select id="countFillDataAllStatusByJobName" resultType="java.util.HashMap">
         SELECT
-	      ebj.status*1 as status,count(ebj.status) as count
+        ebj.status*1 as status,count(ebj.status) as count
         FROM
         schedule_job bj
         LEFT JOIN rdos_engine_batch_job ebj ON bj.job_id = ebj.job_id
@@ -1141,7 +1155,7 @@
         bj.fill_id
         FROM schedule_job bj
         LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
-        <include refid="select_where_fragment" />
+        <include refid="select_where_fragment"/>
         <include refid="page_condition"/>
     </select>
 
@@ -1150,7 +1164,7 @@
         SELECT DISTINCT
         bj.fill_id
         FROM schedule_job bj
-        <include refid="select_where_batch_job" />
+        <include refid="select_where_batch_job"/>
         <include refid="page_condition"/>
     </select>
 
@@ -1184,12 +1198,13 @@
 
     <select id="getWorkFlowTopNode" resultType="BatchJob">
         SELECT
-            <include refid="select_content_fragment"/>
+        <include refid="select_content_fragment"/>
         FROM
-            schedule_job bj
+        schedule_job bj
         WHERE
-            bj.job_key IN ( SELECT job_key FROM schedule_job_job WHERE parent_job_key = ( SELECT job_key FROM schedule_job WHERE job_id = #{jobId} ) )
-            AND bj.flow_job_id != '0'
+        bj.job_key IN ( SELECT job_key FROM schedule_job_job WHERE parent_job_key = ( SELECT job_key FROM schedule_job
+        WHERE job_id = #{jobId} ) )
+        AND bj.flow_job_id != '0'
     </select>
 
     <select id="listByJobIdList" resultType="BatchJob">
@@ -1268,7 +1283,7 @@
         </foreach>
     </update>
 
-    <update id="stopUnsubmitJob" >
+    <update id="stopUnsubmitJob">
         UPDATE  schedule_job
         set status = #{status} where status = 0 and  job_name like #{likeName} and project_id = #{projectId} and app_type = #{appType};
     </update>
@@ -1350,7 +1365,7 @@
 
     <select id="listByBusinessDateAndPeriodTypeAndStatusList" resultType="BatchJob">
         select
-        <include refid= "select_content_fragment"/>
+        <include refid="select_content_fragment"/>
         from schedule_job bj
         LEFT JOIN schedule_task_shade ts on ts.task_id = bj.task_id
         WHERE
@@ -1368,7 +1383,7 @@
             </foreach>
         </if>
         <if test="model.bizStartDay != null and model.bizEndDay != null">
-            AND bj.business_date &gt;= ${model.bizStartDay} and  bj.business_date &lt; ${model.bizEndDay}
+            AND bj.business_date &gt;= ${model.bizStartDay} and bj.business_date &lt; ${model.bizEndDay}
         </if>
         AND bj.tenant_id = ${model.tenantId} AND bj.project_id = ${model.projectId} AND bj.is_deleted = 0
         AND bj.type = 0
@@ -1378,7 +1393,7 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_job bj
-        WHERE  cyc_time like '${preCycTime}%'
+        WHERE cyc_time like '${preCycTime}%'
         AND job_name LIKE '${preJobName}%'
         AND is_deleted = 0
         <if test="scheduleType != null">
@@ -1405,7 +1420,7 @@
         SELECT
         count(1)
         FROM schedule_job bj
-        WHERE  cyc_time like '${preCycTime}%'
+        WHERE cyc_time like '${preCycTime}%'
         AND job_name LIKE '${preJobName}%'
         AND is_deleted = 0
         <if test="scheduleType != null">

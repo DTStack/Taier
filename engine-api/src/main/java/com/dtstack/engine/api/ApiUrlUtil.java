@@ -17,7 +17,7 @@ public class ApiUrlUtil {
     }
 
     static {
-        apiUrlMap = new ConcurrentHashMap<String, String>(){{
+        apiUrlMap = new ConcurrentHashMap<String, String>() {{
             put("BatchJob_getStatusCount", ApiURL.BATCH_JOB_GET_STATUS_COUNT);
             put("BatchJob_getStatusJobList", ApiURL.BATCH_JOB_GET_STATUS_JOB_LIST);
             put("BatchJob_getJobGraph", ApiURL.BATCH_JOB_JOBGRAPH);
@@ -55,6 +55,7 @@ public class ApiUrlUtil {
             put("BatchJob_getScienceJobGraph", ApiURL.BATCH_JOB_GET_GETSCIENCEJOBGRAPH);
             put("BatchJob_jobDetail", ApiURL.BATCH_JOB_JOBDETAIL);
             put("BatchJob_listByBusinessDateAndPeriodTypeAndStatusList", ApiURL.BATCH_JOB_LIST_BY_BUSINESS_DATE_AND_PERIODTYPE_AND_STATUSLIST);
+            put("BatchJob_syncBatchJob", ApiURL.BATCH_JOB_SYNC_BATCH_JOB);
 
             put("BatchTask_displayOffSpring", ApiURL.BATCH_TASK_DISPLAY_OFFSPRING);
 

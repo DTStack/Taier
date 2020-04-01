@@ -194,4 +194,6 @@ public interface BatchJobDao {
     void deleteByJobKey(@Param("jobKeyList") List<String> jobKeyList);
 
     List<String> getAllNodeAddress();
+
+    List<BatchJob> syncQueryJob(PageQuery<BatchJobDTO> pageQuery);
 }

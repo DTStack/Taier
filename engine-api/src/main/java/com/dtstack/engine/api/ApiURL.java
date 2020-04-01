@@ -52,6 +52,7 @@ public class ApiURL {
     public static final String BATCH_JOB_GET_GETSCIENCEJOBGRAPH = String.format("%s/%s", BATCH_JOB, "getScienceJobGraph");
     public static final String BATCH_JOB_JOBDETAIL = String.format("%s/%s", BATCH_JOB, "jobDetail");
     public static final String BATCH_JOB_LIST_BY_BUSINESS_DATE_AND_PERIODTYPE_AND_STATUSLIST = String.format("%s/%s", BATCH_JOB, "listByBusinessDateAndPeriodTypeAndStatusList");
+    public static final String BATCH_JOB_SYNC_BATCH_JOB = String.format("%s/%s", BATCH_JOB, "syncBatchJob");
 
     public static final String BATCH_TASK_DISPLAY_OFFSPRING = String.format("%s/%s", BATCH_TASK, "displayOffSpring");
 
@@ -84,7 +85,7 @@ public class ApiURL {
     public static final String BATCH_JOB_JOB_DISPLAY_OFFSPRING = String.format("%s/%s", BATCH_JOB_JOB, "displayOffSpring");
     public static final String BATCH_JOB_JOB_DISPLAYOFF_SPRINGWORK_FLOW = String.format("%s/%s", BATCH_JOB_JOB, "displayOffSpringWorkFlow");
 
-    public static final String PROJECT_SCHEDULE= String.format("%s/%s", PROJECT, "updateSchedule");
+    public static final String PROJECT_SCHEDULE = String.format("%s/%s", PROJECT, "updateSchedule");
 
 
     /**

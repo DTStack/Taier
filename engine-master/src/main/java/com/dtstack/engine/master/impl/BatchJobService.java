@@ -191,6 +191,7 @@ public class BatchJobService {
 
     /**
      * 获取运
+     *
      * @param projectId
      * @param tenantId
      * @param appType
@@ -221,11 +222,11 @@ public class BatchJobService {
     /**
      * 获取各个状态任务的数量
      */
-    public JSONObject getStatusCount(@Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("appType") Integer appType,@Param("dtuicTenantId") Long dtuicTenantId) {
+    public JSONObject getStatusCount(@Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId) {
         int all = 0;
         JSONObject m = new JSONObject(TaskStatusConstrant.STATUS.size());
         List<Map<String, Object>> data = batchJobDao.countByStatusAndType(EScheduleType.NORMAL_SCHEDULE.getType(), DateUtil.getFormattedDate(DateUtil.calTodayMills(), "yyyyMMddHHmmss"),
-                DateUtil.getFormattedDate(DateUtil.TOMORROW_ZERO(), "yyyyMMddHHmmss"), tenantId, projectId, appType,dtuicTenantId,null);
+                DateUtil.getFormattedDate(DateUtil.TOMORROW_ZERO(), "yyyyMMddHHmmss"), tenantId, projectId, appType, dtuicTenantId, null);
         for (Integer code : TaskStatusConstrant.STATUS.keySet()) {
             List<Integer> status = TaskStatusConstrant.STATUS.get(code);
             int count = 0;
@@ -249,7 +250,7 @@ public class BatchJobService {
      */
     public List<JobTopOrderVO> runTimeTopOrder(@Param("projectId") Long projectId,
                                                @Param("startTime") Long startTime,
-                                               @Param("endTime") Long endTime, @Param("appType") Integer appType,@Param("dtuicTenantId") Long dtuicTenantId) {
+                                               @Param("endTime") Long endTime, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId) {
 
         if (null != startTime && null != endTime) {
             startTime = startTime * 1000;
@@ -260,7 +261,7 @@ public class BatchJobService {
         }
 
         PageQuery pageQuery = new PageQuery(1, 10);
-        List<Map<String, Object>> list = batchJobDao.listTopRunTime(projectId, new Timestamp(startTime), new Timestamp(endTime), pageQuery, appType,dtuicTenantId);
+        List<Map<String, Object>> list = batchJobDao.listTopRunTime(projectId, new Timestamp(startTime), new Timestamp(endTime), pageQuery, appType, dtuicTenantId);
 
         List<JobTopOrderVO> jobTopOrderVOS = new ArrayList<>();
 
@@ -292,11 +293,11 @@ public class BatchJobService {
     /**
      * 近30天任务出错排行
      */
-    public List<JobTopErrorVO> errorTopOrder(@Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("appType") Integer appType,@Param("dtuicTenantId") Long dtuicTenantId) {
+    public List<JobTopErrorVO> errorTopOrder(@Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId) {
 
         Timestamp time = new Timestamp(DateUtil.getLastDay(30));
         PageQuery pageQuery = new PageQuery(1, 10);
-        List<Map<String, Object>> list = batchJobDao.listTopErrorByType(dtuicTenantId,tenantId, projectId, EScheduleType.NORMAL_SCHEDULE.getType(), time, FAILED_STATUS, pageQuery, appType);
+        List<Map<String, Object>> list = batchJobDao.listTopErrorByType(dtuicTenantId, tenantId, projectId, EScheduleType.NORMAL_SCHEDULE.getType(), time, FAILED_STATUS, pageQuery, appType);
         List<JobTopErrorVO> jobTopErrorVOS = new ArrayList<>();
 
         for (Map<String, Object> info : list) {
@@ -316,16 +317,16 @@ public class BatchJobService {
     /**
      * 曲线图数据
      */
-    public BatchJobChartVO getJobGraph(@Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("appType") Integer appType,@Param("dtuicTenantId") Long dtuicTenantId) {
+    public BatchJobChartVO getJobGraph(@Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId) {
 
         List<Integer> statusList = new ArrayList<>(4);
         List<Integer> finishedList = TaskStatusConstrant.STATUS.get(TaskStatus.FINISHED.getStatus());
         List<Integer> failedList = TaskStatusConstrant.STATUS.get(TaskStatus.FAILED.getStatus());
         statusList.addAll(finishedList);
         statusList.addAll(failedList);
-        List<Object> todayJobList = finishData(batchJobDao.listTodayJobs(statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
-        List<Object> yesterdayJobList = finishData(batchJobDao.listYesterdayJobs(statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
-        List<Object> monthJobList = finishData(batchJobDao.listMonthJobs(statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
+        List<Object> todayJobList = finishData(batchJobDao.listTodayJobs(statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType, dtuicTenantId));
+        List<Object> yesterdayJobList = finishData(batchJobDao.listYesterdayJobs(statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType, dtuicTenantId));
+        List<Object> monthJobList = finishData(batchJobDao.listMonthJobs(statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType, dtuicTenantId));
 
         for (int i = 0; i < TOTAL_HOUR_DAY; i++) {
             monthJobList.set(i, (Long) monthJobList.get(i) / 30);
@@ -438,7 +439,7 @@ public class BatchJobService {
         pageQuery.setModel(batchJobDTO);
 
         if (StringUtils.isNotBlank(vo.getTaskName()) || Objects.nonNull(vo.getOwnerId())) {
-            List<BatchTaskShade> batchTaskShades = batchTaskShadeDao.listByNameLike(vo.getProjectId(), vo.getTaskName(), vo.getAppType(), vo.getOwnerId(),vo.getProjectIds());
+            List<BatchTaskShade> batchTaskShades = batchTaskShadeDao.listByNameLike(vo.getProjectId(), vo.getTaskName(), vo.getAppType(), vo.getOwnerId(), vo.getProjectIds());
             if (CollectionUtils.isNotEmpty(batchTaskShades)) {
                 batchJobDTO.setTaskIds(batchTaskShades.stream().map(BatchTaskShade::getTaskId).collect(Collectors.toList()));
             }
@@ -666,7 +667,7 @@ public class BatchJobService {
         //需要查询工作流的子节点
         batchJobDTO.setNeedQuerySonNode(true);
         if (StringUtils.isNotBlank(vo.getTaskName()) || Objects.nonNull(vo.getOwnerId())) {
-            List<BatchTaskShade> batchTaskShades = batchTaskShadeDao.listByNameLike(vo.getProjectId(), vo.getTaskName(), vo.getAppType(), vo.getOwnerId(),vo.getProjectIds());
+            List<BatchTaskShade> batchTaskShades = batchTaskShadeDao.listByNameLike(vo.getProjectId(), vo.getTaskName(), vo.getAppType(), vo.getOwnerId(), vo.getProjectIds());
             if (CollectionUtils.isNotEmpty(batchTaskShades)) {
                 batchJobDTO.setTaskIds(batchTaskShades.stream().map(BatchTaskShade::getTaskId).collect(Collectors.toList()));
             }
@@ -697,7 +698,7 @@ public class BatchJobService {
 
     private Map<Integer, List<Integer>> getStatusMap(Boolean splitFiledFlag) {
         Map<Integer, List<Integer>> statusMap;
-        if (splitFiledFlag) {
+        if (Objects.nonNull(splitFiledFlag) && splitFiledFlag) {
             statusMap = TaskStatusConstrant.STATUS_FAILED_DETAIL;
         } else {
             statusMap = TaskStatusConstrant.STATUS;
@@ -788,7 +789,7 @@ public class BatchJobService {
         batchJobDTO.setBusinessDateSort(vo.getBusinessDateSort());
         batchJobDTO.setTaskPeriodId(convertStringToList(vo.getTaskPeriodId()));
 
-        if (vo.getProjectIds()!=null && vo.getProjectIds().size()>0){
+        if (vo.getProjectIds() != null && vo.getProjectIds().size() > 0) {
             batchJobDTO.setProjectIds(vo.getProjectIds());
         }
 
@@ -798,7 +799,7 @@ public class BatchJobService {
         }
 
         //只有工作流 需要查询子节点
-        if(batchJobDTO.getTaskTypes().contains(EJobType.WORK_FLOW.getType())){
+        if (batchJobDTO.getTaskTypes().contains(EJobType.WORK_FLOW.getType())) {
             batchJobDTO.setNeedQuerySonNode(true);
         }
         //分页
@@ -897,7 +898,7 @@ public class BatchJobService {
     @Forbidden
     public Integer updateStatusAndLogInfoById(Long id, Integer status, String msg) {
         if (StringUtils.isNotBlank(msg) && msg.length() > 500) {
-            msg = msg.substring(0,500) + "...";
+            msg = msg.substring(0, 500) + "...";
         }
         return batchJobDao.updateStatusAndLogInfoById(id, status, msg);
     }
@@ -917,12 +918,12 @@ public class BatchJobService {
 
     @Forbidden
     public Integer updateStatusWithExecTime(BatchJob updateJob) {
-        if(Objects.isNull(updateJob) || Objects.isNull(updateJob.getJobId()) || Objects.isNull(updateJob.getAppType())){
+        if (Objects.isNull(updateJob) || Objects.isNull(updateJob.getJobId()) || Objects.isNull(updateJob.getAppType())) {
             return 0;
         }
         BatchJob job = batchJobDao.getByJobId(updateJob.getJobId(), Deleted.NORMAL.getStatus());
-        if (Objects.nonNull(job.getExecStartTime()) && Objects.nonNull(updateJob.getExecEndTime())){
-            updateJob.setExecTime((updateJob.getExecEndTime().getTime()-job.getExecStartTime().getTime())/1000);
+        if (Objects.nonNull(job.getExecStartTime()) && Objects.nonNull(updateJob.getExecEndTime())) {
+            updateJob.setExecTime((updateJob.getExecEndTime().getTime() - job.getExecStartTime().getTime()) / 1000);
         }
         return batchJobDao.updateStatusWithExecTime(updateJob);
     }
@@ -1008,7 +1009,7 @@ public class BatchJobService {
     }
 
     private void addUserNameToImpalaOrHive(JSONObject pluginInfoJson, String userName, String password, String dbName, String engineType) {
-        if(pluginInfoJson == null || org.apache.commons.lang3.StringUtils.isBlank(userName) || (!EngineType.IMPALA.getEngineName().equals(engineType) && !EngineType.HIVE.getEngineName().equals(engineType))){
+        if (pluginInfoJson == null || org.apache.commons.lang3.StringUtils.isBlank(userName) || (!EngineType.IMPALA.getEngineName().equals(engineType) && !EngineType.HIVE.getEngineName().equals(engineType))) {
             return;
         }
 
@@ -1388,9 +1389,9 @@ public class BatchJobService {
                 String triggerDay = cycTime.toString(DAY_PATTERN);
                 Map<String, ScheduleBatchJob> result;
                 if (StringUtils.isNotBlank(beginTime) && StringUtils.isNotBlank(endTime)) {
-                    result = jobGraphBuilder.buildFillDataJobGraph(jsonNode, fillName, false, triggerDay, userId, beginTime, endTime, projectId, tenantId, isRoot, appType, batchFillDataJob.getId(),dtuicTenantId);
+                    result = jobGraphBuilder.buildFillDataJobGraph(jsonNode, fillName, false, triggerDay, userId, beginTime, endTime, projectId, tenantId, isRoot, appType, batchFillDataJob.getId(), dtuicTenantId);
                 } else {
-                    result = jobGraphBuilder.buildFillDataJobGraph(jsonNode, fillName, false, triggerDay, userId, projectId, tenantId, isRoot, appType, batchFillDataJob.getId(),dtuicTenantId);
+                    result = jobGraphBuilder.buildFillDataJobGraph(jsonNode, fillName, false, triggerDay, userId, projectId, tenantId, isRoot, appType, batchFillDataJob.getId(), dtuicTenantId);
                 }
                 if (MapUtils.isEmpty(result)) {
                     continue;
@@ -2260,8 +2261,8 @@ public class BatchJobService {
         return operateModel;
     }
 
-    public List<String> listJobIdByTaskNameAndStatusList(@Param("taskName") String taskName, @Param("statusList") List<Integer> statusList, @Param("projectId") Long projectId,@Param("appType") Integer appType) {
-        BatchTaskShade task = batchTaskShadeService.getByName(projectId, taskName,appType);
+    public List<String> listJobIdByTaskNameAndStatusList(@Param("taskName") String taskName, @Param("statusList") List<Integer> statusList, @Param("projectId") Long projectId, @Param("appType") Integer appType) {
+        BatchTaskShade task = batchTaskShadeService.getByName(projectId, taskName, appType);
         if (task != null) {
             List<String> jobIdList = batchJobDao.listJobIdByTaskIdAndStatus(task.getId(), statusList);
             return jobIdList;
@@ -2321,7 +2322,7 @@ public class BatchJobService {
         Integer updateSize = 0;
         for (BatchJob job : batchJobs) {
             job.setGmtModified(new Timestamp(System.currentTimeMillis()));
-            if(Objects.nonNull(job.getStatus())){
+            if (Objects.nonNull(job.getStatus())) {
                 //更新状态 日志信息也要更新
                 job.setLogInfo("");
             }
@@ -2332,11 +2333,12 @@ public class BatchJobService {
     }
 
     /**
-     *  把开始时间和结束时间置为null
+     * 把开始时间和结束时间置为null
+     *
      * @param jobId
      * @return
      */
-    public Integer updateTimeNull(@Param("jobId") String jobId){
+    public Integer updateTimeNull(@Param("jobId") String jobId) {
         return batchJobDao.updateNullTime(jobId);
     }
 
@@ -2584,10 +2586,11 @@ public class BatchJobService {
 
     /**
      * 测试任务 是否可以运行
+     *
      * @param jobId
      * @return
      */
-    public String testCheckCanRun(@Param("jobId")String jobId){
+    public String testCheckCanRun(@Param("jobId") String jobId) {
         BatchJob batchJob = batchJobDao.getByJobId(jobId, Deleted.NORMAL.getStatus());
         if (Objects.isNull(batchJob)) {
             return "任务不存在";
@@ -2610,13 +2613,14 @@ public class BatchJobService {
 
     /**
      * 生成当天任务实例
+     *
      * @throws Exception
      */
     @Transactional(rollbackFor = Exception.class)
-    public void createTodayTaskShade(@Param("taskId") Long taskId,@Param("appType") Integer appType) {
+    public void createTodayTaskShade(@Param("taskId") Long taskId, @Param("appType") Integer appType) {
         try {
             //如果appType为空的话则为离线
-            if (Objects.isNull(appType)){
+            if (Objects.isNull(appType)) {
                 appType = 1;
             }
             BatchTaskShade task = batchTaskShadeService.getBatchTaskById(taskId, appType);
@@ -2673,6 +2677,7 @@ public class BatchJobService {
 
     /**
      * 根据cycTime和jobName获取，如获取当天的周期实例任务
+     *
      * @param preCycTime
      * @param preJobName
      * @param scheduleType
@@ -2684,6 +2689,7 @@ public class BatchJobService {
 
     /**
      * 按批次根据cycTime和jobName获取，如获取当天的周期实例任务
+     *
      * @param startId
      * @param preCycTime
      * @param preJobName
@@ -2701,11 +2707,40 @@ public class BatchJobService {
 
     /**
      * 根据jobKey删除job jobjob记录
+     *
      * @param jobKeyList
      */
     @Transactional(rollbackFor = Exception.class)
     public void deleteJobsByJobKey(@Param("jobKeyList") List<String> jobKeyList) {
         batchJobDao.deleteByJobKey(jobKeyList);
         batchJobJobDao.deleteByJobKey(jobKeyList);
+    }
+
+
+    /**
+     * 分批获取batchJob中数据
+     * schedule   接口
+     * * @param dto
+     *
+     * @return
+     */
+    public List<BatchJob> syncBatchJob(QueryJobDTO dto) {
+        if (Objects.isNull(dto) || Objects.isNull(dto.getAppType())) {
+            return new ArrayList<>();
+        }
+        if (Objects.isNull(dto.getCurrentPage())) {
+            dto.setCurrentPage(1);
+        }
+        if (Objects.isNull(dto.getPageSize())) {
+            dto.setPageSize(50);
+        }
+        if (-1l == dto.getProjectId()) {
+            // 不采用默认值
+            dto.setProjectId(null);
+        }
+        PageQuery<BatchJobDTO> pageQuery = new PageQuery<>(dto.getCurrentPage(), dto.getPageSize(), "gmt_modified", Sort.DESC.name());
+        BatchJobDTO query = this.createQuery(dto);
+        pageQuery.setModel(query);
+        return batchJobDao.syncQueryJob(pageQuery);
     }
 }
