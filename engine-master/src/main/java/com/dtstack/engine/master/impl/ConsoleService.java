@@ -276,7 +276,7 @@ public class ConsoleService {
                     workNode.updateJobStatus(jobClient.getTaskId(), jobStatus);
                 });
 
-                Long minPriority = engineJobCacheDao.minPriorityByStage(engineJobCache.getJobResource(), EJobCacheStage.PRIORITY.getStage(), engineJobCache.getNodeAddress());
+                Long minPriority = engineJobCacheDao.minPriorityByStage(engineJobCache.getJobResource(), Lists.newArrayList(EJobCacheStage.PRIORITY.getStage()), engineJobCache.getNodeAddress());
                 minPriority = minPriority == null ? 0 : minPriority;
                 jobClient.setPriority(minPriority - 1);
 

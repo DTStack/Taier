@@ -26,6 +26,7 @@ import com.dtstack.engine.master.resource.JobComputeResourcePlain;
 import com.dtstack.engine.master.taskdealer.TaskSubmittedDealer;
 import com.dtstack.engine.master.cache.ShardCache;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -126,7 +127,7 @@ public class WorkNode implements InitializingBean, ApplicationContextAware {
                 Map<String, GroupInfo> nodeGroupInfo = Maps.newHashMap();
                 priorityQueueMap.forEach((jobResource, priorityQueue) -> {
                     int groupSize = engineJobCacheDao.countByStage(jobResource, EJobCacheStage.unSubmitted(), nodeAddress);
-                    Long minPriority = engineJobCacheDao.minPriorityByStage(jobResource, EJobCacheStage.PRIORITY.getStage(), nodeAddress);
+                    Long minPriority = engineJobCacheDao.minPriorityByStage(jobResource, Lists.newArrayList(EJobCacheStage.PRIORITY.getStage(), EJobCacheStage.LACKING.getStage()), nodeAddress);
                     minPriority = minPriority == null ? 0 : minPriority;
                     GroupInfo groupInfo = new GroupInfo();
                     groupInfo.setSize(groupSize);
