@@ -12,7 +12,7 @@ import com.dtstack.engine.common.akka.config.AkkaConfig;
 import com.dtstack.engine.common.akka.message.WorkerInfo;
 import com.dtstack.engine.common.util.AddressUtil;
 import com.dtstack.engine.common.util.LogCountUtil;
-import com.dtstack.engine.worker.metric.SystemResourcesMetricsInitializer;
+import com.dtstack.engine.worker.metric.SystemResourcesMetricsAnalyzer;
 import com.dtstack.engine.worker.service.JobService;
 import com.google.common.collect.Lists;
 import com.typesafe.config.Config;
@@ -59,8 +59,11 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
     private String workerRemotePath;
     private ActorSelection activeMasterActor;
     private FiniteDuration askResultTimeout;
+    private MonitorNode monitorNode = new MonitorNode();
+    private SystemResourcesMetricsAnalyzer systemResourcesMetricsAnalyzer = new SystemResourcesMetricsAnalyzer();
 
     private static AkkaWorkerServerImpl akkaWorkerServer = new AkkaWorkerServerImpl();
+
 
     private AkkaWorkerServerImpl() {
     }
@@ -91,9 +94,17 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
                 CHECK_INTERVAL,
                 TimeUnit.MILLISECONDS);
         scheduledService.scheduleWithFixedDelay(
-                new MonitorNode(),
+                monitorNode,
                 CHECK_INTERVAL * 10,
                 CHECK_INTERVAL * 10,
+                TimeUnit.MILLISECONDS);
+
+        long systemResourceProbeInterval = AkkaConfig.getSystemResourceProbeInterval();
+        systemResourcesMetricsAnalyzer.instantiateSystemMetrics(systemResourceProbeInterval);
+        scheduledService.scheduleWithFixedDelay(
+                systemResourcesMetricsAnalyzer,
+                systemResourceProbeInterval,
+                systemResourceProbeInterval,
                 TimeUnit.MILLISECONDS);
     }
 
@@ -134,8 +145,8 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
     @Override
     public void run() {
         WorkerInfo workerInfo = new WorkerInfo(workerIp, workerPort, workerRemotePath, System.currentTimeMillis());
-        if (MapUtils.isNotEmpty(SystemResourcesMetricsInitializer.getMetrics())) {
-            String systemResource = JSONObject.toJSONString(SystemResourcesMetricsInitializer.getMetrics());
+        if (MapUtils.isNotEmpty(systemResourcesMetricsAnalyzer.getMetrics())) {
+            String systemResource = JSONObject.toJSONString(systemResourcesMetricsAnalyzer.getMetrics());
             workerInfo.setSystemResource(systemResource);
         }
         heartBeat(workerInfo);
