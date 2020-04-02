@@ -7,12 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
- *
- * Date: 2016年12月30日 下午1:16:37
- * Company: www.dtstack.com
- * @author sishu.yss
- *
+ * @author toutian
  */
 public class ApiResult<T> {
 
@@ -52,6 +47,18 @@ public class ApiResult<T> {
         return apiResult;
     }
 
+    public static String createErrorResultJsonStr(int code, String data, String message) {
+        ApiResult<String> apiResult = createErrorResult(message, code);
+        String result;
+        try {
+            apiResult.setData(data);
+            result = objectMapper.writeValueAsString(apiResult);
+        } catch (Exception e) {
+            logger.error("", e);
+            result = "code:" + code + ",message:" + message;
+        }
+        return result;
+    }
 
     public static String createErrorResultJsonStr(int code, String message) {
         ApiResult apiResult = createErrorResult(message, code);

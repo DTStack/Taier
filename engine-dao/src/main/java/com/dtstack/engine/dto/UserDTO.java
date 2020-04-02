@@ -1,64 +1,22 @@
 package com.dtstack.engine.dto;
 
 
-import com.dtstack.engine.domain.AppTenantEntity;
+import com.dtstack.engine.domain.User;
 
 /**
  * @author sishu.yss
  */
-public class UserDTO extends AppTenantEntity {
-
-    private String userName;
-
-    private String phoneNumber;
-
-    private Long dtuicUserId;
-
-    private String email;
-
-    private Integer status;
+public class UserDTO extends User {
 
     private Long defaultProjectId;
 
-    public String getUserName() {
-        return userName;
-    }
+    private long tenantId;
 
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
+    private int roleValue;
 
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
+    private String roleName;
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public Long getDtuicUserId() {
-        return dtuicUserId;
-    }
-
-    public void setDtuicUserId(Long dtuicUserId) {
-        this.dtuicUserId = dtuicUserId;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
+    private Integer rootUser;
 
     public Long getDefaultProjectId() {
         return defaultProjectId;
@@ -66,5 +24,37 @@ public class UserDTO extends AppTenantEntity {
 
     public void setDefaultProjectId(Long defaultProjectId) {
         this.defaultProjectId = defaultProjectId;
+    }
+
+    public long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(long tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public int getRoleValue() {
+        return roleValue;
+    }
+
+    public void setRoleValue(int roleValue) {
+        this.roleValue = roleValue;
+    }
+
+    public String getRoleName() {
+        return roleName;
+    }
+
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
+    }
+
+    public Integer getRootUser() {
+        return rootUser;
+    }
+
+    public void setRootUser(Integer rootUser) {
+        this.rootUser = rootUser;
     }
 }

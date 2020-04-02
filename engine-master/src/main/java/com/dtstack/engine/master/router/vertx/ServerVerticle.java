@@ -37,10 +37,15 @@ public class ServerVerticle extends AbstractVerticle{
                 .allowedHeaders(allowHearders())
                 .allowedMethods(allowMethods()));
         router.route().handler(CookieHandler.create());
+        LoginVerticle loginVerticle = new LoginVerticle(context);
         ResourceVerticle resourceVerticle = new ResourceVerticle(context);
 
+        router.post(RootUrls.ROOT  + "/login/out").handler(loginVerticle::loginOut);
         router.postWithRegex(RootUrls.ROOT + "/upload/.*").handler(resourceVerticle::handleUploadResource);
+        router.postWithRegex(RootUrls.ROOT + "/*").handler(loginVerticle::handleLogin);
         router.postWithRegex(RootUrls.ROOT + "/.*").handler(new AllRequestVerticle(context)::request);
+        router.getWithRegex(RootUrls.ROOT + "/download/component/downloadKerberosXML").handler(resourceVerticle::handleDownloadXml);
+
         vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true))
                 .requestHandler(router::accept)
                 .listen(config().getInteger("http.port", environmentContext.getHttpPort()),

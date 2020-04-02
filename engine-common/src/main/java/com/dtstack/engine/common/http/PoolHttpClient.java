@@ -3,8 +3,10 @@ package com.dtstack.engine.common.http;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
+import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.RetryUtil;
 import org.apache.http.HttpEntity;
@@ -93,17 +95,24 @@ public class PoolHttpClient {
 	}
 
 	public static String post(String url, Map<String, Object> bodyData) {
+		return post(url, bodyData, null);
+	}
+
+	public static String post(String url, Map<String, Object> bodyData, Map<String,Object> cookies) {
 		String responseBody = null;
 		CloseableHttpResponse response = null;
 		try {
-			HttpPost httPost = new HttpPost(url);
+			HttpPost httpPost = new HttpPost(url);
+			if (cookies != null && cookies.size() > 0) {
+				httpPost.addHeader("Cookie", getCookieFormat(cookies));
+			}
 			if (bodyData != null && bodyData.size() > 0) {
-				httPost.setEntity(new StringEntity(objectMapper
+				httpPost.setEntity(new StringEntity(objectMapper
 						.writeValueAsString(bodyData),charset));
 			}
 
 			// 请求数据
-			response = httpClient.execute(httPost);
+			response = httpClient.execute(httpPost);
 			int status = response.getStatusLine().getStatusCode();
 			if (status == HttpStatus.SC_OK) {
 				HttpEntity entity = response.getEntity();
@@ -129,15 +138,25 @@ public class PoolHttpClient {
 
 
 	private static String getRequest(String url) throws IOException {
+		return getRequest(url, null);
+	}
+
+	private static String getRequest(String url,Map<String,Object> cookies) throws IOException {
 		String respBody = null;
 		HttpGet httpGet = null;
 		CloseableHttpResponse response = null;
 		try {
 			httpGet = new HttpGet(url);
+			if(cookies!=null&&cookies.size()>0){
+				httpGet.setHeader("Cookie", getCookieFormat(cookies));
+			}
 			response = httpClient.execute(httpGet);
-			if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+			int statusCode = response.getStatusLine().getStatusCode();
+			if (statusCode == HttpStatus.SC_OK) {
 				HttpEntity entity = response.getEntity();
 				respBody = EntityUtils.toString(entity,charset);
+			}else if (statusCode == HttpStatus.SC_UNAUTHORIZED){
+				throw new RdosDefineException("登陆状态失效", ErrorCode.NOT_LOGIN);
 			}else{
 				logger.warn("request url:{} fail:{}",url,response.getStatusLine().getStatusCode());
 
@@ -150,7 +169,7 @@ public class PoolHttpClient {
 		} catch (IOException e) {
 			logger.error("url:{}--->http request error:{}", url, ExceptionUtil.getErrorMessage(e));
 			throw e;
-		}finally{
+		} finally{
 			if(response!=null){
 				try {
 					response.close();
@@ -164,25 +183,35 @@ public class PoolHttpClient {
 
     public static String get(String url) throws IOException {
         try {
-            return get(url, DEFAULT_RETRY_TIMES);
+            return get(url, null);
         } catch (Exception e) {
             throw new IOException(e);
         }
     }
 
-	public static String get(String url, int retryNumber) throws Exception{
+	public static String get(String url, Map<String,Object> cookies) throws IOException {
+		try {
+			return get(url, cookies, DEFAULT_RETRY_TIMES);
+		} catch (Exception e) {
+			throw new IOException(e);
+		}
+	}
+
+	public static String get(String url, Map<String,Object> cookies, int retryNumber) throws Exception{
 		return RetryUtil.executeWithRetry(new Callable<String>() {
 			@Override
 			public String call() throws Exception{
-				return getRequest(url);
+				return getRequest(url, cookies);
 			}
 		}, retryNumber, SLEEP_TIME_MILLI_SECOND,false);
 	}
 
-	public static void main(String[] args) throws IOException {
-		for(int i=0;i<3;i++){
-//			System.out.println(PoolHttpClient.get("http://node001:8088/proxy/application_1560304503540_0049/jobs/2eeed96725faf6e281b7b23431429bca"));
-			System.out.println(PoolHttpClient.get("http://kudu1:8088/proxy/application_1560306804240_0047/jobs/d51e3fa15a259bc1918c4855f667a800"));
+	private static String getCookieFormat(Map<String,Object> cookies) {
+		StringBuffer sb = new StringBuffer();
+		Set<Map.Entry<String,Object>> sets =cookies.entrySet();
+		for(Map.Entry<String,Object> s:sets){
+			sb.append(s.getKey()).append("=").append(s.getValue().toString()).append(";");
 		}
+		return sb.toString();
 	}
 }
