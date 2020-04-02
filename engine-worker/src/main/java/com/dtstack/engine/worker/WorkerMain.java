@@ -5,7 +5,6 @@ import com.dtstack.engine.common.security.NoExitSecurityManager;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
 import com.dtstack.engine.common.akka.config.AkkaConfig;
-import com.dtstack.engine.worker.metric.SystemResourcesMetricsInitializer;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
@@ -21,7 +20,6 @@ public class WorkerMain {
             LogbackComponent.setupLogger();
             Config workerConfig = AkkaConfig.checkIpAndPort(ConfigFactory.load());
             AkkaWorkerServerImpl.getAkkaWorkerServer().start(workerConfig);
-            SystemResourcesMetricsInitializer.instantiateSystemMetrics(AkkaConfig.getSystemResourceProbeInterval());
             ShutdownHookUtil.addShutdownHook(WorkerMain::shutdown, WorkerMain.class.getSimpleName(), logger);
             System.setSecurityManager(new NoExitSecurityManager());
         } catch (Throwable e) {
