@@ -232,11 +232,9 @@ public class EnvironmentContext {
     }
 
     public String getLocalAddress(){
-        String localAddress = environment.getProperty("localAddress");
-        if(StringUtils.isBlank(localAddress)){
-            localAddress = String.format("%s:%s", AddressUtil.getOneIp(), "8090");
-        }
-        return localAddress;
+        String address = environment.getProperty("http.address", AddressUtil.getOneIp());
+        String port = environment.getProperty("http.port", "8090");
+        return environment.getProperty(String.format("%s:%s", address, port));
     }
 
     public String getNodeZkAddress(){
