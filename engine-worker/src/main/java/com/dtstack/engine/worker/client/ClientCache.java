@@ -29,7 +29,7 @@ import java.util.Properties;
  */
 
 public class ClientCache {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(ClientCache.class);
 
     private static final String MD5_SUM_KEY = "md5sum";
@@ -98,7 +98,7 @@ public class ClientCache {
         IClient defaultClient = defaultClientMap.get(engineType);
         if(defaultClient == null){
             LOG.error("-------job.pluginInfo is empty, either can't find plugin('In console is the typeName') which engineType:{}", engineType);
-            return null;
+            throw new IllegalArgumentException("job.pluginInfo is empty, either can't find plugin('In console is the typeName') which engineType:" + engineType);
         }
 
         return defaultClient;
