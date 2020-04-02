@@ -234,7 +234,7 @@ public class EnvironmentContext {
     public String getLocalAddress(){
         String address = environment.getProperty("http.address", AddressUtil.getOneIp());
         String port = environment.getProperty("http.port", "8090");
-        return environment.getProperty(String.format("%s:%s", address, port));
+        return String.format("%s:%s", address, port);
     }
 
     public String getNodeZkAddress(){
