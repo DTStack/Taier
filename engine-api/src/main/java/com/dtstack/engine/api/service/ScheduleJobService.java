@@ -1,18 +1,18 @@
 package com.dtstack.engine.api.service;
 
 import com.dtstack.engine.api.annotation.Param;
-import com.dtstack.engine.api.domain.BatchJob;
-import com.dtstack.engine.api.dto.BatchJobDTO;
+import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.dto.ScheduleJobDTO;
 import com.dtstack.engine.api.dto.QueryJobDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.vo.BatchFillDataJobDetailVO;
-import com.dtstack.engine.api.vo.BatchFillDataJobPreViewVO;
-import com.dtstack.engine.api.vo.BatchJobChartVO;
-import com.dtstack.engine.api.vo.BatchJobVO;
-import com.dtstack.engine.api.vo.BatchPeriodInfoVO;
-import com.dtstack.engine.api.vo.BatchRunDetailVO;
-import com.dtstack.engine.api.vo.BatchServerLogVO;
+import com.dtstack.engine.api.vo.ScheduleFillDataJobDetailVO;
+import com.dtstack.engine.api.vo.ScheduleFillDataJobPreViewVO;
+import com.dtstack.engine.api.vo.ScheduleJobChartVO;
+import com.dtstack.engine.api.vo.ScheduleJobVO;
+import com.dtstack.engine.api.vo.SchedulePeriodInfoVO;
+import com.dtstack.engine.api.vo.ScheduleRunDetailVO;
+import com.dtstack.engine.api.vo.ScheduleServerLogVO;
 import com.dtstack.engine.api.vo.ChartDataVO;
 import com.dtstack.engine.api.vo.JobTopErrorVO;
 import com.dtstack.engine.api.vo.JobTopOrderVO;
@@ -34,7 +34,7 @@ public interface ScheduleJobService {
      *
      * @author toutian
      */
-    public BatchJob getJobById(@Param("jobId") long jobId);
+    public ScheduleJob getJobById(@Param("jobId") long jobId);
 
 
     /**
@@ -69,7 +69,7 @@ public interface ScheduleJobService {
     /**
      * 曲线图数据
      */
-    public BatchJobChartVO getJobGraph(@Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("appType") Integer appType,@Param("dtuicTenantId") Long dtuicTenantId);
+    public ScheduleJobChartVO getJobGraph(@Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId);
 
     /**
      * 获取数据科学的曲线图
@@ -87,9 +87,9 @@ public interface ScheduleJobService {
      * @return
      * @author toutian
      */
-    public PageResult<List<BatchJobVO>> queryJobs(QueryJobDTO vo) throws Exception;
+    public PageResult<List<ScheduleJobVO>> queryJobs(QueryJobDTO vo) throws Exception;
 
-    public List<BatchPeriodInfoVO> displayPeriods(@Param("isAfter") boolean isAfter, @Param("jobId") Long jobId, @Param("projectId") Long projectId, @Param("limit") int limit) throws Exception;
+    public List<SchedulePeriodInfoVO> displayPeriods(@Param("isAfter") boolean isAfter, @Param("jobId") Long jobId, @Param("projectId") Long projectId, @Param("limit") int limit) throws Exception;
 
     /**
      * 获取工作流节点的父节点和子节点关联信息
@@ -98,7 +98,7 @@ public interface ScheduleJobService {
      * @return
      * @throws Exception
      */
-    public BatchJobVO getRelatedJobs(@Param("jobId") String jobId, @Param("vo") String query) throws Exception;
+    public ScheduleJobVO getRelatedJobs(@Param("jobId") String jobId, @Param("vo") String query) throws Exception;
 
     /**
      * 获取任务的状态统计信息
@@ -108,13 +108,13 @@ public interface ScheduleJobService {
     public Map<String, Long> queryJobsStatusStatistics(QueryJobDTO vo);
 
 
-    public List<BatchRunDetailVO> jobDetail(@Param("taskId") Long taskId, @Param("appType") Integer appType);
+    public List<ScheduleRunDetailVO> jobDetail(@Param("taskId") Long taskId, @Param("appType") Integer appType);
 
 
     /**
      * 触发 engine 执行指定task
      */
-    public void sendTaskStartTrigger(BatchJob batchJob) throws Exception;
+    public void sendTaskStartTrigger(ScheduleJob scheduleJob) throws Exception;
 
     public String stopJob(@Param("jobId") long jobId, @Param("userId") Long userId, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("dtuicTenantId") Long dtuicTenantId,
                           @Param("isRoot") Boolean isRoot, @Param("appType") Integer appType) throws Exception;
@@ -158,24 +158,24 @@ public interface ScheduleJobService {
      * @param tenantId
      * @return
      */
-    public PageResult<BatchFillDataJobPreViewVO> getFillDataJobInfoPreview(@Param("jobName") String jobName, @Param("runDay") Long runDay,
-                                                                           @Param("bizStartDay") Long bizStartDay, @Param("bizEndDay") Long bizEndDay, @Param("dutyUserId") Long dutyUserId,
-                                                                           @Param("projectId") Long projectId, @Param("appType") Integer appType, @Param("user") Integer userId,
-                                                                           @Param("currentPage") Integer currentPage, @Param("pageSize") Integer pageSize, @Param("tenantId") Long tenantId);
+    public PageResult<ScheduleFillDataJobPreViewVO> getFillDataJobInfoPreview(@Param("jobName") String jobName, @Param("runDay") Long runDay,
+                                                                              @Param("bizStartDay") Long bizStartDay, @Param("bizEndDay") Long bizEndDay, @Param("dutyUserId") Long dutyUserId,
+                                                                              @Param("projectId") Long projectId, @Param("appType") Integer appType, @Param("user") Integer userId,
+                                                                              @Param("currentPage") Integer currentPage, @Param("pageSize") Integer pageSize, @Param("tenantId") Long tenantId);
 
     /**
      * @param fillJobName
      * @return
      */
     @Deprecated
-    public PageResult<BatchFillDataJobDetailVO> getFillDataDetailInfoOld(QueryJobDTO vo,
-                                                                         @Param("fillJobName") String fillJobName,
-                                                                         @Param("dutyUserId") Long dutyUserId) throws Exception;
+    public PageResult<ScheduleFillDataJobDetailVO> getFillDataDetailInfoOld(QueryJobDTO vo,
+                                                                            @Param("fillJobName") String fillJobName,
+                                                                            @Param("dutyUserId") Long dutyUserId) throws Exception;
 
-    public PageResult<BatchFillDataJobDetailVO> getFillDataDetailInfo(@Param("vo") String queryJobDTO,
-                                                                      @Param("flowJobIdList") List<String> flowJobIdList,
-                                                                      @Param("fillJobName") String fillJobName,
-                                                                      @Param("dutyUserId") Long dutyUserId, @Param("searchType") String searchType) throws Exception;
+    public PageResult<ScheduleFillDataJobDetailVO> getFillDataDetailInfo(@Param("vo") String queryJobDTO,
+                                                                         @Param("flowJobIdList") List<String> flowJobIdList,
+                                                                         @Param("fillJobName") String fillJobName,
+                                                                         @Param("dutyUserId") Long dutyUserId, @Param("searchType") String searchType) throws Exception;
 
     /**
      * 获取补数据实例工作流节点的父节点和子节点关联信息
@@ -184,8 +184,8 @@ public interface ScheduleJobService {
      * @return
      * @throws Exception
      */
-    public BatchFillDataJobDetailVO.FillDataRecord getRelatedJobsForFillData(@Param("jobId") String jobId, @Param("vo") String query,
-                                                                             @Param("fillJobName") String fillJobName) throws Exception;
+    public ScheduleFillDataJobDetailVO.FillDataRecord getRelatedJobsForFillData(@Param("jobId") String jobId, @Param("vo") String query,
+                                                                                @Param("fillJobName") String fillJobName) throws Exception;
 
 
     /**
@@ -204,7 +204,7 @@ public interface ScheduleJobService {
      * @param projectId
      * @return
      */
-    public Map<String, BatchJob> getLabTaskRelationMap(@Param("jobIdList") List<String> jobIdList, @Param("projectId") Long projectId);
+    public Map<String, ScheduleJob> getLabTaskRelationMap(@Param("jobIdList") List<String> jobIdList, @Param("projectId") Long projectId);
 
     /**
      * 获取任务执行信息
@@ -233,11 +233,11 @@ public interface ScheduleJobService {
     public Integer updateTimeNull(@Param("jobId") String jobId);
 
 
-    public BatchJob getById(@Param("id") Long id);
+    public ScheduleJob getById(@Param("id") Long id);
 
-    public BatchJob getByJobId(@Param("jobId") String jobId, @Param("isDeleted") Integer isDeleted);
+    public ScheduleJob getByJobId(@Param("jobId") String jobId, @Param("isDeleted") Integer isDeleted);
 
-    public List<BatchJob> getByIds(@Param("ids") List<Long> ids, @Param("project") Long projectId);
+    public List<ScheduleJob> getByIds(@Param("ids") List<Long> ids, @Param("project") Long projectId);
 
 
     /**
@@ -248,29 +248,29 @@ public interface ScheduleJobService {
      * @param appType
      * @return
      */
-    public List<BatchJob> getSameDayChildJob(@Param("batchJob") String batchJob,
-                                             @Param("isOnlyNextChild") boolean isOnlyNextChild, @Param("appType") Integer appType);
+    public List<ScheduleJob> getSameDayChildJob(@Param("batchJob") String batchJob,
+                                                @Param("isOnlyNextChild") boolean isOnlyNextChild, @Param("appType") Integer appType);
 
     /**
      * FIXME 注意不要出现死循环
      * 查询出指定job的所有关联的子job
      * 限定同一天并且不是自依赖
      *
-     * @param batchJob
+     * @param scheduleJob
      * @return
      */
-    public List<BatchJob> getAllChildJobWithSameDay(BatchJob batchJob,
-                                                    @Param("isOnlyNextChild") boolean isOnlyNextChild, @Param("appType") Integer appType);
+    public List<ScheduleJob> getAllChildJobWithSameDay(ScheduleJob scheduleJob,
+                                                       @Param("isOnlyNextChild") boolean isOnlyNextChild, @Param("appType") Integer appType);
 
 
-    public Integer generalCount(BatchJobDTO query);
+    public Integer generalCount(ScheduleJobDTO query);
 
-    public Integer generalCountWithMinAndHour(BatchJobDTO query);
+    public Integer generalCountWithMinAndHour(ScheduleJobDTO query);
 
 
-    public List<BatchJob> generalQuery(PageQuery query);
+    public List<ScheduleJob> generalQuery(PageQuery query);
 
-    public List<BatchJob> generalQueryWithMinAndHour(PageQuery query);
+    public List<ScheduleJob> generalQueryWithMinAndHour(PageQuery query);
 
     /**
      * 获取job最后一次执行
@@ -279,7 +279,7 @@ public interface ScheduleJobService {
      * @param time
      * @return
      */
-    public BatchJob getLastSuccessJob(@Param("taskId") Long taskId, @Param("time") Timestamp time);
+    public ScheduleJob getLastSuccessJob(@Param("taskId") Long taskId, @Param("time") Timestamp time);
 
 
     /**
@@ -292,8 +292,8 @@ public interface ScheduleJobService {
      * @param logVo
      * @throws Exception
      */
-    public BatchServerLogVO setAlogrithmLabLog(@Param("status") Integer status, @Param("taskType") Integer taskType, @Param("jobId") String jobId,
-                                               @Param("info") String info, @Param("logVo") String logVo, @Param("appType") Integer appType) throws Exception;
+    public ScheduleServerLogVO setAlogrithmLabLog(@Param("status") Integer status, @Param("taskType") Integer taskType, @Param("jobId") String jobId,
+                                                  @Param("info") String info, @Param("logVo") String logVo, @Param("appType") Integer appType) throws Exception;
 
 
 
@@ -301,7 +301,7 @@ public interface ScheduleJobService {
      * 周期实例列表
      * 分钟任务和小时任务 展开按钮显示
      */
-    public List<BatchJobVO> minOrHourJobQuery(BatchJobDTO batchJobDTO);
+    public List<ScheduleJobVO> minOrHourJobQuery(ScheduleJobDTO scheduleJobDTO);
 
 
     /**
@@ -327,7 +327,7 @@ public interface ScheduleJobService {
      */
     public void createTodayTaskShade(@Param("taskId") Long taskId,@Param("appType") Integer appType);
 
-    public List<BatchJob> listByBusinessDateAndPeriodTypeAndStatusList(BatchJobDTO query);
+    public List<ScheduleJob> listByBusinessDateAndPeriodTypeAndStatusList(ScheduleJobDTO query);
 
     /**
      * 根据cycTime和jobName获取，如获取当天的周期实例任务
@@ -336,7 +336,7 @@ public interface ScheduleJobService {
      * @param scheduleType
      * @return
      */
-    public List<BatchJob> listByCyctimeAndJobName(@Param("preCycTime") String preCycTime, @Param("preJobName") String preJobName, @Param("scheduleType") Integer scheduleType);
+    public List<ScheduleJob> listByCyctimeAndJobName(@Param("preCycTime") String preCycTime, @Param("preJobName") String preJobName, @Param("scheduleType") Integer scheduleType);
 
     /**
      * 按批次根据cycTime和jobName获取，如获取当天的周期实例任务
@@ -347,7 +347,7 @@ public interface ScheduleJobService {
      * @param batchJobSize
      * @return
      */
-    public List<BatchJob> listByCyctimeAndJobName(@Param("startId") Long startId, @Param("preCycTime") String preCycTime, @Param("preJobName") String preJobName, @Param("scheduleType") Integer scheduleType, @Param("batchJobSize") Integer batchJobSize);
+    public List<ScheduleJob> listByCyctimeAndJobName(@Param("startId") Long startId, @Param("preCycTime") String preCycTime, @Param("preJobName") String preJobName, @Param("scheduleType") Integer scheduleType, @Param("batchJobSize") Integer batchJobSize);
 
     public Integer countByCyctimeAndJobName(@Param("preCycTime") String preCycTime, @Param("preJobName") String preJobName, @Param("scheduleType") Integer scheduleType);
 

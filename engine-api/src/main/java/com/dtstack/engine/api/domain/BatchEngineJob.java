@@ -117,19 +117,19 @@ public class BatchEngineJob extends AppTenantEntity {
         this.retryNum = retryNum;
     }
 
-    public BatchEngineJob(BatchJob batchJob) {
-        if (Objects.nonNull(batchJob)) {
-            this.retryNum = batchJob.getRetryNum();
-            this.status = batchJob.getStatus();
-            this.execTime = batchJob.getExecTime();
-            if (Objects.nonNull(batchJob.getExecStartTime())) {
-                this.execStartTime = new Timestamp(batchJob.getExecStartTime().getTime());
+    public BatchEngineJob(ScheduleJob scheduleJob) {
+        if (Objects.nonNull(scheduleJob)) {
+            this.retryNum = scheduleJob.getRetryNum();
+            this.status = scheduleJob.getStatus();
+            this.execTime = scheduleJob.getExecTime();
+            if (Objects.nonNull(scheduleJob.getExecStartTime())) {
+                this.execStartTime = new Timestamp(scheduleJob.getExecStartTime().getTime());
             }
-            if (Objects.nonNull(batchJob.getExecEndTime())) {
-                this.execEndTime = new Timestamp(batchJob.getExecEndTime().getTime());
+            if (Objects.nonNull(scheduleJob.getExecEndTime())) {
+                this.execEndTime = new Timestamp(scheduleJob.getExecEndTime().getTime());
             }
-            this.jobId = batchJob.getJobId();
-            this.logInfo = batchJob.getLogInfo();
+            this.jobId = scheduleJob.getJobId();
+            this.logInfo = scheduleJob.getLogInfo();
         }
     }
 }

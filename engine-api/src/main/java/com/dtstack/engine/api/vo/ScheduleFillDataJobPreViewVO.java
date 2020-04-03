@@ -5,7 +5,7 @@ package com.dtstack.engine.api.vo;
  * author: toutian
  * create: 2019/10/22
  */
-public class BatchFillDataJobPreViewVO {
+public class ScheduleFillDataJobPreViewVO {
 
     private Long id;
 

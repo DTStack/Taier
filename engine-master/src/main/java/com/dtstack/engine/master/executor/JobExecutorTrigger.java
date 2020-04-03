@@ -9,7 +9,7 @@ import com.dtstack.sql.Twins;
 import com.dtstack.engine.common.constrant.JobFieldInfo;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.dao.BatchJobDao;
+import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.api.domain.po.SimpleBatchJobPO;
 import com.dtstack.engine.master.queue.QueueInfo;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
@@ -61,7 +61,7 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
     private EnvironmentContext environmentContext;
 
     @Autowired
-    private BatchJobDao batchJobDao;
+    private ScheduleJobDao scheduleJobDao;
 
     @Autowired
     private CronJobExecutor cronJobExecutor;
@@ -106,7 +106,7 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
      * key2: scheduleType
      */
     public Map<String, Map<Integer, QueueInfo>> getAllNodesJobQueueInfo() {
-        List<String> allNodeAddress = batchJobDao.getAllNodeAddress();
+        List<String> allNodeAddress = scheduleJobDao.getAllNodeAddress();
         Twins<String, String> cycTime = jobRichOperator.getCycTimeLimit();
         Map<String, Map<Integer, QueueInfo>> allNodeJobInfo = Maps.newHashMap();
         for (String nodeAddress : allNodeAddress) {
@@ -116,7 +116,7 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
             allNodeJobInfo.computeIfAbsent(nodeAddress, na -> {
                 Map<Integer, QueueInfo> nodeJobInfo = Maps.newHashMap();
                 executors.forEach(executor -> nodeJobInfo.computeIfAbsent(executor.getScheduleType(), k -> {
-                    int queueSize = batchJobDao.countTasksByCycTimeTypeAndAddress(nodeAddress, executor.getScheduleType(), cycTime.getKey(), cycTime.getType());
+                    int queueSize = scheduleJobDao.countTasksByCycTimeTypeAndAddress(nodeAddress, executor.getScheduleType(), cycTime.getKey(), cycTime.getType());
                     QueueInfo queueInfo = new QueueInfo();
                     queueInfo.setSize(queueSize);
                     return queueInfo;
@@ -192,7 +192,7 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
             try {
                 long startId = 0L;
                 while (true) {
-                    List<SimpleBatchJobPO> jobs = batchJobDao.listSimpleJobByStatusAddress(startId, SUBMIT_ENGINE_STATUSES, environmentContext.getLocalAddress());
+                    List<SimpleBatchJobPO> jobs = scheduleJobDao.listSimpleJobByStatusAddress(startId, SUBMIT_ENGINE_STATUSES, environmentContext.getLocalAddress());
                     if (CollectionUtils.isEmpty(jobs)) {
                         break;
                     }
@@ -247,7 +247,7 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
                 Long execTime = MapUtils.getLong(jobStatusInfo, JobFieldInfo.EXEC_TIME);
                 Integer retryNum = MapUtils.getInteger(jobStatusInfo, JobFieldInfo.RETRY_NUM);
 
-                batchJobDao.updateJobInfoByJobId(jobId, status, execStartTimestamp, execEndTimestamp, execTime, retryNum);
+                scheduleJobDao.updateJobInfoByJobId(jobId, status, execStartTimestamp, execEndTimestamp, execTime, retryNum);
             }
         }
     }

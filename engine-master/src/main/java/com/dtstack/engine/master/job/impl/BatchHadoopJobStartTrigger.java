@@ -8,11 +8,11 @@ import com.dtstack.dtcenter.common.hadoop.HadoopConf;
 import com.dtstack.dtcenter.common.hadoop.HdfsOperator;
 import com.dtstack.dtcenter.common.util.DBUtil;
 import com.dtstack.dtcenter.common.util.RetryUtil;
+import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.dao.BatchJobDao;
-import com.dtstack.engine.api.domain.BatchJob;
+import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.api.domain.BatchTaskShade;
 import com.dtstack.engine.api.dto.BatchTaskParamShade;
 import com.dtstack.engine.master.env.EnvironmentContext;
@@ -56,7 +56,7 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
     private JobParamReplace jobParamReplace;
 
     @Autowired
-    private BatchJobDao batchJobDao;
+    private ScheduleJobDao scheduleJobDao;
 
     @Autowired
     private ActionService actionService;
@@ -92,7 +92,7 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
     private static final String ADD_PART_TEMP = "alter table %s add partition(task_name='%s',time='%s')";
 
     @Override
-    public void readyForTaskStartTrigger(Map<String, Object> actionParam, BatchTaskShade taskShade, BatchJob batchJob) throws Exception {
+    public void readyForTaskStartTrigger(Map<String, Object> actionParam, BatchTaskShade taskShade, ScheduleJob scheduleJob) throws Exception {
 
         //info信息中数据
         String sql = (String) actionParam.get("sqlText");
@@ -105,7 +105,7 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
 
         if (EJobType.SPARK_SQL.getVal().equals(taskShade.getTaskType()) || EJobType.HIVE_SQL.getVal().equals(taskShade.getTaskType())
                 || EJobType.CARBON_SQL.getVal().equals(taskShade.getTaskType())) {
-            sql = jobParamReplace.paramReplace(sql, taskParamsToReplace, batchJob.getCycTime());
+            sql = jobParamReplace.paramReplace(sql, taskParamsToReplace, scheduleJob.getCycTime());
         } else if (EJobType.SYNC.getVal().equals(taskShade.getTaskType())) {
             String job = (String) actionParam.get("job");
             if (StringUtils.isBlank(job)) {
@@ -113,7 +113,7 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
             }
 
             //替换系统参数
-            job = jobParamReplace.paramReplace(job, taskParamsToReplace, batchJob.getCycTime());
+            job = jobParamReplace.paramReplace(job, taskParamsToReplace, scheduleJob.getCycTime());
 
             Integer tableType = (Integer) actionParam.getOrDefault("tableType", ETableType.HIVE.getType());
             String engineIdentity = (String) actionParam.get("engineIdentity");
@@ -121,7 +121,7 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
             try {
                 job = this.replaceTablePath(true, job, taskShade.getName(), tableType, engineIdentity,taskShade.getDtuicTenantId());
             } catch (Exception e) {
-                LOG.error("create dirty table  partition error {}", batchJob.getJobId(), e);
+                LOG.error("create dirty table  partition error {}", scheduleJob.getJobId(), e);
             }
 
             // 创建分区
@@ -131,14 +131,14 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
                     job = this.createPartitionImpala(taskShade.getDtuicTenantId(), job, actionParam);
                 }
             } catch (Exception e) {
-                LOG.error("create partition error {}", batchJob.getJobId(), e);
+                LOG.error("create partition error {}", scheduleJob.getJobId(), e);
                 throw e;
             }
 
 
             // 查找上一次同步位置
-            if (batchJob.getType() == EScheduleType.NORMAL_SCHEDULE.getType()) {
-                job = getLastSyncLocation(taskShade.getTaskId(), job, batchJob.getCycTime());
+            if (scheduleJob.getType() == EScheduleType.NORMAL_SCHEDULE.getType()) {
+                job = getLastSyncLocation(taskShade.getTaskId(), job, scheduleJob.getCycTime());
             } else {
                 job = removeIncreConf(job);
             }
@@ -152,8 +152,8 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
                 taskParams += String.format(" \n %s=%s", KEY_OPEN_CHECKPOINT, Boolean.TRUE.toString());
             }
 
-            job = URLEncoder.encode(job.replace(TaskConstant.JOB_ID,batchJob.getJobId()), Charsets.UTF_8.name());
-            taskExeArgs = String.format(JOB_ARGS_TEMPLATE, batchJob.getJobName(), job);
+            job = URLEncoder.encode(job.replace(TaskConstant.JOB_ID, scheduleJob.getJobId()), Charsets.UTF_8.name());
+            taskExeArgs = String.format(JOB_ARGS_TEMPLATE, scheduleJob.getJobName(), job);
             if (savepointArgs != null) {
                 taskExeArgs += " " + savepointArgs;
             }
@@ -166,17 +166,17 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
             //提交
             String exeArgs = (String) actionParam.get("exeArgs");
             //替换系统参数
-            String content = jobParamReplace.paramReplace(exeArgs, taskParamsToReplace, batchJob.getCycTime());
+            String content = jobParamReplace.paramReplace(exeArgs, taskParamsToReplace, scheduleJob.getCycTime());
             //替换jobId
-            taskExeArgs = content.replace(TaskConstant.JOB_ID, batchJob.getJobId());
+            taskExeArgs = content.replace(TaskConstant.JOB_ID, scheduleJob.getJobId());
             //提交上传路径
             if (StringUtils.isNotBlank(taskExeArgs) && taskExeArgs.contains(TaskConstant.UPLOADPATH)) {
-                taskExeArgs = taskExeArgs.replace(TaskConstant.UPLOADPATH, this.uploadSqlTextToHdfs(batchJob.getDtuicTenantId(), taskShade.getSqlText(), taskShade.getTaskType(),
-                        taskShade.getName(), taskShade.getTenantId(), taskShade.getProjectId(), taskParamsToReplace, batchJob.getCycTime()));
+                taskExeArgs = taskExeArgs.replace(TaskConstant.UPLOADPATH, this.uploadSqlTextToHdfs(scheduleJob.getDtuicTenantId(), taskShade.getSqlText(), taskShade.getTaskType(),
+                        taskShade.getName(), taskShade.getTenantId(), taskShade.getProjectId(), taskParamsToReplace, scheduleJob.getCycTime()));
             } else if (StringUtils.isNotBlank(sql) && sql.contains(TaskConstant.UPLOADPATH)) {
                 //上传代码到hdfs
-                String uploadPath = this.uploadSqlTextToHdfs(batchJob.getDtuicTenantId(), taskShade.getSqlText(), taskShade.getTaskType(),
-                        taskShade.getName(), taskShade.getTenantId(), taskShade.getProjectId(), taskParamsToReplace, batchJob.getCycTime());
+                String uploadPath = this.uploadSqlTextToHdfs(scheduleJob.getDtuicTenantId(), taskShade.getSqlText(), taskShade.getTaskType(),
+                        taskShade.getName(), taskShade.getTenantId(), taskShade.getProjectId(), taskParamsToReplace, scheduleJob.getCycTime());
                 sql = sql.replace(TaskConstant.UPLOADPATH, uploadPath);
                 taskExeArgs = taskExeArgs.replace(TaskConstant.UPLOADPATH, uploadPath);
             }
@@ -185,11 +185,11 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
 
         if (taskExeArgs != null) {
             //替换jobId
-            taskExeArgs = taskExeArgs.replace(TaskConstant.JOB_ID, batchJob.getJobId());
+            taskExeArgs = taskExeArgs.replace(TaskConstant.JOB_ID, scheduleJob.getJobId());
             actionParam.put("exeArgs", taskExeArgs);
         }
         //统一替换下sql
-        sql = jobParamReplace.paramReplace(sql, taskParamsToReplace, batchJob.getCycTime());
+        sql = jobParamReplace.paramReplace(sql, taskParamsToReplace, scheduleJob.getCycTime());
 
         actionParam.put("sqlText", sql);
         actionParam.put("taskParams", taskParams);
@@ -378,7 +378,7 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
 
         Timestamp time = new Timestamp(dayFormatterAll.parseDateTime(cycTime).toDate().getTime());
         // 查找上一次成功的job
-        BatchJob job = batchJobDao.getByTaskIdAndStatusOrderByIdLimit(taskId, TaskStatus.FINISHED.getStatus(), time);
+        ScheduleJob job = scheduleJobDao.getByTaskIdAndStatusOrderByIdLimit(taskId, TaskStatus.FINISHED.getStatus(), time);
         if (job != null && StringUtils.isNotBlank(job.getJobId())) {
             //日志需要从engine获取
             JSONObject logInfoFromEngine = this.getLogInfoFromEngine(job.getJobId());

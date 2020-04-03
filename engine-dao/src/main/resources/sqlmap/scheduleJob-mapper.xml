@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.engine.dao.BatchJobDao">
+<mapper namespace="com.dtstack.engine.dao.ScheduleJobDao">
 
     <sql id="select_content_fragment">
       bj.id,bj.tenant_id,bj.project_id,bj.dtuic_tenant_id,bj.app_type,bj.job_id,bj.job_key,bj.job_name,bj.task_id,bj.gmt_create,bj.gmt_modified,bj.create_user_id,bj.is_deleted,bj.type,bj.is_restart,
@@ -440,14 +440,14 @@
         </set>
     </sql>
 
-    <select id="getOne" resultType="BatchJob">
+    <select id="getOne" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_job bj
         WHERE id = #{id} AND is_deleted = 0
     </select>
 
-    <select id="listByJobIds" resultType="BatchJob">
+    <select id="listByJobIds" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_job bj
@@ -459,7 +459,7 @@
         AND is_deleted = 0
     </select>
 
-    <select id="listAfterOrBeforeJobs" resultType="BatchJob">
+    <select id="listAfterOrBeforeJobs" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment" />
         from schedule_job bj
@@ -474,14 +474,14 @@
         </choose>
     </select>
 
-    <select id="getByJobKeyAndType" resultType="BatchJob">
+    <select id="getByJobKeyAndType" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_job bj
         WHERE job_key = #{jobKey} AND type = #{type} AND is_deleted = 0
     </select>
 
-    <select id="getByJobKey" resultType="BatchJob">
+    <select id="getByJobKey" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_job bj
@@ -708,7 +708,7 @@
         GROUP BY hour
     </select>
 
-    <select id="listRestartBatchJobList" resultType="BatchJob">
+    <select id="listRestartBatchJobList" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_job bj
@@ -721,7 +721,7 @@
         AND is_deleted = 0
     </select>
 
-    <select id="listJobByJobKeys" resultType="BatchJob">
+    <select id="listJobByJobKeys" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_job bj
@@ -769,7 +769,7 @@
         order by ${pageQuery.orderBy} ${pageQuery.sort} limit #{pageQuery.start} , #{pageQuery.pageSize}
     </select>
 
-    <select id="getByJobId" resultType="BatchJob">
+    <select id="getByJobId" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_job bj
@@ -791,7 +791,7 @@
       ,period_type ,left(business_date,8) as groupDate
     </sql>
 
-    <select id="generalQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="BatchJob">
+    <select id="generalQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         from (
@@ -815,7 +815,7 @@
         </if>
     </select>
 
-    <select id="generalQueryWithMinAndHour" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="BatchJob">
+    <select id="generalQueryWithMinAndHour" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         from (
@@ -837,7 +837,7 @@
         </if>
     </select>
 
-    <select id="minOrHourJobQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="BatchJob">
+    <select id="minOrHourJobQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         from  schedule_job bj
@@ -938,7 +938,7 @@
         </if>
     </sql>
 
-    <insert id="insert" parameterType="BatchJob" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="ScheduleJob" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO schedule_job
         (tenant_id,project_id,job_id,job_key,job_name,task_id,gmt_create,gmt_modified,create_user_id,is_deleted,type,is_restart,business_date,cyc_time,dependency_type,flow_job_id,next_cyc_time,task_type,node_address,max_retry_num,version_id,fill_id)
         VALUES
@@ -955,14 +955,14 @@
         </foreach>
     </insert>
 
-    <update id="update" parameterType="BatchJob">
+    <update id="update" parameterType="ScheduleJob">
         UPDATE
         schedule_job
         <include refid="update_fragment"/>
         WHERE id = #{id} AND is_deleted = 0
     </update>
 
-    <update id="updateStatusWithExecTime" parameterType="BatchJob">
+    <update id="updateStatusWithExecTime" parameterType="ScheduleJob">
         UPDATE
         schedule_job
         SET
@@ -1015,7 +1015,7 @@
         <include refid="select_where_fragment_without_ts"/>
     </select>
 
-    <select id="listNeedStopFillDataJob" resultType = "BatchJob">
+    <select id="listNeedStopFillDataJob" resultType = "ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_job bj
@@ -1035,7 +1035,7 @@
         order by a.exec_start_time desc limit #{limitNum};
     </select>
 
-    <select id="getSubJobsAndStatusByFlowId" resultType="BatchJob">
+    <select id="getSubJobsAndStatusByFlowId" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_job bj
@@ -1075,7 +1075,7 @@
         AND is_deleted = 0
     </select>
 
-    <select id="getSubJobsByFlowIds" resultType="BatchJob">
+    <select id="getSubJobsByFlowIds" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_job bj
@@ -1154,7 +1154,7 @@
         <include refid="page_condition"/>
     </select>
 
-    <select id="queryFillData" resultType="BatchJob">
+    <select id="queryFillData" resultType="ScheduleJob">
         select
         <include refid="select_content_fragment"/>
         from
@@ -1182,7 +1182,7 @@
         </if>
     </select>
 
-    <select id="getWorkFlowTopNode" resultType="BatchJob">
+    <select id="getWorkFlowTopNode" resultType="ScheduleJob">
         SELECT
             <include refid="select_content_fragment"/>
         FROM
@@ -1192,7 +1192,7 @@
             AND bj.flow_job_id != '0'
     </select>
 
-    <select id="listByJobIdList" resultType="BatchJob">
+    <select id="listByJobIdList" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_job
@@ -1273,7 +1273,7 @@
         set status = #{status} where status = 0 and  job_name like #{likeName} and project_id = #{projectId} and app_type = #{appType};
     </update>
 
-    <select id="getByTaskIdAndStatusOrderByIdLimit" resultType="BatchJob">
+    <select id="getByTaskIdAndStatusOrderByIdLimit" resultType="ScheduleJob">
         SELECT
             *
         FROM schedule_job job
@@ -1283,7 +1283,7 @@
         order by job.cyc_time desc limit 1
     </select>
 
-    <select id="listExecJobByCycTimeTypeAddress" resultType="BatchJob">
+    <select id="listExecJobByCycTimeTypeAddress" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_job bj
@@ -1348,7 +1348,7 @@
           AND is_deleted=0
     </update>
 
-    <select id="listByBusinessDateAndPeriodTypeAndStatusList" resultType="BatchJob">
+    <select id="listByBusinessDateAndPeriodTypeAndStatusList" resultType="ScheduleJob">
         select
         <include refid= "select_content_fragment"/>
         from schedule_job bj
@@ -1374,7 +1374,7 @@
         AND bj.type = 0
     </select>
 
-    <select id="listJobByCyctimeAndJobName" resultType="BatchJob">
+    <select id="listJobByCyctimeAndJobName" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_job bj
@@ -1386,7 +1386,7 @@
         </if>
     </select>
 
-    <select id="listJobByCyctimeAndJobNameBatch" resultType="BatchJob">
+    <select id="listJobByCyctimeAndJobNameBatch" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_job bj

@@ -10,7 +10,7 @@ import java.util.List;
  * author: toutian
  * create: 2019/10/22
  */
-public class BatchJob extends AppTenantEntity {
+public class ScheduleJob extends AppTenantEntity {
 
     /**
      * 工作任务id

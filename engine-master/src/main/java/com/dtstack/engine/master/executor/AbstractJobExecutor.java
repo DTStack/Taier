@@ -3,12 +3,12 @@ package com.dtstack.engine.master.executor;
 import com.dtstack.dtcenter.common.enums.EJobType;
 import com.dtstack.dtcenter.common.enums.Restarted;
 import com.dtstack.dtcenter.common.enums.TaskStatus;
+import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.JobCheckStatus;
 import com.dtstack.engine.common.enums.SentinelType;
-import com.dtstack.engine.dao.BatchJobDao;
+import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.BatchJobJobDao;
-import com.dtstack.engine.api.domain.BatchJob;
 import com.dtstack.engine.api.domain.BatchJobJob;
 import com.dtstack.engine.api.domain.BatchTaskShade;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
@@ -62,7 +62,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     protected ZkService zkService;
 
     @Autowired
-    protected BatchJobDao batchJobDao;
+    protected ScheduleJobDao scheduleJobDao;
 
     @Autowired
     protected BatchJobJobDao batchJobJobDao;
@@ -108,8 +108,8 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     }
 
     protected List<ScheduleBatchJob> listExecJob(Long startId, String nodeAddress, String cycStartTime, String cycEndTime) {
-        List<BatchJob> batchJobs = batchJobDao.listExecJobByCycTimeTypeAddress(startId, nodeAddress, getScheduleType(), cycStartTime, cycEndTime);
-        List<ScheduleBatchJob> listExecJobs = getScheduleBatchJobList(batchJobs);
+        List<ScheduleJob> scheduleJobs = scheduleJobDao.listExecJobByCycTimeTypeAddress(startId, nodeAddress, getScheduleType(), cycStartTime, cycEndTime);
+        List<ScheduleBatchJob> listExecJobs = getScheduleBatchJobList(scheduleJobs);
 
         //添加需要重跑的数据
         List<ScheduleBatchJob> restartJobList = getRestartDataJob();
@@ -143,7 +143,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
         while (RUNNING.get()) {
 
-            BatchJob batchJob = null;
+            ScheduleJob scheduleJob = null;
             try {
                 BatchJobElement batchJobElement = jopPriorityQueue.takeJob();
                 if (batchJobElement.isSentinel()) {
@@ -156,10 +156,10 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 }
 
                 ScheduleBatchJob scheduleBatchJob = batchJobElement.getScheduleBatchJob();
-                batchJob = scheduleBatchJob.getBatchJob();
+                scheduleJob = scheduleBatchJob.getScheduleJob();
                 Long taskIdUnique = jobRichOperator.getTaskIdUnique(scheduleBatchJob.getAppType(), scheduleBatchJob.getTaskId());
                 BatchTaskShade batchTask = this.taskCache.computeIfAbsent(taskIdUnique,
-                        k -> batchTaskShadeService.getBatchTaskById(scheduleBatchJob.getTaskId(), scheduleBatchJob.getBatchJob().getAppType()));
+                        k -> batchTaskShadeService.getBatchTaskById(scheduleBatchJob.getTaskId(), scheduleBatchJob.getScheduleJob().getAppType()));
                 if (batchTask == null) {
                     String errMsg = JobCheckStatus.NO_TASK.getMsg();
                     batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), TaskStatus.SUBMITFAILD.getStatus(), errMsg);
@@ -188,14 +188,14 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                             type.intValue() == EJobType.ALGORITHM_LAB.getVal()) {
                         if (status.intValue() == TaskStatus.UNSUBMIT.getStatus()) {
                             //提交代码里面会将jobstatus设置为submitting
-                            batchJobService.startJob(scheduleBatchJob.getBatchJob());
+                            batchJobService.startJob(scheduleBatchJob.getScheduleJob());
                             logger.info("---scheduleType:{} send job:{} to engine.", getScheduleType(), scheduleBatchJob.getJobId());
                         }
                         if (!batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob.getJobId(),scheduleBatchJob.getAppType())) {
                             jopPriorityQueue.putSurvivor(batchJobElement);
                         }
                     } else {
-                        batchJobService.startJob(scheduleBatchJob.getBatchJob());
+                        batchJobService.startJob(scheduleBatchJob.getScheduleJob());
                     }
                 } else if (checkRunInfo.getStatus() == JobCheckStatus.TIME_NOT_REACH) {
                     jopPriorityQueue.putSurvivor(batchJobElement);
@@ -242,9 +242,9 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 }
             } catch (Exception e) {
                 logger.error("happens error:", e);
-                if (batchJob != null) {
-                    batchJobService.updateStatusAndLogInfoById(batchJob.getId(), TaskStatus.SUBMITFAILD.getStatus(), e.getMessage());
-                    logger.error("scheduleType:{} job:{} submit failed", getScheduleType(), batchJob.getId());
+                if (scheduleJob != null) {
+                    batchJobService.updateStatusAndLogInfoById(scheduleJob.getId(), TaskStatus.SUBMITFAILD.getStatus(), e.getMessage());
+                    logger.error("scheduleType:{} job:{} submit failed", getScheduleType(), scheduleJob.getId());
                 }
             }
         }
@@ -304,17 +304,17 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         int status = TaskStatus.UNSUBMIT.getStatus();
         long loadTime = System.currentTimeMillis();
         Timestamp lasTime = lastRestartJobLoadTime == 0L ? null : new Timestamp(lastRestartJobLoadTime);
-        List<BatchJob> batchJobs = batchJobDao.listRestartBatchJobList(getScheduleType(), status, lasTime);
-        List<ScheduleBatchJob> scheduleBatchJobs = getScheduleBatchJobList(batchJobs);
+        List<ScheduleJob> scheduleJobs = scheduleJobDao.listRestartBatchJobList(getScheduleType(), status, lasTime);
+        List<ScheduleBatchJob> scheduleBatchJobs = getScheduleBatchJobList(scheduleJobs);
         lastRestartJobLoadTime = loadTime;
         return scheduleBatchJobs;
     }
 
-    protected List<ScheduleBatchJob> getScheduleBatchJobList(List<BatchJob> batchJobs) {
+    protected List<ScheduleBatchJob> getScheduleBatchJobList(List<ScheduleJob> scheduleJobs) {
         List<ScheduleBatchJob> resultList = Lists.newArrayList();
-        for (BatchJob batchJob : batchJobs) {
-            ScheduleBatchJob scheduleBatchJob = new ScheduleBatchJob(batchJob);
-            List<BatchJobJob> batchJobJobs = batchJobJobDao.listByJobKey(batchJob.getJobKey());
+        for (ScheduleJob scheduleJob : scheduleJobs) {
+            ScheduleBatchJob scheduleBatchJob = new ScheduleBatchJob(scheduleJob);
+            List<BatchJobJob> batchJobJobs = batchJobJobDao.listByJobKey(scheduleJob.getJobKey());
             scheduleBatchJob.setJobJobList(batchJobJobs);
             resultList.add(scheduleBatchJob);
         }

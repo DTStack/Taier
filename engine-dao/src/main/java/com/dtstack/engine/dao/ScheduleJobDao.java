@@ -1,8 +1,8 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.engine.api.domain.BatchJob;
+import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.po.SimpleBatchJobPO;
-import com.dtstack.engine.api.dto.BatchJobDTO;
+import com.dtstack.engine.api.dto.ScheduleJobDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import org.apache.ibatis.annotations.Param;
 
@@ -16,15 +16,15 @@ import java.util.Map;
  * author: toutian
  * create: 2019/10/22
  */
-public interface BatchJobDao {
+public interface ScheduleJobDao {
 
-    BatchJob getOne(@Param("id") Long id);
+    ScheduleJob getOne(@Param("id") Long id);
 
-    List<BatchJob> listByJobIds(@Param("jobIds") List<Long> jobIds, @Param("projectId") Long projectId);
+    List<ScheduleJob> listByJobIds(@Param("jobIds") List<Long> jobIds, @Param("projectId") Long projectId);
 
-    BatchJob getByJobKeyAndType(@Param("jobKey") String jobKey, @Param("type") int type);
+    ScheduleJob getByJobKeyAndType(@Param("jobKey") String jobKey, @Param("type") int type);
 
-    BatchJob getByJobKey(@Param("jobKey") String jobKey);
+    ScheduleJob getByJobKey(@Param("jobKey") String jobKey);
 
     List<Map<String, Object>> countByStatusAndType(@Param("type") Integer type, @Param("startTime") String startTime, @Param("endTime") String endTime, @Param("tenantId") Long tenantId, @Param("projectId") Long projectId, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId, @Param("statuses") List<Integer> status);
 
@@ -43,9 +43,9 @@ public interface BatchJobDao {
 
     List<Map<String, Object>> listThirtyDayJobs(@Param("statusList") List<Integer> statusList, @Param("type") Integer type, @Param("taskType") Integer taskType, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId);
 
-    List<BatchJob> listRestartBatchJobList(@Param("type") int type, @Param("status") Integer taskStatus, @Param("lastTime") Timestamp lastTime);
+    List<ScheduleJob> listRestartBatchJobList(@Param("type") int type, @Param("status") Integer taskStatus, @Param("lastTime") Timestamp lastTime);
 
-    List<BatchJob> listJobByJobKeys(@Param("jobKeys") Collection<String> jobKeys);
+    List<ScheduleJob> listJobByJobKeys(@Param("jobKeys") Collection<String> jobKeys);
 
     List<Long> listIdByTaskIdAndStatus(@Param("taskId") Long taskId, @Param("statuses") List<Integer> status, @Param("appType") Integer appType);
 
@@ -53,49 +53,49 @@ public interface BatchJobDao {
 
     List<Map<String, String>> listTaskExeTimeInfo(@Param("taskId") Long taskId, @Param("statuses") List<Integer> status, @Param("pageQuery") PageQuery pageQuery);
 
-    BatchJob getByJobId(@Param("jobId") String jobId, @Param("isDeleted") Integer isDeleted);
+    ScheduleJob getByJobId(@Param("jobId") String jobId, @Param("isDeleted") Integer isDeleted);
 
     Long getId(@Param("jobId") String jobId);
 
-    List<BatchJob> generalQuery(PageQuery<BatchJobDTO> pageQuery);
+    List<ScheduleJob> generalQuery(PageQuery<ScheduleJobDTO> pageQuery);
 
-    List<BatchJob> generalQueryWithMinAndHour(PageQuery<BatchJobDTO> pageQuery);
+    List<ScheduleJob> generalQueryWithMinAndHour(PageQuery<ScheduleJobDTO> pageQuery);
 
-    List<BatchJob> listAfterOrBeforeJobs(@Param("taskId") Long taskId, @Param("isAfter") boolean isAfter, @Param("cycTime") String cycTime);
+    List<ScheduleJob> listAfterOrBeforeJobs(@Param("taskId") Long taskId, @Param("isAfter") boolean isAfter, @Param("cycTime") String cycTime);
 
-    Integer generalCount(@Param("model") BatchJobDTO object);
+    Integer generalCount(@Param("model") ScheduleJobDTO object);
 
-    Integer generalCountWithMinAndHour(@Param("model") BatchJobDTO object);
+    Integer generalCountWithMinAndHour(@Param("model") ScheduleJobDTO object);
 
-    Integer minOrHourJobCount(@Param("model") BatchJobDTO object);
+    Integer minOrHourJobCount(@Param("model") ScheduleJobDTO object);
 
-    List<BatchJob> minOrHourJobQuery(PageQuery<BatchJobDTO> pageQuery);
+    List<ScheduleJob> minOrHourJobQuery(PageQuery<ScheduleJobDTO> pageQuery);
 
 
-    List<Map<Integer, Long>> getJobsStatusStatistics(@Param("model") BatchJobDTO object);
+    List<Map<Integer, Long>> getJobsStatusStatistics(@Param("model") ScheduleJobDTO object);
 
-    Integer insert(BatchJob batchJob);
+    Integer insert(ScheduleJob scheduleJob);
 
     Integer batchInsert(Collection batchJobs);
 
-    Integer update(BatchJob batchJob);
+    Integer update(ScheduleJob scheduleJob);
 
-    Integer updateStatusWithExecTime(BatchJob job);
+    Integer updateStatusWithExecTime(ScheduleJob job);
 
     Integer updateNullTime(@Param("jobId") String jobId);
 
-    List<String> listFillJobName(PageQuery<BatchJobDTO> pageQuery);
+    List<String> listFillJobName(PageQuery<ScheduleJobDTO> pageQuery);
 
-    Integer countFillJobNameDistinct(@Param("model") BatchJobDTO batchJobDTO);
+    Integer countFillJobNameDistinct(@Param("model") ScheduleJobDTO batchJobDTO);
 
-    Integer countFillJobNameDistinctWithOutTask(@Param("model") BatchJobDTO batchJobDTO);
+    Integer countFillJobNameDistinctWithOutTask(@Param("model") ScheduleJobDTO batchJobDTO);
 
-    Integer countFillJobName(@Param("model") BatchJobDTO batchJobDTO);
+    Integer countFillJobName(@Param("model") ScheduleJobDTO batchJobDTO);
 
-    List<String> listFillJobBizDate(@Param("model") BatchJobDTO dto);
+    List<String> listFillJobBizDate(@Param("model") ScheduleJobDTO dto);
 
-    List<BatchJob> listNeedStopFillDataJob(@Param("fillDataJobName") String fillDataJobName, @Param("statusList") List<Integer> statusList,
-                                           @Param("projectId") Long projectId, @Param("appType") Integer appType);
+    List<ScheduleJob> listNeedStopFillDataJob(@Param("fillDataJobName") String fillDataJobName, @Param("statusList") List<Integer> statusList,
+                                              @Param("projectId") Long projectId, @Param("appType") Integer appType);
 
     List<Map<String, Object>> listTaskExeInfo(@Param("taskId") Long taskId, @Param("projectId") Long projectId, @Param("limitNum") int limitNum, @Param("appType") Integer appType);
 
@@ -105,7 +105,7 @@ public interface BatchJobDao {
      * @param jobId
      * @return
      */
-    List<BatchJob> getSubJobsAndStatusByFlowId(@Param("jobId") String jobId);
+    List<ScheduleJob> getSubJobsAndStatusByFlowId(@Param("jobId") String jobId);
 
     /**
      * 获取补数据job的各状态的数量
@@ -130,7 +130,7 @@ public interface BatchJobDao {
      * @param flowIds
      * @return
      */
-    List<BatchJob> getSubJobsByFlowIds(@Param("flowIds") List<String> flowIds);
+    List<ScheduleJob> getSubJobsByFlowIds(@Param("flowIds") List<String> flowIds);
 
     Integer getTaskTypeByJobId(@Param("jobId") String jobId);
 
@@ -145,19 +145,19 @@ public interface BatchJobDao {
 
     List<Map<String, Long>> countByFillDataAllStatus(@Param("fillIdList") List<Long> fillJobIdList, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId);
 
-    List<Long> listFillIdList(PageQuery<BatchJobDTO> pageQuer);
+    List<Long> listFillIdList(PageQuery<ScheduleJobDTO> pageQuer);
 
-    List<Long> listFillIdListWithOutTask(PageQuery<BatchJobDTO> pageQuery);
+    List<Long> listFillIdListWithOutTask(PageQuery<ScheduleJobDTO> pageQuery);
 
-    List<BatchJob> queryFillData(PageQuery pageQuery);
+    List<ScheduleJob> queryFillData(PageQuery pageQuery);
 
-    Integer countByFillData(@Param("model") BatchJobDTO batchJobDTO);
+    Integer countByFillData(@Param("model") ScheduleJobDTO batchJobDTO);
 
-    BatchJob getWorkFlowTopNode(@Param("jobId") String jobId);
+    ScheduleJob getWorkFlowTopNode(@Param("jobId") String jobId);
 
     Map<String, Object> countScienceJobStatus(@Param("status") Integer runStatus, @Param("projectIds") List<Long> projectIds, @Param("type") Integer type, @Param("taskType") Integer taskType, @Param("tenantId") long tenantId);
 
-    List<BatchJob> listByJobIdList(@Param("jobIds") List<String> jobIds, @Param("projectId") Long projectId);
+    List<ScheduleJob> listByJobIdList(@Param("jobIds") List<String> jobIds, @Param("projectId") Long projectId);
 
     List<String> listJobIdByTaskType(@Param("taskType") Integer taskType);
 
@@ -173,21 +173,21 @@ public interface BatchJobDao {
 
     void stopUnsubmitJob(@Param("likeName") String likeName, @Param("projectId") Long projectId, @Param("appType") Integer appType, @Param("status") Integer status);
 
-    List<BatchJob> listExecJobByCycTimeTypeAddress(@Param("startId") Long startId, @Param("nodeAddress") String nodeAddress, @Param("scheduleType") Integer scheduleType, @Param("cycStartTime") String cycStartTime, @Param("cycEndTime") String cycEndTime);
+    List<ScheduleJob> listExecJobByCycTimeTypeAddress(@Param("startId") Long startId, @Param("nodeAddress") String nodeAddress, @Param("scheduleType") Integer scheduleType, @Param("cycStartTime") String cycStartTime, @Param("cycEndTime") String cycEndTime);
 
     Integer updateJobInfoByJobId(@Param("jobId") String jobId, @Param("status") Integer status, @Param("execStartTime") Timestamp execStartTime, @Param("execEndTime") Timestamp execEndTime, @Param("execTime") Long execTime, @Param("retryNum") Integer retryNum);
 
-    BatchJob getByTaskIdAndStatusOrderByIdLimit(@Param("taskId") Long taskId, @Param("status") Integer status, @Param("time") Timestamp time);
+    ScheduleJob getByTaskIdAndStatusOrderByIdLimit(@Param("taskId") Long taskId, @Param("status") Integer status, @Param("time") Timestamp time);
 
     Integer updateStatusAndLogInfoById(@Param("id") Long id, @Param("status") Integer status, @Param("logInfo") String logInfo);
 
     Integer updateStatusByJobId(@Param("jobId") String jobId, @Param("status") Integer status, @Param("logInfo") String logInfo);
 
-    List<BatchJob> listByBusinessDateAndPeriodTypeAndStatusList(PageQuery<BatchJobDTO> pageQuery);
+    List<ScheduleJob> listByBusinessDateAndPeriodTypeAndStatusList(PageQuery<ScheduleJobDTO> pageQuery);
 
-    List<BatchJob> listJobByCyctimeAndJobName(@Param("preCycTime") String preCycTime, @Param("preJobName") String preJobName, @Param("scheduleType") Integer scheduleType);
+    List<ScheduleJob> listJobByCyctimeAndJobName(@Param("preCycTime") String preCycTime, @Param("preJobName") String preJobName, @Param("scheduleType") Integer scheduleType);
 
-    List<BatchJob> listJobByCyctimeAndJobNameBatch(@Param("startId") Long startId, @Param("preCycTime") String preCycTime, @Param("preJobName") String preJobName, @Param("scheduleType") Integer scheduleType, @Param("batchJobSize") Integer batchJobSize);
+    List<ScheduleJob> listJobByCyctimeAndJobNameBatch(@Param("startId") Long startId, @Param("preCycTime") String preCycTime, @Param("preJobName") String preJobName, @Param("scheduleType") Integer scheduleType, @Param("batchJobSize") Integer batchJobSize);
 
     Integer countJobByCyctimeAndJobName(@Param("preCycTime") String preCycTime, @Param("preJobName") String preJobName, @Param("scheduleType") Integer scheduleType);
 

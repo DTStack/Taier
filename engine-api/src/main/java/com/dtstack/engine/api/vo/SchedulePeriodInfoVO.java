@@ -5,7 +5,7 @@ package com.dtstack.engine.api.vo;
  * author: toutian
  * create: 2019/10/22
  */
-public class BatchPeriodInfoVO {
+public class SchedulePeriodInfoVO {
     private Long jobId;
     private String cycTime;
     private Integer status;

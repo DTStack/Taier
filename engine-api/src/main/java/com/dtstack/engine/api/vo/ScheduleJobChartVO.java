@@ -9,8 +9,8 @@ import java.util.List;
  * author: toutian
  * create: 2019/10/25
  */
-public class BatchJobChartVO extends ChartDataVO{
-    public BatchJobChartVO(List<Object> todayData, List<Object> yestdayData, List<Object> avgData){
+public class ScheduleJobChartVO extends ChartDataVO{
+    public ScheduleJobChartVO(List<Object> todayData, List<Object> yestdayData, List<Object> avgData){
         List<Object> typeData = Arrays.asList((Object)"今天","昨天","历史平均");
         this.type = new ChartMetaDataVO("type",typeData);
         List<Object> hourData = new ArrayList<>();

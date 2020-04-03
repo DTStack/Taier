@@ -7,7 +7,7 @@ import java.io.Serializable;
  * author: toutian
  * create: 2017/7/5
  */
-public class BatchRunDetailVO implements Serializable {
+public class ScheduleRunDetailVO implements Serializable {
 
     private String taskName;
 

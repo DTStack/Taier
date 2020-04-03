@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * @author jiangbo
  */
-public class BatchServerLogVO {
+public class ScheduleServerLogVO {
 
     private String name;
     private String logInfo;

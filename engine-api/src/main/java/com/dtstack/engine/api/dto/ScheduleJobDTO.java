@@ -1,7 +1,7 @@
 package com.dtstack.engine.api.dto;
 
 
-import com.dtstack.engine.api.domain.BatchJob;
+import com.dtstack.engine.api.domain.ScheduleJob;
 
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -12,7 +12,7 @@ import java.util.List;
  * author: toutian
  * create: 2018/1/1
  */
-public class BatchJobDTO extends BatchJob {
+public class ScheduleJobDTO extends ScheduleJob {
 
     private List<Integer> jobStatuses;
     private String taskNameLike;

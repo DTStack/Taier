@@ -11,7 +11,7 @@ import java.util.List;
  * author: toutian
  * create: 2017/6/6
  */
-public class BatchJobVO extends TenantProjectEntity {
+public class ScheduleJobVO extends TenantProjectEntity {
 
     protected BatchTaskVO batchTask;
     private String tenantName;
@@ -34,16 +34,16 @@ public class BatchJobVO extends TenantProjectEntity {
     private Integer taskPeriodId;
     protected String taskPeriodType;
 
-    private List<BatchJobVO> jobVOS;
+    private List<ScheduleJobVO> jobVOS;
     protected BatchEngineJob batchEngineJob;
 
-    private BatchJobVO subNodes;
+    private ScheduleJobVO subNodes;
 
     private String flowJobId;
 
     private Integer retryNum;
 
-    private List<BatchJobVO> relatedJobs;
+    private List<ScheduleJobVO> relatedJobs;
     //增加是否有脏数据标识 1表示有 0 表示无
     private int isDirty;
 
@@ -229,11 +229,11 @@ public class BatchJobVO extends TenantProjectEntity {
         this.taskPeriodType = taskPeriodType;
     }
 
-    public List<BatchJobVO> getJobVOS() {
+    public List<ScheduleJobVO> getJobVOS() {
         return jobVOS;
     }
 
-    public void setJobVOS(List<BatchJobVO> jobVOS) {
+    public void setJobVOS(List<ScheduleJobVO> jobVOS) {
         this.jobVOS = jobVOS;
     }
 
@@ -241,11 +241,11 @@ public class BatchJobVO extends TenantProjectEntity {
         return batchEngineJob;
     }
 
-    public BatchJobVO getSubNodes() {
+    public ScheduleJobVO getSubNodes() {
         return subNodes;
     }
 
-    public void setSubNodes(BatchJobVO subNodes) {
+    public void setSubNodes(ScheduleJobVO subNodes) {
         this.subNodes = subNodes;
     }
 
@@ -261,11 +261,11 @@ public class BatchJobVO extends TenantProjectEntity {
         this.flowJobId = flowJobId;
     }
 
-    public List<BatchJobVO> getRelatedJobs() {
+    public List<ScheduleJobVO> getRelatedJobs() {
         return relatedJobs;
     }
 
-    public void setRelatedJobs(List<BatchJobVO> relatedJobs) {
+    public void setRelatedJobs(List<ScheduleJobVO> relatedJobs) {
         this.relatedJobs = relatedJobs;
     }
 

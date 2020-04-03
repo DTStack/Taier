@@ -9,7 +9,7 @@ import java.util.List;
  * author: toutian
  * create: 2019/10/25
  */
-public class BatchFillDataJobDetailVO {
+public class ScheduleFillDataJobDetailVO {
 
     private String fillDataJobName;
 

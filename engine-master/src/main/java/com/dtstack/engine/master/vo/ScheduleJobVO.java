@@ -4,45 +4,42 @@ import com.dtstack.dtcenter.common.constant.TaskStatusConstrant;
 import com.dtstack.dtcenter.common.enums.TaskStatus;
 import com.dtstack.dtcenter.common.util.DateUtil;
 import com.dtstack.engine.api.domain.BatchEngineJob;
-import com.dtstack.engine.api.domain.BatchJob;
+import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.master.parser.ESchedulePeriodType;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.Timestamp;
-import java.util.List;
 
 /**
  * company: www.dtstack.com
  * author: toutian
  * create: 2017/6/6
  */
-public class BatchJobVO extends com.dtstack.engine.api.vo.BatchJobVO {
+public class ScheduleJobVO extends com.dtstack.engine.api.vo.ScheduleJobVO {
 
-    private static final Logger logger = LoggerFactory.getLogger(BatchJobVO.class);
+    private static final Logger logger = LoggerFactory.getLogger(ScheduleJobVO.class);
 
-    public BatchJobVO() {
+    public ScheduleJobVO() {
     }
 
-    public BatchJobVO(BatchJob batchJob) {
-        this.setId(batchJob.getId());
-        this.setJobId(batchJob.getJobId());
-        this.setJobKey(batchJob.getJobKey());
-        this.setJobName(batchJob.getJobName());
-        this.setTaskId(batchJob.getTaskId());
-        this.setCreateUserId(batchJob.getCreateUserId());
-        this.setType(batchJob.getType());
-        this.setGmtCreate(batchJob.getGmtCreate());
-        this.setGmtModified(batchJob.getGmtModified());
-        this.setBusinessDate(this.getOnlyDate(batchJob.getBusinessDate()));
-        this.setCycTime(DateUtil.addTimeSplit(batchJob.getCycTime()));
-        this.setFlowJobId(batchJob.getFlowJobId());
-        this.setIsRestart(batchJob.getIsRestart());
-        this.setTaskPeriodId(batchJob.getPeriodType());
-        this.setStatus(batchJob.getStatus());
-        this.setRetryNum(batchJob.getRetryNum());
-        this.setBatchEngineJob(new BatchEngineJob(batchJob));
+    public ScheduleJobVO(ScheduleJob scheduleJob) {
+        this.setId(scheduleJob.getId());
+        this.setJobId(scheduleJob.getJobId());
+        this.setJobKey(scheduleJob.getJobKey());
+        this.setJobName(scheduleJob.getJobName());
+        this.setTaskId(scheduleJob.getTaskId());
+        this.setCreateUserId(scheduleJob.getCreateUserId());
+        this.setType(scheduleJob.getType());
+        this.setGmtCreate(scheduleJob.getGmtCreate());
+        this.setGmtModified(scheduleJob.getGmtModified());
+        this.setBusinessDate(this.getOnlyDate(scheduleJob.getBusinessDate()));
+        this.setCycTime(DateUtil.addTimeSplit(scheduleJob.getCycTime()));
+        this.setFlowJobId(scheduleJob.getFlowJobId());
+        this.setIsRestart(scheduleJob.getIsRestart());
+        this.setTaskPeriodId(scheduleJob.getPeriodType());
+        this.setStatus(scheduleJob.getStatus());
+        this.setRetryNum(scheduleJob.getRetryNum());
+        this.setBatchEngineJob(new BatchEngineJob(scheduleJob));
     }
 
     private String getOnlyDate(String date){

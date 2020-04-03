@@ -231,21 +231,21 @@ public class JobGraphBuilder {
             if (batchIdx > totalBatch) {
                 break;
             }
-            final List<BatchJob> batchJobList = batchJobService.listByCyctimeAndJobName(startId, preCycTime,
+            final List<ScheduleJob> scheduleJobList = batchJobService.listByCyctimeAndJobName(startId, preCycTime,
                     CRON_JOB_NAME, EScheduleType.NORMAL_SCHEDULE.getType(), JOB_BATCH_SIZE);
-            if (batchJobList.isEmpty()) {
+            if (scheduleJobList.isEmpty()) {
                 break;
             }
             logger.info("Start clean batchJobList, batch-number:{} startId:{}", batchIdx, startId);
-            startId = batchJobList.get(batchJobList.size() - 1).getId();
+            startId = scheduleJobList.get(scheduleJobList.size() - 1).getId();
             List<String> jobKeyList = new ArrayList<>();
             List<Long> jobIdList = new ArrayList<>();
-            for ( BatchJob batchJob : batchJobList ) {
-                jobKeyList.add(batchJob.getJobKey());
-                jobIdList.add(batchJob.getId());
+            for ( ScheduleJob scheduleJob : scheduleJobList) {
+                jobKeyList.add(scheduleJob.getJobKey());
+                jobIdList.add(scheduleJob.getId());
             }
             batchJobService.deleteJobsByJobKey(jobKeyList);
-            logger.info("batch-number:{} done! Cleaning dirty jobs size:{}", batchIdx, batchJobList.size());
+            logger.info("batch-number:{} done! Cleaning dirty jobs size:{}", batchIdx, scheduleJobList.size());
         }
     }
 
@@ -258,8 +258,8 @@ public class JobGraphBuilder {
      */
     public void doSetFlowJobIdForSubTasks(List<ScheduleBatchJob> jobList, Map<String, String> flowJobId) {
         for (ScheduleBatchJob job : jobList) {
-            String flowIdKey = job.getBatchJob().getFlowJobId();
-            job.getBatchJob().setFlowJobId(flowJobId.getOrDefault(flowIdKey, NORMAL_TASK_FLOW_ID));
+            String flowIdKey = job.getScheduleJob().getFlowJobId();
+            job.getScheduleJob().setFlowJobId(flowJobId.getOrDefault(flowIdKey, NORMAL_TASK_FLOW_ID));
         }
     }
 
@@ -344,8 +344,8 @@ public class JobGraphBuilder {
                 nextTriggerTime = triggerDayList.get(idx + 1);
             }
 
-            BatchJob batchJob = new BatchJob();
-            ScheduleBatchJob scheduleBatchJob = new ScheduleBatchJob(batchJob);
+            ScheduleJob scheduleJob = new ScheduleJob();
+            ScheduleBatchJob scheduleBatchJob = new ScheduleBatchJob(scheduleJob);
 
             triggerTime = DateUtil.getTimeStrWithoutSymbol(triggerTime);
             String jobKey = generateJobKey(keyPreStr, task.getId(), triggerTime);
@@ -361,13 +361,13 @@ public class JobGraphBuilder {
                 logger.error(errorMsg);
                 throw new RuntimeException(errorMsg);
             }
-            batchJob.setJobId(actionService.generateUniqueSign());
-            batchJob.setJobKey(jobKey);
-            batchJob.setJobName(targetJobName);
-            batchJob.setPeriodType(scheduleCron.getPeriodType());
-            batchJob.setTaskId(task.getTaskId());
+            scheduleJob.setJobId(actionService.generateUniqueSign());
+            scheduleJob.setJobKey(jobKey);
+            scheduleJob.setJobName(targetJobName);
+            scheduleJob.setPeriodType(scheduleCron.getPeriodType());
+            scheduleJob.setTaskId(task.getTaskId());
             if (task.getFlowId() == 0) {  //普通任务
-                batchJob.setFlowJobId(NORMAL_TASK_FLOW_ID);
+                scheduleJob.setFlowJobId(NORMAL_TASK_FLOW_ID);
             } else {
                 String flowJobTime = triggerTime;
                 //非 小时&分钟 任务
@@ -380,58 +380,58 @@ public class JobGraphBuilder {
                 }
                 BatchTaskShade flowTaskShade = batchTaskShadeService.getBatchTaskById(task.getFlowId(), task.getAppType());
                 if (Objects.isNull(flowTaskShade)) {
-                    batchJob.setFlowJobId(NORMAL_TASK_FLOW_ID);
+                    scheduleJob.setFlowJobId(NORMAL_TASK_FLOW_ID);
                 } else {
-                    batchJob.setFlowJobId(flowTaskShade.getTaskId() + "_" + flowJobTime);
+                    scheduleJob.setFlowJobId(flowTaskShade.getTaskId() + "_" + flowJobTime);
                 }
             }
 
-            batchJob.setGmtCreate(timestampNow);
-            batchJob.setGmtModified(timestampNow);
+            scheduleJob.setGmtCreate(timestampNow);
+            scheduleJob.setGmtModified(timestampNow);
             if (createUserId == null) {
-                batchJob.setCreateUserId(task.getCreateUserId());
+                scheduleJob.setCreateUserId(task.getCreateUserId());
             } else {
-                batchJob.setCreateUserId(createUserId);
+                scheduleJob.setCreateUserId(createUserId);
             }
             //针对跨项目补数据，项目id需要随机应变
-            batchJob.setTenantId(tenantId);
-            batchJob.setProjectId(projectId);
-            batchJob.setDtuicTenantId(task.getDtuicTenantId());
-            batchJob.setAppType(task.getAppType());
+            scheduleJob.setTenantId(tenantId);
+            scheduleJob.setProjectId(projectId);
+            scheduleJob.setDtuicTenantId(task.getDtuicTenantId());
+            scheduleJob.setAppType(task.getAppType());
 
-            batchJob.setType(scheduleType.getType());
-            batchJob.setCycTime(triggerTime);
-            batchJob.setIsRestart(Restarted.NORMAL.getStatus());
+            scheduleJob.setType(scheduleType.getType());
+            scheduleJob.setCycTime(triggerTime);
+            scheduleJob.setIsRestart(Restarted.NORMAL.getStatus());
 
-            batchJob.setDependencyType(scheduleCron.getSelfReliance());
+            scheduleJob.setDependencyType(scheduleCron.getSelfReliance());
 
-            batchJob.setStatus(TaskStatus.UNSUBMIT.getStatus());
-            batchJob.setTaskType(task.getTaskType());
-            batchJob.setMaxRetryNum(scheduleCron.getMaxRetryNum());
-            batchJob.setVersionId(task.getVersionId());
-            batchJob.setNextCycTime(nextTriggerTime);
+            scheduleJob.setStatus(TaskStatus.UNSUBMIT.getStatus());
+            scheduleJob.setTaskType(task.getTaskType());
+            scheduleJob.setMaxRetryNum(scheduleCron.getMaxRetryNum());
+            scheduleJob.setVersionId(task.getVersionId());
+            scheduleJob.setNextCycTime(nextTriggerTime);
 
 
             //执行时间 -1 天
             String businessDate = generateBizDateFromCycTime(triggerTime);
-            batchJob.setBusinessDate(businessDate);
+            scheduleJob.setBusinessDate(businessDate);
 
             //任务流中的子任务，起始节点将任务流节点作为父任务加入
             if (task.getFlowId() > 0 && !whetherHasParentTask(task.getTaskId())) {
-                List<String> keys = getJobKeys(Lists.newArrayList(task.getFlowId()), batchJob, scheduleCron, keyPreStr);
-                scheduleBatchJob.addBatchJobJob(createNewJobJob(batchJob, jobKey, keys.get(0), timestampNow));
+                List<String> keys = getJobKeys(Lists.newArrayList(task.getFlowId()), scheduleJob, scheduleCron, keyPreStr);
+                scheduleBatchJob.addBatchJobJob(createNewJobJob(scheduleJob, jobKey, keys.get(0), timestampNow));
             }
 
             //获取依赖的父task 的 jobKey
             if (needAddFather) {
-                List<String> fatherDependency = getDependencyJobKeys(scheduleType, batchJob, scheduleCron, keyPreStr);
+                List<String> fatherDependency = getDependencyJobKeys(scheduleType, scheduleJob, scheduleCron, keyPreStr);
                 for (String dependencyJobKey : fatherDependency) {
-                    scheduleBatchJob.addBatchJobJob(createNewJobJob(batchJob, jobKey, dependencyJobKey, timestampNow));
+                    scheduleBatchJob.addBatchJobJob(createNewJobJob(scheduleJob, jobKey, dependencyJobKey, timestampNow));
                 }
             }
 
             if (needSelfDependency) {
-                dealSelfDependency(scheduleCron.getSelfReliance(), batchJob, scheduleCron, isFirst, scheduleBatchJob, keyPreStr, scheduleType, jobKey, timestampNow);
+                dealSelfDependency(scheduleCron.getSelfReliance(), scheduleJob, scheduleCron, isFirst, scheduleBatchJob, keyPreStr, scheduleType, jobKey, timestampNow);
             }
 
             jobList.add(scheduleBatchJob);
@@ -489,7 +489,7 @@ public class JobGraphBuilder {
      * 如果是自依赖的话获取上一个周期的jobKey
      *
      * @param selfReliance
-     * @param batchJob
+     * @param scheduleJob
      * @param scheduleCron
      * @param isFirst
      * @param scheduleBatchJob
@@ -499,7 +499,7 @@ public class JobGraphBuilder {
      * @param timestampNow
      * @throws ParseException
      */
-    private void dealSelfDependency(Integer selfReliance, BatchJob batchJob, ScheduleCron scheduleCron, boolean isFirst,
+    private void dealSelfDependency(Integer selfReliance, ScheduleJob scheduleJob, ScheduleCron scheduleCron, boolean isFirst,
                                     ScheduleBatchJob scheduleBatchJob, String keyPreStr, EScheduleType scheduleType, String jobKey,
                                     Timestamp timestampNow) {
         if (!DependencyType.SELF_DEPENDENCY_SUCCESS.getType().equals(selfReliance)
@@ -509,15 +509,15 @@ public class JobGraphBuilder {
             return;
         }
 
-        String preSelfJobKey = getSelfDependencyJobKeys(batchJob, scheduleCron, keyPreStr);
+        String preSelfJobKey = getSelfDependencyJobKeys(scheduleJob, scheduleCron, keyPreStr);
         if (preSelfJobKey != null) {
             if (isFirst) {//需要查库判断是否存在
-                BatchJob dbBatchJob = batchJobService.getJobByJobKeyAndType(preSelfJobKey, scheduleType.getType());
-                if (dbBatchJob != null) {
-                    scheduleBatchJob.addBatchJobJob(createNewJobJob(batchJob, jobKey, preSelfJobKey, timestampNow));
+                ScheduleJob dbScheduleJob = batchJobService.getJobByJobKeyAndType(preSelfJobKey, scheduleType.getType());
+                if (dbScheduleJob != null) {
+                    scheduleBatchJob.addBatchJobJob(createNewJobJob(scheduleJob, jobKey, preSelfJobKey, timestampNow));
                 }
             } else {
-                scheduleBatchJob.addBatchJobJob(createNewJobJob(batchJob, jobKey, preSelfJobKey, timestampNow));
+                scheduleBatchJob.addBatchJobJob(createNewJobJob(scheduleJob, jobKey, preSelfJobKey, timestampNow));
             }
         }
     }
@@ -532,12 +532,12 @@ public class JobGraphBuilder {
         return job;
     }
 
-    public BatchJobJob createNewJobJob(BatchJob batchJob, String jobKey, String parentKey, Timestamp timestamp) {
+    public BatchJobJob createNewJobJob(ScheduleJob scheduleJob, String jobKey, String parentKey, Timestamp timestamp) {
         BatchJobJob jobJobJob = new BatchJobJob();
-        jobJobJob.setTenantId(batchJob.getTenantId());
-        jobJobJob.setProjectId(batchJob.getProjectId());
-        jobJobJob.setDtuicTenantId(batchJob.getDtuicTenantId());
-        jobJobJob.setAppType(batchJob.getAppType());
+        jobJobJob.setTenantId(scheduleJob.getTenantId());
+        jobJobJob.setProjectId(scheduleJob.getProjectId());
+        jobJobJob.setDtuicTenantId(scheduleJob.getDtuicTenantId());
+        jobJobJob.setAppType(scheduleJob.getAppType());
         jobJobJob.setJobKey(jobKey);
         jobJobJob.setParentJobKey(parentKey);
         jobJobJob.setGmtModified(timestamp);
@@ -551,13 +551,13 @@ public class JobGraphBuilder {
      * 其他情况:获取依赖的父任务中小于等于子任务的触发时间点
      *
      * @param scheduleType
-     * @param batchJob
+     * @param scheduleJob
      * @param scheduleCron
      * @return
      */
-    public List<String> getDependencyJobKeys(EScheduleType scheduleType, BatchJob batchJob, ScheduleCron scheduleCron, String keyPreStr) {
+    public List<String> getDependencyJobKeys(EScheduleType scheduleType, ScheduleJob scheduleJob, ScheduleCron scheduleCron, String keyPreStr) {
 
-        List<BatchTaskTaskShade> taskTasks = taskTaskShadeService.getAllParentTask(batchJob.getTaskId());
+        List<BatchTaskTaskShade> taskTasks = taskTaskShadeService.getAllParentTask(scheduleJob.getTaskId());
         List<Long> pIdList = Lists.newArrayList();
         for (BatchTaskTaskShade batchTaskTask : taskTasks) {
             if (batchTaskTask.getParentTaskId() != -1) {
@@ -569,10 +569,10 @@ public class JobGraphBuilder {
         //return getJobKeys(pIdList, batchJob, scheduleCron, keyPreStr);
         //补数据运行时，需要所有周期实例立即运行
         if (EScheduleType.FILL_DATA.getType() == scheduleType.getType()) {
-            return getJobKeys(pIdList, batchJob, scheduleCron, keyPreStr);
+            return getJobKeys(pIdList, scheduleJob, scheduleCron, keyPreStr);
         }
         //假设2019年7月10号创建一个月调度周期实例，每月20日执行，子任务是天任务。这时，7月20日之前，父任务从未生成过实例，子任务都不能调度执行。
-        return getExternalJobKeys(pIdList, batchJob, scheduleCron, keyPreStr);
+        return getExternalJobKeys(pIdList, scheduleJob, scheduleCron, keyPreStr);
 
     }
 
@@ -584,31 +584,31 @@ public class JobGraphBuilder {
      * </p>
      *
      * @param taskShadeIds
-     * @param batchJob
+     * @param scheduleJob
      * @param scheduleCron
      * @param keyPreStr
      * @return
      */
-    private List<String> getExternalJobKeys(List<Long> taskShadeIds, BatchJob batchJob, ScheduleCron scheduleCron, String keyPreStr) {
+    private List<String> getExternalJobKeys(List<Long> taskShadeIds, ScheduleJob scheduleJob, ScheduleCron scheduleCron, String keyPreStr) {
         List<String> jobKeyList = Lists.newArrayList();
         List<BatchTaskShade> pTaskList = batchTaskShadeService.getTaskByIds(taskShadeIds, null);
         for (BatchTaskShade pTask : pTaskList) {
             try {
                 ScheduleCron pScheduleCron = ScheduleFactory.parseFromJson(pTask.getScheduleConf());
                 //执行时间
-                String fatherLastJobCycTime = getFatherLastJobBusinessDate(batchJob, pScheduleCron, scheduleCron);
+                String fatherLastJobCycTime = getFatherLastJobBusinessDate(scheduleJob, pScheduleCron, scheduleCron);
                 String pjobKey = generateJobKey(keyPreStr, pTask.getId(), fatherLastJobCycTime);
                 // BatchJob (cycTime 20191211000000 businessDate 20191210000000)  fatherLastJobCycTime 20191211000000
                 //判断的时候需要拿执行时间判断
-                DateTime jobCycTime = dtf.parseDateTime(batchJob.getCycTime());
+                DateTime jobCycTime = dtf.parseDateTime(scheduleJob.getCycTime());
                 DateTime fatherCycTime = dtf.parseDateTime(fatherLastJobCycTime);
                 //如果父任务在当前任务业务日期不同，则查询父任务是有已生成
                 if (Objects.nonNull(jobCycTime) && Objects.nonNull(fatherCycTime) && fatherCycTime.getDayOfYear() != jobCycTime.getDayOfYear()) {
                     //判断父任务是否生成
-                    BatchJob pBatchJob = batchJobService.getJobByJobKeyAndType(pjobKey, EScheduleType.NORMAL_SCHEDULE.getType());
-                    if (pBatchJob == null) {
+                    ScheduleJob pScheduleJob = batchJobService.getJobByJobKeyAndType(pjobKey, EScheduleType.NORMAL_SCHEDULE.getType());
+                    if (pScheduleJob == null) {
                         logger.error("getExternalJobKeys ,but not found the parent job of " + pTask.getTaskId()
-                                + " ,current job is " + batchJob.getJobId() + ", the pjobKey = " + pjobKey);
+                                + " ,current job is " + scheduleJob.getJobId() + ", the pjobKey = " + pjobKey);
                         continue;
                     }
                 }
@@ -635,13 +635,13 @@ public class JobGraphBuilder {
         return CollectionUtils.isNotEmpty(taskTasks);
     }
 
-    private List<String> getJobKeys(List<Long> taskShadeIds, BatchJob batchJob, ScheduleCron scheduleCron, String keyPreStr) {
+    private List<String> getJobKeys(List<Long> taskShadeIds, ScheduleJob scheduleJob, ScheduleCron scheduleCron, String keyPreStr) {
         List<String> jobKeyList = Lists.newArrayList();
         List<BatchTaskShade> pTaskList = batchTaskShadeService.getTaskByIds(taskShadeIds, null);
         for (BatchTaskShade pTask : pTaskList) {
             try {
                 ScheduleCron pScheduleCron = ScheduleFactory.parseFromJson(pTask.getScheduleConf());
-                String pBusinessDate = getFatherLastJobBusinessDate(batchJob, pScheduleCron, scheduleCron);
+                String pBusinessDate = getFatherLastJobBusinessDate(scheduleJob, pScheduleCron, scheduleCron);
                 String pjobKey = generateJobKey(keyPreStr, pTask.getId(), pBusinessDate);
                 jobKeyList.add(pjobKey);
             } catch (Exception e) {
@@ -654,12 +654,12 @@ public class JobGraphBuilder {
     }
 
 
-    public String getSelfDependencyJobKeys(BatchJob batchJob, ScheduleCron cron, String keyPreStr) {
-        String preTriggerDateStr = getPrePeriodJobTriggerDateStr(batchJob.getCycTime(), cron);
+    public String getSelfDependencyJobKeys(ScheduleJob scheduleJob, ScheduleCron cron, String keyPreStr) {
+        String preTriggerDateStr = getPrePeriodJobTriggerDateStr(scheduleJob.getCycTime(), cron);
         //源逻辑是拿batchJob的taskId 作为key
         //现在task中 taskId + appType 才是唯一
         //现在采用taskShade表的id
-        BatchTaskShade shade = batchTaskShadeService.getBatchTaskById(batchJob.getTaskId(), batchJob.getAppType());
+        BatchTaskShade shade = batchTaskShadeService.getBatchTaskById(scheduleJob.getTaskId(), scheduleJob.getAppType());
         if (Objects.nonNull(shade)) {
             return generateJobKey(keyPreStr, shade.getId(), preTriggerDateStr);
         }
@@ -821,8 +821,8 @@ public class JobGraphBuilder {
      * 返回父任务执行时间最靠近当前执行时间的
      * 如果父子任务都是天则返回父任务当天的key
      */
-    public String getFatherLastJobBusinessDate(BatchJob childBatchJob, ScheduleCron fatherCron, ScheduleCron childCron) {
-        DateTime dateTime = DateTime.parse(childBatchJob.getCycTime(), dtf);
+    public String getFatherLastJobBusinessDate(ScheduleJob childScheduleJob, ScheduleCron fatherCron, ScheduleCron childCron) {
+        DateTime dateTime = DateTime.parse(childScheduleJob.getCycTime(), dtf);
         String pCronstr = fatherCron.getCronStr();
 
 
@@ -1074,9 +1074,9 @@ public class JobGraphBuilder {
             batchJobs.addAll(subTaskJobs);
         }
         for (ScheduleBatchJob batchJob : batchJobs) {
-            if (batchJob.getBatchJob() != null) {
-                batchJob.getBatchJob().setFillId(fillId);
-                batchJob.getBatchJob().setDtuicTenantId(dtuicTenantId);
+            if (batchJob.getScheduleJob() != null) {
+                batchJob.getScheduleJob().setFillId(fillId);
+                batchJob.getScheduleJob().setDtuicTenantId(dtuicTenantId);
             }
             if(CollectionUtils.isNotEmpty(batchJob.getBatchJobJobList())){
                 for (BatchJobJob batchJobJob : batchJob.getBatchJobJobList()) {

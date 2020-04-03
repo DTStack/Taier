@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.bo;
 
-import com.dtstack.engine.api.domain.BatchJob;
+import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.BatchJobJob;
 import com.google.common.collect.Lists;
 
@@ -16,21 +16,21 @@ import java.util.List;
 
 public class ScheduleBatchJob {
 
-    private BatchJob batchJob;
+    private ScheduleJob scheduleJob;
 
     private List<BatchJobJob> jobJobList = Lists.newArrayList();
 
     /**
      * 下游的任务上一个周期依赖-->null表示还未从数据库拉取过数据
      */
-    private List<BatchJob> dependencyChildPrePeriodList;
+    private List<ScheduleJob> dependencyChildPrePeriodList;
 
-    public ScheduleBatchJob(BatchJob batchJob) {
-        this.batchJob = batchJob;
+    public ScheduleBatchJob(ScheduleJob scheduleJob) {
+        this.scheduleJob = scheduleJob;
     }
 
-    public BatchJob getBatchJob() {
-        return batchJob;
+    public ScheduleJob getScheduleJob() {
+        return scheduleJob;
     }
 
     public List<BatchJobJob> getBatchJobJobList() {
@@ -46,50 +46,50 @@ public class ScheduleBatchJob {
     }
 
     public Long getId() {
-        return batchJob.getId();
+        return scheduleJob.getId();
     }
 
     public Integer getStatus() {
-        return batchJob.getStatus();
+        return scheduleJob.getStatus();
     }
 
     public String getJobId() {
-        return batchJob.getJobId();
+        return scheduleJob.getJobId();
     }
 
     public String getCycTime() {
-        return batchJob.getCycTime();
+        return scheduleJob.getCycTime();
     }
 
     public String getNextCycTime() {
-        return batchJob.getNextCycTime();
+        return scheduleJob.getNextCycTime();
     }
 
     public Long getTaskId() {
-        return batchJob.getTaskId();
+        return scheduleJob.getTaskId();
     }
 
     public Integer getAppType() {
-        return batchJob.getAppType();
+        return scheduleJob.getAppType();
     }
 
     public Integer getScheduleType() {
-        return batchJob.getType();
+        return scheduleJob.getType();
     }
 
     public String getJobKey() {
-        return batchJob.getJobKey();
+        return scheduleJob.getJobKey();
     }
 
     public Integer getIsRestart() {
-        return batchJob.getIsRestart();
+        return scheduleJob.getIsRestart();
     }
 
-    public List<BatchJob> getDependencyChildPrePeriodList() {
+    public List<ScheduleJob> getDependencyChildPrePeriodList() {
         return dependencyChildPrePeriodList;
     }
 
-    public void setDependencyChildPrePeriodList(List<BatchJob> dependencyChildPrePeriodList) {
+    public void setDependencyChildPrePeriodList(List<ScheduleJob> dependencyChildPrePeriodList) {
         this.dependencyChildPrePeriodList = dependencyChildPrePeriodList;
     }
 }

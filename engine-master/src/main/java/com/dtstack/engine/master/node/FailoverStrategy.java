@@ -7,7 +7,7 @@ import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
-import com.dtstack.engine.dao.BatchJobDao;
+import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.EngineJobDao;
 import com.dtstack.engine.api.domain.EngineJobCache;
@@ -75,7 +75,7 @@ public class FailoverStrategy {
     private ZkService zkService;
 
     @Autowired
-    private BatchJobDao batchJobDao;
+    private ScheduleJobDao scheduleJobDao;
 
     @Autowired
     private NodeRecoverService nodeRecoverService;
@@ -210,7 +210,7 @@ public class FailoverStrategy {
             LOG.warn("----- nodeAddress:{} BatchJob 任务开始恢复----", nodeAddress);
             long startId = 0L;
             while (true) {
-                List<SimpleBatchJobPO> jobs = batchJobDao.listSimpleJobByStatusAddress(startId, UNFINISHED_STATUSES, nodeAddress);
+                List<SimpleBatchJobPO> jobs = scheduleJobDao.listSimpleJobByStatusAddress(startId, UNFINISHED_STATUSES, nodeAddress);
                 if (CollectionUtils.isEmpty(jobs)) {
                     break;
                 }
@@ -229,7 +229,7 @@ public class FailoverStrategy {
             }
 
             //在迁移任务的时候，可能出现要迁移的节点也宕机了，任务没有正常接收需要再次恢复（由HearBeatCheckListener监控）。
-            List<SimpleBatchJobPO> jobs = batchJobDao.listSimpleJobByStatusAddress(0L, UNFINISHED_STATUSES, nodeAddress);
+            List<SimpleBatchJobPO> jobs = scheduleJobDao.listSimpleJobByStatusAddress(0L, UNFINISHED_STATUSES, nodeAddress);
             if (CollectionUtils.isNotEmpty(jobs)) {
                 zkService.updateSynchronizedLocalBrokerHeartNode(nodeAddress, BrokerHeartNode.initNullBrokerHeartNode(), true);
             }
@@ -286,7 +286,7 @@ public class FailoverStrategy {
             if (nodeEntry.getValue().isEmpty()) {
                 continue;
             }
-            batchJobDao.updateNodeAddress(nodeEntry.getKey(), nodeEntry.getValue());
+            scheduleJobDao.updateNodeAddress(nodeEntry.getKey(), nodeEntry.getValue());
         }
     }
 
