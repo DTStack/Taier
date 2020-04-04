@@ -8,7 +8,6 @@ import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.master.executor.JobExecutorTrigger;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,9 +27,6 @@ public class NodeRecoverService {
     private static final Logger logger = LoggerFactory.getLogger(NodeRecoverService.class);
 
     @Autowired
-    private JobExecutorTrigger jobExecutorTrigger;
-
-    @Autowired
     private EnvironmentContext environmentContext;
 
     @Autowired
@@ -45,7 +41,6 @@ public class NodeRecoverService {
     public void masterTriggerNode() {
         logger.info("--- accept masterTriggerNode");
         try {
-            jobExecutorTrigger.recoverOtherNode();
             logger.info("--- deal recoverOtherNode done ------");
             recoverJobCaches();
         } catch (Exception e) {

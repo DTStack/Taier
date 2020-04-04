@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.taskdealer;
 
+import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.hash.ShardData;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
@@ -7,6 +8,7 @@ import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.dao.BatchJobDao;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.EngineJobDao;
 import com.dtstack.engine.dao.PluginInfoDao;
@@ -25,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -70,6 +73,7 @@ public class TaskStatusDealer implements Runnable {
     private EnvironmentContext environmentContext;
     private long jobLogDelay;
     private JobCompletedLogDelayDealer jobCompletedLogDelayDealer;
+    private BatchJobDao batchJobDao;
 
     /**
      * 失败任务的额外处理：当前只是对(失败任务 or 取消任务)继续更新日志或者更新checkpoint
@@ -216,6 +220,7 @@ public class TaskStatusDealer implements Runnable {
                     }
 
                     engineJobDao.updateJobStatusAndExecTime(jobId, status);
+                    batchJobDao.updateJobInfoByJobId(jobId, status, null, new Timestamp(System.currentTimeMillis()), null, null);
                     logger.info("jobId:{} update job status:{}.", jobId, status);
                 }
 
@@ -228,6 +233,7 @@ public class TaskStatusDealer implements Runnable {
         } else {
             shardCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
             engineJobDao.updateJobStatusAndExecTime(jobId, RdosTaskStatus.CANCELED.getStatus());
+            batchJobDao.updateJobInfoByJobId(jobId, RdosTaskStatus.CANCELED.getStatus(), null, null, null, null);
             engineJobCacheDao.delete(jobId);
         }
     }

@@ -1318,8 +1318,9 @@
         </if>
         <if test="execEndTime != null">
             exec_end_time = #{execEndTime},
+            exec_time = timestampdiff(SECOND, exec_start_time, now()),
         </if>
-        exec_time = #{execTime}, retry_num = #{retryNum}
+        retry_num = #{retryNum}
         WHERE job_id = #{jobId}
         AND is_deleted=0
     </update>
