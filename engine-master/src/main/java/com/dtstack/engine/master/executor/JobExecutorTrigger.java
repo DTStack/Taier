@@ -158,7 +158,7 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
                 return;
             }
 
-            if (LogCountUtil.count(logOutput, MULTIPLES)){
+            if (LogCountUtil.count(logOutput, MULTIPLES)) {
                 LOG.info("-----start JobStatusDealer----");
             }
             long syncStartTime = System.currentTimeMillis();
@@ -170,7 +170,7 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
                     lastSyncTimeStr = sdf.format(new Date(lastSyncTime));
                 }
                 lastSyncTime = syncStartTime;
-                if (LogCountUtil.count(logOutput, MULTIPLES)){
+                if (LogCountUtil.count(logOutput, MULTIPLES)) {
                     LOG.info("-----end JobStatusDealer, syncJobCount:{} syncStatusTimeUsed（ms）:{} lastSyncTime: {} -----", syncJobCount, syncTime, lastSyncTimeStr);
                 }
                 logOutput++;
@@ -236,13 +236,15 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
                 Integer status = MapUtils.getInteger(jobStatusInfo, JobFieldInfo.STATUS);
                 Timestamp execStartTimestamp = null;
                 Timestamp execEndTimestamp = null;
-                Long execStartTime = MapUtils.getLong(jobStatusInfo, JobFieldInfo.EXEC_START_TIME);
-                Long execEndTime = MapUtils.getLong(jobStatusInfo, JobFieldInfo.EXEC_END_TIME);
-                if (execStartTime != null && execStartTime != 0) {
-                    execStartTimestamp = new Timestamp(execStartTime);
+                Object execStartTime = MapUtils.getObject(jobStatusInfo, JobFieldInfo.EXEC_START_TIME);
+                Object execEndTime = MapUtils.getObject(jobStatusInfo, JobFieldInfo.EXEC_END_TIME);
+                if (execStartTime instanceof Date) {
+                    Date startTime = (Date) execStartTime;
+                    execStartTimestamp = new Timestamp(startTime.getTime());
                 }
-                if (execEndTime != null && execEndTime != 0) {
-                    execEndTimestamp = new Timestamp(execEndTime);
+                if (execEndTime instanceof Date) {
+                    Date endTime = (Date) execEndTime;
+                    execEndTimestamp = new Timestamp(endTime.getTime());
                 }
                 Long execTime = MapUtils.getLong(jobStatusInfo, JobFieldInfo.EXEC_TIME);
                 Integer retryNum = MapUtils.getInteger(jobStatusInfo, JobFieldInfo.RETRY_NUM);
