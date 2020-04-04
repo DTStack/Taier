@@ -1312,7 +1312,10 @@
 
     <update id="updateJobInfoByJobId">
         UPDATE schedule_job
-        SET status = #{status}, gmt_modified = now(),
+        SET gmt_modified = now(),
+        <if test="status!=null">
+            status = #{status},
+        </if>
         <if test="execStartTime != null">
             exec_start_time = #{execStartTime},
         </if>
@@ -1320,7 +1323,9 @@
             exec_end_time = #{execEndTime},
             exec_time = timestampdiff(SECOND, exec_start_time, now()),
         </if>
-        retry_num = #{retryNum}
+        <if test="retryNum!=null">
+            retry_num = #{retryNum}
+        </if>
         WHERE job_id = #{jobId}
         AND is_deleted=0
     </update>

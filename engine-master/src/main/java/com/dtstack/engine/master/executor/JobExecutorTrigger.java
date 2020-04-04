@@ -113,4 +113,10 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
         executorService.shutdownNow();
     }
 
+    public void recoverOtherNode() {
+        for (AbstractJobExecutor executor : executors) {
+            executor.recoverOtherNode();
+        }
+    }
+
 }

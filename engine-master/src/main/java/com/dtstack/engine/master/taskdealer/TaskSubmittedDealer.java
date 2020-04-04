@@ -1,12 +1,12 @@
 package com.dtstack.engine.master.taskdealer;
 
+import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.EJobCacheStage;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.dao.BatchJobDao;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.EngineJobDao;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.cache.ShardCache;
 import org.apache.commons.lang3.StringUtils;
@@ -76,6 +76,7 @@ public class TaskSubmittedDealer implements Runnable {
                     shardCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.SUBMITTED.getStatus());
                 } else {
                     engineJobDao.jobFail(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus(), jobClient.getJobResult().getJsonStr());
+                    batchJobDao.updateJobInfoByJobId(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus(), null,null , null, null);
                     logger.info("jobId:{} update job status:{}, job is finished.", jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus());
                     engineJobCacheDao.delete(jobClient.getTaskId());
                 }
