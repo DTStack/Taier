@@ -5,6 +5,7 @@ import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
+import com.dtstack.engine.dao.BatchJobDao;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.EngineJobDao;
 import com.dtstack.engine.dao.EngineJobStopRecordDao;
@@ -64,6 +65,9 @@ public class JobStopQueue implements InitializingBean {
 
     @Autowired
     private JobStopAction jobStopAction;
+
+    @Autowired
+    private BatchJobDao batchJobDao;
 
     private static final int WAIT_INTERVAL = 1000;
     private static final int OPERATOR_EXPIRED_INTERVAL = 60000;
@@ -163,6 +167,8 @@ public class JobStopQueue implements InitializingBean {
                         } else {
                             //jobcache表没有记录，可能任务已经停止。在update表时增加where条件不等于stopped
                             engineJobDao.updateTaskStatusNotStopped(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus(), RdosTaskStatus.getStoppedStatus());
+                            //停止任务同时更新batchJob表
+                            batchJobDao.updateJobInfoByJobId(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus(), null,null,null,null);
                             logger.info("[Unnormal Job] jobId:{} update job status:{}, job is finished.", jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
                             shardCache.updateLocalMemTaskStatus(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
                             engineJobStopRecordDao.delete(jobStopRecord.getId());

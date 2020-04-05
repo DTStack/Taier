@@ -1167,7 +1167,8 @@
         from
         schedule_job bj
         left join schedule_fill_data_job fj on fj.id = bj.fill_id
-        <include refid="select_where_fragment_without_ts"/>
+        left join schedule_task_shade ts on bj.task_id = ts.task_id
+        <include refid="select_where_fragment"/>
         AND fj.job_name = #{model.fillDataJobName}
         <include refid="queryWorkFlow"/>
         <if test="model.ownerUserId != null">
@@ -1178,10 +1179,10 @@
 
     <select id="countByFillData" resultType="java.lang.Integer">
         select count(bj.id)
-        from
-        schedule_job bj
+        from schedule_job bj
         left join schedule_fill_data_job fj on fj.id = bj.fill_id
-        <include refid="select_where_fragment_without_ts"/>
+        left join schedule_task_shade ts on bj.task_id = ts.task_id
+        <include refid="select_where_fragment"/>
         and fj.job_name = #{model.fillDataJobName}
         <include refid="queryWorkFlow"/>
         <if test="model.ownerUserId != null">
