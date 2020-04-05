@@ -40,7 +40,7 @@ public class DtUicUserConnect {
 
     public static void getInfo(String token, String url, Consumer<DtUicUser> resultHandler) {
         try {
-            String result = PoolHttpClient.get(String.format(LONGIN_TEMPLATE, url, token));
+            String result = PoolHttpClient.get(String.format(LONGIN_TEMPLATE, url, token),(Map)null);
             if (StringUtils.isBlank(result)) {
                 LOGGER.error("uic access exception,please check...");
                 resultHandler.accept(null);

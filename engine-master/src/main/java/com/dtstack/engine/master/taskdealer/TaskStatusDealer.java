@@ -353,6 +353,7 @@ public class TaskStatusDealer implements Runnable {
         this.taskCheckpointDealer = applicationContext.getBean(TaskCheckpointDealer.class);
         this.taskRestartDealer = applicationContext.getBean(TaskRestartDealer.class);
         this.workerOperator = applicationContext.getBean(WorkerOperator.class);
+        this.batchJobDao = applicationContext.getBean(BatchJobDao.class);
     }
 
     private void createLogDelayDealer(){

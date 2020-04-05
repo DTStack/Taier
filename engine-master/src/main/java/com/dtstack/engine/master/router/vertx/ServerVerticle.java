@@ -42,7 +42,7 @@ public class ServerVerticle extends AbstractVerticle{
 
         router.post(RootUrls.ROOT  + "/login/out").handler(loginVerticle::loginOut);
         router.postWithRegex(RootUrls.ROOT + "/upload/.*").handler(resourceVerticle::handleUploadResource);
-        router.postWithRegex(RootUrls.ROOT + "/*").handler(loginVerticle::handleLogin);
+        router.post(RootUrls.ROOT + "/*").handler(loginVerticle::handleLogin);
         router.postWithRegex(RootUrls.ROOT + "/.*").handler(new AllRequestVerticle(context)::request);
         router.getWithRegex(RootUrls.ROOT + "/download/component/downloadKerberosXML").handler(resourceVerticle::handleDownloadXml);
 
