@@ -231,7 +231,9 @@ public class JopPriorityQueue {
             if (lastId != 0 && theIngestionId == lastId && !isBlocked()) {
                 if (theIngestionId == lastMaxId) {
                     //两次大的遍历数据库，没有新的数据产生，CronJobExecutor 可能存在这种情况
-                    logger.info("scheduleType:{} startId:{} can't put new data（exclude RestartJob） to process", scheduleType, theIngestionId);
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("scheduleType:{} startId:{} can't put new data（exclude RestartJob） to process", scheduleType, theIngestionId);
+                    }
                 }
                 lastMaxId = theIngestionId;
             }

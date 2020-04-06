@@ -141,7 +141,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
         long lastRebackId = 0L;
 
-        while (true) {
+        while (RUNNING.get()) {
 
             BatchJob batchJob = null;
             try {
@@ -299,8 +299,8 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                     }
                 }
             }
-            if (logger.isInfoEnabled()) {
-                logger.info("scheduleType:{} nodeAddress:{} emitJob2Queue return startId:{}", getScheduleType(), nodeAddress, startId);
+            if (logger.isDebugEnabled()) {
+                logger.debug("scheduleType:{} nodeAddress:{} emitJob2Queue return startId:{}", getScheduleType(), nodeAddress, startId);
             }
         } catch (Exception e) {
             logger.error("scheduleType:{} odeAddress:{} emitJob2Queue error:{}", getScheduleType(), nodeAddress, e);
