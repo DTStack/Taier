@@ -101,6 +101,11 @@ public class JopPriorityQueue {
                 TimeUnit.MILLISECONDS);
     }
 
+    public int getQueueSize() {
+        return this.queue.size();
+    }
+
+
     public BatchJobElement takeJob() throws InterruptedException {
         return queue.take();
     }

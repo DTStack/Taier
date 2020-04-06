@@ -5,10 +5,10 @@ import com.dtstack.dtcenter.common.cache.connection.CacheConnectionHelper;
 import com.dtstack.dtcenter.common.engine.*;
 import com.dtstack.dtcenter.common.enums.DataBaseType;
 import com.dtstack.dtcenter.common.enums.ETableType;
-import com.dtstack.dtcenter.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.common.hadoop.DtKerberosUtils;
 import com.dtstack.dtcenter.common.util.DBUtil;
 import com.dtstack.dtcenter.common.util.PublicUtil;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.sql.ParseResult;
 import com.dtstack.sql.SqlParserImpl;
@@ -133,7 +133,7 @@ public class HiveService {
             return jdbcUrl;
         } catch (Exception var6) {
             logger.error("Login kerberos error:{}", var6);
-            throw new DtCenterDefException("Login kerberos error:{}", var6);
+            throw new RdosDefineException("Login kerberos error:{}");
         }
     }
 
@@ -144,7 +144,7 @@ public class HiveService {
         }
 
         if (jdbcInfo == null) {
-            throw new DtCenterDefException("can't get hive jdbc conf from clusterService");
+            throw new RdosDefineException("can't get hive jdbc conf from clusterService");
         } else {
             JdbcUrlPropertiesValue.setNullPropertiesToDefaultValue(jdbcInfo);
             return jdbcInfo;
@@ -250,7 +250,7 @@ public class HiveService {
         } catch (Throwable var20) {
             if (var20.getMessage().contains("NoSuchTableException:")) {
                 String message = var20.getMessage();
-                throw new DtCenterDefException(message.substring(message.indexOf("NoSuchTableException:") + "NoSuchTableException:".length()));
+                throw new RdosDefineException(message.substring(message.indexOf("NoSuchTableException:") + "NoSuchTableException:".length()));
             }
 
             throw var20;
@@ -297,7 +297,7 @@ public class HiveService {
         }
 
         if (jdbcInfo == null) {
-            throw new DtCenterDefException("can't get hive server jdbc conf from clusterService");
+            throw new RdosDefineException("can't get hive server jdbc conf from clusterService");
         } else {
             JdbcUrlPropertiesValue.setNullPropertiesToDefaultValue(jdbcInfo);
             return jdbcInfo;
