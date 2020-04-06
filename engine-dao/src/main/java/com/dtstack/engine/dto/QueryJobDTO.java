@@ -35,6 +35,24 @@ public class QueryJobDTO {
     private String searchType;
     private Integer appType;
     private List<Long> projectIds;
+    private Long taskId;
+    private List<Long> taskIds;
+
+    public Long getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
+    }
+
+    public List<Long> getTaskIds() {
+        return taskIds;
+    }
+
+    public void setTaskIds(List<Long> taskIds) {
+        this.taskIds = taskIds;
+    }
 
     public List<Long> getProjectIds() {
         return projectIds;

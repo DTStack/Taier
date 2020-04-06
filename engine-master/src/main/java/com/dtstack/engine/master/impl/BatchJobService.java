@@ -843,6 +843,15 @@ public class BatchJobService {
         if (!Strings.isNullOrEmpty(vo.getJobStatuses())) {
             batchJobDTO.setJobStatuses(Arrays.stream(vo.getJobStatuses().split(",")).map(Integer::parseInt).collect(Collectors.toList()));
         }
+        if (CollectionUtils.isNotEmpty(vo.getTaskIds())) {
+            batchJobDTO.setTaskIds(vo.getTaskIds());
+        }
+        if (Objects.nonNull(vo.getTaskId())) {
+            if (Objects.isNull(batchJobDTO.getTaskIds())) {
+                batchJobDTO.setTaskIds(new ArrayList<>());
+            }
+            batchJobDTO.getTaskIds().add(vo.getTaskId());
+        }
     }
 
     @Forbidden
