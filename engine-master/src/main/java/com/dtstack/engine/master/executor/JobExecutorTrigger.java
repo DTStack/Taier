@@ -70,7 +70,7 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
         executors.add(fillJobExecutor);
         executors.add(cronJobExecutor);
 
-        executorService = new ThreadPoolExecutor(executors.size(), executors.size(), 0L, TimeUnit.MILLISECONDS,
+        executorService = new ThreadPoolExecutor(2, 2, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory("ExecutorDealer"));
         for (AbstractJobExecutor executor : executors) {
             executorService.submit(executor);
