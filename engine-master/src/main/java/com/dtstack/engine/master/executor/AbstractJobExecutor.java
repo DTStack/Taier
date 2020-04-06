@@ -141,10 +141,14 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
         long lastRebackId = 0L;
 
-        while (RUNNING.get()) {
+        while (true) {
 
             BatchJob batchJob = null;
             try {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("========= scheduleType:{} take job from queue，before queueSize:{}, blocked:{}  tail:{} =========",
+                            getScheduleType(), jopPriorityQueue.getQueueSize(), jopPriorityQueue.isBlocked(), jopPriorityQueue.resetTail());
+                }
                 BatchJobElement batchJobElement = jopPriorityQueue.takeJob();
                 if (logger.isDebugEnabled()) {
                     logger.debug("========= scheduleType:{} take job from queue，after queueSize:{}, blocked:{}  tail:{} =========",
