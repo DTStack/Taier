@@ -145,11 +145,11 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
             BatchJob batchJob = null;
             try {
-                logger.info("========= scheduleType:{} take queue job before size [{}],blocked {}  resetTail {} =========", getScheduleType(),
-                        jopPriorityQueue.getQueueSize(), jopPriorityQueue.isBlocked(), jopPriorityQueue.resetTail());
                 BatchJobElement batchJobElement = jopPriorityQueue.takeJob();
-                logger.info("========= scheduleType:{} take queue job after size [{}],blocked {}  resetTail {} =========", getScheduleType(),
-                        jopPriorityQueue.getQueueSize(), jopPriorityQueue.isBlocked(), jopPriorityQueue.resetTail());
+                if (logger.isDebugEnabled()) {
+                    logger.debug("========= scheduleType:{} take job from queue，after queueSize:{}, blocked:{}  tail:{} =========",
+                            getScheduleType(), jopPriorityQueue.getQueueSize(), jopPriorityQueue.isBlocked(), jopPriorityQueue.resetTail());
+                }
                 if (batchJobElement.isSentinel()) {
                     //判断哨兵，执行的操作
                     operateAfterSentinel(batchJobElement.getSentinel());
