@@ -9,7 +9,7 @@ import com.dtstack.engine.api.domain.TenantProjectEntity;
  * @author sanyue
  * @date 2019/1/18
  */
-public class BatchTaskForFillDataDTO extends TenantProjectEntity {
+public class ScheduleTaskForFillDataDTO extends TenantProjectEntity {
 
     private String name;
 

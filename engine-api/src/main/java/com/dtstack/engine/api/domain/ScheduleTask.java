@@ -7,7 +7,7 @@ package com.dtstack.engine.api.domain;
  * author: toutian
  * create: 2019/10/22
  */
-public class BatchTask extends AppTenantEntity {
+public class ScheduleTask extends AppTenantEntity {
 
     /**
      * '任务名称'

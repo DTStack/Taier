@@ -17,7 +17,7 @@ import com.dtstack.engine.dao.EngineJobDao;
 import com.dtstack.engine.dao.EngineJobRetryDao;
 import com.dtstack.engine.dao.EngineJobStopRecordDao;
 import com.dtstack.engine.dao.EngineUniqueSignDao;
-import com.dtstack.engine.dao.StreamTaskCheckpointDao;
+import com.dtstack.engine.dao.EngineJobCheckpointDao;
 import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.google.common.base.Preconditions;
@@ -65,7 +65,7 @@ public class ActionService {
     private EngineJobStopRecordDao engineJobStopRecordDao;
 
     @Autowired
-    private StreamTaskCheckpointDao streamTaskCheckpointDao;
+    private EngineJobCheckpointDao engineJobCheckpointDao;
 
     @Autowired
     private WorkNode workNode;
@@ -209,7 +209,7 @@ public class ActionService {
                 }
             }
             if (result && ComputeType.BATCH.getType().equals(computerType)){
-                streamTaskCheckpointDao.deleteByTaskId(jobId);
+                engineJobCheckpointDao.deleteByTaskId(jobId);
             }
         } catch (Exception e){
             logger.error("{}",e);

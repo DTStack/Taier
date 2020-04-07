@@ -14,10 +14,10 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.EngineJobDao;
-import com.dtstack.engine.dao.StreamTaskCheckpointDao;
+import com.dtstack.engine.dao.EngineJobCheckpointDao;
 import com.dtstack.engine.api.domain.EngineJob;
 import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.api.domain.StreamTaskCheckpoint;
+import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
@@ -41,7 +41,7 @@ public class StreamTaskService {
     private static final Logger logger = LoggerFactory.getLogger(StreamTaskService.class);
 
     @Autowired
-    private StreamTaskCheckpointDao streamTaskCheckpointDao;
+    private EngineJobCheckpointDao engineJobCheckpointDao;
 
     @Autowired
     private EngineJobDao engineJobDao;
@@ -58,12 +58,12 @@ public class StreamTaskService {
     /**
      * 查询checkPoint
      */
-    public List<StreamTaskCheckpoint> getCheckPoint(@Param("taskId") String taskId, @Param("triggerStart") Long triggerStart, @Param("triggerEnd") Long triggerEnd){
-        return streamTaskCheckpointDao.listByTaskIdAndRangeTime(taskId,triggerStart,triggerEnd);
+    public List<EngineJobCheckpoint> getCheckPoint(@Param("taskId") String taskId, @Param("triggerStart") Long triggerStart, @Param("triggerEnd") Long triggerEnd){
+        return engineJobCheckpointDao.listByTaskIdAndRangeTime(taskId,triggerStart,triggerEnd);
     }
 
-    public StreamTaskCheckpoint getByTaskIdAndEngineTaskId(@Param("taskId") String taskId, @Param("engineTaskId") String engineTaskId){
-        return streamTaskCheckpointDao.getByTaskIdAndEngineTaskId(taskId, engineTaskId);
+    public EngineJobCheckpoint getByTaskIdAndEngineTaskId(@Param("taskId") String taskId, @Param("engineTaskId") String engineTaskId){
+        return engineJobCheckpointDao.getByTaskIdAndEngineTaskId(taskId, engineTaskId);
     }
 
     /**

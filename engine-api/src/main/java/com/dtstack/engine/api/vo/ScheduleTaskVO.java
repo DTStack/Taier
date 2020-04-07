@@ -1,6 +1,6 @@
 package com.dtstack.engine.api.vo;
 
-import com.dtstack.engine.api.domain.BatchTaskShade;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.UserDTO;
 
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.Map;
  * author: toutian
  * create: 2019/10/22
  */
-public class BatchTaskVO extends BatchTaskShade {
+public class ScheduleTaskVO extends ScheduleTaskShade {
 
     private UserDTO createUser;
     private UserDTO modifyUser;
@@ -26,9 +26,9 @@ public class BatchTaskVO extends BatchTaskShade {
 
     private Long dataSourceId;
 
-    private BatchTaskVO subNodes;
+    private ScheduleTaskVO subNodes;
 
-    private List<BatchTaskVO> relatedTasks;
+    private List<ScheduleTaskVO> relatedTasks;
 
     private String tenantName;
 
@@ -83,8 +83,8 @@ public class BatchTaskVO extends BatchTaskShade {
      */
     private boolean currentProject;
 
-    private List<BatchTaskVO> taskVOS;
-    private List<BatchTaskVO> subTaskVOS;
+    private List<ScheduleTaskVO> taskVOS;
+    private List<ScheduleTaskVO> subTaskVOS;
     protected String cron;
 
     public boolean getCurrentProject() {
@@ -199,11 +199,11 @@ public class BatchTaskVO extends BatchTaskShade {
         this.taskPeriodType = taskPeriodType;
     }
 
-    public List<BatchTaskVO> getTaskVOS() {
+    public List<ScheduleTaskVO> getTaskVOS() {
         return taskVOS;
     }
 
-    public BatchTaskVO setTaskVOS(List<BatchTaskVO> taskVOS) {
+    public ScheduleTaskVO setTaskVOS(List<ScheduleTaskVO> taskVOS) {
         this.taskVOS = taskVOS;
         return this;
     }
@@ -264,11 +264,11 @@ public class BatchTaskVO extends BatchTaskShade {
         this.taskVariables = taskVariables;
     }
 
-    public List<BatchTaskVO> getSubTaskVOS() {
+    public List<ScheduleTaskVO> getSubTaskVOS() {
         return subTaskVOS;
     }
 
-    public void setSubTaskVOS(List<BatchTaskVO> subTaskVOS) {
+    public void setSubTaskVOS(List<ScheduleTaskVO> subTaskVOS) {
         this.subTaskVOS = subTaskVOS;
     }
 
@@ -296,19 +296,19 @@ public class BatchTaskVO extends BatchTaskShade {
         this.flowName = flowName;
     }
 
-    public BatchTaskVO getSubNodes() {
+    public ScheduleTaskVO getSubNodes() {
         return subNodes;
     }
 
-    public void setSubNodes(BatchTaskVO subNodes) {
+    public void setSubNodes(ScheduleTaskVO subNodes) {
         this.subNodes = subNodes;
     }
 
-    public List<BatchTaskVO> getRelatedTasks() {
+    public List<ScheduleTaskVO> getRelatedTasks() {
         return relatedTasks;
     }
 
-    public void setRelatedTasks(List<BatchTaskVO> relatedTasks) {
+    public void setRelatedTasks(List<ScheduleTaskVO> relatedTasks) {
         this.relatedTasks = relatedTasks;
     }
 

@@ -5,7 +5,7 @@ package com.dtstack.engine.api.vo;
  * author: toutian
  * create: 2019/10/25
  */
-public class BatchOperatorVO<T> {
+public class ScheduleOperatorVO<T> {
 
     private int successNum;
 

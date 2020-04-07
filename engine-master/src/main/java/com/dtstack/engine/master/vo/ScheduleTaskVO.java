@@ -1,8 +1,8 @@
 package com.dtstack.engine.master.vo;
 
-import com.dtstack.engine.api.domain.BatchTask;
-import com.dtstack.engine.api.domain.BatchTaskShade;
-import com.dtstack.engine.api.dto.BatchTaskForFillDataDTO;
+import com.dtstack.engine.api.domain.ScheduleTask;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.api.dto.ScheduleTaskForFillDataDTO;
 import com.dtstack.engine.master.parser.ESchedulePeriodType;
 import com.dtstack.engine.master.parser.ScheduleCron;
 import com.dtstack.engine.master.parser.ScheduleFactory;
@@ -16,15 +16,15 @@ import org.springframework.beans.BeanUtils;
  * author: toutian
  * create: 2019/10/22
  */
-public class BatchTaskVO extends com.dtstack.engine.api.vo.BatchTaskVO {
+public class ScheduleTaskVO extends com.dtstack.engine.api.vo.ScheduleTaskVO {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BatchTaskVO.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ScheduleTaskVO.class);
     private static final String EMPYT = "";
 
-    public BatchTaskVO() {
+    public ScheduleTaskVO() {
     }
 
-    public BatchTaskVO(BatchTaskShade task) {
+    public ScheduleTaskVO(ScheduleTaskShade task) {
         this.setComputeType(task.getComputeType());
         this.setCreateUserId(task.getCreateUserId());
         this.setOwnerUserId(task.getOwnerUserId());
@@ -53,7 +53,7 @@ public class BatchTaskVO extends com.dtstack.engine.api.vo.BatchTaskVO {
         init();
     }
 
-    public BatchTaskVO(BatchTaskShade taskShade, boolean getSimpleParams) {
+    public ScheduleTaskVO(ScheduleTaskShade taskShade, boolean getSimpleParams) {
         BeanUtils.copyProperties(taskShade, this);
         //需要将task复制给id
         this.setId(taskShade.getTaskId());
@@ -68,7 +68,7 @@ public class BatchTaskVO extends com.dtstack.engine.api.vo.BatchTaskVO {
         }
     }
 
-    public BatchTaskVO(BatchTaskForFillDataDTO task) {
+    public ScheduleTaskVO(ScheduleTaskForFillDataDTO task) {
         BeanUtils.copyProperties(task, this);
         init();
     }
@@ -108,23 +108,23 @@ public class BatchTaskVO extends com.dtstack.engine.api.vo.BatchTaskVO {
         }
     }
 
-    public BatchTaskVO toVO(BatchTask batchTask) {
-        BatchTaskVO batchTaskVO = new BatchTaskVO();
+    public ScheduleTaskVO toVO(ScheduleTask scheduleTask) {
+        ScheduleTaskVO batchTaskVO = new ScheduleTaskVO();
         try {
-            BeanUtils.copyProperties(batchTask, batchTaskVO);
+            BeanUtils.copyProperties(scheduleTask, batchTaskVO);
         } catch (Throwable e) {
             e.printStackTrace();
         }
-        batchTaskVO.setTaskId(batchTask.getId());
+        batchTaskVO.setTaskId(scheduleTask.getId());
         return batchTaskVO;
     }
-    public BatchTaskVO toVO(BatchTask batchTask,BatchTaskVO batchTaskVO) {
+    public ScheduleTaskVO toVO(ScheduleTask scheduleTask, ScheduleTaskVO batchTaskVO) {
         try {
-            BeanUtils.copyProperties(batchTask, batchTaskVO);
+            BeanUtils.copyProperties(scheduleTask, batchTaskVO);
         } catch (Throwable e) {
             e.printStackTrace();
         }
-        batchTaskVO.setTaskId(batchTask.getId());
+        batchTaskVO.setTaskId(scheduleTask.getId());
         return batchTaskVO;
     }
 }

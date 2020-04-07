@@ -4,7 +4,7 @@ package com.dtstack.engine.api.domain.po;
  * @author jiangbo
  * @time 2018/1/11
  */
-public class BatchDirtyDataTopPO {
+public class ScheduleDirtyDataTopPO {
 
     private String taskName;
 

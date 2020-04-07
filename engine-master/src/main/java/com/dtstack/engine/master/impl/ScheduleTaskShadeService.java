@@ -10,15 +10,15 @@ import com.dtstack.dtcenter.common.util.MathUtil;
 import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.dao.BatchTaskShadeDao;
-import com.dtstack.engine.api.domain.BatchTaskShade;
-import com.dtstack.engine.api.dto.BatchTaskShadeDTO;
+import com.dtstack.engine.dao.ScheduleTaskShadeDao;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
-import com.dtstack.engine.api.vo.BatchTaskShadeVO;
-import com.dtstack.engine.master.vo.BatchTaskVO;
+import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
@@ -43,7 +43,7 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
 
 
     @Autowired
-    private BatchTaskShadeDao batchTaskShadeDao;
+    private ScheduleTaskShadeDao scheduleTaskShadeDao;
 
     @Autowired
     private ScheduleTaskTaskShadeService taskTaskShadeService;
@@ -54,14 +54,14 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
      * web 接口
      * 例如：离线计算BatchTaskService.publishTaskInfo 触发 batchTaskShade 保存task的必要信息
      */
-    public void addOrUpdate(BatchTaskShadeDTO batchTaskShadeDTO) {
+    public void addOrUpdate(ScheduleTaskShadeDTO batchTaskShadeDTO) {
         //保存batch_task_shade
-        if (batchTaskShadeDao.getOne(batchTaskShadeDTO.getTaskId(),batchTaskShadeDTO.getAppType()) != null) {
+        if (scheduleTaskShadeDao.getOne(batchTaskShadeDTO.getTaskId(),batchTaskShadeDTO.getAppType()) != null) {
             //更新提交时间
             batchTaskShadeDTO.setGmtModified(new Timestamp(System.currentTimeMillis()));
-            batchTaskShadeDao.update(batchTaskShadeDTO);
+            scheduleTaskShadeDao.update(batchTaskShadeDTO);
         } else {
-            batchTaskShadeDao.insert(batchTaskShadeDTO);
+            scheduleTaskShadeDao.insert(batchTaskShadeDTO);
         }
     }
 
@@ -70,26 +70,26 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
      * task删除时触发同步清理
      */
     public void deleteTask(@Param("taskId") Long taskId, @Param("modifyUserId") long modifyUserId,@Param("appType") Integer appType) {
-        batchTaskShadeDao.delete(taskId, modifyUserId,appType);
+        scheduleTaskShadeDao.delete(taskId, modifyUserId,appType);
         taskTaskShadeService.clearDataByTaskId(taskId,appType);
     }
 
     @Forbidden
-    public List<BatchTaskShade> listTaskByType(Long projectId, Integer taskType, String taskName) {
-        return batchTaskShadeDao.listByType(projectId, taskType, taskName);
+    public List<ScheduleTaskShade> listTaskByType(Long projectId, Integer taskType, String taskName) {
+        return scheduleTaskShadeDao.listByType(projectId, taskType, taskName);
     }
 
     /**
      * 获取所有需要需要生成调度的task 没有sqlText字段
      */
     @Forbidden
-    public List<BatchTaskShade> listTaskByStatus(Long startId, Integer submitStatus, Integer projectSubmitStatus, Integer batchTaskSize) {
-        return batchTaskShadeDao.listTaskByStatus(startId, submitStatus, projectSubmitStatus, batchTaskSize);
+    public List<ScheduleTaskShade> listTaskByStatus(Long startId, Integer submitStatus, Integer projectSubmitStatus, Integer batchTaskSize) {
+        return scheduleTaskShadeDao.listTaskByStatus(startId, submitStatus, projectSubmitStatus, batchTaskSize);
     }
 
     @Forbidden
     public Integer countTaskByStatus(Integer submitStatus, Integer projectSubmitStatus) {
-        return batchTaskShadeDao.countTaskByStatus(submitStatus, projectSubmitStatus);
+        return scheduleTaskShadeDao.countTaskByStatus(submitStatus, projectSubmitStatus);
     }
 
     /**
@@ -97,12 +97,12 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
      * @param taskIds
      * @return
      */
-    public List<BatchTaskShade> getTaskByIds(List<Long> taskIds,Integer appType) {
+    public List<ScheduleTaskShade> getTaskByIds(List<Long> taskIds, Integer appType) {
         if (CollectionUtils.isEmpty(taskIds)) {
             return Collections.EMPTY_LIST;
         }
 
-        return batchTaskShadeDao.listByTaskIds(taskIds, Deleted.NORMAL.getStatus(),appType);
+        return scheduleTaskShadeDao.listByTaskIds(taskIds, Deleted.NORMAL.getStatus(),appType);
     }
 
     /**
@@ -112,12 +112,12 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
      * @return
      */
     @Forbidden
-    public List<BatchTaskShade> getSimpleTaskRangeAllByIds(List<Long> taskIdArray) {
+    public List<ScheduleTaskShade> getSimpleTaskRangeAllByIds(List<Long> taskIdArray) {
         if (CollectionUtils.isEmpty(taskIdArray)) {
             return Collections.EMPTY_LIST;
         }
 
-        return batchTaskShadeDao.listSimpleByTaskIds(taskIdArray, null);
+        return scheduleTaskShadeDao.listSimpleByTaskIds(taskIdArray, null);
     }
 
     /**
@@ -127,22 +127,22 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
      * @return
      * @author toutian
      */
-    public List<BatchTaskShade> getTasksByName(@Param("projectId") long projectId,
-                                               @Param("name") String name,@Param("appType") Integer appType) {
-        return batchTaskShadeDao.listByNameLike(projectId, name,appType,null,null);
+    public List<ScheduleTaskShade> getTasksByName(@Param("projectId") long projectId,
+                                                  @Param("name") String name, @Param("appType") Integer appType) {
+        return scheduleTaskShadeDao.listByNameLike(projectId, name,appType,null,null);
     }
 
-    public BatchTaskShade getByName(@Param("projectId") long projectId,
-                                    @Param("name") String name,@Param("appType") Integer appType) {
+    public ScheduleTaskShade getByName(@Param("projectId") long projectId,
+                                       @Param("name") String name, @Param("appType") Integer appType) {
         //如果appType没传那就默认为ide
         if (Objects.isNull(appType)){
             appType = 1;
         }
-        return batchTaskShadeDao.getByName(projectId, name,appType);
+        return scheduleTaskShadeDao.getByName(projectId, name,appType);
     }
 
     public void updateTaskName(@Param("taskId") long id, @Param("taskName") String taskName,@Param("appType")Integer appType) {
-        batchTaskShadeDao.updateTaskName(id, taskName,appType);
+        scheduleTaskShadeDao.updateTaskName(id, taskName,appType);
     }
 
 
@@ -162,7 +162,7 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
 
         String taskIdStr = jobKeySplit[jobKeySplit.length - 2];
         Long taskShadeId = MathUtil.getLongVal(taskIdStr);
-        BatchTaskShade taskShade = batchTaskShadeDao.getById(taskShadeId);
+        ScheduleTaskShade taskShade = scheduleTaskShadeDao.getById(taskShadeId);
         if (taskShade == null) {
             return "";
         }
@@ -177,9 +177,9 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
      * @param taskId
      * @return
      */
-    public BatchTaskShade getWorkFlowTopNode(Long taskId) {
+    public ScheduleTaskShade getWorkFlowTopNode(Long taskId) {
         if (taskId != null) {
-            return batchTaskShadeDao.getWorkFlowTopNode(taskId);
+            return scheduleTaskShadeDao.getWorkFlowTopNode(taskId);
         } else {
             return null;
         }
@@ -188,15 +188,15 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
     /**
      * 分页查询已提交的任务
      */
-    public PageResult<List<BatchTaskShadeVO>> pageQuery(BatchTaskShadeDTO dto) {
-        PageQuery<BatchTaskShadeDTO> query = new PageQuery<>(dto.getPageIndex(),dto.getPageSize(),"gmt_modified",dto.getSort());
+    public PageResult<List<ScheduleTaskShadeVO>> pageQuery(ScheduleTaskShadeDTO dto) {
+        PageQuery<ScheduleTaskShadeDTO> query = new PageQuery<>(dto.getPageIndex(),dto.getPageSize(),"gmt_modified",dto.getSort());
         query.setModel(dto);
-        Integer count = batchTaskShadeDao.simpleCount(dto);
-        List<BatchTaskShadeVO> data = new ArrayList<>();
+        Integer count = scheduleTaskShadeDao.simpleCount(dto);
+        List<ScheduleTaskShadeVO> data = new ArrayList<>();
         if (count > 0) {
-            List<BatchTaskShade> taskShades = batchTaskShadeDao.simpleQuery(query);
-            for (BatchTaskShade taskShade : taskShades) {
-                BatchTaskShadeVO taskShadeVO = new BatchTaskShadeVO();
+            List<ScheduleTaskShade> taskShades = scheduleTaskShadeDao.simpleQuery(query);
+            for (ScheduleTaskShade taskShade : taskShades) {
+                ScheduleTaskShadeVO taskShadeVO = new ScheduleTaskShadeVO();
                 BeanUtils.copyProperties(taskShade,taskShadeVO);
                 taskShadeVO.setId(taskShade.getTaskId());
                 taskShadeVO.setTaskName(taskShade.getName());
@@ -210,8 +210,8 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
     }
 
 
-    public BatchTaskShade getBatchTaskById(@Param("id") Long taskId,@Param("appType")Integer appType) {
-        BatchTaskShade taskShade = batchTaskShadeDao.getOne(taskId, appType);
+    public ScheduleTaskShade getBatchTaskById(@Param("id") Long taskId, @Param("appType")Integer appType) {
+        ScheduleTaskShade taskShade = scheduleTaskShadeDao.getOne(taskId, appType);
         if (taskShade == null || Deleted.DELETED.getStatus().equals(taskShade.getIsDeleted())) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
         }
@@ -232,7 +232,7 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
                                  @Param("appType")Integer appType){
 
 
-        BatchTaskShadeDTO batchTaskDTO = new BatchTaskShadeDTO();
+        ScheduleTaskShadeDTO batchTaskDTO = new ScheduleTaskShadeDTO();
         batchTaskDTO.setTenantId(tenantId);
         batchTaskDTO.setProjectId(projectId);
         batchTaskDTO.setSubmitStatus(ESubmitStatus.SUBMIT.getStatus());
@@ -267,7 +267,7 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
             batchTaskDTO.setScheduleStatus(scheduleStatus);
         }
 
-        PageQuery<BatchTaskShadeDTO> pageQuery = new PageQuery<>(currentPage, pageSize, "gmt_modified", Sort.DESC.name());
+        PageQuery<ScheduleTaskShadeDTO> pageQuery = new PageQuery<>(currentPage, pageSize, "gmt_modified", Sort.DESC.name());
         if (StringUtils.isEmpty(searchType) || "fuzzy".equalsIgnoreCase(searchType)) {
             batchTaskDTO.setSearchType(1);
         } else if ("precise".equalsIgnoreCase(searchType)) {
@@ -280,14 +280,14 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
             batchTaskDTO.setSearchType(1);
         }
         pageQuery.setModel(batchTaskDTO);
-        List<BatchTaskShade> batchTasks = batchTaskShadeDao.generalQuery(pageQuery);
+        List<ScheduleTaskShade> batchTasks = scheduleTaskShadeDao.generalQuery(pageQuery);
 
-        int count = batchTaskShadeDao.generalCount(batchTaskDTO);
+        int count = scheduleTaskShadeDao.generalCount(batchTaskDTO);
 
-        List<BatchTaskVO> vos = new ArrayList<>(batchTasks.size());
+        List<com.dtstack.engine.master.vo.ScheduleTaskVO> vos = new ArrayList<>(batchTasks.size());
 
-        for (BatchTaskShade batchTask : batchTasks) {
-            vos.add(new BatchTaskVO(batchTask,true));
+        for (ScheduleTaskShade batchTask : batchTasks) {
+            vos.add(new com.dtstack.engine.master.vo.ScheduleTaskVO(batchTask,true));
         }
         if (queryAll) {
             vos = dealFlowWorkSubTasks(vos,appType);
@@ -296,9 +296,9 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
             //vos = dealFlowWorkTasks(vos);
         }
 
-        int publishedTasks = batchTaskShadeDao.countPublishToProduce(projectId,appType);
+        int publishedTasks = scheduleTaskShadeDao.countPublishToProduce(projectId,appType);
 
-        PageResult<List<BatchTaskVO>> pageResult = new PageResult<>(vos, count, pageQuery);
+        PageResult<List<com.dtstack.engine.master.vo.ScheduleTaskVO>> pageResult = new PageResult<>(vos, count, pageQuery);
         JSONObject result = new JSONObject();
         result.put("currentPage", pageResult.getCurrentPage());
         result.put("data", pageResult.getData());
@@ -310,29 +310,29 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
         return result;
     }
 
-    private List<BatchTaskVO> dealFlowWorkSubTasks(List<BatchTaskVO> vos,Integer appType) {
-        Map<Long, BatchTaskVO> record = Maps.newHashMap();
+    private List<com.dtstack.engine.master.vo.ScheduleTaskVO> dealFlowWorkSubTasks(List<com.dtstack.engine.master.vo.ScheduleTaskVO> vos, Integer appType) {
+        Map<Long, com.dtstack.engine.master.vo.ScheduleTaskVO> record = Maps.newHashMap();
         Map<Long, Integer> voIndex = Maps.newHashMap();
         vos.forEach(task -> voIndex.put(task.getId(), vos.indexOf(task)));
-        Iterator<BatchTaskVO> iterator = vos.iterator();
-        List<BatchTaskVO> vosCopy = new ArrayList<>(vos);
+        Iterator<com.dtstack.engine.master.vo.ScheduleTaskVO> iterator = vos.iterator();
+        List<com.dtstack.engine.master.vo.ScheduleTaskVO> vosCopy = new ArrayList<>(vos);
         while (iterator.hasNext()) {
-            BatchTaskVO vo = iterator.next();
+            com.dtstack.engine.master.vo.ScheduleTaskVO vo = iterator.next();
             Long flowId = vo.getFlowId();
             if (flowId > 0) {
                 if (record.containsKey(flowId)) {
-                    BatchTaskVO flowVo = record.get(flowId);
+                    com.dtstack.engine.master.vo.ScheduleTaskVO flowVo = record.get(flowId);
                     flowVo.getRelatedTasks().add(vo);
                     iterator.remove();
                 } else {
-                    BatchTaskVO flowVo;
+                    com.dtstack.engine.master.vo.ScheduleTaskVO flowVo;
                     if (voIndex.containsKey(flowId)) {
                         flowVo = vosCopy.get(voIndex.get(flowId));
                         flowVo.setRelatedTasks(Lists.newArrayList(vo));
                         iterator.remove();
                     } else {
-                        BatchTaskShade flow = batchTaskShadeDao.getOne(flowId,appType);
-                        flowVo = new BatchTaskVO(flow, true);
+                        ScheduleTaskShade flow = scheduleTaskShadeDao.getOne(flowId,appType);
+                        flowVo = new com.dtstack.engine.master.vo.ScheduleTaskVO(flow, true);
                         flowVo.setRelatedTasks(Lists.newArrayList(vo));
                         vos.set(vos.indexOf(vo), flowVo);
                     }
@@ -364,7 +364,7 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
     public void frozenTask(@Param("taskIdList") List<Long> taskIdList, @Param("scheduleStatus") int scheduleStatus,
                            @Param("projectId") Long projectId, @Param("userId") Long userId,
                            @Param("appType") Integer appType) {
-        batchTaskShadeDao.batchUpdateTaskScheduleStatus(taskIdList,scheduleStatus,appType);
+        scheduleTaskShadeDao.batchUpdateTaskScheduleStatus(taskIdList,scheduleStatus,appType);
     }
 
 
@@ -373,17 +373,17 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
      * @param taskId
      * @return
      */
-    public com.dtstack.engine.api.vo.BatchTaskVO dealFlowWorkTask(@Param("taskId") Long taskId,@Param("appType")Integer appType) {
-        BatchTaskShade taskShade = batchTaskShadeDao.getOne(taskId,appType);
+    public ScheduleTaskVO dealFlowWorkTask(@Param("taskId") Long taskId, @Param("appType")Integer appType) {
+        ScheduleTaskShade taskShade = scheduleTaskShadeDao.getOne(taskId,appType);
         if (taskShade == null) {
             return null;
         }
-        com.dtstack.engine.api.vo.BatchTaskVO vo = new BatchTaskVO(taskShade, true);
+        ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO(taskShade, true);
         if (EJobType.WORK_FLOW.getVal().intValue() == vo.getTaskType()) {
-            List<BatchTaskShade> subtasks = this.getFlowWorkSubTasks(vo.getTaskId(),appType);
+            List<ScheduleTaskShade> subtasks = this.getFlowWorkSubTasks(vo.getTaskId(),appType);
             if (CollectionUtils.isNotEmpty(subtasks)) {
-                List<com.dtstack.engine.api.vo.BatchTaskVO> list = Lists.newArrayList();
-                subtasks.forEach(task -> list.add(new BatchTaskVO(task,true)));
+                List<ScheduleTaskVO> list = Lists.newArrayList();
+                subtasks.forEach(task -> list.add(new com.dtstack.engine.master.vo.ScheduleTaskVO(task,true)));
                 vo.setRelatedTasks(list);
             }
         }
@@ -396,21 +396,21 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
      * @param taskId
      * @return
      */
-    public List<BatchTaskShade> getFlowWorkSubTasks(@Param("taskId") Long taskId,@Param("appType") Integer appType) {
-        BatchTaskShadeDTO batchTaskShadeDTO = new BatchTaskShadeDTO();
+    public List<ScheduleTaskShade> getFlowWorkSubTasks(@Param("taskId") Long taskId, @Param("appType") Integer appType) {
+        ScheduleTaskShadeDTO batchTaskShadeDTO = new ScheduleTaskShadeDTO();
         batchTaskShadeDTO.setIsDeleted(Deleted.NORMAL.getStatus());
         batchTaskShadeDTO.setFlowId(taskId);
         batchTaskShadeDTO.setAppType(appType);
-        PageQuery<BatchTaskShadeDTO> pageQuery = new PageQuery<>(batchTaskShadeDTO);
-        return batchTaskShadeDao.generalQuery(pageQuery);
+        PageQuery<ScheduleTaskShadeDTO> pageQuery = new PageQuery<>(batchTaskShadeDTO);
+        return scheduleTaskShadeDao.generalQuery(pageQuery);
     }
 
 
-    public BatchTaskShade findTaskId(@Param("taskId") Long taskId,@Param("isDeleted")Integer isDeleted,@Param("appType") Integer appType) {
+    public ScheduleTaskShade findTaskId(@Param("taskId") Long taskId, @Param("isDeleted")Integer isDeleted, @Param("appType") Integer appType) {
         if(Objects.isNull(taskId)){
             return null;
         }
-        List<BatchTaskShade> batchTaskShades = batchTaskShadeDao.listByTaskIds(Lists.newArrayList(taskId), isDeleted,appType);
+        List<ScheduleTaskShade> batchTaskShades = scheduleTaskShadeDao.listByTaskIds(Lists.newArrayList(taskId), isDeleted,appType);
         if(CollectionUtils.isEmpty(batchTaskShades)){
             return null;
         }
@@ -425,14 +425,14 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
      * @param isSimple 不查询sql
      * @return
      */
-    public List<BatchTaskShade> findTaskIds(@Param("taskIds") List<Long> taskIds,@Param("isDeleted")Integer isDeleted,@Param("appType") Integer appType,@Param("isSimple") boolean isSimple) {
+    public List<ScheduleTaskShade> findTaskIds(@Param("taskIds") List<Long> taskIds, @Param("isDeleted")Integer isDeleted, @Param("appType") Integer appType, @Param("isSimple") boolean isSimple) {
         if(CollectionUtils.isEmpty(taskIds)){
             return null;
         }
         if(isSimple){
-            return batchTaskShadeDao.listSimpleByTaskIds(taskIds,isDeleted);
+            return scheduleTaskShadeDao.listSimpleByTaskIds(taskIds,isDeleted);
         }
-        return  batchTaskShadeDao.listByTaskIds(taskIds, isDeleted,appType);
+        return  scheduleTaskShadeDao.listByTaskIds(taskIds, isDeleted,appType);
     }
 
 
@@ -446,26 +446,26 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
      * @return
      */
     public void info(@Param("taskId") Long taskId,@Param("appType") Integer appType,@Param("extraInfo")String info) {
-        JSONObject extInfo = JSONObject.parseObject(batchTaskShadeDao.getExtInfoByTaskId(taskId, appType));
+        JSONObject extInfo = JSONObject.parseObject(scheduleTaskShadeDao.getExtInfoByTaskId(taskId, appType));
         if (Objects.isNull(extInfo)) {
             extInfo = new JSONObject();
         }
         extInfo.put(TaskConstant.INFO, info);
-        batchTaskShadeDao.updateTaskExtInfo(taskId, appType, extInfo.toJSONString());
+        scheduleTaskShadeDao.updateTaskExtInfo(taskId, appType, extInfo.toJSONString());
     }
 
 
     public List<Map<String, Object>> listDependencyTask(@Param("taskIds") List<Long> taskId, @Param("appType") Integer appType, @Param("name") String name, @Param("projectId") Long projectId) {
-        return batchTaskShadeDao.listDependencyTask(projectId, name, taskId);
+        return scheduleTaskShadeDao.listDependencyTask(projectId, name, taskId);
     }
 
 
     public List<Map<String, Object>> listByTaskIdsNotIn(@Param("taskIds") List<Long> taskId, @Param("appType") Integer appType, @Param("projectId") Long projectId) {
-        return batchTaskShadeDao.listByTaskIdsNotIn(projectId, taskId);
+        return scheduleTaskShadeDao.listByTaskIdsNotIn(projectId, taskId);
     }
 
     @Forbidden
-    public BatchTaskShade getById(Long id ){
-        return batchTaskShadeDao.getById(id);
+    public ScheduleTaskShade getById(Long id ){
+        return scheduleTaskShadeDao.getById(id);
     }
 }

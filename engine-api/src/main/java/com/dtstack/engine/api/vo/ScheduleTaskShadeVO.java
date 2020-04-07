@@ -1,6 +1,6 @@
 package com.dtstack.engine.api.vo;
 
-import com.dtstack.engine.api.domain.BatchTaskShade;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
 
 import java.sql.Timestamp;
 
@@ -9,7 +9,7 @@ import java.sql.Timestamp;
  * author: toutian
  * create: 2019/10/25
  */
-public class BatchTaskShadeVO extends BatchTaskShade {
+public class ScheduleTaskShadeVO extends ScheduleTaskShade {
 
     private Long tenantId;
 

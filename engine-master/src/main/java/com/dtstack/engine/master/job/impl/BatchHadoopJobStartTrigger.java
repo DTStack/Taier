@@ -13,8 +13,8 @@ import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.ScheduleJobDao;
-import com.dtstack.engine.api.domain.BatchTaskShade;
-import com.dtstack.engine.api.dto.BatchTaskParamShade;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.api.dto.ScheduleTaskParamShade;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ActionService;
 import com.dtstack.engine.master.impl.ClusterService;
@@ -92,14 +92,14 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
     private static final String ADD_PART_TEMP = "alter table %s add partition(task_name='%s',time='%s')";
 
     @Override
-    public void readyForTaskStartTrigger(Map<String, Object> actionParam, BatchTaskShade taskShade, ScheduleJob scheduleJob) throws Exception {
+    public void readyForTaskStartTrigger(Map<String, Object> actionParam, ScheduleTaskShade taskShade, ScheduleJob scheduleJob) throws Exception {
 
         //info信息中数据
         String sql = (String) actionParam.get("sqlText");
         sql = sql == null ? "" : sql;
         String taskParams = taskShade.getTaskParams();
 
-        List<BatchTaskParamShade> taskParamsToReplace = JSONObject.parseArray((String) actionParam.get("taskParamsToReplace"), BatchTaskParamShade.class);
+        List<ScheduleTaskParamShade> taskParamsToReplace = JSONObject.parseArray((String) actionParam.get("taskParamsToReplace"), ScheduleTaskParamShade.class);
 
         String taskExeArgs = null;
 
@@ -497,7 +497,7 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
 
 
     private String uploadSqlTextToHdfs(Long dtuicTenantId, String content, Integer taskType, String taskName, Long tenantId, Long projectId,
-                                       List<BatchTaskParamShade> taskParamShades, String cycTime) {
+                                       List<ScheduleTaskParamShade> taskParamShades, String cycTime) {
         String hdfsPath = null;
         try {
 

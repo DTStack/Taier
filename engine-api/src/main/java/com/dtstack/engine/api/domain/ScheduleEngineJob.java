@@ -9,7 +9,7 @@ import java.util.Objects;
  * author: toutian
  * create: 2019/10/22
  */
-public class BatchEngineJob extends AppTenantEntity {
+public class ScheduleEngineJob extends AppTenantEntity {
 
     private Integer status;
 
@@ -42,7 +42,7 @@ public class BatchEngineJob extends AppTenantEntity {
         this.versionId = versionId;
     }
 
-    public BatchEngineJob() {
+    public ScheduleEngineJob() {
     }
 
     public Integer getStatus() {
@@ -117,7 +117,7 @@ public class BatchEngineJob extends AppTenantEntity {
         this.retryNum = retryNum;
     }
 
-    public BatchEngineJob(ScheduleJob scheduleJob) {
+    public ScheduleEngineJob(ScheduleJob scheduleJob) {
         if (Objects.nonNull(scheduleJob)) {
             this.retryNum = scheduleJob.getRetryNum();
             this.status = scheduleJob.getStatus();

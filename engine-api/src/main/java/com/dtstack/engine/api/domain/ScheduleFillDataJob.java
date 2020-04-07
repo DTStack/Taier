@@ -6,7 +6,7 @@ package com.dtstack.engine.api.domain;
  * author: toutian
  * create: 2019/10/22
  */
-public class BatchFillDataJob extends AppTenantEntity {
+public class ScheduleFillDataJob extends AppTenantEntity {
 
     private String jobName;
 

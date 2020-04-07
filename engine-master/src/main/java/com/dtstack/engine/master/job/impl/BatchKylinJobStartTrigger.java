@@ -5,8 +5,8 @@ import com.dtstack.dtcenter.common.enums.EngineType;
 import com.dtstack.dtcenter.common.util.TimeParamOperator;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.BatchTaskShade;
-import com.dtstack.engine.api.dto.BatchTaskParamShade;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.api.dto.ScheduleTaskParamShade;
 import com.dtstack.engine.master.job.IJobStartTrigger;
 import org.springframework.stereotype.Service;
 
@@ -23,9 +23,9 @@ import java.util.Objects;
 public class BatchKylinJobStartTrigger implements IJobStartTrigger {
 
     @Override
-    public void readyForTaskStartTrigger(Map<String, Object> actionParam, BatchTaskShade taskShade, ScheduleJob scheduleJob) throws Exception {
+    public void readyForTaskStartTrigger(Map<String, Object> actionParam, ScheduleTaskShade taskShade, ScheduleJob scheduleJob) throws Exception {
         if (taskShade.getEngineType().equals(EngineType.Kylin.getVal())) {
-            List<BatchTaskParamShade> taskParamsToReplace = JSONObject.parseArray((String)actionParam.get("taskParamsToReplace"), BatchTaskParamShade.class);
+            List<ScheduleTaskParamShade> taskParamsToReplace = JSONObject.parseArray((String)actionParam.get("taskParamsToReplace"), ScheduleTaskParamShade.class);
             JSONObject pluginInfo = JSONObject.parseObject((String) actionParam.get("pluginInfo"));
             if (Objects.nonNull(pluginInfo)) {
                String taskExeArgs = taskShade.getExeArgs();
@@ -40,7 +40,7 @@ public class BatchKylinJobStartTrigger implements IJobStartTrigger {
                         startTime = simpleDateFormat.parse(jsonObject.get("startTime").toString()).getTime() + 28800000;
                         endTime = simpleDateFormat.parse(jsonObject.get("endTime").toString()).getTime() + 28800000;
                     } else if (!jsonObject.getBooleanValue("isUseSystemVar")) {
-                        for (BatchTaskParamShade param : taskParamsToReplace) {
+                        for (ScheduleTaskParamShade param : taskParamsToReplace) {
                             String paramCommand = param.getParamCommand();
                             String targetVal = TimeParamOperator.transform(paramCommand, scheduleJob.getCycTime());
                             long length = targetVal.length();

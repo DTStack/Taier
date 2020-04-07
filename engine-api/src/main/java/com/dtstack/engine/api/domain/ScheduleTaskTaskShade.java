@@ -4,7 +4,7 @@ package com.dtstack.engine.api.domain;
 /**
  * @author sishu.yss
  */
-public class BatchTaskTaskShade extends AppTenantEntity {
+public class ScheduleTaskTaskShade extends AppTenantEntity {
 
     private Long taskId;
 

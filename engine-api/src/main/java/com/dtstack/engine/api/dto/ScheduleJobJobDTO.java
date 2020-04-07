@@ -6,13 +6,13 @@ import java.util.List;
  * @author jiangbo
  * @date 2018/7/19 9:44
  */
-public class BatchJobJobDTO {
+public class ScheduleJobJobDTO {
 
     private String jobKey;
 
     private Integer level;
 
-    private List<BatchJobJobDTO> children;
+    private List<ScheduleJobJobDTO> children;
 
     public Integer getLevel() {
         return level;
@@ -30,11 +30,11 @@ public class BatchJobJobDTO {
         this.jobKey = jobKey;
     }
 
-    public List<BatchJobJobDTO> getChildren() {
+    public List<ScheduleJobJobDTO> getChildren() {
         return children;
     }
 
-    public void setChildren(List<BatchJobJobDTO> children) {
+    public void setChildren(List<ScheduleJobJobDTO> children) {
         this.children = children;
     }
 }

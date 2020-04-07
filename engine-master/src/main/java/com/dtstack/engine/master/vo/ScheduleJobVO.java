@@ -3,7 +3,7 @@ package com.dtstack.engine.master.vo;
 import com.dtstack.dtcenter.common.constant.TaskStatusConstrant;
 import com.dtstack.dtcenter.common.enums.TaskStatus;
 import com.dtstack.dtcenter.common.util.DateUtil;
-import com.dtstack.engine.api.domain.BatchEngineJob;
+import com.dtstack.engine.api.domain.ScheduleEngineJob;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.master.parser.ESchedulePeriodType;
 import org.apache.commons.lang3.StringUtils;
@@ -39,7 +39,7 @@ public class ScheduleJobVO extends com.dtstack.engine.api.vo.ScheduleJobVO {
         this.setTaskPeriodId(scheduleJob.getPeriodType());
         this.setStatus(scheduleJob.getStatus());
         this.setRetryNum(scheduleJob.getRetryNum());
-        this.setBatchEngineJob(new BatchEngineJob(scheduleJob));
+        this.setScheduleEngineJob(new ScheduleEngineJob(scheduleJob));
     }
 
     private String getOnlyDate(String date){
@@ -50,7 +50,7 @@ public class ScheduleJobVO extends com.dtstack.engine.api.vo.ScheduleJobVO {
         return str.substring(0,11);
     }
 
-    public void setBatchTask(BatchTaskVO batchTask) {
+    public void setBatchTask(ScheduleTaskVO batchTask) {
         this.isGroupTask = false;
         if (StringUtils.isBlank(taskPeriodType)) {
             String taskType = "";
@@ -72,30 +72,30 @@ public class ScheduleJobVO extends com.dtstack.engine.api.vo.ScheduleJobVO {
         this.batchTask = batchTask;
     }
 
-    public void setBatchEngineJob(BatchEngineJob batchEngineJob) {
-        if (batchEngineJob != null && null != batchEngineJob.getStatus()) {
-            this.setStatus(TaskStatusConstrant.getShowStatusWithoutStop(batchEngineJob.getStatus()));
+    public void setScheduleEngineJob(ScheduleEngineJob scheduleEngineJob) {
+        if (scheduleEngineJob != null && null != scheduleEngineJob.getStatus()) {
+            this.setStatus(TaskStatusConstrant.getShowStatusWithoutStop(scheduleEngineJob.getStatus()));
 
-            int combineStatus = TaskStatusConstrant.getShowStatus(batchEngineJob.getStatus());
+            int combineStatus = TaskStatusConstrant.getShowStatus(scheduleEngineJob.getStatus());
             // 任务状态为运行中，运行完成，运行失败时才有开始时间和运行时间
             if(combineStatus == TaskStatus.RUNNING.getStatus() || combineStatus == TaskStatus.FINISHED.getStatus() || combineStatus == TaskStatus.FAILED.getStatus()){
-                if (batchEngineJob.getExecStartTime() != null) {
-                    this.setExecStartDate(DateUtil.getFormattedDate(batchEngineJob.getExecStartTime().getTime(), "yyyy-MM-dd HH:mm:ss"));
+                if (scheduleEngineJob.getExecStartTime() != null) {
+                    this.setExecStartDate(DateUtil.getFormattedDate(scheduleEngineJob.getExecStartTime().getTime(), "yyyy-MM-dd HH:mm:ss"));
                 }
 
             }
 
             // 任务状态为运行完成或失败时才有结束时间
             if(combineStatus == TaskStatus.FINISHED.getStatus() || combineStatus == TaskStatus.FAILED.getStatus()){
-                if (batchEngineJob.getExecEndTime() != null) {
-                    this.setExecEndDate(DateUtil.getFormattedDate(batchEngineJob.getExecEndTime().getTime(), "yyyy-MM-dd HH:mm:ss"));
+                if (scheduleEngineJob.getExecEndTime() != null) {
+                    this.setExecEndDate(DateUtil.getFormattedDate(scheduleEngineJob.getExecEndTime().getTime(), "yyyy-MM-dd HH:mm:ss"));
                 }
             }
-            if (batchEngineJob.getExecStartTime() != null && batchEngineJob.getExecEndTime() != null) {
-                long exeTime = batchEngineJob.getExecTime() == null ? 0L : batchEngineJob.getExecTime() * 1000;
+            if (scheduleEngineJob.getExecStartTime() != null && scheduleEngineJob.getExecEndTime() != null) {
+                long exeTime = scheduleEngineJob.getExecTime() == null ? 0L : scheduleEngineJob.getExecTime() * 1000;
                 this.setExecTime(DateUtil.getTimeDifference(exeTime));
             }
         }
-        this.batchEngineJob = batchEngineJob;
+        this.scheduleEngineJob = scheduleEngineJob;
     }
 }

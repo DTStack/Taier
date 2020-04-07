@@ -1,7 +1,7 @@
 package com.dtstack.engine.api.domain;
 
 
-public class BatchTaskShade extends BatchTask {
+public class ScheduleTaskShade extends ScheduleTask {
 
     /**
      * 是否发布到了生产环境

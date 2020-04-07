@@ -1,6 +1,6 @@
 package com.dtstack.engine.api.vo;
 
-import com.dtstack.engine.api.domain.BatchEngineJob;
+import com.dtstack.engine.api.domain.ScheduleEngineJob;
 import com.dtstack.engine.api.domain.TenantProjectEntity;
 
 import java.sql.Timestamp;
@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class ScheduleJobVO extends TenantProjectEntity {
 
-    protected BatchTaskVO batchTask;
+    protected ScheduleTaskVO batchTask;
     private String tenantName;
     private String projectName;
     private String jobId;
@@ -35,7 +35,7 @@ public class ScheduleJobVO extends TenantProjectEntity {
     protected String taskPeriodType;
 
     private List<ScheduleJobVO> jobVOS;
-    protected BatchEngineJob batchEngineJob;
+    protected ScheduleEngineJob scheduleEngineJob;
 
     private ScheduleJobVO subNodes;
 
@@ -69,11 +69,11 @@ public class ScheduleJobVO extends TenantProjectEntity {
         this.version = version;
     }
 
-    public BatchTaskVO getBatchTask() {
+    public ScheduleTaskVO getBatchTask() {
         return batchTask;
     }
 
-    public void setBatchTask(BatchTaskVO batchTask) {
+    public void setBatchTask(ScheduleTaskVO batchTask) {
         this.batchTask = batchTask;
     }
 
@@ -237,8 +237,8 @@ public class ScheduleJobVO extends TenantProjectEntity {
         this.jobVOS = jobVOS;
     }
 
-    public BatchEngineJob getBatchEngineJob() {
-        return batchEngineJob;
+    public ScheduleEngineJob getScheduleEngineJob() {
+        return scheduleEngineJob;
     }
 
     public ScheduleJobVO getSubNodes() {
@@ -249,8 +249,8 @@ public class ScheduleJobVO extends TenantProjectEntity {
         this.subNodes = subNodes;
     }
 
-    public void setBatchEngineJob(BatchEngineJob batchEngineJob) {
-        this.batchEngineJob = batchEngineJob;
+    public void setScheduleEngineJob(ScheduleEngineJob scheduleEngineJob) {
+        this.scheduleEngineJob = scheduleEngineJob;
     }
 
     public String getFlowJobId() {

@@ -1,11 +1,11 @@
 package com.dtstack.engine.api.dto;
 
-import com.dtstack.engine.api.domain.BatchTaskShade;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
 
 import java.sql.Timestamp;
 import java.util.List;
 
-public class BatchTaskShadeDTO extends BatchTaskShade {
+public class ScheduleTaskShadeDTO extends ScheduleTaskShade {
 
 
     private Timestamp startGmtModified;

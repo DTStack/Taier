@@ -9,11 +9,11 @@ import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.dao.EngineJobDao;
 import com.dtstack.engine.dao.EngineJobRetryDao;
 import com.dtstack.engine.dao.EngineJobCacheDao;
-import com.dtstack.engine.dao.StreamTaskCheckpointDao;
+import com.dtstack.engine.dao.EngineJobCheckpointDao;
 import com.dtstack.engine.api.domain.EngineJob;
 import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.master.bo.EngineJobRetry ;
-import com.dtstack.engine.api.domain.StreamTaskCheckpoint;
+import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.cache.ShardCache;
 import com.google.common.base.Strings;
@@ -49,7 +49,7 @@ public class TaskRestartDealer {
     private EngineJobRetryDao engineJobRetryDao;
 
     @Autowired
-    private StreamTaskCheckpointDao streamTaskCheckpointDao;
+    private EngineJobCheckpointDao engineJobCheckpointDao;
 
     @Autowired
     private ShardCache shardCache;
@@ -169,7 +169,7 @@ public class TaskRestartDealer {
             return;
         }
 
-        StreamTaskCheckpoint taskCheckpoint = streamTaskCheckpointDao.getByTaskId(jobClient.getTaskId());
+        EngineJobCheckpoint taskCheckpoint = engineJobCheckpointDao.getByTaskId(jobClient.getTaskId());
         if(taskCheckpoint != null){
             jobClient.setExternalPath(taskCheckpoint.getCheckpointSavepath());
         }

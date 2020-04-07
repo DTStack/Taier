@@ -5,7 +5,7 @@ package com.dtstack.engine.api.domain.po;
  * author: toutian
  * create: 2019/10/29
  */
-public class SimpleBatchJobPO {
+public class SimpleScheduleJobPO {
 
     private Long id;
     private String jobId;

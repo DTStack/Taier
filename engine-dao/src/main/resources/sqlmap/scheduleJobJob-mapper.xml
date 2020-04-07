@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.engine.dao.BatchJobJobDao">
+<mapper namespace="com.dtstack.engine.dao.ScheduleJobJobDao">
 
     <sql id="select_content_fragment">
         id,tenant_id,project_id,dtuic_tenant_id,app_type,job_key,parent_job_key,gmt_create,gmt_modified,is_deleted
@@ -34,7 +34,7 @@
         </set>
     </sql>
 
-    <select id="listByJobKey" resultType="BatchJobJob">
+    <select id="listByJobKey" resultType="ScheduleJobJob">
         SELECT
         <include refid="select_content_fragment"/>
         from schedule_job_job
@@ -42,7 +42,7 @@
         job_key = #{jobKey} and is_deleted = 0
     </select>
 
-    <select id="listByJobKeys" resultType="BatchJobJob">
+    <select id="listByJobKeys" resultType="ScheduleJobJob">
         SELECT
         <include refid="select_content_fragment"/>
         from schedule_job_job
@@ -54,7 +54,7 @@
         and is_deleted = 0
     </select>
 
-    <select id="listByParentJobKey" resultType="BatchJobJob">
+    <select id="listByParentJobKey" resultType="ScheduleJobJob">
         SELECT
         <include refid="select_content_fragment"/>
         from schedule_job_job
@@ -62,7 +62,7 @@
         parent_job_key = #{jobKey} and is_deleted = 0
     </select>
 
-    <insert id="insert" parameterType="BatchJobJob" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="ScheduleJobJob" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO schedule_job_job
         (job_key,parent_job_key,gmt_create,gmt_modified,is_deleted,dtuic_tenant_id,app_type)
         VALUES
@@ -78,7 +78,7 @@
         </foreach>
     </insert>
 
-    <update id="update" parameterType="BatchJobJob">
+    <update id="update" parameterType="ScheduleJobJob">
         UPDATE
         schedule_job_job
         <include refid="update_fragment"/>
@@ -86,7 +86,7 @@
         id = #{id} AND is_deleted = 0
     </update>
 
-    <select id="listSelfDependency" resultType="BatchJobJob">
+    <select id="listSelfDependency" resultType="ScheduleJobJob">
         SELECT
         <include refid="select_content_fragment"/>
         from schedule_job_job
@@ -96,7 +96,7 @@
         and left(job_key,LENGTH(job_key) - 15) = left(parent_job_key,LENGTH(job_key)-15)
     </select>
 
-    <select id="listByParentJobKeys" resultType="BatchJobJob">
+    <select id="listByParentJobKeys" resultType="ScheduleJobJob">
         SELECT
         <include refid="select_content_fragment"/>
         from schedule_job_job
@@ -108,7 +108,7 @@
         and is_deleted = 0
     </select>
 
-    <select id="listByParentJobKeysWithOutSelfTask" resultType="com.dtstack.engine.api.dto.BatchJobJobTaskDTO">
+    <select id="listByParentJobKeysWithOutSelfTask" resultType="com.dtstack.engine.api.dto.ScheduleJobJobTaskDTO">
         SELECT
         bjj.id,bjj.job_key,bjj.parent_job_key,bjj.gmt_create,bjj.gmt_modified,bjj.is_deleted,
         bj.task_id
@@ -124,7 +124,7 @@
         and bj.is_deleted = 0
     </select>
 
-    <select id="listByJobKeysWithOutSelfTask" resultType="com.dtstack.engine.api.dto.BatchJobJobTaskDTO">
+    <select id="listByJobKeysWithOutSelfTask" resultType="com.dtstack.engine.api.dto.ScheduleJobJobTaskDTO">
         SELECT
         bjj.id,bjj.job_key,bjj.parent_job_key,bjj.gmt_create,bjj.gmt_modified,bjj.is_deleted,
         bj.task_id
@@ -145,7 +145,7 @@
     </select>
 
     <delete id="deleteByJobKey">
-        delete from rdos_batch_job_job
+        delete from ScheduleJobJob
         where job_key in
         <foreach collection="jobKeyList" item="jobKey" open="(" separator="," close=")">
             #{jobKey}

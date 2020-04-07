@@ -11,7 +11,7 @@ import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.EngineJobDao;
 import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.api.domain.po.SimpleBatchJobPO;
+import com.dtstack.engine.api.domain.po.SimpleScheduleJobPO;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.NodeRecoverService;
 import com.dtstack.engine.master.queue.JobPartitioner;
@@ -210,13 +210,13 @@ public class FailoverStrategy {
             LOG.warn("----- nodeAddress:{} BatchJob 任务开始恢复----", nodeAddress);
             long startId = 0L;
             while (true) {
-                List<SimpleBatchJobPO> jobs = scheduleJobDao.listSimpleJobByStatusAddress(startId, UNFINISHED_STATUSES, nodeAddress);
+                List<SimpleScheduleJobPO> jobs = scheduleJobDao.listSimpleJobByStatusAddress(startId, UNFINISHED_STATUSES, nodeAddress);
                 if (CollectionUtils.isEmpty(jobs)) {
                     break;
                 }
                 List<Long> cronJobIds = Lists.newArrayList();
                 List<Long> fillJobIds = Lists.newArrayList();
-                for (SimpleBatchJobPO batchJob : jobs) {
+                for (SimpleScheduleJobPO batchJob : jobs) {
                     if (EScheduleType.NORMAL_SCHEDULE.getType() == batchJob.getType()) {
                         cronJobIds.add(batchJob.getId());
                     } else {
@@ -229,7 +229,7 @@ public class FailoverStrategy {
             }
 
             //在迁移任务的时候，可能出现要迁移的节点也宕机了，任务没有正常接收需要再次恢复（由HearBeatCheckListener监控）。
-            List<SimpleBatchJobPO> jobs = scheduleJobDao.listSimpleJobByStatusAddress(0L, UNFINISHED_STATUSES, nodeAddress);
+            List<SimpleScheduleJobPO> jobs = scheduleJobDao.listSimpleJobByStatusAddress(0L, UNFINISHED_STATUSES, nodeAddress);
             if (CollectionUtils.isNotEmpty(jobs)) {
                 zkService.updateSynchronizedLocalBrokerHeartNode(nodeAddress, BrokerHeartNode.initNullBrokerHeartNode(), true);
             }

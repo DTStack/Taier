@@ -66,7 +66,7 @@ public class ScheduleFillDataJobDetailVO {
 
         private Integer retryNum;
 
-        private BatchTaskVO batchTask;
+        private ScheduleTaskVO batchTask;
 
         private List<FillDataRecord> relatedRecords;
 
@@ -166,11 +166,11 @@ public class ScheduleFillDataJobDetailVO {
             this.id = id;
         }
 
-        public BatchTaskVO getBatchTask() {
+        public ScheduleTaskVO getBatchTask() {
             return batchTask;
         }
 
-        public void setBatchTask(BatchTaskVO batchTask) {
+        public void setBatchTask(ScheduleTaskVO batchTask) {
             this.batchTask = batchTask;
         }
 

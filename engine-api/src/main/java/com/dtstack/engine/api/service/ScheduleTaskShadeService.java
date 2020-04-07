@@ -1,11 +1,11 @@
 package com.dtstack.engine.api.service;
 
 import com.dtstack.engine.api.annotation.Param;
-import com.dtstack.engine.api.domain.BatchTaskShade;
-import com.dtstack.engine.api.dto.BatchTaskShadeDTO;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.vo.BatchTaskShadeVO;
-import com.dtstack.engine.api.vo.BatchTaskVO;
+import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
+import com.dtstack.engine.api.vo.ScheduleTaskVO;
 
 import java.util.List;
 import java.util.Map;
@@ -21,7 +21,7 @@ public interface ScheduleTaskShadeService {
      * web 接口
      * 例如：离线计算BatchTaskService.publishTaskInfo 触发 batchTaskShade 保存task的必要信息
      */
-    public void addOrUpdate(BatchTaskShadeDTO batchTaskShadeDTO);
+    public void addOrUpdate(ScheduleTaskShadeDTO batchTaskShadeDTO);
 
     /**
      * web 接口
@@ -37,21 +37,21 @@ public interface ScheduleTaskShadeService {
      * @return
      * @author toutian
      */
-    public List<BatchTaskShade> getTasksByName(@Param("projectId") long projectId,
-                                               @Param("name") String name, @Param("appType") Integer appType);
+    public List<ScheduleTaskShade> getTasksByName(@Param("projectId") long projectId,
+                                                  @Param("name") String name, @Param("appType") Integer appType);
 
-    public BatchTaskShade getByName(@Param("projectId") long projectId,
-                                    @Param("name") String name, @Param("appType") Integer appType);
+    public ScheduleTaskShade getByName(@Param("projectId") long projectId,
+                                       @Param("name") String name, @Param("appType") Integer appType);
 
     public void updateTaskName(@Param("taskId") long id, @Param("taskName") String taskName, @Param("appType") Integer appType);
 
     /**
      * 分页查询已提交的任务
      */
-    public PageResult<List<BatchTaskShadeVO>> pageQuery(BatchTaskShadeDTO dto);
+    public PageResult<List<ScheduleTaskShadeVO>> pageQuery(ScheduleTaskShadeDTO dto);
 
 
-    public BatchTaskShade getBatchTaskById(@Param("id") Long taskId, @Param("appType") Integer appType);
+    public ScheduleTaskShade getBatchTaskById(@Param("id") Long taskId, @Param("appType") Integer appType);
 
     public Map<String, Object> queryTasks(@Param("tenantId") Long tenantId,
                                           @Param("projectId") Long projectId,
@@ -87,7 +87,7 @@ public interface ScheduleTaskShadeService {
      * @param taskId
      * @return
      */
-    public BatchTaskVO dealFlowWorkTask(@Param("taskId") Long taskId, @Param("appType") Integer appType);
+    public ScheduleTaskVO dealFlowWorkTask(@Param("taskId") Long taskId, @Param("appType") Integer appType);
 
     /**
      * 获取任务流下的所有子任务
@@ -95,10 +95,10 @@ public interface ScheduleTaskShadeService {
      * @param taskId
      * @return
      */
-    public List<BatchTaskShade> getFlowWorkSubTasks(@Param("taskId") Long taskId, @Param("appType") Integer appType);
+    public List<ScheduleTaskShade> getFlowWorkSubTasks(@Param("taskId") Long taskId, @Param("appType") Integer appType);
 
 
-    public BatchTaskShade findTaskId(@Param("taskId") Long taskId, @Param("isDeleted") Integer isDeleted, @Param("appType") Integer appType);
+    public ScheduleTaskShade findTaskId(@Param("taskId") Long taskId, @Param("isDeleted") Integer isDeleted, @Param("appType") Integer appType);
 
     /**
      * @param taskIds
@@ -107,7 +107,7 @@ public interface ScheduleTaskShadeService {
      * @param isSimple  不查询sql
      * @return
      */
-    public List<BatchTaskShade> findTaskIds(@Param("taskIds") List<Long> taskIds, @Param("isDeleted") Integer isDeleted, @Param("appType") Integer appType, @Param("isSimple") boolean isSimple);
+    public List<ScheduleTaskShade> findTaskIds(@Param("taskIds") List<Long> taskIds, @Param("isDeleted") Integer isDeleted, @Param("appType") Integer appType, @Param("isSimple") boolean isSimple);
 
 
     /**

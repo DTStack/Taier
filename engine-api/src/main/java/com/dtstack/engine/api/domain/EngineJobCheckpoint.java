@@ -9,7 +9,7 @@ import java.sql.Timestamp;
  * @author xuchao
  */
 
-public class StreamTaskCheckpoint extends DataObject {
+public class EngineJobCheckpoint extends DataObject {
 
     private String taskId;
 

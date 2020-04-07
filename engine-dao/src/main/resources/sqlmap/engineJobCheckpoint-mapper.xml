@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.engine.dao.StreamTaskCheckpointDao">
+<mapper namespace="com.dtstack.engine.dao.EngineJobCheckpointDao">
 
     <sql id="select_content_fragment">
         id,task_id, task_engine_id, checkpoint_id, checkpoint_trigger, checkpoint_savepath,checkpoint_counts, gmt_create, gmt_modified, is_deleted
     </sql>
 
-    <insert id="insert" parameterType="StreamTaskCheckpoint" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="EngineJobCheckpoint" useGeneratedKeys="true" keyProperty="id">
         replace into schedule_engine_job_checkpoint( task_id, task_engine_id, checkpoint_id, checkpoint_trigger, checkpoint_savepath, checkpoint_counts)
         values(#{taskId}, #{engineTaskId}, #{checkpointId}, #{checkpointTrigger}, #{checkpointSavepath}, #{checkpointCounts});
     </insert>
@@ -23,7 +23,7 @@
         where task_engine_id = #{taskEngineId} and is_deleted = 0;
     </update>
 
-    <select id="listByTaskIdAndRangeTime" resultType="StreamTaskCheckpoint">
+    <select id="listByTaskIdAndRangeTime" resultType="EngineJobCheckpoint">
         select
         <include refid="select_content_fragment"/>
         from schedule_engine_job_checkpoint
@@ -34,7 +34,7 @@
         order by checkpoint_trigger asc
     </select>
 
-    <select id="getByTaskIdAndEngineTaskId" resultType="StreamTaskCheckpoint">
+    <select id="getByTaskIdAndEngineTaskId" resultType="EngineJobCheckpoint">
         select
         <include refid="select_content_fragment"/>
         from schedule_engine_job_checkpoint
@@ -43,7 +43,7 @@
         order by CONVERT(checkpoint_id,SIGNED) desc limit 1
     </select>
 
-    <select id="getByTaskEngineIdAndCheckpointIndexAndCount" resultType="StreamTaskCheckpoint">
+    <select id="getByTaskEngineIdAndCheckpointIndexAndCount" resultType="EngineJobCheckpoint">
         select
         <include refid="select_content_fragment"/>
         from schedule_engine_job_checkpoint
@@ -59,7 +59,7 @@
         where task_id=#{taskId}
     </update>
 
-    <select id="getByTaskId" resultType="StreamTaskCheckpoint">
+    <select id="getByTaskId" resultType="EngineJobCheckpoint">
         select
         <include refid="select_content_fragment"/>
         from schedule_engine_job_checkpoint

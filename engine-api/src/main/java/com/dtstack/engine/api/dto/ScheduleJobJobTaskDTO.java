@@ -1,6 +1,6 @@
 package com.dtstack.engine.api.dto;
 
-import com.dtstack.engine.api.domain.BatchJobJob;
+import com.dtstack.engine.api.domain.ScheduleJobJob;
 import org.springframework.beans.BeanUtils;
 
 /**
@@ -8,7 +8,7 @@ import org.springframework.beans.BeanUtils;
  * author: toutian
  * create: 2019/10/22
  */
-public class BatchJobJobTaskDTO extends BatchJobJob {
+public class ScheduleJobJobTaskDTO extends ScheduleJobJob {
 
     private Long taskId;
 
@@ -20,9 +20,9 @@ public class BatchJobJobTaskDTO extends BatchJobJob {
         this.taskId = taskId;
     }
 
-    public BatchJobJob toJobJob() {
-        BatchJobJob batchJobJob = new BatchJobJob();
-        BeanUtils.copyProperties(this, batchJobJob);
-        return batchJobJob;
+    public ScheduleJobJob toJobJob() {
+        ScheduleJobJob scheduleJobJob = new ScheduleJobJob();
+        BeanUtils.copyProperties(this, scheduleJobJob);
+        return scheduleJobJob;
     }
 }

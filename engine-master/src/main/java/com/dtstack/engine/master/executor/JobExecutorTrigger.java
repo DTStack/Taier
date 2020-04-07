@@ -10,7 +10,7 @@ import com.dtstack.engine.common.constrant.JobFieldInfo;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.dao.ScheduleJobDao;
-import com.dtstack.engine.api.domain.po.SimpleBatchJobPO;
+import com.dtstack.engine.api.domain.po.SimpleScheduleJobPO;
 import com.dtstack.engine.master.queue.QueueInfo;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
 import com.google.common.collect.Lists;
@@ -192,12 +192,12 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
             try {
                 long startId = 0L;
                 while (true) {
-                    List<SimpleBatchJobPO> jobs = scheduleJobDao.listSimpleJobByStatusAddress(startId, SUBMIT_ENGINE_STATUSES, environmentContext.getLocalAddress());
+                    List<SimpleScheduleJobPO> jobs = scheduleJobDao.listSimpleJobByStatusAddress(startId, SUBMIT_ENGINE_STATUSES, environmentContext.getLocalAddress());
                     if (CollectionUtils.isEmpty(jobs)) {
                         break;
                     }
                     List<String> jobIds = Lists.newArrayList();
-                    for (SimpleBatchJobPO batchJob : jobs) {
+                    for (SimpleScheduleJobPO batchJob : jobs) {
                         jobIds.add(batchJob.getJobId());
                         startId = batchJob.getId();
                     }

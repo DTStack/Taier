@@ -23,12 +23,12 @@ import com.dtstack.engine.common.enums.QueryWorkFlowModel;
 import com.dtstack.engine.common.enums.TaskOperateType;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.dao.BatchFillDataJobDao;
+import com.dtstack.engine.dao.ScheduleFillDataJobDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
-import com.dtstack.engine.dao.BatchJobJobDao;
-import com.dtstack.engine.dao.BatchTaskShadeDao;
+import com.dtstack.engine.dao.ScheduleJobJobDao;
+import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.api.domain.*;
-import com.dtstack.engine.api.dto.BatchTaskForFillDataDTO;
+import com.dtstack.engine.api.dto.ScheduleTaskForFillDataDTO;
 import com.dtstack.engine.api.dto.QueryJobDTO;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.env.EnvironmentContext;
@@ -44,7 +44,7 @@ import com.dtstack.engine.master.scheduler.JobStopSender;
 import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.master.vo.ScheduleJobVO;
 import com.dtstack.engine.master.vo.BatchSecienceJobChartVO;
-import com.dtstack.engine.master.vo.BatchTaskVO;
+import com.dtstack.engine.master.vo.ScheduleTaskVO;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -107,7 +107,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     private ScheduleJobDao scheduleJobDao;
 
     @Autowired
-    private BatchTaskShadeDao batchTaskShadeDao;
+    private ScheduleTaskShadeDao scheduleTaskShadeDao;
 
     @Autowired
     private ScheduleTaskShadeService batchTaskShadeService;
@@ -116,10 +116,10 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     private JobGraphBuilder jobGraphBuilder;
 
     @Autowired
-    private BatchFillDataJobDao batchFillDataJobDao;
+    private ScheduleFillDataJobDao scheduleFillDataJobDao;
 
     @Autowired
-    private BatchFillDataJobService batchFillDataJobService;
+    private ScheduleFillDataJobService scheduleFillDataJobService;
 
     @Autowired
     private ScheduleJobJobService batchJobJobService;
@@ -143,7 +143,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     private JobStopSender jobStopSender;
 
     @Autowired
-    private BatchJobJobDao batchJobJobDao;
+    private ScheduleJobJobDao scheduleJobJobDao;
 
     @Autowired
     private JobRichOperator jobRichOperator;
@@ -441,9 +441,9 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         pageQuery.setModel(batchJobDTO);
 
         if (StringUtils.isNotBlank(vo.getTaskName()) || Objects.nonNull(vo.getOwnerId())) {
-            List<BatchTaskShade> batchTaskShades = batchTaskShadeDao.listByNameLike(vo.getProjectId(), vo.getTaskName(), vo.getAppType(), vo.getOwnerId(),vo.getProjectIds());
+            List<ScheduleTaskShade> batchTaskShades = scheduleTaskShadeDao.listByNameLike(vo.getProjectId(), vo.getTaskName(), vo.getAppType(), vo.getOwnerId(),vo.getProjectIds());
             if (CollectionUtils.isNotEmpty(batchTaskShades)) {
-                batchJobDTO.setTaskIds(batchTaskShades.stream().map(BatchTaskShade::getTaskId).collect(Collectors.toList()));
+                batchJobDTO.setTaskIds(batchTaskShades.stream().map(ScheduleTaskShade::getTaskId).collect(Collectors.toList()));
             }
         }
         batchJobDTO.setPageQuery(true);
@@ -454,7 +454,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         if (count > 0) {
             List<ScheduleJob> scheduleJobs = scheduleJobDao.generalQuery(pageQuery);
             if (CollectionUtils.isNotEmpty(scheduleJobs)) {
-                Map<Long, BatchTaskForFillDataDTO> shadeMap = this.prepare(scheduleJobs);
+                Map<Long, ScheduleTaskForFillDataDTO> shadeMap = this.prepare(scheduleJobs);
                 List<ScheduleJobVO> batchJobVOS = this.transfer(scheduleJobs, shadeMap);
 
 
@@ -509,17 +509,17 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         return vos;
     }
 
-    private void dealFlowWorkJobs(List<ScheduleJobVO> vos, Map<Long, BatchTaskShade> batchTaskShadeMap) throws Exception {
+    private void dealFlowWorkJobs(List<ScheduleJobVO> vos, Map<Long, ScheduleTaskShade> batchTaskShadeMap) throws Exception {
         for (ScheduleJobVO vo : vos) {
             Integer type = batchTaskShadeMap.get(vo.getTaskId()).getTaskType();
             if (EJobType.WORK_FLOW.getVal().intValue() == type) {
                 String jobId = vo.getJobId();
                 List<ScheduleJob> subJobs = scheduleJobDao.getSubJobsByFlowIds(Lists.newArrayList(jobId));
-                List<BatchTaskForFillDataDTO> batchTaskShadeList = Lists.newArrayList();
-                Map<Long, BatchTaskForFillDataDTO> shadeMap = this.prepare(subJobs);
+                List<ScheduleTaskForFillDataDTO> batchTaskShadeList = Lists.newArrayList();
+                Map<Long, ScheduleTaskForFillDataDTO> shadeMap = this.prepare(subJobs);
                 List<ScheduleJobVO> subJobVOs = this.transfer(subJobs, shadeMap);
 
-                List<ScheduleJobVO> relatedJobVOs= new ArrayList<>(subJobVOs.size());
+                List<com.dtstack.engine.api.vo.ScheduleJobVO> relatedJobVOs= new ArrayList<>(subJobVOs.size());
                 subJobVOs.forEach(subJobVO -> relatedJobVOs.add(subJobVO));
                 vo.setRelatedJobs(relatedJobVOs);
             }
@@ -536,7 +536,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     public ScheduleJobVO getRelatedJobs(@Param("jobId") String jobId, @Param("vo") String query) throws Exception {
         QueryJobDTO vo = JSONObject.parseObject(query, QueryJobDTO.class);
         ScheduleJob scheduleJob = scheduleJobDao.getByJobId(jobId, Deleted.NORMAL.getStatus());
-        Map<Long, BatchTaskForFillDataDTO> shadeMap = this.prepare(Lists.newArrayList(scheduleJob));
+        Map<Long, ScheduleTaskForFillDataDTO> shadeMap = this.prepare(Lists.newArrayList(scheduleJob));
         List<ScheduleJobVO> transfer = this.transfer(Lists.newArrayList(scheduleJob), shadeMap);
         if (CollectionUtils.isEmpty(transfer)) {
             return null;
@@ -557,10 +557,10 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                 pageQuery.setModel(batchJobDTO);
                 batchJobDTO.setNeedQuerySonNode(true);
                 List<ScheduleJob> subJobs = scheduleJobDao.generalQuery(pageQuery);
-                Map<Long, BatchTaskForFillDataDTO> subShadeMap = this.prepare(subJobs);
+                Map<Long, ScheduleTaskForFillDataDTO> subShadeMap = this.prepare(subJobs);
                 List<ScheduleJobVO> subJobVOs = this.transfer(subJobs, subShadeMap);
 
-                List<ScheduleJobVO> relatedJobVOs= new ArrayList<>(subJobVOs.size());
+                List<com.dtstack.engine.api.vo.ScheduleJobVO> relatedJobVOs= new ArrayList<>(subJobVOs.size());
                 subJobVOs.forEach(subJobVO -> relatedJobVOs.add(subJobVO));
                 batchJobVO.setRelatedJobs(relatedJobVOs);
                 return batchJobVO;
@@ -599,7 +599,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                         if (flow == null) {
                             continue;
                         }
-                        Map<Long, BatchTaskForFillDataDTO> batchTaskShadeMap = this.prepare(Lists.newArrayList(flow));
+                        Map<Long, ScheduleTaskForFillDataDTO> batchTaskShadeMap = this.prepare(Lists.newArrayList(flow));
                         List<ScheduleJobVO> flowVOs = this.transfer(Lists.newArrayList(flow), batchTaskShadeMap);
                         flowVO = flowVOs.get(0);
                         flowVO.setRelatedJobs(Lists.newArrayList(jobVO));
@@ -612,27 +612,27 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     }
 
 
-    private Map<Long, BatchTaskForFillDataDTO> prepare(List<ScheduleJob> scheduleJobs) {
+    private Map<Long, ScheduleTaskForFillDataDTO> prepare(List<ScheduleJob> scheduleJobs) {
         if (CollectionUtils.isEmpty(scheduleJobs)) {
             return new HashMap<>(0);
         }
 
         List<Long> taskIdList = scheduleJobs.stream().map(ScheduleJob::getTaskId).collect(Collectors.toList());
 
-        return batchTaskShadeDao.listSimpleTaskByTaskIds(taskIdList, null).stream()
-                .collect(Collectors.toMap(BatchTaskForFillDataDTO::getTaskId, batchTaskForFillDataDTO -> batchTaskForFillDataDTO));
+        return scheduleTaskShadeDao.listSimpleTaskByTaskIds(taskIdList, null).stream()
+                .collect(Collectors.toMap(ScheduleTaskForFillDataDTO::getTaskId, scheduleTaskForFillDataDTO -> scheduleTaskForFillDataDTO));
     }
 
-    private List<ScheduleJobVO> transfer(List<ScheduleJob> scheduleJobs, Map<Long, BatchTaskForFillDataDTO> batchTaskShadeMap) {
+    private List<ScheduleJobVO> transfer(List<ScheduleJob> scheduleJobs, Map<Long, ScheduleTaskForFillDataDTO> batchTaskShadeMap) {
         List<ScheduleJobVO> vos = new ArrayList<>(scheduleJobs.size());
         for (ScheduleJob scheduleJob : scheduleJobs) {
-            BatchTaskForFillDataDTO taskShade = batchTaskShadeMap.get(scheduleJob.getTaskId());
+            ScheduleTaskForFillDataDTO taskShade = batchTaskShadeMap.get(scheduleJob.getTaskId());
             if (taskShade == null) {
                 continue;
             }
 
             //维持旧接口 数据结构
-            BatchEngineJob engineJob = new BatchEngineJob();
+            ScheduleEngineJob engineJob = new ScheduleEngineJob();
             engineJob.setStatus(scheduleJob.getStatus());
             engineJob.setRetryNum(scheduleJob.getRetryNum());
             String voTaskName = taskShade.getName();
@@ -646,9 +646,9 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                 engineJob.setExecEndTime(new Timestamp(scheduleJob.getExecEndTime().getTime()));
             }
             engineJob.setExecTime(scheduleJob.getExecTime());
-            batchJobVO.setBatchEngineJob(engineJob);
+            batchJobVO.setScheduleEngineJob(engineJob);
 
-            BatchTaskVO taskVO = new BatchTaskVO(taskShade);
+            ScheduleTaskVO taskVO = new ScheduleTaskVO(taskShade);
             taskVO.setName(voTaskName);
             if (scheduleJob.getPeriodType() != null) {
                 batchJobVO.setTaskPeriodId(scheduleJob.getPeriodType());
@@ -677,9 +677,9 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         //需要查询工作流的子节点
         batchJobDTO.setNeedQuerySonNode(true);
         if (StringUtils.isNotBlank(vo.getTaskName()) || Objects.nonNull(vo.getOwnerId())) {
-            List<BatchTaskShade> batchTaskShades = batchTaskShadeDao.listByNameLike(vo.getProjectId(), vo.getTaskName(), vo.getAppType(), vo.getOwnerId(),vo.getProjectIds());
+            List<ScheduleTaskShade> batchTaskShades = scheduleTaskShadeDao.listByNameLike(vo.getProjectId(), vo.getTaskName(), vo.getAppType(), vo.getOwnerId(),vo.getProjectIds());
             if (CollectionUtils.isNotEmpty(batchTaskShades)) {
-                batchJobDTO.setTaskIds(batchTaskShades.stream().map(BatchTaskShade::getTaskId).collect(Collectors.toList()));
+                batchJobDTO.setTaskIds(batchTaskShades.stream().map(ScheduleTaskShade::getTaskId).collect(Collectors.toList()));
             }
         }
         List<Map<Integer, Long>> statusCount = scheduleJobDao.getJobsStatusStatistics(batchJobDTO);
@@ -875,7 +875,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
 
     public List<ScheduleRunDetailVO> jobDetail(@Param("taskId") Long taskId, @Param("appType") Integer appType) {
 
-        BatchTaskShade task = batchTaskShadeService.getBatchTaskById(taskId, appType);
+        ScheduleTaskShade task = batchTaskShadeService.getBatchTaskById(taskId, appType);
 
         PageQuery pageQuery = new PageQuery(1, 20, "business_date", Sort.DESC.name());
         List<Map<String, String>> jobs = scheduleJobDao.listTaskExeTimeInfo(task.getId(), FINISH_STATUS, pageQuery);
@@ -896,7 +896,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                 runDetail.setStartTime(DateUtil.getFormattedDate(((Timestamp) execStartTimeObj).getTime(), "yyyy-MM-dd HH:mm:ss"));
                 runDetail.setEndTime(DateUtil.getFormattedDate(((Timestamp) ExecEndTimeObj).getTime(), "yyyy-MM-dd HH:mm:ss"));
 
-                BatchTaskShade jobTask = batchTaskShadeService.getBatchTaskById(taskId, appType);
+                ScheduleTaskShade jobTask = batchTaskShadeService.getBatchTaskById(taskId, appType);
                 runDetail.setTaskName(jobTask.getName());
                 details.add(runDetail);
             }
@@ -946,7 +946,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
 
         String taskJson = null;
 
-        BatchTaskShade batchTask = batchTaskShadeService.getBatchTaskById(scheduleJob.getTaskId(), scheduleJob.getAppType());
+        ScheduleTaskShade batchTask = batchTaskShadeService.getBatchTaskById(scheduleJob.getTaskId(), scheduleJob.getAppType());
         if (batchTask == null) {
             throw new RdosDefineException("can not fiind task by id:" + scheduleJob.getTaskId());
         }
@@ -970,7 +970,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             return;
         }
 
-        String extInfoByTaskId = batchTaskShadeDao.getExtInfoByTaskId(scheduleJob.getTaskId(), scheduleJob.getAppType());
+        String extInfoByTaskId = scheduleTaskShadeDao.getExtInfoByTaskId(scheduleJob.getTaskId(), scheduleJob.getAppType());
         JSONObject extObject = JSONObject.parseObject(extInfoByTaskId);
         if (Objects.nonNull(extObject)) {
             JSONObject info = extObject.getJSONObject(TaskConstant.INFO);
@@ -1110,7 +1110,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
         }
 
-        BatchTaskShade task = batchTaskShadeService.getBatchTaskById(scheduleJob.getTaskId(), appType);
+        ScheduleTaskShade task = batchTaskShadeService.getBatchTaskById(scheduleJob.getTaskId(), appType);
         if (task == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
         }
@@ -1220,10 +1220,10 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         JSONArray jsonArray = new JSONArray();
 
         for (ScheduleJob scheduleJob : scheduleJobList) {
-            BatchTaskShade batchTask = batchTaskShadeDao.getOne(scheduleJob.getTaskId(), appType);
+            ScheduleTaskShade batchTask = scheduleTaskShadeDao.getOne(scheduleJob.getTaskId(), appType);
             //fix 任务被删除
             if (batchTask == null) {
-                List<BatchTaskShade> deleteTask = batchTaskShadeService.getSimpleTaskRangeAllByIds(Lists.newArrayList(scheduleJob.getTaskId()));
+                List<ScheduleTaskShade> deleteTask = batchTaskShadeService.getSimpleTaskRangeAllByIds(Lists.newArrayList(scheduleJob.getTaskId()));
                 if (CollectionUtils.isEmpty(deleteTask)) {
                     continue;
                 }
@@ -1274,7 +1274,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         //2: 批量插入BatchJobJobList
         int count = 0;
         List<ScheduleJob> jobWaitForSave = Lists.newArrayList();
-        List<BatchJobJob> jobJobWaitForSave = Lists.newArrayList();
+        List<ScheduleJobJob> jobJobWaitForSave = Lists.newArrayList();
 
         Map<String, Integer> nodeJobSize = computeJobSizeForNode(batchJobCollection.size(), scheduleType);
         for (Map.Entry<String, Integer> nodeJobSizeEntry : nodeJobSize.entrySet()) {
@@ -1313,7 +1313,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         return jobSizeInfo;
     }
 
-    private void persisteJobs(List<ScheduleJob> jobWaitForSave, List<BatchJobJob> jobJobWaitForSave) {
+    private void persisteJobs(List<ScheduleJob> jobWaitForSave, List<ScheduleJobJob> jobJobWaitForSave) {
         if (jobWaitForSave.size() > 0) {
             scheduleJobDao.batchInsert(jobWaitForSave);
             jobWaitForSave.clear();
@@ -1383,7 +1383,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         }
 
         //判断补数据的名字每个project必须是唯一的
-        boolean existsName = batchFillDataJobService.checkExistsName(fillName, projectId);
+        boolean existsName = scheduleFillDataJobService.checkExistsName(fillName, projectId);
         if (existsName) {
             throw new RdosDefineException("补数据任务名称已存在", ErrorCode.NAME_ALREADY_EXIST);
         }
@@ -1391,7 +1391,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         Map<String, ScheduleBatchJob> addBatchMap = Maps.newLinkedHashMap();
         //存储fill_job name
         String currDayStr = currDateTime.toString(dayFormatter);
-        BatchFillDataJob batchFillDataJob = batchFillDataJobService.saveData(fillName, tenantId, projectId, currDayStr, fromDayStr, toDayStr, userId, appType, dtuicTenantId);
+        ScheduleFillDataJob scheduleFillDataJob = scheduleFillDataJobService.saveData(fillName, tenantId, projectId, currDayStr, fromDayStr, toDayStr, userId, appType, dtuicTenantId);
 
         for (; !toDateTime.isBefore(fromDateTime); ) {
             try {
@@ -1399,9 +1399,9 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                 String triggerDay = cycTime.toString(DAY_PATTERN);
                 Map<String, ScheduleBatchJob> result;
                 if (StringUtils.isNotBlank(beginTime) && StringUtils.isNotBlank(endTime)) {
-                    result = jobGraphBuilder.buildFillDataJobGraph(jsonNode, fillName, false, triggerDay, userId, beginTime, endTime, projectId, tenantId, isRoot, appType, batchFillDataJob.getId(),dtuicTenantId);
+                    result = jobGraphBuilder.buildFillDataJobGraph(jsonNode, fillName, false, triggerDay, userId, beginTime, endTime, projectId, tenantId, isRoot, appType, scheduleFillDataJob.getId(),dtuicTenantId);
                 } else {
-                    result = jobGraphBuilder.buildFillDataJobGraph(jsonNode, fillName, false, triggerDay, userId, projectId, tenantId, isRoot, appType, batchFillDataJob.getId(),dtuicTenantId);
+                    result = jobGraphBuilder.buildFillDataJobGraph(jsonNode, fillName, false, triggerDay, userId, projectId, tenantId, isRoot, appType, scheduleFillDataJob.getId(),dtuicTenantId);
                 }
                 if (MapUtils.isEmpty(result)) {
                     continue;
@@ -1450,7 +1450,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                                                                               @Param("bizStartDay") Long bizStartDay, @Param("bizEndDay") Long bizEndDay, @Param("dutyUserId") Long dutyUserId,
                                                                               @Param("projectId") Long projectId, @Param("appType") Integer appType, @Param("user") Integer userId,
                                                                               @Param("currentPage") Integer currentPage, @Param("pageSize") Integer pageSize, @Param("tenantId") Long tenantId) {
-        final List<BatchTaskShade> taskList;
+        final List<ScheduleTaskShade> taskList;
         ScheduleJobDTO batchJobDTO = new ScheduleJobDTO();
         //是否需要关联task表查询
         boolean needQueryTask = false;
@@ -1460,7 +1460,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                 return PageResult.EMPTY_PAGE_RESULT;
             } else {
                 needQueryTask = true;
-                batchJobDTO.setTaskIds(taskList.stream().map(BatchTaskShade::getTaskId).collect(Collectors.toList()));
+                batchJobDTO.setTaskIds(taskList.stream().map(ScheduleTaskShade::getTaskId).collect(Collectors.toList()));
             }
         }
 
@@ -1496,10 +1496,10 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             fillIdList = scheduleJobDao.listFillIdListWithOutTask(pageQuery);
         }
 
-        List<BatchFillDataJob> fillJobList = null;
+        List<ScheduleFillDataJob> fillJobList = null;
         if (CollectionUtils.isNotEmpty(fillIdList)) {
             //根据补数据名称查询出记录
-            fillJobList = batchFillDataJobDao.getFillJobList(fillIdList, projectId, tenantId);
+            fillJobList = scheduleFillDataJobDao.getFillJobList(fillIdList, projectId, tenantId);
         } else {
             fillJobList = new ArrayList<>();
         }
@@ -1512,11 +1512,11 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         }
         List<Map<String, Long>> statistics = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(fillJobList)) {
-            statistics = scheduleJobDao.countByFillDataAllStatus(fillJobList.stream().map(BatchFillDataJob::getId).collect(Collectors.toList()), projectId, tenantId);
+            statistics = scheduleJobDao.countByFillDataAllStatus(fillJobList.stream().map(ScheduleFillDataJob::getId).collect(Collectors.toList()), projectId, tenantId);
         }
 
         List<ScheduleFillDataJobPreViewVO> resultContent = Lists.newArrayList();
-        for (BatchFillDataJob fillJob : fillJobList) {
+        for (ScheduleFillDataJob fillJob : fillJobList) {
             ScheduleFillDataJobPreViewVO preViewVO = new ScheduleFillDataJobPreViewVO();
             preViewVO.setId(fillJob.getId());
             preViewVO.setFillDataJobName(fillJob.getJobName());
@@ -1644,7 +1644,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         if (totalCount > 0) {
             List<ScheduleJob> scheduleJobs = scheduleJobDao.generalQuery(pageQuery);
 
-            Map<Long, BatchTaskForFillDataDTO> taskShadeMap = this.prepareForFillDataDetailInfo(scheduleJobs);
+            Map<Long, ScheduleTaskForFillDataDTO> taskShadeMap = this.prepareForFillDataDetailInfo(scheduleJobs);
 
 
             for (ScheduleJob scheduleJob : scheduleJobs) {
@@ -1662,7 +1662,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             if (totalCount > 0) {
                 subScheduleJobs = scheduleJobDao.generalQuery(pageQuery);
 
-                Map<Long, BatchTaskForFillDataDTO> taskShadeMap = this.prepareForFillDataDetailInfo(subScheduleJobs);
+                Map<Long, ScheduleTaskForFillDataDTO> taskShadeMap = this.prepareForFillDataDetailInfo(subScheduleJobs);
                 for (ScheduleJob scheduleJob : subScheduleJobs) {
                     scheduleFillDataJobDetailVO.addRecord(transferBatchJob2FillDataRecord(scheduleJob, null, taskShadeMap));
                 }
@@ -1748,7 +1748,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
 
             List<ScheduleJob> scheduleJobListWithFillData = scheduleJobDao.queryFillData(pageQuery);
 
-            Map<Long, BatchTaskForFillDataDTO> taskShadeMap = this.prepareForFillDataDetailInfo(scheduleJobListWithFillData);
+            Map<Long, ScheduleTaskForFillDataDTO> taskShadeMap = this.prepareForFillDataDetailInfo(scheduleJobListWithFillData);
             if (CollectionUtils.isNotEmpty(scheduleJobListWithFillData)) {
                 for (ScheduleJob job : scheduleJobListWithFillData) {
                     scheduleFillDataJobDetailVO.addRecord(transferBatchJob2FillDataRecord(job, flowJobIdList, taskShadeMap));
@@ -1771,8 +1771,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                                                                                 @Param("fillJobName") String fillJobName) throws Exception {
         QueryJobDTO vo = JSONObject.parseObject(query, QueryJobDTO.class);
         ScheduleJob scheduleJob = scheduleJobDao.getByJobId(jobId, Deleted.NORMAL.getStatus());
-        Map<String, BatchEngineJob> engineJobMap = Maps.newHashMap();
-        Map<Long, BatchTaskForFillDataDTO> taskShadeMap = this.prepareForFillDataDetailInfo(Arrays.asList(scheduleJob));
+        Map<String, ScheduleEngineJob> engineJobMap = Maps.newHashMap();
+        Map<Long, ScheduleTaskForFillDataDTO> taskShadeMap = this.prepareForFillDataDetailInfo(Arrays.asList(scheduleJob));
 
         ScheduleFillDataJobDetailVO.FillDataRecord fillDataRecord = transferBatchJob2FillDataRecord(scheduleJob, null, taskShadeMap);
 
@@ -1802,7 +1802,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @return
      * @throws Exception
      */
-    private List<ScheduleFillDataJobDetailVO.FillDataRecord> getOnlyRelatedJobsForFillData(String jobId, Map<Long, BatchTaskForFillDataDTO> taskShadeMap) throws Exception {
+    private List<ScheduleFillDataJobDetailVO.FillDataRecord> getOnlyRelatedJobsForFillData(String jobId, Map<Long, ScheduleTaskForFillDataDTO> taskShadeMap) throws Exception {
         taskShadeMap = Optional.ofNullable(taskShadeMap).orElse(Maps.newHashMap());
 
         List<ScheduleJob> subJobs = scheduleJobDao.getSubJobsByFlowIds(Lists.newArrayList(jobId));
@@ -1815,8 +1815,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         return fillDataRecord_subNodes;
     }
 
-    private List<ScheduleFillDataJobDetailVO.FillDataRecord> getRelatedJobsForFillDataByQueryDTO(ScheduleJobDTO queryDTO, QueryJobDTO vo, String jobId, Map<String, BatchEngineJob> engineJobMap,
-                                                                                                 Map<Long, BatchTaskForFillDataDTO> taskShadeMap) throws Exception {
+    private List<ScheduleFillDataJobDetailVO.FillDataRecord> getRelatedJobsForFillDataByQueryDTO(ScheduleJobDTO queryDTO, QueryJobDTO vo, String jobId, Map<String, ScheduleEngineJob> engineJobMap,
+                                                                                                 Map<Long, ScheduleTaskForFillDataDTO> taskShadeMap) throws Exception {
 
         queryDTO.setPageQuery(false);
         queryDTO.setFlowJobId(jobId);
@@ -1880,7 +1880,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                         if (flow == null) {
                             continue;
                         }
-                        Map<Long, BatchTaskForFillDataDTO> shadeMap = this.prepare(Lists.newArrayList(flow));
+                        Map<Long, ScheduleTaskForFillDataDTO> shadeMap = this.prepare(Lists.newArrayList(flow));
                         flowVO = transferBatchJob2FillDataRecord(flow, null, shadeMap);
                         flowVO.setRelatedRecords(Lists.newArrayList(jobVO));
                         vos.set(vos.indexOf(jobVO), flowVO);
@@ -1891,12 +1891,12 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         }
     }
 
-    private Map<Long, BatchTaskForFillDataDTO> prepareForFillDataDetailInfo(List<ScheduleJob> scheduleJobs) throws Exception {
+    private Map<Long, ScheduleTaskForFillDataDTO> prepareForFillDataDetailInfo(List<ScheduleJob> scheduleJobs) throws Exception {
         if (CollectionUtils.isEmpty(scheduleJobs)) {
             return new HashMap<>();
         }
         Set<Long> taskIdSet = scheduleJobs.stream().map(ScheduleJob::getTaskId).collect(Collectors.toSet());
-        return batchTaskShadeDao.listSimpleTaskByTaskIds(taskIdSet, null).stream().collect(Collectors.toMap(BatchTaskForFillDataDTO::getTaskId, batchTaskForFillDataDTO -> batchTaskForFillDataDTO));
+        return scheduleTaskShadeDao.listSimpleTaskByTaskIds(taskIdSet, null).stream().collect(Collectors.toMap(ScheduleTaskForFillDataDTO::getTaskId, scheduleTaskForFillDataDTO -> scheduleTaskForFillDataDTO));
 
     }
 
@@ -1913,7 +1913,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                     List<ScheduleJob> subJobs = scheduleJobDao.getSubJobsByFlowIds(Lists.newArrayList(jobId));
                     allSubJobs.addAll(subJobs);
                     if (CollectionUtils.isNotEmpty(subJobs)) {
-                        Map<Long, BatchTaskForFillDataDTO> taskShadeMap = this.prepareForFillDataDetailInfo(subJobs);
+                        Map<Long, ScheduleTaskForFillDataDTO> taskShadeMap = this.prepareForFillDataDetailInfo(subJobs);
                         List<ScheduleFillDataJobDetailVO.FillDataRecord> subList = Lists.newArrayList();
                         for (ScheduleJob subJob : subJobs) {
                             if (subJobIds.contains(subJob.getJobId())) {
@@ -1965,7 +1965,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                         if (flowJob == null) {
                             continue;
                         }
-                        Map<Long, BatchTaskForFillDataDTO> taskShadeMap = this.prepareForFillDataDetailInfo(Lists.newArrayList(flowJob));
+                        Map<Long, ScheduleTaskForFillDataDTO> taskShadeMap = this.prepareForFillDataDetailInfo(Lists.newArrayList(flowJob));
                         flowRecord = transferBatchJob2FillDataRecord(flowJob, null, taskShadeMap);
                         flowRecord.setRelatedRecords(Lists.newArrayList(record));
                         records.set(recordsCopy.indexOf(record), flowRecord);
@@ -1986,7 +1986,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @throws Exception
      */
     private ScheduleFillDataJobDetailVO.FillDataRecord transferBatchJob2FillDataRecord(ScheduleJob scheduleJob, List<String> flowJobIdList,
-                                                                                       Map<Long, BatchTaskForFillDataDTO> taskShadeMap) throws Exception {
+                                                                                       Map<Long, ScheduleTaskForFillDataDTO> taskShadeMap) throws Exception {
         String bizDayVO = scheduleJob.getBusinessDate();
         bizDayVO = bizDayVO.substring(0, 4) + "-" + bizDayVO.substring(4, 6) + "-" + bizDayVO.substring(6, 8);
         int status = scheduleJob.getStatus();
@@ -1998,13 +1998,13 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             exeStartTimeVO = timeFormatter.print(exeStartTime.getTime());
         }
 
-        BatchTaskForFillDataDTO taskShade = taskShadeMap.get(scheduleJob.getTaskId());
+        ScheduleTaskForFillDataDTO taskShade = taskShadeMap.get(scheduleJob.getTaskId());
         Integer taskType = 0;
         if (taskShade != null) {
             taskType = taskShade.getTaskType();
         }
 
-        BatchTaskVO batchTaskVO = new BatchTaskVO();
+        ScheduleTaskVO batchTaskVO = new ScheduleTaskVO();
 
         String exeTime = DateUtil.getTimeDifference(scheduleJob.getExecTime() == null ? 0L : scheduleJob.getExecTime() * 1000);
         Integer showStatus = TaskStatusConstrant.getShowStatusWithoutStop(status);
@@ -2055,7 +2055,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      */
     public List<RestartJobVO> getRestartChildJob(@Param("jobKey") String jobKey, @Param("taskId") Long parentTaskId, @Param("isOnlyNextChild") boolean isOnlyNextChild) {
 
-        List<BatchJobJob> batchJobJobList = batchJobJobService.getJobChild(jobKey);
+        List<ScheduleJobJob> scheduleJobJobList = batchJobJobService.getJobChild(jobKey);
         List<String> jobKeyList = Lists.newArrayList();
         List<RestartJobVO> batchJobList = Lists.newArrayList();
 
@@ -2064,9 +2064,9 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             return batchJobList;
         }
 
-        for (BatchJobJob batchJobJob : batchJobJobList) {
+        for (ScheduleJobJob scheduleJobJob : scheduleJobJobList) {
             //排除自依赖
-            String childJobKey = batchJobJob.getJobKey();
+            String childJobKey = scheduleJobJob.getJobKey();
             if (parentTaskId.equals(getTaskIdFromJobKey(childJobKey))) {
                 continue;
             }
@@ -2076,7 +2076,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                 continue;
             }
 
-            jobKeyList.add(batchJobJob.getJobKey());
+            jobKeyList.add(scheduleJobJob.getJobKey());
         }
 
         if (CollectionUtils.isEmpty(jobKeyList)) {
@@ -2088,7 +2088,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         for (ScheduleJob childScheduleJob : jobList) {
 
             //判断job 对应的task是否被删除
-            BatchTaskShade jobRefTask = batchTaskShadeService.getBatchTaskById(childScheduleJob.getTaskId(), childScheduleJob.getAppType());
+            ScheduleTaskShade jobRefTask = batchTaskShadeService.getBatchTaskById(childScheduleJob.getTaskId(), childScheduleJob.getAppType());
             if (jobRefTask == null || Deleted.DELETED.getStatus().equals(jobRefTask.getIsDeleted())) {
                 continue;
             }
@@ -2273,7 +2273,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     }
 
     public List<String> listJobIdByTaskNameAndStatusList(@Param("taskName") String taskName, @Param("statusList") List<Integer> statusList, @Param("projectId") Long projectId,@Param("appType") Integer appType) {
-        BatchTaskShade task = batchTaskShadeService.getByName(projectId, taskName,appType);
+        ScheduleTaskShade task = batchTaskShadeService.getByName(projectId, taskName,appType);
         if (task != null) {
             List<String> jobIdList = scheduleJobDao.listJobIdByTaskIdAndStatus(task.getId(), statusList);
             return jobIdList;
@@ -2394,7 +2394,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                                                        @Param("isOnlyNextChild") boolean isOnlyNextChild, @Param("appType") Integer appType) {
 
         String jobKey = scheduleJob.getJobKey();
-        List<BatchJobJob> batchJobJobList = batchJobJobService.getJobChild(jobKey);
+        List<ScheduleJobJob> scheduleJobJobList = batchJobJobService.getJobChild(jobKey);
         List<String> jobKeyList = Lists.newArrayList();
         List<ScheduleJob> scheduleJobList = Lists.newArrayList();
 
@@ -2403,9 +2403,9 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             return scheduleJobList;
         }
 
-        for (BatchJobJob batchJobJob : batchJobJobList) {
+        for (ScheduleJobJob scheduleJobJob : scheduleJobJobList) {
             //排除自依赖
-            String childJobKey = batchJobJob.getJobKey();
+            String childJobKey = scheduleJobJob.getJobKey();
             if (scheduleJob.getTaskId() != null && scheduleJob.getTaskId().equals(getTaskIdFromJobKey(childJobKey))) {
                 continue;
             }
@@ -2415,7 +2415,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                 continue;
             }
 
-            jobKeyList.add(batchJobJob.getJobKey());
+            jobKeyList.add(scheduleJobJob.getJobKey());
         }
 
         if (CollectionUtils.isEmpty(jobKeyList)) {
@@ -2426,7 +2426,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         for (ScheduleJob childScheduleJob : scheduleJobDao.listJobByJobKeys(jobKeyList)) {
 
             //判断job 对应的task是否被删除
-            BatchTaskShade jobRefTask = batchTaskShadeService.getBatchTaskById(childScheduleJob.getTaskId(), appType);
+            ScheduleTaskShade jobRefTask = batchTaskShadeService.getBatchTaskById(childScheduleJob.getTaskId(), appType);
             if (jobRefTask == null || Deleted.DELETED.getStatus().equals(jobRefTask.getIsDeleted())) {
                 continue;
             }
@@ -2496,15 +2496,15 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                     Map<String, String> subNodeDownloadLog = new HashMap<>(subJobs.size());
                     StringBuilder subTaskLogInfo = new StringBuilder();
                     List<Long> taskIds = subJobs.stream().map(ScheduleJob::getTaskId).collect(Collectors.toList());
-                    List<BatchTaskShade> taskShades = batchTaskShadeDao.listByTaskIds(taskIds, null, appType);
+                    List<ScheduleTaskShade> taskShades = scheduleTaskShadeDao.listByTaskIds(taskIds, null, appType);
                     if (CollectionUtils.isEmpty(taskShades)) {
                         return scheduleServerLogVO;
                     }
-                    Map<Long, BatchTaskShade> shadeMap = taskShades
+                    Map<Long, ScheduleTaskShade> shadeMap = taskShades
                             .stream()
-                            .collect(Collectors.toMap(BatchTaskShade::getTaskId, batchTaskShade -> batchTaskShade));
+                            .collect(Collectors.toMap(ScheduleTaskShade::getTaskId, batchTaskShade -> batchTaskShade));
                     for (ScheduleJob subJob : subJobs) {
-                        BatchTaskShade subTaskShade = shadeMap.get(subJob.getTaskId());
+                        ScheduleTaskShade subTaskShade = shadeMap.get(subJob.getTaskId());
                         if (Objects.isNull(subTaskShade)) {
                             continue;
                         }
@@ -2555,8 +2555,9 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     /**
      * 周期实例列表
      * 分钟任务和小时任务 展开按钮显示
+     * @return
      */
-    public List<ScheduleJobVO> minOrHourJobQuery(ScheduleJobDTO batchJobDTO) {
+    public List<com.dtstack.engine.api.vo.ScheduleJobVO> minOrHourJobQuery(ScheduleJobDTO batchJobDTO) {
         PageQuery<ScheduleJobDTO> pageQuery = new PageQuery<>(batchJobDTO.getCurrentPage(), batchJobDTO.getPageSize(), "gmt_modified", Sort.DESC.name());
 
         batchJobDTO.setPageQuery(false);
@@ -2569,7 +2570,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         }
 
         List<ScheduleJob> scheduleJobs = scheduleJobDao.minOrHourJobQuery(pageQuery);
-        Map<Long, BatchTaskForFillDataDTO> prepare = this.prepare(scheduleJobs);
+        Map<Long, ScheduleTaskForFillDataDTO> prepare = this.prepare(scheduleJobs);
         List<ScheduleJobVO> transfer = this.transfer(scheduleJobs, prepare);
         transfer.forEach(b -> b.setIsGroupTask(false));
         //处理工作流子节点
@@ -2577,7 +2578,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             this.dealFlowWorkSubJobs(transfer);
         } catch (Exception e) {
         }
-        List<ScheduleJobVO> result = new ArrayList<>();
+        List<com.dtstack.engine.api.vo.ScheduleJobVO> result = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(transfer)) {
             transfer.forEach(vo -> result.add(vo));
         }
@@ -2609,10 +2610,10 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         }
 
         ScheduleBatchJob scheduleBatchJob = new ScheduleBatchJob(scheduleJob);
-        List<BatchJobJob> batchJobJobs = batchJobJobDao.listByJobKey(scheduleJob.getJobKey());
-        scheduleBatchJob.setJobJobList(batchJobJobs);
-        BatchTaskShade batchTaskById = batchTaskShadeService.getBatchTaskById(scheduleJob.getTaskId(), 1);
-        Map<Long, BatchTaskShade> taskShadeMap = new HashMap<>();
+        List<ScheduleJobJob> scheduleJobJobs = scheduleJobJobDao.listByJobKey(scheduleJob.getJobKey());
+        scheduleBatchJob.setJobJobList(scheduleJobJobs);
+        ScheduleTaskShade batchTaskById = batchTaskShadeService.getBatchTaskById(scheduleJob.getTaskId(), 1);
+        Map<Long, ScheduleTaskShade> taskShadeMap = new HashMap<>();
         taskShadeMap.put(scheduleJob.getTaskId(), batchTaskById);
         try {
             JobCheckRunInfo jobCheckRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, scheduleJob.getStatus(), scheduleJob.getType(), new HashSet<>(), new HashMap<>(), taskShadeMap);
@@ -2634,7 +2635,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             if (Objects.isNull(appType)){
                 appType = 1;
             }
-            BatchTaskShade task = batchTaskShadeService.getBatchTaskById(taskId, appType);
+            ScheduleTaskShade task = batchTaskShadeService.getBatchTaskById(taskId, appType);
             Map<String, String> flowJobId = new ConcurrentHashMap<>();
             List<ScheduleBatchJob> cronTrigger = jobGraphBuilder.buildJobRunBean(task, "cronTrigger", EScheduleType.NORMAL_SCHEDULE,
                     true, true, new DateTime().toString("yyyy-MM-dd"), "cronJob" + "_" + task.getName(), null, task.getProjectId(), task.getTenantId());
@@ -2667,8 +2668,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                 for (ScheduleBatchJob job : cronTrigger) {
                     logger.info("create job task shade for test {}", job.getJobKey());
                     if (CollectionUtils.isNotEmpty(job.getBatchJobJobList())) {
-                        for (BatchJobJob batchJobJob : job.getBatchJobJobList()) {
-                            logger.info("create job task shade job {} parent job for test {}", batchJobJob.getJobKey(), batchJobJob.getParentJobKey());
+                        for (ScheduleJobJob scheduleJobJob : job.getBatchJobJobList()) {
+                            logger.info("create job task shade job {} parent job for test {}", scheduleJobJob.getJobKey(), scheduleJobJob.getParentJobKey());
                         }
                     }
                 }
@@ -2721,6 +2722,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     @Transactional(rollbackFor = Exception.class)
     public void deleteJobsByJobKey(@Param("jobKeyList") List<String> jobKeyList) {
         scheduleJobDao.deleteByJobKey(jobKeyList);
-        batchJobJobDao.deleteByJobKey(jobKeyList);
+        scheduleJobJobDao.deleteByJobKey(jobKeyList);
     }
 }

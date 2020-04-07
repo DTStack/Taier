@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.engine.dao.BatchTaskShadeDao">
+<mapper namespace="com.dtstack.engine.dao.ScheduleTaskShadeDao">
 
     <sql id="select_content_fragment">
       id,tenant_id,task_id,project_id,node_pid,name,task_type,engine_type,compute_type,sql_text,task_params,schedule_conf,period_type,app_type,dtuic_tenant_id,
@@ -222,14 +222,14 @@
         </set>
     </sql>
 
-    <select id="getOne" resultType="BatchTaskShade">
+    <select id="getOne" resultType="ScheduleTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_task_shade
         WHERE task_id = #{taskId} AND is_deleted = 0 and app_type = #{appType}
     </select>
 
-    <select id="listTaskByStatus" resultType="BatchTaskShade">
+    <select id="listTaskByStatus" resultType="ScheduleTaskShade">
         SELECT
         <include refid="select_content_fragment_with_sql"/>
         FROM schedule_task_shade
@@ -245,7 +245,7 @@
         WHERE submit_status = #{submitStatus} and project_schedule_status = #{projectScheduleStatus} and is_deleted = 0
     </select>
 
-    <select id="listByTaskIds" resultType="BatchTaskShade">
+    <select id="listByTaskIds" resultType="ScheduleTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_task_shade
@@ -266,7 +266,7 @@
         </where>
     </select>
 
-    <select id="listByNameLike" resultType="BatchTaskShade">
+    <select id="listByNameLike" resultType="ScheduleTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_task_shade
@@ -288,28 +288,28 @@
         </if>
     </select>
 
-    <select id="listByName" resultType="BatchTaskShade">
+    <select id="listByName" resultType="ScheduleTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_task_shade
         WHERE project_id = #{projectId} AND name=#{name} and is_deleted = 0
     </select>
 
-    <select id="listByNameLikeFront" resultType="BatchTaskShade">
+    <select id="listByNameLikeFront" resultType="ScheduleTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_task_shade
         WHERE project_id = #{projectId} AND name like '%${name}' and is_deleted = 0
     </select>
 
-    <select id="listByNameLikeTail" resultType="BatchTaskShade">
+    <select id="listByNameLikeTail" resultType="ScheduleTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_task_shade
         WHERE project_id = #{projectId} AND name like '${name}%' and is_deleted = 0
     </select>
 
-    <select id="getByName" resultType="BatchTaskShade">
+    <select id="getByName" resultType="ScheduleTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_task_shade
@@ -356,7 +356,7 @@
         WHERE task_id = #{taskId}
     </update>
 
-    <insert id="insert" parameterType="BatchTaskShade" useGeneratedKeys="false" keyProperty="id">
+    <insert id="insert" parameterType="ScheduleTaskShade" useGeneratedKeys="false" keyProperty="id">
         INSERT INTO schedule_task_shade
         (tenant_id,project_id,node_pid,name,task_type,engine_type,compute_type,sql_text,task_params,schedule_conf,period_type,
          schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version_id,is_deleted,task_desc,main_class,exe_args,flow_id,app_type,dtuic_tenant_id,task_id,is_expire)
@@ -365,7 +365,7 @@
          #{scheduleStatus},#{submitStatus},#{gmtCreate},#{gmtModified},#{modifyUserId},#{createUserId},#{ownerUserId},#{versionId},#{isDeleted},#{taskDesc},#{mainClass},#{exeArgs},#{flowId},#{appType},#{dtuicTenantId},#{taskId},#{isExpire})
     </insert>
 
-    <update id="update" parameterType="BatchTaskShade">
+    <update id="update" parameterType="ScheduleTaskShade">
         UPDATE
         schedule_task_shade
         <include refid="update_fragment"/>
@@ -373,7 +373,7 @@
         task_id = #{taskId} AND is_deleted = 0 and app_type = #{appType}
     </update>
 
-    <select id="listByType" resultType="BatchTaskShade">
+    <select id="listByType" resultType="ScheduleTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_task_shade
@@ -384,7 +384,7 @@
         and  is_deleted = 0
     </select>
 
-    <select id="generalQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="BatchTaskShade">
+    <select id="generalQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="ScheduleTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_task_shade
@@ -426,7 +426,7 @@
         AND is_deleted = 0
     </update>
 
-    <select id="simpleQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="BatchTaskShade">
+    <select id="simpleQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="ScheduleTaskShade">
         SELECT
         <include refid="simple_select_content_fragment"/>
         FROM schedule_task_shade
@@ -529,7 +529,7 @@
         and is_publish_to_produce = 1 and is_deleted = 0
     </select>
 
-    <select id="listSimpleTaskByTaskIds" resultType="com.dtstack.engine.api.dto.BatchTaskForFillDataDTO">
+    <select id="listSimpleTaskByTaskIds" resultType="com.dtstack.engine.api.dto.ScheduleTaskForFillDataDTO">
         SELECT
         <include refid="simple_select_content_fragment"/>
         FROM schedule_task_shade
@@ -554,7 +554,7 @@
         WHERE id = #{id} AND is_deleted = 0
     </select>
 
-    <select id="getWorkFlowTopNode" resultType="BatchTaskShade">
+    <select id="getWorkFlowTopNode" resultType="ScheduleTaskShade">
         SELECT
             <include refid="alias_select_content_fragment"/>
         FROM
@@ -569,7 +569,7 @@
 
 
 
-    <select id="listSimpleByTaskIds" resultType="BatchTaskShade">
+    <select id="listSimpleByTaskIds" resultType="ScheduleTaskShade">
         SELECT
         <include refid="simple_select_content_fragment"/>
         FROM schedule_task_shade
@@ -587,7 +587,7 @@
         </if>
     </select>
 
-    <select id="getOneWithDeleted" resultType="BatchTaskShade">
+    <select id="getOneWithDeleted" resultType="ScheduleTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
         FROM
@@ -614,7 +614,7 @@
         where task_id = #{taskId} and app_type = #{appType} and is_deleted = 0
     </select>
 
-    <select id="getExtInfoByTaskIds" resultType="BatchTaskShade">
+    <select id="getExtInfoByTaskIds" resultType="ScheduleTaskShade">
         SELECT
            task_id ,extra_info
         FROM schedule_task_shade
@@ -626,7 +626,7 @@
     </select>
 
 
-    <select id="getById" resultType="BatchTaskShade">
+    <select id="getById" resultType="ScheduleTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
         FROM

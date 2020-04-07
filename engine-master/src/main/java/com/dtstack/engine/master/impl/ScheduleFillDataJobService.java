@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.dao.BatchFillDataJobDao;
-import com.dtstack.engine.api.domain.BatchFillDataJob;
+import com.dtstack.engine.dao.ScheduleFillDataJobDao;
+import com.dtstack.engine.api.domain.ScheduleFillDataJob;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,31 +18,31 @@ import java.util.List;
  * create: 2019/10/22
  */
 @Service
-public class BatchFillDataJobService {
+public class ScheduleFillDataJobService {
 
     @Autowired
-    private BatchFillDataJobDao batchFillDataJobDao;
+    private ScheduleFillDataJobDao scheduleFillDataJobDao;
 
     public boolean checkExistsName(String jobName, long projectId) {
-        BatchFillDataJob batchFillDataJob = batchFillDataJobDao.getByJobName(jobName, projectId);
-        return batchFillDataJob != null;
+        ScheduleFillDataJob scheduleFillDataJob = scheduleFillDataJobDao.getByJobName(jobName, projectId);
+        return scheduleFillDataJob != null;
     }
 
-    public List<BatchFillDataJob> getFillJobList(List<String> fillJobName, long projectId){
+    public List<ScheduleFillDataJob> getFillJobList(List<String> fillJobName, long projectId){
         if(CollectionUtils.isEmpty(fillJobName)){
             return Lists.newArrayList();
         }
 
-        return batchFillDataJobDao.listFillJob(fillJobName, projectId);
+        return scheduleFillDataJobDao.listFillJob(fillJobName, projectId);
     }
 
     @Transactional
-    public BatchFillDataJob saveData(String jobName, long tenantId, long projectId, String runDay,
-                                     String fromDay, String toDay, long userId,Integer appType,Long dtuicTenantId) {
+    public ScheduleFillDataJob saveData(String jobName, long tenantId, long projectId, String runDay,
+                                        String fromDay, String toDay, long userId, Integer appType, Long dtuicTenantId) {
 
         Timestamp currTimeStamp = Timestamp.valueOf(LocalDateTime.now());
 
-        BatchFillDataJob fillDataJob = new BatchFillDataJob();
+        ScheduleFillDataJob fillDataJob = new ScheduleFillDataJob();
         fillDataJob.setJobName(jobName);
         fillDataJob.setFromDay(fromDay);
         fillDataJob.setToDay(toDay);
@@ -54,7 +54,7 @@ public class BatchFillDataJobService {
         fillDataJob.setGmtCreate(currTimeStamp);
         fillDataJob.setAppType(appType);
         fillDataJob.setDtuicTenantId(dtuicTenantId);
-        batchFillDataJobDao.insert(fillDataJob);
+        scheduleFillDataJobDao.insert(fillDataJob);
         return fillDataJob;
     }
 

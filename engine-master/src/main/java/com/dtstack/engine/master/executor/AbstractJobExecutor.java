@@ -8,9 +8,9 @@ import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.JobCheckStatus;
 import com.dtstack.engine.common.enums.SentinelType;
 import com.dtstack.engine.dao.ScheduleJobDao;
-import com.dtstack.engine.dao.BatchJobJobDao;
-import com.dtstack.engine.api.domain.BatchJobJob;
-import com.dtstack.engine.api.domain.BatchTaskShade;
+import com.dtstack.engine.dao.ScheduleJobJobDao;
+import com.dtstack.engine.api.domain.ScheduleJobJob;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.BatchFlowWorkJobService;
@@ -65,7 +65,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     protected ScheduleJobDao scheduleJobDao;
 
     @Autowired
-    protected BatchJobJobDao batchJobJobDao;
+    protected ScheduleJobJobDao scheduleJobJobDao;
 
     @Autowired
     protected EnvironmentContext environmentContext;
@@ -86,7 +86,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
     private Set<String> notStartCache = Sets.newHashSet();
     private Map<String, JobErrorInfo> errorJobCache = Maps.newHashMap();
-    private Map<Long, BatchTaskShade> taskCache = Maps.newHashMap();
+    private Map<Long, ScheduleTaskShade> taskCache = Maps.newHashMap();
 
     private long lastCheckLoadedDay = 0;
 
@@ -158,7 +158,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 ScheduleBatchJob scheduleBatchJob = batchJobElement.getScheduleBatchJob();
                 scheduleJob = scheduleBatchJob.getScheduleJob();
                 Long taskIdUnique = jobRichOperator.getTaskIdUnique(scheduleBatchJob.getAppType(), scheduleBatchJob.getTaskId());
-                BatchTaskShade batchTask = this.taskCache.computeIfAbsent(taskIdUnique,
+                ScheduleTaskShade batchTask = this.taskCache.computeIfAbsent(taskIdUnique,
                         k -> batchTaskShadeService.getBatchTaskById(scheduleBatchJob.getTaskId(), scheduleBatchJob.getScheduleJob().getAppType()));
                 if (batchTask == null) {
                     String errMsg = JobCheckStatus.NO_TASK.getMsg();
@@ -314,8 +314,8 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         List<ScheduleBatchJob> resultList = Lists.newArrayList();
         for (ScheduleJob scheduleJob : scheduleJobs) {
             ScheduleBatchJob scheduleBatchJob = new ScheduleBatchJob(scheduleJob);
-            List<BatchJobJob> batchJobJobs = batchJobJobDao.listByJobKey(scheduleJob.getJobKey());
-            scheduleBatchJob.setJobJobList(batchJobJobs);
+            List<ScheduleJobJob> scheduleJobJobs = scheduleJobJobDao.listByJobKey(scheduleJob.getJobKey());
+            scheduleBatchJob.setJobJobList(scheduleJobJobs);
             resultList.add(scheduleBatchJob);
         }
 

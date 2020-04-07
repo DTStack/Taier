@@ -9,9 +9,9 @@ import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.dao.EngineJobCacheDao;
-import com.dtstack.engine.dao.StreamTaskCheckpointDao;
+import com.dtstack.engine.dao.EngineJobCheckpointDao;
 import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.api.domain.StreamTaskCheckpoint;
+import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.bo.FailedTaskInfo;
 import com.google.common.base.Strings;
@@ -90,7 +90,7 @@ public class TaskCheckpointDealer implements InitializingBean, Runnable {
     private Map<String, Integer> taskEngineIdAndRetainedNum = Maps.newConcurrentMap();
 
     @Autowired
-    private StreamTaskCheckpointDao streamTaskCheckpointDao;
+    private EngineJobCheckpointDao engineJobCheckpointDao;
 
     @Autowired
     private EngineJobCacheDao engineJobCacheDao;
@@ -133,13 +133,13 @@ public class TaskCheckpointDealer implements InitializingBean, Runnable {
         try {
 
             int retainedNum = taskEngineIdAndRetainedNum.getOrDefault(taskEngineId, 1);
-            List<StreamTaskCheckpoint> threshold = streamTaskCheckpointDao.getByTaskEngineIdAndCheckpointIndexAndCount(taskEngineId,retainedNum-1, 1);
+            List<EngineJobCheckpoint> threshold = engineJobCheckpointDao.getByTaskEngineIdAndCheckpointIndexAndCount(taskEngineId,retainedNum-1, 1);
 
             if (threshold.isEmpty()) {
                 return;
             }
-            StreamTaskCheckpoint thresholdCheckpoint = threshold.get(0);
-            streamTaskCheckpointDao.batchDeleteByEngineTaskIdAndCheckpointId(thresholdCheckpoint.getTaskEngineId(), thresholdCheckpoint.getCheckpointId());
+            EngineJobCheckpoint thresholdCheckpoint = threshold.get(0);
+            engineJobCheckpointDao.batchDeleteByEngineTaskIdAndCheckpointId(thresholdCheckpoint.getTaskEngineId(), thresholdCheckpoint.getCheckpointId());
         } catch (Exception e){
             logger.error("taskEngineId Id :{}", taskEngineId);
             logger.error("", e);
@@ -148,7 +148,7 @@ public class TaskCheckpointDealer implements InitializingBean, Runnable {
     }
 
     public void  cleanAllCheckpointByTaskEngineId(String taskEngineID) {
-        streamTaskCheckpointDao.cleanAllCheckpointByTaskEngineId(taskEngineID);
+        engineJobCheckpointDao.cleanAllCheckpointByTaskEngineId(taskEngineID);
     }
 
     public void putTaskEngineIdAndRetainedNum(String taskEngineId, String pluginInfo) {
@@ -258,12 +258,12 @@ public class TaskCheckpointDealer implements InitializingBean, Runnable {
         }
 
         logger.info("taskId:{}, external:{}", jobIdentifier.getTaskId(), lastExternalPath);
-        StreamTaskCheckpoint taskCheckpoint = streamTaskCheckpointDao.getByTaskId(jobIdentifier.getTaskId());
+        EngineJobCheckpoint taskCheckpoint = engineJobCheckpointDao.getByTaskId(jobIdentifier.getTaskId());
         if(taskCheckpoint == null){
             Timestamp now = new Timestamp(System.currentTimeMillis());
-            streamTaskCheckpointDao.insert(jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(),"", now, lastExternalPath, "");
+            engineJobCheckpointDao.insert(jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(),"", now, lastExternalPath, "");
         } else {
-            streamTaskCheckpointDao.updateCheckpoint(jobIdentifier.getTaskId(), lastExternalPath);
+            engineJobCheckpointDao.updateCheckpoint(jobIdentifier.getTaskId(), lastExternalPath);
         }
     }
 
@@ -281,7 +281,7 @@ public class TaskCheckpointDealer implements InitializingBean, Runnable {
         // 任务成功或者取消后要删除记录的
         if(RdosTaskStatus.FINISHED.getStatus().equals(status) || RdosTaskStatus.CANCELED.getStatus().equals(status)
                 || RdosTaskStatus.KILLED.getStatus().equals(status)){
-            streamTaskCheckpointDao.deleteByTaskId(jobIdentifier.getTaskId());
+            engineJobCheckpointDao.deleteByTaskId(jobIdentifier.getTaskId());
         }
 
         if(RdosTaskStatus.FAILED.getStatus().equals(status)){
@@ -361,7 +361,7 @@ public class TaskCheckpointDealer implements InitializingBean, Runnable {
                         StringUtils.isEmpty(checkpointInsertedCache.getIfPresent(checkpointCacheKey))) {
                     Timestamp checkpointTriggerTimestamp = new Timestamp(checkpointTrigger);
 
-                    streamTaskCheckpointDao.insert(taskId, engineTaskId, checkpointId, checkpointTriggerTimestamp, checkpointSavepath, checkpointCounts);
+                    engineJobCheckpointDao.insert(taskId, engineTaskId, checkpointId, checkpointTriggerTimestamp, checkpointSavepath, checkpointCounts);
                     checkpointInsertedCache.put(checkpointCacheKey, "1");  //存在标识
 
                 }
@@ -380,7 +380,7 @@ public class TaskCheckpointDealer implements InitializingBean, Runnable {
 
             if (null != checkpointId) {
                 int retainedNum = parseRetainedNum(pluginInfo);
-                streamTaskCheckpointDao.batchDeleteByEngineTaskIdAndCheckpointId(engineTaskId, MathUtil.getString(checkpointId - retainedNum + 1));
+                engineJobCheckpointDao.batchDeleteByEngineTaskIdAndCheckpointId(engineTaskId, MathUtil.getString(checkpointId - retainedNum + 1));
             }
         }
     }

@@ -7,7 +7,7 @@ import com.dtstack.engine.api.domain.AppTenantEntity;
  * author: toutian
  * create: 2019/10/22
  */
-public class BatchTaskParamShade extends AppTenantEntity {
+public class ScheduleTaskParamShade extends AppTenantEntity {
 
     private Long taskId;
 
