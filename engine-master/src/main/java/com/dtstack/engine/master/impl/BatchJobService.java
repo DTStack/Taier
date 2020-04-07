@@ -779,7 +779,9 @@ public class BatchJobService {
             Map<Integer, List<Integer>> statusMap = getStatusMap(vo.getSplitFiledFlag());
             for (String status : statuses) {
                 List<Integer> statusList = statusMap.get(new Integer(status));
-                statues.addAll(statusList);
+                if(CollectionUtils.isNotEmpty(statusList)){
+                    statues.addAll(statusList);
+                }
             }
             batchJobDTO.setJobStatuses(statues);
         }
@@ -1050,6 +1052,7 @@ public class BatchJobService {
         }
         //额外信息为空 标记任务为失败
         this.updateStatusAndLogInfoById(batchJob.getId(), TaskStatus.FAILED.getStatus(), "任务运行信息为空");
+        logger.error(" job  {} run fail with info is null",batchJob.getJobId());
     }
 
     private void addUserNameToImpalaOrHive(JSONObject pluginInfoJson, String userName, String password, String dbName, String engineType) {
