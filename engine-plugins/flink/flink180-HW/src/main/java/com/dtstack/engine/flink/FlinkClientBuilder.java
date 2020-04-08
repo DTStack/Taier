@@ -350,7 +350,7 @@ public class FlinkClientBuilder {
 
     public Configuration getFlinkConfiguration() {
         if (flinkConfiguration == null) {
-            throw new RdosException("Configuration directory not set");
+            throw new RdosDefineException("Configuration directory not set");
         }
         return flinkConfiguration;
     }
