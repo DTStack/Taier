@@ -79,17 +79,84 @@ CREATE TABLE `rdos_engine_job_cache` (
   unique KEY `index_job_id` (`job_id`(128))
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
--- 新增字段
-alter table rdos_engine_job_cache add COLUMN is_failover tinyint(1) NOT NULL DEFAULT '0' COMMENT '0：不是，1：由故障恢复来的任务';
-alter table rdos_engine_job_cache change `group_name` `job_resource` varchar(256)  DEFAULT '' COMMENT '计算引擎类型';
-alter table rdos_engine_job_stop_record change `group_name` `job_resource` varchar(256)  DEFAULT '' COMMENT '计算引擎类型';
-ALTER TABLE  `rdos_engine_job_stop_record` modify  COLUMN `engine_type` varchar(256) DEFAULT NULL COMMENT '任务的执行引擎类型';
-ALTER TABLE  `rdos_engine_job_stop_record` modify  COLUMN `compute_type` tinyint(2) DEFAULT NULL COMMENT '计算类型stream/batch';
+DROP TABLE IF EXISTS `rdos_plugin_job_info`;
+CREATE TABLE `rdos_plugin_job_info` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `job_id` varchar(255) NOT NULL COMMENT '任务id',
+  `job_info` LONGTEXT NOT NULL COMMENT '任务信息',
+  `log_info` text COMMENT '任务信息',
+  `status` tinyint(2) NOT NULL COMMENT '任务状态',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_job_id` (`job_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `rdos_engine_unique_sign`;
+CREATE TABLE `rdos_engine_unique_sign` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `unique_sign` varchar(255) NOT NULL COMMENT '唯一标识',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_unique_sign` (`unique_sign`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `rdos_engine_job_retry`;
+CREATE TABLE `rdos_engine_job_retry` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '任务状态 UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELING(6),CANCELED(7),FAILED(8)',
+  `job_id` varchar(256) NOT NULL COMMENT '离线任务id',
+  `engine_job_id` varchar(256) DEFAULT NULL COMMENT '离线任务计算引擎id',
+  `application_id` varchar(256) DEFAULT NULL COMMENT '独立运行的任务需要记录额外的id',
+  `exec_start_time` datetime DEFAULT NULL COMMENT '执行开始时间',
+  `exec_end_time` datetime DEFAULT NULL COMMENT '执行结束时间',
+  `retry_num` int(10) NOT NULL DEFAULT '0',
+  `log_info` mediumtext COMMENT '错误信息',
+  `engine_log` longtext COMMENT '引擎错误信息',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  `retry_task_params` text DEFAULT NULL COMMENT '重试任务参数',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
----- Console
+DROP TABLE IF EXISTS `rdos_engine_job_stop_record`;
+CREATE TABLE `rdos_engine_job_stop_record` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `task_id` varchar(256) NOT NULL COMMENT '任务id',
+  `task_type` int(10) DEFAULT NULL COMMENT '任务类型',
+  `engine_type` varchar(256) DEFAULT NULL COMMENT '任务的执行引擎类型',
+  `compute_type` tinyint(2) DEFAULT NULL COMMENT '计算类型stream/batch',
+  `group_name` VARCHAR(256) DEFAULT NULL COMMENT 'group name',
+  `version` int(10) DEFAULT '0' COMMENT '版本号',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `operator_expired` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '操作过期时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `rdos_node_machine`;
+CREATE TABLE `rdos_node_machine` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `ip` varchar(64) NOT NULL COMMENT 'master主机ip',
+  `port` int(11) NOT NULL COMMENT 'master主机端口',
+  `machine_type` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0 master,1 slave',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `app_type` varchar(64) NOT NULL DEFAULT 'web' COMMENT 'web,engine',
+  `deploy_info` varchar(256) DEFAULT NULL COMMENT 'flink,spark对应的部署模式',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_machine` (`ip`,`port`)
+) ENGINE=InnoDB AUTO_INCREMENT=1018 DEFAULT CHARSET=utf8;
+
+-- console
+
+DROP TABLE IF EXISTS `console_cluster`;
 CREATE TABLE `console_cluster` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `cluster_name` varchar(24) NOT NULL COMMENT '集群名称',
@@ -101,9 +168,10 @@ CREATE TABLE `console_cluster` (
   UNIQUE KEY `idx` (`cluster_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `console_engine`;
 CREATE TABLE `console_engine` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `cluster_id` int(11) NOT NULL,
+  `cluster_id` int(11) NOT NULL COMMENT '集群id',
   `engine_name` varchar(24) NOT NULL COMMENT '引擎名称',
   `engine_type` tinyint(4) NOT NULL COMMENT '引擎类型',
   `total_node` int(11) NOT NULL COMMENT '节点数',
@@ -116,9 +184,10 @@ CREATE TABLE `console_engine` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `console_component`;
 CREATE TABLE `console_component` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `engine_id` int(11) NOT NULL,
+  `engine_id` int(11) NOT NULL COMMENT '引擎id',
   `component_name` varchar(24) NOT NULL COMMENT '组件名称',
   `component_type_code` tinyint(1) NOT NULL COMMENT '组件类型',
   `component_config` text NOT NULL COMMENT '组件配置',
@@ -128,6 +197,7 @@ CREATE TABLE `console_component` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `console_dtuic_tenant`;
 CREATE TABLE `console_dtuic_tenant` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `dt_uic_tenant_id` int(11) NOT NULL COMMENT 'uic租户id',
@@ -139,6 +209,7 @@ CREATE TABLE `console_dtuic_tenant` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `console_engine_tenant`;
 CREATE TABLE `console_engine_tenant` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `tenant_id` int(11) NOT NULL COMMENT '租户id',
@@ -150,6 +221,7 @@ CREATE TABLE `console_engine_tenant` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `console_queue`;
 CREATE TABLE `console_queue` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `engine_id` int(11) NOT NULL COMMENT '引擎id',
@@ -165,7 +237,7 @@ CREATE TABLE `console_queue` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- 集群kerberos配置表
+DROP TABLE IF EXISTS `console_kerberos`;
 CREATE TABLE `console_kerberos` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `cluster_id` int(11) NOT NULL COMMENT '集群id',
@@ -179,10 +251,9 @@ CREATE TABLE `console_kerberos` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- task
 
-
----- Task
-
+DROP TABLE IF EXISTS `rdos_batch_task_shade`;
 CREATE TABLE `rdos_batch_task_shade`
 (
     `id`                      int(11)      NOT NULL AUTO_INCREMENT,
@@ -224,6 +295,7 @@ CREATE TABLE `rdos_batch_task_shade`
   AUTO_INCREMENT = 0
   DEFAULT CHARSET = utf8;
 
+DROP TABLE IF EXISTS `rdos_batch_task_task_shade`;
 CREATE TABLE `rdos_batch_task_task_shade`
 (
     `id`              int(11)    NOT NULL AUTO_INCREMENT,
@@ -241,7 +313,7 @@ CREATE TABLE `rdos_batch_task_task_shade`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
-
+DROP TABLE IF EXISTS `rdos_batch_job`;
 CREATE TABLE `rdos_batch_job`
 (
     `id`              int(11)      NOT NULL AUTO_INCREMENT,
@@ -288,6 +360,7 @@ CREATE TABLE `rdos_batch_job`
   AUTO_INCREMENT = 0
   DEFAULT CHARSET = utf8;
 
+DROP TABLE IF EXISTS `rdos_batch_job_job`;
 CREATE TABLE `rdos_batch_job_job`
 (
     `id`              int(11)      NOT NULL AUTO_INCREMENT,
@@ -305,7 +378,7 @@ CREATE TABLE `rdos_batch_job_job`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
-
+DROP TABLE IF EXISTS `rdos_batch_fill_data_job`;
 CREATE TABLE `rdos_batch_fill_data_job`
 (
     `id`              int(11)     NOT NULL AUTO_INCREMENT,
@@ -327,6 +400,7 @@ CREATE TABLE `rdos_batch_fill_data_job`
   AUTO_INCREMENT = 0
   DEFAULT CHARSET = utf8;
 
+DROP TABLE IF EXISTS `rdos_job_graph_trigger`;
 CREATE TABLE `rdos_job_graph_trigger`
 (
     `id`           int(11)    NOT NULL AUTO_INCREMENT,
@@ -340,9 +414,227 @@ CREATE TABLE `rdos_job_graph_trigger`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
+-- insert
+-- engine
+-- 如果插入的数据会导致UNIQUE索引或PRIMARY KEY发生冲突/重复，则忽略此次操作/不插入数据
+
+insert IGNORE into rdos_plugin_info
+select * from ide.rdos_plugin_info;
+
+insert IGNORE into rdos_engine_job
+select * from ide.rdos_engine_job;
+
+insert IGNORE into rdos_stream_task_checkpoint
+select * from ide.rdos_stream_task_checkpoint;
+
+insert IGNORE into rdos_engine_job_cache
+select * from ide.rdos_engine_job_cache;
+
+insert IGNORE into rdos_plugin_job_info
+select * from ide.rdos_plugin_job_info;
+
+insert IGNORE into rdos_engine_unique_sign
+select * from ide.rdos_engine_unique_sign;
+
+insert IGNORE into rdos_engine_job_retry
+select * from ide.rdos_engine_job_retry;
+
+insert IGNORE into rdos_engine_job_stop_record
+select * from ide.rdos_engine_job_stop_record;
+
+insert IGNORE into rdos_node_machine
+select * from ide.rdos_node_machine;
+
+-- console
+
+insert IGNORE into console_cluster
+select * from console.console_cluster;
+
+insert IGNORE into console_engine
+select * from console.console_engine;
+
+insert IGNORE into console_component
+select * from console.console_component;
+
+insert IGNORE into console_dtuic_tenant
+select * from console.console_dtuic_tenant;
+
+insert IGNORE into console_engine_tenant
+select * from console.console_engine_tenant;
+
+insert IGNORE into console_queue
+select * from console.console_queue;
+
+-- task
+
+insert IGNORE into rdos_batch_task_shade( tenant_id, project_id, dtuic_tenant_id, app_type, node_pid, name, task_type, engine_type, compute_type, sql_text, task_params, task_id, schedule_conf, period_type, schedule_status, project_schedule_status, submit_status, gmt_create, gmt_modified, modify_user_id, create_user_id, owner_user_id, version_id, is_deleted, task_desc, main_class, exe_args, flow_id, is_publish_to_produce, extra_info, is_expire)
+select
+       ts.tenant_id,
+       ts.project_id,
+       tr.dtuic_tenant_id,
+       1,
+       ts.node_pid,
+       ts.name,
+       ts.task_type,
+       ts.engine_type,
+       ts.compute_type,
+       ts.sql_text,
+       ts.task_params,
+       ts.id,
+       ts.schedule_conf,
+       ts.period_type,
+       ts.schedule_status,
+       rp.schedule_status,
+       ts.submit_status,
+       ts.gmt_create,
+       ts.gmt_modified,
+       ts.modify_user_id,
+       ts.create_user_id,
+       ts.owner_user_id,
+       ts.version,
+       ts.is_deleted,
+       ts.task_desc,
+       ts.main_class,
+       ts.exe_args,
+       ts.flow_id,
+       ts.is_publish_to_produce,
+       '',
+       0
+from ide.rdos_batch_task_shade ts
+         left join ide.rdos_tenant tr on ts.tenant_id = tr.id
+left join ide.rdos_project rp on ts.project_id = rp.id;
 
 
--- 修改表名
+
+insert IGNORE into rdos_batch_task_task_shade (tenant_id, project_id, dtuic_tenant_id, app_type, task_id, parent_task_id,
+                                        gmt_create, gmt_modified, is_deleted)
+select ts.tenant_id,
+       ts.project_id,
+       rt.dtuic_tenant_id,
+       1,
+       ts.task_id,
+       ts.parent_task_id,
+       ts.gmt_create,
+       ts.gmt_modified,
+       ts.is_deleted
+from ide.rdos_batch_task_task_shade ts
+         left join ide.rdos_tenant rt
+                   on ts.tenant_id = rt.id;
+
+
+insert IGNORE into rdos_batch_job_job (tenant_id, project_id, dtuic_tenant_id, app_type, job_key, parent_job_key,
+                                     gmt_create, gmt_modified, is_deleted)
+select bj.tenant_id,
+       bj.project_id,
+       (select dtuic_tenant_id from ide.rdos_tenant where ide.rdos_tenant.id = bj.tenant_id),
+       1,
+       bj.job_key,
+       jj.parent_job_key,
+       jj.gmt_create,
+       jj.gmt_modified,
+       jj.is_deleted
+
+from ide.rdos_batch_job_job jj
+         left join ide.rdos_batch_job bj on bj.job_key = jj.job_key;
+
+
+insert IGNORE into rdos_batch_fill_data_job (tenant_id, project_id, dtuic_tenant_id, app_type, job_name, run_day,
+                                                 from_day, to_day, gmt_create, gmt_modified, create_user_id, is_deleted)
+select fdj.tenant_id,
+       fdj.project_id,
+       (select dtuic_tenant_id from ide.rdos_tenant where id = fdj.tenant_id),
+       1,
+       fdj.job_name,
+       fdj.run_day,
+       fdj.from_day,
+       fdj.to_day,
+       fdj.gmt_create,
+       fdj.gmt_modified,
+       fdj.create_user_id,
+       fdj.is_deleted
+from ide.rdos_batch_fill_data_job fdj;
+
+
+
+-- 插入之后 在更新
+insert IGNORE into rdos_batch_job(tenant_id, project_id, dtuic_tenant_id, app_type, job_id, job_key, job_name,
+                                      task_id,
+                                      gmt_create, gmt_modified, create_user_id, is_deleted, type, is_restart,
+                                      business_date,
+                                      cyc_time, dependency_type, flow_job_id, period_type, status, task_type, fill_id,
+                                      exec_start_time, exec_end_time, exec_time, submit_time, retry_num, node_address,
+                                      version_id, log_info, next_cyc_time, max_retry_num)
+
+select tenant_id,
+       project_id,
+       -1,
+       1,
+       job_id,
+       job_key,
+       job_name,
+       task_id,
+       gmt_create,
+       gmt_modified,
+       create_user_id,
+       is_deleted,
+       type,
+       is_restart,
+       business_date,
+       cyc_time,
+       dependency_type,
+       flow_job_id,
+       period_type,
+       -1,
+       -1,
+       -1,
+       null,
+       null,
+       null,
+       null,
+       0,
+       '',
+       0,
+       '',
+       '',
+       0
+from ide.rdos_batch_job;
+
+update rdos_batch_job rbj left join ide.rdos_engine_job rebj on rbj.job_id = rebj.job_id
+set rbj.status          = IFNULL(rebj.status, 0),
+    rbj.exec_start_time = rebj.exec_start_time,
+    rbj.exec_end_time   = rebj.exec_end_time,
+    rbj.exec_time       = rebj.exec_time,
+    rbj.retry_num       = IFNULL(rebj.retry_num, 0),
+    rbj.version_id      = rebj.version_id
+where rbj.status = -1;
+
+update rdos_batch_job rbj left join ide.rdos_batch_task bt on rbj.task_id = bt.id
+set rbj.task_type = bt.task_type where bt.task_type is not null;
+
+
+update rdos_batch_job rbj
+set fill_id = (select fill_id
+               from ide.rdos_batch_fill_data_relation fdr
+               where rbj.id = fdr.job_id)
+where type = 1;
+
+update rdos_batch_job rbj
+set dtuic_tenant_id = (select dtuic_tenant_id from ide.rdos_tenant where ide.rdos_tenant.id = rbj.tenant_id)
+where dtuic_tenant_id = -1;
+
+-- update
+
+-- engine
+-- engine新增字段
+
+
+alter table rdos_engine_job_cache change `group_name` `job_resource` varchar(256)  DEFAULT '' COMMENT 'job的计算引擎资源类型';
+alter table rdos_engine_job_stop_record change `group_name` `job_resource` varchar(256)  DEFAULT '' COMMENT 'job的计算引擎资源类型';
+ALTER TABLE  `rdos_engine_job_stop_record` modify  COLUMN `engine_type` varchar(256) DEFAULT NULL COMMENT '任务的执行引擎类型';
+ALTER TABLE  `rdos_engine_job_stop_record` modify  COLUMN `compute_type` tinyint(2) DEFAULT NULL COMMENT '计算类型stream/batch';
+
+-- engine修改表名
+
 ALTER TABLE rdos_plugin_info RENAME TO schedule_plugin_info;
 ALTER TABLE rdos_engine_job RENAME TO schedule_engine_job;
 ALTER TABLE rdos_stream_task_checkpoint RENAME TO schedule_engine_job_checkpoint;
@@ -353,6 +645,16 @@ ALTER TABLE rdos_engine_job_retry RENAME TO schedule_engine_job_retry;
 ALTER TABLE rdos_engine_job_stop_record RENAME TO schedule_engine_job_stop_record;
 ALTER TABLE rdos_node_machine RENAME TO schedule_node_machine;
 
+-- engine新增comment
+
+ALTER TABLE  `schedule_engine_job_checkpoint` modify  COLUMN `checkpoint_id` varchar(64) DEFAULT NULL COMMENT '检查点id';
+ALTER TABLE  `schedule_engine_job_retry` modify  COLUMN `retry_num` int(10) NOT NULL DEFAULT '0' COMMENT '执行时，重试的次数';
+ALTER TABLE  `schedule_engine_job` modify  COLUMN `retry_num` int(10) NOT NULL DEFAULT '0' COMMENT '执行时，重试的次数';
+ALTER TABLE  `schedule_engine_job` modify  COLUMN `retry_task_params` text DEFAULT NULL COMMENT '重试任务参数';
+
+-- task
+-- task修改表名
+
 ALTER TABLE rdos_batch_task_shade RENAME TO schedule_task_shade;
 ALTER TABLE rdos_batch_task_task_shade RENAME TO schedule_task_task_shade;
 ALTER TABLE rdos_batch_job RENAME TO schedule_job;
@@ -360,11 +662,7 @@ ALTER TABLE rdos_batch_job_job RENAME TO schedule_job_job;
 ALTER TABLE rdos_batch_fill_data_job RENAME TO schedule_fill_data_job;
 ALTER TABLE rdos_job_graph_trigger RENAME TO schedule_job_graph_trigger;
 
--- 新增comment
-ALTER TABLE  `schedule_engine_job_checkpoint` modify  COLUMN `checkpoint_id` varchar(64) DEFAULT NULL COMMENT '检查点id';
-ALTER TABLE  `schedule_engine_job_retry` modify  COLUMN `retry_num` int(10) NOT NULL DEFAULT '0' COMMENT '执行时，重试的次数';
-ALTER TABLE  `schedule_engine_job` modify  COLUMN `retry_num` int(10) NOT NULL DEFAULT '0' COMMENT '执行时，重试的次数';
-ALTER TABLE  `schedule_engine_job` modify  COLUMN `retry_task_params` text DEFAULT NULL COMMENT '重试任务参数';
+-- task新增comment
 
 ALTER TABLE  `schedule_task_shade` modify  COLUMN `task_desc` varchar(256) NOT NULL COMMENT '任务描述';
 ALTER TABLE  `schedule_task_shade` modify  COLUMN `main_class` varchar(256) NOT NULL COMMENT 'Jar包的入口函数';
@@ -374,7 +672,4 @@ ALTER TABLE  `schedule_job` modify  COLUMN `job_name` VARCHAR(256) NOT NULL DEFA
 ALTER TABLE  `schedule_job` modify  COLUMN `dependency_type` tinyint(2) NOT NULL DEFAULT 0  COMMENT '依赖类型';
 ALTER TABLE  `schedule_fill_data_job` modify  COLUMN `job_name` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '补数据任务名称';
 ALTER TABLE  `schedule_job_graph_trigger` modify  COLUMN `trigger_time` datetime NOT NULL COMMENT '调度时间';
-
-ALTER TABLE  `console_engine` modify  COLUMN `cluster_id` int(11) NOT NULL COMMENT '集群id';
-ALTER TABLE  `console_component` modify  COLUMN `engine_id` int(11) NOT NULL COMMENT '引擎id';
 
