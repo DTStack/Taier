@@ -180,10 +180,10 @@ public class TenantService {
         Cluster cluster = clusterDao.getOne(clusterId);
         EngineAssert.assertTrue(cluster != null, "集群不存在", ErrorCode.DATA_NOT_FIND);
 
-        checkTenantBindStatus(dtUicTenantId);
+        Tenant tenant = getTenant(dtUicTenantId, dtToken);
+        checkTenantBindStatus(tenant.getId());
         checkClusterCanUse(clusterId);
 
-        Tenant tenant = getTenant(dtUicTenantId, dtToken);
 
         List<Engine> engineList = engineDao.listByClusterId(clusterId);
         Engine hadoopEngine = addEngineTenant(tenant.getId(), engineList);
@@ -195,8 +195,8 @@ public class TenantService {
         threadLocalUicTenant.remove();
     }
 
-    private void checkTenantBindStatus(Long dtUicTenantId) {
-        List<Long> engineIdList = engineTenantDao.listEngineIdByTenantId(dtUicTenantId);
+    private void checkTenantBindStatus(Long tenantId) {
+        List<Long> engineIdList = engineTenantDao.listEngineIdByTenantId(tenantId);
         if (CollectionUtils.isNotEmpty(engineIdList)) {
             throw new RdosDefineException("该租户已经被绑定");
         }
