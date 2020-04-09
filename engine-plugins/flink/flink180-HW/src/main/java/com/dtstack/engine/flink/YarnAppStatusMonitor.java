@@ -36,7 +36,7 @@ public class YarnAppStatusMonitor implements Runnable{
 
     private FlinkClusterClientManager clusterClientManager;
 
-    private YarnClient yarnClient;
+    private FlinkClientBuilder clientBuilder;
 
     private FlinkYarnSessionStarter flinkYarnSessionStarter;
 
@@ -44,9 +44,9 @@ public class YarnAppStatusMonitor implements Runnable{
 
     private long startTime = System.currentTimeMillis();
 
-    public YarnAppStatusMonitor(FlinkClusterClientManager clusterClientManager, YarnClient yarnClient, FlinkYarnSessionStarter flinkYarnSessionStarter) {
+    public YarnAppStatusMonitor(FlinkClusterClientManager clusterClientManager, FlinkClientBuilder clientBuilder, FlinkYarnSessionStarter flinkYarnSessionStarter) {
         this.clusterClientManager = clusterClientManager;
-        this.yarnClient = yarnClient;
+        this.clientBuilder = clientBuilder;
         this.flinkYarnSessionStarter = flinkYarnSessionStarter;
         this.lastAppState = YarnApplicationState.NEW;
     }
@@ -56,9 +56,9 @@ public class YarnAppStatusMonitor implements Runnable{
         while (run.get()) {
             try{
                 if (clusterClientManager.getIsClientOn()) {
-                    if (yarnClient.isInState(Service.STATE.STARTED)) {
+                    if (clientBuilder.getYarnClient().isInState(Service.STATE.STARTED)) {
                         ApplicationId applicationId = (ApplicationId) clusterClientManager.getClusterClient().getClusterId();
-                        ApplicationReport applicationReport  = yarnClient.getApplicationReport(applicationId);
+                        ApplicationReport applicationReport  = clientBuilder.getYarnClient().getApplicationReport(applicationId);
                         YarnApplicationState appState = applicationReport.getYarnApplicationState();
                         switch(appState) {
                             case FAILED:

@@ -6,6 +6,8 @@ import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
+import com.dtstack.engine.flink.enums.Deploy;
+import com.dtstack.engine.flink.util.KerberosUtils;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -31,6 +33,7 @@ import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.flink.yarn.YarnClusterDescriptor;
 import org.apache.flink.yarn.configuration.YarnConfigOptions;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
@@ -40,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -78,16 +82,21 @@ public class FlinkClientBuilder {
 
     private Configuration flinkConfiguration;
 
-    public static FlinkClientBuilder create(FlinkConfig flinkConfig, org.apache.hadoop.conf.Configuration hadoopConf, YarnConfiguration yarnConf, YarnClient yarnClient) {
+    public static FlinkClientBuilder create(FlinkConfig flinkConfig, org.apache.hadoop.conf.Configuration hadoopConf, YarnConfiguration yarnConf) throws IOException {
         FlinkClientBuilder builder = new FlinkClientBuilder();
         builder.flinkConfig = flinkConfig;
         builder.hadoopConf = hadoopConf;
         builder.yarnConf = yarnConf;
-        builder.yarnClient = yarnClient;
+        if (flinkConfig.isOpenKerberos()){
+            initSecurity(flinkConfig);
+        }
+        if (Deploy.yarn.name().equalsIgnoreCase(flinkConfig.getClusterMode())){
+            builder.yarnClient = initYarnClient(yarnConf);
+        }
         return builder;
     }
 
-    public void initFlinkConfiguration(Properties extProp) {
+    public void initFLinkConfiguration(Properties extProp) {
         Configuration config = new Configuration();
         config.setString("akka.client.timeout", AKKA_CLIENT_TIMEOUT);
         config.setString("akka.ask.timeout", AKKA_ASK_TIMEOUT);
@@ -95,6 +104,7 @@ public class FlinkClientBuilder {
         // JVM Param
         config.setString(CoreOptions.FLINK_JVM_OPTIONS, jvm_options);
         config.setBytes(HadoopUtils.HADOOP_CONF_BYTES, HadoopUtils.serializeHadoopConf(hadoopConf));
+        config.setLong("submitTimeout", 5);
 
         if (extProp != null) {
             extProp.forEach((key, value) -> {
@@ -180,6 +190,7 @@ public class FlinkClientBuilder {
     /**
      * 根据yarn方式获取ClusterClient
      */
+    @Deprecated
     public ClusterClient<ApplicationId> initYarnClusterClient() {
 
         Configuration newConf = new Configuration(flinkConfiguration);
@@ -286,7 +297,7 @@ public class FlinkClientBuilder {
                 configuration,
                 yarnConfiguration,
                 configurationDirectory,
-                yarnClient,
+                getYarnClient(),
                 true);
     }
 
@@ -297,7 +308,7 @@ public class FlinkClientBuilder {
             EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
             enumSet.add(YarnApplicationState.RUNNING);
             enumSet.add(YarnApplicationState.ACCEPTED);
-            List<ApplicationReport> reportList = yarnClient.getApplications(set, enumSet);
+            List<ApplicationReport> reportList = getYarnClient().getApplications(set, enumSet);
 
             int maxMemory = -1;
             int maxCores = -1;
@@ -364,10 +375,6 @@ public class FlinkClientBuilder {
         return yarnConf;
     }
 
-    public YarnClient getYarnClient() {
-        return this.yarnClient;
-    }
-
     public Configuration getFlinkConfiguration() {
         if (flinkConfiguration == null) {
             throw new RdosDefineException("Configuration directory not set");
@@ -423,6 +430,71 @@ public class FlinkClientBuilder {
 
     public String buildSyncPluginDir(String pluginRoot) {
         return pluginRoot + SyncPluginInfo.FILE_SP + SyncPluginInfo.SYNC_PLUGIN_DIR_NAME;
+    }
+
+
+    private static void initSecurity(FlinkConfig flinkConfig) throws IOException {
+        try {
+            LOG.info("start init security!");
+            KerberosUtils.login(flinkConfig);
+        } catch (IOException e) {
+            LOG.error("initSecurity happens error", e);
+            throw new IOException("InitSecurity happens error", e);
+        }
+        LOG.info("UGI info: " + UserGroupInformation.getCurrentUser());
+    }
+
+    private static YarnClient initYarnClient(YarnConfiguration yarnConf) throws IOException {
+        YarnClient yarnClient = YarnClient.createYarnClient();
+        yarnClient.init(yarnConf);
+        yarnClient.start();
+        return yarnClient;
+    }
+
+    public YarnClient getYarnClient(){
+        try{
+            if(yarnClient == null){
+                synchronized (this){
+                    if(yarnClient == null){
+                        YarnClient yarnClient1 = YarnClient.createYarnClient();
+                        yarnClient1.init(yarnConf);
+                        yarnClient1.start();
+                        yarnClient = yarnClient1;
+                    }
+                }
+            }else{
+                //判断下是否可用
+                yarnClient.getAllQueues();
+            }
+        }catch(Throwable e){
+            LOG.error("getYarnClient error:{}",e);
+            synchronized (this){
+                if(yarnClient != null){
+                    boolean flag = true;
+                    try{
+                        //判断下是否可用
+                        yarnClient.getAllQueues();
+                    }catch(Throwable e1){
+                        LOG.error("getYarnClient error:{}",e1);
+                        flag = false;
+                    }
+                    if(!flag){
+                        try{
+                            yarnClient.stop();
+                        }finally {
+                            yarnClient = null;
+                        }
+                    }
+                }
+                if(yarnClient == null){
+                    YarnClient yarnClient1 = YarnClient.createYarnClient();
+                    yarnClient1.init(yarnConf);
+                    yarnClient1.start();
+                    yarnClient = yarnClient1;
+                }
+            }
+        }
+        return yarnClient;
     }
 
 }
