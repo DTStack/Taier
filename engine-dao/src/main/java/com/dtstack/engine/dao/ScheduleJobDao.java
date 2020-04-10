@@ -195,5 +195,5 @@ public interface ScheduleJobDao {
 
     List<String> getAllNodeAddress();
 
-    List<BatchJob> syncQueryJob(PageQuery<BatchJobDTO> pageQuery);
+    List<ScheduleJob> syncQueryJob(PageQuery<ScheduleJobDTO> pageQuery);
 }

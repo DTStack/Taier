@@ -20,6 +20,16 @@ public class UserDTO extends AppTenantEntity {
 
     private Long defaultProjectId;
 
+    private Integer rootUser;
+
+    public Integer getRootUser() {
+        return rootUser;
+    }
+
+    public void setRootUser(Integer rootUser) {
+        this.rootUser = rootUser;
+    }
+
     public String getUserName() {
         return userName;
     }

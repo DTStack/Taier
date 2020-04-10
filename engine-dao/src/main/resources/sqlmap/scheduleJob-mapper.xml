@@ -901,7 +901,7 @@
         limit 1
     </select>
 
-    <select id="syncQueryJob" resultType="BatchJob">
+    <select id="syncQueryJob" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
          FROM schedule_job bj

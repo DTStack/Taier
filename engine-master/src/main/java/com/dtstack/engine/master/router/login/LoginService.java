@@ -1,9 +1,9 @@
 package com.dtstack.engine.master.router.login;
 
 
+import com.dtstack.engine.api.dto.UserDTO;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
-import com.dtstack.engine.dto.UserDTO;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.router.login.domain.DtUicUser;
 import org.apache.commons.lang3.BooleanUtils;

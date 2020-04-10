@@ -1,21 +1,17 @@
 package com.dtstack.engine.master.taskdealer;
 
+import com.dtstack.engine.api.domain.EngineJob;
+import com.dtstack.engine.api.domain.EngineJobCache;
+import com.dtstack.engine.api.domain.EngineJobCheckpoint;
+import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.pojo.ParamAction;
-import com.dtstack.engine.dao.BatchJobDao;
-import com.dtstack.engine.dao.EngineJobDao;
-import com.dtstack.engine.dao.EngineJobRetryDao;
-import com.dtstack.engine.dao.EngineJobCacheDao;
-import com.dtstack.engine.dao.EngineJobCheckpointDao;
-import com.dtstack.engine.api.domain.EngineJob;
-import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.master.bo.EngineJobRetry ;
-import com.dtstack.engine.api.domain.EngineJobCheckpoint;
+import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.WorkNode;
+import com.dtstack.engine.master.bo.EngineJobRetry;
 import com.dtstack.engine.master.cache.ShardCache;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
@@ -59,7 +55,7 @@ public class TaskRestartDealer {
     private WorkNode workNode;
 
     @Autowired
-    private BatchJobDao batchJobDao;
+    private ScheduleJobDao scheduleJobDao;
 
     /**
      * 对提交结果判定是否重试
@@ -274,6 +270,6 @@ public class TaskRestartDealer {
         Integer retryNum = rdosEngineBatchJob.getRetryNum() == null ? 0 : rdosEngineBatchJob.getRetryNum();
         retryNum++;
         engineJobDao.updateRetryNum(jobId, retryNum);
-        batchJobDao.updateJobInfoByJobId(jobId,null,null,null,null,retryNum);
+        scheduleJobDao.updateJobInfoByJobId(jobId,null,null,null,null,retryNum);
     }
 }

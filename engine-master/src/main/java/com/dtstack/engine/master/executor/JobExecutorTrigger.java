@@ -5,8 +5,6 @@ import com.dtstack.dtcenter.common.enums.TaskStatus;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.dao.ScheduleJobDao;
-import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.master.impl.ActionService;
 import com.dtstack.engine.master.queue.QueueInfo;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
 import com.dtstack.sql.Twins;
@@ -17,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +24,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * company: www.dtstack.com
@@ -36,8 +34,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class JobExecutorTrigger implements InitializingBean, DisposableBean {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobExecutorTrigger.class);
-
-    private static final AtomicBoolean INIT = new AtomicBoolean(true);
 
     /**
      * 已经提交到的job的status
@@ -51,9 +47,6 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
     }
 
     @Autowired
-    private EnvironmentContext environmentContext;
-
-    @Autowired
     private ScheduleJobDao scheduleJobDao;
 
     @Autowired
@@ -64,9 +57,6 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
 
     @Autowired
     private JobRichOperator jobRichOperator;
-
-    @Autowired
-    private ActionService actionService;
 
     private List<AbstractJobExecutor> executors = new ArrayList<>(EScheduleType.values().length);
 

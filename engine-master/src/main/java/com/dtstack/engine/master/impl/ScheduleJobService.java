@@ -11,7 +11,14 @@ import com.dtstack.dtcenter.common.pager.Sort;
 import com.dtstack.dtcenter.common.util.DateUtil;
 import com.dtstack.dtcenter.common.util.MathUtil;
 import com.dtstack.dtcenter.common.util.PublicUtil;
+import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.api.dto.QueryJobDTO;
+import com.dtstack.engine.api.dto.ScheduleJobDTO;
+import com.dtstack.engine.api.dto.ScheduleTaskForFillDataDTO;
+import com.dtstack.engine.api.pager.PageQuery;
+import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.LearningFrameType;
@@ -23,10 +30,6 @@ import com.dtstack.engine.dao.ScheduleFillDataJobDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
-import com.dtstack.engine.domain.BatchJob;
-import com.dtstack.engine.domain.BatchTaskShade;
-import com.dtstack.engine.dto.BatchJobDTO;
-import com.dtstack.engine.dto.QueryJobDTO;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.job.impl.BatchHadoopJobStartTrigger;
@@ -38,7 +41,9 @@ import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
 import com.dtstack.engine.master.scheduler.JobStopSender;
-import com.dtstack.engine.master.vo.*;
+import com.dtstack.engine.master.vo.BatchSecienceJobChartVO;
+import com.dtstack.engine.master.vo.ScheduleJobVO;
+import com.dtstack.engine.master.vo.ScheduleTaskVO;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -339,7 +344,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @return
      */
     public ChartDataVO getScienceJobGraph(@Param("projectId") long projectId, @Param("tenantId") Long tenantId,
-                                                      @Param("taskType") Integer taskType) {
+                                          @Param("taskType") Integer taskType) {
         List<Integer> finishedList = Lists.newArrayList(TaskStatus.FINISHED.getStatus());
         List<Integer> failedList = Lists.newArrayList(TaskStatus.FAILED.getStatus(), TaskStatus.SUBMITFAILD.getStatus());
         List<Integer> deployList = Lists.newArrayList(TaskStatus.UNSUBMIT.getStatus(), TaskStatus.SUBMITTING.getStatus(), TaskStatus.WAITENGINE.getStatus());
@@ -879,6 +884,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         return resultList;
     }
 
+    @Override
     public List<ScheduleRunDetailVO> jobDetail(@Param("taskId") Long taskId, @Param("appType") Integer appType) {
 
         ScheduleTaskShade task = batchTaskShadeService.getBatchTaskById(taskId, appType);
@@ -2746,7 +2752,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      *
      * @return
      */
-    public List<BatchJob> syncBatchJob(QueryJobDTO dto) {
+    public List<ScheduleJob> syncBatchJob(QueryJobDTO dto) {
         if (Objects.isNull(dto) || Objects.isNull(dto.getAppType())) {
             return new ArrayList<>();
         }
@@ -2756,13 +2762,13 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         if (Objects.isNull(dto.getPageSize())) {
             dto.setPageSize(50);
         }
-        if (-1l == dto.getProjectId()) {
+        if (-1L == dto.getProjectId()) {
             // 不采用默认值
             dto.setProjectId(null);
         }
-        PageQuery<BatchJobDTO> pageQuery = new PageQuery<>(dto.getCurrentPage(), dto.getPageSize(), "gmt_modified", Sort.DESC.name());
-        BatchJobDTO query = this.createQuery(dto);
+        PageQuery<ScheduleJobDTO> pageQuery = new PageQuery<>(dto.getCurrentPage(), dto.getPageSize(), "gmt_modified", Sort.DESC.name());
+        ScheduleJobDTO query = this.createQuery(dto);
         pageQuery.setModel(query);
-        return batchJobDao.syncQueryJob(pageQuery);
+        return scheduleJobDao.syncQueryJob(pageQuery);
     }
 }

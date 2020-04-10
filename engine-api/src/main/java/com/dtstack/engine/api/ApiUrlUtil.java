@@ -1,6 +1,7 @@
 package com.dtstack.engine.api;
 
 import com.dtstack.engine.api.service.ScheduleJobJobService;
+import com.dtstack.engine.api.service.ScheduleJobService;
 import com.dtstack.engine.api.service.ScheduleTaskShadeService;
 import com.dtstack.engine.api.service.ScheduleTaskTaskShadeService;
 
@@ -25,7 +26,7 @@ public class ApiUrlUtil {
     static {
         apiUrlMap = new ConcurrentHashMap<>();
         List<Class> classes = new ArrayList<Class>(){{
-           add(ScheduleJobJobService.class);
+           add(ScheduleJobService.class);
            add(ScheduleJobJobService.class);
            add(ScheduleTaskShadeService.class);
            add(ScheduleTaskTaskShadeService.class);
