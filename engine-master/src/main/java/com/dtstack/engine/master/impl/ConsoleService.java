@@ -294,8 +294,7 @@ public class ConsoleService {
     }
 
     public void stopJob(@Param("jobId") String jobId) throws Exception {
-        Preconditions.checkNotNull(jobId, "parameters of jobId is required");
-
+        Preconditions.checkArgument(StringUtils.isNotBlank(jobId), "parameters of jobId is required");
         List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(Lists.newArrayList(jobId));
         if (alreadyExistJobIds.contains(jobId)) {
             logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobId);
