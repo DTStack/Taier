@@ -578,7 +578,7 @@ public class FlinkClient extends AbstractClient {
     public String getMessageByHttp(String path) {
         try {
             String reqUrl = String.format("%s%s", getReqUrl(), path);
-            return PoolHttpClient.get(reqUrl, MAX_RETRY_NUMBER);
+            return PoolHttpClient.get(reqUrl, null, MAX_RETRY_NUMBER);
         } catch (Exception e) {
             if(flinkClusterClientManager.getIsClientOn()){
                 flinkClusterClientManager.setIsClientOn(false);

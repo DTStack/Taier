@@ -145,7 +145,15 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
             ScheduleJob scheduleJob = null;
             try {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("========= scheduleType:{} take job from queue，before queueSize:{}, blocked:{}  tail:{} =========",
+                            getScheduleType(), jopPriorityQueue.getQueueSize(), jopPriorityQueue.isBlocked(), jopPriorityQueue.resetTail());
+                }
                 BatchJobElement batchJobElement = jopPriorityQueue.takeJob();
+                if (logger.isDebugEnabled()) {
+                    logger.debug("========= scheduleType:{} take job from queue，after queueSize:{}, blocked:{}  tail:{} =========",
+                            getScheduleType(), jopPriorityQueue.getQueueSize(), jopPriorityQueue.isBlocked(), jopPriorityQueue.resetTail());
+                }
                 if (batchJobElement.isSentinel()) {
                     //判断哨兵，执行的操作
                     operateAfterSentinel(batchJobElement.getSentinel());
@@ -291,8 +299,8 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                     }
                 }
             }
-            if (logger.isInfoEnabled()) {
-                logger.info("scheduleType:{} nodeAddress:{} emitJob2Queue return startId:{}", getScheduleType(), nodeAddress, startId);
+            if (logger.isDebugEnabled()) {
+                logger.debug("scheduleType:{} nodeAddress:{} emitJob2Queue return startId:{}", getScheduleType(), nodeAddress, startId);
             }
         } catch (Exception e) {
             logger.error("scheduleType:{} odeAddress:{} emitJob2Queue error:{}", getScheduleType(), nodeAddress, e);

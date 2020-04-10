@@ -670,7 +670,12 @@ public class ComponentService {
             //上传xml文件到sftp
             uploadToSftp(cluster, xmlFiles);
             return confMap;
-        } catch (Exception e){
+        } catch (Exception e) {
+            LOGGER.error("cluster {}  parseAndUploadXmlFile file error {}", cluster.getClusterName(), e);
+            if (e instanceof RdosDefineException) {
+                RdosDefineException rdosDefineException = (RdosDefineException) e;
+                throw new RdosDefineException(rdosDefineException.getErrorMessage());
+            }
             throw new RdosDefineException(ErrorCode.SERVER_EXCEPTION.getDescription());
         } finally {
             if (StringUtils.isNotBlank(upzipLocation)) {

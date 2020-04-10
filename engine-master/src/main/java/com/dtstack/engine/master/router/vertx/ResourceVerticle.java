@@ -26,7 +26,6 @@ import java.util.UUID;
 /**
  * @author toutian
  */
-
 public class ResourceVerticle extends BaseVerticle {
 
     private static final Logger logger = LoggerFactory.getLogger(ResourceVerticle.class);

@@ -5,17 +5,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.common.annotation.Forbidden;
 import com.dtstack.dtcenter.common.constant.TaskStatusConstrant;
 import com.dtstack.dtcenter.common.enums.*;
-import com.dtstack.dtcenter.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.common.hadoop.HadoopConf;
 import com.dtstack.dtcenter.common.hadoop.HdfsOperator;
 import com.dtstack.dtcenter.common.pager.Sort;
 import com.dtstack.dtcenter.common.util.DateUtil;
 import com.dtstack.dtcenter.common.util.MathUtil;
 import com.dtstack.dtcenter.common.util.PublicUtil;
-import com.dtstack.engine.api.annotation.Param;
-import com.dtstack.engine.api.dto.ScheduleJobDTO;
-import com.dtstack.engine.api.pager.PageQuery;
-import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.LearningFrameType;
@@ -27,9 +23,10 @@ import com.dtstack.engine.dao.ScheduleFillDataJobDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
-import com.dtstack.engine.api.domain.*;
-import com.dtstack.engine.api.dto.ScheduleTaskForFillDataDTO;
-import com.dtstack.engine.api.dto.QueryJobDTO;
+import com.dtstack.engine.domain.BatchJob;
+import com.dtstack.engine.domain.BatchTaskShade;
+import com.dtstack.engine.dto.BatchJobDTO;
+import com.dtstack.engine.dto.QueryJobDTO;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.job.impl.BatchHadoopJobStartTrigger;
@@ -41,10 +38,7 @@ import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
 import com.dtstack.engine.master.scheduler.JobStopSender;
-import com.dtstack.engine.api.vo.*;
-import com.dtstack.engine.master.vo.ScheduleJobVO;
-import com.dtstack.engine.master.vo.BatchSecienceJobChartVO;
-import com.dtstack.engine.master.vo.ScheduleTaskVO;
+import com.dtstack.engine.master.vo.*;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -194,6 +188,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
 
     /**
      * 获取运
+     *
      * @param projectId
      * @param tenantId
      * @param appType
@@ -224,7 +219,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     /**
      * 获取各个状态任务的数量
      */
-    public JSONObject getStatusCount(@Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("appType") Integer appType,@Param("dtuicTenantId") Long dtuicTenantId) {
+    public JSONObject getStatusCount(@Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId) {
         int all = 0;
         JSONObject m = new JSONObject(TaskStatusConstrant.STATUS.size());
         List<Map<String, Object>> data = scheduleJobDao.countByStatusAndType(EScheduleType.NORMAL_SCHEDULE.getType(), DateUtil.getFormattedDate(DateUtil.calTodayMills(), "yyyyMMddHHmmss"),
@@ -252,7 +247,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      */
     public List<JobTopOrderVO> runTimeTopOrder(@Param("projectId") Long projectId,
                                                @Param("startTime") Long startTime,
-                                               @Param("endTime") Long endTime, @Param("appType") Integer appType,@Param("dtuicTenantId") Long dtuicTenantId) {
+                                               @Param("endTime") Long endTime, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId) {
 
         if (null != startTime && null != endTime) {
             startTime = startTime * 1000;
@@ -295,7 +290,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     /**
      * 近30天任务出错排行
      */
-    public List<JobTopErrorVO> errorTopOrder(@Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("appType") Integer appType,@Param("dtuicTenantId") Long dtuicTenantId) {
+    public List<JobTopErrorVO> errorTopOrder(@Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId) {
 
         Timestamp time = new Timestamp(DateUtil.getLastDay(30));
         PageQuery pageQuery = new PageQuery(1, 10);
@@ -708,7 +703,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
 
     private Map<Integer, List<Integer>> getStatusMap(Boolean splitFiledFlag) {
         Map<Integer, List<Integer>> statusMap;
-        if (splitFiledFlag) {
+        if (Objects.nonNull(splitFiledFlag) && splitFiledFlag) {
             statusMap = TaskStatusConstrant.STATUS_FAILED_DETAIL;
         } else {
             statusMap = TaskStatusConstrant.STATUS;
@@ -754,7 +749,9 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             Map<Integer, List<Integer>> statusMap = getStatusMap(vo.getSplitFiledFlag());
             for (String status : statuses) {
                 List<Integer> statusList = statusMap.get(new Integer(status));
-                statues.addAll(statusList);
+                if(CollectionUtils.isNotEmpty(statusList)){
+                    statues.addAll(statusList);
+                }
             }
             batchJobDTO.setJobStatuses(statues);
         }
@@ -799,7 +796,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         batchJobDTO.setBusinessDateSort(vo.getBusinessDateSort());
         batchJobDTO.setTaskPeriodId(convertStringToList(vo.getTaskPeriodId()));
 
-        if (vo.getProjectIds()!=null && vo.getProjectIds().size()>0){
+        if (vo.getProjectIds() != null && vo.getProjectIds().size() > 0) {
             batchJobDTO.setProjectIds(vo.getProjectIds());
         }
 
@@ -809,7 +806,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         }
 
         //只有工作流 需要查询子节点
-        if(batchJobDTO.getTaskTypes().contains(EJobType.WORK_FLOW.getType())){
+        if (batchJobDTO.getTaskTypes().contains(EJobType.WORK_FLOW.getType())) {
             batchJobDTO.setNeedQuerySonNode(true);
         }
         //分页
@@ -817,6 +814,15 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         //bugfix #19764 为对入参做处理
         if (!Strings.isNullOrEmpty(vo.getJobStatuses())) {
             batchJobDTO.setJobStatuses(Arrays.stream(vo.getJobStatuses().split(",")).map(Integer::parseInt).collect(Collectors.toList()));
+        }
+        if (CollectionUtils.isNotEmpty(vo.getTaskIds())) {
+            batchJobDTO.setTaskIds(vo.getTaskIds());
+        }
+        if (Objects.nonNull(vo.getTaskId())) {
+            if (Objects.isNull(batchJobDTO.getTaskIds())) {
+                batchJobDTO.setTaskIds(new ArrayList<>());
+            }
+            batchJobDTO.getTaskIds().add(vo.getTaskId());
         }
     }
 
@@ -908,7 +914,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     @Forbidden
     public Integer updateStatusAndLogInfoById(Long id, Integer status, String msg) {
         if (StringUtils.isNotBlank(msg) && msg.length() > 500) {
-            msg = msg.substring(0,500) + "...";
+            msg = msg.substring(0, 500) + "...";
         }
         return scheduleJobDao.updateStatusAndLogInfoById(id, status, msg);
     }
@@ -1016,10 +1022,11 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         }
         //额外信息为空 标记任务为失败
         this.updateStatusAndLogInfoById(scheduleJob.getId(), TaskStatus.FAILED.getStatus(), "任务运行信息为空");
+        logger.error(" job  {} run fail with info is null",scheduleJob.getJobId());
     }
 
     private void addUserNameToImpalaOrHive(JSONObject pluginInfoJson, String userName, String password, String dbName, String engineType) {
-        if(pluginInfoJson == null || org.apache.commons.lang3.StringUtils.isBlank(userName) || (!EngineType.IMPALA.getEngineName().equals(engineType) && !EngineType.HIVE.getEngineName().equals(engineType))){
+        if (pluginInfoJson == null || org.apache.commons.lang3.StringUtils.isBlank(userName) || (!EngineType.IMPALA.getEngineName().equals(engineType) && !EngineType.HIVE.getEngineName().equals(engineType))) {
             return;
         }
 
@@ -2343,7 +2350,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     }
 
     /**
-     *  把开始时间和结束时间置为null
+     * 把开始时间和结束时间置为null
+     *
      * @param jobId
      * @return
      */
@@ -2600,6 +2608,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
 
     /**
      * 测试任务 是否可以运行
+     *
      * @param jobId
      * @return
      */
@@ -2626,13 +2635,14 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
 
     /**
      * 生成当天任务实例
+     *
      * @throws Exception
      */
     @Transactional(rollbackFor = Exception.class)
-    public void createTodayTaskShade(@Param("taskId") Long taskId,@Param("appType") Integer appType) {
+    public void createTodayTaskShade(@Param("taskId") Long taskId, @Param("appType") Integer appType) {
         try {
             //如果appType为空的话则为离线
-            if (Objects.isNull(appType)){
+            if (Objects.isNull(appType)) {
                 appType = 1;
             }
             ScheduleTaskShade task = batchTaskShadeService.getBatchTaskById(taskId, appType);
@@ -2676,7 +2686,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             }
         } catch (Exception e) {
             logger.error("createTodayTaskShadeForTest", e);
-            throw new DtCenterDefException("任务创建失败");
+            throw new RdosDefineException("任务创建失败");
         }
     }
 
@@ -2689,6 +2699,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
 
     /**
      * 根据cycTime和jobName获取，如获取当天的周期实例任务
+     *
      * @param preCycTime
      * @param preJobName
      * @param scheduleType
@@ -2700,6 +2711,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
 
     /**
      * 按批次根据cycTime和jobName获取，如获取当天的周期实例任务
+     *
      * @param startId
      * @param preCycTime
      * @param preJobName
@@ -2717,11 +2729,40 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
 
     /**
      * 根据jobKey删除job jobjob记录
+     *
      * @param jobKeyList
      */
     @Transactional(rollbackFor = Exception.class)
     public void deleteJobsByJobKey(@Param("jobKeyList") List<String> jobKeyList) {
         scheduleJobDao.deleteByJobKey(jobKeyList);
         scheduleJobJobDao.deleteByJobKey(jobKeyList);
+    }
+
+
+    /**
+     * 分批获取batchJob中数据
+     * schedule   接口
+     * * @param dto
+     *
+     * @return
+     */
+    public List<BatchJob> syncBatchJob(QueryJobDTO dto) {
+        if (Objects.isNull(dto) || Objects.isNull(dto.getAppType())) {
+            return new ArrayList<>();
+        }
+        if (Objects.isNull(dto.getCurrentPage())) {
+            dto.setCurrentPage(1);
+        }
+        if (Objects.isNull(dto.getPageSize())) {
+            dto.setPageSize(50);
+        }
+        if (-1l == dto.getProjectId()) {
+            // 不采用默认值
+            dto.setProjectId(null);
+        }
+        PageQuery<BatchJobDTO> pageQuery = new PageQuery<>(dto.getCurrentPage(), dto.getPageSize(), "gmt_modified", Sort.DESC.name());
+        BatchJobDTO query = this.createQuery(dto);
+        pageQuery.setModel(query);
+        return batchJobDao.syncQueryJob(pageQuery);
     }
 }

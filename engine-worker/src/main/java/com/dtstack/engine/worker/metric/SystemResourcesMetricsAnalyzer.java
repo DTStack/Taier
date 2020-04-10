@@ -26,51 +26,53 @@ import oshi.hardware.HardwareAbstractionLayer;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Utility class to initialize system resource metrics.
  */
-public class SystemResourcesMetricsInitializer {
-    private static final Logger LOG = LoggerFactory.getLogger(SystemResourcesMetricsInitializer.class);
+public class SystemResourcesMetricsAnalyzer implements Runnable {
+    private static final Logger LOG = LoggerFactory.getLogger(SystemResourcesMetricsAnalyzer.class);
 
-    private static final Map<String, Object> metrics = new HashMap<>();
+    private final Map<String, Object> metrics = new HashMap<>();
 
-    public static Map<String, Object> getMetrics() {
+    private SystemResourcesCounter systemResourcesCounter;
+    private HardwareAbstractionLayer hardwareAbstractionLayer;
+
+    public Map<String, Object> getMetrics() {
         return metrics;
     }
 
-    public static void instantiateSystemMetrics(long probeInterval) {
+    public void instantiateSystemMetrics(long probeInterval) {
         try {
-
-            SystemResourcesCounter systemResourcesCounter = new SystemResourcesCounter(probeInterval);
+            systemResourcesCounter = new SystemResourcesCounter(probeInterval);
             systemResourcesCounter.start();
 
-            SystemInfo systemInfo = new SystemInfo();
-            HardwareAbstractionLayer hardwareAbstractionLayer = systemInfo.getHardware();
+            Thread.sleep(TimeUnit.MILLISECONDS.toMillis(probeInterval));
 
-            instantiateMemoryMetrics(hardwareAbstractionLayer.getMemory());
-            instantiateSwapMetrics(hardwareAbstractionLayer.getMemory());
-            instantiateCPUMetrics(systemResourcesCounter);
-            instantiateNetworkMetrics(systemResourcesCounter);
+            SystemInfo systemInfo = new SystemInfo();
+            hardwareAbstractionLayer = systemInfo.getHardware();
         } catch (NoClassDefFoundError ex) {
             LOG.warn(
                     "Failed to initialize system resource metrics because of missing class definitions." +
                             " Did you forget to explicitly add the oshi-core optional dependency?",
                     ex);
+        } catch (Exception e) {
+            LOG.error("instantiateSystemMetrics error:", e);
         }
     }
 
-    private static void instantiateMemoryMetrics(GlobalMemory memory) {
+    private void instantiateMemoryMetrics(GlobalMemory memory) {
         metrics.<String, Long>put("Available", memory.getAvailable());
         metrics.<String, Long>put("Total", memory.getTotal());
     }
 
-    private static void instantiateSwapMetrics(GlobalMemory memory) {
+    private void instantiateSwapMetrics(GlobalMemory memory) {
         metrics.<String, Long>put("Used", memory.getSwapUsed());
         metrics.<String, Long>put("Total", memory.getSwapTotal());
     }
 
-    private static void instantiateCPUMetrics(SystemResourcesCounter usageCounter) {
+    private void instantiateCPUMetrics(SystemResourcesCounter usageCounter) {
         metrics.put("Usage", usageCounter.getCpuUsage());
         metrics.put("Idle", usageCounter.getCpuIdle());
         metrics.put("Sys", usageCounter.getCpuSys());
@@ -89,11 +91,23 @@ public class SystemResourcesMetricsInitializer {
         }
     }
 
-    private static void instantiateNetworkMetrics(SystemResourcesCounter usageCounter) {
+    private void instantiateNetworkMetrics(SystemResourcesCounter usageCounter) {
         for (int i = 0; i < usageCounter.getNetworkInterfaceNames().length; i++) {
             String name = usageCounter.getNetworkInterfaceNames()[i];
             metrics.put(name + "_ReceiveRate", usageCounter.getReceiveRatePerInterface(i));
             metrics.put(name + "_SendRate", usageCounter.getSendRatePerInterface(i));
+        }
+    }
+
+    @Override
+    public void run() {
+        try {
+            instantiateMemoryMetrics(hardwareAbstractionLayer.getMemory());
+            instantiateSwapMetrics(hardwareAbstractionLayer.getMemory());
+            instantiateCPUMetrics(systemResourcesCounter);
+            instantiateNetworkMetrics(systemResourcesCounter);
+        } catch (Throwable e) {
+            LOG.error("SystemResourcesMetricsAnalyzer running error:", e);
         }
     }
 }

@@ -5,9 +5,10 @@ import com.dtstack.dtcenter.common.engine.JdbcInfo;
 import com.dtstack.dtcenter.common.engine.JdbcQuery;
 import com.dtstack.dtcenter.common.engine.JdbcUrlPropertiesValue;
 import com.dtstack.dtcenter.common.enums.DataBaseType;
-import com.dtstack.dtcenter.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.common.util.DBUtil;
 import com.dtstack.dtcenter.common.util.PublicUtil;
+import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
@@ -74,7 +75,7 @@ public class ImpalaService {
         }
 
         if (jdbcInfo == null) {
-            throw new DtCenterDefException("can't get impala jdbc conf from clusterService");
+            throw new RdosDefineException("can't get impala jdbc conf from clusterService");
         } else {
             JdbcUrlPropertiesValue.setNullPropertiesToDefaultValue(jdbcInfo);
             return jdbcInfo;
@@ -143,7 +144,7 @@ public class ImpalaService {
             }
         } catch (Throwable var12) {
             if (var12.getMessage() != null && var12.getMessage().contains("AuthorizationException")) {
-                throw new DtCenterDefException("未授权", var12);
+                throw new RdosDefineException("未授权", ErrorCode.SERVER_EXCEPTION,var12.getCause());
             }
 
             throw var12;

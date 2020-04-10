@@ -14,7 +14,6 @@ public class ApiURL {
     private static final String BATCH_TASK_SHADE = String.format("%s/%s", ROOT, "batchTaskShade");
     private static final String BATCH_TASK_TASK_SHADE = String.format("%s/%s", ROOT, "batchTaskTaskShade");
     private static final String BATCH_JOB_JOB = String.format("%s/%s", ROOT, "batchJobJob");
-    private static final String BATCH_ALARM = String.format("%s/%s", ROOT, "batchAlarm");
 
     public static final String BATCH_JOB_GET_STATUS_COUNT = String.format("%s/%s", BATCH_JOB, "getStatusCount");
     public static final String BATCH_JOB_GET_STATUS_JOB_LIST = String.format("%s/%s", BATCH_JOB, "getStatusJobList");
@@ -53,6 +52,7 @@ public class ApiURL {
     public static final String BATCH_JOB_GET_GETSCIENCEJOBGRAPH = String.format("%s/%s", BATCH_JOB, "getScienceJobGraph");
     public static final String BATCH_JOB_JOBDETAIL = String.format("%s/%s", BATCH_JOB, "jobDetail");
     public static final String BATCH_JOB_LIST_BY_BUSINESS_DATE_AND_PERIODTYPE_AND_STATUSLIST = String.format("%s/%s", BATCH_JOB, "listByBusinessDateAndPeriodTypeAndStatusList");
+    public static final String BATCH_JOB_SYNC_BATCH_JOB = String.format("%s/%s", BATCH_JOB, "syncBatchJob");
 
     public static final String BATCH_TASK_DISPLAY_OFFSPRING = String.format("%s/%s", BATCH_TASK, "displayOffSpring");
 
@@ -72,7 +72,6 @@ public class ApiURL {
     public static final String BATCH_TASK_SHADE_PAGEQUERY = String.format("%s/%s", BATCH_TASK_SHADE, "pageQuery");
     public static final String BATCH_TASK_SHADE_LIST_DEPENDENCY_TASK = String.format("%s/%s", BATCH_TASK_SHADE, "listDependencyTask");
     public static final String BATCH_TASK_SHADE_LIST_BYTASKIDS_NOTIN = String.format("%s/%s", BATCH_TASK_SHADE, "listByTaskIdsNotIn");
-    public static final String BATCH_TASK_SHADE_INFO = String.format("%s/%s", BATCH_TASK_SHADE, "info");
 
     public static final String BATCH_TASK_TASK_SHADE_DISPLAY_OFF_SPRING = String.format("%s/%s", BATCH_TASK_TASK_SHADE, "displayOffSpring");
     public static final String BATCH_TASK_TASK_SHADE_SAVE_TASK_LIST = String.format("%s/%s", BATCH_TASK_TASK_SHADE, "saveTaskTaskList");
@@ -86,21 +85,7 @@ public class ApiURL {
     public static final String BATCH_JOB_JOB_DISPLAY_OFFSPRING = String.format("%s/%s", BATCH_JOB_JOB, "displayOffSpring");
     public static final String BATCH_JOB_JOB_DISPLAYOFF_SPRINGWORK_FLOW = String.format("%s/%s", BATCH_JOB_JOB, "displayOffSpringWorkFlow");
 
-    public static final String BATCH_ALARM_CREARE = String.format("%s/%s", BATCH_ALARM, "createAlarm");
-    public static final String BATCH_ALARM_DELETE = String.format("%s/%s", BATCH_ALARM, "deleteAlarm");
-    public static final String BATCH_ALARM_GET_BY_ID = String.format("%s/%s", BATCH_ALARM, "getById");
-    public static final String BATCH_ALARM_UPDATE_ALARM = String.format("%s/%s", BATCH_ALARM, "updateAlarm");
-    public static final String BATCH_ALARM_UPDATE = String.format("%s/%s", BATCH_ALARM, "update");
-    public static final String BATCH_ALARM_GET_ALARM_LIST = String.format("%s/%s", BATCH_ALARM, "getAlarmList");
-    public static final String BATCH_ALARM_GET_ALARM_RECORD_LIST = String.format("%s/%s", BATCH_ALARM, "getAlarmRecordList");
-    public static final String BATCH_ALARM_COUNT_ALRAM = String.format("%s/%s", BATCH_ALARM, "countAlarm");
-    public static final String BATCH_ALARM_SAVE_BATCHJOB_ALARM = String.format("%s/%s", BATCH_ALARM, "saveBatchJobAlarm");
-    public static final String BATCH_ALARM_LIST_BY_TASK_ID = String.format("%s/%s", BATCH_ALARM, "listByTaskId");
-    public static final String BATCH_ALARM_DELETE_ALARM_BYTASK = String.format("%s/%s", BATCH_ALARM, "deleteAlarmByTask");
-    public static final String BATCH_ALARM_GETBYNAME_AND_PROJECTID = String.format("%s/%s", BATCH_ALARM, "getByNameAndProjectId");
-    public static final String BATCH_ALARM_FORMAT_RECORD_USER = String.format("%s/%s", BATCH_ALARM, "formatRecordUser");
-
-    public static final String PROJECT_SCHEDULE= String.format("%s/%s", PROJECT, "updateSchedule");
+    public static final String PROJECT_SCHEDULE = String.format("%s/%s", PROJECT, "updateSchedule");
 
 
     /**

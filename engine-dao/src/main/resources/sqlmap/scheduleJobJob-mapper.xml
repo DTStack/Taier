@@ -29,7 +29,7 @@
                 dtuic_tenant_id  = #{dtuicTenantId},
             </if>
             <if test="appType!=null">
-                app_tpye = #{dtuicTenantId},
+                app_type = #{appType},
             </if>
         </set>
     </sql>

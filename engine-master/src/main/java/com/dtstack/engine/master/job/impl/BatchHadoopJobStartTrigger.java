@@ -2,8 +2,12 @@ package com.dtstack.engine.master.job.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
-import com.dtstack.dtcenter.common.enums.*;
-import com.dtstack.dtcenter.common.exception.DtCenterDefException;
+import com.dtstack.dtcenter.common.enums.ComputeType;
+import com.dtstack.dtcenter.common.enums.DataBaseType;
+import com.dtstack.dtcenter.common.enums.EJobType;
+import com.dtstack.dtcenter.common.enums.ETableType;
+import com.dtstack.dtcenter.common.enums.EngineType;
+import com.dtstack.dtcenter.common.enums.TaskStatus;
 import com.dtstack.dtcenter.common.hadoop.HadoopConf;
 import com.dtstack.dtcenter.common.hadoop.HdfsOperator;
 import com.dtstack.dtcenter.common.util.DBUtil;
@@ -41,7 +45,11 @@ import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
 
 /**
  * @author yuebai
@@ -109,7 +117,7 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
         } else if (EJobType.SYNC.getVal().equals(taskShade.getTaskType())) {
             String job = (String) actionParam.get("job");
             if (StringUtils.isBlank(job)) {
-                throw new DtCenterDefException("数据同步信息不能为空");
+                throw new RdosDefineException("数据同步信息不能为空");
             }
 
             //替换系统参数

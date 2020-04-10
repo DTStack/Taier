@@ -76,11 +76,14 @@
         and is_deleted=0;
     </select>
 
-    <select id="maxPriorityByStage" resultType="java.lang.Long">
-        select max(job_priority) from schedule_engine_job_cache
+    <select id="minPriorityByStage" resultType="java.lang.Long">
+        select min(job_priority) from schedule_engine_job_cache
         where job_resource = #{jobResource} and node_address = #{nodeAddress}
-        <if test="stage != null">
-            and stage = #{stage}
+        <if test="stages != null">
+            and stage in
+            <foreach collection="stages" item="stage" open="(" separator="," close=")">
+                #{stage}
+            </foreach>
         </if>
         and is_deleted=0;
     </select>

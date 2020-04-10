@@ -166,17 +166,19 @@ public class ConsoleService {
         Map<String, Map<String, Object>> overview = new HashMap<>();
         List<Map<String, Object>> groupResult = engineJobCacheDao.groupByJobResource(nodeAddress);
         if (CollectionUtils.isNotEmpty(groupResult)) {
+            List<Map<String, Object>> finalResult = new ArrayList<>(groupResult.size());
             for (Map<String, Object> record : groupResult) {
                 String groupName = MapUtils.getString(record, "groupName");
-                if (StringUtils.isBlank(clusterName) && !groupName.contains(clusterName)) {
+                if (StringUtils.isBlank(clusterName) || !groupName.contains(clusterName)) {
                     continue;
                 }
                 long generateTime = MapUtils.getLong(record, "generateTime");
                 String waitTime = DateUtil.getTimeDifference(System.currentTimeMillis() - (generateTime * 1000));
                 record.put("waitTime", waitTime);
+                finalResult.add(record);
             }
 
-            for (Map<String, Object> record : groupResult) {
+            for (Map<String, Object> record : finalResult) {
                 String jobResource = MapUtils.getString(record, "jobResource");
                 int stage = MapUtils.getInteger(record, "stage");
                 String waitTime = MapUtils.getString(record, "waitTime");
@@ -274,9 +276,9 @@ public class ConsoleService {
                     workNode.updateJobStatus(jobClient.getTaskId(), jobStatus);
                 });
 
-                Long maxPriority = engineJobCacheDao.maxPriorityByStage(engineJobCache.getJobResource(), EJobCacheStage.PRIORITY.getStage(), engineJobCache.getNodeAddress());
-                maxPriority = maxPriority == null ? 0 : maxPriority;
-                jobClient.setPriority(maxPriority - 1);
+                Long minPriority = engineJobCacheDao.minPriorityByStage(engineJobCache.getJobResource(), Lists.newArrayList(EJobCacheStage.PRIORITY.getStage()), engineJobCache.getNodeAddress());
+                minPriority = minPriority == null ? 0 : minPriority;
+                jobClient.setPriority(minPriority - 1);
 
                 if (EJobCacheStage.PRIORITY.getStage() == engineJobCache.getStage()) {
                     //先将队列中的元素移除，重复插入会被忽略
@@ -328,16 +330,22 @@ public class ConsoleService {
         if (jobIdList != null && !jobIdList.isEmpty()) {
             //杀死指定jobIdList的任务
 
-            List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(jobIdList);
-            for (String jobId : jobIdList) {
-                if (alreadyExistJobIds.contains(jobId)) {
-                    logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobId);
-                    continue;
-                }
+            if (EJobCacheStage.unSubmitted().contains(stage)) {
+                Integer deleted = engineJobCacheDao.deleteByJobIds(jobIdList);
+                Integer updated = engineJobDao.updateJobStatusByJobIds(jobIdList, RdosTaskStatus.CANCELED.getStatus());
+                logger.info("delete job size:{}, update job size:{}, deal jobIds:{}", deleted, updated, jobIdList);
+            } else {
+                List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(jobIdList);
+                for (String jobId : jobIdList) {
+                    if (alreadyExistJobIds.contains(jobId)) {
+                        logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobId);
+                        continue;
+                    }
 
-                EngineJobStopRecord stopRecord = new EngineJobStopRecord();
-                stopRecord.setTaskId(jobId);
-                engineJobStopRecordDao.insert(stopRecord);
+                    EngineJobStopRecord stopRecord = new EngineJobStopRecord();
+                    stopRecord.setTaskId(jobId);
+                    engineJobStopRecordDao.insert(stopRecord);
+                }
             }
         } else {
             //根据条件杀死所有任务

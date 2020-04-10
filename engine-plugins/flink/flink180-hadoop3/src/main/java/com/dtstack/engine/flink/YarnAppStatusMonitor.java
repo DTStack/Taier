@@ -136,7 +136,7 @@ public class YarnAppStatusMonitor implements Runnable{
         String sessionUrl = clusterClientManager.getClusterClient().getWebInterfaceURL();
         try {
             String reqUrl = String.format("%s%s", sessionUrl, FlinkRestParseUtil.SLOTS_INFO);
-            PoolHttpClient.get(reqUrl, MAX_RETRY_NUMBER);
+            PoolHttpClient.get(reqUrl, null, MAX_RETRY_NUMBER);
             return true;
         } catch (Exception e){
             LOG.error("isTaskManagerRunning error, applicationId={}, ex={}", clusterClientManager.getClusterClient().getClusterId(), ExceptionUtil.getErrorMessage(e));

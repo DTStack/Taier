@@ -6,6 +6,7 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.pojo.ParamAction;
+import com.dtstack.engine.dao.BatchJobDao;
 import com.dtstack.engine.dao.EngineJobDao;
 import com.dtstack.engine.dao.EngineJobRetryDao;
 import com.dtstack.engine.dao.EngineJobCacheDao;
@@ -56,6 +57,9 @@ public class TaskRestartDealer {
 
     @Autowired
     private WorkNode workNode;
+
+    @Autowired
+    private BatchJobDao batchJobDao;
 
     /**
      * 对提交结果判定是否重试
@@ -270,5 +274,6 @@ public class TaskRestartDealer {
         Integer retryNum = rdosEngineBatchJob.getRetryNum() == null ? 0 : rdosEngineBatchJob.getRetryNum();
         retryNum++;
         engineJobDao.updateRetryNum(jobId, retryNum);
+        batchJobDao.updateJobInfoByJobId(jobId,null,null,null,null,retryNum);
     }
 }
