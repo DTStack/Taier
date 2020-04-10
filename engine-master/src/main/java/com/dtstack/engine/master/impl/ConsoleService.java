@@ -168,8 +168,8 @@ public class ConsoleService {
         if (CollectionUtils.isNotEmpty(groupResult)) {
             List<Map<String, Object>> finalResult = new ArrayList<>(groupResult.size());
             for (Map<String, Object> record : groupResult) {
-                String groupName = MapUtils.getString(record, "groupName");
-                if (StringUtils.isBlank(clusterName) || !groupName.contains(clusterName)) {
+                String jobResource = MapUtils.getString(record, "jobResource");
+                if (StringUtils.isBlank(clusterName) || !jobResource.contains(clusterName)) {
                     continue;
                 }
                 long generateTime = MapUtils.getLong(record, "generateTime");
