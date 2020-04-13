@@ -1,5 +1,6 @@
 package com.dtstack.engine.dummy;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
@@ -8,14 +9,19 @@ import com.dtstack.engine.worker.client.AbstractClient;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 /**
+ * 用于流程上压测的dummy插件
+ * <p>
  * company: www.dtstack.com
  * author: toutian
  * create: 2020/4/13
  */
 public class DummyClient extends AbstractClient {
+
     @Override
     public void init(Properties prop) throws Exception {
     }
@@ -23,7 +29,10 @@ public class DummyClient extends AbstractClient {
 
     @Override
     public String getJobLog(JobIdentifier jobId) {
-        return StringUtils.EMPTY;
+        Map<String, Object> jobLog = new HashMap<>(2);
+        jobLog.put("jobId", jobId.getTaskId());
+        jobLog.put("msg_info", System.currentTimeMillis());
+        return JSONObject.toJSONString(jobLog);
     }
 
     @Override
