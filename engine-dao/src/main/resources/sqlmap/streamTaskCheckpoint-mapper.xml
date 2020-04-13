@@ -6,7 +6,7 @@
         id,task_id, task_engine_id, checkpoint_id, checkpoint_trigger, checkpoint_savepath,checkpoint_counts, gmt_create, gmt_modified, is_deleted
     </sql>
 
-    <insert id="insert" parameterType="StreamTaskCheckpoint" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="StreamTaskCheckpoint">
         replace into schedule_engine_job_checkpoint( task_id, task_engine_id, checkpoint_id, checkpoint_trigger, checkpoint_savepath, checkpoint_counts)
         values(#{taskId}, #{engineTaskId}, #{checkpointId}, #{checkpointTrigger}, #{checkpointSavepath}, #{checkpointCounts});
     </insert>
