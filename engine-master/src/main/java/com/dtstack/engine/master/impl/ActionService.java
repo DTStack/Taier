@@ -76,7 +76,7 @@ public class ActionService {
 
     private static int length = 8;
 
-    private static int pluginInfoMinSize = 10;
+    private static int PLUGIN_INFO_SIZE_LIMIT = 10;
 
     private static int TASK_STOP_LIMIT = 1000;
 
@@ -168,7 +168,7 @@ public class ActionService {
         }
 
         Map<String, Object> pluginInfo = paramAction.getPluginInfo();
-        if(MapUtils.isEmpty(pluginInfo) || pluginInfo.size() <= pluginInfoMinSize){
+        if(MapUtils.isEmpty(pluginInfo) || pluginInfo.size() <= PLUGIN_INFO_SIZE_LIMIT){
             throw new RdosDefineException("param pluginInfo is invalid", ErrorCode.INVALID_PARAMETERS);
         }
     }
