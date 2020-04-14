@@ -95,7 +95,7 @@
     </select>
 
     <update id="updateJobStatusByJobIds">
-        update rdos_engine_job
+        update schedule_engine_job
         set gmt_modified=now(), status=#{status}
         where job_id IN
         <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
