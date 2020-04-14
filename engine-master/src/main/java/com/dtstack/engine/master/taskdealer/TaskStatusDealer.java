@@ -219,7 +219,7 @@ public class TaskStatusDealer implements Runnable {
                     }
 
                     engineJobDao.updateJobStatusAndExecTime(jobId, status);
-                    batchJobDao.updateJobInfoByJobId(jobId, status, null, new Timestamp(System.currentTimeMillis()), null, null);
+                    batchJobDao.updateJobInfoByJobId(jobId, status, null, new Timestamp(System.currentTimeMillis()), null, null,null);
                     logger.info("jobId:{} update job status:{}.", jobId, status);
                 }
 
@@ -232,7 +232,7 @@ public class TaskStatusDealer implements Runnable {
         } else {
             shardCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
             engineJobDao.updateJobStatusAndExecTime(jobId, RdosTaskStatus.CANCELED.getStatus());
-            batchJobDao.updateJobInfoByJobId(jobId, RdosTaskStatus.CANCELED.getStatus(), null, null, null, null);
+            batchJobDao.updateJobInfoByJobId(jobId, RdosTaskStatus.CANCELED.getStatus(), null, null, null, null,null);
             engineJobCacheDao.delete(jobId);
         }
     }

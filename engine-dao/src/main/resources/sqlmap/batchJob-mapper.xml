@@ -1330,6 +1330,12 @@
             gmt_modified = now()
         </set>
         WHERE job_id = #{jobId}
+        <if test="stopStatuses!=null and stopStatuses.size() > 0">
+            AND status NOT IN
+            <foreach item="stopStatus" index="index" collection="stopStatuses" open="(" separator="," close=")">
+                #{stopStatus}
+            </foreach>
+        </if>
         AND is_deleted=0
     </update>
 
