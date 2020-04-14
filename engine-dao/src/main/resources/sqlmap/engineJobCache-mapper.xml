@@ -112,6 +112,7 @@
 
     <select id="groupByJobResource" resultType="java.util.HashMap">
         SELECT
+        engine_type as engineType,
         job_resource as jobResource,
         stage as stage,
         unix_timestamp(min(gmt_create)) as generateTime,
@@ -121,8 +122,8 @@
         <if test="nodeAddress != null">
             and node_address = #{nodeAddress}
         </if>
-        group by job_resource, stage
-        order by job_resource, stage asc
+        group by engine_type, job_resource, stage
+        order by engine_type, job_resource, stage asc
     </select>
 
     <select id="countByJobResource" resultType="java.lang.Long">

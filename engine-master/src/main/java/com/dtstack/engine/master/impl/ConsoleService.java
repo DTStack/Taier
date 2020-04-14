@@ -180,6 +180,7 @@ public class ConsoleService {
 
             for (Map<String, Object> record : finalResult) {
                 String jobResource = MapUtils.getString(record, "jobResource");
+                String engineType = MapUtils.getString(record, "engineType");
                 int stage = MapUtils.getInteger(record, "stage");
                 String waitTime = MapUtils.getString(record, "waitTime");
                 long jobSize = MapUtils.getLong(record, "jobSize");
@@ -188,6 +189,7 @@ public class ConsoleService {
                 Map<String, Object> overviewRecord = overview.computeIfAbsent(jobResource, k -> {
                     Map<String, Object> overviewEle = new HashMap<>();
                     overviewEle.put("jobResource", jobResource);
+                    overviewEle.put("engineType", engineType);
                     return overviewEle;
                 });
                 String stageName = eJobCacheStage.name().toLowerCase();
