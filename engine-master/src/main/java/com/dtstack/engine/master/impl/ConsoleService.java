@@ -312,11 +312,9 @@ public class ConsoleService {
      * 概览，杀死全部
      */
     public void stopAll(@Param("jobResource") String jobResource,
-                        @Param("nodeAddress") String nodeAddress,
-                        @Param("stage") Integer stage) throws Exception {
+                        @Param("nodeAddress") String nodeAddress) throws Exception {
 
         Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
-        Preconditions.checkNotNull(stage, "parameters of stage is required");
 
         for (Integer eJobCacheStage : EJobCacheStage.unSubmitted()) {
             this.stopJobList(jobResource, nodeAddress, eJobCacheStage, null);
