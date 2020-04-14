@@ -2659,7 +2659,7 @@ public class BatchJobService {
     }
 
     /**
-     * 生成当天任务实例
+     * 生成当天单个任务实例
      *
      * @throws Exception
      */
