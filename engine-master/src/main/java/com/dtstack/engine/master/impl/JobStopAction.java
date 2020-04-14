@@ -6,6 +6,7 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.dao.BatchJobDao;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.EngineJobDao;
 import com.dtstack.engine.common.JobClient;
@@ -44,6 +45,9 @@ public class JobStopAction {
 
     @Autowired
     private WorkerOperator workerOperator;
+
+    @Autowired
+    private BatchJobDao batchJobDao;
 
     public StoppedStatus stopJob(JobStopQueue.JobElement jobElement) throws Exception {
         EngineJobCache jobCache = engineJobCacheDao.getOne(jobElement.jobId);
@@ -91,6 +95,7 @@ public class JobStopAction {
         engineJobCacheDao.delete(jobId);
         //修改任务状态
         engineJobDao.updateJobStatusAndExecTime(jobId, RdosTaskStatus.CANCELED.getStatus());
+        batchJobDao.updateStatusByJobId(jobId,RdosTaskStatus.CANCELED.getStatus(),"");
         LOG.info("jobId:{} update job status:{}, job is finished.", jobId, RdosTaskStatus.CANCELED.getStatus());
     }
 
