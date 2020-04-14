@@ -76,6 +76,8 @@ public class ActionService {
 
     private static int length = 8;
 
+    private static int pluginInfoMinSize = 10;
+
     private static int TASK_STOP_LIMIT = 1000;
 
     private Random random = new Random();
@@ -165,8 +167,9 @@ public class ActionService {
             throw new RdosDefineException("param engineType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
-        if(MapUtils.isEmpty(paramAction.getPluginInfo())){
-            throw new RdosDefineException("param pluginInfo is not allow null", ErrorCode.INVALID_PARAMETERS);
+        Map<String, Object> pluginInfo = paramAction.getPluginInfo();
+        if(MapUtils.isEmpty(pluginInfo) || pluginInfo.size() <= pluginInfoMinSize){
+            throw new RdosDefineException("param pluginInfo is invalid", ErrorCode.INVALID_PARAMETERS);
         }
     }
 
