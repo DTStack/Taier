@@ -337,4 +337,8 @@ public class EnvironmentContext {
     public long getJobLogDelay(){
         return Integer.parseInt(environment.getProperty("jobLogDelay", "30000"));
     }
+
+    public boolean getCheckJobMaxPriorityStrategy() {
+        return Boolean.parseBoolean(environment.getProperty("checkJobMaxPriorityStrategy", "false"));
+    }
 }
