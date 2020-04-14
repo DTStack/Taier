@@ -1047,6 +1047,7 @@ public class BatchJobService {
                 actionParam = pluginWrapper.wrapperPluginInfo(actionParam);
 
                 actionService.start(actionParam);
+                logger.info("sendJobStart actionParam: {}", actionParam);
                 return;
             }
         }
@@ -2659,7 +2660,7 @@ public class BatchJobService {
     }
 
     /**
-     * 生成当天任务实例
+     * 生成当天单个任务实例
      *
      * @throws Exception
      */

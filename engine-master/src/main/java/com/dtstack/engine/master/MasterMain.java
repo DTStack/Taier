@@ -41,7 +41,7 @@ public class MasterMain {
 
     private static EnvironmentContext environmentContext;
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args){
         try {
             logger.info("engine-master start begin...");
             setSystemProperty();
@@ -61,7 +61,7 @@ public class MasterMain {
             System.setSecurityManager(new NoExitSecurityManager());
             logger.info("engine-master start end...");
         } catch (Throwable e) {
-            logger.error("engine-master start error:", e);
+            logger.error("engine-master start error:{}", e);
             System.exit(-1);
         }
     }

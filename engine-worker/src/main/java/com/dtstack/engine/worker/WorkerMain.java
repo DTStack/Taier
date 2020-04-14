@@ -14,7 +14,7 @@ public class WorkerMain {
 
     private static final Logger logger = LoggerFactory.getLogger(WorkerMain.class);
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args){
         try {
             logger.info("engine-worker start begin...");
             SystemPropertyUtil.setSystemUserDir();
