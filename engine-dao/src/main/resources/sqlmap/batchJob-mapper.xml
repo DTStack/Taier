@@ -1096,10 +1096,10 @@
 
     <select id="getTaskTypeByJobId" resultType="java.lang.Integer">
         SELECT
-            task_type
+            bj.task_type
         FROM
             schedule_job bj
-            LEFT JOIN rdos_batch_task bt ON bj.task_id = bt.id
+            LEFT JOIN schedule_task_shade bt ON bj.task_id = bt.task_id
         WHERE
             bj.job_id = #{jobId} and bj.is_deleted = 0 and bt.is_deleted = 0
     </select>

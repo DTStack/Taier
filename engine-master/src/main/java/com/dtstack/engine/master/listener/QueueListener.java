@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.listener;
 
+import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.queue.GroupInfo;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
@@ -39,6 +40,11 @@ public class QueueListener implements InitializingBean, Listener {
     @Autowired
     private WorkNode workNode;
 
+    @Autowired
+    private EnvironmentContext environmentContext;
+
+    private boolean checkJobMaxPriorityStrategy = false;
+
     private ScheduledExecutorService scheduledService;
 
     private volatile Map<Integer, Map<String, QueueInfo>> allNodesJobQueueTypes = new HashMap<>();
@@ -46,6 +52,8 @@ public class QueueListener implements InitializingBean, Listener {
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        checkJobMaxPriorityStrategy = environmentContext.getCheckJobMaxPriorityStrategy();
+
         scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName()));
         scheduledService.scheduleWithFixedDelay(
                 this,
@@ -80,6 +88,13 @@ public class QueueListener implements InitializingBean, Listener {
             logger.error("allNodesJobQueueInfo error:{}", e);
         }
 
+        if (checkJobMaxPriorityStrategy) {
+            computeAllNodesGroupQueueJobResources();
+        }
+    }
+
+
+    private void computeAllNodesGroupQueueJobResources() {
         try {
             Map<String, Map<String, GroupInfo>> allNodesGroupQueueInfo = workNode.getAllNodesGroupQueueInfo();
             if (allNodesGroupQueueInfo != null) {
@@ -106,6 +121,10 @@ public class QueueListener implements InitializingBean, Listener {
     }
 
     public Map<String, Map<String, GroupInfo>> getAllNodesGroupQueueInfo() {
+        //默认false，在获取 allNodesGroupQueueJobResources 之前需要先计算一次
+        if (!checkJobMaxPriorityStrategy) {
+            computeAllNodesGroupQueueJobResources();
+        }
         return allNodesGroupQueueJobResources;
     }
 

@@ -115,9 +115,7 @@ public class SparkYarnClient extends AbstractClient {
             initSecurity();
         }
         logger.info("UGI info: " + UserGroupInformation.getCurrentUser());
-        yarnClient = YarnClient.createYarnClient();
-        yarnClient.init(yarnConf);
-        yarnClient.start();
+        yarnClient = getYarnClient();
     }
     private void initSecurity() throws IOException {
         try {
@@ -456,7 +454,7 @@ public class SparkYarnClient extends AbstractClient {
         String jobId = jobIdentifier.getEngineJobId();
         try {
             ApplicationId appId = ConverterUtils.toApplicationId(jobId);
-            yarnClient.killApplication(appId);
+            getYarnClient().killApplication(appId);
             return JobResult.createSuccessResult(jobId);
         } catch (Exception e) {
             logger.error("", e);
@@ -475,7 +473,7 @@ public class SparkYarnClient extends AbstractClient {
 
         ApplicationId appId = ConverterUtils.toApplicationId(jobId);
         try {
-            ApplicationReport report = yarnClient.getApplicationReport(appId);
+            ApplicationReport report = getYarnClient().getApplicationReport(appId);
             YarnApplicationState applicationState = report.getYarnApplicationState();
             switch(applicationState) {
                 case KILLED:
@@ -594,7 +592,7 @@ public class SparkYarnClient extends AbstractClient {
         SparkJobLog sparkJobLog = new SparkJobLog();
 
         try {
-            ApplicationReport applicationReport = yarnClient.getApplicationReport(applicationId);
+            ApplicationReport applicationReport = getYarnClient().getApplicationReport(applicationId);
             String msgInfo = applicationReport.getDiagnostics();
             sparkJobLog.addAppLog(jobId, msgInfo);
         } catch (Exception e) {
@@ -619,7 +617,7 @@ public class SparkYarnClient extends AbstractClient {
 
         SparkYarnResourceInfo resourceInfo = new SparkYarnResourceInfo();
         try {
-            resourceInfo.getYarnSlots(yarnClient, sparkYarnConfig.getQueue(), sparkYarnConfig.getYarnAccepterTaskNumber());
+            resourceInfo.getYarnSlots(getYarnClient(), sparkYarnConfig.getQueue(), sparkYarnConfig.getYarnAccepterTaskNumber());
             return resourceInfo.judgeSlots(jobClient);
         } catch (YarnException e) {
             logger.error("", e);
@@ -664,5 +662,51 @@ public class SparkYarnClient extends AbstractClient {
         }
 
         jobClient.setSql(String.join(";", sqlList));
+    }
+
+    public YarnClient getYarnClient(){
+        try{
+            if(yarnClient == null){
+                synchronized (this){
+                    if(yarnClient == null){
+                        YarnClient yarnClient1 = YarnClient.createYarnClient();
+                        yarnClient1.init(yarnConf);
+                        yarnClient1.start();
+                        yarnClient = yarnClient1;
+                    }
+                }
+            }else{
+                //判断下是否可用
+                yarnClient.getAllQueues();
+            }
+        }catch(Throwable e){
+            logger.error("getYarnClient error:{}",e);
+            synchronized (this){
+                if(yarnClient != null){
+                    boolean flag = true;
+                    try{
+                        //判断下是否可用
+                        yarnClient.getAllQueues();
+                    }catch(Throwable e1){
+                        logger.error("getYarnClient error:{}",e1);
+                        flag = false;
+                    }
+                    if(!flag){
+                        try{
+                            yarnClient.stop();
+                        }finally {
+                            yarnClient = null;
+                        }
+                    }
+                }
+                if(yarnClient == null){
+                    YarnClient yarnClient1 = YarnClient.createYarnClient();
+                    yarnClient1.init(yarnConf);
+                    yarnClient1.start();
+                    yarnClient = yarnClient1;
+                }
+            }
+        }
+        return yarnClient;
     }
 }

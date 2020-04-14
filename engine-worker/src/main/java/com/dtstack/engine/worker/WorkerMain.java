@@ -16,12 +16,14 @@ public class WorkerMain {
 
     public static void main(String[] args) throws Exception {
         try {
+            logger.info("engine-worker start begin...");
             SystemPropertyUtil.setSystemUserDir();
             LogbackComponent.setupLogger();
             Config workerConfig = AkkaConfig.checkIpAndPort(ConfigFactory.load());
             AkkaWorkerServerImpl.getAkkaWorkerServer().start(workerConfig);
             ShutdownHookUtil.addShutdownHook(WorkerMain::shutdown, WorkerMain.class.getSimpleName(), logger);
             System.setSecurityManager(new NoExitSecurityManager());
+            logger.info("engine-worker start end...");
         } catch (Throwable e) {
             logger.error("engine-worker start error:{}", e);
             System.exit(-1);
