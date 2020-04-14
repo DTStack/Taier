@@ -54,7 +54,7 @@ public class FlinkClusterClientManager {
      */
     private Cache<String, ClusterClient> perJobClientCache = CacheBuilder.newBuilder().removalListener(new ClusterClientRemovalListener()).expireAfterAccess(10, TimeUnit.MINUTES).build();
 
-    private ExecutorService yarnMonitorEs;
+    private ExecutorService yarnMonitorES;
 
     private FlinkClusterClientManager() {
     }
@@ -75,7 +75,7 @@ public class FlinkClusterClientManager {
             clusterClient = flinkClientBuilder.createStandalone();
         } else if (flinkConfig.getClusterMode().equals(Deploy.yarn.name())) {
             if (flinkYarnSessionStarter == null) {
-                this.flinkYarnSessionStarter = new FlinkYarnSessionStarter(flinkClientBuilder, flinkConfig);
+                this.flinkYarnSessionStarter = new FlinkYarnSessionStarter(flinkClientBuilder);
                 LOG.warn("Create FlinkYarnSessionStarter and start YarnSessionClientMonitor");
                 this.startYarnSessionClientMonitor();
             }
@@ -86,10 +86,10 @@ public class FlinkClusterClientManager {
     }
 
     private void startYarnSessionClientMonitor() throws Exception {
-        yarnMonitorEs = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+        yarnMonitorES = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory("flink_yarn_monitor"));
         //启动守护线程---用于获取当前application状态和更新flink对应的application
-        yarnMonitorEs.submit(new YarnAppStatusMonitor(this, flinkClientBuilder.getYarnClient(), flinkYarnSessionStarter));
+        yarnMonitorES.submit(new YarnAppStatusMonitor(this, flinkClientBuilder, flinkYarnSessionStarter));
     }
 
     private ClusterClient getPerJobClient(JobIdentifier jobIdentifier){

@@ -25,6 +25,7 @@
         <module>engine-entrance</module>
         <module>engine-api</module>
         <module>engine-plugins/base</module>
+        <module>engine-plugins/dummy</module>
         <!--<module>engine-plugins/spark/spark-hadoop2</module>-->
         <module>engine-plugins/spark/spark-yarn-hadoop2</module>
         <module>engine-plugins/spark/spark-yarn-hadoop3</module>

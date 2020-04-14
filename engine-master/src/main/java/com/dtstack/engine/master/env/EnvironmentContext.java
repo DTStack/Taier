@@ -286,7 +286,16 @@ public class EnvironmentContext {
     }
 
     public long getJobLackingInterval() {
-        return Long.parseLong(environment.getProperty("jobLackingInterval", "3000" ));
+        String intervalObj = environment.getProperty("jobLackingInterval");
+        if (StringUtils.isBlank(intervalObj)) {
+            long interval = getJobLackingDelay() / getQueueSize();
+            long defaultInterval = 3000L;
+            if (interval < defaultInterval) {
+                interval = defaultInterval;
+            }
+            return interval;
+        }
+        return Long.parseLong(intervalObj);
     }
 
     public int getJobLackingCountLimited() {
@@ -327,5 +336,9 @@ public class EnvironmentContext {
 
     public long getJobLogDelay(){
         return Integer.parseInt(environment.getProperty("jobLogDelay", "30000"));
+    }
+
+    public boolean getCheckJobMaxPriorityStrategy() {
+        return Boolean.parseBoolean(environment.getProperty("checkJobMaxPriorityStrategy", "false"));
     }
 }

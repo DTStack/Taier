@@ -51,7 +51,7 @@ public class Client {
     private static final AtomicBoolean REFRESH_APP_MASTER_JAR = new AtomicBoolean(true);
 
     private DtYarnConfiguration conf;
-    private final FileSystem dfs;
+    private FileSystem dfs;
     private YarnClient yarnClient;
     private Path appMasterJar;
 
@@ -69,25 +69,22 @@ public class Client {
             UserGroupInformation ugi = UserGroupInformation.createRemoteUser(appSubmitterUserName);
             conf.set("hadoop.job.ugi", ugi.getUserName() + "," + ugi.getUserName());
         }
-        this.dfs = FileSystem.get(conf);
 
-        yarnClient = YarnClient.createYarnClient();
-        yarnClient.init(conf);
-        yarnClient.start();
-
+        this.yarnClient = getYarnClient();
+        this.dfs = getFileSystem();
         String appMasterJarPath = conf.get(DtYarnConfiguration.DTSCRIPT_APPMASTERJAR_PATH, DtYarnConfiguration.DEFAULT_DTSCRIPT_APPMASTERJAR_PATH);
         appMasterJar = Utilities.getRemotePath(conf, appMasterJarPath);
         if (REFRESH_APP_MASTER_JAR.get()) {
             synchronized (REFRESH_APP_MASTER_JAR) {
                 if (REFRESH_APP_MASTER_JAR.get()) {
-                    if (dfs.exists(appMasterJar)) {
-                        if (dfs.delete(appMasterJar)) {
+                    if (getFileSystem().exists(appMasterJar)) {
+                        if (getFileSystem().delete(appMasterJar)) {
                             LOG.warn("Could not delete remote path " + appMasterJar.toString());
                         }
                     }
                     Path appJarSrc = new Path(JobConf.findContainingJar(ApplicationMaster.class));
                     LOG.info("Copying " + appJarSrc + " to remote path " + appMasterJar.toString());
-                    dfs.copyFromLocalFile(false, true, appJarSrc, appMasterJar);
+                    getFileSystem().copyFromLocalFile(false, true, appJarSrc, appMasterJar);
                     REFRESH_APP_MASTER_JAR.set(false);
                 }
             }
@@ -134,8 +131,8 @@ public class Client {
 
         YarnConfiguration taskConf = init(clientArguments);
 
-        YarnClientApplication newApp = yarnClient.createApplication();
-        GetNewApplicationResponse newAppResponse = newApp.getNewApplicationResponse();
+        YarnClientApplication newAPP = getYarnClient().createApplication();
+        GetNewApplicationResponse newAppResponse = newAPP.getNewApplicationResponse();
         ApplicationId applicationId = newAppResponse.getApplicationId();
         clientArguments.setApplicationId(applicationId.toString());
         LOG.info("Got new Application: " + applicationId.toString());
@@ -158,12 +155,13 @@ public class Client {
                 new FsPermission(JOB_FILE_PERMISSION));
         taskConf.writeXml(out);
         out.close();
+
         Map<String, LocalResource> localResources = new HashMap<>();
         localResources.put(DtYarnConstants.LEARNING_JOB_CONFIGURATION,
-                Utilities.createApplicationResource(dfs, jobConfPath, LocalResourceType.FILE));
+                Utilities.createApplicationResource(getFileSystem(), jobConfPath, LocalResourceType.FILE));
 
         localResources.put(DtYarnConstants.APP_MASTER_JAR,
-                Utilities.createApplicationResource(dfs, appMasterJar, LocalResourceType.FILE));
+                Utilities.createApplicationResource(getFileSystem(), appMasterJar, LocalResourceType.FILE));
 
 
         StringBuilder classPathEnv = new StringBuilder("./*");
@@ -186,7 +184,7 @@ public class Client {
                     xlearningFilesDst[i] = Utilities.getRemotePath(
                             taskConf, applicationId, new Path(clientArguments.files[i]).getName());
                     LOG.info("Copying " + clientArguments.files[i] + " to remote path " + xlearningFilesDst[i].toString());
-                    dfs.copyFromLocalFile(false, true, xlearningFilesSrc, xlearningFilesDst[i]);
+                    getFileSystem().copyFromLocalFile(false, true, xlearningFilesSrc, xlearningFilesDst[i]);
                     appFilesRemotePath.append(xlearningFilesDst[i].toUri().toString()).append(",");
                 } else { //hdfs
                     appFilesRemotePath.append(clientArguments.files[i]).append(",");
@@ -248,17 +246,16 @@ public class Client {
         List<String> appMasterLaunchcommands = new ArrayList<>();
         appMasterLaunchcommands.add(command.toString());
 
-        ApplicationSubmissionContext applicationContext = newApp.getApplicationSubmissionContext();
+        ApplicationSubmissionContext applicationContext = newAPP.getApplicationSubmissionContext();
         applicationContext.setApplicationId(applicationId);
         applicationContext.setApplicationName(clientArguments.appName);
         applicationContext.setApplicationType(clientArguments.appType.name());
         applicationContext.setMaxAppAttempts(clientArguments.maxAppAttempts);
-
         Resource capability = Records.newRecord(Resource.class);
         capability.setMemory(taskConf.getInt(DtYarnConfiguration.LEARNING_AM_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY));
         capability.setVirtualCores(taskConf.getInt(DtYarnConfiguration.LEARNING_AM_CORES, DtYarnConfiguration.DEFAULT_LEARNING_AM_CORES));
         applicationContext.setResource(capability);
-        ByteBuffer tokenBuffer = SecurityUtil.getDelegationTokens(conf, yarnClient);
+        ByteBuffer tokenBuffer = SecurityUtil.getDelegationTokens(conf, getYarnClient());
         ContainerLaunchContext amContainer = ContainerLaunchContext.newInstance(
                 localResources, appMasterEnv, appMasterLaunchcommands, null, tokenBuffer, null);
 
@@ -269,7 +266,11 @@ public class Client {
         priority.setPriority(taskConf.getInt(DtYarnConfiguration.APP_PRIORITY, DtYarnConfiguration.DEFAULT_LEARNING_APP_PRIORITY));
         applicationContext.setPriority(priority);
         applicationContext.setQueue(taskConf.get(DtYarnConfiguration.DT_APP_QUEUE, DtYarnConfiguration.DEFAULT_DT_APP_QUEUE));
-        applicationId = yarnClient.submitApplication(applicationContext);
+        String nodelabels = taskConf.get(DtYarnConfiguration.NODE_LABELS);
+        if (StringUtils.isNotBlank(nodelabels)){
+            applicationContext.setNodeLabelExpression(nodelabels);
+        }
+        applicationId = getYarnClient().submitApplication(applicationContext);
 
         return applicationId.toString();
     }
@@ -278,8 +279,8 @@ public class Client {
     private void checkArguments(DtYarnConfiguration taskConf, GetNewApplicationResponse newApplication) {
         int maxMem = newApplication.getMaximumResourceCapability().getMemory();
         LOG.info("Max mem capability of resources in this cluster " + maxMem);
-        int maxVcores = newApplication.getMaximumResourceCapability().getVirtualCores();
-        LOG.info("Max vcores capability of resources in this cluster " + maxVcores);
+        int maxVCores = newApplication.getMaximumResourceCapability().getVirtualCores();
+        LOG.info("Max vcores capability of resources in this cluster " + maxVCores);
 
         int amMem = taskConf.getInt(DtYarnConfiguration.LEARNING_AM_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY);
         int amCores = taskConf.getInt(DtYarnConfiguration.LEARNING_AM_CORES, DtYarnConfiguration.DEFAULT_LEARNING_AM_CORES);
@@ -293,9 +294,9 @@ public class Client {
                             + " Specified memory=" + amMem);
         }
         LOG.info("Apply for am Memory " + amMem + "M");
-        if (amCores > maxVcores) {
+        if (amCores > maxVCores) {
             throw new RequestOverLimitException("am vcores requested " + amCores +
-                    " above the max threshold of yarn cluster " + maxVcores);
+                    " above the max threshold of yarn cluster " + maxVCores);
         }
         if (amCores <= 0) {
             throw new IllegalArgumentException(
@@ -323,9 +324,9 @@ public class Client {
                             + "Specified memory=" + workerMemory);
         }
         LOG.info("Apply for worker Memory " + workerMemory + "M");
-        if (workerVcores > maxVcores) {
+        if (workerVcores > maxVCores) {
             throw new RequestOverLimitException("Worker vcores requested " + workerVcores +
-                    " above the max threshold of yarn cluster " + maxVcores);
+                    " above the max threshold of yarn cluster " + maxVCores);
         }
         if (workerVcores <= 0) {
             throw new IllegalArgumentException(
@@ -338,27 +339,106 @@ public class Client {
 
     public void kill(String jobId) throws IOException, YarnException {
         ApplicationId appId = ConverterUtils.toApplicationId(jobId);
-        yarnClient.killApplication(appId);
+        getYarnClient().killApplication(appId);
     }
 
     public ApplicationReport getApplicationReport(String jobId) throws IOException, YarnException {
         ApplicationId appId = ConverterUtils.toApplicationId(jobId);
-        return yarnClient.getApplicationReport(appId);
+        return getYarnClient().getApplicationReport(appId);
     }
 
-    public YarnClient getYarnClient() {
+    public YarnClient getYarnClient(){
+        try{
+            if(yarnClient == null){
+                synchronized (this){
+                    if(yarnClient == null){
+                        YarnClient yarnClient1 = YarnClient.createYarnClient();
+                        yarnClient1.init(conf);
+                        yarnClient1.start();
+                        yarnClient = yarnClient1;
+                    }
+                }
+            }else{
+                //判断下是否可用
+                yarnClient.getAllQueues();
+            }
+        }catch(Throwable e){
+            LOG.error("getYarnClient error:{}",e);
+            synchronized (this){
+                if(yarnClient != null){
+                    boolean flag = true;
+                    try{
+                        //判断下是否可用
+                        yarnClient.getAllQueues();
+                    }catch(Throwable e1){
+                        LOG.error("getYarnClient error:{}",e1);
+                        flag = false;
+                    }
+                    if(!flag){
+                        try{
+                            yarnClient.stop();
+                        }finally {
+                            yarnClient = null;
+                        }
+                    }
+                }
+                if(yarnClient == null){
+                    YarnClient yarnClient1 = YarnClient.createYarnClient();
+                    yarnClient1.init(conf);
+                    yarnClient1.start();
+                    yarnClient = yarnClient1;
+                }
+            }
+        }
         return yarnClient;
+    }
+
+    public FileSystem getFileSystem() throws IOException {
+        try{
+            if (dfs == null){
+                synchronized (this){
+                    dfs = FileSystem.get(conf);
+                }
+            } else {
+                dfs.getStatus();
+            }
+        } catch(Throwable e){
+            LOG.error("getFileSystem error:{}",e);
+            synchronized (this){
+                if(dfs != null){
+                    boolean flag = true;
+                    try{
+                        //判断下是否可用
+                        dfs.getStatus();
+                    }catch(Throwable e1){
+                        LOG.error("getFileSystem error:{}",e1);
+                        flag = false;
+                    }
+                    if(!flag){
+                        try{
+                            dfs.close();
+                        }finally {
+                            dfs = null;
+                        }
+                    }
+                }
+                if(dfs == null){
+                    dfs = FileSystem.get(conf);
+                }
+            }
+        }
+        return dfs;
     }
 
     public List<String> getContainerInfos(String jobId) throws IOException {
         Path remotePath = new Path(conf.get(DtYarnConfiguration.CONTAINER_STAGING_DIR, DtYarnConfiguration.DEFAULT_CONTAINER_STAGING_DIR), jobId);
-        FileStatus[] status = dfs.listStatus(remotePath);
+        FileStatus[] status = getFileSystem().listStatus(remotePath);
         List<String> infos = new ArrayList<>(status.length);
         for (FileStatus file : status) {
             if (!file.getPath().getName().startsWith("container")) {
                 continue;
             }
-            FSDataInputStream inputStream = dfs.open(file.getPath());
+            FSDataInputStream inputStream = getFileSystem().open(file.getPath());
             InputStreamReader isr = new InputStreamReader(inputStream, "UTF-8");
             BufferedReader br = new BufferedReader(isr);
             StringBuilder lineString = new StringBuilder();

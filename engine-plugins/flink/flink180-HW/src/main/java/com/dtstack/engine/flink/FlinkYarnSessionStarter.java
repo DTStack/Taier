@@ -40,9 +40,9 @@ public class FlinkYarnSessionStarter {
     private FlinkConfig flinkConfig;
     private InterProcessMutex clusterClientLock;
 
-    public FlinkYarnSessionStarter(FlinkClientBuilder flinkClientBuilder, FlinkConfig flinkConfig) throws MalformedURLException {
+    public FlinkYarnSessionStarter(FlinkClientBuilder flinkClientBuilder) throws MalformedURLException {
         this.flinkClientBuilder = flinkClientBuilder;
-        this.flinkConfig = flinkConfig;
+        this.flinkConfig = flinkClientBuilder.getFlinkConfig();
         String clusterId = flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue();
 
         this.yarnSessionDescriptor = flinkClientBuilder.createClusterDescriptorByMode(null, false);

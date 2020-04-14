@@ -43,6 +43,7 @@ public class MasterMain {
 
     public static void main(String[] args) throws Exception {
         try {
+            logger.info("engine-master start begin...");
             setSystemProperty();
             LogbackComponent.setupLogger();
 
@@ -58,6 +59,7 @@ public class MasterMain {
             // add hook
             ShutdownHookUtil.addShutdownHook(MasterMain::shutdown, MasterMain.class.getSimpleName(), logger);
             System.setSecurityManager(new NoExitSecurityManager());
+            logger.info("engine-master start end...");
         } catch (Throwable e) {
             logger.error("engine-master start error:", e);
             System.exit(-1);
