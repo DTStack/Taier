@@ -16,7 +16,7 @@ public class EngineMain {
 
     private static final Logger logger = LoggerFactory.getLogger(EngineMain.class);
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args){
         try {
 
             MasterMain.main(null);
@@ -25,7 +25,7 @@ public class EngineMain {
             ShutdownHookUtil.addShutdownHook(EngineMain::shutdown, EngineMain.class.getSimpleName(), logger);
             System.setSecurityManager(new NoExitSecurityManager());
         } catch (Throwable e) {
-            logger.error("engine-master start error:", e);
+            logger.error("EngineMain start error:{}", e);
             System.exit(-1);
         }
     }
