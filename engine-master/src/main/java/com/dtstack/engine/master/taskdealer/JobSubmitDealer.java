@@ -56,6 +56,7 @@ public class JobSubmitDealer implements Runnable {
     private long jobLackingInterval;
     private long jobSubmitExpired;
     private long jobLackingCountLimited = 3;
+    private boolean checkJobMaxPriorityStrategy = false;
 
     private String localAddress;
     private String jobResource = null;
@@ -91,7 +92,7 @@ public class JobSubmitDealer implements Runnable {
         jobLackingInterval = environmentContext.getJobLackingInterval();
         jobSubmitExpired = environmentContext.getJobSubmitExpired();
         jobLackingCountLimited = environmentContext.getJobLackingCountLimited();
-
+        checkJobMaxPriorityStrategy = environmentContext.getCheckJobMaxPriorityStrategy();
 
         this.localAddress = localAddress;
         this.priorityQueue = priorityQueue;
@@ -206,6 +207,11 @@ public class JobSubmitDealer implements Runnable {
     }
 
     private boolean checkMaxPriority(String jobResource) {
+        //根据配置要求是否需要对job判断最高的优先级
+        if (!checkJobMaxPriorityStrategy) {
+            return true;
+        }
+
         Map<String, GroupInfo> groupInfoMap = jobPartitioner.getGroupInfoByJobResource(jobResource);
         if (null == groupInfoMap) {
             return true;

@@ -25,7 +25,6 @@ import com.dtstack.engine.flink.parser.AddJarOperator;
 import com.dtstack.engine.flink.util.FLinkConfUtil;
 import com.dtstack.engine.flink.util.FlinkUtil;
 import com.dtstack.engine.flink.util.HadoopConf;
-import com.dtstack.engine.flink.util.KerberosUtils;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -49,12 +48,10 @@ import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
-import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
-import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
@@ -111,8 +108,6 @@ public class FlinkClient extends AbstractClient {
 
     private Map<String, List<String>> cacheFile = Maps.newConcurrentMap();
 
-    private YarnClient yarnClient;
-
     private FlinkClusterClientManager flinkClusterClientManager;
 
     private String jobHistory;
@@ -131,34 +126,11 @@ public class FlinkClient extends AbstractClient {
         sqlPluginInfo = SqlPluginInfo.create(flinkConfig);
 
         initHadoopConf(flinkConfig);
-        initYarnClient();
 
-        flinkClientBuilder = FlinkClientBuilder.create(flinkConfig, hadoopConf, yarnConf, yarnClient);
-        flinkClientBuilder.initFlinkConfiguration(flinkExtProp);
+        flinkClientBuilder = FlinkClientBuilder.create(flinkConfig, hadoopConf, yarnConf);
+        flinkClientBuilder.initFLinkConfiguration(flinkExtProp);
 
         flinkClusterClientManager = FlinkClusterClientManager.createWithInit(flinkClientBuilder);
-    }
-
-    private void initYarnClient() throws IOException {
-        if (flinkConfig.isOpenKerberos()){
-            initSecurity();
-        }
-        logger.info("UGI info: " + UserGroupInformation.getCurrentUser());
-        if (Deploy.yarn.name().equalsIgnoreCase(flinkConfig.getClusterMode())){
-            yarnClient = YarnClient.createYarnClient();
-            yarnClient.init(yarnConf);
-            yarnClient.start();
-        }
-    }
-
-    private void initSecurity() throws IOException {
-        try {
-            logger.info("start init security!");
-            KerberosUtils.login(flinkConfig);
-        } catch (IOException e) {
-            logger.error("initSecurity happens error", e);
-            throw new IOException("InitSecurity happens error", e);
-        }
     }
 
     private void initHadoopConf(FlinkConfig flinkConfig){
@@ -256,7 +228,6 @@ public class FlinkClient extends AbstractClient {
                 //只有当程序本身没有指定并行度的时候该参数才生效
                 Integer runParallelism = FlinkUtil.getJobParallelism(jobClient.getConfProperties());
                 clearClassPathShipfileLoadMode(packagedProgram);
-                logger.info("--------job:{} run by session mode-----.", jobClient.getTaskId());
                 runResult = runJobByYarnSession(packagedProgram,runParallelism);
             }
 
@@ -274,7 +245,6 @@ public class FlinkClient extends AbstractClient {
      * perjob模式提交任务
      */
     private Pair<String, String> runJobByPerJob(ClusterSpecification clusterSpecification, JobClient jobClient) throws Exception{
-        logger.info("--------job:{} run by PerJob mode-----.", jobClient.getTaskId());
         AbstractYarnClusterDescriptor descriptor = flinkClientBuilder.createClusterDescriptorByMode(jobClient, true);
         descriptor.setName(jobClient.getJobName());
         ClusterClient<ApplicationId> clusterClient = descriptor.deployJobCluster(clusterSpecification, new JobGraph(),true);
@@ -378,7 +348,6 @@ public class FlinkClient extends AbstractClient {
                 return submitSqlJobForBatch(jobClient);
             case STREAM:
                 return submitSqlJobForStream(jobClient);
-            default:
 
         }
 
@@ -493,7 +462,7 @@ public class FlinkClient extends AbstractClient {
     public RdosTaskStatus getPerJobStatus(String applicationId){
         ApplicationId appId = ConverterUtils.toApplicationId(applicationId);
         try {
-            ApplicationReport report = yarnClient.getApplicationReport(appId);
+            ApplicationReport report = flinkClientBuilder.getYarnClient().getApplicationReport(appId);
             YarnApplicationState applicationState = report.getYarnApplicationState();
             switch(applicationState) {
                 case KILLED:
@@ -554,7 +523,7 @@ public class FlinkClient extends AbstractClient {
 
         String url = null;
         try {
-            url = yarnClient.getApplicationReport(applicationId).getTrackingUrl();
+            url = flinkClientBuilder.getYarnClient().getApplicationReport(applicationId).getTrackingUrl();
             url = StringUtils.substringBefore(url.split("//")[1], "/");
         } catch (Exception e){
             logger.error("Getting URL failed" + e);
@@ -670,7 +639,7 @@ public class FlinkClient extends AbstractClient {
         boolean yarnRs;
 
         try {
-            perJobResourceInfo.getYarnSlots(yarnClient, flinkConfig.getQueue(), flinkConfig.getYarnAccepterTaskNumber());
+            perJobResourceInfo.getYarnSlots(flinkClientBuilder.getYarnClient(), flinkConfig.getQueue(), flinkConfig.getYarnAccepterTaskNumber());
             yarnRs = perJobResourceInfo.judgeSlots(jobClient);
         } catch (YarnException e){
             logger.error("judgeSlots error:{}", e);
@@ -842,5 +811,4 @@ public class FlinkClient extends AbstractClient {
             logger.error("Download keytab from sftp failed", e);
         }
     }
-
 }
