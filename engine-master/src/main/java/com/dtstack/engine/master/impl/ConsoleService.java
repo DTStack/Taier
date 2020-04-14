@@ -168,8 +168,8 @@ public class ConsoleService {
         if (CollectionUtils.isNotEmpty(groupResult)) {
             List<Map<String, Object>> finalResult = new ArrayList<>(groupResult.size());
             for (Map<String, Object> record : groupResult) {
-                String groupName = MapUtils.getString(record, "groupName");
-                if (StringUtils.isBlank(clusterName) || !groupName.contains(clusterName)) {
+                String jobResource = MapUtils.getString(record, "jobResource");
+                if (StringUtils.isBlank(clusterName) || !jobResource.contains(clusterName)) {
                     continue;
                 }
                 long generateTime = MapUtils.getLong(record, "generateTime");
@@ -311,11 +311,9 @@ public class ConsoleService {
      * 概览，杀死全部
      */
     public void stopAll(@Param("jobResource") String jobResource,
-                        @Param("nodeAddress") String nodeAddress,
-                        @Param("stage") Integer stage) throws Exception {
+                        @Param("nodeAddress") String nodeAddress) throws Exception {
 
         Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
-        Preconditions.checkNotNull(stage, "parameters of stage is required");
 
         for (Integer eJobCacheStage : EJobCacheStage.unSubmitted()) {
             this.stopJobList(jobResource, nodeAddress, eJobCacheStage, null);

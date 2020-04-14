@@ -145,7 +145,7 @@
     </select>
 
     <delete id="deleteByJobKey">
-        delete from rdos_batch_job_job
+        delete from schedule_job_job
         where job_key in
         <foreach collection="jobKeyList" item="jobKey" open="(" separator="," close=")">
             #{jobKey}
