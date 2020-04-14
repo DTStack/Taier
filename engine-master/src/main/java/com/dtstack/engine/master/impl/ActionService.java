@@ -22,6 +22,7 @@ import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.google.common.base.Preconditions;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -162,6 +163,10 @@ public class ActionService {
 
         if(paramAction.getEngineType() == null){
             throw new RdosDefineException("param engineType is not allow null", ErrorCode.INVALID_PARAMETERS);
+        }
+
+        if(MapUtils.isEmpty(paramAction.getPluginInfo())){
+            throw new RdosDefineException("param pluginInfo is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
     }
 
