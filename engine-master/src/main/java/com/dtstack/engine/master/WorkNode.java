@@ -12,6 +12,7 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.ParamAction;
+import com.dtstack.engine.dao.BatchJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.queue.GroupInfo;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
@@ -84,6 +85,9 @@ public class WorkNode implements InitializingBean, ApplicationContextAware {
 
     @Autowired
     private WorkerOperator workerOperator;
+
+    @Autowired
+    private BatchJobDao batchJobDao;
 
     /**
      * key: jobResource, 计算引擎类型
@@ -198,6 +202,7 @@ public class WorkNode implements InitializingBean, ApplicationContextAware {
 
     public void updateJobStatus(String jobId, Integer status) {
         engineJobDao.updateJobStatus(jobId, status);
+        batchJobDao.updateStatusByJobId(jobId,status,null);
         LOG.info("jobId:{} update job status:{}.", jobId, status);
     }
 
