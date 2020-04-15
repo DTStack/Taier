@@ -11,6 +11,9 @@ public class ChartMetaDataVO {
     private String name;
     private List<Object> data;
 
+    public ChartMetaDataVO() {
+    }
+
     public ChartMetaDataVO(String name, List<Object> data) {
         this.name = name;
         this.data = data;

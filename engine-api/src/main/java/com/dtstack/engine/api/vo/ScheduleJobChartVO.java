@@ -10,6 +10,9 @@ import java.util.List;
  * create: 2019/10/25
  */
 public class ScheduleJobChartVO extends ChartDataVO{
+    public ScheduleJobChartVO() {
+    }
+
     public ScheduleJobChartVO(List<Object> todayData, List<Object> yestdayData, List<Object> avgData){
         List<Object> typeData = Arrays.asList((Object)"今天","昨天","历史平均");
         this.type = new ChartMetaDataVO("type",typeData);
