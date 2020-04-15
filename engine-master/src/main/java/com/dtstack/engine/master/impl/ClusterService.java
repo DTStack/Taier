@@ -476,7 +476,7 @@ public class ClusterService implements InitializingBean {
         return getCluster(engine.getClusterId(), true);
     }
 
-    private String getConfigByKey(Long dtUicTenantId, String key) {
+    public String getConfigByKey(@Param("dtUicTenantId")Long dtUicTenantId, @Param("key") String key) {
         ClusterVO cluster = getClusterByTenant(dtUicTenantId);
         JSONObject config = buildClusterConfig(cluster);
         KerberosConfig kerberosConfig = componentService.getKerberosConfig(cluster.getId());
