@@ -1202,7 +1202,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             }
             //更新未提交任务状态
             if (CollectionUtils.isNotEmpty(unSubmitJob)) {
-                scheduleJobDao.updateJobStatus(TaskStatus.CANCELED.getStatus(), unSubmitJob);
+                scheduleJobDao.updateJobStatusByIds(TaskStatus.CANCELED.getStatus(), unSubmitJob);
             }
         }
         return stopCount;

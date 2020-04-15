@@ -32,7 +32,7 @@ public class ScheduleJob extends AppTenantEntity {
     private Long createUserId;
 
     /**
-     * 0正常调度 1补数据
+     * 0正常调度 1补数据 2临时运行
      */
     private Integer type;
 

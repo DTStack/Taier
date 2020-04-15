@@ -9,7 +9,7 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.EngineJobCacheDao;
-import com.dtstack.engine.dao.EngineJobDao;
+import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.po.SimpleScheduleJobPO;
 import com.dtstack.engine.master.env.EnvironmentContext;
@@ -93,7 +93,7 @@ public class FailoverStrategy {
     private EngineJobCacheDao engineJobCacheDao;
 
     @Autowired
-    private EngineJobDao rdosEngineBatchJobDao;
+    private ScheduleJobDao rdosEngineBatchJobDao;
 
     private FaultTolerantDealer faultTolerantDealer = new FaultTolerantDealer();
 

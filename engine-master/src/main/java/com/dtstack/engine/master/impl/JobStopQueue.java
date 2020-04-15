@@ -6,7 +6,7 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
 import com.dtstack.engine.dao.EngineJobCacheDao;
-import com.dtstack.engine.dao.EngineJobDao;
+import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.EngineJobStopRecordDao;
 import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.EngineJobStopRecord;
@@ -58,7 +58,7 @@ public class JobStopQueue implements InitializingBean {
     private EngineJobStopRecordDao engineJobStopRecordDao;
 
     @Autowired
-    private EngineJobDao engineJobDao;
+    private ScheduleJobDao scheduleJobDao;
 
     @Autowired
     private EnvironmentContext environmentContext;
@@ -66,8 +66,6 @@ public class JobStopQueue implements InitializingBean {
     @Autowired
     private JobStopAction jobStopAction;
 
-    @Autowired
-    private ScheduleJobDao scheduleJobDao;
 
     private static final int WAIT_INTERVAL = 1000;
     private static final int OPERATOR_EXPIRED_INTERVAL = 60000;
@@ -166,7 +164,7 @@ public class JobStopQueue implements InitializingBean {
                             stopJobQueue.put(new StoppedJob<JobElement>(jobElement, jobStoppedRetry, jobStoppedDelay));
                         } else {
                             //jobcache表没有记录，可能任务已经停止。在update表时增加where条件不等于stopped
-                            engineJobDao.updateTaskStatusNotStopped(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus(), RdosTaskStatus.getStoppedStatus());
+                            scheduleJobDao.updateTaskStatusNotStopped(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus(), RdosTaskStatus.getStoppedStatus());
                             //停止任务同时更新batchJob表
                             scheduleJobDao.updateJobInfoByJobId(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus(), null,null,null,null);
                             logger.info("[Unnormal Job] jobId:{} update job status:{}, job is finished.", jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus());

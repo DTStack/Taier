@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.bo;
 
 
-import com.dtstack.engine.api.domain.EngineJob;
+import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.JobClient;
 import org.apache.commons.lang3.StringUtils;
 
@@ -10,7 +10,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class EngineJobRetry extends com.dtstack.engine.api.domain.EngineJobRetry {
 
-    public static EngineJobRetry toEntity(EngineJob batchJob, JobClient jobClient) {
+    public static EngineJobRetry toEntity(ScheduleJob batchJob, JobClient jobClient) {
         EngineJobRetry batchJobRetry = new EngineJobRetry();
         batchJobRetry.setJobId(batchJob.getJobId());
         batchJobRetry.setExecStartTime(batchJob.getExecStartTime());

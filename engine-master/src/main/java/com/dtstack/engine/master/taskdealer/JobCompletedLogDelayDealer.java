@@ -4,7 +4,7 @@ import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
-import com.dtstack.engine.dao.EngineJobDao;
+import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.bo.CompletedTaskInfo;
 import org.slf4j.Logger;
@@ -25,7 +25,7 @@ public class JobCompletedLogDelayDealer implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(JobCompletedLogDelayDealer.class);
 
     private ApplicationContext applicationContext;
-    private EngineJobDao engineJobDao;
+    private ScheduleJobDao scheduleJobDao;
     private WorkerOperator workerOperator;
 
     private DelayBlockingQueue<CompletedTaskInfo> delayBlockingQueue = new DelayBlockingQueue<CompletedTaskInfo>(1000);
@@ -62,17 +62,17 @@ public class JobCompletedLogDelayDealer implements Runnable {
         try {
             String jobLog = workerOperator.getEngineLog(engineType, pluginInfo, jobIdentifier);
             if (jobLog != null) {
-                engineJobDao.updateEngineLog(jobId, jobLog);
+                scheduleJobDao.updateEngineLog(jobId, jobLog);
             }
         } catch (Throwable e) {
             String errorLog = ExceptionUtil.getErrorMessage(e);
             logger.error("update JobEngine Log error jobId:{} ,error info {}..", jobId, errorLog);
-            engineJobDao.updateEngineLog(jobId, errorLog);
+            scheduleJobDao.updateEngineLog(jobId, errorLog);
         }
     }
 
     private void setBean() {
-        this.engineJobDao = applicationContext.getBean(EngineJobDao.class);
+        this.scheduleJobDao = applicationContext.getBean(ScheduleJobDao.class);
         this.workerOperator = applicationContext.getBean(WorkerOperator.class);
     }
 }

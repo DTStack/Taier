@@ -1,28 +1,23 @@
 package com.dtstack.engine.master.impl;
 
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.annotation.Param;
+import com.dtstack.engine.common.pojo.ParamActionExt;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.dao.EngineJobCacheDao;
-import com.dtstack.engine.api.domain.EngineJobRetry;
-import com.dtstack.engine.api.domain.EngineJobStopRecord;
-import com.dtstack.engine.api.domain.EngineUniqueSign;
-import com.dtstack.engine.api.domain.EngineJob;
+import com.dtstack.engine.dao.*;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.ParamAction;
-import com.dtstack.engine.dao.EngineJobDao;
-import com.dtstack.engine.dao.EngineJobRetryDao;
-import com.dtstack.engine.dao.EngineJobStopRecordDao;
-import com.dtstack.engine.dao.EngineUniqueSignDao;
-import com.dtstack.engine.dao.EngineJobCheckpointDao;
 import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import com.google.common.base.Preconditions;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +45,10 @@ public class ActionService {
     private static final Logger logger = LoggerFactory.getLogger(ActionService.class);
 
     @Autowired
-    private EngineJobDao engineJobDao;
+    private EnvironmentContext environmentContext;
+
+    @Autowired
+    private ScheduleJobDao scheduleJobDao;
 
     @Autowired
     private EngineJobCacheDao engineJobCacheDao;
@@ -85,18 +83,18 @@ public class ActionService {
      */
     public Boolean start(Map<String, Object> params){
         try{
-            ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
-            checkParam(paramAction);
+            ParamActionExt paramActionExt = PublicUtil.mapToObject(params, ParamActionExt.class);
+            checkParam(paramActionExt);
             //taskId唯一去重，并发请求时以数据库taskId主键去重返回false
-            boolean canAccepted = receiveStartJob(paramAction);
+            boolean canAccepted = receiveStartJob(paramActionExt);
             //会对重复数据做校验
             if(canAccepted){
                 
-                JobClient jobClient = new JobClient(paramAction);
+                JobClient jobClient = new JobClient(paramActionExt);
                 workNode.addSubmitJob(jobClient, true);
                 return true;
             }
-            logger.warn("Job taskId：" + paramAction.getTaskId() + " duplicate submissions are not allowed");
+            logger.warn("Job taskId：" + paramActionExt.getTaskId() + " duplicate submissions are not allowed");
         }catch (Exception e){
             logger.error("", e);
         }
@@ -163,19 +161,20 @@ public class ActionService {
         if(paramAction.getEngineType() == null){
             throw new RdosDefineException("param engineType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
+
     }
 
     /**
      * 处理从客户的发送过来的任务，会插入到engine_batch/stream_job 表
      * 修改任务状态为 ENGINEACCEPTED, 没有更新的逻辑
      *
-     * @param paramAction
+     * @param paramActionExt
      * @return
      */
-    private boolean receiveStartJob(ParamAction paramAction){
+    private boolean receiveStartJob(ParamActionExt paramActionExt){
         boolean result = false;
-        String jobId = paramAction.getTaskId();
-        Integer computerType = paramAction.getComputeType();
+        String jobId = paramActionExt.getTaskId();
+        Integer computerType = paramActionExt.getComputeType();
 
         //当前任务已经存在在engine里面了
         //不允许相同任务同时在engine上运行---考虑将cache的清理放在任务结束的时候(停止，取消，完成)
@@ -183,27 +182,22 @@ public class ActionService {
             return result;
         }
         try {
-            EngineJob engineJob = engineJobDao.getRdosJobByJobId(jobId);
-            if(engineJob == null){
-                engineJob = new EngineJob();
-                engineJob.setJobId(jobId);
-                engineJob.setJobName(paramAction.getName());
-                engineJob.setSourceType(paramAction.getSourceType());
-                engineJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus());
-                engineJob.setComputeType(computerType);
-                engineJobDao.insert(engineJob);
-                result =  true;
+            ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
+            if(scheduleJob == null){
+                scheduleJob = buildScheduleJob(paramActionExt);
+                scheduleJobDao.insert(scheduleJob);
+                result = true;
             }else{
-                result = RdosTaskStatus.canStartAgain(engineJob.getStatus());
+                result = RdosTaskStatus.canStartAgain(scheduleJob.getStatus());
                 if (result && ComputeType.BATCH.getType().equals(computerType)) {
                     engineJobRetryDao.removeByJobId(jobId);
                 }
 
-                if(result && !RdosTaskStatus.ENGINEACCEPTED.getStatus().equals(engineJob.getStatus()) ){
-                    int oldStatus = engineJob.getStatus();
-                    Integer update = engineJobDao.updateTaskStatusCompareOld(engineJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus(),oldStatus, paramAction.getName());
+                if(result && !RdosTaskStatus.ENGINEACCEPTED.getStatus().equals(scheduleJob.getStatus()) ){
+                    int oldStatus = scheduleJob.getStatus();
+                    Integer update = scheduleJobDao.updateTaskStatusCompareOld(scheduleJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus(),oldStatus, paramActionExt.getName());
                     logger.info("jobId:{} update job status:{}.", jobId, RdosTaskStatus.ENGINEACCEPTED.getStatus());
-                    if (update==null||update!=1){
+                    if (update == null || update != 1){
                         result = false;
                     }
                 }
@@ -212,9 +206,44 @@ public class ActionService {
                 engineJobCheckpointDao.deleteByTaskId(jobId);
             }
         } catch (Exception e){
-            logger.error("{}",e);
+            logger.error("{}", e);
         }
         return result;
+    }
+
+    private ScheduleJob buildScheduleJob(ParamActionExt paramActionExt) {
+        ScheduleJob scheduleJob = new ScheduleJob();
+        scheduleJob.setJobId(paramActionExt.getTaskId());
+        scheduleJob.setJobName(getOrDefault(paramActionExt.getName(),""));
+        scheduleJob.setSourceType(getOrDefault(paramActionExt.getSourceType(),-1));
+        scheduleJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus());
+        scheduleJob.setComputeType(paramActionExt.getComputeType());
+
+        scheduleJob.setTenantId(paramActionExt.getTenantId());
+        scheduleJob.setProjectId(getOrDefault(paramActionExt.getProjectId(), -1L));
+        scheduleJob.setDtuicTenantId(getOrDefault(paramActionExt.getDtuicTenantId(), -1L));
+        scheduleJob.setAppType(getOrDefault(paramActionExt.getAppType(), 0));
+        scheduleJob.setJobKey(getOrDefault(paramActionExt.getJobKey(), String.format("%s%s%s", "tempJob", paramActionExt.getTaskId(), new DateTime().toString("yyyyMMdd") )));
+        scheduleJob.setTaskId(getOrDefault(paramActionExt.getTaskSourceId(), -1L));
+        scheduleJob.setCreateUserId(getOrDefault(paramActionExt.getCreateUserId(), -1L));
+
+        scheduleJob.setType(getOrDefault(paramActionExt.getType(), 2));
+        scheduleJob.setIsRestart(getOrDefault(paramActionExt.getIsRestart(), 0));
+        scheduleJob.setBusinessDate(getOrDefault(paramActionExt.getBusinessDate(), ""));
+        scheduleJob.setCycTime(getOrDefault(paramActionExt.getCycTime(), ""));
+        scheduleJob.setDependencyType(getOrDefault(paramActionExt.getDependencyType(), 0));
+        scheduleJob.setFlowJobId(getOrDefault(paramActionExt.getFlowJobId(), "0"));
+        scheduleJob.setTaskType(getOrDefault(paramActionExt.getTaskType(), -2));
+        scheduleJob.setMaxRetryNum(getOrDefault(paramActionExt.getMaxRetryNum(), 0));
+        scheduleJob.setNodeAddress(environmentContext.getLocalAddress());
+        scheduleJob.setVersionId(getOrDefault(paramActionExt.getVersionId(), 0));
+        scheduleJob.setComputeType(getOrDefault(paramActionExt.getComputeType(), 1));
+
+        return scheduleJob;
+    }
+
+    private <T> T getOrDefault(T value, T defaultValue){
+        return value != null? value : defaultValue;
     }
 
     /**
@@ -226,9 +255,9 @@ public class ActionService {
             throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
-        EngineJob batchJob = engineJobDao.getRdosJobByJobId(jobId);
-        if (batchJob != null) {
-        	return batchJob.getStatus();
+        ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
+        if (scheduleJob != null) {
+        	return scheduleJob.getStatus();
         }
         return null;
     }
@@ -243,11 +272,11 @@ public class ActionService {
         }
 
         Map<String,Integer> result = null;
-        List<EngineJob> batchJobs = engineJobDao.getRdosJobByJobIds(jobIds);
-        if (CollectionUtils.isNotEmpty(batchJobs)) {
-        	result = new HashMap<>(batchJobs.size());
-        	for (EngineJob batchJob:batchJobs){
-        		result.put(batchJob.getJobId(),batchJob.getStatus());
+        List<ScheduleJob> scheduleJobs = scheduleJobDao.getRdosJobByJobIds(jobIds);
+        if (CollectionUtils.isNotEmpty(scheduleJobs)) {
+        	result = new HashMap<>(scheduleJobs.size());
+        	for (ScheduleJob scheduleJob : scheduleJobs){
+        		result.put(scheduleJob.getJobId(), scheduleJob.getStatus());
         	}
         }
         return result;
@@ -264,9 +293,9 @@ public class ActionService {
         }
 
         Date startTime = null;
-        EngineJob batchJob = engineJobDao.getRdosJobByJobId(jobId);
-        if (batchJob != null) {
-        	startTime = batchJob.getExecStartTime();
+        ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
+        if (scheduleJob != null) {
+        	startTime = scheduleJob.getExecStartTime();
         }
         if (startTime!=null){
             return startTime.getTime();
@@ -284,12 +313,12 @@ public class ActionService {
         }
 
         Map<String,String> log = new HashMap<>(2);
-        EngineJob batchJob = engineJobDao.getRdosJobByJobId(jobId);
-        if (batchJob != null) {
-        	log.put("logInfo",batchJob.getLogInfo());
-        	String engineLog = batchJob.getEngineLog();
+        ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
+        if (scheduleJob != null) {
+        	log.put("logInfo", scheduleJob.getLogInfo());
+        	String engineLog = scheduleJob.getEngineLog();
             if (StringUtils.isBlank(engineLog)) {
-                engineLog = workNode.getAndUpdateEngineLog(jobId, batchJob.getEngineJobId(), batchJob.getApplicationId(), batchJob.getPluginInfoId());
+                engineLog = workNode.getAndUpdateEngineLog(jobId, scheduleJob.getEngineJobId(), scheduleJob.getApplicationId(), scheduleJob.getPluginInfoId());
                 if (engineLog == null) {
                     engineLog = "";
                 }
@@ -334,7 +363,7 @@ public class ActionService {
             retryNum = 1;
         }
 
-        EngineJob batchJob = engineJobDao.getRdosJobByJobId(jobId);
+        ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
         //数组库中存储的retryNum为0开始的索引位置
         EngineJobRetry jobRetry = engineJobRetryDao.getJobRetryByJobId(jobId, retryNum - 1);
         Map<String,String> log = new HashMap<String,String>(4);
@@ -343,7 +372,7 @@ public class ActionService {
             log.put("logInfo",jobRetry.getLogInfo());
             String engineLog = jobRetry.getEngineLog();
             if (StringUtils.isBlank(jobRetry.getEngineLog())){
-                engineLog = workNode.getAndUpdateEngineLog(jobId, jobRetry.getEngineJobId(), jobRetry.getApplicationId(), batchJob.getPluginInfoId());
+                engineLog = workNode.getAndUpdateEngineLog(jobId, jobRetry.getEngineJobId(), jobRetry.getApplicationId(), scheduleJob.getPluginInfoId());
                 if (engineLog != null){
                     logger.info("engineJobRetryDao.updateEngineLog id:{}, jobId:{}, engineLog:{}", jobRetry.getId(), jobRetry.getJobId(), engineLog);
                     engineJobRetryDao.updateEngineLog(jobRetry.getId(), engineLog);
@@ -367,18 +396,18 @@ public class ActionService {
         }
 
         List<Map<String,Object>> result = null;
-        List<EngineJob> batchJobs = engineJobDao.getRdosJobByJobIds(jobIds);
-        if (CollectionUtils.isNotEmpty(batchJobs)) {
-        	result = new ArrayList<>(batchJobs.size());
-        	for (EngineJob batchJob:batchJobs){
+        List<ScheduleJob> scheduleJobs = scheduleJobDao.getRdosJobByJobIds(jobIds);
+        if (CollectionUtils.isNotEmpty(scheduleJobs)) {
+        	result = new ArrayList<>(scheduleJobs.size());
+        	for (ScheduleJob scheduleJob:scheduleJobs){
         		Map<String,Object> data = new HashMap<>();
-        		data.put("jobId", batchJob.getJobId());
-        		data.put("status", batchJob.getStatus());
-        		data.put("execStartTime", batchJob.getExecStartTime());
-        		data.put("logInfo", batchJob.getLogInfo());
-        		data.put("engineLog", batchJob.getEngineLog());
-                data.put("engineJobId", batchJob.getEngineJobId());
-                data.put("applicationId", batchJob.getApplicationId());
+        		data.put("jobId", scheduleJob.getJobId());
+        		data.put("status", scheduleJob.getStatus());
+        		data.put("execStartTime", scheduleJob.getExecStartTime());
+        		data.put("logInfo", scheduleJob.getLogInfo());
+        		data.put("engineLog", scheduleJob.getEngineLog());
+                data.put("engineJobId", scheduleJob.getEngineJobId());
+                data.put("applicationId", scheduleJob.getApplicationId());
         		result.add(data);
         	}
         }
@@ -393,10 +422,10 @@ public class ActionService {
         ParamAction paramAction = PublicUtil.mapToObject(param, ParamAction.class);
         checkParam(paramAction);
         //从数据库补齐数据
-        EngineJob batchJob = engineJobDao.getRdosJobByJobId(paramAction.getTaskId());
-        if(batchJob != null){
-            paramAction.setEngineTaskId(batchJob.getEngineJobId());
-            paramAction.setApplicationId(batchJob.getApplicationId());
+        ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(paramAction.getTaskId());
+        if(scheduleJob != null){
+            paramAction.setEngineTaskId(scheduleJob.getEngineJobId());
+            paramAction.setApplicationId(scheduleJob.getApplicationId());
             JobClient jobClient = new JobClient(paramAction);
             return workerOperator.containerInfos(jobClient);
         }
@@ -438,16 +467,16 @@ public class ActionService {
      */
     public String resetTaskStatus(@Param("jobId") String jobId, @Param("computeType") Integer computeType){
         //check jobstatus can reset
-        EngineJob rdosEngineBatchJob = engineJobDao.getRdosJobByJobId(jobId);
-        Preconditions.checkNotNull(rdosEngineBatchJob, "not exists job with id " + jobId);
-        Integer currStatus = rdosEngineBatchJob.getStatus();
+        ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
+        Preconditions.checkNotNull(scheduleJob, "not exists job with id " + jobId);
+        Integer currStatus = scheduleJob.getStatus();
 
         if(!RdosTaskStatus.canReset(currStatus)){
             throw new RdosDefineException(String.format("computeType(%d) taskId(%s) can't reset status, current status(%d)", computeType, jobId, currStatus.intValue()));
         }
 
         //do reset status
-        engineJobDao.updateJobUnSubmitOrRestart(jobId, RdosTaskStatus.UNSUBMIT.getStatus());
+        scheduleJobDao.updateJobUnSubmitOrRestart(jobId, RdosTaskStatus.UNSUBMIT.getStatus());
         logger.info("jobId:{} update job status:{}.", jobId, RdosTaskStatus.UNSUBMIT.getStatus());
         return jobId;
     }
@@ -460,11 +489,11 @@ public class ActionService {
             throw new RuntimeException("time is null");
         }
 
-        List<EngineJob> batchJobs = engineJobDao.listJobStatus(new Timestamp(time), ComputeType.BATCH.getType());
-        if (CollectionUtils.isNotEmpty(batchJobs)) {
-            List<Map<String, Object>> result = new ArrayList<>(batchJobs.size());
-            for (EngineJob batchJob : batchJobs) {
-                Map<String, Object> data = batJobConvertMap(batchJob);
+        List<ScheduleJob> scheduleJobs = scheduleJobDao.listJobStatus(new Timestamp(time), ComputeType.BATCH.getType());
+        if (CollectionUtils.isNotEmpty(scheduleJobs)) {
+            List<Map<String, Object>> result = new ArrayList<>(scheduleJobs.size());
+            for (ScheduleJob scheduleJob : scheduleJobs) {
+                Map<String, Object> data = batJobConvertMap(scheduleJob);
                 result.add(data);
             }
             return result;
@@ -475,11 +504,11 @@ public class ActionService {
 
     public List<Map<String, Object>> listJobStatusByJobIds(@Param("jobIds") List<String> jobIds) throws Exception {
         if (CollectionUtils.isNotEmpty(jobIds)) {
-            List<EngineJob> batchJobs = engineJobDao.getRdosJobByJobIds(jobIds);
-            if (CollectionUtils.isNotEmpty(batchJobs)) {
-                List<Map<String, Object>> result = new ArrayList<>(batchJobs.size());
-                for (EngineJob batchJob : batchJobs) {
-                    Map<String, Object> data = batJobConvertMap(batchJob);
+            List<ScheduleJob> scheduleJobs = scheduleJobDao.getRdosJobByJobIds(jobIds);
+            if (CollectionUtils.isNotEmpty(scheduleJobs)) {
+                List<Map<String, Object>> result = new ArrayList<>(scheduleJobs.size());
+                for (ScheduleJob scheduleJob : scheduleJobs) {
+                    Map<String, Object> data = batJobConvertMap(scheduleJob);
                     result.add(data);
                 }
                 return result;
@@ -488,14 +517,14 @@ public class ActionService {
         return Collections.EMPTY_LIST;
     }
 
-    private Map<String, Object> batJobConvertMap(EngineJob batchJob){
+    private Map<String, Object> batJobConvertMap(ScheduleJob scheduleJob){
         Map<String, Object> data = new HashMap<>(6);
-        data.put("jobId", batchJob.getJobId());
-        data.put("status", batchJob.getStatus());
-        data.put("execStartTime", batchJob.getExecStartTime() == null ? 0 : batchJob.getExecStartTime());
-        data.put("execEndTime", batchJob.getExecEndTime() == null ? 0 : batchJob.getExecEndTime());
-        data.put("execTime", batchJob.getExecTime());
-        data.put("retryNum", batchJob.getRetryNum());
+        data.put("jobId", scheduleJob.getJobId());
+        data.put("status", scheduleJob.getStatus());
+        data.put("execStartTime", scheduleJob.getExecStartTime() == null ? 0 : scheduleJob.getExecStartTime());
+        data.put("execEndTime", scheduleJob.getExecEndTime() == null ? 0 : scheduleJob.getExecEndTime());
+        data.put("execTime", scheduleJob.getExecTime());
+        data.put("retryNum", scheduleJob.getRetryNum());
         return data;
     }
 }

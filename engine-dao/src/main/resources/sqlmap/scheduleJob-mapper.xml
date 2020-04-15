@@ -949,13 +949,6 @@
         </if>
     </sql>
 
-    <insert id="insert" parameterType="ScheduleJob" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO schedule_job
-        (tenant_id,project_id,job_id,job_key,job_name,task_id,gmt_create,gmt_modified,create_user_id,is_deleted,type,is_restart,business_date,cyc_time,dependency_type,flow_job_id,next_cyc_time,task_type,node_address,max_retry_num,version_id,fill_id)
-        VALUES
-        (#{tenantId},#{projectId},#{jobId},#{jobKey},#{jobName},#{taskId},#{gmtCreate},#{gmtModified},#{createUserId},#{isDeleted},#{type},#{isRestart},#{businessDate},#{cycTime},#{dependencyType},#{flowJobId},#{nextCycTime},#{taskType},#{nodeAddress},#{maxRetryNum},#{versionId},#{fillId})
-    </insert>
-
     <insert id="batchInsert" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO schedule_job
         (tenant_id,project_id,dtuic_tenant_id,app_type,job_id,job_key,job_name,task_id,gmt_create,gmt_modified,create_user_id,is_deleted,type,is_restart,business_date,cyc_time,dependency_type,flow_job_id,period_type,next_cyc_time,task_type,node_address,max_retry_num,version_id,fill_id)
@@ -1266,7 +1259,7 @@
     </update>
 
 
-    <update id="updateJobStatus">
+    <update id="updateJobStatusByIds">
         UPDATE schedule_job
         SET status = #{status},gmt_modified = now()
         WHERE is_deleted=0
@@ -1446,9 +1439,16 @@
 
 
     <insert id="insert" parameterType="ScheduleJob" useGeneratedKeys="true" keyProperty="id">
-	   insert into schedule_job(gmt_create,gmt_modified,job_id,status,source_type,job_name, compute_type)
-	   values(now(),now(),#{jobId},#{status}, #{sourceType}, #{jobName}, #{computeType})
+	   INSERT INTO schedule_job
+        (gmt_create, gmt_modified, tenant_id, project_id, dtuic_tenant_id, app_type, job_id, job_key, job_name, task_id,
+        create_user_id, is_deleted, `type`, is_restart, business_date, cyc_time, dependency_type, flow_job_id,
+        status, task_type, max_retry_num, node_address, version_id, source_type, compute_type)
+	   VALUES
+	   (now(), now(), #{tenantId}, #{projectId}, #{dtuicTenantId}, #{appType}, #{jobId}, #{jobKey}, #{jobName}, #{taskId},
+	   #{createUserId}, #{isDeleted}, #{type}, #{isRestart}, #{businessDate}, #{cycTime}, #{dependencyType}, #{flowJobId},
+	   #{status}, #{taskType}, #{maxRetryNum}, #{nodeAddress}, #{versionId}, #{sourceType}, #{computeType})
     </insert>
+
 
     <update id="jobFail">
         update schedule_job set exec_start_time=now(), exec_end_time=now(), exec_time = 0,gmt_modified=now(),status=#{status}, log_info = #{logInfo} where job_id=#{jobId};

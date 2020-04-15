@@ -74,8 +74,6 @@ public interface ScheduleJobDao {
 
     List<Map<Integer, Long>> getJobsStatusStatistics(@Param("model") ScheduleJobDTO object);
 
-    Integer insert(ScheduleJob scheduleJob);
-
     Integer batchInsert(Collection batchJobs);
 
     Integer update(ScheduleJob scheduleJob);
@@ -169,7 +167,7 @@ public interface ScheduleJobDao {
 
     Integer updateNodeAddress(@Param("nodeAddress") String nodeAddress, @Param("ids") List<Long> ids);
 
-    Integer updateJobStatus(@Param("status") Integer status, @Param("ids") List<Long> ids);
+    Integer updateJobStatusByIds(@Param("status") Integer status, @Param("ids") List<Long> ids);
 
     void stopUnsubmitJob(@Param("likeName") String likeName, @Param("projectId") Long projectId, @Param("appType") Integer appType, @Param("status") Integer status);
 
@@ -197,8 +195,8 @@ public interface ScheduleJobDao {
 
     List<ScheduleJob> syncQueryJob(PageQuery<ScheduleJobDTO> pageQuery);
 
-//todo fix me
-//    void insert(ScheduleJob scheduleJob);
+
+    Integer insert(ScheduleJob scheduleJob);
 
     void jobFail(@Param("jobId") String jobId, @Param("status") int status, @Param("logInfo") String logInfo);
 
