@@ -1,8 +1,9 @@
 package com.dtstack.engine.master.job.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.common.cache.connection.CacheConnectionHelper;
-import com.dtstack.dtcenter.common.engine.*;
+import com.dtstack.dtcenter.common.engine.JdbcInfo;
+import com.dtstack.dtcenter.common.engine.JdbcQuery;
+import com.dtstack.dtcenter.common.engine.JdbcUrlPropertiesValue;
 import com.dtstack.dtcenter.common.enums.DataBaseType;
 import com.dtstack.dtcenter.common.enums.ETableType;
 import com.dtstack.dtcenter.common.hadoop.DtKerberosUtils;
@@ -264,7 +265,7 @@ public class HiveService {
                     statement.close();
                 }
 
-                if (jdbcQuery.getConnection() != null && !jdbcQuery.getMultiplex() && CacheConnectionHelper.getSessionKey() == null) {
+                if (jdbcQuery.getConnection() != null && !jdbcQuery.getMultiplex()) {
                     jdbcQuery.getConnection().close();
                     logger.info("jdbcQuery is closed");
                 }

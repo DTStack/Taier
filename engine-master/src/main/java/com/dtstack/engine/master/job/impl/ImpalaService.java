@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.job.impl;
 
-import com.dtstack.dtcenter.common.cache.connection.CacheConnectionHelper;
+
 import com.dtstack.dtcenter.common.engine.JdbcInfo;
 import com.dtstack.dtcenter.common.engine.JdbcQuery;
 import com.dtstack.dtcenter.common.engine.JdbcUrlPropertiesValue;
@@ -157,7 +157,7 @@ public class ImpalaService {
                 res.close();
             }
 
-            if (!jdbcQuery.getMultiplex() && jdbcQuery.getConnection() != null && CacheConnectionHelper.getSessionKey() == null) {
+            if (!jdbcQuery.getMultiplex() && jdbcQuery.getConnection() != null) {
                 jdbcQuery.getConnection().close();
                 logger.info("success close impala connection");
             }
