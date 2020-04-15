@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.taskdealer;
 
-import com.dtstack.engine.api.domain.EngineJob;
+import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.common.JobClient;
@@ -40,7 +40,7 @@ public class TaskRestartDealer {
     private EngineJobCacheDao engineJobCacheDao;
 
     @Autowired
-    private EngineJobDao engineJobDao;
+    private ScheduleJobDao scheduleJobDao;
 
     @Autowired
     private EngineJobRetryDao engineJobRetryDao;
@@ -53,9 +53,6 @@ public class TaskRestartDealer {
 
     @Autowired
     private WorkNode workNode;
-
-    @Autowired
-    private ScheduleJobDao scheduleJobDao;
 
     /**
      * 对提交结果判定是否重试
@@ -188,9 +185,9 @@ public class TaskRestartDealer {
             return check;
         }
 
-        EngineJob engineBatchJob = engineJobDao.getRdosJobByJobId(jobId);
+        ScheduleJob engineBatchJob = scheduleJobDao.getRdosJobByJobId(jobId);
         if(engineBatchJob == null){
-            LOG.error("[retry=false] jobId:{} get EngineJob is null.", jobId);
+            LOG.error("[retry=false] jobId:{} get ScheduleJob is null.", jobId);
             return check;
         }
 
@@ -226,13 +223,13 @@ public class TaskRestartDealer {
             //重试任务更改在zk的状态，统一做状态清理
             shardCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.RESTARTING.getStatus());
 
-            EngineJob batchJob = engineJobDao.getRdosJobByJobId(jobClient.getTaskId());
+            ScheduleJob batchJob = scheduleJobDao.getRdosJobByJobId(jobClient.getTaskId());
             workNode.getAndUpdateEngineLog(jobId, jobClient.getEngineTaskId(), jobClient.getApplicationId(), batchJob.getPluginInfoId());
 
             //重试的任务不置为失败，waitengine
             jobRetryRecord(jobClient);
 
-            engineJobDao.updateJobUnSubmitOrRestart(jobId, RdosTaskStatus.RESTARTING.getStatus());
+            scheduleJobDao.updateJobUnSubmitOrRestart(jobId, RdosTaskStatus.RESTARTING.getStatus());
             LOG.info("jobId:{} update job status:{}.", jobId, RdosTaskStatus.RESTARTING.getStatus());
 
             //update retryNum
@@ -243,7 +240,7 @@ public class TaskRestartDealer {
 
     private void jobRetryRecord(JobClient jobClient) {
         try {
-            EngineJob batchJob = engineJobDao.getRdosJobByJobId(jobClient.getTaskId());
+            ScheduleJob batchJob = scheduleJobDao.getRdosJobByJobId(jobClient.getTaskId());
             EngineJobRetry batchJobRetry = EngineJobRetry.toEntity(batchJob, jobClient);
             batchJobRetry.setStatus(RdosTaskStatus.RESTARTING.getStatus());
             engineJobRetryDao.insert(batchJobRetry);
@@ -253,7 +250,7 @@ public class TaskRestartDealer {
     }
 
     private void updateJobStatus(String jobId, Integer status) {
-        engineJobDao.updateJobStatus(jobId, status);
+        scheduleJobDao.updateJobStatus(jobId, status);
         LOG.info("jobId:{} update job status:{}.", jobId, status);
     }
 
@@ -261,15 +258,15 @@ public class TaskRestartDealer {
      * 获取任务已经重试的次数
      */
     private Integer getAlreadyRetryNum(String jobId){
-        EngineJob rdosEngineBatchJob = engineJobDao.getRdosJobByJobId(jobId);
+        ScheduleJob rdosEngineBatchJob = scheduleJobDao.getRdosJobByJobId(jobId);
         return rdosEngineBatchJob.getRetryNum() == null ? 0 : rdosEngineBatchJob.getRetryNum();
     }
 
     private void increaseJobRetryNum(String jobId){
-        EngineJob rdosEngineBatchJob = engineJobDao.getRdosJobByJobId(jobId);
+        ScheduleJob rdosEngineBatchJob = scheduleJobDao.getRdosJobByJobId(jobId);
         Integer retryNum = rdosEngineBatchJob.getRetryNum() == null ? 0 : rdosEngineBatchJob.getRetryNum();
         retryNum++;
-        engineJobDao.updateRetryNum(jobId, retryNum);
+        scheduleJobDao.updateRetryNum(jobId, retryNum);
         scheduleJobDao.updateJobInfoByJobId(jobId,null,null,null,null,retryNum);
     }
 }

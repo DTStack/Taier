@@ -949,13 +949,6 @@
         </if>
     </sql>
 
-    <insert id="insert" parameterType="ScheduleJob" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO schedule_job
-        (tenant_id,project_id,job_id,job_key,job_name,task_id,gmt_create,gmt_modified,create_user_id,is_deleted,type,is_restart,business_date,cyc_time,dependency_type,flow_job_id,next_cyc_time,task_type,node_address,max_retry_num,version_id,fill_id)
-        VALUES
-        (#{tenantId},#{projectId},#{jobId},#{jobKey},#{jobName},#{taskId},#{gmtCreate},#{gmtModified},#{createUserId},#{isDeleted},#{type},#{isRestart},#{businessDate},#{cycTime},#{dependencyType},#{flowJobId},#{nextCycTime},#{taskType},#{nodeAddress},#{maxRetryNum},#{versionId},#{fillId})
-    </insert>
-
     <insert id="batchInsert" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO schedule_job
         (tenant_id,project_id,dtuic_tenant_id,app_type,job_id,job_key,job_name,task_id,gmt_create,gmt_modified,create_user_id,is_deleted,type,is_restart,business_date,cyc_time,dependency_type,flow_job_id,period_type,next_cyc_time,task_type,node_address,max_retry_num,version_id,fill_id)
@@ -1266,7 +1259,7 @@
     </update>
 
 
-    <update id="updateJobStatus">
+    <update id="updateJobStatusByIds">
         UPDATE schedule_job
         SET status = #{status},gmt_modified = now()
         WHERE is_deleted=0
@@ -1443,4 +1436,114 @@
         FROM schedule_job
         WHERE is_deleted = 0
     </select>
+
+
+    <insert id="insert" parameterType="ScheduleJob" useGeneratedKeys="true" keyProperty="id">
+	   INSERT INTO schedule_job
+        (gmt_create, gmt_modified, tenant_id, project_id, dtuic_tenant_id, app_type, job_id, job_key, job_name, task_id,
+        create_user_id, is_deleted, `type`, is_restart, business_date, cyc_time, dependency_type, flow_job_id,
+        status, task_type, max_retry_num, node_address, version_id, source_type, compute_type)
+	   VALUES
+	   (now(), now(), #{tenantId}, #{projectId}, #{dtuicTenantId}, #{appType}, #{jobId}, #{jobKey}, #{jobName}, #{taskId},
+	   #{createUserId}, #{isDeleted}, #{type}, #{isRestart}, #{businessDate}, #{cycTime}, #{dependencyType}, #{flowJobId},
+	   #{status}, #{taskType}, #{maxRetryNum}, #{nodeAddress}, #{versionId}, #{sourceType}, #{computeType})
+    </insert>
+
+
+    <update id="jobFail">
+        update schedule_job set exec_start_time=now(), exec_end_time=now(), exec_time = 0,gmt_modified=now(),status=#{status}, log_info = #{logInfo} where job_id=#{jobId};
+    </update>
+
+    <update id="updateJobStatus">
+	   update schedule_job set gmt_modified=now(),status=#{status} where job_id=#{jobId};
+   </update>
+
+    <update id="updateTaskStatusNotStopped">
+        update schedule_job set gmt_modified=now(),status=#{status} where job_id=#{jobId} and status not in
+        <foreach item="stopStatus" index="index" collection="stopStatuses" open="(" separator="," close=")">
+            #{stopStatus}
+        </foreach>
+    </update>
+
+    <update id="updateTaskStatusCompareOld">
+        update schedule_job set gmt_modified=now(),status=#{status},job_name=#{jobName} where job_id=#{jobId} and status=#{oldStatus};
+    </update>
+
+    <update id="updateJobPluginId">
+        update schedule_job set gmt_modified=now(), plugin_info_id=#{pluginId} where job_id=#{jobId};
+    </update>
+
+    <update id="updateJobSubmitSuccess">
+	   update schedule_job
+	   set log_info = #{submitLog}, engine_job_id=#{engineId}, application_id=#{appId},
+	    gmt_modified=now(), exec_start_time=now()
+	   where job_id=#{jobId};
+   </update>
+
+    <update id="updateJobUnSubmitOrRestart">
+       update schedule_job
+       set status=#{status},
+       application_id = null, engine_job_id = null, engine_log = null, log_info = null,
+       retry_task_params = null, exec_end_time = null,exec_start_time = null, exec_time = 0, gmt_modified=now()
+       where job_id=#{jobId};
+   </update>
+
+    <update id="updateJobStatusAndExecTime">
+	   update schedule_job set gmt_modified=now(), exec_end_time=now(), status=#{status}, exec_time=timestampdiff(SECOND, exec_start_time, now()) where job_id=#{jobId};
+   </update>
+
+    <select id="getRdosJobByJobId" resultType="ScheduleJob">
+       select * from schedule_job where job_id=#{jobId} and is_deleted=0;
+   </select>
+
+    <select id="getRdosJobByJobIds" resultType="ScheduleJob">
+        select job_id, engine_job_id,application_id,plugin_info_id,status,engine_log,log_info,exec_start_time,exec_end_time,exec_time,retry_num,retry_task_params,gmt_create,gmt_modified,is_deleted,source_type,compute_type from schedule_job
+        where job_id IN
+        <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
+            #{jobId}
+        </foreach>
+        and is_deleted=0;
+    </select>
+
+    <update id="updateEngineLog">
+        update schedule_job set engine_log = #{engineLog},gmt_modified=now() where job_id = #{jobId}
+    </update>
+
+    <update id="updateRetryTaskParams">
+        update schedule_job set retry_task_params = #{retryTaskParams},gmt_modified=now() where job_id = #{jobId}
+    </update>
+
+    <select id="getByName" parameterType="java.lang.String" resultType="ScheduleJob">
+        select * from schedule_job where job_name = #{jobName} and is_deleted=0;
+    </select>
+
+    <update id="updateRetryNum">
+	   update schedule_job set retry_num=#{retryNum}, gmt_modified=now() where job_id=#{jobId};
+   </update>
+
+    <select id="getJobIdsByStatus" resultType="java.lang.String">
+        select job_id from schedule_job
+        where status = #{status}
+        <if test="computeType != null">
+            and compute_type = #{computeType}
+        </if>
+        and is_deleted=0
+    </select>
+
+    <select id="listJobStatus" resultType="ScheduleJob">
+        select job_id as jobId,status,exec_start_time as execStartTime,exec_end_time as execEndTime,exec_time as execTime,retry_num as retryNum
+        from schedule_job
+        where gmt_modified &gt;= #{time} and compute_type = #{computeType}
+        and is_deleted=0;
+    </select>
+
+    <update id="updateJobStatusByJobIds">
+        update rdos_engine_job
+        set gmt_modified=now(), status=#{status}
+        where job_id IN
+        <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
+            #{jobId}
+        </foreach>
+        and is_deleted=0;
+    </update>
 </mapper>

@@ -32,7 +32,7 @@ public class ScheduleJob extends AppTenantEntity {
     private Long createUserId;
 
     /**
-     * 0正常调度 1补数据
+     * 0正常调度 1补数据 2临时运行
      */
     private Integer type;
 
@@ -73,6 +73,79 @@ public class ScheduleJob extends AppTenantEntity {
     private String logInfo;
 
     private List<Integer> taskTypes;
+
+    /**
+     * 执行引擎任务id
+     */
+    private String engineJobId;
+
+    private String applicationId;
+
+    private String engineLog;
+
+    private long pluginInfoId;
+
+    private Integer sourceType;
+
+    private String retryTaskParams;
+
+    private Integer computeType;
+
+    public String getEngineJobId() {
+        return engineJobId;
+    }
+
+    public void setEngineJobId(String engineJobId) {
+        this.engineJobId = engineJobId;
+    }
+
+    public String getApplicationId() {
+        return applicationId;
+    }
+
+    public void setApplicationId(String applicationId) {
+        this.applicationId = applicationId;
+    }
+
+    public String getEngineLog() {
+        return engineLog;
+    }
+
+    public void setEngineLog(String engineLog) {
+        this.engineLog = engineLog;
+    }
+
+    public long getPluginInfoId() {
+        return pluginInfoId;
+    }
+
+    public void setPluginInfoId(long pluginInfoId) {
+        this.pluginInfoId = pluginInfoId;
+    }
+
+    public Integer getSourceType() {
+        return sourceType;
+    }
+
+    public void setSourceType(Integer sourceType) {
+        this.sourceType = sourceType;
+    }
+
+    public String getRetryTaskParams() {
+        return retryTaskParams;
+    }
+
+    public void setRetryTaskParams(String retryTaskParams) {
+        this.retryTaskParams = retryTaskParams;
+    }
+
+    public Integer getComputeType() {
+        return computeType;
+    }
+
+    public void setComputeType(Integer computeType) {
+        this.computeType = computeType;
+    }
 
     public List<Integer> getTaskTypes() {
         return taskTypes;

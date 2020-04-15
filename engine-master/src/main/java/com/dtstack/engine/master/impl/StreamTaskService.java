@@ -13,9 +13,9 @@ import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.dao.EngineJobCacheDao;
-import com.dtstack.engine.dao.EngineJobDao;
+import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.EngineJobCheckpointDao;
-import com.dtstack.engine.api.domain.EngineJob;
+import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.master.akka.WorkerOperator;
@@ -44,7 +44,7 @@ public class StreamTaskService {
     private EngineJobCheckpointDao engineJobCheckpointDao;
 
     @Autowired
-    private EngineJobDao engineJobDao;
+    private ScheduleJobDao scheduleJobDao;
 
     @Autowired
     private EngineJobCacheDao engineJobCacheDao;
@@ -69,15 +69,15 @@ public class StreamTaskService {
     /**
      * 查询stream job
      */
-    public List<EngineJob> getEngineStreamJob(@Param("taskIds") List<String> taskIds){
-        return engineJobDao.getRdosJobByJobIds(taskIds);
+    public List<ScheduleJob> getEngineStreamJob(@Param("taskIds") List<String> taskIds){
+        return scheduleJobDao.getRdosJobByJobIds(taskIds);
     }
 
     /**
      * 获取某个状态的任务task_id
      */
     public List<String> getTaskIdsByStatus(@Param("status") Integer status){
-        return engineJobDao.getJobIdsByStatus(status, ComputeType.STREAM.getType());
+        return scheduleJobDao.getJobIdsByStatus(status, ComputeType.STREAM.getType());
     }
 
     /**
@@ -86,9 +86,9 @@ public class StreamTaskService {
     public Integer getTaskStatus(@Param("taskId") String taskId){
         Integer status = null;
         if (StringUtils.isNotEmpty(taskId)){
-        	EngineJob engineJob = engineJobDao.getRdosJobByJobId(taskId);
-            if (engineJob != null){
-                status = engineJob.getStatus();
+        	ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(taskId);
+            if (scheduleJob != null){
+                status = scheduleJob.getStatus();
             }
         }
 
@@ -104,16 +104,16 @@ public class StreamTaskService {
 
         Preconditions.checkState(StringUtils.isNotEmpty(taskId), "taskId can't be empty");
 
-        EngineJob engineJob = engineJobDao.getRdosJobByJobId(taskId);
-        Preconditions.checkNotNull(engineJob, "can't find record by taskId" + taskId);
+        ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(taskId);
+        Preconditions.checkNotNull(scheduleJob, "can't find record by taskId" + taskId);
 
         //只获取运行中的任务的log—url
-        Integer status = engineJob.getStatus();
+        Integer status = scheduleJob.getStatus();
         if (!RdosTaskStatus.RUNNING.getStatus().equals(status.intValue())) {
             throw new RdosDefineException(String.format("job:%s not running status ", taskId), ErrorCode.INVALID_TASK_STATUS);
         }
 
-        String applicationId = engineJob.getApplicationId();
+        String applicationId = scheduleJob.getApplicationId();
 
         if (StringUtils.isEmpty(applicationId)) {
             throw new RdosDefineException(String.format("job %s not running in perjob", taskId), ErrorCode.INVALID_TASK_RUN_MODE);
@@ -133,7 +133,7 @@ public class StreamTaskService {
             String jobInfo = engineJobCache.getJobInfo();
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
 
-            jobIdentifier = JobIdentifier.createInstance(engineJob.getEngineJobId(), applicationId, taskId);
+            jobIdentifier = JobIdentifier.createInstance(scheduleJob.getEngineJobId(), applicationId, taskId);
             jobClient = new JobClient(paramAction);
             String jobMaster = workerOperator.getJobMaster(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
             String rootUrl = UrlUtil.getHttpRootUrl(jobMaster);

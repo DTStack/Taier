@@ -74,8 +74,6 @@ public interface ScheduleJobDao {
 
     List<Map<Integer, Long>> getJobsStatusStatistics(@Param("model") ScheduleJobDTO object);
 
-    Integer insert(ScheduleJob scheduleJob);
-
     Integer batchInsert(Collection batchJobs);
 
     Integer update(ScheduleJob scheduleJob);
@@ -169,7 +167,7 @@ public interface ScheduleJobDao {
 
     Integer updateNodeAddress(@Param("nodeAddress") String nodeAddress, @Param("ids") List<Long> ids);
 
-    Integer updateJobStatus(@Param("status") Integer status, @Param("ids") List<Long> ids);
+    Integer updateJobStatusByIds(@Param("status") Integer status, @Param("ids") List<Long> ids);
 
     void stopUnsubmitJob(@Param("likeName") String likeName, @Param("projectId") Long projectId, @Param("appType") Integer appType, @Param("status") Integer status);
 
@@ -196,4 +194,42 @@ public interface ScheduleJobDao {
     List<String> getAllNodeAddress();
 
     List<ScheduleJob> syncQueryJob(PageQuery<ScheduleJobDTO> pageQuery);
+
+
+    Integer insert(ScheduleJob scheduleJob);
+
+    void jobFail(@Param("jobId") String jobId, @Param("status") int status, @Param("logInfo") String logInfo);
+
+    void updateJobStatus(@Param("jobId") String jobId, @Param("status") int status);
+
+    void updateTaskStatusNotStopped(@Param("jobId") String jobId, @Param("status") int status, @Param("stopStatuses") List<Integer> stopStatuses);
+
+    void updateJobPluginId(@Param("jobId") String jobId, @Param("pluginId") long pluginId);
+
+    void updateJobStatusAndExecTime(@Param("jobId") String jobId, @Param("status") int status);
+
+    void updateJobSubmitSuccess(@Param("jobId") String jobId, @Param("engineId") String engineId, @Param("appId") String appId, @Param("submitLog") String submitLog);
+
+    void updateJobUnSubmitOrRestart(@Param("jobId") String jobId, @Param("status") int status);
+
+    ScheduleJob getRdosJobByJobId(@Param("jobId") String jobId);
+
+    List<ScheduleJob> getRdosJobByJobIds(@Param("jobIds")List<String> jobIds);
+
+    void updateEngineLog(@Param("jobId")String jobId, @Param("engineLog")String engineLog);
+
+    void updateRetryTaskParams(@Param("jobId")String jobId,  @Param("retryTaskParams")String retryTaskParams);
+
+    Integer updateTaskStatusCompareOld(@Param("jobId") String jobId, @Param("status")Integer status,@Param("oldStatus") Integer oldStatus, @Param("jobName")String jobName);
+
+    ScheduleJob getByName(@Param("jobName") String jobName);
+
+    void updateRetryNum(@Param("jobId")String jobId, @Param("retryNum")Integer retryNum);
+
+    List<String> getJobIdsByStatus(@Param("status")Integer status, @Param("computeType")Integer computeType);
+
+    List<ScheduleJob> listJobStatus(@Param("time") Timestamp timeStamp, @Param("computeType")Integer computeType);
+
+    Integer updateJobStatusByJobIds(@Param("jobId") List<String> jobIds, @Param("status") Integer status);
+
 }

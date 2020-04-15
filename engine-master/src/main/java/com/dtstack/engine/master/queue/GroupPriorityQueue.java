@@ -4,7 +4,7 @@ import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
-import com.dtstack.engine.dao.EngineJobDao;
+import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.akka.WorkerOperator;
@@ -47,7 +47,7 @@ public class GroupPriorityQueue {
     private ApplicationContext applicationContext;
     private EnvironmentContext environmentContext;
     private EngineJobCacheDao engineJobCacheDao;
-    private EngineJobDao engineJobDao;
+    private ScheduleJobDao scheduleJobDao;
     private WorkNode workNode;
     private JobPartitioner jobPartitioner;
     private WorkerOperator workerOperator;
@@ -225,8 +225,8 @@ public class GroupPriorityQueue {
         if (null == engineJobCacheDao) {
             throw new RuntimeException("engineJobCacheDao is null.");
         }
-        if (null == engineJobDao) {
-            throw new RuntimeException("engineJobDao is null.");
+        if (null == scheduleJobDao) {
+            throw new RuntimeException("scheduleJobDao is null.");
         }
         if (null == workNode) {
             throw new RuntimeException("workNode is null.");
@@ -245,7 +245,7 @@ public class GroupPriorityQueue {
     public GroupPriorityQueue build() {
         this.environmentContext = applicationContext.getBean(EnvironmentContext.class);
         this.engineJobCacheDao = applicationContext.getBean(EngineJobCacheDao.class);
-        this.engineJobDao = applicationContext.getBean(EngineJobDao.class);
+        this.scheduleJobDao = applicationContext.getBean(ScheduleJobDao.class);
         this.jobPartitioner = applicationContext.getBean(JobPartitioner.class);
         this.workerOperator = applicationContext.getBean(WorkerOperator.class);
 
