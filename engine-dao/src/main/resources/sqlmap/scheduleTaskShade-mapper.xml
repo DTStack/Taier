@@ -603,7 +603,7 @@
     <update id="updateTaskExtInfo">
         UPDATE
             schedule_task_shade
-        set extra_info = #{extraInfo}
+        set extra_info = #{extraInfo},gmt_modified = NOW()
         where task_id = #{taskId} and app_type = #{appType} and is_deleted = 0
     </update>
 
