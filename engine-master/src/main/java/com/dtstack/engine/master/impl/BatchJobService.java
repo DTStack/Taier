@@ -1047,6 +1047,7 @@ public class BatchJobService {
                 actionParam = pluginWrapper.wrapperPluginInfo(actionParam);
 
                 actionService.start(actionParam);
+                logger.info("sendJobStart actionParam: {}", actionParam);
                 return;
             }
         }
