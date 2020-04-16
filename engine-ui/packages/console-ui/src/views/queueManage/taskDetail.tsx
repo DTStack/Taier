@@ -34,11 +34,10 @@ class TaskDetail extends React.Component<any, any> {
             loading: false
         },
         jobName: '',
-        engineType: undefined,
-        groupName: undefined,
         clusterName: undefined,
         node: undefined,
         jobResource: undefined, // 实例资源
+        engineType: undefined,
 
         // 查看详情
         isShowViewDetail: false,
@@ -61,10 +60,9 @@ class TaskDetail extends React.Component<any, any> {
 
     componentDidMount () {
         this.setState({
-            engineType: getURLParam('engineType'),
-            groupName: getURLParam('groupName'),
-            clusterName: getURLParam('clusterName'),
             node: getURLParam('node'),
+            clusterName: getURLParam('clusterName'),
+            engineType: getURLParam('engineType'),
             jobResource: getURLParam('jobResource'),
             radioValue: getURLParam('jobStage')
         }, () => {
@@ -74,14 +72,14 @@ class TaskDetail extends React.Component<any, any> {
 
     // 获取详细任务
     getDetailTaskList = () => {
-        const { engineType, groupName, node, jobResource, radioValue } = this.state;
+        const { node, jobResource, radioValue } = this.state;
         const { table } = this.state;
         const { pageIndex } = table;
         this.setState({
             selectedRowKeys: [],
             killTaskInfo: []
         })
-        if (engineType && groupName) {
+        if (jobResource) {
             this.setState({
                 table: {
                     ...table,
@@ -89,8 +87,6 @@ class TaskDetail extends React.Component<any, any> {
                 }
             })
             Api.getViewDetail({
-                engineType: engineType,
-                groupName: groupName,
                 nodeAddress: node,
                 pageSize: PAGE_SIZE,
                 currentPage: pageIndex,
@@ -221,10 +217,9 @@ class TaskDetail extends React.Component<any, any> {
         if (e.target.checked) {
             selectedRowKeys = this.state.dataSource.map((item: any) => item.jobId);
             killTaskInfo = this.state.dataSource.map((item: any) => {
-                const { jobId, groupName, jobType, engineType, clusterName } = item;
+                const { jobId, jobType, engineType, clusterName } = item;
                 return {
                     jobId,
-                    groupName,
                     jobType,
                     engineType,
                     clusterName
@@ -238,6 +233,7 @@ class TaskDetail extends React.Component<any, any> {
             killTaskInfo
         })
     }
+
     handleKillAll = (e: any) => {
         this.setState({
             isShowAllKill: true,
@@ -382,10 +378,9 @@ class TaskDetail extends React.Component<any, any> {
                 this.setState({
                     selectedRowKeys,
                     killTaskInfo: selectedRows.map((item: any) => {
-                        const { jobId, groupName, jobType, engineType } = item;
+                        const { jobId, jobType, engineType } = item;
                         return {
                             jobId,
-                            groupName,
                             jobType,
                             engineType
                         }
@@ -458,8 +453,6 @@ class TaskDetail extends React.Component<any, any> {
                     killResource={killTaskInfo}
                     node={node}
                     totalSize={total}
-                    engineType={this.state.engineType}
-                    groupName={this.state.groupName}
                     stage={this.state.radioValue}
                     jobName={this.state.jobName}
                     jobResource={this.state.jobResource}

@@ -1,5 +1,9 @@
 import * as React from 'react';
 import { Modal, Form, Select, Icon } from 'antd';
+import { debounce } from 'lodash';
+
+import API from 'dt-common/src/api';
+
 import { formItemLayout, ENGINE_TYPE } from '../../consts'
 const Option = Select.Option;
 
@@ -8,35 +12,57 @@ class BindCommModal extends React.Component<any, any> {
         super(props);
         this.state = {
             queueList: [],
+            tenantList: [],
             hasHadoop: false,
             hasLibra: false,
+            hasTiDB: false,
             clusterId: props.clusterId
         }
     }
+
     componentDidMount () {
         const { clusterId } = this.state;
         if (clusterId) { // 新增租户初始化
             this.handleChangeCluster(clusterId)
         }
     }
+
     // 切换集群
     handleChangeCluster = (value: any) => {
         const { clusterList } = this.props;
         this.props.form.resetFields(['queueId']);
         let currentCluster: any;
         currentCluster = clusterList.filter((clusItem: any) => clusItem.clusterId == value); // 选中当前集群
+
         const currentEngineList = (currentCluster[0] && currentCluster[0].engines) || [];
-        const hadoopEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.HADOOP)
-        const libraEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.LIBRA)
+        const hadoopEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.HADOOP);
+        const libraEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.LIBRA);
+        const tiDBEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.TI_DB);
+
         const hasHadoop = hadoopEngine.length >= 1;
         const hasLibra = libraEngine.length >= 1;
+        const hasTiDB = tiDBEngine.length > 0;
+
         const queueList = hasHadoop && hadoopEngine[0] && hadoopEngine[0].queues;
         this.setState({
             hasHadoop,
             hasLibra,
+            hasTiDB,
             queueList
         })
     }
+
+    onSearchTenantUser = (value: string) => {
+        API.getFullTenants(value).then((res: any) => {
+            if (res.success) {
+                this.setState({
+                    tenantList: res.data || []
+                })
+            }
+        })
+    }
+
+    debounceSearchTenant = debounce(this.onSearchTenantUser, 1000);
 
     getServiceParam () {
         let params: any = {
@@ -57,8 +83,8 @@ class BindCommModal extends React.Component<any, any> {
     render () {
         const { getFieldDecorator } = this.props.form;
         const { visible, onOk, onCancel, title, isBindTenant,
-            disabled, tenantList, clusterList, tenantInfo, clusterId } = this.props;
-        const { hasHadoop, hasLibra, queueList } = this.state;
+            disabled, clusterList, tenantInfo, clusterId } = this.props;
+        const { hasHadoop, hasLibra, hasTiDB, queueList, tenantList } = this.state;
         return (
             <Modal
                 title={title}
@@ -90,10 +116,11 @@ class BindCommModal extends React.Component<any, any> {
                                 <Select
                                     allowClear
                                     showSearch
-                                    placeholder='请选择租户'
+                                    placeholder='请搜索要绑定的租户'
                                     optionFilterProp="title"
-                                    filterOption={(input: any, option: any) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                     disabled={disabled}
+                                    onSearch={this.debounceSearchTenant}
+                                    filterOption={(input: any, option: any) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
                                     {tenantList && tenantList.map((tenantItem: any) => {
                                         return <Option key={`${tenantItem.tenantId}`} value={`${tenantItem.tenantId}`} title={tenantItem.tenantName}>{tenantItem.tenantName}</Option>
@@ -161,6 +188,18 @@ class BindCommModal extends React.Component<any, any> {
                                     <div className='engine-title'>
                                         <span>LibrA</span>
                                         <div style={{ fontSize: '13px', marginTop: '5px' }}>创建项目时，自动关联到租户的LibrA引擎</div>
+                                    </div>
+                                </div>
+                            ) : null
+                        }
+                        {
+                            hasTiDB ? (
+                                <div
+                                    className='border-item'
+                                >
+                                    <div className='engine-title'>
+                                        <span>TiDB</span>
+                                        <div style={{ fontSize: '13px', marginTop: '5px' }}>创建项目时，自动关联到租户的TiDB引擎</div>
                                     </div>
                                 </div>
                             ) : null

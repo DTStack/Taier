@@ -38,13 +38,10 @@ class KillAllTask extends React.Component<any, any> {
 
     getReqParams () {
         const {
-            killResource = [], node, stage,
-            engineType, jobResource, totalModel, groupName
+            killResource = [], node, stage, jobResource, totalModel
         } = this.props;
         let params = {
             stage,
-            groupName,
-            engineType,
             jobResource,
             jobIdList: [],
             nodeAddress: node
@@ -66,6 +63,7 @@ class KillAllTask extends React.Component<any, any> {
         })
         this.killTask();
     }
+
     render () {
         const { totalModel } = this.props;
         const isKillAll = totalModel !== undefined;

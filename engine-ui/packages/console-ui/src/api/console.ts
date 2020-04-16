@@ -62,15 +62,18 @@ export default {
         return http.post(req.SEARCH_TASKNAME_FUZZY, params);
     },
     // 明细-杀死选中或者杀死全部任务
-    killTasks (params: any) {
+    killTasks (params: {
+        jobResource: string;
+        nodeAddress: string;
+        stage: number;
+        jobIdList?: any[];
+    }) {
         return http.post(req.KILL_TASKS, params);
     },
 
     killAllTask (params: {
-        engineType: string;
         jobResource: string;
         nodeAddress: string;
-        groupName: string;
     }) {
         return http.post(req.KILL_ALL_TASK, params);
     },
@@ -90,7 +93,13 @@ export default {
         return http.post(req.GET_GROUP_LIST, params);
     },
     // 查看明细 和搜索条件
-    getViewDetail (params: any) {
+    getViewDetail (params: {
+        stage: number;
+        jobResource: string;
+        nodeAddress?: string;
+        currentPage: number;
+        pageSize: number;
+    }) {
         return http.post(req.GET_VIEW_DETAIL, params);
     },
     // 顺序调整调整优先级
