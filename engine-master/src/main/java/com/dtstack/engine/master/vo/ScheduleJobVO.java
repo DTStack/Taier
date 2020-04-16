@@ -96,6 +96,6 @@ public class ScheduleJobVO extends com.dtstack.engine.api.vo.ScheduleJobVO {
                 this.setExecTime(DateUtil.getTimeDifference(exeTime));
             }
         }
-        this.scheduleEngineJob = scheduleEngineJob;
+        this.batchEngineJob = scheduleEngineJob;
     }
 }
