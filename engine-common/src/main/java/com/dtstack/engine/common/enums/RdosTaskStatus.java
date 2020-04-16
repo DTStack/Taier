@@ -148,7 +148,7 @@ public enum RdosTaskStatus implements Serializable {
         return false;
     }
 
-    public static boolean canStartAgain(Integer status){
+    public static boolean canStart(Integer status){
         if(RdosTaskStatus.SUBMITTING.getStatus().equals(status) || RdosTaskStatus.UNSUBMIT.getStatus().equals(status)){
     	    return true;
         }
