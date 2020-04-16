@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.executor;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.common.enums.EJobType;
 import com.dtstack.dtcenter.common.enums.Restarted;
 import com.dtstack.dtcenter.common.enums.TaskStatus;
@@ -34,10 +35,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.Timestamp;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -144,6 +142,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         while (RUNNING.get()) {
 
             BatchJob batchJob = null;
+            JobCheckRunInfo checkRunInfo = null;
             try {
                 if (logger.isDebugEnabled()) {
                     logger.debug("========= scheduleType:{} take job from queue，before queueSize:{}, blocked:{}  tail:{} =========",
@@ -183,7 +182,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 if (TaskStatus.SUBMITTING.getStatus().equals(status) && (type.intValue() != EJobType.WORK_FLOW.getVal() && type.intValue() != EJobType.ALGORITHM_LAB.getVal())) {
                     continue;
                 }
-                JobCheckRunInfo checkRunInfo;
                 //已经提交过的工作流节点跳过检查
                 if ((type.intValue() == EJobType.WORK_FLOW.getVal() || type.intValue() == EJobType.ALGORITHM_LAB.getVal()) && !TaskStatus.UNSUBMIT.getStatus().equals(status)) {
                     checkRunInfo = JobCheckRunInfo.createCheckInfo(JobCheckStatus.CAN_EXE);
@@ -250,9 +248,19 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 }
             } catch (Exception e) {
                 logger.error("happens error:", e);
-                if (batchJob != null) {
-                    batchJobService.updateStatusAndLogInfoById(batchJob.getId(), TaskStatus.SUBMITFAILD.getStatus(), e.getMessage());
-                    logger.error("scheduleType:{} job:{} submit failed", getScheduleType(), batchJob.getId());
+                try {
+                    if (batchJob != null) {
+                        batchJobService.updateStatusAndLogInfoById(batchJob.getId(), TaskStatus.SUBMITFAILD.getStatus(), e.getMessage());
+                        logger.error("scheduleType:{} job:{} submit failed", getScheduleType(), batchJob.getId());
+                    }
+                } catch (Exception ex) {
+                    logger.error("update job {}  status happens error:", batchJob.getJobId(), ex);
+                }
+            } finally {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("========= scheduleType:{} take job {} from queue，before queueSize:{}, blocked:{}  tail:{} checkRunInfo:{} =========",
+                            getScheduleType(), Objects.isNull(batchJob) ? "" : batchJob.getJobId(),
+                            jopPriorityQueue.getQueueSize(), jopPriorityQueue.isBlocked(), jopPriorityQueue.resetTail(), JSONObject.toJSONString(checkRunInfo));
                 }
             }
         }
