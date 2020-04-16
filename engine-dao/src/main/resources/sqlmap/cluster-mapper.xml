@@ -23,7 +23,7 @@
         </trim>
     </sql>
 
-    <select id="generalQuery" resultType="com.dtstack.engine.vo.ClusterVO">
+    <select id="generalQuery" resultType="com.dtstack.engine.api.vo.ClusterVO">
         SELECT
         <include refid="select_content_fragment"/>
         FROM console_cluster

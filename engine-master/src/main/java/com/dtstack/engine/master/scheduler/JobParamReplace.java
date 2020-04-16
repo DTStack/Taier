@@ -2,7 +2,7 @@ package com.dtstack.engine.master.scheduler;
 
 import com.dtstack.dtcenter.common.enums.EParamType;
 import com.dtstack.dtcenter.common.util.TimeParamOperator;
-import com.dtstack.engine.dto.BatchTaskParamShade;
+import com.dtstack.engine.api.dto.ScheduleTaskParamShade;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +46,7 @@ public class JobParamReplace {
     }
 
 
-    public String paramReplace(String sql, List<BatchTaskParamShade> paramList, String cycTime) {
+    public String paramReplace(String sql, List<ScheduleTaskParamShade> paramList, String cycTime) {
 
         if (CollectionUtils.isEmpty(paramList)) {
             return sql;
@@ -61,11 +61,11 @@ public class JobParamReplace {
             Integer type;
             String paramName;
             String paramCommand;
-            type = ((BatchTaskParamShade) param).getType();
-            paramName = ((BatchTaskParamShade) param).getParamName();
-            paramCommand = ((BatchTaskParamShade) param).getParamCommand();
+            type = ((ScheduleTaskParamShade) param).getType();
+            paramName = ((ScheduleTaskParamShade) param).getParamName();
+            paramCommand = ((ScheduleTaskParamShade) param).getParamCommand();
 
-            String targetVal = convertParam(type, paramName, paramCommand, cycTime, ((BatchTaskParamShade) param).getTaskId());
+            String targetVal = convertParam(type, paramName, paramCommand, cycTime, ((ScheduleTaskParamShade) param).getTaskId());
             String replaceStr = String.format(VAR_FORMAT, paramName);
             sql = sql.replace(replaceStr, targetVal);
         }

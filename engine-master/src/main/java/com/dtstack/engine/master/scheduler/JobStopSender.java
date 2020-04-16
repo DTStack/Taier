@@ -4,13 +4,13 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.common.enums.EJobType;
 import com.dtstack.dtcenter.common.enums.EngineType;
+import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.domain.BatchJob;
-import com.dtstack.engine.domain.BatchTaskShade;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.master.impl.ActionService;
-import com.dtstack.engine.master.impl.BatchTaskShadeService;
+import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +43,7 @@ public class JobStopSender implements InitializingBean, DisposableBean, Runnable
     private ActionService actionService;
 
     @Autowired
-    private BatchTaskShadeService batchTaskShadeService;
+    private ScheduleTaskShadeService batchTaskShadeService;
 
     private ExecutorService jobStopSenderExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<>(), new CustomThreadFactory(this.getClass().getSimpleName()));
@@ -65,7 +65,7 @@ public class JobStopSender implements InitializingBean, DisposableBean, Runnable
         logger.info("JobStopSender thread is shutdown...");
     }
 
-    public boolean addStopJob(List<BatchJob> jobs, Long dtuicTenantId, Integer appType) {
+    public boolean addStopJob(List<ScheduleJob> jobs, Long dtuicTenantId, Integer appType) {
         if (CollectionUtils.isEmpty(jobs)) {
             return true;
         }
@@ -86,20 +86,20 @@ public class JobStopSender implements InitializingBean, DisposableBean, Runnable
 
         List<Long> taskIds = stoppedJob.getJobs()
                 .parallelStream()
-                .map(BatchJob::getTaskId)
+                .map(ScheduleJob::getTaskId)
                 .collect(Collectors.toList());
 
-        Map<Long, List<BatchTaskShade>> taskShades =
+        Map<Long, List<ScheduleTaskShade>> taskShades =
                 batchTaskShadeService.getTaskByIds(taskIds, stoppedJob.getAppType())
                         .stream()
-                        .collect(Collectors.groupingBy(BatchTaskShade::getTaskId));
+                        .collect(Collectors.groupingBy(ScheduleTaskShade::getTaskId));
 
         JSONArray jsonArray = new JSONArray();
-        for (BatchJob job : stoppedJob.getJobs()) {
-            List<BatchTaskShade> shades = taskShades.get(job.getTaskId());
+        for (ScheduleJob job : stoppedJob.getJobs()) {
+            List<ScheduleTaskShade> shades = taskShades.get(job.getTaskId());
 
             if (CollectionUtils.isNotEmpty(shades)) {
-                BatchTaskShade batchTask = shades.get(0);
+                ScheduleTaskShade batchTask = shades.get(0);
                 JSONObject params = new JSONObject();
                 params.put("engineType", EngineType.getEngineName(batchTask.getEngineType()));
                 params.put("taskId", job.getJobId());
@@ -136,17 +136,17 @@ public class JobStopSender implements InitializingBean, DisposableBean, Runnable
     }
 
     class StoppedJob {
-        List<BatchJob> jobs;
+        List<ScheduleJob> jobs;
         Long dtuicTenantId;
         Integer appType;
 
-        private StoppedJob(List<BatchJob> jobs, Long dtuicTenantId, Integer appType) {
+        private StoppedJob(List<ScheduleJob> jobs, Long dtuicTenantId, Integer appType) {
             this.jobs = jobs;
             this.dtuicTenantId = dtuicTenantId;
             this.appType = appType;
         }
 
-        public List<BatchJob> getJobs() {
+        public List<ScheduleJob> getJobs() {
             return jobs;
         }
 

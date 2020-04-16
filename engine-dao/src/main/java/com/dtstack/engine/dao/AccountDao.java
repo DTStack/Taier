@@ -1,6 +1,6 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.engine.domain.Account;
+import com.dtstack.engine.api.domain.Account;
 import org.apache.ibatis.annotations.Param;
 
 /**

@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.dao.BatchTaskShadeDao;
+import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import org.apache.ibatis.annotations.Param;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,14 +19,14 @@ public class ProjectService {
     private final Logger logger = LoggerFactory.getLogger(ProjectService.class);
 
     @Autowired
-    private BatchTaskShadeDao batchTaskShadeDao;
+    private ScheduleTaskShadeDao scheduleTaskShadeDao;
 
     public void updateSchedule(@Param("projectId")Long projectId,@Param("appType")Integer appType,@Param("scheduleStatus")Integer scheduleStatus) {
         if (Objects.isNull(projectId) || Objects.isNull(appType) || Objects.isNull(scheduleStatus)) {
             return;
         }
         logger.info("update project {} status {} ",projectId,scheduleStatus);
-        batchTaskShadeDao.updateProjectScheduleStatus(projectId,appType,scheduleStatus);
+        scheduleTaskShadeDao.updateProjectScheduleStatus(projectId,appType,scheduleStatus);
     }
 }
 

@@ -4,7 +4,7 @@ import com.dtstack.dtcenter.common.constant.TaskStatusConstrant;
 import com.dtstack.dtcenter.common.enums.TaskStatus;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.EScheduleType;
-import com.dtstack.engine.dao.BatchJobDao;
+import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.queue.QueueInfo;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
 import com.dtstack.sql.Twins;
@@ -47,7 +47,7 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
     }
 
     @Autowired
-    private BatchJobDao batchJobDao;
+    private ScheduleJobDao scheduleJobDao;
 
     @Autowired
     private CronJobExecutor cronJobExecutor;
@@ -57,7 +57,6 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
 
     @Autowired
     private JobRichOperator jobRichOperator;
-
 
     private List<AbstractJobExecutor> executors = new ArrayList<>(EScheduleType.values().length);
 
@@ -83,7 +82,7 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
      * key2: scheduleType
      */
     public Map<String, Map<Integer, QueueInfo>> getAllNodesJobQueueInfo() {
-        List<String> allNodeAddress = batchJobDao.getAllNodeAddress();
+        List<String> allNodeAddress = scheduleJobDao.getAllNodeAddress();
         Twins<String, String> cycTime = jobRichOperator.getCycTimeLimit();
         Map<String, Map<Integer, QueueInfo>> allNodeJobInfo = Maps.newHashMap();
         for (String nodeAddress : allNodeAddress) {
@@ -93,7 +92,7 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
             allNodeJobInfo.computeIfAbsent(nodeAddress, na -> {
                 Map<Integer, QueueInfo> nodeJobInfo = Maps.newHashMap();
                 executors.forEach(executor -> nodeJobInfo.computeIfAbsent(executor.getScheduleType(), k -> {
-                    int queueSize = batchJobDao.countTasksByCycTimeTypeAndAddress(nodeAddress, executor.getScheduleType(), cycTime.getKey(), cycTime.getType());
+                    int queueSize = scheduleJobDao.countTasksByCycTimeTypeAndAddress(nodeAddress, executor.getScheduleType(), cycTime.getKey(), cycTime.getType());
                     QueueInfo queueInfo = new QueueInfo();
                     queueInfo.setSize(queueSize);
                     return queueInfo;

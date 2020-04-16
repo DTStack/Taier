@@ -4,7 +4,7 @@ import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.hash.ShardData;
 import com.dtstack.engine.dao.EngineJobCacheDao;
-import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.resource.ComputeResourceType;
 import com.dtstack.engine.master.taskdealer.TaskStatusDealer;
