@@ -257,11 +257,10 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                     logger.error("update job {}  status happens error:", batchJob.getJobId(), ex);
                 }
             } finally {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("========= scheduleType:{} take job {} from queue，before queueSize:{}, blocked:{}  tail:{} checkRunInfo:{} =========",
-                            getScheduleType(), Objects.isNull(batchJob) ? "" : batchJob.getJobId(),
-                            jopPriorityQueue.getQueueSize(), jopPriorityQueue.isBlocked(), jopPriorityQueue.resetTail(), JSONObject.toJSONString(checkRunInfo));
-                }
+                logger.warn("========= scheduleType:{} take job {} from queue，before queueSize:{}, blocked:{}  tail:{} checkRunInfo:{} =========",
+                        getScheduleType(), Objects.isNull(batchJob) ? "" : batchJob.getJobId(),
+                        jopPriorityQueue.getQueueSize(), jopPriorityQueue.isBlocked(), jopPriorityQueue.resetTail(), JSONObject.toJSONString(checkRunInfo));
+
             }
         }
     }
