@@ -188,18 +188,13 @@ public class ActionService {
                 scheduleJobDao.insert(scheduleJob);
                 result = true;
             }else{
-                result = RdosTaskStatus.canStartAgain(scheduleJob.getStatus());
+                result = RdosTaskStatus.canStart(scheduleJob.getStatus());
                 if (result && ComputeType.BATCH.getType().equals(computerType)) {
                     engineJobRetryDao.removeByJobId(jobId);
                 }
-
                 if(result && !RdosTaskStatus.ENGINEACCEPTED.getStatus().equals(scheduleJob.getStatus()) ){
-                    int oldStatus = scheduleJob.getStatus();
-                    Integer update = scheduleJobDao.updateTaskStatusCompareOld(scheduleJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus(),oldStatus, paramActionExt.getName());
-                    logger.info("jobId:{} update job status:{}.", jobId, RdosTaskStatus.ENGINEACCEPTED.getStatus());
-                    if (update == null || update != 1){
-                        result = false;
-                    }
+                    scheduleJobDao.updateJobStatus(scheduleJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus());
+                    logger.info("jobId:{} update job status:{}.", scheduleJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus());
                 }
             }
             if (result && ComputeType.BATCH.getType().equals(computerType)){
