@@ -131,7 +131,6 @@ class QueueManage extends React.Component<any, any> {
                 const data = res.data;
                 this.setState({
                     nodeList: data || []
-                    // node: data && data.length ? data[0] : undefined
                 }, this.getClusterDetail.bind(this))
             }
         })
@@ -194,7 +193,6 @@ class QueueManage extends React.Component<any, any> {
                 jobStage: jobStage,
                 clusterName: cluster.clusterName,
                 engineType: record.engineType,
-                groupName: record.groupName,
                 jobResource: record.jobResource
             }
         });
@@ -221,10 +219,8 @@ class QueueManage extends React.Component<any, any> {
             </div>,
             async onOk () {
                 const res = await Api.killAllTask({
-                    engineType: record.engineType,
                     jobResource: record.jobResource,
-                    nodeAddress: node,
-                    groupName: record.groupName
+                    nodeAddress: node
                 });
                 if (res.code === 1) {
                     message.success('杀死全部成功！');
@@ -244,7 +240,7 @@ class QueueManage extends React.Component<any, any> {
         return [
             {
                 title: '计算类型',
-                dataIndex: 'engineType',
+                dataIndex: 'jobResource',
                 render (text: any, record: any) {
                     return colText(text, record, JobStage.Queueing);
                 }
