@@ -1,8 +1,6 @@
 import * as React from 'react';
 import { Row, Col, Select, Button, Card, Form, Tabs, Table, Input, message } from 'antd';
 import Api from '../../api/console';
-import { connect } from 'react-redux';
-import { getTenantList } from '../../actions/console'
 import { ENGIN_TYPE_TEXT } from '../../consts';
 import { isHadoopEngine, isTiDBEngine } from '../../consts/clusterFunc';
 import BindCommModal from '../../components/bindCommModal';
@@ -14,20 +12,6 @@ const Option = Select.Option;
 const TabPane = Tabs.TabPane;
 const Search = Input.Search;
 const PAGESIZE = 20;
-
-function mapStateToProps (state: any) {
-    return {
-        consoleUser: state.consoleUser
-    }
-}
-function mapDispatchToProps (dispatch: any) {
-    return {
-        getTenantList () {
-            dispatch(getTenantList())
-        }
-    }
-}
-@(connect(mapStateToProps, mapDispatchToProps) as any)
 
 class ResourceManage extends React.Component<any, any> {
     state: any = {
@@ -56,7 +40,6 @@ class ResourceManage extends React.Component<any, any> {
     private requestEnd: boolean = true; // 请求结束
 
     componentDidMount () {
-        this.props.getTenantList(); // 租户列表
         this.initList()
     }
     searchTenant = () => {
@@ -250,7 +233,6 @@ class ResourceManage extends React.Component<any, any> {
         const otherColumns = this.initOtherColumns()
         const { tableData, queryParams, total, loading, engineList, clusterList,
             tenantModal, queueModal, modalKey, editModalKey } = this.state;
-        const { tenantList } = this.props.consoleUser;
         const pagination: any = {
             current: queryParams.currentPage,
             pageSize: PAGESIZE,
@@ -352,7 +334,6 @@ class ResourceManage extends React.Component<any, any> {
                     key={editModalKey}
                     title='绑定新租户'
                     visible={tenantModal}
-                    tenantList={tenantList}
                     clusterList={clusterList}
                     isBindTenant={true}
                     onCancel={() => { this.setState({ tenantModal: false }) }}
@@ -363,7 +344,6 @@ class ResourceManage extends React.Component<any, any> {
                     title='切换队列'
                     visible={queueModal}
                     isBindTenant={false}
-                    tenantList={tenantList}
                     clusterList={clusterList}
                     tenantInfo={this.state.tenantInfo}
                     clusterId={queryParams.clusterId}
