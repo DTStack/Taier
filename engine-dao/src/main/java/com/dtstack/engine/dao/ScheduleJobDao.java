@@ -189,6 +189,8 @@ public interface ScheduleJobDao {
 
     Integer countJobByCyctimeAndJobName(@Param("preCycTime") String preCycTime, @Param("preJobName") String preJobName, @Param("scheduleType") Integer scheduleType);
 
+    List<ScheduleJob> listJobsByTaskIdAndApptype(@Param("taskIds") List<Long> taskIds,@Param("appType") Integer appType);
+
     void deleteByJobKey(@Param("jobKeyList") List<String> jobKeyList);
 
     List<String> getAllNodeAddress();
