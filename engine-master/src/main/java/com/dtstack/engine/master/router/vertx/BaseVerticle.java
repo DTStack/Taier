@@ -36,6 +36,8 @@ public class BaseVerticle {
 		HttpServerRequest httpServerRequest = routingContext.request();
 		String path = httpServerRequest.path();
 		String[] paths = path.split("/");
+		String rbody = routingContext.getBodyAsString("UTF-8");
+		LOGGER.info("receive http request:{}:{}",path,rbody);
 		if (paths.length < 2) {
 			throw new Exception("url path error,please check");
 		}
