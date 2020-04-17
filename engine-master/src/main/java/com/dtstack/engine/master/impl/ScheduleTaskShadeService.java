@@ -93,6 +93,22 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
     }
 
     /**
+     * 根据任务类型查询已提交到task服务的任务数
+     * @param tenantId
+     * @param dtuicTenantId
+     * @param projectId
+     * @param appType
+     * @param taskTypes
+     * @return
+     */
+    public Map<String ,Object> countTaskByType(@Param("tenantId") Long tenantId,@Param("dtuicTenantId") Long dtuicTenantId,
+                                               @Param("projectId") Long projectId, @Param("appType") Integer appType,
+                                               @Param("taskTypes") List<Integer> taskTypes){
+        return scheduleTaskShadeDao.countTaskByType(tenantId,dtuicTenantId,projectId,appType,taskTypes);
+    }
+
+
+    /**
      * 根据任务id获取对应的taskShade
      * @param taskIds
      * @return

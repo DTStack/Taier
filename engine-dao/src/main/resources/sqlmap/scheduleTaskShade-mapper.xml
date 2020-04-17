@@ -515,6 +515,28 @@
         and if(is_publish_to_produce = 0, is_deleted = 0,1=1) and flow_id = 0
     </select>
 
+    <select id="countTaskByType" resultType="java.util.Map">
+        select
+        count(1) as deployCount
+        from
+        schedule_task_shade
+        where
+        tenant_id = #{tenantId}
+        and
+        dtuic_tenant_id = #{dtuicTenantId}
+        and
+        project_id = #{projectId}
+        and
+        app_type = #{appType}
+        <if test="taskTypes != null and taskTypes.size() > 0 ">
+            and task_type in
+            <foreach collection="taskTypes" separator="," open="(" close=")" item="taskType">
+                #{taskType}
+            </foreach>
+        </if>
+    </select>
+
+
     <update id="updatePublishStatus" parameterType="java.util.List">
         update schedule_task_shade set is_publish_to_produce = #{status}
         where id in
