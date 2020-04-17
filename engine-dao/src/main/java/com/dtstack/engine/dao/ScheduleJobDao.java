@@ -196,6 +196,8 @@ public interface ScheduleJobDao {
     List<ScheduleJob> syncQueryJob(PageQuery<ScheduleJobDTO> pageQuery);
 
 
+
+
     Integer insert(ScheduleJob scheduleJob);
 
     void jobFail(@Param("jobId") String jobId, @Param("status") int status, @Param("logInfo") String logInfo);
