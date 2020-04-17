@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.utils;
 
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.kerberos.KerberosConfigVerify;
+import com.dtstack.schedule.common.kerberos.KerberosConfigVerify;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;

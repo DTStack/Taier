@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.dtcenter.common.annotation.Forbidden;
+import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.QueueDao;
 import com.dtstack.engine.api.domain.ClusterResourceDescription;

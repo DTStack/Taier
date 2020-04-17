@@ -2,15 +2,7 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.common.annotation.Forbidden;
-import com.dtstack.dtcenter.common.constant.TaskStatusConstrant;
-import com.dtstack.dtcenter.common.enums.*;
-import com.dtstack.dtcenter.common.hadoop.HadoopConf;
-import com.dtstack.dtcenter.common.hadoop.HdfsOperator;
-import com.dtstack.dtcenter.common.pager.Sort;
-import com.dtstack.dtcenter.common.util.DateUtil;
-import com.dtstack.dtcenter.common.util.MathUtil;
-import com.dtstack.dtcenter.common.util.PublicUtil;
+import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.QueryJobDTO;
@@ -20,12 +12,24 @@ import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.common.constrant.TaskConstant;
+import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.master.enums.MultiEngineType;
+import com.dtstack.engine.master.utils.HadoopConf;
+import com.dtstack.engine.master.utils.HdfsOperator;
+import com.dtstack.engine.master.utils.PublicUtil;
+import com.dtstack.schedule.common.enums.Deleted;
+import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.LearningFrameType;
 import com.dtstack.engine.common.enums.QueryWorkFlowModel;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.schedule.common.enums.ScheduleEngineType;
+import com.dtstack.schedule.common.enums.Sort;
 import com.dtstack.engine.common.enums.TaskOperateType;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.DateUtil;
+import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.dao.ScheduleFillDataJobDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
@@ -100,7 +104,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
 
     private static final String DOWNLOAD_LOG = "/api/rdos/download/batch/batchDownload/downloadJobLog?jobId=%s&taskType=%s";
 
-    private static final List<Integer> SPECIAL_TASK_TYPES = Lists.newArrayList(EJobType.WORK_FLOW.getVal(), EJobType.ALGORITHM_LAB.getVal());
+    private static final List<Integer> SPECIAL_TASK_TYPES = Lists.newArrayList(EScheduleJobType.WORK_FLOW.getVal(), EScheduleJobType.ALGORITHM_LAB.getVal());
 
     @Autowired
     private ScheduleJobDao scheduleJobDao;
@@ -159,8 +163,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     @Autowired
     private PluginWrapper pluginWrapper;
 
-    private final static List<Integer> FINISH_STATUS = Lists.newArrayList(TaskStatus.FINISHED.getStatus(), TaskStatus.MANUALSUCCESS.getStatus(), TaskStatus.CANCELING.getStatus(), TaskStatus.CANCELED.getStatus());
-    private final static List<Integer> FAILED_STATUS = Lists.newArrayList(TaskStatus.FAILED.getStatus(), TaskStatus.SUBMITFAILD.getStatus(), TaskStatus.KILLED.getStatus());
+    private final static List<Integer> FINISH_STATUS = Lists.newArrayList(RdosTaskStatus.FINISHED.getStatus(), RdosTaskStatus.MANUALSUCCESS.getStatus(), RdosTaskStatus.CANCELLING.getStatus(), RdosTaskStatus.CANCELED.getStatus());
+    private final static List<Integer> FAILED_STATUS = Lists.newArrayList(RdosTaskStatus.FAILED.getStatus(), RdosTaskStatus.SUBMITFAILD.getStatus(), RdosTaskStatus.KILLED.getStatus());
 
     private static final Map<Integer, String> PY_VERSION_MAP = new HashMap<>(2);
 
@@ -205,19 +209,19 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         if (Objects.isNull(status) || Objects.isNull(dtuicTenantId)) {
             return null;
         }
-        List<Integer> statusCode = TaskStatusConstrant.STATUS.get(status);
+        List<Integer> statusCode = RdosTaskStatus.getCollectionStatus(status);
         if (CollectionUtils.isEmpty(statusCode)) {
             return null;
         }
-        List<Map<String, Object>> data = scheduleJobDao.countByStatusAndType(EScheduleType.NORMAL_SCHEDULE.getType(), DateUtil.getFormattedDate(DateUtil.calTodayMills(), "yyyyMMddHHmmss"),
-                DateUtil.getFormattedDate(DateUtil.TOMORROW_ZERO(), "yyyyMMddHHmmss"), tenantId, projectId, appType, dtuicTenantId, statusCode);
+        List<Map<String, Object>> data = scheduleJobDao.countByStatusAndType(EScheduleType.NORMAL_SCHEDULE.getType(), DateUtil.getUnStandardFormattedDate(DateUtil.calTodayMills()),
+                DateUtil.getUnStandardFormattedDate(DateUtil.TOMORROW_ZERO()), tenantId, projectId, appType, dtuicTenantId, statusCode);
         int count = 0;
         for (Map<String, Object> info : data) {
             count += MathUtil.getIntegerVal(info.get("count"));
         }
         PageQuery pageQuery = new PageQuery(pageIndex, pageSize);
-        List<Map<String, Object>> dataMaps = scheduleJobDao.selectStatusAndType(EScheduleType.NORMAL_SCHEDULE.getType(), DateUtil.getFormattedDate(DateUtil.calTodayMills(), "yyyyMMddHHmmss"),
-                DateUtil.getFormattedDate(DateUtil.TOMORROW_ZERO(), "yyyyMMddHHmmss"), tenantId, projectId, appType, dtuicTenantId, statusCode, pageQuery.getStart(), pageQuery.getPageSize());
+        List<Map<String, Object>> dataMaps = scheduleJobDao.selectStatusAndType(EScheduleType.NORMAL_SCHEDULE.getType(), DateUtil.getUnStandardFormattedDate(DateUtil.calTodayMills()),
+                DateUtil.getUnStandardFormattedDate(DateUtil.TOMORROW_ZERO()), tenantId, projectId, appType, dtuicTenantId, statusCode, pageQuery.getStart(), pageQuery.getPageSize());
         return new PageResult(dataMaps, count, pageQuery);
     }
 
@@ -226,11 +230,11 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      */
     public JSONObject getStatusCount(@Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId) {
         int all = 0;
-        JSONObject m = new JSONObject(TaskStatusConstrant.STATUS.size());
-        List<Map<String, Object>> data = scheduleJobDao.countByStatusAndType(EScheduleType.NORMAL_SCHEDULE.getType(), DateUtil.getFormattedDate(DateUtil.calTodayMills(), "yyyyMMddHHmmss"),
-                DateUtil.getFormattedDate(DateUtil.TOMORROW_ZERO(), "yyyyMMddHHmmss"), tenantId, projectId, appType,dtuicTenantId,null);
-        for (Integer code : TaskStatusConstrant.STATUS.keySet()) {
-            List<Integer> status = TaskStatusConstrant.STATUS.get(code);
+        JSONObject m = new JSONObject(RdosTaskStatus.getCollectionStatus().size());
+        List<Map<String, Object>> data = scheduleJobDao.countByStatusAndType(EScheduleType.NORMAL_SCHEDULE.getType(), DateUtil.getUnStandardFormattedDate(DateUtil.calTodayMills()),
+                DateUtil.getUnStandardFormattedDate(DateUtil.TOMORROW_ZERO()), tenantId, projectId, appType,dtuicTenantId,null);
+        for (Integer code : RdosTaskStatus.getCollectionStatus().keySet()) {
+            List<Integer> status = RdosTaskStatus.getCollectionStatus(code);
             int count = 0;
             for (Map<String, Object> info : data) {
                 if (status.contains(MathUtil.getIntegerVal(info.get("status")))) {
@@ -238,7 +242,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                 }
             }
             all += count;
-            TaskStatus taskStatus = TaskStatus.getTaskStatusByVal(code);
+            RdosTaskStatus taskStatus = RdosTaskStatus.getTaskStatus(code);
             m.put(taskStatus.name(), count);
         }
 
@@ -322,8 +326,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     public ScheduleJobChartVO getJobGraph(@Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId) {
 
         List<Integer> statusList = new ArrayList<>(4);
-        List<Integer> finishedList = TaskStatusConstrant.STATUS.get(TaskStatus.FINISHED.getStatus());
-        List<Integer> failedList = TaskStatusConstrant.STATUS.get(TaskStatus.FAILED.getStatus());
+        List<Integer> finishedList = RdosTaskStatus.getCollectionStatus(RdosTaskStatus.FINISHED.getStatus());
+        List<Integer> failedList = RdosTaskStatus.getCollectionStatus(RdosTaskStatus.FAILED.getStatus());
         statusList.addAll(finishedList);
         statusList.addAll(failedList);
         List<Object> todayJobList = finishData(scheduleJobDao.listTodayJobs(statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
@@ -345,9 +349,9 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      */
     public ChartDataVO getScienceJobGraph(@Param("projectId") long projectId, @Param("tenantId") Long tenantId,
                                           @Param("taskType") Integer taskType) {
-        List<Integer> finishedList = Lists.newArrayList(TaskStatus.FINISHED.getStatus());
-        List<Integer> failedList = Lists.newArrayList(TaskStatus.FAILED.getStatus(), TaskStatus.SUBMITFAILD.getStatus());
-        List<Integer> deployList = Lists.newArrayList(TaskStatus.UNSUBMIT.getStatus(), TaskStatus.SUBMITTING.getStatus(), TaskStatus.WAITENGINE.getStatus());
+        List<Integer> finishedList = Lists.newArrayList(RdosTaskStatus.FINISHED.getStatus());
+        List<Integer> failedList = Lists.newArrayList(RdosTaskStatus.FAILED.getStatus(), RdosTaskStatus.SUBMITFAILD.getStatus());
+        List<Integer> deployList = Lists.newArrayList(RdosTaskStatus.UNSUBMIT.getStatus(), RdosTaskStatus.SUBMITTING.getStatus(), RdosTaskStatus.WAITENGINE.getStatus());
         List<Map<String, Object>> successCnt = scheduleJobDao.listThirtyDayJobs(finishedList, EScheduleType.NORMAL_SCHEDULE.getType(), taskType, projectId, tenantId);
         List<Map<String, Object>> failCnt = scheduleJobDao.listThirtyDayJobs(failedList, EScheduleType.NORMAL_SCHEDULE.getType(), taskType, projectId, tenantId);
         List<Map<String, Object>> deployCnt = scheduleJobDao.listThirtyDayJobs(deployList, EScheduleType.NORMAL_SCHEDULE.getType(), taskType, projectId, tenantId);
@@ -512,7 +516,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     private void dealFlowWorkJobs(List<ScheduleJobVO> vos, Map<Long, ScheduleTaskShade> batchTaskShadeMap) throws Exception {
         for (ScheduleJobVO vo : vos) {
             Integer type = batchTaskShadeMap.get(vo.getTaskId()).getTaskType();
-            if (EJobType.WORK_FLOW.getVal().intValue() == type) {
+            if (EScheduleJobType.WORK_FLOW.getVal().intValue() == type) {
                 String jobId = vo.getJobId();
                 List<ScheduleJob> subJobs = scheduleJobDao.getSubJobsByFlowIds(Lists.newArrayList(jobId));
                 List<ScheduleTaskForFillDataDTO> batchTaskShadeList = Lists.newArrayList();
@@ -544,11 +548,11 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         ScheduleJobVO batchJobVO = transfer.get(0);
 
         if (scheduleJob != null) {
-            if (EJobType.WORK_FLOW.getVal().intValue() == batchJobVO.getBatchTask().getTaskType()) {
+            if (EScheduleJobType.WORK_FLOW.getVal().intValue() == batchJobVO.getBatchTask().getTaskType()) {
                 vo.setSplitFiledFlag(true);
                 //除去任务类型中的工作流类型的条件，用于展示下游节点
                 if (StringUtils.isNotBlank(vo.getTaskType())) {
-                    vo.setTaskType(vo.getTaskType().replace(String.valueOf(EJobType.WORK_FLOW.getVal()), ""));
+                    vo.setTaskType(vo.getTaskType().replace(String.valueOf(EScheduleJobType.WORK_FLOW.getVal()), ""));
                 }
                 ScheduleJobDTO batchJobDTO = createQuery(vo);
                 batchJobDTO.setPageQuery(false);
@@ -687,9 +691,9 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         Map<String, Long> attachment = Maps.newHashMap();
         long totalNum = 0;
 
-        Map<Integer, List<Integer>> statusMap = TaskStatusConstrant.STATUS_FAILED_DETAIL;
+        Map<Integer, List<Integer>> statusMap = RdosTaskStatus.getStatusFailedDetail();
         for (Map.Entry<Integer, List<Integer>> entry : statusMap.entrySet()) {
-            String statusName = TaskStatusConstrant.getCode(entry.getKey());
+            String statusName = RdosTaskStatus.getCode(entry.getKey());
             List<Integer> statuses = entry.getValue();
             long num = 0;
             for (Map<Integer, Long> statusCountMap : statusCount) {
@@ -709,9 +713,9 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     private Map<Integer, List<Integer>> getStatusMap(Boolean splitFiledFlag) {
         Map<Integer, List<Integer>> statusMap;
         if (Objects.nonNull(splitFiledFlag) && splitFiledFlag) {
-            statusMap = TaskStatusConstrant.STATUS_FAILED_DETAIL;
+            statusMap = RdosTaskStatus.getStatusFailedDetail();
         } else {
-            statusMap = TaskStatusConstrant.STATUS;
+            statusMap = RdosTaskStatus.getCollectionStatus();
         }
         return statusMap;
     }
@@ -811,7 +815,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         }
 
         //只有工作流 需要查询子节点
-        if (batchJobDTO.getTaskTypes().contains(EJobType.WORK_FLOW.getType())) {
+        if (batchJobDTO.getTaskTypes().contains(EScheduleJobType.WORK_FLOW.getType())) {
             batchJobDTO.setNeedQuerySonNode(true);
         }
         //分页
@@ -905,8 +909,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                 }
 
                 runDetail.setExecTime(execTime);
-                runDetail.setStartTime(DateUtil.getFormattedDate(((Timestamp) execStartTimeObj).getTime(), "yyyy-MM-dd HH:mm:ss"));
-                runDetail.setEndTime(DateUtil.getFormattedDate(((Timestamp) ExecEndTimeObj).getTime(), "yyyy-MM-dd HH:mm:ss"));
+                runDetail.setStartTime(DateUtil.getStandardFormattedDate(((Timestamp) execStartTimeObj).getTime()));
+                runDetail.setEndTime(DateUtil.getStandardFormattedDate(((Timestamp) ExecEndTimeObj).getTime()));
 
                 ScheduleTaskShade jobTask = batchTaskShadeService.getBatchTaskById(taskId, appType);
                 runDetail.setTaskName(jobTask.getName());
@@ -932,7 +936,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
 
     @Forbidden
     public Long startJob(ScheduleJob scheduleJob) throws Exception {
-        updateStatusByJobId(scheduleJob.getJobId(), TaskStatus.SUBMITTING.getStatus());
+        updateStatusByJobId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus());
         sendTaskStartTrigger(scheduleJob);
         return scheduleJob.getId();
     }
@@ -964,18 +968,18 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         }
 
         //判断是不是虚节点---虚节点直接完成
-        if (batchTask.getTaskType().equals(EJobType.VIRTUAL.getVal())) {
-            updateStatusByJobId(scheduleJob.getJobId(), TaskStatus.FINISHED.getStatus());
+        if (batchTask.getTaskType().equals(EScheduleJobType.VIRTUAL.getType())) {
+            updateStatusByJobId(scheduleJob.getJobId(), RdosTaskStatus.FINISHED.getStatus());
             return;
         }
 
         //工作流节点保持提交中状态,状态更新见BatchFlowWorkJobService
-        if (batchTask.getTaskType().equals(EJobType.WORK_FLOW.getVal()) ||
-                batchTask.getTaskType().equals(EJobType.ALGORITHM_LAB.getVal())) {
+        if (batchTask.getTaskType().equals(EScheduleJobType.WORK_FLOW.getVal()) ||
+                batchTask.getTaskType().equals(EScheduleJobType.ALGORITHM_LAB.getVal())) {
             ScheduleJob updateJob = new ScheduleJob();
             updateJob.setJobId(scheduleJob.getJobId());
             updateJob.setAppType(scheduleJob.getAppType());
-            updateJob.setStatus(TaskStatus.SUBMITTING.getStatus());
+            updateJob.setStatus(RdosTaskStatus.SUBMITTING.getStatus());
             updateJob.setExecStartTime(new Timestamp(System.currentTimeMillis()));
             updateJob.setGmtModified(new Timestamp(System.currentTimeMillis()));
             scheduleJobDao.updateStatusWithExecTime(updateJob);
@@ -1028,12 +1032,12 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             }
         }
         //额外信息为空 标记任务为失败
-        this.updateStatusAndLogInfoById(scheduleJob.getId(), TaskStatus.FAILED.getStatus(), "任务运行信息为空");
+        this.updateStatusAndLogInfoById(scheduleJob.getId(), RdosTaskStatus.FAILED.getStatus(), "任务运行信息为空");
         logger.error(" job  {} run fail with info is null",scheduleJob.getJobId());
     }
 
     private void addUserNameToImpalaOrHive(JSONObject pluginInfoJson, String userName, String password, String dbName, String engineType) {
-        if (pluginInfoJson == null || org.apache.commons.lang3.StringUtils.isBlank(userName) || (!EngineType.IMPALA.getEngineName().equals(engineType) && !EngineType.HIVE.getEngineName().equals(engineType))) {
+        if (pluginInfoJson == null || org.apache.commons.lang3.StringUtils.isBlank(userName) || (!ScheduleEngineType.IMPALA.getEngineName().equals(engineType) && !ScheduleEngineType.HIVE.getEngineName().equals(engineType))) {
             return;
         }
 
@@ -1091,9 +1095,9 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         if ("python".equals(appType)) {
             int pyVersion = exeArgsJson.getIntValue("--python-version");
             if (pyVersion == 0) {
-                exeArgsJson.put("--app-type", EngineType.Python3.getVal());
+                exeArgsJson.put("--app-type", ScheduleEngineType.Python3.getVal());
             } else {
-                exeArgsJson.put("--app-type", EngineType.getByPythonVersion(pyVersion).getEngineName());
+                exeArgsJson.put("--app-type", ScheduleEngineType.getByPythonVersion(pyVersion).getEngineName());
             }
         } else if (appType.equals(LearningFrameType.TensorFlow.getName()) ||
                 appType.equals(LearningFrameType.MXNet.getName())) {
@@ -1134,10 +1138,10 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             throw new RdosDefineException(ErrorCode.JOB_CAN_NOT_STOP);
         }
 
-        if (status.equals(TaskStatus.UNSUBMIT.getStatus())) {
+        if (status.equals(RdosTaskStatus.UNSUBMIT.getStatus())) {
             stopSubmittedJob(Lists.newArrayList(scheduleJob), dtuicTenantId, appType);
             return stopUnsubmitJob(scheduleJob);
-        } else if (TaskStatusConstrant.RUNNING_STATUS.contains(status) || TaskStatusConstrant.WAIT_STATUS.contains(status)) {
+        } else if (RdosTaskStatus.RUNNING_STATUS.contains(status) || RdosTaskStatus.WAIT_STATUS.contains(status)) {
             return stopSubmittedJob(Lists.newArrayList(scheduleJob), dtuicTenantId, appType);
         } else {
             throw new RdosDefineException(ErrorCode.JOB_CAN_NOT_STOP);
@@ -1151,10 +1155,10 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             return;
         }
         String likeName = fillDataJobName + "-%";
-        scheduleJobDao.stopUnsubmitJob(likeName, projectId, appType, TaskStatus.CANCELED.getStatus());
+        scheduleJobDao.stopUnsubmitJob(likeName, projectId, appType, RdosTaskStatus.CANCELED.getStatus());
         //发送停止消息到engine
         //查询出所有需要停止的任务
-        List<ScheduleJob> needStopIdList = scheduleJobDao.listNeedStopFillDataJob(likeName, TaskStatus.getCanStopStatus(), projectId, appType);
+        List<ScheduleJob> needStopIdList = scheduleJobDao.listNeedStopFillDataJob(likeName, RdosTaskStatus.getCanStopStatus(), projectId, appType);
         //发送停止任务消息到engine
         this.stopSubmittedJob(needStopIdList, dtuicTenantId, appType);
     }
@@ -1189,7 +1193,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                 //除了未提交的任务--其他都是发消息到engine端停止
                 if (checkJobCanStop(job.getStatus())) {
                     stopCount++;
-                    if (TaskStatus.UNSUBMIT.getStatus().equals(job.getStatus()) || SPECIAL_TASK_TYPES.contains(job.getTaskType())) {
+                    if (RdosTaskStatus.UNSUBMIT.getStatus().equals(job.getStatus()) || SPECIAL_TASK_TYPES.contains(job.getTaskType())) {
                         unSubmitJob.add(job.getId());
                     }
                     //engineto同步状态可能会覆盖 所以都需要提交engine 更新
@@ -1203,7 +1207,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             }
             //更新未提交任务状态
             if (CollectionUtils.isNotEmpty(unSubmitJob)) {
-                scheduleJobDao.updateJobStatusByIds(TaskStatus.CANCELED.getStatus(), unSubmitJob);
+                scheduleJobDao.updateJobStatusByIds(RdosTaskStatus.CANCELED.getStatus(), unSubmitJob);
             }
         }
         return stopCount;
@@ -1212,7 +1216,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     @Forbidden
     public String stopUnsubmitJob(ScheduleJob scheduleJob) {
         //还未提交的只需要将本地的任务设置为取消状态即可
-        updateStatusByJobId(scheduleJob.getJobId(), TaskStatus.CANCELED.getStatus());
+        updateStatusByJobId(scheduleJob.getJobId(), RdosTaskStatus.CANCELED.getStatus());
         return "success";
     }
 
@@ -1244,23 +1248,23 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                 batchTask = deleteTask.get(0);
             }
             Integer status = scheduleJob.getStatus();
-            if (!TaskStatus.getCanStopStatus().contains(status)) {
+            if (!RdosTaskStatus.getCanStopStatus().contains(status)) {
                 continue;
             }
 
             JSONObject params = new JSONObject();
-            params.put("engineType", EngineType.getEngineName(batchTask.getEngineType()));
+            params.put("engineType", ScheduleEngineType.getEngineName(batchTask.getEngineType()));
             params.put("taskId", scheduleJob.getJobId());
             params.put("computeType", batchTask.getComputeType());
             params.put("taskType", batchTask.getTaskType());
             //dtuicTenantId
             params.put("tenantId", dtuicTenantId);
-            if (batchTask.getTaskType().equals(EJobType.DEEP_LEARNING.getVal())) {
-                params.put("engineType", EngineType.Learning.getEngineName());
-                params.put("taskType", EJobType.SPARK_PYTHON.getVal());
-            } else if (batchTask.getTaskType().equals(EJobType.PYTHON.getVal()) || batchTask.getTaskType().equals(EJobType.SHELL.getVal())) {
-                params.put("engineType", EngineType.DtScript.getEngineName());
-                params.put("taskType", EJobType.SPARK_PYTHON.getVal());
+            if (batchTask.getTaskType().equals(EScheduleJobType.DEEP_LEARNING.getVal())) {
+                params.put("engineType", ScheduleEngineType.Learning.getEngineName());
+                params.put("taskType", EScheduleJobType.SPARK_PYTHON.getVal());
+            } else if (batchTask.getTaskType().equals(EScheduleJobType.PYTHON.getVal()) || batchTask.getTaskType().equals(EScheduleJobType.SHELL.getVal())) {
+                params.put("engineType", ScheduleEngineType.DtScript.getEngineName());
+                params.put("taskType", EScheduleJobType.SPARK_PYTHON.getVal());
             }
 
             jsonArray.add(params);
@@ -1355,7 +1359,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             }
 
             //batchEngineJobService.saveOrUpdateEngineJob(scheduleBatchJob.getBatchEngineJob(), null);
-//            batchEngineJobService.resetJobForRestart(scheduleBatchJob.getBatchEngineJob().getId(), TaskStatus.UNSUBMIT.getStatus(), scheduleBatchJob.getBatchEngineJob().getVersionId());
+//            batchEngineJobService.resetJobForRestart(scheduleBatchJob.getBatchEngineJob().getId(), RdosTaskStatus.UNSUBMIT.getStatus(), scheduleBatchJob.getBatchEngineJob().getVersionId());
         }
     }
 
@@ -1572,7 +1576,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         }
 
         Map<Integer, Long> resultMap = new HashMap<>();
-        for (Map.Entry<Integer, List<Integer>> entry : TaskStatusConstrant.STATUS.entrySet()) {
+        for (Map.Entry<Integer, List<Integer>> entry : RdosTaskStatus.getCollectionStatus().entrySet()) {
             int showStatus = entry.getKey();
             long sum = 0;
             for (Integer value : entry.getValue()) {
@@ -1582,14 +1586,14 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             resultMap.put(showStatus, sum);
         }
 
-        Long unSubmit = resultMap.get(TaskStatus.UNSUBMIT.getStatus()) == null ? 0L : resultMap.get(TaskStatus.UNSUBMIT.getStatus());
-        Long running = resultMap.get(TaskStatus.RUNNING.getStatus()) == null ? 0L : resultMap.get(TaskStatus.RUNNING.getStatus());
-        Long finished = resultMap.get(TaskStatus.FINISHED.getStatus()) == null ? 0L : resultMap.get(TaskStatus.FINISHED.getStatus());
-        Long failed = resultMap.get(TaskStatus.FAILED.getStatus()) == null ? 0L : resultMap.get(TaskStatus.FAILED.getStatus());
-        Long waitEngine = resultMap.get(TaskStatus.WAITENGINE.getStatus()) == null ? 0L : resultMap.get(TaskStatus.WAITENGINE.getStatus());
-        Long submitting = resultMap.get(TaskStatus.SUBMITTING.getStatus()) == null ? 0L : resultMap.get(TaskStatus.SUBMITTING.getStatus());
-        Long canceled = resultMap.get(TaskStatus.CANCELED.getStatus()) == null ? 0L : resultMap.get(TaskStatus.CANCELED.getStatus());
-        Long frozen = resultMap.get(TaskStatus.FROZEN.getStatus()) == null ? 0L : resultMap.get(TaskStatus.FROZEN.getStatus());
+        Long unSubmit = resultMap.get(RdosTaskStatus.UNSUBMIT.getStatus()) == null ? 0L : resultMap.get(RdosTaskStatus.UNSUBMIT.getStatus());
+        Long running = resultMap.get(RdosTaskStatus.RUNNING.getStatus()) == null ? 0L : resultMap.get(RdosTaskStatus.RUNNING.getStatus());
+        Long finished = resultMap.get(RdosTaskStatus.FINISHED.getStatus()) == null ? 0L : resultMap.get(RdosTaskStatus.FINISHED.getStatus());
+        Long failed = resultMap.get(RdosTaskStatus.FAILED.getStatus()) == null ? 0L : resultMap.get(RdosTaskStatus.FAILED.getStatus());
+        Long waitEngine = resultMap.get(RdosTaskStatus.WAITENGINE.getStatus()) == null ? 0L : resultMap.get(RdosTaskStatus.WAITENGINE.getStatus());
+        Long submitting = resultMap.get(RdosTaskStatus.SUBMITTING.getStatus()) == null ? 0L : resultMap.get(RdosTaskStatus.SUBMITTING.getStatus());
+        Long canceled = resultMap.get(RdosTaskStatus.CANCELED.getStatus()) == null ? 0L : resultMap.get(RdosTaskStatus.CANCELED.getStatus());
+        Long frozen = resultMap.get(RdosTaskStatus.FROZEN.getStatus()) == null ? 0L : resultMap.get(RdosTaskStatus.FROZEN.getStatus());
 
         preViewVO.setFinishedJobSum(finished);
         preViewVO.setAllJobSum(unSubmit + running + finished + failed + waitEngine + submitting + canceled + frozen);
@@ -1625,7 +1629,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             List<Integer> statues = new ArrayList<>();
             String[] statuses = vo.getJobStatuses().split(",");
             for (String status : statuses) {
-                List<Integer> statusList = TaskStatusConstrant.STATUS_FAILED_DETAIL.get(MathUtil.getIntegerVal(status));
+                List<Integer> statusList = RdosTaskStatus.getStatusFailedDetail().get(MathUtil.getIntegerVal(status));
                 statues.addAll(statusList);
             }
 
@@ -1653,7 +1657,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         ScheduleFillDataJobDetailVO scheduleFillDataJobDetailVO = new ScheduleFillDataJobDetailVO();
         scheduleFillDataJobDetailVO.setFillDataJobName(fillJobName);
 
-        batchJobDTO.setNeedQuerySonNode(CollectionUtils.isNotEmpty(batchJobDTO.getTaskTypes()) && batchJobDTO.getTaskTypes().contains(EJobType.WORK_FLOW.getVal()));
+        batchJobDTO.setNeedQuerySonNode(CollectionUtils.isNotEmpty(batchJobDTO.getTaskTypes()) && batchJobDTO.getTaskTypes().contains(EScheduleJobType.WORK_FLOW.getVal()));
         int totalCount = scheduleJobDao.generalCount(batchJobDTO);
         if (totalCount > 0) {
             List<ScheduleJob> scheduleJobs = scheduleJobDao.generalQuery(pageQuery);
@@ -1718,7 +1722,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             List<Integer> statues = new ArrayList<>();
             String[] statuses = vo.getJobStatuses().split(",");
             for (String status : statuses) {
-                List<Integer> statusList = TaskStatusConstrant.STATUS_FAILED_DETAIL.get(MathUtil.getIntegerVal(status));
+                List<Integer> statusList = RdosTaskStatus.getStatusFailedDetail().get(MathUtil.getIntegerVal(status));
                 statues.addAll(statusList);
             }
 
@@ -1793,13 +1797,13 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         vo.setSplitFiledFlag(true);
         //除去任务类型中的工作流类型的条件，用于展示下游节点
         if (StringUtils.isNotBlank(vo.getTaskType())) {
-            vo.setTaskType(vo.getTaskType().replace(String.valueOf(EJobType.WORK_FLOW.getVal()), ""));
+            vo.setTaskType(vo.getTaskType().replace(String.valueOf(EScheduleJobType.WORK_FLOW.getVal()), ""));
         }
         ScheduleJobDTO batchJobDTO = this.createQuery(vo);
         batchJobDTO.setFillDataJobName(fillJobName);
 
         if (scheduleJob != null) {
-            if (EJobType.WORK_FLOW.getVal().intValue() == fillDataRecord.getTaskType()) {
+            if (EScheduleJobType.WORK_FLOW.getVal().intValue() == fillDataRecord.getTaskType()) {
                 fillDataRecord.setRelatedRecords(getRelatedJobsForFillDataByQueryDTO(batchJobDTO, vo, jobId, engineJobMap, taskShadeMap));
             }
             return fillDataRecord;
@@ -1922,7 +1926,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             while (it.hasNext()) {
                 ScheduleFillDataJobDetailVO.FillDataRecord record = it.next();
                 Integer type = record.getTaskType();
-                if (EJobType.WORK_FLOW.getVal().intValue() == type) {
+                if (EScheduleJobType.WORK_FLOW.getVal().intValue() == type) {
                     String jobId = record.getJobId();
                     List<ScheduleJob> subJobs = scheduleJobDao.getSubJobsByFlowIds(Lists.newArrayList(jobId));
                     allSubJobs.addAll(subJobs);
@@ -2021,7 +2025,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         ScheduleTaskVO batchTaskVO = new ScheduleTaskVO();
 
         String exeTime = DateUtil.getTimeDifference(scheduleJob.getExecTime() == null ? 0L : scheduleJob.getExecTime() * 1000);
-        Integer showStatus = TaskStatusConstrant.getShowStatusWithoutStop(status);
+        Integer showStatus = RdosTaskStatus.getShowStatusWithoutStop(status);
         ScheduleFillDataJobDetailVO.FillDataRecord record = new ScheduleFillDataJobDetailVO.FillDataRecord(scheduleJob.getId(), bizDayVO, taskShade.getName(),
                 taskType, showStatus, cycTimeVO, exeStartTimeVO, exeTime, null);
 
@@ -2042,7 +2046,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         }
 
         //展开特定工作流子节点
-        if (EJobType.WORK_FLOW.getVal().equals(taskType) &&
+        if (EScheduleJobType.WORK_FLOW.getVal().equals(taskType) &&
                 CollectionUtils.isNotEmpty(flowJobIdList) &&
                 flowJobIdList.contains(scheduleJob.getJobId())) {
             record.setRelatedRecords(getOnlyRelatedJobsForFillData(scheduleJob.getJobId(), taskShadeMap));
@@ -2064,7 +2068,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     /**
      * 获取重跑的数据节点信息
      *
-     * @param isOnlyNextChild
      * @return
      */
     public List<RestartJobVO> getRestartChildJob(@Param("jobKey") String jobKey, @Param("taskId") Long parentTaskId, @Param("isOnlyNextChild") boolean isOnlyNextChild) {
@@ -2107,7 +2110,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                 continue;
             }
             Integer jobStatus = childScheduleJob.getStatus();
-            jobStatus = jobStatus == null ? TaskStatus.UNSUBMIT.getStatus() : jobStatus;
+            jobStatus = jobStatus == null ? RdosTaskStatus.UNSUBMIT.getStatus() : jobStatus;
 
             String taskName = jobRefTask == null ? null : jobRefTask.getName();
 
@@ -2175,7 +2178,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             return true;
         }
 
-        return TaskStatus.getCanStopStatus().contains(status);
+        return RdosTaskStatus.getCanStopStatus().contains(status);
     }
 
     private Integer parseSyncChannel(JSONObject syncJob) {
@@ -2225,24 +2228,24 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         try {
             // shell任务，创建脚本文件
             String fileName = null;
-            if (taskType.equals(EJobType.SHELL.getVal())) {
+            if (taskType.equals(EScheduleJobType.SHELL.getVal())) {
                 fileName = String.format("shell_%s_%s_%s_%s.sh", tenantId, projectId,
                         taskName, System.currentTimeMillis());
-            } else if (taskType.equals(EJobType.PYTHON.getVal()) ||
-                    taskType.equals(EJobType.NOTEBOOK.getVal())) {
+            } else if (taskType.equals(EScheduleJobType.PYTHON.getVal()) ||
+                    taskType.equals(EScheduleJobType.NOTEBOOK.getVal())) {
                 fileName = String.format("python_%s_%s_%s_%s.py", tenantId, projectId,
                         taskName, System.currentTimeMillis());
-            } else if (taskType.equals(EJobType.DEEP_LEARNING.getVal())) {
+            } else if (taskType.equals(EScheduleJobType.DEEP_LEARNING.getVal())) {
                 fileName = String.format("learning_%s_%s_%s_%s.py", tenantId, projectId,
                         taskName, System.currentTimeMillis());
-            } else if (taskType.equals(EJobType.SPARK_PYTHON.getVal())) {
+            } else if (taskType.equals(EScheduleJobType.SPARK_PYTHON.getVal())) {
                 fileName = String.format("pyspark_%s_%s_%s_%s.py", tenantId, projectId,
                         taskName, System.currentTimeMillis());
             }
 
             if (fileName != null) {
                 hdfsPath = env.getHdfsBatchPath() + fileName;
-                if (taskType.equals(EJobType.SHELL.getVal())) {
+                if (taskType.equals(EScheduleJobType.SHELL.getVal())) {
                     content = content.replaceAll("\r\n", System.getProperty("line.separator"));
                 }
                 HdfsOperator.uploadInputStreamToHdfs(HadoopConf.getConfiguration(dtuicTenantId), content.getBytes(), hdfsPath);
@@ -2486,7 +2489,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @return
      */
     public ScheduleJob getLastSuccessJob(@Param("taskId") Long taskId, @Param("time") Timestamp time) {
-        return scheduleJobDao.getByTaskIdAndStatusOrderByIdLimit(taskId, TaskStatus.FINISHED.getStatus(), time);
+        return scheduleJobDao.getByTaskIdAndStatusOrderByIdLimit(taskId, RdosTaskStatus.FINISHED.getStatus(), time);
     }
 
 
@@ -2503,9 +2506,9 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     public ScheduleServerLogVO setAlogrithmLabLog(@Param("status") Integer status, @Param("taskType") Integer taskType, @Param("jobId") String jobId,
                                                   @Param("info") String info, @Param("logVo") String logVo, @Param("appType") Integer appType) throws Exception {
         ScheduleServerLogVO scheduleServerLogVO = JSONObject.parseObject(logVo, ScheduleServerLogVO.class);
-        if (taskType.equals(EJobType.ALGORITHM_LAB.getVal())) {
-            if (TaskStatusConstrant.FAILED_STATUS.contains(status) ||
-                    TaskStatusConstrant.FINISH_STATUS.contains(status)) {
+        if (taskType.equals(EScheduleJobType.ALGORITHM_LAB.getVal())) {
+            if (RdosTaskStatus.FAILED_STATUS.contains(status) ||
+                    RdosTaskStatus.FINISH_STATUS.contains(status)) {
                 List<ScheduleJob> subJobs = scheduleJobDao.getSubJobsByFlowIds(Lists.newArrayList(jobId));
                 if (CollectionUtils.isNotEmpty(subJobs)) {
                     Map<String, String> subNodeDownloadLog = new HashMap<>(subJobs.size());
@@ -2523,7 +2526,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                         if (Objects.isNull(subTaskShade)) {
                             continue;
                         }
-                        if (!EJobType.VIRTUAL.getVal().equals(subTaskShade.getTaskType())) {
+                        if (EScheduleJobType.VIRTUAL.getType().intValue() != subTaskShade.getTaskType()) {
                             Long dtuicTenantId = subTaskShade.getDtuicTenantId();
                             if (dtuicTenantId != null) {
                                 subNodeDownloadLog.put(subTaskShade.getName(), String.format(DOWNLOAD_LOG, subJob.getJobId(), subTaskShade.getTaskType()));

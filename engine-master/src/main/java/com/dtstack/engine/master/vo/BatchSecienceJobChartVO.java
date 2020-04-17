@@ -1,8 +1,8 @@
 package com.dtstack.engine.master.vo;
 
-import com.dtstack.dtcenter.common.util.MathUtil;
 import com.dtstack.engine.api.vo.ChartDataVO;
 import com.dtstack.engine.api.vo.ChartMetaDataVO;
+import com.dtstack.engine.common.util.MathUtil;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

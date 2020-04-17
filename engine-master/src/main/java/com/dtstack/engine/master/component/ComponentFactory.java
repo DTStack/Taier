@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.component;
 
-import com.dtstack.dtcenter.common.enums.DataBaseType;
-import com.dtstack.dtcenter.common.enums.EComponentType;
+import com.dtstack.schedule.common.enums.DataBaseType;
+import com.dtstack.engine.master.enums.EComponentType;
 
 import java.util.Map;
 

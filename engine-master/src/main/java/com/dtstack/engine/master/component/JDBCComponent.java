@@ -1,18 +1,16 @@
 package com.dtstack.engine.master.component;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.common.enums.DataBaseType;
-import com.dtstack.dtcenter.common.hadoop.HadoopConfTool;
-import com.dtstack.dtcenter.common.util.DBUtil;
+import com.dtstack.schedule.common.enums.DataBaseType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.enums.KerberosKey;
+import com.dtstack.engine.master.utils.HadoopConfTool;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authentication.util.KerberosUtil;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -69,14 +67,16 @@ public class JDBCComponent extends BaseComponent {
             throw new RdosDefineException("kerberos校验失败, Message:" + e.getMessage());
         }
 
-        Connection conn = null;
-        try {
-            conn = DBUtil.getConnection(dataBaseType, jdbcUrl, username, password, null);
-        } finally {
-            if (conn != null) {
-                conn.close();
-            }
-        }
+
+        //@TODO 月白评估是不是可以把连通性迁移到插件化里
+//        Connection conn = null;
+//        try {
+//            conn = DBUtil.getConnection(dataBaseType, jdbcUrl, username, password, null);
+//        } finally {
+//            if (conn != null) {
+//                conn.close();
+//            }
+//        }
     }
 
     @Override

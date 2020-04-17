@@ -9,7 +9,6 @@ package com.dtstack.engine.common.enums;
  *
  */
 public enum EJobType{
-    //
     SQL(0),
     //默认离线MR任务---java_job
     MR(1),

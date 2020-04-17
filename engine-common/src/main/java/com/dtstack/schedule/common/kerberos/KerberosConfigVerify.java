@@ -1,12 +1,14 @@
-package com.dtstack.engine.common.kerberos;
+package com.dtstack.schedule.common.kerberos;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.SFTPHandler;
+import com.dtstack.schedule.common.util.Xml2JsonUtil;
+import com.dtstack.schedule.common.util.ZipUtil;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.SftpException;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,17 +34,13 @@ public class KerberosConfigVerify {
 
     private static final String LOCK_SUFFIX = ".lock";
 
-    private static final String SEPARATE = "/";
+    private static final String SEPARATE = File.separator;
 
     private static final String DOT = ".";
 
     private static final String XML_SUFFIX = ".xml";
 
-    private static final String KERBEROS_CONFIG = "kerberosConfig";
-
     private static final String _HOST = "_HOST";
-
-    private static final List<String> SUFFIX_LIST = Arrays.asList("file", "keytab", "Path", "conf");
 
     /**
      * 从上传的zip文件中解析kerberos配置
@@ -60,8 +58,7 @@ public class KerberosConfigVerify {
     public static Map<String, Map<String, String>> parseConfMap(List<File> unzipFileList, String unZipLocation) throws Exception {
         Map<String, File> confFileMap = new HashMap<>();
         List<File> xmlFileList = new ArrayList<>();
-        String hostname = InetAddress.getLocalHost().getCanonicalHostName();
-        String pathSuf = unZipLocation + "/" + hostname;
+        String pathSuf = unZipLocation;
         filterXml(unzipFileList, pathSuf, xmlFileList, confFileMap);
         Map<String, Map<String, String>> confMap = null;
         if (CollectionUtils.isNotEmpty(xmlFileList)) {
@@ -152,7 +149,7 @@ public class KerberosConfigVerify {
                 handler.downloadDir(sourceSftpPath, localKerberosConf);
             }
         } catch (Exception e) {
-            logger.warn("下载kerberos配置失败 {}", e);
+            throw new RdosDefineException("下载kerberos配置失败");
         } finally {
             if(handler != null) {
                 handler.close();
@@ -179,55 +176,21 @@ public class KerberosConfigVerify {
         return file.delete();
     }
 
-    private Map<String, String> replaceFilePath(Map<String, Object> kerberosMap, String localKerberosConf) {
-        if (MapUtils.isNotEmpty(kerberosMap)) {
-            JSONObject obj = (JSONObject) JSONObject.toJSON(kerberosMap);
-            return KerberosConfigVerify.replaceFilePath(obj, localKerberosConf);
-        }
-        return new HashMap<>();
-    }
-
-    public static Map<String, String> replaceFilePath(JSONObject kerberosConfig, String localKerberosConf) {
+    /**
+     * 替换kerberosConfig中的 principalFile 参数为本地目录
+     */
+    public static Map<String, String> replaceFilePath(JSONObject kerberosConfig, String currentConfDir) {
         Map<String, String> finalConfMap = new HashMap<>();
-        if (kerberosConfig != null && localKerberosConf != null) {
-            String hostName = null;
-            try {
-                hostName = InetAddress.getLocalHost().getCanonicalHostName();
-            } catch (UnknownHostException e) {
-                logger.error("", e);
-                throw new RdosDefineException("本地host获取失败");
+        if (kerberosConfig != null && currentConfDir != null) {
+            //替换 principalFile为本地
+            String principalFile = (String) kerberosConfig.get("principalFile");
+            if (StringUtils.isNotBlank(principalFile) && principalFile.contains(File.separator)) {
+                String fileName = principalFile.substring(principalFile.lastIndexOf(File.separator) + 1);
+                kerberosConfig.put("principalFile", currentConfDir + File.separator + fileName);
             }
-
-            String currentConfDir = localKerberosConf + SEPARATE + hostName;
-            File currentConfDirFile = new File(currentConfDir);
-            if (currentConfDirFile.exists() && currentConfDirFile.isDirectory()) {
-                String[] list = currentConfDirFile.list();
-                for (String key : kerberosConfig.keySet()) {
-                    if (suffixVerify(key, SUFFIX_LIST)) {
-                        String fileName = kerberosConfig.getString(key);
-                        for (String localFileName : list) {
-                            if (localFileName.equals(fileName)) {
-                                kerberosConfig.put(key, currentConfDir + SEPARATE + localFileName);
-                            }
-                        }
-                    }
-                }
-            } else {
-                logger.info("当前节点配置不存在, host={}", hostName);
-            }
-            kerberosConfig.keySet().stream().forEach(key -> finalConfMap.put(key, kerberosConfig.getString(key)));
+            kerberosConfig.keySet().forEach(key -> finalConfMap.put(key, kerberosConfig.getString(key)));
         }
         return finalConfMap;
-    }
-
-    private static boolean suffixVerify(String key, List<String> list) {
-        boolean flag = false;
-        for (String str : list) {
-            if (key.endsWith(str)) {
-                flag = true;
-            }
-        }
-        return flag;
     }
 
     private static String getSftpTimeLock(SFTPHandler handler, String sourceSftpPath, String localTimeLock) throws SftpException {

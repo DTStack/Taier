@@ -45,9 +45,14 @@ public class HadoopConfTool {
     public static final String DFS_NAMENODE_KEYTAB_FILE = "dfs.namenode.keytab.file";
     public static final String HIVE_SERVER2_AUTHENTICATION_KERBEROS_PRINCIPAL = "hive.server2.authentication.kerberos.principal";
     public static final String HIVE_SERVER2_AUTHENTICATION_KERBEROS_KEYTAB = "hive.server2.authentication.kerberos.keytab";
+    public static final String HIVE_METASTORE_KERBEROS_PRINCIPAL = "hive.metastore.kerberos.principal";
+    public static final String HIVE_METASTORE_KERBEROS_KEYTAB_FILE = "hive.metastore.kerberos.keytab.file";
     public final static String KEY_HBASE_MASTER_KERBEROS_PRINCIPAL = "hbase.master.kerberos.principal";
     public final static String KEY_HBASE_MASTER_KEYTAB_FILE = "hbase.master.keytab.file";
     public final static String KEY_JAVA_SECURITY_KRB5_CONF = "java.security.krb5.conf";
+    public final static String PRINCIPAL = "principal";
+    public final static String KEYTAB_PATH = "keytabPath";
+    public final static String PRINCIPAL_FILE = "principalFile";
 
     public static List<String> PRINCIPAL_KEYS = Arrays.asList(
             "hive.server2.authentication.kerberos.principal",

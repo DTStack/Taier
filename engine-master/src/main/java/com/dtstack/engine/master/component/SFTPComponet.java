@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.component;
 
-import com.dtstack.dtcenter.common.sftp.SFTPHandler;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.SFTPHandler;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.HashMap;
