@@ -1436,6 +1436,17 @@
         </foreach>
     </delete>
 
+    <select id="listJobsByTaskIdAndApptype" resultType="ScheduleJob">
+        select
+        <include refid="select_content_fragment"/>
+        from schedule_job bj
+        where bj.task_id in
+        <foreach collection="taskIds" item="taskId" close=")" open="(" separator="," >
+            #{taskId}
+        </foreach>
+        and bj.app_type = #{appType}
+    </select>
+
 
     <select id="getAllNodeAddress" resultType="java.lang.String">
         SELECT DISTINCT(node_address) as nodeAddress
@@ -1544,7 +1555,7 @@
     </select>
 
     <update id="updateJobStatusByJobIds">
-        update rdos_engine_job
+        update schedule_engine_job
         set gmt_modified=now(), status=#{status}
         where job_id IN
         <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
