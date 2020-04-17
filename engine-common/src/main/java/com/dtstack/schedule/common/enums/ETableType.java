@@ -14,7 +14,8 @@ public enum ETableType {
 
     HIVE(1, "Hive"),
     LIBRA(2, "LibrA"),
-    TIDB(3,"TiDB");
+    IMPALA(3, "IMPALA"),
+    TIDB(4,"TiDB");
 
     int type;
     String content;
