@@ -26,7 +26,7 @@ import java.util.function.Consumer;
  */
 public class DtUicUserConnect {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(com.dtstack.dtcenter.common.login.DtUicUserConnect.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(DtUicUserConnect.class);
 
     private static final String LONGIN_TEMPLATE = "%s/api/user/get-info?dtToken=%s";
 

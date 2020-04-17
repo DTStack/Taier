@@ -1,9 +1,9 @@
 package com.dtstack.engine.master.component;
 
-import com.dtstack.dtcenter.common.hadoop.HadoopConfTool;
 import com.dtstack.engine.api.domain.ClusterResourceDescription;
 import com.dtstack.engine.master.enums.KerberosKey;
 import com.dtstack.engine.master.utils.HadoopConf;
+import com.dtstack.engine.master.utils.HadoopConfTool;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -11,6 +11,7 @@ import org.apache.hadoop.yarn.api.records.NodeReport;
 import org.apache.hadoop.yarn.api.records.NodeState;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.client.api.YarnClient;
+import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -98,15 +99,15 @@ public class YARNComponent extends BaseComponent {
 
     public void initYarnClient(){
         HadoopConf hadoopConf = new HadoopConf();
-        hadoopConf.initYarnConf(allConfig);
+        YarnConfiguration yarnConfiguration = hadoopConf.getYarnConf(allConfig);
 
         String principal = MapUtils.getString(allConfig, KerberosKey.PRINCIPAL.getKey());
         String keytab = MapUtils.getString(allConfig, KerberosKey.KEYTAB.getKey());
         String krb5Conf = MapUtils.getString(allConfig, HadoopConfTool.KEY_JAVA_SECURITY_KRB5_CONF);
 
-        loginKerberos(hadoopConf.getYarnConfiguration(), principal, keytab, krb5Conf);
+        loginKerberos(yarnConfiguration, principal, keytab, krb5Conf);
         yarnClient = YarnClient.createYarnClient();
-        yarnClient.init(hadoopConf.getYarnConfiguration());
+        yarnClient.init(yarnConfiguration);
         yarnClient.start();
     }
 
@@ -180,90 +181,4 @@ public class YARNComponent extends BaseComponent {
         }
     }
 
-    /*public static class ClusterResourceDescription {
-        private final int totalNode;
-        private final int totalMemory;
-        private final int totalCores;
-        private final List<QueueDescription> queueDescriptions;
-
-        public ClusterResourceDescription(int totalNode, int totalMemory, int totalCores, List<QueueDescription> descriptions) {
-            this.totalNode = totalNode;
-            this.totalMemory = totalMemory;
-            this.totalCores = totalCores;
-            this.queueDescriptions = descriptions;
-        }
-
-        public int getTotalNode() {
-            return totalNode;
-        }
-
-        public int getTotalMemory() {
-            return totalMemory;
-        }
-
-        public int getTotalCores() {
-            return totalCores;
-        }
-
-        public List<QueueDescription> getQueueDescriptions() {
-            return queueDescriptions;
-        }
-    }
-
-    public static class QueueDescription {
-        private String queueName;
-        private String queuePath;
-        private String capacity;
-        private String maximumCapacity;
-        private String queueState;
-        private List<QueueDescription> childQueues;
-
-        public String getQueueName() {
-            return queueName;
-        }
-
-        public void setQueueName(String queueName) {
-            this.queueName = queueName;
-        }
-
-        public String getQueuePath() {
-            return queuePath;
-        }
-
-        public void setQueuePath(String queuePath) {
-            this.queuePath = queuePath;
-        }
-
-        public String getCapacity() {
-            return capacity;
-        }
-
-        public void setCapacity(String capacity) {
-            this.capacity = capacity;
-        }
-
-        public String getMaximumCapacity() {
-            return maximumCapacity;
-        }
-
-        public void setMaximumCapacity(String maximumCapacity) {
-            this.maximumCapacity = maximumCapacity;
-        }
-
-        public String getQueueState() {
-            return queueState;
-        }
-
-        public void setQueueState(String queueState) {
-            this.queueState = queueState;
-        }
-
-        public List<QueueDescription> getChildQueues() {
-            return childQueues;
-        }
-
-        public void setChildQueues(List<QueueDescription> childQueues) {
-            this.childQueues = childQueues;
-        }
-    }*/
 }

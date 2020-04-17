@@ -1,14 +1,12 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.dtcenter.common.annotation.Forbidden;
-import com.dtstack.dtcenter.common.enums.Deleted;
-import com.dtstack.dtcenter.common.enums.EJobType;
-import com.dtstack.dtcenter.common.util.MathUtil;
+import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.vo.ScheduleJobVO;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.api.domain.ScheduleJobJob;
@@ -16,6 +14,8 @@ import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleJobJobDTO;
 import com.dtstack.engine.api.dto.ScheduleJobJobTaskDTO;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
+import com.dtstack.schedule.common.enums.Deleted;
+import com.dtstack.schedule.common.enums.EScheduleJobType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -317,7 +317,7 @@ public class ScheduleJobJobService implements com.dtstack.engine.api.service.Sch
         ScheduleTaskShade batchTaskShade = batchTaskShadeService.getBatchTaskById(job.getTaskId(),appType);
         com.dtstack.engine.master.vo.ScheduleJobVO vo = new com.dtstack.engine.master.vo.ScheduleJobVO(job);
         vo.setBatchTask(new ScheduleTaskVO(batchTaskShade, true));
-        if (batchTaskShade.getTaskType().intValue() == EJobType.WORK_FLOW.getVal() || batchTaskShade.getTaskType().intValue() == EJobType.ALGORITHM_LAB.getVal()) {
+        if (batchTaskShade.getTaskType().intValue() == EScheduleJobType.WORK_FLOW.getVal() || batchTaskShade.getTaskType().intValue() == EScheduleJobType.ALGORITHM_LAB.getVal()) {
             try {
                 //工作流下全部实例,层级level使用int最大值
                 com.dtstack.engine.master.vo.ScheduleJobVO subJobVO = this.displayOffSpringForFlowWork(job);
@@ -351,7 +351,7 @@ public class ScheduleJobJobService implements com.dtstack.engine.api.service.Sch
         //如果是工作流子节点，则获取父节点的jobKey以便不展示工作流父节点
         String parentFlowJobJobKey = null;
         if (StringUtils.isNotEmpty(job.getFlowJobId()) && !job.getFlowJobId().equals(WORKFLOW_PARENT)) {
-            ScheduleJob parentFlowJob = scheduleJobDao.getByJobId(job.getFlowJobId(),Deleted.NORMAL.getStatus());
+            ScheduleJob parentFlowJob = scheduleJobDao.getByJobId(job.getFlowJobId(), Deleted.NORMAL.getStatus());
             parentFlowJobJobKey = parentFlowJob.getJobKey();
         }
 

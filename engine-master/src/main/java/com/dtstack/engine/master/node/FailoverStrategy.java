@@ -1,7 +1,5 @@
 package com.dtstack.engine.master.node;
 
-import com.dtstack.dtcenter.common.constant.TaskStatusConstrant;
-import com.dtstack.dtcenter.common.enums.TaskStatus;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.EScheduleType;
@@ -9,7 +7,6 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.EngineJobCacheDao;
-import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.po.SimpleScheduleJobPO;
 import com.dtstack.engine.master.env.EnvironmentContext;
@@ -30,7 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -54,19 +50,6 @@ public class FailoverStrategy {
     private static final Logger LOG = LoggerFactory.getLogger(FailoverStrategy.class);
 
     private BlockingQueue<String> queue = new LinkedBlockingDeque<>();
-
-    /**
-     * 未完成的job
-     */
-    private static final List<Integer> UNFINISHED_STATUSES = new ArrayList<>();
-
-    static {
-        UNFINISHED_STATUSES.addAll(TaskStatusConstrant.UNSUBMIT_STATUS);
-        UNFINISHED_STATUSES.addAll(TaskStatusConstrant.RUNNING_STATUS);
-        UNFINISHED_STATUSES.addAll(TaskStatusConstrant.WAIT_STATUS);
-        UNFINISHED_STATUSES.addAll(TaskStatusConstrant.SUBMITTING_STATUS);
-        UNFINISHED_STATUSES.add(TaskStatus.RESTARTING.getStatus());
-    }
 
     @Autowired
     private EnvironmentContext environmentContext;
@@ -210,7 +193,7 @@ public class FailoverStrategy {
             LOG.warn("----- nodeAddress:{} BatchJob 任务开始恢复----", nodeAddress);
             long startId = 0L;
             while (true) {
-                List<SimpleScheduleJobPO> jobs = scheduleJobDao.listSimpleJobByStatusAddress(startId, UNFINISHED_STATUSES, nodeAddress);
+                List<SimpleScheduleJobPO> jobs = scheduleJobDao.listSimpleJobByStatusAddress(startId, RdosTaskStatus.getUnfinishedStatuses(), nodeAddress);
                 if (CollectionUtils.isEmpty(jobs)) {
                     break;
                 }
@@ -229,7 +212,7 @@ public class FailoverStrategy {
             }
 
             //在迁移任务的时候，可能出现要迁移的节点也宕机了，任务没有正常接收需要再次恢复（由HearBeatCheckListener监控）。
-            List<SimpleScheduleJobPO> jobs = scheduleJobDao.listSimpleJobByStatusAddress(0L, UNFINISHED_STATUSES, nodeAddress);
+            List<SimpleScheduleJobPO> jobs = scheduleJobDao.listSimpleJobByStatusAddress(0L, RdosTaskStatus.getUnfinishedStatuses(), nodeAddress);
             if (CollectionUtils.isNotEmpty(jobs)) {
                 zkService.updateSynchronizedLocalBrokerHeartNode(nodeAddress, BrokerHeartNode.initNullBrokerHeartNode(), true);
             }

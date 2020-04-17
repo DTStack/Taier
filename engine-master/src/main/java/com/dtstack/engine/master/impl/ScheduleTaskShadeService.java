@@ -1,12 +1,7 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.common.annotation.Forbidden;
-import com.dtstack.dtcenter.common.enums.Deleted;
-import com.dtstack.dtcenter.common.enums.EJobType;
-import com.dtstack.dtcenter.common.enums.ESubmitStatus;
-import com.dtstack.dtcenter.common.enums.Sort;
-import com.dtstack.dtcenter.common.util.MathUtil;
+import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
@@ -14,11 +9,16 @@ import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
+import com.dtstack.schedule.common.enums.Deleted;
+import com.dtstack.schedule.common.enums.EScheduleJobType;
+import com.dtstack.schedule.common.enums.ESubmitStatus;
+import com.dtstack.schedule.common.enums.Sort;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
@@ -379,7 +379,7 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
             return null;
         }
         ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO(taskShade, true);
-        if (EJobType.WORK_FLOW.getVal().intValue() == vo.getTaskType()) {
+        if (EScheduleJobType.WORK_FLOW.getVal().intValue() == vo.getTaskType()) {
             List<ScheduleTaskShade> subtasks = this.getFlowWorkSubTasks(vo.getTaskId(),appType);
             if (CollectionUtils.isNotEmpty(subtasks)) {
                 List<ScheduleTaskVO> list = Lists.newArrayList();

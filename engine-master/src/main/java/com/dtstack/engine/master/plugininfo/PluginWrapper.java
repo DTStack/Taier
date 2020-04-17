@@ -1,9 +1,9 @@
 package com.dtstack.engine.master.plugininfo;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.common.enums.EngineType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.impl.ClusterService;
+import com.dtstack.schedule.common.enums.ScheduleEngineType;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -97,7 +97,7 @@ public class PluginWrapper{
     }
 
     private void addUserNameToImpalaOrHive(JSONObject pluginInfoJson, String userName, String password, String dbName, String engineType) {
-        if(pluginInfoJson == null || org.apache.commons.lang3.StringUtils.isBlank(userName) || (!EngineType.IMPALA.getEngineName().equals(engineType) && !EngineType.HIVE.getEngineName().equals(engineType))){
+        if(pluginInfoJson == null || org.apache.commons.lang3.StringUtils.isBlank(userName) || (!ScheduleEngineType.IMPALA.getEngineName().equals(engineType) && !ScheduleEngineType.HIVE.getEngineName().equals(engineType))){
             return;
         }
 

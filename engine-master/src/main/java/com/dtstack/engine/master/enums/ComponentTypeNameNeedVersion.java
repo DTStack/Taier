@@ -1,7 +1,5 @@
 package com.dtstack.engine.master.enums;
 
-import com.dtstack.dtcenter.common.enums.EComponentType;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;

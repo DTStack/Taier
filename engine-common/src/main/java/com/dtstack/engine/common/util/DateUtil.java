@@ -941,4 +941,11 @@ public class DateUtil {
                 .append(str.substring(12, 14));
         return sb.toString();
     }
+
+    public static long getLastDay(int num) {
+        Calendar cal = new GregorianCalendar();
+        cal.setTime(new Date());
+        cal.set(5, cal.get(5) - num);
+        return cal.getTimeInMillis();
+    }
 }

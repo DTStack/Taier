@@ -1,22 +1,19 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.common.annotation.Forbidden;
-import com.dtstack.dtcenter.common.cache.ConsoleCache;
-import com.dtstack.dtcenter.common.enums.*;
-import com.dtstack.dtcenter.common.hadoop.HadoopConfTool;
-import com.dtstack.dtcenter.common.hadoop.IDownload;
-import com.dtstack.dtcenter.common.hadoop.TemplateFileDownload;
-import com.dtstack.dtcenter.common.kerberos.KerberosConfigVerify;
-import com.dtstack.dtcenter.common.sftp.SFTPHandler;
-import com.dtstack.dtcenter.common.sftp.SftpPath;
-import com.dtstack.dtcenter.common.util.MD5Util;
-import com.dtstack.dtcenter.common.util.ZipUtil;
+import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.schedule.common.enums.AppType;
+import com.dtstack.schedule.common.enums.Deleted;
+import com.dtstack.schedule.common.enums.SftpAuthType;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.schedule.common.kerberos.KerberosConfigVerify;
+import com.dtstack.engine.common.util.MD5Util;
+import com.dtstack.engine.common.util.SFTPHandler;
+import com.dtstack.schedule.common.util.ZipUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.Resource;
@@ -24,12 +21,17 @@ import com.dtstack.engine.master.component.ComponentFactory;
 import com.dtstack.engine.master.component.ComponentImpl;
 import com.dtstack.engine.master.component.SparkComponent;
 import com.dtstack.engine.master.component.YARNComponent;
+import com.dtstack.engine.master.download.IDownload;
+import com.dtstack.engine.master.download.TemplateFileDownload;
 import com.dtstack.engine.master.enums.ComponentTempFile;
 import com.dtstack.engine.master.enums.ComponentTypeNameNeedVersion;
+import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.KerberosKey;
+import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.utils.EngineUtil;
 import com.dtstack.engine.master.utils.HadoopConf;
+import com.dtstack.engine.master.utils.HadoopConfTool;
 import com.dtstack.engine.master.utils.XmlFileUtil;
 import com.dtstack.engine.api.vo.EngineTenantVO;
 import com.dtstack.engine.api.vo.TestConnectionVO;
@@ -119,9 +121,6 @@ public class ComponentService {
 
     @Autowired
     private TenantDao tenantDao;
-
-    @Autowired
-    private ConsoleCache consoleCache;
 
     @Autowired
     private EnvironmentContext env;
@@ -482,11 +481,12 @@ public class ComponentService {
             List<Long> tenantIds = engineTenantDao.listTenantIdByQueueIds(queueIds);
             dtUicTenantIds = new HashSet<>(tenantDao.listDtUicTenantIdByIds(tenantIds));
         }
-        if (!dtUicTenantIds.isEmpty()) {
-            for (Long uicTenantId : dtUicTenantIds) {
-                consoleCache.publishRemoveMessage(uicTenantId.toString());
-            }
-        }
+        //@TODO 平台层触发缓存刷新
+//        if (!dtUicTenantIds.isEmpty()) {
+//            for (Long uicTenantId : dtUicTenantIds) {
+//                consoleCache.publishRemoveMessage(uicTenantId.toString());
+//            }
+//        }
     }
 
     public List<Component> listComponent(Long engineId){
@@ -619,9 +619,9 @@ public class ComponentService {
         Map<String, Object> confMap = parseAndUploadXmlFile(cluster, resources, bool? Lists.newArrayList("hive-site.xml"):null);
         for (Component component : componentList) {
             if(EComponentType.HDFS.getTypeCode() == component.getComponentTypeCode()){
-                componentConfig.put(EComponentType.HDFS.getName(), HadoopConf.getHadoopConf(confMap));
+                componentConfig.put(EComponentType.HDFS.getName(), HadoopConf.getHadoopConfJSONObject(confMap));
             } else if(EComponentType.YARN.getTypeCode() == component.getComponentTypeCode()){
-                componentConfig.put(EComponentType.YARN.getName(), HadoopConf.getYarnConf(confMap));
+                componentConfig.put(EComponentType.YARN.getName(), HadoopConf.getYarnConfJSONObject(confMap));
             }
         }
         if(confMap!= null && confMap.containsKey(ConfigConstant.MD5_SUM_KEY)){
@@ -651,7 +651,7 @@ public class ComponentService {
 
             //解压缩获得配置文件
             String xmlZipLocation = resource.getUploadedFileName();
-            String md5sum = MD5Util.getFileMD5String(new File(xmlZipLocation));
+            String md5sum = MD5Util.getFileMd5String(new File(xmlZipLocation));
             upzipLocation = unzipLocation + File.separator + resource.getFileName();
             try {
                 xmlFiles = XmlFileUtil.getFilesFromZip(xmlZipLocation, upzipLocation,validXml);
@@ -692,7 +692,7 @@ public class ComponentService {
             throw new RdosDefineException("sftp组件路径配置不能为空");
         }
 
-        return String.format(SFTP_HADOOP_CONFIG_PATH, path, SftpPath.CONSOLE_HADOOP_CONFIG,  cluster.getClusterName());
+        return String.format(SFTP_HADOOP_CONFIG_PATH, path, SFTPHandler.CONSOLE_HADOOP_CONFIG,  cluster.getClusterName());
     }
 
     private void uploadToSftp(Cluster cluster, List<File> xmlFiles) {
@@ -702,7 +702,7 @@ public class ComponentService {
             throw new RdosDefineException("sftp组件路径配置不能为空");
         }
 
-        String sftpDir = String.format(SFTP_HADOOP_CONFIG_PATH, path, SftpPath.CONSOLE_HADOOP_CONFIG,  cluster.getClusterName());
+        String sftpDir = String.format(SFTP_HADOOP_CONFIG_PATH, path, SFTPHandler.CONSOLE_HADOOP_CONFIG,  cluster.getClusterName());
         XmlFileUtil.uploadConfig2SFTP(sftpDir, xmlFiles, sftpConfig);
     }
 
@@ -821,7 +821,7 @@ public class ComponentService {
         if (Objects.isNull(sftpMap.get("path"))) {
             return true;
         }
-        String hadoopConfigPath = String.format(SFTP_HADOOP_CONFIG_PATH, sftpMap.get("path"), SftpPath.CONSOLE_HADOOP_CONFIG, cluster.getClusterName());
+        String hadoopConfigPath = String.format(SFTP_HADOOP_CONFIG_PATH, sftpMap.get("path"), SFTPHandler.CONSOLE_HADOOP_CONFIG, cluster.getClusterName());
         SFTPHandler handler = null;
         try {
             handler = SFTPHandler.getInstance(sftpMap);

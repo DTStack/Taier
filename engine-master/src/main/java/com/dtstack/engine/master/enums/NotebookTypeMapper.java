@@ -1,8 +1,8 @@
 package com.dtstack.engine.master.enums;
 
-import com.dtstack.dtcenter.common.enums.EJobType;
-import com.dtstack.dtcenter.common.enums.EngineType;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.schedule.common.enums.EScheduleJobType;
+import com.dtstack.schedule.common.enums.ScheduleEngineType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,8 +17,8 @@ public class NotebookTypeMapper {
     public static final Map<Integer, Integer> map = new HashMap<>();
 
     static {
-        map.put(EJobType.PYTHON.getVal(), EngineType.DtScript.getVal());
-        map.put(EJobType.SPARK_PYTHON.getVal(), EngineType.Spark.getVal());
+        map.put(EScheduleJobType.PYTHON.getVal(), ScheduleEngineType.DtScript.getVal());
+        map.put(EScheduleJobType.SPARK_PYTHON.getVal(), ScheduleEngineType.Spark.getVal());
     }
 
     public static Integer getTaskType(Integer engineType) {
@@ -31,7 +31,7 @@ public class NotebookTypeMapper {
     }
 
     public static Integer getEngineType(Integer taskType) {
-        return map.getOrDefault(taskType, EngineType.DtScript.getVal());
+        return map.getOrDefault(taskType, ScheduleEngineType.DtScript.getVal());
     }
 
 }

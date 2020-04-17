@@ -1,8 +1,7 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.common.annotation.Forbidden;
-import com.dtstack.dtcenter.common.enums.EJobType;
+import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
@@ -11,6 +10,7 @@ import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.ScheduleTaskTaskShadeDao;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.google.common.base.Preconditions;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -106,7 +106,7 @@ public class ScheduleTaskTaskShadeService implements com.dtstack.engine.api.serv
 
         com.dtstack.engine.master.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO(taskShade, true);
         vo.setCurrentProject(currentProjectId.equals(taskShade.getProjectId()));
-        if (taskShade.getTaskType().intValue() == EJobType.WORK_FLOW.getVal()) {
+        if (taskShade.getTaskType().intValue() == EScheduleJobType.WORK_FLOW.getVal()) {
             com.dtstack.engine.master.vo.ScheduleTaskVO subTaskVO = getAllFlowSubTasks(taskShade.getTaskId(),taskShade.getAppType());
             vo.setSubNodes(subTaskVO);
         }
@@ -119,7 +119,7 @@ public class ScheduleTaskTaskShadeService implements com.dtstack.engine.api.serv
         List<ScheduleTaskTaskShade> taskTasks = null;
         List<ScheduleTaskTaskShade> childTaskTasks = null;
 
-        if(taskShade.getTaskType().intValue() != EJobType.WORK_FLOW.getVal() &&
+        if(taskShade.getTaskType().intValue() != EScheduleJobType.WORK_FLOW.getVal() &&
                 !taskShade.getFlowId().equals(IS_WORK_FLOW_SUBNODE)){
             //若为工作流子节点，则展开工作流全部子节点
             return getOnlyAllFlowSubTasks(taskShade.getFlowId(),appType);
