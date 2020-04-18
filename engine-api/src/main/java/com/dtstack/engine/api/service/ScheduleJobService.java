@@ -356,4 +356,27 @@ public interface ScheduleJobService {
      * @param jobKeyList
      */
     public void deleteJobsByJobKey(@Param("jobKeyList") List<String> jobKeyList);
+
+    /**
+     *
+     * 根据taskId、appType 拿到对应的job集合
+     * @param taskIds
+     * @param appType
+     */
+    public List<ScheduleJob> listJobsByTaskIdsAndApptype(@Param("taskIds") List<Long> taskIds,@Param("appType") Integer appType);
+
+    /**
+     * 根据任务ID 停止任务
+     * @param jobId
+     * @param userId
+     * @param projectId
+     * @param tenantId
+     * @param dtuicTenantId
+     * @param isRoot
+     * @param appType
+     * @return
+     */
+    String stopJobByJobId(@Param("jobId") String jobId, @Param("userId") Long userId, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("dtuicTenantId") Long dtuicTenantId,
+                          @Param("isRoot") Boolean isRoot, @Param("appType") Integer appType) throws Exception;
+
 }
