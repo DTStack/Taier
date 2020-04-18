@@ -1,6 +1,5 @@
 package com.dtstack.engine.common.util;
 
-import com.alibaba.fastjson.JSON;
 import com.dtstack.engine.common.sftp.SftpFactory;
 import com.dtstack.engine.common.sftp.SftpPool;
 import com.dtstack.engine.common.sftp.SftpPoolConfig;
@@ -21,7 +20,7 @@ public class SFTPHandler {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(SFTPHandler.class);
 
-    private static final String KEY_USERNAME = "username";
+    public static final String KEY_USERNAME = "username";
     private static final String KEY_PASSWORD = "password";
     private static final String KEY_HOST = "host";
     private static final String KEY_PORT = "port";
@@ -33,11 +32,17 @@ public class SFTPHandler {
     private static final String MIN_EVICTABLE_IDLE_TIME = "minEvictableIdleTimeMillis";
     private static final String SOFT_MIN_EVICTABLE_IDLE_TIME = "softMinEvictableIdleTimeMillis";
     private static final String TIME_BETWEEN_EVICTION_RUNS = "timeBetweenEvictionRunsMillis";
-    private static final String KEY_RSA = "rsaPath";
-    private static final String KEY_AUTHENTICATION = "auth";
+    public static final String KEY_RSA = "rsaPath";
+    public static final String KEY_AUTHENTICATION = "auth";
     private static final int DEFAULT_TIME_OUT = 0;
     private static final String DEFAULT_PORT = "22";
     private static final String STRING_EMPTY = "";
+    //有引用 勿删
+    public static final String DEFAULT_RSA_PATH_TEMPLATE = "/%s/.ssh/id_rsa";
+
+    public static final String CONSOLE_HADOOP_CONFIG = "/console/hadoop_config";
+    public static final String STREAM_RESOURCE = "/stream/resource";
+    public static final String BATCH_EXECUTEFILE = "/batch/execute_file";
 
     //SftpPoolConfig
     private static final int MAX_TOTAL_VALUE = 8;
@@ -221,7 +226,7 @@ public class SFTPHandler {
         }
     }
 
-    private boolean isFileExist(String ftpPath){
+    public boolean isFileExist(String ftpPath){
         try {
             channelSftp.lstat(ftpPath);
             return true;
@@ -255,4 +260,129 @@ public class SFTPHandler {
             close();
         }
     }
+
+    public boolean uploadDir(String dstDir, String srcDir) {
+        File file = new File(srcDir);
+        if (file.isDirectory()) {
+            dstDir += "/" + file.getName();
+            if (!mkdir(dstDir)) {
+                logger.error("创建sftp服务器路径失败:" + dstDir);
+                return false;
+            }
+            File[] files = file.listFiles();
+            for (File file1 : files) {
+                uploadDir(dstDir, file1.getPath());
+            }
+        } else {
+            return upload(dstDir, file.getName(), file.getParent(), true);
+        }
+        return false;
+    }
+
+    public boolean upload(String baseDir, String filePath, boolean multiplex) {
+        File file = new File(filePath);
+        if (!file.exists() || !file.isFile()) {
+            throw new RuntimeException("该路径不存在或不是文件路径");
+        }
+        return upload(baseDir, file.getName(), file.getParent(), multiplex);
+    }
+
+    public boolean upload(String baseDir, String filePath) {
+        return upload(baseDir, filePath, false);
+    }
+
+    /**
+     * sftp 上传文件 且会覆盖同名文件
+     *
+     * @param baseDir  目标路径
+     * @param fileName 文件名
+     * @param filePath 本地文件目录
+     */
+    public boolean upload(String baseDir, String fileName, String filePath, boolean multiplex) {
+        logger.info("路径：baseDir=" + baseDir);
+        try {
+            //检查路径
+            if(!mkdir(baseDir)){
+                logger.error("创建sftp服务器路径失败:" + baseDir);
+                return false;
+            }
+            String dst = baseDir + "/" + fileName;
+            String src = filePath + "/" + fileName;
+            logger.info("开始上传，本地服务器路径：[" + src + "]目标服务器路径：[" + dst + "]");
+            channelSftp.put(src, dst);
+            logger.info("上传成功");
+            return true;
+        } catch (Exception e) {
+            logger.error("上传失败", e);
+            return false;
+        } finally {
+            if (!multiplex) {
+                close();
+            }
+        }
+    }
+
+    /**
+     * 支持创建多层路径
+     *
+     * @param path
+     * @return
+     */
+    public boolean mkdir(String path) {
+        String[] split = path.split("/");
+        StringBuilder currPath = new StringBuilder();
+        for (String dir : split) {
+            currPath.append("/").append(dir).toString();
+            try{
+                channelSftp.cd(currPath.toString());
+            }catch(SftpException sException){
+                if(ChannelSftp.SSH_FX_NO_SUCH_FILE == sException.id){
+                    try {
+                        channelSftp.mkdir(currPath.toString());
+                    } catch (SftpException e) {
+                        logger.error("sftp isExist error {}", e);
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+    public void deleteDir(String ftpPath) {
+        try {
+            channelSftp.cd(ftpPath);
+        } catch (SftpException e) {
+            logger.info("", e);
+            return;
+        }
+        try {
+            Vector files = channelSftp.ls(ftpPath);
+            for (Iterator<ChannelSftp.LsEntry> iterator = files.iterator(); iterator.hasNext(); ) {
+                ChannelSftp.LsEntry str = iterator.next();
+                String filename = str.getFilename();
+                if (filename.equals(".") || filename.equals("..")) {
+                    continue;
+                }
+                SftpATTRS attrs = str.getAttrs();
+                if (attrs.isDir()) {
+                    deleteDir(ftpPath + "/" + filename);
+                } else {
+                    channelSftp.rm(ftpPath + "/" + filename);
+                }
+            }
+            if (channelSftp.ls(ftpPath).size() == 2) {
+                channelSftp.rmdir(ftpPath);
+            }
+        } catch (SftpException e) {
+            logger.error("", e);
+            throw new RuntimeException("删除sftp路径失败，sftpPath=" + ftpPath);
+        }
+    }
+
+    public Vector listFile(String ftpPath) throws SftpException {
+        return channelSftp.ls(ftpPath);
+    }
+
 }

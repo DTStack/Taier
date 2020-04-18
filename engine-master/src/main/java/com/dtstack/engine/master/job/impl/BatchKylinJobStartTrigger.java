@@ -1,13 +1,13 @@
 package com.dtstack.engine.master.job.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.common.enums.EngineType;
-import com.dtstack.dtcenter.common.util.TimeParamOperator;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.domain.BatchJob;
-import com.dtstack.engine.domain.BatchTaskShade;
-import com.dtstack.engine.dto.BatchTaskParamShade;
+import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.api.dto.ScheduleTaskParamShade;
 import com.dtstack.engine.master.job.IJobStartTrigger;
+import com.dtstack.schedule.common.enums.ScheduleEngineType;
+import com.dtstack.schedule.common.util.TimeParamOperator;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
@@ -23,9 +23,9 @@ import java.util.Objects;
 public class BatchKylinJobStartTrigger implements IJobStartTrigger {
 
     @Override
-    public void readyForTaskStartTrigger(Map<String, Object> actionParam, BatchTaskShade taskShade, BatchJob batchJob) throws Exception {
-        if (taskShade.getEngineType().equals(EngineType.Kylin.getVal())) {
-            List<BatchTaskParamShade> taskParamsToReplace = JSONObject.parseArray((String)actionParam.get("taskParamsToReplace"), BatchTaskParamShade.class);
+    public void readyForTaskStartTrigger(Map<String, Object> actionParam, ScheduleTaskShade taskShade, ScheduleJob scheduleJob) throws Exception {
+        if (taskShade.getEngineType().equals(ScheduleEngineType.Kylin.getVal())) {
+            List<ScheduleTaskParamShade> taskParamsToReplace = JSONObject.parseArray((String)actionParam.get("taskParamsToReplace"), ScheduleTaskParamShade.class);
             JSONObject pluginInfo = JSONObject.parseObject((String) actionParam.get("pluginInfo"));
             if (Objects.nonNull(pluginInfo)) {
                String taskExeArgs = taskShade.getExeArgs();
@@ -40,9 +40,9 @@ public class BatchKylinJobStartTrigger implements IJobStartTrigger {
                         startTime = simpleDateFormat.parse(jsonObject.get("startTime").toString()).getTime() + 28800000;
                         endTime = simpleDateFormat.parse(jsonObject.get("endTime").toString()).getTime() + 28800000;
                     } else if (!jsonObject.getBooleanValue("isUseSystemVar")) {
-                        for (BatchTaskParamShade param : taskParamsToReplace) {
+                        for (ScheduleTaskParamShade param : taskParamsToReplace) {
                             String paramCommand = param.getParamCommand();
-                            String targetVal = TimeParamOperator.transform(paramCommand, batchJob.getCycTime());
+                            String targetVal = TimeParamOperator.transform(paramCommand, scheduleJob.getCycTime());
                             long length = targetVal.length();
                             if (length < 14) {
                                 for (int i = 0; i < 14 - length; i++) {

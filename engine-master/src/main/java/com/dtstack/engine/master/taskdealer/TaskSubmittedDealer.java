@@ -4,9 +4,9 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.dao.BatchJobDao;
 import com.dtstack.engine.dao.EngineJobCacheDao;
-import com.dtstack.engine.dao.EngineJobDao;
+import com.dtstack.engine.dao.ScheduleJobDao;
+import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.cache.ShardCache;
 import org.apache.commons.lang3.StringUtils;
@@ -31,7 +31,7 @@ public class TaskSubmittedDealer implements Runnable {
     private LinkedBlockingQueue<JobClient> queue;
 
     @Autowired
-    private EngineJobDao engineJobDao;
+    private ScheduleJobDao scheduleJobDao;
 
     @Autowired
     private EngineJobCacheDao engineJobCacheDao;
@@ -44,9 +44,6 @@ public class TaskSubmittedDealer implements Runnable {
 
     @Autowired
     private TaskRestartDealer taskRestartDealer;
-
-    @Autowired
-    private BatchJobDao batchJobDao;
 
     public TaskSubmittedDealer() {
         queue = JobSubmitDealer.getSubmittedQueue();
@@ -69,14 +66,12 @@ public class TaskSubmittedDealer implements Runnable {
                 if (StringUtils.isNotBlank(jobClient.getEngineTaskId())) {
                     JobResult jobResult = jobClient.getJobResult();
                     String appId = jobResult.getData(JobResult.EXT_ID_KEY);
-                    engineJobDao.updateJobSubmitSuccess(jobClient.getTaskId(), jobClient.getEngineTaskId(), appId, jobClient.getJobResult().getJsonStr());
-                    batchJobDao.updateJobInfoByJobId(jobClient.getTaskId(), EJobCacheStage.SUBMITTED.getStage(), new Timestamp(System.currentTimeMillis()), null, null, null,null);
+                    scheduleJobDao.updateJobSubmitSuccess(jobClient.getTaskId(), jobClient.getEngineTaskId(), appId, jobClient.getJobResult().getJsonStr());
                     workNode.updateCache(jobClient, EJobCacheStage.SUBMITTED.getStage());
                     jobClient.doStatusCallBack(RdosTaskStatus.SUBMITTED.getStatus());
                     shardCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.SUBMITTED.getStatus());
                 } else {
-                    engineJobDao.jobFail(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus(), jobClient.getJobResult().getJsonStr());
-                    batchJobDao.updateJobInfoByJobId(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus(), null,null , null, null,null);
+                    scheduleJobDao.jobFail(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus(), jobClient.getJobResult().getJsonStr());
                     logger.info("jobId:{} update job status:{}, job is finished.", jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus());
                     engineJobCacheDao.delete(jobClient.getTaskId());
                 }

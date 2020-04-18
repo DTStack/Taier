@@ -18,33 +18,33 @@
 
 package com.dtstack.engine.master.enums;
 
-import com.dtstack.dtcenter.common.enums.EComponentType;
-import com.dtstack.dtcenter.common.enums.EngineType;
+
+import com.dtstack.schedule.common.enums.ScheduleEngineType;
 
 public enum EngineTypeComponentType {
 
-    FLINK(EngineType.Flink, EComponentType.FLINK),
-    SPARK(EngineType.Spark, EComponentType.SPARK),
-    LEARNING(EngineType.Learning, EComponentType.LEARNING),
-    DT_SCRIPT(EngineType.DtScript, EComponentType.DT_SCRIPT),
-    HDFS(EngineType.Hadoop, EComponentType.HDFS),
-    CARBON_DATA(EngineType.Carbon, EComponentType.CARBON_DATA),
-    LIBRA_SQL(EngineType.Libra, EComponentType.LIBRA_SQL),
-    HIVE(EngineType.HIVE,EComponentType.HIVE_SERVER),
-    IMPALA_SQL(EngineType.Hadoop, EComponentType.IMPALA_SQL),
-    TIDB_SQL(EngineType.TIDB, EComponentType.TIDB_SQL);
+    FLINK(ScheduleEngineType.Flink, EComponentType.FLINK),
+    SPARK(ScheduleEngineType.Spark, EComponentType.SPARK),
+    LEARNING(ScheduleEngineType.Learning, EComponentType.LEARNING),
+    DT_SCRIPT(ScheduleEngineType.DtScript, EComponentType.DT_SCRIPT),
+    HDFS(ScheduleEngineType.Hadoop, EComponentType.HDFS),
+    CARBON_DATA(ScheduleEngineType.Carbon, EComponentType.CARBON_DATA),
+    LIBRA_SQL(ScheduleEngineType.Libra, EComponentType.LIBRA_SQL),
+    HIVE(ScheduleEngineType.HIVE,EComponentType.HIVE_SERVER),
+    IMPALA_SQL(ScheduleEngineType.Hadoop, EComponentType.IMPALA_SQL),
+    TIDB_SQL(ScheduleEngineType.TIDB, EComponentType.TIDB_SQL);
 
-    private EngineType engineType;
+    private ScheduleEngineType scheduleEngineType;
 
     private EComponentType componentType;
 
-    EngineTypeComponentType(EngineType engineType, EComponentType componentType) {
-        this.engineType = engineType;
+    EngineTypeComponentType(ScheduleEngineType scheduleEngineType, EComponentType componentType) {
+        this.scheduleEngineType = scheduleEngineType;
         this.componentType = componentType;
     }
 
-    public EngineType getEngineType() {
-        return engineType;
+    public ScheduleEngineType getScheduleEngineType() {
+        return scheduleEngineType;
     }
 
     public EComponentType getComponentType() {

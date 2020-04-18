@@ -1,7 +1,8 @@
 package com.dtstack.engine.master.vo;
 
-import com.dtstack.dtcenter.common.util.MathUtil;
-import com.google.common.collect.Lists;
+import com.dtstack.engine.api.vo.ChartDataVO;
+import com.dtstack.engine.api.vo.ChartMetaDataVO;
+import com.dtstack.engine.common.util.MathUtil;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -34,7 +35,7 @@ public class BatchSecienceJobChartVO extends ChartDataVO {
 		List<Object> successValues = formatValue(successResult);
 		List<Object> failValues = formatValue(failResult);
 		List<Object> deployValues = formatValue(deployResult);
-		this.y = Lists.newArrayList();
+		this.y = new ArrayList<>();
 		this.y.add(new ChartMetaDataVO(totalTitle, totalValues));
 		this.y.add(new ChartMetaDataVO(successTitle, successValues));
 		this.y.add(new ChartMetaDataVO(failTitle, failValues));
@@ -48,8 +49,7 @@ public class BatchSecienceJobChartVO extends ChartDataVO {
 
 		for (Map<String, Object> data : metadata) {
 			if (dataMap.get("day") != null) {
-				dataMap.put(MathUtil.getString(data.get("day")),
-						dataMap.get(MathUtil.getString(data.get("day"))) + MathUtil.getLongVal(data.get("day")));
+				dataMap.put(MathUtil.getString(data.get("day")), dataMap.get(MathUtil.getString(data.get("day"))) + MathUtil.getLongVal(data.get("day")));
 			}
 			dataMap.put(MathUtil.getString(data.get("day")), MathUtil.getLongVal(data.get("cnt")));
 		}
@@ -76,7 +76,7 @@ public class BatchSecienceJobChartVO extends ChartDataVO {
 	@Deprecated
 	private List<Object> getPrepareRunValues(List<Object> totalValues, List<Object> successValues,
 			List<Object> failValues) {
-		List<Object> prepareRunValues = Lists.newArrayList();
+		List<Object> prepareRunValues = new ArrayList<>();
 		for (int i = 0; i < 30; i++) {
 			Long value = MathUtil.getLongVal(totalValues.get(i)) - MathUtil.getLongVal(successValues.get(i))
 					- MathUtil.getLongVal(failValues.get(i));

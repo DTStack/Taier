@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.router.vertx;
 
-import com.dtstack.dtcenter.common.hadoop.IDownload;
-import com.dtstack.engine.dto.Resource;
+import com.dtstack.engine.api.dto.Resource;
+import com.dtstack.engine.master.download.IDownload;
 import com.dtstack.engine.master.router.callback.ApiCallback;
 import com.dtstack.engine.master.router.callback.ApiCallbackMethod;
 import com.dtstack.engine.master.router.util.RequestUtil;

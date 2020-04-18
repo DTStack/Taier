@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.zookeeper;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.common.util.AddressUtil;
+import com.dtstack.engine.common.util.AddressUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
@@ -31,7 +31,7 @@ public class ZkConfig {
 
     public void setLocalAddress(String localAddress) {
         if (StringUtils.isBlank(localAddress)) {
-            localAddress = String.format("%s:%s", AddressUtil.getOneIP(),"8090");
+            localAddress = String.format("%s:%s", AddressUtil.getOneIp(),"8090");
         }
         this.localAddress = localAddress;
     }

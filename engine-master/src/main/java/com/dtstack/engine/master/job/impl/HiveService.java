@@ -1,20 +1,15 @@
 package com.dtstack.engine.master.job.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.common.engine.JdbcInfo;
-import com.dtstack.dtcenter.common.engine.JdbcQuery;
-import com.dtstack.dtcenter.common.engine.JdbcUrlPropertiesValue;
-import com.dtstack.dtcenter.common.enums.DataBaseType;
-import com.dtstack.dtcenter.common.enums.ETableType;
-import com.dtstack.dtcenter.common.hadoop.DtKerberosUtils;
-import com.dtstack.dtcenter.common.util.DBUtil;
-import com.dtstack.dtcenter.common.util.PublicUtil;
+import com.dtstack.schedule.common.enums.DataBaseType;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.schedule.common.jdbc.JdbcInfo;
+import com.dtstack.schedule.common.jdbc.JdbcQuery;
+import com.dtstack.schedule.common.jdbc.JdbcUrlPropertiesValue;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.master.impl.ClusterService;
-import com.dtstack.sql.ParseResult;
-import com.dtstack.sql.SqlParserImpl;
-import com.dtstack.sql.SqlType;
-import com.dtstack.sql.parse.SqlParserFactory;
+import com.dtstack.engine.master.utils.DtKerberosUtils;
+import com.dtstack.engine.master.utils.DBUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
@@ -87,7 +82,7 @@ public class HiveService {
             synchronized(this.getDatabaseLock(jdbcUrl)) {
                 if (c3p0 == null) {
                     c3p0 = new ComboPooledDataSource();
-                    c3p0.setDriverClass((String)JdbcUrlPropertiesValue.DRIVER_CLASS_NAME_MAP.get("hive"));
+                    c3p0.setDriverClass((String) JdbcUrlPropertiesValue.DRIVER_CLASS_NAME_MAP.get("hive"));
                     c3p0.setJdbcUrl(jdbcUrl);
                     c3p0.setUser(username);
                     c3p0.setPassword(password);
@@ -157,7 +152,7 @@ public class HiveService {
         JdbcInfo JDBCInfo = null;
         if (data != null) {
             try {
-                JDBCInfo = (JdbcInfo) PublicUtil.strToObject(data.toString(), JdbcInfo.class);
+                JDBCInfo = (JdbcInfo) PublicUtil.jsonStrToObject(data.toString(), JdbcInfo.class);
             } catch (IOException var5) {
                 logger.error("", var5);
             }
@@ -199,17 +194,17 @@ public class HiveService {
                 statement.execute("use " + jdbcQuery.getDatabase());
             }
 
-            try {
-                if (StringUtils.isNotEmpty(jdbcQuery.getSql())) {
-                    SqlParserFactory instance = SqlParserFactory.getInstance();
-                    SqlParserImpl sqlParser = instance.getSqlParser(ETableType.HIVE);
-                    ParseResult parseResult = sqlParser.parseSql(jdbcQuery.getSql(), jdbcQuery.getDatabase(), (Map)null);
-                    if (null != parseResult && !SqlType.QUERY.equals(parseResult.getSqlType())) {
-                        statement.setMaxRows(0);
-                    }
-                }
-            } catch (Exception var19) {
-            }
+//            try {
+//                if (StringUtils.isNotEmpty(jdbcQuery.getSql())) {
+//                    SqlParserFactory instance = SqlParserFactory.getInstance();
+//                    SqlParserImpl sqlParser = instance.getSqlParser(ETableType.HIVE);
+//                    ParseResult parseResult = sqlParser.parseSql(jdbcQuery.getSql(), jdbcQuery.getDatabase(), (Map)null);
+//                    if (null != parseResult && !SqlType.QUERY.equals(parseResult.getSqlType())) {
+//                        statement.setMaxRows(0);
+//                    }
+//                }
+//            } catch (Exception var19) {
+//            }
 
             if (statement.execute(jdbcQuery.getSql())) {
                 res = statement.getResultSet();
@@ -310,7 +305,7 @@ public class HiveService {
         JdbcInfo jdbcInfo = null;
         if (data != null) {
             try {
-                jdbcInfo = (JdbcInfo)PublicUtil.strToObject(data.toString(), JdbcInfo.class);
+                jdbcInfo = (JdbcInfo)PublicUtil.jsonStrToObject(data.toString(), JdbcInfo.class);
             } catch (IOException var5) {
                 logger.error("", var5);
             }

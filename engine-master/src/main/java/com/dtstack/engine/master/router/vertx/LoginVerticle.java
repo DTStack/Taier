@@ -1,9 +1,9 @@
 package com.dtstack.engine.master.router.vertx;
 
 
+import com.dtstack.engine.api.dto.UserDTO;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.dto.UserDTO;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.router.callback.ApiCallback;
 import com.dtstack.engine.master.router.callback.ApiCallbackMethod;

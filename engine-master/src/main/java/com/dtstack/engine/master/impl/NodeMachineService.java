@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.common.annotation.Param;
-import com.dtstack.engine.domain.NodeMachine;
+import com.dtstack.engine.api.annotation.Param;
+import com.dtstack.engine.api.domain.NodeMachine;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;

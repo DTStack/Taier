@@ -33,7 +33,7 @@
         and et.is_deleted = 0
     </select>
 
-    <select id="generalQuery" resultType="com.dtstack.engine.vo.EngineTenantVO">
+    <select id="generalQuery" resultType="com.dtstack.engine.api.vo.EngineTenantVO">
         select
         t.dt_uic_tenant_id as tenant_id,t.tenant_name,et.queue_id
         from console_engine_tenant et left join console_dtuic_tenant t
@@ -87,7 +87,7 @@
     </select>
 
 
-    <select id="listEngineTenant" resultType="com.dtstack.engine.vo.EngineTenantVO">
+    <select id="listEngineTenant" resultType="com.dtstack.engine.api.vo.EngineTenantVO">
         select
         t.dt_uic_tenant_id as tenant_id,t.tenant_name,et.queue_id
         from console_engine_tenant et left join console_dtuic_tenant t

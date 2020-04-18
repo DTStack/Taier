@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -856,5 +857,95 @@ public class DateUtil {
         } else {
             return "0秒";
         }
+    }
+
+    /**
+     * 根据时间戳，格式化为日期时间字符串
+     *
+     * @return
+     * @author toutian
+     */
+    public static String getDateFormattedDate(long timestamp) {
+        SimpleDateFormat simpleDateFormat = datetimeFormatter.get().get(DATE_FORMAT_KEY);
+        return simpleDateFormat.format(new Date(timestamp));
+    }
+
+    /**
+     * 根据时间戳与格式类型，格式化为日期时间字符串
+     *
+     * @return
+     * @author toutian
+     */
+    public static String getUnStandardFormattedDate(long timestamp) {
+        SimpleDateFormat simpleDateFormat = datetimeFormatter.get().get(UN_STANDARD_DATETIME_FORMAT_KEY);
+        return simpleDateFormat.format(new Date(timestamp));
+    }
+
+    public static String getStandardFormattedDate(long timestamp) {
+        SimpleDateFormat simpleDateFormat = datetimeFormatter.get().get(STANDARD_DATETIME_FORMAT_KEY);
+        return simpleDateFormat.format(new Date(timestamp));
+    }
+
+    /**
+     * 明天0点的时间戳
+     *
+     * @return milliseconds
+     */
+    public static long TOMORROW_ZERO() {
+        return (calTodayMills() + TimeUnit.DAYS.toMillis(1));
+    }
+
+    /**
+     * 获得当天0点的时间戳
+     *
+     * @return milliseconds
+     */
+    public static long calTodayMills() {
+        SimpleDateFormat simpleDateFormat = datetimeFormatter.get().get(DATE_FORMAT_KEY);
+        try {
+            Date date = simpleDateFormat.parse(simpleDateFormat.format(new Date()));
+            return date.getTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return 0L;
+    }
+
+    public static String getTimeStrWithoutSymbol(String timeStr) {
+        return timeStr.replace(" ", "").replace("-", "").replace(":", "");
+    }
+
+    /**
+     * 将yyyyMMddHHmmss ---> yyyy-MM-dd HH:mm:ss
+     *
+     * @param str
+     * @return
+     */
+    public static String addTimeSplit(String str) {
+
+        if (str.length() != 14) {
+            return str;
+        }
+
+        StringBuffer sb = new StringBuffer("");
+        sb.append(str.substring(0, 4))
+                .append("-")
+                .append(str.substring(4, 6))
+                .append("-")
+                .append(str.substring(6, 8))
+                .append(" ")
+                .append(str.substring(8, 10))
+                .append(":")
+                .append(str.substring(10, 12))
+                .append(":")
+                .append(str.substring(12, 14));
+        return sb.toString();
+    }
+
+    public static long getLastDay(int num) {
+        Calendar cal = new GregorianCalendar();
+        cal.setTime(new Date());
+        cal.set(5, cal.get(5) - num);
+        return cal.getTimeInMillis();
     }
 }

@@ -1,13 +1,11 @@
 package com.dtstack.engine.master.utils;
 
-import com.dtstack.dtcenter.common.hadoop.HdfsOperator;
-import com.dtstack.dtcenter.common.sftp.SFTPHandler;
-import com.dtstack.dtcenter.common.util.Xml2JsonUtil;
-import com.dtstack.dtcenter.common.util.ZipUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.SFTPHandler;
+import com.dtstack.schedule.common.util.Xml2JsonUtil;
+import com.dtstack.schedule.common.util.ZipUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
-import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,23 +77,23 @@ public class XmlFileUtil {
         return xmlMaps;
     }
 
-    public static void uploadConfig2HDFD(String hdfsDir, List<File> xmlFiles, Configuration configuration) {
-        if (xmlFiles != null && configuration != null) {
-            try {
-                //删除hdfs目录下全部文件，重新新建文件夹，并上传文件
-                HdfsOperator.checkAndDele(configuration, hdfsDir);
-                HdfsOperator.createDir(configuration, hdfsDir);
-                for (File xmlFile : xmlFiles) {
-                    HdfsOperator.uploadLocalFileToHdfs(configuration, xmlFile.getPath(), hdfsDir);
-                }
-            } catch (Exception e) {
-                LOGGER.error("{}", e);
-                throw new RdosDefineException("配置文件上传至HDFS失败，可能原因Hadoop配置不正确");
-            } finally {
-                HdfsOperator.release();
-            }
-        }
-    }
+//    public static void uploadConfig2HDFD(String hdfsDir, List<File> xmlFiles, Configuration configuration) {
+//        if (xmlFiles != null && configuration != null) {
+//            try {
+//                //删除hdfs目录下全部文件，重新新建文件夹，并上传文件
+//                HdfsOperator.checkAndDele(configuration, hdfsDir);
+//                HdfsOperator.createDir(configuration, hdfsDir);
+//                for (File xmlFile : xmlFiles) {
+//                    HdfsOperator.uploadLocalFileToHdfs(configuration, xmlFile.getPath(), hdfsDir);
+//                }
+//            } catch (Exception e) {
+//                LOGGER.error("{}", e);
+//                throw new RdosDefineException("配置文件上传至HDFS失败，可能原因Hadoop配置不正确");
+//            } finally {
+//                HdfsOperator.release();
+//            }
+//        }
+//    }
 
 
     public static void uploadConfig2SFTP(String sftpDir, List<File> xmlFiles, Map<String, String> sftpConfig) {

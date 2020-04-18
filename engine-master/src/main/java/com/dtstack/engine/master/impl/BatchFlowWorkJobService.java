@@ -1,8 +1,7 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.dtcenter.common.constant.TaskStatusConstrant;
-import com.dtstack.dtcenter.common.enums.TaskStatus;
-import com.dtstack.engine.domain.BatchJob;
+import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +21,13 @@ public class BatchFlowWorkJobService {
     /**
      * 任务状态从低到高排序
      */
-    private final static List<Integer> sortedStatus = Lists.newArrayList(TaskStatus.CANCELED.getStatus(), TaskStatus.FAILED.getStatus(), TaskStatus.KILLED.getStatus(), TaskStatus.FROZEN.getStatus(), TaskStatus.CANCELING.getStatus()
-            , TaskStatus.PARENTFAILED.getStatus(), TaskStatus.UNSUBMIT.getStatus(), TaskStatus.SUBMITFAILD.getStatus(), TaskStatus.SUBMITTING.getStatus(), TaskStatus.SUBMITTED.getStatus(), TaskStatus.WAITENGINE.getStatus()
-            , TaskStatus.ENGINEDISTRIBUTE.getStatus(), TaskStatus.ENGINEACCEPTED.getStatus(), TaskStatus.WAITCOMPUTE.getStatus(), TaskStatus.CREATED.getStatus(), TaskStatus.SCHEDULED.getStatus(), TaskStatus.DEPLOYING.getStatus()
-            , TaskStatus.RESTARTING.getStatus(), TaskStatus.RUNNING.getStatus(), TaskStatus.MANUALSUCCESS.getStatus(), TaskStatus.FINISHED.getStatus());
+    private final static List<Integer> sortedStatus = Lists.newArrayList(RdosTaskStatus.CANCELED.getStatus(), RdosTaskStatus.FAILED.getStatus(), RdosTaskStatus.KILLED.getStatus(), RdosTaskStatus.FROZEN.getStatus(), RdosTaskStatus.CANCELLING.getStatus()
+            , RdosTaskStatus.PARENTFAILED.getStatus(), RdosTaskStatus.UNSUBMIT.getStatus(), RdosTaskStatus.SUBMITFAILD.getStatus(), RdosTaskStatus.SUBMITTING.getStatus(), RdosTaskStatus.SUBMITTED.getStatus(), RdosTaskStatus.WAITENGINE.getStatus()
+            , RdosTaskStatus.ENGINEDISTRIBUTE.getStatus(), RdosTaskStatus.ENGINEACCEPTED.getStatus(), RdosTaskStatus.WAITCOMPUTE.getStatus(), RdosTaskStatus.CREATED.getStatus(), RdosTaskStatus.SCHEDULED.getStatus(), RdosTaskStatus.DEPLOYING.getStatus()
+            , RdosTaskStatus.RESTARTING.getStatus(), RdosTaskStatus.RUNNING.getStatus(), RdosTaskStatus.MANUALSUCCESS.getStatus(), RdosTaskStatus.FINISHED.getStatus());
 
     @Autowired
-    private BatchJobService batchJobService;
+    private ScheduleJobService batchJobService;
 
     /**
      * <br>1.工作流下无子任务更新为完成状态</br>
@@ -47,78 +46,78 @@ public class BatchFlowWorkJobService {
      */
     public boolean checkRemoveAndUpdateFlowJobStatus(String jobId,Integer appType) {
 
-        List<BatchJob> subJobs = batchJobService.getSubJobsAndStatusByFlowId(jobId);
+        List<ScheduleJob> subJobs = batchJobService.getSubJobsAndStatusByFlowId(jobId);
         boolean canRemove = false;
         Integer bottleStatus = null;
         //没有子任务
         if (CollectionUtils.isEmpty(subJobs)) {
-            bottleStatus = TaskStatus.FINISHED.getStatus();
+            bottleStatus = RdosTaskStatus.FINISHED.getStatus();
             canRemove = true;
         } else {
-            for (BatchJob batchJob : subJobs) {
-                Integer status = batchJob.getStatus();
+            for (ScheduleJob scheduleJob : subJobs) {
+                Integer status = scheduleJob.getStatus();
                 // 工作流失败状态细化 优先级： 运行失败>提交失败>上游失败
-                if (TaskStatusConstrant.PARENTFAILED_STATUS.contains(status)) {
-                    if ( !TaskStatus.CANCELED.getStatus().equals(bottleStatus) && !TaskStatus.FAILED.getStatus().equals(bottleStatus) && !TaskStatus.SUBMITFAILD.getStatus().equals(bottleStatus)){
-                        bottleStatus = TaskStatus.PARENTFAILED.getStatus();
+                if (RdosTaskStatus.PARENTFAILED_STATUS.contains(status)) {
+                    if ( !RdosTaskStatus.CANCELED.getStatus().equals(bottleStatus) && !RdosTaskStatus.FAILED.getStatus().equals(bottleStatus) && !RdosTaskStatus.SUBMITFAILD.getStatus().equals(bottleStatus)){
+                        bottleStatus = RdosTaskStatus.PARENTFAILED.getStatus();
                     }
                     canRemove = true;
                     continue;
                 }
-                if (TaskStatusConstrant.SUBMITFAILD_STATUS.contains(status)) {
-                    if (!TaskStatus.CANCELED.getStatus().equals(bottleStatus) && !TaskStatus.FAILED.getStatus().equals(bottleStatus) ){
-                        bottleStatus = TaskStatus.SUBMITFAILD.getStatus();
+                if (RdosTaskStatus.SUBMITFAILD_STATUS.contains(status)) {
+                    if (!RdosTaskStatus.CANCELED.getStatus().equals(bottleStatus) && !RdosTaskStatus.FAILED.getStatus().equals(bottleStatus) ){
+                        bottleStatus = RdosTaskStatus.SUBMITFAILD.getStatus();
                     }
                     canRemove = true;
                     continue;
                 }
 
-                if (TaskStatusConstrant.RUN_FAILED_STATUS.contains(status)) {
-                    if (!TaskStatus.CANCELED.getStatus().equals(bottleStatus) ){
-                        bottleStatus = TaskStatus.FAILED.getStatus();
+                if (RdosTaskStatus.RUN_FAILED_STATUS.contains(status)) {
+                    if (!RdosTaskStatus.CANCELED.getStatus().equals(bottleStatus) ){
+                        bottleStatus = RdosTaskStatus.FAILED.getStatus();
                     }
                     canRemove = true;
                     continue;
                 }
-                if (TaskStatusConstrant.FROZEN_STATUS.contains(status) || TaskStatusConstrant.STOP_STATUS.contains(status)) {
-                    bottleStatus = TaskStatus.CANCELED.getStatus();
+                if (RdosTaskStatus.FROZEN_STATUS.contains(status) || RdosTaskStatus.STOP_STATUS.contains(status)) {
+                    bottleStatus = RdosTaskStatus.CANCELED.getStatus();
                     canRemove = true;
                     break;
                 }
             }
             //子任务不存在失败/取消的状态
-            for (BatchJob batchJob : subJobs) {
-                Integer status = batchJob.getStatus();
+            for (ScheduleJob scheduleJob : subJobs) {
+                Integer status = scheduleJob.getStatus();
                 //若存在子任务状态不是结束状态，工作流保持提交中状态
-                if (!TaskStatusConstrant.endStatusList.contains(status)) {
+                if (!RdosTaskStatus.getStoppedStatus().contains(status)) {
                     canRemove = false;
-                    bottleStatus = TaskStatus.RUNNING.getStatus();
+                    bottleStatus = RdosTaskStatus.RUNNING.getStatus();
                     break;
                 }
                 canRemove = true;
                 if (bottleStatus == null) {
-                    bottleStatus = TaskStatus.FINISHED.getStatus();
+                    bottleStatus = RdosTaskStatus.FINISHED.getStatus();
                 }
             }
             //子任务全部为已冻结状态
             boolean flowJobAllFrozen = true;
-            for (BatchJob batchJob : subJobs){
-                Integer status = batchJob.getStatus();
-                if (!TaskStatusConstrant.FROZEN_STATUS.contains(status)){
+            for (ScheduleJob scheduleJob : subJobs){
+                Integer status = scheduleJob.getStatus();
+                if (!RdosTaskStatus.FROZEN_STATUS.contains(status)){
                     flowJobAllFrozen = false;
                     break;
                 }
             }
             if (flowJobAllFrozen){
                 canRemove = true;
-                bottleStatus = TaskStatus.FROZEN.getStatus();
+                bottleStatus = RdosTaskStatus.FROZEN.getStatus();
             }
         }
 
-        if (TaskStatus.FINISHED.getStatus().equals(bottleStatus) || TaskStatus.FAILED.getStatus().equals(bottleStatus)
-                || TaskStatus.PARENTFAILED.getStatus().equals(bottleStatus) || TaskStatus.SUBMITFAILD.getStatus().equals(bottleStatus)) {
+        if (RdosTaskStatus.FINISHED.getStatus().equals(bottleStatus) || RdosTaskStatus.FAILED.getStatus().equals(bottleStatus)
+                || RdosTaskStatus.PARENTFAILED.getStatus().equals(bottleStatus) || RdosTaskStatus.SUBMITFAILD.getStatus().equals(bottleStatus)) {
             //更新结束时间时间
-            BatchJob updateJob = new BatchJob();
+            ScheduleJob updateJob = new ScheduleJob();
             updateJob.setJobId(jobId);
             updateJob.setStatus(bottleStatus);
             updateJob.setAppType(appType);

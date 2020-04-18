@@ -1,25 +1,25 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.common.cache.ConsoleCache;
-import com.dtstack.dtcenter.common.enums.EComponentType;
-import com.dtstack.dtcenter.common.enums.MultiEngineType;
-import com.dtstack.dtcenter.common.login.DtUicUserConnect;
-import com.dtstack.dtcenter.common.login.domain.UserTenant;
-import com.dtstack.dtcenter.common.pager.PageQuery;
-import com.dtstack.dtcenter.common.pager.PageResult;
-import com.dtstack.dtcenter.common.pager.Sort;
-import com.dtstack.engine.common.annotation.Param;
+import com.dtstack.engine.api.annotation.Param;
+import com.dtstack.engine.api.pager.PageQuery;
+import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.domain.*;
-import com.dtstack.engine.domain.Queue;
+import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.api.domain.Queue;
+import com.dtstack.engine.master.enums.EComponentType;
+import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.vo.ClusterVO;
-import com.dtstack.engine.vo.EngineTenantVO;
-import com.dtstack.engine.vo.TestConnectionVO;
+import com.dtstack.engine.api.vo.ClusterVO;
+import com.dtstack.engine.api.vo.EngineTenantVO;
+import com.dtstack.engine.api.vo.TestConnectionVO;
+import com.dtstack.engine.master.router.cache.ConsoleCache;
+import com.dtstack.engine.master.router.login.DtUicUserConnect;
+import com.dtstack.engine.master.router.login.domain.UserTenant;
+import com.dtstack.schedule.common.enums.Sort;
 import org.apache.commons.collections.CollectionUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -302,6 +302,7 @@ public class TenantService {
             throw new RdosDefineException("更新引擎队列失败");
         }
 
+        //缓存刷新
         consoleCache.publishRemoveMessage(dtUicTenantId.toString());
     }
 

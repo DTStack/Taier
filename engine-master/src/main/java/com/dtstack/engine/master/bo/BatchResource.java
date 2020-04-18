@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.bo;
 
-import com.dtstack.dtcenter.base.domain.TenantProjectEntity;
+
+import com.dtstack.engine.api.domain.TenantProjectEntity;
 
 /**
  * @author sishu.yss

@@ -7,7 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 
@@ -85,16 +88,19 @@ public enum RdosTaskStatus implements Serializable {
     );
 
     private final static List<Integer> STOPPED_STATUS = Lists.newArrayList(
-            RdosTaskStatus.FAILED.getStatus(),
-            RdosTaskStatus.CANCELED.getStatus(),
-            RdosTaskStatus.SUBMITFAILD.getStatus(),
-            RdosTaskStatus.KILLED.getStatus(),
-            RdosTaskStatus.FINISHED.getStatus(),
-            RdosTaskStatus.EXPIRE.getStatus(),
-            RdosTaskStatus.AUTOCANCELED.getStatus()
+            MANUALSUCCESS.getStatus(),
+            PARENTFAILED.getStatus(),
+            FAILED.getStatus(),
+            CANCELED.getStatus(),
+            SUBMITFAILD.getStatus(),
+            KILLED.getStatus(),
+            FINISHED.getStatus(),
+            EXPIRE.getStatus(),
+            FROZEN.getStatus(),
+            AUTOCANCELED.getStatus()
     );
 
-	private static final Logger logger = LoggerFactory.getLogger(RdosTaskStatus.class);
+    private static final Logger logger = LoggerFactory.getLogger(RdosTaskStatus.class);
 
     private static final long serialVersionUID = 1L;
 	
@@ -148,7 +154,7 @@ public enum RdosTaskStatus implements Serializable {
         return false;
     }
 
-    public static boolean canStartAgain(Integer status){
+    public static boolean canStart(Integer status){
         if(RdosTaskStatus.SUBMITTING.getStatus().equals(status) || RdosTaskStatus.UNSUBMIT.getStatus().equals(status)){
     	    return true;
         }
@@ -172,5 +178,158 @@ public enum RdosTaskStatus implements Serializable {
 
     public static List<Integer> getStoppedStatus() {
         return STOPPED_STATUS;
+    }
+
+    public static List<Integer> getFinishStatus() {
+        return FINISH_STATUS;
+    }
+
+    public static List<Integer> getWaitStatus() {
+        return WAIT_STATUS;
+    }
+
+    public final static List<Integer> UNSUBMIT_STATUS = Lists.newArrayList(UNSUBMIT.getStatus());
+    public final static List<Integer> RUNNING_STATUS = Lists.newArrayList(RUNNING.getStatus());
+    public final static List<Integer> FINISH_STATUS = Lists.newArrayList(FINISHED.getStatus(), MANUALSUCCESS.getStatus());
+    public final static List<Integer> FAILED_STATUS = Lists.newArrayList(FAILED.getStatus(), SUBMITFAILD.getStatus(),
+            PARENTFAILED.getStatus(), FAILING.getStatus());
+    public final static List<Integer> SUBMITFAILD_STATUS = Lists.newArrayList(SUBMITFAILD.getStatus());
+    public final static List<Integer> PARENTFAILED_STATUS = Lists.newArrayList(PARENTFAILED.getStatus());
+    public final static List<Integer> RUN_FAILED_STATUS = Lists.newArrayList(FAILED.getStatus(), FAILING.getStatus());
+    public final static List<Integer> WAIT_STATUS = Lists.newArrayList(WAITENGINE.getStatus(), WAITCOMPUTE.getStatus(),
+            RESTARTING.getStatus(), SUBMITTED.getStatus(), ENGINEACCEPTED.getStatus(),
+            ENGINEDISTRIBUTE.getStatus(), SCHEDULED.getStatus(), CREATED.getStatus(),
+            DEPLOYING.getStatus(), COMPUTING.getStatus(), LACKING.getStatus());
+    public final static List<Integer> SUBMITTING_STATUS = Lists.newArrayList(SUBMITTING.getStatus());
+    public final static List<Integer> STOP_STATUS = Lists.newArrayList(KILLED.getStatus(), CANCELLING.getStatus(), CANCELED.getStatus(), EXPIRE.getStatus(), AUTOCANCELED.getStatus());
+    public final static List<Integer> EXPIRE_STATUS = Lists.newArrayList(EXPIRE.getStatus(),AUTOCANCELED.getStatus());
+    public final static List<Integer> FROZEN_STATUS = Lists.newArrayList(FROZEN.getStatus());
+
+    public static String getCode(Integer status) {
+        String key = null;
+        if (FINISH_STATUS.contains(status)) {
+            key = FINISHED.name();
+        } else if (RUNNING_STATUS.contains(status)) {
+            key = RUNNING.name();
+        } else if (PARENTFAILED_STATUS.contains(status)) {
+            key = PARENTFAILED.name();
+        } else if (SUBMITFAILD_STATUS.contains(status)) {
+            key = SUBMITFAILD.name();
+        } else if (RUN_FAILED_STATUS.contains(status)) {
+            key = FAILED.name();
+        } else if (UNSUBMIT_STATUS.contains(status)) {
+            key = UNSUBMIT.name();
+        } else if (WAIT_STATUS.contains(status)) {
+            key = WAITENGINE.name();
+        } else if (SUBMITTING_STATUS.contains(status)) {
+            key = SUBMITTING.name();
+        } else if (STOP_STATUS.contains(status)) {
+            key = CANCELED.name();
+        } else if (FROZEN_STATUS.contains(status)) {
+            key = FROZEN.name();
+        } else {
+            key = UNSUBMIT.name();
+        }
+        return key;
+    }
+
+
+    private final static List<Integer> UNFINISHED_STATUSES = Lists.newArrayList(
+            RUNNING.getStatus(),
+            UNSUBMIT.getStatus(),
+            RESTARTING.getStatus(),
+            SUBMITTING.getStatus());
+
+    static {
+        UNFINISHED_STATUSES.addAll(WAIT_STATUS);
+    }
+
+    /**
+     * 未完成的job
+     */
+    public static List<Integer> getUnfinishedStatuses() {
+        return UNFINISHED_STATUSES;
+    }
+
+    private final static Map<Integer, List<Integer>> COLLECTION_STATUS = new HashMap<>();
+
+    static {
+        COLLECTION_STATUS.put(UNSUBMIT.getStatus(), Lists.newArrayList(UNSUBMIT.getStatus()));
+        COLLECTION_STATUS.put(RUNNING.getStatus(), Lists.newArrayList(RUNNING.getStatus()));
+        COLLECTION_STATUS.put(FINISHED.getStatus(), FINISH_STATUS);
+        COLLECTION_STATUS.put(FAILED.getStatus(), FAILED_STATUS);
+        COLLECTION_STATUS.put(WAITENGINE.getStatus(), WAIT_STATUS);
+        COLLECTION_STATUS.put(SUBMITTING.getStatus(), Lists.newArrayList(SUBMITTING.getStatus()));
+        COLLECTION_STATUS.put(CANCELED.getStatus(), STOPPED_STATUS);
+        COLLECTION_STATUS.put(FROZEN.getStatus(), Lists.newArrayList(FROZEN.getStatus()));
+    }
+
+    private final static Map<Integer, List<Integer>> STATUS_FAILED_DETAIL = new HashMap<>();
+
+    static {
+        STATUS_FAILED_DETAIL.put(UNSUBMIT.getStatus(), Lists.newArrayList(UNSUBMIT.getStatus()));
+        STATUS_FAILED_DETAIL.put(RUNNING.getStatus(), Lists.newArrayList(RUNNING.getStatus()));
+        STATUS_FAILED_DETAIL.put(FINISHED.getStatus(), FINISH_STATUS);
+        STATUS_FAILED_DETAIL.put(FAILED.getStatus(), Lists.newArrayList(FAILED.getStatus(), FAILING.getStatus()));
+        STATUS_FAILED_DETAIL.put(SUBMITFAILD.getStatus(), Lists.newArrayList(SUBMITFAILD.getStatus()));
+        STATUS_FAILED_DETAIL.put(PARENTFAILED.getStatus(), Lists.newArrayList(PARENTFAILED.getStatus()));
+        STATUS_FAILED_DETAIL.put(WAITENGINE.getStatus(), WAIT_STATUS);
+        STATUS_FAILED_DETAIL.put(SUBMITTING.getStatus(), Lists.newArrayList(SUBMITTING.getStatus()));
+        STATUS_FAILED_DETAIL.put(CANCELED.getStatus(), STOPPED_STATUS);
+        STATUS_FAILED_DETAIL.put(FROZEN.getStatus(), Lists.newArrayList(FROZEN.getStatus()));
+    }
+
+
+    public static List<Integer> getCollectionStatus(Integer status) {
+        return COLLECTION_STATUS.computeIfAbsent(status, k -> new ArrayList<>(0));
+    }
+
+    public static Map<Integer, List<Integer>> getCollectionStatus() {
+        return COLLECTION_STATUS;
+    }
+
+    public static Map<Integer, List<Integer>> getStatusFailedDetail() {
+        return STATUS_FAILED_DETAIL;
+    }
+
+    public static List<Integer> getStatusFailedDetail(Integer status) {
+        return STATUS_FAILED_DETAIL.computeIfAbsent(status, k -> new ArrayList<>(0));
+    }
+
+    public static int getShowStatus(Integer status) {
+        if (FAILED_STATUS.contains(status)) {
+            status = FAILED.getStatus();
+        } else {
+            status = getShowStatusWithoutStop(status);
+        }
+        return status;
+    }
+
+    /**
+     * 将过程细化的status归并为 已完成、正在运行、等待提交、等待运行、提交中、取消、冻结
+     * 不需要对stop状态做归并处理（stop状态用户需要直接查看）
+     *
+     * @param status
+     * @return
+     */
+    public static int getShowStatusWithoutStop(Integer status) {
+        if (FINISH_STATUS.contains(status)) {
+            status = FINISHED.getStatus();
+        } else if (RUNNING_STATUS.contains(status)) {
+            status = RUNNING.getStatus();
+        } else if (UNSUBMIT_STATUS.contains(status)) {
+            status = UNSUBMIT.getStatus();
+        } else if (WAIT_STATUS.contains(status)) {
+            status = WAITENGINE.getStatus();
+        } else if (SUBMITTING_STATUS.contains(status)) {
+            status = SUBMITTING.getStatus();
+        } else if (EXPIRE_STATUS.contains(status)){
+            status = EXPIRE.getStatus();
+        } else if (STOP_STATUS.contains(status)) {
+            status = CANCELED.getStatus();
+        } else if (FROZEN_STATUS.contains(status)) {
+            status = FROZEN.getStatus();
+        }
+        return status;
     }
 }

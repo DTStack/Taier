@@ -1,11 +1,10 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.dtcenter.common.annotation.Forbidden;
+import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.QueueDao;
-import com.dtstack.engine.domain.ClusterResourceDescription;
-import com.dtstack.engine.domain.Queue;
-import com.dtstack.engine.master.component.YARNComponent;
+import com.dtstack.engine.api.domain.ClusterResourceDescription;
+import com.dtstack.engine.api.domain.Queue;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -1,15 +1,15 @@
 package com.dtstack.engine.master.job.impl;
 
 
-import com.dtstack.dtcenter.common.engine.JdbcInfo;
-import com.dtstack.dtcenter.common.engine.JdbcQuery;
-import com.dtstack.dtcenter.common.engine.JdbcUrlPropertiesValue;
-import com.dtstack.dtcenter.common.enums.DataBaseType;
-import com.dtstack.dtcenter.common.util.DBUtil;
-import com.dtstack.dtcenter.common.util.PublicUtil;
+import com.dtstack.schedule.common.enums.DataBaseType;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.schedule.common.jdbc.JdbcInfo;
+import com.dtstack.schedule.common.jdbc.JdbcQuery;
+import com.dtstack.schedule.common.jdbc.JdbcUrlPropertiesValue;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.master.impl.ClusterService;
+import com.dtstack.engine.master.utils.DBUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -87,7 +87,7 @@ public class ImpalaService {
         JdbcInfo JDBCInfo = null;
         if (data != null) {
             try {
-                JDBCInfo = (JdbcInfo) PublicUtil.strToObject(data.toString(), JdbcInfo.class);
+                JDBCInfo = (JdbcInfo) PublicUtil.jsonStrToObject(data.toString(), JdbcInfo.class);
             } catch (IOException e) {
                 logger.error("", e);
             }

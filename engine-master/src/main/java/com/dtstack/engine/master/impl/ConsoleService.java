@@ -1,10 +1,9 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.common.annotation.Forbidden;
-import com.dtstack.dtcenter.common.enums.EComponentType;
-import com.dtstack.dtcenter.common.enums.MultiEngineType;
-import com.dtstack.engine.common.annotation.Param;
+import com.dtstack.engine.common.annotation.Forbidden;
+import com.dtstack.engine.api.annotation.Param;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
@@ -13,22 +12,14 @@ import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.pojo.ParamAction;
-import com.dtstack.engine.dao.ClusterDao;
-import com.dtstack.engine.dao.EngineDao;
-import com.dtstack.engine.dao.EngineJobDao;
-import com.dtstack.engine.dao.EngineJobCacheDao;
-import com.dtstack.engine.dao.EngineJobStopRecordDao;
-import com.dtstack.engine.domain.Cluster;
-import com.dtstack.engine.domain.Component;
-import com.dtstack.engine.domain.Engine;
-import com.dtstack.engine.domain.EngineJobCache;
-import com.dtstack.engine.domain.EngineJob;
-import com.dtstack.engine.domain.EngineJobStopRecord;
+import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.cache.ShardCache;
 import com.dtstack.engine.master.component.ComponentFactory;
 import com.dtstack.engine.master.component.FlinkComponent;
 import com.dtstack.engine.master.component.YARNComponent;
+import com.dtstack.engine.master.enums.EComponentType;
+import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.google.common.base.Preconditions;
@@ -64,7 +55,7 @@ public class ConsoleService {
     private static final Logger logger = LoggerFactory.getLogger(ConsoleService.class);
 
     @Autowired
-    private EngineJobDao engineJobDao;
+    private ScheduleJobDao scheduleJobDao;
 
     @Autowired
     private EngineJobCacheDao engineJobCacheDao;
@@ -98,7 +89,7 @@ public class ConsoleService {
         }
         shardCache.updateLocalMemTaskStatus(jobId, status);
         engineJobCacheDao.delete(jobId);
-        engineJobDao.updateJobStatus(jobId, status);
+        scheduleJobDao.updateJobStatus(jobId, status);
         logger.info("jobId:{} update job status:{}, job is finished.", jobId, status);
         return true;
     }
@@ -114,9 +105,9 @@ public class ConsoleService {
     public Map<String, Object> searchJob(@Param("jobName") String jobName) {
         Preconditions.checkNotNull(jobName, "parameters of jobName not be null.");
         String jobId = null;
-        EngineJob engineJob = engineJobDao.getByName(jobName);
-        if (engineJob != null) {
-            jobId = engineJob.getJobId();
+        ScheduleJob scheduleJob = scheduleJobDao.getByName(jobName);
+        if (scheduleJob != null) {
+            jobId = scheduleJob.getJobId();
         }
         if (jobId == null) {
             return null;
@@ -127,7 +118,7 @@ public class ConsoleService {
         }
         try {
             Map<String, Object> theJobMap = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), Map.class);
-            this.fillJobInfo(theJobMap, engineJob, engineJobCache);
+            this.fillJobInfo(theJobMap, scheduleJob, engineJobCache);
 
             Map<String, Object> result = new HashMap<>(3);
             result.put("theJob", Lists.newArrayList(theJobMap));
@@ -236,9 +227,9 @@ public class ConsoleService {
                 List<EngineJobCache> engineJobCaches = engineJobCacheDao.listByJobResource(jobResource, stage, nodeAddress, start, pageSize);
                 for (EngineJobCache engineJobCache : engineJobCaches) {
                     Map<String, Object> theJobMap = PublicUtil.objectToMap(engineJobCache);
-                    EngineJob engineJob = engineJobDao.getRdosJobByJobId(engineJobCache.getJobId());
-                    if (engineJob != null) {
-                        this.fillJobInfo(theJobMap, engineJob, engineJobCache);
+                    ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(engineJobCache.getJobId());
+                    if (scheduleJob != null) {
+                        this.fillJobInfo(theJobMap, scheduleJob, engineJobCache);
                     }
                     data.add(theJobMap);
                 }
@@ -254,9 +245,9 @@ public class ConsoleService {
         return result;
     }
 
-    private void fillJobInfo(Map<String, Object> theJobMap, EngineJob engineJob, EngineJobCache engineJobCache) {
-        theJobMap.put("status", engineJob.getStatus());
-        theJobMap.put("execStartTime", engineJob.getExecStartTime());
+    private void fillJobInfo(Map<String, Object> theJobMap, ScheduleJob scheduleJob, EngineJobCache engineJobCache) {
+        theJobMap.put("status", scheduleJob.getStatus());
+        theJobMap.put("execStartTime", scheduleJob.getExecStartTime());
         theJobMap.put("generateTime", engineJobCache.getGmtCreate());
         long currentTime = System.currentTimeMillis();
         String waitTime = DateUtil.getTimeDifference(currentTime - engineJobCache.getGmtCreate().getTime());
@@ -329,7 +320,7 @@ public class ConsoleService {
 
             if (EJobCacheStage.unSubmitted().contains(stage)) {
                 Integer deleted = engineJobCacheDao.deleteByJobIds(jobIdList);
-                Integer updated = engineJobDao.updateJobStatusByJobIds(jobIdList, RdosTaskStatus.CANCELED.getStatus());
+                Integer updated = scheduleJobDao.updateJobStatusByJobIds(jobIdList, RdosTaskStatus.CANCELED.getStatus());
                 logger.info("delete job size:{}, update job size:{}, deal jobIds:{}", deleted, updated, jobIdList);
             } else {
                 List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(jobIdList);
@@ -370,7 +361,7 @@ public class ConsoleService {
 
                 if (EJobCacheStage.unSubmitted().contains(stage)) {
                     Integer deleted = engineJobCacheDao.deleteByJobIds(jobIds);
-                    Integer updated = engineJobDao.updateJobStatusByJobIds(jobIds, RdosTaskStatus.CANCELED.getStatus());
+                    Integer updated = scheduleJobDao.updateJobStatusByJobIds(jobIds, RdosTaskStatus.CANCELED.getStatus());
                     logger.info("delete job size:{}, update job size:{}, query job size:{}, jobIds:{}", deleted, updated, jobCaches.size(), jobIds);
                 } else {
                     //已提交的任务需要发送请求杀死，走正常杀任务的逻辑

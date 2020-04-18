@@ -1,8 +1,8 @@
 package com.dtstack.engine.master.router.vertx;
 
-import com.dtstack.dtcenter.common.annotation.Forbidden;
-import com.dtstack.dtcenter.common.util.AopTargetUtils;
-import com.dtstack.engine.common.annotation.Param;
+import com.dtstack.engine.common.annotation.Forbidden;
+import com.dtstack.engine.master.utils.AopTargetUtils;
+import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -14,11 +14,6 @@ import org.springframework.context.ApplicationContext;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 
@@ -41,6 +36,8 @@ public class BaseVerticle {
 		HttpServerRequest httpServerRequest = routingContext.request();
 		String path = httpServerRequest.path();
 		String[] paths = path.split("/");
+		String rbody = routingContext.getBodyAsString("UTF-8");
+		LOGGER.info("receive http request:{}:{}",path,rbody);
 		if (paths.length < 2) {
 			throw new Exception("url path error,please check");
 		}
