@@ -110,9 +110,6 @@ public class ClusterService implements InitializingBean {
     @Autowired
     private AccountDao accountDao;
 
-    @Autowired
-    private ClusterService clusterService;
-
 
     @Override
     public void afterPropertiesSet() throws Exception {
