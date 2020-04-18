@@ -131,4 +131,9 @@ public class AkkaConfig {
         String keyName = ConfigConstant.NODE_LABELS;
         return getValueWithDefault(keyName, "default");
     }
+
+    public static long getWorkerTimeout() {
+        String keyName = ConfigConstant.WORKER_TIMEOUT;
+        return Long.valueOf(getValueWithDefault(keyName, "300000"));
+    }
 }
