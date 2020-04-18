@@ -16,6 +16,7 @@ import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.api.vo.EngineTenantVO;
 import com.dtstack.engine.api.vo.TestConnectionVO;
+import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.engine.master.router.login.domain.UserTenant;
 import com.dtstack.schedule.common.enums.Sort;
@@ -53,8 +54,8 @@ public class TenantService {
     @Autowired
     private QueueDao queueDao;
 
-//    @Autowired
-//    private ConsoleCache consoleCache;
+    @Autowired
+    private ConsoleCache consoleCache;
 
     @Autowired
     private EngineTenantDao engineTenantDao;
@@ -301,8 +302,8 @@ public class TenantService {
             throw new RdosDefineException("更新引擎队列失败");
         }
 
-        //@TODO 平台层触发缓存刷新
-//        consoleCache.publishRemoveMessage(dtUicTenantId.toString());
+        //缓存刷新
+        consoleCache.publishRemoveMessage(dtUicTenantId.toString());
     }
 
     /**

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.enums.SftpAuthType;
@@ -121,6 +122,9 @@ public class ComponentService {
 
     @Autowired
     private TenantDao tenantDao;
+
+    @Autowired
+    private ConsoleCache consoleCache;
 
     @Autowired
     private EnvironmentContext env;
@@ -481,12 +485,12 @@ public class ComponentService {
             List<Long> tenantIds = engineTenantDao.listTenantIdByQueueIds(queueIds);
             dtUicTenantIds = new HashSet<>(tenantDao.listDtUicTenantIdByIds(tenantIds));
         }
-        //@TODO 平台层触发缓存刷新
-//        if (!dtUicTenantIds.isEmpty()) {
-//            for (Long uicTenantId : dtUicTenantIds) {
-//                consoleCache.publishRemoveMessage(uicTenantId.toString());
-//            }
-//        }
+        //缓存刷新
+        if (!dtUicTenantIds.isEmpty()) {
+            for (Long uicTenantId : dtUicTenantIds) {
+                consoleCache.publishRemoveMessage(uicTenantId.toString());
+            }
+        }
     }
 
     public List<Component> listComponent(Long engineId){
