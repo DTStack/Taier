@@ -50,7 +50,7 @@ public class ClientProxy implements IClient {
         this.targetClient = targetClient;
         this.timeout = AkkaConfig.getWorkerTimeout();
         executorService = new ThreadPoolExecutor(10, 10, 0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>(), new CustomThreadFactory(this.getClass().getSimpleName() + "_" + targetClient.getClass().getSimpleName() + "_sendMessageService"));
+                new LinkedBlockingQueue<Runnable>(), new CustomThreadFactory(targetClient.getClass().getSimpleName() + "_" + this.getClass().getSimpleName()));
     }
 
     @Override
