@@ -33,7 +33,7 @@ import java.util.Set;
 /**
  * @author toutian
  */
-@EnableCaching
+//@EnableCaching
 @Configuration
 public class CacheConfig {
 
