@@ -22,7 +22,7 @@
         <dependency>
             <groupId>com.dtstack.engine</groupId>
             <artifactId>engine-api</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.0.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
