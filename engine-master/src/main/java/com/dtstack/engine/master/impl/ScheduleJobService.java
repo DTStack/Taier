@@ -1027,7 +1027,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                 actionParam = pluginWrapper.wrapperPluginInfo(actionParam);
 
                 actionService.start(actionParam);
-                logger.info("sendJobStart actionParam: {}", actionParam);
+                logger.info("sendJobStart jobId {} actionParam: {}",scheduleJob.getJobId(), actionParam);
                 return;
             }
         }
