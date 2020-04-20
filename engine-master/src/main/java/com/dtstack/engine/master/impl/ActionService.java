@@ -75,7 +75,7 @@ public class ActionService {
 
     private static int length = 8;
 
-    private static int PLUGIN_INFO_SIZE_LIMIT = 10;
+    private static int PLUGIN_INFO_SIZE_LIMIT = 5;
 
     private static int TASK_STOP_LIMIT = 1000;
 
