@@ -1,8 +1,8 @@
 package com.dtstack.engine.master.scheduler;
 
-import com.dtstack.dtcenter.common.enums.EParamType;
-import com.dtstack.dtcenter.common.util.TimeParamOperator;
 import com.dtstack.engine.api.dto.ScheduleTaskParamShade;
+import com.dtstack.schedule.common.enums.EParamType;
+import com.dtstack.schedule.common.util.TimeParamOperator;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

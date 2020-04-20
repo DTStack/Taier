@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.router.login;
 
-import com.dtstack.dtcenter.common.cache.SessionCache;
-import com.dtstack.dtcenter.common.util.MD5Util;
+import com.dtstack.engine.common.util.MD5Util;
+import com.dtstack.engine.master.router.cache.SessionCache;
 import org.springframework.context.ApplicationContext;
 
 /**
@@ -37,7 +37,7 @@ public class SessionUtil {
     }
 
     public static String getSessionId(String token) {
-        return MD5Util.getMD5String(token);
+        return MD5Util.getMd5String(token);
     }
 
 }

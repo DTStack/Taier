@@ -1,13 +1,13 @@
 package com.dtstack.engine.master.job.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.common.enums.EngineType;
-import com.dtstack.dtcenter.common.util.TimeParamOperator;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskParamShade;
 import com.dtstack.engine.master.job.IJobStartTrigger;
+import com.dtstack.schedule.common.enums.ScheduleEngineType;
+import com.dtstack.schedule.common.util.TimeParamOperator;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
@@ -24,7 +24,7 @@ public class BatchKylinJobStartTrigger implements IJobStartTrigger {
 
     @Override
     public void readyForTaskStartTrigger(Map<String, Object> actionParam, ScheduleTaskShade taskShade, ScheduleJob scheduleJob) throws Exception {
-        if (taskShade.getEngineType().equals(EngineType.Kylin.getVal())) {
+        if (taskShade.getEngineType().equals(ScheduleEngineType.Kylin.getVal())) {
             List<ScheduleTaskParamShade> taskParamsToReplace = JSONObject.parseArray((String)actionParam.get("taskParamsToReplace"), ScheduleTaskParamShade.class);
             JSONObject pluginInfo = JSONObject.parseObject((String) actionParam.get("pluginInfo"));
             if (Objects.nonNull(pluginInfo)) {

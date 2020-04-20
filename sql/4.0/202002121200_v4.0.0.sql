@@ -673,3 +673,29 @@ ALTER TABLE  `schedule_job` modify  COLUMN `dependency_type` tinyint(2) NOT NULL
 ALTER TABLE  `schedule_fill_data_job` modify  COLUMN `job_name` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '补数据任务名称';
 ALTER TABLE  `schedule_job_graph_trigger` modify  COLUMN `trigger_time` datetime NOT NULL COMMENT '调度时间';
 
+
+-- 将schedule_job shedule_engine_job 两表合并
+
+ALTER TABLE  `schedule_job` modify  COLUMN `type`     tinyint(1) NOT NULL DEFAULT '2' COMMENT '0正常调度 1补数据 2临时运行';
+ALTER TABLE  `schedule_job` modify  COLUMN `log_info` mediumtext                      COMMENT '错误信息';
+
+ALTER TABLE  `schedule_job` ADD `engine_job_id`  varchar(256) DEFAULT NULL COMMENT '离线任务计算引擎id';
+ALTER TABLE  `schedule_job` ADD `application_id`  varchar(256) DEFAULT NULL COMMENT '独立运行的任务需要记录额外的id';
+ALTER TABLE  `schedule_job` ADD `engine_log`      longtext                  COMMENT '引擎错误信息';
+ALTER TABLE  `schedule_job` ADD `plugin_info_id`  int(11)      DEFAULT NULL COMMENT '插件信息';
+ALTER TABLE  `schedule_job` ADD `source_type`     tinyint(2)   DEFAULT NULL COMMENT '任务来源';
+ALTER TABLE  `schedule_job` ADD `retry_task_params` text       DEFAULT NULL COMMENT '重试任务参数';
+ALTER TABLE  `schedule_job` ADD `compute_type`    tinyint(1)   NOT NULL DEFAULT '1' COMMENT '计算类型STREAM(0), BATCH(1)';
+
+update `schedule_job` as sj inner join `schedule_engine_job` as sej
+    on sj.job_id = sej.job_id
+    set sj.engine_job_id = sej.engine_job_id,
+        sj.application_id = sej.application_id,
+        sj.engine_log = sej.engine_log,
+        sj.plugin_info_id = sej.plugin_info_id,
+        sj.source_type = sej.source_type,
+        sj.retry_task_params = sej.retry_task_params,
+    sj.compute_type = sej.compute_type
+        where sj.is_deleted = 0;
+
+DROP TABLE IF EXISTS `schedule_engine_job`;

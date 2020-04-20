@@ -14,9 +14,8 @@ import java.util.regex.Pattern;
 public enum EngineType {
     //
     Flink('0'),
-    //
     Spark('1'),
-//    Datax('2'),
+    Datax('2'),
     //
     Learning('3'),
     //
@@ -59,8 +58,8 @@ public enum EngineType {
                 return EngineType.Flink;
             case "spark":
                 return EngineType.Spark;
-//            case "datax":
-//                return EngineType.Datax;
+            case "datax":
+                return EngineType.Datax;
             case "learning":
                 return EngineType.Learning;
             case "dtscript":

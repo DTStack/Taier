@@ -1,10 +1,12 @@
 package com.dtstack.engine.master.scheduler;
 
-import com.dtstack.dtcenter.common.constant.TaskStatusConstrant;
-import com.dtstack.dtcenter.common.enums.*;
-import com.dtstack.dtcenter.common.util.MathUtil;
+import com.dtstack.schedule.common.enums.Deleted;
+import com.dtstack.schedule.common.enums.EScheduleJobType;
+import com.dtstack.schedule.common.enums.Expired;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.schedule.common.enums.Restarted;
+import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.dao.ScheduleJobDao;
-import com.dtstack.sql.Twins;
 import com.dtstack.engine.common.enums.DependencyType;
 import com.dtstack.engine.common.enums.EScheduleStatus;
 import com.dtstack.engine.common.enums.EScheduleType;
@@ -24,6 +26,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,7 +93,7 @@ public class JobRichOperator {
             return JobCheckRunInfo.createCheckInfo(JobCheckStatus.TASK_DELETE);
         }
 
-        if (!TaskStatus.UNSUBMIT.getStatus().equals(status)) {
+        if (!RdosTaskStatus.UNSUBMIT.getStatus().equals(status)) {
             return JobCheckRunInfo.createCheckInfo(JobCheckStatus.NOT_UNSUBMIT);
         }
 
@@ -166,9 +170,8 @@ public class JobRichOperator {
             //工作中的起始子节点
             if (!StringUtils.equals("0", scheduleBatchJob.getScheduleJob().getFlowJobId())) {
                 ScheduleTaskShade taskShade = getTaskShadeFromCache(taskCache, dependencyJob.getAppType(), dependencyJob.getTaskId());
-                if (taskShade != null &&
-                        (taskShade.getTaskType().intValue() == EJobType.WORK_FLOW.getVal() || taskShade.getTaskType().intValue() == EJobType.ALGORITHM_LAB.getVal())) {
-                    if (TaskStatus.RUNNING.getStatus().equals(dependencyJobStatus)) {
+                if (taskShade != null && (taskShade.getTaskType().intValue() == EScheduleJobType.WORK_FLOW.getVal() || taskShade.getTaskType().intValue() == EScheduleJobType.ALGORITHM_LAB.getVal())) {
+                    if (RdosTaskStatus.RUNNING.getStatus().equals(dependencyJobStatus)) {
                         continue;
                     }
                 }
@@ -186,9 +189,9 @@ public class JobRichOperator {
                 }
             }
 
-            if (TaskStatus.FAILED.getStatus().equals(dependencyJobStatus)
-                    || TaskStatus.SUBMITFAILD.getStatus().equals(dependencyJobStatus)
-                    || TaskStatus.PARENTFAILED.getStatus().equals(dependencyJobStatus)) {
+            if (RdosTaskStatus.FAILED.getStatus().equals(dependencyJobStatus)
+                    || RdosTaskStatus.SUBMITFAILD.getStatus().equals(dependencyJobStatus)
+                    || RdosTaskStatus.PARENTFAILED.getStatus().equals(dependencyJobStatus)) {
                 flag = JobCheckStatus.FATHER_JOB_EXCEPTION;
                 if (isSelfDependency) {
                     flag = JobCheckStatus.SELF_PRE_PERIOD_EXCEPTION;
@@ -202,7 +205,7 @@ public class JobRichOperator {
 
                 errorJobCache.put(scheduleBatchJob.getJobKey(), createErrJobCacheInfo(scheduleBatchJob.getScheduleJob(), taskCache));
                 break;
-            } else if (TaskStatus.FROZEN.getStatus().equals(dependencyJobStatus)) {
+            } else if (RdosTaskStatus.FROZEN.getStatus().equals(dependencyJobStatus)) {
                 if (!isSelfDependency) {
                     flag = JobCheckStatus.DEPENDENCY_JOB_FROZEN;
                     break;
@@ -210,13 +213,13 @@ public class JobRichOperator {
                     continue;
                 }
 
-            } else if (TaskStatus.CANCELED.getStatus().equals(dependencyJobStatus)
-                    || TaskStatus.KILLED.getStatus().equals(dependencyJobStatus)) {
+            } else if (RdosTaskStatus.CANCELED.getStatus().equals(dependencyJobStatus)
+                    || RdosTaskStatus.KILLED.getStatus().equals(dependencyJobStatus)) {
                 flag = JobCheckStatus.DEPENDENCY_JOB_CANCELED;
                 extInfo = "(父任务名称为:" + getTaskNameFromJobName(dependencyJob.getJobName(), dependencyJob.getType()) + ")";
                 break;
-            } else if (!TaskStatus.FINISHED.getStatus().equals(dependencyJobStatus) &&
-                    !TaskStatus.MANUALSUCCESS.getStatus().equals(dependencyJobStatus)) {//系统设置完成或者手动设置为完成
+            } else if (!RdosTaskStatus.FINISHED.getStatus().equals(dependencyJobStatus) &&
+                    !RdosTaskStatus.MANUALSUCCESS.getStatus().equals(dependencyJobStatus)) {//系统设置完成或者手动设置为完成
                 flag = JobCheckStatus.FATHER_JOB_NOT_FINISHED;
                 notStartCache.add(jobjob.getJobKey());
                 break;
@@ -353,7 +356,7 @@ public class JobRichOperator {
     }
 
     private boolean isEndStatus(Integer jobStatus) {
-        for (Integer status : TaskStatusConstrant.endStatusList) {
+        for (Integer status : RdosTaskStatus.getStoppedStatus()) {
             if (jobStatus.equals(status)) {
                 return true;
             }
@@ -363,7 +366,7 @@ public class JobRichOperator {
     }
 
     private boolean isSuccessStatus(Integer jobStatus) {
-        for (Integer status : TaskStatusConstrant.FINISH_STATUS) {
+        for (Integer status : RdosTaskStatus.getFinishStatus()) {
             if (jobStatus.equals(status)) {
                 return true;
             }
@@ -508,7 +511,7 @@ public class JobRichOperator {
     }
 
 
-    public Twins<String, String> getCycTimeLimit() {
+    public Pair<String, String> getCycTimeLimit() {
         Integer dayGap = environmentContext.getCycTimeDayGap();
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, 0);
@@ -520,7 +523,7 @@ public class JobRichOperator {
         String startTime = sdf.format(calendar.getTime());
         calendar.add(Calendar.DATE, dayGap+1);
         String endTime = sdf.format(calendar.getTime());
-        return new Twins<>(startTime, endTime);
+        return new ImmutablePair<>(startTime, endTime);
     }
 
 

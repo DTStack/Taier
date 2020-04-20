@@ -11,7 +11,7 @@ import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.JobParam;
-import com.dtstack.engine.common.enums.ClassLoaderType;
+import com.dtstack.engine.worker.enums.ClassLoaderType;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;

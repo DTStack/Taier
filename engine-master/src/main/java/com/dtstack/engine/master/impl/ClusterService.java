@@ -1,20 +1,12 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.common.annotation.Forbidden;
-import com.dtstack.dtcenter.common.engine.ConsoleConstant;
-import com.dtstack.dtcenter.common.enums.Deleted;
-import com.dtstack.dtcenter.common.enums.EComponentType;
-import com.dtstack.dtcenter.common.enums.EngineType;
-import com.dtstack.dtcenter.common.enums.MultiEngineType;
-import com.dtstack.dtcenter.common.hadoop.HdfsOperator;
-import com.dtstack.dtcenter.common.kerberos.KerberosConfigVerify;
-import com.dtstack.dtcenter.common.pager.Sort;
-import com.dtstack.dtcenter.common.util.Base64Util;
+import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -22,13 +14,20 @@ import com.dtstack.engine.dao.*;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.ClusterDTO;
 import com.dtstack.engine.master.enums.ComponentTypeNameNeedVersion;
+import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
+import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.utils.HadoopConf;
 import com.dtstack.engine.api.vo.KerberosConfigVO;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.api.vo.ComponentVO;
 import com.dtstack.engine.api.vo.EngineVO;
+import com.dtstack.engine.master.utils.HdfsOperator;
+import com.dtstack.schedule.common.enums.ScheduleEngineType;
+import com.dtstack.schedule.common.enums.Sort;
+import com.dtstack.schedule.common.kerberos.KerberosConfigVerify;
+import com.dtstack.schedule.common.util.Base64Util;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -60,6 +59,9 @@ public class ClusterService implements InitializingBean {
     private static final Long DEFAULT_CLUSTER_ID = -1L;
 
     private static final String DEFAULT_CLUSTER_NAME = "default";
+    private final static String CLUSTER = "cluster";
+    private final static String QUEUE = "queue";
+    private final static String TENANT_ID = "tenantId";
 
     private static final String SEPARATE = "/";
 
@@ -115,6 +117,9 @@ public class ClusterService implements InitializingBean {
             return;
         }
 
+        HadoopConf.setClusterService(this);
+
+
         try {
             addDefaultCluster();
         } catch (Exception e) {
@@ -143,8 +148,8 @@ public class ClusterService implements InitializingBean {
 
         boolean updateQueue = true;
         JSONObject componentConfig = new JSONObject();
-        componentConfig.put(EComponentType.HDFS.getConfName(), HadoopConf.getDefaultHadoopConf());
-        componentConfig.put(EComponentType.YARN.getConfName(), HadoopConf.getDefaultYarnConf());
+        componentConfig.put(EComponentType.HDFS.getConfName(), HadoopConf.getDefaultHadoopConfiguration());
+        componentConfig.put(EComponentType.YARN.getConfName(), HadoopConf.getDefaultYarnConfiguration());
         componentConfig.put(EComponentType.SPARK_THRIFT.getConfName(), new JSONObject().toJSONString());
 
         engineService.addEnginesByComponentConfig(componentConfig, cluster.getId(), updateQueue);
@@ -154,24 +159,6 @@ public class ClusterService implements InitializingBean {
             if (hadoopEngine != null) {
                 queueService.addDefaultQueue(hadoopEngine.getId());
             }
-        }
-    }
-
-    private void uploadConfigFile(JSONObject componentConfig) throws Exception {
-        Map<String, Object> defaultHadoopMap = (Map<String, Object>) componentConfig.get(EComponentType.HDFS.getConfName());
-        HadoopConf hadoopConf = new HadoopConf();
-        hadoopConf.initHadoopConf(defaultHadoopMap);
-        while (true) {
-            boolean check = HdfsOperator.checkConnection(hadoopConf.getConfiguration());
-            if (check) {
-                List<File> defaultXML = HadoopConf.getDefaultXML();
-                String hdfsDir = env.getHadoopConfigHdfsPath() + File.separator + DEFAULT_CLUSTER_NAME;
-                //todo 敏捷版暂不上传
-                //XmlFileUtil.uploadConfig2HDFD(hdfsDir, defaultXML, hadoopConf.getConfiguration());
-                break;
-            }
-            LOGGER.warn("hdfs conn fail..., HadoopConf:{}", hadoopConf.getConfiguration().toString());
-            Thread.sleep(3000);
         }
     }
 
@@ -317,9 +304,9 @@ public class ClusterService implements InitializingBean {
         Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
         Queue queue = getQueue(tenantId, cluster.getClusterId());
 
-        pluginJson.put(ConsoleConstant.QUEUE, queue == null ? null : queue.getQueueName());
-        pluginJson.put(ConsoleConstant.CLUSTER, cluster.getClusterName());
-        pluginJson.put(ConsoleConstant.TENANT_ID, tenantId);
+        pluginJson.put(QUEUE, queue == null ? null : queue.getQueueName());
+        pluginJson.put(CLUSTER, cluster.getClusterName());
+        pluginJson.put(TENANT_ID, tenantId);
         setClusterSftpDir(cluster.getClusterId(), clusterConfigJson, pluginJson);
         return pluginJson;
     }
@@ -489,6 +476,19 @@ public class ClusterService implements InitializingBean {
         return "{}";
     }
 
+    public Map<String, Object> getConfig(Long dtUicTenantId, String key) {
+        ClusterVO cluster = getClusterByTenant(dtUicTenantId);
+        JSONObject config = buildClusterConfig(cluster);
+        KerberosConfig kerberosConfig = componentService.getKerberosConfig(cluster.getId());
+
+        JSONObject configObj = config.getJSONObject(key);
+        if (configObj != null) {
+            addKerberosConfigWithHdfs(key, cluster, kerberosConfig, configObj);
+            return configObj;
+        }
+        return null;
+    }
+
     /**
      * 如果开启集群开启了kerberos认证，kerberosConfig中还需要包含hdfs配置
      *
@@ -532,7 +532,7 @@ public class ClusterService implements InitializingBean {
         if (EComponentType.HDFS == type.getComponentType()) {
             pluginInfo = new JSONObject();
             JSONObject hadoopConf = clusterConfigJson.getJSONObject(EComponentType.HDFS.getConfName());
-            pluginInfo.put("typeName", EngineType.Hadoop.getEngineName());
+            pluginInfo.put("typeName", ScheduleEngineType.Hadoop.getEngineName());
             if (Objects.nonNull(clusterVO) && StringUtils.isNotBlank(clusterVO.getHadoopVersion())) {
                 pluginInfo.put("typeName", clusterVO.getHadoopVersion());
             }
