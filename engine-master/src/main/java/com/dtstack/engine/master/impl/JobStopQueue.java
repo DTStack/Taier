@@ -166,7 +166,7 @@ public class JobStopQueue implements InitializingBean {
                             //jobcache表没有记录，可能任务已经停止。在update表时增加where条件不等于stopped
                             scheduleJobDao.updateTaskStatusNotStopped(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus(), RdosTaskStatus.getStoppedStatus());
                             //停止任务同时更新batchJob表
-                            scheduleJobDao.updateJobInfoByJobId(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus(), null,null,null,null,RdosTaskStatus.getStoppedStatus());
+                            scheduleJobDao.updateJobInfoByJobId(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus(), null,null,null,null, RdosTaskStatus.getStoppedStatus());
                             logger.info("[Unnormal Job] jobId:{} update job status:{}, job is finished.", jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
                             shardCache.updateLocalMemTaskStatus(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
                             engineJobStopRecordDao.delete(jobStopRecord.getId());

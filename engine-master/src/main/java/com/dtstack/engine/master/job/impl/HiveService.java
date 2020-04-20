@@ -5,16 +5,11 @@ import com.dtstack.dtcenter.common.engine.JdbcInfo;
 import com.dtstack.dtcenter.common.engine.JdbcQuery;
 import com.dtstack.dtcenter.common.engine.JdbcUrlPropertiesValue;
 import com.dtstack.dtcenter.common.enums.DataBaseType;
-import com.dtstack.dtcenter.common.enums.ETableType;
 import com.dtstack.dtcenter.common.hadoop.DtKerberosUtils;
 import com.dtstack.dtcenter.common.util.DBUtil;
 import com.dtstack.dtcenter.common.util.PublicUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.impl.ClusterService;
-import com.dtstack.sql.ParseResult;
-import com.dtstack.sql.SqlParserImpl;
-import com.dtstack.sql.SqlType;
-import com.dtstack.sql.parse.SqlParserFactory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
@@ -199,17 +194,17 @@ public class HiveService {
                 statement.execute("use " + jdbcQuery.getDatabase());
             }
 
-            try {
-                if (StringUtils.isNotEmpty(jdbcQuery.getSql())) {
-                    SqlParserFactory instance = SqlParserFactory.getInstance();
-                    SqlParserImpl sqlParser = instance.getSqlParser(ETableType.HIVE);
-                    ParseResult parseResult = sqlParser.parseSql(jdbcQuery.getSql(), jdbcQuery.getDatabase(), (Map)null);
-                    if (null != parseResult && !SqlType.QUERY.equals(parseResult.getSqlType())) {
-                        statement.setMaxRows(0);
-                    }
-                }
-            } catch (Exception var19) {
-            }
+//            try {
+//                if (StringUtils.isNotEmpty(jdbcQuery.getSql())) {
+//                    SqlParserFactory instance = SqlParserFactory.getInstance();
+//                    SqlParserImpl sqlParser = instance.getSqlParser(ETableType.HIVE);
+//                    ParseResult parseResult = sqlParser.parseSql(jdbcQuery.getSql(), jdbcQuery.getDatabase(), (Map)null);
+//                    if (null != parseResult && !SqlType.QUERY.equals(parseResult.getSqlType())) {
+//                        statement.setMaxRows(0);
+//                    }
+//                }
+//            } catch (Exception var19) {
+//            }
 
             if (statement.execute(jdbcQuery.getSql())) {
                 res = statement.getResultSet();

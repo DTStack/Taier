@@ -141,7 +141,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
         while (RUNNING.get()) {
 
-            ScheduleJob batchJob = null;
+            ScheduleJob scheduleJob = null;
             JobCheckRunInfo checkRunInfo = null;
             try {
                 if (logger.isDebugEnabled()) {
@@ -163,7 +163,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 }
 
                 ScheduleBatchJob scheduleBatchJob = batchJobElement.getScheduleBatchJob();
-                batchJob = scheduleBatchJob.getScheduleJob();
+                scheduleJob = scheduleBatchJob.getScheduleJob();
                 Long taskIdUnique = jobRichOperator.getTaskIdUnique(scheduleBatchJob.getAppType(), scheduleBatchJob.getTaskId());
                 ScheduleTaskShade batchTask = this.taskCache.computeIfAbsent(taskIdUnique,
                         k -> batchTaskShadeService.getBatchTaskById(scheduleBatchJob.getTaskId(), scheduleBatchJob.getScheduleJob().getAppType()));
@@ -249,16 +249,16 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
             } catch (Exception e) {
                 logger.error("happens error:", e);
                 try {
-                    if (batchJob != null) {
-                        batchJobService.updateStatusAndLogInfoById(batchJob.getId(), TaskStatus.SUBMITFAILD.getStatus(), e.getMessage());
-                        logger.error("scheduleType:{} job:{} submit failed", getScheduleType(), batchJob.getId());
+                    if (scheduleJob != null) {
+                        batchJobService.updateStatusAndLogInfoById(scheduleJob.getId(), TaskStatus.SUBMITFAILD.getStatus(), e.getMessage());
+                        logger.error("scheduleType:{} job:{} submit failed", getScheduleType(), scheduleJob.getId());
                     }
                 } catch (Exception ex) {
-                    logger.error("update job {}  status happens error:", batchJob.getJobId(), ex);
+                    logger.error("update job {}  status happens error:", scheduleJob.getJobId(), ex);
                 }
             } finally {
                 logger.warn("========= scheduleType:{} take job {} from queue，before queueSize:{}, blocked:{}  tail:{} checkRunInfo:{} =========",
-                        getScheduleType(), Objects.isNull(batchJob) ? "" : batchJob.getJobId(),
+                        getScheduleType(), Objects.isNull(scheduleJob) ? "" : scheduleJob.getJobId(),
                         jopPriorityQueue.getQueueSize(), jopPriorityQueue.isBlocked(), jopPriorityQueue.resetTail(), JSONObject.toJSONString(checkRunInfo));
 
             }

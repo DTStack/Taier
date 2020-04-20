@@ -35,7 +35,7 @@ public class ScheduleJobVO extends TenantProjectEntity {
     protected String taskPeriodType;
 
     private List<ScheduleJobVO> jobVOS;
-    protected ScheduleEngineJob scheduleEngineJob;
+    protected ScheduleEngineJob batchEngineJob;
 
     private ScheduleJobVO subNodes;
 
@@ -237,9 +237,6 @@ public class ScheduleJobVO extends TenantProjectEntity {
         this.jobVOS = jobVOS;
     }
 
-    public ScheduleEngineJob getScheduleEngineJob() {
-        return scheduleEngineJob;
-    }
 
     public ScheduleJobVO getSubNodes() {
         return subNodes;
@@ -249,8 +246,20 @@ public class ScheduleJobVO extends TenantProjectEntity {
         this.subNodes = subNodes;
     }
 
-    public void setScheduleEngineJob(ScheduleEngineJob scheduleEngineJob) {
-        this.scheduleEngineJob = scheduleEngineJob;
+    public ScheduleEngineJob getBatchEngineJob() {
+        return batchEngineJob;
+    }
+
+    public void setBatchEngineJob(ScheduleEngineJob batchEngineJob) {
+        this.batchEngineJob = batchEngineJob;
+    }
+
+    public boolean isGroupTask() {
+        return isGroupTask;
+    }
+
+    public void setGroupTask(boolean groupTask) {
+        isGroupTask = groupTask;
     }
 
     public String getFlowJobId() {

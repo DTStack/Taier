@@ -38,7 +38,7 @@ public class LoginVerticle {
     private static List<String> freeLoginPathList = Lists.newArrayList("clusterInfo","clusterExtInfo", "pluginInfo", "hiveInfo","hiveServerInfo","hadoopInfo",
             "carbonInfo","addSecurityLog", "engine/listSupportEngine", "component/listConfigOfComponents", "taskParam", "clusterSftpDir", "impalaInfo", "sftpInfo","tiDBInfo",
                     "migrate", "listByAppType", "getByAppTypeAndMachineType", "action/start", "action/stop", "action/entitys", "action/log","syncBatchJob","findTaskId","findTaskIds",
-            "queryJobs","getStatusCount","scheduleTaskShade/info");
+            "queryJobs","getStatusCount","batchTaskShade/info","createTodayTaskShade","getConfigByKey");
     private static List<Pattern> freeLoginRegex = Lists.newArrayList(Pattern.compile("node/streamTask/.+"),Pattern.compile("node/action/.+"));
 
     public LoginVerticle() {

@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.taskdealer;
 
-import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.EngineJobCache;
+import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.ComputeType;
@@ -12,7 +12,6 @@ import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.PluginInfoDao;
-import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.bo.CompletedTaskInfo;
 import com.dtstack.engine.master.bo.FailedTaskInfo;
@@ -28,7 +27,12 @@ import org.springframework.context.ApplicationContext;
 
 import java.sql.Timestamp;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * company: www.dtstack.com
@@ -213,7 +217,7 @@ public class TaskStatusDealer implements Runnable {
                     }
 
                     scheduleJobDao.updateJobStatusAndExecTime(jobId, status);
-                    scheduleJobDao.updateJobInfoByJobId(jobId, status, null, new Timestamp(System.currentTimeMillis()), null, null,null);
+                    scheduleJobDao.updateJobInfoByJobId(jobId, status, null, new Timestamp(System.currentTimeMillis()), null, null, null);
                     logger.info("jobId:{} update job status:{}.", jobId, status);
                 }
 
@@ -226,7 +230,7 @@ public class TaskStatusDealer implements Runnable {
         } else {
             shardCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
             scheduleJobDao.updateJobStatusAndExecTime(jobId, RdosTaskStatus.CANCELED.getStatus());
-            scheduleJobDao.updateJobInfoByJobId(jobId, RdosTaskStatus.CANCELED.getStatus(), null, null, null, null,null);
+            scheduleJobDao.updateJobInfoByJobId(jobId, RdosTaskStatus.CANCELED.getStatus(), null, null, null, null, null);
             engineJobCacheDao.delete(jobId);
         }
     }
