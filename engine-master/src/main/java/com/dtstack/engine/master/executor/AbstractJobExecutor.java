@@ -1,12 +1,12 @@
 package com.dtstack.engine.master.executor;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.common.enums.EJobType;
-import com.dtstack.dtcenter.common.enums.Restarted;
-import com.dtstack.dtcenter.common.enums.TaskStatus;
 import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.JobCheckStatus;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.schedule.common.enums.Restarted;
 import com.dtstack.engine.common.enums.SentinelType;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
@@ -23,12 +23,13 @@ import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.scheduler.JobErrorInfo;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
 import com.dtstack.engine.master.zookeeper.ZkService;
-import com.dtstack.sql.Twins;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -169,7 +170,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                         k -> batchTaskShadeService.getBatchTaskById(scheduleBatchJob.getTaskId(), scheduleBatchJob.getScheduleJob().getAppType()));
                 if (batchTask == null) {
                     String errMsg = JobCheckStatus.NO_TASK.getMsg();
-                    batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), TaskStatus.SUBMITFAILD.getStatus(), errMsg);
+                    batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.SUBMITFAILD.getStatus(), errMsg);
                     logger.warn("scheduleType:{} jobId [{}] submit failed for task [{}] already deleted.", getScheduleType(), scheduleBatchJob.getJobId(), scheduleBatchJob.getTaskId());
                     continue;
                 }
@@ -179,20 +180,19 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 //获取batchJob 最新状态
                 Integer status = batchJobService.getStatusById(scheduleBatchJob.getId());
                 //未执行完工作流加入
-                if (TaskStatus.SUBMITTING.getStatus().equals(status) && (type.intValue() != EJobType.WORK_FLOW.getVal() && type.intValue() != EJobType.ALGORITHM_LAB.getVal())) {
+                if (RdosTaskStatus.SUBMITTING.getStatus().equals(status) && (type.intValue() != EScheduleJobType.WORK_FLOW.getVal() && type.intValue() != EScheduleJobType.ALGORITHM_LAB.getVal())) {
                     continue;
                 }
                 //已经提交过的工作流节点跳过检查
-                if ((type.intValue() == EJobType.WORK_FLOW.getVal() || type.intValue() == EJobType.ALGORITHM_LAB.getVal()) && !TaskStatus.UNSUBMIT.getStatus().equals(status)) {
+                if ((type.intValue() == EScheduleJobType.WORK_FLOW.getType() || type.intValue() == EScheduleJobType.ALGORITHM_LAB.getVal()) && !RdosTaskStatus.UNSUBMIT.getStatus().equals(status)) {
                     checkRunInfo = JobCheckRunInfo.createCheckInfo(JobCheckStatus.CAN_EXE);
                 } else {
                     checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(), this.notStartCache, this.errorJobCache, this.taskCache);
                 }
 
                 if (checkRunInfo.getStatus() == JobCheckStatus.CAN_EXE) {
-                    if (type.intValue() == EJobType.WORK_FLOW.getVal() ||
-                            type.intValue() == EJobType.ALGORITHM_LAB.getVal()) {
-                        if (status.intValue() == TaskStatus.UNSUBMIT.getStatus()) {
+                    if (type.intValue() == EScheduleJobType.WORK_FLOW.getVal() || type.intValue() == EScheduleJobType.ALGORITHM_LAB.getVal()) {
+                        if (status.intValue() == RdosTaskStatus.UNSUBMIT.getStatus()) {
                             //提交代码里面会将jobstatus设置为submitting
                             batchJobService.startJob(scheduleBatchJob.getScheduleJob());
                             logger.info("---scheduleType:{} send job:{} to engine.", getScheduleType(), scheduleBatchJob.getJobId());
@@ -226,20 +226,20 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                         || checkRunInfo.getStatus() == JobCheckStatus.TASK_DELETE
                         || checkRunInfo.getStatus() == JobCheckStatus.FATHER_NO_CREATED) {
                     String errMsg = checkRunInfo.getErrMsg();
-                    batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), TaskStatus.FAILED.getStatus(), errMsg);
+                    batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.FAILED.getStatus(), errMsg);
                 } else if (checkRunInfo.getStatus() == JobCheckStatus.FATHER_JOB_EXCEPTION) {
                     //上游任务失败
                     String errMsg = checkRunInfo.getErrMsg();
-                    batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), TaskStatus.PARENTFAILED.getStatus(), errMsg);
+                    batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.PARENTFAILED.getStatus(), errMsg);
                 } else if (checkRunInfo.getStatus() == JobCheckStatus.TASK_PAUSE
                         || checkRunInfo.getStatus() == JobCheckStatus.DEPENDENCY_JOB_FROZEN) {
                     String errMsg = checkRunInfo.getErrMsg();
-                    batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), TaskStatus.FROZEN.getStatus(), errMsg);
+                    batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.FROZEN.getStatus(), errMsg);
                 } else if (checkRunInfo.getStatus() == JobCheckStatus.DEPENDENCY_JOB_CANCELED
                         //过期任务置为取消
                         || checkRunInfo.getStatus() == JobCheckStatus.TIME_OVER_EXPIRE) {
                     String errMsg = checkRunInfo.getErrMsg();
-                    batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), TaskStatus.KILLED.getStatus(), errMsg);
+                    batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.KILLED.getStatus(), errMsg);
                 } else if (checkRunInfo.getStatus() == JobCheckStatus.NOT_UNSUBMIT) {
                     //当前任务状态为未提交状态--直接移除
                 } else {
@@ -250,7 +250,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 logger.error("happens error:", e);
                 try {
                     if (scheduleJob != null) {
-                        batchJobService.updateStatusAndLogInfoById(scheduleJob.getId(), TaskStatus.SUBMITFAILD.getStatus(), e.getMessage());
+                        batchJobService.updateStatusAndLogInfoById(scheduleJob.getId(), RdosTaskStatus.SUBMITFAILD.getStatus(), e.getMessage());
                         logger.error("scheduleType:{} job:{} submit failed", getScheduleType(), scheduleJob.getId());
                     }
                 } catch (Exception ex) {
@@ -272,7 +272,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         }
         try {
             //限制数据范围
-            Twins<String, String> cycTime = getCycTime();
+            Pair<String, String> cycTime = getCycTime();
             outLoop:
             while (true) {
                 if (jopPriorityQueue.isBlocked()) {
@@ -281,7 +281,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                     }
                     break;
                 }
-                List<ScheduleBatchJob> listExecJobs = this.listExecJob(startId, nodeAddress, cycTime.getKey(), cycTime.getType());
+                List<ScheduleBatchJob> listExecJobs = this.listExecJob(startId, nodeAddress, cycTime.getLeft(), cycTime.getRight());
                 if (CollectionUtils.isEmpty(listExecJobs)) {
                     //遍历数据库结束的哨兵
                     jopPriorityQueue.putSentinel(SentinelType.END_DB);
@@ -316,7 +316,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     }
 
     protected List<ScheduleBatchJob> getRestartDataJob() {
-        int status = TaskStatus.UNSUBMIT.getStatus();
+        int status = RdosTaskStatus.UNSUBMIT.getStatus();
         long loadTime = System.currentTimeMillis();
         Timestamp lasTime = lastRestartJobLoadTime == 0L ? null : new Timestamp(lastRestartJobLoadTime);
         List<ScheduleJob> scheduleJobs = scheduleJobDao.listRestartBatchJobList(getScheduleType(), status, lasTime);
@@ -340,13 +340,13 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     /**
      * CycTimeDayGap 如果为0，则只取当天的调度数据，如果恰好在临界点0点存在上一天的未完成的调度任务，则在下一天会被忽略执行。
      */
-    private Twins<String, String> getCycTime() {
-        Twins<String, String> cycTime = null;
+    private Pair<String, String> getCycTime() {
+        Pair<String, String> cycTime = null;
         if (getScheduleType() == EScheduleType.NORMAL_SCHEDULE.getType()) {
             cycTime = jobRichOperator.getCycTimeLimit();
         } else {
             //补数据没有时间限制
-            cycTime = new Twins<>(null, null);
+            cycTime = new ImmutablePair<>(null, null);
         }
         return cycTime;
     }

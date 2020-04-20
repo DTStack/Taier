@@ -5,6 +5,7 @@ import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.common.pojo.ParamActionExt;
+import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.common.JobClient;
@@ -100,6 +101,11 @@ public class ActionService {
             logger.warn("Job taskId：" + paramActionExt.getTaskId() + " duplicate submissions are not allowed");
         }catch (Exception e){
             logger.error("", e);
+            //任务提交出错 需要将状态从提交中 更新为失败 否则一直在提交中
+            String taskId = (String) params.get("taskId");
+            if (StringUtils.isNotBlank(taskId)) {
+                scheduleJobDao.jobFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(e.getMessage()));
+            }
         }
         return false;
     }

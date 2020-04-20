@@ -1,7 +1,5 @@
 package com.dtstack.engine.master.router.login.domain;
 
-import com.dtstack.dtcenter.common.login.domain.TenantAdmin;
-
 import java.util.List;
 
 /**
@@ -21,7 +19,7 @@ public class UserTenant {
 
     private Boolean admin;
 
-    private List<com.dtstack.dtcenter.common.login.domain.TenantAdmin> adminList;
+    private List<TenantAdmin> adminList;
 
     private String createTime;
 
@@ -75,7 +73,7 @@ public class UserTenant {
         this.admin = admin;
     }
 
-    public List<com.dtstack.dtcenter.common.login.domain.TenantAdmin> getAdminList() {
+    public List<TenantAdmin> getAdminList() {
         return adminList;
     }
 

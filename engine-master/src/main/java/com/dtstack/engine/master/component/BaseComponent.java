@@ -1,9 +1,9 @@
 package com.dtstack.engine.master.component;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.common.enums.EComponentType;
-import com.dtstack.dtcenter.common.hadoop.HadoopConfTool;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.master.enums.EComponentType;
+import com.dtstack.engine.master.utils.HadoopConfTool;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;

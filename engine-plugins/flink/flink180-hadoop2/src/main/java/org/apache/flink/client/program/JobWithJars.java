@@ -18,7 +18,7 @@
 
 package org.apache.flink.client.program;
 
-import com.dtstack.engine.common.enums.ClassLoaderType;
+import com.dtstack.engine.worker.enums.ClassLoaderType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.Plan;
 import org.apache.flink.runtime.execution.librarycache.FlinkUserCodeClassLoaders;

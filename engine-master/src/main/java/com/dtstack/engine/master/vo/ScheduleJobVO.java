@@ -1,10 +1,9 @@
 package com.dtstack.engine.master.vo;
 
-import com.dtstack.dtcenter.common.constant.TaskStatusConstrant;
-import com.dtstack.dtcenter.common.enums.TaskStatus;
-import com.dtstack.dtcenter.common.util.DateUtil;
 import com.dtstack.engine.api.domain.ScheduleEngineJob;
 import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.master.parser.ESchedulePeriodType;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -74,21 +73,21 @@ public class ScheduleJobVO extends com.dtstack.engine.api.vo.ScheduleJobVO {
 
     public void setScheduleEngineJob(ScheduleEngineJob scheduleEngineJob) {
         if (scheduleEngineJob != null && null != scheduleEngineJob.getStatus()) {
-            this.setStatus(TaskStatusConstrant.getShowStatusWithoutStop(scheduleEngineJob.getStatus()));
+            this.setStatus(RdosTaskStatus.getShowStatusWithoutStop(scheduleEngineJob.getStatus()));
 
-            int combineStatus = TaskStatusConstrant.getShowStatus(scheduleEngineJob.getStatus());
+            int combineStatus = RdosTaskStatus.getShowStatus(scheduleEngineJob.getStatus());
             // 任务状态为运行中，运行完成，运行失败时才有开始时间和运行时间
-            if(combineStatus == TaskStatus.RUNNING.getStatus() || combineStatus == TaskStatus.FINISHED.getStatus() || combineStatus == TaskStatus.FAILED.getStatus()){
+            if(combineStatus == RdosTaskStatus.RUNNING.getStatus() || combineStatus == RdosTaskStatus.FINISHED.getStatus() || combineStatus == RdosTaskStatus.FAILED.getStatus()){
                 if (scheduleEngineJob.getExecStartTime() != null) {
-                    this.setExecStartDate(DateUtil.getFormattedDate(scheduleEngineJob.getExecStartTime().getTime(), "yyyy-MM-dd HH:mm:ss"));
+                    this.setExecStartDate(DateUtil.getStandardFormattedDate(scheduleEngineJob.getExecStartTime().getTime()));
                 }
 
             }
 
             // 任务状态为运行完成或失败时才有结束时间
-            if(combineStatus == TaskStatus.FINISHED.getStatus() || combineStatus == TaskStatus.FAILED.getStatus()){
+            if(combineStatus == RdosTaskStatus.FINISHED.getStatus() || combineStatus == RdosTaskStatus.FAILED.getStatus()){
                 if (scheduleEngineJob.getExecEndTime() != null) {
-                    this.setExecEndDate(DateUtil.getFormattedDate(scheduleEngineJob.getExecEndTime().getTime(), "yyyy-MM-dd HH:mm:ss"));
+                    this.setExecEndDate(DateUtil.getStandardFormattedDate(scheduleEngineJob.getExecEndTime().getTime()));
                 }
             }
             if (scheduleEngineJob.getExecStartTime() != null && scheduleEngineJob.getExecEndTime() != null) {

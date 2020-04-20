@@ -1,17 +1,22 @@
 package com.dtstack.engine.master.scheduler;
 
-import com.dtstack.dtcenter.common.enums.*;
-import com.dtstack.dtcenter.common.util.DateUtil;
-import com.dtstack.dtcenter.common.util.MathUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.DependencyType;
 import com.dtstack.engine.common.enums.EScheduleType;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.common.util.DateUtil;
+import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.impl.*;
 import com.dtstack.engine.master.parser.*;
+import com.dtstack.schedule.common.enums.Deleted;
+import com.dtstack.schedule.common.enums.EProjectScheduleStatus;
+import com.dtstack.schedule.common.enums.EScheduleJobType;
+import com.dtstack.schedule.common.enums.ESubmitStatus;
+import com.dtstack.schedule.common.enums.Restarted;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
@@ -62,7 +67,7 @@ public class JobGraphBuilder {
     private static final String CRON_TRIGGER_TYPE = "cronTrigger";
     private static final String NORMAL_TASK_FLOW_ID = "0";
 
-    public static final List<Integer> SPECIAL_TASK_TYPES = Lists.newArrayList(EJobType.WORK_FLOW.getVal(), EJobType.ALGORITHM_LAB.getVal());
+    public static final List<Integer> SPECIAL_TASK_TYPES = Lists.newArrayList(EScheduleJobType.WORK_FLOW.getVal(), EScheduleJobType.ALGORITHM_LAB.getVal());
 
     private static final int TASK_BATCH_SIZE = 50;
     private static final int JOB_BATCH_SIZE = 50;
@@ -405,7 +410,7 @@ public class JobGraphBuilder {
 
             scheduleJob.setDependencyType(scheduleCron.getSelfReliance());
 
-            scheduleJob.setStatus(TaskStatus.UNSUBMIT.getStatus());
+            scheduleJob.setStatus(RdosTaskStatus.UNSUBMIT.getStatus());
             scheduleJob.setTaskType(task.getTaskType());
             scheduleJob.setMaxRetryNum(scheduleCron.getMaxRetryNum());
             scheduleJob.setVersionId(task.getVersionId());
@@ -1062,8 +1067,8 @@ public class JobGraphBuilder {
         //针对专门补工作流子节点
         doSetFlowJobIdForSubTasks(batchJobs, flowJobId);
         //工作流情况的处理
-        if (batchTask.getTaskType().intValue() == EJobType.WORK_FLOW.getVal() ||
-                batchTask.getTaskType().intValue() == EJobType.ALGORITHM_LAB.getVal()) {
+        if (batchTask.getTaskType().intValue() == EScheduleJobType.WORK_FLOW.getVal() ||
+                batchTask.getTaskType().intValue() == EScheduleJobType.ALGORITHM_LAB.getVal()) {
             for (ScheduleBatchJob jobRunBean : batchJobs) {
                 flowJobId.put(batchTask.getTaskId() + "_" + jobRunBean.getCycTime(), jobRunBean.getJobId());
             }

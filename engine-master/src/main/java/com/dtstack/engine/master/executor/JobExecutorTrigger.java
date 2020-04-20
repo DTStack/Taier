@@ -1,15 +1,13 @@
 package com.dtstack.engine.master.executor;
 
-import com.dtstack.dtcenter.common.constant.TaskStatusConstrant;
-import com.dtstack.dtcenter.common.enums.TaskStatus;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.queue.QueueInfo;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
-import com.dtstack.sql.Twins;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -34,17 +32,6 @@ import java.util.concurrent.TimeUnit;
 public class JobExecutorTrigger implements InitializingBean, DisposableBean {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobExecutorTrigger.class);
-
-    /**
-     * 已经提交到的job的status
-     */
-    private static final List<Integer> SUBMIT_ENGINE_STATUSES = new ArrayList<>();
-
-    static {
-        SUBMIT_ENGINE_STATUSES.addAll(TaskStatusConstrant.RUNNING_STATUS);
-        SUBMIT_ENGINE_STATUSES.addAll(TaskStatusConstrant.WAIT_STATUS);
-        SUBMIT_ENGINE_STATUSES.add(TaskStatus.SUBMITTING.getStatus());
-    }
 
     @Autowired
     private ScheduleJobDao scheduleJobDao;
@@ -83,7 +70,7 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
      */
     public Map<String, Map<Integer, QueueInfo>> getAllNodesJobQueueInfo() {
         List<String> allNodeAddress = scheduleJobDao.getAllNodeAddress();
-        Twins<String, String> cycTime = jobRichOperator.getCycTimeLimit();
+        Pair<String, String> cycTime = jobRichOperator.getCycTimeLimit();
         Map<String, Map<Integer, QueueInfo>> allNodeJobInfo = Maps.newHashMap();
         for (String nodeAddress : allNodeAddress) {
             if (StringUtils.isBlank(nodeAddress)) {
@@ -92,7 +79,7 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
             allNodeJobInfo.computeIfAbsent(nodeAddress, na -> {
                 Map<Integer, QueueInfo> nodeJobInfo = Maps.newHashMap();
                 executors.forEach(executor -> nodeJobInfo.computeIfAbsent(executor.getScheduleType(), k -> {
-                    int queueSize = scheduleJobDao.countTasksByCycTimeTypeAndAddress(nodeAddress, executor.getScheduleType(), cycTime.getKey(), cycTime.getType());
+                    int queueSize = scheduleJobDao.countTasksByCycTimeTypeAndAddress(nodeAddress, executor.getScheduleType(), cycTime.getLeft(), cycTime.getRight());
                     QueueInfo queueInfo = new QueueInfo();
                     queueInfo.setSize(queueSize);
                     return queueInfo;

@@ -1,9 +1,7 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.common.annotation.Forbidden;
-import com.dtstack.dtcenter.common.enums.EComponentType;
-import com.dtstack.dtcenter.common.enums.MultiEngineType;
+import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.common.enums.EJobCacheStage;
@@ -20,6 +18,8 @@ import com.dtstack.engine.master.cache.ShardCache;
 import com.dtstack.engine.master.component.ComponentFactory;
 import com.dtstack.engine.master.component.FlinkComponent;
 import com.dtstack.engine.master.component.YARNComponent;
+import com.dtstack.engine.master.enums.EComponentType;
+import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.google.common.base.Preconditions;

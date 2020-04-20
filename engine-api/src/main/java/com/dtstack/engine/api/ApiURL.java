@@ -53,6 +53,8 @@ public class ApiURL {
     public static final String BATCH_JOB_JOBDETAIL = String.format("%s/%s", BATCH_JOB, "jobDetail");
     public static final String BATCH_JOB_LIST_BY_BUSINESS_DATE_AND_PERIODTYPE_AND_STATUSLIST = String.format("%s/%s", BATCH_JOB, "listByBusinessDateAndPeriodTypeAndStatusList");
     public static final String BATCH_JOB_SYNC_BATCH_JOB = String.format("%s/%s", BATCH_JOB, "syncBatchJob");
+    public static final String BATCH_JOB_LIST_BY_TASKID_APPTYPE = String.format("%s/%s", BATCH_JOB, "listJobsByTaskIdsAndApptype");
+    public static final String BATCH_JOB_STOP_JOB_BY_JOD_ID = String.format("%s/%s", BATCH_JOB, "stopJobByJobId");
 
     public static final String BATCH_TASK_DISPLAY_OFFSPRING = String.format("%s/%s", BATCH_TASK, "displayOffSpring");
 
@@ -72,6 +74,7 @@ public class ApiURL {
     public static final String BATCH_TASK_SHADE_PAGEQUERY = String.format("%s/%s", BATCH_TASK_SHADE, "pageQuery");
     public static final String BATCH_TASK_SHADE_LIST_DEPENDENCY_TASK = String.format("%s/%s", BATCH_TASK_SHADE, "listDependencyTask");
     public static final String BATCH_TASK_SHADE_LIST_BYTASKIDS_NOTIN = String.format("%s/%s", BATCH_TASK_SHADE, "listByTaskIdsNotIn");
+    public static final String BATCH_TASK_SHADE_COUNT_TASK_BY_TYPE = String.format("%s/%s", BATCH_TASK_SHADE, "countTaskByType");
 
     public static final String BATCH_TASK_TASK_SHADE_DISPLAY_OFF_SPRING = String.format("%s/%s", BATCH_TASK_TASK_SHADE, "displayOffSpring");
     public static final String BATCH_TASK_TASK_SHADE_SAVE_TASK_LIST = String.format("%s/%s", BATCH_TASK_TASK_SHADE, "saveTaskTaskList");
