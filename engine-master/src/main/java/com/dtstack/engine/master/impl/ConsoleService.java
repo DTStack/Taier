@@ -232,11 +232,9 @@ public class ConsoleService {
                 for (EngineJobCache engineJobCache : engineJobCaches) {
                     Map<String, Object> theJobMap = PublicUtil.objectToMap(engineJobCache);
                     ScheduleJob scheduleJob = scheduleJobMap.getOrDefault(engineJobCache.getJobId(), new ScheduleJob());
-                    if (scheduleJob != null) {
-                        //补充租户信息
-                        Tenant tenant = tenantMap.getOrDefault(scheduleJob.getDtuicTenantId(), new Tenant());
-                        this.fillJobInfo(theJobMap, scheduleJob, engineJobCache,tenant);
-                    }
+                    //补充租户信息
+                    Tenant tenant = tenantMap.getOrDefault(scheduleJob.getDtuicTenantId(), new Tenant());
+                    this.fillJobInfo(theJobMap, scheduleJob, engineJobCache,tenant);
                     data.add(theJobMap);
                 }
             }
