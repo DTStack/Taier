@@ -35,10 +35,9 @@ public class LoginVerticle {
 
     private ApplicationContext context;
 
-    private static List<String> freeLoginPathList = Lists.newArrayList("clusterInfo","clusterExtInfo", "pluginInfo", "hiveInfo","hiveServerInfo","hadoopInfo",
-            "carbonInfo","addSecurityLog", "engine/listSupportEngine", "component/listConfigOfComponents", "taskParam", "clusterSftpDir", "impalaInfo", "sftpInfo","tiDBInfo",
-                    "migrate", "listByAppType", "getByAppTypeAndMachineType", "action/start", "action/stop", "action/entitys", "action/log","syncBatchJob","findTaskId","findTaskIds",
-            "queryJobs","getStatusCount","batchTaskShade/info","createTodayTaskShade","getConfigByKey");
+    private static List<String> needLoginPathList = Lists.newArrayList("getStatusCount","getJobGraph","runTimeTopOrder","errorTopOrder","queryJobs",
+            "frozenTask","getFillDataJobInfoPreview","stopFillDataJobs");
+
     private static List<Pattern> freeLoginRegex = Lists.newArrayList(Pattern.compile("node/streamTask/.+"),Pattern.compile("node/action/.+"));
 
     public LoginVerticle() {
@@ -111,25 +110,18 @@ public class LoginVerticle {
     }
 
     /**
-     * 判断免登陆接口
+     * 判断需要登陆接口
      *
      * @param path
      * @return
      */
     public boolean freeLogin(String path) {
-        for (String freePath : freeLoginPathList) {
-            if (path.endsWith(freePath)) {
-                return true;
+        for (String needLoginPath : needLoginPathList) {
+            if (path.endsWith(needLoginPath)) {
+                return false;
             }
         }
-
-        for (Pattern freePathPattern : freeLoginRegex) {
-            if (freePathPattern.matcher(path).find()){
-                return true;
-            }
-        }
-
-        return false;
+        return true;
     }
 
 }
