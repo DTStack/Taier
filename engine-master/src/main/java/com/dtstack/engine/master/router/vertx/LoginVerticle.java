@@ -72,9 +72,6 @@ public class LoginVerticle {
                         if (userVO == null) {
                             throw new RdosDefineException(ErrorCode.USER_IS_NULL);
                         }
-                        if (userVO.getRootUser() != 1) {
-                            throw new RdosDefineException(ErrorCode.PERMISSION_LIMIT);
-                        }
                         SessionUtil.setUser(token, userVO);
                     });
                 });

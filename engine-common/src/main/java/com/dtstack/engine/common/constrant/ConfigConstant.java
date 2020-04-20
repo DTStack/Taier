@@ -37,4 +37,6 @@ public class ConfigConstant {
     public static final String SYSTEMRESOURCE_PROBE_INTERVAL = "systemresource.probe.Interval";
     public static final String NODE_LABELS = "node.labels";
 
+    public static final String WORKER_TIMEOUT = "worker.timeout";
+
 }
