@@ -12,15 +12,14 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.ParamAction;
-import com.dtstack.engine.dao.BatchJobDao;
+import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.queue.GroupInfo;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
-import com.dtstack.engine.dao.EngineJobDao;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.PluginInfoDao;
-import com.dtstack.engine.domain.EngineJobCache;
-import com.dtstack.engine.domain.PluginInfo;
+import com.dtstack.engine.api.domain.EngineJobCache;
+import com.dtstack.engine.api.domain.PluginInfo;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.queue.JobPartitioner;
 import com.dtstack.engine.master.resource.JobComputeResourcePlain;
@@ -69,7 +68,7 @@ public class WorkNode implements InitializingBean, ApplicationContextAware {
     private EngineJobCacheDao engineJobCacheDao;
 
     @Autowired
-    private EngineJobDao engineJobDao;
+    private ScheduleJobDao scheduleJobDao;
 
     @Autowired
     private PluginInfoDao pluginInfoDao;
@@ -201,8 +200,7 @@ public class WorkNode implements InitializingBean, ApplicationContextAware {
     }
 
     public void updateJobStatus(String jobId, Integer status) {
-        engineJobDao.updateJobStatus(jobId, status);
-        batchJobDao.updateStatusByJobId(jobId,status,null);
+        scheduleJobDao.updateJobStatus(jobId, status);
         LOG.info("jobId:{} update job status:{}.", jobId, status);
     }
 
@@ -239,7 +237,7 @@ public class WorkNode implements InitializingBean, ApplicationContextAware {
             }
         }
         //更新任务ref的pluginInfo
-        engineJobDao.updateJobPluginId(jobId, refPluginInfoId);
+        scheduleJobDao.updateJobPluginId(jobId, refPluginInfoId);
 
     }
 
@@ -253,7 +251,7 @@ public class WorkNode implements InitializingBean, ApplicationContextAware {
             //从engine获取log
             engineLog = workerOperator.getEngineLog(engineType, pluginInfoStr, jobIdentifier);
             if (engineLog != null) {
-                engineJobDao.updateEngineLog(jobId, engineLog);
+                scheduleJobDao.updateEngineLog(jobId, engineLog);
             }
         } catch (Throwable e) {
             LOG.error("getAndUpdateEngineLog error jobId:{} error:{}.", jobId, e);
@@ -268,7 +266,7 @@ public class WorkNode implements InitializingBean, ApplicationContextAware {
      */
     public void dealSubmitFailJob(String taskId, String errorMsg) {
         engineJobCacheDao.delete(taskId);
-        engineJobDao.jobFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(errorMsg));
+        scheduleJobDao.jobFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(errorMsg));
         LOG.info("jobId:{} update job status:{}, job is finished.", taskId, RdosTaskStatus.SUBMITFAILD.getStatus());
     }
 

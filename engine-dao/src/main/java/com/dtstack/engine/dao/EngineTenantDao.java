@@ -1,8 +1,8 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.dtcenter.common.pager.PageQuery;
-import com.dtstack.engine.domain.EngineTenant;
-import com.dtstack.engine.vo.EngineTenantVO;
+import com.dtstack.engine.api.domain.EngineTenant;
+import com.dtstack.engine.api.pager.PageQuery;
+import com.dtstack.engine.api.vo.EngineTenantVO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

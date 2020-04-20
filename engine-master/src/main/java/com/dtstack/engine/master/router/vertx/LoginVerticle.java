@@ -1,9 +1,9 @@
 package com.dtstack.engine.master.router.vertx;
 
 
+import com.dtstack.engine.api.dto.UserDTO;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.dto.UserDTO;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.router.callback.ApiCallback;
 import com.dtstack.engine.master.router.callback.ApiCallbackMethod;
@@ -38,7 +38,7 @@ public class LoginVerticle {
     private static List<String> freeLoginPathList = Lists.newArrayList("clusterInfo","clusterExtInfo", "pluginInfo", "hiveInfo","hiveServerInfo","hadoopInfo",
             "carbonInfo","addSecurityLog", "engine/listSupportEngine", "component/listConfigOfComponents", "taskParam", "clusterSftpDir", "impalaInfo", "sftpInfo","tiDBInfo",
                     "migrate", "listByAppType", "getByAppTypeAndMachineType", "action/start", "action/stop", "action/entitys", "action/log","syncBatchJob","findTaskId","findTaskIds",
-            "queryJobs","getStatusCount","batchTaskShade/info","createTodayTaskShade","getConfigByKey");
+            "queryJobs","getStatusCount","scheduleTaskShade/info");
     private static List<Pattern> freeLoginRegex = Lists.newArrayList(Pattern.compile("node/streamTask/.+"),Pattern.compile("node/action/.+"));
 
     public LoginVerticle() {

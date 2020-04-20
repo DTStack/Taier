@@ -8,10 +8,10 @@ import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.BatchJobDao;
 import com.dtstack.engine.dao.EngineJobCacheDao;
-import com.dtstack.engine.dao.EngineJobDao;
+import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.domain.EngineJob;
-import com.dtstack.engine.domain.EngineJobCache;
+import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.common.enums.StoppedStatus;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.cache.ShardCache;
@@ -35,7 +35,7 @@ public class JobStopAction {
     private static final Logger LOG = LoggerFactory.getLogger(JobStopAction.class);
 
     @Autowired
-    private EngineJobDao engineJobDao;
+    private ScheduleJobDao scheduleJobDao;
 
     @Autowired
     private EngineJobCacheDao engineJobCacheDao;
@@ -51,9 +51,9 @@ public class JobStopAction {
 
     public StoppedStatus stopJob(JobStopQueue.JobElement jobElement) throws Exception {
         EngineJobCache jobCache = engineJobCacheDao.getOne(jobElement.jobId);
-        EngineJob engineJob = engineJobDao.getRdosJobByJobId(jobElement.jobId);
+        ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobElement.jobId);
         if (jobCache == null) {
-            if (engineJob != null && RdosTaskStatus.isStopped(engineJob.getStatus())) {
+            if (scheduleJob != null && RdosTaskStatus.isStopped(scheduleJob.getStatus())) {
                 LOG.info("jobId:{} stopped success, task status is STOPPED.", jobElement.jobId);
                 return StoppedStatus.STOPPED;
             }
@@ -64,16 +64,16 @@ public class JobStopAction {
             LOG.info("jobId:{} stopped success, task status is STOPPED.", jobElement.jobId);
             return StoppedStatus.STOPPED;
         } else {
-            if (engineJob == null) {
+            if (scheduleJob == null) {
                 LOG.info("jobId:{} cache is missed, stop interrupt.", jobElement.jobId);
                 return StoppedStatus.MISSED;
             }
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
-            paramAction.setEngineTaskId(engineJob.getEngineJobId());
-            paramAction.setApplicationId(engineJob.getApplicationId());
+            paramAction.setEngineTaskId(scheduleJob.getEngineJobId());
+            paramAction.setApplicationId(scheduleJob.getApplicationId());
             JobClient jobClient = new JobClient(paramAction);
 
-            if (StringUtils.isNotBlank(engineJob.getEngineJobId()) && !jobClient.getEngineTaskId().equals(engineJob.getEngineJobId())) {
+            if (StringUtils.isNotBlank(scheduleJob.getEngineJobId()) && !jobClient.getEngineTaskId().equals(scheduleJob.getEngineJobId())) {
                 LOG.info("jobId:{} stopped success, because of [difference engineJobId].", paramAction.getTaskId());
                 return StoppedStatus.STOPPED;
             }
@@ -94,8 +94,7 @@ public class JobStopAction {
         shardCache.removeIfPresent(jobId);
         engineJobCacheDao.delete(jobId);
         //修改任务状态
-        engineJobDao.updateJobStatusAndExecTime(jobId, RdosTaskStatus.CANCELED.getStatus());
-        batchJobDao.updateStatusByJobId(jobId,RdosTaskStatus.CANCELED.getStatus(),"");
+        scheduleJobDao.updateJobStatusAndExecTime(jobId, RdosTaskStatus.CANCELED.getStatus());
         LOG.info("jobId:{} update job status:{}, job is finished.", jobId, RdosTaskStatus.CANCELED.getStatus());
     }
 

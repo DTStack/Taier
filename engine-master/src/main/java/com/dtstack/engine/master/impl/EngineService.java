@@ -6,7 +6,8 @@ import com.dtstack.dtcenter.common.annotation.Forbidden;
 import com.dtstack.dtcenter.common.enums.EComponentType;
 import com.dtstack.dtcenter.common.enums.MultiEngineType;
 import com.dtstack.dtcenter.common.sftp.SftpPath;
-import com.dtstack.engine.common.annotation.Param;
+import com.dtstack.dtcenter.common.util.PublicUtil;
+import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -14,16 +15,16 @@ import com.dtstack.engine.dao.EngineDao;
 import com.dtstack.engine.dao.EngineTenantDao;
 import com.dtstack.engine.dao.QueueDao;
 import com.dtstack.engine.dao.TenantDao;
-import com.dtstack.engine.domain.*;
-import com.dtstack.engine.domain.Queue;
-import com.dtstack.engine.dto.ClusterDTO;
-import com.dtstack.engine.dto.EngineDTO;
+import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.api.domain.Queue;
+import com.dtstack.engine.api.dto.ClusterDTO;
+import com.dtstack.engine.api.dto.EngineDTO;
 import com.dtstack.engine.master.component.ComponentFactory;
 import com.dtstack.engine.master.component.YARNComponent;
 import com.dtstack.engine.master.utils.EngineUtil;
-import com.dtstack.engine.vo.ComponentVO;
-import com.dtstack.engine.vo.EngineVO;
-import com.dtstack.engine.vo.QueueVO;
+import com.dtstack.engine.api.vo.ComponentVO;
+import com.dtstack.engine.api.vo.EngineVO;
+import com.dtstack.engine.api.vo.QueueVO;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -216,8 +217,30 @@ public class EngineService {
             List<Component> componentList = componentService.listComponent(engineVO.getEngineId());
             Map<Integer, Component> componentMap = new HashMap<>();
             componentList.stream().forEach(component -> componentMap.put(component.getComponentTypeCode(), component));
-            engineVO.setComponents(ComponentVO.toVOS(componentList, withKerberos));
+            engineVO.setComponents(toVOS(componentList, withKerberos));
         }
+    }
+
+    public List<ComponentVO> toVOS(List<Component> components, boolean withKerberosCongfig){
+        List<ComponentVO> vos = new ArrayList<>();
+        for (Component component : components) {
+            JSONObject jsonObject = JSONObject.parseObject(component.getComponentConfig());
+            if(!withKerberosCongfig) {
+                if (component.getComponentTypeCode() == EComponentType.HDFS.getTypeCode() ||
+                        component.getComponentTypeCode() == EComponentType.YARN.getTypeCode()) {
+                    jsonObject = jsonObject.fluentRemove("kerberosConfig").fluentRemove("openKerberos").fluentRemove("kerberosFile");
+                } else {
+                    jsonObject = jsonObject.fluentRemove("kerberosConfig");
+                }
+            }
+            ComponentVO vo = new ComponentVO();
+            PublicUtil.copyPropertiesIgnoreNull(component, vo);
+            vo.setComponentId(component.getId());
+            //前端默认不展示kerberosConfig
+            vo.setConfig(jsonObject);
+            vos.add(vo);
+        }
+        return vos;
     }
 
     /**

@@ -3,20 +3,20 @@ package com.dtstack.engine.master.scheduler;
 import com.dtstack.dtcenter.common.constant.TaskStatusConstrant;
 import com.dtstack.dtcenter.common.enums.*;
 import com.dtstack.dtcenter.common.util.MathUtil;
+import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.sql.Twins;
 import com.dtstack.engine.common.enums.DependencyType;
 import com.dtstack.engine.common.enums.EScheduleStatus;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.JobCheckStatus;
 import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.dao.BatchJobDao;
-import com.dtstack.engine.dao.BatchJobJobDao;
-import com.dtstack.engine.domain.BatchJob;
-import com.dtstack.engine.domain.BatchJobJob;
-import com.dtstack.engine.domain.BatchTaskShade;
+import com.dtstack.engine.dao.ScheduleJobJobDao;
+import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.domain.ScheduleJobJob;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
-import com.dtstack.engine.master.impl.BatchJobService;
-import com.dtstack.engine.master.impl.BatchTaskShadeService;
+import com.dtstack.engine.master.impl.ScheduleJobService;
+import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import com.dtstack.engine.master.parser.ESchedulePeriodType;
 import com.dtstack.engine.master.parser.ScheduleCron;
 import com.dtstack.engine.master.parser.ScheduleFactory;
@@ -56,16 +56,16 @@ public class JobRichOperator {
     private EnvironmentContext environmentContext;
 
     @Autowired
-    private BatchJobDao batchJobDao;
+    private ScheduleJobDao scheduleJobDao;
 
     @Autowired
-    private BatchJobJobDao batchJobJobDao;
+    private ScheduleJobJobDao scheduleJobJobDao;
 
     @Autowired
-    private BatchJobService batchJobService;
+    private ScheduleJobService batchJobService;
 
     @Autowired
-    private BatchTaskShadeService batchTaskShadeService;
+    private ScheduleTaskShadeService batchTaskShadeService;
 
     /**
      * 判断任务是否可以执行
@@ -81,9 +81,9 @@ public class JobRichOperator {
      */
     public JobCheckRunInfo checkJobCanRun(ScheduleBatchJob scheduleBatchJob, Integer status, Integer scheduleType,
                                           Set<String> notStartCache, Map<String, JobErrorInfo> errorJobCache,
-                                          Map<Long, BatchTaskShade> taskCache) throws ParseException {
+                                          Map<Long, ScheduleTaskShade> taskCache) throws ParseException {
 
-        BatchTaskShade batchTaskShade = getTaskShadeFromCache(taskCache, scheduleBatchJob.getAppType(), scheduleBatchJob.getTaskId());
+        ScheduleTaskShade batchTaskShade = getTaskShadeFromCache(taskCache, scheduleBatchJob.getAppType(), scheduleBatchJob.getTaskId());
 
         if (batchTaskShade == null || batchTaskShade.getIsDeleted() == Deleted.DELETED.getStatus()) {
             return JobCheckRunInfo.createCheckInfo(JobCheckStatus.TASK_DELETE);
@@ -117,9 +117,9 @@ public class JobRichOperator {
         JobCheckStatus flag = JobCheckStatus.CAN_EXE;
         String extInfo = "";
 
-        Integer dependencyType = scheduleBatchJob.getBatchJob().getDependencyType();
+        Integer dependencyType = scheduleBatchJob.getScheduleJob().getDependencyType();
 
-        for (BatchJobJob jobjob : scheduleBatchJob.getBatchJobJobList()) {
+        for (ScheduleJobJob jobjob : scheduleBatchJob.getBatchJobJobList()) {
 
             if (notStartCache.contains(jobjob.getParentJobKey())) {
                 notStartCache.add(jobjob.getJobKey());
@@ -133,7 +133,7 @@ public class JobRichOperator {
             if (errorJobCache.containsKey(jobjob.getParentJobKey())) {
                 if (checkDependEndStatus(dependencyType, isSelfDependency)) continue;
 
-                errorJobCache.put(scheduleBatchJob.getJobKey(), createErrJobCacheInfo(scheduleBatchJob.getBatchJob(), taskCache));
+                errorJobCache.put(scheduleBatchJob.getJobKey(), createErrJobCacheInfo(scheduleBatchJob.getScheduleJob(), taskCache));
                 if (isSelfDependency) {
                     flag = JobCheckStatus.SELF_PRE_PERIOD_EXCEPTION;
                     logger.error("job:{} 自依赖异常 job:{} error cache self_pre_period_exception", jobjob.getJobKey(), jobjob.getParentJobKey());
@@ -146,7 +146,7 @@ public class JobRichOperator {
                 break;
             }
 
-            BatchJob dependencyJob = batchJobService.getJobByJobKeyAndType(jobjob.getParentJobKey(), scheduleType);
+            ScheduleJob dependencyJob = batchJobService.getJobByJobKeyAndType(jobjob.getParentJobKey(), scheduleType);
             if (dependencyJob == null) {//有可能任务已经失效.或者配置错误-->只有正常调度才可能存在
                 if (scheduleType == EScheduleType.FILL_DATA.getType()) {
                     continue;
@@ -155,17 +155,17 @@ public class JobRichOperator {
                 logger.error("job:{} dependency job:{} not exists.", jobjob.getJobKey(), jobjob.getParentJobKey());
                 flag = JobCheckStatus.FATHER_NO_CREATED;
                 String parentJobKey = jobjob.getParentJobKey();
-                String parentTaskName = batchTaskShadeService.getTaskNameByJobKey(parentJobKey, scheduleBatchJob.getBatchJob().getAppType());
+                String parentTaskName = batchTaskShadeService.getTaskNameByJobKey(parentJobKey, scheduleBatchJob.getScheduleJob().getAppType());
                 extInfo = "(父任务名称为:" + parentTaskName + ")";
-                errorJobCache.put(scheduleBatchJob.getJobKey(), createErrJobCacheInfo(scheduleBatchJob.getBatchJob(), taskCache));
+                errorJobCache.put(scheduleBatchJob.getJobKey(), createErrJobCacheInfo(scheduleBatchJob.getScheduleJob(), taskCache));
                 break;
             }
 
             Integer dependencyJobStatus = batchJobService.getStatusById(dependencyJob.getId());
 
             //工作中的起始子节点
-            if (!StringUtils.equals("0", scheduleBatchJob.getBatchJob().getFlowJobId())) {
-                BatchTaskShade taskShade = getTaskShadeFromCache(taskCache, dependencyJob.getAppType(), dependencyJob.getTaskId());
+            if (!StringUtils.equals("0", scheduleBatchJob.getScheduleJob().getFlowJobId())) {
+                ScheduleTaskShade taskShade = getTaskShadeFromCache(taskCache, dependencyJob.getAppType(), dependencyJob.getTaskId());
                 if (taskShade != null &&
                         (taskShade.getTaskType().intValue() == EJobType.WORK_FLOW.getVal() || taskShade.getTaskType().intValue() == EJobType.ALGORITHM_LAB.getVal())) {
                     if (TaskStatus.RUNNING.getStatus().equals(dependencyJobStatus)) {
@@ -200,7 +200,7 @@ public class JobRichOperator {
                     logger.error("job:{} 父任务异常 taskname:{} error cache father_job_exception", dependencyJob.getJobKey(), errorInfo.getTaskName());
                 }
 
-                errorJobCache.put(scheduleBatchJob.getJobKey(), createErrJobCacheInfo(scheduleBatchJob.getBatchJob(), taskCache));
+                errorJobCache.put(scheduleBatchJob.getJobKey(), createErrJobCacheInfo(scheduleBatchJob.getScheduleJob(), taskCache));
                 break;
             } else if (TaskStatus.FROZEN.getStatus().equals(dependencyJobStatus)) {
                 if (!isSelfDependency) {
@@ -227,10 +227,10 @@ public class JobRichOperator {
                 || DependencyType.PRE_PERIOD_CHILD_DEPENDENCY_END.getType().equals(dependencyType);
 
         if (JobCheckStatus.CAN_EXE.equals(flag) && dependencyChildPrePeriod) {//检测下游任务的上一个周期是否结束
-            List<BatchJob> childPrePeriodList = scheduleBatchJob.getDependencyChildPrePeriodList();
-            String jobKey = scheduleBatchJob.getBatchJob().getJobKey();
+            List<ScheduleJob> childPrePeriodList = scheduleBatchJob.getDependencyChildPrePeriodList();
+            String jobKey = scheduleBatchJob.getScheduleJob().getJobKey();
             if (childPrePeriodList == null) {//获取子任务的上一个周期
-                List<BatchJobJob> childJobJobList = batchJobJobDao.listByParentJobKey(jobKey);
+                List<ScheduleJobJob> childJobJobList = scheduleJobJobDao.listByParentJobKey(jobKey);
                 childPrePeriodList = getFirstChildPrePeriodBatchJobJob(childJobJobList);
                 scheduleBatchJob.setDependencyChildPrePeriodList(childPrePeriodList);
             }
@@ -244,7 +244,7 @@ public class JobRichOperator {
                     logger.error("get {} parent pre pre error", scheduleBatchJob.getTaskId(), e);
                 }
 
-                List<BatchJob> parentPrePreJob = this.getParentPrePreJob(jobKey, scheduleCron, cycTime);
+                List<ScheduleJob> parentPrePreJob = this.getParentPrePreJob(jobKey, scheduleCron, cycTime);
                 if (CollectionUtils.isNotEmpty(parentPrePreJob)) {
                     if (null == scheduleBatchJob.getDependencyChildPrePeriodList()) {
                         scheduleBatchJob.setDependencyChildPrePeriodList(new ArrayList<>());
@@ -253,7 +253,7 @@ public class JobRichOperator {
                 }
             }
 
-            for (BatchJob childJobPreJob : childPrePeriodList) {
+            for (ScheduleJob childJobPreJob : childPrePeriodList) {
                 //子实例和 当前任务一致 直接运行
                 if (jobKey.equals(childJobPreJob.getJobKey())) {
                     continue;
@@ -283,20 +283,20 @@ public class JobRichOperator {
      * @param scheduleCron
      * @param cycTime
      */
-    private List<BatchJob> getParentPrePreJob(String jobKey, ScheduleCron scheduleCron, String cycTime) {
+    private List<ScheduleJob> getParentPrePreJob(String jobKey, ScheduleCron scheduleCron, String cycTime) {
         if (StringUtils.isNotBlank(jobKey) && null != scheduleCron && StringUtils.isNotBlank(cycTime)) {
             String prePeriodJobTriggerDateStr = JobGraphBuilder.getPrePeriodJobTriggerDateStr(cycTime, scheduleCron);
             String prePeriodJobKey = jobKey.substring(0, jobKey.lastIndexOf("_") + 1) + prePeriodJobTriggerDateStr;
             EScheduleType scheduleType = JobGraphBuilder.parseScheduleTypeFromJobKey(jobKey);
-            BatchJob dbBatchJob = batchJobService.getJobByJobKeyAndType(prePeriodJobKey, scheduleType.getType());
+            ScheduleJob dbScheduleJob = batchJobService.getJobByJobKeyAndType(prePeriodJobKey, scheduleType.getType());
             //上一个周期任务为空 直接返回
-            if (Objects.isNull(dbBatchJob)) {
+            if (Objects.isNull(dbScheduleJob)) {
                 return null;
             }
-            List<BatchJobJob> batchJobJobs = batchJobJobDao.listByParentJobKey(dbBatchJob.getJobKey());
-            if (!CollectionUtils.isEmpty(batchJobJobs)) {
+            List<ScheduleJobJob> scheduleJobJobs = scheduleJobJobDao.listByParentJobKey(dbScheduleJob.getJobKey());
+            if (!CollectionUtils.isEmpty(scheduleJobJobs)) {
                 //上一轮周期任务的下游任务不为空 判断下游任务的状态
-                return batchJobDao.listJobByJobKeys(batchJobJobs.stream().map(BatchJobJob::getJobKey).collect(Collectors.toList()));
+                return scheduleJobDao.listJobByJobKeys(scheduleJobJobs.stream().map(ScheduleJobJob::getJobKey).collect(Collectors.toList()));
             }
             cycTime = JobGraphBuilder.parseCycTimeFromJobKey(prePeriodJobKey);
             //如果上一轮周期也没下游任务 继续找
@@ -325,7 +325,7 @@ public class JobRichOperator {
 
 
 
-    private boolean checkExpire(ScheduleBatchJob scheduleBatchJob, Integer scheduleType, BatchTaskShade batchTaskShade) {
+    private boolean checkExpire(ScheduleBatchJob scheduleBatchJob, Integer scheduleType, ScheduleTaskShade batchTaskShade) {
         //---正常周期任务超过当前时间则标记为过期
         //http://redmine.prod.dtstack.cn/issues/19917
         if (EScheduleType.NORMAL_SCHEDULE.getType() != scheduleType) {
@@ -337,13 +337,13 @@ public class JobRichOperator {
             return false;
         }
         //重跑不走
-        if (Objects.nonNull(scheduleBatchJob.getBatchJob()) && Restarted.RESTARTED.getStatus() == scheduleBatchJob.getBatchJob().getIsRestart()) {
+        if (Objects.nonNull(scheduleBatchJob.getScheduleJob()) && Restarted.RESTARTED.getStatus() == scheduleBatchJob.getScheduleJob().getIsRestart()) {
             return false;
         }
         //判断task任务是否配置了允许过期（暂时允许全部任务过期 不做判断）
         //超过时间限制
-        if (StringUtils.isNotBlank(scheduleBatchJob.getBatchJob().getNextCycTime())) {
-            LocalDateTime nextCycTime = LocalDateTime.parse(scheduleBatchJob.getBatchJob().getNextCycTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        if (StringUtils.isNotBlank(scheduleBatchJob.getScheduleJob().getNextCycTime())) {
+            LocalDateTime nextCycTime = LocalDateTime.parse(scheduleBatchJob.getScheduleJob().getNextCycTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             if(nextCycTime.isBefore(LocalDateTime.now())){
                 //如果超过过期时间限制 每天最后一次周期不允许过期
                 return nextCycTime.getDayOfYear() == LocalDateTime.now().getDayOfYear();
@@ -372,11 +372,11 @@ public class JobRichOperator {
         return false;
     }
 
-    public BatchTaskShade getTaskShadeFromCache(Map<Long, BatchTaskShade> taskCache, Integer appType, Long taskId) {
+    public ScheduleTaskShade getTaskShadeFromCache(Map<Long, ScheduleTaskShade> taskCache, Integer appType, Long taskId) {
         Long taskIdUnique = getTaskIdUnique(appType, taskId);
         return taskCache.computeIfAbsent(taskIdUnique,
                 k -> {
-                    BatchTaskShade taskShade = batchTaskShadeService.getBatchTaskById(taskId, appType);
+                    ScheduleTaskShade taskShade = batchTaskShadeService.getBatchTaskById(taskId, appType);
                     if(Objects.nonNull(taskShade)){
                         //防止sqlText导致内存溢出
                         taskShade.setSqlText(null);
@@ -385,14 +385,14 @@ public class JobRichOperator {
                 });
     }
 
-    public JobErrorInfo createErrJobCacheInfo(BatchJob batchJob, Map<Long, BatchTaskShade> taskCache) {
+    public JobErrorInfo createErrJobCacheInfo(ScheduleJob scheduleJob, Map<Long, ScheduleTaskShade> taskCache) {
         JobErrorInfo errorJobCacheInfo = new JobErrorInfo();
-        errorJobCacheInfo.setJobKey(batchJob.getJobKey());
+        errorJobCacheInfo.setJobKey(scheduleJob.getJobKey());
 
-        BatchTaskShade batchTaskShade = getTaskShadeFromCache(taskCache, batchJob.getAppType(), batchJob.getTaskId());
+        ScheduleTaskShade batchTaskShade = getTaskShadeFromCache(taskCache, scheduleJob.getAppType(), scheduleJob.getTaskId());
 
         if (batchTaskShade == null) {
-            errorJobCacheInfo.setTaskName("找不到对应的任务(id:" + batchJob.getTaskId() + ")");
+            errorJobCacheInfo.setTaskName("找不到对应的任务(id:" + scheduleJob.getTaskId() + ")");
         } else {
             errorJobCacheInfo.setTaskName(batchTaskShade.getName());
         }
@@ -420,26 +420,26 @@ public class JobRichOperator {
 
     }
 
-    private List<BatchJob> getFirstChildPrePeriodBatchJobJob(List<BatchJobJob> jobJobList) {
+    private List<ScheduleJob> getFirstChildPrePeriodBatchJobJob(List<ScheduleJobJob> jobJobList) {
 
         if (CollectionUtils.isEmpty(jobJobList)) {
             return Lists.newArrayList();
         }
 
-        Map<Long, BatchJobJob> taskRefFirstJobMap = Maps.newHashMap();
-        for (BatchJobJob batchJobJob : jobJobList) {
-            String jobKey = batchJobJob.getJobKey();
+        Map<Long, ScheduleJobJob> taskRefFirstJobMap = Maps.newHashMap();
+        for (ScheduleJobJob scheduleJobJob : jobJobList) {
+            String jobKey = scheduleJobJob.getJobKey();
             Long taskId = getJobTaskIdFromJobKey(jobKey);
             if (taskId == null) {
                 continue;
             }
 
-            BatchJobJob preJobJob = taskRefFirstJobMap.get(taskId);
+            ScheduleJobJob preJobJob = taskRefFirstJobMap.get(taskId);
             if (preJobJob == null) {
-                taskRefFirstJobMap.put(taskId, batchJobJob);
+                taskRefFirstJobMap.put(taskId, scheduleJobJob);
             } else {
                 String preJobTimeStr = getJobTriggerTimeFromJobKey(preJobJob.getJobKey());
-                String currJobTimeStr = getJobTriggerTimeFromJobKey(batchJobJob.getJobKey());
+                String currJobTimeStr = getJobTriggerTimeFromJobKey(scheduleJobJob.getJobKey());
 
                 Long preJobTime = MathUtil.getLongVal(preJobTimeStr);
                 Long currJobTime = MathUtil.getLongVal(currJobTimeStr);
@@ -450,18 +450,18 @@ public class JobRichOperator {
             }
         }
 
-        List<BatchJob> resultList = Lists.newArrayList();
+        List<ScheduleJob> resultList = Lists.newArrayList();
         //计算上一个周期的key,并判断是否存在-->存在则添加依赖关系
-        for (Map.Entry<Long, BatchJobJob> entry : taskRefFirstJobMap.entrySet()) {
-            BatchJobJob batchJobJob = entry.getValue();
+        for (Map.Entry<Long, ScheduleJobJob> entry : taskRefFirstJobMap.entrySet()) {
+            ScheduleJobJob scheduleJobJob = entry.getValue();
             Long taskId = entry.getKey();
-            BatchTaskShade batchTaskShade = batchTaskShadeService.getBatchTaskById(taskId, batchJobJob.getAppType());
+            ScheduleTaskShade batchTaskShade = batchTaskShadeService.getBatchTaskById(taskId, scheduleJobJob.getAppType());
             if (batchTaskShade == null) {
                 logger.error("can't find task by id:{}.", taskId);
                 continue;
             }
 
-            String jobKey = batchJobJob.getJobKey();
+            String jobKey = scheduleJobJob.getJobKey();
             String cycTime = JobGraphBuilder.parseCycTimeFromJobKey(jobKey);
             String scheduleConf = batchTaskShade.getScheduleConf();
             try {
@@ -469,9 +469,9 @@ public class JobRichOperator {
                 String prePeriodJobTriggerDateStr = JobGraphBuilder.getPrePeriodJobTriggerDateStr(cycTime, scheduleCron);
                 String prePeriodJobKey = jobKey.substring(0, jobKey.lastIndexOf("_") + 1) + prePeriodJobTriggerDateStr;
                 EScheduleType scheduleType = JobGraphBuilder.parseScheduleTypeFromJobKey(jobKey);
-                BatchJob dbBatchJob = batchJobService.getJobByJobKeyAndType(prePeriodJobKey, scheduleType.getType());
-                if (dbBatchJob != null) {
-                    resultList.add(dbBatchJob);
+                ScheduleJob dbScheduleJob = batchJobService.getJobByJobKeyAndType(prePeriodJobKey, scheduleType.getType());
+                if (dbScheduleJob != null) {
+                    resultList.add(dbScheduleJob);
                 }
 
             } catch (Exception e) {
@@ -490,7 +490,7 @@ public class JobRichOperator {
             return null;
         }
         Long taskShadeId = MathUtil.getLongVal(fields[fields.length - 2]);
-        BatchTaskShade batchTaskShade = batchTaskShadeService.getById(taskShadeId);
+        ScheduleTaskShade batchTaskShade = batchTaskShadeService.getById(taskShadeId);
         return Objects.isNull(batchTaskShade) ? null : batchTaskShade.getTaskId();
     }
 

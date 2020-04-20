@@ -2,7 +2,7 @@ package com.dtstack.engine.master.impl;
 
 import com.dtstack.dtcenter.common.constant.TaskStatusConstrant;
 import com.dtstack.dtcenter.common.enums.TaskStatus;
-import com.dtstack.engine.domain.BatchJob;
+import com.dtstack.engine.api.domain.ScheduleJob;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ public class BatchFlowWorkJobService {
             , TaskStatus.RESTARTING.getStatus(), TaskStatus.RUNNING.getStatus(), TaskStatus.MANUALSUCCESS.getStatus(), TaskStatus.FINISHED.getStatus());
 
     @Autowired
-    private BatchJobService batchJobService;
+    private ScheduleJobService batchJobService;
 
     /**
      * <br>1.工作流下无子任务更新为完成状态</br>
@@ -47,7 +47,7 @@ public class BatchFlowWorkJobService {
      */
     public boolean checkRemoveAndUpdateFlowJobStatus(String jobId,Integer appType) {
 
-        List<BatchJob> subJobs = batchJobService.getSubJobsAndStatusByFlowId(jobId);
+        List<ScheduleJob> subJobs = batchJobService.getSubJobsAndStatusByFlowId(jobId);
         boolean canRemove = false;
         Integer bottleStatus = null;
         //没有子任务
@@ -55,8 +55,8 @@ public class BatchFlowWorkJobService {
             bottleStatus = TaskStatus.FINISHED.getStatus();
             canRemove = true;
         } else {
-            for (BatchJob batchJob : subJobs) {
-                Integer status = batchJob.getStatus();
+            for (ScheduleJob scheduleJob : subJobs) {
+                Integer status = scheduleJob.getStatus();
                 // 工作流失败状态细化 优先级： 运行失败>提交失败>上游失败
                 if (TaskStatusConstrant.PARENTFAILED_STATUS.contains(status)) {
                     if ( !TaskStatus.CANCELED.getStatus().equals(bottleStatus) && !TaskStatus.FAILED.getStatus().equals(bottleStatus) && !TaskStatus.SUBMITFAILD.getStatus().equals(bottleStatus)){
@@ -87,8 +87,8 @@ public class BatchFlowWorkJobService {
                 }
             }
             //子任务不存在失败/取消的状态
-            for (BatchJob batchJob : subJobs) {
-                Integer status = batchJob.getStatus();
+            for (ScheduleJob scheduleJob : subJobs) {
+                Integer status = scheduleJob.getStatus();
                 //若存在子任务状态不是结束状态，工作流保持提交中状态
                 if (!TaskStatusConstrant.endStatusList.contains(status)) {
                     canRemove = false;
@@ -102,8 +102,8 @@ public class BatchFlowWorkJobService {
             }
             //子任务全部为已冻结状态
             boolean flowJobAllFrozen = true;
-            for (BatchJob batchJob : subJobs){
-                Integer status = batchJob.getStatus();
+            for (ScheduleJob scheduleJob : subJobs){
+                Integer status = scheduleJob.getStatus();
                 if (!TaskStatusConstrant.FROZEN_STATUS.contains(status)){
                     flowJobAllFrozen = false;
                     break;
@@ -118,7 +118,7 @@ public class BatchFlowWorkJobService {
         if (TaskStatus.FINISHED.getStatus().equals(bottleStatus) || TaskStatus.FAILED.getStatus().equals(bottleStatus)
                 || TaskStatus.PARENTFAILED.getStatus().equals(bottleStatus) || TaskStatus.SUBMITFAILD.getStatus().equals(bottleStatus)) {
             //更新结束时间时间
-            BatchJob updateJob = new BatchJob();
+            ScheduleJob updateJob = new ScheduleJob();
             updateJob.setJobId(jobId);
             updateJob.setStatus(bottleStatus);
             updateJob.setAppType(appType);
