@@ -32,12 +32,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 对接数栈控制台
@@ -81,6 +77,8 @@ public class ConsoleService {
     @Autowired
     private EngineJobStopRecordDao engineJobStopRecordDao;
 
+    @Autowired
+    private TenantDao tenantDao;
 
     public Boolean finishJob(String jobId, Integer status) {
         if (!RdosTaskStatus.isStopped(status)) {
@@ -118,7 +116,8 @@ public class ConsoleService {
         }
         try {
             Map<String, Object> theJobMap = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), Map.class);
-            this.fillJobInfo(theJobMap, scheduleJob, engineJobCache);
+            Tenant tenant = tenantDao.getByDtUicTenantId(scheduleJob.getDtuicTenantId());
+            this.fillJobInfo(theJobMap, scheduleJob, engineJobCache,tenant);
 
             Map<String, Object> result = new HashMap<>(3);
             result.put("theJob", Lists.newArrayList(theJobMap));
@@ -225,11 +224,18 @@ public class ConsoleService {
             count = engineJobCacheDao.countByJobResource(jobResource, stage, nodeAddress);
             if (count > 0) {
                 List<EngineJobCache> engineJobCaches = engineJobCacheDao.listByJobResource(jobResource, stage, nodeAddress, start, pageSize);
+                List<String> jobIds = engineJobCaches.stream().map(EngineJobCache::getJobId).collect(Collectors.toList());
+                List<ScheduleJob> rdosJobByJobIds = scheduleJobDao.getRdosJobByJobIds(jobIds);
+                Map<String, ScheduleJob> scheduleJobMap = rdosJobByJobIds.stream().collect(Collectors.toMap(ScheduleJob::getJobId, u -> u));
+                List<Long> dtuicTenantIds = rdosJobByJobIds.stream().map(ScheduleJob::getDtuicTenantId).collect(Collectors.toList());
+                Map<Long, Tenant> tenantMap = tenantDao.listAllTenantByDtUicTenantIds(dtuicTenantIds).stream().collect(Collectors.toMap(Tenant::getDtUicTenantId, t -> t));
                 for (EngineJobCache engineJobCache : engineJobCaches) {
                     Map<String, Object> theJobMap = PublicUtil.objectToMap(engineJobCache);
-                    ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(engineJobCache.getJobId());
+                    ScheduleJob scheduleJob = scheduleJobMap.getOrDefault(engineJobCache.getJobId(), new ScheduleJob());
                     if (scheduleJob != null) {
-                        this.fillJobInfo(theJobMap, scheduleJob, engineJobCache);
+                        //补充租户信息
+                        Tenant tenant = tenantMap.getOrDefault(scheduleJob.getDtuicTenantId(), new Tenant());
+                        this.fillJobInfo(theJobMap, scheduleJob, engineJobCache,tenant);
                     }
                     data.add(theJobMap);
                 }
@@ -245,13 +251,14 @@ public class ConsoleService {
         return result;
     }
 
-    private void fillJobInfo(Map<String, Object> theJobMap, ScheduleJob scheduleJob, EngineJobCache engineJobCache) {
+    private void fillJobInfo(Map<String, Object> theJobMap, ScheduleJob scheduleJob, EngineJobCache engineJobCache,Tenant tenant) {
         theJobMap.put("status", scheduleJob.getStatus());
         theJobMap.put("execStartTime", scheduleJob.getExecStartTime());
         theJobMap.put("generateTime", engineJobCache.getGmtCreate());
         long currentTime = System.currentTimeMillis();
         String waitTime = DateUtil.getTimeDifference(currentTime - engineJobCache.getGmtCreate().getTime());
         theJobMap.put("waitTime", waitTime);
+        theJobMap.put("tenantName", Objects.isNull(tenant) ? "" : tenant.getTenantName());
     }
 
     public Boolean jobStick(@Param("jobId") String jobId) {
@@ -260,7 +267,7 @@ public class ConsoleService {
         try {
             EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
             //只支持DB、PRIORITY两种调整顺序
-            if (EJobCacheStage.DB.getStage() == engineJobCache.getStage() || EJobCacheStage.PRIORITY.getStage() == engineJobCache.getStage()) {
+            if (Objects.nonNull(engineJobCache) && EJobCacheStage.DB.getStage() == engineJobCache.getStage() || EJobCacheStage.PRIORITY.getStage() == engineJobCache.getStage()) {
                 ParamAction paramAction = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), ParamAction.class);
                 JobClient jobClient = new JobClient(paramAction);
                 jobClient.setCallBack((jobStatus) -> {

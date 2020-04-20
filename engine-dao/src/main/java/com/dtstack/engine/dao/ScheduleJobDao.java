@@ -232,6 +232,6 @@ public interface ScheduleJobDao {
 
     List<ScheduleJob> listJobStatus(@Param("time") Timestamp timeStamp, @Param("computeType")Integer computeType);
 
-    Integer updateJobStatusByJobIds(@Param("jobId") List<String> jobIds, @Param("status") Integer status);
+    Integer updateJobStatusByJobIds(@Param("jobIds") List<String> jobIds, @Param("status") Integer status);
 
 }

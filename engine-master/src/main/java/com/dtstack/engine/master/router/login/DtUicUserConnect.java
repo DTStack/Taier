@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -35,6 +36,8 @@ public class DtUicUserConnect {
     private static final String GET_IS_ROOT_UIC_USER_TEMPLATE = "%s/api/user/isRootUser?userId=%s&dtToken=%s";
 
     private static final String GET_FULL_TENANTS = "%s/uic/api/v2/account/user/get-full-tenants-by-name?tenantName=%s&productCode=%s";
+
+    private static final String GET_TENANT_INFO = "%s/uic/api/v2/tenant/detail/%s";
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -113,6 +116,31 @@ public class DtUicUserConnect {
             LOGGER.error("{}", tr);
         }
         return userTenantList;
+    }
+
+    /**
+     * 获取uic租户信息
+     * @param url
+     * @param tenantId
+     * @return
+     */
+    public static Map<String, Object> getUicTenantInfo(String url, Long tenantId,String token) {
+        Map<String, Object> cookies = Maps.newHashMap();
+        cookies.put("dt_token", token);
+        try {
+            String result = PoolHttpClient.get(String.format(GET_TENANT_INFO, new Object[]{url, tenantId}), cookies);
+            if (StringUtils.isBlank(result)) {
+                LOGGER.warn("uic api returns null.");
+                return Maps.newHashMap();
+            }
+            Map<String, Object> mResult = OBJECT_MAPPER.readValue(result, Map.class);
+            if ((Boolean) mResult.get("success")) {
+                return (Map<String, Object>) mResult.get("data");
+            }
+        } catch (IOException e) {
+            LOGGER.error("{}", e);
+        }
+        return Maps.newHashMap();
     }
 
 }

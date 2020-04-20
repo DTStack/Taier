@@ -57,4 +57,17 @@
             </foreach>
         </if>
     </select>
+
+    <select id="listAllTenantByDtUicTenantIds" resultType="Tenant">
+        SELECT *
+        FROM console_dtuic_tenant
+        WHERE is_deleted = 0
+        <if test="ids.size() > 0">
+            and dt_uic_tenant_id in
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+
 </mapper>

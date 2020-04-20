@@ -98,7 +98,6 @@ CREATE TABLE `schedule_job`
     `source_type`     tinyint(2)   DEFAULT NULL COMMENT '任务来源',
     `retry_task_params` text       DEFAULT NULL COMMENT '重试任务参数',
     `compute_type`    tinyint(1)   NOT NULL DEFAULT '1' COMMENT '计算类型STREAM(0), BATCH(1)',
-    `log_info`        mediumtext                COMMENT '错误信息',
     PRIMARY KEY (`id`),
     KEY `index_task_id` (`task_id`),
     UNIQUE KEY `index_job_id` (`job_id`(128),`is_deleted`),
