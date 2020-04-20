@@ -267,6 +267,6 @@ public class TaskRestartDealer {
         Integer retryNum = rdosEngineBatchJob.getRetryNum() == null ? 0 : rdosEngineBatchJob.getRetryNum();
         retryNum++;
         scheduleJobDao.updateRetryNum(jobId, retryNum);
-        scheduleJobDao.updateJobInfoByJobId(jobId,null,null,null,null,retryNum);
+        scheduleJobDao.updateJobInfoByJobId(jobId,null,null,null,null,retryNum,null);
     }
 }

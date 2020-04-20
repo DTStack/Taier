@@ -1,18 +1,17 @@
 
 package com.dtstack.engine.master.impl;
 
+import com.dtstack.engine.api.domain.EngineJobCache;
+import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.enums.StoppedStatus;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.dao.BatchJobDao;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.common.enums.StoppedStatus;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.cache.ShardCache;
 import org.apache.commons.lang3.StringUtils;
@@ -45,9 +44,6 @@ public class JobStopAction {
 
     @Autowired
     private WorkerOperator workerOperator;
-
-    @Autowired
-    private BatchJobDao batchJobDao;
 
     public StoppedStatus stopJob(JobStopQueue.JobElement jobElement) throws Exception {
         EngineJobCache jobCache = engineJobCacheDao.getOne(jobElement.jobId);

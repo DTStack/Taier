@@ -141,7 +141,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
         while (RUNNING.get()) {
 
-            BatchJob batchJob = null;
+            ScheduleJob batchJob = null;
             JobCheckRunInfo checkRunInfo = null;
             try {
                 if (logger.isDebugEnabled()) {
@@ -163,7 +163,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 }
 
                 ScheduleBatchJob scheduleBatchJob = batchJobElement.getScheduleBatchJob();
-                scheduleJob = scheduleBatchJob.getScheduleJob();
+                batchJob = scheduleBatchJob.getScheduleJob();
                 Long taskIdUnique = jobRichOperator.getTaskIdUnique(scheduleBatchJob.getAppType(), scheduleBatchJob.getTaskId());
                 ScheduleTaskShade batchTask = this.taskCache.computeIfAbsent(taskIdUnique,
                         k -> batchTaskShadeService.getBatchTaskById(scheduleBatchJob.getTaskId(), scheduleBatchJob.getScheduleJob().getAppType()));
@@ -182,7 +182,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 if (TaskStatus.SUBMITTING.getStatus().equals(status) && (type.intValue() != EJobType.WORK_FLOW.getVal() && type.intValue() != EJobType.ALGORITHM_LAB.getVal())) {
                     continue;
                 }
-                JobCheckRunInfo checkRunInfo;
                 //已经提交过的工作流节点跳过检查
                 if ((type.intValue() == EJobType.WORK_FLOW.getVal() || type.intValue() == EJobType.ALGORITHM_LAB.getVal()) && !TaskStatus.UNSUBMIT.getStatus().equals(status)) {
                     checkRunInfo = JobCheckRunInfo.createCheckInfo(JobCheckStatus.CAN_EXE);

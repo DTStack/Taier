@@ -85,9 +85,6 @@ public class WorkNode implements InitializingBean, ApplicationContextAware {
     @Autowired
     private WorkerOperator workerOperator;
 
-    @Autowired
-    private BatchJobDao batchJobDao;
-
     /**
      * key: jobResource, 计算引擎类型
      * value: queue
