@@ -22,12 +22,6 @@
 
     <dependencies>
 
-        <dependency>
-            <groupId>com.dtstack.engine</groupId>
-            <artifactId>plugins.base</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-
         <!-- hadoop2 -->
         <dependency>
             <groupId>org.apache.hadoop</groupId>

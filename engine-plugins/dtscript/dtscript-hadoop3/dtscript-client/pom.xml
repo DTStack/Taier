@@ -21,6 +21,12 @@
 
         <dependency>
             <groupId>com.dtstack.engine</groupId>
+            <artifactId>plugins.base</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.dtstack.engine</groupId>
             <artifactId>plugins.dtscript.dtscript-hadoop3-core</artifactId>
             <version>1.0.0</version>
             <exclusions>
