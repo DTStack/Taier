@@ -1,6 +1,5 @@
 package com.dtstack.engine.dtscript.container;
 
-import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.common.SecurityUtil;
 import com.dtstack.engine.dtscript.common.type.AbstractAppType;
@@ -62,8 +61,7 @@ public class DtContainer {
 
     private ContainerStatusNotifier containerStatusNotifier;
 
-    private ScheduledExecutorService scheduler = new ScheduledThreadPoolExecutor(1,
-            new CustomThreadFactory(this.getClass().getSimpleName()));
+    private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     private final FileSystem localFs;
 
