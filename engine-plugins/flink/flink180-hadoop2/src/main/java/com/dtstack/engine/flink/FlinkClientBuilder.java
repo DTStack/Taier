@@ -242,7 +242,7 @@ public class FlinkClientBuilder {
         if (StringUtils.isNotBlank(flinkConfig.getFlinkJarPath())) {
 
             if (!new File(flinkConfig.getFlinkJarPath()).exists()) {
-                throw new RdosDefineException("The Flink jar path is not exist");
+                throw new RdosDefineException(String.format("The Flink jar %s  path is not exist ",flinkConfig.getFlinkJarPath()));
             }
 
             flinkJarPath = flinkConfig.getFlinkJarPath();

@@ -960,8 +960,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      */
     public void sendTaskStartTrigger(ScheduleJob scheduleJob) throws Exception {
 
-        String taskJson = null;
-
         ScheduleTaskShade batchTask = batchTaskShadeService.getBatchTaskById(scheduleJob.getTaskId(), scheduleJob.getAppType());
         if (batchTask == null) {
             throw new RdosDefineException("can not fiind task by id:" + scheduleJob.getTaskId());
@@ -993,8 +991,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             if (Objects.nonNull(info)) {
                 Integer multiEngineType = info.getInteger("multiEngineType");
                 String ldapUserName = info.getString("ldapUserName");
-                String ldapPassword = info.getString("ldapPassword");
-                String dbName = info.getString("dbName");
                 if (StringUtils.isNotBlank(ldapUserName)) {
                     info.remove("ldapUserName");
                     info.remove("ldapPassword");
@@ -1010,7 +1006,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                 }
                 actionParam.put("name", scheduleJob.getJobName());
                 actionParam.put("taskId", scheduleJob.getJobId());
-                taskJson = objMapper.writeValueAsString(actionParam);
 
                 // 出错重试配置,兼容之前的任务，没有这个参数则默认重试
                 JSONObject scheduleConf = JSONObject.parseObject(batchTask.getScheduleConf());
