@@ -21,6 +21,7 @@ import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.engine.master.router.login.domain.UserTenant;
 import com.dtstack.schedule.common.enums.Sort;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,10 +41,6 @@ import java.util.*;
 public class TenantService {
 
     private static Logger LOGGER = LoggerFactory.getLogger(TenantService.class);
-
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
-    private static final ThreadLocal<Map<Long, UserTenant>> threadLocalUicTenant = new ThreadLocal<>();
 
     @Autowired
     private EnvironmentContext env;
@@ -145,13 +142,12 @@ public class TenantService {
         }
     }
 
+
     public List listTenant(@Param("dtToken") String dtToken) {
         List<UserTenant> tenantList = postTenantList(dtToken);
         if (CollectionUtils.isEmpty(tenantList)) {
             return tenantList;
         }
-
-        updateTenantLocalCache(tenantList);
 
         List<Long> hasClusterTenantIds = tenantDao.listAllDtUicTenantIds();
         if (hasClusterTenantIds.isEmpty()) {
@@ -192,7 +188,6 @@ public class TenantService {
             updateTenantQueue(tenant.getId(), dtUicTenantId, hadoopEngine.getId(), queueId);
         }
 
-        threadLocalUicTenant.remove();
     }
 
     private void checkTenantBindStatus(Long tenantId) {
@@ -262,15 +257,12 @@ public class TenantService {
     }
 
     private Tenant addTenant(Long dtUicTenantId, String dtToken){
-        Map<Long, UserTenant> uicIdTenantMap = threadLocalUicTenant.get();
-        if(uicIdTenantMap == null || !uicIdTenantMap.containsKey(dtUicTenantId)){
-            List list = postTenantList(dtToken);
-            uicIdTenantMap = updateTenantLocalCache(list);
+        Map<String, Object> uicTenantInfo = DtUicUserConnect.getUicTenantInfo(env.getDtUicUrl(), dtUicTenantId, dtToken);
+        if(MapUtils.isEmpty(uicTenantInfo)){
+            throw new RdosDefineException("租户不存在");
         }
-
-        UserTenant userTenant = uicIdTenantMap.get(dtUicTenantId);
-        String tenantName = userTenant.getTenantName();
-        String tenantDesc = userTenant.getTenantDesc();
+        String tenantName = (String)uicTenantInfo.get("tenantName");
+        String tenantDesc = (String)uicTenantInfo.get("description");
 
         Tenant tenant = new Tenant();
         tenant.setTenantName(tenantName);
@@ -279,16 +271,6 @@ public class TenantService {
         tenantDao.insert(tenant);
 
         return tenant;
-    }
-
-    private Map<Long, UserTenant> updateTenantLocalCache(List<UserTenant> list){
-        Map<Long, UserTenant> map = new HashMap<>(list.size());
-        for (UserTenant ut : list) {
-            map.put(ut.getTenantId(),ut);
-        }
-
-        threadLocalUicTenant.set(map);
-        return map;
     }
 
     private void updateTenantQueue(Long tenantId, Long dtUicTenantId, Long engineId, Long queueId){

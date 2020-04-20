@@ -18,4 +18,6 @@ public interface TenantDao {
     Tenant getByDtUicTenantId(@Param("dtUicTenantId") Long dtUicTenantId);
 
     List<Long> listDtUicTenantIdByIds(@Param("ids") List<Long> ids);
+
+    List<Tenant> listAllTenantByDtUicTenantIds(@Param("ids") List<Long> ids);
 }
