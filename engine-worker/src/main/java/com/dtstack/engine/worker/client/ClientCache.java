@@ -90,6 +90,7 @@ public class ClientCache {
 
             return client;
         } catch (Throwable e) {
+            LOG.error("------- engineType {}  plugin info {} get client error ", engineType, pluginInfo, e);
             throw new ClientAccessException(e);
         }
     }
