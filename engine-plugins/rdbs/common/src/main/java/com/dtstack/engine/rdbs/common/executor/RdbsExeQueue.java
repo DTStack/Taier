@@ -36,6 +36,7 @@ import java.util.regex.Pattern;
  * //FIXME 不考虑机器挂掉任务恢复的问题，只需要在机器挂掉之后任务设置为失败即可
  * Date: 2018/1/29
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
@@ -49,7 +50,9 @@ public class RdbsExeQueue {
 
     private int minSize = 20;
 
-    /**最大允许同时执行的sql任务长度*/
+    /**
+     * 最大允许同时执行的sql任务长度
+     */
     private int maxSize = 20;
 
     private BlockingQueue<Runnable> queue;
@@ -58,17 +61,23 @@ public class RdbsExeQueue {
 
     private ExecutorService monitorExecutor;
 
-    /**优先执行*/
+    /**
+     * 优先执行
+     */
     private BlockingQueue<JobClient> waitQueue = Queues.newLinkedBlockingQueue();
 
     private Map<String, RdbsExe> threadCache = Maps.newHashMap();
 
-    /**缓存所有进入执行引擎的任务---在执行完成删除*/
+    /**
+     * 缓存所有进入执行引擎的任务---在执行完成删除
+     */
     private Map<String, JobClient> jobCache = Maps.newConcurrentMap();
 
     private AbstractConnFactory connFactory;
 
-    public RdbsExeQueue(AbstractConnFactory connFactory, Integer maxPoolSize, Integer minPoolSize){
+    private StatusUpdateDealer statusUpdateDealer;
+
+    public RdbsExeQueue(AbstractConnFactory connFactory, Integer maxPoolSize, Integer minPoolSize) {
         this.connFactory = connFactory;
         if (maxPoolSize != null) {
             this.maxSize = maxPoolSize;
@@ -78,22 +87,23 @@ public class RdbsExeQueue {
         }
     }
 
-    public void init(){
+    public void init() {
         queue = new ArrayBlockingQueue<>(1);
         jobExecutor = new ThreadPoolExecutor(minSize, maxSize, 0, TimeUnit.MILLISECONDS, queue,
                 new CustomThreadFactory("rdb-job-exe"));
 
-        monitorExecutor = new ThreadPoolExecutor(2, 2, 0, TimeUnit.MILLISECONDS,
+        monitorExecutor = new ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<>(1), new CustomThreadFactory("monitor-exe"));
 
         monitorExecutor.submit(new WaitQueueDealer());
-        monitorExecutor.submit(new StatusUpdateDealer(jobCache));
+        statusUpdateDealer = new StatusUpdateDealer(jobCache);
+        statusUpdateDealer.start();
     }
 
     /**
      * 提交成功返回engine_id
      */
-    public String submit(JobClient jobClient){
+    public String submit(JobClient jobClient) {
 
         try {
             if (LogStoreFactory.getLogStore() != null) {
@@ -109,19 +119,19 @@ public class RdbsExeQueue {
         return jobClient.getTaskId();
     }
 
-    public boolean checkCanSubmit(){
-        if(queue.size() > 0 ){
+    public boolean checkCanSubmit() {
+        if (queue.size() > 0) {
             return false;
-        }else if(waitQueue.size() >= maxSize){
+        } else if (waitQueue.size() >= maxSize) {
             return false;
         }
 
         return true;
     }
 
-    public boolean cancelJob(String jobId){
+    public boolean cancelJob(String jobId) {
         RdbsExe rdbsExe = threadCache.get(jobId);
-        if(rdbsExe == null){
+        if (rdbsExe == null) {
             return false;
         }
 
@@ -131,7 +141,7 @@ public class RdbsExeQueue {
     }
 
 
-    public RdosTaskStatus getJobStatus(String jobId){
+    public RdosTaskStatus getJobStatus(String jobId) {
         if (LogStoreFactory.getLogStore() != null) {
             Integer status = LogStoreFactory.getLogStore().getStatusByJobId(jobId);
             if (status != null) {
@@ -141,7 +151,7 @@ public class RdbsExeQueue {
         return null;
     }
 
-    public String getJobLog(String jobId){
+    public String getJobLog(String jobId) {
         String logInfo = null;
         if (LogStoreFactory.getLogStore() != null) {
             logInfo = LogStoreFactory.getLogStore().getLogByJobId(jobId);
@@ -176,15 +186,15 @@ public class RdbsExeQueue {
 
         private String taskParams;
 
-        public RdbsExe(String jobName, String sql, String jobId){
+        public RdbsExe(String jobName, String sql, String jobId) {
             this(jobName, sql, jobId, null);
         }
 
-        public RdbsExe(String jobName, String sql, String jobId, String taskParams){
+        public RdbsExe(String jobName, String sql, String jobId, String taskParams) {
             this.jobName = jobName;
             this.taskParams = taskParams;
             if (connFactory.supportProcedure()) {
-                jobSqlProc =  createSqlProc(sql, jobName, jobId);
+                jobSqlProc = createSqlProc(sql, jobName, jobId);
             } else {
                 sqlList = connFactory.buildSqlList(sql);
             }
@@ -199,7 +209,7 @@ public class RdbsExeQueue {
             try {
                 conn = connFactory.getConnByTaskParams(taskParams, jobName);
                 conn.setAutoCommit(false);
-                if(isCancel.get()){
+                if (isCancel.get()) {
                     LOG.info("exe cancel, jobId={}, jobName={} is canceled", engineJobId, jobName);
                     return false;
                 }
@@ -209,17 +219,17 @@ public class RdbsExeQueue {
                     LogStoreFactory.getLogStore().updateStatus(engineJobId, RdosTaskStatus.RUNNING.getStatus());
                 }
                 int i = 1;
-                for(String sql : sqlList) {
+                for (String sql : sqlList) {
                     currentSql = sql;
-                    if (isSelectSql(sql)){
-                        LOG.info("exe {} line skip,jobId={},jobName={},sql={}",i++,  engineJobId, jobName,sql);
+                    if (isSelectSql(sql)) {
+                        LOG.info("exe {} line skip,jobId={},jobName={},sql={}", i++, engineJobId, jobName, sql);
                         continue;
                     }
 
                     long sqlStart = System.currentTimeMillis();
                     simpleStmt.execute(String.format("%s;", currentSql));
                     LOG.info("exe {} line success,jobId={},jobName={},cost={}ms", i++, engineJobId, jobName, (System.currentTimeMillis() - sqlStart));
-                    if(isCancel.get()) {
+                    if (isCancel.get()) {
                         LOG.info("exe cancel,jobId={},jobName={}", engineJobId, jobName);
                         return false;
                     }
@@ -227,11 +237,11 @@ public class RdbsExeQueue {
                 conn.commit();
                 exeResult = true;
             } catch (Exception e) {
-                LOG.error("exe error,jobId={},jobName={},ex={}",engineJobId, jobName, e);
+                LOG.error("exe error,jobId={},jobName={},ex={}", engineJobId, jobName, e);
                 try {
                     conn.rollback();
                 } catch (SQLException e1) {
-                    LOG.error("rollback error,jobId={},jobName={},ex={}",engineJobId, jobName, e1);
+                    LOG.error("rollback error,jobId={},jobName={},ex={}", engineJobId, jobName, e1);
                 }
                 //错误信息更新到日志里面
                 if (LogStoreFactory.getLogStore() != null) {
@@ -241,9 +251,9 @@ public class RdbsExeQueue {
             } finally {
 
                 try {
-                    if(conn != null){
+                    if (conn != null) {
 
-                        if(simpleStmt != null && !simpleStmt.isClosed()){
+                        if (simpleStmt != null && !simpleStmt.isClosed()) {
                             simpleStmt.close();
                         }
 
@@ -267,9 +277,9 @@ public class RdbsExeQueue {
 
         }
 
-        private boolean isSelectSql(String sql){
+        private boolean isSelectSql(String sql) {
             Matcher matcher = pattern.matcher(sql.toLowerCase().trim());
-            if(matcher.find()) {
+            if (matcher.find()) {
                 return true;
             }
             return false;
@@ -281,13 +291,13 @@ public class RdbsExeQueue {
          * @param exeSql
          * @return
          */
-        private String createSqlProc(String exeSql, String jobName, String jobId){
-            procedureName = PRODUCE_NAME_PREFIX + NAME_SPLIT +jobId;
+        private String createSqlProc(String exeSql, String jobName, String jobId) {
+            procedureName = PRODUCE_NAME_PREFIX + NAME_SPLIT + jobId;
             StringBuilder sb = new StringBuilder(connFactory.getCreateProcedureHeader(procedureName));
 
             sb.append(exeSql);
 
-            if(!exeSql.trim().endsWith(SEMICOLON)) {
+            if (!exeSql.trim().endsWith(SEMICOLON)) {
                 sb.append(SEMICOLON);
             }
 
@@ -296,14 +306,14 @@ public class RdbsExeQueue {
             return sb.toString();
         }
 
-        public void cancelJob(){
+        public void cancelJob() {
             isCancel.set(true);
-            if(stmt != null){
+            if (stmt != null) {
                 try {
                     stmt.cancel();
                 } catch (SQLException e) {
                     LOG.error("", e);
-                }finally {
+                } finally {
                     //更新任务状态
                     if (LogStoreFactory.getLogStore() != null) {
                         LogStoreFactory.getLogStore().updateStatus(engineJobId, RdosTaskStatus.CANCELED.getStatus());
@@ -318,9 +328,9 @@ public class RdbsExeQueue {
             boolean exeResult = false;
             Statement procCreateStmt = null;
 
-            try{
+            try {
                 conn = connFactory.getConn();
-                if(isCancel.get()){
+                if (isCancel.get()) {
                     LOG.info("job:{} is canceled", jobName);
                     return false;
                 }
@@ -334,47 +344,36 @@ public class RdbsExeQueue {
                 stmt = conn.prepareCall(procCall);
                 stmt.execute();
 
-                stmt = null;
                 exeResult = true;
-            }catch (Exception e){
+            } catch (Exception e) {
                 LOG.error("", e);
                 //错误信息更新到日志里面
                 if (LogStoreFactory.getLogStore() != null) {
                     LogStoreFactory.getLogStore().updateErrorLog(engineJobId, e.toString());
                 }
-            }finally {
+            } finally {
+                closeDBResources(procCreateStmt, null);
 
+                Statement dropStmt = null;
                 try {
-                    if(conn != null){
+                    if (conn != null) {
                         //删除存储过程
                         String dropSql = connFactory.getDropProc(procedureName);
-                        Statement dropStmt = conn.createStatement();
+                        dropStmt = conn.createStatement();
                         dropStmt.execute(dropSql);
-                        dropStmt.close();
-
-                        if(stmt != null && !stmt.isClosed()){
-                            stmt.close();
-                        }
-
-                        if(procCreateStmt != null){
-                            if(ORACLE_STATEMENT_CLASS_NAME.equals(procCreateStmt.getClass().getName())){
-                                procCreateStmt.close();
-                            } else if(!procCreateStmt.isClosed()){
-                                procCreateStmt.close();
-                            }
-                        }
-
-                        conn.close();
                     }
-
                 } catch (Exception e) {
                     LOG.error("", e);
+                } finally {
+                    closeDBResources(dropStmt, conn);
                 }
+
+                closeDBResources(stmt, conn);
 
                 LOG.info("job:{} exe end...", jobName, exeResult);
                 //修改指定任务的状态--成功或者失败
                 //TODO 处理cancel job 情况
-                if (LogStoreFactory.getLogStore() != null){
+                if (LogStoreFactory.getLogStore() != null) {
                     LogStoreFactory.getLogStore().updateStatus(engineJobId, exeResult ? RdosTaskStatus.FINISHED.getStatus() : RdosTaskStatus.FAILED.getStatus());
                 }
                 jobCache.remove(engineJobId);
@@ -388,15 +387,30 @@ public class RdbsExeQueue {
          */
         @Override
         public void run() {
-            if(CollectionUtils.isNotEmpty(sqlList)) {
+            if (CollectionUtils.isNotEmpty(sqlList)) {
                 executeSqlList();
             } else {
                 runProc();
             }
         }
+
+        private void closeDBResources(Statement stmt, Connection conn) {
+            try {
+                if (null != stmt) {
+                    stmt.close();
+                }
+
+                if (null != conn) {
+                    conn.close();
+                }
+            } catch (Throwable t) {
+                LOG.error("", t);
+            }
+        }
     }
 
-    class WaitQueueDealer implements Runnable{
+
+    class WaitQueueDealer implements Runnable {
 
         private boolean isRun = true;
 
@@ -404,23 +418,23 @@ public class RdbsExeQueue {
         public void run() {
 
             LOG.warn("---mysql WaitQueueDealer is start----");
-            while (isRun){
-                try{
+            while (isRun) {
+                try {
                     JobClient jobClient = waitQueue.take();
                     String taskName = jobClient.getJobName();
                     String sql = jobClient.getSql();
                     String jobId = jobClient.getTaskId();
 
                     RdbsExe rdbsExe = new RdbsExe(taskName, sql, jobId, jobClient.getTaskParams());
-                    try{
+                    try {
                         jobExecutor.submit(rdbsExe);
                         threadCache.put(jobId, rdbsExe);
-                    }catch (RejectedExecutionException e){
+                    } catch (RejectedExecutionException e) {
                         //等待继续执行---说明当时执行队列处于满状态-->先等2s
                         waitQueue.add(jobClient);
                         Thread.sleep(2 * 1000);
                     }
-                }catch (Throwable t){
+                } catch (Throwable t) {
                     LOG.error("", t);
                 }
             }
@@ -428,7 +442,7 @@ public class RdbsExeQueue {
             LOG.warn("---mysql WaitQueueDealer is stop----");
         }
 
-        public void stop(){
+        public void stop() {
             this.isRun = false;
         }
     }

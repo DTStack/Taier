@@ -687,7 +687,7 @@ ALTER TABLE  `schedule_job` ADD `source_type`     tinyint(2)   DEFAULT NULL COMM
 ALTER TABLE  `schedule_job` ADD `retry_task_params` text       DEFAULT NULL COMMENT '重试任务参数';
 ALTER TABLE  `schedule_job` ADD `compute_type`    tinyint(1)   NOT NULL DEFAULT '1' COMMENT '计算类型STREAM(0), BATCH(1)';
 
-update `schedule_job` as sj inner join `schedule_engine_job` as sej
+update `schedule_job` as sj left join `schedule_engine_job` as sej
     on sj.job_id = sej.job_id
     set sj.engine_job_id = sej.engine_job_id,
         sj.application_id = sej.application_id,

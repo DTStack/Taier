@@ -1,58 +1,75 @@
 package com.dtstack.engine.rdbs.common.executor;
 
+import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.logstore.LogStoreFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
- * FIXME 是否把timeOutDeal的执行修改为插件只执行一次
  * 定时更新任务的执行修改时间和清理过期任务
  * Date: 2018/2/7
  * Company: www.dtstack.com
- * @author
+ * author: toutian
  */
 
-public class StatusUpdateDealer implements Runnable {
-    
+public class StatusUpdateDealer {
+
     private static final Logger LOG = LoggerFactory.getLogger(StatusUpdateDealer.class);
 
-    private final int interval = 2 * 1000;
-
-    private boolean isRun = true;
+    private final static int MODIFY_CHECK_INTERVAL = 2 * 1000;
+    private final static int TIMEOUT_CHECK_INTERVAL = 30 * 1000;
 
     private Map<String, JobClient> jobCache;
+    private ModifyCheckJob modifyCheckJob;
+    private TimeoutCheckJob timeoutCheckJob;
 
-    public StatusUpdateDealer(Map<String, JobClient> jobCache){
+    private ScheduledExecutorService scheduledService;
+
+    public StatusUpdateDealer(Map<String, JobClient> jobCache) {
         this.jobCache = jobCache;
+        modifyCheckJob = new ModifyCheckJob();
+        timeoutCheckJob = new TimeoutCheckJob();
+        scheduledService = new ScheduledThreadPoolExecutor(2, new CustomThreadFactory(this.getClass().getSimpleName()));
     }
 
-    @Override
-    public void run() {
+    public void start() {
+        scheduledService.scheduleWithFixedDelay(
+                modifyCheckJob,
+                MODIFY_CHECK_INTERVAL,
+                MODIFY_CHECK_INTERVAL,
+                TimeUnit.MILLISECONDS);
+        scheduledService.scheduleWithFixedDelay(
+                timeoutCheckJob,
+                TIMEOUT_CHECK_INTERVAL,
+                TIMEOUT_CHECK_INTERVAL,
+                TimeUnit.MILLISECONDS);
+    }
 
-        LOG.warn("---StatusUpdateDealer is start----");
-        int i = 0;
-
-        while (isRun){
-            try{
-
-                i++;
-                //更新时间
-                if (LogStoreFactory.getLogStore() != null) {
-                    LogStoreFactory.getLogStore().updateModifyTime(jobCache.keySet());
-                    //更新很久未有操作的任务---防止某台机器挂了,任务状态未被更新
-                    LogStoreFactory.getLogStore().timeOutDeal();
-                }
-                Thread.sleep(interval);
-            }catch (Throwable e){
+    private class ModifyCheckJob implements Runnable {
+        @Override
+        public void run() {
+            try {
+                LogStoreFactory.getLogStore().updateModifyTime(jobCache.keySet());
+            } catch (Throwable e) {
                 LOG.error("", e);
             }
         }
-        LOG.warn("---StatusUpdateDealer is stop----");
     }
 
-    public void stop(){
-        isRun = false;
+    private class TimeoutCheckJob implements Runnable {
+        @Override
+        public void run() {
+            try {
+                LogStoreFactory.getLogStore().timeOutDeal();
+            } catch (Throwable e) {
+                LOG.error("", e);
+            }
+        }
     }
 }
