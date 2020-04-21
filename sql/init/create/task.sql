@@ -5,7 +5,7 @@ CREATE TABLE `schedule_task_shade`
     `project_id`              int(11)      NOT NULL DEFAULT '-1' COMMENT '项目id',
     `dtuic_tenant_id`         int(11)      NOT NULL DEFAULT '-1' COMMENT 'uic租户id',
     `app_type`                int(11)      NOT NULL DEFAULT '0' COMMENT 'RDOS(1), DQ(2), API(3), TAG(4), MAP(5), CONSOLE(6), STREAM(7), DATASCIENCE(8)',
-    `node_pid`                int(11)      DEFAULT NULL COMMENT '父文件夹id',
+    `node_pid`                int(11)      NOT NULL DEFAULT '0' COMMENT '父文件夹id',
     `name`                    varchar(256) NOT NULL COMMENT '任务名称',
     `task_type`               tinyint(1)   NOT NULL COMMENT '任务类型 -1:虚节点, 0:sparksql, 1:spark, 2:数据同步, 3:pyspark, 4:R, 5:深度学习, 6:python, 7:shell, 8:机器学习, 9:hadoopMR, 10:工作流, 12:carbonSQL, 13:notebook, 14:算法实验, 15:libra sql, 16:kylin, 17:hiveSQL',
     `engine_type`             tinyint(1)   NOT NULL COMMENT '执行引擎类型 0:flink, 1:spark, 2:datax, 3:learning, 4:shell, 5:python2, 6:dtyarnshell, 7:python3, 8:hadoop, 9:carbon, 10:postgresql, 11:kylin, 12:hive',

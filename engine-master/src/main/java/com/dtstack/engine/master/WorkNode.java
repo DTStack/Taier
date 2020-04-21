@@ -41,6 +41,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -242,6 +243,10 @@ public class WorkNode implements InitializingBean, ApplicationContextAware {
         String engineLog = null;
         try {
             String pluginInfoStr = pluginInfoDao.getPluginInfo(pluginId);
+            if (Objects.isNull(pluginInfoStr)) {
+                LOG.info("getAndUpdateEngineLog is null jobId:{} pluginId:{}.", jobId, pluginId);
+                return engineLog;
+            }
             Map<String, Object> params = PublicUtil.jsonStrToObject(pluginInfoStr, Map.class);
             String engineType = MathUtil.getString(params.get(ConfigConstant.TYPE_NAME_KEY));
             JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineJobId, appId, jobId);
