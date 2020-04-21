@@ -262,6 +262,7 @@ public enum RdosTaskStatus implements Serializable {
         COLLECTION_STATUS.put(SUBMITTING.getStatus(), Lists.newArrayList(SUBMITTING.getStatus()));
         COLLECTION_STATUS.put(CANCELED.getStatus(), STOPPED_STATUS);
         COLLECTION_STATUS.put(FROZEN.getStatus(), Lists.newArrayList(FROZEN.getStatus()));
+        COLLECTION_STATUS.put(EXPIRE.getStatus(), EXPIRE_STATUS);
     }
 
     private final static Map<Integer, List<Integer>> STATUS_FAILED_DETAIL = new HashMap<>();
@@ -277,6 +278,9 @@ public enum RdosTaskStatus implements Serializable {
         STATUS_FAILED_DETAIL.put(SUBMITTING.getStatus(), Lists.newArrayList(SUBMITTING.getStatus()));
         STATUS_FAILED_DETAIL.put(CANCELED.getStatus(), STOPPED_STATUS);
         STATUS_FAILED_DETAIL.put(FROZEN.getStatus(), Lists.newArrayList(FROZEN.getStatus()));
+        //统计状态数的时候 自动取消(过期)需要归到取消中
+        STATUS_FAILED_DETAIL.put(EXPIRE.getStatus(), EXPIRE_STATUS);
+
     }
 
 
