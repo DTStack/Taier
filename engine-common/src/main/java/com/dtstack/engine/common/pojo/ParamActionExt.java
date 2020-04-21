@@ -11,10 +11,6 @@ import org.slf4j.LoggerFactory;
 public class ParamActionExt extends ParamAction {
     private static final Logger logger = LoggerFactory.getLogger(ParamActionExt.class);
 
-    private Long tenantId;
-
-    private Long dtuicTenantId;
-
     public Integer getAppType() {
         return appType;
     }
@@ -153,19 +149,4 @@ public class ParamActionExt extends ParamAction {
         this.jobKey = jobKey;
     }
 
-    public Long getTenantId() {
-        return tenantId;
-    }
-
-    public void setTenantId(Long tenantId) {
-        this.tenantId = tenantId;
-    }
-
-    public Long getDtuicTenantId() {
-        return dtuicTenantId;
-    }
-
-    public void setDtuicTenantId(Long dtuicTenantId) {
-        this.dtuicTenantId = dtuicTenantId;
-    }
 }

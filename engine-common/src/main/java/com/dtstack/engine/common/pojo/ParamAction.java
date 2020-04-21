@@ -64,6 +64,10 @@ public class ParamAction {
 
 	private long lackingCount;
 
+    private Long tenantId;
+
+    private Long dtuicTenantId;
+
 
 	public Integer getRequestStart() {
 		return requestStart;
@@ -226,6 +230,22 @@ public class ParamAction {
 	public void setLackingCount(long lackingCount) {
 		this.lackingCount = lackingCount;
 	}
+
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public Long getDtuicTenantId() {
+        return dtuicTenantId;
+    }
+
+    public void setDtuicTenantId(Long dtuicTenantId) {
+        this.dtuicTenantId = dtuicTenantId;
+    }
 
 	@Override
     public String toString() {
