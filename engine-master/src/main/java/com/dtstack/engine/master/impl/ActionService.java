@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.annotation.Param;
@@ -233,7 +234,7 @@ public class ActionService {
         scheduleJob.setTaskId(getOrDefault(paramActionExt.getTaskSourceId(), -1L));
         scheduleJob.setCreateUserId(getOrDefault(paramActionExt.getCreateUserId(), -1L));
 
-        scheduleJob.setType(getOrDefault(paramActionExt.getType(), 2));
+        scheduleJob.setType(getOrDefault(paramActionExt.getType(), EScheduleType.TEMP_JOB.getType()));
         scheduleJob.setIsRestart(getOrDefault(paramActionExt.getIsRestart(), 0));
         scheduleJob.setBusinessDate(getOrDefault(paramActionExt.getBusinessDate(), ""));
         scheduleJob.setCycTime(getOrDefault(paramActionExt.getCycTime(), ""));
