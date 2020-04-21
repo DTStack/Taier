@@ -22,4 +22,6 @@ public interface EngineJobStopRecordDao {
     List<EngineJobStopRecord> listStopJob(@Param("startId") Long startId, @Param("lessThanOperatorExpired") Timestamp lessThanOperatorExpired);
 
     List<String> listByJobIds(@Param("jobIds") List<String> jobIds);
+
+    Timestamp getJobCreateTimeById(@Param("id") Long id);
 }

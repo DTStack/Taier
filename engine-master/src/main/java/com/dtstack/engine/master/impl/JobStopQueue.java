@@ -191,28 +191,30 @@ public class JobStopQueue implements InitializingBean {
             while (run) {
                 try {
                     StoppedJob<JobElement> stoppedJob = stopJobQueue.take();
-                    StoppedStatus stoppedStatus = jobStopAction.stopJob(stoppedJob.getJob());
-                    switch (stoppedStatus) {
-                        case STOPPED:
-                        case MISSED:
-                            engineJobStopRecordDao.delete(stoppedJob.getJob().stopJobId);
-                            break;
-                        case STOPPING:
-                        case RETRY:
-                            if (stoppedJob.isRetry()) {
-                                if (StoppedStatus.STOPPING == stoppedStatus) {
-                                    stoppedJob.resetDelay(jobStoppedDelay * 20);
-                                } else if (StoppedStatus.RETRY == stoppedStatus) {
-                                    stoppedJob.resetDelay(jobStoppedDelay);
-                                }
-                                stoppedJob.incrCount();
-                                stopJobQueue.put(stoppedJob);
-                            } else {
-                                logger.warn("jobId:{} retry limited!", stoppedJob.getJob().jobId);
+                    if (!checkExpired(stoppedJob.getJob())){
+                        StoppedStatus stoppedStatus = jobStopAction.stopJob(stoppedJob.getJob());
+                        switch (stoppedStatus) {
+                            case STOPPED:
+                            case MISSED:
                                 engineJobStopRecordDao.delete(stoppedJob.getJob().stopJobId);
-                            }
-                        default:
+                                break;
+                            case STOPPING:
+                            case RETRY:
+                                if (stoppedJob.isRetry()) {
+                                    if (StoppedStatus.STOPPING == stoppedStatus) {
+                                        stoppedJob.resetDelay(jobStoppedDelay * 20);
+                                    } else if (StoppedStatus.RETRY == stoppedStatus) {
+                                        stoppedJob.resetDelay(jobStoppedDelay);
+                                    }
+                                    stoppedJob.incrCount();
+                                    stopJobQueue.put(stoppedJob);
+                                } else {
+                                    logger.warn("jobId:{} retry limited!", stoppedJob.getJob().jobId);
+                                }
+                            default:
+                        }
                     }
+                    engineJobStopRecordDao.delete(stoppedJob.getJob().stopJobId);
                 } catch (Exception e) {
                     logger.error("", e);
                 }
@@ -228,6 +230,16 @@ public class JobStopQueue implements InitializingBean {
 
         public void reStart() {
             this.run = true;
+        }
+    }
+
+    private boolean checkExpired(JobElement jobElement){
+        EngineJobCache jobCache = engineJobCacheDao.getOne(jobElement.jobId);
+        Timestamp getGmtCreate = engineJobStopRecordDao.getJobCreateTimeById(jobElement.stopJobId);
+        if (jobCache != null && getGmtCreate != null){
+            return jobCache.getGmtCreate().after(getGmtCreate);
+        } else {
+            return true;
         }
     }
 
