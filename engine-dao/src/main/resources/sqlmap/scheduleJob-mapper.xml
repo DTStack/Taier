@@ -455,7 +455,6 @@
         <foreach item="id" index="index" collection="jobIds" open="(" separator="," close=")">
             #{id}
         </foreach>
-        AND project_id = #{projectId}
         AND is_deleted = 0
     </select>
 

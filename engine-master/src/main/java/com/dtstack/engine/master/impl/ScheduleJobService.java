@@ -1176,7 +1176,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         if (CollectionUtils.isEmpty(jobIdList)) {
             return 0;
         }
-        List<ScheduleJob> jobs = new ArrayList<>(scheduleJobDao.listByJobIds(jobIdList, projectId));
+        List<ScheduleJob> jobs = new ArrayList<>(scheduleJobDao.listByJobIds(jobIdList));
 
         if (CollectionUtils.isNotEmpty(jobIdList)) {
             List<String> flowJobIds = scheduleJobDao.getWorkFlowJobId(jobIdList, SPECIAL_TASK_TYPES);
@@ -2383,7 +2383,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     }
 
     public List<ScheduleJob> getByIds(@Param("ids") List<Long> ids, @Param("project") Long projectId) {
-        return scheduleJobDao.listByJobIds(ids, projectId);
+        return scheduleJobDao.listByJobIds(ids);
     }
 
 
