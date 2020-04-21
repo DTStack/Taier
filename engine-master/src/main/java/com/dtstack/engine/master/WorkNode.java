@@ -243,7 +243,7 @@ public class WorkNode implements InitializingBean, ApplicationContextAware {
         String engineLog = null;
         try {
             String pluginInfoStr = pluginInfoDao.getPluginInfo(pluginId);
-            if (Objects.isNull(pluginInfoStr)) {
+            if (StringUtils.isBlank(pluginInfoStr)) {
                 LOG.info("getAndUpdateEngineLog is null jobId:{} pluginId:{}.", jobId, pluginId);
                 return engineLog;
             }
