@@ -83,8 +83,12 @@ public final class DBUtil {
         }
 
         Properties prop = new Properties();
-        prop.put("user", user);
-        prop.put("password", pass);
+        if(Objects.nonNull(user)){
+            prop.put("user", user);
+        }
+        if(Objects.nonNull(pass)){
+            prop.put("password", pass);
+        }
 
         if (dataBaseType == DataBaseType.Oracle) {
             //oracle.net.READ_TIMEOUT for jdbc versions < 10.1.0.5 oracle.jdbc.ReadTimeout for jdbc versions >=10.1.0.5
