@@ -967,7 +967,16 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
 
         //判断是不是虚节点---虚节点直接完成
         if (batchTask.getTaskType().equals(EScheduleJobType.VIRTUAL.getType())) {
-            updateStatusByJobId(scheduleJob.getJobId(), RdosTaskStatus.FINISHED.getStatus());
+            //虚节点写入开始时间和结束时间
+            ScheduleJob updateJob = new ScheduleJob();
+            updateJob.setJobId(scheduleJob.getJobId());
+            updateJob.setAppType(scheduleJob.getAppType());
+            updateJob.setStatus(RdosTaskStatus.FINISHED.getStatus());
+            updateJob.setExecStartTime(new Timestamp(System.currentTimeMillis()));
+            updateJob.setExecEndTime(new Timestamp(System.currentTimeMillis()));
+            updateJob.setGmtModified(new Timestamp(System.currentTimeMillis()));
+            updateJob.setExecTime(0l);
+            scheduleJobDao.updateStatusWithExecTime(updateJob);
             return;
         }
 

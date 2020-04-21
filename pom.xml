@@ -15,6 +15,7 @@
         <spring.version>4.1.9.RELEASE</spring.version>
         <dtCenter.common>4.0.0-engine-SNAPSHOT</dtCenter.common>
         <fastjson>2.9.6</fastjson>
+        <hivejdbc.version>1.1.1</hivejdbc.version>
     </properties>
 
     <modules>
