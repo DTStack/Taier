@@ -14,10 +14,10 @@
                 AND bj.id = #{model.id}
             </if>
             <if test="model.tenantId != null">
-                AND bj.tenant_id = #{model.tenantId} AND ts.tenant_id = #{model.tenantId}
+                AND bj.tenant_id = #{model.tenantId}
             </if>
             <if test="model.projectId != null">
-                AND bj.project_id = #{model.projectId} AND ts.project_id = #{model.projectId}
+                AND bj.project_id = #{model.projectId}
             </if>
             <if test="model.jobId != null">
                 AND bj.job_id = #{model.jobId}
