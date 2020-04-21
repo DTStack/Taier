@@ -74,7 +74,7 @@
         <appender-ref ref="request" />
     </logger>
 
-    <logger name="com.dtstack.engine.master" level="info" additivity="false">
+    <logger name="com.dtstack.engine" level="info" additivity="false">
         <appender-ref ref="allAppender" />
     </logger>
 
