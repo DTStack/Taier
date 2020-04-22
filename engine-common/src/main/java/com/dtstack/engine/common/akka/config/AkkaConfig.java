@@ -87,7 +87,7 @@ public class AkkaConfig {
     }
 
     public static Long getAkkaAskResultTimeout() {
-        String keyName = ConfigConstant.AKKA_ASK_RESULT_TIMEOUT;
+        String keyName = ConfigConstant.AKKA_ASK_RESULTTIMEOUT;
         return Long.valueOf(getValueWithDefault(keyName, "10"));
     }
 
