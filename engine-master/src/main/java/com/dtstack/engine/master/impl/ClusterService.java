@@ -284,7 +284,7 @@ public class ClusterService implements InitializingBean {
             }
         }
         if (type == null) {
-            throw new RdosDefineException("Unknown engine type:" + engineTypeStr);
+            return new JSONObject();
         }
 
         ClusterVO cluster = getClusterByTenant(dtUicTenantId);
