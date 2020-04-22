@@ -32,7 +32,7 @@ public class ConfigConstant {
     public static final String AKKA_WORKER_REMOTE_PATH = "akka.worker.remotePath";
 
     public static final String AKKA_ASK_TIMEOUT = "akka.ask.timeout";
-    public static final String AKKA_ASK_RESULT_TIMEOUT = "akka.ask.result.timeout";
+    public static final String AKKA_ASK_RESULTTIMEOUT = "akka.ask.resultTimeout";
 
     public static final String AKKA_SYSTEMRESOURCE_PROBE_INTERVAL = "aaka.systemresource.probe.Interval";
     public static final String AKKA_NODE_LABELS = "aaka.node.labels";
