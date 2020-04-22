@@ -55,7 +55,7 @@ public class PluginWrapper{
         if (pluginInfoJson == null) {
             throw new RdosDefineException("pluginInfo not be null");
         }
-        if (pluginInfoJson.isEmpty()) {
+        if (!pluginInfoJson.isEmpty()) {
             addParamsToJdbcUrl(actionParam, pluginInfoJson);
             addUserNameToHadoop(pluginInfoJson, ldapUserName);
             addUserNameToImpalaOrHive(pluginInfoJson, ldapUserName, ldapPassword, dbName, engineType);
