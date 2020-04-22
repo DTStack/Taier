@@ -32,7 +32,7 @@
     </select>
 
     <select id="getJobCreateTimeById" parameterType="java.lang.Long" resultType="java.sql.Timestamp">
-        select gmt_create from rdos_engine_job_stop_record where id=#{id} and is_deleted=0;
+        select gmt_create from schedule_engine_job_stop_record where id=#{id} and is_deleted=0;
     </select>
 
 
