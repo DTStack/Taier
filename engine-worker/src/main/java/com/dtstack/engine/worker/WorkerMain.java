@@ -5,6 +5,7 @@ import com.dtstack.engine.common.security.NoExitSecurityManager;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
 import com.dtstack.engine.common.akka.config.AkkaConfig;
+import com.dtstack.engine.worker.jobdealer.TaskLogStoreDealer;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ public class WorkerMain {
             SystemPropertyUtil.setSystemUserDir();
             LogbackComponent.setupLogger();
             Config workerConfig = AkkaConfig.checkIpAndPort(ConfigFactory.load());
+            TaskLogStoreDealer.getInstance();
             AkkaWorkerServerImpl.getAkkaWorkerServer().start(workerConfig);
             ShutdownHookUtil.addShutdownHook(WorkerMain::shutdown, WorkerMain.class.getSimpleName(), logger);
             System.setSecurityManager(new NoExitSecurityManager());

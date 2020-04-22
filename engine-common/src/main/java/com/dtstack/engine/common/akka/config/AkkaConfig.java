@@ -123,17 +123,32 @@ public class AkkaConfig {
     }
 
     public static long getSystemResourceProbeInterval() {
-        String keyName = ConfigConstant.NODE_LABELS;
+        String keyName = ConfigConstant.AKKA_NODE_LABELS;
         return Integer.valueOf(getValueWithDefault(keyName, "5000"));
     }
 
     public static String getNodeLabels() {
-        String keyName = ConfigConstant.NODE_LABELS;
+        String keyName = ConfigConstant.AKKA_NODE_LABELS;
         return getValueWithDefault(keyName, "default");
     }
 
     public static long getWorkerTimeout() {
-        String keyName = ConfigConstant.WORKER_TIMEOUT;
+        String keyName = ConfigConstant.AKKA_WORKER_TIMEOUT;
         return Long.valueOf(getValueWithDefault(keyName, "300000"));
+    }
+
+    public static String getWorkerLogstoreJdbcUrl() {
+        String keyName = ConfigConstant.AKKA_WORKER_LOGSTORE_JDBCURL;
+        return getValueWithDefault(keyName, "");
+    }
+
+    public static String getWorkerLogstoreUsername() {
+        String keyName = ConfigConstant.AKKA_WORKER_LOGSTORE_USERNAME;
+        return getValueWithDefault(keyName, "");
+    }
+
+    public static String getWorkerLogstorePassword() {
+        String keyName = ConfigConstant.AKKA_WORKER_LOGSTORE_PASSWORD;
+        return getValueWithDefault(keyName, "");
     }
 }
