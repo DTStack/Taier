@@ -244,7 +244,7 @@ public class WorkNode implements InitializingBean, ApplicationContextAware {
         try {
             String pluginInfoStr = pluginInfoDao.getPluginInfo(pluginId);
             if (StringUtils.isBlank(pluginInfoStr)) {
-                LOG.info("getAndUpdateEngineLog is null jobId:{} pluginId:{}.", jobId, pluginId);
+                LOG.error("getAndUpdateEngineLog is null jobId:{} pluginId:{}.", jobId, pluginId);
                 return engineLog;
             }
             Map<String, Object> params = PublicUtil.jsonStrToObject(pluginInfoStr, Map.class);
