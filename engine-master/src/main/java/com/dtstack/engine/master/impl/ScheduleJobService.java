@@ -1141,6 +1141,10 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                           @Param("isRoot") Boolean isRoot, @Param("appType") Integer appType) throws Exception {
 
         ScheduleJob scheduleJob = scheduleJobDao.getOne(jobId);
+        return stopJobByScheduleJob(dtuicTenantId, appType, scheduleJob);
+    }
+
+    private String stopJobByScheduleJob(@Param("dtuicTenantId") Long dtuicTenantId, @Param("appType") Integer appType, ScheduleJob scheduleJob) throws Exception {
         if (scheduleJob == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
         }
@@ -1164,6 +1168,17 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             throw new RdosDefineException(ErrorCode.JOB_CAN_NOT_STOP);
         }
     }
+
+    public String stopJobByJobId(@Param("jobId") String jobId, @Param("userId") Long userId, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("dtuicTenantId") Long dtuicTenantId,
+                                 @Param("isRoot") Boolean isRoot, @Param("appType") Integer appType) throws Exception{
+        if(StringUtils.isBlank(jobId)){
+            return "";
+        }
+        logger.info("stop job by jobId {}",jobId);
+        ScheduleJob batchJob = scheduleJobDao.getByJobId(jobId,Deleted.NORMAL.getStatus());
+        return stopJobByScheduleJob(dtuicTenantId, appType, batchJob);
+    }
+
 
 
     public void stopFillDataJobs(@Param("fillDataJobName") String fillDataJobName, @Param("projectId") Long projectId, @Param("dtuicTenantId") Long dtuicTenantId, @Param("appType") Integer appType) throws Exception {
@@ -2792,4 +2807,15 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         pageQuery.setModel(query);
         return scheduleJobDao.syncQueryJob(pageQuery);
     }
+
+    /**
+     *
+     * 根据taskId、appType 拿到对应的job集合
+     * @param taskIds
+     * @param appType
+     */
+    public List<ScheduleJob> listJobsByTaskIdsAndApptype(@Param("taskIds") List<Long> taskIds,@Param("appType") Integer appType){
+        return scheduleJobDao.listJobsByTaskIdAndApptype(taskIds,appType);
+    }
+
 }
