@@ -34,9 +34,12 @@ public class ConfigConstant {
     public static final String AKKA_ASK_TIMEOUT = "akka.ask.timeout";
     public static final String AKKA_ASK_RESULT_TIMEOUT = "akka.ask.result.timeout";
 
-    public static final String SYSTEMRESOURCE_PROBE_INTERVAL = "systemresource.probe.Interval";
-    public static final String NODE_LABELS = "node.labels";
+    public static final String AKKA_SYSTEMRESOURCE_PROBE_INTERVAL = "aaka.systemresource.probe.Interval";
+    public static final String AKKA_NODE_LABELS = "aaka.node.labels";
 
-    public static final String WORKER_TIMEOUT = "worker.timeout";
+    public static final String AKKA_WORKER_TIMEOUT = "akka.worker.timeout";
+    public static final String AKKA_WORKER_LOGSTORE_JDBCURL = "akka.worker.logstore.jdbcUrl";
+    public static final String AKKA_WORKER_LOGSTORE_USERNAME = "akka.worker.logstore.username";
+    public static final String AKKA_WORKER_LOGSTORE_PASSWORD = "akka.worker.logstore.password";
 
 }
