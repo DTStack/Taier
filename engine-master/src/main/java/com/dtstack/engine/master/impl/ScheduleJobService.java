@@ -814,10 +814,18 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             batchJobDTO.setType(vo.getType());
         }
 
-        //只有工作流 需要查询子节点
-        if (batchJobDTO.getTaskTypes().contains(EScheduleJobType.WORK_FLOW.getType())) {
+        if (StringUtils.isNotBlank(vo.getTaskName()) ||
+                vo.getCycEndDay() != null ||
+                vo.getCycStartDay() != null ||
+                StringUtils.isNotBlank(vo.getJobStatuses()) ||
+                StringUtils.isNotBlank(vo.getTaskType())) {
+            //条件查询：针对工作流任务，查询全部父子节点
             batchJobDTO.setNeedQuerySonNode(true);
+        } else {
+            //无条件：只查询工作流父节点
+            batchJobDTO.setNeedQuerySonNode(false);
         }
+
         //分页
         batchJobDTO.setPageQuery(true);
         //bugfix #19764 为对入参做处理
@@ -967,7 +975,16 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
 
         //判断是不是虚节点---虚节点直接完成
         if (batchTask.getTaskType().equals(EScheduleJobType.VIRTUAL.getType())) {
-            updateStatusByJobId(scheduleJob.getJobId(), RdosTaskStatus.FINISHED.getStatus());
+            //虚节点写入开始时间和结束时间
+            ScheduleJob updateJob = new ScheduleJob();
+            updateJob.setJobId(scheduleJob.getJobId());
+            updateJob.setAppType(scheduleJob.getAppType());
+            updateJob.setStatus(RdosTaskStatus.FINISHED.getStatus());
+            updateJob.setExecStartTime(new Timestamp(System.currentTimeMillis()));
+            updateJob.setExecEndTime(new Timestamp(System.currentTimeMillis()));
+            updateJob.setGmtModified(new Timestamp(System.currentTimeMillis()));
+            updateJob.setExecTime(0l);
+            scheduleJobDao.updateStatusWithExecTime(updateJob);
             return;
         }
 
@@ -1167,7 +1184,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         if (CollectionUtils.isEmpty(jobIdList)) {
             return 0;
         }
-        List<ScheduleJob> jobs = new ArrayList<>(scheduleJobDao.listByJobIds(jobIdList, projectId));
+        List<ScheduleJob> jobs = new ArrayList<>(scheduleJobDao.listByJobIds(jobIdList));
 
         if (CollectionUtils.isNotEmpty(jobIdList)) {
             List<String> flowJobIds = scheduleJobDao.getWorkFlowJobId(jobIdList, SPECIAL_TASK_TYPES);
@@ -2374,7 +2391,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     }
 
     public List<ScheduleJob> getByIds(@Param("ids") List<Long> ids, @Param("project") Long projectId) {
-        return scheduleJobDao.listByJobIds(ids, projectId);
+        return scheduleJobDao.listByJobIds(ids);
     }
 
 

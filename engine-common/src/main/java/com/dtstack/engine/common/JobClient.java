@@ -84,6 +84,9 @@ public class JobClient extends OrderObject{
 
     private volatile long lackingCount;
 
+    /** uic租户信息**/
+    private long tenantId;
+
     public JobClient() {
 
     }
@@ -102,6 +105,7 @@ public class JobClient extends OrderObject{
         this.classArgs = paramAction.getExeArgs();
         this.generateTime = paramAction.getGenerateTime();
         this.lackingCount = paramAction.getLackingCount();
+        this.tenantId = paramAction.getTenantId();
 
         if (paramAction.getComputeType().equals(ComputeType.STREAM.getType())){
             this.maxRetryNum = 0;
@@ -149,6 +153,7 @@ public class JobClient extends OrderObject{
         action.setApplicationId(applicationId);
         action.setMaxRetryNum(maxRetryNum);
         action.setLackingCount(lackingCount);
+        action.setTenantId(tenantId);
 
         if(!Strings.isNullOrEmpty(pluginInfo)){
             try{

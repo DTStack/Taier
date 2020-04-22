@@ -20,7 +20,7 @@ public interface ScheduleJobDao {
 
     ScheduleJob getOne(@Param("id") Long id);
 
-    List<ScheduleJob> listByJobIds(@Param("jobIds") List<Long> jobIds, @Param("projectId") Long projectId);
+    List<ScheduleJob> listByJobIds(@Param("jobIds") List<Long> jobIds);
 
     ScheduleJob getByJobKeyAndType(@Param("jobKey") String jobKey, @Param("type") int type);
 

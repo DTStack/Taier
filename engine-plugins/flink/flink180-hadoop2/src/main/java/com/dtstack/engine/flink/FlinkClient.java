@@ -585,10 +585,7 @@ public class FlinkClient extends AbstractClient {
         try {
             String exceptPath = String.format(FlinkRestParseUtil.EXCEPTION_INFO, jobId);
             String except = getExceptionInfo(exceptPath, reqURL);
-            String accuPath = String.format(FlinkRestParseUtil.JOB_ACCUMULATOR_INFO, jobId);
-            String accuInfo = getMessageByHttp(accuPath, reqURL);
             retMap.put("exception", except);
-            retMap.put("accuInfo", accuInfo);
             return FlinkRestParseUtil.parseEngineLog(retMap);
         } catch(RdosDefineException | IOException e){
             //http 请求失败时返回空日志

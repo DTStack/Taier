@@ -582,13 +582,7 @@ public class FlinkClient extends AbstractClient {
         try {
             String exceptPath = String.format(FlinkRestParseUtil.EXCEPTION_INFO, jobId);
             String except = getExceptionInfo(exceptPath, reqURL);
-            String jobPath = String.format(FlinkRestParseUtil.JOB_INFO, jobId);
-            String jobInfo = getMessageByHttp(jobPath, reqURL);
-            String accuPath = String.format(FlinkRestParseUtil.JOB_ACCUMULATOR_INFO, jobId);
-            String accuInfo = getMessageByHttp(accuPath, reqURL);
-            retMap.put("except", except);
-            retMap.put("jobInfo", jobInfo);
-            retMap.put("accuInfo", accuInfo);
+            retMap.put("exception", except);
             return FlinkRestParseUtil.parseEngineLog(retMap);
         } catch(RdosDefineException | IOException e){
             //http 请求失败时返回空日志
@@ -599,6 +593,7 @@ public class FlinkClient extends AbstractClient {
             Map<String, String> map = new LinkedHashMap<>(8);
             map.put("jobId", jobId);
             map.put("reqURL", reqURL);
+            map.put("exception", ExceptionInfoConstrant.FLINK_GET_LOG_ERROR_UNDO_RESTART_EXCEPTION);
             map.put("engineLogErr", ExceptionUtil.getErrorMessage(e));
             return new Gson().toJson(map);
         }
