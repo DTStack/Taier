@@ -64,17 +64,6 @@ public class FlinkUtil {
         return tmpFileName;
     }
 
-    public static boolean downloadJarHttpHdfsLocal(String fromPath, String localJarPath, Configuration hadoopConf) throws FileNotFoundException {
-        if(!FileUtil.downLoadFile(fromPath, localJarPath, hadoopConf)){
-            //如果不是http 或者 hdfs协议的 从本地读取
-            File localFile = new File(fromPath);
-            if(!localFile.exists()){
-                return false;
-            }
-        }
-        return true;
-    }
-
     public static File downloadJar(String fromPath, String toPath, Configuration hadoopConf, Map<String, String> sftpConf) throws FileNotFoundException {
         String localJarPath = FlinkUtil.getTmpFileName(fromPath, toPath);
         Boolean downLoadFlag = false;
@@ -82,10 +71,15 @@ public class FlinkUtil {
             downLoadFlag = downloadFileFromSftp(fromPath, toPath, sftpConf);
         }
         if(!downLoadFlag) {
-            downLoadFlag = downloadJarHttpHdfsLocal(fromPath, localJarPath, hadoopConf);
+            downLoadFlag = FileUtil.downLoadFile(fromPath, localJarPath, hadoopConf);
         }
         if (!downLoadFlag) {
-            throw new FileNotFoundException("JAR file fromPath: " + fromPath + " download failed.");
+            //如果download不成功，并且本地文件存在则从本地读取
+            File localFile = new File(fromPath);
+            if(localFile.exists()){
+                return localFile;
+            }
+            throw new FileNotFoundException("JAR file does not exist: fromPath: " + fromPath);
         }
         File jarFile = new File(localJarPath);
         if (!jarFile.exists()) {
