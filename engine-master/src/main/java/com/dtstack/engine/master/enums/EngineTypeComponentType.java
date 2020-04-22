@@ -77,12 +77,10 @@ public enum EngineTypeComponentType {
             case "hive":
                 return EngineTypeComponentType.HIVE;
             case "mysql":
-                return null;
             case "oracle":
-                return null;
             case "maxcompute":
-                return null;
-            case"sqlserver":
+            case "sqlserver":
+            case "kylin":
                 return null;
             case "impala":
                 return EngineTypeComponentType.IMPALA_SQL;
