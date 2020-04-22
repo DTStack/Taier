@@ -200,7 +200,7 @@ public class FlinkClient extends AbstractClient {
         try{
             if(FlinkYarnMode.isPerJob(taskRunMode)){
                 // perjob模式延后创建PackagedProgram
-                jarFile = FlinkUtil.downloadJar(jarPath, tmpFileDirPath,hadoopConf);
+                jarFile = FlinkUtil.downloadJar(jarPath, tmpFileDirPath, hadoopConf, null);
             } else {
                 packagedProgram = FlinkUtil.buildProgram(jarPath, tmpFileDirPath, classPaths, entryPointClass,
                         programArgs, spSettings, hadoopConf);
@@ -672,7 +672,7 @@ public class FlinkClient extends AbstractClient {
                 String addFilePath = jarFileInfo.getJarPath();
                 File tmpFile = null;
                 try {
-                    tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath, hadoopConf);
+                    tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath, hadoopConf, null);
                 } catch (FileNotFoundException e) {
                     throw new RuntimeException(e);
                 }
