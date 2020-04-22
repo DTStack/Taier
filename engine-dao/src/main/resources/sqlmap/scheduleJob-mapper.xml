@@ -14,10 +14,10 @@
                 AND bj.id = #{model.id}
             </if>
             <if test="model.tenantId != null">
-                AND bj.tenant_id = #{model.tenantId} AND ts.tenant_id = #{model.tenantId}
+                AND bj.tenant_id = #{model.tenantId}
             </if>
             <if test="model.projectId != null">
-                AND bj.project_id = #{model.projectId} AND ts.project_id = #{model.projectId}
+                AND bj.project_id = #{model.projectId}
             </if>
             <if test="model.jobId != null">
                 AND bj.job_id = #{model.jobId}
@@ -455,7 +455,6 @@
         <foreach item="id" index="index" collection="jobIds" open="(" separator="," close=")">
             #{id}
         </foreach>
-        AND project_id = #{projectId}
         AND is_deleted = 0
     </select>
 
