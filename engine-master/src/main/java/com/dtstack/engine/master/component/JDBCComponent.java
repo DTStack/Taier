@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.component;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.master.utils.DBUtil;
 import com.dtstack.schedule.common.enums.DataBaseType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.enums.KerberosKey;
@@ -11,6 +12,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authentication.util.KerberosUtil;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -67,16 +69,16 @@ public class JDBCComponent extends BaseComponent {
             throw new RdosDefineException("kerberos校验失败, Message:" + e.getMessage());
         }
 
-
-        //@TODO 月白评估是不是可以把连通性迁移到插件化里
-//        Connection conn = null;
-//        try {
-//            conn = DBUtil.getConnection(dataBaseType, jdbcUrl, username, password, null);
-//        } finally {
-//            if (conn != null) {
-//                conn.close();
-//            }
-//        }
+        //能开启kerberos的数据源 校验需要在engine check
+        //正常的数据源check在console校验
+        Connection conn = null;
+        try {
+            conn = DBUtil.getConnection(dataBaseType, jdbcUrl, username, password, null);
+        } finally {
+            if (conn != null) {
+                conn.close();
+            }
+        }
     }
 
     @Override

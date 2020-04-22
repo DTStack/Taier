@@ -198,7 +198,7 @@ public class FlinkClient extends AbstractClient {
         try{
             if(FlinkYarnMode.isPerJob(taskRunMode)){
                 // perjob模式延后创建PackagedProgram
-                jarFile = FlinkUtil.downloadJar(jarPath, tmpFileDirPath,hadoopConf);
+                jarFile = FlinkUtil.downloadJar(jarPath, tmpFileDirPath, hadoopConf, null);
             } else {
                 packagedProgram = FlinkUtil.buildProgram(jarPath, tmpFileDirPath, classPaths, jobClient.getJobType(), entryPointClass, programArgs, spSettings, hadoopConf);
             }

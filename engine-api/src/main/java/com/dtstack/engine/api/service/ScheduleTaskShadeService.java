@@ -126,4 +126,18 @@ public interface ScheduleTaskShadeService {
 
     public List<Map<String, Object>> listByTaskIdsNotIn(@Param("taskIds") List<Long> taskId, @Param("appType") Integer appType, @Param("projectId") Long projectId);
 
+    /**
+     * 根据任务类型查询已提交到task服务的任务数
+     * @param tenantId
+     * @param dtuicTenantId
+     * @param projectId
+     * @param appType
+     * @param taskTypes
+     * @return
+     */
+    public Map<String ,Object> countTaskByType(@Param("tenantId") Long tenantId,@Param("dtuicTenantId") Long dtuicTenantId,
+                                               @Param("projectId") Long projectId, @Param("appType") Integer appType,
+                                               @Param("taskTypes") List<Integer> taskTypes);
+
+
 }
