@@ -701,7 +701,12 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                     num += statusCountMap.get("count");
                 }
             }
-            attachment.put(statusName, num);
+            if (!attachment.containsKey(statusName)) {
+                attachment.put(statusName, num);
+            } else {
+                Long lastNum = attachment.get(statusName);
+                attachment.put(statusName, num + lastNum);
+            }
             totalNum += num;
         }
 
@@ -1502,7 +1507,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         this.setBizDay(batchJobDTO, bizStartDay, bizEndDay, tenantId, projectId);
 
         if (dutyUserId != null) {
-            batchJobDTO.setCreateUserId(dutyUserId);
+            batchJobDTO.setOwnerUserId(dutyUserId);
         }
 
         batchJobDTO.setProjectId(projectId);
@@ -1723,7 +1728,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         this.setBizDay(batchJobDTO, vo.getBizStartDay(), vo.getBizEndDay(), vo.getTenantId(), vo.getProjectId());
 
         if (dutyUserId != null && dutyUserId > 0) {
-            batchJobDTO.setTaskCreateId(dutyUserId);
+            batchJobDTO.setOwnerUserId(dutyUserId);
         }
 
         if (!Strings.isNullOrEmpty(vo.getTaskName())) {
