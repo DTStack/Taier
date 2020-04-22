@@ -77,8 +77,10 @@ public class HiveConnFactory extends AbstractConnFactory {
         return conn;
     }
 
-
-
+    @Override
+    public boolean supportTransaction() {
+        return false;
+    }
 
     @Override
     public boolean supportProcedure() {
