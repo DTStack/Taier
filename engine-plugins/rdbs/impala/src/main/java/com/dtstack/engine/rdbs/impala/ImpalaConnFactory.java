@@ -32,6 +32,11 @@ public class ImpalaConnFactory extends AbstractConnFactory {
     }
 
     @Override
+    public boolean supportTransaction() {
+        return false;
+    }
+
+    @Override
     public boolean supportProcedure() {
         return false;
     }

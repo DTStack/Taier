@@ -277,8 +277,8 @@ public class ScheduleJobJobService implements com.dtstack.engine.api.service.Sch
             Iterator<ScheduleJobJobDTO> it = root.getChildren().iterator();
             while (it.hasNext()) {
                 ScheduleJobJobDTO jobJob = it.next();
-
-                if (job.getTaskId().longValue() == batchJobService.getTaskIdFromJobKey(jobJob.getJobKey()).longValue()) {
+                // 4.0 getTaskIdFromJobKey 获取的是task_shade 的id
+                if (batchTaskShade.getId() == batchJobService.getTaskIdFromJobKey(jobJob.getJobKey()).longValue()) {
                     it.remove();
                     continue;
                 }

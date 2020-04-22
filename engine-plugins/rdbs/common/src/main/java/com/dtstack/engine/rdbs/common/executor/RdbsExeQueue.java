@@ -208,8 +208,10 @@ public class RdbsExeQueue {
             String currentSql = "";
             try {
                 conn = connFactory.getConnByTaskParams(taskParams, jobName);
-                conn.setAutoCommit(false);
-                if (isCancel.get()) {
+                if (connFactory.supportTransaction()) {
+                    conn.setAutoCommit(false);
+                }
+                if(isCancel.get()){
                     LOG.info("exe cancel, jobId={}, jobName={} is canceled", engineJobId, jobName);
                     return false;
                 }
@@ -227,21 +229,25 @@ public class RdbsExeQueue {
                     }
 
                     long sqlStart = System.currentTimeMillis();
-                    simpleStmt.execute(String.format("%s;", currentSql));
+                    simpleStmt.execute(currentSql);
                     LOG.info("exe {} line success,jobId={},jobName={},cost={}ms", i++, engineJobId, jobName, (System.currentTimeMillis() - sqlStart));
                     if (isCancel.get()) {
                         LOG.info("exe cancel,jobId={},jobName={}", engineJobId, jobName);
                         return false;
                     }
                 }
-                conn.commit();
+                if (connFactory.supportTransaction()) {
+                    conn.commit();
+                }
                 exeResult = true;
             } catch (Exception e) {
-                LOG.error("exe error,jobId={},jobName={},ex={}", engineJobId, jobName, e);
-                try {
-                    conn.rollback();
-                } catch (SQLException e1) {
-                    LOG.error("rollback error,jobId={},jobName={},ex={}", engineJobId, jobName, e1);
+                LOG.error("exe error,jobId={},jobName={},ex={}",engineJobId, jobName, e);
+                if (connFactory.supportTransaction()) {
+                    try {
+                        conn.rollback();
+                    } catch (SQLException e1) {
+                        LOG.error("rollback error,jobId={},jobName={},ex={}", engineJobId, jobName, e1);
+                    }
                 }
                 //错误信息更新到日志里面
                 if (LogStoreFactory.getLogStore() != null) {
@@ -365,14 +371,13 @@ public class RdbsExeQueue {
                 } catch (Exception e) {
                     LOG.error("", e);
                 } finally {
-                    closeDBResources(dropStmt, conn);
+                    closeDBResources(dropStmt, null);
                 }
 
                 closeDBResources(stmt, conn);
 
                 LOG.info("job:{} exe end...", jobName, exeResult);
                 //修改指定任务的状态--成功或者失败
-                //TODO 处理cancel job 情况
                 if (LogStoreFactory.getLogStore() != null) {
                     LogStoreFactory.getLogStore().updateStatus(engineJobId, exeResult ? RdosTaskStatus.FINISHED.getStatus() : RdosTaskStatus.FAILED.getStatus());
                 }
