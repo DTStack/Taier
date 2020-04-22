@@ -107,6 +107,9 @@ public abstract class AbstractConnFactory {
         return getConn();
     }
 
+    public boolean supportTransaction() {
+        return true;
+    }
 
     public boolean supportProcedure() {
         return true;
