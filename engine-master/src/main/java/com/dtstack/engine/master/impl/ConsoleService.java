@@ -238,7 +238,7 @@ public class ConsoleService {
                     ScheduleJob scheduleJob = scheduleJobMap.getOrDefault(engineJobCache.getJobId(), new ScheduleJob());
                     //补充租户信息
                     Tenant tenant = tenantMap.get(scheduleJob.getDtuicTenantId());
-                    if(Objects.isNull(tenant)){
+                    if(Objects.isNull(tenant) && Objects.nonNull(scheduleJob.getDtuicTenantId())){
                         //可能临时运行 租户在tenant表没有 需要添加
                         tenant = tenantService.addTenant(scheduleJob.getDtuicTenantId(), dtToken);
                     }
