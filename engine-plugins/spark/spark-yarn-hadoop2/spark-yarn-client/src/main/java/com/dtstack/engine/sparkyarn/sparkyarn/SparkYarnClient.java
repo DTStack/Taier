@@ -184,7 +184,10 @@ public class SparkYarnClient extends AbstractClient {
         argList.add("--class");
         argList.add(mainClass);
 
-        for(String appArg : appArgs) {
+        for (String appArg : appArgs) {
+            if (StringUtils.isBlank(appArg)) {
+                continue;
+            }
             argList.add("--arg");
             argList.add(appArg);
         }
