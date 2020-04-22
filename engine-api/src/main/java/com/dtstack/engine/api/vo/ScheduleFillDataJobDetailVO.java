@@ -73,6 +73,9 @@ public class ScheduleFillDataJobDetailVO {
 
         private int isDirty;// 脏数据标识
 
+        public FillDataRecord() {
+        }
+
         public FillDataRecord(Long id, String bizDay, String jobName, Integer taskType, Integer status, String cycTime,
                               String exeStartTime, String exeTime, String dutyUserName) {
             this.id = id;

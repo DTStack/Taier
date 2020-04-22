@@ -256,7 +256,8 @@ public class TenantService {
         return tenant;
     }
 
-    private Tenant addTenant(Long dtUicTenantId, String dtToken){
+    @Transactional(rollbackFor = Exception.class)
+    public Tenant addTenant(Long dtUicTenantId, String dtToken){
         Map<String, Object> uicTenantInfo = DtUicUserConnect.getUicTenantInfo(env.getDtUicUrl(), dtUicTenantId, dtToken);
         if(MapUtils.isEmpty(uicTenantInfo)){
             throw new RdosDefineException("租户不存在");

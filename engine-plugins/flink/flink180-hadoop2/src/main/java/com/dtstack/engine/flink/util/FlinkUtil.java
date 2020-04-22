@@ -96,7 +96,13 @@ public class FlinkUtil {
             return downloadJar(fromPath, toPath, hadoopConf);
         } else {
             String localJarPath = FlinkUtil.getTmpFileName(fromPath, toPath);
-            return new File(localJarPath);
+            File jarFile = new File(localJarPath);
+            if (!jarFile.exists()) {
+                throw new FileNotFoundException("JAR file does not exist: " + jarFile + ", fromPath: " + fromPath);
+            } else if (!jarFile.isFile()) {
+                throw new FileNotFoundException("JAR file is not a file: " + jarFile + ", fromPath: " + fromPath);
+            }
+            return jarFile;
         }
     }
 

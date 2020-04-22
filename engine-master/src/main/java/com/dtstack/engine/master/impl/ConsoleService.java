@@ -1,17 +1,17 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.cache.ShardCache;
@@ -79,6 +79,9 @@ public class ConsoleService {
 
     @Autowired
     private TenantDao tenantDao;
+
+    @Autowired
+    private TenantService tenantService;
 
     public Boolean finishJob(String jobId, Integer status) {
         if (!RdosTaskStatus.isStopped(status)) {
@@ -208,7 +211,7 @@ public class ConsoleService {
                                            @Param("nodeAddress") String nodeAddress,
                                            @Param("stage") Integer stage,
                                            @Param("pageSize") Integer pageSize,
-                                           @Param("currentPage") Integer currentPage) {
+                                           @Param("currentPage") Integer currentPage,@Param("dtToken") String dtToken) {
         Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
         Preconditions.checkNotNull(stage, "parameters of stage is required");
         Preconditions.checkArgument(currentPage != null && currentPage > 0, "parameters of currentPage is required");
@@ -227,16 +230,22 @@ public class ConsoleService {
                 List<String> jobIds = engineJobCaches.stream().map(EngineJobCache::getJobId).collect(Collectors.toList());
                 List<ScheduleJob> rdosJobByJobIds = scheduleJobDao.getRdosJobByJobIds(jobIds);
                 Map<String, ScheduleJob> scheduleJobMap = rdosJobByJobIds.stream().collect(Collectors.toMap(ScheduleJob::getJobId, u -> u));
-                List<Long> dtuicTenantIds = rdosJobByJobIds.stream().map(ScheduleJob::getDtuicTenantId).collect(Collectors.toList());
-                Map<Long, Tenant> tenantMap = tenantDao.listAllTenantByDtUicTenantIds(dtuicTenantIds).stream().collect(Collectors.toMap(Tenant::getDtUicTenantId, t -> t));
+                Set<Long> dtuicTenantIds = rdosJobByJobIds.stream().map(ScheduleJob::getDtuicTenantId).collect(Collectors.toSet());
+                Map<Long, Tenant> tenantMap = tenantDao.listAllTenantByDtUicTenantIds(new ArrayList<>(dtuicTenantIds)).stream()
+                        .collect(Collectors.toMap(Tenant::getDtUicTenantId, t -> t));
                 for (EngineJobCache engineJobCache : engineJobCaches) {
                     Map<String, Object> theJobMap = PublicUtil.objectToMap(engineJobCache);
                     ScheduleJob scheduleJob = scheduleJobMap.getOrDefault(engineJobCache.getJobId(), new ScheduleJob());
                     //补充租户信息
-                    Tenant tenant = tenantMap.getOrDefault(scheduleJob.getDtuicTenantId(), new Tenant());
+                    Tenant tenant = tenantMap.get(scheduleJob.getDtuicTenantId());
+                    if(Objects.isNull(tenant)){
+                        //可能临时运行 租户在tenant表没有 需要添加
+                        tenant = tenantService.addTenant(scheduleJob.getDtuicTenantId(), dtToken);
+                    }
                     this.fillJobInfo(theJobMap, scheduleJob, engineJobCache,tenant);
                     data.add(theJobMap);
                 }
+
             }
         } catch (Exception e) {
             logger.error("{}", e);
