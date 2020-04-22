@@ -677,10 +677,6 @@ public class FlinkClient extends AbstractClient {
                     throw new RuntimeException(e);
                 }
 
-                if (Objects.isNull(tmpFile)) {
-                    throw new RdosDefineException("tmpFile is null, addFilePath: " + tmpFileDirPath);
-                }
-
                 fileList.add(tmpFile.getAbsolutePath());
 
                 //更改路径为本地路径
