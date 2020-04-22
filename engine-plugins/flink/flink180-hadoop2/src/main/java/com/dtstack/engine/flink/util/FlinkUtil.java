@@ -77,10 +77,12 @@ public class FlinkUtil {
 
     public static File downloadJar(String fromPath, String toPath, Configuration hadoopConf, Map<String, String> sftpConf) throws FileNotFoundException {
         String localJarPath = FlinkUtil.getTmpFileName(fromPath, toPath);
+        Boolean downLoadFlag = false;
         if (sftpConf != null && !sftpConf.isEmpty()){
-            if(!downloadFileFromSftp(fromPath, toPath, sftpConf)) {
-                downloadJarHttpHdfsLocal(fromPath, localJarPath, hadoopConf);
-            }
+            downLoadFlag = downloadFileFromSftp(fromPath, toPath, sftpConf);
+        }
+        if(!downLoadFlag) {
+            downloadJarHttpHdfsLocal(fromPath, localJarPath, hadoopConf);
         }
         File jarFile = new File(localJarPath);
         if (!jarFile.exists()) {

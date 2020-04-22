@@ -1,6 +1,7 @@
 package com.dtstack.engine.flink.util;
 
 import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.enums.FlinkYarnMode;
 import org.apache.commons.lang3.StringUtils;
@@ -15,6 +16,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -41,7 +43,7 @@ public class FlinkUtil {
             throw new IllegalArgumentException("The program JAR file was not specified.");
         }
 
-        File jarFile = downloadJar(fromPath, toPath, hadoopConf);
+        File jarFile = downloadJar(fromPath, toPath, hadoopConf, null);
 
         // Get assembler class
         PackagedProgram program = entryPointClass == null ?
@@ -59,29 +61,54 @@ public class FlinkUtil {
         return tmpFileName;
     }
 
-    public static File downloadJar(String fromPath, String toPath, Configuration hadoopConf) throws FileNotFoundException {
-        String localJarPath = FlinkUtil.getTmpFileName(fromPath, toPath);
+    public static Boolean downloadJarHttpHdfsLocal(String fromPath, String localJarPath, Configuration hadoopConf) throws FileNotFoundException {
         if(!FileUtil.downLoadFile(fromPath, localJarPath, hadoopConf)){
-            //如果不是http 或者 hdfs协议的从本地读取
+            //如果不是http 或者 hdfs协议的 从本地读取
             File localFile = new File(fromPath);
-            if(localFile.exists()){
-                return localFile;
+            if(!localFile.exists()){
+                return false;
             }
-            return null;
         }
+        return true;
+    }
 
+    public static File downloadJar(String fromPath, String toPath, Configuration hadoopConf, Map<String, String> sftpConf) throws FileNotFoundException {
+        String localJarPath = FlinkUtil.getTmpFileName(fromPath, toPath);
+        Boolean downLoadFlag = false;
+        if (sftpConf != null && !sftpConf.isEmpty()){
+            downLoadFlag = downloadFileFromSftp(fromPath, toPath, sftpConf);
+        }
+        if(!downLoadFlag) {
+            downloadJarHttpHdfsLocal(fromPath, localJarPath, hadoopConf);
+        }
         File jarFile = new File(localJarPath);
-
-        // Check if JAR file exists
         if (!jarFile.exists()) {
-            throw new FileNotFoundException("JAR file does not exist: " + jarFile);
+            throw new FileNotFoundException("JAR file does not exist: " + jarFile + ", fromPath: " + fromPath);
         } else if (!jarFile.isFile()) {
-            throw new FileNotFoundException("JAR file is not a file: " + jarFile);
+            throw new FileNotFoundException("JAR file is not a file: " + jarFile + ", fromPath: " + fromPath);
         }
-
         return jarFile;
     }
 
+    private static boolean downloadFileFromSftp(String fromPath, String toPath, Map<String, String> sftpConf) {
+        //从Sftp下载文件到目录下
+        SFTPHandler handler = null;
+        try {
+            handler = SFTPHandler.getInstance(sftpConf);
+            int files = handler.downloadDir(fromPath, toPath);
+            logger.info("download file from SFTP, fileSize: " + files);
+            if (files > 0) {
+                return true;
+            }
+        } catch (Exception e) {
+            logger.error("", e);
+        } finally {
+            if (handler != null) {
+                handler.close();
+            }
+        }
+        return false;
+    }
 
     /**
      *

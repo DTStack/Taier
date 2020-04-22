@@ -43,7 +43,7 @@ public class FlinkUtil {
             throw new IllegalArgumentException("The program JAR file was not specified.");
         }
 
-        File jarFile = downloadJar(fromPath, toPath, hadoopConf);
+        File jarFile = downloadJar(fromPath, toPath, hadoopConf, null);
 
         ClassLoaderType classLoaderType = ClassLoaderType.getClassLoaderType(jobType);
 
@@ -63,46 +63,33 @@ public class FlinkUtil {
         return tmpFileName;
     }
 
-    public static File downloadJar(String fromPath, String toPath, Configuration hadoopConf) throws FileNotFoundException {
-        String localJarPath = FlinkUtil.getTmpFileName(fromPath, toPath);
+    public static Boolean downloadJarHttpHdfsLocal(String fromPath, String localJarPath, Configuration hadoopConf) throws FileNotFoundException {
         if(!FileUtil.downLoadFile(fromPath, localJarPath, hadoopConf)){
-            //如果不是http 或者 hdfs协议的从本地读取
+            //如果不是http 或者 hdfs协议的 从本地读取
             File localFile = new File(fromPath);
-            if(localFile.exists()){
-                return localFile;
+            if(!localFile.exists()){
+                return false;
             }
-            return null;
         }
-
-        File jarFile = new File(localJarPath);
-
-        // Check if JAR file exists
-        if (!jarFile.exists()) {
-            throw new FileNotFoundException("JAR file does not exist: " + jarFile);
-        } else if (!jarFile.isFile()) {
-            throw new FileNotFoundException("JAR file is not a file: " + jarFile);
-        }
-
-        return jarFile;
+        return true;
     }
 
     public static File downloadJar(String fromPath, String toPath, Configuration hadoopConf, Map<String, String> sftpConf) throws FileNotFoundException {
-        boolean downloadJarFlag = false;
+        String localJarPath = FlinkUtil.getTmpFileName(fromPath, toPath);
+        Boolean downLoadFlag = false;
         if (sftpConf != null && !sftpConf.isEmpty()){
-            downloadJarFlag = downloadFileFromSftp(fromPath, toPath, sftpConf);
+            downLoadFlag = downloadFileFromSftp(fromPath, toPath, sftpConf);
         }
-        if (!downloadJarFlag) {
-            return downloadJar(fromPath, toPath, hadoopConf);
-        } else {
-            String localJarPath = FlinkUtil.getTmpFileName(fromPath, toPath);
-            File jarFile = new File(localJarPath);
-            if (!jarFile.exists()) {
-                throw new FileNotFoundException("JAR file does not exist: " + jarFile + ", fromPath: " + fromPath);
-            } else if (!jarFile.isFile()) {
-                throw new FileNotFoundException("JAR file is not a file: " + jarFile + ", fromPath: " + fromPath);
-            }
-            return jarFile;
+        if(!downLoadFlag) {
+            downloadJarHttpHdfsLocal(fromPath, localJarPath, hadoopConf);
         }
+        File jarFile = new File(localJarPath);
+        if (!jarFile.exists()) {
+            throw new FileNotFoundException("JAR file does not exist: " + jarFile + ", fromPath: " + fromPath);
+        } else if (!jarFile.isFile()) {
+            throw new FileNotFoundException("JAR file is not a file: " + jarFile + ", fromPath: " + fromPath);
+        }
+        return jarFile;
     }
 
     private static boolean downloadFileFromSftp(String fromPath, String toPath, Map<String, String> sftpConf) {
