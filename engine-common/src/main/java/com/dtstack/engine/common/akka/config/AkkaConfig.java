@@ -139,12 +139,12 @@ public class AkkaConfig {
 
     public static Long getAkkaAskTimeout() {
         String keyName = ConfigConstant.AKKA_ASK_TIMEOUT;
-        return Long.valueOf(getValueWithDefault(keyName, "10"));
+        return Long.valueOf(getValueWithDefault(keyName, "120"));
     }
 
     public static Long getAkkaAskResultTimeout() {
         String keyName = ConfigConstant.AKKA_ASK_RESULTTIMEOUT;
-        return Long.valueOf(getValueWithDefault(keyName, "10"));
+        return Long.valueOf(getValueWithDefault(keyName, "120"));
     }
 
     public static Config checkIpAndPort(Config config) {

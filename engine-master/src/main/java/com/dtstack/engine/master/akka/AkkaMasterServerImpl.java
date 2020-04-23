@@ -4,6 +4,7 @@ import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.pattern.Patterns;
+import akka.util.Timeout;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.akka.RpcService;
 import com.dtstack.engine.common.akka.config.AkkaConfig;
@@ -52,7 +53,8 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
     private ActorSelection actorSelection;
     private Set<String> availableWorkers = new HashSet<>();
     private long workNodeTimeout;
-    private Duration duration;
+    private Duration askResultTime;
+    private Timeout askTimeout;
     private EnvironmentContext environmentContext;
 
     @Autowired
@@ -86,8 +88,8 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
             throw new WorkerAccessException("sleep 10000 ms.");
         }
         ActorSelection actorRef = system.actorSelection(path);
-        Future<Object> future = Patterns.ask(actorRef, message, environmentContext.getAkkaAskTimeout());
-        Object result = Await.result(future, Duration.create(environmentContext.getAkkaAskResultTimeout(), TimeUnit.SECONDS));
+        Future<Object> future = Patterns.ask(actorRef, message, askTimeout);
+        Object result = Await.result(future, askResultTime);
         return result;
     }
 
@@ -102,10 +104,10 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
 
     @Override
     public void updateWorkerInfo() {
-        Future<Object> future = Patterns.ask(actorSelection, AkkaMasterActor.GET_WORKER_INFOS, environmentContext.getAkkaAskTimeout());
+        Future<Object> future = Patterns.ask(actorSelection, AkkaMasterActor.GET_WORKER_INFOS, askTimeout);
         Object askResult = null;
         try {
-            askResult = Await.result(future, duration);
+            askResult = Await.result(future, askResultTime);
         } catch (Exception e) {
             logger.error("updateWorkerActors happens error:", e);
         }
@@ -141,7 +143,8 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
     @Override
     public void afterPropertiesSet() throws Exception {
         objectMapper.configure(DeserializationConfig.Feature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
-        this.duration = Duration.create(environmentContext.getAkkaAskResultTimeout(), TimeUnit.SECONDS);
+        this.askResultTime = Duration.create(AkkaConfig.getAkkaAskResultTimeout(), TimeUnit.SECONDS);
+        this.askTimeout = Timeout.create(java.time.Duration.ofSeconds(AkkaConfig.getAkkaAskTimeout()));
         this.workNodeTimeout = environmentContext.getWorkerNodeTimeout();
         this.start(loadConfig());
         this.actorSelection = system.actorSelection(AkkaConfig.getMasterPath());
