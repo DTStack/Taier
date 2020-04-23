@@ -144,8 +144,8 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
         this.duration = Duration.create(environmentContext.getAkkaAskResultTimeout(), TimeUnit.SECONDS);
         this.workNodeTimeout = environmentContext.getWorkerNodeTimeout();
         this.start(loadConfig());
-        this.actorSelection = system.actorSelection(AkkaConfig.getMasterRemotePath());
-        logger.info("get an ActorSelection of masterRemotePath:{}", AkkaConfig.getMasterRemotePath());
+        this.actorSelection = system.actorSelection(AkkaConfig.getMasterPath());
+        logger.info("get an ActorSelection of masterRemotePath:{}", AkkaConfig.getMasterPath());
         scheduledService.scheduleWithFixedDelay(
                 this,
                 CHECK_INTERVAL,
