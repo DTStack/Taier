@@ -19,8 +19,14 @@ import java.util.HashMap;
  */
 public class AkkaConfig {
 
-    private final static String REMOTE_PATH_TEMPLATE = "akka.tcp://%s@%s:%s/user/%s";
+    private final static String LOCAL_PATH_TEMPLATE = "akka://%s/dagschedulex/%s";
+    private final static String REMOTE_PATH_TEMPLATE = "akka.tcp://%s@%s:%s/dagschedulex/%s";
     private static Config AKKA_CONFIG = null;
+    private static boolean LOCAL_MODE = false;
+
+    public static void setLocalMode(boolean localMode) {
+        LOCAL_MODE = localMode;
+    }
 
     public static void loadConfig(Config config) {
         if (config == null) {
@@ -48,9 +54,16 @@ public class AkkaConfig {
         return masterAddress;
     }
 
-    public static String getMasterRemotePath() {
-        String keyName = ConfigConstant.AKKA_MASTER_REMOTE_PATH;
-        String masterRemotePath = String.format(REMOTE_PATH_TEMPLATE, getMasterSystemName(), getAkkaHostname(), getAkkaPort(), getMasterName());
+    public static String getMasterPath() {
+        String keyName;
+        String masterRemotePath;
+        if (LOCAL_MODE) {
+            keyName = ConfigConstant.AKKA_MASTER_LOCAL_PATH;
+            masterRemotePath = String.format(LOCAL_PATH_TEMPLATE, getMasterSystemName(), getMasterName());
+        } else {
+            keyName = ConfigConstant.AKKA_MASTER_REMOTE_PATH;
+            masterRemotePath = String.format(REMOTE_PATH_TEMPLATE, getMasterSystemName(), getAkkaHostname(), getAkkaPort(), getMasterName());
+        }
         return getValueWithDefault(keyName, masterRemotePath);
     }
 
@@ -64,9 +77,16 @@ public class AkkaConfig {
         return getValueWithDefault(keyName, workerName);
     }
 
-    public static String getWorkerRemotePath() {
-        String keyName = ConfigConstant.AKKA_WORKER_REMOTE_PATH;
-        String workerRemotePath = String.format(REMOTE_PATH_TEMPLATE, getWorkerSystemName(), getAkkaHostname(), getAkkaPort(), getWorkerName());
+    public static String getWorkerPath() {
+        String keyName;
+        String workerRemotePath;
+        if (LOCAL_MODE) {
+            keyName = ConfigConstant.AKKA_WORKER_LOCAL_PATH;
+            workerRemotePath = String.format(LOCAL_PATH_TEMPLATE, getWorkerSystemName(), getWorkerName());
+        } else {
+            keyName = ConfigConstant.AKKA_WORKER_REMOTE_PATH;
+            workerRemotePath = String.format(REMOTE_PATH_TEMPLATE, getWorkerSystemName(), getAkkaHostname(), getAkkaPort(), getWorkerName());
+        }
         return getValueWithDefault(keyName, workerRemotePath);
     }
 

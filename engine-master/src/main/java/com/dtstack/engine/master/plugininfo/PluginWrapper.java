@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Component
 public class PluginWrapper{
@@ -52,7 +53,7 @@ public class PluginWrapper{
         String engineType = MapUtils.getString(actionParam, ENGINE_TYPE);
         JSONObject pluginInfoJson = clusterService.pluginInfoJSON(tenantId, engineType, null);
         String groupName = DEFAULT_GROUP_NAME;
-        if (!pluginInfoJson.isEmpty()) {
+        if (Objects.nonNull(pluginInfoJson) && !pluginInfoJson.isEmpty()) {
             addParamsToJdbcUrl(actionParam, pluginInfoJson);
             addUserNameToHadoop(pluginInfoJson, ldapUserName);
             addUserNameToImpalaOrHive(pluginInfoJson, ldapUserName, ldapPassword, dbName, engineType);

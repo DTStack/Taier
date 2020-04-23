@@ -284,7 +284,7 @@ public class ClusterService implements InitializingBean {
             }
         }
         if (type == null) {
-            return new JSONObject();
+            return null;
         }
 
         ClusterVO cluster = getClusterByTenant(dtUicTenantId);

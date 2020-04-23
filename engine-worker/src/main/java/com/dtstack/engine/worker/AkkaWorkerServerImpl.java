@@ -85,7 +85,7 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
         this.masterName = AkkaConfig.getMasterName();
         this.workerIp = AkkaConfig.getAkkaHostname();
         this.workerPort = AkkaConfig.getAkkaPort();
-        this.workerRemotePath = AkkaConfig.getWorkerRemotePath();
+        this.workerRemotePath = AkkaConfig.getWorkerPath();
         this.askResultTimeout = Duration.create(AkkaConfig.getAkkaAskResultTimeout(), TimeUnit.SECONDS);
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(2, new CustomThreadFactory(this.getClass().getSimpleName()));
         scheduledService.scheduleWithFixedDelay(
