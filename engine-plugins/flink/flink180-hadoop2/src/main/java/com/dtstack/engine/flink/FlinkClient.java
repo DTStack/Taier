@@ -550,9 +550,6 @@ public class FlinkClient extends AbstractClient {
             String reqUrl = String.format("%s%s", getReqUrl(), path);
             return PoolHttpClient.get(reqUrl, null, MAX_RETRY_NUMBER);
         } catch (Exception e) {
-            if(flinkClusterClientManager.getIsClientOn()){
-                flinkClusterClientManager.setIsClientOn(false);
-            }
             throw new RdosDefineException(ErrorCode.HTTP_CALL_ERROR, e);
         }
     }
