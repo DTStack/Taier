@@ -389,14 +389,14 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
      * @param taskId
      * @return
      */
-    public ScheduleTaskVO dealFlowWorkTask(@Param("taskId") Long taskId, @Param("appType")Integer appType) {
+    public ScheduleTaskVO dealFlowWorkTask(@Param("taskId") Long taskId, @Param("appType")Integer appType,@Param("taskTypes")List<Integer> taskTypes,@Param("ownerId")Long ownerId) {
         ScheduleTaskShade taskShade = scheduleTaskShadeDao.getOne(taskId,appType);
         if (taskShade == null) {
             return null;
         }
         ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO(taskShade, true);
         if (EScheduleJobType.WORK_FLOW.getVal().intValue() == vo.getTaskType()) {
-            List<ScheduleTaskShade> subtasks = this.getFlowWorkSubTasks(vo.getTaskId(),appType);
+            List<ScheduleTaskShade> subtasks = this.getFlowWorkSubTasks(vo.getTaskId(),appType,taskTypes,ownerId);
             if (CollectionUtils.isNotEmpty(subtasks)) {
                 List<ScheduleTaskVO> list = Lists.newArrayList();
                 subtasks.forEach(task -> list.add(new com.dtstack.engine.master.vo.ScheduleTaskVO(task,true)));
@@ -412,11 +412,13 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
      * @param taskId
      * @return
      */
-    public List<ScheduleTaskShade> getFlowWorkSubTasks(@Param("taskId") Long taskId, @Param("appType") Integer appType) {
+    public List<ScheduleTaskShade> getFlowWorkSubTasks(@Param("taskId") Long taskId, @Param("appType") Integer appType,@Param("taskTypes")List<Integer> taskTypes,@Param("ownerId")Long ownerId) {
         ScheduleTaskShadeDTO batchTaskShadeDTO = new ScheduleTaskShadeDTO();
         batchTaskShadeDTO.setIsDeleted(Deleted.NORMAL.getStatus());
         batchTaskShadeDTO.setFlowId(taskId);
         batchTaskShadeDTO.setAppType(appType);
+        batchTaskShadeDTO.setTaskTypeList(taskTypes);
+        batchTaskShadeDTO.setOwnerUserId(ownerId);
         PageQuery<ScheduleTaskShadeDTO> pageQuery = new PageQuery<>(batchTaskShadeDTO);
         return scheduleTaskShadeDao.generalQuery(pageQuery);
     }

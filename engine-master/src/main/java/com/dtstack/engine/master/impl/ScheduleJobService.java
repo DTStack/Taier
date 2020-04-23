@@ -704,7 +704,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             if (!attachment.containsKey(statusName)) {
                 attachment.put(statusName, num);
             } else {
-                Long lastNum = attachment.get(statusName);
+                Long lastNum = attachment.getOrDefault(statusName,0L);
                 attachment.put(statusName, num + lastNum);
             }
             totalNum += num;

@@ -1116,7 +1116,7 @@ public class JobGraphBuilder {
                                                                String beginTime, String endTime, Long projectId, Long tenantId, Integer appType) throws Exception {
         List<ScheduleBatchJob> result = Lists.newArrayList();
         //获取全部子任务
-        List<ScheduleTaskShade> subTasks = batchTaskShadeService.getFlowWorkSubTasks(taskId, appType);
+        List<ScheduleTaskShade> subTasks = batchTaskShadeService.getFlowWorkSubTasks(taskId, appType,null,null);
         for (ScheduleTaskShade taskShade : subTasks) {
             String subKeyPreStr = preStr;
             String subFillJobName = fillJobName;

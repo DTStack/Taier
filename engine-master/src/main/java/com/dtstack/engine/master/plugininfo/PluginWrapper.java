@@ -52,19 +52,13 @@ public class PluginWrapper{
         String engineType = MapUtils.getString(actionParam, ENGINE_TYPE);
         JSONObject pluginInfoJson = clusterService.pluginInfoJSON(tenantId, engineType, null);
         String groupName = DEFAULT_GROUP_NAME;
-        if (pluginInfoJson == null) {
-            throw new RdosDefineException("pluginInfo not be null");
-        }
         if (!pluginInfoJson.isEmpty()) {
             addParamsToJdbcUrl(actionParam, pluginInfoJson);
             addUserNameToHadoop(pluginInfoJson, ldapUserName);
             addUserNameToImpalaOrHive(pluginInfoJson, ldapUserName, ldapPassword, dbName, engineType);
             actionParam.put(PLUGIN_INFO, pluginInfoJson);
             groupName = pluginInfoJson.getString(CLUSTER) + "_" + pluginInfoJson.getString(QUEUE);
-            actionParam.put(GROUP_NAME, groupName);
         }
-
-        actionParam.put(PLUGIN_INFO, pluginInfoJson);
         actionParam.put(GROUP_NAME, groupName);
 
         return actionParam;
