@@ -141,17 +141,24 @@ public class JobSubmitDealer implements Runnable {
         return tryPut;
     }
 
-    private boolean tryPutLackingJob(JobClient jobClient) {
-        boolean tryPut = delayJobQueue.tryPut(new SimpleJobDelay<>(jobClient, EJobCacheStage.LACKING.getStage(), jobLackingDelay));
-        if (tryPut) {
+    private void putLackingJob(JobClient jobClient) {
+        try {
+            delayJobQueue.put(new SimpleJobDelay<>(jobClient, EJobCacheStage.LACKING.getStage(), jobLackingDelay));
             jobClient.lackingCountIncrement();
             engineJobCacheDao.updateStage(jobClient.getTaskId(), EJobCacheStage.LACKING.getStage(), localAddress, jobClient.getPriority());
             jobClient.doStatusCallBack(RdosTaskStatus.LACKING.getStatus());
+        } catch (InterruptedException e) {
+            logger.error("jobId:{} delayJobQueue.put failed.", e);
+            try {
+                queue.put(jobClient);
+            } catch (InterruptedException ie) {
+                shardCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus());
+                jobClient.doStatusCallBack(RdosTaskStatus.FAILED.getStatus());
+                logger.error("jobId:{} queue.put failed.", e);
+            }
         }
-        logger.info("jobId:{} {} add job to lacking delayJobQueue, job's lackingCount:{}.", jobClient.getTaskId(), tryPut ? "success" : "failed", jobClient.getLackingCount());
-        return tryPut;
+        logger.info("jobId:{} success add job to lacking delayJobQueue, job's lackingCount:{}.", jobClient.getTaskId(), jobClient.getLackingCount());
     }
-
 
     public int getDelayJobQueueSize() {
         return delayJobQueue.size();
@@ -288,7 +295,7 @@ public class JobSubmitDealer implements Runnable {
 
         //delayQueue的任务比重过大时，直接放入优先级队列重试
         if (jobClient.lackingCountIncrement() > jobLackingCountLimited && delayJobQueue.size() < priorityQueue.getQueueSizeLimited()) {
-            tryPutLackingJob(jobClient);
+            putLackingJob(jobClient);
         } else {
             try {
                 engineJobCacheDao.updateStage(jobClient.getTaskId(), EJobCacheStage.PRIORITY.getStage(), localAddress, jobClient.getPriority());
@@ -297,7 +304,7 @@ public class JobSubmitDealer implements Runnable {
                 logger.info("jobId:{} unlimited_lackingCount:{} add to priorityQueue.", jobClient.getTaskId(), jobClient.getLackingCount());
             } catch (Exception e) {
                 logger.error("jobId:{} engineType:{} handlerNoResource happens error:", jobClient.getTaskId(), jobClient.getEngineType(), e);
-                tryPutLackingJob(jobClient);
+                putLackingJob(jobClient);
             }
         }
     }
