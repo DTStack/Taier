@@ -27,14 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * 接收http请求
@@ -85,8 +78,9 @@ public class ActionService {
      * 如在当前节点,则直接处理任务
      */
     public Boolean start(Map<String, Object> params){
+        ParamActionExt paramActionExt = null;
         try{
-            ParamActionExt paramActionExt = PublicUtil.mapToObject(params, ParamActionExt.class);
+            paramActionExt = PublicUtil.mapToObject(params, ParamActionExt.class);
             checkParam(paramActionExt);
             //taskId唯一去重，并发请求时以数据库taskId主键去重返回false
             boolean canAccepted = receiveStartJob(paramActionExt);
@@ -102,8 +96,19 @@ public class ActionService {
             logger.error("", e);
             //任务提交出错 需要将状态从提交中 更新为失败 否则一直在提交中
             String taskId = (String) params.get("taskId");
-            if (StringUtils.isNotBlank(taskId)) {
-                scheduleJobDao.jobFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(e.getMessage()));
+            try {
+                if (StringUtils.isNotBlank(taskId)) {
+                    ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(taskId);
+                    if (scheduleJob == null && Objects.nonNull(paramActionExt)) {
+                        //新job 任务
+                        scheduleJob = buildScheduleJob(paramActionExt);
+                        scheduleJobDao.insert(scheduleJob);
+                    }
+                    logger.error("Job taskId：" + taskId + " submit error ", e);
+                    scheduleJobDao.jobFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(e.getMessage()));
+                }
+            } catch (Exception ex) {
+                logger.error("", ex);
             }
         }
         return false;
