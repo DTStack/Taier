@@ -98,14 +98,18 @@ public class ActionService {
             String taskId = (String) params.get("taskId");
             try {
                 if (StringUtils.isNotBlank(taskId)) {
+                    logger.error("Job taskId：" + taskId + " submit error ", e);
                     ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(taskId);
                     if (scheduleJob == null && Objects.nonNull(paramActionExt)) {
                         //新job 任务
                         scheduleJob = buildScheduleJob(paramActionExt);
+                        scheduleJob.setStatus(RdosTaskStatus.SUBMITFAILD.getStatus());
+                        scheduleJob.setLogInfo(GenerateErrorMsgUtil.generateErrorMsg(e.getMessage()));
                         scheduleJobDao.insert(scheduleJob);
+                    } else {
+                        //直接失败
+                        scheduleJobDao.jobFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(e.getMessage()));
                     }
-                    logger.error("Job taskId：" + taskId + " submit error ", e);
-                    scheduleJobDao.jobFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(e.getMessage()));
                 }
             } catch (Exception ex) {
                 logger.error("", ex);
