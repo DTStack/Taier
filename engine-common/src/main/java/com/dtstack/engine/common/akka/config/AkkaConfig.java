@@ -1,5 +1,6 @@
 package com.dtstack.engine.common.akka.config;
 
+import akka.actor.ActorSystem;
 import com.dtstack.engine.common.akka.Master;
 import com.dtstack.engine.common.akka.Worker;
 import com.dtstack.engine.common.constrant.ConfigConstant;
@@ -19,10 +20,11 @@ import java.util.HashMap;
  */
 public class AkkaConfig {
 
-    private final static String LOCAL_PATH_TEMPLATE = "akka://%s/dagschedulex/%s";
-    private final static String REMOTE_PATH_TEMPLATE = "akka.tcp://%s@%s:%s/dagschedulex/%s";
+    private final static String LOCAL_PATH_TEMPLATE = "akka://%s/engine/%s";
+    private final static String REMOTE_PATH_TEMPLATE = "akka.tcp://%s@%s:%s/engine/%s";
     private static Config AKKA_CONFIG = null;
     private static boolean LOCAL_MODE = false;
+    private static ActorSystem actorSystem;
 
     public static void setLocalMode(boolean localMode) {
         LOCAL_MODE = localMode;
@@ -39,9 +41,16 @@ public class AkkaConfig {
         AKKA_CONFIG = config;
     }
 
+    public static synchronized ActorSystem initActorSystem(String name) {
+        if (actorSystem == null) {
+            actorSystem = ActorSystem.create(name, AKKA_CONFIG);
+        }
+        return actorSystem;
+    }
+
     public static String getMasterSystemName() {
         if (LOCAL_MODE) {
-            return ConfigConstant.AKKA_ENGINE_SYSTEM;
+            return ConfigConstant.AKKA_DAGSCHEDULEX_SYSTEM;
         } else {
             return ConfigConstant.AKKA_MASTER_SYSTEM;
         }
@@ -87,7 +96,7 @@ public class AkkaConfig {
 
     public static String getWorkerSystemName() {
         if (LOCAL_MODE) {
-            return ConfigConstant.AKKA_ENGINE_SYSTEM;
+            return ConfigConstant.AKKA_DAGSCHEDULEX_SYSTEM;
         } else {
             return ConfigConstant.AKKA_WORKER_SYSTEM;
         }

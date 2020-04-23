@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.akka;
 
+import akka.actor.ActorContext;
 import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
@@ -66,13 +67,17 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
 
     @Override
     public Config loadConfig() {
-        return AkkaConfig.checkIpAndPort(ConfigFactory.load());
+        Config config = AkkaConfig.checkIpAndPort(ConfigFactory.load());
+        this.askResultTime = Duration.create(AkkaConfig.getAkkaAskResultTimeout(), TimeUnit.SECONDS);
+        this.askTimeout = Timeout.create(java.time.Duration.ofSeconds(AkkaConfig.getAkkaAskTimeout()));
+        return config;
     }
 
     @Override
     public void start(Config config) {
-        this.system = ActorSystem.create(AkkaConfig.getMasterSystemName(), config);
-        this.system.actorOf(Props.create(AkkaMasterActor.class), AkkaConfig.getMasterName());
+        this.system = AkkaConfig.initActorSystem(AkkaConfig.getMasterSystemName());
+
+        this.system.actorOf(Props.create(AkkaMasterActor.class));
     }
 
     @Override
@@ -143,10 +148,8 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
     @Override
     public void afterPropertiesSet() throws Exception {
         objectMapper.configure(DeserializationConfig.Feature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
-        this.askResultTime = Duration.create(AkkaConfig.getAkkaAskResultTimeout(), TimeUnit.SECONDS);
-        this.askTimeout = Timeout.create(java.time.Duration.ofSeconds(AkkaConfig.getAkkaAskTimeout()));
-        this.workNodeTimeout = environmentContext.getWorkerNodeTimeout();
         this.start(loadConfig());
+        this.workNodeTimeout = environmentContext.getWorkerNodeTimeout();
         this.actorSelection = system.actorSelection(AkkaConfig.getMasterPath());
         logger.info("get an ActorSelection of masterRemotePath:{}", AkkaConfig.getMasterPath());
         scheduledService.scheduleWithFixedDelay(

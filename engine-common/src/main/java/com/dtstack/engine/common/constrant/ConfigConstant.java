@@ -19,7 +19,7 @@ public class ConfigConstant {
     public static final String AKKA_REMOTE_NETTY_TCP_HOSTNAME = "akka.remote.netty.tcp.hostname";
     public static final String AKKA_REMOTE_NETTY_TCP_PORT = "akka.remote.netty.tcp.port";
 
-    public static final String AKKA_ENGINE_SYSTEM = "engineSystem";
+    public static final String AKKA_DAGSCHEDULEX_SYSTEM = "dagschedulex";
 
     public static final String AKKA_MASTER_SYSTEM = "masterSystem";
     public static final String AKKA_MASTER_MASTERADDRESS = "akka.master.masterAddress";

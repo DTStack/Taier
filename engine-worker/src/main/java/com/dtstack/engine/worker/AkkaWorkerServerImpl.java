@@ -71,8 +71,9 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
 
     @Override
     public void start(Config config) {
-        this.system = ActorSystem.create(AkkaConfig.getWorkerSystemName(), config);
-        ActorRef actorRef = system.actorOf(Props.create(JobService.class), AkkaConfig.getWorkerName());
+        this.system = AkkaConfig.initActorSystem(AkkaConfig.getWorkerSystemName());
+
+        this.system.actorOf(Props.create(JobService.class));
 
         this.hostname = AkkaConfig.getAkkaHostname();
         this.port = AkkaConfig.getAkkaPort();
