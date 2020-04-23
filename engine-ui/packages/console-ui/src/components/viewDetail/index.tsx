@@ -16,9 +16,10 @@ class ViewDetail extends React.Component<any, any> {
         }
     }
     render () {
+        const { title } = this.props;
         return (
             <Modal
-                title="任务详情"
+                title={title || '任务详情'}
                 width={650}
                 onCancel={this.props.onCancel}
                 onOk={this.props.onCancel}
@@ -26,8 +27,7 @@ class ViewDetail extends React.Component<any, any> {
             >
                 <CodeEditor
                     style={{ height: '400px', marginTop: '1px' }}
-                    // onChange={this.props.sqlOnChange}
-                    value={JSON.stringify(this.props.resource, null, 2)}
+                    value={this.props.resource}
                     language="ini"
                     options={
                         {
@@ -37,7 +37,6 @@ class ViewDetail extends React.Component<any, any> {
                             }
                         }
                     }
-                    // // cursor={this.props.editor.cursor}
                     sync={true}
                 />
             </Modal>

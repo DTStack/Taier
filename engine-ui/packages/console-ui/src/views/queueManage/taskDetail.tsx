@@ -41,6 +41,8 @@ class TaskDetail extends React.Component<any, any> {
 
         // 查看详情
         isShowViewDetail: false,
+        // 查看任务参数
+        isShowTaskParams: false,
 
         resource: {}, // modal 所要操作的 record
         // 杀任务
@@ -173,9 +175,18 @@ class TaskDetail extends React.Component<any, any> {
             resource: record
         })
     }
-    handleCloseViewDetail () {
+    showTaskParams (record: any) {
+        const taskParams = get(JSON.parse(record.jobInfo), 'taskParams', '');
         this.setState({
-            isShowViewDetail: false
+            isShowTaskParams: true,
+            resource: taskParams
+        })
+    }
+    handleCloseViewModal () {
+        this.setState({
+            isShowViewDetail: false,
+            isShowTaskParams: false,
+            resource: null
         })
     }
     // 杀任务
@@ -322,6 +333,8 @@ class TaskDetail extends React.Component<any, any> {
                                     <a onClick={this.stickTask.bind(this, record, index)}>{stickTxt}</a>
                                 </span>
                             ) : null}
+                            <span className="ant-divider" ></span>
+                            <a onClick={this.showTaskParams.bind(this, record)}>任务参数</a>
                         </div>
                     )
                 }
@@ -367,7 +380,7 @@ class TaskDetail extends React.Component<any, any> {
     render () {
         const columns = this.initTableColumns();
         const {
-            killResource, resource, node, isKillAllTasks,
+            killResource, resource, node, isKillAllTasks, isShowTaskParams,
             dataSource, table, selectedRowKeys, killTaskInfo, engineType, radioValue,
             isShowViewDetail, isShowKill, isShowAllKill, clusterName
         } = this.state;
@@ -431,7 +444,13 @@ class TaskDetail extends React.Component<any, any> {
                 </div>
                 <ViewDetail
                     visible={isShowViewDetail}
-                    onCancel={this.handleCloseViewDetail.bind(this)}
+                    onCancel={this.handleCloseViewModal.bind(this)}
+                    resource={JSON.stringify(resource, null, 2)}
+                />
+                <ViewDetail
+                    title="任务参数"
+                    visible={isShowTaskParams}
+                    onCancel={this.handleCloseViewModal.bind(this)}
                     resource={resource}
                 />
                 <KillTask

@@ -11,14 +11,12 @@ import Api from '../../api/console';
 class KillTask extends React.Component<any, any> {
     // 请求杀任务接口
     killTask () {
-        const { killResource, jobResource, groupName, stage, node } = this.props;
+        const { killResource, jobResource, stage, node } = this.props;
 
         Api.killTasks({
-            engineType: killResource.engineType,
             jobIdList: [killResource.jobId],
             stage,
             jobResource,
-            groupName,
             nodeAddress: node
         }).then((res: any) => {
             if (res.code == 1) {
