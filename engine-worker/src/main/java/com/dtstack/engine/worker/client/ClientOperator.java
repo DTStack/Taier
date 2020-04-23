@@ -36,6 +36,7 @@ public class ClientOperator {
     }
 
     public RdosTaskStatus getJobStatus(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
+        checkoutOperator(engineType, pluginInfo, jobIdentifier);
 
         String jobId = jobIdentifier.getEngineJobId();
         if (Strings.isNullOrEmpty(jobId)) {
@@ -71,9 +72,9 @@ public class ClientOperator {
     }
 
     public String getEngineLog(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
+        checkoutOperator(engineType, pluginInfo, jobIdentifier);
 
         String logInfo;
-
         try {
             IClient client = clientCache.getClient(engineType, pluginInfo);
             logInfo = client.getJobLog(jobIdentifier);
@@ -85,7 +86,7 @@ public class ClientOperator {
     }
 
     public String getCheckpoints(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
-
+        checkoutOperator(engineType, pluginInfo, jobIdentifier);
         try {
             IClient client = clientCache.getClient(engineType, pluginInfo);
             return client.getCheckpoints(jobIdentifier);
@@ -95,6 +96,7 @@ public class ClientOperator {
     }
 
     public String getJobMaster(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
+        checkoutOperator(engineType, pluginInfo, jobIdentifier);
         try {
             IClient client = clientCache.getClient(engineType, pluginInfo);
             return client.getJobMaster(jobIdentifier);
@@ -107,13 +109,23 @@ public class ClientOperator {
         if(jobClient.getEngineTaskId() == null){
             return JobResult.createSuccessResult(jobClient.getTaskId());
         }
-
+        JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobClient.getEngineTaskId(), jobClient.getApplicationId(), jobClient.getTaskId());
+        checkoutOperator(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
         IClient client = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
-        return client.cancelJob(JobIdentifier.createInstance(jobClient.getEngineTaskId(), jobClient.getApplicationId(), jobClient.getTaskId()));
+        return client.cancelJob(jobIdentifier);
     }
 
     public List<String> containerInfos(JobClient jobClient) throws Exception {
+        JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobClient.getEngineTaskId(), jobClient.getApplicationId(), jobClient.getTaskId());
+        checkoutOperator(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
         IClient client = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
-        return client.getContainerInfos(JobIdentifier.createInstance(jobClient.getEngineTaskId(), null, jobClient.getTaskId()));
+        return client.getContainerInfos(jobIdentifier);
     }
+
+    private void checkoutOperator(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
+        if (null == engineType || null == pluginInfo || null == jobIdentifier) {
+            throw new IllegalArgumentException("engineType|pluginInfo|jobIdentifier is null.");
+        }
+    }
+
 }
