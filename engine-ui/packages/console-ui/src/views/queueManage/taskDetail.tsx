@@ -381,8 +381,8 @@ class TaskDetail extends React.Component<any, any> {
         const columns = this.initTableColumns();
         const {
             killResource, resource, node, isKillAllTasks, isShowTaskParams,
-            dataSource, table, selectedRowKeys, killTaskInfo, engineType, radioValue,
-            isShowViewDetail, isShowKill, isShowAllKill, clusterName
+            dataSource, table, selectedRowKeys, killTaskInfo, radioValue,
+            isShowViewDetail, isShowKill, isShowAllKill, clusterName, jobResource
         } = this.state;
         const { total, loading } = table;
 
@@ -406,8 +406,8 @@ class TaskDetail extends React.Component<any, any> {
         const cardTitle = <div style={{ fontSize: '12px', color: '#333333', fontWeight: 'normal' }}>
             <span>总任务数：{ table.total || 0 }</span>
             <HeaderColTxt>集群：{ clusterName }</HeaderColTxt>
-            <HeaderColTxt>节点：{ node }</HeaderColTxt>
-            <HeaderColTxt>计算类型：{ engineType }</HeaderColTxt>
+            <HeaderColTxt>节点：{ node || '-' }</HeaderColTxt>
+            <HeaderColTxt>计算类型：{ jobResource }</HeaderColTxt>
             <span className="right pointer" onClick={this.getDetailTaskList}><Icon type="sync" /></span>
         </div>;
 
