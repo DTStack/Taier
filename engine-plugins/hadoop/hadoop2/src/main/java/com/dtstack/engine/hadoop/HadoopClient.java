@@ -213,9 +213,16 @@ public class HadoopClient extends AbstractClient {
     }
 
     private void downloadHdfsFile(String from, String to) throws IOException {
+        File toFile = new File(to);
+        if (!toFile.getParentFile().exists()) {
+            boolean mkdirs = toFile.getParentFile().mkdirs();
+            if (mkdirs) {
+                LOG.info("mkdirs of parentFile with {}.", to);
+            }
+        }
         Path hdfsFilePath = new Path(from);
         InputStream is= FileSystem.get(conf).open(hdfsFilePath);//读取文件
-        IOUtils.copyBytes(is, new FileOutputStream(new File(to)),2048, true);//保存到本地
+        IOUtils.copyBytes(is, new FileOutputStream(toFile),2048, true);//保存到本地
     }
 
     @Override

@@ -24,11 +24,13 @@ public class ConfigConstant {
 
     public static final String AKKA_MASTER_SYSTEM = "masterSystem";
     public static final String AKKA_MASTER_NAME = "akka.master.name";
+    public static final String AKKA_MASTER_LOCAL_PATH = "akka.master.localPath";
     public static final String AKKA_MASTER_REMOTE_PATH = "akka.master.remotePath";
     public static final String AKKA_MASTER_MASTERADDRESS = "akka.master.masterAddress";
 
     public static final String AKKA_WORKER_SYSTEM = "workerSystem";
     public static final String AKKA_WORKER_NAME = "akka.worker.name";
+    public static final String AKKA_WORKER_LOCAL_PATH = "akka.worker.localPath";
     public static final String AKKA_WORKER_REMOTE_PATH = "akka.worker.remotePath";
 
     public static final String AKKA_ASK_TIMEOUT = "akka.ask.timeout";
