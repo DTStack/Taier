@@ -64,7 +64,10 @@ public class PluginWrapper{
             actionParam.put(GROUP_NAME, groupName);
         }
 
-        actionParam.put(PLUGIN_INFO, pluginInfoJson);
+        //kylin actionParam 中有自己的PLUGIN_INFO信息
+        if(!pluginInfoJson.isEmpty()){
+            actionParam.put(PLUGIN_INFO, pluginInfoJson);
+        }
         actionParam.put(GROUP_NAME, groupName);
 
         return actionParam;

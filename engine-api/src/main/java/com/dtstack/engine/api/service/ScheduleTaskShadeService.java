@@ -87,7 +87,7 @@ public interface ScheduleTaskShadeService {
      * @param taskId
      * @return
      */
-    public ScheduleTaskVO dealFlowWorkTask(@Param("taskId") Long taskId, @Param("appType") Integer appType);
+    public ScheduleTaskVO dealFlowWorkTask(@Param("taskId") Long taskId, @Param("appType") Integer appType,@Param("taskTypes")List<Integer> taskTypes,@Param("ownerId")Long ownerId);
 
     /**
      * 获取任务流下的所有子任务
@@ -95,7 +95,7 @@ public interface ScheduleTaskShadeService {
      * @param taskId
      * @return
      */
-    public List<ScheduleTaskShade> getFlowWorkSubTasks(@Param("taskId") Long taskId, @Param("appType") Integer appType);
+    public List<ScheduleTaskShade> getFlowWorkSubTasks(@Param("taskId") Long taskId, @Param("appType") Integer appType,@Param("taskTypes")List<Integer> taskTypes,@Param("ownerId")Long ownerId);
 
 
     public ScheduleTaskShade findTaskId(@Param("taskId") Long taskId, @Param("isDeleted") Integer isDeleted, @Param("appType") Integer appType);
