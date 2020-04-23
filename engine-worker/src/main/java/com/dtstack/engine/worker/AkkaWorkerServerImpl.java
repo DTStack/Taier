@@ -5,6 +5,7 @@ import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.pattern.Patterns;
+import akka.util.Timeout;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.akka.RpcService;
@@ -42,61 +43,58 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
 
     private static final Logger logger = LoggerFactory.getLogger(AkkaWorkerServerImpl.class);
 
-    private final static String MASTER_REMOTE_PATH_TEMPLATE = "akka.tcp://%s@%s/user/%s";
-    private final static String IP_PORT_TEMPLATE = "%s:%s";
-    private int logOutput = 0;
-    private final static int MULTIPLES = 30;
-    private final static int CHECK_INTERVAL = 1000;
-    private static Random random = new Random();
-    private volatile Set<String> availableNodes = new CopyOnWriteArraySet();
-    private volatile Set<String> disableNodes = new CopyOnWriteArraySet();
-    private ActorSystem system;
-    private String masterAddress;
-    private String masterSystemName;
-    private String masterName;
-    private String workerIp;
-    private int workerPort;
-    private String workerRemotePath;
-    private ActorSelection activeMasterActor;
-    private FiniteDuration askResultTimeout;
-    private MonitorNode monitorNode = new MonitorNode();
-    private SystemResourcesMetricsAnalyzer systemResourcesMetricsAnalyzer = new SystemResourcesMetricsAnalyzer();
 
     private static AkkaWorkerServerImpl akkaWorkerServer = new AkkaWorkerServerImpl();
 
+    public static AkkaWorkerServerImpl getAkkaWorkerServer() {
+        return akkaWorkerServer;
+    }
 
     private AkkaWorkerServerImpl() {
     }
 
-    @Override
-    public Config loadConfig() {
-        return null;
-    }
+    private int logOutput = 0;
+    private final static int MULTIPLES = 30;
+    private final static int CHECK_INTERVAL = 1000;
+    private static Random random = new Random();
+
+    private ActorSystem system;
+    private String hostname;
+    private Integer port;
+    private String workerRemotePath;
+    private FiniteDuration askResultTimeout;
+    private Timeout askTimeout;
+    private ActorSelection activeMasterActor;
+    private MonitorNode monitorNode;
+
+    private SystemResourcesMetricsAnalyzer systemResourcesMetricsAnalyzer = new SystemResourcesMetricsAnalyzer();
 
     @Override
-    public void start(Config workerConfig) {
-        this.system = ActorSystem.create(AkkaConfig.getWorkerSystemName(), workerConfig);
-        String workerName = AkkaConfig.getWorkerName();
-        ActorRef actorRef = system.actorOf(Props.create(JobService.class), workerName);
+    public void start(Config config) {
+        this.system = ActorSystem.create(AkkaConfig.getWorkerSystemName(), config);
+        ActorRef actorRef = system.actorOf(Props.create(JobService.class), AkkaConfig.getWorkerName());
 
-        this.masterAddress = AkkaConfig.getMasterAddress();
-        this.availableNodes.addAll(Arrays.asList(masterAddress.split(",")));
-        this.masterSystemName = AkkaConfig.getMasterSystemName();
-        this.masterName = AkkaConfig.getMasterName();
-        this.workerIp = AkkaConfig.getAkkaHostname();
-        this.workerPort = AkkaConfig.getAkkaPort();
-        this.workerRemotePath = AkkaConfig.getWorkerPath();
+        this.hostname = AkkaConfig.getAkkaHostname();
+        this.port = AkkaConfig.getAkkaPort();
+        this.workerRemotePath = AkkaConfig.getWorkerPath(hostname, port);
         this.askResultTimeout = Duration.create(AkkaConfig.getAkkaAskResultTimeout(), TimeUnit.SECONDS);
-        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(2, new CustomThreadFactory(this.getClass().getSimpleName()));
+        this.askTimeout = Timeout.create(java.time.Duration.ofSeconds(AkkaConfig.getAkkaAskTimeout()));
+
+        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(3, new CustomThreadFactory(this.getClass().getSimpleName()));
+
+        if (!AkkaConfig.isLocalMode()) {
+            monitorNode = new MonitorNode();
+            scheduledService.scheduleWithFixedDelay(
+                    monitorNode,
+                    CHECK_INTERVAL * 10,
+                    CHECK_INTERVAL * 10,
+                    TimeUnit.MILLISECONDS);
+        }
+
         scheduledService.scheduleWithFixedDelay(
                 this,
                 0,
                 CHECK_INTERVAL,
-                TimeUnit.MILLISECONDS);
-        scheduledService.scheduleWithFixedDelay(
-                monitorNode,
-                CHECK_INTERVAL * 10,
-                CHECK_INTERVAL * 10,
                 TimeUnit.MILLISECONDS);
 
         long systemResourceProbeInterval = AkkaConfig.getSystemResourceProbeInterval();
@@ -110,56 +108,77 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
 
     @Override
     public void heartBeat(WorkerInfo workerInfo) {
+        ActorSelection actorSelection = getActiveMasterAddress();
+        if (null == actorSelection) {
+            if (null != monitorNode) {
+                logger.info("worker not connect available nodes, availableNodes:{} disableNodes:{}", monitorNode.availableNodes, monitorNode.disableNodes);
+            }
+            return;
+        }
         try {
-            Future<Object> future = Patterns.ask(getActiveMasterAddress(), workerInfo, AkkaConfig.getAkkaAskTimeout());
+            if (MapUtils.isNotEmpty(systemResourcesMetricsAnalyzer.getMetrics())) {
+                String systemResource = JSONObject.toJSONString(systemResourcesMetricsAnalyzer.getMetrics());
+                workerInfo.setSystemResource(systemResource);
+            }
+            Future<Object> future = Patterns.ask(actorSelection, workerInfo, askTimeout);
             Object result = Await.result(future, askResultTimeout);
         } catch (Throwable e) {
-            String ip = activeMasterActor.anchorPath().address().host().get();
-            String port = activeMasterActor.anchorPath().address().port().get().toString();
-            String ipAndPort = String.format(IP_PORT_TEMPLATE, ip, port);
-            availableNodes.remove(ipAndPort);
-            disableNodes.add(ipAndPort);
+            if (monitorNode != null) {
+                monitorNode.add(activeMasterActor);
+                logger.error("Can't send WorkerInfo to master, availableNodes:{} disableNodes:{}, happens error:{}", monitorNode.availableNodes,  monitorNode.disableNodes, e);
+            }
             activeMasterActor = null;
-            logger.error("Can't send WorkerInfo to master, availableNodes:{} disableNodes:{}, happens error:{}", availableNodes, disableNodes, e);
         }
     }
 
+
     @Override
     public ActorSelection getActiveMasterAddress() {
-        if (null == activeMasterActor) {
-            int size = availableNodes.size();
-            String ipAndPort = masterAddress.split(",")[0];
-            if (availableNodes.size() != 0) {
+        if (activeMasterActor != null) {
+            return activeMasterActor;
+        }
+        if (monitorNode == null) {
+            activeMasterActor = system.actorSelection(AkkaConfig.getMasterPath());
+        } else {
+            int size = monitorNode.availableNodes.size();
+            if (size != 0) {
                 int index = random.nextInt(size);
-                ipAndPort = Lists.newArrayList(availableNodes).get(index);
-            } else {
-                logger.info("worker not connect available nodes, default ipAndPort:{} availableNodes:{} disableNodes:{}", ipAndPort, availableNodes, disableNodes);
+                String ipAndPort = Lists.newArrayList(monitorNode.availableNodes).get(index);
+                String[] hostInfo = ipAndPort.split(":");
+                if (hostInfo.length == 2) {
+                    String masterRemotePath = AkkaConfig.getMasterPath(hostInfo[0], hostInfo[1]);
+                    activeMasterActor = system.actorSelection(masterRemotePath);
+                    logger.info("get an ActorSelection of masterRemotePath:{}", masterRemotePath);
+                }
             }
-            String masterRemotePath = String.format(MASTER_REMOTE_PATH_TEMPLATE, masterSystemName, ipAndPort, masterName);
-            activeMasterActor = system.actorSelection(masterRemotePath);
-            logger.info("get an ActorSelection of masterRemotePath:{}", masterRemotePath);
         }
         return activeMasterActor;
     }
 
     @Override
     public void run() {
-        WorkerInfo workerInfo = new WorkerInfo(workerIp, workerPort, workerRemotePath, System.currentTimeMillis());
-        if (MapUtils.isNotEmpty(systemResourcesMetricsAnalyzer.getMetrics())) {
-            String systemResource = JSONObject.toJSONString(systemResourcesMetricsAnalyzer.getMetrics());
-            workerInfo.setSystemResource(systemResource);
-        }
+        WorkerInfo workerInfo = new WorkerInfo(hostname, port, workerRemotePath, System.currentTimeMillis());
         heartBeat(workerInfo);
         if (LogCountUtil.count(logOutput++, MULTIPLES)) {
             logger.info("WorkerBeatListener Running workerRemotePath:{} gap:[{} ms]...", workerRemotePath, CHECK_INTERVAL * MULTIPLES);
         }
     }
 
-    public static AkkaWorkerServerImpl getAkkaWorkerServer() {
-        return akkaWorkerServer;
+    @Override
+    public Config loadConfig() {
+        return null;
     }
 
+
     private class MonitorNode implements Runnable {
+
+        private volatile Set<String> availableNodes = new CopyOnWriteArraySet();
+        private volatile Set<String> disableNodes = new CopyOnWriteArraySet();
+
+        public MonitorNode() {
+            this.availableNodes.addAll(Arrays.asList(AkkaConfig.getMasterAddress().split(",")));
+        }
+
         @Override
         public void run() {
             try {
@@ -180,6 +199,14 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
             } catch (Exception e) {
                 logger.error("", e);
             }
+        }
+
+        public void add(ActorSelection actorSelection) {
+            String ip = actorSelection.anchorPath().address().host().get();
+            String port = actorSelection.anchorPath().address().port().get().toString();
+            String ipAndPort = String.format("%s:%s", ip, port);
+            availableNodes.remove(ipAndPort);
+            disableNodes.add(ipAndPort);
         }
     }
 }
