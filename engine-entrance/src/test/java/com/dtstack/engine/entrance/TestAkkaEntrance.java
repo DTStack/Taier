@@ -27,14 +27,11 @@ public class TestAkkaEntrance {
         SystemPropertyUtil.setSystemUserDir();
         this.system = AkkaConfig.initActorSystem(AkkaConfig.getWorkerSystemName());
 
-        this.system.actorOf(Props.create(JobService.class));
-
-
         ActorRef worker = system.actorOf(Props.create(JobService.class));
         ActorRef master = system.actorOf(Props.create(AkkaMasterActor.class));
 
         WorkerInfo workerInfo = new WorkerInfo("localhost", 0, "121212", System.currentTimeMillis());
-        worker.tell(workerInfo, master);
+        master.tell(workerInfo, worker);
 
     }
 }
