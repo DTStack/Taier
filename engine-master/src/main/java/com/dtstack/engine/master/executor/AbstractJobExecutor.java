@@ -120,15 +120,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
     public abstract void stop();
 
-    public void operateAfterSentinel(SentinelType sentinelType) throws Exception {
-        if (sentinelType.isEndDb()) {
-            notStartCache.clear();
-            errorJobCache.clear();
-            taskCache.clear();
-        }
-        jopPriorityQueue.resetTail();
-        jopPriorityQueue.reback(sentinelType);
-    }
 
     public void recoverOtherNode() {
         //处理其他节点故障恢复时转移而来的数据
@@ -153,14 +144,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 if (logger.isDebugEnabled()) {
                     logger.debug("========= scheduleType:{} take job from queue，after queueSize:{}, blocked:{}  tail:{} =========",
                             getScheduleType(), jopPriorityQueue.getQueueSize(), jopPriorityQueue.isBlocked(), jopPriorityQueue.resetTail());
-                }
-                if (batchJobElement.isSentinel()) {
-                    //判断哨兵，执行的操作
-                    operateAfterSentinel(batchJobElement.getSentinel());
-                    if (logger.isInfoEnabled()) {
-                        logger.info("========= scheduleType:{} operateAfterSentinel end=========", getScheduleType());
-                    }
-                    continue;
                 }
 
                 ScheduleBatchJob scheduleBatchJob = batchJobElement.getScheduleBatchJob();
@@ -204,12 +187,10 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                         batchJobService.startJob(scheduleBatchJob.getScheduleJob());
                     }
                 } else if (checkRunInfo.getStatus() == JobCheckStatus.TIME_NOT_REACH) {
-                    jopPriorityQueue.putSurvivor(batchJobElement);
                     notStartCache.clear();
                     errorJobCache.clear();
                     taskCache.clear();
-                    //队列是按时间排序的.当前时间未到之后的也可以忽略
-                    jopPriorityQueue.reback(SentinelType.NONE);
+                    jopPriorityQueue.clearAndAllIngestion();
                     long rebackId = batchJobElement.getScheduleBatchJob().getId();
                     if (logger.isInfoEnabled()) {
                         logger.info("reback job.id:{} lastRebackId:{}", rebackId, lastRebackId);
