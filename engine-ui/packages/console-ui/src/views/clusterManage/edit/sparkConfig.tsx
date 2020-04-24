@@ -25,6 +25,7 @@ export default class SparkConfig extends React.Component<any, any> {
                         })(
                             <Select disabled={isView} style={{ width: '100px' }}>
                                 <Option value="spark-yarn">2.X</Option>
+                                <Option value="spark240-yarn">2.4.0</Option>
                             </Select>
                         )}
                     </FormItem>
