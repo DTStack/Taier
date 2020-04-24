@@ -1,7 +1,5 @@
 -- create
 -- engine
-
-DROP TABLE IF EXISTS `rdos_plugin_info`;
 CREATE TABLE `rdos_plugin_info` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `plugin_key` varchar(255) NOT NULL COMMENT '插件配置信息md5值',
@@ -14,7 +12,6 @@ CREATE TABLE `rdos_plugin_info` (
   UNIQUE KEY `index_plugin_id` (`plugin_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `rdos_engine_job`;
 CREATE TABLE `rdos_engine_job` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '任务状态 UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELING(6),CANCELED(7),FAILED(8)',
@@ -43,7 +40,6 @@ CREATE TABLE `rdos_engine_job` (
   KEY `index_gmt_modified` (`gmt_modified`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `rdos_stream_task_checkpoint`;
 CREATE TABLE `rdos_stream_task_checkpoint` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `task_id` varchar(64) NOT NULL COMMENT '任务id',
@@ -59,7 +55,6 @@ CREATE TABLE `rdos_stream_task_checkpoint` (
   UNIQUE KEY `taskid_checkpoint` (`task_id`,`checkpoint_id`) COMMENT 'taskid和checkpoint组成的唯一索引'
 ) ENGINE=InnoDB AUTO_INCREMENT=26474 DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `rdos_engine_job_cache`;
 CREATE TABLE `rdos_engine_job_cache` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `job_id` varchar(256) NOT NULL COMMENT '任务id',
@@ -79,7 +74,7 @@ CREATE TABLE `rdos_engine_job_cache` (
   unique KEY `index_job_id` (`job_id`(128))
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `rdos_plugin_job_info`;
+
 CREATE TABLE `rdos_plugin_job_info` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `job_id` varchar(255) NOT NULL COMMENT '任务id',
@@ -93,7 +88,6 @@ CREATE TABLE `rdos_plugin_job_info` (
   UNIQUE KEY `index_job_id` (`job_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `rdos_engine_unique_sign`;
 CREATE TABLE `rdos_engine_unique_sign` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `unique_sign` varchar(255) NOT NULL COMMENT '唯一标识',
@@ -104,7 +98,6 @@ CREATE TABLE `rdos_engine_unique_sign` (
   UNIQUE KEY `index_unique_sign` (`unique_sign`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `rdos_engine_job_retry`;
 CREATE TABLE `rdos_engine_job_retry` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '任务状态 UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELING(6),CANCELED(7),FAILED(8)',
@@ -123,7 +116,7 @@ CREATE TABLE `rdos_engine_job_retry` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `rdos_engine_job_stop_record`;
+
 CREATE TABLE `rdos_engine_job_stop_record` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `task_id` varchar(256) NOT NULL COMMENT '任务id',
@@ -139,7 +132,7 @@ CREATE TABLE `rdos_engine_job_stop_record` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `rdos_node_machine`;
+
 CREATE TABLE `rdos_node_machine` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `ip` varchar(64) NOT NULL COMMENT 'master主机ip',
@@ -156,7 +149,6 @@ CREATE TABLE `rdos_node_machine` (
 
 -- console
 
-DROP TABLE IF EXISTS `console_cluster`;
 CREATE TABLE `console_cluster` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `cluster_name` varchar(24) NOT NULL COMMENT '集群名称',
@@ -168,7 +160,6 @@ CREATE TABLE `console_cluster` (
   UNIQUE KEY `idx` (`cluster_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `console_engine`;
 CREATE TABLE `console_engine` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `cluster_id` int(11) NOT NULL COMMENT '集群id',
@@ -184,7 +175,6 @@ CREATE TABLE `console_engine` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `console_component`;
 CREATE TABLE `console_component` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `engine_id` int(11) NOT NULL COMMENT '引擎id',
@@ -197,7 +187,6 @@ CREATE TABLE `console_component` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `console_dtuic_tenant`;
 CREATE TABLE `console_dtuic_tenant` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `dt_uic_tenant_id` int(11) NOT NULL COMMENT 'uic租户id',
@@ -209,7 +198,6 @@ CREATE TABLE `console_dtuic_tenant` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `console_engine_tenant`;
 CREATE TABLE `console_engine_tenant` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `tenant_id` int(11) NOT NULL COMMENT '租户id',
@@ -221,7 +209,6 @@ CREATE TABLE `console_engine_tenant` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `console_queue`;
 CREATE TABLE `console_queue` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `engine_id` int(11) NOT NULL COMMENT '引擎id',
@@ -237,7 +224,6 @@ CREATE TABLE `console_queue` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `console_kerberos`;
 CREATE TABLE `console_kerberos` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `cluster_id` int(11) NOT NULL COMMENT '集群id',
@@ -253,7 +239,6 @@ CREATE TABLE `console_kerberos` (
 
 -- task
 
-DROP TABLE IF EXISTS `rdos_batch_task_shade`;
 CREATE TABLE `rdos_batch_task_shade`
 (
     `id`                      int(11)      NOT NULL AUTO_INCREMENT,
@@ -295,7 +280,6 @@ CREATE TABLE `rdos_batch_task_shade`
   AUTO_INCREMENT = 0
   DEFAULT CHARSET = utf8;
 
-DROP TABLE IF EXISTS `rdos_batch_task_task_shade`;
 CREATE TABLE `rdos_batch_task_task_shade`
 (
     `id`              int(11)    NOT NULL AUTO_INCREMENT,
@@ -313,7 +297,6 @@ CREATE TABLE `rdos_batch_task_task_shade`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
-DROP TABLE IF EXISTS `rdos_batch_job`;
 CREATE TABLE `rdos_batch_job`
 (
     `id`              int(11)      NOT NULL AUTO_INCREMENT,
@@ -360,7 +343,6 @@ CREATE TABLE `rdos_batch_job`
   AUTO_INCREMENT = 0
   DEFAULT CHARSET = utf8;
 
-DROP TABLE IF EXISTS `rdos_batch_job_job`;
 CREATE TABLE `rdos_batch_job_job`
 (
     `id`              int(11)      NOT NULL AUTO_INCREMENT,
@@ -378,7 +360,6 @@ CREATE TABLE `rdos_batch_job_job`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
-DROP TABLE IF EXISTS `rdos_batch_fill_data_job`;
 CREATE TABLE `rdos_batch_fill_data_job`
 (
     `id`              int(11)     NOT NULL AUTO_INCREMENT,
@@ -400,7 +381,6 @@ CREATE TABLE `rdos_batch_fill_data_job`
   AUTO_INCREMENT = 0
   DEFAULT CHARSET = utf8;
 
-DROP TABLE IF EXISTS `rdos_job_graph_trigger`;
 CREATE TABLE `rdos_job_graph_trigger`
 (
     `id`           int(11)    NOT NULL AUTO_INCREMENT,

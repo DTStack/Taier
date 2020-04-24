@@ -149,11 +149,6 @@ public class JopPriorityQueue {
         return true;
     }
 
-    public void clearAndTail() {
-        queue.clear();
-        tail.compareAndSet(true, false);
-    }
-
     public boolean resetTail() {
         return tail.compareAndSet(true, false);
     }
@@ -168,48 +163,6 @@ public class JopPriorityQueue {
 
     public boolean isBlocked() {
         return blocked.get();
-    }
-
-    public void reback(SentinelType sentinelType) throws Exception {
-        if (logger.isDebugEnabled()) {
-            logger.debug("blocked:{} clearQueue:{} sentinelType:{}", blocked.get(), clearQueue.get(), sentinelType);
-        }
-
-        if (!survivor.isEmpty()) {
-            //两种情况下可以恢复
-            //a. 非阻塞，(1.1) + (1.2)
-            //b. 阻塞下，非哨兵且没有清过queue，(2.1)
-            boolean recoverSurvivor = !blocked.get() || !sentinelType.isSentinel() && !clearQueue.get();
-            if (recoverSurvivor) {
-                for (BatchJobElement element : survivor) {
-                    putElement(element);
-                }
-            }
-            survivor.clear();
-        }
-        //判断queue是否存在block
-        //如果block=true，需要重置为false，以触发queue补数据的机制
-        if (blocked.get()) {
-            if (clearQueue.get()) {
-                //需要清空队列，(2.4)
-                clearAndTail();
-                if (sentinelType.isNone()) {
-                    //(2.3)
-                    acquireGroupQueueJob.bulkIngestion();
-                    clearQueue.compareAndSet(true, false);
-                }
-            } else if (sentinelType.isEndQueue()) {
-                //(2.2)
-                clearAndTail();
-                clearQueue.compareAndSet(false, true);
-            }
-        } else if (sentinelType.isEndDb() && clearQueue.get()) {
-            //(2.5)
-            clearAndTail();
-            acquireGroupQueueJob.bulkIngestion();
-            clearQueue.compareAndSet(true, false);
-        }
-        blocked.compareAndSet(true, false);
     }
 
     private class AcquireGroupQueueJob implements Runnable {
