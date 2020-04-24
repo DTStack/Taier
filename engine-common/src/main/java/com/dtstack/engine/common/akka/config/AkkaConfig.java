@@ -19,8 +19,8 @@ import java.util.HashMap;
  */
 public class AkkaConfig {
 
-    private final static String LOCAL_PATH_TEMPLATE = "akka://%s/dagschedulex/%s";
-    private final static String REMOTE_PATH_TEMPLATE = "akka.tcp://%s@%s:%s/dagschedulex/%s";
+    private final static String LOCAL_PATH_TEMPLATE = "akka://%s/user/%s";
+    private final static String REMOTE_PATH_TEMPLATE = "akka.tcp://%s@%s:%s/user/%s";
     private static Config AKKA_CONFIG = null;
     private static boolean LOCAL_MODE = false;
 
