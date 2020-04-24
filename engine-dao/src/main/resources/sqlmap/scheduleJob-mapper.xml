@@ -596,7 +596,7 @@
     <select id="listThirtyDayJobs" resultType="java.util.HashMap">
         SELECT DATE_FORMAT(bj.cyc_time, '%m/%d') AS day, COUNT(1) AS cnt
         FROM schedule_job bj
-        LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.id
+        LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
         WHERE bj.cyc_time is not null and to_days(bj.cyc_time) >= (to_days(NOW()) -30)
         and bj.type = #{type}
         and bj.project_id = #{projectId}
@@ -618,7 +618,7 @@
         SUM(case when bj.status = 8 then 1 else 0 end) AS failCount,
         SUM(case when bj.status = #{status} then 1 else 0 end) AS successCount
         FROM schedule_job bj
-        LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.id
+        LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
         WHERE bj.type = #{type}
         and bj.tenant_id = #{tenantId}
         and ts.task_type = #{taskType}
