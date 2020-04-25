@@ -21,10 +21,11 @@ import java.util.HashMap;
  */
 public class AkkaConfig {
 
-    private final static String LOCAL_PATH_TEMPLATE = "akka://%s/%s";
+    private final static String LOCAL_PATH_TEMPLATE = "akka://%s/user/%s";
     private final static String REMOTE_PATH_TEMPLATE = "akka.tcp://%s@%s:%s/user/%s";
     private static Config AKKA_CONFIG = null;
     private static boolean LOCAL_MODE = false;
+    private static ActorSystem actorSystem;
 
     private static void loadConfig(Config config) {
         if (config == null) {
@@ -34,7 +35,10 @@ public class AkkaConfig {
     }
 
     public static synchronized ActorSystem initActorSystem(Config config) {
-       return ActorSystem.create(getDagScheduleXSystemName(), config);
+        if (actorSystem == null) {
+            actorSystem = ActorSystem.create(getDagScheduleXSystemName(), config);
+        }
+        return actorSystem;
     }
 
     public static String getDagScheduleXSystemName() {
