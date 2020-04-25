@@ -1522,7 +1522,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         this.setBizDay(batchJobDTO, bizStartDay, bizEndDay, tenantId, projectId);
 
         if (dutyUserId != null) {
-            batchJobDTO.setOwnerUserId(dutyUserId);
+            batchJobDTO.setCreateUserId(dutyUserId);
         }
 
         batchJobDTO.setProjectId(projectId);

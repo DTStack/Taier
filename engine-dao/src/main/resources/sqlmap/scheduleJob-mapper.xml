@@ -792,25 +792,23 @@
     <select id="generalQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
-        from (
-        select *,'' as groupDate from schedule_job
-        <include refid="select_where_batch_job"/>
-        and period_type not in (0,1)
-        union
-        select
-        bj.*,
-        left(bj.business_date,8) as groupDate
-        from schedule_job bj
+        FROM schedule_job bj
         LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
         <include refid="select_where_fragment"/>
-        and bj.period_type in (0,1)
-        group by bj.task_id,groupDate
-        )bj
-        LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
-        <include refid="select_where_fragment"/>
+        <include refid="queryWorkFlow"/>
+        <if test="model.jobIds != null and model.jobIds.size > 0">
+            or bj.job_id in
+            <foreach collection="model.jobIds" item="jobId" open="(" separator="," close=")">
+                #{jobId}
+            </foreach>
+        </if>
+        <if test="model.ownerUserId != null">
+            AND ts.owner_user_id = #{model.ownerUserId}
+        </if>
         <if test="model.pageQuery == true">
             <include refid="page_condition"/>
         </if>
+
     </select>
 
     <select id="generalQueryWithMinAndHour" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="ScheduleJob">
@@ -858,25 +856,21 @@
 
     <select id="generalCount" resultType="java.lang.Integer">
         SELECT COUNT(1)
-        from (
-        select *,'' as groupDate from schedule_job
-        <include refid="select_where_batch_job"/>
-        and period_type not in (0,1)
-
-        union
-        select * ,left(business_date,8) as groupDate from schedule_job
-        <include refid="select_where_batch_job"/>
-        and period_type in (0,1)
-        group by task_id,groupDate
-        )bj
-        <include refid="select_where_batch_job"/>
-        <if test="model.taskIds != null and model.taskIds.size > 0">
-            or bj.task_id in
-            <foreach collection="model.taskIds" item="taskId" open="(" separator="," close=")">
-                #{taskId}
+        FROM schedule_job bj
+        LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
+        <include refid="select_where_fragment"/>
+        <include refid="queryWorkFlow"/>
+        <if test="model.jobIds != null and model.jobIds.size > 0">
+            or bj.job_id in
+            <foreach collection="model.jobIds" item="jobId" open="(" separator="," close=")">
+                #{jobId}
             </foreach>
         </if>
+        <if test="model.ownerUserId != null">
+            AND ts.owner_user_id = #{model.ownerUserId}
+        </if>
         limit 1
+
     </select>
 
     <select id="generalCountWithMinAndHour" resultType="java.lang.Integer">
@@ -1467,7 +1461,7 @@
 
 
     <update id="jobFail">
-        update schedule_job set exec_start_time=now(), exec_end_time=now(), exec_time = 0,gmt_modified=now(),status=#{status}, log_info = #{logInfo} where job_id=#{jobId};
+        update schedule_job set exec_start_time = IFNULL(exec_start_time,now()), exec_end_time=now(), exec_time=timestampdiff(SECOND, exec_start_time, now()),gmt_modified=now(),status=#{status}, log_info = #{logInfo} where job_id=#{jobId};
     </update>
 
     <update id="updateJobStatus">

@@ -140,6 +140,16 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                     logger.debug("========= scheduleType:{} take job from queue，before queueSize:{}, blocked:{}  tail:{} =========",
                             getScheduleType(), jopPriorityQueue.getQueueSize(), jopPriorityQueue.isBlocked(), jopPriorityQueue.resetTail());
                 }
+                //元素全部放到survivor中 重新全量加载
+                if (jopPriorityQueue.getQueueSize() == 0) {
+                    logger.info("========= scheduleType:{} queue is empty , blocked:{}  tail:{}  survivor size {}=========", getScheduleType(), jopPriorityQueue.getQueueSize(),
+                            jopPriorityQueue.isBlocked(),jopPriorityQueue.getSurvivorSize());
+                    notStartCache.clear();
+                    errorJobCache.clear();
+                    taskCache.clear();
+                    jopPriorityQueue.clearAndAllIngestion();
+                    Thread.sleep(5000);
+                }
                 BatchJobElement batchJobElement = jopPriorityQueue.takeJob();
                 if (logger.isDebugEnabled()) {
                     logger.debug("========= scheduleType:{} take job from queue，after queueSize:{}, blocked:{}  tail:{} =========",
@@ -147,6 +157,9 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 }
 
                 ScheduleBatchJob scheduleBatchJob = batchJobElement.getScheduleBatchJob();
+                if(Objects.isNull(scheduleBatchJob)){
+                    continue;
+                }
                 scheduleJob = scheduleBatchJob.getScheduleJob();
                 Long taskIdUnique = jobRichOperator.getTaskIdUnique(scheduleBatchJob.getAppType(), scheduleBatchJob.getTaskId());
                 ScheduleTaskShade batchTask = this.taskCache.computeIfAbsent(taskIdUnique,

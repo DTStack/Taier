@@ -105,6 +105,9 @@ public class JopPriorityQueue {
         return this.queue.size();
     }
 
+    public int getSurvivorSize() {
+        return this.survivor.size();
+    }
 
     public BatchJobElement takeJob() throws InterruptedException {
         return queue.take();
@@ -158,6 +161,7 @@ public class JopPriorityQueue {
         blocked.set(false);
         clearQueue.set(false);
         queue.clear();
+        this.survivor.clear();
         this.acquireGroupQueueJob.allIngestion();
     }
 
