@@ -24,7 +24,6 @@ public class AkkaMasterActor extends AbstractActor {
         return receiveBuilder()
                 .match(WorkerInfo.class, workerInfo -> {
                     String ipAndPort = String.format(IP_PORT_TEMPLATE, workerInfo.getIp(), workerInfo.getPort());
-                    System.out.println(ipAndPort);
                     workerInfos.remove(workerInfo);
                     workerInfos.add(workerInfo);
                     if (logger.isDebugEnabled()) {

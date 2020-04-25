@@ -43,41 +43,43 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
 
     private static final Logger logger = LoggerFactory.getLogger(AkkaWorkerServerImpl.class);
 
-
-    private static AkkaWorkerServerImpl akkaWorkerServer = new AkkaWorkerServerImpl();
-
-    public static AkkaWorkerServerImpl getAkkaWorkerServer() {
-        return akkaWorkerServer;
-    }
-
-    private AkkaWorkerServerImpl() {
-    }
-
     private int logOutput = 0;
     private final static int MULTIPLES = 30;
     private final static int CHECK_INTERVAL = 1000;
     private static Random random = new Random();
 
-    private ActorSystem system;
+    private ActorSystem actorSystem;
+    private ActorRef workerActorRef;
+    private ActorSelection masterActorRef;
+
     private String hostname;
     private Integer port;
     private String workerRemotePath;
     private FiniteDuration askResultTimeout;
     private Timeout askTimeout;
-    private ActorSelection activeMasterActor;
     private MonitorNode monitorNode;
 
     private SystemResourcesMetricsAnalyzer systemResourcesMetricsAnalyzer = new SystemResourcesMetricsAnalyzer();
 
+    private static AkkaWorkerServerImpl akkaWorkerServer = new AkkaWorkerServerImpl();
+
+
+    private AkkaWorkerServerImpl() {
+    }
+
+    @Override
+    public Config loadConfig() {
+        return null;
+    }
+
     @Override
     public void start(Config config) {
-        this.system = AkkaConfig.initActorSystem(AkkaConfig.getWorkerSystemName());
-
-        this.system.actorOf(Props.create(JobService.class));
+        this.actorSystem = AkkaConfig.initActorSystem(config);
+        this.workerActorRef = this.actorSystem.actorOf(Props.create(JobService.class));
 
         this.hostname = AkkaConfig.getAkkaHostname();
         this.port = AkkaConfig.getAkkaPort();
-        this.workerRemotePath = AkkaConfig.getWorkerPath(hostname, port);
+        this.workerRemotePath = AkkaConfig.getWorkerPath();
         this.askResultTimeout = Duration.create(AkkaConfig.getAkkaAskResultTimeout(), TimeUnit.SECONDS);
         this.askTimeout = Timeout.create(java.time.Duration.ofSeconds(AkkaConfig.getAkkaAskTimeout()));
 
@@ -125,21 +127,24 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
             Object result = Await.result(future, askResultTimeout);
         } catch (Throwable e) {
             if (monitorNode != null) {
-                monitorNode.add(activeMasterActor);
-                logger.error("Can't send WorkerInfo to master, availableNodes:{} disableNodes:{}, happens error:{}", monitorNode.availableNodes,  monitorNode.disableNodes, e);
+                monitorNode.add(actorSelection);
+                logger.error("Can't send WorkerInfo to master, availableNodes:{} disableNodes:{}, happens error:", monitorNode.availableNodes, monitorNode.disableNodes, e);
+            } else {
+                logger.error("Can't send WorkerInfo to master, happens error:", e);
             }
-            activeMasterActor = null;
+            masterActorRef = null;
         }
     }
 
 
     @Override
     public ActorSelection getActiveMasterAddress() {
-        if (activeMasterActor != null) {
-            return activeMasterActor;
+        if (masterActorRef != null) {
+            return masterActorRef;
         }
         if (monitorNode == null) {
-            activeMasterActor = system.actorSelection(AkkaConfig.getMasterPath());
+            //monitor == null, 是localMode
+            masterActorRef = this.actorSystem.actorSelection(AkkaConfig.getMasterPath(null, null));
         } else {
             int size = monitorNode.availableNodes.size();
             if (size != 0) {
@@ -148,12 +153,12 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
                 String[] hostInfo = ipAndPort.split(":");
                 if (hostInfo.length == 2) {
                     String masterRemotePath = AkkaConfig.getMasterPath(hostInfo[0], hostInfo[1]);
-                    activeMasterActor = system.actorSelection(masterRemotePath);
+                    masterActorRef = this.actorSystem.actorSelection(masterRemotePath);
                     logger.info("get an ActorSelection of masterRemotePath:{}", masterRemotePath);
                 }
             }
         }
-        return activeMasterActor;
+        return masterActorRef;
     }
 
     @Override
@@ -165,11 +170,9 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
         }
     }
 
-    @Override
-    public Config loadConfig() {
-        return null;
+    public static AkkaWorkerServerImpl getAkkaWorkerServer() {
+        return akkaWorkerServer;
     }
-
 
     private class MonitorNode implements Runnable {
 

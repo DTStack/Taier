@@ -9,7 +9,10 @@ import com.dtstack.engine.common.util.NetUtils;
 import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 
@@ -20,8 +23,11 @@ import java.util.HashMap;
  */
 public class AkkaConfig {
 
-    private final static String LOCAL_PATH_TEMPLATE = "akka://%s/engine/%s";
-    private final static String REMOTE_PATH_TEMPLATE = "akka.tcp://%s@%s:%s/engine/%s";
+    private static final Logger logger = LoggerFactory.getLogger(AkkaConfig.class);
+
+
+    private final static String LOCAL_PATH_TEMPLATE = "akka://%s/%s";
+    private final static String REMOTE_PATH_TEMPLATE = "akka.tcp://%s@%s:%s/%s";
     private static Config AKKA_CONFIG = null;
     private static boolean LOCAL_MODE = false;
     private static ActorSystem actorSystem;
@@ -34,31 +40,52 @@ public class AkkaConfig {
         return LOCAL_MODE;
     }
 
-    public static void loadConfig(Config config) {
+    public static Config init(Config config) {
+        if (config.hasPath(ConfigConstant.AKKA_LOCALMODE)) {
+            String localMode = config.getString(ConfigConstant.AKKA_LOCALMODE);
+            setLocalMode(BooleanUtils.toBoolean(localMode));
+        }
+
+
+        HashMap<String, Object> configMap = Maps.newHashMap();
+        if (isLocalMode()) {
+            configMap.put(ConfigConstant.AKKA_ACTOR_PROVIDER, "akka.actor.LocalActorRefProvider");
+        }
+
+
+        String hostname = config.getString(ConfigConstant.AKKA_REMOTE_NETTY_TCP_HOSTNAME);
+        if (StringUtils.isBlank(hostname)) {
+            hostname = AddressUtil.getOneIp();
+        }
+        configMap.put(ConfigConstant.AKKA_REMOTE_NETTY_TCP_HOSTNAME, hostname);
+
+        int port = config.getInt(ConfigConstant.AKKA_REMOTE_NETTY_TCP_PORT);
+        int endPort = port + 100;
+        port = NetUtils.getAvailablePortRange(hostname, port, endPort);
+        configMap.put(ConfigConstant.AKKA_REMOTE_NETTY_TCP_PORT, port);
+
+        Config loadConfig = ConfigFactory.parseMap(configMap).withFallback(config);
+        loadConfig(loadConfig);
+        return loadConfig;
+    }
+
+
+    private static void loadConfig(Config config) {
         if (config == null) {
             throw new IllegalArgumentException("unload akka conf.");
         }
         AKKA_CONFIG = config;
     }
 
-    public static synchronized ActorSystem initActorSystem(String name) {
-        if (actorSystem == null) {
-            actorSystem = ActorSystem.create(name, AKKA_CONFIG);
-        }
+    public static synchronized ActorSystem initActorSystem(Config config) {
+//        if (actorSystem == null) {
+            actorSystem = ActorSystem.create(ConfigConstant.AKKA_DAGSCHEDULEX_SYSTEM, config);
+//        }
         return actorSystem;
     }
 
-    public static String getMasterSystemName() {
-        if (LOCAL_MODE) {
-            return ConfigConstant.AKKA_DAGSCHEDULEX_SYSTEM;
-        } else {
-            return ConfigConstant.AKKA_MASTER_SYSTEM;
-        }
-    }
-
     public static String getMasterName() {
-        String defaultValue = Master.class.getSimpleName();
-        return defaultValue;
+        return Master.class.getSimpleName();
     }
 
     public static String getMasterAddress() {
@@ -74,55 +101,26 @@ public class AkkaConfig {
         }
     }
 
-    public static String getMasterPath() {
-        String masterPath;
-        if (LOCAL_MODE) {
-            masterPath = String.format(LOCAL_PATH_TEMPLATE, getMasterSystemName(), getMasterName());
-        } else {
-            masterPath = String.format(REMOTE_PATH_TEMPLATE, getMasterSystemName(), getAkkaHostname(), getAkkaPort(), getMasterName());
-        }
-        return masterPath;
-    }
-
     public static String getMasterPath(String hostName, String port) {
         String masterPath;
         if (LOCAL_MODE) {
-            masterPath = String.format(LOCAL_PATH_TEMPLATE, getMasterSystemName(), getMasterName());
+            masterPath = String.format(LOCAL_PATH_TEMPLATE, ConfigConstant.AKKA_DAGSCHEDULEX_SYSTEM, getMasterName());
         } else {
-            masterPath = String.format(REMOTE_PATH_TEMPLATE, getMasterSystemName(), hostName, port, getMasterName());
+            masterPath = String.format(REMOTE_PATH_TEMPLATE, ConfigConstant.AKKA_DAGSCHEDULEX_SYSTEM, hostName, port, getMasterName());
         }
         return masterPath;
     }
 
-    public static String getWorkerSystemName() {
-        if (LOCAL_MODE) {
-            return ConfigConstant.AKKA_DAGSCHEDULEX_SYSTEM;
-        } else {
-            return ConfigConstant.AKKA_WORKER_SYSTEM;
-        }
-    }
-
     public static String getWorkerName() {
-        String workerName = Worker.class.getSimpleName();
-        return workerName;
+        return Worker.class.getSimpleName();
     }
 
     public static String getWorkerPath() {
         String workerPath;
         if (LOCAL_MODE) {
-            workerPath = String.format(LOCAL_PATH_TEMPLATE, getWorkerSystemName(), getWorkerName());
+            workerPath = String.format(LOCAL_PATH_TEMPLATE, ConfigConstant.AKKA_DAGSCHEDULEX_SYSTEM, getWorkerName());
         } else {
-            workerPath = String.format(REMOTE_PATH_TEMPLATE, getWorkerSystemName(), getAkkaHostname(), getAkkaPort(), getWorkerName());
-        }
-        return workerPath;
-    }
-
-    public static String getWorkerPath(String hostName, int port) {
-        String workerPath;
-        if (LOCAL_MODE) {
-            workerPath = String.format(LOCAL_PATH_TEMPLATE, getWorkerSystemName(), getWorkerName());
-        } else {
-            workerPath = String.format(REMOTE_PATH_TEMPLATE, getWorkerSystemName(), hostName, port, getWorkerName());
+            workerPath = String.format(REMOTE_PATH_TEMPLATE, ConfigConstant.AKKA_DAGSCHEDULEX_SYSTEM, getAkkaHostname(), getAkkaPort(), getWorkerName());
         }
         return workerPath;
     }
@@ -154,25 +152,6 @@ public class AkkaConfig {
     public static Long getAkkaAskResultTimeout() {
         String keyName = ConfigConstant.AKKA_ASK_RESULTTIMEOUT;
         return Long.valueOf(getValueWithDefault(keyName, "120"));
-    }
-
-    public static Config checkIpAndPort(Config config) {
-        HashMap<String, Object> configMap = Maps.newHashMap();
-
-        String hostname = config.getString(ConfigConstant.AKKA_REMOTE_NETTY_TCP_HOSTNAME);
-        if (StringUtils.isBlank(hostname)) {
-            hostname = AddressUtil.getOneIp();
-        }
-        configMap.put(ConfigConstant.AKKA_REMOTE_NETTY_TCP_HOSTNAME, hostname);
-
-        int port = config.getInt(ConfigConstant.AKKA_REMOTE_NETTY_TCP_PORT);
-        int endPort = port + 100;
-        port = NetUtils.getAvailablePortRange(hostname, port, endPort);
-        configMap.put(ConfigConstant.AKKA_REMOTE_NETTY_TCP_PORT, port);
-
-        Config loadConfig = ConfigFactory.parseMap(configMap).withFallback(config);
-        loadConfig(loadConfig);
-        return loadConfig;
     }
 
     private static String getValueWithDefault(String configKey, String defaultValue) {

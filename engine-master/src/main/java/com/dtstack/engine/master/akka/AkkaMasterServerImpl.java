@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.akka;
 
-import akka.actor.ActorContext;
+import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
@@ -50,8 +50,8 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
     private final static int MULTIPLES = 10;
     private final static int CHECK_INTERVAL = 10000;
     private final ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName()));
-    private ActorSystem system;
-    private ActorSelection actorSelection;
+    private ActorSystem actorSystem;
+    private ActorRef masterActorRef;
     private Set<String> availableWorkers = new HashSet<>();
     private long workNodeTimeout;
     private Duration askResultTime;
@@ -61,13 +61,13 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
     @Autowired
     private ZkService zkService;
 
-    public AkkaMasterServerImpl(EnvironmentContext environmentContext){
+    public AkkaMasterServerImpl(EnvironmentContext environmentContext) {
         this.environmentContext = environmentContext;
     }
 
     @Override
     public Config loadConfig() {
-        Config config = AkkaConfig.checkIpAndPort(ConfigFactory.load());
+        Config config = AkkaConfig.init(ConfigFactory.load());
         this.askResultTime = Duration.create(AkkaConfig.getAkkaAskResultTimeout(), TimeUnit.SECONDS);
         this.askTimeout = Timeout.create(java.time.Duration.ofSeconds(AkkaConfig.getAkkaAskTimeout()));
         return config;
@@ -75,9 +75,9 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
 
     @Override
     public void start(Config config) {
-        this.system = AkkaConfig.initActorSystem(AkkaConfig.getMasterSystemName());
-
-        this.system.actorOf(Props.create(AkkaMasterActor.class));
+        this.actorSystem = AkkaConfig.initActorSystem(config);
+        this.masterActorRef = this.actorSystem.actorOf(Props.create(AkkaMasterActor.class), AkkaConfig.getMasterName());
+        logger.info("get an masterActorRef of masterRemotePath:{}", masterActorRef.path());
     }
 
     @Override
@@ -86,14 +86,14 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
     }
 
     @Override
-    public Object sendMessage(Object message) throws Exception  {
+    public Object sendMessage(Object message) throws Exception {
         String path = strategyForGetWorker(availableWorkers);
         if (null == path) {
             Thread.sleep(10000);
             throw new WorkerAccessException("sleep 10000 ms.");
         }
-        ActorSelection actorRef = system.actorSelection(path);
-        Future<Object> future = Patterns.ask(actorRef, message, askTimeout);
+        ActorSelection actorSelection = actorSystem.actorSelection(path);
+        Future<Object> future = Patterns.ask(actorSelection, message, askTimeout);
         Object result = Await.result(future, askResultTime);
         return result;
     }
@@ -109,7 +109,7 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
 
     @Override
     public void updateWorkerInfo() {
-        Future<Object> future = Patterns.ask(actorSelection, AkkaMasterActor.GET_WORKER_INFOS, askTimeout);
+        Future<Object> future = Patterns.ask(masterActorRef, AkkaMasterActor.GET_WORKER_INFOS, askTimeout);
         Object askResult = null;
         try {
             askResult = Await.result(future, askResultTime);
@@ -150,8 +150,6 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
         objectMapper.configure(DeserializationConfig.Feature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
         this.start(loadConfig());
         this.workNodeTimeout = environmentContext.getWorkerNodeTimeout();
-        this.actorSelection = system.actorSelection(AkkaConfig.getMasterPath());
-        logger.info("get an ActorSelection of masterRemotePath:{}", AkkaConfig.getMasterPath());
         scheduledService.scheduleWithFixedDelay(
                 this,
                 CHECK_INTERVAL,
