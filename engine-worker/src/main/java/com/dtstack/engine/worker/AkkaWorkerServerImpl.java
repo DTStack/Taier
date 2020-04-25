@@ -114,7 +114,7 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
         ActorSelection actorSelection = getActiveMasterAddress();
         if (null == actorSelection) {
             if (null != monitorNode) {
-                logger.info("worker not connect available nodes, availableNodes:{} disableNodes:{}", monitorNode.availableNodes, monitorNode.disableNodes);
+                monitorNode.printNodes();
             }
             return;
         }
@@ -131,10 +131,8 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
         } catch (Throwable e) {
             if (monitorNode != null) {
                 monitorNode.add(actorSelection);
-                logger.error("Can't send WorkerInfo to master, availableNodes:{} disableNodes:{}, happens error:", monitorNode.availableNodes, monitorNode.disableNodes, e);
-            } else {
-                logger.error("Can't send WorkerInfo to master, happens error:", e);
             }
+            logger.error("Can't send WorkerInfo to master actorSelection-path:{}, happens error:", actorSelection.anchorPath(), e);
             masterActorSelection = null;
         }
     }
@@ -145,14 +143,11 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
         if (masterActorSelection != null) {
             return masterActorSelection;
         }
-        if (monitorNode == null) {
-            //monitor == null, 是localMode
-            masterActorSelection = this.actorSystem.actorSelection(AkkaConfig.getMasterPath(null, null));
-        } else {
-            int size = monitorNode.availableNodes.size();
+        if (monitorNode != null) {
+            int size = monitorNode.getAvailableNodes().size();
             if (size != 0) {
                 int index = random.nextInt(size);
-                String ipAndPort = Lists.newArrayList(monitorNode.availableNodes).get(index);
+                String ipAndPort = Lists.newArrayList(monitorNode.getAvailableNodes()).get(index);
                 String[] hostInfo = ipAndPort.split(":");
                 if (hostInfo.length == 2) {
                     String masterRemotePath = AkkaConfig.getMasterPath(hostInfo[0], hostInfo[1]);
@@ -160,6 +155,9 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
                     logger.info("get an ActorSelection of masterRemotePath:{}", masterActorSelection.anchorPath());
                 }
             }
+        } else {
+            //monitor == null, 是localMode
+            masterActorSelection = this.actorSystem.actorSelection(AkkaConfig.getMasterPath(null, null));
         }
         return masterActorSelection;
     }
@@ -176,8 +174,8 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
 
     private class MonitorNode implements Runnable {
 
-        private volatile Set<String> availableNodes = new CopyOnWriteArraySet();
-        private volatile Set<String> disableNodes = new CopyOnWriteArraySet();
+        private Set<String> availableNodes = new CopyOnWriteArraySet();
+        private Set<String> disableNodes = new CopyOnWriteArraySet();
 
         public MonitorNode() {
             this.availableNodes.addAll(Arrays.asList(AkkaConfig.getMasterAddress().split(",")));
@@ -211,6 +209,14 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
             String ipAndPort = String.format("%s:%s", ip, port);
             availableNodes.remove(ipAndPort);
             disableNodes.add(ipAndPort);
+        }
+
+        public void printNodes() {
+            logger.info("worker nodes detail, availableNodes:{} disableNodes:{}", availableNodes, disableNodes);
+        }
+
+        public Set<String> getAvailableNodes() {
+            return availableNodes;
         }
     }
 }
