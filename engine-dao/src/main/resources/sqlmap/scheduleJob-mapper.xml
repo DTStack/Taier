@@ -1461,7 +1461,7 @@
 
 
     <update id="jobFail">
-        update schedule_job set exec_start_time=now(), exec_end_time=now(), exec_time = 0,gmt_modified=now(),status=#{status}, log_info = #{logInfo} where job_id=#{jobId};
+        update schedule_job set exec_start_time = IFNULL(exec_start_time,now()), exec_end_time=now(), exec_time=timestampdiff(SECOND, exec_start_time, now()),gmt_modified=now(),status=#{status}, log_info = #{logInfo} where job_id=#{jobId};
     </update>
 
     <update id="updateJobStatus">
