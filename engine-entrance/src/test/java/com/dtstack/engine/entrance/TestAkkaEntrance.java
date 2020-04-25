@@ -26,7 +26,6 @@ public class TestAkkaEntrance {
 
     @Test
     public void testAkkaEntrance() {
-        AkkaConfig.setLocalMode(true);
         Config config = AkkaConfig.init(ConfigFactory.load());
         SystemPropertyUtil.setSystemUserDir();
         this.system = AkkaConfig.initActorSystem(config);

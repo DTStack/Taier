@@ -50,7 +50,7 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
 
     private ActorSystem actorSystem;
     private ActorRef workerActorRef;
-    private ActorSelection masterActorRef;
+    private ActorSelection masterActorSelection;
 
     private String hostname;
     private Integer port;
@@ -75,7 +75,7 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
     @Override
     public void start(Config config) {
         this.actorSystem = AkkaConfig.initActorSystem(config);
-        this.workerActorRef = this.actorSystem.actorOf(Props.create(JobService.class));
+        this.workerActorRef = this.actorSystem.actorOf(Props.create(JobService.class), AkkaConfig.getWorkerName());
 
         this.hostname = AkkaConfig.getAkkaHostname();
         this.port = AkkaConfig.getAkkaPort();
@@ -125,6 +125,9 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
             }
             Future<Object> future = Patterns.ask(actorSelection, workerInfo, askTimeout);
             Object result = Await.result(future, askResultTimeout);
+            if (LogCountUtil.count(logOutput++, MULTIPLES)) {
+                logger.info("WorkerBeatListener Running result:{},  workerRemotePath:{} gap:[{} ms]...", result, workerRemotePath, CHECK_INTERVAL * MULTIPLES);
+            }
         } catch (Throwable e) {
             if (monitorNode != null) {
                 monitorNode.add(actorSelection);
@@ -132,19 +135,19 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
             } else {
                 logger.error("Can't send WorkerInfo to master, happens error:", e);
             }
-            masterActorRef = null;
+            masterActorSelection = null;
         }
     }
 
 
     @Override
     public ActorSelection getActiveMasterAddress() {
-        if (masterActorRef != null) {
-            return masterActorRef;
+        if (masterActorSelection != null) {
+            return masterActorSelection;
         }
         if (monitorNode == null) {
             //monitor == null, 是localMode
-            masterActorRef = this.actorSystem.actorSelection(AkkaConfig.getMasterPath(null, null));
+            masterActorSelection = this.actorSystem.actorSelection(AkkaConfig.getMasterPath(null, null));
         } else {
             int size = monitorNode.availableNodes.size();
             if (size != 0) {
@@ -153,21 +156,18 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
                 String[] hostInfo = ipAndPort.split(":");
                 if (hostInfo.length == 2) {
                     String masterRemotePath = AkkaConfig.getMasterPath(hostInfo[0], hostInfo[1]);
-                    masterActorRef = this.actorSystem.actorSelection(masterRemotePath);
-                    logger.info("get an ActorSelection of masterRemotePath:{}", masterRemotePath);
+                    masterActorSelection = this.actorSystem.actorSelection(masterRemotePath);
+                    logger.info("get an ActorSelection of masterRemotePath:{}", masterActorSelection.anchorPath());
                 }
             }
         }
-        return masterActorRef;
+        return masterActorSelection;
     }
 
     @Override
     public void run() {
         WorkerInfo workerInfo = new WorkerInfo(hostname, port, workerRemotePath, System.currentTimeMillis());
         heartBeat(workerInfo);
-        if (LogCountUtil.count(logOutput++, MULTIPLES)) {
-            logger.info("WorkerBeatListener Running workerRemotePath:{} gap:[{} ms]...", workerRemotePath, CHECK_INTERVAL * MULTIPLES);
-        }
     }
 
     public static AkkaWorkerServerImpl getAkkaWorkerServer() {
