@@ -1,7 +1,5 @@
 package com.dtstack.engine.flink;
 
-import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.http.PoolHttpClient;
 import org.apache.hadoop.service.Service;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
@@ -31,8 +29,6 @@ public class YarnAppStatusMonitor implements Runnable{
 
     private AtomicBoolean run = new AtomicBoolean(true);
 
-    private static int MAX_RETRY_NUMBER = 2;
-
     private FlinkClusterClientManager clusterClientManager;
 
     private FlinkClientBuilder clientBuilder;
@@ -40,6 +36,8 @@ public class YarnAppStatusMonitor implements Runnable{
     private FlinkYarnSessionStarter flinkYarnSessionStarter;
 
     private YarnApplicationState lastAppState;
+
+    private String attemptId;
 
     private long startTime = System.currentTimeMillis();
 
@@ -70,6 +68,10 @@ public class YarnAppStatusMonitor implements Runnable{
                                 if (lastAppState != appState) {
                                     LOG.info("YARN application has been deployed successfully.");
                                 }
+                                if (isDifferentAttemptId(applicationReport)) {
+                                    LOG.error("AttemptId has changed, prepare to stop Flink yarn-session client.");
+                                    clusterClientManager.setIsClientOn(false);
+                                }
                                 break;
                             default:
                                 if (appState != lastAppState) {
@@ -80,16 +82,8 @@ public class YarnAppStatusMonitor implements Runnable{
                                 }
                         }
                         lastAppState = appState;
-                        if (!clusterClientManager.getIsClientOn()){
-                            continue;
-                        }
                     } else {
                         LOG.error("Yarn client is no longer in state STARTED, prepare to stop Flink yarn-session client.");
-                        clusterClientManager.setIsClientOn(false);
-                    }
-
-                    if(!isTaskManagerRunning()){
-                        LOG.error("TaskManager has no slots, prepare to stop Flink yarn-session client.");
                         clusterClientManager.setIsClientOn(false);
                     }
                 }else {
@@ -131,16 +125,19 @@ public class YarnAppStatusMonitor implements Runnable{
         this.run = new AtomicBoolean(run);
     }
 
-    private boolean isTaskManagerRunning(){
-        String sessionUrl = clusterClientManager.getClusterClient().getWebInterfaceURL();
-        try {
-            String reqUrl = String.format("%s%s", sessionUrl, FlinkRestParseUtil.SLOTS_INFO);
-            PoolHttpClient.get(reqUrl, null, MAX_RETRY_NUMBER);
-            return true;
-        } catch (Exception e){
-            LOG.error("isTaskManagerRunning error, applicationId={}, ex={}", clusterClientManager.getClusterClient().getClusterId(), ExceptionUtil.getErrorMessage(e));
+    private boolean isDifferentAttemptId(ApplicationReport applicationReport){
+        String appId = applicationReport.getCurrentApplicationAttemptId().getApplicationId().toString();
+        String attemptIdStr = String.valueOf(applicationReport.getCurrentApplicationAttemptId().getAttemptId());
+        String currentAttemptId = appId + attemptIdStr;
+        if (attemptId == null){
+            attemptId = currentAttemptId;
             return false;
         }
+        if (!attemptId.equals(currentAttemptId)){
+            attemptId = currentAttemptId;
+            return true;
+        }
+        return false;
     }
 
 }

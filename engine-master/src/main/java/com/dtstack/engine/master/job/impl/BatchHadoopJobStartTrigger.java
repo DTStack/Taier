@@ -3,27 +3,33 @@ package com.dtstack.engine.master.job.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.api.dto.ScheduleTaskParamShade;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.ComputeType;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.master.utils.DBUtil;
-import com.dtstack.schedule.common.enums.DataBaseType;
-import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.engine.common.enums.EScheduleType;
-import com.dtstack.schedule.common.enums.ETableType;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.dao.ScheduleJobDao;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.dto.ScheduleTaskParamShade;
+import com.dtstack.engine.master.enums.EComponentType;
+import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ActionService;
 import com.dtstack.engine.master.impl.ClusterService;
+import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.job.IJobStartTrigger;
 import com.dtstack.engine.master.scheduler.JobParamReplace;
+import com.dtstack.engine.master.utils.DBUtil;
 import com.dtstack.engine.master.utils.HadoopConf;
 import com.dtstack.engine.master.utils.HdfsOperator;
+import com.dtstack.schedule.common.enums.DataBaseType;
+import com.dtstack.schedule.common.enums.EScheduleJobType;
+import com.dtstack.schedule.common.enums.ETableType;
 import com.dtstack.schedule.common.enums.ScheduleEngineType;
+import com.dtstack.schedule.common.metric.batch.IMetric;
+import com.dtstack.schedule.common.metric.batch.MetricBuilder;
+import com.dtstack.schedule.common.metric.prometheus.PrometheusMetricQuery;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -45,11 +51,7 @@ import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * @author yuebai
@@ -80,6 +82,10 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
 
     @Autowired
     private ImpalaService impalaService;
+
+    @Autowired
+    private ComponentService componentService;
+
 
     private DateTimeFormatter dayFormatterAll = DateTimeFormat.forPattern("yyyyMMddHHmmss");
 
@@ -146,7 +152,7 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
 
             // 查找上一次同步位置
             if (scheduleJob.getType() == EScheduleType.NORMAL_SCHEDULE.getType()) {
-                job = getLastSyncLocation(taskShade.getTaskId(), job, scheduleJob.getCycTime());
+                job = getLastSyncLocation(taskShade.getTaskId(), job, scheduleJob.getCycTime(),taskShade.getDtuicTenantId());
             } else {
                 job = removeIncreConf(job);
             }
@@ -377,50 +383,55 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
 
 
     /**
-     * 查找上一次同步位置
+     * 查找上一次同步位置 通过prometheus
      *
      * @return
      */
-    private String getLastSyncLocation(Long taskId, String jobContent, String cycTime) {
+    private String getLastSyncLocation(Long taskId, String jobContent, String cycTime,Long dtuicTenantId) {
         JSONObject jsonJob = JSONObject.parseObject(jobContent);
 
         Timestamp time = new Timestamp(dayFormatterAll.parseDateTime(cycTime).toDate().getTime());
         // 查找上一次成功的job
-        ScheduleJob job = scheduleJobDao.getByTaskIdAndStatusOrderByIdLimit(taskId, RdosTaskStatus.FINISHED.getStatus(), time);
-        if (job != null && StringUtils.isNotBlank(job.getJobId())) {
-            //日志需要从engine获取
-            JSONObject logInfoFromEngine = this.getLogInfoFromEngine(job.getJobId());
-            if (Objects.isNull(logInfoFromEngine)) {
-                return jsonJob.toJSONString();
-            }
+        ScheduleJob job =  scheduleJobDao.getByTaskIdAndStatusOrderByIdLimit(taskId, RdosTaskStatus.FINISHED.getStatus(), time);
+        if (job != null && StringUtils.isNotEmpty(job.getEngineJobId())) {
             try {
-                JSONObject jsonLog = JSONObject.parseObject(logInfoFromEngine.getString("engineLog"));
-                JSONObject increConfHistory = jsonLog.getJSONObject("increConf");
-                if (increConfHistory != null) {
-                    JSONObject reader = (JSONObject) JSONPath.eval(jsonJob, "$.job.content[0].reader");
-                    String table = JSONPath.eval(reader, "$.parameter.connection[0].table[0]").toString();
-                    table = this.getTableName(table);
-
-                    String increCol = JSONPath.eval(reader, "$.parameter.increColumn").toString();
-                    String lastTable = increConfHistory.getString("table");
-                    lastTable = this.getTableName(lastTable);
-
-                    String lastIncreCol = increConfHistory.getString("increColumn");
-                    if (StringUtils.isNotEmpty(lastTable) && lastTable.equals(table)
-                            && StringUtils.isNotEmpty(lastIncreCol) && lastIncreCol.equals(increCol)) {
-                        String lastEndLocation = increConfHistory.getString("endLocation");
-                        if (!lastEndLocation.startsWith("-")) {
-                            reader.getJSONObject("parameter").put("startLocation", lastEndLocation);
-                        }
-                    }
+                JSONObject reader = (JSONObject) JSONPath.eval(jsonJob, "$.job.content[0].reader");
+                Object increCol = JSONPath.eval(reader, "$.parameter.increColumn");
+                if (Objects.nonNull(increCol) && Objects.nonNull(job.getExecStartTime()) && Objects.nonNull(job.getExecEndTime())) {
+                    String lastEndLocation = this.queryLastLocation(dtuicTenantId, job.getEngineJobId(), job.getExecStartTime().getTime(), job.getExecEndTime().getTime());
+                    LOG.info("last job {} applicationId {} startTime {} endTim {} location {}", job.getJobId(), job.getEngineJobId(), job.getExecStartTime(), job.getExecEndTime(), lastEndLocation);
+                    reader.getJSONObject("parameter").put("startLocation", lastEndLocation);
                 }
+
             } catch (Exception e) {
-                LOG.warn("上游任务没有增量配置: {}", job.getJobId());
+                LOG.warn("上游任务没有增量配置:", job.getEngineLog());
             }
         }
 
         return jsonJob.toJSONString();
     }
+
+    public String queryLastLocation(Long dtUicTenantId, String jobId, long startTime, long endTime) {
+        endTime = endTime + 1000 * 60;
+        String enginePluginInfo = componentService.listConfigOfComponents(dtUicTenantId, MultiEngineType.HADOOP.getType());
+        JSONObject jsonObject = JSONObject.parseObject(enginePluginInfo);
+        JSONObject flinkJsonObject = jsonObject.getJSONObject(EComponentType.FLINK.getTypeCode() + "");
+        String prometheusHost = flinkJsonObject.getString("prometheusHost");
+        String prometheusPort = flinkJsonObject.getString("prometheusPort");
+        //prometheus的配置信息 从控制台获取
+        PrometheusMetricQuery prometheusMetricQuery = new PrometheusMetricQuery(String.format("%s:%s", prometheusHost, prometheusPort));
+        IMetric numReadMetric = MetricBuilder.buildMetric("endLocation", jobId, startTime, endTime, prometheusMetricQuery);
+        if (numReadMetric != null) {
+            String startLocation = String.valueOf(numReadMetric.getMetric());
+            if (StringUtils.isEmpty(startLocation) || "0".equalsIgnoreCase(startLocation)) {
+                return null;
+            }
+            return String.valueOf(numReadMetric.getMetric());
+        }
+        return null;
+    }
+
+
 
 
     public void cleanFileName(JSONObject parameter) {

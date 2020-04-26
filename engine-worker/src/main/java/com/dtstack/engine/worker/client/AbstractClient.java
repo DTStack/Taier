@@ -67,6 +67,11 @@ public abstract class AbstractClient implements IClient{
     }
 
     @Override
+    public String getMessageByHttp(String path) {
+        return null;
+    }
+
+    @Override
     public List<String> getContainerInfos(JobIdentifier jobIdentifier) {
         return null;
     }

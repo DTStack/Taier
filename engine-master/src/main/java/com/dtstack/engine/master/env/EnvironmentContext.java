@@ -322,14 +322,6 @@ public class EnvironmentContext {
         return environment.getProperty("kerberos.template.path", System.getProperty("user.dir") + "/conf/kerberos");
     }
 
-    public Long getAkkaAskTimeout() {
-        return Long.parseLong(environment.getProperty("akkaAskTimeout", "60000"));
-    }
-
-    public Long getAkkaAskResultTimeout() {
-        return Long.parseLong(environment.getProperty("akkaAskResultTimeout", "300"));
-    }
-
     public long getWorkerNodeTimeout() {
         return Long.parseLong(environment.getProperty("workerNodeTimeout", "10000"));
     }

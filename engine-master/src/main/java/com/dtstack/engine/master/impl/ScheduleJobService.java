@@ -14,6 +14,8 @@ import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.master.enums.MultiEngineType;
+import com.dtstack.engine.master.factory.MultiEngineFactory;
+import com.dtstack.engine.master.job.IJobStartTrigger;
 import com.dtstack.engine.master.utils.HadoopConf;
 import com.dtstack.engine.master.utils.HdfsOperator;
 import com.dtstack.engine.master.utils.PublicUtil;
@@ -134,15 +136,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     private ZkService zkService;
 
     @Autowired
-    private BatchHadoopJobStartTrigger batchHadoopJobStartTrigger;
-
-    @Autowired
-    private BatchLibraJobStartTrigger batchLibraJobStartTrigger;
-
-    @Autowired
-    private BatchKylinJobStartTrigger batchKylinJobStartTrigger;
-
-    @Autowired
     private JobStopSender jobStopSender;
 
     @Autowired
@@ -158,10 +151,10 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     private JobPartitioner jobPartitioner;
 
     @Autowired
-    private ClusterService clusterService;
+    private PluginWrapper pluginWrapper;
 
     @Autowired
-    private PluginWrapper pluginWrapper;
+    private MultiEngineFactory multiEngineFactory;
 
     private final static List<Integer> FINISH_STATUS = Lists.newArrayList(RdosTaskStatus.FINISHED.getStatus(), RdosTaskStatus.MANUALSUCCESS.getStatus(), RdosTaskStatus.CANCELLING.getStatus(), RdosTaskStatus.CANCELED.getStatus());
     private final static List<Integer> FAILED_STATUS = Lists.newArrayList(RdosTaskStatus.FAILED.getStatus(), RdosTaskStatus.SUBMITFAILD.getStatus(), RdosTaskStatus.KILLED.getStatus());
@@ -988,7 +981,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             updateJob.setExecStartTime(new Timestamp(System.currentTimeMillis()));
             updateJob.setExecEndTime(new Timestamp(System.currentTimeMillis()));
             updateJob.setGmtModified(new Timestamp(System.currentTimeMillis()));
-            updateJob.setExecTime(0l);
+            updateJob.setExecTime(0L);
             scheduleJobDao.updateStatusWithExecTime(updateJob);
             return;
         }
@@ -1019,13 +1012,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                     info.remove("dbName");
                 }
                 Map<String, Object> actionParam = PublicUtil.strToMap(info.toJSONString());
-                if (MultiEngineType.HADOOP.getType() == multiEngineType) {
-                    batchHadoopJobStartTrigger.readyForTaskStartTrigger(actionParam, batchTask, scheduleJob);
-                } else if (MultiEngineType.LIBRA.getType() == multiEngineType) {
-                    batchLibraJobStartTrigger.readyForTaskStartTrigger(actionParam, batchTask, scheduleJob);
-                } else if (MultiEngineType.KYLIN.getType() == multiEngineType) {
-                    batchKylinJobStartTrigger.readyForTaskStartTrigger(actionParam, batchTask, scheduleJob);
-                }
+                IJobStartTrigger jobTriggerService = multiEngineFactory.getJobTriggerService(multiEngineType);
+                jobTriggerService.readyForTaskStartTrigger(actionParam,batchTask,scheduleJob);
                 actionParam.put("name", scheduleJob.getJobName());
                 actionParam.put("taskId", scheduleJob.getJobId());
 
@@ -2788,6 +2776,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      *
      * @return
      */
+    @Override
     public List<ScheduleJob> syncBatchJob(QueryJobDTO dto) {
         if (Objects.isNull(dto) || Objects.isNull(dto.getAppType())) {
             return new ArrayList<>();
@@ -2814,6 +2803,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @param taskIds
      * @param appType
      */
+    @Override
     public List<ScheduleJob> listJobsByTaskIdsAndApptype(@Param("taskIds") List<Long> taskIds,@Param("appType") Integer appType){
         return scheduleJobDao.listJobsByTaskIdAndApptype(taskIds,appType);
     }

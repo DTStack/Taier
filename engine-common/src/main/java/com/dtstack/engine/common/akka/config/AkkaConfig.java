@@ -1,5 +1,6 @@
 package com.dtstack.engine.common.akka.config;
 
+import akka.actor.ActorSystem;
 import com.dtstack.engine.common.akka.Master;
 import com.dtstack.engine.common.akka.Worker;
 import com.dtstack.engine.common.constrant.ConfigConstant;
@@ -8,6 +9,7 @@ import com.dtstack.engine.common.util.NetUtils;
 import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
@@ -23,96 +25,108 @@ public class AkkaConfig {
     private final static String REMOTE_PATH_TEMPLATE = "akka.tcp://%s@%s:%s/user/%s";
     private static Config AKKA_CONFIG = null;
     private static boolean LOCAL_MODE = false;
+    private static ActorSystem actorSystem;
 
-    public static void setLocalMode(boolean localMode) {
-        LOCAL_MODE = localMode;
-    }
-
-    public static void loadConfig(Config config) {
+    private static void loadConfig(Config config) {
         if (config == null) {
             throw new IllegalArgumentException("unload akka conf.");
         }
         AKKA_CONFIG = config;
     }
 
-    public static String getMasterSystemName() {
-        return ConfigConstant.AKKA_MASTER_SYSTEM;
+    public static synchronized ActorSystem initActorSystem(Config config) {
+        if (actorSystem == null) {
+            actorSystem = ActorSystem.create(getDagScheduleXSystemName(), config);
+        }
+        return actorSystem;
+    }
+
+    public static String getDagScheduleXSystemName() {
+        return ConfigConstant.AKKA_DAGSCHEDULEX_SYSTEM;
     }
 
     public static String getMasterName() {
-        String keyName = ConfigConstant.AKKA_MASTER_NAME;
-        String defaultValue = Master.class.getSimpleName();
-        return getValueWithDefault(keyName, defaultValue);
+        return Master.class.getSimpleName();
     }
 
     public static String getMasterAddress() {
-        String keyName = ConfigConstant.AKKA_MASTER_MASTERADDRESS;
-        String masterAddress = getValueWithDefault(keyName, "");
-        if (StringUtils.isBlank(masterAddress)) {
-            throw new IllegalArgumentException(keyName + " is null.");
-        }
-        return masterAddress;
-    }
-
-    public static String getMasterPath() {
-        String keyName;
-        String masterRemotePath;
         if (LOCAL_MODE) {
-            keyName = ConfigConstant.AKKA_MASTER_LOCAL_PATH;
-            masterRemotePath = String.format(LOCAL_PATH_TEMPLATE, getMasterSystemName(), getMasterName());
+            return StringUtils.EMPTY;
         } else {
-            keyName = ConfigConstant.AKKA_MASTER_REMOTE_PATH;
-            masterRemotePath = String.format(REMOTE_PATH_TEMPLATE, getMasterSystemName(), getAkkaHostname(), getAkkaPort(), getMasterName());
+            String keyName = ConfigConstant.AKKA_MASTER_MASTERADDRESS;
+            String masterAddress = getValueWithDefault(keyName, StringUtils.EMPTY);
+            if (StringUtils.isBlank(masterAddress)) {
+                throw new IllegalArgumentException(keyName + " is null.");
+            }
+            return masterAddress;
         }
-        return getValueWithDefault(keyName, masterRemotePath);
     }
 
-    public static String getWorkerSystemName() {
-        return ConfigConstant.AKKA_WORKER_SYSTEM;
+    public static String getMasterPath(String hostName, String port) {
+        String masterPath;
+        if (LOCAL_MODE) {
+            masterPath = String.format(LOCAL_PATH_TEMPLATE, getDagScheduleXSystemName(), getMasterName());
+        } else {
+            masterPath = String.format(REMOTE_PATH_TEMPLATE, getDagScheduleXSystemName(), hostName, port, getMasterName());
+        }
+        return masterPath;
     }
 
     public static String getWorkerName() {
-        String keyName = ConfigConstant.AKKA_WORKER_NAME;
-        String workerName = Worker.class.getSimpleName();
-        return getValueWithDefault(keyName, workerName);
+        return Worker.class.getSimpleName();
     }
 
     public static String getWorkerPath() {
-        String keyName;
-        String workerRemotePath;
+        String workerPath;
         if (LOCAL_MODE) {
-            keyName = ConfigConstant.AKKA_WORKER_LOCAL_PATH;
-            workerRemotePath = String.format(LOCAL_PATH_TEMPLATE, getWorkerSystemName(), getWorkerName());
+            workerPath = String.format(LOCAL_PATH_TEMPLATE, getDagScheduleXSystemName(), getWorkerName());
         } else {
-            keyName = ConfigConstant.AKKA_WORKER_REMOTE_PATH;
-            workerRemotePath = String.format(REMOTE_PATH_TEMPLATE, getWorkerSystemName(), getAkkaHostname(), getAkkaPort(), getWorkerName());
+            workerPath = String.format(REMOTE_PATH_TEMPLATE, getDagScheduleXSystemName(), getAkkaHostname(), getAkkaPort(), getWorkerName());
         }
-        return getValueWithDefault(keyName, workerRemotePath);
+        return workerPath;
     }
 
     public static String getAkkaHostname() {
-        String keyName = ConfigConstant.AKKA_REMOTE_NETTY_TCP_HOSTNAME;
-        String defaultIp = AddressUtil.getOneIp();
-        return getValueWithDefault(keyName, defaultIp);
+        if (LOCAL_MODE) {
+            return "localhost";
+        } else {
+            String keyName = ConfigConstant.AKKA_REMOTE_NETTY_TCP_HOSTNAME;
+            String defaultIp = AddressUtil.getOneIp();
+            return getValueWithDefault(keyName, defaultIp);
+        }
     }
 
     public static int getAkkaPort() {
-        String keyName = ConfigConstant.AKKA_REMOTE_NETTY_TCP_PORT;
-        return Integer.valueOf(getValueWithDefault(keyName, "2555"));
+        if (LOCAL_MODE) {
+            return 0;
+        } else {
+            String keyName = ConfigConstant.AKKA_REMOTE_NETTY_TCP_PORT;
+            return Integer.valueOf(getValueWithDefault(keyName, "2555"));
+        }
     }
 
     public static Long getAkkaAskTimeout() {
         String keyName = ConfigConstant.AKKA_ASK_TIMEOUT;
-        return Long.valueOf(getValueWithDefault(keyName, "10000"));
+        return Long.valueOf(getValueWithDefault(keyName, "120"));
     }
 
     public static Long getAkkaAskResultTimeout() {
         String keyName = ConfigConstant.AKKA_ASK_RESULTTIMEOUT;
-        return Long.valueOf(getValueWithDefault(keyName, "10"));
+        return Long.valueOf(getValueWithDefault(keyName, "120"));
     }
 
-    public static Config checkIpAndPort(Config config) {
+    public static Config init(Config config) {
+        if (config.hasPath(ConfigConstant.AKKA_LOCALMODE)) {
+            String localMode = config.getString(ConfigConstant.AKKA_LOCALMODE);
+            LOCAL_MODE = BooleanUtils.toBoolean(localMode);
+        }
+
+
         HashMap<String, Object> configMap = Maps.newHashMap();
+        if (isLocalMode()) {
+            configMap.put(ConfigConstant.AKKA_ACTOR_PROVIDER, "akka.actor.LocalActorRefProvider");
+        }
+
 
         String hostname = config.getString(ConfigConstant.AKKA_REMOTE_NETTY_TCP_HOSTNAME);
         if (StringUtils.isBlank(hostname)) {
@@ -143,12 +157,12 @@ public class AkkaConfig {
     }
 
     public static long getSystemResourceProbeInterval() {
-        String keyName = ConfigConstant.AKKA_NODE_LABELS;
+        String keyName = ConfigConstant.AKKA_WORKER_SYSTEMRESOURCE_PROBE_INTERVAL;
         return Integer.valueOf(getValueWithDefault(keyName, "5000"));
     }
 
     public static String getNodeLabels() {
-        String keyName = ConfigConstant.AKKA_NODE_LABELS;
+        String keyName = ConfigConstant.AKKA_WORKER_NODE_LABELS;
         return getValueWithDefault(keyName, "default");
     }
 
@@ -159,16 +173,20 @@ public class AkkaConfig {
 
     public static String getWorkerLogstoreJdbcUrl() {
         String keyName = ConfigConstant.AKKA_WORKER_LOGSTORE_JDBCURL;
-        return getValueWithDefault(keyName, "");
+        return getValueWithDefault(keyName, StringUtils.EMPTY);
     }
 
     public static String getWorkerLogstoreUsername() {
         String keyName = ConfigConstant.AKKA_WORKER_LOGSTORE_USERNAME;
-        return getValueWithDefault(keyName, "");
+        return getValueWithDefault(keyName, StringUtils.EMPTY);
     }
 
     public static String getWorkerLogstorePassword() {
         String keyName = ConfigConstant.AKKA_WORKER_LOGSTORE_PASSWORD;
-        return getValueWithDefault(keyName, "");
+        return getValueWithDefault(keyName, StringUtils.EMPTY);
+    }
+
+    public static boolean isLocalMode() {
+        return LOCAL_MODE;
     }
 }

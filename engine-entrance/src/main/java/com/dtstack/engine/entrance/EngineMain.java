@@ -1,6 +1,5 @@
 package com.dtstack.engine.entrance;
 
-import com.dtstack.engine.common.akka.config.AkkaConfig;
 import com.dtstack.engine.common.security.NoExitSecurityManager;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
 import com.dtstack.engine.master.MasterMain;
@@ -19,7 +18,7 @@ public class EngineMain {
 
     public static void main(String[] args){
         try {
-            AkkaConfig.setLocalMode(true);
+
             MasterMain.main(null);
             WorkerMain.main(null);
             // add hook

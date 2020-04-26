@@ -19,7 +19,7 @@ import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.constrant.ExceptionInfoConstrant;
 import com.dtstack.engine.flink.enums.FlinkYarnMode;
-import com.dtstack.engine.flink.parser.AddJarOperator;
+import com.dtstack.engine.flink.parser.PrepareOperator;
 import com.dtstack.engine.flink.util.FLinkConfUtil;
 import com.dtstack.engine.flink.util.FlinkUtil;
 import com.dtstack.engine.flink.util.HadoopConf;
@@ -90,6 +90,10 @@ public class FlinkClient extends AbstractClient {
     private String tmpFileDirPath = "./tmp";
 
     private static final Path TMPDIR = Paths.get(doPrivileged(new GetPropertyAction("java.io.tmpdir")));
+
+    private static final String DIR = "/keytab/";
+
+    private static final String USER_DIR = System.getProperty("user.dir");
 
     private Properties flinkExtProp;
 
@@ -547,9 +551,6 @@ public class FlinkClient extends AbstractClient {
             String reqUrl = String.format("%s%s", getReqUrl(), path);
             return PoolHttpClient.get(reqUrl, null, MAX_RETRY_NUMBER);
         } catch (Exception e) {
-            if(flinkClusterClientManager.getIsClientOn()){
-                flinkClusterClientManager.setIsClientOn(false);
-            }
             throw new RdosDefineException(ErrorCode.HTTP_CALL_ERROR, e);
         }
     }
@@ -666,13 +667,19 @@ public class FlinkClient extends AbstractClient {
 
         while (sqlItera.hasNext()){
             String tmpSql = sqlItera.next();
-            if(AddJarOperator.verific(tmpSql)){
+            if (PrepareOperator.verificKeytab(tmpSql)){
                 sqlItera.remove();
-                JarFileInfo jarFileInfo = AddJarOperator.parseSql(tmpSql);
+                SFTPHandler handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());
+                String localDir = USER_DIR + DIR + jobClient.getTaskId();
+                String localPath = handler.loadFromSftp(PrepareOperator.getFileName(tmpSql), flinkConfig.getRemoteDir(), localDir);
+                logger.info("Download file to :" + localPath);
+            } else if(PrepareOperator.verific(tmpSql)){
+                sqlItera.remove();
+                JarFileInfo jarFileInfo = PrepareOperator.parseSql(tmpSql);
                 String addFilePath = jarFileInfo.getJarPath();
                 File tmpFile = null;
                 try {
-                    tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath, hadoopConf, null);
+                    tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath, hadoopConf, flinkConfig.getSftpConf());
                 } catch (FileNotFoundException e) {
                     throw new RuntimeException(e);
                 }

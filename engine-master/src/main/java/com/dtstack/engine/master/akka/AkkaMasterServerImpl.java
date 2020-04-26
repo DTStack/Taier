@@ -1,9 +1,11 @@
 package com.dtstack.engine.master.akka;
 
+import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.pattern.Patterns;
+import akka.util.Timeout;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.akka.RpcService;
 import com.dtstack.engine.common.akka.config.AkkaConfig;
@@ -48,29 +50,34 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
     private final static int MULTIPLES = 10;
     private final static int CHECK_INTERVAL = 10000;
     private final ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName()));
-    private ActorSystem system;
-    private ActorSelection actorSelection;
+    private ActorSystem actorSystem;
+    private ActorRef masterActorRef;
     private Set<String> availableWorkers = new HashSet<>();
     private long workNodeTimeout;
-    private Duration duration;
+    private Duration askResultTime;
+    private Timeout askTimeout;
     private EnvironmentContext environmentContext;
 
     @Autowired
     private ZkService zkService;
 
-    public AkkaMasterServerImpl(EnvironmentContext environmentContext){
+    public AkkaMasterServerImpl(EnvironmentContext environmentContext) {
         this.environmentContext = environmentContext;
     }
 
     @Override
     public Config loadConfig() {
-        return AkkaConfig.checkIpAndPort(ConfigFactory.load());
+        Config config = AkkaConfig.init(ConfigFactory.load());
+        this.askResultTime = Duration.create(AkkaConfig.getAkkaAskResultTimeout(), TimeUnit.SECONDS);
+        this.askTimeout = Timeout.create(java.time.Duration.ofSeconds(AkkaConfig.getAkkaAskTimeout()));
+        return config;
     }
 
     @Override
     public void start(Config config) {
-        this.system = ActorSystem.create(AkkaConfig.getMasterSystemName(), config);
-        this.system.actorOf(Props.create(AkkaMasterActor.class), AkkaConfig.getMasterName());
+        this.actorSystem = AkkaConfig.initActorSystem(config);
+        this.masterActorRef = this.actorSystem.actorOf(Props.create(AkkaMasterActor.class), AkkaConfig.getMasterName());
+        logger.info("get an masterActorRef of masterRemotePath:{}", masterActorRef.path());
     }
 
     @Override
@@ -79,15 +86,15 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
     }
 
     @Override
-    public Object sendMessage(Object message) throws Exception  {
+    public Object sendMessage(Object message) throws Exception {
         String path = strategyForGetWorker(availableWorkers);
         if (null == path) {
             Thread.sleep(10000);
             throw new WorkerAccessException("sleep 10000 ms.");
         }
-        ActorSelection actorRef = system.actorSelection(path);
-        Future<Object> future = Patterns.ask(actorRef, message, environmentContext.getAkkaAskTimeout());
-        Object result = Await.result(future, Duration.create(environmentContext.getAkkaAskResultTimeout(), TimeUnit.SECONDS));
+        ActorSelection actorSelection = actorSystem.actorSelection(path);
+        Future<Object> future = Patterns.ask(actorSelection, message, askTimeout);
+        Object result = Await.result(future, askResultTime);
         return result;
     }
 
@@ -102,10 +109,10 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
 
     @Override
     public void updateWorkerInfo() {
-        Future<Object> future = Patterns.ask(actorSelection, AkkaMasterActor.GET_WORKER_INFOS, environmentContext.getAkkaAskTimeout());
+        Future<Object> future = Patterns.ask(masterActorRef, AkkaMasterActor.GET_WORKER_INFOS, askTimeout);
         Object askResult = null;
         try {
-            askResult = Await.result(future, duration);
+            askResult = Await.result(future, askResultTime);
         } catch (Exception e) {
             logger.error("updateWorkerActors happens error:", e);
         }
@@ -141,11 +148,8 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
     @Override
     public void afterPropertiesSet() throws Exception {
         objectMapper.configure(DeserializationConfig.Feature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
-        this.duration = Duration.create(environmentContext.getAkkaAskResultTimeout(), TimeUnit.SECONDS);
-        this.workNodeTimeout = environmentContext.getWorkerNodeTimeout();
         this.start(loadConfig());
-        this.actorSelection = system.actorSelection(AkkaConfig.getMasterPath());
-        logger.info("get an ActorSelection of masterRemotePath:{}", AkkaConfig.getMasterPath());
+        this.workNodeTimeout = environmentContext.getWorkerNodeTimeout();
         scheduledService.scheduleWithFixedDelay(
                 this,
                 CHECK_INTERVAL,
