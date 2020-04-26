@@ -37,7 +37,7 @@ public class YarnAppStatusMonitor implements Runnable{
 
     private YarnApplicationState lastAppState;
 
-    private int attemptId;
+    private String attemptId;
 
     private long startTime = System.currentTimeMillis();
 
@@ -126,16 +126,18 @@ public class YarnAppStatusMonitor implements Runnable{
     }
 
     private boolean isDifferentAttemptId(ApplicationReport applicationReport){
-        int currentAttemptId = applicationReport.getCurrentApplicationAttemptId().getAttemptId();
-        if (attemptId == 0){
-            attemptId = currentAttemptId;
-            return true;
-        }
-        if (attemptId != currentAttemptId){
+        String appId = applicationReport.getCurrentApplicationAttemptId().getApplicationId().toString();
+        String attemptIdStr = String.valueOf(applicationReport.getCurrentApplicationAttemptId().getAttemptId());
+        String currentAttemptId = appId + attemptIdStr;
+        if (attemptId == null){
             attemptId = currentAttemptId;
             return false;
         }
-        return true;
+        if (!attemptId.equals(currentAttemptId)){
+            attemptId = currentAttemptId;
+            return true;
+        }
+        return false;
     }
 
 }
