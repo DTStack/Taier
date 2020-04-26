@@ -357,6 +357,14 @@ public class ClientArguments {
         this.logLevel = logLevel;
     }
 
+    public String getNodeLabel() {
+        return nodeLabel;
+    }
+
+    public void setNodeLabel(String nodeLabel) {
+        this.nodeLabel = nodeLabel;
+    }
+
     public ClientArguments(String[] args) throws IOException, ParseException, ClassNotFoundException {
         this.init();
         this.cliParser(args);

@@ -20,7 +20,7 @@ public class WorkerMain {
             logger.info("engine-worker start begin...");
             SystemPropertyUtil.setSystemUserDir();
             LogbackComponent.setupLogger();
-            Config workerConfig = AkkaConfig.checkIpAndPort(ConfigFactory.load());
+            Config workerConfig = AkkaConfig.init(ConfigFactory.load());
             TaskLogStoreDealer.getInstance();
             AkkaWorkerServerImpl.getAkkaWorkerServer().start(workerConfig);
             ShutdownHookUtil.addShutdownHook(WorkerMain::shutdown, WorkerMain.class.getSimpleName(), logger);
