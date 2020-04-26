@@ -1,0 +1,137 @@
+package com.dtstack.engine.flink;
+
+import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.JobIdentifier;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
+import org.apache.commons.lang.StringUtils;
+import org.apache.flink.client.deployment.ClusterDescriptor;
+import org.apache.flink.client.program.ClusterClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+/**
+ * company: www.dtstack.com
+ * author: toutian
+ * create: 2020/04/03
+ */
+public class FlinkClusterClientManager {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FlinkClusterClientManager.class);
+
+    private FlinkClientBuilder flinkClientBuilder;
+
+    private FlinkConfig flinkConfig;
+
+    /**
+     * 客户端是否处于可用状态
+     */
+    private AtomicBoolean isClientOn = new AtomicBoolean(false);
+
+    private ClusterClient<String> clusterClient;
+
+    private FlinkSessionStarter flinkSessionStarter;
+
+    /**
+     * 用于缓存连接perjob对应application的ClusterClient
+     */
+    private Cache<String, ClusterClient<String>> perJobClientCache = CacheBuilder.newBuilder().removalListener(new ClusterClientRemovalListener()).expireAfterAccess(10, TimeUnit.MINUTES).build();
+
+    private FlinkClusterClientManager() {
+    }
+
+    public static FlinkClusterClientManager createWithInit(FlinkClientBuilder flinkClientBuilder) throws Exception {
+        LOG.warn("Start init FlinkClusterClientManager");
+        FlinkClusterClientManager manager = new FlinkClusterClientManager();
+        manager.flinkClientBuilder = flinkClientBuilder;
+        manager.flinkConfig = flinkClientBuilder.getFlinkConfig();
+        manager.initClusterClient();
+        return manager;
+    }
+
+    public void initClusterClient() throws Exception {
+        if (flinkSessionStarter == null) {
+            this.flinkSessionStarter = new FlinkSessionStarter(flinkClientBuilder, flinkConfig);
+            LOG.warn("create FlinkSessionStarter.");
+        }
+        boolean clientOn = flinkSessionStarter.startFlinkSession();
+        this.setIsClientOn(clientOn);
+        clusterClient = flinkSessionStarter.getClusterClient();
+    }
+
+    private ClusterClient getPerJobClient(JobIdentifier jobIdentifier){
+
+        String clusterId = jobIdentifier.getApplicationId();
+        String taskId = jobIdentifier.getTaskId();
+
+        ClusterClient clusterClient;
+        try {
+            clusterClient = perJobClientCache.get(clusterId, () -> {
+                JobClient jobClient = new JobClient();
+                jobClient.setTaskId(taskId);
+                //jobName不能为空，复用applicationId
+                ClusterDescriptor<String> clusterDescriptor = flinkClientBuilder.createClusterDescriptorByMode(jobClient, null,true);
+                return clusterDescriptor.retrieve(clusterId).getClusterClient();
+            });
+
+        } catch (ExecutionException e) {
+            throw new RuntimeException("get cluster on Kubernetes client exception:", e);
+        }
+
+        return clusterClient;
+    }
+
+    public ClusterClient getClusterClient() {
+        return clusterClient;
+    }
+
+    public ClusterClient getClusterClient(JobIdentifier jobIdentifier) {
+        if (jobIdentifier == null || StringUtils.isBlank(jobIdentifier.getApplicationId())) {
+            if (!isClientOn.get()) {
+                throw new RdosException("No flink session found cluster on Kubernetes. getClusterClient failed...");
+            }
+            return clusterClient;
+        } else {
+            return getPerJobClient(jobIdentifier);
+        }
+    }
+
+    public void addClient(String applicationId, ClusterClient<String> clusterClient) {
+        perJobClientCache.put(applicationId, clusterClient);
+    }
+
+    public boolean getIsClientOn() {
+        return isClientOn.get();
+    }
+
+    public void setIsClientOn(boolean isClientOn) {
+        this.isClientOn.set(isClientOn);
+    }
+
+    /**
+     * 创建一个监听器，在缓存被移除的时候，得到这个通知
+     */
+    private class ClusterClientRemovalListener implements RemovalListener<String, ClusterClient> {
+
+        @Override
+        public void onRemoval(RemovalNotification<String, ClusterClient> notification) {
+            LOG.info("key={},value={},reason={}", notification.getKey(), notification.getValue(), notification.getCause());
+            if (notification.getValue() != null) {
+                try {
+                    if (notification.getValue() != FlinkClusterClientManager.this.clusterClient) {
+                        notification.getValue().shutDownCluster();
+                    }
+                } catch (Exception ex) {
+                    LOG.info("[ClusterClientCache] Could not properly shutdown cluster client.", ex);
+                }
+            }
+        }
+    }
+}
