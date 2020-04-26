@@ -1,6 +1,6 @@
 package com.dtstack.engine.flink;
 
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.google.common.cache.Cache;
@@ -95,7 +95,7 @@ public class FlinkClusterClientManager {
     public ClusterClient getClusterClient(JobIdentifier jobIdentifier) {
         if (jobIdentifier == null || StringUtils.isBlank(jobIdentifier.getApplicationId())) {
             if (!isClientOn.get()) {
-                throw new RdosException("No flink session found cluster on Kubernetes. getClusterClient failed...");
+                throw new RdosDefineException("No flink session found cluster on Kubernetes. getClusterClient failed...");
             }
             return clusterClient;
         } else {

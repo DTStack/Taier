@@ -24,7 +24,14 @@
     <dependencies>
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>engine-common</artifactId>
+            <version>1.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.dtstack.engine</groupId>
+            <artifactId>engine-worker</artifactId>
             <version>1.0.0</version>
             <scope>provided</scope>
         </dependency>
@@ -167,7 +174,6 @@
             <artifactId>kerb-util</artifactId>
             <version>1.0.0</version>
         </dependency>
-
 
     </dependencies>
 

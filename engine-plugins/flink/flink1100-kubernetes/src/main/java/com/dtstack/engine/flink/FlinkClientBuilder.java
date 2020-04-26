@@ -1,6 +1,6 @@
 package com.dtstack.engine.flink;
 
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
@@ -105,7 +105,7 @@ public class FlinkClientBuilder {
             FileSystem.initialize(config);
         } catch (Exception e) {
             LOG.error("", e);
-            throw new RdosException(e.getMessage());
+            throw new RdosDefineException(e.getMessage());
         }
 
         return config;
@@ -172,7 +172,7 @@ public class FlinkClientBuilder {
 //        if (StringUtils.isNotBlank(flinkConfig.getFlinkJarPath())) {
 //
 //            if (!new File(flinkConfig.getFlinkJarPath()).exists()) {
-//                throw new RdosException("The Flink jar path is not exist");
+//                throw new RdosDefineException("The Flink jar path is not exist");
 //            }
 //
 //            flinkJarPath = flinkConfig.getFlinkJarPath();
@@ -203,7 +203,7 @@ public class FlinkClientBuilder {
 //            }
 //
 //        } else {
-//            throw new RdosException("The Flink jar path is null");
+//            throw new RdosDefineException("The Flink jar path is null");
 //        }
 
 //        if (isPerjob && jobClient != null && CollectionUtils.isNotEmpty(jobClient.getAttachJarInfos())) {
@@ -229,7 +229,7 @@ public class FlinkClientBuilder {
             return clusterId;
         } catch (Exception e) {
             LOG.error("", e);
-            throw new RdosException(e.getMessage());
+            throw new RdosDefineException(e.getMessage());
         }
     }
 
@@ -253,7 +253,7 @@ public class FlinkClientBuilder {
 
     public Configuration getFlinkConfiguration() {
         if (flinkConfiguration == null) {
-            throw new RdosException("Configuration directory not set");
+            throw new RdosDefineException("Configuration directory not set");
         }
         return flinkConfiguration;
     }
@@ -270,7 +270,7 @@ public class FlinkClientBuilder {
             FileSystem.initialize(configuration);
         } catch (Exception e) {
             LOG.error("", e);
-            throw new RdosException(e.getMessage());
+            throw new RdosDefineException(e.getMessage());
         }
 
         return configuration;

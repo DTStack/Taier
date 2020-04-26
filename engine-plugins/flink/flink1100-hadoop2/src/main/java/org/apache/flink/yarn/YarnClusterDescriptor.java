@@ -19,9 +19,9 @@
 package org.apache.flink.yarn;
 
 import avro.shaded.com.google.common.collect.Sets;
-import com.dtstack.engine.common.enums.ClassLoaderType;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
+import com.dtstack.engine.worker.enums.ClassLoaderType;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.annotation.VisibleForTesting;

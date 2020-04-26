@@ -1,11 +1,10 @@
 package com.dtstack.engine.flink;
 
 import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.common.AbsClient;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -22,6 +21,7 @@ import com.dtstack.engine.flink.parser.AddJarOperator;
 import com.dtstack.engine.flink.util.FlinkConfUtil;
 import com.dtstack.engine.flink.util.FlinkUtil;
 import com.dtstack.engine.flink.util.HadoopConf;
+import com.dtstack.engine.worker.client.AbstractClient;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
@@ -69,7 +69,7 @@ import static java.security.AccessController.doPrivileged;
  * author: toutian
  * create: 2020/04/03
  */
-public class FlinkClient extends AbsClient {
+public class FlinkClient extends AbstractClient {
 
     private static final Logger logger = LoggerFactory.getLogger(FlinkClient.class);
 
@@ -312,7 +312,7 @@ public class FlinkClient extends AbsClient {
 
         ComputeType computeType = jobClient.getComputeType();
         if (computeType == null) {
-            throw new RdosException("need to set compute type.");
+            throw new RdosDefineException("need to set compute type.");
         }
 
         switch (computeType) {
@@ -323,7 +323,7 @@ public class FlinkClient extends AbsClient {
 
         }
 
-        throw new RdosException("not support for compute type :" + computeType);
+        throw new RdosDefineException("not support for compute type :" + computeType);
     }
 
     /**
@@ -359,7 +359,7 @@ public class FlinkClient extends AbsClient {
     }
 
     private JobResult submitSqlJobForBatch(JobClient jobClient) {
-        throw new RdosException("not support for flink batch sql now!!!");
+        throw new RdosDefineException("not support for flink batch sql now!!!");
     }
 
     @Override
@@ -474,7 +474,7 @@ public class FlinkClient extends AbsClient {
             retMap.put("exception", except);
             retMap.put("accuInfo", accuInfo);
             return FlinkRestParseUtil.parseEngineLog(retMap);
-        } catch (RdosException e) {
+        } catch (RdosDefineException e) {
             //http 请求失败时返回空日志
             logger.error("", e);
             return null;
@@ -500,7 +500,7 @@ public class FlinkClient extends AbsClient {
                 Thread.sleep(500);
                 exceptionInfo = getMessageByHttp(exceptPath, reqURL);
                 return exceptionInfo;
-            } catch (RdosException e) {
+            } catch (RdosDefineException e) {
                 if (!e.getErrorMessage().contains("404")) {
                     throw e;
                 }
@@ -664,7 +664,7 @@ public class FlinkClient extends AbsClient {
         String webAddress = flinkClientBuilder.getFlinkConfiguration().getValue(HistoryServerOptions.HISTORY_SERVER_WEB_ADDRESS);
         String port = flinkClientBuilder.getFlinkConfiguration().getValue(HistoryServerOptions.HISTORY_SERVER_WEB_PORT);
         if (StringUtils.isBlank(webAddress) || StringUtils.isBlank(port)) {
-            throw new RdosException("History Server webAddress:" + webAddress + " port:" + port);
+            throw new RdosDefineException("History Server webAddress:" + webAddress + " port:" + port);
         }
         jobHistory = String.format("http://%s:%s", webAddress, port);
         return jobHistory;

@@ -18,7 +18,7 @@
 
 package org.apache.flink.client.deployment;
 
-import com.dtstack.engine.common.enums.ClassLoaderType;
+import com.dtstack.engine.worker.enums.ClassLoaderType;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.jobgraph.JobGraph;

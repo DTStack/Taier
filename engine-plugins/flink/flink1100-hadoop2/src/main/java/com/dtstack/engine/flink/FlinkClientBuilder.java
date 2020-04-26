@@ -1,10 +1,10 @@
 package com.dtstack.engine.flink;
 
 import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.exception.RdosException;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -98,7 +98,7 @@ public class FlinkClientBuilder {
             FileSystem.initialize(config);
         } catch (Exception e) {
             LOG.error("", e);
-            throw new RdosException(e.getMessage());
+            throw new RdosDefineException(e.getMessage());
         }
 
         flinkConfiguration = config;
@@ -109,7 +109,7 @@ public class FlinkClientBuilder {
         ClusterClientFactory<StandaloneClusterId> standaloneClientFactory = new StandaloneClientFactory();
         final StandaloneClusterId clusterId = standaloneClientFactory.getClusterId(flinkConfiguration);
         if (clusterId == null) {
-            throw new RdosException("No cluster id was specified. Please specify a cluster to which you would like to connect.");
+            throw new RdosDefineException("No cluster id was specified. Please specify a cluster to which you would like to connect.");
         }
         try {
             final ClusterDescriptor<StandaloneClusterId> clusterDescriptor = standaloneClientFactory.createClusterDescriptor(flinkConfiguration);
@@ -117,7 +117,7 @@ public class FlinkClientBuilder {
             return clusterClient;
         } catch (Exception e) {
             LOG.info("No standalone session, Couldn't retrieve cluster Client.", e);
-            throw new RdosException("No standalone session, Couldn't retrieve cluster Client.");
+            throw new RdosDefineException("No standalone session, Couldn't retrieve cluster Client.");
         }
     }
 
@@ -143,7 +143,7 @@ public class FlinkClientBuilder {
             clusterClient = clusterClientProvider.getClusterClient();
         } catch (Exception e) {
             LOG.info("No flink session, Couldn't retrieve Yarn cluster.", e);
-            throw new RdosException("No flink session, Couldn't retrieve Yarn cluster.");
+            throw new RdosDefineException("No flink session, Couldn't retrieve Yarn cluster.");
         }
 
         LOG.warn("---init flink client with yarn session success----");
@@ -182,7 +182,7 @@ public class FlinkClientBuilder {
         if (StringUtils.isNotBlank(flinkConfig.getFlinkJarPath())) {
 
             if (!new File(flinkConfig.getFlinkJarPath()).exists()) {
-                throw new RdosException("The Flink jar path is not exist");
+                throw new RdosDefineException("The Flink jar path is not exist");
             }
 
             flinkJarPath = flinkConfig.getFlinkJarPath();
@@ -213,7 +213,7 @@ public class FlinkClientBuilder {
             }
 
         } else {
-            throw new RdosException("The Flink jar path is null");
+            throw new RdosDefineException("The Flink jar path is null");
         }
 
         if (isPerjob && jobClient != null && CollectionUtils.isNotEmpty(jobClient.getAttachJarInfos())) {
@@ -279,12 +279,12 @@ public class FlinkClientBuilder {
             }
 
             if (applicationId == null) {
-                throw new RdosException("No flink session found on yarn cluster.");
+                throw new RdosDefineException("No flink session found on yarn cluster.");
             }
             return applicationId;
         } catch (Exception e) {
             LOG.error("", e);
-            throw new RdosException(e.getMessage());
+            throw new RdosDefineException(e.getMessage());
         }
     }
 
@@ -316,7 +316,7 @@ public class FlinkClientBuilder {
 
     public Configuration getFlinkConfiguration() {
         if (flinkConfiguration == null) {
-            throw new RdosException("Configuration directory not set");
+            throw new RdosDefineException("Configuration directory not set");
         }
         return flinkConfiguration;
     }
@@ -333,7 +333,7 @@ public class FlinkClientBuilder {
             FileSystem.initialize(configuration);
         } catch (Exception e) {
             LOG.error("", e);
-            throw new RdosException(e.getMessage());
+            throw new RdosDefineException(e.getMessage());
         }
 
         return configuration;

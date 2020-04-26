@@ -1,7 +1,6 @@
 package com.dtstack.engine.flink;
 
-import com.dtstack.engine.common.exception.RdosException;
-import com.dtstack.engine.common.config.ConfigParse;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.util.FlinkConfUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -9,7 +8,7 @@ import org.apache.flink.client.deployment.ClusterDescriptor;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.kubernetes.configuration.KubernetesConfigOptions;
+import org.apache.flink.configuration.HighAvailabilityOptions;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFramework;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.recipes.locks.InterProcessMutex;
@@ -103,15 +102,12 @@ public class FlinkSessionStarter {
     }
 
     private void initZk() {
-        String zkAddress = ConfigParse.getNodeZkAddress();
-        if (StringUtils.isBlank(zkAddress)
-                || zkAddress.split("/").length < 2) {
-            throw new RdosException("zkAddress is error");
+        Configuration flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
+        String zkAddress = flinkConfiguration.getValue(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM);
+        if (StringUtils.isBlank(zkAddress)) {
+            throw new RdosDefineException("zkAddress is error");
         }
-        String[] zks = zkAddress.split("/");
-        zkAddress = zks[0].trim();
-        String distributeRootNode = String.format("/%s", zks[1].trim());
-        lockPath = String.format("%s/kubernetes_session/%s", distributeRootNode, flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue());
+        lockPath = String.format("/yarn_session/%s", flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue());
 
         this.zkClient = CuratorFrameworkFactory.builder()
                 .connectString(zkAddress).retryPolicy(new ExponentialBackoffRetry(1000, 3))

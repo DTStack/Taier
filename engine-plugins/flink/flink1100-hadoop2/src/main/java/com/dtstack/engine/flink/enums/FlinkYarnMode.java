@@ -1,7 +1,6 @@
 package com.dtstack.engine.flink.enums;
 
-import com.dtstack.engine.common.exception.RdosException;
-import org.apache.directory.api.util.Strings;
+import com.dtstack.engine.common.exception.RdosDefineException;
 
 /**
  * company: www.dtstack.com
@@ -23,7 +22,7 @@ public enum FlinkYarnMode {
             return PER_JOB;
         }
 
-        throw new RdosException("not support mode: " + mode);
+        throw new RdosDefineException("not support mode: " + mode);
     }
 
     public static boolean isPerJob(FlinkYarnMode mode) {

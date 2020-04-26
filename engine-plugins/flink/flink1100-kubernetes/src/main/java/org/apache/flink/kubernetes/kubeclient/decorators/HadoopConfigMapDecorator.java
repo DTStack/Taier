@@ -1,6 +1,6 @@
 package org.apache.flink.kubernetes.kubeclient.decorators;
 
-import com.dtstack.engine.common.exception.RdosException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import org.apache.flink.configuration.Configuration;
@@ -30,7 +30,7 @@ public class HadoopConfigMapDecorator extends Decorator<ConfigMap, KubernetesCon
             configMap.put("core-site.xml", coreSiteContent);
         } catch (IOException e) {
             LOG.error("", e);
-            throw new RdosException(e.getMessage());
+            throw new RdosDefineException(e.getMessage());
         }
 
         resource.setData(configMap);
