@@ -115,6 +115,10 @@ public class Client {
 
         taskConf.setBoolean(DtYarnConfiguration.APP_NODEMANAGER_EXCLUSIVE, clientArguments.exclusive);
 
+        if (StringUtils.isNotBlank(clientArguments.nodeLabel)){
+            taskConf.set(DtYarnConfiguration.NODE_LABEL, String.valueOf(clientArguments.nodeLabel));
+        }
+
         if (clientArguments.confs != null) {
             Enumeration<String> confSet = (Enumeration<String>) clientArguments.confs.propertyNames();
             while (confSet.hasMoreElements()) {
@@ -266,7 +270,7 @@ public class Client {
         priority.setPriority(taskConf.getInt(DtYarnConfiguration.APP_PRIORITY, DtYarnConfiguration.DEFAULT_LEARNING_APP_PRIORITY));
         applicationContext.setPriority(priority);
         applicationContext.setQueue(taskConf.get(DtYarnConfiguration.DT_APP_QUEUE, DtYarnConfiguration.DEFAULT_DT_APP_QUEUE));
-        String nodelabels = taskConf.get(DtYarnConfiguration.NODE_LABELS);
+        String nodelabels = taskConf.get(DtYarnConfiguration.NODE_LABEL);
         if (StringUtils.isNotBlank(nodelabels)){
             applicationContext.setNodeLabelExpression(nodelabels);
         }

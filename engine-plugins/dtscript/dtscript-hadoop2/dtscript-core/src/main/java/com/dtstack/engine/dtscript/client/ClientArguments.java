@@ -62,7 +62,7 @@ public class ClientArguments {
     Boolean exclusive;
     String applicationId;
     String logLevel;
-
+    String nodeLabel;
 
 
     public String getAppName() {
@@ -357,6 +357,14 @@ public class ClientArguments {
         this.logLevel = logLevel;
     }
 
+    public String getNodeLabel() {
+        return nodeLabel;
+    }
+
+    public void setNodeLabel(String nodeLabel) {
+        this.nodeLabel = nodeLabel;
+    }
+
     public ClientArguments(String[] args) throws IOException, ParseException, ClassNotFoundException {
         this.init();
         this.cliParser(args);
@@ -389,6 +397,7 @@ public class ClientArguments {
         exclusive = DtYarnConfiguration.DEFAULT_APP_NODEMANAGER_EXCLUSIVE;
         maxAppAttempts = 3;
         logLevel = Level.INFO.toString();
+        nodeLabel = "";
 
         allOptions = new Options();
         allOptions.addOption("test", "test", false, "test mode");
@@ -472,6 +481,7 @@ public class ClientArguments {
 
         allOptions.addOption("exclusive", "exclusive", true, "app nodemanager exclusive");
 
+        allOptions.addOption("nodeLabel", "nodeLabel", true, "nodeLabel");
 
         OptionBuilder.withArgName("property=value");
         OptionBuilder.hasArgs(Integer.MAX_VALUE);
@@ -649,6 +659,10 @@ public class ClientArguments {
         if (commandLine.hasOption("exclusive")) {
             String exclusiveStr = commandLine.getOptionValue("exclusive");
             exclusive = Boolean.parseBoolean(exclusiveStr);
+        }
+
+        if (commandLine.hasOption("nodeLabel")) {
+            nodeLabel = commandLine.getOptionValue("nodeLabel");
         }
 
     }
