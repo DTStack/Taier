@@ -2,7 +2,6 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.QueryJobDTO;
@@ -11,23 +10,9 @@ import com.dtstack.engine.api.dto.ScheduleTaskForFillDataDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.*;
+import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.common.constrant.TaskConstant;
-import com.dtstack.engine.common.enums.ComputeType;
-import com.dtstack.engine.master.enums.MultiEngineType;
-import com.dtstack.engine.master.factory.MultiEngineFactory;
-import com.dtstack.engine.master.job.IJobStartTrigger;
-import com.dtstack.engine.master.utils.HadoopConf;
-import com.dtstack.engine.master.utils.HdfsOperator;
-import com.dtstack.engine.master.utils.PublicUtil;
-import com.dtstack.schedule.common.enums.Deleted;
-import com.dtstack.schedule.common.enums.EScheduleJobType;
-import com.dtstack.engine.common.enums.EScheduleType;
-import com.dtstack.engine.common.enums.LearningFrameType;
-import com.dtstack.engine.common.enums.QueryWorkFlowModel;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.schedule.common.enums.ScheduleEngineType;
-import com.dtstack.schedule.common.enums.Sort;
-import com.dtstack.engine.common.enums.TaskOperateType;
+import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.DateUtil;
@@ -38,19 +23,22 @@ import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.master.job.impl.BatchHadoopJobStartTrigger;
-import com.dtstack.engine.master.job.impl.BatchKylinJobStartTrigger;
-import com.dtstack.engine.master.job.impl.BatchLibraJobStartTrigger;
+import com.dtstack.engine.master.factory.MultiEngineFactory;
+import com.dtstack.engine.master.job.IJobStartTrigger;
 import com.dtstack.engine.master.plugininfo.PluginWrapper;
 import com.dtstack.engine.master.queue.JobPartitioner;
 import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
 import com.dtstack.engine.master.scheduler.JobStopSender;
+import com.dtstack.engine.master.utils.HadoopConf;
+import com.dtstack.engine.master.utils.HdfsOperator;
+import com.dtstack.engine.master.utils.PublicUtil;
 import com.dtstack.engine.master.vo.BatchSecienceJobChartVO;
 import com.dtstack.engine.master.vo.ScheduleJobVO;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
 import com.dtstack.engine.master.zookeeper.ZkService;
+import com.dtstack.schedule.common.enums.*;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -353,8 +341,9 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         return result.format(totalCnt, successCnt, failCnt, deployCnt);
     }
 
-    public Map<String, Object> countScienceJobStatus(@Param("projectIds") List<Long> projectIds, @Param("tenantId") Long tenantId, @Param("runStatus") Integer runStatus, @Param("type") Integer type, @Param("taskType") Integer taskType) {
-        return scheduleJobDao.countScienceJobStatus(runStatus, projectIds, type, taskType, tenantId);
+    public Map<String, Object> countScienceJobStatus(@Param("projectIds") List<Long> projectIds, @Param("tenantId") Long tenantId, @Param("runStatus") Integer runStatus, @Param("type") Integer type, @Param("taskType") Integer taskType,
+                                                     @Param("cycStartDay") String cycStartTime, @Param("cycEndDay") String cycEndTime) {
+        return scheduleJobDao.countScienceJobStatus(runStatus, projectIds, type, taskType, tenantId,cycStartTime,cycEndTime);
     }
 
     private Long objCastLong(Object obj) {
@@ -447,6 +436,27 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
 
         List<com.dtstack.engine.api.vo.ScheduleJobVO> result = new ArrayList<>();
 
+        int count = 0;
+        if (AppType.DATASCIENCE.getType() == vo.getAppType()) {
+            count = queryScienceJob(batchJobDTO, queryAll, pageQuery, result);
+        } else {
+            count = queryNormalJob(batchJobDTO, queryAll, pageQuery, result);
+        }
+
+
+        return new PageResult<>(result, count, pageQuery);
+    }
+
+    /**
+     * 正常查询 分钟小时不归类
+     * @param batchJobDTO
+     * @param queryAll
+     * @param pageQuery
+     * @param result
+     * @return
+     * @throws Exception
+     */
+    private int queryNormalJob(ScheduleJobDTO batchJobDTO, boolean queryAll, PageQuery<ScheduleJobDTO> pageQuery, List<com.dtstack.engine.api.vo.ScheduleJobVO> result) throws Exception {
         int count = scheduleJobDao.generalCount(batchJobDTO);
         if (count > 0) {
             List<ScheduleJob> scheduleJobs = scheduleJobDao.generalQuery(pageQuery);
@@ -468,8 +478,43 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                 }
             }
         }
+        return count;
+    }
 
-        return new PageResult<>(result, count, pageQuery);
+
+
+    /**
+     * 算法查询 分钟小时归类
+     * @param batchJobDTO
+     * @param queryAll
+     * @param pageQuery
+     * @param result
+     * @return
+     * @throws Exception
+     */
+    private int queryScienceJob(ScheduleJobDTO batchJobDTO, boolean queryAll, PageQuery<ScheduleJobDTO> pageQuery, List<com.dtstack.engine.api.vo.ScheduleJobVO> result) throws Exception {
+        int count = scheduleJobDao.generalScienceCount(batchJobDTO);
+        if (count > 0) {
+            List<ScheduleJob> scheduleJobs = scheduleJobDao.generalScienceQuery(pageQuery);
+            if (CollectionUtils.isNotEmpty(scheduleJobs)) {
+                Map<Long, ScheduleTaskForFillDataDTO> shadeMap = this.prepare(scheduleJobs);
+                List<ScheduleJobVO> batchJobVOS = this.transfer(scheduleJobs, shadeMap);
+
+
+                if (queryAll) {
+                    //处理工作流下级
+                    dealFlowWorkSubJobs(batchJobVOS);
+                } else {
+                    //前端异步获取relatedJobs
+                    //dealFlowWorkJobs(vos, shadeMap);
+                }
+
+                if (CollectionUtils.isNotEmpty(batchJobVOS)) {
+                    batchJobVOS.forEach(batchJobVO -> result.add(batchJobVO));
+                }
+            }
+        }
+        return count;
     }
 
     public List<SchedulePeriodInfoVO> displayPeriods(@Param("isAfter") boolean isAfter, @Param("jobId") Long jobId, @Param("projectId") Long projectId, @Param("limit") int limit) throws Exception {
