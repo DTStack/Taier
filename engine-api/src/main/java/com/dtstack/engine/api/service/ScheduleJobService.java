@@ -357,6 +357,9 @@ public interface ScheduleJobService {
      */
     public void deleteJobsByJobKey(@Param("jobKeyList") List<String> jobKeyList);
 
+
+    public List<ScheduleJob> syncBatchJob(QueryJobDTO dto);
+
     /**
      *
      * 根据taskId、appType 拿到对应的job集合
