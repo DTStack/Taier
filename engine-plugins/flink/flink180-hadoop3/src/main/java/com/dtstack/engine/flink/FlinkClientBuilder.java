@@ -69,6 +69,10 @@ public class FlinkClientBuilder {
 
     private static String jvm_options = "-XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing";
 
+    private static final String DIR = "/keytab/";
+
+    private static final String USER_DIR = System.getProperty("user.dir");
+
     //默认使用异步提交
     private boolean isDetached = true;
 
@@ -280,6 +284,19 @@ public class FlinkClientBuilder {
         if (isPerjob && jobClient != null && CollectionUtils.isNotEmpty(jobClient.getAttachJarInfos())) {
             for (JarFileInfo jarFileInfo : jobClient.getAttachJarInfos()) {
                 classpaths.add(new File(jarFileInfo.getJarPath()).toURI().toURL());
+            }
+        }
+
+        if (jobClient != null){
+            String keytabDir = USER_DIR + DIR + jobClient.getTaskId();
+            File keytabDirName = new File(keytabDir);
+            File[] files = keytabDirName.listFiles();
+            if (flinkConfig.isOpenKerberos() && keytabDirName.isDirectory() && files.length > 0){
+                List<File> keytabs = Lists.newLinkedList();
+                for (File file : files){
+                    keytabs.add(file);
+                }
+                clusterDescriptor.addShipFiles(keytabs);
             }
         }
 
