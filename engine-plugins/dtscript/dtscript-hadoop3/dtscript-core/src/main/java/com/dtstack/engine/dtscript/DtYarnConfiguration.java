@@ -118,7 +118,7 @@ public class DtYarnConfiguration extends YarnConfiguration {
 
     public static final boolean DEFAULT_APP_NODEMANAGER_EXCLUSIVE = false;
 
-    public static final String NODE_LABELS = "nodelabels";
+    public static final String NODE_LABEL = "nodeLabel";
 
     public static final String APP_CONTAINER_PORT_RANGE = "container.port.range";
 }
