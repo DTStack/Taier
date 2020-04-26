@@ -34,6 +34,8 @@
         <module>engine-plugins/flink/flink180-hadoop2</module>
         <module>engine-plugins/flink/flink180-hadoop3</module>
         <module>engine-plugins/flink/flink180-HW</module>
+        <module>engine-plugins/flink/flink1100-hadoop2</module>
+        <module>engine-plugins/flink/flink1100-kubernetes</module>
         <module>engine-plugins/dtscript/dtscript-hadoop2</module>
         <module>engine-plugins/dtscript/dtscript-hadoop3</module>
         <module>engine-plugins/learning/learning-hadoop2</module>

@@ -26,4 +26,8 @@ public enum ClassLoaderType {
             return PARENT_FIRST;
         }
     }
+
+    public static final String CLASSLOADER_DTSTACK_CACHE = "classloader.dtstack-cache";
+    public static final String CLASSLOADER_DTSTACK_CACHE_TRUE = "true";
+    public static final String CLASSLOADER_DTSTACK_CACHE_FALSE = "false";
 }
