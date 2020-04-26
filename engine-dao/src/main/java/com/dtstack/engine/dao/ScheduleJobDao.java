@@ -59,11 +59,15 @@ public interface ScheduleJobDao {
 
     List<ScheduleJob> generalQuery(PageQuery<ScheduleJobDTO> pageQuery);
 
+    List<ScheduleJob> generalScienceQuery(PageQuery<ScheduleJobDTO> pageQuery);
+
     List<ScheduleJob> generalQueryWithMinAndHour(PageQuery<ScheduleJobDTO> pageQuery);
 
     List<ScheduleJob> listAfterOrBeforeJobs(@Param("taskId") Long taskId, @Param("isAfter") boolean isAfter, @Param("cycTime") String cycTime);
 
     Integer generalCount(@Param("model") ScheduleJobDTO object);
+
+    Integer generalScienceCount(@Param("model") ScheduleJobDTO object);
 
     Integer generalCountWithMinAndHour(@Param("model") ScheduleJobDTO object);
 
@@ -153,7 +157,7 @@ public interface ScheduleJobDao {
 
     ScheduleJob getWorkFlowTopNode(@Param("jobId") String jobId);
 
-    Map<String, Object> countScienceJobStatus(@Param("status") Integer runStatus, @Param("projectIds") List<Long> projectIds, @Param("type") Integer type, @Param("taskType") Integer taskType, @Param("tenantId") long tenantId);
+    Map<String, Object> countScienceJobStatus(@Param("status") Integer runStatus, @Param("projectIds") List<Long> projectIds, @Param("type") Integer type, @Param("taskType") Integer taskType, @Param("tenantId") long tenantId,@Param("cycStartDay") String cycStartDay, @Param("cycEndDay") String cycEndDay);
 
     List<ScheduleJob> listByJobIdList(@Param("jobIds") List<String> jobIds, @Param("projectId") Long projectId);
 
