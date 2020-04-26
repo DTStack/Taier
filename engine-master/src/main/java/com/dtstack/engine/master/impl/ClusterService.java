@@ -101,15 +101,6 @@ public class ClusterService implements InitializingBean {
     @Autowired
     private KerberosDao kerberosDao;
 
-    @Autowired
-    private UserDao userDao;
-
-    @Autowired
-    private AccountTenantDao accountTenantDao;
-
-    @Autowired
-    private AccountDao accountDao;
-
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -412,29 +403,6 @@ public class ClusterService implements InitializingBean {
         return getConfigByKey(dtUicTenantId, EComponentType.SFTP.getConfName());
     }
 
-    public String tiDBInfo(@Param("tenantId") Long dtUicTenantId,@Param("userId") Long dtUicUserId){
-        //优先绑定账号
-        String jdbcInfo = getConfigByKey(dtUicTenantId, EComponentType.TIDB_SQL.getConfName());
-        User dtUicUser = userDao.getByDtUicUserId(dtUicUserId);
-        if(Objects.isNull(dtUicUser)){
-            return jdbcInfo;
-        }
-        Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
-        AccountTenant dbAccountTenant = accountTenantDao.getByAccount(dtUicUser.getId(), tenantId, null, Deleted.NORMAL.getStatus());
-        if(Objects.isNull(dbAccountTenant)){
-            return jdbcInfo;
-        }
-        Account account = accountDao.getById(dbAccountTenant.getAccountId());
-        if(Objects.isNull(account)){
-            return jdbcInfo;
-        }
-        JSONObject data = JSONObject.parseObject(jdbcInfo);
-        data.put("username",account.getName());
-        data.put("password", Base64Util.baseDecode(account.getPassword()));
-        return data.toJSONString();
-    }
-
-
     @Forbidden
     public JSONObject buildClusterConfig(ClusterVO cluster) {
         JSONObject config = new JSONObject();
@@ -565,7 +533,7 @@ public class ClusterService implements InitializingBean {
             pluginInfo.remove("password");
             pluginInfo.put("typeName", "impala");
         } else if (EComponentType.TIDB_SQL == type.getComponentType()) {
-            JSONObject tiDBConf = JSONObject.parseObject(tiDBInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
+            JSONObject tiDBConf = clusterConfigJson.getJSONObject(EComponentType.TIDB_SQL.getConfName());
             pluginInfo = new JSONObject();
             if(Objects.nonNull(tiDBConf)){
                 pluginInfo.putAll(tiDBConf);

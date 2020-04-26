@@ -2776,6 +2776,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      *
      * @return
      */
+    @Override
     public List<ScheduleJob> syncBatchJob(QueryJobDTO dto) {
         if (Objects.isNull(dto) || Objects.isNull(dto.getAppType())) {
             return new ArrayList<>();
@@ -2802,6 +2803,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @param taskIds
      * @param appType
      */
+    @Override
     public List<ScheduleJob> listJobsByTaskIdsAndApptype(@Param("taskIds") List<Long> taskIds,@Param("appType") Integer appType){
         return scheduleJobDao.listJobsByTaskIdAndApptype(taskIds,appType);
     }
