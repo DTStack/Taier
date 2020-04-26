@@ -271,9 +271,9 @@ public class Client {
         priority.setPriority(taskConf.getInt(DtYarnConfiguration.APP_PRIORITY, DtYarnConfiguration.DEFAULT_LEARNING_APP_PRIORITY));
         applicationContext.setPriority(priority);
         applicationContext.setQueue(taskConf.get(DtYarnConfiguration.DT_APP_QUEUE, DtYarnConfiguration.DEFAULT_DT_APP_QUEUE));
-        String nodelabels = taskConf.get(DtYarnConfiguration.NODE_LABEL);
-        if (StringUtils.isNotBlank(nodelabels)){
-            applicationContext.setNodeLabelExpression(nodelabels);
+        String nodeLabels = taskConf.get(DtYarnConfiguration.NODE_LABEL);
+        if (StringUtils.isNotBlank(nodeLabels)){
+            applicationContext.setNodeLabelExpression(nodeLabels);
         }
         applicationId = getYarnClient().submitApplication(applicationContext);
 
