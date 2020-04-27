@@ -756,16 +756,53 @@ public class ComponentService {
             //1.解压keytab文件，可能包括krb5.conf文件
             unzipKeytab(localKerberosConf, resource);
             //2.解析获取principal
-            String principal = getPrincipal(localKerberosConf);
+            File file = getKeyTabFile(localKerberosConf);
+            if(Objects.isNull(file)){
+                throw new RdosDefineException("文件缺失");
+            }
+            String principal = getPrincipal(file);
+
             //删除原来sftp下的keyTab文件
             deleteOldSftpFile(clusterId);
             //3.上传至sftp
             String remotePath = uploadSftpDir(clusterId, localKerberosConf);
             //4.更新db信息
-            updateKerberosConfig(clusterId, resource, remotePath, principal);
+            updateKerberosConfig(clusterId, resource, remotePath, principal,file.getName());
         } else {
             throw new RdosDefineException("文件缺失");
         }
+    }
+
+    private File getKeyTabFile(String dir) {
+        File file = null;
+        File dirFile = new File(dir);
+        if (dirFile.exists() && dirFile.isDirectory()) {
+            File[] files = dirFile.listFiles();
+            if (files.length > 0) {
+                file = Arrays.stream(files).filter(f -> f.getName().endsWith(".keytab")).findFirst().orElseThrow(() -> new RdosDefineException("压缩包中不包含keytab文件"));
+            }
+        }
+        return file;
+    }
+
+    private String getPrincipal(File file) {
+        if (Objects.nonNull(file)) {
+            Keytab keytab = null;
+            try {
+                keytab = Keytab.loadKeytab(file);
+            } catch (IOException e) {
+                LOGGER.error("Keytab loadKeytab error {}", e);
+                throw new RdosDefineException("解析keytab文件失败");
+            }
+            List<PrincipalName> names = keytab.getPrincipals();
+            if (CollectionUtils.isNotEmpty(names)) {
+                PrincipalName principalName = names.get(0);
+                if (Objects.nonNull(principalName)) {
+                    return principalName.getName();
+                }
+            }
+        }
+        throw new RdosDefineException("当前keytab文件不包含principal信息");
     }
 
     /**
@@ -906,15 +943,10 @@ public class ComponentService {
         return kerberosConfig;
     }
 
-    private void updateKerberosConfig(Long clusterId, Resource resource, String remotePath, String principal) {
+    private void updateKerberosConfig(Long clusterId, Resource resource, String remotePath, String principal,String keytabFileName) {
         KerberosConfig kerberosConfig = kerberosDao.getByClusterId(clusterId);
         kerberosConfig = Optional.ofNullable(kerberosConfig).orElse(new KerberosConfig());
-        //文件以zip结尾 实际上是解压了的 需要移除zip
-        if (resource.getFileName().endsWith(ZIP_CONTENT_TYPE)) {
-            kerberosConfig.setName(resource.getFileName().replace(String.format(".%s", ZIP_CONTENT_TYPE),""));
-        } else {
-            kerberosConfig.setName(resource.getFileName());
-        }
+        kerberosConfig.setName(keytabFileName);
         kerberosConfig.setOpenKerberos(1);
         kerberosConfig.setRemotePath(remotePath);
         kerberosConfig.setPrincipal(principal);

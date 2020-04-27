@@ -41,7 +41,7 @@ public interface ScheduleTaskShadeService {
                                                   @Param("name") String name, @Param("appType") Integer appType);
 
     public ScheduleTaskShade getByName(@Param("projectId") long projectId,
-                                       @Param("name") String name, @Param("appType") Integer appType);
+                                       @Param("name") String name, @Param("appType") Integer appType,@Param("flowId")Long flowId);
 
     public void updateTaskName(@Param("taskId") long id, @Param("taskName") String taskName, @Param("appType") Integer appType);
 

@@ -35,7 +35,7 @@ public interface ScheduleTaskShadeDao {
 
     List<ScheduleTaskShade> listByNameLikeTail(@Param("projectId") long projectId, @Param("name") String name);
 
-    ScheduleTaskShade getByName(@Param("projectId") long projectId, @Param("name") String name, @Param("appType") Integer appType);
+    ScheduleTaskShade getByName(@Param("projectId") long projectId, @Param("name") String name, @Param("appType") Integer appType,@Param("flowId") Long flowId);
 
     List<Map<String,Object>> listDependencyTask(@Param("projectId") long projectId, @Param("name") String name, @Param("taskIds") List<Long> taskIds);
 

@@ -54,7 +54,7 @@ public class ClientOperator {
             return (RdosTaskStatus) result;
         } catch (Exception e) {
             LOG.error("getStatus happens error：{}", e);
-            return RdosTaskStatus.FAILED;
+            return RdosTaskStatus.NOTFOUND;
         }
     }
 
