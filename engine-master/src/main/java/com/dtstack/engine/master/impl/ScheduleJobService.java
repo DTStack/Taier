@@ -2355,7 +2355,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     }
 
     public List<String> listJobIdByTaskNameAndStatusList(@Param("taskName") String taskName, @Param("statusList") List<Integer> statusList, @Param("projectId") Long projectId,@Param("appType") Integer appType) {
-        ScheduleTaskShade task = batchTaskShadeService.getByName(projectId, taskName,appType);
+        ScheduleTaskShade task = batchTaskShadeService.getByName(projectId, taskName,appType,null);
         if (task != null) {
             List<String> jobIdList = scheduleJobDao.listJobIdByTaskIdAndStatus(task.getId(), statusList);
             return jobIdList;

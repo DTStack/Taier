@@ -316,6 +316,9 @@
         WHERE project_id = #{projectId} AND name = #{name}
         AND app_type = #{appType}
         and is_deleted = 0
+        <if test="flowId != null">
+            AND flow_id = #{flowId}
+        </if>
         limit 1
     </select>
 
