@@ -19,31 +19,30 @@
     </properties>
 
     <modules>
-        <module>engine-common</module>
-        <module>engine-dao</module>
-        <module>engine-worker</module>
-        <module>engine-master</module>
-        <module>engine-entrance</module>
         <module>engine-api</module>
-        <module>engine-plugins/base</module>
-        <module>engine-plugins/dummy</module>
-        <!--<module>engine-plugins/spark/spark-hadoop2</module>-->
-        <module>engine-plugins/spark/spark-yarn-hadoop2</module>
-        <module>engine-plugins/spark/spark-yarn-hadoop3</module>
-        <!--<module>engine-plugins/spark/spark160-yarn-hadoop2</module>-->
-        <module>engine-plugins/flink/flink180-hadoop2</module>
-        <module>engine-plugins/flink/flink180-hadoop3</module>
-        <module>engine-plugins/flink/flink180-HW</module>
-        <module>engine-plugins/flink/flink1100-hadoop2</module>
-        <module>engine-plugins/flink/flink1100-kubernetes</module>
-        <module>engine-plugins/dtscript/dtscript-hadoop2</module>
-        <module>engine-plugins/dtscript/dtscript-hadoop3</module>
-        <module>engine-plugins/learning/learning-hadoop2</module>
-        <module>engine-plugins/odps</module>
-        <module>engine-plugins/kylin</module>
-        <module>engine-plugins/rdbs</module>
-        <module>engine-plugins/hadoop/hadoop2</module>
-        <module>engine-plugins/hadoop/hadoop3</module>
+        <module>engine-common</module>
+        <module>engine-master</module>
+        <module>engine-worker/engine-worker-server</module>
+        <module>engine-entrance</module>
+        <module>engine-worker/engine-plugins/base</module>
+        <module>engine-worker/engine-plugins/dummy</module>
+        <!--<module>engine-worker/engine-plugins/spark/spark-hadoop2</module>-->
+        <module>engine-worker/engine-plugins/spark/spark-yarn-hadoop2</module>
+        <module>engine-worker/engine-plugins/spark/spark-yarn-hadoop3</module>
+        <!--<module>engine-worker/engine-plugins/spark/spark160-yarn-hadoop2</module>-->
+        <module>engine-worker/engine-plugins/flink/flink180-hadoop2</module>
+        <module>engine-worker/engine-plugins/flink/flink180-hadoop3</module>
+        <module>engine-worker/engine-plugins/flink/flink180-HW</module>
+        <module>engine-worker/engine-plugins/flink/flink1100-hadoop2</module>
+        <module>engine-worker/engine-plugins/flink/flink1100-kubernetes</module>
+        <module>engine-worker/engine-plugins/dtscript/dtscript-hadoop2</module>
+        <module>engine-worker/engine-plugins/dtscript/dtscript-hadoop3</module>
+        <module>engine-worker/engine-plugins/learning/learning-hadoop2</module>
+        <module>engine-worker/engine-plugins/odps</module>
+        <module>engine-worker/engine-plugins/kylin</module>
+        <module>engine-worker/engine-plugins/rdbs</module>
+        <module>engine-worker/engine-plugins/hadoop/hadoop2</module>
+        <module>engine-worker/engine-plugins/hadoop/hadoop3</module>
     </modules>
 
     <dependencyManagement>

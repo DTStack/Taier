@@ -10,10 +10,7 @@ import com.dtstack.engine.master.akka.AkkaMasterActor;
 import com.dtstack.engine.worker.service.JobService;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import netscape.javascript.JSObject;
 import org.junit.Test;
-
-import java.util.Arrays;
 
 /**
  * company: www.dtstack.com
