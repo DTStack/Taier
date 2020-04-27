@@ -100,6 +100,10 @@ public class YARNComponent extends BaseComponent {
     public void initYarnClient(){
         HadoopConf hadoopConf = new HadoopConf();
         YarnConfiguration yarnConfiguration = hadoopConf.getYarnConf(allConfig);
+        //添加超时时间
+        yarnConfiguration.set(YarnConfiguration.RESOURCEMANAGER_CONNECT_MAX_WAIT_MS,"30000");
+        //重新超时时间
+        yarnConfiguration.set(YarnConfiguration.RESOURCEMANAGER_CONNECT_RETRY_INTERVAL_MS,"30000");
 
         String principal = MapUtils.getString(allConfig, KerberosKey.PRINCIPAL.getKey());
         String keytab = MapUtils.getString(allConfig, KerberosKey.KEYTAB.getKey());
