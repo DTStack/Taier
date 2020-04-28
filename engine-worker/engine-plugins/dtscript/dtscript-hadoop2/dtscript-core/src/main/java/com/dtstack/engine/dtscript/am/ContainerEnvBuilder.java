@@ -49,7 +49,8 @@ public class ContainerEnvBuilder {
                 System.getenv(ApplicationConstants.Environment.NM_HOST.toString()));
         containerEnv.put(DtYarnConstants.Environment.APPMASTER_PORT.toString(),
                 String.valueOf(containerListener.getServerPort()));
-        containerEnv.put("PATH", System.getenv("PATH") + ":" + System.getenv(DtYarnConstants.Environment.USER_PATH.toString()));
+        containerEnv.put("PATH", System.getenv("PATH") + ":" + System.getenv(DtYarnConstants.Environment.USER_PATH.toString())
+                + ":" + conf.get(DtYarnConstants.Environment.USER_PATH.toString()));
         containerEnv.put(DtYarnConstants.Environment.APP_TYPE.toString(),learningAppType);
         SecurityUtil.setupUserEnv(containerEnv);
 
