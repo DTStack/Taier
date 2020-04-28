@@ -108,20 +108,5 @@ public abstract class BaseComponent implements ComponentImpl {
             throw new RdosDefineException("kerberos校验失败, Message:" + e.getMessage());
         }
     }
-
-    public void loginKerberosWithCallBack(Configuration configuration, String principal, String keytabPath, String krb5Conf, CallBack callBack){
-        if (StringUtils.isNotEmpty(krb5Conf)) {
-            System.setProperty(HadoopConfTool.KEY_JAVA_SECURITY_KRB5_CONF, krb5Conf);
-        }
-        UserGroupInformation.setConfiguration(configuration);
-        try {
-            UserGroupInformation ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(principal, keytabPath);
-            ugi.doAs((PrivilegedExceptionAction<Object>) callBack::execute);
-            LOG.info("userGroupInformation current user = {}", UserGroupInformation.getCurrentUser());
-        } catch (Exception e) {
-            LOG.error("{}", e);
-            throw new RdosDefineException("kerberos校验失败, Message:" + e.getMessage());
-        }
-    }
 }
 

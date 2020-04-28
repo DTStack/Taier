@@ -322,7 +322,7 @@ public class ComponentService {
         component.setComponentConfig(componentImpl.getJsonString());
         componentDao.update(component);
 
-        addClusterKerberosConfig(config, component);
+        addClusterKerberosConfig(config, component.getEngineId(),componentType.getTypeCode());
         componentImpl = ComponentFactory.getComponent(config, componentType);
         testConnection(componentImpl, component);
     }
@@ -431,8 +431,8 @@ public class ComponentService {
         updateCache(component.getEngineId(),component.getComponentTypeCode());
     }
 
-    private void addClusterKerberosConfig(Map<String, Object> config, Component component) {
-        Engine engine = engineService.getOne(component.getEngineId());
+    private void addClusterKerberosConfig(Map<String, Object> config, Long engineId, int componentType) {
+        Engine engine = engineService.getOne(engineId);
         KerberosConfig kerberosConfig = kerberosDao.getByClusterId(engine.getClusterId());
         if (Objects.nonNull(kerberosConfig)) {
             Map<String, String> sftpConfig = getSFTPConfig(engine.getClusterId());
@@ -444,8 +444,8 @@ public class ComponentService {
                 LOGGER.error("downloadKerberosFromSftp error {}", e);
             }
             config.putIfAbsent(KerberosKey.PRINCIPAL.getKey(), kerberosConfig.getPrincipal());
-            if (!Objects.equals(EComponentType.HDFS.getTypeCode(), component.getComponentTypeCode())) {
-                Component hdfsComponent = componentDao.getByEngineIdAndComponentType(component.getEngineId(), EComponentType.HDFS.getTypeCode());
+            if (!Objects.equals(EComponentType.HDFS.getTypeCode(), componentType)) {
+                Component hdfsComponent = componentDao.getByEngineIdAndComponentType(engineId, EComponentType.HDFS.getTypeCode());
                 if (Objects.isNull(hdfsComponent)) {
                     throw new RdosDefineException("开启kerberos后需要预先保存hdfs组件");
                 }
@@ -508,6 +508,10 @@ public class ComponentService {
 
         ClusterResourceDescription description = null;
         List<TestConnectionVO.ComponentTestResult> testResults = new ArrayList<>();
+        KerberosConfig kerberosOpen = kerberosDao.getByClusterId(clusterId);
+        Engine hadoopEngine = engineDao.getByClusterIdAndEngineType(clusterId, MultiEngineType.HADOOP.getType());
+        //开启kerberosOpen
+        boolean isOpenKerberos = Objects.nonNull(kerberosOpen) && kerberosOpen.getOpenKerberos() == 1;
         for (String key : configs.keySet()) {
             EComponentType type;
             try {
@@ -517,6 +521,10 @@ public class ComponentService {
             }
 
             Map configMap = configs.getObject(key, Map.class);
+            if(isOpenKerberos && Objects.nonNull(hadoopEngine)){
+                //如果开启kerberos 添加keytab路径
+                addClusterKerberosConfig(configMap,hadoopEngine.getId(),type.getTypeCode());
+            }
             setKerberosConfig(clusterId, configMap, resourceMap, key);
             Map<String, Object> kerberosConfig = fillKerberosConfig(JSONObject.toJSONString(configMap), clusterId);
             ComponentImpl component = ComponentFactory.getComponent(kerberosConfig, type);
