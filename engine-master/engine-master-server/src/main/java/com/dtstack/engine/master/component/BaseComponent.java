@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.component;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.common.callback.CallBack;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.utils.HadoopConfTool;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.security.PrivilegedExceptionAction;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -102,6 +104,20 @@ public abstract class BaseComponent implements ComponentImpl {
                 }
             }
         } catch (IOException e) {
+            LOG.error("{}", e);
+            throw new RdosDefineException("kerberos校验失败, Message:" + e.getMessage());
+        }
+    }
+
+    public void loginKerberosWithCallBack(Configuration configuration, String principal, String keytabPath, String krb5Conf, CallBack callBack){
+        if (StringUtils.isNotEmpty(krb5Conf)) {
+            System.setProperty(HadoopConfTool.KEY_JAVA_SECURITY_KRB5_CONF, krb5Conf);
+        }
+        UserGroupInformation.setConfiguration(configuration);
+        try {
+            UserGroupInformation ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(principal, keytabPath);
+            ugi.doAs((PrivilegedExceptionAction<Object>) callBack::execute);
+        } catch (Exception e) {
             LOG.error("{}", e);
             throw new RdosDefineException("kerberos校验失败, Message:" + e.getMessage());
         }
