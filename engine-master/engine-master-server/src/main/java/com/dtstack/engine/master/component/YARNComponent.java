@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.component;
 
 import com.dtstack.engine.api.domain.ClusterResourceDescription;
+import com.dtstack.engine.common.callback.CallBack;
 import com.dtstack.engine.master.enums.KerberosKey;
 import com.dtstack.engine.master.utils.HadoopConf;
 import com.dtstack.engine.master.utils.HadoopConfTool;
@@ -36,20 +37,32 @@ public class YARNComponent extends BaseComponent {
 
     public void initClusterResource(boolean closeYarnClient) throws Exception{
         try {
-            initYarnClient();
+            HadoopConf hadoopConf = new HadoopConf();
+            YarnConfiguration yarnConfiguration = hadoopConf.getYarnConf(allConfig);
+            //添加超时时间
+            yarnConfiguration.set(YarnConfiguration.RESOURCEMANAGER_CONNECT_MAX_WAIT_MS,"30000");
+            //重新超时时间
+            yarnConfiguration.set(YarnConfiguration.RESOURCEMANAGER_CONNECT_RETRY_INTERVAL_MS,"30000");
 
-            List<NodeReport> nodes = yarnClient.getNodeReports(NodeState.RUNNING);
-            for (NodeReport rep : nodes) {
-                NodeDescription node = new NodeDescription();
-                node.setMemory(rep.getCapability().getMemory());
-                node.setUsedMemory(rep.getUsed().getMemory());
-                node.setUsedVirtualCores(rep.getUsed().getVirtualCores());
-                node.setVirtualCores(rep.getCapability().getVirtualCores());
-
-                clusterNodes.add(node);
-            }
-
-            initResourceDescription(yarnClient);
+            String principal = MapUtils.getString(allConfig, KerberosKey.PRINCIPAL.getKey());
+            String keytab = MapUtils.getString(allConfig, KerberosKey.KEYTAB.getKey());
+            String krb5Conf = MapUtils.getString(allConfig, HadoopConfTool.KEY_JAVA_SECURITY_KRB5_CONF);
+            this.loginKerberosWithCallBack(yarnConfiguration, principal, keytab, krb5Conf, new CallBack() {
+                @Override
+                public Object execute() throws Exception {
+                    List<NodeReport> nodes = yarnClient.getNodeReports(NodeState.RUNNING);
+                    for (NodeReport rep : nodes) {
+                        NodeDescription node = new NodeDescription();
+                        node.setMemory(rep.getCapability().getMemory());
+                        node.setUsedMemory(rep.getUsed().getMemory());
+                        node.setUsedVirtualCores(rep.getUsed().getVirtualCores());
+                        node.setVirtualCores(rep.getCapability().getVirtualCores());
+                        clusterNodes.add(node);
+                    }
+                    initResourceDescription(yarnClient);
+                    return null;
+                }
+            });
         } finally {
             if(closeYarnClient){
                 closeYarnClient();
@@ -114,6 +127,7 @@ public class YARNComponent extends BaseComponent {
         yarnClient.init(yarnConfiguration);
         yarnClient.start();
     }
+
 
     public void closeYarnClient(){
         if (yarnClient != null){
