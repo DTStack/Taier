@@ -39,6 +39,8 @@ public class DtUicUserConnect {
 
     private static final String GET_TENANT_INFO = "%s/uic/api/v2/tenant/detail/%s";
 
+    private static final String GET_ALL_UIC_USER_TEMPLATE = "%s/api/user/find-all-users?tenantId=%s&productCode=%s&dtToken=%s";
+
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     public static void getInfo(String token, String url, Consumer<DtUicUser> resultHandler) {
@@ -141,6 +143,23 @@ public class DtUicUserConnect {
             LOGGER.error("{}", e);
         }
         return Maps.newHashMap();
+    }
+
+    public static List<Map<String, Object>> getAllUicUsers(String url, String productCode, Long tenantId, String dtToken) {
+        try {
+            String result = PoolHttpClient.get(String.format(GET_ALL_UIC_USER_TEMPLATE, new Object[]{url, tenantId, productCode, dtToken}), null);
+            if (StringUtils.isBlank(result)) {
+                LOGGER.warn("uic api returns null.");
+                return Lists.newArrayList();
+            }
+            Map<String, Object> mResult = OBJECT_MAPPER.readValue(result, Map.class);
+            if ((Boolean) mResult.get("success")) {
+                return (List<Map<String, Object>>) mResult.get("data");
+            }
+        } catch (IOException e) {
+            LOGGER.error("{}", e);
+        }
+        return Lists.newArrayList();
     }
 
 }

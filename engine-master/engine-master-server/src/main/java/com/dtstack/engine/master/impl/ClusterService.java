@@ -1,30 +1,33 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.api.annotation.Param;
+import com.dtstack.engine.api.domain.Queue;
+import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.api.dto.ClusterDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.vo.ClusterVO;
+import com.dtstack.engine.api.vo.ComponentVO;
+import com.dtstack.engine.api.vo.EngineVO;
+import com.dtstack.engine.api.vo.KerberosConfigVO;
+import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.api.domain.*;
-import com.dtstack.engine.api.dto.ClusterDTO;
 import com.dtstack.engine.master.enums.ComponentTypeNameNeedVersion;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.utils.HadoopConf;
-import com.dtstack.engine.api.vo.KerberosConfigVO;
-import com.dtstack.engine.api.vo.ClusterVO;
-import com.dtstack.engine.api.vo.ComponentVO;
-import com.dtstack.engine.api.vo.EngineVO;
+import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.enums.ScheduleEngineType;
 import com.dtstack.schedule.common.enums.Sort;
 import com.dtstack.schedule.common.kerberos.KerberosConfigVerify;
+import com.dtstack.schedule.common.util.Base64Util;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -38,12 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static java.lang.String.format;
 
@@ -96,6 +94,15 @@ public class ClusterService implements InitializingBean {
 
     @Autowired
     private KerberosDao kerberosDao;
+
+    @Autowired
+    private UserDao userDao;
+
+    @Autowired
+    private AccountTenantDao accountTenantDao;
+
+    @Autowired
+    private AccountDao accountDao;
 
 
     @Override
@@ -660,6 +667,28 @@ public class ClusterService implements InitializingBean {
                 componentService.updateCache(component.getEngineId(),component.getComponentTypeCode());
             }
         }
+    }
+
+    public String tiDBInfo(@Param("tenantId") Long dtUicTenantId, @Param("userId") Long dtUicUserId){
+        //优先绑定账号
+        String jdbcInfo = getConfigByKey(dtUicTenantId, EComponentType.TIDB_SQL.getConfName());
+        User dtUicUser = userDao.getByDtUicUserId(dtUicUserId);
+        if(Objects.isNull(dtUicUser)){
+            return jdbcInfo;
+        }
+        Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
+        AccountTenant dbAccountTenant = accountTenantDao.getByAccount(dtUicUser.getId(), tenantId, null, Deleted.NORMAL.getStatus());
+        if(Objects.isNull(dbAccountTenant)){
+            return jdbcInfo;
+        }
+        Account account = accountDao.getById(dbAccountTenant.getAccountId());
+        if(Objects.isNull(account)){
+            return jdbcInfo;
+        }
+        JSONObject data = JSONObject.parseObject(jdbcInfo);
+        data.put("username",account.getName());
+        data.put("password", Base64Util.baseDecode(account.getPassword()));
+        return data.toJSONString();
     }
 }
 
