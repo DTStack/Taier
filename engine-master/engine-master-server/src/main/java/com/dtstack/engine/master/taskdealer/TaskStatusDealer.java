@@ -4,8 +4,6 @@ import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.enums.ComputeType;
-import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.hash.ShardData;
 import com.dtstack.engine.common.util.LogCountUtil;
@@ -18,7 +16,6 @@ import com.dtstack.engine.master.bo.FailedTaskInfo;
 import com.dtstack.engine.master.cache.ShardCache;
 import com.dtstack.engine.master.cache.ShardManager;
 import com.dtstack.engine.master.env.EnvironmentContext;
-import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -27,7 +24,6 @@ import org.springframework.context.ApplicationContext;
 
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -90,59 +86,7 @@ public class TaskStatusDealer implements Runnable {
             if (logger.isInfoEnabled() && LogCountUtil.count(logOutput++, MULTIPLES)) {
                 logger.info("jobResource:{} start again gap:[{} ms]...", jobResource, INTERVAL * MULTIPLES);
             }
-            updateTaskStatus();
-            dealFailedJob();
-        } catch (Throwable e) {
-            logger.error("jobResource:{} run error:{}", jobResource, e);
-        }
-    }
 
-    public void dealFailedJob() {
-        try {
-            for (Map.Entry<String, FailedTaskInfo> failedTaskEntry : failedJobCache.entrySet()) {
-                FailedTaskInfo failedTaskInfo = failedTaskEntry.getValue();
-                String key = failedTaskEntry.getKey();
-
-                boolean streamAndopenCheckpoint = isFlinkStreamTask(failedTaskInfo) && taskCheckpointDealer.checkOpenCheckPoint(failedTaskInfo.getJobId());
-                if (streamAndopenCheckpoint) {
-                    //更新checkpoint
-                    taskCheckpointDealer.updateStreamJobCheckpoints(failedTaskInfo.getJobIdentifier(), failedTaskInfo.getEngineType(), failedTaskInfo.getPluginInfo());
-                } else if (isSyncTask(failedTaskInfo)) {
-                    taskCheckpointDealer.updateBatchTaskCheckpoint(failedTaskInfo.getPluginInfo(), failedTaskInfo.getJobIdentifier());
-                }
-
-                failedTaskInfo.waitClean();
-                if (!failedTaskInfo.allowClean()) {
-                    // filter batch task
-                    if (streamAndopenCheckpoint) {
-                        taskCheckpointDealer.dealStreamCheckpoint(failedTaskInfo);
-                    }
-                    failedJobCache.remove(key);
-                }
-            }
-        } catch (Exception e) {
-            logger.error("dealFailed job run error:{}", e);
-        }
-    }
-
-    private boolean isSyncTask(FailedTaskInfo failedTaskInfo) {
-        return failedTaskInfo.getComputeType() == ComputeType.BATCH.getType()
-                && EngineType.isFlink(failedTaskInfo.getEngineType());
-    }
-
-    public boolean isFlinkStreamTask(FailedTaskInfo failedTaskInfo) {
-        return failedTaskInfo.getComputeType() == ComputeType.STREAM.getType()
-                && EngineType.isFlink(failedTaskInfo.getEngineType());
-    }
-
-    public void addFailedJob(FailedTaskInfo failedTaskInfo) {
-        if (!failedJobCache.containsKey(failedTaskInfo.getJobId())) {
-            failedJobCache.put(failedTaskInfo.getJobId(), failedTaskInfo);
-        }
-    }
-
-    private void updateTaskStatus() {
-        try {
             Map<String, ShardData> shards = shardManager.getShards();
             CountDownLatch ctl = new CountDownLatch(shards.size());
             for (Map.Entry<String, ShardData> shardEntry : shards.entrySet()) {
@@ -151,7 +95,6 @@ public class TaskStatusDealer implements Runnable {
                         for (Map.Entry<String, Integer> entry : shardEntry.getValue().getView().entrySet()) {
                             try {
                                 if (!RdosTaskStatus.needClean(entry.getValue())) {
-
                                     logger.info("jobId:{} status:{}", entry.getKey(), entry.getValue());
                                     dealJob(entry.getKey());
                                 }
@@ -167,10 +110,23 @@ public class TaskStatusDealer implements Runnable {
                 });
             }
             ctl.await();
+
+            // deal fail task
+            for (Map.Entry<String, FailedTaskInfo> failedTaskEntry : failedJobCache.entrySet()) {
+                FailedTaskInfo failedTaskInfo = failedTaskEntry.getValue();
+                String key = failedTaskEntry.getKey();
+
+                failedTaskInfo.waitClean();
+                if (failedTaskInfo.allowClean()) {
+                    failedJobCache.remove(key);
+                }
+            }
+
         } catch (Throwable e) {
-            logger.error("{}", e);
+            logger.error("jobResource:{} run error:{}", jobResource, e);
         }
     }
+
 
     private void dealJob(String jobId) throws Exception {
         ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
@@ -181,17 +137,11 @@ public class TaskStatusDealer implements Runnable {
             JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineTaskId, appId, jobId);
 
             if (StringUtils.isNotBlank(engineTaskId)) {
-                String pluginInfoStr = "";
-                if (scheduleJob.getPluginInfoId() > 0) {
-                    pluginInfoStr = pluginInfoDao.getPluginInfo(scheduleJob.getPluginInfoId());
-                }
-
+                String pluginInfoStr = scheduleJob.getPluginInfoId() > 0 ? pluginInfoDao.getPluginInfo(scheduleJob.getPluginInfoId()) : "";
                 RdosTaskStatus rdosTaskStatus = workerOperator.getJobStatus(engineJobCache.getEngineType(), pluginInfoStr, jobIdentifier);
-
                 if (rdosTaskStatus != null) {
 
                     rdosTaskStatus = checkNotFoundStatus(rdosTaskStatus, jobId);
-
                     Integer status = rdosTaskStatus.getStatus();
                     // 重试状态 先不更新状态
                     boolean isRestart = taskRestartDealer.checkAndRestart(status, jobId, engineTaskId, appId, engineJobCache.getEngineType(), pluginInfoStr);
@@ -199,30 +149,37 @@ public class TaskStatusDealer implements Runnable {
                         return;
                     }
 
-                    if (taskCheckpointDealer.isSyncTaskAndOpenCheckpoint(jobId, engineJobCache.getEngineType(), engineJobCache.getComputeType())) {
-                        taskCheckpointDealer.dealSyncTaskCheckpoint(status, jobIdentifier, pluginInfoStr);
-                    }
-
                     shardCache.updateLocalMemTaskStatus(jobId, status);
                     //数据的更新顺序，先更新job_cache，再更新engine_batch_job
-                    if (RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus())){
+                    if (RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus())) {
                         jobLogDelayDealer(jobId, jobIdentifier, engineJobCache.getEngineType(), engineJobCache.getComputeType(), pluginInfoStr);
                     }
 
-                    if (ComputeType.STREAM.getType().equals(scheduleJob.getComputeType())) {
-                        dealStreamAfterGetStatus(status, jobId, engineJobCache.getEngineType(), jobIdentifier, pluginInfoStr);
-                    } else {
-                        dealBatchJobAfterGetStatus(status, jobId);
+                    if (RdosTaskStatus.getStoppedStatus().contains(status)) {
+                        jobStatusFrequency.remove(jobId);
+                        engineJobCacheDao.delete(jobId);
+                    }
+
+                    if (RdosTaskStatus.RUNNING.getStatus().equals(status)) {
+                        // deal open checkpoint job
+                        long checkpointInterval = taskCheckpointDealer.getCheckpointInterval(jobId);
+                        if (checkpointInterval > 0) {
+                            taskCheckpointDealer.addCheckpointTaskForQueue(scheduleJob.getComputeType(), jobId, jobIdentifier,
+                                    engineJobCache.getEngineType(), pluginInfoStr);
+                        }
+                    }
+
+                    if (RdosTaskStatus.FAILED.equals(rdosTaskStatus)) {
+                        FailedTaskInfo failedTaskInfo = new FailedTaskInfo(scheduleJob.getJobId(), jobIdentifier,
+                                engineJobCache.getEngineType(), engineJobCache.getComputeType(), pluginInfoStr);
+
+                        if (!failedJobCache.containsKey(failedTaskInfo.getJobId())) {
+                            failedJobCache.put(failedTaskInfo.getJobId(), failedTaskInfo);
+                        }
                     }
 
                     scheduleJobDao.updateJobStatusAndExecTime(jobId, status);
                     logger.info("jobId:{} update job status:{}.", jobId, status);
-                }
-
-                if (RdosTaskStatus.FAILED.equals(rdosTaskStatus)) {
-                    FailedTaskInfo failedTaskInfo = new FailedTaskInfo(scheduleJob.getJobId(), jobIdentifier,
-                            engineJobCache.getEngineType(), engineJobCache.getComputeType(), pluginInfoStr);
-                    addFailedJob(failedTaskInfo);
                 }
             }
         } else {
@@ -233,7 +190,6 @@ public class TaskStatusDealer implements Runnable {
     }
 
     private void updateJobEngineLog(String jobId, String jobLog) {
-
         //写入db
         scheduleJobDao.updateEngineLog(jobId, jobLog);
     }
@@ -249,54 +205,8 @@ public class TaskStatusDealer implements Runnable {
         return taskStatus;
     }
 
-    /**
-     * stream 获取任务状态--的处理
-     *
-     * @param status
-     * @param jobId
-     */
-    private void dealStreamAfterGetStatus(Integer status, String jobId, String engineTypeName,
-                                          JobIdentifier jobIdentifier, String pluginInfo) throws ExecutionException {
 
-        String engineTaskId = jobIdentifier.getEngineJobId();
-
-        boolean openCheckPoint = taskCheckpointDealer.checkOpenCheckPoint(jobId);
-
-        if (RdosTaskStatus.getStoppedStatus().contains(status)) {
-            jobStatusFrequency.remove(jobId);
-            engineJobCacheDao.delete(jobId);
-
-            if (Strings.isNullOrEmpty(engineTaskId)) {
-                return;
-            }
-
-            if (openCheckPoint) {
-                taskCheckpointDealer.updateStreamJobCheckpoints(jobIdentifier, engineTypeName, pluginInfo);
-            }
-        }
-
-        if (!openCheckPoint) {
-            return;
-        }
-
-        if (RdosTaskStatus.RUNNING.getStatus().equals(status)) {
-            //运行中的stream任务需要更新checkpoint 并且 控制频率
-            Integer checkpointCallNum = taskCheckpointDealer.getCheckpointCallNum(engineTaskId);
-            if (checkpointCallNum % TaskCheckpointDealer.CHECKPOINT_GET_RATE == 0) {
-                taskCheckpointDealer.updateStreamJobCheckpoints(jobIdentifier, engineTypeName, pluginInfo);
-            }
-        }
-
-    }
-
-    private void dealBatchJobAfterGetStatus(Integer status, String jobId) throws ExecutionException {
-        if (RdosTaskStatus.getStoppedStatus().contains(status)) {
-            jobStatusFrequency.remove(jobId);
-            engineJobCacheDao.delete(jobId);
-        }
-    }
-
-    private void jobLogDelayDealer(String jobId, JobIdentifier jobIdentifier, String engineType, int computeType, String pluginInfo){
+    private void jobLogDelayDealer(String jobId, JobIdentifier jobIdentifier, String engineType, int computeType, String pluginInfo) {
         jobCompletedLogDelayDealer.addCompletedTaskInfo(new CompletedTaskInfo(jobId, jobIdentifier, engineType, computeType, pluginInfo, jobLogDelay));
     }
 
@@ -351,7 +261,7 @@ public class TaskStatusDealer implements Runnable {
         this.scheduleJobDao = applicationContext.getBean(ScheduleJobDao.class);
     }
 
-    private void createLogDelayDealer(){
+    private void createLogDelayDealer() {
         this.jobCompletedLogDelayDealer = new JobCompletedLogDelayDealer(applicationContext);
         this.jobLogDelay = environmentContext.getJobLogDelay();
     }
