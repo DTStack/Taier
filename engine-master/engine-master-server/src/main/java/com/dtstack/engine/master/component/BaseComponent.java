@@ -117,6 +117,7 @@ public abstract class BaseComponent implements ComponentImpl {
         try {
             UserGroupInformation ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(principal, keytabPath);
             ugi.doAs((PrivilegedExceptionAction<Object>) callBack::execute);
+            LOG.info("userGroupInformation current user = {}", UserGroupInformation.getCurrentUser());
         } catch (Exception e) {
             LOG.error("{}", e);
             throw new RdosDefineException("kerberos校验失败, Message:" + e.getMessage());

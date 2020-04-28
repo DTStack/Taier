@@ -50,6 +50,9 @@ public class YARNComponent extends BaseComponent {
             this.loginKerberosWithCallBack(yarnConfiguration, principal, keytab, krb5Conf, new CallBack() {
                 @Override
                 public Object execute() throws Exception {
+                    yarnClient = YarnClient.createYarnClient();
+                    yarnClient.init(yarnConfiguration);
+                    yarnClient.start();
                     List<NodeReport> nodes = yarnClient.getNodeReports(NodeState.RUNNING);
                     for (NodeReport rep : nodes) {
                         NodeDescription node = new NodeDescription();
