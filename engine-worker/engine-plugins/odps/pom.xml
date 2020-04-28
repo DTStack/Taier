@@ -8,6 +8,7 @@
         <version>1.0.0</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
+
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>plugins.odps</artifactId>
@@ -22,13 +23,6 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>3.8.1</version>
-            <scope>test</scope>
-        </dependency>
-
         <dependency>
             <groupId>com.dtstack.engine</groupId>
             <artifactId>engine-common</artifactId>
@@ -60,6 +54,7 @@
             <artifactId>odps-sdk-core</artifactId>
             <version>0.28.4-public</version>
         </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
