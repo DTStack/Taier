@@ -8,13 +8,13 @@ fi
 echo "Dependency ${hadoopversion} Building..."
 
 mvn clean package -DskipTests -Dhadoop.version=${hadoopversion} -Dhivejdbc.version=2.1.0 -pl \
-engine-plugins/dummy,\
-engine-plugins/dtscript/dtscript-hadoop3/dtscript-client,\
-engine-plugins/hadoop/hadoop3,\
-engine-plugins/flink/flink180-hadoop3,\
-engine-plugins/spark/spark-yarn-hadoop3,\
-engine-plugins/kylin,\
-engine-plugins/rdbs,\
-engine-plugins/odps,\
+engine-worker/engine-plugins/dummy,\
+engine-worker/engine-plugins/dtscript/dtscript-hadoop3/dtscript-client,\
+engine-worker/engine-plugins/hadoop/hadoop3,\
+engine-worker/engine-plugins/flink/flink180-hadoop3,\
+engine-worker/engine-plugins/spark/spark-yarn-hadoop3,\
+engine-worker/engine-plugins/kylin,\
+engine-worker/engine-plugins/rdbs,\
+engine-worker/engine-plugins/odps,\
 engine-entrance \
 -am -amd

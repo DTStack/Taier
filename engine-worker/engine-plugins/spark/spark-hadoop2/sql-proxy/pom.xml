@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.dtstack.engine</groupId>
+        <artifactId>plugins.spark-hadoop2</artifactId>
+        <version>1.0.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>plugins.spark-hadoop2.sql-proxy</artifactId>
+    <name>plugins.spark-hadoop2.sql-proxy</name>
+    <url>http://maven.apache.org</url>
+
+    <properties>
+        <jar.name>spark-hadoop2-core</jar.name>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.2</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <!-- here the phase you need -->
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <move file="${basedir}/target/${project.name}-${project.version}.jar"
+                                      tofile="${basedir}/target/${jar.name}-${git.branch}.jar"/>
+                                <copy todir="${basedir}/target/../../../../../../pluginLibs/spark-hadoop2/"
+                                      file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
+                                <delete>
+                                    <fileset dir="${basedir}/target/../../../../../../pluginLibs/spark-hadoop2/"
+                                             includes="${jar.name}-*.jar"
+                                             excludes="${jar.name}-${git.branch}.jar"/>
+                                </delete>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
