@@ -58,13 +58,13 @@
         set checkpoint_savepath = #{checkpoint}
         where task_id=#{taskId}
     </update>
-
+    <!-- 断点续传查询最新的checkpointID -->
     <select id="getByTaskId" resultType="EngineJobCheckpoint">
         select
         <include refid="select_content_fragment"/>
         from schedule_engine_job_checkpoint
         where is_deleted=0 and task_id=#{taskId}
-        order by gmt_modified asc limit 1
+        order by CONVERT(checkpoint_id,SIGNED) desc limit 1
     </select>
 
     <delete id="deleteByTaskId">

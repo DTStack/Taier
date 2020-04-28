@@ -7,23 +7,17 @@ import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.enums.ComputeType;
-import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.EngineJobCheckpointDao;
-import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
-import com.dtstack.engine.master.bo.FailedTaskInfo;
 import com.dtstack.engine.master.bo.TaskCheckpointInfo;
 import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Maps;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,25 +27,22 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
- * 定时清理DB中的checkpoint
+ *  checkpoint管理
+ * @author maqi
  */
 @Component
-public class TaskCheckpointDealer implements InitializingBean, Runnable {
+public class TaskCheckpointDealer implements InitializingBean {
 
     private static Logger logger = LoggerFactory.getLogger(TaskCheckpointDealer.class);
 
@@ -89,9 +80,6 @@ public class TaskCheckpointDealer implements InitializingBean, Runnable {
     /** 已经插入到db的checkpoint，其id缓存数量*/
     public static final long CHECKPOINT_INSERTED_RECORD = 200;
 
-    //每隔5次状态获取之后更新一次checkpoint 信息 ===>checkpoint信息没必要那么频繁更新
-    public static int CHECKPOINT_GET_RATE = 10;
-
     /**
      * 存在checkpoint 外部存储路径的taskid
      */
@@ -117,46 +105,47 @@ public class TaskCheckpointDealer implements InitializingBean, Runnable {
 
     private DelayBlockingQueue<TaskCheckpointInfo> delayBlockingQueue = new DelayBlockingQueue<>(1000);
 
-    private ExecutorService checkpointPool = new ThreadPoolExecutor(1, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
+    private ExecutorService checkpointPool = new ThreadPoolExecutor(1, 1, 0, TimeUnit.SECONDS,
             new SynchronousQueue<>(true), new CustomThreadFactory(this.getClass().getSimpleName()));
 
 
     @Override
-    public void afterPropertiesSet() throws Exception {
-        checkpointPool.execute(this);
-    }
+    public void afterPropertiesSet() {
+        checkpointPool.submit(() -> {
+            while (true) {
+                try {
+                    TaskCheckpointInfo taskInfo = delayBlockingQueue.take();
+                    String engineJobId = taskInfo.getJobIdentifier().getEngineJobId();
+                    String taskId= taskInfo.getTaskId();
 
-    @Override
-    public void run() {
-        while (true) {
-            try {
-                TaskCheckpointInfo taskInfo = delayBlockingQueue.take();
-                String engineJobId = taskInfo.getJobIdentifier().getEngineJobId();
+                    updateJobCheckpoints(taskInfo.getJobIdentifier(), taskInfo.getEngineTypeName(), taskInfo.getPluginInfo());
+                    subtractionCheckpointRecord(engineJobId);
 
-                updateStreamJobCheckpoints(taskInfo.getJobIdentifier(), taskInfo.getEngineTypeName(), taskInfo.getPluginInfo());
-                subtractionCheckpointRecord(engineJobId);
+                    ScheduleJob jobInfo = scheduleJobDao.getByJobId(taskInfo.getTaskId(), 0);
+                    int status = jobInfo.getStatus().intValue();
 
-                ScheduleJob jobInfo = scheduleJobDao.getByJobId(taskInfo.getJobIdentifier().getEngineJobId(), 0);
-                int status = jobInfo.getStatus().intValue();
-                if (RdosTaskStatus.RUNNING.getStatus().equals(status)) {
-                    taskInfo.refreshExpired();
-                    delayBlockingQueue.put(taskInfo);
-                }
-
-                if (RdosTaskStatus.FAILED.getStatus().equals(status) || RdosTaskStatus.STOP_STATUS.contains(status)){
-                    if (isCheckpointStopClean(engineJobId)) {
-                        engineJobCheckpointDao.cleanAllCheckpointByTaskEngineId(engineJobId);
+                    if (RdosTaskStatus.RUNNING.getStatus().equals(status)) {
+                        taskInfo.refreshExpired();
+                        delayBlockingQueue.put(taskInfo);
                     }
-                    taskEngineIdAndRetainedNum.remove(engineJobId);
-                    checkpointConfigCache.invalidate(taskInfo.getTaskId());
+
+                    if (RdosTaskStatus.FAILED.getStatus().equals(status) || RdosTaskStatus.STOP_STATUS.contains(status)) {
+                        if (isCheckpointStopClean(taskId)) {
+                            engineJobCheckpointDao.cleanAllCheckpointByTaskEngineId(engineJobId);
+                        }
+                        taskEngineIdAndRetainedNum.remove(taskId);
+                        checkpointConfigCache.invalidate(taskId);
+                        checkpointJobMap.remove(taskId);
+                    }
+                } catch (Exception e) {
+                    logger.error("", e);
                 }
-            } catch (Exception e) {
-                logger.error("", e);
             }
-        }
+        });
     }
 
-    public void updateStreamJobCheckpoints(JobIdentifier jobIdentifier, String engineTypeName, String pluginInfo) {
+
+    public void updateJobCheckpoints(JobIdentifier jobIdentifier, String engineTypeName, String pluginInfo) {
         String checkpointJsonStr = workerOperator.getCheckpoints(engineTypeName, pluginInfo, jobIdentifier);
         String engineTaskId = jobIdentifier.getEngineJobId();
         String taskId = jobIdentifier.getTaskId();
@@ -196,24 +185,27 @@ public class TaskCheckpointDealer implements InitializingBean, Runnable {
     }
 
 
-    public void addCheckpointTaskForQueue(Integer computeType, String taskId, JobIdentifier jobIdentifier, String engineTypeName, String pluginInfo) {
-        TaskCheckpointInfo taskCheckpointInfo = checkpointJobMap.computeIfAbsent(taskId, (info) -> {
+    public void addCheckpointTaskForQueue(Integer computeType, String taskId, JobIdentifier jobIdentifier, String engineTypeName, String pluginInfo) throws ExecutionException {
+        long checkpointInterval = getCheckpointInterval(taskId);
+        if (checkpointInterval <= 0) {
+            return;
+        }
+        checkpointJobMap.computeIfAbsent(taskId, (info) -> {
             try {
-                int retainedNum = parseRetainedNumFromPluginInfo(pluginInfo);
+                int retainedNum = getRetainedNumFromPluginInfo(pluginInfo);
                 taskEngineIdAndRetainedNum.put(jobIdentifier.getEngineJobId(), retainedNum);
 
-                long checkpointInterval = getCheckpointInterval(taskId);
                 TaskCheckpointInfo taskInfo = new TaskCheckpointInfo(computeType, taskId, jobIdentifier, engineTypeName, pluginInfo, checkpointInterval);
 
                 delayBlockingQueue.put(taskInfo);
+                logger.info("add task to checkpoint delay queue,{}", taskInfo);
+
                 return taskInfo;
             } catch (Exception e) {
                 logger.error("", e);
             }
             return null;
         });
-
-        logger.warn("add task to checkpoint delay queue,{}", taskCheckpointInfo);
     }
 
     /**
@@ -260,7 +252,7 @@ public class TaskCheckpointDealer implements InitializingBean, Runnable {
     }
 
 
-    public int parseRetainedNumFromPluginInfo(String pluginInfo) {
+    private int getRetainedNumFromPluginInfo(String pluginInfo) {
         Map<String, Object> pluginInfoMap = null;
         try {
             pluginInfoMap = PublicUtil.jsonStrToObject(pluginInfo, Map.class);
@@ -271,8 +263,8 @@ public class TaskCheckpointDealer implements InitializingBean, Runnable {
     }
 
 
-    public boolean isCheckpointStopClean(String engineJobId) throws ExecutionException {
-        Map<String, Object> params = getJobParamsByJobId(engineJobId);
+    private boolean isCheckpointStopClean(String jobId) throws ExecutionException {
+        Map<String, Object> params = getJobParamsByJobId(jobId);
         Boolean sqlCleanMode = MathUtil.getBoolean(params.get(SQL_CHECKPOINT_CLEANUP_MODE_KEY), false);
         Boolean flinkCleanMode = MathUtil.getBoolean(params.get(FLINK_CHECKPOINT_CLEANUP_MODE_KEY), false);
         return sqlCleanMode || flinkCleanMode;
