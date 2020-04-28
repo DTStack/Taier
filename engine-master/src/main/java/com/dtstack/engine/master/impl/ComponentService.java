@@ -450,6 +450,8 @@ public class ComponentService {
                     throw new RdosDefineException("开启kerberos后需要预先保存hdfs组件");
                 }
                 config.putIfAbsent(KerberosKey.HDFS_CONFIG.getKey(), hdfsComponent.getComponentConfig());
+                //转换为map
+                config.putAll(JSONObject.parseObject(hdfsComponent.getComponentConfig(),Map.class));
             }
         }
     }
