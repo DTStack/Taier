@@ -34,7 +34,7 @@ CREATE TABLE `schedule_task_shade`
     `is_expire`               TINYINT(1)   NOT NULL DEFAULT '0' COMMENT '过期策略：0永不过期 1过期取消',
     PRIMARY KEY (`id`),
     KEY `index_name` (`project_id`, `name`(128)),
-    UNIQUE KEY `index_task_id` (`task_id`)
+    UNIQUE KEY `index_task_id` (`task_id`,`app_type`)
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 0
   DEFAULT CHARSET = utf8;

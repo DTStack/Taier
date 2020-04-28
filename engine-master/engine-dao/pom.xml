@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.dtstack.engine</groupId>
-        <artifactId>engine-master</artifactId>
+        <artifactId>engine-all</artifactId>
         <version>1.0.0</version>
-        <relativePath>..</relativePath>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <packaging>jar</packaging>

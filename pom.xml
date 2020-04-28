@@ -21,7 +21,8 @@
     <modules>
         <module>engine-api</module>
         <module>engine-common</module>
-        <module>engine-master</module>
+        <module>engine-master/engine-dao</module>
+        <module>engine-master/engine-master-server</module>
         <module>engine-worker/engine-worker-server</module>
         <module>engine-entrance</module>
         <module>engine-worker/engine-plugins/base</module>
