@@ -1,7 +1,7 @@
 // 从config文件全局读取
 
-export const CONSOLE_BASE_URL = '/api/console/service';
-export const CONSOLE_BASE_UPLOAD_URL = '/api/console';
+export const CONSOLE_BASE_URL = '/node';
+export const CONSOLE_BASE_UPLOAD_URL = '/node';
 
 export default {
 
