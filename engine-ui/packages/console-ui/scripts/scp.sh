@@ -1,8 +1,8 @@
 #!/bin/bash
 
-source="./dist"
-target="/home/admin/app/rdos.front/"
-server="10.0.11.135"
+source="./dist/console"
+target="/opt/dtstack/DTConsole/ConsoleFront"
+server="172.16.100.168"
 
 echo "Uploading $source to $server:$target"
 
