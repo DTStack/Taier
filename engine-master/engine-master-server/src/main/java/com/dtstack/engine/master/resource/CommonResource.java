@@ -38,6 +38,7 @@ public class CommonResource {
                 case PostgreSQL:
                 case Kylin:
                 case Impala:
+                case TiDB:
                     commonResource = this;
                     break;
                 default:
@@ -74,6 +75,8 @@ public class CommonResource {
                 return ComputeResourceType.Kylin;
             case Impala:
                 return ComputeResourceType.Impala;
+            case TiDB:
+                return ComputeResourceType.TiDB;
             default:
                 throw new RdosDefineException("engineType:" + engineType + " is not support.");
         }
