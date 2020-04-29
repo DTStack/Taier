@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.AccountDao">
+
+    <sql id="select_content_fragment">
+        id,name,password,gmt_modified,is_deleted,type,gmt_create,create_user_id,modify_user_id
+    </sql>
+
+    <sql id="update_fragment">
+        <set>
+            <if test="name!=null">
+                name = #{name},
+            </if>
+            <if test="password!=null">
+                password = #{password},
+            </if>
+            <if test="isDeleted!=null">
+                is_deleted = #{isDeleted},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified},
+            </if>
+            <if test="createUserId != null">
+                create_user_id = #{createUserId},
+            </if>
+            <if test="modifyUserId!=null">
+                modify_user_id = #{modifyUserId},
+            </if>
+        </set>
+    </sql>
+
+    <insert id="insert" parameterType="Account" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO console_account(name, password, type, create_user_id,modify_user_id)
+        VALUES (#{name}, #{password}, #{type}, #{createUserId},#{modifyUserId})
+    </insert>
+
+
+    <select id="getByName" resultType="Account">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM console_account
+        WHERE name = #{name} and type = #{type} and is_deleted = 0
+    </select>
+
+
+    <select id="getById" resultType="Account">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM console_account
+        WHERE id = #{id} and is_deleted = 0
+    </select>
+
+    <update id="update" parameterType="Account">
+        UPDATE console_account
+        <include refid="update_fragment"/>
+        WHERE id = #{id}
+    </update>
+</mapper>
