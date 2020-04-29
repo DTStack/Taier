@@ -36,7 +36,10 @@ public enum DataBaseType {
     HIVE1X("hive", "org.apache.hive.jdbc.HiveDriver"),
     Polardb_For_MySQL("polardb for mysql","com.mysql.jdbc.Driver"),
     Phoenix("Phoenix", "org.apache.phoenix.jdbc.PhoenixDriver"),
-    TiDB("TiDB", "com.mysql.jdbc.Driver");
+    TiDB("TiDB", "com.mysql.jdbc.Driver"),
+    MySql8("mysql8", "com.mysql.cj.jdbc.Driver"),
+    DMDB("DMDB","dm.jdbc.driver.DmDriver"),
+    Greenplum6("Greenplum6", "com.pivotal.jdbc.GreenplumDriver");
 
     private String typeName;
     private String driverClassName;

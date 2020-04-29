@@ -18,6 +18,7 @@ public enum ComputeResourceType {
     Hive,
     PostgreSQL,
     Kylin,
-    Impala;
+    Impala,
+    TiDB;
 
 }

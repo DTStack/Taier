@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.plugininfo;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.schedule.common.enums.ScheduleEngineType;
 import org.apache.commons.collections.MapUtils;
@@ -74,13 +75,16 @@ public class PluginWrapper{
             return;
         }
 
-        String paramsJsonStr = MapUtils.getString(actionParam, "jdbcUrlParams");
-        JSONObject paramsJson = JSONObject.parseObject(paramsJsonStr);
+        Map paramsJson = MapUtils.getMap(actionParam, "jdbcUrlParams");
         if(paramsJson == null || paramsJson.isEmpty()){
             return;
         }
 
         String paramsStr = getParamsString(dbUrl, paramsJson);
+
+        if(MultiEngineType.TIDB.getName().equalsIgnoreCase((String)actionParam.get("engineType"))){
+            dbUrl  = dbUrl.replace("?currentSchema=","");
+        }
 
         if(dbUrl.contains(URI_PARAMS_DELIM)){
             dbUrl = dbUrl.split("\\?")[0];
@@ -114,7 +118,7 @@ public class PluginWrapper{
         hadoopConfig.put("hadoop.user.name", userName);
     }
 
-    private String getParamsString(String dbUrl, JSONObject paramsJson){
+    private String getParamsString(String dbUrl, Map paramsJson){
         if(dbUrl.contains(URI_PARAMS_DELIM)){
             String paramsStr = dbUrl.split("\\?")[1];
             for (String param : paramsStr.split(PARAMS_DELIM)) {

@@ -70,7 +70,6 @@ public class JDBCComponent extends BaseComponent {
         }
 
         //能开启kerberos的数据源 校验需要在engine check
-        //正常的数据源check在console校验
         Connection conn = null;
         try {
             conn = DBUtil.getConnection(dataBaseType, jdbcUrl, username, password, null);

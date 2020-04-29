@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.AccountTenantDao">
+
+    <sql id="select_content_fragment">
+        id,account_id,user_id,gmt_modified,is_deleted,tenant_id,gmt_create,create_user_id,modify_user_id
+    </sql>
+
+    <sql id="update_fragment">
+        <set>
+            <if test="accountId!=null">
+                account_id = #{accountId},
+            </if>
+            <if test="userId!=null">
+                user_id = #{userId},
+            </if>
+            <if test="isDeleted!=null">
+                is_deleted = #{isDeleted},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified},
+            </if>
+            <if test="createUserId != null">
+                create_user_id = #{createUserId},
+            </if>
+            <if test="modifyUserId!=null">
+                modify_user_id = #{modifyUserId},
+            </if>
+        </set>
+    </sql>
+
+    <sql id="page_condition">
+        <trim prefix="ORDER BY " prefixOverrides=",">
+            <if test="orderBy != null and orderBy != ''">
+                , cat.${orderBy} ${sort}
+            </if>
+            , cat.gmt_modified desc
+        </trim>
+        <if test="start != null and pageSize != null">
+            limit #{start} , #{pageSize}
+        </if>
+    </sql>
+
+    <insert id="insert" parameterType="AccountTenant" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO console_account_tenant(account_id, user_id, tenant_id, create_user_id,modify_user_id)
+        VALUES (#{accountId}, #{userId}, #{tenantId}, #{createUserId},#{modifyUserId})
+    </insert>
+
+
+    <select id="getByAccount" resultType="AccountTenant">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM console_account_tenant
+        WHERE user_id = #{userId} AND tenant_id = #{tenantId}
+        <if test="isDeleted!=null">
+            AND is_deleted = #{isDeleted}
+        </if>
+        <if test="accountId!=null">
+            AND account_id = #{accountId}
+        </if>
+    </select>
+
+    <update id="update" parameterType="AccountTenant">
+        UPDATE console_account_tenant
+        <include refid="update_fragment"/>
+        WHERE id = #{id}
+    </update>
+
+
+    <select id="generalCount" resultType="java.lang.Integer">
+        SELECT count(1)
+        FROM console_account_tenant cat
+        LEFT JOIN console_account ca ON cat.account_id = ca.id
+        LEFT JOIN console_dtuic_tenant ct ON cat.tenant_id = ct.id
+        LEFT JOIN console_user cu ON cu.id = cat.user_id
+        WHERE cat.tenant_id = #{model.tenantId}
+        AND cat.is_deleted = 0
+        AND ca.is_deleted = 0
+        AND ct.is_deleted = 0
+        <if test="model.name != null">
+            AND (ca.name LIKE '%${model.name}%' OR cu.user_name LIKE '%${model.name}%')
+        </if>
+    </select>
+
+
+    <select id="generalQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="com.dtstack.engine.api.dto.AccountDTO">
+        SELECT ca.name AS name,cat.*,cu.user_name,
+               (SELECT user_name FROM console_user WHERE id = cat.modify_user_id ) AS modifyUserName
+        FROM console_account_tenant cat
+        LEFT JOIN console_account ca ON cat.account_id = ca.id
+        LEFT JOIN console_dtuic_tenant ct ON cat.tenant_id = ct.id
+        LEFT JOIN console_user cu ON cu.id = cat.user_id
+        WHERE cat.tenant_id = #{model.tenantId}
+        AND cat.is_deleted = 0
+        AND ca.is_deleted = 0
+        AND ct.is_deleted = 0
+        <if test="model.name != null">
+            AND (ca.name LIKE '%${model.name}%' OR cu.user_name LIKE '%${model.name}%')
+        </if>
+        <include refid="page_condition"/>
+    </select>
+
+    <select id="getTenantUser" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="com.dtstack.engine.api.dto.AccountDTO">
+        SELECT *,(SELECT dtuic_user_id FROM console_user WHERE id = console_account_tenant.user_id) AS dtuicUserId
+        FROM console_account_tenant
+        WHERE tenant_id = #{tenantId}
+        AND is_deleted = 0
+    </select>
+
+    <select id="getById" resultType="AccountTenant">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM console_account_tenant
+        WHERE id = #{id}
+    </select>
+
+</mapper>

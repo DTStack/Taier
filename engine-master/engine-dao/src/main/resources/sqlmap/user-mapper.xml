@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dtstack.engine.dao.UserDao">
+
+    <sql id="select_content_fragment">
+        id,dtuic_user_id,user_name,email,status,gmt_create,gmt_modified,is_deleted,phone_number
+    </sql>
+
+    <sql id="update_fragment">
+        <set>
+            <if test="id != null">
+                id = #{id},
+            </if>
+            <if test="dtuicUserId != null">
+                dtuic_user_id = #{dtuicUserId},
+            </if>
+            <if test="userName != null">
+                user_name = #{userName},
+            </if>
+            <if test="email != null">
+                email = #{email},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted},
+            </if>
+            <if test="phoneNumber != null">
+                phone_number = #{phoneNumber},
+            </if>
+        </set>
+    </sql>
+
+    <select id="getByDtUicUserId" resultType="User">
+      SELECT
+      <include refid="select_content_fragment"/>
+      FROM console_user
+      WHERE dtuic_user_id=#{dtUicUserId} AND is_deleted=0 limit 1
+    </select>
+
+    <select id="getByUserId" resultType="User">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM console_user
+        WHERE id=#{userId} AND is_deleted=0 limit 1
+    </select>
+
+    <insert id="insert" parameterType="User" useGeneratedKeys="true" keyProperty="id">
+        INSERT IGNORE INTO console_user
+        (dtuic_user_id,user_name,email,status,phone_number)
+        VALUES
+        (#{dtuicUserId},#{userName},#{email},#{status},#{phoneNumber})
+    </insert>
+
+    <update id="update">
+        UPDATE console_user
+        <include refid="update_fragment"/>
+        WHERE id = #{id} AND is_deleted = 0
+    </update>
+
+</mapper>
