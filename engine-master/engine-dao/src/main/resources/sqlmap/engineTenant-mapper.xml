@@ -112,12 +112,13 @@
 
     <select id="getClusterIdByTenantId" resultType="java.lang.Long">
         SELECT
-        ce.cluster_id
+            ce.cluster_id
         FROM
-        console_engine ce
-        LEFT JOIN console_engine_tenant cet ON cet.engine_id = ce.id
+            console_engine ce
+                LEFT JOIN console_engine_tenant cet ON cet.engine_id = ce.id
+                LEFT JOIN console_dtuic_tenant cdt on cdt.id = cet.tenant_id
         WHERE
-        cet.tenant_id = #{tenantId}
+            cdt.dt_uic_tenant_id= #{tenantId}
         LIMIT 1
     </select>
 
