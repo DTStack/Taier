@@ -65,7 +65,8 @@ module.exports = {
         },
         '/api/console': { // 控制台
             // target: 'http://172.16.8.109:8084', // 开发环境
-            target: 'http://172.16.10.34:8084', // 测试环境
+            // target: 'http://172.16.10.34:8084', // 测试环境
+            target: 'http://172.16.100.168:80890', // 测试环境
             // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
             changeOrigin: true,
             secure: false

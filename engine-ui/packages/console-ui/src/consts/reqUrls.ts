@@ -23,23 +23,23 @@ export default {
     GET_CLUSTER: `${CONSOLE_BASE_URL}/cluster/getOne`, // 获取集群信息
     GET_QUEUE_LISTS: `${CONSOLE_BASE_URL}/cluster/listQueues`, // 集群下队列列表
     // 任务管理
-    GET_CLUSTER_DETAIL: `${CONSOLE_BASE_URL}/group/overview`, // 概览-获取集群
+    GET_CLUSTER_DETAIL: `${CONSOLE_BASE_URL}/console/overview`, // 概览-获取集群
     GET_CLUSTER_SELECT: `${CONSOLE_BASE_URL}/cluster/clusters`, // 概览-集群下拉列表
     GET_NODEADDRESS_SELECT: `${CONSOLE_BASE_URL}/console/nodeAddress`, // 获取节点下拉
     // 根据节点搜索
 
-    SEARCH_TASKNAME_LIST: `${CONSOLE_BASE_URL}/group/searchJob`, // 明细-根据任务名搜索任务
-    SEARCH_TASKNAME_FUZZY: `${CONSOLE_BASE_URL}/group/listNames`, // 明细-模糊查询任务名
-    KILL_TASK: `${CONSOLE_BASE_URL}/group/stopJob`, // 明细-杀任务
-    KILL_TASKS: `${CONSOLE_BASE_URL}/group/stopJobList`, // 明细-杀全部任务或选中任务
+    SEARCH_TASKNAME_LIST: `${CONSOLE_BASE_URL}/console/searchJob`, // 明细-根据任务名搜索任务
+    SEARCH_TASKNAME_FUZZY: `${CONSOLE_BASE_URL}/console/listNames`, // 明细-模糊查询任务名
+    KILL_TASK: `${CONSOLE_BASE_URL}/console/stopJob`, // 明细-杀任务
+    KILL_TASKS: `${CONSOLE_BASE_URL}/console/stopJobList`, // 明细-杀全部任务或选中任务
     KILL_ALL_TASK: `${CONSOLE_BASE_URL}/console/stopAll`, // 杀全部任务
-    JOB_STICK: `${CONSOLE_BASE_URL}/group/jobStick`, // 置顶任务
+    JOB_STICK: `${CONSOLE_BASE_URL}/console/jobStick`, // 置顶任务
 
-    GET_ENGINE_LIST: `${CONSOLE_BASE_URL}/group/engineTypes`, // 引擎列表
-    GET_GROUP_LIST: `${CONSOLE_BASE_URL}/group/groups`, // group列表
-    GET_VIEW_DETAIL: `${CONSOLE_BASE_URL}/group/groupDetail`, // 查看明细 和搜索条件
-    CHANGE_JOB_PRIORITY: `${CONSOLE_BASE_URL}/group/jobPriority`, // 顺序调整调整优先级
-    GET_CLUSTER_RESOURCES: `${CONSOLE_BASE_URL}/group/clusterResources`, // 查看剩余资源
+    GET_ENGINE_LIST: `${CONSOLE_BASE_URL}/console/engineTypes`, // 引擎列表
+    GET_GROUP_LIST: `${CONSOLE_BASE_URL}/console/groups`, // group列表
+    GET_VIEW_DETAIL: `${CONSOLE_BASE_URL}/console/groupDetail`, // 查看明细 和搜索条件
+    CHANGE_JOB_PRIORITY: `${CONSOLE_BASE_URL}/console/jobPriority`, // 顺序调整调整优先级
+    GET_CLUSTER_RESOURCES: `${CONSOLE_BASE_URL}/console/clusterResources`, // 查看剩余资源
 
     GET_CLUSTER_INFO: `${CONSOLE_BASE_URL}/cluster/getCluster`,
     UPLOAD_RESOURCE: `${CONSOLE_BASE_UPLOAD_URL}/upload/component/config`, // 上传资源配置（hdfs、yarn）
