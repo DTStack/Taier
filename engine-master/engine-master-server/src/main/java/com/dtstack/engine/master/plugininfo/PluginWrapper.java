@@ -74,8 +74,7 @@ public class PluginWrapper{
             return;
         }
 
-        String paramsJsonStr = MapUtils.getString(actionParam, "jdbcUrlParams");
-        JSONObject paramsJson = JSONObject.parseObject(paramsJsonStr);
+        Map paramsJson = MapUtils.getMap(actionParam, "jdbcUrlParams");
         if(paramsJson == null || paramsJson.isEmpty()){
             return;
         }
@@ -114,7 +113,7 @@ public class PluginWrapper{
         hadoopConfig.put("hadoop.user.name", userName);
     }
 
-    private String getParamsString(String dbUrl, JSONObject paramsJson){
+    private String getParamsString(String dbUrl, Map paramsJson){
         if(dbUrl.contains(URI_PARAMS_DELIM)){
             String paramsStr = dbUrl.split("\\?")[1];
             for (String param : paramsStr.split(PARAMS_DELIM)) {
