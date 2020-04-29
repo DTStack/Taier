@@ -65,7 +65,7 @@ public interface ScheduleTaskShadeDao {
 
     Integer countPublishToProduce(@Param("projectId") Long projectId,@Param("appType")Integer appType);
 
-    List<ScheduleTaskForFillDataDTO> listSimpleTaskByTaskIds(@Param("taskIds") Collection<Long> taskIds, @Param("isDeleted") Integer isDeleted);
+    List<ScheduleTaskForFillDataDTO> listSimpleTaskByTaskIds(@Param("taskIds") Collection<Long> taskIds, @Param("isDeleted") Integer isDeleted,@Param("appType")Integer appType);
 
     String getSqlTextById(@Param("id") Long id);
 

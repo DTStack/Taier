@@ -658,10 +658,11 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         if (CollectionUtils.isEmpty(scheduleJobs)) {
             return new HashMap<>(0);
         }
+        Integer appType = scheduleJobs.get(0).getAppType();
 
-        List<Long> taskIdList = scheduleJobs.stream().map(ScheduleJob::getTaskId).collect(Collectors.toList());
+        Set<Long> taskIdList = scheduleJobs.stream().map(ScheduleJob::getTaskId).collect(Collectors.toSet());
 
-        return scheduleTaskShadeDao.listSimpleTaskByTaskIds(taskIdList, null).stream()
+        return scheduleTaskShadeDao.listSimpleTaskByTaskIds(taskIdList, null,appType).stream()
                 .collect(Collectors.toMap(ScheduleTaskForFillDataDTO::getTaskId, scheduleTaskForFillDataDTO -> scheduleTaskForFillDataDTO));
     }
 
@@ -1979,7 +1980,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             return new HashMap<>();
         }
         Set<Long> taskIdSet = scheduleJobs.stream().map(ScheduleJob::getTaskId).collect(Collectors.toSet());
-        return scheduleTaskShadeDao.listSimpleTaskByTaskIds(taskIdSet, null).stream().collect(Collectors.toMap(ScheduleTaskForFillDataDTO::getTaskId, scheduleTaskForFillDataDTO -> scheduleTaskForFillDataDTO));
+        Integer appType = scheduleJobs.get(0).getAppType();
+        return scheduleTaskShadeDao.listSimpleTaskByTaskIds(taskIdSet, null,appType).stream().collect(Collectors.toMap(ScheduleTaskForFillDataDTO::getTaskId, scheduleTaskForFillDataDTO -> scheduleTaskForFillDataDTO));
 
     }
 
