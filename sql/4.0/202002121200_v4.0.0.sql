@@ -681,6 +681,70 @@ update `schedule_job` as sj left join `schedule_engine_job` as sej
 DROP TABLE IF EXISTS `schedule_engine_job`;
 
 
+
+-- 账号表
+CREATE TABLE `console_user`
+(
+    `id`                 int(11)      NOT NULL AUTO_INCREMENT,
+    `dtuic_user_id`      int(11)      NOT NULL COMMENT 'dtuic userid',
+    `user_name`          varchar(256) NOT NULL COMMENT '用户名称',
+    `email`              varchar(256) NOT NULL COMMENT '用户手机号',
+    `status`             tinyint(1)   NOT NULL DEFAULT '0' COMMENT '用户状态0：正常，1：禁用',
+    `gmt_create`         datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+    `gmt_modified`       datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `is_deleted`         tinyint(1)   NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    `default_project_id` int(11)               DEFAULT NULL COMMENT '默认项目id',
+    `phone_number`       varchar(256)          DEFAULT NULL COMMENT '用户手机号',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `index_dtuic_user_id` (`dtuic_user_id`),
+    KEY `index_user_name` (`user_name`(128))
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 0
+  DEFAULT CHARSET = utf8;
+
+CREATE TABLE `console_account`
+(
+    `id`             int(11)      NOT NULL AUTO_INCREMENT,
+    `name`           varchar(24)  NOT NULL COMMENT '用户名',
+    `password`       varchar(256) NOT NULL COMMENT '密码',
+    `type`           tinyint(1)   NOT NULL COMMENT '账号类型',
+    `gmt_create`     datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `gmt_modified`   datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `is_deleted`     tinyint(1)   NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    `create_user_id` int(11)      NOT NULL,
+    `modify_user_id` int(11)               DEFAULT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8;
+
+CREATE TABLE `console_account_tenant`
+(
+    `id`             int(11)    NOT NULL AUTO_INCREMENT,
+    `account_id`     int(11)    NOT NULL COMMENT '数据库账号',
+    `user_id`        int(11)    NOT NULL COMMENT '数栈绑定用户',
+    `tenant_id`      int(11)    NOT NULL COMMENT '数栈绑定租户',
+    `gmt_create`     datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `gmt_modified`   datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `is_deleted`     tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    `create_user_id` int(11)    NOT NULL,
+    `modify_user_id` int(11)             DEFAULT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 0
+  DEFAULT CHARSET = utf8;
+
+-- 账号数据
+
+insert IGNORE into console_user
+select * from console.console_user;
+
+insert IGNORE into console_account
+select * from console.console_account;
+
+insert IGNORE into console_account_tenant
+select * from console.console_account_tenant;
+
+
 -- task
 
 insert IGNORE into schedule_task_shade( tenant_id, project_id, dtuic_tenant_id, app_type, node_pid, name, task_type, engine_type, compute_type, sql_text, task_params, task_id, schedule_conf, period_type, schedule_status, project_schedule_status, submit_status, gmt_create, gmt_modified, modify_user_id, create_user_id, owner_user_id, version_id, is_deleted, task_desc, main_class, exe_args, flow_id, is_publish_to_produce, extra_info, is_expire)
@@ -794,60 +858,4 @@ select bj.tenant_id,
        rej.retry_task_params,
        IFNULL(rej.compute_type,1)
 from task.rdos_batch_job bj LEFT JOIN ide.rdos_engine_job rej on bj.job_id = rej.job_id;
-
-
-
-
-
-
--- 账号表
-CREATE TABLE `console_user`
-(
-    `id`                 int(11)      NOT NULL AUTO_INCREMENT,
-    `dtuic_user_id`      int(11)      NOT NULL COMMENT 'dtuic userid',
-    `user_name`          varchar(256) NOT NULL COMMENT '用户名称',
-    `email`              varchar(256) NOT NULL COMMENT '用户手机号',
-    `status`             tinyint(1)   NOT NULL DEFAULT '0' COMMENT '用户状态0：正常，1：禁用',
-    `gmt_create`         datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-    `gmt_modified`       datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-    `is_deleted`         tinyint(1)   NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-    `default_project_id` int(11)               DEFAULT NULL COMMENT '默认项目id',
-    `phone_number`       varchar(256)          DEFAULT NULL COMMENT '用户手机号',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `index_dtuic_user_id` (`dtuic_user_id`),
-    KEY `index_user_name` (`user_name`(128))
-) ENGINE = InnoDB
-  AUTO_INCREMENT = 0
-  DEFAULT CHARSET = utf8;
-
-CREATE TABLE `console_account`
-(
-    `id`             int(11)      NOT NULL AUTO_INCREMENT,
-    `name`           varchar(24)  NOT NULL COMMENT '用户名',
-    `password`       varchar(256) NOT NULL COMMENT '密码',
-    `type`           tinyint(1)   NOT NULL COMMENT '账号类型',
-    `gmt_create`     datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `gmt_modified`   datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-    `is_deleted`     tinyint(1)   NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-    `create_user_id` int(11)      NOT NULL,
-    `modify_user_id` int(11)               DEFAULT NULL,
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8;
-
-CREATE TABLE `console_account_tenant`
-(
-    `id`             int(11)    NOT NULL AUTO_INCREMENT,
-    `account_id`     int(11)    NOT NULL COMMENT '数据库账号',
-    `user_id`        int(11)    NOT NULL COMMENT '数栈绑定用户',
-    `tenant_id`      int(11)    NOT NULL COMMENT '数栈绑定租户',
-    `gmt_create`     datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `gmt_modified`   datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-    `is_deleted`     tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-    `create_user_id` int(11)    NOT NULL,
-    `modify_user_id` int(11)             DEFAULT NULL,
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  AUTO_INCREMENT = 0
-  DEFAULT CHARSET = utf8;
 

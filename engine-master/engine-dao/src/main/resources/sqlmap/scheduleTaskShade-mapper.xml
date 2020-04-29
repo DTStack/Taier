@@ -570,6 +570,7 @@
                 #{id}
             </foreach>
         </if>
+        and app_type = #{appType}
     </select>
 
     <select id="getSqlTextById" resultType="java.lang.String">

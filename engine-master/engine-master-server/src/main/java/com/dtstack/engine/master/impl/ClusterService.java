@@ -266,7 +266,7 @@ public class ClusterService implements InitializingBean {
     /**
      * 对外接口
      */
-    public JSONObject pluginInfoJSON(@Param("tenantId") Long dtUicTenantId, @Param("engineType") String engineTypeStr, Long dtUicUserId) {
+    public JSONObject pluginInfoJSON(@Param("tenantId") Long dtUicTenantId, @Param("engineType") String engineTypeStr, @Param("dtUicUserId")Long dtUicUserId) {
         EngineTypeComponentType type;
         try {
             type = EngineTypeComponentType.getByEngineName(engineTypeStr);

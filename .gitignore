@@ -14,3 +14,4 @@ dependency-reduced-pom.xml
 entrance/dependency-reduced-pom.xml
 /lib/
 .DS_Store
+kerberosConfig/

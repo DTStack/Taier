@@ -83,7 +83,9 @@ public class PluginWrapper{
         String paramsStr = getParamsString(dbUrl, paramsJson);
 
         if(MultiEngineType.TIDB.getName().equalsIgnoreCase((String)actionParam.get("engineType"))){
-            dbUrl  = dbUrl.replace("?currentSchema=","");
+            //TiDB 没有currentSchema
+            pluginInfoJson.put("dbUrl", dbUrl  + paramsJson.get("currentSchema"));
+            return;
         }
 
         if(dbUrl.contains(URI_PARAMS_DELIM)){

@@ -352,7 +352,7 @@ public class RdbsExeQueue {
 
                 exeResult = true;
             } catch (Exception e) {
-                LOG.error("", e);
+                LOG.error("job {} execute error",engineJobId, e);
                 //错误信息更新到日志里面
                 if (LogStoreFactory.getLogStore() != null) {
                     LogStoreFactory.getLogStore().updateErrorLog(engineJobId, e.toString());
