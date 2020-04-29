@@ -50,7 +50,16 @@ public class RequestUtil {
             bodyParam = routingContext.getBodyAsJson().getMap();
         }
         params.putAll(bodyParam);
+        if (bodyParam.containsKey("dtUicUserId") && bodyParam.containsKey("dtUicTenantId")) {
+            Long dtUicTenantId = Long.valueOf(String.valueOf(bodyParam.get("dtUicTenantId")));
+            Long dtUicUserId = Long.valueOf(String.valueOf(bodyParam.get("dtUicUserId")));
+            params.put("userId", dtUicUserId);
+            params.put("createUserId", dtUicUserId);
+            params.put("modifyUserId", dtUicUserId);
+            params.put("dtuicTenantId", dtUicTenantId);
+        }
     }
+
     public static Map<String, Object> getRequestParams(Map<String, Object> params, RoutingContext routingContext, ApplicationContext context)
             throws Exception {
         if (params == null) {
@@ -75,6 +84,7 @@ public class RequestUtil {
     private static void addCookieInfo(RoutingContext routingContext, Map<String, Object> params) {
         params.put("projectId", CookieUtil.getProject(routingContext));
         params.put("productCode", CookieUtil.getProductCode(routingContext));
+        params.put("userId", CookieUtil.getUserId(routingContext));
     }
 
 }

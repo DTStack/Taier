@@ -536,7 +536,7 @@ public class ClusterService implements InitializingBean {
             pluginInfo.remove("password");
             pluginInfo.put("typeName", "impala");
         } else if (EComponentType.TIDB_SQL == type.getComponentType()) {
-            JSONObject tiDBConf = clusterConfigJson.getJSONObject(EComponentType.TIDB_SQL.getConfName());
+            JSONObject tiDBConf = JSONObject.parseObject(tiDBInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
             pluginInfo = new JSONObject();
             if(Objects.nonNull(tiDBConf)){
                 pluginInfo.putAll(tiDBConf);

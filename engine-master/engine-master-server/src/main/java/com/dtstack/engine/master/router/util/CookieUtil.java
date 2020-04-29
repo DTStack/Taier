@@ -34,6 +34,12 @@ public class CookieUtil {
         return cookie == null ? "" : cookie.getValue();
     }
 
+    public static String getUserId(RoutingContext routingContext) {
+        Cookie cookie = routingContext.getCookie(dtUserId);
+        return cookie == null ? "" : cookie.getValue();
+    }
+
+
     /**
      * 用户信息丢失 会导致页面显示不全 也需要重新登陆获取
      *
