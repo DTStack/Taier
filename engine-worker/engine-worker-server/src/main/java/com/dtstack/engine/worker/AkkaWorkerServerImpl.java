@@ -110,7 +110,7 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
     }
 
     @Override
-    public void heartBeat(WorkerInfo workerInfo) {
+    public void reportWorkerInfo(WorkerInfo workerInfo) {
         ActorSelection actorSelection = getActiveMasterAddress();
         if (null == actorSelection) {
             if (null != monitorNode) {
@@ -165,7 +165,7 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
     @Override
     public void run() {
         WorkerInfo workerInfo = new WorkerInfo(hostname, port, workerRemotePath, System.currentTimeMillis());
-        heartBeat(workerInfo);
+        reportWorkerInfo(workerInfo);
     }
 
     public static AkkaWorkerServerImpl getAkkaWorkerServer() {
