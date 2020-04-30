@@ -8,9 +8,9 @@ package com.dtstack.engine.worker;
 public interface WorkerServer<T, E> {
 
     /**
-     * send heartbeat to master
+     * send worker base info to master, e.g: ip,host,systemResource
      */
-    void heartBeat(T t);
+    void reportWorkerInfo(T t);
 
     /**
      * check the master is active
