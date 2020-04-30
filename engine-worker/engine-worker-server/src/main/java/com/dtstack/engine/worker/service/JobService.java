@@ -1,13 +1,17 @@
 package com.dtstack.engine.worker.service;
 
 import akka.actor.AbstractActor;
-import com.dtstack.engine.common.*;
+import com.dtstack.engine.common.akka.message.MessageContainerInfos;
+import com.dtstack.engine.common.akka.message.MessageGetCheckpoints;
+import com.dtstack.engine.common.akka.message.MessageGetEngineLog;
+import com.dtstack.engine.common.akka.message.MessageGetJobMaster;
+import com.dtstack.engine.common.akka.message.MessageGetJobStatus;
+import com.dtstack.engine.common.akka.message.MessageJudgeSlots;
+import com.dtstack.engine.common.akka.message.MessageStopJob;
+import com.dtstack.engine.common.akka.message.MessageSubmitJob;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.akka.message.*;
-import com.dtstack.engine.worker.client.ClientCache;
 import com.dtstack.engine.worker.client.ClientOperator;
-import com.dtstack.engine.worker.client.IClient;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -19,14 +23,12 @@ public class JobService extends AbstractActor {
     public Receive createReceive() {
         return receiveBuilder()
                 .match(MessageJudgeSlots.class, msg -> {
-                    JobClient jobClient = msg.getJobClient();
-                    IClient clusterClient = ClientCache.getInstance().getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
-                    sender().tell(clusterClient.judgeSlots(jobClient), getSelf());
+                    boolean sufficient = ClientOperator.getInstance().judgeSlots(msg.getJobClient());
+                    sender().tell(sufficient, getSelf());
                 })
                 .match(MessageSubmitJob.class, msg -> {
-                    JobClient jobClient = msg.getJobClient();
-                    IClient clusterClient = ClientCache.getInstance().getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
-                    sender().tell(clusterClient.submitJob(jobClient), getSelf());
+                    JobResult jobResult = ClientOperator.getInstance().submitJob( msg.getJobClient());
+                    sender().tell(jobResult, getSelf());
                 })
                 .match(MessageGetJobStatus.class, msg -> {
                     RdosTaskStatus status = ClientOperator.getInstance().getJobStatus(msg.getEngineType(), msg.getPluginInfo(), msg.getJobIdentifier());

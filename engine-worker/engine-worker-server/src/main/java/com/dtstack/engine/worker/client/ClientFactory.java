@@ -1,13 +1,21 @@
 package com.dtstack.engine.worker.client;
 
-import java.util.Iterator;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
-
-import com.dtstack.engine.common.callback.CallBack;
 import com.dtstack.engine.common.callback.ClassLoaderCallBackMethod;
-
+import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.engine.common.util.MathUtil;
+import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.worker.loader.DtClassLoader;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * company: www.dtstack.com
@@ -15,41 +23,57 @@ import com.google.common.collect.Maps;
  * create: 2019/11/12
  */
 public class ClientFactory {
+    private static String userDir = System.getProperty("user.dir");
 
     private static Map<String, ClassLoader> pluginClassLoader = Maps.newConcurrentMap();
 
-    public static ClassLoader getClassLoader(String pluginType) {
-        return pluginClassLoader.get(pluginType);
-    }
+    public static IClient createPluginClass(ClassLoader classLoader) throws Exception {
+        return ClassLoaderCallBackMethod.callbackAndReset(()-> {
+            ServiceLoader<IClient> serviceLoader = ServiceLoader.load(IClient.class);
 
-    public static IClient createPluginClass(String pluginType) throws Exception {
+            List<IClient> matchingClient = new ArrayList<>();
+            serviceLoader.iterator().forEachRemaining(matchingClient::add);
 
-        ClassLoader classLoader = pluginClassLoader.get(pluginType);
-        return ClassLoaderCallBackMethod.callbackAndReset(new CallBack<IClient>() {
-
-            @Override
-            public IClient execute() throws Exception {
-                ServiceLoader<IClient> iClients = ServiceLoader.load(IClient.class);
-                Iterator<IClient> iClientIterator = iClients.iterator();
-                if (!iClientIterator.hasNext()) {
-                    throw new RuntimeException("not support for engine type " + pluginType);
-                }
-
-                IClient client = iClientIterator.next();
-                return new ClientProxy(client);
+            if (matchingClient.size() != 1) {
+                throw new RuntimeException("zero or more than one plugin client found" + matchingClient);
             }
+            return new ClientProxy(matchingClient.get(0));
         }, classLoader, true);
     }
 
-    public static void addClassLoader(String pluginType, ClassLoader classLoader) {
-        if (pluginClassLoader.containsKey(pluginType)) {
-            return;
+    public static IClient buildPluginClient(String pluginInfo) throws Exception {
+        Map<String, Object> params = PublicUtil.jsonStrToObject(pluginInfo, Map.class);
+        String clientTypeStr = MathUtil.getString(params.get(ConfigConstant.TYPE_NAME_KEY));
+        if (StringUtils.isBlank(clientTypeStr)) {
+            throw new RuntimeException("not support for typeName:" + clientTypeStr + " pluginInfo:" + pluginInfo);
         }
 
-        pluginClassLoader.putIfAbsent(pluginType, classLoader);
+        ClassLoader classLoader = pluginClassLoader.computeIfAbsent(clientTypeStr, type -> {
+            String plugin = String.format("%s/pluginLibs/%s", userDir, type);
+            File pluginFile = new File(plugin);
+            if (!pluginFile.exists()) {
+                throw new RuntimeException(String.format("%s directory not found", plugin));
+            }
+            return createDtClassLoader(pluginFile);
+        });
+
+        return ClientFactory.createPluginClass(classLoader);
     }
 
-    public static boolean checkContainClassLoader(String pluginType) {
-        return pluginClassLoader.containsKey(pluginType);
+
+    private static URLClassLoader createDtClassLoader(File dir) {
+        File[] files = dir.listFiles();
+        URL[] urls = Arrays.stream(files)
+                .filter(file -> file.isFile() && file.getName().endsWith(".jar"))
+                .map(file -> {
+                    try {
+                        return file.toURI().toURL();
+                    } catch (MalformedURLException e) {
+                        throw new RuntimeException("file to url error ", e);
+                    }
+                })
+                .toArray(URL[]::new);
+
+        return new DtClassLoader(urls, ClientFactory.class.getClassLoader());
     }
 }

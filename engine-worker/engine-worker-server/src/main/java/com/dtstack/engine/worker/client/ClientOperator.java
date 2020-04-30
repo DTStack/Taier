@@ -2,6 +2,7 @@ package com.dtstack.engine.worker.client;
 
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
+import com.dtstack.engine.common.exception.ClientAccessException;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
@@ -128,4 +129,13 @@ public class ClientOperator {
         }
     }
 
+    public boolean judgeSlots(JobClient jobClient) throws ClientAccessException {
+        IClient clusterClient = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
+        return clusterClient.judgeSlots(jobClient);
+    }
+
+    public JobResult submitJob(JobClient jobClient) throws ClientAccessException {
+        IClient clusterClient = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
+        return clusterClient.submitJob(jobClient);
+    }
 }
