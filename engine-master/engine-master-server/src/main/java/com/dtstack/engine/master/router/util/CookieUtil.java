@@ -34,9 +34,9 @@ public class CookieUtil {
         return cookie == null ? "" : cookie.getValue();
     }
 
-    public static String getUserId(RoutingContext routingContext) {
+    public static long getUserId(RoutingContext routingContext) {
         Cookie cookie = routingContext.getCookie(dtUserId);
-        return cookie == null ? "" : cookie.getValue();
+        return cookie == null ? -1 : Long.parseLong(cookie.getValue());
     }
 
 
