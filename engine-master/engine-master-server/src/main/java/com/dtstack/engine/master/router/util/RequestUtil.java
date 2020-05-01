@@ -57,13 +57,6 @@ public class RequestUtil {
             params.put("createUserId", dtUicUserId);
             params.put("modifyUserId", dtUicUserId);
             params.put("dtuicTenantId", dtUicTenantId);
-        } else {
-            if(StringUtils.isBlank((String)params.get("dtuicTenantId"))){
-                params.remove("dtuicTenantId");
-            }
-            if(StringUtils.isBlank((String)params.get("userId"))){
-                params.remove("userId");
-            }
         }
     }
 
