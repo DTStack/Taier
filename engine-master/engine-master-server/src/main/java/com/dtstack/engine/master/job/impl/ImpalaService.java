@@ -83,7 +83,7 @@ public class ImpalaService {
     }
 
     public JdbcInfo impalaInfo(Long dtuicTenantId) {
-        Object data = clusterService.impalaInfo(dtuicTenantId);
+        Object data = clusterService.impalaInfo(dtuicTenantId,true);
         JdbcInfo JDBCInfo = null;
         if (data != null) {
             try {

@@ -148,7 +148,7 @@ public class HiveService {
     }
 
     private JdbcInfo hiveInfo(Long dtUicTenantId) {
-        Object data = clusterService.impalaInfo(dtUicTenantId);
+        Object data = clusterService.hiveInfo(dtUicTenantId,true);
         JdbcInfo JDBCInfo = null;
         if (data != null) {
             try {
@@ -301,7 +301,7 @@ public class HiveService {
     }
 
     public JdbcInfo hiveServerInfo(Long dtUicTenantId) {
-        Object data = clusterService.hiveServerInfo(dtUicTenantId);
+        Object data = clusterService.hiveServerInfo(dtUicTenantId,true);
         JdbcInfo jdbcInfo = null;
         if (data != null) {
             try {

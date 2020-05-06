@@ -1011,7 +1011,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * 触发 engine 执行指定task
      */
     public void sendTaskStartTrigger(ScheduleJob scheduleJob) throws Exception {
-
         ScheduleTaskShade batchTask = batchTaskShadeService.getBatchTaskById(scheduleJob.getTaskId(), scheduleJob.getAppType());
         if (batchTask == null) {
             throw new RdosDefineException("can not fiind task by id:" + scheduleJob.getTaskId());

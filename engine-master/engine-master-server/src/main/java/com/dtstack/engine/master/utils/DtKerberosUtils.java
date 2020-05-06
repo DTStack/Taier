@@ -1,21 +1,29 @@
 package com.dtstack.engine.master.utils;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.schedule.common.kerberos.KerberosConfigVerify;
+import com.google.common.base.Preconditions;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authentication.util.KerberosUtil;
+import org.apache.kerby.kerberos.kerb.keytab.Keytab;
+import org.apache.kerby.kerberos.kerb.type.base.PrincipalName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.security.krb5.Config;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
+
 
 public class DtKerberosUtils {
 
@@ -40,19 +48,20 @@ public class DtKerberosUtils {
     public synchronized static void loginKerberosHdfs(Configuration conf) throws Exception {
         UserGroupInformation.setConfiguration(conf);
 
-        String principal = HadoopConfTool.getHdfsPrincipal(conf);
-        String keyTabPath = HadoopConfTool.getHdfsKeytab(conf);
+        String principal = conf.get(HadoopConfTool.PRINCIPAL);
+        String keyTabPath = conf.get(HadoopConfTool.PRINCIPAL_FILE);
 
         LOG.info("login kerberos, princiapl={}, path={}", principal, keyTabPath);
         UserGroupInformation.loginUserFromKeytab(principal, keyTabPath);
     }
 
+    @Deprecated
     public synchronized static Configuration loginKerberosHdfs(Map<String, Object> confMap) {
         return loginKerberos(confMap, HadoopConfTool.DFS_NAMENODE_KERBEROS_PRINCIPAL, HadoopConfTool.DFS_NAMENODE_KEYTAB_FILE, HadoopConfTool.KEY_JAVA_SECURITY_KRB5_CONF);
     }
 
     public synchronized static Configuration loginKerberos(Map<String, Object> confMap) {
-        return loginKerberos(confMap, HadoopConfTool.HIVE_SERVER2_AUTHENTICATION_KERBEROS_PRINCIPAL, HadoopConfTool.HIVE_SERVER2_AUTHENTICATION_KERBEROS_KEYTAB, HadoopConfTool.KEY_JAVA_SECURITY_KRB5_CONF);
+        return loginKerberos(confMap, HadoopConfTool.PRINCIPAL, HadoopConfTool.PRINCIPAL_FILE, HadoopConfTool.KEY_JAVA_SECURITY_KRB5_CONF);
     }
 
     public synchronized static Configuration loginKerberos(Map<String, Object> confMap, String principal, String keytab, String krb5Conf) {
@@ -60,8 +69,16 @@ public class DtKerberosUtils {
         principal = MapUtils.getString(confMap, principal);
         keytab = MapUtils.getString(confMap, keytab);
         krb5Conf = MapUtils.getString(confMap, krb5Conf);
+        if (StringUtils.isNotEmpty(keytab) && !keytab.contains("/")) {
+            keytab = MapUtils.getString(confMap, HadoopConfTool.KEYTAB_PATH);
+        }
+        Preconditions.checkState(StringUtils.isNotEmpty(keytab), "keytab can not be empty");
 
+        LOG.info("login kerberos, principal={}, path={}, krb5Conf={}", principal, keytab, krb5Conf);
         Configuration config = getConfig(confMap);
+        if (StringUtils.isEmpty(principal) && StringUtils.isNotEmpty(keytab)) {
+            principal = getPrincipal(keytab);
+        }
         if (MapUtils.isNotEmpty(confMap) && StringUtils.isNotEmpty(principal) && StringUtils.isNotEmpty(keytab)) {
             try {
                 Config.refresh();
@@ -70,7 +87,7 @@ public class DtKerberosUtils {
                 }
                 config.set("hadoop.security.authentication", "Kerberos");
                 UserGroupInformation.setConfiguration(config);
-                LOG.info("login kerberos, princiapl={}, path={}, krb5Conf={}", principal, keytab, krb5Conf);
+                LOG.info("login kerberos, currentUser={}", UserGroupInformation.getCurrentUser(), principal, keytab, krb5Conf);
                 UserGroupInformation.loginUserFromKeytab(principal, keytab);
             } catch (Exception e) {
                 LOG.error("Login fail with config:{} \n {}", confMap, e);
@@ -78,6 +95,31 @@ public class DtKerberosUtils {
             }
         }
         return config;
+    }
+
+    public static String getPrincipal(String keytabPath) {
+        File file = new File(keytabPath);
+        Preconditions.checkState(file.exists() && file.isFile(), String.format("can't read keytab file (%s),it's  not exist or not a file", keytabPath));
+
+        Keytab keytab = null;
+        try {
+            keytab = Keytab.loadKeytab(file);
+        } catch (IOException e) {
+            LOG.error("Keytab loadKeytab error {}", e);
+            throw new RdosDefineException("解析keytab文件失败");
+        }
+        List<PrincipalName> names = keytab.getPrincipals();
+        if (CollectionUtils.isNotEmpty(names)) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("all principal from keytab={}:", file.getName());
+                names.stream().forEach(name -> LOG.debug("principal={}", name.toString()));
+            }
+            PrincipalName principalName = names.get(0);
+            if (Objects.nonNull(principalName)) {
+                return principalName.getName();
+            }
+        }
+        throw new RdosDefineException("当前keytab文件不包含principal信息");
     }
 
     public static Configuration getConfig(Map<String, Object> configMap) {
@@ -163,4 +205,74 @@ public class DtKerberosUtils {
     static String getLocalHostName() throws UnknownHostException {
         return InetAddress.getLocalHost().getCanonicalHostName();
     }
+
+
+    /**
+     * 将上传的xml转换为map
+     * @param resource
+     * @param localKerberosConf
+     * @return
+     * @throws Exception
+     */
+    public static Map<String, Object> parseKerberosFromUpload(Pair<String, String> resource, String localKerberosConf) throws Exception {
+        try {
+            File oldKerberosFile = new File(localKerberosConf);
+            if(oldKerberosFile.exists()){
+                FileUtils.deleteDirectory(oldKerberosFile);
+            }
+        } catch (Exception e) {
+            LOG.error("delete old kerberos dataJson file {} error",localKerberosConf,e);
+        }
+        Map<String, Map<String, String>> confMapMap = KerberosConfigVerify.parseKerberosFromUpload(resource.getRight(), localKerberosConf);
+        if (MapUtils.isNotEmpty(confMapMap)) {
+            Map<String, Object> map = new HashMap<>();
+            confMapMap.values().stream().forEach(conf -> map.putAll(conf));
+            checkPrincipalFile(localKerberosConf,map);
+            map.put("dfs.namenode.kerberos.principal.pattern","*");
+            return map;
+        } else {
+            throw new RdosDefineException("kerberos配置缺失");
+        }
+    }
+
+
+    /**
+     * 检查principalFile参数是否存在，且对应的keytab文件是否可用
+     * 并解析principal参数
+     *
+     * @param localKerberosConf
+     * @param map
+     */
+    private static void checkPrincipalFile(String localKerberosConf, Map<String, Object> map) {
+        String principalFile = (String)map.get(HadoopConfTool.PRINCIPAL_FILE);
+        if(StringUtils.isBlank(principalFile)) {
+            //从localKerberosConf 获取对应的keyTab path
+            principalFile = getPrincipalFilePath(localKerberosConf);
+        }
+        if (StringUtils.isNotEmpty(principalFile)) {
+            map.put(HadoopConfTool.PRINCIPAL_FILE,principalFile);
+            JSONObject obj = (JSONObject) JSONObject.toJSON(map);
+            Map<String, String> replacedMap = KerberosConfigVerify.replaceFilePath(obj, localKerberosConf);
+            String principal = DtKerberosUtils.getPrincipal(replacedMap.get(HadoopConfTool.PRINCIPAL_FILE));
+            map.putIfAbsent(HadoopConfTool.PRINCIPAL, principal);
+        } else {
+            throw new RdosDefineException("principalFile参数未添加");
+        }
+    }
+
+    private static String getPrincipalFilePath(String dir) {
+        File file = null;
+        File dirFile = new File(dir);
+        if (dirFile.exists() && dirFile.isDirectory()) {
+            File[] files = dirFile.listFiles();
+            if (Objects.nonNull(files)){
+                file = Arrays.stream(files).filter(f -> f.getName().endsWith(".keytab")).findFirst().orElseThrow(() -> new RdosDefineException("压缩包中不包含keytab文件"));
+                if (Objects.nonNull(file)) {
+                    return file.getPath();
+                }
+            }
+        }
+        return null;
+    }
+
 }
