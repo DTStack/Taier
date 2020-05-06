@@ -214,7 +214,10 @@ public class ActionService {
                     engineJobRetryDao.removeByJobId(jobId);
                 }
                 if(result && !RdosTaskStatus.ENGINEACCEPTED.getStatus().equals(scheduleJob.getStatus()) ){
-                    scheduleJobDao.updateJobStatus(scheduleJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus());
+                    scheduleJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus());
+                    scheduleJob.setAppType(paramActionExt.getAppType());
+                    scheduleJob.setDtuicTenantId(paramActionExt.getDtuicTenantId());
+                    scheduleJobDao.update(scheduleJob);
                     logger.info("jobId:{} update job status:{}.", scheduleJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus());
                 }
             }

@@ -23,6 +23,8 @@ import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.utils.HadoopConf;
+import com.dtstack.engine.master.utils.PublicUtil;
+import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.enums.ScheduleEngineType;
 import com.dtstack.schedule.common.enums.Sort;
@@ -30,10 +32,12 @@ import com.dtstack.schedule.common.kerberos.KerberosConfigVerify;
 import com.dtstack.schedule.common.util.Base64Util;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.jcraft.jsch.SftpException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -41,6 +45,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 import static java.lang.String.format;
@@ -58,6 +64,7 @@ public class ClusterService implements InitializingBean {
     private final static String TENANT_ID = "tenantId";
 
     private static final String SEPARATE = "/";
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     private final static List<String> BASE_CONFIG = Lists.newArrayList(EComponentType.HDFS.getConfName(),
             EComponentType.YARN.getConfName(), EComponentType.SPARK_THRIFT.getConfName(), EComponentType.SFTP.getConfName());
@@ -103,6 +110,9 @@ public class ClusterService implements InitializingBean {
 
     @Autowired
     private AccountDao accountDao;
+
+    @Autowired
+    private EnvironmentContext environmentContext;
 
 
     @Override
@@ -367,43 +377,43 @@ public class ClusterService implements InitializingBean {
      * 对外接口
      * FIXME 这里获取的hiveConf其实是spark thrift server的连接信息，后面会统一做修改
      */
-    public String hiveInfo(@Param("tenantId") Long dtUicTenantId) {
-        return getConfigByKey(dtUicTenantId, EComponentType.SPARK_THRIFT.getConfName());
+    public String hiveInfo(@Param("tenantId") Long dtUicTenantId, @Param("fullKerberos") boolean fullKerberos) {
+        return getConfigByKey(dtUicTenantId, EComponentType.SPARK_THRIFT.getConfName(),fullKerberos);
     }
 
     /**
      * 对外接口
      */
-    public String hiveServerInfo(@Param("tenantId") Long dtUicTenantId) {
-        return getConfigByKey(dtUicTenantId, EComponentType.HIVE_SERVER.getConfName());
+    public String hiveServerInfo(@Param("tenantId") Long dtUicTenantId,@Param("fullKerberos") boolean fullKerberos) {
+        return getConfigByKey(dtUicTenantId, EComponentType.HIVE_SERVER.getConfName(),fullKerberos);
     }
 
     /**
      * 对外接口
      */
-    public String hadoopInfo(@Param("tenantId") Long dtUicTenantId) {
-        return getConfigByKey(dtUicTenantId, EComponentType.HDFS.getConfName());
+    public String hadoopInfo(@Param("tenantId") Long dtUicTenantId,@Param("fullKerberos") boolean fullKerberos) {
+        return getConfigByKey(dtUicTenantId, EComponentType.HDFS.getConfName(),fullKerberos);
     }
 
     /**
      * 对外接口
      */
-    public String carbonInfo(@Param("tenantId") Long dtUicTenantId) {
-        return getConfigByKey(dtUicTenantId, EComponentType.CARBON_DATA.getConfName());
+    public String carbonInfo(@Param("tenantId") Long dtUicTenantId,@Param("fullKerberos") boolean fullKerberos) {
+        return getConfigByKey(dtUicTenantId, EComponentType.CARBON_DATA.getConfName(),fullKerberos);
     }
 
     /**
      * 对外接口
      */
-    public String impalaInfo(@Param("tenantId") Long dtUicTenantId) {
-        return getConfigByKey(dtUicTenantId, EComponentType.IMPALA_SQL.getConfName());
+    public String impalaInfo(@Param("tenantId") Long dtUicTenantId,@Param("fullKerberos") boolean fullKerberos) {
+        return getConfigByKey(dtUicTenantId, EComponentType.IMPALA_SQL.getConfName(),fullKerberos);
     }
 
     /**
      * 对外接口
      */
     public String sftpInfo(@Param("tenantId") Long dtUicTenantId) {
-        return getConfigByKey(dtUicTenantId, EComponentType.SFTP.getConfName());
+        return getConfigByKey(dtUicTenantId, EComponentType.SFTP.getConfName(),false);
     }
 
     @Forbidden
@@ -434,7 +444,7 @@ public class ClusterService implements InitializingBean {
         return getCluster(engine.getClusterId(), true);
     }
 
-    public String getConfigByKey(@Param("dtUicTenantId")Long dtUicTenantId, @Param("key") String key) {
+    public String getConfigByKey(@Param("dtUicTenantId")Long dtUicTenantId, @Param("key") String key,@Param("fullKerberos") boolean fullKerberos) {
         ClusterVO cluster = getClusterByTenant(dtUicTenantId);
         JSONObject config = buildClusterConfig(cluster);
         KerberosConfig kerberosConfig = componentService.getKerberosConfig(cluster.getId());
@@ -442,9 +452,88 @@ public class ClusterService implements InitializingBean {
         JSONObject configObj = config.getJSONObject(key);
         if (configObj != null) {
             addKerberosConfigWithHdfs(key, cluster, kerberosConfig, configObj);
+            if(fullKerberos){
+                //将sftp中keytab配置转换为本地路径
+                this.fullKerberosFilePath(dtUicTenantId,configObj);
+            }
             return configObj.toJSONString();
         }
         return "{}";
+    }
+
+    private <T> T fullKerberosFilePath(Long dtUicTenantId, T data) {
+        Map<String, String> sftp = JSONObject.parseObject(this.sftpInfo(dtUicTenantId),Map.class);
+        if (MapUtils.isEmpty(sftp)) {
+            return data;
+        } else {
+            JSONObject dataMap = this.getJsonObject(data);
+            this.accordToKerberosFile(sftp, dataMap);
+            data = this.convertJsonOverBack(data, dataMap);
+            return data;
+        }
+    }
+
+    private <T> T convertJsonOverBack(T data, JSONObject dataMap) {
+        if (data instanceof String) {
+            data = (T) dataMap.toString();
+        } else {
+            try {
+                data = objectMapper.readValue(dataMap.toString(), (Class<T>) data.getClass());
+            } catch (IOException e) {
+                LOGGER.error("", e);
+            }
+        }
+        return data;
+    }
+
+
+    private <T> JSONObject getJsonObject(T data) {
+        JSONObject dataMap = null;
+        if (data instanceof String) {
+            dataMap = JSONObject.parseObject((String)data);
+        } else {
+            dataMap = (JSONObject)JSONObject.toJSON(data);
+        }
+
+        return dataMap;
+    }
+
+
+
+    private void accordToKerberosFile(Map<String, String> sftp, JSONObject dataMap){
+        try {
+            JSONObject configJsonObject = dataMap.getJSONObject("kerberosConfig");
+            if (!Objects.isNull(configJsonObject)) {
+                KerberosConfig kerberosConfig = (KerberosConfig) PublicUtil.strToObject(configJsonObject.toString(), KerberosConfig.class);
+                if (Objects.nonNull(kerberosConfig)) {
+                    Preconditions.checkState(Objects.nonNull(kerberosConfig.getClusterId()));
+                    Preconditions.checkState(Objects.nonNull(kerberosConfig.getOpenKerberos()));
+                    Preconditions.checkState(StringUtils.isNotEmpty(kerberosConfig.getPrincipal()));
+                    Preconditions.checkState(StringUtils.isNotEmpty(kerberosConfig.getRemotePath()));
+                    if (kerberosConfig.getOpenKerberos() > 0) {
+                        String clusterKey = AppType.CONSOLE + "_" + kerberosConfig.getClusterId();
+                        String localPath = environmentContext.getLocalKerberosDir() + File.separator + clusterKey;
+                        KerberosConfigVerify.downloadKerberosFromSftp(clusterKey, localPath, sftp);
+                        File file = new File(localPath);
+                        Preconditions.checkState(file.exists() && file.isDirectory(), "console kerberos local path not exist");
+                        File keytabFile = (File)Arrays.stream(file.listFiles()).filter((obj) -> {
+                            return obj.getName().endsWith("keytab");
+                        }).findFirst().orElseThrow(() -> {
+                            return new RdosDefineException("keytab文件不存在");
+                        });
+                        configJsonObject.put("keytabPath", keytabFile.getPath());
+                        configJsonObject.put("principalFile", keytabFile.getName());
+                        configJsonObject.putAll((Map)Optional.ofNullable(configJsonObject.getJSONObject("hdfsConfig")).orElse(new JSONObject()));
+                        configJsonObject.remove("hdfsConfig");
+                        dataMap.put("kerberosConfig",configJsonObject);
+                    }
+                }
+
+            }
+        } catch (IOException | SftpException e) {
+            LOGGER.error("accordToKerberosFile error {}",dataMap, e);
+            throw new RdosDefineException("下载kerberos文件失败");
+        }
     }
 
     public Map<String, Object> getConfig(Long dtUicTenantId, String key) {
@@ -671,7 +760,7 @@ public class ClusterService implements InitializingBean {
 
     public String tiDBInfo(@Param("tenantId") Long dtUicTenantId, @Param("userId") Long dtUicUserId){
         //优先绑定账号
-        String jdbcInfo = getConfigByKey(dtUicTenantId, EComponentType.TIDB_SQL.getConfName());
+        String jdbcInfo = getConfigByKey(dtUicTenantId, EComponentType.TIDB_SQL.getConfName(),false);
         User dtUicUser = userDao.getByDtUicUserId(dtUicUserId);
         if(Objects.isNull(dtUicUser)){
             return jdbcInfo;

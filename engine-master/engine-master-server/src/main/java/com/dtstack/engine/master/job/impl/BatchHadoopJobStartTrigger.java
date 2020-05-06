@@ -2,8 +2,7 @@ package com.dtstack.engine.master.job.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.ScheduleTaskParamShade;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.ComputeType;
@@ -11,6 +10,8 @@ import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.RetryUtil;
+import com.dtstack.engine.dao.EngineTenantDao;
+import com.dtstack.engine.dao.KerberosDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
@@ -18,10 +19,12 @@ import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ActionService;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ComponentService;
+import com.dtstack.engine.master.impl.EngineService;
 import com.dtstack.engine.master.job.IJobStartTrigger;
 import com.dtstack.engine.master.scheduler.JobParamReplace;
 import com.dtstack.engine.master.utils.DBUtil;
 import com.dtstack.engine.master.utils.HadoopConf;
+import com.dtstack.engine.master.utils.HadoopConfTool;
 import com.dtstack.engine.master.utils.HdfsOperator;
 import com.dtstack.schedule.common.enums.DataBaseType;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
@@ -37,6 +40,8 @@ import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.ibatis.annotations.Param;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -46,12 +51,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
+import java.security.PrivilegedExceptionAction;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Supplier;
 
 /**
  * @author yuebai
@@ -86,6 +94,14 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
     @Autowired
     private ComponentService componentService;
 
+    @Autowired
+    private KerberosDao kerberosDao;
+
+    @Autowired
+    private EngineService engineSerivce;
+
+    @Autowired
+    private EngineTenantDao engineTenantDao;
 
     private DateTimeFormatter dayFormatterAll = DateTimeFormat.forPattern("yyyyMMddHHmmss");
 
@@ -546,7 +562,13 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
                 if (taskType.equals(EScheduleJobType.SHELL.getVal())) {
                     content = content.replaceAll("\r\n", System.getProperty("line.separator"));
                 }
-                HdfsOperator.uploadInputStreamToHdfs(HadoopConf.getConfiguration(dtuicTenantId), content.getBytes(), hdfsPath);
+                Configuration configuration = HadoopConf.getConfiguration(dtuicTenantId);
+                if ("true".equals(configuration.get("hadoop.security.authorization"))) {
+                    //kerberos 认证
+                    loginKerberos(dtuicTenantId, content, hdfsPath, configuration);
+
+                }
+
             }
         } catch (Exception e) {
             LOG.error("", e);
@@ -554,5 +576,58 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
         }
 
         return HadoopConf.getDefaultFs(dtuicTenantId) + hdfsPath;
+    }
+
+    private void loginKerberos(Long dtuicTenantId, String content, String hdfsPath, Configuration configuration) {
+        EngineTenant engineTenant = engineTenantDao.getByTenantIdAndEngineType(dtuicTenantId, MultiEngineType.HADOOP.getType());
+        if(Objects.isNull(engineTenant)){
+            LOG.info("dtuicTenantId {} engineTenant is null", dtuicTenantId);
+            throw new RdosDefineException("Update task to HDFS failure");
+        }
+        Engine engine = engineSerivce.getOne(engineTenant.getEngineId());
+        if(Objects.isNull(engine)){
+            LOG.info("engineId {} engine is null", engineTenant.getEngineId());
+            throw new RdosDefineException("Update task to HDFS failure");
+        }
+        KerberosConfig kerberosConfig = kerberosDao.getByClusterId(engine.getClusterId());
+        if(Objects.nonNull(kerberosConfig)){
+            //验证kerberos
+            String principal = kerberosConfig.getPrincipal();
+            String localClusterPath = environmentContext.getLocalKerberosDir() + kerberosConfig.getRemotePath().substring(kerberosConfig.getRemotePath().lastIndexOf(-1));
+            String localKeyTabPath = localClusterPath + File.separator + kerberosConfig.getName();
+            File localFile = new File(localKeyTabPath);
+            if(!localFile.exists()){
+                //从sftp下载
+                Cluster cluster = clusterService.getOne(engine.getClusterId());
+                componentService.downloadClusterSftpPath(cluster,localClusterPath);
+            }
+            String keytab = localKeyTabPath;
+            final byte[] contentBytes = content.getBytes();
+            final String hdfsPathStr = hdfsPath;
+            BatchHadoopJobStartTrigger.loginKerberosWithCallBack(configuration, principal, keytab, null, () -> {
+                try {
+                    HdfsOperator.uploadInputStreamToHdfs(configuration, contentBytes, hdfsPathStr);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return null;
+            });
+        }
+    }
+
+    public static <T> T loginKerberosWithCallBack(Configuration configuration, String keytabPath, String principal,String krb5Conf, Supplier<T> supplier) {
+        if (StringUtils.isNotEmpty(krb5Conf)) {
+            System.setProperty(HadoopConfTool.KEY_JAVA_SECURITY_KRB5_CONF, krb5Conf);
+        }
+        UserGroupInformation.setConfiguration(configuration);
+        try {
+            UserGroupInformation ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(principal, keytabPath);
+            T t = ugi.doAs((PrivilegedExceptionAction<T>) supplier::get);
+            LOG.info("userGroupInformation current user = {} ugi user  = {} ", UserGroupInformation.getCurrentUser(), ugi.getUserName());
+            return t;
+        } catch (Exception e) {
+            LOG.error("{}", e);
+            throw new RdosDefineException("kerberos校验失败, Message:" + e.getMessage());
+        }
     }
 }
