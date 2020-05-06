@@ -377,35 +377,35 @@ public class ClusterService implements InitializingBean {
      * 对外接口
      * FIXME 这里获取的hiveConf其实是spark thrift server的连接信息，后面会统一做修改
      */
-    public String hiveInfo(@Param("tenantId") Long dtUicTenantId, @Param("fullKerberos") boolean fullKerberos) {
+    public String hiveInfo(@Param("tenantId") Long dtUicTenantId, @Param("fullKerberos") Boolean fullKerberos) {
         return getConfigByKey(dtUicTenantId, EComponentType.SPARK_THRIFT.getConfName(),fullKerberos);
     }
 
     /**
      * 对外接口
      */
-    public String hiveServerInfo(@Param("tenantId") Long dtUicTenantId,@Param("fullKerberos") boolean fullKerberos) {
+    public String hiveServerInfo(@Param("tenantId") Long dtUicTenantId,@Param("fullKerberos") Boolean fullKerberos) {
         return getConfigByKey(dtUicTenantId, EComponentType.HIVE_SERVER.getConfName(),fullKerberos);
     }
 
     /**
      * 对外接口
      */
-    public String hadoopInfo(@Param("tenantId") Long dtUicTenantId,@Param("fullKerberos") boolean fullKerberos) {
+    public String hadoopInfo(@Param("tenantId") Long dtUicTenantId,@Param("fullKerberos") Boolean fullKerberos) {
         return getConfigByKey(dtUicTenantId, EComponentType.HDFS.getConfName(),fullKerberos);
     }
 
     /**
      * 对外接口
      */
-    public String carbonInfo(@Param("tenantId") Long dtUicTenantId,@Param("fullKerberos") boolean fullKerberos) {
+    public String carbonInfo(@Param("tenantId") Long dtUicTenantId,@Param("fullKerberos") Boolean fullKerberos) {
         return getConfigByKey(dtUicTenantId, EComponentType.CARBON_DATA.getConfName(),fullKerberos);
     }
 
     /**
      * 对外接口
      */
-    public String impalaInfo(@Param("tenantId") Long dtUicTenantId,@Param("fullKerberos") boolean fullKerberos) {
+    public String impalaInfo(@Param("tenantId") Long dtUicTenantId,@Param("fullKerberos") Boolean fullKerberos) {
         return getConfigByKey(dtUicTenantId, EComponentType.IMPALA_SQL.getConfName(),fullKerberos);
     }
 
@@ -444,7 +444,7 @@ public class ClusterService implements InitializingBean {
         return getCluster(engine.getClusterId(), true);
     }
 
-    public String getConfigByKey(@Param("dtUicTenantId")Long dtUicTenantId, @Param("key") String key,@Param("fullKerberos") boolean fullKerberos) {
+    public String getConfigByKey(@Param("dtUicTenantId")Long dtUicTenantId, @Param("key") String key,@Param("fullKerberos") Boolean fullKerberos) {
         ClusterVO cluster = getClusterByTenant(dtUicTenantId);
         JSONObject config = buildClusterConfig(cluster);
         KerberosConfig kerberosConfig = componentService.getKerberosConfig(cluster.getId());
@@ -452,9 +452,9 @@ public class ClusterService implements InitializingBean {
         JSONObject configObj = config.getJSONObject(key);
         if (configObj != null) {
             addKerberosConfigWithHdfs(key, cluster, kerberosConfig, configObj);
-            if(fullKerberos){
+            if (Objects.nonNull(fullKerberos) && fullKerberos) {
                 //将sftp中keytab配置转换为本地路径
-                this.fullKerberosFilePath(dtUicTenantId,configObj);
+                this.fullKerberosFilePath(dtUicTenantId, configObj);
             }
             return configObj.toJSONString();
         }
