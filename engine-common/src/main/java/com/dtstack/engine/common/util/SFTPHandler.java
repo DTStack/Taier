@@ -183,7 +183,11 @@ public class SFTPHandler {
     public int downloadDir(String ftpDir, String localDir) {
         int sum = 0;
         try {
-
+            File localDirPath = new File(localDir);
+            if(!localDirPath.exists()){
+                boolean mkdirs = localDirPath.mkdirs();
+                logger.info("local file path {}  mkdir {} :",localDir, mkdirs);
+            }
             try {
                 Vector files = channelSftp.ls(ftpDir);
                 if (files == null) {
