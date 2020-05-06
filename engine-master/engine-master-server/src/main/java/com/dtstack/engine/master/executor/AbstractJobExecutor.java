@@ -277,8 +277,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 }
                 List<ScheduleBatchJob> listExecJobs = this.listExecJob(startId, nodeAddress, cycTime.getLeft(), cycTime.getRight());
                 if (CollectionUtils.isEmpty(listExecJobs)) {
-                    //遍历数据库结束的哨兵
-                    jopPriorityQueue.putSentinel(SentinelType.END_DB);
                     if (logger.isInfoEnabled()) {
                         logger.info("scheduleType:{} nodeAddress:{} add END_DB Sentinel!!!", getScheduleType(), nodeAddress);
                     }
@@ -288,7 +286,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                     boolean put = jopPriorityQueue.putJob(scheduleBatchJob);
                     if (!put) {
                         //阻塞时的哨兵
-                        jopPriorityQueue.putSentinel(SentinelType.END_QUEUE);
                         if (logger.isInfoEnabled()) {
                             logger.info("scheduleType:{} nodeAddress:{} add END_QUEUE Sentinel!!!", getScheduleType(), nodeAddress);
                         }

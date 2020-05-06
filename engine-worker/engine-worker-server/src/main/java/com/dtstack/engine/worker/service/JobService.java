@@ -1,23 +1,29 @@
 package com.dtstack.engine.worker.service;
 
 import akka.actor.AbstractActor;
-import com.dtstack.engine.common.akka.message.MessageContainerInfos;
-import com.dtstack.engine.common.akka.message.MessageGetCheckpoints;
-import com.dtstack.engine.common.akka.message.MessageGetEngineLog;
-import com.dtstack.engine.common.akka.message.MessageGetJobMaster;
-import com.dtstack.engine.common.akka.message.MessageGetJobStatus;
-import com.dtstack.engine.common.akka.message.MessageJudgeSlots;
-import com.dtstack.engine.common.akka.message.MessageStopJob;
-import com.dtstack.engine.common.akka.message.MessageSubmitJob;
+import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.common.akka.message.*;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.exception.ClientAccessException;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.worker.client.ClientOperator;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class JobService extends AbstractActor {
+    private static final Logger logger = LoggerFactory.getLogger(JobService.class);
+
+    private ExecutorService executors = new ThreadPoolExecutor(20, 20,
+            0L, TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<>(0), new CustomThreadFactory("akkaJobExecutor"));
 
     @Override
     public Receive createReceive() {
@@ -27,8 +33,15 @@ public class JobService extends AbstractActor {
                     sender().tell(sufficient, getSelf());
                 })
                 .match(MessageSubmitJob.class, msg -> {
-                    JobResult jobResult = ClientOperator.getInstance().submitJob( msg.getJobClient());
-                    sender().tell(jobResult, getSelf());
+                    executors.submit(() -> {
+                        JobResult jobResult = null;
+                        try {
+                            jobResult = ClientOperator.getInstance().submitJob(msg.getJobClient());
+                        } catch (ClientAccessException e) {
+                            logger.error("receive error {}", msg, e);
+                        }
+                        sender().tell(jobResult, getSelf());
+                    });
                 })
                 .match(MessageGetJobStatus.class, msg -> {
                     RdosTaskStatus status = ClientOperator.getInstance().getJobStatus(msg.getEngineType(), msg.getPluginInfo(), msg.getJobIdentifier());
