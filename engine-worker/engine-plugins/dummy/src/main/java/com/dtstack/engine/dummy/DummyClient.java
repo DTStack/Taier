@@ -5,7 +5,7 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.worker.client.AbstractClient;
+import com.dtstack.engine.common.client.AbstractClient;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;

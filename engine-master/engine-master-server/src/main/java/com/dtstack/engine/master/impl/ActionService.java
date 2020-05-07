@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.exception.ErrorCode;
@@ -78,6 +79,9 @@ public class ActionService {
      * 如在当前节点,则直接处理任务
      */
     public Boolean start(Map<String, Object> params){
+
+        logger.info("start  actionParam: {}", JSONObject.toJSONString(params));
+
         ParamActionExt paramActionExt = null;
         try{
             paramActionExt = PublicUtil.mapToObject(params, ParamActionExt.class);

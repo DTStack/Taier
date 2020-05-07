@@ -1,4 +1,4 @@
-package com.dtstack.engine.worker.jobdealer;
+package com.dtstack.engine.common.jobdealer;
 
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.akka.config.AkkaConfig;

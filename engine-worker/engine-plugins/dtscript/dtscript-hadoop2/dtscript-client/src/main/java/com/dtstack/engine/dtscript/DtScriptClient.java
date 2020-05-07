@@ -3,7 +3,7 @@ package com.dtstack.engine.dtscript;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MathUtil;
-import com.dtstack.engine.worker.client.AbstractClient;
+import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.EJobType;
