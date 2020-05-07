@@ -77,6 +77,7 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
         for (int i = 0; i < AkkaConfig.getAkkaAskConcurrent(); i++) {
             this.actorSystem.actorOf(Props.create(JobService.class), AkkaConfig.getWorkerName() + "SubmitJob" + i);
             this.actorSystem.actorOf(Props.create(JobService.class), AkkaConfig.getWorkerName() + "DealJob" + i);
+            this.actorSystem.actorOf(Props.create(JobService.class), AkkaConfig.getWorkerName() + "JudgeSlots" + i);
         }
 
         this.hostname = AkkaConfig.getAkkaHostname();

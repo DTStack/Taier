@@ -9,6 +9,7 @@ import akka.util.Timeout;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.akka.RpcService;
 import com.dtstack.engine.common.akka.config.AkkaConfig;
+import com.dtstack.engine.common.akka.message.MessageJudgeSlots;
 import com.dtstack.engine.common.akka.message.MessageSubmitJob;
 import com.dtstack.engine.common.akka.message.WorkerInfo;
 import com.dtstack.engine.common.exception.WorkerAccessException;
@@ -103,6 +104,8 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
         ActorSelection actorSelection;
         if (message instanceof MessageSubmitJob) {
             actorSelection = actorSystem.actorSelection(path + "SubmitJob" + (submitJob.getAndIncrement() % akkaConcurrent));
+        } else if (message instanceof MessageJudgeSlots) {
+            actorSelection = actorSystem.actorSelection(path + "JudgeSlots" + (submitJob.getAndIncrement() % akkaConcurrent));
         } else {
             actorSelection = actorSystem.actorSelection(path + "DealJob" + (dealJob.getAndIncrement() % akkaConcurrent));
         }
