@@ -1,6 +1,6 @@
 package com.dtstack.engine.spark210;
 
-import com.dtstack.engine.worker.client.IClient ;
+import com.dtstack.engine.common.client.IClient ;
 import com.dtstack.engine.common.restart.ARestartService;
 import com.dtstack.engine.common.restart.IJobRestartStrategy;
 import com.dtstack.engine.spark210.restart.SparkUndoRestart;

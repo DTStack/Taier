@@ -11,7 +11,7 @@ import com.dtstack.engine.common.akka.message.MessageStopJob;
 import com.dtstack.engine.common.akka.message.MessageSubmitJob;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.worker.client.ClientOperator;
+import com.dtstack.engine.common.client.ClientOperator;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;

@@ -24,7 +24,7 @@ import com.dtstack.engine.flink.util.FlinkConfUtil;
 import com.dtstack.engine.flink.util.FlinkUtil;
 import com.dtstack.engine.flink.util.HadoopConf;
 import com.dtstack.engine.flink.util.KerberosUtils;
-import com.dtstack.engine.worker.client.AbstractClient;
+import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.worker.enums.ClassLoaderType;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;

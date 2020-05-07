@@ -1,4 +1,4 @@
-package com.dtstack.engine.worker.client;
+package com.dtstack.engine.common.client;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -13,7 +13,7 @@ import com.dtstack.engine.common.callback.ClassLoaderCallBackMethod;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.worker.loader.DtClassLoader;
+import com.dtstack.engine.common.loader.DtClassLoader;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 
