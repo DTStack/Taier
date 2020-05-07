@@ -9,6 +9,7 @@ import akka.util.Timeout;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.akka.RpcService;
 import com.dtstack.engine.common.akka.config.AkkaConfig;
+import com.dtstack.engine.common.akka.message.MessageSubmitJob;
 import com.dtstack.engine.common.akka.message.WorkerInfo;
 import com.dtstack.engine.common.exception.WorkerAccessException;
 import com.dtstack.engine.common.util.LogCountUtil;
@@ -85,6 +86,9 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
         return RandomUtils.getRandomValueFromMap(workers);
     }
 
+    private int idx = 0;
+    private int idx2 = 0;
+
     @Override
     public Object sendMessage(Object message) throws Exception {
         String path = strategyForGetWorker(availableWorkers);
@@ -92,7 +96,13 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
             Thread.sleep(10000);
             throw new WorkerAccessException("sleep 10000 ms.");
         }
-        ActorSelection actorSelection = actorSystem.actorSelection(path);
+        ActorSelection actorSelection;
+        if (message instanceof MessageSubmitJob) {
+            actorSystem.actorFor("");
+            actorSelection = actorSystem.actorSelection(path + "SubmitJob" + (idx++ % 20));
+        } else {
+            actorSelection = actorSystem.actorSelection(path + "DealJob" + (idx2++ % 20));
+        }
         Future<Object> future = Patterns.ask(actorSelection, message, askTimeout);
         Object result = Await.result(future, askResultTime);
         return result;

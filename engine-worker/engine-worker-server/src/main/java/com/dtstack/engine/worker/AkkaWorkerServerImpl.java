@@ -1,6 +1,5 @@
 package com.dtstack.engine.worker;
 
-import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
@@ -49,7 +48,6 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
     private static Random random = new Random();
 
     private ActorSystem actorSystem;
-    private ActorRef workerActorRef;
     private ActorSelection masterActorSelection;
 
     private String hostname;
@@ -75,7 +73,11 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
     @Override
     public void start(Config config) {
         this.actorSystem = AkkaConfig.initActorSystem(config);
-        this.workerActorRef = this.actorSystem.actorOf(Props.create(JobService.class), AkkaConfig.getWorkerName());
+        this.actorSystem.actorOf(Props.create(JobService.class), AkkaConfig.getWorkerName());
+        for (int i = 0; i < 20; i++) {
+            this.actorSystem.actorOf(Props.create(JobService.class), AkkaConfig.getWorkerName() + "SubmitJob" + i);
+            this.actorSystem.actorOf(Props.create(JobService.class), AkkaConfig.getWorkerName() + "DealJob" + i);
+        }
 
         this.hostname = AkkaConfig.getAkkaHostname();
         this.port = AkkaConfig.getAkkaPort();
