@@ -219,6 +219,9 @@
             <if test="flowId !=null">
                 flow_id  = #{flowId},
             </if>
+            <if test="projectScheduleStatus != null">
+                project_schedule_status = #{projectScheduleStatus},
+            </if>
         </set>
     </sql>
 
