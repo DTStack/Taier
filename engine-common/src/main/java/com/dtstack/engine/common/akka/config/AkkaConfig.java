@@ -186,6 +186,12 @@ public class AkkaConfig {
         return getValueWithDefault(keyName, StringUtils.EMPTY);
     }
 
+
+    public static Integer getAkkaAskConcurrent() {
+        String keyName = ConfigConstant.AKKA_ASK_CONCURRENT;
+        return Integer.valueOf(getValueWithDefault(keyName, "50"));
+    }
+
     public static boolean isLocalMode() {
         return LOCAL_MODE;
     }

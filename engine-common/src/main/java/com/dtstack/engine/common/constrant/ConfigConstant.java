@@ -28,6 +28,7 @@ public class ConfigConstant {
 
     public static final String AKKA_ASK_TIMEOUT = "akka.ask.timeout";
     public static final String AKKA_ASK_RESULTTIMEOUT = "akka.ask.resultTimeout";
+    public static final String AKKA_ASK_CONCURRENT = "akka.ask.concurrent";
 
     public static final String AKKA_WORKER_NODE_LABELS = "akka.worker.node.labels";
     public static final String AKKA_WORKER_SYSTEMRESOURCE_PROBE_INTERVAL = "akka.worker.systemresource.probe.Interval";
