@@ -67,6 +67,8 @@ public class TaskStatusDealer implements Runnable {
     private long jobLogDelay;
     private JobCompletedLogDelayDealer jobCompletedLogDelayDealer;
 
+    private int taskStatusDealerPoolSize;
+
     /**
      * 记录job 连续某个状态的频次
      */
@@ -81,27 +83,27 @@ public class TaskStatusDealer implements Runnable {
                 logger.info("jobResource:{} start again gap:[{} ms]...", jobResource, INTERVAL * MULTIPLES);
             }
 
+            CountDownLatch ctl = new CountDownLatch(taskStatusDealerPoolSize);
             Map<String, ShardData> shards = shardManager.getShards();
-            CountDownLatch ctl = new CountDownLatch(shards.size());
             for (Map.Entry<String, ShardData> shardEntry : shards.entrySet()) {
-                taskStatusPool.submit(() -> {
+                for (Map.Entry<String, Integer> entry : shardEntry.getValue().getView().entrySet()) {
                     try {
-                        for (Map.Entry<String, Integer> entry : shardEntry.getValue().getView().entrySet()) {
-                            try {
-                                if (!RdosTaskStatus.needClean(entry.getValue())) {
+                        if (!RdosTaskStatus.needClean(entry.getValue())) {
+                            taskStatusPool.submit(() -> {
+                                try {
                                     logger.info("jobId:{} status:{}", entry.getKey(), entry.getValue());
                                     dealJob(entry.getKey());
+                                } catch (Throwable e) {
+                                    logger.error("{}", e);
+                                } finally {
+                                    ctl.countDown();
                                 }
-                            } catch (Throwable e) {
-                                logger.error("", e);
-                            }
+                            });
                         }
                     } catch (Throwable e) {
-                        logger.error("{}", e);
-                    } finally {
-                        ctl.countDown();
+                        logger.error("", e);
                     }
-                });
+                }
             }
             ctl.await();
 
@@ -133,6 +135,9 @@ public class TaskStatusDealer implements Runnable {
                     }
 
                     shardCache.updateLocalMemTaskStatus(jobId, status);
+                    scheduleJobDao.updateJobStatusAndExecTime(jobId, status);
+                    logger.info("jobId:{} update job status:{}.", jobId, status);
+
                     //数据的更新顺序，先更新job_cache，再更新engine_batch_job
                     if (RdosTaskStatus.getStoppedStatus().contains(status)) {
                         jobLogDelayDealer(jobId, jobIdentifier, engineJobCache.getEngineType(), engineJobCache.getComputeType(), pluginInfoStr);
@@ -143,23 +148,21 @@ public class TaskStatusDealer implements Runnable {
                     if (RdosTaskStatus.RUNNING.getStatus().equals(status)) {
                         taskCheckpointDealer.addCheckpointTaskForQueue(scheduleJob.getComputeType(), jobId, jobIdentifier, engineJobCache.getEngineType(), pluginInfoStr);
                     }
-
-                    scheduleJobDao.updateJobStatusAndExecTime(jobId, status);
-                    logger.info("jobId:{} update job status:{}.", jobId, status);
                 }
             }
         } else {
             shardCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
             scheduleJobDao.updateJobStatusAndExecTime(jobId, RdosTaskStatus.CANCELED.getStatus());
+            logger.info("jobId:{} update job status:{}.", jobId, RdosTaskStatus.CANCELED.getStatus());
             engineJobCacheDao.delete(jobId);
         }
     }
 
     private RdosTaskStatus checkNotFoundStatus(RdosTaskStatus taskStatus, String jobId) {
         TaskStatusFrequencyDealer statusPair = updateJobStatusFrequency(jobId, taskStatus.getStatus());
+        //如果状态为NotFound，则对频次进行判断
         if (statusPair.getStatus() == RdosTaskStatus.NOTFOUND.getStatus().intValue()) {
-            if (statusPair.getNum() >= NOT_FOUND_LIMIT_TIMES ||
-                    System.currentTimeMillis() - statusPair.getCreateTime() >= NOT_FOUND_LIMIT_INTERVAL) {
+            if (statusPair.getNum() >= NOT_FOUND_LIMIT_TIMES || System.currentTimeMillis() - statusPair.getCreateTime() >= NOT_FOUND_LIMIT_INTERVAL) {
                 return RdosTaskStatus.FAILED;
             }
         }
@@ -180,16 +183,12 @@ public class TaskStatusDealer implements Runnable {
      * @return
      */
     private TaskStatusFrequencyDealer updateJobStatusFrequency(String jobId, Integer status) {
-
-        TaskStatusFrequencyDealer statusFrequency = jobStatusFrequency.get(jobId);
-        statusFrequency = statusFrequency == null ? new TaskStatusFrequencyDealer(status) : statusFrequency;
-        if (statusFrequency.getStatus() == status.intValue()) {
+        TaskStatusFrequencyDealer statusFrequency = jobStatusFrequency.computeIfAbsent(jobId, k -> new TaskStatusFrequencyDealer(status));
+        if (statusFrequency.getStatus().equals(status)) {
             statusFrequency.setNum(statusFrequency.getNum() + 1);
         } else {
-            statusFrequency = new TaskStatusFrequencyDealer(status);
+            statusFrequency.setNum(0);
         }
-
-        jobStatusFrequency.put(jobId, statusFrequency);
         return statusFrequency;
     }
 
@@ -210,7 +209,8 @@ public class TaskStatusDealer implements Runnable {
         setBean();
         createLogDelayDealer();
 
-        this.taskStatusPool = new ThreadPoolExecutor(1, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
+        this.taskStatusDealerPoolSize = environmentContext.getTaskStatusDealerPoolSize();
+        this.taskStatusPool = new ThreadPoolExecutor(taskStatusDealerPoolSize, taskStatusDealerPoolSize, 60L, TimeUnit.SECONDS,
                 new SynchronousQueue<>(true), new CustomThreadFactory(jobResource + this.getClass().getSimpleName()));
     }
 

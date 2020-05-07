@@ -17,6 +17,7 @@ public class EnvironmentContext {
 
     @Autowired
     private Environment environment;
+    private int taskStatusDealerPoolSize;
 
     /**
      * =========base=======
@@ -332,5 +333,9 @@ public class EnvironmentContext {
 
     public boolean getCheckJobMaxPriorityStrategy() {
         return Boolean.parseBoolean(environment.getProperty("checkJobMaxPriorityStrategy", "false"));
+    }
+
+    public int getTaskStatusDealerPoolSize() {
+        return Integer.parseInt(environment.getProperty("taskStatusDealerPoolSize", "10" ));
     }
 }
