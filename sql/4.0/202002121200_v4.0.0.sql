@@ -764,7 +764,7 @@ select
     ts.schedule_conf,
     ts.period_type,
     ts.schedule_status,
-    ts.schedule_status,
+    ts.project_schedule_status,
     ts.submit_status,
     ts.gmt_create,
     ts.gmt_modified,
