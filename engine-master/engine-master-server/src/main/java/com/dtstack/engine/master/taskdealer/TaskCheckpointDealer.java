@@ -243,7 +243,7 @@ public class TaskCheckpointDealer implements InitializingBean {
                 paramInfo = Arrays.stream(taskParamsStr.split("\n"))
                         .map(param -> param.split("="))
                         .filter(paramKv -> paramKv.length > 1)
-                        .collect(Collectors.toMap((kv) -> kv[0].trim(), (kv) -> kv[1].trim()));
+                        .collect(Collectors.toConcurrentMap((kv) -> kv[0].trim(), (kv) -> kv[1].trim(), (oldValue, newValue) -> newValue));
             }
             return paramInfo;
         });
