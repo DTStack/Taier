@@ -52,10 +52,10 @@ public class ShardCache implements ApplicationContextAware {
         return jobResourceShardManager.computeIfAbsent(engineJobCache.getJobResource(), jr -> {
             ShardManager shardManager = new ShardManager();
             TaskStatusDealer taskStatusDealer = new TaskStatusDealer();
-            taskStatusDealer.setApplicationContext(applicationContext);
+            taskStatusDealer.setJobResource(engineJobCache.getJobResource());
             taskStatusDealer.setShardManager(shardManager);
             taskStatusDealer.setShardCache(this);
-            taskStatusDealer.setJobResource(engineJobCache.getJobResource());
+            taskStatusDealer.setApplicationContext(applicationContext);
             scheduledService.scheduleWithFixedDelay(
                     taskStatusDealer,
                     0,
