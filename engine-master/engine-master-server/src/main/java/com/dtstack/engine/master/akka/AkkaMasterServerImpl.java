@@ -64,6 +64,8 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
     private int akkaConcurrent;
     private AtomicLong submitJob = new AtomicLong(0);
     private AtomicLong dealJob = new AtomicLong(0);
+    private AtomicLong judgeSlotJob = new AtomicLong(0);
+
 
     @Autowired
     private ZkService zkService;
@@ -102,19 +104,17 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
             throw new WorkerAccessException("sleep 10000 ms.");
         }
         ActorSelection actorSelection;
+        Duration duration = askResultTime;
         if (message instanceof MessageSubmitJob) {
             actorSelection = actorSystem.actorSelection(path + "SubmitJob" + (submitJob.getAndIncrement() % akkaConcurrent));
+            duration = askSubmitTime;
         } else if (message instanceof MessageJudgeSlots) {
-            actorSelection = actorSystem.actorSelection(path + "JudgeSlots" + (submitJob.getAndIncrement() % akkaConcurrent));
+            actorSelection = actorSystem.actorSelection(path + "JudgeSlots" + (judgeSlotJob.getAndIncrement() % akkaConcurrent));
         } else {
             actorSelection = actorSystem.actorSelection(path + "DealJob" + (dealJob.getAndIncrement() % akkaConcurrent));
         }
         Future<Object> future = Patterns.ask(actorSelection, message, askTimeout);
-        if (message instanceof MessageSubmitJob) {
-            return Await.result(future, askSubmitTime);
-        } else {
-            return Await.result(future, askResultTime);
-        }
+        return Await.result(future, duration);
     }
 
     @Override
