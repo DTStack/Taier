@@ -22,9 +22,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -83,26 +86,32 @@ public class TaskStatusDealer implements Runnable {
                 logger.info("jobResource:{} start again gap:[{} ms]...", jobResource, INTERVAL * MULTIPLES);
             }
 
-            CountDownLatch ctl = new CountDownLatch(taskStatusDealerPoolSize);
             Map<String, ShardData> shards = shardManager.getShards();
+            List<Map.Entry<String, Integer>> jobs = new ArrayList<>(shardManager.getShardDataSize());
             for (Map.Entry<String, ShardData> shardEntry : shards.entrySet()) {
-                for (Map.Entry<String, Integer> entry : shardEntry.getValue().getView().entrySet()) {
-                    try {
-                        if (!RdosTaskStatus.needClean(entry.getValue())) {
-                            taskStatusPool.submit(() -> {
-                                try {
-                                    logger.info("jobId:{} status:{}", entry.getKey(), entry.getValue());
-                                    dealJob(entry.getKey());
-                                } catch (Throwable e) {
-                                    logger.error("{}", e);
-                                } finally {
-                                    ctl.countDown();
-                                }
-                            });
+                jobs.addAll(shardEntry.getValue().getView().entrySet());
+            }
+
+            Semaphore buildSemaphore = new Semaphore(taskStatusDealerPoolSize);
+            CountDownLatch ctl = new CountDownLatch(jobs.size());
+            for (Map.Entry<String, Integer> job : jobs) {
+                try {
+                    buildSemaphore.acquire();
+                    taskStatusPool.submit(() -> {
+                        if (!RdosTaskStatus.needClean(job.getValue())) {
+                            try {
+                                logger.info("jobId:{} status:{}", job.getKey(), job.getValue());
+                                dealJob(job.getKey());
+                            } catch (Throwable e) {
+                                logger.error("{}", e);
+                            } finally {
+                                buildSemaphore.release();
+                                ctl.countDown();
+                            }
                         }
-                    } catch (Throwable e) {
-                        logger.error("", e);
-                    }
+                    });
+                } catch (Throwable e) {
+                    logger.error("", e);
                 }
             }
             ctl.await();
