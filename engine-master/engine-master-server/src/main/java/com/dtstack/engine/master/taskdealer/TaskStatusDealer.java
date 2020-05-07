@@ -72,8 +72,7 @@ public class TaskStatusDealer implements Runnable {
      */
     private Map<String, TaskStatusFrequencyDealer> jobStatusFrequency = Maps.newConcurrentMap();
 
-    private ExecutorService taskStatusPool = new ThreadPoolExecutor(1, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
-            new SynchronousQueue<>(true), new CustomThreadFactory(this.getClass().getSimpleName()));
+    private ExecutorService taskStatusPool;
 
     @Override
     public void run() {
@@ -210,6 +209,9 @@ public class TaskStatusDealer implements Runnable {
         this.applicationContext = applicationContext;
         setBean();
         createLogDelayDealer();
+
+        this.taskStatusPool = new ThreadPoolExecutor(1, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
+                new SynchronousQueue<>(true), new CustomThreadFactory(jobResource + this.getClass().getSimpleName()));
     }
 
     private void setBean() {
