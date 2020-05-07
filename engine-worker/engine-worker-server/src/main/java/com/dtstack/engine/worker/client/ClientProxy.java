@@ -75,11 +75,11 @@ public class ClientProxy implements IClient {
                         }
                     }, targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
-                    throw new RdosDefineException(e.getMessage());
+                    throw new RdosDefineException(e);
                 }
             }, executorService).get(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new RdosDefineException(e.getMessage());
+            throw new RdosDefineException(e);
         }
     }
 
@@ -96,11 +96,11 @@ public class ClientProxy implements IClient {
                         }
                     }, targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
-                    throw new RdosDefineException(e.getMessage());
+                    throw new RdosDefineException(e);
                 }
             }, executorService).get(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new RdosDefineException(e.getMessage());
+            throw new RdosDefineException(e);
         }
     }
 
@@ -117,11 +117,11 @@ public class ClientProxy implements IClient {
                         }
                     }, targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
-                    throw new RdosDefineException(e.getMessage());
+                    throw new RdosDefineException(e);
                 }
             }, executorService).get(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new RdosDefineException(e.getMessage());
+            throw new RdosDefineException(e);
         }
     }
 
@@ -138,11 +138,11 @@ public class ClientProxy implements IClient {
                         }
                     }, targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
-                    throw new RdosDefineException(e.getMessage());
+                    throw new RdosDefineException(e);
                 }
             }, executorService).get(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new RdosDefineException(e.getMessage());
+            throw new RdosDefineException(e);
         }
     }
 
@@ -159,11 +159,11 @@ public class ClientProxy implements IClient {
                         }
                     }, targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
-                    throw new RdosDefineException(e.getMessage());
+                    throw new RdosDefineException(e);
                 }
             }, executorService).get(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new RdosDefineException(e.getMessage());
+            throw new RdosDefineException(e);
         }
     }
 
@@ -180,11 +180,11 @@ public class ClientProxy implements IClient {
                         }
                     }, targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
-                    throw new RdosDefineException(e.getMessage());
+                    throw new RdosDefineException(e);
                 }
             }, executorService).get(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new RdosDefineException(e.getMessage());
+            throw new RdosDefineException(e);
         }
     }
 
@@ -208,11 +208,11 @@ public class ClientProxy implements IClient {
                     } else if (e instanceof RdosDefineException && ((RdosDefineException) e).getErrorCode() == ErrorCode.HTTP_CALL_ERROR) {
                         return false;
                     }
-                    throw new RdosDefineException(e.getMessage());
+                    throw new RdosDefineException(e);
                 }
             }, executorService).get(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new RdosDefineException(e.getMessage());
+            throw new RdosDefineException(e);
         }
     }
 
@@ -229,11 +229,11 @@ public class ClientProxy implements IClient {
                         }
                     }, targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
-                    throw new RdosDefineException(e.getMessage());
+                    throw new RdosDefineException(e);
                 }
             }, executorService).get(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new RdosDefineException(e.getMessage());
+            throw new RdosDefineException(e);
         }
     }
 
@@ -250,11 +250,11 @@ public class ClientProxy implements IClient {
                         }
                     }, targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
-                    throw new RdosDefineException(e.getMessage());
+                    throw new RdosDefineException(e);
                 }
             }, executorService).get(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new RdosDefineException(e.getMessage());
+            throw new RdosDefineException(e);
         }
     }
 
