@@ -9,6 +9,7 @@ import akka.util.Timeout;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.akka.RpcService;
 import com.dtstack.engine.common.akka.config.AkkaConfig;
+import com.dtstack.engine.common.akka.message.MessageJudgeSlots;
 import com.dtstack.engine.common.akka.message.MessageSubmitJob;
 import com.dtstack.engine.common.akka.message.WorkerInfo;
 import com.dtstack.engine.common.exception.WorkerAccessException;
@@ -57,11 +58,14 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
     private Set<String> availableWorkers = new HashSet<>();
     private long workNodeTimeout;
     private Duration askResultTime;
+    private Duration askSubmitTime;
     private Timeout askTimeout;
     private EnvironmentContext environmentContext;
     private int akkaConcurrent;
     private AtomicLong submitJob = new AtomicLong(0);
     private AtomicLong dealJob = new AtomicLong(0);
+    private AtomicLong judgeSlotJob = new AtomicLong(0);
+
 
     @Autowired
     private ZkService zkService;
@@ -74,6 +78,7 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
     public Config loadConfig() {
         Config config = AkkaConfig.init(ConfigFactory.load());
         this.askResultTime = Duration.create(AkkaConfig.getAkkaAskResultTimeout(), TimeUnit.SECONDS);
+        this.askSubmitTime = Duration.create(AkkaConfig.getAkkaAskSubmitTimeout(), TimeUnit.SECONDS);
         this.askTimeout = Timeout.create(java.time.Duration.ofSeconds(AkkaConfig.getAkkaAskTimeout()));
         this.akkaConcurrent = AkkaConfig.getAkkaAskConcurrent();
         return config;
@@ -99,14 +104,17 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
             throw new WorkerAccessException("sleep 10000 ms.");
         }
         ActorSelection actorSelection;
+        Duration duration = askResultTime;
         if (message instanceof MessageSubmitJob) {
             actorSelection = actorSystem.actorSelection(path + "SubmitJob" + (submitJob.getAndIncrement() % akkaConcurrent));
+            duration = askSubmitTime;
+        } else if (message instanceof MessageJudgeSlots) {
+            actorSelection = actorSystem.actorSelection(path + "JudgeSlots" + (judgeSlotJob.getAndIncrement() % akkaConcurrent));
         } else {
             actorSelection = actorSystem.actorSelection(path + "DealJob" + (dealJob.getAndIncrement() % akkaConcurrent));
         }
         Future<Object> future = Patterns.ask(actorSelection, message, askTimeout);
-        Object result = Await.result(future, askResultTime);
-        return result;
+        return Await.result(future, duration);
     }
 
     @Override

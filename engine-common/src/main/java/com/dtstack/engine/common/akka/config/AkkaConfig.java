@@ -112,7 +112,12 @@ public class AkkaConfig {
 
     public static Long getAkkaAskResultTimeout() {
         String keyName = ConfigConstant.AKKA_ASK_RESULTTIMEOUT;
-        return Long.valueOf(getValueWithDefault(keyName, "120"));
+        return Long.valueOf(getValueWithDefault(keyName, "20"));
+    }
+
+    public static Long getAkkaAskSubmitTimeout() {
+        String keyName = ConfigConstant.AKKA_ASK_SUBMIT_TIMEOUT;
+        return Long.valueOf(getValueWithDefault(keyName, "180"));
     }
 
     public static Config init(Config config) {
