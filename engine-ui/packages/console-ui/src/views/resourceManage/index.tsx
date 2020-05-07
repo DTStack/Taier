@@ -1,5 +1,7 @@
 import * as React from 'react';
 import { Row, Col, Select, Button, Card, Form, Tabs, Table, Input, message } from 'antd';
+import { get } from 'lodash';
+
 import Api from '../../api/console';
 import { ENGIN_TYPE_TEXT } from '../../consts';
 import { isHadoopEngine, isTiDBEngine } from '../../consts/clusterFunc';
@@ -51,7 +53,7 @@ class ResourceManage extends React.Component<any, any> {
             if (res.code === 1) {
                 this.setState({
                     tableData: res.data.data || [],
-                    total: res.totalCount,
+                    total: get(res, 'data.totalCount', 0),
                     loading: false
                 })
             } else {
@@ -238,6 +240,7 @@ class ResourceManage extends React.Component<any, any> {
             pageSize: PAGESIZE,
             total
         }
+        console.log('console:', this.state);
         return (
             <div className='resource-wrapper'>
                 <Row>
