@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 @Component
 public class WorkerOperator {
@@ -37,7 +38,11 @@ public class WorkerOperator {
     }
 
     public JobResult submitJob(JobClient jobClient) throws Exception {
-        return (JobResult) callbackAndReset(jobClient, () -> masterServer.sendMessage(new MessageSubmitJob(jobClient)));
+        try {
+            return (JobResult) callbackAndReset(jobClient, () -> masterServer.sendMessage(new MessageSubmitJob(jobClient)));
+        } catch (TimeoutException e) {
+            return JobResult.createErrorResult("because lacking resource, submit job failed.");
+        }
     }
 
     public RdosTaskStatus getJobStatus(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
