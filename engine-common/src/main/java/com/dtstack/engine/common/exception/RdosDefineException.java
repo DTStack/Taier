@@ -13,6 +13,10 @@ public class RdosDefineException extends RuntimeException {
 
     private ErrorCode errorCode;
 
+    public RdosDefineException(Throwable cause){
+        super(cause);
+    }
+
     public RdosDefineException(String errorMessage){
         super(errorMessage);
         this.errorMessage = errorMessage;
