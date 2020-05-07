@@ -34,6 +34,7 @@ import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @Auther: jiangjunjie
@@ -58,6 +59,9 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
     private Duration askResultTime;
     private Timeout askTimeout;
     private EnvironmentContext environmentContext;
+    private int akkaConcurrent;
+    private AtomicLong submitJob = new AtomicLong(0);
+    private AtomicLong dealJob = new AtomicLong(0);
 
     @Autowired
     private ZkService zkService;
@@ -71,6 +75,7 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
         Config config = AkkaConfig.init(ConfigFactory.load());
         this.askResultTime = Duration.create(AkkaConfig.getAkkaAskResultTimeout(), TimeUnit.SECONDS);
         this.askTimeout = Timeout.create(java.time.Duration.ofSeconds(AkkaConfig.getAkkaAskTimeout()));
+        this.akkaConcurrent = AkkaConfig.getAkkaAskConcurrent();
         return config;
     }
 
@@ -86,9 +91,6 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
         return RandomUtils.getRandomValueFromMap(workers);
     }
 
-    private int idx = 0;
-    private int idx2 = 0;
-
     @Override
     public Object sendMessage(Object message) throws Exception {
         String path = strategyForGetWorker(availableWorkers);
@@ -98,10 +100,9 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
         }
         ActorSelection actorSelection;
         if (message instanceof MessageSubmitJob) {
-            actorSystem.actorFor("");
-            actorSelection = actorSystem.actorSelection(path + "SubmitJob" + (idx++ % 20));
+            actorSelection = actorSystem.actorSelection(path + "SubmitJob" + (submitJob.getAndIncrement() % akkaConcurrent));
         } else {
-            actorSelection = actorSystem.actorSelection(path + "DealJob" + (idx2++ % 20));
+            actorSelection = actorSystem.actorSelection(path + "DealJob" + (dealJob.getAndIncrement() % akkaConcurrent));
         }
         Future<Object> future = Patterns.ask(actorSelection, message, askTimeout);
         Object result = Await.result(future, askResultTime);
