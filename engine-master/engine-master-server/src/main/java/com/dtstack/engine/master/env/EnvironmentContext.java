@@ -67,15 +67,15 @@ public class EnvironmentContext {
     }
 
     public int getmMaxPoolSize() {
-        return Integer.parseInt(environment.getProperty("max.pool.size", "30"));
+        return Integer.parseInt(environment.getProperty("max.pool.size", "50"));
     }
 
     public int getMinPoolSize() {
-        return Integer.parseInt(environment.getProperty("min.pool.size", "5"));
+        return Integer.parseInt(environment.getProperty("min.pool.size", "10"));
     }
 
     public int getInitialPoolSize() {
-        return Integer.parseInt(environment.getProperty("initial.pool.size", "5"));
+        return Integer.parseInt(environment.getProperty("initial.pool.size", "10"));
     }
 
     public int getCheckTimeout() {
