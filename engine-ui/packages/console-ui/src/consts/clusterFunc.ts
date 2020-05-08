@@ -62,7 +62,7 @@ export function validateCompParams (componentValue: any) {
  * @param hadoopComp hadoop参数配置项
  * @param libraComp libra参数配置项
  */
-export function exChangeComponentConf (hadoopComp: any = [], libraComp: any = [], tidbComp: any = []) {
+export function exChangeComponentConf (hadoopComp: any = [], libraComp: any = [], tidbComp: any = [], oracleComp: any = []) {
     const comp = hadoopComp.concat(libraComp, tidbComp);
     let componentConf: any = {};
     comp.map((item: any) => {
@@ -153,6 +153,12 @@ export function showTestResult (testResults: any, engineType: any) {
             case COMPONENT_TYPE_VALUE.TIDB_SQL: {
                 testStatus = Object.assign(testStatus, {
                     tidbSqlTestResult: !isHadoop ? comp : {}
+                })
+                break;
+            }
+            case COMPONENT_TYPE_VALUE.ORACLE_SQL: {
+                testStatus = Object.assign(testStatus, {
+                    oracleSqlTestResult: !isHadoop ? comp : {}
                 })
                 break;
             }
@@ -451,4 +457,8 @@ export function isLibraEngine (engineType: numOrStr) {
 // 是否是TiDB引擎
 export function isTiDBEngine (engineType: numOrStr) {
     return engineType == ENGINE_TYPE.TI_DB;
+}
+
+export function isOracleEngine (engineType: numOrStr) {
+    return engineType == ENGINE_TYPE.ORACLE;
 }
