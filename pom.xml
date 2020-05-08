@@ -28,8 +28,10 @@
         <module>engine-worker/engine-plugins/base</module>
         <module>engine-worker/engine-plugins/dummy</module>
         <!--<module>engine-worker/engine-plugins/spark/spark-hadoop2</module>-->
-        <module>engine-worker/engine-plugins/spark/spark-yarn-hadoop2</module>
         <module>engine-worker/engine-plugins/spark/spark-yarn-hadoop3</module>
+        <module>engine-worker/engine-plugins/spark/yarn2-hdfs2-spark-core</module>
+        <module>engine-worker/engine-plugins/spark/yarn2-hdfs2-spark213</module>
+
         <!--<module>engine-worker/engine-plugins/spark/spark160-yarn-hadoop2</module>-->
         <module>engine-worker/engine-plugins/flink/flink180-hadoop2</module>
         <module>engine-worker/engine-plugins/flink/flink180-hadoop3</module>
