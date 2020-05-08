@@ -566,7 +566,8 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
                 if ("true".equals(configuration.get("hadoop.security.authorization"))) {
                     //kerberos 认证
                     loginKerberos(dtuicTenantId, content, hdfsPath, configuration);
-
+                } else {
+                    HdfsOperator.uploadInputStreamToHdfs(HadoopConf.getConfiguration(dtuicTenantId), content.getBytes(), hdfsPath);
                 }
 
             }
