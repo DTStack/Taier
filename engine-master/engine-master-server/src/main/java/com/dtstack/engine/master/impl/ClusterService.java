@@ -117,12 +117,11 @@ public class ClusterService implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        HadoopConf.setClusterService(this);
+
         if (isDefaultClusterExist()) {
             return;
         }
-
-        HadoopConf.setClusterService(this);
-
 
         try {
             addDefaultCluster();
