@@ -92,7 +92,7 @@ public class FlinkClientBuilder {
         builder.hadoopConf = hadoopConf;
         builder.yarnConf = yarnConf;
         if (flinkConfig.isOpenKerberos()){
-            initSecurity(flinkConfig);
+            builder.initSecurity(flinkConfig);
         }
         if (Deploy.yarn.name().equalsIgnoreCase(flinkConfig.getClusterMode())){
             builder.yarnClient = initYarnClient(yarnConf);
@@ -448,15 +448,15 @@ public class FlinkClientBuilder {
         return pluginRoot + SyncPluginInfo.FILE_SP + SyncPluginInfo.SYNC_PLUGIN_DIR_NAME;
     }
 
-    private static void initSecurity(FlinkConfig flinkConfig) throws IOException {
+    public void initSecurity(FlinkConfig flinkConfig) throws IOException {
         try {
             LOG.info("start init security!");
             KerberosUtils.login(flinkConfig);
+            LOG.info("UGI info: " + UserGroupInformation.getCurrentUser());
         } catch (IOException e) {
             LOG.error("initSecurity happens error", e);
             throw new IOException("InitSecurity happens error", e);
         }
-        LOG.info("UGI info: " + UserGroupInformation.getCurrentUser());
     }
 
     private static YarnClient initYarnClient(YarnConfiguration yarnConf) throws IOException {

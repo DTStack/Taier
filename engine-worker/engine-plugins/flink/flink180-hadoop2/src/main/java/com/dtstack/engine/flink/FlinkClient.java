@@ -417,6 +417,9 @@ public class FlinkClient extends AbstractClient {
      */
     @Override
     public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) {
+
+        initSecurity();
+
         String jobId = jobIdentifier.getEngineJobId();
         String applicationId = jobIdentifier.getApplicationId();
 
@@ -457,6 +460,17 @@ public class FlinkClient extends AbstractClient {
             return RdosTaskStatus.NOTFOUND;
         }
 
+    }
+
+    private void initSecurity() {
+        if (flinkConfig.isOpenKerberos()){
+            try {
+                logger.debug("start init security!");
+                flinkClientBuilder.initSecurity(flinkConfig);
+            } catch (IOException e) {
+                logger.error("InitSecurity happens error", e);
+            }
+        }
     }
 
     /**
@@ -631,6 +645,8 @@ public class FlinkClient extends AbstractClient {
 
     @Override
     public boolean judgeSlots(JobClient jobClient) {
+
+        initSecurity();
 
         FlinkYarnMode taskRunMode = FlinkUtil.getTaskRunMode(jobClient.getConfProperties(), jobClient.getComputeType());
         boolean isPerJob = ComputeType.STREAM == jobClient.getComputeType() || FlinkYarnMode.isPerJob(taskRunMode);
