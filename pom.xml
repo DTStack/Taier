@@ -49,6 +49,7 @@
         <module>engine-worker/engine-plugins/kylin</module>
         <module>engine-worker/engine-plugins/rdbs</module>
 
+        <module>engine-worker/engine-plugins/hadoop/hadoop-core</module>
         <module>engine-worker/engine-plugins/hadoop/hadoop2</module>
         <module>engine-worker/engine-plugins/hadoop/hadoop3</module>
     </modules>
