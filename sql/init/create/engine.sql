@@ -22,7 +22,8 @@ CREATE TABLE `schedule_engine_job_checkpoint` (
   `checkpoint_savepath` varchar(128) DEFAULT NULL COMMENT 'checkpoint存储路径',
   `checkpoint_counts` varchar(128) DEFAULT NULL COMMENT 'checkpoint信息中的counts指标',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `taskid_checkpoint` (`task_id`,`checkpoint_id`) COMMENT 'taskid和checkpoint组成的唯一索引'
+  UNIQUE KEY `taskid_checkpoint` (`task_id`,`checkpoint_id`) COMMENT 'taskid和checkpoint组成的唯一索引',
+  KEY `idx_task_engine_id` (`task_engine_id`) COMMENT '任务的引擎id'
 ) ENGINE=InnoDB AUTO_INCREMENT=26474 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `schedule_engine_job_cache` (
@@ -54,7 +55,8 @@ CREATE TABLE `schedule_plugin_job_info` (
   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `index_job_id` (`job_id`)
+  UNIQUE KEY `index_job_id` (`job_id`),
+  KEY idx_gmt_modified (`gmt_modified`) COMMENT '修改时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `schedule_engine_unique_sign` (
@@ -83,7 +85,8 @@ CREATE TABLE `schedule_engine_job_retry` (
   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
   `retry_task_params` text DEFAULT NULL COMMENT '重试任务参数',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `idx_job_id` (`job_id`) COMMENT '任务实例 id'
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 CREATE TABLE `schedule_engine_job_stop_record` (
