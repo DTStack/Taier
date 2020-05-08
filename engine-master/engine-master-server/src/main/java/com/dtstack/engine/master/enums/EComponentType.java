@@ -1,5 +1,9 @@
 package com.dtstack.engine.master.enums;
 
+import com.google.common.collect.Lists;
+
+import java.util.List;
+
 /**
  * @author jiangbo
  * @date 2019/5/30
@@ -18,7 +22,9 @@ public enum EComponentType {
     HIVE_SERVER(9,"HiveServer","hiveServerConf"),
     SFTP(10,"SFTP","sftpConf"),
     IMPALA_SQL(11,"Impala SQL","impalaSqlConf"),
-    TIDB_SQL(12,"TiDB SQL","tidbConf")
+    TIDB_SQL(12,"TiDB SQL","tidbConf"),
+    ORACLE_SQL(13,"Oracle SQL","oracleSqlConf"),
+    KUBERNETES(14,"Kubernetes","kubernetesConf")
     ;
 
     private int typeCode;
@@ -74,4 +80,32 @@ public enum EComponentType {
     public String getConfName() {
         return confName;
     }
+
+
+    // 资源调度组件
+    public static List<EComponentType> ResourceScheduling = Lists.newArrayList(EComponentType.YARN,EComponentType.KUBERNETES);
+
+    // 存储组件
+    public static List<EComponentType> StorageScheduling = Lists.newArrayList(EComponentType.HDFS);
+
+    // 计算组件
+    public static List<EComponentType> ComputeScheduling = Lists.newArrayList(EComponentType.SPARK,EComponentType.SPARK_THRIFT,
+            EComponentType.FLINK,EComponentType.HIVE_SERVER,EComponentType.IMPALA_SQL,EComponentType.DT_SCRIPT,
+            EComponentType.LEARNING,EComponentType.TIDB_SQL,EComponentType.LIBRA_SQL,EComponentType.ORACLE_SQL);
+
+
+    // hadoop引擎组件
+    public static List<EComponentType> HadoopComponents = Lists.newArrayList(EComponentType.SPARK,EComponentType.SPARK_THRIFT,
+            EComponentType.FLINK,EComponentType.HIVE_SERVER,EComponentType.IMPALA_SQL,EComponentType.DT_SCRIPT,
+            EComponentType.LEARNING,EComponentType.YARN,EComponentType.KUBERNETES,EComponentType.HDFS,EComponentType.SFTP);
+
+    // TiDB引擎组件
+    public static List<EComponentType> TiDBComponents = Lists.newArrayList(EComponentType.TIDB_SQL);
+
+    // LibrA引擎组件
+    public static List<EComponentType> LibrAComponents = Lists.newArrayList(EComponentType.LIBRA_SQL);
+
+    // Oracle引擎组件
+    public static List<EComponentType> OracleComponents = Lists.newArrayList(EComponentType.ORACLE_SQL);
+
 }

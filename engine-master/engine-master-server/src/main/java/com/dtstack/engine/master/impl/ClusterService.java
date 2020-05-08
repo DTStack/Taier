@@ -48,6 +48,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -181,7 +182,7 @@ public class ClusterService implements InitializingBean {
         clusterDao.insert(cluster);
 
         clusterDTO.setId(cluster.getId());
-        engineService.addEngines(clusterDTO);
+//        engineService.addEngines(clusterDTO);
 
 
         return getCluster(cluster.getId(), true);
@@ -234,6 +235,7 @@ public class ClusterService implements InitializingBean {
     public PageResult<List<ClusterVO>> pageQuery(@Param("currentPage") int currentPage, @Param("pageSize") int pageSize) {
         PageQuery<ClusterDTO> pageQuery = new PageQuery<>(currentPage, pageSize, "gmt_modified", Sort.DESC.name());
         ClusterDTO model = new ClusterDTO();
+        model.setIsDeleted(Deleted.NORMAL.getStatus());
         int count = clusterDao.generalCount(model);
         List<ClusterVO> clusterVOS = new ArrayList<>();
         if (count > 0) {
@@ -779,5 +781,35 @@ public class ClusterService implements InitializingBean {
         data.put("password", Base64Util.baseDecode(account.getPassword()));
         return data.toJSONString();
     }
+
+
+    /**
+     * 删除集群
+     * 判断该集群下是否有租户
+     * @param clusterId
+     */
+    public void deleteCluster(@Param("clusterId")Long clusterId){
+        if(Objects.isNull(clusterId)){
+            throw new RdosDefineException("集群不能为空");
+        }
+        Cluster cluster = clusterDao.getOne(clusterId);
+        if(Objects.isNull(cluster)){
+            throw new RdosDefineException("集群不存在");
+        }
+        List<Long> engineIds = null;
+        List<Engine> engines = engineDao.listByClusterId(clusterId);
+        if(CollectionUtils.isNotEmpty(engines)){
+            engineIds = engines.stream().map(Engine::getId).collect(Collectors.toList());
+        }
+        List<EngineTenant> engineTenants = null;
+        if(Objects.nonNull(engineIds)){
+            engineTenants = engineTenantDao.listByEngineIds(engineIds);
+        }
+        if(CollectionUtils.isNotEmpty(engineTenants)){
+            throw new RdosDefineException(String.format("集群下%s有租户，无法删除",cluster.getClusterName()));
+        }
+        clusterDao.deleteCluster(clusterId);
+    }
+
 }
 
