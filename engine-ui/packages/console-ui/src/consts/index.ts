@@ -150,6 +150,7 @@ export const DEFAULT_COMP_TEST: any = { // 测试结果默认数据
     hiveServerTestResult: {},
     libraSqlTestResult: {},
     tidbSqlTestResult: {},
+    oracleSqlTestResult: {},
     impalaSqlTestResult: {},
     sftpTestResult: {}
 }

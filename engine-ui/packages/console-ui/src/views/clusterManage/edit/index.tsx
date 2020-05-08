@@ -1183,6 +1183,8 @@ class EditCluster extends React.Component<any, any> {
         const dtscriptJupyterExtParams = this.getCustomParams(formValues, 'dtscriptJupyter');
         const libraExtParams = this.getCustomParams(formValues, 'libra');
         const tidbExtParams = this.getCustomParams(formValues, 'tidb');
+        const oracleExtParams = this.getCustomParams(formValues, 'oracle');
+
         const learningTypeName: any = {
             typeName: `learning`
         }
@@ -1208,6 +1210,7 @@ class EditCluster extends React.Component<any, any> {
         componentConf['dtscriptConf'] = { ...dtyarnshellTypeName, ...commConf, pythonConf: dtscriptPythonConf, jupyterConf: dtscriptJupyterConf };
         componentConf['libraConf'] = { ...formValues.libraConf, ...libraExtParams };
         componentConf['tidbConf'] = { ...formValues.tidbConf, ...tidbExtParams };
+        componentConf['oracleConf'] = { ...formValues.tidbConf, ...oracleExtParams };
         componentConf['sftpConf'] = formValues.sftpConf || {};
         // 服务端兼容，不允许null
         componentConf['hiveConf'].username = componentConf['hiveConf'].username || '';
@@ -1243,6 +1246,7 @@ class EditCluster extends React.Component<any, any> {
         console.log(params)
         return params;
     }
+
     // 解决切换 配置Prometheus Metric地址 数据消失
     getPrometheusValue = () => {
         const { flinkPrometheus, flinkData } = this.state;
