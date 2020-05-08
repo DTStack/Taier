@@ -82,7 +82,7 @@ module.exports = {
             '/api/console': { // 控制台
                 target: 'http://172.16.10.168:8084', // 开发环境
                 // target: "http://172.16.10.65", // test server
-                target: "http://172.16.100.204:8084", // test server
+                // target: "http://172.16.10.195:8084", // test server
                 // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
                 changeOrigin: true,
                 secure: false
