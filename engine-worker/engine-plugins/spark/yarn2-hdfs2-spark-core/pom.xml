@@ -10,7 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>yarn2-hdfs2-spark-core</artifactId>
+    <artifactId>plugins.yarn2-hdfs2-spark-core</artifactId>
     <packaging>pom</packaging>
 
     <properties>

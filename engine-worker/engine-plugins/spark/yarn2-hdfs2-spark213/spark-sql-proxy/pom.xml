@@ -3,13 +3,14 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>yarn2-hdfs2-spark213</artifactId>
+        <artifactId>plugins.yarn2-hdfs2-spark213</artifactId>
         <groupId>com.dtstack.engine</groupId>
         <version>1.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>spark-sql-proxy</artifactId>
+    <artifactId>plugins.yarn2-hdfs2-spark213.spark-sql-proxy</artifactId>
+    <name>plugins.yarn2-hdfs2-spark213.spark-sql-proxy</name>
 
     <properties>
         <jar.name>spark-yarn-hadoop2-sql-proxy</jar.name>
@@ -20,7 +21,7 @@
     <dependencies>
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>spark-sql-proxy-core</artifactId>
+            <artifactId>plugins.yarn2-hdfs2-spark-core.spark-sql-proxy-core</artifactId>
             <version>1.0.0</version>
         </dependency>
     </dependencies>

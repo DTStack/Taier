@@ -13,7 +13,7 @@ engine-worker/engine-plugins/dummy,\
 engine-worker/engine-plugins/flink/flink180-hadoop2,\
 engine-worker/engine-plugins/flink/flink1100-hadoop2,\
 engine-worker/engine-plugins/flink/flink180-HW,\
-engine-worker/engine-plugins/spark/spark-yarn-hadoop2,\
+engine-worker/engine-plugins/spark/yarn2-hdfs2-spark213,\
 engine-worker/engine-plugins/dtscript/dtscript-hadoop2/dtscript-client,\
 engine-worker/engine-plugins/learning/learning-hadoop2/learning-client,\
 engine-worker/engine-plugins/hadoop/hadoop2,\
