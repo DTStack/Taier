@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>plugins.yarn3-hdfs3-spark213</artifactId>
+        <groupId>com.dtstack.engine</groupId>
+        <version>1.0.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>plugins.yarn3-hdfs3-spark213.spark-sql-proxy</artifactId>
+    <name>plugins.yarn3-hdfs3-spark213.spark-sql-proxy</name>
+
+    <properties>
+        <jar.name>spark-yarn-hadoop3-sql-proxy</jar.name>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.dtstack.engine</groupId>
+            <artifactId>plugins.yarn3-hdfs3-spark-core.spark-sql-proxy-core</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.2</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <!-- here the phase you need -->
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <move file="${basedir}/target/${project.name}-${project.version}.jar"
+                                      tofile="${basedir}/target/${jar.name}-${git.branch}.jar"/>
+                                <copy todir="${basedir}/target/../../../../../../pluginLibs/spark-yarn-hadoop3/"
+                                      file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
+                                <delete>
+                                    <fileset dir="${basedir}/target/../../../../../../pluginLibs/spark-yarn-hadoop3/"
+                                             includes="${jar.name}-*.jar"
+                                             excludes="${jar.name}-${git.branch}.jar"/>
+                                </delete>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

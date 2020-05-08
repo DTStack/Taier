@@ -12,7 +12,8 @@ engine-worker/engine-plugins/dummy,\
 engine-worker/engine-plugins/dtscript/dtscript-hadoop3/dtscript-client,\
 engine-worker/engine-plugins/hadoop/hadoop3,\
 engine-worker/engine-plugins/flink/flink180-hadoop3,\
-engine-worker/engine-plugins/spark/spark-yarn-hadoop3,\
+engine-worker/engine-plugins/spark/yarn3-hdfs3-spark-core,\
+engine-worker/engine-plugins/spark/yarn3-hdfs3-spark213,\
 engine-worker/engine-plugins/kylin,\
 engine-worker/engine-plugins/rdbs,\
 engine-worker/engine-plugins/odps,\
