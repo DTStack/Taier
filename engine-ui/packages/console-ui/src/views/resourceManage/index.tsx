@@ -52,7 +52,7 @@ class ResourceManage extends React.Component<any, any> {
         Api.searchTenant(queryParams).then((res: any) => {
             if (res.code === 1) {
                 this.setState({
-                    tableData: res.data.data || [],
+                    tableData: get(res, 'data.data', []),
                     total: get(res, 'data.totalCount', 0),
                     loading: false
                 })
@@ -105,24 +105,7 @@ class ResourceManage extends React.Component<any, any> {
                 queryParams: Object.assign(this.state.queryParams, { clusterId: initCluster.clusterId, engineType: initEngine.engineType }),
                 engineList,
                 loading: true
-            })
-
-            const queryParams = Object.assign(this.state.queryParams, {
-                clusterId: initCluster.clusterId,
-                engineType: initEngine.engineType
-            })
-            const response = await Api.searchTenant(queryParams)
-            if (response.code === 1) {
-                this.setState({
-                    tableData: response.data.data || [],
-                    total: response.totalCount,
-                    loading: false
-                })
-            } else {
-                this.setState({
-                    loading: false
-                })
-            }
+            }, this.searchTenant)
         }
     }
     clusterOptions = () => {
