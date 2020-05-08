@@ -141,6 +141,15 @@ public class SparkYarnClient extends AbstractClient {
 
     @Override
     protected JobResult processSubmitJobWithType(JobClient jobClient) {
+        if (sparkYarnConfig.isOpenKerberos()){
+            try {
+                logger.debug("start init security!");
+                initSecurity();
+            } catch (IOException e) {
+                logger.error("InitSecurity happens error", e);
+            }
+        }
+
         EJobType jobType = jobClient.getJobType();
         JobResult jobResult = null;
         if(EJobType.MR.equals(jobType)){

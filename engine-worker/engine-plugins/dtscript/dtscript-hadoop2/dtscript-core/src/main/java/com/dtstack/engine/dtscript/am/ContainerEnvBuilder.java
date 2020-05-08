@@ -2,6 +2,7 @@ package com.dtstack.engine.dtscript.am;
 
 import com.dtstack.engine.dtscript.api.DtYarnConstants;
 import com.dtstack.engine.dtscript.common.SecurityUtil;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -49,7 +50,17 @@ public class ContainerEnvBuilder {
                 System.getenv(ApplicationConstants.Environment.NM_HOST.toString()));
         containerEnv.put(DtYarnConstants.Environment.APPMASTER_PORT.toString(),
                 String.valueOf(containerListener.getServerPort()));
-        containerEnv.put("PATH", System.getenv("PATH") + ":" + System.getenv(DtYarnConstants.Environment.USER_PATH.toString()));
+
+        StringBuilder pathStr = new StringBuilder();
+        pathStr.append(System.getenv("PATH")).append(":");
+        if (StringUtils.isNotBlank(System.getenv(DtYarnConstants.Environment.USER_PATH.toString()))) {
+            pathStr.append(System.getenv(DtYarnConstants.Environment.USER_PATH.toString())).append(":");
+        }
+        if (StringUtils.isNotBlank(conf.get(DtYarnConstants.Environment.USER_PATH.toString()))) {
+            pathStr.append(conf.get(DtYarnConstants.Environment.USER_PATH.toString()));
+        }
+        containerEnv.put("PATH", pathStr.toString());
+
         containerEnv.put(DtYarnConstants.Environment.APP_TYPE.toString(),learningAppType);
         SecurityUtil.setupUserEnv(containerEnv);
 
