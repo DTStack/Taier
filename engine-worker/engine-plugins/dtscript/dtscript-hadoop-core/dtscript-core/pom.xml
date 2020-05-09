@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>plugins.dtscript-hadoop-croe.dtscript-core</artifactId>
-    <name>plugins.dtscript-haoop-croe.dtscript-core</name>
+    <name>plugins.dtscript-hadoop-croe.dtscript-core</name>
 
     <properties>
         <junit.version>4.11</junit.version>
