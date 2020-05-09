@@ -86,7 +86,8 @@ export const DATA_SOURCE: any = {
     HBASE: 8,
     FTP: 9,
     MAXCOMPUTE: 10,
-    ADSMAXCOMPUTE: 11
+    ADSMAXCOMPUTE: 11,
+    TI_DB: 31
 }
 export const ENGINE_TYPE = {
     HADOOP: 1,

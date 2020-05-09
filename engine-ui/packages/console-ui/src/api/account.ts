@@ -9,6 +9,7 @@ export interface IAccount {
     bindUserId: string;
     bindTenantId: string;
     email: string;
+    engineType: string | number;
 }
 
 export default {
