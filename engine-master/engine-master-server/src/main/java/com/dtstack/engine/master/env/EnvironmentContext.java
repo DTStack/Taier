@@ -338,4 +338,8 @@ public class EnvironmentContext {
     public int getTaskStatusDealerPoolSize() {
         return Integer.parseInt(environment.getProperty("taskStatusDealerPoolSize", "10" ));
     }
+
+    public int getLogTimeout() {
+        return Integer.parseInt(environment.getProperty("logTimeout", "10"));
+    }
 }
