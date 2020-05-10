@@ -10,8 +10,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>plugins.dtscript-hadoop-croe.dtscript-core</artifactId>
-    <name>plugins.dtscript-hadoop-croe.dtscript-core</name>
+    <artifactId>plugins.dtscript-hadoop-core.dtscript-core</artifactId>
+    <name>plugins.dtscript-hadoop-core.dtscript-core</name>
 
     <properties>
         <junit.version>4.11</junit.version>
@@ -117,7 +117,13 @@
             <version>1.0.0</version>
         </dependency>
 
-        <!-- junit -->
+        <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>
+            <version>2.7.1</version>
+        </dependency>
+
+       <!-- junit -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

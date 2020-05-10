@@ -16,7 +16,7 @@
     <dependencies>
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>plugins.dtscript-hadoop-croe.dtscript-core</artifactId>
+            <artifactId>plugins.dtscript-hadoop-core.dtscript-core</artifactId>
             <version>1.0.0</version>
         </dependency>
 
