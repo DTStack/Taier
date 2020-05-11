@@ -1,5 +1,6 @@
 package com.dtstack.engine.flink;
 
+import com.dtstack.engine.base.config.YamlConfigParser;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -33,6 +34,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.Charsets;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
@@ -62,6 +64,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Path;
@@ -84,6 +87,8 @@ public class FlinkClient extends AbstractClient {
     private static final String FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY = "allowNonRestoredState";
 
     public final static String FLINK_CP_URL_FORMAT = "/jobs/%s/checkpoints";
+
+    public final static String FLINK_DEFAULT_CONFIG_NAME = "default-config.yaml";
 
     private static int MAX_RETRY_NUMBER = 2;
 
@@ -114,6 +119,25 @@ public class FlinkClient extends AbstractClient {
     private FlinkClusterClientManager flinkClusterClientManager;
 
     private String jobHistory;
+
+    private String defaultPlugins;
+
+    public FlinkClient() {
+        try {
+            InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(FLINK_DEFAULT_CONFIG_NAME);
+            Map<String, Object> config = YamlConfigParser.INSTANCE.parse(resourceAsStream);
+            defaultPlugins = PublicUtil.objToString(config);
+            logger.info("=======FlinkClient============{}",defaultPlugins);
+        } catch (Exception e) {
+            logger.error("flink client init default config error {}", e);
+        }
+    }
+
+    @Override
+    public String getDefaultPluginConfig() {
+        return defaultPlugins;
+    }
+
 
     @Override
     public void init(Properties prop) throws Exception {

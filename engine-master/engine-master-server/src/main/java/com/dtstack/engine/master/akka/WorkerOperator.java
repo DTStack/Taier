@@ -117,6 +117,15 @@ public class WorkerOperator {
         }
     }
 
+    public String getDefaultPluginConfig(JobClient jobClient) {
+        try {
+            return (String) callbackAndReset(jobClient, () -> masterServer.sendMessage(new MessageGetPluginDefaultConfig(jobClient)));
+        } catch (Exception e) {
+            logger.error("getDefaultPluginConfig failed!", e);
+            return "";
+        }
+    }
+
     private <M> M callbackAndReset(JobClient jobClient, CallBack<M> classLoaderCallBack) throws Exception {
         JobClientCallBack callBack = jobClient.getJobCallBack();
         M result = null;

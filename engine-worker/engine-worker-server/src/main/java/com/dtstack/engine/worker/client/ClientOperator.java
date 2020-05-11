@@ -138,4 +138,9 @@ public class ClientOperator {
         IClient clusterClient = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
         return clusterClient.submitJob(jobClient);
     }
+
+    public String getDefaultPluginConfig(JobClient jobClient) throws ClientAccessException {
+        IClient clusterClient = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
+        return clusterClient.getDefaultPluginConfig();
+    }
 }

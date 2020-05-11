@@ -81,4 +81,10 @@ public abstract class AbstractClient implements IClient{
         return null;
     }
 
+    @Override
+    public String getDefaultPluginConfig() {
+        return "";
+    }
+
+
 }
