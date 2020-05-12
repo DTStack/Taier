@@ -2,8 +2,8 @@ package com.dtstack.engine.master.cache;
 
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.hash.ShardConsistentHash;
 import com.dtstack.engine.common.hash.Shard;
+import com.dtstack.engine.common.hash.ShardConsistentHash;
 import com.dtstack.engine.common.hash.ShardData;
 import com.dtstack.engine.master.resource.ComputeResourceType;
 import com.google.common.collect.Maps;
@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -32,7 +33,7 @@ public class ShardManager implements Runnable {
 
     private static final long DATA_CLEAN_INTERVAL = 1000;
     private static final String SHARD_NODE = "shard";
-    private static final ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(ComputeResourceType.values().length, new CustomThreadFactory(Class.class.getSimpleName()));
+    private ScheduledExecutorService scheduledService = null;
 
     private AtomicInteger shardSequence = new AtomicInteger(1);
     private Shard shard = new Shard();
@@ -40,7 +41,7 @@ public class ShardManager implements Runnable {
     private ShardConsistentHash consistentHash;
     private Map<String, ReentrantLock> cacheShardLocks = Maps.newConcurrentMap();
 
-    public ShardManager() {
+    public ShardManager(String jobResource) {
         this.shards = shard.getShards();
         this.consistentHash = shard.getConsistentHash();
         if (consistentHash.getSize() == 0) {
@@ -49,6 +50,10 @@ public class ShardManager implements Runnable {
             for (String shardName : shards.keySet()) {
                 initShardNode(shardName);
             }
+        }
+        if(Objects.isNull(scheduledService)){
+            scheduledService =  new ScheduledThreadPoolExecutor(ComputeResourceType.values().length,
+                    new CustomThreadFactory(jobResource + this.getClass().getSimpleName()));
         }
         scheduledService.scheduleWithFixedDelay(
                 this,
