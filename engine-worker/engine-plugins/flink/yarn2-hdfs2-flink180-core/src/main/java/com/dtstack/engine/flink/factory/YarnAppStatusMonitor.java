@@ -1,11 +1,14 @@
-package com.dtstack.engine.flink;
+package com.dtstack.engine.flink.factory;
 
+import com.dtstack.engine.flink.FlinkClientBuilder;
+import com.dtstack.engine.flink.FlinkClusterClientManager;
 import org.apache.hadoop.service.Service;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -16,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author xuchao
  */
 
-public class YarnAppStatusMonitor implements Runnable{
+public class YarnAppStatusMonitor implements Runnable {
 
     private static final Logger LOG = LoggerFactory.getLogger(YarnAppStatusMonitor.class);
 
@@ -33,7 +36,7 @@ public class YarnAppStatusMonitor implements Runnable{
 
     private FlinkClientBuilder clientBuilder;
 
-    private FlinkYarnSessionStarter flinkYarnSessionStarter;
+    private YarnSessionClientFactory yarnSessionClientFactory;
 
     private YarnApplicationState lastAppState;
 
@@ -41,23 +44,23 @@ public class YarnAppStatusMonitor implements Runnable{
 
     private long startTime = System.currentTimeMillis();
 
-    public YarnAppStatusMonitor(FlinkClusterClientManager clusterClientManager, FlinkClientBuilder clientBuilder, FlinkYarnSessionStarter flinkYarnSessionStarter) {
+    public YarnAppStatusMonitor(FlinkClusterClientManager clusterClientManager, FlinkClientBuilder clientBuilder, YarnSessionClientFactory yarnSessionClientFactory) {
         this.clusterClientManager = clusterClientManager;
         this.clientBuilder = clientBuilder;
-        this.flinkYarnSessionStarter = flinkYarnSessionStarter;
+        this.yarnSessionClientFactory = yarnSessionClientFactory;
         this.lastAppState = YarnApplicationState.NEW;
     }
 
     @Override
     public void run() {
         while (run.get()) {
-            try{
+            try {
                 if (clusterClientManager.getIsClientOn()) {
                     if (clientBuilder.getYarnClient().isInState(Service.STATE.STARTED)) {
                         ApplicationId applicationId = (ApplicationId) clusterClientManager.getClusterClient().getClusterId();
-                        ApplicationReport applicationReport  = clientBuilder.getYarnClient().getApplicationReport(applicationId);
+                        ApplicationReport applicationReport = clientBuilder.getYarnClient().getApplicationReport(applicationId);
                         YarnApplicationState appState = applicationReport.getYarnApplicationState();
-                        switch(appState) {
+                        switch (appState) {
                             case FAILED:
                             case KILLED:
                             case FINISHED:
@@ -86,18 +89,18 @@ public class YarnAppStatusMonitor implements Runnable{
                         LOG.error("Yarn client is no longer in state STARTED, prepare to stop Flink yarn-session client.");
                         clusterClientManager.setIsClientOn(false);
                     }
-                }else {
+                } else {
                     //retry时有一段等待时间，确保session正常运行。
                     retry();
                 }
-            }catch (Throwable t){
-                LOG.error("YarnAppStatusMonitor check error:{}",t);
+            } catch (Throwable t) {
+                LOG.error("YarnAppStatusMonitor check error:{}", t);
                 clusterClientManager.setIsClientOn(false);
-            }finally {
-                try{
+            } finally {
+                try {
                     Thread.sleep(CHECK_INTERVAL);
-                }catch(Exception e){
-                    LOG.error("",e);
+                } catch (Exception e) {
+                    LOG.error("", e);
                 }
             }
         }
@@ -106,9 +109,9 @@ public class YarnAppStatusMonitor implements Runnable{
     private void retry() {
         //重试
         try {
-            if (flinkYarnSessionStarter.getClusterClient() != null) {
+            if (yarnSessionClientFactory.getClusterClient() != null) {
                 LOG.error("------- Flink yarn-session client shutdown ----");
-                flinkYarnSessionStarter.stopFlinkYarnSession();
+                yarnSessionClientFactory.stopFlinkYarnSession();
             }
             LOG.warn("-- retry Flink yarn-session client ----");
             startTime = System.currentTimeMillis();
@@ -121,19 +124,19 @@ public class YarnAppStatusMonitor implements Runnable{
         }
     }
 
-    public void setRun(boolean run){
+    public void setRun(boolean run) {
         this.run = new AtomicBoolean(run);
     }
 
-    private boolean isDifferentAttemptId(ApplicationReport applicationReport){
+    private boolean isDifferentAttemptId(ApplicationReport applicationReport) {
         String appId = applicationReport.getCurrentApplicationAttemptId().getApplicationId().toString();
         String attemptIdStr = String.valueOf(applicationReport.getCurrentApplicationAttemptId().getAttemptId());
         String currentAttemptId = appId + attemptIdStr;
-        if (attemptId == null){
+        if (attemptId == null) {
             attemptId = currentAttemptId;
             return false;
         }
-        if (!attemptId.equals(currentAttemptId)){
+        if (!attemptId.equals(currentAttemptId)) {
             attemptId = currentAttemptId;
             return true;
         }
