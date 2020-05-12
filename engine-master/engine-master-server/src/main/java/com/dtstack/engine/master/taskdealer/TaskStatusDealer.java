@@ -12,7 +12,6 @@ import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.PluginInfoDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.bo.CompletedTaskInfo;
-import com.dtstack.engine.master.bo.FailedTaskInfo;
 import com.dtstack.engine.master.cache.ShardCache;
 import com.dtstack.engine.master.cache.ShardManager;
 import com.dtstack.engine.master.env.EnvironmentContext;
@@ -31,6 +30,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * company: www.dtstack.com
@@ -92,26 +92,30 @@ public class TaskStatusDealer implements Runnable {
                 jobs.addAll(shardEntry.getValue().getView().entrySet());
             }
 
+            if (jobs.isEmpty()){
+                return;
+            }
+
+            jobs = jobs.stream().filter(job -> !RdosTaskStatus.needClean(job.getValue())).collect(Collectors.toList());
+
             Semaphore buildSemaphore = new Semaphore(taskStatusDealerPoolSize);
             CountDownLatch ctl = new CountDownLatch(jobs.size());
             for (Map.Entry<String, Integer> job : jobs) {
                 try {
                     buildSemaphore.acquire();
                     taskStatusPool.submit(() -> {
-                        if (!RdosTaskStatus.needClean(job.getValue())) {
-                            try {
-                                logger.info("jobId:{} status:{}", job.getKey(), job.getValue());
-                                dealJob(job.getKey());
-                            } catch (Throwable e) {
-                                logger.error("{}", e);
-                            } finally {
-                                buildSemaphore.release();
-                                ctl.countDown();
-                            }
+                        try {
+                            logger.info("jobId:{} status:{}", job.getKey(), job.getValue());
+                            dealJob(job.getKey());
+                        } catch (Throwable e) {
+                            logger.error("{}", e);
+                        } finally {
+                            buildSemaphore.release();
+                            ctl.countDown();
                         }
                     });
                 } catch (Throwable e) {
-                    logger.error("", e);
+                    logger.error("[emergency] error:", e);
                 }
             }
             ctl.await();
