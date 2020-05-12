@@ -1,44 +1,21 @@
-required:
-  flinkSessionSlotCount: 6
-  clusterMode: [yarn,standalone]
-  flinkJarPath:
-  jobmanager.archive.fs.dir:
-  flinkPluginRoot:
-  remotePluginRootDir:
-
-optional:
-  jarTmpDir: ./tmp180
-  flinkYarnMode: PER_JOB
-  queue: default
-  pluginLoadMode: shipfile
-  submitTimeout: 5
-  flinkInterval: 5 SECONDS
-  classloader.resolve-order: parent-first
-  taskparams.taskmanager.heap.mb: 20
-
-ha:
+perjob:
   required:
+    flinkJarPath:
+    jobmanager.archive.fs.dir:
+    flinkPluginRoot:
+    remotePluginRootDir:
+
     high-availability.cluster-id: /default
     high-availability.zookeeper.path.root: /flink180
     high-availability.zookeeper.quorum:
     high-availability.storageDir:
 
-historyserver:
-  required:
     historyserver.web.address:
     historyserver.web.port: 8082
 
-state:
-  required:
     state.checkpoints.dir:
     state.checkpoints.num-retained:
-  optional:
-    state.backend: RocksDB
-    state.savepoints.dir:
-    state.backend.incremental: true
 
-metrics:
-  required:
     metrics.reporter.promgateway.class: org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter
     metrics.reporter.promgateway.host:
     metrics.reporter.promgateway.port: 9091
@@ -46,20 +23,73 @@ metrics:
     metrics.reporter.promgateway.randomJobNameSuffix: TRUE
     metrics.reporter.promgateway.deleteOnShutdown: TRUE
 
-prometheus:
   optional:
+    jarTmpDir: ./tmp180
+    queue: default
+    pluginLoadMode: shipfile
+    submitTimeout: 5
+    flinkInterval: 5 SECONDS
+    classloader.resolve-order: parent-first
+    taskparams.taskmanager.heap.mb: 20
+
+    state.backend: RocksDB
+    state.savepoints.dir:
+    state.backend.incremental: true
+
     prometheusHost:
     prometheusPort: 9090
 
-yarn:
-  optional:
     yarn.taskmanager.heap.mb: 1024
     yarn.jobmanager.heap.mb: 1024
     yarn.taskmanager.numberOfTaskManager: 2
     yarnSessionStartAuto: false
     yarn.taskmanager.numberOfTaskSlots: 2
 
+session:
+  required:
+    flinkSessionSlotCount: 6
+    flinkJarPath:
+    jobmanager.archive.fs.dir:
+    flinkPluginRoot:
+    remotePluginRootDir:
 
+    high-availability.cluster-id: /default
+    high-availability.zookeeper.path.root: /flink180
+    high-availability.zookeeper.quorum:
+    high-availability.storageDir:
 
+    historyserver.web.address:
+    historyserver.web.port: 8082
 
+    state.checkpoints.dir:
+    state.checkpoints.num-retained:
 
+    metrics.reporter.promgateway.class: org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter
+    metrics.reporter.promgateway.host:
+    metrics.reporter.promgateway.port: 9091
+    metrics.reporter.promgateway.jobName: 181job
+    metrics.reporter.promgateway.randomJobNameSuffix: TRUE
+    metrics.reporter.promgateway.deleteOnShutdown: TRUE
+
+  optional:
+    jarTmpDir: ./tmp180
+    flinkYarnMode: PER_JOB
+    queue: default
+    pluginLoadMode: shipfile
+    submitTimeout: 5
+    flinkInterval: 5 SECONDS
+    classloader.resolve-order: parent-first
+    taskparams.taskmanager.heap.mb: 20
+
+    state.backend: RocksDB
+    state.savepoints.dir:
+    state.backend.incremental: true
+
+    prometheusHost:
+    prometheusPort: 9090
+
+    yarn.taskmanager.heap.mb: 1024
+    yarn.jobmanager.heap.mb: 1024
+    yarn.taskmanager.numberOfTaskManager: 2
+    yarnSessionStartAuto: false
+    yarn.taskmanager.numberOfTaskSlots: 2
