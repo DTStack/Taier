@@ -7,6 +7,13 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.flink.factory.PerJobClientFactory;
+import com.dtstack.engine.flink.plugininfo.SqlPluginInfo;
+import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
+import com.dtstack.engine.flink.resource.FlinkPerJobResourceInfo;
+import com.dtstack.engine.flink.resource.FlinkYarnSeesionResourceInfo;
+import com.dtstack.engine.flink.util.FileUtil;
+import com.dtstack.engine.flink.util.FlinkRestParseUtil;
 import com.dtstack.engine.worker.client.AbstractClient;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
@@ -156,6 +163,7 @@ public class FlinkClient extends AbstractClient {
         flinkClientBuilder = FlinkClientBuilder.create(flinkConfig, hadoopConf, yarnConf);
         flinkClientBuilder.initFlinkConfiguration(flinkExtProp);
 
+
         flinkClusterClientManager = FlinkClusterClientManager.createWithInit(flinkClientBuilder);
     }
 
@@ -190,7 +198,7 @@ public class FlinkClient extends AbstractClient {
 
     private JobResult submitJobWithJar(JobClient jobClient, List<URL> classPaths, List<String> programArgList) {
         if (flinkConfig.isOpenKerberos()) {
-            downloadKeyTab(jobClient.getTaskParams(), flinkConfig);
+            FileUtil.downloadKeyTab(jobClient.getTaskParams(), flinkConfig);
         }
 
         if (StringUtils.isNotBlank(jobClient.getEngineTaskId())) {
@@ -263,8 +271,9 @@ public class FlinkClient extends AbstractClient {
      */
     private Pair<String, String> runJobByPerJob(ClusterSpecification clusterSpecification, JobClient jobClient) throws Exception {
         logger.info("--------job:{} run by PerJob mode-----.", jobClient.getTaskId());
-        AbstractYarnClusterDescriptor descriptor = flinkClientBuilder.createPerJobClusterDescriptor(jobClient);
+        AbstractYarnClusterDescriptor descriptor = PerJobClientFactory.getPerJobClientFactory().createPerJobClusterDescriptor(jobClient);
         descriptor.setName(jobClient.getJobName());
+
         ClusterClient<ApplicationId> clusterClient = descriptor.deployJobCluster(clusterSpecification, new JobGraph(), true);
 
         String applicationId = clusterClient.getClusterId().toString();
@@ -807,25 +816,4 @@ public class FlinkClient extends AbstractClient {
         return jobHistory;
     }
 
-    private void downloadKeyTab(String taskParams, FlinkConfig flinkConfig) {
-        try {
-            Properties confProperties = new Properties();
-            List<String> taskParam = DtStringUtil.splitIngoreBlank(taskParams.trim());
-            for (int i = 0; i < taskParam.size(); ++i) {
-                String[] pair = taskParam.get(i).split("=", 2);
-                confProperties.setProperty(pair[0], pair[1]);
-            }
-            String sftpKeytab = confProperties.getProperty(ConfigConstrant.KAFKA_SFTP_KEYTAB);
-            if (StringUtils.isBlank(sftpKeytab)) {
-                throw new Exception(ConfigConstrant.KAFKA_SFTP_KEYTAB + " must not be null");
-            }
-            String localKeytab = confProperties.getProperty(ConfigConstrant.SECURITY_KERBEROS_LOGIN_KEYTAB);
-            if (StringUtils.isNotBlank(localKeytab) && !(new File(localKeytab).exists())) {
-                SFTPHandler handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());
-                handler.downloadFile(sftpKeytab, localKeytab);
-            }
-        } catch (Exception e) {
-            logger.error("Download keytab from sftp failed", e);
-        }
-    }
 }

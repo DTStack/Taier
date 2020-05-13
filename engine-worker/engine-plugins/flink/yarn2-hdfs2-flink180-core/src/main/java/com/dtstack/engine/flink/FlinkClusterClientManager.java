@@ -4,8 +4,9 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.flink.enums.Deploy;
+import com.dtstack.engine.flink.factory.PerJobClientFactory;
 import com.dtstack.engine.flink.factory.StandaloneClientFactory;
-import com.dtstack.engine.flink.factory.YarnSessionClientFactory;
+import com.dtstack.engine.flink.factory.SessionClientFactory;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
@@ -35,7 +36,9 @@ public class FlinkClusterClientManager {
 
     private FlinkConfig flinkConfig;
 
-    private YarnSessionClientFactory yarnSessionClientFactory;
+    private SessionClientFactory sessionClientFactory;
+
+    private PerJobClientFactory perJobClientFactory;
 
     /**
      * 客户端是否处于可用状态
@@ -63,6 +66,7 @@ public class FlinkClusterClientManager {
         FlinkClusterClientManager manager = new FlinkClusterClientManager();
         manager.flinkClientBuilder = flinkClientBuilder;
         manager.flinkConfig = flinkClientBuilder.getFlinkConfig();
+        manager.perJobClientFactory = PerJobClientFactory.createPerJobClientFactory(flinkClientBuilder);
         manager.initClusterClient();
         return manager;
     }
@@ -71,12 +75,12 @@ public class FlinkClusterClientManager {
         if (flinkConfig.getClusterMode().equals(Deploy.standalone.name())) {
             clusterClient = new StandaloneClientFactory(flinkClientBuilder.getFlinkConfiguration(), flinkConfig).getClusterClient();
         } else if (flinkConfig.getClusterMode().equals(Deploy.yarn.name())) {
-            if (null == yarnSessionClientFactory) {
-                yarnSessionClientFactory = new YarnSessionClientFactory(this, flinkClientBuilder);
+            if (null == sessionClientFactory) {
+                sessionClientFactory = new SessionClientFactory(this, flinkClientBuilder);
             }
-            boolean clientOn = yarnSessionClientFactory.startFlinkYarnSession();
+            boolean clientOn = sessionClientFactory.startFlinkYarnSession();
             this.setIsClientOn(clientOn);
-            clusterClient = yarnSessionClientFactory.getClusterClient();
+            clusterClient = sessionClientFactory.getClusterClient();
         }
     }
 
@@ -108,7 +112,7 @@ public class FlinkClusterClientManager {
             clusterClient = perJobClientCache.get(applicationId, () -> {
                 JobClient jobClient = new JobClient();
                 jobClient.setTaskId(taskId);
-                AbstractYarnClusterDescriptor perJobYarnClusterDescriptor = flinkClientBuilder.createPerJobClusterDescriptor(jobClient);
+                AbstractYarnClusterDescriptor perJobYarnClusterDescriptor = perJobClientFactory.createPerJobClusterDescriptor(jobClient);
                 return perJobYarnClusterDescriptor.retrieve(ConverterUtils.toApplicationId(applicationId));
             });
 
