@@ -6,6 +6,7 @@ import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 
 public class SqlserverClient extends AbstractRdbsClient {
     public SqlserverClient() {
+        super();
         this.dbType = "sqlserver";
     }
 

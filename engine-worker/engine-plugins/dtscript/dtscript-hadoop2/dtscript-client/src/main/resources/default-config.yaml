@@ -1,0 +1,20 @@
+common:
+  required:
+    java.home:
+    hadoop.home.dir:
+
+python:
+  optional:
+    python2.path:
+    python3.path:
+
+jupyter:
+  optional:
+    jupyter.path:
+    c.NotebookApp.open_browser: [True, False]
+    c.NotebookApp.allow_remote_access: [True, False]
+    c.NotebookApp.ip: '*'
+    c.NotebookApp.token: ''
+    c.NotebookApp.default_url: '/lab'
+    jupyter.project.root:
+

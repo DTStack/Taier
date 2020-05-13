@@ -1,5 +1,6 @@
 package com.dtstack.engine.sparkyarn.sparkyarn;
 
+import com.dtstack.engine.base.config.YamlConfigParser;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
@@ -42,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -98,7 +100,15 @@ public class SparkYarnClient extends AbstractClient {
 
     private Properties sparkExtProp;
 
-    public SparkYarnClient(){
+    public SparkYarnClient() {
+        try {
+            InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(PLUGIN_DEFAULT_CONFIG_NAME);
+            Map<String, Object> config = YamlConfigParser.INSTANCE.parse(resourceAsStream);
+            defaultPlugins = PublicUtil.objToString(config);
+            logger.info("=======SparkYarnClient============{}", defaultPlugins);
+        } catch (Exception e) {
+            logger.error("spark client init default config error {}", e);
+        }
     }
 
     @Override

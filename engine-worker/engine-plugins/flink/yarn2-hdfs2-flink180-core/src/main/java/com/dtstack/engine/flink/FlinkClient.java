@@ -94,8 +94,6 @@ public class FlinkClient extends AbstractClient {
 
     public final static String FLINK_CP_URL_FORMAT = "/jobs/%s/checkpoints";
 
-    public final static String FLINK_DEFAULT_CONFIG_NAME = "default-config.yaml";
-
     private static int MAX_RETRY_NUMBER = 2;
 
     private String tmpFileDirPath = "./tmp";
@@ -126,11 +124,9 @@ public class FlinkClient extends AbstractClient {
 
     private String jobHistory;
 
-    private String defaultPlugins;
-
     public FlinkClient() {
         try {
-            InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(FLINK_DEFAULT_CONFIG_NAME);
+            InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(PLUGIN_DEFAULT_CONFIG_NAME);
             Map<String, Object> config = YamlConfigParser.INSTANCE.parse(resourceAsStream);
             defaultPlugins = PublicUtil.objToString(config);
             logger.info("=======FlinkClient============{}", defaultPlugins);
@@ -138,12 +134,6 @@ public class FlinkClient extends AbstractClient {
             logger.error("flink client init default config error {}", e);
         }
     }
-
-    @Override
-    public String getDefaultPluginConfig() {
-        return defaultPlugins;
-    }
-
 
     @Override
     public void init(Properties prop) throws Exception {

@@ -4,11 +4,14 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.util.PublicUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Reason:
@@ -20,6 +23,9 @@ import java.util.List;
 public abstract class AbstractClient implements IClient{
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractClient.class);
+    public final static String PLUGIN_DEFAULT_CONFIG_NAME = "default-config.yaml";
+
+    public String defaultPlugins;
 
     @Override
 	public JobResult submitJob(JobClient jobClient) {
@@ -83,7 +89,7 @@ public abstract class AbstractClient implements IClient{
 
     @Override
     public String getDefaultPluginConfig() {
-        return "";
+        return defaultPlugins;
     }
 
 

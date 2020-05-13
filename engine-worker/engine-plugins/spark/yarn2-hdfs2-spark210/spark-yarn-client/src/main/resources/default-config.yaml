@@ -1,0 +1,10 @@
+yarn:
+  required:
+    sparkYarnArchive:
+    sparkSqlProxyPath:
+    sparkPythonExtLibPath:
+
+  optional:
+    spark.yarn.appMasterEnv.PYSPARK_PYTHON:
+    spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON:
+    confHdfsPath:
