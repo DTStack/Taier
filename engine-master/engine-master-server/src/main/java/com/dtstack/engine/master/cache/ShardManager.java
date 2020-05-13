@@ -51,10 +51,8 @@ public class ShardManager implements Runnable {
                 initShardNode(shardName);
             }
         }
-        if(Objects.isNull(scheduledService)){
-            scheduledService =  new ScheduledThreadPoolExecutor(ComputeResourceType.values().length,
-                    new CustomThreadFactory(jobResource + this.getClass().getSimpleName()));
-        }
+        scheduledService =  new ScheduledThreadPoolExecutor(ComputeResourceType.values().length,
+                new CustomThreadFactory(jobResource + this.getClass().getSimpleName()));
         scheduledService.scheduleWithFixedDelay(
                 this,
                 0,
