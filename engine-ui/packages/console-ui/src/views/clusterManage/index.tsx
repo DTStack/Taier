@@ -106,10 +106,16 @@ class ClusterManage extends React.Component<any, any> {
             }
         })
     }
-    newCluster () {
-        this.setState({
-            editModalKey: Math.random(),
-            newClusterModal: true
+    newCluster = () => {
+        // this.setState({
+        //     editModalKey: Math.random(),
+        //     newClusterModal: true
+        // })
+        hashHistory.push({
+            pathname: '/console/clusterManage/editCluster',
+            state: {
+                mode: 'new'
+            }
         })
     }
     onCancel () {
@@ -146,7 +152,7 @@ class ClusterManage extends React.Component<any, any> {
         const columns = this.initTableColumns();
 
         const cardTitle = (
-            <div>多集群管理 <Button type="primary" onClick={this.newCluster.bind(this)} style={{ float: 'right', marginTop: '9px' }}>新增集群</Button></div>
+            <div>多集群管理 <Button type="primary" onClick={this.newCluster} style={{ float: 'right', marginTop: '9px' }}>新增集群</Button></div>
         )
         return (
             <div className="contentBox m-card">

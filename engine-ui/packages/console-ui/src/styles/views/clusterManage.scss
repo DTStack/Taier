@@ -158,3 +158,126 @@
     box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.10);
     border-left: 4px solid #2491F7;
 }
+
+.c-clusterManage__containerWrap {
+    height: 100%;
+    width: 100%;
+    position: relative;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    .c-clusterManage__title {
+        font-size: 14px;
+        color: #333;
+        font-weight: bold;
+    }
+}
+
+.c-clusterManage__container {
+    position: relative;
+    flex: 1;
+    background: #fff;
+    .c-clusterManage__container__commonTabs {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        >.ant-tabs-bar {
+            height: 34.8px;
+        }
+        >.ant-tabs-content {
+            flex: 1;
+        }
+        .ant-tabs-extra-content {
+            float: left !important;
+        }
+        .c-clusterManage__commonTabs__title {
+            width: 200px;
+            font-size: 14px;
+            padding-left: 20px;
+            color: #333;
+            font-weight: bold;
+        }
+        .c-clusterManage__componentButton {
+            width: 200px;
+            height: 40px;
+            background: rgba(250,250,250,1);
+            border-radius: 0px 0px 0px 2px;
+            padding: 0;
+        }
+    }
+    .c-clusterManage__container__card {
+        height: 100%;
+        >.ant-card-body {
+            padding: 0 !important;
+            height: 100%;
+        }
+    }
+    .c-clusterManage__container__componentTabs {
+        height: 100%;
+        > .ant-tabs-bar {
+            width: 200px !important;
+        }
+        >.ant-tabs-content {
+            flex: unset;
+        }
+        >.ant-tabs-bar {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            >.ant-tabs-nav-container {
+                flex: 1;
+                margin-top: 10px;
+            }
+            >.ant-tabs-extra-content {
+                height: 40px;
+            }
+        }
+        .c-clusterManage__container__componentWrap {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 40px;
+            left: 200px;
+            display: flex;
+            flex-direction: row;
+            .c-clusterManage__container__componentWrap__resource {
+                width: 200px;
+            }
+            .c-clusterManage__container__componentWrap__config {
+                flex: 1;
+            }
+        }
+        .c-clusterManage__container__componentFooter {
+            height: 40px;
+            position: absolute;
+            left: 200px;
+            right: 0;
+            bottom: 0;
+            border-top: 1px solid #e9e9e9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            .c-clusterManage__container__componentFooter__btn {
+                padding: 0;
+                height: 28px;
+                width: 88px;
+            }
+        }
+    }
+}
+
+.c-displayResource__container {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    padding: 20px 12px;
+    border-right: 1px solid #e9e9e9;
+}
+
+.c-componentsConfig__container {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+    padding: 20px;
+}

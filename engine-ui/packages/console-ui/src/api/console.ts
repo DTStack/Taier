@@ -38,6 +38,10 @@ export default {
     confirmSwitchQueue (params: any) {
         return http.post(req.CONFIRM_SWITCH_QUEUE, params);
     },
+    // 4.0版本
+    getClusterInfo (params: any) {
+        return http.post(req.GET_CLUSTER_INFO, params);
+    },
     // 任务管理模块
     // 概览-获取集群
     getClusterDetail (params: any) {
@@ -113,6 +117,9 @@ export default {
     uploadResource (params: any) {
         return http.postAsFormData(req.UPLOAD_RESOURCE, params);
     },
+    getLoadTemplate (params: any) {
+        return http.post(req.GET_LOADTEMPLATE, params);
+    },
     uploadKerberosFile (params: any) {
         return http.postAsFormData(req.UPLOAD_KERBEROSFILE, params);
     },
@@ -132,7 +139,7 @@ export default {
         return http.post(req.ADD_COMPONENT, params);
     },
     saveComponent (params: any) {
-        return http.post(req.SAVE_COMPONENT, params);
+        return http.postAsFormData(req.SAVE_COMPONENT, params);
     },
     saveComponentWithKerberos (params: any) {
         return http.postAsFormData(req.SAVE_COMPONENT_KERBEROS, params);
@@ -148,9 +155,6 @@ export default {
     },
     addEngines (params: any) {
         return http.post(req.ADD_ENGINS, params);
-    },
-    getClusterInfo (params: any) {
-        return http.post(req.GET_CLUSTER_INFO, params);
     },
     updateClusterVersion (params: { clusterId: number; hadoopVersion: string; syncType: number /* 同步元数据组件类型 */ }) {
         return http.post(req.UPDATE_CLUSTER_VERSION, params);
