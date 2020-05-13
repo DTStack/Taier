@@ -10,11 +10,23 @@ public class ClusterVO extends Cluster {
 
     private Long clusterId;
 
-    private List<EngineVO> engines;
 
     private Long dtUicTenantId;
 
     private Long dtUicUserId;
+
+    /**
+     * 组件类型
+     */
+    private List<SchedulingVo> scheduling;
+
+    public List<SchedulingVo> getScheduling() {
+        return scheduling;
+    }
+
+    public void setScheduling(List<SchedulingVo> scheduling) {
+        this.scheduling = scheduling;
+    }
 
     public Long getDtUicTenantId() {
         return dtUicTenantId;
@@ -57,14 +69,6 @@ public class ClusterVO extends Cluster {
 
     public void setClusterId(Long clusterId) {
         this.clusterId = clusterId;
-    }
-
-    public List<EngineVO> getEngines() {
-        return engines;
-    }
-
-    public void setEngines(List<EngineVO> engines) {
-        this.engines = engines;
     }
 }
 

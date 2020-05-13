@@ -73,6 +73,7 @@ public enum EngineTypeComponentType {
                 return EngineTypeComponentType.CARBON_DATA;
 
             case "librasql":
+            case "postgresql":
                 return EngineTypeComponentType.LIBRA_SQL;
             case "hive":
                 return EngineTypeComponentType.HIVE;

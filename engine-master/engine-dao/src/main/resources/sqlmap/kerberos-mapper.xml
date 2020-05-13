@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.engine.dao.KerberosDao">
 
     <sql id="select_content_fragment">
-      id,cluster_id,open_kerberos,name,remote_path,principal,gmt_create,gmt_modified,is_deleted
+      id,cluster_id,open_kerberos,name,remote_path,principal,gmt_create,gmt_modified,is_deleted,component_id
     </sql>
 
     <sql id="update_fragment">
@@ -26,7 +26,9 @@
             <if test="isDeleted != null">
                 is_deleted = #{isDeleted},
             </if>
-
+            <if test="componentId != null">
+                component_id = #{componentId},
+            </if>
             gmt_modified =now()
         </set>
     </sql>
@@ -39,9 +41,17 @@
         limit 1
     </select>
 
-    <insert id="insert" parameterType="Cluster" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO console_kerberos(cluster_id,open_kerberos,name,remote_path,principal)
-        VALUES (#{clusterId},#{openKerberos},#{name},#{remotePath},#{principal})
+    <select id="getByComponentId" resultType="KerberosConfig">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM console_kerberos
+        WHERE component_id = #{componentId} and is_deleted = 0
+        limit 1
+    </select>
+
+    <insert id="insert" parameterType="KerberosConfig" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO console_kerberos(cluster_id,open_kerberos,name,remote_path,principal,component_id)
+        VALUES (#{clusterId},#{openKerberos},#{name},#{remotePath},#{principal},#{componentId})
     </insert>
 
 
@@ -49,5 +59,11 @@
         UPDATE console_kerberos
         <include refid="update_fragment"/>
         where id = #{id} and is_deleted = 0
+    </update>
+
+
+    <update id="delete">
+        UPDATE console_kerberos set is_deleted = 1
+        where component_id = #{componentId}
     </update>
 </mapper>

@@ -389,4 +389,24 @@ public class SFTPHandler {
         return channelSftp.ls(ftpPath);
     }
 
+    public boolean renamePath(String oldPth, String newPath) {
+        try {
+            channelSftp.rename(oldPth, newPath);
+        } catch (SftpException e) {
+            logger.error("renamePath {} to {} error", oldPth, newPath, e);
+            return false;
+        }
+        return true;
+    }
+
+    public void deleteFile(String path){
+        if (this.isFileExist(path)) {
+            try {
+                channelSftp.rm(path);
+            } catch (SftpException e) {
+                logger.error("", e);
+                throw new RuntimeException("删除sftp路径失败，sftpPath=" + path);
+            }
+        }
+    }
 }

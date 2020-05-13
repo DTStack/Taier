@@ -15,6 +15,16 @@ public class KerberosConfig extends BaseEntity {
 
     private String principal;
 
+    private Long componentId;
+
+    public Long getComponentId() {
+        return componentId;
+    }
+
+    public void setComponentId(Long componentId) {
+        this.componentId = componentId;
+    }
+
     public String getPrincipal() {
         return principal;
     }

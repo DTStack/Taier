@@ -10,6 +10,16 @@ public class ClusterDTO extends Cluster {
 
     private Long clusterId;
 
+    private List<ComponentDTO> components;
+
+    public List<ComponentDTO> getComponents() {
+        return components;
+    }
+
+    public void setComponents(List<ComponentDTO> components) {
+        this.components = components;
+    }
+
     public Long getClusterId() {
         return clusterId;
     }
