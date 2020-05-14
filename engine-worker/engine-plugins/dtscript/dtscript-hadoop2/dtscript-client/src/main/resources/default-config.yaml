@@ -1,20 +1,21 @@
 common:
   required:
-    java.home:
-    hadoop.home.dir:
+    java.home: /opt/dtstack/java/bin
+    hadoop.home.dir: /data/hadoop_base
 
 python:
   optional:
-    python2.path:
-    python3.path:
+    python2.path: /data/anaconda2/bin/python2
+    python3.path: /data/anaconda3/bin/python3
 
 jupyter:
   optional:
-    jupyter.path:
-    c.NotebookApp.open_browser: [True, False]
+    jupyter.path: /data/anaconda3/bin/jupyter-lab
+    c.NotebookApp.open_browser: [False,True]
     c.NotebookApp.allow_remote_access: [True, False]
     c.NotebookApp.ip: '*'
     c.NotebookApp.token: ''
     c.NotebookApp.default_url: '/lab'
-    jupyter.project.root:
+    jupyter.project.root: /data/DTAiworks/Jupyter/
+
 

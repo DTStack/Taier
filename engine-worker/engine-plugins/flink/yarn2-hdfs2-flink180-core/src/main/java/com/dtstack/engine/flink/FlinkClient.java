@@ -410,7 +410,9 @@ public class FlinkClient extends AbstractClient {
         try {
             ClusterClient targetClusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
             JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobIdentifier.getEngineJobId()));
-            targetClusterClient.cancel(jobID);
+
+            // savepoint dir default use state.savepoints.dir
+            targetClusterClient.cancelWithSavepoint(jobID, null);
         } catch (Exception e) {
             logger.error("", e);
             return JobResult.createErrorResult(e);
