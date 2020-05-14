@@ -8,11 +8,10 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.hash.ShardData;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
-import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.PluginInfoDao;
+import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.bo.CompletedTaskInfo;
-import com.dtstack.engine.master.bo.FailedTaskInfo;
 import com.dtstack.engine.master.bo.TaskCheckpointInfo;
 import com.dtstack.engine.master.cache.ShardCache;
 import com.dtstack.engine.master.cache.ShardManager;
@@ -26,12 +25,8 @@ import org.springframework.context.ApplicationContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 /**
  * company: www.dtstack.com
@@ -80,6 +75,8 @@ public class TaskStatusDealer implements Runnable {
 
     private ExecutorService taskStatusPool;
 
+    private ScheduledExecutorService scheduledService;
+
     @Override
     public void run() {
         try {
@@ -93,26 +90,30 @@ public class TaskStatusDealer implements Runnable {
                 jobs.addAll(shardEntry.getValue().getView().entrySet());
             }
 
+            if (jobs.isEmpty()){
+                return;
+            }
+
+            jobs = jobs.stream().filter(job -> !RdosTaskStatus.needClean(job.getValue())).collect(Collectors.toList());
+
             Semaphore buildSemaphore = new Semaphore(taskStatusDealerPoolSize);
             CountDownLatch ctl = new CountDownLatch(jobs.size());
             for (Map.Entry<String, Integer> job : jobs) {
                 try {
                     buildSemaphore.acquire();
                     taskStatusPool.submit(() -> {
-                        if (!RdosTaskStatus.needClean(job.getValue())) {
-                            try {
-                                logger.info("jobId:{} status:{}", job.getKey(), job.getValue());
-                                dealJob(job.getKey());
-                            } catch (Throwable e) {
-                                logger.error("{}", e);
-                            } finally {
-                                buildSemaphore.release();
-                                ctl.countDown();
-                            }
+                        try {
+                            logger.info("jobId:{} status:{}", job.getKey(), job.getValue());
+                            dealJob(job.getKey());
+                        } catch (Throwable e) {
+                            logger.error("{}", e);
+                        } finally {
+                            buildSemaphore.release();
+                            ctl.countDown();
                         }
                     });
                 } catch (Throwable e) {
-                    logger.error("", e);
+                    logger.error("[emergency] error:", e);
                 }
             }
             ctl.await();
@@ -224,7 +225,7 @@ public class TaskStatusDealer implements Runnable {
 
         this.taskStatusDealerPoolSize = environmentContext.getTaskStatusDealerPoolSize();
         this.taskStatusPool = new ThreadPoolExecutor(taskStatusDealerPoolSize, taskStatusDealerPoolSize, 60L, TimeUnit.SECONDS,
-                new SynchronousQueue<>(true), new CustomThreadFactory(jobResource + this.getClass().getSimpleName()));
+                new SynchronousQueue<>(true), new CustomThreadFactory(jobResource + this.getClass().getSimpleName() + "DealJob"));
     }
 
     private void setBean() {
@@ -241,5 +242,15 @@ public class TaskStatusDealer implements Runnable {
     private void createLogDelayDealer() {
         this.jobCompletedLogDelayDealer = new JobCompletedLogDelayDealer(applicationContext);
         this.jobLogDelay = environmentContext.getJobLogDelay();
+    }
+
+    public void start() {
+        scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(jobResource + this.getClass().getSimpleName()));
+        scheduledService.scheduleWithFixedDelay(
+                this,
+                0,
+                TaskStatusDealer.INTERVAL,
+                TimeUnit.MILLISECONDS);
+
     }
 }

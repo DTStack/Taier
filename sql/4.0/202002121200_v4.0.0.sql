@@ -675,7 +675,7 @@ update `schedule_job` as sj left join `schedule_engine_job` as sej
         sj.plugin_info_id = sej.plugin_info_id,
         sj.source_type = sej.source_type,
         sj.retry_task_params = sej.retry_task_params,
-    sj.compute_type = sej.compute_type
+        sj.compute_type = IFNULL(sej.compute_type,1)
         where sj.is_deleted = 0;
 
 DROP TABLE IF EXISTS `schedule_engine_job`;
