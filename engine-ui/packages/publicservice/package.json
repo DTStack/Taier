@@ -1,0 +1,66 @@
+{
+  "name": "dtux-0",
+  "version": "1.0.0",
+  "description": "dtux",
+  "license": "ISC",
+  "scripts": {
+    "start": "npm run dev",
+    "dll": "ko dll",
+    "dev": "ko dev -t",
+    "build": "ko build -t",
+    "swagger": "ko swagger -t",
+    "ct": "git add . && git cz",
+    "preview": "ko preview"
+  },
+  "dependencies": {
+    "@ant-design/compatible": "^1.0.2",
+    "@ant-design/icons": "^4.1.0",
+    "@babel/polyfill": "^7.8.7",
+    "antd": "^4.2.0",
+    "bizcharts": "^4.0.2",
+    "classnames": "^2.2.6",
+    "echarts": "^4.7.0",
+    "echarts-wordcloud": "^1.1.3",
+    "immutable": "^4.0.0-rc.12",
+    "lodash": "^4.17.15",
+    "mirror-creator": "^1.1.0",
+    "moment": "^2.25.3",
+    "object-assign": "^4.1.1",
+    "prop-types": "^15.7.2",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-loadable": "^5.5.0",
+    "react-redux": "^7.2.0",
+    "react-resize-detector": "^4.2.3",
+    "react-router": "^5.1.2",
+    "react-router-dom": "^5.1.2",
+    "react-router-redux": "^4.0.8",
+    "redux": "^4.0.5",
+    "roo-tool": "^1.0.2",
+    "throttle-debounce": "^2.1.0",
+    "whatwg-fetch": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.150",
+    "@types/node": "^13.13.5",
+    "@types/prop-types": "^15.7.3",
+    "@types/react": "^16.9.34",
+    "@types/react-dom": "^16.9.7",
+    "@types/react-router-redux": "^5.0.18",
+    "@types/redux-actions": "^2.6.1",
+    "@types/redux-thunk": "^2.1.0",
+    "@types/throttle-debounce": "^2.1.0",
+    "copy-webpack-plugin": "^5.1.1",
+    "cz-conventional-changelog": "^3.2.0",
+    "ko-script": "^4.0.3-alpha.0",
+    "redux-devtools-extension": "^2.13.8",
+    "redux-thunk": "^2.3.0",
+    "tslint": "^6.1.2",
+    "typescript": "^3.8.3"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}

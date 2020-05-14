@@ -1,0 +1,59 @@
+{
+    "compilerOptions": {
+        "module": "esnext",
+        "target": "esnext",
+        "lib": ["esnext", "dom"],
+        "sourceMap": true,
+        "allowJs": false,
+        "removeComments": false,
+        "baseUrl": ".",   
+        "jsx": "react",
+        "importHelpers": true,
+        "skipLibCheck": true,
+        
+        "allowSyntheticDefaultImports": true,
+        "moduleResolution": "node",
+        "forceConsistentCasingInFileNames": true,
+       // "noImplicitReturns": true,
+       // "suppressImplicitAnyIndexErrors": true,
+        "noUnusedLocals": true,
+        "experimentalDecorators": true,
+        "typeRoots": [
+            "node",
+            "node_modules/@types",
+            "./typings"
+        ],
+        "paths": {
+            "@/*": [
+                "./src/*"
+            ],
+            "assets/*": [
+                "./public/assets/*"
+            ],
+            "components/*": [
+                "./src/components/*"
+            ],
+            "pages/*": [
+                "./src/pages/*"
+            ],
+            "services/*": [
+                "./src/services/*"
+            ],
+            "utils/*": [
+                "./src/utils/*"
+            ],
+            "constants/*": [
+                "./src/constants/*"
+            ],
+            "layouts/*": [
+                "./src/layouts/*"
+            ],
+        },
+    },
+    "include": [
+        "./**/*.ts",
+        "./**/*.tsx",
+        "./src/**/*.js"
+    ],
+    "exclude": ["node_modules", "build", "dist", "scripts", "test", "webpack", "jest"]
+}

@@ -1,0 +1,85 @@
+{
+  "success": true,
+  "message": "执行成功~~",
+  "data": [{
+      "id": 5,
+      "parentId": 2,
+      "permissionName": "基础数据",
+      "permissionIcon": "",
+      "permissionUrl": "/basic/enter-park",
+      "children": [{
+          "id": 5,
+          "parentId": 2,
+          "permissionName": "入园数据",
+          "permissionIcon": "yanzhengma1",
+          "permissionUrl": "/basic/enter-park",
+          "children": []
+        },
+        {
+          "id": 5,
+          "parentId": 2,
+          "permissionName": "出园数据",
+          "permissionIcon": "xiaoqiche",
+          "permissionUrl": "/basic/exit-park",
+          "children": [{
+              "id": 5,
+              "parentId": 2,
+              "permissionName": "人数数据",
+              "permissionIcon": "",
+              "permissionUrl": "/basic/exit-park/person-data",
+              "children": []
+            },
+            {
+              "id": 5,
+              "parentId": 2,
+              "permissionName": "交通数据",
+              "permissionIcon": "",
+              "permissionUrl": "/basic/exit-park/traffic-data",
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "parentId": 2,
+      "permissionName": "高级数据",
+      "permissionIcon": "taizhang",
+      "permissionUrl": "/advance/ticket",
+      "children": [{
+          "id": 5,
+          "parentId": 2,
+          "permissionName": "票务数据",
+          "permissionIcon": "taizhang",
+          "permissionUrl": "/advance/ticket",
+          "children": []
+        },
+        {
+          "id": 5,
+          "parentId": 2,
+          "permissionName": "渠道数据",
+          "permissionIcon": "xiaoqiche",
+          "permissionUrl": "/advance/channel",
+          "children": [{
+              "id": 5,
+              "parentId": 2,
+              "permissionName": "支付宝",
+              "permissionIcon": "",
+              "permissionUrl": "/advance/channel/zhifubao",
+              "children": []
+            },
+            {
+              "id": 5,
+              "parentId": 2,
+              "permissionName": "微信",
+              "permissionIcon": "",
+              "permissionUrl": "/advance/channel/wechat",
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
