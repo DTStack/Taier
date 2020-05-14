@@ -35,7 +35,7 @@ module.exports = (context) => {
           ]),
       ],
       externals :{
-        'FRONT_CONF': 'FRONT_CONF',
+        'frontConf': 'frontConf',
       }
     }
   };
