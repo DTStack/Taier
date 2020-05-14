@@ -17,4 +17,4 @@ engine-worker/engine-plugins/kylin,\
 engine-worker/engine-plugins/rdbs,\
 engine-worker/engine-plugins/odps,\
 engine-entrance \
--am -amd
+-am
