@@ -10,43 +10,37 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>plugins.dtscript.dtscript-hadoop3-client</artifactId>
-    <name>plugins.dtscript.dtscript-hadoop3-client</name>
+    <artifactId>plugins.dtscript-hadoop3.dtscript-client</artifactId>
+    <name>plugins.dtscript-hadoop3.dtscript-client</name>
 
     <properties>
         <jar.name>dtscript-hadoop3-client</jar.name>
     </properties>
 
     <dependencies>
-
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>plugins.base</artifactId>
+            <artifactId>plugins.dtscript-hadoop-core.dtscript-client</artifactId>
             <version>1.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>plugins.dtscript.dtscript-hadoop3-core</artifactId>
+            <artifactId>plugins.dtscript-hadoop3.dtscript-core</artifactId>
             <version>1.0.0</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>xml-apis</artifactId>
-                    <groupId>xml-apis</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
-
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/java/</directory>
+            </resource>
+            <resource>
+                <directory>src/main/resources/</directory>
+            </resource>
+        </resources>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

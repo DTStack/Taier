@@ -44,6 +44,10 @@ public class TaskCheckpointInfo implements Delayed {
 
     private long checkpointInterval;
 
+    public TaskCheckpointInfo(JobIdentifier jobIdentifier, String engineTypeName, String pluginInfo) {
+        this(null, null, jobIdentifier, engineTypeName, pluginInfo, 0);
+    }
+
     public TaskCheckpointInfo(Integer computeType, String taskId, JobIdentifier jobIdentifier, String engineTypeName, String pluginInfo, long checkpointInterval) {
         this.computeType = computeType;
         this.taskId = taskId;

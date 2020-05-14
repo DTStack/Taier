@@ -10,10 +10,10 @@ echo "Dependency ${hadoopversion} Building..."
 
 mvn clean package -DskipTests -Dhadoop.version=${hadoopversion} -Dhivejdbc.version=1.1.1 -pl \
 engine-worker/engine-plugins/dummy,\
-engine-worker/engine-plugins/flink/flink180-hadoop2,\
-engine-worker/engine-plugins/flink/flink1100-hadoop2,\
-engine-worker/engine-plugins/flink/flink180-HW,\
-engine-worker/engine-plugins/spark/spark-yarn-hadoop2,\
+engine-worker/engine-plugins/flink/yarn2-hdfs2-flink180,\
+engine-worker/engine-plugins/flink/yarnHW-hdfsHW-flink180HW,\
+engine-worker/engine-plugins/flink/yarn2-hdfs2-flink180,\
+engine-worker/engine-plugins/spark/yarn2-hdfs2-spark210,\
 engine-worker/engine-plugins/dtscript/dtscript-hadoop2/dtscript-client,\
 engine-worker/engine-plugins/learning/learning-hadoop2/learning-client,\
 engine-worker/engine-plugins/hadoop/hadoop2,\

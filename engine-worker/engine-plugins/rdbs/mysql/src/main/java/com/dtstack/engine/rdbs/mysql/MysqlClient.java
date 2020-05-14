@@ -5,6 +5,7 @@ import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 public class MysqlClient extends AbstractRdbsClient {
 
     public MysqlClient() {
+        super();
         this.dbType = "mysql";
     }
 

@@ -7,6 +7,7 @@ import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 public class HiveClient extends AbstractRdbsClient {
 
     public HiveClient() {
+        super();
         this.dbType = "hive";
     }
 
