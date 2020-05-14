@@ -159,6 +159,14 @@
                                     <resource>META-INF/MANIFEST.MF</resource>
                                     <file>MANIFEST.MF</file>
                                 </transformer>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/services/org.apache.hadoop.security.SecurityInfo</resource>
+                                </transformer>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/services/org.apache.hadoop.fs.FileSystem</resource>
+                                </transformer>
                             </transformers>
 
                             <artifactSet>

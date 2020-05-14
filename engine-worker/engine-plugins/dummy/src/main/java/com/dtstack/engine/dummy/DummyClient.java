@@ -1,19 +1,14 @@
 package com.dtstack.engine.dummy;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.base.config.YamlConfigParser;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.worker.client.AbstractClient;
+import com.dtstack.engine.common.client.AbstractClient;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;

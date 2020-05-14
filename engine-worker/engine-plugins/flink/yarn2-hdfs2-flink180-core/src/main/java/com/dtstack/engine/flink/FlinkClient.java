@@ -1,6 +1,7 @@
 package com.dtstack.engine.flink;
 
 import com.dtstack.engine.base.config.YamlConfigParser;
+import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -14,7 +15,6 @@ import com.dtstack.engine.flink.resource.FlinkPerJobResourceInfo;
 import com.dtstack.engine.flink.resource.FlinkYarnSeesionResourceInfo;
 import com.dtstack.engine.flink.util.FileUtil;
 import com.dtstack.engine.flink.util.FlinkRestParseUtil;
-import com.dtstack.engine.worker.client.AbstractClient;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;

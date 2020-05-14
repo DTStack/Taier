@@ -7,7 +7,7 @@ import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.worker.client.AbstractClient;
+import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -151,6 +151,15 @@ public class SparkYarnClient extends AbstractClient {
 
     @Override
     protected JobResult processSubmitJobWithType(JobClient jobClient) {
+        if (sparkYarnConfig.isOpenKerberos()){
+            try {
+                logger.debug("start init security!");
+                initSecurity();
+            } catch (IOException e) {
+                logger.error("InitSecurity happens error", e);
+            }
+        }
+
         EJobType jobType = jobClient.getJobType();
         JobResult jobResult = null;
         if(EJobType.MR.equals(jobType)){
