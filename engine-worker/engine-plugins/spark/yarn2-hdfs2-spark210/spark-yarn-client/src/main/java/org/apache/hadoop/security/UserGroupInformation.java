@@ -1537,17 +1537,16 @@ public class UserGroupInformation {
    * Obtain the tokens in credentials form associated with this user.
    * 
    * @return Credentials of tokens associated with this user
-//   */
-  // 插件进行覆盖
+   */
   public Credentials getCredentials() {
     synchronized (subject) {
       Credentials creds = new Credentials(getCredentialsInternal());
-//      Iterator<Token<?>> iter = creds.getAllTokens().iterator();
-//      while (iter.hasNext()) {
-//        if (iter.next() instanceof Token.PrivateToken) {
-//          iter.remove();
-//        }
-//      }
+      Iterator<Token<?>> iter = creds.getAllTokens().iterator();
+      while (iter.hasNext()) {
+        if (iter.next() instanceof Token.PrivateToken) {
+          iter.remove();
+        }
+      }
       return creds;
     }
   }
