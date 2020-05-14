@@ -166,6 +166,12 @@
     padding: 20px;
     display: flex;
     flex-direction: column;
+    .c-clusterManage__turnBack {
+        font-size: 14px;
+        font-weight: bold;
+        color: #999;
+        cursor: pointer;
+    }
     .c-clusterManage__title {
         font-size: 14px;
         color: #333;
@@ -272,6 +278,20 @@
     width: 100%;
     padding: 20px 12px;
     border-right: 1px solid #e9e9e9;
+    .c-displayResource__downloadFile {
+        width: 176px;
+        height: 20px;
+        font-size: 12px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        border-radius: 2px;
+        cursor: pointer;
+        &:hover {
+            background-color: rgba(242,249,255,1);
+        }
+    }
 }
 
 .c-componentsConfig__container {
@@ -280,4 +300,8 @@
     width: 100%;
     overflow: auto;
     padding: 20px;
+}
+
+.c-clusterManage__icon:hover {
+    color: #2491f7;
 }

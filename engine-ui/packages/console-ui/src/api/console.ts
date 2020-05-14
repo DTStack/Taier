@@ -38,9 +38,15 @@ export default {
     confirmSwitchQueue (params: any) {
         return http.post(req.CONFIRM_SWITCH_QUEUE, params);
     },
-    // 4.0版本
+    // 4.0 版本相关接口
     getClusterInfo (params: any) {
         return http.post(req.GET_CLUSTER_INFO, params);
+    },
+    uploadResource (params: any) {
+        return http.postAsFormData(req.UPLOAD_RESOURCE, params);
+    },
+    downloadFile (params: any) {
+        return http.get(req.DOWNLOAD_RESOURCE, params);
     },
     // 任务管理模块
     // 概览-获取集群
@@ -113,9 +119,6 @@ export default {
     // 查看剩余资源
     getClusterResources (params: any) {
         return http.post(req.GET_CLUSTER_RESOURCES, params);
-    },
-    uploadResource (params: any) {
-        return http.postAsFormData(req.UPLOAD_RESOURCE, params);
     },
     getLoadTemplate (params: any) {
         return http.post(req.GET_LOADTEMPLATE, params);

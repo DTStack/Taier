@@ -9,10 +9,9 @@ const FormItem = Form.Item;
 const Option = Select.Option;
 class DisplayResource extends React.Component<any, any> {
     renderDisplayResource = () => {
-        const { component, getFieldDecorator, isView = false,
-            fileChange, uploadLoading, componentConfig } = this.props;
-        const componentTypeCode = component.componentTypeCode;
-        // const { uploadFileName } = this.props.componentConfig
+        const { components, getFieldDecorator, isView = false,
+            fileChange, downloadFile, uploadLoading, componentConfig } = this.props;
+        const componentTypeCode = components.componentTypeCode;
         // console.log(component.componentTypeCode)
         switch (componentTypeCode) {
             case COMPONENT_TYPE_VALUE.SFTP:
@@ -37,7 +36,7 @@ class DisplayResource extends React.Component<any, any> {
                                         name="file"
                                         type="file"
                                         id="mySftpFile"
-                                        onChange={(e: any) => fileChange(e, component.componentTypeCode)}
+                                        onChange={(e: any) => fileChange(e, components.componentTypeCode)}
                                         accept=".zip"
                                         style={{ display: 'none' }}
                                     />
@@ -49,14 +48,15 @@ class DisplayResource extends React.Component<any, any> {
                     </React.Fragment>
                 )
             case COMPONENT_TYPE_VALUE.YARN:
-                const file = componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {};
+                const config = componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {};
+                const file = config.uploadFileName || '';
                 return (
                     <React.Fragment>
                         <FormItem
                             label="集群版本"
                         >
                             {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.YARN}.hadoopVersion`, {
-                                initialValue: 'hadoop2'
+                                initialValue: components.hadoopVersion || 'hadoop2'
                             })(
                                 <Select style={{ width: 172 }} disabled={isView}>
                                     <Option value='hadoop2' key='hadoop2'>hadoop2</Option>
@@ -72,7 +72,8 @@ class DisplayResource extends React.Component<any, any> {
                                 rules: [{
                                     required: true,
                                     message: '请上传配置文件'
-                                }]
+                                }],
+                                initialValue: components.uploadFileName || ''
                             })(
                                 <div>
                                     <label
@@ -89,21 +90,20 @@ class DisplayResource extends React.Component<any, any> {
                                         name="file"
                                         type="file"
                                         id="myYarnFile"
-                                        onChange={(e: any) => fileChange(e, component.componentTypeCode)}
+                                        onChange={(e: any) => fileChange(e, components.componentTypeCode)}
                                         accept=".zip"
                                         style={{ display: 'none' }}
                                     />
                                     <span style={{ fontSize: 10, color: '#999' }}>仅支持.zip格式，至少包括yarn-site.xml</span>
-                                    <div style={{ fontSize: 12, color: '#3F87FF' }}>{file.files && file.files[0] && file.files[0].name}</div>
+                                    {file && <div className="c-displayResource__downloadFile" onClick={() => downloadFile(1)} style={{ fontSize: 12, color: '#3F87FF' }}>
+                                        <span>
+                                            <Icon type="paper-clip" style={{ marginRight: 2, color: '#666666FF' }} />
+                                            {(file.files && file.files[0] && file.files[0].name) || file}
+                                            {/* {components.uploadFileName} */}
+                                        </span>
+                                        <Icon type="download" style={{ color: '#666666FF' }} />
+                                    </div>}
                                 </div>
-                                // <Upload
-                                //     accept=".zip"
-                                //     onChange={() => fileChange(componentTypeCode)}
-                                // >
-                                //     <Button>
-                                //         <Icon type="upload" />上传文件
-                                //     </Button>
-                                // </Upload>
                             )}
                         </FormItem>
                         <FormItem
@@ -138,7 +138,7 @@ class DisplayResource extends React.Component<any, any> {
                     </React.Fragment>
                 )
             default:
-                break;
+                return '';
         }
     }
     render () {

@@ -100,10 +100,10 @@ export const TABS_TITLE_KEY = {
 }
 
 export const TABS_TITLE: any = [
-    { tabName: '公共组件', tabsKey: TABS_TITLE_KEY.COMMON },
-    { tabName: '资源调度组件', tabsKey: TABS_TITLE_KEY.SOURCE },
-    { tabName: '存储组件', tabsKey: TABS_TITLE_KEY.STORE },
-    { tabName: '计算组件', tabsKey: TABS_TITLE_KEY.COMPUTE }
+    { schedulingName: '公共组件', schedulingCode: TABS_TITLE_KEY.COMMON },
+    { schedulingName: '资源调度组件', schedulingCode: TABS_TITLE_KEY.SOURCE },
+    { schedulingName: '存储组件', schedulingCode: TABS_TITLE_KEY.STORE },
+    { schedulingName: '计算组件', schedulingCode: TABS_TITLE_KEY.COMPUTE }
 ]
 
 // 公共组件

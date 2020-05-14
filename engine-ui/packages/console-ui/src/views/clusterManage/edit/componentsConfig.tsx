@@ -23,14 +23,10 @@ const formItemLayout: any = { // 表单常用布局
 };
 
 class ComponentsConfig extends React.Component<any, any> {
-    constructor (props) {
-        super(props)
-    }
     renderYarnConfig = () => {
-        const { componentConfig, component } = this.props;
-        const config = componentConfig[COMPONEMT_CONFIG_KEY_ENUM[component.componentTypeCode]] || {}
+        const { componentConfig, components } = this.props;
+        const config = componentConfig[COMPONEMT_CONFIG_KEY_ENUM[components.componentTypeCode]] || {}
         const configInfo = config.configInfo || {}
-        // const configInfo = config.configInfo || JSON.parse(component.componentConfig);
         let keyAndValue: any;
         keyAndValue = Object.entries(configInfo);
         utils.sortByCompareFunctions(keyAndValue,
@@ -85,12 +81,10 @@ class ComponentsConfig extends React.Component<any, any> {
         )
     }
     renderSFTPConfig = () => {
-        const { componentConfig, component, getFieldDecorator, getFieldValue } = this.props;
-        const componentTypeCode = component.componentTypeCode;
+        const { componentConfig, components, getFieldDecorator, getFieldValue } = this.props;
+        const componentTypeCode = components.componentTypeCode;
         const config = componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {}
         const loadTemplate = config.loadTemplate || [];
-        // const loadTemplate = config.loadTemplate || JSON.parse(component.componentTemplate);
-        // console.log('loadTemplate---------', loadTemplate)
         let content: any;
         if (loadTemplate.length > 0) {
             return loadTemplate.map((item: any, index: any) => {
@@ -143,8 +137,8 @@ class ComponentsConfig extends React.Component<any, any> {
         }
     }
     renderComponentsConfig = () => {
-        const { component } = this.props;
-        switch (component.componentTypeCode) {
+        const { components } = this.props;
+        switch (components.componentTypeCode) {
             case COMPONENT_TYPE_VALUE.YARN:
                 return (
                     <React.Fragment>

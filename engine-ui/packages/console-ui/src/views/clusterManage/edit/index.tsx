@@ -6,6 +6,7 @@ import {
     Popover, Checkbox, Row, Col, Radio,
     message
 } from 'antd';
+import { browserHistory, hashHistory } from 'react-router';
 import Api from '../../../api/console'
 
 import { updateTestStatus, updateRequiredStatus } from '../../../reducers/modules/cluster';
@@ -42,12 +43,29 @@ class EditCluster extends React.Component<any, any> {
     state: any = {
         compTypeKey: 0, // 组件默认选中
         popoverVisible: false, // 气泡框可视
-        tabCompData: [], // 组件结构信息
-        selectComp: [], // 存储勾选状态
+        selectComp: [], // 存储组件勾选状态
         componentConfig: {}, // 组件配置文件信息
         uploadLoading: false,
         componentId: '', // 组件id
-        clusterName: '' // 组件名称
+        clusterName: '', // 组件名称
+        tabCompData: [
+            {
+                schedulingCode: TABS_TITLE_KEY.COMMON,
+                components: []
+            },
+            {
+                schedulingCode: TABS_TITLE_KEY.SOURCE,
+                components: []
+            },
+            {
+                schedulingCode: TABS_TITLE_KEY.STORE,
+                components: []
+            },
+            {
+                schedulingCode: TABS_TITLE_KEY.COMPUTE,
+                components: []
+            }
+        ] // 集群结构信息
     }
     container: any;
 
@@ -66,130 +84,115 @@ class EditCluster extends React.Component<any, any> {
     getDataList = () => {
         const { location } = this.props;
         const params = location.state || {};
+        const { componentConfig } = this.state;
         params.mode !== 'new' && Api.getClusterInfo({
             clusterId: params.cluster.id || params.cluster.clusterId
         }).then((res: any) => {
             if (res.code === 1) {
+                // 存入组件信息
+                const cloneCompConfig = cloneDeep(componentConfig);
+                cloneCompConfig.clusterName = res.data.clusterName;
+                res.data.scheduling.map((item: any) => {
+                    item.components.map((comps: any) => {
+                        cloneCompConfig[COMPONEMT_CONFIG_KEY_ENUM[comps.componentTypeCode]] = {
+                            ...cloneCompConfig[COMPONEMT_CONFIG_KEY_ENUM[comps.componentTypeCode]],
+                            configInfo: JSON.parse(comps.componentConfig),
+                            loadTemplate: JSON.parse(comps.componentTemplate),
+                            uploadFileName: comps.uploadFileName
+                        }
+                    })
+                })
+                console.log('cloneCompConfig------', cloneCompConfig);
                 this.setState({
                     tabCompData: res.data.scheduling,
-                    clusterName: res.data.clusterName
+                    clusterName: res.data.clusterName,
+                    componentId: res.data.id,
+                    componentConfig: cloneCompConfig,
                 }, () => console.log('sssssss-----', this.state.tabCompData))
             }
         })
     }
 
     // 对单选框数据格式进行处理
-    setSelectCompData = (e: any) => {
-        const { compTypeKey } = this.state;
-        let compData: any = [];
-        let tabsInfo: any = {};
-        let components = [];
-        let compInfo: any = {};
-        compInfo.componentTypeCode = e.target.value;
-        compInfo.componentName = COMPONEMT_CONFIG_NAME_ENUM[e.target.value];
-        components.push(compInfo)
-        tabsInfo.schedulingCode = compTypeKey;
-        tabsInfo.components = components;
-        compData.push(tabsInfo);
-        this.setState({
-            selectComp: compData
+    setRadioCompData = (e: any) => {
+        const { compTypeKey, tabCompData } = this.state;
+        const cloneCompData = cloneDeep(tabCompData);
+        const components = { componentTypeCode: e.target.value, componentName: COMPONEMT_CONFIG_NAME_ENUM[e.target.value] }
+        cloneCompData.forEach((item: any) => {
+            if (item.schedulingCode === compTypeKey) item.components = [components]
         })
+        this.setState({ selectComp: cloneCompData })
     }
 
     // 对复选框数据格式进行处理
-    setSelectCheckboxCompData = (value) => {
-        const { compTypeKey } = this.state;
-        let compData: any = [];
-        let tabsInfo: any = {};
-        let components = [];
-        value.map((item: any) => {
-            let compInfo: any = {};
-            compInfo.componentTypeCode = item;
-            compInfo.componentName = COMPONEMT_CONFIG_NAME_ENUM[item];
-            components.push(compInfo)
+    setCheckboxCompData = (value) => {
+        const { compTypeKey, tabCompData } = this.state;
+        const cloneCompData = cloneDeep(tabCompData);
+        let components: any = [];
+        value.map((val: any) => {
+            components.push({ componentTypeCode: val, componentName: COMPONEMT_CONFIG_NAME_ENUM[val] });
         })
-        tabsInfo.schedulingCode = compTypeKey;
-        tabsInfo.components = components;
-        compData.push(tabsInfo);
-        this.setState({
-            selectComp: compData
+        cloneCompData.forEach((item: any) => {
+            if (item.schedulingCode === compTypeKey) item.components = components
         })
+        this.setState({ selectComp: cloneCompData })
     }
 
     // 点击确认后存入数据
     setTabCompData = () => {
-        const { selectComp, tabCompData } = this.state;
-        let newTabCompData: any = [];
-        let cloneTabCompData = cloneDeep(tabCompData)
-        selectComp.map((item: any, index: any) => {
-            const compIndex = cloneTabCompData.findIndex((comp: any) => comp.schedulingCode === item.schedulingCode);
-            if (compIndex > -1) {
-                cloneTabCompData.splice(compIndex, 1);
-            }
-            // console.log('rendersetTabCompData---------', compIndex, cloneTabCompData)
-            return newTabCompData.push(item);
-        })
-        newTabCompData = newTabCompData.concat(cloneTabCompData)
+        const { selectComp } = this.state;
+        const cloneSelectComp = cloneDeep(selectComp)
         this.setState({
-            tabCompData: newTabCompData,
+            tabCompData: cloneSelectComp,
             popoverVisible: false
         }, () => { this.getLoadTemplate(); console.log('tabCompData-------', this.state.tabCompData) })
+    }
+
+    // 获取各模块中选中组件的值
+    selectDefaultValue = () => {
+        const { tabCompData, compTypeKey } = this.state;
+        const cloneCompData = cloneDeep(tabCompData);
+        let defaultValue: any = [];
+        cloneCompData.map((item: any) => {
+            if (item.schedulingCode === compTypeKey) {
+                item.components.map((comps: any) => {
+                    defaultValue.push(comps.componentTypeCode);
+                })
+            }
+        })
+        return defaultValue;
     }
 
     getLoadTemplate = () => {
         const { compTypeKey, tabCompData, componentConfig } = this.state;
         const component = tabCompData.find((item: any) => item.schedulingCode === compTypeKey);
-        const componentTypeCode = component.components[0].componentTypeCode;
-        // console.log(component)
-        if (component && componentTypeCode !== COMPONENT_TYPE_VALUE.YARN && componentTypeCode !== COMPONENT_TYPE_VALUE.KUBERNETES) {
-            Api.getLoadTemplate({
-                componentType: componentTypeCode
-            }).then((res: any) => {
-                if (res.code === 1) {
-                    // console.log(res.data)
-                    this.setState({
-                        componentConfig: {
-                            ...this.state.componentConfig,
-                            [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
-                                ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
-                                loadTemplate: res.data
+        if (component.components.length > 0) {
+            const componentTypeCode = component.components[0].componentTypeCode;
+            if (componentTypeCode !== COMPONENT_TYPE_VALUE.YARN && componentTypeCode !== COMPONENT_TYPE_VALUE.KUBERNETES) {
+                Api.getLoadTemplate({
+                    componentType: componentTypeCode
+                }).then((res: any) => {
+                    if (res.code === 1) {
+                        this.setState({
+                            componentConfig: {
+                                ...this.state.componentConfig,
+                                [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
+                                    ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
+                                    loadTemplate: res.data
+                                }
                             }
-                        }
-                    }, () => console.log('componentConfig-------', this.state.componentConfig))
-                }
-            })
-        }
-    }
-
-    compValue = (schedulingCode: any) => {
-        const { tabCompData } = this.state;
-        let selectValue: any = [];
-        let radiusSelectValue: any;
-        if (tabCompData.length === 0) return [];
-        if (schedulingCode === 1) {
-            tabCompData.map((item: any) => {
-                if (item.schedulingCode === schedulingCode) {
-                    item.components.map((item: any) => {
-                        radiusSelectValue = item.componentTypeCode;
-                    })
-                }
-            })
-            return radiusSelectValue;
-        }
-        tabCompData.map((item: any) => {
-            if (item.schedulingCode === schedulingCode) {
-                item.components.map((item: any) => {
-                    selectValue.push(item.componentTypeCode);
+                        })
+                    }
                 })
             }
-        })
-        return selectValue;
+        }
     }
 
     // Tab页组件配置按钮
     componentBtn = () => {
         let content: any;
         const { compTypeKey, popoverVisible } = this.state;
+        const value = this.selectDefaultValue();
         const popoverFooter = (
             <div style={{ marginTop: 37 }}>
                 <Row>
@@ -203,10 +206,8 @@ class EditCluster extends React.Component<any, any> {
         )
         switch (compTypeKey) {
             case TABS_TITLE_KEY.COMMON:
-                // const commonValue = this.compValue(TABS_TITLE_KEY.COMMON);
-                // console.log('rendercommon-----------', value)
                 content = (
-                    <CheckboxGroup onChange={this.setSelectCheckboxCompData}>
+                    <CheckboxGroup onChange={this.setCheckboxCompData} defaultValue={value}>
                         <Row>
                             {
                                 COMMON_COMPONENTS.map((item: any) => {
@@ -219,9 +220,8 @@ class EditCluster extends React.Component<any, any> {
                 )
                 break;
             case TABS_TITLE_KEY.SOURCE:
-                // const sourceValue = this.compValue(TABS_TITLE_KEY.SOURCE);
                 content = (
-                    <RadioGroup style={{ width: '100%' }} onChange={this.setSelectCompData}>
+                    <RadioGroup style={{ width: '100%' }} onChange={this.setRadioCompData} defaultValue={value[0]}>
                         <Row>
                             {
                                 SOURCE_COMPONENTS.map((item: any) => {
@@ -235,7 +235,7 @@ class EditCluster extends React.Component<any, any> {
                 break;
             case TABS_TITLE_KEY.STORE:
                 content = (
-                    <CheckboxGroup onChange={this.setSelectCheckboxCompData}>
+                    <CheckboxGroup onChange={this.setCheckboxCompData} defaultValue={value}>
                         <Row>
                             {
                                 STORE_COMPONENTS.map((item: any) => {
@@ -249,7 +249,7 @@ class EditCluster extends React.Component<any, any> {
                 break;
             case TABS_TITLE_KEY.COMPUTE:
                 content = (
-                    <CheckboxGroup onChange={this.setSelectCheckboxCompData}>
+                    <CheckboxGroup onChange={this.setCheckboxCompData} defaultValue={value}>
                         <Row>
                             {
                                 COMPUTE_COMPONENTS.map((item: any) => {
@@ -261,7 +261,7 @@ class EditCluster extends React.Component<any, any> {
                     </CheckboxGroup>
                 )
                 break;
-            default: content = '';
+            default:
                 break;
         }
         return (
@@ -278,9 +278,19 @@ class EditCluster extends React.Component<any, any> {
         )
     }
 
+    validateFileType = (val: string) => {
+        let flag = false;
+        const reg = /\.(zip)$/
+        if (val && !reg.test(val.toLocaleLowerCase())) {
+            message.warning('配置文件只能是zip文件!');
+        } else {
+            flag = true;
+        }
+        return flag
+    }
+
     // 配置文件Change事件
     fileChange = (e: any, componentTypeCode: any) => {
-        // console.log('Yarnfile---------', e.target);
         const file = e.target;
         const isCanUpload = this.validateFileType(file && file.files && file.files[0].name)
         if (isCanUpload) {
@@ -311,15 +321,13 @@ class EditCluster extends React.Component<any, any> {
         }
     }
 
-    validateFileType = (val: string) => {
-        let flag = false;
-        const reg = /\.(zip)$/
-        if (val && !reg.test(val.toLocaleLowerCase())) {
-            message.warning('配置文件只能是zip文件!');
-        } else {
-            flag = true;
-        }
-        return flag
+    // 下载配置文件
+    downloadFile = (type: any) => {
+        const { componentId } = this.state;
+        Api.downloadFile({
+            componentId: componentId,
+            type
+        });
     }
 
     /**
@@ -385,45 +393,77 @@ class EditCluster extends React.Component<any, any> {
                 if (res.code === 1) {
                     this.setState({
                         componentId: res.data.id
-                    }, () => console.log('shshhsha------', this.state.componentId))
+                    }, () => console.log('shshhsha------', this.state.componentId));
+                    message.success('集群版本保存成功');
                 }
             })
         })
+    }
+
+    turnBack = () => {
+        const { url, history, autoClose } = this.props
+        if (url) {
+            if (history) { browserHistory.push(url) } else { hashHistory.push(url) }
+        } else {
+            if (window.history.length == 1) {
+                if (autoClose) {
+                    window.close();
+                }
+            } else {
+                hashHistory.go(-1);
+            }
+        }
     }
 
     // 返回各个模块下的组件
     renderCompTabs = (item: any) => {
         const { tabCompData } = this.state;
         if (tabCompData.length === 0) return {};
-        return tabCompData.find((comps: any) => comps.schedulingCode === item.tabsKey) || {};
+        return tabCompData.find((comps: any) => comps.schedulingCode === item.schedulingCode) || {};
     }
 
     // 渲染文件信息
-    renderDisplayResource = (component: any) => {
-        const { getFieldDecorator } = this.props.form
-        // const { YarnFile, uploadLoading } = this.state;
+    renderDisplayResource = (components: any) => {
+        const { getFieldDecorator } = this.props.form;
+        const { location } = this.props;
+        const params = location.state || {};
         return (
             <DisplayResource
                 {...this.state}
-                component={component}
+                params={params}
+                components={components}
                 getFieldDecorator={getFieldDecorator}
-                // YarnFile={YarnFile}
-                // uploadLoading={uploadLoading}
+                downloadFile={this.downloadFile}
                 fileChange={this.fileChange} />
         )
     }
 
     // 渲染配置信息
-    renderComponentsConfig = (component: any) => {
+    renderComponentsConfig = (components: any) => {
         const { getFieldDecorator, getFieldValue } = this.props.form
         return (
             <ComponentsConfig
                 {...this.state}
-                // YarnCofig={YarnCofig}
-                component={component}
+                components={components}
                 getFieldValue={getFieldValue}
                 getFieldDecorator={getFieldDecorator} />
         )
+    }
+
+    renderIcon = (scheduling: any) => {
+        console.log('renderIcon----------', scheduling)
+        switch (scheduling.schedulingCode) {
+            case TABS_TITLE_KEY.STORE:
+                return (<img src="public/img/storeComp.png" style={{ marginRight: 2 }} />)
+            case TABS_TITLE_KEY.COMMON:
+                return (<img src="public/img/commonComp.png" style={{ marginRight: 2 }} />)
+            case TABS_TITLE_KEY.COMPUTE:
+                return (<img src="public/img/computeComp.png" style={{ marginRight: 2 }} />)
+            case TABS_TITLE_KEY.SOURCE:
+                return (<img src="public/img/storeComp.png" className="c-clusterManage__icon" style={{ marginRight: 2 }} />)
+            default:
+                return '';
+        }
     }
 
     render () {
@@ -434,7 +474,7 @@ class EditCluster extends React.Component<any, any> {
         return (
             <div className="c-clusterManage__containerWrap" ref={(el) => { this.container = el; }}>
                 <div style={{ height: 20 }}>
-                    <span style={{ fontSize: 14, fontWeight: 'bold', color: '#999' }}>多集群管理 / </span>
+                    <span className="c-clusterManage__turnBack" onClick={this.turnBack}>多集群管理 / </span>
                     <span className="c-clusterManage__title">新增集群</span>
                 </div>
                 <React.Fragment>
@@ -454,17 +494,19 @@ class EditCluster extends React.Component<any, any> {
                             tabBarExtraContent={<div className="c-clusterManage__commonTabs__title">集群配置</div>}
                         >
                             {
-                                TABS_TITLE.map((item: any, index: any) => {
-                                    const tabCompDataList = this.renderCompTabs(item).components || [];
+                                TABS_TITLE.map((scheduling: any, index: any) => {
+                                    // tabCompData.map((scheduling: any, index: any) => {
+                                    const tabCompDataList = this.renderCompTabs(scheduling).components || [];
                                     return (
                                         <TabPane
                                             tab={
-                                                <span>
-                                                    {/* {this.renderImage(item)} */}
-                                                    {item.tabName}
-                                                </span>
+                                                // <div style={{ height: 19, display: 'flex', alignItems: 'center' }}>
+                                                //     {this.renderIcon(scheduling)}
+                                                //     {item.tabName}
+                                                // </div>
+                                                <span>{scheduling.schedulingName}</span>
                                             }
-                                            key={item.tabsKey}
+                                            key={scheduling.schedulingCode}
                                         >
                                             <Card
                                                 className="c-clusterManage__container__card console-tabs cluster-tab-width"
@@ -477,20 +519,20 @@ class EditCluster extends React.Component<any, any> {
                                                     onChange={(key: any) => console.log('renderkey-----------------', key)}
                                                 >
                                                     {
-                                                        tabCompDataList.map((item: any, index: any) => {
+                                                        tabCompDataList.map((comps: any, index: any) => {
                                                             return (
-                                                                <TabPane tab={<span>{item.componentName}</span>} key={`${item.componentTypeCode}`}>
+                                                                <TabPane tab={<span>{comps.componentName}</span>} key={`${comps.componentTypeCode}`}>
                                                                     <div className="c-clusterManage__container__componentWrap">
                                                                         <div className="c-clusterManage__container__componentWrap__resource" style={{ width: 200 }}>
-                                                                            {this.renderDisplayResource(item)}
+                                                                            {this.renderDisplayResource(comps)}
                                                                         </div>
                                                                         <div className="c-clusterManage__container__componentWrap__config">
-                                                                            {this.renderComponentsConfig(item)}
+                                                                            {this.renderComponentsConfig(comps)}
                                                                         </div>
                                                                     </div>
                                                                     <div className="c-clusterManage__container__componentFooter">
                                                                         <Button className="c-clusterManage__container__componentFooter__btn">取消</Button>
-                                                                        <Button className="c-clusterManage__container__componentFooter__btn" type="primary" style={{ marginLeft: 8 }} onClick={this.saveComponent.bind(this, item)} >保存</Button>
+                                                                        <Button className="c-clusterManage__container__componentFooter__btn" type="primary" style={{ marginLeft: 8 }} onClick={this.saveComponent.bind(this, comps)} >保存</Button>
                                                                     </div>
                                                                 </TabPane>
                                                             )

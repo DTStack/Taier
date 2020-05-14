@@ -43,8 +43,9 @@ export default {
 
     // 4.0版本
     GET_CLUSTER_INFO: `${CONSOLE_BASE_URL}/component/cluster/getCluster`,
+    UPLOAD_RESOURCE: `${CONSOLE_BASE_UPLOAD_URL}/upload/component/config`, // 上传配置文件
+    DOWNLOAD_RESOURCE: `${CONSOLE_BASE_UPLOAD_URL}/download/component/downloadFile`, // 下载配置文件
 
-    UPLOAD_RESOURCE: `${CONSOLE_BASE_UPLOAD_URL}/upload/component/config`, // 上传资源配置（hdfs、yarn）
     GET_LOADTEMPLATE: `${CONSOLE_BASE_UPLOAD_URL}/component/loadTemplate`, // 获取上传模板
     UPLOAD_KERBEROSFILE: `${CONSOLE_BASE_UPLOAD_URL}/upload/component/hadoopKerberosConfig`, // 上传kerberos认证文件
     GET_KERBEROSFILE: `${CONSOLE_BASE_URL}/component/getHadoopKerberosFile`, // 获取上传过的kerberos认证文件的信息内容
