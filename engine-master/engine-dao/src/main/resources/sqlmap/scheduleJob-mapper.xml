@@ -125,7 +125,7 @@
                 AND ts.flow_id =0
             </if>
             <if test="model.appType != null">
-                AND bj.app_type = #{model.appType}
+                AND bj.app_type = #{model.appType} and ts.app_type = #{model.appType}
             </if>
             <if test="model.ownerUserId != null">
                 AND ts.owner_user_id = #{model.ownerUserId}
