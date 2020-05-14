@@ -3,12 +3,12 @@ required:
   post: 22
   username:
   path:
-  authType:
+  auth:
     - password: 1
     - ras: 2
   password:
-    dependencyKey: authType
+    dependencyKey: auth
     dependencyValue: 1
   ras:
-    dependencyKey: authType
+    dependencyKey: auth
     dependencyValue: 2

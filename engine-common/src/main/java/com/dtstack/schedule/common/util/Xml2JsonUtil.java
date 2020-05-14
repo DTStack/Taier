@@ -62,7 +62,7 @@ public class Xml2JsonUtil {
         return json;
     }
 
-    private static String readFile(File file) throws Exception {
+    public static String readFile(File file) throws Exception {
         FileInputStream fis = new FileInputStream(file);
         FileChannel fc = fis.getChannel();
         ByteBuffer bb = ByteBuffer.allocate(new Long(file.length()).intValue());

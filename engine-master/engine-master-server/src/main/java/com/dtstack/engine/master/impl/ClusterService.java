@@ -17,7 +17,6 @@ import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.enums.*;
-import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.utils.HadoopConf;
 import com.dtstack.engine.master.utils.PublicUtil;
 import com.dtstack.schedule.common.enums.Deleted;
@@ -510,7 +509,7 @@ public class ClusterService implements InitializingBean {
             Preconditions.checkState(StringUtils.isNotEmpty(kerberosConfig.getRemotePath()));
             Preconditions.checkState(Objects.nonNull(kerberosConfig.getComponentId()));
             String remoteSftpKerberosPath = componentService.buildSftpPath(kerberosConfig.getClusterId(), component.getComponentTypeCode()) +
-                    ComponentService.KERBEROS_PATH;
+                   File.separator +  ComponentService.KERBEROS_PATH;
             String localKerberosPath = componentService.getLocalKerberosPath(kerberosConfig.getClusterId(), component.getComponentTypeCode());
             KerberosConfigVerify.downloadKerberosFromSftp(remoteSftpKerberosPath, localKerberosPath, sftp);
             File file = new File(localKerberosPath);

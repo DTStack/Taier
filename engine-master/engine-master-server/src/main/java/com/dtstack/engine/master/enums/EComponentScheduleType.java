@@ -5,10 +5,10 @@ package com.dtstack.engine.master.enums;
  * @date 2020-05-11
  */
 public enum  EComponentScheduleType {
+    commonScheduling(0,"公共组件"),
     resourceScheduling(1,"资源调度组件"),
     storageScheduling(2,"存储组件"),
-    computeScheduling(3,"计算组件"),
-    commonScheduling(4,"公共组件");
+    computeScheduling(3,"计算组件");
 
     private int type;
 

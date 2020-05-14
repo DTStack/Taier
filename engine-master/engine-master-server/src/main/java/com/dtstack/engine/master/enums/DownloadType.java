@@ -5,9 +5,9 @@ package com.dtstack.engine.master.enums;
  * @date 2020-05-09
  */
 public enum DownloadType {
-    Kerberos(1),
-    Config(2),
-    Template(3);
+    Kerberos(0),
+    Config(1),
+    Template(2);
 
     private int code;
 

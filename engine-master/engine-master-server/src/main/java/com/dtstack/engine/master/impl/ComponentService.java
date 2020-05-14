@@ -12,6 +12,7 @@ import com.dtstack.engine.api.vo.EngineTenantVO;
 import com.dtstack.engine.api.vo.TemplateVo;
 import com.dtstack.engine.api.vo.TestConnectionVO;
 import com.dtstack.engine.common.annotation.Forbidden;
+import com.dtstack.engine.common.client.ClientOperator;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -19,10 +20,7 @@ import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.component.ComponentFactory;
 import com.dtstack.engine.master.component.ComponentImpl;
-import com.dtstack.engine.master.component.SparkComponent;
 import com.dtstack.engine.master.component.YARNComponent;
-import com.dtstack.engine.master.download.IDownload;
-import com.dtstack.engine.master.download.TemplateFileDownload;
 import com.dtstack.engine.master.enums.*;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
@@ -31,11 +29,9 @@ import com.dtstack.engine.master.utils.HadoopConfTool;
 import com.dtstack.engine.master.utils.XmlFileUtil;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.Deleted;
-import com.dtstack.schedule.common.enums.SftpAuthType;
 import com.dtstack.schedule.common.kerberos.KerberosConfigVerify;
 import com.dtstack.schedule.common.util.Xml2JsonUtil;
 import com.dtstack.schedule.common.util.ZipUtil;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.SftpException;
@@ -54,9 +50,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
-import java.net.URL;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -197,19 +190,6 @@ public class ComponentService {
             return map;
         }
         throw new RdosDefineException("缺少xml配置文件");
-    }
-
-
-    private void addDefaultProperties(EComponentType componentType, Map<String, Object> config) {
-        if (EComponentType.SFTP.equals(componentType)) {
-            String authType = MapUtils.getString(config, SFTPHandler.KEY_AUTHENTICATION);
-            String rsaPath = MapUtils.getString(config, SFTPHandler.KEY_RSA);
-            String username = MapUtils.getString(config, SFTPHandler.KEY_USERNAME);
-            if (SftpAuthType.RSA.getType().toString().equals(authType) && StringUtils.isBlank(rsaPath) && StringUtils.isNotBlank(username)) {
-                rsaPath = String.format(SFTPHandler.DEFAULT_RSA_PATH_TEMPLATE, username);
-                config.put(SFTPHandler.KEY_RSA, rsaPath);
-            }
-        }
     }
 
 
@@ -390,7 +370,7 @@ public class ComponentService {
         return resourceMap;
     }
 
-    private Map<String, Object> parseAndUploadXmlFile(List<Resource> resources){
+    private Map<String, Object> parseUploadFileToMap(List<Resource> resources){
         Map<String, Object> confMap = new HashMap<>();
         String upzipLocation = null;
         List<File> xmlFiles;
@@ -416,8 +396,24 @@ public class ComponentService {
 
             try {
                 for (File file : xmlFiles) {
-                    Map<String, Object> xmlMap = Xml2JsonUtil.xml2map(file);
-                    confMap.put(file.getName(),xmlMap);
+                    Map<String, Object> fileMap = null;
+                    if(file.getName().startsWith(".")){
+                        continue;
+                    }
+                    if (file.getName().endsWith("xml")) {
+                        //xml文件
+                        fileMap = Xml2JsonUtil.xml2map(file);
+                    } else {
+                        //json文件
+                        String jsonStr = Xml2JsonUtil.readFile(file);
+                        if(StringUtils.isBlank(jsonStr)){
+                            continue;
+                        }
+                        fileMap = JSONObject.parseObject(jsonStr, Map.class);
+                    }
+                    if(Objects.nonNull(fileMap)){
+                        confMap.put(file.getName(), fileMap);
+                    }
                 }
             } catch (Exception e){
                 throw new RdosDefineException("解析配置文件出错:" + e.getMessage());
@@ -845,6 +841,7 @@ public class ComponentService {
         addComponent.setComponentTypeCode(componentType.getTypeCode());
         addComponent.setEngineId(engine.getId());
         addComponent.setComponentTemplate(componentTemplate);
+        addComponent.setComponentConfig(componentConfig);
         if (isUpdate) {
             componentDao.update(addComponent);
         } else {
@@ -868,7 +865,7 @@ public class ComponentService {
                     throw new RdosDefineException("更新组件失败");
                 } finally {
                     try {
-                        FileUtils.forceDeleteOnExit(new File(resource.getUploadedFileName()));
+                        FileUtils.forceDelete(new File(resource.getUploadedFileName()));
                     } catch (IOException e) {
                         LOGGER.error("delete upload file {} error", resource.getUploadedFileName(), e);
                     }
@@ -980,17 +977,16 @@ public class ComponentService {
 
 
     /**
-     * parse zip中xml
+     * parse zip中xml或者json
      * @param resources
      * @return
      */
     public List<Object> config(@Param("resources") List<Resource> resources,@Param("componentType")Integer componentType) {
-        List<Object> datas;
+        List<Object> datas = new ArrayList<>();
         try {
-            Map<String, Object> xmlConfigMap = parseAndUploadXmlFile(resources);
             List<String> xmlName = componentTypeConfigMapping.get(componentType);
-            datas = new ArrayList<>();
             if (CollectionUtils.isNotEmpty(xmlName)) {
+                Map<String, Object> xmlConfigMap = this.parseUploadFileToMap(resources);
                 //多个配置文件合并为一个map
                 Map data = new HashMap();
                 for (String xml : xmlName) {
@@ -1001,12 +997,19 @@ public class ComponentService {
                 }
                 datas.add(data);
             } else {
-                datas.addAll(xmlConfigMap.values());
+                // 当作json来解析
+                Map<String, Object> fileToMap = this.parseUploadFileToMap(resources);
+                if(MapUtils.isNotEmpty(fileToMap)){
+                    for (String fileName : fileToMap.keySet()) {
+                        datas.add(fileToMap.get(fileName));
+                    }
+                }
             }
         } finally {
             for (Resource resource : resources) {
                 try {
-                    FileUtils.forceDeleteOnExit(new File(resource.getUploadedFileName()));
+                    FileUtils.forceDelete(new File(System.getProperty("user.dir") + File.separator +
+                            resource.getUploadedFileName()));
                 } catch (IOException e) {
                     LOGGER.debug("delete config resource error {} ",resource.getUploadedFileName());
                 }
@@ -1021,6 +1024,23 @@ public class ComponentService {
         return AppType.CONSOLE + "_" + clusterId + File.separator + componentCode;
     }
 
+
+    /**
+     * 测试单个组件联通性
+     * @param componentConfigs
+     * @param clusterId
+     * @param resources
+     * @param componentType
+     * @return
+     */
+    @Forbidden
+    private boolean testConnect(String componentConfigs, Long clusterId, List<Resource> resources,
+                                EComponentType componentType,String hadoopVersion) {
+        //获取Client 传入配置信息
+        ClientOperator instance = ClientOperator.getInstance();
+
+        return false;
+    }
 
     /**
      * 获取本地kerberos配置地址
@@ -1078,7 +1098,7 @@ public class ComponentService {
                 ZipUtil.zipFile(downloadLocation + File.separator + zipFilename, Arrays.stream(files).collect(Collectors.toList()));
             }
             try {
-                FileUtils.forceDeleteOnExit(file);
+                FileUtils.forceDelete(file);
             } catch (IOException e) {
                 LOGGER.error("delete upload file {} error", file.getName(), e);
             }
@@ -1148,6 +1168,7 @@ public class ComponentService {
         }
         return templateVos;
     }
+
 
     /**
      * 删除组件
