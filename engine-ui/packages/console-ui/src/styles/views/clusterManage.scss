@@ -302,6 +302,8 @@
     padding: 20px;
 }
 
-.c-clusterManage__icon:hover {
-    color: #2491f7;
+.c-clusterManage__icon {
+    &:hover {
+        color: #2491f7;
+    }
 }

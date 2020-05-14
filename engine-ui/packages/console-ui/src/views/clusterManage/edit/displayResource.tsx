@@ -2,8 +2,10 @@ import * as React from 'react';
 import {
     Form, Select, Icon
 } from 'antd';
+import utils from 'dt-common/src/utils';
 import {
-    COMPONENT_TYPE_VALUE, COMPONEMT_CONFIG_KEYS, COMPONEMT_CONFIG_KEY_ENUM } from '../../../consts';
+    COMPONENT_TYPE_VALUE, COMPONEMT_CONFIG_KEYS, COMPONEMT_CONFIG_KEY_ENUM
+} from '../../../consts';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -49,7 +51,8 @@ class DisplayResource extends React.Component<any, any> {
                 )
             case COMPONENT_TYPE_VALUE.YARN:
                 const config = componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {};
-                const file = config.uploadFileName || '';
+                // const file = config.fileName || '';
+                const { fileName } = config;
                 return (
                     <React.Fragment>
                         <FormItem
@@ -95,10 +98,11 @@ class DisplayResource extends React.Component<any, any> {
                                         style={{ display: 'none' }}
                                     />
                                     <span style={{ fontSize: 10, color: '#999' }}>仅支持.zip格式，至少包括yarn-site.xml</span>
-                                    {file && <div className="c-displayResource__downloadFile" onClick={() => downloadFile(1)} style={{ fontSize: 12, color: '#3F87FF' }}>
+                                    {/* components.uploadFileName ||  */}
+                                    { fileName && <div className="c-displayResource__downloadFile" onClick={() => downloadFile(components, 1)} style={{ fontSize: 12, color: '#3F87FF' }}>
                                         <span>
                                             <Icon type="paper-clip" style={{ marginRight: 2, color: '#666666FF' }} />
-                                            {(file.files && file.files[0] && file.files[0].name) || file}
+                                            {utils.textOverflowExchange(fileName, 10)}
                                             {/* {components.uploadFileName} */}
                                         </span>
                                         <Icon type="download" style={{ color: '#666666FF' }} />

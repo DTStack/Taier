@@ -45,8 +45,11 @@ export default {
     uploadResource (params: any) {
         return http.postAsFormData(req.UPLOAD_RESOURCE, params);
     },
-    downloadFile (params: any) {
-        return http.get(req.DOWNLOAD_RESOURCE, params);
+    // downloadFile (params: any) {
+    //     return http.get(req.DOWNLOAD_RESOURCE, params);
+    // },
+    deleteCluster (params: any) {
+        return http.post(req.DELETE_CLUSTER, params);
     },
     // 任务管理模块
     // 概览-获取集群

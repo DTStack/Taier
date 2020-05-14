@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { hashHistory } from 'react-router';
-import { Card, Table, Button, message } from 'antd';
-import AddEngineModal from '../../components/addEngineModal';
+import { Card, Table, Button, message, Popconfirm } from 'antd';
 import moment from 'moment';
 import Api from '../../api/console'
 const PAGE_SIZE = 10;
@@ -79,21 +78,24 @@ class ClusterManage extends React.Component<any, any> {
                 render: (text: any, record: any) => {
                     return (
                         <div>
-                            <a onClick={this.editCluster.bind(this, record)}>修改</a>
-                            <span className="ant-divider" ></span>
                             <a onClick={this.viewCluster.bind(this, record)}>查看</a>
+                            <span className="ant-divider" ></span>
+                            <Popconfirm title={`删除集群后不可恢复，确认删除集群 ${record.clusterName}?`} onConfirm={this.deleteCluster.bind(this, record)} okText="确认" cancelText="取消">
+                                <a>删除</a>
+                            </Popconfirm>
                         </div>
                     )
                 }
             }
         ]
     }
-    editCluster (item: any) {
-        hashHistory.push({
-            pathname: '/console/clusterManage/editCluster',
-            state: {
-                cluster: item,
-                mode: 'edit'
+    deleteCluster (item: any) {
+        Api.deleteCluster({
+            clusterId: item.clusterId
+        }).then((res: any) => {
+            if (res.code === 1) {
+                message.success('集群删除成功');
+                this.getResourceList();
             }
         })
     }
@@ -107,10 +109,6 @@ class ClusterManage extends React.Component<any, any> {
         })
     }
     newCluster = () => {
-        // this.setState({
-        //     editModalKey: Math.random(),
-        //     newClusterModal: true
-        // })
         hashHistory.push({
             pathname: '/console/clusterManage/editCluster',
             state: {
@@ -147,7 +145,7 @@ class ClusterManage extends React.Component<any, any> {
         }, this.getResourceList)
     }
     render () {
-        const { dataSource, table, newClusterModal, editModalKey } = this.state;
+        const { dataSource, table } = this.state;
         const { loading } = table;
         const columns = this.initTableColumns();
 
@@ -172,13 +170,6 @@ class ClusterManage extends React.Component<any, any> {
                         onChange={this.handleTableChange}
                     />
                 </Card>
-                <AddEngineModal
-                    key={editModalKey}
-                    title='新增集群'
-                    visible={newClusterModal}
-                    onCancel={this.onCancel.bind(this)}
-                    onOk={this.onSubmit.bind(this)}
-                />
             </div>
         )
     }

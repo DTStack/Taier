@@ -1,16 +1,15 @@
 import * as React from 'react';
 import { cloneDeep, omit } from 'lodash';
 import { connect } from 'react-redux';
-import {
-    Form, Input, Card, Tabs, Button,
-    Popover, Checkbox, Row, Col, Radio,
-    message
-} from 'antd';
 import { browserHistory, hashHistory } from 'react-router';
-import Api from '../../../api/console'
+import {
+    Form, Input, Card, Tabs, Button, Popover, Checkbox,
+    Row, Col, Radio, message } from 'antd';
+import Api from '../../../api/console';
 
 import { updateTestStatus, updateRequiredStatus } from '../../../reducers/modules/cluster';
 
+import req from '../../../consts/reqUrls'
 import {
     SOURCE_COMPONENTS, STORE_COMPONENTS, COMPUTE_COMPONENTS, COMMON_COMPONENTS,
     TABS_TITLE, TABS_TITLE_KEY, COMPONEMT_CONFIG_NAME_ENUM, COMPONEMT_CONFIG_KEY_ENUM,
@@ -18,7 +17,6 @@ import {
 
 import DisplayResource from './displayResource';
 import ComponentsConfig from './componentsConfig';
-// import GoBack from 'dt-common/src/components/go-back';
 
 const TabPane = Tabs.TabPane;
 const CheckboxGroup = Checkbox.Group;
@@ -46,7 +44,6 @@ class EditCluster extends React.Component<any, any> {
         selectComp: [], // 存储组件勾选状态
         componentConfig: {}, // 组件配置文件信息
         uploadLoading: false,
-        componentId: '', // 组件id
         clusterName: '', // 组件名称
         tabCompData: [
             {
@@ -65,7 +62,8 @@ class EditCluster extends React.Component<any, any> {
                 schedulingCode: TABS_TITLE_KEY.COMPUTE,
                 components: []
             }
-        ] // 集群结构信息
+        ], // 集群结构信息
+        clusterId: '' // 集群id
     }
     container: any;
 
@@ -82,11 +80,13 @@ class EditCluster extends React.Component<any, any> {
     }
 
     getDataList = () => {
-        const { location } = this.props;
-        const params = location.state || {};
+        const { clusterId } = this.state;
+        const params = this.props.location.state || {};
+        const { cluster = {}, mode = '' } = params;
         const { componentConfig } = this.state;
-        params.mode !== 'new' && Api.getClusterInfo({
-            clusterId: params.cluster.id || params.cluster.clusterId
+        const isRequest = (mode === 'new' && clusterId) || mode !== 'new';
+        isRequest && Api.getClusterInfo({
+            clusterId: cluster.clusterId || clusterId
         }).then((res: any) => {
             if (res.code === 1) {
                 // 存入组件信息
@@ -98,19 +98,25 @@ class EditCluster extends React.Component<any, any> {
                             ...cloneCompConfig[COMPONEMT_CONFIG_KEY_ENUM[comps.componentTypeCode]],
                             configInfo: JSON.parse(comps.componentConfig),
                             loadTemplate: JSON.parse(comps.componentTemplate),
-                            uploadFileName: comps.uploadFileName
+                            defaultFileName: comps.uploadFileName,
+                            fileName: comps.uploadFileName,
+                            id: comps.id
                         }
                     })
                 })
-                console.log('cloneCompConfig------', cloneCompConfig);
                 this.setState({
                     tabCompData: res.data.scheduling,
                     clusterName: res.data.clusterName,
-                    componentId: res.data.id,
-                    componentConfig: cloneCompConfig,
-                }, () => console.log('sssssss-----', this.state.tabCompData))
+                    componentConfig: cloneCompConfig
+                }, () => console.log('componentUpdate-----', this.state.tabCompData))
             }
         })
+    }
+
+    getComponentConfig = (components: any) => {
+        const { componentConfig } = this.state;
+        const componentTypeCode = components.componentTypeCode;
+        return componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {};
     }
 
     // 对单选框数据格式进行处理
@@ -121,11 +127,12 @@ class EditCluster extends React.Component<any, any> {
         cloneCompData.forEach((item: any) => {
             if (item.schedulingCode === compTypeKey) item.components = [components]
         })
-        this.setState({ selectComp: cloneCompData })
+        this.setState({ selectComp: cloneCompData }, () => console.log('selectComp----', this.state.selectComp))
     }
 
     // 对复选框数据格式进行处理
     setCheckboxCompData = (value) => {
+        console.log('value-----------', value)
         const { compTypeKey, tabCompData } = this.state;
         const cloneCompData = cloneDeep(tabCompData);
         let components: any = [];
@@ -142,10 +149,12 @@ class EditCluster extends React.Component<any, any> {
     setTabCompData = () => {
         const { selectComp } = this.state;
         const cloneSelectComp = cloneDeep(selectComp)
-        this.setState({
-            tabCompData: cloneSelectComp,
-            popoverVisible: false
-        }, () => { this.getLoadTemplate(); console.log('tabCompData-------', this.state.tabCompData) })
+        if (selectComp.length > 0) {
+            this.setState({
+                tabCompData: cloneSelectComp
+            }, () => { this.getLoadTemplate(); console.log('cloneSelectComp-------', cloneSelectComp, this.state.tabCompData) })
+        }
+        this.setState({ popoverVisible: false });
     }
 
     // 获取各模块中选中组件的值
@@ -153,7 +162,7 @@ class EditCluster extends React.Component<any, any> {
         const { tabCompData, compTypeKey } = this.state;
         const cloneCompData = cloneDeep(tabCompData);
         let defaultValue: any = [];
-        cloneCompData.map((item: any) => {
+        cloneCompData.length > 0 && cloneCompData.map((item: any) => {
             if (item.schedulingCode === compTypeKey) {
                 item.components.map((comps: any) => {
                     defaultValue.push(comps.componentTypeCode);
@@ -165,7 +174,7 @@ class EditCluster extends React.Component<any, any> {
 
     getLoadTemplate = () => {
         const { compTypeKey, tabCompData, componentConfig } = this.state;
-        const component = tabCompData.find((item: any) => item.schedulingCode === compTypeKey);
+        const component = tabCompData.find((item: any) => item.schedulingCode === compTypeKey) || { components: [] };
         if (component.components.length > 0) {
             const componentTypeCode = component.components[0].componentTypeCode;
             if (componentTypeCode !== COMPONENT_TYPE_VALUE.YARN && componentTypeCode !== COMPONENT_TYPE_VALUE.KUBERNETES) {
@@ -209,11 +218,9 @@ class EditCluster extends React.Component<any, any> {
                 content = (
                     <CheckboxGroup onChange={this.setCheckboxCompData} defaultValue={value}>
                         <Row>
-                            {
-                                COMMON_COMPONENTS.map((item: any) => {
-                                    return <Col key={`${item.componentTypeCode}`}><Checkbox value={item.componentTypeCode}>{item.componentName}</Checkbox></Col>
-                                })
-                            }
+                            {COMMON_COMPONENTS.map((item: any) => {
+                                return <Col key={`${item.componentTypeCode}`}><Checkbox value={item.componentTypeCode}>{item.componentName}</Checkbox></Col>
+                            })}
                         </Row>
                         {popoverFooter}
                     </CheckboxGroup>
@@ -223,11 +230,9 @@ class EditCluster extends React.Component<any, any> {
                 content = (
                     <RadioGroup style={{ width: '100%' }} onChange={this.setRadioCompData} defaultValue={value[0]}>
                         <Row>
-                            {
-                                SOURCE_COMPONENTS.map((item: any) => {
-                                    return <Col key={`${item.componentTypeCode}`}><Radio value={item.componentTypeCode}>{item.componentName}</Radio></Col>
-                                })
-                            }
+                            {SOURCE_COMPONENTS.map((item: any) => {
+                                return <Col key={`${item.componentTypeCode}`}><Radio value={item.componentTypeCode}>{item.componentName}</Radio></Col>
+                            })}
                         </Row>
                         {popoverFooter}
                     </RadioGroup>
@@ -237,11 +242,9 @@ class EditCluster extends React.Component<any, any> {
                 content = (
                     <CheckboxGroup onChange={this.setCheckboxCompData} defaultValue={value}>
                         <Row>
-                            {
-                                STORE_COMPONENTS.map((item: any) => {
-                                    return <Col key={`${item.componentTypeCode}`}><Checkbox value={item.componentTypeCode}>{item.componentName}</Checkbox></Col>
-                                })
-                            }
+                            {STORE_COMPONENTS.map((item: any) => {
+                                return <Col key={`${item.componentTypeCode}`}><Checkbox value={item.componentTypeCode}>{item.componentName}</Checkbox></Col>
+                            })}
                         </Row>
                         {popoverFooter}
                     </CheckboxGroup>
@@ -251,11 +254,9 @@ class EditCluster extends React.Component<any, any> {
                 content = (
                     <CheckboxGroup onChange={this.setCheckboxCompData} defaultValue={value}>
                         <Row>
-                            {
-                                COMPUTE_COMPONENTS.map((item: any) => {
-                                    return <Col key={`${item.componentTypeCode}`}><Checkbox value={item.componentTypeCode}>{item.componentName}</Checkbox></Col>
-                                })
-                            }
+                            {COMPUTE_COMPONENTS.map((item: any) => {
+                                return <Col key={`${item.componentTypeCode}`}><Checkbox value={item.componentTypeCode}>{item.componentName}</Checkbox></Col>
+                            })}
                         </Row>
                         {popoverFooter}
                     </CheckboxGroup>
@@ -273,7 +274,7 @@ class EditCluster extends React.Component<any, any> {
                 content={content}
                 style={{ width: 240 }}
             >
-                <Button className="c-clusterManage__componentButton" onClick={() => this.setState({ popoverVisible: true })}>组件配置</Button>
+                <Button className="c-clusterManage__componentButton" onClick={() => this.setState({ popoverVisible: true })}><i className="iconfont iconzujianpeizhi" style={{ marginRight: 2 }}></i>组件配置</Button>
             </Popover>
         )
     }
@@ -292,6 +293,7 @@ class EditCluster extends React.Component<any, any> {
     // 配置文件Change事件
     fileChange = (e: any, componentTypeCode: any) => {
         const file = e.target;
+        console.log('changefile---------', file.files[0]);
         const isCanUpload = this.validateFileType(file && file.files && file.files[0].name)
         if (isCanUpload) {
             this.setState({ uploadLoading: true });
@@ -307,11 +309,12 @@ class EditCluster extends React.Component<any, any> {
                             [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
                                 ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
                                 uploadFileName: file,
+                                fileName: file.files[0].name,
                                 configInfo: res.data[0]
                             }
                         },
                         uploadLoading: false
-                    }, () => console.log(this.state.componentConfig, this.state.componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]))
+                    }, () => console.log('this.state.componentConfig---', this.state.componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]))
                 } else {
                     this.setState({
                         uploadLoading: false
@@ -322,23 +325,23 @@ class EditCluster extends React.Component<any, any> {
     }
 
     // 下载配置文件
-    downloadFile = (type: any) => {
-        const { componentId } = this.state;
-        Api.downloadFile({
-            componentId: componentId,
-            type
-        });
+    downloadFile = (components: any, type: any) => {
+        const config = this.getComponentConfig(components);
+        const a = document.createElement('a');
+        const param = `?componentId=${config.id}&type=${type}`;
+        a.href = `${req.DOWNLOAD_RESOURCE}${param}`;
+        a.click();
     }
 
     /**
      * 添加、更新组件数据参数
      */
-    getComponentConf (values: any, component: any) {
-        const { componentConfig } = this.state;
-        const componentTypeCode = component.componentTypeCode;
+    getComponentConfigPrames (values: any, components: any) {
+        // const { componentConfig } = this.state;
+        const componentTypeCode = components.componentTypeCode;
 
-        // 配置相关
-        const config = componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {};
+        // 组件配置相关 配置文件、组件id、组件模板、
+        const config = this.getComponentConfig(components);
         const {
             uploadFileName = {}, configInfo = '', loadTemplate = [] } = config;
         const files = uploadFileName.files || '';
@@ -370,12 +373,13 @@ class EditCluster extends React.Component<any, any> {
         }
     }
 
-    saveComponent = (component: any) => {
+    saveComponent = (components: any) => {
         const { validateFieldsAndScroll } = this.props.form;
+        const componentTypeCode = components.componentTypeCode;
         validateFieldsAndScroll((err: any, values: any) => {
             console.log(err, values)
             if (err) {
-                let paramName = COMPONEMT_CONFIG_KEY_ENUM[component.componentTypeCode];
+                let paramName = COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode];
                 if (Object.keys(err).includes(paramName)) {
                     message.error('请检查配置')
                     return;
@@ -385,19 +389,49 @@ class EditCluster extends React.Component<any, any> {
                 message.error('集群名称不能为空')
                 return;
             }
-            const params = this.getComponentConf(values, component);
-            console.log('shanshansshana----------', { ...params })
+            const params = this.getComponentConfigPrames(values, components);
             Api.saveComponent({
                 ...params
             }).then((res: any) => {
                 if (res.code === 1) {
                     this.setState({
-                        componentId: res.data.id
-                    }, () => console.log('shshhsha------', this.state.componentId));
-                    message.success('集群版本保存成功');
+                        clusterId: res.data.clusterId
+                    }, () => { this.getDataList() })
+                    message.success('保存成功');
                 }
             })
         })
+    }
+
+    handleCancel = (components: any) => {
+        const { form } = this.props;
+        const { componentConfig } = this.state;
+        const componentTypeCode = components.componentTypeCode;
+        const config = this.getComponentConfig(components);
+        const { loadTemplate = [], defaultFileName = '' } = config;
+
+        // 提取模板的对应值
+        const componentTemplate = cloneDeep(loadTemplate)
+        let templateValues: any = {};
+        componentTemplate.map((item: any) => {
+            templateValues[item.key] = item.value;
+        })
+        form.setFieldsValue({
+            [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
+                ...templateValues,
+                file: defaultFileName
+            }
+        })
+        // this.setState({
+        //     componentConfig: {
+        //         ...this.state.componentConfig,
+        //         [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
+        //             ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
+        //             fileName: defaultFileName
+        //         }
+        //     }
+        // });
+        // console.log('handleCancel--------', { ...templateValues, fileName: defaultFileName })
     }
 
     turnBack = () => {
@@ -451,16 +485,15 @@ class EditCluster extends React.Component<any, any> {
     }
 
     renderIcon = (scheduling: any) => {
-        console.log('renderIcon----------', scheduling)
         switch (scheduling.schedulingCode) {
             case TABS_TITLE_KEY.STORE:
-                return (<img src="public/img/storeComp.png" style={{ marginRight: 2 }} />)
+                return (<i className="iconfont iconcunchuzujian" style={{ marginRight: 2 }}></i>)
             case TABS_TITLE_KEY.COMMON:
-                return (<img src="public/img/commonComp.png" style={{ marginRight: 2 }} />)
+                return (<i className="iconfont icongonggongzujian" style={{ marginRight: 2 }}></i>)
             case TABS_TITLE_KEY.COMPUTE:
-                return (<img src="public/img/computeComp.png" style={{ marginRight: 2 }} />)
+                return (<i className="iconfont iconjisuanzujian" style={{ marginRight: 2 }}></i>)
             case TABS_TITLE_KEY.SOURCE:
-                return (<img src="public/img/storeComp.png" className="c-clusterManage__icon" style={{ marginRight: 2 }} />)
+                return (<i className="iconfont iconziyuantiaodu" style={{ marginRight: 2 }}></i>)
             default:
                 return '';
         }
@@ -470,6 +503,8 @@ class EditCluster extends React.Component<any, any> {
         const { compTypeKey, clusterName } = this.state;
         const { getFieldDecorator } = this.props.form;
         const componentBtn = this.componentBtn();
+        const { mode } = this.props.location.state || {} as any;
+        const isView = mode === 'view';
 
         return (
             <div className="c-clusterManage__containerWrap" ref={(el) => { this.container = el; }}>
@@ -500,11 +535,10 @@ class EditCluster extends React.Component<any, any> {
                                     return (
                                         <TabPane
                                             tab={
-                                                // <div style={{ height: 19, display: 'flex', alignItems: 'center' }}>
-                                                //     {this.renderIcon(scheduling)}
-                                                //     {item.tabName}
-                                                // </div>
-                                                <span>{scheduling.schedulingName}</span>
+                                                <div style={{ height: 19, display: 'flex', alignItems: 'center' }}>
+                                                    {this.renderIcon(scheduling)}
+                                                    {scheduling.schedulingName}
+                                                </div>
                                             }
                                             key={scheduling.schedulingCode}
                                         >
@@ -531,7 +565,7 @@ class EditCluster extends React.Component<any, any> {
                                                                         </div>
                                                                     </div>
                                                                     <div className="c-clusterManage__container__componentFooter">
-                                                                        <Button className="c-clusterManage__container__componentFooter__btn">取消</Button>
+                                                                        <Button className="c-clusterManage__container__componentFooter__btn" onClick={this.handleCancel.bind(this, comps)}>取消</Button>
                                                                         <Button className="c-clusterManage__container__componentFooter__btn" type="primary" style={{ marginLeft: 8 }} onClick={this.saveComponent.bind(this, comps)} >保存</Button>
                                                                     </div>
                                                                 </TabPane>
