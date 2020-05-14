@@ -18,27 +18,38 @@
 
 package com.dtstack.engine.common.akka.message;
 
-import com.dtstack.engine.common.JobClient;
+import java.io.Serializable;
 
 /**
  * Date: 2020/5/11
  * Company: www.dtstack.com
  * @author maqi
  */
-public class MessageGetPluginDefaultConfig {
+public class MessageGetPluginDefaultConfig implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private JobClient jobClient;
+    private String engineType;
 
-    public MessageGetPluginDefaultConfig(JobClient jobClient) {
-        this.jobClient = jobClient;
+    private String configType;
+
+    public MessageGetPluginDefaultConfig(String engineType, String configType) {
+        this.engineType = engineType;
+        this.configType = configType;
     }
 
-    public JobClient getJobClient() {
-        return jobClient;
+    public String getConfigType() {
+        return configType;
     }
 
-    public void setJobClient(JobClient jobClient) {
-        this.jobClient = jobClient;
+    public void setConfigType(String configType) {
+        this.configType = configType;
+    }
+
+    public String getEngineType() {
+        return engineType;
+    }
+
+    public void setEngineType(String engineType) {
+        this.engineType = engineType;
     }
 }

@@ -6,6 +6,7 @@ import com.dtstack.engine.common.enums.EFrontType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.pojo.ClientTemplate;
 import com.dtstack.engine.common.pojo.JobResult;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,8 +88,8 @@ public abstract class AbstractClient implements IClient{
     }
 
     @Override
-    public List<ClientTemplate> getDefaultPluginConfig() {
-        return new ArrayList<>();
+    public List<ClientTemplate> getDefaultPluginConfig(String engineType) {
+        return defaultPlugins;
     }
 
 
@@ -113,9 +114,7 @@ public abstract class AbstractClient implements IClient{
                     group.setValue(key);
                     group.setKey(key);
                     group.setType(EFrontType.GROUP.name());
-                    for (String groupKey : groupMap.keySet()) {
-                        group.setValues(this.getClientTemplates((Map<String, Object>) groupMap.get(groupKey)));
-                    }
+                    group.setValues(this.getClientTemplates(groupMap));
                     templateVos.add(group);
                 }
             }
@@ -164,7 +163,9 @@ public abstract class AbstractClient implements IClient{
                     templateVo.getValues().add(sonClientTemplate);
                 }
             }
-            templateVo.setValue(templateVo.getValues().get(0).getValue());
+            if(CollectionUtils.isNotEmpty(templateVo.getValues())){
+                templateVo.setValue(templateVo.getValues().get(0).getValue());
+            }
         } else {
             if (defaultValue instanceof Map) {
                 //依赖 radio 的选择的输入框

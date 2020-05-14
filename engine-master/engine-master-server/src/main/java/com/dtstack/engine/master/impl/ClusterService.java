@@ -748,30 +748,35 @@ public class ClusterService implements InitializingBean {
      * @param clusterId
      * @return
      */
-    public ClusterVO getCluster(@Param("clusterId") Long clusterId,@Param("kerberosConfig") Boolean kerberosConfig) {
+    public ClusterVO getCluster(@Param("clusterId") Long clusterId, @Param("kerberosConfig") Boolean kerberosConfig) {
         Cluster cluster = clusterDao.getOne(clusterId);
         EngineAssert.assertTrue(cluster != null, ErrorCode.DATA_NOT_FIND.getDescription());
         ClusterVO clusterVO = ClusterVO.toVO(cluster);
         List<Engine> engines = engineDao.listByClusterId(clusterId);
-        if(CollectionUtils.isEmpty(engines)){
+        if (CollectionUtils.isEmpty(engines)) {
             return clusterVO;
         }
         List<Long> engineIds = engines.stream().map(Engine::getId).collect(Collectors.toList());
         List<Component> components = componentDao.listByEngineIds(engineIds);
 
-        if(CollectionUtils.isNotEmpty(components)){
-            Map<EComponentScheduleType, List<Component>> scheduleType =
-                    components.stream().collect(Collectors.groupingBy(c -> EComponentType.getScheduleTypeByComponent(c.getComponentTypeCode())));
-            List<SchedulingVo> schedulingVos = new ArrayList<>();
-            for (EComponentScheduleType eComponentScheduleType : scheduleType.keySet()) {
-                SchedulingVo schedulingVo = new SchedulingVo();
-                schedulingVo.setSchedulingCode(eComponentScheduleType.getType());
-                schedulingVo.setComponents(scheduleType.get(eComponentScheduleType));
-                schedulingVo.setSchedulingName(eComponentScheduleType.getName());
-                schedulingVos.add(schedulingVo);
-            }
-            clusterVO.setScheduling(schedulingVos);
+        Map<EComponentScheduleType, List<Component>> scheduleType = null;
+        if (CollectionUtils.isNotEmpty(components)) {
+            scheduleType = components.stream().collect(Collectors.groupingBy(c -> EComponentType.getScheduleTypeByComponent(c.getComponentTypeCode())));
         }
+        List<SchedulingVo> schedulingVos = new ArrayList<>();
+        //为空也返回
+        for (EComponentScheduleType value : EComponentScheduleType.values()) {
+            SchedulingVo schedulingVo = new SchedulingVo();
+            schedulingVo.setSchedulingCode(value.getType());
+            schedulingVo.setSchedulingName(value.getName());
+            if (Objects.nonNull(scheduleType) && scheduleType.containsKey(value)) {
+                schedulingVo.setComponents(scheduleType.get(value));
+            } else {
+                schedulingVo.setComponents(new ArrayList<>());
+            }
+            schedulingVos.add(schedulingVo);
+        }
+        clusterVO.setScheduling(schedulingVos);
         return clusterVO;
     }
 }

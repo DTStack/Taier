@@ -1,5 +1,7 @@
 package com.dtstack.engine.common.client;
 
+import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.exception.ClientAccessException;
 import com.dtstack.engine.common.util.MD5Util;
 import com.dtstack.engine.common.util.MathUtil;
@@ -91,7 +93,9 @@ public class ClientCache {
                 synchronized (defaultClientMap) {
                     defaultClient = defaultClientMap.get(engineType);
                     if (defaultClient == null){
-                        defaultClient = ClientFactory.buildPluginClient("");
+                        JSONObject pluginInfo = new JSONObject();
+                        pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,engineType);
+                        defaultClient = ClientFactory.buildPluginClient(pluginInfo.toJSONString());
                         defaultClientMap.putIfAbsent(engineType, defaultClient);
                     }
                 }

@@ -37,6 +37,6 @@ public interface IClient {
 
 	String getCheckpoints(JobIdentifier jobIdentifier);
 
-	List<ClientTemplate> getDefaultPluginConfig();
+	List<ClientTemplate> getDefaultPluginConfig(String configType);
 
 }

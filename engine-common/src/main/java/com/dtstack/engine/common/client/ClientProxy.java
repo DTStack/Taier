@@ -19,13 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 /**
  * 代理IClient实现类的proxy
@@ -260,11 +254,11 @@ public class ClientProxy implements IClient {
     }
 
     @Override
-    public List<ClientTemplate> getDefaultPluginConfig() {
+    public List<ClientTemplate> getDefaultPluginConfig(String componentType) {
         try {
             return CompletableFuture.supplyAsync(() -> {
                 try {
-                    return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.getDefaultPluginConfig(),
+                    return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.getDefaultPluginConfig(componentType),
                             targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
                     throw new RdosDefineException(e);

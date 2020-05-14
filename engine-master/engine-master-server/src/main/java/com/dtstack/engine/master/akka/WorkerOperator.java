@@ -4,12 +4,13 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobClientCallBack;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.akka.config.AkkaConfig;
+import com.dtstack.engine.common.akka.message.*;
 import com.dtstack.engine.common.callback.CallBack;
 import com.dtstack.engine.common.client.ClientOperator;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.akka.message.*;
+import com.dtstack.engine.common.pojo.ClientTemplate;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
@@ -175,12 +176,12 @@ public class WorkerOperator {
         }
     }
 
-    public String getDefaultPluginConfig(JobClient jobClient) {
+    public List<ClientTemplate> getDefaultPluginConfig(String engineType,String configType) {
         try {
-            return (String) callbackAndReset(jobClient, () -> masterServer.sendMessage(new MessageGetPluginDefaultConfig(jobClient)));
+            return (List<ClientTemplate>) masterServer.sendMessage(new MessageGetPluginDefaultConfig(engineType,configType));
         } catch (Exception e) {
             logger.error("getDefaultPluginConfig failed!", e);
-            return "";
+            return null;
         }
     }
 

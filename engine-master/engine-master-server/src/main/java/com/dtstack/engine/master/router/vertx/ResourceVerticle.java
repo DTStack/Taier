@@ -22,6 +22,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.*;
@@ -61,11 +62,11 @@ public class ResourceVerticle extends BaseVerticle {
         try {
             Map<String, Object> params = RequestUtil.getRequestParams(paramMap, routingContext);
             downLoadFile = (File) reflectionMethod(routingContext, params);
-            if (Objects.isNull(downLoadFile)) {
+            if (Objects.isNull(downLoadFile) || downLoadFile.isDirectory()) {
                 response.putHeader("Content-Disposition", "attachment;filename=error.log");
                 response.write("文件不存在");
             } else {
-                response.putHeader("Content-Disposition", "attachment;filename=" + downLoadFile.getName());
+                response.putHeader("Content-Disposition", "attachment;filename=" + encodeURIComponent(downLoadFile.getName()));
                 response.sendFile(downLoadFile.getPath());
             }
         } catch (InvocationTargetException e) {
@@ -79,6 +80,14 @@ public class ResourceVerticle extends BaseVerticle {
             }
         }
         routingContext.response().end();
+    }
+
+    public static String encodeURIComponent(String value) {
+        try {
+            return URLEncoder.encode(value, "UTF-8").replaceAll("\\+", "%20");
+        } catch (Exception e) {
+        }
+        return value;
     }
 
     public void handleUploadResource(RoutingContext routingContext) {

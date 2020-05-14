@@ -9,20 +9,22 @@ import com.dtstack.engine.api.dto.ComponentDTO;
 import com.dtstack.engine.api.dto.Resource;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.api.vo.EngineTenantVO;
-import com.dtstack.engine.api.vo.TemplateVo;
 import com.dtstack.engine.api.vo.TestConnectionVO;
 import com.dtstack.engine.common.annotation.Forbidden;
-import com.dtstack.engine.common.client.ClientOperator;
-import com.dtstack.engine.common.enums.EFrontType;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.pojo.ClientTemplate;
 import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.dao.*;
+import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.component.ComponentFactory;
 import com.dtstack.engine.master.component.ComponentImpl;
 import com.dtstack.engine.master.component.YARNComponent;
-import com.dtstack.engine.master.enums.*;
+import com.dtstack.engine.master.enums.DownloadType;
+import com.dtstack.engine.master.enums.EComponentType;
+import com.dtstack.engine.master.enums.KerberosKey;
+import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.utils.EngineUtil;
@@ -48,9 +50,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.yaml.snakeyaml.Yaml;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -113,16 +115,22 @@ public class ComponentService {
     @Autowired
     private KerberosDao kerberosDao;
 
+    @Autowired
+    private WorkerOperator workerOperator;
+
     public static final String TYPE_NAME = "typeName";
 
     /**
      * 组件配置文件映射
      */
-    public static Map<Integer,List<String>> componentTypeConfigMapping = new HashMap<>();
+    public static Map<Integer,List<String>> componentTypeConfigMapping = new HashMap<>(2);
+
+    public static Map<Integer,List<String>> componentVersionMapping = new HashMap<>(1);
     static {
         //hdfs core 需要合并
         componentTypeConfigMapping.put(EComponentType.HDFS.getTypeCode(),Lists.newArrayList("hdfs-site.xml","core-site.xml"));
         componentTypeConfigMapping.put(EComponentType.YARN.getTypeCode(),Lists.newArrayList("yarn-site.xml"));
+        componentVersionMapping.put(EComponentType.FLINK.getTypeCode(),Lists.newArrayList("110,180"));
     }
 
     /**
@@ -1034,12 +1042,8 @@ public class ComponentService {
      * @param componentType
      * @return
      */
-    @Forbidden
-    private boolean testConnect(String componentConfigs, Long clusterId, List<Resource> resources,
-                                EComponentType componentType,String hadoopVersion) {
-        //获取Client 传入配置信息
-        ClientOperator instance = ClientOperator.getInstance();
-
+    public boolean testConnect(String componentConfigs, Long clusterId, List<Resource> resources,
+                                EComponentType componentType, String hadoopVersion) {
         return false;
     }
 
@@ -1085,7 +1089,7 @@ public class ComponentService {
         if(!file.exists()){
             throw new RdosDefineException("文件不存在");
         }
-        String zipFilename = component.getUploadFileName();
+        String zipFilename = StringUtils.isBlank(component.getUploadFileName()) ? "download.zip" : component.getUploadFileName();
         if (file.isDirectory()) {
             File[] files = file.listFiles();
             //压缩成zip包
@@ -1117,57 +1121,57 @@ public class ComponentService {
      * @param componentType
      * @return
      */
-    public List<TemplateVo> loadTemplate(@Param("componentType") Integer componentType) {
-        Yaml yaml = new Yaml();
-        Object result = null;
+    public List<ClientTemplate> loadTemplate(@Param("componentType") Integer componentType,@Param("clusterName") String clusterName,@Param("version")String version) {
         EComponentType component = EComponentType.getByCode(componentType);
-        try {
-            result = yaml.load(this.preLoad(String.format("%s-template.yml",component.getName().toLowerCase())));
-        } catch (Exception e) {
-            LOGGER.error("load [{}] template error",componentType,e);
-            return new ArrayList<>(0);
+        List<ClientTemplate> defaultPluginConfig = workerOperator.getDefaultPluginConfig(this.convertComponentTypeToClient(clusterName,componentType,version),
+                component.getName().toLowerCase());
+        if(CollectionUtils.isEmpty(defaultPluginConfig)){
+            return new ArrayList<>();
         }
-        if (result instanceof Map) {
-            Map<String, Object> configMap = (Map<String, Object>) result;
-            List<TemplateVo> templateVos = new ArrayList<>();
-            for (String key : configMap.keySet()) {
-                if ("required".equalsIgnoreCase(key) || "optional".equalsIgnoreCase(key)) {
-                    // 如果required 开头 单个tab选择
-                    templateVos.addAll(this.getTemplateVos(configMap));
-                } else {
-                    Map<String, Object> groupMap = (Map<String, Object>) configMap.get(key);
-                    // 不是required 开头 多个数组选择
-                    TemplateVo group = new TemplateVo();
-                    group.setValue(key);
-                    group.setKey(key);
-                    group.setType("GROUP");
-                    for (String groupKey : groupMap.keySet()) {
-                        group.setValues(this.getTemplateVos((Map<String, Object>) groupMap.get(groupKey)));
-                    }
-                    templateVos.add(group);
-                }
-            }
-            return templateVos;
-        }
-        return new ArrayList<>(0);
+        return defaultPluginConfig;
     }
 
-    private List<TemplateVo> getTemplateVos(Map<String, Object> configMap) {
-        List<TemplateVo> templateVos = new ArrayList<>();
-        for (String key : configMap.keySet()) {
-            if ("required".equalsIgnoreCase(key)) {
-                Map<String, Object> value = (Map<String, Object>) configMap.get(key);
-                for (String s : value.keySet()) {
-                    templateVos.add(this.parseKeyValueToVo(s, value, false,true));
-                }
-            } else if ("optional".equalsIgnoreCase(key)) {
-                Map<String, Object> value = (Map<String, Object>) configMap.get(key);
-                for (String s : value.keySet()) {
-                    templateVos.add(this.parseKeyValueToVo(s, value, false,false));
-                }
-            }
+    /**
+     * 根据组件类型转换对应的插件名称
+     * @param clusterName
+     * @param componentType
+     * @param version
+     * @return
+     */
+    @Forbidden
+    private String convertComponentTypeToClient(String clusterName,Integer componentType,String version){
+        if (EComponentType.SFTP.getTypeCode() == componentType){
+            return "dummy";
         }
-        return templateVos;
+        if (StringUtils.isBlank(clusterName)) {
+            throw new RdosDefineException("集群名称不能为空");
+        }
+        ClusterVO cluster = clusterService.getClusterByName(clusterName);
+        if(Objects.isNull(cluster)){
+            throw new RdosDefineException("请先配置HDFS");
+        }
+        Component yarn = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.YARN.getTypeCode());
+        if(Objects.isNull(yarn)){
+            throw new RdosDefineException("请先配置YARN");
+        }
+        Component hdfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());
+        if(Objects.isNull(hdfs)){
+            throw new RdosDefineException("请先配置HDFS");
+        }
+        //flink 需要根据yarn hdfs version 拼接 如yarn2-hdfs2-flink180;
+        if(EComponentType.FLINK.getTypeCode() == componentType){
+            return String.format("yarn%s-hdfs%s-flink%s",this.formatHadoopVersion(hdfs.getHadoopVersion()),this.formatHadoopVersion(hdfs.getHadoopVersion()),
+                    version);
+        }
+        throw new RdosDefineException("暂无对应组件默认配置");
+    }
+
+    @Forbidden
+    private String formatHadoopVersion(String hadoopVersion){
+        if(StringUtils.isBlank(hadoopVersion) || hadoopVersion.length() < 6){
+            return "2";
+        }
+        return hadoopVersion.toLowerCase().replace("hadoop","").substring(0,1);
     }
 
 
@@ -1194,56 +1198,14 @@ public class ComponentService {
         }
     }
 
-    private String preLoad(String path) throws IOException {
-        InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(path);
-        BufferedReader fileReader = new BufferedReader(new InputStreamReader(resourceAsStream));
-        String temp;
-        StringBuilder stringBuilder = new StringBuilder();
-        while ((temp = fileReader.readLine()) != null) {
-            stringBuilder.append(temp + "\n");
-        }
-        return stringBuilder.toString();
-    }
 
-    public TemplateVo parseKeyValueToVo(String valueKey, Map<String, Object> value, boolean multiValues,boolean required) {
-        TemplateVo templateVo = new TemplateVo();
-        templateVo.setKey(valueKey);
-        templateVo.setValue("");
-        templateVo.setRequired(required);
-        Object defaultValue = value.get(valueKey);
-        if (defaultValue instanceof List) {
-            ArrayList defaultValueList = (ArrayList) defaultValue;
-            //选择框
-            for (Object o : defaultValueList) {
-                if (o instanceof Map) {
-                    Map<String, Object> sonMap = (Map<String, Object>) o;
-                    String sonKey = new ArrayList<>(sonMap.keySet()).get(0);
-                    TemplateVo sonTemplateVo = this.parseKeyValueToVo(sonKey, sonMap, true,required);
-                    sonTemplateVo.setRequired(null);
-                    templateVo.setType(EFrontType.RADIO.name());
-                    if (Objects.isNull(templateVo.getValues())) {
-                        templateVo.setValues(new ArrayList<>());
-                    }
-                    templateVo.getValues().add(sonTemplateVo);
-                }
-            }
-            templateVo.setValue(templateVo.getValues().get(0).getValue());
-        } else {
-            if (defaultValue instanceof Map) {
-                //依赖 radio 的选择的输入框
-                Map<String, Object> defaultMap = (Map<String, Object>) defaultValue;
-                templateVo.setDependencyKey(String.valueOf(defaultMap.get("dependencyKey")));
-                templateVo.setDependencyValue(String.valueOf(defaultMap.get("dependencyValue")));
-                templateVo.setType(EFrontType.INPUT.name());
-            } else {
-                //输入框
-                templateVo.setValue(String.valueOf(Optional.ofNullable(defaultValue).orElse("")));
-                if (!multiValues) {
-                    templateVo.setType(EFrontType.INPUT.name());
-                }
-            }
-        }
-        return templateVo;
+    /***
+     * 获取对应的组件版本信息
+     * @param componentCode
+     * @return
+     */
+    public List<String> getComponentVersion(@Param("componentType")Integer componentCode){
+       return componentVersionMapping.get(componentCode);
     }
 
 }

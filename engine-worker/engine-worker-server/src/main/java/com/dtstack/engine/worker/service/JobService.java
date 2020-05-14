@@ -1,15 +1,7 @@
 package com.dtstack.engine.worker.service;
 
 import akka.actor.AbstractActor;
-import com.dtstack.engine.common.akka.message.MessageContainerInfos;
-import com.dtstack.engine.common.akka.message.MessageGetCheckpoints;
-import com.dtstack.engine.common.akka.message.MessageGetEngineLog;
-import com.dtstack.engine.common.akka.message.MessageGetJobMaster;
-import com.dtstack.engine.common.akka.message.MessageGetJobStatus;
-import com.dtstack.engine.common.akka.message.MessageGetPluginDefaultConfig;
-import com.dtstack.engine.common.akka.message.MessageJudgeSlots;
-import com.dtstack.engine.common.akka.message.MessageStopJob;
-import com.dtstack.engine.common.akka.message.MessageSubmitJob;
+import com.dtstack.engine.common.akka.message.*;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.ClientTemplate;
 import com.dtstack.engine.common.pojo.JobResult;
@@ -73,7 +65,10 @@ public class JobService extends AbstractActor {
                     sender().tell(containerInfos, getSelf());
                 })
                 .match(MessageGetPluginDefaultConfig.class, msg -> {
-                    List<ClientTemplate> defaultPluginConfig = ClientOperator.getInstance().getDefaultPluginConfig(msg.getJobClient());
+                    List<ClientTemplate> defaultPluginConfig = ClientOperator.getInstance().getDefaultPluginConfig(msg.getEngineType(),msg.getConfigType());
+                    if (null == defaultPluginConfig) {
+                        defaultPluginConfig = new ArrayList<>(0);
+                    }
                     sender().tell(defaultPluginConfig, getSelf());
                 })
                 .build();
