@@ -2,6 +2,8 @@ package com.dtstack.sql.main.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
+
 
 /**
  * 字符串相关操作
@@ -37,8 +39,10 @@ public class DtStringUtil {
                 } else if(inSingleQuotes){
                     b.append(c);
                 }else {
-                    tokensList.add(b.toString());
-                    b = new StringBuilder();
+                    if (StringUtils.isNotBlank(b)){
+                        tokensList.add(b.toString());
+                        b = new StringBuilder();
+                    }
                 }
             }else if(c == '\"' && '\\'!=flag && !inSingleQuotes){
                 inQuotes = !inQuotes;
@@ -52,7 +56,9 @@ public class DtStringUtil {
             idx++;
         }
 
-        tokensList.add(b.toString());
+        if (StringUtils.isNotBlank(b)){
+            tokensList.add(b.toString());
+        }
 
         return tokensList;
     }
