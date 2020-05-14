@@ -13,7 +13,6 @@ import com.dtstack.engine.dao.PluginInfoDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.bo.CompletedTaskInfo;
 import com.dtstack.engine.master.bo.FailedTaskInfo;
-import com.dtstack.engine.master.bo.TaskCheckpointInfo;
 import com.dtstack.engine.master.cache.ShardCache;
 import com.dtstack.engine.master.cache.ShardManager;
 import com.dtstack.engine.master.env.EnvironmentContext;
@@ -80,6 +79,8 @@ public class TaskStatusDealer implements Runnable {
 
     private ExecutorService taskStatusPool;
 
+    private ScheduledExecutorService scheduledService;
+
     @Override
     public void run() {
         try {
@@ -93,26 +94,30 @@ public class TaskStatusDealer implements Runnable {
                 jobs.addAll(shardEntry.getValue().getView().entrySet());
             }
 
+            if (jobs.isEmpty()){
+                return;
+            }
+
+            jobs = jobs.stream().filter(job -> !RdosTaskStatus.needClean(job.getValue())).collect(Collectors.toList());
+
             Semaphore buildSemaphore = new Semaphore(taskStatusDealerPoolSize);
             CountDownLatch ctl = new CountDownLatch(jobs.size());
             for (Map.Entry<String, Integer> job : jobs) {
                 try {
                     buildSemaphore.acquire();
                     taskStatusPool.submit(() -> {
-                        if (!RdosTaskStatus.needClean(job.getValue())) {
-                            try {
-                                logger.info("jobId:{} status:{}", job.getKey(), job.getValue());
-                                dealJob(job.getKey());
-                            } catch (Throwable e) {
-                                logger.error("{}", e);
-                            } finally {
-                                buildSemaphore.release();
-                                ctl.countDown();
-                            }
+                        try {
+                            logger.info("jobId:{} status:{}", job.getKey(), job.getValue());
+                            dealJob(job.getKey());
+                        } catch (Throwable e) {
+                            logger.error("{}", e);
+                        } finally {
+                            buildSemaphore.release();
+                            ctl.countDown();
                         }
                     });
                 } catch (Throwable e) {
-                    logger.error("", e);
+                    logger.error("[emergency] error:", e);
                 }
             }
             ctl.await();
@@ -129,18 +134,17 @@ public class TaskStatusDealer implements Runnable {
         if (scheduleJob != null && engineJobCache != null) {
             String engineTaskId = scheduleJob.getEngineJobId();
             String appId = scheduleJob.getApplicationId();
-            String engineType = engineJobCache.getEngineType();
             JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineTaskId, appId, jobId);
 
             if (StringUtils.isNotBlank(engineTaskId)) {
                 String pluginInfoStr = scheduleJob.getPluginInfoId() > 0 ? pluginInfoDao.getPluginInfo(scheduleJob.getPluginInfoId()) : "";
-                RdosTaskStatus rdosTaskStatus = workerOperator.getJobStatus(engineType, pluginInfoStr, jobIdentifier);
+                RdosTaskStatus rdosTaskStatus = workerOperator.getJobStatus(engineJobCache.getEngineType(), pluginInfoStr, jobIdentifier);
                 if (rdosTaskStatus != null) {
 
                     rdosTaskStatus = checkNotFoundStatus(rdosTaskStatus, jobId);
                     Integer status = rdosTaskStatus.getStatus();
                     // 重试状态 先不更新状态
-                    boolean isRestart = taskRestartDealer.checkAndRestart(status, jobId, engineTaskId, appId, engineType, pluginInfoStr);
+                    boolean isRestart = taskRestartDealer.checkAndRestart(status, jobId, engineTaskId, appId, engineJobCache.getEngineType(), pluginInfoStr);
                     if (isRestart) {
                         return;
                     }
@@ -151,15 +155,13 @@ public class TaskStatusDealer implements Runnable {
 
                     //数据的更新顺序，先更新job_cache，再更新engine_batch_job
                     if (RdosTaskStatus.getStoppedStatus().contains(status)) {
-                        taskCheckpointDealer.updateCheckpointImmediately(new TaskCheckpointInfo(jobIdentifier, engineType, pluginInfoStr), jobId, status);
-
-                        jobLogDelayDealer(jobId, jobIdentifier, engineType, engineJobCache.getComputeType(), pluginInfoStr);
+                        jobLogDelayDealer(jobId, jobIdentifier, engineJobCache.getEngineType(), engineJobCache.getComputeType(), pluginInfoStr);
                         jobStatusFrequency.remove(jobId);
                         engineJobCacheDao.delete(jobId);
                     }
 
                     if (RdosTaskStatus.RUNNING.getStatus().equals(status)) {
-                        taskCheckpointDealer.addCheckpointTaskForQueue(scheduleJob.getComputeType(), jobId, jobIdentifier, engineType, pluginInfoStr);
+                        taskCheckpointDealer.addCheckpointTaskForQueue(scheduleJob.getComputeType(), jobId, jobIdentifier, engineJobCache.getEngineType(), pluginInfoStr);
                     }
                 }
             }
@@ -224,7 +226,7 @@ public class TaskStatusDealer implements Runnable {
 
         this.taskStatusDealerPoolSize = environmentContext.getTaskStatusDealerPoolSize();
         this.taskStatusPool = new ThreadPoolExecutor(taskStatusDealerPoolSize, taskStatusDealerPoolSize, 60L, TimeUnit.SECONDS,
-                new SynchronousQueue<>(true), new CustomThreadFactory(jobResource + this.getClass().getSimpleName()));
+                new SynchronousQueue<>(true), new CustomThreadFactory(jobResource + this.getClass().getSimpleName() + "DealJob"));
     }
 
     private void setBean() {
@@ -241,5 +243,15 @@ public class TaskStatusDealer implements Runnable {
     private void createLogDelayDealer() {
         this.jobCompletedLogDelayDealer = new JobCompletedLogDelayDealer(applicationContext);
         this.jobLogDelay = environmentContext.getJobLogDelay();
+    }
+
+    public void start() {
+        scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(jobResource + this.getClass().getSimpleName()));
+        scheduledService.scheduleWithFixedDelay(
+                this,
+                0,
+                TaskStatusDealer.INTERVAL,
+                TimeUnit.MILLISECONDS);
+
     }
 }
