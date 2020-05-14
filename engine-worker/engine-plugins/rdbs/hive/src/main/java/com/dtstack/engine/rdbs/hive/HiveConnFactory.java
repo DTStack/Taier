@@ -1,6 +1,7 @@
 package com.dtstack.engine.rdbs.hive;
 
 
+import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.rdbs.common.constant.ConfigConstant;
 import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
@@ -95,7 +96,7 @@ public class HiveConnFactory extends AbstractConnFactory {
             sqlList.add(sql);
             return sqlList;
         } else {
-            return Arrays.asList(sql.split(";"));
+            return DtStringUtil.splitIgnoreQuota(sql, ';');
         }
     }
 

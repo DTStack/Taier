@@ -1,10 +1,11 @@
 package com.dtstack.engine.sparkyarn.sparkyarn.enums;
 
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.Field;
 import java.util.List;
-import com.google.common.collect.Lists;
 
 /**
  * Created by sishu.yss on 2018/6/27.
@@ -29,12 +30,4 @@ public class ExceptionInfoConstrant {
         }
     }
 
-
-    public static List<String> getNeedRestartException(){
-        return needRestartExceptions;
-    }
-
-    public static void main(String[] args){
-        System.out.println(getNeedRestartException());
-    }
 }
