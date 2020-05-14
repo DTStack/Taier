@@ -2,6 +2,7 @@ package com.dtstack.engine.flink;
 
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.flink.enums.Deploy;
+import com.dtstack.engine.flink.util.HadoopConf;
 import com.dtstack.engine.flink.util.KerberosUtils;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.CoreOptions;
@@ -89,6 +90,12 @@ public class FlinkClientBuilder {
         flinkConfiguration = config;
     }
 
+    public static HadoopConf initHadoopConf(FlinkConfig flinkConfig) {
+        HadoopConf customerConf = new HadoopConf();
+        customerConf.initHadoopConf(flinkConfig.getHadoopConf());
+        customerConf.initYarnConf(flinkConfig.getYarnConf());
+        return customerConf;
+    }
 
     private static void initSecurity(FlinkConfig flinkConfig) throws IOException {
         try {
