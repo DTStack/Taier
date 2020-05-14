@@ -13,6 +13,7 @@ import com.dtstack.engine.api.vo.TemplateVo;
 import com.dtstack.engine.api.vo.TestConnectionVO;
 import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.common.client.ClientOperator;
+import com.dtstack.engine.common.enums.EFrontType;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;

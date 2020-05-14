@@ -104,7 +104,7 @@ public class SparkYarnClient extends AbstractClient {
         try {
             InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(PLUGIN_DEFAULT_CONFIG_NAME);
             Map<String, Object> config = YamlConfigParser.INSTANCE.parse(resourceAsStream);
-            defaultPlugins = PublicUtil.objToString(config);
+            defaultPlugins = super.convertMapTemplateToConfig(config);
             logger.info("=======SparkYarnClient============{}", defaultPlugins);
         } catch (Exception e) {
             logger.error("spark client init default config error {}", e);

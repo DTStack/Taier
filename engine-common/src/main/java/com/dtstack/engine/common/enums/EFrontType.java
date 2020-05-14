@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.enums;
+package com.dtstack.engine.common.enums;
 
 /**
  * @author yuebai
@@ -6,7 +6,8 @@ package com.dtstack.engine.master.enums;
  */
 public enum  EFrontType {
     INPUT(0,"input"),
-    RADIO(1,"radio");
+    RADIO(1,"radio"),
+    GROUP(2,"group");
 
     private int code;
     private String name;

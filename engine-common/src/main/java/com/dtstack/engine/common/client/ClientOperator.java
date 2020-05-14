@@ -6,6 +6,7 @@ import com.dtstack.engine.common.exception.ClientAccessException;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.pojo.ClientTemplate;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
@@ -139,7 +140,7 @@ public class ClientOperator {
         return clusterClient.submitJob(jobClient);
     }
 
-    public String getDefaultPluginConfig(JobClient jobClient) throws ClientAccessException {
+    public List<ClientTemplate> getDefaultPluginConfig(JobClient jobClient) throws ClientAccessException {
         IClient clusterClient = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
         return clusterClient.getDefaultPluginConfig();
     }

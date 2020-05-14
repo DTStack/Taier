@@ -6,6 +6,7 @@ import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
+import com.dtstack.engine.common.pojo.ClientTemplate;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.flink.factory.PerJobClientFactory;
@@ -128,7 +129,7 @@ public class FlinkClient extends AbstractClient {
         try {
             InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(PLUGIN_DEFAULT_CONFIG_NAME);
             Map<String, Object> config = YamlConfigParser.INSTANCE.parse(resourceAsStream);
-            defaultPlugins = PublicUtil.objToString(config);
+            defaultPlugins = super.convertMapTemplateToConfig(config);
             logger.info("=======FlinkClient============{}", defaultPlugins);
         } catch (Exception e) {
             logger.error("flink client init default config error {}", e);
@@ -807,5 +808,4 @@ public class FlinkClient extends AbstractClient {
         jobHistory = String.format("http://%s:%s", webAddress, port);
         return jobHistory;
     }
-
 }

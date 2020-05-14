@@ -47,7 +47,7 @@ public abstract class AbstractRdbsClient extends AbstractClient {
         try {
             InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(PLUGIN_DEFAULT_CONFIG_NAME);
             Map<String, Object> config = YamlConfigParser.INSTANCE.parse(resourceAsStream);
-            defaultPlugins = PublicUtil.objToString(config);
+            defaultPlugins = super.convertMapTemplateToConfig(config);
             LOG.info("=======RdbClient============{}", defaultPlugins);
         } catch (Exception e) {
             LOG.error("RdbClient client init default config error {}", e);

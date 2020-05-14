@@ -11,6 +11,7 @@ import com.dtstack.engine.common.akka.message.MessageJudgeSlots;
 import com.dtstack.engine.common.akka.message.MessageStopJob;
 import com.dtstack.engine.common.akka.message.MessageSubmitJob;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.pojo.ClientTemplate;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.client.ClientOperator;
 import org.apache.commons.lang3.StringUtils;
@@ -72,7 +73,7 @@ public class JobService extends AbstractActor {
                     sender().tell(containerInfos, getSelf());
                 })
                 .match(MessageGetPluginDefaultConfig.class, msg -> {
-                    String defaultPluginConfig = ClientOperator.getInstance().getDefaultPluginConfig(msg.getJobClient());
+                    List<ClientTemplate> defaultPluginConfig = ClientOperator.getInstance().getDefaultPluginConfig(msg.getJobClient());
                     sender().tell(defaultPluginConfig, getSelf());
                 })
                 .build();

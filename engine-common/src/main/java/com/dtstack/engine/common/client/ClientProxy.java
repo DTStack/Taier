@@ -11,6 +11,7 @@ import com.dtstack.engine.common.exception.ClientArgumentException;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.LimitResourceException;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.pojo.ClientTemplate;
 import com.dtstack.engine.common.pojo.JobResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -259,7 +260,7 @@ public class ClientProxy implements IClient {
     }
 
     @Override
-    public String getDefaultPluginConfig() {
+    public List<ClientTemplate> getDefaultPluginConfig() {
         try {
             return CompletableFuture.supplyAsync(() -> {
                 try {
