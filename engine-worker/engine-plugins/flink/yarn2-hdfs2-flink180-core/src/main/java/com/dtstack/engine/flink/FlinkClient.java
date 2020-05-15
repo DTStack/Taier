@@ -1,6 +1,6 @@
 package com.dtstack.engine.flink;
 
-import com.dtstack.engine.base.config.YamlConfigParser;
+import com.dtstack.engine.common.client.config.YamlConfigParser;
 import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;

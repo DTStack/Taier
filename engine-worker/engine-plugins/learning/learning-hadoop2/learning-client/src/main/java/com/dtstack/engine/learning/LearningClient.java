@@ -1,6 +1,6 @@
 package com.dtstack.engine.learning;
 
-import com.dtstack.engine.base.config.YamlConfigParser;
+import com.dtstack.engine.common.client.config.YamlConfigParser;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.learning.conf.LearningConfiguration;

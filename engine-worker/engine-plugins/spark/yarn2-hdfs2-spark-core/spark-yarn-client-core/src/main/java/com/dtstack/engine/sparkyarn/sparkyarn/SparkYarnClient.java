@@ -1,6 +1,6 @@
 package com.dtstack.engine.sparkyarn.sparkyarn;
 
-import com.dtstack.engine.base.config.YamlConfigParser;
+import com.dtstack.engine.common.client.config.YamlConfigParser;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;

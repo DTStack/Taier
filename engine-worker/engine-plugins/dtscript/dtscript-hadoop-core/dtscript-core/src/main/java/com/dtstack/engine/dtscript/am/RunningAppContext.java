@@ -2,9 +2,9 @@ package com.dtstack.engine.dtscript.am;
 
 import com.dtstack.engine.dtscript.api.ApplicationContext;
 import com.dtstack.engine.dtscript.common.DtContainerStatus;
+import com.dtstack.engine.dtscript.common.LocalRemotePath;
 import com.dtstack.engine.dtscript.common.Message;
 import com.dtstack.engine.dtscript.container.DtContainerId;
-import com.dtstack.engine.dtscript.common.LocalRemotePath;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.mapred.InputSplit;
