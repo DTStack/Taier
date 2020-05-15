@@ -17,7 +17,7 @@
 
     <modules>
         <module>yarn2-hdfs2-dtscript-core</module>
-        <module>dtscript-hadoop2</module>
+        <module>yarn2-hdfs2-dtscript</module>
         <module>yarn3-hdfs3-dtscript</module>
     </modules>
 
