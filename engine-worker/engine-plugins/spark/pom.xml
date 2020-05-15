@@ -17,10 +17,29 @@
 
     <modules>
         <module>yarn2-hdfs2-spark210-core</module>
-        <module>yarn2-hdfs2-spark210</module>
-        <module>yarn3-hdfs3-spark210</module>
     </modules>
 
+
+    <profiles>
+        <profile>
+            <id>yarn2-hdfs2</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>yarn2-hdfs2-spark210</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>yarn3-hdfs3</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <modules>
+                <module>yarn3-hdfs3-spark210</module>
+            </modules>
+        </profile>
+    </profiles>
 
     <build>
         <resources>

@@ -17,9 +17,28 @@
 
     <modules>
         <module>hadoop-core</module>
-        <module>hadoop2</module>
-        <module>hadoop3</module>
     </modules>
+
+    <profiles>
+        <profile>
+            <id>yarn2-hdfs2</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>hadoop2</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>yarn3-hdfs3</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <modules>
+                <module>hadoop3</module>
+            </modules>
+        </profile>
+    </profiles>
 
     <build>
         <resources>
