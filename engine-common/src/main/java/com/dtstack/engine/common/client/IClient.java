@@ -4,6 +4,7 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.ClientTemplate;
+import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 
 import java.io.IOException;
@@ -39,4 +40,5 @@ public interface IClient {
 
 	List<ClientTemplate> getDefaultPluginConfig(String configType);
 
+    ComponentTestResult testConnect(String pluginInfo);
 }

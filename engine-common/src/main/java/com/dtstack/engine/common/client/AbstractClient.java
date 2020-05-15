@@ -5,6 +5,7 @@ import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.EFrontType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.pojo.ClientTemplate;
+import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -24,6 +25,7 @@ public abstract class AbstractClient implements IClient{
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractClient.class);
     public final static String PLUGIN_DEFAULT_CONFIG_NAME = "default-config.yaml";
+    public final static String COMPONENT_TYPE = "componentType";
 
     public List<ClientTemplate> defaultPlugins;
 
@@ -92,6 +94,10 @@ public abstract class AbstractClient implements IClient{
         return defaultPlugins;
     }
 
+    @Override
+    public ComponentTestResult testConnect(String pluginInfo) {
+        return null;
+    }
 
     /**
      * 加载各个组件的默认值
@@ -141,7 +147,7 @@ public abstract class AbstractClient implements IClient{
         return templateVos;
     }
 
-    public ClientTemplate parseKeyValueToVo(String valueKey, Map<String, Object> value, boolean multiValues,boolean required) {
+    private ClientTemplate parseKeyValueToVo(String valueKey, Map<String, Object> value, boolean multiValues,boolean required) {
         ClientTemplate templateVo = new ClientTemplate();
         templateVo.setKey(valueKey);
         templateVo.setValue("");

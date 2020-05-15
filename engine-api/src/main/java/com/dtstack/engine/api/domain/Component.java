@@ -14,9 +14,25 @@ public class Component extends BaseEntity {
 
     private String hadoopVersion;
 
+    /**
+     * 上传配置文件名称
+     */
     private String uploadFileName;
 
     private String componentTemplate;
+
+    /**
+     * kerberos文件名称
+     */
+    private String kerberosFilName;
+
+    public String getKerberosFilName() {
+        return kerberosFilName;
+    }
+
+    public void setKerberosFilName(String kerberosFilName) {
+        this.kerberosFilName = kerberosFilName;
+    }
 
     public String getComponentTemplate() {
         return componentTemplate;

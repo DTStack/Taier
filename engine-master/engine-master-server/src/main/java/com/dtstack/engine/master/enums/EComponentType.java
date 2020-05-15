@@ -144,4 +144,21 @@ public enum EComponentType {
         throw new RdosDefineException("不支持的组件");
     }
 
+
+    public static String convertPluginNameByComponent(EComponentType componentCode){
+        switch (componentCode){
+            case SPARK_THRIFT:
+                return "hive";
+            case TIDB_SQL:
+                return "tidb";
+            case ORACLE_SQL:
+                return "oracle";
+            case SFTP:
+                return "dummy";
+            case LIBRA_SQL:
+                return "postgresql";
+        }
+        return "";
+    }
+
 }

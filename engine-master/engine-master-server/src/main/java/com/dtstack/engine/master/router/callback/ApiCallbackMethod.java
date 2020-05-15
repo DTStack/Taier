@@ -74,7 +74,7 @@ public class ApiCallbackMethod {
 				logger.error("uri:{}, params:{} ApiCallbackMethod error:", uri, context.get("params"), e1);
 			}
 		}finally{
-			HdfsOperator.release();//释放当前threadLocal
+//			HdfsOperator.release();//释放当前threadLocal
 		}
 	}
 }

@@ -29,12 +29,12 @@ public class HDFSComponent extends BaseComponent {
         try {
             //kerberos验证 认证之后 hdfs不重复做认证 com.dtstack.dtcenter.common.hadoop.DtKerberosUtils.needLoginKerberos
             configuration.set("hadoop.security.authorization","false");
-            HdfsOperator.getFileSystem(configuration);
+//            HdfsOperator.getFileSystem(configuration);
         } catch (Exception e){
             throw new RdosDefineException("连接hdfs失败:" + e.getMessage());
         } finally {
             try {
-                HdfsOperator.release();
+//                HdfsOperator.release();
             } catch (Exception e){
                 LOG.warn("Close hadoop fileSystem error:{}", e.getMessage());
             }

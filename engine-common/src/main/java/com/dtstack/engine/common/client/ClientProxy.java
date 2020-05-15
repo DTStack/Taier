@@ -12,6 +12,7 @@ import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.LimitResourceException;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.ClientTemplate;
+import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -259,6 +260,22 @@ public class ClientProxy implements IClient {
             return CompletableFuture.supplyAsync(() -> {
                 try {
                     return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.getDefaultPluginConfig(componentType),
+                            targetClient.getClass().getClassLoader(), true);
+                } catch (Exception e) {
+                    throw new RdosDefineException(e);
+                }
+            }, executorService).get(timeout, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            throw new RdosDefineException(e);
+        }
+    }
+
+    @Override
+    public ComponentTestResult testConnect(String pluginInfo) {
+        try {
+            return CompletableFuture.supplyAsync(() -> {
+                try {
+                    return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.testConnect(pluginInfo),
                             targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
                     throw new RdosDefineException(e);

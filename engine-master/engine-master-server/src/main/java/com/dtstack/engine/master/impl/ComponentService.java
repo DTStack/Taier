@@ -15,6 +15,7 @@ import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.ClientTemplate;
+import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.akka.WorkerOperator;
@@ -843,25 +844,22 @@ public class ComponentService {
             addComponent = dbComponent;
         }
         addComponent.setHadoopVersion(Optional.ofNullable(hadoopVersion).orElse("hadoop2"));
-        if(CollectionUtils.isNotEmpty(resources)){
-            addComponent.setUploadFileName(resources.get(0).getFileName());
-        }
         addComponent.setComponentName(componentType.getName());
         addComponent.setComponentTypeCode(componentType.getTypeCode());
         addComponent.setEngineId(engine.getId());
         addComponent.setComponentTemplate(componentTemplate);
         addComponent.setComponentConfig(componentConfig);
-        if (isUpdate) {
-            componentDao.update(addComponent);
-        } else {
-            componentDao.insert(addComponent);
-        }
+        addComponent.setKerberosFilName(kerberosFileName);
+
         if (CollectionUtils.isNotEmpty(resources)) {
             //上传配置文件到sftp 供后续下载
             Map<String, String> map = JSONObject.parseObject(sftpComponent.getComponentConfig(), Map.class);
             SFTPHandler instance = SFTPHandler.getInstance(map);
             String remoteDir = map.get("path") + File.separator + this.buildSftpPath(clusterId, addComponent.getComponentTypeCode());
             for (Resource resource : resources) {
+                if(!resource.getFileName().equalsIgnoreCase(kerberosFileName)){
+                    addComponent.setUploadFileName(resource.getFileName());
+                }
                 try {
                     //TODO 测试联通性
                     if (resource.getFileName().equalsIgnoreCase(kerberosFileName)) {
@@ -881,7 +879,13 @@ public class ComponentService {
                 }
             }
         }
+        if (isUpdate) {
+            componentDao.update(addComponent);
+        } else {
+            componentDao.insert(addComponent);
+        }
         addComponent.setClusterId(clusterId);
+        addComponent.setKerberosFilName(kerberosFileName);
         return addComponent;
     }
 
@@ -1000,6 +1004,9 @@ public class ComponentService {
                 Map data = new HashMap();
                 for (String xml : xmlName) {
                     Object xmlData = xmlConfigMap.get(xml);
+                    if(Objects.isNull(xmlData)){
+                        throw new RdosDefineException(String.format("缺少 %s 配置文件",xml));
+                    }
                     if(xmlData instanceof Map){
                         data.putAll((Map) xmlData);
                     }
@@ -1034,17 +1041,43 @@ public class ComponentService {
     }
 
 
+
+
+
     /**
      * 测试单个组件联通性
-     * @param componentConfigs
-     * @param clusterId
-     * @param resources
+     */
+    public ComponentTestResult testConnect(@Param("componentType") Integer componentType, @Param("componentConfig") String componentConfig,@Param("clusterName")String clusterName,
+                                           @Param("hadoopVersion") String hadoopVersion) {
+        String pluginType = this.convertComponentTypeToClient(clusterName, componentType, hadoopVersion);
+        ComponentTestResult componentTestResult = workerOperator.testConnect(pluginType, this.wrapperConfig(componentType, componentConfig));
+        componentTestResult.setComponentTypeCode(componentType);
+        return componentTestResult;
+    }
+
+
+    /**
+     * 将页面配置参数转换为插件需要的参数
      * @param componentType
+     * @param componentConfig
      * @return
      */
-    public boolean testConnect(String componentConfigs, Long clusterId, List<Resource> resources,
-                                EComponentType componentType, String hadoopVersion) {
-        return false;
+    private String wrapperConfig(int componentType, String componentConfig) {
+        JSONObject dataInfo = JSONObject.parseObject(componentConfig);
+        if (EComponentType.SFTP.getTypeCode() == componentType) {
+            dataInfo.put("componentType", EComponentType.SFTP.getName());
+        } else if (EComponentType.SPARK_THRIFT.getTypeCode() == componentType ) {
+            String jdbcUrl = dataInfo.getString("jdbcUrl");
+            if (StringUtils.isBlank(jdbcUrl)) {
+                throw new RdosDefineException("jdbcUrl不能为空");
+            }
+            //数据库连接不带%s
+            String dbUrl = jdbcUrl.substring(0,jdbcUrl.lastIndexOf("/"));
+            dataInfo.put("dbUrl", dbUrl);
+            dataInfo.put("userName",dataInfo.getString("username"));
+            dataInfo.put("pwd",dataInfo.getString("password"));
+        }
+        return dataInfo.toJSONString();
     }
 
     /**
@@ -1140,8 +1173,10 @@ public class ComponentService {
      */
     @Forbidden
     private String convertComponentTypeToClient(String clusterName,Integer componentType,String version){
-        if (EComponentType.SFTP.getTypeCode() == componentType){
-            return "dummy";
+        //普通rdb插件
+        String pluginName = EComponentType.convertPluginNameByComponent(EComponentType.getByCode(componentType));
+        if(StringUtils.isNotBlank(pluginName)){
+            return pluginName;
         }
         if (StringUtils.isBlank(clusterName)) {
             throw new RdosDefineException("集群名称不能为空");

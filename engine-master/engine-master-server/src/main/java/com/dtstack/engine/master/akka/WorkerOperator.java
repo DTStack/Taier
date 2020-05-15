@@ -11,6 +11,7 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.ClientTemplate;
+import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
@@ -181,6 +182,15 @@ public class WorkerOperator {
             return (List<ClientTemplate>) masterServer.sendMessage(new MessageGetPluginDefaultConfig(engineType,configType));
         } catch (Exception e) {
             logger.error("getDefaultPluginConfig failed!", e);
+            return null;
+        }
+    }
+
+    public ComponentTestResult testConnect(String engineType, String pluginInfo) {
+        try {
+            return (ComponentTestResult)masterServer.sendMessage(new MessageTestConnectInfo(engineType,pluginInfo));
+        } catch (Exception e) {
+            logger.error("testConnect failed!", e);
             return null;
         }
     }

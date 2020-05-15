@@ -1,17 +1,19 @@
 package com.dtstack.engine.rdbs.common;
 
 import com.dtstack.engine.base.config.YamlConfigParser;
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.MathUtil;
-import com.dtstack.engine.common.client.AbstractClient;
+import com.dtstack.engine.base.resource.EngineResourceInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
+import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.exception.ExceptionUtil;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.pojo.ComponentTestResult;
+import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.rdbs.common.constant.ConfigConstant;
-import com.dtstack.engine.base.resource.EngineResourceInfo;
-import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 import com.dtstack.engine.rdbs.common.executor.RdbsExeQueue;
 import org.slf4j.Logger;
@@ -20,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -126,4 +129,24 @@ public abstract class AbstractRdbsClient extends AbstractClient {
         return resourceInfo.judgeSlots(jobClient);
     }
 
+    @Override
+    public ComponentTestResult testConnect(String pluginInfo) {
+        ComponentTestResult componentTestResult = new ComponentTestResult();
+        try {
+            Properties properties = PublicUtil.jsonStrToObject(pluginInfo, Properties.class);
+            if(Objects.isNull(connFactory)){
+                synchronized (AbstractRdbsClient.class){
+                    if(Objects.isNull(connFactory)){
+                        connFactory = getConnFactory();
+                    }
+                }
+            }
+            connFactory.init(properties);
+            componentTestResult.setResult(true);
+        } catch (Exception e) {
+            componentTestResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
+            componentTestResult.setResult(false);
+        }
+        return componentTestResult;
+    }
 }

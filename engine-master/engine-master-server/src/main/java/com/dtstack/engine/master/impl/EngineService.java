@@ -235,9 +235,9 @@ public class EngineService {
             }
             ComponentVO vo = new ComponentVO();
             PublicUtil.copyPropertiesIgnoreNull(component, vo);
-            vo.setComponentId(component.getId());
+//            vo.setComponentId(component.getId());
             //前端默认不展示kerberosConfig
-            vo.setConfig(jsonObject);
+//            vo.setConfig(jsonObject);
             vos.add(vo);
         }
         return vos;
@@ -275,7 +275,7 @@ public class EngineService {
     private boolean getSecurity(EngineVO engineVO){
         for (ComponentVO component : engineVO.getComponents()) {
             if(component.getComponentTypeCode() == EComponentType.HDFS.getTypeCode()){
-                return component.getConfig().getBooleanValue("hadoop.security.authorization");
+//                return component.getConfig().getBooleanValue("hadoop.security.authorization");
             }
         }
 

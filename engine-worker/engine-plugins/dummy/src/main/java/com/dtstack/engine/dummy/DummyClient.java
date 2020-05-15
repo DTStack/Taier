@@ -6,8 +6,13 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.pojo.ClientTemplate;
+import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.sftp.SftpFactory;
+import com.dtstack.engine.common.util.PublicUtil;
+import com.jcraft.jsch.ChannelSftp;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +37,7 @@ public class DummyClient extends AbstractClient {
 
     private static final Logger logger = LoggerFactory.getLogger(DummyClient.class);
 
-    private static  Map<String,String> commonConfigFiles = new HashMap<>();
+    private static Map<String,String> commonConfigFiles = new HashMap<>();
 
     static {
         commonConfigFiles.put("sftp","sftp-config.yml");
@@ -97,5 +102,23 @@ public class DummyClient extends AbstractClient {
     @Override
     protected JobResult processSubmitJobWithType(JobClient jobClient) {
         return JobResult.createSuccessResult(jobClient.getTaskId(), jobClient.getTaskId());
+    }
+
+    @Override
+    public ComponentTestResult testConnect(String pluginInfo) {
+        ComponentTestResult componentTestResult = new ComponentTestResult();
+        try {
+            Map map = PublicUtil.jsonStrToObject(pluginInfo, Map.class);
+            if ("sftp".equalsIgnoreCase(String.valueOf(map.get(COMPONENT_TYPE)))) {
+                SftpFactory sftpFactory = new SftpFactory(map);
+                ChannelSftp channelSftp = sftpFactory.create();
+                channelSftp.disconnect();
+            }
+            componentTestResult.setResult(true);
+        } catch (Exception e) {
+            componentTestResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
+            componentTestResult.setResult(false);
+        }
+        return componentTestResult;
     }
 }
