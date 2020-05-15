@@ -23,7 +23,7 @@
     <dependencies>
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>plugins.yarn2-hdfs2-spark-core.spark-sql-proxy-core</artifactId>
+            <artifactId>plugins.yarn2-hdfs2-spark210-core.spark-sql-proxy-core</artifactId>
             <version>1.0.0</version>
         </dependency>
 

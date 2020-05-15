@@ -10,16 +10,16 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>plugins.hadoop</artifactId>
-    <name>plugins.hadoop</name>
+    <artifactId>plugins.learning</artifactId>
+    <name>plugins.learning</name>
 
     <packaging>pom</packaging>
 
     <modules>
-        <module>hadoop-core</module>
-        <module>hadoop2</module>
-        <module>hadoop3</module>
+        <module>learning-hadoop2</module>
     </modules>
+
+
 
     <build>
         <resources>
