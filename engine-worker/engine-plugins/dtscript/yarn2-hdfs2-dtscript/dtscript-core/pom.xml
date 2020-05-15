@@ -13,6 +13,10 @@
     <artifactId>plugins.yarn2-hdfs2-dtscript.dtscript-core</artifactId>
     <name>plugins.yarn2-hdfs2-dtscript.dtscript-core</name>
 
+    <properties>
+        <jar.name>yarn2-hdfs2-dtscript-core</jar.name>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.dtstack.engine</groupId>

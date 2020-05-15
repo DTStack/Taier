@@ -14,7 +14,7 @@
     <name>plugins.yarn3-hdfs3-dtscript.dtscript-core</name>
 
     <properties>
-        <jar.name>dtscript-hadoop3-core</jar.name>
+        <jar.name>yarn3-hdfs3-dtscript-core</jar.name>
     </properties>
 
     <dependencies>
