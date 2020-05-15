@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Reason:
@@ -35,11 +36,15 @@ public abstract class AbstractClient implements IClient{
     private void loadConfig() {
         try {
             InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(PLUGIN_DEFAULT_CONFIG_NAME);
+            if (Objects.isNull(resourceAsStream)) {
+                logger.info("plugin client default-config.yaml not exist!");
+                return;
+            }
             Map<String, Object> config = YamlConfigParser.INSTANCE.parse(resourceAsStream);
             defaultPlugins = PublicUtil.objToString(config);
-            logger.info("=======DtScriptClient============{}", defaultPlugins);
+            logger.info("======= plugin client============{}", defaultPlugins);
         } catch (Exception e) {
-            logger.error("DtScript client init default config error {}", e);
+            logger.error("plugin client init default config error {}", e);
         }
     }
 

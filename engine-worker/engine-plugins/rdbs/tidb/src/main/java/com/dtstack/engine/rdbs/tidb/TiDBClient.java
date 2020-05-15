@@ -5,7 +5,6 @@ import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 public class TiDBClient extends AbstractRdbsClient {
 
     public TiDBClient() {
-        super();
         this.dbType = "tidb";
     }
 

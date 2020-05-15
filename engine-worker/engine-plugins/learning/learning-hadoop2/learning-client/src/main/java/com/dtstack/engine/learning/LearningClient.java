@@ -1,8 +1,6 @@
 package com.dtstack.engine.learning;
 
-import com.dtstack.engine.common.client.config.YamlConfigParser;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.learning.conf.LearningConfiguration;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.MathUtil;
@@ -24,7 +22,6 @@ import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -48,17 +45,6 @@ public class LearningClient extends AbstractClient {
     private LearningConfiguration conf = new LearningConfiguration();
 
     private static final Gson GSON = new Gson();
-
-    public LearningClient() {
-        try {
-            InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(PLUGIN_DEFAULT_CONFIG_NAME);
-            Map<String, Object> config = YamlConfigParser.INSTANCE.parse(resourceAsStream);
-            defaultPlugins = PublicUtil.objToString(config);
-            LOG.info("=======LearningClient============{}", defaultPlugins);
-        } catch (Exception e) {
-            LOG.error("learning client init default config error {}", e);
-        }
-    }
 
     @Override
     public void init(Properties prop) throws Exception {

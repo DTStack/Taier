@@ -6,7 +6,6 @@ import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 public class PostgreSQLClient extends AbstractRdbsClient {
 
     public PostgreSQLClient() {
-        super();
         this.dbType = "postgresql";
     }
 
