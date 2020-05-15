@@ -4,10 +4,10 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
     <parent>
+        <artifactId>engine-master</artifactId>
         <groupId>com.dtstack.engine</groupId>
-        <artifactId>engine-all</artifactId>
         <version>1.0.0</version>
-        <relativePath>../../pom.xml</relativePath>
+        <relativePath>..</relativePath>
     </parent>
 
     <packaging>jar</packaging>
