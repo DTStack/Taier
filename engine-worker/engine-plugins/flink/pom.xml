@@ -42,7 +42,7 @@
             </modules>
         </profile>
         <profile>
-            <id>k8s-hdfs3</id>
+            <id>k8s-hdfs2</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
