@@ -1063,7 +1063,7 @@ public class UserGroupInformation {
          !isKeytab) {
       return;
     }
-    
+
     long now = Time.now();
     if (!shouldRenewImmediatelyForTests && !hasSufficientTimeElapsed(now)) {
       return;
@@ -1538,19 +1538,19 @@ public class UserGroupInformation {
    * 
    * @return Credentials of tokens associated with this user
    */
-//  public Credentials getCredentials() {
-//    synchronized (subject) {
-//      Credentials creds = new Credentials(getCredentialsInternal());
-//      Iterator<Token<?>> iter = creds.getAllTokens().iterator();
-//      while (iter.hasNext()) {
-//        if (iter.next() instanceof Token.PrivateToken) {
-//          iter.remove();
-//        }
-//      }
-//      return creds;
-//    }
-//  }
-
+  public Credentials getCredentials() {
+    synchronized (subject) {
+      Credentials creds = new Credentials(getCredentialsInternal());
+      Iterator<Token<?>> iter = creds.getAllTokens().iterator();
+      while (iter.hasNext()) {
+        if (iter.next() instanceof Token.PrivateToken) {
+          iter.remove();
+        }
+      }
+      return creds;
+    }
+  }
+  
   /**
    * Add the given Credentials to this user.
    * @param credentials of tokens and secrets
