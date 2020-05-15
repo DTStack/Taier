@@ -1,0 +1,9 @@
+required:
+  dbUrl:
+
+optional:
+  userName:
+  pwd:
+  maxJobPoolSize:
+  minJobPoolSize:
+  queue:

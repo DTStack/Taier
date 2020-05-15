@@ -142,7 +142,7 @@ public class EngineService {
         engine.setTotalNode(0);
         engineDao.insert(engine);
 
-        componentService.addComponent(engine.getId(), componentTypeCodeList);
+//        componentService.addComponent(engine.getId(), componentTypeCodeList);
 
         updateEngineTenant(clusterId, engine.getId());
 

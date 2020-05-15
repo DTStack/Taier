@@ -6,10 +6,12 @@ import com.dtstack.engine.common.akka.message.MessageGetCheckpoints;
 import com.dtstack.engine.common.akka.message.MessageGetEngineLog;
 import com.dtstack.engine.common.akka.message.MessageGetJobMaster;
 import com.dtstack.engine.common.akka.message.MessageGetJobStatus;
+import com.dtstack.engine.common.akka.message.MessageGetPluginDefaultConfig;
 import com.dtstack.engine.common.akka.message.MessageJudgeSlots;
 import com.dtstack.engine.common.akka.message.MessageStopJob;
 import com.dtstack.engine.common.akka.message.MessageSubmitJob;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.pojo.ClientTemplate;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.client.ClientOperator;
 import org.apache.commons.lang3.StringUtils;
@@ -27,7 +29,7 @@ public class JobService extends AbstractActor {
                     sender().tell(sufficient, getSelf());
                 })
                 .match(MessageSubmitJob.class, msg -> {
-                    JobResult jobResult = ClientOperator.getInstance().submitJob( msg.getJobClient());
+                    JobResult jobResult = ClientOperator.getInstance().submitJob(msg.getJobClient());
                     sender().tell(jobResult, getSelf());
                 })
                 .match(MessageGetJobStatus.class, msg -> {
@@ -69,6 +71,10 @@ public class JobService extends AbstractActor {
                         containerInfos = new ArrayList<>(0);
                     }
                     sender().tell(containerInfos, getSelf());
+                })
+                .match(MessageGetPluginDefaultConfig.class, msg -> {
+                    List<ClientTemplate> defaultPluginConfig = ClientOperator.getInstance().getDefaultPluginConfig(msg.getJobClient());
+                    sender().tell(defaultPluginConfig, getSelf());
                 })
                 .build();
     }

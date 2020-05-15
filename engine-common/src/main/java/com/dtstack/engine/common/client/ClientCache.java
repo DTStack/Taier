@@ -84,9 +84,20 @@ public class ClientCache {
         }
     }
 
-    private IClient getDefaultPlugin(String engineType){
+    public IClient getDefaultPlugin(String engineType){
         IClient defaultClient = defaultClientMap.get(engineType);
-        if(defaultClient == null){
+        try {
+            if(defaultClient == null){
+                synchronized (defaultClientMap) {
+                    defaultClient = defaultClientMap.get(engineType);
+                    if (defaultClient == null){
+                        defaultClient = ClientFactory.buildPluginClient("");
+                        defaultClientMap.putIfAbsent(engineType, defaultClient);
+                    }
+                }
+
+            }
+        } catch (Exception e) {
             LOG.error("-------job.pluginInfo is empty, either can't find plugin('In console is the typeName') which engineType:{}", engineType);
             throw new IllegalArgumentException("job.pluginInfo is empty, either can't find plugin('In console is the typeName') which engineType:" + engineType);
         }

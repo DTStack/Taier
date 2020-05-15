@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.engine.dao.ComponentDao">
 
     <sql id="select_content_fragment">
-      id,engine_id,component_name,component_type_code,component_config,gmt_create,gmt_modified,is_deleted
+      id,engine_id,component_name,component_type_code,component_config,gmt_create,gmt_modified,is_deleted,hadoop_version,upload_file_name,component_template
     </sql>
 
     <sql id="update_fragment">
@@ -14,7 +14,15 @@
             <if test="isDeleted != null">
                 is_deleted = #{isDeleted},
             </if>
-
+            <if test="uploadFileName!=null">
+                upload_file_name = #{uploadFileName},
+            </if>
+            <if test="hadoopVersion!=null">
+                hadoop_version = #{hadoopVersion},
+            </if>
+            <if test="componentTemplate!=null">
+                component_template = #{componentTemplate},
+            </if>
             gmt_modified =now()
         </set>
     </sql>
@@ -26,8 +34,8 @@
     </select>
 
     <insert id="insert" parameterType="Component" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO console_component(engine_id,component_name,component_type_code,component_config)
-        VALUES (#{engineId},#{componentName},#{componentTypeCode},#{componentConfig})
+        INSERT INTO console_component(engine_id,component_name,component_type_code,component_config,upload_file_name,hadoop_version,component_template)
+        VALUES (#{engineId},#{componentName},#{componentTypeCode},#{componentConfig},#{uploadFileName},#{hadoopVersion},#{componentTemplate})
     </insert>
 
     <update id="update">
@@ -40,6 +48,18 @@
         select <include refid="select_content_fragment"/>
         from console_component
         where engine_id = #{engineId} and is_deleted = 0
+    </select>
+
+    <select id="listByEngineIds" resultType="Component">
+        select <include refid="select_content_fragment"/>
+        from console_component
+        where  is_deleted = 0
+        <if test="engineIds.size() > 0">
+            and engine_id in
+            <foreach collection="engineIds" item="engineId" open="(" separator="," close=")">
+                #{engineId}
+            </foreach>
+        </if>
     </select>
 
     <select id="getByEngineIdAndComponentType" resultType="Component">

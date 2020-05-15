@@ -6,6 +6,7 @@ import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 public class ImpalaClient extends AbstractRdbsClient {
 
     public ImpalaClient() {
+        super();
         this.dbType = "impala";
     }
 

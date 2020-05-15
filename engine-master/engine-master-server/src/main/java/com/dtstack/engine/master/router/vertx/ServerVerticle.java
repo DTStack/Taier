@@ -44,7 +44,7 @@ public class ServerVerticle extends AbstractVerticle{
         router.postWithRegex(RootUrls.ROOT + "/upload/.*").handler(resourceVerticle::handleUploadResource);
         router.post(RootUrls.ROOT + "/*").handler(loginVerticle::handleLogin);
         router.postWithRegex(RootUrls.ROOT + "/.*").handler(new AllRequestVerticle(context)::request);
-        router.getWithRegex(RootUrls.ROOT + "/download/component/downloadKerberosXML").handler(resourceVerticle::handleDownloadXml);
+        router.getWithRegex(RootUrls.ROOT + "/download/component/downloadFile").handler(resourceVerticle::handleDownloadFile);
 
         vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true))
                 .requestHandler(router::accept)

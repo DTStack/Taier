@@ -10,43 +10,38 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>plugins.dtscript.dtscript-hadoop2-client</artifactId>
-    <name>plugins.dtscript.dtscript-hadoop2-client</name>
+    <artifactId>plugins.dtscript-hadoop2.dtscript-client</artifactId>
+    <name>plugins.dtscript-hadoop2.dtscript-client</name>
+
 
     <properties>
         <jar.name>dtscript-hadoop2-client</jar.name>
     </properties>
 
     <dependencies>
-
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>plugins.base</artifactId>
+            <artifactId>plugins.dtscript-hadoop-core.dtscript-client</artifactId>
             <version>1.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>plugins.dtscript.dtscript-hadoop2-core</artifactId>
+            <artifactId>plugins.dtscript-hadoop2.dtscript-core</artifactId>
             <version>1.0.0</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>xml-apis</artifactId>
-                    <groupId>xml-apis</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
-
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/java/</directory>
+            </resource>
+            <resource>
+                <directory>src/main/resources/</directory>
+            </resource>
+        </resources>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -62,36 +57,46 @@
 
                             <shadedArtifactAttached>false</shadedArtifactAttached>
                             <createDependencyReducedPom>true</createDependencyReducedPom>
-                            <dependencyReducedPomLocation>${project.basedir}/target/dependency-reduced-pom.xml</dependencyReducedPomLocation>
+                            <dependencyReducedPomLocation>${project.basedir}/target/dependency-reduced-pom.xml
+                            </dependencyReducedPomLocation>
                             <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
 
                             <transformers>
 
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer" />
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer"/>
                                 <!-- The service transformer is needed to merge META-INF/services files -->
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer"/>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer"/>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>reference.conf</resource>
                                 </transformer>
 
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.XmlAppendingTransformer">
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.XmlAppendingTransformer">
                                     <resource>core-default.xml</resource>
                                 </transformer>
 
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.XmlAppendingTransformer">
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.XmlAppendingTransformer">
                                     <resource>core-site.xml</resource>
                                 </transformer>
 
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.XmlAppendingTransformer">
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.XmlAppendingTransformer">
                                     <resource>yarn-default.xml</resource>
                                 </transformer>
 
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.XmlAppendingTransformer">
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.XmlAppendingTransformer">
                                     <resource>mapred-default.xml</resource>
                                 </transformer>
 
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.XmlAppendingTransformer">
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.XmlAppendingTransformer">
                                     <resource>mapred-site.xml</resource>
                                 </transformer>
                             </transformers>
@@ -120,18 +125,18 @@
             </plugin>
 
             <!--<plugin>-->
-                <!--<artifactId>maven-clean-plugin</artifactId>-->
-                <!--<version>2.5</version>-->
-                <!--<configuration>-->
-                    <!--<filesets>-->
-                        <!--<fileset>-->
-                            <!--<directory>${basedir}/../target</directory>-->
-                            <!--<includes>-->
-                                <!--<include>${project.name}-${project.version}.jar</include>-->
-                            <!--</includes>-->
-                        <!--</fileset>-->
-                    <!--</filesets>-->
-                <!--</configuration>-->
+            <!--<artifactId>maven-clean-plugin</artifactId>-->
+            <!--<version>2.5</version>-->
+            <!--<configuration>-->
+            <!--<filesets>-->
+            <!--<fileset>-->
+            <!--<directory>${basedir}/../target</directory>-->
+            <!--<includes>-->
+            <!--<include>${project.name}-${project.version}.jar</include>-->
+            <!--</includes>-->
+            <!--</fileset>-->
+            <!--</filesets>-->
+            <!--</configuration>-->
             <!--</plugin>-->
 
             <plugin>
@@ -148,7 +153,7 @@
                         <configuration>
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
+                                      tofile="${basedir}/target/${jar.name}-${git.branch}.jar"/>
                                 <copy todir="${basedir}/target/../../../../../../pluginLibs/dtscript-hadoop2/"
                                       file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
                                 <delete>

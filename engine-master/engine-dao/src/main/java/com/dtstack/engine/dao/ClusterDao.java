@@ -24,4 +24,6 @@ public interface ClusterDao {
     List<Cluster> listAll();
 
     Integer updateHadoopVersion(@Param("id") Long clusterId, @Param("hadoopVersion") String hadoopVersion);
+
+    void deleteCluster(Long clusterId);
 }

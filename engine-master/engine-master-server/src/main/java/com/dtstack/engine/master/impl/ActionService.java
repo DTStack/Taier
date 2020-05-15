@@ -2,6 +2,7 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * 接收http请求
@@ -73,6 +75,10 @@ public class ActionService {
     private static int TASK_STOP_LIMIT = 1000;
 
     private Random random = new Random();
+
+    private static ThreadPoolExecutor logTimoutPool =  new ThreadPoolExecutor(5, 5,
+                                          60L,TimeUnit.SECONDS, new LinkedBlockingQueue<>(10),
+                new CustomThreadFactory("logTimoutPool"));
 
     /**
      * 接受来自客户端的请求, 并判断节点队列长度。
@@ -341,7 +347,8 @@ public class ActionService {
         	log.put("logInfo", scheduleJob.getLogInfo());
         	String engineLog = scheduleJob.getEngineLog();
             if (StringUtils.isBlank(engineLog)) {
-                engineLog = workNode.getAndUpdateEngineLog(jobId, scheduleJob.getEngineJobId(), scheduleJob.getApplicationId(), scheduleJob.getPluginInfoId());
+                engineLog = CompletableFuture.supplyAsync(() -> workNode.getAndUpdateEngineLog(jobId, scheduleJob.getEngineJobId(), scheduleJob.getApplicationId(), scheduleJob.getPluginInfoId()),
+                        logTimoutPool).get(environmentContext.getLogTimeout(), TimeUnit.SECONDS);
                 if (engineLog == null) {
                     engineLog = "";
                 }

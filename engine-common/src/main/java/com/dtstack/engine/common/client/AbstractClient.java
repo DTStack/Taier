@@ -2,13 +2,15 @@ package com.dtstack.engine.common.client;
 
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
+import com.dtstack.engine.common.enums.EFrontType;
 import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.pojo.ClientTemplate;
 import com.dtstack.engine.common.pojo.JobResult;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * Reason:
@@ -20,6 +22,9 @@ import java.util.List;
 public abstract class AbstractClient implements IClient{
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractClient.class);
+    public final static String PLUGIN_DEFAULT_CONFIG_NAME = "default-config.yaml";
+
+    public List<ClientTemplate> defaultPlugins;
 
     @Override
 	public JobResult submitJob(JobClient jobClient) {
@@ -80,5 +85,103 @@ public abstract class AbstractClient implements IClient{
     public String getCheckpoints(JobIdentifier jobIdentifier) {
         return null;
     }
+
+    @Override
+    public List<ClientTemplate> getDefaultPluginConfig() {
+        return new ArrayList<>();
+    }
+
+
+    /**
+     * 加载各个组件的默认值
+     * 解析yml文件转换为前端渲染格式
+     *
+     * @return
+     */
+    protected List<ClientTemplate> convertMapTemplateToConfig(Object result) {
+        if (result instanceof Map) {
+            Map<String, Object> configMap = (Map<String, Object>) result;
+            List<ClientTemplate> templateVos = new ArrayList<>();
+            for (String key : configMap.keySet()) {
+                if ("required".equalsIgnoreCase(key) || "optional".equalsIgnoreCase(key)) {
+                    // 如果required 开头 单个tab选择
+                    templateVos.addAll(this.getClientTemplates(configMap));
+                } else {
+                    Map<String, Object> groupMap = (Map<String, Object>) configMap.get(key);
+                    // 不是required 开头 多个数组选择
+                    ClientTemplate group = new ClientTemplate();
+                    group.setValue(key);
+                    group.setKey(key);
+                    group.setType(EFrontType.GROUP.name());
+                    for (String groupKey : groupMap.keySet()) {
+                        group.setValues(this.getClientTemplates((Map<String, Object>) groupMap.get(groupKey)));
+                    }
+                    templateVos.add(group);
+                }
+            }
+            return templateVos;
+        }
+        return new ArrayList<>(0);
+    }
+
+    private List<ClientTemplate> getClientTemplates(Map<String, Object> configMap) {
+        List<ClientTemplate> templateVos = new ArrayList<>();
+        for (String key : configMap.keySet()) {
+            if ("required".equalsIgnoreCase(key)) {
+                Map<String, Object> value = (Map<String, Object>) configMap.get(key);
+                for (String s : value.keySet()) {
+                    templateVos.add(this.parseKeyValueToVo(s, value, false,true));
+                }
+            } else if ("optional".equalsIgnoreCase(key)) {
+                Map<String, Object> value = (Map<String, Object>) configMap.get(key);
+                for (String s : value.keySet()) {
+                    templateVos.add(this.parseKeyValueToVo(s, value, false,false));
+                }
+            }
+        }
+        return templateVos;
+    }
+
+    public ClientTemplate parseKeyValueToVo(String valueKey, Map<String, Object> value, boolean multiValues,boolean required) {
+        ClientTemplate templateVo = new ClientTemplate();
+        templateVo.setKey(valueKey);
+        templateVo.setValue("");
+        templateVo.setRequired(required);
+        Object defaultValue = value.get(valueKey);
+        if (defaultValue instanceof List) {
+            ArrayList defaultValueList = (ArrayList) defaultValue;
+            //选择框
+            for (Object o : defaultValueList) {
+                if (o instanceof Map) {
+                    Map<String, Object> sonMap = (Map<String, Object>) o;
+                    String sonKey = new ArrayList<>(sonMap.keySet()).get(0);
+                    ClientTemplate sonClientTemplate = this.parseKeyValueToVo(sonKey, sonMap, true,required);
+                    sonClientTemplate.setRequired(null);
+                    templateVo.setType(EFrontType.RADIO.name());
+                    if (Objects.isNull(templateVo.getValues())) {
+                        templateVo.setValues(new ArrayList<>());
+                    }
+                    templateVo.getValues().add(sonClientTemplate);
+                }
+            }
+            templateVo.setValue(templateVo.getValues().get(0).getValue());
+        } else {
+            if (defaultValue instanceof Map) {
+                //依赖 radio 的选择的输入框
+                Map<String, Object> defaultMap = (Map<String, Object>) defaultValue;
+                templateVo.setDependencyKey(String.valueOf(defaultMap.get("dependencyKey")));
+                templateVo.setDependencyValue(String.valueOf(defaultMap.get("dependencyValue")));
+                templateVo.setType(EFrontType.INPUT.name());
+            } else {
+                //输入框
+                templateVo.setValue(String.valueOf(Optional.ofNullable(defaultValue).orElse("")));
+                if (!multiValues) {
+                    templateVo.setType(EFrontType.INPUT.name());
+                }
+            }
+        }
+        return templateVo;
+    }
+    
 
 }

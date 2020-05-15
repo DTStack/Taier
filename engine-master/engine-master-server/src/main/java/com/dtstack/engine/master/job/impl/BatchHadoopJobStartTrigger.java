@@ -627,7 +627,7 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
             LOG.info("userGroupInformation current user = {} ugi user  = {} ", UserGroupInformation.getCurrentUser(), ugi.getUserName());
             return t;
         } catch (Exception e) {
-            LOG.error("{}", e);
+            LOG.error("{}",keytabPath, e);
             throw new RdosDefineException("kerberos校验失败, Message:" + e.getMessage());
         }
     }

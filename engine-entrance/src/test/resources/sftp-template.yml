@@ -1,0 +1,14 @@
+required:
+  host:
+  post: 22
+  username:
+  path:
+  authType:
+    - password: 1
+    - ras: 2
+  password:
+    dependencyKey: authType
+    dependencyValue: 1
+  ras:
+    dependencyKey: authType
+    dependencyValue: 2
