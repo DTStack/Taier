@@ -231,8 +231,9 @@ public class HadoopClient extends AbstractClient {
             return;
         }
 
-        UserGroupInformation.setThreadLocalData(HADOOP_USER_NAME, config.getHadoopUserName());
+        UserGroupInformation.afterSetHadoopUserName(config.getHadoopUserName());
     }
+
 
     private static void initSecurity(Config config) throws IOException {
         try {
