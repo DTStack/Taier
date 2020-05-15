@@ -1259,6 +1259,10 @@ public class UserGroupInformation {
         return createRemoteUser(user, AuthMethod.SIMPLE);
     }
 
+    public static void afterSetHadoopUserName(String user) {
+        createRemoteUser(user);
+    }
+
     /**
      * Create a user from a login name. It is intended to be used for remote
      * users in RPC, since it won't have any credentials.
@@ -1787,8 +1791,8 @@ public class UserGroupInformation {
             loginUserFromKeytab(args[0], args[1]);
             getCurrentUser().print();
             System.out.println("Keytab: " + ugi);
-            //      System.out.println("Auth method " + loginUser.user.getAuthenticationMethod());
-            //      System.out.println("Keytab " + loginUser.isKeytab);
+//      System.out.println("Auth method " + loginUser.user.getAuthenticationMethod());
+//      System.out.println("Keytab " + loginUser.isKeytab);
         }
     }
 

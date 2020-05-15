@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>plugins</artifactId>
+        <groupId>com.dtstack.engine</groupId>
+        <version>1.0.0</version>
+        <relativePath>..</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>plugins.flink</artifactId>
+    <name>plugins.flink</name>
+
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>yarn2-hdfs2-flink180-core</module>
+        <module>yarn2-hdfs2-flink110-core</module>
+        <module>k8s-hdfs2-flink110-core</module>
+    </modules>
+
+    <profiles>
+        <profile>
+            <id>yarn2-hdfs2</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>yarn2-hdfs2-flink180</module>
+                <module>yarn2-hdfs2-flink110</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>yarn3-hdfs3</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <modules>
+                <module>yarn3-hdfs3-flink180</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>k8s-hdfs2</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <modules>
+                <module>k8s-hdfs2-flink110</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>yarnHW-hdfsHW</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <modules>
+                <module>yarnHW-hdfsHW-flink180HW</module>
+            </modules>
+        </profile>
+    </profiles>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/java/</directory>
+            </resource>
+            <resource>
+                <directory>src/main/resources/</directory>
+            </resource>
+        </resources>
+    </build>
+</project>

@@ -21,39 +21,9 @@
     <modules>
         <module>engine-api</module>
         <module>engine-common</module>
-        <module>engine-master/engine-dao</module>
-        <module>engine-master/engine-master-server</module>
-        <module>engine-worker/engine-worker-server</module>
+        <module>engine-master</module>
+        <module>engine-worker</module>
         <module>engine-entrance</module>
-        <module>engine-worker/engine-plugins/base</module>
-        <module>engine-worker/engine-plugins/dummy</module>
-
-        <module>engine-worker/engine-plugins/spark/yarn2-hdfs2-spark-core</module>
-        <module>engine-worker/engine-plugins/spark/yarn2-hdfs2-spark210</module>
-        <module>engine-worker/engine-plugins/spark/yarn3-hdfs3-spark210</module>
-
-        <module>engine-worker/engine-plugins/flink/yarn2-hdfs2-flink180-core</module>
-        <module>engine-worker/engine-plugins/flink/yarn2-hdfs2-flink180</module>
-        <module>engine-worker/engine-plugins/flink/yarn3-hdfs3-flink180</module>
-        <module>engine-worker/engine-plugins/flink/yarnHW-hdfsHW-flink180HW</module>
-        <module>engine-worker/engine-plugins/flink/yarn2-hdfs2-flink110-core</module>
-        <module>engine-worker/engine-plugins/flink/yarn2-hdfs2-flink110</module>
-        <module>engine-worker/engine-plugins/flink/k8s-hdfs2-flink110-core</module>
-        <module>engine-worker/engine-plugins/flink/k8s-hdfs2-flink110</module>
-
-        <module>engine-worker/engine-plugins/dtscript/dtscript-hadoop-core</module>
-        <module>engine-worker/engine-plugins/dtscript/dtscript-hadoop2</module>
-        <module>engine-worker/engine-plugins/dtscript/dtscript-hadoop3</module>
-
-        <module>engine-worker/engine-plugins/learning/learning-hadoop2</module>
-        <module>engine-worker/engine-plugins/odps</module>
-        <module>engine-worker/engine-plugins/kylin</module>
-        <module>engine-worker/engine-plugins/rdbs</module>
-
-        <module>engine-worker/engine-plugins/hadoop/hadoop-core</module>
-        <module>engine-worker/engine-plugins/hadoop/hadoop2</module>
-        <module>engine-worker/engine-plugins/hadoop/hadoop3</module>
-
     </modules>
 
     <dependencyManagement>

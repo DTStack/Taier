@@ -109,9 +109,7 @@ public class FlinkClient extends AbstractClient {
 
     private FlinkConfig flinkConfig;
 
-    private org.apache.hadoop.conf.Configuration hadoopConf;
-
-    private YarnConfiguration yarnConf;
+    private HadoopConf hadoopConf;
 
     private FlinkClientBuilder flinkClientBuilder;
 
@@ -149,23 +147,14 @@ public class FlinkClient extends AbstractClient {
         syncPluginInfo = SyncPluginInfo.create(flinkConfig);
         sqlPluginInfo = SqlPluginInfo.create(flinkConfig);
 
-        initHadoopConf(flinkConfig);
-
-        flinkClientBuilder = FlinkClientBuilder.create(flinkConfig, hadoopConf, yarnConf);
+        hadoopConf = FlinkClientBuilder.initHadoopConf(flinkConfig);
+        flinkClientBuilder = FlinkClientBuilder.create(flinkConfig, hadoopConf.getConfiguration(), hadoopConf.getYarnConfiguration());
         flinkClientBuilder.initFlinkConfiguration(flinkExtProp);
-
 
         flinkClusterClientManager = FlinkClusterClientManager.createWithInit(flinkClientBuilder);
     }
 
-    private void initHadoopConf(FlinkConfig flinkConfig) {
-        HadoopConf customerConf = new HadoopConf();
-        customerConf.initHadoopConf(flinkConfig.getHadoopConf());
-        customerConf.initYarnConf(flinkConfig.getYarnConf());
 
-        hadoopConf = customerConf.getConfiguration();
-        yarnConf = customerConf.getYarnConfiguration();
-    }
 
     @Override
     protected JobResult processSubmitJobWithType(JobClient jobClient) {
@@ -223,7 +212,7 @@ public class FlinkClient extends AbstractClient {
         try {
             if (FlinkYarnMode.isPerJob(taskRunMode)) {
                 // perjob模式延后创建PackagedProgram
-                jarFile = FlinkUtil.downloadJar(jarPath, tmpFileDirPath, hadoopConf, null);
+                jarFile = FlinkUtil.downloadJar(jarPath, tmpFileDirPath, hadoopConf.getConfiguration(), null);
                 ClusterSpecification clusterSpecification = FLinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration(), jobClient.getJobPriority(), jobClient.getConfProperties());
                 clusterSpecification.setConfiguration(flinkClientBuilder.getFlinkConfiguration());
                 clusterSpecification.setClasspaths(classPaths);
@@ -238,7 +227,7 @@ public class FlinkClient extends AbstractClient {
                 runResult = runJobByPerJob(clusterSpecification, jobClient);
                 packagedProgram = clusterSpecification.getProgram();
             } else {
-                packagedProgram = FlinkUtil.buildProgram(jarPath, tmpFileDirPath, classPaths, jobClient.getJobType(), entryPointClass, programArgs, spSettings, hadoopConf);
+                packagedProgram = FlinkUtil.buildProgram(jarPath, tmpFileDirPath, classPaths, jobClient.getJobType(), entryPointClass, programArgs, spSettings, hadoopConf.getConfiguration());
                 //只有当程序本身没有指定并行度的时候该参数才生效
                 Integer runParallelism = FlinkUtil.getJobParallelism(jobClient.getConfProperties());
                 clearClassPathShipfileLoadMode(packagedProgram);
@@ -702,7 +691,7 @@ public class FlinkClient extends AbstractClient {
                 String addFilePath = jarFileInfo.getJarPath();
                 File tmpFile = null;
                 try {
-                    tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath, hadoopConf, flinkConfig.getSftpConf());
+                    tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath, hadoopConf.getConfiguration(), flinkConfig.getSftpConf());
                 } catch (FileNotFoundException e) {
                     throw new RuntimeException(e);
                 }

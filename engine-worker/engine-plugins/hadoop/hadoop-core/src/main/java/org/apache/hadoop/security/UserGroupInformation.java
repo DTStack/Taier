@@ -1259,6 +1259,10 @@ public class UserGroupInformation {
     return createRemoteUser(user, AuthMethod.SIMPLE);
   }
 
+  public static void afterSetHadoopUserName(String user){
+    UserGroupInformation.setThreadLocalData(HADOOP_USER_NAME, user);
+  }
+
   /**
    * Create a user from a login name. It is intended to be used for remote
    * users in RPC, since it won't have any credentials.

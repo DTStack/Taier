@@ -4,10 +4,10 @@
         xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
     <parent>
+        <artifactId>engine-worker</artifactId>
         <groupId>com.dtstack.engine</groupId>
-        <artifactId>engine-all</artifactId>
         <version>1.0.0</version>
-        <relativePath>../../pom.xml</relativePath>
+        <relativePath>..</relativePath>
     </parent>
     <artifactId>engine-worker-server</artifactId>
     <name>engine-worker-server</name>

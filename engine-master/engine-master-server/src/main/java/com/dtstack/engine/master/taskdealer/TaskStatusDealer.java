@@ -13,6 +13,7 @@ import com.dtstack.engine.dao.PluginInfoDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.bo.CompletedTaskInfo;
 import com.dtstack.engine.master.bo.FailedTaskInfo;
+import com.dtstack.engine.master.bo.TaskCheckpointInfo;
 import com.dtstack.engine.master.cache.ShardCache;
 import com.dtstack.engine.master.cache.ShardManager;
 import com.dtstack.engine.master.env.EnvironmentContext;
@@ -130,17 +131,18 @@ public class TaskStatusDealer implements Runnable {
         if (scheduleJob != null && engineJobCache != null) {
             String engineTaskId = scheduleJob.getEngineJobId();
             String appId = scheduleJob.getApplicationId();
+            String engineType = engineJobCache.getEngineType();
             JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineTaskId, appId, jobId);
 
             if (StringUtils.isNotBlank(engineTaskId)) {
                 String pluginInfoStr = scheduleJob.getPluginInfoId() > 0 ? pluginInfoDao.getPluginInfo(scheduleJob.getPluginInfoId()) : "";
-                RdosTaskStatus rdosTaskStatus = workerOperator.getJobStatus(engineJobCache.getEngineType(), pluginInfoStr, jobIdentifier);
+                RdosTaskStatus rdosTaskStatus = workerOperator.getJobStatus(engineType, pluginInfoStr, jobIdentifier);
                 if (rdosTaskStatus != null) {
 
                     rdosTaskStatus = checkNotFoundStatus(rdosTaskStatus, jobId);
                     Integer status = rdosTaskStatus.getStatus();
                     // 重试状态 先不更新状态
-                    boolean isRestart = taskRestartDealer.checkAndRestart(status, jobId, engineTaskId, appId, engineJobCache.getEngineType(), pluginInfoStr);
+                    boolean isRestart = taskRestartDealer.checkAndRestart(status, jobId, engineTaskId, appId, engineType, pluginInfoStr);
                     if (isRestart) {
                         return;
                     }
@@ -151,13 +153,15 @@ public class TaskStatusDealer implements Runnable {
 
                     //数据的更新顺序，先更新job_cache，再更新engine_batch_job
                     if (RdosTaskStatus.getStoppedStatus().contains(status)) {
-                        jobLogDelayDealer(jobId, jobIdentifier, engineJobCache.getEngineType(), engineJobCache.getComputeType(), pluginInfoStr);
+                        taskCheckpointDealer.updateCheckpointImmediately(new TaskCheckpointInfo(jobIdentifier, engineType, pluginInfoStr), jobId, status);
+
+                        jobLogDelayDealer(jobId, jobIdentifier, engineType, engineJobCache.getComputeType(), pluginInfoStr);
                         jobStatusFrequency.remove(jobId);
                         engineJobCacheDao.delete(jobId);
                     }
 
                     if (RdosTaskStatus.RUNNING.getStatus().equals(status)) {
-                        taskCheckpointDealer.addCheckpointTaskForQueue(scheduleJob.getComputeType(), jobId, jobIdentifier, engineJobCache.getEngineType(), pluginInfoStr);
+                        taskCheckpointDealer.addCheckpointTaskForQueue(scheduleJob.getComputeType(), jobId, jobIdentifier, engineType, pluginInfoStr);
                     }
                 }
             }
