@@ -7,7 +7,6 @@ import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 public class OracleClient extends AbstractRdbsClient {
 
     public OracleClient() {
-        super();
         this.dbType = "oracle";
     }
 

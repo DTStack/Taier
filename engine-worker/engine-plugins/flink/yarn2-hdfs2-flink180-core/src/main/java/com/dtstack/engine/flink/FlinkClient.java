@@ -122,17 +122,6 @@ public class FlinkClient extends AbstractClient {
 
     private String jobHistory;
 
-    public FlinkClient() {
-        try {
-            InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(PLUGIN_DEFAULT_CONFIG_NAME);
-            Map<String, Object> config = YamlConfigParser.INSTANCE.parse(resourceAsStream);
-            defaultPlugins = PublicUtil.objToString(config);
-            logger.info("=======FlinkClient============{}", defaultPlugins);
-        } catch (Exception e) {
-            logger.error("flink client init default config error {}", e);
-        }
-    }
-
     @Override
     public void init(Properties prop) throws Exception {
         this.flinkExtProp = prop;

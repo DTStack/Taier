@@ -100,17 +100,6 @@ public class SparkYarnClient extends AbstractClient {
 
     private Properties sparkExtProp;
 
-    public SparkYarnClient(){
-        try {
-            InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(PLUGIN_DEFAULT_CONFIG_NAME);
-            Map<String, Object> config = YamlConfigParser.INSTANCE.parse(resourceAsStream);
-            defaultPlugins = PublicUtil.objToString(config);
-            logger.info("=======SparkYarnClient============{}", defaultPlugins);
-        } catch (Exception e) {
-            logger.error("spark client init default config error {}", e);
-        }
-    }
-
     @Override
     public void init(Properties prop) throws Exception {
         this.sparkExtProp = prop;
