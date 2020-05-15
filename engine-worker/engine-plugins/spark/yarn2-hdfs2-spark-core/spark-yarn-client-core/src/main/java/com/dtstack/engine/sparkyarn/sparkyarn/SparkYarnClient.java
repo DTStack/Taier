@@ -100,7 +100,7 @@ public class SparkYarnClient extends AbstractClient {
 
     private Properties sparkExtProp;
 
-    public SparkYarnClient() {
+    public SparkYarnClient(){
         try {
             InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(PLUGIN_DEFAULT_CONFIG_NAME);
             Map<String, Object> config = YamlConfigParser.INSTANCE.parse(resourceAsStream);
@@ -190,7 +190,7 @@ public class SparkYarnClient extends AbstractClient {
         }
 
         String[] appArgs = new String[]{};
-        if(org.apache.commons.lang3.StringUtils.isNotBlank(exeArgsStr)){
+        if(StringUtils.isNotBlank(exeArgsStr)){
             appArgs = exeArgsStr.split("\\s+");
         }
 
@@ -203,7 +203,7 @@ public class SparkYarnClient extends AbstractClient {
         argList.add("--class");
         argList.add(mainClass);
 
-        for (String appArg : appArgs) {
+        for(String appArg : appArgs) {
             if (StringUtils.isBlank(appArg)) {
                 continue;
             }
@@ -256,7 +256,7 @@ public class SparkYarnClient extends AbstractClient {
         argList.add(PYTHON_RUNNER_CLASS);
 
         String[] appArgs = new String[]{};
-        if(org.apache.commons.lang3.StringUtils.isNotBlank(exeArgsStr)){
+        if(StringUtils.isNotBlank(exeArgsStr)){
             appArgs = exeArgsStr.split("\\s+");
         }
 
