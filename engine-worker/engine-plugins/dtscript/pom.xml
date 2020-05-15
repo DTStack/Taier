@@ -16,12 +16,42 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>dtscript-hadoop-core</module>
+        <module>yarn2-hdfs2-dtscript-core</module>
         <module>dtscript-hadoop2</module>
-        <module>dtscript-hadoop3</module>
+        <module>yarn3-hdfs3-dtscript</module>
     </modules>
 
-
+    <!--<profiles>-->
+        <!--<profile>-->
+            <!--<id>hadoop2</id>-->
+            <!--<activation>-->
+                <!--<activeByDefault>false</activeByDefault>-->
+            <!--</activation>-->
+            <!--<modules>-->
+                <!--&lt;!&ndash;<module>engine-api</module>&ndash;&gt;-->
+                <!--&lt;!&ndash;<module>engine-common</module>&ndash;&gt;-->
+                <!--<module>engine-master/engine-dao</module>-->
+                <!--<module>engine-master/engine-master-server</module>-->
+                <!--&lt;!&ndash;<module>engine-worker/engine-worker-server</module>&ndash;&gt;-->
+            <!--</modules>-->
+        <!--</profile>-->
+        <!--&lt;!&ndash;<profile>&ndash;&gt;-->
+        <!--&lt;!&ndash;<id>hadoop3</id>&ndash;&gt;-->
+        <!--&lt;!&ndash;<activation>&ndash;&gt;-->
+        <!--&lt;!&ndash;<activeByDefault>false</activeByDefault>&ndash;&gt;-->
+        <!--&lt;!&ndash;</activation>&ndash;&gt;-->
+        <!--&lt;!&ndash;<excludedModules>&ndash;&gt;-->
+        <!--&lt;!&ndash;<excludedModule>!engine-master/engine-dao</excludedModule>&ndash;&gt;-->
+        <!--&lt;!&ndash;<excludedModule>!engine-master/engine-master-server</excludedModule>&ndash;&gt;-->
+        <!--&lt;!&ndash;<excludedModule>!engine-master/engine-worker-server</excludedModule>&ndash;&gt;-->
+        <!--&lt;!&ndash;&lt;!&ndash;<module>engine-api</module>&ndash;&gt;&ndash;&gt;-->
+        <!--&lt;!&ndash;&lt;!&ndash;<module>engine-common</module>&ndash;&gt;&ndash;&gt;-->
+        <!--&lt;!&ndash;&lt;!&ndash;<module>engine-master/engine-dao</module>&ndash;&gt;&ndash;&gt;-->
+        <!--&lt;!&ndash;&lt;!&ndash;<module>engine-master/engine-master-server</module>&ndash;&gt;&ndash;&gt;-->
+        <!--&lt;!&ndash;&lt;!&ndash;<module>engine-worker/engine-worker-server</module>&ndash;&gt;&ndash;&gt;-->
+        <!--&lt;!&ndash;</excludedModules>&ndash;&gt;-->
+        <!--&lt;!&ndash;</profile>&ndash;&gt;-->
+    <!--</profiles>-->
 
     <build>
         <resources>

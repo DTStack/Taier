@@ -10,15 +10,12 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>plugins.dtscript-hadoop2</artifactId>
-    <name>plugins.dtscript-hadoop2</name>
+    <artifactId>plugins.yarn2-hdfs2-dtscript</artifactId>
+    <name>plugins.yarn2-hdfs2-dtscript</name>
 
     <packaging>pom</packaging>
 
     <properties>
-        <jar.name>dtscript-hadoop2-core</jar.name>
-        <junit.version>4.11</junit.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>4.11</junit.version>
         <jdk.version>1.8</jdk.version>
         <hadoop.version>2.7.3</hadoop.version>

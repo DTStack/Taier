@@ -3,15 +3,15 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>plugins.dtscript-hadoop-core</artifactId>
+        <artifactId>plugins.yarn2-hdfs2-dtscript-core</artifactId>
         <groupId>com.dtstack.engine</groupId>
         <version>1.0.0</version>
         <relativePath>..</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>plugins.dtscript-hadoop-core.dtscript-core</artifactId>
-    <name>plugins.dtscript-hadoop-core.dtscript-core</name>
+    <artifactId>plugins.yarn2-hdfs2-dtscript-core.dtscript-core</artifactId>
+    <name>plugins.yarn2-hdfs2-dtscript-core.dtscript-core</name>
 
     <properties>
         <junit.version>4.11</junit.version>

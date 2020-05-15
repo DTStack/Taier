@@ -10,8 +10,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>plugins.dtscript-hadoop3</artifactId>
-    <name>plugins.dtscript-hadoop3</name>
+    <artifactId>plugins.yarn3-hdfs3-dtscript</artifactId>
+    <name>plugins.yarn3-hdfs3-dtscript</name>
 
     <packaging>pom</packaging>
 

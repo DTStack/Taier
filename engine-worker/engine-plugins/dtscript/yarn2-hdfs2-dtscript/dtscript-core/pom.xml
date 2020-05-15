@@ -3,27 +3,24 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
+        <artifactId>plugins.yarn2-hdfs2-dtscript</artifactId>
         <groupId>com.dtstack.engine</groupId>
-        <artifactId>plugins.dtscript-hadoop3</artifactId>
         <version>1.0.0</version>
         <relativePath>..</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>plugins.dtscript-hadoop3.dtscript-core</artifactId>
-    <name>plugins.dtscript-hadoop3.dtscript-core</name>
-
-    <properties>
-        <jar.name>dtscript-hadoop3-core</jar.name>
-    </properties>
+    <artifactId>plugins.yarn2-hdfs2-dtscript.dtscript-core</artifactId>
+    <name>plugins.yarn2-hdfs2-dtscript.dtscript-core</name>
 
     <dependencies>
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>plugins.dtscript-hadoop-core.dtscript-core</artifactId>
+            <artifactId>plugins.yarn2-hdfs2-dtscript-core.dtscript-core</artifactId>
             <version>1.0.0</version>
         </dependency>
 
+        <!-- hadoop2 -->
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
@@ -64,11 +61,15 @@
             <artifactId>hadoop-yarn-client</artifactId>
             <version>${hadoop.version}</version>
         </dependency>
-
     </dependencies>
 
     <build>
         <plugins>
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>2.5</version>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -114,11 +115,11 @@
                         <configuration>
                             <tasks>
                                 <copy file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
-                                <copy todir="${basedir}/target/../../../../../../pluginLibs/dtscript-hadoop3/"
+                                      tofile="${basedir}/target/${jar.name}-${git.branch}.jar"/>
+                                <copy todir="${basedir}/target/../../../../../../pluginLibs/dtscript-hadoop2/"
                                       file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/target/../../../../../../pluginLibs/dtscript-hadoop3/"
+                                    <fileset dir="${basedir}/target/../../../../../../pluginLibs/dtscript-hadoop2/"
                                              includes="${jar.name}-*.jar"
                                              excludes="${jar.name}-${git.branch}.jar"/>
                                 </delete>
