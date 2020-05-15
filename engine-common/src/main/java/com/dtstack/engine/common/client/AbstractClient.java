@@ -2,8 +2,10 @@ package com.dtstack.engine.common.client;
 
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
+import com.dtstack.engine.common.client.config.YamlConfigParser;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.util.PublicUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +27,21 @@ public abstract class AbstractClient implements IClient{
     public final static String PLUGIN_DEFAULT_CONFIG_NAME = "default-config.yaml";
 
     public String defaultPlugins;
+
+    public AbstractClient() {
+        loadConfig();
+    }
+
+    private void loadConfig() {
+        try {
+            InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(PLUGIN_DEFAULT_CONFIG_NAME);
+            Map<String, Object> config = YamlConfigParser.INSTANCE.parse(resourceAsStream);
+            defaultPlugins = PublicUtil.objToString(config);
+            logger.info("=======DtScriptClient============{}", defaultPlugins);
+        } catch (Exception e) {
+            logger.error("DtScript client init default config error {}", e);
+        }
+    }
 
     @Override
 	public JobResult submitJob(JobClient jobClient) {

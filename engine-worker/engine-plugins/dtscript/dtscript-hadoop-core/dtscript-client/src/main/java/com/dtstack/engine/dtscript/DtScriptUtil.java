@@ -5,6 +5,7 @@ import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.dtscript.common.type.AppTypeEnum;
 import org.apache.commons.lang.StringUtils;
 import sun.misc.BASE64Decoder;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -35,17 +36,20 @@ public class DtScriptUtil {
 
         if (StringUtils.isNotBlank(taskParams)) {
             taskParams = taskParams.trim();
-            List<String> taskParam = DtStringUtil.splitIngoreBlank(taskParams);
-            for (int i = 0; i < taskParam.size(); ++i) {
-                String[] pair = taskParam.get(i).split("=", 2);
+            String[] ignoreTaskParams = taskParams.split("\n");
+            for (String ignoreTaskParam : ignoreTaskParams) {
+                if (ignoreTaskParam.trim().startsWith("#")) {
+                    continue;
+                }
+                String[] pair = ignoreTaskParam.split("=", 2);
                 if (pair.length == 2) {
                     pair[0] = pair[0].replaceAll("\\.", "-");
                     if (pair[0].contains("priority")) {
                         pair[0] = "priority";
                         pair[1] = String.valueOf(jobClient.getPriority());
                     }
-                    args.add("--" + pair[0]);
-                    args.add(pair[1]);
+                    args.add("--" + pair[0].trim());
+                    args.add(pair[1].trim());
                 }
             }
         }

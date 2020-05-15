@@ -16,12 +16,10 @@
  * limitations under the License.
  */
 
-package com.dtstack.engine.base.config;
+package com.dtstack.engine.common.client.config;
 
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Map;
 

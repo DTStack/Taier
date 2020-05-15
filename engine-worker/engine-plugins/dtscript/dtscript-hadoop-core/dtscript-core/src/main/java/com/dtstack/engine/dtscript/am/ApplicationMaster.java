@@ -2,13 +2,13 @@ package com.dtstack.engine.dtscript.am;
 
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.api.ApplicationContext;
+import com.dtstack.engine.dtscript.api.DtYarnConstants;
 import com.dtstack.engine.dtscript.common.SecurityUtil;
 import com.dtstack.engine.dtscript.container.ContainerEntity;
 import com.dtstack.engine.dtscript.container.DtContainer;
 import com.dtstack.engine.dtscript.container.DtContainerId;
 import com.dtstack.engine.dtscript.util.DebugUtil;
 import com.dtstack.engine.dtscript.util.Utilities;
-import com.dtstack.engine.dtscript.api.DtYarnConstants;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

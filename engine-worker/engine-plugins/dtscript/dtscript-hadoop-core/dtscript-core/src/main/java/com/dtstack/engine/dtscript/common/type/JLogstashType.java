@@ -2,9 +2,9 @@ package com.dtstack.engine.dtscript.common.type;
 
 import ch.qos.logback.classic.Level;
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
-import com.dtstack.engine.dtscript.util.GZipUtil;
 import com.dtstack.engine.dtscript.client.ClientArguments;
 import com.dtstack.engine.dtscript.util.Base64Util;
+import com.dtstack.engine.dtscript.util.GZipUtil;
 import com.dtstack.engine.dtscript.util.NetUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;

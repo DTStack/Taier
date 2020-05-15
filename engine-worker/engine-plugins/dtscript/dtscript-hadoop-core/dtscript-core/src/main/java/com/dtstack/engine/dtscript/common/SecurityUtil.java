@@ -56,7 +56,7 @@ public class SecurityUtil {
         final Token<?> tokens[] =
                 fs.addDelegationTokens(tokenRenewer, credentials);
         if (tokens != null) {
-            for (org.apache.hadoop.security.token.Token<?> token : tokens) {
+            for (Token<?> token : tokens) {
                 LOG.info("Got dt for " + fs.getUri() + "; " + token);
             }
         }

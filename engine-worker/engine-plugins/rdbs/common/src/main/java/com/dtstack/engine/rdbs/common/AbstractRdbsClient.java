@@ -1,6 +1,6 @@
 package com.dtstack.engine.rdbs.common;
 
-import com.dtstack.engine.base.config.YamlConfigParser;
+import com.dtstack.engine.common.client.config.YamlConfigParser;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.client.AbstractClient;

@@ -28,7 +28,12 @@ import org.apache.hadoop.yarn.server.nodemanager.ContainerExecutor;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
@@ -313,7 +318,7 @@ public class DtContainer {
         StringBuffer sb = new StringBuffer();
         InputStream is = new FileInputStream(filePath);
         String line;
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is, DtYarnConfiguration.UTF8));
         line = reader.readLine();
         while (line != null) {
             sb.append(line);
