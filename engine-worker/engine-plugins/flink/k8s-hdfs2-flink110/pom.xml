@@ -4,10 +4,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
+        <artifactId>plugins.flink</artifactId>
         <groupId>com.dtstack.engine</groupId>
-        <artifactId>engine-all</artifactId>
         <version>1.0.0</version>
-        <relativePath>../../../../pom.xml</relativePath>
+        <relativePath>..</relativePath>
     </parent>
 
     <artifactId>plugins.k8s-hdfs2-flink110</artifactId>

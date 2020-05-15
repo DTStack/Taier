@@ -10,18 +10,21 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>plugins.dtscript</artifactId>
-    <name>plugins.dtscript</name>
+    <artifactId>plugins.flink</artifactId>
+    <name>plugins.flink</name>
 
     <packaging>pom</packaging>
 
     <modules>
-        <module>dtscript-hadoop-core</module>
-        <module>dtscript-hadoop2</module>
-        <module>dtscript-hadoop3</module>
+        <module>yarn2-hdfs2-flink180-core</module>
+        <module>yarn2-hdfs2-flink180</module>
+        <module>yarn3-hdfs3-flink180</module>
+        <module>yarnHW-hdfsHW-flink180HW</module>
+        <module>yarn2-hdfs2-flink110-core</module>
+        <module>yarn2-hdfs2-flink110</module>
+        <module>k8s-hdfs2-flink110-core</module>
+        <module>k8s-hdfs2-flink110</module>
     </modules>
-
-
 
     <build>
         <resources>
