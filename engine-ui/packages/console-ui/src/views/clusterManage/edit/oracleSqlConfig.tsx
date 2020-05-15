@@ -15,7 +15,7 @@ export default class OracleSQLConfig extends React.Component<any, any> {
                         label="JDBC URL"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.TI_DB_SQL}.jdbcUrl`, {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.ORACLE_SQL}.jdbcUrl`, {
                             rules: [{
                                 required: true,
                                 message: '请输入jdbcUrl'
@@ -28,7 +28,7 @@ export default class OracleSQLConfig extends React.Component<any, any> {
                         label="用户名"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.TI_DB_SQL}.username`)(
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.ORACLE_SQL}.username`)(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
@@ -36,7 +36,7 @@ export default class OracleSQLConfig extends React.Component<any, any> {
                         label="密码"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.TI_DB_SQL}.password`)(
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.ORACLE_SQL}.password`)(
                             <Input disabled={isView} />
                         )}
                     </FormItem>

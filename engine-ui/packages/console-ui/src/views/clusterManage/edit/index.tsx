@@ -176,6 +176,9 @@ class EditCluster extends React.Component<any, any> {
             if (key == COMPONEMT_CONFIG_KEYS.TI_DB_SQL) {
                 delete copyComp[key]
             }
+            if (key == COMPONEMT_CONFIG_KEYS.ORACLE_SQL) {
+                delete copyComp[key]
+            }
         }
         if (isHadoop) {
             setFieldsValue(copyComp);
@@ -209,7 +212,7 @@ class EditCluster extends React.Component<any, any> {
             })
         } else if (isOracleEngine(engineType)) {
             setFieldsValue({
-                oracleConf: compConf.tidbConf
+                oracleConf: compConf.oracleConf
             })
         }
     }
@@ -1210,7 +1213,7 @@ class EditCluster extends React.Component<any, any> {
         componentConf['dtscriptConf'] = { ...dtyarnshellTypeName, ...commConf, pythonConf: dtscriptPythonConf, jupyterConf: dtscriptJupyterConf };
         componentConf['libraConf'] = { ...formValues.libraConf, ...libraExtParams };
         componentConf['tidbConf'] = { ...formValues.tidbConf, ...tidbExtParams };
-        componentConf['oracleConf'] = { ...formValues.tidbConf, ...oracleExtParams };
+        componentConf['oracleConf'] = { ...formValues.oracleConf, ...oracleExtParams };
         componentConf['sftpConf'] = formValues.sftpConf || {};
         // 服务端兼容，不允许null
         componentConf['hiveConf'].username = componentConf['hiveConf'].username || '';
