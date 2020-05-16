@@ -15,12 +15,10 @@ import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.master.impl.ActionService;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.job.IJobStartTrigger;
 import com.dtstack.engine.master.scheduler.JobParamReplace;
-import com.dtstack.engine.master.utils.DBUtil;
 import com.dtstack.schedule.common.enums.DataBaseType;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
@@ -345,7 +343,6 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
                         pluginInfo.put("driverClassName", DataSourceType.getBaseType(sourceType).getDriverClassName());
                         workerOperator.executeQuery(DataSourceType.getBaseType(sourceType).getTypeName(),pluginInfo.toJSONString(),sql,(String) actionParam.get("engineIdentity"));
                     } finally {
-                        DBUtil.closeDBResources(null, null, dbConnect);
                     }
                     cleanFileName(parameter);
                     return null;

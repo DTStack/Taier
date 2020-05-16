@@ -3,12 +3,10 @@ package com.dtstack.engine.master.component;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.enums.KerberosKey;
-import com.dtstack.engine.master.utils.DBUtil;
 import com.dtstack.schedule.common.enums.DataBaseType;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -65,7 +63,7 @@ public class JDBCComponent extends BaseComponent {
             throw new RdosDefineException("kerberos校验失败, Message:" + e.getMessage());
         }
 
-        //能开启kerberos的数据源 校验需要在engine check
+/*        //能开启kerberos的数据源 校验需要在engine check
         Connection conn = null;
         try {
             conn = DBUtil.getConnection(dataBaseType, jdbcUrl, username, password, null);
@@ -73,7 +71,7 @@ public class JDBCComponent extends BaseComponent {
             if (conn != null) {
                 conn.close();
             }
-        }
+        }*/
     }
 
     @Override
