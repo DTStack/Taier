@@ -38,21 +38,7 @@ function renderCompIcon (scheduling: any) {
             return '';
     }
 }
-@(connect((state: any) => {
-    return {
-        testStatus: state.testStatus,
-        showRequireStatus: state.showRequireStatus
-    }
-}, (dispatch: any) => {
-    return {
-        updateTestStatus: (data: any) => {
-            dispatch(updateTestStatus(data))
-        },
-        updateRequiredStatus: (data: any) => {
-            dispatch(updateRequiredStatus(data))
-        }
-    }
-}) as any)
+
 class ModifyComponentModal extends React.PureComponent<any, any> {
     render () {
         const { modifyComponent, modify, handleCancleModify, modifyComps, selectValue, modifySource } = this.props;
@@ -77,6 +63,22 @@ class ModifyComponentModal extends React.PureComponent<any, any> {
         )
     }
 }
+
+@(connect((state: any) => {
+    return {
+        testStatus: state.testStatus,
+        showRequireStatus: state.showRequireStatus
+    }
+}, (dispatch: any) => {
+    return {
+        updateTestStatus: (data: any) => {
+            dispatch(updateTestStatus(data))
+        },
+        updateRequiredStatus: (data: any) => {
+            dispatch(updateRequiredStatus(data))
+        }
+    }
+}) as any)
 class EditCluster extends React.Component<any, any> {
     state: any = {
         compTypeKey: 0, // 组件默认选中
@@ -736,17 +738,16 @@ class EditCluster extends React.Component<any, any> {
                             }
                         </Tabs>
                     </div>
-                    <ModifyComponentModal
-                        modify={modify}
-                        selectValue={selectValue}
-                        modifySource={modifySource}
-                        modifyComps={modifyComps}
-                        modifyComponent={this.modifyComponent}
-                        handleCancleModify={this.handleCancleModify} />
                 </React.Fragment>
+                <ModifyComponentModal
+                    modify={modify}
+                    selectValue={selectValue}
+                    modifySource={modifySource}
+                    modifyComps={modifyComps}
+                    modifyComponent={this.modifyComponent}
+                    handleCancleModify={this.handleCancleModify} />
             </div>
         )
     }
 }
-
 export default Form.create<any>()(EditCluster);
