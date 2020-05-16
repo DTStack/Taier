@@ -45,9 +45,9 @@ export default {
     uploadResource (params: any) {
         return http.postAsFormData(req.UPLOAD_RESOURCE, params);
     },
-    // downloadFile (params: any) {
-    //     return http.get(req.DOWNLOAD_RESOURCE, params);
-    // },
+    deleteComponent (params: any) {
+        return http.post(req.DELETE_COMPONENT, params); // 删除组件
+    },
     deleteCluster (params: any) {
         return http.post(req.DELETE_CLUSTER, params);
     },
@@ -149,9 +149,6 @@ export default {
     },
     saveComponentWithKerberos (params: any) {
         return http.postAsFormData(req.SAVE_COMPONENT_KERBEROS, params);
-    },
-    deleteComponent (params: any) {
-        return http.post(req.DELETE_COMPONENT, params); // 删除组件
     },
     deleteKerberos (params: any) {
         return http.post(req.DELETE_KERBEROS, params); // 删除Haddop Kerberos认证文件

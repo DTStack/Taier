@@ -177,6 +177,18 @@
         color: #333;
         font-weight: bold;
     }
+    .c-clusterManage__header {
+        margin-bottom: 12px;
+        margin-top: 12px;
+        height: 32px;
+        display: flex;
+        justify-content: space-between;
+        .c-clusterManage__header__btn {
+            padding: 0;
+            width: 108px;
+            height: 32px;
+        }
+    }
 }
 
 .c-clusterManage__container {
@@ -227,22 +239,28 @@
             flex: unset;
         }
         >.ant-tabs-bar {
-            display: flex;
-            flex-direction: column;
             height: 100%;
+            position: relative;
             >.ant-tabs-nav-container {
-                flex: 1;
-                margin-top: 10px;
+                height: unset;
+                position: absolute;
+                top: 20px;
+                bottom: 40px;
+                left: 0;
+                right: 0;
             }
             >.ant-tabs-extra-content {
                 height: 40px;
+                position: absolute;
+                bottom: 0;
             }
         }
         .c-clusterManage__container__componentWrap {
             position: absolute;
             top: 0;
             right: 0;
-            bottom: 40px;
+            bottom: 0;
+            // bottom: 40px;
             left: 200px;
             display: flex;
             flex-direction: row;
@@ -263,6 +281,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            background-color: #fff;
             .c-clusterManage__container__componentFooter__btn {
                 padding: 0;
                 height: 28px;
@@ -292,6 +311,14 @@
             background-color: rgba(242,249,255,1);
         }
     }
+    .c-displayResource__downloadTemp {
+        margin-left: 55px;
+        color: #3F87FF;
+        cursor: pointer
+    }
+    >.ant-form-item {
+        margin-bottom: 20px;
+    }
 }
 
 .c-componentsConfig__container {
@@ -299,11 +326,23 @@
     height: 100%;
     width: 100%;
     overflow: auto;
-    padding: 20px;
+    padding: 24px 20px 40px 20px;
 }
 
 .c-clusterManage__icon {
     &:hover {
         color: #2491f7;
+    }
+}
+
+.c-modifyComponents__modal {
+    width:460px;
+    .ant-modal-footer {
+        border-top: unset;
+        .ant-btn {
+            padding: 0;
+            height: 32px;
+            width: 68px;
+        }
     }
 }

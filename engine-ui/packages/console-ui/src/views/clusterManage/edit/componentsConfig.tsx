@@ -9,7 +9,6 @@ import {
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
-// const Option = Select.Option;
 
 const formItemLayout: any = { // 表单常用布局
     labelCol: {
@@ -81,17 +80,17 @@ class ComponentsConfig extends React.Component<any, any> {
         )
     }
     renderSFTPConfig = () => {
-        const { componentConfig, components, getFieldDecorator, getFieldValue } = this.props;
+        const { componentConfig, components, getFieldDecorator, getFieldValue, isView } = this.props;
         const componentTypeCode = components.componentTypeCode;
         const config = componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {}
         const loadTemplate = config.loadTemplate || [];
         let content: any;
         if (loadTemplate.length > 0) {
             return loadTemplate.map((item: any, index: any) => {
-                if (item.type === 'INPUT') { content = (<Input />) }
+                if (item.type === 'INPUT') { content = (<Input disabled={isView} />) }
                 if (item.type === 'RADIO') {
                     content = (
-                        <RadioGroup>
+                        <RadioGroup disabled={isView}>
                             {item.values.map((comp: any, index) => {
                                 return <Radio key={comp.key} value={comp.value}>{comp.key}</Radio>
                             })}
@@ -100,13 +99,13 @@ class ComponentsConfig extends React.Component<any, any> {
                 }
                 return (
                     item.dependencyValue
-                        ? getFieldValue(`${COMPONEMT_CONFIG_KEYS.SFTP}.${item.dependencyKey}`) === item.dependencyValue
+                        ? getFieldValue(`${COMPONEMT_CONFIG_KEYS.SFTP}.configInfo.${item.dependencyKey}`) === item.dependencyValue
                             ? <FormItem
                                 label={item.key}
                                 key={item.key}
                                 {...formItemLayout}
                             >
-                                {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SFTP}.${item.key}`, {
+                                {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SFTP}.configInfo.${item.key}`, {
                                     rules: [{
                                         required: true,
                                         message: `请输入${item.key}`
@@ -122,7 +121,7 @@ class ComponentsConfig extends React.Component<any, any> {
                             key={item.key}
                             {...formItemLayout}
                         >
-                            {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SFTP}.${item.key}`, {
+                            {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SFTP}.configInfo.${item.key}`, {
                                 rules: [{
                                     required: true,
                                     message: `请输入${item.key}`
