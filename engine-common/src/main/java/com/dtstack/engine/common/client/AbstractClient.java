@@ -2,23 +2,19 @@ package com.dtstack.engine.common.client;
 
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.enums.EFrontType;
 import com.dtstack.engine.common.client.config.YamlConfigParser;
+import com.dtstack.engine.common.enums.EFrontType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.pojo.ClientTemplate;
 import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import org.apache.commons.collections.CollectionUtils;
-import com.dtstack.engine.common.util.PublicUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
 import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Reason:
@@ -47,7 +43,7 @@ public abstract class AbstractClient implements IClient{
                 return;
             }
             Map<String, Object> config = YamlConfigParser.INSTANCE.parse(resourceAsStream);
-            defaultPlugins = PublicUtil.objToString(config);
+            defaultPlugins = this.convertMapTemplateToConfig(config);
             logger.info("======= plugin client============{}", defaultPlugins);
         } catch (Exception e) {
             logger.error("plugin client init default config error {}", e);
@@ -121,6 +117,11 @@ public abstract class AbstractClient implements IClient{
 
     @Override
     public ComponentTestResult testConnect(String pluginInfo) {
+        return null;
+    }
+
+    @Override
+    public List<List<Object>> executeQuery(String pluginInfo, String sql, String database) {
         return null;
     }
 

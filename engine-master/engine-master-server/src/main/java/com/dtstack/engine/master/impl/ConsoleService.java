@@ -424,7 +424,7 @@ public class ConsoleService {
         try {
             Map<String, Object> kerberosConfig = componentService.fillKerberosConfig(JSONObject.toJSONString(yarnConfig), clusterId);
             yarnComponent = (YARNComponent) ComponentFactory.getComponent(kerberosConfig, EComponentType.YARN);
-            yarnComponent.initClusterResource(false);
+            /*yarnComponent.initClusterResource(false);
 
             FlinkComponent flinkComponent = (FlinkComponent) ComponentFactory.getComponent(null, EComponentType.FLINK);
             flinkComponent.initTaskManagerResource(yarnComponent.getYarnClient());
@@ -432,15 +432,16 @@ public class ConsoleService {
             Map<String, Object> clusterResources = new HashMap<>(2);
             clusterResources.put("yarn", yarnComponent.getClusterNodes());
             clusterResources.put("flink", flinkComponent.getTaskManagerDescriptions());
-            return clusterResources;
+            return clusterResources;*/
         } catch (Exception e) {
             logger.error(" ", e);
             throw new RdosDefineException("flink资源获取异常");
         } finally {
             if (yarnComponent != null) {
-                yarnComponent.closeYarnClient();
+//                yarnComponent.closeYarnClient();
             }
         }
+        return null;
     }
 
     private Component getYarnComponent(Long clusterId) {

@@ -151,4 +151,9 @@ public class ClientOperator {
         IClient clusterClient = clientCache.getDefaultPlugin(engineType);
         return clusterClient.testConnect(pluginInfo);
     }
+
+    public List<List<Object>> executeQuery(String engineType, String pluginInfo,String sql,String database){
+        IClient clusterClient = clientCache.getDefaultPlugin(engineType);
+        return clusterClient.executeQuery(pluginInfo,sql,database);
+    }
 }

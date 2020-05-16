@@ -195,6 +195,11 @@ public class WorkerOperator {
         }
     }
 
+
+    public List<List<Object>> executeQuery(String engineType, String pluginInfo,String sql,String database) throws Exception{
+        return (List<List<Object>>)masterServer.sendMessage(new MessageExecuteQuery(engineType,pluginInfo,sql,database));
+    }
+
     private <M> M callbackAndReset(JobClient jobClient, CallBack<M> classLoaderCallBack) throws Exception {
         JobClientCallBack callBack = jobClient.getJobCallBack();
         M result = null;

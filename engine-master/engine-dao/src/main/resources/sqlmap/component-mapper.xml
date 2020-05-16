@@ -23,8 +23,8 @@
             <if test="componentTemplate!=null">
                 component_template = #{componentTemplate},
             </if>
-            <if test="kerberosFilName != null">
-                kerberos_file_name = #{kerberosFilName},
+            <if test="kerberosFileName != null">
+                kerberos_file_name = #{kerberosFileName},
             </if>
             gmt_modified =now()
         </set>

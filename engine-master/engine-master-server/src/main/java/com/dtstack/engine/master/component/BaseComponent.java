@@ -1,21 +1,12 @@
 package com.dtstack.engine.master.component;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.common.callback.CallBack;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.enums.EComponentType;
-import com.dtstack.engine.master.utils.HadoopConfTool;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.security.PrivilegedExceptionAction;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -82,7 +73,7 @@ public abstract class BaseComponent implements ComponentImpl {
         return openKerberos;
     }
 
-    public void loginKerberos(Configuration configuration, String principal, String keytabPath, String krb5Conf) {
+    /*public void loginKerberos(Configuration configuration, String principal, String keytabPath, String krb5Conf) {
         try {
             if (StringUtils.isNotBlank(keytabPath) && StringUtils.isNotBlank(principal)) {
                 File keytabFile = new File(keytabPath);
@@ -107,6 +98,6 @@ public abstract class BaseComponent implements ComponentImpl {
             LOG.error("{}", e);
             throw new RdosDefineException("kerberos校验失败, Message:" + e.getMessage());
         }
-    }
+    }*/
 }
 

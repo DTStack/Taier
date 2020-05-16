@@ -1,18 +1,17 @@
 package com.dtstack.engine.dummy;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.base.config.YamlConfigParser;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.client.AbstractClient;
+import com.dtstack.engine.common.client.config.YamlConfigParser;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.pojo.ClientTemplate;
 import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.sftp.SftpFactory;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.jcraft.jsch.ChannelSftp;
+import com.dtstack.engine.common.util.SFTPHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,13 +107,26 @@ public class DummyClient extends AbstractClient {
     public ComponentTestResult testConnect(String pluginInfo) {
         ComponentTestResult componentTestResult = new ComponentTestResult();
         try {
-            Map map = PublicUtil.jsonStrToObject(pluginInfo, Map.class);
-            if ("sftp".equalsIgnoreCase(String.valueOf(map.get(COMPONENT_TYPE)))) {
-                SftpFactory sftpFactory = new SftpFactory(map);
-                ChannelSftp channelSftp = sftpFactory.create();
-                channelSftp.disconnect();
+            Map config = PublicUtil.jsonStrToObject(pluginInfo, Map.class);
+            if ("sftp".equalsIgnoreCase(String.valueOf(config.get(COMPONENT_TYPE)))) {
+                SFTPHandler instance = null;
+                try {
+                    instance = SFTPHandler.getInstance(config);
+                    String path = (String) config.get("path");
+                    if (StringUtils.isBlank(path)) {
+                        componentTestResult.setErrorMsg("SFTP组件path配置不能为空");
+                        componentTestResult.setResult(false);
+                    } else {
+                        //测试路径是否存在
+                        instance.listFile(path);
+                        componentTestResult.setResult(true);
+                    }
+                } finally {
+                    if (instance != null) {
+                        instance.close();
+                    }
+                }
             }
-            componentTestResult.setResult(true);
         } catch (Exception e) {
             componentTestResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
             componentTestResult.setResult(false);

@@ -1,21 +1,18 @@
 package com.dtstack.engine.master.component;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.util.TypeUtils;
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.http.PoolHttpClient;
-import org.apache.hadoop.yarn.api.records.ApplicationId;
-import org.apache.hadoop.yarn.api.records.ApplicationReport;
-import org.apache.hadoop.yarn.api.records.YarnApplicationState;
-import org.apache.hadoop.yarn.client.api.YarnClient;
-
-import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Map;
 
 public class FlinkComponent extends BaseComponent {
+    public FlinkComponent(Map<String, Object> allConfig) {
+        super(allConfig);
+    }
 
-    private static final String APP_TYPE = "Apache Flink";
+    @Override
+    public void testConnection() throws Exception {
+
+    }
+
+   /* private static final String APP_TYPE = "Apache Flink";
     private static final String DEFAULT_APP_NAME_PREFIX = "Flink session";
     private static final String FLINK_URL_FORMAT = "http://%s/proxy/%s/taskmanagers";
     private static final String YARN_RM_WEB_KEY_PREFIX = "yarn.resourcemanager.webapp.address.";
@@ -124,7 +121,7 @@ public class FlinkComponent extends BaseComponent {
     public void setTaskManagerDescriptions(List<TaskManagerDescription> taskManagerDescriptions) {
         this.taskManagerDescriptions = taskManagerDescriptions;
     }
-
+*/
 }
 
 class TaskManagerDescription {

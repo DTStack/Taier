@@ -78,6 +78,13 @@ public class JobService extends AbstractActor {
                     }
                     sender().tell(execute,getSelf());
                 })
+                .match(MessageExecuteQuery.class,msg ->{
+                    Object execute = ClientOperator.getInstance().executeQuery(msg.getEngineType(), msg.getPluginInfo(),msg.getSql(),msg.getDatabase());
+                    if(null == execute){
+                        execute = new Object();
+                    }
+                    sender().tell(execute,getSelf());
+                })
                 .build();
     }
 }

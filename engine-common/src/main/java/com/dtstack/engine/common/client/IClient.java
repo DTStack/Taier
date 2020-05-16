@@ -41,4 +41,6 @@ public interface IClient {
 	List<ClientTemplate> getDefaultPluginConfig(String configType);
 
     ComponentTestResult testConnect(String pluginInfo);
+
+    List<List<Object>> executeQuery(String pluginInfo, String sql,String database);
 }

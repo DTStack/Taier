@@ -1,5 +1,6 @@
 package com.dtstack.engine.learning;
 
+import com.dtstack.engine.common.client.config.YamlConfigParser;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.learning.conf.LearningConfiguration;
 import com.dtstack.engine.common.exception.ExceptionUtil;
@@ -22,6 +23,7 @@ import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Enumeration;

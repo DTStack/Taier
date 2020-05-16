@@ -1,16 +1,12 @@
 package com.dtstack.engine.master.component;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.master.utils.DBUtil;
-import com.dtstack.schedule.common.enums.DataBaseType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.enums.KerberosKey;
-import com.dtstack.engine.master.utils.HadoopConfTool;
+import com.dtstack.engine.master.utils.DBUtil;
+import com.dtstack.schedule.common.enums.DataBaseType;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.security.UserGroupInformation;
-import org.apache.hadoop.security.authentication.util.KerberosUtil;
 
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -59,10 +55,10 @@ public class JDBCComponent extends BaseComponent {
 
         try {
             if (StringUtils.isNotEmpty(principal)) {
-                Configuration configuration = new Configuration();
+              /*  Configuration configuration = new Configuration();
                 hdfsConfig.entrySet().stream().forEach(entry -> configuration.set(entry.getKey(), entry.getValue().toString()));
                 loginKerberos(configuration, principal, keytabPath, null);
-                jdbcUrl = concatHiveJdbcUrl(allConfig, jdbcUrl, principal);
+                jdbcUrl = concatHiveJdbcUrl(allConfig, jdbcUrl, principal);*/
             }
         } catch (Exception e) {
             LOG.error("{}", e);
@@ -125,7 +121,7 @@ public class JDBCComponent extends BaseComponent {
     }
 
 
-    public static String concatHiveJdbcUrl(Map<String, Object> conf, String jdbcUrl, String principal) throws Exception {
+   /* public static String concatHiveJdbcUrl(Map<String, Object> conf, String jdbcUrl, String principal) throws Exception {
 
         if (jdbcUrl.contains(";principal=")) {
             return jdbcUrl;
@@ -144,5 +140,5 @@ public class JDBCComponent extends BaseComponent {
         }
 
         return jdbcUrl;
-    }
+    }*/
 }

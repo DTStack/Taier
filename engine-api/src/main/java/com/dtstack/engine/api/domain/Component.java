@@ -24,14 +24,14 @@ public class Component extends BaseEntity {
     /**
      * kerberos文件名称
      */
-    private String kerberosFilName;
+    private String kerberosFileName;
 
-    public String getKerberosFilName() {
-        return kerberosFilName;
+    public String getKerberosFileName() {
+        return kerberosFileName;
     }
 
-    public void setKerberosFilName(String kerberosFilName) {
-        this.kerberosFilName = kerberosFilName;
+    public void setKerberosFileName(String kerberosFileName) {
+        this.kerberosFileName = kerberosFileName;
     }
 
     public String getComponentTemplate() {

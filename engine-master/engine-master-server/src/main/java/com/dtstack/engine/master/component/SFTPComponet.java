@@ -1,10 +1,5 @@
 package com.dtstack.engine.master.component;
 
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.SFTPHandler;
-import org.apache.commons.lang.StringUtils;
-
-import java.util.HashMap;
 import java.util.Map;
 
 public class SFTPComponet extends BaseComponent {
@@ -14,7 +9,7 @@ public class SFTPComponet extends BaseComponent {
 
     @Override
     public void testConnection() throws Exception {
-        Map<String, String> config = new HashMap<>(allConfig.size());
+        /*Map<String, String> config = new HashMap<>(allConfig.size());
         for (String key : allConfig.keySet()) {
             config.put(key, allConfig.get(key).toString());
         }
@@ -31,6 +26,6 @@ public class SFTPComponet extends BaseComponent {
             if (instance != null) {
                 instance.close();
             }
-        }
+        }*/
     }
 }

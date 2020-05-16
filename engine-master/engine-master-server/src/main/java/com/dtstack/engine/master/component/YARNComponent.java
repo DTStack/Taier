@@ -1,30 +1,18 @@
 package com.dtstack.engine.master.component;
 
-import com.dtstack.engine.api.domain.ClusterResourceDescription;
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.master.enums.KerberosKey;
-import com.dtstack.engine.master.utils.HadoopConf;
-import com.dtstack.engine.master.utils.HadoopConfTool;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.security.UserGroupInformation;
-import org.apache.hadoop.yarn.api.records.NodeReport;
-import org.apache.hadoop.yarn.api.records.NodeState;
-import org.apache.hadoop.yarn.api.records.QueueInfo;
-import org.apache.hadoop.yarn.client.api.YarnClient;
-import org.apache.hadoop.yarn.conf.YarnConfiguration;
-
-import java.security.PrivilegedExceptionAction;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 public class YARNComponent extends BaseComponent {
+    public YARNComponent(Map<String, Object> allConfig) {
+        super(allConfig);
+    }
 
-    private List<NodeDescription> clusterNodes = new ArrayList<>();
+    @Override
+    public void testConnection() throws Exception {
+
+    }
+
+    /*private List<NodeDescription> clusterNodes = new ArrayList<>();
 
     private ClusterResourceDescription resourceDescription;
 
@@ -218,6 +206,6 @@ public class YARNComponent extends BaseComponent {
         public void setUsedVirtualCores(int usedVirtualCores) {
             this.usedVirtualCores = usedVirtualCores;
         }
-    }
+    }*/
 
 }

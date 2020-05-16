@@ -5,6 +5,7 @@ import com.dtstack.engine.master.config.MasterServerBeanConfig;
 import com.dtstack.engine.master.config.MybatisConfig;
 import com.dtstack.engine.master.config.ThreadPoolConfig;
 import com.dtstack.engine.master.env.EnvironmentContext;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 

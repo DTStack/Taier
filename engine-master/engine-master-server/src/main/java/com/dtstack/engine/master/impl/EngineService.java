@@ -288,14 +288,14 @@ public class EngineService {
             Engine engine = engineDao.getOne(engineId);
             Map<String, Object> kerberosConfig = componentService.fillKerberosConfig(JSONObject.toJSONString(yarnConfig), engine.getClusterId());
             YARNComponent yarnComponent = (YARNComponent) ComponentFactory.getComponent(kerberosConfig, EComponentType.YARN);
-            yarnComponent.initClusterResource(true);
+            /*yarnComponent.initClusterResource(true);
             ClusterResourceDescription description = yarnComponent.getResourceDescription();
 
             if(updateQueue){
                 queueService.updateQueue(engineId, description);
             }
 
-            updateResource(engineId, description);
+            updateResource(engineId, description);*/
         } catch (Exception e){
             LOGGER.error("更新引擎资源异常: ", e);
         }

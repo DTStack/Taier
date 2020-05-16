@@ -1,14 +1,13 @@
 package com.dtstack.engine.master.utils;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.schedule.common.kerberos.KerberosConfigVerify;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.impl.ClusterService;
+import com.dtstack.schedule.common.kerberos.KerberosConfigVerify;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,8 +50,8 @@ public class HadoopConf {
     static {
         try {
             String dir = StringUtils.isNotBlank(HADOOP_CONF_DIR) ? HADOOP_CONF_DIR : HADOOP_CONFIGE;
-            defaultConfiguration.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
-            defaultConfiguration.set("fs.hdfs.impl.disable.cache", "true");
+//            defaultConfiguration.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
+//            defaultConfiguration.set("fs.hdfs.impl.disable.cache", "true");
             File[] xmlFileList = new File(dir).listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {

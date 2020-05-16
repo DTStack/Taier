@@ -1,12 +1,5 @@
 package com.dtstack.engine.master.component;
 
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.master.enums.KerberosKey;
-import com.dtstack.engine.master.utils.HadoopConf;
-import com.dtstack.engine.master.utils.HdfsOperator;
-import org.apache.commons.collections.MapUtils;
-import org.apache.hadoop.conf.Configuration;
-
 import java.util.Map;
 
 public class HDFSComponent extends BaseComponent {
@@ -17,7 +10,7 @@ public class HDFSComponent extends BaseComponent {
 
     @Override
     public void testConnection() throws Exception {
-        HadoopConf hadoopConf = new HadoopConf();
+        /*HadoopConf hadoopConf = new HadoopConf();
         Configuration configuration = hadoopConf.getHadoopConf(allConfig);
 
         String principal = MapUtils.getString(allConfig, KerberosKey.PRINCIPAL.getKey());
@@ -38,7 +31,7 @@ public class HDFSComponent extends BaseComponent {
             } catch (Exception e){
                 LOG.warn("Close hadoop fileSystem error:{}", e.getMessage());
             }
-        }
+        }*/
     }
 
 }
