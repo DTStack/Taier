@@ -9,7 +9,9 @@ import com.dtstack.engine.common.JobParam;
 import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -21,6 +23,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -30,6 +34,9 @@ import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
+import org.apache.hadoop.yarn.api.records.NodeReport;
+import org.apache.hadoop.yarn.api.records.NodeState;
+import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.exceptions.YarnException;
@@ -41,9 +48,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -353,5 +362,72 @@ public class HadoopClient extends AbstractClient {
             }
         }
         cacheFile.remove(jobClient.getTaskId());
+    }
+
+
+    /**
+     * 测试联通性 yarn需要返回集群队列信息
+     * @param pluginInfo
+     * @return
+     */
+    @Override
+    public ComponentTestResult testConnect(String pluginInfo) {
+        HadoopConf hadoopConf = null;
+        YarnClient testYarnClient = null;
+        ComponentTestResult testResult = new ComponentTestResult();
+        testResult.setResult(false);
+        try {
+            Config allConfig = PublicUtil.jsonStrToObject(pluginInfo, Config.class);
+            hadoopConf = new HadoopConf();
+            hadoopConf.initYarnConf(allConfig.getYarnConf());
+            if (allConfig.isOpenKerberos()) {
+                initSecurity(allConfig);
+            }
+            testYarnClient = YarnClient.createYarnClient();
+            testYarnClient.init(hadoopConf.getYarnConfiguration());
+            testYarnClient.start();
+            List<NodeReport> nodes = testYarnClient.getNodeReports(NodeState.RUNNING);
+            int totalMemory = 0;
+            int totalCores = 0;
+            for (NodeReport rep : nodes) {
+                totalMemory += rep.getCapability().getMemory();
+                totalCores += rep.getCapability().getVirtualCores();
+            }
+            List<ComponentTestResult.QueueDescription> descriptions = getQueueDescription(null, testYarnClient.getRootQueueInfos());
+            testResult.setClusterResourceDescription(new ComponentTestResult.ClusterResourceDescription(nodes.size(), totalMemory, totalCores, descriptions));
+            testResult.setResult(true);
+        } catch (Exception e) {
+            LOG.error("test yarn connect error", e);
+            testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
+        } finally {
+            if (testYarnClient != null) {
+                try {
+                    testYarnClient.close();
+                } catch (Exception e) {
+                    LOG.warn("An exception occurred while closing the yarnClient: ", e);
+                }
+            }
+        }
+        return testResult;
+    }
+
+    private List<ComponentTestResult.QueueDescription> getQueueDescription(String parentPath, List<QueueInfo> queueInfos) {
+        List<ComponentTestResult.QueueDescription> descriptions = new ArrayList<>(queueInfos.size());
+        parentPath = StringUtils.isBlank(parentPath) ? "" : parentPath + ".";
+        for (QueueInfo queueInfo : queueInfos) {
+            String queuePath = parentPath + queueInfo.getQueueName();
+            ComponentTestResult.QueueDescription queueDescription = new ComponentTestResult.QueueDescription();
+            queueDescription.setQueueName(queueInfo.getQueueName());
+            queueDescription.setCapacity(String.valueOf(queueInfo.getCapacity()));
+            queueDescription.setMaximumCapacity(String.valueOf(queueInfo.getMaximumCapacity()));
+            queueDescription.setQueueState(queueInfo.getQueueState().name());
+            queueDescription.setQueuePath(queuePath);
+            if (CollectionUtils.isNotEmpty(queueInfo.getChildQueues())) {
+                List<ComponentTestResult.QueueDescription> childQueues = getQueueDescription(queueInfo.getQueueName(), queueInfo.getChildQueues());
+                queueDescription.setChildQueues(childQueues);
+            }
+            descriptions.add(queueDescription);
+        }
+        return descriptions;
     }
 }

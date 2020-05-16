@@ -187,8 +187,6 @@ public abstract class AbstractRdbsClient extends AbstractClient {
                 res = statement.getResultSet();
                 int columns = res.getMetaData().getColumnCount();
                 List<Object> cloumnName = Lists.newArrayList();
-                int timeStamp = 0;
-                SimpleDateFormat dateFormat = null;
 
                 for (int i = 1; i <= columns; ++i) {
                     String name = res.getMetaData().getColumnName(i);
@@ -204,18 +202,14 @@ public abstract class AbstractRdbsClient extends AbstractClient {
                     List<Object> objects = Lists.newArrayList();
 
                     for (int i = 1; i <= columns; ++i) {
-                        if (i == timeStamp && Objects.nonNull(dateFormat)) {
-                            objects.add(dateFormat.format(res.getObject(i)));
-                        } else {
-                            objects.add(res.getObject(i));
-                        }
+                        objects.add(res.getObject(i));
                     }
 
                     result.add(objects);
                 }
             }
         } catch (Exception e) {
-            LOG.error("execue sql {} error",sql,e);
+            LOG.error("execue sql {} error", sql, e);
         } finally {
             try {
                 if (res != null) {
@@ -226,8 +220,9 @@ public abstract class AbstractRdbsClient extends AbstractClient {
                     statement.close();
                 }
 
-                if (null != conn){
-                    conn.close();;
+                if (null != conn) {
+                    conn.close();
+                    ;
                 }
             } catch (Throwable var18) {
                 LOG.error("", var18);

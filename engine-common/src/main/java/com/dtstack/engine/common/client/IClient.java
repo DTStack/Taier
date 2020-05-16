@@ -43,4 +43,6 @@ public interface IClient {
     ComponentTestResult testConnect(String pluginInfo);
 
     List<List<Object>> executeQuery(String pluginInfo, String sql,String database);
+
+	String uploadStringToHdfs(String pluginInfo,String bytes, String hdfsPath);
 }

@@ -2,31 +2,27 @@ package com.dtstack.engine.master.job.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
-import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskParamShade;
 import com.dtstack.engine.common.constrant.TaskConstant;
-import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.RetryUtil;
-import com.dtstack.engine.dao.EngineTenantDao;
-import com.dtstack.engine.dao.KerberosDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
+import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ActionService;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ComponentService;
-import com.dtstack.engine.master.impl.EngineService;
 import com.dtstack.engine.master.job.IJobStartTrigger;
 import com.dtstack.engine.master.scheduler.JobParamReplace;
 import com.dtstack.engine.master.utils.DBUtil;
-import com.dtstack.engine.master.utils.HadoopConf;
-import com.dtstack.engine.master.utils.HadoopConfTool;
-import com.dtstack.engine.master.utils.HdfsOperator;
 import com.dtstack.schedule.common.enums.DataBaseType;
+import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.schedule.common.enums.ETableType;
 import com.dtstack.schedule.common.enums.ScheduleEngineType;
@@ -40,9 +36,6 @@ import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.security.UserGroupInformation;
-import org.apache.ibatis.annotations.Param;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
@@ -51,15 +44,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
-import java.security.PrivilegedExceptionAction;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.*;
-import java.util.function.Supplier;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
 
 /**
  * @author yuebai
@@ -77,31 +72,16 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
     private ScheduleJobDao scheduleJobDao;
 
     @Autowired
-    private ActionService actionService;
-
-    @Autowired
     private ClusterService clusterService;
 
     @Autowired
     private EnvironmentContext environmentContext;
 
     @Autowired
-    private HiveService hiveService;
-
-    @Autowired
-    private ImpalaService impalaService;
-
-    @Autowired
     private ComponentService componentService;
 
     @Autowired
-    private KerberosDao kerberosDao;
-
-    @Autowired
-    private EngineService engineSerivce;
-
-    @Autowired
-    private EngineTenantDao engineTenantDao;
+    private WorkerOperator workerOperator;
 
     private DateTimeFormatter dayFormatterAll = DateTimeFormat.forPattern("yyyyMMddHHmmss");
 
@@ -145,21 +125,18 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
             //替换系统参数
             job = jobParamReplace.paramReplace(job, taskParamsToReplace, scheduleJob.getCycTime());
 
-            Integer tableType = (Integer) actionParam.getOrDefault("tableType", ETableType.HIVE.getType());
+            Integer sourceType = (Integer) actionParam.getOrDefault("dataSourceType", DataSourceType.HIVE.getVal());
             String engineIdentity = (String) actionParam.get("engineIdentity");
             // 获取脏数据存储路径
             try {
-                job = this.replaceTablePath(true, job, taskShade.getName(), tableType, engineIdentity,taskShade.getDtuicTenantId());
+                job = this.replaceTablePath(true, job, taskShade.getName(), sourceType, engineIdentity,taskShade.getDtuicTenantId());
             } catch (Exception e) {
                 LOG.error("create dirty table  partition error {}", scheduleJob.getJobId(), e);
             }
 
-            // 创建分区
             try {
-                job = this.createPartition(taskShade.getDtuicTenantId(), job, tableType, actionParam);
-                if (ETableType.IMPALA.getType() == tableType) {
-                    job = this.createPartitionImpala(taskShade.getDtuicTenantId(), job, actionParam);
-                }
+                // 创建数据同步目标表分区
+                job = this.createPartition(taskShade.getDtuicTenantId(), job, sourceType, actionParam);
             } catch (Exception e) {
                 LOG.error("create partition error {}", scheduleJob.getJobId(), e);
                 throw e;
@@ -266,11 +243,25 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
                 String alterSql = String.format(ADD_PART_TEMP, tableName, taskName, time);
                 String location = "";
                 if (ETableType.IMPALA.getType() == tableType) {
-                    impalaService.executeQuery(dtuicTenantId, db, alterSql);
-                    location = impalaService.getTableLocation(dtuicTenantId, db, tableName);
+                    String jdbcInfo = clusterService.impalaInfo(dtuicTenantId, true);
+                    JSONObject jdbcInfoObject = JSONObject.parseObject(jdbcInfo);
+                    JSONObject pluginInfo = new JSONObject();
+                    pluginInfo.put("dbUrl", jdbcInfoObject.getString("jdbcUrl"));
+                    pluginInfo.put("userName", jdbcInfoObject.getString("username"));
+                    pluginInfo.put("pwd", jdbcInfoObject.getString("password"));
+                    pluginInfo.put("driverClassName", DataBaseType.Impala.getDriverClassName());
+                    workerOperator.executeQuery(DataBaseType.Impala.getTypeName(), pluginInfo.toJSONString(), alterSql, db);
+                    location = this.getTableLocation(pluginInfo, db, tableName, String.format("DESCRIBE formatted %s", tableName));
                 } else if (ETableType.HIVE.getType() == tableType) {
-                    hiveService.executeQuery(dtuicTenantId, db, alterSql);
-                    location =  hiveService.getTableLocation(dtuicTenantId,db,tableName);
+                    String jdbcInfo = clusterService.hiveInfo(dtuicTenantId, true);
+                    JSONObject jdbcInfoObject = JSONObject.parseObject(jdbcInfo);
+                    JSONObject pluginInfo = new JSONObject();
+                    pluginInfo.put("dbUrl", jdbcInfoObject.getString("jdbcUrl"));
+                    pluginInfo.put("userName", jdbcInfoObject.getString("username"));
+                    pluginInfo.put("pwd", jdbcInfoObject.getString("password"));
+                    pluginInfo.put("driverClassName", DataBaseType.HIVE.getDriverClassName());
+                    workerOperator.executeQuery(DataBaseType.HIVE.getTypeName(), pluginInfo.toJSONString(), alterSql, db);
+                    location = this.getTableLocation(pluginInfo, db, tableName, String.format("desc formatted %s", tableName));
                 }
                 String partName = String.format("task_name=%s/time=%s", taskName, time);
                 path = location + "/" + partName;
@@ -284,51 +275,25 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
         return sqlObject.toJSONString();
     }
 
+    public String getTableLocation(JSONObject pluginInfo, String dbName, String tableName,String sql) throws Exception {
+        String location = null;
+        List<List<Object>> result = workerOperator.executeQuery(DataBaseType.Impala.getTypeName(),pluginInfo.toJSONString(), sql,dbName);
+        Iterator var6 = result.iterator();
 
-
-
-
-    private String createPartitionImpala(Long dtuicTenantId, String job, Map<String, Object> actionParam) {
-        String name = (String) actionParam.getOrDefault("name", "");
-        String engineIdentity = (String) actionParam.getOrDefault("engineIdentity", "");
-        if (StringUtils.isBlank(name) || StringUtils.isBlank(engineIdentity)) {
-            return job;
-        }
-        String tableName = "dirty_" + name;
-        tableName = String.format("%s.%s", engineIdentity, tableName);
-        long time = System.currentTimeMillis();
-        String alterSql = String.format(ADD_PART_TEMP, tableName, name, time);
-        try {
-            impalaService.executeQuery(dtuicTenantId, engineIdentity, alterSql);
-        } catch (Exception e) {
-            LOG.error("createPartitionImpala error {} ", alterSql, e);
-            return job;
-        }
-        LOG.info("alterSql {}", alterSql);
-        //job -> setting -> path 第一次提交是当天到  之后得每次执行都得创建当天分区 并修改对应path
-        JSONObject jobJSON = JSONObject.parseObject(job);
-        JSONObject jobObj = jobJSON.getJSONObject("job");
-        if (Objects.nonNull(jobObj)) {
-            JSONObject setting = jobObj.getJSONObject("setting");
-            if (Objects.nonNull(setting)) {
-                JSONObject dirty = setting.getJSONObject("dirty");
-                if (Objects.nonNull(dirty)) {
-                    String path = dirty.getString("path");
-                    //替换时间
-                    String substring = path.substring(0, path.lastIndexOf("/"));
-                    dirty.put("path", String.format("%s/time=%s", substring, time));
-                    return jobJSON.toJSONString();
-                }
+        while(var6.hasNext()) {
+            List<Object> objects = (List)var6.next();
+            if (objects.get(0).toString().contains("Location:")) {
+                location = objects.get(1).toString();
             }
         }
-        return job;
-    }
 
+        return location;
+    }
 
     /**
      * 创建hive的分区
      */
-    public String createPartition(Long dtuicTenantId, String job,Integer tableType,Map<String, Object> actionParam) {
+    public String createPartition(Long dtuicTenantId, String job,Integer sourceType,Map<String, Object> actionParam) {
         JSONObject jobJSON = JSONObject.parseObject(job);
         JSONObject jobObj = jobJSON.getJSONObject("job");
         JSONObject parameter = jobObj.getJSONArray("content").getJSONObject(0)
@@ -371,20 +336,16 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
             try {
                 RetryUtil.executeWithRetry(() -> {
                     LOG.info("create partition dtuicTenantId {} {}", dtuicTenantId, sql);
-                    if (ETableType.IMPALA.getType() == tableType) {
-                        Connection dbConnect = null;
-                        try {
-                            dbConnect = DBUtil.getConnection(DataBaseType.Impala, jdbcUrl, username, password);
-                            boolean success = DBUtil.executeSqlWithoutResultSet(dbConnect, sql);
-                            if (!success) {
-                                throw new RdosDefineException("");
-                            }
-                        } finally {
-                            DBUtil.closeDBResources(null, null, dbConnect);
-                        }
-                        return null;
-                    }else if (ETableType.HIVE.getType() == tableType) {
-                        hiveService.executeQuery(dtuicTenantId, jdbcUrl, username, password, sql);
+                    Connection dbConnect = null;
+                    try {
+                        JSONObject pluginInfo = new JSONObject();
+                        pluginInfo.put("dbUrl",jdbcUrl);
+                        pluginInfo.put("userName",username);
+                        pluginInfo.put("pwd",password);
+                        pluginInfo.put("driverClassName", DataSourceType.getBaseType(sourceType).getDriverClassName());
+                        workerOperator.executeQuery(DataSourceType.getBaseType(sourceType).getTypeName(),pluginInfo.toJSONString(),sql,(String) actionParam.get("engineIdentity"));
+                    } finally {
+                        DBUtil.closeDBResources(null, null, dbConnect);
                     }
                     cleanFileName(parameter);
                     return null;
@@ -447,38 +408,11 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
         return null;
     }
 
-
-
-
     public void cleanFileName(JSONObject parameter) {
         String jobPartition = parameter.getString("fileName").replaceAll("'", "").replaceAll("\"", "").replaceAll(" ", "");
         parameter.put("fileName", jobPartition);
     }
 
-    public JSONObject getLogInfoFromEngine(@Param("jobId") String jobId) {
-        try {
-            String log = actionService.log(jobId, ComputeType.BATCH.getType());
-            return JSONObject.parseObject(log);
-        } catch (Exception e) {
-            LOG.error("Exception when getLogInfoFromEngine by jobId: {} and computeType: {}", jobId, ComputeType.BATCH.getType(), e);
-        }
-        return null;
-    }
-
-
-    public String getTableName(String table) {
-        String simpleTableName = table;
-        if (StringUtils.isNotEmpty(table)) {
-            String[] tablePart = table.split("\\.");
-            if (tablePart.length == 1) {
-                simpleTableName = tablePart[0];
-            } else if (tablePart.length == 2) {
-                simpleTableName = tablePart[1];
-            }
-        }
-
-        return simpleTableName;
-    }
 
     private String removeIncreConf(String jobContent) {
         JSONObject jobJson = JSONObject.parseObject(jobContent);
@@ -562,24 +496,21 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
                 if (taskType.equals(EScheduleJobType.SHELL.getVal())) {
                     content = content.replaceAll("\r\n", System.getProperty("line.separator"));
                 }
-                Configuration configuration = HadoopConf.getConfiguration(dtuicTenantId);
-                if ("true".equals(configuration.get("hadoop.security.authorization"))) {
-                    //kerberos 认证
-                    loginKerberos(dtuicTenantId, content, hdfsPath, configuration);
-                } else {
-                    HdfsOperator.uploadInputStreamToHdfs(HadoopConf.getConfiguration(dtuicTenantId), content.getBytes(), hdfsPath);
-                }
+
+                Map<String, Object> hadoopConf = clusterService.getConfig(dtuicTenantId, "hadoopConf");
+                JSONObject pluginInfo = new JSONObject();
+                pluginInfo.put("hadoopConf",hadoopConf);
+                return workerOperator.uploadStringToHdfs("spark-yarn-hadoop2", pluginInfo.toString(), content, hdfsPath);
 
             }
         } catch (Exception e) {
             LOG.error("", e);
             throw new RdosDefineException("Update task to HDFS failure:" + e.getMessage());
         }
-
-        return HadoopConf.getDefaultFs(dtuicTenantId) + hdfsPath;
+        throw new RdosDefineException("Update task to HDFS failure:");
     }
 
-    private void loginKerberos(Long dtuicTenantId, String content, String hdfsPath, Configuration configuration) {
+  /*  private void loginKerberos(Long dtuicTenantId, String content, String hdfsPath, Configuration configuration) {
         EngineTenant engineTenant = engineTenantDao.getByTenantIdAndEngineType(dtuicTenantId, MultiEngineType.HADOOP.getType());
         if(Objects.isNull(engineTenant)){
             LOG.info("dtuicTenantId {} engineTenant is null", dtuicTenantId);
@@ -630,5 +561,5 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
             LOG.error("{}",keytabPath, e);
             throw new RdosDefineException("kerberos校验失败, Message:" + e.getMessage());
         }
-    }
+    }*/
 }

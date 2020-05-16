@@ -2,17 +2,20 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.domain.Component;
+import com.dtstack.engine.api.domain.Engine;
+import com.dtstack.engine.api.domain.EngineTenant;
 import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.dao.EngineDao;
 import com.dtstack.engine.dao.EngineTenantDao;
 import com.dtstack.engine.dao.QueueDao;
 import com.dtstack.engine.dao.TenantDao;
-import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.dto.ClusterDTO;
 import com.dtstack.engine.api.dto.EngineDTO;
@@ -302,7 +305,7 @@ public class EngineService {
     }
 
     @Forbidden
-    public void updateResource(Long engineId, ClusterResourceDescription description){
+    public void updateResource(Long engineId, ComponentTestResult.ClusterResourceDescription description){
         Engine engine = engineDao.getOne(engineId);
         engine.setTotalCore(description.getTotalCores());
         engine.setTotalMemory(description.getTotalMemory());

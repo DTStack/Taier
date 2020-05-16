@@ -28,6 +28,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
@@ -42,6 +46,7 @@ import org.apache.spark.deploy.yarn.ClientArguments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
@@ -730,5 +735,35 @@ public class SparkYarnClient extends AbstractClient {
             }
         }
         return yarnClient;
+    }
+
+    /**
+     * 上传文件到hdfs中
+     * @param pluginInfo
+     * @param bytes
+     * @param hdfsPath 文件路径
+     * @return
+     */
+    public String uploadStringToHdfs(String pluginInfo, String bytes, String hdfsPath) {
+        try {
+            SparkYarnConfig uploadConfig = PublicUtil.jsonStrToObject(pluginInfo, SparkYarnConfig.class);
+            if (uploadConfig.isOpenKerberos()) {
+                KerberosUtils.login(uploadConfig);
+            }
+            ByteArrayInputStream is = new ByteArrayInputStream(bytes.getBytes());
+            HadoopConf uploadConf = new HadoopConf();
+            uploadConf.initHadoopConf(uploadConfig.getHadoopConf());
+            Configuration configuration = uploadConf.getConfiguration();
+            FileSystem fs = FileSystem.get(configuration);
+            Path destP = new Path(hdfsPath);
+            FSDataOutputStream os = fs.create(destP);
+            IOUtils.copyBytes(is, os, 4096, true);
+            if (logger.isDebugEnabled()) {
+                logger.debug("submit file {} to hdfs success.", hdfsPath);
+            }
+            return uploadConf.getDefaultFs() + hdfsPath;
+        } catch (Exception e) {
+            throw new RdosDefineException("上传文件失败", e);
+        }
     }
 }

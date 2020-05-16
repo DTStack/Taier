@@ -1,10 +1,10 @@
 package com.dtstack.engine.master.impl;
 
+import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.dao.QueueDao;
-import com.dtstack.engine.api.domain.ClusterResourceDescription;
-import com.dtstack.engine.api.domain.Queue;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,7 +38,7 @@ public class QueueService {
     }
 
     @Forbidden
-    public void updateQueue(Long engineId, ClusterResourceDescription description){
+    public void updateQueue(Long engineId, ComponentTestResult.ClusterResourceDescription description){
         List<Queue> queues = queueDao.listByEngineId(engineId);
         if(CollectionUtils.isEmpty(queues)){
             newAddQueue(engineId, ROOT_QUEUE_ID, description.getQueueDescriptions());
@@ -58,9 +58,9 @@ public class QueueService {
         }
     }
 
-    private void newAddQueue(Long engineId, Long parentQueueId, List<ClusterResourceDescription.QueueDescription> descriptions) {
+    private void newAddQueue(Long engineId, Long parentQueueId, List<ComponentTestResult.QueueDescription> descriptions) {
         if (CollectionUtils.isNotEmpty(descriptions)) {
-            for (ClusterResourceDescription.QueueDescription queueDescription : descriptions) {
+            for (ComponentTestResult.QueueDescription queueDescription : descriptions) {
                 Queue queue = new Queue();
                 queue.setQueueName(queueDescription.getQueueName());
                 queue.setEngineId(engineId);
@@ -78,10 +78,10 @@ public class QueueService {
         }
     }
 
-    private void updateAddQueue(Map<String, Queue> existQueueMap, Long engineId, Long parentQueueId, List<ClusterResourceDescription.QueueDescription> descriptions) {
+    private void updateAddQueue(Map<String, Queue> existQueueMap, Long engineId, Long parentQueueId, List<ComponentTestResult.QueueDescription> descriptions) {
         //不会有空队列的
         if (CollectionUtils.isNotEmpty(descriptions)) {
-            for (ClusterResourceDescription.QueueDescription queueDescription : descriptions) {
+            for (ComponentTestResult.QueueDescription queueDescription : descriptions) {
                 Queue queue = new Queue();
                 queue.setQueueName(queueDescription.getQueueName());
                 queue.setEngineId(engineId);

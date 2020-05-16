@@ -1,38 +1,38 @@
 package com.dtstack.engine.flink;
 
-import com.dtstack.engine.base.config.YamlConfigParser;
-import com.dtstack.engine.common.client.AbstractClient;
-import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.http.PoolHttpClient;
-import com.dtstack.engine.common.pojo.ClientTemplate;
-import com.dtstack.engine.common.util.DtStringUtil;
-import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.flink.factory.PerJobClientFactory;
-import com.dtstack.engine.flink.plugininfo.SqlPluginInfo;
-import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
-import com.dtstack.engine.flink.resource.FlinkPerJobResourceInfo;
-import com.dtstack.engine.flink.resource.FlinkYarnSeesionResourceInfo;
-import com.dtstack.engine.flink.util.FileUtil;
-import com.dtstack.engine.flink.util.FlinkRestParseUtil;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.JobParam;
-import com.dtstack.engine.worker.enums.ClassLoaderType;
+import com.dtstack.engine.common.client.AbstractClient;
+import com.dtstack.engine.common.client.config.YamlConfigParser;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.ExceptionUtil;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.http.PoolHttpClient;
+import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.util.DtStringUtil;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.constrant.ExceptionInfoConstrant;
 import com.dtstack.engine.flink.enums.FlinkYarnMode;
+import com.dtstack.engine.flink.factory.PerJobClientFactory;
 import com.dtstack.engine.flink.parser.PrepareOperator;
+import com.dtstack.engine.flink.plugininfo.SqlPluginInfo;
+import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
+import com.dtstack.engine.flink.resource.FlinkPerJobResourceInfo;
+import com.dtstack.engine.flink.resource.FlinkYarnSeesionResourceInfo;
 import com.dtstack.engine.flink.util.FLinkConfUtil;
+import com.dtstack.engine.flink.util.FileUtil;
+import com.dtstack.engine.flink.util.FlinkRestParseUtil;
 import com.dtstack.engine.flink.util.FlinkUtil;
 import com.dtstack.engine.flink.util.HadoopConf;
+import com.dtstack.engine.worker.enums.ClassLoaderType;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -76,14 +76,19 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import static java.security.AccessController.doPrivileged;
 
 /**
- *
  * Date: 2017/2/20
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 public class FlinkClient extends AbstractClient {
@@ -153,7 +158,6 @@ public class FlinkClient extends AbstractClient {
 
         flinkClusterClientManager = FlinkClusterClientManager.createWithInit(flinkClientBuilder);
     }
-
 
 
     @Override
@@ -607,7 +611,7 @@ public class FlinkClient extends AbstractClient {
     }
 
     /**
-     *  perjob模式下任务完成后进入jobHistory会有一定的时间
+     * perjob模式下任务完成后进入jobHistory会有一定的时间
      */
     private String getExceptionInfo(String exceptPath, String reqURL) {
         String exceptionInfo = "";
@@ -776,7 +780,7 @@ public class FlinkClient extends AbstractClient {
     }
 
     /**
-     *  shipfile模式下，插件包在flinksession启动时,已经全部上传
+     * shipfile模式下，插件包在flinksession启动时,已经全部上传
      * @param packagedProgram
      */
     private void clearClassPathShipfileLoadMode(PackagedProgram packagedProgram) {
@@ -797,4 +801,5 @@ public class FlinkClient extends AbstractClient {
         jobHistory = String.format("http://%s:%s", webAddress, port);
         return jobHistory;
     }
+
 }

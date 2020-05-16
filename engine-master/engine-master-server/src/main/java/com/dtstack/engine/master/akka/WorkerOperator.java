@@ -200,6 +200,10 @@ public class WorkerOperator {
         return (List<List<Object>>)masterServer.sendMessage(new MessageExecuteQuery(engineType,pluginInfo,sql,database));
     }
 
+    public String uploadStringToHdfs(String engineType,String pluginInfo,String bytes, String hdfsPath) throws Exception{
+        return (String)masterServer.sendMessage(new MessageUploadInfo(engineType,pluginInfo,bytes,hdfsPath));
+    }
+
     private <M> M callbackAndReset(JobClient jobClient, CallBack<M> classLoaderCallBack) throws Exception {
         JobClientCallBack callBack = jobClient.getJobCallBack();
         M result = null;

@@ -156,4 +156,9 @@ public class ClientOperator {
         IClient clusterClient = clientCache.getDefaultPlugin(engineType);
         return clusterClient.executeQuery(pluginInfo,sql,database);
     }
+
+    public String uploadStringToHdfs(String engineType,String pluginInfo,String bytes, String hdfsPath){
+        IClient client = clientCache.getDefaultPlugin(engineType);
+        return client.uploadStringToHdfs(pluginInfo,bytes,hdfsPath);
+    }
 }

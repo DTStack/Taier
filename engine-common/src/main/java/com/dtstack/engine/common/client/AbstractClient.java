@@ -125,6 +125,11 @@ public abstract class AbstractClient implements IClient{
         return null;
     }
 
+    @Override
+    public String uploadStringToHdfs(String pluginInfo, String bytes, String hdfsPath) {
+        return null;
+    }
+
     /**
      * 加载各个组件的默认值
      * 解析yml文件转换为前端渲染格式
