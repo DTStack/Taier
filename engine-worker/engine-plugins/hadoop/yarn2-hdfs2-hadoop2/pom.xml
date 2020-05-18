@@ -10,11 +10,13 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>plugins.yarn2-hdfs2-hadoop2</artifactId>
+    <artifactId>plugins.hadoop.yarn2-hdfs2-hadoop2</artifactId>
+    <name>plugins.hadoop.yarn2-hdfs2-hadoop2</name>
     <packaging>jar</packaging>
 
     <properties>
-        <jar.name>hadoop2</jar.name>
+        <!-- 插件包所在文件夹名称 -->
+        <pluginDir.name>yarn2-hdfs2-hadoop2</pluginDir.name>
     </properties>
 
     <dependencies>
@@ -166,13 +168,13 @@
                         <configuration>
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
-                                <copy todir="${basedir}/target/../../../../../pluginLibs/hadoop2/"
-                                      file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
+                                      tofile="${basedir}/target/${pluginDir.name}-${git.branch}.jar" />
+                                <copy todir="${basedir}/target/../../../../../pluginLibs/${pluginDir.name}/"
+                                      file="${basedir}/target/${pluginDir.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/target/../../../../../pluginLibs/hadoop2/"
-                                             includes="${jar.name}-*.jar"
-                                             excludes="${jar.name}-${git.branch}.jar"/>
+                                    <fileset dir="${basedir}/target/../../../../../pluginLibs/${pluginDir.name}/"
+                                             includes="${pluginDir.name}-*.jar"
+                                             excludes="${pluginDir.name}-${git.branch}.jar"/>
                                 </delete>
                             </tasks>
                         </configuration>

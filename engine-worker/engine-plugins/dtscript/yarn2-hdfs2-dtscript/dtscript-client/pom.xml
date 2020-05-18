@@ -15,7 +15,8 @@
 
 
     <properties>
-        <jar.name>yarn2-hdfs2-dtscript-client</jar.name>
+        <jar.name>dtscript-client</jar.name>
+        <pluginDir.name>yarn2-hdfs2-dtscript</pluginDir.name>
     </properties>
 
     <dependencies>
@@ -139,10 +140,10 @@
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
                                       tofile="${basedir}/target/${jar.name}-${git.branch}.jar"/>
-                                <copy todir="${basedir}/target/../../../../../../pluginLibs/dtscript-hadoop2/"
+                                <copy todir="${basedir}/target/../../../../../../pluginLibs/${pluginDir.name}/"
                                       file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/target/../../../../../../pluginLibs/dtscript-hadoop2/"
+                                    <fileset dir="${basedir}/target/../../../../../../pluginLibs/${pluginDir.name}/"
                                              includes="${jar.name}-*.jar"
                                              excludes="${jar.name}-${git.branch}.jar"/>
                                 </delete>

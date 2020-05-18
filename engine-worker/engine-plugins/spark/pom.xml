@@ -19,6 +19,7 @@
         <module>yarn2-hdfs2-spark210-core</module>
         <module>yarn2-hdfs2-spark210</module>
         <module>yarn3-hdfs3-spark210</module>
+        <module>yarn3-hdfs3-spark240</module>
     </modules>
 
     <build>

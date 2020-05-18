@@ -14,7 +14,8 @@
     <name>plugins.yarn2-hdfs2-spark210.spark-sql-proxy</name>
 
     <properties>
-        <jar.name>spark-yarn-hadoop2-sql-proxy</jar.name>
+        <jar.name>spark-sql-proxy</jar.name>
+        <pluginDir.name>yarn2-hdfs2-spark210</pluginDir.name>
         <carbondata.version>1.5.0-SNAPSHOT</carbondata.version>
     </properties>
 
@@ -106,10 +107,10 @@
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
                                       tofile="${basedir}/target/${jar.name}-${git.branch}.jar"/>
-                                <copy todir="${basedir}/target/../../../../../../pluginLibs/spark-yarn-hadoop2/"
+                                <copy todir="${basedir}/target/../../../../../../pluginLibs/${pluginDir.name}/"
                                       file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/target/../../../../../../pluginLibs/spark-yarn-hadoop2/"
+                                    <fileset dir="${basedir}/target/../../../../../../pluginLibs/${pluginDir.name}/"
                                              includes="${jar.name}-*.jar"
                                              excludes="${jar.name}-${git.branch}.jar"/>
                                 </delete>
