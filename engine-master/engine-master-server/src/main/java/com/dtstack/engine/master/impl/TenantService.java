@@ -197,7 +197,7 @@ public class TenantService {
     }
 
     private void checkClusterCanUse(Long clusterId) throws Exception {
-        ClusterVO clusterVO = clusterService.getCluster(clusterId, true);
+        ClusterVO clusterVO = clusterService.getCluster(clusterId, true, true);
         JSONObject jsonObject = clusterService.buildClusterConfig(clusterVO);
         TestConnectionVO testConnectionVO = componentService.testConnections(jsonObject.toJSONString(), clusterId, null);
         boolean canUse = true;
