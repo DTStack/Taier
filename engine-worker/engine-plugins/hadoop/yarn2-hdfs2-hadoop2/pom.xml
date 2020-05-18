@@ -10,7 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>plugins.hadoop2</artifactId>
+    <artifactId>plugins.yarn2-hdfs2-hadoop2</artifactId>
     <packaging>jar</packaging>
 
     <properties>
@@ -20,7 +20,7 @@
     <dependencies>
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>plugins.hadoop-core</artifactId>
+            <artifactId>plugins.hadoop.yarn2-hdfs2-hadoop2-core</artifactId>
             <version>1.0.0</version>
         </dependency>
 

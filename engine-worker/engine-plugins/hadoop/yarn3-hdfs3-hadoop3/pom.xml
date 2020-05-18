@@ -28,7 +28,7 @@
 
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>plugins.hadoop-core</artifactId>
+            <artifactId>plugins.yarn2-hdfs2-hadoop2-core</artifactId>
             <version>1.0.0</version>
         </dependency>
 

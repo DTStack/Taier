@@ -1,6 +1,5 @@
 package com.dtstack.engine.flink;
 
-import com.dtstack.engine.common.client.config.YamlConfigParser;
 import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
@@ -41,6 +40,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.Charsets;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
@@ -70,7 +70,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Path;
@@ -724,6 +723,16 @@ public class FlinkClient extends AbstractClient {
         }
 
         cacheFile.remove(jobClient.getTaskId());
+
+        String localDirStr = USER_DIR + DIR + jobClient.getTaskId();
+        File localDir = new File(localDirStr);
+        if (localDir.exists()){
+            try {
+                FileUtils.deleteDirectory(localDir);
+            } catch (IOException e) {
+                logger.error("Delete dir failed: " + e);
+            }
+        }
     }
 
     @Override

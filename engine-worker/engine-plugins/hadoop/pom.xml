@@ -16,9 +16,9 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>hadoop-core</module>
-        <module>hadoop2</module>
-        <module>hadoop3</module>
+        <module>yarn2-hdfs2-hadoop2-core</module>
+        <module>yarn2-hdfs2-hadoop2</module>
+        <module>yarn3-hdfs3-hadoop3</module>
     </modules>
 
     <build>
