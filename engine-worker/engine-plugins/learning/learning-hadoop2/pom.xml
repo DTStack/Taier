@@ -10,8 +10,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>plugins.learning-hadoop2</artifactId>
-    <name>plugins.learning-hadoop2</name>
+    <artifactId>plugins.learning.learning-hadoop2</artifactId>
+    <name>plugins.learning.learning-hadoop2</name>
     <packaging>pom</packaging>
 
     <properties>
