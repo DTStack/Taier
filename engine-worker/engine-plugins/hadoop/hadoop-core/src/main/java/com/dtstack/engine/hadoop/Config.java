@@ -27,6 +27,16 @@ public class Config {
 
     private Map<String, String> sftpConf;
 
+    private String componentName;
+
+    public String getComponentName() {
+        return componentName;
+    }
+
+    public void setComponentName(String componentName) {
+        this.componentName = componentName;
+    }
+
     public Map<String, Object> getHadoopConf() {
         return hadoopConf;
     }

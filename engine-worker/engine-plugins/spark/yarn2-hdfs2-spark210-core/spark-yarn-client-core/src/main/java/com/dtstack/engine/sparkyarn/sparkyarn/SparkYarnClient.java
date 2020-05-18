@@ -1,22 +1,23 @@
 package com.dtstack.engine.sparkyarn.sparkyarn;
 
-import com.dtstack.engine.common.client.config.YamlConfigParser;
-import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.http.PoolHttpClient;
-import com.dtstack.engine.common.util.DtStringUtil;
-import com.dtstack.engine.common.util.MathUtil;
-import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.common.client.AbstractClient;
+import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.JobParam;
+import com.dtstack.engine.common.client.AbstractClient;
+import com.dtstack.engine.common.client.config.YamlConfigParser;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.exception.ExceptionUtil;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.http.PoolHttpClient;
+import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.base.util.HadoopConfTool;
+import com.dtstack.engine.common.util.DtStringUtil;
+import com.dtstack.engine.common.util.MathUtil;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.sparkyarn.sparkext.ClientExt;
 import com.dtstack.engine.sparkyarn.sparkext.ClientExtFactory;
 import com.dtstack.engine.sparkyarn.sparkyarn.parser.AddJarOperator;
@@ -50,12 +51,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Created by softfly on 17/8/10.
@@ -735,35 +731,5 @@ public class SparkYarnClient extends AbstractClient {
             }
         }
         return yarnClient;
-    }
-
-    /**
-     * 上传文件到hdfs中
-     * @param pluginInfo
-     * @param bytes
-     * @param hdfsPath 文件路径
-     * @return
-     */
-    public String uploadStringToHdfs(String pluginInfo, String bytes, String hdfsPath) {
-        try {
-            SparkYarnConfig uploadConfig = PublicUtil.jsonStrToObject(pluginInfo, SparkYarnConfig.class);
-            if (uploadConfig.isOpenKerberos()) {
-                KerberosUtils.login(uploadConfig);
-            }
-            ByteArrayInputStream is = new ByteArrayInputStream(bytes.getBytes());
-            HadoopConf uploadConf = new HadoopConf();
-            uploadConf.initHadoopConf(uploadConfig.getHadoopConf());
-            Configuration configuration = uploadConf.getConfiguration();
-            FileSystem fs = FileSystem.get(configuration);
-            Path destP = new Path(hdfsPath);
-            FSDataOutputStream os = fs.create(destP);
-            IOUtils.copyBytes(is, os, 4096, true);
-            if (logger.isDebugEnabled()) {
-                logger.debug("submit file {} to hdfs success.", hdfsPath);
-            }
-            return uploadConf.getDefaultFs() + hdfsPath;
-        } catch (Exception e) {
-            throw new RdosDefineException("上传文件失败", e);
-        }
     }
 }

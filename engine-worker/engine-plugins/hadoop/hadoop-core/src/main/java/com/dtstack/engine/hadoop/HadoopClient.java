@@ -23,38 +23,23 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.mapreduce.MRJobConfig;
 import org.apache.hadoop.security.UserGroupInformation;
-import org.apache.hadoop.yarn.api.records.ApplicationId;
-import org.apache.hadoop.yarn.api.records.ApplicationReport;
-import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
-import org.apache.hadoop.yarn.api.records.NodeReport;
-import org.apache.hadoop.yarn.api.records.NodeState;
-import org.apache.hadoop.yarn.api.records.QueueInfo;
-import org.apache.hadoop.yarn.api.records.YarnApplicationState;
+import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.UUID;
+import java.io.*;
+import java.util.*;
 
 public class HadoopClient extends AbstractClient {
 
@@ -378,6 +363,10 @@ public class HadoopClient extends AbstractClient {
         testResult.setResult(false);
         try {
             Config allConfig = PublicUtil.jsonStrToObject(pluginInfo, Config.class);
+            if("hdfs".equalsIgnoreCase(allConfig.getComponentName())){
+                //测试hdfs联通性
+                return this.checkHdfsConnect(allConfig);
+            }
             hadoopConf = new HadoopConf();
             hadoopConf.initYarnConf(allConfig.getYarnConf());
             if (allConfig.isOpenKerberos()) {
@@ -430,4 +419,70 @@ public class HadoopClient extends AbstractClient {
         }
         return descriptions;
     }
+
+
+    /**
+     * 上传文件到hdfs中
+     * @param pluginInfo
+     * @param bytes
+     * @param hdfsPath 文件路径
+     * @return
+     */
+    @Override
+    public String uploadStringToHdfs(String pluginInfo, String bytes, String hdfsPath) {
+        try {
+            Config uploadConfig = PublicUtil.jsonStrToObject(pluginInfo, Config.class);
+            if (uploadConfig.isOpenKerberos()) {
+                KerberosUtils.login(uploadConfig);
+            }
+            ByteArrayInputStream is = new ByteArrayInputStream(bytes.getBytes());
+            HadoopConf uploadConf = new HadoopConf();
+            uploadConf.initHadoopConf(uploadConfig.getHadoopConf());
+            Configuration configuration = uploadConf.getConfiguration();
+            FileSystem fs = FileSystem.get(configuration);
+            Path destP = new Path(hdfsPath);
+            FSDataOutputStream os = fs.create(destP);
+            IOUtils.copyBytes(is, os, 4096, true);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("submit file {} to hdfs success.", hdfsPath);
+            }
+            return uploadConf.getDefaultFs() + hdfsPath;
+        } catch (Exception e) {
+            throw new RdosDefineException("上传文件失败", e);
+        }
+    }
+
+    private ComponentTestResult checkHdfsConnect(Config testConnectConf) {
+        //测试hdfs联通性
+        FileSystem fs = null;
+        ComponentTestResult componentTestResult = new ComponentTestResult();
+        try {
+            if (Objects.isNull(testConnectConf)) {
+                componentTestResult.setResult(false);
+                componentTestResult.setErrorMsg("配置信息不能你为空");
+                return componentTestResult;
+            }
+            if (testConnectConf.isOpenKerberos()) {
+                KerberosUtils.login(testConnectConf);
+            }
+            HadoopConf hadoopConf = new HadoopConf();
+            hadoopConf.initHadoopConf(testConnectConf.getHadoopConf());
+            Configuration configuration = hadoopConf.getConfiguration();
+            fs = FileSystem.get(configuration);
+            componentTestResult.setResult(true);
+        } catch (Exception e) {
+            componentTestResult.setResult(false);
+            componentTestResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
+        } finally {
+            if (Objects.nonNull(fs)) {
+                try {
+                    fs.close();
+                } catch (IOException e) {
+                    LOG.error("close file system error ", e);
+                }
+            }
+        }
+        return componentTestResult;
+    }
+
 }
