@@ -61,7 +61,7 @@ class AddEngineModal extends React.Component<any, any> {
             if (engineName === ENGINE_TYPE_NAME.HADOOP) {
                 return this.state.checkedList;
             } else if (engineName === ENGINE_TYPE_NAME.LIBRA) {
-                return [COMPONENT_TYPE_VALUE.LIBRASQL];
+                return [COMPONENT_TYPE_VALUE.LIBRA_SQL];
             } else if (engineName === ENGINE_TYPE_NAME.TI_DB) {
                 return [COMPONENT_TYPE_VALUE.TIDB_SQL];
             }
@@ -183,7 +183,7 @@ class AddEngineModal extends React.Component<any, any> {
                             required: checkedLibra,
                             message: ''
                         }],
-                        initialValue: COMPONENT_TYPE_VALUE.LIBRASQL
+                        initialValue: COMPONENT_TYPE_VALUE.LIBRA_SQL
                     })(
                         <span>LibrA SQL</span>
                     )}

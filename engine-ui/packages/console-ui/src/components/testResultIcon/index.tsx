@@ -101,7 +101,7 @@ export default class TestRestIcon extends React.Component<any, any> {
                 testCompResult = yarnTestResult;
                 break;
             }
-            case COMPONENT_TYPE_VALUE.LIBRASQL: {
+            case COMPONENT_TYPE_VALUE.LIBRA_SQL: {
                 testCompResult = libraSqlTestResult;
                 break;
             }

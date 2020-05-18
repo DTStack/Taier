@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, xor } from 'lodash';
 import { connect } from 'react-redux';
 import { hashHistory } from 'react-router';
 import {
@@ -131,7 +131,8 @@ class EditCluster extends React.Component<any, any> {
         this.setState({
             compTypeKey: Number(key),
             popoverVisible: false,
-            modifyComps: []
+            modifyComps: [],
+            modifySource: ''
         }, () => this.selectDefaultValue())
     }
 
@@ -158,11 +159,11 @@ class EditCluster extends React.Component<any, any> {
     }
 
     // 获取组件模板
-    getLoadTemplate = () => {
+    getLoadTemplate = (key: any = '') => {
         const { compTypeKey, tabCompData, componentConfig, clusterName } = this.state;
         const component = tabCompData.find((item: any) => item.schedulingCode === compTypeKey) || { components: [] };
         if (component.components.length > 0) {
-            const componentTypeCode = component.components[0].componentTypeCode;
+            const componentTypeCode = key || component.components[0].componentTypeCode;
             const isNeedLoadTemp = componentTypeCode !== COMPONENT_TYPE_VALUE.YARN && componentTypeCode !== COMPONENT_TYPE_VALUE.KUBERNETES &&
                 componentTypeCode !== COMPONENT_TYPE_VALUE.KUBERNETES && componentTypeCode !== COMPONENT_TYPE_VALUE.HDFS;
             // console.log('isNeedLoadTemp------', isNeedLoadTemp);
@@ -194,7 +195,7 @@ class EditCluster extends React.Component<any, any> {
         let defaultValue: any = [];
         cloneCompData.length > 0 && cloneCompData.map((item: any) => {
             if (item.schedulingCode === compTypeKey) {
-                item.components.map((comps: any) => {
+                item.components.length > 0 && item.components.map((comps: any) => {
                     defaultValue.push(comps.componentTypeCode);
                 })
             }
@@ -221,18 +222,23 @@ class EditCluster extends React.Component<any, any> {
 
     // 点击确认后对选中数据进行处理
     modifyTabCompData = () => {
-        const { tabCompData, selectValue, compTypeKey } = this.state;
+        const { tabCompData, selectValue, compTypeKey, defaultValue } = this.state;
         let modifyComps: any = [];
         const scheduling = tabCompData.find((sche: any) => sche.schedulingCode === compTypeKey)
+        // 组件未变更处理
+        if (selectValue.sort().toString() === defaultValue.sort().toString()) {
+            this.setState({
+                popoverVisible: false
+            })
+            return;
+        }
         // 资源调度组件切换
         if (compTypeKey === TABS_TITLE_KEY.SOURCE && scheduling.components.length > 0) {
             this.modifySourceComponent();
             return;
         }
-        scheduling.components.forEach((comps: any) => {
-            // console.log('comps-----', selectValue, selectValue.findIndex((val: any) => val === comps.componentTypeCode), comps.id)
-            // 不存在组件中且id存在(即保存过)
-            if (selectValue.findIndex((val: any) => val === comps.componentTypeCode) === -1 && comps.id) {
+        scheduling.components.map((comps: any) => {
+            if (selectValue.findIndex((val: any) => val === comps.componentTypeCode) === -1) {
                 modifyComps.push(comps)
             }
         })
@@ -249,10 +255,13 @@ class EditCluster extends React.Component<any, any> {
 
     // 存入选中组件数据
     setTabCompData = () => {
-        const { selectValue, tabCompData, compTypeKey } = this.state;
+        const { selectValue, tabCompData, compTypeKey, defaultValue } = this.state;
         const cloneCompData = cloneDeep(tabCompData);
-        let components: any = [];
-        selectValue.map((val: any) => {
+        let addComponents: any = [];
+        let components: any = tabCompData.find((sche: any) => sche.schedulingCode === compTypeKey).components;
+        addComponents = xor(selectValue, defaultValue)
+        // console.log('cloneSelectValue-------', addComponents)
+        addComponents.map((val: any) => {
             components.push({ componentTypeCode: val, componentName: COMPONEMT_CONFIG_NAME_ENUM[val] });
             this.setState({
                 componentConfig: {
@@ -279,6 +288,25 @@ class EditCluster extends React.Component<any, any> {
         })
     }
 
+    // 删除组件和存储配置信息
+    deleteTabCompData = (deletArr: any) => {
+        const { tabCompData, compTypeKey } = this.state;
+        let cloneComps = cloneDeep(tabCompData);
+        const components = cloneComps.find((sche: any) => sche.schedulingCode === compTypeKey).components;
+        deletArr.map((compconent: any) => {
+            components.splice(components.findIndex((comps: any) => comps.componentTypeCode === compconent.componentTypeCode), 1);
+            this.setState({
+                componentConfig: {
+                    ...this.state.componentConfig,
+                    [COMPONEMT_CONFIG_KEY_ENUM[compconent.componentTypeCode]]: {}
+                }
+            })
+        })
+        this.setState({
+            tabCompData: cloneComps
+        })
+    }
+
     // 已变更组件处理
     modifyComponent = () => {
         const { modifyComps, compTypeKey, modifySource } = this.state;
@@ -294,9 +322,13 @@ class EditCluster extends React.Component<any, any> {
             this.setTabCompData();
             return;
         }
-        modifyComps.map((comps: any) => {
-            componentIds.push(comps.id)
-        })
+        let deletArr: any = [];
+        modifyComps.map((comps: any) => { comps.id ? componentIds.push(comps.id) : deletArr.push(comps) })
+        deletArr.length > 0 && this.deleteTabCompData(deletArr);
+        if (componentIds.length === 0) {
+            this.setState({ modify: false }, () => this.selectDefaultValue());
+            return;
+        }
         Api.deleteComponent({
             componentIds: componentIds
         }).then((res: any) => {
@@ -425,7 +457,6 @@ class EditCluster extends React.Component<any, any> {
             }).then((res: any) => {
                 if (res.code === 1) {
                     const { componentConfig } = this.state;
-                    console.log(res.data[0])
                     this.setState({
                         componentConfig: {
                             ...componentConfig,
@@ -577,15 +608,21 @@ class EditCluster extends React.Component<any, any> {
         const { validateFieldsAndScroll } = this.props.form;
         const componentTypeCode = components.componentTypeCode;
         const config = this.getComponentConfig(components);
+        const isFileNameRequire = componentTypeCode == COMPONENT_TYPE_VALUE.YARN || componentTypeCode == COMPONENT_TYPE_VALUE.KUBERNETES ||
+            componentTypeCode == COMPONENT_TYPE_VALUE.HDFS;
         validateFieldsAndScroll((err: any, values: any) => {
             console.log(err, values)
             const result = /^[a-z0-9_]{1,64}$/i.test(values.clusterName);
             if (err) {
                 let paramName = COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode];
-                if (Object.keys(err).includes(paramName) || !config.fileName) {
+                if (Object.keys(err).includes(paramName)) {
                     message.error('请检查配置');
                     return;
                 }
+            }
+            if (isFileNameRequire && !config.fileName) {
+                message.error('请上传配置文件');
+                return;
             }
             if (!values.clusterName || !result) {
                 const notice = values.clusterName ? '集群标识不能超过64字符，支持英文、数字、下划线' : '集群名称不能为空';
@@ -597,9 +634,21 @@ class EditCluster extends React.Component<any, any> {
                 ...params
             }).then((res: any) => {
                 if (res.code === 1) {
+                    const { componentConfig } = this.state;
                     this.setState({
-                        clusterId: res.data.clusterId
-                    }, () => { this.getDataList() })
+                        clusterId: res.data.clusterId,
+                        componentConfig: {
+                            ...componentConfig,
+                            [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
+                                ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
+                                configInfo: JSON.parse(res.data.componentConfig) || {},
+                                loadTemplate: JSON.parse(res.data.componentTemplate) || [],
+                                fileName: res.data.uploadFileName || '',
+                                kerFileName: res.data.kerberosFileName || '',
+                                id: res.data.id || ''
+                            }
+                        }
+                    });
                     message.success('保存成功');
                 }
             })
@@ -612,16 +661,12 @@ class EditCluster extends React.Component<any, any> {
         const config = this.getComponentConfig(components);
         const { configInfo = {} } = config;
 
-        switch (componentTypeCode) {
-            case COMPONENT_TYPE_VALUE.SFTP:
-                form.setFieldsValue({
-                    [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
-                        configInfo: { ...configInfo }
-                    }
-                })
-                break;
-            default:
-                break;
+        if (componentTypeCode !== COMPONENT_TYPE_VALUE.YARN || componentTypeCode !== COMPONENT_TYPE_VALUE.KUBERNETES || componentTypeCode !== COMPONENT_TYPE_VALUE.HDFS) {
+            form.setFieldsValue({
+                [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
+                    configInfo: { ...configInfo }
+                }
+            })
         }
     }
 
@@ -687,7 +732,8 @@ class EditCluster extends React.Component<any, any> {
                                                     tabPosition="left"
                                                     tabBarExtraContent={!isView && componentBtn}
                                                     className="c-editCluster__container__componentTabs"
-                                                    onChange={(key: any) => console.log('renderkey-----------------', key)}
+                                                    // onChange={(key: any) => console.log('renderkey-----------------', key)}
+                                                    onChange={(key: any) => this.getLoadTemplate(key)}
                                                 >
                                                     {
                                                         tabCompDataList.map((comps: any, index: any) => {

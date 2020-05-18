@@ -59,7 +59,7 @@ export default class RequiredIcon extends React.Component<any, any> {
                 isShowIcon = yarnShowRequired;
                 break;
             }
-            case COMPONENT_TYPE_VALUE.LIBRASQL: {
+            case COMPONENT_TYPE_VALUE.LIBRA_SQL: {
                 isShowIcon = libraShowRequired;
                 break;
             }

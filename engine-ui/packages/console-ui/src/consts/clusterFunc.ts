@@ -45,7 +45,7 @@ export function validateCompParams (componentValue: any) {
         case COMPONENT_TYPE_VALUE.YARN: {
             return []
         }
-        case COMPONENT_TYPE_VALUE.LIBRASQL: {
+        case COMPONENT_TYPE_VALUE.LIBRA_SQL: {
             return validateLibraParams
         }
         case COMPONENT_TYPE_VALUE.SFTP: {
@@ -144,7 +144,7 @@ export function showTestResult (testResults: any, engineType: any) {
                 })
                 break;
             }
-            case COMPONENT_TYPE_VALUE.LIBRASQL: {
+            case COMPONENT_TYPE_VALUE.LIBRA_SQL: {
                 testStatus = Object.assign(testStatus, {
                     libraSqlTestResult: !isHadoop ? comp : {}
                 })
@@ -283,7 +283,7 @@ export function validateAllRequired (validateFieldsAndScroll: any, tabCompData: 
                         yarnShowRequired: true
                     })
                 }
-            } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.LIBRASQL) {
+            } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.LIBRA_SQL) {
                 if (!err) {
                     obj = Object.assign(obj, {
                         libraShowRequired: false

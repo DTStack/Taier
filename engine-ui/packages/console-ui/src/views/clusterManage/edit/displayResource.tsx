@@ -218,6 +218,19 @@ class DisplayResource extends React.Component<any, any> {
                         {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.HDFS)}
                     </React.Fragment>
                 )
+            case COMPONENT_TYPE_VALUE.TIDB_SQL:
+                return this.renderParamsFile(COMPONEMT_CONFIG_KEYS.TIDB_SQL)
+            case COMPONENT_TYPE_VALUE.LIBRA_SQL:
+                return this.renderParamsFile(COMPONEMT_CONFIG_KEYS.LIBRA_SQL)
+            case COMPONENT_TYPE_VALUE.ORACLE_SQL:
+                return this.renderParamsFile(COMPONEMT_CONFIG_KEYS.ORACLE_SQL)
+            case COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER:
+                return (
+                    <React.Fragment>
+                        {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.SPARKTHRIFTSERVER)}
+                        {this.renderParamsFile(COMPONEMT_CONFIG_KEYS.SPARKTHRIFTSERVER)}
+                    </React.Fragment>
+                )
             default:
                 return '';
         }

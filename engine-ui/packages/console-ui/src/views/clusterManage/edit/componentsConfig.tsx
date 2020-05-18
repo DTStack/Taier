@@ -80,40 +80,42 @@ class ComponentsConfig extends React.Component<any, any> {
             }
         )
     }
-    renderSFTPConfig = () => {
-        const { componentConfig, components, getFieldDecorator, getFieldValue, isView } = this.props;
+    compsContent = (item: any) => {
+        const { isView } = this.props;
+        if (item.type === 'INPUT') { return (<Input disabled={isView} />) }
+        if (item.type === 'RADIO') {
+            return (
+                <RadioGroup disabled={isView}>
+                    {item.values.map((comp: any, index) => {
+                        return <Radio key={comp.key} value={comp.value}>{comp.key}</Radio>
+                    })}
+                </RadioGroup>
+            )
+        }
+    }
+    rendeConfigInfo = (comps: any) => {
+        const { componentConfig, components, getFieldDecorator, getFieldValue } = this.props;
         const componentTypeCode = components.componentTypeCode;
         const config = componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {}
         const loadTemplate = config.loadTemplate || [];
-        let content: any;
         if (loadTemplate.length > 0) {
             return loadTemplate.map((item: any, index: any) => {
-                if (item.type === 'INPUT') { content = (<Input disabled={isView} />) }
-                if (item.type === 'RADIO') {
-                    content = (
-                        <RadioGroup disabled={isView}>
-                            {item.values.map((comp: any, index) => {
-                                return <Radio key={comp.key} value={comp.value}>{comp.key}</Radio>
-                            })}
-                        </RadioGroup>
-                    )
-                }
                 return (
                     item.dependencyValue
-                        ? getFieldValue(`${COMPONEMT_CONFIG_KEYS.SFTP}.configInfo.${item.dependencyKey}`) === item.dependencyValue
+                        ? getFieldValue(`${comps}.configInfo.${item.dependencyKey}`) === item.dependencyValue
                             ? <FormItem
                                 label={item.key}
                                 key={item.key}
                                 {...formItemLayout}
                             >
-                                {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SFTP}.configInfo.${item.key}`, {
+                                {getFieldDecorator(`${comps}.configInfo.${item.key}`, {
                                     rules: [{
-                                        required: true,
+                                        required: item.required,
                                         message: `请输入${item.key}`
                                     }],
                                     initialValue: item.value
                                 })(
-                                    content
+                                    this.compsContent(item)
                                 )}
                             </FormItem>
                             : null
@@ -122,14 +124,14 @@ class ComponentsConfig extends React.Component<any, any> {
                             key={item.key}
                             {...formItemLayout}
                         >
-                            {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SFTP}.configInfo.${item.key}`, {
+                            {getFieldDecorator(`${comps}.configInfo.${item.key}`, {
                                 rules: [{
-                                    required: true,
+                                    required: item.required,
                                     message: `请输入${item.key}`
                                 }],
                                 initialValue: item.value
                             })(
-                                content
+                                this.compsContent(item)
                             )}
                         </FormItem>
                 )
@@ -154,7 +156,25 @@ class ComponentsConfig extends React.Component<any, any> {
             case COMPONENT_TYPE_VALUE.SFTP:
                 return (
                     <React.Fragment>
-                        {this.renderSFTPConfig()}
+                        {this.rendeConfigInfo(COMPONEMT_CONFIG_KEYS.SFTP)}
+                    </React.Fragment>
+                )
+            case COMPONENT_TYPE_VALUE.TIDB_SQL:
+                return (
+                    <React.Fragment>
+                        {this.rendeConfigInfo(COMPONEMT_CONFIG_KEYS.TIDB_SQL)}
+                    </React.Fragment>
+                )
+            case COMPONENT_TYPE_VALUE.LIBRA_SQL:
+                return (
+                    <React.Fragment>
+                        {this.rendeConfigInfo(COMPONEMT_CONFIG_KEYS.LIBRA_SQL)}
+                    </React.Fragment>
+                )
+            case COMPONENT_TYPE_VALUE.ORACLE_SQL:
+                return (
+                    <React.Fragment>
+                        {this.rendeConfigInfo(COMPONEMT_CONFIG_KEYS.ORACLE_SQL)}
                     </React.Fragment>
                 )
             default:
