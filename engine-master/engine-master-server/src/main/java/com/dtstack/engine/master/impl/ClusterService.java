@@ -8,6 +8,7 @@ import com.dtstack.engine.api.dto.ClusterDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.ClusterVO;
+import com.dtstack.engine.api.vo.ComponentVO;
 import com.dtstack.engine.api.vo.KerberosConfigVO;
 import com.dtstack.engine.api.vo.SchedulingVo;
 import com.dtstack.engine.common.annotation.Forbidden;
@@ -380,36 +381,17 @@ public class ClusterService implements InitializingBean {
         List<SchedulingVo> scheduling = cluster.getScheduling();
         if (CollectionUtils.isNotEmpty(scheduling)) {
             for (SchedulingVo schedulingVo : scheduling) {
-                List<Component> components = schedulingVo.getComponents();
+                List<ComponentVO> components = schedulingVo.getComponents();
                 if (CollectionUtils.isNotEmpty(components)) {
                     for (Component component : components) {
                         EComponentType type = EComponentType.getByCode(component.getComponentTypeCode());
-                        config.put(type.getConfName(), this.buildTypeNameWithComponentVersion(component));
+                        config.put(type.getConfName(), JSONObject.parseObject(component.getComponentConfig()));
                     }
                 }
             }
         }
         config.put("clusterName", cluster.getClusterName());
         return config;
-    }
-
-    /**
-     * 拼接组件中的typeName字段
-     * @param component
-     * @return
-     */
-    private JSONObject buildTypeNameWithComponentVersion(Component component) {
-        //处理组件的typename
-        List<ComponentTypeNameNeedVersion> componentTypeNameNeedVersions = ComponentTypeNameNeedVersion.listByCode(component.getComponentTypeCode());
-        if (Objects.isNull(componentTypeNameNeedVersions)) {
-            return JSONObject.parseObject(component.getComponentConfig());
-        }
-        JSONObject componentConfig = JSONObject.parseObject(component.getComponentConfig());
-        for (ComponentTypeNameNeedVersion componentTypeNameNeedVersion : componentTypeNameNeedVersions) {
-            componentConfig.put(TYPE_NAME, componentTypeNameNeedVersion.getTypeName() + "-" +
-                    (StringUtils.isBlank(component.getHadoopVersion()) ? DEFAULT_HADOOP_VERSION : component.getHadoopVersion()));
-        }
-        return componentConfig;
     }
 
     private ClusterVO getClusterByTenant(Long dtUicTenantId) {
@@ -568,13 +550,11 @@ public class ClusterService implements InitializingBean {
         JSONObject pluginInfo;
         if (EComponentType.HDFS == type.getComponentType()) {
             pluginInfo = new JSONObject();
+            //hdfs yarn%s-hdfs%s-hadoop%s的版本
             JSONObject hadoopConf = clusterConfigJson.getJSONObject(EComponentType.HDFS.getConfName());
-            pluginInfo.put("typeName", ScheduleEngineType.Hadoop.getEngineName());
-            if (Objects.nonNull(clusterVO) && StringUtils.isNotBlank(clusterVO.getHadoopVersion())) {
-                pluginInfo.put("typeName", clusterVO.getHadoopVersion());
-            }
+            String typeName = hadoopConf.getString(TYPE_NAME);
+            pluginInfo.put("typeName", typeName);
             pluginInfo.put(EComponentType.HDFS.getConfName(), hadoopConf);
-
             pluginInfo.put(EComponentType.YARN.getConfName(), clusterConfigJson.getJSONObject(EComponentType.YARN.getConfName()));
 
         } else if (EComponentType.LIBRA_SQL == type.getComponentType()) {
@@ -776,7 +756,7 @@ public class ClusterService implements InitializingBean {
                     if (CollectionUtils.isNotEmpty(resourceComponents)) {
                         for (Component resourceComponent : resourceComponents) {
                             if (resourceComponent.getId() >= 0) {
-                                schedulingVo.setComponents(Lists.newArrayList(resourceComponent));
+                                schedulingVo.setComponents(ComponentVO.toVOS(Lists.newArrayList(resourceComponent)));
                                 break;
                             }
                         }
@@ -784,7 +764,7 @@ public class ClusterService implements InitializingBean {
                 }
 
             } else if (Objects.nonNull(scheduleType) && scheduleType.containsKey(value)) {
-                schedulingVo.setComponents(scheduleType.get(value));
+                schedulingVo.setComponents(ComponentVO.toVOS(scheduleType.get(value)));
             }
             schedulingVos.add(schedulingVo);
         }

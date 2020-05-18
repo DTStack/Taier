@@ -1,7 +1,5 @@
 package com.dtstack.engine.api.vo;
 
-import com.dtstack.engine.api.domain.Component;
-
 import java.util.List;
 
 /**
@@ -13,7 +11,7 @@ public class SchedulingVo {
 
     private String SchedulingName;
 
-    private List<Component> components;
+    private List<ComponentVO> components;
 
     public int getSchedulingCode() {
         return schedulingCode;
@@ -31,11 +29,11 @@ public class SchedulingVo {
         SchedulingName = schedulingName;
     }
 
-    public List<Component> getComponents() {
+    public List<ComponentVO> getComponents() {
         return components;
     }
 
-    public void setComponents(List<Component> components) {
+    public void setComponents(List<ComponentVO> components) {
         this.components = components;
     }
 }

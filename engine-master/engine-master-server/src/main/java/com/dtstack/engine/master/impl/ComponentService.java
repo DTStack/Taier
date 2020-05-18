@@ -21,10 +21,7 @@ import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.component.ComponentFactory;
 import com.dtstack.engine.master.component.ComponentImpl;
-import com.dtstack.engine.master.enums.DownloadType;
-import com.dtstack.engine.master.enums.EComponentType;
-import com.dtstack.engine.master.enums.KerberosKey;
-import com.dtstack.engine.master.enums.MultiEngineType;
+import com.dtstack.engine.master.enums.*;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.utils.EngineUtil;
@@ -614,19 +611,14 @@ public class ComponentService {
         addComponent.setComponentTypeCode(componentType.getTypeCode());
         addComponent.setEngineId(engine.getId());
         addComponent.setComponentTemplate(componentTemplate);
-        if (isOpenKerberos) {
-            //开启了 kerberos 补充默认值
-            addComponent.setComponentConfig(this.wrapperConfig(componentType, componentConfig));
-        } else {
-            addComponent.setComponentConfig(componentConfig);
-        }
+        addComponent.setComponentConfig(this.wrapperConfig(componentType, componentConfig,isOpenKerberos,clusterName,hadoopVersion));
         addComponent.setKerberosFileName(kerberosFileName);
 
         //测试联通性
-        if(EComponentType.YARN.getTypeCode() == componentCode){
+        if (EComponentType.YARN.getTypeCode() == componentCode) {
             try {
-                ComponentTestResult testResult = this.testConnect(componentCode,componentConfig, clusterName, hadoopVersion,engine.getId());
-                if(Objects.nonNull(testResult) && testResult.getResult()){
+                ComponentTestResult testResult = this.testConnect(componentCode, componentConfig, clusterName, hadoopVersion, engine.getId());
+                if (Objects.nonNull(testResult) && testResult.getResult()) {
                     engineService.updateResource(addComponent.getEngineId(), testResult.getClusterResourceDescription());
                     queueService.updateQueue(addComponent.getEngineId(), testResult.getClusterResourceDescription());
                 }
@@ -634,6 +626,8 @@ public class ComponentService {
                 LOGGER.error("更新队列信息失败: ", e);
                 throw new RdosDefineException("更新队列信息失败");
             }
+        } else {
+            this.testConnect(componentCode, componentConfig, clusterName, hadoopVersion, engine.getId());
         }
 
         if (CollectionUtils.isNotEmpty(resources)) {
@@ -681,21 +675,28 @@ public class ComponentService {
     /**
      * 如果开启Kerberos 则添加一个必加配置项
      * 开启 kerberos hdfs 添加dfs.namenode.kerberos.principal.pattern
-     * yarn 添加 yarn.resourcemanager.principal.pattern
+     *              yarn 添加 yarn.resourcemanager.principal.pattern
+     * 必要组件添加typename字段
      *
      *
      * @param componentType
      * @param componentString
      * @return
      */
-    private String wrapperConfig(EComponentType componentType, String componentString) {
+    private String wrapperConfig(EComponentType componentType, String componentString,boolean isOpenKerberos,String clusterName,String hadoopVersion) {
         JSONObject componentConfigJSON = JSONObject.parseObject(componentString);
-        if (EComponentType.HDFS.equals(componentType)) {
-            componentConfigJSON.put("dfs.namenode.kerberos.principal.pattern", "*");
-        }
+        if (isOpenKerberos) {
+            if (EComponentType.HDFS.equals(componentType)) {
+                componentConfigJSON.put("dfs.namenode.kerberos.principal.pattern", "*");
+            }
 
-        if (EComponentType.YARN.equals(componentType)) {
-            componentConfigJSON.put("yarn.resourcemanager.principal.pattern", "*");
+            if (EComponentType.YARN.equals(componentType)) {
+                componentConfigJSON.put("yarn.resourcemanager.principal.pattern", "*");
+            }
+        }
+        if (EComponentType.typeComponentVersion.contains(componentType)) {
+            //添加typeName
+            componentConfigJSON.put(TYPE_NAME, this.convertComponentTypeToClient(clusterName, componentType.getTypeCode(), hadoopVersion));
         }
         return componentConfigJSON.toJSONString();
     }
@@ -883,6 +884,7 @@ public class ComponentService {
      */
     public String wrapperConfig(int componentType, String componentConfig) {
         JSONObject dataInfo = JSONObject.parseObject(componentConfig);
+        dataInfo.put("componentName",EComponentType.getByCode(componentType).getName().toLowerCase());
         if (EComponentType.SFTP.getTypeCode() == componentType) {
             dataInfo.put("componentType", EComponentType.SFTP.getName());
         } else if (EComponentType.SPARK_THRIFT.getTypeCode() == componentType) {
@@ -1052,8 +1054,17 @@ public class ComponentService {
             if (StringUtils.isBlank(version)) {
                 throw new RdosDefineException("请选择集群版本");
             }
-            //hadoop2
-            return String.format("hadoop%s", this.formatHadoopVersion(version));
+            ClusterVO cluster = clusterService.getClusterByName(clusterName);
+            if (Objects.isNull(cluster)) {
+                //如果没有配置hdfs hdfs给默认值 和yarn保持一致
+                return String.format("yarn%s-hdfs%s-hadoop%s", this.formatHadoopVersion(version), this.formatHadoopVersion(version), this.formatHadoopVersion(version));
+            }
+            Component hdfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());
+            if (Objects.isNull(hdfs)) {
+                return String.format("yarn%s-hdfs%s-hadoop%s", this.formatHadoopVersion(version), this.formatHadoopVersion(version), this.formatHadoopVersion(version));
+            }
+            //yarn2-hdfs2-hadoop2
+            return String.format("yarn%s-hdfs%s-hadoop%s", this.formatHadoopVersion(version), this.formatHadoopVersion(hdfs.getHadoopVersion()), this.formatHadoopVersion(version));
         }
         ClusterVO cluster = clusterService.getClusterByName(clusterName);
         if (Objects.isNull(cluster)) {
@@ -1063,10 +1074,10 @@ public class ComponentService {
         if (Objects.isNull(yarn)) {
             throw new RdosDefineException("请先配置YARN");
         }
-        if(EComponentType.HDFS.getTypeCode() == componentType){
-            if(StringUtils.isNotBlank(version)){
+        if (EComponentType.HDFS.getTypeCode() == componentType) {
+            if (StringUtils.isNotBlank(version)) {
                 //hadoop2
-                return String.format("yarn%s-hdfs%s-spark", this.formatHadoopVersion(version));
+                return String.format("yarn%s-hdfs%s-hadoop%s", this.formatHadoopVersion(yarn.getHadoopVersion()), this.formatHadoopVersion(version), this.formatHadoopVersion(version));
             }
         }
         Component hdfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());
