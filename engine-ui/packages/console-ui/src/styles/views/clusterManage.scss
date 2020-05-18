@@ -159,31 +159,62 @@
     border-left: 4px solid #2491F7;
 }
 
-.c-clusterManage__containerWrap {
+.contentBox {
+    margin-top: 18px;
+}
+
+.c-clusterManage__title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px 0 20px;
+    .c-clusterManage__title__span {
+        color: #333333FF;
+        font-size: 14px;
+        font-weight: bold;
+    }
+    .c-clusterManage__title__btn {
+        height: 32px;
+        width: 80px;
+        margin: 0;
+        padding: 0;
+    }
+}
+
+.c-clusterManage__card {
+    .m-table {
+        tr>td:first-child,
+        tr>th:first-child {
+            padding-left: 40px;
+        }
+    }
+}
+
+.c-editCluster__containerWrap {
     height: 100%;
     width: 100%;
     position: relative;
     padding: 20px;
     display: flex;
     flex-direction: column;
-    .c-clusterManage__turnBack {
+    .c-editCluster__turnBack {
         font-size: 14px;
         font-weight: bold;
         color: #999;
         cursor: pointer;
     }
-    .c-clusterManage__title {
+    .c-editCluster__title {
         font-size: 14px;
         color: #333;
         font-weight: bold;
     }
-    .c-clusterManage__header {
+    .c-editCluster__header {
         margin-bottom: 12px;
         margin-top: 12px;
         height: 32px;
         display: flex;
         justify-content: space-between;
-        .c-clusterManage__header__btn {
+        .c-editCluster__header__btn {
             padding: 0;
             width: 108px;
             height: 32px;
@@ -191,11 +222,11 @@
     }
 }
 
-.c-clusterManage__container {
+.c-editCluster__container {
     position: relative;
     flex: 1;
     background: #fff;
-    .c-clusterManage__container__commonTabs {
+    .c-editCluster__container__commonTabs {
         display: flex;
         flex-direction: column;
         height: 100%;
@@ -208,14 +239,14 @@
         .ant-tabs-extra-content {
             float: left !important;
         }
-        .c-clusterManage__commonTabs__title {
+        .c-editCluster__commonTabs__title {
             width: 200px;
             font-size: 14px;
             padding-left: 20px;
             color: #333;
             font-weight: bold;
         }
-        .c-clusterManage__componentButton {
+        .c-editCluster__componentButton {
             width: 200px;
             height: 40px;
             background: rgba(250,250,250,1);
@@ -223,14 +254,14 @@
             padding: 0;
         }
     }
-    .c-clusterManage__container__card {
+    .c-editCluster__container__card {
         height: 100%;
         >.ant-card-body {
             padding: 0 !important;
             height: 100%;
         }
     }
-    .c-clusterManage__container__componentTabs {
+    .c-editCluster__container__componentTabs {
         height: 100%;
         > .ant-tabs-bar {
             width: 200px !important;
@@ -255,7 +286,7 @@
                 bottom: 0;
             }
         }
-        .c-clusterManage__container__componentWrap {
+        .c-editCluster__container__componentWrap {
             position: absolute;
             top: 0;
             right: 0;
@@ -264,14 +295,14 @@
             left: 200px;
             display: flex;
             flex-direction: row;
-            .c-clusterManage__container__componentWrap__resource {
+            .c-editCluster__container__componentWrap__resource {
                 width: 200px;
             }
-            .c-clusterManage__container__componentWrap__config {
+            .c-editCluster__container__componentWrap__config {
                 flex: 1;
             }
         }
-        .c-clusterManage__container__componentFooter {
+        .c-editCluster__container__componentFooter {
             height: 40px;
             position: absolute;
             left: 200px;
@@ -282,7 +313,7 @@
             justify-content: center;
             align-items: center;
             background-color: #fff;
-            .c-clusterManage__container__componentFooter__btn {
+            c-editCluster__container__componentFooter__btn {
                 padding: 0;
                 height: 28px;
                 width: 88px;
@@ -329,7 +360,7 @@
     padding: 24px 20px 40px 20px;
 }
 
-.c-clusterManage__icon {
+.c-editCluster__icon {
     &:hover {
         color: #2491f7;
     }

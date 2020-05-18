@@ -22,10 +22,11 @@ const formItemLayout: any = { // 表单常用布局
 };
 
 class ComponentsConfig extends React.Component<any, any> {
-    renderYarnConfig = () => {
+    renderYarnOrHdfsConfig = () => {
         const { componentConfig, components } = this.props;
         const config = componentConfig[COMPONEMT_CONFIG_KEY_ENUM[components.componentTypeCode]] || {}
         const configInfo = config.configInfo || {}
+        // console.log('renderYarnOrHdfsConfig-------', configInfo)
         let keyAndValue: any;
         keyAndValue = Object.entries(configInfo);
         utils.sortByCompareFunctions(keyAndValue,
@@ -67,7 +68,7 @@ class ComponentsConfig extends React.Component<any, any> {
         return keyAndValue.map(
             ([key, value]: any[]) => {
                 return (<Row key={key} className="zipConfig-item">
-                    <Col className="formitem-textname" span={formItemLayout.labelCol.sm.span + 5}>
+                    <Col className="formitem-textname" span={formItemLayout.labelCol.sm.span + 4}>
                         {key.length > 38
                             ? <Tooltip title={key}>{key.substr(0, 38) + '...'}</Tooltip>
                             : key}：
@@ -141,7 +142,13 @@ class ComponentsConfig extends React.Component<any, any> {
             case COMPONENT_TYPE_VALUE.YARN:
                 return (
                     <React.Fragment>
-                        {this.renderYarnConfig()}
+                        {this.renderYarnOrHdfsConfig()}
+                    </React.Fragment>
+                )
+            case COMPONENT_TYPE_VALUE.HDFS:
+                return (
+                    <React.Fragment>
+                        {this.renderYarnOrHdfsConfig()}
                     </React.Fragment>
                 )
             case COMPONENT_TYPE_VALUE.SFTP:

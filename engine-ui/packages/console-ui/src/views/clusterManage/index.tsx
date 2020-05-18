@@ -60,13 +60,13 @@ class ClusterManage extends React.Component<any, any> {
         return [
             {
                 title: '集群名称',
-                dataIndex: 'clusterName',
-                width: '400px'
+                dataIndex: 'clusterName'
+                // width: '400px'
             },
             {
                 title: '修改时间',
                 dataIndex: 'gmtModified',
-                width: '300px',
+                // width: '300px',
                 render (text: any) {
                     return moment(text).format('YYYY-MM-DD HH:mm:ss')
                 }
@@ -74,7 +74,7 @@ class ClusterManage extends React.Component<any, any> {
             {
                 title: '操作',
                 dataIndex: 'deal',
-                width: '400px',
+                width: '166px',
                 render: (text: any, record: any) => {
                     return (
                         <div>
@@ -148,29 +148,30 @@ class ClusterManage extends React.Component<any, any> {
         const { dataSource, table } = this.state;
         const { loading } = table;
         const columns = this.initTableColumns();
-
-        const cardTitle = (
-            <div>多集群管理 <Button type="primary" onClick={this.newCluster} style={{ float: 'right', marginTop: '9px' }}>新增集群</Button></div>
-        )
         return (
-            <div className="contentBox m-card">
-                <Card
-                    noHovering
-                    title={cardTitle}
-                >
-                    <Table
-                        rowKey={(record: any) => {
-                            return record.id
-                        }}
-                        className="m-table"
-                        pagination={this.getPagination()}
-                        loading={loading}
-                        dataSource={dataSource}
-                        columns={columns}
-                        onChange={this.handleTableChange}
-                    />
-                </Card>
-            </div>
+            <React.Fragment>
+                <div className="c-clusterManage__title">
+                    <span className="c-clusterManage__title__span">多集群管理</span>
+                    <Button className="c-clusterManage__title__btn" type="primary" onClick={this.newCluster}>新增集群</Button>
+                </div>
+                <div className="contentBox m-card c-clusterManage__card">
+                    <Card
+                        noHovering
+                    >
+                        <Table
+                            rowKey={(record: any) => {
+                                return record.id
+                            }}
+                            className="m-table"
+                            pagination={this.getPagination()}
+                            loading={loading}
+                            dataSource={dataSource}
+                            columns={columns}
+                            onChange={this.handleTableChange}
+                        />
+                    </Card>
+                </div>
+            </React.Fragment>
         )
     }
 }
