@@ -17,11 +17,12 @@ import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.master.enums.*;
-import com.dtstack.engine.master.utils.HadoopConf;
+import com.dtstack.engine.master.enums.EComponentScheduleType;
+import com.dtstack.engine.master.enums.EComponentType;
+import com.dtstack.engine.master.enums.EngineTypeComponentType;
+import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.utils.PublicUtil;
 import com.dtstack.schedule.common.enums.Deleted;
-import com.dtstack.schedule.common.enums.ScheduleEngineType;
 import com.dtstack.schedule.common.enums.Sort;
 import com.dtstack.schedule.common.kerberos.KerberosConfigVerify;
 import com.dtstack.schedule.common.util.Base64Util;
@@ -167,7 +168,7 @@ public class ClusterService implements InitializingBean {
         }
         clusterDao.insert(cluster);
         clusterDTO.setId(cluster.getId());
-        return getCluster(cluster.getId(),true);
+        return getCluster(cluster.getId(),true,true);
     }
 
     private void checkName(String name) {
@@ -228,7 +229,7 @@ public class ClusterService implements InitializingBean {
             return StringUtils.EMPTY;
         }
         Engine engine = engineDao.getOne(engineIds.get(0));
-        ClusterVO cluster = getCluster(engine.getClusterId(), true);
+        ClusterVO cluster = getCluster(engine.getClusterId(), true,false);
         return JSONObject.toJSONString(cluster);
     }
 
@@ -397,16 +398,16 @@ public class ClusterService implements InitializingBean {
     private ClusterVO getClusterByTenant(Long dtUicTenantId) {
         Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
         if (tenantId == null) {
-            return getCluster(DEFAULT_CLUSTER_ID, true);
+            return getCluster(DEFAULT_CLUSTER_ID, true,false);
         }
 
         List<Long> engineIds = engineTenantDao.listEngineIdByTenantId(tenantId);
         if (CollectionUtils.isEmpty(engineIds)) {
-            return getCluster(DEFAULT_CLUSTER_ID, true);
+            return getCluster(DEFAULT_CLUSTER_ID, true,false);
         }
 
         Engine engine = engineDao.getOne(engineIds.get(0));
-        return getCluster(engine.getClusterId(), true);
+        return getCluster(engine.getClusterId(), true,false);
     }
 
     public String getConfigByKey(@Param("dtUicTenantId")Long dtUicTenantId, @Param("key") String key,@Param("fullKerberos") Boolean fullKerberos) {
@@ -727,7 +728,7 @@ public class ClusterService implements InitializingBean {
      * @param clusterId
      * @return
      */
-    public ClusterVO getCluster(@Param("clusterId") Long clusterId, @Param("kerberosConfig") Boolean kerberosConfig) {
+    public ClusterVO getCluster(@Param("clusterId") Long clusterId, @Param("kerberosConfig") Boolean kerberosConfig,@Param("kerberosConfig") Boolean removeTypeName) {
         Cluster cluster = clusterDao.getOne(clusterId);
         EngineAssert.assertTrue(cluster != null, ErrorCode.DATA_NOT_FIND.getDescription());
         ClusterVO clusterVO = ClusterVO.toVO(cluster);
@@ -756,7 +757,7 @@ public class ClusterService implements InitializingBean {
                     if (CollectionUtils.isNotEmpty(resourceComponents)) {
                         for (Component resourceComponent : resourceComponents) {
                             if (resourceComponent.getId() >= 0) {
-                                schedulingVo.setComponents(ComponentVO.toVOS(Lists.newArrayList(resourceComponent)));
+                                schedulingVo.setComponents(ComponentVO.toVOS(Lists.newArrayList(resourceComponent),Objects.isNull(removeTypeName) ? true : removeTypeName));
                                 break;
                             }
                         }
@@ -764,7 +765,7 @@ public class ClusterService implements InitializingBean {
                 }
 
             } else if (Objects.nonNull(scheduleType) && scheduleType.containsKey(value)) {
-                schedulingVo.setComponents(ComponentVO.toVOS(scheduleType.get(value)));
+                schedulingVo.setComponents(ComponentVO.toVOS(scheduleType.get(value),Objects.isNull(removeTypeName) ? true : removeTypeName));
             }
             schedulingVos.add(schedulingVo);
         }

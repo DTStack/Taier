@@ -9,20 +9,22 @@ import java.util.List;
 
 public class ComponentVO extends Component {
 
-    public static List<ComponentVO> toVOS(List<Component> components) {
+    public static List<ComponentVO> toVOS(List<Component> components,boolean removeTypeName) {
         List<ComponentVO> vos = new ArrayList<>();
         for (Component component : components) {
-            vos.add(toVO(component));
+            vos.add(toVO(component,removeTypeName));
         }
         return vos;
     }
 
-    public static ComponentVO toVO(Component component){
+    public static ComponentVO toVO(Component component,boolean removeTypeName){
         ComponentVO vo = new ComponentVO();
         BeanUtils.copyProperties(component, vo);
         //前端默认不展示kerberosConfig
         JSONObject jsonObject = JSONObject.parseObject(component.getComponentConfig());
-        jsonObject.remove("typeName");
+        if(removeTypeName){
+            jsonObject.remove("typeName");
+        }
         vo.setComponentConfig(jsonObject.toJSONString());
         return vo;
     }
