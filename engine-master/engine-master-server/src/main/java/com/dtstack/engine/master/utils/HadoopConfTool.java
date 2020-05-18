@@ -1,16 +1,7 @@
 package com.dtstack.engine.master.utils;
 
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.MathUtil;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.conf.Configuration;
-
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 解析配置获取Hadoop配置
@@ -77,7 +68,7 @@ public class HadoopConfTool {
             "yarn.nodemanager.keytab"
     );
 
-    public static String getKeyTabFile(Configuration conf){
+    /*public static String getKeyTabFile(Configuration conf){
         String keyTabFile = null;
 
         int i = 0;
@@ -217,9 +208,9 @@ public class HadoopConfTool {
     }
 
 
-    /**
+    *//**
      * Configuration
-     */
+     *//*
     public static String getDfsNameServices(Configuration conf) {
         String nameServices = MathUtil.getString(conf.get(DFS_NAME_SERVICES));
         return nameServices;
@@ -296,5 +287,5 @@ public class HadoopConfTool {
         }
 
         return disableCache;
-    }
+    }*/
 }

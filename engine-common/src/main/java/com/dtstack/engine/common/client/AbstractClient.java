@@ -140,10 +140,14 @@ public abstract class AbstractClient implements IClient{
         if (result instanceof Map) {
             Map<String, Object> configMap = (Map<String, Object>) result;
             List<ClientTemplate> templateVos = new ArrayList<>();
+            boolean hasAddRequired = false;
             for (String key : configMap.keySet()) {
                 if ("required".equalsIgnoreCase(key) || "optional".equalsIgnoreCase(key)) {
                     // 如果required 开头 单个tab选择
-                    templateVos.addAll(this.getClientTemplates(configMap));
+                    if(!hasAddRequired){
+                        hasAddRequired = true;
+                        templateVos.addAll(this.getClientTemplates(configMap));
+                    }
                 } else {
                     Map<String, Object> groupMap = (Map<String, Object>) configMap.get(key);
                     // 不是required 开头 多个数组选择

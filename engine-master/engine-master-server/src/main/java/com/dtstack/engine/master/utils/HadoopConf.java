@@ -1,22 +1,11 @@
 package com.dtstack.engine.master.utils;
 
-import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.impl.ClusterService;
-import com.dtstack.schedule.common.kerberos.KerberosConfigVerify;
-import com.google.common.collect.Maps;
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FilenameFilter;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author sishu.yss
@@ -31,14 +20,14 @@ public class HadoopConf {
 
     private final static String HADOOP_CONF_DIR = System.getenv("HADOOP_CONF_DIR");
 
-    private static Configuration defaultConfiguration = new Configuration(false);
+    /*private static Configuration defaultConfiguration = new Configuration(false);
     private static YarnConfiguration defaultYarnConfiguration = new YarnConfiguration();
 
     private static volatile Map<Long, Object> parallelLockMap = Maps.newConcurrentMap();
 
     private static volatile Map<Long, Configuration> configurationMap = Maps.newConcurrentMap();
 
-    private static volatile Map<Long, Configuration> yarnConfigurationMap = Maps.newConcurrentMap();;
+    private static volatile Map<Long, Configuration> yarnConfigurationMap = Maps.newConcurrentMap();;*/
 
     private static final String FS_HDFS_IMPL_DISABLE_CACHE ="fs.hdfs.impl.disable.cache";
     private static final String IPC_CLIENT_FALLBACK_TO_SIMPLE_AUTH_ALLOWED ="ipc.client.fallback-to-simple-auth-allowed";
@@ -47,7 +36,7 @@ public class HadoopConf {
     private static final List<String> YARN_PRE = Arrays.asList("yarn", "hadoop.security.authentication", "hadoop.security.authorization");
 
 
-    static {
+   /* static {
         try {
             String dir = StringUtils.isNotBlank(HADOOP_CONF_DIR) ? HADOOP_CONF_DIR : HADOOP_CONFIGE;
 //            defaultConfiguration.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
@@ -85,12 +74,12 @@ public class HadoopConf {
         return lock;
     }
 
-    /**
+    *//**
      * 获取hdfs和yarn的总和
      *
      * @param dtuicTenantId
      * @return
-     */
+     *//*
     public static Configuration getFullConfiguration(long dtuicTenantId) {
         Configuration hadoopConf = getConfiguration(dtuicTenantId);
         YarnConfiguration yarnConfiguration = getYarnConfiguration(dtuicTenantId);
@@ -254,5 +243,5 @@ public class HadoopConf {
 
     public static YarnConfiguration getDefaultYarnConfiguration() {
         return defaultYarnConfiguration;
-    }
+    }*/
 }

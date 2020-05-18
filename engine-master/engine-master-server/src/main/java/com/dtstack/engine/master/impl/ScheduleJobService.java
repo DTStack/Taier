@@ -31,8 +31,6 @@ import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
 import com.dtstack.engine.master.scheduler.JobStopSender;
-import com.dtstack.engine.master.utils.HadoopConf;
-import com.dtstack.engine.master.utils.HdfsOperator;
 import com.dtstack.engine.master.utils.PublicUtil;
 import com.dtstack.engine.master.vo.BatchSecienceJobChartVO;
 import com.dtstack.engine.master.vo.ScheduleJobVO;
@@ -2287,41 +2285,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         return StringUtils.join(params, " ");
     }
 
-    public String uploadSqlTextToHdfs(Long dtuicTenantId, String content, Integer taskType, String taskName, Long
-            tenantId, Long projectId) {
-        String hdfsPath = null;
-        try {
-            // shell任务，创建脚本文件
-            String fileName = null;
-            if (taskType.equals(EScheduleJobType.SHELL.getVal())) {
-                fileName = String.format("shell_%s_%s_%s_%s.sh", tenantId, projectId,
-                        taskName, System.currentTimeMillis());
-            } else if (taskType.equals(EScheduleJobType.PYTHON.getVal()) ||
-                    taskType.equals(EScheduleJobType.NOTEBOOK.getVal())) {
-                fileName = String.format("python_%s_%s_%s_%s.py", tenantId, projectId,
-                        taskName, System.currentTimeMillis());
-            } else if (taskType.equals(EScheduleJobType.DEEP_LEARNING.getVal())) {
-                fileName = String.format("learning_%s_%s_%s_%s.py", tenantId, projectId,
-                        taskName, System.currentTimeMillis());
-            } else if (taskType.equals(EScheduleJobType.SPARK_PYTHON.getVal())) {
-                fileName = String.format("pyspark_%s_%s_%s_%s.py", tenantId, projectId,
-                        taskName, System.currentTimeMillis());
-            }
-
-            if (fileName != null) {
-                hdfsPath = env.getHdfsBatchPath() + fileName;
-                if (taskType.equals(EScheduleJobType.SHELL.getVal())) {
-                    content = content.replaceAll("\r\n", System.getProperty("line.separator"));
-                }
-                HdfsOperator.uploadInputStreamToHdfs(HadoopConf.getConfiguration(dtuicTenantId), content.getBytes(), hdfsPath);
-            }
-        } catch (Exception e) {
-            logger.error("", e);
-            throw new RdosDefineException("Update task to HDFS failure:" + e.getMessage());
-        }
-
-        return HadoopConf.getDefaultFs(dtuicTenantId) + hdfsPath;
-    }
 
     /**
      * 根据工作流id获取子任务信息与任务状态

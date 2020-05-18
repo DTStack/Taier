@@ -106,8 +106,6 @@ public class ClusterService implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        HadoopConf.setClusterService(this);
-
         if (isDefaultClusterExist()) {
             return;
         }
@@ -139,9 +137,10 @@ public class ClusterService implements InitializingBean {
 
         boolean updateQueue = true;
         JSONObject componentConfig = new JSONObject();
-        componentConfig.put(EComponentType.HDFS.getConfName(), HadoopConf.getDefaultHadoopConfiguration());
-        componentConfig.put(EComponentType.YARN.getConfName(), HadoopConf.getDefaultYarnConfiguration());
+        componentConfig.put(EComponentType.HDFS.getConfName(), new JSONObject().toJSONString());
+        componentConfig.put(EComponentType.YARN.getConfName(), new JSONObject().toJSONString());
         componentConfig.put(EComponentType.SPARK_THRIFT.getConfName(), new JSONObject().toJSONString());
+        componentConfig.put(EComponentType.SFTP.getConfName(), new JSONObject().toJSONString());
 
         engineService.addEnginesByComponentConfig(componentConfig, cluster.getId(), updateQueue);
 
@@ -769,10 +768,23 @@ public class ClusterService implements InitializingBean {
             SchedulingVo schedulingVo = new SchedulingVo();
             schedulingVo.setSchedulingCode(value.getType());
             schedulingVo.setSchedulingName(value.getName());
-            if (Objects.nonNull(scheduleType) && scheduleType.containsKey(value)) {
+            schedulingVo.setComponents(new ArrayList<>());
+            if (EComponentScheduleType.resourceScheduling.getType() == value.getType()) {
+                //资源调度组件单选
+                if (Objects.nonNull(scheduleType) && scheduleType.containsKey(value)) {
+                    List<Component> resourceComponents = scheduleType.get(value);
+                    if (CollectionUtils.isNotEmpty(resourceComponents)) {
+                        for (Component resourceComponent : resourceComponents) {
+                            if (resourceComponent.getId() >= 0) {
+                                schedulingVo.setComponents(Lists.newArrayList(resourceComponent));
+                                break;
+                            }
+                        }
+                    }
+                }
+
+            } else if (Objects.nonNull(scheduleType) && scheduleType.containsKey(value)) {
                 schedulingVo.setComponents(scheduleType.get(value));
-            } else {
-                schedulingVo.setComponents(new ArrayList<>());
             }
             schedulingVos.add(schedulingVo);
         }

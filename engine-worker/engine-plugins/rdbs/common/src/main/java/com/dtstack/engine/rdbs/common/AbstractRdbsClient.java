@@ -17,7 +17,6 @@ import com.dtstack.engine.rdbs.common.constant.ConfigConstant;
 import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 import com.dtstack.engine.rdbs.common.executor.RdbsExeQueue;
 import com.google.common.collect.Lists;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +26,6 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -209,7 +207,7 @@ public abstract class AbstractRdbsClient extends AbstractClient {
                 }
             }
         } catch (Exception e) {
-            LOG.error("execue sql {} error", sql, e);
+            LOG.error("execute sql {} error", sql, e);
         } finally {
             try {
                 if (res != null) {
@@ -222,7 +220,6 @@ public abstract class AbstractRdbsClient extends AbstractClient {
 
                 if (null != conn) {
                     conn.close();
-                    ;
                 }
             } catch (Throwable var18) {
                 LOG.error("", var18);

@@ -9,14 +9,10 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.security.UserGroupInformation;
-import org.apache.hadoop.security.authentication.util.KerberosUtil;
 import org.apache.kerby.kerberos.kerb.keytab.Keytab;
 import org.apache.kerby.kerberos.kerb.type.base.PrincipalName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.security.krb5.Config;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +27,7 @@ public class DtKerberosUtils {
 
     private static final String _HOST = "_HOST";
 
-    public synchronized static void loginKerberos(Configuration conf) throws Exception {
+   /* public synchronized static void loginKerberos(Configuration conf) throws Exception {
         UserGroupInformation.setConfiguration(conf);
 
         String principal = getServerPrincipal(HadoopConfTool.getPrincipal(conf), "0.0.0.0");
@@ -96,7 +92,7 @@ public class DtKerberosUtils {
         }
         return config;
     }
-
+*/
     public static String getPrincipal(String keytabPath) {
         File file = new File(keytabPath);
         Preconditions.checkState(file.exists() && file.isFile(), String.format("can't read keytab file (%s),it's  not exist or not a file", keytabPath));
@@ -122,7 +118,7 @@ public class DtKerberosUtils {
         throw new RdosDefineException("当前keytab文件不包含principal信息");
     }
 
-    public static Configuration getConfig(Map<String, Object> configMap) {
+    /*public static Configuration getConfig(Map<String, Object> configMap) {
         Configuration conf = new Configuration();
         for (Map.Entry<String, Object> entry : configMap.entrySet()) {
             if (entry.getValue() != null && !(entry.getValue() instanceof Map)) {
@@ -183,7 +179,7 @@ public class DtKerberosUtils {
 
         return principal.equals(ugi.getUserName());
     }
-
+*/
     public static String getServerPrincipal(String principalConfig, String hostname) throws IOException {
         String[] components = getComponents(principalConfig);
         return components != null && components.length == 3 && components[1].equals("_HOST") ? replacePattern(components, hostname) : principalConfig;

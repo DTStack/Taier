@@ -864,7 +864,7 @@ public class ComponentService {
             SFTPHandler instance = SFTPHandler.getInstance(map);
             String remoteDir = map.get("path") + File.separator + this.buildSftpPath(clusterId, addComponent.getComponentTypeCode());
             for (Resource resource : resources) {
-                if (!resource.getFileName().equalsIgnoreCase(kerberosFileName)) {
+                if (!resource.getFileName().equalsIgnoreCase(kerberosFileName) || StringUtils.isBlank(kerberosFileName)) {
                     addComponent.setUploadFileName(resource.getFileName());
                 }
                 try {
