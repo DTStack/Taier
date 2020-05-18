@@ -10,21 +10,22 @@
         <relativePath>..</relativePath>
     </parent>
 
-    <artifactId>plugins.yarn2-hdfs2-flink180</artifactId>
-    <name>plugins.yarn2-hdfs2-flink180</name>
+    <artifactId>plugins.flink.yarn2-hdfs2-flink180</artifactId>
+    <name>plugins.flink.yarn2-hdfs2-flink180</name>
 
     <url>http://maven.apache.org</url>
     <properties>
-        <jar.name>flink180-hadoop2</jar.name>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <flink.version>1.8.1</flink.version>
         <gson.version>2.7</gson.version>
+        <!-- 插件包所在文件夹名称 -->
+        <pluginDir.name>yarn2-hdfs2-flink180</pluginDir.name>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>plugins.yarn2-hdfs2-flink180-core</artifactId>
+            <artifactId>plugins.flink.yarn2-hdfs2-flink180-core</artifactId>
             <version>1.0.0</version>
         </dependency>
 
@@ -259,13 +260,13 @@
                         <configuration>
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
-                                <copy todir="${basedir}/target/../../../../../pluginLibs/flink180-hadoop2/"
-                                      file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
+                                      tofile="${basedir}/target/${pluginDir.name}-${git.branch}.jar" />
+                                <copy todir="${basedir}/target/../../../../../pluginLibs/${pluginDir.name}/"
+                                      file="${basedir}/target/${pluginDir.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/target/../../../../../pluginLibs/flink180-hadoop2/"
-                                             includes="${jar.name}-*.jar"
-                                             excludes="${jar.name}-${git.branch}.jar"/>
+                                    <fileset dir="${basedir}/target/../../../../../pluginLibs/${pluginDir.name}/"
+                                             includes="${pluginDir.name}-*.jar"
+                                             excludes="${pluginDir.name}-${git.branch}.jar"/>
                                 </delete>
                             </tasks>
                         </configuration>

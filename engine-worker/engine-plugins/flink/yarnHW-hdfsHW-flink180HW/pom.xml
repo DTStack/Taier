@@ -10,12 +10,13 @@
         <relativePath>..</relativePath>
     </parent>
 
-    <artifactId>plugins.yarnHW-hdfsHW-flink180HW</artifactId>
-    <name>plugins.yarnHW-hdfsHW-flink180HW</name>
+    <artifactId>plugins.flink.yarnHW-hdfsHW-flink180HW</artifactId>
+    <name>plugins.flink.yarnHW-hdfsHW-flink180HW</name>
 
     <url>http://maven.apache.org</url>
     <properties>
         <jar.name>flink180-HW</jar.name>
+        <pluginDir.name>yarnHW-hdfsHW-flink180HW</pluginDir.name>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <flink.version>1.8-hw</flink.version>
         <gson.version>2.7</gson.version>
@@ -26,7 +27,7 @@
 
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>plugins.yarn2-hdfs2-flink180-core</artifactId>
+            <artifactId>plugins.flink.yarn2-hdfs2-flink180-core</artifactId>
             <version>1.0.0</version>
         </dependency>
 
@@ -328,10 +329,10 @@
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
                                       tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
-                                <copy todir="${basedir}/target/../../../../../pluginLibs/flink180-HW/"
+                                <copy todir="${basedir}/target/../../../../../pluginLibs/${pluginDir.name}/"
                                       file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/target/../../../../../pluginLibs/flink180-HW/"
+                                    <fileset dir="${basedir}/target/../../../../../pluginLibs/${pluginDir.name}/"
                                              includes="${jar.name}-*.jar"
                                              excludes="${jar.name}-${git.branch}.jar"/>
                                 </delete>

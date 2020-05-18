@@ -17,49 +17,14 @@
 
     <modules>
         <module>yarn2-hdfs2-flink180-core</module>
+        <module>yarn2-hdfs2-flink180</module>
+        <module>yarn3-hdfs3-flink180</module>
+        <module>yarnHW-hdfsHW-flink180HW</module>
         <module>yarn2-hdfs2-flink110-core</module>
+        <module>yarn2-hdfs2-flink110</module>
         <module>k8s-hdfs2-flink110-core</module>
+        <module>k8s-hdfs2-flink110</module>
     </modules>
-
-    <profiles>
-        <profile>
-            <id>yarn2-hdfs2</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>yarn2-hdfs2-flink180</module>
-                <module>yarn2-hdfs2-flink110</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>yarn3-hdfs3</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <modules>
-                <module>yarn3-hdfs3-flink180</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>k8s-hdfs2</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <modules>
-                <module>k8s-hdfs2-flink110</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>yarnHW-hdfsHW</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <modules>
-                <module>yarnHW-hdfsHW-flink180HW</module>
-            </modules>
-        </profile>
-    </profiles>
 
     <build>
         <resources>

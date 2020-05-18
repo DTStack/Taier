@@ -15,7 +15,7 @@
 
     <url>http://maven.apache.org</url>
     <properties>
-        <jar.name>flink1100-hadoop2</jar.name>
+        <pluginDir.name>yarn2-hdfs2-flink110</pluginDir.name>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <flink.version>1.10.0</flink.version>
     </properties>
@@ -23,7 +23,7 @@
     <dependencies>
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>plugins.yarn2-hdfs2-flink110-core</artifactId>
+            <artifactId>plugins.flink.yarn2-hdfs2-flink110-core</artifactId>
             <version>1.0.0</version>
         </dependency>
 
@@ -263,13 +263,13 @@
                         <configuration>
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/target/${jar.name}-${git.branch}.jar"/>
-                                <copy todir="${basedir}/target/../../../../../pluginLibs/flink1100-hadoop2/"
-                                      file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
+                                      tofile="${basedir}/target/${pluginDir.name}-${git.branch}.jar"/>
+                                <copy todir="${basedir}/target/../../../../../pluginLibs/${pluginDir.name}/"
+                                      file="${basedir}/target/${pluginDir.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/target/../../../../../pluginLibs/flink1100-hadoop2/"
-                                             includes="${jar.name}-*.jar"
-                                             excludes="${jar.name}-${git.branch}.jar"/>
+                                    <fileset dir="${basedir}/target/../../../../../pluginLibs/${pluginDir.name}/"
+                                             includes="${pluginDir.name}-*.jar"
+                                             excludes="${pluginDir.name}-${git.branch}.jar"/>
                                 </delete>
                             </tasks>
                         </configuration>

@@ -1,5 +1,19 @@
 package com.dtstack.engine.flink;
 
+import com.dtstack.engine.common.client.AbstractClient;
+import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.ExceptionUtil;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.http.PoolHttpClient;
+import com.dtstack.engine.common.util.DtStringUtil;
+import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.flink.factory.PerJobClientFactory;
+import com.dtstack.engine.flink.plugininfo.SqlPluginInfo;
+import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
+import com.dtstack.engine.flink.resource.FlinkPerJobResourceInfo;
+import com.dtstack.engine.flink.resource.FlinkYarnSeesionResourceInfo;
+import com.dtstack.engine.flink.util.FileUtil;
+import com.dtstack.engine.flink.util.FlinkRestParseUtil;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -42,6 +56,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.Charsets;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
@@ -76,12 +91,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import static java.security.AccessController.doPrivileged;
 
@@ -740,6 +750,16 @@ public class FlinkClient extends AbstractClient {
         }
 
         cacheFile.remove(jobClient.getTaskId());
+
+        String localDirStr = USER_DIR + DIR + jobClient.getTaskId();
+        File localDir = new File(localDirStr);
+        if (localDir.exists()){
+            try {
+                FileUtils.deleteDirectory(localDir);
+            } catch (IOException e) {
+                logger.error("Delete dir failed: " + e);
+            }
+        }
     }
 
     @Override
@@ -780,7 +800,7 @@ public class FlinkClient extends AbstractClient {
     }
 
     /**
-     * shipfile模式下，插件包在flinksession启动时,已经全部上传
+     *  shipfile模式下，插件包在flinksession启动时,已经全部上传
      * @param packagedProgram
      */
     private void clearClassPathShipfileLoadMode(PackagedProgram packagedProgram) {

@@ -17,28 +17,9 @@
 
     <modules>
         <module>yarn2-hdfs2-dtscript-core</module>
+        <module>yarn2-hdfs2-dtscript</module>
+        <module>yarn3-hdfs3-dtscript</module>
     </modules>
-
-    <profiles>
-        <profile>
-            <id>yarn2-hdfs2</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>yarn2-hdfs2-dtscript</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>yarn3-hdfs3</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <modules>
-                <module>yarn3-hdfs3-dtscript</module>
-            </modules>
-        </profile>
-    </profiles>
 
     <build>
         <resources>
