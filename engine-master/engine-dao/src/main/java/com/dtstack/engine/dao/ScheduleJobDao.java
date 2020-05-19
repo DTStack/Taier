@@ -216,8 +216,6 @@ public interface ScheduleJobDao {
 
     void updateJobSubmitSuccess(@Param("jobId") String jobId, @Param("engineId") String engineId, @Param("appId") String appId, @Param("submitLog") String submitLog);
 
-    void updateJobUnSubmitOrRestart(@Param("jobId") String jobId, @Param("status") int status);
-
     ScheduleJob getRdosJobByJobId(@Param("jobId") String jobId);
 
     List<ScheduleJob> getRdosJobByJobIds(@Param("jobIds")List<String> jobIds);

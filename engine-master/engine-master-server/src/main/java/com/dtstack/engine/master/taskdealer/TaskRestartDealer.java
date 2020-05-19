@@ -229,7 +229,7 @@ public class TaskRestartDealer {
             //重试的任务不置为失败，waitengine
             jobRetryRecord(jobClient);
 
-            scheduleJobDao.updateJobUnSubmitOrRestart(jobId, RdosTaskStatus.RESTARTING.getStatus());
+            scheduleJobDao.updateJobStatus(jobId,RdosTaskStatus.RESTARTING.getStatus());
             LOG.info("jobId:{} update job status:{}.", jobId, RdosTaskStatus.RESTARTING.getStatus());
 
             //update retryNum
