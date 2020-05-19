@@ -86,23 +86,27 @@ export const DATA_SOURCE: any = {
     HBASE: 8,
     FTP: 9,
     MAXCOMPUTE: 10,
-    ADSMAXCOMPUTE: 11
+    ADSMAXCOMPUTE: 11,
+    TI_DB: 31
 }
 export const ENGINE_TYPE = {
     HADOOP: 1,
     LIBRA: 2,
-    TI_DB: 4
+    TI_DB: 4,
+    ORACLE: 5
 }
 export const ENGINE_TYPE_NAME = {
     HADOOP: 'Hadoop',
     LIBRA: 'LibrA',
-    TI_DB: 'TiDB'
+    TI_DB: 'TiDB',
+    ORACLE: 'Oracle'
 }
 
 export const ENGIN_TYPE_TEXT = {
     [ENGINE_TYPE.HADOOP]: 'Hadoop',
     [ENGINE_TYPE.LIBRA]: 'LibrA',
-    [ENGINE_TYPE.TI_DB]: 'TiDB'
+    [ENGINE_TYPE.TI_DB]: 'TiDB',
+    [ENGINE_TYPE.ORACLE]: 'Oracle'
 }
 
 export const ENGINE_TYPE_ARRAY = [{ // 引擎类型下拉框数据
@@ -114,6 +118,9 @@ export const ENGINE_TYPE_ARRAY = [{ // 引擎类型下拉框数据
 }, {
     name: 'TiDB',
     value: ENGINE_TYPE_NAME.TI_DB
+}, {
+    name: 'Oracle',
+    value: ENGINE_TYPE_NAME.ORACLE
 }];
 
 export const COMPONENT_TYPE_VALUE = {
@@ -129,7 +136,8 @@ export const COMPONENT_TYPE_VALUE = {
     HIVESERVER: 9,
     SFTP: 10,
     IMPALASQL: 11,
-    TIDB_SQL: 12
+    TIDB_SQL: 12,
+    ORACLE_SQL: 13
 }
 export const DEFAULT_COMP_TEST: any = { // 测试结果默认数据
     flinkTestResult: {},
@@ -143,6 +151,7 @@ export const DEFAULT_COMP_TEST: any = { // 测试结果默认数据
     hiveServerTestResult: {},
     libraSqlTestResult: {},
     tidbSqlTestResult: {},
+    oracleSqlTestResult: {},
     impalaSqlTestResult: {},
     sftpTestResult: {}
 }
@@ -184,6 +193,7 @@ export const COMPONEMT_CONFIG_KEYS = {
     CARBONDATA: 'carbonConf',
     LIBRASQL: 'libraConf',
     TI_DB_SQL: 'tidbConf',
+    ORACLE_SQL: 'oracleConf',
     HIVESERVER: 'hiveServerConf',
     SFTP: 'sftpConf',
     IMPALASQL: 'impalaSqlConf'
@@ -202,7 +212,8 @@ export const COMPONEMT_CONFIG_KEY_ENUM = {
     [COMPONENT_TYPE_VALUE.LIBRASQL]: COMPONEMT_CONFIG_KEYS.LIBRASQL,
     [COMPONENT_TYPE_VALUE.TIDB_SQL]: COMPONEMT_CONFIG_KEYS.TI_DB_SQL,
     [COMPONENT_TYPE_VALUE.SFTP]: COMPONEMT_CONFIG_KEYS.SFTP,
-    [COMPONENT_TYPE_VALUE.IMPALASQL]: COMPONEMT_CONFIG_KEYS.IMPALASQL
+    [COMPONENT_TYPE_VALUE.IMPALASQL]: COMPONEMT_CONFIG_KEYS.IMPALASQL,
+    [COMPONENT_TYPE_VALUE.ORACLE_SQL]: COMPONEMT_CONFIG_KEYS.ORACLE_SQL
 };
 
 export const API_MODE: any = {

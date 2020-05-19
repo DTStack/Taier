@@ -57,6 +57,7 @@ export default class TestRestIcon extends React.Component<any, any> {
             hiveServerTestResult,
             libraSqlTestResult,
             tidbSqlTestResult,
+            oracleSqlTestResult,
             impalaSqlTestResult,
             sftpTestResult } = testStatus;
         let testCompResult: any = {}
@@ -107,6 +108,10 @@ export default class TestRestIcon extends React.Component<any, any> {
             }
             case COMPONENT_TYPE_VALUE.TIDB_SQL: {
                 testCompResult = tidbSqlTestResult;
+                break;
+            }
+            case COMPONENT_TYPE_VALUE.ORACLE_SQL: {
+                testCompResult = oracleSqlTestResult;
                 break;
             }
             case COMPONENT_TYPE_VALUE.SFTP: {

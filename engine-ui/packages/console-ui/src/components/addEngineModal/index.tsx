@@ -64,6 +64,8 @@ class AddEngineModal extends React.Component<any, any> {
                 return [COMPONENT_TYPE_VALUE.LIBRASQL];
             } else if (engineName === ENGINE_TYPE_NAME.TI_DB) {
                 return [COMPONENT_TYPE_VALUE.TIDB_SQL];
+            } else if (engineName === ENGINE_TYPE_NAME.ORACLE) {
+                return [COMPONENT_TYPE_VALUE.ORACLE_SQL];
             }
         }
         if (singleMode) {
@@ -143,6 +145,7 @@ class AddEngineModal extends React.Component<any, any> {
         const checkedHadoop = engines.indexOf(ENGINE_TYPE_NAME.HADOOP) > -1;
         const checkedLibra = engines.indexOf(ENGINE_TYPE_NAME.LIBRA) > -1;
         const checkedTiDB = engines.indexOf(ENGINE_TYPE_NAME.TI_DB) > -1;
+        const checkedOracle = engines.indexOf(ENGINE_TYPE_NAME.ORACLE) > -1;
 
         return (
             <React.Fragment>
@@ -202,6 +205,22 @@ class AddEngineModal extends React.Component<any, any> {
                         initialValue: COMPONENT_TYPE_VALUE.TIDB_SQL
                     })(
                         <span>TiDB SQL</span>
+                    )}
+                </FormItem>
+                <FormItem
+                    label="Oracle组件"
+                    {...formItemLayout}
+                    style={{ marginBottom: '4px' }}
+                    className={checkedOracle ? 'c-formItem__checked' : ''}
+                >
+                    {getFieldDecorator('oraclerequiredEngines', {
+                        rules: [{
+                            required: checkedOracle,
+                            message: ''
+                        }],
+                        initialValue: COMPONENT_TYPE_VALUE.ORACLE_SQL
+                    })(
+                        <span>Oracle SQL</span>
                     )}
                 </FormItem>
             </React.Fragment>
