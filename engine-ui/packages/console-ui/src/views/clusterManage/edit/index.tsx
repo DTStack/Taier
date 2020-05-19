@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cloneDeep, xor } from 'lodash';
+import { cloneDeep } from 'lodash';
 import { connect } from 'react-redux';
 import { hashHistory } from 'react-router';
 import {
@@ -59,7 +59,6 @@ class EditCluster extends React.Component<any, any> {
         clusterId: '', // 集群id
         clusterName: '', // 集群名称
         compTypeKey: 0, // 组件默认选中
-        selectComp: [], // 存储组件勾选状态
         componentConfig: {}, // 各组件配置文件信息
         tabCompData: [
             {
@@ -79,10 +78,10 @@ class EditCluster extends React.Component<any, any> {
                 components: []
             }
         ], // 集群结构信息
-        modifyComps: [], // 变更组件
-        modifySource: '', // 资源调度组件变更组件
         defaultValue: [], // 组件配置默认选中组件值
         selectValue: [], // 选中组件存值
+        deleteComps: [], // 删除组件
+        addComps: [], // 新增组件
         popoverVisible: false,
         uploadLoading: false,
         kerUploadLoading: false,
@@ -130,9 +129,7 @@ class EditCluster extends React.Component<any, any> {
     onTabChange = (key: any) => {
         this.setState({
             compTypeKey: Number(key),
-            popoverVisible: false,
-            modifyComps: [],
-            modifySource: ''
+            popoverVisible: false
         }, () => this.selectDefaultValue())
     }
 
@@ -223,126 +220,124 @@ class EditCluster extends React.Component<any, any> {
     // 点击确认后对选中数据进行处理
     modifyTabCompData = () => {
         const { tabCompData, selectValue, compTypeKey, defaultValue } = this.state;
-        let modifyComps: any = [];
-        const scheduling = tabCompData.find((sche: any) => sche.schedulingCode === compTypeKey)
-        // 组件未变更处理
+        const components = tabCompData.find((sche: any) => sche.schedulingCode === compTypeKey).components;
+        let deleteComps: any = [];
+        let addComps: any = [];
         if (selectValue.sort().toString() === defaultValue.sort().toString()) {
             this.setState({
                 popoverVisible: false
             })
             return;
         }
-        // 资源调度组件切换
-        if (compTypeKey === TABS_TITLE_KEY.SOURCE && scheduling.components.length > 0) {
-            this.modifySourceComponent();
-            return;
-        }
-        scheduling.components.map((comps: any) => {
+        components.map((comps: any) => {
             if (selectValue.findIndex((val: any) => val === comps.componentTypeCode) === -1) {
-                modifyComps.push(comps)
+                const config = this.getComponentConfig(comps);
+                deleteComps.push({ ...comps, id: config.id || '' });
             }
         })
-        if (modifyComps.length !== 0) {
+
+        if (components.length === 0) {
+            addComps = selectValue;
+        } else {
+            selectValue.forEach((val: any) => {
+                if (components.findIndex((comps: any) => comps.componentTypeCode === val) === -1) {
+                    addComps.push(val);
+                }
+            })
+        }
+        if (deleteComps.length > 0) {
             this.setState({
-                modify: true,
                 popoverVisible: false,
-                modifyComps
+                modify: true,
+                deleteComps,
+                addComps
             })
         } else {
-            this.setTabCompData();
+            this.handleAddComps(addComps);
         }
     }
 
-    // 存入选中组件数据
-    setTabCompData = () => {
-        const { selectValue, tabCompData, compTypeKey, defaultValue } = this.state;
-        const cloneCompData = cloneDeep(tabCompData);
-        let addComponents: any = [];
-        let components: any = tabCompData.find((sche: any) => sche.schedulingCode === compTypeKey).components;
-        addComponents = xor(selectValue, defaultValue)
-        // console.log('cloneSelectValue-------', addComponents)
-        addComponents.map((val: any) => {
-            components.push({ componentTypeCode: val, componentName: COMPONEMT_CONFIG_NAME_ENUM[val] });
-            this.setState({
-                componentConfig: {
-                    ...this.state.componentConfig,
-                    [COMPONEMT_CONFIG_KEY_ENUM[val]]: {}
-                }
-            })
-        })
-        cloneCompData.forEach((item: any) => {
-            if (item.schedulingCode === compTypeKey) item.components = components
-        })
+    // 清除存储组件数据
+    clearCompsConfig = (componentTypeCode: any) => {
+        const { componentConfig } = this.state;
         this.setState({
-            tabCompData: cloneCompData,
-            popoverVisible: false
-        }, () => { this.getLoadTemplate(); this.selectDefaultValue() });
-    }
-
-    modifySourceComponent = () => {
-        const { selectValue } = this.state;
-        this.setState({
-            modify: true,
-            popoverVisible: false,
-            modifySource: selectValue[0] === COMPONENT_TYPE_VALUE.KUBERNETES ? COMPONENT_TYPE_VALUE.YARN : COMPONENT_TYPE_VALUE.KUBERNETES
+            componentConfig: {
+                ...componentConfig,
+                [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {}
+            }
         })
     }
 
-    // 删除组件和存储配置信息
-    deleteTabCompData = (deletArr: any) => {
-        const { tabCompData, compTypeKey } = this.state;
+    // 删除tabCompData组件和组件存储的配置信息
+    clearTabCompData = () => {
+        const { tabCompData, compTypeKey, deleteComps, addComps } = this.state;
         let cloneComps = cloneDeep(tabCompData);
         const components = cloneComps.find((sche: any) => sche.schedulingCode === compTypeKey).components;
-        deletArr.map((compconent: any) => {
+        deleteComps.map((compconent: any) => {
             components.splice(components.findIndex((comps: any) => comps.componentTypeCode === compconent.componentTypeCode), 1);
-            this.setState({
-                componentConfig: {
-                    ...this.state.componentConfig,
-                    [COMPONEMT_CONFIG_KEY_ENUM[compconent.componentTypeCode]]: {}
-                }
-            })
+            this.clearCompsConfig(compconent.componentTypeCode)
         })
         this.setState({
             tabCompData: cloneComps
-        })
+        }, () => this.handleAddComps(addComps));
     }
 
-    // 已变更组件处理
-    modifyComponent = () => {
-        const { modifyComps, compTypeKey, modifySource } = this.state;
+    // 处理删除数据
+    handleDeleteComps = () => {
+        const { deleteComps } = this.state;
         let componentIds: any = [];
-        if (compTypeKey === TABS_TITLE_KEY.SOURCE) {
-            this.setState({
-                componentConfig: {
-                    ...this.state.componentConfig,
-                    [COMPONEMT_CONFIG_KEY_ENUM[modifySource]]: {}
-                },
-                modify: false
+        deleteComps.map((comps: any) => {
+            if (comps.id) { componentIds.push(comps.id) }
+        });
+        // console.log('componentIds------componentIds', componentIds)
+        if (componentIds.length > 0) {
+            Api.deleteComponent({
+                componentIds
+            }).then((res: any) => {
+                if (res.code === 1) {
+                    this.setState({
+                        modify: false
+                    }, () => this.clearTabCompData());
+                } else {
+                    this.setState({
+                        modify: false
+                    })
+                }
             })
-            this.setTabCompData();
-            return;
-        }
-        let deletArr: any = [];
-        modifyComps.map((comps: any) => { comps.id ? componentIds.push(comps.id) : deletArr.push(comps) })
-        deletArr.length > 0 && this.deleteTabCompData(deletArr);
-        if (componentIds.length === 0) {
-            this.setState({ modify: false }, () => this.selectDefaultValue());
-            return;
-        }
-        Api.deleteComponent({
-            componentIds: componentIds
-        }).then((res: any) => {
-            if (res.code === 1) {
-                this.getDataList();
-            }
+        } else {
             this.setState({
                 modify: false
+            }, () => this.clearTabCompData());
+        }
+    }
+
+    // 处理增加数据
+    handleAddComps = (addComps: any) => {
+        const { tabCompData, compTypeKey } = this.state;
+        const cloneCompData = cloneDeep(tabCompData);
+        let components: any = cloneCompData.find((sche: any) => sche.schedulingCode === compTypeKey).components;
+        if (addComps.length > 0) {
+            addComps.map((val: any) => {
+                components.push({ componentTypeCode: val, componentName: COMPONEMT_CONFIG_NAME_ENUM[val] });
             })
-        })
+            cloneCompData.forEach((item: any) => {
+                if (item.schedulingCode === compTypeKey) item.components = components
+            })
+            this.setState({
+                tabCompData: cloneCompData,
+                popoverVisible: false
+            }, () => { this.resetSelectData() });
+        }
+    }
+
+    resetSelectData = () => {
+        this.getLoadTemplate();
+        this.selectDefaultValue();
     }
 
     handleCancleModify = () => {
-        this.setState({ modify: false, popoverVisible: false }, () => this.selectDefaultValue())
+        this.setState({ modify: false });
+        this.selectDefaultValue();
     }
 
     handleCanclePopover = () => {
@@ -648,7 +643,7 @@ class EditCluster extends React.Component<any, any> {
                                 id: res.data.id || ''
                             }
                         }
-                    });
+                    }, () => console.log('componentConfig------componentConfig', this.state.componentConfig));
                     message.success('保存成功');
                 }
             })
@@ -678,7 +673,7 @@ class EditCluster extends React.Component<any, any> {
     }
 
     render () {
-        const { compTypeKey, clusterName, modify, modifyComps, modifySource, selectValue } = this.state;
+        const { compTypeKey, clusterName, modify, selectValue, deleteComps } = this.state;
         const { getFieldDecorator, getFieldValue } = this.props.form;
         const componentBtn = this.componentBtn();
         const { mode } = this.props.location.state || {} as any;
@@ -724,6 +719,12 @@ class EditCluster extends React.Component<any, any> {
                                             }
                                             key={scheduling.schedulingCode}
                                         >
+                                            {
+                                                tabCompDataList.length === 0 &&
+                                                <div key={compTypeKey} className="c-editCluster__container__emptyLogo">
+                                                    <img src="public/img/emptyLogo.png" />
+                                                </div>
+                                            }
                                             <Card
                                                 className="c-editCluster__container__card console-tabs cluster-tab-width"
                                                 noHovering
@@ -732,7 +733,6 @@ class EditCluster extends React.Component<any, any> {
                                                     tabPosition="left"
                                                     tabBarExtraContent={!isView && componentBtn}
                                                     className="c-editCluster__container__componentTabs"
-                                                    // onChange={(key: any) => console.log('renderkey-----------------', key)}
                                                     onChange={(key: any) => this.getLoadTemplate(key)}
                                                 >
                                                     {
@@ -767,12 +767,12 @@ class EditCluster extends React.Component<any, any> {
                                                                             <Button className="c-editCluster__container__componentFooter__btn" type="primary" style={{ marginLeft: 8 }} onClick={this.saveComponent.bind(this, comps)} >保存</Button>
                                                                         </div>
                                                                     }
+
                                                                 </TabPane>
                                                             )
                                                         })
                                                     }
                                                 </Tabs>
-                                                {tabCompDataList.length === 0 && <div style={{ position: 'absolute', top: '50%', left: '60%' }}>空白页</div>}
                                             </Card>
                                         </TabPane>
                                     )
@@ -784,9 +784,8 @@ class EditCluster extends React.Component<any, any> {
                 <ModifyComponentModal
                     modify={modify}
                     selectValue={selectValue}
-                    modifySource={modifySource}
-                    modifyComps={modifyComps}
-                    modifyComponent={this.modifyComponent}
+                    deleteComps={deleteComps}
+                    handleDeleteComps={this.handleDeleteComps}
                     handleCancleModify={this.handleCancleModify} />
             </div>
         )
