@@ -193,7 +193,7 @@ public class RdbsExeQueue {
         public RdbsExe(String jobName, String sql, String jobId, String taskParams) {
             this.jobName = jobName;
             this.taskParams = taskParams;
-            if (connFactory.supportProcedure()) {
+            if (connFactory.supportProcedure(sql)) {
                 jobSqlProc = createSqlProc(sql, jobName, jobId);
             } else {
                 sqlList = connFactory.buildSqlList(sql);
