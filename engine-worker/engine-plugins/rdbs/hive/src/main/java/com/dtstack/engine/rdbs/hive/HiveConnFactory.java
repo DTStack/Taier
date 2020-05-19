@@ -83,7 +83,7 @@ public class HiveConnFactory extends AbstractConnFactory {
     }
 
     @Override
-    public boolean supportProcedure() {
+    public boolean supportProcedure(String sql) {
         return false;
     }
 
