@@ -2,41 +2,30 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.Engine;
 import com.dtstack.engine.api.domain.EngineTenant;
+import com.dtstack.engine.api.domain.Queue;
+import com.dtstack.engine.api.vo.QueueVO;
 import com.dtstack.engine.common.annotation.Forbidden;
-import com.dtstack.engine.api.annotation.Param;
-import com.dtstack.engine.common.exception.EngineAssert;
-import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.ComponentTestResult;
-import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.dao.EngineDao;
 import com.dtstack.engine.dao.EngineTenantDao;
 import com.dtstack.engine.dao.QueueDao;
 import com.dtstack.engine.dao.TenantDao;
-import com.dtstack.engine.api.domain.Queue;
-import com.dtstack.engine.api.dto.ClusterDTO;
-import com.dtstack.engine.api.dto.EngineDTO;
-import com.dtstack.engine.master.component.ComponentFactory;
-import com.dtstack.engine.master.component.YARNComponent;
-import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.utils.EngineUtil;
-import com.dtstack.engine.api.vo.ComponentVO;
-import com.dtstack.engine.api.vo.EngineVO;
-import com.dtstack.engine.api.vo.QueueVO;
-import com.dtstack.engine.master.utils.PublicUtil;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -51,9 +40,6 @@ public class EngineService {
     private ComponentService componentService;
 
     @Autowired
-    private QueueService queueService;
-
-    @Autowired
     private QueueDao queueDao;
 
     @Autowired
@@ -61,8 +47,6 @@ public class EngineService {
 
     @Autowired
     private TenantDao tenantDao;
-
-    private static final String CONF_HDFS_PATH = "confHdfsPath";
 
     public List<QueueVO> getQueue(@Param("engineId") Long engineId){
         List<Queue> queueList = queueDao.listByEngineId(engineId);
@@ -110,24 +94,6 @@ public class EngineService {
         return array.toJSONString();
     }
 
-    /**
-     * 添加多个engine
-     * @param clusterDTO
-     */
-    public void addEngines(ClusterDTO clusterDTO){
-        EngineAssert.assertTrue(Objects.nonNull(clusterDTO), ErrorCode.INVALID_PARAMETERS);
-        EngineAssert.assertTrue(CollectionUtils.isNotEmpty(clusterDTO.getEngineList()), ErrorCode.INVALID_PARAMETERS);
-
-        for (EngineDTO engineDTO : clusterDTO.getEngineList()) {
-            if (Objects.nonNull(clusterDTO.getClusterId())) {
-                //前端调用
-                addEngine(clusterDTO.getClusterId(), engineDTO.getEngineName(), engineDTO.getComponentTypeCodeList());
-            } else {
-                addEngine(clusterDTO.getId(), engineDTO.getEngineName(), engineDTO.getComponentTypeCodeList());
-            }
-        }
-    }
-
     @Transactional(rollbackFor = Exception.class)
     public Engine addEngine(@Param("clusterId") Long clusterId, @Param("engineName") String engineName,
                             @Param("componentTypeCodeList") List<Integer> componentTypeCodeList){
@@ -144,8 +110,6 @@ public class EngineService {
         engine.setTotalMemory(0);
         engine.setTotalNode(0);
         engineDao.insert(engine);
-
-//        componentService.addComponent(engine.getId(), componentTypeCodeList);
 
         updateEngineTenant(clusterId, engine.getId());
 
@@ -191,118 +155,6 @@ public class EngineService {
         }
     }
 
-    @Forbidden
-    public List<EngineVO> listClusterEngines(Long clusterId, boolean queryQueue, boolean queryComponent, boolean withKerberosConfig){
-        List<Engine> engines = engineDao.listByClusterId(clusterId);
-        List<EngineVO> result = EngineVO.toVOs(engines);
-
-        if(queryQueue){
-            queryQueue(result);
-        }
-
-        if(queryComponent){
-            queryComponent(result, withKerberosConfig);
-            setSecurity(result);
-        }
-
-        return result;
-    }
-
-    private void queryQueue(List<EngineVO> engineVOS){
-        for (EngineVO engineVO : engineVOS) {
-            List<Queue> queues = queueDao.listByEngineIdWithLeaf(engineVO.getId());
-            engineVO.setQueues(QueueVO.toVOs(queues));
-        }
-    }
-
-    private void queryComponent(List<EngineVO> engineVOS, boolean withKerberos){
-        for (EngineVO engineVO : engineVOS) {
-            List<Component> componentList = componentService.listComponent(engineVO.getEngineId());
-            Map<Integer, Component> componentMap = new HashMap<>();
-            componentList.stream().forEach(component -> componentMap.put(component.getComponentTypeCode(), component));
-            engineVO.setComponents(toVOS(componentList, withKerberos));
-        }
-    }
-
-    public List<ComponentVO> toVOS(List<Component> components, boolean withKerberosCongfig){
-        List<ComponentVO> vos = new ArrayList<>();
-        for (Component component : components) {
-            JSONObject jsonObject = JSONObject.parseObject(component.getComponentConfig());
-            if(!withKerberosCongfig) {
-                if (component.getComponentTypeCode() == EComponentType.HDFS.getTypeCode() ||
-                        component.getComponentTypeCode() == EComponentType.YARN.getTypeCode()) {
-                    jsonObject = jsonObject.fluentRemove("kerberosConfig").fluentRemove("openKerberos").fluentRemove("kerberosFile");
-                } else {
-                    jsonObject = jsonObject.fluentRemove("kerberosConfig");
-                }
-            }
-            ComponentVO vo = new ComponentVO();
-            PublicUtil.copyPropertiesIgnoreNull(component, vo);
-//            vo.setComponentId(component.getId());
-            //前端默认不展示kerberosConfig
-//            vo.setConfig(jsonObject);
-            vos.add(vo);
-        }
-        return vos;
-    }
-
-    /**
-     * spark组件中添加默认地址conf_hdfs_path
-     *
-     * @param componentMap
-     */
-    private void setConfHdfsPath(Map<Integer, Component> componentMap, String clusterName) {
-        Component sparkComponent = componentMap.get(EComponentType.SPARK.getTypeCode());
-        Component sftpComponent = componentMap.get(EComponentType.SFTP.getTypeCode());
-        if (sparkComponent != null) {
-            if (sftpComponent == null) {
-                throw new RdosDefineException(ErrorCode.CAN_NOT_FIN_SFTP.getDescription());
-            }
-            JSONObject sftpConfig = JSONObject.parseObject(sftpComponent.getComponentConfig());
-            String path = sftpConfig.getString("path");
-            if (StringUtils.isBlank(path)) {
-                throw new RdosDefineException(ErrorCode.SFTP_PATH_CAN_NOT_BE_EMPTY.getDescription());
-            }
-            JSONObject jsonObject = JSONObject.parseObject(sparkComponent.getComponentConfig());
-            jsonObject.put(CONF_HDFS_PATH, String.format(ComponentService.SFTP_HADOOP_CONFIG_PATH, path , SFTPHandler.CONSOLE_HADOOP_CONFIG, clusterName));
-            sparkComponent.setComponentConfig(jsonObject.toString());
-        }
-    }
-
-    private void setSecurity(List<EngineVO> result){
-        for (EngineVO engineVO : result) {
-            engineVO.setSecurity(getSecurity(engineVO));
-        }
-    }
-
-    private boolean getSecurity(EngineVO engineVO){
-        for (ComponentVO component : engineVO.getComponents()) {
-            if(component.getComponentTypeCode() == EComponentType.HDFS.getTypeCode()){
-//                return component.getConfig().getBooleanValue("hadoop.security.authorization");
-            }
-        }
-
-        return false;
-    }
-
-    @Forbidden
-    public void updateResource(Long engineId, Map<String, Object> yarnConfig, boolean updateQueue){
-        try {
-            Engine engine = engineDao.getOne(engineId);
-            Map<String, Object> kerberosConfig = componentService.fillKerberosConfig(JSONObject.toJSONString(yarnConfig), engine.getClusterId());
-            YARNComponent yarnComponent = (YARNComponent) ComponentFactory.getComponent(kerberosConfig, EComponentType.YARN);
-            /*yarnComponent.initClusterResource(true);
-            ClusterResourceDescription description = yarnComponent.getResourceDescription();
-
-            if(updateQueue){
-                queueService.updateQueue(engineId, description);
-            }
-
-            updateResource(engineId, description);*/
-        } catch (Exception e){
-            LOGGER.error("更新引擎资源异常: ", e);
-        }
-    }
 
     @Forbidden
     public void updateResource(Long engineId, ComponentTestResult.ClusterResourceDescription description){
@@ -314,21 +166,8 @@ public class EngineService {
         engineDao.update(engine);
     }
 
-    /**
-     * 修改引擎数据同步类型
-     *
-     * @param clusterId
-     * @param engineType
-     * @param syncType
-     */
     @Forbidden
-    public void updateSyncTypeByClusterIdAndEngineType(Long clusterId, Integer engineType, Integer syncType) {
-        engineDao.updateSyncTypeByClusterIdAndEngineType(clusterId, engineType, syncType);
-    }
-
-
-    @Forbidden
-    public void addEnginesByComponentConfig(JSONObject componentConfig, Long clusterId, boolean updateQueue){
+    public void addEnginesByComponentConfig(JSONObject componentConfig, Long clusterId){
         Map<Integer, List<String>> engineComponentMap = EngineUtil.classifyComponent(componentConfig.keySet());
         for (Integer integer : engineComponentMap.keySet()) {
             MultiEngineType engineType = EngineUtil.getByType(integer);
@@ -346,14 +185,13 @@ public class EngineService {
             }
 
             for (String confName : engineComponentMap.get(integer)) {
-                componentService.addComponentWithConfig(engine.getId(), confName, componentConfig.getJSONObject(confName), updateQueue);
+                componentService.addComponentWithConfig(engine.getId(), confName, componentConfig.getJSONObject(confName));
             }
         }
     }
 
     public Engine getOne(Long engineId) {
-        Engine one = engineDao.getOne(engineId);
-        return one;
+        return engineDao.getOne(engineId);
     }
 }
 

@@ -137,21 +137,13 @@ public class ClusterService implements InitializingBean {
         cluster.setClusterName(DEFAULT_CLUSTER_NAME);
         clusterDao.insertWithId(cluster);
 
-        boolean updateQueue = true;
         JSONObject componentConfig = new JSONObject();
         componentConfig.put(EComponentType.HDFS.getConfName(), new JSONObject().toJSONString());
         componentConfig.put(EComponentType.YARN.getConfName(), new JSONObject().toJSONString());
         componentConfig.put(EComponentType.SPARK_THRIFT.getConfName(), new JSONObject().toJSONString());
         componentConfig.put(EComponentType.SFTP.getConfName(), new JSONObject().toJSONString());
 
-        engineService.addEnginesByComponentConfig(componentConfig, cluster.getId(), updateQueue);
-
-        if (!updateQueue) {
-            Engine hadoopEngine = engineDao.getByClusterIdAndEngineType(cluster.getId(), MultiEngineType.HADOOP.getType());
-            if (hadoopEngine != null) {
-                queueService.addDefaultQueue(hadoopEngine.getId());
-            }
-        }
+        engineService.addEnginesByComponentConfig(componentConfig, cluster.getId());
     }
 
     @Transactional(rollbackFor = Exception.class)

@@ -11,6 +11,7 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.ClientTemplate;
+import com.dtstack.engine.common.pojo.ClusterResource;
 import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.google.common.base.Strings;
@@ -202,6 +203,10 @@ public class WorkerOperator {
 
     public String uploadStringToHdfs(String engineType,String pluginInfo,String bytes, String hdfsPath) throws Exception{
         return (String)masterServer.sendMessage(new MessageUploadInfo(engineType,pluginInfo,bytes,hdfsPath));
+    }
+
+    public ClusterResource clusterResource(String engineType,String pluginInfo) throws Exception{
+        return (ClusterResource)masterServer.sendMessage(new MessageResourceInfo(engineType,pluginInfo));
     }
 
     private <M> M callbackAndReset(JobClient jobClient, CallBack<M> classLoaderCallBack) throws Exception {

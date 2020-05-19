@@ -4,6 +4,7 @@ import akka.actor.AbstractActor;
 import com.dtstack.engine.common.akka.message.*;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.ClientTemplate;
+import com.dtstack.engine.common.pojo.ClusterResource;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.client.ClientOperator;
 import org.apache.commons.lang3.StringUtils;
@@ -91,6 +92,13 @@ public class JobService extends AbstractActor {
                         execute = StringUtils.EMPTY;
                     }
                     sender().tell(execute, getSelf());
+                })
+                .match(MessageResourceInfo.class, msg -> {
+                    ClusterResource resource = ClientOperator.getInstance().getClusterResource(msg.getEngineType(), msg.getPluginInfo());
+                    if (null == resource) {
+                        resource = new ClusterResource();
+                    }
+                    sender().tell(resource, getSelf());
                 })
                 .build();
     }

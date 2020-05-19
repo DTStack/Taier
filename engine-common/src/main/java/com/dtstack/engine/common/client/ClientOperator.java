@@ -8,6 +8,7 @@ import com.dtstack.engine.common.exception.ClientAccessException;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.ClientTemplate;
+import com.dtstack.engine.common.pojo.ClusterResource;
 import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.google.common.base.Strings;
@@ -160,5 +161,10 @@ public class ClientOperator {
     public String uploadStringToHdfs(String engineType,String pluginInfo,String bytes, String hdfsPath){
         IClient client = clientCache.getDefaultPlugin(engineType);
         return client.uploadStringToHdfs(pluginInfo,bytes,hdfsPath);
+    }
+
+    public ClusterResource getClusterResource(String engineType, String pluginInfo) throws ClientAccessException{
+        IClient client = clientCache.getClient(engineType,pluginInfo);
+        return client.getClusterResource(pluginInfo);
     }
 }

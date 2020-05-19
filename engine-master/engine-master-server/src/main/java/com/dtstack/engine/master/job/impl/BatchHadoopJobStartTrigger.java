@@ -326,15 +326,12 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
             try {
                 RetryUtil.executeWithRetry(() -> {
                     LOG.info("create partition dtuicTenantId {} {}", dtuicTenantId, sql);
-                    try {
-                        JSONObject pluginInfo = new JSONObject();
-                        pluginInfo.put("dbUrl",jdbcUrl);
-                        pluginInfo.put("userName",username);
-                        pluginInfo.put("pwd",password);
-                        pluginInfo.put("driverClassName", DataSourceType.getBaseType(sourceType).getDriverClassName());
-                        workerOperator.executeQuery(DataSourceType.getBaseType(sourceType).getTypeName(),pluginInfo.toJSONString(),sql,(String) actionParam.get("engineIdentity"));
-                    } finally {
-                    }
+                    JSONObject pluginInfo = new JSONObject();
+                    pluginInfo.put("dbUrl",jdbcUrl);
+                    pluginInfo.put("userName",username);
+                    pluginInfo.put("pwd",password);
+                    pluginInfo.put("driverClassName", DataSourceType.getBaseType(sourceType).getDriverClassName());
+                    workerOperator.executeQuery(DataSourceType.getBaseType(sourceType).getTypeName(),pluginInfo.toJSONString(),sql,(String) actionParam.get("engineIdentity"));
                     cleanFileName(parameter);
                     return null;
                 }, 3, 2000, false, Lists.newArrayList(SocketTimeoutException.class));

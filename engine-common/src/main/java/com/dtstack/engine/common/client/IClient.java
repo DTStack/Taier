@@ -4,6 +4,7 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.ClientTemplate;
+import com.dtstack.engine.common.pojo.ClusterResource;
 import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 
@@ -45,4 +46,6 @@ public interface IClient {
     List<List<Object>> executeQuery(String pluginInfo, String sql,String database);
 
 	String uploadStringToHdfs(String pluginInfo,String bytes, String hdfsPath);
+
+	ClusterResource getClusterResource(String pluginInfo);
 }

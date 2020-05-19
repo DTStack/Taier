@@ -1,6 +1,9 @@
 package com.dtstack.engine.hadoop;
 
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.util.TypeUtils;
 import com.dtstack.engine.base.resource.EngineResourceInfo;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
@@ -11,6 +14,8 @@ import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.http.PoolHttpClient;
+import com.dtstack.engine.common.pojo.ClusterResource;
 import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.util.DtStringUtil;
@@ -33,12 +38,14 @@ import org.apache.hadoop.mapreduce.MRJobConfig;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.client.api.YarnClient;
+import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.util.*;
 
 public class HadoopClient extends AbstractClient {
@@ -54,7 +61,11 @@ public class HadoopClient extends AbstractClient {
     private YarnClient yarnClient;
     private Config config;
     private Map<String, List<String>> cacheFile = Maps.newConcurrentMap();
-
+    private static final String APP_TYPE = "Apache Flink";
+    private static final String DEFAULT_APP_NAME_PREFIX = "Flink session";
+    private static final String FLINK_URL_FORMAT = "http://%s/proxy/%s/taskmanagers";
+    private static final String YARN_RM_WEB_KEY_PREFIX = "yarn.resourcemanager.webapp.address.";
+    private static final long ONE_MEGABYTE = 1024*1024;
 
     @Override
     public void init(Properties prop) throws Exception {
@@ -483,6 +494,137 @@ public class HadoopClient extends AbstractClient {
             }
         }
         return componentTestResult;
+    }
+
+    @Override
+    public ClusterResource getClusterResource(String pluginInfo) {
+        HadoopConf hadoopConf = null;
+        YarnClient resourceClient = null;
+        ClusterResource clusterResource = new ClusterResource();
+        try {
+            Config allConfig = PublicUtil.jsonStrToObject(pluginInfo, Config.class);
+            hadoopConf = new HadoopConf();
+            hadoopConf.initYarnConf(allConfig.getYarnConf());
+            if (allConfig.isOpenKerberos()) {
+                initSecurity(allConfig);
+            }
+            resourceClient = YarnClient.createYarnClient();
+            resourceClient.init(hadoopConf.getYarnConfiguration());
+            resourceClient.start();
+            List<NodeReport> nodes = resourceClient.getNodeReports(NodeState.RUNNING);
+            List<ClusterResource.NodeDescription> clusterNodes = new ArrayList<>();
+            for (NodeReport rep : nodes) {
+                ClusterResource.NodeDescription node = new ClusterResource.NodeDescription();
+                node.setMemory(rep.getCapability().getMemory());
+                node.setUsedMemory(rep.getUsed().getMemory());
+                node.setUsedVirtualCores(rep.getUsed().getVirtualCores());
+                node.setVirtualCores(rep.getCapability().getVirtualCores());
+                clusterNodes.add(node);
+            }
+            clusterResource.setYarn(clusterNodes);
+            clusterResource.setFlink(this.initTaskManagerResource(yarnClient));
+        } catch (Exception e) {
+            throw new RdosDefineException(e.getMessage());
+        } finally {
+            if (Objects.nonNull(resourceClient)) {
+                try {
+                    resourceClient.close();
+                } catch (IOException e) {
+                    LOG.error("close reource error ", e);
+                }
+            }
+        }
+        return clusterResource;
+    }
+
+    public List<ClusterResource.TaskManagerDescription> initTaskManagerResource(YarnClient yarnClient) throws Exception {
+        List<ApplicationId> applicationIds = acquireApplicationIds(yarnClient);
+
+        Field rmClientField = yarnClient.getClass().getDeclaredField("rmClient");
+        rmClientField.setAccessible(true);
+        Object rmClient = rmClientField.get(yarnClient);
+
+        Field hField = rmClient.getClass().getSuperclass().getDeclaredField("h");
+        hField.setAccessible(true);
+        //获取指定对象中此字段的值
+        Object h = hField.get(rmClient);
+        Object currentProxy = null;
+        try {
+            Field currentProxyField = h.getClass().getDeclaredField("currentProxy");
+            currentProxyField.setAccessible(true);
+            currentProxy = currentProxyField.get(h);
+        } catch (Exception e) {
+            //兼容Hadoop 2.7.3.2.6.4.91-3
+            LOG.warn("get currentProxy error: ", e);
+            Field proxyDescriptorField = h.getClass().getDeclaredField("proxyDescriptor");
+            proxyDescriptorField.setAccessible(true);
+            Object proxyDescriptor = proxyDescriptorField.get(h);
+            Field currentProxyField = proxyDescriptor.getClass().getDeclaredField("proxyInfo");
+            currentProxyField.setAccessible(true);
+            currentProxy = currentProxyField.get(proxyDescriptor);
+        }
+
+        Field proxyInfoField = currentProxy.getClass().getDeclaredField("proxyInfo");
+        proxyInfoField.setAccessible(true);
+        String proxyInfoKey = (String) proxyInfoField.get(currentProxy);
+
+        String key = YARN_RM_WEB_KEY_PREFIX + proxyInfoKey;
+        String addr = yarnClient.getConfig().get(key);
+
+        if (addr == null) {
+            YarnConfiguration config = (YarnConfiguration) yarnClient.getConfig();
+            addr = config.get("yarn.resourcemanager.webapp.address");
+        }
+
+        List<ClusterResource.TaskManagerDescription> taskManagerDescriptions = new ArrayList<>();
+        for (ApplicationId applicationId : applicationIds) {
+            String url = String.format(FLINK_URL_FORMAT, addr, applicationId.toString());
+            String msg = PoolHttpClient.get(url, null);
+            if (msg == null) {
+                continue;
+            }
+
+            JSONObject taskManagerInfo = JSONObject.parseObject(msg);
+            if (!taskManagerInfo.containsKey("taskmanagers")) {
+                continue;
+            }
+
+            JSONArray taskManagers = taskManagerInfo.getJSONArray("taskmanagers");
+            for (int i = 0; i < taskManagers.size(); i++) {
+                JSONObject jsonObject = taskManagers.getJSONObject(i);
+                if (jsonObject.containsKey("hardware")) {
+                    jsonObject.putAll(jsonObject.getJSONObject("hardware"));
+                }
+
+                ClusterResource.TaskManagerDescription description = TypeUtils.castToJavaBean(jsonObject, ClusterResource.TaskManagerDescription.class);
+                description.setFreeMemory(description.getFreeMemory() / ONE_MEGABYTE);
+                description.setPhysicalMemory(description.getPhysicalMemory() / ONE_MEGABYTE);
+                description.setManagedMemory(description.getManagedMemory() / ONE_MEGABYTE);
+                taskManagerDescriptions.add(description);
+            }
+        }
+        return taskManagerDescriptions;
+
+    }
+
+    private List<ApplicationId> acquireApplicationIds(YarnClient yarnClient) {
+        try {
+            Set<String> set = new HashSet<>();
+            set.add(APP_TYPE);
+            EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
+            enumSet.add(YarnApplicationState.RUNNING);
+            List<ApplicationReport> reportList = yarnClient.getApplications(set, enumSet);
+            List<ApplicationId> applicationIds = new ArrayList<>();
+            for (ApplicationReport report : reportList) {
+                if (!report.getName().startsWith(DEFAULT_APP_NAME_PREFIX)) {
+                    continue;
+                }
+                applicationIds.add(report.getApplicationId());
+            }
+            return applicationIds;
+        } catch (Exception e) {
+            throw new RdosDefineException(e.getMessage());
+        }
     }
 
 }

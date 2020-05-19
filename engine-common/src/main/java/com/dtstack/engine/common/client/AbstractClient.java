@@ -6,6 +6,7 @@ import com.dtstack.engine.common.client.config.YamlConfigParser;
 import com.dtstack.engine.common.enums.EFrontType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.pojo.ClientTemplate;
+import com.dtstack.engine.common.pojo.ClusterResource;
 import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import org.apache.commons.collections.CollectionUtils;
@@ -127,6 +128,11 @@ public abstract class AbstractClient implements IClient{
 
     @Override
     public String uploadStringToHdfs(String pluginInfo, String bytes, String hdfsPath) {
+        return null;
+    }
+
+    @Override
+    public ClusterResource getClusterResource(String pluginInfo) {
         return null;
     }
 

@@ -20,9 +20,10 @@ import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.akka.WorkerOperator;
-import com.dtstack.engine.master.component.ComponentFactory;
-import com.dtstack.engine.master.component.ComponentImpl;
-import com.dtstack.engine.master.enums.*;
+import com.dtstack.engine.master.enums.DownloadType;
+import com.dtstack.engine.master.enums.EComponentType;
+import com.dtstack.engine.master.enums.KerberosKey;
+import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.utils.EngineUtil;
@@ -307,18 +308,18 @@ public class ComponentService {
             }
             setKerberosConfig(clusterId, configMap, resourceMap, key);
             Map<String, Object> kerberosConfig = fillKerberosConfig(JSONObject.toJSONString(configMap), clusterId);
-            ComponentImpl component = ComponentFactory.getComponent(kerberosConfig, type);
+//            ComponentImpl component = ComponentFactory.getComponent(kerberosConfig, type);
 
             TestConnectionVO.ComponentTestResult result = new TestConnectionVO.ComponentTestResult();
             result.setComponentTypeCode(type.getTypeCode());
             try {
-                component.checkConfig();
+              /*  component.checkConfig();
                 if (EComponentType.YARN == type) {
-                  /*  ((YARNComponent)component).initClusterResource(true);
-                    description = ((YARNComponent)component).getResourceDescription();*/
+                  *//*  ((YARNComponent)component).initClusterResource(true);
+                    description = ((YARNComponent)component).getResourceDescription();*//*
                 } else {
                     component.testConnection();
-                }
+                }*/
 
                 result.setResult(true);
             } catch (Exception e) {
@@ -447,7 +448,7 @@ public class ComponentService {
     }
 
     @Forbidden
-    public void addComponentWithConfig(Long engineId, String confName, JSONObject config, boolean updateQueue) {
+    public void addComponentWithConfig(Long engineId, String confName, JSONObject config) {
         EComponentType type = EComponentType.getByConfName(confName);
 
         if (Objects.isNull(config)) {
@@ -465,10 +466,6 @@ public class ComponentService {
         } else {
             component.setComponentConfig(config.toJSONString());
             componentDao.update(component);
-        }
-
-        if (EComponentType.YARN == type) {
-            engineService.updateResource(engineId, config, updateQueue);
         }
     }
 

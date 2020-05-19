@@ -9,15 +9,14 @@ import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.pojo.ClusterResource;
 import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.WorkNode;
+import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.cache.ShardCache;
-import com.dtstack.engine.master.component.ComponentFactory;
-import com.dtstack.engine.master.component.FlinkComponent;
-import com.dtstack.engine.master.component.YARNComponent;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
@@ -82,6 +81,9 @@ public class ConsoleService {
 
     @Autowired
     private TenantService tenantService;
+
+    @Autowired
+    private WorkerOperator workerOperator;
 
     private static long DELAULT_TENANT  = -1L;
 
@@ -413,35 +415,38 @@ public class ConsoleService {
             return null;
         }
 
-        Map<String, Object> yarnConfig = JSONObject.parseObject(yarnComponent.getComponentConfig(), Map.class);
-
-        return getResources(yarnConfig, cluster.getId());
+        return getResources(yarnComponent, cluster);
     }
 
     @Forbidden
-    public Map<String, Object> getResources(Map<String, Object> yarnConfig, Long clusterId) {
-        YARNComponent yarnComponent = null;
+    public Map<String, Object> getResources(Component yarnComponent, Cluster cluster) {
+        Map<String, Object> clusterResources = new HashMap<>(2);
         try {
-            Map<String, Object> kerberosConfig = componentService.fillKerberosConfig(JSONObject.toJSONString(yarnConfig), clusterId);
-            yarnComponent = (YARNComponent) ComponentFactory.getComponent(kerberosConfig, EComponentType.YARN);
-            /*yarnComponent.initClusterResource(false);
-
-            FlinkComponent flinkComponent = (FlinkComponent) ComponentFactory.getComponent(null, EComponentType.FLINK);
-            flinkComponent.initTaskManagerResource(yarnComponent.getYarnClient());
-
-            Map<String, Object> clusterResources = new HashMap<>(2);
-            clusterResources.put("yarn", yarnComponent.getClusterNodes());
-            clusterResources.put("flink", flinkComponent.getTaskManagerDescriptions());
-            return clusterResources;*/
+            JSONObject pluginInfo = new JSONObject();
+            JSONObject componentConfig = JSONObject.parseObject(yarnComponent.getComponentConfig());
+            pluginInfo.put(EComponentType.YARN.getConfName(), componentConfig);
+            String typeName = componentConfig.getString(ComponentService.TYPE_NAME);
+            if (StringUtils.isBlank(typeName)) {
+                //获取对应的插件名称
+                Component hdfsComponent = componentService.getComponentByClusterId(cluster.getId(), EComponentType.HDFS.getTypeCode());
+                String clusterName = cluster.getClusterName();
+                if (Objects.isNull(hdfsComponent)) {
+                    typeName = componentService.convertComponentTypeToClient(clusterName,
+                            EComponentType.HDFS.getTypeCode(), yarnComponent.getHadoopVersion());
+                } else {
+                    typeName = componentService.convertComponentTypeToClient(clusterName,
+                            EComponentType.HDFS.getTypeCode(), hdfsComponent.getHadoopVersion());
+                }
+            }
+            pluginInfo.put(ComponentService.TYPE_NAME,typeName);
+            ClusterResource clusterResource = workerOperator.clusterResource(typeName, pluginInfo.toJSONString());
+            clusterResources.put("yarn", clusterResource.getYarn());
+            clusterResources.put("flink", clusterResource.getFlink());
         } catch (Exception e) {
             logger.error(" ", e);
             throw new RdosDefineException("flink资源获取异常");
-        } finally {
-            if (yarnComponent != null) {
-//                yarnComponent.closeYarnClient();
-            }
         }
-        return null;
+        return clusterResources;
     }
 
     private Component getYarnComponent(Long clusterId) {
