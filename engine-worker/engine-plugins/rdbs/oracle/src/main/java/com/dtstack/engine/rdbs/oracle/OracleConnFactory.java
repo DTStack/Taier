@@ -23,7 +23,7 @@ public class OracleConnFactory extends AbstractConnFactory {
         if (StringUtils.isBlank(sql)) {
             return true;
         }
-        String[] sqls = sql.trim().split("\\s+", 1);
+        String[] sqls = sql.trim().split("\\s+", 2);
         if (sqls.length >= 2){
             if ("BEGIN".equalsIgnoreCase(sqls[0])) {
                 return true;
