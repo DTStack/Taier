@@ -26,6 +26,9 @@ public class MultiEngineFactory {
     @Resource(name = "batchLibraJobStartTrigger")
     private IJobStartTrigger batchLibraJobStartTrigger;
 
+    @Resource(name = "batchOracleJobStartTrigger")
+    private IJobStartTrigger batchOracleJobStartTrigger;
+
     public IJobStartTrigger getJobTriggerService(int multiEngineType) {
         if (MultiEngineType.HADOOP.getType() == multiEngineType) {
             return batchHadoopJobStartTrigger;
@@ -38,6 +41,9 @@ public class MultiEngineFactory {
         }
         if (MultiEngineType.TIDB.getType() == multiEngineType) {
             return batchTiDBJobStartTrigger;
+        }
+        if (MultiEngineType.ORACLE.getType() == multiEngineType) {
+            return batchOracleJobStartTrigger;
         }
         throw new RdosDefineException(String.format("not support engine type %d now", multiEngineType));
     }

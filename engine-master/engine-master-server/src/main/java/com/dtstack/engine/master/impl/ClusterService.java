@@ -649,8 +649,7 @@ public class ClusterService implements InitializingBean {
             pluginInfo.put("pwd", tiDBConf.getString("password"));
             pluginInfo.remove("password");
             pluginInfo.put("typeName", "oracle");
-        }
-        else {
+        } else {
             pluginInfo = clusterConfigJson.getJSONObject(type.getComponentType().getConfName());
             if (pluginInfo == null) {
                 return null;
