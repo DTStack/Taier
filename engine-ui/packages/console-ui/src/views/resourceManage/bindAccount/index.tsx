@@ -139,6 +139,7 @@ class BindAccountTable extends React.Component<IProps, IState> {
 
     onBindAccountUpdate = async (account: IAccount) => {
         const { queryParams, modalData } = this.state;
+        const { engineType } = this.props;
         const isEdit = modalData;
         const handOk = () => {
             this.showHideBindModal(null);
@@ -146,6 +147,7 @@ class BindAccountTable extends React.Component<IProps, IState> {
             this.fetchUnbindUsers();
         }
         account.bindTenantId = queryParams.dtuicTenantId;
+        account.engineType = engineType;
         let res = { code: 0 };
         if (isEdit) {
             res = await AccountApi.updateBindAccount(account);

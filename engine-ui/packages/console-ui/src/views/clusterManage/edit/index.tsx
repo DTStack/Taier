@@ -11,6 +11,7 @@ import moment from 'moment'
 
 import {
     isTiDBEngine,
+    isOracleEngine,
     isLibraEngine,
     isHadoopEngine,
     exChangeComponentConf,
@@ -35,6 +36,7 @@ import DtyarnShellConfig from './dtYarnshellConfig';
 import HiveServerConfig from './hiveServerConfig';
 import LibraSqlConfig from './libraSqlConfig';
 import TiDBSqlConfig from './tidbSqlConfig';
+import OracleSqlConfig from './oracleSqlConfig';
 import ZipConfig from './zipConfig';
 import ImpalaSQLConfig from './impalaSQLConfig';
 import { SparkThriftConfig, CarbonDataConfig } from './sparkThriftAndCarbonData';
@@ -174,6 +176,9 @@ class EditCluster extends React.Component<any, any> {
             if (key == COMPONEMT_CONFIG_KEYS.TI_DB_SQL) {
                 delete copyComp[key]
             }
+            if (key == COMPONEMT_CONFIG_KEYS.ORACLE_SQL) {
+                delete copyComp[key]
+            }
         }
         if (isHadoop) {
             setFieldsValue(copyComp);
@@ -205,6 +210,10 @@ class EditCluster extends React.Component<any, any> {
             setFieldsValue({
                 tidbConf: compConf.tidbConf
             })
+        } else if (isOracleEngine(engineType)) {
+            setFieldsValue({
+                oracleConf: compConf.oracleConf
+            })
         }
     }
 
@@ -216,6 +225,8 @@ class EditCluster extends React.Component<any, any> {
         const hadoopConf = enginesData.find((item: any) => item.engineType == ENGINE_TYPE.HADOOP) || {}; // hadoop engine 总数据
         const libraConf = enginesData.find((item: any) => item.engineType == ENGINE_TYPE.LIBRA) || {}; // libra engine 总数据
         const tiDBConf = enginesData.find((item: any) => item.engineType == ENGINE_TYPE.TI_DB) || {}; // TiDB 总数据
+        const oracleConf = enginesData.find((item: any) => item.engineType == ENGINE_TYPE.ORACLE) || {}; // TiDB 总数据
+
         switch (type) {
             case ENGINE_TYPE.HADOOP: {
                 return hadoopConf.components || []
@@ -225,6 +236,9 @@ class EditCluster extends React.Component<any, any> {
             }
             case ENGINE_TYPE.TI_DB: {
                 return tiDBConf.components || []
+            }
+            case ENGINE_TYPE.ORACLE: {
+                return oracleConf.components || []
             }
             default: {
                 return [];
@@ -320,7 +334,9 @@ class EditCluster extends React.Component<any, any> {
                         const hadoopComponentData = this.getComponentData(data, ENGINE_TYPE.HADOOP);
                         const libraComponentData = this.getComponentData(data, ENGINE_TYPE.LIBRA);
                         const tidbComponentData = this.getComponentData(data, ENGINE_TYPE.TI_DB);
-                        let componentConf = exChangeComponentConf(hadoopComponentData, libraComponentData, tidbComponentData) || {}; // 所有引擎数据组合
+                        const oracleComponentData = this.getComponentData(data, ENGINE_TYPE.ORACLE);
+
+                        let componentConf = exChangeComponentConf(hadoopComponentData, libraComponentData, tidbComponentData, oracleComponentData) || {}; // 所有引擎数据组合
                         const flinkData = componentConf.flinkConf;
                         const extParams = this.exchangeServerParams(componentConf);
 
@@ -754,6 +770,8 @@ class EditCluster extends React.Component<any, any> {
 
     saveComponent (component: any) {
         const { validateFieldsAndScroll } = this.props.form;
+        const { engineTypeKey } = this.state;
+        const ctx = this;
         const { cluster } = this.props.location.state || {} as any;
         validateFieldsAndScroll((err: any, values: any) => {
             if (err) {
@@ -776,7 +794,8 @@ class EditCluster extends React.Component<any, any> {
                 }).then((res: any) => {
                     if (res.code === 1) {
                         // 避免上传配置文件的组件hdfs、yarn保存之后会导致另一项组件数据清空，这里不请求数据
-                        message.success(`${component.componentName}保存成功`)
+                        message.success(`${component.componentName}保存成功`);
+                        ctx.getDataList(engineTypeKey);
                     }
                 })
             } else {
@@ -791,7 +810,8 @@ class EditCluster extends React.Component<any, any> {
                     }).then((res: any) => {
                         if (res.code === 1) {
                             // 避免上传配置文件的组件hdfs、yarn保存之后会导致另一项组件数据清空，这里不请求数据
-                            message.success(`${component.componentName}保存成功`)
+                            message.success(`${component.componentName}保存成功`);
+                            ctx.getDataList(engineTypeKey);
                         }
                     });
                 }
@@ -1038,6 +1058,12 @@ class EditCluster extends React.Component<any, any> {
                 })
                 break;
             }
+            case COMPONENT_TYPE_VALUE.ORACLE_SQL: {
+                form.setFieldsValue({
+                    [COMPONEMT_CONFIG_KEYS.ORACLE_SQL]: allComponentConf.oracleConf
+                })
+                break;
+            }
         }
     }
     showDeleteConfirm (component: any) {
@@ -1063,6 +1089,7 @@ class EditCluster extends React.Component<any, any> {
             componentTypeCode == COMPONENT_TYPE_VALUE.YARN ||
             componentTypeCode == COMPONENT_TYPE_VALUE.LIBRASQL ||
             componentTypeCode == COMPONENT_TYPE_VALUE.TIDB_SQL ||
+            componentTypeCode == COMPONENT_TYPE_VALUE.ORACLE_SQL ||
             componentTypeCode == COMPONENT_TYPE_VALUE.SFTP) {
             message.error(`${componentName}不允许删除！`)
         } else {
@@ -1163,6 +1190,8 @@ class EditCluster extends React.Component<any, any> {
         const dtscriptJupyterExtParams = this.getCustomParams(formValues, 'dtscriptJupyter');
         const libraExtParams = this.getCustomParams(formValues, 'libra');
         const tidbExtParams = this.getCustomParams(formValues, 'tidb');
+        const oracleExtParams = this.getCustomParams(formValues, 'oracle');
+
         const learningTypeName: any = {
             typeName: `learning`
         }
@@ -1188,6 +1217,7 @@ class EditCluster extends React.Component<any, any> {
         componentConf['dtscriptConf'] = { ...dtyarnshellTypeName, ...commConf, pythonConf: dtscriptPythonConf, jupyterConf: dtscriptJupyterConf };
         componentConf['libraConf'] = { ...formValues.libraConf, ...libraExtParams };
         componentConf['tidbConf'] = { ...formValues.tidbConf, ...tidbExtParams };
+        componentConf['oracleConf'] = { ...formValues.oracleConf, ...oracleExtParams };
         componentConf['sftpConf'] = formValues.sftpConf || {};
         // 服务端兼容，不允许null
         componentConf['hiveConf'].username = componentConf['hiveConf'].username || '';
@@ -1223,6 +1253,7 @@ class EditCluster extends React.Component<any, any> {
         console.log(params)
         return params;
     }
+
     // 解决切换 配置Prometheus Metric地址 数据消失
     getPrometheusValue = () => {
         const { flinkPrometheus, flinkData } = this.state;
@@ -1846,6 +1877,23 @@ class EditCluster extends React.Component<any, any> {
                     />
                 )
             }
+            case COMPONENT_TYPE_VALUE.ORACLE_SQL: {
+                return (
+                    <OracleSqlConfig
+                        isView={isView}
+                        getFieldDecorator={getFieldDecorator}
+                        customView={(
+                            <div>
+                                <div className="engine-config-content">
+                                    {this.renderExtraParam('oracle')}
+                                    {this.showAddCustomParam(isView, 'oracle')}
+                                </div>
+                            </div>
+                        )}
+                        singleButton={this.renderExtFooter(isView, component)}
+                    />
+                )
+            }
             default:
                 return <div>目前暂无该组件配置</div>
         }
@@ -1862,7 +1910,7 @@ class EditCluster extends React.Component<any, any> {
         const engineList = clusterData.engines || [];
 
         const renderMetaTag = (componentType: number, syncType: number) => {
-            return componentType === syncType || [COMPONENT_TYPE_VALUE.LIBRASQL, COMPONENT_TYPE_VALUE.TIDB_SQL].indexOf(componentType) > -1
+            return componentType === syncType || [COMPONENT_TYPE_VALUE.LIBRASQL, COMPONENT_TYPE_VALUE.TIDB_SQL, COMPONENT_TYPE_VALUE.ORACLE_SQL].indexOf(componentType) > -1
                 ? <Tag color="blue">Meta</Tag>
                 : null;
         }

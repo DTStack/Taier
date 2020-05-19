@@ -4,7 +4,7 @@ import { get } from 'lodash';
 
 import Api from '../../api/console';
 import { ENGIN_TYPE_TEXT } from '../../consts';
-import { isHadoopEngine, isTiDBEngine } from '../../consts/clusterFunc';
+import { isHadoopEngine, isTiDBEngine, isOracleEngine } from '../../consts/clusterFunc';
 import BindCommModal from '../../components/bindCommModal';
 
 import BindAccountPane from './bindAccount';
@@ -298,7 +298,7 @@ class ResourceManage extends React.Component<any, any> {
                                                     </div>
                                                 </TabPane>
                                                 {
-                                                    isTiDBEngine(engineType)
+                                                    isTiDBEngine(engineType) || isOracleEngine(engineType)
                                                         ? <TabPane tab="账号绑定" key="bindAccount">
                                                             <BindAccountPane
                                                                 key={`${queryParams.clusterId}-${engineType}`}

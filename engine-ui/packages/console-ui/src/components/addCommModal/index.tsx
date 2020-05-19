@@ -50,8 +50,10 @@ class AddCommModal extends React.Component<any, any> {
         const { getFieldValue } = this.props.form;
         const hadoopOption = getFieldValue('engineName')
         const libraOption = getFieldValue('libraEngineName')
+
         const isHadoop = hadoopOption === ENGINE_TYPE_NAME.HADOOP || libraOption === ENGINE_TYPE_NAME.HADOOP; // 添加了hadoop
         const isLibra = hadoopOption === ENGINE_TYPE_NAME.LIBRA || libraOption === ENGINE_TYPE_NAME.LIBRA; // 添加了libra
+
         let params: any = {};
         params.engineList = [];
         params.clusterName = value.clusterName;
