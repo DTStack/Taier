@@ -1004,6 +1004,16 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         return scheduleJobDao.updateStatusWithExecTime(updateJob);
     }
 
+    public void testTrigger(@Param("jobId") String jobId) {
+        ScheduleJob rdosJobByJobId = scheduleJobDao.getRdosJobByJobId(jobId);
+        if (Objects.nonNull(rdosJobByJobId)) {
+            try {
+                this.sendTaskStartTrigger(rdosJobByJobId);
+            } catch (Exception e) {
+            }
+        }
+        return;
+    }
 
     /**
      * 触发 engine 执行指定task

@@ -42,7 +42,6 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
-import java.sql.Connection;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -327,7 +326,6 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
             try {
                 RetryUtil.executeWithRetry(() -> {
                     LOG.info("create partition dtuicTenantId {} {}", dtuicTenantId, sql);
-                    Connection dbConnect = null;
                     try {
                         JSONObject pluginInfo = new JSONObject();
                         pluginInfo.put("dbUrl",jdbcUrl);
