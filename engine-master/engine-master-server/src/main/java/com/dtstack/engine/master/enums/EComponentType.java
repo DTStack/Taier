@@ -157,6 +157,10 @@ public enum EComponentType {
                 return "dummy";
             case LIBRA_SQL:
                 return "postgresql";
+            case HIVE_SERVER:
+                return "hive";
+            case IMPALA_SQL:
+                return "impala";
         }
         return "";
     }

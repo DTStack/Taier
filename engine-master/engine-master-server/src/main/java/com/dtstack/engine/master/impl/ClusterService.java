@@ -395,7 +395,8 @@ public class ClusterService implements InitializingBean {
         return config;
     }
 
-    private ClusterVO getClusterByTenant(Long dtUicTenantId) {
+    @Forbidden
+    public ClusterVO getClusterByTenant(Long dtUicTenantId) {
         Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
         if (tenantId == null) {
             return getCluster(DEFAULT_CLUSTER_ID, true,false);
@@ -511,8 +512,7 @@ public class ClusterService implements InitializingBean {
         return;
     }
 
-    public Map<String, Object> getConfig(Long dtUicTenantId, String key) {
-        ClusterVO cluster = getClusterByTenant(dtUicTenantId);
+    public Map<String, Object> getConfig(ClusterVO cluster,Long dtUicTenantId,String key) {
         JSONObject config = buildClusterConfig(cluster);
         KerberosConfig kerberosConfig = componentService.getKerberosConfig(cluster.getId());
 
@@ -532,7 +532,7 @@ public class ClusterService implements InitializingBean {
      * @param kerberosConfig
      * @param configObj
      */
-    private void addKerberosConfigWithHdfs(String key, ClusterVO cluster, KerberosConfig kerberosConfig, JSONObject configObj) {
+    public void addKerberosConfigWithHdfs(String key, ClusterVO cluster, KerberosConfig kerberosConfig, JSONObject configObj) {
         if (Objects.nonNull(kerberosConfig)) {
             KerberosConfigVO kerberosConfigVO = KerberosConfigVO.toVO(kerberosConfig);
             if (!Objects.equals(EComponentType.HDFS.getConfName(), key)) {
@@ -728,7 +728,7 @@ public class ClusterService implements InitializingBean {
      * @param clusterId
      * @return
      */
-    public ClusterVO getCluster(@Param("clusterId") Long clusterId, @Param("kerberosConfig") Boolean kerberosConfig,@Param("kerberosConfig") Boolean removeTypeName) {
+    public ClusterVO getCluster(@Param("clusterId") Long clusterId, @Param("kerberosConfig") Boolean kerberosConfig,@Param("removeTypeName") Boolean removeTypeName) {
         Cluster cluster = clusterDao.getOne(clusterId);
         EngineAssert.assertTrue(cluster != null, ErrorCode.DATA_NOT_FIND.getDescription());
         ClusterVO clusterVO = ClusterVO.toVO(cluster);

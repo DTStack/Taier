@@ -86,9 +86,9 @@ public class JobService extends AbstractActor {
                     sender().tell(execute,getSelf());
                 })
                 .match(MessageUploadInfo.class, msg -> {
-                    Object execute = ClientOperator.getInstance().uploadStringToHdfs(msg.getEngineType(), msg.getPluginInfo(), msg.getBytes(), msg.getHdfsPath());
+                    String execute = ClientOperator.getInstance().uploadStringToHdfs(msg.getEngineType(), msg.getPluginInfo(), msg.getBytes(), msg.getHdfsPath());
                     if (null == execute) {
-                        execute = new Object();
+                        execute = StringUtils.EMPTY;
                     }
                     sender().tell(execute, getSelf());
                 })

@@ -2,9 +2,11 @@ package com.dtstack.engine.master.job.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
+import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskParamShade;
+import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
@@ -19,11 +21,7 @@ import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.job.IJobStartTrigger;
 import com.dtstack.engine.master.scheduler.JobParamReplace;
-import com.dtstack.schedule.common.enums.DataBaseType;
-import com.dtstack.schedule.common.enums.DataSourceType;
-import com.dtstack.schedule.common.enums.EScheduleJobType;
-import com.dtstack.schedule.common.enums.ETableType;
-import com.dtstack.schedule.common.enums.ScheduleEngineType;
+import com.dtstack.schedule.common.enums.*;
 import com.dtstack.schedule.common.metric.batch.IMetric;
 import com.dtstack.schedule.common.metric.batch.MetricBuilder;
 import com.dtstack.schedule.common.metric.prometheus.PrometheusMetricQuery;
@@ -47,12 +45,7 @@ import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * @author yuebai
@@ -494,11 +487,19 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
                     content = content.replaceAll("\r\n", System.getProperty("line.separator"));
                 }
 
-                Map<String, Object> hadoopConf = clusterService.getConfig(dtuicTenantId, "hadoopConf");
-                JSONObject pluginInfo = new JSONObject();
-                pluginInfo.put("hadoopConf",hadoopConf);
-                return workerOperator.uploadStringToHdfs("spark-yarn-hadoop2", pluginInfo.toString(), content, hdfsPath);
+                ClusterVO cluster = clusterService.getClusterByTenant(dtuicTenantId);
 
+                Map<String, Object> hadoopConf = clusterService.getConfig(cluster,dtuicTenantId, EComponentType.HDFS.getConfName());
+                JSONObject pluginInfo = new JSONObject();
+                pluginInfo.put(EComponentType.HDFS.getConfName(),hadoopConf);
+                Component hdfsComponent = componentService.getComponentByClusterId(cluster.getId(), EComponentType.HDFS.getTypeCode());
+                String hdfsUploadPath = workerOperator.uploadStringToHdfs(componentService.convertComponentTypeToClient(cluster.getClusterName(),
+                        EComponentType.HDFS.getTypeCode(), hdfsComponent.getHadoopVersion()), pluginInfo.toJSONString(), content, hdfsPath);
+
+                if(StringUtils.isBlank(hdfsUploadPath)){
+                    throw new RdosDefineException("Update task to HDFS failure hdfsUploadPath is blank");
+                }
+                return hdfsUploadPath;
             }
         } catch (Exception e) {
             LOG.error("", e);

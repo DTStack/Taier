@@ -1025,6 +1025,7 @@ public class ComponentService {
         return data;
     }
 
+
     /**
      * 根据组件类型转换对应的插件名称
      * 如果只配yarn 需要调用插件时候 hdfs给默认值
@@ -1142,5 +1143,10 @@ public class ComponentService {
      */
     public List<String> getComponentVersion(@Param("componentType") Integer componentCode) {
         return componentVersionMapping.get(componentCode);
+    }
+
+    @Forbidden
+    public Component getComponentByClusterId(Long clusterId,Integer componentType){
+       return componentDao.getByClusterIdAndComponentType(clusterId,componentType);
     }
 }
