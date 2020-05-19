@@ -18,7 +18,8 @@ public enum EComponentType {
     HIVE_SERVER(9,"HiveServer","hiveServerConf"),
     SFTP(10,"SFTP","sftpConf"),
     IMPALA_SQL(11,"Impala SQL","impalaSqlConf"),
-    TIDB_SQL(12,"TiDB SQL","tidbConf")
+    TIDB_SQL(12,"TiDB SQL","tidbConf"),
+    ORACLE_SQL(13,"Oracle SQL","oracleConf")
     ;
 
     private int typeCode;

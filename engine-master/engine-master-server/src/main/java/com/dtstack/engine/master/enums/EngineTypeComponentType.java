@@ -32,7 +32,8 @@ public enum EngineTypeComponentType {
     LIBRA_SQL(ScheduleEngineType.Libra, EComponentType.LIBRA_SQL),
     HIVE(ScheduleEngineType.HIVE,EComponentType.HIVE_SERVER),
     IMPALA_SQL(ScheduleEngineType.Hadoop, EComponentType.IMPALA_SQL),
-    TIDB_SQL(ScheduleEngineType.TIDB, EComponentType.TIDB_SQL);
+    TIDB_SQL(ScheduleEngineType.TIDB, EComponentType.TIDB_SQL),
+    ORACLE_SQL(ScheduleEngineType.ORACLE, EComponentType.ORACLE_SQL);
 
     private ScheduleEngineType scheduleEngineType;
 
@@ -77,7 +78,6 @@ public enum EngineTypeComponentType {
             case "hive":
                 return EngineTypeComponentType.HIVE;
             case "mysql":
-            case "oracle":
             case "maxcompute":
             case "sqlserver":
             case "kylin":
@@ -86,6 +86,8 @@ public enum EngineTypeComponentType {
                 return EngineTypeComponentType.IMPALA_SQL;
             case "tidb":
                 return EngineTypeComponentType.TIDB_SQL;
+            case "oracle":
+                return EngineTypeComponentType.ORACLE_SQL;
             default:
                 throw new UnsupportedOperationException("未知引擎类型:" + engineName);
         }

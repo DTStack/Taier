@@ -16,6 +16,7 @@ import com.dtstack.engine.dao.AccountDao;
 import com.dtstack.engine.dao.AccountTenantDao;
 import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.dao.UserDao;
+import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
@@ -85,13 +86,25 @@ public class AccountService {
     }
 
     private void checkDataSourceConnect(AccountVo accountVo) throws SQLException {
-        JSONObject jdbc = JSONObject.parseObject(clusterService.tiDBInfo(accountVo.getBindTenantId(), null));
+        JSONObject jdbc = null;
+        DataBaseType dataBaseType = null;
+        if (MultiEngineType.TIDB.getType() == accountVo.getEngineType()){
+            jdbc = JSONObject.parseObject(clusterService.tiDBInfo(accountVo.getBindTenantId(), null));
+            dataBaseType = DataBaseType.TiDB;
+        }else if (MultiEngineType.ORACLE.getType() == accountVo.getEngineType()){
+            jdbc = JSONObject.parseObject(clusterService.oracleInfo(accountVo.getBindTenantId(), null));
+            dataBaseType = DataBaseType.Oracle;
+        }
         if (Objects.isNull(jdbc)) {
-            throw new RdosDefineException("请先绑定TiDB组件");
+            if (MultiEngineType.TIDB.getType() == accountVo.getEngineType()) {
+                throw new RdosDefineException("请先绑定TiDB组件");
+            } else if (MultiEngineType.ORACLE.getType() == accountVo.getEngineType()) {
+                throw new RdosDefineException("请先绑定Oracle组件");
+            }
         }
         Connection conn = null;
         try {
-            conn = DBUtil.getConnection(DataBaseType.TiDB, jdbc.getString("jdbcUrl"), accountVo.getName(), accountVo.getPassword(), null);
+            conn = DBUtil.getConnection(dataBaseType,jdbc.getString("jdbcUrl") , accountVo.getName(), accountVo.getPassword(), null);
         } finally {
             if (conn != null) {
                 conn.close();
@@ -106,7 +119,7 @@ public class AccountService {
         Account dbAccountByName = new Account();
         dbAccountByName.setName(accountVo.getName());
         dbAccountByName.setPassword(Base64Util.baseEncode(accountVo.getPassword()));
-        dbAccountByName.setType(DataSourceType.TiDB.getVal());
+        dbAccountByName.setType(getDataSourceTypeByMultiEngineType(accountVo.getEngineType()));
         dbAccountByName.setCreateUserId(accountVo.getUserId());
         dbAccountByName.setModifyUserId(accountVo.getUserId());
         accountDao.insert(dbAccountByName);
@@ -145,6 +158,24 @@ public class AccountService {
         log.info("bind db account id [{}]username [{}] to user [{}] tenant {}  success ", accountTenant.getAccountId(), dbAccountByName.getName(),
                 accountTenant.getUserId(), tenantId);
     }
+
+    /**
+     * 把引擎类型转化为dataSource类型
+     * @param multiEngineType
+     * @return
+     */
+    private Integer getDataSourceTypeByMultiEngineType(Integer multiEngineType) {
+        if (null == multiEngineType) {
+            return null;
+        }
+        if (MultiEngineType.TIDB.getType() == multiEngineType) {
+            return DataSourceType.TiDB.getVal();
+        } else if (MultiEngineType.ORACLE.getType() == multiEngineType) {
+            return DataSourceType.Oracle.getVal();
+        }
+        return 0;
+    }
+
 
 
     /**
@@ -220,6 +251,7 @@ public class AccountService {
         accountVO.setBindTenantId(dtUicTenantIdByIds.get(0));
         accountVO.setName(accountTenantVo.getName());
         accountVO.setPassword(accountTenantVo.getPassword());
+        accountVO.setEngineType(accountTenantVo.getEngineType());
         //校验db账号测试连通性
         checkDataSourceConnect(accountVO);
         Account oldAccount = new Account();
@@ -233,7 +265,7 @@ public class AccountService {
         Account newAccount = new Account();
         newAccount.setName(accountVO.getName());
         newAccount.setPassword(Base64Util.baseEncode(accountVO.getPassword()));
-        newAccount.setType(DataSourceType.TiDB.getVal());
+        newAccount.setType(getDataSourceTypeByMultiEngineType(accountTenantVo.getEngineType()));
         newAccount.setCreateUserId(userId);
         newAccount.setModifyUserId(userId);
         accountDao.insert(newAccount);

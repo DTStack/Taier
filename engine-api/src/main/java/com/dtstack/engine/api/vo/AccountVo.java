@@ -35,6 +35,19 @@ public class AccountVo  extends BaseEntity {
 
     private String modifyUserName;
 
+    private Integer engineType;
+
+
+
+    public Integer getEngineType() {
+        return engineType;
+    }
+
+    public void setEngineType(Integer engineType) {
+        this.engineType = engineType;
+    }
+
+
     public String getModifyUserName() {
         return modifyUserName;
     }

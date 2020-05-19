@@ -13,6 +13,16 @@ public class AccountTenantVo extends BaseEntity {
 
     private String password;
 
+    private Integer engineType;
+
+    public Integer getEngineType() {
+        return engineType;
+    }
+
+    public void setEngineType(Integer engineType) {
+        this.engineType = engineType;
+    }
+
     public String getName() {
         return name;
     }
