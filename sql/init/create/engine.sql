@@ -116,7 +116,7 @@ CREATE TABLE `schedule_node_machine` (
   `deploy_info` varchar(256) DEFAULT NULL COMMENT 'flink,spark对应的部署模式',
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_machine` (`ip`,`port`)
-) ENGINE=InnoDB AUTO_INCREMENT=1018 DEFAULT CHARSET=utf8
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 
 

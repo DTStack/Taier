@@ -1,12 +1,10 @@
 package com.dtstack.engine.master.cache;
 
-import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.hash.ShardData;
 import com.dtstack.engine.dao.EngineJobCacheDao;
-import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.master.resource.ComputeResourceType;
 import com.dtstack.engine.master.taskdealer.TaskStatusDealer;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +14,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -32,7 +27,6 @@ public class ShardCache implements ApplicationContextAware {
 
     private final ReentrantLock lock = new ReentrantLock();
 
-    private static final ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(ComputeResourceType.values().length, new CustomThreadFactory(Class.class.getSimpleName()));
 
     private ApplicationContext applicationContext;
 
@@ -50,17 +44,13 @@ public class ShardCache implements ApplicationContextAware {
             return null;
         }
         return jobResourceShardManager.computeIfAbsent(engineJobCache.getJobResource(), jr -> {
-            ShardManager shardManager = new ShardManager();
+            ShardManager shardManager = new ShardManager(engineJobCache.getJobResource());
             TaskStatusDealer taskStatusDealer = new TaskStatusDealer();
             taskStatusDealer.setJobResource(engineJobCache.getJobResource());
             taskStatusDealer.setShardManager(shardManager);
             taskStatusDealer.setShardCache(this);
             taskStatusDealer.setApplicationContext(applicationContext);
-            scheduledService.scheduleWithFixedDelay(
-                    taskStatusDealer,
-                    0,
-                    TaskStatusDealer.INTERVAL,
-                    TimeUnit.MILLISECONDS);
+            taskStatusDealer.start();
             return shardManager;
         });
     }

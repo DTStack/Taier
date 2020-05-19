@@ -259,7 +259,7 @@ public class RdbsExeQueue {
                 try {
                     if (conn != null) {
 
-                        if (simpleStmt != null && !simpleStmt.isClosed()) {
+                        if (simpleStmt != null) {
                             simpleStmt.close();
                         }
 
