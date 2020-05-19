@@ -27,7 +27,8 @@ public enum ScheduleEngineType {
     Kylin(11,"kylin"),
     HIVE(12,"hive"),
     IMPALA(13, "impala"),
-    TIDB(14,"tidb");
+    TIDB(14,"tidb"),
+    ORACLE(15,"oracle");
 
     private int val;
 

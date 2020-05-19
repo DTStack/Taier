@@ -49,6 +49,9 @@ public class ComponentFactory {
             case TIDB_SQL:
                 component = new JDBCComponent(config,DataBaseType.TiDB);
                 break;
+            case ORACLE_SQL:
+                component = new JDBCComponent(config,DataBaseType.Oracle);
+                break;
             default:
                 throw new IllegalArgumentException("未知组件类型");
         }
