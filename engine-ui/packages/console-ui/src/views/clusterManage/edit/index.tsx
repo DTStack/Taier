@@ -770,6 +770,7 @@ class EditCluster extends React.Component<any, any> {
 
     saveComponent (component: any) {
         const { validateFieldsAndScroll } = this.props.form;
+        const { engineTypeKey } = this.state;
         const ctx = this;
         const { cluster } = this.props.location.state || {} as any;
         validateFieldsAndScroll((err: any, values: any) => {
@@ -794,7 +795,7 @@ class EditCluster extends React.Component<any, any> {
                     if (res.code === 1) {
                         // 避免上传配置文件的组件hdfs、yarn保存之后会导致另一项组件数据清空，这里不请求数据
                         message.success(`${component.componentName}保存成功`);
-                        ctx.getDataList();
+                        ctx.getDataList(engineTypeKey);
                     }
                 })
             } else {
@@ -810,7 +811,7 @@ class EditCluster extends React.Component<any, any> {
                         if (res.code === 1) {
                             // 避免上传配置文件的组件hdfs、yarn保存之后会导致另一项组件数据清空，这里不请求数据
                             message.success(`${component.componentName}保存成功`);
-                            ctx.getDataList();
+                            ctx.getDataList(engineTypeKey);
                         }
                     });
                 }
