@@ -490,10 +490,14 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
                 Map<String, Object> hadoopConf = clusterService.getConfig(cluster,dtuicTenantId, EComponentType.HDFS.getConfName());
                 JSONObject pluginInfo = new JSONObject();
                 pluginInfo.put(EComponentType.HDFS.getConfName(),hadoopConf);
-                Component hdfsComponent = componentService.getComponentByClusterId(cluster.getId(), EComponentType.HDFS.getTypeCode());
-                String hdfsUploadPath = workerOperator.uploadStringToHdfs(componentService.convertComponentTypeToClient(cluster.getClusterName(),
-                        EComponentType.HDFS.getTypeCode(), hdfsComponent.getHadoopVersion()), pluginInfo.toJSONString(), content, hdfsPath);
-
+                String typeName = (String) hadoopConf.get(ComponentService.TYPE_NAME);
+                if (StringUtils.isBlank(typeName)) {
+                    //获取对应的插件名称
+                    Component hdfsComponent = componentService.getComponentByClusterId(cluster.getId(), EComponentType.HDFS.getTypeCode());
+                    typeName = componentService.convertComponentTypeToClient(cluster.getClusterName(),
+                            EComponentType.HDFS.getTypeCode(), hdfsComponent.getHadoopVersion());
+                }
+                String hdfsUploadPath = workerOperator.uploadStringToHdfs(typeName, pluginInfo.toJSONString(), content, hdfsPath);
                 if(StringUtils.isBlank(hdfsUploadPath)){
                     throw new RdosDefineException("Update task to HDFS failure hdfsUploadPath is blank");
                 }

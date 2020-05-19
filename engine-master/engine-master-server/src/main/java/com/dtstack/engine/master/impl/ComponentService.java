@@ -8,6 +8,7 @@ import com.dtstack.engine.api.dto.ClusterDTO;
 import com.dtstack.engine.api.dto.ComponentDTO;
 import com.dtstack.engine.api.dto.Resource;
 import com.dtstack.engine.api.vo.ClusterVO;
+import com.dtstack.engine.api.vo.ComponentVO;
 import com.dtstack.engine.api.vo.EngineTenantVO;
 import com.dtstack.engine.api.vo.TestConnectionVO;
 import com.dtstack.engine.common.annotation.Forbidden;
@@ -553,10 +554,10 @@ public class ComponentService {
 
 
     @Transactional(rollbackFor = Exception.class)
-    public Component addOrUpdateComponent(@Param("clusterId") Long clusterId, @Param("clusterName") String clusterName, @Param("componentConfig") String componentConfig,
-                                          @Param("resources") List<Resource> resources, @Param("hadoopVersion") String hadoopVersion,
-                                          @Param("kerberosFileName") String kerberosFileName, @Param("componentTemplate") String componentTemplate,
-                                          @Param("componentCode") Integer componentCode) {
+    public ComponentVO addOrUpdateComponent(@Param("clusterId") Long clusterId, @Param("clusterName") String clusterName, @Param("componentConfig") String componentConfig,
+                                            @Param("resources") List<Resource> resources, @Param("hadoopVersion") String hadoopVersion,
+                                            @Param("kerberosFileName") String kerberosFileName, @Param("componentTemplate") String componentTemplate,
+                                            @Param("componentCode") Integer componentCode) {
         if (StringUtils.isBlank(componentConfig)) {
             throw new RdosDefineException("组件信息不能为空");
         }
@@ -592,6 +593,15 @@ public class ComponentService {
             engineDao.insert(engine);
             LOGGER.info("cluster {} add engine  {} ", clusterId, engine.getId());
         }
+        //yarn 和 kerberos 只能2选一
+        if (EComponentType.YARN.getTypeCode() == componentCode || EComponentType.KUBERNETES.getTypeCode() == componentCode) {
+            Component resourceComponent = componentDao.getByClusterIdAndComponentType(clusterId,
+                    EComponentType.YARN.getTypeCode() == componentCode ? EComponentType.KUBERNETES.getTypeCode() : EComponentType.YARN.getTypeCode());
+            if (Objects.nonNull(resourceComponent)) {
+                throw new RdosDefineException("资源组件只能选择单项");
+            }
+        }
+
         Component addComponent = new ComponentDTO();
         BeanUtils.copyProperties(componentDTO, addComponent);
         Component dbComponent = componentDao.getByClusterIdAndComponentType(clusterId, addComponent.getComponentTypeCode());
@@ -641,7 +651,9 @@ public class ComponentService {
         } else {
             componentDao.insert(addComponent);
         }
-        return addComponent;
+        ComponentVO componentVO = ComponentVO.toVO(addComponent, true);
+        componentVO.setClusterName(clusterName);
+        return componentVO;
     }
 
     private void uploadResourceToSftp(@Param("clusterId") Long clusterId, @Param("resources") List<Resource> resources, @Param("kerberosFileName") String kerberosFileName, Component sftpComponent, Component addComponent, Component dbComponent, boolean isUpdate) {
@@ -1044,66 +1056,81 @@ public class ComponentService {
         }
         if (StringUtils.isBlank(clusterName)) {
             throw new RdosDefineException("集群名称不能为空");
-        }
-        if (EComponentType.LEARNING.getTypeCode() == componentType){
-            if(StringUtils.isNotBlank(version)){
-                //hadoop2
-                return String.format("learning-hadoop%s", this.formatHadoopVersion(version));
-            }
-        }
-        if (EComponentType.YARN.getTypeCode() == componentType) {
+        } else if (EComponentType.LEARNING.getTypeCode() == componentType) {
+            return String.format("learning-hadoop%s", this.formatHadoopVersion(version));
+        } else if (EComponentType.YARN.getTypeCode() == componentType) {
             if (StringUtils.isBlank(version)) {
                 throw new RdosDefineException("请选择集群版本");
             }
+            //yarn是第一配置的
             ClusterVO cluster = clusterService.getClusterByName(clusterName);
             if (Objects.isNull(cluster)) {
                 //如果没有配置hdfs hdfs给默认值 和yarn保持一致
-                return String.format("yarn%s-hdfs%s-hadoop%s", this.formatHadoopVersion(version), this.formatHadoopVersion(version), this.formatHadoopVersion(version));
+                return String.format("yarn%s-hdfs%s-hadoop%s", this.formatHadoopVersion(version),
+                        this.formatHadoopVersion(version), this.formatHadoopVersion(version));
             }
             Component hdfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());
             if (Objects.isNull(hdfs)) {
-                return String.format("yarn%s-hdfs%s-hadoop%s", this.formatHadoopVersion(version), this.formatHadoopVersion(version), this.formatHadoopVersion(version));
+                return String.format("yarn%s-hdfs%s-hadoop%s", this.formatHadoopVersion(version), this.formatHadoopVersion(version),
+                        this.formatHadoopVersion(version));
             }
             //yarn2-hdfs2-hadoop2
-            return String.format("yarn%s-hdfs%s-hadoop%s", this.formatHadoopVersion(version), this.formatHadoopVersion(hdfs.getHadoopVersion()), this.formatHadoopVersion(version));
+            return String.format("yarn%s-hdfs%s-hadoop%s", this.formatHadoopVersion(version),
+                    this.formatHadoopVersion(hdfs.getHadoopVersion()), this.formatHadoopVersion(version));
         }
+
+
         ClusterVO cluster = clusterService.getClusterByName(clusterName);
         if (Objects.isNull(cluster)) {
             throw new RdosDefineException("请先配置HDFS");
         }
+
         Component yarn = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.YARN.getTypeCode());
-        if (Objects.isNull(yarn)) {
-            throw new RdosDefineException("请先配置YARN");
+        Component kerberos = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.KUBERNETES.getTypeCode());
+        if (Objects.isNull(yarn) && Objects.isNull(kerberos)) {
+            throw new RdosDefineException("请先配置资源组件");
         }
+        String resourceSign = Objects.isNull(yarn) ? "k8s" : "yarn" + this.formatHadoopVersion(yarn.getHadoopVersion());
         if (EComponentType.HDFS.getTypeCode() == componentType) {
-            if (StringUtils.isNotBlank(version)) {
-                //hadoop2
-                return String.format("yarn%s-hdfs%s-hadoop%s", this.formatHadoopVersion(yarn.getHadoopVersion()), this.formatHadoopVersion(version), this.formatHadoopVersion(version));
-            }
+            return String.format("%s-hdfs%s-hadoop%s", resourceSign, this.formatHadoopVersion(version), this.formatHadoopVersion(version));
         }
         Component hdfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());
         if (Objects.isNull(hdfs)) {
             throw new RdosDefineException("请先配置HDFS");
         }
+        String storageSign = "hdfs" + this.formatHadoopVersion(hdfs.getHadoopVersion());
         //flink  需要根据yarn hdfs version 拼接 如yarn2-hdfs2-flink180;
         if (EComponentType.FLINK.getTypeCode() == componentType) {
-            return String.format("yarn%s-hdfs%s-flink%s", this.formatHadoopVersion(hdfs.getHadoopVersion()), this.formatHadoopVersion(hdfs.getHadoopVersion()),
-                    version);
+            return String.format("%s-%s-flink%s", resourceSign, storageSign, this.formatHadoopVersion(version));
         }
         //dtscript yarn2-hdfs2-dtscript
         if (EComponentType.DT_SCRIPT.getTypeCode() == componentType) {
-            return String.format("yarn%s-hdfs%s-dtstcript%s", this.formatHadoopVersion(hdfs.getHadoopVersion()), this.formatHadoopVersion(hdfs.getHadoopVersion()),
-                    version);
+            return String.format("%s-%s-dtstcript%s", resourceSign, storageSign, this.formatHadoopVersion(version));
         }
         throw new RdosDefineException("暂无对应组件默认配置");
     }
 
+    /**
+     * version 默认为2
+     *
+     * hadoop2  返回为2
+     * hadoopHW 返回hw
+     *
+     * @param hadoopVersion
+     * @return
+     */
     @Forbidden
     private String formatHadoopVersion(String hadoopVersion) {
-        if (StringUtils.isBlank(hadoopVersion) || hadoopVersion.length() < 6) {
+        if (StringUtils.isBlank(hadoopVersion)) {
             return "2";
         }
-        return hadoopVersion.toLowerCase().replace("hadoop", "").substring(0, 1);
+        if (hadoopVersion.startsWith("hadoop")) {
+            //hadoop2
+            return hadoopVersion.toLowerCase().replace("hadoop", "").substring(0, 1);
+        } else {
+            //hw
+            return hadoopVersion.substring(0, 2);
+        }
     }
 
 

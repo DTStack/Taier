@@ -9,7 +9,17 @@ import java.util.List;
 
 public class ComponentVO extends Component {
 
-    public static List<ComponentVO> toVOS(List<Component> components,boolean removeTypeName) {
+    private String clusterName;
+
+    public String getClusterName() {
+        return clusterName;
+    }
+
+    public void setClusterName(String clusterName) {
+        this.clusterName = clusterName;
+    }
+
+    public static List<ComponentVO> toVOS(List<Component> components, boolean removeTypeName) {
         List<ComponentVO> vos = new ArrayList<>();
         for (Component component : components) {
             vos.add(toVO(component,removeTypeName));
