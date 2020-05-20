@@ -26,7 +26,7 @@ export default {
         return http.post(req.UPDATE_ACCOUNT_BIND, params)
     },
 
-    getBindAccounts (params: { dtuicTenantId: numOrStr; username: string }) {
+    getBindAccounts (params: { dtuicTenantId: numOrStr; username: string; engineType: numOrStr }) {
         return http.post(req.ACCOUNT_BIND_LIST, params)
     },
 

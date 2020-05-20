@@ -51,9 +51,11 @@ class BindAccountTable extends React.Component<IProps, IState> {
 
     fetchData = async () => {
         const { queryParams } = this.state;
+        const { engineType } = this.props;
         this.setState({
             loading: true
         })
+        queryParams.engineType = engineType;
         const res = await AccountApi.getBindAccounts(queryParams);
         if (res.code === 1) {
             this.setState({
