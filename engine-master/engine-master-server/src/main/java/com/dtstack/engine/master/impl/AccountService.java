@@ -293,7 +293,7 @@ public class AccountService {
      * @return
      */
     public PageResult<List<AccountVo>> pageQuery(@Param("dtuicTenantId") Long dtuicTenantId, @Param("username") String username, @Param("currentPage") Integer currentPage,
-                                                 @Param("pageSize") Integer pageSize) {
+                                                 @Param("pageSize") Integer pageSize, @Param("engineType") Integer engineType) {
         if (Objects.isNull(dtuicTenantId)) {
             throw new RdosDefineException("绑定参数不能为空");
         }
@@ -301,6 +301,7 @@ public class AccountService {
         AccountDTO accountDTO = new AccountDTO();
         accountDTO.setTenantId(tenantId);
         accountDTO.setName(username);
+        accountDTO.setType(getDataSourceTypeByMultiEngineType(engineType));
         PageQuery<AccountDTO> pageQuery = new PageQuery<>(currentPage, pageSize, "gmt_modified", Sort.DESC.name());
         pageQuery.setModel(accountDTO);
         Integer count = accountTenantDao.generalCount(accountDTO);
