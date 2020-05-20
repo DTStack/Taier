@@ -1,9 +1,10 @@
-# Read more: https://gitlab.com/gitlab-org/gitlab-ce/tree/v8.6.4/doc/ci/yaml
+# Read more: https://docs.gitlab.com/12.7/ee/ci/yaml/README.html
 
 cache:
   paths:
    - node_modules/
 
+# 当 merge_requests, master, dev, test 分支时会执行依赖安装
 before_script:
   - "npm install --unsafe-perm=true --allow-root"
 
@@ -14,54 +15,36 @@ stages:
   - test
   - build_deploy
 
+# 当 merge_requests 执行 eslint 检查
 code_quality: 
   stage: lint
   script: 
     - npm run lint
   only:
-    # Just support (fix, dev_, feat, issue) trigger test
-    - /(f|F)ix|(d|D)ev_|(f|F)eat|(i|I)ssue|ref|style|perf|next/
     - merge_requests
-  except:
-    - dev
-    - master
-    - /doc(s)/
 
+# 当 merge_requests 执行 tsc 类型检查
 check_types:
   stage: check-types
   script: 
     - npm run check-types
   only:
-    # merge_requests not support current version
-    # Just support (fix, dev_, feat, issue) trigger test
-    - /(f|F)ix|(d|D)ev_|(f|F)eat|(i|I)ssue|ref|perf|next/
     - merge_requests
-  except:
-    - dev
-    - master
-    - /doc(s)/
 
-
+# 当 merge_requests 有更时会执行单元测试任务
 test:
   stage: test
   script: 
     - npm run test
   only:
-    # merge_requests not support current version
-    # Just support (fix, dev_, feat, issue) trigger test
-    - /(f|F)ix|(d|D)ev_|(f|F)eat|(i|I)ssue|ref|perf|next/
     - merge_requests
-  except:
-    - dev
-    - master
-    - /doc(s)/
 
+#执行 MD 文档校验， 为 doc 或者 master 命名当分支更新时才会触发
 doc_quality:
   stage: lintdoc
   script: 
     - npm run lint-doc
   only:
-    - merge_requests # not support current version
     - /doc(s)|release/
     - master
 
