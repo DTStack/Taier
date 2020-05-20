@@ -130,7 +130,7 @@ class DisplayResource extends React.Component<any, any> {
                             paramsFileName
                                 ? <span
                                     className="c-displayResource__downloadTemp"
-                                    onClick={() => downloadFile(components, 3)}
+                                    onClick={() => downloadFile(components, 2)}
                                 >
                                     下载参数
                                 </span>
@@ -194,6 +194,27 @@ class DisplayResource extends React.Component<any, any> {
         )
     }
 
+    // flink组件版本
+    renderFilkCompVersion = (configName: any) => {
+        const { getFieldDecorator, components, isView } = this.props;
+        return (
+            <FormItem
+                label="组件版本"
+                colon={false}
+            >
+                {getFieldDecorator(`${configName}.version`, {
+                    initialValue: components.version || '180'
+                })(
+                    <Select style={{ width: 172 }} disabled={isView}>
+                        <Option value='140' key='1.4'>1.4</Option>
+                        <Option value='150' key='1.5'>1.5</Option>
+                        <Option value='180' key='1.8'>1.8</Option>
+                    </Select>
+                )}
+            </FormItem>
+        )
+    }
+
     renderDisplayResource = () => {
         const { components } = this.props;
         const componentTypeCode = components.componentTypeCode;
@@ -224,11 +245,40 @@ class DisplayResource extends React.Component<any, any> {
                 return this.renderParamsFile(COMPONEMT_CONFIG_KEYS.LIBRA_SQL)
             case COMPONENT_TYPE_VALUE.ORACLE_SQL:
                 return this.renderParamsFile(COMPONEMT_CONFIG_KEYS.ORACLE_SQL)
-            case COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER:
+            case COMPONENT_TYPE_VALUE.IMPALA_SQL:
                 return (
                     <React.Fragment>
-                        {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.SPARKTHRIFTSERVER)}
-                        {this.renderParamsFile(COMPONEMT_CONFIG_KEYS.SPARKTHRIFTSERVER)}
+                        {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.IMPALA_SQL)}
+                        {this.renderParamsFile(COMPONEMT_CONFIG_KEYS.IMPALA_SQL)}
+                    </React.Fragment>
+                )
+            case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER:
+                return (
+                    <React.Fragment>
+                        {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.SPARK_THRIFT_SERVER)}
+                        {this.renderParamsFile(COMPONEMT_CONFIG_KEYS.SPARK_THRIFT_SERVER)}
+                    </React.Fragment>
+                )
+            case COMPONENT_TYPE_VALUE.FLINK:
+                return (
+                    <React.Fragment>
+                        {this.renderFilkCompVersion(COMPONEMT_CONFIG_KEYS.FLINK)}
+                        {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.FLINK)}
+                        {this.renderParamsFile(COMPONEMT_CONFIG_KEYS.FLINK)}
+                    </React.Fragment>
+                )
+            case COMPONENT_TYPE_VALUE.HIVE_SERVER:
+                return (
+                    <React.Fragment>
+                        {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.HIVE_SERVER)}
+                        {this.renderParamsFile(COMPONEMT_CONFIG_KEYS.HIVE_SERVER)}
+                    </React.Fragment>
+                )
+            case COMPONENT_TYPE_VALUE.LEARNING:
+                return (
+                    <React.Fragment>
+                        {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.LEARNING)}
+                        {this.renderParamsFile(COMPONEMT_CONFIG_KEYS.LEARNING)}
                     </React.Fragment>
                 )
             default:

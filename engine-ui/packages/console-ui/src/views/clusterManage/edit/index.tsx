@@ -3,26 +3,27 @@ import { cloneDeep } from 'lodash';
 import { connect } from 'react-redux';
 import { hashHistory } from 'react-router';
 import {
-    Form, Input, Card, Tabs, Button, Popover, Checkbox,
-    Row, Col, Radio, message } from 'antd';
+    Form, Input, Card, Tabs, Button, message } from 'antd';
 import Api from '../../../api/console';
 
 import { updateTestStatus, updateRequiredStatus } from '../../../reducers/modules/cluster';
 
-import req from '../../../consts/reqUrls'
+import req from '../../../consts/reqUrls';
 import {
-    SOURCE_COMPONENTS, STORE_COMPONENTS, COMPUTE_COMPONENTS, COMMON_COMPONENTS,
     TABS_TITLE, TABS_TITLE_KEY, COMPONEMT_CONFIG_NAME_ENUM, COMPONEMT_CONFIG_KEY_ENUM,
     COMPONENT_TYPE_VALUE } from '../../../consts';
 
 import ModifyComponentModal from '../../../components/modifyCompModal';
+import SelectPopver from '../../../components/selectPopover';
 import DisplayResource from './displayResource';
 import ComponentsConfig from './componentsConfig';
+import dealData from './dealData';
 
 const TabPane = Tabs.TabPane;
-const CheckboxGroup = Checkbox.Group;
-const RadioGroup = Radio.Group;
 const FormItem = Form.Item;
+function giveMeAKey () {
+    return (new Date().getTime() + '' + ~~(Math.random() * 100000))
+}
 
 // 渲染组件icon
 function renderCompIcon (scheduling: any) {
@@ -109,10 +110,11 @@ class EditCluster extends React.Component<any, any> {
                     item.components.map((comps: any) => {
                         newCompConfig[COMPONEMT_CONFIG_KEY_ENUM[comps.componentTypeCode]] = {
                             configInfo: JSON.parse(comps.componentConfig) || {},
-                            loadTemplate: JSON.parse(comps.componentTemplate) || [],
+                            loadTemplate: dealData.getLoadTemplates(JSON.parse(comps.componentTemplate)),
                             fileName: comps.uploadFileName || '',
                             kerFileName: comps.kerberosFileName || '',
-                            id: comps.id || ''
+                            id: comps.id || '',
+                            params: dealData.getLoadTemplateParams(JSON.parse(comps.componentTemplate))
                         }
                     })
                 })
@@ -121,7 +123,7 @@ class EditCluster extends React.Component<any, any> {
                     clusterName: res.data.clusterName,
                     componentConfig: newCompConfig,
                     clusterId: clusterId
-                }, () => { this.selectDefaultValue(); console.log('componentUpdate-----', this.state.tabCompData, this.state.componentConfig) })
+                }, () => { console.log('componentUpdate-----', this.state.tabCompData, this.state.componentConfig) })
             }
         })
     }
@@ -130,7 +132,7 @@ class EditCluster extends React.Component<any, any> {
         this.setState({
             compTypeKey: Number(key),
             popoverVisible: false
-        }, () => this.selectDefaultValue())
+        })
     }
 
     turnBack = () => {
@@ -172,7 +174,7 @@ class EditCluster extends React.Component<any, any> {
                     if (res.code === 1) {
                         this.setState({
                             componentConfig: {
-                                ...this.state.componentConfig,
+                                ...componentConfig,
                                 [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
                                     ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
                                     loadTemplate: res.data
@@ -203,20 +205,16 @@ class EditCluster extends React.Component<any, any> {
         })
     }
 
-    // 对单选框数据格式进行处理
     setRadioCompData = (e: any) => {
         this.setState({
             selectValue: [e.target.value]
         })
     }
-
-    // 对复选框数据格式进行处理
     setCheckboxCompData = (value) => {
         this.setState({
             selectValue: [...value]
         })
     }
-
     // 点击确认后对选中数据进行处理
     modifyTabCompData = () => {
         const { tabCompData, selectValue, compTypeKey, defaultValue } = this.state;
@@ -245,6 +243,7 @@ class EditCluster extends React.Component<any, any> {
                 }
             })
         }
+        console.log('delete comps---------add comps', deleteComps, addComps)
         if (deleteComps.length > 0) {
             this.setState({
                 popoverVisible: false,
@@ -256,7 +255,6 @@ class EditCluster extends React.Component<any, any> {
             this.handleAddComps(addComps);
         }
     }
-
     // 清除存储组件数据
     clearCompsConfig = (componentTypeCode: any) => {
         const { componentConfig } = this.state;
@@ -267,7 +265,6 @@ class EditCluster extends React.Component<any, any> {
             }
         })
     }
-
     // 删除tabCompData组件和组件存储的配置信息
     clearTabCompData = () => {
         const { tabCompData, compTypeKey, deleteComps, addComps } = this.state;
@@ -281,16 +278,16 @@ class EditCluster extends React.Component<any, any> {
             tabCompData: cloneComps
         }, () => this.handleAddComps(addComps));
     }
-
     // 处理删除数据
     handleDeleteComps = () => {
-        const { deleteComps } = this.state;
+        const { deleteComps, compTypeKey } = this.state;
+        const isSource = compTypeKey === TABS_TITLE_KEY.SOURCE;
         let componentIds: any = [];
         deleteComps.map((comps: any) => {
             if (comps.id) { componentIds.push(comps.id) }
         });
         // console.log('componentIds------componentIds', componentIds)
-        if (componentIds.length > 0) {
+        if (componentIds.length > 0 && !isSource) {
             Api.deleteComponent({
                 componentIds
             }).then((res: any) => {
@@ -310,7 +307,6 @@ class EditCluster extends React.Component<any, any> {
             }, () => this.clearTabCompData());
         }
     }
-
     // 处理增加数据
     handleAddComps = (addComps: any) => {
         const { tabCompData, compTypeKey } = this.state;
@@ -326,106 +322,21 @@ class EditCluster extends React.Component<any, any> {
             this.setState({
                 tabCompData: cloneCompData,
                 popoverVisible: false
-            }, () => { this.resetSelectData() });
+            }, () => { this.getLoadTemplate() });
         }
-    }
-
-    resetSelectData = () => {
-        this.getLoadTemplate();
-        this.selectDefaultValue();
     }
 
     handleCancleModify = () => {
         this.setState({ modify: false });
-        this.selectDefaultValue();
     }
 
     handleCanclePopover = () => {
-        this.setState({ popoverVisible: false }, () => this.selectDefaultValue())
+        this.setState({ popoverVisible: false })
     }
 
-    // Tab页组件配置按钮
-    componentBtn = () => {
-        let content: any;
-        const { compTypeKey, popoverVisible, defaultValue } = this.state;
-        // console.log('defaultValue------selectValue', defaultValue, selectValue)
-        const popoverFooter = (
-            <div style={{ marginTop: 37 }}>
-                <Row>
-                    <Col span={8}></Col>
-                    <Col>
-                        <Button size="small" onClick={this.handleCanclePopover}>取消</Button>
-                        <Button size="small" type="primary" style={{ marginLeft: 8 }} onClick={this.modifyTabCompData}>确认</Button>
-                    </Col>
-                </Row>
-            </div>
-        )
-        switch (compTypeKey) {
-            case TABS_TITLE_KEY.COMMON:
-                content = (
-                    <CheckboxGroup onChange={this.setCheckboxCompData} defaultValue={defaultValue}>
-                        <Row>
-                            {COMMON_COMPONENTS.map((item: any) => {
-                                return <Col key={`${item.componentTypeCode}`}><Checkbox value={item.componentTypeCode}>{item.componentName}</Checkbox></Col>
-                            })}
-                        </Row>
-                        {popoverFooter}
-                    </CheckboxGroup>
-                )
-                break;
-            case TABS_TITLE_KEY.SOURCE:
-                content = (
-                    <RadioGroup style={{ width: '100%' }} onChange={this.setRadioCompData} defaultValue={defaultValue[0]}>
-                        <Row>
-                            {SOURCE_COMPONENTS.map((item: any) => {
-                                return <Col key={`${item.componentTypeCode}`}><Radio value={item.componentTypeCode}>{item.componentName}</Radio></Col>
-                            })}
-                        </Row>
-                        {popoverFooter}
-                    </RadioGroup>
-                )
-                break;
-            case TABS_TITLE_KEY.STORE:
-                content = (
-                    <CheckboxGroup onChange={this.setCheckboxCompData} defaultValue={defaultValue}>
-                        <Row>
-                            {STORE_COMPONENTS.map((item: any) => {
-                                return <Col key={`${item.componentTypeCode}`}><Checkbox value={item.componentTypeCode}>{item.componentName}</Checkbox></Col>
-                            })}
-                        </Row>
-                        {popoverFooter}
-                    </CheckboxGroup>
-                )
-                break;
-            case TABS_TITLE_KEY.COMPUTE:
-                content = (
-                    <CheckboxGroup onChange={this.setCheckboxCompData} defaultValue={defaultValue}>
-                        <Row>
-                            {COMPUTE_COMPONENTS.map((item: any) => {
-                                return <Col key={`${item.componentTypeCode}`}><Checkbox value={item.componentTypeCode}>{item.componentName}</Checkbox></Col>
-                            })}
-                        </Row>
-                        {popoverFooter}
-                    </CheckboxGroup>
-                )
-                break;
-            default:
-                content = ''
-                break;
-        }
-        return (
-            <Popover
-                key={popoverVisible}
-                title="组件配置"
-                placement="topRight"
-                trigger="click"
-                visible={popoverVisible}
-                content={content}
-                style={{ width: 240 }}
-            >
-                <Button className="c-editCluster__componentButton" onClick={() => this.setState({ popoverVisible: true })}><i className="iconfont iconzujianpeizhi" style={{ marginRight: 2 }}></i>组件配置</Button>
-            </Popover>
-        )
+    setPopverVisible = () => {
+        this.selectDefaultValue();
+        this.setState({ popoverVisible: true });
     }
 
     validateFileType = (val: string) => {
@@ -508,15 +419,6 @@ class EditCluster extends React.Component<any, any> {
         }
     }
 
-    // 下载配置文件
-    downloadFile = (components: any, type: any) => {
-        const config = this.getComponentConfig(components);
-        const a = document.createElement('a');
-        const param = `?componentId=${config.id}&type=${type}`;
-        a.href = `${req.DOWNLOAD_RESOURCE}${param}`;
-        a.click();
-    }
-
     // Hadoop Kerberos认证文件Change事件
     kerFileChange = (e: any, componentTypeCode: any) => {
         const kerFile = e.target;
@@ -538,6 +440,15 @@ class EditCluster extends React.Component<any, any> {
         }
     }
 
+    // 下载配置文件
+    downloadFile = (components: any, type: any) => {
+        const config = this.getComponentConfig(components);
+        const a = document.createElement('a');
+        const param = `?componentId=${config.id}&type=${type}`;
+        a.href = `${req.DOWNLOAD_RESOURCE}${param}`;
+        a.click();
+    }
+
     deleteKerFile = (componentTypeCode: any) => {
         const { componentConfig } = this.state;
         this.setState({
@@ -551,7 +462,6 @@ class EditCluster extends React.Component<any, any> {
             }
         });
     }
-
     /**
      * 处理添加、更新组件数据参数
      * @values 表单变更值
@@ -570,16 +480,19 @@ class EditCluster extends React.Component<any, any> {
 
         // 各组件表单对应更改值
         let saveConfig = values[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]];
-        const { hadoopVersion = '' } = saveConfig;
+        const { hadoopVersion = '', params } = saveConfig;
         const { clusterName } = values;
+        const customParams = dealData.getCustomParams(params);
 
         // 返回模板信息以及相关输入值
-        const componentTemplate = cloneDeep(loadTemplate)
+        let componentTemplate = cloneDeep(loadTemplate)
         componentTemplate.forEach((item: any) => {
             if (saveConfig.configInfo[item.key]) {
                 item.value = saveConfig.configInfo[item.key]
             }
         })
+        componentTemplate = componentTemplate.concat(customParams)
+        console.log('customParams, saveConfig.params-------', customParams, componentTemplate)
 
         /**
          * 配置信息或者配置表单键值
@@ -625,6 +538,7 @@ class EditCluster extends React.Component<any, any> {
                 return;
             }
             const params = this.getComponentConfigPrames(values, components);
+            console.log('this is params-----------', params)
             Api.saveComponent({
                 ...params
             }).then((res: any) => {
@@ -632,15 +546,17 @@ class EditCluster extends React.Component<any, any> {
                     const { componentConfig } = this.state;
                     this.setState({
                         clusterId: res.data.clusterId,
+                        clusterName: res.data.clusterName,
                         componentConfig: {
                             ...componentConfig,
                             [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
                                 ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
                                 configInfo: JSON.parse(res.data.componentConfig) || {},
-                                loadTemplate: JSON.parse(res.data.componentTemplate) || [],
+                                loadTemplate: dealData.getLoadTemplates(JSON.parse(res.data.componentTemplate)),
                                 fileName: res.data.uploadFileName || '',
                                 kerFileName: res.data.kerberosFileName || '',
-                                id: res.data.id || ''
+                                id: res.data.id || '',
+                                params: dealData.getLoadTemplateParams(JSON.parse(res.data.componentTemplate))
                             }
                         }
                     }, () => console.log('componentConfig------componentConfig', this.state.componentConfig));
@@ -655,7 +571,6 @@ class EditCluster extends React.Component<any, any> {
         const componentTypeCode = components.componentTypeCode;
         const config = this.getComponentConfig(components);
         const { configInfo = {} } = config;
-
         if (componentTypeCode !== COMPONENT_TYPE_VALUE.YARN || componentTypeCode !== COMPONENT_TYPE_VALUE.KUBERNETES || componentTypeCode !== COMPONENT_TYPE_VALUE.HDFS) {
             form.setFieldsValue({
                 [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
@@ -663,6 +578,41 @@ class EditCluster extends React.Component<any, any> {
                 }
             })
         }
+    }
+
+    addParams = (components: any) => {
+        const { componentConfig } = this.state;
+        const componentTypeCode = components.componentTypeCode;
+        const config = this.getComponentConfig(components);
+        const params = config.params || [];
+        // console.log('params-------', [...params])
+        this.setState({
+            componentConfig: {
+                ...componentConfig,
+                [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
+                    ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
+                    params: [...params, { id: giveMeAKey() }]
+                }
+            }
+        })
+    }
+
+    deleteParams = (components: any, id: any) => {
+        const { componentConfig } = this.state;
+        const componentTypeCode = components.componentTypeCode;
+        const config = this.getComponentConfig(components);
+        const params = config.params || [];
+        // console.log('params-------', params)
+        params.splice(params.findIndex((param: any) => param.id === id), 1);
+        this.setState({
+            componentConfig: {
+                ...componentConfig,
+                [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
+                    ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
+                    params: [...params]
+                }
+            }
+        })
     }
 
     // 返回各个模块下的组件
@@ -673,11 +623,24 @@ class EditCluster extends React.Component<any, any> {
     }
 
     render () {
-        const { compTypeKey, clusterName, modify, selectValue, deleteComps } = this.state;
+        const { compTypeKey, popoverVisible, clusterName, modify, selectValue,
+            deleteComps, defaultValue } = this.state;
         const { getFieldDecorator, getFieldValue } = this.props.form;
-        const componentBtn = this.componentBtn();
         const { mode } = this.props.location.state || {} as any;
         const isView = mode === 'view';
+        const componentBtn = !isView && (
+            <SelectPopver
+                key={popoverVisible}
+                popoverVisible={popoverVisible}
+                modify={modify}
+                compTypeKey={compTypeKey}
+                defaultValue={defaultValue}
+                setPopverVisible={this.setPopverVisible}
+                handleCanclePopover={this.handleCanclePopover}
+                modifyTabCompData={this.modifyTabCompData}
+                setCheckboxCompData={this.setCheckboxCompData}
+                setRadioCompData={this.setRadioCompData} />
+        );
 
         return (
             <div className="c-editCluster__containerWrap" ref={(el) => { this.container = el; }}>
@@ -731,7 +694,7 @@ class EditCluster extends React.Component<any, any> {
                                             >
                                                 <Tabs
                                                     tabPosition="left"
-                                                    tabBarExtraContent={!isView && componentBtn}
+                                                    tabBarExtraContent={componentBtn}
                                                     className="c-editCluster__container__componentTabs"
                                                     onChange={(key: any) => this.getLoadTemplate(key)}
                                                 >
@@ -757,6 +720,8 @@ class EditCluster extends React.Component<any, any> {
                                                                                 {...this.state}
                                                                                 isView={isView}
                                                                                 components={comps}
+                                                                                addParams={this.addParams}
+                                                                                deleteParams={this.deleteParams}
                                                                                 getFieldValue={getFieldValue}
                                                                                 getFieldDecorator={getFieldDecorator} />
                                                                         </div>

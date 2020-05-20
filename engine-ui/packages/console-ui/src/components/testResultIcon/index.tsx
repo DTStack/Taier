@@ -65,7 +65,7 @@ export default class TestRestIcon extends React.Component<any, any> {
                 testCompResult = flinkTestResult;
                 break;
             }
-            case COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER: { // hive <=> Spark Thrift Server
+            case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER: { // hive <=> Spark Thrift Server
                 testCompResult = sparkThriftTestResult;
                 break;
             }
@@ -73,7 +73,7 @@ export default class TestRestIcon extends React.Component<any, any> {
                 testCompResult = carbonTestResult;
                 break;
             }
-            case COMPONENT_TYPE_VALUE.IMPALASQL: {
+            case COMPONENT_TYPE_VALUE.IMPALA_SQL: {
                 testCompResult = impalaSqlTestResult;
                 break;
             }
@@ -89,7 +89,7 @@ export default class TestRestIcon extends React.Component<any, any> {
                 testCompResult = learningTestResult;
                 break;
             }
-            case COMPONENT_TYPE_VALUE.HIVESERVER: {
+            case COMPONENT_TYPE_VALUE.HIVE_SERVER: {
                 testCompResult = hiveServerTestResult;
                 break;
             }

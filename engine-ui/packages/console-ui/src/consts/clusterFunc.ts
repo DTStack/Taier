@@ -17,14 +17,14 @@ export function validateCompParams (componentValue: any) {
         case COMPONENT_TYPE_VALUE.FLINK: {
             return validateFlinkParams
         }
-        case COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER: { // hive <=> Spark Thrift Server
+        case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER: { // hive <=> Spark Thrift Server
             console.log(validateHiveParams)
             return validateHiveParams
         }
         case COMPONENT_TYPE_VALUE.CARBONDATA: {
             return validateCarbonDataParams
         }
-        case COMPONENT_TYPE_VALUE.IMPALASQL: {
+        case COMPONENT_TYPE_VALUE.IMPALA_SQL: {
             return validateImpalaSqlParams
         }
         case COMPONENT_TYPE_VALUE.SPARK: {
@@ -36,7 +36,7 @@ export function validateCompParams (componentValue: any) {
         case COMPONENT_TYPE_VALUE.LEARNING: {
             return validateLearningParams
         }
-        case COMPONENT_TYPE_VALUE.HIVESERVER: {
+        case COMPONENT_TYPE_VALUE.HIVE_SERVER: {
             return validateHiveServerParams
         }
         case COMPONENT_TYPE_VALUE.HDFS: {
@@ -90,7 +90,7 @@ export function showTestResult (testResults: any, engineType: any) {
                 })
                 break;
             }
-            case COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER: {
+            case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER: {
                 testStatus = Object.assign(testStatus, {
                     sparkThriftTestResult: isHadoop ? comp : {}
                 })
@@ -102,7 +102,7 @@ export function showTestResult (testResults: any, engineType: any) {
                 })
                 break;
             }
-            case COMPONENT_TYPE_VALUE.IMPALASQL: {
+            case COMPONENT_TYPE_VALUE.IMPALA_SQL: {
                 testStatus = Object.assign(testStatus, {
                     impalaSqlTestResult: isHadoop ? comp : {}
                 })
@@ -138,7 +138,7 @@ export function showTestResult (testResults: any, engineType: any) {
                 })
                 break;
             }
-            case COMPONENT_TYPE_VALUE.HIVESERVER: {
+            case COMPONENT_TYPE_VALUE.HIVE_SERVER: {
                 testStatus = Object.assign(testStatus, {
                     hiveServerTestResult: isHadoop ? comp : {}
                 })
@@ -193,7 +193,7 @@ export function validateAllRequired (validateFieldsAndScroll: any, tabCompData: 
                         flinkShowRequired: true
                     })
                 }
-            } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER) {
+            } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER) {
                 if (!err) {
                     obj = Object.assign(obj, {
                         hiveShowRequired: false
@@ -213,7 +213,7 @@ export function validateAllRequired (validateFieldsAndScroll: any, tabCompData: 
                         carbonShowRequired: true
                     })
                 }
-            } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.IMPALASQL) {
+            } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.IMPALA_SQL) {
                 if (!err) {
                     obj = Object.assign(obj, {
                         impalaSqlRequired: false
@@ -223,7 +223,7 @@ export function validateAllRequired (validateFieldsAndScroll: any, tabCompData: 
                         impalaSqlRequired: true
                     })
                 }
-            } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.HIVESERVER) {
+            } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.HIVE_SERVER) {
                 if (!err) {
                     obj = Object.assign(obj, {
                         hiveServerShowRequired: false
