@@ -4,7 +4,7 @@ import Api from '../../api/console';
 import { connect } from 'react-redux';
 import { getTenantList } from '../../actions/console'
 import { ENGIN_TYPE_TEXT } from '../../consts';
-import { isHadoopEngine, isTiDBEngine, isOracleEngine } from '../../consts/clusterFunc';
+import { isHadoopEngine, isTiDBEngine, isOracleEngine, isGreenPlumEngine } from '../../consts/clusterFunc';
 import BindCommModal from '../../components/bindCommModal';
 
 import BindAccountPane from './bindAccount';
@@ -330,7 +330,7 @@ class ResourceManage extends React.Component<any, any> {
                                                     </div>
                                                 </TabPane>
                                                 {
-                                                    isTiDBEngine(engineType) || isOracleEngine(engineType)
+                                                    isTiDBEngine(engineType) || isOracleEngine(engineType) || isGreenPlumEngine(engineType)
                                                         ? <TabPane tab="账号绑定" key="bindAccount">
                                                             <BindAccountPane
                                                                 key={`${queryParams.clusterId}-${engineType}`}
