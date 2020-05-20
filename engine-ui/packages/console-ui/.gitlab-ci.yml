@@ -12,7 +12,7 @@ stages:
   - lintdoc
   - check-types
   - test
-  - deploy
+  - build_deploy
 
 code_quality: 
   stage: lint
