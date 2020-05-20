@@ -5,7 +5,7 @@ cache:
    - node_modules/
 
 before_script:
-  - "npm run install"
+  - "npm install --unsafe-perm=true --allow-root"
 
 stages:
   - lint
