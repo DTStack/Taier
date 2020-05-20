@@ -82,6 +82,12 @@ public class PluginWrapper{
 
         String paramsStr = getParamsString(dbUrl, paramsJson);
 
+        if(MultiEngineType.ORACLE.getName().equalsIgnoreCase((String)actionParam.get("engineType"))){
+            //oracle不包含schema
+            pluginInfoJson.put("dbUrl", dbUrl);
+            return;
+        }
+
         if(MultiEngineType.TIDB.getName().equalsIgnoreCase((String)actionParam.get("engineType"))){
             //TiDB 没有currentSchema
             pluginInfoJson.put("dbUrl", dbUrl  + paramsJson.get("currentSchema"));

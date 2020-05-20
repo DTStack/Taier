@@ -24,10 +24,7 @@ import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.utils.HadoopConf;
 import com.dtstack.engine.master.utils.PublicUtil;
-import com.dtstack.schedule.common.enums.AppType;
-import com.dtstack.schedule.common.enums.Deleted;
-import com.dtstack.schedule.common.enums.ScheduleEngineType;
-import com.dtstack.schedule.common.enums.Sort;
+import com.dtstack.schedule.common.enums.*;
 import com.dtstack.schedule.common.kerberos.KerberosConfigVerify;
 import com.dtstack.schedule.common.util.Base64Util;
 import com.google.common.base.Preconditions;
@@ -649,8 +646,7 @@ public class ClusterService implements InitializingBean {
             pluginInfo.put("pwd", tiDBConf.getString("password"));
             pluginInfo.remove("password");
             pluginInfo.put("typeName", "oracle");
-        }
-        else {
+        } else {
             pluginInfo = clusterConfigJson.getJSONObject(type.getComponentType().getConfName());
             if (pluginInfo == null) {
                 return null;
@@ -779,7 +775,7 @@ public class ClusterService implements InitializingBean {
             return jdbcInfo;
         }
         Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
-        AccountTenant dbAccountTenant = accountTenantDao.getByAccount(dtUicUser.getId(), tenantId, null, Deleted.NORMAL.getStatus());
+        AccountTenant dbAccountTenant = accountTenantDao.getByUserIdAndTenantIdAndEngineType(dtUicUser.getId(), tenantId, DataSourceType.TiDB.getVal());
         if(Objects.isNull(dbAccountTenant)){
             return jdbcInfo;
         }
@@ -801,7 +797,7 @@ public class ClusterService implements InitializingBean {
             return jdbcInfo;
         }
         Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
-        AccountTenant dbAccountTenant = accountTenantDao.getByAccount(dtUicUser.getId(), tenantId, null, Deleted.NORMAL.getStatus());
+        AccountTenant dbAccountTenant = accountTenantDao.getByUserIdAndTenantIdAndEngineType(dtUicUser.getId(), tenantId, DataSourceType.Oracle.getVal());
         if(Objects.isNull(dbAccountTenant)){
             return jdbcInfo;
         }
