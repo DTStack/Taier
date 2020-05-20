@@ -77,6 +77,10 @@ public class JobParamReplace {
 
         String command = paramCommand;
         if (type == EParamType.SYS_TYPE.getType()) {
+            // 特殊处理 bdp.system.currenttime
+            if ("bdp.system.runtime".equals(paramName)) {
+                return TimeParamOperator.dealCustomizeTimeOperator(command, cycTime);
+            }
             if (NOTEBOOK_FEATURE_PARAMETERS.contains(paramName)) {
                 if (paramName.equals(NOTEBOOK_FEATURE_PARAMETERS.get(1))) {
                     return paramCommand.concat("/") + taskId + "/";
