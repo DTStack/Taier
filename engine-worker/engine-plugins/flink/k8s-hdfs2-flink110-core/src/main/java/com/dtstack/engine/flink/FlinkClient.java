@@ -42,6 +42,7 @@ import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.PackagedProgramUtils;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HistoryServerOptions;
+import org.apache.flink.kubernetes.kubeclient.FlinkKubeClient;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.util.Preconditions;
@@ -390,6 +391,7 @@ public class FlinkClient extends AbstractClient {
     @Override
     public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) {
         String jobId = jobIdentifier.getEngineJobId();
+        String applicationId = jobIdentifier.getApplicationId();
 
         if (StringUtils.isBlank(jobId)) {
             logger.warn("jobIdentifier:{} is blank.", jobIdentifier);
@@ -397,6 +399,11 @@ public class FlinkClient extends AbstractClient {
         }
 
         try {
+            FlinkKubeClient flinkKubeClient = flinkClientBuilder.getFlinkKubeClient();
+            if (flinkKubeClient.getInternalService(applicationId) == null) {
+                return RdosTaskStatus.CANCELED;
+            }
+
             ClusterClient clusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
             String reqUrlPrefix = clusterClient.getWebInterfaceURL();
             String reqUrl = reqUrlPrefix + "/jobs/" + jobId;
@@ -407,7 +414,13 @@ public class FlinkClient extends AbstractClient {
                 if (stateObj != null) {
                     String state = (String) stateObj;
                     state = StringUtils.upperCase(state);
-                    return RdosTaskStatus.getTaskStatus(state);
+                    RdosTaskStatus rdosTaskStatus =  RdosTaskStatus.getTaskStatus(state);
+                    Boolean isFlinkSessionTask = applicationId.startsWith("FlinkSession-");
+                    if (RdosTaskStatus.isStopped(rdosTaskStatus.getStatus()) && !isFlinkSessionTask) {
+                        clusterClient.shutDownCluster();
+                    }
+                    return rdosTaskStatus;
+
                 }
             }
         } catch (Exception e) {
