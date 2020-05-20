@@ -12,7 +12,7 @@ stages:
   - lintdoc
   - check-types
   - test
-  - deploy
+  - build_deploy
 
 code_quality: 
   stage: lint
@@ -65,10 +65,15 @@ doc_quality:
     - /doc(s)|release/
     - master
 
-# build_to_dev: # deploy dev environment
-#   stage: deploy
-#   script:
-#     - "./scripts/build_dev.sh"
-#   only:
-#     - dev
-  
+# 开发环境更新部署
+build_deploy: # deploy dev environment
+  stage: build_deploy
+  script:
+    - npm run build
+    - echo "删除原来的文件"
+    - rm -rf /home/admin/app/dt-insight-front/console
+    - echo "复制当前的文件"
+    - cp ./dist/console -r /home/admin/app/dt-insight-front/console
+    - echo "部署成功"
+  only:
+    - /master|dev/
