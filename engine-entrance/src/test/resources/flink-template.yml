@@ -1,27 +1,37 @@
+deploymode:
+  controls: checkbox
+  values: [perjob,session,standalone]
 perjob:
+  dependencyKey: deploymode
+  dependencyValue: 1
+  controls: group
   required:
-    flinkJarPath:
-    jobmanager.archive.fs.dir:
-    flinkPluginRoot:
-    remotePluginRootDir:
+    flinkJarPath: /opt/dtstack/DTCommon/Engine/flink/flink180_lib
+    jobmanager.archive.fs.dir: hdfs://ns1/dtInsight/flink180/completed-jobs
+    flinkPluginRoot: /data/insight_plugin/flinkplugin
+    remotePluginRootDir: /data/insight_plugin/flinkplugin
 
     high-availability.cluster-id: /default
     high-availability.zookeeper.path.root: /flink180
     high-availability.zookeeper.quorum:
-    high-availability.storageDir:
+    high-availability.storageDir: hdfs://ns1/flink180/ha
 
     historyserver.web.address:
     historyserver.web.port: 8082
 
-    state.checkpoints.dir:
-    state.checkpoints.num-retained:
+    state.checkpoints.dir: hdfs://ns1/dtInsight/flink180/checkpoints
+    state.checkpoints.num-retained: 11
 
     metrics.reporter.promgateway.class: org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter
     metrics.reporter.promgateway.host:
     metrics.reporter.promgateway.port: 9091
     metrics.reporter.promgateway.jobName: 181job
-    metrics.reporter.promgateway.randomJobNameSuffix: TRUE
-    metrics.reporter.promgateway.deleteOnShutdown: TRUE
+    metrics.reporter.promgateway.randomJobNameSuffix:
+      controls: select
+      values: [true,false]
+    metrics.reporter.promgateway.deleteOnShutdown:
+      controls: select
+      values: [true,false]
 
   optional:
     jarTmpDir: ./tmp180
@@ -33,7 +43,7 @@ perjob:
     taskparams.taskmanager.heap.mb: 20
 
     state.backend: RocksDB
-    state.savepoints.dir:
+    state.savepoints.dir: hdfs://ns1/dtInsight/flink180/savepoints
     state.backend.incremental: true
 
     prometheusHost:
@@ -42,34 +52,46 @@ perjob:
     yarn.taskmanager.heap.mb: 1024
     yarn.jobmanager.heap.mb: 1024
     yarn.taskmanager.numberOfTaskManager: 2
-    yarnSessionStartAuto: false
     yarn.taskmanager.numberOfTaskSlots: 2
 
+    flink.env.java.opts: -XX:MaxMetaspaceSize=500m
+    prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter
+    gatewayJobName: pushgateway
+    yarn.application-attempts: 0
+    high-availability: ZOOKEEPER
+
 session:
+  dependencyKey: deploymode
+  dependencyValue: 2
+  controls: group
   required:
-    flinkSessionSlotCount: 6
-    flinkJarPath:
-    jobmanager.archive.fs.dir:
-    flinkPluginRoot:
-    remotePluginRootDir:
+    flinkSessionSlotCount: 10
+    flinkJarPath: /opt/dtstack/DTCommon/Engine/flink/flink180_lib
+    jobmanager.archive.fs.dir: hdfs://ns1/dtInsight/flink180/completed-jobs
+    flinkPluginRoot: /data/insight_plugin/flinkplugin
+    remotePluginRootDir: /data/insight_plugin/flinkplugin
 
     high-availability.cluster-id: /default
     high-availability.zookeeper.path.root: /flink180
     high-availability.zookeeper.quorum:
-    high-availability.storageDir:
+    high-availability.storageDir: hdfs://ns1/flink180/ha
 
     historyserver.web.address:
     historyserver.web.port: 8082
 
-    state.checkpoints.dir:
-    state.checkpoints.num-retained:
+    state.checkpoints.dir: hdfs://ns1/dtInsight/flink180/checkpoints
+    state.checkpoints.num-retained: 11
 
     metrics.reporter.promgateway.class: org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter
     metrics.reporter.promgateway.host:
     metrics.reporter.promgateway.port: 9091
     metrics.reporter.promgateway.jobName: 181job
-    metrics.reporter.promgateway.randomJobNameSuffix: TRUE
-    metrics.reporter.promgateway.deleteOnShutdown: TRUE
+    metrics.reporter.promgateway.randomJobNameSuffix:
+      controls: select
+      values: [true,false]
+    metrics.reporter.promgateway.deleteOnShutdown:
+      controls: select
+      values: [true,false]
 
   optional:
     jarTmpDir: ./tmp180
@@ -82,7 +104,7 @@ session:
     taskparams.taskmanager.heap.mb: 20
 
     state.backend: RocksDB
-    state.savepoints.dir:
+    state.savepoints.dir: hdfs://ns1/dtInsight/flink180/savepoints
     state.backend.incremental: true
 
     prometheusHost:
@@ -93,3 +115,9 @@ session:
     yarn.taskmanager.numberOfTaskManager: 2
     yarnSessionStartAuto: false
     yarn.taskmanager.numberOfTaskSlots: 2
+
+    flink.env.java.opts: -XX:MaxMetaspaceSize=500m
+    prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter
+    gatewayJobName: pushgateway
+    yarn.application-attempts: 0
+    high-availability: ZOOKEEPER

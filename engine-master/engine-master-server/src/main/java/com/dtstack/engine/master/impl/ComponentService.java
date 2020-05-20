@@ -1098,7 +1098,7 @@ public class ComponentService {
         String storageSign = "hdfs" + this.formatHadoopVersion(hdfs.getHadoopVersion());
         //flink  需要根据yarn hdfs version 拼接 如yarn2-hdfs2-flink180;
         if (EComponentType.FLINK.getTypeCode() == componentType) {
-            return String.format("%s-%s-flink%s", resourceSign, storageSign, this.formatHadoopVersion(version));
+            return String.format("%s-%s-flink%s", resourceSign, storageSign,version);
         }
         //dtscript yarn2-hdfs2-dtscript
         if (EComponentType.DT_SCRIPT.getTypeCode() == componentType) {

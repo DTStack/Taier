@@ -1,4 +1,10 @@
+deploymode:
+  controls: checkbox
+  values: [perjob,session,standalone]
 perjob:
+  dependencyKey: deploymode
+  dependencyValue: 1
+  controls: group
   required:
     flinkJarPath: /opt/dtstack/DTCommon/Engine/flink/flink180_lib
     jobmanager.archive.fs.dir: hdfs://ns1/dtInsight/flink180/completed-jobs
@@ -20,8 +26,12 @@ perjob:
     metrics.reporter.promgateway.host:
     metrics.reporter.promgateway.port: 9091
     metrics.reporter.promgateway.jobName: 181job
-    metrics.reporter.promgateway.randomJobNameSuffix: [TRUE,FALSE]
-    metrics.reporter.promgateway.deleteOnShutdown: [TRUE,FALSE]
+    metrics.reporter.promgateway.randomJobNameSuffix:
+      controls: select
+      values: [true,false]
+    metrics.reporter.promgateway.deleteOnShutdown:
+      controls: select
+      values: [true,false]
 
   optional:
     jarTmpDir: ./tmp180
@@ -51,6 +61,9 @@ perjob:
     high-availability: ZOOKEEPER
 
 session:
+  dependencyKey: deploymode
+  dependencyValue: 2
+  controls: group
   required:
     flinkSessionSlotCount: 10
     flinkJarPath: /opt/dtstack/DTCommon/Engine/flink/flink180_lib
@@ -73,8 +86,12 @@ session:
     metrics.reporter.promgateway.host:
     metrics.reporter.promgateway.port: 9091
     metrics.reporter.promgateway.jobName: 181job
-    metrics.reporter.promgateway.randomJobNameSuffix: [TRUE,FALSE]
-    metrics.reporter.promgateway.deleteOnShutdown: [TRUE,FALSE]
+    metrics.reporter.promgateway.randomJobNameSuffix:
+      controls: select
+      values: [true,false]
+    metrics.reporter.promgateway.deleteOnShutdown:
+      controls: select
+      values: [true,false]
 
   optional:
     jarTmpDir: ./tmp180
