@@ -3,7 +3,7 @@ deploymode:
   values: [perjob,session,standalone]
 perjob:
   dependencyKey: deploymode
-  dependencyValue: 1
+  dependencyValue: perjob
   controls: group
   required:
     flinkJarPath: /opt/dtstack/DTCommon/Engine/flink/flink180_lib
@@ -62,7 +62,7 @@ perjob:
 
 session:
   dependencyKey: deploymode
-  dependencyValue: 2
+  dependencyValue: session
   controls: group
   required:
     flinkSessionSlotCount: 10
