@@ -9,10 +9,6 @@ import Home from 'pages/home'
 
 const routerConf = [
   {
-    path:"/",
-    redirect:"/basic/enter-park"
-  },
-  {
     path: '/basic/enter-park',
     layout: BasicLayout,
     component: Home,
