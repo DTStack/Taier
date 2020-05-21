@@ -189,7 +189,7 @@ public class HadoopClient extends AbstractClient {
             mr.run();
             LOG.info("mr jobId:{} jobName:{}", mr.getJobId(), jobParam.getJobName());
             return JobResult.createSuccessResult(mr.getJobId());
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             LOG.error("", ex);
             return JobResult.createErrorResult(ex);
         }
