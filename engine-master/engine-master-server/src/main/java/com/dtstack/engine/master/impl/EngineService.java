@@ -7,6 +7,7 @@ import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.Engine;
 import com.dtstack.engine.api.domain.EngineTenant;
 import com.dtstack.engine.api.domain.Queue;
+import com.dtstack.engine.api.vo.EngineVO;
 import com.dtstack.engine.api.vo.QueueVO;
 import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -24,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -192,6 +194,21 @@ public class EngineService {
 
     public Engine getOne(Long engineId) {
         return engineDao.getOne(engineId);
+    }
+
+    @Forbidden
+    public List<EngineVO> listClusterEngines(Long clusterId, boolean queryQueue) {
+        List<Engine> engines = engineDao.listByClusterId(clusterId);
+        List<EngineVO> result = EngineVO.toVOs(engines);
+
+        if (queryQueue) {
+            for (EngineVO engineVO : result) {
+                List<Queue> queues = queueDao.listByEngineIdWithLeaf(engineVO.getId());
+                engineVO.setQueues(QueueVO.toVOs(queues));
+            }
+        }
+
+        return result;
     }
 }
 

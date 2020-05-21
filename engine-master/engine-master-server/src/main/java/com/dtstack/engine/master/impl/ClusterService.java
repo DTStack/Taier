@@ -7,10 +7,7 @@ import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.ClusterDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.vo.ClusterVO;
-import com.dtstack.engine.api.vo.ComponentVO;
-import com.dtstack.engine.api.vo.KerberosConfigVO;
-import com.dtstack.engine.api.vo.SchedulingVo;
+import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.exception.EngineAssert;
@@ -763,6 +760,20 @@ public class ClusterService implements InitializingBean {
         }
         clusterVO.setScheduling(schedulingVos);
         return clusterVO;
+    }
+
+
+    public List<ClusterEngineVO> getAllCluster() {
+        List<ClusterEngineVO> result = new ArrayList<>();
+
+        List<Cluster> clusters = clusterDao.listAll();
+        for (Cluster cluster : clusters) {
+            ClusterEngineVO vo = ClusterEngineVO.toVO(cluster);
+            vo.setEngines(engineService.listClusterEngines(cluster.getId(), true));
+            result.add(vo);
+        }
+
+        return result;
     }
 }
 

@@ -603,8 +603,8 @@ public class ComponentService {
         BeanUtils.copyProperties(componentDTO, addComponent);
         Component dbComponent = componentDao.getByClusterIdAndComponentType(clusterId, addComponent.getComponentTypeCode());
         boolean isUpdate = false;
-        boolean isOpenKerberos = false;
-        if (Objects.nonNull(dbComponent)) {
+        boolean isOpenKerberos = StringUtils.isNotBlank(kerberosFileName);
+        if (Objects.nonNull(dbComponent) && !isOpenKerberos) {
             //更新
             isUpdate = true;
             KerberosConfig componentKerberos = kerberosDao.getByComponentId(dbComponent.getId());
@@ -653,7 +653,8 @@ public class ComponentService {
         return componentVO;
     }
 
-    private void uploadResourceToSftp(@Param("clusterId") Long clusterId, @Param("resources") List<Resource> resources, @Param("kerberosFileName") String kerberosFileName, Component sftpComponent, Component addComponent, Component dbComponent, boolean isUpdate) {
+    private void uploadResourceToSftp(@Param("clusterId") Long clusterId, @Param("resources") List<Resource> resources, @Param("kerberosFileName") String kerberosFileName, Component sftpComponent,
+                                      Component addComponent, Component dbComponent, boolean isUpdate) {
         //上传配置文件到sftp 供后续下载
         Map<String, String> map = JSONObject.parseObject(sftpComponent.getComponentConfig(), Map.class);
         SFTPHandler instance = SFTPHandler.getInstance(map);
@@ -796,6 +797,7 @@ public class ComponentService {
         if (StringUtils.isBlank(clusterName)) {
             throw new RdosDefineException("集群名称不能为空");
         }
+        clusterName = clusterName.trim();
         Cluster cluster = clusterDao.getByClusterName(clusterName);
         if (Objects.isNull(cluster)) {
             //创建集群
@@ -876,9 +878,14 @@ public class ComponentService {
 
         String pluginType = this.convertComponentTypeToClient(clusterName, componentType, hadoopVersion);
         ComponentTestResult componentTestResult = workerOperator.testConnect(pluginType, this.wrapperConfig(componentType, componentConfig));
+        if(Objects.isNull(componentTestResult)){
+            throw new RdosDefineException("测试联通性失败");
+        }
         componentTestResult.setComponentTypeCode(componentType);
         if (componentTestResult.isResult() && Objects.nonNull(engineId)) {
             updateCache(engineId, componentType);
+        } else {
+            throw new RdosDefineException(componentTestResult.getErrorMsg());
         }
         return componentTestResult;
     }

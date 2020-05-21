@@ -50,6 +50,9 @@ public class YmlParseTest extends BaseTest {
                         String controls = (String) groupMap.get("controls");
                         ClientTemplate group = new ClientTemplate();
                         group.setKey(key);
+                        Map<String, Object> groupValueMap = (Map<String, Object>) groupValue;
+                        group.setDependencyKey(String.valueOf(groupValueMap.get("dependencyKey")));
+                        group.setDependencyValue(String.valueOf(groupValueMap.get("dependencyValue")));
                         //控件类型
                         if (StringUtils.isNotBlank(controls)) {
                             group.setType(controls.toUpperCase());
@@ -66,9 +69,6 @@ public class YmlParseTest extends BaseTest {
                         } else {
                             group.setType(EFrontType.INPUT.name());
                             group.setValues(this.getClientTemplates(groupMap));
-                            Map<String, Object> groupValueMap = (Map<String, Object>) groupValue;
-                            group.setDependencyKey(String.valueOf(groupValueMap.get("dependencyKey")));
-                            group.setDependencyValue(String.valueOf(groupValueMap.get("dependencyValue")));
                         }
                         templateVos.add(group);
                     }
