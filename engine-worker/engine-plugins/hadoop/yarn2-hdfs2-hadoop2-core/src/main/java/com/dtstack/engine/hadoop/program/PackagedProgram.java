@@ -240,7 +240,7 @@ public class PackagedProgram {
 			throw new RdosDefineException("Access to the main method was denied: " + e.getMessage(), e);
 		}
 		catch (InvocationTargetException e) {
-			throw new RdosDefineException("The main method caused an error: " + e.getTargetException().getMessage(), e);
+			throw new RdosDefineException("The main method caused an error: " + e.getTargetException().getMessage());
 		}
 		catch (Throwable t) {
 			throw new RdosDefineException("An error occurred while invoking the program's main method: " + t.getMessage(), t);
