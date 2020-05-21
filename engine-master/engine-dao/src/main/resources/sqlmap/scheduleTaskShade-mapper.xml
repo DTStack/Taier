@@ -365,10 +365,10 @@
     <insert id="insert" parameterType="ScheduleTaskShade" useGeneratedKeys="false" keyProperty="id">
         INSERT INTO schedule_task_shade
         (tenant_id,project_id,node_pid,name,task_type,engine_type,compute_type,sql_text,task_params,schedule_conf,period_type,
-         schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version_id,is_deleted,task_desc,main_class,exe_args,flow_id,app_type,dtuic_tenant_id,task_id,is_expire)
+         schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version_id,is_deleted,task_desc,main_class,exe_args,flow_id,app_type,dtuic_tenant_id,task_id,is_expire,project_schedule_status)
         VALUES
         (#{tenantId},#{projectId},#{nodePid},#{name},#{taskType},#{engineType},#{computeType},#{sqlText},#{taskParams},#{scheduleConf},#{periodType},
-         #{scheduleStatus},#{submitStatus},#{gmtCreate},#{gmtModified},#{modifyUserId},#{createUserId},#{ownerUserId},#{versionId},#{isDeleted},#{taskDesc},#{mainClass},#{exeArgs},#{flowId},#{appType},#{dtuicTenantId},#{taskId},#{isExpire})
+         #{scheduleStatus},#{submitStatus},#{gmtCreate},#{gmtModified},#{modifyUserId},#{createUserId},#{ownerUserId},#{versionId},#{isDeleted},#{taskDesc},#{mainClass},#{exeArgs},#{flowId},#{appType},#{dtuicTenantId},#{taskId},#{isExpire},#{projectScheduleStatus})
     </insert>
 
     <update id="update" parameterType="ScheduleTaskShade">
@@ -523,15 +523,14 @@
 
     <select id="countTaskByType" resultType="java.util.Map">
         select
-        count(1) as deployCount
+        count(1) as deployCount,
+        project_id AS projectId
         from
         schedule_task_shade
         where
         tenant_id = #{tenantId}
         and
         dtuic_tenant_id = #{dtuicTenantId}
-        and
-        project_id = #{projectId}
         and
         app_type = #{appType}
         <if test="taskTypes != null and taskTypes.size() > 0 ">
@@ -540,6 +539,13 @@
                 #{taskType}
             </foreach>
         </if>
+        <if test="projectIds != null and projectIds.size() > 0 ">
+            and project_id in
+            <foreach collection="projectIds" separator="," open="(" close=")" item="projectId">
+                #{projectId}
+            </foreach>
+        </if>
+        GROUP BY project_id
     </select>
 
 

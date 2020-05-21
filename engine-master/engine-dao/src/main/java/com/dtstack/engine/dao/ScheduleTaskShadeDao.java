@@ -23,7 +23,7 @@ public interface ScheduleTaskShadeDao {
 
     Integer countTaskByStatus(@Param("submitStatus") Integer submitStatus, @Param("projectScheduleStatus") Integer projectScheduleStatus);
 
-    Map<String,Object> countTaskByType(@Param("tenantId") Long tenantId,@Param("dtuicTenantId") Long dtuicTenantId,@Param("projectId")Long projectId,@Param("appType")Integer appType,@Param("taskTypes")List<Integer> taskTypes);
+    List<Map<String,Object>> countTaskByType(@Param("tenantId") Long tenantId,@Param("dtuicTenantId") Long dtuicTenantId,@Param("projectIds")List<Long> projectIds,@Param("appType")Integer appType,@Param("taskTypes")List<Integer> taskTypes);
 
     List<ScheduleTaskShade> listByTaskIds(@Param("taskIds") Collection<Long> taskIds, @Param("isDeleted") Integer isDeleted, @Param("appType")Integer appType);
 
