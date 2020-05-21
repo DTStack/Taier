@@ -482,6 +482,7 @@ public class HadoopClient extends AbstractClient {
             fs = FileSystem.get(configuration);
             componentTestResult.setResult(true);
         } catch (Exception e) {
+            LOG.error("close hdfs connect  error ", e);
             componentTestResult.setResult(false);
             componentTestResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
         } finally {

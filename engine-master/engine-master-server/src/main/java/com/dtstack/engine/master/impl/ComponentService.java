@@ -922,6 +922,9 @@ public class ComponentService {
         } else if (EComponentType.YARN.getTypeCode() == componentType) {
             Map map = JSONObject.parseObject(componentConfig, Map.class);
             dataInfo.put("yarnConf", map);
+        } else if (EComponentType.HDFS.getTypeCode() == componentType) {
+            Map map = JSONObject.parseObject(componentConfig, Map.class);
+            dataInfo.put("hadoopConf", map);
         }
         return dataInfo.toJSONString();
     }
