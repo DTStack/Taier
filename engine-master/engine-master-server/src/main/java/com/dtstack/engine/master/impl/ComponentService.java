@@ -877,6 +877,11 @@ public class ComponentService {
     public ComponentTestResult testConnect(@Param("componentType") Integer componentType, @Param("componentConfig") String componentConfig, @Param("clusterName") String clusterName,
                                            @Param("hadoopVersion") String hadoopVersion, @Param("engineId") Long engineId) {
 
+        if(EComponentType.notCheckComponent.contains(EComponentType.getByCode(componentType))){
+            ComponentTestResult componentTestResult = new ComponentTestResult();
+            componentTestResult.setResult(true);
+            return componentTestResult;
+        }
         String pluginType = this.convertComponentTypeToClient(clusterName, componentType, hadoopVersion);
         ComponentTestResult componentTestResult = workerOperator.testConnect(pluginType, this.wrapperConfig(componentType, componentConfig));
         if(Objects.isNull(componentTestResult)){
