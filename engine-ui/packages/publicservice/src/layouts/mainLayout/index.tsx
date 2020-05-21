@@ -14,7 +14,6 @@ interface IProps {
 	location: any;
 	children: any;
 	navData: any;
-	//isTopHide:any,
 }
 interface IState {
 	loading: boolean;
@@ -39,7 +38,8 @@ class MainLayout extends React.Component<IProps, IState> {
 		return (
 			<Layout>
 				<ErrorBoundary>
-					<TopBar location={location} navData={navData} />}<div className="basic-layout">{children}</div>
+					<TopBar location={location} navData={navData} />
+					<div className="basic-layout">{children}</div>
 					<Foot />
 				</ErrorBoundary>
 			</Layout>
