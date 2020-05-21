@@ -130,7 +130,7 @@ public class ComponentService {
         //hdfs core 需要合并
         componentTypeConfigMapping.put(EComponentType.HDFS.getTypeCode(), Lists.newArrayList("hdfs-site.xml", "core-site.xml"));
         componentTypeConfigMapping.put(EComponentType.YARN.getTypeCode(), Lists.newArrayList("yarn-site.xml"));
-        componentVersionMapping.put(EComponentType.FLINK.getTypeCode(), Lists.newArrayList("110,180"));
+        componentVersionMapping.put(EComponentType.FLINK.getTypeCode(), Lists.newArrayList("110","180"));
     }
 
     /**

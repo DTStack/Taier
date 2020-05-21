@@ -5,6 +5,7 @@ import com.dtstack.engine.common.akka.message.*;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.ClientTemplate;
 import com.dtstack.engine.common.pojo.ClusterResource;
+import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.client.ClientOperator;
 import org.apache.commons.lang3.StringUtils;
@@ -73,16 +74,16 @@ public class JobService extends AbstractActor {
                     sender().tell(defaultPluginConfig, getSelf());
                 })
                 .match(MessageTestConnectInfo.class,msg ->{
-                    Object execute = ClientOperator.getInstance().testConnect(msg.getEngineType(), msg.getPluginInfo());
+                    ComponentTestResult execute = ClientOperator.getInstance().testConnect(msg.getEngineType(), msg.getPluginInfo());
                     if(null == execute){
-                        execute = new Object();
+                        execute = new ComponentTestResult();
                     }
                     sender().tell(execute,getSelf());
                 })
                 .match(MessageExecuteQuery.class,msg ->{
-                    Object execute = ClientOperator.getInstance().executeQuery(msg.getEngineType(), msg.getPluginInfo(),msg.getSql(),msg.getDatabase());
+                    List<List<Object>> execute = ClientOperator.getInstance().executeQuery(msg.getEngineType(), msg.getPluginInfo(),msg.getSql(),msg.getDatabase());
                     if(null == execute){
-                        execute = new Object();
+                        execute = new ArrayList<>();
                     }
                     sender().tell(execute,getSelf());
                 })
