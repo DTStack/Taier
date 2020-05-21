@@ -795,6 +795,7 @@ class EditCluster extends React.Component<any, any> {
                 Api.saveComponentWithKerberos({
                     componentId: component.componentId,
                     configString: JSON.stringify(saveConfig),
+                    hadoopVersion: cluster.hadoopVersion,
                     clusterId: cluster.id || cluster.clusterId,
                     kerberosFile
                 }).then((res: any) => {
@@ -812,6 +813,7 @@ class EditCluster extends React.Component<any, any> {
                     Api.saveComponent({
                         clusterId: cluster.id || cluster.clusterId,
                         componentId: component.componentId,
+                        hadoopVersion: cluster.hadoopVersion,
                         configString: JSON.stringify(saveConfig)
                     }).then((res: any) => {
                         if (res.code === 1) {
@@ -904,6 +906,7 @@ class EditCluster extends React.Component<any, any> {
                 if (hasKerberosFile) {
                     Api.testComponentKerberos({
                         ...fileObj,
+                        hadoopVersion: cluster.hadoopVersion,
                         clusterId: cluster.id || cluster.clusterId,
                         componentConfigs: JSON.stringify(componentConf)
                     })
@@ -935,6 +938,7 @@ class EditCluster extends React.Component<any, any> {
                 } else {
                     Api.testComponent({
                         clusterId: cluster.id || cluster.clusterId,
+                        hadoopVersion: cluster.hadoopVersion,
                         componentConfigs: JSON.stringify(componentConf)
                     })
                         .then(
