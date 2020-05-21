@@ -88,15 +88,27 @@ public class AccountService {
     }
 
     private void checkDataSourceConnect(AccountVo accountVo) throws SQLException {
-        JSONObject jdbc = JSONObject.parseObject(clusterService.tiDBInfo(accountVo.getBindTenantId(), null));
+        JSONObject jdbc = null;
+        DataBaseType dataBaseType = null;
+        if (MultiEngineType.TIDB.getType() == accountVo.getEngineType()){
+            jdbc = JSONObject.parseObject(clusterService.tiDBInfo(accountVo.getBindTenantId(), null));
+            dataBaseType = DataBaseType.TiDB;
+        }else if (MultiEngineType.ORACLE.getType() == accountVo.getEngineType()){
+            jdbc = JSONObject.parseObject(clusterService.oracleInfo(accountVo.getBindTenantId(), null));
+            dataBaseType = DataBaseType.Oracle;
+        }
         if (Objects.isNull(jdbc)) {
-            throw new RdosDefineException("请先绑定TiDB组件");
+            if (MultiEngineType.TIDB.getType() == accountVo.getEngineType()) {
+                throw new RdosDefineException("请先绑定TiDB组件");
+            } else if (MultiEngineType.ORACLE.getType() == accountVo.getEngineType()) {
+                throw new RdosDefineException("请先绑定Oracle组件");
+            }
         }
         JSONObject pluginInfo = new JSONObject();
         pluginInfo.put("dbUrl", jdbc.getString("jdbcUrl"));
         pluginInfo.put("userName", accountVo.getName());
         pluginInfo.put("pwd", accountVo.getPassword());
-        pluginInfo.put("driverClassName", DataBaseType.TiDB.getDriverClassName());
+        pluginInfo.put("driverClassName", dataBaseType.getDriverClassName());
         try {
             workerOperator.executeQuery(DataBaseType.TiDB.getTypeName().toLowerCase(), pluginInfo.toJSONString(), "show databases", "");
         } catch (Exception e) {
@@ -111,7 +123,7 @@ public class AccountService {
         Account dbAccountByName = new Account();
         dbAccountByName.setName(accountVo.getName());
         dbAccountByName.setPassword(Base64Util.baseEncode(accountVo.getPassword()));
-        dbAccountByName.setType(DataSourceType.TiDB.getVal());
+        dbAccountByName.setType(getDataSourceTypeByMultiEngineType(accountVo.getEngineType()));
         dbAccountByName.setCreateUserId(accountVo.getUserId());
         dbAccountByName.setModifyUserId(accountVo.getUserId());
         accountDao.insert(dbAccountByName);
@@ -150,6 +162,24 @@ public class AccountService {
         log.info("bind db account id [{}]username [{}] to user [{}] tenant {}  success ", accountTenant.getAccountId(), dbAccountByName.getName(),
                 accountTenant.getUserId(), tenantId);
     }
+
+    /**
+     * 把引擎类型转化为dataSource类型
+     * @param multiEngineType
+     * @return
+     */
+    private Integer getDataSourceTypeByMultiEngineType(Integer multiEngineType) {
+        if (null == multiEngineType) {
+            return null;
+        }
+        if (MultiEngineType.TIDB.getType() == multiEngineType) {
+            return DataSourceType.TiDB.getVal();
+        } else if (MultiEngineType.ORACLE.getType() == multiEngineType) {
+            return DataSourceType.Oracle.getVal();
+        }
+        return 0;
+    }
+
 
 
     /**
@@ -225,6 +255,7 @@ public class AccountService {
         accountVO.setBindTenantId(dtUicTenantIdByIds.get(0));
         accountVO.setName(accountTenantVo.getName());
         accountVO.setPassword(accountTenantVo.getPassword());
+        accountVO.setEngineType(accountTenantVo.getEngineType());
         //校验db账号测试连通性
         checkDataSourceConnect(accountVO);
         Account oldAccount = new Account();
@@ -238,7 +269,7 @@ public class AccountService {
         Account newAccount = new Account();
         newAccount.setName(accountVO.getName());
         newAccount.setPassword(Base64Util.baseEncode(accountVO.getPassword()));
-        newAccount.setType(DataSourceType.TiDB.getVal());
+        newAccount.setType(getDataSourceTypeByMultiEngineType(accountTenantVo.getEngineType()));
         newAccount.setCreateUserId(userId);
         newAccount.setModifyUserId(userId);
         accountDao.insert(newAccount);
@@ -266,7 +297,7 @@ public class AccountService {
      * @return
      */
     public PageResult<List<AccountVo>> pageQuery(@Param("dtuicTenantId") Long dtuicTenantId, @Param("username") String username, @Param("currentPage") Integer currentPage,
-                                                 @Param("pageSize") Integer pageSize) {
+                                                 @Param("pageSize") Integer pageSize, @Param("engineType") Integer engineType) {
         if (Objects.isNull(dtuicTenantId)) {
             throw new RdosDefineException("绑定参数不能为空");
         }
@@ -274,6 +305,7 @@ public class AccountService {
         AccountDTO accountDTO = new AccountDTO();
         accountDTO.setTenantId(tenantId);
         accountDTO.setName(username);
+        accountDTO.setType(getDataSourceTypeByMultiEngineType(engineType));
         PageQuery<AccountDTO> pageQuery = new PageQuery<>(currentPage, pageSize, "gmt_modified", Sort.DESC.name());
         pageQuery.setModel(accountDTO);
         Integer count = accountTenantDao.generalCount(accountDTO);

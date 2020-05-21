@@ -17,6 +17,8 @@ public interface AccountTenantDao {
 
     AccountTenant getByAccount(@Param("userId") Long userId, @Param("tenantId") Long tenantId, @Param("accountId") Long accountId, @Param("isDeleted") Integer isDeleted);
 
+    AccountTenant getByUserIdAndTenantIdAndEngineType(@Param("userId") Long userId, @Param("tenantId") Long tenantId, @Param("engineType") Integer engineType);
+
     Integer update(AccountTenant accountTenant);
 
     Integer generalCount(@Param("model") AccountDTO accountDTO);

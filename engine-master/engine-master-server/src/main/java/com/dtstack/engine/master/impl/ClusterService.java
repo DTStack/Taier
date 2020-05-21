@@ -583,6 +583,19 @@ public class ClusterService implements InitializingBean {
             pluginInfo.put("pwd", tiDBConf.getString("password"));
             pluginInfo.remove("password");
             pluginInfo.put("typeName", "tidb");
+        } else if (EComponentType.ORACLE_SQL == type.getComponentType()) {
+            JSONObject tiDBConf = JSONObject.parseObject(oracleInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
+            pluginInfo = new JSONObject();
+            if(Objects.nonNull(tiDBConf)){
+                pluginInfo.putAll(tiDBConf);
+            }
+            pluginInfo.put("dbUrl", tiDBConf.getString("jdbcUrl"));
+            pluginInfo.remove("jdbcUrl");
+            pluginInfo.put("userName", tiDBConf.getString("username"));
+            pluginInfo.remove("username");
+            pluginInfo.put("pwd", tiDBConf.getString("password"));
+            pluginInfo.remove("password");
+            pluginInfo.put("typeName", "oracle");
         } else {
             pluginInfo = clusterConfigJson.getJSONObject(type.getComponentType().getConfName());
             if (pluginInfo == null) {
@@ -666,7 +679,29 @@ public class ClusterService implements InitializingBean {
             return jdbcInfo;
         }
         Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
-        AccountTenant dbAccountTenant = accountTenantDao.getByAccount(dtUicUser.getId(), tenantId, null, Deleted.NORMAL.getStatus());
+        AccountTenant dbAccountTenant = accountTenantDao.getByUserIdAndTenantIdAndEngineType(dtUicUser.getId(), tenantId, DataSourceType.TiDB.getVal());
+        if(Objects.isNull(dbAccountTenant)){
+            return jdbcInfo;
+        }
+        Account account = accountDao.getById(dbAccountTenant.getAccountId());
+        if(Objects.isNull(account)){
+            return jdbcInfo;
+        }
+        JSONObject data = JSONObject.parseObject(jdbcInfo);
+        data.put("username",account.getName());
+        data.put("password", Base64Util.baseDecode(account.getPassword()));
+        return data.toJSONString();
+    }
+
+    public String oracleInfo(@Param("tenantId") Long dtUicTenantId,@Param("userId") Long dtUicUserId){
+        //优先绑定账号
+        String jdbcInfo = getConfigByKey(dtUicTenantId, EComponentType.ORACLE_SQL.getConfName(),false);
+        User dtUicUser = userDao.getByDtUicUserId(dtUicUserId);
+        if(Objects.isNull(dtUicUser)){
+            return jdbcInfo;
+        }
+        Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
+        AccountTenant dbAccountTenant = accountTenantDao.getByUserIdAndTenantIdAndEngineType(dtUicUser.getId(), tenantId, DataSourceType.Oracle.getVal());
         if(Objects.isNull(dbAccountTenant)){
             return jdbcInfo;
         }

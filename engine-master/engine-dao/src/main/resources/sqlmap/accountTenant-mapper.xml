@@ -80,6 +80,9 @@
         AND cat.is_deleted = 0
         AND ca.is_deleted = 0
         AND ct.is_deleted = 0
+        <if test="model.type != null">
+            AND ca.type = #{model.type}
+        </if>
         <if test="model.name != null">
             AND (ca.name LIKE '%${model.name}%' OR cu.user_name LIKE '%${model.name}%')
         </if>
@@ -97,6 +100,9 @@
         AND cat.is_deleted = 0
         AND ca.is_deleted = 0
         AND ct.is_deleted = 0
+        <if test="model.type != null">
+            AND ca.type = #{model.type}
+        </if>
         <if test="model.name != null">
             AND (ca.name LIKE '%${model.name}%' OR cu.user_name LIKE '%${model.name}%')
         </if>
@@ -115,6 +121,16 @@
         <include refid="select_content_fragment"/>
         FROM console_account_tenant
         WHERE id = #{id}
+    </select>
+
+    <select id="getByUserIdAndTenantIdAndEngineType" resultType="AccountTenant">
+        SELECT
+            cat.*
+        FROM console_account_tenant cat
+                 left join console_account ca on ca.id = cat.account_id
+        WHERE cat.user_id = #{userId} AND cat.tenant_id = #{tenantId}
+          AND cat.is_deleted = 0
+          AND ca.type = #{engineType}
     </select>
 
 </mapper>

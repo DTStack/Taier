@@ -506,7 +506,7 @@ public class ActionService {
         }
 
         //do reset status
-        scheduleJobDao.updateJobUnSubmitOrRestart(jobId, RdosTaskStatus.UNSUBMIT.getStatus());
+        scheduleJobDao.updateJobStatus(jobId, RdosTaskStatus.UNSUBMIT.getStatus());
         logger.info("jobId:{} update job status:{}.", jobId, RdosTaskStatus.UNSUBMIT.getStatus());
         return jobId;
     }
