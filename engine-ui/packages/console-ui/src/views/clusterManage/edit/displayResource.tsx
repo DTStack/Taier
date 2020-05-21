@@ -10,6 +10,29 @@ import {
 const FormItem = Form.Item;
 const Option = Select.Option;
 class DisplayResource extends React.Component<any, any> {
+    state: any = {
+        compVersion: []
+    }
+
+    // componentDidMount () {
+    //     this.getCompVersion();
+    // }
+
+    // getCompVersion = () => {
+    //     const { components } = this.props;
+    //     const componentTypeCode = components.componentTypeCode;
+    //     const isRequest = componentTypeCode === COMPONENT_TYPE_VALUE.FLINK
+    //     isRequest && Api.getCompVersion({
+    //         componentType: COMPONENT_TYPE_VALUE.FLINK
+    //     }).then((res: any) => {
+    //         if (res.code === 1) {
+    //             this.setState({
+    //                 compVersion: res.data
+    //             })
+    //         }
+    //     })
+    // }
+
     // 组件配置信息
     getComponentConfig = () => {
         const { components, componentConfig } = this.props;
@@ -194,8 +217,33 @@ class DisplayResource extends React.Component<any, any> {
         )
     }
 
+    handleFlinkVersion = (val) => {
+        this.props.handleFlinkVersion(COMPONENT_TYPE_VALUE.FLINK, val)
+    }
+
     // flink组件版本
     renderFilkCompVersion = (configName: any) => {
+        // const { compVersion } = this.state;
+        const { getFieldDecorator, components, isView } = this.props;
+        return (
+            <FormItem
+                label="组件版本"
+                colon={false}
+            >
+                {getFieldDecorator(`${configName}.hadoopVersion`, {
+                    initialValue: components.hadoopVersion || '180'
+                })(
+                    <Select style={{ width: 172 }} disabled={isView} onChange={this.handleFlinkVersion} >
+                        <Option value='140' key='1.4'>1.4</Option>
+                        <Option value='150' key='1.5'>1.5</Option>
+                        <Option value='180' key='1.8'>1.8</Option>
+                    </Select>
+                )}
+            </FormItem>
+        )
+    }
+    // spark组件版本
+    renderSparkCompVersion = (configName: any) => {
         const { getFieldDecorator, components, isView } = this.props;
         return (
             <FormItem
@@ -203,12 +251,11 @@ class DisplayResource extends React.Component<any, any> {
                 colon={false}
             >
                 {getFieldDecorator(`${configName}.version`, {
-                    initialValue: components.version || '180'
+                    initialValue: components.version || '2.1.X'
                 })(
                     <Select style={{ width: 172 }} disabled={isView}>
-                        <Option value='140' key='1.4'>1.4</Option>
-                        <Option value='150' key='1.5'>1.5</Option>
-                        <Option value='180' key='1.8'>1.8</Option>
+                        <Option value='2.1.X' key='2.1.X'>2.1.X</Option>
+                        <Option value='2.3.X' key='2.3.X'>2.3.X</Option>
                     </Select>
                 )}
             </FormItem>
@@ -259,12 +306,12 @@ class DisplayResource extends React.Component<any, any> {
                         {this.renderParamsFile(COMPONEMT_CONFIG_KEYS.SPARK_THRIFT_SERVER)}
                     </React.Fragment>
                 )
-            case COMPONENT_TYPE_VALUE.FLINK:
+            case COMPONENT_TYPE_VALUE.SPARK:
                 return (
                     <React.Fragment>
-                        {this.renderFilkCompVersion(COMPONEMT_CONFIG_KEYS.FLINK)}
-                        {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.FLINK)}
-                        {this.renderParamsFile(COMPONEMT_CONFIG_KEYS.FLINK)}
+                        {this.renderSparkCompVersion(COMPONEMT_CONFIG_KEYS.SPARK)}
+                        {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.SPARK)}
+                        {this.renderParamsFile(COMPONEMT_CONFIG_KEYS.SPARK)}
                     </React.Fragment>
                 )
             case COMPONENT_TYPE_VALUE.HIVE_SERVER:
@@ -279,6 +326,21 @@ class DisplayResource extends React.Component<any, any> {
                     <React.Fragment>
                         {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.LEARNING)}
                         {this.renderParamsFile(COMPONEMT_CONFIG_KEYS.LEARNING)}
+                    </React.Fragment>
+                )
+            case COMPONENT_TYPE_VALUE.FLINK:
+                return (
+                    <React.Fragment>
+                        {this.renderFilkCompVersion(COMPONEMT_CONFIG_KEYS.FLINK)}
+                        {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.FLINK)}
+                        {this.renderParamsFile(COMPONEMT_CONFIG_KEYS.FLINK)}
+                    </React.Fragment>
+                )
+            case COMPONENT_TYPE_VALUE.DTYARNSHELL:
+                return (
+                    <React.Fragment>
+                        {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.DTYARNSHELL)}
+                        {this.renderParamsFile(COMPONEMT_CONFIG_KEYS.DTYARNSHELL)}
                     </React.Fragment>
                 )
             default:

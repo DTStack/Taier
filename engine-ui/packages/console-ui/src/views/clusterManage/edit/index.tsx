@@ -18,6 +18,11 @@ import SelectPopver from '../../../components/selectPopover';
 import DisplayResource from './displayResource';
 import ComponentsConfig from './componentsConfig';
 import dealData from './dealData';
+// import console from '../../../api/console';
+// import console from '../../../api/console';
+// import console from '../../../api/console';
+// import console from '../../../api/console';
+// import console from '../../../api/console';
 
 const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
@@ -157,19 +162,25 @@ class EditCluster extends React.Component<any, any> {
         return componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {};
     }
 
+    handleFlinkVersion = (key: any, flinkVersion: any) => {
+        this.getLoadTemplate(key, flinkVersion);
+    }
+
     // 获取组件模板
-    getLoadTemplate = (key: any = '') => {
+    getLoadTemplate = (key: any = '', flinkVersion: any = '180') => {
         const { compTypeKey, tabCompData, componentConfig, clusterName } = this.state;
         const component = tabCompData.find((item: any) => item.schedulingCode === compTypeKey) || { components: [] };
         if (component.components.length > 0) {
-            const componentTypeCode = key || component.components[0].componentTypeCode;
+            let componentTypeCode = key === '' ? component.components[0].componentTypeCode : key;
             const isNeedLoadTemp = componentTypeCode !== COMPONENT_TYPE_VALUE.YARN && componentTypeCode !== COMPONENT_TYPE_VALUE.KUBERNETES &&
                 componentTypeCode !== COMPONENT_TYPE_VALUE.KUBERNETES && componentTypeCode !== COMPONENT_TYPE_VALUE.HDFS;
-            // console.log('isNeedLoadTemp------', isNeedLoadTemp);
-            if (isNeedLoadTemp) {
+            const config = componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {}
+            const { loadTemplate = {} } = config;
+            if (isNeedLoadTemp && Object.keys(loadTemplate).length === 0) {
                 Api.getLoadTemplate({
                     clusterName,
-                    componentType: componentTypeCode
+                    componentType: componentTypeCode,
+                    version: flinkVersion
                 }).then((res: any) => {
                     if (res.code === 1) {
                         this.setState({
@@ -353,7 +364,7 @@ class EditCluster extends React.Component<any, any> {
     // 配置文件Change事件
     fileChange = (e: any, componentTypeCode: any) => {
         const file = e.target;
-        // console.log('changefile---------', file.files[0]);
+        console.log('changefile---------', file.files[0]);
         const isCanUpload = this.validateFileType(file && file.files && file.files[0].name)
         if (isCanUpload) {
             this.setState({ uploadLoading: true });
@@ -469,40 +480,67 @@ class EditCluster extends React.Component<any, any> {
      */
     getComponentConfigPrames (values: any, components: any) {
         const componentTypeCode = components.componentTypeCode;
-
         // 组件配置相关 配置文件、组件id、组件模板、
         const config = this.getComponentConfig(components);
         const {
             uploadFileName = {}, configInfo = {}, loadTemplate = [], kerberosFileName = {},
             kerFileName = '' } = config;
-        const files = uploadFileName.files && uploadFileName.files[0] ? uploadFileName.files[0] : {};
-        const kerFiles = kerberosFileName.files && kerberosFileName.files[0] ? kerberosFileName.files[0] : {};
-
+        const files = uploadFileName.files && uploadFileName.files[0] ? uploadFileName.files[0] : '';
+        const kerFiles = kerberosFileName.files && kerberosFileName.files[0] ? kerberosFileName.files[0] : '';
+        console.log('files-------------kerFiles', files, kerFiles)
         // 各组件表单对应更改值
         let saveConfig = values[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]];
-        const { hadoopVersion = '', params } = saveConfig;
+        const { hadoopVersion } = saveConfig;
         const { clusterName } = values;
-        const customParams = dealData.getCustomParams(params);
+        // const customParams = dealData.getCustomParams(params);
+        const formConfig = cloneDeep(saveConfig.configInfo);
 
         // 返回模板信息以及相关输入值
         let componentTemplate = cloneDeep(loadTemplate)
-        componentTemplate.forEach((item: any) => {
-            if (saveConfig.configInfo[item.key]) {
-                item.value = saveConfig.configInfo[item.key]
-            }
-        })
-        componentTemplate = componentTemplate.concat(customParams)
-        console.log('customParams, saveConfig.params-------', customParams, componentTemplate)
+        if (componentTypeCode === COMPONENT_TYPE_VALUE.FLINK) {
+            componentTemplate.forEach((val: any) => {
+                // console.log('val-----formConfig', val)
+                if (val.key !== 'deploymode') {
+                    for (let groupKey in formConfig[val.key]) {
+                        val.values.forEach((vals: any) => {
+                            if (vals.key === groupKey.split('%').join('.')) vals.value = formConfig[val.key][groupKey];
+                        })
+                    }
+                } else {
+                    val.value = formConfig[val.key]
+                }
+            })
+        } else {
+            componentTemplate.forEach((item: any) => {
+                if (saveConfig.configInfo[item.key]) {
+                    item.value = saveConfig.configInfo[item.key]
+                }
+            })
+        }
+        console.log('componentTemplate-------componentTypeCode----saveConfig', componentTemplate, componentTypeCode, saveConfig)
 
         /**
          * 配置信息或者配置表单键值
          * saveConfig.configInfo 表单键值
          * configInfo 组件配置信息
          */
-        const paramsConfig = saveConfig.configInfo || configInfo;
-        // console.log('paramsConfig-----------', paramsConfig, configInfo, saveConfig)
+        // let formValues = cloneDeep(saveConfig.configInfo)
+        let formValues = cloneDeep(saveConfig.configInfo);
+        if (componentTypeCode === COMPONENT_TYPE_VALUE.FLINK) {
+            for (let key in formConfig) {
+                if (key !== 'deploymode') {
+                    for (let groupKey in formConfig[key]) {
+                        formValues[key][groupKey.split('%').join('.')] = formConfig[key][groupKey]
+                        delete formValues[key][groupKey]
+                    }
+                }
+            }
+        }
+        // console.log('formConfig------------', formConfig)
+        const paramsConfig = formValues || configInfo;
         return {
-            resources: [files, kerFiles],
+            resources1: files,
+            resources2: kerFiles,
             clusterName: clusterName,
             componentConfig: JSON.stringify({ ...paramsConfig }),
             kerberosFileName: kerFileName,
@@ -624,7 +662,7 @@ class EditCluster extends React.Component<any, any> {
 
     render () {
         const { compTypeKey, popoverVisible, clusterName, modify, selectValue,
-            deleteComps, defaultValue } = this.state;
+            deleteComps, defaultValue, componentConfig } = this.state;
         const { getFieldDecorator, getFieldValue } = this.props.form;
         const { mode } = this.props.location.state || {} as any;
         const isView = mode === 'view';
@@ -712,6 +750,7 @@ class EditCluster extends React.Component<any, any> {
                                                                                 downloadFile={this.downloadFile}
                                                                                 paramsfileChange={this.paramsfileChange}
                                                                                 kerFileChange={this.kerFileChange}
+                                                                                handleFlinkVersion={this.handleFlinkVersion}
                                                                                 deleteKerFile={this.deleteKerFile}
                                                                                 fileChange={this.fileChange} />
                                                                         </div>
@@ -720,6 +759,7 @@ class EditCluster extends React.Component<any, any> {
                                                                                 {...this.state}
                                                                                 isView={isView}
                                                                                 components={comps}
+                                                                                componentConfig={componentConfig}
                                                                                 addParams={this.addParams}
                                                                                 deleteParams={this.deleteParams}
                                                                                 getFieldValue={getFieldValue}

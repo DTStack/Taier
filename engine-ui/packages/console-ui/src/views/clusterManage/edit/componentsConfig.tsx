@@ -1,16 +1,16 @@
 import * as React from 'react';
 import {
-    Row, Col, Tooltip, Form, Input, Radio, Select
+    Row, Col, Tooltip, Form, Input, Radio, Select, Checkbox
 } from 'antd';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isArray } from 'lodash';
 import utils from 'dt-common/src/utils';
 import {
     COMPONENT_TYPE_VALUE, COMPONEMT_CONFIG_KEY_ENUM,
     COMPONEMT_CONFIG_KEYS } from '../../../consts';
-
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 const Option = Select.Option;
+const CheckboxGroup = Checkbox.Group;
 
 const formItemLayout: any = { // 表单常用布局
     labelCol: {
@@ -81,13 +81,13 @@ class ComponentsConfig extends React.Component<any, any> {
             }
         )
     }
-    compsContent = (item: any) => {
+    renderCompsContent = (item: any) => {
         const { isView } = this.props;
         if (item.type === 'INPUT') { return (<Input disabled={isView} />) }
         if (item.type === 'RADIO') {
             return (
                 <RadioGroup disabled={isView}>
-                    {item.values.map((comp: any, index) => {
+                    {item.values.map((comp: any) => {
                         return <Radio key={comp.key} value={comp.value}>{comp.key}</Radio>
                     })}
                 </RadioGroup>
@@ -95,61 +95,124 @@ class ComponentsConfig extends React.Component<any, any> {
         }
         if (item.type === 'SELECT') {
             return (
-                <Select disabled={isView}>
-                    {item.values.map((comp: any, index) => {
+                <Select disabled={isView} style={{ width: 200 }}>
+                    {item.values.map((comp: any) => {
                         return <Option key={comp.key} value={comp.value}>{comp.key}</Option>
                     })}
                 </Select>
             )
         }
+        // console.log('item---------', item)
+        if (item.type === 'CHECKBOX') {
+            // console.log('item.type---------', item.type)
+            return (
+                <CheckboxGroup disabled={isView}>
+                    {item.values.map((comp: any) => {
+                        return <Checkbox key={comp.key} value={comp.value}>{comp.key}</Checkbox>
+                    })}
+                </CheckboxGroup>
+            )
+        }
     }
-    rendeConfigInfo = (comps: any) => {
-        const { componentConfig, components, getFieldDecorator, getFieldValue } = this.props;
+
+    rendeConfigForm = (comps: any) => {
+        const { componentConfig, components } = this.props;
         const componentTypeCode = components.componentTypeCode;
         const config = componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {}
         const loadTemplate = config.loadTemplate || [];
-        const configInfo = config.configInfo || {};
+        // const configInfo = config.configInfo || {};
         let cloneLoadTemplate = cloneDeep(loadTemplate)
+        // console.log('cloneLoadTemplate-------------configInfo', cloneLoadTemplate, configInfo)
         if (cloneLoadTemplate.length > 0) {
             return cloneLoadTemplate.map((item: any, index: any) => {
-                return (
-                    item.dependencyValue
-                        ? getFieldValue(`${comps}.configInfo.${item.dependencyKey}`) === item.dependencyValue
-                            ? <FormItem
-                                label={item.key}
-                                key={item.key}
-                                {...formItemLayout}
-                            >
-                                {getFieldDecorator(`${comps}.configInfo.${item.key}`, {
-                                    rules: [{
-                                        required: item.required,
-                                        message: `请输入${item.key}`
-                                    }],
-                                    // initialValue: item.value
-                                    initialValue: configInfo[item.key] || ''
-                                })(
-                                    this.compsContent(item)
-                                )}
-                            </FormItem>
-                            : null
-                        : <FormItem
-                            label={item.key}
-                            key={item.key}
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator(`${comps}.configInfo.${item.key}`, {
-                                rules: [{
-                                    required: item.required,
-                                    message: `请输入${item.key}`
-                                }],
-                                // initialValue: item.value
-                                initialValue: configInfo[item.key] || ''
-                            })(
-                                this.compsContent(item)
-                            )}
-                        </FormItem>
-                )
+                // console.log('item---------', item)
+                if (item.type === 'GROUP') {
+                    // console.log('checkbox------', getFieldValue(`${comps}.configInfo.deploymode`))
+                    return this.renderConfigGroup(comps, item);
+                    // return null;
+                }
+                return this.renderConfigFormItem(comps, item);
             })
+        }
+    }
+
+    renderConfigFormItem = (comps: any, item: any) => {
+        const { getFieldValue, getFieldDecorator } = this.props;
+        if (!item.dependencyKey) {
+            console.log()
+            return (
+                <FormItem
+                    label={<Tooltip title={item.key}>{item.key}</Tooltip>}
+                    key={item.key}
+                    {...formItemLayout}
+                >
+                    {getFieldDecorator(`${comps}.configInfo.${item.key}`, {
+                        rules: [{
+                            required: item.required,
+                            message: `请输入${item.key}`
+                        }],
+                        initialValue: item.key === 'deploymode' && !isArray(item.value) ? [`${item.value}`] : item.value
+                    })(
+                        this.renderCompsContent(item)
+                    )}
+                </FormItem>
+            )
+        }
+        if (item.dependencyKey && getFieldValue(`${comps}.configInfo.${item.dependencyKey}`) === item.dependencyValue) {
+            return (
+                <FormItem
+                    label={<Tooltip title={item.key}>{item.key}</Tooltip>}
+                    key={item.key}
+                    {...formItemLayout}
+                >
+                    {getFieldDecorator(`${comps}.configInfo.${item.key}`, {
+                        rules: [{
+                            required: item.required,
+                            message: `请输入${item.key}`
+                        }],
+                        initialValue: item.value
+                    })(
+                        this.renderCompsContent(item)
+                    )}
+                </FormItem>
+            )
+        }
+    }
+
+    renderConfigGroup = (comps: any, group: any) => {
+        const { getFieldDecorator, getFieldValue } = this.props;
+        if (getFieldValue(`${comps}.configInfo.${group.dependencyKey}`).includes(group.dependencyValue)) {
+            return (
+                <div className="c-componentsConfig__group" key={group.key}>
+                    <div className="c-componentsConfig__group__title">
+                        {group.key}
+                    </div>
+                    <div className="c-componentsConfig__group__content">
+                        {
+                            group.values.map((item: any) => {
+                                return (
+                                    <FormItem
+                                        label={<Tooltip title={item.key}>{item.key}</Tooltip>}
+                                        key={item.key}
+                                        {...formItemLayout}
+                                    >
+                                        {getFieldDecorator(`${comps}.configInfo.${group.key}.${item.key.split('.').join('%')}`, {
+                                            rules: [{
+                                                required: item.required,
+                                                message: `请输入${item.key}`
+                                            }],
+                                            initialValue: item.value
+                                        })(
+                                            this.renderCompsContent(item)
+                                        )}
+                                    </FormItem>
+                                )
+                            })
+                        }
+                        {this.renderAddCustomParam()}
+                    </div>
+                </div>
+            )
         }
     }
 
@@ -223,13 +286,14 @@ class ComponentsConfig extends React.Component<any, any> {
             case COMPONENT_TYPE_VALUE.SFTP:
                 return (
                     <React.Fragment>
-                        {this.rendeConfigInfo(COMPONEMT_CONFIG_KEYS.SFTP)}
+                        {this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.SFTP)}
+                        {/* {console.log('this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.SFTP)', this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.SFTP))} */}
                     </React.Fragment>
                 )
             case COMPONENT_TYPE_VALUE.TIDB_SQL:
                 return (
                     <React.Fragment>
-                        {this.rendeConfigInfo(COMPONEMT_CONFIG_KEYS.TIDB_SQL)}
+                        {this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.TIDB_SQL)}
                         {this.renderCustomParam(COMPONEMT_CONFIG_KEYS.TIDB_SQL)}
                         {this.renderAddCustomParam()}
                     </React.Fragment>
@@ -237,41 +301,41 @@ class ComponentsConfig extends React.Component<any, any> {
             case COMPONENT_TYPE_VALUE.LIBRA_SQL:
                 return (
                     <React.Fragment>
-                        {this.rendeConfigInfo(COMPONEMT_CONFIG_KEYS.LIBRA_SQL)}
+                        {this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.LIBRA_SQL)}
                     </React.Fragment>
                 )
             case COMPONENT_TYPE_VALUE.ORACLE_SQL:
                 return (
                     <React.Fragment>
-                        {this.rendeConfigInfo(COMPONEMT_CONFIG_KEYS.ORACLE_SQL)}
+                        {this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.ORACLE_SQL)}
                     </React.Fragment>
                 )
             case COMPONENT_TYPE_VALUE.IMPALA_SQL:
                 return (
                     <React.Fragment>
-                        {this.rendeConfigInfo(COMPONEMT_CONFIG_KEYS.IMPALA_SQL)}
+                        {this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.IMPALA_SQL)}
+                    </React.Fragment>
+                )
+            case COMPONENT_TYPE_VALUE.SPARK:
+                return (
+                    <React.Fragment>
+                        {this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.SPARK)}
+                        {this.renderCustomParam(COMPONEMT_CONFIG_KEYS.SPARK)}
+                        {this.renderAddCustomParam()}
                     </React.Fragment>
                 )
             case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER:
                 return (
                     <React.Fragment>
-                        {this.rendeConfigInfo(COMPONEMT_CONFIG_KEYS.SPARK_THRIFT_SERVER)}
+                        {this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.SPARK_THRIFT_SERVER)}
                         {this.renderCustomParam(COMPONEMT_CONFIG_KEYS.SPARK_THRIFT_SERVER)}
-                        {this.renderAddCustomParam()}
-                    </React.Fragment>
-                )
-            case COMPONENT_TYPE_VALUE.FLINK:
-                return (
-                    <React.Fragment>
-                        {this.rendeConfigInfo(COMPONEMT_CONFIG_KEYS.FLINK)}
-                        {this.renderCustomParam(COMPONEMT_CONFIG_KEYS.FLINK)}
                         {this.renderAddCustomParam()}
                     </React.Fragment>
                 )
             case COMPONENT_TYPE_VALUE.HIVE_SERVER:
                 return (
                     <React.Fragment>
-                        {this.rendeConfigInfo(COMPONEMT_CONFIG_KEYS.HIVE_SERVER)}
+                        {this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.HIVE_SERVER)}
                         {this.renderCustomParam(COMPONEMT_CONFIG_KEYS.HIVE_SERVER)}
                         {this.renderAddCustomParam()}
                     </React.Fragment>
@@ -279,9 +343,24 @@ class ComponentsConfig extends React.Component<any, any> {
             case COMPONENT_TYPE_VALUE.LEARNING:
                 return (
                     <React.Fragment>
-                        {this.rendeConfigInfo(COMPONEMT_CONFIG_KEYS.LEARNING)}
+                        {this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.LEARNING)}
                         {this.renderCustomParam(COMPONEMT_CONFIG_KEYS.LEARNING)}
                         {this.renderAddCustomParam()}
+                    </React.Fragment>
+                )
+            case COMPONENT_TYPE_VALUE.FLINK:
+                return (
+                    <React.Fragment>
+                        {this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.FLINK)}
+                        {/* {this.renderCustomParam(COMPONEMT_CONFIG_KEYS.LEARNING)} */}
+                        {/* {this.renderAddCustomParam()} */}
+                        {/* {this.renderFlinkConfigInfo(COMPONEMT_CONFIG_KEYS.LEARNING)} */}
+                    </React.Fragment>
+                )
+            case COMPONENT_TYPE_VALUE.DTYARNSHELL:
+                return (
+                    <React.Fragment>
+                        {this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.DTYARNSHELL)}
                     </React.Fragment>
                 )
             default:

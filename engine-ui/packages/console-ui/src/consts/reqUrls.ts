@@ -47,6 +47,7 @@ export default {
     DOWNLOAD_RESOURCE: `${CONSOLE_BASE_UPLOAD_URL}/download/component/downloadFile`, // 下载配置文件
     DELETE_CLUSTER: `${CONSOLE_BASE_UPLOAD_URL}/cluster/deleteCluster`, // 删除集群
     DELETE_COMPONENT: `${CONSOLE_BASE_URL}/component/delete`,
+    GET_COMPONENT_VERSION: `${CONSOLE_BASE_URL}/component/getComponentVersion`,
 
     GET_LOADTEMPLATE: `${CONSOLE_BASE_UPLOAD_URL}/component/loadTemplate`, // 获取上传模板
     UPLOAD_KERBEROSFILE: `${CONSOLE_BASE_UPLOAD_URL}/upload/component/hadoopKerberosConfig`, // 上传kerberos认证文件

@@ -51,6 +51,9 @@ export default {
     deleteCluster (params: any) {
         return http.post(req.DELETE_CLUSTER, params);
     },
+    getCompVersion (params: any) {
+        return http.post(req.GET_COMPONENT_VERSION, params)
+    },
     // 任务管理模块
     // 概览-获取集群
     getClusterDetail (params: any) {

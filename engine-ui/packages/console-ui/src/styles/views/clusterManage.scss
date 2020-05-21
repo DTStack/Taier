@@ -366,6 +366,21 @@
     width: 100%;
     overflow: auto;
     padding: 24px 20px 40px 20px;
+    .c-componentsConfig__group {
+        margin-top: 20px;
+        width: 100%;
+        position: relative;
+        .c-componentsConfig__group__title {
+            font-size: 14px;
+            color: #333;
+            font-weight: bold;
+        }
+        .c-componentsConfig__group__content {
+            padding: 12px 20px 0 20px;
+            margin: 12px 0 20px 0;
+            background-color: #FAFAFAFF;
+        }
+    }
 }
 
 .c-editCluster__icon {
