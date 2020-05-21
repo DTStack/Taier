@@ -4,6 +4,9 @@ import { Layout } from 'antd';
 const { Footer } = Layout;
 const style={
   background:"#ddd",
+  position: "fixed",
+  width:"100vw",
+  bottom:0
 }
 
 export default function Foot() {

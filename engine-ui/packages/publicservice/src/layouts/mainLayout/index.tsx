@@ -14,6 +14,7 @@ interface IProps {
 	location: any;
 	children: any;
 	navData: any;
+	isTopHide:any;
 }
 interface IState {
 	loading: boolean;
@@ -34,12 +35,12 @@ class MainLayout extends React.Component<IProps, IState> {
 	}
 
 	render() {
-		const { location, children, navData } = this.props;
+		const { location, children, navData,isTopHide } = this.props;
 		return (
 			<Layout>
 				<ErrorBoundary>
-					<TopBar location={location} navData={navData} />
-					<div className="basic-layout">{children}</div>
+				   {isTopHide&&<TopBar location={location} navData={navData} />}
+					<div style={{top:isTopHide?"64px":"0px"}} className="main-layout">{children}</div>
 					<Foot />
 				</ErrorBoundary>
 			</Layout>

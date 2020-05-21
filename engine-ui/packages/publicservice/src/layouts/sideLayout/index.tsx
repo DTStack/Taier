@@ -20,7 +20,7 @@ export default (moduleName, isTopHide, isSideHide) => {
 		const { location, navData, history, children } = props;
 
 		return (
-			<MainLayout>
+			<MainLayout isTopHide={isTopHide}>
 				<Layout>
 					{isSideHide && (
 						<SideBar
@@ -31,7 +31,7 @@ export default (moduleName, isTopHide, isSideHide) => {
 							navData={findTopNavChildren(navData)}
 						/>
 					)}
-					<div className="side-layout">{children}</div>
+					<div style={{marginLeft:isSideHide?"200px":"0"}} className="side-layout">{children}</div>
 				</Layout>
 			</MainLayout>
 		);
