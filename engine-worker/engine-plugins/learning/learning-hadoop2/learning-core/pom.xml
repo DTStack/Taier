@@ -21,6 +21,12 @@
             <groupId>com.dtstack</groupId>
             <artifactId>learning</artifactId>
             <version>${learning.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>xml-apis</artifactId>
+                    <groupId>xml-apis</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
@@ -70,7 +76,7 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <move file="${basedir}/target/${project.name}-${project.version}.jar"
+                                <copy file="${basedir}/target/${project.name}-${project.version}.jar"
                                       tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
                                 <copy todir="${basedir}/target/../../../../../../pluginLibs/learning-hadoop2/"
                                       file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
