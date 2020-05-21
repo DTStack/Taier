@@ -13,7 +13,8 @@ public enum MultiEngineType {
     HADOOP(1,"Hadoop"),
     LIBRA(2, "LibrA"),
     KYLIN(3, "Kylin"),
-    TIDB(4,"TiDB");
+    TIDB(4,"TiDB"),
+    ORACLE(5,"Oracle");
 
     private int type;
 
