@@ -56,4 +56,8 @@ public class HadoopConf {
     public Configuration getYarnConfiguration() {
         return yarnConfiguration;
     }
+
+    public String getDefaultFs(){
+        return configuration.get("fs.defaultFS");
+    }
 }
