@@ -61,6 +61,9 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
             if(Objects.isNull(batchTaskShadeDTO.getProjectScheduleStatus())){
                 batchTaskShadeDTO.setProjectScheduleStatus(EProjectScheduleStatus.NORMAL.getStatus());
             }
+            if(Objects.isNull(batchTaskShadeDTO.getNodePid())){
+                batchTaskShadeDTO.setNodePid(0L);
+            }
             scheduleTaskShadeDao.insert(batchTaskShadeDTO);
         }
     }
