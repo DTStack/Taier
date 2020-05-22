@@ -96,9 +96,9 @@ public class LearningClient extends AbstractClient {
             }
         }
 
-        String queue = prop.getProperty(LearningConfiguration.LEARNING_APP_QUEUE);
+        String queue = prop.getProperty(LearningConfiguration.XLEARNING_APP_QUEUE);
         if (StringUtils.isNotBlank(queue)){
-            conf.set(LearningConfiguration.LEARNING_APP_QUEUE, queue);
+            conf.set(LearningConfiguration.XLEARNING_APP_QUEUE, queue);
         }
 
         client = new Client(conf);
@@ -199,9 +199,8 @@ public class LearningClient extends AbstractClient {
     @Override
     public boolean judgeSlots(JobClient jobClient) {
         LearningResourceInfo resourceInfo = new LearningResourceInfo();
-        resourceInfo.setElasticCapacity(conf.getBoolean(LearningConfiguration.DT_APP_ELASTIC_CAPACITY, false));
         try {
-            resourceInfo.getYarnSlots(client.getYarnClient(), conf.get(LearningConfiguration.LEARNING_APP_QUEUE), conf.getInt(LearningConfiguration.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1));
+            resourceInfo.getYarnSlots(client.getYarnClient(), conf.get(LearningConfiguration.XLEARNING_APP_QUEUE), conf.getInt(LearningResourceInfo.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1));
             return resourceInfo.judgeSlots(jobClient);
         } catch (YarnException e) {
             LOG.error("", e);

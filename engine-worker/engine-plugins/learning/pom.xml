@@ -15,6 +15,11 @@
 
     <packaging>pom</packaging>
 
+    <properties>
+        <learning.version>4.0.0-SNAPSHOT</learning.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
     <modules>
         <module>learning-hadoop2</module>
     </modules>

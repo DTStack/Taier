@@ -18,6 +18,8 @@ import java.util.List;
  */
 public class LearningResourceInfo extends AbstractYarnResourceInfo {
 
+    public static final String DT_APP_YARN_ACCEPTER_TASK_NUMBER = "yarnAccepterTaskNumber";
+
     @Override
     public boolean judgeSlots(JobClient jobClient) {
         ClientArguments clientArguments;

@@ -16,7 +16,6 @@
 
     <properties>
         <junit.version>4.11</junit.version>
-        <learning.version>3.6.0-SNAPSHOT</learning.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
