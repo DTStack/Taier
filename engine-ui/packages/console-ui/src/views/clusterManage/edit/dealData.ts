@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { COMPONEMT_CONFIG_KEY_ENUM, COMPONENT_TYPE_VALUE } from '../../../consts';
 
 function dealData (data: any) {
     let newData: any = _.cloneDeep(data)
@@ -83,10 +84,87 @@ function getLoadTemplates (loadTemplate: any = []) {
     return params;
 }
 
+/**
+ * 处理添加、更新组件数据参数
+ * @values 表单变更值
+ * @components 组件
+ */
+function getComponentConfigPrames (values: any, components: any, config: any) {
+    const componentTypeCode = components.componentTypeCode;
+    // 组件配置相关 配置文件、组件id、组件模板、
+    const {
+        uploadFileName = {}, configInfo = {}, loadTemplate = [], kerberosFileName = {},
+        kerFileName = '' } = config;
+    const files = uploadFileName.files && uploadFileName.files[0] ? uploadFileName.files[0] : '';
+    const kerFiles = kerberosFileName.files && kerberosFileName.files[0] ? kerberosFileName.files[0] : '';
+    console.log('files-------------kerFiles', files, kerFiles)
+    // 各组件表单对应更改值
+    let saveConfig = values[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]];
+    const { hadoopVersion } = saveConfig;
+    const { clusterName } = values;
+    // const customParams = dealData.getCustomParams(params);
+    const formConfig = _.cloneDeep(saveConfig.configInfo);
+
+    // 返回模板信息以及相关输入值
+    let componentTemplate = _.cloneDeep(loadTemplate)
+    if (componentTypeCode === COMPONENT_TYPE_VALUE.FLINK) {
+        componentTemplate.forEach((val: any) => {
+            // console.log('val-----formConfig', val)
+            if (val.key !== 'deploymode') {
+                for (let groupKey in formConfig[val.key]) {
+                    val.values.forEach((vals: any) => {
+                        if (vals.key === groupKey.split('%').join('.')) vals.value = formConfig[val.key][groupKey];
+                    })
+                }
+            } else {
+                val.value = formConfig[val.key]
+            }
+        })
+    } else {
+        componentTemplate.forEach((item: any) => {
+            if (saveConfig.configInfo[item.key]) {
+                item.value = saveConfig.configInfo[item.key]
+            }
+        })
+    }
+    console.log('componentTemplate-------componentTypeCode----saveConfig', componentTemplate, componentTypeCode, saveConfig)
+
+    /**
+     * 配置信息或者配置表单键值
+     * saveConfig.configInfo 表单键值
+     * configInfo 组件配置信息
+     */
+    // let formValues = cloneDeep(saveConfig.configInfo)
+    let formValues = _.cloneDeep(saveConfig.configInfo);
+    if (componentTypeCode === COMPONENT_TYPE_VALUE.FLINK) {
+        for (let key in formConfig) {
+            if (key !== 'deploymode') {
+                for (let groupKey in formConfig[key]) {
+                    formValues[key][groupKey.split('%').join('.')] = formConfig[key][groupKey]
+                    delete formValues[key][groupKey]
+                }
+            }
+        }
+    }
+    // console.log('formConfig------------', formConfig)
+    const paramsConfig = formValues || configInfo;
+    return {
+        resources1: files,
+        resources2: kerFiles,
+        clusterName: clusterName,
+        componentConfig: JSON.stringify({ ...paramsConfig }),
+        kerberosFileName: kerFileName,
+        hadoopVersion: hadoopVersion,
+        componentCode: componentTypeCode,
+        componentTemplate: JSON.stringify(componentTemplate)
+    }
+}
+
 export default {
     dealData,
     getKerberosObj,
     getCustomParams,
     getLoadTemplateParams,
-    getLoadTemplates
+    getLoadTemplates,
+    getComponentConfigPrames
 }

@@ -140,7 +140,7 @@ class EditCluster extends React.Component<any, any> {
         })
     }
 
-    turnBack = () => {
+    turnClusteManage = () => {
         hashHistory.push({ pathname: '/console/clusterManage' })
     }
 
@@ -473,82 +473,6 @@ class EditCluster extends React.Component<any, any> {
             }
         });
     }
-    /**
-     * 处理添加、更新组件数据参数
-     * @values 表单变更值
-     * @components 组件
-     */
-    getComponentConfigPrames (values: any, components: any) {
-        const componentTypeCode = components.componentTypeCode;
-        // 组件配置相关 配置文件、组件id、组件模板、
-        const config = this.getComponentConfig(components);
-        const {
-            uploadFileName = {}, configInfo = {}, loadTemplate = [], kerberosFileName = {},
-            kerFileName = '' } = config;
-        const files = uploadFileName.files && uploadFileName.files[0] ? uploadFileName.files[0] : '';
-        const kerFiles = kerberosFileName.files && kerberosFileName.files[0] ? kerberosFileName.files[0] : '';
-        console.log('files-------------kerFiles', files, kerFiles)
-        // 各组件表单对应更改值
-        let saveConfig = values[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]];
-        const { hadoopVersion } = saveConfig;
-        const { clusterName } = values;
-        // const customParams = dealData.getCustomParams(params);
-        const formConfig = cloneDeep(saveConfig.configInfo);
-
-        // 返回模板信息以及相关输入值
-        let componentTemplate = cloneDeep(loadTemplate)
-        if (componentTypeCode === COMPONENT_TYPE_VALUE.FLINK) {
-            componentTemplate.forEach((val: any) => {
-                // console.log('val-----formConfig', val)
-                if (val.key !== 'deploymode') {
-                    for (let groupKey in formConfig[val.key]) {
-                        val.values.forEach((vals: any) => {
-                            if (vals.key === groupKey.split('%').join('.')) vals.value = formConfig[val.key][groupKey];
-                        })
-                    }
-                } else {
-                    val.value = formConfig[val.key]
-                }
-            })
-        } else {
-            componentTemplate.forEach((item: any) => {
-                if (saveConfig.configInfo[item.key]) {
-                    item.value = saveConfig.configInfo[item.key]
-                }
-            })
-        }
-        console.log('componentTemplate-------componentTypeCode----saveConfig', componentTemplate, componentTypeCode, saveConfig)
-
-        /**
-         * 配置信息或者配置表单键值
-         * saveConfig.configInfo 表单键值
-         * configInfo 组件配置信息
-         */
-        // let formValues = cloneDeep(saveConfig.configInfo)
-        let formValues = cloneDeep(saveConfig.configInfo);
-        if (componentTypeCode === COMPONENT_TYPE_VALUE.FLINK) {
-            for (let key in formConfig) {
-                if (key !== 'deploymode') {
-                    for (let groupKey in formConfig[key]) {
-                        formValues[key][groupKey.split('%').join('.')] = formConfig[key][groupKey]
-                        delete formValues[key][groupKey]
-                    }
-                }
-            }
-        }
-        // console.log('formConfig------------', formConfig)
-        const paramsConfig = formValues || configInfo;
-        return {
-            resources1: files,
-            resources2: kerFiles,
-            clusterName: clusterName,
-            componentConfig: JSON.stringify({ ...paramsConfig }),
-            kerberosFileName: kerFileName,
-            hadoopVersion: hadoopVersion,
-            componentCode: componentTypeCode,
-            componentTemplate: JSON.stringify(componentTemplate)
-        }
-    }
 
     saveComponent = (components: any) => {
         const { validateFieldsAndScroll } = this.props.form;
@@ -575,33 +499,38 @@ class EditCluster extends React.Component<any, any> {
                 message.error(`${notice}`);
                 return;
             }
-            const params = this.getComponentConfigPrames(values, components);
+            const params = dealData.getComponentConfigPrames(values, components, config);
             console.log('this is params-----------', params)
             Api.saveComponent({
                 ...params
             }).then((res: any) => {
                 if (res.code === 1) {
-                    const { componentConfig } = this.state;
-                    this.setState({
-                        clusterId: res.data.clusterId,
-                        clusterName: res.data.clusterName,
-                        componentConfig: {
-                            ...componentConfig,
-                            [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
-                                ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
-                                configInfo: JSON.parse(res.data.componentConfig) || {},
-                                loadTemplate: dealData.getLoadTemplates(JSON.parse(res.data.componentTemplate)),
-                                fileName: res.data.uploadFileName || '',
-                                kerFileName: res.data.kerberosFileName || '',
-                                id: res.data.id || '',
-                                params: dealData.getLoadTemplateParams(JSON.parse(res.data.componentTemplate))
-                            }
-                        }
-                    }, () => console.log('componentConfig------componentConfig', this.state.componentConfig));
+                    this.setComponentConfig(res, components);
                     message.success('保存成功');
                 }
             })
         })
+    }
+
+    setComponentConfig = (data: any, components: any) => {
+        const { componentConfig } = this.state;
+        const componentTypeCode = components.componentTypeCode;
+        this.setState({
+            clusterId: data.data.clusterId,
+            clusterName: data.data.clusterName,
+            componentConfig: {
+                ...componentConfig,
+                [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
+                    ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
+                    configInfo: JSON.parse(data.data.componentConfig) || {},
+                    loadTemplate: dealData.getLoadTemplates(JSON.parse(data.data.componentTemplate)),
+                    fileName: data.data.uploadFileName || '',
+                    kerFileName: data.data.kerberosFileName || '',
+                    id: data.data.id || '',
+                    params: dealData.getLoadTemplateParams(JSON.parse(data.data.componentTemplate))
+                }
+            }
+        }, () => console.log('componentConfig------componentConfig', this.state.componentConfig));
     }
 
     handleCancel = (components: any) => {
@@ -683,7 +612,7 @@ class EditCluster extends React.Component<any, any> {
         return (
             <div className="c-editCluster__containerWrap" ref={(el) => { this.container = el; }}>
                 <div style={{ height: 20 }}>
-                    <span className="c-editCluster__turnBack" onClick={this.turnBack}>多集群管理 / </span>
+                    <span className="c-editCluster__turnBack" onClick={this.turnClusteManage}>多集群管理 / </span>
                     <span className="c-editCluster__title">新增集群</span>
                 </div>
                 <React.Fragment>
