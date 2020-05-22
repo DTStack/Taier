@@ -21,7 +21,8 @@
     </properties>
 
     <modules>
-        <module>learning-hadoop2</module>
+        <module>yarn2-hdfs2-learning-core</module>
+        <module>yarn2-hdfs2-learning</module>
     </modules>
 
 

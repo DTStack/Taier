@@ -4,29 +4,24 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>com.dtstack.engine</groupId>
-        <artifactId>plugins.learning.learning-hadoop2</artifactId>
+        <artifactId>plugins.learning.yarn2-hdfs2-learning</artifactId>
         <version>1.0.0</version>
+        <relativePath>..</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>plugins.learning.learning-hadoop2-core</artifactId>
-    <name>plugins.learning.learning-hadoop2-core</name>
+    <artifactId>plugins.learning.yarn2-hdfs2-learning.learning-core</artifactId>
+    <name>plugins.learning.yarn2-hdfs2-learning.learning-core</name>
 
     <properties>
-        <jar.name>learning-hadoop2-core</jar.name>
+        <jar.name>learning-core</jar.name>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>com.dtstack</groupId>
-            <artifactId>learning</artifactId>
-            <version>${learning.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>xalan</groupId>
-            <artifactId>xalan</artifactId>
-            <version>2.7.1</version>
+            <groupId>com.dtstack.engine</groupId>
+            <artifactId>plugins.learning.yarn2-hdfs2-learning-core.learning-core</artifactId>
+            <version>1.0.0</version>
         </dependency>
 
     </dependencies>
@@ -79,10 +74,10 @@
                             <tasks>
                                 <copy file="${basedir}/target/${project.name}-${project.version}.jar"
                                       tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
-                                <copy todir="${basedir}/target/../../../../../../pluginLibs/learning-hadoop2/"
+                                <copy todir="${basedir}/target/../../../../../../pluginLibs/yarn2-hdfs2-learning/"
                                       file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/target/../../../../../../pluginLibs/learning-hadoop2/"
+                                    <fileset dir="${basedir}/target/../../../../../../pluginLibs/yarn2-hdfs2-learning/"
                                              includes="${jar.name}-*.jar"
                                              excludes="${jar.name}-${git.branch}.jar"/>
                                 </delete>
