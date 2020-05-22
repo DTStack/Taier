@@ -18,32 +18,17 @@ import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.JobParam;
-import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.common.client.config.YamlConfigParser;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.http.PoolHttpClient;
-import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.util.DtStringUtil;
-import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.constrant.ExceptionInfoConstrant;
 import com.dtstack.engine.flink.enums.FlinkYarnMode;
-import com.dtstack.engine.flink.factory.PerJobClientFactory;
 import com.dtstack.engine.flink.parser.PrepareOperator;
-import com.dtstack.engine.flink.plugininfo.SqlPluginInfo;
-import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
-import com.dtstack.engine.flink.resource.FlinkPerJobResourceInfo;
-import com.dtstack.engine.flink.resource.FlinkYarnSeesionResourceInfo;
 import com.dtstack.engine.flink.util.FLinkConfUtil;
-import com.dtstack.engine.flink.util.FileUtil;
-import com.dtstack.engine.flink.util.FlinkRestParseUtil;
 import com.dtstack.engine.flink.util.FlinkUtil;
 import com.dtstack.engine.flink.util.HadoopConf;
 import com.dtstack.engine.worker.enums.ClassLoaderType;
@@ -137,17 +122,6 @@ public class FlinkClient extends AbstractClient {
     private FlinkClusterClientManager flinkClusterClientManager;
 
     private String jobHistory;
-
-    public FlinkClient() {
-        try {
-            InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(PLUGIN_DEFAULT_CONFIG_NAME);
-            Map<String, Object> config = YamlConfigParser.INSTANCE.parse(resourceAsStream);
-            defaultPlugins = super.convertMapTemplateToConfig(config);
-            logger.info("=======FlinkClient============{}", defaultPlugins);
-        } catch (Exception e) {
-            logger.error("flink client init default config error {}", e);
-        }
-    }
 
     @Override
     public void init(Properties prop) throws Exception {

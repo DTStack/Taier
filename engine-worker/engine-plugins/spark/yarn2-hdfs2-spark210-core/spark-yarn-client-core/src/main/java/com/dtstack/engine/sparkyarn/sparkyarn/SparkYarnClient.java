@@ -6,14 +6,12 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.JobParam;
 import com.dtstack.engine.common.client.AbstractClient;
-import com.dtstack.engine.common.client.config.YamlConfigParser;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
-import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.MathUtil;
@@ -29,10 +27,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
@@ -47,9 +41,7 @@ import org.apache.spark.deploy.yarn.ClientArguments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.*;
 
@@ -100,17 +92,6 @@ public class SparkYarnClient extends AbstractClient {
     private YarnClient yarnClient;
 
     private Properties sparkExtProp;
-
-    public SparkYarnClient() {
-        try {
-            InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(PLUGIN_DEFAULT_CONFIG_NAME);
-            Map<String, Object> config = YamlConfigParser.INSTANCE.parse(resourceAsStream);
-            defaultPlugins = super.convertMapTemplateToConfig(config);
-            logger.info("=======SparkYarnClient============{}", defaultPlugins);
-        } catch (Exception e) {
-            logger.error("spark client init default config error {}", e);
-        }
-    }
 
     @Override
     public void init(Properties prop) throws Exception {

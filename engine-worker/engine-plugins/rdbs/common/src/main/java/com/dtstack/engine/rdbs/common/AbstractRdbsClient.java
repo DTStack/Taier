@@ -4,7 +4,6 @@ import com.dtstack.engine.base.resource.EngineResourceInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.client.AbstractClient;
-import com.dtstack.engine.common.client.config.YamlConfigParser;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
@@ -22,12 +21,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -51,17 +48,6 @@ public abstract class AbstractRdbsClient extends AbstractClient {
     protected String dbType = "rdbs";
 
     protected abstract AbstractConnFactory getConnFactory();
-
-    public AbstractRdbsClient() {
-        try {
-            InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(PLUGIN_DEFAULT_CONFIG_NAME);
-            Map<String, Object> config = YamlConfigParser.INSTANCE.parse(resourceAsStream);
-            defaultPlugins = super.convertMapTemplateToConfig(config);
-            LOG.info("=======RdbClient============{}", defaultPlugins);
-        } catch (Exception e) {
-            LOG.error("RdbClient client init default config error {}", e);
-        }
-    }
 
     @Override
     public void init(Properties prop) throws Exception {
