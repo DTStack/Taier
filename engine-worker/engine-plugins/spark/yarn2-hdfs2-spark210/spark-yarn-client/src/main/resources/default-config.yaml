@@ -1,14 +1,21 @@
-yarn:
-  required:
-    sparkYarnArchive: hdfs://ns1/dtInsight/sparkjars/jars
-    sparkSqlProxyPath:  hdfs://ns1/dtInsight/spark/client/spark-sql-proxy.jar
-    sparkPythonExtLibPath:
+deploymode:
+  controls: checkbox
+  values: [perjob,standalone]
 
-  optional:
-    spark.yarn.appMasterEnv.PYSPARK_PYTHON: /data/anaconda3/bin/python3
-    spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON: /data/anaconda3/bin/python3
-    addColumnSupport: true
-    spark.eventLog.compress: true
-    spark.eventLog.enabled: true
-    spark.eventLog.dir: hdfs://ns1/tmp/spark-yarn-logs
-    confHdfsPath:
+  perjob:
+    dependencyKey: deploymode
+    dependencyValue: perjob
+    controls: group
+    required:
+      sparkYarnArchive: hdfs://ns1/dtInsight/sparkjars/jars
+      sparkSqlProxyPath:  hdfs://ns1/dtInsight/spark/client/spark-sql-proxy.jar
+      sparkPythonExtLibPath:
+    optional:
+      spark.yarn.appMasterEnv.PYSPARK_PYTHON: /data/anaconda3/bin/python3
+      spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON: /data/anaconda3/bin/python3
+      addColumnSupport: true
+      spark.eventLog.compress: true
+      spark.eventLog.enabled: true
+      spark.eventLog.dir: hdfs://ns1/tmp/spark-yarn-logs
+      confHdfsPath:
+

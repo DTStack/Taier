@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.function.Supplier;
 
 public class HadoopClient extends AbstractClient {
 
@@ -87,11 +88,12 @@ public class HadoopClient extends AbstractClient {
 
         setHadoopUserName(config);
 
-        if (config.isOpenKerberos()){
-            initSecurity(config);
-        }
-        yarnClient = getYarnClient();
-        resourceInfo = new HadoopResourceInfo();
+        initSecurity(config,()->{
+            yarnClient = getYarnClient();
+            resourceInfo = new HadoopResourceInfo();
+            return null;
+        });
+
     }
 
     @Override
@@ -240,10 +242,10 @@ public class HadoopClient extends AbstractClient {
     }
 
 
-    private static void initSecurity(Config config) throws IOException {
+    private static void initSecurity(Config config, Supplier supplier) throws IOException {
         try {
             LOG.info("start init security!");
-            KerberosUtils.login(config);
+            KerberosUtils.login(config,supplier);
         } catch (IOException e) {
             LOG.error("initSecurity happens error", e);
             throw new IOException("InitSecurity happens error", e);
@@ -368,45 +370,45 @@ public class HadoopClient extends AbstractClient {
      */
     @Override
     public ComponentTestResult testConnect(String pluginInfo) {
-        HadoopConf hadoopConf = null;
-        YarnClient testYarnClient = null;
         ComponentTestResult testResult = new ComponentTestResult();
         testResult.setResult(false);
         try {
             Config allConfig = PublicUtil.jsonStrToObject(pluginInfo, Config.class);
-            if("hdfs".equalsIgnoreCase(allConfig.getComponentName())){
+            if ("hdfs".equalsIgnoreCase(allConfig.getComponentName())) {
                 //测试hdfs联通性
                 return this.checkHdfsConnect(allConfig);
             }
-            hadoopConf = new HadoopConf();
-            hadoopConf.initYarnConf(allConfig.getYarnConf());
-            if (allConfig.isOpenKerberos()) {
-                initSecurity(allConfig);
-            }
-            testYarnClient = YarnClient.createYarnClient();
-            testYarnClient.init(hadoopConf.getYarnConfiguration());
-            testYarnClient.start();
-            List<NodeReport> nodes = testYarnClient.getNodeReports(NodeState.RUNNING);
-            int totalMemory = 0;
-            int totalCores = 0;
-            for (NodeReport rep : nodes) {
-                totalMemory += rep.getCapability().getMemory();
-                totalCores += rep.getCapability().getVirtualCores();
-            }
-            List<ComponentTestResult.QueueDescription> descriptions = getQueueDescription(null, testYarnClient.getRootQueueInfos());
-            testResult.setClusterResourceDescription(new ComponentTestResult.ClusterResourceDescription(nodes.size(), totalMemory, totalCores, descriptions));
-            testResult.setResult(true);
+            return KerberosUtils.login(allConfig, () -> {
+                HadoopConf hadoopConf = new HadoopConf();
+                hadoopConf.initYarnConf(allConfig.getYarnConf());
+                YarnClient testYarnClient = YarnClient.createYarnClient();
+                testYarnClient.init(hadoopConf.getYarnConfiguration());
+                testYarnClient.start();
+                List<NodeReport> nodes = null;
+                try {
+                    nodes = testYarnClient.getNodeReports(NodeState.RUNNING);
+                } catch (Exception e) {
+                    LOG.error("test yarn connect error", e);
+                }
+                int totalMemory = 0;
+                int totalCores = 0;
+                for (NodeReport rep : nodes) {
+                    totalMemory += rep.getCapability().getMemory();
+                    totalCores += rep.getCapability().getVirtualCores();
+                }
+                try {
+                    List<ComponentTestResult.QueueDescription> descriptions = getQueueDescription(null, testYarnClient.getRootQueueInfos());
+                    testResult.setClusterResourceDescription(new ComponentTestResult.ClusterResourceDescription(nodes.size(), totalMemory, totalCores, descriptions));
+                } catch (Exception e) {
+                    LOG.error("getRootQueueInfos error", e);
+                }
+                testResult.setResult(true);
+                return testResult;
+            });
+
         } catch (Exception e) {
             LOG.error("test yarn connect error", e);
             testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
-        } finally {
-            if (testYarnClient != null) {
-                try {
-                    testYarnClient.close();
-                } catch (Exception e) {
-                    LOG.warn("An exception occurred while closing the yarnClient: ", e);
-                }
-            }
         }
         return testResult;
     }
@@ -443,21 +445,33 @@ public class HadoopClient extends AbstractClient {
     public String uploadStringToHdfs(String pluginInfo, String bytes, String hdfsPath) {
         try {
             Config uploadConfig = PublicUtil.jsonStrToObject(pluginInfo, Config.class);
-            if (uploadConfig.isOpenKerberos()) {
-                KerberosUtils.login(uploadConfig);
-            }
-            ByteArrayInputStream is = new ByteArrayInputStream(bytes.getBytes());
-            HadoopConf uploadConf = new HadoopConf();
-            uploadConf.initHadoopConf(uploadConfig.getHadoopConf());
-            Configuration configuration = uploadConf.getConfiguration();
-            FileSystem fs = FileSystem.get(configuration);
-            Path destP = new Path(hdfsPath);
-            FSDataOutputStream os = fs.create(destP);
-            IOUtils.copyBytes(is, os, 4096, true);
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("submit file {} to hdfs success.", hdfsPath);
-            }
-            return uploadConf.getDefaultFs() + hdfsPath;
+            return KerberosUtils.login(uploadConfig, () -> {
+                HadoopConf uploadConf = null;
+                FileSystem fs = null;
+                try {
+                    ByteArrayInputStream is = new ByteArrayInputStream(bytes.getBytes());
+                    uploadConf = new HadoopConf();
+                    uploadConf.initHadoopConf(uploadConfig.getHadoopConf());
+                    Configuration configuration = uploadConf.getConfiguration();
+                    fs = FileSystem.get(configuration);
+                    Path destP = new Path(hdfsPath);
+                    FSDataOutputStream os = fs.create(destP);
+                    IOUtils.copyBytes(is, os, 4096, true);
+                } catch (IOException e) {
+                    throw new RdosDefineException("上传文件失败", e);
+                } finally {
+                    if (Objects.nonNull(fs)) {
+                        try {
+                            fs.close();
+                        } catch (IOException e) {
+                        }
+                    }
+                }
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("submit file {} to hdfs success.", hdfsPath);
+                }
+                return uploadConf.getDefaultFs() + hdfsPath;
+            });
         } catch (Exception e) {
             throw new RdosDefineException("上传文件失败", e);
         }
@@ -465,7 +479,6 @@ public class HadoopClient extends AbstractClient {
 
     private ComponentTestResult checkHdfsConnect(Config testConnectConf) {
         //测试hdfs联通性
-        FileSystem fs = null;
         ComponentTestResult componentTestResult = new ComponentTestResult();
         try {
             if (Objects.isNull(testConnectConf)) {
@@ -473,66 +486,76 @@ public class HadoopClient extends AbstractClient {
                 componentTestResult.setErrorMsg("配置信息不能你为空");
                 return componentTestResult;
             }
-            if (testConnectConf.isOpenKerberos()) {
-                KerberosUtils.login(testConnectConf);
-            }
-            HadoopConf hadoopConf = new HadoopConf();
-            hadoopConf.initHadoopConf(testConnectConf.getHadoopConf());
-            Configuration configuration = hadoopConf.getConfiguration();
-            fs = FileSystem.get(configuration);
-            componentTestResult.setResult(true);
+            KerberosUtils.login(testConnectConf, () -> {
+                HadoopConf hadoopConf = new HadoopConf();
+                hadoopConf.initHadoopConf(testConnectConf.getHadoopConf());
+                Configuration configuration = hadoopConf.getConfiguration();
+                FileSystem fs = null;
+                try {
+                    fs = FileSystem.get(configuration);
+                } catch (Exception e) {
+                    componentTestResult.setResult(false);
+                    componentTestResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
+                    return componentTestResult;
+                }
+                if (Objects.nonNull(fs)) {
+                    try {
+                        fs.close();
+                    } catch (IOException e) {
+                        LOG.error("close file system error ", e);
+                    }
+                }
+                componentTestResult.setResult(true);
+                return componentTestResult;
+            });
+
         } catch (Exception e) {
             componentTestResult.setResult(false);
             componentTestResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
-        } finally {
-            if (Objects.nonNull(fs)) {
-                try {
-                    fs.close();
-                } catch (IOException e) {
-                    LOG.error("close file system error ", e);
-                }
-            }
         }
         return componentTestResult;
     }
 
     @Override
     public ClusterResource getClusterResource(String pluginInfo) {
-        HadoopConf hadoopConf = null;
-        YarnClient resourceClient = null;
         ClusterResource clusterResource = new ClusterResource();
         try {
             Config allConfig = PublicUtil.jsonStrToObject(pluginInfo, Config.class);
-            hadoopConf = new HadoopConf();
-            hadoopConf.initYarnConf(allConfig.getYarnConf());
-            if (allConfig.isOpenKerberos()) {
-                initSecurity(allConfig);
-            }
-            resourceClient = YarnClient.createYarnClient();
-            resourceClient.init(hadoopConf.getYarnConfiguration());
-            resourceClient.start();
-            List<NodeReport> nodes = resourceClient.getNodeReports(NodeState.RUNNING);
-            List<ClusterResource.NodeDescription> clusterNodes = new ArrayList<>();
-            for (NodeReport rep : nodes) {
-                ClusterResource.NodeDescription node = new ClusterResource.NodeDescription();
-                node.setMemory(rep.getCapability().getMemory());
-                node.setUsedMemory(rep.getUsed().getMemory());
-                node.setUsedVirtualCores(rep.getUsed().getVirtualCores());
-                node.setVirtualCores(rep.getCapability().getVirtualCores());
-                clusterNodes.add(node);
-            }
-            clusterResource.setYarn(clusterNodes);
-            clusterResource.setFlink(this.initTaskManagerResource(yarnClient));
-        } catch (Exception e) {
-            throw new RdosDefineException(e.getMessage());
-        } finally {
-            if (Objects.nonNull(resourceClient)) {
+            KerberosUtils.login(allConfig, () -> {
+                YarnClient resourceClient = null;
                 try {
-                    resourceClient.close();
-                } catch (IOException e) {
+                    HadoopConf hadoopConf = new HadoopConf();
+                    hadoopConf.initYarnConf(allConfig.getYarnConf());
+                    resourceClient = YarnClient.createYarnClient();
+                    resourceClient.init(hadoopConf.getYarnConfiguration());
+                    resourceClient.start();
+                    List<NodeReport> nodes = resourceClient.getNodeReports(NodeState.RUNNING);
+                    List<ClusterResource.NodeDescription> clusterNodes = new ArrayList<>();
+                    for (NodeReport rep : nodes) {
+                        ClusterResource.NodeDescription node = new ClusterResource.NodeDescription();
+                        node.setMemory(rep.getCapability().getMemory());
+                        node.setUsedMemory(rep.getUsed().getMemory());
+                        node.setUsedVirtualCores(rep.getUsed().getVirtualCores());
+                        node.setVirtualCores(rep.getCapability().getVirtualCores());
+                        clusterNodes.add(node);
+                    }
+                    clusterResource.setYarn(clusterNodes);
+                    clusterResource.setFlink(this.initTaskManagerResource(yarnClient));
+                } catch (Exception e) {
                     LOG.error("close reource error ", e);
                 }
-            }
+                if (Objects.nonNull(resourceClient)) {
+                    try {
+                        resourceClient.close();
+                    } catch (IOException e) {
+                        LOG.error("close reource error ", e);
+                    }
+                }
+                return clusterResource;
+            });
+
+        } catch (Exception e) {
+            throw new RdosDefineException(e.getMessage());
         }
         return clusterResource;
     }

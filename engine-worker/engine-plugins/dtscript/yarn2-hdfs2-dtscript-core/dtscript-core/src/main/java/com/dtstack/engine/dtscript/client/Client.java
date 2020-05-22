@@ -1,6 +1,7 @@
 package com.dtstack.engine.dtscript.client;
 
 
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.am.ApplicationMaster;
 import com.dtstack.engine.dtscript.api.DtYarnConstants;
@@ -62,37 +63,41 @@ public class Client {
 
     private static FsPermission JOB_FILE_PERMISSION = FsPermission.createImmutable((short) 0644);
 
-    public Client(DtYarnConfiguration conf) throws IOException, ParseException, ClassNotFoundException, YarnException {
+    public Client(DtYarnConfiguration conf) {
         this.conf = conf;
-        if (KerberosUtils.isOpenKerberos(conf)){
-            LOG.info("start init security!");
-            KerberosUtils.login(conf);
-        }
-        String appSubmitterUserName = System.getenv(ApplicationConstants.Environment.USER.name());
-        if (conf.get("hadoop.job.ugi") == null) {
-            UserGroupInformation ugi = UserGroupInformation.createRemoteUser(appSubmitterUserName);
-            conf.set("hadoop.job.ugi", ugi.getUserName() + "," + ugi.getUserName());
-        }
+        KerberosUtils.login(conf, () -> {
+            try {
+                String appSubmitterUserName = System.getenv(ApplicationConstants.Environment.USER.name());
+                if (conf.get("hadoop.job.ugi") == null) {
+                    UserGroupInformation ugi = UserGroupInformation.createRemoteUser(appSubmitterUserName);
+                    conf.set("hadoop.job.ugi", ugi.getUserName() + "," + ugi.getUserName());
+                }
 
-        this.yarnClient = getYarnClient();
-        this.dfs = getFileSystem();
-        String appMasterJarPath = conf.get(DtYarnConfiguration.DTSCRIPT_APPMASTERJAR_PATH, DtYarnConfiguration.DEFAULT_DTSCRIPT_APPMASTERJAR_PATH);
-        appMasterJar = Utilities.getRemotePath(conf, appMasterJarPath);
-        if (REFRESH_APP_MASTER_JAR.get()) {
-            synchronized (REFRESH_APP_MASTER_JAR) {
+                this.yarnClient = getYarnClient();
+                this.dfs = getFileSystem();
+                String appMasterJarPath = conf.get(DtYarnConfiguration.DTSCRIPT_APPMASTERJAR_PATH, DtYarnConfiguration.DEFAULT_DTSCRIPT_APPMASTERJAR_PATH);
+                appMasterJar = Utilities.getRemotePath(conf, appMasterJarPath);
                 if (REFRESH_APP_MASTER_JAR.get()) {
-                    if (getFileSystem().exists(appMasterJar)) {
-                        if (getFileSystem().delete(appMasterJar)) {
-                            LOG.warn("Could not delete remote path " + appMasterJar.toString());
+                    synchronized (REFRESH_APP_MASTER_JAR) {
+                        if (REFRESH_APP_MASTER_JAR.get()) {
+                            if (getFileSystem().exists(appMasterJar)) {
+                                if (getFileSystem().delete(appMasterJar)) {
+                                    LOG.warn("Could not delete remote path " + appMasterJar.toString());
+                                }
+                            }
+                            Path appJarSrc = new Path(JobConf.findContainingJar(ApplicationMaster.class));
+                            LOG.info("Copying " + appJarSrc + " to remote path " + appMasterJar.toString());
+                            getFileSystem().copyFromLocalFile(false, true, appJarSrc, appMasterJar);
+                            REFRESH_APP_MASTER_JAR.set(false);
                         }
                     }
-                    Path appJarSrc = new Path(JobConf.findContainingJar(ApplicationMaster.class));
-                    LOG.info("Copying " + appJarSrc + " to remote path " + appMasterJar.toString());
-                    getFileSystem().copyFromLocalFile(false, true, appJarSrc, appMasterJar);
-                    REFRESH_APP_MASTER_JAR.set(false);
                 }
+            } catch (IOException e) {
+                LOG.info("DtYarnConfiguration error", e);
+                throw new RdosDefineException(e);
             }
-        }
+            return null;
+        });
     }
 
     public YarnConfiguration init(ClientArguments clientArguments) throws IOException, YarnException, ParseException, ClassNotFoundException {

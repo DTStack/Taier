@@ -36,6 +36,11 @@ public class HadoopConfTool {
     public static final String HADOOP_PROXYUSER_ADMIN_HOSTS = "hadoop.proxyuser.admin.hosts";
     public static final String HADOOP_PROXYUSER_ADMIN_GROUPS = "hadoop.proxyuser.admin.groups";
 
+    public final static String KEY_JAVA_SECURITY_KRB5_CONF = "java.security.krb5.conf";
+    public final static String PRINCIPAL = "principal";
+    public final static String KEYTAB_PATH = "keytabPath";
+    public final static String PRINCIPAL_FILE = "principalFile";
+
     public static String getAuthType(Map<String, Object> conf){
         return MathUtil.getString(conf.get(HADOOP_AUTH_TYPE));
     }

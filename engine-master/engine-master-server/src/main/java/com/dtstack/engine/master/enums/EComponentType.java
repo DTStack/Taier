@@ -161,6 +161,7 @@ public enum EComponentType {
                 return "hive";
             case IMPALA_SQL:
                 return "impala";
+
         }
         return "";
     }
@@ -169,4 +170,5 @@ public enum EComponentType {
     public static List<EComponentType> typeComponentVersion = Lists.newArrayList(EComponentType.DT_SCRIPT,EComponentType.FLINK,EComponentType.LEARNING,EComponentType.SPARK,
             EComponentType.HDFS);
 
+    public static List<EComponentType> notCheckComponent = Lists.newArrayList(EComponentType.SPARK,EComponentType.DT_SCRIPT,EComponentType.LEARNING);
 }

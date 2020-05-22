@@ -271,7 +271,7 @@ public class ClusterService implements InitializingBean {
         JSONObject sftpConfig = clusterConfigJson.getJSONObject(EComponentType.SFTP.getConfName());
         EComponentType componentType = type.getComponentType();
         Component component = componentDao.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode());
-        KerberosConfig kerberosConfig = kerberosDao.getByComponentId(component.getId());
+        KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, componentType.getTypeCode());
         if (MapUtils.isNotEmpty(sftpConfig) && Objects.nonNull(kerberosConfig)) {
             Integer openKerberos = kerberosConfig.getOpenKerberos();
             String remotePath = kerberosConfig.getRemotePath();
@@ -406,7 +406,7 @@ public class ClusterService implements InitializingBean {
         //根据组件区分kerberos
         EComponentType componentType = EComponentType.getByConfName(key);
         Component component = componentDao.getByClusterIdAndComponentType(cluster.getId(),componentType.getTypeCode());
-        KerberosConfig kerberosConfig = kerberosDao.getByComponentId(component.getId());
+        KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(),componentType.getTypeCode());
         JSONObject configObj = config.getJSONObject(key);
         if (configObj != null) {
             addKerberosConfigWithHdfs(key, cluster, kerberosConfig, configObj);
@@ -479,7 +479,7 @@ public class ClusterService implements InitializingBean {
             Preconditions.checkState(Objects.nonNull(kerberosConfig.getOpenKerberos()));
             Preconditions.checkState(StringUtils.isNotEmpty(kerberosConfig.getPrincipal()));
             Preconditions.checkState(StringUtils.isNotEmpty(kerberosConfig.getRemotePath()));
-            Preconditions.checkState(Objects.nonNull(kerberosConfig.getComponentId()));
+            Preconditions.checkState(Objects.nonNull(kerberosConfig.getComponentType()));
             String remoteSftpKerberosPath = componentService.buildSftpPath(kerberosConfig.getClusterId(), component.getComponentTypeCode()) +
                    File.separator +  ComponentService.KERBEROS_PATH;
             String localKerberosPath = componentService.getLocalKerberosPath(kerberosConfig.getClusterId(), component.getComponentTypeCode());
@@ -503,7 +503,8 @@ public class ClusterService implements InitializingBean {
 
     public Map<String, Object> getConfig(ClusterVO cluster,Long dtUicTenantId,String key) {
         JSONObject config = buildClusterConfig(cluster);
-        KerberosConfig kerberosConfig = componentService.getKerberosConfig(cluster.getId());
+        EComponentType componentType = EComponentType.getByConfName(key);
+        KerberosConfig kerberosConfig = componentService.getKerberosConfig(cluster.getId(),componentType.getTypeCode());
 
         JSONObject configObj = config.getJSONObject(key);
         if (configObj != null) {

@@ -23,11 +23,31 @@ public class Config {
 
     private String remoteDir;
 
+    /**
+     * 认证文件名称
+     */
     private String principalFile;
 
     private Map<String, String> sftpConf;
 
+    /**
+     * 组件名称
+     */
     private String componentName;
+
+    /**
+     * krb5conf名称
+     * @return
+     */
+    private String krbName;
+
+    public String getKrbName() {
+        return krbName;
+    }
+
+    public void setKrbName(String krbName) {
+        this.krbName = krbName;
+    }
 
     public String getComponentName() {
         return componentName;
