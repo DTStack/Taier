@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.impl;
 
+import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
-import org.apache.ibatis.annotations.Param;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ public class ProjectService {
     @Autowired
     private ScheduleTaskShadeDao scheduleTaskShadeDao;
 
-    public void updateSchedule(@Param("projectId")Long projectId,@Param("appType")Integer appType,@Param("scheduleStatus")Integer scheduleStatus) {
+    public void updateSchedule(@Param("projectId")Long projectId, @Param("appType")Integer appType, @Param("scheduleStatus")Integer scheduleStatus) {
         if (Objects.isNull(projectId) || Objects.isNull(appType) || Objects.isNull(scheduleStatus)) {
             return;
         }
