@@ -11,8 +11,8 @@
     <modelVersion>4.0.0</modelVersion>
 
 
-    <artifactId>plugins.yarn3-hdfs3-spark210</artifactId>
-    <name>plugins.yarn3-hdfs3-spark210</name>
+    <artifactId>plugins.spark.yarn3-hdfs3-spark210</artifactId>
+    <name>plugins.spark.yarn3-hdfs3-spark210</name>
     <packaging>pom</packaging>
 
     <properties>
