@@ -933,7 +933,7 @@ public class ComponentService {
         if (EComponentType.SFTP.getTypeCode() == componentType) {
             dataInfo.put("componentType", EComponentType.SFTP.getName());
         } else if (EComponentType.SPARK_THRIFT.getTypeCode() == componentType) {
-            String jdbcUrl = dataInfo.getString("jdbcUrl");
+            String jdbcUrl = dataInfo.getString("dbUrl");
             if (StringUtils.isBlank(jdbcUrl)) {
                 throw new RdosDefineException("jdbcUrl不能为空");
             }
@@ -1145,7 +1145,7 @@ public class ComponentService {
             return String.format("%s-%s-dtscript", resourceSign, storageSign);
         }
         if (EComponentType.SPARK.getTypeCode() == componentType) {
-            return String.format("%s-%s-spark%s", resourceSign, storageSign, "2.1.x".equals(version) ? "210" : "240");
+            return String.format("%s-%s-spark%s", resourceSign, storageSign, "2.1.x".equalsIgnoreCase(version) ? "210" : "240");
         }
         throw new RdosDefineException("暂无对应组件默认配置");
     }

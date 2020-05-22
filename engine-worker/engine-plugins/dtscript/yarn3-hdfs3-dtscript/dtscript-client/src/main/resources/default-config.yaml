@@ -1,18 +1,25 @@
-common:
+commonConf:
+  controls: group
   required:
     java.home: /opt/dtstack/java/bin
     hadoop.home.dir: /data/hadoop_base
 
-python:
+pythonConf:
+  controls: group
   optional:
     python2.path: /data/anaconda2/bin/python2
     python3.path: /data/anaconda3/bin/python3
 
-jupyter:
+jupyterConf:
+  controls: group
   optional:
     jupyter.path: /data/anaconda3/bin/jupyter-lab
-    c.NotebookApp.open_browser: [False,True]
-    c.NotebookApp.allow_remote_access: [True, False]
+    c.NotebookApp.open_browser:
+      controls: select
+      values: [true,false]
+    c.NotebookApp.allow_remote_access:
+      controls: select
+      values: [true,false]
     c.NotebookApp.ip: '*'
     c.NotebookApp.token: ''
     c.NotebookApp.default_url: '/lab'
