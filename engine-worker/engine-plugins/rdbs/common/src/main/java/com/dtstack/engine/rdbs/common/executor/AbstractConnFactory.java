@@ -111,7 +111,14 @@ public abstract class AbstractConnFactory {
         return true;
     }
 
-    public boolean supportProcedure() {
+    public boolean supportProcedure(String sql) {
+        if (dealWithProcedure(sql)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean dealWithProcedure(String sql) {
         return true;
     }
 

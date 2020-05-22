@@ -104,7 +104,14 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
     public Map<String ,Object> countTaskByType(@Param("tenantId") Long tenantId,@Param("dtuicTenantId") Long dtuicTenantId,
                                                @Param("projectId") Long projectId, @Param("appType") Integer appType,
                                                @Param("taskTypes") List<Integer> taskTypes){
-        return scheduleTaskShadeDao.countTaskByType(tenantId,dtuicTenantId,projectId,appType,taskTypes);
+        List<Map<String, Object>> maps = scheduleTaskShadeDao.countTaskByType(tenantId, dtuicTenantId, Lists.newArrayList(projectId), appType, taskTypes);
+        return CollectionUtils.isNotEmpty(maps) ? maps.get(0) : new HashMap<>();
+    }
+
+    public List<Map<String ,Object>> countTaskByTypes(@Param("tenantId") Long tenantId,@Param("dtuicTenantId") Long dtuicTenantId,
+                                               @Param("projectIds") List<Long> projectIds, @Param("appType") Integer appType,
+                                               @Param("taskTypes") List<Integer> taskTypes){
+        return scheduleTaskShadeDao.countTaskByType(tenantId,dtuicTenantId,projectIds,appType,taskTypes);
     }
 
 

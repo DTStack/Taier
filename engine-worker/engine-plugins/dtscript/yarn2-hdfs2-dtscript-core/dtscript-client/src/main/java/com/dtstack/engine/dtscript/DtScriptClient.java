@@ -1,6 +1,5 @@
 package com.dtstack.engine.dtscript;
 
-import com.dtstack.engine.common.client.config.YamlConfigParser;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MathUtil;
@@ -24,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.Arrays;
@@ -54,17 +52,6 @@ public class DtScriptClient extends AbstractClient {
     private Client client;
 
     private DtYarnConfiguration conf = new DtYarnConfiguration();
-
-    public DtScriptClient() {
-        try {
-            InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(PLUGIN_DEFAULT_CONFIG_NAME);
-            Map<String, Object> config = YamlConfigParser.INSTANCE.parse(resourceAsStream);
-            defaultPlugins = super.convertMapTemplateToConfig(config);
-            LOG.info("=======DtScriptClient============{}", defaultPlugins);
-        } catch (Exception e) {
-            LOG.error("DtScript client init default config error {}", e);
-        }
-    }
 
     @Override
     public void init(Properties prop) throws Exception {

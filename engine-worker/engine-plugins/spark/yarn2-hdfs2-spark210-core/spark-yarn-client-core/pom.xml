@@ -3,14 +3,15 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>plugins.yarn2-hdfs2-spark210-core</artifactId>
+        <artifactId>plugins.spark.yarn2-hdfs2-spark210-core</artifactId>
         <groupId>com.dtstack.engine</groupId>
         <version>1.0.0</version>
+        <relativePath>..</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>plugins.yarn2-hdfs2-spark210-core.spark-yarn-client-core</artifactId>
-    <name>plugins.yarn2-hdfs2-spark210-core.spark-yarn-client-core</name>
+    <artifactId>plugins.spark.yarn2-hdfs2-spark210-core.spark-yarn-client-core</artifactId>
+    <name>plugins.spark.yarn2-hdfs2-spark210-core.spark-yarn-client-core</name>
     <packaging>jar</packaging>
 
     <dependencies>

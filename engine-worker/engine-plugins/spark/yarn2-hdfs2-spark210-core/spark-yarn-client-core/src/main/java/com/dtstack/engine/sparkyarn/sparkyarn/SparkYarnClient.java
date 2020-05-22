@@ -6,7 +6,6 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.JobParam;
 import com.dtstack.engine.common.client.AbstractClient;
-import com.dtstack.engine.common.client.config.YamlConfigParser;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
@@ -44,7 +43,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.*;
 
@@ -95,17 +93,6 @@ public class SparkYarnClient extends AbstractClient {
     private YarnClient yarnClient;
 
     private Properties sparkExtProp;
-
-    public SparkYarnClient() {
-        try {
-            InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(PLUGIN_DEFAULT_CONFIG_NAME);
-            Map<String, Object> config = YamlConfigParser.INSTANCE.parse(resourceAsStream);
-            defaultPlugins = super.convertMapTemplateToConfig(config);
-            logger.info("=======SparkYarnClient============{}", defaultPlugins);
-        } catch (Exception e) {
-            logger.error("spark client init default config error {}", e);
-        }
-    }
 
     @Override
     public void init(Properties prop) throws Exception {

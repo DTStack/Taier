@@ -164,8 +164,8 @@ public abstract class AbstractClient implements IClient {
                         ClientTemplate group = new ClientTemplate();
                         group.setKey(key);
                         Map<String, Object> groupValueMap = (Map<String, Object>) groupValue;
-                        group.setDependencyKey(String.valueOf(groupValueMap.get("dependencyKey")));
-                        group.setDependencyValue(String.valueOf(groupValueMap.get("dependencyValue")));
+                        group.setDependencyKey(String.valueOf(groupValueMap.getOrDefault("dependencyKey","")));
+                        group.setDependencyValue(String.valueOf(groupValueMap.getOrDefault("dependencyValue","")));
                         //控件类型
                         if (StringUtils.isNotBlank(controls)) {
                             group.setType(controls.toUpperCase());
@@ -276,8 +276,8 @@ public abstract class AbstractClient implements IClient {
                     }
                 } else {
                     //依赖 radio 的选择的输入框
-                    templateVo.setDependencyKey(String.valueOf(defaultMap.get("dependencyKey")));
-                    templateVo.setDependencyValue(String.valueOf(defaultMap.get("dependencyValue")));
+                    templateVo.setDependencyKey(String.valueOf(defaultMap.getOrDefault("dependencyKey","")));
+                    templateVo.setDependencyValue(String.valueOf(defaultMap.getOrDefault("dependencyValue","")));
                     templateVo.setType(EFrontType.INPUT.name());
                 }
 

@@ -1543,14 +1543,6 @@
 	   where job_id=#{jobId};
    </update>
 
-    <update id="updateJobUnSubmitOrRestart">
-       update schedule_job
-       set status=#{status},
-       application_id = null, engine_job_id = null, engine_log = null, log_info = null,
-       retry_task_params = null, exec_end_time = null,exec_start_time = null, exec_time = 0, gmt_modified=now()
-       where job_id=#{jobId};
-   </update>
-
     <update id="updateJobStatusAndExecTime">
 	   update schedule_job set gmt_modified=now(), exec_end_time=now(), status=#{status}, exec_time=timestampdiff(SECOND, exec_start_time, now()) where job_id=#{jobId};
    </update>

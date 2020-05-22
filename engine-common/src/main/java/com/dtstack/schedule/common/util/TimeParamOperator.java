@@ -9,6 +9,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
@@ -32,9 +33,11 @@ public class TimeParamOperator {
     private static final String MONTH_FMT = "yyyyMM";
     private static final String YEAR_FMT = "yyyy";
 
+    private static final String SYSTEM_CURRENTTIME = "bdp.system.currenttime";
+
     private static final DateTimeFormatter cycTimeFormat = DateTimeFormat.forPattern(STD_FMT);
 
-    private static final DateTimeFormatter dayDtFmt = DateTimeFormat.forPattern(DAY_FMT);
+    private static final String ISODATE_FORMATE = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
     private static final Pattern pattern = Pattern.compile("([a-zA-Z]{4,14})\\s*([\\-\\+])\\s*(\\d+)");
 
@@ -44,6 +47,12 @@ public class TimeParamOperator {
             "|HH:mm:ss|yyyy-MM-dd HH:mm:ss|yyyy-MM-dd?";
 
     private static final Pattern formattedPattern = Pattern.compile(FORMATTED_TIME);
+
+    /**
+     * format 函数解析 日期类型
+     */
+    private static final Pattern FORMAT_PATTERN = Pattern.compile(
+            "(?i)format\\s*\\(\\s*(?<format>[a-zA-Z\\:\\-]+)\\s*(?<operate>[\\+\\-]*)\\s*(?<number>[0-9]*)\\s*(?<unit>[a-zA-Z]+)\\s*,\\s*\\'(?<formatResult>[0-9a-zA-Z\\:\\-\\s\\/]+)\\'");
 
     /**
      * 根据基准的时间转换出目标时间
@@ -66,40 +75,58 @@ public class TimeParamOperator {
     }
 
     public static String dealTimeOperator(String command, String cycTime) {
-        Matcher matcher = pattern.matcher(command);
-        if (matcher.find() && matcher.groupCount() == 3) {
+        //增加一种系统参数。格式：yyyy-MM-dd,-1 逗号左侧为format，右边为时间运算表达式
+        String[] split = command.split(",");
+        String realCommand = null;
+        String realOperator = null;
+        String realOperatorNum = null;
+        if (split.length == 2){
+            realCommand = split[0];
+            realOperator = split[1].substring(0, 1);
+            realOperatorNum = split[1].substring(1, split[1].length());
+        }else {
+            Matcher matcher = pattern.matcher(command);
+            if (!(matcher.find() && matcher.groupCount() == 3)) {
+                throw new RdosDefineException("illegal command " + command);
+            }
             String timeFmtStr = matcher.group(1).trim();
+            realCommand = timeFmtStr;
             String operatorStr = matcher.group(2).trim();
+            realOperator = operatorStr;
             String operatorNumStr = matcher.group(3).trim();
-            int operatorNum = MathUtil.getIntegerVal(operatorNumStr);
+            realOperatorNum = operatorNumStr;
+        }
 
-            if ("-".equals(operatorStr)) {
-                if (timeFmtStr.length() == 8) {
-                    return minusDay(operatorNum, cycTime, timeFmtStr);
-                } else if (timeFmtStr.length() == 6) {
-                    return minusMonth(operatorNum, cycTime, timeFmtStr);
-                } else if (timeFmtStr.length() == 4) {
-                    return minusYear(operatorNum, cycTime, timeFmtStr);
-                } else {
-                    throw new RdosDefineException("illegal command " + command);
-                }
-            } else if ("+".equals(operatorStr)) {
-                if (timeFmtStr.length() == 8) {
-                    return plusDay(operatorNum, cycTime, timeFmtStr);
-                } else if (timeFmtStr.length() == 6) {
-                    return plusMonth(operatorNum, cycTime, timeFmtStr);
-                } else if (timeFmtStr.length() == 4) {
-                    return plusYear(operatorNum, cycTime, timeFmtStr);
-                } else {
-                    throw new RdosDefineException("illegal command " + command);
-                }
+        int operatorNum = MathUtil.getIntegerVal(realOperatorNum);
+
+        if ("-".equals(realOperator)) {
+            if (realCommand.length() == 10){
+                return minusDay(operatorNum, cycTime, realCommand);
+            } else if (realCommand.length() == 8) {
+                return minusDay(operatorNum, cycTime, realCommand);
+            } else if (realCommand.length() == 6) {
+                return minusMonth(operatorNum, cycTime, realCommand);
+            } else if (realCommand.length() == 4) {
+                return minusYear(operatorNum, cycTime, realCommand);
             } else {
                 throw new RdosDefineException("illegal command " + command);
             }
-
+        } else if ("+".equals(realOperator)) {
+            if (realCommand.length() == 10){
+                return minusDay(operatorNum, cycTime, realCommand);
+            }else if (realCommand.length() == 8) {
+                return plusDay(operatorNum, cycTime, realCommand);
+            } else if (realCommand.length() == 6) {
+                return plusMonth(operatorNum, cycTime, realCommand);
+            } else if (realCommand.length() == 4) {
+                return plusYear(operatorNum, cycTime, realCommand);
+            } else {
+                throw new RdosDefineException("illegal command " + command);
+            }
         } else {
             throw new RdosDefineException("illegal command " + command);
         }
+
     }
 
     public static String dealCustomizeTimeOperator(String command, String cycTime) {
@@ -108,7 +135,9 @@ public class TimeParamOperator {
         String timeFmtStr = "";
         if (command.startsWith("$[") && command.endsWith("]")) {  //需要计算的变量
             String line = command.substring(2, command.indexOf("]")).trim();
-            if (line.startsWith("add_months")) {
+            if (line.startsWith("format")) {
+                return doFormatFunction(line, cycTime);
+            } else if (line.startsWith("add_months")) {
                 String params = line.substring(line.indexOf("(") + 1, line.indexOf(")"));
                 String[] paramsArrays = params.split(",");
                 timeFmtStr = paramsArrays[0].trim();
@@ -188,7 +217,7 @@ public class TimeParamOperator {
                 } else if (formattedPattern.matcher(line).matches()) {
                     //时间格式化
                     try {
-                        FastDateFormat cycDate = FastDateFormat.getInstance("yyyyMMddHHmmss", TimeZone.getTimeZone("GMT+8"));
+                        FastDateFormat cycDate = FastDateFormat.getInstance(STD_FMT, TimeZone.getTimeZone("GMT+8"));
                         Date cycd = cycDate.parse(cycTime);
                         if (line.contains("hh24")) {
                             line = line.replaceAll("hh24", "HH");
@@ -209,14 +238,85 @@ public class TimeParamOperator {
                 return convertResultWithSplit(result,timeFmtStr,split.trim());
             }
             return result;
-
         } else if (command.startsWith("${") && command.endsWith("}")) {
+            // 特殊处理 ${bdp.system.currenttime}
+            if (SYSTEM_CURRENTTIME.equals(command.substring(2, command.length() - 1).trim())) {
+                return new SimpleDateFormat(STD_FMT).format(new Date());
+            }
+
             // 支持基于业务日期作为基准取值的格式 时间减一天，其余照原逻辑处理 不多做任何校验
-            String yesterdayCycTime = minusDay(1, cycTime, "yyyyMMddHHmmss");
+            String yesterdayCycTime = minusDay(1, cycTime, STD_FMT);
             String normalCommand = command.replaceFirst("\\{", "[").replaceFirst("}", "]");
             return dealCustomizeTimeOperator(normalCommand, yesterdayCycTime);
+        } else if (command.startsWith("$(") && command.endsWith(")")) {
+            // 支持基于当前时间作为基准取值的格式，其余照原逻辑处理 不多做任何校验
+            String currentTime = new SimpleDateFormat(STD_FMT).format(new Date());
+            String normalCommand = command.replaceFirst("\\(", "[");
+            normalCommand = normalCommand.substring(0, normalCommand.length() - 1) + "]";
+            return dealCustomizeTimeOperator(normalCommand, currentTime);
         } else {
             return command;  //直接返回
+        }
+    }
+
+    /**
+     * 处理 format 函数
+     * @param line
+     * @param cycTime
+     * @return
+     */
+    private static String doFormatFunction (String line, String cycTime) {
+        Matcher formattedMatch = FORMAT_PATTERN.matcher(line);
+        if (!formattedMatch.find()) {
+            throw new RdosDefineException("illegal command " + line);
+        }
+
+        // 获取需要处理的属性
+        String format = formattedMatch.group("format");
+        Boolean operate = "+".equals(formattedMatch.group("operate"));
+        Integer number = StringUtils.isBlank(formattedMatch.group("number")) ? 0 : Integer.valueOf(formattedMatch.group("number"));
+        String unit = formattedMatch.group("unit");
+        String formatResult = formattedMatch.group("formatResult");
+        return doFormatFunctionCyctime(cycTime, operate, number, unit, formatResult);
+    }
+
+    /**
+     * 处理时间 3y，3M，3d，3H，3m，3s
+     * 基础单位 yyyyMMddHHmmss
+     * @param cycTime
+     * @param operate 操作 + / -
+     * @param number 数量
+     * @param unit 单位
+     * @param formatResult 返回值结构
+     * @return
+     */
+    private static String doFormatFunctionCyctime(String cycTime, Boolean operate, Integer number, String unit, String formatResult) {
+        switch (unit) {
+            case "y" :
+                return operate ? plusYear(number, cycTime, formatResult) : minusYear(number, cycTime, formatResult);
+
+            case "M" :
+                return operate ? plusMonth(number, cycTime, formatResult) : minusMonth(number, cycTime, formatResult);
+
+
+            case "d" :
+                return operate ? plusDay(number, cycTime, formatResult) : minusDay(number, cycTime, formatResult);
+
+
+            case "H" :
+                return operate ? plusHour(number, cycTime, formatResult) : minusHour(number, cycTime, formatResult);
+
+
+            case "m" :
+                return operate ? plusMinute(number, cycTime, formatResult) : minusMinute(number, cycTime, formatResult);
+
+
+            case "w" :
+                return operate ? plusDay(number * 7, cycTime, formatResult) : minusDay(number * 7, cycTime, formatResult);
+
+
+            default:
+                return operate ? plusSecond(number, cycTime, formatResult) : minusSecond(number, cycTime, formatResult);
         }
     }
 
@@ -224,7 +324,7 @@ public class TimeParamOperator {
         String fmt = "";
         StringBuilder convertResult = new StringBuilder();
         if ("hh24miss".equals(timeFmtStr)) {
-            timeFmtStr = "yyyyMMddHHmmss";
+            timeFmtStr = STD_FMT;
         }
         for (int i = 0; i < timeFmtStr.length(); i++) {
             if (StringUtils.isBlank(fmt)) {
@@ -239,126 +339,93 @@ public class TimeParamOperator {
         return convertResult.toString();
     }
 
+    private static String dealDateTimeFormat (DateTime dateTime, String format) {
+        // 如果为 Unix 时间戳
+        if ("UnixTimestamp10".equalsIgnoreCase(format.trim())) {
+            return String.valueOf(dateTime.getMillis() / 1000);
+        }
+
+        // 如果为 Unix 时间戳
+        if ("UnixTimestamp13".equalsIgnoreCase(format.trim())) {
+            return String.valueOf(dateTime.getMillis());
+        }
+
+        if ("ISODate".equalsIgnoreCase(format.trim())) {
+            format = ISODATE_FORMATE;
+        }
+
+        return dateTime.toString(format);
+    }
+
     public static String plusHour(int n, String cycTime, String format) {
         DateTime dateTime = cycTimeFormat.parseDateTime(cycTime);
         dateTime = dateTime.plusHours(n);
-        return dateTime.toString(format);
+        return dealDateTimeFormat(dateTime, format);
     }
 
     public static String minusHour(int n, String cycTime, String format) {
         DateTime dateTime = cycTimeFormat.parseDateTime(cycTime);
         dateTime = dateTime.minusHours(n);
-        return dateTime.toString(format);
+        return dealDateTimeFormat(dateTime, format);
     }
 
     public static String plusMinute(int n, String cycTime, String format) {
         DateTime dateTime = cycTimeFormat.parseDateTime(cycTime);
         dateTime = dateTime.plusMinutes(n);
-        return dateTime.toString(format);
+        return dealDateTimeFormat(dateTime, format);
     }
 
     public static String minusMinute(int n, String cycTime, String format) {
         DateTime dateTime = cycTimeFormat.parseDateTime(cycTime);
         dateTime = dateTime.minusMinutes(n);
-        return dateTime.toString(format);
+        return dealDateTimeFormat(dateTime, format);
+    }
+
+    public static String plusSecond(int n, String cycTime, String format) {
+        DateTime dateTime = cycTimeFormat.parseDateTime(cycTime);
+        dateTime = dateTime.plusSeconds(n);
+        return dealDateTimeFormat(dateTime, format);
+    }
+
+    public static String minusSecond(int n, String cycTime, String format) {
+        DateTime dateTime = cycTimeFormat.parseDateTime(cycTime);
+        dateTime = dateTime.minusSeconds(n);
+        return dealDateTimeFormat(dateTime, format);
     }
 
     public static String plusDay(int n, String cycTime, String format) {
         DateTime dateTime = cycTimeFormat.parseDateTime(cycTime);
         dateTime = dateTime.plusDays(n);
-        return dateTime.toString(format);
+        return dealDateTimeFormat(dateTime, format);
     }
 
     public static String minusDay(int n, String cycTime, String format) {
         DateTime dateTime = cycTimeFormat.parseDateTime(cycTime);
         dateTime = dateTime.minusDays(n);
-        return dateTime.toString(format);
+        return dealDateTimeFormat(dateTime, format);
     }
 
     public static String plusMonth(int n, String cycTime, String format) {
         DateTime dateTime = cycTimeFormat.parseDateTime(cycTime);
         dateTime = dateTime.plusMonths(n);
-        return dateTime.toString(format);
+        return dealDateTimeFormat(dateTime, format);
     }
 
     public static String minusMonth(int n, String cycTime, String format) {
         DateTime dateTime = cycTimeFormat.parseDateTime(cycTime);
         dateTime = dateTime.minusMonths(n);
-        return dateTime.toString(format);
+        return dealDateTimeFormat(dateTime, format);
     }
 
     public static String plusYear(int n, String cycTime, String format) {
         DateTime dateTime = cycTimeFormat.parseDateTime(cycTime);
         dateTime = dateTime.plusYears(n);
-        return dateTime.toString(format);
+        return dealDateTimeFormat(dateTime, format);
     }
 
     public static String minusYear(int n, String cycTime, String format) {
         DateTime dateTime = cycTimeFormat.parseDateTime(cycTime);
         dateTime = dateTime.minusYears(n);
-        return dateTime.toString(format);
+        return dealDateTimeFormat(dateTime, format);
     }
-
-
-    public static void main(String[] args) throws ParseException {
-        String result = TimeParamOperator.transform("yyyyMM - 1", "20171212010101");
-        System.out.println(result);
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[add_months(yyyyMM,10,'-')]", "20180607010101"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[add_months(yyyyMM,-6,'/')]", "20180607010101"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[add_months(yyyyMM,-6,':')]", "20180607010101"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[add_months(yyyyMM,10)]", "20180607010101"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[add_months(yyyyMM,-10)]", "20180607010101"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[add_months(yyyy,-10)]", "20180607010101"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[add_months(yyyy,10)]", "20180607010101"));
-
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[yyyyMMdd+7*1,'-']", "20180607010101"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[yyyyMMdd-7*1,'-']", "20180607010101"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[yyyyMMdd+10,'-']", "20180607010101"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[yyyyMMdd-10,'-']", "20180607010101"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[hh24miss+3/24,'-']", "20180607030000"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[hh24miss-4/24,'-']", "20180607030000"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[hh24miss+3/24/60,'-']", "20180607030000"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[hh24miss-3/24/60,'-']", "20180607030000"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[yyyyMM,':']", "20180607030000"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[yyyyMMdd,':']", "20180607030000"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[yyyyMMddHH,':']", "20180607030000"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[yyyyMMddHHmm,':']", "20180607030000"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[yyyyMMddHHmmss,':']", "20180607172233"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[yyyyMMddhh24,':']", "20180607172233"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[yyyyMMddhh24mm,':']", "20180607172233"));
-
-
-
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[add_months(yyyyMMdd,12*2)]", "20180607010101"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[add_months(yyyyMMdd,-12*1)]", "20180607010101"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[add_months(yyyyMMdd,2)]", "20180607010101"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[add_months(yyyyMMdd,-2)]", "20180607010101"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[yyyyMMdd+7*1]", "20180607010101"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[yyyyMMdd-7*1]", "20180607010101"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[yyyyMMdd+10]", "20180607010101"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[yyyyMMdd-10]", "20180607010101"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[hh24miss+3/24]", "20180607030000"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[hh24miss-4/24]", "20180607030000"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[hh24miss+3/24/60]", "20180607030000"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[hh24miss-3/24/60]", "20180607030000"));
-
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[yyyy]", "20180607030000"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[mm]", "20180607030000"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[dd]", "20180607030000"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[HH]", "20180607031700"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[MM]", "20180607030000"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[ss]", "20180607030000"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[yyyyMM]", "20180607030000"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[yyyyMMdd]", "20180607030000"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[yyyyMMddHH]", "20180607030000"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[yyyyMMddHHmm]", "20180607030000"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[yyyyMMddHHmmss]", "20180607172233"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[yyyyMMddhh24]", "20180607172233"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[yyyyMMddhh24mm]", "20180607172233"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[yyyy-MM-dd]", "20180607172233"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[yyyy-MM-dd HH:mm:ss]", "20180607172233"));
-        System.out.println(TimeParamOperator.dealCustomizeTimeOperator("$[HH:mm:ss]", "20180607172233"));
-
-    }
-
 }

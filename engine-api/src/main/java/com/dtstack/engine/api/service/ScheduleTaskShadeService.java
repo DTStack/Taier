@@ -139,5 +139,7 @@ public interface ScheduleTaskShadeService {
                                                @Param("projectId") Long projectId, @Param("appType") Integer appType,
                                                @Param("taskTypes") List<Integer> taskTypes);
 
-
+    List<Map<String ,Object>> countTaskByTypes(@Param("tenantId") Long tenantId,@Param("dtuicTenantId") Long dtuicTenantId,
+                     @Param("projectIds") List<Long> projectIds, @Param("appType") Integer appType,
+                     @Param("taskTypes") List<Integer> taskTypes);
 }

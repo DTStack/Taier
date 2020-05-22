@@ -10,13 +10,12 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>plugins.learning.learning-hadoop2</artifactId>
-    <name>plugins.learning.learning-hadoop2</name>
+    <artifactId>plugins.learning.yarn2-hdfs2-learning-core</artifactId>
+    <name>plugins.learning.yarn2-hdfs2-learning-core</name>
     <packaging>pom</packaging>
 
     <properties>
         <junit.version>4.11</junit.version>
-        <learning.version>3.6.0-SNAPSHOT</learning.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 

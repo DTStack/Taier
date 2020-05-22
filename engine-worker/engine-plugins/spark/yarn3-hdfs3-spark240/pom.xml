@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>plugins.yarn3-hdfs3-spark240</artifactId>
+    <artifactId>plugins.spark.yarn3-hdfs3-spark240</artifactId>
     <packaging>pom</packaging>
 
     <properties>

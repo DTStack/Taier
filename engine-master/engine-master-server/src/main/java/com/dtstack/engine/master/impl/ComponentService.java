@@ -244,7 +244,8 @@ public class ComponentService {
         Set<Long> dtUicTenantIds = new HashSet<>();
         if (Objects.nonNull(componentCode) && (
                 EComponentType.TIDB_SQL.getTypeCode() == componentCode ||
-                        EComponentType.LIBRA_SQL.getTypeCode() == componentCode)) {
+                EComponentType.LIBRA_SQL.getTypeCode() == componentCode ||
+                EComponentType.ORACLE_SQL.getTypeCode() == componentCode)) {
 
             //tidb 和libra 没有queue
             List<EngineTenantVO> tenantVOS = engineTenantDao.listEngineTenant(engineId);
@@ -944,6 +945,9 @@ public class ComponentService {
         } else if (EComponentType.YARN.getTypeCode() == componentType) {
             Map map = JSONObject.parseObject(componentConfig, Map.class);
             dataInfo.put("yarnConf", map);
+        } else if (EComponentType.HDFS.getTypeCode() == componentType) {
+            Map map = JSONObject.parseObject(componentConfig, Map.class);
+            dataInfo.put("hadoopConf", map);
         }
         return dataInfo.toJSONString();
     }

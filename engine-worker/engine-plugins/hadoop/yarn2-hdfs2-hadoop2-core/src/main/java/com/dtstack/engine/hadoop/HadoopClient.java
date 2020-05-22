@@ -196,7 +196,7 @@ public class HadoopClient extends AbstractClient {
             mr.run();
             LOG.info("mr jobId:{} jobName:{}", mr.getJobId(), jobParam.getJobName());
             return JobResult.createSuccessResult(mr.getJobId());
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             LOG.error("", ex);
             return JobResult.createErrorResult(ex);
         }
@@ -510,6 +510,7 @@ public class HadoopClient extends AbstractClient {
             });
 
         } catch (Exception e) {
+            LOG.error("close hdfs connect  error ", e);
             componentTestResult.setResult(false);
             componentTestResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
         }

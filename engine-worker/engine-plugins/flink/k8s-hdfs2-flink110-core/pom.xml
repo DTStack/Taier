@@ -10,8 +10,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>plugins.k8s-hdfs2-flink110-core</artifactId>
-    <name>plugins.k8s-hdfs2-flink110-core</name>
+    <artifactId>plugins.flink.k8s-hdfs2-flink110-core</artifactId>
+    <name>plugins.flink.k8s-hdfs2-flink110-core</name>
 
     <properties>
         <flink.version>1.10.0</flink.version>
