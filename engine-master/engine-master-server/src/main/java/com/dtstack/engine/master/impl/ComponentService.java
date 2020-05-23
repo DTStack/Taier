@@ -932,16 +932,16 @@ public class ComponentService {
         dataInfo.put("sftpConf", sftpConfig);
         if (EComponentType.SFTP.getTypeCode() == componentType) {
             dataInfo.put("componentType", EComponentType.SFTP.getName());
-        } else if (EComponentType.SPARK_THRIFT.getTypeCode() == componentType) {
-            String jdbcUrl = dataInfo.getString("dbUrl");
+        } else if (EComponentType.sqlComponent.contains(EComponentType.getByCode(componentType))) {
+            String jdbcUrl = dataInfo.getString("jdbcUrl");
             if (StringUtils.isBlank(jdbcUrl)) {
                 throw new RdosDefineException("jdbcUrl不能为空");
             }
             //数据库连接不带%s
             String dbUrl = jdbcUrl.substring(0, jdbcUrl.lastIndexOf("/"));
-            dataInfo.put("dbUrl", dbUrl);
-            dataInfo.put("userName", dataInfo.getString("username"));
-            dataInfo.put("pwd", dataInfo.getString("password"));
+            dataInfo.put("jdbcUrl", dbUrl);
+            dataInfo.put("username", dataInfo.getString("username"));
+            dataInfo.put("password", dataInfo.getString("password"));
         } else if (EComponentType.YARN.getTypeCode() == componentType) {
             Map map = JSONObject.parseObject(componentConfig, Map.class);
             dataInfo.put("yarnConf", map);
