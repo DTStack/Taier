@@ -567,10 +567,10 @@ public class ClusterService implements InitializingBean {
             this.convertSQLComponent(oracleConf,pluginInfo);
             pluginInfo.put("typeName", "oracle");
         } else {
-            //flink 需要区分任务类型
-            if (EComponentType.FLINK.equals(type.getComponentType())) {
+            //flink spark 需要区分任务类型
+            if (EComponentType.FLINK.equals(type.getComponentType()) || EComponentType.SPARK.equals(type.getComponentType())) {
                 //默认为perjob
-                EDeployMode deploy = EDeployMode.SESSION;
+                EDeployMode deploy = EComponentType.FLINK.equals(type.getComponentType()) ? EDeployMode.SESSION : EDeployMode.PERJOB;
                 if (Objects.nonNull(deployMode)) {
                     deploy = EDeployMode.getByType(deployMode);
                 }
@@ -579,6 +579,17 @@ public class ClusterService implements InitializingBean {
                 if (Objects.isNull(pluginInfo)) {
                     throw new RdosDefineException(String.format("对应模式【%s】未配置信息", deploy.name()));
                 }
+                String typeName = flinkConf.getString(TYPE_NAME);
+                if (!StringUtils.isBlank(typeName)) {
+                    pluginInfo.put(TYPE_NAME, typeName);
+                }
+            } else if (EComponentType.DT_SCRIPT.equals(type.getComponentType())) {
+                //DT_SCRIPT 需要将common配置放在外边
+                JSONObject dtscriptConf = clusterConfigJson.getJSONObject(type.getComponentType().getConfName());
+                JSONObject commonConf = dtscriptConf.getJSONObject("commonConf");
+                dtscriptConf.remove("commonConf");
+                pluginInfo = dtscriptConf;
+                pluginInfo.putAll(commonConf);
             } else {
                 pluginInfo = clusterConfigJson.getJSONObject(type.getComponentType().getConfName());
             }

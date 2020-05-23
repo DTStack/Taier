@@ -167,7 +167,7 @@ public enum EComponentType {
 
     // 需要添加TypeName的组件
     public static List<EComponentType> typeComponentVersion = Lists.newArrayList(EComponentType.DT_SCRIPT,EComponentType.FLINK,EComponentType.LEARNING,EComponentType.SPARK,
-            EComponentType.HDFS);
+            EComponentType.HDFS,EComponentType.FLINK);
 
     public static List<EComponentType> notCheckComponent = Lists.newArrayList(EComponentType.SPARK,EComponentType.DT_SCRIPT,EComponentType.LEARNING,EComponentType.FLINK);
 

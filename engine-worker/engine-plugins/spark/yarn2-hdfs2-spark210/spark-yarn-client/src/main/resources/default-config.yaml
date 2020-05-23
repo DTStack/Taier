@@ -17,5 +17,4 @@ perjob:
     spark.eventLog.compress: true
     spark.eventLog.enabled: true
     spark.eventLog.dir: hdfs://ns1/tmp/spark-yarn-logs
-    confHdfsPath:
 
