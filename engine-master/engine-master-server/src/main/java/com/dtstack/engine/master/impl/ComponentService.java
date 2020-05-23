@@ -626,6 +626,7 @@ public class ComponentService {
         }
         ComponentVO componentVO = ComponentVO.toVO(addComponent, true);
         componentVO.setClusterName(clusterName);
+        this.updateCache(engine.getId(),componentType.getTypeCode());
         return componentVO;
     }
 
@@ -864,7 +865,7 @@ public class ComponentService {
             throw new RdosDefineException("测试联通性失败");
         }
         componentTestResult.setComponentTypeCode(componentType);
-        if (componentTestResult.isResult() && Objects.nonNull(engineId)) {
+        if (componentTestResult.getResult() && Objects.nonNull(engineId)) {
             updateCache(engineId, componentType);
         } else {
             throw new RdosDefineException(componentTestResult.getErrorMsg());
