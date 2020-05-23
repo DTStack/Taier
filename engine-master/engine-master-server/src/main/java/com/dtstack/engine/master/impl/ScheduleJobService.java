@@ -3,16 +3,37 @@ package com.dtstack.engine.master.impl;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.annotation.Param;
-import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.api.domain.ScheduleEngineJob;
+import com.dtstack.engine.api.domain.ScheduleFillDataJob;
+import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.domain.ScheduleJobJob;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.QueryJobDTO;
 import com.dtstack.engine.api.dto.ScheduleJobDTO;
 import com.dtstack.engine.api.dto.ScheduleTaskForFillDataDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.vo.*;
+import com.dtstack.engine.api.vo.ChartDataVO;
+import com.dtstack.engine.api.vo.JobTopErrorVO;
+import com.dtstack.engine.api.vo.JobTopOrderVO;
+import com.dtstack.engine.api.vo.KillJobVO;
+import com.dtstack.engine.api.vo.RestartJobVO;
+import com.dtstack.engine.api.vo.ScheduleFillDataJobDetailVO;
+import com.dtstack.engine.api.vo.ScheduleFillDataJobPreViewVO;
+import com.dtstack.engine.api.vo.ScheduleJobChartVO;
+import com.dtstack.engine.api.vo.SchedulePeriodInfoVO;
+import com.dtstack.engine.api.vo.ScheduleRunDetailVO;
+import com.dtstack.engine.api.vo.ScheduleServerLogVO;
 import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.common.constrant.TaskConstant;
-import com.dtstack.engine.common.enums.*;
+import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.common.enums.EDeployType;
+import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.enums.EScheduleType;
+import com.dtstack.engine.common.enums.LearningFrameType;
+import com.dtstack.engine.common.enums.QueryWorkFlowModel;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.enums.TaskOperateType;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.DateUtil;
@@ -22,6 +43,7 @@ import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
+import com.dtstack.engine.master.enums.EDeployMode;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.factory.MultiEngineFactory;
 import com.dtstack.engine.master.job.IJobStartTrigger;
@@ -36,7 +58,11 @@ import com.dtstack.engine.master.vo.BatchSecienceJobChartVO;
 import com.dtstack.engine.master.vo.ScheduleJobVO;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
 import com.dtstack.engine.master.zookeeper.ZkService;
-import com.dtstack.schedule.common.enums.*;
+import com.dtstack.schedule.common.enums.AppType;
+import com.dtstack.schedule.common.enums.Deleted;
+import com.dtstack.schedule.common.enums.EScheduleJobType;
+import com.dtstack.schedule.common.enums.ScheduleEngineType;
+import com.dtstack.schedule.common.enums.Sort;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -58,7 +84,22 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -1021,7 +1062,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     public void sendTaskStartTrigger(ScheduleJob scheduleJob) throws Exception {
         ScheduleTaskShade batchTask = batchTaskShadeService.getBatchTaskById(scheduleJob.getTaskId(), scheduleJob.getAppType());
         if (batchTask == null) {
-            throw new RdosDefineException("can not fiind task by id:" + scheduleJob.getTaskId());
+            throw new RdosDefineException("can not find task by id:" + scheduleJob.getTaskId());
         }
 
         //判断是不是虚节点---虚节点直接完成
@@ -1081,6 +1122,11 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                         actionParam.put("maxRetryNum", 0);
                     }
                 }
+                if (EJobType.SYNC.getType() == scheduleJob.getTaskType()) {
+                    //数据同步需要解析是perjob 还是session
+                    EDeployMode eDeployMode = this.parseDeployTypeByTaskParams(batchTask.getTaskParams());
+                    actionParam.put(pluginWrapper.DEPLOY_MODEL, eDeployMode.getType());
+                }
                 //拼装控制台的集群信息
                 actionParam = pluginWrapper.wrapperPluginInfo(actionParam);
 
@@ -1091,6 +1137,35 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         //额外信息为空 标记任务为失败
         this.updateStatusAndLogInfoById(scheduleJob.getId(), RdosTaskStatus.FAILED.getStatus(), "任务运行信息为空");
         logger.error(" job  {} run fail with info is null",scheduleJob.getJobId());
+    }
+
+
+    /**
+     * 解析对应数据同步任务的环境参数 获取对应数据同步模式
+     * @param taskParams
+     * @return
+     */
+    public EDeployMode parseDeployTypeByTaskParams(String taskParams) {
+        if (StringUtils.isBlank(taskParams)) {
+            return EDeployMode.SESSION;
+        }
+        String[] split = taskParams.split("\n");
+        if (split.length <= 0) {
+            return EDeployMode.SESSION;
+        }
+        for (String s : split) {
+            String trim = s.toLowerCase().trim();
+            if (trim.contains("flinktaskrunmode")) {
+                if (trim.contains("session")) {
+                    return EDeployMode.SESSION;
+                } else if (trim.contains("per_job")) {
+                    return EDeployMode.PERJOB;
+                } else if (trim.contains("standalone")) {
+                    return EDeployMode.STANDALONE;
+                }
+            }
+        }
+        return EDeployMode.SESSION;
     }
 
     private void addUserNameToImpalaOrHive(JSONObject pluginInfoJson, String userName, String password, String dbName, String engineType) {
