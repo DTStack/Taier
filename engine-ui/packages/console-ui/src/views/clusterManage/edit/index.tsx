@@ -87,7 +87,6 @@ class EditCluster extends React.Component<any, any> {
         addComps: [], // 新增组件
         popoverVisible: false,
         uploadLoading: false,
-        kerUploadLoading: false,
         modify: false,
         testStatus: {}
     }
@@ -106,26 +105,10 @@ class EditCluster extends React.Component<any, any> {
             clusterId: clusterId || cluster.clusterId
         }).then((res: any) => {
             if (res.code === 1) {
-                // 存入组件信息
-                let newCompConfig: any = {};
-                newCompConfig.clusterName = res.data.clusterName;
-                res.data.scheduling.map((item: any) => {
-                    item.components.map((comps: any) => {
-                        newCompConfig[COMPONEMT_CONFIG_KEY_ENUM[comps.componentTypeCode]] = {
-                            configInfo: JSON.parse(comps.componentConfig) || {},
-                            loadTemplate: JSON.parse(comps.componentTemplate) || [],
-                            fileName: comps.uploadFileName || '',
-                            kerFileName: comps.kerberosFileName || '',
-                            id: comps.id || '',
-                            hadoopVersion: comps.hadoopVersion,
-                            params: dealData.getLoadTemplateParams(JSON.parse(comps.componentTemplate))
-                        }
-                    })
-                })
                 this.setState({
                     tabCompData: res.data.scheduling,
                     clusterName: res.data.clusterName,
-                    componentConfig: newCompConfig,
+                    componentConfig: dealData.handleCompsData(res),
                     clusterId: clusterId
                 }, () => { console.log('componentUpdate-----', this.state.tabCompData, this.state.componentConfig) })
             }
@@ -189,6 +172,7 @@ class EditCluster extends React.Component<any, any> {
             componentConfig: {
                 ...componentConfig,
                 [COMPONEMT_CONFIG_KEY_ENUM[key]]: {
+                    ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[key]],
                     hadoopVersion: compVersion
                 }
             }
@@ -199,40 +183,31 @@ class EditCluster extends React.Component<any, any> {
     getLoadTemplate = (key: any = '', compVersion: any = '') => {
         const { compTypeKey, tabCompData, componentConfig, clusterName } = this.state;
         const component = tabCompData.find((item: any) => item.schedulingCode === compTypeKey) || { components: [] };
-        if (component.components.length > 0) {
-            let componentTypeCode = key === '' ? component.components[0].componentTypeCode : key;
-            const isNeedLoadTemp = componentTypeCode !== COMPONENT_TYPE_VALUE.YARN && componentTypeCode !== COMPONENT_TYPE_VALUE.KUBERNETES &&
-                componentTypeCode !== COMPONENT_TYPE_VALUE.HDFS;
-            const config = componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {}
-            const { loadTemplate = {} } = config;
-            let version: any = '';
-            if (Number(componentTypeCode) === COMPONENT_TYPE_VALUE.FLINK) {
-                version = compVersion === '' ? '180' : compVersion;
-            }
-            if (Number(componentTypeCode) === COMPONENT_TYPE_VALUE.SPARK) {
-                version = compVersion === '' ? '2.1.x' : compVersion;
-            }
-            // console.log('compVersion=======', Number(componentTypeCode) === COMPONENT_TYPE_VALUE.FLINK, version)
-            if (isNeedLoadTemp && Object.keys(loadTemplate).length === 0) {
-                Api.getLoadTemplate({
-                    clusterName,
-                    version,
-                    componentType: componentTypeCode
-                }).then((res: any) => {
-                    if (res.code === 1) {
-                        this.setState({
-                            componentConfig: {
-                                ...componentConfig,
-                                [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
-                                    ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
-                                    loadTemplate: res.data,
-                                    configInfo: { ...dealData.setCompoentsConfigInfo(res.data) }
-                                }
+        if (component.components.length === 0) return;
+        let componentTypeCode = key === '' ? component.components[0].componentTypeCode : key;
+        const isNeedLoadTemp = dealData.checkUplaodFileComps(componentTypeCode)
+        const config = componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {}
+        const { loadTemplate = {} } = config;
+        const version = dealData.getCompsVersion(Number(componentTypeCode), compVersion)
+        if (!isNeedLoadTemp && Object.keys(loadTemplate).length === 0) {
+            Api.getLoadTemplate({
+                clusterName,
+                version,
+                componentType: componentTypeCode
+            }).then((res: any) => {
+                if (res.code === 1) {
+                    this.setState({
+                        componentConfig: {
+                            ...componentConfig,
+                            [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
+                                ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
+                                loadTemplate: res.data,
+                                configInfo: { ...dealData.setCompoentsConfigInfo(res.data) }
                             }
-                        }, () => console.log(this.state.componentConfig))
-                    }
-                })
-            }
+                        }
+                    })
+                }
+            })
         }
     }
 
@@ -253,7 +228,6 @@ class EditCluster extends React.Component<any, any> {
             selectValue: defaultValue
         })
     }
-
     setRadioCompData = (e: any) => {
         this.setState({
             selectValue: [e.target.value]
@@ -330,32 +304,29 @@ class EditCluster extends React.Component<any, any> {
     // 处理删除数据
     handleDeleteComps = () => {
         const { deleteComps } = this.state;
-        // const isSource = compTypeKey === TABS_TITLE_KEY.SOURCE;
         let componentIds: any = [];
         deleteComps.map((comps: any) => {
             if (comps.id) { componentIds.push(comps.id) }
         });
-        // console.log('componentIds------componentIds', componentIds)
-        // if (componentIds.length > 0 && !isSource) {
-        if (componentIds.length > 0) {
-            Api.deleteComponent({
-                componentIds
-            }).then((res: any) => {
-                if (res.code === 1) {
-                    this.setState({
-                        modify: false
-                    }, () => this.clearTabCompData());
-                } else {
-                    this.setState({
-                        modify: false
-                    })
-                }
-            })
-        } else {
+        if (componentIds.length === 0) {
             this.setState({
                 modify: false
             }, () => this.clearTabCompData());
+            return;
         }
+        Api.deleteComponent({
+            componentIds
+        }).then((res: any) => {
+            if (res.code === 1) {
+                this.setState({
+                    modify: false
+                }, () => this.clearTabCompData());
+            } else {
+                this.setState({
+                    modify: false
+                })
+            }
+        })
     }
     // 处理增加数据
     handleAddComps = (addComps: any) => {
@@ -422,44 +393,6 @@ class EditCluster extends React.Component<any, any> {
                                 fileName: file.files[0].name,
                                 configInfo: res.data[0]
                             }
-                        },
-                        uploadLoading: false
-                    })
-                } else {
-                    this.setState({
-                        uploadLoading: false
-                    })
-                }
-            })
-        }
-    }
-
-    // 批量上传参数
-    paramsfileChange = (e: any, componentTypeCode: any) => {
-        const paramsFile = e.target;
-        const { componentConfig } = this.state;
-        // console.log('changefile---------', paramsFile.files);
-        const { form } = this.props;
-        if (paramsFile.files.length > 0) {
-            this.setState({ uploadLoading: true });
-            Api.uploadResource({
-                fileName: paramsFile.files[0],
-                componentType: componentTypeCode
-            }).then((res: any) => {
-                if (res.code === 1) {
-                    console.log('res.data[0]=======', res.data[0])
-                    form.setFieldsValue({
-                        [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
-                            configInfo: { ...dealData.handleBatchParams(res.data[0]) }
-                        }
-                    })
-                    this.setState({
-                        componentConfig: {
-                            ...componentConfig,
-                            [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
-                                ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
-                                paramsFileName: paramsFile.files[0].name
-                            }
                         }
                     })
                 }
@@ -470,13 +403,46 @@ class EditCluster extends React.Component<any, any> {
         }
     }
 
+    // 批量上传参数
+    paramsfileChange = (e: any, componentTypeCode: any) => {
+        const paramsFile = e.target;
+        const { componentConfig } = this.state;
+        // console.log('changefile---------', paramsFile.files);
+        const { form } = this.props;
+        if (paramsFile.files.length === 0) return;
+        this.setState({ uploadLoading: true });
+        Api.uploadResource({
+            fileName: paramsFile.files[0],
+            componentType: componentTypeCode
+        }).then((res: any) => {
+            if (res.code === 1) {
+                // console.log('res.data[0]=======', res.data[0])
+                form.setFieldsValue({
+                    [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
+                        configInfo: { ...dealData.handleBatchParams(res.data[0]) }
+                    }
+                })
+                this.setState({
+                    componentConfig: {
+                        ...componentConfig,
+                        [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
+                            ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
+                            paramsFileName: paramsFile.files[0].name
+                        }
+                    }
+                })
+            }
+            this.setState({
+                uploadLoading: false
+            })
+        })
+    }
+
     // Hadoop Kerberos认证文件Change事件
     kerFileChange = (e: any, componentTypeCode: any) => {
         const kerFile = e.target;
         const { componentConfig } = this.state;
-        // console.log('changekerFile---------', kerFile.files[0]);
         if (kerFile.files.length > 0) {
-            this.setState({ kerUploadLoading: true });
             this.setState({
                 componentConfig: {
                     ...componentConfig,
@@ -484,10 +450,8 @@ class EditCluster extends React.Component<any, any> {
                         ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
                         kerberosFileName: kerFile,
                         kerFileName: kerFile.files[0].name
-                        // configInfo: res.data[0]
                     }
-                },
-                kerUploadLoading: false
+                }
             });
         }
     }
@@ -578,15 +542,28 @@ class EditCluster extends React.Component<any, any> {
 
     handleCancel = (components: any) => {
         const { form } = this.props;
+        const { componentConfig } = this.state;
         const componentTypeCode = components.componentTypeCode;
         const config = this.getComponentConfig(components);
-        const { configInfo = {} } = config;
-        if (componentTypeCode !== COMPONENT_TYPE_VALUE.YARN || componentTypeCode !== COMPONENT_TYPE_VALUE.KUBERNETES || componentTypeCode !== COMPONENT_TYPE_VALUE.HDFS) {
+        const { configInfo = {}, params = [] } = config;
+        const isUploadFileComps = dealData.checkUplaodFileComps(componentTypeCode);
+        const handleCancelParams = dealData.handleCancleParams(params);
+        if (!isUploadFileComps) {
+            this.setState({
+                componentConfig: {
+                    ...componentConfig,
+                    [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
+                        ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
+                        params: handleCancelParams
+                    }
+                }
+            })
             form.setFieldsValue({
                 [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
                     configInfo: { ...configInfo }
                 }
             })
+            // console.log('config===========', handleCancelParams)
             message.success('取消成功')
         }
     }
@@ -606,7 +583,7 @@ class EditCluster extends React.Component<any, any> {
         } else {
             newParams = [...newParams, { id: giveMeAKey() }]
         }
-        console.log('addParams-------', newParams, params)
+        // console.log('addParams-------', newParams, params)
         this.setState({
             componentConfig: {
                 ...componentConfig,
@@ -615,7 +592,7 @@ class EditCluster extends React.Component<any, any> {
                     params: newParams
                 }
             }
-        }, () => console.log('this.state.componentConfig', this.state.componentConfig))
+        })
     }
 
     deleteParams = (components: any, id: any, groupKey: any = '') => {
@@ -652,15 +629,15 @@ class EditCluster extends React.Component<any, any> {
             // console.log('componentTypeCodeArr=========', componentTypeCodeArr)
             const { componentConfig } = this.state;
             let modifyCompsArr = dealData.getMoadifyComps(values, componentConfig);
-            if (modifyCompsArr.length > 0) {
-                let modifyCompsNames: any = [];
-                modifyCompsArr.map((comp: number) => {
-                    modifyCompsNames.push(COMPONEMT_CONFIG_NAME_ENUM[comp])
-                })
-                message.error(`组件 ${modifyCompsNames.join('、')} 参数变更未保存，请先保存再测试组件连通性`)
-            } else {
+            if (modifyCompsArr.length === 0) {
                 this.testConnects(values.clusterName)
+                return;
             }
+            let modifyCompsNames: any = [];
+            modifyCompsArr.map((comp: number) => {
+                modifyCompsNames.push(COMPONEMT_CONFIG_NAME_ENUM[comp])
+            })
+            message.error(`组件 ${modifyCompsNames.join('、')} 参数变更未保存，请先保存再测试组件连通性`)
         })
     }
 
@@ -743,10 +720,9 @@ class EditCluster extends React.Component<any, any> {
                                         }
                                         key={scheduling.schedulingCode}
                                     >
-                                        {tabCompDataList.length === 0 &&
-                                            <div key={compTypeKey} className="c-editCluster__container__emptyLogo">
-                                                <img src="public/img/emptyLogo.png" />
-                                            </div>}
+                                        {tabCompDataList.length === 0 && <div key={compTypeKey} className="c-editCluster__container__emptyLogo">
+                                            <img src="public/img/emptyLogo.png" />
+                                        </div>}
                                         <Card
                                             className="c-editCluster__container__card console-tabs cluster-tab-width"
                                             noHovering

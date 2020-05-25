@@ -191,6 +191,7 @@
 .c-editCluster__containerWrap {
     height: 100%;
     width: 100%;
+    min-height: 550px;
     position: relative;
     padding: 20px;
     display: flex;
@@ -414,4 +415,7 @@
     line-height: 32px;
     margin-left: 8px;
     color: #FF5F5C;
+    &:hover {
+        color: #FF5F5C;
+    }
 }

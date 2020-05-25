@@ -126,7 +126,6 @@ class ComponentsConfig extends React.Component<any, any> {
         if (cloneLoadTemplate.length > 0) {
             return cloneLoadTemplate.map((item: any, index: any) => {
                 if (item.type === 'GROUP') {
-                    // console.log('item===========', item)
                     return this.renderConfigGroup(comps, item);
                 }
                 return !item.id && this.renderConfigFormItem(comps, item);
@@ -137,8 +136,6 @@ class ComponentsConfig extends React.Component<any, any> {
     renderConfigFormItem = (comps: any, item: any) => {
         const { getFieldValue, getFieldDecorator } = this.props;
         const isSelectGroup = comps === COMPONEMT_CONFIG_KEYS.FLINK || comps === COMPONEMT_CONFIG_KEYS.SPARK;
-        // const config = this.getComponentConfig();
-        // const { configInfo = {} } = config;
         if (!item.dependencyKey) {
             return (
                 <FormItem
@@ -147,14 +144,12 @@ class ComponentsConfig extends React.Component<any, any> {
                     {...formItemLayout}
                     style={{ padding: isSelectGroup ? '0 20px' : '' }}
                 >
-                    {/* {getFieldDecorator(`${comps}.configInfo.${item.key}`, { */}
                     {getFieldDecorator(`${comps}.configInfo.${item.key.split('.').join('%')}`, {
                         rules: [{
                             required: item.required,
                             message: `请输入${item.key}`
                         }],
                         initialValue: item.key === 'deploymode' && !isArray(item.value) ? [`${item.value}`] : item.value
-                        // initialValue: item.key === 'deploymode' && !isArray(configInfo[item.key]) ? [`${configInfo[item.key]}`] : configInfo[item.key]
                     })(
                         this.renderCompsContent(item)
                     )}
@@ -175,7 +170,6 @@ class ComponentsConfig extends React.Component<any, any> {
                             message: `请输入${item.key}`
                         }],
                         initialValue: item.value
-                        // initialValue: configInfo[item.key]
                     })(
                         this.renderCompsContent(item)
                     )}
@@ -187,8 +181,6 @@ class ComponentsConfig extends React.Component<any, any> {
     renderConfigGroup = (comps: any, group: any) => {
         const { getFieldDecorator, getFieldValue, components } = this.props;
         const componentTypeCode = components.componentTypeCode;
-        // const config = this.getComponentConfig();
-        // const { configInfo = {} } = config;
         // console.log('group================', group)
         if (componentTypeCode === COMPONENT_TYPE_VALUE.DTYARNSHELL || getFieldValue(`${comps}.configInfo.${group.dependencyKey}`).includes(group.dependencyValue)) {
             return (
@@ -211,7 +203,6 @@ class ComponentsConfig extends React.Component<any, any> {
                                                 message: `请输入${item.key}`
                                             }],
                                             initialValue: item.value
-                                            // initialValue: configInfo[group.key][item.key]
                                         })(
                                             this.renderCompsContent(item)
                                         )}

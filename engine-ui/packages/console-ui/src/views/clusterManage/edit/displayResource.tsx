@@ -28,10 +28,10 @@ class DisplayResource extends React.Component<any, any> {
             fileChange, downloadFile } = this.props;
         const config = this.getComponentConfig();
         const { fileName } = config;
-        const labelName = configName === COMPONEMT_CONFIG_KEYS.KUBERNETES ? 'Hadoop Kerberos认证文件' : '配置文件'
+        // const labelName = configName === COMPONEMT_CONFIG_KEYS.KUBERNETES ? 'Hadoop Kerberos认证文件' : '配置文件'
         return (
             <FormItem
-                label={labelName}
+                label="配置文件"
                 colon={false}
             >
                 {getFieldDecorator(`${configName}.uploadFileName`, {
@@ -272,7 +272,12 @@ class DisplayResource extends React.Component<any, any> {
                     </React.Fragment>
                 )
             case COMPONENT_TYPE_VALUE.KUBERNETES:
-                return this.renderConfigsFile(COMPONEMT_CONFIG_KEYS.KUBERNETES)
+                return (
+                    <React.Fragment>
+                        {this.renderConfigsFile(COMPONEMT_CONFIG_KEYS.KUBERNETES)}
+                        {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.KUBERNETES)}
+                    </React.Fragment>
+                )
             case COMPONENT_TYPE_VALUE.HDFS:
                 return (
                     <React.Fragment>

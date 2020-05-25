@@ -1,6 +1,44 @@
 import _ from 'lodash';
 import { COMPONEMT_CONFIG_KEY_ENUM, COMPONENT_TYPE_VALUE } from '../../../consts';
 
+// 设置版本默认值
+function getCompsVersion (componentTypeCode: number, compVersion: string) {
+    let version: any = '';
+    if (componentTypeCode === COMPONENT_TYPE_VALUE.FLINK) {
+        version = compVersion === '' ? '180' : compVersion;
+    }
+    if (componentTypeCode === COMPONENT_TYPE_VALUE.SPARK) {
+        version = compVersion === '' ? '2.1.x' : compVersion;
+    }
+    return version;
+}
+
+// 是否为yarn、hdfs、Kubernetes组件
+function checkUplaodFileComps (componentTypeCode: number) {
+    return componentTypeCode === COMPONENT_TYPE_VALUE.YARN ||
+        componentTypeCode === COMPONENT_TYPE_VALUE.KUBERNETES || componentTypeCode === COMPONENT_TYPE_VALUE.HDFS;
+}
+
+// 返回组件信息
+function handleCompsData (data: any) {
+    let newCompConfig: any = {};
+    newCompConfig.clusterName = data.data.clusterName;
+    data.data.scheduling.map((item: any) => {
+        item.components.map((comps: any) => {
+            newCompConfig[COMPONEMT_CONFIG_KEY_ENUM[comps.componentTypeCode]] = {
+                configInfo: JSON.parse(comps.componentConfig) || {},
+                loadTemplate: JSON.parse(comps.componentTemplate) || [],
+                fileName: comps.uploadFileName || '',
+                kerFileName: comps.kerberosFileName || '',
+                id: comps.id || '',
+                hadoopVersion: comps.hadoopVersion,
+                params: getLoadTemplateParams(JSON.parse(comps.componentTemplate))
+            }
+        })
+    })
+    return newCompConfig;
+}
+
 // 对自定义参数的key值进行处理
 function handleCustomParams (data: any) {
     let paramsArr = []
@@ -61,7 +99,6 @@ function getComponentConfigPrames (values: any, components: any, config: any) {
             }
         } else {
             val.value = formConfig[val.key.split('%').join('.')]
-            // console.log('val.value======', val.key.split('%').join('.'))
         }
     })
     componentTemplate = getCustomParams(customParams, componentTemplate)
@@ -73,7 +110,7 @@ function getComponentConfigPrames (values: any, components: any, config: any) {
      */
     const formValues = handleFormValues(formConfig, customParams, componentTypeCode);
     const paramsConfig = Object.keys(formValues).length === 0 ? config.configInfo : formValues;
-    console.log('formValues------dsds------paramsConfig', formValues, paramsConfig)
+    // console.log('formValues------dsds------paramsConfig', formValues, paramsConfig)
     return {
         resources1: files,
         resources2: kerFiles,
@@ -207,6 +244,11 @@ function handleFormValues (formConfig: any, customParams: any, componentTypeCode
     return formValues;
 }
 
+/**
+ * 比较组件是否变更
+ * @param values 表单配置键值
+ * @param componentConfig 存储的组件配置
+ */
 function getMoadifyComps (values: any, componentConfig: any) {
     const componentTypeCodeArr = Object.values(COMPONENT_TYPE_VALUE);
     let modifyCompsArr: any = [];
@@ -220,20 +262,44 @@ function getMoadifyComps (values: any, componentConfig: any) {
             const compUploadFileName = config.fileName;
             const { configInfo = {}, params = {}, hadoopVersion = '', kerberosFileName = '', uploadFileName = '' } = formConfig;
             const formValues = handleFormValues(configInfo, params, componentTypeCode);
-            const isUploadFileComps = componentTypeCode === COMPONENT_TYPE_VALUE.YARN || componentTypeCode === COMPONENT_TYPE_VALUE.KUBERNETES ||
-                componentTypeCode === COMPONENT_TYPE_VALUE.HDFS;
+            const isUploadFileComps = checkUplaodFileComps(Number(componentTypeCode))
             const isModify = (hadoopVersion && !_.isEqual(compHadoopVersion, hadoopVersion)) || (uploadFileName && !_.isEqual(compUploadFileName, uploadFileName)) ||
                     (kerberosFileName && !_.isEqual(kerberosFileName, compKerberosFileName))
             if (isModify) { modifyCompsArr.push(componentTypeCode) }
             if (!_.isEqual(compConfigInfo, formValues) && !isModify && !isUploadFileComps) {
                 modifyCompsArr.push(componentTypeCode)
             }
+            // console.log('isModify==========isUploadFileComps', isModify, isUploadFileComps)
+            // console.log('kerberosFileName========compKerberosFileName', kerberosFileName, compKerberosFileName)
+            // console.log('compConfigInfo========formValues', kerberosFileName, compConfigInfo, formValues)
         }
     })
+    console.log('modifyCompsArr========', modifyCompsArr)
     return modifyCompsArr;
 }
 
+function handleCancleParams (params: any) {
+    let dealParams: any = []
+    params.map((param: any) => {
+        let p: any = {};
+        if (param.key) {
+            p.key = param.key;
+            p.groupParams = param.groupParams.filter((groupParam: any) => Object.keys(groupParam).length > 1)
+            dealParams.push(p)
+        } else {
+            if (Object.keys(param).length > 1) {
+                dealParams.push(param)
+            }
+        }
+    })
+    // console.log('dealParams======sss', dealParams)
+    return dealParams;
+}
+
 export default {
+    getCompsVersion,
+    checkUplaodFileComps,
+    handleCompsData,
     handleCustomParams,
     getComponentConfigPrames,
     getLoadTemplateParams,
@@ -241,5 +307,6 @@ export default {
     checkFormHaveValue,
     handleBatchParams,
     handleFormValues,
-    getMoadifyComps
+    getMoadifyComps,
+    handleCancleParams
 }
