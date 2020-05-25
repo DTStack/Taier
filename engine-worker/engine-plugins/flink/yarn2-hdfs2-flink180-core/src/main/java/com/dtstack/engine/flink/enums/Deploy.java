@@ -5,7 +5,7 @@ package com.dtstack.engine.flink.enums;
  */
 public enum Deploy {
     //
-    yarn,
+    session,
     //
     standalone;
 }

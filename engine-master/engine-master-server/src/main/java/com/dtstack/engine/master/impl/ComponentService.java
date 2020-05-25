@@ -1055,8 +1055,6 @@ public class ComponentService {
         }
         if (StringUtils.isBlank(clusterName)) {
             throw new RdosDefineException("集群名称不能为空");
-        } else if (EComponentType.LEARNING.getTypeCode() == componentType) {
-            return String.format("learning-hadoop%s", this.formatHadoopVersion(version));
         } else if (EComponentType.YARN.getTypeCode() == componentType) {
             if (StringUtils.isBlank(version)) {
                 throw new RdosDefineException("请选择集群版本");
@@ -1098,13 +1096,14 @@ public class ComponentService {
             throw new RdosDefineException("请先配置HDFS");
         }
         String storageSign = "hdfs" + this.formatHadoopVersion(hdfs.getHadoopVersion());
+        //dtscript yarn2-hdfs2-dtscript
+        //learing yarn2-hdfs2-leanring
+        if (EComponentType.LEARNING.getTypeCode() == componentType || EComponentType.DT_SCRIPT.getTypeCode() == componentType) {
+            return String.format("%s-%s-learning",resourceSign,storageSign);
+        }
         //flink  需要根据yarn hdfs version 拼接 如yarn2-hdfs2-flink180;
         if (EComponentType.FLINK.getTypeCode() == componentType) {
             return String.format("%s-%s-flink%s", resourceSign, storageSign, version);
-        }
-        //dtscript yarn2-hdfs2-dtscript
-        if (EComponentType.DT_SCRIPT.getTypeCode() == componentType) {
-            return String.format("%s-%s-dtscript", resourceSign, storageSign);
         }
         if (EComponentType.SPARK.getTypeCode() == componentType) {
             return String.format("%s-%s-spark%s", resourceSign, storageSign, "2.1.x".equalsIgnoreCase(version) ? "210" : "240");
@@ -1216,6 +1215,7 @@ public class ComponentService {
         for (Component component : components) {
             KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(), component.getComponentTypeCode());
             ComponentTestResult testResult = this.testConnect(component.getComponentTypeCode(), component.getComponentConfig(), clusterName, component.getHadoopVersion(), component.getEngineId(), kerberosConfig, sftpMap);
+            testResult.setComponentTypeCode(component.getComponentTypeCode());
             testResults.add(testResult);
         }
         return testResults;
