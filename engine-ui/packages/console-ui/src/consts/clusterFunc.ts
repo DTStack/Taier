@@ -62,8 +62,8 @@ export function validateCompParams (componentValue: any) {
  * @param hadoopComp hadoop参数配置项
  * @param libraComp libra参数配置项
  */
-export function exChangeComponentConf (hadoopComp: any = [], libraComp: any = [], tidbComp: any = [], oracleComp: any = []) {
-    const comp = hadoopComp.concat(libraComp, tidbComp, oracleComp);
+export function exChangeComponentConf (hadoopComp: any = [], libraComp: any = [], tidbComp: any = [], oracleComp: any = [], greenPlumComp: any = []) {
+    const comp = hadoopComp.concat(libraComp, tidbComp, oracleComp, greenPlumComp);
     let componentConf: any = {};
     comp.map((item: any) => {
         const componentTypeCode = item && item.componentTypeCode;
@@ -165,6 +165,12 @@ export function showTestResult (testResults: any, engineType: any) {
             case COMPONENT_TYPE_VALUE.SFTP: {
                 testStatus = Object.assign(testStatus, {
                     sftpTestResult: isHadoop ? comp : {}
+                })
+                break;
+            }
+            case COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL: {
+                testStatus = Object.assign(testStatus, {
+                    greenPlumSqlTestResult: !isHadoop ? comp : {}
                 })
                 break;
             }
@@ -461,4 +467,8 @@ export function isTiDBEngine (engineType: numOrStr) {
 
 export function isOracleEngine (engineType: numOrStr) {
     return engineType == ENGINE_TYPE.ORACLE;
+}
+
+export function isGreenPlumEngine (engineType: numOrStr) {
+    return engineType == ENGINE_TYPE.GREEN_PLUM;
 }

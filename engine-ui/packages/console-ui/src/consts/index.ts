@@ -93,20 +93,23 @@ export const ENGINE_TYPE = {
     HADOOP: 1,
     LIBRA: 2,
     TI_DB: 4,
-    ORACLE: 5
+    ORACLE: 5,
+    GREEN_PLUM: 6
 }
 export const ENGINE_TYPE_NAME = {
     HADOOP: 'Hadoop',
     LIBRA: 'LibrA',
     TI_DB: 'TiDB',
-    ORACLE: 'Oracle'
+    ORACLE: 'Oracle',
+    GREEN_PLUM: 'GreenPlum'
 }
 
 export const ENGIN_TYPE_TEXT = {
     [ENGINE_TYPE.HADOOP]: 'Hadoop',
     [ENGINE_TYPE.LIBRA]: 'LibrA',
     [ENGINE_TYPE.TI_DB]: 'TiDB',
-    [ENGINE_TYPE.ORACLE]: 'Oracle'
+    [ENGINE_TYPE.ORACLE]: 'Oracle',
+    [ENGINE_TYPE.GREEN_PLUM]: 'GreenPlum'
 }
 
 export const ENGINE_TYPE_ARRAY = [{ // 引擎类型下拉框数据
@@ -121,6 +124,9 @@ export const ENGINE_TYPE_ARRAY = [{ // 引擎类型下拉框数据
 }, {
     name: 'Oracle',
     value: ENGINE_TYPE_NAME.ORACLE
+}, {
+    name: 'GreenPlum',
+    value: ENGINE_TYPE_NAME.GREEN_PLUM
 }];
 
 export const COMPONENT_TYPE_VALUE = {
@@ -137,7 +143,8 @@ export const COMPONENT_TYPE_VALUE = {
     SFTP: 10,
     IMPALASQL: 11,
     TIDB_SQL: 12,
-    ORACLE_SQL: 13
+    ORACLE_SQL: 13,
+    GREEN_PLUM_SQL: 14
 }
 export const DEFAULT_COMP_TEST: any = { // 测试结果默认数据
     flinkTestResult: {},
@@ -153,7 +160,8 @@ export const DEFAULT_COMP_TEST: any = { // 测试结果默认数据
     tidbSqlTestResult: {},
     oracleSqlTestResult: {},
     impalaSqlTestResult: {},
-    sftpTestResult: {}
+    sftpTestResult: {},
+    greenPlumSqlTestResult: {}
 }
 export const DEFAULT_COMP_REQUIRED: any = { // 必填默认数据
     flinkShowRequired: false,
@@ -196,7 +204,8 @@ export const COMPONEMT_CONFIG_KEYS = {
     ORACLE_SQL: 'oracleConf',
     HIVESERVER: 'hiveServerConf',
     SFTP: 'sftpConf',
-    IMPALASQL: 'impalaSqlConf'
+    IMPALASQL: 'impalaSqlConf',
+    GREEN_PLUM_SQL: 'greenPlumConf'
 }
 // 组件对应的key值
 export const COMPONEMT_CONFIG_KEY_ENUM = {
@@ -213,7 +222,8 @@ export const COMPONEMT_CONFIG_KEY_ENUM = {
     [COMPONENT_TYPE_VALUE.TIDB_SQL]: COMPONEMT_CONFIG_KEYS.TI_DB_SQL,
     [COMPONENT_TYPE_VALUE.SFTP]: COMPONEMT_CONFIG_KEYS.SFTP,
     [COMPONENT_TYPE_VALUE.IMPALASQL]: COMPONEMT_CONFIG_KEYS.IMPALASQL,
-    [COMPONENT_TYPE_VALUE.ORACLE_SQL]: COMPONEMT_CONFIG_KEYS.ORACLE_SQL
+    [COMPONENT_TYPE_VALUE.ORACLE_SQL]: COMPONEMT_CONFIG_KEYS.ORACLE_SQL,
+    [COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL]: COMPONEMT_CONFIG_KEYS.GREEN_PLUM_SQL
 };
 
 export const API_MODE: any = {
