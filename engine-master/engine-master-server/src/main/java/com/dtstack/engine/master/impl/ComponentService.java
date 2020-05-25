@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.BaseEntity;
@@ -914,6 +915,7 @@ public class ComponentService {
         }
         dataInfo.put("sftpConf", sftpConfig);
         if (EComponentType.SFTP.getTypeCode() == componentType) {
+            dataInfo = JSONObject.parseObject(componentConfig);
             dataInfo.put("componentType", EComponentType.SFTP.getName());
         } else if (EComponentType.sqlComponent.contains(EComponentType.getByCode(componentType))) {
             dataInfo = JSONObject.parseObject(componentConfig);
