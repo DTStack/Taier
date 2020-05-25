@@ -55,10 +55,6 @@
     color: rgba(1,1,1,0.54);
     border-color: #dddddd;
 }
-.formItem-right-text{
-    line-height: 32px;
-    margin-left: 8px;
-}
 .formitem-textname{
     text-align: right;
     word-break: break-all;
@@ -102,11 +98,13 @@
     font-family: anticon;
     font-size: 16px;
     color: #00A755;
+    margin-left: 8px;
 }
 .err-icon {
     font-family: anticon;
     font-size: 16px;
     color: #E6432C;
+    margin-left: 8px;
 }
 .back-icon {
     float: left;
@@ -279,12 +277,18 @@
                 bottom: 40px;
                 left: 0;
                 right: 0;
+                .ant-tabs-nav {
+                    .ant-tabs-tab{
+                        text-align: left;
+                        padding-left: 20px;
+                    }
+                }
             }
             >.ant-tabs-extra-content {
                 height: 40px;
                 position: absolute;
                 bottom: 0;
-            }
+            }      
         }
         .c-editCluster__container__componentWrap {
             position: absolute;
@@ -376,9 +380,14 @@
             font-weight: bold;
         }
         .c-componentsConfig__group__content {
-            padding: 12px 20px 0 20px;
+            padding: 12px 20px 20px 20px;
             margin: 12px 0 20px 0;
             background-color: #FAFAFAFF;
+        }
+    }
+    .c-componentConfig__checkboxGroup {
+        .ant-checkbox-wrapper + .ant-checkbox-wrapper {
+            margin-left: 23px;
         }
     }
 }
@@ -399,4 +408,10 @@
             width: 68px;
         }
     }
+}
+
+.formItem-right-text{
+    line-height: 32px;
+    margin-left: 8px;
+    color: #FF5F5C;
 }

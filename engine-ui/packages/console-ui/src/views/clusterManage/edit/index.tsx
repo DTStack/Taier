@@ -3,7 +3,7 @@ import { cloneDeep } from 'lodash';
 import { connect } from 'react-redux';
 import { hashHistory } from 'react-router';
 import {
-    Form, Input, Card, Tabs, Button, message } from 'antd';
+    Form, Input, Card, Tabs, Button, message, Modal } from 'antd';
 import Api from '../../../api/console';
 
 import { updateTestStatus, updateRequiredStatus } from '../../../reducers/modules/cluster';
@@ -15,17 +15,14 @@ import {
 
 import ModifyComponentModal from '../../../components/modifyCompModal';
 import SelectPopver from '../../../components/selectPopover';
+import TestRestIcon from '../../../components/testResultIcon';
 import DisplayResource from './displayResource';
 import ComponentsConfig from './componentsConfig';
 import dealData from './dealData';
-// import console from '../../../api/console';
-// import console from '../../../api/console';
-// import console from '../../../api/console';
-// import console from '../../../api/console';
-// import console from '../../../api/console';
 
 const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
+const confirm = Modal.confirm
 function giveMeAKey () {
     return (new Date().getTime() + '' + ~~(Math.random() * 100000))
 }
@@ -91,7 +88,8 @@ class EditCluster extends React.Component<any, any> {
         popoverVisible: false,
         uploadLoading: false,
         kerUploadLoading: false,
-        modify: false
+        modify: false,
+        testStatus: {}
     }
     container: any;
 
@@ -115,10 +113,11 @@ class EditCluster extends React.Component<any, any> {
                     item.components.map((comps: any) => {
                         newCompConfig[COMPONEMT_CONFIG_KEY_ENUM[comps.componentTypeCode]] = {
                             configInfo: JSON.parse(comps.componentConfig) || {},
-                            loadTemplate: dealData.getLoadTemplates(JSON.parse(comps.componentTemplate)),
+                            loadTemplate: JSON.parse(comps.componentTemplate) || [],
                             fileName: comps.uploadFileName || '',
                             kerFileName: comps.kerberosFileName || '',
                             id: comps.id || '',
+                            hadoopVersion: comps.hadoopVersion,
                             params: dealData.getLoadTemplateParams(JSON.parse(comps.componentTemplate))
                         }
                     })
@@ -141,7 +140,24 @@ class EditCluster extends React.Component<any, any> {
     }
 
     turnClusteManage = () => {
-        hashHistory.push({ pathname: '/console/clusterManage' })
+        const { form } = this.props
+        form.validateFields(null, {}, (err: any, values: any) => {
+            console.log(err, values)
+            const { componentConfig } = this.state;
+            let modifyCompsArr = dealData.getMoadifyComps(values, componentConfig);
+            if (modifyCompsArr.length === 0) {
+                hashHistory.push({ pathname: '/console/clusterManage' })
+            } else {
+                confirm({
+                    title: '当前变更是否保存？',
+                    okText: '保存',
+                    cancelText: '不保存',
+                    onCancel () {
+                        hashHistory.push({ pathname: '/console/clusterManage' })
+                    }
+                });
+            }
+        })
     }
 
     turnEditComp = () => {
@@ -162,25 +178,46 @@ class EditCluster extends React.Component<any, any> {
         return componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {};
     }
 
-    handleFlinkVersion = (key: any, flinkVersion: any) => {
-        this.getLoadTemplate(key, flinkVersion);
+    handleFlinkSparkVersion = (key: any, compVersion: any) => {
+        this.getLoadTemplate(key, compVersion);
+        this.handleCompsVersion(key, compVersion);
+    }
+
+    handleCompsVersion = (key: any, compVersion: any) => {
+        const { componentConfig } = this.state;
+        this.setState({
+            componentConfig: {
+                ...componentConfig,
+                [COMPONEMT_CONFIG_KEY_ENUM[key]]: {
+                    hadoopVersion: compVersion
+                }
+            }
+        })
     }
 
     // 获取组件模板
-    getLoadTemplate = (key: any = '', flinkVersion: any = '180') => {
+    getLoadTemplate = (key: any = '', compVersion: any = '') => {
         const { compTypeKey, tabCompData, componentConfig, clusterName } = this.state;
         const component = tabCompData.find((item: any) => item.schedulingCode === compTypeKey) || { components: [] };
         if (component.components.length > 0) {
             let componentTypeCode = key === '' ? component.components[0].componentTypeCode : key;
             const isNeedLoadTemp = componentTypeCode !== COMPONENT_TYPE_VALUE.YARN && componentTypeCode !== COMPONENT_TYPE_VALUE.KUBERNETES &&
-                componentTypeCode !== COMPONENT_TYPE_VALUE.KUBERNETES && componentTypeCode !== COMPONENT_TYPE_VALUE.HDFS;
+                componentTypeCode !== COMPONENT_TYPE_VALUE.HDFS;
             const config = componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {}
             const { loadTemplate = {} } = config;
+            let version: any = '';
+            if (Number(componentTypeCode) === COMPONENT_TYPE_VALUE.FLINK) {
+                version = compVersion === '' ? '180' : compVersion;
+            }
+            if (Number(componentTypeCode) === COMPONENT_TYPE_VALUE.SPARK) {
+                version = compVersion === '' ? '2.1.x' : compVersion;
+            }
+            // console.log('compVersion=======', Number(componentTypeCode) === COMPONENT_TYPE_VALUE.FLINK, version)
             if (isNeedLoadTemp && Object.keys(loadTemplate).length === 0) {
                 Api.getLoadTemplate({
                     clusterName,
-                    componentType: componentTypeCode,
-                    version: flinkVersion
+                    version,
+                    componentType: componentTypeCode
                 }).then((res: any) => {
                     if (res.code === 1) {
                         this.setState({
@@ -188,10 +225,11 @@ class EditCluster extends React.Component<any, any> {
                                 ...componentConfig,
                                 [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
                                     ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
-                                    loadTemplate: res.data
+                                    loadTemplate: res.data,
+                                    configInfo: { ...dealData.setCompoentsConfigInfo(res.data) }
                                 }
                             }
-                        })
+                        }, () => console.log(this.state.componentConfig))
                     }
                 })
             }
@@ -259,8 +297,8 @@ class EditCluster extends React.Component<any, any> {
             this.setState({
                 popoverVisible: false,
                 modify: true,
-                deleteComps,
-                addComps
+                deleteComps: deleteComps,
+                addComps: addComps
             })
         } else {
             this.handleAddComps(addComps);
@@ -291,14 +329,15 @@ class EditCluster extends React.Component<any, any> {
     }
     // 处理删除数据
     handleDeleteComps = () => {
-        const { deleteComps, compTypeKey } = this.state;
-        const isSource = compTypeKey === TABS_TITLE_KEY.SOURCE;
+        const { deleteComps } = this.state;
+        // const isSource = compTypeKey === TABS_TITLE_KEY.SOURCE;
         let componentIds: any = [];
         deleteComps.map((comps: any) => {
             if (comps.id) { componentIds.push(comps.id) }
         });
         // console.log('componentIds------componentIds', componentIds)
-        if (componentIds.length > 0 && !isSource) {
+        // if (componentIds.length > 0 && !isSource) {
+        if (componentIds.length > 0) {
             Api.deleteComponent({
                 componentIds
             }).then((res: any) => {
@@ -408,9 +447,10 @@ class EditCluster extends React.Component<any, any> {
                 componentType: componentTypeCode
             }).then((res: any) => {
                 if (res.code === 1) {
+                    console.log('res.data[0]=======', res.data[0])
                     form.setFieldsValue({
                         [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
-                            configInfo: { ...res.data[0] }
+                            configInfo: { ...dealData.handleBatchParams(res.data[0]) }
                         }
                     })
                     this.setState({
@@ -444,6 +484,7 @@ class EditCluster extends React.Component<any, any> {
                         ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
                         kerberosFileName: kerFile,
                         kerFileName: kerFile.files[0].name
+                        // configInfo: res.data[0]
                     }
                 },
                 kerUploadLoading: false
@@ -462,6 +503,10 @@ class EditCluster extends React.Component<any, any> {
 
     deleteKerFile = (componentTypeCode: any) => {
         const { componentConfig } = this.state;
+        const config = componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {};
+        config.id && Api.closeKerberos({
+            componentId: config.id
+        });
         this.setState({
             componentConfig: {
                 ...componentConfig,
@@ -523,9 +568,7 @@ class EditCluster extends React.Component<any, any> {
                 [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
                     ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
                     configInfo: JSON.parse(data.data.componentConfig) || {},
-                    loadTemplate: dealData.getLoadTemplates(JSON.parse(data.data.componentTemplate)),
-                    fileName: data.data.uploadFileName || '',
-                    kerFileName: data.data.kerberosFileName || '',
+                    loadTemplate: JSON.parse(data.data.componentTemplate),
                     id: data.data.id || '',
                     params: dealData.getLoadTemplateParams(JSON.parse(data.data.componentTemplate))
                 }
@@ -544,33 +587,49 @@ class EditCluster extends React.Component<any, any> {
                     configInfo: { ...configInfo }
                 }
             })
+            message.success('取消成功')
         }
     }
 
-    addParams = (components: any) => {
+    addParams = (components: any, groupKey: any = '') => {
         const { componentConfig } = this.state;
         const componentTypeCode = components.componentTypeCode;
         const config = this.getComponentConfig(components);
-        const params = config.params || [];
-        // console.log('params-------', [...params])
+        const { params = [] } = config;
+        let newParams = cloneDeep(params)
+        if (groupKey) {
+            newParams.forEach((param: any) => {
+                if (param.key === groupKey) {
+                    param.groupParams = [...param.groupParams, { id: giveMeAKey() }]
+                }
+            })
+        } else {
+            newParams = [...newParams, { id: giveMeAKey() }]
+        }
+        console.log('addParams-------', newParams, params)
         this.setState({
             componentConfig: {
                 ...componentConfig,
                 [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
                     ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
-                    params: [...params, { id: giveMeAKey() }]
+                    params: newParams
                 }
             }
-        })
+        }, () => console.log('this.state.componentConfig', this.state.componentConfig))
     }
 
-    deleteParams = (components: any, id: any) => {
+    deleteParams = (components: any, id: any, groupKey: any = '') => {
         const { componentConfig } = this.state;
         const componentTypeCode = components.componentTypeCode;
         const config = this.getComponentConfig(components);
         const params = config.params || [];
-        // console.log('params-------', params)
-        params.splice(params.findIndex((param: any) => param.id === id), 1);
+        if (groupKey) {
+            params.map((p: any) => {
+                p.key === groupKey && p.groupParams.splice(p.groupParams.findIndex((param: any) => param.id === id), 1)
+            })
+        } else {
+            params.splice(params.findIndex((param: any) => param.id === id), 1);
+        }
         this.setState({
             componentConfig: {
                 ...componentConfig,
@@ -578,6 +637,45 @@ class EditCluster extends React.Component<any, any> {
                     ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
                     params: [...params]
                 }
+            }
+        })
+    }
+
+    handleNotSaveComps = () => {
+        const { validateFieldsAndScroll } = this.props.form;
+        validateFieldsAndScroll((err: any, values: any) => {
+            console.log(err, values)
+            if (err) {
+                message.error('请检查配置');
+                return;
+            }
+            // console.log('componentTypeCodeArr=========', componentTypeCodeArr)
+            const { componentConfig } = this.state;
+            let modifyCompsArr = dealData.getMoadifyComps(values, componentConfig);
+            if (modifyCompsArr.length > 0) {
+                let modifyCompsNames: any = [];
+                modifyCompsArr.map((comp: number) => {
+                    modifyCompsNames.push(COMPONEMT_CONFIG_NAME_ENUM[comp])
+                })
+                message.error(`组件 ${modifyCompsNames.join('、')} 参数变更未保存，请先保存再测试组件连通性`)
+            } else {
+                this.testConnects(values.clusterName)
+            }
+        })
+    }
+
+    testConnects = (clusterName: string) => {
+        Api.testConnects({
+            clusterName
+        }).then((res: any) => {
+            if (res.code === 1) {
+                let testStatus: any = {}
+                res.data.map((temp: any) => {
+                    testStatus[temp.componentTypeCode] = { ...temp }
+                })
+                this.setState({
+                    testStatus: testStatus
+                })
             }
         })
     }
@@ -619,14 +717,11 @@ class EditCluster extends React.Component<any, any> {
                     <div className="c-editCluster__header">
                         <FormItem label={null}>
                             {getFieldDecorator('clusterName', { initialValue: clusterName || '' })(
-                                <Input style={{ width: 340, height: 32 }} placeholder="请输入集群标识" disabled={isView} />
+                                <Input style={{ width: 340, height: 32 }} placeholder="请输入集群标识" disabled={isView || !(mode === 'new')} />
                             )}
                         </FormItem>
-                        {
-                            isView
-                                ? <Button type="primary" className="c-editCluster__header__btn" onClick={this.turnEditComp}>编辑</Button>
-                                : <Button type="primary" className="c-editCluster__header__btn">测试全部连通性</Button>
-                        }
+                        {isView ? <Button type="primary" className="c-editCluster__header__btn" onClick={this.turnEditComp}>编辑</Button>
+                            : <Button type="primary" className="c-editCluster__header__btn" onClick={this.handleNotSaveComps}>测试全部连通性</Button>}
                     </div>
                     <div className="c-editCluster__container shadow">
                         <Tabs
@@ -636,82 +731,78 @@ class EditCluster extends React.Component<any, any> {
                             className="c-editCluster__container__commonTabs"
                             tabBarExtraContent={<div className="c-editCluster__commonTabs__title">集群配置</div>}
                         >
-                            {
-                                TABS_TITLE.map((scheduling: any, index: any) => {
-                                    const tabCompDataList = this.renderCompTabs(scheduling).components || [];
-                                    return (
-                                        <TabPane
-                                            tab={
-                                                <div style={{ height: 19, display: 'flex', alignItems: 'center' }}>
-                                                    {renderCompIcon(scheduling)}
-                                                    {scheduling.schedulingName}
-                                                </div>
-                                            }
-                                            key={scheduling.schedulingCode}
+                            {TABS_TITLE.map((scheduling: any, index: any) => {
+                                const tabCompDataList = this.renderCompTabs(scheduling).components || [];
+                                return (
+                                    <TabPane
+                                        tab={
+                                            <div style={{ height: 19, display: 'flex', alignItems: 'center' }}>
+                                                {renderCompIcon(scheduling)}
+                                                {scheduling.schedulingName}
+                                            </div>
+                                        }
+                                        key={scheduling.schedulingCode}
+                                    >
+                                        {tabCompDataList.length === 0 &&
+                                            <div key={compTypeKey} className="c-editCluster__container__emptyLogo">
+                                                <img src="public/img/emptyLogo.png" />
+                                            </div>}
+                                        <Card
+                                            className="c-editCluster__container__card console-tabs cluster-tab-width"
+                                            noHovering
                                         >
-                                            {
-                                                tabCompDataList.length === 0 &&
-                                                <div key={compTypeKey} className="c-editCluster__container__emptyLogo">
-                                                    <img src="public/img/emptyLogo.png" />
-                                                </div>
-                                            }
-                                            <Card
-                                                className="c-editCluster__container__card console-tabs cluster-tab-width"
-                                                noHovering
+                                            <Tabs
+                                                tabPosition="left"
+                                                tabBarExtraContent={componentBtn}
+                                                className="c-editCluster__container__componentTabs"
+                                                onChange={(key: any) => this.getLoadTemplate(key)}
                                             >
-                                                <Tabs
-                                                    tabPosition="left"
-                                                    tabBarExtraContent={componentBtn}
-                                                    className="c-editCluster__container__componentTabs"
-                                                    onChange={(key: any) => this.getLoadTemplate(key)}
-                                                >
-                                                    {
-                                                        tabCompDataList.map((comps: any, index: any) => {
-                                                            return (
-                                                                <TabPane tab={<span>{comps.componentName}</span>} key={`${comps.componentTypeCode}`}>
-                                                                    <div className="c-editCluster__container__componentWrap">
-                                                                        <div className="c-editCluster__container__componentWrap__resource" style={{ width: 200 }}>
-                                                                            <DisplayResource
-                                                                                {...this.state}
-                                                                                isView={isView}
-                                                                                components={comps}
-                                                                                getFieldDecorator={getFieldDecorator}
-                                                                                downloadFile={this.downloadFile}
-                                                                                paramsfileChange={this.paramsfileChange}
-                                                                                kerFileChange={this.kerFileChange}
-                                                                                handleFlinkVersion={this.handleFlinkVersion}
-                                                                                deleteKerFile={this.deleteKerFile}
-                                                                                fileChange={this.fileChange} />
-                                                                        </div>
-                                                                        <div className="c-editCluster__container__componentWrap__config">
-                                                                            <ComponentsConfig
-                                                                                {...this.state}
-                                                                                isView={isView}
-                                                                                components={comps}
-                                                                                componentConfig={componentConfig}
-                                                                                addParams={this.addParams}
-                                                                                deleteParams={this.deleteParams}
-                                                                                getFieldValue={getFieldValue}
-                                                                                getFieldDecorator={getFieldDecorator} />
-                                                                        </div>
-                                                                    </div>
-                                                                    {
-                                                                        !isView && <div className="c-editCluster__container__componentFooter">
-                                                                            <Button className="c-editCluster__container__componentFooter__btn" onClick={this.handleCancel.bind(this, comps)}>取消</Button>
-                                                                            <Button className="c-editCluster__container__componentFooter__btn" type="primary" style={{ marginLeft: 8 }} onClick={this.saveComponent.bind(this, comps)} >保存</Button>
-                                                                        </div>
-                                                                    }
-
-                                                                </TabPane>
-                                                            )
-                                                        })
-                                                    }
-                                                </Tabs>
-                                            </Card>
-                                        </TabPane>
-                                    )
-                                })
-                            }
+                                                {tabCompDataList.map((comps: any, index: any) => {
+                                                    return (
+                                                        <TabPane
+                                                            tab={<span>{comps.componentName}<TestRestIcon testStatus={this.state.testStatus[comps.componentTypeCode] || {}}/></span>}
+                                                            key={`${comps.componentTypeCode}`}
+                                                        >
+                                                            <div className="c-editCluster__container__componentWrap">
+                                                                <div className="c-editCluster__container__componentWrap__resource" style={{ width: 200 }}>
+                                                                    <DisplayResource
+                                                                        {...this.state}
+                                                                        isView={isView}
+                                                                        components={comps}
+                                                                        getFieldValue={getFieldValue}
+                                                                        getFieldDecorator={getFieldDecorator}
+                                                                        downloadFile={this.downloadFile}
+                                                                        paramsfileChange={this.paramsfileChange}
+                                                                        kerFileChange={this.kerFileChange}
+                                                                        handleFlinkSparkVersion={this.handleFlinkSparkVersion}
+                                                                        handleCompsVersion={this.handleCompsVersion}
+                                                                        deleteKerFile={this.deleteKerFile}
+                                                                        fileChange={this.fileChange} />
+                                                                </div>
+                                                                <div className="c-editCluster__container__componentWrap__config">
+                                                                    <ComponentsConfig
+                                                                        {...this.state}
+                                                                        isView={isView}
+                                                                        components={comps}
+                                                                        componentConfig={componentConfig}
+                                                                        addParams={this.addParams}
+                                                                        deleteParams={this.deleteParams}
+                                                                        getFieldValue={getFieldValue}
+                                                                        getFieldDecorator={getFieldDecorator} />
+                                                                </div>
+                                                            </div>
+                                                            {!isView && <div className="c-editCluster__container__componentFooter">
+                                                                <Button className="c-editCluster__container__componentFooter__btn" onClick={this.handleCancel.bind(this, comps)}>取消</Button>
+                                                                <Button className="c-editCluster__container__componentFooter__btn" type="primary" style={{ marginLeft: 8 }} onClick={this.saveComponent.bind(this, comps)} >保存</Button>
+                                                            </div>}
+                                                        </TabPane>
+                                                    )
+                                                })}
+                                            </Tabs>
+                                        </Card>
+                                    </TabPane>
+                                )
+                            })}
                         </Tabs>
                     </div>
                 </React.Fragment>

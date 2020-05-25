@@ -61,12 +61,10 @@ class ClusterManage extends React.Component<any, any> {
             {
                 title: '集群名称',
                 dataIndex: 'clusterName'
-                // width: '400px'
             },
             {
                 title: '修改时间',
                 dataIndex: 'gmtModified',
-                // width: '300px',
                 render (text: any) {
                     return moment(text).format('YYYY-MM-DD HH:mm:ss')
                 }
@@ -74,13 +72,19 @@ class ClusterManage extends React.Component<any, any> {
             {
                 title: '操作',
                 dataIndex: 'deal',
-                width: '166px',
+                width: '170px',
                 render: (text: any, record: any) => {
                     return (
                         <div>
                             <a onClick={this.viewCluster.bind(this, record)}>查看</a>
                             <span className="ant-divider" ></span>
-                            <Popconfirm title={`删除集群后不可恢复，确认删除集群 ${record.clusterName}?`} onConfirm={this.deleteCluster.bind(this, record)} okText="确认" cancelText="取消">
+                            <Popconfirm
+                                placement="topRight"
+                                title={`删除集群后不可恢复，确认删除集群 ${record.clusterName}?`}
+                                onConfirm={this.deleteCluster.bind(this, record)}
+                                okText="确认"
+                                cancelText="取消"
+                            >
                                 <a>删除</a>
                             </Popconfirm>
                         </div>

@@ -6,6 +6,7 @@ import utils from 'dt-common/src/utils';
 import {
     COMPONENT_TYPE_VALUE, COMPONEMT_CONFIG_KEYS, COMPONEMT_CONFIG_KEY_ENUM
 } from '../../../consts';
+import dealData from './dealData';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -13,25 +14,6 @@ class DisplayResource extends React.Component<any, any> {
     state: any = {
         compVersion: []
     }
-
-    // componentDidMount () {
-    //     this.getCompVersion();
-    // }
-
-    // getCompVersion = () => {
-    //     const { components } = this.props;
-    //     const componentTypeCode = components.componentTypeCode;
-    //     const isRequest = componentTypeCode === COMPONENT_TYPE_VALUE.FLINK
-    //     isRequest && Api.getCompVersion({
-    //         componentType: COMPONENT_TYPE_VALUE.FLINK
-    //     }).then((res: any) => {
-    //         if (res.code === 1) {
-    //             this.setState({
-    //                 compVersion: res.data
-    //             })
-    //         }
-    //     })
-    // }
 
     // 组件配置信息
     getComponentConfig = () => {
@@ -52,7 +34,7 @@ class DisplayResource extends React.Component<any, any> {
                 label={labelName}
                 colon={false}
             >
-                {getFieldDecorator(`${configName}.file`, {
+                {getFieldDecorator(`${configName}.uploadFileName`, {
                     initialValue: components.uploadFileName || ''
                 })(
                     <div>
@@ -60,7 +42,6 @@ class DisplayResource extends React.Component<any, any> {
                             style={{ lineHeight: '32px', textIndent: 'initial', height: 32, width: 172 }}
                             className="ant-btn"
                             htmlFor={`my${configName}File`}
-
                         >
                             <span>
                                 { uploadLoading ? <Icon className="blue-loading" type="loading" style={{ marginRight: 8 }} /> : <Icon type="upload" style={{ marginRight: 8 }} /> }
@@ -143,14 +124,15 @@ class DisplayResource extends React.Component<any, any> {
     renderParamsFile = (configName: any) => {
         const { getFieldDecorator, components, isView, uploadLoading, downloadFile, paramsfileChange } = this.props;
         const config = this.getComponentConfig();
-        const { paramsFileName } = config;
+        const { paramsFileName, loadTemplate = [] } = config;
+        const isHaveValue = dealData.checkFormHaveValue(loadTemplate)
         return (
             <FormItem
                 label={
                     <span>
                         <span>参数批量上传</span>
                         {
-                            paramsFileName
+                            paramsFileName || isHaveValue
                                 ? <span
                                     className="c-displayResource__downloadTemp"
                                     onClick={() => downloadFile(components, 2)}
@@ -168,7 +150,7 @@ class DisplayResource extends React.Component<any, any> {
                 }
                 colon={false}
             >
-                {getFieldDecorator(`${configName}.file`, null)(
+                {getFieldDecorator(`${configName}.paramsFile`, null)(
                     <div>
                         {!isView && <label
                             style={{ lineHeight: '32px', textIndent: 'initial', height: 32, width: 172 }}
@@ -186,7 +168,7 @@ class DisplayResource extends React.Component<any, any> {
                             id={`my${configName}PramasFile`}
                             onClick={(e: any) => { e.target.value = null }}
                             onChange={(e: any) => paramsfileChange(e, components.componentTypeCode)}
-                            accept=".zip"
+                            accept=".json"
                             style={{ display: 'none' }}
                         />
                         <span style={{ fontSize: 10, color: '#999' }}>仅支持json格式</span>
@@ -198,16 +180,25 @@ class DisplayResource extends React.Component<any, any> {
 
     // 组件版本
     renderCompVersion = (configName: any) => {
-        const { getFieldDecorator, components, isView } = this.props;
+        const { getFieldDecorator, getFieldValue, components, isView } = this.props;
+        const componentTypeCode = components.componentTypeCode;
+        let connectHadoopVersion: any = '';
+        if (componentTypeCode === COMPONENT_TYPE_VALUE.YARN) {
+            connectHadoopVersion = getFieldValue(`${COMPONEMT_CONFIG_KEYS.HDFS}.hadoopVersion`) || components.hadoopVersion
+        }
+        if (componentTypeCode === COMPONENT_TYPE_VALUE.HDFS) {
+            connectHadoopVersion = getFieldValue(`${COMPONEMT_CONFIG_KEYS.YARN}.hadoopVersion`) || components.hadoopVersion
+        }
+        // console.log('connectHadoopVersion=====ssss===',componentTypeCode, connectHadoopVersion)
         return (
             <FormItem
                 label="组件版本"
                 colon={false}
             >
                 {getFieldDecorator(`${configName}.hadoopVersion`, {
-                    initialValue: components.hadoopVersion || 'hadoop2'
+                    initialValue: connectHadoopVersion || 'hadoop2'
                 })(
-                    <Select style={{ width: 172 }} disabled={isView}>
+                    <Select style={{ width: 172 }} disabled={isView} onChange={(val) => this.handleCompsVersion(val, componentTypeCode)}>
                         <Option value='hadoop2' key='hadoop2'>hadoop2</Option>
                         <Option value='hadoop3' key='hadoop3'>hadoop3</Option>
                         <Option value='HW' key='HW'>HW</Option>
@@ -217,8 +208,12 @@ class DisplayResource extends React.Component<any, any> {
         )
     }
 
-    handleFlinkVersion = (val) => {
-        this.props.handleFlinkVersion(COMPONENT_TYPE_VALUE.FLINK, val)
+    handleFlinkSparkVersion = (val: any, key: number) => {
+        this.props.handleFlinkSparkVersion(key, val);
+    }
+
+    handleCompsVersion = (val: any, key: number) => {
+        this.props.handleCompsVersion(key, val);
     }
 
     // flink组件版本
@@ -233,7 +228,7 @@ class DisplayResource extends React.Component<any, any> {
                 {getFieldDecorator(`${configName}.hadoopVersion`, {
                     initialValue: components.hadoopVersion || '180'
                 })(
-                    <Select style={{ width: 172 }} disabled={isView} onChange={this.handleFlinkVersion} >
+                    <Select style={{ width: 172 }} disabled={isView} onChange={(val) => this.handleFlinkSparkVersion(val, COMPONENT_TYPE_VALUE.FLINK)} >
                         <Option value='140' key='1.4'>1.4</Option>
                         <Option value='150' key='1.5'>1.5</Option>
                         <Option value='180' key='1.8'>1.8</Option>
@@ -250,12 +245,12 @@ class DisplayResource extends React.Component<any, any> {
                 label="组件版本"
                 colon={false}
             >
-                {getFieldDecorator(`${configName}.version`, {
-                    initialValue: components.version || '2.1.X'
+                {getFieldDecorator(`${configName}.hadoopVersion`, {
+                    initialValue: components.hadoopVersion || '2.1.x'
                 })(
-                    <Select style={{ width: 172 }} disabled={isView}>
-                        <Option value='2.1.X' key='2.1.X'>2.1.X</Option>
-                        <Option value='2.3.X' key='2.3.X'>2.3.X</Option>
+                    <Select style={{ width: 172 }} disabled={isView} onChange={(val) => this.handleFlinkSparkVersion(val, COMPONENT_TYPE_VALUE.SPARK)}>
+                        <Option value='2.1.x' key='2.1.X'>2.1.X</Option>
+                        <Option value='2.3.x' key='2.3.X'>2.3.X</Option>
                     </Select>
                 )}
             </FormItem>

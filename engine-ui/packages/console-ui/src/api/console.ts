@@ -5,6 +5,32 @@ import http from './http'
 import req from '../consts/reqUrls'
 
 export default {
+    // 4.0 版本相关接口
+    getClusterInfo (params: any) {
+        return http.post(req.GET_CLUSTER_INFO, params);
+    },
+    uploadResource (params: any) {
+        return http.postAsFormData(req.UPLOAD_RESOURCE, params);
+    },
+    deleteComponent (params: any) {
+        return http.post(req.DELETE_COMPONENT, params); // 删除组件
+    },
+    deleteCluster (params: any) {
+        return http.post(req.DELETE_CLUSTER, params);
+    },
+    getCompVersion (params: any) {
+        return http.post(req.GET_COMPONENT_VERSION, params)
+    },
+    testConnects (params: any) {
+        return http.post(req.TEST_CONNECTS, params)
+    },
+    saveComponent (params: any) {
+        return http.postAsFormData(req.SAVE_COMPONENT, params);
+    },
+    closeKerberos (params: any) {
+        return http.post(req.CLOSE_KERBEROS, params)
+    },
+
     getResourceList: function (params: any) {
         return http.post(req.GET_RESOURCE_LIST, params);
     },
@@ -37,22 +63,6 @@ export default {
     },
     confirmSwitchQueue (params: any) {
         return http.post(req.CONFIRM_SWITCH_QUEUE, params);
-    },
-    // 4.0 版本相关接口
-    getClusterInfo (params: any) {
-        return http.post(req.GET_CLUSTER_INFO, params);
-    },
-    uploadResource (params: any) {
-        return http.postAsFormData(req.UPLOAD_RESOURCE, params);
-    },
-    deleteComponent (params: any) {
-        return http.post(req.DELETE_COMPONENT, params); // 删除组件
-    },
-    deleteCluster (params: any) {
-        return http.post(req.DELETE_CLUSTER, params);
-    },
-    getCompVersion (params: any) {
-        return http.post(req.GET_COMPONENT_VERSION, params)
     },
     // 任务管理模块
     // 概览-获取集群
@@ -146,9 +156,6 @@ export default {
     },
     addComponent (params: any) {
         return http.post(req.ADD_COMPONENT, params);
-    },
-    saveComponent (params: any) {
-        return http.postAsFormData(req.SAVE_COMPONENT, params);
     },
     saveComponentWithKerberos (params: any) {
         return http.postAsFormData(req.SAVE_COMPONENT_KERBEROS, params);

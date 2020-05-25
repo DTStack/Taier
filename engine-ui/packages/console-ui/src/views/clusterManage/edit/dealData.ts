@@ -1,51 +1,13 @@
 import _ from 'lodash';
 import { COMPONEMT_CONFIG_KEY_ENUM, COMPONENT_TYPE_VALUE } from '../../../consts';
 
-function dealData (data: any) {
-    let newData: any = _.cloneDeep(data)
-    newData.engines = _.map(data.engines, (item) => {
-        let newItem = _.cloneDeep(item);
-        newItem.components = _.map(item.components, (com) => {
-            let newCom = _.cloneDeep(com);
-            if (com.componentName === 'YARN' || com.componentName === 'HDFS') {
-                delete newCom.config.openKerberos;
-                delete newCom.config.kerberosFile;
-            }
-            delete newCom.config.kerberosConf;
-            return newCom;
-        })
-        return newItem;
-    });
-    return newData;
-}
-
-function getKerberosObj (data: any, componentName: any) { // 需要返回{openKerberos: true, kerberosConf: kerberosConf}
-    // console.log(data, componentName)
-    let kerberosObj: any = {};
-    const hadoopEngine = _.find(data.engines, (item) => {
-        return item.engineName === 'Hadoop'
-    });
-    const targeComponent = _.find(hadoopEngine.components, (com) => {
-        return componentName === com.componentName
-    });
-    let config = targeComponent.config;
-    // console.log(targeComponent)
-    if (componentName === 'YARN' || componentName === 'HDFS') {
-        if (config && config.openKerberos != null) {
-            kerberosObj.openKerberos = config.openKerberos;
-        }
-    }
-    if (config && config.kerberosConf) {
-        kerberosObj.kerberosConf = config.kerberosConf;
-    }
-
-    return kerberosObj;
-}
-
-function getCustomParams (data: any) {
+// 对自定义参数的key值进行处理
+function handleCustomParams (data: any) {
     let paramsArr = []
     let tmpParam: any = {};
-    for (let key in data) {
+    let configParams = _.cloneDeep(data);
+    // console.log('configParams---------tempkey', configParams)
+    for (let key in configParams) {
         // key的数据结构为%1532398855125918-key, %1532398855125918-value
         if (key.startsWith('%')) {
             let tmpKeys = key.split('%')[1].split('-');
@@ -54,7 +16,7 @@ function getCustomParams (data: any) {
             if (!tmpParam[id]) {
                 tmpParam[id] = {};
             }
-            tmpParam[id][idParam] = data[key];
+            tmpParam[id][idParam] = configParams[key];
         }
     }
     for (let key in tmpParam) {
@@ -68,22 +30,6 @@ function getCustomParams (data: any) {
     return paramsArr;
 }
 
-function getLoadTemplateParams (loadTemplate: any = []) {
-    let params: any = [];
-    loadTemplate.map((temp: any) => {
-        if (temp.id) { params.push(temp) }
-    })
-    return params;
-}
-
-function getLoadTemplates (loadTemplate: any = []) {
-    let params: any = [];
-    loadTemplate.map((temp: any) => {
-        if (!temp.id) { params.push(temp) }
-    })
-    return params;
-}
-
 /**
  * 处理添加、更新组件数据参数
  * @values 表单变更值
@@ -91,80 +37,209 @@ function getLoadTemplates (loadTemplate: any = []) {
  */
 function getComponentConfigPrames (values: any, components: any, config: any) {
     const componentTypeCode = components.componentTypeCode;
-    // 组件配置相关 配置文件、组件id、组件模板、
-    const {
-        uploadFileName = {}, configInfo = {}, loadTemplate = [], kerberosFileName = {},
-        kerFileName = '' } = config;
+    // 组件配置相关 配置文件、组件id、组件模板
+    const { uploadFileName = {}, loadTemplate = [], kerberosFileName = {}, kerFileName = '' } = config;
     const files = uploadFileName.files && uploadFileName.files[0] ? uploadFileName.files[0] : '';
     const kerFiles = kerberosFileName.files && kerberosFileName.files[0] ? kerberosFileName.files[0] : '';
-    console.log('files-------------kerFiles', files, kerFiles)
+
     // 各组件表单对应更改值
     let saveConfig = values[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]];
-    const { hadoopVersion } = saveConfig;
+    const { hadoopVersion = '', params = {}, configInfo } = saveConfig;
     const { clusterName } = values;
-    // const customParams = dealData.getCustomParams(params);
-    const formConfig = _.cloneDeep(saveConfig.configInfo);
+    const formConfig = _.cloneDeep(configInfo);
+    const customParams = _.cloneDeep(params);
+    let componentTemplate = _.cloneDeep(loadTemplate);
 
     // 返回模板信息以及相关输入值
-    let componentTemplate = _.cloneDeep(loadTemplate)
-    if (componentTypeCode === COMPONENT_TYPE_VALUE.FLINK) {
-        componentTemplate.forEach((val: any) => {
-            // console.log('val-----formConfig', val)
-            if (val.key !== 'deploymode') {
-                for (let groupKey in formConfig[val.key]) {
-                    val.values.forEach((vals: any) => {
-                        if (vals.key === groupKey.split('%').join('.')) vals.value = formConfig[val.key][groupKey];
-                    })
-                }
-            } else {
-                val.value = formConfig[val.key]
+    componentTemplate.forEach((val: any) => {
+        // console.log('val-----formConfig', val)
+        if (val.type === 'GROUP') {
+            for (let groupKey in formConfig[val.key]) {
+                val.values.forEach((vals: any) => {
+                    if (vals.key === groupKey.split('%').join('.')) vals.value = formConfig[val.key][groupKey];
+                })
             }
-        })
-    } else {
-        componentTemplate.forEach((item: any) => {
-            if (saveConfig.configInfo[item.key]) {
-                item.value = saveConfig.configInfo[item.key]
-            }
-        })
-    }
-    console.log('componentTemplate-------componentTypeCode----saveConfig', componentTemplate, componentTypeCode, saveConfig)
-
+        } else {
+            val.value = formConfig[val.key.split('%').join('.')]
+            // console.log('val.value======', val.key.split('%').join('.'))
+        }
+    })
+    componentTemplate = getCustomParams(customParams, componentTemplate)
+    // console.log('componentTemplate=====ddd======hadoopVersion', componentTemplate, hadoopVersion)
     /**
      * 配置信息或者配置表单键值
-     * saveConfig.configInfo 表单键值
+     * formValues 表单键值
      * configInfo 组件配置信息
      */
-    // let formValues = cloneDeep(saveConfig.configInfo)
-    let formValues = _.cloneDeep(saveConfig.configInfo);
-    if (componentTypeCode === COMPONENT_TYPE_VALUE.FLINK) {
-        for (let key in formConfig) {
-            if (key !== 'deploymode') {
-                for (let groupKey in formConfig[key]) {
-                    formValues[key][groupKey.split('%').join('.')] = formConfig[key][groupKey]
-                    delete formValues[key][groupKey]
-                }
-            }
-        }
-    }
-    // console.log('formConfig------------', formConfig)
-    const paramsConfig = formValues || configInfo;
+    const formValues = handleFormValues(formConfig, customParams, componentTypeCode);
+    const paramsConfig = Object.keys(formValues).length === 0 ? config.configInfo : formValues;
+    console.log('formValues------dsds------paramsConfig', formValues, paramsConfig)
     return {
         resources1: files,
         resources2: kerFiles,
         clusterName: clusterName,
         componentConfig: JSON.stringify({ ...paramsConfig }),
         kerberosFileName: kerFileName,
-        hadoopVersion: hadoopVersion,
+        hadoopVersion: hadoopVersion || '',
         componentCode: componentTypeCode,
         componentTemplate: JSON.stringify(componentTemplate)
     }
 }
 
+// 返回含有自定义参数的模板
+function getCustomParams (customParams: any, componentTemplate: any) {
+    let cloneLoadTemp = _.cloneDeep(componentTemplate);
+    let cloneCustomParams = _.cloneDeep(customParams)
+    let isGroup = false;
+    cloneLoadTemp = cloneLoadTemp.filter((item: any) => !item.id);
+    cloneLoadTemp.forEach((temp: any, index: any) => {
+        if (temp.type === 'GROUP') {
+            temp.values = temp.values.filter((item: any) => !item.id)
+        }
+    })
+    cloneLoadTemp.forEach((temp: any) => {
+        if (temp.type === 'GROUP') {
+            isGroup = true;
+            temp.values = Object.keys(cloneCustomParams).length === 0 ? temp.values : temp.values.concat(handleCustomParams(cloneCustomParams[temp.key]));
+        }
+    })
+    if (!isGroup) {
+        cloneLoadTemp = Object.keys(cloneCustomParams).length === 0 ? cloneLoadTemp : cloneLoadTemp.concat(handleCustomParams(cloneCustomParams))
+    }
+    // console.log('cloneLoadTemp-----dfa-----cloneLoadTemp', cloneLoadTemp)
+    return cloneLoadTemp;
+}
+
+// 从模板中获取自定义参数
+function getLoadTemplateParams (loadTemplate: any) {
+    let params: any = [];
+    loadTemplate.map((temps: any) => {
+        if (temps.id && temps.type !== 'Group') params.push(temps)
+        if (temps.type === 'GROUP') {
+            let groupParams: any = [];
+            temps.values.map((val: any) => {
+                if (val.id) groupParams.push(val)
+            })
+            params.push({ key: temps.key, groupParams })
+        }
+    })
+    // console.log('params===========', params)
+    return params;
+}
+
+// 从模板中获取表单键值对
+function setCompoentsConfigInfo (data: any) {
+    let newConfigInfo: any = {};
+    data.forEach((temp: any) => {
+        if (temp.type === 'GROUP') {
+            let groupValue: any = {}
+            temp.values.forEach((t: any) => {
+                groupValue[t.key] = t.value
+            })
+            newConfigInfo[temp.key] = groupValue;
+        } else {
+            newConfigInfo[temp.key] = temp.value;
+        }
+    })
+    // console.log('newConfigInfo=========aa', newConfigInfo)
+    return newConfigInfo;
+}
+
+// 检查模板里面是否有值
+function checkFormHaveValue (loadTemplate: any) {
+    let isHaveValue = false;
+    loadTemplate.map((temp: any) => {
+        if (temp.type === 'GROUP') {
+            temp.values.map((val: any) => {
+                if (val.value) isHaveValue = true;
+            })
+        } else {
+            if (temp.value) isHaveValue = true;
+        }
+    })
+    return isHaveValue;
+}
+
+function handleBatchParams (data: any) {
+    let batchParams: any = {}
+    for (let key in data) {
+        if (_.isObject(data[key])) {
+            let groupBatchParams: any = {}
+            for (let groupKey in data[key]) {
+                groupBatchParams[groupKey.split('.').join('%')] = data[key][groupKey];
+            }
+            batchParams[key.split('.').join('%')] = groupBatchParams;
+        } else {
+            batchParams[key.split('.').join('%')] = data[key];
+        }
+    }
+    console.log('batchParams=====sa======', batchParams)
+    return batchParams;
+}
+
+// 返回模板和自定义参数键值对
+function handleFormValues (formConfig: any, customParams: any, componentTypeCode: number) {
+    let formValues: any = {};
+    const isGroupConfig = componentTypeCode === COMPONENT_TYPE_VALUE.FLINK || componentTypeCode === COMPONENT_TYPE_VALUE.SPARK || componentTypeCode === COMPONENT_TYPE_VALUE.DTYARNSHELL
+    for (let key in formConfig) {
+        if (!isGroupConfig || key === 'deploymode') {
+            formValues[key.split('%').join('.')] = formConfig[key];
+            if (Object.keys(customParams).length !== 0) {
+                const paramsKey = handleCustomParams(customParams);
+                paramsKey.map((p: any) => {
+                    formValues[p.key] = p.value
+                })
+            }
+        } else {
+            let val: any = {}
+            for (let groupKey in formConfig[key]) {
+                val[groupKey.split('%').join('.')] = formConfig[key][groupKey]
+            }
+            if (Object.keys(customParams).length !== 0) {
+                const paramsKey = handleCustomParams(customParams[key]);
+                paramsKey.map((p: any) => {
+                    val[p.key] = p.value
+                })
+            }
+            formValues[key.split('%').join('.')] = val;
+        }
+    }
+    return formValues;
+}
+
+function getMoadifyComps (values: any, componentConfig: any) {
+    const componentTypeCodeArr = Object.values(COMPONENT_TYPE_VALUE);
+    let modifyCompsArr: any = [];
+    componentTypeCodeArr.map((componentTypeCode: any) => {
+        const formConfig = values[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {};
+        if (Object.keys(formConfig).length !== 0) {
+            const config = componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {};
+            const compConfigInfo = config.configInfo;
+            const compHadoopVersion = config.hadoopVersion;
+            const compKerberosFileName = config.kerFileName;
+            const compUploadFileName = config.fileName;
+            const { configInfo = {}, params = {}, hadoopVersion = '', kerberosFileName = '', uploadFileName = '' } = formConfig;
+            const formValues = handleFormValues(configInfo, params, componentTypeCode);
+            const isUploadFileComps = componentTypeCode === COMPONENT_TYPE_VALUE.YARN || componentTypeCode === COMPONENT_TYPE_VALUE.KUBERNETES ||
+                componentTypeCode === COMPONENT_TYPE_VALUE.HDFS;
+            const isModify = (hadoopVersion && !_.isEqual(compHadoopVersion, hadoopVersion)) || (uploadFileName && !_.isEqual(compUploadFileName, uploadFileName)) ||
+                    (kerberosFileName && !_.isEqual(kerberosFileName, compKerberosFileName))
+            if (isModify) { modifyCompsArr.push(componentTypeCode) }
+            if (!_.isEqual(compConfigInfo, formValues) && !isModify && !isUploadFileComps) {
+                modifyCompsArr.push(componentTypeCode)
+            }
+        }
+    })
+    return modifyCompsArr;
+}
+
 export default {
-    dealData,
-    getKerberosObj,
-    getCustomParams,
+    handleCustomParams,
+    getComponentConfigPrames,
     getLoadTemplateParams,
-    getLoadTemplates,
-    getComponentConfigPrames
+    setCompoentsConfigInfo,
+    checkFormHaveValue,
+    handleBatchParams,
+    handleFormValues,
+    getMoadifyComps
 }

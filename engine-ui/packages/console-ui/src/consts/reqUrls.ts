@@ -48,6 +48,9 @@ export default {
     DELETE_CLUSTER: `${CONSOLE_BASE_UPLOAD_URL}/cluster/deleteCluster`, // 删除集群
     DELETE_COMPONENT: `${CONSOLE_BASE_URL}/component/delete`,
     GET_COMPONENT_VERSION: `${CONSOLE_BASE_URL}/component/getComponentVersion`,
+    TEST_CONNECTS: `${CONSOLE_BASE_URL}/component/testConnects`,
+    SAVE_COMPONENT: `${CONSOLE_BASE_URL}/upload/component/addOrUpdateComponent`,
+    CLOSE_KERBEROS: `${CONSOLE_BASE_URL}/component/closeKerberos`,
 
     GET_LOADTEMPLATE: `${CONSOLE_BASE_UPLOAD_URL}/component/loadTemplate`, // 获取上传模板
     UPLOAD_KERBEROSFILE: `${CONSOLE_BASE_UPLOAD_URL}/upload/component/hadoopKerberosConfig`, // 上传kerberos认证文件
@@ -56,7 +59,6 @@ export default {
     TEST_COMPONENT_CONNECT_KERBEROS: `${CONSOLE_BASE_UPLOAD_URL}/upload/service/component/testConnections`, // 测试连通性只要有组件开启kerberos认证就掉该接口
     ADD_CLUSTER: `${CONSOLE_BASE_URL}/cluster/addCluster`, // 新增集群
     ADD_COMPONENT: `${CONSOLE_BASE_URL}/component/addComponent`,
-    SAVE_COMPONENT: `${CONSOLE_BASE_URL}/upload/component/addOrUpdateComponent`,
     SAVE_COMPONENT_KERBEROS: `${CONSOLE_BASE_UPLOAD_URL}/upload/service/component/updateWithKerberos`, // 开启kerberos认证的保存接口
     DELETE_KERBEROS: `${CONSOLE_BASE_URL}/component/rmKerberosConfig`, // 删除Haddop Kerberos认证文件
     ADD_ENGINE: `${CONSOLE_BASE_URL}/engine/addEngine`,
