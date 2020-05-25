@@ -556,7 +556,7 @@ public class ComponentService {
             engineDao.insert(engine);
             LOGGER.info("cluster {} add engine  {} ", clusterId, engine.getId());
         }
-        //yarn 和 kerberos 只能2选一
+        //yarn 和 Kubernetes 只能2选一
         if (EComponentType.YARN.getTypeCode() == componentCode || EComponentType.KUBERNETES.getTypeCode() == componentCode) {
             Component resourceComponent = componentDao.getByClusterIdAndComponentType(clusterId,
                     EComponentType.YARN.getTypeCode() == componentCode ? EComponentType.KUBERNETES.getTypeCode() : EComponentType.YARN.getTypeCode());
