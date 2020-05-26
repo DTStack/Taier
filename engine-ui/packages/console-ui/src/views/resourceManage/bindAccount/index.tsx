@@ -72,6 +72,8 @@ class BindAccountTable extends React.Component<IProps, IState> {
 
     fetchUnbindUsers = async () => {
         const { queryParams } = this.state;
+        const { engineType } = this.props;
+        queryParams.engineType = engineType;
         const res = await AccountApi.getUnbindAccounts({ dtuicTenantId: queryParams.dtuicTenantId });
         if (res.code === 1) {
             this.setState({

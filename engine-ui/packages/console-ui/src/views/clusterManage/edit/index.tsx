@@ -16,7 +16,7 @@ import {
     isHadoopEngine,
     exChangeComponentConf,
     showTestResult, validateAllRequired,
-    myUpperCase, myLowerCase, toChsKeys
+    myUpperCase, myLowerCase, toChsKeys, isGreenPlumEngine
 } from '../../../consts/clusterFunc';
 
 import { formItemLayout, ENGINE_TYPE, COMPONENT_TYPE_VALUE, SPARK_KEY_MAP, COMPONEMT_CONFIG_KEYS, COMPONEMT_CONFIG_KEY_ENUM,
@@ -180,6 +180,9 @@ class EditCluster extends React.Component<any, any> {
             if (key == COMPONEMT_CONFIG_KEYS.ORACLE_SQL) {
                 delete copyComp[key]
             }
+            if (key == COMPONEMT_CONFIG_KEYS.GREEN_PLUM_SQL) {
+                delete copyComp[key]
+            }
         }
         if (isHadoop) {
             setFieldsValue(copyComp);
@@ -214,6 +217,10 @@ class EditCluster extends React.Component<any, any> {
         } else if (isOracleEngine(engineType)) {
             setFieldsValue({
                 oracleConf: compConf.oracleConf
+            })
+        } else if (isGreenPlumEngine(engineType)) {
+            setFieldsValue({
+                greenPlumConf: compConf.greenPlumConf
             })
         }
     }
@@ -862,8 +869,9 @@ class EditCluster extends React.Component<any, any> {
             reqParams.engineList = engineArr;
             Api.addEngines(reqParams).then((res: any) => {
                 if (res.code === 1) {
+                    const lastEngineKey = engineArr.length > 0 ? engineArr[ engineArr.length - 1 ].engineType : engineTypeKey;
                     this.onCancel()
-                    this.getDataList(engineTypeKey);
+                    this.getDataList(lastEngineKey);
                     message.success('添加引擎成功!')
                 }
             })

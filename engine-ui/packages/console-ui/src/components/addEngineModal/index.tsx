@@ -4,7 +4,7 @@ import { cloneDeep } from 'lodash';
 
 import {
     COMPONENT_TYPE_VALUE, HADOOP_GROUP_VALUE,
-    formItemLayout, ENGINE_TYPE_ARRAY, ENGINE_TYPE_NAME
+    formItemLayout, ENGINE_TYPE_ARRAY, ENGINE_TYPE_NAME, ENGINE_TYPE
 } from '../../consts';
 
 const FormItem = Form.Item;
@@ -14,6 +14,41 @@ const RadioGroup = Radio.Group;
 const defaultCheckedValue: any = [ // 必选引擎值
     COMPONENT_TYPE_VALUE.HDFS, COMPONENT_TYPE_VALUE.YARN, COMPONENT_TYPE_VALUE.SFTP
 ];
+
+const getComponentCodes = (engineName: string) => {
+    if (engineName === ENGINE_TYPE_NAME.HADOOP) {
+        return defaultCheckedValue;
+    } else if (engineName === ENGINE_TYPE_NAME.LIBRA) {
+        return [COMPONENT_TYPE_VALUE.LIBRASQL];
+    } else if (engineName === ENGINE_TYPE_NAME.TI_DB) {
+        return [COMPONENT_TYPE_VALUE.TIDB_SQL];
+    } else if (engineName === ENGINE_TYPE_NAME.ORACLE) {
+        return [COMPONENT_TYPE_VALUE.ORACLE_SQL];
+    } else if (engineName === ENGINE_TYPE_NAME.GREEN_PLUM) {
+        return [COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL];
+    }
+}
+
+const getEngineTypeValue = (engineName: string) => {
+    switch (engineName) {
+        case ENGINE_TYPE_NAME.HADOOP: {
+            return ENGINE_TYPE.HADOOP;
+        }
+        case ENGINE_TYPE_NAME.LIBRA: {
+            return ENGINE_TYPE.LIBRA;
+        }
+        case ENGINE_TYPE_NAME.TI_DB: {
+            return ENGINE_TYPE.TI_DB;
+        }
+        case ENGINE_TYPE_NAME.ORACLE: {
+            return ENGINE_TYPE.ORACLE;
+        }
+        case ENGINE_TYPE_NAME.GREEN_PLUM: {
+            return ENGINE_TYPE.GREEN_PLUM;
+        }
+        default: return null;
+    }
+}
 
 // 新增集群、增加组件、增加引擎共用组件
 class AddEngineModal extends React.Component<any, any> {
@@ -57,27 +92,17 @@ class AddEngineModal extends React.Component<any, any> {
         const engines = value.engineTypes;
         const { singleMode } = this.props;
         const params: any = {};
-        const getComponentCodes = (engineName: string) => {
-            if (engineName === ENGINE_TYPE_NAME.HADOOP) {
-                return this.state.checkedList;
-            } else if (engineName === ENGINE_TYPE_NAME.LIBRA) {
-                return [COMPONENT_TYPE_VALUE.LIBRASQL];
-            } else if (engineName === ENGINE_TYPE_NAME.TI_DB) {
-                return [COMPONENT_TYPE_VALUE.TIDB_SQL];
-            } else if (engineName === ENGINE_TYPE_NAME.ORACLE) {
-                return [COMPONENT_TYPE_VALUE.ORACLE_SQL];
-            } else if (engineName === ENGINE_TYPE_NAME.GREEN_PLUM) {
-                return [COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL];
-            }
-        }
+
         if (singleMode) {
             params.engineName = engines;
+            params.engineType = getEngineTypeValue(engines);
             params.componentTypeCodeList = getComponentCodes(engines);
         } else {
             params.clusterName = value.clusterName;
             params.engineList = engines.map(engineName => {
                 return {
                     engineName: engineName,
+                    engineType: getEngineTypeValue(engineName),
                     componentTypeCodeList: getComponentCodes(engineName)
                 }
             });
