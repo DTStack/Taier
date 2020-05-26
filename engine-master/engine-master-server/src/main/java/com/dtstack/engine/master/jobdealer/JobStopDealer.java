@@ -1,18 +1,25 @@
-package com.dtstack.engine.master.impl;
+package com.dtstack.engine.master.jobdealer;
 
+import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.enums.EJobCacheStage;
+import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.StoppedJob;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.EngineJobStopRecordDao;
 import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.EngineJobStopRecord;
 import com.dtstack.engine.common.enums.StoppedStatus;
+import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.cache.ShardCache;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -33,17 +40,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
- * 任务停止消息
- * 不需要区分是不是主节点才启动处理线程
- * Date: 2018/1/22
- * Company: www.dtstack.com
- *
- * @author xuchao
+ * company: www.dtstack.com
+ * author: toutian
+ * create: 2020/5/26
  */
 @Component
-public class JobStopQueue implements InitializingBean {
+public class JobStopDealer implements InitializingBean {
 
-    private static final Logger logger = LoggerFactory.getLogger(JobStopQueue.class);
+    private static final Logger logger = LoggerFactory.getLogger(JobStopDealer.class);
 
     @Autowired
     private ShardCache shardCache;
@@ -63,7 +67,7 @@ public class JobStopQueue implements InitializingBean {
     private EnvironmentContext environmentContext;
 
     @Autowired
-    private JobStopAction jobStopAction;
+    private WorkerOperator workerOperator;
 
 
     private static final int WAIT_INTERVAL = 1000;
@@ -75,7 +79,7 @@ public class JobStopQueue implements InitializingBean {
     private ExecutorService simpleEs = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<>(), new CustomThreadFactory(this.getClass().getSimpleName()));
 
-    private ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName() + "_AcquireStopJob"));
+    private ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName()));
 
     private StopProcessor stopProcessor = new StopProcessor();
     private AcquireStopJob acquireStopJob = new AcquireStopJob();
@@ -191,7 +195,7 @@ public class JobStopQueue implements InitializingBean {
                 try {
                     StoppedJob<JobElement> stoppedJob = stopJobQueue.take();
                     if (!checkExpired(stoppedJob.getJob())){
-                        StoppedStatus stoppedStatus = jobStopAction.stopJob(stoppedJob.getJob());
+                        StoppedStatus stoppedStatus = JobStopDealer.this.stopJob(stoppedJob.getJob());
                         switch (stoppedStatus) {
                             case STOPPED:
                             case MISSED:
@@ -232,6 +236,55 @@ public class JobStopQueue implements InitializingBean {
         }
     }
 
+    private StoppedStatus stopJob(JobElement jobElement) throws Exception {
+        EngineJobCache jobCache = engineJobCacheDao.getOne(jobElement.jobId);
+        ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobElement.jobId);
+        if (jobCache == null) {
+            if (scheduleJob != null && RdosTaskStatus.isStopped(scheduleJob.getStatus())) {
+                logger.info("jobId:{} stopped success, task status is STOPPED.", jobElement.jobId);
+                return StoppedStatus.STOPPED;
+            }
+            logger.info("jobId:{} cache is missed, stop interrupt.", jobElement.jobId);
+            return StoppedStatus.MISSED;
+        } else if (EJobCacheStage.unSubmitted().contains(jobCache.getStage())) {
+            removeMemStatusAndJobCache(jobCache.getJobId());
+            logger.info("jobId:{} stopped success, task status is STOPPED.", jobElement.jobId);
+            return StoppedStatus.STOPPED;
+        } else {
+            if (scheduleJob == null) {
+                logger.info("jobId:{} cache is missed, stop interrupt.", jobElement.jobId);
+                return StoppedStatus.MISSED;
+            }
+            ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
+            paramAction.setEngineTaskId(scheduleJob.getEngineJobId());
+            paramAction.setApplicationId(scheduleJob.getApplicationId());
+            JobClient jobClient = new JobClient(paramAction);
+
+            if (StringUtils.isNotBlank(scheduleJob.getEngineJobId()) && !jobClient.getEngineTaskId().equals(scheduleJob.getEngineJobId())) {
+                logger.info("jobId:{} stopped success, because of [difference engineJobId].", paramAction.getTaskId());
+                return StoppedStatus.STOPPED;
+            }
+
+            JobResult jobResult = workerOperator.stopJob(jobClient);
+            if (jobResult.getCheckRetry()) {
+                logger.info("jobId:{} is retry.", paramAction.getTaskId());
+                return StoppedStatus.RETRY;
+            } else {
+                logger.info("jobId:{} is stopping.", paramAction.getTaskId());
+                return StoppedStatus.STOPPING;
+            }
+        }
+
+    }
+
+    private void removeMemStatusAndJobCache(String jobId) {
+        shardCache.removeIfPresent(jobId);
+        engineJobCacheDao.delete(jobId);
+        //修改任务状态
+        scheduleJobDao.updateJobStatusAndExecTime(jobId, RdosTaskStatus.CANCELED.getStatus());
+        logger.info("jobId:{} update job status:{}, job is finished.", jobId, RdosTaskStatus.CANCELED.getStatus());
+    }
+
     private boolean checkExpired(JobElement jobElement){
         EngineJobCache jobCache = engineJobCacheDao.getOne(jobElement.jobId);
         Timestamp getGmtCreate = engineJobStopRecordDao.getJobCreateTimeById(jobElement.stopJobId);
@@ -242,7 +295,7 @@ public class JobStopQueue implements InitializingBean {
         }
     }
 
-    public static class JobElement {
+    private class JobElement {
 
         public String jobId;
         public long stopJobId;
