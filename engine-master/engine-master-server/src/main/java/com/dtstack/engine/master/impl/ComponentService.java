@@ -1216,12 +1216,12 @@ public class ComponentService {
      * @param componentIds
      */
     @Transactional(rollbackFor = Exception.class)
-    public void delete(@Param("componentIds") List<Long> componentIds) {
+    public void delete(@Param("componentIds") List<Integer> componentIds) {
         if (CollectionUtils.isEmpty(componentIds)) {
             return;
         }
-        for (Long componentId : componentIds) {
-            Component component = componentDao.getOne(componentId);
+        for (Integer componentId : componentIds) {
+            Component component = componentDao.getOne(componentId.longValue());
             EngineAssert.assertTrue(component != null, ErrorCode.DATA_NOT_FIND.getDescription());
 
             if (EngineUtil.isRequiredComponent(component.getComponentTypeCode())) {
@@ -1229,7 +1229,7 @@ public class ComponentService {
             }
             component.setIsDeleted(Deleted.DELETED.getStatus());
             componentDao.update(component);
-            kerberosDao.deleteByComponentId(componentId);
+            kerberosDao.deleteByComponentId(componentId.longValue());
             //引擎组件为空 删除引擎
             List<Component> componentList = listComponent(component.getEngineId());
             if (CollectionUtils.isEmpty(componentList)) {
@@ -1277,8 +1277,7 @@ public class ComponentService {
         if(CollectionUtils.isEmpty(components)){
             return new ArrayList<>(0);
         }
-        Component sftpComponent = null;
-        Optional<Component> componentOptional = components.stream().filter(c -> EComponentType.SFTP.getTypeCode() != c.getComponentTypeCode()).findFirst();
+        Optional<Component> componentOptional = components.stream().filter(c -> EComponentType.SFTP.getTypeCode() == c.getComponentTypeCode()).findFirst();
         Map<String, String> sftpMap = null;
         try {
             if (componentOptional.isPresent()) {
