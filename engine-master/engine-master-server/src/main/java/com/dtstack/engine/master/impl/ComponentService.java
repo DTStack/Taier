@@ -1294,4 +1294,27 @@ public class ComponentService {
         }
         return testResults;
     }
+
+    public JSONObject getPluginInfoWithComponentType(Long dtuicTenantId,EComponentType componentType){
+        ClusterVO cluster = clusterService.getClusterByTenant(dtuicTenantId);
+
+        Component component = this.getComponentByClusterId(cluster.getId(), componentType.getTypeCode());
+        JSONObject hdfsConfigJSON = JSONObject.parseObject(component.getComponentConfig());
+        String typeName = hdfsConfigJSON.getString(ComponentService.TYPE_NAME);
+        if (StringUtils.isBlank(typeName)) {
+            //获取对应的插件名称
+            component = this.getComponentByClusterId(cluster.getId(), componentType.getTypeCode());
+            typeName = this.convertComponentTypeToClient(cluster.getClusterName(),
+                    componentType.getTypeCode(), component.getHadoopVersion());
+        }
+        //是否开启kerberos
+        KerberosConfig kerberos = kerberosDao.getByComponentType(cluster.getId(), componentType.getTypeCode());
+        Component sftpConfig = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.SFTP.getTypeCode());
+        Map sftpMap = JSONObject.parseObject(sftpConfig.getComponentConfig(), Map.class);
+        String pluginInfo = this.wrapperConfig(componentType.getTypeCode(), component.getComponentConfig(), sftpMap, kerberos, cluster.getClusterName());
+        JSONObject pluginInfoObj = JSONObject.parseObject(pluginInfo);
+        pluginInfoObj.put(TYPE_NAME,typeName);
+        return pluginInfoObj;
+    }
+
 }
