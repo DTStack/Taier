@@ -16,6 +16,7 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.enums.EComponentScheduleType;
 import com.dtstack.engine.master.enums.EComponentType;
+import com.dtstack.engine.master.enums.EDeployMode;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.utils.PublicUtil;
@@ -226,7 +227,7 @@ public class ClusterService implements InitializingBean {
     /**
      * 对外接口
      */
-    public JSONObject pluginInfoJSON(@Param("tenantId") Long dtUicTenantId, @Param("engineType") String engineTypeStr, @Param("dtUicUserId")Long dtUicUserId) {
+    public JSONObject pluginInfoJSON(@Param("tenantId") Long dtUicTenantId, @Param("engineType") String engineTypeStr, @Param("dtUicUserId")Long dtUicUserId,@Param("deployMode")Integer deployMode) {
         EngineTypeComponentType type = EngineTypeComponentType.getByEngineName(engineTypeStr);
         if (type == null) {
             return null;
@@ -241,7 +242,7 @@ public class ClusterService implements InitializingBean {
         cluster.setDtUicUserId(dtUicUserId);
 
         JSONObject clusterConfigJson = buildClusterConfig(cluster);
-        JSONObject pluginJson = convertPluginInfo(clusterConfigJson, type, cluster);
+        JSONObject pluginJson = convertPluginInfo(clusterConfigJson, type, cluster,deployMode);
         if (pluginJson == null) {
             throw new RdosDefineException(format("The cluster is not configured [%s] engine", engineTypeStr));
         }
@@ -256,8 +257,8 @@ public class ClusterService implements InitializingBean {
         return pluginJson;
     }
 
-    public String pluginInfo(@Param("tenantId") Long dtUicTenantId, @Param("engineType") String engineTypeStr,@Param("userId") Long dtUicUserId) {
-        return pluginInfoJSON(dtUicTenantId, engineTypeStr, dtUicUserId).toJSONString();
+    public String pluginInfo(@Param("tenantId") Long dtUicTenantId, @Param("engineType") String engineTypeStr,@Param("userId") Long dtUicUserId,@Param("deployMode")Integer deployMode) {
+        return pluginInfoJSON(dtUicTenantId, engineTypeStr, dtUicUserId,deployMode).toJSONString();
     }
 
     /**
@@ -272,7 +273,7 @@ public class ClusterService implements InitializingBean {
         JSONObject sftpConfig = clusterConfigJson.getJSONObject(EComponentType.SFTP.getConfName());
         EComponentType componentType = type.getComponentType();
         Component component = componentDao.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode());
-        KerberosConfig kerberosConfig = kerberosDao.getByComponentId(component.getId());
+        KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, componentType.getTypeCode());
         if (MapUtils.isNotEmpty(sftpConfig) && Objects.nonNull(kerberosConfig)) {
             Integer openKerberos = kerberosConfig.getOpenKerberos();
             String remotePath = kerberosConfig.getRemotePath();
@@ -407,7 +408,7 @@ public class ClusterService implements InitializingBean {
         //根据组件区分kerberos
         EComponentType componentType = EComponentType.getByConfName(key);
         Component component = componentDao.getByClusterIdAndComponentType(cluster.getId(),componentType.getTypeCode());
-        KerberosConfig kerberosConfig = kerberosDao.getByComponentId(component.getId());
+        KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(),componentType.getTypeCode());
         JSONObject configObj = config.getJSONObject(key);
         if (configObj != null) {
             addKerberosConfigWithHdfs(key, cluster, kerberosConfig, configObj);
@@ -480,7 +481,7 @@ public class ClusterService implements InitializingBean {
             Preconditions.checkState(Objects.nonNull(kerberosConfig.getOpenKerberos()));
             Preconditions.checkState(StringUtils.isNotEmpty(kerberosConfig.getPrincipal()));
             Preconditions.checkState(StringUtils.isNotEmpty(kerberosConfig.getRemotePath()));
-            Preconditions.checkState(Objects.nonNull(kerberosConfig.getComponentId()));
+            Preconditions.checkState(Objects.nonNull(kerberosConfig.getComponentType()));
             String remoteSftpKerberosPath = componentService.buildSftpPath(kerberosConfig.getClusterId(), component.getComponentTypeCode()) +
                    File.separator +  ComponentService.KERBEROS_PATH;
             String localKerberosPath = componentService.getLocalKerberosPath(kerberosConfig.getClusterId(), component.getComponentTypeCode());
@@ -504,7 +505,8 @@ public class ClusterService implements InitializingBean {
 
     public Map<String, Object> getConfig(ClusterVO cluster,Long dtUicTenantId,String key) {
         JSONObject config = buildClusterConfig(cluster);
-        KerberosConfig kerberosConfig = componentService.getKerberosConfig(cluster.getId());
+        EComponentType componentType = EComponentType.getByConfName(key);
+        KerberosConfig kerberosConfig = componentService.getKerberosConfig(cluster.getId(),componentType.getTypeCode());
 
         JSONObject configObj = config.getJSONObject(key);
         if (configObj != null) {
@@ -537,8 +539,8 @@ public class ClusterService implements InitializingBean {
     }
 
     @Forbidden
-    public JSONObject convertPluginInfo(JSONObject clusterConfigJson, EngineTypeComponentType type, ClusterVO clusterVO) {
-        JSONObject pluginInfo;
+    public JSONObject convertPluginInfo(JSONObject clusterConfigJson, EngineTypeComponentType type, ClusterVO clusterVO,Integer deployMode) {
+        JSONObject pluginInfo = new JSONObject();
         if (EComponentType.HDFS == type.getComponentType()) {
             pluginInfo = new JSONObject();
             //hdfs yarn%s-hdfs%s-hadoop%s的版本
@@ -550,55 +552,48 @@ public class ClusterService implements InitializingBean {
 
         } else if (EComponentType.LIBRA_SQL == type.getComponentType()) {
             JSONObject libraConf = clusterConfigJson.getJSONObject(EComponentType.LIBRA_SQL.getConfName());
-            pluginInfo = new JSONObject();
-            // fixme 特殊逻辑，libra用的是engine端的postgresql插件
-            pluginInfo.putAll(libraConf);
-            pluginInfo.put("dbUrl", libraConf.getString("jdbcUrl"));
-            pluginInfo.remove("jdbcUrl");
-            pluginInfo.put("userName", libraConf.getString("username"));
-            pluginInfo.remove("username");
-            pluginInfo.put("pwd", libraConf.getString("password"));
-            pluginInfo.remove("password");
+            this.convertSQLComponent(libraConf,pluginInfo);
             pluginInfo.put("typeName", "postgresql");
         } else if (EComponentType.IMPALA_SQL == type.getComponentType()) {
             JSONObject impalaConf = clusterConfigJson.getJSONObject(EComponentType.IMPALA_SQL.getConfName());
-            pluginInfo = new JSONObject();
-            pluginInfo.putAll(impalaConf);
-            pluginInfo.put("dbUrl", impalaConf.getString("jdbcUrl"));
-            pluginInfo.remove("jdbcUrl");
-            pluginInfo.put("userName", impalaConf.getString("username"));
-            pluginInfo.remove("username");
-            pluginInfo.put("pwd", impalaConf.getString("password"));
-            pluginInfo.remove("password");
+            this.convertSQLComponent(impalaConf,pluginInfo);
             pluginInfo.put("typeName", "impala");
         } else if (EComponentType.TIDB_SQL == type.getComponentType()) {
             JSONObject tiDBConf = JSONObject.parseObject(tiDBInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
-            pluginInfo = new JSONObject();
-            if(Objects.nonNull(tiDBConf)){
-                pluginInfo.putAll(tiDBConf);
-            }
-            pluginInfo.put("dbUrl", tiDBConf.getString("jdbcUrl"));
-            pluginInfo.remove("jdbcUrl");
-            pluginInfo.put("userName", tiDBConf.getString("username"));
-            pluginInfo.remove("username");
-            pluginInfo.put("pwd", tiDBConf.getString("password"));
-            pluginInfo.remove("password");
+            this.convertSQLComponent(tiDBConf,pluginInfo);
             pluginInfo.put("typeName", "tidb");
         } else if (EComponentType.ORACLE_SQL == type.getComponentType()) {
-            JSONObject tiDBConf = JSONObject.parseObject(oracleInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
-            pluginInfo = new JSONObject();
-            if(Objects.nonNull(tiDBConf)){
-                pluginInfo.putAll(tiDBConf);
-            }
-            pluginInfo.put("dbUrl", tiDBConf.getString("jdbcUrl"));
-            pluginInfo.remove("jdbcUrl");
-            pluginInfo.put("userName", tiDBConf.getString("username"));
-            pluginInfo.remove("username");
-            pluginInfo.put("pwd", tiDBConf.getString("password"));
-            pluginInfo.remove("password");
+            JSONObject oracleConf = JSONObject.parseObject(oracleInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
+            this.convertSQLComponent(oracleConf,pluginInfo);
             pluginInfo.put("typeName", "oracle");
         } else {
-            pluginInfo = clusterConfigJson.getJSONObject(type.getComponentType().getConfName());
+            //flink spark 需要区分任务类型
+            if (EComponentType.FLINK.equals(type.getComponentType()) || EComponentType.SPARK.equals(type.getComponentType())) {
+                //默认为perjob
+                EDeployMode deploy = EComponentType.FLINK.equals(type.getComponentType()) ? EDeployMode.SESSION : EDeployMode.PERJOB;
+                if (Objects.nonNull(deployMode)) {
+                    deploy = EDeployMode.getByType(deployMode);
+                }
+                JSONObject flinkConf = clusterConfigJson.getJSONObject(type.getComponentType().getConfName());
+                pluginInfo = flinkConf.getJSONObject(deploy.getMode());
+                if (Objects.isNull(pluginInfo)) {
+                    throw new RdosDefineException(String.format("对应模式【%s】未配置信息", deploy.name()));
+                }
+                String typeName = flinkConf.getString(TYPE_NAME);
+                if (!StringUtils.isBlank(typeName)) {
+                    pluginInfo.put(TYPE_NAME, typeName);
+                }
+            } else if (EComponentType.DT_SCRIPT.equals(type.getComponentType())) {
+                //DT_SCRIPT 需要将common配置放在外边
+                JSONObject dtscriptConf = clusterConfigJson.getJSONObject(type.getComponentType().getConfName());
+                JSONObject commonConf = dtscriptConf.getJSONObject("commonConf");
+                dtscriptConf.remove("commonConf");
+                pluginInfo = dtscriptConf;
+                pluginInfo.putAll(commonConf);
+            } else {
+                pluginInfo = clusterConfigJson.getJSONObject(type.getComponentType().getConfName());
+            }
+
             if (pluginInfo == null) {
                 return null;
             }
@@ -618,18 +613,31 @@ public class ClusterService implements InitializingBean {
             if (EComponentType.HIVE_SERVER == type.getComponentType()) {
                 String jdbcUrl = pluginInfo.getString("jdbcUrl");
                 jdbcUrl = jdbcUrl.replace("/%s", "");
-                pluginInfo.put("dbUrl", jdbcUrl);
+                pluginInfo.put("jdbcUrl", jdbcUrl);
                 pluginInfo.remove("jdbcUrl");
-                pluginInfo.put("pwd", pluginInfo.getString("password"));
+                pluginInfo.put("password", pluginInfo.getString("password"));
                 pluginInfo.remove("password");
                 pluginInfo.put("typeName", "hive");
-                pluginInfo.put("userName", pluginInfo.getString("username"));
+                pluginInfo.put("username", pluginInfo.getString("username"));
                 pluginInfo.remove("username");
             }
             pluginInfo.put(ConfigConstant.MD5_SUM_KEY, getZipFileMD5(clusterConfigJson));
             removeMd5FieldInHadoopConf(pluginInfo);
         }
 
+        return pluginInfo;
+    }
+
+
+    public JSONObject convertSQLComponent(JSONObject jdbcInfo, JSONObject pluginInfo) {
+        pluginInfo = new JSONObject();
+        if (Objects.isNull(jdbcInfo)) {
+            return pluginInfo;
+        }
+        pluginInfo.put("jdbcUrl", jdbcInfo.getString("jdbcUrl"));
+        pluginInfo.put("username", jdbcInfo.getString("username"));
+        pluginInfo.put("password", jdbcInfo.getString("password"));
+        pluginInfo.remove("password");
         return pluginInfo;
     }
 

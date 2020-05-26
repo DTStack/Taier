@@ -26,6 +26,7 @@ perjob:
     metrics.reporter.promgateway.host:
     metrics.reporter.promgateway.port: 9091
     metrics.reporter.promgateway.jobName: 181job
+    clusterMode: standalone
     metrics.reporter.promgateway.randomJobNameSuffix:
       controls: select
       values: [true,false]
@@ -123,6 +124,9 @@ session:
     high-availability: ZOOKEEPER
 
 standalone:
+  dependencyKey: deploymode
+  dependencyValue: standalone
+  controls: group
   required:
     flinkJarPath: /opt/dtstack/DTCommon/Engine/flink/flink180_lib
     jobmanager.archive.fs.dir: hdfs://ns1/dtInsight/flink180/completed-jobs
@@ -145,8 +149,13 @@ standalone:
     metrics.reporter.promgateway.host:
     metrics.reporter.promgateway.port: 9091
     metrics.reporter.promgateway.jobName: 181job
-    metrics.reporter.promgateway.randomJobNameSuffix: [TRUE,FALSE]
-    metrics.reporter.promgateway.deleteOnShutdown: [TRUE,FALSE]
+    clusterMode: session
+    metrics.reporter.promgateway.randomJobNameSuffix:
+      controls: select
+      values: [true,false]
+    metrics.reporter.promgateway.deleteOnShutdown:
+      controls: select
+      values: [true,false]
 
   optional:
     state.backend: RocksDB

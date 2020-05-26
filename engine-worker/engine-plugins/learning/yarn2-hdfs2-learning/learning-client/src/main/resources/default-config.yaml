@@ -1,4 +1,5 @@
 yarn:
+  controls: group
   optional:
     learning.python3.path: /data/anaconda3/bin/python3
     learning.python2.path: /data/anaconda2/bin/python2

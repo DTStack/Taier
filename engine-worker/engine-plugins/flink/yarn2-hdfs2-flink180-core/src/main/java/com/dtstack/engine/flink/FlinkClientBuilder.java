@@ -56,7 +56,7 @@ public class FlinkClientBuilder {
         if (flinkConfig.isOpenKerberos()) {
             initSecurity(flinkConfig);
         }
-        if (Deploy.yarn.name().equalsIgnoreCase(flinkConfig.getClusterMode())) {
+        if (Deploy.session.name().equalsIgnoreCase(flinkConfig.getClusterMode())) {
             builder.yarnClient = initYarnClient(yarnConf);
         }
         return builder;

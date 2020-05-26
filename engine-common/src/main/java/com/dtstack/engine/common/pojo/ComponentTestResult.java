@@ -21,10 +21,6 @@ public class ComponentTestResult {
 
     private ClusterResourceDescription clusterResourceDescription;
 
-    public boolean isResult() {
-        return result;
-    }
-
     public ClusterResourceDescription getClusterResourceDescription() {
         return clusterResourceDescription;
     }

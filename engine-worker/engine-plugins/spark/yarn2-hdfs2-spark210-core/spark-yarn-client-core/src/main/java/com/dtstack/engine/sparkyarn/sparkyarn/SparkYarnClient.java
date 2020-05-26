@@ -25,6 +25,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
@@ -103,20 +104,9 @@ public class SparkYarnClient extends AbstractClient {
         sparkYarnConfig.setDefaultFs(yarnConf.get(HadoopConfTool.FS_DEFAULTFS));
         System.setProperty(SPARK_YARN_MODE, "true");
         parseWebAppAddr();
-        if (sparkYarnConfig.isOpenKerberos()){
-            initSecurity();
-        }
         logger.info("UGI info: " + UserGroupInformation.getCurrentUser());
-        yarnClient = getYarnClient();
-    }
-    private void initSecurity() throws IOException {
-        try {
-            logger.info("start init security!");
-            KerberosUtils.login(sparkYarnConfig);
-        } catch (IOException e) {
-            logger.error("initSecurity happens error", e);
-            throw new IOException("InitSecurity happens error", e);
-        }
+        yarnClient = KerberosUtils.login(sparkYarnConfig, this::getYarnClient);
+
     }
 
     private void initYarnConf(SparkYarnConfig sparkConfig){
@@ -124,7 +114,7 @@ public class SparkYarnClient extends AbstractClient {
         customerConf.initHadoopConf(sparkConfig.getHadoopConf());
         customerConf.initYarnConf(sparkConfig.getYarnConf());
 
-        if (sparkYarnConfig.isOpenKerberos()){
+        if (sparkYarnConfig.isOpenKerberos() && MapUtils.isNotEmpty(sparkConfig.getHiveConf())){
             customerConf.initHiveSecurityConf(sparkConfig.getHiveConf());
         }
 
@@ -133,25 +123,23 @@ public class SparkYarnClient extends AbstractClient {
 
     @Override
     protected JobResult processSubmitJobWithType(JobClient jobClient) {
-        if (sparkYarnConfig.isOpenKerberos()){
-            try {
-                logger.debug("start init security!");
-                initSecurity();
-            } catch (IOException e) {
-                logger.error("InitSecurity happens error", e);
-            }
-        }
+        try {
+           return KerberosUtils.login(sparkYarnConfig,()->{
+                EJobType jobType = jobClient.getJobType();
+                JobResult jobResult = null;
+                if(EJobType.MR.equals(jobType)){
+                    jobResult = submitJobWithJar(jobClient);
+                }else if(EJobType.SQL.equals(jobType)){
+                    jobResult = submitSqlJob(jobClient);
+                }else if(EJobType.PYTHON.equals(jobType)){
+                    jobResult = submitPythonJob(jobClient);
+                }
+                return jobResult;
+            });
+        } catch (IOException e) {
 
-        EJobType jobType = jobClient.getJobType();
-        JobResult jobResult = null;
-        if(EJobType.MR.equals(jobType)){
-            jobResult = submitJobWithJar(jobClient);
-        }else if(EJobType.SQL.equals(jobType)){
-            jobResult = submitSqlJob(jobClient);
-        }else if(EJobType.PYTHON.equals(jobType)){
-            jobResult = submitPythonJob(jobClient);
         }
-        return jobResult;
+        return null;
     }
 
     private JobResult submitJobWithJar(JobClient jobClient){
@@ -608,26 +596,23 @@ public class SparkYarnClient extends AbstractClient {
     }
 
     @Override
-    public boolean judgeSlots(JobClient jobClient){
+    public boolean judgeSlots(JobClient jobClient) {
 
-        if (sparkYarnConfig.isOpenKerberos()){
-            try {
-                logger.debug("start init security!");
-                initSecurity();
-            } catch (IOException e) {
-                logger.error("InitSecurity happens error", e);
-            }
-        }
-
-        SparkYarnResourceInfo resourceInfo = new SparkYarnResourceInfo();
         try {
-            resourceInfo.getYarnSlots(getYarnClient(), sparkYarnConfig.getQueue(), sparkYarnConfig.getYarnAccepterTaskNumber());
-            return resourceInfo.judgeSlots(jobClient);
-        } catch (YarnException e) {
-            logger.error("", e);
-            return false;
+            return KerberosUtils.login(sparkYarnConfig, () -> {
+                SparkYarnResourceInfo resourceInfo = new SparkYarnResourceInfo();
+                try {
+                    resourceInfo.getYarnSlots(getYarnClient(), sparkYarnConfig.getQueue(), sparkYarnConfig.getYarnAccepterTaskNumber());
+                    return resourceInfo.judgeSlots(jobClient);
+                } catch (YarnException e) {
+                    logger.error("", e);
+                    return false;
+                }
+            });
+        } catch (IOException e) {
+            logger.error("judgeSlots error", e);
         }
-
+        return false;
     }
 
     public void setHadoopUserName(SparkYarnConfig sparkYarnConfig){

@@ -16,6 +16,7 @@ import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
 import com.dtstack.schedule.common.enums.Deleted;
+import com.dtstack.schedule.common.enums.EProjectScheduleStatus;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.schedule.common.enums.ESubmitStatus;
 import com.dtstack.schedule.common.enums.Sort;
@@ -61,6 +62,12 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
             batchTaskShadeDTO.setGmtModified(new Timestamp(System.currentTimeMillis()));
             scheduleTaskShadeDao.update(batchTaskShadeDTO);
         } else {
+            if(Objects.isNull(batchTaskShadeDTO.getProjectScheduleStatus())){
+                batchTaskShadeDTO.setProjectScheduleStatus(EProjectScheduleStatus.NORMAL.getStatus());
+            }
+            if(Objects.isNull(batchTaskShadeDTO.getNodePid())){
+                batchTaskShadeDTO.setNodePid(0L);
+            }
             scheduleTaskShadeDao.insert(batchTaskShadeDTO);
         }
     }

@@ -1,9 +1,9 @@
 required:
-  dbUrl:
+  jdbcUrl:
 
 optional:
-  userName:
-  pwd:
+  username:
+  password:
   maxJobPoolSize:
   minJobPoolSize:
   queue:

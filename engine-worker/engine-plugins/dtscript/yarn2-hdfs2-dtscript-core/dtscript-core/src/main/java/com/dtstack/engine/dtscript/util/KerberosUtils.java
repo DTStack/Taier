@@ -1,6 +1,8 @@
 package com.dtstack.engine.dtscript.util;
 
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.SFTPHandler;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.kerby.kerberos.kerb.keytab.Keytab;
@@ -10,9 +12,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.PrivilegedExceptionAction;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public class KerberosUtils {
 
@@ -26,6 +30,11 @@ public class KerberosUtils {
 
     private static final String PRINCIPALFILE = "principalFile";
 
+    private static final String KRBNAME = "krbName";
+
+    private static final String KRB5_CONF = "java.security.krb5.conf";
+
+
     private static final String KEY_USERNAME = "username";
     private static final String KEY_PASSWORD = "password";
     private static final String KEY_HOST = "host";
@@ -34,14 +43,43 @@ public class KerberosUtils {
     private static final String KEY_RSA = "rsaPath";
     private static final String KEY_AUTHENTICATION = "auth";
 
-    public static void login(Configuration config) throws IOException {
+    public static <T> T login(Configuration configuration, Supplier<T> supplier){
+        if (!isOpenKerberos(configuration)) {
+            return supplier.get();
+        }
+        String krb5ConfName = configuration.get(KRBNAME);
+        String fileName = configuration.get(PRINCIPALFILE);
+        String remoteDir = configuration.get(REMOTEDIR);
+        String localPath = USER_DIR + remoteDir;
+        File path = new File(localPath);
+        if (!path.exists()){
+            path.mkdirs();
+        }
 
-        String keytabPath = localPath(config);
-        String principal = getPrincipal(keytabPath);
+        SFTPHandler handler = SFTPHandler.getInstance(KerberosUtils.getSftp(configuration));
+        String keytabPath = handler.loadFromSftp(fileName, remoteDir, localPath,false);
+        String krb5ConfPath = "";
+        if (StringUtils.isNotBlank(krb5ConfName)) {
+            krb5ConfPath = handler.loadFromSftp(krb5ConfName, remoteDir, localPath, true);
+        } else {
+            handler.close();
+        }
+        return KerberosUtils.loginKerberosWithCallBack(configuration,keytabPath,KerberosUtils.getPrincipal(keytabPath),krb5ConfPath,supplier);
+    }
 
-        UserGroupInformation.setConfiguration(config);
-        UserGroupInformation.loginUserFromKeytab(principal, keytabPath);
-        LOG.info("Login successful for user " + principal + " using keytab file " + keytabPath);
+    public static <T> T loginKerberosWithCallBack(Configuration configuration, String keytabPath, String principal, String krb5Conf, Supplier<T> supplier) {
+        if (StringUtils.isNotEmpty(krb5Conf)) {
+            System.setProperty(KRB5_CONF, krb5Conf);
+        }
+        UserGroupInformation.setConfiguration(configuration);
+        try {
+            UserGroupInformation ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(principal, keytabPath);
+            LOG.info("userGroupInformation current user = {} ugi user  = {} ", UserGroupInformation.getCurrentUser(), ugi.getUserName());
+            return ugi.doAs((PrivilegedExceptionAction<T>) supplier::get);
+        } catch (Exception e) {
+            LOG.error("{}", keytabPath, e);
+            throw new RdosDefineException("kerberos校验失败, Message:" + e.getMessage());
+        }
     }
 
     public static boolean isOpenKerberos(Configuration config){
@@ -75,14 +113,20 @@ public class KerberosUtils {
         return localPath;
     }
 
-    public static String getPrincipal(String filePath) throws IOException {
-        Keytab keytab = Keytab.loadKeytab(new File(filePath));
+    public static String getPrincipal(String filePath) {
+        Keytab keytab = null;
+        try {
+            keytab = Keytab.loadKeytab(new File(filePath));
+        } catch (Exception e) {
+            LOG.error("getPrincipal errror {}", filePath, e);
+            throw new RdosDefineException("Principal must not be null!");
+        }
         List<PrincipalName> principals = keytab.getPrincipals();
         String principal;
-        if (principals.size() != 0){
+        if (principals.size() != 0) {
             principal = principals.get(0).getName();
         } else {
-            throw new IOException("Principal must not be null!");
+            throw new RdosDefineException("Principal must not be null!");
         }
         return principal;
     }

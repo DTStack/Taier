@@ -74,7 +74,7 @@ public class FlinkClusterClientManager {
     public void initClusterClient() throws Exception {
         if (flinkConfig.getClusterMode().equals(Deploy.standalone.name())) {
             clusterClient = new StandaloneClientFactory(flinkClientBuilder.getFlinkConfiguration(), flinkConfig).getClusterClient();
-        } else if (flinkConfig.getClusterMode().equals(Deploy.yarn.name())) {
+        } else if (flinkConfig.getClusterMode().equals(Deploy.session.name())) {
             if (null == sessionClientFactory) {
                 sessionClientFactory = new SessionClientFactory(this, flinkClientBuilder);
             }

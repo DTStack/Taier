@@ -9,11 +9,11 @@ package com.dtstack.engine.rdbs.common.constant;
 
 public class ConfigConstant {
 
-    public static final String DB_URL = "dbUrl";
+    public static final String DB_URL = "jdbcUrl";
 
-    public static final String USER_NAME = "userName";
+    public static final String USER_NAME = "username";
 
-    public static final String PWD = "pwd";
+    public static final String PWD = "password";
 
     public static final String QUEUE = "queue";
 

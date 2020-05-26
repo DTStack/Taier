@@ -69,6 +69,20 @@ public class SparkYarnConfig {
 
     private Map<String, String> kerberosConfig;
 
+    /**
+     * krb5conf名称
+     * @return
+     */
+    private String krbName;
+
+    public String getKrbName() {
+        return krbName;
+    }
+
+    public void setKrbName(String krbName) {
+        this.krbName = krbName;
+    }
+
     public boolean isOpenKerberos() {
         return openKerberos;
     }

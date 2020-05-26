@@ -5,6 +5,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  *
@@ -22,6 +23,9 @@ public class HadoopConf {
     }
 
     public void initHadoopConf(Map<String, Object> conf){
+        if(Objects.isNull(conf)){
+            return;
+        }
 
         configuration = new Configuration();
 
@@ -36,6 +40,9 @@ public class HadoopConf {
     }
 
     public void initYarnConf(Map<String, Object> conf){
+        if(Objects.isNull(conf)){
+            return;
+        }
 
         yarnConfiguration = configuration == null ? new YarnConfiguration() : new YarnConfiguration(configuration);
 

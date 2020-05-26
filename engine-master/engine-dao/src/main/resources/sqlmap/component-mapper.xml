@@ -76,7 +76,7 @@
     <select id="getByClusterIdAndComponentType" resultType="Component">
         SELECT
         c.id,c.engine_id,c.component_name,c.component_type_code,c.component_config,c.gmt_create,c.gmt_modified,c.is_deleted,
-        c.hadoop_version
+        c.hadoop_version,c.upload_file_name,c.kerberos_file_name
         FROM
         console_component c
         LEFT JOIN console_engine ENGINE ON ENGINE.id = c.engine_id
