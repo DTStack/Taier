@@ -534,14 +534,12 @@ public class ComponentService {
             clusterId = this.checkClusterWithName(clusterId, clusterName);
         }
 
-        Component sftpComponent = null;
+        Component sftpComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.SFTP.getTypeCode());;
         if (CollectionUtils.isNotEmpty(resources)) {
             //上传资源需要依赖sftp组件
-            sftpComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.SFTP.getTypeCode());
             if (Objects.isNull(sftpComponent)) {
                 throw new RdosDefineException("请先配置sftp组件");
             }
-
         }
         EComponentType componentType = EComponentType.getByCode(componentDTO.getComponentTypeCode());
         MultiEngineType engineType = EComponentType.getEngineTypeByComponent(componentType);
@@ -586,7 +584,9 @@ public class ComponentService {
         addComponent.setEngineId(engine.getId());
         addComponent.setComponentTemplate(componentTemplate);
         addComponent.setComponentConfig(this.wrapperConfig(componentType, componentConfig, isOpenKerberos, clusterName, hadoopVersion));
-        addComponent.setKerberosFileName(kerberosFileName);
+        if (StringUtils.isNotBlank(kerberosFileName)) {
+            addComponent.setKerberosFileName(kerberosFileName);
+        }
 
         Map<String, String> sftpMap = Objects.isNull(sftpComponent) ? new HashMap<>() : JSONObject.parseObject(sftpComponent.getComponentConfig(), Map.class);
         if (CollectionUtils.isNotEmpty(resources)) {
@@ -617,7 +617,6 @@ public class ComponentService {
         }
 
         addComponent.setClusterId(clusterId);
-        addComponent.setKerberosFileName(kerberosFileName);
         if (isUpdate) {
             componentDao.update(addComponent);
         } else {
@@ -1030,7 +1029,18 @@ public class ComponentService {
                 localDownLoadPath = localDownLoadPath + File.separator + KERBEROS_PATH;
                 instance.downloadDir(remoteDir, localDownLoadPath);
             } else {
-                instance.downloadDir(remoteDir + File.separator + component.getUploadFileName(), localDownLoadPath);
+                //一种是 上传配置文件的需要到sftp下载
+                //一种是  全部手动填写的 如flink
+                if (Objects.isNull(component.getUploadFileName())) {
+                    try {
+                        FileUtils.write(new File(localDownLoadPath), component.getComponentConfig());
+                    } catch (IOException e) {
+                        LOGGER.error("write upload file {} error", component.getComponentConfig(), e);
+                    }
+                } else {
+                    instance.downloadDir(remoteDir + File.separator + component.getUploadFileName(), localDownLoadPath);
+                }
+
             }
             uploadFileName = component.getUploadFileName();
         }
