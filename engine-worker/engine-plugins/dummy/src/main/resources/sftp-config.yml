@@ -1,6 +1,6 @@
 required:
   host:
-  post: 22
+  port: 22
   username:
   path:
   auth:

@@ -2,11 +2,9 @@ package com.dtstack.engine.master.job.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
-import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskParamShade;
-import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
@@ -482,19 +480,9 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
                     content = content.replaceAll("\r\n", System.getProperty("line.separator"));
                 }
 
-                ClusterVO cluster = clusterService.getClusterByTenant(dtuicTenantId);
-
-                Map<String, Object> hadoopConf = clusterService.getConfig(cluster,dtuicTenantId, EComponentType.HDFS.getConfName());
-                JSONObject pluginInfo = new JSONObject();
-                pluginInfo.put(EComponentType.HDFS.getConfName(),hadoopConf);
-                String typeName = (String) hadoopConf.get(ComponentService.TYPE_NAME);
-                if (StringUtils.isBlank(typeName)) {
-                    //获取对应的插件名称
-                    Component hdfsComponent = componentService.getComponentByClusterId(cluster.getId(), EComponentType.HDFS.getTypeCode());
-                    typeName = componentService.convertComponentTypeToClient(cluster.getClusterName(),
-                            EComponentType.HDFS.getTypeCode(), hdfsComponent.getHadoopVersion());
-                }
-                String hdfsUploadPath = workerOperator.uploadStringToHdfs(typeName, pluginInfo.toJSONString(), content, hdfsPath);
+                JSONObject pluginInfoWithComponentType = componentService.getPluginInfoWithComponentType(dtuicTenantId, EComponentType.HDFS);
+                String typeName = pluginInfoWithComponentType.getString(ComponentService.TYPE_NAME);
+                String hdfsUploadPath = workerOperator.uploadStringToHdfs(typeName, pluginInfoWithComponentType.toJSONString(), content, hdfsPath);
                 if(StringUtils.isBlank(hdfsUploadPath)){
                     throw new RdosDefineException("Update task to HDFS failure hdfsUploadPath is blank");
                 }
@@ -506,57 +494,4 @@ public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
         }
         throw new RdosDefineException("Update task to HDFS failure:");
     }
-
-  /*  private void loginKerberos(Long dtuicTenantId, String content, String hdfsPath, Configuration configuration) {
-        EngineTenant engineTenant = engineTenantDao.getByTenantIdAndEngineType(dtuicTenantId, MultiEngineType.HADOOP.getType());
-        if(Objects.isNull(engineTenant)){
-            LOG.info("dtuicTenantId {} engineTenant is null", dtuicTenantId);
-            throw new RdosDefineException("Update task to HDFS failure");
-        }
-        Engine engine = engineSerivce.getOne(engineTenant.getEngineId());
-        if(Objects.isNull(engine)){
-            LOG.info("engineId {} engine is null", engineTenant.getEngineId());
-            throw new RdosDefineException("Update task to HDFS failure");
-        }
-        KerberosConfig kerberosConfig = kerberosDao.getByClusterId(engine.getClusterId());
-        if(Objects.nonNull(kerberosConfig)){
-            //验证kerberos
-            String principal = kerberosConfig.getPrincipal();
-            String localClusterPath = environmentContext.getLocalKerberosDir() + kerberosConfig.getRemotePath().substring(kerberosConfig.getRemotePath().lastIndexOf(-1));
-            String localKeyTabPath = localClusterPath + File.separator + kerberosConfig.getName();
-            File localFile = new File(localKeyTabPath);
-            if(!localFile.exists()){
-                //从sftp下载
-                Cluster cluster = clusterService.getOne(engine.getClusterId());
-                componentService.downloadClusterSftpPath(cluster,localClusterPath);
-            }
-            String keytab = localKeyTabPath;
-            final byte[] contentBytes = content.getBytes();
-            final String hdfsPathStr = hdfsPath;
-            BatchHadoopJobStartTrigger.loginKerberosWithCallBack(configuration, principal, keytab, null, () -> {
-                try {
-                    HdfsOperator.uploadInputStreamToHdfs(configuration, contentBytes, hdfsPathStr);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return null;
-            });
-        }
-    }
-
-    public static <T> T loginKerberosWithCallBack(Configuration configuration, String keytabPath, String principal,String krb5Conf, Supplier<T> supplier) {
-        if (StringUtils.isNotEmpty(krb5Conf)) {
-            System.setProperty(HadoopConfTool.KEY_JAVA_SECURITY_KRB5_CONF, krb5Conf);
-        }
-        UserGroupInformation.setConfiguration(configuration);
-        try {
-            UserGroupInformation ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(principal, keytabPath);
-            T t = ugi.doAs((PrivilegedExceptionAction<T>) supplier::get);
-            LOG.info("userGroupInformation current user = {} ugi user  = {} ", UserGroupInformation.getCurrentUser(), ugi.getUserName());
-            return t;
-        } catch (Exception e) {
-            LOG.error("{}",keytabPath, e);
-            throw new RdosDefineException("kerberos校验失败, Message:" + e.getMessage());
-        }
-    }*/
 }

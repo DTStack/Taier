@@ -230,7 +230,6 @@ public class DtScriptClient extends AbstractClient {
     @Override
     public boolean judgeSlots(JobClient jobClient) {
         DtScriptResourceInfo resourceInfo = new DtScriptResourceInfo();
-        resourceInfo.setElasticCapacity(conf.getBoolean(DtYarnConfiguration.DT_APP_ELASTIC_CAPACITY, false));
         try {
             resourceInfo.getYarnSlots(client.getYarnClient(), conf.get(DtYarnConfiguration.DT_APP_QUEUE), conf.getInt(DtYarnConfiguration.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1));
             return resourceInfo.judgeSlots(jobClient);
