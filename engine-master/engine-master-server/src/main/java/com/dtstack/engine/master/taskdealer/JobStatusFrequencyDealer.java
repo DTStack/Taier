@@ -7,7 +7,7 @@ package com.dtstack.engine.master.taskdealer;
  * @author xuchao
  */
 
-public class TaskStatusFrequencyDealer {
+public class JobStatusFrequencyDealer {
 
     private Integer status;
 
@@ -15,7 +15,7 @@ public class TaskStatusFrequencyDealer {
 
     private Long createTime;
 
-    public TaskStatusFrequencyDealer(Integer status){
+    public JobStatusFrequencyDealer(Integer status){
         createTime = System.currentTimeMillis();
         this.status = status;
         this.num = 0;

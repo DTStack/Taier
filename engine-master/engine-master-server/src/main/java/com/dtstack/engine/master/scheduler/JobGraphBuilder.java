@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.scheduler;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.DependencyType;
 import com.dtstack.engine.common.enums.EScheduleType;
@@ -74,9 +75,11 @@ public class JobGraphBuilder {
     private static final int MAX_TASK_BUILD_THREAD = 10;
     private static final int MAX_JOB_CLEAN_THREAD = 10;
 
-    private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+//    private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+//
+//    private static DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyyMMddHHmmss");
 
-    private static DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyyMMddHHmmss");
+    private static String dtfFormatString = "yyyyMMddHHmmss";
 
     @Autowired
     private ScheduleTaskShadeService batchTaskShadeService;
@@ -431,6 +434,7 @@ public class JobGraphBuilder {
             if (needAddFather) {
                 List<String> fatherDependency = getDependencyJobKeys(scheduleType, scheduleJob, scheduleCron, keyPreStr);
                 for (String dependencyJobKey : fatherDependency) {
+                    logger.info("get Job {} Job key  {} cron {} cycTime {}", jobKey, dependencyJobKey, JSONObject.toJSONString(scheduleCron), scheduleJob.getCycTime());
                     scheduleBatchJob.addBatchJobJob(createNewJobJob(scheduleJob, jobKey, dependencyJobKey, timestampNow));
                 }
             }
@@ -605,8 +609,10 @@ public class JobGraphBuilder {
                 String pjobKey = generateJobKey(keyPreStr, pTask.getId(), fatherLastJobCycTime);
                 // BatchJob (cycTime 20191211000000 businessDate 20191210000000)  fatherLastJobCycTime 20191211000000
                 //判断的时候需要拿执行时间判断
-                DateTime jobCycTime = dtf.parseDateTime(scheduleJob.getCycTime());
-                DateTime fatherCycTime = dtf.parseDateTime(fatherLastJobCycTime);
+                DateTime jobCycTime = new DateTime(DateUtil.getTimestamp(scheduleJob.getCycTime(), dtfFormatString));
+                DateTime fatherCycTime = new DateTime(DateUtil.getTimestamp(fatherLastJobCycTime, dtfFormatString));
+
+
                 //如果父任务在当前任务业务日期不同，则查询父任务是有已生成
                 if (Objects.nonNull(jobCycTime) && Objects.nonNull(fatherCycTime) && fatherCycTime.getDayOfYear() != jobCycTime.getDayOfYear()) {
                     //判断父任务是否生成
@@ -680,9 +686,9 @@ public class JobGraphBuilder {
      * @return
      */
     public static String getPrePeriodJobTriggerDateStr(String batchJobCycTime, ScheduleCron cron) {
-        DateTime triggerDate = dtf.parseDateTime(batchJobCycTime);
+        DateTime triggerDate = new DateTime(DateUtil.getTimestamp(batchJobCycTime, dtfFormatString));
         Date preTriggerDate = getPreJob(triggerDate.toDate(), cron);
-        return dtf.print(preTriggerDate.getTime());
+        return DateUtil.getFormattedDate(preTriggerDate.getTime(), dtfFormatString);
     }
 
     /**
@@ -827,7 +833,7 @@ public class JobGraphBuilder {
      * 如果父子任务都是天则返回父任务当天的key
      */
     public String getFatherLastJobBusinessDate(ScheduleJob childScheduleJob, ScheduleCron fatherCron, ScheduleCron childCron) {
-        DateTime dateTime = DateTime.parse(childScheduleJob.getCycTime(), dtf);
+        DateTime dateTime = new DateTime(DateUtil.getTimestamp(childScheduleJob.getCycTime(), dtfFormatString));
         String pCronstr = fatherCron.getCronStr();
 
 
@@ -852,7 +858,7 @@ public class JobGraphBuilder {
             throw new RuntimeException("not support period type of " + fatherCron.getPeriodType());
         }
 
-        return sdf.format(dateTime.toDate());
+        return DateUtil.getFormattedDate(dateTime.getMillis(),dtfFormatString);
     }
 
     public DateTime getCloseInDateTimeOfMonth(String[] timeFields, DateTime dateTime) {
@@ -1136,9 +1142,9 @@ public class JobGraphBuilder {
      * @return
      */
     public String generateBizDateFromCycTime(String cycTime) {
-        DateTime cycDateTime = DateTime.parse(cycTime, dtf);
+        DateTime cycDateTime = new DateTime(DateUtil.getTimestamp(cycTime, dtfFormatString));
         DateTime bizDate = cycDateTime.minusDays(1);
-        return bizDate.toString(dtf);
+        return bizDate.toString(dtfFormatString);
     }
 
     //preKey_taskId_cyctime

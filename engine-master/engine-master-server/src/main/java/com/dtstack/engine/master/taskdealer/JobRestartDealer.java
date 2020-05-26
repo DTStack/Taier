@@ -32,9 +32,9 @@ import java.util.Map;
  * @author xuchao
  */
 @Component
-public class TaskRestartDealer {
+public class JobRestartDealer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TaskRestartDealer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JobRestartDealer.class);
 
     @Autowired
     private EngineJobCacheDao engineJobCacheDao;
