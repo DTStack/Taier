@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.node;
+package com.dtstack.engine.master.failover;
 
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.EJobCacheStage;

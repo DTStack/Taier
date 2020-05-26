@@ -258,9 +258,20 @@ public class FlinkClient extends AbstractClient {
      * yarnSession模式运行任务
      */
     private Pair<String, String> runJobByYarnSession(PackagedProgram program, int parallelism) throws Exception {
-        JobSubmissionResult result = null;
         try {
-            result = flinkClusterClientManager.getClusterClient().run(program, parallelism);
+            ClusterClient clusterClient = flinkClusterClientManager.getClusterClient();
+            JobSubmissionResult result = clusterClient.run(program, parallelism);
+
+            if (result.isJobExecutionResult()) {
+                logger.info("Program execution finished");
+                JobExecutionResult execResult = result.getJobExecutionResult();
+                logger.info("Job with JobID " + execResult.getJobID() + " has finished.");
+                logger.info("Job Runtime: " + execResult.getNetRuntime() + " ms");
+            } else {
+                logger.info("Job has been submitted with JobID " + result.getJobID());
+            }
+
+            return Pair.create(result.getJobID().toString(), clusterClient.getClusterId().toString());
         } catch (Exception e) {
             if (e.getMessage().contains(ExceptionInfoConstrant.FLINK_UNALE_TO_GET_CLUSTERCLIENT_STATUS_EXCEPTION)) {
                 if (flinkClusterClientManager.getIsClientOn()) {
@@ -268,18 +279,9 @@ public class FlinkClient extends AbstractClient {
                 }
             }
             throw e;
+        } finally {
+            delFilesFromDir(TMPDIR, "flink-jobgraph");
         }
-        if (result.isJobExecutionResult()) {
-            logger.info("Program execution finished");
-            JobExecutionResult execResult = result.getJobExecutionResult();
-            logger.info("Job with JobID " + execResult.getJobID() + " has finished.");
-            logger.info("Job Runtime: " + execResult.getNetRuntime() + " ms");
-        } else {
-            logger.info("Job has been submitted with JobID " + result.getJobID());
-        }
-        delFilesFromDir(TMPDIR, "flink-jobgraph");
-
-        return Pair.create(result.getJobID().toString(), null);
     }
 
     private YarnConfiguration getYarnConf(String pluginInfo) {

@@ -5,7 +5,7 @@ import com.dtstack.engine.common.JobIdentifier;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
-public class CompletedTaskInfo implements Delayed {
+public class JobCompletedInfo implements Delayed {
 
     private String jobId;
     private JobIdentifier jobIdentifier;
@@ -14,7 +14,7 @@ public class CompletedTaskInfo implements Delayed {
     private String pluginInfo;
     private long expired;
 
-    public CompletedTaskInfo(String jobId, JobIdentifier jobIdentifier, String engineType, int computeType, String pluginInfo, long delay){
+    public JobCompletedInfo(String jobId, JobIdentifier jobIdentifier, String engineType, int computeType, String pluginInfo, long delay){
         this.jobId = jobId;
         this.jobIdentifier = jobIdentifier;
         this.engineType = engineType;

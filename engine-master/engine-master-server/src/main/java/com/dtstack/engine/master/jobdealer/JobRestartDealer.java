@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.taskdealer;
+package com.dtstack.engine.master.jobdealer;
 
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.EngineJobCache;
@@ -10,7 +10,6 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.master.WorkNode;
 import com.dtstack.engine.master.bo.EngineJobRetry;
 import com.dtstack.engine.master.cache.ShardCache;
 import com.google.common.base.Strings;
@@ -52,7 +51,7 @@ public class JobRestartDealer {
     private ShardCache shardCache;
 
     @Autowired
-    private WorkNode workNode;
+    private JobDealer jobDealer;
 
     /**
      * 对提交结果判定是否重试
@@ -217,14 +216,14 @@ public class JobRestartDealer {
 
     private boolean restartJob(JobClient jobClient){
         //添加到重试队列中
-        boolean isAdd = workNode.addRestartJob(jobClient);
+        boolean isAdd = jobDealer.addRestartJob(jobClient);
         if (isAdd) {
             String jobId = jobClient.getTaskId();
             //重试任务更改在zk的状态，统一做状态清理
             shardCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.RESTARTING.getStatus());
 
             ScheduleJob batchJob = scheduleJobDao.getRdosJobByJobId(jobClient.getTaskId());
-            workNode.getAndUpdateEngineLog(jobId, jobClient.getEngineTaskId(), jobClient.getApplicationId(), batchJob.getPluginInfoId());
+            jobDealer.getAndUpdateEngineLog(jobId, jobClient.getEngineTaskId(), jobClient.getApplicationId(), batchJob.getPluginInfoId());
 
             //重试的任务不置为失败，waitengine
             jobRetryRecord(jobClient);

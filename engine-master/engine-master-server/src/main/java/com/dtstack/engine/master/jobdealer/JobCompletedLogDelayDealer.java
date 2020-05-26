@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.taskdealer;
+package com.dtstack.engine.master.jobdealer;
 
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobIdentifier;
@@ -6,7 +6,7 @@ import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
-import com.dtstack.engine.master.bo.CompletedTaskInfo;
+import com.dtstack.engine.master.bo.JobCompletedInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -28,7 +28,7 @@ public class JobCompletedLogDelayDealer implements Runnable {
     private ScheduleJobDao scheduleJobDao;
     private WorkerOperator workerOperator;
 
-    private DelayBlockingQueue<CompletedTaskInfo> delayBlockingQueue = new DelayBlockingQueue<CompletedTaskInfo>(1000);
+    private DelayBlockingQueue<JobCompletedInfo> delayBlockingQueue = new DelayBlockingQueue<JobCompletedInfo>(1000);
     private ExecutorService taskStatusPool = new ThreadPoolExecutor(1, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
             new SynchronousQueue<>(true), new CustomThreadFactory(this.getClass().getSimpleName()));
 
@@ -42,7 +42,7 @@ public class JobCompletedLogDelayDealer implements Runnable {
     public void run() {
         while (true) {
             try {
-                CompletedTaskInfo taskInfo = delayBlockingQueue.take();
+                JobCompletedInfo taskInfo = delayBlockingQueue.take();
                 updateJobEngineLog(taskInfo.getJobId(), taskInfo.getJobIdentifier(), taskInfo.getEngineType(), taskInfo.getPluginInfo());
             } catch (Exception e) {
                 logger.error("", e);
@@ -50,7 +50,7 @@ public class JobCompletedLogDelayDealer implements Runnable {
         }
     }
 
-    public void addCompletedTaskInfo(CompletedTaskInfo taskInfo){
+    public void addCompletedTaskInfo(JobCompletedInfo taskInfo){
         try {
             delayBlockingQueue.put(taskInfo);
         } catch (InterruptedException e) {

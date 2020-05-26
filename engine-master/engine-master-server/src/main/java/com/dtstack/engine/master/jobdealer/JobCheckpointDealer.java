@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.taskdealer;
+package com.dtstack.engine.master.jobdealer;
 
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.exception.ExceptionUtil;
@@ -13,7 +13,7 @@ import com.dtstack.engine.dao.EngineJobCheckpointDao;
 import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
-import com.dtstack.engine.master.bo.TaskCheckpointInfo;
+import com.dtstack.engine.master.bo.JobCheckpointInfo;
 import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -97,13 +97,13 @@ public class JobCheckpointDealer implements InitializingBean {
     @Autowired
     private WorkerOperator workerOperator;
 
-    private Map<String, TaskCheckpointInfo> checkpointJobMap = Maps.newHashMap();
+    private Map<String, JobCheckpointInfo> checkpointJobMap = Maps.newHashMap();
 
     private Cache<String, String> checkpointInsertedCache = CacheBuilder.newBuilder().maximumSize(CHECKPOINT_INSERTED_RECORD).build();
 
     private Cache<String, Map<String, Object>> checkpointConfigCache = CacheBuilder.newBuilder().maximumSize(JOB_CHECKPOINT_CONFIG).build();
 
-    private DelayBlockingQueue<TaskCheckpointInfo> delayBlockingQueue = new DelayBlockingQueue<>(1000);
+    private DelayBlockingQueue<JobCheckpointInfo> delayBlockingQueue = new DelayBlockingQueue<>(1000);
 
     private ExecutorService checkpointPool = new ThreadPoolExecutor(1, 1, 0, TimeUnit.SECONDS,
             new SynchronousQueue<>(true), new CustomThreadFactory(this.getClass().getSimpleName()));
@@ -114,7 +114,7 @@ public class JobCheckpointDealer implements InitializingBean {
         checkpointPool.submit(() -> {
             while (true) {
                 try {
-                    TaskCheckpointInfo taskInfo = delayBlockingQueue.take();
+                    JobCheckpointInfo taskInfo = delayBlockingQueue.take();
                     String engineJobId = taskInfo.getJobIdentifier().getEngineJobId();
                     ScheduleJob jobInfo = scheduleJobDao.getByJobId(taskInfo.getTaskId(), 0);
                     int status = jobInfo.getStatus().intValue();
@@ -133,7 +133,7 @@ public class JobCheckpointDealer implements InitializingBean {
      * @param taskInfo
      * @param engineJobId
      */
-    public void updateCheckpointImmediately(TaskCheckpointInfo taskInfo, String engineJobId, int status) throws ExecutionException, InterruptedException {
+    public void updateCheckpointImmediately(JobCheckpointInfo taskInfo, String engineJobId, int status) throws ExecutionException, InterruptedException {
         String taskId = taskInfo.getJobIdentifier().getTaskId();
         if (getCheckpointInterval(taskId) > 0) {
             updateJobCheckpoints(taskInfo.getJobIdentifier(), taskInfo.getEngineTypeName(), taskInfo.getPluginInfo());
@@ -204,7 +204,7 @@ public class JobCheckpointDealer implements InitializingBean {
                     int retainedNum = getRetainedNumFromPluginInfo(pluginInfo);
                     taskEngineIdAndRetainedNum.put(engineJobId, retainedNum);
 
-                    TaskCheckpointInfo taskInfo = new TaskCheckpointInfo(computeType, taskId, jobIdentifier, engineTypeName, pluginInfo, checkpointInterval);
+                    JobCheckpointInfo taskInfo = new JobCheckpointInfo(computeType, taskId, jobIdentifier, engineTypeName, pluginInfo, checkpointInterval);
 
                     delayBlockingQueue.put(taskInfo);
                     logger.info("add task to checkpoint delay queue,{}", taskInfo);
