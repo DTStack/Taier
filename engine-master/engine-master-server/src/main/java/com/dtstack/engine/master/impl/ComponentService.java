@@ -701,7 +701,10 @@ public class ComponentService {
      */
     private void updateComponentConfigFile(Component dbComponent, SFTPHandler instance, String remoteDir, Resource resource) {
         //原来配置
-        String deletePath = remoteDir + File.separator + dbComponent.getUploadFileName();
+        String deletePath = remoteDir + File.separator;
+        if (Objects.nonNull(dbComponent)) {
+            deletePath = deletePath + dbComponent.getUploadFileName();
+        }
         //删除原来的文件配置zip
         try {
             instance.deleteFile(deletePath);

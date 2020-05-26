@@ -384,7 +384,7 @@ public class HadoopClient extends AbstractClient {
                 YarnClient testYarnClient = YarnClient.createYarnClient();
                 testYarnClient.init(hadoopConf.getYarnConfiguration());
                 testYarnClient.start();
-                List<NodeReport> nodes = null;
+                List<NodeReport> nodes = new ArrayList<>();
                 try {
                     nodes = testYarnClient.getNodeReports(NodeState.RUNNING);
                 } catch (Exception e) {
