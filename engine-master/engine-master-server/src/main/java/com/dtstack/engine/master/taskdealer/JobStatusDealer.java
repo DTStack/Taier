@@ -12,7 +12,6 @@ import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.PluginInfoDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.bo.CompletedTaskInfo;
-import com.dtstack.engine.master.bo.FailedTaskInfo;
 import com.dtstack.engine.master.bo.TaskCheckpointInfo;
 import com.dtstack.engine.master.cache.ShardCache;
 import com.dtstack.engine.master.cache.ShardManager;
@@ -35,9 +34,9 @@ import java.util.stream.Collectors;
  * @author toutian
  *         create: 2020/01/17
  */
-public class TaskStatusDealer implements Runnable {
+public class JobStatusDealer implements Runnable {
 
-    private static Logger logger = LoggerFactory.getLogger(TaskStatusDealer.class);
+    private static Logger logger = LoggerFactory.getLogger(JobStatusDealer.class);
 
     /**
      * 最大允许查询不到任务信息的次数--超过这个次数任务会被设置为CANCELED
@@ -60,8 +59,8 @@ public class TaskStatusDealer implements Runnable {
     private ScheduleJobDao scheduleJobDao;
     private EngineJobCacheDao engineJobCacheDao;
     private PluginInfoDao pluginInfoDao;
-    private TaskCheckpointDealer taskCheckpointDealer;
-    private TaskRestartDealer taskRestartDealer;
+    private JobCheckpointDealer jobCheckpointDealer;
+    private JobRestartDealer jobRestartDealer;
     private WorkerOperator workerOperator;
     private EnvironmentContext environmentContext;
     private long jobLogDelay;
@@ -72,7 +71,7 @@ public class TaskStatusDealer implements Runnable {
     /**
      * 记录job 连续某个状态的频次
      */
-    private Map<String, TaskStatusFrequencyDealer> jobStatusFrequency = Maps.newConcurrentMap();
+    private Map<String, JobStatusFrequencyDealer> jobStatusFrequency = Maps.newConcurrentMap();
 
     private ExecutorService taskStatusPool;
 
@@ -142,7 +141,7 @@ public class TaskStatusDealer implements Runnable {
                     rdosTaskStatus = checkNotFoundStatus(rdosTaskStatus, jobId);
                     Integer status = rdosTaskStatus.getStatus();
                     // 重试状态 先不更新状态
-                    boolean isRestart = taskRestartDealer.checkAndRestart(status, jobId, engineTaskId, appId, engineType, pluginInfoStr);
+                    boolean isRestart = jobRestartDealer.checkAndRestart(status, jobId, engineTaskId, appId, engineType, pluginInfoStr);
                     if (isRestart) {
                         return;
                     }
@@ -153,7 +152,7 @@ public class TaskStatusDealer implements Runnable {
 
                     //数据的更新顺序，先更新job_cache，再更新engine_batch_job
                     if (RdosTaskStatus.getStoppedStatus().contains(status)) {
-                        taskCheckpointDealer.updateCheckpointImmediately(new TaskCheckpointInfo(jobIdentifier, engineType, pluginInfoStr), jobId, status);
+                        jobCheckpointDealer.updateCheckpointImmediately(new TaskCheckpointInfo(jobIdentifier, engineType, pluginInfoStr), jobId, status);
 
                         jobLogDelayDealer(jobId, jobIdentifier, engineType, engineJobCache.getComputeType(), pluginInfoStr);
                         jobStatusFrequency.remove(jobId);
@@ -161,7 +160,7 @@ public class TaskStatusDealer implements Runnable {
                     }
 
                     if (RdosTaskStatus.RUNNING.getStatus().equals(status)) {
-                        taskCheckpointDealer.addCheckpointTaskForQueue(scheduleJob.getComputeType(), jobId, jobIdentifier, engineType, pluginInfoStr);
+                        jobCheckpointDealer.addCheckpointTaskForQueue(scheduleJob.getComputeType(), jobId, jobIdentifier, engineType, pluginInfoStr);
                     }
                 }
             }
@@ -174,7 +173,7 @@ public class TaskStatusDealer implements Runnable {
     }
 
     private RdosTaskStatus checkNotFoundStatus(RdosTaskStatus taskStatus, String jobId) {
-        TaskStatusFrequencyDealer statusPair = updateJobStatusFrequency(jobId, taskStatus.getStatus());
+        JobStatusFrequencyDealer statusPair = updateJobStatusFrequency(jobId, taskStatus.getStatus());
         //如果状态为NotFound，则对频次进行判断
         if (statusPair.getStatus() == RdosTaskStatus.NOTFOUND.getStatus().intValue()) {
             if (statusPair.getNum() >= NOT_FOUND_LIMIT_TIMES || System.currentTimeMillis() - statusPair.getCreateTime() >= NOT_FOUND_LIMIT_INTERVAL) {
@@ -197,8 +196,8 @@ public class TaskStatusDealer implements Runnable {
      * @param status
      * @return
      */
-    private TaskStatusFrequencyDealer updateJobStatusFrequency(String jobId, Integer status) {
-        TaskStatusFrequencyDealer statusFrequency = jobStatusFrequency.computeIfAbsent(jobId, k -> new TaskStatusFrequencyDealer(status));
+    private JobStatusFrequencyDealer updateJobStatusFrequency(String jobId, Integer status) {
+        JobStatusFrequencyDealer statusFrequency = jobStatusFrequency.computeIfAbsent(jobId, k -> new JobStatusFrequencyDealer(status));
         if (statusFrequency.getStatus().equals(status)) {
             statusFrequency.setNum(statusFrequency.getNum() + 1);
         } else {
@@ -234,8 +233,8 @@ public class TaskStatusDealer implements Runnable {
         this.scheduleJobDao = applicationContext.getBean(ScheduleJobDao.class);
         this.engineJobCacheDao = applicationContext.getBean(EngineJobCacheDao.class);
         this.pluginInfoDao = applicationContext.getBean(PluginInfoDao.class);
-        this.taskCheckpointDealer = applicationContext.getBean(TaskCheckpointDealer.class);
-        this.taskRestartDealer = applicationContext.getBean(TaskRestartDealer.class);
+        this.jobCheckpointDealer = applicationContext.getBean(JobCheckpointDealer.class);
+        this.jobRestartDealer = applicationContext.getBean(JobRestartDealer.class);
         this.workerOperator = applicationContext.getBean(WorkerOperator.class);
         this.scheduleJobDao = applicationContext.getBean(ScheduleJobDao.class);
     }
@@ -250,7 +249,7 @@ public class TaskStatusDealer implements Runnable {
         scheduledService.scheduleWithFixedDelay(
                 this,
                 0,
-                TaskStatusDealer.INTERVAL,
+                JobStatusDealer.INTERVAL,
                 TimeUnit.MILLISECONDS);
 
     }

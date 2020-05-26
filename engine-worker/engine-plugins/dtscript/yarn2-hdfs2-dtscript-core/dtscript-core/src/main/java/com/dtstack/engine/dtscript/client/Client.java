@@ -97,47 +97,47 @@ public class Client {
 
     public YarnConfiguration init(ClientArguments clientArguments) throws IOException, YarnException, ParseException, ClassNotFoundException {
 
-        YarnConfiguration taskConf = new YarnConfiguration((YarnConfiguration) conf);
+        YarnConfiguration conf = new YarnConfiguration((YarnConfiguration) this.conf);
         String appSubmitterUserName = System.getenv(ApplicationConstants.Environment.USER.name());
-        if (taskConf.get("hadoop.job.ugi") == null) {
+        if (conf.get("hadoop.job.ugi") == null) {
             UserGroupInformation ugi = UserGroupInformation.createRemoteUser(appSubmitterUserName);
-            taskConf.set("hadoop.job.ugi", ugi.getUserName() + "," + ugi.getUserName());
+            conf.set("hadoop.job.ugi", ugi.getUserName() + "," + ugi.getUserName());
         }
-        taskConf.set("ipc.client.fallback-to-simple-auth-allowed", "true");
+        conf.set("ipc.client.fallback-to-simple-auth-allowed", "true");
 
         if (clientArguments.nodes != null) {
-            taskConf.set(DtYarnConfiguration.CONTAINER_REQUEST_NODES, clientArguments.nodes);
+            conf.set(DtYarnConfiguration.CONTAINER_REQUEST_NODES, clientArguments.nodes);
         }
-        taskConf.set(DtYarnConfiguration.LEARNING_AM_MEMORY, String.valueOf(clientArguments.amMem));
-        taskConf.set(DtYarnConfiguration.LEARNING_AM_CORES, String.valueOf(clientArguments.amCores));
-        taskConf.set(DtYarnConfiguration.LEARNING_WORKER_MEMORY, String.valueOf(clientArguments.workerMemory));
-        taskConf.set(DtYarnConfiguration.LEARNING_WORKER_VCORES, String.valueOf(clientArguments.workerVcores));
-        taskConf.set(DtYarnConfiguration.DT_WORKER_NUM, String.valueOf(clientArguments.workerNum));
-        taskConf.set(DtYarnConfiguration.APP_PRIORITY, String.valueOf(clientArguments.priority));
-        taskConf.setBoolean(DtYarnConfiguration.LEARNING_USER_CLASSPATH_FIRST, clientArguments.userClasspathFirst);
-        taskConf.set(DtYarnConfiguration.CONTAINER_MAX_ATTEMPTS, String.valueOf(clientArguments.maxAppAttempts));
+        conf.set(DtYarnConfiguration.LEARNING_AM_MEMORY, String.valueOf(clientArguments.amMem));
+        conf.set(DtYarnConfiguration.LEARNING_AM_CORES, String.valueOf(clientArguments.amCores));
+        conf.set(DtYarnConfiguration.LEARNING_WORKER_MEMORY, String.valueOf(clientArguments.workerMemory));
+        conf.set(DtYarnConfiguration.LEARNING_WORKER_VCORES, String.valueOf(clientArguments.workerVcores));
+        conf.set(DtYarnConfiguration.DT_WORKER_NUM, String.valueOf(clientArguments.workerNum));
+        conf.set(DtYarnConfiguration.APP_PRIORITY, String.valueOf(clientArguments.priority));
+        conf.setBoolean(DtYarnConfiguration.LEARNING_USER_CLASSPATH_FIRST, clientArguments.userClasspathFirst);
+        conf.set(DtYarnConfiguration.CONTAINER_MAX_ATTEMPTS, String.valueOf(clientArguments.maxAppAttempts));
 
-        taskConf.setBoolean(DtYarnConfiguration.APP_NODEMANAGER_EXCLUSIVE, clientArguments.exclusive);
+        conf.setBoolean(DtYarnConfiguration.APP_NODEMANAGER_EXCLUSIVE, clientArguments.exclusive);
 
         if (StringUtils.isNotBlank(clientArguments.nodeLabel)){
-            taskConf.set(DtYarnConfiguration.NODE_LABEL, String.valueOf(clientArguments.nodeLabel));
+            conf.set(DtYarnConfiguration.NODE_LABEL, String.valueOf(clientArguments.nodeLabel));
         }
 
         if (clientArguments.confs != null) {
             Enumeration<String> confSet = (Enumeration<String>) clientArguments.confs.propertyNames();
             while (confSet.hasMoreElements()) {
                 String confArg = confSet.nextElement();
-                taskConf.set(confArg, clientArguments.confs.getProperty(confArg));
+                conf.set(confArg, clientArguments.confs.getProperty(confArg));
             }
         }
 
-        return taskConf;
+        return conf;
     }
 
     public String submit(String[] args) throws IOException, YarnException, ParseException, ClassNotFoundException {
         ClientArguments clientArguments = new ClientArguments(args);
 
-        YarnConfiguration taskConf = init(clientArguments);
+        YarnConfiguration conf = init(clientArguments);
 
         YarnClientApplication newAPP = getYarnClient().createApplication();
         GetNewApplicationResponse newAppResponse = newAPP.getNewApplicationResponse();
@@ -149,7 +149,7 @@ public class Client {
 
         /** launch command */
         LOG.info("Building app launch command");
-        String launchCmd = new LaunchCommandBuilder(clientArguments, taskConf).buildCmd();
+        String launchCmd = new LaunchCommandBuilder(clientArguments, conf).buildCmd();
         if (StringUtils.isNotBlank(launchCmd)) {
             appMasterEnv.put(DtYarnConstants.Environment.DT_EXEC_CMD.toString(), launchCmd);
         } else {
@@ -157,11 +157,11 @@ public class Client {
         }
         LOG.info("app launch command: " + launchCmd);
 
-        Path jobConfPath = Utilities.getRemotePath(taskConf, applicationId, DtYarnConstants.LEARNING_JOB_CONFIGURATION);
+        Path jobConfPath = Utilities.getRemotePath(conf, applicationId, DtYarnConstants.LEARNING_JOB_CONFIGURATION);
         LOG.info("job conf path: " + jobConfPath);
-        FSDataOutputStream out = FileSystem.create(jobConfPath.getFileSystem(taskConf), jobConfPath,
+        FSDataOutputStream out = FileSystem.create(jobConfPath.getFileSystem(conf), jobConfPath,
                 new FsPermission(JOB_FILE_PERMISSION));
-        taskConf.writeXml(out);
+        conf.writeXml(out);
         out.close();
 
         Map<String, LocalResource> localResources = new HashMap<>();
@@ -174,7 +174,7 @@ public class Client {
 
         StringBuilder classPathEnv = new StringBuilder("./*");
 
-        for (String cp : taskConf.getStrings(DtYarnConfiguration.YARN_APPLICATION_CLASSPATH,
+        for (String cp : conf.getStrings(DtYarnConfiguration.YARN_APPLICATION_CLASSPATH,
                 DtYarnConfiguration.DEFAULT_XLEARNING_APPLICATION_CLASSPATH)) {
             classPathEnv.append(':');
             classPathEnv.append(cp.trim());
@@ -190,7 +190,7 @@ public class Client {
                 if (!clientArguments.files[i].startsWith("hdfs:")) { //local
                     Path xlearningFilesSrc = new Path(clientArguments.files[i]);
                     xlearningFilesDst[i] = Utilities.getRemotePath(
-                            taskConf, applicationId, new Path(clientArguments.files[i]).getName());
+                            conf, applicationId, new Path(clientArguments.files[i]).getName());
                     LOG.info("Copying " + clientArguments.files[i] + " to remote path " + xlearningFilesDst[i].toString());
                     getFileSystem().copyFromLocalFile(false, true, xlearningFilesSrc, xlearningFilesDst[i]);
                     appFilesRemotePath.append(xlearningFilesDst[i].toUri().toString()).append(",");
@@ -217,7 +217,7 @@ public class Client {
                     pathRemote = new Path(path);
                 }
 
-                if (!pathRemote.getFileSystem(taskConf).exists(pathRemote)) {
+                if (!pathRemote.getFileSystem(conf).exists(pathRemote)) {
                     throw new IOException("cacheFile path " + pathRemote + " not existed!");
                 }
             }
@@ -229,7 +229,7 @@ public class Client {
         appMasterEnv.put(DtYarnConstants.Environment.OUTPUTS.toString(), clientArguments.outputs.toString());
         appMasterEnv.put(DtYarnConstants.Environment.INPUTS.toString(), clientArguments.inputs.toString());
         appMasterEnv.put(DtYarnConstants.Environment.APP_TYPE.toString(), clientArguments.appType.name());
-        appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_STAGING_LOCATION.toString(), Utilities.getRemotePath(taskConf, applicationId, "").toString());
+        appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_STAGING_LOCATION.toString(), Utilities.getRemotePath(conf, applicationId, "").toString());
         appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_JOB_CONF_LOCATION.toString(), jobConfPath.toString());
         appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_CONTAINER_MAX_MEMORY.toString(), String.valueOf(newAppResponse.getMaximumResourceCapability().getMemory()));
 
@@ -237,8 +237,8 @@ public class Client {
         LOG.info("Building application master launch command");
         List<String> appMasterArgs = new ArrayList<>(20);
         appMasterArgs.add("${JAVA_HOME}" + "/bin/java");
-        appMasterArgs.add("-Xms" + taskConf.getInt(DtYarnConfiguration.LEARNING_AM_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY) + "m");
-        appMasterArgs.add("-Xmx" + taskConf.getInt(DtYarnConfiguration.LEARNING_AM_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY) + "m");
+        appMasterArgs.add("-Xms" + conf.getInt(DtYarnConfiguration.LEARNING_AM_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY) + "m");
+        appMasterArgs.add("-Xmx" + conf.getInt(DtYarnConfiguration.LEARNING_AM_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY) + "m");
         appMasterArgs.add(ApplicationMaster.class.getName());
         appMasterArgs.add("1>" + ApplicationConstants.LOG_DIR_EXPANSION_VAR
                 + "/" + ApplicationConstants.STDOUT);
@@ -260,8 +260,8 @@ public class Client {
         applicationContext.setApplicationType(clientArguments.appType.name());
         applicationContext.setMaxAppAttempts(clientArguments.maxAppAttempts);
         Resource capability = Records.newRecord(Resource.class);
-        capability.setMemory(taskConf.getInt(DtYarnConfiguration.LEARNING_AM_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY));
-        capability.setVirtualCores(taskConf.getInt(DtYarnConfiguration.LEARNING_AM_CORES, DtYarnConfiguration.DEFAULT_LEARNING_AM_CORES));
+        capability.setMemory(conf.getInt(DtYarnConfiguration.LEARNING_AM_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY));
+        capability.setVirtualCores(conf.getInt(DtYarnConfiguration.LEARNING_AM_CORES, DtYarnConfiguration.DEFAULT_LEARNING_AM_CORES));
         applicationContext.setResource(capability);
         ByteBuffer tokenBuffer = SecurityUtil.getDelegationTokens(conf, getYarnClient());
         ContainerLaunchContext amContainer = ContainerLaunchContext.newInstance(
@@ -271,10 +271,10 @@ public class Client {
         applicationContext.setAMContainerSpec(amContainer);
 
         Priority priority = Records.newRecord(Priority.class);
-        priority.setPriority(taskConf.getInt(DtYarnConfiguration.APP_PRIORITY, DtYarnConfiguration.DEFAULT_LEARNING_APP_PRIORITY));
+        priority.setPriority(conf.getInt(DtYarnConfiguration.APP_PRIORITY, DtYarnConfiguration.DEFAULT_LEARNING_APP_PRIORITY));
         applicationContext.setPriority(priority);
-        applicationContext.setQueue(taskConf.get(DtYarnConfiguration.DT_APP_QUEUE, DtYarnConfiguration.DEFAULT_DT_APP_QUEUE));
-        String nodeLabels = taskConf.get(DtYarnConfiguration.NODE_LABEL);
+        applicationContext.setQueue(conf.get(DtYarnConfiguration.DT_APP_QUEUE, DtYarnConfiguration.DEFAULT_DT_APP_QUEUE));
+        String nodeLabels = conf.get(DtYarnConfiguration.NODE_LABEL);
         if (StringUtils.isNotBlank(nodeLabels)){
             applicationContext.setNodeLabelExpression(nodeLabels);
         }
@@ -284,14 +284,14 @@ public class Client {
     }
 
 
-    private void checkArguments(DtYarnConfiguration taskConf, GetNewApplicationResponse newApplication) {
+    private void checkArguments(DtYarnConfiguration conf, GetNewApplicationResponse newApplication) {
         int maxMem = newApplication.getMaximumResourceCapability().getMemory();
         LOG.info("Max mem capability of resources in this cluster " + maxMem);
         int maxVCores = newApplication.getMaximumResourceCapability().getVirtualCores();
         LOG.info("Max vcores capability of resources in this cluster " + maxVCores);
 
-        int amMem = taskConf.getInt(DtYarnConfiguration.LEARNING_AM_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY);
-        int amCores = taskConf.getInt(DtYarnConfiguration.LEARNING_AM_CORES, DtYarnConfiguration.DEFAULT_LEARNING_AM_CORES);
+        int amMem = conf.getInt(DtYarnConfiguration.LEARNING_AM_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY);
+        int amCores = conf.getInt(DtYarnConfiguration.LEARNING_AM_CORES, DtYarnConfiguration.DEFAULT_LEARNING_AM_CORES);
         if (amMem > maxMem) {
             throw new RequestOverLimitException("AM memory requested " + amMem +
                     " above the max threshold of yarn cluster " + maxMem);
@@ -313,9 +313,9 @@ public class Client {
         }
         LOG.info("Apply for am vcores " + amCores);
 
-        int workerNum = taskConf.getInt(DtYarnConfiguration.DT_WORKER_NUM, DtYarnConfiguration.DEFAULT_DT_WORKER_NUM);
-        int workerMemory = taskConf.getInt(DtYarnConfiguration.LEARNING_WORKER_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_WORKER_MEMORY);
-        int workerVcores = taskConf.getInt(DtYarnConfiguration.LEARNING_WORKER_VCORES, DtYarnConfiguration.DEFAULT_LEARNING_WORKER_VCORES);
+        int workerNum = conf.getInt(DtYarnConfiguration.DT_WORKER_NUM, DtYarnConfiguration.DEFAULT_DT_WORKER_NUM);
+        int workerMemory = conf.getInt(DtYarnConfiguration.LEARNING_WORKER_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_WORKER_MEMORY);
+        int workerVcores = conf.getInt(DtYarnConfiguration.LEARNING_WORKER_VCORES, DtYarnConfiguration.DEFAULT_LEARNING_WORKER_VCORES);
         if (workerNum < 1) {
             throw new IllegalArgumentException(
                     "Invalid no. of worker specified, exiting."

@@ -5,7 +5,7 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.hash.ShardData;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.master.taskdealer.TaskStatusDealer;
+import com.dtstack.engine.master.taskdealer.JobStatusDealer;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -45,12 +45,12 @@ public class ShardCache implements ApplicationContextAware {
         }
         return jobResourceShardManager.computeIfAbsent(engineJobCache.getJobResource(), jr -> {
             ShardManager shardManager = new ShardManager(engineJobCache.getJobResource());
-            TaskStatusDealer taskStatusDealer = new TaskStatusDealer();
-            taskStatusDealer.setJobResource(engineJobCache.getJobResource());
-            taskStatusDealer.setShardManager(shardManager);
-            taskStatusDealer.setShardCache(this);
-            taskStatusDealer.setApplicationContext(applicationContext);
-            taskStatusDealer.start();
+            JobStatusDealer jobStatusDealer = new JobStatusDealer();
+            jobStatusDealer.setJobResource(engineJobCache.getJobResource());
+            jobStatusDealer.setShardManager(shardManager);
+            jobStatusDealer.setShardCache(this);
+            jobStatusDealer.setApplicationContext(applicationContext);
+            jobStatusDealer.start();
             return shardManager;
         });
     }

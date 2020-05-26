@@ -101,6 +101,19 @@ public class LearningClient extends AbstractClient {
         return jobResult;
     }
 
+    private JobResult submitPythonJob(JobClient jobClient){
+        LOG.info("LearningClient.submitPythonJob");
+        try {
+            String[] args = LearningUtil.buildPythonArgs(jobClient);
+            System.out.println(Arrays.asList(args));
+            String jobId = client.submit(args);
+            return JobResult.createSuccessResult(jobId);
+        } catch(Exception ex) {
+            LOG.info("", ex);
+            return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(ex));
+        }
+    }
+
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
         String jobId = jobIdentifier.getEngineJobId();
@@ -168,19 +181,6 @@ public class LearningClient extends AbstractClient {
     @Override
     public String getMessageByHttp(String path) {
         return null;
-    }
-
-    private JobResult submitPythonJob(JobClient jobClient){
-        LOG.info("LearningClient.submitPythonJob");
-        try {
-            String[] args = LearningUtil.buildPythonArgs(jobClient);
-            System.out.println(Arrays.asList(args));
-            String jobId = client.submit(args);
-            return JobResult.createSuccessResult(jobId);
-        } catch(Exception ex) {
-            LOG.info("", ex);
-            return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(ex));
-        }
     }
 
     @Override

@@ -42,9 +42,9 @@ import java.util.stream.Collectors;
  * @author maqi
  */
 @Component
-public class TaskCheckpointDealer implements InitializingBean {
+public class JobCheckpointDealer implements InitializingBean {
 
-    private static Logger logger = LoggerFactory.getLogger(TaskCheckpointDealer.class);
+    private static Logger logger = LoggerFactory.getLogger(JobCheckpointDealer.class);
 
     private final static String CHECKPOINT_RETAINED_KEY = "state.checkpoints.num-retained";
 

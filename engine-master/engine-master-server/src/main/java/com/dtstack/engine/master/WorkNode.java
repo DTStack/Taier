@@ -23,7 +23,7 @@ import com.dtstack.engine.api.domain.PluginInfo;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.queue.JobPartitioner;
 import com.dtstack.engine.master.resource.JobComputeResourcePlain;
-import com.dtstack.engine.master.taskdealer.TaskSubmittedDealer;
+import com.dtstack.engine.master.taskdealer.JobSubmittedDealer;
 import com.dtstack.engine.master.cache.ShardCache;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -77,7 +77,7 @@ public class WorkNode implements InitializingBean, ApplicationContextAware {
     private EnvironmentContext environmentContext;
 
     @Autowired
-    private TaskSubmittedDealer taskSubmittedDealer;
+    private JobSubmittedDealer jobSubmittedDealer;
 
     @Autowired
     private JobPartitioner jobPartitioner;
@@ -99,7 +99,7 @@ public class WorkNode implements InitializingBean, ApplicationContextAware {
     public void afterPropertiesSet() throws Exception {
         LOG.info("Initializing " + this.getClass().getName());
 
-        executors.execute(taskSubmittedDealer);
+        executors.execute(jobSubmittedDealer);
 
         ExecutorService recoverExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory(this.getClass().getSimpleName()));

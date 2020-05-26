@@ -22,9 +22,9 @@ import java.util.concurrent.LinkedBlockingQueue;
  * create: 2020/2/10
  */
 @Component
-public class TaskSubmittedDealer implements Runnable {
+public class JobSubmittedDealer implements Runnable {
 
-    private static Logger logger = LoggerFactory.getLogger(TaskSubmittedDealer.class);
+    private static Logger logger = LoggerFactory.getLogger(JobSubmittedDealer.class);
 
     private LinkedBlockingQueue<JobClient> queue;
 
@@ -41,9 +41,9 @@ public class TaskSubmittedDealer implements Runnable {
     private WorkNode workNode;
 
     @Autowired
-    private TaskRestartDealer taskRestartDealer;
+    private JobRestartDealer jobRestartDealer;
 
-    public TaskSubmittedDealer() {
+    public JobSubmittedDealer() {
         queue = JobSubmitDealer.getSubmittedQueue();
     }
 
@@ -53,7 +53,7 @@ public class TaskSubmittedDealer implements Runnable {
             try {
                 JobClient jobClient = queue.take();
 
-                if (taskRestartDealer.checkAndRestartForSubmitResult(jobClient)) {
+                if (jobRestartDealer.checkAndRestartForSubmitResult(jobClient)) {
                     logger.warn("failed submit job restarting, jobId:{} jobResult:{} ...", jobClient.getTaskId(), jobClient.getJobResult());
                     continue;
                 }

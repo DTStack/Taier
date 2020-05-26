@@ -1,9 +1,10 @@
 yarn:
   optional:
     learning.python3.path: /data/anaconda3/bin/python3
-    learning.python2.path: /data2/anaconda2/bin/python2
+    learning.python2.path: /data/anaconda2/bin/python2
     learning.history.address:
     learning.history.webapp.address:
     learning.history.webapp.https.address:
+
 
 
