@@ -5,7 +5,7 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.hash.ShardData;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.master.taskdealer.JobStatusDealer;
+import com.dtstack.engine.master.jobdealer.JobStatusDealer;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;

@@ -1,4 +1,4 @@
-package com.dtstack.engine.master;
+package com.dtstack.engine.master.jobdealer;
 
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EPluginType;
@@ -21,9 +21,7 @@ import com.dtstack.engine.dao.PluginInfoDao;
 import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.PluginInfo;
 import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.master.queue.JobPartitioner;
 import com.dtstack.engine.master.resource.JobComputeResourcePlain;
-import com.dtstack.engine.master.taskdealer.JobSubmittedDealer;
 import com.dtstack.engine.master.cache.ShardCache;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -52,9 +50,9 @@ import java.util.concurrent.TimeUnit;
  * create: 2020/2/29
  */
 @Component
-public class WorkNode implements InitializingBean, ApplicationContextAware {
+public class JobDealer implements InitializingBean, ApplicationContextAware {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WorkNode.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JobDealer.class);
 
     private ApplicationContext applicationContext;
 
@@ -78,9 +76,6 @@ public class WorkNode implements InitializingBean, ApplicationContextAware {
 
     @Autowired
     private JobSubmittedDealer jobSubmittedDealer;
-
-    @Autowired
-    private JobPartitioner jobPartitioner;
 
     @Autowired
     private WorkerOperator workerOperator;
@@ -191,7 +186,7 @@ public class WorkNode implements InitializingBean, ApplicationContextAware {
         GroupPriorityQueue groupPriorityQueue = priorityQueueMap.computeIfAbsent(jobResource, k -> GroupPriorityQueue.builder()
                 .setApplicationContext(applicationContext)
                 .setJobResource(jobResource)
-                .setWorkNode(this)
+                .setJobDealer(this)
                 .build());
         return groupPriorityQueue;
     }
@@ -291,9 +286,9 @@ public class WorkNode implements InitializingBean, ApplicationContextAware {
                             ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                             JobClient jobClient = new JobClient(paramAction);
                             if (EJobCacheStage.unSubmitted().contains(jobCache.getStage())) {
-                                WorkNode.this.addSubmitJob(jobClient, false);
+                                JobDealer.this.addSubmitJob(jobClient, false);
                             } else {
-                                WorkNode.this.afterSubmitJob(jobClient);
+                                JobDealer.this.afterSubmitJob(jobClient);
                             }
                             startId = jobCache.getId();
                         } catch (Exception e) {

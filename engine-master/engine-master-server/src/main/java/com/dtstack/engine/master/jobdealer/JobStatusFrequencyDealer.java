@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.taskdealer;
+package com.dtstack.engine.master.jobdealer;
 
 /**
  * Reason:

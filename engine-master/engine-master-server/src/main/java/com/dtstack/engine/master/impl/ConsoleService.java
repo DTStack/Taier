@@ -14,7 +14,7 @@ import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.master.WorkNode;
+import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.cache.ShardCache;
 import com.dtstack.engine.master.enums.EComponentType;
@@ -65,7 +65,7 @@ public class ConsoleService {
     private ComponentService componentService;
 
     @Autowired
-    private WorkNode workNode;
+    private JobDealer jobDealer;
 
     @Autowired
     private ShardCache shardCache;
@@ -282,7 +282,7 @@ public class ConsoleService {
                 ParamAction paramAction = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), ParamAction.class);
                 JobClient jobClient = new JobClient(paramAction);
                 jobClient.setCallBack((jobStatus) -> {
-                    workNode.updateJobStatus(jobClient.getTaskId(), jobStatus);
+                    jobDealer.updateJobStatus(jobClient.getTaskId(), jobStatus);
                 });
 
                 Long minPriority = engineJobCacheDao.minPriorityByStage(engineJobCache.getJobResource(), Lists.newArrayList(EJobCacheStage.PRIORITY.getStage()), engineJobCache.getNodeAddress());
@@ -291,10 +291,10 @@ public class ConsoleService {
 
                 if (EJobCacheStage.PRIORITY.getStage() == engineJobCache.getStage()) {
                     //先将队列中的元素移除，重复插入会被忽略
-                    GroupPriorityQueue groupPriorityQueue = workNode.getGroupPriorityQueue(engineJobCache.getJobResource());
+                    GroupPriorityQueue groupPriorityQueue = jobDealer.getGroupPriorityQueue(engineJobCache.getJobResource());
                     groupPriorityQueue.remove(engineJobCache.getJobId());
                 }
-                return workNode.addGroupPriorityQueue(engineJobCache.getJobResource(), jobClient, false);
+                return jobDealer.addGroupPriorityQueue(engineJobCache.getJobResource(), jobClient, false);
             }
         } catch (Exception e) {
             logger.error("{}", e);

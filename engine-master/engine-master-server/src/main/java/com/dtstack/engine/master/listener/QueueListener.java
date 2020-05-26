@@ -4,7 +4,7 @@ import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.queue.GroupInfo;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.master.WorkNode;
+import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.executor.JobExecutorTrigger;
 import com.dtstack.engine.master.queue.QueueInfo;
 import org.slf4j.Logger;
@@ -38,7 +38,7 @@ public class QueueListener implements InitializingBean, Listener {
     private JobExecutorTrigger jobExecutorTrigger;
 
     @Autowired
-    private WorkNode workNode;
+    private JobDealer jobDealer;
 
     @Autowired
     private EnvironmentContext environmentContext;
@@ -96,7 +96,7 @@ public class QueueListener implements InitializingBean, Listener {
 
     private void computeAllNodesGroupQueueJobResources() {
         try {
-            Map<String, Map<String, GroupInfo>> allNodesGroupQueueInfo = workNode.getAllNodesGroupQueueInfo();
+            Map<String, Map<String, GroupInfo>> allNodesGroupQueueInfo = jobDealer.getAllNodesGroupQueueInfo();
             if (allNodesGroupQueueInfo != null) {
                 Map<String, Map<String, GroupInfo>> tmpAllNodesGroupQueueJobResources = new HashMap<>();
                 allNodesGroupQueueInfo.forEach((address, jobResourceGroupQueueInfo) -> {

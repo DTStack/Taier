@@ -15,7 +15,7 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.ParamAction;
-import com.dtstack.engine.master.WorkNode;
+import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.google.common.base.Preconditions;
@@ -65,7 +65,7 @@ public class ActionService {
     private EngineJobCheckpointDao engineJobCheckpointDao;
 
     @Autowired
-    private WorkNode workNode;
+    private JobDealer jobDealer;
 
     @Autowired
     private WorkerOperator workerOperator;
@@ -98,7 +98,7 @@ public class ActionService {
             if(canAccepted){
                 
                 JobClient jobClient = new JobClient(paramActionExt);
-                workNode.addSubmitJob(jobClient, true);
+                jobDealer.addSubmitJob(jobClient, true);
                 return true;
             }
             logger.warn("Job taskId：" + paramActionExt.getTaskId() + " duplicate submissions are not allowed");
@@ -347,7 +347,7 @@ public class ActionService {
         	log.put("logInfo", scheduleJob.getLogInfo());
         	String engineLog = scheduleJob.getEngineLog();
             if (StringUtils.isBlank(engineLog)) {
-                engineLog = CompletableFuture.supplyAsync(() -> workNode.getAndUpdateEngineLog(jobId, scheduleJob.getEngineJobId(), scheduleJob.getApplicationId(), scheduleJob.getPluginInfoId()),
+                engineLog = CompletableFuture.supplyAsync(() -> jobDealer.getAndUpdateEngineLog(jobId, scheduleJob.getEngineJobId(), scheduleJob.getApplicationId(), scheduleJob.getPluginInfoId()),
                         logTimoutPool).get(environmentContext.getLogTimeout(), TimeUnit.SECONDS);
                 if (engineLog == null) {
                     engineLog = "";
@@ -402,7 +402,7 @@ public class ActionService {
             log.put("logInfo",jobRetry.getLogInfo());
             String engineLog = jobRetry.getEngineLog();
             if (StringUtils.isBlank(jobRetry.getEngineLog())){
-                engineLog = workNode.getAndUpdateEngineLog(jobId, jobRetry.getEngineJobId(), jobRetry.getApplicationId(), scheduleJob.getPluginInfoId());
+                engineLog = jobDealer.getAndUpdateEngineLog(jobId, jobRetry.getEngineJobId(), jobRetry.getApplicationId(), scheduleJob.getPluginInfoId());
                 if (engineLog != null){
                     logger.info("engineJobRetryDao.updateEngineLog id:{}, jobId:{}, engineLog:{}", jobRetry.getId(), jobRetry.getJobId(), engineLog);
                     engineJobRetryDao.updateEngineLog(jobRetry.getId(), engineLog);
