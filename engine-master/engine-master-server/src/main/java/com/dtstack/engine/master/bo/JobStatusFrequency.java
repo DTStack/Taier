@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.jobdealer;
+package com.dtstack.engine.master.bo;
 
 /**
  * Reason:
@@ -7,7 +7,7 @@ package com.dtstack.engine.master.jobdealer;
  * @author xuchao
  */
 
-public class JobStatusFrequencyDealer {
+public class JobStatusFrequency {
 
     private Integer status;
 
@@ -15,7 +15,7 @@ public class JobStatusFrequencyDealer {
 
     private Long createTime;
 
-    public JobStatusFrequencyDealer(Integer status){
+    public JobStatusFrequency(Integer status){
         createTime = System.currentTimeMillis();
         this.status = status;
         this.num = 0;

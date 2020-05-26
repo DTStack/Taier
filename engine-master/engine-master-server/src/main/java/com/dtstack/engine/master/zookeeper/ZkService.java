@@ -10,7 +10,7 @@ import com.dtstack.engine.master.listener.HeartBeatCheckListener;
 import com.dtstack.engine.master.listener.HeartBeatListener;
 import com.dtstack.engine.master.listener.Listener;
 import com.dtstack.engine.master.listener.MasterListener;
-import com.dtstack.engine.master.node.FailoverStrategy;
+import com.dtstack.engine.master.failover.FailoverStrategy;
 import com.google.common.collect.Lists;
 import com.netflix.curator.framework.CuratorFramework;
 import com.netflix.curator.framework.CuratorFrameworkFactory;

@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
  * Company: www.dtstack.com
  * @author maqi
  */
-public class TaskCheckpointInfo implements Delayed {
+public class JobCheckpointInfo implements Delayed {
 
     private Integer computeType;
 
@@ -44,11 +44,11 @@ public class TaskCheckpointInfo implements Delayed {
 
     private long checkpointInterval;
 
-    public TaskCheckpointInfo(JobIdentifier jobIdentifier, String engineTypeName, String pluginInfo) {
+    public JobCheckpointInfo(JobIdentifier jobIdentifier, String engineTypeName, String pluginInfo) {
         this(null, null, jobIdentifier, engineTypeName, pluginInfo, 0);
     }
 
-    public TaskCheckpointInfo(Integer computeType, String taskId, JobIdentifier jobIdentifier, String engineTypeName, String pluginInfo, long checkpointInterval) {
+    public JobCheckpointInfo(Integer computeType, String taskId, JobIdentifier jobIdentifier, String engineTypeName, String pluginInfo, long checkpointInterval) {
         this.computeType = computeType;
         this.taskId = taskId;
         this.jobIdentifier = jobIdentifier;
@@ -95,7 +95,7 @@ public class TaskCheckpointInfo implements Delayed {
 
     @Override
     public String toString() {
-        return "TaskCheckpointInfo{" +
+        return "JobCheckpointInfo{" +
                 "computeType=" + computeType +
                 ", taskId='" + taskId + '\'' +
                 ", jobIdentifier=" + jobIdentifier +

@@ -11,8 +11,9 @@ import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.PluginInfoDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
-import com.dtstack.engine.master.bo.CompletedTaskInfo;
-import com.dtstack.engine.master.bo.TaskCheckpointInfo;
+import com.dtstack.engine.master.bo.JobCompletedInfo;
+import com.dtstack.engine.master.bo.JobCheckpointInfo;
+import com.dtstack.engine.master.bo.JobStatusFrequency;
 import com.dtstack.engine.master.cache.ShardCache;
 import com.dtstack.engine.master.cache.ShardManager;
 import com.dtstack.engine.master.env.EnvironmentContext;
@@ -71,7 +72,7 @@ public class JobStatusDealer implements Runnable {
     /**
      * 记录job 连续某个状态的频次
      */
-    private Map<String, JobStatusFrequencyDealer> jobStatusFrequency = Maps.newConcurrentMap();
+    private Map<String, JobStatusFrequency> jobStatusFrequency = Maps.newConcurrentMap();
 
     private ExecutorService taskStatusPool;
 
@@ -152,7 +153,7 @@ public class JobStatusDealer implements Runnable {
 
                     //数据的更新顺序，先更新job_cache，再更新engine_batch_job
                     if (RdosTaskStatus.getStoppedStatus().contains(status)) {
-                        jobCheckpointDealer.updateCheckpointImmediately(new TaskCheckpointInfo(jobIdentifier, engineType, pluginInfoStr), jobId, status);
+                        jobCheckpointDealer.updateCheckpointImmediately(new JobCheckpointInfo(jobIdentifier, engineType, pluginInfoStr), jobId, status);
 
                         jobLogDelayDealer(jobId, jobIdentifier, engineType, engineJobCache.getComputeType(), pluginInfoStr);
                         jobStatusFrequency.remove(jobId);
@@ -173,7 +174,7 @@ public class JobStatusDealer implements Runnable {
     }
 
     private RdosTaskStatus checkNotFoundStatus(RdosTaskStatus taskStatus, String jobId) {
-        JobStatusFrequencyDealer statusPair = updateJobStatusFrequency(jobId, taskStatus.getStatus());
+        JobStatusFrequency statusPair = updateJobStatusFrequency(jobId, taskStatus.getStatus());
         //如果状态为NotFound，则对频次进行判断
         if (statusPair.getStatus() == RdosTaskStatus.NOTFOUND.getStatus().intValue()) {
             if (statusPair.getNum() >= NOT_FOUND_LIMIT_TIMES || System.currentTimeMillis() - statusPair.getCreateTime() >= NOT_FOUND_LIMIT_INTERVAL) {
@@ -185,7 +186,7 @@ public class JobStatusDealer implements Runnable {
 
 
     private void jobLogDelayDealer(String jobId, JobIdentifier jobIdentifier, String engineType, int computeType, String pluginInfo) {
-        jobCompletedLogDelayDealer.addCompletedTaskInfo(new CompletedTaskInfo(jobId, jobIdentifier, engineType, computeType, pluginInfo, jobLogDelay));
+        jobCompletedLogDelayDealer.addCompletedTaskInfo(new JobCompletedInfo(jobId, jobIdentifier, engineType, computeType, pluginInfo, jobLogDelay));
     }
 
 
@@ -196,8 +197,8 @@ public class JobStatusDealer implements Runnable {
      * @param status
      * @return
      */
-    private JobStatusFrequencyDealer updateJobStatusFrequency(String jobId, Integer status) {
-        JobStatusFrequencyDealer statusFrequency = jobStatusFrequency.computeIfAbsent(jobId, k -> new JobStatusFrequencyDealer(status));
+    private JobStatusFrequency updateJobStatusFrequency(String jobId, Integer status) {
+        JobStatusFrequency statusFrequency = jobStatusFrequency.computeIfAbsent(jobId, k -> new JobStatusFrequency(status));
         if (statusFrequency.getStatus().equals(status)) {
             statusFrequency.setNum(statusFrequency.getNum() + 1);
         } else {
