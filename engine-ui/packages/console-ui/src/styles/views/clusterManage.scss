@@ -214,8 +214,7 @@
         display: flex;
         justify-content: space-between;
         .c-editCluster__header__btn {
-            padding: 0;
-            width: 108px;
+            padding: 0 12px;
             height: 32px;
         }
     }
@@ -255,6 +254,8 @@
     }
     .c-editCluster__container__card {
         height: 100%;
+        border-top: unset;
+        border-radius: unset;
         >.ant-card-body {
             padding: 0 !important;
             height: 100%;
@@ -390,6 +391,13 @@
         .ant-checkbox-wrapper + .ant-checkbox-wrapper {
             margin-left: 23px;
         }
+    }
+    .c-componentConfig__kubernetsContent {
+        height: 100%;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 }
 

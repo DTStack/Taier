@@ -27,10 +27,14 @@ class ComponentsConfig extends React.Component<any, any> {
     state: any = {
         isSameKey: {} // 自定义参数是否重复
     }
-    renderYarnOrHdfsConfig = () => {
+    getComponentConfig = () => {
         const { componentConfig, components } = this.props;
-        const config = componentConfig[COMPONEMT_CONFIG_KEY_ENUM[components.componentTypeCode]] || {}
-        const configInfo = config.configInfo || {}
+        const componentTypeCode = components.componentTypeCode;
+        return componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {}
+    }
+    renderYarnOrHdfsConfig = () => {
+        const config = this.getComponentConfig();
+        const { configInfo = {} } = config;
         let keyAndValue: any;
         keyAndValue = Object.entries(configInfo);
         utils.sortByCompareFunctions(keyAndValue,
@@ -82,6 +86,15 @@ class ComponentsConfig extends React.Component<any, any> {
                     </Col>
                 </Row>)
             }
+        )
+    }
+    renderKubernetsConfig = () => {
+        const config = this.getComponentConfig();
+        const { configInfo = '' } = config;
+        return configInfo && (
+            <div className="c-componentConfig__kubernetsContent">
+                配置文件参数已被加密，此处不予显示
+            </div>
         )
     }
     renderCompsContent = (item: any) => {
@@ -181,8 +194,9 @@ class ComponentsConfig extends React.Component<any, any> {
     renderConfigGroup = (comps: any, group: any) => {
         const { getFieldDecorator, getFieldValue, components } = this.props;
         const componentTypeCode = components.componentTypeCode;
+        const isHaveGroup = componentTypeCode === COMPONENT_TYPE_VALUE.DTYARNSHELL || componentTypeCode === COMPONENT_TYPE_VALUE.LEARNING;
         // console.log('group================', group)
-        if (componentTypeCode === COMPONENT_TYPE_VALUE.DTYARNSHELL || getFieldValue(`${comps}.configInfo.${group.dependencyKey}`).includes(group.dependencyValue)) {
+        if (isHaveGroup || getFieldValue(`${comps}.configInfo.${group.dependencyKey}`).includes(group.dependencyValue)) {
             return (
                 <div className="c-componentsConfig__group" key={group.key}>
                     <div className="c-componentsConfig__group__title">
@@ -216,12 +230,6 @@ class ComponentsConfig extends React.Component<any, any> {
                 </div>
             )
         }
-    }
-
-    getComponentConfig = () => {
-        const { componentConfig, components } = this.props;
-        const componentTypeCode = components.componentTypeCode;
-        return componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {}
     }
 
     compareLoadTemplateParamsKey = (paramsArr: any, paramKey: any) => {
@@ -330,6 +338,7 @@ class ComponentsConfig extends React.Component<any, any> {
     // 自定义参数
     renderAddCustomParam = (group: any = {}) => {
         const { isView, components } = this.props;
+        // console.log('ssssss======group', group)
         return isView ? null : (
             <Row>
                 <Col span={formItemLayout.labelCol.sm.span}></Col>
@@ -352,6 +361,12 @@ class ComponentsConfig extends React.Component<any, any> {
                 return (
                     <React.Fragment>
                         {this.renderYarnOrHdfsConfig()}
+                    </React.Fragment>
+                )
+            case COMPONENT_TYPE_VALUE.KUBERNETES:
+                return (
+                    <React.Fragment>
+                        {this.renderKubernetsConfig()}
                     </React.Fragment>
                 )
             case COMPONENT_TYPE_VALUE.SFTP:
@@ -400,14 +415,6 @@ class ComponentsConfig extends React.Component<any, any> {
                         {this.renderAddCustomParam()}
                     </React.Fragment>
                 )
-            case COMPONENT_TYPE_VALUE.LEARNING:
-                return (
-                    <React.Fragment>
-                        {this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.LEARNING)}
-                        {this.renderCustomParam(COMPONEMT_CONFIG_KEYS.LEARNING)}
-                        {this.renderAddCustomParam()}
-                    </React.Fragment>
-                )
             case COMPONENT_TYPE_VALUE.FLINK:
                 return (
                     <React.Fragment>
@@ -418,6 +425,12 @@ class ComponentsConfig extends React.Component<any, any> {
                 return (
                     <React.Fragment>
                         {this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.SPARK)}
+                    </React.Fragment>
+                )
+            case COMPONENT_TYPE_VALUE.LEARNING:
+                return (
+                    <React.Fragment>
+                        {this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.LEARNING)}
                     </React.Fragment>
                 )
             case COMPONENT_TYPE_VALUE.DTYARNSHELL:

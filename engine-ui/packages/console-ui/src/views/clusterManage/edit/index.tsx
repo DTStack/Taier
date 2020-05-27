@@ -1,17 +1,14 @@
 import * as React from 'react';
 import { cloneDeep } from 'lodash';
-import { connect } from 'react-redux';
 import { hashHistory } from 'react-router';
 import {
-    Form, Input, Card, Tabs, Button, message, Modal } from 'antd';
+    Form, Input, Card, Tabs, Button, message, Modal, Popconfirm } from 'antd';
 import Api from '../../../api/console';
-
-import { updateTestStatus, updateRequiredStatus } from '../../../reducers/modules/cluster';
 
 import req from '../../../consts/reqUrls';
 import {
-    TABS_TITLE, TABS_TITLE_KEY, COMPONEMT_CONFIG_NAME_ENUM, COMPONEMT_CONFIG_KEY_ENUM,
-    COMPONENT_TYPE_VALUE } from '../../../consts';
+    TABS_TITLE, TABS_TITLE_KEY, COMPONEMT_CONFIG_NAME_ENUM,
+    COMPONEMT_CONFIG_KEY_ENUM } from '../../../consts';
 
 import ModifyComponentModal from '../../../components/modifyCompModal';
 import SelectPopver from '../../../components/selectPopover';
@@ -42,27 +39,15 @@ function renderCompIcon (scheduling: any) {
             return '';
     }
 }
-@(connect((state: any) => {
-    return {
-        testStatus: state.testStatus,
-        showRequireStatus: state.showRequireStatus
-    }
-}, (dispatch: any) => {
-    return {
-        updateTestStatus: (data: any) => {
-            dispatch(updateTestStatus(data))
-        },
-        updateRequiredStatus: (data: any) => {
-            dispatch(updateRequiredStatus(data))
-        }
-    }
-}) as any)
+
 class EditCluster extends React.Component<any, any> {
     state: any = {
-        clusterId: '', // 集群id
+        clusterId: '',
         clusterName: '', // 集群名称
-        compTypeKey: 0, // 组件默认选中
-        componentConfig: {}, // 各组件配置文件信息
+        compTypeKey: 0,
+        componentConfig: {}, // 各组件配置信息
+        cloneComponentConfig: {}, // 备份各组件配置信息
+        testStatus: {},
         tabCompData: [
             {
                 schedulingCode: TABS_TITLE_KEY.COMMON,
@@ -88,7 +73,7 @@ class EditCluster extends React.Component<any, any> {
         popoverVisible: false,
         uploadLoading: false,
         modify: false,
-        testStatus: {}
+        testLoading: false
     }
     container: any;
 
@@ -99,7 +84,6 @@ class EditCluster extends React.Component<any, any> {
     getDataList = () => {
         const { clusterId } = this.state;
         const { cluster = {} } = this.props.location.state || {} as any;
-        // 是否存在组件id
         const isRequest = clusterId || cluster.clusterId;
         isRequest && Api.getClusterInfo({
             clusterId: clusterId || cluster.clusterId
@@ -109,8 +93,9 @@ class EditCluster extends React.Component<any, any> {
                     tabCompData: res.data.scheduling,
                     clusterName: res.data.clusterName,
                     componentConfig: dealData.handleCompsData(res),
+                    cloneComponentConfig: dealData.handleCompsData(res),
                     clusterId: clusterId
-                }, () => { console.log('componentUpdate-----', this.state.tabCompData, this.state.componentConfig) })
+                })
             }
         })
     }
@@ -126,8 +111,8 @@ class EditCluster extends React.Component<any, any> {
         const { form } = this.props
         form.validateFields(null, {}, (err: any, values: any) => {
             console.log(err, values)
-            const { componentConfig } = this.state;
-            let modifyCompsArr = dealData.getMoadifyComps(values, componentConfig);
+            const { cloneComponentConfig } = this.state;
+            let modifyCompsArr = dealData.getMoadifyComps(values, cloneComponentConfig);
             if (modifyCompsArr.length === 0) {
                 hashHistory.push({ pathname: '/console/clusterManage' })
             } else {
@@ -161,12 +146,12 @@ class EditCluster extends React.Component<any, any> {
         return componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {};
     }
 
-    handleFlinkSparkVersion = (key: any, compVersion: any) => {
+    handleFlinkSparkVersion = (key: number, compVersion: any) => {
         this.getLoadTemplate(key, compVersion);
         this.handleCompsVersion(key, compVersion);
     }
 
-    handleCompsVersion = (key: any, compVersion: any) => {
+    handleCompsVersion = (key: number, compVersion: any) => {
         const { componentConfig } = this.state;
         this.setState({
             componentConfig: {
@@ -202,7 +187,8 @@ class EditCluster extends React.Component<any, any> {
                             [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
                                 ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
                                 loadTemplate: res.data,
-                                configInfo: { ...dealData.setCompoentsConfigInfo(res.data) }
+                                params: dealData.getLoadTemplateParams(res.data),
+                                configInfo: { ...dealData.getCompoentsConfigInfo(res.data) }
                             }
                         }
                     })
@@ -240,10 +226,10 @@ class EditCluster extends React.Component<any, any> {
     }
     // 点击确认后对选中数据进行处理
     modifyTabCompData = () => {
-        const { tabCompData, selectValue, compTypeKey, defaultValue } = this.state;
-        const components = tabCompData.find((sche: any) => sche.schedulingCode === compTypeKey).components;
         let deleteComps: any = [];
         let addComps: any = [];
+        const { tabCompData, selectValue, compTypeKey, defaultValue } = this.state;
+        const components = tabCompData.find((sche: any) => sche.schedulingCode === compTypeKey).components;
         if (selectValue.sort().toString() === defaultValue.sort().toString()) {
             this.setState({
                 popoverVisible: false
@@ -371,7 +357,6 @@ class EditCluster extends React.Component<any, any> {
         return flag
     }
 
-    // 配置文件Change事件
     fileChange = (e: any, componentTypeCode: any) => {
         const file = e.target;
         console.log('changefile---------', file.files[0]);
@@ -403,7 +388,6 @@ class EditCluster extends React.Component<any, any> {
         }
     }
 
-    // 批量上传参数
     paramsfileChange = (e: any, componentTypeCode: any) => {
         const paramsFile = e.target;
         const { componentConfig } = this.state;
@@ -416,7 +400,7 @@ class EditCluster extends React.Component<any, any> {
             componentType: componentTypeCode
         }).then((res: any) => {
             if (res.code === 1) {
-                // console.log('res.data[0]=======', res.data[0])
+                console.log('res.data[0]=======', res.data[0])
                 form.setFieldsValue({
                     [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
                         configInfo: { ...dealData.handleBatchParams(res.data[0]) }
@@ -485,10 +469,10 @@ class EditCluster extends React.Component<any, any> {
 
     saveComponent = (components: any) => {
         const { validateFieldsAndScroll } = this.props.form;
+        const { componentConfig, cloneComponentConfig } = this.state;
         const componentTypeCode = components.componentTypeCode;
         const config = this.getComponentConfig(components);
-        const isFileNameRequire = componentTypeCode == COMPONENT_TYPE_VALUE.YARN || componentTypeCode == COMPONENT_TYPE_VALUE.KUBERNETES ||
-            componentTypeCode == COMPONENT_TYPE_VALUE.HDFS;
+        const isFileNameRequire = dealData.checkUplaodFileComps(componentTypeCode);
         validateFieldsAndScroll((err: any, values: any) => {
             console.log(err, values)
             const result = /^[a-z0-9_]{1,64}$/i.test(values.clusterName);
@@ -514,30 +498,16 @@ class EditCluster extends React.Component<any, any> {
                 ...params
             }).then((res: any) => {
                 if (res.code === 1) {
-                    this.setComponentConfig(res, components);
+                    this.setState({
+                        clusterId: res.data.clusterId,
+                        clusterName: res.data.clusterName,
+                        componentConfig: dealData.updateCompsConfig(componentConfig, componentTypeCode, res),
+                        cloneComponentConfig: dealData.updateCompsConfig(cloneComponentConfig, componentTypeCode, res)
+                    }, () => console.log('componentConfig------componentConfig', this.state.componentConfig));
                     message.success('保存成功');
                 }
             })
         })
-    }
-
-    setComponentConfig = (data: any, components: any) => {
-        const { componentConfig } = this.state;
-        const componentTypeCode = components.componentTypeCode;
-        this.setState({
-            clusterId: data.data.clusterId,
-            clusterName: data.data.clusterName,
-            componentConfig: {
-                ...componentConfig,
-                [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
-                    ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
-                    configInfo: JSON.parse(data.data.componentConfig) || {},
-                    loadTemplate: JSON.parse(data.data.componentTemplate),
-                    id: data.data.id || '',
-                    params: dealData.getLoadTemplateParams(JSON.parse(data.data.componentTemplate))
-                }
-            }
-        }, () => console.log('componentConfig------componentConfig', this.state.componentConfig));
     }
 
     handleCancel = (components: any) => {
@@ -563,7 +533,6 @@ class EditCluster extends React.Component<any, any> {
                     configInfo: { ...configInfo }
                 }
             })
-            // console.log('config===========', handleCancelParams)
             message.success('取消成功')
         }
     }
@@ -583,7 +552,7 @@ class EditCluster extends React.Component<any, any> {
         } else {
             newParams = [...newParams, { id: giveMeAKey() }]
         }
-        // console.log('addParams-------', newParams, params)
+        // console.log('addParams-------config', config, newParams, params)
         this.setState({
             componentConfig: {
                 ...componentConfig,
@@ -627,8 +596,8 @@ class EditCluster extends React.Component<any, any> {
                 return;
             }
             // console.log('componentTypeCodeArr=========', componentTypeCodeArr)
-            const { componentConfig } = this.state;
-            let modifyCompsArr = dealData.getMoadifyComps(values, componentConfig);
+            const { cloneComponentConfig } = this.state;
+            let modifyCompsArr = dealData.getMoadifyComps(values, cloneComponentConfig);
             if (modifyCompsArr.length === 0) {
                 this.testConnects(values.clusterName)
                 return;
@@ -642,6 +611,9 @@ class EditCluster extends React.Component<any, any> {
     }
 
     testConnects = (clusterName: string) => {
+        this.setState({
+            testLoading: true
+        });
         Api.testConnects({
             clusterName
         }).then((res: any) => {
@@ -654,10 +626,16 @@ class EditCluster extends React.Component<any, any> {
                     testStatus: testStatus
                 })
             }
+            this.setState({
+                testLoading: false
+            })
+        }).finally(() => {
+            this.setState({
+                testLoading: false
+            })
         })
     }
 
-    // 返回各个模块下的组件
     renderCompTabs = (item: any) => {
         const { tabCompData } = this.state;
         if (tabCompData.length === 0) return {};
@@ -666,7 +644,7 @@ class EditCluster extends React.Component<any, any> {
 
     render () {
         const { compTypeKey, popoverVisible, clusterName, modify, selectValue,
-            deleteComps, defaultValue, componentConfig } = this.state;
+            deleteComps, defaultValue, componentConfig, testLoading } = this.state;
         const { getFieldDecorator, getFieldValue } = this.props.form;
         const { mode } = this.props.location.state || {} as any;
         const isView = mode === 'view';
@@ -698,7 +676,7 @@ class EditCluster extends React.Component<any, any> {
                             )}
                         </FormItem>
                         {isView ? <Button type="primary" className="c-editCluster__header__btn" onClick={this.turnEditComp}>编辑</Button>
-                            : <Button type="primary" className="c-editCluster__header__btn" onClick={this.handleNotSaveComps}>测试全部连通性</Button>}
+                            : <Button type="primary" className="c-editCluster__header__btn" loading={testLoading} onClick={this.handleNotSaveComps}>测试全部连通性</Button>}
                     </div>
                     <div className="c-editCluster__container shadow">
                         <Tabs
@@ -768,7 +746,15 @@ class EditCluster extends React.Component<any, any> {
                                                                 </div>
                                                             </div>
                                                             {!isView && <div className="c-editCluster__container__componentFooter">
-                                                                <Button className="c-editCluster__container__componentFooter__btn" onClick={this.handleCancel.bind(this, comps)}>取消</Button>
+                                                                <Popconfirm
+                                                                    title="确认取消当前更改？"
+                                                                    onConfirm={this.handleCancel.bind(this, comps)}
+                                                                    // onCancel={cancel}
+                                                                    okText="确认"
+                                                                    cancelText="取消"
+                                                                >
+                                                                    <Button className="c-editCluster__container__componentFooter__btn">取消</Button>
+                                                                </Popconfirm>
                                                                 <Button className="c-editCluster__container__componentFooter__btn" type="primary" style={{ marginLeft: 8 }} onClick={this.saveComponent.bind(this, comps)} >保存</Button>
                                                             </div>}
                                                         </TabPane>

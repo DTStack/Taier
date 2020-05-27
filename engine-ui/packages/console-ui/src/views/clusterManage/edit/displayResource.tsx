@@ -1,7 +1,5 @@
 import * as React from 'react';
-import {
-    Form, Select, Icon
-} from 'antd';
+import { Form, Select, Icon } from 'antd';
 import utils from 'dt-common/src/utils';
 import {
     COMPONENT_TYPE_VALUE, COMPONEMT_CONFIG_KEYS, COMPONEMT_CONFIG_KEY_ENUM
