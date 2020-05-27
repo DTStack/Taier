@@ -5,7 +5,7 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskParamShade;
-import com.dtstack.engine.master.job.IJobStartTrigger;
+import com.dtstack.engine.master.job.JobStartTriggerBase;
 import com.dtstack.schedule.common.enums.ScheduleEngineType;
 import com.dtstack.schedule.common.util.TimeParamOperator;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@ import java.util.Objects;
  * @date 2019-11-05
  */
 @Service
-public class BatchKylinJobStartTrigger implements IJobStartTrigger {
+public class KylinJobStartTrigger extends JobStartTriggerBase {
 
     @Override
     public void readyForTaskStartTrigger(Map<String, Object> actionParam, ScheduleTaskShade taskShade, ScheduleJob scheduleJob) throws Exception {
