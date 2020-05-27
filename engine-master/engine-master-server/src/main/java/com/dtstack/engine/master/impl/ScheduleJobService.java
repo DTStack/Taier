@@ -27,7 +27,6 @@ import com.dtstack.engine.api.vo.ScheduleServerLogVO;
 import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.ComputeType;
-import com.dtstack.engine.common.enums.EDeployType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.LearningFrameType;
@@ -45,8 +44,8 @@ import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.enums.EDeployMode;
 import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.master.factory.MultiEngineFactory;
-import com.dtstack.engine.master.job.IJobStartTrigger;
+import com.dtstack.engine.master.job.factory.MultiEngineFactory;
+import com.dtstack.engine.master.job.JobStartTriggerBase;
 import com.dtstack.engine.master.plugininfo.PluginWrapper;
 import com.dtstack.engine.master.queue.JobPartitioner;
 import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
@@ -1106,7 +1105,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                     info.remove("dbName");
                 }
                 Map<String, Object> actionParam = PublicUtil.strToMap(info.toJSONString());
-                IJobStartTrigger jobTriggerService = multiEngineFactory.getJobTriggerService(multiEngineType);
+                JobStartTriggerBase jobTriggerService = multiEngineFactory.getJobTriggerService(multiEngineType);
                 jobTriggerService.readyForTaskStartTrigger(actionParam,batchTask,scheduleJob);
                 actionParam.put("name", scheduleJob.getJobName());
                 actionParam.put("taskId", scheduleJob.getJobId());

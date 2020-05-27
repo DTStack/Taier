@@ -17,7 +17,7 @@ import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ComponentService;
-import com.dtstack.engine.master.job.IJobStartTrigger;
+import com.dtstack.engine.master.job.JobStartTriggerBase;
 import com.dtstack.engine.master.scheduler.JobParamReplace;
 import com.dtstack.schedule.common.enums.*;
 import com.dtstack.schedule.common.metric.batch.IMetric;
@@ -49,9 +49,9 @@ import java.util.*;
  * @date 2019-11-05
  */
 @Service
-public class BatchHadoopJobStartTrigger implements IJobStartTrigger {
+public class HadoopJobStartTrigger extends JobStartTriggerBase {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BatchHadoopJobStartTrigger.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HadoopJobStartTrigger.class);
 
     @Autowired
     private JobParamReplace jobParamReplace;
