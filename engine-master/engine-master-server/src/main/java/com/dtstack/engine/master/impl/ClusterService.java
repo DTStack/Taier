@@ -568,7 +568,7 @@ public class ClusterService implements InitializingBean {
         } else {
             //flink spark 需要区分任务类型
             if (EComponentType.FLINK.equals(type.getComponentType()) || EComponentType.SPARK.equals(type.getComponentType())) {
-                //默认为perjob
+                //默认为session
                 EDeployMode deploy = EComponentType.FLINK.equals(type.getComponentType()) ? EDeployMode.SESSION : EDeployMode.PERJOB;
                 if (Objects.nonNull(deployMode)) {
                     deploy = EDeployMode.getByType(deployMode);
@@ -606,6 +606,14 @@ public class ClusterService implements InitializingBean {
                 if (EComponentType.DT_SCRIPT == type.getComponentType() && EComponentType.SPARK_THRIFT.getConfName().equals(entry.getKey())) {
                     //dt-script  不需要hive-site配置
                     continue;
+                }
+
+                if (EComponentType.KUBERNETES.getConfName().equals(entry.getKey())){
+                    //kubernetes 需要添加配置文件名称 供下载
+                    Component kubernetes = componentDao.getByClusterIdAndComponentType(clusterVO.getId(), EComponentType.KUBERNETES.getTypeCode());
+                    if(Objects.nonNull(kubernetes)){
+                        pluginInfo.put("kubernetesConfigName",kubernetes.getUploadFileName());
+                    }
                 }
                 pluginInfo.put(entry.getKey(), entry.getValue());
             }
