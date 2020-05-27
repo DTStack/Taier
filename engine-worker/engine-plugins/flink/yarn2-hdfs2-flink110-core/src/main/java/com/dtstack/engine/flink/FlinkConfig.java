@@ -77,6 +77,16 @@ public class FlinkConfig {
 
     private long submitTimeout = 5;
 
+    private String krbName;
+
+    public String getKrbName() {
+        return krbName;
+    }
+
+    public void setKrbName(String krbName) {
+        this.krbName = krbName;
+    }
+
     public String getTypeName() {
         return typeName;
     }

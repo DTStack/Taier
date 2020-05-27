@@ -72,7 +72,7 @@ public class PluginWrapper{
             return;
         }
 
-        String dbUrl = pluginInfoJson.getString("dbUrl");
+        String dbUrl = pluginInfoJson.getString("jdbcUrl");
         if(org.apache.commons.lang3.StringUtils.isEmpty(dbUrl)){
             return;
         }
@@ -86,13 +86,13 @@ public class PluginWrapper{
 
         if(MultiEngineType.ORACLE.getName().equalsIgnoreCase((String)actionParam.get("engineType"))){
             //oracle不包含schema
-            pluginInfoJson.put("dbUrl", dbUrl);
+            pluginInfoJson.put("jdbcUrl", dbUrl);
             return;
         }
 
         if(MultiEngineType.TIDB.getName().equalsIgnoreCase((String)actionParam.get("engineType"))){
             //TiDB 没有currentSchema
-            pluginInfoJson.put("dbUrl", dbUrl  + paramsJson.get("currentSchema"));
+            pluginInfoJson.put("jdbcUrl", dbUrl  + paramsJson.get("currentSchema"));
             return;
         }
 
@@ -101,7 +101,7 @@ public class PluginWrapper{
         }
 
         dbUrl = dbUrl + URI_PARAMS_DELIM + paramsStr;
-        pluginInfoJson.put("dbUrl", dbUrl);
+        pluginInfoJson.put("jdbcUrl", dbUrl);
     }
 
     private void addUserNameToImpalaOrHive(JSONObject pluginInfoJson, String userName, String password, String dbName, String engineType) {

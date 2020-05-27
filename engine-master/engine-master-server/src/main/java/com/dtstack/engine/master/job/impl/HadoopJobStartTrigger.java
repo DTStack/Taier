@@ -2,14 +2,15 @@ package com.dtstack.engine.master.job.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.ScheduleTaskParamShade;
+import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.RetryUtil;
+import com.dtstack.engine.dao.KerberosDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.enums.EComponentType;
@@ -70,6 +71,9 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
 
     @Autowired
     private WorkerOperator workerOperator;
+
+    @Autowired
+    private KerberosDao kerberosDao;
 
     private DateTimeFormatter dayFormatterAll = DateTimeFormat.forPattern("yyyyMMddHHmmss");
 
@@ -279,7 +283,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
     }
 
     /**
-     * 创建hive的分区
+     * 创建分区
      */
     public String createPartition(Long dtuicTenantId, String job,Integer sourceType,Map<String, Object> actionParam) {
         JSONObject jobJSON = JSONObject.parseObject(job);
@@ -324,11 +328,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             try {
                 RetryUtil.executeWithRetry(() -> {
                     LOG.info("create partition dtuicTenantId {} {}", dtuicTenantId, sql);
-                    JSONObject pluginInfo = new JSONObject();
-                    pluginInfo.put("dbUrl",jdbcUrl);
-                    pluginInfo.put("userName",username);
-                    pluginInfo.put("pwd",password);
-                    pluginInfo.put("driverClassName", DataSourceType.getBaseType(sourceType).getDriverClassName());
+                    JSONObject pluginInfo = buildDataSourcePluginInfo(dtuicTenantId, sourceType, username, password, jdbcUrl);
                     workerOperator.executeQuery(DataSourceType.getBaseType(sourceType).getTypeName(),pluginInfo.toJSONString(),sql,(String) actionParam.get("engineIdentity"));
                     cleanFileName(parameter);
                     return null;
@@ -339,6 +339,56 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             }
         }
         return jobJSON.toJSONString();
+    }
+
+    /**
+     * 拼接数据源的连接信息
+     * hive 需要判断是否开启了kerberos
+     * @param dtuicTenantId
+     * @param sourceType
+     * @param username
+     * @param password
+     * @param jdbcUrl
+     * @return
+     */
+    private JSONObject buildDataSourcePluginInfo(Long dtuicTenantId, Integer sourceType, String username, String password, String jdbcUrl) {
+        JSONObject pluginInfo = new JSONObject();
+        pluginInfo.put("jdbcUrl", jdbcUrl);
+        pluginInfo.put("username", username);
+        pluginInfo.put("password", password);
+        pluginInfo.put("driverClassName", DataSourceType.getBaseType(sourceType).getDriverClassName());
+        //如果开启了kerberos
+        if (DataSourceType.HIVE.getVal() != sourceType) {
+            return pluginInfo;
+        }
+        ClusterVO clusetVo = clusterService.getClusterByTenant(dtuicTenantId);
+        if (Objects.isNull(clusetVo)) {
+            return pluginInfo;
+        }
+        KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusetVo.getId(), EComponentType.SPARK_THRIFT.getTypeCode());
+        if (Objects.isNull(kerberosConfig)) {
+            return pluginInfo;
+        }
+        JSONObject config = new JSONObject();
+        //开启了kerberos
+        pluginInfo.put("openKerberos", kerberosConfig.getOpenKerberos());
+        config.put("openKerberos", kerberosConfig.getOpenKerberos());
+        config.put("remoteDir", kerberosConfig.getRemotePath());
+        config.put("principalFile", kerberosConfig.getName());
+        config.put("krbName", kerberosConfig.getKrbName());
+        //补充yarn参数
+        Component yarnComponent = componentService.getComponentByClusterId(clusetVo.getId(), EComponentType.YARN.getTypeCode());
+        if (Objects.nonNull(yarnComponent)) {
+            Map yarnMap = JSONObject.parseObject(yarnComponent.getComponentConfig(), Map.class);
+            config.put("yarnConf", yarnMap);
+        }
+        Component sftpComponent = componentService.getComponentByClusterId(clusetVo.getId(), EComponentType.SFTP.getTypeCode());
+        if (Objects.nonNull(sftpComponent)) {
+            Map sftpMap = JSONObject.parseObject(sftpComponent.getComponentConfig(), Map.class);
+            pluginInfo.put("sftpConf", sftpMap);
+        }
+        pluginInfo.put("config", config);
+        return pluginInfo;
     }
 
 

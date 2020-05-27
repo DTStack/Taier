@@ -1,9 +1,9 @@
-package com.dtstack.engine.flink.util;
+package com.dtstack.engine.hadoop.util;
 
 import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.SFTPHandler;
-import com.dtstack.engine.flink.FlinkConfig;
+import com.dtstack.engine.hadoop.Config;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.kerby.kerberos.kerb.keytab.Keytab;
@@ -18,13 +18,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+/**
+ * @Auther: jiangjunjie
+ * @Date: 2020-03-13
+ * @Description:
+ */
 public class KerberosUtils {
-
     private static final Logger logger = LoggerFactory.getLogger(KerberosUtils.class);
 
     private static final String USER_DIR = System.getProperty("user.dir");
 
-    public static <T> T login(FlinkConfig config, Supplier<T> supplier) throws IOException {
+    public static <T> T login(Config config,Supplier<T> supplier) throws IOException {
 
         if (!config.isOpenKerberos()) {
             return supplier.get();
@@ -50,16 +54,25 @@ public class KerberosUtils {
         } else {
             handler.close();
         }
-        return KerberosUtils.loginKerberosWithCallBack(config.getYarnConf(),keytabPath, KerberosUtils.getPrincipal(keytabPath), krb5ConfPath,supplier);
+
+        Keytab keytab = Keytab.loadKeytab(new File(keytabPath));
+        List<PrincipalName> principals = keytab.getPrincipals();
+        String principal;
+        if (principals.size() != 0){
+            principal = principals.get(0).getName();
+        } else {
+            throw new IOException("Principal must not be null!");
+        }
+       return KerberosUtils.loginKerberosWithCallBack(config.getYarnConf(),keytabPath,principal,krb5ConfPath,supplier);
     }
 
-    public static <T> T loginKerberosWithCallBack(Map<String, Object> allConfig, String keytabPath, String principal, String krb5Conf, Supplier<T> supplier) {
+     public static <T> T loginKerberosWithCallBack(Map<String, Object> allConfig, String keytabPath, String principal, String krb5Conf, Supplier<T> supplier) {
         if (StringUtils.isNotEmpty(krb5Conf)) {
             System.setProperty(HadoopConfTool.KEY_JAVA_SECURITY_KRB5_CONF, krb5Conf);
         }
         HadoopConf hadoopConf = new HadoopConf();
-        hadoopConf.initYarnConf(allConfig);
-        UserGroupInformation.setConfiguration(hadoopConf.getYarnConfiguration());
+        hadoopConf.initHadoopConf(allConfig);
+        UserGroupInformation.setConfiguration(hadoopConf.getConfiguration());
         try {
             UserGroupInformation ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(principal, keytabPath);
             logger.info("userGroupInformation current user = {} ugi user  = {} ", UserGroupInformation.getCurrentUser(), ugi.getUserName());
@@ -68,22 +81,5 @@ public class KerberosUtils {
             logger.error("{}", keytabPath, e);
             throw new RdosDefineException("kerberos校验失败, Message:" + e.getMessage());
         }
-    }
-
-    public static String getPrincipal(String filePath){
-        Keytab keytab = null;
-        try {
-            keytab = Keytab.loadKeytab(new File(filePath));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        List<PrincipalName> principals = keytab.getPrincipals();
-        String principal = "";
-        if (principals.size() != 0){
-            principal = principals.get(0).getName();
-        } else {
-            logger.error("Principal must not be null!");
-        }
-        return principal;
     }
 }

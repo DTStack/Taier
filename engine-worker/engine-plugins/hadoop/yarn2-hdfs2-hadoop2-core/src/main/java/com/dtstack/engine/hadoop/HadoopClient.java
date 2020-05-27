@@ -378,38 +378,40 @@ public class HadoopClient extends AbstractClient {
                 //测试hdfs联通性
                 return this.checkHdfsConnect(allConfig);
             }
-            return KerberosUtils.login(allConfig, () -> {
-                HadoopConf hadoopConf = new HadoopConf();
-                hadoopConf.initYarnConf(allConfig.getYarnConf());
-                YarnClient testYarnClient = YarnClient.createYarnClient();
-                testYarnClient.init(hadoopConf.getYarnConfiguration());
-                testYarnClient.start();
-                List<NodeReport> nodes = new ArrayList<>();
-                try {
-                    nodes = testYarnClient.getNodeReports(NodeState.RUNNING);
-                } catch (Exception e) {
-                    LOG.error("test yarn connect error", e);
-                }
-                int totalMemory = 0;
-                int totalCores = 0;
-                for (NodeReport rep : nodes) {
-                    totalMemory += rep.getCapability().getMemory();
-                    totalCores += rep.getCapability().getVirtualCores();
-                }
-                try {
-                    List<ComponentTestResult.QueueDescription> descriptions = getQueueDescription(null, testYarnClient.getRootQueueInfos());
-                    testResult.setClusterResourceDescription(new ComponentTestResult.ClusterResourceDescription(nodes.size(), totalMemory, totalCores, descriptions));
-                } catch (Exception e) {
-                    LOG.error("getRootQueueInfos error", e);
-                }
-                testResult.setResult(true);
-                return testResult;
-            });
+            return KerberosUtils.login(allConfig, () -> testYarnConnect(testResult, allConfig));
 
         } catch (Exception e) {
             LOG.error("test yarn connect error", e);
             testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
         }
+        return testResult;
+    }
+
+    private ComponentTestResult testYarnConnect(ComponentTestResult testResult, Config allConfig) {
+        HadoopConf hadoopConf = new HadoopConf();
+        hadoopConf.initYarnConf(allConfig.getYarnConf());
+        YarnClient testYarnClient = YarnClient.createYarnClient();
+        testYarnClient.init(hadoopConf.getYarnConfiguration());
+        testYarnClient.start();
+        List<NodeReport> nodes = new ArrayList<>();
+        try {
+            nodes = testYarnClient.getNodeReports(NodeState.RUNNING);
+        } catch (Exception e) {
+            LOG.error("test yarn connect error", e);
+        }
+        int totalMemory = 0;
+        int totalCores = 0;
+        for (NodeReport rep : nodes) {
+            totalMemory += rep.getCapability().getMemory();
+            totalCores += rep.getCapability().getVirtualCores();
+        }
+        try {
+            List<ComponentTestResult.QueueDescription> descriptions = getQueueDescription(null, testYarnClient.getRootQueueInfos());
+            testResult.setClusterResourceDescription(new ComponentTestResult.ClusterResourceDescription(nodes.size(), totalMemory, totalCores, descriptions));
+        } catch (Exception e) {
+            LOG.error("getRootQueueInfos error", e);
+        }
+        testResult.setResult(true);
         return testResult;
     }
 
