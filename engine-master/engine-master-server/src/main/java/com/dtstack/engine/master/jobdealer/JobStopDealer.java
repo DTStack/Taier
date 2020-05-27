@@ -1,8 +1,7 @@
 package com.dtstack.engine.master.jobdealer;
 
-import com.alibaba.fastjson.JSONObject;
+
 import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.pojo.JobResult;
@@ -21,9 +20,7 @@ import com.dtstack.engine.common.enums.StoppedStatus;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.cache.ShardCache;
-import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
-import com.dtstack.schedule.common.enums.ScheduleEngineType;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -73,8 +70,6 @@ public class JobStopDealer implements InitializingBean {
     @Autowired
     private WorkerOperator workerOperator;
 
-    @Autowired
-    private ScheduleTaskShadeService batchTaskShadeService;
 
 
     private static final int WAIT_INTERVAL = 1000;
@@ -93,11 +88,7 @@ public class JobStopDealer implements InitializingBean {
 
     private static final List<Integer> SPECIAL_TASK_TYPES = Lists.newArrayList(EScheduleJobType.WORK_FLOW.getVal(), EScheduleJobType.ALGORITHM_LAB.getVal());
 
-    /**
-     * 提交jobs判断是否已经提交，若没有提交入DAO进行后续操作
-     * @param jobs 传入的List参数
-     */
-    public int addStopJobs(List<ScheduleJob> jobs,  Long dtuicTenantId, Integer appType) {
+    public int addStopJobs(List<ScheduleJob> jobs, Long dtuicTenantId, Integer appType) {
         if (CollectionUtils.isEmpty(jobs)) {
             return 0;
         }
@@ -116,38 +107,12 @@ public class JobStopDealer implements InitializingBean {
             }
         }
 
-        List<Long> taskIds = jobs.parallelStream().map(ScheduleJob::getTaskId).collect(Collectors.toList());
-
         // 停止已提交的
         if (CollectionUtils.isNotEmpty(needSendStopJobs)) {
-            //转换ScheduleJob类型为EngineJobStopRecord类型
-            Map<Long, List<ScheduleTaskShade>> taskShades =
-                    batchTaskShadeService.getTaskByIds(taskIds, appType)
-                            .stream()
-                            .collect(Collectors.groupingBy(ScheduleTaskShade::getTaskId));
-
-
             for (ScheduleJob job : jobs) {
-                Map<String, Object> param = new HashMap<>();
-                List<ScheduleTaskShade> shades = taskShades.get(job.getTaskId());
-
-                if (CollectionUtils.isNotEmpty(shades)) {
-                    ScheduleTaskShade batchTask = shades.get(0);
-                    param.put("engineType", ScheduleEngineType.getEngineName(batchTask.getEngineType()));
-                    param.put("taskId", job.getJobId());
-                    param.put("computeType", batchTask.getComputeType());
-                    param.put("taskType", batchTask.getTaskType());
-                    param.put("tenantId", dtuicTenantId);
-                    if (batchTask.getTaskType().equals(EScheduleJobType.DEEP_LEARNING.getVal())) {
-                        param.put("engineType", ScheduleEngineType.Learning.getEngineName());
-                        param.put("taskType", EScheduleJobType.SPARK_PYTHON.getVal());
-                    } else if (batchTask.getTaskType().equals(EScheduleJobType.PYTHON.getVal()) || batchTask.getTaskType().equals(EScheduleJobType.SHELL.getVal())) {
-                        param.put("engineType", ScheduleEngineType.DtScript.getEngineName());
-                        param.put("taskType", EScheduleJobType.SPARK_PYTHON.getVal());
-                    }
-                    EngineJobStopRecord jobStopRecord = EngineJobStopRecord.toEntity(param);
-                    engineJobStopRecordDao.insert(jobStopRecord);
-                }
+                EngineJobStopRecord jobStopRecord = new EngineJobStopRecord();
+                jobStopRecord.setTaskId(job.getJobId());
+                engineJobStopRecordDao.insert(jobStopRecord);
             }
         }
         //更新未提交任务状态

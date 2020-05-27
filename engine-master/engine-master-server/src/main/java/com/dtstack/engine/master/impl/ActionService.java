@@ -136,6 +136,7 @@ public class ActionService {
      * @param params
      * @throws Exception
      */
+    @Deprecated
     public void stop(Map<String, Object> params) throws Exception {
 
         if(!params.containsKey("jobs")){
