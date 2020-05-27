@@ -749,7 +749,6 @@ class EditCluster extends React.Component<any, any> {
                                                                 <Popconfirm
                                                                     title="确认取消当前更改？"
                                                                     onConfirm={this.handleCancel.bind(this, comps)}
-                                                                    // onCancel={cancel}
                                                                     okText="确认"
                                                                     cancelText="取消"
                                                                 >
