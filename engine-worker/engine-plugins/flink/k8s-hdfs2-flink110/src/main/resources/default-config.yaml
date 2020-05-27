@@ -60,10 +60,6 @@ perjob:
     gatewayJobName: pushgateway
     high-availability: ZOOKEEPER
 
-    kubernetes.container.image.pull-secrets: 
-    kubernetes.jobmanager.service-account: 
-    kubernetes.namespace: 
-
 session:
   dependencyKey: deploymode
   dependencyValue: session
@@ -122,8 +118,4 @@ session:
     prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter
     gatewayJobName: pushgateway
     high-availability: ZOOKEEPER
-
-    kubernetes.container.image.pull-secrets: 
-    kubernetes.jobmanager.service-account: 
-    kubernetes.namespace: 
 
