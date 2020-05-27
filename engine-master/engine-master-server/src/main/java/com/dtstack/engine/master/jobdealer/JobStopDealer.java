@@ -88,7 +88,7 @@ public class JobStopDealer implements InitializingBean {
 
     private static final List<Integer> SPECIAL_TASK_TYPES = Lists.newArrayList(EScheduleJobType.WORK_FLOW.getVal(), EScheduleJobType.ALGORITHM_LAB.getVal());
 
-    public int addStopJobs(List<ScheduleJob> jobs, Long dtuicTenantId, Integer appType) {
+    public int addStopJobs(List<ScheduleJob> jobs) {
         if (CollectionUtils.isEmpty(jobs)) {
             return 0;
         }

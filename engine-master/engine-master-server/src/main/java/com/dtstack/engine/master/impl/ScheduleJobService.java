@@ -1331,7 +1331,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             }
         }
 
-        int stopCount = jobStopDealer.addStopJobs(jobs, dtuicTenantId, appType);
+        int stopCount = jobStopDealer.addStopJobs(jobs);
         return stopCount;
     }
 
