@@ -75,6 +75,16 @@ public class FlinkConfig {
 
     private String pluginLoadMode = "shipfile";
 
+    private String krbName;
+
+    public String getKrbName() {
+        return krbName;
+    }
+
+    public void setKrbName(String krbName) {
+        this.krbName = krbName;
+    }
+
     public String getTypeName() {
         return typeName;
     }

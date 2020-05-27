@@ -55,8 +55,8 @@ public class KerberosUtils {
         } else {
             handler.close();
         }
-        return KerberosUtils.loginKerberosWithCallBack(config.getYarnConf(),localPath + File.separator + keytabPath,KerberosUtils.getPrincipal(localPath + File.separator + keytabPath),
-                localPath + File.separator + krb5ConfPath,supplier);
+        return KerberosUtils.loginKerberosWithCallBack(config.getYarnConf(),keytabPath,
+                KerberosUtils.getPrincipal(keytabPath), krb5ConfPath,supplier);
     }
 
     static String getLocalHostName(){
@@ -101,7 +101,7 @@ public class KerberosUtils {
         SFTPHandler handler = SFTPHandler.getInstance(config.getSftpConf());
         String localPath = handler.loadFromSftp(fileName, remoteDir, localDir);
 
-        return localPath;
+        return localDir + File.separator + localPath;
     }
 
     public static String getPrincipal(String filePath){

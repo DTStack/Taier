@@ -53,12 +53,17 @@ public class FlinkClientBuilder {
         builder.hadoopConf = hadoopConf;
         builder.yarnConf = yarnConf;
 
-        if (flinkConfig.isOpenKerberos()) {
-            initSecurity(flinkConfig);
-        }
-        if (Deploy.session.name().equalsIgnoreCase(flinkConfig.getClusterMode())) {
-            builder.yarnClient = initYarnClient(yarnConf);
-        }
+        KerberosUtils.login(flinkConfig,()->{
+            if (Deploy.session.name().equalsIgnoreCase(flinkConfig.getClusterMode())) {
+                try {
+                    builder.yarnClient = initYarnClient(yarnConf);
+                } catch (IOException e) {
+                   throw new RdosDefineException(e);
+                }
+            }
+            return null;
+        });
+
         return builder;
     }
 
@@ -95,17 +100,6 @@ public class FlinkClientBuilder {
         customerConf.initHadoopConf(flinkConfig.getHadoopConf());
         customerConf.initYarnConf(flinkConfig.getYarnConf());
         return customerConf;
-    }
-
-    private static void initSecurity(FlinkConfig flinkConfig) throws IOException {
-        try {
-            LOG.info("start init security!");
-            KerberosUtils.login(flinkConfig);
-        } catch (IOException e) {
-            LOG.error("initSecurity happens error", e);
-            throw new IOException("InitSecurity happens error", e);
-        }
-        LOG.info("UGI info: " + UserGroupInformation.getCurrentUser());
     }
 
     private static YarnClient initYarnClient(YarnConfiguration yarnConf) throws IOException {
