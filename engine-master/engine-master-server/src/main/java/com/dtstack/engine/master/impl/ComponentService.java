@@ -983,6 +983,10 @@ public class ComponentService {
             //
             dataInfo = new JSONObject();
             JSONObject confObj = new JSONObject();
+            if(componentConfig.contains("kubernetes.context")){
+                JSONObject contextConf = JSONObject.parseObject(componentConfig);
+                componentConfig = contextConf.getString("kubernetes.context");
+            }
             confObj.put(EComponentType.KUBERNETES.getConfName(),componentConfig);
             dataInfo.put(EComponentType.KUBERNETES.getConfName(), confObj);
             dataInfo.put("componentName", EComponentType.KUBERNETES.getName());

@@ -63,7 +63,7 @@ public class ClusterService implements InitializingBean {
     private final static String DEFAULT_HADOOP_VERSION = "hadoop2";
 
     private final static List<String> BASE_CONFIG = Lists.newArrayList(EComponentType.HDFS.getConfName(),
-            EComponentType.YARN.getConfName(), EComponentType.SPARK_THRIFT.getConfName(), EComponentType.SFTP.getConfName());
+            EComponentType.YARN.getConfName(), EComponentType.SPARK_THRIFT.getConfName(), EComponentType.SFTP.getConfName(),EComponentType.KUBERNETES.getConfName());
 
     @Autowired
     private ClusterDao clusterDao;
@@ -613,7 +613,13 @@ public class ClusterService implements InitializingBean {
                     Component kubernetes = componentDao.getByClusterIdAndComponentType(clusterVO.getId(), EComponentType.KUBERNETES.getTypeCode());
                     if(Objects.nonNull(kubernetes)){
                         pluginInfo.put("kubernetesConfigName",kubernetes.getUploadFileName());
+                        JSONObject sftpConf = clusterConfigJson.getJSONObject("sftpConf");
+                        if(Objects.nonNull(sftpConf)){
+                            String path = sftpConf.getString("path") + File.separator + componentService.buildSftpPath(clusterVO.getId(), EComponentType.KUBERNETES.getTypeCode());
+                            pluginInfo.put("remoteDir",path);
+                        }
                     }
+                    continue;
                 }
                 pluginInfo.put(entry.getKey(), entry.getValue());
             }
