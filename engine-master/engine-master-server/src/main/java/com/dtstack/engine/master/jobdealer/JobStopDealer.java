@@ -1,6 +1,8 @@
 package com.dtstack.engine.master.jobdealer;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.pojo.JobResult;
@@ -19,6 +21,11 @@ import com.dtstack.engine.common.enums.StoppedStatus;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.cache.ShardCache;
+import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
+import com.dtstack.schedule.common.enums.EScheduleJobType;
+import com.dtstack.schedule.common.enums.ScheduleEngineType;
+import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,10 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
@@ -69,6 +73,9 @@ public class JobStopDealer implements InitializingBean {
     @Autowired
     private WorkerOperator workerOperator;
 
+    @Autowired
+    private ScheduleTaskShadeService batchTaskShadeService;
+
 
     private static final int WAIT_INTERVAL = 1000;
     private static final int OPERATOR_EXPIRED_INTERVAL = 60000;
@@ -83,6 +90,84 @@ public class JobStopDealer implements InitializingBean {
 
     private StopProcessor stopProcessor = new StopProcessor();
     private AcquireStopJob acquireStopJob = new AcquireStopJob();
+
+    private static final List<Integer> SPECIAL_TASK_TYPES = Lists.newArrayList(EScheduleJobType.WORK_FLOW.getVal(), EScheduleJobType.ALGORITHM_LAB.getVal());
+
+    /**
+     * 提交jobs判断是否已经提交，若没有提交入DAO进行后续操作
+     * @param jobs 传入的List参数
+     */
+    public int addStopJobs(List<ScheduleJob> jobs,  Long dtuicTenantId, Integer appType) {
+        if (CollectionUtils.isEmpty(jobs)) {
+            return 0;
+        }
+        int stopCount = 0;
+        List<ScheduleJob> needSendStopJobs = new ArrayList<>(jobs.size());
+        List<Long> unSubmitJob = new ArrayList<>(jobs.size());
+        for (ScheduleJob job : jobs) {
+            //除了未提交的任务--其他都是发消息到engine端停止
+            if (checkJobCanStop(job.getStatus())) {
+                stopCount++;
+                if (RdosTaskStatus.UNSUBMIT.getStatus().equals(job.getStatus()) || SPECIAL_TASK_TYPES.contains(job.getTaskType())) {
+                    unSubmitJob.add(job.getId());
+                }
+                //engineto同步状态可能会覆盖 所以都需要提交engine 更新
+                needSendStopJobs.add(job);
+            }
+        }
+
+        List<Long> taskIds = jobs.parallelStream().map(ScheduleJob::getTaskId).collect(Collectors.toList());
+
+        // 停止已提交的
+        if (CollectionUtils.isNotEmpty(needSendStopJobs)) {
+            //转换ScheduleJob类型为EngineJobStopRecord类型
+            Map<Long, List<ScheduleTaskShade>> taskShades =
+                    batchTaskShadeService.getTaskByIds(taskIds, appType)
+                            .stream()
+                            .collect(Collectors.groupingBy(ScheduleTaskShade::getTaskId));
+
+
+            for (ScheduleJob job : jobs) {
+                Map<String, Object> param = new HashMap<>();
+                List<ScheduleTaskShade> shades = taskShades.get(job.getTaskId());
+
+                if (CollectionUtils.isNotEmpty(shades)) {
+                    ScheduleTaskShade batchTask = shades.get(0);
+                    param.put("engineType", ScheduleEngineType.getEngineName(batchTask.getEngineType()));
+                    param.put("taskId", job.getJobId());
+                    param.put("computeType", batchTask.getComputeType());
+                    param.put("taskType", batchTask.getTaskType());
+                    param.put("tenantId", dtuicTenantId);
+                    if (batchTask.getTaskType().equals(EScheduleJobType.DEEP_LEARNING.getVal())) {
+                        param.put("engineType", ScheduleEngineType.Learning.getEngineName());
+                        param.put("taskType", EScheduleJobType.SPARK_PYTHON.getVal());
+                    } else if (batchTask.getTaskType().equals(EScheduleJobType.PYTHON.getVal()) || batchTask.getTaskType().equals(EScheduleJobType.SHELL.getVal())) {
+                        param.put("engineType", ScheduleEngineType.DtScript.getEngineName());
+                        param.put("taskType", EScheduleJobType.SPARK_PYTHON.getVal());
+                    }
+                    EngineJobStopRecord jobStopRecord = EngineJobStopRecord.toEntity(param);
+                    engineJobStopRecordDao.insert(jobStopRecord);
+                }
+            }
+        }
+        //更新未提交任务状态
+        if (CollectionUtils.isNotEmpty(unSubmitJob)) {
+            scheduleJobDao.updateJobStatusByIds(RdosTaskStatus.CANCELED.getStatus(), unSubmitJob);
+        }
+
+        return stopCount;
+
+    }
+
+    private boolean checkJobCanStop(Integer status) {
+        if (status == null) {
+            return true;
+        }
+
+        return RdosTaskStatus.getCanStopStatus().contains(status);
+    }
+
+
 
 
     @Override
