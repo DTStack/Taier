@@ -70,6 +70,26 @@ public class FlinkConfig {
 
     private long submitTimeout = 5;
 
+    private String md5sum;
+
+    private String k8sConfigName;
+
+    public String getK8sConfigName() {
+        return k8sConfigName;
+    }
+
+    public void setK8sConfigName(String k8sConfigName) {
+        this.k8sConfigName = k8sConfigName;
+    }
+
+    public String getMd5sum() {
+        return md5sum;
+    }
+
+    public void setMd5sum(String md5sum) {
+        this.md5sum = md5sum;
+    }
+
     public String getTypeName() {
         return typeName;
     }
