@@ -1,20 +1,12 @@
-package com.dtstack.engine.test;
+package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.master.config.CacheConfig;
-import com.dtstack.engine.master.config.MasterServerBeanConfig;
-import com.dtstack.engine.master.config.MybatisConfig;
-import com.dtstack.engine.master.config.ThreadPoolConfig;
-import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.master.BaseTest;
 import com.dtstack.engine.master.impl.ActionService;
 import com.dtstack.engine.master.utils.AopTargetUtils;
 import io.vertx.core.json.JsonObject;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -22,11 +14,10 @@ import java.util.Map;
 
 import static junit.framework.TestCase.fail;
 
-public class ActionServiceTest extends BaseTest{
+public class ActionServiceTest extends BaseTest {
     public final static String METHOD_VALUE = "start";
 
     @Test
-    @Override
     public void testOperation() {
         try {
             Object obj = context.getBean(ActionService.class);

@@ -1,4 +1,4 @@
-package com.dtstack.engine.test;
+package com.dtstack.engine.master;
 
 import com.dtstack.engine.master.config.CacheConfig;
 import com.dtstack.engine.master.config.MasterServerBeanConfig;
@@ -10,7 +10,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 
 
@@ -20,8 +19,5 @@ import org.springframework.test.context.ContextConfiguration;
 public abstract class BaseTest {
 
     @Autowired
-    public  ApplicationContext context = null;
-
-    @Test
-    public abstract void testOperation();
+    public  ApplicationContext context;
 }

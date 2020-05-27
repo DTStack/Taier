@@ -1,4 +1,4 @@
-package com.dtstack.engine.test;
+package com.dtstack.engine.master;
 
 import org.junit.runners.model.InitializationError;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
