@@ -6,7 +6,7 @@ export default class ModifyComponentModal extends React.Component<any, any> {
     render () {
         const { handleDeleteComps, modify, handleCancleModify, deleteComps, selectValue } = this.props;
         let modifyCompsNames: any = [];
-        deleteComps.map((comps: any) => {
+        deleteComps.forEach((comps: any) => {
             modifyCompsNames.push(comps.componentName)
         })
         const isSource = selectValue[0] === COMPONENT_TYPE_VALUE.YARN || selectValue[0] === COMPONENT_TYPE_VALUE.KUBERNETES;

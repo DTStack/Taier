@@ -269,7 +269,7 @@ function getComponentConfigPrames (values: any, components: any, config: any) {
      */
     const formValues = handleFormValues(formConfig, customParams, componentTypeCode);
     const paramsConfig = Object.keys(formValues).length === 0 ? config.configInfo : formValues;
-    // console.log('formValues------dsds------paramsConfig', formValues, paramsConfig)
+    // console.log('formValues------dsds------paramsConfig', formValues, config.configInfo)
     return {
         resources1: files,
         resources2: kerFiles,

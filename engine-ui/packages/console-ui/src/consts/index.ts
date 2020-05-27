@@ -125,9 +125,6 @@ export const STORE_COMPONENTS: any = [
 
 // 计算组件
 export const COMPUTE_COMPONENTS: any = [
-    // 'Spark', 'Spark Thrift Server', 'Flink', 'Hive Server',
-    // 'Impala SQL', 'DTScript', 'Learning', 'TiDB', 'LibrA',
-    // 'Oracle',
     { componentTypeCode: COMPONENT_TYPE_VALUE.SPARK, componentName: COMPONENT_CONFIG_NAME.SPARK },
     { componentTypeCode: COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER, componentName: COMPONENT_CONFIG_NAME.SPARK_THRIFT_SERVER },
     { componentTypeCode: COMPONENT_TYPE_VALUE.FLINK, componentName: COMPONENT_CONFIG_NAME.FLINK },

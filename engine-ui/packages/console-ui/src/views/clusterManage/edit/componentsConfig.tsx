@@ -3,25 +3,25 @@ import {
     Row, Col, Tooltip, Form, Input, Radio, Select, Checkbox
 } from 'antd';
 import { cloneDeep, isArray } from 'lodash';
-import utils from 'dt-common/src/utils';
 import {
     COMPONENT_TYPE_VALUE, COMPONEMT_CONFIG_KEY_ENUM,
-    COMPONEMT_CONFIG_KEYS } from '../../../consts';
+    COMPONEMT_CONFIG_KEYS, formItemLayout } from '../../../consts';
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 const Option = Select.Option;
 const CheckboxGroup = Checkbox.Group;
 
-const formItemLayout: any = { // 表单常用布局
-    labelCol: {
-        xs: { span: 24 },
-        sm: { span: 6 }
-    },
-    wrapperCol: {
-        xs: { span: 24 },
-        sm: { span: 12 }
-    }
-};
+// export const renderFormItem = ({ item, layout, getFieldDecorator }) => {
+//     const { label, key, required, component, options = {}, rules } = item
+//     return (
+//         <FormItem key={key} label={label} colon {...layout} className={options.className}>
+//             {getFieldDecorator(key, {
+//                 ...options,
+//                 rules: rules || [{ required, message: `${label}为空` }]
+//             })(component || <Input />)}
+//         </FormItem>
+//     )
+// }
 
 class ComponentsConfig extends React.Component<any, any> {
     state: any = {
@@ -37,45 +37,9 @@ class ComponentsConfig extends React.Component<any, any> {
         const { configInfo = {} } = config;
         let keyAndValue: any;
         keyAndValue = Object.entries(configInfo);
-        utils.sortByCompareFunctions(keyAndValue,
-            ([key, value]: any[], [compareKey, compareValue]: any[]) => {
-                if (key == 'yarn.resourcemanager.ha.rm-ids') {
-                    return -1;
-                }
-                if (compareKey == 'yarn.resourcemanager.ha.rm-ids') {
-                    return 1;
-                }
-                return 0;
-            },
-            ([key, value]: any[], [compareKey, compareValue]: any[]) => {
-                const checkKey = key.indexOf('yarn.resourcemanager.address') > -1
-                const checkCompareKey = compareKey.indexOf('yarn.resourcemanager.address') > -1
-                if (checkKey && checkCompareKey) {
-                    return key > compareKey ? 1 : -1
-                } else if (checkKey) {
-                    return -1;
-                } else if (checkCompareKey) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-            },
-            ([key, value]: any[], [compareKey, compareValue]: any[]) => {
-                const checkKey = key.indexOf('yarn.resourcemanager.webapp.address') > -1
-                const checkCompareKey = compareKey.indexOf('yarn.resourcemanager.webapp.address') > -1
-                if (checkKey && checkCompareKey) {
-                    return key > compareKey ? 1 : -1
-                } else if (checkKey) {
-                    return -1;
-                } else if (checkCompareKey) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-            });
-        return keyAndValue.map(
-            ([key, value]: any[]) => {
-                return (<Row key={key} className="zipConfig-item">
+        return keyAndValue.map(([key, value]: any[]) => {
+            return (
+                <Row key={key} className="zipConfig-item">
                     <Col className="formitem-textname" span={formItemLayout.labelCol.sm.span + 4}>
                         {key.length > 38
                             ? <Tooltip title={key}>{key.substr(0, 38) + '...'}</Tooltip>
@@ -84,9 +48,9 @@ class ComponentsConfig extends React.Component<any, any> {
                     <Col className="formitem-textvalue" span={formItemLayout.wrapperCol.sm.span - 1}>
                         {`${value}`}
                     </Col>
-                </Row>)
-            }
-        )
+                </Row>
+            )
+        })
     }
     renderKubernetsConfig = () => {
         const config = this.getComponentConfig();
@@ -99,33 +63,35 @@ class ComponentsConfig extends React.Component<any, any> {
     }
     renderCompsContent = (item: any) => {
         const { isView } = this.props;
-        if (item.type === 'INPUT') { return (<Input disabled={isView} />) }
-        if (item.type === 'RADIO') {
-            return (
-                <RadioGroup disabled={isView}>
-                    {item.values.map((comp: any) => {
-                        return <Radio key={comp.key} value={comp.value}>{comp.key}</Radio>
-                    })}
-                </RadioGroup>
-            )
-        }
-        if (item.type === 'SELECT') {
-            return (
-                <Select disabled={isView} style={{ width: 200 }}>
-                    {item.values.map((comp: any) => {
-                        return <Option key={comp.key} value={comp.value}>{comp.key}</Option>
-                    })}
-                </Select>
-            )
-        }
-        if (item.type === 'CHECKBOX') {
-            return (
-                <CheckboxGroup disabled={isView} className="c-componentConfig__checkboxGroup">
-                    {item.values.map((comp: any) => {
-                        return <Checkbox key={comp.key} value={comp.value}>{comp.key}</Checkbox>
-                    })}
-                </CheckboxGroup>
-            )
+        switch (item.type) {
+            case 'INPUT':
+                return (<Input disabled={isView} />)
+            case 'RADIO':
+                return (
+                    <RadioGroup disabled={isView}>
+                        {item.values.map((comp: any) => {
+                            return <Radio key={comp.key} value={comp.value}>{comp.key}</Radio>
+                        })}
+                    </RadioGroup>
+                )
+            case 'SELECT':
+                return (
+                    <Select disabled={isView} style={{ width: 200 }}>
+                        {item.values.map((comp: any) => {
+                            return <Option key={comp.key} value={comp.value}>{comp.key}</Option>
+                        })}
+                    </Select>
+                )
+            case 'CHECKBOX':
+                return (
+                    <CheckboxGroup disabled={isView} className="c-componentConfig__checkboxGroup">
+                        {item.values.map((comp: any) => {
+                            return <Checkbox key={comp.key} value={comp.value}>{comp.key}</Checkbox>
+                        })}
+                    </CheckboxGroup>
+                )
+            default:
+                return null;
         }
     }
 
@@ -244,7 +210,7 @@ class ComponentsConfig extends React.Component<any, any> {
     compareParamsKey = (paramsArr: any, paramKey: any, field: any) => {
         const { getFieldValue } = this.props;
         let isSameParamsKey = false;
-        paramsArr.map((p: any) => {
+        paramsArr.forEach((p: any) => {
             if (getFieldValue(`${field}${p.id}-key`) === paramKey) isSameParamsKey = true
         })
         return isSameParamsKey;
@@ -352,53 +318,21 @@ class ComponentsConfig extends React.Component<any, any> {
         const { components } = this.props;
         switch (components.componentTypeCode) {
             case COMPONENT_TYPE_VALUE.YARN:
-                return (
-                    <React.Fragment>
-                        {this.renderYarnOrHdfsConfig()}
-                    </React.Fragment>
-                )
+                return this.renderYarnOrHdfsConfig()
             case COMPONENT_TYPE_VALUE.HDFS:
-                return (
-                    <React.Fragment>
-                        {this.renderYarnOrHdfsConfig()}
-                    </React.Fragment>
-                )
+                return this.renderYarnOrHdfsConfig()
             case COMPONENT_TYPE_VALUE.KUBERNETES:
-                return (
-                    <React.Fragment>
-                        {this.renderKubernetsConfig()}
-                    </React.Fragment>
-                )
+                return this.renderKubernetsConfig()
             case COMPONENT_TYPE_VALUE.SFTP:
-                return (
-                    <React.Fragment>
-                        {this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.SFTP)}
-                    </React.Fragment>
-                )
+                return this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.SFTP)
             case COMPONENT_TYPE_VALUE.TIDB_SQL:
-                return (
-                    <React.Fragment>
-                        {this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.TIDB_SQL)}
-                    </React.Fragment>
-                )
+                return this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.TIDB_SQL)
             case COMPONENT_TYPE_VALUE.LIBRA_SQL:
-                return (
-                    <React.Fragment>
-                        {this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.LIBRA_SQL)}
-                    </React.Fragment>
-                )
+                return this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.LIBRA_SQL)
             case COMPONENT_TYPE_VALUE.ORACLE_SQL:
-                return (
-                    <React.Fragment>
-                        {this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.ORACLE_SQL)}
-                    </React.Fragment>
-                )
+                return this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.ORACLE_SQL)
             case COMPONENT_TYPE_VALUE.IMPALA_SQL:
-                return (
-                    <React.Fragment>
-                        {this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.IMPALA_SQL)}
-                    </React.Fragment>
-                )
+                return this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.IMPALA_SQL)
             case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER:
                 return (
                     <React.Fragment>
@@ -416,31 +350,15 @@ class ComponentsConfig extends React.Component<any, any> {
                     </React.Fragment>
                 )
             case COMPONENT_TYPE_VALUE.FLINK:
-                return (
-                    <React.Fragment>
-                        {this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.FLINK)}
-                    </React.Fragment>
-                )
+                return this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.FLINK)
             case COMPONENT_TYPE_VALUE.SPARK:
-                return (
-                    <React.Fragment>
-                        {this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.SPARK)}
-                    </React.Fragment>
-                )
+                return this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.SPARK)
             case COMPONENT_TYPE_VALUE.LEARNING:
-                return (
-                    <React.Fragment>
-                        {this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.LEARNING)}
-                    </React.Fragment>
-                )
+                return this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.LEARNING)
             case COMPONENT_TYPE_VALUE.DTYARNSHELL:
-                return (
-                    <React.Fragment>
-                        {this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.DTYARNSHELL)}
-                    </React.Fragment>
-                )
+                return this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.DTYARNSHELL)
             default:
-                break;
+                return null;
         }
     }
 
