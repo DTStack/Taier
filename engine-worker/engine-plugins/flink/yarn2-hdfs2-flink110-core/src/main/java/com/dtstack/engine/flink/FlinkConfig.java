@@ -19,7 +19,7 @@ public class FlinkConfig {
 
     private static final String DEFAULT_FLINK_PLUGIN_ROOT = "/opt/dtstack/flinkplugin";
 
-    private static final String DEFAULT_JAR_TMP_DIR = "../tmp1100";
+    private static final String DEFAULT_JAR_TMP_DIR = "../tmp110";
 
     private static List<String> ENGINE_FLINK_CONFIGS = null;
 
@@ -69,7 +69,7 @@ public class FlinkConfig {
 
     private String flinkSessionName = "Flink session";
 
-    private boolean yarnSessionStartAuto = true;
+    private boolean sessionStartAuto = true;
 
     private boolean flinkHighAvailability = false;
 
@@ -205,12 +205,12 @@ public class FlinkConfig {
         this.flinkSessionName = flinkSessionName;
     }
 
-    public boolean getYarnSessionStartAuto() {
-        return yarnSessionStartAuto;
+    public boolean getSessionStartAuto() {
+        return sessionStartAuto;
     }
 
-    public void setYarnSessionStartAuto(boolean yarnSessionStartAuto) {
-        this.yarnSessionStartAuto = yarnSessionStartAuto;
+    public void setSessionStartAuto(boolean sessionStartAuto) {
+        this.sessionStartAuto = sessionStartAuto;
     }
 
     public boolean getFlinkHighAvailability() {

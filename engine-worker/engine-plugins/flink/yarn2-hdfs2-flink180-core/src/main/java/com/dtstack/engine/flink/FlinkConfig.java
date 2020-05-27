@@ -69,7 +69,7 @@ public class FlinkConfig {
 
     private String flinkSessionName = "Flink session";
 
-    private boolean yarnSessionStartAuto = true;
+    private boolean sessionStartAuto = true;
 
     private boolean flinkHighAvailability = false;
 
@@ -203,12 +203,12 @@ public class FlinkConfig {
         this.flinkSessionName = flinkSessionName;
     }
 
-    public boolean getYarnSessionStartAuto() {
-        return yarnSessionStartAuto;
+    public boolean getSessionStartAuto() {
+        return sessionStartAuto;
     }
 
-    public void setYarnSessionStartAuto(boolean yarnSessionStartAuto) {
-        this.yarnSessionStartAuto = yarnSessionStartAuto;
+    public void setSessionStartAuto(boolean sessionStartAuto) {
+        this.sessionStartAuto = sessionStartAuto;
     }
 
     public boolean getFlinkHighAvailability() {
