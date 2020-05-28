@@ -1,6 +1,6 @@
 deploymode:
   controls: checkbox
-  values: [perjob,standalone]
+  values: [perjob]
 
 perjob:
   dependencyKey: deploymode
