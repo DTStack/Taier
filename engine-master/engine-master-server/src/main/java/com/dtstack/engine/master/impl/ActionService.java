@@ -18,6 +18,7 @@ import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.master.jobdealer.JobStopDealer;
 import com.google.common.base.Preconditions;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -69,6 +70,9 @@ public class ActionService {
 
     @Autowired
     private WorkerOperator workerOperator;
+
+    @Autowired
+    private JobStopDealer jobStopDealer;
 
     private static int length = 8;
 
@@ -137,7 +141,6 @@ public class ActionService {
      * @param params
      * @throws Exception
      */
-    @Deprecated
     public void stop(Map<String, Object> params) throws Exception {
 
         if(!params.containsKey("jobs")){
@@ -156,25 +159,12 @@ public class ActionService {
             throw new RdosDefineException("please don't stop too many tasks at once, limit:" + TASK_STOP_LIMIT);
         }
 
-        List<EngineJobStopRecord> jobStopRecords = new ArrayList<>(paramList.size());
         List<String> jobIds = new ArrayList<>(paramList.size());
         for(Map<String, Object> param : paramList){
-            /**
-             * 在性能要求较高的接口上尽可能使用java原生方法，性能对比 {@link com.dtstack.engine.dtscript.entrance.test.RdosEngineJobStopRecordCompare}
-             */
-            EngineJobStopRecord jobStopRecord = EngineJobStopRecord.toEntity(param);
-            jobStopRecords.add(jobStopRecord);
-            jobIds.add(jobStopRecord.getTaskId());
+            jobIds.add(MapUtils.getString(param, "taskId"));
         }
-
-        List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(jobIds);
-        for (EngineJobStopRecord jobStopRecord : jobStopRecords) {
-            if (alreadyExistJobIds.contains(jobStopRecord.getTaskId())) {
-                logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobStopRecord.getTaskId());
-                continue;
-            }
-            engineJobStopRecordDao.insert(jobStopRecord);
-        }
+        List<ScheduleJob> jobs = new ArrayList<>(scheduleJobDao.getRdosJobByJobIds(jobIds));
+        jobStopDealer.addStopJobs(jobs);
     }
 
     private void checkParam(ParamAction paramAction) throws Exception{

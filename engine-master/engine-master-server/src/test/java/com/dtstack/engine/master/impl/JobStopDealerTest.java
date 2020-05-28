@@ -21,7 +21,7 @@ public class JobStopDealerTest extends BaseTest {
 
     @Test
     public void testAddStopFunction() {
-        jobStopDealer.addStopJobs(getResourcesFromJobId());
+        jobStopDealer.addStopJobs(getResourcesFromTaskId());
     }
 
     private List<ScheduleJob> getResourcesFromJobId() {
@@ -33,7 +33,7 @@ public class JobStopDealerTest extends BaseTest {
 
     private List<ScheduleJob> getResourcesFromTaskId() {
         List<String> taskIdsList = new ArrayList<>();
-        taskIdsList.add("2c69a9ad");
+        taskIdsList.add("0243ba9f");
         List<ScheduleJob> jobs = new ArrayList<>(scheduleJobDao.getRdosJobByJobIds(taskIdsList));
         return jobs;
     }
