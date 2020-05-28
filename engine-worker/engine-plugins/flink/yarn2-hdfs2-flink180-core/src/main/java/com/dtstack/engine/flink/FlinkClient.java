@@ -273,7 +273,7 @@ public class FlinkClient extends AbstractClient {
                 logger.info("Job has been submitted with JobID " + result.getJobID());
             }
 
-            return Pair.create(result.getJobID().toString(), clusterClient.getClusterId().toString());
+            return Pair.create(result.getJobID().toString(), null);
         } catch (Exception e) {
             if (e.getMessage().contains(ExceptionInfoConstrant.FLINK_UNALE_TO_GET_CLUSTERCLIENT_STATUS_EXCEPTION)) {
                 if (flinkClusterClientManager.getIsClientOn()) {
