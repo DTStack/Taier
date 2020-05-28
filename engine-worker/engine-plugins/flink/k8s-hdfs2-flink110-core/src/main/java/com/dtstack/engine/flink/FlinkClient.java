@@ -82,10 +82,6 @@ public class FlinkClient extends AbstractClient {
 
     public final static String FLINK_CP_URL_FORMAT = "/jobs/%s/checkpoints";
 
-    public final static String USER_DIR = System.getProperty("user.dir");
-
-    private String tmpK8sConfigDir = "tmpK8sConf";
-
     private String tmpFileDirPath = "./tmp";
 
     private static final Path tmpdir = Paths.get(doPrivileged(new GetPropertyAction("java.io.tmpdir")));
@@ -122,7 +118,7 @@ public class FlinkClient extends AbstractClient {
 
         initHadoopConf(flinkConfig);
 
-        downloadK8sConfig(prop);
+        FlinkUtil.downloadK8sConfig(prop, flinkConfig);
 
         flinkClientBuilder = new FlinkClientBuilder(flinkConfig, hadoopConf, prop);
         kubernetesClient = flinkClientBuilder.getKubernetesClient();
@@ -135,61 +131,6 @@ public class FlinkClient extends AbstractClient {
         customerConf.initHadoopConf(flinkConfig.getHadoopConf());
 
         hadoopConf = customerConf.getConfiguration();
-    }
-
-    private void downloadK8sConfig(Properties prop) {
-        String tmpK8sConfig = String.format("%s/%s", USER_DIR, tmpK8sConfigDir);
-
-        String remoteDir = flinkConfig.getRemoteDir();
-        String k8sConfigName = flinkConfig.getKubernetesConfigName();
-        String md5sum = flinkConfig.getMd5sum();
-        String remoteConfigPath = String.format("%s/%s", remoteDir, k8sConfigName);
-        String localConfigPath = String.format("%s/%s/%s", tmpK8sConfig, md5sum, k8sConfigName);
-
-        String localConfigParentDir = localConfigPath.substring(0, localConfigPath.lastIndexOf("/"));
-        File tmpConfigDir = new File(localConfigParentDir);
-        if (!tmpConfigDir.exists()) {
-            tmpConfigDir.mkdirs();
-        }
-
-        if (!new File(localConfigPath).exists()) {
-            SFTPHandler handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());
-            handler.downloadFile(remoteConfigPath, localConfigPath);
-            ZipUtil.upzipFile(localConfigPath, localConfigParentDir);
-        }
-
-        String configName = getConfigNameFromTmpDir(tmpConfigDir);
-        String targetLocalConfigPath = String.format("%s/%s", localConfigParentDir, configName);
-        prop.setProperty(KubernetesConfigOptions.KUBE_CONFIG_FILE.key(), targetLocalConfigPath);
-    }
-
-    private void deleteK8sConfig() {
-        String tmpK8sConfig = String.format("%s/%s", USER_DIR, tmpK8sConfigDir);
-
-        String md5sum = flinkConfig.getMd5sum();
-        String localConfigDirPath = String.format("%s/%s", tmpK8sConfig, md5sum);
-        File localConfigDir = new File(localConfigDirPath);
-        if (localConfigDir.exists() && localConfigDir.isDirectory()) {
-            try {
-                FileUtils.deleteDirectory(localConfigDir);
-            } catch (IOException e) {
-                logger.error("clear k8s config error. {}", e.getMessage());
-            }
-        }
-    }
-
-    private String getConfigNameFromTmpDir(File tmpConfigDir) {
-        String[] contentFiles = tmpConfigDir.list();
-        if (contentFiles.length <= 1) {
-            throw new RuntimeException("k8s config file not exist");
-        }
-
-        for(String fileName : contentFiles) {
-            if (!fileName.endsWith(".zip")) {
-                return fileName;
-            }
-        }
-        return null;
     }
 
     @Override
@@ -655,6 +596,13 @@ public class FlinkClient extends AbstractClient {
 
         cacheFile.put(jobClient.getTaskId(), fileList);
         jobClient.setSql(String.join(";", sqlList));
+        try {
+            FlinkConfig flinkConfig = PublicUtil.jsonStrToObject(jobClient.getPluginInfo(), FlinkConfig.class);
+            Properties prop = PublicUtil.stringToProperties(jobClient.getPluginInfo());
+            FlinkUtil.downloadK8sConfig(prop, flinkConfig);
+        } catch (IOException e) {
+            throw new RuntimeException("k8s config file download fail");
+        }
     }
 
     @Override
@@ -678,7 +626,8 @@ public class FlinkClient extends AbstractClient {
         }
 
         cacheFile.remove(jobClient.getTaskId());
-        deleteK8sConfig();
+
+        FlinkUtil.deleteK8sConfig(jobClient);
     }
 
     @Override

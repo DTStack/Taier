@@ -72,7 +72,11 @@ public class FlinkMasterDeploymentDecorator extends Decorator<Deployment, Kubern
         final String mainClass = flinkConfig.getString(KubernetesConfigOptionsInternal.ENTRY_POINT_CLASS);
         checkNotNull(mainClass, "Main class must be specified!");
 
-        final String confDir = CliFrontend.getConfigurationDirectoryFromEnv();
+        String userDir = System.getProperty("user.dir");
+        String confDir = String.format("%s/%s", userDir, "flinkconf");
+        if (!new File(confDir).exists()) {
+            confDir = CliFrontend.getConfigurationDirectoryFromEnv();
+        }
         final boolean hasLogback = new File(confDir, Constants.CONFIG_FILE_LOGBACK_NAME).exists();
         final boolean hasLog4j = new File(confDir, Constants.CONFIG_FILE_LOG4J_NAME).exists();
 
