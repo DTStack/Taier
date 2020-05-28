@@ -289,14 +289,12 @@ public class ClusterService implements InitializingBean {
      * @param tenantId
      * @return
      */
-    public String clusterSftpDir(@Param("tenantId") Long tenantId) {
+    public String clusterSftpDir(@Param("tenantId") Long tenantId, @Param("componentType") Integer componentType) {
         Long clusterId = engineTenantDao.getClusterIdByTenantId(tenantId);
         if (clusterId != null) {
             Map<String, String> sftpConfig = componentService.getSFTPConfig(clusterId);
             if (sftpConfig != null) {
-                String path = sftpConfig.get("path");
-                path += "/" + componentService.getSftpClusterKey(clusterId);
-                return path;
+                return sftpConfig.get("path" + File.separator + componentService.buildSftpPath(clusterId, componentType);
             }
         }
         return null;
