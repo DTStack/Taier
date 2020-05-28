@@ -28,7 +28,7 @@ import java.util.function.Supplier;
 public class KerberosUtils {
     private static final Logger logger = LoggerFactory.getLogger(KerberosUtils.class);
 
-    private static final String USER_DIR = System.getProperty("user.dir");
+    private static final String USER_DIR = System.getProperty("user.dir") + File.separator + "kerberosPath";
 
     public static <T> T login(Properties properties, Supplier<T> supplier) throws IOException {
         int open = Objects.isNull(properties.get("openKerberos")) ? 0 : (int)properties.get("openKerberos");

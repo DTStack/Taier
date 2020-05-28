@@ -23,7 +23,7 @@ public class KerberosUtils {
 
     private static final String DIR = "/keytab";
 
-    private static final String USER_DIR = System.getProperty("user.dir");
+    private static final String USER_DIR = System.getProperty("user.dir") + File.separator + "kerberosPath";
 
     private static final String REMOTEDIR = "remoteDir";
 
