@@ -1274,10 +1274,14 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         }
 
         if (status.equals(RdosTaskStatus.UNSUBMIT.getStatus())) {
-            stopSubmittedJob(Lists.newArrayList(scheduleJob), dtuicTenantId, appType);
-            return stopUnsubmitJob(scheduleJob);
+            //stopSubmittedJob(Lists.newArrayList(scheduleJob), dtuicTenantId, appType);
+            jobStopDealer.addStopJobs(Lists.newArrayList(scheduleJob));
+            //return stopUnsubmitJob(scheduleJob);
+            return "";
         } else if (RdosTaskStatus.RUNNING_STATUS.contains(status) || RdosTaskStatus.WAIT_STATUS.contains(status)) {
-            return stopSubmittedJob(Lists.newArrayList(scheduleJob), dtuicTenantId, appType);
+            //return stopSubmittedJob(Lists.newArrayList(scheduleJob), dtuicTenantId, appType);
+            jobStopDealer.addStopJobs(Lists.newArrayList(scheduleJob));
+            return "";
         } else {
             throw new RdosDefineException(ErrorCode.JOB_CAN_NOT_STOP);
         }
@@ -1306,7 +1310,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         //查询出所有需要停止的任务
         List<ScheduleJob> needStopIdList = scheduleJobDao.listNeedStopFillDataJob(likeName, RdosTaskStatus.getCanStopStatus(), projectId, appType);
         //发送停止任务消息到engine
-        this.stopSubmittedJob(needStopIdList, dtuicTenantId, appType);
+        //this.stopSubmittedJob(needStopIdList, dtuicTenantId, appType);
+        jobStopDealer.addStopJobs(needStopIdList);
     }
 
 
@@ -1350,6 +1355,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @throws IOException
      */
     @Forbidden
+    @Deprecated
     public String stopSubmittedJob(List<ScheduleJob> scheduleJobList, Long dtuicTenantId, Integer appType) throws Exception {
 
         if (CollectionUtils.isEmpty(scheduleJobList)) {

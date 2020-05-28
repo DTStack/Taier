@@ -96,22 +96,26 @@ public class JobStopDealer implements InitializingBean {
         List<ScheduleJob> needSendStopJobs = new ArrayList<>(jobs.size());
         List<Long> unSubmitJob = new ArrayList<>(jobs.size());
         for (ScheduleJob job : jobs) {
-            //除了未提交的任务--其他都是发消息到engine端停止
             if (checkJobCanStop(job.getStatus())) {
                 stopCount++;
                 if (RdosTaskStatus.UNSUBMIT.getStatus().equals(job.getStatus()) || SPECIAL_TASK_TYPES.contains(job.getTaskType())) {
                     unSubmitJob.add(job.getId());
                 }
-                //engineto同步状态可能会覆盖 所以都需要提交engine 更新
                 needSendStopJobs.add(job);
             }
         }
 
+        List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(jobs.stream().map(ScheduleJob::getJobId).collect(Collectors.toList()));
+
         // 停止已提交的
         if (CollectionUtils.isNotEmpty(needSendStopJobs)) {
-            for (ScheduleJob job : jobs) {
+            for (ScheduleJob job : needSendStopJobs) {
                 EngineJobStopRecord jobStopRecord = new EngineJobStopRecord();
                 jobStopRecord.setTaskId(job.getJobId());
+                if (alreadyExistJobIds.contains(jobStopRecord.getTaskId())) {
+                    logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobStopRecord.getTaskId());
+                    continue;
+                }
                 engineJobStopRecordDao.insert(jobStopRecord);
             }
         }
