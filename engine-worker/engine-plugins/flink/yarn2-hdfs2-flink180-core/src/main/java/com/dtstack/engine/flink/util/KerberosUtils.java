@@ -22,7 +22,7 @@ public class KerberosUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(KerberosUtils.class);
 
-    private static final String USER_DIR = System.getProperty("user.dir");
+    private static final String USER_DIR = System.getProperty("user.dir") + File.separator + "kerberosPath";
 
     public static <T> T login(FlinkConfig config, Supplier<T> supplier) throws IOException {
 
