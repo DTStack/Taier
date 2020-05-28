@@ -72,7 +72,7 @@ public class FlinkYarnSessionStarter {
                     return true;
                 }
 
-                if (flinkConfig.getYarnSessionStartAuto()) {
+                if (flinkConfig.getSessionStartAuto()) {
                     try {
                         clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification).getClusterClient();
                         return true;
