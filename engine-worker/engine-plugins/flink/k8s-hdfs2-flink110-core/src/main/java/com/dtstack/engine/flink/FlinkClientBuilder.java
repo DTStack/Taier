@@ -4,6 +4,8 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
+import com.dtstack.engine.flink.enums.FlinkMode;
+import com.dtstack.engine.flink.util.FlinkUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.apache.commons.lang3.StringUtils;
@@ -58,6 +60,7 @@ public class FlinkClientBuilder {
         this.flinkConfig = flinkConfig;
         this.hadoopConf = hadoopConf;
         this.flinkConfiguration = initFLinkConfiguration(extProp);
+
         String defaultClusterId = flinkConfig.getFlinkSessionName() + ConfigConstrant.CLUSTER_ID_SPLIT + flinkConfig.getCluster() + ConfigConstrant.CLUSTER_ID_SPLIT + flinkConfig.getQueue();
         if (!flinkConfiguration.contains(KubernetesConfigOptions.CLUSTER_ID)) {
             flinkConfiguration.setString(KubernetesConfigOptions.CLUSTER_ID, defaultClusterId.toLowerCase());
@@ -146,16 +149,13 @@ public class FlinkClientBuilder {
         }
         Configuration newConf = new Configuration(configuration);
         if (isPerjob && jobClient != null) {
-//            newConf.setString(KubernetesConfigOptions.APPLICATION_NAME, jobClient.getJobName());
             newConf = addConfiguration(jobClient.getConfProperties(), newConf);
             if (!flinkConfig.getFlinkHighAvailability() && ComputeType.BATCH == jobClient.getComputeType()) {
                 setNoneHaModeConfig(newConf);
             } else {
-//                newConf.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
-//                newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, jobClient.getTaskId());
-                newConf.setString(KubernetesConfigOptions.CLUSTER_ID, jobClient.getTaskId());
+                String projobClusterId = String.format("%s-%s", "flinkperjob", jobClient.getTaskId());
+                newConf.setString(KubernetesConfigOptions.CLUSTER_ID, projobClusterId);
             }
-//            newConf.setInteger(APPLICATION_ATTEMPTS.key(), 0);
         } else if (!isPerjob) {
             if (!flinkConfig.getFlinkHighAvailability()) {
                 setNoneHaModeConfig(newConf);
@@ -165,54 +165,13 @@ public class FlinkClientBuilder {
             }
         }
 
-
         KubernetesClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf);
-//        String flinkJarPath = null;
-//
-//        if (StringUtils.isNotBlank(flinkConfig.getFlinkJarPath())) {
-//
-//            if (!new File(flinkConfig.getFlinkJarPath()).exists()) {
-//                throw new RdosDefineException("The Flink jar path is not exist");
-//            }
-//
-//            flinkJarPath = flinkConfig.getFlinkJarPath();
-//        }
 
         // plugin dependent on shipfile
         if (StringUtils.isNotBlank(flinkConfig.getPluginLoadMode()) && ConfigConstrant.FLINK_PLUGIN_SHIPFILE_LOAD.equalsIgnoreCase(flinkConfig.getPluginLoadMode())) {
             newConf.setString(ConfigConstrant.FLINK_PLUGIN_LOAD_MODE, flinkConfig.getPluginLoadMode());
             newConf.setString("classloader.resolve-order", "parent-first");
-
-//            String flinkPluginRoot = flinkConfig.getFlinkPluginRoot();
-//            List<File> pluginPaths = fillAllPluginPathForSession(isPerjob, flinkPluginRoot);
-//            if (!pluginPaths.isEmpty()) {
-//                clusterDescriptor.addShipFiles(pluginPaths);
-//            }
         }
-
-//        List<URL> classpaths = new ArrayList<>();
-//        if (flinkJarPath != null) {
-//            File[] jars = new File(flinkJarPath).listFiles();
-//
-//            for (File file : jars) {
-//                if (file.toURI().toURL().toString().contains("flink-dist")) {
-//                    clusterDescriptor.setLocalJarPath(new Path(file.toURI().toURL().toString()));
-//                } else {
-//                    classpaths.add(file.toURI().toURL());
-//                }
-//            }
-//
-//        } else {
-//            throw new RdosDefineException("The Flink jar path is null");
-//        }
-
-//        if (isPerjob && jobClient != null && CollectionUtils.isNotEmpty(jobClient.getAttachJarInfos())) {
-//            for (JarFileInfo jarFileInfo : jobClient.getAttachJarInfos()) {
-//                classpaths.add(new File(jarFileInfo.getJarPath()).toURI().toURL());
-//            }
-//        }
-
-//        clusterDescriptor.setProvidedUserJarFiles(classpaths);
         return clusterDescriptor;
     }
 

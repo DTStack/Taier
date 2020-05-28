@@ -40,5 +40,4 @@ public class ConfigConstrant {
     public static final String HADOOP_USER_NAME = "HADOOP_USER_NAME";
     public static final String HADOOP_CONF_DIR = "HADOOP_CONF_DIR";
 
-    public static final String CONFIG_NAME = "config";
 }

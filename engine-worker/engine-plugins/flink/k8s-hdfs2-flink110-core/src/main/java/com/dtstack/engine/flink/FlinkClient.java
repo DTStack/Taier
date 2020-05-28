@@ -141,7 +141,7 @@ public class FlinkClient extends AbstractClient {
         String tmpK8sConfig = String.format("%s/%s", USER_DIR, tmpK8sConfigDir);
 
         String remoteDir = flinkConfig.getRemoteDir();
-        String k8sConfigName = flinkConfig.getKuberneteConfigName();
+        String k8sConfigName = flinkConfig.getKubernetesConfigName();
         String md5sum = flinkConfig.getMd5sum();
         String remoteConfigPath = String.format("%s/%s", remoteDir, k8sConfigName);
         String localConfigPath = String.format("%s/%s/%s", tmpK8sConfig, md5sum, k8sConfigName);
@@ -151,17 +151,15 @@ public class FlinkClient extends AbstractClient {
         if (!tmpConfigDir.exists()) {
             tmpConfigDir.mkdirs();
         }
-        String targetLocalConfigPath = String.format("%s/%s", localConfigParentDir, ConfigConstrant.CONFIG_NAME);
+
         if (!new File(localConfigPath).exists()) {
             SFTPHandler handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());
             handler.downloadFile(remoteConfigPath, localConfigPath);
             ZipUtil.upzipFile(localConfigPath, localConfigParentDir);
         }
 
-        if (!new File(targetLocalConfigPath).exists()) {
-            throw new RuntimeException("k8s config file not exist");
-        }
-
+        String configName = getConfigNameFromTmpDir(tmpConfigDir);
+        String targetLocalConfigPath = String.format("%s/%s", localConfigParentDir, configName);
         prop.setProperty(KubernetesConfigOptions.KUBE_CONFIG_FILE.key(), targetLocalConfigPath);
     }
 
@@ -178,6 +176,20 @@ public class FlinkClient extends AbstractClient {
                 logger.error("clear k8s config error. {}", e.getMessage());
             }
         }
+    }
+
+    private String getConfigNameFromTmpDir(File tmpConfigDir) {
+        String[] contentFiles = tmpConfigDir.list();
+        if (contentFiles.length <= 1) {
+            throw new RuntimeException("k8s config file not exist");
+        }
+
+        for(String fileName : contentFiles) {
+            if (!fileName.endsWith(".zip")) {
+                return fileName;
+            }
+        }
+        return null;
     }
 
     @Override
