@@ -172,16 +172,23 @@ public class FlinkClient extends AbstractClient {
 
     @Override
     protected JobResult processSubmitJobWithType(JobClient jobClient) {
-        EJobType jobType = jobClient.getJobType();
-        JobResult jobResult = null;
-        if(EJobType.MR.equals(jobType)){
-            jobResult = submitJobWithJar(jobClient);
-        }else if(EJobType.SQL.equals(jobType)){
-            jobResult = submitSqlJob(jobClient);
-        }else if(EJobType.SYNC.equals(jobType)){
-            jobResult = submitSyncJob(jobClient);
+        try {
+            return KerberosUtils.login(flinkConfig,()->{
+                EJobType jobType = jobClient.getJobType();
+                JobResult jobResult = null;
+                if (EJobType.MR.equals(jobType)) {
+                    jobResult = submitJobWithJar(jobClient);
+                } else if (EJobType.SQL.equals(jobType)) {
+                    jobResult = submitSqlJob(jobClient);
+                } else if (EJobType.SYNC.equals(jobType)) {
+                    jobResult = submitSyncJob(jobClient);
+                }
+                return jobResult;
+            });
+        } catch (IOException e) {
+            logger.error("can not submit a job process SubmitJobWithType error," ,e);
         }
-        return jobResult;
+        return null;
     }
 
     private JobResult submitJobWithJar(JobClient jobClient) {
