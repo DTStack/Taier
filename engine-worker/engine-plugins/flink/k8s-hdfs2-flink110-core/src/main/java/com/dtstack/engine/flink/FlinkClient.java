@@ -141,7 +141,7 @@ public class FlinkClient extends AbstractClient {
         String tmpK8sConfig = String.format("%s/%s", USER_DIR, tmpK8sConfigDir);
 
         String remoteDir = flinkConfig.getRemoteDir();
-        String k8sConfigName = flinkConfig.getK8sConfigName();
+        String k8sConfigName = flinkConfig.getKuberneteConfigName();
         String md5sum = flinkConfig.getMd5sum();
         String remoteConfigPath = String.format("%s/%s", remoteDir, k8sConfigName);
         String localConfigPath = String.format("%s/%s/%s", tmpK8sConfig, md5sum, k8sConfigName);

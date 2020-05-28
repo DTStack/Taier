@@ -72,14 +72,14 @@ public class FlinkConfig {
 
     private String md5sum;
 
-    private String k8sConfigName;
+    private String kuberneteConfigName;
 
-    public String getK8sConfigName() {
-        return k8sConfigName;
+    public String getKuberneteConfigName() {
+        return kuberneteConfigName;
     }
 
-    public void setK8sConfigName(String k8sConfigName) {
-        this.k8sConfigName = k8sConfigName;
+    public void setKuberneteConfigName(String kuberneteConfigName) {
+        this.kuberneteConfigName = kuberneteConfigName;
     }
 
     public String getMd5sum() {
