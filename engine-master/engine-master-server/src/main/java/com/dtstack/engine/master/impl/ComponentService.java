@@ -33,6 +33,7 @@ import com.dtstack.schedule.common.util.Xml2JsonUtil;
 import com.dtstack.schedule.common.util.ZipUtil;
 import com.google.common.collect.Lists;
 import com.jcraft.jsch.SftpException;
+import javafx.util.Pair;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
@@ -121,13 +122,17 @@ public class ComponentService {
      */
     public static Map<Integer, List<String>> componentTypeConfigMapping = new HashMap<>(2);
 
-    public static Map<Integer, List<String>> componentVersionMapping = new HashMap<>(1);
+    public static Map<String, List<Pair<String,String>>> componentVersionMapping = new HashMap<>(1);
 
     static {
         //hdfs core 需要合并
         componentTypeConfigMapping.put(EComponentType.HDFS.getTypeCode(), Lists.newArrayList("hdfs-site.xml", "core-site.xml"));
         componentTypeConfigMapping.put(EComponentType.YARN.getTypeCode(), Lists.newArrayList("yarn-site.xml"));
-        componentVersionMapping.put(EComponentType.FLINK.getTypeCode(), Lists.newArrayList("110", "180"));
+        componentVersionMapping.put(EComponentType.FLINK.getName(), Lists.newArrayList(new Pair<>("1.8", "180"), new Pair<>("1.10", "110")));
+        componentVersionMapping.put(EComponentType.SPARK.getName(), Lists.newArrayList(new Pair<>("2.1.X", "210")));
+        //-1 为hadoopversion
+        componentVersionMapping.put("hadoopVersion", Lists.newArrayList(new Pair<>("hadoop2", "hadoop2"),
+                new Pair<>("hadoop3", "hadoop3"), new Pair<>("HW", "HW")));
     }
 
     /**
@@ -945,7 +950,7 @@ public class ComponentService {
                     Component yarnComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.YARN.getTypeCode());
                     if(Objects.nonNull(yarnComponent)){
                         Map yarnMap = JSONObject.parseObject(yarnComponent.getComponentConfig(), Map.class);
-                        config.put("yarnConf", yarnMap);
+                        config.put(EComponentType.YARN.getConfName(), yarnMap);
                     }
                 }
                 dataInfo.put("config",config);
@@ -1251,11 +1256,10 @@ public class ComponentService {
 
     /***
      * 获取对应的组件版本信息
-     * @param componentCode
      * @return
      */
-    public List<String> getComponentVersion(@Param("componentType") Integer componentCode) {
-        return componentVersionMapping.get(componentCode);
+    public Map getComponentVersion() {
+        return componentVersionMapping;
     }
 
     @Forbidden
