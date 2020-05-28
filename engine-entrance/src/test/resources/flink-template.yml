@@ -113,7 +113,7 @@ session:
     yarn.taskmanager.heap.mb: 1024
     yarn.jobmanager.heap.mb: 1024
     yarn.taskmanager.numberOfTaskManager: 2
-    yarnSessionStartAuto: false
+    sessionStartAuto: false
     yarn.taskmanager.numberOfTaskSlots: 2
 
     flink.env.java.opts: -XX:MaxMetaspaceSize=500m
