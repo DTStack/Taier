@@ -143,7 +143,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                     return true;
                 }
 
-                if (flinkConfig.getYarnSessionStartAuto()) {
+                if (flinkConfig.getSessionStartAuto()) {
                     try {
                         clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification);
                         clusterClient.setDetached(true);

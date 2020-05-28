@@ -63,7 +63,7 @@ public class ClusterService implements InitializingBean {
     private final static String DEFAULT_HADOOP_VERSION = "hadoop2";
 
     private final static List<String> BASE_CONFIG = Lists.newArrayList(EComponentType.HDFS.getConfName(),
-            EComponentType.YARN.getConfName(), EComponentType.SPARK_THRIFT.getConfName(), EComponentType.SFTP.getConfName());
+            EComponentType.YARN.getConfName(), EComponentType.SPARK_THRIFT.getConfName(), EComponentType.SFTP.getConfName(),EComponentType.KUBERNETES.getConfName());
 
     @Autowired
     private ClusterDao clusterDao;
@@ -272,7 +272,6 @@ public class ClusterService implements InitializingBean {
         //sftp Dir
         JSONObject sftpConfig = clusterConfigJson.getJSONObject(EComponentType.SFTP.getConfName());
         EComponentType componentType = type.getComponentType();
-        Component component = componentDao.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode());
         KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, componentType.getTypeCode());
         if (MapUtils.isNotEmpty(sftpConfig) && Objects.nonNull(kerberosConfig)) {
             Integer openKerberos = kerberosConfig.getOpenKerberos();
@@ -280,7 +279,7 @@ public class ClusterService implements InitializingBean {
             Preconditions.checkState(StringUtils.isNotEmpty(remotePath), "remotePath can not be null");
             pluginJson.fluentPut("openKerberos", Objects.nonNull(openKerberos) && openKerberos > 0)
                     .fluentPut("remoteDir", remotePath)
-                    .fluentPut("principalFile", kerberosConfig.getName());
+                    .fluentPut("principalFile", kerberosConfig.getName()).fluentPut("krbName",kerberosConfig.getKrbName());
         }
     }
 
@@ -569,7 +568,7 @@ public class ClusterService implements InitializingBean {
         } else {
             //flink spark 需要区分任务类型
             if (EComponentType.FLINK.equals(type.getComponentType()) || EComponentType.SPARK.equals(type.getComponentType())) {
-                //默认为perjob
+                //默认为session
                 EDeployMode deploy = EComponentType.FLINK.equals(type.getComponentType()) ? EDeployMode.SESSION : EDeployMode.PERJOB;
                 if (Objects.nonNull(deployMode)) {
                     deploy = EDeployMode.getByType(deployMode);
@@ -606,6 +605,20 @@ public class ClusterService implements InitializingBean {
                 }
                 if (EComponentType.DT_SCRIPT == type.getComponentType() && EComponentType.SPARK_THRIFT.getConfName().equals(entry.getKey())) {
                     //dt-script  不需要hive-site配置
+                    continue;
+                }
+
+                if (EComponentType.KUBERNETES.getConfName().equals(entry.getKey())){
+                    //kubernetes 需要添加配置文件名称 供下载
+                    Component kubernetes = componentDao.getByClusterIdAndComponentType(clusterVO.getId(), EComponentType.KUBERNETES.getTypeCode());
+                    if(Objects.nonNull(kubernetes)){
+                        pluginInfo.put("kubernetesConfigName",kubernetes.getUploadFileName());
+                        JSONObject sftpConf = clusterConfigJson.getJSONObject("sftpConf");
+                        if(Objects.nonNull(sftpConf)){
+                            String path = sftpConf.getString("path") + File.separator + componentService.buildSftpPath(clusterVO.getId(), EComponentType.KUBERNETES.getTypeCode());
+                            pluginInfo.put("remoteDir",path);
+                        }
+                    }
                     continue;
                 }
                 pluginInfo.put(entry.getKey(), entry.getValue());

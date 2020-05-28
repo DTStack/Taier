@@ -26,7 +26,7 @@ perjob:
     metrics.reporter.promgateway.host:
     metrics.reporter.promgateway.port: 9091
     metrics.reporter.promgateway.jobName: 181job
-    clusterMode: standalone
+    clusterMode: session
     metrics.reporter.promgateway.randomJobNameSuffix:
       controls: select
       values: [true,false]
@@ -114,7 +114,7 @@ session:
     yarn.taskmanager.heap.mb: 1024
     yarn.jobmanager.heap.mb: 1024
     yarn.taskmanager.numberOfTaskManager: 2
-    yarnSessionStartAuto: false
+    sessionStartAuto: false
     yarn.taskmanager.numberOfTaskSlots: 2
 
     flink.env.java.opts: -XX:MaxMetaspaceSize=500m

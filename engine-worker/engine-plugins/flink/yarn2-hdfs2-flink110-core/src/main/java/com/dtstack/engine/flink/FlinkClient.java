@@ -139,30 +139,27 @@ public class FlinkClient extends AbstractClient {
         flinkClientBuilder = FlinkClientBuilder.create(flinkConfig, hadoopConf, yarnConf, yarnClient);
         flinkClientBuilder.initFLinkConfiguration(flinkExtProp);
 
-        flinkClusterClientManager = FlinkClusterClientManager.createWithInit(flinkClientBuilder);
+        KerberosUtils.login(flinkConfig,()->{
+            try {
+                flinkClusterClientManager = FlinkClusterClientManager.createWithInit(flinkClientBuilder);
+            } catch (Exception e) {
+                throw new RdosDefineException(e);
+            }
+            return null;
+        });
     }
 
     private void initYarnClient() throws IOException {
-        if (flinkConfig.isOpenKerberos()){
-            initSecurity();
-        }
-        logger.info("UGI info: " + UserGroupInformation.getCurrentUser());
-        if (Deploy.yarn.name().equalsIgnoreCase(flinkConfig.getClusterMode())){
-            yarnClient = YarnClient.createYarnClient();
-            yarnClient.init(yarnConf);
-            yarnClient.start();
-        }
+        KerberosUtils.login(flinkConfig, () -> {
+            if (Deploy.yarn.name().equalsIgnoreCase(flinkConfig.getClusterMode())) {
+                yarnClient = YarnClient.createYarnClient();
+                yarnClient.init(yarnConf);
+                yarnClient.start();
+            }
+            return null;
+        });
     }
 
-    private void initSecurity() throws IOException {
-        try {
-            logger.info("start init security!");
-            KerberosUtils.login(flinkConfig);
-        } catch (IOException e) {
-            logger.error("initSecurity happens error", e);
-            throw new IOException("InitSecurity happens error", e);
-        }
-    }
 
     private void initHadoopConf(FlinkConfig flinkConfig){
         HadoopConf customerConf = new HadoopConf();

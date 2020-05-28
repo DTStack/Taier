@@ -106,9 +106,9 @@ public class AccountService {
             }
         }
         JSONObject pluginInfo = new JSONObject();
-        pluginInfo.put("dbUrl", jdbc.getString("jdbcUrl"));
-        pluginInfo.put("userName", accountVo.getName());
-        pluginInfo.put("pwd", accountVo.getPassword());
+        pluginInfo.put("jdbcUrl", jdbc.getString("jdbcUrl"));
+        pluginInfo.put("username", accountVo.getName());
+        pluginInfo.put("password", accountVo.getPassword());
         pluginInfo.put("driverClassName", dataBaseType.getDriverClassName());
         try {
             workerOperator.executeQuery(DataBaseType.TiDB.getTypeName().toLowerCase(), pluginInfo.toJSONString(), "show databases", "");

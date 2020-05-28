@@ -175,4 +175,5 @@ public enum EComponentType {
     public static List<EComponentType> sqlComponent = Lists.newArrayList(EComponentType.SPARK_THRIFT,EComponentType.HIVE_SERVER,EComponentType.TIDB_SQL,EComponentType.ORACLE_SQL,
             EComponentType.LIBRA_SQL,EComponentType.IMPALA_SQL);
 
+
 }

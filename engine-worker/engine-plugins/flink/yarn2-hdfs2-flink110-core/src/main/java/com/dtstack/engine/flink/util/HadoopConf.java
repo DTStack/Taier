@@ -32,7 +32,7 @@ public class HadoopConf {
 
     private static final Object initLock = new Object();
 
-    private Configuration configuration;
+    private Configuration configuration = new Configuration();
 
 	private YarnConfiguration yarnConfiguration;
 

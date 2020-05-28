@@ -1,15 +1,16 @@
 package com.dtstack.engine.dtscript;
 
-import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.MathUtil;
-import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
+import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.exception.ExceptionUtil;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.dtscript.client.Client;
+import com.dtstack.engine.dtscript.util.KerberosUtils;
 import com.google.gson.Gson;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
@@ -25,12 +26,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * dt-yarn-shell客户端
@@ -215,22 +211,23 @@ public class DtScriptClient extends AbstractClient {
         return null;
     }
 
-    private JobResult submitPythonJob(JobClient jobClient){
-        try {
-            String[] args = DtScriptUtil.buildPythonArgs(jobClient);
-            System.out.println(Arrays.asList(args));
-            String jobId = client.submit(args);
-            return JobResult.createSuccessResult(jobId);
-        } catch(Exception ex) {
-            LOG.info("", ex);
-            return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(ex));
-        }
+    private JobResult submitPythonJob(JobClient jobClient) {
+        return KerberosUtils.login(conf, () -> {
+            try {
+                String[] args = DtScriptUtil.buildPythonArgs(jobClient);
+                System.out.println(Arrays.asList(args));
+                String jobId = client.submit(args);
+                return JobResult.createSuccessResult(jobId);
+            } catch (Exception e) {
+                LOG.info("", e);
+                return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(e));
+            }
+        });
     }
 
     @Override
     public boolean judgeSlots(JobClient jobClient) {
         DtScriptResourceInfo resourceInfo = new DtScriptResourceInfo();
-        resourceInfo.setElasticCapacity(conf.getBoolean(DtYarnConfiguration.DT_APP_ELASTIC_CAPACITY, false));
         try {
             resourceInfo.getYarnSlots(client.getYarnClient(), conf.get(DtYarnConfiguration.DT_APP_QUEUE), conf.getInt(DtYarnConfiguration.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1));
             return resourceInfo.judgeSlots(jobClient);

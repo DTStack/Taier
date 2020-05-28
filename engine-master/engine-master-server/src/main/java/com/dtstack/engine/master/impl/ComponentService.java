@@ -1,14 +1,9 @@
 package com.dtstack.engine.master.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.annotation.Param;
-import com.dtstack.engine.api.domain.BaseEntity;
-import com.dtstack.engine.api.domain.Cluster;
-import com.dtstack.engine.api.domain.Component;
-import com.dtstack.engine.api.domain.Engine;
-import com.dtstack.engine.api.domain.KerberosConfig;
 import com.dtstack.engine.api.domain.Queue;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.ClusterDTO;
 import com.dtstack.engine.api.dto.ComponentDTO;
 import com.dtstack.engine.api.dto.Resource;
@@ -22,13 +17,7 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.ClientTemplate;
 import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.common.util.SFTPHandler;
-import com.dtstack.engine.dao.ClusterDao;
-import com.dtstack.engine.dao.ComponentDao;
-import com.dtstack.engine.dao.EngineDao;
-import com.dtstack.engine.dao.EngineTenantDao;
-import com.dtstack.engine.dao.KerberosDao;
-import com.dtstack.engine.dao.QueueDao;
-import com.dtstack.engine.dao.TenantDao;
+import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.enums.DownloadType;
 import com.dtstack.engine.master.enums.EComponentType;
@@ -60,15 +49,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -520,7 +501,7 @@ public class ComponentService {
                                             @Param("resources") List<Resource> resources, @Param("hadoopVersion") String hadoopVersion,
                                             @Param("kerberosFileName") String kerberosFileName, @Param("componentTemplate") String componentTemplate,
                                             @Param("componentCode") Integer componentCode) {
-        if (StringUtils.isBlank(componentConfig)) {
+        if (StringUtils.isBlank(componentConfig) && EComponentType.KUBERNETES.getTypeCode() != componentCode) {
             throw new RdosDefineException("组件信息不能为空");
         }
         if (Objects.isNull(componentCode)) {
@@ -578,6 +559,14 @@ public class ComponentService {
             }
             addComponent = dbComponent;
         }
+        if(EComponentType.KUBERNETES.getTypeCode() == componentType.getTypeCode()){
+            //kubernetes 信息需要自己解析文件
+            List<Object> config = this.config(resources, EComponentType.KUBERNETES.getTypeCode(),false);
+            if(CollectionUtils.isNotEmpty(config)){
+                componentConfig = (String)config.get(0);
+            }
+        }
+
         addComponent.setHadoopVersion(Optional.ofNullable(hadoopVersion).orElse("hadoop2"));
         addComponent.setComponentName(componentType.getName());
         addComponent.setComponentTypeCode(componentType.getTypeCode());
@@ -809,7 +798,7 @@ public class ComponentService {
      * @param resources
      * @return
      */
-    public List<Object> config(@Param("resources") List<Resource> resources, @Param("componentType") Integer componentType) {
+    public List<Object> config(@Param("resources") List<Resource> resources, @Param("componentType") Integer componentType,@Param("autoDelete") Boolean autoDelete) {
         List<Object> datas = new ArrayList<>();
         try {
             List<String> xmlName = componentTypeConfigMapping.get(componentType);
@@ -853,14 +842,17 @@ public class ComponentService {
                 }
             }
         } finally {
-            for (Resource resource : resources) {
-                try {
-                    FileUtils.forceDelete(new File(System.getProperty("user.dir") + File.separator +
-                            resource.getUploadedFileName()));
-                } catch (IOException e) {
-                    LOGGER.debug("delete config resource error {} ", resource.getUploadedFileName());
+            if (Objects.isNull(autoDelete) || true == autoDelete) {
+                for (Resource resource : resources) {
+                    try {
+                        FileUtils.forceDelete(new File(System.getProperty("user.dir") + File.separator +
+                                resource.getUploadedFileName()));
+                    } catch (IOException e) {
+                        LOGGER.debug("delete config resource error {} ", resource.getUploadedFileName());
+                    }
                 }
             }
+
         }
         return datas;
     }
@@ -882,7 +874,9 @@ public class ComponentService {
             componentTestResult.setResult(true);
             return componentTestResult;
         }
-        String pluginType = this.convertComponentTypeToClient(clusterName, componentType, hadoopVersion);
+
+        String pluginType =  this.convertComponentTypeToClient(clusterName, componentType, hadoopVersion);
+
         ComponentTestResult componentTestResult = workerOperator.testConnect(pluginType,
                 this.wrapperConfig(componentType, componentConfig, sftpConfig, kerberosConfig,clusterName));
         if (Objects.isNull(componentTestResult)) {
@@ -915,18 +909,19 @@ public class ComponentService {
             dataInfo.put("principalFile", kerberosConfig.getName());
             dataInfo.put("krbName", kerberosConfig.getKrbName());
         }
-        dataInfo.put("sftpConf", sftpConfig);
+        dataInfo.put(EComponentType.SFTP.getConfName(), sftpConfig);
         if (EComponentType.SFTP.getTypeCode() == componentType) {
             dataInfo = JSONObject.parseObject(componentConfig);
             dataInfo.put("componentType", EComponentType.SFTP.getName());
         } else if (EComponentType.sqlComponent.contains(EComponentType.getByCode(componentType))) {
             dataInfo = JSONObject.parseObject(componentConfig);
-            dataInfo.put("sftpConf", sftpConfig);
+            dataInfo.put(EComponentType.SFTP.getConfName(), sftpConfig);
             String jdbcUrl = dataInfo.getString("jdbcUrl");
             if (StringUtils.isBlank(jdbcUrl)) {
                 throw new RdosDefineException("jdbcUrl不能为空");
             }
-            if (!jdbcUrl.contains(";principal=")) {
+
+            if (!jdbcUrl.contains(";principal=") && EComponentType.SPARK_THRIFT.getTypeCode() == componentType) {
                 //数据库连接不带%s
                 dataInfo.put("jdbcUrl", jdbcUrl.substring(0, jdbcUrl.lastIndexOf("/")));
             }
@@ -953,22 +948,30 @@ public class ComponentService {
             }
         } else if (EComponentType.YARN.getTypeCode() == componentType) {
             Map map = JSONObject.parseObject(componentConfig, Map.class);
-            dataInfo.put("yarnConf", map);
+            dataInfo.put(EComponentType.YARN.getConfName(), map);
         } else if (EComponentType.HDFS.getTypeCode() == componentType) {
             Map map = JSONObject.parseObject(componentConfig, Map.class);
-            dataInfo.put("hadoopConf", map);
+            dataInfo.put(EComponentType.HDFS.getConfName(), map);
             //补充yarn参数
             Cluster cluster = clusterDao.getByClusterName(clusterName);
             if(Objects.nonNull(cluster)){
                 Component yarnComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.YARN.getTypeCode());
                 if(Objects.nonNull(yarnComponent)){
                     Map yarnMap = JSONObject.parseObject(yarnComponent.getComponentConfig(), Map.class);
-                    dataInfo.put("yarnConf", yarnMap);
+                    dataInfo.put(EComponentType.YARN.getConfName(), yarnMap);
                 }
             }
-        } else if (EComponentType.KUBERNETES.getTypeCode() == componentType){
+        } else if (EComponentType.KUBERNETES.getTypeCode() == componentType) {
             //
-            dataInfo = JSONObject.parseObject(componentConfig);
+            dataInfo = new JSONObject();
+            JSONObject confObj = new JSONObject();
+            if(componentConfig.contains("kubernetes.context")){
+                JSONObject contextConf = JSONObject.parseObject(componentConfig);
+                componentConfig = contextConf.getString("kubernetes.context");
+            }
+            confObj.put(EComponentType.KUBERNETES.getConfName(),componentConfig);
+            dataInfo.put(EComponentType.KUBERNETES.getConfName(), confObj);
+            dataInfo.put("componentName", EComponentType.KUBERNETES.getName());
         }
         return dataInfo.toJSONString();
     }
@@ -1145,9 +1148,8 @@ public class ComponentService {
             return String.format("yarn%s-hdfs%s-hadoop%s", this.formatHadoopVersion(version),
                     this.formatHadoopVersion(hdfs.getHadoopVersion()), this.formatHadoopVersion(version));
         } else if (EComponentType.KUBERNETES.getTypeCode() == componentType) {
-            return "k8s-hdfs2-flink110";
+            return "k8s-hdfs2-hadoop2";
         }
-
 
         ClusterVO cluster = clusterService.getClusterByName(clusterName);
         if (Objects.isNull(cluster)) {
@@ -1155,8 +1157,8 @@ public class ComponentService {
         }
 
         Component yarn = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.YARN.getTypeCode());
-        Component kerberos = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.KUBERNETES.getTypeCode());
-        if (Objects.isNull(yarn) && Objects.isNull(kerberos)) {
+        Component kubernetes = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.KUBERNETES.getTypeCode());
+        if (Objects.isNull(yarn) && Objects.isNull(kubernetes)) {
             throw new RdosDefineException("请先配置资源组件");
         }
         String resourceSign = Objects.isNull(yarn) ? "k8s" : "yarn" + this.formatHadoopVersion(yarn.getHadoopVersion());
@@ -1178,6 +1180,10 @@ public class ComponentService {
         }
         //flink  需要根据yarn hdfs version 拼接 如yarn2-hdfs2-flink180;
         if (EComponentType.FLINK.getTypeCode() == componentType) {
+            //kubernetes 仅有110
+            if(Objects.nonNull(kubernetes)){
+                version = "110";
+            }
             return String.format("%s-%s-flink%s", resourceSign, storageSign, version);
         }
         if (EComponentType.SPARK.getTypeCode() == componentType) {
@@ -1294,4 +1300,27 @@ public class ComponentService {
         }
         return testResults;
     }
+
+    public JSONObject getPluginInfoWithComponentType(Long dtuicTenantId,EComponentType componentType){
+        ClusterVO cluster = clusterService.getClusterByTenant(dtuicTenantId);
+
+        Component component = this.getComponentByClusterId(cluster.getId(), componentType.getTypeCode());
+        JSONObject hdfsConfigJSON = JSONObject.parseObject(component.getComponentConfig());
+        String typeName = hdfsConfigJSON.getString(ComponentService.TYPE_NAME);
+        if (StringUtils.isBlank(typeName)) {
+            //获取对应的插件名称
+            component = this.getComponentByClusterId(cluster.getId(), componentType.getTypeCode());
+            typeName = this.convertComponentTypeToClient(cluster.getClusterName(),
+                    componentType.getTypeCode(), component.getHadoopVersion());
+        }
+        //是否开启kerberos
+        KerberosConfig kerberos = kerberosDao.getByComponentType(cluster.getId(), componentType.getTypeCode());
+        Component sftpConfig = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.SFTP.getTypeCode());
+        Map sftpMap = JSONObject.parseObject(sftpConfig.getComponentConfig(), Map.class);
+        String pluginInfo = this.wrapperConfig(componentType.getTypeCode(), component.getComponentConfig(), sftpMap, kerberos, cluster.getClusterName());
+        JSONObject pluginInfoObj = JSONObject.parseObject(pluginInfo);
+        pluginInfoObj.put(TYPE_NAME,typeName);
+        return pluginInfoObj;
+    }
+
 }
