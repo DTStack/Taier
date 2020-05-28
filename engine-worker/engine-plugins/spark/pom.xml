@@ -20,6 +20,7 @@
         <module>yarn2-hdfs2-spark210</module>
         <module>yarn3-hdfs3-spark210</module>
         <module>yarn3-hdfs3-spark240</module>
+        <module>k8s-spark240</module>
     </modules>
 
     <build>
