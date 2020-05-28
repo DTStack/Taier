@@ -285,7 +285,7 @@ public class ClusterService implements InitializingBean {
 
     /**
      * 获取集群在sftp上的路径
-     *
+     * 开启kerberos 带上kerberos路径
      * @param tenantId
      * @return
      */
@@ -294,7 +294,12 @@ public class ClusterService implements InitializingBean {
         if (clusterId != null) {
             Map<String, String> sftpConfig = componentService.getSFTPConfig(clusterId);
             if (sftpConfig != null) {
-                return sftpConfig.get("path" + File.separator + componentService.buildSftpPath(clusterId, componentType));
+                KerberosConfig kerberosDaoByComponentType = kerberosDao.getByComponentType(clusterId, componentType);
+                if(Objects.nonNull(kerberosDaoByComponentType)){
+                    return sftpConfig.get("path") + File.separator + componentService.buildSftpPath(clusterId, componentType) + File.separator +
+                            ComponentService.KERBEROS_PATH;
+                }
+                return sftpConfig.get("path") + File.separator + componentService.buildSftpPath(clusterId, componentType);
             }
         }
         return null;
