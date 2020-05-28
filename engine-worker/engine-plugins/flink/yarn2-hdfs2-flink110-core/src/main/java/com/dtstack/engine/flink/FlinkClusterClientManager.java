@@ -5,6 +5,7 @@ import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.flink.enums.Deploy;
+import com.dtstack.engine.flink.util.KerberosUtils;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
@@ -69,18 +70,27 @@ public class FlinkClusterClientManager {
     }
 
     public void initClusterClient() throws Exception {
-        if (flinkConfig.getClusterMode().equals(Deploy.standalone.name())) {
-            clusterClient = flinkClientBuilder.createStandalone();
-        } else if (flinkConfig.getClusterMode().equals(Deploy.yarn.name())) {
-            if (flinkYarnSessionStarter == null) {
-                this.flinkYarnSessionStarter = new FlinkYarnSessionStarter(flinkClientBuilder, flinkConfig);
-                LOG.warn("Create FlinkYarnSessionStarter and start YarnSessionClientMonitor");
-                this.startYarnSessionClientMonitor();
+        KerberosUtils.login(flinkConfig, () -> {
+            if (flinkConfig.getClusterMode().equals(Deploy.standalone.name())) {
+                clusterClient = flinkClientBuilder.createStandalone();
+            } else if (flinkConfig.getClusterMode().equals(Deploy.yarn.name())) {
+                if (flinkYarnSessionStarter == null) {
+                    try {
+                        this.flinkYarnSessionStarter = new FlinkYarnSessionStarter(flinkClientBuilder, flinkConfig);
+                        LOG.warn("Create FlinkYarnSessionStarter and start YarnSessionClientMonitor");
+                        this.startYarnSessionClientMonitor();
+                    } catch (Exception e) {
+                        LOG.error("Create FlinkYarnSessionStarter and start YarnSessionClientMonitor error", e);
+                        throw new RdosDefineException(e);
+                    }
+                }
+                boolean clientOn = flinkYarnSessionStarter.startFlinkYarnSession();
+                this.setIsClientOn(clientOn);
+                clusterClient = flinkYarnSessionStarter.getClusterClient();
             }
-            boolean clientOn = flinkYarnSessionStarter.startFlinkYarnSession();
-            this.setIsClientOn(clientOn);
-            clusterClient = flinkYarnSessionStarter.getClusterClient();
-        }
+            return null;
+        });
+
     }
 
     private void startYarnSessionClientMonitor() throws Exception {
