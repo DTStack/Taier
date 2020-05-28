@@ -921,10 +921,14 @@ public class ComponentService {
                 throw new RdosDefineException("jdbcUrl不能为空");
             }
 
-            if (!jdbcUrl.contains(";principal=") && EComponentType.SPARK_THRIFT.getTypeCode() == componentType) {
-                //数据库连接不带%s
-                dataInfo.put("jdbcUrl", jdbcUrl.substring(0, jdbcUrl.lastIndexOf("/")));
+            if (EComponentType.SPARK_THRIFT.getTypeCode() == componentType ||
+                    EComponentType.HIVE_SERVER.getTypeCode() == componentType) {
+                if (!jdbcUrl.contains(";principal=") && jdbcUrl.endsWith("%s")) {
+                    //数据库连接不带%s
+                    dataInfo.put("jdbcUrl", jdbcUrl.substring(0, jdbcUrl.lastIndexOf("/")));
+                }
             }
+
             dataInfo.put("username", dataInfo.getString("username"));
             dataInfo.put("password", dataInfo.getString("password"));
             if (Objects.nonNull(kerberosConfig)) {
