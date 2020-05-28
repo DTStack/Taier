@@ -193,7 +193,7 @@ public class FlinkClient extends AbstractClient {
     private JobResult submitJobWithJar(JobClient jobClient, List<URL> classPaths, List<String> programArgList) {
 
         if (flinkConfig.isOpenKerberos()){
-            downloadKeyTab(jobClient.getTaskParams(), flinkConfig);
+            downloadKafkaKeyTab(jobClient.getTaskParams(), flinkConfig);
         }
 
         if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
@@ -825,7 +825,7 @@ public class FlinkClient extends AbstractClient {
         return jobHistory;
     }
 
-    private void downloadKeyTab(String taskParams, FlinkConfig flinkConfig){
+    private void downloadKafkaKeyTab(String taskParams, FlinkConfig flinkConfig){
         try{
             Properties confProperties = new Properties();
             List<String> taskParam = DtStringUtil.splitIngoreBlank(taskParams.trim());
@@ -834,9 +834,12 @@ public class FlinkClient extends AbstractClient {
                 confProperties.setProperty(pair[0], pair[1]);
             }
             String sftpKeytab = confProperties.getProperty(ConfigConstrant.KAFKA_SFTP_KEYTAB);
-            if (StringUtils.isBlank(sftpKeytab)){
-                throw new Exception(ConfigConstrant.KAFKA_SFTP_KEYTAB + " must not be null");
+
+            if (StringUtils.isBlank(sftpKeytab)) {
+                logger.info("flink task submission has enabled keberos authentication, but kafka has not !!!");
+                return;
             }
+
             String localKeytab = confProperties.getProperty(ConfigConstrant.SECURITY_KERBEROS_LOGIN_KEYTAB);
             if (StringUtils.isNotBlank(localKeytab) && !(new File(localKeytab).exists())){
                 SFTPHandler handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());

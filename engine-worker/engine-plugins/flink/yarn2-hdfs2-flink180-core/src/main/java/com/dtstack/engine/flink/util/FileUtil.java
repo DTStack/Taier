@@ -132,7 +132,7 @@ public class FileUtil {
         return true;
     }
 
-    public static void downloadKeyTab(String taskParams, FlinkConfig flinkConfig) {
+    public static void downloadKafkaKeyTab(String taskParams, FlinkConfig flinkConfig) {
         try {
             Properties confProperties = new Properties();
             List<String> taskParam = DtStringUtil.splitIngoreBlank(taskParams.trim());
@@ -142,7 +142,8 @@ public class FileUtil {
             }
             String sftpKeytab = confProperties.getProperty(ConfigConstrant.KAFKA_SFTP_KEYTAB);
             if (StringUtils.isBlank(sftpKeytab)) {
-                throw new Exception(ConfigConstrant.KAFKA_SFTP_KEYTAB + " must not be null");
+                logger.info("flink task submission has enabled keberos authentication, but kafka has not !!!");
+                return;
             }
             String localKeytab = confProperties.getProperty(ConfigConstrant.SECURITY_KERBEROS_LOGIN_KEYTAB);
             if (StringUtils.isNotBlank(localKeytab) && !(new File(localKeytab).exists())) {
