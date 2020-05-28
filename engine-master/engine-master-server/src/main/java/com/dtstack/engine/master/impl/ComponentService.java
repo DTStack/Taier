@@ -861,7 +861,7 @@ public class ComponentService {
                 }
             }
         } finally {
-            if (true == autoDelete) {
+            if (Objects.isNull(autoDelete) || true == autoDelete) {
                 for (Resource resource : resources) {
                     try {
                         FileUtils.forceDelete(new File(System.getProperty("user.dir") + File.separator +
