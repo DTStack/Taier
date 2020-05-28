@@ -294,7 +294,7 @@ public class ClusterService implements InitializingBean {
         if (clusterId != null) {
             Map<String, String> sftpConfig = componentService.getSFTPConfig(clusterId);
             if (sftpConfig != null) {
-                return sftpConfig.get("path" + File.separator + componentService.buildSftpPath(clusterId, componentType);
+                return sftpConfig.get("path" + File.separator + componentService.buildSftpPath(clusterId, componentType));
             }
         }
         return null;
