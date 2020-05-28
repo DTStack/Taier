@@ -26,7 +26,7 @@ perjob:
     metrics.reporter.promgateway.host:
     metrics.reporter.promgateway.port: 9091
     metrics.reporter.promgateway.jobName: 181job
-    clusterMode: standalone
+    clusterMode: session
     metrics.reporter.promgateway.randomJobNameSuffix:
       controls: select
       values: [true,false]

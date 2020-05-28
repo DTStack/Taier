@@ -1154,6 +1154,9 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         }
         for (String s : split) {
             String trim = s.toLowerCase().trim();
+            if (trim.startsWith("##")) {
+                continue;
+            }
             if (trim.contains("flinktaskrunmode")) {
                 if (trim.contains("session")) {
                     return EDeployMode.SESSION;

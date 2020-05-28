@@ -39,6 +39,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -223,7 +224,11 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
                 pluginInfo.setPluginKey(pluginKey);
                 pluginInfo.setType(EPluginType.DYNAMIC.getType());
 
-                refPluginInfoId = pluginInfoDao.replaceInto(pluginInfo);
+                pluginInfoDao.replaceInto(pluginInfo);
+                PluginInfo insertInfo = pluginInfoDao.getByKey(pluginKey);
+                if(Objects.nonNull(insertInfo)){
+                    refPluginInfoId = insertInfo.getId();
+                }
             } else {
                 refPluginInfoId = pluginInfo.getId();
             }
