@@ -309,7 +309,7 @@ public class FlinkClient extends AbstractClient {
             logger.info("Job with JobID " + jobExecutionResult.getJobID() + " has finished.");
             logger.info("Job Runtime: " + jobExecutionResult.getNetRuntime() + " ms");
 
-            return Pair.create(jobExecutionResult.getJobID().toString(), clusterClient.getClusterId().toString());
+            return Pair.create(jobExecutionResult.getJobID().toString(), null);
         } catch (Exception e) {
             if (e.getMessage() != null && e.getMessage().contains(ExceptionInfoConstrant.FLINK_UNALE_TO_GET_CLUSTERCLIENT_STATUS_EXCEPTION)) {
                 if (flinkClusterClientManager.getIsClientOn()) {
