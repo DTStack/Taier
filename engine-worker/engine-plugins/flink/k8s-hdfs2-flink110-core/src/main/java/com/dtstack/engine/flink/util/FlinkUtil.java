@@ -1,21 +1,28 @@
 package com.dtstack.engine.flink.util;
 
+import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.SFTPHandler;
+import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.enums.FlinkMode;
 import com.dtstack.engine.worker.enums.ClassLoaderType;
+import com.dtstack.schedule.common.util.ZipUtil;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.ProgramInvocationException;
 import org.apache.flink.configuration.CoreOptions;
+import org.apache.flink.kubernetes.configuration.KubernetesConfigOptions;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +40,10 @@ public class FlinkUtil {
     private static final Logger logger = LoggerFactory.getLogger(FlinkUtil.class);
 
     private static final String URL_SPLITE = "/";
+
+    public final static String USER_DIR = System.getProperty("user.dir");
+
+    private final static String tmpK8sConfigDir = "tmpK8sConf";
 
     private static String fileSP = File.separator;
 
@@ -178,5 +189,63 @@ public class FlinkUtil {
         }
         return FlinkMode.mode(modeStr);
     }
+
+    public static void downloadK8sConfig(Properties prop, FlinkConfig flinkConfig) {
+        String tmpK8sConfig = String.format("%s/%s", USER_DIR, tmpK8sConfigDir);
+
+        String remoteDir = flinkConfig.getRemoteDir();
+        String k8sConfigName = flinkConfig.getKubernetesConfigName();
+        String md5sum = flinkConfig.getMd5sum();
+        String remoteConfigPath = String.format("%s/%s", remoteDir, k8sConfigName);
+        String localConfigPath = String.format("%s/%s/%s", tmpK8sConfig, md5sum, k8sConfigName);
+
+        String localConfigParentDir = localConfigPath.substring(0, localConfigPath.lastIndexOf("/"));
+        File tmpConfigDir = new File(localConfigParentDir);
+        if (!tmpConfigDir.exists()) {
+            tmpConfigDir.mkdirs();
+        }
+
+        if (!new File(localConfigPath).exists()) {
+            SFTPHandler handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());
+            handler.downloadFile(remoteConfigPath, localConfigPath);
+            ZipUtil.upzipFile(localConfigPath, localConfigParentDir);
+        }
+
+        String configName = getConfigNameFromTmpDir(tmpConfigDir);
+        String targetLocalConfigPath = String.format("%s/%s", localConfigParentDir, configName);
+        prop.setProperty(KubernetesConfigOptions.KUBE_CONFIG_FILE.key(), targetLocalConfigPath);
+    }
+
+    public static void deleteK8sConfig(JobClient jobClient) {
+
+        try {
+            String tmpK8sConfig = String.format("%s/%s", USER_DIR, tmpK8sConfigDir);
+
+            FlinkConfig flinkConfig = PublicUtil.jsonStrToObject(jobClient.getPluginInfo(), FlinkConfig.class);
+            String md5sum = flinkConfig.getMd5sum();
+            String localConfigDirPath = String.format("%s/%s", tmpK8sConfig, md5sum);
+            File localConfigDir = new File(localConfigDirPath);
+            if (localConfigDir.exists() && localConfigDir.isDirectory()) {
+                FileUtils.deleteDirectory(localConfigDir);
+            }
+        } catch (IOException e) {
+            logger.error("clear k8s config error. {}", e.getMessage());
+        }
+    }
+
+    public static String getConfigNameFromTmpDir(File tmpConfigDir) {
+        String[] contentFiles = tmpConfigDir.list();
+        if (contentFiles.length <= 1) {
+            throw new RuntimeException("k8s config file not exist");
+        }
+
+        for(String fileName : contentFiles) {
+            if (!fileName.endsWith(".zip")) {
+                return fileName;
+            }
+        }
+        return null;
+    }
+
 
 }
