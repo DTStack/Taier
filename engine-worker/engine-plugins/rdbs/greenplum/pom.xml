@@ -23,7 +23,7 @@
         </dependency>
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>engine-common</artifactId>
             <version>1.0.0</version>
             <scope>provided</scope>
         </dependency>
@@ -91,10 +91,10 @@
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
                                       tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
-                                <copy todir="${basedir}/target/../../../../pluginLibs/greenplum/"
+                                <copy todir="${basedir}/target/../../../../../pluginLibs/greenplum/"
                                       file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/target/../../../../pluginLibs/greenplum/"
+                                    <fileset dir="${basedir}/target/../../../../../pluginLibs/greenplum/"
                                              includes="${jar.name}-*.jar"
                                              excludes="${jar.name}-${git.branch}.jar"/>
                                 </delete>
