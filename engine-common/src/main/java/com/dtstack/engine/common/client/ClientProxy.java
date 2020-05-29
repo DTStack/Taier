@@ -11,6 +11,9 @@ import com.dtstack.engine.common.exception.ClientArgumentException;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.LimitResourceException;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.pojo.ClientTemplate;
+import com.dtstack.engine.common.pojo.ClusterResource;
+import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,13 +21,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 /**
  * 代理IClient实现类的proxy
@@ -249,6 +246,86 @@ public class ClientProxy implements IClient {
                             return targetClient.getCheckpoints(jobIdentifier);
                         }
                     }, targetClient.getClass().getClassLoader(), true);
+                } catch (Exception e) {
+                    throw new RdosDefineException(e);
+                }
+            }, executorService).get(timeout, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            throw new RdosDefineException(e);
+        }
+    }
+
+    @Override
+    public List<ClientTemplate> getDefaultPluginConfig(String componentType) {
+        try {
+            return CompletableFuture.supplyAsync(() -> {
+                try {
+                    return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.getDefaultPluginConfig(componentType),
+                            targetClient.getClass().getClassLoader(), true);
+                } catch (Exception e) {
+                    throw new RdosDefineException(e);
+                }
+            }, executorService).get(timeout, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            throw new RdosDefineException(e);
+        }
+    }
+
+    @Override
+    public ComponentTestResult testConnect(String pluginInfo) {
+        try {
+            return CompletableFuture.supplyAsync(() -> {
+                try {
+                    return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.testConnect(pluginInfo),
+                            targetClient.getClass().getClassLoader(), true);
+                } catch (Exception e) {
+                    throw new RdosDefineException(e);
+                }
+            }, executorService).get(timeout, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            throw new RdosDefineException(e);
+        }
+    }
+
+    @Override
+    public List<List<Object>> executeQuery(String pluginInfo, String sql, String database) {
+        try {
+            return CompletableFuture.supplyAsync(() -> {
+                try {
+                    return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.executeQuery(pluginInfo,sql,database),
+                            targetClient.getClass().getClassLoader(), true);
+                } catch (Exception e) {
+                    throw new RdosDefineException(e);
+                }
+            }, executorService).get(timeout, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            throw new RdosDefineException(e);
+        }
+    }
+
+    @Override
+    public String uploadStringToHdfs(String pluginInfo, String bytes, String hdfsPath) {
+        try {
+            return CompletableFuture.supplyAsync(() -> {
+                try {
+                    return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.uploadStringToHdfs(pluginInfo,bytes,hdfsPath),
+                            targetClient.getClass().getClassLoader(), true);
+                } catch (Exception e) {
+                    throw new RdosDefineException(e);
+                }
+            }, executorService).get(timeout, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            throw new RdosDefineException(e);
+        }
+    }
+
+    @Override
+    public ClusterResource getClusterResource(String pluginInfo) {
+        try {
+            return CompletableFuture.supplyAsync(() -> {
+                try {
+                    return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.getClusterResource(pluginInfo),
+                            targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
                     throw new RdosDefineException(e);
                 }

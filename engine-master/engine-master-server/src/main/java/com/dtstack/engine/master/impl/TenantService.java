@@ -1,21 +1,27 @@
 package com.dtstack.engine.master.impl;
 
-import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.annotation.Param;
+import com.dtstack.engine.api.domain.Cluster;
+import com.dtstack.engine.api.domain.Engine;
+import com.dtstack.engine.api.domain.EngineTenant;
+import com.dtstack.engine.api.domain.Queue;
+import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.vo.ClusterVO;
+import com.dtstack.engine.api.vo.EngineTenantVO;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.dao.*;
-import com.dtstack.engine.api.domain.*;
-import com.dtstack.engine.api.domain.Queue;
+import com.dtstack.engine.common.pojo.ComponentTestResult;
+import com.dtstack.engine.dao.ClusterDao;
+import com.dtstack.engine.dao.EngineDao;
+import com.dtstack.engine.dao.EngineTenantDao;
+import com.dtstack.engine.dao.QueueDao;
+import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.api.vo.ClusterVO;
-import com.dtstack.engine.api.vo.EngineTenantVO;
-import com.dtstack.engine.api.vo.TestConnectionVO;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.engine.master.router.login.domain.UserTenant;
@@ -28,7 +34,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -197,13 +207,12 @@ public class TenantService {
     }
 
     private void checkClusterCanUse(Long clusterId) throws Exception {
-        ClusterVO clusterVO = clusterService.getCluster(clusterId, true);
-        JSONObject jsonObject = clusterService.buildClusterConfig(clusterVO);
-        TestConnectionVO testConnectionVO = componentService.testConnections(jsonObject.toJSONString(), clusterId, null);
+        ClusterVO clusterVO = clusterService.getCluster(clusterId, true, true);
+        List<ComponentTestResult> testConnectionVO = componentService.testConnects(clusterVO.getClusterName());
         boolean canUse = true;
         StringBuilder msg = new StringBuilder();
         msg.append("此集群不可用,测试连通性为通过：\n");
-        for (TestConnectionVO.ComponentTestResult testResult : testConnectionVO.getTestResults()) {
+        for (ComponentTestResult testResult : testConnectionVO) {
             EComponentType componentType = EComponentType.getByCode(testResult.getComponentTypeCode());
             if(!noNeedCheck(componentType) && !testResult.getResult()){
                 canUse = false;

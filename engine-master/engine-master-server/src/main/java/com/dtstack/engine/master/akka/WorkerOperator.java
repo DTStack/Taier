@@ -4,14 +4,18 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobClientCallBack;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.akka.config.AkkaConfig;
+import com.dtstack.engine.common.akka.message.*;
 import com.dtstack.engine.common.callback.CallBack;
 import com.dtstack.engine.common.client.ClientOperator;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.akka.message.*;
+import com.dtstack.engine.common.pojo.ClientTemplate;
+import com.dtstack.engine.common.pojo.ClusterResource;
+import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.google.common.base.Strings;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 
 @Component
@@ -173,6 +178,60 @@ public class WorkerOperator {
             logger.error("getCheckpoints failed!", e);
             return null;
         }
+    }
+
+    public List<ClientTemplate> getDefaultPluginConfig(String engineType, String configType) {
+        if (AkkaConfig.isLocalMode()) {
+            List<ClientTemplate> defaultPluginConfig = ClientOperator.getInstance().getDefaultPluginConfig(engineType, configType);
+            if (CollectionUtils.isEmpty(defaultPluginConfig)) {
+                return new ArrayList<>(0);
+            }
+            return defaultPluginConfig;
+        }
+        try {
+            return (List<ClientTemplate>) masterServer.sendMessage(new MessageGetPluginDefaultConfig(engineType, configType));
+        } catch (Exception e) {
+            logger.error("getDefaultPluginConfig failed!", e);
+            return null;
+        }
+    }
+
+    public ComponentTestResult testConnect(String engineType, String pluginInfo) {
+        if (AkkaConfig.isLocalMode()) {
+            ComponentTestResult testResult = ClientOperator.getInstance().testConnect(engineType, pluginInfo);
+            if (Objects.isNull(testResult)) {
+                testResult = new ComponentTestResult();
+            }
+            return testResult;
+        }
+        try {
+            return (ComponentTestResult)masterServer.sendMessage(new MessageTestConnectInfo(engineType,pluginInfo));
+        } catch (Exception e) {
+            logger.error("testConnect failed!", e);
+            return null;
+        }
+    }
+
+
+    public List<List<Object>> executeQuery(String engineType, String pluginInfo, String sql, String database) throws Exception {
+        if (AkkaConfig.isLocalMode()) {
+            return ClientOperator.getInstance().executeQuery(engineType, pluginInfo, sql, database);
+        }
+        return (List<List<Object>>) masterServer.sendMessage(new MessageExecuteQuery(engineType, pluginInfo, sql, database));
+    }
+
+    public String uploadStringToHdfs(String engineType, String pluginInfo, String bytes, String hdfsPath) throws Exception {
+        if (AkkaConfig.isLocalMode()) {
+            return ClientOperator.getInstance().uploadStringToHdfs(engineType, pluginInfo, bytes, hdfsPath);
+        }
+        return (String) masterServer.sendMessage(new MessageUploadInfo(engineType, pluginInfo, bytes, hdfsPath));
+    }
+
+    public ClusterResource clusterResource(String engineType, String pluginInfo) throws Exception {
+        if (AkkaConfig.isLocalMode()) {
+            return ClientOperator.getInstance().getClusterResource(engineType, pluginInfo);
+        }
+        return (ClusterResource) masterServer.sendMessage(new MessageResourceInfo(engineType, pluginInfo));
     }
 
     private <M> M callbackAndReset(JobClient jobClient, CallBack<M> classLoaderCallBack) throws Exception {

@@ -1,15 +1,11 @@
 package com.dtstack.engine.worker.service;
 
 import akka.actor.AbstractActor;
-import com.dtstack.engine.common.akka.message.MessageContainerInfos;
-import com.dtstack.engine.common.akka.message.MessageGetCheckpoints;
-import com.dtstack.engine.common.akka.message.MessageGetEngineLog;
-import com.dtstack.engine.common.akka.message.MessageGetJobMaster;
-import com.dtstack.engine.common.akka.message.MessageGetJobStatus;
-import com.dtstack.engine.common.akka.message.MessageJudgeSlots;
-import com.dtstack.engine.common.akka.message.MessageStopJob;
-import com.dtstack.engine.common.akka.message.MessageSubmitJob;
+import com.dtstack.engine.common.akka.message.*;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.pojo.ClientTemplate;
+import com.dtstack.engine.common.pojo.ClusterResource;
+import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.client.ClientOperator;
 import org.apache.commons.lang3.StringUtils;
@@ -27,7 +23,7 @@ public class JobService extends AbstractActor {
                     sender().tell(sufficient, getSelf());
                 })
                 .match(MessageSubmitJob.class, msg -> {
-                    JobResult jobResult = ClientOperator.getInstance().submitJob( msg.getJobClient());
+                    JobResult jobResult = ClientOperator.getInstance().submitJob(msg.getJobClient());
                     sender().tell(jobResult, getSelf());
                 })
                 .match(MessageGetJobStatus.class, msg -> {
@@ -69,6 +65,41 @@ public class JobService extends AbstractActor {
                         containerInfos = new ArrayList<>(0);
                     }
                     sender().tell(containerInfos, getSelf());
+                })
+                .match(MessageGetPluginDefaultConfig.class, msg -> {
+                    List<ClientTemplate> defaultPluginConfig = ClientOperator.getInstance().getDefaultPluginConfig(msg.getEngineType(),msg.getConfigType());
+                    if (null == defaultPluginConfig) {
+                        defaultPluginConfig = new ArrayList<>(0);
+                    }
+                    sender().tell(defaultPluginConfig, getSelf());
+                })
+                .match(MessageTestConnectInfo.class,msg ->{
+                    ComponentTestResult execute = ClientOperator.getInstance().testConnect(msg.getEngineType(), msg.getPluginInfo());
+                    if(null == execute){
+                        execute = new ComponentTestResult();
+                    }
+                    sender().tell(execute,getSelf());
+                })
+                .match(MessageExecuteQuery.class,msg ->{
+                    List<List<Object>> execute = ClientOperator.getInstance().executeQuery(msg.getEngineType(), msg.getPluginInfo(),msg.getSql(),msg.getDatabase());
+                    if(null == execute){
+                        execute = new ArrayList<>();
+                    }
+                    sender().tell(execute,getSelf());
+                })
+                .match(MessageUploadInfo.class, msg -> {
+                    String execute = ClientOperator.getInstance().uploadStringToHdfs(msg.getEngineType(), msg.getPluginInfo(), msg.getBytes(), msg.getHdfsPath());
+                    if (null == execute) {
+                        execute = StringUtils.EMPTY;
+                    }
+                    sender().tell(execute, getSelf());
+                })
+                .match(MessageResourceInfo.class, msg -> {
+                    ClusterResource resource = ClientOperator.getInstance().getClusterResource(msg.getEngineType(), msg.getPluginInfo());
+                    if (null == resource) {
+                        resource = new ClusterResource();
+                    }
+                    sender().tell(resource, getSelf());
                 })
                 .build();
     }

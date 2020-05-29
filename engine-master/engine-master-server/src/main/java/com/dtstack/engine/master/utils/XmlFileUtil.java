@@ -5,6 +5,7 @@ import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.schedule.common.util.Xml2JsonUtil;
 import com.dtstack.schedule.common.util.ZipUtil;
 import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,8 +54,7 @@ public class XmlFileUtil {
     public static List<File> getFilesFromZip(String zipLocation, String unzipLocation,List<String> validXml) {
         try {
             List<File> xmlFiles = ZipUtil.upzipFile(zipLocation, unzipLocation);
-            xmlFiles = filterXml(xmlFiles, validXml);
-            return xmlFiles;
+            return CollectionUtils.isEmpty(validXml)? xmlFiles : filterXml(xmlFiles, validXml);
         } catch (Exception e) {
             LOGGER.error("{}", e);
             throw new RdosDefineException("压缩包解压失败");

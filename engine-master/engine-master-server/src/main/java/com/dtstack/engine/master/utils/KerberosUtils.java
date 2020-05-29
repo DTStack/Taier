@@ -1,18 +1,13 @@
 package com.dtstack.engine.master.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.security.auth.login.AppConfigurationEntry;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.security.auth.login.AppConfigurationEntry;
-import javax.security.auth.login.AppConfigurationEntry.LoginModuleControlFlag;
-
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.security.UserGroupInformation;
-import org.apache.hadoop.security.authentication.util.KerberosUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class KerberosUtils {
 
@@ -22,7 +17,7 @@ public class KerberosUtils {
 
     private static final boolean IS_IBM_JDK = System.getProperty("java.vendor").contains("IBM");
 
-    public synchronized static void login(String userPrincipal, String userKeytabPath, String krb5ConfPath, Configuration conf)
+   /* public synchronized static void login(String userPrincipal, String userKeytabPath, String krb5ConfPath, Configuration conf)
             throws IOException {
         // 2.check file exsits
         File userKeytabFile = new File(userKeytabPath);
@@ -34,7 +29,7 @@ public class KerberosUtils {
         UserGroupInformation.setConfiguration(conf);
         UserGroupInformation.loginUserFromKeytab(userPrincipal, userKeytabFile.getAbsolutePath());
         LOG.info("Login success!!!!!!!!!!!!!!");
-    }
+    }*/
 
     private static void setKrb5Config(String krb5ConfFile)
             throws IOException {
@@ -170,11 +165,11 @@ public class KerberosUtils {
         }
 
 
-        private static final AppConfigurationEntry KEYTAB_KERBEROS_LOGIN = new AppConfigurationEntry(
+    /*    private static final AppConfigurationEntry KEYTAB_KERBEROS_LOGIN = new AppConfigurationEntry(
                 KerberosUtil.getKrb5LoginModuleName(), LoginModuleControlFlag.REQUIRED, KEYTAB_KERBEROS_OPTIONS);
 
         private static final AppConfigurationEntry[] KEYTAB_KERBEROS_CONF =
-                new AppConfigurationEntry[]{KEYTAB_KERBEROS_LOGIN};
+                new AppConfigurationEntry[]{KEYTAB_KERBEROS_LOGIN};*/
 
         private javax.security.auth.login.Configuration baseConfig;
 
@@ -223,7 +218,7 @@ public class KerberosUtils {
         @Override
         public AppConfigurationEntry[] getAppConfigurationEntry(String appName) {
             if (loginContextName.equals(appName)) {
-                return KEYTAB_KERBEROS_CONF;
+//                return KEYTAB_KERBEROS_CONF;
             }
             if (baseConfig != null) {
                 return baseConfig.getAppConfigurationEntry(appName);

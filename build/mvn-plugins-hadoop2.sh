@@ -10,16 +10,26 @@ echo "Dependency ${hadoopversion} Building..."
 
 mvn clean package -DskipTests -Dhadoop.version=${hadoopversion} -Dhivejdbc.version=1.1.1 -pl \
 engine-worker/engine-plugins/dummy,\
-engine-worker/engine-plugins/flink/flink180-hadoop2,\
-engine-worker/engine-plugins/flink/flink1100-hadoop2,\
-engine-worker/engine-plugins/flink/flink1100-kubernetes,\
-engine-worker/engine-plugins/flink/flink180-HW,\
-engine-worker/engine-plugins/spark/spark-yarn-hadoop2,\
-engine-worker/engine-plugins/dtscript/dtscript-hadoop2/dtscript-client,\
-engine-worker/engine-plugins/learning/learning-hadoop2/learning-client,\
-engine-worker/engine-plugins/hadoop/hadoop2,\
+engine-worker/engine-plugins/flink/yarn2-hdfs2-flink180,\
+engine-worker/engine-plugins/flink/yarnHW-hdfsHW-flink180HW,\
+engine-worker/engine-plugins/flink/k8s-hdfs2-flink110,\
+engine-worker/engine-plugins/flink/yarn2-hdfs2-flink180,\
+engine-worker/engine-plugins/spark/yarn2-hdfs2-spark210/spark-yarn-client,\
+engine-worker/engine-plugins/spark/yarn2-hdfs2-spark210/spark-sql-proxy,\
+engine-worker/engine-plugins/dtscript/yarn2-hdfs2-dtscript/dtscript-client,\
+engine-worker/engine-plugins/learning/yarn2-hdfs2-learning/learning-client,\
+engine-worker/engine-plugins/hadoop/yarn2-hdfs2-hadoop2,\
+engine-worker/engine-plugins/hadoop/k8s-hdfs2-hadoop2,\
 engine-worker/engine-plugins/kylin,\
-engine-worker/engine-plugins/rdbs,\
 engine-worker/engine-plugins/odps,\
+engine-worker/engine-plugins/rdbs/mysql,\
+engine-worker/engine-plugins/rdbs/oracle,\
+engine-worker/engine-plugins/rdbs/sqlserver,\
+engine-worker/engine-plugins/rdbs/hive,\
+engine-worker/engine-plugins/rdbs/postgresql,\
+engine-worker/engine-plugins/rdbs/impala,\
+engine-worker/engine-plugins/rdbs/tidb,\
+engine-worker/engine-plugins/rdbs/greenplum,\
 engine-entrance \
--am -amd
+-am
+

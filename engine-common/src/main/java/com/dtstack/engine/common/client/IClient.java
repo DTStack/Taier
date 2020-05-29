@@ -3,6 +3,9 @@ package com.dtstack.engine.common.client;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.pojo.ClientTemplate;
+import com.dtstack.engine.common.pojo.ClusterResource;
+import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 
 import java.io.IOException;
@@ -36,4 +39,13 @@ public interface IClient {
 
 	String getCheckpoints(JobIdentifier jobIdentifier);
 
+	List<ClientTemplate> getDefaultPluginConfig(String configType);
+
+    ComponentTestResult testConnect(String pluginInfo);
+
+    List<List<Object>> executeQuery(String pluginInfo, String sql,String database);
+
+	String uploadStringToHdfs(String pluginInfo,String bytes, String hdfsPath);
+
+	ClusterResource getClusterResource(String pluginInfo);
 }

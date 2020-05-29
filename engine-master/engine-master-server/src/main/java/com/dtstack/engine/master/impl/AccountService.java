@@ -11,16 +11,17 @@ import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.AccountTenantVo;
 import com.dtstack.engine.api.vo.AccountVo;
 import com.dtstack.engine.common.annotation.Forbidden;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.AccountDao;
 import com.dtstack.engine.dao.AccountTenantDao;
 import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.dao.UserDao;
+import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
-import com.dtstack.engine.master.utils.DBUtil;
 import com.dtstack.schedule.common.enums.*;
 import com.dtstack.schedule.common.util.Base64Util;
 import com.google.common.collect.Lists;
@@ -30,9 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.jdo.annotations.Transactional;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.*;
@@ -68,6 +68,9 @@ public class AccountService {
     @Autowired
     private ConsoleCache consoleCache;
 
+    @Autowired
+    private WorkerOperator workerOperator;
+
     /**
      * 绑定数据库账号 到对应数栈账号下的集群
      */
@@ -102,20 +105,22 @@ public class AccountService {
                 throw new RdosDefineException("请先绑定Oracle组件");
             }
         }
-        Connection conn = null;
+        JSONObject pluginInfo = new JSONObject();
+        pluginInfo.put("jdbcUrl", jdbc.getString("jdbcUrl"));
+        pluginInfo.put("username", accountVo.getName());
+        pluginInfo.put("password", accountVo.getPassword());
+        pluginInfo.put("driverClassName", dataBaseType.getDriverClassName());
         try {
-            conn = DBUtil.getConnection(dataBaseType,jdbc.getString("jdbcUrl") , accountVo.getName(), accountVo.getPassword(), null);
-        } finally {
-            if (conn != null) {
-                conn.close();
-            }
+            workerOperator.executeQuery(DataBaseType.TiDB.getTypeName().toLowerCase(), pluginInfo.toJSONString(), "show databases", "");
+        } catch (Exception e) {
+            throw new RdosDefineException("测试联通性失败 :" + ExceptionUtil.getErrorMessage(e));
         }
     }
 
 
     @Forbidden
     @Transactional
-    private void bindAccountTenant(AccountVo accountVo) {
+    public void bindAccountTenant(AccountVo accountVo) {
         Account dbAccountByName = new Account();
         dbAccountByName.setName(accountVo.getName());
         dbAccountByName.setPassword(Base64Util.baseEncode(accountVo.getPassword()));

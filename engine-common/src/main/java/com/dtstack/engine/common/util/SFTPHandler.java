@@ -265,6 +265,27 @@ public class SFTPHandler {
         }
     }
 
+
+    public String loadFromSftp(String fileName, String remoteDir, String localDir,boolean isEnd){
+        String remoteFile = remoteDir + File.separator + fileName;
+        String localFile = localDir + File.separator + fileName;
+        try {
+            if (new File(fileName).exists()){
+                return fileName;
+            } else {
+                downloadFile(remoteFile, localFile);
+                return localFile;
+            }
+        } catch (Exception e){
+            logger.error("load file error: ", e);
+            return fileName;
+        } finally {
+            if(isEnd){
+                close();
+            }
+        }
+    }
+
     public boolean uploadDir(String dstDir, String srcDir) {
         File file = new File(srcDir);
         if (file.isDirectory()) {
@@ -389,4 +410,24 @@ public class SFTPHandler {
         return channelSftp.ls(ftpPath);
     }
 
+    public boolean renamePath(String oldPth, String newPath) {
+        try {
+            channelSftp.rename(oldPth, newPath);
+        } catch (SftpException e) {
+            logger.error("renamePath {} to {} error", oldPth, newPath, e);
+            return false;
+        }
+        return true;
+    }
+
+    public void deleteFile(String path){
+        if (this.isFileExist(path)) {
+            try {
+                channelSftp.rm(path);
+            } catch (SftpException e) {
+                logger.error("", e);
+                throw new RuntimeException("删除sftp路径失败，sftpPath=" + path);
+            }
+        }
+    }
 }

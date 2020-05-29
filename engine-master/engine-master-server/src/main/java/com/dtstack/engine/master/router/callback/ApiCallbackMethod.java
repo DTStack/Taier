@@ -4,7 +4,6 @@ import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionEnums;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.router.util.ResponseUtil;
-import com.dtstack.engine.master.utils.HdfsOperator;
 import io.vertx.ext.web.RoutingContext;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -74,7 +73,6 @@ public class ApiCallbackMethod {
 				logger.error("uri:{}, params:{} ApiCallbackMethod error:", uri, context.get("params"), e1);
 			}
 		}finally{
-			HdfsOperator.release();//释放当前threadLocal
 		}
 	}
 }

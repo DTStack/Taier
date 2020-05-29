@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>plugins</artifactId>
+        <groupId>com.dtstack.engine</groupId>
+        <version>1.0.0</version>
+        <relativePath>..</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>plugins.spark</artifactId>
+    <name>plugins.spark</name>
+
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>yarn2-hdfs2-spark210-core</module>
+        <module>yarn2-hdfs2-spark210</module>
+        <module>yarn3-hdfs3-spark210</module>
+        <module>yarn3-hdfs3-spark240</module>
+    </modules>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/java/</directory>
+            </resource>
+            <resource>
+                <directory>src/main/resources/</directory>
+            </resource>
+        </resources>
+    </build>
+</project>

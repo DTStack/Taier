@@ -6,7 +6,7 @@ import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.master.WorkNode;
+import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.executor.JobExecutorTrigger;
 import org.apache.commons.collections.CollectionUtils;
@@ -37,7 +37,7 @@ public class NodeRecoverService {
     private EngineJobCacheDao engineJobCacheDao;
 
     @Autowired
-    private WorkNode workNode;
+    private JobDealer jobDealer;
 
     /**
      * 接收 master 节点容灾后的消息
@@ -66,12 +66,12 @@ public class NodeRecoverService {
                     try {
                         ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                         JobClient jobClient = new JobClient(paramAction);
-                        workNode.afterSubmitJob(jobClient);
+                        jobDealer.afterSubmitJob(jobClient);
                         startId = jobCache.getId();
                     } catch (Exception e) {
                         logger.error("", e);
                         //数据转换异常--打日志
-                        workNode.dealSubmitFailJob(jobCache.getJobId(), "This task stores information exception and cannot be converted." + e.toString());
+                        jobDealer.dealSubmitFailJob(jobCache.getJobId(), "This task stores information exception and cannot be converted." + e.toString());
                     }
                 }
             }

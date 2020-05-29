@@ -1,47 +1,42 @@
 package com.dtstack.engine.api.vo;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.domain.Component;
+import org.springframework.beans.BeanUtils;
 
-public class ComponentVO {
+import java.util.ArrayList;
+import java.util.List;
 
-    private String componentName;
+public class ComponentVO extends Component {
 
-    private Long componentId;
+    private String clusterName;
 
-    private int componentTypeCode;
-
-    private JSONObject config;
-
-    public String getComponentName() {
-        return componentName;
+    public String getClusterName() {
+        return clusterName;
     }
 
-    public void setComponentName(String componentName) {
-        this.componentName = componentName;
+    public void setClusterName(String clusterName) {
+        this.clusterName = clusterName;
     }
 
-    public Long getComponentId() {
-        return componentId;
+    public static List<ComponentVO> toVOS(List<Component> components, boolean removeTypeName) {
+        List<ComponentVO> vos = new ArrayList<>();
+        for (Component component : components) {
+            vos.add(toVO(component,removeTypeName));
+        }
+        return vos;
     }
 
-    public void setComponentId(Long componentId) {
-        this.componentId = componentId;
-    }
-
-    public int getComponentTypeCode() {
-        return componentTypeCode;
-    }
-
-    public void setComponentTypeCode(int componentTypeCode) {
-        this.componentTypeCode = componentTypeCode;
-    }
-
-    public JSONObject getConfig() {
-        return config;
-    }
-
-    public void setConfig(JSONObject config) {
-        this.config = config;
+    public static ComponentVO toVO(Component component,boolean removeTypeName){
+        ComponentVO vo = new ComponentVO();
+        BeanUtils.copyProperties(component, vo);
+        //前端默认不展示kerberosConfig
+        JSONObject jsonObject = JSONObject.parseObject(component.getComponentConfig());
+        if(removeTypeName){
+            jsonObject.remove("typeName");
+        }
+        vo.setComponentConfig(jsonObject.toJSONString());
+        return vo;
     }
 }
 

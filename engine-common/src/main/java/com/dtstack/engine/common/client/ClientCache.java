@@ -1,5 +1,7 @@
 package com.dtstack.engine.common.client;
 
+import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.exception.ClientAccessException;
 import com.dtstack.engine.common.util.MD5Util;
 import com.dtstack.engine.common.util.MathUtil;
@@ -84,14 +86,29 @@ public class ClientCache {
         }
     }
 
-    private IClient getDefaultPlugin(String engineType){
+    public IClient getDefaultPlugin(String engineType){
         IClient defaultClient = defaultClientMap.get(engineType);
-        if(defaultClient == null){
+        try {
+            if(defaultClient == null){
+                synchronized (defaultClientMap) {
+                    defaultClient = defaultClientMap.get(engineType);
+                    if (defaultClient == null){
+                        JSONObject pluginInfo = new JSONObject();
+                        pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,engineType);
+                        defaultClient = ClientFactory.buildPluginClient(pluginInfo.toJSONString());
+                        defaultClientMap.putIfAbsent(engineType, defaultClient);
+                    }
+                }
+
+            }
+        } catch (Exception e) {
             LOG.error("-------job.pluginInfo is empty, either can't find plugin('In console is the typeName') which engineType:{}", engineType);
             throw new IllegalArgumentException("job.pluginInfo is empty, either can't find plugin('In console is the typeName') which engineType:" + engineType);
         }
         return defaultClient;
     }
+
+
 
 
 }

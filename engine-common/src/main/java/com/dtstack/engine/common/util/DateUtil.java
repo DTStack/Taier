@@ -1,5 +1,6 @@
 package com.dtstack.engine.common.util;
 
+import java.lang.ref.SoftReference;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -30,6 +31,10 @@ public class DateUtil {
     private static final String TIME_FORMAT_KEY = "timeFormatter";
     private static final String YEAR_FORMAT_KEY = "yearFormatter";
     private static final String START_TIME = "1970-01-01";
+
+    private static final ThreadLocal<SoftReference<Map<String, SimpleDateFormat>>>
+            THREADLOCAL_FORMATS = new ThreadLocal<SoftReference<Map<String, SimpleDateFormat>>>();
+
 
     public static ThreadLocal<Map<String,SimpleDateFormat>> datetimeFormatter = ThreadLocal.withInitial(() -> {
         TimeZone timeZone = TimeZone.getTimeZone(TIME_ZONE);
@@ -947,5 +952,51 @@ public class DateUtil {
         cal.setTime(new Date());
         cal.set(5, cal.get(5) - num);
         return cal.getTimeInMillis();
+
+
     }
+
+
+    /**
+     * 根据时间戳与格式类型，格式化为日期时间字符串
+     *
+     * @return
+     * @author toutian
+     */
+    public static String getFormattedDate(long timestamp, String format) {
+        SimpleDateFormat simpleDateFormat = getDateFormat(format);
+        return simpleDateFormat.format(new Date(timestamp));
+    }
+
+
+    /**
+     * 根据日期与格式类型，获取时间戳
+     *
+     * @return milliseconds
+     * @author toutian
+     */
+    public static long getTimestamp(String formattedDate, String format) {
+        SimpleDateFormat simpleDateFormat = getDateFormat(format);
+        try {
+            Date date = simpleDateFormat.parse(formattedDate);
+            return date.getTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return 0L;
+    }
+
+    private static SimpleDateFormat getDateFormat(String pattern) {
+        final SoftReference<Map<String, SimpleDateFormat>> ref = THREADLOCAL_FORMATS.get();
+        Map<String, SimpleDateFormat> formats = ref == null ? null : ref.get();
+        if (formats == null) {
+            formats = new HashMap<>(16);
+            THREADLOCAL_FORMATS.set(new SoftReference<Map<String, SimpleDateFormat>>(formats));
+        }
+        SimpleDateFormat format = formats.computeIfAbsent(pattern, k -> new SimpleDateFormat(pattern));
+        return format;
+    }
+
+
+
 }

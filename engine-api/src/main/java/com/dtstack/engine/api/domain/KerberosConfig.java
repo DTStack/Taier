@@ -15,6 +15,29 @@ public class KerberosConfig extends BaseEntity {
 
     private String principal;
 
+    private Integer componentType;
+
+    /**
+     * krb5 的文件名称
+     */
+    private String krbName;
+
+    public String getKrbName() {
+        return krbName;
+    }
+
+    public void setKrbName(String krbName) {
+        this.krbName = krbName;
+    }
+
+    public Integer getComponentType() {
+        return componentType;
+    }
+
+    public void setComponentType(Integer componentType) {
+        this.componentType = componentType;
+    }
+
     public String getPrincipal() {
         return principal;
     }

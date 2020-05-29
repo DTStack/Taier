@@ -28,7 +28,8 @@ public enum ScheduleEngineType {
     HIVE(12,"hive"),
     IMPALA(13, "impala"),
     TIDB(14,"tidb"),
-    ORACLE(15,"oracle");
+    ORACLE(15,"oracle"),
+    KUBERNETES(16,"kubernetes");
 
     private int val;
 
@@ -93,6 +94,8 @@ public enum ScheduleEngineType {
                 return ScheduleEngineType.IMPALA;
             case "tidb":
                 return ScheduleEngineType.TIDB;
+            case "kubernetes":
+                return ScheduleEngineType.KUBERNETES;
         }
         return null;
     }

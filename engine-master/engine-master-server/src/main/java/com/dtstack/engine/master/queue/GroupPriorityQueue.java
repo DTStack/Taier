@@ -6,10 +6,10 @@ import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.master.WorkNode;
+import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.master.taskdealer.JobSubmitDealer;
+import com.dtstack.engine.master.jobdealer.JobSubmitDealer;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.queue.OrderLinkedBlockingQueue;
@@ -48,7 +48,7 @@ public class GroupPriorityQueue {
     private EnvironmentContext environmentContext;
     private EngineJobCacheDao engineJobCacheDao;
     private ScheduleJobDao scheduleJobDao;
-    private WorkNode workNode;
+    private JobDealer jobDealer;
     private JobPartitioner jobPartitioner;
     private WorkerOperator workerOperator;
 
@@ -87,7 +87,7 @@ public class GroupPriorityQueue {
 
         queue.put(jobClient);
         logger.info("jobId:{} redirect add job to queue.", jobClient.getTaskId());
-        workNode.updateCache(jobClient, EJobCacheStage.PRIORITY.getStage());
+        jobDealer.updateCache(jobClient, EJobCacheStage.PRIORITY.getStage());
         return true;
     }
 
@@ -170,7 +170,7 @@ public class GroupPriorityQueue {
                         ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                         JobClient jobClient = new JobClient(paramAction);
                         jobClient.setCallBack((jobStatus) -> {
-                            workNode.updateJobStatus(jobClient.getTaskId(), jobStatus);
+                            jobDealer.updateJobStatus(jobClient.getTaskId(), jobStatus);
                         });
 
                         boolean addInner = this.addInner(jobClient);
@@ -183,7 +183,7 @@ public class GroupPriorityQueue {
                     } catch (Exception e) {
                         logger.error("", e);
                         //数据转换异常--打日志
-                        workNode.dealSubmitFailJob(jobCache.getJobId(), "This task stores information exception and cannot be converted." + e.toString());
+                        jobDealer.dealSubmitFailJob(jobCache.getJobId(), "This task stores information exception and cannot be converted." + e.toString());
                     }
                 }
             }
@@ -203,8 +203,8 @@ public class GroupPriorityQueue {
         return this;
     }
 
-    public GroupPriorityQueue setWorkNode(WorkNode workNode) {
-        this.workNode = workNode;
+    public GroupPriorityQueue setJobDealer(JobDealer jobDealer) {
+        this.jobDealer = jobDealer;
         return this;
     }
 
@@ -228,7 +228,7 @@ public class GroupPriorityQueue {
         if (null == scheduleJobDao) {
             throw new RuntimeException("scheduleJobDao is null.");
         }
-        if (null == workNode) {
+        if (null == jobDealer) {
             throw new RuntimeException("workNode is null.");
         }
         if (null == jobPartitioner) {

@@ -1,24 +1,22 @@
 package com.dtstack.engine.master.zookeeper;
 
 import com.dtstack.engine.common.akka.message.WorkerInfo;
-import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.master.utils.KerberosUtils;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.master.data.BrokerHeartNode;
+import com.dtstack.engine.master.data.BrokersNode;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.listener.HeartBeatCheckListener;
 import com.dtstack.engine.master.listener.HeartBeatListener;
 import com.dtstack.engine.master.listener.Listener;
 import com.dtstack.engine.master.listener.MasterListener;
-import com.dtstack.engine.master.node.FailoverStrategy;
-import com.dtstack.engine.master.data.BrokerHeartNode;
-import com.dtstack.engine.master.data.BrokersNode;
+import com.dtstack.engine.master.failover.FailoverStrategy;
 import com.google.common.collect.Lists;
 import com.netflix.curator.framework.CuratorFramework;
 import com.netflix.curator.framework.CuratorFrameworkFactory;
 import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
 import com.netflix.curator.retry.ExponentialBackoffRetry;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.conf.Configuration;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,12 +25,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -103,7 +96,7 @@ public class ZkService implements InitializingBean, DisposableBean {
     }
 
     private void initSecurity() {
-        try {
+        /*try {
             Map<String, String> securityKvs = zkConfig.getSecurity();
             String userPrincipal = securityKvs.get("userPrincipal");
             String userKeytabPath = securityKvs.get("userKeytabPath");
@@ -119,7 +112,7 @@ public class ZkService implements InitializingBean, DisposableBean {
             KerberosUtils.login(userPrincipal, userKeytabPath, krb5ConfPath, hadoopConf);
         } catch (IOException e) {
             logger.error("", e);
-        }
+        }*/
     }
 
     private ZkService zkRegistration() throws Exception {

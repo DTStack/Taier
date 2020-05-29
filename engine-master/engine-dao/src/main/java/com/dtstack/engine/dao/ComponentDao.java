@@ -15,6 +15,8 @@ public interface ComponentDao {
 
     List<Component> listByEngineId(@Param("engineId") Long engineId);
 
+    List<Component> listByEngineIds(@Param("engineIds") List<Long> engineId);
+
     Component getByEngineIdAndComponentType(@Param("engineId") Long engineId, @Param("type") Integer type);
 
     Component getByClusterIdAndComponentType(@Param("clusterId") Long clusterId, @Param("type") Integer type);

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>plugins.spark</artifactId>
+        <groupId>com.dtstack.engine</groupId>
+        <version>1.0.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>plugins.spark.yarn3-hdfs3-spark240</artifactId>
+    <packaging>pom</packaging>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spark.version>2.4.0</spark.version>
+        <scala.version>2.11.7</scala.version>
+        <hadoop.version>3.0.0</hadoop.version>
+    </properties>
+
+    <modules>
+        <module>spark-sql-proxy</module>
+        <module>spark-yarn-client</module>
+    </modules>
+
+
+</project>

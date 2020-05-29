@@ -31,6 +31,7 @@ public class PluginWrapper{
     private static final String DB_NAME = "dbName";
     private static final String CLUSTER = "cluster";
     private static final String PLUGIN_INFO = "pluginInfo";
+    public static final String DEPLOY_MODEL = "deployMode";
     private static final String QUEUE = "queue";
     private static final String GROUP_NAME = "groupName";
 
@@ -41,6 +42,7 @@ public class PluginWrapper{
 
         String ldapUserName = MapUtils.getString(actionParam, LADP_USER_NAME);
         String ldapPassword = MapUtils.getString(actionParam, LADP_PASSWORD);
+        Integer deployMode = MapUtils.getInteger(actionParam,DEPLOY_MODEL);
         String dbName = MapUtils.getString(actionParam, DB_NAME);
 
         if (StringUtils.isNotBlank(ldapUserName)) {
@@ -51,7 +53,7 @@ public class PluginWrapper{
 
         Long tenantId = MapUtils.getLong(actionParam, TENANT_ID);
         String engineType = MapUtils.getString(actionParam, ENGINE_TYPE);
-        JSONObject pluginInfoJson = clusterService.pluginInfoJSON(tenantId, engineType, null);
+        JSONObject pluginInfoJson = clusterService.pluginInfoJSON(tenantId, engineType, null,deployMode);
         String groupName = DEFAULT_GROUP_NAME;
         if (Objects.nonNull(pluginInfoJson) && !pluginInfoJson.isEmpty()) {
             addParamsToJdbcUrl(actionParam, pluginInfoJson);
@@ -70,7 +72,7 @@ public class PluginWrapper{
             return;
         }
 
-        String dbUrl = pluginInfoJson.getString("dbUrl");
+        String dbUrl = pluginInfoJson.getString("jdbcUrl");
         if(org.apache.commons.lang3.StringUtils.isEmpty(dbUrl)){
             return;
         }
@@ -84,13 +86,13 @@ public class PluginWrapper{
 
         if(MultiEngineType.ORACLE.getName().equalsIgnoreCase((String)actionParam.get("engineType"))){
             //oracle不包含schema
-            pluginInfoJson.put("dbUrl", dbUrl);
+            pluginInfoJson.put("jdbcUrl", dbUrl);
             return;
         }
 
         if(MultiEngineType.TIDB.getName().equalsIgnoreCase((String)actionParam.get("engineType"))){
             //TiDB 没有currentSchema
-            pluginInfoJson.put("dbUrl", dbUrl  + paramsJson.get("currentSchema"));
+            pluginInfoJson.put("jdbcUrl", dbUrl  + paramsJson.get("currentSchema"));
             return;
         }
 
@@ -99,7 +101,7 @@ public class PluginWrapper{
         }
 
         dbUrl = dbUrl + URI_PARAMS_DELIM + paramsStr;
-        pluginInfoJson.put("dbUrl", dbUrl);
+        pluginInfoJson.put("jdbcUrl", dbUrl);
     }
 
     private void addUserNameToImpalaOrHive(JSONObject pluginInfoJson, String userName, String password, String dbName, String engineType) {

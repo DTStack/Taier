@@ -5,9 +5,13 @@ import org.apache.ibatis.annotations.Param;
 
 public interface KerberosDao {
 
-    KerberosConfig getByClusterId(@Param("clusterId") Long clusterId);
+    KerberosConfig getByComponentType(@Param("clusterId") Long clusterId, @Param("componentType") Integer componentType);
 
     Integer update(KerberosConfig kerberosConfig);
 
     Integer insert(KerberosConfig kerberosConfig);
+
+    void delete(@Param("clusterId") Long clusterId, @Param("componentType") Integer componentType);
+
+    void deleteByComponentId(@Param("componentId") Long componentId);
 }

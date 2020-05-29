@@ -46,8 +46,7 @@ public class EngineUtil {
         ENGINE_SUPPORTED_COMPONENTS.put(MultiEngineType.ORACLE.getType(), Collections.singletonList(EComponentType.ORACLE_SQL.getTypeCode()));
     }
 
-    public static final List<Integer> REQUIRED_COMPONENT_TYPES = Arrays.asList(EComponentType.HDFS.getTypeCode(),
-            EComponentType.YARN.getTypeCode(), EComponentType.SFTP.getTypeCode());
+    public static final List<Integer> REQUIRED_COMPONENT_TYPES = Arrays.asList(EComponentType.HDFS.getTypeCode(),EComponentType.SFTP.getTypeCode());
 
     public static boolean isRequiredComponent(Integer componentType) {
         return REQUIRED_COMPONENT_TYPES.contains(componentType);

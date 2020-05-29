@@ -6,9 +6,65 @@ public class Component extends BaseEntity {
 
     private String componentName;
 
-    private int componentTypeCode;
+    private Integer componentTypeCode;
 
     private String componentConfig;
+
+    private Long clusterId;
+
+    private String hadoopVersion;
+
+    /**
+     * 上传配置文件名称
+     */
+    private String uploadFileName;
+
+    private String componentTemplate;
+
+    /**
+     * kerberos文件名称
+     */
+    private String kerberosFileName;
+
+    public String getKerberosFileName() {
+        return kerberosFileName;
+    }
+
+    public void setKerberosFileName(String kerberosFileName) {
+        this.kerberosFileName = kerberosFileName;
+    }
+
+    public String getComponentTemplate() {
+        return componentTemplate;
+    }
+
+    public void setComponentTemplate(String componentTemplate) {
+        this.componentTemplate = componentTemplate;
+    }
+
+    public String getHadoopVersion() {
+        return hadoopVersion;
+    }
+
+    public void setHadoopVersion(String hadoopVersion) {
+        this.hadoopVersion = hadoopVersion;
+    }
+
+    public String getUploadFileName() {
+        return uploadFileName;
+    }
+
+    public void setUploadFileName(String uploadFileName) {
+        this.uploadFileName = uploadFileName;
+    }
+
+    public Long getClusterId() {
+        return clusterId;
+    }
+
+    public void setClusterId(Long clusterId) {
+        this.clusterId = clusterId;
+    }
 
     public Long getEngineId() {
         return engineId;
@@ -26,11 +82,11 @@ public class Component extends BaseEntity {
         this.componentName = componentName;
     }
 
-    public int getComponentTypeCode() {
+    public Integer getComponentTypeCode() {
         return componentTypeCode;
     }
 
-    public void setComponentTypeCode(int componentTypeCode) {
+    public void setComponentTypeCode(Integer componentTypeCode) {
         this.componentTypeCode = componentTypeCode;
     }
 

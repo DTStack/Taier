@@ -89,4 +89,10 @@
         set hadoop_version = #{hadoopVersion}
         where id = #{id} and is_deleted = 0
     </update>
+
+    <update id="deleteCluster">
+        UPDATE console_cluster
+        set is_deleted  = 1
+        where id = #{id}
+    </update>
 </mapper>

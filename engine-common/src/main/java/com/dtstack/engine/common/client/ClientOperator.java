@@ -2,10 +2,14 @@ package com.dtstack.engine.common.client;
 
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
+import com.dtstack.engine.common.callback.CallBack;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ClientAccessException;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.pojo.ClientTemplate;
+import com.dtstack.engine.common.pojo.ClusterResource;
+import com.dtstack.engine.common.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
@@ -137,5 +141,30 @@ public class ClientOperator {
     public JobResult submitJob(JobClient jobClient) throws ClientAccessException {
         IClient clusterClient = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
         return clusterClient.submitJob(jobClient);
+    }
+
+    public List<ClientTemplate> getDefaultPluginConfig(String engineType,String componentType){
+        IClient clusterClient = clientCache.getDefaultPlugin(engineType);
+        return clusterClient.getDefaultPluginConfig(componentType);
+    }
+
+    public ComponentTestResult testConnect(String engineType, String pluginInfo){
+        IClient clusterClient = clientCache.getDefaultPlugin(engineType);
+        return clusterClient.testConnect(pluginInfo);
+    }
+
+    public List<List<Object>> executeQuery(String engineType, String pluginInfo,String sql,String database){
+        IClient clusterClient = clientCache.getDefaultPlugin(engineType);
+        return clusterClient.executeQuery(pluginInfo,sql,database);
+    }
+
+    public String uploadStringToHdfs(String engineType,String pluginInfo,String bytes, String hdfsPath){
+        IClient client = clientCache.getDefaultPlugin(engineType);
+        return client.uploadStringToHdfs(pluginInfo,bytes,hdfsPath);
+    }
+
+    public ClusterResource getClusterResource(String engineType, String pluginInfo) throws ClientAccessException{
+        IClient client = clientCache.getClient(engineType,pluginInfo);
+        return client.getClusterResource(pluginInfo);
     }
 }
