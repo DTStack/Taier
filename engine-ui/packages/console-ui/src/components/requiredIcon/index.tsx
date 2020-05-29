@@ -27,7 +27,7 @@ export default class RequiredIcon extends React.Component<any, any> {
                 isShowIcon = flinkShowRequired;
                 break;
             }
-            case COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER: {
+            case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER: {
                 isShowIcon = hiveShowRequired;
                 break;
             }
@@ -47,7 +47,7 @@ export default class RequiredIcon extends React.Component<any, any> {
                 isShowIcon = learningShowRequired;
                 break;
             }
-            case COMPONENT_TYPE_VALUE.HIVESERVER: {
+            case COMPONENT_TYPE_VALUE.HIVE_SERVER: {
                 isShowIcon = hiveServerShowRequired;
                 break;
             }
@@ -59,11 +59,11 @@ export default class RequiredIcon extends React.Component<any, any> {
                 isShowIcon = yarnShowRequired;
                 break;
             }
-            case COMPONENT_TYPE_VALUE.LIBRASQL: {
+            case COMPONENT_TYPE_VALUE.LIBRA_SQL: {
                 isShowIcon = libraShowRequired;
                 break;
             }
-            case COMPONENT_TYPE_VALUE.IMPALASQL: {
+            case COMPONENT_TYPE_VALUE.IMPALA_SQL: {
                 isShowIcon = impalaSqlRequired;
                 break;
             }
