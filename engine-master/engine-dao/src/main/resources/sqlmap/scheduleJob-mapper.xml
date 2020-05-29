@@ -437,6 +437,9 @@
             <if test="logInfo!=null">
                 log_info = #{logInfo},
             </if>
+            <if test="retryNum != null">
+                retry_num = #{retryNum},
+            </if>
         </set>
     </sql>
 
