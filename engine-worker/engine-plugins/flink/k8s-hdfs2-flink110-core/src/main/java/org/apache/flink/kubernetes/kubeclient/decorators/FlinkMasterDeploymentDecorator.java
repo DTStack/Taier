@@ -19,6 +19,7 @@
 package org.apache.flink.kubernetes.kubeclient.decorators;
 
 import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import org.apache.flink.client.cli.CliFrontend;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.configuration.BlobServerOptions;
@@ -37,6 +38,7 @@ import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentSpecBuilder;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -57,8 +59,11 @@ public class FlinkMasterDeploymentDecorator extends Decorator<Deployment, Kubern
 
     private final ClusterSpecification clusterSpecification;
 
-    public FlinkMasterDeploymentDecorator(ClusterSpecification clusterSpecification) {
+    private final KubernetesClient internalClient;
+
+    public FlinkMasterDeploymentDecorator(ClusterSpecification clusterSpecification, KubernetesClient internalClient) {
         this.clusterSpecification = clusterSpecification;
+        this.internalClient = internalClient;
     }
 
     @Override
@@ -72,92 +77,96 @@ public class FlinkMasterDeploymentDecorator extends Decorator<Deployment, Kubern
         final String mainClass = flinkConfig.getString(KubernetesConfigOptionsInternal.ENTRY_POINT_CLASS);
         checkNotNull(mainClass, "Main class must be specified!");
 
-        String userDir = System.getProperty("user.dir");
-        String confDir = String.format("%s/%s", userDir, "flinkconf");
-        if (!new File(confDir).exists()) {
-            confDir = CliFrontend.getConfigurationDirectoryFromEnv();
-        }
-        final boolean hasLogback = new File(confDir, Constants.CONFIG_FILE_LOGBACK_NAME).exists();
-        final boolean hasLog4j = new File(confDir, Constants.CONFIG_FILE_LOG4J_NAME).exists();
+        final String namespace = flinkConfig.getString(KubernetesConfigOptions.NAMESPACE);
+        String configMapName = Constants.CONFIG_MAP_PREFIX + clusterId;
+        ConfigMap flinkConfigMap = this.internalClient.configMaps().inNamespace(namespace).withName(configMapName).get();
+
+        final boolean hasLogback = flinkConfigMap.getData().containsKey(Constants.CONFIG_FILE_LOGBACK_NAME);
+        final boolean hasLog4j = flinkConfigMap.getData().containsKey(Constants.CONFIG_FILE_LOG4J_NAME);
 
         final Map<String, String> labels = new LabelBuilder()
-                .withExist(deployment.getMetadata().getLabels())
-                .withJobManagerComponent()
-                .toLabels();
+            .withExist(deployment.getMetadata().getLabels())
+            .withJobManagerComponent()
+            .toLabels();
 
         deployment.getMetadata().setLabels(labels);
 
         final Volume configMapVolume = KubernetesUtils.getConfigMapVolume(clusterId, hasLogback, hasLog4j);
 
-        final Volume hadoopConfigMapVolume = KubernetesUtils.getHadoopConfigMapVolume(clusterId);
+        List<Volume> volumes = new ArrayList<>();
+        volumes.add(configMapVolume);
+        if (flinkConfig.contains(KubernetesConfigOptions.HADOOP_CONF_STRING)) {
+            final Volume hadoopConfigMapVolume = KubernetesUtils.getHadoopConfigMapVolume(clusterId);
+            volumes.add(hadoopConfigMapVolume);
+        }
 
         final Container container = createJobManagerContainer(flinkConfig, mainClass, hasLogback, hasLog4j, blobServerPort);
 
         final String serviceAccount = flinkConfig.getString(KubernetesConfigOptions.JOB_MANAGER_SERVICE_ACCOUNT);
+
         final PodSpec podSpec = new PodSpecBuilder()
-                .withServiceAccountName(serviceAccount)
-                .withVolumes(new Volume[]{configMapVolume, hadoopConfigMapVolume})
-                .withContainers(container)
-                .build();
+            .withServiceAccountName(serviceAccount)
+            .withVolumes(volumes)
+            .withContainers(container)
+            .withImagePullSecrets(KubernetesUtils.getImagePullSecrets(flinkConfig))
+            .build();
 
         deployment.setSpec(new DeploymentSpecBuilder()
-                .withReplicas(1)
-                .withNewTemplate().withNewMetadata().withLabels(labels).endMetadata()
-                .withSpec(podSpec).endTemplate()
-                .withNewSelector().addToMatchLabels(labels).endSelector().build());
+            .withReplicas(1)
+            .withNewTemplate().withNewMetadata().withLabels(labels).endMetadata()
+            .withSpec(podSpec).endTemplate()
+            .withNewSelector().addToMatchLabels(labels).endSelector().build());
         return deployment;
     }
 
     private Container createJobManagerContainer(
-            Configuration flinkConfig,
-            String mainClass,
-            boolean hasLogback,
-            boolean hasLog4j,
-            int blobServerPort) {
+        Configuration flinkConfig,
+        String mainClass,
+        boolean hasLogback,
+        boolean hasLog4j,
+        int blobServerPort) {
         final String flinkConfDirInPod = flinkConfig.getString(KubernetesConfigOptions.FLINK_CONF_DIR);
         final String logDirInPod = flinkConfig.getString(KubernetesConfigOptions.FLINK_LOG_DIR);
         final String startCommand = KubernetesUtils.getJobManagerStartCommand(
-                flinkConfig,
-                clusterSpecification.getMasterMemoryMB(),
-                flinkConfDirInPod,
-                logDirInPod,
-                hasLogback,
-                hasLog4j,
-                mainClass,
-                null);
+            flinkConfig,
+            clusterSpecification.getMasterMemoryMB(),
+            flinkConfDirInPod,
+            logDirInPod,
+            hasLogback,
+            hasLog4j,
+            mainClass,
+            null);
 
         final ResourceRequirements requirements = KubernetesUtils.getResourceRequirements(
-                clusterSpecification.getMasterMemoryMB(),
-                flinkConfig.getDouble(KubernetesConfigOptions.JOB_MANAGER_CPU));
+            clusterSpecification.getMasterMemoryMB(),
+            flinkConfig.getDouble(KubernetesConfigOptions.JOB_MANAGER_CPU));
 
         return new ContainerBuilder()
-                .withName(CONTAINER_NAME)
-                .withCommand(flinkConfig.getString(KubernetesConfigOptions.KUBERNETES_ENTRY_PATH))
-                .withArgs(Arrays.asList("/bin/bash", "-c", startCommand))
-                .withImage(flinkConfig.getString(KubernetesConfigOptions.CONTAINER_IMAGE))
-                .withImagePullPolicy(flinkConfig.getString(KubernetesConfigOptions.CONTAINER_IMAGE_PULL_POLICY))
-                .withResources(requirements)
-                .withPorts(Arrays.asList(
-                        new ContainerPortBuilder().withContainerPort(flinkConfig.getInteger(RestOptions.PORT)).build(),
-                        new ContainerPortBuilder().withContainerPort(flinkConfig.getInteger(JobManagerOptions.PORT)).build(),
-                        new ContainerPortBuilder().withContainerPort(blobServerPort).build()))
-                .withEnv(buildEnvForContainer(flinkConfig))
-                .withVolumeMounts(KubernetesUtils.getConfigMapVolumeMount(flinkConfig, hasLogback, hasLog4j))
-                .build();
+            .withName(CONTAINER_NAME)
+            .withCommand(flinkConfig.getString(KubernetesConfigOptions.KUBERNETES_ENTRY_PATH))
+            .withArgs(Arrays.asList("/bin/bash", "-c", startCommand))
+            .withImage(flinkConfig.getString(KubernetesConfigOptions.CONTAINER_IMAGE))
+            .withImagePullPolicy(flinkConfig.getString(KubernetesConfigOptions.CONTAINER_IMAGE_PULL_POLICY))
+            .withResources(requirements)
+            .withPorts(Arrays.asList(
+                new ContainerPortBuilder().withContainerPort(flinkConfig.getInteger(RestOptions.PORT)).build(),
+                new ContainerPortBuilder().withContainerPort(flinkConfig.getInteger(JobManagerOptions.PORT)).build(),
+                new ContainerPortBuilder().withContainerPort(blobServerPort).build()))
+            .withEnv(buildEnvForContainer(flinkConfig))
+            .withVolumeMounts(KubernetesUtils.getConfigMapVolumeMount(flinkConfig, hasLogback, hasLog4j))
+            .build();
     }
 
     private List<EnvVar> buildEnvForContainer(Configuration flinkConfig) {
         List<EnvVar> envList =
-                BootstrapTools.getEnvironmentVariables(ResourceManagerOptions.CONTAINERIZED_MASTER_ENV_PREFIX, flinkConfig)
-                        .entrySet()
-                        .stream()
-                        .map(kv -> new EnvVar(kv.getKey(), kv.getValue(), null)).collect(Collectors.toList());
+            BootstrapTools.getEnvironmentVariables(ResourceManagerOptions.CONTAINERIZED_MASTER_ENV_PREFIX, flinkConfig)
+                .entrySet()
+                .stream()
+                .map(kv -> new EnvVar(kv.getKey(), kv.getValue(), null)).collect(Collectors.toList());
         envList.add(new EnvVarBuilder()
-                .withName(ENV_FLINK_POD_IP_ADDRESS)
-                .withValueFrom(new EnvVarSourceBuilder().withNewFieldRef(API_VERSION, POD_IP_FIELD_PATH).build())
-                .build());
+            .withName(ENV_FLINK_POD_IP_ADDRESS)
+            .withValueFrom(new EnvVarSourceBuilder().withNewFieldRef(API_VERSION, POD_IP_FIELD_PATH).build())
+            .build());
         return envList;
     }
-
-
 }

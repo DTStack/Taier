@@ -141,7 +141,7 @@ public class Fabric8FlinkKubeClient implements FlinkKubeClient {
 			deployment = d.decorate(deployment);
 		}
 
-		deployment = new FlinkMasterDeploymentDecorator(clusterSpecification).decorate(deployment);
+		deployment = new FlinkMasterDeploymentDecorator(clusterSpecification, this.internalClient).decorate(deployment);
 
 		LOG.debug("Create Flink Master deployment with spec: {}", deployment.getInternalResource().getSpec());
 
