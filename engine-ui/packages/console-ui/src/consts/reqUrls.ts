@@ -51,6 +51,7 @@ export default {
     TEST_CONNECTS: `${CONSOLE_BASE_URL}/component/testConnects`,
     SAVE_COMPONENT: `${CONSOLE_BASE_URL}/upload/component/addOrUpdateComponent`,
     CLOSE_KERBEROS: `${CONSOLE_BASE_URL}/component/closeKerberos`,
+    GET_VERSION: `${CONSOLE_BASE_URL}/component/getComponentVersion`,
 
     GET_LOADTEMPLATE: `${CONSOLE_BASE_UPLOAD_URL}/component/loadTemplate`, // 获取上传模板
     UPLOAD_KERBEROSFILE: `${CONSOLE_BASE_UPLOAD_URL}/upload/component/hadoopKerberosConfig`, // 上传kerberos认证文件

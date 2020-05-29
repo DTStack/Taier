@@ -176,79 +176,47 @@ class DisplayResource extends React.Component<any, any> {
         )
     }
 
+    handleCompsVersion = (val: any, componentTypeCode: number) => {
+        this.props.handleCommonVersion(val, componentTypeCode)
+        this.props.handleCompsVersion(val, componentTypeCode);
+    }
+
     // 组件版本
-    renderCompVersion = (configName: any) => {
-        const { getFieldDecorator, getFieldValue, components, isView } = this.props;
+    renderCompsVersion = (configName: string) => {
+        const { versionData, getFieldDecorator, isView, components } = this.props;
+        const { commonVersion } = this.props;
         const componentTypeCode = components.componentTypeCode;
-        let connectHadoopVersion: any = '';
-        if (componentTypeCode === COMPONENT_TYPE_VALUE.YARN) {
-            connectHadoopVersion = getFieldValue(`${COMPONEMT_CONFIG_KEYS.HDFS}.hadoopVersion`) || components.hadoopVersion
+        let defaultVersion = 'hadoop2';
+        let version = commonVersion || components.hadoopVersion;
+        let versionCompsData = versionData.hadoopVersion || [];
+        switch (componentTypeCode) {
+            case COMPONENT_TYPE_VALUE.FLINK:
+                defaultVersion = '180';
+                version = components.hadoopVersion || '';
+                versionCompsData = versionData.Flink || []
+                break;
+            case COMPONENT_TYPE_VALUE.SPARK:
+                defaultVersion = '2.1.x';
+                version = components.hadoopVersion || '';
+                versionCompsData = versionData.Spark || []
+                break;
+            default:
+                break;
         }
-        if (componentTypeCode === COMPONENT_TYPE_VALUE.HDFS) {
-            connectHadoopVersion = getFieldValue(`${COMPONEMT_CONFIG_KEYS.YARN}.hadoopVersion`) || components.hadoopVersion
-        }
-        // console.log('connectHadoopVersion=====ssss===',componentTypeCode, connectHadoopVersion)
+        // console.log('version===========ssss', version)
         return (
             <FormItem
                 label="组件版本"
                 colon={false}
+                key={`${configName}.hadoopVersion`}
             >
                 {getFieldDecorator(`${configName}.hadoopVersion`, {
-                    initialValue: connectHadoopVersion || 'hadoop2'
+                    initialValue: version || defaultVersion
                 })(
                     <Select style={{ width: 172 }} disabled={isView} onChange={(val) => this.handleCompsVersion(val, componentTypeCode)}>
-                        <Option value='hadoop2' key='hadoop2'>hadoop2</Option>
-                        <Option value='hadoop3' key='hadoop3'>hadoop3</Option>
-                        <Option value='HW' key='HW'>HW</Option>
-                    </Select>
-                )}
-            </FormItem>
-        )
-    }
-
-    handleFlinkSparkVersion = (val: any, key: number) => {
-        this.props.handleFlinkSparkVersion(key, val);
-    }
-
-    handleCompsVersion = (val: any, key: number) => {
-        this.props.handleCompsVersion(key, val);
-    }
-
-    // flink组件版本
-    renderFilkCompVersion = (configName: any) => {
-        // const { compVersion } = this.state;
-        const { getFieldDecorator, components, isView } = this.props;
-        return (
-            <FormItem
-                label="组件版本"
-                colon={false}
-            >
-                {getFieldDecorator(`${configName}.hadoopVersion`, {
-                    initialValue: components.hadoopVersion || '180'
-                })(
-                    <Select style={{ width: 172 }} disabled={isView} onChange={(val) => this.handleFlinkSparkVersion(val, COMPONENT_TYPE_VALUE.FLINK)} >
-                        <Option value='140' key='1.4'>1.4</Option>
-                        <Option value='150' key='1.5'>1.5</Option>
-                        <Option value='180' key='1.8'>1.8</Option>
-                    </Select>
-                )}
-            </FormItem>
-        )
-    }
-    // spark组件版本
-    renderSparkCompVersion = (configName: any) => {
-        const { getFieldDecorator, components, isView } = this.props;
-        return (
-            <FormItem
-                label="组件版本"
-                colon={false}
-            >
-                {getFieldDecorator(`${configName}.hadoopVersion`, {
-                    initialValue: components.hadoopVersion || '2.1.x'
-                })(
-                    <Select style={{ width: 172 }} disabled={isView} onChange={(val) => this.handleFlinkSparkVersion(val, COMPONENT_TYPE_VALUE.SPARK)}>
-                        <Option value='2.1.x' key='2.1.X'>2.1.X</Option>
-                        <Option value='2.3.x' key='2.3.X'>2.3.X</Option>
+                        {versionCompsData.map((ver: any) => {
+                            return <Option value={ver.value} key={ver.key}>{ver.key}</Option>
+                        })}
                     </Select>
                 )}
             </FormItem>
@@ -264,7 +232,7 @@ class DisplayResource extends React.Component<any, any> {
             case COMPONENT_TYPE_VALUE.YARN:
                 return (
                     <React.Fragment>
-                        {this.renderCompVersion(COMPONEMT_CONFIG_KEYS.YARN)}
+                        {this.renderCompsVersion(COMPONEMT_CONFIG_KEYS.YARN)}
                         {this.renderConfigsFile(COMPONEMT_CONFIG_KEYS.YARN)}
                         {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.YARN)}
                     </React.Fragment>
@@ -279,7 +247,7 @@ class DisplayResource extends React.Component<any, any> {
             case COMPONENT_TYPE_VALUE.HDFS:
                 return (
                     <React.Fragment>
-                        {this.renderCompVersion(COMPONEMT_CONFIG_KEYS.HDFS)}
+                        {this.renderCompsVersion(COMPONEMT_CONFIG_KEYS.HDFS)}
                         {this.renderConfigsFile(COMPONEMT_CONFIG_KEYS.HDFS)}
                         {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.HDFS)}
                     </React.Fragment>
@@ -307,7 +275,7 @@ class DisplayResource extends React.Component<any, any> {
             case COMPONENT_TYPE_VALUE.SPARK:
                 return (
                     <React.Fragment>
-                        {this.renderSparkCompVersion(COMPONEMT_CONFIG_KEYS.SPARK)}
+                        {this.renderCompsVersion(COMPONEMT_CONFIG_KEYS.SPARK)}
                         {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.SPARK)}
                         {this.renderParamsFile(COMPONEMT_CONFIG_KEYS.SPARK)}
                     </React.Fragment>
@@ -329,7 +297,7 @@ class DisplayResource extends React.Component<any, any> {
             case COMPONENT_TYPE_VALUE.FLINK:
                 return (
                     <React.Fragment>
-                        {this.renderFilkCompVersion(COMPONEMT_CONFIG_KEYS.FLINK)}
+                        {this.renderCompsVersion(COMPONEMT_CONFIG_KEYS.FLINK)}
                         {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.FLINK)}
                         {this.renderParamsFile(COMPONEMT_CONFIG_KEYS.FLINK)}
                     </React.Fragment>

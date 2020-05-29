@@ -81,6 +81,7 @@ module.exports = {
             },
             '/node': { // 控制台
                 target: 'http://172.16.101.236:8090', // 开发环境
+                // target: 'http://172.16.101.189:8090',
                 // target: 'http://172.16.100.168:8090', // 开发环境
                 // target: "http://172.16.0.124:8091", // test server
                 // target: "http://172.16.100.204:8084", // test server

@@ -6,29 +6,45 @@ import req from '../consts/reqUrls'
 
 export default {
     // 4.0 版本相关接口
-    getClusterInfo (params: any) {
+    getClusterInfo (params: {
+        clusterId: number;
+    }) {
         return http.post(req.GET_CLUSTER_INFO, params);
     },
-    uploadResource (params: any) {
+    uploadResource (params: {
+        fileName: any;
+        componentType: number;
+    }) {
         return http.postAsFormData(req.UPLOAD_RESOURCE, params);
     },
-    deleteComponent (params: any) {
+    deleteComponent (params: {
+        componentIds: any[];
+    }) {
         return http.post(req.DELETE_COMPONENT, params); // 删除组件
     },
-    deleteCluster (params: any) {
+    deleteCluster (params: {
+        clusterId: number;
+    }) {
         return http.post(req.DELETE_CLUSTER, params);
     },
-    getCompVersion (params: any) {
-        return http.post(req.GET_COMPONENT_VERSION, params)
+    testConnects (params: {
+        clusterName: string;
+    }) {
+        return http.post(req.TEST_CONNECTS, params);
     },
-    testConnects (params: any) {
-        return http.post(req.TEST_CONNECTS, params)
+    closeKerberos (params: {
+        componentId: number;
+    }) {
+        return http.post(req.CLOSE_KERBEROS, params);
+    },
+    getVersionData (params?: any) {
+        return http.post(req.GET_VERSION, params);
     },
     saveComponent (params: any) {
         return http.postAsFormData(req.SAVE_COMPONENT, params);
     },
-    closeKerberos (params: any) {
-        return http.post(req.CLOSE_KERBEROS, params)
+    getCompVersion (params: any) {
+        return http.post(req.GET_COMPONENT_VERSION, params);
     },
 
     getResourceList: function (params: any) {
@@ -52,9 +68,6 @@ export default {
     bindUserToQuere (params: any) {
         return http.post(req.BIND_USER_TO_RESOURCE, params);
     },
-    // getClusterInfo(params: any) {
-    //     return http.post(req.GET_CLUSTER, params);
-    // },
     updateCluster (params: any) {
         return http.postAsFormData(req.UPDATE_CLUSTER, params);
     },

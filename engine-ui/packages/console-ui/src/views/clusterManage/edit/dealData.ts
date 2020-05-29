@@ -27,6 +27,16 @@ function checkHaveGroupComps (componentTypeCode: number) {
                 componentTypeCode === COMPONENT_TYPE_VALUE.LEARNING;
 }
 
+function changeVersion (componentTypeCode: number, compVersion: string) {
+    return (componentTypeCode === COMPONENT_TYPE_VALUE.SPARK && compVersion) ||
+        (componentTypeCode === COMPONENT_TYPE_VALUE.FLINK && compVersion)
+}
+
+function versionComps (componentTypeCode: number) {
+    return (componentTypeCode === COMPONENT_TYPE_VALUE.SPARK) ||
+        (componentTypeCode === COMPONENT_TYPE_VALUE.FLINK)
+}
+
 // 对自定义参数的key值进行处理
 function handleCustomParams (data: any) {
     let paramsArr = []
@@ -82,7 +92,7 @@ function getCustomParams (customParams: any, componentTemplate: any) {
 // 从模板中获取自定义参数
 function getLoadTemplateParams (loadTemplate: any) {
     let params: any = [];
-    loadTemplate.map((temps: any) => {
+    loadTemplate.forEach((temps: any) => {
         if (temps.id && temps.type !== 'Group') params = [...params, temps]
         if (temps.type === 'GROUP') {
             const groupParams = temps.values.filter((val: any) => val.id)
@@ -114,9 +124,9 @@ function getCompoentsConfigInfo (data: any) {
 // 检查模板里面是否有值
 function checkFormHaveValue (loadTemplate: any) {
     let isHaveValue = false;
-    loadTemplate.map((temp: any) => {
+    loadTemplate.forEach((temp: any) => {
         if (temp.type === 'GROUP') {
-            temp.values.map((val: any) => {
+            temp.values.forEach((val: any) => {
                 if (val.value) isHaveValue = true;
             })
         } else {
@@ -153,7 +163,7 @@ function handleFormValues (formConfig: any, customParams: any, componentTypeCode
             formValues[key.split('%').join('.')] = formConfig[key];
             if (Object.keys(customParams).length !== 0) {
                 const paramsKey = handleCustomParams(customParams);
-                paramsKey.map((p: any) => {
+                paramsKey.forEach((p: any) => {
                     formValues[p.key] = p.value
                 })
             }
@@ -164,7 +174,7 @@ function handleFormValues (formConfig: any, customParams: any, componentTypeCode
             }
             if (Object.keys(customParams).length !== 0) {
                 const paramsKey = handleCustomParams(customParams[key]);
-                paramsKey.map((p: any) => {
+                paramsKey.forEach((p: any) => {
                     val[p.key] = p.value
                 })
             }
@@ -201,8 +211,8 @@ function handleUploadFile (fileName: string) {
 function handleCompsData (data: any) {
     let newCompConfig: any = {};
     newCompConfig.clusterName = data.data.clusterName;
-    data.data.scheduling.map((item: any) => {
-        item.components.map((comps: any) => {
+    data.data.scheduling.forEach((item: any) => {
+        item.components.forEach((comps: any) => {
             newCompConfig[COMPONEMT_CONFIG_KEY_ENUM[comps.componentTypeCode]] = {
                 configInfo: JSON.parse(comps.componentConfig) || {},
                 loadTemplate: JSON.parse(comps.componentTemplate) || [],
@@ -290,7 +300,7 @@ function getComponentConfigPrames (values: any, components: any, config: any) {
 function getMoadifyComps (values: any, componentConfig: any) {
     const componentTypeCodeArr = Object.values(COMPONENT_TYPE_VALUE);
     let modifyCompsArr: any = [];
-    componentTypeCodeArr.map((componentTypeCode: number) => {
+    componentTypeCodeArr.forEach((componentTypeCode: number) => {
         const formConfig = values[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {};
         if (Object.keys(formConfig).length !== 0) {
             const config = componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {};
@@ -298,12 +308,15 @@ function getMoadifyComps (values: any, componentConfig: any) {
             const compHadoopVersion = config.hadoopVersion;
             const compKerberosFileName = config.kerFileName;
             const compUploadFileName = config.fileName;
+
             const { configInfo = {}, params = {}, hadoopVersion = '', kerberosFileName = '', uploadFileName = '' } = formConfig;
             const formValues = handleFormValues(configInfo, params, componentTypeCode);
             const isUploadFileComps = checkUplaodFileComps(Number(componentTypeCode))
+
             const isModify = (hadoopVersion && !_.isEqual(compHadoopVersion, hadoopVersion)) ||
                 (uploadFileName && !_.isEqual(compUploadFileName, handleUploadFile(uploadFileName))) ||
                     (kerberosFileName && !_.isEqual(kerberosFileName, handleUploadFile(compKerberosFileName)))
+
             if (!config.id) { modifyCompsArr = [...modifyCompsArr, componentTypeCode]; return; }
             if (isModify) { modifyCompsArr = [...modifyCompsArr, componentTypeCode]; return; }
             if (!_.isEqual(compConfigInfo, formValues) && !isUploadFileComps) {
@@ -317,8 +330,10 @@ function getMoadifyComps (values: any, componentConfig: any) {
 
 export default {
     getCompsVersion,
+    versionComps,
     updateCompsConfig,
     checkUplaodFileComps,
+    changeVersion,
     handleCompsData,
     handleCustomParams,
     getComponentConfigPrames,

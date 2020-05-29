@@ -8,7 +8,7 @@ import Api from '../../../api/console';
 import req from '../../../consts/reqUrls';
 import {
     TABS_TITLE, TABS_TITLE_KEY, COMPONEMT_CONFIG_NAME_ENUM,
-    COMPONEMT_CONFIG_KEY_ENUM } from '../../../consts';
+    COMPONEMT_CONFIG_KEY_ENUM, COMPONENT_TYPE_VALUE } from '../../../consts';
 
 import ModifyComponentModal from '../../../components/modifyCompModal';
 import SelectPopver from '../../../components/selectPopover';
@@ -70,6 +70,8 @@ class EditCluster extends React.Component<any, any> {
         selectValue: [], // 选中组件存值
         deleteComps: [], // 删除组件
         addComps: [], // 新增组件
+        versionData: {},
+        commonVersion: '',
         popoverVisible: false,
         uploadLoading: false,
         modify: false,
@@ -79,6 +81,7 @@ class EditCluster extends React.Component<any, any> {
 
     componentDidMount () {
         this.getDataList();
+        this.getVersionData();
     }
 
     getDataList = () => {
@@ -95,6 +98,16 @@ class EditCluster extends React.Component<any, any> {
                     componentConfig: dealData.handleCompsData(res),
                     cloneComponentConfig: dealData.handleCompsData(res),
                     clusterId: clusterId
+                })
+            }
+        })
+    }
+
+    getVersionData = () => {
+        Api.getVersionData().then((res: any) => {
+            if (res.code === 1) {
+                this.setState({
+                    versionData: res.data
                 })
             }
         })
@@ -146,22 +159,18 @@ class EditCluster extends React.Component<any, any> {
         return componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {};
     }
 
-    handleFlinkSparkVersion = (key: number, compVersion: any) => {
-        this.getLoadTemplate(key, compVersion);
-        this.handleCompsVersion(key, compVersion);
-    }
-
-    handleCompsVersion = (key: number, compVersion: any) => {
+    handleCompsVersion = (compVersion: any, componentTypeCode: number) => {
         const { componentConfig } = this.state;
         this.setState({
             componentConfig: {
                 ...componentConfig,
-                [COMPONEMT_CONFIG_KEY_ENUM[key]]: {
-                    ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[key]],
+                [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
+                    ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
                     hadoopVersion: compVersion
                 }
             }
         })
+        this.getLoadTemplate(componentTypeCode, compVersion);
     }
 
     // 获取组件模板
@@ -170,11 +179,12 @@ class EditCluster extends React.Component<any, any> {
         const component = tabCompData.find((item: any) => item.schedulingCode === compTypeKey) || { components: [] };
         if (component.components.length === 0) return;
         let componentTypeCode = key === '' ? component.components[0].componentTypeCode : key;
-        const isNeedLoadTemp = dealData.checkUplaodFileComps(componentTypeCode)
+        const isNeedLoadTemp = dealData.checkUplaodFileComps(componentTypeCode);
+        const isChangeVersion = dealData.changeVersion(componentTypeCode, compVersion);
         const config = componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {}
         const { loadTemplate = {} } = config;
         const version = dealData.getCompsVersion(Number(componentTypeCode), compVersion)
-        if (!isNeedLoadTemp && Object.keys(loadTemplate).length === 0) {
+        if (!isNeedLoadTemp && (Object.keys(loadTemplate).length === 0 || isChangeVersion)) {
             Api.getLoadTemplate({
                 clusterName,
                 version,
@@ -236,7 +246,7 @@ class EditCluster extends React.Component<any, any> {
             })
             return;
         }
-        components.map((comps: any) => {
+        components.forEach((comps: any) => {
             if (selectValue.findIndex((val: any) => val === comps.componentTypeCode) === -1) {
                 const config = this.getComponentConfig(comps);
                 deleteComps.push({ ...comps, id: config.id || '' });
@@ -279,7 +289,7 @@ class EditCluster extends React.Component<any, any> {
         const { tabCompData, compTypeKey, deleteComps, addComps } = this.state;
         let cloneComps = cloneDeep(tabCompData);
         const components = cloneComps.find((sche: any) => sche.schedulingCode === compTypeKey).components;
-        deleteComps.map((compconent: any) => {
+        deleteComps.forEach((compconent: any) => {
             components.splice(components.findIndex((comps: any) => comps.componentTypeCode === compconent.componentTypeCode), 1);
             this.clearCompsConfig(compconent.componentTypeCode)
         })
@@ -291,7 +301,7 @@ class EditCluster extends React.Component<any, any> {
     handleDeleteComps = () => {
         const { deleteComps } = this.state;
         let componentIds: any = [];
-        deleteComps.map((comps: any) => {
+        deleteComps.forEach((comps: any) => {
             if (comps.id) { componentIds.push(comps.id) }
         });
         if (componentIds.length === 0) {
@@ -320,7 +330,7 @@ class EditCluster extends React.Component<any, any> {
         const cloneCompData = cloneDeep(tabCompData);
         let components: any = cloneCompData.find((sche: any) => sche.schedulingCode === compTypeKey).components;
         if (addComps.length > 0) {
-            addComps.map((val: any) => {
+            addComps.forEach((val: any) => {
                 components.push({ componentTypeCode: val, componentName: COMPONEMT_CONFIG_NAME_ENUM[val] });
             })
             cloneCompData.forEach((item: any) => {
@@ -503,7 +513,7 @@ class EditCluster extends React.Component<any, any> {
                         clusterName: res.data.clusterName,
                         componentConfig: dealData.updateCompsConfig(componentConfig, componentTypeCode, res),
                         cloneComponentConfig: dealData.updateCompsConfig(cloneComponentConfig, componentTypeCode, res)
-                    }, () => console.log('componentConfig------componentConfig', this.state.componentConfig));
+                    });
                     message.success('保存成功');
                 }
             })
@@ -570,7 +580,7 @@ class EditCluster extends React.Component<any, any> {
         const config = this.getComponentConfig(components);
         const params = config.params || [];
         if (groupKey) {
-            params.map((p: any) => {
+            params.forEach((p: any) => {
                 p.key === groupKey && p.groupParams.splice(p.groupParams.findIndex((param: any) => param.id === id), 1)
             })
         } else {
@@ -603,7 +613,7 @@ class EditCluster extends React.Component<any, any> {
                 return;
             }
             let modifyCompsNames: any = [];
-            modifyCompsArr.map((comp: number) => {
+            modifyCompsArr.forEach((comp: number) => {
                 modifyCompsNames.push(COMPONEMT_CONFIG_NAME_ENUM[comp])
             })
             message.error(`组件 ${modifyCompsNames.join('、')} 参数变更未保存，请先保存再测试组件连通性`)
@@ -619,7 +629,7 @@ class EditCluster extends React.Component<any, any> {
         }).then((res: any) => {
             if (res.code === 1) {
                 let testStatus: any = {}
-                res.data.map((temp: any) => {
+                res.data.forEach((temp: any) => {
                     testStatus[temp.componentTypeCode] = { ...temp }
                 })
                 this.setState({
@@ -634,6 +644,23 @@ class EditCluster extends React.Component<any, any> {
                 testLoading: false
             })
         })
+    }
+
+    handleCommonVersion = (val: string, componentTypeCode: number) => {
+        if (componentTypeCode === COMPONENT_TYPE_VALUE.YARN || componentTypeCode === COMPONENT_TYPE_VALUE.HDFS) {
+            this.setState({
+                commonVersion: val
+            })
+            const { form } = this.props;
+            val && form.setFieldsValue({
+                [COMPONEMT_CONFIG_KEY_ENUM[COMPONENT_TYPE_VALUE.YARN]]: {
+                    hadoopVersion: val
+                },
+                [COMPONEMT_CONFIG_KEY_ENUM[COMPONENT_TYPE_VALUE.HDFS]]: {
+                    hadoopVersion: val
+                }
+            })
+        }
     }
 
     renderCompTabs = (item: any) => {
@@ -728,7 +755,7 @@ class EditCluster extends React.Component<any, any> {
                                                                         downloadFile={this.downloadFile}
                                                                         paramsfileChange={this.paramsfileChange}
                                                                         kerFileChange={this.kerFileChange}
-                                                                        handleFlinkSparkVersion={this.handleFlinkSparkVersion}
+                                                                        handleCommonVersion={this.handleCommonVersion}
                                                                         handleCompsVersion={this.handleCompsVersion}
                                                                         deleteKerFile={this.deleteKerFile}
                                                                         fileChange={this.fileChange} />

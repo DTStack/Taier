@@ -11,17 +11,17 @@ const RadioGroup = Radio.Group;
 const Option = Select.Option;
 const CheckboxGroup = Checkbox.Group;
 
-// export const renderFormItem = ({ item, layout, getFieldDecorator }) => {
-//     const { label, key, required, component, options = {}, rules } = item
-//     return (
-//         <FormItem key={key} label={label} colon {...layout} className={options.className}>
-//             {getFieldDecorator(key, {
-//                 ...options,
-//                 rules: rules || [{ required, message: `${label}为空` }]
-//             })(component || <Input />)}
-//         </FormItem>
-//     )
-// }
+function renderFormItem ({ itemConfig, formItemLayout, getFieldDecorator }) {
+    const { label, key, required, component, options = {}, rules, style } = itemConfig
+    return (
+        <FormItem key={key} label={<Tooltip title={label}>{label}</Tooltip>} {...formItemLayout} style={style}>
+            {getFieldDecorator(key, {
+                ...options,
+                rules: rules || [{ required, message: `${label}为空` }]
+            })(component || <Input />)}
+        </FormItem>
+    )
+}
 
 class ComponentsConfig extends React.Component<any, any> {
     state: any = {
@@ -35,8 +35,7 @@ class ComponentsConfig extends React.Component<any, any> {
     renderYarnOrHdfsConfig = () => {
         const config = this.getComponentConfig();
         const { configInfo = {} } = config;
-        let keyAndValue: any;
-        keyAndValue = Object.entries(configInfo);
+        const keyAndValue = Object.entries(configInfo);
         return keyAndValue.map(([key, value]: any[]) => {
             return (
                 <Row key={key} className="zipConfig-item">
@@ -65,7 +64,7 @@ class ComponentsConfig extends React.Component<any, any> {
         const { isView } = this.props;
         switch (item.type) {
             case 'INPUT':
-                return (<Input disabled={isView} />)
+                return (<Input disabled={isView} style={{ maxWidth: 680 }} />)
             case 'RADIO':
                 return (
                     <RadioGroup disabled={isView}>
@@ -115,45 +114,21 @@ class ComponentsConfig extends React.Component<any, any> {
     renderConfigFormItem = (comps: any, item: any) => {
         const { getFieldValue, getFieldDecorator } = this.props;
         const isSelectGroup = comps === COMPONEMT_CONFIG_KEYS.FLINK || comps === COMPONEMT_CONFIG_KEYS.SPARK;
+        const itemConfig = {
+            label: item.key,
+            style: { padding: isSelectGroup ? '0 20px' : '' },
+            key: `${comps}.configInfo.${item.key.split('.').join('%')}`,
+            options: {
+                initialValue: item.key === 'deploymode' && !isArray(item.value) ? [`${item.value}`] : item.value
+            },
+            component: this.renderCompsContent(item),
+            rules: [{ required: item.required, message: `请输入${item.key}` }]
+        }
         if (!item.dependencyKey) {
-            return (
-                <FormItem
-                    label={<Tooltip title={item.key}>{item.key}</Tooltip>}
-                    key={item.key}
-                    {...formItemLayout}
-                    style={{ padding: isSelectGroup ? '0 20px' : '' }}
-                >
-                    {getFieldDecorator(`${comps}.configInfo.${item.key.split('.').join('%')}`, {
-                        rules: [{
-                            required: item.required,
-                            message: `请输入${item.key}`
-                        }],
-                        initialValue: item.key === 'deploymode' && !isArray(item.value) ? [`${item.value}`] : item.value
-                    })(
-                        this.renderCompsContent(item)
-                    )}
-                </FormItem>
-            )
+            return renderFormItem({ itemConfig, formItemLayout, getFieldDecorator })
         }
         if (item.dependencyKey && getFieldValue(`${comps}.configInfo.${item.dependencyKey}`) === item.dependencyValue) {
-            return (
-                <FormItem
-                    label={<Tooltip title={item.key}>{item.key}</Tooltip>}
-                    key={item.key}
-                    {...formItemLayout}
-                    style={{ padding: '0 20px' }}
-                >
-                    {getFieldDecorator(`${comps}.configInfo.${item.key.split('.').join('%')}`, {
-                        rules: [{
-                            required: item.required,
-                            message: `请输入${item.key}`
-                        }],
-                        initialValue: item.value
-                    })(
-                        this.renderCompsContent(item)
-                    )}
-                </FormItem>
-            )
+            return renderFormItem({ itemConfig, formItemLayout, getFieldDecorator })
         }
     }
 
@@ -256,7 +231,7 @@ class ComponentsConfig extends React.Component<any, any> {
         const cloneParams = cloneDeep(config.params || []);
         let params = cloneDeep(config.params || []);
         if (groupKey) {
-            cloneParams.map((p: any) => {
+            cloneParams.forEach((p: any) => {
                 if (p.key === groupKey) {
                     params = p.groupParams
                 }
