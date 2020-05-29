@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.annotation.Forbidden;
+import com.dtstack.engine.api.annotation.Forbidden;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
  * create: 2018/9/18
  */
 @Service
-public class ConsoleService {
+public class ConsoleService implements com.dtstack.engine.api.service.ConsoleService {
 
     private static final Logger logger = LoggerFactory.getLogger(ConsoleService.class);
 
@@ -87,6 +87,7 @@ public class ConsoleService {
 
     private static long DELAULT_TENANT  = -1L;
 
+    @Forbidden
     public Boolean finishJob(String jobId, Integer status) {
         if (!RdosTaskStatus.isStopped(status)) {
             logger.warn("Job status：" + status + " is not stopped status");
