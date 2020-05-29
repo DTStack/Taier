@@ -13,6 +13,7 @@ import com.dtstack.engine.api.vo.EngineTenantVO;
 import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.ClientTemplate;
 import com.dtstack.engine.common.pojo.ComponentTestResult;
@@ -361,12 +362,14 @@ public class ComponentService {
                         //xml文件
                         fileMap = Xml2JsonUtil.xml2map(file);
                     } else {
-                        //json文件
-                        String jsonStr = Xml2JsonUtil.readFile(file);
-                        if (StringUtils.isBlank(jsonStr)) {
-                            continue;
+                        if(file.getName().endsWith("json")){
+                            //json文件
+                            String jsonStr = Xml2JsonUtil.readFile(file);
+                            if (StringUtils.isBlank(jsonStr)) {
+                                continue;
+                            }
+                            fileMap = JSONObject.parseObject(jsonStr, Map.class);
                         }
-                        fileMap = JSONObject.parseObject(jsonStr, Map.class);
                     }
                     if (Objects.nonNull(fileMap)) {
                         confMap.put(file.getName(), fileMap);
@@ -586,28 +589,6 @@ public class ComponentService {
         if (CollectionUtils.isNotEmpty(resources)) {
             //上传配置文件到sftp 供后续下载
             uploadResourceToSftp(clusterId, resources, kerberosFileName, sftpMap, addComponent, dbComponent);
-        }
-
-        KerberosConfig kerberosConfig = null;
-        if (isOpenKerberos) {
-            kerberosConfig = kerberosDao.getByComponentType(clusterId, componentCode);
-        }
-
-        //测试联通性
-        if (EComponentType.YARN.getTypeCode() == componentCode) {
-            try {
-                ComponentTestResult testResult = this.testConnect(componentCode, componentConfig, clusterName, hadoopVersion, engine.getId()
-                        , kerberosConfig, sftpMap);
-                if (Objects.nonNull(testResult) && testResult.getResult()) {
-                    engineService.updateResource(addComponent.getEngineId(), testResult.getClusterResourceDescription());
-                    queueService.updateQueue(addComponent.getEngineId(), testResult.getClusterResourceDescription());
-                }
-            } catch (Exception e) {
-                LOGGER.error("更新队列信息失败: ", e);
-                throw new RdosDefineException("更新队列信息失败");
-            }
-        } else {
-            this.testConnect(componentCode, componentConfig, clusterName, hadoopVersion, engine.getId(), kerberosConfig, sftpMap);
         }
 
         addComponent.setClusterId(clusterId);
@@ -872,26 +853,27 @@ public class ComponentService {
     /**
      * 测试单个组件联通性
      */
-    public ComponentTestResult testConnect(Integer componentType, String componentConfig, String clusterName,
-                                           String hadoopVersion, Long engineId, KerberosConfig kerberosConfig, Map<String, String> sftpConfig) {
+    private ComponentTestResult testConnect(Integer componentType, String componentConfig, String clusterName,
+                                            String hadoopVersion, Long engineId, KerberosConfig kerberosConfig, Map<String, String> sftpConfig) {
         if (EComponentType.notCheckComponent.contains(EComponentType.getByCode(componentType))) {
             ComponentTestResult componentTestResult = new ComponentTestResult();
             componentTestResult.setResult(true);
             return componentTestResult;
         }
 
-        String pluginType =  this.convertComponentTypeToClient(clusterName, componentType, hadoopVersion);
+        String pluginType = this.convertComponentTypeToClient(clusterName, componentType, hadoopVersion);
 
         ComponentTestResult componentTestResult = workerOperator.testConnect(pluginType,
-                this.wrapperConfig(componentType, componentConfig, sftpConfig, kerberosConfig,clusterName));
+                this.wrapperConfig(componentType, componentConfig, sftpConfig, kerberosConfig, clusterName));
         if (Objects.isNull(componentTestResult)) {
-            throw new RdosDefineException("测试联通性失败");
+            componentTestResult = new ComponentTestResult();
+            componentTestResult.setResult(false);
+            componentTestResult.setErrorMsg("测试联通性失败");
+            return componentTestResult;
         }
         componentTestResult.setComponentTypeCode(componentType);
         if (componentTestResult.getResult() && Objects.nonNull(engineId)) {
             updateCache(engineId, componentType);
-        } else {
-            throw new RdosDefineException(componentTestResult.getErrorMsg());
         }
         return componentTestResult;
     }
@@ -904,7 +886,7 @@ public class ComponentService {
      * @param componentConfig
      * @return
      */
-    public String wrapperConfig(int componentType, String componentConfig, Map<String, String> sftpConfig, KerberosConfig kerberosConfig,String clusterName) {
+    private String wrapperConfig(int componentType, String componentConfig, Map<String, String> sftpConfig, KerberosConfig kerberosConfig,String clusterName) {
         JSONObject dataInfo = new JSONObject();
         dataInfo.put("componentName", EComponentType.getByCode(componentType).getName().toLowerCase());
         if (Objects.nonNull(kerberosConfig)) {
@@ -1045,6 +1027,7 @@ public class ComponentService {
                 //一种是  全部手动填写的 如flink
                 if (Objects.isNull(component.getUploadFileName())) {
                     try {
+                        localDownLoadPath = localDownLoadPath + ".json";
                         FileUtils.write(new File(localDownLoadPath), component.getComponentConfig());
                     } catch (IOException e) {
                         LOGGER.error("write upload file {} error", component.getComponentConfig(), e);
@@ -1196,7 +1179,7 @@ public class ComponentService {
             return String.format("%s-%s-flink%s", resourceSign, storageSign, version);
         }
         if (EComponentType.SPARK.getTypeCode() == componentType) {
-            return String.format("%s-%s-spark%s", resourceSign, storageSign, "2.1.x".equalsIgnoreCase(version) ? "210" : "240");
+            return String.format("%s-%s-spark%s", resourceSign, storageSign, version);
         }
         throw new RdosDefineException("暂无对应组件默认配置");
     }
@@ -1302,7 +1285,21 @@ public class ComponentService {
         List<ComponentTestResult> testResults = new ArrayList<>(components.size());
         for (Component component : components) {
             KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(), component.getComponentTypeCode());
-            ComponentTestResult testResult = this.testConnect(component.getComponentTypeCode(), component.getComponentConfig(), clusterName, component.getHadoopVersion(), component.getEngineId(), kerberosConfig, sftpMap);
+            ComponentTestResult testResult = new ComponentTestResult();
+            try {
+                testResult = this.testConnect(component.getComponentTypeCode(), component.getComponentConfig(), clusterName, component.getHadoopVersion(), component.getEngineId(), kerberosConfig, sftpMap);
+            } catch (Exception e) {
+                testResult.setResult(false);
+                testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
+                LOGGER.error("test connect {}  error ", component.getComponentConfig(), e);
+            }
+            //测试联通性
+            if (EComponentType.YARN.getTypeCode() == component.getComponentTypeCode()) {
+                if (testResult.getResult()) {
+                    engineService.updateResource(component.getEngineId(), testResult.getClusterResourceDescription());
+                    queueService.updateQueue(component.getEngineId(), testResult.getClusterResourceDescription());
+                }
+            }
             testResult.setComponentTypeCode(component.getComponentTypeCode());
             testResults.add(testResult);
         }
