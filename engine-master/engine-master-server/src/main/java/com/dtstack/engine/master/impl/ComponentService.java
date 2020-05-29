@@ -1027,7 +1027,8 @@ public class ComponentService {
                 //一种是  全部手动填写的 如flink
                 if (Objects.isNull(component.getUploadFileName())) {
                     try {
-                        FileUtils.write(new File(localDownLoadPath + ".json"), component.getComponentConfig());
+                        localDownLoadPath = localDownLoadPath + ".json";
+                        FileUtils.write(new File(localDownLoadPath), component.getComponentConfig());
                     } catch (IOException e) {
                         LOGGER.error("write upload file {} error", component.getComponentConfig(), e);
                     }
@@ -1178,7 +1179,7 @@ public class ComponentService {
             return String.format("%s-%s-flink%s", resourceSign, storageSign, version);
         }
         if (EComponentType.SPARK.getTypeCode() == componentType) {
-            return String.format("%s-%s-spark%s", resourceSign, storageSign, "2.1.x".equalsIgnoreCase(version) ? "210" : "240");
+            return String.format("%s-%s-spark%s", resourceSign, storageSign, version);
         }
         throw new RdosDefineException("暂无对应组件默认配置");
     }

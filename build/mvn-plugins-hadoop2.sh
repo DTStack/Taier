@@ -13,7 +13,7 @@ engine-worker/engine-plugins/dummy,\
 engine-worker/engine-plugins/flink/yarn2-hdfs2-flink180,\
 engine-worker/engine-plugins/flink/yarnHW-hdfsHW-flink180HW,\
 engine-worker/engine-plugins/flink/k8s-hdfs2-flink110,\
-engine-worker/engine-plugins/flink/yarn2-hdfs2-flink180,\
+engine-worker/engine-plugins/flink/yarn2-hdfs2-flink110,\
 engine-worker/engine-plugins/spark/yarn2-hdfs2-spark210/spark-yarn-client,\
 engine-worker/engine-plugins/spark/yarn2-hdfs2-spark210/spark-sql-proxy,\
 engine-worker/engine-plugins/dtscript/yarn2-hdfs2-dtscript/dtscript-client,\
