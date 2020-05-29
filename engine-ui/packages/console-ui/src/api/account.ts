@@ -9,6 +9,7 @@ export interface IAccount {
     bindUserId: string;
     bindTenantId: string;
     email: string;
+    engineType: string | number;
 }
 
 export default {
@@ -25,7 +26,7 @@ export default {
         return http.post(req.UPDATE_ACCOUNT_BIND, params)
     },
 
-    getBindAccounts (params: { dtuicTenantId: numOrStr; username: string }) {
+    getBindAccounts (params: { dtuicTenantId: numOrStr; username: string; engineType: numOrStr }) {
         return http.post(req.ACCOUNT_BIND_LIST, params)
     },
 

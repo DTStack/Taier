@@ -1,74 +1,62 @@
-# Read more: https://gitlab.com/gitlab-org/gitlab-ce/tree/v8.6.4/doc/ci/yaml
+# Read more: https://docs.gitlab.com/12.7/ee/ci/yaml/README.html
 
 cache:
   paths:
    - node_modules/
 
+# 当 merge_requests, master, dev, test 分支时会执行依赖安装
 before_script:
-  - "npm run install"
+  - "npm install --unsafe-perm=true --allow-root"
 
 stages:
   - lint
   - lintdoc
   - check-types
   - test
-  - deploy
+  - build_deploy
 
+# 当 merge_requests 执行 eslint 检查
 code_quality: 
   stage: lint
   script: 
     - npm run lint
   only:
-    # Just support (fix, dev_, feat, issue) trigger test
-    - /(f|F)ix|(d|D)ev_|(f|F)eat|(i|I)ssue|ref|style|perf|next/
     - merge_requests
-  except:
-    - dev
-    - master
-    - /doc(s)/
 
+# 当 merge_requests 执行 tsc 类型检查
 check_types:
   stage: check-types
   script: 
     - npm run check-types
   only:
-    # merge_requests not support current version
-    # Just support (fix, dev_, feat, issue) trigger test
-    - /(f|F)ix|(d|D)ev_|(f|F)eat|(i|I)ssue|ref|perf|next/
     - merge_requests
-  except:
-    - dev
-    - master
-    - /doc(s)/
 
-
+# 当 merge_requests 有更时会执行单元测试任务
 test:
   stage: test
   script: 
     - npm run test
   only:
-    # merge_requests not support current version
-    # Just support (fix, dev_, feat, issue) trigger test
-    - /(f|F)ix|(d|D)ev_|(f|F)eat|(i|I)ssue|ref|perf|next/
     - merge_requests
-  except:
-    - dev
-    - master
-    - /doc(s)/
 
+#执行 MD 文档校验， 为 doc 或者 master 命名当分支更新时才会触发
 doc_quality:
   stage: lintdoc
   script: 
     - npm run lint-doc
   only:
-    - merge_requests # not support current version
     - /doc(s)|release/
     - master
 
-# build_to_dev: # deploy dev environment
-#   stage: deploy
-#   script:
-#     - "./scripts/build_dev.sh"
-#   only:
-#     - dev
-  
+# 开发环境更新部署
+build_deploy: # deploy dev environment
+  stage: build_deploy
+  script:
+    - npm run build
+    - echo "删除原来的文件"
+    - rm -rf /home/admin/app/dt-insight-front/console
+    - echo "复制当前的文件"
+    - cp ./dist/console -r /home/admin/app/dt-insight-front/console
+    - echo "部署成功"
+  only:
+    - /master|dev/

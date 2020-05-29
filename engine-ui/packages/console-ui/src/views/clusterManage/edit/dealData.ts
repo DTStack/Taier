@@ -92,7 +92,7 @@ function getCustomParams (customParams: any, componentTemplate: any) {
 // 从模板中获取自定义参数
 function getLoadTemplateParams (loadTemplate: any) {
     let params: any = [];
-    loadTemplate.forEach((temps: any) => {
+    loadTemplate && loadTemplate.forEach((temps: any) => {
         if (temps.id && temps.type !== 'Group') params = [...params, temps]
         if (temps.type === 'GROUP') {
             const groupParams = temps.values.filter((val: any) => val.id)

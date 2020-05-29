@@ -1,8 +1,10 @@
 import * as React from 'react';
 import { Row, Col, Select, Button, Card, Form, Tabs, Table, Input, message } from 'antd';
+import { get } from 'lodash';
+
 import Api from '../../api/console';
 import { ENGIN_TYPE_TEXT } from '../../consts';
-import { isHadoopEngine, isTiDBEngine } from '../../consts/clusterFunc';
+import { isHadoopEngine, isTiDBEngine, isOracleEngine } from '../../consts/clusterFunc';
 import BindCommModal from '../../components/bindCommModal';
 
 import BindAccountPane from './bindAccount';
@@ -50,8 +52,8 @@ class ResourceManage extends React.Component<any, any> {
         Api.searchTenant(queryParams).then((res: any) => {
             if (res.code === 1) {
                 this.setState({
-                    tableData: res.data.data || [],
-                    total: res.totalCount,
+                    tableData: get(res, 'data.data', []),
+                    total: get(res, 'data.totalCount', 0),
                     loading: false
                 })
             } else {
@@ -103,24 +105,7 @@ class ResourceManage extends React.Component<any, any> {
                 queryParams: Object.assign(this.state.queryParams, { clusterId: initCluster.clusterId, engineType: initEngine.engineType }),
                 engineList,
                 loading: true
-            })
-
-            const queryParams = Object.assign(this.state.queryParams, {
-                clusterId: initCluster.clusterId,
-                engineType: initEngine.engineType
-            })
-            const response = await Api.searchTenant(queryParams)
-            if (response.code === 1) {
-                this.setState({
-                    tableData: response.data.data || [],
-                    total: response.totalCount,
-                    loading: false
-                })
-            } else {
-                this.setState({
-                    loading: false
-                })
-            }
+            }, this.searchTenant)
         }
     }
     clusterOptions = () => {
@@ -238,6 +223,7 @@ class ResourceManage extends React.Component<any, any> {
             pageSize: PAGESIZE,
             total
         }
+        console.log('console:', this.state);
         return (
             <div className='resource-wrapper'>
                 <Row>
@@ -312,7 +298,7 @@ class ResourceManage extends React.Component<any, any> {
                                                     </div>
                                                 </TabPane>
                                                 {
-                                                    isTiDBEngine(engineType)
+                                                    isTiDBEngine(engineType) || isOracleEngine(engineType)
                                                         ? <TabPane tab="账号绑定" key="bindAccount">
                                                             <BindAccountPane
                                                                 key={`${queryParams.clusterId}-${engineType}`}
