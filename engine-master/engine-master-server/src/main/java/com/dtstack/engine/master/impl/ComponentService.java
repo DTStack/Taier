@@ -591,11 +591,6 @@ public class ComponentService {
             uploadResourceToSftp(clusterId, resources, kerberosFileName, sftpMap, addComponent, dbComponent);
         }
 
-        KerberosConfig kerberosConfig = null;
-        if (isOpenKerberos) {
-            kerberosConfig = kerberosDao.getByComponentType(clusterId, componentCode);
-        }
-
         addComponent.setClusterId(clusterId);
         if (isUpdate) {
             componentDao.update(addComponent);
@@ -1032,7 +1027,7 @@ public class ComponentService {
                 //一种是  全部手动填写的 如flink
                 if (Objects.isNull(component.getUploadFileName())) {
                     try {
-                        FileUtils.write(new File(localDownLoadPath), component.getComponentConfig());
+                        FileUtils.write(new File(localDownLoadPath + ".json"), component.getComponentConfig());
                     } catch (IOException e) {
                         LOGGER.error("write upload file {} error", component.getComponentConfig(), e);
                     }
