@@ -110,12 +110,12 @@ class BindAccountTable extends React.Component<IProps, IState> {
         this.updateQueryParams({
             dtuicTenantId: value
         }, () => {
-            this.fetchData();
+            this.handleTableChange({ current: 1 });
             this.fetchUnbindUsers();
         });
     }
 
-    handleTableChange = (pagination: any, filters: any, sorter: any) => {
+    handleTableChange = (pagination: any, filters?: any, sorter?: any) => {
         this.updateQueryParams({ currentPage: pagination.current }, this.fetchData)
     }
 
@@ -135,7 +135,7 @@ class BindAccountTable extends React.Component<IProps, IState> {
         if (res.code === 1) {
             message.success('解绑成功！');
             this.showHideBindModal(null);
-            this.fetchData();
+            this.handleTableChange({ current: 1 })
             this.fetchUnbindUsers();
         }
     }
@@ -146,7 +146,7 @@ class BindAccountTable extends React.Component<IProps, IState> {
         const isEdit = modalData;
         const handOk = () => {
             this.showHideBindModal(null);
-            this.fetchData();
+            this.handleTableChange({ current: 1 })
             this.fetchUnbindUsers();
         }
         account.bindTenantId = queryParams.dtuicTenantId;
