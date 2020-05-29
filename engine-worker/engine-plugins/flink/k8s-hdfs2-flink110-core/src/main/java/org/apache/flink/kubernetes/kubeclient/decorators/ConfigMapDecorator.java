@@ -61,7 +61,7 @@ public class ConfigMapDecorator extends Decorator<ConfigMap, KubernetesConfigMap
         // Remove some keys should not be taken to jobmanager and taskmanager.
         flinkConfigMap.remove(KubernetesConfigOptions.KUBE_CONFIG_FILE.key());
         flinkConfigMap.forEach(
-                (k, v) -> flinkConfContent.append(k).append(": ").append(v).append(System.lineSeparator())
+            (k, v) -> flinkConfContent.append(k).append(": ").append(v).append(System.lineSeparator())
         );
 
         final Map<String, String> configMap = resource.getData() == null ? new HashMap<>() : resource.getData();
