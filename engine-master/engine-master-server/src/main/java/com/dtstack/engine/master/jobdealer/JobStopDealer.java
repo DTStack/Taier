@@ -4,6 +4,7 @@ package com.dtstack.engine.master.jobdealer;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.EJobCacheStage;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.StoppedJob;
 import com.dtstack.engine.common.CustomThreadFactory;
@@ -71,7 +72,7 @@ public class JobStopDealer implements InitializingBean {
     private WorkerOperator workerOperator;
 
 
-
+    private static final int TASK_STOP_LIMIT = 1000;
     private static final int WAIT_INTERVAL = 1000;
     private static final int OPERATOR_EXPIRED_INTERVAL = 60000;
 
@@ -92,6 +93,11 @@ public class JobStopDealer implements InitializingBean {
         if (CollectionUtils.isEmpty(jobs)) {
             return 0;
         }
+
+        if (jobs.size() > TASK_STOP_LIMIT){
+            throw new RdosDefineException("please don't stop too many tasks at once, limit:" + TASK_STOP_LIMIT);
+        }
+
         int stopCount = 0;
         List<ScheduleJob> needSendStopJobs = new ArrayList<>(jobs.size());
         List<Long> unSubmitJob = new ArrayList<>(jobs.size());

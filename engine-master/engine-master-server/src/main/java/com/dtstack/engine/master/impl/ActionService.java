@@ -155,10 +155,6 @@ public class ActionService {
         }
 
         List<Map<String, Object>> paramList = (List<Map<String, Object>>) paramsObj;
-        if (paramList.size() > TASK_STOP_LIMIT){
-            throw new RdosDefineException("please don't stop too many tasks at once, limit:" + TASK_STOP_LIMIT);
-        }
-
         List<String> jobIds = new ArrayList<>(paramList.size());
         for(Map<String, Object> param : paramList){
             jobIds.add(MapUtils.getString(param, "taskId"));
