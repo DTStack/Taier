@@ -87,6 +87,7 @@ session:
     metrics.reporter.promgateway.host:
     metrics.reporter.promgateway.port: 9091
     metrics.reporter.promgateway.jobName: 181job
+    clusterMode: session
     metrics.reporter.promgateway.randomJobNameSuffix:
       controls: select
       values: [true,false]
@@ -149,7 +150,7 @@ standalone:
     metrics.reporter.promgateway.host:
     metrics.reporter.promgateway.port: 9091
     metrics.reporter.promgateway.jobName: 181job
-    clusterMode: session
+    clusterMode: standalone
     metrics.reporter.promgateway.randomJobNameSuffix:
       controls: select
       values: [true,false]
