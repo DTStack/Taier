@@ -396,14 +396,11 @@ public class FlinkClient extends AbstractClient {
 
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
-        try{
+        try {
             ClusterClient targetClusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
             JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobIdentifier.getEngineJobId()));
-            targetClusterClient.cancel(jobID);
-            if (targetClusterClient != flinkClusterClientManager.getClusterClient()) {
-                targetClusterClient.shutDownCluster();
-            }
-        }catch (Exception e){
+            targetClusterClient.cancelWithSavepoint(jobID, null);
+        } catch (Exception e) {
             logger.error("", e);
             return JobResult.createErrorResult(e);
         }
