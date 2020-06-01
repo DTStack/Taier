@@ -1,4 +1,4 @@
-package com.dtstack.engine.flink;
+package com.dtstack.engine.flink.resource;
 
 import com.dtstack.engine.base.resource.AbstractK8sResourceInfo;
 import com.dtstack.engine.common.enums.ComputeType;

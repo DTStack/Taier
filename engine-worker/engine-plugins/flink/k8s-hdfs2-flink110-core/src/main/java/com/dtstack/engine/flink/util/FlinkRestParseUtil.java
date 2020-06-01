@@ -1,4 +1,4 @@
-package com.dtstack.engine.flink;
+package com.dtstack.engine.flink.util;
 
 import com.dtstack.engine.common.util.PublicUtil;
 import org.apache.commons.lang3.StringUtils;
