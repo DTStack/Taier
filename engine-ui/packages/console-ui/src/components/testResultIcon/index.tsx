@@ -59,6 +59,7 @@ export default class TestRestIcon extends React.Component<any, any> {
             tidbSqlTestResult,
             oracleSqlTestResult,
             impalaSqlTestResult,
+            greenPlumSqlTestResult,
             sftpTestResult } = testStatus;
         let testCompResult: any = {}
         switch (componentTypeCode) {
@@ -102,6 +103,10 @@ export default class TestRestIcon extends React.Component<any, any> {
                 testCompResult = yarnTestResult;
                 break;
             }
+            case COMPONENT_TYPE_VALUE.SFTP: {
+                testCompResult = sftpTestResult;
+                break;
+            }
             case COMPONENT_TYPE_VALUE.LIBRASQL: {
                 testCompResult = libraSqlTestResult;
                 break;
@@ -114,8 +119,8 @@ export default class TestRestIcon extends React.Component<any, any> {
                 testCompResult = oracleSqlTestResult;
                 break;
             }
-            case COMPONENT_TYPE_VALUE.SFTP: {
-                testCompResult = sftpTestResult;
+            case COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL: {
+                testCompResult = greenPlumSqlTestResult;
                 break;
             }
             default: {

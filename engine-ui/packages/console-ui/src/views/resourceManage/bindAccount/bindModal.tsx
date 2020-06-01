@@ -181,7 +181,7 @@ class BindAccountModal extends React.Component<IProps, any> {
                         >
                             {getFieldDecorator('password', {
                                 rules: [{
-                                    required: true,
+                                    required: false,
                                     message: '数据库密码不可为空！'
                                 }],
                                 initialValue: ``
