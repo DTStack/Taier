@@ -98,4 +98,8 @@
         and cc.is_deleted = 0
         and ce.is_deleted = 0
     </select>
+
+    <delete id="deleteById">
+        delete from console_component where id = #{componentId}
+    </delete>
 </mapper>

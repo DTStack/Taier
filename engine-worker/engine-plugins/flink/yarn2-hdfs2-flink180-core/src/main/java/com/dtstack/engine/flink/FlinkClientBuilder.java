@@ -8,7 +8,6 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.CoreOptions;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.runtime.util.HadoopUtils;
-import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.slf4j.Logger;
@@ -67,7 +66,7 @@ public class FlinkClientBuilder {
         return builder;
     }
 
-    public void initFlinkConfiguration(Properties extProp) {
+    public void initFlinkGlobalConfiguration(Properties extProp) {
         Configuration config = new Configuration();
         config.setString("akka.client.timeout", AKKA_CLIENT_TIMEOUT);
         config.setString("akka.ask.timeout", AKKA_ASK_TIMEOUT);
@@ -157,10 +156,6 @@ public class FlinkClientBuilder {
 
     public FlinkConfig getFlinkConfig() {
         return flinkConfig;
-    }
-
-    public org.apache.hadoop.conf.Configuration getHadoopConf() {
-        return hadoopConf;
     }
 
     public YarnConfiguration getYarnConf() {

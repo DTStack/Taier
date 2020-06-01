@@ -1,15 +1,16 @@
 package com.dtstack.engine.flink.parser;
 
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.JarFileInfo;
+import com.dtstack.engine.common.exception.RdosDefineException;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class AddJarOperator {
+public class PrepareOperator {
 	
 	private static Pattern pattern = Pattern.compile("(?i)\\s*add\\s+jar\\s+with\\s+(\\S+)(\\s+AS\\s+(\\S+))?");
+	private static Pattern keytabPattern = Pattern.compile("(?i)\\s*add\\s+file\\s+(\\S+)?");
 
 	public static JarFileInfo parseSql(String sql) {
 
@@ -30,6 +31,18 @@ public class AddJarOperator {
 
 	public static boolean verific(String sql){
 		return pattern.matcher(sql).find();
+	}
+
+	public static String getFileName(String sql){
+		Matcher matcher = keytabPattern.matcher(sql);
+		if(!matcher.find()){
+			throw new RdosDefineException("getFileName error: " + sql);
+		}
+		return matcher.group(1);
+	}
+
+	public static boolean verificKeytab(String sql){
+		return keytabPattern.matcher(sql).find();
 	}
 
 }

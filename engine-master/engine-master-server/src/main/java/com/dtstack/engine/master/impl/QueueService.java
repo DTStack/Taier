@@ -1,9 +1,9 @@
 package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.api.domain.Queue;
-import com.dtstack.engine.common.annotation.Forbidden;
+import com.dtstack.engine.api.annotation.Forbidden;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.pojo.ComponentTestResult;
+import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.dao.QueueDao;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;

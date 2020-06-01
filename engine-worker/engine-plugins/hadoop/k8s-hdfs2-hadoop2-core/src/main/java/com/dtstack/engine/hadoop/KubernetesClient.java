@@ -6,7 +6,7 @@ import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.pojo.ComponentTestResult;
+import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.hadoop.util.HadoopConf;

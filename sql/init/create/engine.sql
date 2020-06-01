@@ -160,7 +160,8 @@ CREATE TABLE `console_component` (
  `upload_file_name` varchar(50) DEFAULT '' COMMENT '上传文件zip名称',
  `component_template` text COMMENT '前端展示模版json',
  `kerberos_file_name` varchar(50) DEFAULT '' COMMENT '上传kerberos文件zip名称',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `index_component`(`engine_id`, `component_type_code`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `console_dtuic_tenant` (

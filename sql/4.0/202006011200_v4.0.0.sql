@@ -6,8 +6,13 @@ ALTER table console_kerberos ADD COLUMN component_type int(11) COMMENT '组件�
 ALTER table console_kerberos ADD COLUMN krb_name VARCHAR(26) COMMENT 'krb名称';
 
 -- 删除default集群 配置
-update console_component set is_deleted = 1 WHERE engine_id IN(
+delete from console_component WHERE engine_id IN(
     (SELECT ce.id from console_cluster cc
                            LEFT JOIN console_engine ce
                                      on ce.cluster_id = cc.id
-     WHERE cc.id = -1))
+     WHERE cc.id = -1));
+
+delete from console_component WHERE is_deleted = 1;
+
+ALTER TABLE console_component
+    ADD UNIQUE INDEX `index_component`(`engine_id`, `component_type_code`) USING BTREE;

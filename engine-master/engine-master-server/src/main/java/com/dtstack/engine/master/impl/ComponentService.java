@@ -10,13 +10,13 @@ import com.dtstack.engine.api.dto.Resource;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.api.vo.ComponentVO;
 import com.dtstack.engine.api.vo.EngineTenantVO;
-import com.dtstack.engine.common.annotation.Forbidden;
+import com.dtstack.engine.api.annotation.Forbidden;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.pojo.ClientTemplate;
-import com.dtstack.engine.common.pojo.ComponentTestResult;
+import com.dtstack.engine.api.pojo.ClientTemplate;
+import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.akka.WorkerOperator;
@@ -55,7 +55,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class ComponentService {
+public class ComponentService implements com.dtstack.engine.api.service.ComponentService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ComponentService.class);
 
@@ -188,6 +188,7 @@ public class ComponentService {
         return component;
     }
 
+    @Forbidden
     public String getSftpClusterKey(Long clusterId) {
         return AppType.CONSOLE.name() + "_" + clusterId;
     }
@@ -204,7 +205,7 @@ public class ComponentService {
         throw new RdosDefineException("缺少xml配置文件");
     }
 
-
+    @Forbidden
     public Map<String, Object> fillKerberosConfig(String allConfString, Long clusterId) {
         JSONObject allConf = JSONObject.parseObject(allConfString);
         allConf.putAll(KerberosConfigVerify.replaceFilePath(allConf, getClusterLocalKerberosDir(clusterId)));
@@ -243,6 +244,7 @@ public class ComponentService {
     /**
      * 更新缓存
      */
+    @Forbidden
     public void updateCache(Long engineId, Integer componentCode) {
         Set<Long> dtUicTenantIds = new HashSet<>();
         if (Objects.nonNull(componentCode) && (
@@ -280,6 +282,7 @@ public class ComponentService {
         }
     }
 
+    @Forbidden
     public List<Component> listComponent(Long engineId) {
         return componentDao.listByEngineId(engineId);
     }
@@ -393,7 +396,7 @@ public class ComponentService {
         }
     }
 
-
+    @Forbidden
     public String getClusterLocalKerberosDir(Long clusterId) {
         return env.getLocalKerberosDir() + SEPARATE + getSftpClusterKey(clusterId);
     }
@@ -471,6 +474,7 @@ public class ComponentService {
         return kerberosConfig;
     }
 
+    @Forbidden
     public Map<String, String> getSFTPConfig(Long clusterId) {
         Engine hadoopEngine = getEngineByClusterId(clusterId);
         Component sftpComponent = componentDao.getByEngineIdAndComponentType(hadoopEngine.getId(), EComponentType.SFTP.getTypeCode());
@@ -607,7 +611,13 @@ public class ComponentService {
                                       Map<String, String> sftpMap,
                                       Component addComponent, Component dbComponent) {
         //上传配置文件到sftp 供后续下载
-        SFTPHandler instance = SFTPHandler.getInstance(sftpMap);
+        SFTPHandler instance = null;
+        try {
+            instance = SFTPHandler.getInstance(sftpMap);
+        } catch (Exception e) {
+            LOGGER.error("update component resource to sftp error", e);
+            throw new RdosDefineException("请检查sftp配置");
+        }
         String remoteDir = sftpMap.get("path") + File.separator + this.buildSftpPath(clusterId, addComponent.getComponentTypeCode());
         for (Resource resource : resources) {
             if (!resource.getFileName().equalsIgnoreCase(kerberosFileName) || StringUtils.isBlank(kerberosFileName)) {
@@ -1079,8 +1089,13 @@ public class ComponentService {
      */
     public List<ClientTemplate> loadTemplate(@Param("componentType") Integer componentType, @Param("clusterName") String clusterName, @Param("version") String version) {
         EComponentType component = EComponentType.getByCode(componentType);
-        List<ClientTemplate> defaultPluginConfig = workerOperator.getDefaultPluginConfig(this.convertComponentTypeToClient(clusterName, componentType, version),
-                component.getName().toLowerCase());
+        List<ClientTemplate> defaultPluginConfig = null;
+        try {
+            defaultPluginConfig = workerOperator.getDefaultPluginConfig(this.convertComponentTypeToClient(clusterName, componentType, version),
+                    component.getName().toLowerCase());
+        } catch (Exception e) {
+            throw new RdosDefineException("不支持的插件类型");
+        }
         if (CollectionUtils.isEmpty(defaultPluginConfig)) {
             return new ArrayList<>();
         }
@@ -1226,7 +1241,7 @@ public class ComponentService {
                 throw new RdosDefineException(component.getComponentName() + " 是必选组件，不可删除");
             }
             component.setIsDeleted(Deleted.DELETED.getStatus());
-            componentDao.update(component);
+            componentDao.deleteById(componentId.longValue());
             kerberosDao.deleteByComponentId(componentId.longValue());
             //引擎组件为空 删除引擎
             List<Component> componentList = listComponent(component.getEngineId());
@@ -1306,6 +1321,7 @@ public class ComponentService {
         return testResults;
     }
 
+    @Forbidden
     public JSONObject getPluginInfoWithComponentType(Long dtuicTenantId,EComponentType componentType){
         ClusterVO cluster = clusterService.getClusterByTenant(dtuicTenantId);
 

@@ -2,7 +2,7 @@ package com.dtstack.engine.entrance;
 
 import com.dtstack.engine.common.client.config.YamlConfigParser;
 import com.dtstack.engine.common.enums.EFrontType;
-import com.dtstack.engine.common.pojo.ClientTemplate;
+import com.dtstack.engine.api.pojo.ClientTemplate;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;

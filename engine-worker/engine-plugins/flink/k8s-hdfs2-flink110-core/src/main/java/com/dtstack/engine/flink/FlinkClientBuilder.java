@@ -1,35 +1,24 @@
 package com.dtstack.engine.flink;
 
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
-import com.dtstack.engine.flink.enums.FlinkMode;
-import com.dtstack.engine.flink.util.FlinkUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.flink.client.deployment.ClusterDescriptor;
-import org.apache.flink.client.program.ClusterClient;
-import org.apache.flink.client.program.ClusterClientProvider;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.CoreOptions;
-import org.apache.flink.configuration.HighAvailabilityOptions;
 import org.apache.flink.configuration.ResourceManagerOptions;
 import org.apache.flink.core.fs.FileSystem;
-import org.apache.flink.kubernetes.KubernetesClusterClientFactory;
-import org.apache.flink.kubernetes.KubernetesClusterDescriptor;
 import org.apache.flink.kubernetes.configuration.KubernetesConfigOptions;
 import org.apache.flink.kubernetes.kubeclient.Fabric8FlinkKubeClient;
 import org.apache.flink.kubernetes.kubeclient.FlinkKubeClient;
 import org.apache.flink.kubernetes.kubeclient.KubeClientFactory;
-import org.apache.flink.runtime.jobmanager.HighAvailabilityMode;
 import org.apache.flink.runtime.util.HadoopUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.MalformedURLException;
-import java.util.*;
+import java.util.Properties;
+
 
 /**
  * company: www.dtstack.com
@@ -59,7 +48,7 @@ public class FlinkClientBuilder {
     public FlinkClientBuilder(FlinkConfig flinkConfig, org.apache.hadoop.conf.Configuration hadoopConf, Properties extProp) {
         this.flinkConfig = flinkConfig;
         this.hadoopConf = hadoopConf;
-        this.flinkConfiguration = initFLinkConfiguration(extProp);
+        this.flinkConfiguration = initFlinkGlobalConfiguration(extProp);
 
         String defaultClusterId = flinkConfig.getFlinkSessionName() + ConfigConstrant.CLUSTER_ID_SPLIT + flinkConfig.getCluster() + ConfigConstrant.CLUSTER_ID_SPLIT + flinkConfig.getQueue();
         if (!flinkConfiguration.contains(KubernetesConfigOptions.CLUSTER_ID)) {
@@ -68,14 +57,13 @@ public class FlinkClientBuilder {
         this.flinkKubeClient = KubeClientFactory.fromConfiguration(flinkConfiguration);
     }
 
-    private Configuration initFLinkConfiguration(Properties extProp) {
+    private Configuration initFlinkGlobalConfiguration(Properties extProp) {
         Configuration config = new Configuration();
         config.setString("akka.client.timeout", AKKA_CLIENT_TIMEOUT);
         config.setString("akka.ask.timeout", AKKA_ASK_TIMEOUT);
         config.setString("akka.tcp.timeout", AKKA_TCP_TIMEOUT);
         // JVM Param
         config.setString(CoreOptions.FLINK_JVM_OPTIONS, JVM_OPTIONS);
-
 
         // hadoop
         config.setBytes(HadoopUtils.HADOOP_CONF_BYTES, HadoopUtils.serializeHadoopConf(hadoopConf));
@@ -114,100 +102,8 @@ public class FlinkClientBuilder {
         return config;
     }
 
-    /**
-     * 获取ClusterClient
-     */
-    public ClusterClient<String> initClusterClient() {
-
-        Configuration newConf = new Configuration(flinkConfiguration);
-
-        if (!flinkConfig.getFlinkHighAvailability()) {
-            setNoneHaModeConfig(newConf);
-        }
-
-        KubernetesClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf);
-
-        String clusterId = acquireAppIdAndSetClusterId(newConf);
-
-        ClusterClient<String> clusterClient = null;
-        if (clusterId != null && flinkKubeClient.getInternalService(clusterId) != null) {
-            ClusterClientProvider<String> clusterClientProvider = clusterDescriptor.retrieve(clusterId);
-            clusterClient = clusterClientProvider.getClusterClient();
-
-            LOG.warn("---init flink client with session on Kubernetes success----");
-
-            return clusterClient;
-        }
-
-        LOG.info("No flink session, Couldn't retrieve Kubernetes cluster.");
-        return null;
-    }
-
-    public ClusterDescriptor<String> createClusterDescriptorByMode(JobClient jobClient, Configuration configuration, boolean isPerjob) throws MalformedURLException {
-        if (configuration == null) {
-            configuration = flinkConfiguration;
-        }
-        Configuration newConf = new Configuration(configuration);
-        if (isPerjob && jobClient != null) {
-            newConf = addConfiguration(jobClient.getConfProperties(), newConf);
-            if (!flinkConfig.getFlinkHighAvailability() && ComputeType.BATCH == jobClient.getComputeType()) {
-                setNoneHaModeConfig(newConf);
-            } else {
-                String projobClusterId = String.format("%s-%s", "flinkperjob", jobClient.getTaskId());
-                newConf.setString(KubernetesConfigOptions.CLUSTER_ID, projobClusterId);
-            }
-        } else if (!isPerjob) {
-            if (!flinkConfig.getFlinkHighAvailability()) {
-                setNoneHaModeConfig(newConf);
-            } else {
-                //由engine管控的session clusterId不进行设置，默认使用appId作为clusterId
-                newConf.removeConfig(HighAvailabilityOptions.HA_CLUSTER_ID);
-            }
-        }
-
-        KubernetesClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf);
-
-        // plugin dependent on shipfile
-        if (StringUtils.isNotBlank(flinkConfig.getPluginLoadMode()) && ConfigConstrant.FLINK_PLUGIN_SHIPFILE_LOAD.equalsIgnoreCase(flinkConfig.getPluginLoadMode())) {
-            newConf.setString(ConfigConstrant.FLINK_PLUGIN_LOAD_MODE, flinkConfig.getPluginLoadMode());
-            newConf.setString("classloader.resolve-order", "parent-first");
-        }
-        return clusterDescriptor;
-    }
-
-
-    private KubernetesClusterDescriptor getClusterDescriptor(Configuration configuration) {
-
-        KubernetesClusterClientFactory clusterClientFactory = new KubernetesClusterClientFactory();
-        return clusterClientFactory.createClusterDescriptor(configuration);
-    }
-
-    private String acquireAppIdAndSetClusterId(Configuration configuration) {
-        try {
-            String clusterId = configuration.get(KubernetesConfigOptions.CLUSTER_ID);
-            return clusterId;
-        } catch (Exception e) {
-            LOG.error("", e);
-            throw new RdosDefineException(e.getMessage());
-        }
-    }
-
-    /**
-     * set the copy of configuration
-     */
-    private void setNoneHaModeConfig(Configuration configuration) {
-        configuration.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.NONE.toString());
-        configuration.removeConfig(HighAvailabilityOptions.HA_CLUSTER_ID);
-        configuration.removeConfig(HighAvailabilityOptions.HA_ZOOKEEPER_ROOT);
-        configuration.removeConfig(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM);
-    }
-
     public FlinkConfig getFlinkConfig() {
         return flinkConfig;
-    }
-
-    public org.apache.hadoop.conf.Configuration getHadoopConf() {
-        return hadoopConf;
     }
 
     public Configuration getFlinkConfiguration() {
@@ -217,57 +113,11 @@ public class FlinkClientBuilder {
         return flinkConfiguration;
     }
 
-    private Configuration addConfiguration(Properties properties, Configuration configuration) {
-        if (properties != null) {
-            properties.forEach((key, value) -> {
-                if (key.toString().contains(".")) {
-                    configuration.setString(key.toString(), value.toString());
-                }
-            });
-        }
-        try {
-            FileSystem.initialize(configuration);
-        } catch (Exception e) {
-            LOG.error("", e);
-            throw new RdosDefineException(e.getMessage());
-        }
-
-        return configuration;
-    }
-
-//    /**
-//     * session 模式获取flinkx的所有插件包
-//     *
-//     * @param isPerjob
-//     * @param flinkPluginRoot
-//     * @return
-//     */
-//    private List<File> fillAllPluginPathForSession(boolean isPerjob, String flinkPluginRoot) {
-//        List<File> pluginPaths = Lists.newArrayList();
-//        if (!isPerjob) {
-//            //预加载同步插件jar包
-//            if (StringUtils.isNotBlank(flinkPluginRoot)) {
-//                String syncPluginDir = buildSyncPluginDir(flinkPluginRoot);
-//                try {
-//                    File[] jars = new File(syncPluginDir).listFiles();
-//                    if (jars != null) {
-//                        pluginPaths.addAll(Arrays.asList(jars));
-//                    } else {
-//                        LOG.warn("jars in flinkPluginRoot is null, flinkPluginRoot = {}", flinkPluginRoot);
-//                    }
-//                } catch (Exception e) {
-//                    LOG.error("error to load jars in flinkPluginRoot, flinkPluginRoot = {}, e = {}", flinkPluginRoot, ExceptionUtil.getErrorMessage(e));
-//                }
-//            }
-//        }
-//        return pluginPaths;
-//    }
-
-//    public String buildSyncPluginDir(String pluginRoot) {
-//        return pluginRoot + SyncPluginInfo.fileSP + SyncPluginInfo.syncPluginDirName;
-//    }
 
     public KubernetesClient getKubernetesClient() {
+        if (null == flinkKubeClient) {
+            this.flinkKubeClient = KubeClientFactory.fromConfiguration(flinkConfiguration);
+        }
         return ((Fabric8FlinkKubeClient) flinkKubeClient).getInternalClient();
     }
 

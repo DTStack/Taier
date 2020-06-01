@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Service
-public class NodeMachineService {
+public class NodeMachineService implements com.dtstack.engine.api.service.NodeMachineService {
 
     @Deprecated
     public List<NodeMachine> listByAppType(@Param("appType") String appType){

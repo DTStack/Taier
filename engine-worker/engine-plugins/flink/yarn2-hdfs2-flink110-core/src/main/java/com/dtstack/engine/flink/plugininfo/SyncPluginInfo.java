@@ -1,9 +1,11 @@
-package com.dtstack.engine.flink;
+package com.dtstack.engine.flink.plugininfo;
 
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.flink.enums.FlinkMode;
+import com.dtstack.engine.flink.FlinkClient;
+import com.dtstack.engine.flink.FlinkConfig;
+import com.dtstack.engine.flink.enums.FlinkYarnMode;
 import com.dtstack.engine.flink.util.FlinkUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
@@ -17,19 +19,21 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * company: www.dtstack.com
- * author: toutian
- * create: 2020/04/03
+ * 数据同步插件
+ * Date: 2018/5/3
+ * Company: www.dtstack.com
+ * @author xuchao
  */
+
 public class SyncPluginInfo {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncPluginInfo.class);
 
-    public static final String fileSP = File.separator;
+    public static final String FILE_SP = File.separator;
 
-    public static final String syncPluginDirName = "syncplugin";
+    public static final String SYNC_PLUGIN_DIR_NAME = "syncplugin";
 
-    private static final String coreJarNamePrefix = "flinkx";
+    private static final String CORE_JAR_NAME_PREFIX = "flinkx";
 
     //同步模块在flink集群加载插件
     private String flinkRemoteSyncPluginRoot;
@@ -66,7 +70,7 @@ public class SyncPluginInfo {
             programArgList.addAll(Arrays.asList(args.split("\\s+")));
         }
 
-        FlinkMode taskRunMode = FlinkUtil.getTaskRunMode(jobClient.getConfProperties(), jobClient.getComputeType());
+        FlinkYarnMode taskRunMode = FlinkUtil.getTaskRunMode(jobClient.getConfProperties(), jobClient.getComputeType());
 
         programArgList.add("-monitor");
         if(StringUtils.isNotEmpty(monitorAddress)) {
@@ -75,7 +79,7 @@ public class SyncPluginInfo {
             programArgList.add(flinkClient.getReqUrl(taskRunMode));
         }
         programArgList.add("-mode");
-        if (FlinkMode.isPerJob(taskRunMode)){
+        if (FlinkYarnMode.isPerJob(taskRunMode)){
             programArgList.add("yarnPer");
         }else {
             programArgList.add("yarn");
@@ -86,7 +90,7 @@ public class SyncPluginInfo {
     public JarFileInfo createAddJarInfo(){
         JarFileInfo jarFileInfo = new JarFileInfo();
         String coreJarFileName = getCoreJarFileName();
-        String jarFilePath  = localSyncFileDir + fileSP + coreJarFileName;
+        String jarFilePath  = localSyncFileDir + FILE_SP + coreJarFileName;
         jarFileInfo.setJarPath(jarFilePath);
         return jarFileInfo;
     }
@@ -98,7 +102,7 @@ public class SyncPluginInfo {
             File[] jarFiles = pluginDir.listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
-                    return name.toLowerCase().startsWith(coreJarNamePrefix) && name.toLowerCase().endsWith(".jar");
+                    return name.toLowerCase().startsWith(CORE_JAR_NAME_PREFIX) && name.toLowerCase().endsWith(".jar");
                 }
             });
 
@@ -115,7 +119,7 @@ public class SyncPluginInfo {
     }
 
     public String getSyncPluginDir(String pluginRoot){
-        return pluginRoot + fileSP + syncPluginDirName;
+        return pluginRoot + FILE_SP + SYNC_PLUGIN_DIR_NAME;
     }
 
     // 数据同步专用: 获取flink端插件classpath, 在programArgsList中添加engine端plugin根目录

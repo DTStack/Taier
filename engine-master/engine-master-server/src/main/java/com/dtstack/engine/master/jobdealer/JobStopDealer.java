@@ -1,8 +1,10 @@
 package com.dtstack.engine.master.jobdealer;
 
+
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.EJobCacheStage;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.StoppedJob;
 import com.dtstack.engine.common.CustomThreadFactory;
@@ -19,6 +21,9 @@ import com.dtstack.engine.common.enums.StoppedStatus;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.cache.ShardCache;
+import com.dtstack.schedule.common.enums.EScheduleJobType;
+import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,10 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
@@ -70,6 +72,7 @@ public class JobStopDealer implements InitializingBean {
     private WorkerOperator workerOperator;
 
 
+    private static final int TASK_STOP_LIMIT = 1000;
     private static final int WAIT_INTERVAL = 1000;
     private static final int OPERATOR_EXPIRED_INTERVAL = 60000;
 
@@ -83,6 +86,63 @@ public class JobStopDealer implements InitializingBean {
 
     private StopProcessor stopProcessor = new StopProcessor();
     private AcquireStopJob acquireStopJob = new AcquireStopJob();
+
+    private static final List<Integer> SPECIAL_TASK_TYPES = Lists.newArrayList(EScheduleJobType.WORK_FLOW.getVal(), EScheduleJobType.ALGORITHM_LAB.getVal());
+
+    public int addStopJobs(List<ScheduleJob> jobs) {
+        if (CollectionUtils.isEmpty(jobs)) {
+            return 0;
+        }
+
+        if (jobs.size() > TASK_STOP_LIMIT){
+            throw new RdosDefineException("please don't stop too many tasks at once, limit:" + TASK_STOP_LIMIT);
+        }
+
+        int stopCount = 0;
+        List<ScheduleJob> needSendStopJobs = new ArrayList<>(jobs.size());
+        List<Long> unSubmitJob = new ArrayList<>(jobs.size());
+        for (ScheduleJob job : jobs) {
+            if (checkJobCanStop(job.getStatus())) {
+                stopCount++;
+                if (RdosTaskStatus.UNSUBMIT.getStatus().equals(job.getStatus()) || SPECIAL_TASK_TYPES.contains(job.getTaskType())) {
+                    unSubmitJob.add(job.getId());
+                }
+                needSendStopJobs.add(job);
+            }
+        }
+
+        List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(jobs.stream().map(ScheduleJob::getJobId).collect(Collectors.toList()));
+
+        // 停止已提交的
+        if (CollectionUtils.isNotEmpty(needSendStopJobs)) {
+            for (ScheduleJob job : needSendStopJobs) {
+                EngineJobStopRecord jobStopRecord = new EngineJobStopRecord();
+                jobStopRecord.setTaskId(job.getJobId());
+                if (alreadyExistJobIds.contains(jobStopRecord.getTaskId())) {
+                    logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobStopRecord.getTaskId());
+                    continue;
+                }
+                engineJobStopRecordDao.insert(jobStopRecord);
+            }
+        }
+        //更新未提交任务状态
+        if (CollectionUtils.isNotEmpty(unSubmitJob)) {
+            scheduleJobDao.updateJobStatusByIds(RdosTaskStatus.CANCELED.getStatus(), unSubmitJob);
+        }
+
+        return stopCount;
+
+    }
+
+    private boolean checkJobCanStop(Integer status) {
+        if (status == null) {
+            return true;
+        }
+
+        return RdosTaskStatus.getCanStopStatus().contains(status);
+    }
+
+
 
 
     @Override
