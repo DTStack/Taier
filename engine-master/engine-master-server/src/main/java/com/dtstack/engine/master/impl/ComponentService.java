@@ -633,7 +633,11 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
                 }
             } catch (Exception e) {
                 LOGGER.error("update component resource {}  error", resource.getUploadedFileName(), e);
-                throw new RdosDefineException("更新组件失败");
+                if (e instanceof RdosDefineException) {
+                    throw (RdosDefineException)e;
+                } else {
+                    throw new RdosDefineException("更新组件失败");
+                }
             } finally {
                 try {
                     FileUtils.forceDelete(new File(resource.getUploadedFileName()));
