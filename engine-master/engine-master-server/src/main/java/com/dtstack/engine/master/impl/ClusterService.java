@@ -164,7 +164,7 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
 
     private void checkName(String name) {
         if (StringUtils.isNotBlank(name)) {
-            if (name.length() >= 32) {
+            if (name.length() > 24) {
                 throw new RdosDefineException("名称过长");
             }
         } else {
