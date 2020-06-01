@@ -235,38 +235,6 @@ public class FlinkClientBuilder {
         return configuration;
     }
 
-//    /**
-//     * session 模式获取flinkx的所有插件包
-//     *
-//     * @param isPerjob
-//     * @param flinkPluginRoot
-//     * @return
-//     */
-//    private List<File> fillAllPluginPathForSession(boolean isPerjob, String flinkPluginRoot) {
-//        List<File> pluginPaths = Lists.newArrayList();
-//        if (!isPerjob) {
-//            //预加载同步插件jar包
-//            if (StringUtils.isNotBlank(flinkPluginRoot)) {
-//                String syncPluginDir = buildSyncPluginDir(flinkPluginRoot);
-//                try {
-//                    File[] jars = new File(syncPluginDir).listFiles();
-//                    if (jars != null) {
-//                        pluginPaths.addAll(Arrays.asList(jars));
-//                    } else {
-//                        LOG.warn("jars in flinkPluginRoot is null, flinkPluginRoot = {}", flinkPluginRoot);
-//                    }
-//                } catch (Exception e) {
-//                    LOG.error("error to load jars in flinkPluginRoot, flinkPluginRoot = {}, e = {}", flinkPluginRoot, ExceptionUtil.getErrorMessage(e));
-//                }
-//            }
-//        }
-//        return pluginPaths;
-//    }
-
-//    public String buildSyncPluginDir(String pluginRoot) {
-//        return pluginRoot + SyncPluginInfo.fileSP + SyncPluginInfo.syncPluginDirName;
-//    }
-
     public KubernetesClient getKubernetesClient() {
         return ((Fabric8FlinkKubeClient) flinkKubeClient).getInternalClient();
     }

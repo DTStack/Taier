@@ -132,7 +132,7 @@ public class FlinkClient extends AbstractClient {
 
         hadoopConf = FlinkClientBuilder.initHadoopConf(flinkConfig);
         flinkClientBuilder = FlinkClientBuilder.create(flinkConfig, hadoopConf.getConfiguration(), hadoopConf.getYarnConfiguration());
-        flinkClientBuilder.initFlinkConfiguration(flinkExtProp);
+        flinkClientBuilder.initFlinkGlobalConfiguration(flinkExtProp);
 
         KerberosUtils.login(flinkConfig,()->{
             try {
@@ -249,8 +249,6 @@ public class FlinkClient extends AbstractClient {
     private Pair<String, String> runJobByPerJob(ClusterSpecification clusterSpecification, JobClient jobClient) throws Exception {
         logger.info("--------job:{} run by PerJob mode-----.", jobClient.getTaskId());
         AbstractYarnClusterDescriptor descriptor = PerJobClientFactory.getPerJobClientFactory().createPerJobClusterDescriptor(jobClient);
-        descriptor.setName(jobClient.getJobName());
-
         ClusterClient<ApplicationId> clusterClient = descriptor.deployJobCluster(clusterSpecification, new JobGraph(), true);
 
         String applicationId = clusterClient.getClusterId().toString();
