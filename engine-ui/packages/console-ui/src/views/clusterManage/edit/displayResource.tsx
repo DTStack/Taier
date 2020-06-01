@@ -196,7 +196,7 @@ class DisplayResource extends React.Component<any, any> {
                 versionCompsData = versionData.Flink || []
                 break;
             case COMPONENT_TYPE_VALUE.SPARK:
-                defaultVersion = '2.1.x';
+                defaultVersion = '210';
                 version = components.hadoopVersion || '';
                 versionCompsData = versionData.Spark || []
                 break;
