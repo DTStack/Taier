@@ -507,6 +507,17 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         return hadoopEngine;
     }
 
+    private void checkFileExt(List<Resource> resources, String kerberosFileName) throws RdosDefineException {
+        if (!kerberosFileName.endsWith(".zip")) {
+            throw new RdosDefineException("kerberos文件非zip格式");
+        }
+        for (Resource rs: resources) {
+            if (!rs.getFileName().endsWith(".zip")) {
+                throw new RdosDefineException("资源文件非zip格式");
+            }
+        }
+    }
+
 
     @Transactional(rollbackFor = Exception.class)
     public ComponentVO addOrUpdateComponent(@Param("clusterId") Long clusterId, @Param("clusterName") String clusterName, @Param("componentConfig") String componentConfig,
@@ -519,6 +530,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         if (Objects.isNull(componentCode)) {
             throw new RdosDefineException("组件类型不能为空");
         }
+        checkFileExt(resources, kerberosFileName);
         ComponentDTO componentDTO = new ComponentDTO();
         componentDTO.setComponentConfig(componentConfig);
         componentDTO.setComponentTypeCode(componentCode);
