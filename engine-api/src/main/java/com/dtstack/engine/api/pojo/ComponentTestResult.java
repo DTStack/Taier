@@ -1,4 +1,4 @@
-package com.dtstack.engine.common.pojo;
+package com.dtstack.engine.api.pojo;
 
 import com.alibaba.fastjson.JSONObject;
 

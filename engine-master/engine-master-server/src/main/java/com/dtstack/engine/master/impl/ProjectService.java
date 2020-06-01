@@ -14,7 +14,7 @@ import java.util.Objects;
  * @date 2020-01-19
  */
 @Service
-public class ProjectService {
+public class ProjectService implements com.dtstack.engine.api.service.ProjectService {
 
     private final Logger logger = LoggerFactory.getLogger(ProjectService.class);
 

@@ -8,7 +8,7 @@ import com.dtstack.engine.api.dto.ClusterDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.*;
-import com.dtstack.engine.common.annotation.Forbidden;
+import com.dtstack.engine.api.annotation.Forbidden;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
@@ -47,7 +47,7 @@ import static com.dtstack.engine.master.impl.ComponentService.TYPE_NAME;
 import static java.lang.String.format;
 
 @Service
-public class ClusterService implements InitializingBean {
+public class ClusterService implements InitializingBean, com.dtstack.engine.api.service.ClusterService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClusterService.class);
 
@@ -505,6 +505,7 @@ public class ClusterService implements InitializingBean {
         return;
     }
 
+    @Forbidden
     public Map<String, Object> getConfig(ClusterVO cluster,Long dtUicTenantId,String key) {
         JSONObject config = buildClusterConfig(cluster);
         EComponentType componentType = EComponentType.getByConfName(key);
@@ -526,6 +527,7 @@ public class ClusterService implements InitializingBean {
      * @param kerberosConfig
      * @param configObj
      */
+    @Forbidden
     public void addKerberosConfigWithHdfs(String key, ClusterVO cluster, KerberosConfig kerberosConfig, JSONObject configObj) {
         if (Objects.nonNull(kerberosConfig)) {
             KerberosConfigVO kerberosConfigVO = KerberosConfigVO.toVO(kerberosConfig);
@@ -687,6 +689,7 @@ public class ClusterService implements InitializingBean {
         return Lists.newArrayList();
     }
 
+    @Forbidden
     public Cluster getOne(Long clusterId) {
         Cluster one = clusterDao.getOne(clusterId);
         if (one == null) {

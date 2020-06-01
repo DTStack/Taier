@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.dtstack.engine.api.annotation.Forbidden;
 import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.Cluster;
 import com.dtstack.engine.api.domain.Engine;
@@ -13,7 +14,7 @@ import com.dtstack.engine.api.vo.EngineTenantVO;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.pojo.ComponentTestResult;
+import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.dao.ClusterDao;
 import com.dtstack.engine.dao.EngineDao;
 import com.dtstack.engine.dao.EngineTenantDao;
@@ -47,7 +48,7 @@ import java.util.Map;
  * create: 2018/7/16
  */
 @Service
-public class TenantService {
+public class TenantService implements com.dtstack.engine.api.service.TenantService {
 
     private static Logger LOGGER = LoggerFactory.getLogger(TenantService.class);
 
@@ -265,6 +266,7 @@ public class TenantService {
     }
 
     @Transactional(rollbackFor = Exception.class)
+    @Forbidden
     public Tenant addTenant(Long dtUicTenantId, String dtToken){
         Map<String, Object> uicTenantInfo = DtUicUserConnect.getUicTenantInfo(env.getDtUicUrl(), dtUicTenantId, dtToken);
         if(MapUtils.isEmpty(uicTenantInfo)){

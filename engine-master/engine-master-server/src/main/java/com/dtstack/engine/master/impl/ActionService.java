@@ -39,7 +39,7 @@ import java.util.concurrent.*;
  * @author sishu.yss
  */
 @Service
-public class ActionService {
+public class ActionService implements com.dtstack.engine.api.service.ActionService {
 
     private static final Logger logger = LoggerFactory.getLogger(ActionService.class);
 

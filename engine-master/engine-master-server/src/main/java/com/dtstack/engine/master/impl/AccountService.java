@@ -10,7 +10,7 @@ import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.AccountTenantVo;
 import com.dtstack.engine.api.vo.AccountVo;
-import com.dtstack.engine.common.annotation.Forbidden;
+import com.dtstack.engine.api.annotation.Forbidden;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.AccountDao;
@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  * @date 2020-02-14
  */
 @Service
-public class AccountService {
+public class AccountService implements com.dtstack.engine.api.service.AccountService {
 
     private static final Logger log = LoggerFactory.getLogger(AccountService.class);
 

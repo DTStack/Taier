@@ -36,7 +36,7 @@ import java.util.List;
  * @author jiangbo
  */
 @Service
-public class StreamTaskService {
+public class StreamTaskService implements com.dtstack.engine.api.service.StreamTaskService {
 
     private static final Logger logger = LoggerFactory.getLogger(StreamTaskService.class);
 
