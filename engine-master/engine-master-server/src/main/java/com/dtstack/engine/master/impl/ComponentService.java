@@ -571,7 +571,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
             }
             addComponent = dbComponent;
         }
-        if(EComponentType.KUBERNETES.getTypeCode() == componentType.getTypeCode()){
+        if(EComponentType.KUBERNETES.getTypeCode() == componentType.getTypeCode() && CollectionUtils.isNotEmpty(resources)){
             //kubernetes 信息需要自己解析文件
             List<Object> config = this.config(resources, EComponentType.KUBERNETES.getTypeCode(),false);
             if(CollectionUtils.isNotEmpty(config)){
