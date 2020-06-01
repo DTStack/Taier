@@ -20,13 +20,26 @@ class DisplayResource extends React.Component<any, any> {
         return componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {};
     }
 
+    getNoticeContent = (componentTypeCode: number) => {
+        switch (componentTypeCode) {
+            case COMPONENT_TYPE_VALUE.YARN:
+                return 'zip格式，至少包括yarn-site.xml';
+            case COMPONENT_TYPE_VALUE.HDFS:
+                return 'zip格式，至少包括core-site.xml、hdfs-site.xml、hive-site.xml';
+            case COMPONENT_TYPE_VALUE.KUBERNETES:
+                return 'zip格式，至少包括kubernetes.config';
+            default:
+                return null;
+        }
+    }
+
     // 配置文件
     renderConfigsFile = (configName: any) => {
         const { getFieldDecorator, components, isView, uploadLoading,
             fileChange, downloadFile } = this.props;
         const config = this.getComponentConfig();
         const { fileName } = config;
-        // const labelName = configName === COMPONEMT_CONFIG_KEYS.KUBERNETES ? 'Hadoop Kerberos认证文件' : '配置文件'
+        const noticeContent = this.getNoticeContent(components.componentTypeCode);
         return (
             <FormItem
                 label="配置文件"
@@ -54,7 +67,7 @@ class DisplayResource extends React.Component<any, any> {
                             accept=".zip"
                             style={{ display: 'none' }}
                         />
-                        <span style={{ fontSize: 10, color: '#999' }}>仅支持.zip格式，至少包括yarn-site.xml</span>
+                        { !isView && <div className="c-displayResource__notice">{noticeContent}</div> }
                         { fileName && <div className="c-displayResource__downloadFile" onClick={() => components.id && downloadFile(components, 1)} style={{ fontSize: 12, color: '#3F87FF' }}>
                             <span>
                                 <Icon type="paper-clip" style={{ marginRight: 2, color: '#666666FF' }} />
@@ -101,7 +114,7 @@ class DisplayResource extends React.Component<any, any> {
                             accept=".zip"
                             style={{ display: 'none' }}
                         />
-                        <div style={{ fontSize: 10, color: '#999' }}>仅支持.zip格式</div>
+                        { !isView && <div className="c-displayResource__notice">仅支持.zip格式</div> }
                         { kerFileName && <div className="c-displayResource__downloadFile" style={{ fontSize: 12, color: '#3F87FF' }}>
                             <span>
                                 <Icon type="paper-clip" style={{ marginRight: 2, color: '#666666FF' }} />
@@ -169,7 +182,7 @@ class DisplayResource extends React.Component<any, any> {
                             accept=".json"
                             style={{ display: 'none' }}
                         />
-                        <span style={{ fontSize: 10, color: '#999' }}>仅支持json格式</span>
+                        {!isView && <div className="c-displayResource__notice">仅支持json格式</div> }
                     </div>
                 )}
             </FormItem>

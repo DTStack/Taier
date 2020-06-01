@@ -453,10 +453,12 @@ class EditCluster extends React.Component<any, any> {
     // 下载配置文件
     downloadFile = (components: any, type: any) => {
         const config = this.getComponentConfig(components);
+        console.log(components)
         const a = document.createElement('a');
         const param = `?componentId=${config.id}&type=${type}`;
         a.href = `${req.DOWNLOAD_RESOURCE}${param}`;
-        a.click();
+        console.log('config.id====type', config.id, type, a.href)
+        // a.click();
     }
 
     deleteKerFile = (componentTypeCode: any) => {
@@ -693,7 +695,7 @@ class EditCluster extends React.Component<any, any> {
             <div className="c-editCluster__containerWrap" ref={(el) => { this.container = el; }}>
                 <div style={{ height: 20 }}>
                     <span className="c-editCluster__turnBack" onClick={this.turnClusteManage}>多集群管理 / </span>
-                    <span className="c-editCluster__title">新增集群</span>
+                    <span className="c-editCluster__title">{dealData.getActionType(mode)}</span>
                 </div>
                 <React.Fragment>
                     <div className="c-editCluster__header">

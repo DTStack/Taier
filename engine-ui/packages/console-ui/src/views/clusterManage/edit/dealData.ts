@@ -1,6 +1,18 @@
 import _ from 'lodash';
 import { COMPONEMT_CONFIG_KEY_ENUM, COMPONENT_TYPE_VALUE } from '../../../consts';
 
+function getActionType (mode: string) {
+    switch (mode) {
+        case 'view':
+            return '查看集群';
+        case 'new':
+            return '新增集群';
+        case 'edit':
+            return '编辑集群';
+        default:
+            return null;
+    }
+}
 // 设置版本默认值
 function getCompsVersion (componentTypeCode: number, compVersion: string) {
     let version: any = '';
@@ -329,6 +341,7 @@ function getMoadifyComps (values: any, componentConfig: any) {
 }
 
 export default {
+    getActionType,
     getCompsVersion,
     versionComps,
     updateCompsConfig,
