@@ -44,6 +44,7 @@ import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.enums.EDeployMode;
 import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.master.jobdealer.JobStopDealer;
 import com.dtstack.engine.master.job.factory.MultiEngineFactory;
 import com.dtstack.engine.master.job.JobStartTriggerBase;
 import com.dtstack.engine.master.plugininfo.PluginWrapper;
@@ -51,7 +52,6 @@ import com.dtstack.engine.master.queue.JobPartitioner;
 import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
-import com.dtstack.engine.master.scheduler.JobStopSender;
 import com.dtstack.engine.master.utils.PublicUtil;
 import com.dtstack.engine.master.vo.BatchSecienceJobChartVO;
 import com.dtstack.engine.master.vo.ScheduleJobVO;
@@ -162,9 +162,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     private ZkService zkService;
 
     @Autowired
-    private JobStopSender jobStopSender;
-
-    @Autowired
     private ScheduleJobJobDao scheduleJobJobDao;
 
     @Autowired
@@ -181,6 +178,9 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
 
     @Autowired
     private MultiEngineFactory multiEngineFactory;
+
+    @Autowired
+    private JobStopDealer jobStopDealer;
 
     private final static List<Integer> FINISH_STATUS = Lists.newArrayList(RdosTaskStatus.FINISHED.getStatus(), RdosTaskStatus.MANUALSUCCESS.getStatus(), RdosTaskStatus.CANCELLING.getStatus(), RdosTaskStatus.CANCELED.getStatus());
     private final static List<Integer> FAILED_STATUS = Lists.newArrayList(RdosTaskStatus.FAILED.getStatus(), RdosTaskStatus.SUBMITFAILD.getStatus(), RdosTaskStatus.KILLED.getStatus());
@@ -1277,10 +1277,14 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         }
 
         if (status.equals(RdosTaskStatus.UNSUBMIT.getStatus())) {
-            stopSubmittedJob(Lists.newArrayList(scheduleJob), dtuicTenantId, appType);
-            return stopUnsubmitJob(scheduleJob);
+            //stopSubmittedJob(Lists.newArrayList(scheduleJob), dtuicTenantId, appType);
+            jobStopDealer.addStopJobs(Lists.newArrayList(scheduleJob));
+            //return stopUnsubmitJob(scheduleJob);
+            return "";
         } else if (RdosTaskStatus.RUNNING_STATUS.contains(status) || RdosTaskStatus.WAIT_STATUS.contains(status)) {
-            return stopSubmittedJob(Lists.newArrayList(scheduleJob), dtuicTenantId, appType);
+            //return stopSubmittedJob(Lists.newArrayList(scheduleJob), dtuicTenantId, appType);
+            jobStopDealer.addStopJobs(Lists.newArrayList(scheduleJob));
+            return "";
         } else {
             throw new RdosDefineException(ErrorCode.JOB_CAN_NOT_STOP);
         }
@@ -1309,7 +1313,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         //查询出所有需要停止的任务
         List<ScheduleJob> needStopIdList = scheduleJobDao.listNeedStopFillDataJob(likeName, RdosTaskStatus.getCanStopStatus(), projectId, appType);
         //发送停止任务消息到engine
-        this.stopSubmittedJob(needStopIdList, dtuicTenantId, appType);
+        //this.stopSubmittedJob(needStopIdList, dtuicTenantId, appType);
+        jobStopDealer.addStopJobs(needStopIdList);
     }
 
 
@@ -1334,31 +1339,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             }
         }
 
-        int stopCount = 0;
-        List<ScheduleJob> needSendStopJobs = new ArrayList<>(jobIdList.size());
-        if (CollectionUtils.isNotEmpty(jobs)) {
-            List<Long> unSubmitJob = new ArrayList<>(jobs.size());
-            for (ScheduleJob job : jobs) {
-                //除了未提交的任务--其他都是发消息到engine端停止
-                if (checkJobCanStop(job.getStatus())) {
-                    stopCount++;
-                    if (RdosTaskStatus.UNSUBMIT.getStatus().equals(job.getStatus()) || SPECIAL_TASK_TYPES.contains(job.getTaskType())) {
-                        unSubmitJob.add(job.getId());
-                    }
-                    //engineto同步状态可能会覆盖 所以都需要提交engine 更新
-                    needSendStopJobs.add(job);
-                }
-            }
-
-            // 停止已提交的
-            if (CollectionUtils.isNotEmpty(needSendStopJobs)) {
-                jobStopSender.addStopJob(needSendStopJobs, dtuicTenantId, appType);
-            }
-            //更新未提交任务状态
-            if (CollectionUtils.isNotEmpty(unSubmitJob)) {
-                scheduleJobDao.updateJobStatusByIds(RdosTaskStatus.CANCELED.getStatus(), unSubmitJob);
-            }
-        }
+        int stopCount = jobStopDealer.addStopJobs(jobs);
         return stopCount;
     }
 
@@ -1377,6 +1358,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @throws IOException
      */
     @Forbidden
+    @Deprecated
     public String stopSubmittedJob(List<ScheduleJob> scheduleJobList, Long dtuicTenantId, Integer appType) throws Exception {
 
         if (CollectionUtils.isEmpty(scheduleJobList)) {
