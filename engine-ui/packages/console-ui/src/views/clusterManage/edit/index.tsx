@@ -693,7 +693,7 @@ class EditCluster extends React.Component<any, any> {
             <div className="c-editCluster__containerWrap" ref={(el) => { this.container = el; }}>
                 <div style={{ height: 20 }}>
                     <span className="c-editCluster__turnBack" onClick={this.turnClusteManage}>多集群管理 / </span>
-                    <span className="c-editCluster__title">新增集群</span>
+                    <span className="c-editCluster__title">{dealData.getActionType(mode)}</span>
                 </div>
                 <React.Fragment>
                     <div className="c-editCluster__header">
