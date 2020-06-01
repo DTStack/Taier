@@ -8,7 +8,7 @@ function getCompsVersion (componentTypeCode: number, compVersion: string) {
         version = compVersion === '' ? '180' : compVersion;
     }
     if (componentTypeCode === COMPONENT_TYPE_VALUE.SPARK) {
-        version = compVersion === '' ? '2.1.x' : compVersion;
+        version = compVersion === '' ? '210' : compVersion;
     }
     return version;
 }
