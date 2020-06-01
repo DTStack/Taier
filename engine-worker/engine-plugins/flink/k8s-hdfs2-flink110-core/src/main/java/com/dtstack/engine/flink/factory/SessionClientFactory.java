@@ -150,12 +150,13 @@ public class SessionClientFactory extends AbstractClientFactory {
      * 获取ClusterClient
      */
     public ClusterClient<String> initClusterClient() {
+        Configuration newConf = new Configuration(flinkConfiguration);
         if (!flinkConfig.getFlinkHighAvailability()) {
-            setNoneHaModeConfig(flinkConfiguration);
+            setNoneHaModeConfig(newConf);
         }
 
-        KubernetesClusterDescriptor clusterDescriptor = getClusterDescriptor(flinkConfiguration);
-        String clusterId = acquireAppIdAndSetClusterId(flinkConfiguration);
+        KubernetesClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf);
+        String clusterId = acquireAppIdAndSetClusterId(newConf);
 
         ClusterClient<String> clusterClient = null;
         if (clusterId != null && flinkKubeClient.getInternalService(clusterId) != null) {
@@ -184,19 +185,21 @@ public class SessionClientFactory extends AbstractClientFactory {
     }
 
     public ClusterDescriptor<String> createSessionClusterDescriptor() throws MalformedURLException {
+        Configuration newConf = new Configuration(flinkConfiguration);
+
         if (!flinkConfig.getFlinkHighAvailability()) {
-            setNoneHaModeConfig(flinkConfiguration);
+            setNoneHaModeConfig(newConf);
         } else {
             //由engine管控的session clusterId不进行设置，默认使用appId作为clusterId
-            flinkConfiguration.removeConfig(HighAvailabilityOptions.HA_CLUSTER_ID);
+            newConf.removeConfig(HighAvailabilityOptions.HA_CLUSTER_ID);
         }
 
-        KubernetesClusterDescriptor clusterDescriptor = getClusterDescriptor(flinkConfiguration);
+        KubernetesClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf);
 
         // plugin dependent on shipfile
         if (StringUtils.isNotBlank(flinkConfig.getPluginLoadMode()) && ConfigConstrant.FLINK_PLUGIN_SHIPFILE_LOAD.equalsIgnoreCase(flinkConfig.getPluginLoadMode())) {
-            flinkConfiguration.setString(ConfigConstrant.FLINK_PLUGIN_LOAD_MODE, flinkConfig.getPluginLoadMode());
-            flinkConfiguration.setString("classloader.resolve-order", "parent-first");
+            newConf.setString(ConfigConstrant.FLINK_PLUGIN_LOAD_MODE, flinkConfig.getPluginLoadMode());
+            newConf.setString("classloader.resolve-order", "parent-first");
         }
 
         return clusterDescriptor;
