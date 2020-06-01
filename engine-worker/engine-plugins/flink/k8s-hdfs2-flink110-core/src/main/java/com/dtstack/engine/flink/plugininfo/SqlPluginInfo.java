@@ -37,6 +37,8 @@ public class SqlPluginInfo {
 
     private String remoteSqlRootDir;
 
+    private String pluginLoadMode;
+
     private SqlPluginInfo(){
 
     }
@@ -44,6 +46,7 @@ public class SqlPluginInfo {
     public static SqlPluginInfo create(FlinkConfig flinkConfig){
         SqlPluginInfo pluginInfo = new SqlPluginInfo();
         pluginInfo.init(flinkConfig);
+
         return pluginInfo;
     }
 
@@ -56,6 +59,7 @@ public class SqlPluginInfo {
             throw new RdosDefineException("not exists flink sql plugin dir:" + localSqlPluginDir + ", please check it!!!");
         }
 
+        this.pluginLoadMode = flinkConfig.getPluginLoadMode();
         setLocalJarRootDir(localSqlPluginDir);
         setRemoteSourceJarRootDir(remoteSqlPluginDir);
     }
@@ -105,6 +109,9 @@ public class SqlPluginInfo {
 
         args.add("-mode");
         args.add("kubernetes");
+
+        args.add("-pluginLoadMode");
+        args.add(pluginLoadMode);
 
         args.add("-localSqlPluginPath");
         args.add(localSqlRootJar);

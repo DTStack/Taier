@@ -41,6 +41,8 @@ public class SyncPluginInfo {
     //同步模块的monitorAddress, 用于获取错误记录数等信息
     private String monitorAddress;
 
+    private String pluginLoadMode;
+
     private SyncPluginInfo(){
     }
 
@@ -54,6 +56,7 @@ public class SyncPluginInfo {
         this.flinkRemoteSyncPluginRoot = getSyncPluginDir(flinkConfig.getRemotePluginRootDir());
         this.localSyncFileDir = getSyncPluginDir(flinkConfig.getFlinkPluginRoot());
         this.monitorAddress = flinkConfig.getMonitorAddress();
+        this.pluginLoadMode = flinkConfig.getPluginLoadMode();
     }
 
     public List<URL> getClassPaths(List<String> programArgList){
@@ -76,6 +79,10 @@ public class SyncPluginInfo {
         } else {
             programArgList.add(flinkClient.getReqUrl(taskRunMode));
         }
+
+        programArgList.add("-pluginLoadMode");
+        programArgList.add(pluginLoadMode);
+
         programArgList.add("-mode");
         if (FlinkMode.isPerJob(taskRunMode)){
             programArgList.add("yarnPer");
