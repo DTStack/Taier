@@ -529,12 +529,6 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
 
         Component sftpComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.SFTP.getTypeCode());;
         if (CollectionUtils.isNotEmpty(resources)) {
-            //检查资源是否是zip后缀
-            for (Resource rs: resources) {
-                if (!rs.getFileName().endsWith(".zip")) {
-                    throw new RdosDefineException("资源文件非zip格式");
-                }
-            }
             //上传资源需要依赖sftp组件
             if (Objects.isNull(sftpComponent)) {
                 throw new RdosDefineException("请先配置sftp组件");
