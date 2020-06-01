@@ -281,6 +281,10 @@ class EditCluster extends React.Component<any, any> {
             componentConfig: {
                 ...componentConfig,
                 [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {}
+            },
+            testStatus: {
+                ...this.state.testStatus,
+                [componentTypeCode]: ''
             }
         })
     }
@@ -369,7 +373,7 @@ class EditCluster extends React.Component<any, any> {
 
     fileChange = (e: any, componentTypeCode: any) => {
         const file = e.target;
-        console.log('changefile---------', file.files[0]);
+        // console.log('changefile---------', file.files[0]);
         const isCanUpload = this.validateFileType(file && file.files && file.files[0].name)
         if (isCanUpload) {
             this.setState({ uploadLoading: true });
@@ -436,7 +440,8 @@ class EditCluster extends React.Component<any, any> {
     kerFileChange = (e: any, componentTypeCode: any) => {
         const kerFile = e.target;
         const { componentConfig } = this.state;
-        if (kerFile.files.length > 0) {
+        const isCanUpload = this.validateFileType(kerFile && kerFile.files && kerFile.files[0].name)
+        if (isCanUpload) {
             this.setState({
                 componentConfig: {
                     ...componentConfig,
@@ -454,7 +459,7 @@ class EditCluster extends React.Component<any, any> {
     downloadFile = (components: any, type: any) => {
         const config = this.getComponentConfig(components);
         const a = document.createElement('a');
-        const param = `?componentId=${config.id}&type=${type}`;
+        const param = `?componentId=${config.id || ''}&type=${type}`;
         a.href = `${req.DOWNLOAD_RESOURCE}${param}`;
         a.click();
     }
@@ -503,9 +508,12 @@ class EditCluster extends React.Component<any, any> {
                 return;
             }
             const params = dealData.getComponentConfigPrames(values, components, config);
+            const { mode } = this.props.location.state || {} as any;
+            const operateType = mode === 'new' ? 1 : '';
             console.log('this is params-----------', params)
             Api.saveComponent({
-                ...params
+                ...params,
+                operateType
             }).then((res: any) => {
                 if (res.code === 1) {
                     this.setState({
@@ -739,6 +747,7 @@ class EditCluster extends React.Component<any, any> {
                                                 onChange={(key: any) => this.getLoadTemplate(key)}
                                             >
                                                 {tabCompDataList.map((comps: any, index: any) => {
+                                                    console.log('comps========ss', comps)
                                                     return (
                                                         <TabPane
                                                             tab={<span>{comps.componentName}<TestRestIcon testStatus={this.state.testStatus[comps.componentTypeCode] || {}}/></span>}

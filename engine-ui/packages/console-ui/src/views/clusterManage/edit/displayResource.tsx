@@ -71,7 +71,7 @@ class DisplayResource extends React.Component<any, any> {
                         { fileName && <div className="c-displayResource__downloadFile" onClick={() => components.id && downloadFile(components, 1)} style={{ fontSize: 12, color: '#3F87FF' }}>
                             <span>
                                 <Icon type="paper-clip" style={{ marginRight: 2, color: '#666666FF' }} />
-                                {utils.textOverflowExchange(fileName, 16)}
+                                {utils.textOverflowExchange(fileName, 9)}
                             </span>
                             <Icon type="download" style={{ color: '#666666FF' }} />
                         </div>}
@@ -118,7 +118,7 @@ class DisplayResource extends React.Component<any, any> {
                         { kerFileName && <div className="c-displayResource__downloadFile" style={{ fontSize: 12, color: '#3F87FF' }}>
                             <span>
                                 <Icon type="paper-clip" style={{ marginRight: 2, color: '#666666FF' }} />
-                                {utils.textOverflowExchange(kerFileName, 12)}
+                                {utils.textOverflowExchange(kerFileName, 9)}
                             </span>
                             <span>
                                 <Icon type="download" style={{ color: '#666666FF' }} onClick={() => components.id && downloadFile(components, 0)} />
