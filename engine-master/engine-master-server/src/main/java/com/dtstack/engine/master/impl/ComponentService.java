@@ -341,7 +341,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
             }
 
             Resource resource = resources.get(0);
-            if (!resource.getFileName().contains(ZIP_CONTENT_TYPE)) {
+            if (!resource.getFileName().endsWith("." + ZIP_CONTENT_TYPE)) {
                 throw new RdosDefineException("压缩包格式仅支持ZIP格式");
             }
 
@@ -560,6 +560,14 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         Component dbComponent = componentDao.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode());
         boolean isUpdate = false;
         boolean isOpenKerberos = StringUtils.isNotBlank(kerberosFileName);
+        if (isOpenKerberos) {
+            if (resources.isEmpty()) {
+                throw new RdosDefineException("资源文件不存在");
+            }
+            if (!kerberosFileName.endsWith("." + ZIP_CONTENT_TYPE)) {
+                throw new RdosDefineException("kerberos上传文件非zip格式");
+            }
+        }
         if (Objects.nonNull(dbComponent)) {
             //更新
             isUpdate = true;
@@ -631,7 +639,11 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
                 }
             } catch (Exception e) {
                 LOGGER.error("update component resource {}  error", resource.getUploadedFileName(), e);
-                throw new RdosDefineException("更新组件失败");
+                if (e instanceof RdosDefineException) {
+                    throw (RdosDefineException)e;
+                } else {
+                    throw new RdosDefineException("更新组件失败");
+                }
             } finally {
                 try {
                     FileUtils.forceDelete(new File(resource.getUploadedFileName()));
