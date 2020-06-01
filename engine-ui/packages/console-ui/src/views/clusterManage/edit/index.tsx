@@ -453,12 +453,10 @@ class EditCluster extends React.Component<any, any> {
     // 下载配置文件
     downloadFile = (components: any, type: any) => {
         const config = this.getComponentConfig(components);
-        console.log(components)
         const a = document.createElement('a');
         const param = `?componentId=${config.id}&type=${type}`;
         a.href = `${req.DOWNLOAD_RESOURCE}${param}`;
-        console.log('config.id====type', config.id, type, a.href)
-        // a.click();
+        a.click();
     }
 
     deleteKerFile = (componentTypeCode: any) => {
