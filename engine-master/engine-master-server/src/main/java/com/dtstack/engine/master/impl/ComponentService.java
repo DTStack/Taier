@@ -341,7 +341,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
             }
 
             Resource resource = resources.get(0);
-            if (!resource.getFileName().contains(ZIP_CONTENT_TYPE)) {
+            if (!resource.getFileName().endsWith("." + ZIP_CONTENT_TYPE)) {
                 throw new RdosDefineException("压缩包格式仅支持ZIP格式");
             }
 
@@ -561,8 +561,11 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         boolean isUpdate = false;
         boolean isOpenKerberos = StringUtils.isNotBlank(kerberosFileName);
         if (isOpenKerberos) {
-            if (!kerberosFileName.endsWith(".zip")) {
-                throw new RdosDefineException("kerberos文件非zip格式");
+            if (resources.isEmpty()) {
+                throw new RdosDefineException("资源文件不存在");
+            }
+            if (!kerberosFileName.endsWith("." + ZIP_CONTENT_TYPE)) {
+                throw new RdosDefineException("kerberos上传文件非zip格式");
             }
         }
         if (Objects.nonNull(dbComponent)) {
