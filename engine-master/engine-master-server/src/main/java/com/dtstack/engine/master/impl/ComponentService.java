@@ -606,6 +606,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         addComponent.setClusterId(clusterId);
         if (isUpdate) {
             componentDao.update(addComponent);
+            clusterDao.updateGmtModified(clusterId);
         } else {
             componentDao.insert(addComponent);
         }

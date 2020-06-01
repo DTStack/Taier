@@ -95,4 +95,10 @@
         set is_deleted  = 1
         where id = #{id}
     </update>
+
+    <update id="updateGmtModified">
+        UPDATE console_cluster
+        set gmt_modified  = CURRENT_TIMESTAMP
+        where id = #{id}
+    </update>
 </mapper>
