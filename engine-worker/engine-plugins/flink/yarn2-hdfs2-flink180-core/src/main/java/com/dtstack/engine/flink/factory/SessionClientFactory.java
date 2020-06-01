@@ -185,12 +185,13 @@ public class SessionClientFactory extends AbstractClientFactory {
      * 根据yarn方式获取ClusterClient
      */
     public ClusterClient<ApplicationId> initYarnClusterClient() {
-        ApplicationId applicationId = acquireAppIdAndSetClusterId(flinkConfiguration);
+        Configuration newConf = new Configuration(flinkConfiguration);
+        ApplicationId applicationId = acquireAppIdAndSetClusterId(newConf);
 
         if (!flinkConfig.getFlinkHighAvailability()) {
-            setNoneHaModeConfig(flinkConfiguration);
+            setNoneHaModeConfig(newConf);
         }
-        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(flinkConfiguration, flinkClientBuilder.getYarnConf(), ".");
+        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, flinkClientBuilder.getYarnConf(), ".");
 
         ClusterClient<ApplicationId> clusterClient = null;
         try {
@@ -259,6 +260,8 @@ public class SessionClientFactory extends AbstractClientFactory {
     }
 
     public AbstractYarnClusterDescriptor createYarnSessionClusterDescriptor() throws MalformedURLException {
+        Configuration newConf = new Configuration(flinkConfiguration);
+
         String flinkJarPath = flinkConfig.getFlinkJarPath();
         String pluginLoadMode = flinkConfig.getPluginLoadMode();
         YarnConfiguration yarnConf = flinkClientBuilder.getYarnConf();
@@ -266,17 +269,17 @@ public class SessionClientFactory extends AbstractClientFactory {
         FileUtil.checkFileExist(flinkJarPath);
 
         if (!flinkConfig.getFlinkHighAvailability()) {
-            setNoneHaModeConfig(flinkConfiguration);
+            setNoneHaModeConfig(newConf);
         } else {
             //由engine管控的yarnsession clusterId不进行设置，默认使用appId作为clusterId
-            flinkConfiguration.removeConfig(HighAvailabilityOptions.HA_CLUSTER_ID);
+            newConf.removeConfig(HighAvailabilityOptions.HA_CLUSTER_ID);
         }
 
-        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(flinkConfiguration, yarnConf, ".");
+        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, yarnConf, ".");
 
         if (StringUtils.isNotBlank(pluginLoadMode) && ConfigConstrant.FLINK_PLUGIN_SHIPFILE_LOAD.equalsIgnoreCase(pluginLoadMode)) {
-            flinkConfiguration.setString(ConfigConstrant.FLINK_PLUGIN_LOAD_MODE, flinkConfig.getPluginLoadMode());
-            flinkConfiguration.setString("classloader.resolve-order", "parent-first");
+            newConf.setString(ConfigConstrant.FLINK_PLUGIN_LOAD_MODE, flinkConfig.getPluginLoadMode());
+            newConf.setString("classloader.resolve-order", "parent-first");
 
             String flinkPluginRoot = flinkConfig.getFlinkPluginRoot();
             if (StringUtils.isNotBlank(flinkPluginRoot)) {
