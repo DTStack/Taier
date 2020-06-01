@@ -22,6 +22,7 @@
         <module>postgresql</module>
         <module>impala</module>
         <module>tidb</module>
+        <module>greenplum</module>
     </modules>
 
     <dependencies>

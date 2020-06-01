@@ -44,6 +44,7 @@ public class EngineUtil {
         ENGINE_SUPPORTED_COMPONENTS.put(MultiEngineType.HADOOP.getType(), hadoopEngineSupportedComponents);
         ENGINE_SUPPORTED_COMPONENTS.put(MultiEngineType.TIDB.getType(), Collections.singletonList(EComponentType.TIDB_SQL.getTypeCode()));
         ENGINE_SUPPORTED_COMPONENTS.put(MultiEngineType.ORACLE.getType(), Collections.singletonList(EComponentType.ORACLE_SQL.getTypeCode()));
+        ENGINE_SUPPORTED_COMPONENTS.put(MultiEngineType.GREENPLUM.getType(), Collections.singletonList(EComponentType.GREENPLUM_SQL.getTypeCode()));
     }
 
     public static final List<Integer> REQUIRED_COMPONENT_TYPES = Arrays.asList(EComponentType.HDFS.getTypeCode(),

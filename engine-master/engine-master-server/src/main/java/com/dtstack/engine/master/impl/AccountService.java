@@ -88,18 +88,24 @@ public class AccountService {
     private void checkDataSourceConnect(AccountVo accountVo) throws SQLException {
         JSONObject jdbc = null;
         DataBaseType dataBaseType = null;
-        if (MultiEngineType.TIDB.getType() == accountVo.getEngineType()){
+        if (MultiEngineType.TIDB.getType() == accountVo.getEngineType()) {
             jdbc = JSONObject.parseObject(clusterService.tiDBInfo(accountVo.getBindTenantId(), null));
             dataBaseType = DataBaseType.TiDB;
-        }else if (MultiEngineType.ORACLE.getType() == accountVo.getEngineType()){
+        } else if (MultiEngineType.ORACLE.getType() == accountVo.getEngineType()) {
             jdbc = JSONObject.parseObject(clusterService.oracleInfo(accountVo.getBindTenantId(), null));
             dataBaseType = DataBaseType.Oracle;
+        } else if (MultiEngineType.GREENPLUM.getType() == accountVo.getEngineType()) {
+            jdbc = JSONObject.parseObject(clusterService.greenplumInfo(accountVo.getBindTenantId(), null));
+            dataBaseType = DataBaseType.Greenplum6;
         }
+
         if (Objects.isNull(jdbc)) {
             if (MultiEngineType.TIDB.getType() == accountVo.getEngineType()) {
                 throw new RdosDefineException("请先绑定TiDB组件");
             } else if (MultiEngineType.ORACLE.getType() == accountVo.getEngineType()) {
                 throw new RdosDefineException("请先绑定Oracle组件");
+            } else if (MultiEngineType.GREENPLUM.getType() == accountVo.getEngineType()) {
+                throw new RdosDefineException("请先绑定GREENPLUMe组件");
             }
         }
         Connection conn = null;
@@ -172,6 +178,8 @@ public class AccountService {
             return DataSourceType.TiDB.getVal();
         } else if (MultiEngineType.ORACLE.getType() == multiEngineType) {
             return DataSourceType.Oracle.getVal();
+        } else if (MultiEngineType.GREENPLUM.getType() == multiEngineType) {
+            return DataSourceType.GREENPLUM6.getVal();
         }
         return 0;
     }
@@ -186,10 +194,12 @@ public class AccountService {
         if (Objects.isNull(accountTenantVo) || Objects.isNull(accountTenantVo.getId())) {
             throw new RdosDefineException("参数不能为空");
         }
-        if (StringUtils.isBlank(accountTenantVo.getName()) || StringUtils.isBlank(accountTenantVo.getPassword())) {
+        if (StringUtils.isBlank(accountTenantVo.getName())) {
             throw new RdosDefineException("解绑账号信息不能为空");
         }
-
+        if (StringUtils.isBlank(accountTenantVo.getPassword())){
+            accountTenantVo.setPassword("");
+        }
         AccountTenant dbAccountTenant = accountTenantDao.getById(accountTenantVo.getId());
         if (Objects.isNull(dbAccountTenant)) {
             throw new RdosDefineException("该账号未绑定对应集群");
@@ -235,10 +245,12 @@ public class AccountService {
         if (Objects.isNull(accountTenantVo) || Objects.isNull(accountTenantVo.getId())) {
             throw new RdosDefineException("参数不能为空");
         }
-        if (StringUtils.isBlank(accountTenantVo.getName()) || StringUtils.isBlank(accountTenantVo.getPassword())) {
+        if (StringUtils.isBlank(accountTenantVo.getName())) {
             throw new RdosDefineException("更新账号信息不能为空");
         }
-
+        if (StringUtils.isBlank(accountTenantVo.getPassword())){
+            accountTenantVo.setPassword("");
+        }
         AccountTenant dbAccountTenant = accountTenantDao.getById(accountTenantVo.getId());
         if (Objects.isNull(dbAccountTenant)) {
             throw new RdosDefineException("该账号未绑定对应集群");
@@ -322,7 +334,8 @@ public class AccountService {
      * @param dtuicTenantId
      * @return
      */
-    public List<Map<String, Object>> getTenantUnBandList(@Param("dtuicTenantId") Long dtuicTenantId, @Param("dtToken") String dtToken, @Param("userId") Long userId) {
+    public List<Map<String, Object>> getTenantUnBandList(@Param("dtuicTenantId") Long dtuicTenantId, @Param("dtToken") String dtToken, @Param("userId") Long userId,
+                                                         @Param("engineType")Integer engineType) {
         if (Objects.isNull(dtuicTenantId)) {
             throw new RdosDefineException("请选择对应租户");
         }
@@ -345,7 +358,7 @@ public class AccountService {
         if (CollectionUtils.isEmpty(uicUsers)) {
             return new ArrayList(0);
         }
-        List<AccountDTO> tenantUser = accountTenantDao.getTenantUser(tenantId);
+        List<AccountDTO> tenantUser = accountTenantDao.getTenantUser(tenantId,getDataSourceTypeByMultiEngineType(engineType));
         List<Long> userInIds;
         if (CollectionUtils.isNotEmpty(tenantUser)) {
             userInIds = tenantUser.stream().map(AccountDTO::getDtuicUserId).collect(Collectors.toList());

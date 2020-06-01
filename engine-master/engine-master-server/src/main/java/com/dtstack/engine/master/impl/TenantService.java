@@ -166,8 +166,16 @@ public class TenantService {
 
     private List<UserTenant> postTenantList(String dtToken) {
         String dtUicUrl = env.getDtUicUrl();
+        //uic对数据量做了限制，可能未查询到租户信息
         return DtUicUserConnect.getUserTenants(dtUicUrl, dtToken, "");
     }
+
+
+    private UserTenant getTenantByDtUicTenantId(Long dtUicTenantId,String token){
+        String dtUicUrl = env.getDtUicUrl();
+        return DtUicUserConnect.getTenantByTenantId(dtUicUrl, dtUicTenantId, token);
+    }
+
 
     @Transactional(rollbackFor = Exception.class)
     public void bindingTenant(@Param("tenantId") Long dtUicTenantId, @Param("clusterId") Long clusterId,
@@ -257,12 +265,12 @@ public class TenantService {
 
     @Transactional(rollbackFor = Exception.class)
     public Tenant addTenant(Long dtUicTenantId, String dtToken){
-        Map<String, Object> uicTenantInfo = DtUicUserConnect.getUicTenantInfo(env.getDtUicUrl(), dtUicTenantId, dtToken);
-        if(MapUtils.isEmpty(uicTenantInfo)){
-            throw new RdosDefineException("租户不存在");
+        UserTenant userTenant = getTenantByDtUicTenantId(dtUicTenantId, dtToken);
+        if(userTenant == null){
+            throw new RdosDefineException("未查询到租户");
         }
-        String tenantName = (String)uicTenantInfo.get("tenantName");
-        String tenantDesc = (String)uicTenantInfo.get("description");
+        String tenantName = userTenant.getTenantName();
+        String tenantDesc = userTenant.getTenantDesc();
 
         Tenant tenant = new Tenant();
         tenant.setTenantName(tenantName);

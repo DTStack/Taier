@@ -598,55 +598,21 @@ public class ClusterService implements InitializingBean {
 
         } else if (EComponentType.LIBRA_SQL == type.getComponentType()) {
             JSONObject libraConf = clusterConfigJson.getJSONObject(EComponentType.LIBRA_SQL.getConfName());
-            pluginInfo = new JSONObject();
-            // fixme 特殊逻辑，libra用的是engine端的postgresql插件
-            pluginInfo.putAll(libraConf);
-            pluginInfo.put("dbUrl", libraConf.getString("jdbcUrl"));
-            pluginInfo.remove("jdbcUrl");
-            pluginInfo.put("userName", libraConf.getString("username"));
-            pluginInfo.remove("username");
-            pluginInfo.put("pwd", libraConf.getString("password"));
-            pluginInfo.remove("password");
-            pluginInfo.put("typeName", "postgresql");
+            pluginInfo = getBaseSqlPluginInfo(libraConf,"postgresql");
         } else if (EComponentType.IMPALA_SQL == type.getComponentType()) {
             JSONObject impalaConf = clusterConfigJson.getJSONObject(EComponentType.IMPALA_SQL.getConfName());
-            pluginInfo = new JSONObject();
-            // fixme 特殊逻辑，libra用的是engine端的postgresql插件
-            pluginInfo.putAll(impalaConf);
-            pluginInfo.put("dbUrl", impalaConf.getString("jdbcUrl"));
-            pluginInfo.remove("jdbcUrl");
-            pluginInfo.put("userName", impalaConf.getString("username"));
-            pluginInfo.remove("username");
-            pluginInfo.put("pwd", impalaConf.getString("password"));
-            pluginInfo.remove("password");
-            pluginInfo.put("typeName", "impala");
+            pluginInfo = getBaseSqlPluginInfo(impalaConf,"impala");
         } else if (EComponentType.TIDB_SQL == type.getComponentType()) {
             JSONObject tiDBConf = JSONObject.parseObject(tiDBInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
-            pluginInfo = new JSONObject();
-            if(Objects.nonNull(tiDBConf)){
-                pluginInfo.putAll(tiDBConf);
-            }
-            pluginInfo.put("dbUrl", tiDBConf.getString("jdbcUrl"));
-            pluginInfo.remove("jdbcUrl");
-            pluginInfo.put("userName", tiDBConf.getString("username"));
-            pluginInfo.remove("username");
-            pluginInfo.put("pwd", tiDBConf.getString("password"));
-            pluginInfo.remove("password");
-            pluginInfo.put("typeName", "tidb");
+            pluginInfo = getBaseSqlPluginInfo(tiDBConf,"tidb");
         } else if (EComponentType.ORACLE_SQL == type.getComponentType()) {
-            JSONObject tiDBConf = JSONObject.parseObject(oracleInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
-            pluginInfo = new JSONObject();
-            if(Objects.nonNull(tiDBConf)){
-                pluginInfo.putAll(tiDBConf);
-            }
-            pluginInfo.put("dbUrl", tiDBConf.getString("jdbcUrl"));
-            pluginInfo.remove("jdbcUrl");
-            pluginInfo.put("userName", tiDBConf.getString("username"));
-            pluginInfo.remove("username");
-            pluginInfo.put("pwd", tiDBConf.getString("password"));
-            pluginInfo.remove("password");
-            pluginInfo.put("typeName", "oracle");
-        } else {
+            JSONObject oracleConf = JSONObject.parseObject(oracleInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
+            pluginInfo = getBaseSqlPluginInfo(oracleConf,"oracle");
+        } else if (EComponentType.GREENPLUM_SQL == type.getComponentType()) {
+            JSONObject tiDBConf = JSONObject.parseObject(greenplumInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
+            pluginInfo = getBaseSqlPluginInfo(tiDBConf,"greenplum");
+        }
+        else {
             pluginInfo = clusterConfigJson.getJSONObject(type.getComponentType().getConfName());
             if (pluginInfo == null) {
                 return null;
@@ -680,6 +646,22 @@ public class ClusterService implements InitializingBean {
             removeMd5FieldInHadoopConf(pluginInfo);
         }
 
+        return pluginInfo;
+    }
+
+    private JSONObject getBaseSqlPluginInfo(JSONObject tiDBConf,String typeName) {
+        JSONObject pluginInfo;
+        pluginInfo = new JSONObject();
+        if(Objects.nonNull(tiDBConf)){
+            pluginInfo.putAll(tiDBConf);
+        }
+        pluginInfo.put("dbUrl", tiDBConf.getString("jdbcUrl"));
+        pluginInfo.remove("jdbcUrl");
+        pluginInfo.put("userName", tiDBConf.getString("username"));
+        pluginInfo.remove("username");
+        pluginInfo.put("pwd", tiDBConf.getString("password"));
+        pluginInfo.remove("password");
+        pluginInfo.put("typeName", typeName);
         return pluginInfo;
     }
 
@@ -768,45 +750,47 @@ public class ClusterService implements InitializingBean {
     }
 
     public String tiDBInfo(@Param("tenantId") Long dtUicTenantId, @Param("userId") Long dtUicUserId){
-        //优先绑定账号
-        String jdbcInfo = getConfigByKey(dtUicTenantId, EComponentType.TIDB_SQL.getConfName(),false);
-        User dtUicUser = userDao.getByDtUicUserId(dtUicUserId);
-        if(Objects.isNull(dtUicUser)){
-            return jdbcInfo;
-        }
-        Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
-        AccountTenant dbAccountTenant = accountTenantDao.getByUserIdAndTenantIdAndEngineType(dtUicUser.getId(), tenantId, DataSourceType.TiDB.getVal());
-        if(Objects.isNull(dbAccountTenant)){
-            return jdbcInfo;
-        }
-        Account account = accountDao.getById(dbAccountTenant.getAccountId());
-        if(Objects.isNull(account)){
-            return jdbcInfo;
-        }
-        JSONObject data = JSONObject.parseObject(jdbcInfo);
-        data.put("username",account.getName());
-        data.put("password", Base64Util.baseDecode(account.getPassword()));
-        return data.toJSONString();
+        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.Oracle);
     }
 
     public String oracleInfo(@Param("tenantId") Long dtUicTenantId,@Param("userId") Long dtUicUserId){
+        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.GREENPLUM6);
+    }
+
+    public String greenplumInfo(@Param("tenantId") Long dtUicTenantId,@Param("userId") Long dtUicUserId){
+        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.GREENPLUM6);
+    }
+
+
+    private String accountInfo(Long dtUicTenantId, Long dtUicUserId, DataSourceType dataSourceType) {
+        EComponentType componentType = null;
+        if (DataSourceType.Oracle.equals(dataSourceType)) {
+            componentType = EComponentType.ORACLE_SQL;
+        } else if (DataSourceType.TiDB.equals(dataSourceType)) {
+            componentType = EComponentType.TIDB_SQL;
+        } else if (DataSourceType.GREENPLUM6.equals(dataSourceType)) {
+            componentType = EComponentType.GREENPLUM_SQL;
+        }
+        if (componentType == null) {
+            throw new RdosDefineException("不支持的数据源类型");
+        }
         //优先绑定账号
-        String jdbcInfo = getConfigByKey(dtUicTenantId, EComponentType.ORACLE_SQL.getConfName(),false);
+        String jdbcInfo = getConfigByKey(dtUicTenantId, componentType.getConfName(), false);
         User dtUicUser = userDao.getByDtUicUserId(dtUicUserId);
-        if(Objects.isNull(dtUicUser)){
+        if (Objects.isNull(dtUicUser)) {
             return jdbcInfo;
         }
         Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
-        AccountTenant dbAccountTenant = accountTenantDao.getByUserIdAndTenantIdAndEngineType(dtUicUser.getId(), tenantId, DataSourceType.Oracle.getVal());
-        if(Objects.isNull(dbAccountTenant)){
+        AccountTenant dbAccountTenant = accountTenantDao.getByUserIdAndTenantIdAndEngineType(dtUicUser.getId(), tenantId, dataSourceType.getVal());
+        if (Objects.isNull(dbAccountTenant)) {
             return jdbcInfo;
         }
         Account account = accountDao.getById(dbAccountTenant.getAccountId());
-        if(Objects.isNull(account)){
+        if (Objects.isNull(account)) {
             return jdbcInfo;
         }
         JSONObject data = JSONObject.parseObject(jdbcInfo);
-        data.put("username",account.getName());
+        data.put("username", account.getName());
         data.put("password", Base64Util.baseDecode(account.getPassword()));
         return data.toJSONString();
     }

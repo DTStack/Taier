@@ -19,7 +19,8 @@ public enum EComponentType {
     SFTP(10,"SFTP","sftpConf"),
     IMPALA_SQL(11,"Impala SQL","impalaSqlConf"),
     TIDB_SQL(12,"TiDB SQL","tidbConf"),
-    ORACLE_SQL(13,"Oracle SQL","oracleConf")
+    ORACLE_SQL(13,"Oracle SQL","oracleConf"),
+    GREENPLUM_SQL(14, "Greenplum SQL", "greenplumConf")
     ;
 
     private int typeCode;

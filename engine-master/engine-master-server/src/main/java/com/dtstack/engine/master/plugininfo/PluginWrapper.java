@@ -94,6 +94,11 @@ public class PluginWrapper{
             return;
         }
 
+        if (MultiEngineType.GREENPLUM.getName().equalsIgnoreCase((String)actionParam.get("engineType"))){
+            pluginInfoJson.put("dbUrl", dbUrl);
+            return;
+        }
+
         if(dbUrl.contains(URI_PARAMS_DELIM)){
             dbUrl = dbUrl.split("\\?")[0];
         }
