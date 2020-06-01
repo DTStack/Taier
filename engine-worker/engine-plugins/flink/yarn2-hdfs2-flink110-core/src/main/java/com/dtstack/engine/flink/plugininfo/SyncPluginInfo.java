@@ -1,8 +1,10 @@
-package com.dtstack.engine.flink;
+package com.dtstack.engine.flink.plugininfo;
 
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.flink.FlinkClient;
+import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.enums.FlinkYarnMode;
 import com.dtstack.engine.flink.util.FlinkUtil;
 import com.google.common.collect.Lists;
@@ -27,11 +29,11 @@ public class SyncPluginInfo {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncPluginInfo.class);
 
-    public static final String fileSP = File.separator;
+    public static final String FILE_SP = File.separator;
 
-    public static final String syncPluginDirName = "syncplugin";
+    public static final String SYNC_PLUGIN_DIR_NAME = "syncplugin";
 
-    private static final String coreJarNamePrefix = "flinkx";
+    private static final String CORE_JAR_NAME_PREFIX = "flinkx";
 
     //同步模块在flink集群加载插件
     private String flinkRemoteSyncPluginRoot;
@@ -88,7 +90,7 @@ public class SyncPluginInfo {
     public JarFileInfo createAddJarInfo(){
         JarFileInfo jarFileInfo = new JarFileInfo();
         String coreJarFileName = getCoreJarFileName();
-        String jarFilePath  = localSyncFileDir + fileSP + coreJarFileName;
+        String jarFilePath  = localSyncFileDir + FILE_SP + coreJarFileName;
         jarFileInfo.setJarPath(jarFilePath);
         return jarFileInfo;
     }
@@ -100,7 +102,7 @@ public class SyncPluginInfo {
             File[] jarFiles = pluginDir.listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
-                    return name.toLowerCase().startsWith(coreJarNamePrefix) && name.toLowerCase().endsWith(".jar");
+                    return name.toLowerCase().startsWith(CORE_JAR_NAME_PREFIX) && name.toLowerCase().endsWith(".jar");
                 }
             });
 
@@ -117,7 +119,7 @@ public class SyncPluginInfo {
     }
 
     public String getSyncPluginDir(String pluginRoot){
-        return pluginRoot + fileSP + syncPluginDirName;
+        return pluginRoot + FILE_SP + SYNC_PLUGIN_DIR_NAME;
     }
 
     // 数据同步专用: 获取flink端插件classpath, 在programArgsList中添加engine端plugin根目录

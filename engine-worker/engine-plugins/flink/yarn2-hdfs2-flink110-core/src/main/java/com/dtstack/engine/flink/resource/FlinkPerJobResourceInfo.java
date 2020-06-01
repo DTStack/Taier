@@ -1,4 +1,4 @@
-package com.dtstack.engine.flink;
+package com.dtstack.engine.flink.resource;
 
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.JobClient;

@@ -1,9 +1,10 @@
-package com.dtstack.engine.flink;
+package com.dtstack.engine.flink.plugininfo;
 
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.flink.FlinkConfig;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
@@ -29,9 +30,9 @@ public class SqlPluginInfo {
 
     private static final Logger logger = LoggerFactory.getLogger(SqlPluginInfo.class);
 
-    private static final String sqlPluginDirName = "sqlplugin";
+    private static final String SQLPLUGIN = "sqlplugin";
 
-    private static final String coreJarNamePrefix = "core";
+    private static final String CORE = "core";
 
     private static String SP = File.separator;
 
@@ -94,7 +95,7 @@ public class SqlPluginInfo {
     }
 
     public String getSqlPluginDir(String pluginRoot){
-        return pluginRoot + SP + sqlPluginDirName;
+        return pluginRoot + SP + SQLPLUGIN;
     }
 
     public List<String> buildExeArgs(JobClient jobClient) throws IOException {
@@ -136,7 +137,7 @@ public class SqlPluginInfo {
             File[] jarFiles = pluginDir.listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
-                    return name.toLowerCase().startsWith(coreJarNamePrefix) && name.toLowerCase().endsWith(".jar");
+                    return name.toLowerCase().startsWith(CORE) && name.toLowerCase().endsWith(".jar");
                 }
             });
 

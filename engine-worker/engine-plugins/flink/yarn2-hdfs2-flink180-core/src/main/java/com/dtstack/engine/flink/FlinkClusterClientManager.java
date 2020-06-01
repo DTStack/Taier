@@ -74,13 +74,14 @@ public class FlinkClusterClientManager {
     }
 
     public void initClusterClient() throws Exception {
-        KerberosUtils.login(flinkConfig,()->{
+        KerberosUtils.login(flinkConfig, () -> {
             if (flinkConfig.getClusterMode().equals(Deploy.standalone.name())) {
                 clusterClient = new StandaloneClientFactory(flinkClientBuilder.getFlinkConfiguration(), flinkConfig).getClusterClient();
             } else if (flinkConfig.getClusterMode().equals(Deploy.session.name())) {
                 if (null == sessionClientFactory) {
                     try {
                         sessionClientFactory = new SessionClientFactory(this, flinkClientBuilder);
+                        LOG.warn("Create FlinkYarnSessionStarter and start YarnSessionClientMonitor");
                     } catch (MalformedURLException e) {
                         LOG.error("Create FlinkYarnSessionStarter and start YarnSessionClientMonitor error", e);
                         throw new RdosDefineException(e);
@@ -92,7 +93,6 @@ public class FlinkClusterClientManager {
             }
             return null;
         });
-
     }
 
     /**

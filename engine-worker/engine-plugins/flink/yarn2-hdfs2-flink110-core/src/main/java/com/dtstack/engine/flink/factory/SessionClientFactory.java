@@ -25,11 +25,12 @@ import com.dtstack.engine.flink.FlinkClusterClientManager;
 import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
-import com.dtstack.engine.flink.util.FLinkConfUtil;
 import com.dtstack.engine.flink.util.FileUtil;
+import com.dtstack.engine.flink.util.FlinkConfUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
+import org.apache.flink.client.program.ClusterClientProvider;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFramework;
@@ -37,7 +38,8 @@ import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFrame
 import org.apache.flink.shaded.curator.org.apache.curator.framework.recipes.locks.InterProcessMutex;
 import org.apache.flink.shaded.curator.org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.flink.util.FlinkException;
-import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
+import org.apache.flink.yarn.YarnClusterDescriptor;
+import org.apache.flink.yarn.configuration.YarnConfigOptions;
 import org.apache.hadoop.service.Service;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
@@ -62,7 +64,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
- * Date: 2020/5/12
+ * Date: 2020/5/29
  * Company: www.dtstack.com
  * @author maqi
  */
@@ -70,7 +72,7 @@ public class SessionClientFactory extends AbstractClientFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(SessionClientFactory.class);
 
-    private AbstractYarnClusterDescriptor yarnSessionDescriptor;
+    private YarnClusterDescriptor yarnSessionDescriptor;
     private ClusterSpecification yarnSessionSpecification;
     private ClusterClient<ApplicationId> clusterClient;
     private FlinkConfig flinkConfig;
@@ -79,20 +81,22 @@ public class SessionClientFactory extends AbstractClientFactory {
     private CuratorFramework zkClient;
     private Configuration flinkConfiguration;
 
-    private boolean isDetached = true;
     private FlinkClusterClientManager flinkClusterClientManager;
     private ExecutorService yarnMonitorES;
+    private FlinkClientBuilder flinkClientBuilder;
 
     public SessionClientFactory(FlinkClusterClientManager flinkClusterClientManager, FlinkClientBuilder flinkClientBuilder) throws MalformedURLException {
-        super(flinkClientBuilder);
         this.flinkConfig = flinkClientBuilder.getFlinkConfig();
         this.flinkClusterClientManager = flinkClusterClientManager;
         this.flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
+        this.flinkClientBuilder = flinkClientBuilder;
 
         String clusterId = flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue();
+        // add session  name
+        flinkConfiguration.setString(YarnConfigOptions.APPLICATION_NAME, flinkConfig.getFlinkSessionName() + ConfigConstrant.SPLIT + clusterId);
+
+        this.yarnSessionSpecification = FlinkConfUtil.createClusterSpecification(flinkConfiguration, 0, null);
         this.yarnSessionDescriptor = createYarnSessionClusterDescriptor();
-        this.yarnSessionDescriptor.setName(flinkConfig.getFlinkSessionName() + ConfigConstrant.SPLIT + clusterId);
-        this.yarnSessionSpecification = FLinkConfUtil.createYarnSessionSpecification(flinkClientBuilder.getFlinkConfiguration());
 
         initZkClient();
         this.lockPath = String.format("/yarn_session/%s", flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue());
@@ -106,13 +110,12 @@ public class SessionClientFactory extends AbstractClientFactory {
         if (StringUtils.isBlank(zkAddress)) {
             throw new RdosDefineException("zkAddress is error");
         }
+        lockPath = String.format("/yarn_session/%s", flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue());
 
         this.zkClient = CuratorFrameworkFactory.builder()
-                .connectString(zkAddress)
-                .retryPolicy(new ExponentialBackoffRetry(1000, 3))
+                .connectString(zkAddress).retryPolicy(new ExponentialBackoffRetry(1000, 3))
                 .connectionTimeoutMs(1000)
-                .sessionTimeoutMs(1000)
-                .build();
+                .sessionTimeoutMs(1000).build();
         this.zkClient.start();
         LOG.warn("connector zk success...");
     }
@@ -124,7 +127,6 @@ public class SessionClientFactory extends AbstractClientFactory {
         //启动守护线程---用于获取当前application状态和更新flink对应的application
         yarnMonitorES.submit(new AppStatusMonitor(flinkClusterClientManager, flinkClientBuilder, this));
     }
-
 
     public boolean startFlinkYarnSession() {
         try {
@@ -144,8 +146,7 @@ public class SessionClientFactory extends AbstractClientFactory {
 
                 if (flinkConfig.getSessionStartAuto()) {
                     try {
-                        clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification);
-                        clusterClient.setDetached(true);
+                        clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification).getClusterClient();
                         return true;
                     } catch (FlinkException e) {
                         LOG.info("Couldn't deploy Yarn session cluster, {}", e);
@@ -164,43 +165,39 @@ public class SessionClientFactory extends AbstractClientFactory {
                 }
             }
         }
+
         return false;
     }
 
-
     public void stopFlinkYarnSession() {
         try {
-            clusterClient.shutdown();
+            clusterClient.shutDownCluster();
         } catch (Exception ex) {
-            LOG.info("[YarnSessionClientFactory] Could not properly shutdown cluster client.", ex);
+            LOG.info("[FlinkYarnSessionStarter] Could not properly shutdown cluster client.", ex);
         }
     }
 
-    @Override
-    public ClusterClient<ApplicationId> getClusterClient() {
-        return clusterClient;
-    }
-
-    /**
-     * 根据yarn方式获取ClusterClient
-     */
     public ClusterClient<ApplicationId> initYarnClusterClient() {
-        ApplicationId applicationId = acquireAppIdAndSetClusterId(flinkConfiguration);
+
+        Configuration newConf = new Configuration(flinkConfiguration);
+
+        ApplicationId applicationId = acquireAppIdAndSetClusterId(newConf);
 
         if (!flinkConfig.getFlinkHighAvailability()) {
-            setNoneHaModeConfig(flinkConfiguration);
+            setNoneHaModeConfig(newConf);
         }
-        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(flinkConfiguration, flinkClientBuilder.getYarnConf(), ".");
+
+        YarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, flinkClientBuilder.getYarnConf());
 
         ClusterClient<ApplicationId> clusterClient = null;
         try {
-            clusterClient = clusterDescriptor.retrieve(applicationId);
+            ClusterClientProvider<ApplicationId> clusterClientProvider = clusterDescriptor.retrieve(applicationId);
+            clusterClient = clusterClientProvider.getClusterClient();
         } catch (Exception e) {
             LOG.info("No flink session, Couldn't retrieve Yarn cluster.", e);
             throw new RdosDefineException("No flink session, Couldn't retrieve Yarn cluster.");
         }
 
-        clusterClient.setDetached(isDetached);
         LOG.warn("---init flink client with yarn session success----");
 
         return clusterClient;
@@ -258,7 +255,7 @@ public class SessionClientFactory extends AbstractClientFactory {
         }
     }
 
-    public AbstractYarnClusterDescriptor createYarnSessionClusterDescriptor() throws MalformedURLException {
+    public YarnClusterDescriptor createYarnSessionClusterDescriptor() throws MalformedURLException {
         String flinkJarPath = flinkConfig.getFlinkJarPath();
         String pluginLoadMode = flinkConfig.getPluginLoadMode();
         YarnConfiguration yarnConf = flinkClientBuilder.getYarnConf();
@@ -272,7 +269,7 @@ public class SessionClientFactory extends AbstractClientFactory {
             flinkConfiguration.removeConfig(HighAvailabilityOptions.HA_CLUSTER_ID);
         }
 
-        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(flinkConfiguration, yarnConf, ".");
+        YarnClusterDescriptor clusterDescriptor = getClusterDescriptor(flinkConfiguration, yarnConf);
 
         if (StringUtils.isNotBlank(pluginLoadMode) && ConfigConstrant.FLINK_PLUGIN_SHIPFILE_LOAD.equalsIgnoreCase(pluginLoadMode)) {
             flinkConfiguration.setString(ConfigConstrant.FLINK_PLUGIN_LOAD_MODE, flinkConfig.getPluginLoadMode());
@@ -288,8 +285,13 @@ public class SessionClientFactory extends AbstractClientFactory {
 
         List<URL> classpaths = getFlinkJarFile(flinkJarPath, clusterDescriptor);
         clusterDescriptor.setProvidedUserJarFiles(classpaths);
-        clusterDescriptor.setQueue(flinkConfig.getQueue());
+
         return clusterDescriptor;
+    }
+
+    @Override
+    public ClusterClient getClusterClient() {
+        return clusterClient;
     }
 
 
@@ -414,8 +416,6 @@ public class SessionClientFactory extends AbstractClientFactory {
             }
             return false;
         }
-
-
     }
 
 }
