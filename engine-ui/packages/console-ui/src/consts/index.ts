@@ -23,6 +23,10 @@ export const TASK_STATE = {
     ENGINEACCEPTED: 19,
     ENGINEDISTRIBUTE: 20,
     /**
+     * 计算中
+     */
+    COMPUTING: 23,
+    /**
      * 等待资源
      */
     LACKING: 25,

@@ -361,6 +361,8 @@ export function displayTaskStatus (status: any) {
             return 'ENGINEACCEPTED';
         case TASK_STATE.ENGINEDISTRIBUTE:
             return 'ENGINEDISTRIBUTE';
+        case TASK_STATE.COMPUTING:
+            return 'COMPUTING';
         default:
             return null;
     }
