@@ -611,7 +611,13 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
                                       Map<String, String> sftpMap,
                                       Component addComponent, Component dbComponent) {
         //上传配置文件到sftp 供后续下载
-        SFTPHandler instance = SFTPHandler.getInstance(sftpMap);
+        SFTPHandler instance = null;
+        try {
+            instance = SFTPHandler.getInstance(sftpMap);
+        } catch (Exception e) {
+            LOGGER.error("update component resource to sftp error", e);
+            throw new RdosDefineException("请检查sftp配置");
+        }
         String remoteDir = sftpMap.get("path") + File.separator + this.buildSftpPath(clusterId, addComponent.getComponentTypeCode());
         for (Resource resource : resources) {
             if (!resource.getFileName().equalsIgnoreCase(kerberosFileName) || StringUtils.isBlank(kerberosFileName)) {
@@ -1083,8 +1089,13 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
      */
     public List<ClientTemplate> loadTemplate(@Param("componentType") Integer componentType, @Param("clusterName") String clusterName, @Param("version") String version) {
         EComponentType component = EComponentType.getByCode(componentType);
-        List<ClientTemplate> defaultPluginConfig = workerOperator.getDefaultPluginConfig(this.convertComponentTypeToClient(clusterName, componentType, version),
-                component.getName().toLowerCase());
+        List<ClientTemplate> defaultPluginConfig = null;
+        try {
+            defaultPluginConfig = workerOperator.getDefaultPluginConfig(this.convertComponentTypeToClient(clusterName, componentType, version),
+                    component.getName().toLowerCase());
+        } catch (Exception e) {
+            throw new RdosDefineException("不支持的插件类型");
+        }
         if (CollectionUtils.isEmpty(defaultPluginConfig)) {
             return new ArrayList<>();
         }
@@ -1230,7 +1241,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
                 throw new RdosDefineException(component.getComponentName() + " 是必选组件，不可删除");
             }
             component.setIsDeleted(Deleted.DELETED.getStatus());
-            componentDao.update(component);
+            componentDao.deleteById(componentId.longValue());
             kerberosDao.deleteByComponentId(componentId.longValue());
             //引擎组件为空 删除引擎
             List<Component> componentList = listComponent(component.getEngineId());
