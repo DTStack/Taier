@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.Queue;
@@ -60,6 +61,8 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
     private static final Logger LOGGER = LoggerFactory.getLogger(ComponentService.class);
 
     private final static String ZIP_CONTENT_TYPE = "zip";
+
+    private final static String ADD_OPERATE_TYPE = "1";
 
     private static String unzipLocation = System.getProperty("user.dir") + File.separator + "unzip";
 
@@ -512,7 +515,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
     public ComponentVO addOrUpdateComponent(@Param("clusterId") Long clusterId, @Param("clusterName") String clusterName, @Param("componentConfig") String componentConfig,
                                             @Param("resources") List<Resource> resources, @Param("hadoopVersion") String hadoopVersion,
                                             @Param("kerberosFileName") String kerberosFileName, @Param("componentTemplate") String componentTemplate,
-                                            @Param("componentCode") Integer componentCode) {
+                                            @Param("componentCode") Integer componentCode, @Param("operateType") String operateType) {
         if (StringUtils.isBlank(componentConfig) && EComponentType.KUBERNETES.getTypeCode() != componentCode) {
             throw new RdosDefineException("组件信息不能为空");
         }
@@ -524,7 +527,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         componentDTO.setComponentTypeCode(componentCode);
         //新增 clusterName 修改clusterId
         if (Objects.isNull(clusterId)) {
-            clusterId = this.checkClusterWithName(clusterId, clusterName);
+            clusterId = this.checkClusterWithName(clusterId, clusterName, operateType);
         }
 
         Component sftpComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.SFTP.getTypeCode());;
@@ -779,7 +782,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         kerberosDao.deleteByComponentId(componentId);
     }
 
-    private Long checkClusterWithName(@Param("clusterId") Long clusterId, @Param("clusterName") String clusterName) {
+    private Long checkClusterWithName(@Param("clusterId") Long clusterId, @Param("clusterName") String clusterName, @Param("operateType") String operateType) {
         if (StringUtils.isBlank(clusterName)) {
             throw new RdosDefineException("集群名称不能为空");
         }
@@ -795,9 +798,16 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
                 LOGGER.info("add cluster {} ", clusterId);
             }
         } else {
+            if (operateType != null && operateType.equals(ADD_OPERATE_TYPE)) {
+                throw new RdosDefineException("集群名称已存在");
+            }
             clusterId = cluster.getId();
         }
         return clusterId;
+    }
+
+    private void checkJSON(String json){
+        JSON.parse(json);
     }
 
 
@@ -844,9 +854,11 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
                 for (Resource resource : resources) {
                     try {
                         String fileInfo = FileUtils.readFileToString(new File(resource.getUploadedFileName()));
+                        checkJSON(fileInfo);
                         datas.add(PublicUtil.strToMap(fileInfo));
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         LOGGER.error("parse json config resource error {} ", resource.getUploadedFileName());
+                        throw new RdosDefineException("JSON文件格式错误");
                     }
                 }
             }

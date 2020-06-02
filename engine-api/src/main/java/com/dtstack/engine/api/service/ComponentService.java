@@ -55,7 +55,7 @@ public interface ComponentService {
     public ComponentVO addOrUpdateComponent(@Param("clusterId") Long clusterId, @Param("clusterName") String clusterName, @Param("componentConfig") String componentConfig,
                                             @Param("resources") List<Resource> resources, @Param("hadoopVersion") String hadoopVersion,
                                             @Param("kerberosFileName") String kerberosFileName, @Param("componentTemplate") String componentTemplate,
-                                            @Param("componentCode") Integer componentCode);
+                                            @Param("componentCode") Integer componentCode, @Param("operateType") String operateType);
 
     /**
      * 移除kerberos配置
