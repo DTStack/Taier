@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.Queue;
@@ -800,6 +801,15 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         return clusterId;
     }
 
+    private boolean checkJSON(String json) {
+        try {
+            JSON.parse(json);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
 
     /**
      * parse zip中xml或者json
@@ -844,9 +854,13 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
                 for (Resource resource : resources) {
                     try {
                         String fileInfo = FileUtils.readFileToString(new File(resource.getUploadedFileName()));
+                        if (!checkJSON(fileInfo)) {
+                            throw new IOException();
+                        }
                         datas.add(PublicUtil.strToMap(fileInfo));
                     } catch (IOException e) {
                         LOGGER.error("parse json config resource error {} ", resource.getUploadedFileName());
+                        throw new RdosDefineException("JSON文件格式错误");
                     }
                 }
             }
