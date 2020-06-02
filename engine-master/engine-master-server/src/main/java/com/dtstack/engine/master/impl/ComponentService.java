@@ -606,6 +606,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         addComponent.setClusterId(clusterId);
         if (isUpdate) {
             componentDao.update(addComponent);
+            clusterDao.updateGmtModified(clusterId);
         } else {
             componentDao.insert(addComponent);
         }
@@ -1159,7 +1160,12 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
                         this.formatHadoopVersion(version), this.formatHadoopVersion(version));
             }
             Component hdfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());
-            if (Objects.isNull(hdfs)) {
+            //hdfs  和 yarn 的版本要保持一致
+            if (Objects.nonNull(hdfs)) {
+                if (!version.equalsIgnoreCase(hdfs.getHadoopVersion())) {
+                    throw new RdosDefineException("hdfs 和 yarn 版本不一致");
+                }
+            } else {
                 return String.format("yarn%s-hdfs%s-hadoop%s", this.formatHadoopVersion(version), this.formatHadoopVersion(version),
                         this.formatHadoopVersion(version));
             }
@@ -1182,6 +1188,12 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         }
         String resourceSign = Objects.isNull(yarn) ? "k8s" : "yarn" + this.formatHadoopVersion(yarn.getHadoopVersion());
         if (EComponentType.HDFS.getTypeCode() == componentType) {
+            //hdfs  和 yarn 的版本要保持一致
+            if(Objects.nonNull(yarn)){
+                if(!version.equalsIgnoreCase(yarn.getHadoopVersion())){
+                    throw new RdosDefineException("hdfs 和 yarn 版本不一致");
+                }
+            }
             return String.format("%s-hdfs%s-hadoop%s", resourceSign, this.formatHadoopVersion(version), this.formatHadoopVersion(version));
         }
         Component hdfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());
