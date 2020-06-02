@@ -23,9 +23,23 @@ export const TASK_STATE = {
     ENGINEACCEPTED: 19,
     ENGINEDISTRIBUTE: 20,
     /**
+     * 父任务失败
+     */
+    PARENTFAILED: 21,
+    /**
+     * 失败中
+     */
+    FAILING: 22,
+
+    /**
      * 计算中
      */
     COMPUTING: 23,
+    /**
+     * 过期
+     */
+    EXPIRE: 24,
+
     /**
      * 等待资源
      */

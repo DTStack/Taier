@@ -363,6 +363,12 @@ export function displayTaskStatus (status: any) {
             return 'ENGINEDISTRIBUTE';
         case TASK_STATE.COMPUTING:
             return 'COMPUTING';
+        case TASK_STATE.PARENTFAILED:
+            return 'PARENTFAILED';
+        case TASK_STATE.FAILING:
+            return 'FAILING';
+        case TASK_STATE.EXPIRE:
+            return 'EXPIRE';
         default:
             return null;
     }
