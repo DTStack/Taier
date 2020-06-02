@@ -61,10 +61,10 @@ public class PerJobClientFactory extends AbstractClientFactory {
 
         if (!flinkConfig.getFlinkHighAvailability() && ComputeType.BATCH == jobClient.getComputeType()) {
             setNoneHaModeConfig(newConf);
-        } else {
-            String projobClusterId = String.format("%s-%s", "flinkperjob", jobClient.getTaskId());
-            newConf.setString(KubernetesConfigOptions.CLUSTER_ID, projobClusterId);
         }
+
+        String projobClusterId = String.format("%s-%s", "flinkperjob", jobClient.getTaskId());
+        newConf.setString(KubernetesConfigOptions.CLUSTER_ID, projobClusterId);
 
         KubernetesClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf);
 

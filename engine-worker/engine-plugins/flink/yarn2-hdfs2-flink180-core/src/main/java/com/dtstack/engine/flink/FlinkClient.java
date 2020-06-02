@@ -273,7 +273,7 @@ public class FlinkClient extends AbstractClient {
                 logger.info("Program execution finished");
                 JobExecutionResult execResult = result.getJobExecutionResult();
                 logger.info("Job with JobID " + execResult.getJobID() + " has finished.");
-                logger.info("Job Runtime: " + execResult.getNetRuntime() + " ms");
+
             } else {
                 logger.info("Job has been submitted with JobID " + result.getJobID());
             }
