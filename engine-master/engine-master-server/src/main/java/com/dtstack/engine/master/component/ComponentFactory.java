@@ -52,6 +52,9 @@ public class ComponentFactory {
             case ORACLE_SQL:
                 component = new JDBCComponent(config,DataBaseType.Oracle);
                 break;
+            case GREENPLUM_SQL:
+                component = new JDBCComponent(config, DataBaseType.Greenplum6);
+                break;
             default:
                 throw new IllegalArgumentException("未知组件类型");
         }
