@@ -12,7 +12,15 @@ delete from console_component WHERE engine_id IN(
                                      on ce.cluster_id = cc.id
      WHERE cc.id = -1));
 
-delete from console_component WHERE is_deleted = 1;
+-- 删除engine
+delete from console_engine where cluster_id = -1;
+
+-- 删除engine_tenant
+delete from console_engine_tenant WHERE engine_id IN(
+    (SELECT ce.id from console_cluster cc
+                           LEFT JOIN console_engine ce
+                                     on ce.cluster_id = cc.id
+     WHERE cc.id = -1));
 
 ALTER TABLE console_component
     ADD UNIQUE INDEX `index_component`(`engine_id`, `component_type_code`) USING BTREE;
