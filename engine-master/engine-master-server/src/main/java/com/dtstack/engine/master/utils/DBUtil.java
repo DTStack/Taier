@@ -38,6 +38,9 @@ public final class DBUtil {
     public static Pattern JDBC_PATTERN = Pattern.compile("(?i)jdbc:[a-zA-Z0-9\\.]+://(?<host>[0-9a-zA-Z\\.-]+):(?<port>\\d+)/(?<db>[0-9a-zA-Z_%\\.]+)(?<param>[\\?;#].*)*");
 
     public static Pattern HIVE_JDBC_PATTERN = Pattern.compile("(?i)jdbc:hive2://(?<host>[0-9a-zA-Z\\-\\.]+):(?<port>\\d+)(/(?<db>[0-9a-z_%]+)*(?<param>[\\?;#].*)*)*");
+
+    public static final Pattern GREENPLUM_SERVICE = Pattern.compile("(?i)jdbc:pivotal:greenplum://(?<ip>[0-9a-zA-Z,\\.]+):(?<port>[0-9]+)/.*");
+
     private static ReentrantLock lock = new ReentrantLock();
 
     private static final List<DataBaseType> DQ_SPARK = new ArrayList<>(Lists.newArrayList(
@@ -135,6 +138,13 @@ public final class DBUtil {
                 } else {
                     addr = url.substring(url.indexOf("//") + 2, url.lastIndexOf("/"));
                 }
+            }
+        } else if (dataBaseType == DataBaseType.Greenplum6){
+            matcher = GREENPLUM_SERVICE.matcher(url);
+            if (matcher.find()) {
+                addr = matcher.group("ip") + ":" + matcher.group("port");
+            } else {
+                addr = url.substring(url.indexOf("jdbc:pivotal:greenplum:") + 23, url.indexOf(";") == -1 ? url.length() : url.indexOf("/"));
             }
         } else {
             addr = url.substring(url.indexOf("//") + 2, url.lastIndexOf(";"));
