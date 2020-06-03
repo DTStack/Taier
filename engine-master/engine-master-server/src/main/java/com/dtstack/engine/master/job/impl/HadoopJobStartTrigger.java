@@ -24,6 +24,7 @@ import com.dtstack.schedule.common.enums.*;
 import com.dtstack.schedule.common.metric.batch.IMetric;
 import com.dtstack.schedule.common.metric.batch.MetricBuilder;
 import com.dtstack.schedule.common.metric.prometheus.PrometheusMetricQuery;
+import com.dtstack.schedule.common.util.Base64Util;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -36,6 +37,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.support.TaskUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
@@ -156,6 +158,21 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             if (savepointArgs != null) {
                 taskExeArgs += " " + savepointArgs;
             }
+        } else if (taskShade.getTaskType().equals(EScheduleJobType.TENSORFLOW_1_X.getVal())) {
+            //tensorflow 参数
+            //--files ${uploadPath} --python-version 3 --launch-cmd ${launch} --app-type tensorflow --app-name dddd
+            String exeArgs = (String) actionParam.get("exeArgs");
+            String uploadPath = this.uploadSqlTextToHdfs(scheduleJob.getDtuicTenantId(), taskShade.getSqlText(), taskShade.getTaskType(),
+                    taskShade.getName(), taskShade.getTenantId(), taskShade.getProjectId(), taskParamsToReplace, scheduleJob.getCycTime());
+            String fileName = uploadPath.substring(StringUtils.lastIndexOf(uploadPath, "/"));
+            exeArgs = exeArgs.replace(TaskConstant.UPLOADPATH, uploadPath);
+            // launch-cmd为 py3 路径和 文件 名 base64 而成
+            JSONObject dtsciptConfig = JSONObject.parseObject(clusterService.getConfigByKey(scheduleJob.getDtuicTenantId(), EComponentType.DT_SCRIPT.getConfName(), false));
+            String py3Path = dtsciptConfig.getString("python3.path");
+            String launchString = Base64Util.baseEncode(py3Path + " " + fileName);
+            taskExeArgs = exeArgs.replace(TaskConstant.LAUNCH, launchString);
+            LOG.info(" TensorFlow job {} py3Path {} fileName {} exeArgs {} ", scheduleJob.getJobId(), py3Path, fileName, taskExeArgs);
+
         } else if (taskShade.getEngineType().equals(ScheduleEngineType.Learning.getVal())
                 || taskShade.getEngineType().equals(ScheduleEngineType.Shell.getVal())
                 || taskShade.getEngineType().equals(ScheduleEngineType.DtScript.getVal())
