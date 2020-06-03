@@ -14,7 +14,7 @@ export interface IAccount {
 
 export default {
 
-    getUnbindAccounts (params: { dtuicTenantId: numOrStr }) {
+    getUnbindAccounts (params: { dtuicTenantId: numOrStr; engineType: numOrStr }) {
         return http.post(req.ACCOUNT_UNBIND_LIST, params)
     },
 

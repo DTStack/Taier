@@ -16,7 +16,7 @@ import {
     isHadoopEngine,
     exChangeComponentConf,
     showTestResult, validateAllRequired,
-    myUpperCase, myLowerCase, toChsKeys
+    myUpperCase, myLowerCase, toChsKeys, isGreenPlumEngine
 } from '../../../consts/clusterFunc';
 
 import { formItemLayout, ENGINE_TYPE, COMPONENT_TYPE_VALUE, SPARK_KEY_MAP, COMPONEMT_CONFIG_KEYS, COMPONEMT_CONFIG_KEY_ENUM,
@@ -37,6 +37,7 @@ import HiveServerConfig from './hiveServerConfig';
 import LibraSqlConfig from './libraSqlConfig';
 import TiDBSqlConfig from './tidbSqlConfig';
 import OracleSqlConfig from './oracleSqlConfig';
+import GreenPlumSqlConfig from './greenPlumSqlConfig';
 import ZipConfig from './zipConfig';
 import ImpalaSQLConfig from './impalaSQLConfig';
 import { SparkThriftConfig, CarbonDataConfig } from './sparkThriftAndCarbonData';
@@ -179,6 +180,9 @@ class EditCluster extends React.Component<any, any> {
             if (key == COMPONEMT_CONFIG_KEYS.ORACLE_SQL) {
                 delete copyComp[key]
             }
+            if (key == COMPONEMT_CONFIG_KEYS.GREEN_PLUM_SQL) {
+                delete copyComp[key]
+            }
         }
         if (isHadoop) {
             setFieldsValue(copyComp);
@@ -214,6 +218,10 @@ class EditCluster extends React.Component<any, any> {
             setFieldsValue({
                 oracleConf: compConf.oracleConf
             })
+        } else if (isGreenPlumEngine(engineType)) {
+            setFieldsValue({
+                greenPlumConf: compConf.greenPlumConf
+            })
         }
     }
 
@@ -225,7 +233,8 @@ class EditCluster extends React.Component<any, any> {
         const hadoopConf = enginesData.find((item: any) => item.engineType == ENGINE_TYPE.HADOOP) || {}; // hadoop engine 总数据
         const libraConf = enginesData.find((item: any) => item.engineType == ENGINE_TYPE.LIBRA) || {}; // libra engine 总数据
         const tiDBConf = enginesData.find((item: any) => item.engineType == ENGINE_TYPE.TI_DB) || {}; // TiDB 总数据
-        const oracleConf = enginesData.find((item: any) => item.engineType == ENGINE_TYPE.ORACLE) || {}; // TiDB 总数据
+        const oracleConf = enginesData.find((item: any) => item.engineType == ENGINE_TYPE.ORACLE) || {}; // Oracle 总数据
+        const greenPlumConf = enginesData.find((item: any) => item.engineType == ENGINE_TYPE.GREEN_PLUM) || {}; // GreenPlum 总数据
 
         switch (type) {
             case ENGINE_TYPE.HADOOP: {
@@ -239,6 +248,9 @@ class EditCluster extends React.Component<any, any> {
             }
             case ENGINE_TYPE.ORACLE: {
                 return oracleConf.components || []
+            }
+            case ENGINE_TYPE.GREEN_PLUM: {
+                return greenPlumConf.components || []
             }
             default: {
                 return [];
@@ -335,8 +347,9 @@ class EditCluster extends React.Component<any, any> {
                         const libraComponentData = this.getComponentData(data, ENGINE_TYPE.LIBRA);
                         const tidbComponentData = this.getComponentData(data, ENGINE_TYPE.TI_DB);
                         const oracleComponentData = this.getComponentData(data, ENGINE_TYPE.ORACLE);
+                        const greenPlumComponentData = this.getComponentData(data, ENGINE_TYPE.GREEN_PLUM);
 
-                        let componentConf = exChangeComponentConf(hadoopComponentData, libraComponentData, tidbComponentData, oracleComponentData) || {}; // 所有引擎数据组合
+                        let componentConf = exChangeComponentConf(hadoopComponentData, libraComponentData, tidbComponentData, oracleComponentData, greenPlumComponentData) || {}; // 所有引擎数据组合
                         const flinkData = componentConf.flinkConf;
                         const extParams = this.exchangeServerParams(componentConf);
 
@@ -789,6 +802,7 @@ class EditCluster extends React.Component<any, any> {
                 Api.saveComponentWithKerberos({
                     componentId: component.componentId,
                     configString: JSON.stringify(saveConfig),
+                    hadoopVersion: cluster.hadoopVersion,
                     clusterId: cluster.id || cluster.clusterId,
                     kerberosFile
                 }).then((res: any) => {
@@ -806,6 +820,7 @@ class EditCluster extends React.Component<any, any> {
                     Api.saveComponent({
                         clusterId: cluster.id || cluster.clusterId,
                         componentId: component.componentId,
+                        hadoopVersion: cluster.hadoopVersion,
                         configString: JSON.stringify(saveConfig)
                     }).then((res: any) => {
                         if (res.code === 1) {
@@ -854,8 +869,9 @@ class EditCluster extends React.Component<any, any> {
             reqParams.engineList = engineArr;
             Api.addEngines(reqParams).then((res: any) => {
                 if (res.code === 1) {
+                    const lastEngineKey = engineArr.length > 0 ? engineArr[ engineArr.length - 1 ].engineType : engineTypeKey;
                     this.onCancel()
-                    this.getDataList(engineTypeKey);
+                    this.getDataList(lastEngineKey);
                     message.success('添加引擎成功!')
                 }
             })
@@ -898,6 +914,7 @@ class EditCluster extends React.Component<any, any> {
                 if (hasKerberosFile) {
                     Api.testComponentKerberos({
                         ...fileObj,
+                        hadoopVersion: cluster.hadoopVersion,
                         clusterId: cluster.id || cluster.clusterId,
                         componentConfigs: JSON.stringify(componentConf)
                     })
@@ -929,6 +946,7 @@ class EditCluster extends React.Component<any, any> {
                 } else {
                     Api.testComponent({
                         clusterId: cluster.id || cluster.clusterId,
+                        hadoopVersion: cluster.hadoopVersion,
                         componentConfigs: JSON.stringify(componentConf)
                     })
                         .then(
@@ -1064,6 +1082,12 @@ class EditCluster extends React.Component<any, any> {
                 })
                 break;
             }
+            case COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL: {
+                form.setFieldsValue({
+                    [COMPONEMT_CONFIG_KEYS.GREEN_PLUM_SQL]: allComponentConf.greenPlumSqlConf
+                })
+                break;
+            }
         }
     }
     showDeleteConfirm (component: any) {
@@ -1090,6 +1114,7 @@ class EditCluster extends React.Component<any, any> {
             componentTypeCode == COMPONENT_TYPE_VALUE.LIBRASQL ||
             componentTypeCode == COMPONENT_TYPE_VALUE.TIDB_SQL ||
             componentTypeCode == COMPONENT_TYPE_VALUE.ORACLE_SQL ||
+            componentTypeCode == COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL ||
             componentTypeCode == COMPONENT_TYPE_VALUE.SFTP) {
             message.error(`${componentName}不允许删除！`)
         } else {
@@ -1191,6 +1216,7 @@ class EditCluster extends React.Component<any, any> {
         const libraExtParams = this.getCustomParams(formValues, 'libra');
         const tidbExtParams = this.getCustomParams(formValues, 'tidb');
         const oracleExtParams = this.getCustomParams(formValues, 'oracle');
+        const greenPlumExtParams = this.getCustomParams(formValues, 'greenPlum');
 
         const learningTypeName: any = {
             typeName: `learning`
@@ -1218,6 +1244,7 @@ class EditCluster extends React.Component<any, any> {
         componentConf['libraConf'] = { ...formValues.libraConf, ...libraExtParams };
         componentConf['tidbConf'] = { ...formValues.tidbConf, ...tidbExtParams };
         componentConf['oracleConf'] = { ...formValues.oracleConf, ...oracleExtParams };
+        componentConf['greenPlumConf'] = { ...formValues.greenPlumConf, ...greenPlumExtParams };
         componentConf['sftpConf'] = formValues.sftpConf || {};
         // 服务端兼容，不允许null
         componentConf['hiveConf'].username = componentConf['hiveConf'].username || '';
@@ -1894,6 +1921,23 @@ class EditCluster extends React.Component<any, any> {
                     />
                 )
             }
+            case COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL: {
+                return (
+                    <GreenPlumSqlConfig
+                        isView={isView}
+                        getFieldDecorator={getFieldDecorator}
+                        customView={(
+                            <div>
+                                <div className="engine-config-content">
+                                    {this.renderExtraParam('greenPlum')}
+                                    {this.showAddCustomParam(isView, 'greenPlum')}
+                                </div>
+                            </div>
+                        )}
+                        singleButton={this.renderExtFooter(isView, component)}
+                    />
+                )
+            }
             default:
                 return <div>目前暂无该组件配置</div>
         }
@@ -1910,7 +1954,10 @@ class EditCluster extends React.Component<any, any> {
         const engineList = clusterData.engines || [];
 
         const renderMetaTag = (componentType: number, syncType: number) => {
-            return componentType === syncType || [COMPONENT_TYPE_VALUE.LIBRASQL, COMPONENT_TYPE_VALUE.TIDB_SQL, COMPONENT_TYPE_VALUE.ORACLE_SQL].indexOf(componentType) > -1
+            return componentType === syncType || [
+                COMPONENT_TYPE_VALUE.LIBRASQL, COMPONENT_TYPE_VALUE.TIDB_SQL,
+                COMPONENT_TYPE_VALUE.ORACLE_SQL, COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL
+            ].indexOf(componentType) > -1
                 ? <Tag color="blue">Meta</Tag>
                 : null;
         }
