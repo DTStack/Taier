@@ -105,46 +105,46 @@ public final class DBUtil {
     }
 
     public static String parseIpAndPort(DataBaseType dataBaseType, String url) {
-        if(url.contains(";principal=")) {
+        if (url.contains(";principal=")) {
             String[] jdbcStr = url.split(";");
             url = jdbcStr[0];
         }
 
         String addr;
         Matcher matcher;
-        if(dataBaseType != DataBaseType.SQLServer && dataBaseType != DataBaseType.SQLSSERVER_2017_LATER) {
-            if(dataBaseType == DataBaseType.HIVE) {
+        if (dataBaseType != DataBaseType.SQLServer && dataBaseType != DataBaseType.SQLSSERVER_2017_LATER) {
+            if (dataBaseType == DataBaseType.HIVE) {
                 matcher = HIVE_JDBC_PATTERN.matcher(url);
-                if(matcher.find()) {
+                if (matcher.find()) {
                     addr = matcher.group("host") + ":" + matcher.group("port");
                 } else {
                     addr = url.substring(url.indexOf("//") + 2, url.lastIndexOf("/"));
                 }
+            } else if (dataBaseType == DataBaseType.Greenplum6) {
+                matcher = GREENPLUM_SERVICE.matcher(url);
+                if (matcher.find()) {
+                    addr = matcher.group("ip") + ":" + matcher.group("port");
+                } else {
+                    addr = url.substring(url.indexOf("jdbc:pivotal:greenplum:") + 23, url.indexOf(";") == -1 ? url.length() : url.indexOf("/"));
+                }
             } else {
-                if(dataBaseType == DataBaseType.CarbonData) {
+                if (dataBaseType == DataBaseType.CarbonData) {
                     return parseAddress(url);
                 }
 
-                if(dataBaseType == DataBaseType.Impala) {
-                    if(JDBC_PATTERN.matcher(url).find()) {
+                if (dataBaseType == DataBaseType.Impala) {
+                    if (JDBC_PATTERN.matcher(url).find()) {
                         addr = url.substring(url.indexOf("//") + 2, url.lastIndexOf("/"));
-                    } else if(url.indexOf(";") > -1) {
+                    } else if (url.indexOf(";") > -1) {
                         addr = url.substring(url.indexOf("//") + 2, url.indexOf(";"));
                     } else {
                         addr = url.substring(url.indexOf("//") + 2);
                     }
-                } else if(url.contains("serverTimezone")) {
+                } else if (url.contains("serverTimezone")) {
                     addr = url.substring(url.indexOf("//") + 2, url.lastIndexOf(":") + 5);
                 } else {
                     addr = url.substring(url.indexOf("//") + 2, url.lastIndexOf("/"));
                 }
-            }
-        } else if (dataBaseType == DataBaseType.Greenplum6){
-            matcher = GREENPLUM_SERVICE.matcher(url);
-            if (matcher.find()) {
-                addr = matcher.group("ip") + ":" + matcher.group("port");
-            } else {
-                addr = url.substring(url.indexOf("jdbc:pivotal:greenplum:") + 23, url.indexOf(";") == -1 ? url.length() : url.indexOf("/"));
             }
         } else {
             addr = url.substring(url.indexOf("//") + 2, url.lastIndexOf(";"));
