@@ -166,12 +166,13 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                     taskShade.getName(), taskShade.getTenantId(), taskShade.getProjectId(), taskParamsToReplace, scheduleJob.getCycTime());
             String fileName = uploadPath.substring(StringUtils.lastIndexOf(uploadPath, "/"));
             exeArgs = exeArgs.replace(TaskConstant.UPLOADPATH, uploadPath);
-            // launch-cmd为 py3 路径和 文件 名 base64 而成
-            JSONObject dtsciptConfig = JSONObject.parseObject(clusterService.getConfigByKey(scheduleJob.getDtuicTenantId(), EComponentType.DT_SCRIPT.getConfName(), false));
-            String py3Path = dtsciptConfig.getString("python3.path");
-            String launchString = Base64Util.baseEncode(py3Path + " " + fileName);
-            taskExeArgs = exeArgs.replace(TaskConstant.LAUNCH, launchString);
-            LOG.info(" TensorFlow job {} py3Path {} fileName {} exeArgs {} ", scheduleJob.getJobId(), py3Path, fileName, taskExeArgs);
+            String launchCmd = (String) actionParam.get("launchCmd");
+            if (StringUtils.isNotBlank(launchCmd)) {
+                //替换参数 base64 生成launchCmd
+                String launchString = Base64Util.baseEncode(launchCmd.replace(TaskConstant.FILE_NAME, fileName));
+                taskExeArgs = exeArgs.replace(TaskConstant.LAUNCH, launchString);
+            }
+            LOG.info(" TensorFlow job {} fileName {} exeArgs {} ", scheduleJob.getJobId(), fileName, taskExeArgs);
 
         } else if (taskShade.getEngineType().equals(ScheduleEngineType.Learning.getVal())
                 || taskShade.getEngineType().equals(ScheduleEngineType.Shell.getVal())
