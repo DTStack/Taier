@@ -53,7 +53,7 @@ public class Client {
 
     private static final Logger LOG = LoggerFactory.getLogger(Client.class);
 
-    private static final AtomicBoolean REFRESH_APP_MASTER_JAR = new AtomicBoolean(true);
+    private final AtomicBoolean REFRESH_APP_MASTER_JAR = new AtomicBoolean(true);
 
     private DtYarnConfiguration conf;
     private FileSystem dfs;
