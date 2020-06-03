@@ -13,16 +13,17 @@ pythonConf:
 jupyterConf:
   controls: group
   optional:
-    jupyter.path: /data/anaconda3/bin/jupyter-lab
+    jupyter.path: "'/data/anaconda3/bin/jupyter-lab'"
     c.NotebookApp.open_browser:
       controls: select
-      values: [true,false]
+      values: ["True","False"]
     c.NotebookApp.allow_remote_access:
       controls: select
-      values: [true,false]
-    c.NotebookApp.ip: '*'
-    c.NotebookApp.token: ''
-    c.NotebookApp.default_url: '/lab'
+      values: ["True","False"]
+    c.NotebookApp.ip: "'*'"
+    c.NotebookApp.token: "''"
+    c.NotebookApp.default_url: "'/lab'"
+    c.NotebookApp.notebook_dir: "''"
     jupyter.project.root: /data/DTAiworks/Jupyter/
 
 
