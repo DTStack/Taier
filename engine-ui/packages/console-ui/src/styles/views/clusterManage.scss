@@ -55,10 +55,6 @@
     color: rgba(1,1,1,0.54);
     border-color: #dddddd;
 }
-.formItem-right-text{
-    line-height: 32px;
-    margin-left: 8px;
-}
 .formitem-textname{
     text-align: right;
     word-break: break-all;
@@ -102,11 +98,13 @@
     font-family: anticon;
     font-size: 16px;
     color: #00A755;
+    margin-left: 8px;
 }
 .err-icon {
     font-family: anticon;
     font-size: 16px;
     color: #E6432C;
+    margin-left: 8px;
 }
 .back-icon {
     float: left;
@@ -157,4 +155,281 @@
     background: #FFFFFF;
     box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.10);
     border-left: 4px solid #2491F7;
+}
+
+.contentBox {
+    margin-top: 18px;
+}
+
+.c-clusterManage__title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px 0 20px;
+    .c-clusterManage__title__span {
+        color: #333333FF;
+        font-size: 14px;
+        font-weight: bold;
+    }
+    .c-clusterManage__title__btn {
+        height: 32px;
+        width: 80px;
+        margin: 0;
+        padding: 0;
+    }
+}
+
+.c-clusterManage__card {
+    .m-table {
+        tr>td:first-child,
+        tr>th:first-child {
+            padding-left: 40px;
+        }
+    }
+}
+
+.c-editCluster__containerWrap {
+    height: 100%;
+    width: 100%;
+    min-height: 550px;
+    position: relative;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    .c-editCluster__turnBack {
+        font-size: 14px;
+        font-weight: bold;
+        color: #999;
+        cursor: pointer;
+    }
+    .c-editCluster__title {
+        font-size: 14px;
+        color: #333;
+        font-weight: bold;
+    }
+    .c-editCluster__header {
+        margin-bottom: 12px;
+        margin-top: 12px;
+        height: 32px;
+        display: flex;
+        justify-content: space-between;
+        .c-editCluster__header__btn {
+            padding: 0 12px;
+            height: 32px;
+        }
+    }
+}
+
+.c-editCluster__container {
+    position: relative;
+    flex: 1;
+    background: #fff;
+    .c-editCluster__container__commonTabs {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        >.ant-tabs-bar {
+            height: 34.8px;
+        }
+        >.ant-tabs-content {
+            flex: 1;
+        }
+        .ant-tabs-extra-content {
+            float: left !important;
+        }
+        .c-editCluster__commonTabs__title {
+            width: 200px;
+            font-size: 14px;
+            padding-left: 20px;
+            color: #333;
+            font-weight: bold;
+        }
+        .c-editCluster__componentButton {
+            width: 200px;
+            height: 40px;
+            background: rgba(250,250,250,1);
+            border-radius: 0px 0px 0px 2px;
+            padding: 0;
+        }
+    }
+    .c-editCluster__container__card {
+        height: 100%;
+        border-top: unset;
+        border-radius: unset;
+        >.ant-card-body {
+            padding: 0 !important;
+            height: 100%;
+        }
+    }
+    .c-editCluster__container__componentTabs {
+        height: 100%;
+        > .ant-tabs-bar {
+            width: 200px !important;
+        }
+        >.ant-tabs-content {
+            flex: unset;
+        }
+        >.ant-tabs-bar {
+            height: 100%;
+            position: relative;
+            >.ant-tabs-nav-container {
+                height: unset;
+                position: absolute;
+                top: 20px;
+                bottom: 40px;
+                left: 0;
+                right: 0;
+                .ant-tabs-nav {
+                    .ant-tabs-tab{
+                        text-align: left;
+                        padding-left: 20px;
+                    }
+                }
+            }
+            >.ant-tabs-extra-content {
+                height: 40px;
+                position: absolute;
+                bottom: 0;
+            }      
+        }
+        .c-editCluster__container__componentWrap {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            // bottom: 40px;
+            left: 200px;
+            display: flex;
+            flex-direction: row;
+            .c-editCluster__container__componentWrap__resource {
+                width: 200px;
+            }
+            .c-editCluster__container__componentWrap__config {
+                flex: 1;
+            }
+        }
+        .c-editCluster__container__componentFooter {
+            height: 40px;
+            position: absolute;
+            left: 200px;
+            right: 0;
+            bottom: 0;
+            border-top: 1px solid #e9e9e9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #fff;
+            c-editCluster__container__componentFooter__btn {
+                padding: 0;
+                height: 28px;
+                width: 88px;
+            }
+        }
+    }
+    .c-editCluster__container__emptyLogo {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-top: -100px;
+        margin-left: -100px;
+        z-index: 1;
+    }
+}
+
+.c-displayResource__container {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    padding: 20px 12px;
+    border-right: 1px solid #e9e9e9;
+    .c-displayResource__downloadFile {
+        width: 176px;
+        height: 20px;
+        font-size: 12px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        border-radius: 2px;
+        cursor: pointer;
+        &:hover {
+            background-color: rgba(242,249,255,1);
+        }
+    }
+    .c-displayResource__downloadTemp {
+        margin-left: 55px;
+        color: #3F87FF;
+        cursor: pointer
+    }
+    .c-displayResource__notice {
+        font-size: 10px;
+        color: #999;
+        line-height: 16px;
+        padding-top: 5px;
+    }
+    >.ant-form-item {
+        margin-bottom: 20px;
+    }
+}
+
+.c-componentsConfig__container {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+    padding: 24px 20px 40px 20px;
+    .c-componentsConfig__group {
+        margin-top: 20px;
+        width: 100%;
+        position: relative;
+        .c-componentsConfig__group__title {
+            font-size: 14px;
+            color: #333;
+            font-weight: bold;
+        }
+        .c-componentsConfig__group__content {
+            padding: 12px 20px 20px 20px;
+            margin: 12px 0 20px 0;
+            background-color: #FAFAFAFF;
+        }
+    }
+    .c-componentConfig__checkboxGroup {
+        .ant-checkbox-wrapper + .ant-checkbox-wrapper {
+            margin-left: 23px;
+        }
+    }
+    .c-componentConfig__kubernetsContent {
+        height: 100%;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+}
+
+.c-editCluster__icon {
+    &:hover {
+        color: #2491f7;
+    }
+}
+
+.c-modifyComponents__modal {
+    width:460px;
+    .ant-modal-footer {
+        border-top: unset;
+        .ant-btn {
+            padding: 0;
+            height: 32px;
+            width: 68px;
+        }
+    }
+}
+
+.formItem-right-text{
+    line-height: 32px;
+    margin-left: 8px;
+    color: #FF5F5C;
+    &:hover {
+        color: #FF5F5C;
+    }
 }

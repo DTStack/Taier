@@ -41,17 +41,26 @@ export default {
     CHANGE_JOB_PRIORITY: `${CONSOLE_BASE_URL}/console/jobPriority`, // 顺序调整调整优先级
     GET_CLUSTER_RESOURCES: `${CONSOLE_BASE_URL}/console/clusterResources`, // 查看剩余资源
 
-    GET_CLUSTER_INFO: `${CONSOLE_BASE_URL}/cluster/getCluster`,
-    UPLOAD_RESOURCE: `${CONSOLE_BASE_UPLOAD_URL}/upload/component/config`, // 上传资源配置（hdfs、yarn）
+    // 4.0版本
+    GET_CLUSTER_INFO: `${CONSOLE_BASE_URL}/component/cluster/getCluster`,
+    UPLOAD_RESOURCE: `${CONSOLE_BASE_UPLOAD_URL}/upload/component/config`, // 上传配置文件
+    DOWNLOAD_RESOURCE: `${CONSOLE_BASE_UPLOAD_URL}/download/component/downloadFile`, // 下载配置文件
+    DELETE_CLUSTER: `${CONSOLE_BASE_UPLOAD_URL}/cluster/deleteCluster`, // 删除集群
+    DELETE_COMPONENT: `${CONSOLE_BASE_URL}/component/delete`,
+    GET_COMPONENT_VERSION: `${CONSOLE_BASE_URL}/component/getComponentVersion`,
+    TEST_CONNECTS: `${CONSOLE_BASE_URL}/component/testConnects`,
+    SAVE_COMPONENT: `${CONSOLE_BASE_URL}/upload/component/addOrUpdateComponent`,
+    CLOSE_KERBEROS: `${CONSOLE_BASE_URL}/component/closeKerberos`,
+    GET_VERSION: `${CONSOLE_BASE_URL}/component/getComponentVersion`,
+
+    GET_LOADTEMPLATE: `${CONSOLE_BASE_UPLOAD_URL}/component/loadTemplate`, // 获取上传模板
     UPLOAD_KERBEROSFILE: `${CONSOLE_BASE_UPLOAD_URL}/upload/component/hadoopKerberosConfig`, // 上传kerberos认证文件
     GET_KERBEROSFILE: `${CONSOLE_BASE_URL}/component/getHadoopKerberosFile`, // 获取上传过的kerberos认证文件的信息内容
     TEST_COMPONENT_CONNECT: `${CONSOLE_BASE_URL}/component/testConnections`,
     TEST_COMPONENT_CONNECT_KERBEROS: `${CONSOLE_BASE_UPLOAD_URL}/upload/service/component/testConnections`, // 测试连通性只要有组件开启kerberos认证就掉该接口
     ADD_CLUSTER: `${CONSOLE_BASE_URL}/cluster/addCluster`, // 新增集群
     ADD_COMPONENT: `${CONSOLE_BASE_URL}/component/addComponent`,
-    SAVE_COMPONENT: `${CONSOLE_BASE_URL}/component/update`,
     SAVE_COMPONENT_KERBEROS: `${CONSOLE_BASE_UPLOAD_URL}/upload/service/component/updateWithKerberos`, // 开启kerberos认证的保存接口
-    DELETE_COMPONENT: `${CONSOLE_BASE_URL}/component/delete`,
     DELETE_KERBEROS: `${CONSOLE_BASE_URL}/component/rmKerberosConfig`, // 删除Haddop Kerberos认证文件
     ADD_ENGINE: `${CONSOLE_BASE_URL}/engine/addEngine`,
     ADD_ENGINS: `${CONSOLE_BASE_URL}/engine/addEngines`,

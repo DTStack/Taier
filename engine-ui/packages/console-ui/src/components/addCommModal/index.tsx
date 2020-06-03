@@ -66,7 +66,7 @@ class AddCommModal extends React.Component<any, any> {
         if (isLibra) {
             params.engineList.push({
                 engineName: ENGINE_TYPE_NAME.LIBRA,
-                componentTypeCodeList: [COMPONENT_TYPE_VALUE.LIBRASQL]
+                componentTypeCodeList: [COMPONENT_TYPE_VALUE.LIBRA_SQL]
             })
         }
         return params
@@ -158,7 +158,7 @@ class AddCommModal extends React.Component<any, any> {
         if (validate) { // 校验通过
             params.reqParams = {
                 engineName,
-                componentTypeCodeList: isHadoop || isAddComp ? this.state.checkedList : [COMPONENT_TYPE_VALUE.LIBRASQL]
+                componentTypeCodeList: isHadoop || isAddComp ? this.state.checkedList : [COMPONENT_TYPE_VALUE.LIBRA_SQL]
             }
             params.canSubmit = true
         }
@@ -253,7 +253,7 @@ class AddCommModal extends React.Component<any, any> {
                             required: true,
                             message: ''
                         }],
-                        initialValue: COMPONENT_TYPE_VALUE.LIBRASQL
+                        initialValue: COMPONENT_TYPE_VALUE.LIBRA_SQL
                     })(
                         <span>LibrA SQL</span>
                     )}
