@@ -657,9 +657,13 @@ public class ClusterService implements InitializingBean {
         }
         pluginInfo.put("dbUrl", tiDBConf.getString("jdbcUrl"));
         pluginInfo.remove("jdbcUrl");
-        pluginInfo.put("userName", tiDBConf.getString("username"));
+        if (StringUtils.isNotBlank(tiDBConf.getString("username"))) {
+            pluginInfo.put("userName", tiDBConf.getString("username"));
+        }
         pluginInfo.remove("username");
-        pluginInfo.put("pwd", tiDBConf.getString("password"));
+        if (StringUtils.isNotBlank(tiDBConf.getString("password"))) {
+            pluginInfo.put("pwd", tiDBConf.getString("password"));
+        }
         pluginInfo.remove("password");
         pluginInfo.put("typeName", typeName);
         return pluginInfo;
