@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.util.TypeUtils;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.base.resource.EngineResourceInfo;
+import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -78,6 +79,8 @@ public class HadoopClient extends AbstractClient {
         customerConf.initHadoopConf(config.getHadoopConf());
         customerConf.initYarnConf(config.getYarnConf());
         conf = customerConf.getYarnConfiguration();
+
+        HadoopConfTool.setFsHdfsImplDisableCache(conf);
 
         conf.set("mapreduce.framework.name", "yarn");
         conf.set("yarn.scheduler.maximum-allocation-mb", "1024");
