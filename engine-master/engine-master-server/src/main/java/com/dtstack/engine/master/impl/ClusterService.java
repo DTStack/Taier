@@ -556,19 +556,19 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
 
         } else if (EComponentType.LIBRA_SQL == type.getComponentType()) {
             JSONObject libraConf = clusterConfigJson.getJSONObject(EComponentType.LIBRA_SQL.getConfName());
-            this.convertSQLComponent(libraConf,pluginInfo);
+            pluginInfo = this.convertSQLComponent(libraConf,pluginInfo);
             pluginInfo.put("typeName", "postgresql");
         } else if (EComponentType.IMPALA_SQL == type.getComponentType()) {
             JSONObject impalaConf = clusterConfigJson.getJSONObject(EComponentType.IMPALA_SQL.getConfName());
-            this.convertSQLComponent(impalaConf,pluginInfo);
+            pluginInfo =  this.convertSQLComponent(impalaConf,pluginInfo);
             pluginInfo.put("typeName", "impala");
         } else if (EComponentType.TIDB_SQL == type.getComponentType()) {
             JSONObject tiDBConf = JSONObject.parseObject(tiDBInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
-            this.convertSQLComponent(tiDBConf,pluginInfo);
+            pluginInfo =  this.convertSQLComponent(tiDBConf,pluginInfo);
             pluginInfo.put("typeName", "tidb");
         } else if (EComponentType.ORACLE_SQL == type.getComponentType()) {
             JSONObject oracleConf = JSONObject.parseObject(oracleInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
-            this.convertSQLComponent(oracleConf,pluginInfo);
+            pluginInfo =  this.convertSQLComponent(oracleConf,pluginInfo);
             pluginInfo.put("typeName", "oracle");
         } else {
             //flink spark 需要区分任务类型
@@ -655,7 +655,6 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
         pluginInfo.put("jdbcUrl", jdbcInfo.getString("jdbcUrl"));
         pluginInfo.put("username", jdbcInfo.getString("username"));
         pluginInfo.put("password", jdbcInfo.getString("password"));
-        pluginInfo.remove("password");
         return pluginInfo;
     }
 

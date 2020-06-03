@@ -34,6 +34,7 @@ public class PluginWrapper{
     public static final String DEPLOY_MODEL = "deployMode";
     private static final String QUEUE = "queue";
     private static final String GROUP_NAME = "groupName";
+    private static final String USER_ID = "userId";
 
     @Autowired
     private ClusterService clusterService;
@@ -53,7 +54,7 @@ public class PluginWrapper{
 
         Long tenantId = MapUtils.getLong(actionParam, TENANT_ID);
         String engineType = MapUtils.getString(actionParam, ENGINE_TYPE);
-        JSONObject pluginInfoJson = clusterService.pluginInfoJSON(tenantId, engineType, null,deployMode);
+        JSONObject pluginInfoJson = clusterService.pluginInfoJSON(tenantId, engineType, MapUtils.getLong(actionParam,USER_ID),deployMode);
         String groupName = DEFAULT_GROUP_NAME;
         if (Objects.nonNull(pluginInfoJson) && !pluginInfoJson.isEmpty()) {
             addParamsToJdbcUrl(actionParam, pluginInfoJson);
