@@ -8,6 +8,7 @@ import com.dtstack.engine.api.domain.KerberosConfig;
 import com.dtstack.engine.api.dto.Resource;
 import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.api.vo.ComponentVO;
 
 import java.io.File;
@@ -55,7 +56,7 @@ public interface ComponentService {
     public ComponentVO addOrUpdateComponent(@Param("clusterId") Long clusterId, @Param("clusterName") String clusterName, @Param("componentConfig") String componentConfig,
                                             @Param("resources") List<Resource> resources, @Param("hadoopVersion") String hadoopVersion,
                                             @Param("kerberosFileName") String kerberosFileName, @Param("componentTemplate") String componentTemplate,
-                                            @Param("componentCode") Integer componentCode, @Param("operateType") String operateType);
+                                            @Param("componentCode") Integer componentCode);
 
     /**
      * 移除kerberos配置
@@ -63,6 +64,9 @@ public interface ComponentService {
      * @param componentId
      */
     public void closeKerberos(@Param("componentId") Long componentId);
+
+
+    public Map<String, Object> addOrCheckClusterWithName(@Param("clusterName") String clusterName);
 
     /**
      * parse zip中xml或者json

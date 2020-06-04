@@ -515,7 +515,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
     public ComponentVO addOrUpdateComponent(@Param("clusterId") Long clusterId, @Param("clusterName") String clusterName, @Param("componentConfig") String componentConfig,
                                             @Param("resources") List<Resource> resources, @Param("hadoopVersion") String hadoopVersion,
                                             @Param("kerberosFileName") String kerberosFileName, @Param("componentTemplate") String componentTemplate,
-                                            @Param("componentCode") Integer componentCode, @Param("operateType") String operateType) {
+                                            @Param("componentCode") Integer componentCode) {
         if (StringUtils.isBlank(componentConfig) && EComponentType.KUBERNETES.getTypeCode() != componentCode) {
             throw new RdosDefineException("组件信息不能为空");
         }
@@ -525,10 +525,13 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         ComponentDTO componentDTO = new ComponentDTO();
         componentDTO.setComponentConfig(componentConfig);
         componentDTO.setComponentTypeCode(componentCode);
-        //新增 clusterName 修改clusterId
-        if (Objects.isNull(clusterId)) {
-            clusterId = this.checkClusterWithName(clusterId, clusterName, operateType);
+
+        if (clusterId == null) {
+            clusterName = clusterName.trim();
+            Cluster cluster = clusterDao.getByClusterName(clusterName);
+            clusterId = cluster.getId();
         }
+
 
         Component sftpComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.SFTP.getTypeCode());;
         if (CollectionUtils.isNotEmpty(resources)) {
@@ -782,7 +785,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         kerberosDao.deleteByComponentId(componentId);
     }
 
-    private Long checkClusterWithName(@Param("clusterId") Long clusterId, @Param("clusterName") String clusterName, @Param("operateType") String operateType) {
+    public Map<String, Object> addOrCheckClusterWithName(@Param("clusterName") String clusterName) {
         if (StringUtils.isBlank(clusterName)) {
             throw new RdosDefineException("集群名称不能为空");
         }
@@ -793,17 +796,16 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
             ClusterDTO clusterDTO = new ClusterDTO();
             clusterDTO.setClusterName(clusterName);
             ClusterVO clusterVO = clusterService.addCluster(clusterDTO);
+            Map<String, Object> result = new HashMap<>();
             if (Objects.nonNull(clusterVO)) {
-                clusterId = clusterVO.getClusterId();
+                Long clusterId = clusterVO.getClusterId();
+                result.put("clusterId", clusterId);
                 LOGGER.info("add cluster {} ", clusterId);
             }
+            return result;
         } else {
-            if (operateType != null && operateType.equals(ADD_OPERATE_TYPE)) {
-                throw new RdosDefineException("集群名称已存在");
-            }
-            clusterId = cluster.getId();
+            throw new RdosDefineException("集群名称已存在");
         }
-        return clusterId;
     }
 
     private void checkJSON(String json){
