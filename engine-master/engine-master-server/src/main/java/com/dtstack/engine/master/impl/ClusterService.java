@@ -292,6 +292,9 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
     public String clusterSftpDir(@Param("tenantId") Long tenantId, @Param("componentType") Integer componentType) {
         Long clusterId = engineTenantDao.getClusterIdByTenantId(tenantId);
         if (clusterId != null) {
+            if(Objects.isNull(componentType)){
+                componentType = EComponentType.SPARK_THRIFT.getTypeCode();
+            }
             Map<String, String> sftpConfig = componentService.getSFTPConfig(clusterId);
             if (sftpConfig != null) {
                 KerberosConfig kerberosDaoByComponentType = kerberosDao.getByComponentType(clusterId, componentType);
@@ -401,6 +404,9 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
         }
 
         Engine engine = engineDao.getOne(engineIds.get(0));
+        if(Objects.isNull(engine)){
+            return getCluster(DEFAULT_CLUSTER_ID, true,false);
+        }
         return getCluster(engine.getClusterId(), true,false);
     }
 
@@ -556,19 +562,19 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
 
         } else if (EComponentType.LIBRA_SQL == type.getComponentType()) {
             JSONObject libraConf = clusterConfigJson.getJSONObject(EComponentType.LIBRA_SQL.getConfName());
-            pluginInfo = this.convertSQLComponent(libraConf,pluginInfo);
+            pluginInfo = this.convertSQLComponent(libraConf, pluginInfo);
             pluginInfo.put("typeName", "postgresql");
         } else if (EComponentType.IMPALA_SQL == type.getComponentType()) {
             JSONObject impalaConf = clusterConfigJson.getJSONObject(EComponentType.IMPALA_SQL.getConfName());
-            pluginInfo =  this.convertSQLComponent(impalaConf,pluginInfo);
+            pluginInfo = this.convertSQLComponent(impalaConf, pluginInfo);
             pluginInfo.put("typeName", "impala");
         } else if (EComponentType.TIDB_SQL == type.getComponentType()) {
-            JSONObject tiDBConf = JSONObject.parseObject(tiDBInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
-            pluginInfo =  this.convertSQLComponent(tiDBConf,pluginInfo);
+            JSONObject tiDBConf = JSONObject.parseObject(tiDBInfo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId()));
+            pluginInfo = this.convertSQLComponent(tiDBConf, pluginInfo);
             pluginInfo.put("typeName", "tidb");
         } else if (EComponentType.ORACLE_SQL == type.getComponentType()) {
-            JSONObject oracleConf = JSONObject.parseObject(oracleInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
-            pluginInfo =  this.convertSQLComponent(oracleConf,pluginInfo);
+            JSONObject oracleConf = JSONObject.parseObject(oracleInfo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId()));
+            pluginInfo = this.convertSQLComponent(oracleConf, pluginInfo);
             pluginInfo.put("typeName", "oracle");
         } else {
             //flink spark 需要区分任务类型
@@ -632,12 +638,7 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
                 String jdbcUrl = pluginInfo.getString("jdbcUrl");
                 jdbcUrl = jdbcUrl.replace("/%s", "");
                 pluginInfo.put("jdbcUrl", jdbcUrl);
-                pluginInfo.remove("jdbcUrl");
-                pluginInfo.put("password", pluginInfo.getString("password"));
-                pluginInfo.remove("password");
                 pluginInfo.put("typeName", "hive");
-                pluginInfo.put("username", pluginInfo.getString("username"));
-                pluginInfo.remove("username");
             }
             pluginInfo.put(ConfigConstant.MD5_SUM_KEY, getZipFileMD5(clusterConfigJson));
             removeMd5FieldInHadoopConf(pluginInfo);
