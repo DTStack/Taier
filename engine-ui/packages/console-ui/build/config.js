@@ -80,11 +80,10 @@ module.exports = {
                 secure: false
             },
             '/node': { // 控制台
-                target: 'http://172.16.101.236:8090', // 开发环境
+                // target: 'http://172.16.101.236:8090', // 开发环境
+                target: 'http://172.16.0.52:8099',
                 // target: 'http://172.16.101.189:8090',
                 // target: 'http://172.16.100.168:8090', // 开发环境
-                // target: "http://172.16.0.124:8091", // test server
-                // target: "http://172.16.100.204:8084", // test server
                 // target: 'http://172.16.10.195:8091', // 测试环境
                 pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
                 changeOrigin: true,

@@ -16,7 +16,7 @@ export default class ModifyComponentModal extends React.Component<any, any> {
                 onOk={handleDeleteComps}
                 onCancel={handleCancleModify}
                 visible={modify}
-                className="c-modifyComponents__modal"
+                className="c-clusterManage__modal"
             >
                 {
                     isSource

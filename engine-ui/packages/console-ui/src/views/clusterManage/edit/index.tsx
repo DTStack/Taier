@@ -85,19 +85,18 @@ class EditCluster extends React.Component<any, any> {
     }
 
     getDataList = () => {
-        const { clusterId } = this.state;
+        const { tabCompData } = this.state;
         const { cluster = {} } = this.props.location.state || {} as any;
-        const isRequest = clusterId || cluster.clusterId;
-        isRequest && Api.getClusterInfo({
-            clusterId: clusterId || cluster.clusterId
+        Api.getClusterInfo({
+            clusterId: cluster.clusterId
         }).then((res: any) => {
             if (res.code === 1) {
                 this.setState({
-                    tabCompData: res.data.scheduling,
+                    tabCompData: res.data.scheduling || tabCompData,
                     clusterName: res.data.clusterName,
                     componentConfig: dealData.handleCompsData(res),
                     cloneComponentConfig: dealData.handleCompsData(res),
-                    clusterId: clusterId
+                    clusterId: res.clusterId
                 })
             }
         })
@@ -284,7 +283,7 @@ class EditCluster extends React.Component<any, any> {
             },
             testStatus: {
                 ...this.state.testStatus,
-                [componentTypeCode]: ''
+                [componentTypeCode]: null
             }
         })
     }
@@ -457,9 +456,12 @@ class EditCluster extends React.Component<any, any> {
 
     // 下载配置文件
     downloadFile = (components: any, type: any) => {
+        const { clusterName } = this.state;
         const config = this.getComponentConfig(components);
+        const hadoopVersion = this.props.form.getFieldValue(`${COMPONEMT_CONFIG_KEY_ENUM[components.componentTypeCode]}.hadoopVersion`) || '';
         const a = document.createElement('a');
-        const param = `?componentId=${config.id || ''}&type=${type}`;
+        let param = config.id ? `?componentId=${config.id}&` : '?';
+        param = param + `type=${type}&componentType=${components.componentTypeCode}&hadoopVersion=${hadoopVersion}&clusterName=${clusterName}`;
         a.href = `${req.DOWNLOAD_RESOURCE}${param}`;
         a.click();
     }
@@ -490,7 +492,6 @@ class EditCluster extends React.Component<any, any> {
         const isFileNameRequire = dealData.checkUplaodFileComps(componentTypeCode);
         validateFieldsAndScroll((err: any, values: any) => {
             console.log(err, values)
-            const result = /^[a-z0-9_]{1,64}$/i.test(values.clusterName);
             if (err) {
                 let paramName = COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode];
                 if (Object.keys(err).includes(paramName)) {
@@ -502,18 +503,10 @@ class EditCluster extends React.Component<any, any> {
                 message.error('请上传配置文件');
                 return;
             }
-            if (!values.clusterName || !result) {
-                const notice = values.clusterName ? '集群标识不能超过64字符，支持英文、数字、下划线' : '集群名称不能为空';
-                message.error(`${notice}`);
-                return;
-            }
             const params = dealData.getComponentConfigPrames(values, components, config);
-            const { mode } = this.props.location.state || {} as any;
-            const operateType = mode === 'new' ? 1 : '';
             console.log('this is params-----------', params)
             Api.saveComponent({
-                ...params,
-                operateType
+                ...params
             }).then((res: any) => {
                 if (res.code === 1) {
                     this.setState({
@@ -707,7 +700,7 @@ class EditCluster extends React.Component<any, any> {
                     <div className="c-editCluster__header">
                         <FormItem label={null}>
                             {getFieldDecorator('clusterName', { initialValue: clusterName || '' })(
-                                <Input style={{ width: 340, height: 32 }} placeholder="请输入集群标识" disabled={isView || !(mode === 'new')} />
+                                <Input style={{ width: 340, height: 32 }} placeholder="请输入集群标识" disabled={true} />
                             )}
                         </FormItem>
                         {isView ? <Button type="primary" className="c-editCluster__header__btn" onClick={this.turnEditComp}>编辑</Button>
@@ -747,7 +740,6 @@ class EditCluster extends React.Component<any, any> {
                                                 onChange={(key: any) => this.getLoadTemplate(key)}
                                             >
                                                 {tabCompDataList.map((comps: any, index: any) => {
-                                                    console.log('comps========ss', comps)
                                                     return (
                                                         <TabPane
                                                             tab={<span>{comps.componentName}<TestRestIcon testStatus={this.state.testStatus[comps.componentTypeCode] || {}}/></span>}

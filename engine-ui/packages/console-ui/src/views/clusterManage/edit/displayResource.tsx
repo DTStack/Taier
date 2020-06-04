@@ -68,12 +68,12 @@ class DisplayResource extends React.Component<any, any> {
                             style={{ display: 'none' }}
                         />
                         { !isView && <div className="c-displayResource__notice">{noticeContent}</div> }
-                        { fileName && <div className="c-displayResource__downloadFile" onClick={() => components.id && downloadFile(components, 1)} style={{ fontSize: 12, color: '#3F87FF' }}>
+                        { fileName && <div className="c-displayResource__downloadFile" style={{ fontSize: 12, color: '#3F87FF' }}>
                             <span>
                                 <Icon type="paper-clip" style={{ marginRight: 2, color: '#666666FF' }} />
                                 {utils.textOverflowExchange(fileName, 9)}
                             </span>
-                            <Icon type="download" style={{ color: '#666666FF' }} />
+                            { components.id && <Icon type="download" style={{ color: '#666666FF' }} onClick={() => downloadFile(components, 1)} /> }
                         </div>}
                     </div>
                 )}
@@ -121,7 +121,7 @@ class DisplayResource extends React.Component<any, any> {
                                 {utils.textOverflowExchange(kerFileName, 9)}
                             </span>
                             <span>
-                                <Icon type="download" style={{ color: '#666666FF' }} onClick={() => components.id && downloadFile(components, 0)} />
+                                { components.id && <Icon type="download" style={{ color: '#666666FF' }} onClick={() => components.id && downloadFile(components, 0)} /> }
                                 {!isView && <Icon type="delete" style={{ color: '#666666FF', marginLeft: 6 }} onClick={() => deleteKerFile(components.componentTypeCode)} />}
                             </span>
                         </div>}
