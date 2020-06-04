@@ -1022,12 +1022,12 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
      * @return
      */
     public File downloadFile(@Param("componentId") Long componentId, @Param("type") Integer downloadType, @Param("componentType") Integer componentType,
-                             @Param("hadoopVersion") String hadoopVersion) {
+                             @Param("hadoopVersion") String hadoopVersion, @Param("clusterName") String clusterName) {
         String localDownLoadPath = "";
         String uploadFileName = "";
         if (Objects.isNull(componentId)) {
             //解析模版中的信息 作为默认值 返回json
-            List<ClientTemplate> clientTemplates = this.loadTemplate(componentType, null, hadoopVersion);
+            List<ClientTemplate> clientTemplates = this.loadTemplate(componentType, clusterName, hadoopVersion);
             if (CollectionUtils.isNotEmpty(clientTemplates)) {
                 JSONObject fileJson = new JSONObject();
                 fileJson = this.convertTemplateToJson(clientTemplates, fileJson);
