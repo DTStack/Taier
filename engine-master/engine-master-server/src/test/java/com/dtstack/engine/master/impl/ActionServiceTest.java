@@ -7,26 +7,30 @@ import com.dtstack.engine.master.impl.ActionService;
 import com.dtstack.engine.master.utils.AopTargetUtils;
 import io.vertx.core.json.JsonObject;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import java.awt.geom.RectangularShape;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static junit.framework.TestCase.fail;
 
 public class ActionServiceTest extends BaseTest {
-    public final static String METHOD_VALUE = "start";
+
+    @Autowired
+    ActionService actionService;
 
     @Test
-    public void testOperation() {
+    public void testStart() {
         try {
-            Object obj = context.getBean(ActionService.class);
-            Object targetObj = AopTargetUtils.getTarget(obj);
-            Method targetMethod = getMethod(targetObj.getClass());
-            Method proxyMethod = getMethod(obj.getClass());
             Map<String, Object> params = getParams(getJsonString());
-            Object result = proxyMethod.invoke(obj, mapToParamObjects(params, targetMethod.getParameters(), targetMethod.getParameterTypes()));
-            if ((Boolean) result.equals(false)) {
+            Boolean result = actionService.start(params);
+            if (result.equals(false)) {
                 fail("Return false");
             }
         } catch (Exception e) {
@@ -34,44 +38,102 @@ public class ActionServiceTest extends BaseTest {
         }
     }
 
-
-    private Method getMethod(Class<?> clazz) {
-        Method[] methods = clazz.getMethods();
-        Method mm = null;
-        for (Method med : methods) {
-            if (med.getName().equals(METHOD_VALUE)) {
-                mm = med;
-                break;
-            }
+    @Test
+    public void testStatus() {
+        String job_id = "6015b6f4";
+        Integer statusResult = 5;
+        Integer computeType = 1;
+        boolean test1;
+        boolean test2;
+        try {
+            actionService.status(job_id, null);
+            test1 = false;
+        } catch (Exception e) {
+            test1 = true;
         }
-        return mm;
+
+        try {
+            Integer status = actionService.status(job_id, computeType);
+            test2 = (status != null && status.equals(statusResult));
+        } catch (Exception e) {
+            test2 = false;
+        }
+
+        if (!test1) {
+            fail("when computeType is null, the test is fail");
+        }
+
+        if (!test2) {
+            fail("when computeType is not null, the test is fail");
+        }
     }
 
-    private Object[] mapToParamObjects(Map<String, Object> params,
-                                       Parameter[] parameters, Class<?>[] parameterTypes) throws Exception {
-        if (parameters == null || parameters.length == 0) {
-            return new Object[]{};
+    @Test
+    public void testStatusByJobIds() {
+        Map<String, Integer> jobIdsAndStatus = new HashMap<>();
+        jobIdsAndStatus.put("6015b6f4", 5);
+        jobIdsAndStatus.put("210e2627", 5);
+        jobIdsAndStatus.put("ba660e46", 5);
+        List<String> job_ids = new ArrayList<>(jobIdsAndStatus.keySet());
+        Integer computeType = 1;
+        boolean test1;
+        boolean test2;
+
+        try {
+            actionService.statusByJobIds(job_ids, null);
+            test1 = false;
+        } catch (Exception e) {
+            test1 = true;
         }
-        Object[] args = new Object[parameters.length];
-        for (int i = 0; i < parameters.length; i++) {
-            Parameter pa = parameters[i];
-            Class<?> paramterType = parameterTypes[i];
-            Param param = pa.getAnnotation(Param.class);
-            Object obj = null;
-            if (param != null) {
-                obj = params.get(param.value());
-                if (obj != null && !obj.getClass().equals(paramterType)) {
-                    obj = com.dtstack.engine.common.util.PublicUtil.classConvter(paramterType, obj);
-                }
-            } else if (Map.class.equals(paramterType)) {
-                obj = params;
-            } else {
-                obj = PublicUtil.mapToObject(params, paramterType);
-            }
-            args[i] = obj;
+
+        try {
+            Map<String, Integer> status = actionService.statusByJobIds(job_ids, computeType);
+            long result = job_ids.stream().filter(val -> jobIdsAndStatus.get(val).equals(status.get(val))).count();
+            test2 = (result == job_ids.size());
+        } catch (Exception e) {
+            test2 = false;
         }
-        return args;
+
+        if (!test1) {
+            fail("when computeType is null, the test is fail");
+        }
+
+        if (!test2) {
+            fail("when computeType is not null, the test is fail");
+        }
+
     }
+
+    @Test
+    public void testStartTime() {
+        String job_id = "6015b6f4";
+        Long startTimeResult = 1586185050000L;
+        Integer computeType = 1;
+        boolean test1;
+        boolean test2;
+        try {
+            actionService.startTime(job_id, null);
+            test1 = false;
+        } catch (Exception e) {
+            test1 = true;
+        }
+
+        try {
+            Long startTime = actionService.startTime(job_id, computeType);
+            test2 = (startTime != null && startTime.equals(startTimeResult));
+        } catch (Exception e) {
+            test2 = false;
+        }
+
+        if (!test1) {
+            fail("when computeType is null, the test is fail");
+        }
+
+        if (!test2) {
+            fail("when computeType is not null, the test is fail");
+        }
+    }
+
 
     private Map<String, Object> getParams(String json) {
         return new JsonObject(json).getMap();

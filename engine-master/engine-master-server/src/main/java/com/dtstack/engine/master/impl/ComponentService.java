@@ -564,10 +564,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         boolean isUpdate = false;
         boolean isOpenKerberos = StringUtils.isNotBlank(kerberosFileName);
         if (isOpenKerberos) {
-            if (resources.isEmpty()) {
-                throw new RdosDefineException("资源文件不存在");
-            }
-            if (!kerberosFileName.endsWith("." + ZIP_CONTENT_TYPE)) {
+            if (!resources.isEmpty() && !kerberosFileName.endsWith("." + ZIP_CONTENT_TYPE)) {
                 throw new RdosDefineException("kerberos上传文件非zip格式");
             }
         }
@@ -1022,12 +1019,12 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
      * @return
      */
     public File downloadFile(@Param("componentId") Long componentId, @Param("type") Integer downloadType, @Param("componentType") Integer componentType,
-                             @Param("hadoopVersion") String hadoopVersion) {
+                             @Param("hadoopVersion") String hadoopVersion, @Param("clusterName") String clusterName) {
         String localDownLoadPath = "";
         String uploadFileName = "";
         if (Objects.isNull(componentId)) {
             //解析模版中的信息 作为默认值 返回json
-            List<ClientTemplate> clientTemplates = this.loadTemplate(componentType, null, hadoopVersion);
+            List<ClientTemplate> clientTemplates = this.loadTemplate(componentType, clusterName, hadoopVersion);
             if (CollectionUtils.isNotEmpty(clientTemplates)) {
                 JSONObject fileJson = new JSONObject();
                 fileJson = this.convertTemplateToJson(clientTemplates, fileJson);
