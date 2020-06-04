@@ -1137,7 +1137,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
             }
             if (CollectionUtils.isNotEmpty(clientTemplate.getValues())) {
                 //以第一个参数为准 作为默认值
-                this.convertTemplateToJson(Lists.newArrayList(clientTemplate.getValues().get(0)), data);
+                this.convertTemplateToJson(Lists.newArrayList(clientTemplate.getValues()), data);
             }
         }
         return data;
