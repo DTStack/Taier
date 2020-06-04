@@ -1032,7 +1032,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
             List<ClientTemplate> clientTemplates = this.loadTemplate(componentType, clusterName, hadoopVersion);
             if (CollectionUtils.isNotEmpty(clientTemplates)) {
                 JSONObject fileJson = new JSONObject();
-                fileJson = this.convertTemplateToJson(clientTemplates, fileJson);
+                fileJson = (JSONObject) this.convertTemplateToJson(clientTemplates, fileJson);
                 uploadFileName = EComponentType.getByCode(componentType).name() + ".json";
                 localDownLoadPath = downloadLocation + File.separator + uploadFileName;
                 try {
@@ -1130,15 +1130,31 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
     }
 
 
-    private JSONObject convertTemplateToJson(List<ClientTemplate> clientTemplates, JSONObject data) {
+    private Object convertTemplateToJson(List<ClientTemplate> clientTemplates, Object data) {
         for (ClientTemplate clientTemplate : clientTemplates) {
+            Object temp = data;
             if (StringUtils.isNotBlank(clientTemplate.getKey())) {
-                data.put(clientTemplate.getKey(), clientTemplate.getValue());
+                if (data instanceof JSONObject) {
+                    if ("CHECKBOX".equals(clientTemplate.getType())) {
+                        List myData = new ArrayList();
+                        ((JSONObject) data).put(clientTemplate.getKey(), myData);
+                        data = myData;
+                    } else if("GROUP".equals(clientTemplate.getType())) {
+                        Map myData = new HashMap();
+                        ((JSONObject) data).put(clientTemplate.getKey(), myData);
+                        data = myData;
+                    }
+                } else if (data instanceof Map) {
+                    ((Map)data).put(clientTemplate.getKey(), clientTemplate.getValue());
+                } else if (data instanceof List) {
+                    ((List)data).add(clientTemplate.getValue());
+                }
             }
             if (CollectionUtils.isNotEmpty(clientTemplate.getValues())) {
                 //以第一个参数为准 作为默认值
                 this.convertTemplateToJson(Lists.newArrayList(clientTemplate.getValues()), data);
             }
+            data = temp;
         }
         return data;
     }
