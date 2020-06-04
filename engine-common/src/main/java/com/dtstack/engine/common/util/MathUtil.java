@@ -1,5 +1,7 @@
 package com.dtstack.engine.common.util;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * 数字转换
  * Date: 2017/4/21
@@ -40,6 +42,9 @@ public class MathUtil {
         }
 
         if(obj instanceof String){
+            if(StringUtils.isBlank((String)obj)){
+                return null;
+            }
             return Integer.valueOf(((String) obj).trim());
         }else if(obj instanceof Integer){
             return (Integer) obj;
