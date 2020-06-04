@@ -1,11 +1,11 @@
 yarn:
   controls: group
   optional:
-    learning.python3.path: /data/anaconda3/bin/python3
-    learning.python2.path: /data/anaconda2/bin/python2
-    learning.history.address:
-    learning.history.webapp.address:
-    learning.history.webapp.https.address:
+    python3.path: /data/anaconda3/bin/python3
+    python2.path: /data/anaconda2/bin/python2
+    history.address:
+    history.webapp.address:
+    history.webapp.https.address:
 
 
 

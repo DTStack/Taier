@@ -1,7 +1,12 @@
 package com.dtstack.engine.flink.util;
 
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.DtStringUtil;
+import com.dtstack.engine.common.util.SFTPHandler;
+import com.dtstack.engine.flink.FlinkConfig;
+import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.google.common.io.Files;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hadoop.conf.Configuration;
@@ -16,6 +21,8 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.List;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -132,6 +139,37 @@ public class FileUtil {
             return new MutablePair<>(hdfsUri, hdfsPath);
         }else{
             return null;
+        }
+    }
+
+    public static void checkFileExist(String filePath) {
+        if (StringUtils.isNotBlank(filePath)) {
+            if (!new File(filePath).exists()) {
+                throw new RdosDefineException(String.format("The file jar %s  path is not exist ", filePath));
+            }
+        }
+    }
+
+    public static void downloadKafkaKeyTab(String taskParams, FlinkConfig flinkConfig) {
+        try {
+            Properties confProperties = new Properties();
+            List<String> taskParam = DtStringUtil.splitIngoreBlank(taskParams.trim());
+            for (int i = 0; i < taskParam.size(); ++i) {
+                String[] pair = taskParam.get(i).split("=", 2);
+                confProperties.setProperty(pair[0], pair[1]);
+            }
+            String sftpKeytab = confProperties.getProperty(ConfigConstrant.KAFKA_SFTP_KEYTAB);
+            if (StringUtils.isBlank(sftpKeytab)) {
+                logger.info("flink task submission has enabled keberos authentication, but kafka has not !!!");
+                return;
+            }
+            String localKeytab = confProperties.getProperty(ConfigConstrant.SECURITY_KERBEROS_LOGIN_KEYTAB);
+            if (StringUtils.isNotBlank(localKeytab) && !(new File(localKeytab).exists())) {
+                SFTPHandler handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());
+                handler.downloadFile(sftpKeytab, localKeytab);
+            }
+        } catch (Exception e) {
+            logger.error("Download keytab from sftp failed", e);
         }
     }
 

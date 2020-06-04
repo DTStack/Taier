@@ -148,16 +148,21 @@ CREATE TABLE `console_engine` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `console_component` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `engine_id` int(11) NOT NULL COMMENT '引擎id',
-  `component_name` varchar(24) NOT NULL COMMENT '组件名称',
-  `component_type_code` tinyint(1) NOT NULL COMMENT '组件类型',
-  `component_config` text NOT NULL COMMENT '组件配置',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `engine_id` int(11) NOT NULL COMMENT '引擎id',
+ `component_name` varchar(24) NOT NULL COMMENT '组件名称',
+ `component_type_code` tinyint(1) NOT NULL COMMENT '组件类型',
+ `component_config` text NOT NULL COMMENT '组件配置',
+ `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+ `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+ `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+ `hadoop_version` varchar(25) DEFAULT '' COMMENT '组件hadoop版本',
+ `upload_file_name` varchar(50) DEFAULT '' COMMENT '上传文件zip名称',
+ `component_template` text COMMENT '前端展示模版json',
+ `kerberos_file_name` varchar(50) DEFAULT '' COMMENT '上传kerberos文件zip名称',
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `index_component`(`engine_id`, `component_type_code`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `console_dtuic_tenant` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -197,17 +202,19 @@ CREATE TABLE `console_queue` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `console_kerberos` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `cluster_id` int(11) NOT NULL COMMENT '集群id',
-  `open_kerberos` tinyint(1) NOT NULL COMMENT '是否开启kerberos配置',
-  `name` varchar(100) NOT NULL COMMENT 'kerberos文件名称',
-  `remote_path` varchar(200) NOT NULL COMMENT 'sftp存储路径',
-  `principal` varchar(50) NOT NULL COMMENT 'principal',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    `id` bigint(20) NOT NULL AUTO_INCREMENT,
+    `cluster_id` int(11) NOT NULL COMMENT '集群id',
+    `open_kerberos` tinyint(1) NOT NULL COMMENT '是否开启kerberos配置',
+    `name` varchar(100) NOT NULL COMMENT 'kerberos文件名称',
+    `remote_path` varchar(200) NOT NULL COMMENT 'sftp存储路径',
+    `principal` varchar(50) NOT NULL COMMENT 'principal',
+    `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    `krb_name` varchar(26) DEFAULT NULL COMMENT 'krb5_conf名称',
+    `component_type` int(11) DEFAULT NULL COMMENT '组件类型',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 
 -- 账号表

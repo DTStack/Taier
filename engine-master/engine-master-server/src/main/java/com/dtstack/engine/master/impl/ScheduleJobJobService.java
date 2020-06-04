@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.common.annotation.Forbidden;
+import com.dtstack.engine.api.annotation.Forbidden;
 import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.vo.ScheduleJobVO;

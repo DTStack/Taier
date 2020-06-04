@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.common.annotation.Forbidden;
+import com.dtstack.engine.api.annotation.Forbidden;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.dao.JobGraphTriggerDao;
 import com.dtstack.engine.api.domain.JobGraphTrigger;
@@ -15,7 +15,7 @@ import java.sql.Timestamp;
  * create: 2019/10/22
  */
 @Component
-public class JobGraphTriggerService {
+public class JobGraphTriggerService implements com.dtstack.engine.api.service.JobGraphTriggerService {
 
     @Autowired
     private JobGraphTriggerDao jobGraphTriggerDao;

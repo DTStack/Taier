@@ -62,16 +62,13 @@ public class ResourceVerticle extends BaseVerticle {
         try {
             Map<String, Object> params = RequestUtil.getRequestParams(paramMap, routingContext);
             downLoadFile = (File) reflectionMethod(routingContext, params);
-            if (Objects.isNull(downLoadFile) || downLoadFile.isDirectory()) {
-                response.putHeader("Content-Disposition", "attachment;filename=error.log");
-                response.write("文件不存在");
-            } else {
+            if (Objects.nonNull(downLoadFile) && downLoadFile.isFile()) {
                 response.putHeader("Content-Disposition", "attachment;filename=" + encodeURIComponent(downLoadFile.getName()));
                 response.sendFile(downLoadFile.getPath());
             }
-        } catch (InvocationTargetException e) {
-            response.write("下载文件异常:" + e.getTargetException().getMessage());
         } catch (Exception e) {
+            response.setChunked(true);
+            response.putHeader("Content-Disposition", "attachment;filename=error.log");
             logger.error("", e);
             response.write("下载文件异常:" + e.getMessage());
         } finally {

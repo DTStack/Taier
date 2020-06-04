@@ -3,9 +3,9 @@ package com.dtstack.engine.common.client;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.pojo.ClientTemplate;
+import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.common.pojo.ClusterResource;
-import com.dtstack.engine.common.pojo.ComponentTestResult;
+import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 
 import java.io.IOException;

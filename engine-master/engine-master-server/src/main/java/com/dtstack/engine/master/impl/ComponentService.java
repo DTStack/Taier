@@ -3,32 +3,23 @@ package com.dtstack.engine.master.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.annotation.Param;
-import com.dtstack.engine.api.domain.BaseEntity;
-import com.dtstack.engine.api.domain.Cluster;
-import com.dtstack.engine.api.domain.Component;
-import com.dtstack.engine.api.domain.Engine;
-import com.dtstack.engine.api.domain.KerberosConfig;
 import com.dtstack.engine.api.domain.Queue;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.ClusterDTO;
 import com.dtstack.engine.api.dto.ComponentDTO;
 import com.dtstack.engine.api.dto.Resource;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.api.vo.ComponentVO;
 import com.dtstack.engine.api.vo.EngineTenantVO;
-import com.dtstack.engine.common.annotation.Forbidden;
+import com.dtstack.engine.api.annotation.Forbidden;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.pojo.ClientTemplate;
-import com.dtstack.engine.common.pojo.ComponentTestResult;
+import com.dtstack.engine.api.pojo.ClientTemplate;
+import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.util.SFTPHandler;
-import com.dtstack.engine.dao.ClusterDao;
-import com.dtstack.engine.dao.ComponentDao;
-import com.dtstack.engine.dao.EngineDao;
-import com.dtstack.engine.dao.EngineTenantDao;
-import com.dtstack.engine.dao.KerberosDao;
-import com.dtstack.engine.dao.QueueDao;
-import com.dtstack.engine.dao.TenantDao;
+import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.enums.DownloadType;
 import com.dtstack.engine.master.enums.EComponentType;
@@ -44,6 +35,7 @@ import com.dtstack.schedule.common.util.Xml2JsonUtil;
 import com.dtstack.schedule.common.util.ZipUtil;
 import com.google.common.collect.Lists;
 import com.jcraft.jsch.SftpException;
+import javafx.util.Pair;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
@@ -60,23 +52,17 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class ComponentService {
+public class ComponentService implements com.dtstack.engine.api.service.ComponentService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ComponentService.class);
 
     private final static String ZIP_CONTENT_TYPE = "zip";
+
+    private final static String ADD_OPERATE_TYPE = "1";
 
     private static String unzipLocation = System.getProperty("user.dir") + File.separator + "unzip";
 
@@ -140,13 +126,17 @@ public class ComponentService {
      */
     public static Map<Integer, List<String>> componentTypeConfigMapping = new HashMap<>(2);
 
-    public static Map<Integer, List<String>> componentVersionMapping = new HashMap<>(1);
+    public static Map<String, List<Pair<String,String>>> componentVersionMapping = new HashMap<>(1);
 
     static {
         //hdfs core 需要合并
         componentTypeConfigMapping.put(EComponentType.HDFS.getTypeCode(), Lists.newArrayList("hdfs-site.xml", "core-site.xml"));
         componentTypeConfigMapping.put(EComponentType.YARN.getTypeCode(), Lists.newArrayList("yarn-site.xml"));
-        componentVersionMapping.put(EComponentType.FLINK.getTypeCode(), Lists.newArrayList("110", "180"));
+        componentVersionMapping.put(EComponentType.FLINK.getName(), Lists.newArrayList(new Pair<>("1.8", "180"), new Pair<>("1.10", "110")));
+        componentVersionMapping.put(EComponentType.SPARK.getName(), Lists.newArrayList(new Pair<>("2.1.X", "210")));
+        //-1 为hadoopversion
+        componentVersionMapping.put("hadoopVersion", Lists.newArrayList(new Pair<>("hadoop2", "hadoop2"),
+                new Pair<>("hadoop3", "hadoop3"), new Pair<>("HW", "HW")));
     }
 
     /**
@@ -201,6 +191,7 @@ public class ComponentService {
         return component;
     }
 
+    @Forbidden
     public String getSftpClusterKey(Long clusterId) {
         return AppType.CONSOLE.name() + "_" + clusterId;
     }
@@ -217,7 +208,7 @@ public class ComponentService {
         throw new RdosDefineException("缺少xml配置文件");
     }
 
-
+    @Forbidden
     public Map<String, Object> fillKerberosConfig(String allConfString, Long clusterId) {
         JSONObject allConf = JSONObject.parseObject(allConfString);
         allConf.putAll(KerberosConfigVerify.replaceFilePath(allConf, getClusterLocalKerberosDir(clusterId)));
@@ -256,6 +247,7 @@ public class ComponentService {
     /**
      * 更新缓存
      */
+    @Forbidden
     public void updateCache(Long engineId, Integer componentCode) {
         Set<Long> dtUicTenantIds = new HashSet<>();
         if (Objects.nonNull(componentCode) && (
@@ -293,6 +285,7 @@ public class ComponentService {
         }
     }
 
+    @Forbidden
     public List<Component> listComponent(Long engineId) {
         return componentDao.listByEngineId(engineId);
     }
@@ -351,7 +344,7 @@ public class ComponentService {
             }
 
             Resource resource = resources.get(0);
-            if (!resource.getFileName().contains(ZIP_CONTENT_TYPE)) {
+            if (!resource.getFileName().endsWith("." + ZIP_CONTENT_TYPE)) {
                 throw new RdosDefineException("压缩包格式仅支持ZIP格式");
             }
 
@@ -375,12 +368,14 @@ public class ComponentService {
                         //xml文件
                         fileMap = Xml2JsonUtil.xml2map(file);
                     } else {
-                        //json文件
-                        String jsonStr = Xml2JsonUtil.readFile(file);
-                        if (StringUtils.isBlank(jsonStr)) {
-                            continue;
+                        if(file.getName().endsWith("json")){
+                            //json文件
+                            String jsonStr = Xml2JsonUtil.readFile(file);
+                            if (StringUtils.isBlank(jsonStr)) {
+                                continue;
+                            }
+                            fileMap = JSONObject.parseObject(jsonStr, Map.class);
                         }
-                        fileMap = JSONObject.parseObject(jsonStr, Map.class);
                     }
                     if (Objects.nonNull(fileMap)) {
                         confMap.put(file.getName(), fileMap);
@@ -404,7 +399,7 @@ public class ComponentService {
         }
     }
 
-
+    @Forbidden
     public String getClusterLocalKerberosDir(Long clusterId) {
         return env.getLocalKerberosDir() + SEPARATE + getSftpClusterKey(clusterId);
     }
@@ -482,6 +477,7 @@ public class ComponentService {
         return kerberosConfig;
     }
 
+    @Forbidden
     public Map<String, String> getSFTPConfig(Long clusterId) {
         Engine hadoopEngine = getEngineByClusterId(clusterId);
         Component sftpComponent = componentDao.getByEngineIdAndComponentType(hadoopEngine.getId(), EComponentType.SFTP.getTypeCode());
@@ -519,8 +515,8 @@ public class ComponentService {
     public ComponentVO addOrUpdateComponent(@Param("clusterId") Long clusterId, @Param("clusterName") String clusterName, @Param("componentConfig") String componentConfig,
                                             @Param("resources") List<Resource> resources, @Param("hadoopVersion") String hadoopVersion,
                                             @Param("kerberosFileName") String kerberosFileName, @Param("componentTemplate") String componentTemplate,
-                                            @Param("componentCode") Integer componentCode) {
-        if (StringUtils.isBlank(componentConfig)) {
+                                            @Param("componentCode") Integer componentCode, @Param("operateType") String operateType) {
+        if (StringUtils.isBlank(componentConfig) && EComponentType.KUBERNETES.getTypeCode() != componentCode) {
             throw new RdosDefineException("组件信息不能为空");
         }
         if (Objects.isNull(componentCode)) {
@@ -531,7 +527,7 @@ public class ComponentService {
         componentDTO.setComponentTypeCode(componentCode);
         //新增 clusterName 修改clusterId
         if (Objects.isNull(clusterId)) {
-            clusterId = this.checkClusterWithName(clusterId, clusterName);
+            clusterId = this.checkClusterWithName(clusterId, clusterName, operateType);
         }
 
         Component sftpComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.SFTP.getTypeCode());;
@@ -567,6 +563,14 @@ public class ComponentService {
         Component dbComponent = componentDao.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode());
         boolean isUpdate = false;
         boolean isOpenKerberos = StringUtils.isNotBlank(kerberosFileName);
+        if (isOpenKerberos) {
+            if (resources.isEmpty()) {
+                throw new RdosDefineException("资源文件不存在");
+            }
+            if (!kerberosFileName.endsWith("." + ZIP_CONTENT_TYPE)) {
+                throw new RdosDefineException("kerberos上传文件非zip格式");
+            }
+        }
         if (Objects.nonNull(dbComponent)) {
             //更新
             isUpdate = true;
@@ -578,6 +582,14 @@ public class ComponentService {
             }
             addComponent = dbComponent;
         }
+        if(EComponentType.KUBERNETES.getTypeCode() == componentType.getTypeCode() && CollectionUtils.isNotEmpty(resources)){
+            //kubernetes 信息需要自己解析文件
+            List<Object> config = this.config(resources, EComponentType.KUBERNETES.getTypeCode(),false);
+            if(CollectionUtils.isNotEmpty(config)){
+                componentConfig = (String)config.get(0);
+            }
+        }
+
         addComponent.setHadoopVersion(Optional.ofNullable(hadoopVersion).orElse("hadoop2"));
         addComponent.setComponentName(componentType.getName());
         addComponent.setComponentTypeCode(componentType.getTypeCode());
@@ -594,31 +606,10 @@ public class ComponentService {
             uploadResourceToSftp(clusterId, resources, kerberosFileName, sftpMap, addComponent, dbComponent);
         }
 
-        KerberosConfig kerberosConfig = null;
-        if (isOpenKerberos) {
-            kerberosConfig = kerberosDao.getByComponentType(clusterId, componentCode);
-        }
-
-        //测试联通性
-        if (EComponentType.YARN.getTypeCode() == componentCode) {
-            try {
-                ComponentTestResult testResult = this.testConnect(componentCode, componentConfig, clusterName, hadoopVersion, engine.getId()
-                        , kerberosConfig, sftpMap);
-                if (Objects.nonNull(testResult) && testResult.getResult()) {
-                    engineService.updateResource(addComponent.getEngineId(), testResult.getClusterResourceDescription());
-                    queueService.updateQueue(addComponent.getEngineId(), testResult.getClusterResourceDescription());
-                }
-            } catch (Exception e) {
-                LOGGER.error("更新队列信息失败: ", e);
-                throw new RdosDefineException("更新队列信息失败");
-            }
-        } else {
-            this.testConnect(componentCode, componentConfig, clusterName, hadoopVersion, engine.getId(), kerberosConfig, sftpMap);
-        }
-
         addComponent.setClusterId(clusterId);
         if (isUpdate) {
             componentDao.update(addComponent);
+            clusterDao.updateGmtModified(clusterId);
         } else {
             componentDao.insert(addComponent);
         }
@@ -632,7 +623,13 @@ public class ComponentService {
                                       Map<String, String> sftpMap,
                                       Component addComponent, Component dbComponent) {
         //上传配置文件到sftp 供后续下载
-        SFTPHandler instance = SFTPHandler.getInstance(sftpMap);
+        SFTPHandler instance = null;
+        try {
+            instance = SFTPHandler.getInstance(sftpMap);
+        } catch (Exception e) {
+            LOGGER.error("update component resource to sftp error", e);
+            throw new RdosDefineException("请检查sftp配置");
+        }
         String remoteDir = sftpMap.get("path") + File.separator + this.buildSftpPath(clusterId, addComponent.getComponentTypeCode());
         for (Resource resource : resources) {
             if (!resource.getFileName().equalsIgnoreCase(kerberosFileName) || StringUtils.isBlank(kerberosFileName)) {
@@ -646,7 +643,11 @@ public class ComponentService {
                 }
             } catch (Exception e) {
                 LOGGER.error("update component resource {}  error", resource.getUploadedFileName(), e);
-                throw new RdosDefineException("更新组件失败");
+                if (e instanceof RdosDefineException) {
+                    throw (RdosDefineException)e;
+                } else {
+                    throw new RdosDefineException("更新组件失败");
+                }
             } finally {
                 try {
                     FileUtils.forceDelete(new File(resource.getUploadedFileName()));
@@ -781,7 +782,7 @@ public class ComponentService {
         kerberosDao.deleteByComponentId(componentId);
     }
 
-    private Long checkClusterWithName(@Param("clusterId") Long clusterId, @Param("clusterName") String clusterName) {
+    private Long checkClusterWithName(@Param("clusterId") Long clusterId, @Param("clusterName") String clusterName, @Param("operateType") String operateType) {
         if (StringUtils.isBlank(clusterName)) {
             throw new RdosDefineException("集群名称不能为空");
         }
@@ -797,9 +798,16 @@ public class ComponentService {
                 LOGGER.info("add cluster {} ", clusterId);
             }
         } else {
+            if (operateType != null && operateType.equals(ADD_OPERATE_TYPE)) {
+                throw new RdosDefineException("集群名称已存在");
+            }
             clusterId = cluster.getId();
         }
         return clusterId;
+    }
+
+    private void checkJSON(String json){
+        JSON.parse(json);
     }
 
 
@@ -809,7 +817,7 @@ public class ComponentService {
      * @param resources
      * @return
      */
-    public List<Object> config(@Param("resources") List<Resource> resources, @Param("componentType") Integer componentType) {
+    public List<Object> config(@Param("resources") List<Resource> resources, @Param("componentType") Integer componentType,@Param("autoDelete") Boolean autoDelete) {
         List<Object> datas = new ArrayList<>();
         try {
             List<String> xmlName = componentTypeConfigMapping.get(componentType);
@@ -846,21 +854,26 @@ public class ComponentService {
                 for (Resource resource : resources) {
                     try {
                         String fileInfo = FileUtils.readFileToString(new File(resource.getUploadedFileName()));
+                        checkJSON(fileInfo);
                         datas.add(PublicUtil.strToMap(fileInfo));
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         LOGGER.error("parse json config resource error {} ", resource.getUploadedFileName());
+                        throw new RdosDefineException("JSON文件格式错误");
                     }
                 }
             }
         } finally {
-            for (Resource resource : resources) {
-                try {
-                    FileUtils.forceDelete(new File(System.getProperty("user.dir") + File.separator +
-                            resource.getUploadedFileName()));
-                } catch (IOException e) {
-                    LOGGER.debug("delete config resource error {} ", resource.getUploadedFileName());
+            if (Objects.isNull(autoDelete) || true == autoDelete) {
+                for (Resource resource : resources) {
+                    try {
+                        FileUtils.forceDelete(new File(System.getProperty("user.dir") + File.separator +
+                                resource.getUploadedFileName()));
+                    } catch (IOException e) {
+                        LOGGER.debug("delete config resource error {} ", resource.getUploadedFileName());
+                    }
                 }
             }
+
         }
         return datas;
     }
@@ -875,24 +888,27 @@ public class ComponentService {
     /**
      * 测试单个组件联通性
      */
-    public ComponentTestResult testConnect(Integer componentType, String componentConfig, String clusterName,
-                                           String hadoopVersion, Long engineId, KerberosConfig kerberosConfig, Map<String, String> sftpConfig) {
+    private ComponentTestResult testConnect(Integer componentType, String componentConfig, String clusterName,
+                                            String hadoopVersion, Long engineId, KerberosConfig kerberosConfig, Map<String, String> sftpConfig) {
         if (EComponentType.notCheckComponent.contains(EComponentType.getByCode(componentType))) {
             ComponentTestResult componentTestResult = new ComponentTestResult();
             componentTestResult.setResult(true);
             return componentTestResult;
         }
+
         String pluginType = this.convertComponentTypeToClient(clusterName, componentType, hadoopVersion);
+
         ComponentTestResult componentTestResult = workerOperator.testConnect(pluginType,
-                this.wrapperConfig(componentType, componentConfig, sftpConfig, kerberosConfig,clusterName));
+                this.wrapperConfig(componentType, componentConfig, sftpConfig, kerberosConfig, clusterName));
         if (Objects.isNull(componentTestResult)) {
-            throw new RdosDefineException("测试联通性失败");
+            componentTestResult = new ComponentTestResult();
+            componentTestResult.setResult(false);
+            componentTestResult.setErrorMsg("测试联通性失败");
+            return componentTestResult;
         }
         componentTestResult.setComponentTypeCode(componentType);
         if (componentTestResult.getResult() && Objects.nonNull(engineId)) {
             updateCache(engineId, componentType);
-        } else {
-            throw new RdosDefineException(componentTestResult.getErrorMsg());
         }
         return componentTestResult;
     }
@@ -905,7 +921,7 @@ public class ComponentService {
      * @param componentConfig
      * @return
      */
-    public String wrapperConfig(int componentType, String componentConfig, Map<String, String> sftpConfig, KerberosConfig kerberosConfig,String clusterName) {
+    private String wrapperConfig(int componentType, String componentConfig, Map<String, String> sftpConfig, KerberosConfig kerberosConfig,String clusterName) {
         JSONObject dataInfo = new JSONObject();
         dataInfo.put("componentName", EComponentType.getByCode(componentType).getName().toLowerCase());
         if (Objects.nonNull(kerberosConfig)) {
@@ -915,21 +931,26 @@ public class ComponentService {
             dataInfo.put("principalFile", kerberosConfig.getName());
             dataInfo.put("krbName", kerberosConfig.getKrbName());
         }
-        dataInfo.put("sftpConf", sftpConfig);
+        dataInfo.put(EComponentType.SFTP.getConfName(), sftpConfig);
         if (EComponentType.SFTP.getTypeCode() == componentType) {
             dataInfo = JSONObject.parseObject(componentConfig);
             dataInfo.put("componentType", EComponentType.SFTP.getName());
         } else if (EComponentType.sqlComponent.contains(EComponentType.getByCode(componentType))) {
             dataInfo = JSONObject.parseObject(componentConfig);
-            dataInfo.put("sftpConf", sftpConfig);
+            dataInfo.put(EComponentType.SFTP.getConfName(), sftpConfig);
             String jdbcUrl = dataInfo.getString("jdbcUrl");
             if (StringUtils.isBlank(jdbcUrl)) {
                 throw new RdosDefineException("jdbcUrl不能为空");
             }
-            if (!jdbcUrl.contains(";principal=")) {
-                //数据库连接不带%s
-                dataInfo.put("jdbcUrl", jdbcUrl.substring(0, jdbcUrl.lastIndexOf("/")));
+
+            if (EComponentType.SPARK_THRIFT.getTypeCode() == componentType ||
+                    EComponentType.HIVE_SERVER.getTypeCode() == componentType) {
+                if (!jdbcUrl.contains(";principal=") && jdbcUrl.endsWith("%s")) {
+                    //数据库连接不带%s
+                    dataInfo.put("jdbcUrl", jdbcUrl.substring(0, jdbcUrl.lastIndexOf("/")));
+                }
             }
+
             dataInfo.put("username", dataInfo.getString("username"));
             dataInfo.put("password", dataInfo.getString("password"));
             if (Objects.nonNull(kerberosConfig)) {
@@ -946,29 +967,37 @@ public class ComponentService {
                     Component yarnComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.YARN.getTypeCode());
                     if(Objects.nonNull(yarnComponent)){
                         Map yarnMap = JSONObject.parseObject(yarnComponent.getComponentConfig(), Map.class);
-                        config.put("yarnConf", yarnMap);
+                        config.put(EComponentType.YARN.getConfName(), yarnMap);
                     }
                 }
                 dataInfo.put("config",config);
             }
         } else if (EComponentType.YARN.getTypeCode() == componentType) {
             Map map = JSONObject.parseObject(componentConfig, Map.class);
-            dataInfo.put("yarnConf", map);
+            dataInfo.put(EComponentType.YARN.getConfName(), map);
         } else if (EComponentType.HDFS.getTypeCode() == componentType) {
             Map map = JSONObject.parseObject(componentConfig, Map.class);
-            dataInfo.put("hadoopConf", map);
+            dataInfo.put(EComponentType.HDFS.getConfName(), map);
             //补充yarn参数
             Cluster cluster = clusterDao.getByClusterName(clusterName);
             if(Objects.nonNull(cluster)){
                 Component yarnComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.YARN.getTypeCode());
                 if(Objects.nonNull(yarnComponent)){
                     Map yarnMap = JSONObject.parseObject(yarnComponent.getComponentConfig(), Map.class);
-                    dataInfo.put("yarnConf", yarnMap);
+                    dataInfo.put(EComponentType.YARN.getConfName(), yarnMap);
                 }
             }
-        } else if (EComponentType.KUBERNETES.getTypeCode() == componentType){
+        } else if (EComponentType.KUBERNETES.getTypeCode() == componentType) {
             //
-            dataInfo = JSONObject.parseObject(componentConfig);
+            dataInfo = new JSONObject();
+            JSONObject confObj = new JSONObject();
+            if(componentConfig.contains("kubernetes.context")){
+                JSONObject contextConf = JSONObject.parseObject(componentConfig);
+                componentConfig = contextConf.getString("kubernetes.context");
+            }
+            confObj.put(EComponentType.KUBERNETES.getConfName(),componentConfig);
+            dataInfo.put(EComponentType.KUBERNETES.getConfName(), confObj);
+            dataInfo.put("componentName", EComponentType.KUBERNETES.getName());
         }
         return dataInfo.toJSONString();
     }
@@ -1033,6 +1062,7 @@ public class ComponentService {
                 //一种是  全部手动填写的 如flink
                 if (Objects.isNull(component.getUploadFileName())) {
                     try {
+                        localDownLoadPath = localDownLoadPath + ".json";
                         FileUtils.write(new File(localDownLoadPath), component.getComponentConfig());
                     } catch (IOException e) {
                         LOGGER.error("write upload file {} error", component.getComponentConfig(), e);
@@ -1084,8 +1114,13 @@ public class ComponentService {
      */
     public List<ClientTemplate> loadTemplate(@Param("componentType") Integer componentType, @Param("clusterName") String clusterName, @Param("version") String version) {
         EComponentType component = EComponentType.getByCode(componentType);
-        List<ClientTemplate> defaultPluginConfig = workerOperator.getDefaultPluginConfig(this.convertComponentTypeToClient(clusterName, componentType, version),
-                component.getName().toLowerCase());
+        List<ClientTemplate> defaultPluginConfig = null;
+        try {
+            defaultPluginConfig = workerOperator.getDefaultPluginConfig(this.convertComponentTypeToClient(clusterName, componentType, version),
+                    component.getName().toLowerCase());
+        } catch (Exception e) {
+            throw new RdosDefineException("不支持的插件类型");
+        }
         if (CollectionUtils.isEmpty(defaultPluginConfig)) {
             return new ArrayList<>();
         }
@@ -1137,7 +1172,12 @@ public class ComponentService {
                         this.formatHadoopVersion(version), this.formatHadoopVersion(version));
             }
             Component hdfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());
-            if (Objects.isNull(hdfs)) {
+            //hdfs  和 yarn 的版本要保持一致
+            if (Objects.nonNull(hdfs)) {
+                if (!version.equalsIgnoreCase(hdfs.getHadoopVersion())) {
+                    throw new RdosDefineException("hdfs 和 yarn 版本不一致");
+                }
+            } else {
                 return String.format("yarn%s-hdfs%s-hadoop%s", this.formatHadoopVersion(version), this.formatHadoopVersion(version),
                         this.formatHadoopVersion(version));
             }
@@ -1145,9 +1185,8 @@ public class ComponentService {
             return String.format("yarn%s-hdfs%s-hadoop%s", this.formatHadoopVersion(version),
                     this.formatHadoopVersion(hdfs.getHadoopVersion()), this.formatHadoopVersion(version));
         } else if (EComponentType.KUBERNETES.getTypeCode() == componentType) {
-            return "k8s-hdfs2-flink110";
+            return "k8s-hdfs2-hadoop2";
         }
-
 
         ClusterVO cluster = clusterService.getClusterByName(clusterName);
         if (Objects.isNull(cluster)) {
@@ -1155,12 +1194,18 @@ public class ComponentService {
         }
 
         Component yarn = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.YARN.getTypeCode());
-        Component kerberos = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.KUBERNETES.getTypeCode());
-        if (Objects.isNull(yarn) && Objects.isNull(kerberos)) {
+        Component kubernetes = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.KUBERNETES.getTypeCode());
+        if (Objects.isNull(yarn) && Objects.isNull(kubernetes)) {
             throw new RdosDefineException("请先配置资源组件");
         }
         String resourceSign = Objects.isNull(yarn) ? "k8s" : "yarn" + this.formatHadoopVersion(yarn.getHadoopVersion());
         if (EComponentType.HDFS.getTypeCode() == componentType) {
+            //hdfs  和 yarn 的版本要保持一致
+            if(Objects.nonNull(yarn)){
+                if(!version.equalsIgnoreCase(yarn.getHadoopVersion())){
+                    throw new RdosDefineException("hdfs 和 yarn 版本不一致");
+                }
+            }
             return String.format("%s-hdfs%s-hadoop%s", resourceSign, this.formatHadoopVersion(version), this.formatHadoopVersion(version));
         }
         Component hdfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());
@@ -1178,10 +1223,14 @@ public class ComponentService {
         }
         //flink  需要根据yarn hdfs version 拼接 如yarn2-hdfs2-flink180;
         if (EComponentType.FLINK.getTypeCode() == componentType) {
+            //kubernetes 仅有110
+            if(Objects.nonNull(kubernetes)){
+                version = "110";
+            }
             return String.format("%s-%s-flink%s", resourceSign, storageSign, version);
         }
         if (EComponentType.SPARK.getTypeCode() == componentType) {
-            return String.format("%s-%s-spark%s", resourceSign, storageSign, "2.1.x".equalsIgnoreCase(version) ? "210" : "240");
+            return String.format("%s-%s-spark%s", resourceSign, storageSign, version);
         }
         throw new RdosDefineException("暂无对应组件默认配置");
     }
@@ -1228,7 +1277,7 @@ public class ComponentService {
                 throw new RdosDefineException(component.getComponentName() + " 是必选组件，不可删除");
             }
             component.setIsDeleted(Deleted.DELETED.getStatus());
-            componentDao.update(component);
+            componentDao.deleteById(componentId.longValue());
             kerberosDao.deleteByComponentId(componentId.longValue());
             //引擎组件为空 删除引擎
             List<Component> componentList = listComponent(component.getEngineId());
@@ -1241,11 +1290,10 @@ public class ComponentService {
 
     /***
      * 获取对应的组件版本信息
-     * @param componentCode
      * @return
      */
-    public List<String> getComponentVersion(@Param("componentType") Integer componentCode) {
-        return componentVersionMapping.get(componentCode);
+    public Map getComponentVersion() {
+        return componentVersionMapping;
     }
 
     @Forbidden
@@ -1288,13 +1336,28 @@ public class ComponentService {
         List<ComponentTestResult> testResults = new ArrayList<>(components.size());
         for (Component component : components) {
             KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(), component.getComponentTypeCode());
-            ComponentTestResult testResult = this.testConnect(component.getComponentTypeCode(), component.getComponentConfig(), clusterName, component.getHadoopVersion(), component.getEngineId(), kerberosConfig, sftpMap);
+            ComponentTestResult testResult = new ComponentTestResult();
+            try {
+                testResult = this.testConnect(component.getComponentTypeCode(), component.getComponentConfig(), clusterName, component.getHadoopVersion(), component.getEngineId(), kerberosConfig, sftpMap);
+            } catch (Exception e) {
+                testResult.setResult(false);
+                testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
+                LOGGER.error("test connect {}  error ", component.getComponentConfig(), e);
+            }
+            //测试联通性
+            if (EComponentType.YARN.getTypeCode() == component.getComponentTypeCode()) {
+                if (testResult.getResult()) {
+                    engineService.updateResource(component.getEngineId(), testResult.getClusterResourceDescription());
+                    queueService.updateQueue(component.getEngineId(), testResult.getClusterResourceDescription());
+                }
+            }
             testResult.setComponentTypeCode(component.getComponentTypeCode());
             testResults.add(testResult);
         }
         return testResults;
     }
 
+    @Forbidden
     public JSONObject getPluginInfoWithComponentType(Long dtuicTenantId,EComponentType componentType){
         ClusterVO cluster = clusterService.getClusterByTenant(dtuicTenantId);
 

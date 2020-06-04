@@ -101,17 +101,7 @@ public class SessionClientFactory extends AbstractClientFactory {
         startYarnSessionClientMonitor();
     }
 
-
-    private void startYarnSessionClientMonitor() {
-        yarnMonitorES = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(), new CustomThreadFactory("flink_yarn_monitor"));
-
-        //启动守护线程---用于获取当前application状态和更新flink对应的application
-        yarnMonitorES.submit(new AppStatusMonitor(flinkClusterClientManager, flinkClientBuilder, this));
-    }
-
     private void initZkClient() {
-        Configuration flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
         String zkAddress = flinkConfiguration.getValue(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM);
         if (StringUtils.isBlank(zkAddress)) {
             throw new RdosDefineException("zkAddress is error");
@@ -126,6 +116,15 @@ public class SessionClientFactory extends AbstractClientFactory {
         this.zkClient.start();
         LOG.warn("connector zk success...");
     }
+
+    private void startYarnSessionClientMonitor() {
+        yarnMonitorES = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(), new CustomThreadFactory("flink_yarn_monitor"));
+
+        //启动守护线程---用于获取当前application状态和更新flink对应的application
+        yarnMonitorES.submit(new AppStatusMonitor(flinkClusterClientManager, flinkClientBuilder, this));
+    }
+
 
     public boolean startFlinkYarnSession() {
         try {
@@ -143,7 +142,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                     return true;
                 }
 
-                if (flinkConfig.getYarnSessionStartAuto()) {
+                if (flinkConfig.getSessionStartAuto()) {
                     try {
                         clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification);
                         clusterClient.setDetached(true);
@@ -186,7 +185,7 @@ public class SessionClientFactory extends AbstractClientFactory {
      * 根据yarn方式获取ClusterClient
      */
     public ClusterClient<ApplicationId> initYarnClusterClient() {
-        Configuration newConf = new Configuration(flinkClientBuilder.getFlinkConfiguration());
+        Configuration newConf = new Configuration(flinkConfiguration);
         ApplicationId applicationId = acquireAppIdAndSetClusterId(newConf);
 
         if (!flinkConfig.getFlinkHighAvailability()) {
@@ -262,6 +261,7 @@ public class SessionClientFactory extends AbstractClientFactory {
 
     public AbstractYarnClusterDescriptor createYarnSessionClusterDescriptor() throws MalformedURLException {
         Configuration newConf = new Configuration(flinkConfiguration);
+
         String flinkJarPath = flinkConfig.getFlinkJarPath();
         String pluginLoadMode = flinkConfig.getPluginLoadMode();
         YarnConfiguration yarnConf = flinkClientBuilder.getYarnConf();

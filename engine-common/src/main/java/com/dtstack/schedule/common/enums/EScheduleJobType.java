@@ -32,7 +32,11 @@ public enum EScheduleJobType {
     LIBRA_SQL(15, "LibrA SQL", 0,7),
     HIVE_SQL(17,"HiveSQL",0,4),
     IMPALA_SQL(18, "ImpalaSQL", 0, 6),
-    TIDB_SQL(19,"TiDBSQL",0,7);
+    TIDB_SQL(19,"TiDBSQL",0,7),
+    ORACLE_SQL(20,"Oracle SQL",0,8),
+    GREENPLUM_SQL(21,"greenplum SQL",0,21),
+    TENSORFLOW_1_X(22, "TensorFlow 1.x", 0, 5);
+
 
     private Integer type;
 

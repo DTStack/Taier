@@ -53,9 +53,8 @@
     </update>
 
     <update id="delete" parameterType="java.lang.Long">
-        update console_engine
-        set is_deleted = 1
-        where id = #{id} and is_deleted = 0
+        delete from console_engine
+        where id = #{id}
     </update>
 
     <sql id="update_fragment">

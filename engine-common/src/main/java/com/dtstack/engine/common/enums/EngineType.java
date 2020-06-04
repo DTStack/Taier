@@ -39,8 +39,8 @@ public enum EngineType {
     //
     Impala('d'),
 
-    TiDB('e');
-
+    TiDB('e'),
+    GreenPlum('f');
     private char val;
 
     EngineType(char val) {
@@ -84,6 +84,8 @@ public enum EngineType {
                 return EngineType.Kylin;
             case "impala":
                 return EngineType.Impala;
+            case "greenplum":
+                return EngineType.GreenPlum;
             default:
                 throw new UnsupportedOperationException("unsupported operation exception");
         }

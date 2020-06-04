@@ -62,13 +62,33 @@ public class FlinkConfig {
 
     private String flinkSessionName = "FlinkSession";
 
-    private boolean yarnSessionStartAuto = true;
+    private boolean sessionStartAuto = true;
 
     private boolean flinkHighAvailability = false;
 
     private String pluginLoadMode = "shipfile";
 
     private long submitTimeout = 5;
+
+    private String md5sum;
+
+    private String kubernetesConfigName;
+
+    public String getKubernetesConfigName() {
+        return kubernetesConfigName;
+    }
+
+    public void setKubernetesConfigName(String kubernetesConfigName) {
+        this.kubernetesConfigName = kubernetesConfigName;
+    }
+
+    public String getMd5sum() {
+        return md5sum;
+    }
+
+    public void setMd5sum(String md5sum) {
+        this.md5sum = md5sum;
+    }
 
     public String getTypeName() {
         return typeName;
@@ -179,11 +199,11 @@ public class FlinkConfig {
     }
 
     public boolean getSessionStartAuto() {
-        return yarnSessionStartAuto;
+        return sessionStartAuto;
     }
 
-    public void setYarnSessionStartAuto(boolean yarnSessionStartAuto) {
-        this.yarnSessionStartAuto = yarnSessionStartAuto;
+    public void setSessionStartAuto(boolean sessionStartAuto) {
+        this.sessionStartAuto = sessionStartAuto;
     }
 
     public boolean getFlinkHighAvailability() {

@@ -8,7 +8,6 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.CoreOptions;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.runtime.util.HadoopUtils;
-import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.slf4j.Logger;
@@ -53,16 +52,21 @@ public class FlinkClientBuilder {
         builder.hadoopConf = hadoopConf;
         builder.yarnConf = yarnConf;
 
-        if (flinkConfig.isOpenKerberos()) {
-            initSecurity(flinkConfig);
-        }
-        if (Deploy.session.name().equalsIgnoreCase(flinkConfig.getClusterMode())) {
-            builder.yarnClient = initYarnClient(yarnConf);
-        }
+        KerberosUtils.login(flinkConfig,()->{
+            if (Deploy.session.name().equalsIgnoreCase(flinkConfig.getClusterMode())) {
+                try {
+                    builder.yarnClient = initYarnClient(yarnConf);
+                } catch (IOException e) {
+                   throw new RdosDefineException(e);
+                }
+            }
+            return null;
+        });
+
         return builder;
     }
 
-    public void initFlinkConfiguration(Properties extProp) {
+    public void initFlinkGlobalConfiguration(Properties extProp) {
         Configuration config = new Configuration();
         config.setString("akka.client.timeout", AKKA_CLIENT_TIMEOUT);
         config.setString("akka.ask.timeout", AKKA_ASK_TIMEOUT);
@@ -95,17 +99,6 @@ public class FlinkClientBuilder {
         customerConf.initHadoopConf(flinkConfig.getHadoopConf());
         customerConf.initYarnConf(flinkConfig.getYarnConf());
         return customerConf;
-    }
-
-    private static void initSecurity(FlinkConfig flinkConfig) throws IOException {
-        try {
-            LOG.info("start init security!");
-            KerberosUtils.login(flinkConfig);
-        } catch (IOException e) {
-            LOG.error("initSecurity happens error", e);
-            throw new IOException("InitSecurity happens error", e);
-        }
-        LOG.info("UGI info: " + UserGroupInformation.getCurrentUser());
     }
 
     private static YarnClient initYarnClient(YarnConfiguration yarnConf) throws IOException {
@@ -163,10 +156,6 @@ public class FlinkClientBuilder {
 
     public FlinkConfig getFlinkConfig() {
         return flinkConfig;
-    }
-
-    public org.apache.hadoop.conf.Configuration getHadoopConf() {
-        return hadoopConf;
     }
 
     public YarnConfiguration getYarnConf() {

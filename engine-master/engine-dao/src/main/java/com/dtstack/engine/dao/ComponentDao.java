@@ -22,4 +22,6 @@ public interface ComponentDao {
     Component getByClusterIdAndComponentType(@Param("clusterId") Long clusterId, @Param("type") Integer type);
 
     Long getClusterIdByComponentId(@Param("componentId") Long componentId);
+
+    void deleteById(@Param("componentId") Long componentId);
 }

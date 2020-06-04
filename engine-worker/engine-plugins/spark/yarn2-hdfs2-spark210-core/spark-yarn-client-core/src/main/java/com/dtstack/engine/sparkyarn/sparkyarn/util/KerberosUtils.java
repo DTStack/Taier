@@ -1,33 +1,27 @@
 package com.dtstack.engine.sparkyarn.sparkyarn.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.security.PrivilegedExceptionAction;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
-
 import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.sparkyarn.sparkyarn.SparkYarnConfig;
 import org.apache.commons.lang.StringUtils;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.kerby.kerberos.kerb.keytab.Keytab;
 import org.apache.kerby.kerberos.kerb.type.base.PrincipalName;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.security.PrivilegedExceptionAction;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
 
 public class KerberosUtils {
     private static final Logger logger = LoggerFactory.getLogger(KerberosUtils.class);
 
-    private static final String USER_DIR = System.getProperty("user.dir");
-
-    private static final String localhost = getLocalHostName();
-
+    private static final String USER_DIR = System.getProperty("user.dir") + File.separator + "kerberosPath";
 
     public static <T> T login(SparkYarnConfig config, Supplier<T> supplier) throws IOException {
 
@@ -55,19 +49,8 @@ public class KerberosUtils {
         } else {
             handler.close();
         }
-        return KerberosUtils.loginKerberosWithCallBack(config.getYarnConf(),localPath + File.separator + keytabPath,KerberosUtils.getPrincipal(localPath + File.separator + keytabPath),
-                localPath + File.separator + krb5ConfPath,supplier);
-    }
-
-    static String getLocalHostName(){
-        String localhost = "_HOST";
-        try {
-            localhost = InetAddress.getLocalHost().getCanonicalHostName();
-            logger.info("Localhost name is " + localhost);
-        } catch (UnknownHostException e) {
-            logger.error("Get localhostname error: " + e);
-        }
-        return localhost;
+        return KerberosUtils.loginKerberosWithCallBack(config.getYarnConf(),keytabPath,
+                KerberosUtils.getPrincipal(keytabPath), krb5ConfPath,supplier);
     }
 
     public static <T> T loginKerberosWithCallBack(Map<String, Object> allConfig, String keytabPath, String principal, String krb5Conf, Supplier<T> supplier) {
@@ -99,9 +82,7 @@ public class KerberosUtils {
         }
 
         SFTPHandler handler = SFTPHandler.getInstance(config.getSftpConf());
-        String localPath = handler.loadFromSftp(fileName, remoteDir, localDir);
-
-        return localPath;
+        return handler.loadFromSftp(fileName, remoteDir, localDir);
     }
 
     public static String getPrincipal(String filePath){

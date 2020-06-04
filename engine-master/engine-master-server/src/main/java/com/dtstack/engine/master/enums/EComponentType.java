@@ -91,7 +91,7 @@ public enum EComponentType {
     // 计算组件
     public static List<EComponentType> ComputeScheduling = Lists.newArrayList(EComponentType.SPARK, EComponentType.SPARK_THRIFT,
             EComponentType.FLINK, EComponentType.HIVE_SERVER, EComponentType.IMPALA_SQL, EComponentType.DT_SCRIPT,
-            EComponentType.LEARNING, EComponentType.TIDB_SQL, EComponentType.LIBRA_SQL, EComponentType.ORACLE_SQL);
+            EComponentType.LEARNING, EComponentType.TIDB_SQL, EComponentType.LIBRA_SQL, EComponentType.ORACLE_SQL,EComponentType.CARBON_DATA);
 
     public static List<EComponentType> CommonScheduling = Lists.newArrayList(EComponentType.SFTP);
 
@@ -99,7 +99,7 @@ public enum EComponentType {
     // hadoop引擎组件
     public static List<EComponentType> HadoopComponents = Lists.newArrayList(EComponentType.SPARK, EComponentType.SPARK_THRIFT,
             EComponentType.FLINK, EComponentType.HIVE_SERVER, EComponentType.IMPALA_SQL, EComponentType.DT_SCRIPT,
-            EComponentType.LEARNING, EComponentType.YARN, EComponentType.KUBERNETES, EComponentType.HDFS, EComponentType.SFTP);
+            EComponentType.LEARNING, EComponentType.YARN, EComponentType.KUBERNETES, EComponentType.HDFS, EComponentType.SFTP,EComponentType.CARBON_DATA);
 
     // TiDB引擎组件
     public static List<EComponentType> TiDBComponents = Lists.newArrayList(EComponentType.TIDB_SQL);
@@ -174,5 +174,6 @@ public enum EComponentType {
     //SQL组件
     public static List<EComponentType> sqlComponent = Lists.newArrayList(EComponentType.SPARK_THRIFT,EComponentType.HIVE_SERVER,EComponentType.TIDB_SQL,EComponentType.ORACLE_SQL,
             EComponentType.LIBRA_SQL,EComponentType.IMPALA_SQL);
+
 
 }

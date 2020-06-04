@@ -437,6 +437,9 @@
             <if test="logInfo!=null">
                 log_info = #{logInfo},
             </if>
+            <if test="retryNum != null">
+                retry_num = #{retryNum},
+            </if>
         </set>
     </sql>
 
@@ -1204,10 +1207,10 @@
         <include refid="select_content_fragment"/>
         from
         schedule_job bj
-        left join schedule_fill_data_job fj on fj.id = bj.fill_id
         left join schedule_task_shade ts on bj.task_id = ts.task_id
         <include refid="select_where_fragment"/>
-        AND fj.job_name = #{model.fillDataJobName}
+        and bj.fill_id = (
+        SELECT id from schedule_fill_data_job WHERE job_name = #{model.fillDataJobName})
         <include refid="queryWorkFlow"/>
         <if test="model.ownerUserId != null">
             AND ts.owner_user_id = #{model.ownerUserId}
@@ -1218,10 +1221,10 @@
     <select id="countByFillData" resultType="java.lang.Integer">
         select count(bj.id)
         from schedule_job bj
-        left join schedule_fill_data_job fj on fj.id = bj.fill_id
         left join schedule_task_shade ts on bj.task_id = ts.task_id
         <include refid="select_where_fragment"/>
-        and fj.job_name = #{model.fillDataJobName}
+        and bj.fill_id  = (
+        SELECT id from schedule_fill_data_job WHERE job_name = #{model.fillDataJobName})
         <include refid="queryWorkFlow"/>
         <if test="model.ownerUserId != null">
             AND ts.owner_user_id = #{model.ownerUserId}

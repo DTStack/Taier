@@ -23,7 +23,7 @@ import java.util.List;
  * create: 2019/10/29
  */
 @Service
-public class NodeRecoverService {
+public class NodeRecoverService implements com.dtstack.engine.api.service.NodeRecoverService {
 
     private static final Logger logger = LoggerFactory.getLogger(NodeRecoverService.class);
 

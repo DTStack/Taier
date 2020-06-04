@@ -8,13 +8,14 @@ import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.pojo.ComponentTestResult;
+import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.rdbs.common.constant.ConfigConstant;
 import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 import com.dtstack.engine.rdbs.common.executor.RdbsExeQueue;
+import com.dtstack.engine.rdbs.common.utils.KerberosUtils;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -144,73 +145,82 @@ public abstract class AbstractRdbsClient extends AbstractClient {
 
     @Override
     public List<List<Object>> executeQuery(String pluginInfo, String sql, String database) {
-        Statement statement = null;
-        ResultSet res = null;
-        Connection conn = null;
-        List<List<Object>> result = Lists.newArrayList();
+
         try {
             if (StringUtils.isBlank(sql)) {
                 return null;
             }
             Properties properties = PublicUtil.jsonStrToObject(pluginInfo, Properties.class);
-            if (Objects.isNull(connFactory)) {
-                synchronized (AbstractRdbsClient.class) {
-                    if (Objects.isNull(connFactory)) {
-                        connFactory = getConnFactory();
+            return KerberosUtils.login(properties, () -> {
+                if (Objects.isNull(connFactory)) {
+                    synchronized (AbstractRdbsClient.class) {
+                        if (Objects.isNull(connFactory)) {
+                            connFactory = getConnFactory();
+                        }
                     }
                 }
-            }
-            connFactory.init(properties);
-            conn = connFactory.getConn();
-            statement = conn.createStatement();
-            if (StringUtils.isNotBlank(database)) {
-                statement.execute("use " + database);
-            }
-
-            if (statement.execute(sql)) {
-                res = statement.getResultSet();
-                int columns = res.getMetaData().getColumnCount();
-                List<Object> cloumnName = Lists.newArrayList();
-
-                for (int i = 1; i <= columns; ++i) {
-                    String name = res.getMetaData().getColumnName(i);
-                    if (name.contains(".")) {
-                        name = name.split("\\.")[1];
-                    }
-                    cloumnName.add(name);
-                }
-
-                result.add(cloumnName);
-
-                while (res.next()) {
-                    List<Object> objects = Lists.newArrayList();
-
-                    for (int i = 1; i <= columns; ++i) {
-                        objects.add(res.getObject(i));
+                Statement statement = null;
+                ResultSet res = null;
+                Connection conn = null;
+                List<List<Object>> result = Lists.newArrayList();
+                try {
+                    connFactory.init(properties);
+                    conn = connFactory.getConn();
+                    statement = conn.createStatement();
+                    if (StringUtils.isNotBlank(database)) {
+                        statement.execute("use " + database);
                     }
 
-                    result.add(objects);
+                    if (statement.execute(sql)) {
+                        res = statement.getResultSet();
+                        int columns = res.getMetaData().getColumnCount();
+                        List<Object> cloumnName = Lists.newArrayList();
+
+                        for (int i = 1; i <= columns; ++i) {
+                            String name = res.getMetaData().getColumnName(i);
+                            if (name.contains(".")) {
+                                name = name.split("\\.")[1];
+                            }
+                            cloumnName.add(name);
+                        }
+
+                        result.add(cloumnName);
+
+                        while (res.next()) {
+                            List<Object> objects = Lists.newArrayList();
+
+                            for (int i = 1; i <= columns; ++i) {
+                                objects.add(res.getObject(i));
+                            }
+
+                            result.add(objects);
+                        }
+                    }
+                } catch (Exception e) {
+                    throw new RdosDefineException(e);
+                } finally {
+                    try {
+                        if (res != null) {
+                            res.close();
+                        }
+
+                        if (statement != null) {
+                            statement.close();
+                        }
+
+                        if (null != conn) {
+                            conn.close();
+                        }
+                    } catch (Throwable var18) {
+                        LOG.error("", var18);
+                    }
                 }
-            }
+                return result;
+            });
+
         } catch (Exception e) {
             LOG.error("execute sql {} error", sql, e);
-        } finally {
-            try {
-                if (res != null) {
-                    res.close();
-                }
-
-                if (statement != null) {
-                    statement.close();
-                }
-
-                if (null != conn) {
-                    conn.close();
-                }
-            } catch (Throwable var18) {
-                LOG.error("", var18);
-            }
         }
-        return result;
+        return null;
     }
 }

@@ -7,6 +7,7 @@ import com.dtstack.engine.flink.enums.Deploy;
 import com.dtstack.engine.flink.factory.PerJobClientFactory;
 import com.dtstack.engine.flink.factory.StandaloneClientFactory;
 import com.dtstack.engine.flink.factory.SessionClientFactory;
+import com.dtstack.engine.flink.util.KerberosUtils;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
@@ -19,6 +20,7 @@ import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.MalformedURLException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -72,16 +74,25 @@ public class FlinkClusterClientManager {
     }
 
     public void initClusterClient() throws Exception {
-        if (flinkConfig.getClusterMode().equals(Deploy.standalone.name())) {
-            clusterClient = new StandaloneClientFactory(flinkClientBuilder.getFlinkConfiguration(), flinkConfig).getClusterClient();
-        } else if (flinkConfig.getClusterMode().equals(Deploy.session.name())) {
-            if (null == sessionClientFactory) {
-                sessionClientFactory = new SessionClientFactory(this, flinkClientBuilder);
+        KerberosUtils.login(flinkConfig, () -> {
+            if (flinkConfig.getClusterMode().equals(Deploy.standalone.name())) {
+                clusterClient = new StandaloneClientFactory(flinkClientBuilder.getFlinkConfiguration(), flinkConfig).getClusterClient();
+            } else if (flinkConfig.getClusterMode().equals(Deploy.session.name())) {
+                if (null == sessionClientFactory) {
+                    try {
+                        sessionClientFactory = new SessionClientFactory(this, flinkClientBuilder);
+                        LOG.warn("Create FlinkYarnSessionStarter and start YarnSessionClientMonitor");
+                    } catch (MalformedURLException e) {
+                        LOG.error("Create FlinkYarnSessionStarter and start YarnSessionClientMonitor error", e);
+                        throw new RdosDefineException(e);
+                    }
+                }
+                boolean clientOn = sessionClientFactory.startFlinkYarnSession();
+                this.setIsClientOn(clientOn);
+                clusterClient = sessionClientFactory.getClusterClient();
             }
-            boolean clientOn = sessionClientFactory.startFlinkYarnSession();
-            this.setIsClientOn(clientOn);
-            clusterClient = sessionClientFactory.getClusterClient();
-        }
+            return null;
+        });
     }
 
     /**

@@ -18,6 +18,7 @@
 
 package org.apache.flink.kubernetes.utils;
 
+import io.fabric8.kubernetes.api.model.*;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.CoreOptions;
@@ -28,14 +29,6 @@ import org.apache.flink.runtime.clusterframework.TaskExecutorProcessSpec;
 import org.apache.flink.runtime.clusterframework.TaskExecutorProcessUtils;
 import org.apache.flink.util.FlinkRuntimeException;
 
-import io.fabric8.kubernetes.api.model.ConfigMapVolumeSourceBuilder;
-import io.fabric8.kubernetes.api.model.KeyToPath;
-import io.fabric8.kubernetes.api.model.Quantity;
-import io.fabric8.kubernetes.api.model.ResourceRequirements;
-import io.fabric8.kubernetes.api.model.ResourceRequirementsBuilder;
-import io.fabric8.kubernetes.api.model.Volume;
-import io.fabric8.kubernetes.api.model.VolumeMount;
-import io.fabric8.kubernetes.api.model.VolumeMountBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,10 +40,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.apache.flink.configuration.GlobalConfiguration.FLINK_CONF_FILENAME;
 import static org.apache.flink.kubernetes.utils.Constants.CONFIG_FILE_LOG4J_NAME;
@@ -96,15 +87,15 @@ public class KubernetesUtils {
      * @param fallbackPort the fallback port that will be set to the configuration
      */
     public static void checkAndUpdatePortConfigOption(
-            Configuration flinkConfig,
-            ConfigOption<String> port,
-            int fallbackPort) {
+        Configuration flinkConfig,
+        ConfigOption<String> port,
+        int fallbackPort) {
         if (KubernetesUtils.parsePort(flinkConfig, port) == 0) {
             flinkConfig.setString(port, String.valueOf(fallbackPort));
             LOG.info(
-                    "Kubernetes deployment requires a fixed port. Configuration {} will be set to {}",
-                    port.key(),
-                    fallbackPort);
+                "Kubernetes deployment requires a fixed port. Configuration {} will be set to {}",
+                port.key(),
+                fallbackPort);
         }
     }
 
@@ -122,8 +113,8 @@ public class KubernetesUtils {
             return Integer.parseInt(flinkConfig.get(port));
         } catch (NumberFormatException ex) {
             throw new FlinkRuntimeException(
-                    port.key() + " should be specified to a fixed port. Do not support a range of ports.",
-                    ex);
+                port.key() + " should be specified to a fixed port. Do not support a range of ports.",
+                ex);
         }
     }
 
@@ -141,26 +132,26 @@ public class KubernetesUtils {
      * @return A String containing the job manager startup command.
      */
     public static String getJobManagerStartCommand(
-            Configuration flinkConfig,
-            int jobManagerMemoryMb,
-            String configDirectory,
-            String logDirectory,
-            boolean hasLogback,
-            boolean hasLog4j,
-            String mainClass,
-            @Nullable String mainArgs) {
+        Configuration flinkConfig,
+        int jobManagerMemoryMb,
+        String configDirectory,
+        String logDirectory,
+        boolean hasLogback,
+        boolean hasLog4j,
+        String mainClass,
+        @Nullable String mainArgs) {
         final int heapSize = BootstrapTools.calculateHeapSize(jobManagerMemoryMb, flinkConfig);
         final String jvmMemOpts = String.format("-Xms%sm -Xmx%sm", heapSize, heapSize);
         return getCommonStartCommand(
-                flinkConfig,
-                ClusterComponent.JOB_MANAGER,
-                jvmMemOpts,
-                configDirectory,
-                logDirectory,
-                hasLogback,
-                hasLog4j,
-                mainClass,
-                mainArgs
+            flinkConfig,
+            ClusterComponent.JOB_MANAGER,
+            jvmMemOpts,
+            configDirectory,
+            logDirectory,
+            hasLogback,
+            hasLog4j,
+            mainClass,
+            mainArgs
         );
     }
 
@@ -178,14 +169,14 @@ public class KubernetesUtils {
      * @return A String containing the task manager startup command.
      */
     public static String getTaskManagerStartCommand(
-            Configuration flinkConfig,
-            ContaineredTaskManagerParameters tmParams,
-            String configDirectory,
-            String logDirectory,
-            boolean hasLogback,
-            boolean hasLog4j,
-            String mainClass,
-            @Nullable String mainArgs) {
+        Configuration flinkConfig,
+        ContaineredTaskManagerParameters tmParams,
+        String configDirectory,
+        String logDirectory,
+        boolean hasLogback,
+        boolean hasLog4j,
+        String mainClass,
+        @Nullable String mainArgs) {
         final TaskExecutorProcessSpec taskExecutorProcessSpec = tmParams.getTaskExecutorProcessSpec();
         final String jvmMemOpts = TaskExecutorProcessUtils.generateJvmParametersStr(taskExecutorProcessSpec);
         String args = TaskExecutorProcessUtils.generateDynamicConfigsStr(taskExecutorProcessSpec);
@@ -193,15 +184,15 @@ public class KubernetesUtils {
             args += " " + mainArgs;
         }
         return getCommonStartCommand(
-                flinkConfig,
-                ClusterComponent.TASK_MANAGER,
-                jvmMemOpts,
-                configDirectory,
-                logDirectory,
-                hasLogback,
-                hasLog4j,
-                mainClass,
-                args
+            flinkConfig,
+            ClusterComponent.TASK_MANAGER,
+            jvmMemOpts,
+            configDirectory,
+            logDirectory,
+            hasLogback,
+            hasLog4j,
+            mainClass,
+            args
         );
     }
 
@@ -229,9 +220,9 @@ public class KubernetesUtils {
         }
 
         configMapVolume.setConfigMap(new ConfigMapVolumeSourceBuilder()
-                .withName(CONFIG_MAP_PREFIX + clusterId)
-                .withItems(items)
-                .build());
+            .withName(CONFIG_MAP_PREFIX + clusterId)
+            .withItems(items)
+            .build());
         return configMapVolume;
     }
 
@@ -244,11 +235,11 @@ public class KubernetesUtils {
         Volume configMapVolume = new Volume();
         configMapVolume.setName("hadoop-config-volume");
         List<KeyToPath> items = new ArrayList();
-        items.add(new KeyToPath("core-site.xml", (Integer)null, "core-site.xml"));
+        items.add(new KeyToPath("core-site.xml", (Integer) null, "core-site.xml"));
         configMapVolume.setConfigMap(new ConfigMapVolumeSourceBuilder()
-                .withName(CONFIG_MAP_PREFIX + clusterId)
-                .withItems(items)
-                .build());
+            .withName(CONFIG_MAP_PREFIX + clusterId)
+            .withItems(items)
+            .build());
         return configMapVolume;
     }
 
@@ -263,24 +254,24 @@ public class KubernetesUtils {
     public static List<VolumeMount> getConfigMapVolumeMount(String flinkConfDirInPod, boolean hasLogback, boolean hasLog4j) {
         final List<VolumeMount> volumeMounts = new ArrayList<>();
         volumeMounts.add(new VolumeMountBuilder()
-                .withName(FLINK_CONF_VOLUME)
-                .withMountPath(new File(flinkConfDirInPod, FLINK_CONF_FILENAME).getPath())
-                .withSubPath(FLINK_CONF_FILENAME).build());
+            .withName(FLINK_CONF_VOLUME)
+            .withMountPath(new File(flinkConfDirInPod, FLINK_CONF_FILENAME).getPath())
+            .withSubPath(FLINK_CONF_FILENAME).build());
 
         if (hasLogback) {
             volumeMounts.add(new VolumeMountBuilder()
-                    .withName(FLINK_CONF_VOLUME)
-                    .withMountPath(new File(flinkConfDirInPod, CONFIG_FILE_LOGBACK_NAME).getPath())
-                    .withSubPath(CONFIG_FILE_LOGBACK_NAME)
-                    .build());
+                .withName(FLINK_CONF_VOLUME)
+                .withMountPath(new File(flinkConfDirInPod, CONFIG_FILE_LOGBACK_NAME).getPath())
+                .withSubPath(CONFIG_FILE_LOGBACK_NAME)
+                .build());
         }
 
         if (hasLog4j) {
             volumeMounts.add(new VolumeMountBuilder()
-                    .withName(FLINK_CONF_VOLUME)
-                    .withMountPath(new File(flinkConfDirInPod, CONFIG_FILE_LOG4J_NAME).getPath())
-                    .withSubPath(CONFIG_FILE_LOG4J_NAME)
-                    .build());
+                .withName(FLINK_CONF_VOLUME)
+                .withMountPath(new File(flinkConfDirInPod, CONFIG_FILE_LOG4J_NAME).getPath())
+                .withSubPath(CONFIG_FILE_LOG4J_NAME)
+                .build());
         }
 
         return volumeMounts;
@@ -300,32 +291,52 @@ public class KubernetesUtils {
 
         final List<VolumeMount> volumeMounts = new ArrayList<>();
         volumeMounts.add(new VolumeMountBuilder()
-                .withName(FLINK_CONF_VOLUME)
-                .withMountPath(new File(flinkConfDirInPod, FLINK_CONF_FILENAME).getPath())
-                .withSubPath(FLINK_CONF_FILENAME).build());
+            .withName(FLINK_CONF_VOLUME)
+            .withMountPath(new File(flinkConfDirInPod, FLINK_CONF_FILENAME).getPath())
+            .withSubPath(FLINK_CONF_FILENAME).build());
 
-        volumeMounts.add(new VolumeMountBuilder()
+        if (flinkConfig.contains(KubernetesConfigOptions.HADOOP_CONF_STRING)) {
+            volumeMounts.add(new VolumeMountBuilder()
                 .withName("hadoop-config-volume")
                 .withMountPath(new File(hadoopConfDirInPod, "core-site.xml").getPath())
                 .withSubPath("core-site.xml").build());
+        }
 
         if (hasLogback) {
             volumeMounts.add(new VolumeMountBuilder()
-                    .withName(FLINK_CONF_VOLUME)
-                    .withMountPath(new File(flinkConfDirInPod, CONFIG_FILE_LOGBACK_NAME).getPath())
-                    .withSubPath(CONFIG_FILE_LOGBACK_NAME)
-                    .build());
+                .withName(FLINK_CONF_VOLUME)
+                .withMountPath(new File(flinkConfDirInPod, CONFIG_FILE_LOGBACK_NAME).getPath())
+                .withSubPath(CONFIG_FILE_LOGBACK_NAME)
+                .build());
         }
 
         if (hasLog4j) {
             volumeMounts.add(new VolumeMountBuilder()
-                    .withName(FLINK_CONF_VOLUME)
-                    .withMountPath(new File(flinkConfDirInPod, CONFIG_FILE_LOG4J_NAME).getPath())
-                    .withSubPath(CONFIG_FILE_LOG4J_NAME)
-                    .build());
+                .withName(FLINK_CONF_VOLUME)
+                .withMountPath(new File(flinkConfDirInPod, CONFIG_FILE_LOG4J_NAME).getPath())
+                .withSubPath(CONFIG_FILE_LOG4J_NAME)
+                .build());
         }
 
         return volumeMounts;
+    }
+
+    /**
+     * Get imagePullSecrets for job manager and task manager pod.
+     *
+     * @param flinkConfig Flink Configuration.
+     * @return LocalObjectReference list.
+     */
+    public static List<LocalObjectReference> getImagePullSecrets(Configuration flinkConfig) {
+        List<LocalObjectReference> imagePullSecrets = new ArrayList<>();
+        if (flinkConfig.contains(KubernetesConfigOptions.CONTAINER_IMAGE_PULL_SECRETS)) {
+            String secrets = flinkConfig.getString(KubernetesConfigOptions.CONTAINER_IMAGE_PULL_SECRETS);
+
+            imagePullSecrets = Arrays.stream(secrets.split(","))
+                .map(secret -> new LocalObjectReferenceBuilder().withName(secret.trim()).build())
+                .collect(Collectors.toList());
+        }
+        return imagePullSecrets;
     }
 
     /**
@@ -340,11 +351,11 @@ public class KubernetesUtils {
         final Quantity memQuantity = new Quantity(mem + Constants.RESOURCE_UNIT_MB);
 
         return new ResourceRequirementsBuilder()
-                .addToRequests(Constants.RESOURCE_NAME_MEMORY, memQuantity)
-                .addToRequests(Constants.RESOURCE_NAME_CPU, cpuQuantity)
-                .addToLimits(Constants.RESOURCE_NAME_MEMORY, memQuantity)
-                .addToLimits(Constants.RESOURCE_NAME_CPU, cpuQuantity)
-                .build();
+            .addToRequests(Constants.RESOURCE_NAME_MEMORY, memQuantity)
+            .addToRequests(Constants.RESOURCE_NAME_CPU, cpuQuantity)
+            .addToLimits(Constants.RESOURCE_NAME_MEMORY, memQuantity)
+            .addToLimits(Constants.RESOURCE_NAME_CPU, cpuQuantity)
+            .build();
     }
 
     private static String getJavaOpts(Configuration flinkConfig, ConfigOption<String> configOption) {
@@ -372,15 +383,15 @@ public class KubernetesUtils {
     }
 
     private static String getCommonStartCommand(
-            Configuration flinkConfig,
-            ClusterComponent mode,
-            String jvmMemOpts,
-            String configDirectory,
-            String logDirectory,
-            boolean hasLogback,
-            boolean hasLog4j,
-            String mainClass,
-            @Nullable String mainArgs) {
+        Configuration flinkConfig,
+        ClusterComponent mode,
+        String jvmMemOpts,
+        String configDirectory,
+        String logDirectory,
+        boolean hasLogback,
+        boolean hasLog4j,
+        String mainClass,
+        @Nullable String mainArgs) {
         final Map<String, String> startCommandValues = new HashMap<>();
         startCommandValues.put("java", "$JAVA_HOME/bin/java");
         startCommandValues.put("classpath", "-classpath " + "$" + Constants.ENV_FLINK_CLASSPATH);
@@ -399,15 +410,15 @@ public class KubernetesUtils {
         startCommandValues.put("jvmopts", opts);
 
         startCommandValues.put("logging",
-                getLogging(logDirectory + "/" + logFileName + ".log", configDirectory, hasLogback, hasLog4j));
+            getLogging(logDirectory + "/" + logFileName + ".log", configDirectory, hasLogback, hasLog4j));
 
         startCommandValues.put("class", mainClass);
 
         startCommandValues.put("args", mainArgs != null ? mainArgs : "");
 
         startCommandValues.put("redirects",
-                "1> " + logDirectory + "/" + logFileName + ".out " +
-                        "2> " + logDirectory + "/" + logFileName + ".err");
+            "1> " + logDirectory + "/" + logFileName + ".out " +
+                "2> " + logDirectory + "/" + logFileName + ".err");
 
         final String commandTemplate = flinkConfig.getString(KubernetesConfigOptions.CONTAINER_START_COMMAND_TEMPLATE);
         return BootstrapTools.getStartCommand(commandTemplate, startCommandValues);

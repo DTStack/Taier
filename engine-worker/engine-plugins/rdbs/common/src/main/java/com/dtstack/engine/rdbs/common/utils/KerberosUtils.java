@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.function.Supplier;
 
@@ -27,10 +28,11 @@ import java.util.function.Supplier;
 public class KerberosUtils {
     private static final Logger logger = LoggerFactory.getLogger(KerberosUtils.class);
 
-    private static final String USER_DIR = System.getProperty("user.dir");
+    private static final String USER_DIR = System.getProperty("user.dir") + File.separator + "kerberosPath";
 
     public static <T> T login(Properties properties, Supplier<T> supplier) throws IOException {
-        boolean openKerberos = 1 == (int)properties.get("openKerberos");
+        int open = Objects.isNull(properties.get("openKerberos")) ? 0 : (int)properties.get("openKerberos");
+        boolean openKerberos = 1 == open;
 
         if (!openKerberos) {
             return supplier.get();

@@ -29,6 +29,8 @@ public class JupyterType extends AbstractAppType {
     private final static String JUPYTER_WORKSPACE_DIR_KEY = "jupyter.workspace.dir";
     private final static String JUPYTER_WORKSPACE_DIR_SUFFIX = "/workspace";
     private final static String JUPYTER_ALLOW_ROOT = "jupyter.allow.root";
+    private final static String JUPYTER_BASE_URL_KEY = "c.NotebookApp.base_url";
+    private final static String JUPYTER_BASE_URL_PREFIX = "/aiworks/jupyter/";
     private final static String[] DEFAULT_PORT_RANGE = new String[]{"8888", "65535"};
 
 
@@ -51,9 +53,11 @@ public class JupyterType extends AbstractAppType {
         String jupyterProject = jupyterProjectRoot + clientArguments.getAppName();
         String jupyterWorkspace = jupyterProject + JUPYTER_WORKSPACE_DIR_SUFFIX;
         String jupyterConfDir = jupyterProject + JUPYTER_CONFIG_DIR_SUFFIX;
+        String jupyterBaseUrl = JUPYTER_BASE_URL_PREFIX + clientArguments.getAppName();
         conf.set(JUPYTER_PROJECT_DIR_KEY, jupyterProject);
         conf.set(JUPYTER_WORKSPACE_DIR_KEY, jupyterWorkspace);
         conf.set(JUPYTER_CONFIG_DIR_KEY, jupyterConfDir);
+        conf.set(JUPYTER_BASE_URL_KEY, jupyterBaseUrl);
 
         StringBuilder bashScript = new StringBuilder(400);
         bashScript.append(cmdPrefix(conf)).append(" <<JUPYTER").append(LINEFEED);

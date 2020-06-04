@@ -3,6 +3,8 @@ package com.dtstack.engine.flink;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
+import com.dtstack.engine.flink.factory.PerJobClientFactory;
+import com.dtstack.engine.flink.factory.SessionClientFactory;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
@@ -28,8 +30,6 @@ public class FlinkClusterClientManager {
 
     private FlinkClientBuilder flinkClientBuilder;
 
-    private FlinkConfig flinkConfig;
-
     /**
      * 客户端是否处于可用状态
      */
@@ -37,12 +37,17 @@ public class FlinkClusterClientManager {
 
     private ClusterClient<String> clusterClient;
 
-    private FlinkSessionStarter flinkSessionStarter;
+    private SessionClientFactory sessionClientFactory;
+
+    private PerJobClientFactory perJobClientFactory;
 
     /**
      * 用于缓存连接perjob对应application的ClusterClient
      */
-    private Cache<String, ClusterClient<String>> perJobClientCache = CacheBuilder.newBuilder().removalListener(new ClusterClientRemovalListener()).expireAfterAccess(10, TimeUnit.MINUTES).build();
+    private Cache<String, ClusterClient<String>> perJobClientCache = CacheBuilder.newBuilder()
+            .removalListener(new ClusterClientRemovalListener())
+            .expireAfterAccess(10, TimeUnit.MINUTES)
+            .build();
 
     private FlinkClusterClientManager() {
     }
@@ -51,45 +56,27 @@ public class FlinkClusterClientManager {
         LOG.warn("Start init FlinkClusterClientManager");
         FlinkClusterClientManager manager = new FlinkClusterClientManager();
         manager.flinkClientBuilder = flinkClientBuilder;
-        manager.flinkConfig = flinkClientBuilder.getFlinkConfig();
+        manager.perJobClientFactory = PerJobClientFactory.createPerJobClientFactory(flinkClientBuilder);
         manager.initClusterClient();
         return manager;
     }
 
     public void initClusterClient() throws Exception {
-        if (flinkSessionStarter == null) {
-            this.flinkSessionStarter = new FlinkSessionStarter(flinkClientBuilder, flinkConfig);
+        if (sessionClientFactory == null) {
+            this.sessionClientFactory = new SessionClientFactory(flinkClientBuilder);
             LOG.warn("create FlinkSessionStarter.");
         }
-        boolean clientOn = flinkSessionStarter.startFlinkSession();
+        boolean clientOn = sessionClientFactory.startFlinkSession();
         this.setIsClientOn(clientOn);
-        clusterClient = flinkSessionStarter.getClusterClient();
+        clusterClient = sessionClientFactory.getClusterClient();
     }
 
-    private ClusterClient getPerJobClient(JobIdentifier jobIdentifier){
 
-        String clusterId = jobIdentifier.getApplicationId();
-        String taskId = jobIdentifier.getTaskId();
-
-        ClusterClient clusterClient;
-        try {
-            clusterClient = perJobClientCache.get(clusterId, () -> {
-                JobClient jobClient = new JobClient();
-                jobClient.setTaskId(taskId);
-                //jobName不能为空，复用applicationId
-                ClusterDescriptor<String> clusterDescriptor = flinkClientBuilder.createClusterDescriptorByMode(jobClient, null,true);
-                return clusterDescriptor.retrieve(clusterId).getClusterClient();
-            });
-
-        } catch (ExecutionException e) {
-            throw new RuntimeException("get cluster on Kubernetes client exception:", e);
-        }
-
-        return clusterClient;
-    }
-
+    /**
+     * Get YarnSession ClusterClient
+     */
     public ClusterClient getClusterClient() {
-        return clusterClient;
+        return getClusterClient(null);
     }
 
     public ClusterClient getClusterClient(JobIdentifier jobIdentifier) {
@@ -101,6 +88,28 @@ public class FlinkClusterClientManager {
         } else {
             return getPerJobClient(jobIdentifier);
         }
+    }
+
+    private ClusterClient getPerJobClient(JobIdentifier jobIdentifier) {
+
+        String clusterId = jobIdentifier.getApplicationId();
+        String taskId = jobIdentifier.getTaskId();
+
+        ClusterClient clusterClient;
+        try {
+            clusterClient = perJobClientCache.get(clusterId, () -> {
+                JobClient jobClient = new JobClient();
+                jobClient.setTaskId(taskId);
+                //jobName不能为空，复用applicationId
+                ClusterDescriptor<String> clusterDescriptor = perJobClientFactory.createPerjobClusterDescriptor(jobClient);
+                return clusterDescriptor.retrieve(clusterId).getClusterClient();
+            });
+
+        } catch (ExecutionException e) {
+            throw new RuntimeException("get cluster on Kubernetes client exception:", e);
+        }
+
+        return clusterClient;
     }
 
     public void addClient(String applicationId, ClusterClient<String> clusterClient) {

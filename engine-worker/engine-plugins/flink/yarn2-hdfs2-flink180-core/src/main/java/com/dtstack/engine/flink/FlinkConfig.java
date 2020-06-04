@@ -69,11 +69,21 @@ public class FlinkConfig {
 
     private String flinkSessionName = "Flink session";
 
-    private boolean yarnSessionStartAuto = true;
+    private boolean sessionStartAuto = true;
 
     private boolean flinkHighAvailability = false;
 
     private String pluginLoadMode = "shipfile";
+
+    private String krbName;
+
+    public String getKrbName() {
+        return krbName;
+    }
+
+    public void setKrbName(String krbName) {
+        this.krbName = krbName;
+    }
 
     public String getTypeName() {
         return typeName;
@@ -203,12 +213,12 @@ public class FlinkConfig {
         this.flinkSessionName = flinkSessionName;
     }
 
-    public boolean getYarnSessionStartAuto() {
-        return yarnSessionStartAuto;
+    public boolean getSessionStartAuto() {
+        return sessionStartAuto;
     }
 
-    public void setYarnSessionStartAuto(boolean yarnSessionStartAuto) {
-        this.yarnSessionStartAuto = yarnSessionStartAuto;
+    public void setSessionStartAuto(boolean sessionStartAuto) {
+        this.sessionStartAuto = sessionStartAuto;
     }
 
     public boolean getFlinkHighAvailability() {
