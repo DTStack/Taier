@@ -94,7 +94,7 @@ public interface ComponentService {
      * @return
      */
     public File downloadFile(@Param("componentId") Long componentId, @Param("type") Integer downloadType, @Param("componentType") Integer componentType,
-                             @Param("hadoopVersion") String hadoopVersion);
+                             @Param("hadoopVersion") String hadoopVersion, @Param("clusterName") String clusterName);
 
     /**
      * 加载各个组件的默认值
