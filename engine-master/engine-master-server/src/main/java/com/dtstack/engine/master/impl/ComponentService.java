@@ -564,10 +564,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         boolean isUpdate = false;
         boolean isOpenKerberos = StringUtils.isNotBlank(kerberosFileName);
         if (isOpenKerberos) {
-            if (resources.isEmpty()) {
-                throw new RdosDefineException("资源文件不存在");
-            }
-            if (!kerberosFileName.endsWith("." + ZIP_CONTENT_TYPE)) {
+            if (!resources.isEmpty() && !kerberosFileName.endsWith("." + ZIP_CONTENT_TYPE)) {
                 throw new RdosDefineException("kerberos上传文件非zip格式");
             }
         }
