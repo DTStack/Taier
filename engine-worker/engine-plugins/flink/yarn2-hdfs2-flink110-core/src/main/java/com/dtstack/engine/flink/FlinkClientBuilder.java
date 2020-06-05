@@ -123,10 +123,7 @@ public class FlinkClientBuilder {
             if (yarnClient == null) {
                 synchronized (this) {
                     if (yarnClient == null) {
-                        YarnClient yarnClient1 = YarnClient.createYarnClient();
-                        yarnClient1.init(yarnConf);
-                        yarnClient1.start();
-                        yarnClient = yarnClient1;
+                        return buildYarnClient();
                     }
                 }
             } else {
@@ -154,14 +151,26 @@ public class FlinkClientBuilder {
                     }
                 }
                 if (yarnClient == null) {
-                    YarnClient yarnClient1 = YarnClient.createYarnClient();
-                    yarnClient1.init(yarnConf);
-                    yarnClient1.start();
-                    yarnClient = yarnClient1;
+                    return buildYarnClient();
                 }
             }
         }
         return yarnClient;
+    }
+
+    public YarnClient buildYarnClient() {
+        try {
+            KerberosUtils.login(flinkConfig, () -> {
+                YarnClient yarnClient1 = YarnClient.createYarnClient();
+                yarnClient1.init(yarnConf);
+                yarnClient1.start();
+                yarnClient = yarnClient1;
+                return yarnClient;
+            });
+        } catch (IOException e) {
+            throw new RdosDefineException(e);
+        }
+        return null;
     }
 
     public Configuration getFlinkConfiguration() {
