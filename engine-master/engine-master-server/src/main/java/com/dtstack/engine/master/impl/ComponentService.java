@@ -799,11 +799,9 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
             clusterDTO.setClusterName(clusterName);
             ClusterVO clusterVO = clusterService.addCluster(clusterDTO);
             Map<String, Object> result = new HashMap<>();
-            if (Objects.nonNull(clusterVO)) {
-                Long clusterId = clusterVO.getClusterId();
-                result.put("clusterId", clusterId);
-                LOGGER.info("add cluster {} ", clusterId);
-            }
+            Long clusterId = clusterVO.getClusterId();
+            result.put("clusterId", clusterId);
+            LOGGER.info("add cluster {} ", clusterId);
             return result;
         }
         throw new RdosDefineException("集群名称已存在");
