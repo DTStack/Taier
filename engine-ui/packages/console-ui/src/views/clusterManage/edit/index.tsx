@@ -394,7 +394,6 @@ class EditCluster extends React.Component<any, any> {
             componentType: componentTypeCode
         }).then((res: any) => {
             if (res.code === 1) {
-                console.log('res.data[0]=======', res.data[0])
                 form.setFieldsValue({
                     [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
                         configInfo: { ...dealData.handleBatchParams(res.data[0]) }

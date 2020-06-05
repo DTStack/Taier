@@ -182,7 +182,7 @@ function handleFormValues (formConfig: any, customParams: any, componentTypeCode
         } else {
             let val: any = {}
             for (const groupKey in formConfig[key]) {
-                val[groupKey.split('%').join('.')] = formConfig[key][groupKey]
+                val[groupKey.split('%').join('.')] = handleSingQuoteKeys(formConfig[key][groupKey], groupKey.split('%').join('.'))
             }
             if (Object.keys(customParams).length !== 0) {
                 const paramsKey = handleCustomParams(customParams[key]);
@@ -257,6 +257,18 @@ function updateCompsConfig (components: any, componentTypeCode: number, data: an
     }
 }
 
+// 后端需要value值加单引号处理
+function handleSingQuoteKeys (val: string, key: string) {
+    const singQuoteKeys = ['c.NotebookApp.ip', 'c.NotebookApp.token', 'c.NotebookApp.default_url'];
+    let newVal = val;
+    singQuoteKeys.forEach(singlekey => {
+        if (singlekey === key && val.indexOf("'") === -1) {
+            newVal = `'${val}'`
+        }
+    })
+    return newVal;
+}
+
 /**
  * 处理添加、更新组件数据参数
  * @values 表单变更值
@@ -277,7 +289,9 @@ function getComponentConfigPrames (values: any, components: any, config: any) {
         if (val.type === 'GROUP') {
             for (const groupKey in formConfig[val.key]) {
                 val.values.forEach((vals: any) => {
-                    if (vals.key === groupKey.split('%').join('.')) vals.value = formConfig[val.key][groupKey];
+                    if (vals.key === groupKey.split('%').join('.')) {
+                        vals.value = handleSingQuoteKeys(formConfig[val.key][groupKey], vals.key)
+                    }
                 })
             }
         } else {
