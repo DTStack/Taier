@@ -328,7 +328,7 @@ function getMoadifyComps (values: any, componentConfig: any) {
 
             const isModify = (hadoopVersion && !_.isEqual(compHadoopVersion, hadoopVersion)) ||
                 (uploadFileName && !_.isEqual(compUploadFileName, handleUploadFile(uploadFileName))) ||
-                    (kerberosFileName && !_.isEqual(kerberosFileName, handleUploadFile(compKerberosFileName)))
+                    (kerberosFileName && !_.isEqual(compKerberosFileName, handleUploadFile(kerberosFileName)))
 
             if (!config.id) { modifyCompsArr = [...modifyCompsArr, componentTypeCode]; return; }
             if (isModify) { modifyCompsArr = [...modifyCompsArr, componentTypeCode]; return; }

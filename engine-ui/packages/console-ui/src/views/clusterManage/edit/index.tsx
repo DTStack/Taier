@@ -727,7 +727,7 @@ class EditCluster extends React.Component<any, any> {
                                         key={scheduling.schedulingCode}
                                     >
                                         {tabCompDataList.length === 0 && <div key={compTypeKey} className="c-editCluster__container__emptyLogo">
-                                            <img src="public/img/emptyLogo.png" />
+                                            <img src="public/img/emptyLogo.svg" />
                                         </div>}
                                         <Card
                                             className="c-editCluster__container__card console-tabs cluster-tab-width"
