@@ -2,7 +2,7 @@ import * as React from 'react';
 import { cloneDeep } from 'lodash';
 import { hashHistory } from 'react-router';
 import {
-    Form, Input, Card, Tabs, Button, message, Modal, Popconfirm } from 'antd';
+    Form, Input, Card, Tabs, Button, message, Popconfirm } from 'antd';
 import Api from '../../../api/console';
 
 import req from '../../../consts/reqUrls';
@@ -19,7 +19,6 @@ import dealData from './dealData';
 
 const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
-const confirm = Modal.confirm
 function giveMeAKey () {
     return (new Date().getTime() + '' + ~~(Math.random() * 100000))
 }
@@ -120,24 +119,7 @@ class EditCluster extends React.Component<any, any> {
     }
 
     turnClusteManage = () => {
-        const { form } = this.props
-        form.validateFields(null, {}, (err: any, values: any) => {
-            console.log(err, values)
-            const { cloneComponentConfig } = this.state;
-            let modifyCompsArr = dealData.getMoadifyComps(values, cloneComponentConfig);
-            if (modifyCompsArr.length === 0) {
-                hashHistory.push({ pathname: '/console/clusterManage' })
-            } else {
-                confirm({
-                    title: '当前变更是否保存？',
-                    okText: '保存',
-                    cancelText: '不保存',
-                    onCancel () {
-                        hashHistory.push({ pathname: '/console/clusterManage' })
-                    }
-                });
-            }
-        })
+        hashHistory.push({ pathname: '/console/clusterManage' })
     }
 
     turnEditComp = () => {
@@ -485,12 +467,12 @@ class EditCluster extends React.Component<any, any> {
     }
 
     saveComponent = (components: any) => {
-        const { validateFieldsAndScroll } = this.props.form;
+        const { validateFields } = this.props.form;
         const { componentConfig, cloneComponentConfig } = this.state;
         const componentTypeCode = components.componentTypeCode;
         const config = this.getComponentConfig(components);
         const isFileNameRequire = dealData.checkUplaodFileComps(componentTypeCode);
-        validateFieldsAndScroll((err: any, values: any) => {
+        validateFields(null, {}, (err: any, values: any) => {
             console.log(err, values)
             if (err) {
                 let paramName = COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode];

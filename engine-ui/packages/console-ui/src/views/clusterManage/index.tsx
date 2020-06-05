@@ -114,12 +114,6 @@ class ClusterManage extends React.Component<any, any> {
         })
     }
     newCluster = () => {
-        // hashHistory.push({
-        //     pathname: '/console/clusterManage/editCluster',
-        //     state: {
-        //         mode: 'new'
-        //     }
-        // })
         this.setState({
             editModalKey: Math.random(),
             newClusterModal: true
