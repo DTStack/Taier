@@ -68,6 +68,8 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
 
     private final static String GROUP_TYPE = "GROUP";
 
+    private final static String DEPLOYMODE_TYPE = "deploymode";
+
     private static String unzipLocation = System.getProperty("user.dir") + File.separator + "unzip";
 
     private static String downloadLocation = System.getProperty("user.dir") + File.separator + "download";
@@ -1130,6 +1132,24 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         if (CollectionUtils.isEmpty(defaultPluginConfig)) {
             return new ArrayList<>();
         }
+
+        for (ClientTemplate ct: defaultPluginConfig) {
+            if (DEPLOYMODE_TYPE.equals(ct.getKey())) {
+                StringBuilder valueString = new StringBuilder();
+                List<ClientTemplate> values = ct.getValues();
+                if (values != null) {
+                    for (ClientTemplate ctv: values) {
+                        valueString.append(ctv.getValue() + "_");
+                    }
+                }
+                valueString.deleteCharAt(valueString.length() - 1);
+                if (!valueString.toString().equals("")) {
+                    ct.setValue(valueString.toString());
+                }
+                break;
+            }
+        }
+
         return defaultPluginConfig;
     }
 
