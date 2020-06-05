@@ -64,6 +64,10 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
 
     private final static String ADD_OPERATE_TYPE = "1";
 
+    private final static String CHECKBOX_TYPE = "CHECKBOX";
+
+    private final static String GROUP_TYPE = "GROUP";
+
     private static String unzipLocation = System.getProperty("user.dir") + File.separator + "unzip";
 
     private static String downloadLocation = System.getProperty("user.dir") + File.separator + "download";
@@ -1129,25 +1133,35 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         return defaultPluginConfig;
     }
 
-
+    @SuppressWarnings("unchecked")
     private Object convertTemplateToJson(List<ClientTemplate> clientTemplates, Object data) {
         for (ClientTemplate clientTemplate : clientTemplates) {
             Object temp = data;
             if (StringUtils.isNotBlank(clientTemplate.getKey())) {
-                if (data instanceof JSONObject) {
-                    if ("CHECKBOX".equals(clientTemplate.getType())) {
+                if (data instanceof Map) {
+                    if (CHECKBOX_TYPE.equals(clientTemplate.getType())) {
                         List myData = new ArrayList();
-                        ((JSONObject) data).put(clientTemplate.getKey(), myData);
+                        ((Map) data).put(clientTemplate.getKey(), myData);
                         data = myData;
-                    } else if("GROUP".equals(clientTemplate.getType())) {
+                    } else if(GROUP_TYPE.equals(clientTemplate.getType())) {
                         Map myData = new HashMap();
-                        ((JSONObject) data).put(clientTemplate.getKey(), myData);
+                        ((Map) data).put(clientTemplate.getKey(), myData);
                         data = myData;
+                    } else {
+                        ((Map) data).put(clientTemplate.getKey(), clientTemplate.getValue());
                     }
-                } else if (data instanceof Map) {
-                    ((Map)data).put(clientTemplate.getKey(), clientTemplate.getValue());
                 } else if (data instanceof List) {
-                    ((List)data).add(clientTemplate.getValue());
+                    if (CHECKBOX_TYPE.equals(clientTemplate.getType())) {
+                        List myData = new ArrayList();
+                        ((List) data).add(myData);
+                        data = myData;
+                    } else if(GROUP_TYPE.equals(clientTemplate.getType())) {
+                        Map myData = new HashMap();
+                        ((List) data).add(myData);
+                        data = myData;
+                    } else {
+                        ((List)data).add(clientTemplate.getValue());
+                    }
                 }
             }
             if (CollectionUtils.isNotEmpty(clientTemplate.getValues())) {
