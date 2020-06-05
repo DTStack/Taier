@@ -119,7 +119,7 @@ class ComponentsConfig extends React.Component<any, any> {
             style: { padding: isSelectGroup ? '0 20px' : '' },
             key: `${comps}.configInfo.${item.key.split('.').join('%')}`,
             options: {
-                initialValue: item.key === 'deploymode' && !isArray(item.value) ? item.value.split('_') : item.value
+                initialValue: item.key === 'deploymode' && !isArray(item.value) ? item.value.split() : item.value
             },
             component: this.renderCompsContent(item),
             rules: [{ required: item.required, message: `请输入${item.key}` }]

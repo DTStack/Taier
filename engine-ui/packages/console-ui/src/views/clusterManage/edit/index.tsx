@@ -85,7 +85,7 @@ class EditCluster extends React.Component<any, any> {
 
     getDataList = () => {
         const { tabCompData } = this.state;
-        const { cluster = {} } = this.props.location.state || {} as any;
+        const { cluster } = this.props.location.state || {} as any;
         Api.getClusterInfo({
             clusterId: cluster.clusterId
         }).then((res: any) => {
@@ -123,8 +123,7 @@ class EditCluster extends React.Component<any, any> {
     }
 
     turnEditComp = () => {
-        const params = this.props.location.state || {};
-        const { cluster = {} } = params;
+        const { cluster } = this.props.location.state || {} as any;
         hashHistory.push({
             pathname: '/console/clusterManage/editCluster',
             state: {
@@ -469,6 +468,7 @@ class EditCluster extends React.Component<any, any> {
     saveComponent = (components: any) => {
         const { validateFields } = this.props.form;
         const { componentConfig, cloneComponentConfig } = this.state;
+        const { cluster } = this.props.location.state || {} as any;
         const componentTypeCode = components.componentTypeCode;
         const config = this.getComponentConfig(components);
         const isFileNameRequire = dealData.checkUplaodFileComps(componentTypeCode);
@@ -488,7 +488,8 @@ class EditCluster extends React.Component<any, any> {
             const params = dealData.getComponentConfigPrames(values, components, config);
             console.log('this is params-----------', params)
             Api.saveComponent({
-                ...params
+                ...params,
+                clusterId: cluster.clusterId
             }).then((res: any) => {
                 if (res.code === 1) {
                     this.setState({
