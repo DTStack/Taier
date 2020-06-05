@@ -597,7 +597,7 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
                 if (EComponentType.SPARK.equals(type.getComponentType())) {
                     JSONObject sftpConfig = clusterConfigJson.getJSONObject(EComponentType.SFTP.getConfName());
                     if (Objects.nonNull(sftpConfig)) {
-                        String confHdfsPath = sftpConfig.getString("path") + File.separator + AppType.CONSOLE + "_" + clusterVO.getClusterId();
+                        String confHdfsPath = sftpConfig.getString("path") + componentService.buildConfRemoteDir(clusterVO.getId());
                         pluginInfo.put("confHdfsPath", confHdfsPath);
                     }
                 }

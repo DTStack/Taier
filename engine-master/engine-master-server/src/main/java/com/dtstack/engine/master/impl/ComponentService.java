@@ -672,7 +672,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
     }
 
     /**
-     * 上传四个xml到sftp 作为spark到
+     * 上传四个xml到sftp 作为spark 作为confHdfsPath
      * @param clusterId
      * @param sftpMap
      * @param instance
@@ -680,12 +680,17 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
      */
     private void updateConfigToSftpPath(@Param("clusterId") Long clusterId, Map<String, String> sftpMap, SFTPHandler instance, Resource resource) {
         //上传xml到对应路径下 拼接confHdfsPath
-        String confRemotePath = sftpMap.get("path") + File.separator + AppType.CONSOLE + "_" + clusterId;
-        String confPath = System.getProperty("user.dir") + File.separator + "confPath" + File.separator + AppType.CONSOLE + "_" + clusterId;
+        String confRemotePath = sftpMap.get("path");
+        String confPath = System.getProperty("user.dir") + File.separator + buildConfRemoteDir(clusterId);
         //解压到本地
         this.unzipKeytab(confPath, resource);
-        instance.deleteFile(confRemotePath);
+        instance.deleteDir(confRemotePath);
         instance.uploadDir(confRemotePath,confPath);
+    }
+
+
+    public String buildConfRemoteDir(Long clusterId) {
+        return File.separator + "confPath" + File.separator + AppType.CONSOLE + "_" + clusterId;
     }
 
     /**
