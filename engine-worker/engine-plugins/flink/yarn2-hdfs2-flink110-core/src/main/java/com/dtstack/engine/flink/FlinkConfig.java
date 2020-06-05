@@ -1,6 +1,7 @@
 package com.dtstack.engine.flink;
 
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
+import com.dtstack.engine.flink.enums.Deploy;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -39,7 +40,7 @@ public class FlinkConfig {
 
     private String remotePluginRootDir;
 
-    private String clusterMode; // 集群运行模式: standalone or yarn
+    private String clusterMode = Deploy.session.name(); // 集群运行模式: standalone or yarn
 
     private String cluster;
 

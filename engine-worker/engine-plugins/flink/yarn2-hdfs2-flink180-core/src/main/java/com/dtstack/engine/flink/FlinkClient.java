@@ -134,14 +134,11 @@ public class FlinkClient extends AbstractClient {
         flinkClientBuilder = FlinkClientBuilder.create(flinkConfig, hadoopConf.getConfiguration(), hadoopConf.getYarnConfiguration());
         flinkClientBuilder.initFlinkGlobalConfiguration(flinkExtProp);
 
-        KerberosUtils.login(flinkConfig,()->{
-            try {
-                flinkClusterClientManager = FlinkClusterClientManager.createWithInit(flinkClientBuilder);
-            } catch (Exception e) {
-                throw new RdosDefineException(e);
-            }
-            return null;
-        });
+        try {
+            flinkClusterClientManager = FlinkClusterClientManager.createWithInit(flinkClientBuilder);
+        } catch (Exception e) {
+            throw new RdosDefineException(e);
+        }
 
     }
 
