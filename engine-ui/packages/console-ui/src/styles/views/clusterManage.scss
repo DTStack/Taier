@@ -229,13 +229,19 @@
         flex-direction: column;
         height: 100%;
         >.ant-tabs-bar {
-            height: 34.8px;
+            height: 44px;
         }
         >.ant-tabs-content {
             flex: 1;
         }
         .ant-tabs-extra-content {
             float: left !important;
+            height: 44px;
+            line-height: 44px;
+        }
+        .ant-tabs-nav-container {
+            height: 44px;
+            line-height: 45px;
         }
         .c-editCluster__commonTabs__title {
             width: 200px;
@@ -282,7 +288,9 @@
                 .ant-tabs-nav {
                     .ant-tabs-tab{
                         text-align: left;
-                        padding-left: 20px;
+                        height: 40px;
+                        line-height: 40px;
+                        padding: 0 0 0 20px;
                     }
                 }
             }
@@ -329,7 +337,7 @@
     .c-editCluster__container__emptyLogo {
         position: absolute;
         top: 50%;
-        left: 50%;
+        left: 55%;
         margin-top: -100px;
         margin-left: -100px;
         z-index: 1;
@@ -413,7 +421,7 @@
     }
 }
 
-.c-modifyComponents__modal {
+.c-clusterManage__modal {
     width:460px;
     .ant-modal-footer {
         border-top: unset;

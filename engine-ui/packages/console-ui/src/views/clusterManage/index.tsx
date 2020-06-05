@@ -2,6 +2,7 @@ import * as React from 'react';
 import { hashHistory } from 'react-router';
 import { Card, Table, Button, message, Popconfirm } from 'antd';
 import moment from 'moment';
+import AddEngineModal from '../../components/addEngineModal';
 import Api from '../../api/console'
 const PAGE_SIZE = 10;
 
@@ -113,11 +114,9 @@ class ClusterManage extends React.Component<any, any> {
         })
     }
     newCluster = () => {
-        hashHistory.push({
-            pathname: '/console/clusterManage/editCluster',
-            state: {
-                mode: 'new'
-            }
+        this.setState({
+            editModalKey: Math.random(),
+            newClusterModal: true
         })
     }
     onCancel () {
@@ -125,22 +124,19 @@ class ClusterManage extends React.Component<any, any> {
     }
 
     onSubmit (params: any) {
-        const { canSubmit, reqParams } = params;
-        if (canSubmit) {
-            Api.addCluster({ ...reqParams }).then((res: any) => {
-                if (res.code === 1) {
-                    this.onCancel()
-                    hashHistory.push({
-                        pathname: '/console/clusterManage/editCluster',
-                        state: {
-                            mode: 'new',
-                            cluster: res.data
-                        }
-                    })
-                    message.success('集群新增成功！')
-                }
-            })
-        }
+        Api.addCluster({ ...params }).then((res: any) => {
+            if (res.code === 1) {
+                this.onCancel()
+                hashHistory.push({
+                    pathname: '/console/clusterManage/editCluster',
+                    state: {
+                        mode: 'new',
+                        cluster: res.data
+                    }
+                })
+                message.success('集群新增成功！')
+            }
+        })
     }
     handleTableChange = (pagination: any, filters: any, sorter: any) => {
         const queryParams = Object.assign(this.state.table, { pageIndex: pagination.current, loading: true })
@@ -149,7 +145,7 @@ class ClusterManage extends React.Component<any, any> {
         }, this.getResourceList)
     }
     render () {
-        const { dataSource, table } = this.state;
+        const { dataSource, table, newClusterModal, editModalKey } = this.state;
         const { loading } = table;
         const columns = this.initTableColumns();
         return (
@@ -175,6 +171,13 @@ class ClusterManage extends React.Component<any, any> {
                         />
                     </Card>
                 </div>
+                <AddEngineModal
+                    key={editModalKey}
+                    title='新增集群'
+                    visible={newClusterModal}
+                    onCancel={this.onCancel.bind(this)}
+                    onOk={this.onSubmit.bind(this)}
+                />
             </React.Fragment>
         )
     }

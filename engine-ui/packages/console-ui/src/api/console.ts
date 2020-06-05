@@ -6,6 +6,11 @@ import req from '../consts/reqUrls'
 
 export default {
     // 4.0 版本相关接口
+    addCluster (params: {
+        clusterName: string;
+    }) {
+        return http.post(req.ADD_CLUSTER, params); // 新增集群
+    },
     getClusterInfo (params: {
         clusterId: number;
     }) {
@@ -163,9 +168,6 @@ export default {
     },
     testComponentKerberos (params: any) {
         return http.postAsFormData(req.TEST_COMPONENT_CONNECT_KERBEROS, params);
-    },
-    addCluster (params: any) {
-        return http.post(req.ADD_CLUSTER, params); // 新增集群
     },
     addComponent (params: any) {
         return http.post(req.ADD_COMPONENT, params);

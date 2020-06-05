@@ -223,7 +223,8 @@ function handleUploadFile (fileName: string) {
 function handleCompsData (data: any) {
     let newCompConfig: any = {};
     newCompConfig.clusterName = data.data.clusterName;
-    data.data.scheduling.forEach((item: any) => {
+    const scheduling = data.data.scheduling || [];
+    scheduling.forEach((item: any) => {
         item.components.forEach((comps: any) => {
             newCompConfig[COMPONEMT_CONFIG_KEY_ENUM[comps.componentTypeCode]] = {
                 configInfo: JSON.parse(comps.componentConfig) || {},
@@ -296,7 +297,7 @@ function getComponentConfigPrames (values: any, components: any, config: any) {
         resources1: files,
         resources2: kerFiles,
         clusterName: clusterName,
-        componentConfig: JSON.stringify({ ...paramsConfig }),
+        componentConfig: JSON.stringify(paramsConfig),
         kerberosFileName: kerFileName,
         hadoopVersion: hadoopVersion || '',
         componentCode: componentTypeCode,
@@ -327,7 +328,7 @@ function getMoadifyComps (values: any, componentConfig: any) {
 
             const isModify = (hadoopVersion && !_.isEqual(compHadoopVersion, hadoopVersion)) ||
                 (uploadFileName && !_.isEqual(compUploadFileName, handleUploadFile(uploadFileName))) ||
-                    (kerberosFileName && !_.isEqual(kerberosFileName, handleUploadFile(compKerberosFileName)))
+                    (kerberosFileName && !_.isEqual(compKerberosFileName, handleUploadFile(kerberosFileName)))
 
             if (!config.id) { modifyCompsArr = [...modifyCompsArr, componentTypeCode]; return; }
             if (isModify) { modifyCompsArr = [...modifyCompsArr, componentTypeCode]; return; }
