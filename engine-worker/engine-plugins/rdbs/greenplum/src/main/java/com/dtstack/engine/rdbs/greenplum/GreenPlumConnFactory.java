@@ -3,7 +3,6 @@ package com.dtstack.engine.rdbs.greenplum;
 
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -12,20 +11,6 @@ public class GreenPlumConnFactory extends AbstractConnFactory {
     public GreenPlumConnFactory() {
         driverName = "com.pivotal.jdbc.GreenplumDriver";
         testSql = "select 1111";
-    }
-
-    @Override
-    public boolean dealWithProcedure(String sql) {
-        if (StringUtils.isBlank(sql)) {
-            return true;
-        }
-        String[] sqls = sql.trim().split("\\s+", 2);
-        if (sqls.length >= 2){
-            if ("BEGIN".equalsIgnoreCase(sqls[0])) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @Override

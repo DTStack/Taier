@@ -20,6 +20,7 @@ import com.dtstack.engine.master.enums.EDeployMode;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.utils.PublicUtil;
+import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.enums.Sort;
@@ -592,6 +593,13 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
                 String typeName = flinkConf.getString(TYPE_NAME);
                 if (!StringUtils.isBlank(typeName)) {
                     pluginInfo.put(TYPE_NAME, typeName);
+                }
+                if (EComponentType.SPARK.equals(type.getComponentType())) {
+                    JSONObject sftpConfig = clusterConfigJson.getJSONObject(EComponentType.SFTP.getConfName());
+                    if (Objects.nonNull(sftpConfig)) {
+                        String confHdfsPath = sftpConfig.getString("path") + componentService.buildConfRemoteDir(clusterVO.getId());
+                        pluginInfo.put("confHdfsPath", confHdfsPath);
+                    }
                 }
             } else if (EComponentType.DT_SCRIPT.equals(type.getComponentType())) {
                 //DT_SCRIPT 需要将common配置放在外边

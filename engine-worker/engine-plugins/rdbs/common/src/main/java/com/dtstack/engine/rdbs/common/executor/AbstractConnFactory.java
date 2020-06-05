@@ -127,7 +127,16 @@ public abstract class AbstractConnFactory {
     }
 
     public boolean dealWithProcedure(String sql) {
-        return true;
+        if (StringUtils.isBlank(sql)) {
+            return true;
+        }
+        String[] sqls = sql.trim().split("\\s+", 2);
+        if (sqls.length >= 2){
+            if ("BEGIN".equalsIgnoreCase(sqls[0])) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public List<String> buildSqlList(String sql) {

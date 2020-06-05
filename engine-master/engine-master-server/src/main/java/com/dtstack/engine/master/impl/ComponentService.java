@@ -18,6 +18,7 @@ import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.common.util.MD5Util;
 import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.akka.WorkerOperator;
@@ -54,6 +55,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.dtstack.engine.common.constrant.ConfigConstant.MD5_SUM_KEY;
 
 @Service
 public class ComponentService implements com.dtstack.engine.api.service.ComponentService {
@@ -597,16 +600,17 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         addComponent.setComponentTypeCode(componentType.getTypeCode());
         addComponent.setEngineId(engine.getId());
         addComponent.setComponentTemplate(componentTemplate);
-        addComponent.setComponentConfig(this.wrapperConfig(componentType, componentConfig, isOpenKerberos, clusterName, hadoopVersion));
         if (StringUtils.isNotBlank(kerberosFileName)) {
             addComponent.setKerberosFileName(kerberosFileName);
         }
 
+        String md5Key = "";
         Map<String, String> sftpMap = Objects.isNull(sftpComponent) ? new HashMap<>() : JSONObject.parseObject(sftpComponent.getComponentConfig(), Map.class);
         if (CollectionUtils.isNotEmpty(resources)) {
             //上传配置文件到sftp 供后续下载
-            uploadResourceToSftp(clusterId, resources, kerberosFileName, sftpMap, addComponent, dbComponent);
+            md5Key = uploadResourceToSftp(clusterId, resources, kerberosFileName, sftpMap, addComponent, dbComponent);
         }
+        addComponent.setComponentConfig(this.wrapperConfig(componentType, componentConfig, isOpenKerberos, clusterName, hadoopVersion,md5Key));
 
         addComponent.setClusterId(clusterId);
         if (isUpdate) {
@@ -621,11 +625,12 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         return componentVO;
     }
 
-    private void uploadResourceToSftp(@Param("clusterId") Long clusterId, @Param("resources") List<Resource> resources, @Param("kerberosFileName") String kerberosFileName,
+    private String uploadResourceToSftp(@Param("clusterId") Long clusterId, @Param("resources") List<Resource> resources, @Param("kerberosFileName") String kerberosFileName,
                                       Map<String, String> sftpMap,
                                       Component addComponent, Component dbComponent) {
         //上传配置文件到sftp 供后续下载
         SFTPHandler instance = null;
+        String md5sum = "";
         try {
             instance = SFTPHandler.getInstance(sftpMap);
         } catch (Exception e) {
@@ -642,6 +647,11 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
                     this.updateComponentKerberosFile(clusterId, addComponent, instance, remoteDir, resource, addComponent.getId());
                 } else {
                     this.updateComponentConfigFile(dbComponent, instance, remoteDir, resource);
+                    if(addComponent.getComponentTypeCode() == EComponentType.HDFS.getTypeCode()){
+                        String xmlZipLocation = resource.getUploadedFileName();
+                        md5sum = MD5Util.getFileMd5String(new File(xmlZipLocation));
+                        this.updateConfigToSftpPath(clusterId, sftpMap, instance, resource);
+                    }
                 }
             } catch (Exception e) {
                 LOGGER.error("update component resource {}  error", resource.getUploadedFileName(), e);
@@ -658,6 +668,29 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
                 }
             }
         }
+        return md5sum;
+    }
+
+    /**
+     * 上传四个xml到sftp 作为spark 作为confHdfsPath
+     * @param clusterId
+     * @param sftpMap
+     * @param instance
+     * @param resource
+     */
+    private void updateConfigToSftpPath(@Param("clusterId") Long clusterId, Map<String, String> sftpMap, SFTPHandler instance, Resource resource) {
+        //上传xml到对应路径下 拼接confHdfsPath
+        String confRemotePath = sftpMap.get("path");
+        String confPath = System.getProperty("user.dir") + File.separator + buildConfRemoteDir(clusterId);
+        //解压到本地
+        this.unzipKeytab(confPath, resource);
+        instance.deleteDir(confRemotePath);
+        instance.uploadDir(confRemotePath,confPath);
+    }
+
+
+    public String buildConfRemoteDir(Long clusterId) {
+        return File.separator + "confPath" + File.separator + AppType.CONSOLE + "_" + clusterId;
     }
 
     /**
@@ -670,7 +703,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
      * @param componentString
      * @return
      */
-    private String wrapperConfig(EComponentType componentType, String componentString, boolean isOpenKerberos, String clusterName, String hadoopVersion) {
+    private String wrapperConfig(EComponentType componentType, String componentString, boolean isOpenKerberos, String clusterName, String hadoopVersion,String md5Key) {
         if (EComponentType.KUBERNETES.equals(componentType)) {
             JSONObject dataJSON = new JSONObject();
             dataJSON.put("kubernetes.context",componentString);
@@ -689,6 +722,9 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         if (EComponentType.typeComponentVersion.contains(componentType)) {
             //添加typeName
             componentConfigJSON.put(TYPE_NAME, this.convertComponentTypeToClient(clusterName, componentType.getTypeCode(), hadoopVersion));
+        }
+        if(!StringUtils.isBlank(md5Key)){
+            componentConfigJSON.put(MD5_SUM_KEY, md5Key);
         }
         return componentConfigJSON.toJSONString();
     }
