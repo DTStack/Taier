@@ -62,8 +62,6 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
 
     private final static String ZIP_CONTENT_TYPE = "zip";
 
-    private final static String ADD_OPERATE_TYPE = "1";
-
     private final static String CHECKBOX_TYPE = "CHECKBOX";
 
     private final static String GROUP_TYPE = "GROUP";
@@ -518,7 +516,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
 
 
     @Transactional(rollbackFor = Exception.class)
-    public ComponentVO addOrUpdateComponent(@Param("clusterId") Long clusterId, @Param("clusterName") String clusterName, @Param("componentConfig") String componentConfig,
+    public ComponentVO addOrUpdateComponent(@Param("clusterId") Long clusterId, @Param("componentConfig") String componentConfig,
                                             @Param("resources") List<Resource> resources, @Param("hadoopVersion") String hadoopVersion,
                                             @Param("kerberosFileName") String kerberosFileName, @Param("componentTemplate") String componentTemplate,
                                             @Param("componentCode") Integer componentCode) {
@@ -528,16 +526,14 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         if (Objects.isNull(componentCode)) {
             throw new RdosDefineException("组件类型不能为空");
         }
+        if (Objects.isNull(clusterId)) {
+            throw new RdosDefineException("集群Id不能为空");
+        }
         ComponentDTO componentDTO = new ComponentDTO();
         componentDTO.setComponentConfig(componentConfig);
         componentDTO.setComponentTypeCode(componentCode);
 
-        if (clusterId == null) {
-            clusterName = clusterName.trim();
-            Cluster cluster = clusterDao.getByClusterName(clusterName);
-            clusterId = cluster.getId();
-        }
-
+        String clusterName = clusterDao.getOne(clusterId).getClusterName();
 
         Component sftpComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.SFTP.getTypeCode());;
         if (CollectionUtils.isNotEmpty(resources)) {
@@ -809,9 +805,8 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
                 LOGGER.info("add cluster {} ", clusterId);
             }
             return result;
-        } else {
-            throw new RdosDefineException("集群名称已存在");
         }
+        throw new RdosDefineException("集群名称已存在");
     }
 
     private void checkJSON(String json){
@@ -1131,23 +1126,6 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         }
         if (CollectionUtils.isEmpty(defaultPluginConfig)) {
             return new ArrayList<>();
-        }
-
-        for (ClientTemplate ct: defaultPluginConfig) {
-            if (DEPLOYMODE_TYPE.equals(ct.getKey())) {
-                StringBuilder valueString = new StringBuilder();
-                List<ClientTemplate> values = ct.getValues();
-                if (values != null) {
-                    for (ClientTemplate ctv: values) {
-                        valueString.append(ctv.getValue() + "_");
-                    }
-                }
-                valueString.deleteCharAt(valueString.length() - 1);
-                if (!valueString.toString().equals("")) {
-                    ct.setValue(valueString.toString());
-                }
-                break;
-            }
         }
 
         return defaultPluginConfig;
