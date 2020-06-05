@@ -62,7 +62,11 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
 
     private final static String ZIP_CONTENT_TYPE = "zip";
 
-    private final static String ADD_OPERATE_TYPE = "1";
+    private final static String CHECKBOX_TYPE = "CHECKBOX";
+
+    private final static String GROUP_TYPE = "GROUP";
+
+    private final static String DEPLOYMODE_TYPE = "deploymode";
 
     private static String unzipLocation = System.getProperty("user.dir") + File.separator + "unzip";
 
@@ -512,23 +516,24 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
 
 
     @Transactional(rollbackFor = Exception.class)
-    public ComponentVO addOrUpdateComponent(@Param("clusterId") Long clusterId, @Param("clusterName") String clusterName, @Param("componentConfig") String componentConfig,
+    public ComponentVO addOrUpdateComponent(@Param("clusterId") Long clusterId, @Param("componentConfig") String componentConfig,
                                             @Param("resources") List<Resource> resources, @Param("hadoopVersion") String hadoopVersion,
                                             @Param("kerberosFileName") String kerberosFileName, @Param("componentTemplate") String componentTemplate,
-                                            @Param("componentCode") Integer componentCode, @Param("operateType") String operateType) {
+                                            @Param("componentCode") Integer componentCode) {
         if (StringUtils.isBlank(componentConfig) && EComponentType.KUBERNETES.getTypeCode() != componentCode) {
             throw new RdosDefineException("组件信息不能为空");
         }
         if (Objects.isNull(componentCode)) {
             throw new RdosDefineException("组件类型不能为空");
         }
+        if (Objects.isNull(clusterId)) {
+            throw new RdosDefineException("集群Id不能为空");
+        }
         ComponentDTO componentDTO = new ComponentDTO();
         componentDTO.setComponentConfig(componentConfig);
         componentDTO.setComponentTypeCode(componentCode);
-        //新增 clusterName 修改clusterId
-        if (Objects.isNull(clusterId)) {
-            clusterId = this.checkClusterWithName(clusterId, clusterName, operateType);
-        }
+
+        String clusterName = clusterDao.getOne(clusterId).getClusterName();
 
         Component sftpComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.SFTP.getTypeCode());;
         if (CollectionUtils.isNotEmpty(resources)) {
@@ -779,7 +784,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         kerberosDao.deleteByComponentId(componentId);
     }
 
-    private Long checkClusterWithName(@Param("clusterId") Long clusterId, @Param("clusterName") String clusterName, @Param("operateType") String operateType) {
+    public Map<String, Object> addOrCheckClusterWithName(@Param("clusterName") String clusterName) {
         if (StringUtils.isBlank(clusterName)) {
             throw new RdosDefineException("集群名称不能为空");
         }
@@ -790,17 +795,13 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
             ClusterDTO clusterDTO = new ClusterDTO();
             clusterDTO.setClusterName(clusterName);
             ClusterVO clusterVO = clusterService.addCluster(clusterDTO);
-            if (Objects.nonNull(clusterVO)) {
-                clusterId = clusterVO.getClusterId();
-                LOGGER.info("add cluster {} ", clusterId);
-            }
-        } else {
-            if (operateType != null && operateType.equals(ADD_OPERATE_TYPE)) {
-                throw new RdosDefineException("集群名称已存在");
-            }
-            clusterId = cluster.getId();
+            Map<String, Object> result = new HashMap<>();
+            Long clusterId = clusterVO.getClusterId();
+            result.put("clusterId", clusterId);
+            LOGGER.info("add cluster {} ", clusterId);
+            return result;
         }
-        return clusterId;
+        throw new RdosDefineException("集群名称已存在");
     }
 
     private void checkJSON(String json){
@@ -1027,7 +1028,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
             List<ClientTemplate> clientTemplates = this.loadTemplate(componentType, clusterName, hadoopVersion);
             if (CollectionUtils.isNotEmpty(clientTemplates)) {
                 JSONObject fileJson = new JSONObject();
-                fileJson = this.convertTemplateToJson(clientTemplates, fileJson);
+                fileJson = (JSONObject) this.convertTemplateToJson(clientTemplates, fileJson);
                 uploadFileName = EComponentType.getByCode(componentType).name() + ".json";
                 localDownLoadPath = downloadLocation + File.separator + uploadFileName;
                 try {
@@ -1121,19 +1122,46 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         if (CollectionUtils.isEmpty(defaultPluginConfig)) {
             return new ArrayList<>();
         }
+
         return defaultPluginConfig;
     }
 
-
-    private JSONObject convertTemplateToJson(List<ClientTemplate> clientTemplates, JSONObject data) {
+    @SuppressWarnings("unchecked")
+    private Object convertTemplateToJson(List<ClientTemplate> clientTemplates, Object data) {
         for (ClientTemplate clientTemplate : clientTemplates) {
+            Object temp = data;
             if (StringUtils.isNotBlank(clientTemplate.getKey())) {
-                data.put(clientTemplate.getKey(), clientTemplate.getValue());
+                if (data instanceof Map) {
+                    if (CHECKBOX_TYPE.equals(clientTemplate.getType())) {
+                        List myData = new ArrayList();
+                        ((Map) data).put(clientTemplate.getKey(), myData);
+                        data = myData;
+                    } else if(GROUP_TYPE.equals(clientTemplate.getType())) {
+                        Map myData = new HashMap();
+                        ((Map) data).put(clientTemplate.getKey(), myData);
+                        data = myData;
+                    } else {
+                        ((Map) data).put(clientTemplate.getKey(), clientTemplate.getValue());
+                    }
+                } else if (data instanceof List) {
+                    if (CHECKBOX_TYPE.equals(clientTemplate.getType())) {
+                        List myData = new ArrayList();
+                        ((List) data).add(myData);
+                        data = myData;
+                    } else if(GROUP_TYPE.equals(clientTemplate.getType())) {
+                        Map myData = new HashMap();
+                        ((List) data).add(myData);
+                        data = myData;
+                    } else {
+                        ((List)data).add(clientTemplate.getValue());
+                    }
+                }
             }
             if (CollectionUtils.isNotEmpty(clientTemplate.getValues())) {
                 //以第一个参数为准 作为默认值
-                this.convertTemplateToJson(Lists.newArrayList(clientTemplate.getValues().get(0)), data);
+                this.convertTemplateToJson(Lists.newArrayList(clientTemplate.getValues()), data);
             }
+            data = temp;
         }
         return data;
     }
