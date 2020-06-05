@@ -93,6 +93,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
         }
         List<File> keytabFilePath = getKeytabFilePath(jobClient);
 
+        clusterDescriptor.setName(jobClient.getJobName());
         clusterDescriptor.addShipFiles(keytabFilePath);
         clusterDescriptor.setProvidedUserJarFiles(classpaths);
         clusterDescriptor.setQueue(flinkConfig.getQueue());
