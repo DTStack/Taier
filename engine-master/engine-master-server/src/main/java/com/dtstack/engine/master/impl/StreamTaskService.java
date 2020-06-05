@@ -58,10 +58,12 @@ public class StreamTaskService implements com.dtstack.engine.api.service.StreamT
     /**
      * 查询checkPoint
      */
+    @Override
     public List<EngineJobCheckpoint> getCheckPoint(@Param("taskId") String taskId, @Param("triggerStart") Long triggerStart, @Param("triggerEnd") Long triggerEnd){
         return engineJobCheckpointDao.listByTaskIdAndRangeTime(taskId,triggerStart,triggerEnd);
     }
 
+    @Override
     public EngineJobCheckpoint getByTaskIdAndEngineTaskId(@Param("taskId") String taskId, @Param("engineTaskId") String engineTaskId){
         return engineJobCheckpointDao.getByTaskIdAndEngineTaskId(taskId, engineTaskId);
     }
@@ -69,6 +71,7 @@ public class StreamTaskService implements com.dtstack.engine.api.service.StreamT
     /**
      * 查询stream job
      */
+    @Override
     public List<ScheduleJob> getEngineStreamJob(@Param("taskIds") List<String> taskIds){
         return scheduleJobDao.getRdosJobByJobIds(taskIds);
     }
@@ -76,6 +79,7 @@ public class StreamTaskService implements com.dtstack.engine.api.service.StreamT
     /**
      * 获取某个状态的任务task_id
      */
+    @Override
     public List<String> getTaskIdsByStatus(@Param("status") Integer status){
         return scheduleJobDao.getJobIdsByStatus(status, ComputeType.STREAM.getType());
     }
@@ -83,6 +87,7 @@ public class StreamTaskService implements com.dtstack.engine.api.service.StreamT
     /**
      * 获取任务的状态
      */
+    @Override
     public Integer getTaskStatus(@Param("taskId") String taskId){
         Integer status = null;
         if (StringUtils.isNotEmpty(taskId)){
@@ -100,6 +105,7 @@ public class StreamTaskService implements com.dtstack.engine.api.service.StreamT
      * @param taskId
      * @return
      */
+    @Override
     public Pair<String, String> getRunningTaskLogUrl(@Param("taskId") String taskId) {
 
         Preconditions.checkState(StringUtils.isNotEmpty(taskId), "taskId can't be empty");
