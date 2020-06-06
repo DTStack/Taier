@@ -249,7 +249,7 @@ public class HadoopClient extends AbstractClient {
         try {
             LOG.info("start init security!");
             KerberosUtils.login(config,supplier);
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOG.error("initSecurity happens error", e);
             throw new IOException("InitSecurity happens error", e);
         }

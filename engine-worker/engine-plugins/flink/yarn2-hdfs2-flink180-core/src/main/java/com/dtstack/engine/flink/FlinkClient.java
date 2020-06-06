@@ -158,10 +158,10 @@ public class FlinkClient extends AbstractClient {
                  }
                  return jobResult;
              });
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.error("can not submit a job process SubmitJobWithType error," ,e);
+            return JobResult.createErrorResult(e);
         }
-        return null;
     }
 
     private JobResult submitJobWithJar(JobClient jobClient) {
