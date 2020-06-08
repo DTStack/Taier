@@ -249,20 +249,23 @@ export const ENGINE_TYPE = {
     HADOOP: 1,
     LIBRA: 2,
     TI_DB: 4,
-    ORACLE: 5
+    ORACLE: 5,
+    GREEN_PLUM: 6
 }
 export const ENGINE_TYPE_NAME = {
     HADOOP: 'Hadoop',
     LIBRA: 'LibrA',
     TI_DB: 'TiDB',
-    ORACLE: 'Oracle'
+    ORACLE: 'Oracle',
+    GREEN_PLUM: 'GreenPlum'
 }
 
 export const ENGIN_TYPE_TEXT = {
     [ENGINE_TYPE.HADOOP]: 'Hadoop',
     [ENGINE_TYPE.LIBRA]: 'LibrA',
     [ENGINE_TYPE.TI_DB]: 'TiDB',
-    [ENGINE_TYPE.ORACLE]: 'Oracle'
+    [ENGINE_TYPE.ORACLE]: 'Oracle',
+    [ENGINE_TYPE.GREEN_PLUM]: 'GreenPlum'
 }
 
 export const ENGINE_TYPE_ARRAY = [{ // 引擎类型下拉框数据
@@ -277,6 +280,9 @@ export const ENGINE_TYPE_ARRAY = [{ // 引擎类型下拉框数据
 }, {
     name: 'Oracle',
     value: ENGINE_TYPE_NAME.ORACLE
+}, {
+    name: 'GreenPlum',
+    value: ENGINE_TYPE_NAME.GREEN_PLUM
 }];
 
 export const DEFAULT_COMP_TEST: any = { // 测试结果默认数据
@@ -293,7 +299,8 @@ export const DEFAULT_COMP_TEST: any = { // 测试结果默认数据
     tidbSqlTestResult: {},
     oracleSqlTestResult: {},
     impalaSqlTestResult: {},
-    sftpTestResult: {}
+    sftpTestResult: {},
+    greenPlumSqlTestResult: {}
 }
 export const DEFAULT_COMP_REQUIRED: any = { // 必填默认数据
     flinkShowRequired: false,
