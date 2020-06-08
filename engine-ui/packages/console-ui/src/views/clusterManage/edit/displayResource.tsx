@@ -271,6 +271,8 @@ class DisplayResource extends React.Component<any, any> {
                 return this.renderParamsFile(COMPONEMT_CONFIG_KEYS.LIBRA_SQL)
             case COMPONENT_TYPE_VALUE.ORACLE_SQL:
                 return this.renderParamsFile(COMPONEMT_CONFIG_KEYS.ORACLE_SQL)
+            case COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL:
+                return this.renderParamsFile(COMPONEMT_CONFIG_KEYS.GREEN_PLUM_SQL)
             case COMPONENT_TYPE_VALUE.IMPALA_SQL:
                 return (
                     <React.Fragment>
