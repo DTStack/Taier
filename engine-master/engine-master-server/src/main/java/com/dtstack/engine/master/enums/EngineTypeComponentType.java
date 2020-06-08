@@ -35,6 +35,7 @@ public enum EngineTypeComponentType {
     TIDB_SQL(ScheduleEngineType.TIDB, EComponentType.TIDB_SQL),
     ORACLE_SQL(ScheduleEngineType.ORACLE, EComponentType.ORACLE_SQL),
     KUBERNETES(ScheduleEngineType.KUBERNETES, EComponentType.KUBERNETES);
+    GREENPLUM_SQL(ScheduleEngineType.GREENPLUM, EComponentType.GREENPLUM_SQL);
 
     private ScheduleEngineType scheduleEngineType;
 
@@ -92,6 +93,8 @@ public enum EngineTypeComponentType {
                 return EngineTypeComponentType.ORACLE_SQL;
             case "kubernetes":
                 return EngineTypeComponentType.KUBERNETES;
+            case "greenplum":
+                return EngineTypeComponentType.GREENPLUM_SQL;
             default:
                 throw new UnsupportedOperationException("未知引擎类型:" + engineName);
         }

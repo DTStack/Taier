@@ -30,6 +30,9 @@ public enum ScheduleEngineType {
     TIDB(14,"tidb"),
     ORACLE(15,"oracle"),
     KUBERNETES(16,"kubernetes");
+    ORACLE(15,"oracle"),
+    GREENPLUM(16, "greenplum")
+    ;
 
     private int val;
 

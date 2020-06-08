@@ -14,7 +14,8 @@ public enum MultiEngineType {
     LIBRA(2, "LibrA"),
     KYLIN(3, "Kylin"),
     TIDB(4,"TiDB"),
-    ORACLE(5,"Oracle");
+    ORACLE(5,"Oracle"),
+    GREENPLUM(6, "Greenplum");
 
     private int type;
 
