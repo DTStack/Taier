@@ -169,8 +169,7 @@ public class FlinkClientBuilder {
                 return yarnClient;
             });
         } catch (Exception e) {
-            LOG.error("build yarn client error", e);
-            throw new RdosDefineException(e);
+            throw new RdosDefineException("build yarn client error", e);
         }
         return null;
     }

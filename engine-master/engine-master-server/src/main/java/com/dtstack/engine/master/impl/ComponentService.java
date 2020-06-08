@@ -450,6 +450,24 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         return file;
     }
 
+
+    private File getDeepFileWithSuffix(String dir, String suffix) {
+        //不是单个文件夹
+        File dirFile = new File(dir);
+        if (dirFile.exists() && dirFile.isDirectory()) {
+            File[] files = dirFile.listFiles();
+            if (files.length > 0) {
+                for (File file : files) {
+                    File subFile = this.getFileWithSuffix(file.getPath(), suffix);
+                    if (Objects.nonNull(subFile)) {
+                        return subFile;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     private String getPrincipal(File file) {
         if (Objects.nonNull(file)) {
             Keytab keytab = null;
@@ -803,7 +821,12 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         //解压到本地
         this.unzipKeytab(kerberosPath, resource);
         //获取principal
+        boolean isDir = false;
         File keyTabPath = this.getFileWithSuffix(kerberosPath, ".keytab");
+        if(Objects.isNull(keyTabPath)){
+            isDir = true;
+            keyTabPath = this.getDeepFileWithSuffix(kerberosPath, ".keytab");
+        }
         if (Objects.isNull(keyTabPath)) {
             throw new RdosDefineException("keytab文件缺失");
         }
@@ -811,7 +834,16 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         //删除sftp原来kerberos 的文件夹
         instance.deleteDir(remoteDir);
         //上传kerberos解压后的文件
-        instance.uploadDir(remoteDir, kerberosPath);
+        File ktb5File;
+        if (isDir) {
+            for (File file : keyTabPath.getParentFile().listFiles()) {
+                instance.upload(remoteDir + File.separator + KERBEROS_PATH, file.getPath(),true);
+            }
+            ktb5File = this.getDeepFileWithSuffix(kerberosPath, ".conf");
+        } else {
+            ktb5File = this.getFileWithSuffix(kerberosPath, ".conf");
+            instance.uploadDir(remoteDir, kerberosPath);
+        }
         //更新数据库kerberos信息
         KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, addComponent.getComponentTypeCode());
         boolean isFirstOpenKerberos = false;
@@ -825,7 +857,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         kerberosConfig.setRemotePath(remoteDir + KERBEROS_PATH);
         kerberosConfig.setClusterId(clusterId);
         kerberosConfig.setComponentType(addComponent.getComponentTypeCode());
-        File ktb5File = this.getFileWithSuffix(kerberosPath, ".conf");
+
         kerberosConfig.setKrbName(Objects.nonNull(ktb5File) ? ktb5File.getName() : null);
         if (isFirstOpenKerberos) {
             kerberosDao.insert(kerberosConfig);
