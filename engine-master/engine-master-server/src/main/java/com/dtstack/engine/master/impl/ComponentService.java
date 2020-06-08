@@ -682,7 +682,8 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
     private void updateConfigToSftpPath(@Param("clusterId") Long clusterId, Map<String, String> sftpMap, SFTPHandler instance, Resource resource) {
         //上传xml到对应路径下 拼接confHdfsPath
         String confRemotePath = sftpMap.get("path") + File.separator;
-        String confPath = System.getProperty("user.dir") + File.separator + buildConfRemoteDir(clusterId);
+        String buildPath = File.separator + buildConfRemoteDir(clusterId);
+        String confPath = System.getProperty("user.dir") + buildPath;
         File localFile = new File(confPath);
         try {
             //删除本地目录
@@ -693,7 +694,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         //解压到本地
         this.unzipKeytab(confPath, resource);
         //删除远程目录
-        instance.deleteDir(confRemotePath + File.separator + buildConfRemoteDir(clusterId));
+        instance.deleteDir(confRemotePath + buildPath);
         if (localFile.isDirectory()) {
             File xmlFile = this.getFileWithSuffix(localFile.getPath(), ".xml");
             if (Objects.isNull(xmlFile)) {
@@ -701,7 +702,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
                 File[] files = localFile.listFiles();
                 if (Objects.nonNull(files) && files.length > 0 && files[0].isDirectory()) {
                     for (File file : files[0].listFiles()) {
-                        instance.upload(confRemotePath + File.separator + buildConfRemoteDir(clusterId), file.getPath(),true);
+                        instance.upload(confRemotePath + buildPath, file.getPath(),true);
                     }
                 }
             } else {
