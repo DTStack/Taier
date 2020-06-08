@@ -46,5 +46,5 @@ public interface AccountService {
      * @param dtuicTenantId
      * @return
      */
-    public List<Map<String, Object>> getTenantUnBandList(@Param("dtuicTenantId") Long dtuicTenantId, @Param("dtToken") String dtToken, @Param("userId") Long userId);
+    public List<Map<String, Object>> getTenantUnBandList(@Param("dtuicTenantId") Long dtuicTenantId, @Param("dtToken") String dtToken, @Param("userId") Long userId,@Param("engineType")Integer engineType);
 }

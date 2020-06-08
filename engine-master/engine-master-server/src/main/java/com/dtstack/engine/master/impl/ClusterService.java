@@ -597,7 +597,7 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
                 if (EComponentType.SPARK.equals(type.getComponentType())) {
                     JSONObject sftpConfig = clusterConfigJson.getJSONObject(EComponentType.SFTP.getConfName());
                     if (Objects.nonNull(sftpConfig)) {
-                        String confHdfsPath = sftpConfig.getString("path") + componentService.buildConfRemoteDir(clusterVO.getId());
+                        String confHdfsPath = sftpConfig.getString("path") + File.separator + componentService.buildConfRemoteDir(clusterVO.getId());
                         pluginInfo.put("confHdfsPath", confHdfsPath);
                     }
                 }
@@ -707,38 +707,42 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
 
     }
 
+    @Override
     public String tiDBInfo(@Param("tenantId") Long dtUicTenantId, @Param("userId") Long dtUicUserId){
-        //优先绑定账号
-        String jdbcInfo = getConfigByKey(dtUicTenantId, EComponentType.TIDB_SQL.getConfName(),false);
-        User dtUicUser = userDao.getByDtUicUserId(dtUicUserId);
-        if(Objects.isNull(dtUicUser)){
-            return jdbcInfo;
-        }
-        Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
-        AccountTenant dbAccountTenant = accountTenantDao.getByUserIdAndTenantIdAndEngineType(dtUicUser.getId(), tenantId, DataSourceType.TiDB.getVal());
-        if(Objects.isNull(dbAccountTenant)){
-            return jdbcInfo;
-        }
-        Account account = accountDao.getById(dbAccountTenant.getAccountId());
-        if(Objects.isNull(account)){
-            return jdbcInfo;
-        }
-        JSONObject data = JSONObject.parseObject(jdbcInfo);
-        data.put("username",account.getName());
-        data.put("password", Base64Util.baseDecode(account.getPassword()));
-        return data.toJSONString();
+        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.Oracle);
     }
 
+    @Override
     public String oracleInfo(@Param("tenantId") Long dtUicTenantId,@Param("userId") Long dtUicUserId){
+        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.GREENPLUM6);
+    }
+
+    public String greenplumInfo(@Param("tenantId") Long dtUicTenantId,@Param("userId") Long dtUicUserId){
+        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.GREENPLUM6);
+    }
+
+
+    private String accountInfo(Long dtUicTenantId, Long dtUicUserId, DataSourceType dataSourceType) {
+        EComponentType componentType = null;
+        if (DataSourceType.Oracle.equals(dataSourceType)) {
+            componentType = EComponentType.ORACLE_SQL;
+        } else if (DataSourceType.TiDB.equals(dataSourceType)) {
+            componentType = EComponentType.TIDB_SQL;
+        } else if (DataSourceType.GREENPLUM6.equals(dataSourceType)) {
+            componentType = EComponentType.GREENPLUM_SQL;
+        }
+        if (componentType == null) {
+            throw new RdosDefineException("不支持的数据源类型");
+        }
         //优先绑定账号
-        String jdbcInfo = getConfigByKey(dtUicTenantId, EComponentType.ORACLE_SQL.getConfName(),false);
+        String jdbcInfo = getConfigByKey(dtUicTenantId, componentType.getConfName(), false);
         User dtUicUser = userDao.getByDtUicUserId(dtUicUserId);
-        if(Objects.isNull(dtUicUser)){
+        if (Objects.isNull(dtUicUser)) {
             return jdbcInfo;
         }
         Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
-        AccountTenant dbAccountTenant = accountTenantDao.getByUserIdAndTenantIdAndEngineType(dtUicUser.getId(), tenantId, DataSourceType.Oracle.getVal());
-        if(Objects.isNull(dbAccountTenant)){
+        AccountTenant dbAccountTenant = accountTenantDao.getByUserIdAndTenantIdAndEngineType(dtUicUser.getId(), tenantId, dataSourceType.getVal());
+        if (Objects.isNull(dbAccountTenant)) {
             return jdbcInfo;
         }
         Account account = accountDao.getById(dbAccountTenant.getAccountId());
@@ -746,7 +750,7 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
             return jdbcInfo;
         }
         JSONObject data = JSONObject.parseObject(jdbcInfo);
-        data.put("username",account.getName());
+        data.put("username", account.getName());
         data.put("password", Base64Util.baseDecode(account.getPassword()));
         return data.toJSONString();
     }

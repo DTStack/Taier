@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.spark.deploy
+package org.apache.spark.deploy.yarn
 
 import java.util.concurrent.TimeUnit
 
