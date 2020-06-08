@@ -177,7 +177,7 @@ public class Client {
                 Utilities.createApplicationResource(getFileSystem(), appMasterJar, LocalResourceType.FILE));
 
 
-        StringBuilder classPathEnv = new StringBuilder("./*");
+        StringBuilder classPathEnv = new StringBuilder("${CLASSPATH}:./*");
 
         for (String cp : conf.getStrings(DtYarnConfiguration.YARN_APPLICATION_CLASSPATH,
                 DtYarnConfiguration.DEFAULT_XLEARNING_APPLICATION_CLASSPATH)) {
@@ -242,6 +242,7 @@ public class Client {
         LOG.info("Building application master launch command");
         List<String> appMasterArgs = new ArrayList<>(20);
         appMasterArgs.add("${JAVA_HOME}" + "/bin/java");
+        appMasterArgs.add("-cp " + "${CLASSPATH}");
         appMasterArgs.add("-Xms" + conf.getInt(DtYarnConfiguration.LEARNING_AM_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY) + "m");
         appMasterArgs.add("-Xmx" + conf.getInt(DtYarnConfiguration.LEARNING_AM_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY) + "m");
         appMasterArgs.add(ApplicationMaster.class.getName());

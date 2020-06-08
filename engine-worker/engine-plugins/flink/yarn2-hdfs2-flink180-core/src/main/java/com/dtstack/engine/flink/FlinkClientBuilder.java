@@ -1,6 +1,8 @@
 package com.dtstack.engine.flink;
 
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.flink.enums.Deploy;
 import com.dtstack.engine.flink.util.HadoopConf;
 import com.dtstack.engine.flink.util.KerberosUtils;
@@ -46,7 +48,7 @@ public class FlinkClientBuilder {
 
     private Configuration flinkConfiguration;
 
-    public static FlinkClientBuilder create(FlinkConfig flinkConfig, org.apache.hadoop.conf.Configuration hadoopConf, YarnConfiguration yarnConf) throws IOException {
+    public static FlinkClientBuilder create(FlinkConfig flinkConfig, org.apache.hadoop.conf.Configuration hadoopConf, YarnConfiguration yarnConf) throws Exception {
         FlinkClientBuilder builder = new FlinkClientBuilder();
         builder.flinkConfig = flinkConfig;
         builder.hadoopConf = hadoopConf;
@@ -56,7 +58,8 @@ public class FlinkClientBuilder {
             if (Deploy.session.name().equalsIgnoreCase(flinkConfig.getClusterMode())) {
                 try {
                     builder.yarnClient = initYarnClient(yarnConf);
-                } catch (IOException e) {
+                } catch (Exception e) {
+                    LOG.error("init yarn client error", e);
                    throw new RdosDefineException(e);
                 }
             }
@@ -157,7 +160,8 @@ public class FlinkClientBuilder {
                 yarnClient = yarnClient1;
                 return yarnClient;
             });
-        } catch (IOException e) {
+        } catch (Exception e) {
+            LOG.error("build yarn client error", e);
             throw new RdosDefineException(e);
         }
         return null;

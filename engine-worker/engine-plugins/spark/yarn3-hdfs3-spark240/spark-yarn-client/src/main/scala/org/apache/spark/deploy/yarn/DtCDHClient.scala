@@ -21,37 +21,40 @@ import java.io.{FileSystem => _, _}
 import java.net.{InetAddress, URI, UnknownHostException}
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
+import java.security.PrivilegedExceptionAction
+import java.util.{Locale, Properties, UUID, List => JList}
 import java.util.regex.Pattern
 import java.util.zip.{ZipEntry, ZipOutputStream}
-import java.util.{Locale, Properties, UUID, List => JList}
 
+import scala.collection.JavaConverters._
+import scala.collection.mutable.{ArrayBuffer, HashMap, HashSet, ListBuffer, Map}
+import scala.util.{Failure, Success, Try}
+import scala.util.control.NonFatal
 import com.google.common.base.Objects
 import com.google.common.io.Files
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs._
 import org.apache.hadoop.fs.permission.FsPermission
+import org.apache.hadoop.io.DataOutputBuffer
 import org.apache.hadoop.mapreduce.MRJobConfig
-import org.apache.hadoop.security.UserGroupInformation
+import org.apache.hadoop.security.{Credentials, UserGroupInformation}
 import org.apache.hadoop.util.StringUtils
-import org.apache.hadoop.yarn.api.ApplicationConstants.Environment
 import org.apache.hadoop.yarn.api._
+import org.apache.hadoop.yarn.api.ApplicationConstants.Environment
 import org.apache.hadoop.yarn.api.protocolrecords._
 import org.apache.hadoop.yarn.api.records._
 import org.apache.hadoop.yarn.client.api.{YarnClient, YarnClientApplication}
 import org.apache.hadoop.yarn.conf.YarnConfiguration
 import org.apache.hadoop.yarn.exceptions.ApplicationNotFoundException
 import org.apache.hadoop.yarn.util.Records
-import org.apache.spark.deploy.yarn.security.YARNHadoopDelegationTokenManager
+import org.apache.spark.{SecurityManager, SparkConf, SparkException}
 import org.apache.spark.deploy.{SparkApplication, SparkHadoopUtil}
+import org.apache.spark.deploy.yarn.dtconfig._
+import org.apache.spark.deploy.yarn.security.YARNHadoopDelegationTokenManager
 import org.apache.spark.internal.Logging
 import org.apache.spark.internal.config._
 import org.apache.spark.launcher.{LauncherBackend, SparkAppHandle, YarnCommandBuilderUtils}
 import org.apache.spark.util.{CallerContext, Utils}
-import org.apache.spark.{SecurityManager, SparkConf, SparkException}
-
-import scala.collection.JavaConverters._
-import scala.collection.mutable.{ArrayBuffer, HashMap, HashSet, ListBuffer, Map}
-import scala.util.control.NonFatal
 
 private[spark] class DtCDHClient(
                                   val args: ClientArguments,
@@ -61,6 +64,7 @@ private[spark] class DtCDHClient(
 
   import DtCDHClient._
   import YarnSparkHadoopUtil._
+  import XXUtils._
 
   private val yarnClient = YarnClient.createYarnClient
   private val hadoopConf = new YarnConfiguration(hadoopConfStr)

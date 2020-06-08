@@ -1,5 +1,16 @@
 package com.dtstack.engine.flink.util;
 
+import com.dtstack.engine.base.util.HadoopConfTool;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.SFTPHandler;
+import com.dtstack.engine.flink.FlinkConfig;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.kerby.kerberos.kerb.keytab.Keytab;
+import org.apache.kerby.kerberos.kerb.type.base.PrincipalName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
@@ -7,25 +18,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import com.dtstack.engine.base.util.HadoopConfTool;
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.SFTPHandler;
-import com.dtstack.engine.flink.FlinkConfig;
-import org.apache.commons.lang.StringUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.security.UserGroupInformation;
-import org.apache.kerby.kerberos.kerb.keytab.Keytab;
-import org.apache.kerby.kerberos.kerb.type.base.PrincipalName;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class KerberosUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(KerberosUtils.class);
 
     private static final String USER_DIR = System.getProperty("user.dir") + File.separator + "kerberosPath";
 
-    public static <T> T login(FlinkConfig config, Supplier<T> supplier) throws IOException {
+    public static <T> T login(FlinkConfig config, Supplier<T> supplier) throws Exception {
 
         if (!config.isOpenKerberos()) {
             return supplier.get();

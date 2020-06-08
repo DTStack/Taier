@@ -61,7 +61,7 @@ public abstract class AbstractConnFactory {
                 testConn();
                 return null;
             });
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RdosDefineException("get conn exception:" + e.toString());
         }
     }
