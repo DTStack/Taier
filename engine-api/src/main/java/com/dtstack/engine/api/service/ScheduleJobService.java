@@ -77,9 +77,9 @@ public interface ScheduleJobService {
      * @return
      */
     public ChartDataVO getScienceJobGraph(@Param("projectId") long projectId, @Param("tenantId") Long tenantId,
-                                          @Param("taskType") Integer taskType);
+                                          @Param("taskType") String taskType);
 
-    public Map<String, Object> countScienceJobStatus(@Param("projectIds") List<Long> projectIds, @Param("tenantId") Long tenantId, @Param("runStatus") Integer runStatus, @Param("type") Integer type, @Param("taskType") Integer taskType,
+    public Map<String, Object> countScienceJobStatus(@Param("projectIds") List<Long> projectIds, @Param("tenantId") Long tenantId, @Param("runStatus") Integer runStatus, @Param("type") Integer type, @Param("taskType") String taskType,
                                                      @Param("cycStartDay") String cycStartTime, @Param("cycEndDay") String cycEndTime);
 
     /**
