@@ -707,10 +707,12 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
 
     }
 
+    @Override
     public String tiDBInfo(@Param("tenantId") Long dtUicTenantId, @Param("userId") Long dtUicUserId){
         return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.Oracle);
     }
 
+    @Override
     public String oracleInfo(@Param("tenantId") Long dtUicTenantId,@Param("userId") Long dtUicUserId){
         return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.GREENPLUM6);
     }

@@ -34,7 +34,7 @@ public enum EngineTypeComponentType {
     IMPALA_SQL(ScheduleEngineType.Hadoop, EComponentType.IMPALA_SQL),
     TIDB_SQL(ScheduleEngineType.TIDB, EComponentType.TIDB_SQL),
     ORACLE_SQL(ScheduleEngineType.ORACLE, EComponentType.ORACLE_SQL),
-    KUBERNETES(ScheduleEngineType.KUBERNETES, EComponentType.KUBERNETES);
+    KUBERNETES(ScheduleEngineType.KUBERNETES, EComponentType.KUBERNETES),
     GREENPLUM_SQL(ScheduleEngineType.GREENPLUM, EComponentType.GREENPLUM_SQL);
 
     private ScheduleEngineType scheduleEngineType;

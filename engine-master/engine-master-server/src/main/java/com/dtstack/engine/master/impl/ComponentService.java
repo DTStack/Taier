@@ -2,22 +2,22 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.annotation.Forbidden;
 import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.ClusterDTO;
 import com.dtstack.engine.api.dto.ComponentDTO;
 import com.dtstack.engine.api.dto.Resource;
+import com.dtstack.engine.api.pojo.ClientTemplate;
+import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.api.vo.ComponentVO;
 import com.dtstack.engine.api.vo.EngineTenantVO;
-import com.dtstack.engine.api.annotation.Forbidden;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.api.pojo.ClientTemplate;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.util.MD5Util;
 import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.dao.*;
@@ -817,8 +817,13 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
      *
      * @param componentId
      */
+    @Transactional(rollbackFor = Exception.class)
     public void closeKerberos(@Param("componentId") Long componentId) {
         kerberosDao.deleteByComponentId(componentId);
+        Component updateComponent = new Component();
+        updateComponent.setId(componentId);
+        updateComponent.setKerberosFileName("");
+        componentDao.update(updateComponent);
     }
 
     public Map<String, Object> addOrCheckClusterWithName(@Param("clusterName") String clusterName) {
