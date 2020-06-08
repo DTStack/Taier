@@ -308,6 +308,8 @@ class ComponentsConfig extends React.Component<any, any> {
                 return this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.ORACLE_SQL)
             case COMPONENT_TYPE_VALUE.IMPALA_SQL:
                 return this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.IMPALA_SQL)
+            case COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL:
+                return this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.GREEN_PLUM_SQL)
             case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER:
                 return (
                     <React.Fragment>
