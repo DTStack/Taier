@@ -41,7 +41,7 @@ public interface ScheduleJobDao {
 
     List<Map<String, Object>> listMonthJobs(@Param("statusList") List<Integer> statusList, @Param("type") Integer type, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId);
 
-    List<Map<String, Object>> listThirtyDayJobs(@Param("statusList") List<Integer> statusList, @Param("type") Integer type, @Param("taskType") List<Integer> taskType, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId);
+    List<Map<String, Object>> listThirtyDayJobs(@Param("statusList") List<Integer> statusList, @Param("type") Integer type, @Param("taskTypes") List<Integer> taskTypes, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId);
 
     List<ScheduleJob> listRestartBatchJobList(@Param("type") int type, @Param("status") Integer taskStatus, @Param("lastTime") Timestamp lastTime);
 
@@ -157,7 +157,7 @@ public interface ScheduleJobDao {
 
     ScheduleJob getWorkFlowTopNode(@Param("jobId") String jobId);
 
-    Map<String, Object> countScienceJobStatus(@Param("status") Integer runStatus, @Param("projectIds") List<Long> projectIds, @Param("type") Integer type, @Param("taskType") List<Integer> taskType, @Param("tenantId") long tenantId,@Param("cycStartDay") String cycStartDay, @Param("cycEndDay") String cycEndDay);
+    Map<String, Object> countScienceJobStatus(@Param("status") Integer runStatus, @Param("projectIds") List<Long> projectIds, @Param("type") Integer type, @Param("taskTypes") List<Integer> taskTypes, @Param("tenantId") long tenantId,@Param("cycStartDay") String cycStartDay, @Param("cycEndDay") String cycEndDay);
 
     List<ScheduleJob> listByJobIdList(@Param("jobIds") List<String> jobIds, @Param("projectId") Long projectId);
 

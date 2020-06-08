@@ -605,10 +605,10 @@
         and bj.project_id = #{projectId}
         and bj.tenant_id = #{tenantId}
         and bj.is_deleted = 0
-        <if test="taskType != null and taskType.size()>0">
+        <if test="taskTypes != null and taskTypes.size()>0">
             and ts.task_type in
-            <foreach collection="taskType" item="taType" open="(" close=")" separator=",">
-                #{taType}
+            <foreach collection="taskTypes" item="taskType" open="(" close=")" separator=",">
+                #{taskType}
             </foreach>
         </if>
         <if test="statusList != null and statusList.size()>0">
@@ -630,10 +630,10 @@
         WHERE bj.type = #{type}
         and bj.tenant_id = #{tenantId}
         and bj.is_deleted = 0
-        <if test="taskType != null and taskType.size()>0">
+        <if test="taskTypes != null and taskTypes.size()>0">
             and ts.task_type in
-                <foreach collection="taskType" item="taType" open="(" close=")" separator=",">
-                    #{taType}
+                <foreach collection="taskTypes" item="taskType" open="(" close=")" separator=",">
+                    #{taskType}
                 </foreach>
         </if>
         <if test="cycStartDay != null and cycEndDay != null">
