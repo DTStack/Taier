@@ -34,8 +34,8 @@ public class ComponentVO extends Component {
         JSONObject jsonObject = JSONObject.parseObject(component.getComponentConfig());
         if(removeTypeName){
             jsonObject.remove("typeName");
+            jsonObject.remove("md5zip");
         }
-        jsonObject.remove("md5zip");
         vo.setComponentConfig(jsonObject.toJSONString());
         return vo;
     }
