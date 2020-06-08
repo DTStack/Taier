@@ -5,14 +5,14 @@ export const COMPONENT_CONFIG_NAME = {
     DTYARNSHELL: 'DtScript',
     HDFS: 'HDFS',
     YARN: 'YARN',
-    SPARK_THRIFT_SERVER: 'Spark Thrift Server',
+    SPARK_THRIFT_SERVER: 'SparkThrift',
     CARBONDATA: 'CarbonData ThriftServer',
     LIBRA_SQL: 'LibrA SQL',
     HIVE_SERVER: 'Hive Server',
     SFTP: 'SFTP',
     IMPALA_SQL: 'Impala SQL',
-    TIDB_SQL: 'TiDB',
-    ORACLE_SQL: 'Oracle',
+    TIDB_SQL: 'TiDB SQL',
+    ORACLE_SQL: 'Oracle SQL',
     KUBERNETES: 'Kubernetes'
 }
 
