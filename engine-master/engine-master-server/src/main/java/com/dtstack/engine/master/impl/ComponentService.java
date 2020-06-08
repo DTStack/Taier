@@ -680,17 +680,17 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
      */
     private void updateConfigToSftpPath(@Param("clusterId") Long clusterId, Map<String, String> sftpMap, SFTPHandler instance, Resource resource) {
         //上传xml到对应路径下 拼接confHdfsPath
-        String confRemotePath = sftpMap.get("path");
+        String confRemotePath = sftpMap.get("path") + File.separator;
         String confPath = System.getProperty("user.dir") + File.separator + buildConfRemoteDir(clusterId);
         //解压到本地
         this.unzipKeytab(confPath, resource);
-        instance.deleteDir(confRemotePath);
-        instance.uploadDir(confRemotePath,confPath);
+        instance.deleteDir(confRemotePath + File.separator +buildConfRemoteDir(clusterId));
+        instance.uploadDir(confRemotePath + File.separator + "confPath",confPath);
     }
 
 
     public String buildConfRemoteDir(Long clusterId) {
-        return File.separator + "confPath" + File.separator + AppType.CONSOLE + "_" + clusterId;
+        return  "confPath" + File.separator + AppType.CONSOLE + "_" + clusterId;
     }
 
     /**
