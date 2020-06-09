@@ -14,6 +14,7 @@ import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.api.vo.ComponentVO;
 import com.dtstack.engine.api.vo.EngineTenantVO;
+import com.dtstack.engine.common.enums.EFrontType;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
@@ -24,18 +25,19 @@ import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.enums.DownloadType;
 import com.dtstack.engine.master.enums.EComponentType;
-import com.dtstack.engine.master.enums.KerberosKey;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
-import com.dtstack.engine.master.utils.*;
+import com.dtstack.engine.master.utils.EngineUtil;
+import com.dtstack.engine.master.utils.FileUtil;
+import com.dtstack.engine.master.utils.PublicUtil;
+import com.dtstack.engine.master.utils.XmlFileUtil;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.kerberos.KerberosConfigVerify;
 import com.dtstack.schedule.common.util.Xml2JsonUtil;
 import com.dtstack.schedule.common.util.ZipUtil;
 import com.google.common.collect.Lists;
-import com.jcraft.jsch.SftpException;
 import javafx.util.Pair;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -54,6 +56,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 import static com.dtstack.engine.common.constrant.ConfigConstant.MD5_SUM_KEY;
@@ -65,27 +69,13 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
 
     private final static String ZIP_CONTENT_TYPE = "zip";
 
-    private final static String CHECKBOX_TYPE = "CHECKBOX";
-
-    private final static String GROUP_TYPE = "GROUP";
-
-    private final static String DEPLOYMODE_TYPE = "deploymode";
-
     private static String unzipLocation = System.getProperty("user.dir") + File.separator + "unzip";
 
     private static String downloadLocation = System.getProperty("user.dir") + File.separator + "download";
 
-    private static final String KERBEROS_FILE_SUF = "%sKerberosFile";
-
     public static final String KERBEROS_PATH = "kerberos";
 
-    private static final String OPEN_KERBEROS = "openKerberos";
-
     private static final String KERBEROS_CONFIG = "kerberosConfig";
-
-    public static final String SFTP_HADOOP_CONFIG_PATH = "%s%s/%s";
-
-    private static final String SEPARATE = "/";
 
     @Autowired
     private ComponentDao componentDao;
@@ -226,31 +216,6 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         return allConf;
     }
 
-    private void addClusterKerberosConfig(Map<String, Object> config, Long engineId, int componentType) {
-        Engine engine = engineService.getOne(engineId);
-        KerberosConfig kerberosConfig = kerberosDao.getByComponentType(engine.getClusterId(), componentType);
-        if (Objects.nonNull(kerberosConfig)) {
-            Map<String, String> sftpConfig = getSFTPConfig(engine.getClusterId());
-            try {
-                String clusterLocalKerberosDir = getClusterLocalKerberosDir(engine.getClusterId());
-                KerberosConfigVerify.downloadKerberosFromSftp(getSftpClusterKey(engine.getClusterId()), getClusterLocalKerberosDir(engine.getClusterId()), sftpConfig);
-                config.putIfAbsent(KerberosKey.KEYTAB.getKey(), clusterLocalKerberosDir + SEPARATE + kerberosConfig.getName());
-            } catch (SftpException e) {
-                LOGGER.error("downloadKerberosFromSftp error {}", e);
-            }
-            config.putIfAbsent(KerberosKey.PRINCIPAL.getKey(), kerberosConfig.getPrincipal());
-            if (!Objects.equals(EComponentType.HDFS.getTypeCode(), componentType)) {
-                Component hdfsComponent = componentDao.getByEngineIdAndComponentType(engineId, EComponentType.HDFS.getTypeCode());
-                if (Objects.isNull(hdfsComponent)) {
-                    throw new RdosDefineException("开启kerberos后需要预先保存hdfs组件");
-                }
-                config.putIfAbsent(KerberosKey.HDFS_CONFIG.getKey(), hdfsComponent.getComponentConfig());
-                //转换为map
-                config.putAll(JSONObject.parseObject(hdfsComponent.getComponentConfig(), Map.class));
-            }
-        }
-    }
-
     /**
      * 更新缓存
      */
@@ -296,50 +261,6 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
     @Forbidden
     public List<Component> listComponent(Long engineId) {
         return componentDao.listByEngineId(engineId);
-    }
-
-
-    private void setKerberosConfig(Long clusterId, Map configMap, Map<String, Resource> resourceMap, String key) throws Exception {
-        EComponentType type = EComponentType.getByConfName(key);
-        Component component = componentDao.getByClusterIdAndComponentType(clusterId, type.getTypeCode());
-        if (component == null) {
-            return;
-        }
-        JSONObject config = JSONObject.parseObject(component.getComponentConfig());
-
-        String clusterKey = getSftpClusterKey(clusterId);
-        String localKerberosConf = env.getLocalKerberosDir() + SEPARATE + clusterKey;
-        Boolean openKerberos = MapUtils.getBoolean(configMap, OPEN_KERBEROS, false);
-        if (EComponentType.HDFS.equals(type)) {
-            if (MapUtils.getString(configMap, HadoopConfTool.DFS_NAMENODE_KERBEROS_PRINCIPAL) != null) {
-                KerberosConfigVerify.downloadKerberosFromSftp(clusterKey, localKerberosConf, getSFTPConfig(clusterId));
-                configMap.put(OPEN_KERBEROS, true);
-            }
-        } else if (openKerberos) {
-            Resource resource = resourceMap.get(String.format(KERBEROS_FILE_SUF, key));
-            if (resource == null) {
-                JSONObject kerberosConfig = config.getJSONObject(KERBEROS_CONFIG);
-                if (kerberosConfig == null) {
-                    throw new RdosDefineException("kerberos配置错误");
-                }
-                KerberosConfigVerify.downloadKerberosFromSftp(clusterKey, localKerberosConf, getSFTPConfig(clusterId));
-                configMap.put(KERBEROS_CONFIG, kerberosConfig);
-            } else {
-                //test路径
-                Map<String, String> map = parseKerberosConfig(resource, localKerberosConf);
-                configMap.put(KERBEROS_CONFIG, map);
-            }
-        }
-    }
-
-    private Map<String, Resource> convertToMap(List<Resource> resources) {
-        Map<String, Resource> resourceMap = new HashMap<>();
-        if (CollectionUtils.isNotEmpty(resources)) {
-            for (Resource resource : resources) {
-                resourceMap.put(resource.getKey(), resource);
-            }
-        }
-        return resourceMap;
     }
 
     private Map<String, Object> parseUploadFileToMap(List<Resource> resources) {
@@ -409,7 +330,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
 
     @Forbidden
     public String getClusterLocalKerberosDir(Long clusterId) {
-        return env.getLocalKerberosDir() + SEPARATE + getSftpClusterKey(clusterId);
+        return env.getLocalKerberosDir() + File.separator + getSftpClusterKey(clusterId);
     }
 
     @Forbidden
@@ -1229,11 +1150,11 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
             Object temp = data;
             if (StringUtils.isNotBlank(clientTemplate.getKey())) {
                 if (data instanceof Map) {
-                    if (CHECKBOX_TYPE.equals(clientTemplate.getType())) {
+                    if (EFrontType.CHECKBOX.name().equalsIgnoreCase(clientTemplate.getType())) {
                         List myData = new ArrayList();
                         ((Map) data).put(clientTemplate.getKey(), myData);
                         data = myData;
-                    } else if(GROUP_TYPE.equals(clientTemplate.getType())) {
+                    } else if(EFrontType.GROUP.name().equalsIgnoreCase(clientTemplate.getType())) {
                         Map myData = new HashMap();
                         ((Map) data).put(clientTemplate.getKey(), myData);
                         data = myData;
@@ -1241,11 +1162,11 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
                         ((Map) data).put(clientTemplate.getKey(), clientTemplate.getValue());
                     }
                 } else if (data instanceof List) {
-                    if (CHECKBOX_TYPE.equals(clientTemplate.getType())) {
+                    if (EFrontType.CHECKBOX.name().equalsIgnoreCase(clientTemplate.getType())) {
                         List myData = new ArrayList();
                         ((List) data).add(myData);
                         data = myData;
-                    } else if(GROUP_TYPE.equals(clientTemplate.getType())) {
+                    } else if(EFrontType.GROUP.name().equalsIgnoreCase(clientTemplate.getType())) {
                         Map myData = new HashMap();
                         ((List) data).add(myData);
                         data = myData;
@@ -1444,37 +1365,48 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         List<Long> engineId = engines.stream().map(Engine::getId).collect(Collectors.toList());
 
         List<Component> components = componentDao.listByEngineIds(engineId);
-        if(CollectionUtils.isEmpty(components)){
+        if (CollectionUtils.isEmpty(components)) {
             return new ArrayList<>(0);
         }
         Optional<Component> componentOptional = components.stream().filter(c -> EComponentType.SFTP.getTypeCode() == c.getComponentTypeCode()).findFirst();
         Map<String, String> sftpMap = null;
         try {
             if (componentOptional.isPresent()) {
-                sftpMap = (Map)JSONObject.parseObject(componentOptional.get().getComponentConfig(),Map.class);
+                sftpMap = (Map) JSONObject.parseObject(componentOptional.get().getComponentConfig(), Map.class);
             }
         } catch (Exception e) {
         }
         List<ComponentTestResult> testResults = new ArrayList<>(components.size());
+        CountDownLatch countDownLatch = new CountDownLatch(components.size());
         for (Component component : components) {
             KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(), component.getComponentTypeCode());
-            ComponentTestResult testResult = new ComponentTestResult();
-            try {
-                testResult = this.testConnect(component.getComponentTypeCode(), component.getComponentConfig(), clusterName, component.getHadoopVersion(), component.getEngineId(), kerberosConfig, sftpMap);
-            } catch (Exception e) {
-                testResult.setResult(false);
-                testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
-                LOGGER.error("test connect {}  error ", component.getComponentConfig(), e);
-            }
-            //测试联通性
-            if (EComponentType.YARN.getTypeCode() == component.getComponentTypeCode()) {
-                if (testResult.getResult()) {
-                    engineService.updateResource(component.getEngineId(), testResult.getClusterResourceDescription());
-                    queueService.updateQueue(component.getEngineId(), testResult.getClusterResourceDescription());
+            Map<String, String> finalSftpMap = sftpMap;
+            CompletableFuture.runAsync(() -> {
+                ComponentTestResult testResult = new ComponentTestResult();
+                try {
+                    testResult = this.testConnect(component.getComponentTypeCode(), component.getComponentConfig(), clusterName, component.getHadoopVersion(), component.getEngineId(), kerberosConfig, finalSftpMap);
+                    //测试联通性
+                    if (EComponentType.YARN.getTypeCode() == component.getComponentTypeCode() && Objects.nonNull(testResult)) {
+                        if (testResult.getResult()) {
+                            engineService.updateResource(component.getEngineId(), testResult.getClusterResourceDescription());
+                            queueService.updateQueue(component.getEngineId(), testResult.getClusterResourceDescription());
+                        }
+                    }
+                } catch (Exception e) {
+                    testResult.setResult(false);
+                    testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
+                    LOGGER.error("test connect {}  error ", component.getComponentConfig(), e);
+                } finally {
+                    testResult.setComponentTypeCode(component.getComponentTypeCode());
+                    testResults.add(testResult);
+                    countDownLatch.countDown();
                 }
-            }
-            testResult.setComponentTypeCode(component.getComponentTypeCode());
-            testResults.add(testResult);
+            });
+        }
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            LOGGER.error("test connect  await {}  error ", clusterName, e);
         }
         return testResults;
     }
