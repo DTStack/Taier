@@ -908,7 +908,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
 
     @Forbidden
     public String buildSftpPath(Long clusterId, Integer componentCode) {
-        return AppType.CONSOLE + "_" + clusterId + File.separator + componentCode;
+        return AppType.CONSOLE + "_" + clusterId + File.separator + EComponentType.getByCode(componentCode).name() ;
     }
 
 
@@ -1038,7 +1038,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
      */
     @Forbidden
     public String getLocalKerberosPath(Long clusterId, Integer componentCode) {
-        return env.getLocalKerberosDir() + File.separator + AppType.CONSOLE + "_" + clusterId + File.separator + componentCode + File.separator + KERBEROS_PATH;
+        return env.getLocalKerberosDir() + File.separator + AppType.CONSOLE + "_" + clusterId + File.separator + EComponentType.getByCode(componentCode).name() + File.separator + KERBEROS_PATH;
     }
 
     /**
