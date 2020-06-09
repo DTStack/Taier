@@ -14,6 +14,7 @@ import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.api.vo.ComponentVO;
 import com.dtstack.engine.api.vo.EngineTenantVO;
+import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.EFrontType;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
@@ -56,8 +57,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 import static com.dtstack.engine.common.constrant.ConfigConstant.MD5_SUM_KEY;
@@ -124,6 +124,10 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
     public static Map<Integer, List<String>> componentTypeConfigMapping = new HashMap<>(2);
 
     public static Map<String, List<Pair<String,String>>> componentVersionMapping = new HashMap<>(1);
+
+    private static ThreadPoolExecutor connectPool =  new ThreadPoolExecutor(5, 5,
+            60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(10),
+            new CustomThreadFactory("connectPool"));
 
     static {
         //hdfs core 需要合并
@@ -1401,7 +1405,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
                     testResults.add(testResult);
                     countDownLatch.countDown();
                 }
-            });
+            },connectPool);
         }
         try {
             countDownLatch.await();
