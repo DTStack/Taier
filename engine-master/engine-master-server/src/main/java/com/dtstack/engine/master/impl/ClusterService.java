@@ -577,6 +577,10 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
             JSONObject oracleConf = JSONObject.parseObject(oracleInfo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId()));
             pluginInfo = this.convertSQLComponent(oracleConf, pluginInfo);
             pluginInfo.put("typeName", "oracle");
+        } else if (EComponentType.GREENPLUM_SQL == type.getComponentType()) {
+            JSONObject greenplumConf = JSONObject.parseObject(greenplumInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
+            pluginInfo = this.convertSQLComponent(greenplumConf, pluginInfo);
+            pluginInfo.put("typeName", "greenplum");
         } else {
             //flink spark 需要区分任务类型
             if (EComponentType.FLINK.equals(type.getComponentType()) || EComponentType.SPARK.equals(type.getComponentType())) {
@@ -709,12 +713,12 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
 
     @Override
     public String tiDBInfo(@Param("tenantId") Long dtUicTenantId, @Param("userId") Long dtUicUserId){
-        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.Oracle);
+        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.TiDB);
     }
 
     @Override
     public String oracleInfo(@Param("tenantId") Long dtUicTenantId,@Param("userId") Long dtUicUserId){
-        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.GREENPLUM6);
+        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.Oracle);
     }
 
     public String greenplumInfo(@Param("tenantId") Long dtUicTenantId,@Param("userId") Long dtUicUserId){
