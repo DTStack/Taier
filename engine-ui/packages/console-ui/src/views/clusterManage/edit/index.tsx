@@ -219,8 +219,9 @@ class EditCluster extends React.Component<any, any> {
         let deleteComps: any = [];
         let addComps: any = [];
         const { tabCompData, selectValue, compTypeKey, defaultValue } = this.state;
+        const cloneSelectValue = cloneDeep(selectValue);
         const components = tabCompData.find((sche: any) => sche.schedulingCode === compTypeKey).components;
-        if (selectValue.sort().toString() === defaultValue.sort().toString()) {
+        if (cloneSelectValue.sort().toString() === defaultValue.sort().toString()) {
             this.setState({
                 popoverVisible: false
             })
