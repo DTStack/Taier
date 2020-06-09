@@ -131,7 +131,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
 
     static {
         //hdfs core 需要合并
-        componentTypeConfigMapping.put(EComponentType.HDFS.getTypeCode(), Lists.newArrayList("hdfs-site.xml", "core-site.xml"));
+        componentTypeConfigMapping.put(EComponentType.HDFS.getTypeCode(), Lists.newArrayList("hdfs-site.xml", "core-site.xml","hive-site.xml"));
         componentTypeConfigMapping.put(EComponentType.YARN.getTypeCode(), Lists.newArrayList("yarn-site.xml"));
         componentVersionMapping.put(EComponentType.FLINK.getName(), Lists.newArrayList(new Pair<>("1.8", "180"), new Pair<>("1.10", "110")));
         componentVersionMapping.put(EComponentType.SPARK.getName(), Lists.newArrayList(new Pair<>("2.1.X", "210")));
@@ -596,6 +596,9 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
                         md5sum = MD5Util.getFileMd5String(new File(xmlZipLocation));
                         this.updateConfigToSftpPath(clusterId, sftpMap, instance, resource);
                     }
+                    if(addComponent.getComponentTypeCode() == EComponentType.YARN.getTypeCode()){
+                        this.updateConfigToSftpPath(clusterId, sftpMap, instance, resource);
+                    }
                 }
             } catch (Exception e) {
                 LOGGER.error("update component resource {}  error", resource.getUploadedFileName(), e);
@@ -636,21 +639,25 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         }
         //解压到本地
         this.unzipKeytab(confPath, resource);
-        //删除远程目录
-        instance.deleteDir(confRemotePath + buildPath);
         if (localFile.isDirectory()) {
             File xmlFile = this.getFileWithSuffix(localFile.getPath(), ".xml");
+            File dirFiles = null;
             if (Objects.isNull(xmlFile)) {
                 //包含文件夹目录
                 File[] files = localFile.listFiles();
                 if (Objects.nonNull(files) && files.length > 0 && files[0].isDirectory()) {
-                    for (File file : files[0].listFiles()) {
-                        instance.upload(confRemotePath + buildPath, file.getPath(),true);
-                    }
+                    dirFiles = files[0];
                 }
             } else {
                 //直接是文件
-                instance.uploadDir(confRemotePath + File.separator + "confPath", confPath);
+                dirFiles = xmlFile.getParentFile();
+            }
+            if (Objects.nonNull(dirFiles) && null != dirFiles.listFiles()) {
+                for (File file : dirFiles.listFiles()) {
+                    if (file.getName().contains(".xml")) {
+                        instance.upload(confRemotePath + buildPath, file.getPath(), true);
+                    }
+                }
             }
         }
 
@@ -901,7 +908,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
 
     @Forbidden
     public String buildSftpPath(Long clusterId, Integer componentCode) {
-        return AppType.CONSOLE + "_" + clusterId + File.separator + componentCode;
+        return AppType.CONSOLE + "_" + clusterId + File.separator + EComponentType.getByCode(componentCode).name() ;
     }
 
 
@@ -1031,7 +1038,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
      */
     @Forbidden
     public String getLocalKerberosPath(Long clusterId, Integer componentCode) {
-        return env.getLocalKerberosDir() + File.separator + AppType.CONSOLE + "_" + clusterId + File.separator + componentCode + File.separator + KERBEROS_PATH;
+        return env.getLocalKerberosDir() + File.separator + AppType.CONSOLE + "_" + clusterId + File.separator + EComponentType.getByCode(componentCode).name() + File.separator + KERBEROS_PATH;
     }
 
     /**
