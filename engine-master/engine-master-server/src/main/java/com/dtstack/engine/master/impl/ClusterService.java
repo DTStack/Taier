@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.annotation.Forbidden;
 import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.domain.*;
@@ -8,19 +9,13 @@ import com.dtstack.engine.api.dto.ClusterDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.*;
-import com.dtstack.engine.api.annotation.Forbidden;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.master.enums.EComponentScheduleType;
-import com.dtstack.engine.master.enums.EComponentType;
-import com.dtstack.engine.master.enums.EDeployMode;
-import com.dtstack.engine.master.enums.EngineTypeComponentType;
-import com.dtstack.engine.master.enums.MultiEngineType;
+import com.dtstack.engine.master.enums.*;
 import com.dtstack.engine.master.utils.PublicUtil;
-import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.enums.Sort;
@@ -60,8 +55,6 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
     private final static String TENANT_ID = "tenantId";
 
     private static ObjectMapper objectMapper = new ObjectMapper();
-
-    private final static String DEFAULT_HADOOP_VERSION = "hadoop2";
 
     private final static List<String> BASE_CONFIG = Lists.newArrayList(EComponentType.HDFS.getConfName(),
             EComponentType.YARN.getConfName(), EComponentType.SPARK_THRIFT.getConfName(), EComponentType.SFTP.getConfName(),EComponentType.KUBERNETES.getConfName());
