@@ -136,16 +136,16 @@ public enum EComponentType {
     public static EComponentScheduleType getScheduleTypeByComponent(Integer componentCode) {
         EComponentType code = getByCode(componentCode);
         if (ComputeScheduling.contains(code)) {
-            return EComponentScheduleType.computeScheduling;
+            return EComponentScheduleType.COMPUTE;
         }
         if (ResourceScheduling.contains(code)) {
-            return EComponentScheduleType.resourceScheduling;
+            return EComponentScheduleType.RESOURCE;
         }
         if (StorageScheduling.contains(code)) {
-            return EComponentScheduleType.storageScheduling;
+            return EComponentScheduleType.STORAGE;
         }
         if (CommonScheduling.contains(code)) {
-            return EComponentScheduleType.commonScheduling;
+            return EComponentScheduleType.COMMON;
         }
         throw new RdosDefineException("不支持的组件");
     }
