@@ -502,14 +502,16 @@ public class HadoopClient extends AbstractClient {
                     componentTestResult.setResult(false);
                     componentTestResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
                     return componentTestResult;
-                }
-                if (Objects.nonNull(fs)) {
-                    try {
-                        fs.close();
-                    } catch (IOException e) {
-                        LOG.error("close file system error ", e);
+                } finally {
+                    if (Objects.nonNull(fs)) {
+                        try {
+                            fs.close();
+                        } catch (IOException e) {
+                            LOG.error("close file system error ", e);
+                        }
                     }
                 }
+
                 componentTestResult.setResult(true);
                 return componentTestResult;
             });
@@ -549,14 +551,16 @@ public class HadoopClient extends AbstractClient {
                     clusterResource.setFlink(this.initTaskManagerResource(yarnClient));
                 } catch (Exception e) {
                     LOG.error("close reource error ", e);
-                }
-                if (Objects.nonNull(resourceClient)) {
-                    try {
-                        resourceClient.close();
-                    } catch (IOException e) {
-                        LOG.error("close reource error ", e);
+                } finally {
+                    if (Objects.nonNull(resourceClient)) {
+                        try {
+                            resourceClient.close();
+                        } catch (IOException e) {
+                            LOG.error("close reource error ", e);
+                        }
                     }
                 }
+
                 return clusterResource;
             });
 

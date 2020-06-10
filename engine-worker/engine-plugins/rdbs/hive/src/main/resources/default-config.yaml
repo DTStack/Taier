@@ -6,3 +6,4 @@ optional:
   password:
   maxJobPoolSize:
   minJobPoolSize:
+  queue:

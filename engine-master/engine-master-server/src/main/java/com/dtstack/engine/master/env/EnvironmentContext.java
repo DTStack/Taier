@@ -102,7 +102,7 @@ public class EnvironmentContext {
     }
 
     public String getHttpAddress() {
-        return environment.getProperty("http.address","0.0.0.0");
+        return environment.getProperty("http.address", "0.0.0.0");
     }
 
     /**
@@ -159,7 +159,7 @@ public class EnvironmentContext {
         return Integer.parseInt(environment.getProperty("web.session.expired", "1800"));
     }
 
-    public String getRedisSentinel(){
+    public String getRedisSentinel() {
         return environment.getProperty("redis.sentinel", "");
     }
 
@@ -228,25 +228,25 @@ public class EnvironmentContext {
     /**
      * ====engine=======
      */
-    public int getSlots(){
+    public int getSlots() {
         return Integer.parseInt(environment.getProperty("slots", "10"));
     }
 
-    public String getLocalAddress(){
+    public String getLocalAddress() {
         String address = environment.getProperty("http.address", AddressUtil.getOneIp());
         String port = environment.getProperty("http.port", "8090");
         return String.format("%s:%s", address, port);
     }
 
-    public String getNodeZkAddress(){
+    public String getNodeZkAddress() {
         return environment.getProperty("nodeZkAddress");
     }
 
-    public int getExeQueueSize(){
+    public int getExeQueueSize() {
         return Integer.parseInt(environment.getProperty("exeQueueSize", "1"));
     }
 
-    public boolean isDebug(){
+    public boolean isDebug() {
         return Boolean.parseBoolean(environment.getProperty("isDebug", "false"));
     }
 
@@ -258,16 +258,17 @@ public class EnvironmentContext {
         return Integer.parseInt(environment.getProperty("queueSize", "500"));
     }
 
-    public int getJobStoppedRetry(){
+    public int getJobStoppedRetry() {
         return Integer.parseInt(environment.getProperty("jobStoppedRetry", "10"));
     }
 
-    public long getJobStoppedDelay(){
+    public long getJobStoppedDelay() {
         return Integer.parseInt(environment.getProperty("jobStoppedDelay", "3000"));
     }
 
     /**
      * plain 1:cluster、2:cluster+queue
+     *
      * @return
      */
     public String getComputeResourcePlain() {
@@ -283,7 +284,7 @@ public class EnvironmentContext {
     }
 
     public long getJobPriorityStep() {
-        return Long.parseLong(environment.getProperty("jobPriorityStep", "10000" ));
+        return Long.parseLong(environment.getProperty("jobPriorityStep", "10000"));
     }
 
     public long getJobLackingInterval() {
@@ -300,11 +301,11 @@ public class EnvironmentContext {
     }
 
     public int getJobLackingCountLimited() {
-        return Integer.parseInt(environment.getProperty("jobLackingCountLimited", "3" ));
+        return Integer.parseInt(environment.getProperty("jobLackingCountLimited", "3"));
     }
 
     public long getJobSubmitExpired() {
-        return Long.parseLong(environment.getProperty("jobSubmitExpired", "0" ));
+        return Long.parseLong(environment.getProperty("jobSubmitExpired", "0"));
     }
 
     public String getHadoopConfigField() {
@@ -327,7 +328,7 @@ public class EnvironmentContext {
         return Long.parseLong(environment.getProperty("workerNodeTimeout", "10000"));
     }
 
-    public long getJobLogDelay(){
+    public long getJobLogDelay() {
         return Integer.parseInt(environment.getProperty("jobLogDelay", "30000"));
     }
 
@@ -336,10 +337,14 @@ public class EnvironmentContext {
     }
 
     public int getTaskStatusDealerPoolSize() {
-        return Integer.parseInt(environment.getProperty("taskStatusDealerPoolSize", "10" ));
+        return Integer.parseInt(environment.getProperty("taskStatusDealerPoolSize", "10"));
     }
 
     public int getLogTimeout() {
         return Integer.parseInt(environment.getProperty("logTimeout", "10"));
+    }
+
+    public int getTestConnectTimeout() {
+        return Integer.parseInt(environment.getProperty("testConnectTimeout", "1000"));
     }
 }

@@ -30,7 +30,6 @@ import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
-import com.dtstack.engine.master.utils.EngineUtil;
 import com.dtstack.engine.master.utils.FileUtil;
 import com.dtstack.engine.master.utils.PublicUtil;
 import com.dtstack.engine.master.utils.XmlFileUtil;
@@ -1405,30 +1404,34 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         for (Component component : components) {
             KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(), component.getComponentTypeCode());
             Map<String, String> finalSftpMap = sftpMap;
-            CompletableFuture.runAsync(() -> {
-                ComponentTestResult testResult = new ComponentTestResult();
-                try {
-                    testResult = this.testConnect(component.getComponentTypeCode(), component.getComponentConfig(), clusterName, component.getHadoopVersion(), component.getEngineId(), kerberosConfig, finalSftpMap);
-                    //测试联通性
-                    if (EComponentType.YARN.getTypeCode() == component.getComponentTypeCode() && Objects.nonNull(testResult)) {
-                        if (testResult.getResult()) {
-                            engineService.updateResource(component.getEngineId(), testResult.getClusterResourceDescription());
-                            queueService.updateQueue(component.getEngineId(), testResult.getClusterResourceDescription());
+            try {
+                CompletableFuture.runAsync(() -> {
+                    ComponentTestResult testResult = new ComponentTestResult();
+                    try {
+                        testResult = this.testConnect(component.getComponentTypeCode(), component.getComponentConfig(), clusterName, component.getHadoopVersion(), component.getEngineId(), kerberosConfig, finalSftpMap);
+                        //测试联通性
+                        if (EComponentType.YARN.getTypeCode() == component.getComponentTypeCode()) {
+                            if (testResult.getResult()) {
+                                engineService.updateResource(component.getEngineId(), testResult.getClusterResourceDescription());
+                                queueService.updateQueue(component.getEngineId(), testResult.getClusterResourceDescription());
+                            }
                         }
+                    } catch (Exception e) {
+                        testResult.setResult(false);
+                        testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
+                        LOGGER.error("test connect {}  error ", component.getComponentConfig(), e);
+                    } finally {
+                        testResult.setComponentTypeCode(component.getComponentTypeCode());
+                        testResults.add(testResult);
+                        countDownLatch.countDown();
                     }
-                } catch (Exception e) {
-                    testResult.setResult(false);
-                    testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
-                    LOGGER.error("test connect {}  error ", component.getComponentConfig(), e);
-                } finally {
-                    testResult.setComponentTypeCode(component.getComponentTypeCode());
-                    testResults.add(testResult);
-                    countDownLatch.countDown();
-                }
-            },connectPool);
+                },connectPool).get(env.getTestConnectTimeout(),TimeUnit.SECONDS);
+            } catch (Exception e) {
+                LOGGER.error("test connect {}  e ", component.getComponentConfig(), e);
+            }
         }
         try {
-            countDownLatch.await();
+            countDownLatch.await(env.getTestConnectTimeout(),TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             LOGGER.error("test connect  await {}  error ", clusterName, e);
         }
