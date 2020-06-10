@@ -122,12 +122,13 @@ public class KubernetesClient extends AbstractClient {
                     componentTestResult.setResult(false);
                     componentTestResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
                     return componentTestResult;
-                }
-                if (Objects.nonNull(fs)) {
-                    try {
-                        fs.close();
-                    } catch (IOException e) {
-                        LOG.error("close file system error ", e);
+                } finally {
+                    if (Objects.nonNull(fs)) {
+                        try {
+                            fs.close();
+                        } catch (IOException e) {
+                            LOG.error("close file system error ", e);
+                        }
                     }
                 }
                 componentTestResult.setResult(true);
