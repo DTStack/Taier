@@ -811,23 +811,7 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
             schedulingVo.setSchedulingCode(value.getType());
             schedulingVo.setSchedulingName(value.getName());
             schedulingVo.setComponents(new ArrayList<>());
-            if (EComponentScheduleType.RESOURCE.getType() == value.getType()) {
-                //资源调度组件单选
-                if (Objects.nonNull(scheduleType) && scheduleType.containsKey(value)) {
-                    List<Component> resourceComponents = scheduleType.get(value);
-                    if (CollectionUtils.isNotEmpty(resourceComponents)) {
-                        for (Component resourceComponent : resourceComponents) {
-                            if (resourceComponent.getId() >= 0) {
-                                schedulingVo.setComponents(ComponentVO.toVOS(Lists.newArrayList(resourceComponent),Objects.isNull(removeTypeName) ? true : removeTypeName));
-                                break;
-                            }
-                        }
-                    }
-                }
-
-            } else if (Objects.nonNull(scheduleType) && scheduleType.containsKey(value)) {
-                schedulingVo.setComponents(ComponentVO.toVOS(scheduleType.get(value),Objects.isNull(removeTypeName) ? true : removeTypeName));
-            }
+            schedulingVo.setComponents(ComponentVO.toVOS(scheduleType.get(value),Objects.isNull(removeTypeName) ? true : removeTypeName));
             schedulingVos.add(schedulingVo);
         }
         clusterVO.setScheduling(schedulingVos);
