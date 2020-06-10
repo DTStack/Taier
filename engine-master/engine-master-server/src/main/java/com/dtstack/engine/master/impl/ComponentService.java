@@ -194,7 +194,11 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
 
     @Forbidden
     public String getSftpClusterKey(Long clusterId) {
-        return AppType.CONSOLE.name() + "_" + clusterId;
+        Cluster one = clusterDao.getOne(clusterId);
+        if(Objects.isNull(one)){
+            throw new RdosDefineException("集群不存在");
+        }
+        return AppType.CONSOLE.name() + "_" + one.getClusterName();
     }
 
     private Map<String, String> parseKerberosConfig(Resource resource, String localKerberosConf) throws Exception {
@@ -499,6 +503,8 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
             engine.setEngineType(engineType.getType());
             engine.setEngineName(engineType.getName());
             engineDao.insert(engine);
+            //同步租户引擎对应关系
+            engineService.updateEngineTenant(clusterId,engine.getId());
             LOGGER.info("cluster {} add engine  {} ", clusterId, engine.getId());
         }
         //yarn 和 Kubernetes 只能2选一
@@ -664,7 +670,11 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
     }
 
     public String buildConfRemoteDir(Long clusterId) {
-        return  "confPath" + File.separator + AppType.CONSOLE + "_" + clusterId;
+        Cluster one = clusterDao.getOne(clusterId);
+        if(Objects.isNull(one)){
+            throw new RdosDefineException("集群不存在");
+        }
+        return  "confPath" + File.separator + AppType.CONSOLE + "_" + one.getClusterName();
     }
 
     /**
@@ -908,7 +918,11 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
 
     @Forbidden
     public String buildSftpPath(Long clusterId, Integer componentCode) {
-        return AppType.CONSOLE + "_" + clusterId + File.separator + EComponentType.getByCode(componentCode).name() ;
+        Cluster one = clusterDao.getOne(clusterId);
+        if(Objects.isNull(one)){
+            throw new RdosDefineException("集群不存在");
+        }
+        return AppType.CONSOLE + "_" + one.getClusterName() + File.separator + EComponentType.getByCode(componentCode).name() ;
     }
 
 
@@ -1038,7 +1052,11 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
      */
     @Forbidden
     public String getLocalKerberosPath(Long clusterId, Integer componentCode) {
-        return env.getLocalKerberosDir() + File.separator + AppType.CONSOLE + "_" + clusterId + File.separator + EComponentType.getByCode(componentCode).name() + File.separator + KERBEROS_PATH;
+        Cluster one = clusterDao.getOne(clusterId);
+        if(Objects.isNull(one)){
+            throw new RdosDefineException("集群不存在");
+        }
+        return env.getLocalKerberosDir() + File.separator + AppType.CONSOLE + "_" + one.getClusterName() + File.separator + EComponentType.getByCode(componentCode).name() + File.separator + KERBEROS_PATH;
     }
 
     /**
@@ -1327,17 +1345,12 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
             Component component = componentDao.getOne(componentId.longValue());
             EngineAssert.assertTrue(component != null, ErrorCode.DATA_NOT_FIND.getDescription());
 
-            if (EngineUtil.isRequiredComponent(component.getComponentTypeCode())) {
+            if (EComponentType.requireComponent.contains(EComponentType.getByCode(component.getComponentTypeCode()))){
                 throw new RdosDefineException(component.getComponentName() + " 是必选组件，不可删除");
             }
             component.setIsDeleted(Deleted.DELETED.getStatus());
             componentDao.deleteById(componentId.longValue());
             kerberosDao.deleteByComponentId(componentId.longValue());
-            //引擎组件为空 删除引擎
-            List<Component> componentList = listComponent(component.getEngineId());
-            if (CollectionUtils.isEmpty(componentList)) {
-                engineDao.delete(component.getEngineId());
-            }
         }
     }
 

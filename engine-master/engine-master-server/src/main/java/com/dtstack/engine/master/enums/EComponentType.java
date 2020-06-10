@@ -183,5 +183,9 @@ public enum EComponentType {
     public static List<EComponentType> sqlComponent = Lists.newArrayList(EComponentType.SPARK_THRIFT,EComponentType.HIVE_SERVER,EComponentType.TIDB_SQL,EComponentType.ORACLE_SQL,
             EComponentType.LIBRA_SQL,EComponentType.IMPALA_SQL,EComponentType.GREENPLUM_SQL);
 
+    //对应引擎的组件不能删除
+    public static List<EComponentType> requireComponent = Lists.newArrayList(EComponentType.ORACLE_SQL,EComponentType.HDFS,EComponentType.TIDB_SQL,EComponentType.ORACLE_SQL,
+            EComponentType.LIBRA_SQL,EComponentType.GREENPLUM_SQL);
+
 
 }

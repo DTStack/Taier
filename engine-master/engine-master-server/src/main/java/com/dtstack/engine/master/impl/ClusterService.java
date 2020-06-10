@@ -66,9 +66,6 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
     private EngineService engineService;
 
     @Autowired
-    private QueueService queueService;
-
-    @Autowired
     private QueueDao queueDao;
 
     @Autowired
