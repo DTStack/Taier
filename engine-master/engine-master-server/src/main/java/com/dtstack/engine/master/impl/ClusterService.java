@@ -125,15 +125,8 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
         Cluster cluster = new Cluster();
         cluster.setId(DEFAULT_CLUSTER_ID);
         cluster.setClusterName(DEFAULT_CLUSTER_NAME);
+        cluster.setHadoopVersion("");
         clusterDao.insertWithId(cluster);
-
-        JSONObject componentConfig = new JSONObject();
-        componentConfig.put(EComponentType.HDFS.getConfName(), new JSONObject().toJSONString());
-        componentConfig.put(EComponentType.YARN.getConfName(), new JSONObject().toJSONString());
-        componentConfig.put(EComponentType.SPARK_THRIFT.getConfName(), new JSONObject().toJSONString());
-        componentConfig.put(EComponentType.SFTP.getConfName(), new JSONObject().toJSONString());
-
-        engineService.addEnginesByComponentConfig(componentConfig, cluster.getId());
     }
 
     @Transactional(rollbackFor = Exception.class)

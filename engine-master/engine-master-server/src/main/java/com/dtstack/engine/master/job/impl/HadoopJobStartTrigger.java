@@ -540,6 +540,9 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             } else if (taskType.equals(EScheduleJobType.SPARK_PYTHON.getVal())) {
                 fileName = String.format("pyspark_%s_%s_%s_%s.py", tenantId, projectId,
                         taskName, System.currentTimeMillis());
+            } else if (taskType.equals(EScheduleJobType.TENSORFLOW_1_X.getVal())) {
+                fileName = String.format("tensorflow_%s_%s_%s_%s.py", tenantId, projectId,
+                        taskName, System.currentTimeMillis());
             }
 
             if (fileName != null) {
