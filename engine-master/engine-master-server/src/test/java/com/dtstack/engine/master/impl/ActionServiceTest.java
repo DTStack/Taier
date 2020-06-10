@@ -1,22 +1,15 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.annotation.Param;
-import com.dtstack.engine.common.util.PublicUtil;
+
+import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.master.BaseTest;
-import com.dtstack.engine.master.impl.ActionService;
-import com.dtstack.engine.master.utils.AopTargetUtils;
+import com.dtstack.engine.master.data.DataCollection;
 import io.vertx.core.json.JsonObject;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.awt.geom.RectangularShape;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+
+import java.util.*;
 
 import static junit.framework.TestCase.fail;
 
@@ -40,20 +33,21 @@ public class ActionServiceTest extends BaseTest {
 
     @Test
     public void testStatus() {
-        String job_id = "6015b6f4";
-        Integer statusResult = 5;
-        Integer computeType = 1;
+        ScheduleJob scheduleJob= dataCollection.getScheduleJob();
+        String jobId = scheduleJob.getJobId();
+        Integer statusResult = scheduleJob.getStatus();
+        Integer computeType = scheduleJob.getComputeType();
         boolean test1;
         boolean test2;
         try {
-            actionService.status(job_id, null);
+            actionService.status(jobId, null);
             test1 = false;
         } catch (Exception e) {
             test1 = true;
         }
 
         try {
-            Integer status = actionService.status(job_id, computeType);
+            Integer status = actionService.status(jobId, computeType);
             test2 = (status != null && status.equals(statusResult));
         } catch (Exception e) {
             test2 = false;
