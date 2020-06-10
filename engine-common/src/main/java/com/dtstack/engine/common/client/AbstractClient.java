@@ -302,7 +302,7 @@ public abstract class AbstractClient implements IClient {
         return templateVo;
     }
 
-    private String findPluginCofig(Class<?> clazz, String fileName) {
+    protected String findPluginCofig(Class<?> clazz, String fileName) {
         URL[] urLs = ((URLClassLoader) clazz.getClassLoader()).getURLs();
         if (urLs.length > 0) {
             String jarPath = urLs[0].getPath();
