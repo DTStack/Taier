@@ -8,8 +8,6 @@ ALTER TABLE schedule_job
     ADD INDEX idx_gmt_modified (`gmt_modified`) COMMENT '修改时间';
 ALTER TABLE schedule_job
     ADD INDEX idx_cyctime (`cyc_time`) COMMENT '执行时间';
-ALTER TABLE console_engine
-    ADD UNIQUE INDEX `index_cluster_engineType` (`cluster_id`, `engine_type`);
 
 CREATE TABLE `console_engine`
 (
@@ -24,7 +22,8 @@ CREATE TABLE `console_engine`
     `gmt_create`   datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `gmt_modified` datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
     `is_deleted`   tinyint(1)  NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `index_cluster_engineType` (`cluster_id`, `engine_type`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
