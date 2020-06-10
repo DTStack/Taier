@@ -17,17 +17,19 @@
 
 package org.apache.spark.deploy.yarn
 
-import java.lang.reflect.InvocationTargetException
 import java.lang.{Long => JLong}
-
-import org.apache.hadoop.yarn.api.records.Resource
-import org.apache.spark.internal.Logging
-import org.apache.spark.internal.config._
-import org.apache.spark.util.{CausedBy, Utils}
-import org.apache.spark.{SparkConf, SparkException}
+import java.lang.reflect.InvocationTargetException
 
 import scala.collection.mutable
 import scala.util.Try
+
+import org.apache.hadoop.yarn.api.records.Resource
+
+import org.apache.spark.{SparkConf, SparkException}
+import org.apache.spark.deploy.yarn.dtconfig._
+import org.apache.spark.internal.Logging
+import org.apache.spark.internal.config._
+import org.apache.spark.util.{CausedBy, Utils}
 
 /**
   * This helper class uses some of Hadoop 3 methods from the YARN API,

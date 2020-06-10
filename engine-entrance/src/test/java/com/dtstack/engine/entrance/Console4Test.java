@@ -62,8 +62,8 @@ public class Console4Test extends BaseTest {
         componentDTO.setHadoopVersion("hadoop2");
         componentDTO.setComponentTypeCode(EComponentType.SFTP.getTypeCode());
         System.out.println(JSONObject.toJSONString(componentDTO));
-        componentService.addOrUpdateComponent(-1L,"testCompoennt",componentDTO.getComponentConfig(),null,null,null
-        ,"",10, "1");
+        componentService.addOrUpdateComponent(-1L, componentDTO.getComponentConfig(),null,null,null
+        ,"",10);
     }
 
 

@@ -25,7 +25,7 @@ public interface AccountTenantDao {
 
     List<AccountDTO> generalQuery(PageQuery<AccountDTO> pageQuery);
 
-    List<AccountDTO> getTenantUser(@Param("tenantId") Long tenantId);
+    List<AccountDTO> getTenantUser(@Param("tenantId") Long tenantId,@Param("type") Integer type);
 
     AccountTenant getById(@Param("id") Long id);
 

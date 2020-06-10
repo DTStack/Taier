@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.annotation.Forbidden;
 import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.domain.*;
@@ -8,17 +9,12 @@ import com.dtstack.engine.api.dto.ClusterDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.*;
-import com.dtstack.engine.api.annotation.Forbidden;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.master.enums.EComponentScheduleType;
-import com.dtstack.engine.master.enums.EComponentType;
-import com.dtstack.engine.master.enums.EDeployMode;
-import com.dtstack.engine.master.enums.EngineTypeComponentType;
-import com.dtstack.engine.master.enums.MultiEngineType;
+import com.dtstack.engine.master.enums.*;
 import com.dtstack.engine.master.utils.PublicUtil;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.Deleted;
@@ -60,8 +56,6 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 
-    private final static String DEFAULT_HADOOP_VERSION = "hadoop2";
-
     private final static List<String> BASE_CONFIG = Lists.newArrayList(EComponentType.HDFS.getConfName(),
             EComponentType.YARN.getConfName(), EComponentType.SPARK_THRIFT.getConfName(), EComponentType.SFTP.getConfName(),EComponentType.KUBERNETES.getConfName());
 
@@ -70,9 +64,6 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
 
     @Autowired
     private EngineService engineService;
-
-    @Autowired
-    private QueueService queueService;
 
     @Autowired
     private QueueDao queueDao;
@@ -134,15 +125,8 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
         Cluster cluster = new Cluster();
         cluster.setId(DEFAULT_CLUSTER_ID);
         cluster.setClusterName(DEFAULT_CLUSTER_NAME);
+        cluster.setHadoopVersion("");
         clusterDao.insertWithId(cluster);
-
-        JSONObject componentConfig = new JSONObject();
-        componentConfig.put(EComponentType.HDFS.getConfName(), new JSONObject().toJSONString());
-        componentConfig.put(EComponentType.YARN.getConfName(), new JSONObject().toJSONString());
-        componentConfig.put(EComponentType.SPARK_THRIFT.getConfName(), new JSONObject().toJSONString());
-        componentConfig.put(EComponentType.SFTP.getConfName(), new JSONObject().toJSONString());
-
-        engineService.addEnginesByComponentConfig(componentConfig, cluster.getId());
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -576,6 +560,10 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
             JSONObject oracleConf = JSONObject.parseObject(oracleInfo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId()));
             pluginInfo = this.convertSQLComponent(oracleConf, pluginInfo);
             pluginInfo.put("typeName", "oracle");
+        } else if (EComponentType.GREENPLUM_SQL == type.getComponentType()) {
+            JSONObject greenplumConf = JSONObject.parseObject(greenplumInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
+            pluginInfo = this.convertSQLComponent(greenplumConf, pluginInfo);
+            pluginInfo.put("typeName", "greenplum");
         } else {
             //flink spark 需要区分任务类型
             if (EComponentType.FLINK.equals(type.getComponentType()) || EComponentType.SPARK.equals(type.getComponentType())) {
@@ -592,6 +580,13 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
                 String typeName = flinkConf.getString(TYPE_NAME);
                 if (!StringUtils.isBlank(typeName)) {
                     pluginInfo.put(TYPE_NAME, typeName);
+                }
+                if (EComponentType.SPARK.equals(type.getComponentType())) {
+                    JSONObject sftpConfig = clusterConfigJson.getJSONObject(EComponentType.SFTP.getConfName());
+                    if (Objects.nonNull(sftpConfig)) {
+                        String confHdfsPath = sftpConfig.getString("path") + File.separator + componentService.buildConfRemoteDir(clusterVO.getId());
+                        pluginInfo.put("confHdfsPath", confHdfsPath);
+                    }
                 }
             } else if (EComponentType.DT_SCRIPT.equals(type.getComponentType())) {
                 //DT_SCRIPT 需要将common配置放在外边
@@ -699,38 +694,42 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
 
     }
 
+    @Override
     public String tiDBInfo(@Param("tenantId") Long dtUicTenantId, @Param("userId") Long dtUicUserId){
-        //优先绑定账号
-        String jdbcInfo = getConfigByKey(dtUicTenantId, EComponentType.TIDB_SQL.getConfName(),false);
-        User dtUicUser = userDao.getByDtUicUserId(dtUicUserId);
-        if(Objects.isNull(dtUicUser)){
-            return jdbcInfo;
-        }
-        Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
-        AccountTenant dbAccountTenant = accountTenantDao.getByUserIdAndTenantIdAndEngineType(dtUicUser.getId(), tenantId, DataSourceType.TiDB.getVal());
-        if(Objects.isNull(dbAccountTenant)){
-            return jdbcInfo;
-        }
-        Account account = accountDao.getById(dbAccountTenant.getAccountId());
-        if(Objects.isNull(account)){
-            return jdbcInfo;
-        }
-        JSONObject data = JSONObject.parseObject(jdbcInfo);
-        data.put("username",account.getName());
-        data.put("password", Base64Util.baseDecode(account.getPassword()));
-        return data.toJSONString();
+        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.TiDB);
     }
 
+    @Override
     public String oracleInfo(@Param("tenantId") Long dtUicTenantId,@Param("userId") Long dtUicUserId){
+        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.Oracle);
+    }
+
+    public String greenplumInfo(@Param("tenantId") Long dtUicTenantId,@Param("userId") Long dtUicUserId){
+        return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.GREENPLUM6);
+    }
+
+
+    private String accountInfo(Long dtUicTenantId, Long dtUicUserId, DataSourceType dataSourceType) {
+        EComponentType componentType = null;
+        if (DataSourceType.Oracle.equals(dataSourceType)) {
+            componentType = EComponentType.ORACLE_SQL;
+        } else if (DataSourceType.TiDB.equals(dataSourceType)) {
+            componentType = EComponentType.TIDB_SQL;
+        } else if (DataSourceType.GREENPLUM6.equals(dataSourceType)) {
+            componentType = EComponentType.GREENPLUM_SQL;
+        }
+        if (componentType == null) {
+            throw new RdosDefineException("不支持的数据源类型");
+        }
         //优先绑定账号
-        String jdbcInfo = getConfigByKey(dtUicTenantId, EComponentType.ORACLE_SQL.getConfName(),false);
+        String jdbcInfo = getConfigByKey(dtUicTenantId, componentType.getConfName(), false);
         User dtUicUser = userDao.getByDtUicUserId(dtUicUserId);
-        if(Objects.isNull(dtUicUser)){
+        if (Objects.isNull(dtUicUser)) {
             return jdbcInfo;
         }
         Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
-        AccountTenant dbAccountTenant = accountTenantDao.getByUserIdAndTenantIdAndEngineType(dtUicUser.getId(), tenantId, DataSourceType.Oracle.getVal());
-        if(Objects.isNull(dbAccountTenant)){
+        AccountTenant dbAccountTenant = accountTenantDao.getByUserIdAndTenantIdAndEngineType(dtUicUser.getId(), tenantId, dataSourceType.getVal());
+        if (Objects.isNull(dbAccountTenant)) {
             return jdbcInfo;
         }
         Account account = accountDao.getById(dbAccountTenant.getAccountId());
@@ -738,7 +737,7 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
             return jdbcInfo;
         }
         JSONObject data = JSONObject.parseObject(jdbcInfo);
-        data.put("username",account.getName());
+        data.put("username", account.getName());
         data.put("password", Base64Util.baseDecode(account.getPassword()));
         return data.toJSONString();
     }
@@ -791,7 +790,7 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
         List<Long> engineIds = engines.stream().map(Engine::getId).collect(Collectors.toList());
         List<Component> components = componentDao.listByEngineIds(engineIds);
 
-        Map<EComponentScheduleType, List<Component>> scheduleType = null;
+        Map<EComponentScheduleType, List<Component>> scheduleType = new HashMap<>();
         if (CollectionUtils.isNotEmpty(components)) {
             scheduleType = components.stream().collect(Collectors.groupingBy(c -> EComponentType.getScheduleTypeByComponent(c.getComponentTypeCode())));
         }
@@ -801,24 +800,7 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
             SchedulingVo schedulingVo = new SchedulingVo();
             schedulingVo.setSchedulingCode(value.getType());
             schedulingVo.setSchedulingName(value.getName());
-            schedulingVo.setComponents(new ArrayList<>());
-            if (EComponentScheduleType.resourceScheduling.getType() == value.getType()) {
-                //资源调度组件单选
-                if (Objects.nonNull(scheduleType) && scheduleType.containsKey(value)) {
-                    List<Component> resourceComponents = scheduleType.get(value);
-                    if (CollectionUtils.isNotEmpty(resourceComponents)) {
-                        for (Component resourceComponent : resourceComponents) {
-                            if (resourceComponent.getId() >= 0) {
-                                schedulingVo.setComponents(ComponentVO.toVOS(Lists.newArrayList(resourceComponent),Objects.isNull(removeTypeName) ? true : removeTypeName));
-                                break;
-                            }
-                        }
-                    }
-                }
-
-            } else if (Objects.nonNull(scheduleType) && scheduleType.containsKey(value)) {
-                schedulingVo.setComponents(ComponentVO.toVOS(scheduleType.get(value),Objects.isNull(removeTypeName) ? true : removeTypeName));
-            }
+            schedulingVo.setComponents(ComponentVO.toVOS(scheduleType.get(value),Objects.isNull(removeTypeName) ? true : removeTypeName));
             schedulingVos.add(schedulingVo);
         }
         clusterVO.setScheduling(schedulingVos);

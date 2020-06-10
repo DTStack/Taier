@@ -134,14 +134,11 @@ public class FlinkClient extends AbstractClient {
         flinkClientBuilder = FlinkClientBuilder.create(flinkConfig, hadoopConf.getConfiguration(), hadoopConf.getYarnConfiguration());
         flinkClientBuilder.initFlinkGlobalConfiguration(flinkExtProp);
 
-        KerberosUtils.login(flinkConfig,()->{
-            try {
-                flinkClusterClientManager = FlinkClusterClientManager.createWithInit(flinkClientBuilder);
-            } catch (Exception e) {
-                throw new RdosDefineException(e);
-            }
-            return null;
-        });
+        try {
+            flinkClusterClientManager = FlinkClusterClientManager.createWithInit(flinkClientBuilder);
+        } catch (Exception e) {
+            throw new RdosDefineException(e);
+        }
 
     }
 
@@ -161,10 +158,10 @@ public class FlinkClient extends AbstractClient {
                  }
                  return jobResult;
              });
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.error("can not submit a job process SubmitJobWithType error," ,e);
+            return JobResult.createErrorResult(e);
         }
-        return null;
     }
 
     private JobResult submitJobWithJar(JobClient jobClient) {

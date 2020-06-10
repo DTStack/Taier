@@ -136,10 +136,10 @@ public class SparkYarnClient extends AbstractClient {
                 }
                 return jobResult;
             });
-        } catch (IOException e) {
-
+        } catch (Exception e) {
+            logger.info("", e);
+            return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(e));
         }
-        return null;
     }
 
     private JobResult submitJobWithJar(JobClient jobClient){
@@ -609,7 +609,7 @@ public class SparkYarnClient extends AbstractClient {
                     return false;
                 }
             });
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.error("judgeSlots error", e);
         }
         return false;

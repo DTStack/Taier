@@ -36,7 +36,7 @@ public class KerberosUtils {
 
 
 
-    public static <T> T login(Properties properties, Supplier<T> supplier) throws IOException {
+    public static <T> T login(Properties properties, Supplier<T> supplier) throws Exception {
         int open = Objects.isNull(properties.get("openKerberos")) ? 0 : (int)properties.get("openKerberos");
         boolean openKerberos = 1 == open;
 
