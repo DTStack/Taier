@@ -382,7 +382,8 @@ CREATE TABLE `schedule_job`
   KEY `idx_name_type` (`job_name`(128), `type`),
   KEY `index_engine_job_id` (`engine_job_id`(128)),
   KEY `index_status` (`status`),
-  KEY `index_gmt_modified` (`gmt_modified`)
+  KEY `index_gmt_modified` (`gmt_modified`),
+  KEY `idx_cyctime` (`cyc_time`)
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 0
   DEFAULT CHARSET = utf8;

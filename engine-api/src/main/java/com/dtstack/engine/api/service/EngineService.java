@@ -10,7 +10,8 @@ import com.dtstack.engine.api.vo.QueueVO;
 import java.util.List;
 
 public interface EngineService {
-    public List<QueueVO> getQueue(@Param("engineId") Long engineId);
+
+    List<QueueVO> getQueue(@Param("engineId") Long engineId);
 
     /**
      * [
@@ -21,9 +22,6 @@ public interface EngineService {
      * ]
      */
     public String listSupportEngine(@Param("tenantId") Long dtUicTenantId);
-
-    public Engine addEngine(@Param("clusterId") Long clusterId, @Param("engineName") String engineName,
-                            @Param("componentTypeCodeList") List<Integer> componentTypeCodeList);
 
     @Forbidden
     public void addEnginesByComponentConfig(JSONObject componentConfig, Long clusterId);

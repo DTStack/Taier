@@ -95,29 +95,8 @@ public class EngineService implements com.dtstack.engine.api.service.EngineServi
         return array.toJSONString();
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public Engine addEngine(@Param("clusterId") Long clusterId, @Param("engineName") String engineName,
-                            @Param("componentTypeCodeList") List<Integer> componentTypeCodeList){
-        MultiEngineType engineType = MultiEngineType.getByName(engineName);
 
-        EngineUtil.checkComponent(engineType, componentTypeCodeList);
-        checkEngineRepeat(clusterId, engineType);
-
-        Engine engine = new Engine();
-        engine.setClusterId(clusterId);
-        engine.setEngineName(engineType.getName());
-        engine.setEngineType(engineType.getType());
-        engine.setTotalCore(0);
-        engine.setTotalMemory(0);
-        engine.setTotalNode(0);
-        engineDao.insert(engine);
-
-        updateEngineTenant(clusterId, engine.getId());
-
-        return engine;
-    }
-
-    private void updateEngineTenant(Long clusterId, Long engineId){
+    public void updateEngineTenant(Long clusterId, Long engineId){
         List<Engine> engines = engineDao.listByClusterId(clusterId);
         if(CollectionUtils.isEmpty(engines)){
             return;
