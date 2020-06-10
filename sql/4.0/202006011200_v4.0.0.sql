@@ -5,6 +5,7 @@ ALTER table console_component ADD COLUMN kerberos_file_name VARCHAR(50) DEFAULT 
 ALTER table console_kerberos ADD COLUMN component_type int(11) COMMENT '组件类型';
 ALTER table console_kerberos ADD COLUMN krb_name VARCHAR(26) COMMENT 'krb名称';
 ALTER TABLE schedule_job ADD INDEX idx_gmt_modified (`gmt_modified`) COMMENT '修改时间';
+ALTER TABLE schedule_job ADD INDEX idx_cyctime (`cyc_time`) COMMENT '执行时间';
 
 -- 删除default集群 配置
 delete from console_component WHERE engine_id IN(
