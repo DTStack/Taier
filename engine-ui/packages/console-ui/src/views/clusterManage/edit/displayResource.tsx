@@ -62,8 +62,7 @@ class DisplayResource extends React.Component<any, any> {
                         <input
                             type="file"
                             id={`my${configName}File`}
-                            onClick={(e: any) => { e.target.value = null }}
-                            onChange={(e: any) => fileChange(e, components.componentTypeCode)}
+                            onChange={(e: any) => { fileChange(e, components.componentTypeCode) }}
                             accept=".zip"
                             style={{ display: 'none' }}
                         />
@@ -109,7 +108,6 @@ class DisplayResource extends React.Component<any, any> {
                         <input
                             type="file"
                             id={`my${configName}KerberosFile`}
-                            onClick={(e: any) => { e.target.value = null }}
                             onChange={(e: any) => kerFileChange(e, components.componentTypeCode)}
                             accept=".zip"
                             style={{ display: 'none' }}
@@ -177,7 +175,6 @@ class DisplayResource extends React.Component<any, any> {
                             name="file"
                             type="file"
                             id={`my${configName}PramasFile`}
-                            onClick={(e: any) => { e.target.value = null }}
                             onChange={(e: any) => paramsfileChange(e, components.componentTypeCode)}
                             accept=".json"
                             style={{ display: 'none' }}

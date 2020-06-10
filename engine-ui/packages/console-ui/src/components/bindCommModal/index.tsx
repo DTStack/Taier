@@ -16,6 +16,8 @@ class BindCommModal extends React.Component<any, any> {
             hasHadoop: false,
             hasLibra: false,
             hasTiDB: false,
+            hasOracle: false,
+            hasGreenPlum: false,
             clusterId: props.clusterId
         }
     }
@@ -38,17 +40,23 @@ class BindCommModal extends React.Component<any, any> {
         const hadoopEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.HADOOP);
         const libraEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.LIBRA);
         const tiDBEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.TI_DB);
+        const oracleEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.ORACLE);
+        const greenPlumEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.GREEN_PLUM);
 
         const hasHadoop = hadoopEngine.length >= 1;
         const hasLibra = libraEngine.length >= 1;
         const hasTiDB = tiDBEngine.length > 0;
+        const hasOracle = oracleEngine.length > 0;
+        const hasGreenPlum = greenPlumEngine.length > 0;
 
         const queueList = hasHadoop && hadoopEngine[0] && hadoopEngine[0].queues;
         this.setState({
             hasHadoop,
             hasLibra,
             hasTiDB,
-            queueList
+            queueList,
+            hasOracle,
+            hasGreenPlum
         })
     }
 
@@ -84,7 +92,7 @@ class BindCommModal extends React.Component<any, any> {
         const { getFieldDecorator } = this.props.form;
         const { visible, onOk, onCancel, title, isBindTenant,
             disabled, clusterList, tenantInfo, clusterId } = this.props;
-        const { hasHadoop, hasLibra, hasTiDB, queueList, tenantList } = this.state;
+        const { hasHadoop, hasLibra, hasTiDB, hasOracle, hasGreenPlum, queueList, tenantList } = this.state;
         return (
             <Modal
                 title={title}
@@ -176,25 +184,17 @@ class BindCommModal extends React.Component<any, any> {
                             ) : null
                         }
                         {
-                            hasLibra ? (
+                            hasLibra || hasTiDB || hasOracle || hasGreenPlum ? (
                                 <div
                                     className='border-item'
                                 >
-                                    <div className='engine-title'>
-                                        <span>LibrA</span>
-                                        <div style={{ fontSize: '13px', marginTop: '5px' }}>创建项目时，自动关联到租户的LibrA引擎</div>
-                                    </div>
-                                </div>
-                            ) : null
-                        }
-                        {
-                            hasTiDB ? (
-                                <div
-                                    className='border-item'
-                                >
-                                    <div className='engine-title'>
-                                        <span>TiDB</span>
-                                        <div style={{ fontSize: '13px', marginTop: '5px' }}>创建项目时，自动关联到租户的TiDB引擎</div>
+                                    <div className="engine-name">
+                                        创建项目时，自动关联到租户的
+                                        {hasLibra ? 'LibrA' : null}、
+                                        {hasTiDB ? 'LibrA' : null}、
+                                        {hasOracle ? 'Oracle' : null}、
+                                        {hasGreenPlum ? 'GreenPlum' : null}
+                                        引擎
                                     </div>
                                 </div>
                             ) : null
