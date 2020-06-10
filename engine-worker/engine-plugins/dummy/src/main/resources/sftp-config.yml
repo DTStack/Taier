@@ -5,10 +5,10 @@ required:
   path:
   auth:
     - password: 1
-    - ras: 2
+    - rsaPath: 2
   password:
     dependencyKey: auth
     dependencyValue: 1
-  ras:
+  rsaPath:
     dependencyKey: auth
     dependencyValue: 2
