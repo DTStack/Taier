@@ -42,6 +42,7 @@ import org.apache.hadoop.service.Service;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
+import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +54,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -214,7 +216,13 @@ public class SessionClientFactory extends AbstractClientFactory {
             EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
             enumSet.add(YarnApplicationState.RUNNING);
             enumSet.add(YarnApplicationState.ACCEPTED);
-            List<ApplicationReport> reportList = flinkClientBuilder.getYarnClient().getApplications(set, enumSet);
+
+            YarnClient yarnClient = flinkClientBuilder.getYarnClient();
+            if (Objects.isNull(yarnClient)) {
+                throw new RdosDefineException("getYarnClient error, Yarn Client is null!");
+            }
+
+            List<ApplicationReport> reportList = yarnClient.getApplications(set, enumSet);
 
             int maxMemory = -1;
             int maxCores = -1;

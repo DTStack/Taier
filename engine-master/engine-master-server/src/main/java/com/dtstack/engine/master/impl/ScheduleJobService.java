@@ -78,6 +78,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import scala.Int;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -100,6 +101,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
@@ -367,22 +369,24 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @return
      */
     public ChartDataVO getScienceJobGraph(@Param("projectId") long projectId, @Param("tenantId") Long tenantId,
-                                          @Param("taskType") Integer taskType) {
+                                          @Param("taskType") String taskType) {
         List<Integer> finishedList = Lists.newArrayList(RdosTaskStatus.FINISHED.getStatus());
         List<Integer> failedList = Lists.newArrayList(RdosTaskStatus.FAILED.getStatus(), RdosTaskStatus.SUBMITFAILD.getStatus());
         List<Integer> deployList = Lists.newArrayList(RdosTaskStatus.UNSUBMIT.getStatus(), RdosTaskStatus.SUBMITTING.getStatus(), RdosTaskStatus.WAITENGINE.getStatus());
-        List<Map<String, Object>> successCnt = scheduleJobDao.listThirtyDayJobs(finishedList, EScheduleType.NORMAL_SCHEDULE.getType(), taskType, projectId, tenantId);
-        List<Map<String, Object>> failCnt = scheduleJobDao.listThirtyDayJobs(failedList, EScheduleType.NORMAL_SCHEDULE.getType(), taskType, projectId, tenantId);
-        List<Map<String, Object>> deployCnt = scheduleJobDao.listThirtyDayJobs(deployList, EScheduleType.NORMAL_SCHEDULE.getType(), taskType, projectId, tenantId);
-        List<Map<String, Object>> totalCnt = scheduleJobDao.listThirtyDayJobs(null, EScheduleType.NORMAL_SCHEDULE.getType(), taskType, projectId, tenantId);
+        List<Integer> taskTypes =  convertStringToList(taskType);
+        List<Map<String, Object>> successCnt = scheduleJobDao.listThirtyDayJobs(finishedList, EScheduleType.NORMAL_SCHEDULE.getType(), taskTypes, projectId, tenantId);
+        List<Map<String, Object>> failCnt = scheduleJobDao.listThirtyDayJobs(failedList, EScheduleType.NORMAL_SCHEDULE.getType(), taskTypes, projectId, tenantId);
+        List<Map<String, Object>> deployCnt = scheduleJobDao.listThirtyDayJobs(deployList, EScheduleType.NORMAL_SCHEDULE.getType(), taskTypes, projectId, tenantId);
+        List<Map<String, Object>> totalCnt = scheduleJobDao.listThirtyDayJobs(null, EScheduleType.NORMAL_SCHEDULE.getType(), taskTypes, projectId, tenantId);
         BatchSecienceJobChartVO result = new BatchSecienceJobChartVO();
         return result.format(totalCnt, successCnt, failCnt, deployCnt);
     }
 
-    public Map<String, Object> countScienceJobStatus(@Param("projectIds") List<Long> projectIds, @Param("tenantId") Long tenantId, @Param("runStatus") Integer runStatus, @Param("type") Integer type, @Param("taskType") Integer taskType,
+    public Map<String, Object> countScienceJobStatus(@Param("projectIds") List<Long> projectIds, @Param("tenantId") Long tenantId, @Param("runStatus") Integer runStatus, @Param("type") Integer type, @Param("taskType") String taskType,
                                                      @Param("cycStartDay") String cycStartTime, @Param("cycEndDay") String cycEndTime) {
-        return scheduleJobDao.countScienceJobStatus(runStatus, projectIds, type, taskType, tenantId,cycStartTime,cycEndTime);
+        return scheduleJobDao.countScienceJobStatus(runStatus, projectIds, type, convertStringToList(taskType), tenantId,cycStartTime,cycEndTime);
     }
+
 
     private Long objCastLong(Object obj) {
         if (Objects.isNull(obj)) {

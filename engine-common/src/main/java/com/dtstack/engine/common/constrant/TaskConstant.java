@@ -20,4 +20,5 @@ public class TaskConstant {
     public static final String JOB_ID = "${jobId}";
     public static final String UPLOADPATH = "${uploadPath}";
     public static final String LAUNCH = "${launch}";
+    public static final String FILE_NAME = "${filename}";
 }

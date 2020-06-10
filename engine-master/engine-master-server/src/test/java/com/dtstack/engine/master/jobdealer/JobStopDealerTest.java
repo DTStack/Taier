@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.impl;
+package com.dtstack.engine.master.jobdealer;
 
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.dao.ScheduleJobDao;

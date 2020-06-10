@@ -53,7 +53,8 @@ public class Client {
 
     private static final Logger LOG = LoggerFactory.getLogger(Client.class);
 
-    private static final AtomicBoolean REFRESH_APP_MASTER_JAR = new AtomicBoolean(true);
+    private final AtomicBoolean REFRESH_APP_MASTER_JAR = new AtomicBoolean(true);
+    private static final String BASH_LOGIN_CMD = "bash --login -c ";
 
     private DtYarnConfiguration conf;
     private FileSystem dfs;
@@ -156,6 +157,8 @@ public class Client {
         LOG.info("Building app launch command");
         String launchCmd = new LaunchCommandBuilder(clientArguments, conf).buildCmd();
         if (StringUtils.isNotBlank(launchCmd)) {
+            // use  login shell
+            launchCmd = BASH_LOGIN_CMD + "'" + launchCmd + "'";
             appMasterEnv.put(DtYarnConstants.Environment.DT_EXEC_CMD.toString(), launchCmd);
         } else {
             throw new IllegalArgumentException("Invalid launch cmd for the application");
@@ -235,6 +238,7 @@ public class Client {
         appMasterEnv.put(DtYarnConstants.Environment.INPUTS.toString(), clientArguments.inputs.toString());
         appMasterEnv.put(DtYarnConstants.Environment.APP_TYPE.toString(), clientArguments.appType.name());
         appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_STAGING_LOCATION.toString(), Utilities.getRemotePath(conf, applicationId, "").toString());
+        appMasterEnv.put(DtYarnConstants.Environment.APP_JAR_LOCATION.toString(), appMasterJar.toUri().toString());
         appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_JOB_CONF_LOCATION.toString(), jobConfPath.toString());
         appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_CONTAINER_MAX_MEMORY.toString(), String.valueOf(newAppResponse.getMaximumResourceCapability().getMemory()));
 
@@ -242,6 +246,7 @@ public class Client {
         LOG.info("Building application master launch command");
         List<String> appMasterArgs = new ArrayList<>(20);
         appMasterArgs.add("${JAVA_HOME}" + "/bin/java");
+        appMasterArgs.add("-cp " + "${CLASSPATH}");
         appMasterArgs.add("-Xms" + conf.getInt(DtYarnConfiguration.LEARNING_AM_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY) + "m");
         appMasterArgs.add("-Xmx" + conf.getInt(DtYarnConfiguration.LEARNING_AM_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY) + "m");
         appMasterArgs.add(ApplicationMaster.class.getName());

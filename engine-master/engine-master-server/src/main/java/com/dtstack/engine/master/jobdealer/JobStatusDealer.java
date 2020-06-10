@@ -252,6 +252,7 @@ public class JobStatusDealer implements Runnable {
                 0,
                 JobStatusDealer.INTERVAL,
                 TimeUnit.MILLISECONDS);
+        logger.info("{} thread start ...", jobResource + this.getClass().getSimpleName());
 
     }
 }

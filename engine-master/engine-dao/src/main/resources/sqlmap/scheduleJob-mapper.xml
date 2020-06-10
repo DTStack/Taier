@@ -604,8 +604,13 @@
         and bj.type = #{type}
         and bj.project_id = #{projectId}
         and bj.tenant_id = #{tenantId}
-        and ts.task_type = #{taskType}
         and bj.is_deleted = 0
+        <if test="taskTypes != null and taskTypes.size()>0">
+            and ts.task_type in
+            <foreach collection="taskTypes" item="taskType" open="(" close=")" separator=",">
+                #{taskType}
+            </foreach>
+        </if>
         <if test="statusList != null and statusList.size()>0">
             and bj.status in
             <foreach collection="statusList" item="item" open="(" close=")" separator=",">
@@ -624,8 +629,13 @@
         LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
         WHERE bj.type = #{type}
         and bj.tenant_id = #{tenantId}
-        and ts.task_type = #{taskType}
         and bj.is_deleted = 0
+        <if test="taskTypes != null and taskTypes.size()>0">
+            and ts.task_type in
+                <foreach collection="taskTypes" item="taskType" open="(" close=")" separator=",">
+                    #{taskType}
+                </foreach>
+        </if>
         <if test="cycStartDay != null and cycEndDay != null">
             AND bj.cyc_time &gt;= ${cycStartDay} and bj.cyc_time &lt;= ${cycEndDay}
         </if>

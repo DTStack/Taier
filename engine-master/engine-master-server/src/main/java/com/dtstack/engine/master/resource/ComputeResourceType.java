@@ -19,6 +19,7 @@ public enum ComputeResourceType {
     PostgreSQL,
     Kylin,
     Impala,
-    TiDB;
+    TiDB,
+    GreenPlum;
 
 }

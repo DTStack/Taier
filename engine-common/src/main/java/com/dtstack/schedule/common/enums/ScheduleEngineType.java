@@ -29,7 +29,8 @@ public enum ScheduleEngineType {
     IMPALA(13, "impala"),
     TIDB(14,"tidb"),
     ORACLE(15,"oracle"),
-    KUBERNETES(16,"kubernetes");
+    GREENPLUM(16, "greenplum"),
+    KUBERNETES(17,"kubernetes");
 
     private int val;
 

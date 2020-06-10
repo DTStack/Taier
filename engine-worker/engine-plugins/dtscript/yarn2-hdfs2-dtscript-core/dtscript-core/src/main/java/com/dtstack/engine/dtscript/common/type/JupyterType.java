@@ -29,7 +29,6 @@ public class JupyterType extends AbstractAppType {
     private final static String JUPYTER_WORKSPACE_DIR_KEY = "jupyter.workspace.dir";
     private final static String JUPYTER_WORKSPACE_DIR_SUFFIX = "/workspace";
     private final static String JUPYTER_ALLOW_ROOT = "jupyter.allow.root";
-    private final static String JUPYTER_BASE_URL_KEY = "c.NotebookApp.base_url";
     private final static String JUPYTER_BASE_URL_PREFIX = "/aiworks/jupyter/";
     private final static String[] DEFAULT_PORT_RANGE = new String[]{"8888", "65535"};
 
@@ -57,7 +56,6 @@ public class JupyterType extends AbstractAppType {
         conf.set(JUPYTER_PROJECT_DIR_KEY, jupyterProject);
         conf.set(JUPYTER_WORKSPACE_DIR_KEY, jupyterWorkspace);
         conf.set(JUPYTER_CONFIG_DIR_KEY, jupyterConfDir);
-        conf.set(JUPYTER_BASE_URL_KEY, jupyterBaseUrl);
 
         StringBuilder bashScript = new StringBuilder(400);
         bashScript.append(cmdPrefix(conf)).append(" <<JUPYTER").append(LINEFEED);
@@ -68,7 +66,7 @@ public class JupyterType extends AbstractAppType {
         bashScript.append("  mkdir \"").append(jupyterConfDir).append("\"").append(LINEFEED);
         bashScript.append("fi").append(LINEFEED);
         bashScript.append("cd \"").append(jupyterConfDir).append("\"").append(LINEFEED);
-        bashScript.append(generateJupyterNotebookConfig(conf, jupyterWorkspace));
+        bashScript.append(generateJupyterNotebookConfig(conf, jupyterWorkspace, jupyterBaseUrl));
         bashScript.append(jupyterBinPath).append(" --config ").append(jupyterConfDir).append("/").append(JUPYTER_CONFIG_FILENAME);
         if (allowRoot) {
             bashScript.append(" --allow-root");
@@ -107,7 +105,7 @@ public class JupyterType extends AbstractAppType {
         return cmd.replace(JUPYTER_NOTEBOOK_CONFIG_PORT_TMP, String.valueOf(port));
     }
 
-    private String generateJupyterNotebookConfig(YarnConfiguration conf, String workspace) {
+    private String generateJupyterNotebookConfig(YarnConfiguration conf, String workspace, String baseUrl) {
         StringBuilder jncsb = new StringBuilder(200);
         jncsb.append("cat > ").append(JUPYTER_CONFIG_FILENAME).append(" <<EOF").append(LINEFEED);
         Iterator<Map.Entry<String, String>> confEntryIt = conf.iterator();
@@ -118,6 +116,7 @@ public class JupyterType extends AbstractAppType {
             }
         }
         jncsb.append("c.NotebookApp.notebook_dir").append(JUPYTER_NOTEBOOK_CONFIG_SIGN).append("'").append(workspace).append("'").append(LINEFEED);
+        jncsb.append("c.NotebookApp.base_url").append(JUPYTER_NOTEBOOK_CONFIG_SIGN).append("'").append(baseUrl).append("'").append(LINEFEED);
         jncsb.append("c.NotebookApp.port").append(JUPYTER_NOTEBOOK_CONFIG_SIGN).append(JUPYTER_NOTEBOOK_CONFIG_PORT_TMP).append(LINEFEED);
         jncsb.append("EOF").append(LINEFEED);
         return jncsb.toString();

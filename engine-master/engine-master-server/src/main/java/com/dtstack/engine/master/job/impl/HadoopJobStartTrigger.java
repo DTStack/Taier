@@ -166,12 +166,13 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                     taskShade.getName(), taskShade.getTenantId(), taskShade.getProjectId(), taskParamsToReplace, scheduleJob.getCycTime());
             String fileName = uploadPath.substring(StringUtils.lastIndexOf(uploadPath, "/"));
             exeArgs = exeArgs.replace(TaskConstant.UPLOADPATH, uploadPath);
-            // launch-cmd为 py3 路径和 文件 名 base64 而成
-            JSONObject dtsciptConfig = JSONObject.parseObject(clusterService.getConfigByKey(scheduleJob.getDtuicTenantId(), EComponentType.DT_SCRIPT.getConfName(), false));
-            String py3Path = dtsciptConfig.getString("python3.path");
-            String launchString = Base64Util.baseEncode(py3Path + " " + fileName);
-            taskExeArgs = exeArgs.replace(TaskConstant.LAUNCH, launchString);
-            LOG.info(" TensorFlow job {} py3Path {} fileName {} exeArgs {} ", scheduleJob.getJobId(), py3Path, fileName, taskExeArgs);
+            String launchCmd = (String) actionParam.get("launchCmd");
+            if (StringUtils.isNotBlank(launchCmd)) {
+                //替换参数 base64 生成launchCmd
+                String launchString = Base64Util.baseEncode(launchCmd.replace(TaskConstant.FILE_NAME, fileName));
+                taskExeArgs = exeArgs.replace(TaskConstant.LAUNCH, launchString);
+            }
+            LOG.info(" TensorFlow job {} fileName {} exeArgs {} ", scheduleJob.getJobId(), fileName, taskExeArgs);
 
         } else if (taskShade.getEngineType().equals(ScheduleEngineType.Learning.getVal())
                 || taskShade.getEngineType().equals(ScheduleEngineType.Shell.getVal())
@@ -538,6 +539,9 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                         taskName, System.currentTimeMillis());
             } else if (taskType.equals(EScheduleJobType.SPARK_PYTHON.getVal())) {
                 fileName = String.format("pyspark_%s_%s_%s_%s.py", tenantId, projectId,
+                        taskName, System.currentTimeMillis());
+            } else if (taskType.equals(EScheduleJobType.TENSORFLOW_1_X.getVal())) {
+                fileName = String.format("tensorflow_%s_%s_%s_%s.py", tenantId, projectId,
                         taskName, System.currentTimeMillis());
             }
 
