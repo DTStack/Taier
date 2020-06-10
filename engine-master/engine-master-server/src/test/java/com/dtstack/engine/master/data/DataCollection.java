@@ -2,7 +2,7 @@ package com.dtstack.engine.master.data;
 
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.dao.ScheduleJobDao;
-import com.dtstack.engine.dao.TestScheduleJobDao;
+import com.dtstack.engine.master.dao.TestScheduleJobDao;
 import com.dtstack.engine.master.anno.DatabaseDeleteOperation;
 import com.dtstack.engine.master.anno.DatabaseInsertOperation;
 import org.springframework.stereotype.Component;
