@@ -8,6 +8,8 @@ ALTER TABLE schedule_job
     ADD INDEX idx_gmt_modified (`gmt_modified`) COMMENT '修改时间';
 ALTER TABLE schedule_job
     ADD INDEX idx_cyctime (`cyc_time`) COMMENT '执行时间';
+ALTER TABLE console_engine
+    ADD UNIQUE INDEX `index_cluster_engineType` (`cluster_id`, `engine_type`);
 
 CREATE TABLE `console_engine`
 (
