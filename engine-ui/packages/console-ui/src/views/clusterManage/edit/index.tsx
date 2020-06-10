@@ -379,9 +379,6 @@ class EditCluster extends React.Component<any, any> {
                 this.setState({
                     uploadLoading: false
                 })
-                // 清空 value
-                const ele: any = document.getElementById(`my${COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]}File`);
-                ele.value = '';
             })
         }
     }
@@ -416,8 +413,6 @@ class EditCluster extends React.Component<any, any> {
             this.setState({
                 uploadLoading: false
             });
-            const ele: any = document.getElementById(`my${COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]}PramasFile`);
-            ele.value = '';
         })
     }
 
@@ -437,8 +432,6 @@ class EditCluster extends React.Component<any, any> {
                     }
                 }
             });
-            const ele: any = document.getElementById(`my${COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]}KerberosFile`);
-            ele.value = '';
         }
     }
 
