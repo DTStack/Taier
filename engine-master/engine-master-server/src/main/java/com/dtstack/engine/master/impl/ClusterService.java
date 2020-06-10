@@ -797,7 +797,7 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
         List<Long> engineIds = engines.stream().map(Engine::getId).collect(Collectors.toList());
         List<Component> components = componentDao.listByEngineIds(engineIds);
 
-        Map<EComponentScheduleType, List<Component>> scheduleType = null;
+        Map<EComponentScheduleType, List<Component>> scheduleType = new HashMap<>();
         if (CollectionUtils.isNotEmpty(components)) {
             scheduleType = components.stream().collect(Collectors.groupingBy(c -> EComponentType.getScheduleTypeByComponent(c.getComponentTypeCode())));
         }
@@ -807,7 +807,6 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
             SchedulingVo schedulingVo = new SchedulingVo();
             schedulingVo.setSchedulingCode(value.getType());
             schedulingVo.setSchedulingName(value.getName());
-            schedulingVo.setComponents(new ArrayList<>());
             schedulingVo.setComponents(ComponentVO.toVOS(scheduleType.get(value),Objects.isNull(removeTypeName) ? true : removeTypeName));
             schedulingVos.add(schedulingVo);
         }
