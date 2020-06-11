@@ -88,11 +88,23 @@ class BindCommModal extends React.Component<any, any> {
         })
         return params
     }
+
+    getEnginName () {
+        const { hasLibra, hasTiDB, hasOracle, hasGreenPlum } = this.state;
+        let enginName = [];
+        enginName = hasLibra ? [...enginName, 'Libra'] : enginName;
+        enginName = hasTiDB ? [...enginName, 'TiDB'] : enginName;
+        enginName = hasOracle ? [...enginName, 'Oracle'] : enginName;
+        enginName = hasGreenPlum ? [...enginName, 'Greenplum'] : enginName;
+        return enginName;
+    }
+
     render () {
         const { getFieldDecorator } = this.props.form;
         const { visible, onOk, onCancel, title, isBindTenant,
             disabled, clusterList, tenantInfo, clusterId } = this.props;
-        const { hasHadoop, hasLibra, hasTiDB, hasOracle, hasGreenPlum, queueList, tenantList } = this.state;
+        const { hasHadoop, queueList, tenantList } = this.state;
+        const bindEnginName = this.getEnginName();
         return (
             <Modal
                 title={title}
@@ -184,17 +196,10 @@ class BindCommModal extends React.Component<any, any> {
                             ) : null
                         }
                         {
-                            hasLibra || hasTiDB || hasOracle || hasGreenPlum ? (
-                                <div
-                                    className='border-item'
-                                >
+                            bindEnginName.length > 0 ? (
+                                <div className='border-item'>
                                     <div className="engine-name">
-                                        创建项目时，自动关联到租户的
-                                        {hasLibra ? 'LibrA' : null}、
-                                        {hasTiDB ? 'LibrA' : null}、
-                                        {hasOracle ? 'Oracle' : null}、
-                                        {hasGreenPlum ? 'GreenPlum' : null}
-                                        引擎
+                                        创建项目时，自动关联到租户的{bindEnginName.join('、')}引擎
                                     </div>
                                 </div>
                             ) : null
