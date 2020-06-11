@@ -6,5 +6,9 @@ build:
     - sh ci/sonar_notify.sh
   only:
     - dev
+    - release_3.10.x
+    - release_3.9.x
+    - release_4.0.x
+    - feat_4.0
   tags:
     - dt-insight-engine
