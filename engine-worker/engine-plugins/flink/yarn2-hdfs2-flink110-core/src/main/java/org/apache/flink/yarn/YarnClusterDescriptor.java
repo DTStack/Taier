@@ -848,7 +848,9 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 		String logConfigFilePath = configuration.getString(YarnConfigOptionsInternal.APPLICATION_LOG_CONFIG_FILE);
 
 		if (logConfigFilePath == null) {
-			String log4jConfigFilePath = "." + File.separator + FLINK_LOG_DIR + File.separator + CONFIG_FILE_LOG4J_NAME;
+			String logLevel = flinkConfiguration.getString("logLevel", "info").toLowerCase();
+
+			String log4jConfigFilePath = "." + File.separator + FLINK_LOG_DIR + File.separator + logLevel + File.separator + CONFIG_FILE_LOG4J_NAME;
 			File log4jFile = new File(log4jConfigFilePath);
 			if (log4jFile.exists()) {
 				logConfigFilePath = log4jConfigFilePath;
