@@ -1,25 +1,28 @@
 package com.dtstack.engine.master.data;
 
 import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.dao.ScheduleJobDao;
-import com.dtstack.engine.master.dao.TestScheduleJobDao;
+import com.dtstack.engine.dao.TestScheduleJobDao;
 import com.dtstack.engine.master.anno.DatabaseDeleteOperation;
 import com.dtstack.engine.master.anno.DatabaseInsertOperation;
 import org.springframework.stereotype.Component;
 
+import java.sql.Timestamp;
+
 @Component
 public class DataCollection {
 
-    @DatabaseInsertOperation(dao = ScheduleJobDao.class, method = "insert")
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class, method = "insert")
     @DatabaseDeleteOperation(dao = TestScheduleJobDao.class, method = "deleteById", field = "id")
     public ScheduleJob getScheduleJob() {
         ScheduleJob sj = new ScheduleJob();
-        sj.setId(-10000L);
+        sj.setId(-1080L);
         sj.setStatus(5);
-        sj.setJobId("dhsd_3432_iekd_56jfnv");
+        sj.setJobId("dhsd_3432_iekd_56jggg");
         sj.setTenantId(15L);
         sj.setProjectId(-1L);
-        sj.setJobKey("test_scheduleJob_0010");
+        sj.setJobKey("test_scheduleJob_0015");
+        sj.setExecStartTime(new Timestamp(1591805197000L));
+        sj.setExecEndTime(new Timestamp(1591805197100L));
         sj.setTaskId(-1L);
         sj.setJobName("Python");
         sj.setCreateUserId(0L);

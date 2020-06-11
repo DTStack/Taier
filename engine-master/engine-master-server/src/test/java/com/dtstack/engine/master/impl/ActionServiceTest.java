@@ -64,26 +64,25 @@ public class ActionServiceTest extends BaseTest {
 
     @Test
     public void testStatusByJobIds() {
+        ScheduleJob scheduleJob= dataCollection.getScheduleJob();
         Map<String, Integer> jobIdsAndStatus = new HashMap<>();
-        jobIdsAndStatus.put("6015b6f4", 5);
-        jobIdsAndStatus.put("210e2627", 5);
-        jobIdsAndStatus.put("ba660e46", 5);
-        List<String> job_ids = new ArrayList<>(jobIdsAndStatus.keySet());
+        jobIdsAndStatus.put(scheduleJob.getJobId(), scheduleJob.getStatus());
+        List<String> jobIds = new ArrayList<>(jobIdsAndStatus.keySet());
         Integer computeType = 1;
         boolean test1;
         boolean test2;
 
         try {
-            actionService.statusByJobIds(job_ids, null);
+            actionService.statusByJobIds(jobIds, null);
             test1 = false;
         } catch (Exception e) {
             test1 = true;
         }
 
         try {
-            Map<String, Integer> status = actionService.statusByJobIds(job_ids, computeType);
-            long result = job_ids.stream().filter(val -> jobIdsAndStatus.get(val).equals(status.get(val))).count();
-            test2 = (result == job_ids.size());
+            Map<String, Integer> status = actionService.statusByJobIds(jobIds, computeType);
+            long result = jobIds.stream().filter(val -> jobIdsAndStatus.get(val).equals(status.get(val))).count();
+            test2 = (result == jobIds.size());
         } catch (Exception e) {
             test2 = false;
         }
@@ -100,20 +99,21 @@ public class ActionServiceTest extends BaseTest {
 
     @Test
     public void testStartTime() {
-        String job_id = "6015b6f4";
-        Long startTimeResult = 1586185050000L;
-        Integer computeType = 1;
+        ScheduleJob scheduleJob= dataCollection.getScheduleJob();
+        String jobId = scheduleJob.getJobId();
+        Long startTimeResult = scheduleJob.getExecStartTime().getTime();
+        Integer computeType = scheduleJob.getComputeType();
         boolean test1;
         boolean test2;
         try {
-            actionService.startTime(job_id, null);
+            actionService.startTime(jobId, null);
             test1 = false;
         } catch (Exception e) {
             test1 = true;
         }
 
         try {
-            Long startTime = actionService.startTime(job_id, computeType);
+            Long startTime = actionService.startTime(jobId, computeType);
             test2 = (startTime != null && startTime.equals(startTimeResult));
         } catch (Exception e) {
             test2 = false;

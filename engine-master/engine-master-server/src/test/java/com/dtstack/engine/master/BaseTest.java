@@ -1,5 +1,6 @@
 package com.dtstack.engine.master;
 
+import com.alibaba.druid.support.spring.stat.SpringStatUtils;
 import com.dtstack.engine.master.anno.DatabaseDeleteOperation;
 import com.dtstack.engine.master.anno.DatabaseInsertOperation;
 import com.dtstack.engine.master.config.CacheConfig;
@@ -8,6 +9,7 @@ import com.dtstack.engine.master.config.MybatisConfig;
 import com.dtstack.engine.master.config.ThreadPoolConfig;
 import com.dtstack.engine.master.data.DataCollection;
 import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.master.listener.RunnerListener;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +27,11 @@ import java.util.stream.Collectors;
 
 import static junit.framework.TestCase.fail;
 
+@Component
 @RunWith(DtCenterSpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {EnvironmentContext.class, MasterServerBeanConfig.class, CacheConfig.class, ThreadPoolConfig.class,
         MybatisConfig.class})
-public abstract class BaseTest {
+public abstract class BaseTest implements RunnerListener {
 
     @Autowired
     public ApplicationContext context;
@@ -36,9 +39,8 @@ public abstract class BaseTest {
     @Autowired
     public DataCollection dataCollection;
 
-
-    @Before
-    public void beforeFunction() {
+    @Override
+    public void runsBeforeClass() {
         for (Method method: dataCollection.getClass().getDeclaredMethods()) {
             method.setAccessible(true);
             DatabaseInsertOperation databaseOperation = method.getAnnotation(DatabaseInsertOperation.class);
@@ -56,8 +58,8 @@ public abstract class BaseTest {
         }
     }
 
-    @After
-    public void afterFunction() {
+    @Override
+    public void runsAfterClass() {
         for (Method method: dataCollection.getClass().getDeclaredMethods()) {
             method.setAccessible(true);
             DatabaseDeleteOperation databaseOperation = method.getAnnotation(DatabaseDeleteOperation.class);
