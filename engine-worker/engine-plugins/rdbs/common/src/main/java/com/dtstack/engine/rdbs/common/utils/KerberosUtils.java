@@ -83,12 +83,9 @@ public class KerberosUtils {
             System.setProperty(HadoopConfTool.KEY_JAVA_SECURITY_KRB5_CONF, krb5Conf);
         }
         Configuration configuration = new Configuration();
+        configuration.set(KERBEROS_AUTH, KERBEROS_AUTH_TYPE);
         for (String key : allConfig.keySet()) {
             configuration.set(key,String.valueOf(allConfig.get(key)));
-        }
-
-        if (StringUtils.isEmpty(configuration.get(KERBEROS_AUTH))) {
-            configuration.set(KERBEROS_AUTH, KERBEROS_AUTH_TYPE);
         }
 
         UserGroupInformation.setConfiguration(configuration);
