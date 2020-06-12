@@ -12,6 +12,7 @@ public class ValueUtils {
     private static AtomicInteger incrementedValue = new AtomicInteger(100);
     private static Map<String, Long> ids = new ConcurrentHashMap<>();
     private static Map<String, Map<String, String>> strs = new ConcurrentHashMap<>();
+    private static Map<String, Map<String, Object>> objs = new ConcurrentHashMap<>();
 
     public static Long changedIdForDiffMethod() {
         return getId(getMethodName());
@@ -19,6 +20,10 @@ public class ValueUtils {
 
     public static String changedStrForDiffMethod(String identifier) {
         return getStr(getMethodName(), identifier);
+    }
+
+    public static Object customObject(String identifier, Object object) {
+        return getObject(getMethodName(), identifier, object);
     }
 
     public static Long getId(String methodName) {
@@ -47,6 +52,22 @@ public class ValueUtils {
             strs.get(methodName).put(identifier, result);
             incrementedValue.getAndIncrement();
             return result;
+        }
+    }
+
+    public static Object getObject(String methodName, String identifier, Object object) {
+        if (objs.containsKey(methodName)) {
+            Map<String, Object> map = objs.get(methodName);
+            if (map.containsKey(identifier)) {
+                return map.get(identifier);
+            } else {
+                map.put(identifier, object);
+                return object;
+            }
+        } else {
+            objs.put(methodName, new ConcurrentHashMap<>());
+            objs.get(methodName).put(identifier, object);
+            return object;
         }
     }
 
