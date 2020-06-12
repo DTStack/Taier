@@ -29,6 +29,12 @@ public class KerberosUtils {
     private static final Logger logger = LoggerFactory.getLogger(KerberosUtils.class);
 
     private static final String USER_DIR = System.getProperty("user.dir") + File.separator + "kerberosPath";
+    private static final String KERBEROS_AUTH = "hadoop.security.authentication";
+    private static final String KERBEROS_AUTH_TYPE = "kerberos";
+
+
+
+
 
     public static <T> T login(Properties properties, Supplier<T> supplier) throws Exception {
         int open = Objects.isNull(properties.get("openKerberos")) ? 0 : (int)properties.get("openKerberos");
@@ -77,9 +83,11 @@ public class KerberosUtils {
             System.setProperty(HadoopConfTool.KEY_JAVA_SECURITY_KRB5_CONF, krb5Conf);
         }
         Configuration configuration = new Configuration();
+        configuration.set(KERBEROS_AUTH, KERBEROS_AUTH_TYPE);
         for (String key : allConfig.keySet()) {
             configuration.set(key,String.valueOf(allConfig.get(key)));
         }
+
         UserGroupInformation.setConfiguration(configuration);
         try {
             UserGroupInformation ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(principal, keytabPath);

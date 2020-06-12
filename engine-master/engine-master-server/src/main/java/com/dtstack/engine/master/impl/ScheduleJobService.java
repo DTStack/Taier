@@ -1113,7 +1113,10 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                 jobTriggerService.readyForTaskStartTrigger(actionParam,batchTask,scheduleJob);
                 actionParam.put("name", scheduleJob.getJobName());
                 actionParam.put("taskId", scheduleJob.getJobId());
-
+                Object tenantId = actionParam.get("tenantId");
+                if(Objects.isNull(tenantId)){
+                    actionParam.put("tenantId",batchTask.getDtuicTenantId());
+                }
                 // 出错重试配置,兼容之前的任务，没有这个参数则默认重试
                 JSONObject scheduleConf = JSONObject.parseObject(batchTask.getScheduleConf());
                 if (scheduleConf.containsKey("isFailRetry")) {

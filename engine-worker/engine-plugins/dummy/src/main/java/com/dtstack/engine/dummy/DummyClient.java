@@ -59,6 +59,7 @@ public class DummyClient extends AbstractClient {
                         this.getClass().getClassLoader().getResourceAsStream(commonConfigFiles.get(componentType));
                 Map<String, Object> config = YamlConfigParser.INSTANCE.parse(resourceAsStream);
                 defaultPlugins = super.convertMapTemplateToConfig(config);
+                defaultPlugins = super.sortByKey(defaultPlugins);
                 logger.info("=======DummyClient============{}", defaultPlugins);
                 defaultConfigs.put(componentType,defaultPlugins);
             } catch (Exception e) {
