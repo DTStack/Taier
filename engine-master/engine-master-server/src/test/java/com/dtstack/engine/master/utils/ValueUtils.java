@@ -7,9 +7,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class ValueUtils {
-    private static Long id = -1080L;
-    private static String strValue = "test__engine2020__";
-    private static Integer incrementedValue = 100;
+    private static AtomicLong id = new AtomicLong(-1080L);
+    private static final String strValue = "test__engine2020__";
+    private static AtomicInteger incrementedValue = new AtomicInteger(100);
     private static Map<String, Long> ids = new ConcurrentHashMap<>();
     private static Map<String, Map<String, String>> strs = new ConcurrentHashMap<>();
 
@@ -25,8 +25,8 @@ public class ValueUtils {
         if (ids.containsKey(methodName)) {
             return ids.get(methodName);
         } else {
-            ids.put(methodName, id);
-            return id--;
+            ids.put(methodName, id.get());
+            return id.getAndDecrement();
         }
     }
 
@@ -36,16 +36,16 @@ public class ValueUtils {
             if (map.containsKey(identifier)) {
                 return map.get(identifier);
             } else {
-                String result = strValue + incrementedValue;
+                String result = strValue + incrementedValue.get();
                 map.put(identifier, result);
-                incrementedValue++;
+                incrementedValue.getAndIncrement();
                 return result;
             }
         } else {
             strs.put(methodName, new ConcurrentHashMap<>());
-            String result = strValue + incrementedValue;
+            String result = strValue + incrementedValue.get();
             strs.get(methodName).put(identifier, result);
-            incrementedValue++;
+            incrementedValue.getAndIncrement();
             return result;
         }
     }
