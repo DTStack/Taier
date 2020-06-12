@@ -84,13 +84,13 @@ public class ClusterServiceTest extends BaseTest {
         ClusterVO cluster = clusterService.getCluster(clusterVO.getClusterId(), null, true);
         Assert.assertNotNull(cluster);
         Assert.assertNotNull(cluster.getScheduling());
-        Optional<SchedulingVo> commonSchedule = cluster.getScheduling().stream().filter(s -> s.getSchedulingCode() == EComponentScheduleType.commonScheduling.getType()).findFirst();
+        Optional<SchedulingVo> commonSchedule = cluster.getScheduling().stream().filter(s -> s.getSchedulingCode() == EComponentScheduleType.COMMON.getType()).findFirst();
         Assert.assertTrue(commonSchedule.isPresent());
         List<ComponentVO> components = commonSchedule.get().getComponents();
         Assert.assertNotNull(components);
         Optional<ComponentVO> sftpComponent = components.stream().filter(c -> c.getComponentTypeCode() == EComponentType.SFTP.getTypeCode()).findAny();
         Assert.assertTrue(sftpComponent.isPresent());
-        Optional<SchedulingVo> resourceSchedule = cluster.getScheduling().stream().filter(s -> s.getSchedulingCode() == EComponentScheduleType.resourceScheduling.getType()).findFirst();
+        Optional<SchedulingVo> resourceSchedule = cluster.getScheduling().stream().filter(s -> s.getSchedulingCode() == EComponentScheduleType.RESOURCE.getType()).findFirst();
         Assert.assertTrue(resourceSchedule.isPresent());
         Optional<ComponentVO> yarnComponent = resourceSchedule.get().getComponents().stream().filter(c -> c.getComponentTypeCode() == EComponentType.YARN.getTypeCode()).findAny();
         Assert.assertTrue(yarnComponent.isPresent());
