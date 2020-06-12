@@ -33,7 +33,7 @@ public class ActionServiceTest extends BaseTest {
 
     @Test
     public void testStatus() {
-        ScheduleJob scheduleJob= dataCollection.getScheduleJob();
+        ScheduleJob scheduleJob= dataCollection.getScheduleJobFirst();
         String jobId = scheduleJob.getJobId();
         Integer statusResult = scheduleJob.getStatus();
         Integer computeType = scheduleJob.getComputeType();
@@ -64,9 +64,11 @@ public class ActionServiceTest extends BaseTest {
 
     @Test
     public void testStatusByJobIds() {
-        ScheduleJob scheduleJob= dataCollection.getScheduleJob();
+        ScheduleJob scheduleJobFirst = dataCollection.getScheduleJobFirst();
+        ScheduleJob scheduleJobSecond = dataCollection.getScheduleJobSecond();
         Map<String, Integer> jobIdsAndStatus = new HashMap<>();
-        jobIdsAndStatus.put(scheduleJob.getJobId(), scheduleJob.getStatus());
+        jobIdsAndStatus.put(scheduleJobFirst.getJobId(), scheduleJobFirst.getStatus());
+        jobIdsAndStatus.put(scheduleJobSecond.getJobId(), scheduleJobSecond.getStatus());
         List<String> jobIds = new ArrayList<>(jobIdsAndStatus.keySet());
         Integer computeType = 1;
         boolean test1;
@@ -99,7 +101,7 @@ public class ActionServiceTest extends BaseTest {
 
     @Test
     public void testStartTime() {
-        ScheduleJob scheduleJob= dataCollection.getScheduleJob();
+        ScheduleJob scheduleJob= dataCollection.getScheduleJobFirst();
         String jobId = scheduleJob.getJobId();
         Long startTimeResult = scheduleJob.getExecStartTime().getTime();
         Integer computeType = scheduleJob.getComputeType();

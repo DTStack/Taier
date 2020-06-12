@@ -19,6 +19,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 import javax.annotation.PostConstruct;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,8 +52,10 @@ public abstract class BaseTest implements RunnerListener {
                     Class<?> daoType = databaseOperation.dao();
                     Method daoMethod = daoType.getDeclaredMethod(databaseOperation.method(), returnClass);
                     daoMethod.invoke(context.getBean(daoType), ins);
+                } catch (InvocationTargetException e) {
+                    throw new RuntimeException(e.getTargetException().getMessage());
                 } catch (Exception e) {
-                    fail("before Function error: "+ e.getMessage());
+                    throw new RuntimeException(e.getMessage());
                 }
             }
         }
@@ -83,8 +86,10 @@ public abstract class BaseTest implements RunnerListener {
                             break;
                         }
                     }
+                } catch (InvocationTargetException e) {
+                    throw new RuntimeException(e.getTargetException().getMessage());
                 } catch (Exception e) {
-                    fail("after Function error: " + e.getMessage());
+                    throw new RuntimeException(e.getMessage());
                 }
             }
         }
