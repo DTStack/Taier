@@ -8,6 +8,7 @@ import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.utils.PublicUtil;
 import io.vertx.core.json.JsonObject;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -41,9 +42,7 @@ public class ActionServiceTest extends BaseTest {
         try {
             Map<String, Object> params = getParams(getJsonString());
             Boolean result = actionService.start(params);
-            if (result.equals(false)) {
-                fail("Return false");
-            }
+            Assert.assertTrue(result);
         } catch (Exception e) {
             fail("Have exception, message: " + e.getMessage());
         }
@@ -55,28 +54,16 @@ public class ActionServiceTest extends BaseTest {
         String jobId = scheduleJob.getJobId();
         Integer statusResult = scheduleJob.getStatus();
         Integer computeType = scheduleJob.getComputeType();
-        boolean test1;
-        boolean test2;
         try {
             actionService.status(jobId, null);
-            test1 = false;
-        } catch (Exception e) {
-            test1 = true;
-        }
+            fail("Expect have a Exception");
+        } catch (Exception e) {}
 
         try {
             Integer status = actionService.status(jobId, computeType);
-            test2 = (status != null && status.equals(statusResult));
+            Assert.assertTrue(status != null && status.equals(statusResult));
         } catch (Exception e) {
-            test2 = false;
-        }
-
-        if (!test1) {
-            fail("when computeType is null, the test is fail");
-        }
-
-        if (!test2) {
-            fail("when computeType is not null, the test is fail");
+            fail("Unexpect have a Exception: " + e.getMessage());
         }
     }
 
@@ -88,31 +75,19 @@ public class ActionServiceTest extends BaseTest {
         jobIdsAndStatus.put(scheduleJobFirst.getJobId(), scheduleJobFirst.getStatus());
         jobIdsAndStatus.put(scheduleJobSecond.getJobId(), scheduleJobSecond.getStatus());
         List<String> jobIds = new ArrayList<>(jobIdsAndStatus.keySet());
-        Integer computeType = 1;
-        boolean test1;
-        boolean test2;
+        Integer computeType = scheduleJobFirst.getComputeType();
 
         try {
             actionService.statusByJobIds(jobIds, null);
-            test1 = false;
-        } catch (Exception e) {
-            test1 = true;
-        }
+            fail("Expect have a Exception");
+        } catch (Exception e) {}
 
         try {
             Map<String, Integer> status = actionService.statusByJobIds(jobIds, computeType);
             long result = jobIds.stream().filter(val -> jobIdsAndStatus.get(val).equals(status.get(val))).count();
-            test2 = (result == jobIds.size());
+            Assert.assertEquals(result, jobIds.size());
         } catch (Exception e) {
-            test2 = false;
-        }
-
-        if (!test1) {
-            fail("when computeType is null, the test is fail");
-        }
-
-        if (!test2) {
-            fail("when computeType is not null, the test is fail");
+            fail("Unexpect have a Exception: " + e.getMessage());
         }
 
     }
@@ -123,28 +98,16 @@ public class ActionServiceTest extends BaseTest {
         String jobId = scheduleJob.getJobId();
         Long startTimeResult = scheduleJob.getExecStartTime().getTime();
         Integer computeType = scheduleJob.getComputeType();
-        boolean test1;
-        boolean test2;
         try {
             actionService.startTime(jobId, null);
-            test1 = false;
-        } catch (Exception e) {
-            test1 = true;
-        }
+            fail("Expect have a Exception");
+        } catch (Exception e) {}
 
         try {
             Long startTime = actionService.startTime(jobId, computeType);
-            test2 = (startTime != null && startTime.equals(startTimeResult));
+            Assert.assertTrue(startTime != null && startTime.equals(startTimeResult));
         } catch (Exception e) {
-            test2 = false;
-        }
-
-        if (!test1) {
-            fail("when computeType is null, the test is fail");
-        }
-
-        if (!test2) {
-            fail("when computeType is not null, the test is fail");
+            fail("Unexpect have a Exception: " + e.getMessage());
         }
     }
 
@@ -154,52 +117,33 @@ public class ActionServiceTest extends BaseTest {
         String jobId = scheduleJob.getJobId();
         Integer computeType = scheduleJob.getComputeType();
 
-        boolean test1;
-        boolean test2;
-        boolean test3;
         try {
             actionService.log(jobId, null);
-            test1 = false;
-        } catch (Exception e) {
-            test1 = true;
-        }
+            fail("Expect have a Exception");
+        } catch (Exception e) {}
 
         try {
             String engineLog = "\"engineLog\":\"" + scheduleJob.getEngineLog() + "\"" ;
             String logInfo = "\"logInfo\":\"" + scheduleJob.getLogInfo() + "\"";
             String result = actionService.log(jobId, computeType);
-            test2 = result.contains(engineLog) && result.contains(logInfo) && result.length() == engineLog.length() + logInfo.length() + 3;
+            Assert.assertTrue(result.contains(engineLog) && result.contains(logInfo) && result.length() == engineLog.length() + logInfo.length() + 3);
         } catch (Exception e) {
-            test2 = false;
+            fail("Unexpect have a Exception: " + e.getMessage());
         }
 
         scheduleJob = dataCollection.getScheduleJobSecond();
         jobId = scheduleJob.getJobId();
         computeType = scheduleJob.getComputeType();
-
         String mock_engine_log = "{err: test_mock_engine_log}";
-
         when(jobDealer.getAndUpdateEngineLog(jobId, scheduleJob.getEngineJobId(),
                 scheduleJob.getApplicationId(), scheduleJob.getPluginInfoId())).thenReturn(mock_engine_log);
         try {
             String engineLog = "\"engineLog\":\"" + mock_engine_log + "\"" ;
             String logInfo = "\"logInfo\":\"" + scheduleJob.getLogInfo() + "\"";
             String result = actionService.log(jobId, computeType);
-            test3 = result.contains(engineLog) && result.contains(logInfo) && result.length() == engineLog.length() + logInfo.length() + 3;
+            Assert.assertTrue(result.contains(engineLog) && result.contains(logInfo) && result.length() == engineLog.length() + logInfo.length() + 3);
         } catch (Exception e) {
-            test3 = false;
-        }
-
-        if (!test1) {
-            fail("when computeType is null, the test is fail");
-        }
-
-        if (!test2) {
-            fail("when computeType is not null, the test is fail");
-        }
-
-        if (!test3) {
-            fail("when engine_log is empty, the test is fail");
+            fail("Unexpect have a Exception: " + e.getMessage());
         }
     }
 
@@ -209,18 +153,11 @@ public class ActionServiceTest extends BaseTest {
         ScheduleJob scheduleJob = dataCollection.getScheduleJobFirst();
         String jobId = scheduleJob.getJobId();
         Integer computeType = scheduleJob.getComputeType();
-
         EngineJobRetry engineJobRetry = dataCollection.getEngineJobRetry();
-
-
-        boolean test1;
-        boolean test2;
         try {
             actionService.retryLog(jobId, null);
-            test1 = false;
-        } catch (Exception e) {
-            test1 = true;
-        }
+            fail("Expect have a Exception");
+        } catch (Exception e) {}
 
         try {
             String result = actionService.retryLog(jobId, computeType);
@@ -228,17 +165,9 @@ public class ActionServiceTest extends BaseTest {
             String retryTaskParams = "\"retryTaskParams\":\"" + engineJobRetry.getRetryTaskParams() + "\"";
             String logInfo = "\"logInfo\":\"" + engineJobRetry.getLogInfo() + "\"";
             int length = retryNum.length() + retryTaskParams.length() + logInfo.length() + 6;
-            test2 = result.contains(retryNum) && result.contains(retryTaskParams) && result.contains(logInfo) && result.length() == length;
+            Assert.assertTrue(result.contains(retryNum) && result.contains(retryTaskParams) && result.contains(logInfo) && result.length() == length);
         } catch (Exception e) {
-            test2 = false;
-        }
-
-        if (!test1) {
-            fail("when computeType is null, the test is fail");
-        }
-
-        if (!test2) {
-            fail("when computeType is not null, the test is fail");
+            fail("Unexpect have a Exception: " + e.getMessage());
         }
     }
 
@@ -249,15 +178,10 @@ public class ActionServiceTest extends BaseTest {
         Integer computeType = scheduleJob.getComputeType();
 
         EngineJobRetry engineJobRetry = dataCollection.getEngineJobRetryNoEngineLog();
-
-        boolean test1;
-        boolean test2;
         try {
             actionService.retryLogDetail(jobId, null, engineJobRetry.getRetryNum() + 1);
-            test1 = false;
-        } catch (Exception e) {
-            test1 = true;
-        }
+            fail("Expect have a Exception");
+        } catch (Exception e) {}
 
         String mock_engine_log = "{err: test_mock_engine_log}";
         when(jobDealer.getAndUpdateEngineLog(jobId, engineJobRetry.getEngineJobId(), engineJobRetry.getApplicationId(), scheduleJob.getPluginInfoId())).thenReturn(mock_engine_log);
@@ -269,19 +193,10 @@ public class ActionServiceTest extends BaseTest {
             String logInfo = "\"logInfo\":\"" + engineJobRetry.getLogInfo() + "\"";
             String engineLog = "\"engineLog\":\"" + mock_engine_log + "\"";
             int length = retryNum.length() + retryTaskParams.length() + logInfo.length() + engineLog.length() + 5;
-            test2 = result.contains(retryNum) && result.contains(retryTaskParams) && result.contains(logInfo) && result.contains(engineLog) && result.length() == length;;
+            Assert.assertTrue(result.contains(retryNum) && result.contains(retryTaskParams) && result.contains(logInfo) && result.contains(engineLog) && result.length() == length);
         } catch (Exception e) {
-            test2 = false;
+            fail("Unexpect have a Exception: " + e.getMessage());
         }
-
-        if (!test1) {
-            fail("when computeType is null, the test is fail");
-        }
-
-        if (!test2) {
-            fail("when computeType is not null, the test is fail");
-        }
-
     }
 
 
