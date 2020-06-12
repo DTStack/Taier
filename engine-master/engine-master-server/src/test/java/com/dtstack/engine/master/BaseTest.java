@@ -12,6 +12,7 @@ import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.listener.RunnerListener;
 import org.junit.*;
 import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;

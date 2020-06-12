@@ -1,12 +1,20 @@
 package com.dtstack.engine.master.impl;
 
-
+import com.dtstack.engine.api.domain.EngineJobRetry;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.master.BaseTest;
 import com.dtstack.engine.master.data.DataCollection;
+import com.dtstack.engine.master.jobdealer.JobDealer;
+import com.dtstack.engine.master.utils.PublicUtil;
 import io.vertx.core.json.JsonObject;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import static org.mockito.Mockito.*;
 
 
 import java.util.*;
@@ -15,8 +23,18 @@ import static junit.framework.TestCase.fail;
 
 public class ActionServiceTest extends BaseTest {
 
+    @Mock
+    private JobDealer jobDealer;
+
     @Autowired
+    @InjectMocks
     ActionService actionService;
+
+    @Before
+    public void setup() {
+        MockitoAnnotations.initMocks(this);
+    }
+
 
     @Test
     public void testStart() {
@@ -128,6 +146,142 @@ public class ActionServiceTest extends BaseTest {
         if (!test2) {
             fail("when computeType is not null, the test is fail");
         }
+    }
+
+    @Test
+    public void testLog() {
+        ScheduleJob scheduleJob = dataCollection.getScheduleJobFirst();
+        String jobId = scheduleJob.getJobId();
+        Integer computeType = scheduleJob.getComputeType();
+
+        boolean test1;
+        boolean test2;
+        boolean test3;
+        try {
+            actionService.log(jobId, null);
+            test1 = false;
+        } catch (Exception e) {
+            test1 = true;
+        }
+
+        try {
+            String engineLog = "\"engineLog\":\"" + scheduleJob.getEngineLog() + "\"" ;
+            String logInfo = "\"logInfo\":\"" + scheduleJob.getLogInfo() + "\"";
+            String result = actionService.log(jobId, computeType);
+            test2 = result.contains(engineLog) && result.contains(logInfo) && result.length() == engineLog.length() + logInfo.length() + 3;
+        } catch (Exception e) {
+            test2 = false;
+        }
+
+        scheduleJob = dataCollection.getScheduleJobSecond();
+        jobId = scheduleJob.getJobId();
+        computeType = scheduleJob.getComputeType();
+
+        String mock_engine_log = "{err: test_mock_engine_log}";
+
+        when(jobDealer.getAndUpdateEngineLog(jobId, scheduleJob.getEngineJobId(),
+                scheduleJob.getApplicationId(), scheduleJob.getPluginInfoId())).thenReturn(mock_engine_log);
+        try {
+            String engineLog = "\"engineLog\":\"" + mock_engine_log + "\"" ;
+            String logInfo = "\"logInfo\":\"" + scheduleJob.getLogInfo() + "\"";
+            String result = actionService.log(jobId, computeType);
+            test3 = result.contains(engineLog) && result.contains(logInfo) && result.length() == engineLog.length() + logInfo.length() + 3;
+        } catch (Exception e) {
+            test3 = false;
+        }
+
+        if (!test1) {
+            fail("when computeType is null, the test is fail");
+        }
+
+        if (!test2) {
+            fail("when computeType is not null, the test is fail");
+        }
+
+        if (!test3) {
+            fail("when engine_log is empty, the test is fail");
+        }
+    }
+
+
+    @Test
+    public void testRetryLog() {
+        ScheduleJob scheduleJob = dataCollection.getScheduleJobFirst();
+        String jobId = scheduleJob.getJobId();
+        Integer computeType = scheduleJob.getComputeType();
+
+        EngineJobRetry engineJobRetry = dataCollection.getEngineJobRetry();
+
+
+        boolean test1;
+        boolean test2;
+        try {
+            actionService.retryLog(jobId, null);
+            test1 = false;
+        } catch (Exception e) {
+            test1 = true;
+        }
+
+        try {
+            String result = actionService.retryLog(jobId, computeType);
+            String retryNum = "\"retryNum\":\"" + engineJobRetry.getRetryNum() + "\"" ;
+            String retryTaskParams = "\"retryTaskParams\":\"" + engineJobRetry.getRetryTaskParams() + "\"";
+            String logInfo = "\"logInfo\":\"" + engineJobRetry.getLogInfo() + "\"";
+            int length = retryNum.length() + retryTaskParams.length() + logInfo.length() + 6;
+            test2 = result.contains(retryNum) && result.contains(retryTaskParams) && result.contains(logInfo) && result.length() == length;
+        } catch (Exception e) {
+            test2 = false;
+        }
+
+        if (!test1) {
+            fail("when computeType is null, the test is fail");
+        }
+
+        if (!test2) {
+            fail("when computeType is not null, the test is fail");
+        }
+    }
+
+    @Test
+    public void testRetryLogDetail() {
+        ScheduleJob scheduleJob = dataCollection.getScheduleJobSecond();
+        String jobId = scheduleJob.getJobId();
+        Integer computeType = scheduleJob.getComputeType();
+
+        EngineJobRetry engineJobRetry = dataCollection.getEngineJobRetryNoEngineLog();
+
+        boolean test1;
+        boolean test2;
+        try {
+            actionService.retryLogDetail(jobId, null, engineJobRetry.getRetryNum() + 1);
+            test1 = false;
+        } catch (Exception e) {
+            test1 = true;
+        }
+
+        String mock_engine_log = "{err: test_mock_engine_log}";
+        when(jobDealer.getAndUpdateEngineLog(jobId, engineJobRetry.getEngineJobId(), engineJobRetry.getApplicationId(), scheduleJob.getPluginInfoId())).thenReturn(mock_engine_log);
+
+        try {
+            String result = actionService.retryLogDetail(jobId, computeType, engineJobRetry.getRetryNum() + 1);
+            String retryNum = "\"retryNum\":\"" + engineJobRetry.getRetryNum() + "\"" ;
+            String retryTaskParams = "\"retryTaskParams\":\"" + engineJobRetry.getRetryTaskParams() + "\"";
+            String logInfo = "\"logInfo\":\"" + engineJobRetry.getLogInfo() + "\"";
+            String engineLog = "\"engineLog\":\"" + mock_engine_log + "\"";
+            int length = retryNum.length() + retryTaskParams.length() + logInfo.length() + engineLog.length() + 5;
+            test2 = result.contains(retryNum) && result.contains(retryTaskParams) && result.contains(logInfo) && result.contains(engineLog) && result.length() == length;;
+        } catch (Exception e) {
+            test2 = false;
+        }
+
+        if (!test1) {
+            fail("when computeType is null, the test is fail");
+        }
+
+        if (!test2) {
+            fail("when computeType is not null, the test is fail");
+        }
+
     }
 
 

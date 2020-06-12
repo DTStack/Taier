@@ -1,6 +1,8 @@
 package com.dtstack.engine.master.data;
 
+import com.dtstack.engine.api.domain.EngineJobRetry;
 import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.dao.TestEngineJobRetryDao;
 import com.dtstack.engine.dao.TestScheduleJobDao;
 import com.dtstack.engine.master.anno.DatabaseDeleteOperation;
 import com.dtstack.engine.master.anno.DatabaseInsertOperation;
@@ -9,6 +11,12 @@ import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 
+/**
+ * 每个方法只能返回具体类型的类 方法不含有任何参数 方法禁止重名
+ * 设置Id 在方法内务必用 ValueUtils.changedIdForDiffMethod()  只能设置一次
+ * 设置Unique Key 或者需要别的地方引用的字符串 在方法内 用 ValueUtils.changedStrForDiffMethod(identifier) 指定identifier能设置多次 不重名
+ * 利用ValueUtils.getId 和 ValueUtils.getStr可以获得别的方法的相关参数 方便关联
+ */
 @Component
 public class DataCollection {
 
@@ -16,12 +24,12 @@ public class DataCollection {
     @DatabaseDeleteOperation(dao = TestScheduleJobDao.class, method = "deleteById", field = "id")
     public ScheduleJob getScheduleJobFirst() {
         ScheduleJob sj = new ScheduleJob();
-        sj.setId(ValueUtils.changedId());
+        sj.setId(ValueUtils.changedIdForDiffMethod());
         sj.setStatus(5);
-        sj.setJobId(ValueUtils.changedStr("jobId"));
+        sj.setJobId(ValueUtils.changedStrForDiffMethod("jobId"));
         sj.setTenantId(15L);
         sj.setProjectId(-1L);
-        sj.setJobKey(ValueUtils.changedStr("jobKey"));
+        sj.setJobKey(ValueUtils.changedStrForDiffMethod("jobKey"));
         sj.setExecStartTime(new Timestamp(1591805197000L));
         sj.setExecEndTime(new Timestamp(1591805197100L));
         sj.setTaskId(-1L);
@@ -40,7 +48,8 @@ public class DataCollection {
         sj.setMaxRetryNum(0);
         sj.setRetryNum(0);
         sj.setComputeType(1);
-
+        sj.setLogInfo("{err: test_log_info}");
+        sj.setEngineLog("{err: test_engine_log}");
         return sj;
     }
 
@@ -48,12 +57,12 @@ public class DataCollection {
     @DatabaseDeleteOperation(dao = TestScheduleJobDao.class, method = "deleteById", field = "id")
     public ScheduleJob getScheduleJobSecond() {
         ScheduleJob sj = new ScheduleJob();
-        sj.setId(ValueUtils.changedId());
+        sj.setId(ValueUtils.changedIdForDiffMethod());
         sj.setStatus(5);
-        sj.setJobId(ValueUtils.changedStr("jobId"));
+        sj.setJobId(ValueUtils.changedStrForDiffMethod("jobId"));
         sj.setTenantId(15L);
         sj.setProjectId(-1L);
-        sj.setJobKey(ValueUtils.changedStr("jobKey"));
+        sj.setJobKey(ValueUtils.changedStrForDiffMethod("jobKey"));
         sj.setExecStartTime(new Timestamp(1591805197000L));
         sj.setExecEndTime(new Timestamp(1591805197100L));
         sj.setTaskId(-1L);
@@ -72,7 +81,40 @@ public class DataCollection {
         sj.setMaxRetryNum(0);
         sj.setRetryNum(0);
         sj.setComputeType(1);
-
+        sj.setLogInfo("{err: test_log_info}");
+        sj.setEngineLog("");
         return sj;
+    }
+
+    @DatabaseInsertOperation(dao = TestEngineJobRetryDao.class, method = "insert")
+    @DatabaseDeleteOperation(dao = TestEngineJobRetryDao.class, method = "deleteById", field = "id")
+    public EngineJobRetry getEngineJobRetry() {
+        EngineJobRetry ej = new EngineJobRetry();
+        ej.setId(ValueUtils.changedIdForDiffMethod());
+        ej.setEngineJobId(ValueUtils.changedStrForDiffMethod("engineJobId"));
+        ej.setJobId(ValueUtils.getStr("getScheduleJobFirst", "jobId"));
+        ej.setStatus(0);
+        ej.setEngineLog("{err: test_engine_log}");
+        ej.setLogInfo("{err: test_log_info}");
+        ej.setApplicationId(ValueUtils.changedStrForDiffMethod("applicationId"));
+        ej.setRetryNum(2);
+        ej.setRetryTaskParams("{err: test_retry_task_params}");
+        return ej;
+    }
+
+    @DatabaseInsertOperation(dao = TestEngineJobRetryDao.class, method = "insert")
+    @DatabaseDeleteOperation(dao = TestEngineJobRetryDao.class, method = "deleteById", field = "id")
+    public EngineJobRetry getEngineJobRetryNoEngineLog() {
+        EngineJobRetry ej = new EngineJobRetry();
+        ej.setId(ValueUtils.changedIdForDiffMethod());
+        ej.setEngineJobId(ValueUtils.changedStrForDiffMethod("engineJobId"));
+        ej.setJobId(ValueUtils.getStr("getScheduleJobSecond", "jobId"));
+        ej.setStatus(0);
+        ej.setEngineLog("");
+        ej.setLogInfo("{err: test_log_info}");
+        ej.setApplicationId(ValueUtils.changedStrForDiffMethod("applicationId"));
+        ej.setRetryNum(2);
+        ej.setRetryTaskParams("{err: test_retry_task_params}");
+        return ej;
     }
 }
