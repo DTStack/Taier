@@ -1054,6 +1054,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             try {
                 this.sendTaskStartTrigger(rdosJobByJobId);
             } catch (Exception e) {
+                logger.error(" job  {} run fail with info is null",rdosJobByJobId.getJobId(),e);
             }
         }
         return;
