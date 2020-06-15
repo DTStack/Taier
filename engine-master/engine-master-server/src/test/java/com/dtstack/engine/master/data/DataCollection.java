@@ -1,9 +1,11 @@
 package com.dtstack.engine.master.data;
 
+import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.api.domain.EngineJobRetry;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.dao.TestEngineJobCheckpointDao;
 import com.dtstack.engine.dao.TestEngineJobRetryDao;
 import com.dtstack.engine.dao.TestScheduleJobDao;
 import com.dtstack.engine.master.anno.DatabaseDeleteOperation;
@@ -152,4 +154,19 @@ public class DataCollection {
         ej.setRetryTaskParams("{err: test_retry_task_params}");
         return ej;
     }
+
+    @DatabaseInsertOperation(dao = TestEngineJobCheckpointDao.class, method = "insert")
+    @DatabaseDeleteOperation(dao = TestEngineJobCheckpointDao.class, method = "deleteById", field = "id")
+    public EngineJobCheckpoint getEngineJobCheckpoint() {
+        EngineJobCheckpoint jc = new EngineJobCheckpoint();
+        jc.setId(ValueUtils.changedIdForDiffMethod());
+        jc.setTaskId(ValueUtils.changedStrForDiffMethod("taskId"));
+        jc.setTaskEngineId("te-999");
+        jc.setCheckpointId(ValueUtils.changedStrForDiffMethod("checkpointId"));
+        jc.setCheckpointTrigger(Timestamp.valueOf("2020-06-14 12:12:12"));
+        jc.setCheckpointSavepath("hdfs://tmp/flink/checkpoint/test");
+        jc.setCheckpointCounts("2");
+        return jc;
+    }
+
 }

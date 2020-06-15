@@ -35,27 +35,28 @@ public class StreamTaskServiceTest extends BaseTest {
 	StreamTaskService streamTaskService;
 
 	@Test
+	@Transactional(isolation = Isolation.READ_UNCOMMITTED)
+	@Rollback
 	public void testGetCheckPoint() {
-		engineJobCheckpointDao.insert("9999", "888888",
-			"888", Timestamp.valueOf("2020-06-14 10:01:00"),
-			"hdfs://tmp/flink/checkpoint/test", "3");
-		Long triggerStart = Long.valueOf(Timestamp.valueOf("2020-06-14 10:00:00").getTime());
-		Long triggerEnd = Long.valueOf(Timestamp.valueOf("2020-06-14 10:02:00").getTime());
-		List<EngineJobCheckpoint> engineJobCheckpoints = streamTaskService.getCheckPoint("9999", triggerStart, triggerEnd);
+		EngineJobCheckpoint engineJobCheckpoint = dataCollection.getEngineJobCheckpoint();
+
+		Long triggerStart = engineJobCheckpoint.getCheckpointTrigger().getTime() - 1;
+		Long triggerEnd = engineJobCheckpoint.getCheckpointTrigger().getTime() + 1;
+		List<EngineJobCheckpoint> engineJobCheckpoints = streamTaskService.getCheckPoint(
+			engineJobCheckpoint.getTaskId(), triggerStart, triggerEnd);
 		Assert.notNull(engineJobCheckpoints);
 		Assert.isTrue(engineJobCheckpoints.size() > 0);
-		engineJobCheckpointDao.deleteByTaskId("9999");
 	}
 
 	@Test
+	@Transactional(isolation = Isolation.READ_UNCOMMITTED)
+	@Rollback
 	public void testGetByTaskIdAndEngineTaskId() {
-		engineJobCheckpointDao.insert("9998", "888886",
-			"888", Timestamp.valueOf("2020-06-14 10:01:00"),
-			"hdfs://tmp/flink/checkpoint/test", "3");
+		EngineJobCheckpoint engineJobCheckpoint = dataCollection.getEngineJobCheckpoint();
 
-		EngineJobCheckpoint engineJobCheckpoint = streamTaskService.getByTaskIdAndEngineTaskId("9998", "888886");
-		Assert.notNull(engineJobCheckpoint);
-		engineJobCheckpointDao.deleteByTaskId("9998");
+		EngineJobCheckpoint resJobCheckpoint = streamTaskService.getByTaskIdAndEngineTaskId(
+			engineJobCheckpoint.getTaskId(), engineJobCheckpoint.getCheckpointId());
+		Assert.notNull(resJobCheckpoint);
 	}
 
 	@Test
