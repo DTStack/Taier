@@ -2,11 +2,7 @@ package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.dao.EngineJobCacheDao;
-import com.dtstack.engine.dao.EngineJobCheckpointDao;
-import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.BaseTest;
 import org.apache.commons.math3.util.Pair;
 import org.junit.Test;
@@ -16,7 +12,6 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,9 +22,6 @@ import java.util.List;
  */
 
 public class StreamTaskServiceTest extends BaseTest {
-
-	@Autowired
-	private EngineJobCheckpointDao engineJobCheckpointDao;
 
 	@Autowired
 	StreamTaskService streamTaskService;
