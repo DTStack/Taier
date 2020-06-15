@@ -3,9 +3,7 @@ package com.dtstack.engine.dao;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.stereotype.Component;
 
 public interface TestScheduleJobDao {
     @Insert({ "INSERT INTO schedule_job\n" +
