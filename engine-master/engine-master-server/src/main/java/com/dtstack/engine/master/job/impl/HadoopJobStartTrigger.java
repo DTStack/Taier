@@ -164,14 +164,12 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             String exeArgs = (String) actionParam.get("exeArgs");
             String uploadPath = this.uploadSqlTextToHdfs(scheduleJob.getDtuicTenantId(), taskShade.getSqlText(), taskShade.getTaskType(),
                     taskShade.getName(), taskShade.getTenantId(), taskShade.getProjectId(), taskParamsToReplace, scheduleJob.getCycTime());
-            String fileName = uploadPath.substring(StringUtils.lastIndexOf(uploadPath, "/"));
+            String fileName = uploadPath.substring(StringUtils.lastIndexOf(uploadPath, "/") + 1);
             exeArgs = exeArgs.replace(TaskConstant.UPLOADPATH, uploadPath);
-            String launchCmd = (String) actionParam.get("launchCmd");
-            if (StringUtils.isNotBlank(launchCmd)) {
-                //替换参数 base64 生成launchCmd
-                String launchString = Base64Util.baseEncode(launchCmd.replace(TaskConstant.FILE_NAME, fileName));
-                taskExeArgs = exeArgs.replace(TaskConstant.LAUNCH, launchString);
-            }
+            String launchCmd = (String) actionParam.getOrDefault("launchCmd","python ${file}");
+            //替换参数 base64 生成launchCmd
+            String launchString = Base64Util.baseEncode(launchCmd.replace(TaskConstant.FILE_NAME, fileName));
+            taskExeArgs = exeArgs.replace(TaskConstant.LAUNCH, launchString);
             LOG.info(" TensorFlow job {} fileName {} exeArgs {} ", scheduleJob.getJobId(), fileName, taskExeArgs);
 
         } else if (taskShade.getEngineType().equals(ScheduleEngineType.Learning.getVal())
