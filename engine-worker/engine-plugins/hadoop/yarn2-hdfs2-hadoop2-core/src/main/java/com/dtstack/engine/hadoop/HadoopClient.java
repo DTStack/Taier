@@ -463,6 +463,7 @@ public class HadoopClient extends AbstractClient {
                     FSDataOutputStream os = fs.create(destP);
                     IOUtils.copyBytes(is, os, 4096, true);
                 } catch (IOException e) {
+                    LOG.error("submit file {} to hdfs error", hdfsPath,e);
                     throw new RdosDefineException("上传文件失败", e);
                 } finally {
                     if (Objects.nonNull(fs)) {
