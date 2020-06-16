@@ -1,9 +1,11 @@
 package com.dtstack.engine.rdbs.common.executor;
 
+import com.dtstack.engine.base.BaseConfig;
+import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MathUtil;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.rdbs.common.constant.ConfigConstant;
-import com.dtstack.engine.rdbs.common.utils.KerberosUtils;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -14,10 +16,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -56,11 +55,19 @@ public abstract class AbstractConnFactory {
         pwd = MathUtil.getString(properties.get(ConfigConstant.PWD));
 
         Preconditions.checkNotNull(dbUrl, "db url can't be null");
+        Map config = (Map)properties.get("config");
+        BaseConfig baseConfig = null;
+        if(Objects.nonNull(config)){
+            try {
+                baseConfig = PublicUtil.mapToObject(config, BaseConfig.class);
+            } catch (IOException e) {
+            }
+        }
         try {
-            KerberosUtils.login(properties,()->{
+            KerberosUtils.login(baseConfig,()->{
                 testConn();
                 return null;
-            });
+            },(Map<String, Object>) config.get("yarnConf"));
         } catch (Exception e) {
             throw new RdosDefineException("get conn exception:" + e.toString());
         }

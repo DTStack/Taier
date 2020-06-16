@@ -1,5 +1,6 @@
 package com.dtstack.engine.flink;
 
+import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -29,7 +30,6 @@ import com.dtstack.engine.flink.util.FlinkConfUtil;
 import com.dtstack.engine.flink.util.FlinkRestParseUtil;
 import com.dtstack.engine.flink.util.FlinkUtil;
 import com.dtstack.engine.flink.util.HadoopConf;
-import com.dtstack.engine.flink.util.KerberosUtils;
 import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.worker.enums.ClassLoaderType;
 import com.google.common.base.Strings;
@@ -123,6 +123,8 @@ public class FlinkClient extends AbstractClient {
 
     private String jobHistory;
 
+    private Map flinkConfigMap;
+
     @Override
     public void init(Properties prop) throws Exception {
         this.flinkExtProp = prop;
@@ -158,7 +160,7 @@ public class FlinkClient extends AbstractClient {
                     jobResult = submitSyncJob(jobClient);
                 }
                 return jobResult;
-            });
+            },flinkConfig.getYarnConf());
         } catch (Exception e) {
             logger.error("can not submit a job process SubmitJobWithType error," ,e);
             return JobResult.createErrorResult(e);

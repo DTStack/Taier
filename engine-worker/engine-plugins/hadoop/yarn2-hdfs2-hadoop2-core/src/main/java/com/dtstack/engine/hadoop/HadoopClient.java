@@ -7,6 +7,7 @@ import com.alibaba.fastjson.util.TypeUtils;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.base.resource.EngineResourceInfo;
 import com.dtstack.engine.base.util.HadoopConfTool;
+import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -23,7 +24,6 @@ import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.hadoop.parser.AddJarOperator;
 import com.dtstack.engine.hadoop.util.HadoopConf;
-import com.dtstack.engine.hadoop.util.KerberosUtils;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -48,7 +48,6 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.util.*;
-import java.util.function.Supplier;
 
 public class HadoopClient extends AbstractClient {
 
@@ -91,11 +90,18 @@ public class HadoopClient extends AbstractClient {
 
         setHadoopUserName(config);
 
-        initSecurity(config,()->{
-            yarnClient = getYarnClient();
-            resourceInfo = new HadoopResourceInfo();
-            return null;
-        });
+        try {
+            LOG.info("start init security!");
+            KerberosUtils.login(config, () -> {
+                yarnClient = getYarnClient();
+                resourceInfo = new HadoopResourceInfo();
+                return null;
+            }, config.getHadoopConf());
+        } catch (Exception e) {
+            LOG.error("initSecurity happens error", e);
+            throw new IOException("InitSecurity happens error", e);
+        }
+        LOG.info("UGI info: " + UserGroupInformation.getCurrentUser());
 
     }
 
@@ -245,17 +251,6 @@ public class HadoopClient extends AbstractClient {
     }
 
 
-    private static void initSecurity(Config config, Supplier supplier) throws IOException {
-        try {
-            LOG.info("start init security!");
-            KerberosUtils.login(config,supplier);
-        } catch (Exception e) {
-            LOG.error("initSecurity happens error", e);
-            throw new IOException("InitSecurity happens error", e);
-        }
-        LOG.info("UGI info: " + UserGroupInformation.getCurrentUser());
-    }
-
     public YarnClient getYarnClient(){
         try{
             if(yarnClient == null){
@@ -381,7 +376,7 @@ public class HadoopClient extends AbstractClient {
                 //测试hdfs联通性
                 return this.checkHdfsConnect(allConfig);
             }
-            return KerberosUtils.login(allConfig, () -> testYarnConnect(testResult, allConfig));
+            return KerberosUtils.login(allConfig, () -> testYarnConnect(testResult, allConfig),allConfig.getYarnConf());
 
         } catch (Exception e) {
             LOG.error("test yarn connect error", e);
@@ -476,7 +471,7 @@ public class HadoopClient extends AbstractClient {
                     LOG.debug("submit file {} to hdfs success.", hdfsPath);
                 }
                 return uploadConf.getDefaultFs() + hdfsPath;
-            });
+            },uploadConfig.getYarnConf());
         } catch (Exception e) {
             throw new RdosDefineException("上传文件失败", e);
         }
@@ -514,7 +509,7 @@ public class HadoopClient extends AbstractClient {
 
                 componentTestResult.setResult(true);
                 return componentTestResult;
-            });
+            }, testConnectConf.getHadoopConf());
 
         } catch (Exception e) {
             LOG.error("close hdfs connect  error ", e);
@@ -529,7 +524,7 @@ public class HadoopClient extends AbstractClient {
         ClusterResource clusterResource = new ClusterResource();
         try {
             Config allConfig = PublicUtil.jsonStrToObject(pluginInfo, Config.class);
-            KerberosUtils.login(allConfig, () -> {
+            KerberosUtils.login(allConfig,() -> {
                 YarnClient resourceClient = null;
                 try {
                     HadoopConf hadoopConf = new HadoopConf();
@@ -560,9 +555,8 @@ public class HadoopClient extends AbstractClient {
                         }
                     }
                 }
-
                 return clusterResource;
-            });
+            },allConfig.getYarnConf());
 
         } catch (Exception e) {
             throw new RdosDefineException(e.getMessage());

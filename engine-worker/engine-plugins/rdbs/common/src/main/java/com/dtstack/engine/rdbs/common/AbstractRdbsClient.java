@@ -1,6 +1,8 @@
 package com.dtstack.engine.rdbs.common;
 
+import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.base.resource.EngineResourceInfo;
+import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.client.AbstractClient;
@@ -15,7 +17,6 @@ import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.rdbs.common.constant.ConfigConstant;
 import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 import com.dtstack.engine.rdbs.common.executor.RdbsExeQueue;
-import com.dtstack.engine.rdbs.common.utils.KerberosUtils;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -26,6 +27,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -150,8 +152,9 @@ public abstract class AbstractRdbsClient extends AbstractClient {
             if (StringUtils.isBlank(sql)) {
                 return null;
             }
-            Properties properties = PublicUtil.jsonStrToObject(pluginInfo, Properties.class);
-            return KerberosUtils.login(properties, () -> {
+            Map config = PublicUtil.jsonStrToObject(pluginInfo, Map.class);
+            BaseConfig baseConfig = PublicUtil.jsonStrToObject(pluginInfo, BaseConfig.class);
+            return KerberosUtils.login(baseConfig, () -> {
                 if (Objects.isNull(connFactory)) {
                     synchronized (AbstractRdbsClient.class) {
                         if (Objects.isNull(connFactory)) {
@@ -164,6 +167,7 @@ public abstract class AbstractRdbsClient extends AbstractClient {
                 Connection conn = null;
                 List<List<Object>> result = Lists.newArrayList();
                 try {
+                    Properties properties = PublicUtil.jsonStrToObject(pluginInfo, Properties.class);
                     connFactory.init(properties);
                     conn = connFactory.getConn();
                     statement = conn.createStatement();
@@ -216,7 +220,7 @@ public abstract class AbstractRdbsClient extends AbstractClient {
                     }
                 }
                 return result;
-            });
+            },(Map<String, Object>) config.get("yarnConf"));
 
         } catch (Exception e) {
             LOG.error("execute sql {} error", sql, e);

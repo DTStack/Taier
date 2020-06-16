@@ -1,5 +1,6 @@
 package com.dtstack.engine.flink;
 
+import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.enums.Deploy;
 import com.google.common.base.Strings;
@@ -16,7 +17,7 @@ import java.util.Map;
  * @author sishu.yss
  *
  */
-public class FlinkConfig {
+public class FlinkConfig extends BaseConfig {
 
     private static final String DEFAULT_FLINK_PLUGIN_ROOT = "/opt/dtstack/flinkplugin";
 
@@ -56,13 +57,6 @@ public class FlinkConfig {
 
     private String yarnAccepterTaskNumber;
 
-    private boolean openKerberos;
-
-    private String remoteDir;
-
-    private String principalFile;
-
-    private Map<String, String> sftpConf;
 
     private Map<String, String> kerberosConfig;
 
@@ -168,30 +162,6 @@ public class FlinkConfig {
         this.yarnAccepterTaskNumber = yarnAccepterTaskNumber;
     }
 
-    public boolean isOpenKerberos() {
-        return openKerberos;
-    }
-
-    public void setOpenKerberos(boolean openKerberos) {
-        this.openKerberos = openKerberos;
-    }
-
-    public String getRemoteDir() {
-        return remoteDir;
-    }
-
-    public void setRemoteDir(String remoteDir) {
-        this.remoteDir = remoteDir;
-    }
-
-    public Map<String, String> getSftpConf() {
-        return sftpConf;
-    }
-
-    public void setSftpConf(Map<String, String> sftpConf) {
-        this.sftpConf = sftpConf;
-    }
-
     public Map<String, String> getKerberosConfig() {
         return kerberosConfig;
     }
@@ -289,14 +259,6 @@ public class FlinkConfig {
 
     public static void setEngineFlinkConfigs(List<String> engineFlinkConfigs) {
         ENGINE_FLINK_CONFIGS = engineFlinkConfigs;
-    }
-
-    public String getPrincipalFile() {
-        return principalFile;
-    }
-
-    public void setPrincipalFile(String principalFile) {
-        this.principalFile = principalFile;
     }
 
     private static List<String> initEngineFlinkConfigFields() {

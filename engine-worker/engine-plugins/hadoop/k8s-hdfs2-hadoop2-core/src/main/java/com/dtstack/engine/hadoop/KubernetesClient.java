@@ -1,5 +1,6 @@
 package com.dtstack.engine.hadoop;
 
+import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.client.AbstractClient;
@@ -10,7 +11,6 @@ import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.hadoop.util.HadoopConf;
-import com.dtstack.engine.hadoop.util.KerberosUtils;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -76,7 +76,7 @@ public class KubernetesClient extends AbstractClient {
                 } catch (Exception e) {
                    throw new RdosDefineException(e);
                 }
-            });
+            },allConfig.getYarnConf());
 
         } catch (Exception e) {
             LOG.error("test k8s connect error", e);
@@ -133,7 +133,7 @@ public class KubernetesClient extends AbstractClient {
                 }
                 componentTestResult.setResult(true);
                 return componentTestResult;
-            });
+            },testConnectConf.getHadoopConf());
 
         } catch (Exception e) {
             LOG.error("close hdfs connect  error ", e);

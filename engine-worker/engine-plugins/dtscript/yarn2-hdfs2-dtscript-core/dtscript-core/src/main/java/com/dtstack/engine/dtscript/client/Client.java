@@ -1,13 +1,15 @@
 package com.dtstack.engine.dtscript.client;
 
 
+import com.dtstack.engine.base.BaseConfig;
+import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.am.ApplicationMaster;
 import com.dtstack.engine.dtscript.api.DtYarnConstants;
 import com.dtstack.engine.dtscript.common.SecurityUtil;
 import com.dtstack.engine.dtscript.common.exceptions.RequestOverLimitException;
-import com.dtstack.engine.dtscript.util.KerberosUtils;
 import com.dtstack.engine.dtscript.util.Utilities;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang.StringUtils;
@@ -64,9 +66,9 @@ public class Client {
 
     private static FsPermission JOB_FILE_PERMISSION = FsPermission.createImmutable((short) 0644);
 
-    public Client(DtYarnConfiguration conf) {
+    public Client(DtYarnConfiguration conf, BaseConfig allConfig) throws Exception {
         this.conf = conf;
-        KerberosUtils.login(conf, () -> {
+        KerberosUtils.login(allConfig, () -> {
             try {
                 String appSubmitterUserName = System.getenv(ApplicationConstants.Environment.USER.name());
                 if (conf.get("hadoop.job.ugi") == null) {
@@ -98,7 +100,7 @@ public class Client {
                 throw new RdosDefineException(e);
             }
             return null;
-        });
+        }, PublicUtil.objectToMap(conf));
     }
 
     public YarnConfiguration init(ClientArguments clientArguments) throws IOException, YarnException, ParseException, ClassNotFoundException {
