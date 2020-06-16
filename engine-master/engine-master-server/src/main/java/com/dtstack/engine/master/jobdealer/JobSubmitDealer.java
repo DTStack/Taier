@@ -3,6 +3,7 @@ package com.dtstack.engine.master.jobdealer;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.exception.WorkerAccessException;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
@@ -18,6 +19,7 @@ import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.master.cache.ShardCache;
 import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.master.plugininfo.PluginWrapper;
 import com.dtstack.engine.master.queue.GroupInfo;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.queue.JobPartitioner;
@@ -49,6 +51,7 @@ public class JobSubmitDealer implements Runnable {
     private WorkerOperator workerOperator;
     private EngineJobCacheDao engineJobCacheDao;
     private ShardCache shardCache;
+    private PluginWrapper pluginWrapper;
 
     private long jobRestartDelay;
     private long jobLackingDelay;
@@ -69,6 +72,7 @@ public class JobSubmitDealer implements Runnable {
         this.workerOperator = applicationContext.getBean(WorkerOperator.class);
         this.engineJobCacheDao = applicationContext.getBean(EngineJobCacheDao.class);
         this.shardCache = applicationContext.getBean(ShardCache.class);
+        this.pluginWrapper = applicationContext.getBean(PluginWrapper.class);
         EnvironmentContext environmentContext = applicationContext.getBean(EnvironmentContext.class);
         if (null == priorityQueue) {
             throw new RdosDefineException("priorityQueue must not null.");
@@ -189,6 +193,8 @@ public class JobSubmitDealer implements Runnable {
                     Thread.sleep(jobLackingInterval);
                     continue;
                 }
+                //补充插件配置信息
+                jobClient.setPluginWrapperInfo(pluginWrapper.wrapperPluginInfo(jobClient.getParamAction()));
                 //提交任务
                 submitJob(jobClient);
             } catch (Exception e) {

@@ -44,8 +44,6 @@ public class ParamAction {
 
 	private String groupName = ConfigConstant.DEFAULT_GROUP_NAME;
 
-	//选填参数,如果请求指定集群信息的话需要填写
-	private Map<String, Object> pluginInfo;
 
 	/**
 	 * 0 是从web端发起，1是有内部节点发起，如果是1就会直接执行不会再判断node运行的task任务在进行路由选择
@@ -68,8 +66,57 @@ public class ParamAction {
 
     private Long dtuicTenantId;
 
+    private Long userId;
 
-	public Integer getRequestStart() {
+    private String ldapUserName;
+
+    private String ldapPassword;
+
+    private String deployMode;
+
+    private String dbName;
+
+    public String getLdapUserName() {
+        return ldapUserName;
+    }
+
+    public void setLdapUserName(String ldapUserName) {
+        this.ldapUserName = ldapUserName;
+    }
+
+    public String getLdapPassword() {
+        return ldapPassword;
+    }
+
+    public void setLdapPassword(String ldapPassword) {
+        this.ldapPassword = ldapPassword;
+    }
+
+    public String getDeployMode() {
+        return deployMode;
+    }
+
+    public void setDeployMode(String deployMode) {
+        this.deployMode = deployMode;
+    }
+
+    public String getDbName() {
+        return dbName;
+    }
+
+    public void setDbName(String dbName) {
+        this.dbName = dbName;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Integer getRequestStart() {
 		return requestStart;
 	}
 
@@ -166,14 +213,6 @@ public class ParamAction {
     public void setGroupName(String groupName) {
         this.groupName = groupName;
     }
-
-	public Map<String, Object> getPluginInfo() {
-		return pluginInfo;
-	}
-
-	public void setPluginInfo(Map<String, Object> pluginInfo) {
-		this.pluginInfo = pluginInfo;
-	}
 
 	public Integer getSourceType() {
 		return sourceType;

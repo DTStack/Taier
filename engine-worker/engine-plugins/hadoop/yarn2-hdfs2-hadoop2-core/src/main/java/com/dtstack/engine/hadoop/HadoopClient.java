@@ -195,7 +195,7 @@ public class HadoopClient extends AbstractClient {
         try {
             setHadoopUserName(config);
             JobParam jobParam = new JobParam(jobClient);
-            Map<String, Object> plugininfo = jobClient.getParamAction().getPluginInfo();
+            Map<String, Object> plugininfo = PublicUtil.jsonStrToObject(jobClient.getPluginInfo(),Map.class);
             Configuration jobConf = new Configuration(conf);
             if(plugininfo.containsKey(QUEUE)){
                 jobConf.set(MRJobConfig.QUEUE_NAME, plugininfo.get(QUEUE).toString());

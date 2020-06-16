@@ -176,9 +176,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     private JobPartitioner jobPartitioner;
 
     @Autowired
-    private PluginWrapper pluginWrapper;
-
-    @Autowired
     private MultiEngineFactory multiEngineFactory;
 
     @Autowired
@@ -1131,11 +1128,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                 if (EJobType.SYNC.getType() == scheduleJob.getTaskType()) {
                     //数据同步需要解析是perjob 还是session
                     EDeployMode eDeployMode = this.parseDeployTypeByTaskParams(batchTask.getTaskParams());
-                    actionParam.put(pluginWrapper.DEPLOY_MODEL, eDeployMode.getType());
+                    actionParam.put("deployMode", eDeployMode.getType());
                 }
-                //拼装控制台的集群信息
-                actionParam = pluginWrapper.wrapperPluginInfo(actionParam);
-
                 actionService.start(actionParam);
                 return;
             }

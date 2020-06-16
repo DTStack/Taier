@@ -1,8 +1,12 @@
 package com.dtstack.engine.master.plugininfo;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.common.enums.EngineType;
+import com.dtstack.engine.common.pojo.ParamAction;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.impl.ClusterService;
+import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.schedule.common.enums.ScheduleEngineType;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
@@ -23,23 +27,25 @@ public class PluginWrapper{
 
     private static final String PARAMS_DELIM = "&";
     private static final String URI_PARAMS_DELIM = "?";
-    private static final String TENANT_ID = "tenantId";
-    private static final String ENGINE_TYPE = "engineType";
     private static final String DEFAULT_GROUP_NAME = "default_default";
     private static final String LADP_USER_NAME = "ldapUserName";
     private static final String LADP_PASSWORD = "ldapPassword";
     private static final String DB_NAME = "dbName";
     private static final String CLUSTER = "cluster";
     private static final String PLUGIN_INFO = "pluginInfo";
-    public static final String DEPLOY_MODEL = "deployMode";
+    private static final String DEPLOY_MODEL = "deployMode";
     private static final String QUEUE = "queue";
     private static final String GROUP_NAME = "groupName";
-    private static final String USER_ID = "userId";
 
     @Autowired
     private ClusterService clusterService;
 
-    public Map<String, Object> wrapperPluginInfo(Map<String, Object> actionParam){
+    @Autowired
+    private ScheduleJobService scheduleJobService;
+
+    public Map<String, Object> wrapperPluginInfo(ParamAction action) throws Exception{
+
+        Map actionParam = PublicUtil.objectToMap(action);
 
         String ldapUserName = MapUtils.getString(actionParam, LADP_USER_NAME);
         String ldapPassword = MapUtils.getString(actionParam, LADP_PASSWORD);
@@ -52,20 +58,23 @@ public class PluginWrapper{
             actionParam.remove(DB_NAME);
         }
 
-        Long tenantId = MapUtils.getLong(actionParam, TENANT_ID);
-        String engineType = MapUtils.getString(actionParam, ENGINE_TYPE);
-        JSONObject pluginInfoJson = clusterService.pluginInfoJSON(tenantId, engineType, MapUtils.getLong(actionParam,USER_ID),deployMode);
+        Long tenantId = action.getTenantId();
+        String engineType = action.getEngineType();
+        if(Objects.isNull(deployMode) && ScheduleEngineType.Flink.getEngineName().equalsIgnoreCase(engineType)){
+            //解析参数
+            deployMode = scheduleJobService.parseDeployTypeByTaskParams(action.getTaskParams()).getType();
+        }
+        JSONObject pluginInfoJson = clusterService.pluginInfoJSON(tenantId, engineType, action.getUserId(),deployMode);
         String groupName = DEFAULT_GROUP_NAME;
         if (Objects.nonNull(pluginInfoJson) && !pluginInfoJson.isEmpty()) {
             addParamsToJdbcUrl(actionParam, pluginInfoJson);
             addUserNameToHadoop(pluginInfoJson, ldapUserName);
             addUserNameToImpalaOrHive(pluginInfoJson, ldapUserName, ldapPassword, dbName, engineType);
-            actionParam.put(PLUGIN_INFO, pluginInfoJson);
             groupName = pluginInfoJson.getString(CLUSTER) + "_" + pluginInfoJson.getString(QUEUE);
         }
         actionParam.put(GROUP_NAME, groupName);
 
-        return actionParam;
+        return pluginInfoJson;
     }
 
     private void addParamsToJdbcUrl(Map<String, Object> actionParam, JSONObject pluginInfoJson){

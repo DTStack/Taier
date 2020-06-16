@@ -60,9 +60,6 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
     private EngineJobRetryDao engineJobRetryDao;
 
     @Autowired
-    private EngineJobStopRecordDao engineJobStopRecordDao;
-
-    @Autowired
     private EngineJobCheckpointDao engineJobCheckpointDao;
 
     @Autowired
@@ -175,11 +172,6 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
 
         if(paramAction.getEngineType() == null){
             throw new RdosDefineException("param engineType is not allow null", ErrorCode.INVALID_PARAMETERS);
-        }
-
-        Map<String, Object> pluginInfo = paramAction.getPluginInfo();
-        if(MapUtils.isEmpty(pluginInfo)){
-            throw new RdosDefineException("param pluginInfo is invalid", ErrorCode.INVALID_PARAMETERS);
         }
     }
 

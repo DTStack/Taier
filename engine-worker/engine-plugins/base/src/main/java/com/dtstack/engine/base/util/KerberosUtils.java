@@ -39,7 +39,7 @@ public class KerberosUtils {
      */
     public static <T> T login(BaseConfig config, Supplier<T> supplier, Map<String, Object> configuration) throws Exception {
 
-        if (Objects.isNull(config) || config.isOpenKerberos()) {
+        if (Objects.isNull(config) || !config.isOpenKerberos()) {
             return supplier.get();
         }
 
