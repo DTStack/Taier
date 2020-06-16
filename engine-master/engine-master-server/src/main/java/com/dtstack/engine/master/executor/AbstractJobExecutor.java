@@ -2,16 +2,13 @@ package com.dtstack.engine.master.executor;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.schedule.common.enums.EScheduleJobType;
+import com.dtstack.engine.api.domain.ScheduleJobJob;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.JobCheckStatus;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.schedule.common.enums.Restarted;
-import com.dtstack.engine.common.enums.SentinelType;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
-import com.dtstack.engine.api.domain.ScheduleJobJob;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.BatchFlowWorkJobService;
@@ -23,6 +20,8 @@ import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.scheduler.JobErrorInfo;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
 import com.dtstack.engine.master.zookeeper.ZkService;
+import com.dtstack.schedule.common.enums.EScheduleJobType;
+import com.dtstack.schedule.common.enums.Restarted;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -142,8 +141,8 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 }
                 //元素全部放到survivor中 重新全量加载
                 if (jopPriorityQueue.getQueueSize() == 0) {
-                    logger.info("========= scheduleType:{} queue is empty , blocked:{}  tail:{}  survivor size {}=========", getScheduleType(), jopPriorityQueue.getQueueSize(),
-                            jopPriorityQueue.isBlocked(),jopPriorityQueue.getSurvivorSize());
+                    logger.info("========= scheduleType:{} queue is empty , blocked:{}  tail:{} =========", getScheduleType(), jopPriorityQueue.getQueueSize(),
+                            jopPriorityQueue.isBlocked());
                     notStartCache.clear();
                     errorJobCache.clear();
                     taskCache.clear();
@@ -193,9 +192,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                             batchJobService.startJob(scheduleBatchJob.getScheduleJob());
                             logger.info("---scheduleType:{} send job:{} to engine.", getScheduleType(), scheduleBatchJob.getJobId());
                         }
-                        if (!batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob.getJobId(),scheduleBatchJob.getAppType())) {
-                            jopPriorityQueue.putSurvivor(batchJobElement);
-                        }
                     } else {
                         batchJobService.startJob(scheduleBatchJob.getScheduleJob());
                     }
@@ -237,8 +233,8 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 } else if (checkRunInfo.getStatus() == JobCheckStatus.NOT_UNSUBMIT) {
                     //当前任务状态为未提交状态--直接移除
                 } else {
-                    jopPriorityQueue.putSurvivor(batchJobElement);
                     //其他情况跳过,等待下次执行
+                    jopPriorityQueue.checkBlock();
                 }
             } catch (Exception e) {
                 logger.error("happens error:", e);
