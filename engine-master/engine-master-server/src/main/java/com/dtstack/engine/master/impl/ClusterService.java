@@ -625,6 +625,7 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
                             pluginInfo.put("remoteDir",path);
                         }
                     }
+                    pluginInfo.remove("queue");
                     continue;
                 }
                 pluginInfo.put(entry.getKey(), entry.getValue());
