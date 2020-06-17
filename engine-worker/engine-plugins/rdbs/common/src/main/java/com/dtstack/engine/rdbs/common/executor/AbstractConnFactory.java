@@ -43,8 +43,8 @@ public abstract class AbstractConnFactory {
     protected String testSql = null;
 
     public void init(Properties properties) throws ClassNotFoundException {
-        synchronized (AbstractConnFactory.class){
-            if(isFirstLoaded.get()){
+        synchronized (AbstractConnFactory.class) {
+            if (isFirstLoaded.get()) {
                 Class.forName(driverName);
                 isFirstLoaded.set(false);
             }
@@ -55,19 +55,21 @@ public abstract class AbstractConnFactory {
         pwd = MathUtil.getString(properties.get(ConfigConstant.PWD));
 
         Preconditions.checkNotNull(dbUrl, "db url can't be null");
-        Map config = (Map)properties.get("config");
+        Map config = (Map) properties.get("config");
         BaseConfig baseConfig = null;
-        if(Objects.nonNull(config)){
+        Map yarnConf = null;
+        if (Objects.nonNull(config)) {
             try {
                 baseConfig = PublicUtil.mapToObject(config, BaseConfig.class);
+                yarnConf = (Map<String, Object>) config.get("yarnConf");
             } catch (IOException e) {
             }
         }
         try {
-            KerberosUtils.login(baseConfig,()->{
+            KerberosUtils.login(baseConfig, () -> {
                 testConn();
                 return null;
-            },(Map<String, Object>) config.get("yarnConf"));
+            }, yarnConf);
         } catch (Exception e) {
             throw new RdosDefineException("get conn exception:" + e.toString());
         }

@@ -141,9 +141,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
      */
     public void addSubmitJob(JobClient jobClient, boolean insert) {
         String jobResource = jobComputeResourcePlain.getJobResource(jobClient);
-        if (jobClient.getPluginInfo() != null) {
-            updateJobClientPluginInfo(jobClient.getTaskId(), jobClient.getPluginInfo());
-        }
+
         jobClient.setCallBack((jobStatus) -> {
             updateJobStatus(jobClient.getTaskId(), jobStatus);
         });
@@ -211,7 +209,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
         engineJobCacheDao.updateStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority());
     }
 
-    private void updateJobClientPluginInfo(String jobId, String pluginInfoStr) {
+    public void updateJobClientPluginInfo(String jobId, String pluginInfoStr) {
         Long refPluginInfoId = -1L;
 
         //请求不带插件的连接信息的话则默认为使用本地默认的集群配置---pluginInfoId = -1;

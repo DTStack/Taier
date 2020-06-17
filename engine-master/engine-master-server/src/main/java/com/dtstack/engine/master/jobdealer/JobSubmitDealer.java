@@ -1,8 +1,11 @@
 package com.dtstack.engine.master.jobdealer;
 
+import com.dtstack.engine.api.domain.PluginInfo;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.EJobCacheStage;
+import com.dtstack.engine.common.enums.EPluginType;
 import com.dtstack.engine.common.exception.WorkerAccessException;
+import com.dtstack.engine.common.util.MD5Util;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.common.JobClient;
@@ -23,11 +26,13 @@ import com.dtstack.engine.master.plugininfo.PluginWrapper;
 import com.dtstack.engine.master.queue.GroupInfo;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.queue.JobPartitioner;
+import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -52,6 +57,7 @@ public class JobSubmitDealer implements Runnable {
     private EngineJobCacheDao engineJobCacheDao;
     private ShardCache shardCache;
     private PluginWrapper pluginWrapper;
+    private JobDealer jobDealer;
 
     private long jobRestartDelay;
     private long jobLackingDelay;
@@ -73,6 +79,7 @@ public class JobSubmitDealer implements Runnable {
         this.engineJobCacheDao = applicationContext.getBean(EngineJobCacheDao.class);
         this.shardCache = applicationContext.getBean(ShardCache.class);
         this.pluginWrapper = applicationContext.getBean(PluginWrapper.class);
+        this.jobDealer = applicationContext.getBean(JobDealer.class);
         EnvironmentContext environmentContext = applicationContext.getBean(EnvironmentContext.class);
         if (null == priorityQueue) {
             throw new RdosDefineException("priorityQueue must not null.");
@@ -195,6 +202,8 @@ public class JobSubmitDealer implements Runnable {
                 }
                 //补充插件配置信息
                 jobClient.setPluginWrapperInfo(pluginWrapper.wrapperPluginInfo(jobClient.getParamAction()));
+                //更新pluginInfoId
+                jobDealer.updateJobClientPluginInfo(jobClient.getTaskId(), jobClient.getPluginInfo());
                 //提交任务
                 submitJob(jobClient);
             } catch (Exception e) {
