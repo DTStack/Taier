@@ -153,6 +153,10 @@ public abstract class AbstractRdbsClient extends AbstractClient {
                 return null;
             }
             Map config = PublicUtil.jsonStrToObject(pluginInfo, Map.class);
+            Map yarnConf = null;
+            if (Objects.nonNull(config) && Objects.nonNull(config.get("yarnConf"))) {
+                yarnConf = (Map<String, Object>) config.get("yarnConf");
+            }
             BaseConfig baseConfig = PublicUtil.jsonStrToObject(pluginInfo, BaseConfig.class);
             return KerberosUtils.login(baseConfig, () -> {
                 if (Objects.isNull(connFactory)) {
@@ -220,7 +224,7 @@ public abstract class AbstractRdbsClient extends AbstractClient {
                     }
                 }
                 return result;
-            },(Map<String, Object>) config.get("yarnConf"));
+            },yarnConf);
 
         } catch (Exception e) {
             LOG.error("execute sql {} error", sql, e);

@@ -61,7 +61,9 @@ public abstract class AbstractConnFactory {
         if (Objects.nonNull(config)) {
             try {
                 baseConfig = PublicUtil.mapToObject(config, BaseConfig.class);
-                yarnConf = (Map<String, Object>) config.get("yarnConf");
+                if (Objects.nonNull(config.get("yarnConf"))) {
+                    yarnConf = (Map<String, Object>) config.get("yarnConf");
+                }
             } catch (IOException e) {
             }
         }
