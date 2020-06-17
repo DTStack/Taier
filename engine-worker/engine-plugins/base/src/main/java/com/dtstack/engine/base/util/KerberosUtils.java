@@ -20,12 +20,11 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 public class KerberosUtils {
+
     private static final Logger logger = LoggerFactory.getLogger(KerberosUtils.class);
 
     private static final String USER_DIR = System.getProperty("user.dir") + File.separator + "kerberosPath";
-
     private static final String KRB5_CONF = "java.security.krb5.conf";
-
     private static final String KERBEROS_AUTH = "hadoop.security.authentication";
     private static final String KERBEROS_AUTH_TYPE = "kerberos";
 
@@ -44,32 +43,37 @@ public class KerberosUtils {
         }
 
         String fileName = config.getPrincipalFile();
-
         String remoteDir = config.getRemoteDir();
-        String localPath = USER_DIR + remoteDir;
+        String localDir = USER_DIR + remoteDir;
 
-        File path = new File(localPath);
+        File path = new File(localDir);
         if (!path.exists()) {
             path.mkdirs();
         }
 
-
+        logger.info("fileName:{}, remoteDir:{}, localDir:{}, sftpConf:{}", fileName, remoteDir, localDir, config.getSftpConf());
         SFTPHandler handler = SFTPHandler.getInstance(config.getSftpConf());
-        String keytabPath = handler.loadFromSftp(fileName, remoteDir, localPath, false);
+        String keytabPath = handler.loadFromSftp(fileName, remoteDir, localDir, false);
 
         String krb5ConfName = config.getKrbName();
         String krb5ConfPath = "";
-        if (org.apache.commons.lang3.StringUtils.isNotBlank(krb5ConfName)) {
-            krb5ConfPath = handler.loadFromSftp(krb5ConfName, remoteDir, localPath, true);
+        if (StringUtils.isNotBlank(krb5ConfName)) {
+            krb5ConfPath = handler.loadFromSftp(krb5ConfName, config.getRemoteDir(), localDir, true);
         } else {
             handler.close();
         }
-        logger.info("kerberos login remoteDir {} localPath {} krb5ConfPath {}", remoteDir, localPath, keytabPath);
-        return KerberosUtils.loginKerberosWithCallBack(configuration, keytabPath,
-                KerberosUtils.getPrincipal(keytabPath), krb5ConfPath, supplier);
+
+        logger.info("kerberos login, keytabPath:{} krb5ConfPath:{}", keytabPath, krb5ConfPath);
+        return KerberosUtils.loginKerberosWithCallBack(
+                configuration,
+                keytabPath,
+                KerberosUtils.getPrincipal(keytabPath),
+                krb5ConfPath,
+                supplier
+        );
     }
 
-    public static <T> T loginKerberosWithCallBack(Map<String, Object> allConfig, String keytabPath, String principal, String krb5Conf, Supplier<T> supplier) {
+    private static <T> T loginKerberosWithCallBack(Map<String, Object> allConfig, String keytabPath, String principal, String krb5Conf, Supplier<T> supplier) {
         if (StringUtils.isNotEmpty(krb5Conf)) {
             System.setProperty(KRB5_CONF, krb5Conf);
         }
@@ -104,12 +108,12 @@ public class KerberosUtils {
         } else {
             logger.error("Principal must not be null!");
         }
+        logger.info("filePath:{} principal:{}", filePath, principal);
         return principal;
     }
 
-    public static String localPath(BaseConfig config) {
+    public static String getKeytabPath(BaseConfig config) {
         String fileName = config.getPrincipalFile();
-
         String remoteDir = config.getRemoteDir();
         String localDir = USER_DIR + remoteDir;
 
@@ -118,7 +122,10 @@ public class KerberosUtils {
             path.mkdirs();
         }
 
+        logger.info("fileName:{}, remoteDir:{}, localDir:{}, sftpConf:{}", fileName, remoteDir, localDir, config.getSftpConf());
         SFTPHandler handler = SFTPHandler.getInstance(config.getSftpConf());
-        return handler.loadFromSftp(fileName, remoteDir, localDir);
+        String keytabPath = handler.loadFromSftp(fileName, remoteDir, localDir);
+        logger.info("keytabPath:{}", keytabPath);
+        return keytabPath;
     }
 }
