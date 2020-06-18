@@ -371,11 +371,10 @@ public class SparkYarnClient extends AbstractClient {
         sparkConf.remove("spark.files");
         sparkConf.set("spark.yarn.archive", sparkYarnConfig.getSparkYarnArchive());
         sparkConf.set("spark.yarn.queue", sparkYarnConfig.getQueue());
-        //sparkConf.set(SPARK_JAVA_OPTS_KEY, sparkYarnConfig.getJvmOptions());
         sparkConf.set("security", "false");
 
         if (sparkYarnConfig.isOpenKerberos()){
-            String keytab = KerberosUtils.localPath(sparkYarnConfig);
+            String keytab = KerberosUtils.getKeytabPath(sparkYarnConfig);
             String principal = KerberosUtils.getPrincipal(keytab);
             sparkConf.set("spark.yarn.keytab", keytab);
             sparkConf.set("spark.yarn.principal", principal);
