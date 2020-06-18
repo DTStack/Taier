@@ -75,14 +75,13 @@ public class PluginWrapper{
             deployMode = scheduleJobService.parseDeployTypeByTaskParams(action.getTaskParams()).getType();
         }
         JSONObject pluginInfoJson = clusterService.pluginInfoJSON(tenantId, engineType, action.getUserId(),deployMode);
-        String groupName = DEFAULT_GROUP_NAME;
+        action.setGroupName(DEFAULT_GROUP_NAME);
         if (Objects.nonNull(pluginInfoJson) && !pluginInfoJson.isEmpty()) {
             addParamsToJdbcUrl(actionParam, pluginInfoJson);
             addUserNameToHadoop(pluginInfoJson, ldapUserName);
             addUserNameToImpalaOrHive(pluginInfoJson, ldapUserName, ldapPassword, dbName, engineType);
-            groupName = pluginInfoJson.getString(CLUSTER) + "_" + pluginInfoJson.getString(QUEUE);
+            action.setGroupName(pluginInfoJson.getString(CLUSTER) + "_" + pluginInfoJson.getString(QUEUE));
         }
-        actionParam.put(GROUP_NAME, groupName);
 
         return pluginInfoJson;
     }

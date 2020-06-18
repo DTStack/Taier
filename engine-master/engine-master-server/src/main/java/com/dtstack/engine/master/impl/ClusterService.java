@@ -212,6 +212,11 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
      * 对外接口
      */
     public JSONObject pluginInfoJSON(@Param("tenantId") Long dtUicTenantId, @Param("engineType") String engineTypeStr, @Param("dtUicUserId")Long dtUicUserId,@Param("deployMode")Integer deployMode) {
+        if("dummy".equalsIgnoreCase(engineTypeStr)){
+            JSONObject dummy = new JSONObject();
+            dummy.put(TYPE_NAME,"dummy");
+            return dummy;
+        }
         EngineTypeComponentType type = EngineTypeComponentType.getByEngineName(engineTypeStr);
         if (type == null) {
             return null;
