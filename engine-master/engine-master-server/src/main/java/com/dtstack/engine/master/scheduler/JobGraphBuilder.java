@@ -73,11 +73,6 @@ public class JobGraphBuilder {
     private static final int TASK_BATCH_SIZE = 50;
     private static final int JOB_BATCH_SIZE = 50;
     private static final int MAX_TASK_BUILD_THREAD = 10;
-    private static final int MAX_JOB_CLEAN_THREAD = 10;
-
-//    private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-//
-//    private static DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyyMMddHHmmss");
 
     private static String dtfFormatString = "yyyyMMddHHmmss";
 
@@ -172,7 +167,7 @@ public class JobGraphBuilder {
 
                                 if (SPECIAL_TASK_TYPES.contains(task.getTaskType())) {
                                     for (ScheduleBatchJob jobRunBean : jobRunBeans) {
-                                        flowJobId.put(task.getTaskId() + "_" + jobRunBean.getCycTime(), jobRunBean.getJobId());
+                                        flowJobId.put(task.getTaskId() + "_" + jobRunBean.getCycTime()+ "_" + task.getAppType(), jobRunBean.getJobId());
                                     }
                                 }
                             } catch (Exception e) {
@@ -390,7 +385,7 @@ public class JobGraphBuilder {
                 if (Objects.isNull(flowTaskShade)) {
                     scheduleJob.setFlowJobId(NORMAL_TASK_FLOW_ID);
                 } else {
-                    scheduleJob.setFlowJobId(flowTaskShade.getTaskId() + "_" + flowJobTime);
+                    scheduleJob.setFlowJobId(flowTaskShade.getTaskId() + "_" + flowJobTime + "_" + flowTaskShade.getAppType());
                 }
             }
 
@@ -648,7 +643,7 @@ public class JobGraphBuilder {
 
     private List<String> getJobKeys(List<Long> taskShadeIds, ScheduleJob scheduleJob, ScheduleCron scheduleCron, String keyPreStr) {
         List<String> jobKeyList = Lists.newArrayList();
-        List<ScheduleTaskShade> pTaskList = batchTaskShadeService.getTaskByIds(taskShadeIds, null);
+        List<ScheduleTaskShade> pTaskList = batchTaskShadeService.getTaskByIds(taskShadeIds, scheduleJob.getAppType());
         for (ScheduleTaskShade pTask : pTaskList) {
             try {
                 ScheduleCron pScheduleCron = ScheduleFactory.parseFromJson(pTask.getScheduleConf());
