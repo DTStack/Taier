@@ -327,8 +327,8 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
         	log.put("logInfo", scheduleJob.getLogInfo());
         	String engineLog = scheduleJob.getEngineLog();
             if (StringUtils.isBlank(engineLog)) {
-                engineLog = CompletableFuture.supplyAsync(() -> jobDealer.getAndUpdateEngineLog(jobId, scheduleJob.getEngineJobId(), scheduleJob.getApplicationId(), scheduleJob.getPluginInfoId()),
-                        logTimoutPool).get(environmentContext.getLogTimeout(), TimeUnit.SECONDS);
+                engineLog = CompletableFuture.supplyAsync(() -> jobDealer.getAndUpdateEngineLog(jobId, scheduleJob.getEngineJobId(), scheduleJob.getApplicationId(),
+                        scheduleJob.getDtuicTenantId()), logTimoutPool).get(environmentContext.getLogTimeout(), TimeUnit.SECONDS);
                 if (engineLog == null) {
                     engineLog = "";
                 }

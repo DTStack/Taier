@@ -43,7 +43,7 @@ public class JobCompletedLogDelayDealer implements Runnable {
         while (true) {
             try {
                 JobCompletedInfo taskInfo = delayBlockingQueue.take();
-                updateJobEngineLog(taskInfo.getJobId(), taskInfo.getJobIdentifier(), taskInfo.getEngineType(), taskInfo.getPluginInfo());
+                updateJobEngineLog(taskInfo.getJobId(), taskInfo.getJobIdentifier());
             } catch (Exception e) {
                 logger.error("", e);
             }
@@ -58,9 +58,9 @@ public class JobCompletedLogDelayDealer implements Runnable {
         }
     }
 
-    private void updateJobEngineLog(String jobId, JobIdentifier jobIdentifier, String engineType, String pluginInfo) {
+    private void updateJobEngineLog(String jobId, JobIdentifier jobIdentifier) {
         try {
-            String jobLog = workerOperator.getEngineLog(engineType, pluginInfo, jobIdentifier);
+            String jobLog = workerOperator.getEngineLog(jobIdentifier);
             if (jobLog != null) {
                 scheduleJobDao.updateEngineLog(jobId, jobLog);
             }

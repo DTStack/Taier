@@ -90,6 +90,8 @@ public class JobClient extends OrderObject{
 
     private Long userId;
 
+    private Integer appType;
+
 
     public JobClient() {
 
@@ -111,6 +113,7 @@ public class JobClient extends OrderObject{
         this.lackingCount = paramAction.getLackingCount();
         this.tenantId = paramAction.getTenantId();
         this.userId = paramAction.getUserId();
+        this.appType = paramAction.getAppType();
 
         if (paramAction.getComputeType().equals(ComputeType.STREAM.getType())){
             this.maxRetryNum = 0;
@@ -158,6 +161,7 @@ public class JobClient extends OrderObject{
         action.setLackingCount(lackingCount);
         action.setTenantId(tenantId);
         action.setUserId(userId);
+        action.setAppType(appType);
         return action;
     }
 
@@ -172,6 +176,13 @@ public class JobClient extends OrderObject{
         }
     }
 
+    public long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(long tenantId) {
+        this.tenantId = tenantId;
+    }
 
     public Long getUserId() {
         return userId;

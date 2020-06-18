@@ -1,38 +1,28 @@
 package com.dtstack.engine.master.jobdealer;
 
-import com.dtstack.engine.api.domain.PluginInfo;
+import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.enums.EJobCacheStage;
-import com.dtstack.engine.common.enums.EPluginType;
-import com.dtstack.engine.common.exception.WorkerAccessException;
-import com.dtstack.engine.common.util.MD5Util;
-import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.exception.ClientAccessException;
-import com.dtstack.engine.common.exception.ClientArgumentException;
-import com.dtstack.engine.common.exception.LimitResourceException;
-import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.*;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.SimpleJobDelay;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
 import com.dtstack.engine.common.queue.OrderLinkedBlockingQueue;
 import com.dtstack.engine.dao.EngineJobCacheDao;
-import com.dtstack.engine.api.domain.EngineJobCache;
+import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.cache.ShardCache;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.plugininfo.PluginWrapper;
 import com.dtstack.engine.master.queue.GroupInfo;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.queue.JobPartitioner;
-import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -56,8 +46,6 @@ public class JobSubmitDealer implements Runnable {
     private WorkerOperator workerOperator;
     private EngineJobCacheDao engineJobCacheDao;
     private ShardCache shardCache;
-    private PluginWrapper pluginWrapper;
-    private JobDealer jobDealer;
 
     private long jobRestartDelay;
     private long jobLackingDelay;
@@ -78,8 +66,6 @@ public class JobSubmitDealer implements Runnable {
         this.workerOperator = applicationContext.getBean(WorkerOperator.class);
         this.engineJobCacheDao = applicationContext.getBean(EngineJobCacheDao.class);
         this.shardCache = applicationContext.getBean(ShardCache.class);
-        this.pluginWrapper = applicationContext.getBean(PluginWrapper.class);
-        this.jobDealer = applicationContext.getBean(JobDealer.class);
         EnvironmentContext environmentContext = applicationContext.getBean(EnvironmentContext.class);
         if (null == priorityQueue) {
             throw new RdosDefineException("priorityQueue must not null.");
@@ -200,10 +186,6 @@ public class JobSubmitDealer implements Runnable {
                     Thread.sleep(jobLackingInterval);
                     continue;
                 }
-                //补充插件配置信息
-                jobClient.setPluginWrapperInfo(pluginWrapper.wrapperPluginInfo(jobClient.getParamAction()));
-                //更新pluginInfoId
-                jobDealer.updateJobClientPluginInfo(jobClient.getTaskId(), jobClient.getPluginInfo());
                 //提交任务
                 submitJob(jobClient);
             } catch (Exception e) {

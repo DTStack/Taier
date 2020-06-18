@@ -569,7 +569,8 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
             if (EComponentType.FLINK.equals(type.getComponentType()) || EComponentType.SPARK.equals(type.getComponentType())) {
                 //默认为session
                 EDeployMode deploy = EComponentType.FLINK.equals(type.getComponentType()) ? EDeployMode.SESSION : EDeployMode.PERJOB;
-                if (Objects.nonNull(deployMode)) {
+                //spark 暂时全部为perjob
+                if (Objects.nonNull(deployMode) && !EComponentType.SPARK.equals(type.getComponentType())) {
                     deploy = EDeployMode.getByType(deployMode);
                 }
                 JSONObject flinkConf = clusterConfigJson.getJSONObject(type.getComponentType().getConfName());

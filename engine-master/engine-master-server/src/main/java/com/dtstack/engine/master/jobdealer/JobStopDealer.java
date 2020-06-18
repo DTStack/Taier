@@ -13,7 +13,6 @@ import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
-import com.dtstack.engine.dao.PluginInfoDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.EngineJobStopRecordDao;
 import com.dtstack.engine.api.domain.EngineJobCache;
@@ -71,9 +70,6 @@ public class JobStopDealer implements InitializingBean {
 
     @Autowired
     private WorkerOperator workerOperator;
-
-    @Autowired
-    private PluginInfoDao pluginInfoDao;
 
 
     private static final int TASK_STOP_LIMIT = 1000;
@@ -327,10 +323,6 @@ public class JobStopDealer implements InitializingBean {
             if (StringUtils.isNotBlank(scheduleJob.getEngineJobId()) && !jobClient.getEngineTaskId().equals(scheduleJob.getEngineJobId())) {
                 logger.info("jobId:{} stopped success, because of [difference engineJobId].", paramAction.getTaskId());
                 return StoppedStatus.STOPPED;
-            }
-            //任务在提交中去停止 pluginInfo可能为空
-            if(StringUtils.isBlank(jobClient.getPluginInfo())){
-                jobClient.setPluginInfo(pluginInfoDao.getPluginInfo(scheduleJob.getPluginInfoId()));
             }
             JobResult jobResult = workerOperator.stopJob(jobClient);
             if (jobResult.getCheckRetry()) {

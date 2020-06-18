@@ -1,12 +1,19 @@
 package com.dtstack.engine.master.plugininfo;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONPath;
+import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
+import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
+import com.dtstack.schedule.common.enums.AppType;
+import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.enums.ScheduleEngineType;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
@@ -42,6 +49,9 @@ public class PluginWrapper{
 
     @Autowired
     private ScheduleJobService scheduleJobService;
+
+    @Autowired
+    private ScheduleTaskShadeDao scheduleTaskShadeDao;
 
     public Map<String, Object> wrapperPluginInfo(ParamAction action) throws Exception{
 
@@ -87,7 +97,21 @@ public class PluginWrapper{
             return;
         }
 
-        Map paramsJson = MapUtils.getMap(actionParam, "jdbcUrlParams");
+        String jobId = (String)actionParam.get("taskId");
+        String appType = (String)actionParam.getOrDefault("appType", AppType.RDOS.getType());
+        ScheduleJob scheduleJob = scheduleJobService.getByJobId(jobId, Deleted.NORMAL.getStatus());
+        if(Objects.isNull(scheduleJob)){
+            return;
+        }
+        if(Objects.isNull(appType)){
+            appType = AppType.RDOS.getType() + "";
+        }
+        JSONObject info = JSONObject.parseObject(scheduleTaskShadeDao.getExtInfoByTaskId(scheduleJob.getTaskId(), Integer.valueOf(appType)));
+        if(Objects.isNull(info)){
+            return;
+        }
+
+        JSONObject paramsJson = info.getJSONObject("info").getJSONObject("jdbcUrlParams");
         if(paramsJson == null || paramsJson.isEmpty()){
             return;
         }
@@ -102,7 +126,7 @@ public class PluginWrapper{
 
         if(MultiEngineType.TIDB.getName().equalsIgnoreCase((String)actionParam.get("engineType"))){
             //TiDB 没有currentSchema
-            pluginInfoJson.put("jdbcUrl", dbUrl  + paramsJson.get("currentSchema"));
+            pluginInfoJson.put("jdbcUrl", dbUrl  + paramsJson.getString("currentSchema"));
             return;
         }
 

@@ -76,6 +76,16 @@ public class ParamAction {
 
     private String dbName;
 
+    private Integer appType;
+
+    public Integer getAppType() {
+        return appType;
+    }
+
+    public void setAppType(Integer appType) {
+        this.appType = appType;
+    }
+
     public String getLdapUserName() {
         return ldapUserName;
     }
