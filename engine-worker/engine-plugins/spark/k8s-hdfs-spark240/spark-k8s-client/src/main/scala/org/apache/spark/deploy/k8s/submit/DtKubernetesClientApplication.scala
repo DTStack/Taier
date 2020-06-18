@@ -17,23 +17,24 @@
 package org.apache.spark.deploy.k8s.submit
 
 import java.io.StringWriter
-import java.util.{Collections, UUID}
-import java.util.Properties
+import java.util
+import java.util.{Collections, Properties, UUID}
 
 import io.fabric8.kubernetes.api.model._
 import io.fabric8.kubernetes.client.KubernetesClient
-import scala.collection.mutable
-import scala.util.control.NonFatal
-
 import org.apache.spark.SparkConf
 import org.apache.spark.deploy.SparkApplication
-import org.apache.spark.deploy.k8s.{KubernetesConf, KubernetesDriverSpecificConf, KubernetesUtils, SparkKubernetesClientFactory}
 import org.apache.spark.deploy.k8s.Config._
 import org.apache.spark.deploy.k8s.Constants._
+import org.apache.spark.deploy.k8s.{KubernetesConf, KubernetesDriverSpecificConf, SparkKubernetesClientFactory}
 import org.apache.spark.internal.Logging
 import org.apache.spark.util.Utils
 
+import scala.collection.mutable
+import scala.util.control.NonFatal
+
 /**
+  *
   * Encapsulates arguments to the submission client.
   *
   * @param mainAppResource the main application resource if any
@@ -123,6 +124,8 @@ private[spark] class Client(
       .endVolumeMount()
       .build()
     val resolvedDriverPod = new PodBuilder(resolvedDriverSpec.pod.pod)
+      .editMetadata()
+      .endMetadata()
       .editSpec()
       .addToContainers(resolvedDriverContainer)
       .addNewVolume()
@@ -177,20 +180,32 @@ private[spark] class Client(
     }
   }
 
-  // Build a Config Map that will house spark conf properties in a single file for spark-submit
+  /**
+    *  绑定hadoop相关配置，最终挂载到 /opt/spark/conf文件夹下
+    * @param configMapName
+    * @param conf
+    * @return
+    */
   private def buildConfigMap(configMapName: String, conf: Map[String, String]): ConfigMap = {
     val properties = new Properties()
-    conf.foreach { case (k, v) =>
-      properties.setProperty(k, v)
-    }
+    conf.filterKeys(key => !key.contains(".xml"))
+      .foreach { case (k, v) => properties.setProperty(k, v)
+      }
     val propertiesWriter = new StringWriter()
     properties.store(propertiesWriter,
       s"Java properties built from Kubernetes config map with name: $configMapName")
+
+    val data = new util.HashMap[String, String]()
+    conf.filterKeys(key => key.contains(".xml"))
+      .foreach { case (k, v) => data.put(k, v)
+      }
+    data.put(SPARK_CONF_FILE_NAME, propertiesWriter.toString)
+
     new ConfigMapBuilder()
       .withNewMetadata()
       .withName(configMapName)
       .endMetadata()
-      .addToData(SPARK_CONF_FILE_NAME, propertiesWriter.toString)
+      .addToData(data)
       .build()
   }
 }
@@ -207,7 +222,7 @@ private[spark] class DtKubernetesClientApplication extends SparkApplication {
     run(parsedArguments, conf)
   }
 
-   def run(clientArguments: ClientArguments, sparkConf: SparkConf): String = {
+  def run(clientArguments: ClientArguments, sparkConf: SparkConf): String = {
     val appName = sparkConf.getOption("spark.app.name").getOrElse("spark")
     // For constructing the app ID, we can't use the Spark application name, as the app ID is going
     // to be added as a label to group resources belonging to the same application. Label values are
@@ -229,21 +244,11 @@ private[spark] class DtKubernetesClientApplication extends SparkApplication {
       clientArguments.maybePyFiles)
 
     val builder = new KubernetesDriverBuilder
-    val namespace = kubernetesConf.namespace()
-    // The master URL has been checked for validity already in SparkSubmit.
-    // We just need to get rid of the "k8s://" prefix here.
-    val master = KubernetesUtils.parseMasterUrl(sparkConf.get("spark.master"))
     val loggingInterval = if (waitForAppCompletion) Some(sparkConf.get(REPORT_INTERVAL)) else None
 
     val watcher = new LoggingPodStatusWatcherImpl(kubernetesAppId, loggingInterval)
 
-    Utils.tryWithResource(SparkKubernetesClientFactory.createKubernetesClient(
-      master,
-      Some(namespace),
-      KUBERNETES_AUTH_SUBMISSION_CONF_PREFIX,
-      sparkConf,
-      None,
-      None)) { kubernetesClient =>
+    Utils.tryWithResource(SparkKubernetesClientFactory.createKubernetesClient(sparkConf, kubernetesConf)) { kubernetesClient =>
       val client = new Client(
         builder,
         kubernetesConf,

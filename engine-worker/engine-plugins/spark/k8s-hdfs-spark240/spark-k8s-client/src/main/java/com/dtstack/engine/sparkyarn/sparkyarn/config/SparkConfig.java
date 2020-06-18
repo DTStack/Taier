@@ -1,4 +1,4 @@
-package com.dtstack.engine.sparkyarn.sparkyarn;
+package com.dtstack.engine.sparkyarn.sparkyarn.config;
 
 import org.apache.spark.SparkConf;
 import org.slf4j.Logger;
