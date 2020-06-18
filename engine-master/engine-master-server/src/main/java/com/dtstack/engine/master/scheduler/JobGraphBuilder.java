@@ -167,7 +167,7 @@ public class JobGraphBuilder {
 
                                 if (SPECIAL_TASK_TYPES.contains(task.getTaskType())) {
                                     for (ScheduleBatchJob jobRunBean : jobRunBeans) {
-                                        flowJobId.put(task.getTaskId() + "_" + jobRunBean.getCycTime()+ "_" + task.getAppType(), jobRunBean.getJobId());
+                                        flowJobId.put(this.buildFlowReplaceId(task.getTaskId(),jobRunBean.getCycTime(),task.getAppType()),jobRunBean.getJobId());
                                     }
                                 }
                             } catch (Exception e) {
@@ -206,6 +206,19 @@ public class JobGraphBuilder {
         } finally {
             lock.unlock();
         }
+    }
+
+
+    /**
+     * 使用taskID cycTime appType 生成展位Id
+     * @param taskId
+     * @param cycTime
+     * @param appType
+     * @return
+     * @see  JobGraphBuilder#doSetFlowJobIdForSubTasks(java.util.List, java.util.Map)
+     */
+    private String buildFlowReplaceId(Long taskId, String cycTime, Integer appType) {
+        return taskId + "_" + cycTime + "_" + appType ;
     }
 
     /**
@@ -385,7 +398,7 @@ public class JobGraphBuilder {
                 if (Objects.isNull(flowTaskShade)) {
                     scheduleJob.setFlowJobId(NORMAL_TASK_FLOW_ID);
                 } else {
-                    scheduleJob.setFlowJobId(flowTaskShade.getTaskId() + "_" + flowJobTime + "_" + flowTaskShade.getAppType());
+                    scheduleJob.setFlowJobId(this.buildFlowReplaceId(flowTaskShade.getTaskId(),flowJobTime,flowTaskShade.getAppType()));
                 }
             }
 
