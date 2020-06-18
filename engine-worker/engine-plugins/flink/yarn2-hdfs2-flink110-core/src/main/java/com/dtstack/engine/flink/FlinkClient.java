@@ -123,8 +123,6 @@ public class FlinkClient extends AbstractClient {
 
     private String jobHistory;
 
-    private Map flinkConfigMap;
-
     @Override
     public void init(Properties prop) throws Exception {
         this.flinkExtProp = prop;
@@ -160,7 +158,7 @@ public class FlinkClient extends AbstractClient {
                     jobResult = submitSyncJob(jobClient);
                 }
                 return jobResult;
-            },flinkConfig.getYarnConf());
+            },KerberosUtils.convertMapConfToConfiguration(flinkConfig.getYarnConf()));
         } catch (Exception e) {
             logger.error("can not submit a job process SubmitJobWithType error," ,e);
             return JobResult.createErrorResult(e);

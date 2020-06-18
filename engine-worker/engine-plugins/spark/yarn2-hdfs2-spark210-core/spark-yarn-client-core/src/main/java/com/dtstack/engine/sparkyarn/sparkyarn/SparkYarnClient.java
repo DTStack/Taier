@@ -105,7 +105,7 @@ public class SparkYarnClient extends AbstractClient {
         System.setProperty(SPARK_YARN_MODE, "true");
         parseWebAppAddr();
         logger.info("UGI info: " + UserGroupInformation.getCurrentUser());
-        yarnClient = KerberosUtils.login(sparkYarnConfig,this::getYarnClient,sparkYarnConfig.getYarnConf());
+        yarnClient = KerberosUtils.login(sparkYarnConfig,this::getYarnClient,yarnConf);
 
     }
 
@@ -135,7 +135,7 @@ public class SparkYarnClient extends AbstractClient {
                     jobResult = submitPythonJob(jobClient);
                 }
                 return jobResult;
-            }, sparkYarnConfig.getYarnConf());
+            }, yarnConf);
         } catch (Exception e) {
             logger.info("", e);
             return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(e));
@@ -607,7 +607,7 @@ public class SparkYarnClient extends AbstractClient {
                     logger.error("", e);
                     return false;
                 }
-            }, sparkYarnConfig.getYarnConf());
+            }, yarnConf);
         } catch (Exception e) {
             logger.error("judgeSlots error", e);
         }

@@ -74,9 +74,9 @@ public class KubernetesClient extends AbstractClient {
                 try {
                     return testKubernetesConnect(testResult, allConfig);
                 } catch (Exception e) {
-                   throw new RdosDefineException(e);
+                    throw new RdosDefineException(e);
                 }
-            },allConfig.getYarnConf());
+            }, KerberosUtils.convertMapConfToConfiguration(allConfig.getHadoopConf()));
 
         } catch (Exception e) {
             LOG.error("test k8s connect error", e);
@@ -133,7 +133,7 @@ public class KubernetesClient extends AbstractClient {
                 }
                 componentTestResult.setResult(true);
                 return componentTestResult;
-            },testConnectConf.getHadoopConf());
+            },KerberosUtils.convertMapConfToConfiguration(testConnectConf.getHadoopConf()));
 
         } catch (Exception e) {
             LOG.error("close hdfs connect  error ", e);

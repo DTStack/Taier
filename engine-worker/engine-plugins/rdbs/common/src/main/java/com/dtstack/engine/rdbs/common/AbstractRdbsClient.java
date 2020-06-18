@@ -19,6 +19,7 @@ import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 import com.dtstack.engine.rdbs.common.executor.RdbsExeQueue;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -153,11 +154,18 @@ public abstract class AbstractRdbsClient extends AbstractClient {
                 return null;
             }
             Map config = PublicUtil.jsonStrToObject(pluginInfo, Map.class);
-            Map yarnConf = null;
-            if (Objects.nonNull(config) && Objects.nonNull(config.get("yarnConf"))) {
-                yarnConf = (Map<String, Object>) config.get("yarnConf");
-            }
             BaseConfig baseConfig = PublicUtil.jsonStrToObject(pluginInfo, BaseConfig.class);
+            Configuration yarnConf = null;
+            if (Objects.nonNull(config)) {
+                baseConfig = PublicUtil.mapToObject(config, BaseConfig.class);
+                if (Objects.nonNull(config.get("yarnConf"))) {
+                    Map<String, Object> yarnMap = (Map<String, Object>) config.get("yarnConf");
+                    yarnConf = new Configuration();
+                    for (String key : yarnMap.keySet()) {
+                        yarnConf.set(key, String.valueOf(yarnMap.get(key)));
+                    }
+                }
+            }
             return KerberosUtils.login(baseConfig, () -> {
                 if (Objects.isNull(connFactory)) {
                     synchronized (AbstractRdbsClient.class) {

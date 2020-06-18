@@ -29,6 +29,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
@@ -96,7 +97,7 @@ public class HadoopClient extends AbstractClient {
                 yarnClient = getYarnClient();
                 resourceInfo = new HadoopResourceInfo();
                 return null;
-            }, config.getHadoopConf());
+            }, conf);
         } catch (Exception e) {
             LOG.error("initSecurity happens error", e);
             throw new IOException("InitSecurity happens error", e);
@@ -376,7 +377,7 @@ public class HadoopClient extends AbstractClient {
                 //测试hdfs联通性
                 return this.checkHdfsConnect(allConfig);
             }
-            return KerberosUtils.login(allConfig, () -> testYarnConnect(testResult, allConfig),allConfig.getYarnConf());
+            return KerberosUtils.login(allConfig, () -> testYarnConnect(testResult, allConfig),conf);
 
         } catch (Exception e) {
             LOG.error("test yarn connect error", e);
@@ -471,7 +472,7 @@ public class HadoopClient extends AbstractClient {
                     LOG.debug("submit file {} to hdfs success.", hdfsPath);
                 }
                 return uploadConf.getDefaultFs() + hdfsPath;
-            },uploadConfig.getYarnConf());
+            }, KerberosUtils.convertMapConfToConfiguration(uploadConfig.getHadoopConf()));
         } catch (Exception e) {
             throw new RdosDefineException("上传文件失败", e);
         }
@@ -509,7 +510,7 @@ public class HadoopClient extends AbstractClient {
 
                 componentTestResult.setResult(true);
                 return componentTestResult;
-            }, testConnectConf.getHadoopConf());
+            }, KerberosUtils.convertMapConfToConfiguration(testConnectConf.getHadoopConf()));
 
         } catch (Exception e) {
             LOG.error("close hdfs connect  error ", e);
@@ -524,7 +525,7 @@ public class HadoopClient extends AbstractClient {
         ClusterResource clusterResource = new ClusterResource();
         try {
             Config allConfig = PublicUtil.jsonStrToObject(pluginInfo, Config.class);
-            KerberosUtils.login(allConfig,() -> {
+            KerberosUtils.login(allConfig, () -> {
                 YarnClient resourceClient = null;
                 try {
                     HadoopConf hadoopConf = new HadoopConf();
@@ -556,13 +557,15 @@ public class HadoopClient extends AbstractClient {
                     }
                 }
                 return clusterResource;
-            },allConfig.getYarnConf());
+            }, KerberosUtils.convertMapConfToConfiguration(allConfig.getHadoopConf()));
 
         } catch (Exception e) {
             throw new RdosDefineException(e.getMessage());
         }
         return clusterResource;
     }
+
+
 
     public List<ClusterResource.TaskManagerDescription> initTaskManagerResource(YarnClient yarnClient) throws Exception {
         List<ApplicationId> applicationIds = acquireApplicationIds(yarnClient);

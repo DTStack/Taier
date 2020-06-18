@@ -100,7 +100,7 @@ public class Client {
                 throw new RdosDefineException(e);
             }
             return null;
-        }, PublicUtil.objectToMap(conf));
+        }, conf);
     }
 
     public YarnConfiguration init(ClientArguments clientArguments) throws IOException, YarnException, ParseException, ClassNotFoundException {

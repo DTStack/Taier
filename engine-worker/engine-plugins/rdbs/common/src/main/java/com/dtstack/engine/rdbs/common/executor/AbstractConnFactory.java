@@ -8,6 +8,7 @@ import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.rdbs.common.constant.ConfigConstant;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,17 +58,19 @@ public abstract class AbstractConnFactory {
         Preconditions.checkNotNull(dbUrl, "db url can't be null");
         Map config = (Map) properties.get("config");
         BaseConfig baseConfig = null;
-        Map yarnConf = null;
-        if (Objects.nonNull(config)) {
-            try {
+        Configuration yarnConf = null;
+
+        try {
+            if (Objects.nonNull(config)) {
                 baseConfig = PublicUtil.mapToObject(config, BaseConfig.class);
                 if (Objects.nonNull(config.get("yarnConf"))) {
-                    yarnConf = (Map<String, Object>) config.get("yarnConf");
+                    Map<String, Object> yarnMap = (Map<String, Object>) config.get("yarnConf");
+                    yarnConf = new Configuration();
+                    for (String key : yarnMap.keySet()) {
+                        yarnConf.set(key, String.valueOf(yarnMap.get(key)));
+                    }
                 }
-            } catch (IOException e) {
             }
-        }
-        try {
             KerberosUtils.login(baseConfig, () -> {
                 testConn();
                 return null;

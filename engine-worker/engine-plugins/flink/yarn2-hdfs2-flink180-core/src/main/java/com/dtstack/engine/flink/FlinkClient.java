@@ -158,7 +158,7 @@ public class FlinkClient extends AbstractClient {
                      jobResult = submitSyncJob(jobClient);
                  }
                  return jobResult;
-             },flinkConfig.getYarnConf());
+             },KerberosUtils.convertMapConfToConfiguration(flinkConfig.getYarnConf()));
         } catch (Exception e) {
             logger.error("can not submit a job process SubmitJobWithType error," ,e);
             return JobResult.createErrorResult(e);

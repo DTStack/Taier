@@ -227,7 +227,7 @@ public class DtScriptClient extends AbstractClient {
                     LOG.info("", e);
                     return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(e));
                 }
-            },PublicUtil.objectToMap(conf));
+            },conf);
         } catch (Exception e) {
             LOG.info("", e);
             return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(e));

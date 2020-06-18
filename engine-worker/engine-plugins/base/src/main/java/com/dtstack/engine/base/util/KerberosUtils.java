@@ -3,6 +3,7 @@ package com.dtstack.engine.base.util;
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.SFTPHandler;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
@@ -36,7 +37,7 @@ public class KerberosUtils {
      * @return
      * @throws Exception
      */
-    public static <T> T login(BaseConfig config, Supplier<T> supplier, Map<String, Object> configuration) throws Exception {
+    public static <T> T login(BaseConfig config, Supplier<T> supplier, Configuration configuration) throws Exception {
 
         if (Objects.isNull(config) || !config.isOpenKerberos()) {
             return supplier.get();
@@ -73,16 +74,12 @@ public class KerberosUtils {
         );
     }
 
-    private static <T> T loginKerberosWithCallBack(Map<String, Object> allConfig, String keytabPath, String principal, String krb5Conf, Supplier<T> supplier) {
+    private static <T> T loginKerberosWithCallBack(Configuration allConfig, String keytabPath, String principal, String krb5Conf, Supplier<T> supplier) {
         if (StringUtils.isNotEmpty(krb5Conf)) {
             System.setProperty(KRB5_CONF, krb5Conf);
         }
-        Configuration configuration = new Configuration();
-        for (String key : allConfig.keySet()) {
-            configuration.set(key, String.valueOf(allConfig.get(key)));
-        }
-        configuration.set(KERBEROS_AUTH, KERBEROS_AUTH_TYPE);
-        UserGroupInformation.setConfiguration(configuration);
+        allConfig.set(KERBEROS_AUTH, KERBEROS_AUTH_TYPE);
+        UserGroupInformation.setConfiguration(allConfig);
         try {
             UserGroupInformation ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(principal, keytabPath);
             logger.info("userGroupInformation current user = {} ugi user  = {} ", UserGroupInformation.getCurrentUser(), ugi.getUserName());
@@ -127,5 +124,16 @@ public class KerberosUtils {
         String keytabPath = handler.loadFromSftp(fileName, remoteDir, localDir);
         logger.info("keytabPath:{}", keytabPath);
         return keytabPath;
+    }
+
+    public static Configuration convertMapConfToConfiguration(Map<String,Object> allConfig) {
+        if(MapUtils.isEmpty(allConfig)){
+            return null;
+        }
+        Configuration conf = new Configuration();
+        for (String key : allConfig.keySet()) {
+            conf.set(key, String.valueOf(allConfig.get(key)));
+        }
+        return conf;
     }
 }
