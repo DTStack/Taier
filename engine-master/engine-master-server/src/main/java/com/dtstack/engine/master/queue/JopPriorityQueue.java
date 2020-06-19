@@ -105,6 +105,10 @@ public class JopPriorityQueue {
         return this.queue.size();
     }
 
+    public int getSurvivorSize() {
+        return this.survivor.size();
+    }
+
     public BatchJobElement takeJob() throws InterruptedException {
         return queue.take();
     }
@@ -148,13 +152,6 @@ public class JopPriorityQueue {
         return true;
     }
 
-    public void checkBlock() {
-        //队列大小小于限制 更新堵塞状态
-        if (this.queue.size() < queueSizeLimited && this.blocked.get()) {
-            this.blocked.compareAndSet(true, false);
-        }
-    }
-
     public boolean resetTail() {
         return tail.compareAndSet(true, false);
     }
@@ -167,7 +164,6 @@ public class JopPriorityQueue {
         this.survivor.clear();
         this.acquireGroupQueueJob.allIngestion();
     }
-
 
     public boolean isBlocked() {
         return blocked.get();

@@ -142,8 +142,8 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 }
                 //元素全部放到survivor中 重新全量加载
                 if (jopPriorityQueue.getQueueSize() == 0) {
-                    logger.info("========= scheduleType:{} queue is empty , blocked:{}  tail:{} =========", getScheduleType(), jopPriorityQueue.getQueueSize(),
-                            jopPriorityQueue.isBlocked());
+                    logger.info("========= scheduleType:{} queue is empty , blocked:{}  tail:{}  survivor size {}=========", getScheduleType(), jopPriorityQueue.getQueueSize(),
+                            jopPriorityQueue.isBlocked(),jopPriorityQueue.getSurvivorSize());
                     notStartCache.clear();
                     errorJobCache.clear();
                     taskCache.clear();
@@ -270,7 +270,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
             outLoop:
             while (true) {
                 if (jopPriorityQueue.isBlocked()) {
-                    jopPriorityQueue.checkBlock();
                     if (logger.isInfoEnabled()) {
                         logger.info("scheduleType:{} nodeAddress:{} Queue Blocked!!!", getScheduleType(), nodeAddress);
                     }
