@@ -139,8 +139,6 @@ public class FlinkClient extends AbstractClient {
         } catch (Exception e) {
             throw new RdosDefineException(e);
         }
-
-
     }
 
 
